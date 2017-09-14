@@ -4,45 +4,49 @@ using UnityEngine;
 
 public class CameraControl : MonoBehaviour {
 
-	public static CameraControl Instance = null;
+	public static CameraControl Instance	= null;
 
-	public GameObject pPlayer = null;
+	public Transform pPlayer				= null;
 
-	float fPosition_X = 0.0f;
-	float fPosition_Y = 0.0f;
-	float fPosition_Z = 0.0f;
+	bool bTPSMode = false;
 
 
-	float fCurrentRotation_X = 0.0f;
-	float fCurrentRotation_Y = 0.0f;
+	float fCurrentRotation_X_Delta;
+	float fCurrentRotation_Y;
+	float fCurrentRotation_Y_Delta;
+	
 
 
 	// Use this for initialization
-	void Start () {
+	void Awake() {
 		
 		Instance = this;
 
 	}
-	
-	// Update is called once per frame
-	void Update () {
 
-		// Position
-		transform.position = pPlayer.transform.position -  ( new Vector3 ( 0.0f, 0.0f, -10.0f ) );
-
-		fCurrentRotation_X = Mathf.Lerp( fCurrentRotation_X, Input.GetAxis ( "Mouse X" ) * 4.5f, Time.deltaTime * 50f );
-		fCurrentRotation_Y = Mathf.Lerp( fCurrentRotation_Y, Input.GetAxis ( "Mouse Y" ) * 4.5f, Time.deltaTime * 50f );
-
-		//  Horizzontal Rotation
-		transform.Rotate ( new Vector3( -fCurrentRotation_Y, 0.0f, 0.0f ), Space.Self );
+	private void Update() {
 		
-		//  Vertical Rotation
-		transform.Rotate ( new Vector3( 0.0f, fCurrentRotation_X, 0.0f ), Space.World );
-
-//		PlayerController.Instance.transform.Rotate( 0.0f, fCurrentRotation_X, 0.0f );
-
-//		transform.rotation = PlayerController.Instance.transform.rotation;
-
+		if ( Input.GetKeyDown( KeyCode.V ) ) bTPSMode = !bTPSMode;
 
 	}
+
+	void LateUpdate() {
+
+		// Direction
+		fCurrentRotation_X_Delta = Mathf.Lerp( fCurrentRotation_X_Delta, Input.GetAxis ( "Mouse X" ) * 4.5f, Time.deltaTime * 6f );
+		transform.Rotate( Vector3.up, fCurrentRotation_X_Delta, Space.World );
+
+		fCurrentRotation_Y_Delta = Mathf.Lerp( fCurrentRotation_Y_Delta, Input.GetAxis ( "Mouse Y" ) * 4.5f, Time.deltaTime * 6f );
+		transform.Rotate( Vector3.left, fCurrentRotation_Y_Delta, Space.Self );
+
+		// TODO CLAMP X AXIS
+
+		// Position
+		if ( bTPSMode )
+			transform.position = Vector3.Lerp( transform.position, pPlayer.transform.position - ( transform.forward * 10f ), Time.deltaTime * 8f );
+		else {
+			transform.position = pPlayer.transform.position;
+		}
+
+    }
 }
