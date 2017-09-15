@@ -17,8 +17,6 @@ public class PlayerController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		
-		CameraControl.Instance.pPlayer = transform;
 
 		pRigidBody = GetComponent<Rigidbody>();
 

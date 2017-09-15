@@ -385,7 +385,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 200dc60ea7d438642adefe8304f23e0d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pPlayer: {fileID: 576957279}
+  fMouseSensitivity: 2.9
+  bTPSMode: 1
+  bSmoothedRotation: 1
+  bSmoothedPosition: 1
+  fSmoothFactor: 5.12
 --- !u!1 &1588290028
 GameObject:
   m_ObjectHideFlags: 0
