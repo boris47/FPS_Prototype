@@ -2,45 +2,63 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public partial class CameraControl : MonoBehaviour {
-	
-	const float HEADMOVE_AMPLITUDE		= 0.2f;
-	const float HEADMOVE_SPEED			= 1.0f;
-	const float	HEADMOVE_THETA_UPDATE_X	= 4.5f;
-	const float	HEADMOVE_THETA_UPDATE_Y	= 2.25f;
+[System.Serializable]
+public class HeadMove {
 
-	float fHeadmove_ThetaX				= 0.0f;
-	float fHeadmove_ThetaY				= 0.0f;
+	[SerializeField]
+	private float	m_Amplitude					= 0.2f;
 
-	float fHeadmove_CurrentX			= 0.0f;
-	float fHeadmove_CurrentY			= 0.0f;
+	[SerializeField]
+	private float	m_Speed						= 5.0f;
 
-	bool bHeadmove_Active = true;
+//	[SerializeField]
+	private float	m_ThetaUpdateX				= 0.4f;
+//	[SerializeField]
+	private float	m_ThetaUpdateY				= 0.8f;
 
-	private void Headmove_update() {
+	private float	m_ThetaX					= 0f;
+	private float	m_ThetaY					= 0f;
 
-		if ( bHeadmove_Active == false ) return;
+	private Vector3	m_Direction					= Vector3.zero;
 
-		float fSpeed		= HEADMOVE_SPEED * Time.deltaTime * 1.0f /*fSpeedMul*/;
-		float fAmplitude	= HEADMOVE_AMPLITUDE * 1.0f /*fAmplitudeMul*/;
+	public	bool	m_IsActive					= true;
 
-		fHeadmove_ThetaX += HEADMOVE_THETA_UPDATE_X * fSpeed;
-		fHeadmove_ThetaY += HEADMOVE_THETA_UPDATE_Y * fSpeed;
 
-		if ( fHeadmove_ThetaX > 360 ) fHeadmove_ThetaX -= 360;
-		if ( fHeadmove_ThetaY > 360 ) fHeadmove_ThetaY -= 360;
+	public void Update( Transform pCamera ) {
 
-		fHeadmove_CurrentX = Mathf.Lerp( fHeadmove_CurrentX, Mathf.Cos( fHeadmove_ThetaX ) * fAmplitude, Time.deltaTime * 5f );
-		fHeadmove_CurrentY = Mathf.Lerp( fHeadmove_CurrentY, Mathf.Cos( fHeadmove_ThetaY ) * fAmplitude, Time.deltaTime * 5f );
-	
-//		print( fBobbing_CurrentX );
+		if ( m_IsActive == false ) return;
 
-		transform.Rotate( Vector3.up,	fHeadmove_CurrentX, Space.World );
-		transform.Rotate( Vector3.left, fHeadmove_CurrentY, Space.Self  );
+		float fSpeed = m_Speed; /* * fSpeedMul*/;
+//		fSpeed *= ( bCrouched )		? 0.8f  : 1.0f;
+//		fSpeed *= ( bIsUnderwater )	? 0.5f  : 1.0f;
+//		fSpeed *= ( bZoomed		  ) ? 0.85f : 1.0f;
+//		fSpeed *= ( 4.f - fStamina*2.f );
+
+
+		float fAmplitude = m_Amplitude /* * fAmplitudeMul*/;
+//		fAmplitude *= ( ( bCrouched )	? 0.8f  : 1.f );
+//		fAmplitude *= ( ( bZoomed )		? 0.85f : 1.f );
+//		fAmplitude *= ( 5.f - fStamina*4.f );
+
+
+		m_ThetaX += m_ThetaUpdateY * fSpeed * Time.deltaTime;
+		m_ThetaY += ( m_ThetaUpdateX + Random.Range( 0.0f, 0.03f ) ) * fSpeed * Time.deltaTime;
+
+
+		m_Direction.x = -Mathf.Cos( m_ThetaX ) * fAmplitude;
+		m_Direction.y =  Mathf.Cos( m_ThetaY ) * fAmplitude * 0.2f;
+
+		pCamera.rotation = Quaternion.Euler( pCamera.rotation.eulerAngles + m_Direction );
 
 	}
 
+	public void Reset( bool bInstantly = false ) {
 
+		if ( bInstantly )
+			m_Direction = Vector3.zero;
+		else
+			m_Direction = Vector3.Lerp ( m_Direction, Vector3.zero, Time.deltaTime * 2f );
 
+	}
 
 }
