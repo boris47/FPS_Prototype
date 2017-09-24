@@ -121,7 +121,6 @@ GameObject:
   - component: {fileID: 576957283}
   - component: {fileID: 576957282}
   - component: {fileID: 576957280}
-  - component: {fileID: 576957281}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -140,25 +139,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7929479af4c47c4b81737a2375c2682, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fPlayerSpeed: 10
-  fBobbing: 0
---- !u!95 &576957281
-Animator:
-  serializedVersion: 3
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 576957279}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: a42335cb83cdda244823ab950aa7be89, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
+  m_WalkSpeed: 5.5
+  m_RunSpeed: 10
+  m_CrouchSpeed: 3.5
+  m_ClimbSpeed: 2
 --- !u!54 &576957282
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -444,20 +428,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 200dc60ea7d438642adefe8304f23e0d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pTarget: {fileID: 576957286}
-  fMouseSensitivity: 2.9
-  bTPSMode: 0
-  bSmoothedRotation: 0
-  bSmoothedPosition: 0
-  fSmoothFactor: 5.12
+  m_Target: {fileID: 576957286}
+  m_MouseSensitivity: 2.8
+  m_TPSMode: 0
+  m_SmoothedRotation: 0
+  m_SmoothedPosition: 0
+  m_SmoothFactor: 4.22
   m_HeadMove:
-    m_Amplitude: 0.01
-    m_Speed: 3
-    m_IsActive: 1
+    m_Amplitude: 0.5
+    m_Speed: 2.5
   m_HeadBob:
-    m_Amplitude: 0.1
+    m_Amplitude: 0.5
     m_Speed: 3
-    IsActive: 1
 --- !u!1 &1588290028
 GameObject:
   m_ObjectHideFlags: 0

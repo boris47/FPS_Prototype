@@ -1,0 +1,10 @@
+[Video]
+Width                 = 1920;
+
+[Audio]
+
+[Effects]
+
+[Inputs]
+
+MouseSensibility = 4.5;
