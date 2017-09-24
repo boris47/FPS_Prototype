@@ -19,4 +19,6 @@ public static class GLOBALS {
 
 	public static Reader Configs	= null;
 
+	public static Inputmanager InputMgr = new Inputmanager();
+
 }

@@ -19,12 +19,14 @@ public class GameManager : MonoBehaviour {
 
 		DontDestroyOnLoad( this );
 
+
 		GLOBALS.Settings = new Reader();
 #if UNITY_EDITOR
 		GLOBALS.Settings.LoadFile( "Assets/Resources/Settings.txt" );
 #else
 		GLOBALS.Settings.LoadFile( "Settings" );
 #endif
+
 
 		GLOBALS.Configs = new Reader();
 #if UNITY_EDITOR
@@ -39,6 +41,8 @@ public class GameManager : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		
+		GLOBALS.InputMgr.Update();
+
 	}
 
 

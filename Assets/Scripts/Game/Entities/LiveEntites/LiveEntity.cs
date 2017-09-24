@@ -2,10 +2,73 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LiveEntity : Entity {
+
+public interface ILiveEntity {
+
+	long	GetState();
+
+	void	Resetm_States();
+
+	bool	IsMoving();
+	bool	IsIdle();
+	bool	IsLeaning();
+	bool	IsWalking();
+	bool	IsRunning();
+	bool	IsJumping();
+	bool	IsHanging();
+	bool	IsFalling();
+	bool	IsCrouched();
+
+	void	SetMoving();
+	void	SetIdle();
+	void	SetLeaning(  bool b );
+	void	SetWalking(  bool b );
+	void	SetRunning(  bool b );
+	void	SetJumping(  bool b );
+	void	SetHanging(  bool b );
+	void	SetFalling(  bool b );
+	void	SetCrouched( bool b );
+
+	bool	Motion_IsWalking();
+	bool	Motion_IsSwimming();
+	bool	Motion_IsFlying();
+	bool	Motion_IsP1ToP2();
+
+	void	SetMotionType( LIVE_ENTITY.MotionType i );
+	void	SetPlainWalking();
+	void	SetFlying();
+	void	SetSwimming();
+	void	SetClimbing();
+
+}
+
+public partial class LiveEntity : Entity, ILiveEntity {
+	
+
+	protected	float	m_LastLandTime					= Defaults.FLOAT_ZERO;
+
+	[SerializeField]
+	protected	float	m_Health						= Defaults.FLOAT_ZERO;
+
+	public		float	Health {
+		get { return m_Health; }
+		set { m_Health = value; }
+	}
 
 
-	protected	float	fHealth							= Defaults.FLOAT_ZERO;
+	// Stamina always reach 1.0f
+	[SerializeField]
+	protected	float	m_Stamina						= Defaults.FLOAT_ZERO;
+	public		float	Statmina {
+		get { return m_Stamina; }
+		set { m_Stamina = Mathf.Clamp01( value ); }
+	}
+
+	protected	float	m_ViewRange						= Defaults.FLOAT_ZERO;
+	public		float	ViewRange {
+		get { return m_ViewRange; }
+		set { m_ViewRange = Mathf.Clamp( value, 0.0f, 9999.0f ); }
+	}
 
 
 	// Movements
@@ -32,12 +95,7 @@ public class LiveEntity : Entity {
 	protected	float	m_StaminaRestore				= Defaults.FLOAT_ZERO;
 	protected	float	m_StaminaRunMin					= Defaults.FLOAT_ZERO;
 	protected	float	m_StaminaJumpMin				= Defaults.FLOAT_ZERO;
-
-
-	// This variable control which physic to use on entity
-	protected	LIVE_ENTITY.MotionType	m_MotionType		= LIVE_ENTITY.MotionType.None;
-	protected	LIVE_ENTITY.MotionType	m_PrevMotionType	= LIVE_ENTITY.MotionType.None;
-
+	
 	protected	EntityFlags				m_States			= new EntityFlags();
 	protected	EntityFlags				m_MotionFlag		= new EntityFlags();
 
@@ -47,15 +105,12 @@ public class LiveEntity : Entity {
 	protected	float	m_StrafeSmooth					= Defaults.FLOAT_ZERO;
 	protected	float	m_VerticalSmooth				= Defaults.FLOAT_ZERO;
 
-	protected	float	m_ViewRange						= Defaults.FLOAT_ZERO;
-
-	// Stamina always reach 1.0f
-	protected	float	m_Stamina						= Defaults.FLOAT_ZERO;
-
 	protected	bool	m_IsUnderSomething				= false;
 	protected	bool	m_Tiredness						= false;
 	protected	bool	m_Grounded						= true;
 	protected	bool	m_HeavyFall						= false;
+	protected	bool	m_Landed						= false;
+
 
 
 	public		long	GetState() 						{ return this.m_States.GetState(); }

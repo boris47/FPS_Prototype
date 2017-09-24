@@ -67,23 +67,39 @@ public class cValue : ICValue {
 	///////////////////////////////////////////////////////////////////////////////
 
 	public bool ToBool() {
+
 		if ( iType == ValueTypes.BOOLEAN ) return ( bool ) pValue;
-		return false;
+
+		bool bValue = false;
+		try { bValue = ( bool ) pValue; } catch {}
+		return bValue;
 	}
 
 	public int ToInteger() {
+
 		if ( iType == ValueTypes.INTEGER ) return ( int ) pValue;
-		return -1;
+
+		int iValue = 0;
+		try { iValue = ( int ) pValue; } catch {}
+		return iValue;
 	}
 
 	public float ToFloat() {
+
 		if ( iType == ValueTypes.FLOAT ) return ( float ) pValue;
-		return 0.0f;
+
+		float fValue = 0.0f;
+		try { fValue = ( float ) pValue; } catch {}
+		return fValue;
 	}
 
 	public override string ToString() {
+
 		if ( iType == ValueTypes.STRING ) return ( string ) pValue;
-		return "";
+
+		string sValue = "";
+		try { sValue = ( string ) pValue; } catch {}
+		return sValue;
 	}
 	
 	///////////////////////////////////////////////////////////////////////////////

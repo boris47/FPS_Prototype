@@ -11,7 +11,21 @@ enum ENTITY_TYPE{
 };
 
 
-public class Entity : MonoBehaviour {
+public interface IEntity {
+
+	bool			IsLiveEntity();
+	LiveEntity		GetAsLiveEntity();
+	bool			IsHuman();
+	Human			GetAsHuman();
+
+	void			SetInWater( bool b );
+	bool			IsInWater();
+
+	void			SetUnderWater( bool b );
+	bool			IsUnderWater();
+}
+
+public class Entity : MonoBehaviour, IEntity {
 
 
 	protected 	uint			iID								= 0;

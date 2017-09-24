@@ -29,6 +29,23 @@ namespace LIVE_ENTITY {
 };
 
 
+public class Entity_States_Temp {
+
+	public bool IsCrouched	= false;
+
+	public bool IsMoving		= false;
+	public bool IsWalking		= false;
+	public bool IsRunning		= false;
+
+	public bool IsJumping		= false;
+	public bool IsHanging		= false;
+	public bool IsFalling		= false;
+
+	public void Reset() {
+		IsCrouched = IsMoving = IsWalking = IsRunning = IsJumping = IsHanging = IsFalling = false;
+	}
+};
+
 
 
 public class EntityFlags {

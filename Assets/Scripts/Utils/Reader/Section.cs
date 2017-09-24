@@ -135,7 +135,7 @@ public class Section : ISection {
 			LineValueType iType = pLineValue.Type;
 			switch( iType ) {
 				case LineValueType.SINGLE: {
-					if ( ( Value = pLineValue.Value ) != null ) { return ( int ) Value.Type(); }
+					if ( ( Value = pLineValue.Value ) != null ) { return ( int ) Value.Type; }
 					Debug.LogError( "cSection::KeyType:WARNING! In section " + sName + " a key has no value but designed as SINGLE !!!" );
 					break;
 				}

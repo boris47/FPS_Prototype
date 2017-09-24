@@ -75,7 +75,7 @@ public class CameraControl : MonoBehaviour {
 			m_HeadBob._Reset( false );
 		}
 		else {
-			if ( PlayerController.Instance.IsMoving() )
+			if ( Player.Instance.IsMoving() )
 				m_HeadBob._Update();
 			else
 				m_HeadMove._Update();

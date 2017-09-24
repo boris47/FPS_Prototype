@@ -1,6 +1,6 @@
 [Actor]
 Type					= 1; ENTITY::Type::ACTOR
-Health					= 150
+Health					= 150.0;
 ScriptBinding			= entity_binder.bindActor
 Prefab					= "NONE"
 MaxItemsMass			= 35.0
@@ -11,8 +11,8 @@ phBox					= 0.4, 1.9, 0.4
 phMass					= 80.0
 
 ; Movements				Speed, JumpCoef, Stamina usage
-Walk					= 50.5, 1.02, 0.0;
-Run						= 100.0, 1.02, 0.0008;
+Walk					= 5.5, 1.02, 0.0;
+Run						= 10.0, 1.02, 0.0008;
 Crouch					= 3.5, 1.00, 0.0;
 Climb					= 0.1;
 
