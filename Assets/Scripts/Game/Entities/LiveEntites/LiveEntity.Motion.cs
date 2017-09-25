@@ -4,40 +4,49 @@ using UnityEngine;
 
 public partial class LiveEntity {
 
-	public	Entity_States_Temp		States		= new Entity_States_Temp();
-	public	Entity_States_Temp		PrevStates	= new Entity_States_Temp();
+	public enum eMotionType {
+		None		= 1 << 0,
+		Walking		= 1 << 1,
+		Flying		= 1 << 2,
+		Swimming	= 1 << 3,
+		P1ToP2		= 1 << 4
+	};
 
 	// This variable control which physic to use on entity
-	protected	LIVE_ENTITY.MotionType	m_MotionType		= LIVE_ENTITY.MotionType.Walking;
-	protected	LIVE_ENTITY.MotionType	m_PrevMotionType	= LIVE_ENTITY.MotionType.None;
+	protected	eMotionType		m_MotionType		= eMotionType.Walking;
+	public		eMotionType	MotionType {
+		get { return m_MotionType; }
+		set { SetMotionType( value ); }
+	}
 
-	public	LIVE_ENTITY.MotionType	GetMotionType()					{ return m_MotionType; }
-	public	LIVE_ENTITY.MotionType	GetPrevMotionType()				{ return m_PrevMotionType; }
+
+	protected	eMotionType	m_PrevMotionType		= eMotionType.Walking;
+	public		eMotionType	PrevMotionType {
+		get { return m_PrevMotionType; }
+	}
 
 
-	public	void					SetMotionType( LIVE_ENTITY.MotionType i ) {
+
+	public		void					SetMotionType( eMotionType i ) {
 
 		m_PrevMotionType = m_MotionType;
 		switch( i ) {
 
-			case LIVE_ENTITY.MotionType.Walking:	{ this.SetPlainWalking(); return; }
-			case LIVE_ENTITY.MotionType.Flying:		{ this.SetFlying(); return; }
-			case LIVE_ENTITY.MotionType.Swimming:	{ this.SetSwimming(); return; }
-			case LIVE_ENTITY.MotionType.P1ToP2:		{ this.SetClimbing(); return; }
+			case eMotionType.Walking:	{ this.SetPlainWalking(); return; }
+			case eMotionType.Flying:	{ this.SetFlying(); return; }
+			case eMotionType.Swimming:	{ this.SetSwimming(); return; }
+			case eMotionType.P1ToP2:	{ this.SetClimbing(); return; }
 		}
 
 	}
 
 
+	public		void					SetPlainWalking() {
 
-
-
-	public void SetPlainWalking() {
-
-		if ( m_MotionType == LIVE_ENTITY.MotionType.Walking ) return;
+		if ( m_MotionType == eMotionType.Walking ) return;
 
 		m_PrevMotionType = m_MotionType;
-		m_MotionType = LIVE_ENTITY.MotionType.Walking;
+		m_MotionType = eMotionType.Walking;
 
 //		this.ClearState();
 
@@ -50,12 +59,12 @@ public partial class LiveEntity {
 
 	}
 
-	public void SetFlying() {
+	public		void					SetFlying() {
 
-		if ( m_MotionType == LIVE_ENTITY.MotionType.Flying ) return;
+		if ( m_MotionType == eMotionType.Flying ) return;
 	
 		m_PrevMotionType = m_MotionType;
-		m_MotionType = LIVE_ENTITY.MotionType.Flying;
+		m_MotionType = eMotionType.Flying;
 
 //		this->ClearState();
 //		pEntity->SetGravityMode( false );
@@ -67,12 +76,12 @@ public partial class LiveEntity {
 
 	}
 
-	public void SetSwimming() {
+	public		void					SetSwimming() {
 
-		if ( m_MotionType == LIVE_ENTITY.MotionType.Swimming ) return;
+		if ( m_MotionType == eMotionType.Swimming ) return;
 	
 		m_PrevMotionType = m_MotionType;
-		m_MotionType = LIVE_ENTITY.MotionType.Swimming;
+		m_MotionType = eMotionType.Swimming;
 
 //		this->ClearState();
 //		SetCrouched( true );
@@ -87,12 +96,12 @@ public partial class LiveEntity {
 	
 	}
 
-	public void SetClimbing() {
+	public		void					SetClimbing() {
 
-		if ( m_MotionType == LIVE_ENTITY.MotionType.P1ToP2 ) return;
+		if ( m_MotionType == eMotionType.P1ToP2 ) return;
 	
 		m_PrevMotionType = m_MotionType;
-		m_MotionType = LIVE_ENTITY.MotionType.P1ToP2;
+		m_MotionType = eMotionType.P1ToP2;
 
 //		bool b = IsCrouched();
 //		this->ClearState();

@@ -11,7 +11,7 @@ public class CameraControl : MonoBehaviour {
 	const	float			MIN_CAMERA_OFFSET			= 1.5f;
 
 	[Tooltip("Camera Target")]
-	public	Transform		m_Target						= null;
+	public	Transform		m_Target					= null;
 
 	[Range( 0.2f, 20.0f )]
 	public	float			m_MouseSensitivity			= 1.0f;
@@ -75,10 +75,12 @@ public class CameraControl : MonoBehaviour {
 			m_HeadBob._Reset( false );
 		}
 		else {
-			if ( Player.Instance.IsMoving() )
+			if ( Player.Instance.IsMoving ) {
 				m_HeadBob._Update();
-			else
+			}
+			else {
 				m_HeadMove._Update();
+			}
 		}
 
 

@@ -8,6 +8,8 @@ public partial class Player : Human {
 
 	private		Rigidbody			m_RigidBody			= null;
 
+	private		Transform			m_Foots				= null;
+
 	private		Vector3				m_Move				= Vector3.zero;
 
 	// Use this for initialization
@@ -26,6 +28,7 @@ public partial class Player : Human {
 		// Player Components
 		{
 			m_RigidBody = GetComponent<Rigidbody>();
+			m_Foots = transform.Find( "FootSpace" );
 		}
 
 		// Player Data
@@ -87,31 +90,22 @@ public partial class Player : Human {
 		m_Health = m_SectionRef.AsFloat( "Health", 100.0f );
 		m_Stamina = 1.0f;
 
+		SetMotionType( eMotionType.Walking );
+
 		DontDestroyOnLoad( this );
 
 	}
 
-//	private void FixedUpdate() {
-		
-		// Apply grvity
-//		pRigidBody.velocity = pRigidBody.velocity + ( Vector3.down * 0.981f );
-
-//	}
-
-
-
-
-	
 
 
 	// Update is called once per frame
 	void Update () {
 
 		// trace previuos states
-		PrevStates = States;
+		m_PreviousStates = m_States;
 	
 		// Reset "local" states
-		States.Reset();
+		m_States.Reset();
 
 
 		////////////////////////////////////////////////////////////////////////////////////////
@@ -225,45 +219,15 @@ public partial class Player : Human {
 		// Movement Update
 		{
 			switch ( m_MotionType ) {
-				case LIVE_ENTITY.MotionType.Walking:	{ this.Update_Walk();	break; }
-//				case LIVE_ENTITY.MotionType.Flying:		{ this.Update_Fly();		break; }
-//				case LIVE_ENTITY.MotionType.Swimming:	{ this->Update_Swim( bIsEntityInWater, bIsCameraUnderWater, bIsCameraReallyUnderWater );	break; }
-//				case LIVE_ENTITY.MotionType.P1ToP2:		{ this->Update_P1ToP2();	break; }
+				case eMotionType.Walking:	{ this.Update_Walk();	break; }
+//				case eMotionType.Flying:	{ this.Update_Fly();		break; }
+//				case eMotionType.Swimming:	{ this->Update_Swim( bIsEntityInWater, bIsCameraUnderWater, bIsCameraReallyUnderWater );	break; }
+//				case eMotionType.P1ToP2:	{ this->Update_P1ToP2();	break; }
 			}
 		}
 
 		// Update flashlight position and rotation
 //		pFlashLight->Update();
-
-
-
-		////////////////////////////////////////////////////////////////////////////////////////
-		// Update all States
-		{
-			m_States.SetState( ( byte ) LIVE_ENTITY.States.Crouched, States.IsCrouched	);
-
-			m_States.SetState( ( byte ) LIVE_ENTITY.States.Moving, States.IsMoving		);
-			m_States.SetState( ( byte ) LIVE_ENTITY.States.Walking, States.IsWalking	);
-			m_States.SetState( ( byte ) LIVE_ENTITY.States.Running, States.IsRunning	);
-
-			m_States.SetState( ( byte ) LIVE_ENTITY.States.Jumping, States.IsJumping	);
-			m_States.SetState( ( byte ) LIVE_ENTITY.States.Hanging, States.IsHanging	);
-			m_States.SetState( ( byte ) LIVE_ENTITY.States.Falling, States.IsFalling	);
-		}
-
-	}
-
-	private void OnCollisionEnter( Collision collision ) {
-		
-		if ( collision.gameObject.tag == "Terrain" )
-			m_Grounded = true;
-
-	}
-
-	private void OnCollisionExit( Collision collision ) {
-		
-		if ( collision.gameObject.tag == "Terrain" )
-			m_Grounded = false;
 
 	}
 

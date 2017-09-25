@@ -19,18 +19,18 @@ public partial class Player {
 		float fFinalJump		= 0.0f;
 
 		if ( Inputmanager.HoldCrouch == false )
-			States.IsCrouched = IsCrouched();
+			m_States.IsCrouched = m_PreviousStates.IsCrouched;
 
 
 		if ( m_Grounded == false ) {
 
 			if ( m_RigidBody.velocity.y > 0.0f )
-				States.IsHanging = true;
+				m_States.IsHanging = true;
 			else {
-				States.IsFalling = true;
+				m_States.IsFalling = true;
 			}
 
-			if ( PrevStates.IsHanging && States.IsFalling )
+			if ( m_PreviousStates.IsHanging && m_States.IsFalling )
 				m_LastLandTime = Time.time;
 
 
@@ -61,19 +61,19 @@ public partial class Player {
 			if ( bCrouchInput ) {
 
 				// If is crouched
-				if ( States.IsCrouched ) {
+				if ( m_States.IsCrouched ) {
 
 					if ( !m_IsUnderSomething ) {
 
 						CameraControl.Instance.m_HeadBob._Reset( true );
-						States.IsCrouched = false;
+						m_States.IsCrouched = false;
 
 					}
 					else {
 
 						if ( bJumpInput ) fFinalJump = m_JumpForce / 2.0f;
 						CameraControl.Instance.m_HeadBob._Reset( true );
-						States.IsCrouched = true;
+						m_States.IsCrouched = true;
 
 					}
 				}
@@ -91,9 +91,9 @@ public partial class Player {
 
 
 				m_Stamina	-= m_JumpStamina;
-				fFinalJump	+= m_JumpForce / ( States.IsCrouched ? 1.5f : 1.0f );
+				fFinalJump	+= m_JumpForce / ( m_States.IsCrouched ? 1.5f : 1.0f );
 				fFinalJump	*= IsInWater() ? 0.8f : 1.0f;
-				States.IsJumping = true;
+				m_States.IsJumping = true;
 
 			}
 
@@ -111,14 +111,14 @@ public partial class Player {
 			if ( m_Tiredness && m_Stamina > m_StaminaRunMin ) m_Tiredness = false;
 
 			// So if run button is pressed, player is not tired and if crouched can stan up
-			if ( bSprintInput && !m_Tiredness && ( ( States.IsCrouched && !m_IsUnderSomething ) || !States.IsCrouched ) ) {
+			if ( bSprintInput && !m_Tiredness && ( ( m_States.IsCrouched && !m_IsUnderSomething ) || !m_States.IsCrouched ) ) {
 
 		//		if ( IsDragging() ) DropEntityDragged();
 
 //				CamManager()->GetZoomEffect()->Reset();
 
-				States.IsCrouched = false;
-				States.IsRunning = true;
+				m_States.IsCrouched = false;
+				m_States.IsRunning = true;
 
 			}
 
@@ -130,14 +130,14 @@ public partial class Player {
 		if ( ( fMove != 0.0 ) || ( fStrafe != 0.0 ) ) {
 
 
-			if ( States.IsRunning ) {
+			if ( m_States.IsRunning ) {
 
 				fMove		*=	m_RunSpeed * ( fMove > 0 ? 1.0f : 0.8f );
 				fStrafe		*=	m_RunSpeed * 0.6f;
 				m_Stamina	-= m_RunStamina;
 
 			}
-			else if ( States.IsCrouched ) {
+			else if ( m_States.IsCrouched ) {
 
 				fMove		*= m_CrouchSpeed * ( fMove > 0 ? 1.0f : 0.8f );
 				fStrafe		*= m_CrouchSpeed * 0.6f;
@@ -152,7 +152,7 @@ public partial class Player {
 
 			}
 
-			if ( !States.IsJumping ) States.IsMoving = true;
+			if ( !m_States.IsJumping ) m_States.IsMoving = true;
 
 		}
 
@@ -169,10 +169,10 @@ public partial class Player {
 		m_Stamina = Mathf.Clamp( m_Stamina, 0.0f, 1.0f );
 
 		// boost movements when Jumping
-		if ( States.IsJumping ) {
-			if ( States.IsWalking )		{ fMove *= m_WalkJumpCoef;	fStrafe *= m_WalkJumpCoef;	fFinalJump *= m_WalkJumpCoef; }
-			if ( States.IsRunning )		{ fMove *= m_RunJumpCoef;	fStrafe *= m_RunJumpCoef;	fFinalJump *= m_RunJumpCoef; }
-			if ( States.IsCrouched )	{ fFinalJump *= m_CrouchJumpCoef; }
+		if ( m_States.IsJumping ) {
+			if ( m_States.IsWalking  )		{ fMove *= m_WalkJumpCoef;	fStrafe *= m_WalkJumpCoef;	fFinalJump *= m_WalkJumpCoef; }
+			if ( m_States.IsRunning  )		{ fMove *= m_RunJumpCoef;	fStrafe *= m_RunJumpCoef;	fFinalJump *= m_RunJumpCoef; }
+			if ( m_States.IsCrouched )		{ fFinalJump *= m_CrouchJumpCoef; }
 		}
 
 		// Apply smoothing on movements

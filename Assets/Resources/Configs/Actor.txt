@@ -12,7 +12,7 @@ phMass					= 80.0
 
 ; Movements				Speed, JumpCoef, Stamina usage
 Walk					= 5.5, 1.02, 0.0;
-Run						= 10.0, 1.02, 0.0008;
+Run						= 15.0, 1.02, 0.0008;
 Crouch					= 3.5, 1.00, 0.0;
 Climb					= 0.1;
 

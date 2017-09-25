@@ -37,16 +37,19 @@ public class HeadBob : CameraEffectBase {
 
 		if ( m_IsActive == false ) return;
 
+		float	fStamina	= Player.Instance.Stamina;
+		bool	bRunning	= Player.Instance.IsRunning;
+
 		float fSpeed = m_Speed * m_SpeedMul * Time.deltaTime;
-//		fSpeed *= ( ( bRunning )	?1.7:1.0 );
-	//	fSpeed *= ( ( bCrouched )	?0.5:1.0 );
-	//	fSpeed *= ( ( bZoomed )		?0.5:1.0 );
+		fSpeed		*= ( ( bRunning )	?	1.70f : 1.00f );
+	//	fSpeed		*= ( ( bCrouched )	?	0.50f : 1.00f );
+	//	fSpeed		*= ( ( bZoomed )	?	0.50f : 1.00f );
 
 		float fAmplitude = m_Amplitude * m_AmplitudeMult;
-	//	fAmplitude *= ( ( bRunning )	? 2.0:1.0 );
-//		fAmplitude *= ( ( bCrouched )	? 0.5 : 1.0 );
-	//	fAmplitude *= ( ( bZoomed )		? 0.8:1.0 );
-//		fAmplitude *= ( 3.f - fStamina * 2 );
+		fAmplitude		*= ( ( bRunning )	?	2.00f : 1.00f );
+//		fAmplitude		*= ( ( bCrouched )	?	0.50f : 1.00f );
+	//	fAmplitude		*= ( ( bZoomed )	?	0.80f : 1.00f );
+		fAmplitude		*= ( 3.0f - fStamina * 2.0f );
 
 		m_ThetaX += m_ThetaUpdateX * fSpeed;
 		m_ThetaY += ( m_ThetaUpdateY + Random.Range( 0.0f, 0.03f ) ) * fSpeed;
