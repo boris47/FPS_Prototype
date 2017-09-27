@@ -39,6 +39,10 @@ public class Entity : MonoBehaviour, IEntity {
 	protected 	bool			m_IsInWater						= false;
 	protected 	bool			m_IsUnderWater					= false;
 
+
+	protected	Rigidbody		m_RigidBody						= null;
+
+
 	protected	bool 			m_IsOK							= false;
 
 

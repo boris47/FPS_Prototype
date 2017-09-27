@@ -53,6 +53,8 @@ public class CameraControl : MonoBehaviour {
 
 		m_CurrentDirection = transform.rotation.eulerAngles;
 
+		Cursor.visible = false;
+
 	}
 
 
@@ -89,8 +91,8 @@ public class CameraControl : MonoBehaviour {
 				}
 
 			} else {
-				m_HeadMove._Reset(false);
-				m_HeadBob._Reset(false);
+				m_HeadMove._Reset( true );
+				m_HeadBob._Reset( false );
 			}
 		}
 
@@ -100,7 +102,7 @@ public class CameraControl : MonoBehaviour {
 
 	private void LateUpdate() {
 
-		if ( Input.GetMouseButton( 0 ) ) {
+//		if ( Input.GetMouseButton( 0 ) ) {
 
 			m_SmoothFactor = Mathf.Clamp( m_SmoothFactor, 1.0f, 10.0f );
 
@@ -117,11 +119,14 @@ public class CameraControl : MonoBehaviour {
 				m_CurrentRotation_Y_Delta = Input.GetAxis ( "Mouse Y" ) * m_MouseSensitivity;
 
 
-			m_CurrentDirection.x = Utils.Math.Clamp( m_CurrentDirection.x - m_CurrentRotation_Y_Delta, -80.0f, 80.0f );
-			m_CurrentDirection.y = m_CurrentDirection.y + m_CurrentRotation_X_Delta;
-			m_CurrentDirection.z = 0.0f;
 
-		}
+			if ( m_CurrentRotation_X_Delta != 0.0f || m_CurrentRotation_Y_Delta != 0.0f ) {
+				m_CurrentDirection.x = Utils.Math.Clamp( m_CurrentDirection.x - m_CurrentRotation_Y_Delta, -80.0f, 80.0f );
+				m_CurrentDirection.y = m_CurrentDirection.y + m_CurrentRotation_X_Delta;
+				m_CurrentDirection.z = 0.0f;
+			}
+
+//		}
 
 		// rotation with effect added
 		transform.rotation = Quaternion.Euler( m_CurrentDirection + ( m_HeadBob.Direction + m_HeadMove.Direction ) );

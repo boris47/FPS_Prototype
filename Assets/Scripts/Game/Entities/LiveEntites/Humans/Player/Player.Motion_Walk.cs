@@ -40,7 +40,7 @@ public partial class Player {
 			if ( iFallTime > 400 )
 				m_HeavyFall = true;
 
-			m_Stamina = Mathf.Min( m_Stamina + m_StaminaRestore, 1.0f );
+			m_Stamina = Mathf.Min( m_Stamina + ( m_StaminaRestore * Time.deltaTime ), 1.0f );
 
 			return;
 		}
@@ -134,21 +134,21 @@ public partial class Player {
 
 				fMove		*=	m_RunSpeed * ( fMove > 0 ? 1.0f : 0.8f );
 				fStrafe		*=	m_RunSpeed * 0.6f;
-				m_Stamina	-= m_RunStamina;
+				m_Stamina	-= m_RunStamina * Time.deltaTime;
 
 			}
 			else if ( m_States.IsCrouched ) {
 
 				fMove		*= m_CrouchSpeed * ( fMove > 0 ? 1.0f : 0.8f );
 				fStrafe		*= m_CrouchSpeed * 0.6f;
-				m_Stamina	-= m_CrouchStamina;
+				m_Stamina	-= m_CrouchStamina * Time.deltaTime;
 
 			}
 			else {	// walking
 					// stamina half restored because we are moving, but just walking
 				fMove		*= m_WalkSpeed * ( fMove > 0 ? 1.0f : 0.8f );;
 				fStrafe		*= m_WalkSpeed *  0.6f;
-				m_Stamina	+= m_StaminaRestore / 2.0f;
+				m_Stamina	+= m_StaminaRestore / 2.0f * Time.deltaTime;
 
 			}
 
@@ -158,7 +158,7 @@ public partial class Player {
 
 		// if don't move stamina regenerates at regular speed
 		if ( fMove == 0.0f && fStrafe == 0.0f )
-			m_Stamina += m_StaminaRestore;
+			m_Stamina += m_StaminaRestore * Time.deltaTime;
 
 		
 

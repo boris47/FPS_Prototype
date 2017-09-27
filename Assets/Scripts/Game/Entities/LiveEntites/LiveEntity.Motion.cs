@@ -46,16 +46,16 @@ public partial class LiveEntity {
 		if ( m_MotionType == eMotionType.Walking ) return;
 
 		m_PrevMotionType = m_MotionType;
-		m_MotionType = eMotionType.Walking;
+		m_MotionType	 = eMotionType.Walking;
 
-//		this.ClearState();
+		m_States.Reset();
 
-//		pEntity->SetGravityMode( true );
-//		pEntity->SetFriction( 0.0f, 1.0f );
+		if ( m_RigidBody != null )
+			m_RigidBody.useGravity = true;
 
-//		Engine()->InputManager()->SetHoldCrouch( false );
-//		Engine()->InputManager()->SetHoldJump( false );
-//		Engine()->InputManager()->SetHodRun( true );
+		Inputmanager.HoldCrouch = false;
+		Inputmanager.HoldJump	= false;
+		Inputmanager.HoldRun = true;
 
 	}
 
@@ -64,15 +64,17 @@ public partial class LiveEntity {
 		if ( m_MotionType == eMotionType.Flying ) return;
 	
 		m_PrevMotionType = m_MotionType;
-		m_MotionType = eMotionType.Flying;
+		m_MotionType	 = eMotionType.Flying;
 
-//		this->ClearState();
-//		pEntity->SetGravityMode( false );
-//		pEntity->SetFriction( 0.0f, 10.0f );
 
-//		Engine()->InputManager()->SetHoldCrouch( true );
-//		Engine()->InputManager()->SetHoldJump( true );
-//		Engine()->InputManager()->SetHodRun( true );
+		m_States.Reset();
+
+		if ( m_RigidBody != null )
+			m_RigidBody.useGravity = false;
+
+		Inputmanager.HoldCrouch = true;
+		Inputmanager.HoldJump = true;
+		Inputmanager.HoldRun = true;
 
 	}
 
@@ -81,19 +83,17 @@ public partial class LiveEntity {
 		if ( m_MotionType == eMotionType.Swimming ) return;
 	
 		m_PrevMotionType = m_MotionType;
-		m_MotionType = eMotionType.Swimming;
+		m_MotionType	 = eMotionType.Swimming;
 
-//		this->ClearState();
-//		SetCrouched( true );
+		m_States.Reset();
 
-//		pEntity->SetGravityMode( false );
-//		pEntity->SetFriction( 0.1f, 0.1f ) ;
-	//	pEntity->SetVelocity( EMPTY_VEC3 );
-	
-//		Engine()->InputManager()->SetHoldCrouch( true );
-//		Engine()->InputManager()->SetHoldJump( true );
-//		Engine()->InputManager()->SetHodRun( true );
-	
+		if ( m_RigidBody != null )
+			m_RigidBody.useGravity = false;
+
+		Inputmanager.HoldCrouch = true;
+		Inputmanager.HoldJump = true;
+		Inputmanager.HoldRun = true;
+
 	}
 
 	public		void					SetClimbing() {
@@ -103,16 +103,17 @@ public partial class LiveEntity {
 		m_PrevMotionType = m_MotionType;
 		m_MotionType = eMotionType.P1ToP2;
 
-//		bool b = IsCrouched();
-//		this->ClearState();
-//		SetCrouched( b );
-	
-//		pEntity->SetGravityMode( false );
-//		pEntity->SetFriction( 0.0f, 1000.0f );
+		bool b = IsCrouched;
+		m_States.Reset();
+		m_States.IsCrouched = b;
 
-//		Engine()->InputManager()->SetHoldCrouch( false );
-//		Engine()->InputManager()->SetHoldJump( false );
-//		Engine()->InputManager()->SetHodRun( true );
+
+		if ( m_RigidBody != null )
+			m_RigidBody.useGravity = false;
+
+		Inputmanager.HoldCrouch = false;
+		Inputmanager.HoldJump = false;
+		Inputmanager.HoldRun = true;
 
 	}
 

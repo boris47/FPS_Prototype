@@ -6,10 +6,6 @@ public partial class Player : Human {
 
 	public static Player			Instance			= null;
 
-	private		Rigidbody			m_RigidBody			= null;
-
-	private		Transform			m_Foots				= null;
-
 	private		Vector3				m_Move				= Vector3.zero;
 
 	// Use this for initialization

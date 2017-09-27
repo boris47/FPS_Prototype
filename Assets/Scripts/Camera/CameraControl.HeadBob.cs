@@ -49,15 +49,13 @@ public class HeadBob : CameraEffectBase {
 		fAmplitude		*= ( ( bRunning )	?	2.00f : 1.00f );
 //		fAmplitude		*= ( ( bCrouched )	?	0.50f : 1.00f );
 	//	fAmplitude		*= ( ( bZoomed )	?	0.80f : 1.00f );
-		fAmplitude		*= ( 3.0f - fStamina * 2.0f );
+//		fAmplitude		*= ( 3.0f - fStamina * 2.0f );
 
 		m_ThetaX += m_ThetaUpdateX * fSpeed;
 		m_ThetaY += ( m_ThetaUpdateY + Random.Range( 0.0f, 0.03f ) ) * fSpeed;
 
 		m_Direction.x = -Mathf.Cos( m_ThetaX ) * fAmplitude;
 		m_Direction.y =  Mathf.Cos( m_ThetaY ) * fAmplitude;
-
-//		pCamera.rotation = Quaternion.Euler( pCamera.rotation.eulerAngles + m_Direction );
 
 	}
 
@@ -66,7 +64,7 @@ public class HeadBob : CameraEffectBase {
 		if ( bInstantly )
 			m_Direction = Vector3.zero;
 		else
-			m_Direction = Vector3.Lerp ( m_Direction, Vector3.zero, Time.deltaTime * 2f );
+			m_Direction = Vector3.Lerp ( m_Direction, Vector3.zero, Time.deltaTime );
 
 	}
 
