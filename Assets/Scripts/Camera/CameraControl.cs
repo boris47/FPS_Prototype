@@ -13,6 +13,9 @@ public class CameraControl : MonoBehaviour {
 	[Tooltip("Camera Target")]
 	public	Transform		m_Target					= null;
 
+	[Tooltip("Camera Offset")]
+	public	Vector3			m_TPSOffset					= Vector3.zero;
+
 	[Range( 0.2f, 20.0f )]
 	public	float			m_MouseSensitivity			= 1.0f;
 
@@ -75,11 +78,19 @@ public class CameraControl : MonoBehaviour {
 			m_HeadBob._Reset( false );
 		}
 		else {
-			if ( Player.Instance.IsMoving ) {
-				m_HeadBob._Update();
-			}
-			else {
-				m_HeadMove._Update();
+
+			LiveEntity pLiveEnitiy = m_Target.GetComponentInParent<LiveEntity>();
+			if ( pLiveEnitiy && pLiveEnitiy.Grounded ) {
+
+				if ( pLiveEnitiy.IsMoving ) {
+					m_HeadBob._Update();
+				} else {
+					m_HeadMove._Update();
+				}
+
+			} else {
+				m_HeadMove._Reset(false);
+				m_HeadBob._Reset(false);
 			}
 		}
 
@@ -125,6 +136,8 @@ public class CameraControl : MonoBehaviour {
 				transform.position = Vector3.Lerp( transform.position, m_Target.position - ( transform.forward * m_CurrentCameraOffset ), Time.deltaTime * 8f );
 			else
 				transform.position = m_Target.position - ( transform.forward * m_CurrentCameraOffset );
+
+			transform.position = transform.position + transform.TransformDirection( m_TPSOffset );
 		}
 		else {
 			transform.position = m_Target.position;
