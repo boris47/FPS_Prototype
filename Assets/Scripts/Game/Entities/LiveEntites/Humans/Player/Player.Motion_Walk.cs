@@ -160,10 +160,7 @@ public partial class Player {
 		if ( fMove == 0.0f && fStrafe == 0.0f )
 			m_Stamina += m_StaminaRestore;
 
-		// This prevents "speed hack" strafing
-		if ( ( fStrafe != 0.0f ) && ( fMove != 0.0f  ) ) {
-			m_Move *= 0.707f;
-		}
+		
 
 		// Clamp Stamina between 0.0 and 1.0
 		m_Stamina = Mathf.Clamp( m_Stamina, 0.0f, 1.0f );
@@ -185,6 +182,11 @@ public partial class Player {
 			Vector3 vCamForward = Vector3.Scale( CameraControl.Instance.transform.forward, new Vector3( 1.0f, 0.0f, 1.0f ) ).normalized;
 			m_Move = ( m_MoveSmooth * vCamForward ) + ( m_StrafeSmooth * CameraControl.Instance.transform.right );
 			m_Move = transform.InverseTransformDirection( m_Move );
+		}
+
+		// This prevents "speed hack" strafing
+		if ( ( fStrafe != 0.0f ) && ( fMove != 0.0f  ) ) {
+			m_Move *= 0.707f;
 		}
 
 		m_Move.y = m_RigidBody.velocity.y;

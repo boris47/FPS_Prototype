@@ -219,10 +219,11 @@ public partial class Player : Human {
 		// Movement Update
 		{
 			switch ( m_MotionType ) {
-				case eMotionType.Walking:	{ this.Update_Walk();	break; }
-//				case eMotionType.Flying:	{ this.Update_Fly();		break; }
+				case eMotionType.Walking:	{ this.Update_Walk();		break; }
+				case eMotionType.Flying:	{ this.Update_Fly();		break; }
+				case eMotionType.Swimming:	{ this.Update_Swim();		break; }
 //				case eMotionType.Swimming:	{ this->Update_Swim( bIsEntityInWater, bIsCameraUnderWater, bIsCameraReallyUnderWater );	break; }
-//				case eMotionType.P1ToP2:	{ this->Update_P1ToP2();	break; }
+				case eMotionType.P1ToP2:	{ this.Update_P1ToP2();		break; }
 			}
 		}
 
