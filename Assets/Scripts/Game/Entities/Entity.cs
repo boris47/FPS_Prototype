@@ -27,8 +27,16 @@ public interface IEntity {
 
 public class Entity : MonoBehaviour, IEntity {
 
+	private	static uint CurrentID = 0;
+	public	static uint NewID() {
+		return CurrentID++;
+	}
 
-	protected 	uint			iID								= 0;
+
+	protected 	uint			m_ID							= 0;
+	public		uint			ID {
+		get { return m_ID; }
+	}
 
 	protected	Section			m_SectionRef					= null;
 

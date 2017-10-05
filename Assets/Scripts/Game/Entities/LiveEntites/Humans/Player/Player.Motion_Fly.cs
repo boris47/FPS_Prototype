@@ -24,9 +24,7 @@ public partial class Player {
 
 		// calculate camera relative direction to move:
 		{
-			Vector3 vCamForward = Vector3.Scale( CameraControl.Instance.transform.forward, new Vector3( 1.0f, 0.0f, 1.0f ) ).normalized;
-			m_Move = ( m_MoveSmooth * vCamForward ) + ( m_StrafeSmooth * CameraControl.Instance.transform.right );
-			m_Move = transform.InverseTransformDirection( m_Move );
+			m_Move = ( m_MoveSmooth * CameraControl.Instance.transform.forward ) + ( m_StrafeSmooth * CameraControl.Instance.transform.right );
 		}
 
 		// This prevents "speed hack" strafing

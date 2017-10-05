@@ -40,7 +40,20 @@ public class GameManager : MonoBehaviour {
 
 
 	}
-	
+
+
+	private void Start() {
+		
+		GameObject Players = GameObject.Find( "Players" );
+		GLOBALS.Player1 = Players.transform.GetChild( 0 ).GetComponent<Player>();
+		GLOBALS.Player2 = Players.transform.GetChild( 1 ).GetComponent<Player>();
+		GLOBALS.Player3 = Players.transform.GetChild( 2 ).GetComponent<Player>();
+		GLOBALS.Player4 = Players.transform.GetChild( 3 ).GetComponent<Player>();
+
+		GLOBALS.Player1.IsActive = true;
+
+	}
+
 	// Update is called once per frame
 	void Update () {
 		

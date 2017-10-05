@@ -33,12 +33,12 @@ public class HeadBob : CameraEffectBase {
 		get { return m_Direction; }
 	}
 
-	public void _Update() {
+	public void _Update( LiveEntity pLiveEntity ) {
 
 		if ( m_IsActive == false ) return;
 
-		float	fStamina	= Player.Instance.Stamina;
-		bool	bRunning	= Player.Instance.IsRunning;
+		float	fStamina	= pLiveEntity.Stamina;
+		bool	bRunning	= pLiveEntity.IsRunning;
 
 		float fSpeed = m_Speed * m_SpeedMul * Time.deltaTime;
 		fSpeed		*= ( ( bRunning )	?	1.70f : 1.00f );

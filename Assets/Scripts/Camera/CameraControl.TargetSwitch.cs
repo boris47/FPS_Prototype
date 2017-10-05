@@ -4,31 +4,45 @@ using UnityEngine;
 
 public partial class CameraControl {
 
+	const float	MIN_DISTANCE = 5.0f;
 
 	[Header("Camera Target Switch")]
+	[Tooltip("Heigth at witch camera must rise before traslating")]
 	public  float			m_TargetSwitchHeigth			= 0.0f;
+	[Tooltip("Speed of camera elevation")]
 	public  float			m_TargetSwitchElevationSpeed	= 0.0f;
+	[Tooltip("Speed of camera traslation")]
 	public  float			m_TargetSwitchTraslationSpeed	= 0.0f;
+	[Tooltip("Speed of camera focus")]
 	public  float			m_TargetSwitchFocusSpeed		= 0.0f;
+	[Tooltip("Check if you want camera must face down while rising")]
+	public	bool			m_TargetSwitchElevationFaceDown	= true;
 
 
 	private	GameObject		m_TargetSwitchTarget			= null;
 
 	private IEnumerator		m_CurrentElevationCoroutine		= null;
-	public	float			m_CurrentElevationFactor		= 0.0f;
+	private	float			m_CurrentElevationFactor		= 0.0f;
+	public	float			CurrentElevationFactor {
+		get { return m_CurrentElevationFactor; }
+	}
 
 	private IEnumerator		m_CurrentTraslationCoroutine	= null;
-	public	float			m_CurrentTraslationFactor		= 0.0f;
+	private	float			m_CurrentTraslationFactor		= 0.0f;
+	public	float			CurrentTraslationFactor {
+		get { return m_CurrentTraslationFactor; }
+	}
 
 	private IEnumerator		m_CurrentFocusCoroutine			= null;
-	public	float			m_CurrentFocusFactor			= 0.0f;
-	
-
-	public GameObject dbg_tgt = null;
-
+	private	float			m_CurrentFocusFactor			= 0.0f;
+	public	float			CurrentFocusFactor {
+		get { return m_CurrentFocusFactor; }
+	}
 
 
 	public	void SwitchToTarget( GameObject pNextTarget ) {
+
+		///// CHECKS
 
 		// Return if no valid target
 		if ( pNextTarget == null ) return;
@@ -39,8 +53,14 @@ public partial class CameraControl {
 		// Return if no valid speed
 		if ( m_TargetSwitchElevationSpeed < 0.001f || m_TargetSwitchTraslationSpeed < 0.001f || m_TargetSwitchFocusSpeed < 0.001f ) return;
 
-		// Switch heigth musb at last 2 meter over current target
+		// Switch heigth must at last 2 meter over current target
 		if ( m_TargetSwitchHeigth < ( m_Target.transform.position.y + 2.0f ) ) return;
+
+		// if player distance is not enough than simply camera switch for target
+		if ( Vector3.Distance( m_Target.transform.position, pNextTarget.transform.position ) <= MIN_DISTANCE ) {
+			m_Target = pNextTarget;
+			return;
+		}
 
 		// save next target reference
 		m_TargetSwitchTarget = pNextTarget;
@@ -77,7 +97,11 @@ public partial class CameraControl {
 				transform.position = new Vector3( transform.position.x, fNewHeigth, transform.position.z );
 
 				if ( m_CurrentTraslationCoroutine == null )
-					transform.rotation = Quaternion.Slerp( transform.rotation, Quaternion.LookRotation( m_Target.transform.position - transform.position ), m_CurrentElevationFactor );
+					if ( m_TargetSwitchElevationFaceDown )
+						transform.rotation = Quaternion.Slerp( transform.rotation, Quaternion.LookRotation( Vector3.down ), m_CurrentElevationFactor );
+					else {
+						transform.rotation = Quaternion.Slerp( transform.rotation, Quaternion.LookRotation( Vector3.up ), m_CurrentElevationFactor );
+					}
 			}
 			
 			// Next Coroutine
@@ -89,7 +113,6 @@ public partial class CameraControl {
 			yield return null;
 		}
 
-//		StartCoroutine( m_CurrentTraslationCoroutine = CameraTraslation() );
 		m_CurrentElevationCoroutine = null;
 		m_CurrentElevationFactor = 0.0f;
 		
@@ -105,9 +128,9 @@ public partial class CameraControl {
 		print( "CameraTraslation" );
 
 		float	fDistance;
-		float	fStartDistance = fDistance = PlaneDistance( m_Target.transform.position, m_TargetSwitchTarget.transform.position );
+		float	fStartDistance = fDistance = PlaneDistance( transform.position, m_TargetSwitchTarget.transform.position );
 
-		m_CurrentTraslationFactor = Time.deltaTime;
+		m_CurrentTraslationFactor = 0.001f;
 
 		while( fDistance > 0.1f ) {
 
@@ -128,7 +151,7 @@ public partial class CameraControl {
 
 			// Update Phase Factor
 			fDistance	= PlaneDistance( transform.position, m_TargetSwitchTarget.transform.position );
-			m_CurrentTraslationFactor = 1.0f - ( fDistance / fStartDistance );
+			m_CurrentTraslationFactor = Mathf.Abs( 1.0f - ( fDistance / fStartDistance ) );
 
 			// Next Coroutine
 			if ( m_CurrentTraslationFactor > 0.9f && m_CurrentFocusCoroutine == null )
@@ -138,7 +161,6 @@ public partial class CameraControl {
 
 		}
 
-//		StartCoroutine( m_CurrentFocusCoroutine = CameraTargetFocus() );
 		m_CurrentTraslationCoroutine = null;
 		m_CurrentTraslationFactor = 0.0f;
 	}
@@ -171,10 +193,17 @@ public partial class CameraControl {
 
 		}
 
-		// Reset all vars
-		m_CurrentElevationCoroutine = m_CurrentTraslationCoroutine = m_CurrentFocusCoroutine = null;
-		m_CurrentElevationFactor = m_CurrentTraslationFactor = m_CurrentFocusFactor = 0.0f;
-		StopAllCoroutines();
+		// Set previous player ( if was ) as inactive
+		Player pPreviousPlayer = m_Target.GetComponentInParent<Player>();
+		if ( pPreviousPlayer ) pPreviousPlayer.IsActive = false;
+
+		// Set current player ( if is ) as active
+		Player pCurrentPlayer = m_TargetSwitchTarget.GetComponent<Player>();
+		if ( pCurrentPlayer ) {
+			pCurrentPlayer.IsActive = true;
+			transform.rotation = Quaternion.identity;
+			m_CurrentDirection = pCurrentPlayer.transform.rotation.eulerAngles;
+		}
 
 		// choose camera target
 		Transform pViewPivot = m_TargetSwitchTarget.transform.Find( "ViewPivot" );
@@ -183,10 +212,17 @@ public partial class CameraControl {
 		// clear the target of switch ref
 		m_TargetSwitchTarget = null;
 
+		// Reset head movements
+		m_HeadBob._Reset( true );
+		m_HeadMove._Reset( true );
+
 		// re-enable script
 		this.enabled = true;
 
-
+		// Reset all vars
+		m_CurrentElevationCoroutine = m_CurrentTraslationCoroutine = m_CurrentFocusCoroutine = null;
+		m_CurrentElevationFactor = m_CurrentTraslationFactor = m_CurrentFocusFactor = 0.0f;
+		StopAllCoroutines();
 
 	}
 

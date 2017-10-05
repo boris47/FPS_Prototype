@@ -1,6 +1,9 @@
 
 
-#include Actor.txt
+#include Player1.txt
+#include Player2.txt
+#include Player3.txt
+#include Player4.txt
 
 [Time]
 TimeFactor = 1.0;

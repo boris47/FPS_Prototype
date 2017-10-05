@@ -22,11 +22,11 @@ public class HeadMove : CameraEffectBase {
 		get { return m_Direction; }
 	}
 
-	public void _Update() {
+	public void _Update( LiveEntity pLiveEntity ) {
 
 		if ( m_IsActive == false ) return;
 
-		float fStamina = Player.Instance.Stamina;
+		float fStamina = pLiveEntity.Stamina;
 
 		float fSpeed = m_Speed * m_SpeedMul * Time.deltaTime;
 //		fSpeed		*= ( bCrouched )	?	0.80f : 1.00f;

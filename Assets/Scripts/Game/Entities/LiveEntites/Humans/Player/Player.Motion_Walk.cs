@@ -4,6 +4,7 @@ using UnityEngine;
 
 public partial class Player {
 	
+
 	private	void	Update_Walk() {
 
 		if ( m_Health <= 0.0f ) return;
@@ -181,7 +182,7 @@ public partial class Player {
 		{
 			Vector3 vCamForward = Vector3.Scale( CameraControl.Instance.transform.forward, new Vector3( 1.0f, 0.0f, 1.0f ) ).normalized;
 			m_Move = ( m_MoveSmooth * vCamForward ) + ( m_StrafeSmooth * CameraControl.Instance.transform.right );
-			m_Move = transform.InverseTransformDirection( m_Move );
+//			m_Move = transform.InverseTransformDirection( m_Move );
 		}
 
 		// This prevents "speed hack" strafing

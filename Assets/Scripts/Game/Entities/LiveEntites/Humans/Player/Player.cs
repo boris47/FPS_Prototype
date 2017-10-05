@@ -4,22 +4,18 @@ using UnityEngine;
 
 public partial class Player : Human {
 
-	public static Player			Instance			= null;
-
 	private		Vector3				m_Move				= Vector3.zero;
+
+	private		bool	m_Active	= false;
+	public		bool	IsActive {
+		get { return m_Active; }
+		set { m_Active = value; }
+	}
 
 	// Use this for initialization
 	void Start () {
 
-		// Singleton
-		{
-			if ( Instance == null )
-				Instance = this;
-			else {
-				Destroy( gameObject );
-				return;
-			}
-		}
+		m_ID = NewID();
 
 		// Player Components
 		{
@@ -30,7 +26,7 @@ public partial class Player : Human {
 		// Player Data
 		{
 
-			m_SectionRef = GLOBALS.Configs.GetSection( m_SectionName = "Actor" );
+			m_SectionRef = GLOBALS.Configs.GetSection( m_SectionName = gameObject.name );
 
 			if ( m_SectionRef == null ) {
 				Destroy( gameObject );
@@ -39,27 +35,17 @@ public partial class Player : Human {
 
 
 			// Walking
-			try {
-				// // GetMultiValue( "Walk",	1 );
-				cMultiValue WalkInfos	= m_SectionRef[ "Walk" ].MultiValue;
-				m_WalkSpeed				= WalkInfos[ 0 ];
-				m_WalkJumpCoef			= WalkInfos[ 1 ];
-				m_WalkStamina			= WalkInfos[ 2 ];
-			} catch { }
+			m_SectionRef.AsMultiValue( "Walk", 1, 2, 3, ref m_WalkSpeed, ref m_WalkJumpCoef, ref m_WalkStamina );
 			
 			// Running
-			{
-				m_SectionRef.AsMultiValue( "Run", 1, 2, 3, ref m_RunSpeed, ref m_RunJumpCoef, ref m_RunStamina );
-			}
+			m_SectionRef.AsMultiValue( "Run", 1, 2, 3, ref m_RunSpeed, ref m_RunJumpCoef, ref m_RunStamina );
 
 			// Crouched
-			{
-				m_SectionRef.AsMultiValue( "Crouch", 1, 2, 3, ref m_CrouchSpeed, ref m_CrouchJumpCoef, ref m_CrouchStamina );
-			}
+			m_SectionRef.AsMultiValue( "Crouch", 1, 2, 3, ref m_CrouchSpeed, ref m_CrouchJumpCoef, ref m_CrouchStamina );
 
 
 			// Climbing
-///			m_SectionRef.bAsFloat( "Climb", ref m_ClimbSpeed );
+///			bool result = m_SectionRef.bAsFloat( "Climb", ref m_ClimbSpeed );
 			m_ClimbSpeed				= m_SectionRef.AsFloat( "Climb", 0.12f );
 //			m_ClimbSpeed				= m_SectionRef[ "Climb" ].Value.ToFloat();
 
@@ -77,18 +63,17 @@ public partial class Player : Human {
 			// Stamina
 			{
 				m_StaminaRestore		= m_SectionRef.AsFloat( "StaminaRestore", 0.0f );
-				m_StaminaRunMin			= m_SectionRef.AsFloat( "StaminaRunMin", 0.3f );
+				m_StaminaRunMin			= m_SectionRef.AsFloat( "StaminaRunMin",  0.3f );
 				m_StaminaJumpMin		= m_SectionRef.AsFloat( "StaminaJumpMin", 0.4f );
 			}
 
 		}
 		
-		m_Health = m_SectionRef.AsFloat( "Health", 100.0f );
+		m_Health			= m_SectionRef.AsFloat( "Health", 100.0f );
+		m_RigidBody.mass	= m_SectionRef.AsFloat( "phMass", 80.0f  );
 		m_Stamina = 1.0f;
 
 		SetMotionType( eMotionType.Walking );
-
-		DontDestroyOnLoad( this );
 
 	}
 
@@ -96,6 +81,8 @@ public partial class Player : Human {
 
 	// Update is called once per frame
 	void Update () {
+
+		if ( !m_Active ) return;
 
 		// trace previuos states
 		m_PreviousStates = m_States;

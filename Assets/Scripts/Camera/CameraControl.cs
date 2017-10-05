@@ -64,10 +64,11 @@ public partial class CameraControl : MonoBehaviour {
 
 
 	private void Update() {
-		
-		if ( Input.GetKeyDown( KeyCode.U ) ) SwitchToTarget( dbg_tgt );
 
-		if ( Input.GetKeyDown( KeyCode.O ) ) SwitchToTarget( Player.Instance.transform.Find("ViewPivot").gameObject );
+		if ( Input.GetKeyDown( KeyCode.F1 ) ) SwitchToTarget( GLOBALS.Player1.gameObject );
+		if ( Input.GetKeyDown( KeyCode.F2 ) ) SwitchToTarget( GLOBALS.Player2.gameObject );
+		if ( Input.GetKeyDown( KeyCode.F3 ) ) SwitchToTarget( GLOBALS.Player3.gameObject );
+		if ( Input.GetKeyDown( KeyCode.F4 ) ) SwitchToTarget( GLOBALS.Player4.gameObject );
 
 		if ( Input.GetKeyDown( KeyCode.V ) ) m_TPSMode = !m_TPSMode;
 
@@ -94,9 +95,9 @@ public partial class CameraControl : MonoBehaviour {
 			if ( pLiveEnitiy && pLiveEnitiy.Grounded ) {
 
 				if ( pLiveEnitiy.IsMoving ) {
-					m_HeadBob._Update();
+					m_HeadBob._Update( pLiveEnitiy );
 				} else {
-					m_HeadMove._Update();
+					m_HeadMove._Update( pLiveEnitiy );
 				}
 
 			} else {

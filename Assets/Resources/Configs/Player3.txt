@@ -1,13 +1,9 @@
-[Actor]
-Type					= 1; ENTITY::Type::ACTOR
+[Player3]
 Health					= 150.0;
-ScriptBinding			= entity_binder.bindActor
-Prefab					= "NONE"
 MaxItemsMass			= 35.0
 FootStepsSection		= ActorFootSteeps;
 
 ; Physics
-phBox					= 0.4, 1.9, 0.4
 phMass					= 80.0
 
 ; Movements				Speed, JumpCoef, Stamina usage
@@ -24,7 +20,7 @@ StaminaRestore			= 0.08;
 StaminaRunMin			= 0.2;
 StaminaJumpMin			= 0.3;
 
-[Camera]
+[Camera3]
 CamHeigth				= 1.8;
 CamInterpolation		= 0.0;
 ; minore di 1 per una visuale netta, uguale od oltre per una più fluida e morbida
@@ -47,5 +43,5 @@ HeadMove_Theta_Upd_Vert	= 0.80;
 HeadMove_Theta_Upd_Oriz	= 0.40;
 
 
-[ActorFootSteeps]
+[ActorFootSteeps3]
 Steps					= Default, Brush, Concrete, Earth, Floortile, Grass, Gravel, Metal, Tin, Water, Wood;

@@ -1,0 +1,47 @@
+[Player2]
+Health					= 150.0;
+MaxItemsMass			= 35.0
+FootStepsSection		= ActorFootSteeps;
+
+; Physics
+phMass					= 80.0
+
+; Movements				Speed, JumpCoef, Stamina usage
+Walk					= 3.0, 1.02, 0.0;
+Run						= 8.0, 1.02, 0.05;
+Crouch					= 3.5, 1.00, 0.0;
+Climb					= 0.1;
+
+;						JumpForce,	Stamina usage
+Jump					= 8.2,		0.2;
+
+; Stamina
+StaminaRestore			= 0.08;
+StaminaRunMin			= 0.2;
+StaminaJumpMin			= 0.3;
+
+[Camera2]
+CamHeigth				= 1.8;
+CamInterpolation		= 0.0;
+; minore di 1 per una visuale netta, uguale od oltre per una più fluida e morbida
+ViewDistance			= 1000.0; 4096.0;
+
+FlySpeed				= 3.7;
+FlyBoost				= 2.0;
+
+;Effects
+HeadBob_Amplitude		= 0.50;
+HeadBob_Speed			= 4.50;
+HeadBob_Step			= 0.80;
+HeadBob_Theta_Update	= 2.20;
+
+HeadLean_Max_Deegree	= 15.0;
+
+HeadMove_Amplitude		= 0.50;
+HeadMove_Speed			= 1.80;
+HeadMove_Theta_Upd_Vert	= 0.80;
+HeadMove_Theta_Upd_Oriz	= 0.40;
+
+
+[ActorFootSteeps2]
+Steps					= Default, Brush, Concrete, Earth, Floortile, Grass, Gravel, Metal, Tin, Water, Wood;
