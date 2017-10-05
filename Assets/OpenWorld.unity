@@ -240,6 +240,7 @@ GameObject:
   - component: {fileID: 728120978}
   - component: {fileID: 728120977}
   - component: {fileID: 728120976}
+  - component: {fileID: 728120980}
   m_Layer: 0
   m_Name: Sphere
   m_TagString: Untagged
@@ -305,12 +306,34 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 728120975}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 110.043205, y: 29.25009, z: -46.908928}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 941, y: 22.4, z: 944}
+  m_LocalScale: {x: 3, y: 3, z: 3}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &728120980
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 728120975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72d4517585e92eb4bb91e4adabd45e50, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Health: 0
+  m_Stamina: 0
+  m_WalkSpeed: 0
+  m_RunSpeed: 0
+  m_CrouchSpeed: 0
+  m_ClimbSpeed: 0
+--- !u!1 &1283418923 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 1855011021276348, guid: 7733d2bbae8639147b290b01d6541a4b,
+    type: 2}
+  m_PrefabInternal: {fileID: 1576904882}
 --- !u!1001 &1576904882
 Prefab:
   m_ObjectHideFlags: 0
@@ -467,12 +490,32 @@ Prefab:
         type: 2}
       propertyPath: m_Target
       value: 
-      objectReference: {fileID: 1840000332}
+      objectReference: {fileID: 1283418923}
+    - target: {fileID: 114948857309716500, guid: 88d37fedcc350894998b49c762eef64a,
+        type: 2}
+      propertyPath: dbg_tgt
+      value: 
+      objectReference: {fileID: 728120975}
+    - target: {fileID: 114948857309716500, guid: 88d37fedcc350894998b49c762eef64a,
+        type: 2}
+      propertyPath: m_TargetSwitchHeigth
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 114948857309716500, guid: 88d37fedcc350894998b49c762eef64a,
+        type: 2}
+      propertyPath: m_TargetSwitchElevationSpeed
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 114948857309716500, guid: 88d37fedcc350894998b49c762eef64a,
+        type: 2}
+      propertyPath: m_TargetSwitchTraslationSpeed
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114948857309716500, guid: 88d37fedcc350894998b49c762eef64a,
+        type: 2}
+      propertyPath: m_TargetSwitchFocusSpeed
+      value: 0.7
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 88d37fedcc350894998b49c762eef64a, type: 2}
   m_IsPrefabParent: 0
---- !u!4 &1840000332 stripped
-Transform:
-  m_PrefabParentObject: {fileID: 4764640305543888, guid: 7733d2bbae8639147b290b01d6541a4b,
-    type: 2}
-  m_PrefabInternal: {fileID: 1576904882}

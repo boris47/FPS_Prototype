@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class CameraControl : MonoBehaviour {
+public partial class CameraControl : MonoBehaviour {
 
 	public static CameraControl Instance				= null;
 
@@ -11,9 +11,9 @@ public class CameraControl : MonoBehaviour {
 	const	float			MIN_CAMERA_OFFSET			= 1.5f;
 
 	[Tooltip("Camera Target")]
-	public	Transform		m_Target					= null;
+	public	GameObject		m_Target					= null;
 
-	[Tooltip("Camera Offset")]
+	[Tooltip("Camera TPS Offset")]
 	public	Vector3			m_TPSOffset					= Vector3.zero;
 
 	[Range( 0.2f, 20.0f )]
@@ -38,7 +38,12 @@ public class CameraControl : MonoBehaviour {
 	private float			m_CameraOffset				= 5.0f;
 	private float			m_CurrentCameraOffset		= 5.0f;
 
-	private	Vector3			m_CurrentDirection			 = Vector3.zero;
+	private	Vector3			m_CurrentDirection			= Vector3.zero;
+
+	public	bool			PassiveMode {
+		get { return this.enabled; }
+		set { this.enabled = value; }
+	}
 
 	void Start() {
 		
@@ -59,6 +64,10 @@ public class CameraControl : MonoBehaviour {
 
 
 	private void Update() {
+		
+		if ( Input.GetKeyDown( KeyCode.U ) ) SwitchToTarget( dbg_tgt );
+
+		if ( Input.GetKeyDown( KeyCode.O ) ) SwitchToTarget( Player.Instance.transform.Find("ViewPivot").gameObject );
 
 		if ( Input.GetKeyDown( KeyCode.V ) ) m_TPSMode = !m_TPSMode;
 
@@ -138,14 +147,14 @@ public class CameraControl : MonoBehaviour {
 			m_CurrentCameraOffset = Mathf.Lerp( m_CurrentCameraOffset, m_CameraOffset, Time.deltaTime * 6f );
 
 			if ( m_SmoothedPosition )
-				transform.position = Vector3.Lerp( transform.position, m_Target.position - ( transform.forward * m_CurrentCameraOffset ), Time.deltaTime * 8f );
+				transform.position = Vector3.Lerp( transform.position, m_Target.transform.position - ( transform.forward * m_CurrentCameraOffset ), Time.deltaTime * 8f );
 			else
-				transform.position = m_Target.position - ( transform.forward * m_CurrentCameraOffset );
+				transform.position = m_Target.transform.position - ( transform.forward * m_CurrentCameraOffset );
 
 			transform.position = transform.position + transform.TransformDirection( m_TPSOffset );
 		}
 		else {
-			transform.position = m_Target.position;
+			transform.position = m_Target.transform.position;
 		}
 	
     }
