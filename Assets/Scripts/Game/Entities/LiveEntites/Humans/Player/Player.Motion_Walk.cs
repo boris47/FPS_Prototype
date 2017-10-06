@@ -192,6 +192,9 @@ public partial class Player {
 
 		m_Move.y = m_RigidBody.velocity.y;
 
+		// Apply ground speed modifier
+		m_Move *= m_GroundSpeedModifier;
+
 		// Add jump force
 		if ( bIsJumping && m_Grounded ) m_RigidBody.velocity = m_RigidBody.velocity + Vector3.up * fFinalJump;
 

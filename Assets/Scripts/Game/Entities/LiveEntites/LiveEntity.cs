@@ -45,6 +45,12 @@ public partial class LiveEntity : Entity {
 		set { m_Grounded = value; }
 	}
 
+	protected	float	m_GroundSpeedModifier			= Defaults.FLOAT_ONE;
+	public		float	GroundSpeedModifier {
+		get { return m_GroundSpeedModifier; }
+		set { m_GroundSpeedModifier = value; }
+	}
+
 
 	// Movements
 	[SerializeField]
