@@ -90,32 +90,32 @@ public partial class CameraControl {
 			// Update Phase Factor
 			m_CurrentElevationFactor += m_TargetSwitchElevationSpeed * Time.deltaTime;
 
-
 			// Update Camera
 			{
 				float fNewHeigth = Mathf.Lerp( fOldCamHeigth, fNewCamHeigth, m_CurrentElevationFactor );
 				transform.position = new Vector3( transform.position.x, fNewHeigth, transform.position.z );
 
-				if ( m_CurrentTraslationCoroutine == null )
+			//	if ( m_CurrentTraslationCoroutine == null ) {
+
 					if ( m_TargetSwitchElevationFaceDown )
-						transform.rotation = Quaternion.Slerp( transform.rotation, Quaternion.LookRotation( Vector3.down ), m_CurrentElevationFactor );
+						transform.rotation = Quaternion.Lerp( transform.rotation, Quaternion.LookRotation( Vector3.down ), m_CurrentElevationFactor / 10f );
 					else {
-						transform.rotation = Quaternion.Slerp( transform.rotation, Quaternion.LookRotation( Vector3.up ), m_CurrentElevationFactor );
+						transform.rotation = Quaternion.Lerp( transform.rotation, Quaternion.LookRotation( Vector3.up ),   m_CurrentElevationFactor / 10f );
 					}
+
+			//	}
 			}
 			
 			// Next Coroutine
-			if ( m_CurrentElevationFactor > 0.8f && m_CurrentTraslationCoroutine == null ) {
+			if ( m_CurrentElevationFactor > 0.5f && m_CurrentTraslationCoroutine == null ) {
 				StartCoroutine( m_CurrentTraslationCoroutine = CameraTraslation() );
 			}
-
 
 			yield return null;
 		}
 
 		m_CurrentElevationCoroutine = null;
 		m_CurrentElevationFactor = 0.0f;
-		
 
 	}
 
@@ -154,7 +154,7 @@ public partial class CameraControl {
 			m_CurrentTraslationFactor = Mathf.Abs( 1.0f - ( fDistance / fStartDistance ) );
 
 			// Next Coroutine
-			if ( m_CurrentTraslationFactor > 0.9f && m_CurrentFocusCoroutine == null )
+			if ( m_CurrentTraslationFactor > 0.95f && m_CurrentFocusCoroutine == null )
 				StartCoroutine( m_CurrentFocusCoroutine = CameraTargetFocus() );
 
 			yield return null;
@@ -174,6 +174,7 @@ public partial class CameraControl {
 		print( "CameraTargetFocus" );
 
 		float fOldCamHeigth = transform.position.y;
+		Player pCurrentPlayer = m_TargetSwitchTarget.GetComponent<Player>();
 
 		// while camera is over the target
 		while ( m_CurrentFocusFactor < 1.0f ) {
@@ -183,7 +184,7 @@ public partial class CameraControl {
 				float fNewHeigth = Mathf.Lerp( fOldCamHeigth, m_TargetSwitchTarget.transform.position.y, m_CurrentFocusFactor );
 				transform.position = new Vector3( transform.position.x, fNewHeigth, transform.position.z );
 
-				transform.rotation = Quaternion.Slerp( transform.rotation, m_TargetSwitchTarget.transform.rotation, m_CurrentFocusFactor / 10f );
+				transform.rotation = Quaternion.Slerp( transform.rotation, pCurrentPlayer.FaceDirection, m_CurrentFocusFactor / 30f );
 			}
 
 			// Update Phase Factor
@@ -198,12 +199,8 @@ public partial class CameraControl {
 		if ( pPreviousPlayer ) pPreviousPlayer.IsActive = false;
 
 		// Set current player ( if is ) as active
-		Player pCurrentPlayer = m_TargetSwitchTarget.GetComponent<Player>();
-		if ( pCurrentPlayer ) {
-			pCurrentPlayer.IsActive = true;
-			transform.rotation = Quaternion.identity;
-			m_CurrentDirection = pCurrentPlayer.transform.rotation.eulerAngles;
-		}
+		pCurrentPlayer.IsActive = true;
+		m_CurrentDirection = pCurrentPlayer.FaceDirection.eulerAngles;
 
 		// choose camera target
 		Transform pViewPivot = m_TargetSwitchTarget.transform.Find( "ViewPivot" );
@@ -215,6 +212,9 @@ public partial class CameraControl {
 		// Reset head movements
 		m_HeadBob._Reset( true );
 		m_HeadMove._Reset( true );
+
+		// If camera is in third person mode remove offset to create an effect
+		if ( m_TPSMode ) m_CurrentCameraOffset = 0.0f;
 
 		// re-enable script
 		this.enabled = true;

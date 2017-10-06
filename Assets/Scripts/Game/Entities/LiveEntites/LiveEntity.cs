@@ -8,6 +8,14 @@ public partial class LiveEntity : Entity {
 
 	protected	float	m_LastLandTime					= Defaults.FLOAT_ZERO;
 
+
+	protected	Quaternion	m_FaceDirection				= Quaternion.identity;
+	public		Quaternion FaceDirection {
+		get { return m_FaceDirection; }
+		set { m_FaceDirection = value; }
+	}
+
+
 	[SerializeField]
 	protected	float	m_Health						= Defaults.FLOAT_ZERO;
 

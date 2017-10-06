@@ -16,6 +16,7 @@ public partial class Player : Human {
 	void Start () {
 
 		m_ID = NewID();
+		m_FaceDirection = transform.rotation;
 
 		// Player Components
 		{
