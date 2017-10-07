@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
 static class Defaults {
 
 	public const int	INT_ZERO	= 0;
@@ -13,6 +15,7 @@ static class Defaults {
 };
 
 
+
 public static class GLOBALS {
 
 	public	static Reader			Settings	= null;
@@ -20,7 +23,6 @@ public static class GLOBALS {
 	public	static Reader			Configs		= null;
 
 	public	static Inputmanager		InputMgr	= new Inputmanager();
-
 
 	public	static	Player			Player1		= null;
 	public	static	Player			Player2		= null;

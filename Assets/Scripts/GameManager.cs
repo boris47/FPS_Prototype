@@ -38,13 +38,17 @@ public class GameManager : MonoBehaviour {
 
 		Application.targetFrameRate = 60;
 
-
 	}
 
 
 	private void Start() {
 		
 		GameObject Players = GameObject.Find( "Players" );
+		if ( Players == null ) {
+			Debug.Log( "Cannot Find players" );
+			return;
+		}
+
 		GLOBALS.Player1 = Players.transform.GetChild( 0 ).GetComponent<Player>();
 		GLOBALS.Player2 = Players.transform.GetChild( 1 ).GetComponent<Player>();
 		GLOBALS.Player3 = Players.transform.GetChild( 2 ).GetComponent<Player>();
