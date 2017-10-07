@@ -21,6 +21,9 @@ public class HeadBob : CameraEffectBase {
 
 	[SerializeField]
 	private float	m_Speed						= 1.0f;
+
+	const	float	STEP_VALUE					= 0.8f;
+	private	bool	m_StepDone					= false;
 	
 	private float	m_ThetaUpdateX				= 5f;
 	private float	m_ThetaUpdateY				= 2.5f;
@@ -56,6 +59,18 @@ public class HeadBob : CameraEffectBase {
 
 		m_Direction.x = -Mathf.Cos( m_ThetaX ) * fAmplitude;
 		m_Direction.y =  Mathf.Cos( m_ThetaY ) * fAmplitude;
+
+		// Steps
+		if ( Mathf.Abs( Mathf.Cos( m_ThetaY ) ) > ( STEP_VALUE ) ) {
+			if ( !m_StepDone ) {
+				( pLiveEntity.Foots as IFoots ).PlayStep();
+				m_StepDone = true;
+			}
+		}
+		else {
+			m_StepDone = false;
+		}
+
 
 	}
 

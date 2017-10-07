@@ -2,18 +2,55 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Foots : MonoBehaviour {
+public interface IFoots {
+
+	void PlayStep();
+
+}
+
+
+public class Foots : MonoBehaviour, IFoots {
 
 	private		LiveEntity		m_Parent		= null;
 	public		LiveEntity	Parent {
 		set { m_Parent = value; }
 	}
 
+	private	AudioSource pAudioSource = null;
+
+	private	Collider CurrentCollider = null;
+	private	Vector3	CurrentCollPoint = Vector3.zero;
+
+
+	private void Start() {
+		
+		pAudioSource = GetComponent<AudioSource>();
+
+	}
+
+	public	void	PlayStep() {
+
+		if ( CurrentCollider == null ) return;
+
+		AudioClip randomFootstep = SurfaceManager.Instance.GetFootstep( CurrentCollider, CurrentCollPoint );
+		if(randomFootstep) {
+			if ( pAudioSource.isPlaying ) pAudioSource.Stop();
+			pAudioSource.clip = randomFootstep;
+			pAudioSource.Play();
+
+		}
+
+	}
+
+
 	private void OnTriggerEnter( Collider other ) {
 		
+		CurrentCollider = other;
+		CurrentCollPoint = transform.position;
+
 		if ( m_Parent != null ) {
 
-		if ( other.tag == "Terrain" )
+//		if ( other.tag == "Terrain" )
 			m_Parent.Grounded = true;
 
 		}
@@ -22,8 +59,14 @@ public class Foots : MonoBehaviour {
 
 	private void OnTriggerExit( Collider other ) {
 		
-		if ( other.tag == "Terrain" && m_Parent != null )
-			m_Parent.Grounded = false;
+		CurrentCollider = null;
+
+		if ( m_Parent != null ) {
+
+//			if ( other.tag == "Terrain" )
+				m_Parent.Grounded = false;
+
+		}
 
 	}
 

@@ -5,7 +5,7 @@ using UnityEngine;
 public class Human : LiveEntity {
 
 
-	protected	Transform           m_Foots             = null;
+	
 
 
 }

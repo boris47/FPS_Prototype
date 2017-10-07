@@ -111,7 +111,7 @@ MonoBehaviour:
   m_TPSMode: 0
   m_SmoothedRotation: 1
   m_SmoothedPosition: 0
-  m_SmoothFactor: 5.46
+  m_SmoothFactor: 2
   m_HeadMove:
     m_Amplitude: 0.5
     m_Speed: 1.25

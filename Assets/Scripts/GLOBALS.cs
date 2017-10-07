@@ -9,7 +9,7 @@ static class Defaults {
 
 	public const float	FLOAT_ZERO	= 0.0f;
 	public const float	FLOAT_ONE	= 1.0f;
-
+	
 };
 
 

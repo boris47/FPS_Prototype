@@ -5,19 +5,8 @@ using UnityEngine;
 using System;
 using System.IO;
 
-// PUBLIC INTERFACE
-interface IReader {
 
-	bool IsOK();
-	bool LoadFile( string sFilePath );
-	bool IsLoaded( string sFilePath );
-	bool HasFileElement( string SecName, out Section pSec );
-	Section NewSection ( string Name, Section Inherited );
-	Section GetSection( string SecName );
-}
-
-
-public class Reader : IReader {
+public class Reader {
 
 	// READING PHASES
 	public const int ReadingNothing = 0;
@@ -31,7 +20,7 @@ public class Reader : IReader {
 	private	int				iReadingPhase = ReadingNothing;
 	private Section			pSection = null;
 
-	private	bool	bIsOK	= false;
+	private	bool			bIsOK	= false;
 
 	// CREATE A NEW SECTION WHILE READING FILE
 	private bool Section_Create( string sLine, string sFilePath, int iLine ) {

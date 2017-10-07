@@ -59,6 +59,16 @@ public class GameManager : MonoBehaviour {
 		
 		GLOBALS.InputMgr.Update();
 
+
+		// APPLICATION EXIT
+		if ( Input.GetKeyDown( KeyCode.Escape ) ) {
+#if UNITY_EDITOR
+			UnityEditor.EditorApplication.isPlaying = false;
+#else
+			Application.Quit();
+#endif
+		}
+
 	}
 
 

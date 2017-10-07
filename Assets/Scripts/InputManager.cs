@@ -2,25 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Inputmanager {
-
-	static bool m_HoldCrouch			= false;
-	static public bool HoldCrouch {
-		set { m_HoldCrouch = value; }
-		get { return m_HoldCrouch; }
-	}
-	static bool m_HoldJump				= false;
-	static public bool HoldJump {
-		set { m_HoldJump = value; }
-		get { return m_HoldJump; }
-	}
-	static bool m_HoldRun				= true;
-	static public bool HoldRun {
-		set { m_HoldRun = value; }
-		get { return m_HoldCrouch; }
-	}
-
-	public struct inputs_t {
+public struct inputs_t {
 		public bool Forward, Backward, StrafeLeft, StrafeRight;
 		public bool LeanLeft, LeanRight;
 		public bool Crouch, Jump, Run;
@@ -35,34 +17,33 @@ public class Inputmanager {
 			Item1 = Item2 = Item3 = Item4 = false;
 		}
 
-	};
+};
+
+
+public class Inputmanager {
+
+	static bool m_HoldCrouch			= false;
+	static public bool HoldCrouch {
+		set { m_HoldCrouch = value; }
+		get { return m_HoldCrouch; }
+	}
+
+	static bool m_HoldJump				= false;
+	static public bool HoldJump {
+		set { m_HoldJump = value; }
+		get { return m_HoldJump; }
+	}
+
+	static bool m_HoldRun				= true;
+	static public bool HoldRun {
+		set { m_HoldRun = value; }
+		get { return m_HoldCrouch; }
+	}
 
 	private static inputs_t m_Inputs;
 	public  static inputs_t	Inputs {
 		get { return m_Inputs; }
 	}
-
-	/*
-	// Properties
-	public	bool Forward				{ get { return Inputs.Forward;		} }
-	public	bool Backward				{ get { return Inputs.Backward;		} }
-	public	bool StrafeLeft				{ get { return Inputs.StrafeLeft;	} }
-	public	bool StrafeRight			{ get { return Inputs.StrafeRight;	} }
-
-	public	bool LeanLeft				{ get { return Inputs.LeanLeft;		} }
-	public	bool LeanRight				{ get { return Inputs.LeanRight;	} }
-
-	public	bool Crouch					{ get { return Inputs.Crouch;		} }
-	public	bool Jump					{ get { return Inputs.Jump;			} }
-	public	bool Run					{ get { return Inputs.Run;			} }
-
-	public	bool Use					{ get { return Inputs.Use;			} }
-
-	public	bool Item1					{ get { return Inputs.Item1;		} }
-	public	bool Item2					{ get { return Inputs.Item2;		} }
-	public	bool Item3					{ get { return Inputs.Item3;		} }
-	public	bool Item4					{ get { return Inputs.Item4;		} }
-	*/
 	
 	// Update is called once per frame
 	public void	Update () {
@@ -98,7 +79,6 @@ public class Inputmanager {
 		m_Inputs.Item2			= Input.GetKeyDown ( KeyCode.F2 ) || Input.GetKeyDown ( KeyCode.Keypad2 );
 		m_Inputs.Item3			= Input.GetKeyDown ( KeyCode.F3 ) || Input.GetKeyDown ( KeyCode.Keypad3 );
 		m_Inputs.Item4			= Input.GetKeyDown ( KeyCode.F4 ) || Input.GetKeyDown ( KeyCode.Keypad4 );
-
 
 	}
 }

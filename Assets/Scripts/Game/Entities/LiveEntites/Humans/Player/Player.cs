@@ -21,8 +21,13 @@ public partial class Player : Human {
 		// Player Components
 		{
 			m_RigidBody = GetComponent<Rigidbody>();
-			m_Foots = transform.Find( "FootSpace" );
-			m_Foots.GetComponent<Foots>().Parent = this;
+
+			// Foots
+			Transform pFoots = transform.Find( "FootSpace" );
+			if ( pFoots != null ) {
+				m_Foots = pFoots.GetComponent<Foots>();
+				m_Foots.Parent = this;
+			}
 		}
 
 		// Player Data

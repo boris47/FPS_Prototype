@@ -6,9 +6,18 @@ using UnityEngine;
 public partial class LiveEntity : Entity {
 	
 
+
+
+
+	protected	Foots	m_Foots							= null;
+	public		Foots	Foots {
+		get { return m_Foots; }
+	}
+
 	protected	float	m_LastLandTime					= Defaults.FLOAT_ZERO;
 
 
+	// Face Direction
 	protected	Quaternion	m_FaceDirection				= Quaternion.identity;
 	public		Quaternion FaceDirection {
 		get { return m_FaceDirection; }
