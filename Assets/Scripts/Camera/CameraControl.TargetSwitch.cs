@@ -39,13 +39,28 @@ public partial class CameraControl {
 		get { return m_CurrentFocusFactor; }
 	}
 
-
+	/// <summary>
+	/// Set camera target or start target switch sequence
+	/// </summary>
+	/// <param name="pNextTarget"></param>
 	public	void SwitchToTarget( GameObject pNextTarget ) {
 
 		///// CHECKS
 
 		// Return if no valid target
 		if ( pNextTarget == null ) return;
+
+		// If has not target, set this as camera target
+		if ( m_Target == null ) {
+
+			Transform pViewPivot = pNextTarget.transform.Find( "ViewPivot" );
+			if ( pViewPivot )
+				m_Target = pViewPivot.gameObject;
+			else
+				m_Target = pNextTarget;
+
+			return;
+		}
 
 		// Return if target is already set
 		if ( m_Target.GetInstanceID() == pNextTarget.GetInstanceID() ) return;
@@ -210,8 +225,8 @@ public partial class CameraControl {
 		m_TargetSwitchTarget = null;
 
 		// Reset head movements
-		m_HeadBob._Reset( true );
-		m_HeadMove._Reset( true );
+		m_HeadBob.Reset( true );
+		m_HeadMove.Reset( true );
 
 		// If camera is in third person mode remove offset to create an effect
 		if ( m_TPSMode ) m_CurrentCameraOffset = 0.0f;

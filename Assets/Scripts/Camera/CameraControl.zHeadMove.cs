@@ -22,7 +22,7 @@ public class HeadMove : CameraEffectBase {
 		get { return m_Direction; }
 	}
 
-	public void _Update( LiveEntity pLiveEntity ) {
+	public void Update( LiveEntity pLiveEntity ) {
 
 		if ( m_IsActive == false ) return;
 
@@ -52,7 +52,7 @@ public class HeadMove : CameraEffectBase {
 
 	}
 
-	public void _Reset( bool bInstantly = false ) {
+	public void Reset( bool bInstantly = false ) {
 
 		if ( bInstantly )
 			m_Direction = Vector3.zero;

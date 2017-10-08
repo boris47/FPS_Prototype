@@ -66,14 +66,14 @@ public partial class Player {
 
 					if ( !m_IsUnderSomething ) {
 
-						CameraControl.Instance.m_HeadBob._Reset( true );
+						CameraControl.Instance.HeadBob.Reset( true );
 						m_States.IsCrouched = false;
 
 					}
 					else {
 
 						if ( bJumpInput ) fFinalJump = m_JumpForce / 2.0f;
-						CameraControl.Instance.m_HeadBob._Reset( true );
+						CameraControl.Instance.HeadBob.Reset( true );
 						m_States.IsCrouched = true;
 
 					}

@@ -1,5 +1,6 @@
 
 
+#include Camera.txt
 #include Player1.txt
 #include Player2.txt
 #include Player3.txt

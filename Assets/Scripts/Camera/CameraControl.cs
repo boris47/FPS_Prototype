@@ -22,11 +22,15 @@ public partial class CameraControl : MonoBehaviour {
 	const	float			MAX_CAMERA_OFFSET			= 15f;
 	const	float			MIN_CAMERA_OFFSET			= 1.5f;
 
-	[Tooltip("Camera Target")]
-	public	GameObject		m_Target					= null;
+	[SerializeField][Tooltip("Camera Target")]
+	private	GameObject		m_Target					= null;
+	public	GameObject		Target {
+		get { return m_Target; }
+	}
 
-	[Tooltip("Camera TPS Offset")]
-	public	Vector3			m_TPSOffset					= Vector3.zero;
+
+	[SerializeField][Tooltip("Camera TPS Offset")]
+	private	Vector3			m_TPSOffset					= Vector3.zero;
 
 	[Range( 0.2f, 20.0f )]
 	public	float			m_MouseSensitivity			= 1.0f;
@@ -39,8 +43,17 @@ public partial class CameraControl : MonoBehaviour {
 	[Range( 1.0f, 10.0f )]
 	public float			m_SmoothFactor				= 1.0f;
 
-	public HeadMove			m_HeadMove					= null;
-	public HeadBob			m_HeadBob					= null;
+	[SerializeField]
+	private HeadMove		m_HeadMove					= null;
+	public	HeadMove		HeadMove {
+		get { return m_HeadMove; }
+	}
+
+	[SerializeField]
+	private HeadBob			m_HeadBob					= null;
+	public	HeadBob			HeadBob {
+		get { return m_HeadBob; }
+	}
 
 
 	private float			m_CurrentRotation_X_Delta	= 0.0f;
@@ -77,10 +90,7 @@ public partial class CameraControl : MonoBehaviour {
 
 	private void Update() {
 
-		if ( GLOBALS.Player1 != null && Input.GetKeyDown( KeyCode.F1 ) ) SwitchToTarget( GLOBALS.Player1.gameObject );
-		if ( GLOBALS.Player2 != null && Input.GetKeyDown( KeyCode.F2 ) ) SwitchToTarget( GLOBALS.Player2.gameObject );
-		if ( GLOBALS.Player3 != null && Input.GetKeyDown( KeyCode.F3 ) ) SwitchToTarget( GLOBALS.Player3.gameObject );
-		if ( GLOBALS.Player4 != null && Input.GetKeyDown( KeyCode.F4 ) ) SwitchToTarget( GLOBALS.Player4.gameObject );
+		if ( m_Target == null ) return;
 
 		if ( Input.GetKeyDown( KeyCode.V ) ) {
 
@@ -105,8 +115,8 @@ public partial class CameraControl : MonoBehaviour {
 
 		// Head Effects
 		if ( m_TPSMode ) {
-			m_HeadMove._Reset( false );
-			m_HeadBob._Reset( false );
+			m_HeadMove.Reset( false );
+			m_HeadBob.Reset( false );
 		}
 		else {
 
@@ -114,16 +124,16 @@ public partial class CameraControl : MonoBehaviour {
 			if ( pLiveEnitiy && pLiveEnitiy.Grounded ) {
 
 				if ( pLiveEnitiy.IsMoving ) {
-					m_HeadBob._Update( pLiveEnitiy );
-					m_HeadMove._Reset();
+					m_HeadBob.Update( pLiveEnitiy );
+					m_HeadMove.Reset();
 				} else {
-					m_HeadMove._Update( pLiveEnitiy );
-					m_HeadBob._Reset();
+					m_HeadMove.Update( pLiveEnitiy );
+					m_HeadBob.Reset();
 				}
 
 			} else {
-				m_HeadMove._Reset( true );
-				m_HeadBob._Reset( false );
+				m_HeadMove.Reset( true );
+				m_HeadBob.Reset( false );
 			}
 		}
 
@@ -132,6 +142,8 @@ public partial class CameraControl : MonoBehaviour {
 
 
 	private void LateUpdate() {
+
+		if ( m_Target == null ) return;
 
 		m_SmoothFactor = Mathf.Clamp( m_SmoothFactor, 1.0f, 10.0f );
 

@@ -11,9 +11,9 @@ namespace Footsteps {
 
 
 		public override void OnGUI (Rect position, SerializedProperty property, GUIContent label) {
-			if(!surfManag) {
-				surfManag = GameObject.FindObjectOfType<SurfaceManager>();
 
+			if( !surfManag ) {
+				surfManag = GameObject.FindObjectOfType<SurfaceManager>();
 				return;
 			}
 
