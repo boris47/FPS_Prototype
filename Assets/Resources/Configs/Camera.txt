@@ -20,3 +20,5 @@ HeadMove_Amplitude		= 0.50;
 HeadMove_Speed			= 1.80;
 HeadMove_Theta_Upd_Vert	= 0.80;
 HeadMove_Theta_Upd_Oriz	= 0.40;
+
+
