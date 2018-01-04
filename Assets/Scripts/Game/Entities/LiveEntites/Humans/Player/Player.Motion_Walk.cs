@@ -16,15 +16,14 @@ public partial class Player {
 		bool	bCrouchInput	= Inputmanager.Inputs.Crouch;
 		bool	bJumpInput		= Inputmanager.Inputs.Jump;
 
-
 		float fFinalJump		= 0.0f;
-
+		
 		if ( Inputmanager.HoldCrouch == false )
 			m_States.IsCrouched = m_PreviousStates.IsCrouched;
+			
 
-
-		if ( m_Grounded == false ) {
-
+		if ( m_Grounded == false )
+		{
 			if ( m_RigidBody.velocity.y > 0.0f )
 				m_States.IsHanging = true;
 			else {
@@ -59,27 +58,31 @@ public partial class Player {
 		// Crouch State
 		{
 			// If crouch button is pressed
-			if ( bCrouchInput ) {
-
+			if ( bCrouchInput )
+			{
+				m_States.IsCrouched = !m_PreviousStates.IsCrouched;
+				/*
 				// If is crouched
-				if ( m_States.IsCrouched ) {
-
-					if ( !m_IsUnderSomething ) {
-
+				if ( m_States.IsCrouched )
+				{
+					if ( !m_IsUnderSomething )
+					{
 						CameraControl.Instance.HeadBob.Reset( true );
 						m_States.IsCrouched = false;
-
 					}
-					else {
-
+					else
+					{
 						if ( bJumpInput ) fFinalJump = m_JumpForce / 2.0f;
 						CameraControl.Instance.HeadBob.Reset( true );
-						m_States.IsCrouched = true;
-
+						m_States.IsCrouched = false;
 					}
 				}
+				else
+				{
+					m_States.IsCrouched = true;
+				}
+				*/
 			}
-
 		}
 
 
@@ -128,32 +131,31 @@ public partial class Player {
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Process inputs
 		// If receive input for moving
-		if ( ( fMove != 0.0 ) || ( fStrafe != 0.0 ) ) {
-
-
-			if ( m_States.IsRunning ) {
-
+		if ( ( fMove != 0.0 ) || ( fStrafe != 0.0 ) )
+		{
+			if ( m_States.IsRunning )
+			{
 				fMove		*=	m_RunSpeed * ( fMove > 0 ? 1.0f : 0.8f );
 				fStrafe		*=	m_RunSpeed * 0.6f;
 				m_Stamina	-= m_RunStamina * Time.deltaTime;
-
 			}
-			else if ( m_States.IsCrouched ) {
-
+			else if ( m_States.IsCrouched )
+			{
 				fMove		*= m_CrouchSpeed * ( fMove > 0 ? 1.0f : 0.8f );
 				fStrafe		*= m_CrouchSpeed * 0.6f;
 				m_Stamina	-= m_CrouchStamina * Time.deltaTime;
-
 			}
-			else {	// walking
-					// stamina half restored because we are moving, but just walking
+			else
+			{	// walking
+				// stamina half restored because we are moving, but just walking
 				fMove		*= m_WalkSpeed * ( fMove > 0 ? 1.0f : 0.8f );;
 				fStrafe		*= m_WalkSpeed *  0.6f;
 				m_Stamina	+= m_StaminaRestore / 2.0f * Time.deltaTime;
-
+				m_States.IsWalking = true;
 			}
 
-			if ( !m_States.IsJumping ) m_States.IsMoving = true;
+			if ( !m_States.IsJumping )
+				m_States.IsMoving = true;
 
 		}
 

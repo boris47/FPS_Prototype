@@ -7,14 +7,12 @@ public partial class CameraControl : MonoBehaviour {
 
 	public static CameraControl Instance				= null;
 
-
-
 	const	float			CLAMP_MAX_X_AXIS			= 80.0f;
 	const	float			CLAMP_MIN_X_AXIS			= -80.0f;
-	private	bool			m_ClmapedXAxis				= true;
+	private	bool			m_ClampedXAxis				= true;
 	public	bool			ClampedXAxis {
-		get { return ClampedXAxis; }
-		set { m_ClmapedXAxis = value; }
+		get { return m_ClampedXAxis; }
+		set { m_ClampedXAxis = value; }
 	}
 
 
@@ -55,6 +53,11 @@ public partial class CameraControl : MonoBehaviour {
 		get { return m_HeadBob; }
 	}
 
+	public	bool			PassiveMode
+	{
+		get { return this.enabled; }
+		set { this.enabled = value; }
+	}
 
 	private float			m_CurrentRotation_X_Delta	= 0.0f;
 	private float			m_CurrentRotation_Y			= 0.0f;
@@ -62,22 +65,22 @@ public partial class CameraControl : MonoBehaviour {
 
 	private float			m_CameraOffset				= 5.0f;
 	private float			m_CurrentCameraOffset		= 5.0f;
+	[SerializeField]
+	private	float			m_CameraFPS_Shift			= 0.0f;
 
 	private	Vector3			m_CurrentDirection			= Vector3.zero;
 
-	public	bool			PassiveMode {
-		get { return this.enabled; }
-		set { this.enabled = value; }
-	}
 
-	void Start() {
-		
-		if ( Instance == null )
-			Instance = this;
-		else {
+
+	void Start()
+	{
+		// Sinlgeton
+		if ( Instance != null )
+		{
 			Destroy( gameObject );
 			return;
 		}
+		Instance = this;
 
 		DontDestroyOnLoad( this );
 
@@ -88,12 +91,14 @@ public partial class CameraControl : MonoBehaviour {
 	}
 
 
-	private void Update() {
+	private void Update()
+	{
 
-		if ( m_Target == null ) return;
+		if ( m_Target == null )
+			return;
 
-		if ( Input.GetKeyDown( KeyCode.V ) ) {
-
+		if ( Input.GetKeyDown( KeyCode.V ) )
+		{
 			if ( m_TPSMode )
 				m_TPSMode = false;
 			else {
@@ -102,50 +107,56 @@ public partial class CameraControl : MonoBehaviour {
 			}
 		}
 
-		if ( m_TPSMode ) {
-
+		if ( m_TPSMode )
+		{
 			if ( Input.GetAxis( "Mouse ScrollWheel" ) > 0f && m_CameraOffset > MIN_CAMERA_OFFSET )
 				m_CameraOffset -= 0.5f;
 
 			if ( Input.GetAxis( "Mouse ScrollWheel" ) < 0f && m_CameraOffset < MAX_CAMERA_OFFSET )
 				m_CameraOffset += 0.5f;
-
 		}
 
 
 		// Head Effects
-		if ( m_TPSMode ) {
+		if ( m_TPSMode )
+		{
 			m_HeadMove.Reset( false );
 			m_HeadBob.Reset( false );
 		}
-		else {
-
+		else
+		{
 			LiveEntity pLiveEnitiy = m_Target.GetComponentInParent<LiveEntity>();
-			if ( pLiveEnitiy && pLiveEnitiy.Grounded ) {
-
+			if ( pLiveEnitiy && pLiveEnitiy.Grounded )
+			{
 				if ( pLiveEnitiy.IsMoving ) {
 					m_HeadBob.Update( pLiveEnitiy );
 					m_HeadMove.Reset();
-				} else {
+				}
+				else
+				{
 					m_HeadMove.Update( pLiveEnitiy );
 					m_HeadBob.Reset();
 				}
-
-			} else {
+			}
+			else
+			{
 				m_HeadMove.Reset( true );
 				m_HeadBob.Reset( false );
 			}
 		}
 
-
 	}
 
 
-	private void LateUpdate() {
+	private void LateUpdate()
+	{
 
-		if ( m_Target == null ) return;
+		if ( m_Target == null )
+			return;
 
 		m_SmoothFactor = Mathf.Clamp( m_SmoothFactor, 1.0f, 10.0f );
+
+		LiveEntity pLiveEnitiy = m_Target.GetComponentInParent<LiveEntity>();
 
 		// Rotation
 		{
@@ -165,8 +176,9 @@ public partial class CameraControl : MonoBehaviour {
 				m_CurrentRotation_Y_Delta = Axis_Y_Delta;
 				
 			////////////////////////////////////////////////////////////////////////////////
-			if ( m_CurrentRotation_X_Delta != 0.0f || m_CurrentRotation_Y_Delta != 0.0f ) {
-				if ( m_ClmapedXAxis )
+			if ( m_CurrentRotation_X_Delta != 0.0f || m_CurrentRotation_Y_Delta != 0.0f )
+			{
+				if ( m_ClampedXAxis )
 					m_CurrentDirection.x = Utils.Math.Clamp( m_CurrentDirection.x - m_CurrentRotation_Y_Delta, CLAMP_MIN_X_AXIS, CLAMP_MAX_X_AXIS );
 				else
 					m_CurrentDirection.x = m_CurrentDirection.x - m_CurrentRotation_Y_Delta;
@@ -176,8 +188,8 @@ public partial class CameraControl : MonoBehaviour {
 			// rotation with effect added
 			transform.rotation = Quaternion.Euler( m_CurrentDirection + ( m_HeadBob.Direction + m_HeadMove.Direction ) );
 
-			LiveEntity pLiveEnitiy = m_Target.GetComponentInParent<LiveEntity>();
-			if ( pLiveEnitiy != null ) {
+			if ( pLiveEnitiy != null )
+			{
 				pLiveEnitiy.FaceDirection = transform.rotation;
 			}
 
@@ -187,8 +199,8 @@ public partial class CameraControl : MonoBehaviour {
 
 		// Position
 		{
-
-			if ( m_TPSMode ) {
+			if ( m_TPSMode )
+			{
 				m_CurrentCameraOffset = Mathf.Lerp( m_CurrentCameraOffset, m_CameraOffset, Time.deltaTime * 6f );
 
 				if ( m_SmoothedPosition )
@@ -198,8 +210,13 @@ public partial class CameraControl : MonoBehaviour {
 
 				transform.position = transform.position + transform.TransformDirection( m_TPSOffset );
 			}
-			else {
-				transform.position = m_Target.transform.position;
+			else
+			{
+				bool isCrouched = pLiveEnitiy.IsCrouched;
+				m_CameraFPS_Shift = Mathf.Lerp( m_CameraFPS_Shift, ( isCrouched ) ? 0.5f : 1.0f, Time.deltaTime * 10f );
+
+				transform.position = m_Target.transform.parent.transform.TransformPoint( m_Target.transform.localPosition * m_CameraFPS_Shift );
+				
 			}
 
 		}

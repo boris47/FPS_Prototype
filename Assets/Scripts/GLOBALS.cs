@@ -4,7 +4,7 @@ using UnityEngine;
 
 
 
-static class Defaults {
+static class Defaults{
 
 	public const int	INT_ZERO	= 0;
 	public const int	INT_ONE		= 1;

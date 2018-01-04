@@ -87,12 +87,9 @@ public partial class Player : Human {
 
 
 	// Update is called once per frame
-	void Update () {
+	private void Update () {
 
 		if ( !m_Active ) return;
-
-		// trace previuos states
-		m_PreviousStates = m_States;
 	
 		// Reset "local" states
 		m_States.Reset();
@@ -219,6 +216,9 @@ public partial class Player : Human {
 
 		// Update flashlight position and rotation
 //		pFlashLight->Update();
+
+		// trace previuos states
+		m_PreviousStates = m_States;
 
 	}
 

@@ -22,26 +22,30 @@ public struct inputs_t {
 
 public class Inputmanager {
 
-	static bool m_HoldCrouch			= false;
-	static public bool HoldCrouch {
+	private	static bool m_HoldCrouch			= false;
+	public	static bool HoldCrouch
+	{
 		set { m_HoldCrouch = value; }
 		get { return m_HoldCrouch; }
 	}
 
-	static bool m_HoldJump				= false;
-	static public bool HoldJump {
+	private	static bool m_HoldJump				= false;
+	public	static bool HoldJump
+	{
 		set { m_HoldJump = value; }
 		get { return m_HoldJump; }
 	}
 
-	static bool m_HoldRun				= true;
-	static public bool HoldRun {
+	private	static bool m_HoldRun				= true;
+	public	static bool HoldRun
+	{
 		set { m_HoldRun = value; }
 		get { return m_HoldCrouch; }
 	}
 
 	private static inputs_t m_Inputs;
-	public  static inputs_t	Inputs {
+	public  static inputs_t	Inputs
+	{
 		get { return m_Inputs; }
 	}
 	

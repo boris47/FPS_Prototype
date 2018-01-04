@@ -42,15 +42,16 @@ public class HeadBob : CameraEffectBase {
 
 		float	fStamina	= pLiveEntity.Stamina;
 		bool	bRunning	= pLiveEntity.IsRunning;
+		bool	bCrouched	= pLiveEntity.IsCrouched;
 
 		float fSpeed = m_Speed * m_SpeedMul * Time.deltaTime;
 		fSpeed		*= ( ( bRunning )	?	1.70f : 1.00f );
-	//	fSpeed		*= ( ( bCrouched )	?	0.50f : 1.00f );
+		fSpeed		*= ( ( bCrouched )	?	0.80f : 1.00f );
 	//	fSpeed		*= ( ( bZoomed )	?	0.50f : 1.00f );
 
 		float fAmplitude = m_Amplitude * m_AmplitudeMult;
 		fAmplitude		*= ( ( bRunning )	?	2.00f : 1.00f );
-//		fAmplitude		*= ( ( bCrouched )	?	0.50f : 1.00f );
+		fAmplitude		*= ( ( bCrouched )	?	0.70f : 1.00f );
 	//	fAmplitude		*= ( ( bZoomed )	?	0.80f : 1.00f );
 //		fAmplitude		*= ( 3.0f - fStamina * 2.0f );
 

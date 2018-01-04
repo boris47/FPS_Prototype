@@ -26,17 +26,18 @@ public class HeadMove : CameraEffectBase {
 
 		if ( m_IsActive == false ) return;
 
-		float fStamina = pLiveEntity.Stamina;
+		float	fStamina	= pLiveEntity.Stamina;
+		bool	bCrouched	= pLiveEntity.IsCrouched;
 
 		float fSpeed = m_Speed * m_SpeedMul * Time.deltaTime;
-//		fSpeed		*= ( bCrouched )	?	0.80f : 1.00f;
+		fSpeed		*= ( bCrouched )	?	0.80f : 1.00f;
 //		fSpeed		*= ( bIsUnderwater )?	0.50f : 1.00f;
 //		fSpeed		*= ( bZoomed )		?	0.85f : 1.00f;
 		fSpeed		*= ( 4.0f - ( fStamina * 2.0f ) );
 
 
 		float fAmplitude = m_Amplitude * m_AmplitudeMult;
-//		fAmplitude		*= ( ( bCrouched )	? 0.08f : 1.00f );
+		fAmplitude		*= ( ( bCrouched )	? 0.80f : 1.00f );
 //		fAmplitude		*= ( ( bZoomed )	? 0.85f : 1.00f );
 		fAmplitude		*= ( 5.0f - ( fStamina * 4.0f ) );
 

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 public partial class LiveEntity {
 
+	[System.Serializable]
 	protected class _States {
 
 		public	bool	IsCrouched		= false;
@@ -21,10 +22,9 @@ public partial class LiveEntity {
 		public	bool	IsFalling		= false;
 
 		public void Reset() {
-			IsCrouched = IsMoving = IsWalking = IsRunning = IsJumping = IsHanging = IsFalling = false;
+			IsMoving = IsWalking = IsRunning = IsJumping = IsHanging = IsFalling = false;
 		}
 	};
-
 
 	protected   _States			m_States			= new _States();
 	protected	_States			m_PreviousStates	= new _States();
