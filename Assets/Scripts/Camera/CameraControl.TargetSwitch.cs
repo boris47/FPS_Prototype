@@ -9,80 +9,58 @@ public partial class CameraControl {
 	[Header("Camera Target Switch")]
 	[Tooltip("Heigth at witch camera must rise before traslating")]
 	[SerializeField][Range(2f, 100f)]
-	private float			m_TargetSwitchHeight			= 0.0f;
-	[SerializeField][Tooltip("Speed of camera elevation")]
-	private  float			m_TargetSwitchElevationSpeed	= 0.0f;
-	[SerializeField][Tooltip("Speed of camera traslation")]
-	private  float			m_TargetSwitchTraslationSpeed	= 0.0f;
+	private float			m_TargetSwitchHeight			= 100.0f;
 	[SerializeField][Tooltip("Speed of camera focus")]
-	private  float			m_TargetSwitchFocusSpeed		= 0.0f;
-	[SerializeField][Tooltip("Check if you want camera must face down while rising")]
-	private	bool			m_TargetSwitchElevationFaceDown	= true;
+	private  float			m_TransitionDuration			= 6.0f;
 
-	[SerializeField]
-	private AnimationCurve	m_CameraPositionElevationCurve	= null;
-	[SerializeField]
-	private AnimationCurve	m_CameraPositionTraslationCurve	= null;
-	[SerializeField]
-	private AnimationCurve	m_CameraPositionTargetingCurve	= null;
+	public	AnimationCurve	m_TransitionPositionCurve = new AnimationCurve();
+	public	AnimationCurve	m_TransitionRotationCurve = new AnimationCurve();
 
-	[SerializeField]
-	private AnimationCurve	m_CameraRotationElevationCurve	= null;
-	[SerializeField]
-	private AnimationCurve	m_CameraRotationTraslationCurve	= null;
-	[SerializeField]
-	private AnimationCurve	m_CameraRotationTargetingCurve	= null;
+	private	Player			m_TargetSwitchTarget			= null;
+	private	IEnumerator		m_CameraTransition				= null;
+	public bool	InTransition
+	{
+		get { return m_CameraTransition != null; }
+	}
 
-	private	GameObject		m_TargetSwitchTarget			= null;
 
+
+	/// //////////////////////////////////////////////////////////////////////////
+	/// SwitchToTarget ( Abstract )
 	/// <summary> Switch camera target </summary>
-	public	void SwitchToTarget( GameObject pNextTarget )
+	public	void SwitchToTarget( Player pNextTarget )
 	{
 		///// CHECKS
+		// if already intransition return
+		if ( InTransition )
+			return;
 
 		// Return if no valid target
 		if ( pNextTarget == null )
 			return;
 
-		// If has not target, set this as first camera target
-		Transform pViewPivot = pNextTarget.transform.Find( "ViewPivot" );
-		if ( m_Target == null )
-		{
-			if ( pViewPivot )
-				m_Target = pViewPivot.gameObject;
-			else
-				m_Target = pNextTarget;
-
-			return;
-		}
-		else
-		{
-			// Set previous player ( if was ) as inactive
-			Player pPreviousPlayer = m_Target.GetComponentInParent<Player>();
-			if ( pPreviousPlayer )
-			{
-				Player.CurrentActivePlayer = null;
-				pPreviousPlayer.IsActive = false;
-			}
-		}
+		// Disable previous player
+		Player.CurrentActivePlayer.IsActive = false;;
+		Player.CurrentActivePlayer = null;
 
 		// Return if target is already set
-		if ( m_Target.GetInstanceID() == pNextTarget.GetInstanceID() )
+		if ( m_Target == pNextTarget )
 			return;
 
 		// Return if no valid speed
-		if ( m_TargetSwitchElevationSpeed < 0.001f || m_TargetSwitchTraslationSpeed < 0.001f || m_TargetSwitchFocusSpeed < 0.001f )
+		if ( m_TransitionDuration < 0.001f )
 			return;
 
 		// if player distance is not enough than simply camera switch for target
 		if ( Vector3.Distance( m_Target.transform.position, pNextTarget.transform.position ) <= MIN_DISTANCE )
 		{
-			m_Target = pNextTarget;
+			Transform finalTransform = pNextTarget.transform.GetChild(0);
+			m_Target = finalTransform;
 			return;
 		}
 
 		// save next target reference
-		m_TargetSwitchTarget = ( pViewPivot ) ? pViewPivot.gameObject : pNextTarget;
+		m_TargetSwitchTarget = pNextTarget;
 
 		// Disable update and LateUpdate Callbacks
 		this.enabled = false;
@@ -92,178 +70,72 @@ public partial class CameraControl {
 		m_HeadMove.Reset( true );
 
 		// Start magic things
-		StartCoroutine( CameraElevation() );
-
+		StartCoroutine( m_CameraTransition = CameraTransition() );
 	}
 
-	////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////
 
-	private	IEnumerator CameraElevation()
+
+	/// //////////////////////////////////////////////////////////////////////////
+	/// CameraTransition ( Coroutine )
+	private	IEnumerator	CameraTransition()
 	{
-		print( "CameraElevation" );
+		Vector3		startPosition	= transform.position;
+		Quaternion	startRotation	= transform.rotation;
+		Transform	finalTransform	= m_TargetSwitchTarget.transform.GetChild(0);
 
-		float destinationHeight = transform.position.y + m_TargetSwitchHeight;
-		float startHeight = transform.position.y;
-		float interpolant = 0;
+		float	currentTime = 0f;
+		float	interpolant = 0f;
 
-		// While camera heigth is less than next target's one plus target switch heigth
-		while ( interpolant < 1.0f )
+		while ( interpolant < 1f )
 		{
-			// Update Phase Factor
-			interpolant += m_TargetSwitchElevationSpeed * Time.deltaTime;
+			currentTime += Time.unscaledDeltaTime;
+			interpolant = currentTime / m_TransitionDuration;
 
-			// Update Camera
-			{
-				{	// Position
-					float positionInterpolant = m_CameraPositionElevationCurve.Evaluate( interpolant );
-					transform.position = new Vector3
-					(
-						transform.position.x, 
-						Mathf.Lerp( startHeight, destinationHeight, positionInterpolant ), 
-						transform.position.z
-					);
-				}
+			/// POSITION
+			float positionInterpolant = m_TransitionPositionCurve.Evaluate( interpolant );
+			transform.position = Vector3.Lerp
+			(				
+				GetPosition
+				( 
+					startPosition,
+					startPosition + ( Vector3.up * m_TargetSwitchHeight ),
+					startPosition + ( Vector3.up * m_TargetSwitchHeight * 2f ),
+					finalTransform.position,
+					positionInterpolant
+				),
+				GetPosition
+				(
+					startPosition,
+					finalTransform.position + ( Vector3.up * m_TargetSwitchHeight * 2f ),
+					finalTransform.position + ( Vector3.up * m_TargetSwitchHeight ),
+					finalTransform.position,
+					positionInterpolant
+				),
+				positionInterpolant
+			);
 
-				{	// Rotation
-					float rotationInterpolant = m_CameraRotationElevationCurve.Evaluate( interpolant );
-					transform.rotation = Quaternion.Lerp
-					(
-						transform.rotation,
-						Quaternion.LookRotation( ( m_TargetSwitchElevationFaceDown == true ) ? Vector3.down : Vector3.up, transform.up ),
-						rotationInterpolant
-					);
-				}
-			}
+			/// ROTATION
+			float  rotationInterpolant = m_TransitionRotationCurve.Evaluate( interpolant );
+			transform.rotation = GetRotation
+			( 
+				startRotation,
+				startRotation * Quaternion.LookRotation( Vector3.right, Vector3.up ),
+				m_TargetSwitchTarget.FaceDirection * Quaternion.LookRotation( Vector3.right, Vector3.up ),
+				m_TargetSwitchTarget.FaceDirection,
+				rotationInterpolant
+			);
 
 			yield return null;
 		}
 
-		transform.position = new Vector3( transform.position.x, destinationHeight, transform.position.z );
-		transform.rotation = Quaternion.LookRotation( ( m_TargetSwitchElevationFaceDown == true ) ? Vector3.down : Vector3.up, transform.up );
+		transform.position = finalTransform.position;
+		transform.rotation = m_TargetSwitchTarget.FaceDirection;
 
-		StartCoroutine( CameraTraslation() );
-
-	}
-
-	////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////
-
-	private	IEnumerator CameraTraslation()
-	{
-		print( "CameraTraslation" );
-
-		Player pCurrentPlayer = m_TargetSwitchTarget.GetComponentInParent<Player>();
-
-		Vector3 startPosition = transform.position;
-		float interpolant = 0f;
-
-		while( interpolant < 1.0f )
-		{
-			// Update Phase Factor
-			interpolant += m_TargetSwitchTraslationSpeed * Time.deltaTime;
-
-			// Update camera
-			{
-
-				{	// Position
-					float positionInterpolant = m_CameraPositionTraslationCurve.Evaluate( interpolant );
-					transform.position = Vector3.Lerp
-					( 
-						startPosition,
-						new Vector3 ( m_TargetSwitchTarget.transform.position.x, transform.position.y, m_TargetSwitchTarget.transform.position.z ),
-						positionInterpolant * 0.99f
-					);
-				}
-
-				{	// Rotation
-					float rotationInterpolant = m_CameraRotationTraslationCurve.Evaluate( interpolant );
-					transform.rotation = Quaternion.Slerp
-					( 
-						transform.rotation, 
-						Quaternion.LookRotation( m_TargetSwitchTarget.transform.position - transform.position ),
-						rotationInterpolant
-					);
-				}
-			}
-
-			yield return null;
-		}
-
-		transform.rotation = Quaternion.LookRotation( m_TargetSwitchTarget.transform.position - transform.position );
-
-		StartCoroutine( CameraTargetFocus() );
-	}
-
-	////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////
-
-	private IEnumerator CameraTargetFocus()
-	{
-		print( "CameraTargetFocus" );
-
-		float startCamHeight = transform.position.y;
-		Player pCurrentPlayer = m_TargetSwitchTarget.GetComponentInParent<Player>();
-
-		Vector3 destinationPosition = m_TargetSwitchTarget.transform.parent.transform.TransformPoint( m_TargetSwitchTarget.transform.localPosition );
-
-		float interpolant = 0f;
-
-		// while camera is over the target
-		while ( interpolant < 1.0f )
-		{
-			// Update Phase Factor
-			interpolant += m_TargetSwitchFocusSpeed * Time.deltaTime;
-
-			// Update Camera
-			{
-				{	// Position
-					float positionInterpolant = m_CameraPositionTargetingCurve.Evaluate( interpolant );
-					transform.position = Vector3.Lerp
-					(
-						transform.position, 
-						destinationPosition,
-						positionInterpolant
-					);
-				}
-
-				{	// Rotation
-					float rotationInterpolant = m_CameraRotationTargetingCurve.Evaluate( interpolant );
-					transform.rotation = Quaternion.Slerp
-					(
-						transform.rotation,
-						( pCurrentPlayer ) ? pCurrentPlayer.FaceDirection : m_TargetSwitchTarget.transform.rotation, 
-						rotationInterpolant
-					);
-				}
-			}
-
-			yield return null;
-		}
-
-		transform.position = m_TargetSwitchTarget.transform.parent.transform.TransformPoint( m_TargetSwitchTarget.transform.localPosition );
-
-//		transform.position = new Vector3( transform.position.x, m_TargetSwitchTarget.transform.position.y, transform.position.z );
-		transform.rotation = ( pCurrentPlayer ) ? pCurrentPlayer.FaceDirection : m_TargetSwitchTarget.transform.rotation;
-
-		if ( pCurrentPlayer )
-		{
-		// Set current player ( if is ) as active
-			pCurrentPlayer.IsActive = true;
-			Player.CurrentActivePlayer = pCurrentPlayer;
-			m_CurrentDirection = pCurrentPlayer.FaceDirection.eulerAngles;
-		}
-		else
-		{
-			m_CurrentDirection = m_TargetSwitchTarget.transform.rotation.eulerAngles;
-		}
-
-
-		// set as current target
-		m_Target = m_TargetSwitchTarget;
+		// Set this player as active and current target
+		Player.CurrentActivePlayer = m_TargetSwitchTarget;
+		Player.CurrentActivePlayer.IsActive = true;
+		m_CurrentDirection = Player.CurrentActivePlayer.FaceDirection.eulerAngles;
+		m_Target = finalTransform;
 
 		// clear the target of switch ref
 		m_TargetSwitchTarget = null;
@@ -279,16 +151,32 @@ public partial class CameraControl {
 		// re-enable script
 		this.enabled = true;
 
-		StopAllCoroutines();
+		m_CameraTransition = null;
 	}
 
-
-	private	float	PlaneDistance( Vector3 a, Vector3 b )
+	
+	// BEZIER CURVE
+	private Vector3 GetPosition( Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t )
 	{
-		return Vector3.Distance( new Vector3( a.x, 0.0f, a.z ), new Vector3( b.x, 0.0f, b.z ) );
+		t = Mathf.Clamp01(t);
+		float OneMinusT = 1f - t;
+		return
+			OneMinusT * OneMinusT * OneMinusT * p0 +
+			3f * OneMinusT * OneMinusT * t * p1 +
+			3f * OneMinusT * t * t * p2 +
+			t * t * t * p3;
 	}
-
-
-
+	private Quaternion GetRotation( Quaternion p0, Quaternion p1, Quaternion p2, Quaternion p3, float t )
+	{
+		t = Mathf.Clamp01( t );
+		float OneMinusT = 1f - t;
+		return Quaternion.Euler
+			(
+				OneMinusT * OneMinusT * OneMinusT * p0.eulerAngles +
+				OneMinusT * OneMinusT * t * 3f *	p1.eulerAngles +
+				OneMinusT *         t * t * 3f *	p2.eulerAngles +
+						                t * t * t * p3.eulerAngles
+			);
+	}
 
 }

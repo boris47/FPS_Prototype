@@ -53,6 +53,7 @@ namespace QuestSystem {
 					if ( quest.Completed && quest.NextQuest != null )
 					{
 						currentActiveQuest = quest.NextQuest;
+						currentActiveQuest.currentTask.Interactable.CanInteract = true;
 					}
 				}
 			}

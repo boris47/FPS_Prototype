@@ -75,10 +75,10 @@ public class GameManager : MonoBehaviour {
 
 		GLOBALS.InputMgr.Update();
 
-		if ( GLOBALS.Player1 != null && Input.GetKeyDown( KeyCode.F1 ) ) CameraControl.Instance.SwitchToTarget( GLOBALS.Player1.gameObject );
-		if ( GLOBALS.Player2 != null && Input.GetKeyDown( KeyCode.F2 ) ) CameraControl.Instance.SwitchToTarget( GLOBALS.Player2.gameObject );
-		if ( GLOBALS.Player3 != null && Input.GetKeyDown( KeyCode.F3 ) ) CameraControl.Instance.SwitchToTarget( GLOBALS.Player3.gameObject );
-		if ( GLOBALS.Player4 != null && Input.GetKeyDown( KeyCode.F4 ) ) CameraControl.Instance.SwitchToTarget( GLOBALS.Player4.gameObject );
+		if ( GLOBALS.Player1 != null && Input.GetKeyDown( KeyCode.F1 ) ) CameraControl.Instance.SwitchToTarget( GLOBALS.Player1 );
+		if ( GLOBALS.Player2 != null && Input.GetKeyDown( KeyCode.F2 ) ) CameraControl.Instance.SwitchToTarget( GLOBALS.Player2 );
+		if ( GLOBALS.Player3 != null && Input.GetKeyDown( KeyCode.F3 ) ) CameraControl.Instance.SwitchToTarget( GLOBALS.Player3 );
+		if ( GLOBALS.Player4 != null && Input.GetKeyDown( KeyCode.F4 ) ) CameraControl.Instance.SwitchToTarget( GLOBALS.Player4 );
 
 	}
 

@@ -21,8 +21,8 @@ public partial class CameraControl : MonoBehaviour {
 	const	float			MIN_CAMERA_OFFSET			= 1.5f;
 
 	[SerializeField][Tooltip("Camera Target")]
-	private	GameObject		m_Target					= null;
-	public	GameObject		Target {
+	private	Transform		m_Target					= null;
+	public	Transform		Target {
 		get { return m_Target; }
 	}
 
