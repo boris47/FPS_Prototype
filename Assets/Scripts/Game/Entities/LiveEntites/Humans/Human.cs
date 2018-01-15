@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Human : LiveEntity {
+public abstract class Human : LiveEntity {
 
 
 	

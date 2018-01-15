@@ -121,7 +121,7 @@ MonoBehaviour:
   m_CameraFPS_Shift: 0
   m_TargetSwitchHeight: 50
   m_TargetSwitchElevationSpeed: 0.3
-  m_TargetSwitchTraslationSpeed: 0.2
+  m_TargetSwitchTraslationSpeed: 0.13
   m_TargetSwitchFocusSpeed: 0.3
   m_TargetSwitchElevationFaceDown: 1
   m_CameraPositionElevationCurve:

@@ -1,55 +1,68 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-namespace DigitalRuby.RainMaker
-{
-    public class RainCollision : MonoBehaviour
-    {
-        private static readonly Color32 color = new Color32(255, 255, 255, 255);
-        private readonly List<ParticleCollisionEvent> collisionEvents = new List<ParticleCollisionEvent>();
+public class RainCollision : MonoBehaviour {
 
-        public ParticleSystem RainExplosion;
-        public ParticleSystem RainParticleSystem;
+	public	ParticleSystem					m_RainExplosion			= null;
 
-		private void Start()
+	private	ParticleSystem					m_RainParticleSystem	= null;
+	private	Color32							m_Color					= new Color32( 255, 255, 255, 255 );
+	private	List<ParticleCollisionEvent>	m_CollisionEvents		= new List<ParticleCollisionEvent>();
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// START
+	private void Start()
+	{
+		m_RainParticleSystem = GetComponent<ParticleSystem>();
+		if ( m_RainParticleSystem == null )
 		{
-			if ( RainParticleSystem != null )
-				collisionEvents.Capacity = RainParticleSystem.main.maxParticles;
+			enabled = false;
+			return;
 		}
 
-		private void Emit( ParticleSystem p, ref Vector3 pos )
+		m_CollisionEvents.Capacity = m_RainParticleSystem.main.maxParticles;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Emit
+	private void Emit( ParticleSystem p, ref Vector3 pos )
+	{
+		int count = UnityEngine.Random.Range( 1, 4 );
+		while (count != 0)
 		{
-			int count = UnityEngine.Random.Range( 1, 4 );
-			while (count != 0)
-			{
-				float yVelocity = UnityEngine.Random.Range( 0.5f, 1.0f);
-				float zVelocity = UnityEngine.Random.Range(-0.5f, 1.0f);
-				float xVelocity = UnityEngine.Random.Range(-0.5f, 1.0f);
-				const float lifetime = 0.1f;// UnityEngine.Random.Range(0.25f, 0.75f);
-				float size = UnityEngine.Random.Range(0.05f, 0.1f);
-				ParticleSystem.EmitParams param = new ParticleSystem.EmitParams();
-				param.position = pos;
-				param.velocity = new Vector3(xVelocity, yVelocity, zVelocity);
-				param.startLifetime = lifetime;
-				param.startSize = size;
-				param.startColor = color;
-				p.Emit(param, 1);
-				count--;
-			}
+			float yVelocity = UnityEngine.Random.Range( 0.5f, 1.0f);
+			float zVelocity = UnityEngine.Random.Range(-0.5f, 1.0f);
+			float xVelocity = UnityEngine.Random.Range(-0.5f, 1.0f);
+			const float lifetime = 0.1f;// UnityEngine.Random.Range(0.25f, 0.75f);
+			float size = UnityEngine.Random.Range(0.05f, 0.1f);
+			ParticleSystem.EmitParams param = new ParticleSystem.EmitParams();
+			param.position = pos;
+			param.velocity = new Vector3(xVelocity, yVelocity, zVelocity);
+			param.startLifetime = lifetime;
+			param.startSize = size;
+			param.startColor = m_Color;
+			p.Emit(param, 1);
+			count--;
 		}
+	}
 		
-		private void OnParticleCollision( GameObject obj )
+
+	//////////////////////////////////////////////////////////////////////////
+	// UNITY
+	private void OnParticleCollision( GameObject obj )
+	{
+		if ( m_RainExplosion != null && m_RainParticleSystem != null)
 		{
-			if (RainExplosion != null && RainParticleSystem != null)
+			int count = m_RainParticleSystem.GetCollisionEvents( obj, m_CollisionEvents );
+			for ( int i = 0; i < count; i++ )
 			{
-				int count = RainParticleSystem.GetCollisionEvents(obj, collisionEvents);
-				for ( int i = 0; i < count; i++ )
-				{
-					ParticleCollisionEvent evt = collisionEvents[i];
-					Vector3 pos = evt.intersection;
-					this.Emit( RainExplosion, ref pos );
-				}
+				ParticleCollisionEvent evt = m_CollisionEvents[i];
+				Vector3 pos = evt.intersection;
+				this.Emit( m_RainExplosion, ref pos );
 			}
 		}
-    }
+	}
+
 }

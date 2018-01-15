@@ -8,16 +8,16 @@ public partial class CameraControl {
 
 	[Header("Camera Target Switch")]
 	[Tooltip("Heigth at witch camera must rise before traslating")]
-	[Range(2f, 100f)]
-	public  float			m_TargetSwitchHeight			= 0.0f;
-	[Tooltip("Speed of camera elevation")]
-	public  float			m_TargetSwitchElevationSpeed	= 0.0f;
-	[Tooltip("Speed of camera traslation")]
-	public  float			m_TargetSwitchTraslationSpeed	= 0.0f;
-	[Tooltip("Speed of camera focus")]
-	public  float			m_TargetSwitchFocusSpeed		= 0.0f;
-	[Tooltip("Check if you want camera must face down while rising")]
-	public	bool			m_TargetSwitchElevationFaceDown	= true;
+	[SerializeField][Range(2f, 100f)]
+	private float			m_TargetSwitchHeight			= 0.0f;
+	[SerializeField][Tooltip("Speed of camera elevation")]
+	private  float			m_TargetSwitchElevationSpeed	= 0.0f;
+	[SerializeField][Tooltip("Speed of camera traslation")]
+	private  float			m_TargetSwitchTraslationSpeed	= 0.0f;
+	[SerializeField][Tooltip("Speed of camera focus")]
+	private  float			m_TargetSwitchFocusSpeed		= 0.0f;
+	[SerializeField][Tooltip("Check if you want camera must face down while rising")]
+	private	bool			m_TargetSwitchElevationFaceDown	= true;
 
 	[SerializeField]
 	private AnimationCurve	m_CameraPositionElevationCurve	= null;
@@ -60,7 +60,10 @@ public partial class CameraControl {
 			// Set previous player ( if was ) as inactive
 			Player pPreviousPlayer = m_Target.GetComponentInParent<Player>();
 			if ( pPreviousPlayer )
+			{
+				Player.CurrentActivePlayer = null;
 				pPreviousPlayer.IsActive = false;
+			}
 		}
 
 		// Return if target is already set
@@ -250,6 +253,7 @@ public partial class CameraControl {
 		{
 		// Set current player ( if is ) as active
 			pCurrentPlayer.IsActive = true;
+			Player.CurrentActivePlayer = pCurrentPlayer;
 			m_CurrentDirection = pCurrentPlayer.FaceDirection.eulerAngles;
 		}
 		else

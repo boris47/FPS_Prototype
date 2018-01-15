@@ -11,63 +11,70 @@ public interface IFoots {
 
 public class Foots : MonoBehaviour, IFoots {
 
-	private		LiveEntity		m_Parent		= null;
-	public		LiveEntity	Parent {
-		set { m_Parent = value; }
+	public		LiveEntity		Parent
+	{
+		set;
+		private get;
 	}
 
-	private	AudioSource pAudioSource = null;
+	private	AudioSource			m_AudioSource		= null;
+	private	Collider			m_CurrentCollider	= null;
+	private	Vector3				m_CurrentCollPoint	= Vector3.zero;
 
-	private	Collider CurrentCollider = null;
-	private	Vector3	CurrentCollPoint = Vector3.zero;
 
-
-	private void Start() {
-		
-		pAudioSource = GetComponent<AudioSource>();
-
+	//////////////////////////////////////////////////////////////////////////
+	// START
+	private void Start()
+	{	
+		m_AudioSource = GetComponent<AudioSource>();
 	}
 
-	public	void	PlayStep() {
 
-		if ( CurrentCollider == null ) return;
+	//////////////////////////////////////////////////////////////////////////
+	// PlayStep
+	public	void	PlayStep()
+	{
+		if ( m_CurrentCollider == null )
+			return;
 
-		AudioClip randomFootstep = SurfaceManager.Instance.GetFootstep( CurrentCollider, CurrentCollPoint );
-		if(randomFootstep) {
-			if ( pAudioSource.isPlaying ) pAudioSource.Stop();
-			pAudioSource.clip = randomFootstep;
-			pAudioSource.Play();
-
+		AudioClip footstepClip = SurfaceManager.Instance.GetFootstep( m_CurrentCollider, m_CurrentCollPoint );
+		if( footstepClip != null )
+		{
+			if ( m_AudioSource.isPlaying )
+				m_AudioSource.Stop();
+			m_AudioSource.clip = footstepClip;
+			m_AudioSource.Play();
 		}
-
 	}
 
 
-	private void OnTriggerEnter( Collider other ) {
-		
-		CurrentCollider = other;
-		CurrentCollPoint = transform.position;
+	//////////////////////////////////////////////////////////////////////////
+	// UNITY
+	private void OnTriggerEnter( Collider other )
+	{
+		if ( other.tag != "Terrain" )
+			return;
 
-		if ( m_Parent != null ) {
-
-//		if ( other.tag == "Terrain" )
-			m_Parent.Grounded = true;
-
+		m_CurrentCollider = other;
+		m_CurrentCollPoint = transform.position;
+		if ( Parent != null )
+		{
+			Parent.Grounded = true;
 		}
-
 	}
 
-	private void OnTriggerExit( Collider other ) {
-		
-		CurrentCollider = null;
 
-		if ( m_Parent != null ) {
+	private void OnTriggerExit( Collider other )
+	{
+		if ( other.tag != "Terrain" )
+			return;
 
-//			if ( other.tag == "Terrain" )
-				m_Parent.Grounded = false;
+		m_CurrentCollider = null;
 
+		if ( Parent != null )
+		{
+			Parent.Grounded = false;
 		}
-
 	}
 
 

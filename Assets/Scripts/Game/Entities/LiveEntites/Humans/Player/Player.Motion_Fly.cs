@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public partial class Player {
 	
 	private	void	Update_Fly() {
@@ -32,8 +33,7 @@ public partial class Player {
 			m_Move *= 0.707f;
 		}
 
-		m_RigidBody.velocity =
-			Vector3.Lerp ( m_RigidBody.velocity, new Vector3(  m_Move.x, m_RigidBody.velocity.y, m_Move.z ), Time.deltaTime * 50f );
+		m_RigidBody.velocity = Vector3.Lerp ( m_RigidBody.velocity, new Vector3(  m_Move.x, m_RigidBody.velocity.y, m_Move.z ), Time.deltaTime * 50f );
 
 		m_RigidBody.drag = 2.0f;
 

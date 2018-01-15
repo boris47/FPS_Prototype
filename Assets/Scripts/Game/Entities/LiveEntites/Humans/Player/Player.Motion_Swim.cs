@@ -6,7 +6,8 @@ public partial class Player {
 	
 	private	void	Update_Swim() {
 
-		if ( m_Health <= 0.0f ) return;
+		if ( m_Health <= 0.0f )
+			return;
 
 		float   fMove			= Inputmanager.Inputs.Forward     ? 1.0f : Inputmanager.Inputs.Backward   ? -1.0f : 0.0f;
 		float   fStrafe			= Inputmanager.Inputs.StrafeRight ? 1.0f : Inputmanager.Inputs.StrafeLeft ? -1.0f : 0.0f;
@@ -17,8 +18,8 @@ public partial class Player {
 
 		// States.bIsMoving can disable HeadMove in favor of HeadBob, that is disabled while swimming
 		bool bIsMoving = false;
-		if ( ( fMove != 0.0 ) || ( fStrafe != 0.0 ) || ( fUpDown != 0.0 ) ) bIsMoving = true;
-
+		if ( ( fMove != 0.0 ) || ( fStrafe != 0.0 ) || ( fUpDown != 0.0 ) )
+			bIsMoving = true;
 
 		// vertical force is relative to x local axis rotation of camera
 		float fVertical = ( CameraControl.Instance.transform.rotation.eulerAngles.x / 80.0f );
@@ -31,10 +32,8 @@ public partial class Player {
 		// set main speed
 		fVertical *= m_WalkSpeed;
 
-
 		fMove	*= ( bRunButtonHolden ? m_RunSpeed : m_WalkSpeed ) * ( fMove > 0 ? 1.0f : 0.8f );
 		fStrafe	*= ( bRunButtonHolden ? m_RunSpeed : m_WalkSpeed ) * 0.6f;
-
 
 		// Apply smoothing on movements
 		m_MoveSmooth	= Mathf.Lerp( m_MoveSmooth,	  fMove,   Time.deltaTime * 20f );
@@ -56,19 +55,15 @@ public partial class Player {
 
 		m_Move.y = m_RigidBody.velocity.y;
 
-		m_RigidBody.velocity =
-			Vector3.Lerp( m_RigidBody.velocity, m_Move, Time.deltaTime * 50f );
-
-
+		m_RigidBody.velocity =  Vector3.Lerp( m_RigidBody.velocity, m_Move, Time.deltaTime * 50f );
+	
 		m_VerticalSmooth = Mathf.Lerp( fVertical, m_RigidBody.velocity.y + m_VerticalSmooth, bRunButtonHolden ? 10.0f : 30.0f );
-
 
 		// Stamina regenerates at half speed if using sprint otherwise at regular speed
 		m_Stamina += ( bRunButtonHolden ? m_StaminaRestore / 2.0f : m_StaminaRestore );
 
 		// Clamp Stamina between 0.0 and 1.0
 		m_Stamina = Mathf.Clamp( m_Stamina, 0.0f, 1.0f );
-
 
 	}
 

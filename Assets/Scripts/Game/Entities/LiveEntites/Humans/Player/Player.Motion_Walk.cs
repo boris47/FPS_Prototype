@@ -7,7 +7,8 @@ public partial class Player {
 
 	private	void	Update_Walk() {
 
-		if ( m_Health <= 0.0f ) return;
+		if ( m_Health <= 0.0f )
+			return;
 
 		float 	fMove 			= Inputmanager.Inputs.Forward     ? 1.0f : Inputmanager.Inputs.Backward   ? -1.0f : 0.0f;
 		float 	fStrafe			= Inputmanager.Inputs.StrafeRight ? 1.0f : Inputmanager.Inputs.StrafeLeft ? -1.0f : 0.0f;
@@ -29,6 +30,7 @@ public partial class Player {
 			else {
 				m_States.IsFalling = true;
 			}
+
 
 			if ( m_PreviousStates.IsHanging && m_States.IsFalling )
 				m_LastLandTime = Time.time;
@@ -61,6 +63,9 @@ public partial class Player {
 			if ( bCrouchInput )
 			{
 				m_States.IsCrouched = !m_PreviousStates.IsCrouched;
+
+				// adapt the collider
+
 				/*
 				// If is crouched
 				if ( m_States.IsCrouched )

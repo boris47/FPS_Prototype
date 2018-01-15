@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public partial class LiveEntity {
+public abstract partial class LiveEntity {
 
 	public enum eMotionType {
 		None		= 1 << 0,
@@ -27,103 +27,34 @@ public partial class LiveEntity {
 
 
 
-	public		void					SetMotionType( eMotionType i ) {
-
+	public		void	SetMotionType( eMotionType m )
+	{
 		m_PrevMotionType = m_MotionType;
-		switch( i ) {
-
-			case eMotionType.Walking:	{ this.SetPlainWalking(); return; }
-			case eMotionType.Flying:	{ this.SetFlying(); return; }
-			case eMotionType.Swimming:	{ this.SetSwimming(); return; }
-			case eMotionType.P1ToP2:	{ this.SetClimbing(); return; }
+		switch( m )
+		{
+			case eMotionType.Walking:	{ SetMotionTypeInternal( m, true,	new bool[3] { false, false, true } ); return; }
+			case eMotionType.Flying:	{ SetMotionTypeInternal( m, false,	new bool[3] { true,  true,  true } ); return; }
+			case eMotionType.Swimming:	{ SetMotionTypeInternal( m, false,	new bool[3] { true,  true,  true } ); return; }
+			case eMotionType.P1ToP2:	{ SetMotionTypeInternal( m, false,	new bool[3] { false, false, true } ); return; }
 		}
 
 	}
 
-
-	public		void					SetPlainWalking() {
-
-		if ( m_MotionType == eMotionType.Walking ) return;
+	private	void	SetMotionTypeInternal( eMotionType type, bool useGravity, bool[] inputs )
+	{
+		if ( m_MotionType == type )
+			return;
 
 		m_PrevMotionType = m_MotionType;
-		m_MotionType	 = eMotionType.Walking;
+		m_MotionType	 = type;
 
 		m_States.Reset();
 
-		if ( m_RigidBody != null )
-			m_RigidBody.useGravity = true;
+		m_RigidBody.useGravity = useGravity;
 
-		Inputmanager.HoldCrouch = false;
-		Inputmanager.HoldJump	= false;
-		Inputmanager.HoldRun = true;
-
+		Inputmanager.HoldCrouch = inputs[0];
+		Inputmanager.HoldJump = inputs[1];
+		Inputmanager.HoldRun = inputs[2];
 	}
-
-	public		void					SetFlying() {
-
-		if ( m_MotionType == eMotionType.Flying ) return;
-	
-		m_PrevMotionType = m_MotionType;
-		m_MotionType	 = eMotionType.Flying;
-
-
-		m_States.Reset();
-
-		if ( m_RigidBody != null )
-			m_RigidBody.useGravity = false;
-
-		Inputmanager.HoldCrouch = true;
-		Inputmanager.HoldJump = true;
-		Inputmanager.HoldRun = true;
-
-	}
-
-	public		void					SetSwimming() {
-
-		if ( m_MotionType == eMotionType.Swimming ) return;
-	
-		m_PrevMotionType = m_MotionType;
-		m_MotionType	 = eMotionType.Swimming;
-
-		m_States.Reset();
-
-		if ( m_RigidBody != null )
-			m_RigidBody.useGravity = false;
-
-		Inputmanager.HoldCrouch = true;
-		Inputmanager.HoldJump = true;
-		Inputmanager.HoldRun = true;
-
-	}
-
-	public		void					SetClimbing() {
-
-		if ( m_MotionType == eMotionType.P1ToP2 ) return;
-	
-		m_PrevMotionType = m_MotionType;
-		m_MotionType = eMotionType.P1ToP2;
-
-		bool b = IsCrouched;
-		m_States.Reset();
-		m_States.IsCrouched = b;
-
-
-		if ( m_RigidBody != null )
-			m_RigidBody.useGravity = false;
-
-		Inputmanager.HoldCrouch = false;
-		Inputmanager.HoldJump = false;
-		Inputmanager.HoldRun = true;
-
-	}
-
-
-
-
-
-
-	
-
-
 
 }

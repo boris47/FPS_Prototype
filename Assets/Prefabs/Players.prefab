@@ -411,7 +411,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1068915048727118}
   m_LocalRotation: {x: 0, y: 0.38268343, z: 0, w: 0.92387956}
-  m_LocalPosition: {x: -97, y: 40, z: -686}
+  m_LocalPosition: {x: -97, y: -21.22, z: -686}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4074505338338890}
@@ -966,6 +966,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 983c6976c4b8bb14388e50f16a1b97a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_CanInteract: 1
+  m_UseDistance: 2
   m_Health: 100
   m_Stamina: 0
   m_WalkSpeed: 3
@@ -1016,6 +1018,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 983c6976c4b8bb14388e50f16a1b97a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_CanInteract: 1
+  m_UseDistance: 2
   m_Health: 100
   m_Stamina: 0
   m_WalkSpeed: 3
@@ -1033,6 +1037,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 983c6976c4b8bb14388e50f16a1b97a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_CanInteract: 1
+  m_UseDistance: 2
   m_Health: 100
   m_Stamina: 0
   m_WalkSpeed: 3
@@ -1050,6 +1056,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 983c6976c4b8bb14388e50f16a1b97a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_CanInteract: 1
+  m_UseDistance: 2
   m_Health: 100
   m_Stamina: 0
   m_WalkSpeed: 3

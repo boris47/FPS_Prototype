@@ -33,7 +33,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &160098
 GameObject:
   m_ObjectHideFlags: 0
@@ -42,7 +42,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 470886}
-  - component: {fileID: 11437536}
+  - component: {fileID: 114214858904661384}
   m_Layer: 0
   m_Name: RainPrefab
   m_TagString: Untagged
@@ -60,7 +60,7 @@ GameObject:
   - component: {fileID: 487684}
   - component: {fileID: 18204160}
   m_Layer: 0
-  m_Name: RainWindZone
+  m_Name: WindZone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -153,36 +153,6 @@ Transform:
   m_Father: {fileID: 470886}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &11437536
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 160098}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6ff5b1f04dece7440b6f0886ee13f147, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Camera: {fileID: 0}
-  FollowCamera: 1
-  RainSoundLight: {fileID: 8300000, guid: c980eda1ec9b9ff4b930005976b00f41, type: 3}
-  RainSoundMedium: {fileID: 8300000, guid: 3359e9d10af08ca46ae396298dbd1ed9, type: 3}
-  RainSoundHeavy: {fileID: 8300000, guid: db1471092e49b7445bfbd374a17ea61a, type: 3}
-  RainIntensity: 0
-  RainFallParticleSystem: {fileID: 19831730}
-  RainExplosionParticleSystem: {fileID: 19824492}
-  RainMistParticleSystem: {fileID: 0}
-  RainMistThreshold: 0.8
-  WindSound: {fileID: 8300000, guid: f9826f595784348498b57bcf6b2c8b1f, type: 3}
-  WindSoundVolumeModifier: 1
-  WindZone: {fileID: 18204160}
-  WindSpeedRange: {x: 50, y: 100, z: 100}
-  WindChangeInterval: {x: 5, y: 30}
-  EnableWind: 1
-  RainHeight: 3
-  RainForwardOffset: -1.5
-  RainMistHeight: 3
 --- !u!114 &11482444
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -194,8 +164,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30b85ae89f8f0994a85aa62bf5a0e160, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RainExplosion: {fileID: 19824492}
-  RainParticleSystem: {fileID: 19831730}
+  m_RainExplosion: {fileID: 19824492}
 --- !u!182 &18204160
 WindZone:
   m_ObjectHideFlags: 1
@@ -268,7 +237,7 @@ ParticleSystem:
   moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 2
-  randomSeed: -1167817116
+  randomSeed: 1433515396
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -3536,7 +3505,7 @@ ParticleSystem:
   moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 2
-  randomSeed: 762831454
+  randomSeed: -1555016500
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -3896,7 +3865,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     randomizeRotationDirection: 0
-    maxNumParticles: 7000
+    maxNumParticles: 5000
     size3D: 0
     rotation3D: 0
     gravityModifier:
@@ -3943,7 +3912,7 @@ ParticleSystem:
   ShapeModule:
     serializedVersion: 5
     enabled: 1
-    type: 8
+    type: 5
     angle: 45
     length: 25
     boxThickness: {x: 0, y: 0, z: 0}
@@ -3951,7 +3920,7 @@ ParticleSystem:
     donutRadius: 0.2
     m_Position: {x: 0, y: 0, z: 0}
     m_Rotation: {x: 0, y: 0, z: 0}
-    m_Scale: {x: 1, y: 1, z: 1}
+    m_Scale: {x: 30, y: 1, z: 30}
     placementMode: 2
     m_Mesh: {fileID: 0}
     m_MeshRenderer: {fileID: 0}
@@ -6726,7 +6695,7 @@ ParticleSystem:
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 2
-  randomSeed: 76992180
+  randomSeed: 1156136213
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -10076,3 +10045,27 @@ Prefab:
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 160098}
   m_IsPrefabParent: 1
+--- !u!114 &114214858904661384
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 160098}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fadb2792073be54387ad764e856d440, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_RainSoundLight: {fileID: 8300000, guid: c980eda1ec9b9ff4b930005976b00f41, type: 3}
+  m_RainSoundMedium: {fileID: 8300000, guid: 3359e9d10af08ca46ae396298dbd1ed9, type: 3}
+  m_RainSoundHeavy: {fileID: 8300000, guid: db1471092e49b7445bfbd374a17ea61a, type: 3}
+  m_RainIntensity: 0
+  m_RainMistThreshold: 0.5
+  m_WindSound: {fileID: 8300000, guid: f9826f595784348498b57bcf6b2c8b1f, type: 3}
+  m_WindSoundVolumeModifier: 0.5
+  m_WindSpeedRange: {x: 2, y: 30, z: 500}
+  m_WindChangeInterval: {x: 5, y: 30}
+  m_EnableWind: 1
+  m_RainHeight: 3
+  m_RainForwardOffset: 0
+  m_RainMistHeight: 3

@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
+public class GameEvent      : UnityEngine.Events.UnityEvent { }
+
 public class GameManager : MonoBehaviour {
 
 	public static GameManager Instance = null;
@@ -51,8 +54,9 @@ public class GameManager : MonoBehaviour {
 		GLOBALS.Player4 = m_Players.GetChild( 3 ).GetComponent<Player>();
 
 		GLOBALS.Player1.IsActive = true;
+		Player.CurrentActivePlayer = GLOBALS.Player1;
 
-		CameraControl.Instance.SwitchToTarget( GLOBALS.Player1.gameObject );
+//		CameraControl.Instance.SwitchToTarget( GLOBALS.Player1.gameObject );
 	}
 
 

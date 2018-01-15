@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-enum ENTITY_TYPE{
+enum ENTITY_TYPE {
 	NONE,
 	ACTOR,
 	HUMAN,
@@ -15,6 +15,7 @@ public interface IEntity {
 
 	bool			IsLiveEntity();
 	LiveEntity		GetAsLiveEntity();
+
 	bool			IsHuman();
 	Human			GetAsHuman();
 
@@ -25,7 +26,10 @@ public interface IEntity {
 	bool			IsUnderWater();
 }
 
-public class Entity : MonoBehaviour, IEntity {
+
+
+[RequireComponent(typeof(Rigidbody))]
+public abstract class Entity : MonoBehaviour, IEntity {
 
 	private	static uint CurrentID = 0;
 	public	static uint NewID() {

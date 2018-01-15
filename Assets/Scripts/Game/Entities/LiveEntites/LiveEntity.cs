@@ -3,32 +3,44 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public partial class LiveEntity : Entity {
+public abstract partial class LiveEntity : Interactable {
 	
-
-
-
-
-	protected	Foots	m_Foots							= null;
-	public		Foots	Foots {
+	protected	Foots			m_Foots						= null;
+	public		Foots			Foots
+	{
 		get { return m_Foots; }
 	}
 
-	protected	float	m_LastLandTime					= Defaults.FLOAT_ZERO;
+	// DRAG
+	protected	GameObject		m_DraggedObject				= null;
+	public		GameObject		DraggedObject
+	{
+		get { return m_DraggedObject; }
+	}
+	protected	SpringJoint		m_DragJoint					= null;
+	protected	float			m_DraggedObjectMass			= 0f;
+	protected	bool			m_DraggedObjectUseGravity	= false;
+
+	[SerializeField]
+	protected	float			m_UseDistance				= 1f;
 
 
 	// Face Direction
-	protected	Quaternion	m_FaceDirection				= Quaternion.identity;
-	public		Quaternion FaceDirection {
+	protected	Quaternion		m_FaceDirection				= Quaternion.identity;
+	public		Quaternion		FaceDirection
+	{
 		get { return m_FaceDirection; }
 		set { m_FaceDirection = value; }
 	}
 
 
-	[SerializeField]
-	protected	float	m_Health						= Defaults.FLOAT_ZERO;
 
-	public		float	Health {
+	// PLAYER PARAMENTERS
+	[SerializeField]
+	protected	float			m_Health					= 0f;
+
+	public		float			Health
+	{
 		get { return m_Health; }
 		set { m_Health = value; }
 	}
@@ -36,69 +48,75 @@ public partial class LiveEntity : Entity {
 
 	// Stamina always reach 1.0f
 	[SerializeField]
-	protected	float	m_Stamina						= Defaults.FLOAT_ZERO;
-	public		float	Stamina {
+	protected	float			m_Stamina					= 0f;
+	public		float			Stamina
+	{
 		get { return m_Stamina; }
 		set { m_Stamina = Mathf.Clamp01( value ); }
 	}
 
-	protected	float	m_ViewRange						= Defaults.FLOAT_ZERO;
-	public		float	ViewRange {
+	protected	float			m_ViewRange					= 0f;
+	public		float			ViewRange
+	{
 		get { return m_ViewRange; }
 		set { m_ViewRange = Mathf.Clamp( value, 0.0f, 9999.0f ); }
 	}
 
-	protected	bool	m_Grounded						= true;
-	public		bool	Grounded {
+	protected	bool			m_Grounded					= true;
+	public		bool			Grounded
+	{
 		get { return m_Grounded; }
 		set { m_Grounded = value; }
 	}
 
-	protected	float	m_GroundSpeedModifier			= Defaults.FLOAT_ONE;
-	public		float	GroundSpeedModifier {
+	protected	float			m_GroundSpeedModifier		= 1f;
+	public		float			GroundSpeedModifier
+	{
 		get { return m_GroundSpeedModifier; }
 		set { m_GroundSpeedModifier = value; }
 	}
 
 
+
 	// Movements
 	[SerializeField]
-	protected	float	m_WalkSpeed						= Defaults.FLOAT_ZERO;
+	protected	float	m_WalkSpeed						= 0f;
 	[SerializeField]
-	protected	float	m_RunSpeed						= Defaults.FLOAT_ZERO;
+	protected	float	m_RunSpeed						= 0f;
 	[SerializeField]
-	protected	float	m_CrouchSpeed					= Defaults.FLOAT_ZERO;
+	protected	float	m_CrouchSpeed					= 0f;
 	[SerializeField]
-	protected	float	m_ClimbSpeed					= Defaults.FLOAT_ZERO;
+	protected	float	m_ClimbSpeed					= 0f;
 		
-	protected	float	m_WalkJumpCoef					= Defaults.FLOAT_ZERO;
-	protected	float	m_RunJumpCoef					= Defaults.FLOAT_ZERO;
-	protected	float	m_CrouchJumpCoef				= Defaults.FLOAT_ZERO;
+	protected	float	m_WalkJumpCoef					= 0f;
+	protected	float	m_RunJumpCoef					= 0f;
+	protected	float	m_CrouchJumpCoef				= 0f;
 		
-	protected	float	m_WalkStamina					= Defaults.FLOAT_ZERO;
-	protected	float	m_RunStamina					= Defaults.FLOAT_ZERO;
-	protected	float	m_CrouchStamina					= Defaults.FLOAT_ZERO;
+	protected	float	m_WalkStamina					= 0f;
+	protected	float	m_RunStamina					= 0f;
+	protected	float	m_CrouchStamina					= 0f;
 
-	protected	float	m_JumpForce						= Defaults.FLOAT_ZERO;
-	protected	float	m_JumpStamina					= Defaults.FLOAT_ZERO;
+	protected	float	m_JumpForce						= 0f;
+	protected	float	m_JumpStamina					= 0f;
 		
-	protected	float	m_StaminaRestore				= Defaults.FLOAT_ZERO;
-	protected	float	m_StaminaRunMin					= Defaults.FLOAT_ZERO;
-	protected	float	m_StaminaJumpMin				= Defaults.FLOAT_ZERO;
+	protected	float	m_StaminaRestore				= 0f;
+	protected	float	m_StaminaRunMin					= 0f;
+	protected	float	m_StaminaJumpMin				= 0f;
 	
 	
 
 
 	// Var used for smooth movements of entity
-	protected	float	m_MoveSmooth					= Defaults.FLOAT_ZERO;
-	protected	float	m_StrafeSmooth					= Defaults.FLOAT_ZERO;
-	protected	float	m_VerticalSmooth				= Defaults.FLOAT_ZERO;
+	protected	float	m_MoveSmooth					= 0f;
+	protected	float	m_StrafeSmooth					= 0f;
+	protected	float	m_VerticalSmooth				= 0f;
 
 	protected	bool	m_IsUnderSomething				= false;
 	protected	bool	m_Tiredness						= false;
 	
 	protected	bool	m_HeavyFall						= false;
 	protected	bool	m_Landed						= false;
-	
+
+	protected	float	m_LastLandTime					= 0f;
 
 }

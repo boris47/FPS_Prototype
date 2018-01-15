@@ -1,8 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿
+using System;
 using UnityEngine;
 
+
 public partial class Player : Human {
+
+	public	static	Player	CurrentActivePlayer	= null;
 
 	private		Vector3				m_Move				= Vector3.zero;
 
@@ -12,7 +15,10 @@ public partial class Player : Human {
 		set { m_Active = value; }
 	}
 
-	// Use this for initialization
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// START
 	void Start () {
 
 		m_ID = NewID();
@@ -82,18 +88,73 @@ public partial class Player : Human {
 
 		SetMotionType( eMotionType.Walking );
 
+
+		m_DragPoint = new GameObject( "GrabPoint" );
+		m_DragPoint.transform.SetParent( transform );
+		m_DragPoint.transform.localPosition = Vector3.zero;
+		m_DragPoint.transform.localRotation = Quaternion.identity;
+		m_DragPoint.transform.Translate( 0f, 0f, m_UseDistance );
+//		var rb = m_DragPoint.AddComponent<Rigidbody>();
+//		rb.useGravity = false;
+//		rb.isKinematic = true;
+
+	}
+
+	private GameObject m_DragPoint = null;
+
+
+	public override void OnInteraction()
+	{}
+
+
+
+
+	private	void DropEntityDragged()
+	{
+		Rigidbody rb	= m_DraggedObject.GetComponent<Rigidbody>();
+		rb.useGravity	= m_DraggedObjectUseGravity;
+		rb.mass			= m_DraggedObjectMass;
+		rb.velocity		= Vector3.zero;
+		m_DraggedObject = null;
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
+	// UNITY
+	private void FixedUpdate()
+	{
+		if ( !m_Active )
+			return;
 
-	// Update is called once per frame
+		if ( m_DraggedObject == null )
+			return;
+
+		float distance = Vector3.Distance( m_DraggedObject.transform.position, m_DragPoint.transform.position );
+		if ( distance > m_UseDistance + 0.2f )
+		{
+			DropEntityDragged();
+			return;
+		}
+
+		// Dragging Update
+		Rigidbody rb = m_DraggedObject.GetComponent<Rigidbody>();
+		rb.MovePosition( m_DragPoint.transform.position );
+		rb.rotation = CameraControl.Instance.transform.rotation;
+		rb.angularVelocity = rb.velocity = Vector3.zero;
+	}
+
+
 	private void Update () {
 
-		if ( !m_Active ) return;
+		if ( !m_Active )
+			return;
 	
 		// Reset "local" states
 		m_States.Reset();
 
+		// Update Grab point position
+		m_DragPoint.transform.position = CameraControl.Instance.transform.position + ( CameraControl.Instance.transform.forward * m_UseDistance );
+		m_DragPoint.transform.rotation = CameraControl.Instance.transform.rotation;
 
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Pick eventual collision info from camera to up
@@ -106,54 +167,39 @@ public partial class Player : Human {
 
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Check for usage
-/*		{
-			if ( Engine()->InputManager()->Use() ) {
-				if ( !IsDragging() ) { // if is not draggind an entity
-					Leadwerks::PickInfo pInfo;
-					Leadwerks::Vec3 vUsageDistance = Leadwerks::Transform::Point( 0.0f, 0.0f, USE_DISTANCE, CamManager()->GetCamera(), NULL );
-					bool bResult = World()->GetWorld()->Pick( vCamPos, vUsageDistance, pInfo, USE_RADIUS, true );
-					if ( bResult && pInfo.entity ) {
-						Leadwerks::Entity *pEntity = pInfo.entity;
+		{
+			if ( Inputmanager.Inputs.Use )
+			{
+				if ( m_DraggedObject == null )
+				{
+					RaycastHit hit;
+					if ( Physics.Raycast( CameraControl.Instance.transform.position, CameraControl.Instance.transform.forward, out hit, m_UseDistance ))
+					{
+						// Interactions
+						Interactable interactable = hit.transform.GetComponent<Interactable>();
+						if ( interactable != null && interactable.CanInteract )
+							interactable.OnInteraction();
 
-						if ( pEntity->ContainsFunction( "Use" ) )   pEntity->CallFunction( "Use" );
-						else
-						if ( pEntity->ContainsFunction( "Drag" ) ) { pEntity->CallFunction( "Drag" );
-							SetDragging( pEntity );
+						// Drag
+						Draggable draggable = hit.transform.GetComponent<Draggable>();
+						if ( draggable && interactable.CanInteract )
+						{
+							m_DraggedObject = hit.transform.gameObject;
+							Rigidbody rb = m_DraggedObject.GetComponent<Rigidbody>();
+							m_DraggedObjectMass = rb.mass;
+							m_DraggedObjectUseGravity = rb.useGravity;
+							rb.mass = 1f;
+							rb.useGravity = false;
+							rb.interpolation = RigidbodyInterpolation.Extrapolate;
 						}
 					}
 				}
-				else { // if is dragging an entity
+				else
+				{
 					DropEntityDragged();
 				}
 			}
 		}
-*/
-
-		////////////////////////////////////////////////////////////////////////////////////////
-		// Dragging Update
-/*		{
-			if ( IsDragging() ) {
-				Leadwerks::Vec3 pEntityDraggedPos = Dragged.pEntity->GetPosition( true );
-				Leadwerks::Vec3 vNewPosition = Leadwerks::Transform::Point(    Dragged.vPosition, CamManager()->GetCamera(), NULL );
-				Leadwerks::Vec3 vNewRotation = Leadwerks::Transform::Rotation( Dragged.vRotation, CamManager()->GetCamera(), NULL );
-
-				float fMaxDifference = 0.5f;
-				float fDistance = vNewPosition.DistanceToPoint( pEntityDraggedPos );
-				if ( fDistance > 1.5 )  {
-					DropEntityDragged();
-				}
-				else {
-					if ( fDistance > fMaxDifference ) {
-						vNewPosition = pEntityDraggedPos + ( vNewPosition - pEntityDraggedPos ).Normalize() * fMaxDifference;
-						fDistance = fMaxDifference;
-					}
-					Dragged.pEntity->PhysicsSetPosition( vNewPosition.x, vNewPosition.y, vNewPosition.z, 0.25 * ( IsSwimming() ? 0.5 : 1.0 ) );
-					Dragged.pEntity->PhysicsSetRotation( vNewRotation, 0.5 );
-				}
-			}
-		}
-*/
-
 
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Water
@@ -213,6 +259,9 @@ public partial class Player : Human {
 				case eMotionType.P1ToP2:	{ this.Update_P1ToP2();		break; }
 			}
 		}
+
+		// rotate the capsule of the player
+		transform.rotation = Quaternion.Euler( Vector3.Scale( CameraControl.Instance.transform.rotation.eulerAngles, new Vector3( 0f, 1f, 0f ) ) );
 
 		// Update flashlight position and rotation
 //		pFlashLight->Update();

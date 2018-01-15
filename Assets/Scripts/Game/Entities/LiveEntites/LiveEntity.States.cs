@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 
 
-public partial class LiveEntity {
+public abstract partial class LiveEntity {
 
 	[System.Serializable]
 	protected class _States {
@@ -21,7 +21,8 @@ public partial class LiveEntity {
 		public	bool	IsHanging		= false;
 		public	bool	IsFalling		= false;
 
-		public void Reset() {
+		public void Reset()
+		{
 			IsMoving = IsWalking = IsRunning = IsJumping = IsHanging = IsFalling = false;
 		}
 	};

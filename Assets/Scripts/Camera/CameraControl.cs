@@ -30,16 +30,19 @@ public partial class CameraControl : MonoBehaviour {
 	[SerializeField][Tooltip("Camera TPS Offset")]
 	private	Vector3			m_TPSOffset					= Vector3.zero;
 
-	[Range( 0.2f, 20.0f )]
-	public	float			m_MouseSensitivity			= 1.0f;
+	[SerializeField][Range( 0.2f, 20.0f )]
+	private	float			m_MouseSensitivity			= 1.0f;
 
-	public	bool			m_TPSMode					= false;
+	[SerializeField]
+	private	bool			m_TPSMode					= false;
 
-	public	bool			m_SmoothedRotation			= true;
-	public	bool			m_SmoothedPosition			= true;
+	[SerializeField]
+	private bool			m_SmoothedRotation			= true;
+	[SerializeField]
+	private	bool			m_SmoothedPosition			= true;
 
-	[Range( 1.0f, 10.0f )]
-	public float			m_SmoothFactor				= 1.0f;
+	[SerializeField][Range( 1.0f, 10.0f )]
+	private float			m_SmoothFactor				= 1.0f;
 
 	[SerializeField]
 	private HeadMove		m_HeadMove					= null;
