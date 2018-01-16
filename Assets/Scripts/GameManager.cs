@@ -55,8 +55,6 @@ public class GameManager : MonoBehaviour {
 
 		GLOBALS.Player1.IsActive = true;
 		Player.CurrentActivePlayer = GLOBALS.Player1;
-
-//		CameraControl.Instance.SwitchToTarget( GLOBALS.Player1.gameObject );
 	}
 
 

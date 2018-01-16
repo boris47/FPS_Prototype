@@ -16,13 +16,13 @@ public partial class CameraControl {
 	public	AnimationCurve	m_TransitionPositionCurve = new AnimationCurve();
 	public	AnimationCurve	m_TransitionRotationCurve = new AnimationCurve();
 
-	private	Player			m_TargetSwitchTarget			= null;
-	private	IEnumerator		m_CameraTransition				= null;
 	public bool	InTransition
 	{
 		get { return m_CameraTransition != null; }
 	}
 
+	private	Player			m_TargetSwitchTarget			= null;
+	private	IEnumerator		m_CameraTransition				= null;
 
 
 	/// //////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,7 @@ public partial class CameraControl {
 	/// <summary> Switch camera target </summary>
 	public	void SwitchToTarget( Player pNextTarget )
 	{
+
 		///// CHECKS
 		// if already intransition return
 		if ( InTransition )
@@ -39,10 +40,6 @@ public partial class CameraControl {
 		if ( pNextTarget == null )
 			return;
 
-		// Disable previous player
-		Player.CurrentActivePlayer.IsActive = false;;
-		Player.CurrentActivePlayer = null;
-
 		// Return if target is already set
 		if ( m_Target == pNextTarget )
 			return;
@@ -51,16 +48,18 @@ public partial class CameraControl {
 		if ( m_TransitionDuration < 0.001f )
 			return;
 
+		// save next target reference
+		m_TargetSwitchTarget = pNextTarget;
+
 		// if player distance is not enough than simply camera switch for target
-		if ( Vector3.Distance( m_Target.transform.position, pNextTarget.transform.position ) <= MIN_DISTANCE )
+		if ( Vector3.Distance( pNextTarget.transform.position, Player.CurrentActivePlayer.transform.position ) <= MIN_DISTANCE )
 		{
-			Transform finalTransform = pNextTarget.transform.GetChild(0);
-			m_Target = finalTransform;
+			// Skip bezier jump and instantly swith to next target
+			OnEndTransition( pNextTarget );
 			return;
 		}
 
-		// save next target reference
-		m_TargetSwitchTarget = pNextTarget;
+		m_TargetSwitchHeight = Vector3.Distance( pNextTarget.transform.position, Player.CurrentActivePlayer.transform.position ) / 5f;
 
 		// Disable update and LateUpdate Callbacks
 		this.enabled = false;
@@ -86,6 +85,7 @@ public partial class CameraControl {
 		float	currentTime = 0f;
 		float	interpolant = 0f;
 
+		// Transition
 		while ( interpolant < 1f )
 		{
 			currentTime += Time.unscaledDeltaTime;
@@ -130,33 +130,45 @@ public partial class CameraControl {
 
 		transform.position = finalTransform.position;
 		transform.rotation = m_TargetSwitchTarget.FaceDirection;
-
-		// Set this player as active and current target
-		Player.CurrentActivePlayer = m_TargetSwitchTarget;
-		Player.CurrentActivePlayer.IsActive = true;
-		m_CurrentDirection = Player.CurrentActivePlayer.FaceDirection.eulerAngles;
-		m_Target = finalTransform;
-
-		// clear the target of switch ref
-		m_TargetSwitchTarget = null;
-
+		
 		// Reset head movements
 		m_HeadBob.Reset( true );
 		m_HeadMove.Reset( true );
 
+		// re-enable script
+		this.enabled = true;
+
+		OnEndTransition( m_TargetSwitchTarget );
+	}
+
+
+	/// //////////////////////////////////////////////////////////////////////////
+	/// OnEndTransition
+	private	void	OnEndTransition( Player pNextTarget )
+	{
+		
+		// Disable previous player
+		Player.CurrentActivePlayer.IsActive = false;;
+		
+		// Set this player as active and current target
+		Transform finalTransform = pNextTarget.transform.GetChild(0);
+		m_Target = finalTransform;
+		Player.CurrentActivePlayer = m_TargetSwitchTarget;
+		Player.CurrentActivePlayer.IsActive = true;
+		
+		// clear the target of switch ref
+		m_TargetSwitchTarget = null;
+
 		// If camera is in third person mode remove offset to create an effect
 		if ( m_TPSMode )
 			m_CurrentCameraOffset = 0.0f;
-
-		// re-enable script
-		this.enabled = true;
 
 		m_CameraTransition = null;
 	}
 
 	
 	// BEZIER CURVE
-	private Vector3 GetPosition( Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t )
+	private Vector3		GetPosition( Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t )
 	{
 		t = Mathf.Clamp01(t);
 		float OneMinusT = 1f - t;
@@ -166,7 +178,7 @@ public partial class CameraControl {
 			3f * OneMinusT * t * t * p2 +
 			t * t * t * p3;
 	}
-	private Quaternion GetRotation( Quaternion p0, Quaternion p1, Quaternion p2, Quaternion p3, float t )
+	private Quaternion	GetRotation( Quaternion p0, Quaternion p1, Quaternion p2, Quaternion p3, float t )
 	{
 		t = Mathf.Clamp01( t );
 		float OneMinusT = 1f - t;
