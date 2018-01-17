@@ -51,6 +51,9 @@ public partial class CameraControl {
 		// save next target reference
 		m_TargetSwitchTarget = pNextTarget;
 
+		// Disable previous player
+		Player.CurrentActivePlayer.IsActive = false;
+
 		// if player distance is not enough than simply camera switch for target
 		if ( Vector3.Distance( pNextTarget.transform.position, Player.CurrentActivePlayer.transform.position ) <= MIN_DISTANCE )
 		{
@@ -118,13 +121,13 @@ public partial class CameraControl {
 			float  rotationInterpolant = m_TransitionRotationCurve.Evaluate( interpolant );
 			transform.rotation = GetRotation
 			( 
-				startRotation,
-				startRotation * Quaternion.LookRotation( Vector3.right, Vector3.up ),
-				m_TargetSwitchTarget.FaceDirection * Quaternion.LookRotation( Vector3.right, Vector3.up ),
-				m_TargetSwitchTarget.FaceDirection,
+				startRotation,																				0.4f,
+				Quaternion.LookRotation( m_TargetSwitchTarget.transform.position - transform.position ),	0.6f,
+				Quaternion.LookRotation( m_TargetSwitchTarget.transform.position - transform.position ),	0.8f,
+				m_TargetSwitchTarget.FaceDirection,															1.0f,
 				rotationInterpolant
 			);
-
+			
 			yield return null;
 		}
 
@@ -147,15 +150,14 @@ public partial class CameraControl {
 	private	void	OnEndTransition( Player pNextTarget )
 	{
 		
-		// Disable previous player
-		Player.CurrentActivePlayer.IsActive = false;;
-		
 		// Set this player as active and current target
 		Transform finalTransform = pNextTarget.transform.GetChild(0);
 		m_Target = finalTransform;
 		Player.CurrentActivePlayer = m_TargetSwitchTarget;
 		Player.CurrentActivePlayer.IsActive = true;
 		
+		m_CurrentDirection = m_TargetSwitchTarget.FaceDirection.eulerAngles;
+
 		// clear the target of switch ref
 		m_TargetSwitchTarget = null;
 
@@ -173,22 +175,31 @@ public partial class CameraControl {
 		t = Mathf.Clamp01(t);
 		float OneMinusT = 1f - t;
 		return
-			OneMinusT * OneMinusT * OneMinusT * p0 +
-			3f * OneMinusT * OneMinusT * t * p1 +
-			3f * OneMinusT * t * t * p2 +
-			t * t * t * p3;
+			1f * OneMinusT * OneMinusT * OneMinusT * p0 +
+			3f * OneMinusT * OneMinusT *    t      * p1 +
+			3f * OneMinusT *     t     *    t      * p2 +
+			1f *     t     *     t     *    t      * p3;
 	}
-	private Quaternion	GetRotation( Quaternion p0, Quaternion p1, Quaternion p2, Quaternion p3, float t )
+	private Quaternion	GetRotation( Quaternion p0, float w1, Quaternion p1, float w2, Quaternion p2, float w3, Quaternion p3, float w4, float t )
 	{
 		t = Mathf.Clamp01( t );
 		float OneMinusT = 1f - t;
 		return Quaternion.Euler
-			(
-				OneMinusT * OneMinusT * OneMinusT * p0.eulerAngles +
-				OneMinusT * OneMinusT * t * 3f *	p1.eulerAngles +
-				OneMinusT *         t * t * 3f *	p2.eulerAngles +
-						                t * t * t * p3.eulerAngles
-			);
+		(
+			1f * OneMinusT * OneMinusT * OneMinusT * p0.eulerAngles +
+			3f * OneMinusT * OneMinusT *     t     * p1.eulerAngles +
+			3f * OneMinusT *     t     *     t     * p2.eulerAngles +
+			1f *     t     *     t     *     t     * p3.eulerAngles
+		);
+	}
+	private Quaternion	GetRotation( Quaternion p0, Quaternion p1, Quaternion p2, float t )
+	{
+		t = Mathf.Clamp01( t );
+		float OneMinusT = 1f - t;
+		return 
+			Quaternion.Euler( OneMinusT * OneMinusT * 1f *  p0.eulerAngles ) *
+			Quaternion.Euler( OneMinusT *    t      * 2f *	p1.eulerAngles ) *
+			Quaternion.Euler( 	  t     *    t      * 2f *	p2.eulerAngles );
 	}
 
 }

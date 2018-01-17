@@ -9,8 +9,9 @@ public partial class Player : Human {
 
 	private		Vector3				m_Move				= Vector3.zero;
 
-	private		bool	m_Active	= false;
-	public		bool	IsActive {
+	private		bool				m_Active			= false;
+	public		bool				IsActive
+	{
 		get { return m_Active; }
 		set { m_Active = value; }
 	}
@@ -262,7 +263,7 @@ public partial class Player : Human {
 
 		// rotate the capsule of the player
 		transform.rotation = Quaternion.Euler( Vector3.Scale( CameraControl.Instance.transform.rotation.eulerAngles, new Vector3( 0f, 1f, 0f ) ) );
-
+		m_FaceDirection = CameraControl.Instance.transform.rotation;
 		// Update flashlight position and rotation
 //		pFlashLight->Update();
 
