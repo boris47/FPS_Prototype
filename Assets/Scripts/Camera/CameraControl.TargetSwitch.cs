@@ -121,10 +121,10 @@ public partial class CameraControl {
 			float  rotationInterpolant = m_TransitionRotationCurve.Evaluate( interpolant );
 			transform.rotation = GetRotation
 			( 
-				startRotation,																				0.4f,
-				Quaternion.LookRotation( m_TargetSwitchTarget.transform.position - transform.position ),	0.6f,
-				Quaternion.LookRotation( m_TargetSwitchTarget.transform.position - transform.position ),	0.8f,
-				m_TargetSwitchTarget.FaceDirection,															1.0f,
+						startRotation,
+						Quaternion.LookRotation( m_TargetSwitchTarget.transform.position - transform.position ),
+				0.25f,	Quaternion.LookRotation( m_TargetSwitchTarget.transform.position - transform.position ),
+				0.52f,	m_TargetSwitchTarget.FaceDirection,
 				rotationInterpolant
 			);
 			
@@ -144,7 +144,7 @@ public partial class CameraControl {
 		OnEndTransition( m_TargetSwitchTarget );
 	}
 
-
+	  
 	/// //////////////////////////////////////////////////////////////////////////
 	/// OnEndTransition
 	private	void	OnEndTransition( Player pNextTarget )
@@ -180,18 +180,17 @@ public partial class CameraControl {
 			3f * OneMinusT *     t     *    t      * p2 +
 			1f *     t     *     t     *    t      * p3;
 	}
-	private Quaternion	GetRotation( Quaternion p0, float w1, Quaternion p1, float w2, Quaternion p2, float w3, Quaternion p3, float w4, float t )
+
+	// MY CUSTOM FORMULA
+	private Quaternion	GetRotation( Quaternion p0, Quaternion p1, float w1, Quaternion p2, float w2, Quaternion p3, float t )
 	{
 		t = Mathf.Clamp01( t );
-		float OneMinusT = 1f - t;
-		return Quaternion.Euler
-		(
-			1f * OneMinusT * OneMinusT * OneMinusT * p0.eulerAngles +
-			3f * OneMinusT * OneMinusT *     t     * p1.eulerAngles +
-			3f * OneMinusT *     t     *     t     * p2.eulerAngles +
-			1f *     t     *     t     *     t     * p3.eulerAngles
-		);
+
+		if ( t < w1 ) return Quaternion.Slerp( p0, p1, ( t - 0f ) / ( w1 - 0f ) );
+		if ( t < w2 ) return Quaternion.Slerp( p1, p2, ( t - w1 ) / ( w2 - w1 ) );
+					  return Quaternion.Slerp( p2, p3, ( t - w2 ) / ( 1f - w2 ) );
 	}
+	// BAZIER BASED FORMULA
 	private Quaternion	GetRotation( Quaternion p0, Quaternion p1, Quaternion p2, float t )
 	{
 		t = Mathf.Clamp01( t );

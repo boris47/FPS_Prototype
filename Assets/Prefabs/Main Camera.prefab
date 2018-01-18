@@ -119,8 +119,8 @@ MonoBehaviour:
     m_Amplitude: 0.3
     m_Speed: 2
   m_CameraFPS_Shift: 0
-  m_TargetSwitchHeight: 100
-  m_TransitionDuration: 6
+  m_TargetSwitchHeight: 15.3
+  m_TransitionDuration: 8
   m_TransitionPositionCurve:
     serializedVersion: 2
     m_Curve:
@@ -169,6 +169,14 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 0
+  interpolant1: 0
+  g_interpolant1: 0
+  interpolant2: 0
+  g_interpolant2: 0
+  interpolant3: 0
+  g_interpolant3: 0
+  interpolant4: 0
+  g_interpolant4: 0
 --- !u!124 &124522482642438596
 Behaviour:
   m_ObjectHideFlags: 1
