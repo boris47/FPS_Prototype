@@ -17,7 +17,7 @@ interface ISection {
 	void					Add( cLineValue LineValue );
 	bool					HasKey( string Key );
 
-	int						KeyType( string Key );
+	System.Type				ValueType( string Key );
 	string					GetRawValue ( string Key, string Default = "" );
 
 	bool					AsBool( string Key, bool Default = false );
@@ -124,31 +124,21 @@ public class Section : ISection {
 		return ( this[ Key ] != null );
 
 	}
+	
 
-	// Return the type of a value assigned to a key, or -1
-	public	int						KeyType( string Key ) {
-
-		if ( vSection.Count < 1 ) return -1;
-
-		cLineValue pLineValue = null; cValue Value = null;
-		if ( ( pLineValue = this[ Key ] ) != null ) {
-			LineValueType iType = pLineValue.Type;
-			switch( iType ) {
-				case LineValueType.SINGLE: {
-					if ( ( Value = pLineValue.Value ) != null ) { return ( int ) Value.Type; }
-					Debug.LogError( "cSection::KeyType:WARNING! In section " + sName + " a key has no value but designed as SINGLE !!!" );
-					break;
-				}
-				case LineValueType.MULTI: {
-						if ( ( pLineValue.MultiValue != null ) ) return ( int ) iType;
-						Debug.LogError( "cSection::KeyType:WARNING! In section " + sName + " a key has no value but designed as MULTI !!!" );
-						break;
-				}
+	public	System.Type				ValueType( string Key )
+	{
+		cLineValue pLineValue = null;
+		if ( ( pLineValue = this[ Key ] ) != null )
+		{
+			if ( pLineValue.Type == LineValueType.SINGLE )
+			{
+				return pLineValue.Value.GetType();
 			}
 		}
-
-		return -1;
+		return null;
 	}
+
 
 	public	string					GetRawValue ( string Key, string Default = "" ) {
 
@@ -379,6 +369,26 @@ public class Section : ISection {
 	}
 
 	public	bool					bAsVec4( string Key, ref Vector4 Out, Vector4 Default ) {
+
+		cLineValue pLineValue = null; cMultiValue pMultiValue = null;
+		cValue pValue1 = null; cValue pValue2 = null; cValue pValue3 = null; cValue pValue4 = null;
+		if ( ( pLineValue = this[ Key ] ) != null ) {
+			if ( ( pMultiValue = pLineValue.MultiValue ) != null ) {
+				if ( (	( pValue1 = pMultiValue[ 0 ] ) != null ) && 
+					 (	( pValue2 = pMultiValue[ 1 ] ) != null ) &&
+					 (	( pValue3 = pMultiValue[ 2 ] ) != null ) &&
+					 (  ( pValue4 = pMultiValue[ 3 ] ) != null )  ){
+					Out = new Vector4( pValue1.ToFloat(), pValue2.ToFloat(), pValue3.ToFloat(), pValue4.ToFloat() );
+					return true;
+				}
+			}
+		}
+
+		Out = Default;
+		return false;
+	}
+
+	public	bool					bAsColor( string Key, ref Color Out, Color Default ) {
 
 		cLineValue pLineValue = null; cMultiValue pMultiValue = null;
 		cValue pValue1 = null; cValue pValue2 = null; cValue pValue3 = null; cValue pValue4 = null;

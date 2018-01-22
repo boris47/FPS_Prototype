@@ -1,104 +1,66 @@
 ﻿
+public class cValue {
 
-
-public interface ICValue {
-
-	bool	ToBool();
-	int		ToInteger();
-	float	ToFloat();
-	string	ToString();
-
-}
-
-
-public class cValue : ICValue {
-
-	private object		pValue;
-	private ValueTypes	iType = ValueTypes.NONE;
-	private	System.Type	iSysType;
-
-	public	object	Value {
-		get { return pValue; }
+	public	object	Value
+	{
+		get;
+		private set;
 	}
 
-	public ValueTypes	Type {
-		get { return iType; }
+	public	cValue( object value )
+	{
+		Value = value;
 	}
-
-	public System.Type	SysType {
-		get { return iSysType; }
+	
+	public	cValue( System.Type type )
+	{
+		if ( type == typeof ( bool ) )		Value = false;
+		if ( type == typeof ( int ) )		Value = 0;
+		if ( type == typeof ( float ) )		Value = 0.0f;
+		if ( type == typeof ( string ) )	Value = "";	
 	}
-
-
-
-	public	cValue()		{}
-
-	public	cValue( bool Val )		{ pValue = Val; iType = ValueTypes.BOOLEAN;	iSysType = typeof( bool ); }
-	public	cValue( int Val )		{ pValue = Val; iType = ValueTypes.INTEGER;	iSysType = typeof( int ); }
-	public	cValue( float Val )		{ pValue = Val; iType = ValueTypes.FLOAT;	iSysType = typeof( float );}
-	public	cValue( string Val )	{ pValue = Val; iType = ValueTypes.STRING;	iSysType = typeof( string ); }
-
-	/*
-	public cValue SetValue( object o ) {
-		pValue = o;
-		System.Type objType = o.GetType();
-		if ( objType == typeof( bool   ) ) iType = ValueTypes.BOOLEAN;
-		if ( objType == typeof( int    ) ) iType = ValueTypes.INTEGER;
-		if ( objType == typeof( float  ) ) iType = ValueTypes.FLOAT;
-		if ( objType == typeof( string ) ) iType = ValueTypes.STRING;
-
-		if ( objType == typeof( cValue ) ) {
-			iType = ( o as cValue ).iType;
-			pValue = ( o as cValue ).pValue;
-			iSysType = ( o as cValue ).iSysType;
-		}
-		else
-			iSysType = objType;
-		return this;
-	}*/
 	
 
-	public T As<T>() {
-
-		return (T) pValue;
-
+	public T1 As<T1>()
+	{
+		return (T1) Value;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////
 
 	public bool ToBool() {
 
-		if ( iType == ValueTypes.BOOLEAN ) return ( bool ) pValue;
+//		if ( iType == ValueTypes.BOOLEAN ) return ( bool ) Value;
 
 		bool bValue = false;
-		try { bValue = ( bool ) pValue; } catch {}
+		try { bValue = ( bool ) Value; } catch {}
 		return bValue;
 	}
 
 	public int ToInteger() {
 
-		if ( iType == ValueTypes.INTEGER ) return ( int ) pValue;
+//		if ( iType == ValueTypes.INTEGER ) return ( int ) Value;
 
 		int iValue = 0;
-		try { iValue = ( int ) pValue; } catch {}
+		try { iValue = ( int ) Value; } catch {}
 		return iValue;
 	}
 
 	public float ToFloat() {
 
-		if ( iType == ValueTypes.FLOAT ) return ( float ) pValue;
+//		if ( iType == ValueTypes.FLOAT ) return ( float ) Value;
 
 		float fValue = 0.0f;
-		try { fValue = ( float ) pValue; } catch {}
+		try { fValue = ( float ) Value; } catch {}
 		return fValue;
 	}
 
 	public override string ToString() {
 
-		if ( iType == ValueTypes.STRING ) return ( string ) pValue;
+//		if ( iType == ValueTypes.STRING ) return ( string ) Value;
 
 		string sValue = "";
-		try { sValue = ( string ) pValue; } catch {}
+		try { sValue = ( string ) Value; } catch {}
 		return sValue;
 	}
 	

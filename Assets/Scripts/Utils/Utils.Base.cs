@@ -6,7 +6,6 @@ using UnityEngine;
 
 
 //* TYPES */
-public enum ValueTypes			{ NONE, BOOLEAN, INTEGER, FLOAT, STRING };
 public enum LineValueType		{ SINGLE, MULTI };
 
 public struct KeyValue {

@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections .Generic;
-using System.Linq;
-using System.Text;
+﻿
+using System;
+using System.Collections.Generic;
+
 using UnityEngine;
 
 
@@ -68,7 +68,7 @@ namespace Utils {
 		}
 
 		// Return the type of value reading the string
-		private static byte ReturnValueType( string sLine ) {
+		private static global::System.Type ReturnValueType( string sLine ) {
 			bool b_IsString = false, b_IsNumber = false, b_DotFound = false;
 			for ( int i = 0; i < sLine.Length ; i++ ) {
 
@@ -78,48 +78,48 @@ namespace Utils {
 				if ( Char > 47 && Char < 58 && !b_IsString ) {			// is number and not a str
 					b_IsNumber = true;									// ok, now is a number
 				}
-				if ( IsValidChar( Char ) ) {						// is char [ A-Z ] or [ a-z ] or :
+				if ( IsValidChar( Char ) ) {							// is char [ A-Z ] or [ a-z ] or :
 					b_IsString = true; b_IsNumber = false;				// if was a number now is a string, never more a number
 					break;
 				}
 			}
 
-			if ( b_IsNumber ) {										// try understand if is a int or float type
-				if ( b_DotFound ) return ( byte )ValueTypes.FLOAT;	// because of dot is probably a float value
-				else return ( byte )ValueTypes.INTEGER;             // No dot found so is probably an integer
+			if ( b_IsNumber ) {											// try understand if is a int or float type
+				if ( b_DotFound ) return typeof( float );				// because of dot is probably a float value
+				else return typeof( int );								// No dot found so is probably an integer
 			}
 
-			if ( b_IsString ) {										// try understand if is a string or boolean type
+			if ( b_IsString ) {											// try understand if is a string or boolean type
 				if ( ( sLine.ToLower() == "true" ) || ( sLine.ToLower() == "false" ) ) {
-					return ( byte )ValueTypes.BOOLEAN;
-				} else return ( byte )ValueTypes.STRING;
+					return typeof( bool );
+				} else return typeof( string );
 			}
 
-			return ( byte )ValueTypes.NONE;
+			return null;
 		}
 
 		// Return a cValue object if value is identified, otherwise null
-		public static cValue RecognizeValue( string sLine ) {	
-		
-			switch( ReturnValueType( sLine ) ) {
-				case ( byte ) ValueTypes.NONE:	break;
-				case ( byte ) ValueTypes.INTEGER:	{
-						int i = -1;
-						Int32.TryParse( sLine, out i );
-						return new cValue( i );
-				}
-				case ( byte ) ValueTypes.BOOLEAN:	{ 
-					return ( sLine.ToLower() == "true" ) ? ( new cValue( true ) ) : ( new cValue( false ) );
-				}
-				case ( byte ) ValueTypes.FLOAT:{
-						float f = 0.0f;
-						float.TryParse( sLine, out f );
-						return new cValue( f );
-				}
-			
-				case ( byte ) ValueTypes.STRING:	{
-						return ( new cValue( sLine ) );
-				}
+		public static cValue RecognizeValue( string sLine ) {
+
+			global::System.Type type = ReturnValueType( sLine );
+			if ( type == typeof( bool ) )
+			{
+				return ( sLine.ToLower() == "true" ) ? true : false;
+			}
+
+			if ( type == typeof( int ) )
+			{
+				return Int32.Parse( sLine );
+			}
+
+			if ( type == typeof( float ) )
+			{
+				return float.Parse( sLine );
+			}
+
+			if ( type == typeof( string ) )
+			{
+				return sLine;
 			}
 			return null;
 		}

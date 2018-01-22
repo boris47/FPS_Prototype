@@ -26,7 +26,7 @@ public partial class CameraControl {
 
 
 	/// //////////////////////////////////////////////////////////////////////////
-	/// SwitchToTarget ( Abstract )
+	/// SwitchToTarget
 	/// <summary> Switch camera target </summary>
 	public	void SwitchToTarget( Player pNextTarget )
 	{

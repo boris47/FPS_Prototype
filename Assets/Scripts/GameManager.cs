@@ -20,7 +20,6 @@ public class GameManager : MonoBehaviour {
 			Destroy( gameObject );
 			return;
 		}
-
 		DontDestroyOnLoad( this );
 
 		GLOBALS.Settings = new Reader();
