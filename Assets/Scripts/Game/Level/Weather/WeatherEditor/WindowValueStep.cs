@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-public class ValueStepWindow : EditorWindow {
+public class WindowValueStep : EditorWindow {
 
-	public	static	ValueStepWindow		m_Window		= null;
+	public	static	WindowValueStep		m_Window		= null;
 	public	static	cValue		Value		= null;
 
 	private	System.Action		OnOK		= null;
@@ -16,7 +16,7 @@ public class ValueStepWindow : EditorWindow {
 			m_Window.Close();
 			m_Window = null;
 		}
-		m_Window = EditorWindow.GetWindow<ValueStepWindow>( true, "Weather Manager" );
+		m_Window = EditorWindow.GetWindow<WindowValueStep>( true, "Weather Manager" );
 
 		m_Window.OnOK		= callbackOK;
 		m_Window.OnCancel	= callbackCancel;
