@@ -7,8 +7,8 @@ public partial class CameraControl : MonoBehaviour {
 
 	public static CameraControl Instance				= null;
 
-	const	float			CLAMP_MAX_X_AXIS			= 80.0f;
-	const	float			CLAMP_MIN_X_AXIS			= -80.0f;
+	public	const	float			CLAMP_MAX_X_AXIS	= 80.0f;
+	public	const	float			CLAMP_MIN_X_AXIS	= -80.0f;
 	private	bool			m_ClampedXAxis				= true;
 	public	bool			ClampedXAxis {
 		get { return m_ClampedXAxis; }
@@ -68,7 +68,6 @@ public partial class CameraControl : MonoBehaviour {
 
 	private float			m_CameraOffset				= 5.0f;
 	private float			m_CurrentCameraOffset		= 5.0f;
-	[SerializeField]
 	private	float			m_CameraFPS_Shift			= 0.0f;
 
 	private	Vector3			m_CurrentDirection			= Vector3.zero;
@@ -197,7 +196,6 @@ public partial class CameraControl : MonoBehaviour {
 			}
 
 		}
-
 
 
 		// Position

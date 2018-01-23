@@ -5,7 +5,8 @@ using UnityEngine;
 public partial class Player {
 	
 
-	private	void	Update_Walk() {
+	private	void	Update_Walk()
+	{
 
 		if ( m_Health <= 0.0f )
 			return;
@@ -55,14 +56,25 @@ public partial class Player {
 
 		}
 
-
+		   
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Crouch State
-		{
+		{  
 			// If crouch button is pressed
 			if ( bCrouchInput )
 			{
 				m_States.IsCrouched = !m_PreviousStates.IsCrouched;
+				/*
+				m_Collider.center = new Vector3
+				(
+					m_Collider.center.x,
+					m_States.IsCrouched ? ( -m_Collider.height * 0.5f ): 0.0f,
+					m_Collider.center.z
+				);
+
+				m_Collider.height *= m_States.IsCrouched ? 0.5f : 2.0f;
+				*/
+
 
 				// adapt the collider
 
@@ -94,18 +106,15 @@ public partial class Player {
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Jump
 		{
-
 			// If jump button is pressed, has enough space to jump, has stamina requirements and is not dragging an entity
-			if ( bJumpInput && !m_IsUnderSomething && ( m_Stamina > m_StaminaJumpMin ) /*&& !IsDragging()*/ ) {
-
-
+			if ( bJumpInput && !m_IsUnderSomething && ( m_Stamina > m_StaminaJumpMin ) && m_DraggedObject == null )
+			{
 				m_Stamina	-= m_JumpStamina;
 				fFinalJump	+= m_JumpForce / ( m_States.IsCrouched ? 1.5f : 1.0f );
 				fFinalJump	*= IsInWater() ? 0.8f : 1.0f;
 				m_States.IsJumping = true;
 
 			}
-
 		}
 
 
@@ -206,7 +215,9 @@ public partial class Player {
 		if ( bIsJumping && m_Grounded ) m_RigidBody.velocity = m_RigidBody.velocity + Vector3.up * fFinalJump;
 
 		m_RigidBody.velocity =
-			Vector3.Lerp ( m_RigidBody.velocity, new Vector3(  m_Move.x, m_RigidBody.velocity.y, m_Move.z ), Time.deltaTime * 50f );
+			Vector3.Lerp ( currentVelocity, new Vector3(  m_Move.x, m_RigidBody.velocity.y, m_Move.z ), Time.deltaTime * 10f );
+
+		currentVelocity = m_RigidBody.velocity;
 
 
 		// Update internal time value
@@ -214,5 +225,8 @@ public partial class Player {
 		m_LastLandTime = Time.time;
 
 	}
+
+
+	Vector3 currentVelocity = Vector3.zero;
 
 }

@@ -5,9 +5,9 @@ namespace QuestSystem {
 
 	public class TaskObjective : Interactable {
 
-		public GameEvent	m_OnInteraction = null;
+		public GameEvent	m_OnInteraction	= null;
 
-		private	bool	m_Completed = false;
+		private	bool		m_Completed		= false;
 
 		//////////////////////////////////////////////////////////////////////////
 		// OnInteraction ( Override )

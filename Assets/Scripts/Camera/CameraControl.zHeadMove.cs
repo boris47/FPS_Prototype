@@ -58,7 +58,7 @@ public class HeadMove : CameraEffectBase {
 		if ( bInstantly )
 			m_Direction = Vector3.zero;
 		else
-			m_Direction = Vector3.Lerp ( m_Direction, Vector3.zero, Time.deltaTime * 2f );
+			m_Direction = Vector3.Lerp ( m_Direction, Vector3.zero, Time.deltaTime / 3f );
 
 	}
 

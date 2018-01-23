@@ -28,6 +28,7 @@ public partial class Player : Human {
 		// Player Components
 		{
 			m_RigidBody = GetComponent<Rigidbody>();
+			m_Collider	= GetComponent<CapsuleCollider>();
 
 			// Foots
 			Transform pFoots = transform.Find( "FootSpace" );
@@ -115,7 +116,7 @@ public partial class Player : Human {
 		Rigidbody rb	= m_DraggedObject.GetComponent<Rigidbody>();
 		rb.useGravity	= m_DraggedObjectUseGravity;
 		rb.mass			= m_DraggedObjectMass;
-		rb.velocity		= Vector3.zero;
+//		rb.velocity		= Vector3.zero;
 		m_DraggedObject = null;
 	}
 
@@ -124,24 +125,24 @@ public partial class Player : Human {
 	// UNITY
 	private void FixedUpdate()
 	{
-		if ( !m_Active )
+		if ( m_Active == false )
 			return;
 
 		if ( m_DraggedObject == null )
 			return;
 
-		float distance = Vector3.Distance( m_DraggedObject.transform.position, m_DragPoint.transform.position );
-		if ( distance > m_UseDistance + 0.2f )
+		float distance = ( m_DraggedObject.transform.position - m_DragPoint.transform.position ).sqrMagnitude;
+		if ( distance > m_UseDistance * m_UseDistance + 0.1f )
 		{
 			DropEntityDragged();
 			return;
 		}
 
-		// Dragging Update
 		Rigidbody rb = m_DraggedObject.GetComponent<Rigidbody>();
-		rb.MovePosition( m_DragPoint.transform.position );
 		rb.rotation = CameraControl.Instance.transform.rotation;
-		rb.angularVelocity = rb.velocity = Vector3.zero;
+		rb.angularVelocity = Vector3.zero;
+		rb.velocity = ( m_DragPoint.transform.position - m_DraggedObject.transform.position ) / ( Time.deltaTime * 4f ) 
+		* ( 1.0f - Vector3.Angle( transform.forward, CameraControl.Instance.transform.forward ) / CameraControl.CLAMP_MAX_X_AXIS );
 	}
 
 
@@ -169,30 +170,45 @@ public partial class Player : Human {
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Check for usage
 		{
+			/*
+			Debug.DrawLine
+			(
+				CameraControl.Instance.transform.position, 
+				CameraControl.Instance.transform.position + CameraControl.Instance.transform.forward.normalized * m_UseDistance,
+				Color.red,
+				0.0f
+			);
+			*/
+			// Get interactable / draggable object
+			RaycastHit hit = new RaycastHit();
+			Draggable draggable = null;
+			Interactable interactable = null;
+			if ( m_DraggedObject == null )
+			{
+				if ( Physics.Raycast( CameraControl.Instance.transform.position, CameraControl.Instance.transform.forward, out hit, m_UseDistance ) )
+				{
+					draggable = hit.transform.GetComponent<Draggable>();
+					interactable = hit.transform.GetComponent<Interactable>();
+				}
+			}
+
 			if ( Inputmanager.Inputs.Use )
 			{
 				if ( m_DraggedObject == null )
 				{
-					RaycastHit hit;
-					if ( Physics.Raycast( CameraControl.Instance.transform.position, CameraControl.Instance.transform.forward, out hit, m_UseDistance ))
-					{
-						// Interactions
-						Interactable interactable = hit.transform.GetComponent<Interactable>();
-						if ( interactable != null && interactable.CanInteract )
-							interactable.OnInteraction();
+					// Interaction
+					if ( interactable != null && interactable.CanInteract )
+						interactable.OnInteraction();
 
-						// Drag
-						Draggable draggable = hit.transform.GetComponent<Draggable>();
-						if ( draggable && interactable.CanInteract )
-						{
-							m_DraggedObject = hit.transform.gameObject;
-							Rigidbody rb = m_DraggedObject.GetComponent<Rigidbody>();
-							m_DraggedObjectMass = rb.mass;
-							m_DraggedObjectUseGravity = rb.useGravity;
-							rb.mass = 1f;
-							rb.useGravity = false;
-							rb.interpolation = RigidbodyInterpolation.Extrapolate;
-						}
+					// Drag
+					if ( draggable != null && interactable.CanInteract )
+					{
+						m_DraggedObject = hit.transform.gameObject;
+
+						Rigidbody rb = m_DraggedObject.GetComponent<Rigidbody>();
+						m_DraggedObjectMass = rb.mass;					rb.mass = 1f;
+						m_DraggedObjectUseGravity = rb.useGravity;		rb.useGravity = false;
+						rb.interpolation = RigidbodyInterpolation.Extrapolate;
 					}
 				}
 				else

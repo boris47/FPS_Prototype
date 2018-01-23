@@ -17,7 +17,6 @@ public abstract partial class LiveEntity : Interactable {
 	{
 		get { return m_DraggedObject; }
 	}
-	protected	SpringJoint		m_DragJoint					= null;
 	protected	float			m_DraggedObjectMass			= 0f;
 	protected	bool			m_DraggedObjectUseGravity	= false;
 
@@ -62,7 +61,7 @@ public abstract partial class LiveEntity : Interactable {
 		set { m_ViewRange = Mathf.Clamp( value, 0.0f, 9999.0f ); }
 	}
 
-	protected	bool			m_Grounded					= true;
+	protected	bool			m_Grounded					= false;
 	public		bool			Grounded
 	{
 		get { return m_Grounded; }

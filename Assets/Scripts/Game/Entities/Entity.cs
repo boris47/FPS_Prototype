@@ -29,6 +29,7 @@ public interface IEntity {
 
 
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Collider))]
 public abstract class Entity : MonoBehaviour, IEntity {
 
 	private	static uint CurrentID = 0;
