@@ -91,18 +91,16 @@ public partial class Player : Human {
 		SetMotionType( eMotionType.Walking );
 
 
-		m_DragPoint = new GameObject( "GrabPoint" );
-		m_DragPoint.transform.SetParent( transform );
-		m_DragPoint.transform.localPosition = Vector3.zero;
-		m_DragPoint.transform.localRotation = Quaternion.identity;
-		m_DragPoint.transform.Translate( 0f, 0f, m_UseDistance );
+		m_GrabPoint = new GameObject( "GrabPoint" );
+		m_GrabPoint.transform.SetParent( transform );
+		m_GrabPoint.transform.localPosition = Vector3.zero;
+		m_GrabPoint.transform.localRotation = Quaternion.identity;
+		m_GrabPoint.transform.Translate( 0f, 0f, m_UseDistance );
 //		var rb = m_DragPoint.AddComponent<Rigidbody>();
 //		rb.useGravity = false;
 //		rb.isKinematic = true;
 
 	}
-
-	private GameObject m_DragPoint = null;
 
 
 	public override void OnInteraction()
@@ -111,41 +109,45 @@ public partial class Player : Human {
 
 
 
-	private	void DropEntityDragged()
+	public	void DropEntityDragged()
 	{
-		Rigidbody rb	= m_DraggedObject.GetComponent<Rigidbody>();
-		rb.useGravity	= m_DraggedObjectUseGravity;
-		rb.mass			= m_DraggedObjectMass;
-//		rb.velocity		= Vector3.zero;
-		m_DraggedObject = null;
+		if ( m_GrabbedObject == null )
+			return;
+
+		Rigidbody rb	= m_GrabbedObject.GetComponent<Rigidbody>();
+		rb.useGravity	= m_GrabbedObjectUseGravity;
+		rb.mass			= m_GrabbedObjectMass;
+		m_GrabbedObject = null;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// UNITY
-	private void FixedUpdate()
+	// MoveGrabbedObject
+	private void MoveGrabbedObject()
 	{
 		if ( m_Active == false )
 			return;
 
-		if ( m_DraggedObject == null )
+		if ( m_GrabbedObject == null )
 			return;
 
-		float distance = ( m_DraggedObject.transform.position - m_DragPoint.transform.position ).sqrMagnitude;
+		float distance = ( m_GrabbedObject.transform.position - m_GrabPoint.transform.position ).sqrMagnitude;
 		if ( distance > m_UseDistance * m_UseDistance + 0.1f )
 		{
 			DropEntityDragged();
 			return;
 		}
 
-		Rigidbody rb = m_DraggedObject.GetComponent<Rigidbody>();
+		Rigidbody rb = m_GrabbedObject.GetComponent<Rigidbody>();
 		rb.rotation = CameraControl.Instance.transform.rotation;
 		rb.angularVelocity = Vector3.zero;
-		rb.velocity = ( m_DragPoint.transform.position - m_DraggedObject.transform.position ) / ( Time.deltaTime * 4f ) 
+		rb.velocity = ( m_GrabPoint.transform.position - m_GrabbedObject.transform.position ) / ( Time.deltaTime * 4f ) 
 		* ( 1.0f - Vector3.Angle( transform.forward, CameraControl.Instance.transform.forward ) / CameraControl.CLAMP_MAX_X_AXIS );
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
+	// UNITY
 	private void Update () {
 
 		if ( !m_Active )
@@ -155,8 +157,8 @@ public partial class Player : Human {
 		m_States.Reset();
 
 		// Update Grab point position
-		m_DragPoint.transform.position = CameraControl.Instance.transform.position + ( CameraControl.Instance.transform.forward * m_UseDistance );
-		m_DragPoint.transform.rotation = CameraControl.Instance.transform.rotation;
+		m_GrabPoint.transform.position = CameraControl.Instance.transform.position + ( CameraControl.Instance.transform.forward * m_UseDistance );
+		m_GrabPoint.transform.rotation = CameraControl.Instance.transform.rotation;
 
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Pick eventual collision info from camera to up
@@ -169,6 +171,7 @@ public partial class Player : Human {
 
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Check for usage
+#region			GRAB OBJECT
 		{
 			/*
 			Debug.DrawLine
@@ -179,11 +182,12 @@ public partial class Player : Human {
 				0.0f
 			);
 			*/
+
 			// Get interactable / draggable object
 			RaycastHit hit = new RaycastHit();
 			Draggable draggable = null;
 			Interactable interactable = null;
-			if ( m_DraggedObject == null )
+			if ( m_GrabbedObject == null )
 			{
 				if ( Physics.Raycast( CameraControl.Instance.transform.position, CameraControl.Instance.transform.forward, out hit, m_UseDistance ) )
 				{
@@ -191,10 +195,11 @@ public partial class Player : Human {
 					interactable = hit.transform.GetComponent<Interactable>();
 				}
 			}
+			MoveGrabbedObject();
 
 			if ( Inputmanager.Inputs.Use )
 			{
-				if ( m_DraggedObject == null )
+				if ( m_GrabbedObject == null )
 				{
 					// Interaction
 					if ( interactable != null && interactable.CanInteract )
@@ -203,11 +208,11 @@ public partial class Player : Human {
 					// Drag
 					if ( draggable != null && interactable.CanInteract )
 					{
-						m_DraggedObject = hit.transform.gameObject;
+						m_GrabbedObject = hit.transform.gameObject;
 
-						Rigidbody rb = m_DraggedObject.GetComponent<Rigidbody>();
-						m_DraggedObjectMass = rb.mass;					rb.mass = 1f;
-						m_DraggedObjectUseGravity = rb.useGravity;		rb.useGravity = false;
+						Rigidbody rb = m_GrabbedObject.GetComponent<Rigidbody>();
+						m_GrabbedObjectMass			= rb.mass;			rb.mass = 1f;
+						m_GrabbedObjectUseGravity	= rb.useGravity;	rb.useGravity = false;
 						rb.interpolation = RigidbodyInterpolation.Extrapolate;
 					}
 				}
@@ -217,53 +222,53 @@ public partial class Player : Human {
 				}
 			}
 		}
-
+#endregion
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Water
-/*		bool bIsEntityInWater, bIsCameraUnderWater, bIsCameraReallyUnderWater;
-		if ( !IsClimbing() && World()->GetWorld()->GetWaterMode() ) {
-		
-			float fWaterHeight		 = World()->GetWorld()->GetWaterHeight();
-			// camera is under water level
-			bIsCameraUnderWater = ( vCamPos.y - 0.1f ) < fWaterHeight;
-			bIsCameraReallyUnderWater = vCamPos.y < fWaterHeight;
-			// entity is under water level, but camera is over water level
-			bIsEntityInWater = pEntity->GetPosition().y-0.1 < fWaterHeight && !bIsCameraUnderWater;
+		/*		bool bIsEntityInWater, bIsCameraUnderWater, bIsCameraReallyUnderWater;
+				if ( !IsClimbing() && World()->GetWorld()->GetWaterMode() ) {
 
-			SetInWater( bIsEntityInWater );
+					float fWaterHeight		 = World()->GetWorld()->GetWaterHeight();
+					// camera is under water level
+					bIsCameraUnderWater = ( vCamPos.y - 0.1f ) < fWaterHeight;
+					bIsCameraReallyUnderWater = vCamPos.y < fWaterHeight;
+					// entity is under water level, but camera is over water level
+					bIsEntityInWater = pEntity->GetPosition().y-0.1 < fWaterHeight && !bIsCameraUnderWater;
 
-			// If now camera is over water level, but prev update was under it
-			if ( bIsEntityInWater ) {
+					SetInWater( bIsEntityInWater );
 
-				// if distance beetwen ground and parent is minus than camera height
-				if ( GetAirbourneHeigth() < CamManager()->GetStdHeight() ) {
-					// restore walking state
-				//	if ( iMotionType != LIVE_ENTITY::Motion::Walk ) {
+					// If now camera is over water level, but prev update was under it
+					if ( bIsEntityInWater ) {
+
+						// if distance beetwen ground and parent is minus than camera height
+						if ( GetAirbourneHeigth() < CamManager()->GetStdHeight() ) {
+							// restore walking state
+						//	if ( iMotionType != LIVE_ENTITY::Motion::Walk ) {
+								SetMotionType( LIVE_ENTITY::Motion::Walk );
+							//	SetCrouched( true );
+						//	}
+						}
+
+					}
+
+					// If camera go under water level enable underwater state
+					if ( bIsCameraUnderWater && iMotionType != LIVE_ENTITY::Motion::Swim ) {
+						SetSwimming();
+					}
+
+					// if actual motion is 'Swim' but is not entity and camera underwater restore 'walk' motion
+					if ( iMotionType == LIVE_ENTITY::Motion::Swim && !bIsEntityInWater && !bIsCameraUnderWater )
 						SetMotionType( LIVE_ENTITY::Motion::Walk );
-					//	SetCrouched( true );
-				//	}
+
+					if ( bIsCameraReallyUnderWater ) {
+						SetUnderWater( true );
+
+						// Underwater stamina is consumed as oxygen
+						fStamina -= fRunStamina * 2.0f;
+					}
+
 				}
-
-			}
-
-			// If camera go under water level enable underwater state
-			if ( bIsCameraUnderWater && iMotionType != LIVE_ENTITY::Motion::Swim ) {
-				SetSwimming();
-			}
-
-			// if actual motion is 'Swim' but is not entity and camera underwater restore 'walk' motion
-			if ( iMotionType == LIVE_ENTITY::Motion::Swim && !bIsEntityInWater && !bIsCameraUnderWater )
-				SetMotionType( LIVE_ENTITY::Motion::Walk );
-
-			if ( bIsCameraReallyUnderWater ) {
-				SetUnderWater( true );
-
-				// Underwater stamina is consumed as oxygen
-				fStamina -= fRunStamina * 2.0f;
-			}
-
-		}
-*/
+		*/
 
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Movement Update

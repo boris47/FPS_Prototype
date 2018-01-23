@@ -49,7 +49,7 @@ namespace WeatherSystem {
 			if ( pSection != null )
 				sStartTime = pSection.AsString( "StartTime", sStartTime );
 
-			this.TansformTime( sStartTime, ref m_DayTimeNow );
+			TansformTime( sStartTime, ref m_DayTimeNow );
 		}
 
 		/// //////////////////////////////////////////////////////////////////////////
@@ -170,9 +170,12 @@ namespace WeatherSystem {
 
 
 
+
+
+
 		/// //////////////////////////////////////////////////////////////////////////
 		/// Utility
-		bool TansformTime( string sTime, ref float Time )
+		public	static	bool	TansformTime( string sTime, ref float Time )
 		{
 			int iH = 0, iM = 0, iS = 0;
 
@@ -190,7 +193,18 @@ namespace WeatherSystem {
 			Time = ( float )( ( iH * 3600f ) + ( iM * 60f ) + iS );
 			return true;
 		}
-		bool IsValidTime( float h, float m, float s )
+		public	static	void	TransoformTime( float fTime, ref string Time, bool considerSeconds = true )
+		{
+			int iH = ( int ) (   fTime / ( 3600f ) );
+			int iM = ( int ) ( ( fTime / 60f ) % 60f );
+			int iS = ( int ) ( fTime % 60f );
+			Time = ( iH.ToString( "00" ) + "-" + iM.ToString( "00" ) );
+
+			if ( considerSeconds )
+				Time +=  ( "-" + iS.ToString( "00" ) );
+			print( Time );
+		}
+		public static bool IsValidTime( float h, float m, float s )
 		{
 			return ( ( h >= 0 ) && ( h < 24 ) && ( m >= 0 ) && ( m < 60 ) && ( s >= 0 ) && ( s < 60 ) );
 		}

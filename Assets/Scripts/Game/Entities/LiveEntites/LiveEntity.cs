@@ -12,13 +12,14 @@ public abstract partial class LiveEntity : Interactable {
 	}
 
 	// DRAG
-	protected	GameObject		m_DraggedObject				= null;
-	public		GameObject		DraggedObject
+	protected	GameObject		m_GrabPoint					= null;
+	protected	GameObject		m_GrabbedObject				= null;
+	public		GameObject		GrabbedObject
 	{
-		get { return m_DraggedObject; }
+		get { return m_GrabbedObject; }
 	}
-	protected	float			m_DraggedObjectMass			= 0f;
-	protected	bool			m_DraggedObjectUseGravity	= false;
+	protected	float			m_GrabbedObjectMass			= 0f;
+	protected	bool			m_GrabbedObjectUseGravity	= false;
 
 	[SerializeField]
 	protected	float			m_UseDistance				= 1f;

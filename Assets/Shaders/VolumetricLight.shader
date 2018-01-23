@@ -1,6 +1,5 @@
-// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
 // Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
 // Upgrade NOTE: replaced 'unity_World2Shadow' with 'unity_WorldToShadow'
 
 //  Copyright(c) 2016, Michal Skalsky
@@ -36,28 +35,26 @@ Shader "Sandbox/VolumetricLight"
 {
 	Properties
 	{
-		
-		[HideInInspector]_MainTex ("Texture", 2D) = "white" {}
-		[HideInInspector]_ZTest ("ZTest", Float) = 0
+		[HideInInspector]_MainTex("Texture", 2D) = "white" {}
+	[HideInInspector]_ZTest("ZTest", Float) = 0
 		[HideInInspector]_LightColor("_LightColor", Color) = (1,1,1,1)
-		
 	}
-	SubShader
+		SubShader
 	{
-		Tags { "RenderType"="Opaque" }
+		Tags{ "RenderType" = "Opaque" }
 		LOD 100
 
 		CGINCLUDE
 
-		#define SHADOWS_NATIVE
+#if defined(SHADOWS_DEPTH) || defined(SHADOWS_CUBE)
+	#define SHADOWS_NATIVE
+#endif
 
-		#include "UnityCG.cginc"
-		#include "UnityDeferredLibrary.cginc"
+#include "UnityCG.cginc"
+#include "UnityDeferredLibrary.cginc"
 
 		sampler3D _NoiseTexture;
 		sampler2D _DitherTexture;
-
-		//sampler2D _ShadowMapTexture;
 
 		float4 _FrustumCorners[4];
 
@@ -65,7 +62,7 @@ Shader "Sandbox/VolumetricLight"
 		{
 			float4 vertex : POSITION;
 		};
-		
+
 		float4x4 _WorldViewProj;
 		float4x4 _MyLightMatrix0;
 		float4x4 _MyWorld2Shadow;
@@ -74,14 +71,12 @@ Shader "Sandbox/VolumetricLight"
 
 		// x: scattering coef, y: extinction coef, z: range w: skybox extinction coef
 		float4 _VolumetricLight;
-        // x: 1 - g^2, y: 1 + g^2, z: 2*g, w: 1/4pi
-        float4 _MieG;
-		
-		float4 _UserColor;
+		// x: 1 - g^2, y: 1 + g^2, z: 2*g, w: 1/4pi
+		float4 _MieG;
 
 		// x: scale, y: intensity, z: intensity offset
 		float4 _NoiseData;
-        // x: x velocity, y: z velocity
+		// x: x velocity, y: z velocity
 		float4 _NoiseVelocity;
 		// x:  ground level, y: height scale, z: unused, w: unused
 		float4 _HeightFog;
@@ -93,9 +88,9 @@ Shader "Sandbox/VolumetricLight"
 
 		struct v2f
 		{
-			float4 pos : SV_POSITION;
-			float4 uv : TEXCOORD0;
-			float3 wpos : TEXCOORD1;
+			float4 pos	: SV_POSITION;
+			float4 uv	: TEXCOORD0;
+			float3 wpos	: TEXCOORD1;
 		};
 
 		v2f vert(appdata v)
@@ -132,43 +127,17 @@ Shader "Sandbox/VolumetricLight"
 			float3 sc1 = mul(unity_WorldToShadow[1], wpos).xyz;
 			float3 sc2 = mul(unity_WorldToShadow[2], wpos).xyz;
 			float3 sc3 = mul(unity_WorldToShadow[3], wpos).xyz;
-			return float4(sc0 * cascadeWeights[0] + sc1 * cascadeWeights[1] + sc2 * cascadeWeights[2] + sc3 * cascadeWeights[3], 1);
-		}
 
-		//-----------------------------------------------------------------------------------------
-		// UnityDeferredComputeShadow2
-		//-----------------------------------------------------------------------------------------
-		half UnityDeferredComputeShadow2(float3 vec, float fadeDist, float2 uv)
-		{
-#if defined(SHADOWS_DEPTH) || defined(SHADOWS_SCREEN) || defined(SHADOWS_CUBE)
-			float fade = fadeDist * _LightShadowData.z + _LightShadowData.w;
-			fade = saturate(fade);
-#endif
-
-#if defined(SPOT)
-#if defined(SHADOWS_DEPTH)
-			float4 shadowCoord = mul(_MyWorld2Shadow, float4(vec, 1));
-				return saturate(UnitySampleShadowmap(shadowCoord) + fade);
-#endif //SHADOWS_DEPTH
-#endif
-
-#if defined (DIRECTIONAL) || defined (DIRECTIONAL_COOKIE)
-#if defined(SHADOWS_SCREEN)
-			return saturate(tex2D(_ShadowMapTexture, uv).r + fade);
-#endif
-#endif //DIRECTIONAL || DIRECTIONAL_COOKIE
-
-#if defined (POINT) || defined (POINT_COOKIE)
-#if defined(SHADOWS_CUBE)
-			return UnitySampleShadowmap(vec);
-#endif //SHADOWS_CUBE
-#endif
-
-			return 1.0;
+			float4 shadowMapCoordinate = float4(sc0 * cascadeWeights[0] + sc1 * cascadeWeights[1] + sc2 * cascadeWeights[2] + sc3 * cascadeWeights[3], 1);
+	#if defined(UNITY_REVERSED_Z)
+			float  noCascadeWeights = 1 - dot(cascadeWeights, float4(1, 1, 1, 1));
+			shadowMapCoordinate.z += noCascadeWeights;
+	#endif
+			return shadowMapCoordinate;
 		}
 
 		UNITY_DECLARE_SHADOWMAP(_CascadeShadowMapTexture);
-		
+
 		//-----------------------------------------------------------------------------------------
 		// GetLightAttenuation
 		//-----------------------------------------------------------------------------------------
@@ -177,7 +146,7 @@ Shader "Sandbox/VolumetricLight"
 			float atten = 0;
 #if defined (DIRECTIONAL) || defined (DIRECTIONAL_COOKIE)
 			atten = 1;
-#if defined (SHADOWS_DEPTH)
+	#if defined (SHADOWS_DEPTH)
 			// sample cascade shadow map
 			float4 cascadeWeights = GetCascadeWeights_SplitSpheres(wpos);
 			bool inside = dot(cascadeWeights, float4(1, 1, 1, 1)) < 4;
@@ -186,11 +155,11 @@ Shader "Sandbox/VolumetricLight"
 			atten = inside ? UNITY_SAMPLE_SHADOW(_CascadeShadowMapTexture, samplePos.xyz) : 1.0f;
 			atten = _LightShadowData.r + atten * (1 - _LightShadowData.r);
 			//atten = inside ? tex2Dproj(_ShadowMapTexture, float4((samplePos).xyz, 1)).r : 1.0f;
-#endif
-#if defined (DIRECTIONAL_COOKIE)
+	#endif
+	#if defined (DIRECTIONAL_COOKIE)
 			// NOT IMPLEMENTED
-#endif
-#elif defined (SPOT)	
+	#endif
+	#elif defined (SPOT)	
 			float3 tolight = _LightPos.xyz - wpos;
 			half3 lightDir = normalize(tolight);
 
@@ -201,8 +170,11 @@ Shader "Sandbox/VolumetricLight"
 			float att = dot(tolight, tolight) * _LightPos.w;
 			atten *= tex2D(_LightTextureB0, att.rr).UNITY_ATTEN_CHANNEL;
 
-			atten *= UnityDeferredComputeShadow2(wpos, 0, float2(0, 0));
-#elif defined (POINT) || defined (POINT_COOKIE)
+	#if defined(SHADOWS_DEPTH)
+			float4 shadowCoord = mul(_MyWorld2Shadow, float4(wpos, 1));
+			atten *= saturate(UnitySampleShadowmap(shadowCoord));
+	#endif
+	#elif defined (POINT) || defined (POINT_COOKIE)
 			float3 tolight = wpos - _LightPos.xyz;
 			half3 lightDir = -normalize(tolight);
 
@@ -211,45 +183,45 @@ Shader "Sandbox/VolumetricLight"
 
 			atten *= UnityDeferredComputeShadow(tolight, 0, float2(0, 0));
 
-#if defined (POINT_COOKIE)
+	#if defined (POINT_COOKIE)
 			atten *= texCUBEbias(_LightTexture0, float4(mul(_MyLightMatrix0, half4(wpos, 1)).xyz, -8)).w;
-#endif //POINT_COOKIE
+	#endif //POINT_COOKIE
 #endif
 			return atten;
 		}
 
-        //-----------------------------------------------------------------------------------------
-        // ApplyHeightFog
-        //-----------------------------------------------------------------------------------------
-        void ApplyHeightFog(float3 wpos, inout float density)
-        {
-#ifdef HEIGHT_FOG
-            density *= exp(-(wpos.y + _HeightFog.x) * _HeightFog.y);
-#endif
-        }
+		//-----------------------------------------------------------------------------------------
+		// ApplyHeightFog
+		//-----------------------------------------------------------------------------------------
+		void ApplyHeightFog(float3 wpos, inout float density)
+		{
+	#ifdef HEIGHT_FOG
+			density *= exp(-(wpos.y + _HeightFog.x) * _HeightFog.y);
+	#endif
+		}
 
-        //-----------------------------------------------------------------------------------------
-        // GetDensity
-        //-----------------------------------------------------------------------------------------
+		//-----------------------------------------------------------------------------------------
+		// GetDensity
+		//-----------------------------------------------------------------------------------------
 		float GetDensity(float3 wpos)
 		{
-            float density = 1;
-#ifdef NOISE
+			float density = 1;
+	#ifdef NOISE
 			float noise = tex3D(_NoiseTexture, frac(wpos * _NoiseData.x + float3(_Time.y * _NoiseVelocity.x, 0, _Time.y * _NoiseVelocity.y)));
 			noise = saturate(noise - _NoiseData.z) * _NoiseData.y;
 			density = saturate(noise);
-#endif
-            ApplyHeightFog(wpos, density);
+	#endif
+			ApplyHeightFog(wpos, density);
 
-            return density;
-		}        
+			return density;
+		}
 
 		//-----------------------------------------------------------------------------------------
 		// MieScattering
 		//-----------------------------------------------------------------------------------------
 		float MieScattering(float cosAngle, float4 g)
 		{
-            return g.w * (g.x / (pow(g.y - g.z * cosAngle, 1.5)));			
+			return g.w * (g.x / (pow(g.y - g.z * cosAngle, 1.5)));
 		}
 
 		//-----------------------------------------------------------------------------------------
@@ -257,13 +229,13 @@ Shader "Sandbox/VolumetricLight"
 		//-----------------------------------------------------------------------------------------
 		float4 RayMarch(float2 screenPos, float3 rayStart, float3 rayDir, float rayLength)
 		{
-#ifdef DITHER_4_4
+	#ifdef DITHER_4_4
 			float2 interleavedPos = (fmod(floor(screenPos.xy), 4.0));
 			float offset = tex2D(_DitherTexture, interleavedPos / 4.0 + float2(0.5 / 4.0, 0.5 / 4.0)).w;
-#else
+	#else
 			float2 interleavedPos = (fmod(floor(screenPos.xy), 8.0));
 			float offset = tex2D(_DitherTexture, interleavedPos / 8.0 + float2(0.5 / 8.0, 0.5 / 8.0)).w;
-#endif
+	#endif
 
 			int stepCount = _SampleCount;
 
@@ -275,51 +247,51 @@ Shader "Sandbox/VolumetricLight"
 			float4 vlight = 0;
 
 			float cosAngle;
-#if defined (DIRECTIONAL) || defined (DIRECTIONAL_COOKIE)
-            float extinction = 0;
+	#if defined (DIRECTIONAL) || defined (DIRECTIONAL_COOKIE)
+			float extinction = 0;
 			cosAngle = dot(_LightDir.xyz, -rayDir);
-#else
+	#else
 			// we don't know about density between camera and light's volume, assume 0.5
 			float extinction = length(_WorldSpaceCameraPos - currentPosition) * _VolumetricLight.y * 0.5;
-#endif
+	#endif
 			[loop]
 			for (int i = 0; i < stepCount; ++i)
 			{
 				float atten = GetLightAttenuation(currentPosition);
 				float density = GetDensity(currentPosition);
 
-                float scattering = _VolumetricLight.x * stepSize * density;
+				float scattering = _VolumetricLight.x * stepSize * density;
 				extinction += _VolumetricLight.y * stepSize * density;// +scattering;
 
 				float4 light = atten * scattering * exp(-extinction);
- 
-//#if PHASE_FUNCTOIN
-#if !defined (DIRECTIONAL) && !defined (DIRECTIONAL_COOKIE)
+
+				//#if PHASE_FUNCTOIN
+	#if !defined (DIRECTIONAL) && !defined (DIRECTIONAL_COOKIE)
 				// phase functino for spot and point lights
-                float3 tolight = normalize(currentPosition - _LightPos.xyz);
-                cosAngle = dot(tolight, -rayDir);
+				float3 tolight = normalize(currentPosition - _LightPos.xyz);
+				cosAngle = dot(tolight, -rayDir);
 				light *= MieScattering(cosAngle, _MieG);
-#endif          
-//#endif
+	#endif          
+				//#endif
 				vlight += light;
 
-				currentPosition += step;				
+				currentPosition += step;
 			}
 
-#if defined (DIRECTIONAL) || defined (DIRECTIONAL_COOKIE)
+	#if defined (DIRECTIONAL) || defined (DIRECTIONAL_COOKIE)
 			// apply phase function for dir light
 			vlight *= MieScattering(cosAngle, _MieG);
-#endif
+	#endif
 
 			// apply light's color
-			vlight *= _LightColor * _UserColor;
+			vlight *= _LightColor;
 
 			vlight = max(0, vlight);
-#if defined (DIRECTIONAL) || defined (DIRECTIONAL_COOKIE) // use "proper" out-scattering/absorption for dir light 
+	#if defined (DIRECTIONAL) || defined (DIRECTIONAL_COOKIE) // use "proper" out-scattering/absorption for dir light 
 			vlight.w = exp(-extinction);
-#else
-            vlight.w = 0;
-#endif
+	#else
+			vlight.w = 0;
+	#endif
 			return vlight;
 		}
 
@@ -369,8 +341,8 @@ Shader "Sandbox/VolumetricLight"
 
 		ENDCG
 
-		// pass 0 - point light, camera inside
-		Pass
+			// pass 0 - point light, camera inside
+			Pass
 		{
 			ZTest Off
 			Cull Front
@@ -378,50 +350,49 @@ Shader "Sandbox/VolumetricLight"
 			Blend One One
 
 			CGPROGRAM
-			#pragma vertex vert
-			#pragma fragment fragPointInside
-			#pragma target 4.0
+	#pragma vertex vert
+	#pragma fragment fragPointInside
+	#pragma target 4.0
 
-			#define UNITY_HDR_ON
+	#define UNITY_HDR_ON
 
-			#pragma shader_feature HEIGHT_FOG
-			#pragma shader_feature NOISE
-			#pragma shader_feature SHADOWS_CUBE
-			#pragma shader_feature SHADOWS_NATIVE
-			#pragma shader_feature POINT_COOKIE
-			#pragma shader_feature POINT
+	#pragma shader_feature HEIGHT_FOG
+	#pragma shader_feature NOISE
+	#pragma shader_feature SHADOWS_CUBE
+	#pragma shader_feature POINT_COOKIE
+	#pragma shader_feature POINT
 
-			#ifdef SHADOWS_DEPTH
-			#define SHADOWS_NATIVE
-			#endif
-						
-			
+	#ifdef SHADOWS_DEPTH
+	#define SHADOWS_NATIVE
+	#endif
+
+
 			fixed4 fragPointInside(v2f i) : SV_Target
-			{	
-				float2 uv = i.uv.xy / i.uv.w;
+		{
+			float2 uv = i.uv.xy / i.uv.w;
 
-				// read depth and reconstruct world position
-				float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv);			
+			// read depth and reconstruct world position
+			float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv);
 
-				float3 rayStart = _WorldSpaceCameraPos;
-				float3 rayEnd = i.wpos;
+			float3 rayStart = _WorldSpaceCameraPos;
+			float3 rayEnd = i.wpos;
 
-				float3 rayDir = (rayEnd - rayStart);
-				float rayLength = length(rayDir);
+			float3 rayDir = (rayEnd - rayStart);
+			float rayLength = length(rayDir);
 
-				rayDir /= rayLength;
+			rayDir /= rayLength;
 
-				float linearDepth = LinearEyeDepth(depth);
-				float projectedDepth = linearDepth / dot(_CameraForward, rayDir);
-				rayLength = min(rayLength, projectedDepth);
-				
-				return RayMarch(i.pos.xy, rayStart, rayDir, rayLength);
-			}
+			float linearDepth = LinearEyeDepth(depth);
+			float projectedDepth = linearDepth / dot(_CameraForward, rayDir);
+			rayLength = min(rayLength, projectedDepth);
+
+			return RayMarch(i.pos.xy, rayStart, rayDir, rayLength);
+		}
 			ENDCG
 		}
 
-		// pass 1 - spot light, camera inside
-		Pass
+			// pass 1 - spot light, camera inside
+			Pass
 		{
 			ZTest Off
 			Cull Front
@@ -429,107 +400,47 @@ Shader "Sandbox/VolumetricLight"
 			Blend One One
 
 			CGPROGRAM
-#pragma vertex vert
-#pragma fragment fragPointInside
-#pragma target 4.0
+	#pragma vertex vert
+	#pragma fragment fragPointInside
+	#pragma target 4.0
 
-#define UNITY_HDR_ON
+	#define UNITY_HDR_ON
 
-#pragma shader_feature HEIGHT_FOG
-#pragma shader_feature NOISE
-#pragma shader_feature SHADOWS_DEPTH
-#pragma shader_feature SHADOWS_NATIVE
-#pragma shader_feature SPOT
+	#pragma shader_feature HEIGHT_FOG
+	#pragma shader_feature NOISE
+	#pragma shader_feature SHADOWS_DEPTH
+	#pragma shader_feature SPOT
 
-#ifdef SHADOWS_DEPTH
-#define SHADOWS_NATIVE
-#endif
+	#ifdef SHADOWS_DEPTH
+	#define SHADOWS_NATIVE
+	#endif
 
 			fixed4 fragPointInside(v2f i) : SV_Target
-			{
-				float2 uv = i.uv.xy / i.uv.w;
-
-				// read depth and reconstruct world position
-				float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv);
-
-				float3 rayStart = _WorldSpaceCameraPos;
-				float3 rayEnd = i.wpos;
-
-				float3 rayDir = (rayEnd - rayStart);
-				float rayLength = length(rayDir);
-
-				rayDir /= rayLength;
-
-				float linearDepth = LinearEyeDepth(depth);
-				float projectedDepth = linearDepth / dot(_CameraForward, rayDir);
-				rayLength = min(rayLength, projectedDepth);
-
-				return RayMarch(i.pos.xy, rayStart, rayDir, rayLength);
-			}
-			ENDCG
-		}
-
-		// pass 2 - point light, camera outside
-		Pass
 		{
-			//ZTest Off
-			ZTest [_ZTest]
-			Cull Back
-			ZWrite Off
-			Blend One One
+			float2 uv = i.uv.xy / i.uv.w;
 
-			CGPROGRAM
-			#pragma vertex vert
-			#pragma fragment fragPointOutside
-			#pragma target 4.0
+			// read depth and reconstruct world position
+			float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv);
 
-			#define UNITY_HDR_ON
+			float3 rayStart = _WorldSpaceCameraPos;
+			float3 rayEnd = i.wpos;
 
-			#pragma shader_feature HEIGHT_FOG
-			#pragma shader_feature SHADOWS_CUBE
-			#pragma shader_feature NOISE
-			//#pragma multi_compile POINT POINT_COOKIE
-			#pragma shader_feature POINT_COOKIE
-			#pragma shader_feature POINT
+			float3 rayDir = (rayEnd - rayStart);
+			float rayLength = length(rayDir);
 
-			fixed4 fragPointOutside(v2f i) : SV_Target
-			{
-				float2 uv = i.uv.xy / i.uv.w;
+			rayDir /= rayLength;
 
-				// read depth and reconstruct world position
-				float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv);
-			
-				float3 rayStart = _WorldSpaceCameraPos;
-				float3 rayEnd = i.wpos;
+			float linearDepth = LinearEyeDepth(depth);
+			float projectedDepth = linearDepth / dot(_CameraForward, rayDir);
+			rayLength = min(rayLength, projectedDepth);
 
-				float3 rayDir = (rayEnd - rayStart);
-				float rayLength = length(rayDir);
-
-				rayDir /= rayLength;
-
-				float3 lightToCamera = _WorldSpaceCameraPos - _LightPos;
-
-				float b = dot(rayDir, lightToCamera);
-				float c = dot(lightToCamera, lightToCamera) - (_VolumetricLight.z * _VolumetricLight.z);
-
-				float d = sqrt((b*b) - c);
-				float start = -b - d;
-				float end = -b + d;
-
-				float linearDepth = LinearEyeDepth(depth);
-				float projectedDepth = linearDepth / dot(_CameraForward, rayDir);
-				end = min(end, projectedDepth);
-
-				rayStart = rayStart + rayDir * start;
-				rayLength = end - start;
-
-				return RayMarch(i.pos.xy, rayStart, rayDir, rayLength);
-			}
+			return RayMarch(i.pos.xy, rayStart, rayDir, rayLength);
+		}
 			ENDCG
 		}
-				
-		// pass 3 - spot light, camera outside
-		Pass
+
+			// pass 2 - point light, camera outside
+			Pass
 		{
 			//ZTest Off
 			ZTest[_ZTest]
@@ -538,65 +449,123 @@ Shader "Sandbox/VolumetricLight"
 			Blend One One
 
 			CGPROGRAM
-			#pragma vertex vert
-			#pragma fragment fragSpotOutside
-			#pragma target 4.0
+	#pragma vertex vert
+	#pragma fragment fragPointOutside
+	#pragma target 4.0
 
-			#define UNITY_HDR_ON
+	#define UNITY_HDR_ON
 
-			#pragma shader_feature HEIGHT_FOG
-			#pragma shader_feature SHADOWS_DEPTH
-			#pragma shader_feature SHADOWS_NATIVE
-			#pragma shader_feature NOISE
-			#pragma shader_feature SPOT
+	#pragma shader_feature HEIGHT_FOG
+	#pragma shader_feature SHADOWS_CUBE
+	#pragma shader_feature NOISE
+			//#pragma multi_compile POINT POINT_COOKIE
+	#pragma shader_feature POINT_COOKIE
+	#pragma shader_feature POINT
 
-			#ifdef SHADOWS_DEPTH
-			#define SHADOWS_NATIVE
-			#endif
-			
-			float _CosAngle;
-			float4 _ConeAxis;
-			float4 _ConeApex;
-			float _PlaneD;
+			fixed4 fragPointOutside(v2f i) : SV_Target
+		{
+			float2 uv = i.uv.xy / i.uv.w;
 
-			fixed4 fragSpotOutside(v2f i) : SV_Target
-			{
-				float2 uv = i.uv.xy / i.uv.w;
+			// read depth and reconstruct world position
+			float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv);
 
-				// read depth and reconstruct world position
-				float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv);
+			float3 rayStart = _WorldSpaceCameraPos;
+			float3 rayEnd = i.wpos;
 
-				float3 rayStart = _WorldSpaceCameraPos;
-				float3 rayEnd = i.wpos;
+			float3 rayDir = (rayEnd - rayStart);
+			float rayLength = length(rayDir);
 
-				float3 rayDir = (rayEnd - rayStart);
-				float rayLength = length(rayDir);
+			rayDir /= rayLength;
 
-				rayDir /= rayLength;
+			float3 lightToCamera = _WorldSpaceCameraPos - _LightPos;
 
+			float b = dot(rayDir, lightToCamera);
+			float c = dot(lightToCamera, lightToCamera) - (_VolumetricLight.z * _VolumetricLight.z);
 
-				// inside cone
-				float3 r1 = rayEnd + rayDir * 0.001;
+			float d = sqrt((b*b) - c);
+			float start = -b - d;
+			float end = -b + d;
 
-				// plane intersection
-				float planeCoord = RayPlaneIntersect(_ConeAxis, _PlaneD, r1, rayDir);
-				// ray cone intersection
-				float2 lineCoords = RayConeIntersect(_ConeApex, _ConeAxis, _CosAngle, r1, rayDir);
+			float linearDepth = LinearEyeDepth(depth);
+			float projectedDepth = linearDepth / dot(_CameraForward, rayDir);
+			end = min(end, projectedDepth);
 
-				float linearDepth = LinearEyeDepth(depth);
-				float projectedDepth = linearDepth / dot(_CameraForward, rayDir);
+			rayStart = rayStart + rayDir * start;
+			rayLength = end - start;
 
-				float z = (projectedDepth - rayLength);
-				rayLength = min(planeCoord, min(lineCoords.x, lineCoords.y));
-				rayLength = min(rayLength, z);
-
-				return RayMarch(i.pos.xy, rayEnd, rayDir, rayLength);
-			}
+			return RayMarch(i.pos.xy, rayStart, rayDir, rayLength);
+		}
 			ENDCG
-		}		
+		}
 
-		// pass 4 - directional light
-		Pass
+			// pass 3 - spot light, camera outside
+			Pass
+		{
+			//ZTest Off
+			ZTest[_ZTest]
+			Cull Back
+			ZWrite Off
+			Blend One One
+
+			CGPROGRAM
+	#pragma vertex vert
+	#pragma fragment fragSpotOutside
+	#pragma target 4.0
+
+	#define UNITY_HDR_ON
+
+	#pragma shader_feature HEIGHT_FOG
+	#pragma shader_feature SHADOWS_DEPTH
+	#pragma shader_feature NOISE
+	#pragma shader_feature SPOT
+
+	#ifdef SHADOWS_DEPTH
+	#define SHADOWS_NATIVE
+	#endif
+
+			float _CosAngle;
+		float4 _ConeAxis;
+		float4 _ConeApex;
+		float _PlaneD;
+
+		fixed4 fragSpotOutside(v2f i) : SV_Target
+		{
+			float2 uv = i.uv.xy / i.uv.w;
+
+			// read depth and reconstruct world position
+			float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv);
+
+			float3 rayStart = _WorldSpaceCameraPos;
+			float3 rayEnd = i.wpos;
+
+			float3 rayDir = (rayEnd - rayStart);
+			float rayLength = length(rayDir);
+
+			rayDir /= rayLength;
+
+
+			// inside cone
+			float3 r1 = rayEnd + rayDir * 0.001;
+
+			// plane intersection
+			float planeCoord = RayPlaneIntersect(_ConeAxis, _PlaneD, r1, rayDir);
+			// ray cone intersection
+			float2 lineCoords = RayConeIntersect(_ConeApex, _ConeAxis, _CosAngle, r1, rayDir);
+
+			float linearDepth = LinearEyeDepth(depth);
+			float projectedDepth = linearDepth / dot(_CameraForward, rayDir);
+
+			float z = (projectedDepth - rayLength);
+			rayLength = min(planeCoord, min(lineCoords.x, lineCoords.y));
+			rayLength = min(rayLength, z);
+
+			return RayMarch(i.pos.xy, rayEnd, rayDir, rayLength);
+		}
+			ENDCG
+		}
+
+			// pass 4 - directional light
+			Pass
 		{
 			ZTest Off
 			Cull Off
@@ -605,76 +574,75 @@ Shader "Sandbox/VolumetricLight"
 
 			CGPROGRAM
 
-			#pragma vertex vertDir
-			#pragma fragment fragDir
-			#pragma target 4.0
+	#pragma vertex vertDir
+	#pragma fragment fragDir
+	#pragma target 4.0
 
-			#define UNITY_HDR_ON
+	#define UNITY_HDR_ON
 
-			#pragma shader_feature HEIGHT_FOG
-			#pragma shader_feature NOISE
-			#pragma shader_feature SHADOWS_DEPTH
-			#pragma shader_feature SHADOWS_NATIVE
-			#pragma shader_feature DIRECTIONAL_COOKIE
-			#pragma shader_feature DIRECTIONAL
+	#pragma shader_feature HEIGHT_FOG
+	#pragma shader_feature NOISE
+	#pragma shader_feature SHADOWS_DEPTH
+	#pragma shader_feature DIRECTIONAL_COOKIE
+	#pragma shader_feature DIRECTIONAL
 
-			#ifdef SHADOWS_DEPTH
-			#define SHADOWS_NATIVE
-			#endif
+	#ifdef SHADOWS_DEPTH
+	#define SHADOWS_NATIVE
+	#endif
 
 			struct VSInput
-			{
-				float4 vertex : POSITION;
-				float2 uv : TEXCOORD0;
-				uint vertexId : SV_VertexID;
-			};
+		{
+			float4 vertex : POSITION;
+			float2 uv : TEXCOORD0;
+			uint vertexId : SV_VertexID;
+		};
 
-			struct PSInput
-			{
-				float4 pos : SV_POSITION;
-				float2 uv : TEXCOORD0;
-				float3 wpos : TEXCOORD1;
-			};
-						
-			PSInput vertDir(VSInput i)
-			{
-				PSInput o;
+		struct PSInput
+		{
+			float4 pos : SV_POSITION;
+			float2 uv : TEXCOORD0;
+			float3 wpos : TEXCOORD1;
+		};
 
-				o.pos = UnityObjectToClipPos(i.vertex);
-				o.uv = i.uv;
+		PSInput vertDir(VSInput i)
+		{
+			PSInput o;
 
-				// SV_VertexId doesn't work on OpenGL for some reason -> reconstruct id from uv
-				//o.wpos = _FrustumCorners[i.vertexId];
-				o.wpos = _FrustumCorners[i.uv.x + i.uv.y*2];
-				
-				return o;
+			o.pos = UnityObjectToClipPos(i.vertex);
+			o.uv = i.uv;
+
+			// SV_VertexId doesn't work on OpenGL for some reason -> reconstruct id from uv
+			//o.wpos = _FrustumCorners[i.vertexId];
+			o.wpos = _FrustumCorners[i.uv.x + i.uv.y * 2];
+
+			return o;
+		}
+
+		fixed4 fragDir(PSInput i) : SV_Target
+		{
+			float2 uv = i.uv.xy;
+			float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv);
+			float linearDepth = Linear01Depth(depth);
+
+			float3 wpos = i.wpos;
+			float3 rayStart = _WorldSpaceCameraPos;
+			float3 rayDir = wpos - _WorldSpaceCameraPos;
+			rayDir *= linearDepth;
+
+			float rayLength = length(rayDir);
+			rayDir /= rayLength;
+
+			rayLength = min(rayLength, _MaxRayLength);
+
+			float4 color = RayMarch(i.pos.xy, rayStart, rayDir, rayLength);
+
+			if (linearDepth > 0.999999)
+			{
+				color.w = lerp(color.w, 1, _VolumetricLight.w);
 			}
-
-			fixed4 fragDir(PSInput i) : SV_Target
-			{
-				float2 uv = i.uv.xy;
-				float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv);
-				float linearDepth = Linear01Depth(depth);
-
-				float3 wpos = i.wpos;
-				float3 rayStart = _WorldSpaceCameraPos;
-				float3 rayDir = wpos - _WorldSpaceCameraPos;				
-				rayDir *= linearDepth;
-
-				float rayLength = length(rayDir);
-				rayDir /= rayLength;
-
-				rayLength = min(rayLength, _MaxRayLength);
-
-				float4 color = RayMarch(i.pos.xy, rayStart, rayDir, rayLength);
-
-				if (linearDepth > 0.999999)
-				{
-					color.w = lerp(color.w, 1, _VolumetricLight.w);
-				}
-				return color;
-			}
+			return color;
+		}
 			ENDCG
 		}
-	}
+		}
 }

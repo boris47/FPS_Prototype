@@ -24,20 +24,20 @@ namespace WeatherSystem {
 		public	Material				SkyMaterial			= null;
 		[SerializeField]
 		public	Color					SkyColor			= Color.clear;
-
+		/*
 		// Gradient
 		[SerializeField]
 		public	float					GradientRadius		= 0.5f;
 		[SerializeField]
 		public	Material				GradientMaterial	= null;
-
+		*/
 		// Sun
 		[SerializeField]
 		public	Color					SunColor			= Color.clear;
 		[SerializeField]
 		public	Vector3					SunRotation			= Vector3.zero;
-		[SerializeField]
-		public	Material				SunMaterial			= null;
+//		[SerializeField]
+//		public	Material				SunMaterial			= null;
 
 		[SerializeField]
 		public	string					AssetPath			= string.Empty;

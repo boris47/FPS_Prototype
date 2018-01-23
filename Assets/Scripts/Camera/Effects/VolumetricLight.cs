@@ -287,7 +287,7 @@ public class VolumetricLight : MonoBehaviour
         Mesh mesh = VolumetricLightRenderer.GetSpotLightMesh();
                 
         float scale = _light.range;
-        float angleScale = Mathf.Tan((_light.spotAngle + 1) * 0.5f * Mathf.Deg2Rad) * _light.range;
+        float angleScale = Mathf.Tan((_light.spotAngle + 1f) * 0.5f * Mathf.Deg2Rad) * _light.range;
 
         Matrix4x4 world = Matrix4x4.TRS(transform.position, transform.rotation, new Vector3(angleScale, angleScale, scale));
 
@@ -312,7 +312,7 @@ public class VolumetricLight : MonoBehaviour
 
         // update material
         _material.SetFloat("_PlaneD", d);        
-        _material.SetFloat("_CosAngle", Mathf.Cos((_light.spotAngle + 1) * 0.5f * Mathf.Deg2Rad));
+        _material.SetFloat("_CosAngle", Mathf.Cos((_light.spotAngle + 1f) * 0.5f * Mathf.Deg2Rad));
 
         _material.SetVector("_ConeApex", new Vector4(apex.x, apex.y, apex.z));
         _material.SetVector("_ConeAxis", new Vector4(axis.x, axis.y, axis.z));
@@ -347,10 +347,10 @@ public class VolumetricLight : MonoBehaviour
                 proj = Matrix4x4.Perspective(_light.spotAngle, 1, _light.shadowNearPlane, _light.range);
 
             Matrix4x4 m = clip * proj;
-            m[0, 2] *= -1;
-            m[1, 2] *= -1;
-            m[2, 2] *= -1;
-            m[3, 2] *= -1;
+            m[0, 2] *= -1f;
+            m[1, 2] *= -1f;
+            m[2, 2] *= -1f;
+            m[3, 2] *= -1f;
 
             //view = _light.transform.worldToLocalMatrix;
             _material.SetMatrix("_MyWorld2Shadow", m * view);
@@ -455,7 +455,7 @@ public class VolumetricLight : MonoBehaviour
     private bool IsCameraInPointLightBounds()
     {
         float distanceSqr = (_light.transform.position - Camera.current.transform.position).sqrMagnitude;
-        float extendedRange = _light.range + 1;
+        float extendedRange = _light.range + 1f;
         if (distanceSqr < (extendedRange * extendedRange))
             return true;
         return false;
@@ -475,7 +475,7 @@ public class VolumetricLight : MonoBehaviour
 
         // check angle
         float cosAngle = Vector3.Dot(transform.forward, (Camera.current.transform.position - _light.transform.position).normalized);
-        if((Mathf.Acos(cosAngle) * Mathf.Rad2Deg) > (_light.spotAngle + 3) * 0.5f)
+        if((Mathf.Acos(cosAngle) * Mathf.Rad2Deg) > (_light.spotAngle + 3f) * 0.5f)
             return false;
 
         return true;

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 using UnityEditor;
 
@@ -10,6 +11,7 @@ namespace WeatherSystem {
 		public const string RESOURCE_PATH			= "Assets/Resources/Weather/Descriptors";
 		public const string COLLECTION_FILENAME		= "WeatherCollection";
 
+		public	static	Light							Light					= null;
 
 		public	static	WindowWeatherEditor				m_Window				= null;
 
@@ -40,9 +42,18 @@ namespace WeatherSystem {
 				textAreaWrapTextStyle.wordWrap = true;
 			}
 
+			Light = GameObject.FindObjectsOfType<Light>().Where( l => l.type == LightType.Directional ).First();
+			if ( Light == null )
+				Light = new Light();
+
+			Light.type = LightType.Directional;
+
 			Setup();
 		}
 
+
+		/////////////////////////////////////////////////////////////////////////////
+		/// Setup
 		private static	void	Setup()
 		{
 			// Create directory if not exists
@@ -163,11 +174,9 @@ namespace WeatherSystem {
 							{
 
 								GUILayout.Label( weatherCycle.name );
-								if ( GUILayout.Button( "New Descriptor" ) )
+								if ( GUILayout.Button( "Edit" ) )
 								{
-									if ( weatherCycle.Descriptors == null )
-										weatherCycle.Descriptors = new List<EnvDescriptor>();
-									WindowValueStep.Init<string>( () => WindowDescriptorEditor.Init( weatherCycle, WindowValueStep.Value ) );
+									WindowCycleEditor.Init( weatherCycle );;
 								}
 
 								if ( GUILayout.Button( "Delete" ) )
@@ -177,10 +186,6 @@ namespace WeatherSystem {
 								}
 							}
 							GUILayout.EndHorizontal();
-
-
-							if ( weatherCycle.Descriptors == null || weatherCycle.Descriptors.Count == 0 )
-								continue;
 
 							GUILayout.Label( "" ); // space
 							GUILayout.Label( "DESCRIPTORS" );
@@ -235,6 +240,7 @@ namespace WeatherSystem {
 			if ( WindowValueStep.m_Window != null )
 				WindowValueStep.m_Window.Close();
 
+			Light = null;
 			m_Window = null;
 		}
 	}

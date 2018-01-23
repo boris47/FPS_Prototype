@@ -107,7 +107,7 @@ public partial class Player {
 		// Jump
 		{
 			// If jump button is pressed, has enough space to jump, has stamina requirements and is not dragging an entity
-			if ( bJumpInput && !m_IsUnderSomething && ( m_Stamina > m_StaminaJumpMin ) && m_DraggedObject == null )
+			if ( bJumpInput && !m_IsUnderSomething && ( m_Stamina > m_StaminaJumpMin ) && m_GrabbedObject == null )
 			{
 				m_Stamina	-= m_JumpStamina;
 				fFinalJump	+= m_JumpForce / ( m_States.IsCrouched ? 1.5f : 1.0f );

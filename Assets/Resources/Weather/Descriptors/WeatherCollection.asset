@@ -11,4 +11,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29a158ec80ce9224698daf818037ce8a, type: 3}
   m_Name: WeatherCollection
   m_EditorClassIdentifier: 
-  Cycles: []
+  Cycles:
+  - {fileID: 11400000, guid: f90e77c98293ad34d9a39ed758f086c6, type: 2}
