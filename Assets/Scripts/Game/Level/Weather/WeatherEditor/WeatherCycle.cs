@@ -6,17 +6,11 @@ namespace WeatherSystem {
 	[System.Serializable]
 	public class WeatherCycle : ScriptableObject {
 
-		[SerializeField]
-		public	string				WeatherName	= string.Empty;
-
-		[SerializeField]
+		[SerializeField][ReadOnly][HideInInspector]
 		public	string				AssetPath	= string.Empty;
 
 		[SerializeField]
-		public	string				FolderPath	= string.Empty;
-
-		[SerializeField]
-		public	List<EnvDescriptor> Descriptors = new List<EnvDescriptor>();
+		public	EnvDescriptor[]		Descriptors	= new EnvDescriptor[ 24 ];
 
 	}
 

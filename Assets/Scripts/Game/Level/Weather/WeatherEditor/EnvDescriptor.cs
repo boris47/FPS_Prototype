@@ -4,14 +4,12 @@ using System.Collections;
 namespace WeatherSystem {
 
 	[System.Serializable]
-	public class EnvDescriptor : ScriptableObject {
+	public class EnvDescriptor/*: ScriptableObject*/ {
 
-		[HideInInspector][SerializeField]
-		public	float					ExecTime			= 0.0f;
-		[SerializeField]
+		[SerializeField][HideInInspector]
 		public	string					Identifier			= "none";
 		[SerializeField]
-		public	EnvDescriptor 			Next				= null;
+		public	float					ExecTime			= 0.0f;
 
 		// Ambient Color
 		[SerializeField]
@@ -21,7 +19,7 @@ namespace WeatherSystem {
 
 		// Sky
 		[SerializeField]
-		public	Material				SkyMaterial			= null;
+		public	Cubemap					SkyCubemap			= null;
 		[SerializeField]
 		public	Color					SkyColor			= Color.clear;
 		/*
@@ -36,12 +34,18 @@ namespace WeatherSystem {
 		public	Color					SunColor			= Color.clear;
 		[SerializeField]
 		public	Vector3					SunRotation			= Vector3.zero;
-//		[SerializeField]
-//		public	Material				SunMaterial			= null;
 
 		[SerializeField]
-		public	string					AssetPath			= string.Empty;
+		public bool						set					= false;
 
+
+		public	void	Copy ( EnvDescriptor other )
+		{
+			AmbientColor	= other.AmbientColor;
+			FogFactor		= other.FogFactor;
+			SkyColor		= other.SkyColor;
+			SunColor		= other.SunColor;
+		}
 	}
 
 }

@@ -6,16 +6,19 @@ public class cMultiValue {
 	private List< cValue >	vValues = new List<cValue>();
 
 	public int				Size {
-		get { return vValues.Count; }
+		get {
+			return vValues.Count;
+		}
 	}
 
 
 
 
-	public cMultiValue() { }
+	public cMultiValue() { vValues = new List<cValue>(); }
 
 	public cMultiValue( List < cValue > vValues ) {
 
+//		vValues = new List<cValue>(vValues);
 		this.vValues = vValues;
 
 	}

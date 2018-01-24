@@ -14,7 +14,7 @@ public partial class Player {
 		float   fUpDown			= Inputmanager.Inputs.Jump        ? 1.0f : Inputmanager.Inputs.Crouch     ? -1.0f : 0.0f;
 		bool	bRunButtonHolden= Inputmanager.Inputs.Run;
 
-		float   fSpeed			= Inputmanager.Inputs.Run ? m_RunSpeed : m_WalkSpeed;
+//		float   fSpeed			= Inputmanager.Inputs.Run ? m_RunSpeed : m_WalkSpeed;
 
 		// States.bIsMoving can disable HeadMove in favor of HeadBob, that is disabled while swimming
 		bool bIsMoving = false;

@@ -25,7 +25,7 @@ public class Networking : MonoBehaviour {
 
 	private void OnSpawn( NetworkMessage netMsg )
 	{
-		GameObject obj = netMsg.reader.ReadGameObject();
+//		GameObject obj = netMsg.reader.ReadGameObject();
 	}
 
 	/*

@@ -1,8 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-using System.Collections.Generic;
-
 namespace WeatherSystem {
 
 	public class WindowCycleEditor : EditorWindow {
@@ -10,61 +8,15 @@ namespace WeatherSystem {
 		public	static	WindowCycleEditor		m_Window			= null;
 	
 		private			WeatherCycle			m_CurrentCycle		= null;
+		
+		private			Color					m_OriginaColor		= Color.clear;
 
+		private			float					m_CurrentTime		= 0.0001f;
 
-		/////////////////////////////////////////////////////////////////////////////
-		/// Init
-		public static void Init( string name )
-		{
-			if ( System.IO.Directory.Exists( System.IO.Path.Combine( WindowWeatherEditor.RESOURCE_PATH, name ) ) == true )
-				return;
-
-			if ( m_Window != null )
-			{
-				m_Window.Close();
-				m_Window = null;
-			}
-			m_Window = EditorWindow.GetWindow<WindowCycleEditor>( true, "Cycle Editor" );
-
-			string assetPath = WindowWeatherEditor.RESOURCE_PATH + "/" + name;
-
-			// Ensure directory exists
-			System.IO.Directory.CreateDirectory( assetPath );
-
-			m_Window.m_CurrentCycle = ScriptableObject.CreateInstance<WeatherCycle>();
-			m_Window.m_CurrentCycle.name = name;
-			m_Window.m_CurrentCycle.FolderPath = assetPath;
-			m_Window.m_CurrentCycle.AssetPath = ( assetPath + "/" + name + ".asset" );
-			m_Window.m_CurrentCycle.WeatherName = name;
-
-			AssetDatabase.CreateAsset( m_Window.m_CurrentCycle, m_Window.m_CurrentCycle.AssetPath );
-
-			if ( m_Window.m_CurrentCycle.Descriptors == null )
-				m_Window.m_CurrentCycle.Descriptors = new List<EnvDescriptor>();
-
-			// create descriptors
-			Vector2 centerPoint = new Vector2( Screen.width / 2f, Screen.height / 2f );
-			for ( int i = 0; i < 24; i++ )
-			{
-				EnvDescriptor envDescriptor = ScriptableObject.CreateInstance<EnvDescriptor>();
-				string identifier = "";
-				WeatherManager.TransoformTime( i * 3600, ref identifier, false );
-				envDescriptor.Identifier = identifier;
-				envDescriptor.AssetPath = ( assetPath + "/" + identifier + ".asset" );
-				AssetDatabase.CreateAsset( envDescriptor, envDescriptor.AssetPath );
-				m_Window.m_CurrentCycle.Descriptors.Add( envDescriptor );
-				EditorUtility.SetDirty( envDescriptor);
-			}
-			EditorUtility.SetDirty( m_Window.m_CurrentCycle );
-			WindowWeatherEditor.m_Window.m_WeathersCycles.Cycles.Add( m_Window.m_CurrentCycle );
-			EditorUtility.SetDirty( WindowWeatherEditor.m_Window.m_WeathersCycles );
-			AssetDatabase.SaveAssets();
-//			EditorUtility.SetDirty( WindowWeatherEditor.m_Window.m_WeathersCycles );
-		}
-
+		private			float					m_PrevTieme			= 0.0001f;
 
 		/////////////////////////////////////////////////////////////////////////////
-		/// Init
+		// Init ( EDITING )
 		public static void Init( WeatherCycle cycle )
 		{
 			if ( m_Window != null )
@@ -72,36 +24,137 @@ namespace WeatherSystem {
 				m_Window.Close();
 				m_Window = null;
 			}
-			m_Window = EditorWindow.GetWindow<WindowCycleEditor>( true, "cycle Editor" );
+			m_Window = EditorWindow.GetWindow<WindowCycleEditor>( true, "Cycle Editor" );
+			m_Window.minSize = m_Window.maxSize = new Vector2( 600f, 600f );
+
 			m_Window.m_CurrentCycle = cycle;
+
+			WeatherManager.EditorLinked = true;
+			m_Window.m_CurrentTime = ( WeatherManager.Instance.DayTime / WeatherManager.DAY_LENGTH );
+
+			Setup();
+		}
+		
+		public	static	void Setup()
+		{
+			if ( System.IO.Directory.Exists( WindowWeatherEditor.CYCLESKIES_PATH ) == false )
+				return;
+
+			string cycleSkyiesPath = WindowWeatherEditor.CYCLESKIES_PATH + "/" + m_Window.m_CurrentCycle.name;
+			if ( System.IO.Directory.Exists( cycleSkyiesPath ) == false )
+				return;
+
+			
+			string[] files = System.IO.Directory.GetFiles( cycleSkyiesPath, "*.png" );
+			if ( files.Length < 24 )
+				return;
+			
+			for ( int i = 0; i < files.Length; i++ )
+			{
+				string filePath = files[ i ];
+
+				string descriptorName = System.IO.Path.GetFileNameWithoutExtension( filePath );
+				string assetPath = cycleSkyiesPath + "/" + descriptorName + ".png";
+//				Debug.Log( "FILEPATH:   " + filePath );
+//				Debug.Log( "DESCRIPTOR: " + descriptorName );
+//				Debug.Log( "ASSET PATH: " + assetPath );
+				Cubemap map = AssetDatabase.LoadAssetAtPath<Cubemap>( assetPath );
+				m_Window.m_CurrentCycle.Descriptors[ i ].SkyCubemap = map;
+			}
 		}
 
 
 		/////////////////////////////////////////////////////////////////////////////
-		/// UNITY
+		// UNITY
 		private void OnGUI()
 		{
 
-//			Vector2 centerPoint = new Vector2( Screen.width/2f, Screen.height/2f );
+			for ( int i = 0; i < m_CurrentCycle.Descriptors.Length; i++ )
+			{
+				float bo = ( 360f / 24f * (float)i );
+				
+				EnvDescriptor thisDescriptor = m_CurrentCycle.Descriptors[ i ];
+
+				if ( i > 0 && m_CurrentCycle.Descriptors[ i - 1 ].set == false )
+					return;
+
+				// BACKGROUND COLOR ADAPTED
+				m_OriginaColor = GUI.backgroundColor;
+				GUI.backgroundColor = thisDescriptor.set ? Color.green : Color.red;
+				{
+					if ( GUI.Button( new Rect( 
+							Screen.width /2 + Mathf.Sin( bo * Mathf.Deg2Rad ) * 200f,
+							Screen.height/2 - Mathf.Cos( bo * Mathf.Deg2Rad ) * 200f,
+							50,
+							25 ),
+						thisDescriptor.Identifier )
+					)
+					{
+						if ( i > 0 && m_CurrentCycle.Descriptors[ i - 1 ].set == true && thisDescriptor.set == false )
+						{
+							thisDescriptor.Copy( m_CurrentCycle.Descriptors[ i - 1 ] );
+						}
+
+						WindowDescriptorEditor.Init( thisDescriptor );
+						EditorUtility.SetDirty( m_CurrentCycle );
+					}
+				}
+				GUI.backgroundColor = m_OriginaColor;
+				// BACKGROUND COLOR RESET
+			}
 
 
+			// LIGHT CONTROL FOR SUN SIMULATION
+			string timeAsString = string.Empty;
+			WeatherManager.TransformTime( WeatherManager.DAY_LENGTH * m_CurrentTime, ref timeAsString, false );
+
+			GUILayout.Label( timeAsString );
+			m_CurrentTime = EditorGUILayout.Slider( m_CurrentTime, 0.0001f, 1.0f );
+			if ( m_CurrentTime != m_PrevTieme )
+			{
+				( WeatherManager.Instance as IWeatherManagerInternal ).StartSelectDescriptors( WeatherManager.DAY_LENGTH * m_CurrentTime );
+			}
+			m_PrevTieme = m_CurrentTime;
+
+			( WeatherManager.Instance as IWeatherManagerInternal ).DayTimeNow = WeatherManager.DAY_LENGTH * m_CurrentTime;
 
 
-
-
-
-
-
-			GUI.Button( new Rect( Screen.width/2, Screen.height/2, 20,30 ), "Press me" );
-			
-			
-
-			if ( GUILayout.Button( "Close" ) )
-				m_Window.Close();
+			// CONFIG FILE
+			if ( GUILayout.Button( "Read Config File" ) )
+			{
+				string path = EditorUtility.OpenFilePanel( "Pick a config file", "", "ltx" );
+				Reader reader = new Reader();
+				if ( reader.LoadFile( path ) == false )
+				{
+					 EditorUtility.DisplayDialog( "Error !", "Selected file cannot be parsed !", "OK" );
+				}
+				else
+				{
+					foreach( EnvDescriptor descriptor in m_CurrentCycle.Descriptors )
+					{
+						Debug.Log( "Parsing data for descripter " + descriptor.Identifier );
+						Section section = reader.GetSection( descriptor.Identifier + ":00" );
+						if ( section != null )
+						{
+							Utils.Converters.StringToColor( section.GetRawValue("ambient_color"),		ref descriptor.AmbientColor	);
+							Utils.Converters.StringToColor( section.GetRawValue("sky_color"),			ref descriptor.SkyColor		);
+							Utils.Converters.StringToColor(	section.GetRawValue("sun_color"),			ref descriptor.SunColor		);
+							Utils.Converters.StringToVector(section.GetRawValue("sun_rotation"),		ref descriptor.SunRotation		);
+						}
+						Debug.Log( "Data parsed correctly" );
+						section = null;
+					}
+					reader = null;
+				}
+			}
 		}
 
+
+		/////////////////////////////////////////////////////////////////////////////
+		// UNITY
 		private void OnDestroy()
 		{
+			WeatherManager.EditorLinked = false;
 			EditorUtility.SetDirty( m_CurrentCycle );
 			AssetDatabase.SaveAssets();
 		}

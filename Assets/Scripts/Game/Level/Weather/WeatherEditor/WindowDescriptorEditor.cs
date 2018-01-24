@@ -7,39 +7,15 @@ namespace WeatherSystem {
 	
 		public	static	WindowDescriptorEditor		m_Window				= null;
 
+		private			EnvDescriptor				m_CurrentDescriptor		= null;
 
-		private		EnvDescriptor					m_CurrentDescriptor		= null;
-
-
+		private         string                      m_AmbColorString		= string.Empty;
+		private         string                      m_SkyColorString		= string.Empty;
+		private         string                      m_SunColorString		= string.Empty;
+		private         string                      m_SunRotationString		= string.Empty;
+		
 		/////////////////////////////////////////////////////////////////////////////
-		/// Init
-		public static void Init( WeatherCycle cycle, string name )
-		{
-			if ( System.IO.File.Exists( cycle.FolderPath + "/" + name + ".asset" ) == true )
-			{
-				return;
-			}
-
-			if ( m_Window != null )
-			{
-				m_Window.Close();
-				m_Window = null;
-			}
-			m_Window = EditorWindow.GetWindow<WindowDescriptorEditor>( true, "Descriptor Editor" );
-
-			m_Window.m_CurrentDescriptor = ScriptableObject.CreateInstance<EnvDescriptor>();
-			m_Window.m_CurrentDescriptor.name = name;
-			m_Window.m_CurrentDescriptor.AssetPath = ( cycle.FolderPath + "/" + name + ".asset" );
-
-			AssetDatabase.CreateAsset( m_Window.m_CurrentDescriptor, m_Window.m_CurrentDescriptor.AssetPath );
-			AssetDatabase.SaveAssets();
-
-			cycle.Descriptors.Add( m_Window.m_CurrentDescriptor );
-		}
-
-
-		/////////////////////////////////////////////////////////////////////////////
-		/// Init
+		// Init ( EDITING )
 		public static void Init( EnvDescriptor thisDescriptor )
 		{
 			if ( m_Window != null )
@@ -48,25 +24,150 @@ namespace WeatherSystem {
 				m_Window = null;
 			}
 			m_Window = EditorWindow.GetWindow<WindowDescriptorEditor>( true, "Descriptor Editor" );
+			m_Window.minSize = m_Window.maxSize = new Vector2( 300f, 430f );
 
 			m_Window.m_CurrentDescriptor = thisDescriptor;
 		}
 
-
-
+		private const float BUTTON_WIDTH = 180f;
 		/////////////////////////////////////////////////////////////////////////////
-		/// UNITY
+		// UNITY
 		private void OnGUI()
 		{
-			
+			GUILayout.Label( "DESCRIPTOR " + m_CurrentDescriptor.Identifier );
+			GUILayout.Space( 10f );
 
 
+
+			// Ambient Color
+			GUILayout.Label( "Ambient Color" );
+			GUILayout.BeginHorizontal();
+			{
+				m_CurrentDescriptor.AmbientColor = EditorGUILayout.ColorField ( m_CurrentDescriptor.AmbientColor, GUILayout.MaxWidth( 50f ) );
+//				GUILayout.Label( "Ambient Color String" );
+				m_AmbColorString = EditorGUILayout.TextArea ( m_AmbColorString, GUILayout.MinWidth( BUTTON_WIDTH ) );
+				if ( GUILayout.Button( "GO" ) )
+				{
+					Utils.Converters.StringToColor( m_AmbColorString, ref m_CurrentDescriptor.AmbientColor );
+					m_AmbColorString = "";
+				}
+			}
+			GUILayout.EndHorizontal();
+
+
+
+
+			// Fog Factor
+			GUILayout.Label( "Fog Factor" );
+			m_CurrentDescriptor.FogFactor = EditorGUILayout.Slider( m_CurrentDescriptor.FogFactor, 0.0f, 1.0f );
+
+
+
+
+			// Sky Material
+			GUILayout.Label( "Sky Cube Map" );
+			EditorGUILayout.ObjectField( m_CurrentDescriptor.SkyCubemap, typeof( Cubemap ), false );
+
+
+
+
+			// Sky Color
+			GUILayout.Label( "Sky Color" );
+			GUILayout.BeginHorizontal();
+			{
+				m_CurrentDescriptor.SkyColor = EditorGUILayout.ColorField (m_CurrentDescriptor.SkyColor, GUILayout.MaxWidth( 50f ) );
+//				GUILayout.Label( "Sky Color String" );
+				m_SkyColorString = EditorGUILayout.TextArea ( m_SkyColorString, GUILayout.MinWidth( BUTTON_WIDTH ) );
+				if ( GUILayout.Button( "GO" ) )
+				{
+					Utils.Converters.StringToColor( m_SkyColorString, ref m_CurrentDescriptor.SkyColor );
+					m_SkyColorString = "";
+				}
+			}
+			GUILayout.EndHorizontal();
+
+
+
+
+			// Sun Color
+			GUILayout.Label( "Sun Color" );
+			GUILayout.BeginHorizontal();
+			{
+				m_CurrentDescriptor.SunColor = EditorGUILayout.ColorField (m_CurrentDescriptor.SunColor, GUILayout.MaxWidth( 50f ) );
+//				GUILayout.Label( "Sky Color String" );
+				m_SunColorString = EditorGUILayout.TextArea ( m_SunColorString, GUILayout.MinWidth( BUTTON_WIDTH ) );
+				if ( GUILayout.Button( "GO" ) )
+				{
+					Utils.Converters.StringToColor( m_SunColorString, ref m_CurrentDescriptor.SunColor );
+					m_SunColorString = "";
+				}
+			}
+			GUILayout.EndHorizontal();
+
+
+
+
+			// Sun Color
+			GUILayout.Label( "Sun Rotation V3" );
+//			GUILayout.BeginHorizontal();
+			{
+				m_CurrentDescriptor.SunRotation = EditorGUILayout.Vector3Field ( "", m_CurrentDescriptor.SunRotation );
+//				GUILayout.Label( "Sun Rotation String" );
+				m_SunRotationString = EditorGUILayout.TextArea ( m_SunRotationString, GUILayout.MinWidth( BUTTON_WIDTH ) );
+				if ( GUILayout.Button( "GO" ) )
+				{
+					Utils.Converters.StringToVector( m_SunRotationString, ref m_CurrentDescriptor.SunRotation );
+					m_SunRotationString = "";
+				}
+			}
+//			GUILayout.EndHorizontal();
+
+
+			if ( GUILayout.Button( "Read Config File" ) )
+			{
+				string path = EditorUtility.OpenFilePanel( "Pick a config file", "", "ltx" );
+				Reader reader = new Reader();
+				if ( reader.LoadFile( path ) == false )
+				{
+					 EditorUtility.DisplayDialog( "Error !", "Selected file cannot be parsed !", "OK" );
+				}
+				else
+				{
+					Section section = reader.GetSection( m_CurrentDescriptor.Identifier + ":00" );
+					if ( section != null )
+					{
+						Utils.Converters.StringToColor( section.GetRawValue("ambient_color"),		ref m_CurrentDescriptor.AmbientColor	);
+						Utils.Converters.StringToColor( section.GetRawValue("sky_color"),			ref m_CurrentDescriptor.SkyColor		);
+						Utils.Converters.StringToColor(	section.GetRawValue("sun_color"),			ref m_CurrentDescriptor.SunColor		);
+						Utils.Converters.StringToVector(section.GetRawValue("sun_rotation"),		ref m_CurrentDescriptor.SunRotation		);
+						section = null;
+						reader = null;
+					}
+				}
+			}
+
+			GUILayout.Space( 10f );
+			if ( GUILayout.Button( "CLOSE" ) )
+				EditorWindow.focusedWindow.Close();
 		}
 
+		/////////////////////////////////////////////////////////////////////////////
+		// UNITY
 		private void OnDestroy()
 		{
-			EditorUtility.SetDirty( m_CurrentDescriptor );
-			AssetDatabase.SaveAssets();
+			m_CurrentDescriptor.set = true;
+
+			if ( m_AmbColorString.Length > 0 )
+				Utils.Converters.StringToColor( m_AmbColorString, ref m_CurrentDescriptor.AmbientColor );
+
+			if ( m_SkyColorString.Length > 0 )
+				Utils.Converters.StringToColor( m_SkyColorString, ref m_CurrentDescriptor.SkyColor );
+
+			if ( m_SunColorString.Length > 0 )
+				Utils.Converters.StringToColor( m_SunColorString, ref m_CurrentDescriptor.SunColor );
+
+			if ( m_SunRotationString.Length > 0 )
+				Utils.Converters.StringToVector( m_SunRotationString, ref m_CurrentDescriptor.SunRotation );
 		}
 
 	}

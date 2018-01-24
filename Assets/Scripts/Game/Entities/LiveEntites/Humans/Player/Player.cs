@@ -185,13 +185,13 @@ public partial class Player : Human {
 
 			// Get interactable / draggable object
 			RaycastHit hit = new RaycastHit();
-			Draggable draggable = null;
+			Grabbable grabbable = null;
 			Interactable interactable = null;
 			if ( m_GrabbedObject == null )
 			{
 				if ( Physics.Raycast( CameraControl.Instance.transform.position, CameraControl.Instance.transform.forward, out hit, m_UseDistance ) )
 				{
-					draggable = hit.transform.GetComponent<Draggable>();
+					grabbable = hit.transform.GetComponent<Grabbable>();
 					interactable = hit.transform.GetComponent<Interactable>();
 				}
 			}
@@ -206,7 +206,7 @@ public partial class Player : Human {
 						interactable.OnInteraction();
 
 					// Drag
-					if ( draggable != null && interactable.CanInteract )
+					if ( grabbable != null && interactable.CanInteract )
 					{
 						m_GrabbedObject = hit.transform.gameObject;
 

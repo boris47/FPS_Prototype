@@ -16,16 +16,27 @@ public class WindowValueStep : EditorWindow {
 			m_Window.Close();
 			m_Window = null;
 		}
+
+		var requestedType = typeof( T );
+		if ( requestedType != typeof( bool )  &&
+			 requestedType != typeof( int )   && 
+			 requestedType != typeof( float ) && 
+			 requestedType != typeof( string )
+		)
+		return;
 		m_Window = EditorWindow.GetWindow<WindowValueStep>( true, "Weather Manager" );
 
 		m_Window.OnOK		= callbackOK;
 		m_Window.OnCancel	= callbackCancel;
 
-		Value = new cValue( typeof( T ) );
+		Value = new cValue( requestedType );
 	}
 
 	private	bool	HasValidValue()
 	{
+		if ( Value.Value == null )
+			return false;
+
 		if ( Value.Value.GetType() == typeof( string ) )
 			if ( Value.As<string>() == "" )
 				return false;
@@ -39,20 +50,24 @@ public class WindowValueStep : EditorWindow {
 		{
 			GUILayout.Label( "Value" );
 
-			System.Type valueType = Value.Value.GetType();
+			if ( Value.Value != null )
+			{
 
-			if ( valueType == typeof( bool ) )
-				Value = EditorGUILayout.Toggle( Value );
+				System.Type valueType = Value.Value.GetType();
 
-			if ( valueType == typeof( int ) )
-				Value = EditorGUILayout.IntField( Value );
+				if ( valueType == typeof( bool ) )
+					Value = EditorGUILayout.Toggle( Value );
 
-			if ( valueType == typeof( float ) )
-				Value = EditorGUILayout.FloatField( Value );
+				if ( valueType == typeof( int ) )
+					Value = EditorGUILayout.IntField( Value );
 
-			if ( valueType == typeof( string ) )
-				Value = EditorGUILayout.TextField( Value );
-			
+				if ( valueType == typeof( float ) )
+					Value = EditorGUILayout.FloatField( Value );
+
+				if ( valueType == typeof( string ) )
+					Value = EditorGUILayout.TextField( Value );
+
+			}
 
 			GUILayout.BeginHorizontal();
 			{
@@ -77,6 +92,12 @@ public class WindowValueStep : EditorWindow {
 		GUILayout.EndVertical();
 	}
 
+	/*
+	private void OnLostFocus()
+	{
+		m_Window.Close();
+	}
+	*/
 
 	private void OnDestroy()
 	{

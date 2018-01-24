@@ -110,6 +110,7 @@ public class Reader {
 		}
 
 		if ( !( fs.Length > 0 ) ) {
+			fs.Close();
 			Debug.LogError( "Reader::LoadFile:File |" + sFilePath + "| is empty!!!" );
 			UnityEditor.EditorApplication.isPlaying = false;
 			return false;
@@ -126,6 +127,7 @@ public class Reader {
 		// release mode
 		TextAsset pTextAsset = Resources.Load( sFilePath ) as TextAsset;
 		if ( pTextAsset == null ) {
+			fs.Close();
 			Debug.LogError( "Reader::LoadFile:Error opening file: " + sFilePath );
 			Application.Quit();
 			return false;
@@ -148,7 +150,11 @@ public class Reader {
 				string sPath = Path.GetDirectoryName( sFilePath ); //Utils.System.GetPathFromFilePath( sFilePath );
 				string sFileName = sLine.Trim().Substring( "#include".Length + 1 );
 #if UNITY_EDITOR
-				if ( !LoadFile( Path.Combine( sPath, sFileName ) ) ) return false;
+				if ( !LoadFile( Path.Combine( sPath, sFileName ) ) )
+				{
+					fs.Close();
+					return false;
+				}
 #else
 				if ( !LoadFile( Utils.System.RemoveExtension( Path.Combine( sPath, sFileName ) ) ) ) return false;
 #endif
@@ -168,7 +174,8 @@ public class Reader {
 			if ( pKeyValue.IsOK ) {
 
 				if ( pSection == null ) {
-					 Debug.LogError( " Reader::LoadFile:No section created to insert KeyValue at line |" + iLine + "| in file |" + sFilePath + "| " );
+					Debug.LogError( " Reader::LoadFile:No section created to insert KeyValue at line |" + iLine + "| in file |" + sFilePath + "| " );
+					fs.Close();
 					return false;
 				}
 
@@ -177,7 +184,11 @@ public class Reader {
 					continue;
 				}
 
-				if ( !Section_Add( pKeyValue, sFilePath, iLine ) ) return false;
+				if ( !Section_Add( pKeyValue, sFilePath, iLine ) )
+				{
+					fs.Close();
+					return false;
+				}
 				continue;
 			}
 
@@ -185,7 +196,7 @@ public class Reader {
 			 Debug.LogError( "Reader::LoadFile:Incorrect line " + iLine + " in file " + sFilePath );
 			return false;
 		}
-
+		fs.Close();
 		Section_Close();
 		mFilePaths.Add( sFilePath );
 		bIsOK = true;

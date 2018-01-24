@@ -46,6 +46,7 @@ interface ISection {
 	void					SetBool( string Key, bool Value );
 	void					SetFloat( string Key, float Value );
 	void					SetString ( string Key, string Value );
+	void					PrintSection();
 
 }
 
@@ -308,9 +309,11 @@ public class Section : ISection {
 
 		cLineValue pLineValue = null; cMultiValue pMultiValue = null;
 		return (
-			( ( pLineValue = this[ Key ] )			!= null ) && 
-			( ( pMultiValue = pLineValue.MultiValue )	!= null ) ) ? 
-			( pMultiValue.Size + 1 ) : 0;
+			( ( pLineValue = this[ Key ] ) != null ) && ( ( pMultiValue = pLineValue.MultiValue ) != null ) )
+			? 
+				( pMultiValue.Size )
+			:
+				0;
 
 	}
 
@@ -492,7 +495,34 @@ public class Section : ISection {
 		pLineValue.Set( new cMultiValue( vValues ) );
 
 	}
+	
 
+	public void PrintSection()
+	{
+		Debug.Log( "Section " + sName );
+		foreach ( cLineValue LineValue in vSection )
+		{
+			string result = LineValue.Key;
+			if ( LineValue.Type == LineValueType.MULTI )
+			{
+				cMultiValue multi = LineValue.MultiValue;
+				for ( int i = 0; i < multi.Size; i++ )
+				{
+					result += " " + multi.At( i );
+				}
+				Debug.Log( result );
+			}
+			else
+			{
+				if ( LineValue.Value.Value == null )
+				{
+					Debug.Log( result + " " + LineValue.RawValue );
+				}
+				else
+				Debug.Log( result + " " + LineValue.Value.Value + ", " + LineValue.Value.Value.GetType() );
+			}
+		}
+	}
 
 
 };

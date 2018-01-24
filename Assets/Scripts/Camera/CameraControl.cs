@@ -63,7 +63,7 @@ public partial class CameraControl : MonoBehaviour {
 	}
 
 	private float			m_CurrentRotation_X_Delta	= 0.0f;
-	private float			m_CurrentRotation_Y			= 0.0f;
+//	private float			m_CurrentRotation_Y			= 0.0f;
 	private float			m_CurrentRotation_Y_Delta	= 0.0f;
 
 	private float			m_CameraOffset				= 5.0f;

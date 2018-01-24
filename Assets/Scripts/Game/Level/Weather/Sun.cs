@@ -5,11 +5,21 @@ using UnityEngine;
 
 public class Sun : MonoBehaviour {
 	
-	public		Vector3 vRotation	= Vector3.zero;
+	public		float		m_Speed			= 0.05f;
 
-	void FixedUpdate()  {
+	private		Vector3		m_Rotation		= Vector3.zero;
 
-		transform.Rotate( vRotation );
+	/////////////////////////////////////////////////////////////////////////////
+	// AWAKE
+	private void Awake()
+	{
+		m_Rotation = new Vector3( m_Speed, 0.0f, 0.0f );
+	}
 
+	/////////////////////////////////////////////////////////////////////////////
+	// UNITY
+	void FixedUpdate()
+	{
+		transform.Rotate( m_Rotation, Space.Self );
 	}
 }
