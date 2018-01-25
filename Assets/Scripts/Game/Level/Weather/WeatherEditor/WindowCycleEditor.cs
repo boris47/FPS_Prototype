@@ -15,6 +15,7 @@ namespace WeatherSystem {
 
 		private			float					m_PrevTieme			= 0.0001f;
 
+
 		/////////////////////////////////////////////////////////////////////////////
 		// Init ( EDITING )
 		public static void Init( WeatherCycle cycle )
@@ -32,9 +33,14 @@ namespace WeatherSystem {
 			WeatherManager.EditorLinked = true;
 			m_Window.m_CurrentTime = ( WeatherManager.Instance.DayTime / WeatherManager.DAY_LENGTH );
 
+			 ( WeatherManager.Instance as IWeatherManagerInternal ).Start( cycle, 2f );
+
 			Setup();
 		}
 		
+
+		/////////////////////////////////////////////////////////////////////////////
+		// Setup
 		public	static	void Setup()
 		{
 			if ( System.IO.Directory.Exists( WindowWeatherEditor.CYCLESKIES_PATH ) == false )
@@ -68,6 +74,70 @@ namespace WeatherSystem {
 		// UNITY
 		private void OnGUI()
 		{
+			// LIGHT CONTROL FOR SUN SIMULATION
+			string timeAsString = string.Empty;
+			WeatherManager.TransformTime( WeatherManager.DAY_LENGTH * m_CurrentTime, ref timeAsString, false );
+
+			GUILayout.Label( timeAsString );
+			m_CurrentTime = EditorGUILayout.Slider( m_CurrentTime, 0.0001f, 1.0f );
+			if ( m_CurrentTime != m_PrevTieme )
+			{
+				( WeatherManager.Instance as IWeatherManagerInternal ).StartSelectDescriptors( WeatherManager.DAY_LENGTH * m_CurrentTime, m_CurrentCycle );
+			}
+			m_PrevTieme = m_CurrentTime;
+
+			( WeatherManager.Instance as IWeatherManagerInternal ).DayTimeNow = WeatherManager.DAY_LENGTH * m_CurrentTime;
+
+
+			// CONFIG FILE
+			if ( GUILayout.Button( "Read Config File" ) )
+			{
+				string path = EditorUtility.OpenFilePanel( "Pick a config file", "", "ltx" );
+				Reader reader = new Reader();
+				if ( path.Length == 0 )
+					return;
+
+				if ( reader.LoadFile( path ) == false )
+				{
+					 EditorUtility.DisplayDialog( "Error !", "Selected file cannot be parsed !", "OK" );
+				}
+				else
+				{
+					foreach( EnvDescriptor descriptor in m_CurrentCycle.Descriptors )
+					{
+						Debug.Log( "Parsing data for descripter " + descriptor.Identifier );
+						Section section = reader.GetSection( descriptor.Identifier + ":00" );
+						if ( section != null )
+						{
+							if ( section.HasKey( "ambient_color" ) )
+								Utils.Converters.StringToColor( section.GetRawValue("ambient_color"),		ref descriptor.AmbientColor	);
+
+							if ( section.HasKey( "sky_color" ) )
+								Utils.Converters.StringToColor( section.GetRawValue("sky_color"),			ref descriptor.SkyColor		);
+
+							if ( section.HasKey( "sun_color" ) )
+								Utils.Converters.StringToColor(	section.GetRawValue("sun_color"),			ref descriptor.SunColor		);
+
+							if ( section.HasKey( "fog_density" ) )
+								descriptor.FogFactor		= section.AsFloat( "fog_density" );
+
+							if ( section.HasKey( "rain_density" ) )
+								descriptor.RainIntensity	= section.AsFloat( "rain_density" );
+							if ( section.HasKey( "sun_rotation" ) )
+								Utils.Converters.StringToVector(section.GetRawValue("sun_rotation"),		ref descriptor.SunRotation	);
+							else if ( section.HasKey( "sun_altitude" ) )
+							{
+								descriptor.SunRotation = Utils.Math.VectorByHP( section.AsFloat( "sun_altitude" ), section.AsFloat( "sun_longitude" ) );
+							}
+
+						}
+						descriptor.set = true;
+						Debug.Log( "Data parsed correctly" );
+						section = null;
+					}
+					reader = null;
+				}
+			}
 
 			for ( int i = 0; i < m_CurrentCycle.Descriptors.Length; i++ )
 			{
@@ -80,7 +150,9 @@ namespace WeatherSystem {
 
 				// BACKGROUND COLOR ADAPTED
 				m_OriginaColor = GUI.backgroundColor;
-				GUI.backgroundColor = thisDescriptor.set ? Color.green : Color.red;
+				Color	toSet = thisDescriptor.set ? Color.green : Color.red;
+						toSet = thisDescriptor == WeatherManager.Instance.CurrentDescriptor ? Color.yellow : toSet;
+				GUI.backgroundColor = toSet;
 				{
 					if ( GUI.Button( new Rect( 
 							Screen.width /2 + Mathf.Sin( bo * Mathf.Deg2Rad ) * 200f,
@@ -102,51 +174,6 @@ namespace WeatherSystem {
 				GUI.backgroundColor = m_OriginaColor;
 				// BACKGROUND COLOR RESET
 			}
-
-
-			// LIGHT CONTROL FOR SUN SIMULATION
-			string timeAsString = string.Empty;
-			WeatherManager.TransformTime( WeatherManager.DAY_LENGTH * m_CurrentTime, ref timeAsString, false );
-
-			GUILayout.Label( timeAsString );
-			m_CurrentTime = EditorGUILayout.Slider( m_CurrentTime, 0.0001f, 1.0f );
-			if ( m_CurrentTime != m_PrevTieme )
-			{
-				( WeatherManager.Instance as IWeatherManagerInternal ).StartSelectDescriptors( WeatherManager.DAY_LENGTH * m_CurrentTime );
-			}
-			m_PrevTieme = m_CurrentTime;
-
-			( WeatherManager.Instance as IWeatherManagerInternal ).DayTimeNow = WeatherManager.DAY_LENGTH * m_CurrentTime;
-
-
-			// CONFIG FILE
-			if ( GUILayout.Button( "Read Config File" ) )
-			{
-				string path = EditorUtility.OpenFilePanel( "Pick a config file", "", "ltx" );
-				Reader reader = new Reader();
-				if ( reader.LoadFile( path ) == false )
-				{
-					 EditorUtility.DisplayDialog( "Error !", "Selected file cannot be parsed !", "OK" );
-				}
-				else
-				{
-					foreach( EnvDescriptor descriptor in m_CurrentCycle.Descriptors )
-					{
-						Debug.Log( "Parsing data for descripter " + descriptor.Identifier );
-						Section section = reader.GetSection( descriptor.Identifier + ":00" );
-						if ( section != null )
-						{
-							Utils.Converters.StringToColor( section.GetRawValue("ambient_color"),		ref descriptor.AmbientColor	);
-							Utils.Converters.StringToColor( section.GetRawValue("sky_color"),			ref descriptor.SkyColor		);
-							Utils.Converters.StringToColor(	section.GetRawValue("sun_color"),			ref descriptor.SunColor		);
-							Utils.Converters.StringToVector(section.GetRawValue("sun_rotation"),		ref descriptor.SunRotation		);
-						}
-						Debug.Log( "Data parsed correctly" );
-						section = null;
-					}
-					reader = null;
-				}
-			}
 		}
 
 
@@ -154,6 +181,7 @@ namespace WeatherSystem {
 		// UNITY
 		private void OnDestroy()
 		{
+			( WeatherManager.Instance as IWeatherManagerInternal ).Start( m_CurrentCycle, Random.value );
 			WeatherManager.EditorLinked = false;
 			EditorUtility.SetDirty( m_CurrentCycle );
 			AssetDatabase.SaveAssets();

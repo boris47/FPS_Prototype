@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public partial class Player {
-	
 
 	private	void	Update_Walk()
 	{
-
 		if ( m_Health <= 0.0f )
 			return;
 
@@ -168,16 +166,15 @@ public partial class Player {
 				m_States.IsWalking = true;
 			}
 
-			if ( !m_States.IsJumping )
+			if ( m_States.IsJumping == false )
+			{
 				m_States.IsMoving = true;
-
+			}
 		}
 
 		// if don't move stamina regenerates at regular speed
 		if ( fMove == 0.0f && fStrafe == 0.0f )
 			m_Stamina += m_StaminaRestore * Time.deltaTime;
-
-		
 
 		// Clamp Stamina between 0.0 and 1.0
 		m_Stamina = Mathf.Clamp( m_Stamina, 0.0f, 1.0f );
@@ -198,11 +195,11 @@ public partial class Player {
 		{
 			Vector3 vCamForward = Vector3.Scale( CameraControl.Instance.transform.forward, new Vector3( 1.0f, 0.0f, 1.0f ) ).normalized;
 			m_Move = ( m_MoveSmooth * vCamForward ) + ( m_StrafeSmooth * CameraControl.Instance.transform.right );
-//			m_Move = transform.InverseTransformDirection( m_Move );
 		}
 
 		// This prevents "speed hack" strafing
-		if ( ( fStrafe != 0.0f ) && ( fMove != 0.0f  ) ) {
+		if ( ( fStrafe != 0.0f ) && ( fMove != 0.0f  ) )
+		{
 			m_Move *= 0.707f;
 		}
 
@@ -212,21 +209,15 @@ public partial class Player {
 		m_Move *= m_GroundSpeedModifier;
 
 		// Add jump force
-		if ( bIsJumping && m_Grounded ) m_RigidBody.velocity = m_RigidBody.velocity + Vector3.up * fFinalJump;
+		if ( bIsJumping && m_Grounded )
+			m_RigidBody.velocity = m_RigidBody.velocity + Vector3.up * fFinalJump;
 
-		m_RigidBody.velocity =
-			Vector3.Lerp ( currentVelocity, new Vector3(  m_Move.x, m_RigidBody.velocity.y, m_Move.z ), Time.deltaTime * 10f );
-
-		currentVelocity = m_RigidBody.velocity;
-
+		m_RigidBody.velocity = new Vector3(  m_Move.x, m_RigidBody.velocity.y, m_Move.z );
 
 		// Update internal time value
 		// Used for timed operation such as high jump or other things
 		m_LastLandTime = Time.time;
 
 	}
-
-
-	Vector3 currentVelocity = Vector3.zero;
 
 }

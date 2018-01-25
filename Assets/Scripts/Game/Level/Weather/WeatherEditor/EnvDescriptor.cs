@@ -16,6 +16,8 @@ namespace WeatherSystem {
 		public	Color					AmbientColor		= Color.clear;
 		[SerializeField]
 		public	float					FogFactor			= 0.0f;
+		[SerializeField]
+		public	float					RainIntensity		= 0.0f;
 
 		// Sky
 		[SerializeField]

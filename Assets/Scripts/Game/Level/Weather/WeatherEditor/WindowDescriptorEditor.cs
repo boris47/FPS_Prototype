@@ -27,6 +27,7 @@ namespace WeatherSystem {
 			m_Window.minSize = m_Window.maxSize = new Vector2( 300f, 430f );
 
 			m_Window.m_CurrentDescriptor = thisDescriptor;
+			WeatherManager.EditorDescriptorLinked = true;
 		}
 
 		private const float BUTTON_WIDTH = 180f;
@@ -60,6 +61,13 @@ namespace WeatherSystem {
 			// Fog Factor
 			GUILayout.Label( "Fog Factor" );
 			m_CurrentDescriptor.FogFactor = EditorGUILayout.Slider( m_CurrentDescriptor.FogFactor, 0.0f, 1.0f );
+
+
+
+
+			// Fog Factor
+			GUILayout.Label( "Rain Intensity" );
+			m_CurrentDescriptor.RainIntensity = EditorGUILayout.Slider( m_CurrentDescriptor.RainIntensity, 0.0f, 1.0f );
 
 
 
@@ -114,11 +122,17 @@ namespace WeatherSystem {
 				m_CurrentDescriptor.SunRotation = EditorGUILayout.Vector3Field ( "", m_CurrentDescriptor.SunRotation );
 //				GUILayout.Label( "Sun Rotation String" );
 				m_SunRotationString = EditorGUILayout.TextArea ( m_SunRotationString, GUILayout.MinWidth( BUTTON_WIDTH ) );
+				GUILayout.BeginHorizontal();
 				if ( GUILayout.Button( "GO" ) )
 				{
 					Utils.Converters.StringToVector( m_SunRotationString, ref m_CurrentDescriptor.SunRotation );
 					m_SunRotationString = "";
 				}
+				if ( GUILayout.Button( "SET CURRENT" ) )
+				{
+					m_CurrentDescriptor.SunRotation = WeatherManager.Instance.Sun.transform.rotation.eulerAngles;
+				}
+				GUILayout.EndHorizontal();
 			}
 //			GUILayout.EndHorizontal();
 
@@ -168,6 +182,8 @@ namespace WeatherSystem {
 
 			if ( m_SunRotationString.Length > 0 )
 				Utils.Converters.StringToVector( m_SunRotationString, ref m_CurrentDescriptor.SunRotation );
+
+			WeatherManager.EditorDescriptorLinked = false;
 		}
 
 	}

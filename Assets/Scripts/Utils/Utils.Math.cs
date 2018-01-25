@@ -38,7 +38,23 @@ namespace Utils {
 			return Angle;
 
 		}
+		/*
+			sun_dir.setHP(
+			deg2rad(config.r_float(m_identifier.c_str(), "sun_altitude")),
+			deg2rad(config.r_float(m_identifier.c_str(), "sun_longitude"))
+			);
+		*/
 
+		public static Vector3 VectorByHP( float h, float p )
+		{
+			h *= Mathf.Deg2Rad;
+			p *= Mathf.Deg2Rad;
+			float _ch = Mathf.Cos( h );
+			float _cp = Mathf.Cos( p );
+			float _sh = Mathf.Sin( h );
+			float _sp = Mathf.Sin( p );
+			return new Vector3 ( _cp*_sh, _sp, _cp*_ch );
+		}
 	}
 		
 

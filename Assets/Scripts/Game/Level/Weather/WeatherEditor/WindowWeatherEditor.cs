@@ -111,8 +111,8 @@ namespace WeatherSystem {
 			AssetDatabase.SaveAssets();
 
 			string cycleSkyiesPath = CYCLESKIES_PATH + "/" + name;
-			if ( System.IO.Directory.Exists( cycleSkyiesPath ) == true )
-				System.IO.Directory.Delete( cycleSkyiesPath, true );
+//			if ( System.IO.Directory.Exists( cycleSkyiesPath ) == true )
+//				System.IO.Directory.Delete( cycleSkyiesPath, true );
 
 			System.IO.Directory.CreateDirectory( cycleSkyiesPath );
 			AssetDatabase.Refresh();
@@ -138,7 +138,7 @@ namespace WeatherSystem {
 
 				string cycleSkyiesPath = WindowWeatherEditor.CYCLESKIES_PATH + "/" + cycleName;
 				if ( System.IO.Directory.Exists( cycleSkyiesPath ) == true )
-				System.IO.Directory.Delete( cycleSkyiesPath, true );
+					System.IO.Directory.Delete( cycleSkyiesPath, true );
 			}
 			AssetDatabase.SaveAssets();
 			AssetDatabase.Refresh();

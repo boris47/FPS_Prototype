@@ -1,10 +1,16 @@
 ﻿
 using System.Collections;
 using UnityEngine;
+using System.Linq;
 
+[ExecuteInEditMode]
 public class RainScript : MonoBehaviour {
 
+	public	static	RainScript		Instance						= null;
+
+	
 	[Header("Rain Properties")]
+	/*
 	[Tooltip("Light rain looping clip")]
 	[SerializeField]
 	private		AudioClip			m_RainSoundLight				= null;
@@ -16,17 +22,23 @@ public class RainScript : MonoBehaviour {
 	[Tooltip("Heavy rain looping clip")]
 	[SerializeField]
 	private		AudioClip			m_RainSoundHeavy				= null;
-
+	*/
 	[Tooltip("Intensity of rain (0-1)")]
 	[Range(0.0f, 1.0f)]
 	[SerializeField]
 	private		float				m_RainIntensity					= 0.0f;
+	public		float				RainIntensity
+	{
+		get { return m_RainIntensity; }
+		set { m_RainIntensity = value; }
+	}
 
 	[Header("Wind Properties")]
+	/*
 	[Tooltip("Wind looping clip")]
 	[SerializeField]
 	private		AudioClip			m_WindSound						= null;
-
+	*/
 	[Tooltip("Wind sound volume modifier, use this to lower your sound if it's too loud.")]
 	[SerializeField]
 	private		float				m_WindSoundVolumeModifier		= 0.5f;
@@ -74,10 +86,10 @@ public class RainScript : MonoBehaviour {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// AWAKE
-	private void Awake()
+	// OnEnable
+	private void OnEnable()
 	{
-		m_Camera = Camera.main;
+		m_Camera = Camera.current;
 
 		{//	m_RainFallParticleSystem Child
 			Transform child = transform.Find( "RainFallParticleSystem" );;
@@ -113,7 +125,7 @@ public class RainScript : MonoBehaviour {
 		// m_RainFallParticleSystem Setup
 		{
 			Renderer rainRenderer = m_RainFallParticleSystem.GetComponent<Renderer>();
-			m_RainMaterial = new Material( rainRenderer.material );
+			m_RainMaterial = new Material( rainRenderer.sharedMaterial );
 			m_RainMaterial.EnableKeyword( "SOFTPARTICLES_OFF" );
 			rainRenderer.material = m_RainMaterial;
 		}
@@ -121,21 +133,33 @@ public class RainScript : MonoBehaviour {
 		// m_RainExplosionParticleSystem Setup
 		{
 			Renderer rainRenderer = m_RainExplosionParticleSystem.GetComponent<Renderer>();
-			m_RainExplosionMaterial = new Material( rainRenderer.material );
+			m_RainExplosionMaterial = new Material( rainRenderer.sharedMaterial );
 			m_RainExplosionMaterial.EnableKeyword( "SOFTPARTICLES_OFF" );
 			rainRenderer.material = m_RainExplosionMaterial;
 		}
 
 		// Audio Sources Setup
-		m_AudioSourceRainLight	= new LoopingAudioSource( this, m_RainSoundLight	);
-		m_AudioSourceRainMedium	= new LoopingAudioSource( this, m_RainSoundMedium	);
-		m_AudioSourceRainHeavy	= new LoopingAudioSource( this, m_RainSoundHeavy	);
-		m_AudioSourceWind		= new LoopingAudioSource( this, m_WindSound		);
+		Transform audioSources = transform.Find( "AudioSources" );
+		{
+			m_AudioSourceRainLight = new LoopingAudioSource();
+			m_AudioSourceRainLight.AudioSource	= audioSources.GetChild( 0 ).GetComponent<AudioSource>();
+		}
+		{
+			m_AudioSourceRainMedium = new LoopingAudioSource();
+			m_AudioSourceRainMedium.AudioSource	= audioSources.GetChild( 1 ).GetComponent<AudioSource>();
+		}
+		{
+			m_AudioSourceRainHeavy = new LoopingAudioSource();
+			m_AudioSourceRainHeavy.AudioSource	= audioSources.GetChild( 2 ).GetComponent<AudioSource>();
+		}
+		{
+			m_AudioSourceWind = new LoopingAudioSource();
+			m_AudioSourceWind.AudioSource		= audioSources.GetChild( 3 ).GetComponent<AudioSource>();
+		}
 
 		m_RainIntensityInternal = m_RainIntensity;
-
+		Instance = this;
 	}
-
 
 	//////////////////////////////////////////////////////////////////////////
 	// UpdateWind
@@ -284,13 +308,20 @@ public class RainScript : MonoBehaviour {
 		return ( m_RainFallParticleSystem.main.maxParticles / m_RainFallParticleSystem.main.startLifetime.constant ) * m_RainIntensityInternal;
 	}
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// UNITY
 	protected virtual void Update()
 	{
+
+		if ( m_Camera == null )
+			m_Camera = Camera.current;
+		if ( m_Camera == null )
+			return;
+		   
 		CheckForRainChange();
 		UpdateRain();
-		UpdateWind();
+//		UpdateWind();
 
 		m_AudioSourceWind.Update();
 		m_AudioSourceRainLight.Update();
@@ -314,7 +345,7 @@ public class LoopingAudioSource {
 	public AudioSource AudioSource
 	{
 		get;
-		private set;
+		set;
 	}
 	public float TargetVolume
 	{
@@ -325,14 +356,8 @@ public class LoopingAudioSource {
 
 	//////////////////////////////////////////////////////////////////////////
 	// CONSTRUCTOR
-	public LoopingAudioSource( MonoBehaviour script, AudioClip clip )
+	public LoopingAudioSource()
 	{
-		AudioSource = script.gameObject.AddComponent<AudioSource>();
-		AudioSource.loop = true;
-		AudioSource.clip = clip;
-		AudioSource.playOnAwake = false;
-		AudioSource.volume = 0.0f;
-		AudioSource.Stop();
 		TargetVolume = 1.0f;
 	}
 
@@ -341,6 +366,9 @@ public class LoopingAudioSource {
 	// SetVolume
 	public void SetVolume( float targetVolume )
 	{
+		if ( AudioSource == null )
+			return;
+
 		if ( !AudioSource.isPlaying )
 		{
 			AudioSource.volume = 0.0f;
@@ -362,6 +390,9 @@ public class LoopingAudioSource {
 	// Update
 	public void Update()
 	{
+		if ( AudioSource == null )
+			return;
+
 		if ( AudioSource.isPlaying && ( AudioSource.volume = Mathf.Lerp( AudioSource.volume, TargetVolume, Time.deltaTime * 2f ) ) == 0.0f )
 		{
 			AudioSource.Stop();

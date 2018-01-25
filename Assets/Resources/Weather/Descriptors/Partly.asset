@@ -1,0 +1,255 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 886f455805ca8ed41a014c7982b8f483, type: 3}
+  m_Name: Partly
+  m_EditorClassIdentifier: 
+  AssetPath: Assets/Resources/Weather/Descriptors/Partly.asset
+  Descriptors:
+  - Identifier: 00:00
+    ExecTime: 0
+    AmbientColor: {r: 0.007813, g: 0.007813, b: 0.007813, a: 1}
+    FogFactor: 0
+    RainIntensity: 0
+    SkyCubemap: {fileID: 8900000, guid: b96361a57da34734591f45b52db9bbf9, type: 3}
+    SkyColor: {r: 0.378906, g: 0.378906, b: 0.378906, a: 1}
+    SunColor: {r: 0, g: 0, b: 0, a: 1}
+    SunRotation: {x: 0.22957811, y: -0.4468693, z: 0.86463964}
+    set: 1
+  - Identifier: 01:00
+    ExecTime: 3600
+    AmbientColor: {r: 0.007813, g: 0.007813, b: 0.007813, a: 1}
+    FogFactor: 0
+    RainIntensity: 0
+    SkyCubemap: {fileID: 8900000, guid: c4aafcded4094984ea86366a38a1d131, type: 3}
+    SkyColor: {r: 0.378906, g: 0.378906, b: 0.378906, a: 1}
+    SunColor: {r: 0, g: 0, b: 0, a: 1}
+    SunRotation: {x: 0, y: -0.47255078, z: 0.8813034}
+    set: 1
+  - Identifier: 02:00
+    ExecTime: 7200
+    AmbientColor: {r: 0.007813, g: 0.007813, b: 0.007813, a: 1}
+    FogFactor: 0
+    RainIntensity: 0
+    SkyCubemap: {fileID: 8900000, guid: fc12e8ee2d2bf484bb6623edcbdc3981, type: 3}
+    SkyColor: {r: 0.378906, g: 0.378906, b: 0.378906, a: 1}
+    SunColor: {r: 0, g: 0, b: 0, a: 1}
+    SunRotation: {x: -0.22957811, y: -0.4468693, z: 0.86463964}
+    set: 1
+  - Identifier: 03:00
+    ExecTime: 10800
+    AmbientColor: {r: 0.007813, g: 0.007813, b: 0.007813, a: 1}
+    FogFactor: 0
+    RainIntensity: 0
+    SkyCubemap: {fileID: 8900000, guid: b47abfe2874f2d244909e71d340443eb, type: 3}
+    SkyColor: {r: 0.378906, g: 0.378906, b: 0.378906, a: 1}
+    SunColor: {r: 0, g: 0, b: 0, a: 1}
+    SunRotation: {x: -0.44548303, y: -0.34210214, z: 0.8273518}
+    set: 1
+  - Identifier: 04:00
+    ExecTime: 14400
+    AmbientColor: {r: 0.007813, g: 0.007813, b: 0.007813, a: 1}
+    FogFactor: 0
+    RainIntensity: 0
+    SkyCubemap: {fileID: 8900000, guid: 57f777fdddce01149b15a4db1c6199b7, type: 3}
+    SkyColor: {r: 0.378906, g: 0.378906, b: 0.378906, a: 1}
+    SunColor: {r: 0, g: 0, b: 0, a: 1}
+    SunRotation: {x: -0.6178853, y: -0.16623525, z: 0.7684943}
+    set: 1
+  - Identifier: 05:00
+    ExecTime: 18000
+    AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    FogFactor: 0
+    RainIntensity: 0
+    SkyCubemap: {fileID: 8900000, guid: 16a9c3c9499a7564dbf975bb8b5e30ef, type: 3}
+    SkyColor: {r: 0.671875, g: 0.671875, b: 0.671875, a: 1}
+    SunColor: {r: 0, g: 0, b: 0, a: 1}
+    SunRotation: {x: -0.69757414, y: 0.052911114, z: 0.71455634}
+    set: 1
+  - Identifier: 06:00
+    ExecTime: 21600
+    AmbientColor: {r: 0.046875, g: 0.046875, b: 0.054688, a: 1}
+    FogFactor: 0
+    RainIntensity: 0
+    SkyCubemap: {fileID: 8900000, guid: b25f0730746671541a9874e9b566e73f, type: 3}
+    SkyColor: {r: 1, g: 1, b: 1, a: 1}
+    SunColor: {r: 0, g: 0, b: 0, a: 1}
+    SunRotation: {x: 0.9369672, y: -0.029823255, z: -0.34814227}
+    set: 1
+  - Identifier: 07:00
+    ExecTime: 25200
+    AmbientColor: {r: 0.054688, g: 0.058594, b: 0.0625, a: 1}
+    FogFactor: 0
+    RainIntensity: 0
+    SkyCubemap: {fileID: 8900000, guid: bc653b4ec3efbba458153e97b8c94725, type: 3}
+    SkyColor: {r: 1, g: 1, b: 1, a: 1}
+    SunColor: {r: 1, g: 0.8125, b: 0.671875, a: 1}
+    SunRotation: {x: 0.97047126, y: -0.18532361, z: -0.154404}
+    set: 1
+  - Identifier: 08:00
+    ExecTime: 28800
+    AmbientColor: {r: 0.0625, g: 0.066406, b: 0.074219, a: 1}
+    FogFactor: 0
+    RainIntensity: 0
+    SkyCubemap: {fileID: 8900000, guid: 3476db9c5c99aca498a047fb3cd37cec, type: 3}
+    SkyColor: {r: 1, g: 1, b: 1, a: 1}
+    SunColor: {r: 0.652344, g: 0.59375, b: 0.464844, a: 1}
+    SunRotation: {x: 0.9379061, y: -0.34464294, z: 0.039412897}
+    set: 1
+  - Identifier: 09:00
+    ExecTime: 32400
+    AmbientColor: {r: 0.0625, g: 0.066406, b: 0.074219, a: 1}
+    FogFactor: 0
+    RainIntensity: 0
+    SkyCubemap: {fileID: 8900000, guid: 3cd7a97106e5a4c4fab63c80721fc015, type: 3}
+    SkyColor: {r: 1, g: 1, b: 1, a: 1}
+    SunColor: {r: 0.703125, g: 0.683594, b: 0.625, a: 1}
+    SunRotation: {x: 0.8414314, y: -0.49348652, z: 0.22014585}
+    set: 1
+  - Identifier: 10:00
+    ExecTime: 36000
+    AmbientColor: {r: 0.0625, g: 0.066406, b: 0.074219, a: 1}
+    FogFactor: 0
+    RainIntensity: 0
+    SkyCubemap: {fileID: 8900000, guid: b7cd7998d8b9c68418d6142bd8778cc0, type: 3}
+    SkyColor: {r: 1, g: 1, b: 1, a: 1}
+    SunColor: {r: 0.640625, g: 0.617188, b: 0.5625, a: 1}
+    SunRotation: {x: 0.68752974, y: -0.62155807, z: 0.37545764}
+    set: 1
+  - Identifier: 11:00
+    ExecTime: 39600
+    AmbientColor: {r: 0.0625, g: 0.066406, b: 0.074219, a: 1}
+    FogFactor: 0
+    RainIntensity: 0
+    SkyCubemap: {fileID: 8900000, guid: df14f142f52f16649bb7b5214cd56fe9, type: 3}
+    SkyColor: {r: 1, g: 1, b: 1, a: 1}
+    SunColor: {r: 0.632813, g: 0.601563, b: 0.558594, a: 1}
+    SunRotation: {x: 0.48682022, y: -0.7198246, z: 0.4948319}
+    set: 1
+  - Identifier: 12:00
+    ExecTime: 43200
+    AmbientColor: {r: 0.0625, g: 0.066406, b: 0.074219, a: 1}
+    FogFactor: 0
+    RainIntensity: 0
+    SkyCubemap: {fileID: 8900000, guid: f747d5b4f4510df4db575d11bac7cc42, type: 3}
+    SkyColor: {r: 1, g: 1, b: 1, a: 1}
+    SunColor: {r: 0.679688, g: 0.667969, b: 0.632813, a: 1}
+    SunRotation: {x: 0.25285202, y: -0.78173816, z: 0.570045}
+    set: 1
+  - Identifier: 13:00
+    ExecTime: 46800
+    AmbientColor: {r: 0.0625, g: 0.066406, b: 0.074219, a: 1}
+    FogFactor: 0
+    RainIntensity: 0
+    SkyCubemap: {fileID: 8900000, guid: d8a0b5f67f53a38438939027887c4dfd, type: 3}
+    SkyColor: {r: 0.902344, g: 0.902344, b: 0.902344, a: 1}
+    SunColor: {r: 0.679688, g: 0.65625, b: 0.613281, a: 1}
+    SunRotation: {x: 0.0016489751, y: -0.80292153, z: 0.5960825}
+    set: 1
+  - Identifier: 14:00
+    ExecTime: 50400
+    AmbientColor: {r: 0.0625, g: 0.066406, b: 0.074219, a: 1}
+    FogFactor: 0
+    RainIntensity: 0
+    SkyCubemap: {fileID: 8900000, guid: 0a8c2ae3b2c72394390076456ef22baf, type: 3}
+    SkyColor: {r: 1, g: 1, b: 1, a: 1}
+    SunColor: {r: 0.632813, g: 0.617188, b: 0.574219, a: 1}
+    SunRotation: {x: -0.2497206, y: -0.78195584, z: 0.57112586}
+    set: 1
+  - Identifier: 15:00
+    ExecTime: 54000
+    AmbientColor: {r: 0.0625, g: 0.066406, b: 0.074219, a: 1}
+    FogFactor: 0
+    RainIntensity: 0
+    SkyCubemap: {fileID: 8900000, guid: 88305913aa41e06459fa3eda762ce3c9, type: 3}
+    SkyColor: {r: 1, g: 1, b: 1, a: 1}
+    SunColor: {r: 0.652344, g: 0.644531, b: 0.609375, a: 1}
+    SunRotation: {x: -0.48407492, y: -0.720309, z: 0.49681622}
+    set: 1
+  - Identifier: 16:00
+    ExecTime: 57600
+    AmbientColor: {r: 0.0625, g: 0.066406, b: 0.074219, a: 1}
+    FogFactor: 0
+    RainIntensity: 0
+    SkyCubemap: {fileID: 8900000, guid: 9b3e29b3124f64c4b8d8a7e00deaf604, type: 3}
+    SkyColor: {r: 1, g: 1, b: 1, a: 1}
+    SunColor: {r: 1, g: 0.976563, b: 0.933594, a: 1}
+    SunRotation: {x: -0.6854712, y: -0.6221048, z: 0.37830526}
+    set: 1
+  - Identifier: 17:00
+    ExecTime: 61200
+    AmbientColor: {r: 0.0625, g: 0.066406, b: 0.074219, a: 1}
+    FogFactor: 0
+    RainIntensity: 0
+    SkyCubemap: {fileID: 8900000, guid: 60ab21346b51f184395d336a15de985f, type: 3}
+    SkyColor: {r: 0.921875, g: 0.921875, b: 0.921875, a: 1}
+    SunColor: {r: 0.640625, g: 0.613281, b: 0.539063, a: 1}
+    SunRotation: {x: -0.8401516, y: -0.49409363, z: 0.22364435}
+    set: 1
+  - Identifier: 18:00
+    ExecTime: 64800
+    AmbientColor: {r: 0.046875, g: 0.046875, b: 0.054688, a: 1}
+    FogFactor: 0
+    RainIntensity: 0
+    SkyCubemap: {fileID: 8900000, guid: 40dec30176967f34f9ebffd47e29cb54, type: 3}
+    SkyColor: {r: 1, g: 1, b: 1, a: 1}
+    SunColor: {r: 0.671875, g: 0.609375, b: 0.46875, a: 1}
+    SunRotation: {x: -0.93760985, y: -0.34497058, z: 0.043393333}
+    set: 1
+  - Identifier: 19:00
+    ExecTime: 68400
+    AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    FogFactor: 0
+    RainIntensity: 0
+    SkyCubemap: {fileID: 8900000, guid: ce0e51906bc6ae14f8d0608af9a49828, type: 3}
+    SkyColor: {r: 0.800781, g: 0.800781, b: 0.800781, a: 1}
+    SunColor: {r: 0.679688, g: 0.46875, b: 0.390625, a: 1}
+    SunRotation: {x: -0.97110415, y: -0.1854951, z: -0.15016128}
+    set: 1
+  - Identifier: 20:00
+    ExecTime: 72000
+    AmbientColor: {r: 0.011719, g: 0.011719, b: 0.011719, a: 1}
+    FogFactor: 0
+    RainIntensity: 0
+    SkyCubemap: {fileID: 8900000, guid: 5affec1e3f9f7454a8a925921ca428e2, type: 3}
+    SkyColor: {r: 0.730469, g: 0.730469, b: 0.730469, a: 1}
+    SunColor: {r: 0, g: 0, b: 0, a: 1}
+    SunRotation: {x: -0.93856144, y: -0.029369665, z: -0.34386033}
+    set: 1
+  - Identifier: 21:00
+    ExecTime: 75600
+    AmbientColor: {r: 0.007813, g: 0.007813, b: 0.007813, a: 1}
+    FogFactor: 0
+    RainIntensity: 0
+    SkyCubemap: {fileID: 8900000, guid: 55f8cfada63fd6b4bb36c128bcb5f69f, type: 3}
+    SkyColor: {r: 0.433594, g: 0.425781, b: 0.460938, a: 1}
+    SunColor: {r: 0, g: 0, b: 0, a: 1}
+    SunRotation: {x: 0.69757414, y: 0.052911114, z: 0.71455634}
+    set: 1
+  - Identifier: 22:00
+    ExecTime: 79200
+    AmbientColor: {r: 0.007813, g: 0.007813, b: 0.007813, a: 1}
+    FogFactor: 0
+    RainIntensity: 0
+    SkyCubemap: {fileID: 8900000, guid: eebdfcd8480447645940f8d3d5339adb, type: 3}
+    SkyColor: {r: 0.378906, g: 0.378906, b: 0.378906, a: 1}
+    SunColor: {r: 0, g: 0, b: 0, a: 1}
+    SunRotation: {x: 0.6178853, y: -0.16623525, z: 0.7684943}
+    set: 1
+  - Identifier: 23:00
+    ExecTime: 82800
+    AmbientColor: {r: 0.007813, g: 0.007813, b: 0.007813, a: 1}
+    FogFactor: 0
+    RainIntensity: 0
+    SkyCubemap: {fileID: 8900000, guid: 865165690e83e374b9e7a209d166b4bf, type: 3}
+    SkyColor: {r: 0.378906, g: 0.378906, b: 0.378906, a: 1}
+    SunColor: {r: 0, g: 0, b: 0, a: 1}
+    SunRotation: {x: 0.44549745, y: -0.34210214, z: 0.827344}
+    set: 1
