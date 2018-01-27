@@ -10,19 +10,6 @@ public class RainScript : MonoBehaviour {
 
 	
 	[Header("Rain Properties")]
-	/*
-	[Tooltip("Light rain looping clip")]
-	[SerializeField]
-	private		AudioClip			m_RainSoundLight				= null;
-
-	[Tooltip("Medium rain looping clip")]
-	[SerializeField]
-	private		AudioClip			m_RainSoundMedium				= null;
-
-	[Tooltip("Heavy rain looping clip")]
-	[SerializeField]
-	private		AudioClip			m_RainSoundHeavy				= null;
-	*/
 	[Tooltip("Intensity of rain (0-1)")]
 	[Range(0.0f, 1.0f)]
 	[SerializeField]
@@ -34,11 +21,6 @@ public class RainScript : MonoBehaviour {
 	}
 
 	[Header("Wind Properties")]
-	/*
-	[Tooltip("Wind looping clip")]
-	[SerializeField]
-	private		AudioClip			m_WindSound						= null;
-	*/
 	[Tooltip("Wind sound volume modifier, use this to lower your sound if it's too loud.")]
 	[SerializeField]
 	private		float				m_WindSoundVolumeModifier		= 0.5f;
@@ -65,19 +47,19 @@ public class RainScript : MonoBehaviour {
 	private		float				m_RainForwardOffset				= -1.5f;
 
 
-	protected	ParticleSystem		m_RainFallParticleSystem		= null;
-	protected	ParticleSystem		m_RainExplosionParticleSystem	= null;
-	protected	WindZone			m_WindZone						= null;
 
-	protected	LoopingAudioSource	m_AudioSourceRainLight			= null;
-	protected	LoopingAudioSource	m_AudioSourceRainMedium			= null;
-	protected	LoopingAudioSource	m_AudioSourceRainHeavy			= null;
-	protected	LoopingAudioSource	m_AudioSourceRainCurrent		= null;
-	protected	LoopingAudioSource	m_AudioSourceWind				= null;
+	private		ParticleSystem		m_RainFallParticleSystem		= null;
+	private		ParticleSystem		m_RainExplosionParticleSystem	= null;
+	private		WindZone			m_WindZone						= null;
 
-	protected	Material			m_RainMaterial					= null;
-	protected	Material			m_RainExplosionMaterial			= null;
-	protected	Material			m_RainMistMaterial				= null;
+	private		LoopingAudioSource	m_AudioSourceRainLight			= null;
+	private		LoopingAudioSource	m_AudioSourceRainMedium			= null;
+	private		LoopingAudioSource	m_AudioSourceRainHeavy			= null;
+	private		LoopingAudioSource	m_AudioSourceRainCurrent		= null;
+	private		LoopingAudioSource	m_AudioSourceWind				= null;
+
+	private		Material			m_RainMaterial					= null;
+	private		Material			m_RainExplosionMaterial			= null;
 
 	private		Camera				m_Camera						= null;
 	private		IEnumerator			m_WindUpdateCoroutine			= null;
@@ -87,7 +69,7 @@ public class RainScript : MonoBehaviour {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnEnable
-	private void OnEnable()
+	private void	OnEnable()
 	{
 		m_Camera = Camera.current;
 
@@ -143,18 +125,22 @@ public class RainScript : MonoBehaviour {
 		{
 			m_AudioSourceRainLight = new LoopingAudioSource();
 			m_AudioSourceRainLight.AudioSource	= audioSources.GetChild( 0 ).GetComponent<AudioSource>();
+			m_AudioSourceRainLight.Silence();
 		}
 		{
 			m_AudioSourceRainMedium = new LoopingAudioSource();
 			m_AudioSourceRainMedium.AudioSource	= audioSources.GetChild( 1 ).GetComponent<AudioSource>();
+			m_AudioSourceRainMedium.Silence();
 		}
 		{
 			m_AudioSourceRainHeavy = new LoopingAudioSource();
 			m_AudioSourceRainHeavy.AudioSource	= audioSources.GetChild( 2 ).GetComponent<AudioSource>();
+			m_AudioSourceRainHeavy.Silence();
 		}
 		{
 			m_AudioSourceWind = new LoopingAudioSource();
 			m_AudioSourceWind.AudioSource		= audioSources.GetChild( 3 ).GetComponent<AudioSource>();
+			m_AudioSourceWind.Silence();
 		}
 
 		m_RainIntensityInternal = m_RainIntensity;
@@ -163,7 +149,7 @@ public class RainScript : MonoBehaviour {
 
 	//////////////////////////////////////////////////////////////////////////
 	// UpdateWind
-	private void UpdateWind()
+	private void	UpdateWind()
 	{
 		if ( m_WindZone == null )
 			return;
@@ -229,8 +215,13 @@ public class RainScript : MonoBehaviour {
 
 	//////////////////////////////////////////////////////////////////////////
 	// UpdateRain
-	private void UpdateRain()
+	private void	UpdateRain()
 	{
+		if ( m_Camera == null )
+			m_Camera = Camera.current;
+		if ( m_Camera == null )
+			return;
+		
 		// Keep rain particle system above the player
 		m_RainFallParticleSystem.transform.position = m_Camera.transform.position;
 		m_RainFallParticleSystem.transform.Translate( 0.0f, m_RainHeight, m_RainForwardOffset );
@@ -240,8 +231,17 @@ public class RainScript : MonoBehaviour {
 
 	//////////////////////////////////////////////////////////////////////////
 	// CheckForRainChange
-	private void CheckForRainChange()
+	private void	CheckForRainChange()
 	{
+		if ( m_RainIntensity == 0.0f )
+		{
+			m_RainIntensityInternal = 0.0f;
+			m_AudioSourceRainLight.Silence();
+			m_AudioSourceRainMedium.Silence();
+			m_AudioSourceRainHeavy.Silence();
+			return;
+		}
+
 		m_RainIntensityInternal = Mathf.Lerp( m_RainIntensityInternal, m_RainIntensity, Time.deltaTime );
 	//	if ( m_RainIntensityInternal != m_RainIntensity )
 		{
@@ -275,14 +275,14 @@ public class RainScript : MonoBehaviour {
 			}
 
 			// If necessary chancge current AudioSource
-			if ( newSource != null && m_AudioSourceRainCurrent != newSource )
+			if ( newSource != null/* && m_AudioSourceRainCurrent != newSource*/ )
 			{
 				if ( m_AudioSourceRainCurrent != null)
 				{
 					m_AudioSourceRainCurrent.Silence();
 				}
 				m_AudioSourceRainCurrent = newSource;
-				m_AudioSourceRainCurrent.SetVolume(1.0f);
+				m_AudioSourceRainCurrent.SetVolume( 1.0f );
 			}
 				
 			// Update particle system rate of emission
@@ -303,7 +303,7 @@ public class RainScript : MonoBehaviour {
 
 	//////////////////////////////////////////////////////////////////////////
 	// RainFallEmissionRate
-	protected virtual float RainFallEmissionRate()
+	private float	RainFallEmissionRate()
 	{
 		return ( m_RainFallParticleSystem.main.maxParticles / m_RainFallParticleSystem.main.startLifetime.constant ) * m_RainIntensityInternal;
 	}
@@ -311,14 +311,8 @@ public class RainScript : MonoBehaviour {
 
 	//////////////////////////////////////////////////////////////////////////
 	// UNITY
-	protected virtual void Update()
+	private void	Update()
 	{
-
-		if ( m_Camera == null )
-			m_Camera = Camera.current;
-		if ( m_Camera == null )
-			return;
-		   
 		CheckForRainChange();
 		UpdateRain();
 //		UpdateWind();
