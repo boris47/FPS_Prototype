@@ -7,21 +7,35 @@ namespace WeatherSystem {
 
 	public interface IWeatherManager {
 
-		bool	IsDynamic { get; set; }
+		bool				IsDynamic { get; set; }
 
-		void	SetTime( float DayTime );
+		float				DayTime { get; }
 
-		void	SetTime( int H, int M, int S );
+		EnvDescriptor		CurrentDescriptor { get; }
 
-		void	SetTime( string sTime );
+		Light				Sun { get; }
 
-		string	GetTimeAsString( float t );
+		Material			SkyMaterial { get; set; }
 
-		string	GetActualTimeAsString();
+		void				ChangeWeather( WeatherCycle newCycle );
 
-		Light	GetSun();
+		void				SetWeather( string weatherName );
 
-		Color	GetAmbientColor();
+		void				RandomWeather();
+
+		void				SelectDescriptors( float DayTime );
+
+		void				SetTime( float DayTime );
+
+		void				SetTime( int H, int M, int S );
+
+		void				SetTime( string sTime );
+
+		string				GetTimeAsString( float t );
+
+		string				GetActualTimeAsString();
+
+		Color				GetAmbientColor();
 
 	}
 
@@ -34,14 +48,6 @@ namespace WeatherSystem {
 		public string GetActualTimeAsString()
 		{
 			return GetTimeAsString( m_DayTimeNow );
-		}
-
-
-		/// //////////////////////////////////////////////////////////////////////////
-		/// GetSun
-		public Light GetSun()
-		{
-			return m_GlobalLight;
 		}
 
 
@@ -71,7 +77,7 @@ namespace WeatherSystem {
 
 		/// //////////////////////////////////////////////////////////////////////////
 		/// GetAmbientColor
-		public	Color	GetAmbientColor(  )
+		public	Color	GetAmbientColor()
 		{
 			return Color.clear;
 		}

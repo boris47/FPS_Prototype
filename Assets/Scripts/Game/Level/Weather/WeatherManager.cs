@@ -15,22 +15,22 @@ namespace WeatherSystem {
 	[ExecuteInEditMode]
 	public partial class WeatherManager : MonoBehaviour, IWeatherManagerInternal {
 
-		public static WeatherManager		Instance				= null;
+		public static IWeatherManager		Instance				= null;
 
 		public	const	float				DAY_LENGTH				= 86400f;
 
-		public	const	string				WEATHERS_COLLECTION		= "Weather/Descriptors/WeatherCollection";
-		public	const	string				SKYMIXER_MATERIAL		= "Weather/SkyMaterials/SkyMixer";
+		private	const	string				WEATHERS_COLLECTION		= "Weather/Descriptors/WeatherCollection";
+		private	const	string				SKYMIXER_MATERIAL		= "Weather/SkyMaterials/SkyMixer";
 
+		// Editor Stuf
 		public	static	bool				EditorLinked			= false;
 		public	static	bool				EditorDescriptorLinked	= false;
+
 		[SerializeField]
 		private	bool						EnableInEditor			= false;
+		[ReadOnly]
+		public	string						CurrentDayTime			= string.Empty;
 
-		// Environment
-	//	cRainEffect * pRainEffect							= NULL;
-	//	cFogEffect * pFogEffect								= NULL;
-	//	cSunEffect * pSunEffect								= NULL;
 
 		public		bool					IsDynamic
 		{
@@ -49,8 +49,8 @@ namespace WeatherSystem {
 		}
 
 		private		Weathers				m_Cycles				= null;
-		[ReadOnly]
-		public		string					m_CurrentCycleName		= string.Empty;
+		[ SerializeField ][ReadOnly]
+		private		string					m_CurrentCycleName		= string.Empty;
 
 		private		WeatherCycle			m_CurrentCycle			= null;
 		private		EnvDescriptor[]			m_Descriptors			= null;
@@ -163,7 +163,7 @@ namespace WeatherSystem {
 
 		/////////////////////////////////////////////////////////////////////////////
 		// TimeInterpolant
-		public	float	TimeInterpolant( float DayTime, float Current, float Next )
+		private	float	TimeInterpolant( float DayTime, float Current, float Next )
 		{
 			float fInterpolant = 0.0f;
 			float fLength = TimeDiff( Current, Next );
@@ -196,7 +196,7 @@ namespace WeatherSystem {
 
 		////////////////////////////////////////////////////////////////////////////
 		// GetNextDescriptor
-		public	EnvDescriptor	GetNextDescriptor( EnvDescriptor current )
+		private	EnvDescriptor	GetNextDescriptor( EnvDescriptor current )
 		{
 			int idx = System.Array.IndexOf( m_Descriptors, current );
 			return m_Descriptors[ ( idx + 1 ) == m_Descriptors.Length ? 0 : ( idx + 1 ) ];
@@ -205,7 +205,7 @@ namespace WeatherSystem {
 
 		////////////////////////////////////////////////////////////////////////////
 		// GetPreviousDescriptor
-		public	EnvDescriptor	GetPreviousDescriptor( EnvDescriptor current )
+		private	EnvDescriptor	GetPreviousDescriptor( EnvDescriptor current )
 		{
 			int idx = System.Array.IndexOf( m_Descriptors, current );
 			return m_Descriptors[ ( idx ) == 0 ? m_Descriptors.Length - 1 : ( idx - 1 ) ];
@@ -360,8 +360,6 @@ namespace WeatherSystem {
 		}
 
 
-		[ReadOnly]
-		public string CurrentDayTime;
 		/////////////////////////////////////////////////////////////////////////////
 		// UNITY
 		private void	Update()
