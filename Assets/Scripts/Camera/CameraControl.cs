@@ -5,20 +5,20 @@ using UnityEngine;
 
 public partial class CameraControl : MonoBehaviour {
 
+	public	const	float	CLAMP_MAX_X_AXIS			= 80.0f;
+	public	const	float	CLAMP_MIN_X_AXIS			= -80.0f;
+
+	// Third person offset max distance
+	public	const	float	MAX_CAMERA_OFFSET			= 15f;
+	public	const	float	MIN_CAMERA_OFFSET			= 1.5f;
+
 	public static CameraControl Instance				= null;
 
-	public	const	float			CLAMP_MAX_X_AXIS	= 80.0f;
-	public	const	float			CLAMP_MIN_X_AXIS	= -80.0f;
 	private	bool			m_ClampedXAxis				= true;
 	public	bool			ClampedXAxis {
 		get { return m_ClampedXAxis; }
 		set { m_ClampedXAxis = value; }
 	}
-
-
-	// Third person offset max distance
-	const	float			MAX_CAMERA_OFFSET			= 15f;
-	const	float			MIN_CAMERA_OFFSET			= 1.5f;
 
 	[SerializeField][Tooltip("Camera Target")]
 	private	Transform		m_Target					= null;
@@ -46,16 +46,19 @@ public partial class CameraControl : MonoBehaviour {
 
 	[SerializeField]
 	private HeadMove		m_HeadMove					= null;
-	public	HeadMove		HeadMove {
+	public	HeadMove		HeadMove
+	{
 		get { return m_HeadMove; }
 	}
 
 	[SerializeField]
 	private HeadBob			m_HeadBob					= null;
-	public	HeadBob			HeadBob {
+	public	HeadBob			HeadBob
+	{
 		get { return m_HeadBob; }
 	}
 
+	public bool	ParseInput = true;
 	public	bool			PassiveMode
 	{
 		get { return this.enabled; }
@@ -72,6 +75,10 @@ public partial class CameraControl : MonoBehaviour {
 
 	private	Vector3			m_CurrentDirection			= Vector3.zero;
 
+	[SerializeField]
+	private	CameraData		m_CamData_HeadMove			= null;
+	[SerializeField]
+	private	CameraData		m_CamData_HeadBob			= null;
 
 
 	void Start()
@@ -83,6 +90,9 @@ public partial class CameraControl : MonoBehaviour {
 			return;
 		}
 		Instance = this;
+
+//		m_CamData_HeadMove	= Resources.Load<CameraData>( "Configs/CameraData_HeadMove" );
+//		m_CamData_HeadBob	= Resources.Load<CameraData>( "Configs/CameraData_HeadBob" );
 
 		DontDestroyOnLoad( this );
 
@@ -98,7 +108,7 @@ public partial class CameraControl : MonoBehaviour {
 
 		if ( m_Target == null )
 			return;
-
+		/*
 		if ( Input.GetKeyDown( KeyCode.V ) )
 		{
 			if ( m_TPSMode )
@@ -108,7 +118,7 @@ public partial class CameraControl : MonoBehaviour {
 				m_CurrentCameraOffset = 0.0f;
 			}
 		}
-
+		
 		if ( m_TPSMode )
 		{
 			if ( Input.GetAxis( "Mouse ScrollWheel" ) > 0f && m_CameraOffset > MIN_CAMERA_OFFSET )
@@ -117,8 +127,9 @@ public partial class CameraControl : MonoBehaviour {
 			if ( Input.GetAxis( "Mouse ScrollWheel" ) < 0f && m_CameraOffset < MAX_CAMERA_OFFSET )
 				m_CameraOffset += 0.5f;
 		}
+		*/
 
-
+		/*
 		// Head Effects
 		if ( m_TPSMode )
 		{
@@ -126,30 +137,31 @@ public partial class CameraControl : MonoBehaviour {
 			m_HeadBob.Reset( false );
 		}
 		else
+		{*/
+		LiveEntity pLiveEnitiy = m_Target.GetComponentInParent<LiveEntity>();
+		if ( pLiveEnitiy && pLiveEnitiy.Grounded )
 		{
-			LiveEntity pLiveEnitiy = m_Target.GetComponentInParent<LiveEntity>();
-			if ( pLiveEnitiy && pLiveEnitiy.Grounded )
+			if ( pLiveEnitiy.IsMoving )
 			{
-				if ( pLiveEnitiy.IsMoving ) {
-					m_HeadBob.Update( pLiveEnitiy );
-					m_HeadMove.Reset();
-				}
-				else
-				{
-					m_HeadMove.Update( pLiveEnitiy );
-					m_HeadBob.Reset();
-				}
+				m_HeadBob.Update( pLiveEnitiy );
+				m_HeadMove.Reset();
 			}
 			else
 			{
-				m_HeadMove.Reset( true );
-				m_HeadBob.Reset( false );
+				m_HeadMove.Update( pLiveEnitiy );
+				m_HeadBob.Reset();
 			}
 		}
+		else
+		{
+			m_HeadMove.Reset( bInstantly: false );
+			m_HeadBob.Reset( bInstantly : true );
+		}
+	//	}
 
 	}
 
-
+	Vector3 effectsDirection = Vector3.zero;
 	private void LateUpdate()
 	{
 
@@ -178,7 +190,7 @@ public partial class CameraControl : MonoBehaviour {
 				m_CurrentRotation_Y_Delta = Axis_Y_Delta;
 				
 			////////////////////////////////////////////////////////////////////////////////
-			if ( m_CurrentRotation_X_Delta != 0.0f || m_CurrentRotation_Y_Delta != 0.0f )
+			if ( ParseInput == true && ( m_CurrentRotation_X_Delta != 0.0f || m_CurrentRotation_Y_Delta != 0.0f ) )
 			{
 				if ( m_ClampedXAxis )
 					m_CurrentDirection.x = Utils.Math.Clamp( m_CurrentDirection.x - m_CurrentRotation_Y_Delta, CLAMP_MIN_X_AXIS, CLAMP_MAX_X_AXIS );
@@ -187,8 +199,10 @@ public partial class CameraControl : MonoBehaviour {
 				m_CurrentDirection.y = m_CurrentDirection.y + m_CurrentRotation_X_Delta;
 			}
 
+			effectsDirection = Vector3.Lerp( effectsDirection, ( m_HeadBob.Direction + m_HeadMove.Direction ), Time.deltaTime * 7f );
+
 			// rotation with effect added
-			transform.rotation = Quaternion.Euler( m_CurrentDirection + ( m_HeadBob.Direction + m_HeadMove.Direction ) );
+			transform.rotation = Quaternion.Euler( m_CurrentDirection + effectsDirection );
 
 			if ( pLiveEnitiy != null )
 			{

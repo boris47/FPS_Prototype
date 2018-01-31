@@ -1,13 +1,13 @@
 ﻿
-using System.Collections;
 using UnityEngine;
-using System.Linq;
 
 [ExecuteInEditMode]
-public class RainScript : MonoBehaviour {
+public class RainManager : MonoBehaviour {
 
-	public	static	RainScript		Instance						= null;
+	public	static	RainManager		Instance						= null;
 
+	[SerializeField]
+	private	bool					EnableInEditor					= false;
 	
 	[Header("Rain Properties")]
 	[Tooltip("Intensity of rain (0-1)")]
@@ -20,7 +20,6 @@ public class RainScript : MonoBehaviour {
 		set { m_RainIntensity = value; }
 	}
 
-	[Header("Others")]
 	[Tooltip("The height above the camera that the rain will start falling from")]
 	[SerializeField]
 	private		float				m_RainHeight					= 25.0f;
@@ -97,29 +96,47 @@ public class RainScript : MonoBehaviour {
 		Transform audioSources = transform.Find( "AudioSources" );
 		{
 			m_AudioSourceRainLight = new LoopingAudioSource();
-			m_AudioSourceRainLight.AudioSource	= audioSources.GetChild( 0 ).GetComponent<AudioSource>();
+			m_AudioSourceRainLight.AudioSource	= audioSources.Find( "RainLight" ).GetComponent<AudioSource>();
 			m_AudioSourceRainLight.Silence();
 		}
 		{
 			m_AudioSourceRainMedium = new LoopingAudioSource();
-			m_AudioSourceRainMedium.AudioSource	= audioSources.GetChild( 1 ).GetComponent<AudioSource>();
+			m_AudioSourceRainMedium.AudioSource	= audioSources.Find( "RainMedium" ).GetComponent<AudioSource>();
 			m_AudioSourceRainMedium.Silence();
 		}
 		{
 			m_AudioSourceRainHeavy = new LoopingAudioSource();
-			m_AudioSourceRainHeavy.AudioSource	= audioSources.GetChild( 2 ).GetComponent<AudioSource>();
+			m_AudioSourceRainHeavy.AudioSource	= audioSources.Find( "RainHeavy" ).GetComponent<AudioSource>();
 			m_AudioSourceRainHeavy.Silence();
 		}
 
 		m_RainIntensityInternal = m_RainIntensity;
 		Instance = this;
+
+#if UNITY_EDITOR
+		UnityEditor.EditorApplication.update += Update;
+#endif
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	// OnDisable
+	private void OnDisable()
+	{
+#if UNITY_EDITOR
+		UnityEditor.EditorApplication.update -= Update;
+#endif
+	}
 
 	//////////////////////////////////////////////////////////////////////////
 	// UpdateRain
 	private void	UpdateRain()
 	{
+#if UNITY_EDITOR
+		if ( UnityEditor.EditorApplication.isPlaying == false )
+			if ( UnityEditor.SceneView.lastActiveSceneView != null )
+				m_Camera = UnityEditor.SceneView.lastActiveSceneView.camera;
+#endif
+
 		if ( m_Camera == null )
 			m_Camera = Camera.current;
 		if ( m_Camera == null )
@@ -136,26 +153,16 @@ public class RainScript : MonoBehaviour {
 	// CheckForRainChange
 	private void	CheckForRainChange()
 	{
-		if ( m_RainIntensity == 0.0f )
-		{
-			m_RainIntensityInternal = 0.0f;
-			m_AudioSourceRainLight.Silence();
-			m_AudioSourceRainMedium.Silence();
-			m_AudioSourceRainHeavy.Silence();
-			return;
-		}
-
 		m_RainIntensityInternal = Mathf.Lerp( m_RainIntensityInternal, m_RainIntensity, Time.deltaTime );
 	//	if ( m_RainIntensityInternal != m_RainIntensity )
 		{
 			// If rain intensity is too low stop particle system and audiosource
 			if ( m_RainIntensityInternal <= 0.01f )
 			{
-				if ( m_AudioSourceRainCurrent != null )
-				{
-					m_AudioSourceRainCurrent.Silence();
-					m_AudioSourceRainCurrent = null;
-				}
+				m_AudioSourceRainCurrent = null;
+				m_AudioSourceRainLight.Silence();
+				m_AudioSourceRainMedium.Silence();
+				m_AudioSourceRainHeavy.Silence();
 				m_RainFallParticleSystem.Stop();
 				return;
 			}
@@ -216,10 +223,14 @@ public class RainScript : MonoBehaviour {
 	// UNITY
 	private void	Update()
 	{
+		if ( EnableInEditor == false )
+		{
+			m_RainIntensity = 0;
+			return;
+		}
+
 		CheckForRainChange();
 		UpdateRain();
-
-//		WindManager.Instance.Update();
 
 		m_AudioSourceRainLight.Update();
 		m_AudioSourceRainMedium.Update();

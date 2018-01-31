@@ -52,7 +52,7 @@ public class LoopingAudioSource {
 	// Update
 	public void Update()
 	{
-		if ( AudioSource == null )
+		if ( AudioSource == null || AudioSource.clip == null )
 			return;
 
 		if ( AudioSource.isPlaying && ( AudioSource.volume = Mathf.Lerp( AudioSource.volume, TargetVolume, Time.deltaTime * 2f ) ) == 0.0f )

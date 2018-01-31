@@ -60,22 +60,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!1 &1506658923989884
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 4756452579680504}
-  - component: {fileID: 114766886840932954}
-  m_Layer: 0
-  m_Name: WindManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
 --- !u!1 &1533928067152824
 GameObject:
   m_ObjectHideFlags: 0
@@ -103,7 +87,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4827692882280288}
   - component: {fileID: 114100853236026210}
-  - component: {fileID: 114834475881601216}
+  - component: {fileID: 114321619059542430}
+  - component: {fileID: 114116998644837408}
   m_Layer: 0
   m_Name: WeatherManager
   m_TagString: Untagged
@@ -193,8 +178,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1533928067152824}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 25, z: -1.5}
+  m_LocalRotation: {x: -0, y: 0.57569396, z: -0, w: -0.8176653}
+  m_LocalPosition: {x: 393.22714, y: 48.09992, z: 281.49103}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4827692882280288}
@@ -265,19 +250,6 @@ Transform:
   m_Father: {fileID: 4883519544451682}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &4756452579680504
-Transform:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1506658923989884}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 4827692882280288}
-  m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4827692882280288
 Transform:
   m_ObjectHideFlags: 1
@@ -292,7 +264,6 @@ Transform:
   - {fileID: 4003982717969408}
   - {fileID: 4325532771851060}
   - {fileID: 4883519544451682}
-  - {fileID: 4756452579680504}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -324,7 +295,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: c980eda1ec9b9ff4b930005976b00f41, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.0000000031134002
+  m_Volume: 1.10821745e-26
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -404,7 +375,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: db1471092e49b7445bfbd374a17ea61a, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0
+  m_Volume: 2.3311736e-30
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -484,7 +455,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 3359e9d10af08ca46ae396298dbd1ed9, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.9999999
+  m_Volume: 7.399936e-30
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -564,7 +535,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: f9826f595784348498b57bcf6b2c8b1f, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0
+  m_Volume: 2.2567958e-28
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -645,9 +616,40 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   EnableInEditor: 0
-  CurrentDayTime: 
-  m_CurrentCycleName: 
-  m_WeatherChoiceFactor: 1
+  CurrentDayTime: 09:32:33
+  m_CurrentCycleName: Partly
+  m_WeatherChoiceFactor: 0.63696116
+--- !u!114 &114116998644837408
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1541899577724134}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bad0d6fec58715041ba72fed6091e46e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  EnableInEditor: 0
+  m_WindSoundVolumeModifier: 1
+  m_WindSpeedRange: {x: 0, y: 10, z: 500}
+  m_WindChangeInterval: {x: 5, y: 30}
+  m_EnableWind: 0
+--- !u!114 &114321619059542430
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1541899577724134}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a491b8ef29b38624f9ae2d8beea4dd0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  EnableInEditor: 0
+  m_RainIntensity: 0
+  m_RainHeight: 25
+  m_RainForwardOffset: -1.5
 --- !u!114 &114465194192239780
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -660,36 +662,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_RainExplosion: {fileID: 198596055880725392}
---- !u!114 &114766886840932954
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1506658923989884}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bad0d6fec58715041ba72fed6091e46e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_AudioClip: {fileID: 8300000, guid: f9826f595784348498b57bcf6b2c8b1f, type: 3}
-  m_WindSoundVolumeModifier: 0.5
-  m_WindSpeedRange: {x: 50, y: 100, z: 500}
-  m_WindChangeInterval: {x: 5, y: 30}
-  m_EnableWind: 1
---- !u!114 &114834475881601216
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1541899577724134}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a491b8ef29b38624f9ae2d8beea4dd0c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_RainIntensity: 0
-  m_RainHeight: 25
-  m_RainForwardOffset: -1.5
 --- !u!182 &182750196439934908
 WindZone:
   m_ObjectHideFlags: 1
@@ -699,10 +671,10 @@ WindZone:
   m_Enabled: 1
   m_Mode: 0
   m_Radius: 50
-  m_WindMain: 1
-  m_WindTurbulence: 50
-  m_WindPulseMagnitude: 3
-  m_WindPulseFrequency: 0.05
+  m_WindMain: 0
+  m_WindTurbulence: 0
+  m_WindPulseMagnitude: 0
+  m_WindPulseFrequency: 0
 --- !u!198 &198596055880725392
 ParticleSystem:
   m_ObjectHideFlags: 1
@@ -762,7 +734,7 @@ ParticleSystem:
   moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 2
-  randomSeed: 1897579348
+  randomSeed: 728694873
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -4030,7 +4002,7 @@ ParticleSystem:
   moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 2
-  randomSeed: 1565475054
+  randomSeed: -80122800
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -4390,7 +4362,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     randomizeRotationDirection: 0
-    maxNumParticles: 5000
+    maxNumParticles: 10000
     size3D: 0
     rotation3D: 0
     gravityModifier:
@@ -4445,7 +4417,7 @@ ParticleSystem:
     donutRadius: 0.2
     m_Position: {x: 0, y: 0, z: 0}
     m_Rotation: {x: 0, y: 0, z: 0}
-    m_Scale: {x: 30, y: 1, z: 30}
+    m_Scale: {x: 100, y: 1, z: 100}
     placementMode: 2
     m_Mesh: {fileID: 0}
     m_MeshRenderer: {fileID: 0}
@@ -4554,7 +4526,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 371.9355
+      scalar: 67.04862
       minScalar: 10
       maxCurve:
         serializedVersion: 2

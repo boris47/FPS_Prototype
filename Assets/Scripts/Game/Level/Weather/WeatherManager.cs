@@ -28,6 +28,8 @@ namespace WeatherSystem {
 
 		[SerializeField]
 		private	bool						EnableInEditor			= false;
+
+		[Header("Weather Info")]
 		[ReadOnly]
 		public	string						CurrentDayTime			= string.Empty;
 
@@ -353,8 +355,8 @@ namespace WeatherSystem {
 			RenderSettings.fog				= m_EnvDescriptorMixer.FogFactor > 0.0f;
 			RenderSettings.fogDensity		= m_EnvDescriptorMixer.FogFactor;
 
-			if ( RainScript.Instance != null )
-				RainScript.Instance.RainIntensity = m_EnvDescriptorMixer.RainIntensity;
+			if ( RainManager.Instance != null )
+				RainManager.Instance.RainIntensity = m_EnvDescriptorMixer.RainIntensity;
 
 			m_GlobalLight.color				= m_EnvDescriptorMixer.SunColor;
 		}

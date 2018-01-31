@@ -10,15 +10,4 @@ public class CameraEffectBase {
 
 	protected	bool	m_IsActive			= true;
 
-
-	public void				_Enable()					{ m_IsActive = true; }
-	public void				_Disable()					{ m_IsActive = false; }
-	public bool				_IsActive()					{ return m_IsActive; }
-
-	public void				_SetSpeedMul( float Val )	{ m_SpeedMul = Val; }
-	public float			_GetSpeedMul()				{ return m_SpeedMul; }
-
-	public void				_SetAmplitudeMul( float Val ){ m_AmplitudeMult = Val; }
-	public float			_GetAmplitudeMul()			{ return m_AmplitudeMult; }
-
 }
