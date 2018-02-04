@@ -101,7 +101,7 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1029250508258008}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e351ae2fd2f26e49bbd01ca5e177eb9, type: 3}
   m_Name: 
@@ -125,13 +125,13 @@ MonoBehaviour:
   m_TPSMode: 0
   m_SmoothedRotation: 1
   m_SmoothedPosition: 0
-  m_SmoothFactor: 2
+  m_SmoothFactor: 3
   m_HeadMove:
-    m_Amplitude: 0.5
+    m_Amplitude: 0.8
     m_Speed: 1.25
   m_HeadBob:
     m_Amplitude: 0.3
-    m_Speed: 2
+    m_Speed: 2.05
   m_TargetSwitchHeight: 15.3
   m_TransitionDuration: 8
   m_TransitionPositionCurve:

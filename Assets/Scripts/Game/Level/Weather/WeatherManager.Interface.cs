@@ -7,23 +7,15 @@ namespace WeatherSystem {
 
 	public interface IWeatherManager {
 
+		float				TimeFactor { get; set; }
+
 		bool				IsDynamic { get; set; }
 
 		float				DayTime { get; }
 
-		EnvDescriptor		CurrentDescriptor { get; }
-
 		Light				Sun { get; }
 
-		Material			SkyMaterial { get; set; }
-
-		void				ChangeWeather( WeatherCycle newCycle );
-
 		void				SetWeather( string weatherName );
-
-		void				RandomWeather();
-
-		void				SelectDescriptors( float DayTime );
 
 		void				SetTime( float DayTime );
 
@@ -33,22 +25,12 @@ namespace WeatherSystem {
 
 		string				GetTimeAsString( float t );
 
-		string				GetActualTimeAsString();
-
 		Color				GetAmbientColor();
 
 	}
 
 
 	public partial class WeatherManager : IWeatherManager {
-
-
-		/// //////////////////////////////////////////////////////////////////////////
-		/// GetActualTimeAsString
-		public string GetActualTimeAsString()
-		{
-			return GetTimeAsString( m_DayTimeNow );
-		}
 
 
 		/// //////////////////////////////////////////////////////////////////////////

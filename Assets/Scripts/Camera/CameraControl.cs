@@ -57,8 +57,12 @@ public partial class CameraControl : MonoBehaviour {
 	{
 		get { return m_HeadBob; }
 	}
+	
+	public	bool			CanParseInput
+	{
+		get; set;
+	}
 
-	public bool	ParseInput = true;
 	public	bool			PassiveMode
 	{
 		get { return this.enabled; }
@@ -75,11 +79,6 @@ public partial class CameraControl : MonoBehaviour {
 
 	private	Vector3			m_CurrentDirection			= Vector3.zero;
 
-	[SerializeField]
-	private	CameraData		m_CamData_HeadMove			= null;
-	[SerializeField]
-	private	CameraData		m_CamData_HeadBob			= null;
-
 
 	void Start()
 	{
@@ -91,15 +90,13 @@ public partial class CameraControl : MonoBehaviour {
 		}
 		Instance = this;
 
-//		m_CamData_HeadMove	= Resources.Load<CameraData>( "Configs/CameraData_HeadMove" );
-//		m_CamData_HeadBob	= Resources.Load<CameraData>( "Configs/CameraData_HeadBob" );
-
 		DontDestroyOnLoad( this );
 
 		m_CurrentDirection = transform.rotation.eulerAngles;
 
 		Cursor.visible = false;
 
+		CanParseInput = true;
 	}
 
 
@@ -141,30 +138,21 @@ public partial class CameraControl : MonoBehaviour {
 		LiveEntity pLiveEnitiy = m_Target.GetComponentInParent<LiveEntity>();
 		if ( pLiveEnitiy && pLiveEnitiy.Grounded )
 		{
-			if ( pLiveEnitiy.IsMoving )
-			{
-				m_HeadBob.Update( pLiveEnitiy );
-				m_HeadMove.Reset();
-			}
-			else
-			{
-				m_HeadMove.Update( pLiveEnitiy );
-				m_HeadBob.Reset();
-			}
+			m_HeadBob.Update ( liveEntity : pLiveEnitiy, weight : pLiveEnitiy.IsMoving == true ? 1f : 0f );
+			m_HeadMove.Update( liveEntity : pLiveEnitiy, weight : pLiveEnitiy.IsMoving == true ? 0f : 1f );
 		}
 		else
 		{
-			m_HeadMove.Reset( bInstantly: false );
-			m_HeadBob.Reset( bInstantly : true );
+			m_HeadBob.Reset ( bInstantly : true );
+			m_HeadMove.Reset( bInstantly : false );
 		}
 	//	}
 
 	}
 
-	Vector3 effectsDirection = Vector3.zero;
+
 	private void LateUpdate()
 	{
-
 		if ( m_Target == null )
 			return;
 
@@ -174,41 +162,39 @@ public partial class CameraControl : MonoBehaviour {
 
 		// Rotation
 		{
-
 			float Axis_X_Delta = Input.GetAxis ( "Mouse X" ) * m_MouseSensitivity;
 			float Axis_Y_Delta = Input.GetAxis ( "Mouse Y" ) * m_MouseSensitivity;
 
 			if ( m_SmoothedRotation )
+			{
 				m_CurrentRotation_X_Delta = Mathf.Lerp( m_CurrentRotation_X_Delta, Axis_X_Delta, Time.deltaTime * ( 100f / m_SmoothFactor ) );
-			else
-				m_CurrentRotation_X_Delta = Axis_X_Delta;
-
-
-			if ( m_SmoothedRotation )
 				m_CurrentRotation_Y_Delta = Mathf.Lerp( m_CurrentRotation_Y_Delta, Axis_Y_Delta, Time.deltaTime * ( 100f / m_SmoothFactor ) );
+			}
 			else
+			{
+				m_CurrentRotation_X_Delta = Axis_X_Delta;
 				m_CurrentRotation_Y_Delta = Axis_Y_Delta;
+			}
+				
 				
 			////////////////////////////////////////////////////////////////////////////////
-			if ( ParseInput == true && ( m_CurrentRotation_X_Delta != 0.0f || m_CurrentRotation_Y_Delta != 0.0f ) )
+			if ( CanParseInput == true && ( m_CurrentRotation_X_Delta != 0.0f || m_CurrentRotation_Y_Delta != 0.0f ) )
 			{
 				if ( m_ClampedXAxis )
 					m_CurrentDirection.x = Utils.Math.Clamp( m_CurrentDirection.x - m_CurrentRotation_Y_Delta, CLAMP_MIN_X_AXIS, CLAMP_MAX_X_AXIS );
 				else
 					m_CurrentDirection.x = m_CurrentDirection.x - m_CurrentRotation_Y_Delta;
+
 				m_CurrentDirection.y = m_CurrentDirection.y + m_CurrentRotation_X_Delta;
 			}
 
-			effectsDirection = Vector3.Lerp( effectsDirection, ( m_HeadBob.Direction + m_HeadMove.Direction ), Time.deltaTime * 7f );
-
 			// rotation with effect added
-			transform.rotation = Quaternion.Euler( m_CurrentDirection + effectsDirection );
+			transform.rotation = Quaternion.Euler( m_CurrentDirection + m_HeadBob.Direction + m_HeadMove.Direction );
 
 			if ( pLiveEnitiy != null )
 			{
 				pLiveEnitiy.FaceDirection = transform.rotation;
 			}
-
 		}
 
 

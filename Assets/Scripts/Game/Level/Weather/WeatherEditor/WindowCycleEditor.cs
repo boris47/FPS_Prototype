@@ -151,7 +151,7 @@ namespace WeatherSystem {
 				// BACKGROUND COLOR ADAPTED
 				m_OriginaColor = GUI.backgroundColor;
 				Color	toSet = thisDescriptor.set ? Color.green : Color.red;
-						toSet = thisDescriptor == WeatherManager.Instance.CurrentDescriptor ? Color.yellow : toSet;
+						toSet = thisDescriptor == ( WeatherManager.Instance as IWeatherManagerInternal ).CurrentDescriptor ? Color.yellow : toSet;
 				GUI.backgroundColor = toSet;
 				{
 					if ( GUI.Button( new Rect( 

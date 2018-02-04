@@ -616,9 +616,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   EnableInEditor: 0
-  CurrentDayTime: 09:32:33
+  m_TimeFactor: 1
+  CurrentDayTime: 
   m_CurrentCycleName: Partly
-  m_WeatherChoiceFactor: 0.63696116
+  m_WeatherChoiceFactor: 0.44330198
 --- !u!114 &114116998644837408
 MonoBehaviour:
   m_ObjectHideFlags: 1

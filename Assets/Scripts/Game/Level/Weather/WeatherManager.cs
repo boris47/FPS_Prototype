@@ -7,6 +7,7 @@ namespace WeatherSystem {
 	public interface IWeatherManagerInternal {
 
 		float	DayTimeNow { set; }
+		EnvDescriptor	CurrentDescriptor { get; }
 
 		void StartSelectDescriptors( float DayTime, WeatherCycle cycle );
 		void Start( WeatherCycle cycle, float choiseFactor );
@@ -28,6 +29,14 @@ namespace WeatherSystem {
 
 		[SerializeField]
 		private	bool						EnableInEditor			= false;
+
+		[SerializeField][Range( 0f, 500f )]
+		private	float						m_TimeFactor			= 1.0f;
+		public	float						TimeFactor
+		{
+			get { return m_TimeFactor; }
+			set { m_TimeFactor = value; }
+		}
 
 		[Header("Weather Info")]
 		[ReadOnly]
@@ -59,7 +68,7 @@ namespace WeatherSystem {
 
 		// Descriptors
 		private		EnvDescriptor			m_EnvDescriptorCurrent	= null;
-		public		EnvDescriptor			CurrentDescriptor
+		EnvDescriptor IWeatherManagerInternal.CurrentDescriptor
 		{
 			get { return m_EnvDescriptorCurrent; }
 		}
@@ -77,7 +86,7 @@ namespace WeatherSystem {
 		}
 
 		// Sky
-		public	Material					SkyMaterial
+		private	Material					SkyMaterial
 		{
 			get; set; 	
 		}
@@ -376,7 +385,7 @@ namespace WeatherSystem {
 			{
 				if ( EditorLinked == false )
 				{
-					m_DayTimeNow += Time.deltaTime * 300f; // + Level()->GetTimeFactor();
+					m_DayTimeNow += Time.deltaTime * m_TimeFactor; // + Level()->GetTimeFactor();
 				}
 
 				if ( m_DayTimeNow > DAY_LENGTH )
