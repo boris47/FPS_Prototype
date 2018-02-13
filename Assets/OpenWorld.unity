@@ -20,7 +20,7 @@ RenderSettings:
   m_FogDensity: 0
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.05468956, g: 0.05859556, b: 0.06250235, a: 1}
+  m_AmbientSkyColor: {r: 0.0625, g: 0.066406, b: 0.074219, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 0
@@ -410,7 +410,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 8
   m_Type: 1
-  m_Color: {r: 0.99993044, g: 0.81245625, b: 0.6718336, a: 1}
+  m_Color: {r: 1, g: 0.9453766, b: 0.87117666, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
@@ -457,7 +457,7 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 670079305}
-  m_LocalRotation: {x: 0.3645885, y: 0.3435661, z: -0.1468608, w: 0.8529182}
+  m_LocalRotation: {x: 0.2021295, y: -0.59071016, z: 0.15599221, w: 0.76542246}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -476,8 +476,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SampleCount: 8
-  ScatteringCoef: 0.019
-  ExtinctionCoef: 0.0033
+  ScatteringCoef: 0.183
+  ExtinctionCoef: 0.0155
   SkyboxExtinctionCoef: 0.589
   MieG: 0.023
   HeightFog: 0
@@ -959,9 +959,105 @@ Prefab:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 995315325}
+    - target: {fileID: 114100853236026210, guid: 28a210a39546819469a1344e049c89b1,
+        type: 2}
+      propertyPath: EnableInEditor
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114100853236026210, guid: 28a210a39546819469a1344e049c89b1,
+        type: 2}
+      propertyPath: m_WeatherChoiceFactor
+      value: 0.73740834
+      objectReference: {fileID: 0}
+    - target: {fileID: 114100853236026210, guid: 28a210a39546819469a1344e049c89b1,
+        type: 2}
+      propertyPath: CurrentDayTime
+      value: 09:30:00
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 28a210a39546819469a1344e049c89b1, type: 2}
   m_IsPrefabParent: 0
+--- !u!21 &1537130366
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: RainExplosionMaterial (Instance) (Instance)
+  m_Shader: {fileID: 4800000, guid: 0b828cb759e39534cab22fd7fa5d2982, type: 3}
+  m_ShaderKeywords: SOFTPARTICLES_OFF _ALPHABLEND_ON
+  m_LightmapFlags: 5
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 3000
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: a179eb5d4e82f814685a2bb151e33053, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - PixelSnap: 0
+    - _AmbientLightMultiplier: 0.25
+    - _BumpScale: 1
+    - _Cutoff: 0.5
+    - _DetailNormalMapScale: 1
+    - _DirectionalLightMultiplier: 1
+    - _DstBlend: 10
+    - _EmissionScaleUI: 0
+    - _Glossiness: 0.5
+    - _InvFade: 10
+    - _Metallic: 0
+    - _Mode: 2
+    - _OcclusionStrength: 1
+    - _Parallax: 0.02
+    - _PointSpotLightMultiplier: 0.5
+    - _SrcBlend: 5
+    - _UVSec: 0
+    - _ZWrite: 0
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 0.3529412}
+    - _DirectionalLightDirection: {r: 80, g: 0, b: 0, a: 0}
+    - _EmisColor: {r: 0.2, g: 0.2, b: 0.2, a: 0}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 0}
+    - _EmissionColorUI: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissiveColor: {r: 0, g: 0, b: 0, a: 0}
+    - _TintColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1582763781
 GameObject:
   m_ObjectHideFlags: 0
@@ -1408,3 +1504,149 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Interactalbe: {fileID: 1166150380}
   NextTask: {fileID: 0}
+--- !u!21 &2147449235
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: RainMaterial (Instance) (Instance)
+  m_Shader: {fileID: 4800000, guid: 0b828cb759e39534cab22fd7fa5d2982, type: 3}
+  m_ShaderKeywords: SOFTPARTICLES_OFF _ALPHABLEND_ON _EMISSION
+  m_LightmapFlags: 1
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 3000
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Control:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Fresnel:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: a179eb5d4e82f814685a2bb151e33053, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Normal0:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Normal1:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Normal2:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Normal3:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ReflectionTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ReflectiveColor:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RefractionTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Splat0:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Splat1:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Splat2:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Splat3:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - PixelSnap: 0
+    - _AmbientLightMultiplier: 0.25
+    - _Brightness: 1
+    - _BumpScale: 1
+    - _ColorMask: 15
+    - _Cutoff: 0.5
+    - _DetailNormalMapScale: 1
+    - _DirectionalLightMultiplier: 1
+    - _DstBlend: 10
+    - _EmissionScaleUI: 1
+    - _Glossiness: 0.5
+    - _InvFade: 10
+    - _Metallic: 0
+    - _Mode: 2
+    - _OcclusionStrength: 1
+    - _Parallax: 0.02
+    - _PointSpotLightMultiplier: 0.5
+    - _ReflDistort: 0.44
+    - _RefrDistort: 0.4
+    - _SrcBlend: 5
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _UVSec: 0
+    - _WaveScale: 0.063
+    - _ZWrite: 0
+    m_Colors:
+    - WaveSpeed: {r: 19, g: 9, b: -16, a: -7}
+    - _Color: {r: 1, g: 1, b: 1, a: 0.27450982}
+    - _DirectionalLightDirection: {r: 80, g: 0, b: 0, a: 0}
+    - _EmisColor: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissionColorUI: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissiveColor: {r: 0, g: 0, b: 0, a: 0}
+    - _HorizonColor: {r: 0.172, g: 0.463, b: 0.435, a: 1}
+    - _RefrColor: {r: 0.34, g: 0.85, b: 0.92, a: 1}
+    - _TintColor: {r: 1, g: 1, b: 1, a: 0.78431374}
