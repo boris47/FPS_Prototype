@@ -1,0 +1,4 @@
+{303bafd2-890c-4eb3-a871-1d002aea077d} event:/RainTransition
+{88004b37-04af-4279-8c5b-273cea4c502d} bus:/
+{48f97f6f-1afe-4b80-a430-637993af6a38} bus:/Reverb
+{14b8b0e1-d4ca-4af7-b55b-6945ff5bec97} bank:/Master Bank

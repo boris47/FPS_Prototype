@@ -4,6 +4,14 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class RainManager : MonoBehaviour {
 
+
+	[FMODUnity.EventRef]
+    public string m_RainSound;
+
+	FMOD.Studio.EventInstance m_RainEvent;
+	FMOD.Studio.ParameterInstance m_RainIntensityEvent;
+
+
 	public	static	RainManager		Instance						= null;
 
 	[SerializeField]
@@ -44,6 +52,19 @@ public class RainManager : MonoBehaviour {
 	private		Camera				m_Camera						= null;
 	private		float				m_RainIntensityInternal			= 0.0f;
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// START
+	private void Start()
+	{
+#if UNITY_EDITOR
+		if ( UnityEditor.EditorApplication.isPlaying == false )
+			return;
+#endif
+		m_RainEvent = FMODUnity.RuntimeManager.CreateInstance( m_RainSound );
+		m_RainEvent.getParameter( "RainIntensity", out m_RainIntensityEvent );
+		m_RainEvent.start();	
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -92,6 +113,7 @@ public class RainManager : MonoBehaviour {
 			rainRenderer.material = m_RainExplosionMaterial;
 		}
 
+		/*
 		// Audio Sources Setup
 		Transform audioSources = transform.Find( "AudioSources" );
 		{
@@ -109,6 +131,7 @@ public class RainManager : MonoBehaviour {
 			m_AudioSourceRainHeavy.AudioSource	= audioSources.Find( "RainHeavy" ).GetComponent<AudioSource>();
 			m_AudioSourceRainHeavy.Silence();
 		}
+		*/
 
 		m_RainIntensityInternal = m_RainIntensity;
 		Instance = this;
@@ -122,6 +145,8 @@ public class RainManager : MonoBehaviour {
 	// OnDisable
 	private void OnDisable()
 	{
+		m_RainEvent.stop( FMOD.Studio.STOP_MODE.IMMEDIATE );
+		m_RainEvent.release();
 #if UNITY_EDITOR
 		UnityEditor.EditorApplication.update -= Update;
 #endif
@@ -152,7 +177,7 @@ public class RainManager : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	// CheckForRainChange
 	private void	CheckForRainChange()
-	{
+	{/*
 		m_RainIntensityInternal = Mathf.Lerp( m_RainIntensityInternal, m_RainIntensity, Time.deltaTime );
 	//	if ( m_RainIntensityInternal != m_RainIntensity )
 		{
@@ -185,7 +210,7 @@ public class RainManager : MonoBehaviour {
 			}
 
 			// If necessary chancge current AudioSource
-			if ( newSource != null/* && m_AudioSourceRainCurrent != newSource*/ )
+			if ( newSource != null )
 			{
 				if ( m_AudioSourceRainCurrent != null)
 				{
@@ -194,7 +219,7 @@ public class RainManager : MonoBehaviour {
 				m_AudioSourceRainCurrent = newSource;
 				m_AudioSourceRainCurrent.SetVolume( 1.0f );
 			}
-				
+				*/
 			// Update particle system rate of emission
 			{
 				ParticleSystem.EmissionModule e = m_RainFallParticleSystem.emission;
@@ -207,7 +232,7 @@ public class RainManager : MonoBehaviour {
 				rate.constantMin	= rate.constantMax = RainFallEmissionRate();
 				e.rateOverTime		= rate;
 			}
-		}
+//		}
 	}
 
 
@@ -215,7 +240,7 @@ public class RainManager : MonoBehaviour {
 	// RainFallEmissionRate
 	private float	RainFallEmissionRate()
 	{
-		return ( m_RainFallParticleSystem.main.maxParticles / m_RainFallParticleSystem.main.startLifetime.constant ) * m_RainIntensityInternal;
+		return ( m_RainFallParticleSystem.main.maxParticles / m_RainFallParticleSystem.main.startLifetime.constant ) * m_RainIntensity;
 	}
 
 
@@ -223,18 +248,30 @@ public class RainManager : MonoBehaviour {
 	// UNITY
 	private void	Update()
 	{
+		/*
+		FMOD.Studio.PLAYBACK_STATE playState;
+		m_RainEvent.getPlaybackState( out playState );
+
 		if ( EnableInEditor == false )
 		{
+			m_RainEvent.stop( FMOD.Studio.STOP_MODE.IMMEDIATE );
 			m_RainIntensity = 0;
 			return;
 		}
 
+		if ( m_RainIntensity > 0f && playState != FMOD.Studio.PLAYBACK_STATE.PLAYING )
+			m_RainEvent.start();
+			*/
+		m_RainIntensityEvent.setValue( m_RainIntensity );
+
 		CheckForRainChange();
 		UpdateRain();
 
+		/*
 		m_AudioSourceRainLight.Update();
 		m_AudioSourceRainMedium.Update();
 		m_AudioSourceRainHeavy.Update();
+		*/
 	}
 	
 }

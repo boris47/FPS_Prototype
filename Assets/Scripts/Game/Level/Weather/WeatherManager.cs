@@ -378,7 +378,7 @@ namespace WeatherSystem {
 			if ( Instance == null )
 				Instance = this;
 
-			if ( EnableInEditor == false )
+			if ( EnableInEditor == false && UnityEditor.EditorApplication.isPlaying == false )
 				return;
 
 			if ( IsDynamic == true )
