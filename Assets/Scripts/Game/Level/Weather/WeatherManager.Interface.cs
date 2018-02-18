@@ -32,6 +32,11 @@ namespace WeatherSystem {
 
 	public partial class WeatherManager : IWeatherManager {
 
+		float IWeatherManager.DayTime
+		{
+			get { return m_DayTimeNow; }
+		}
+
 
 		/// //////////////////////////////////////////////////////////////////////////
 		/// SetTime

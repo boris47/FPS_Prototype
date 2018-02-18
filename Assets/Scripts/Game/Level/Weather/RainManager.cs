@@ -1,6 +1,7 @@
 ﻿
 using UnityEngine;
 using FMOD.Studio;
+using System.Collections;
 
 [ExecuteInEditMode]
 public class RainManager : MonoBehaviour {
@@ -44,10 +45,17 @@ public class RainManager : MonoBehaviour {
 	private		float				m_RainIntensityInternal			= 0.0f;
 
 	// THUNDERBOLTS
-	private		AudioSource			m_ThunderPlayer					= null;
 	private		AudioClip[]			m_ThundersCollection			= null;
+	[SerializeField]
 	private		float				m_NextThunderTimer				= 0f;
-	private		float				m_CurrentThunderTimer			= 0f;
+	private		Light				m_ThunderLight					= null;
+
+	private		float				m_ThunderTimerMin				= 6f;
+	private		float				m_ThunderTimerMax				= 25f;
+	private		float				m_ThunderLifeTimeMin			= 0.08f;
+	private		float				m_ThunderLifeTimeMax			= 0.5f;
+	private		float				m_ThunderStepsMin				= 3f;
+	private		float				m_ThunderStepsMax				= 9f;
 
 	private		Camera				m_Camera						= null;
 
@@ -64,7 +72,6 @@ public class RainManager : MonoBehaviour {
 		if ( audioCollection != null )
 			m_ThundersCollection = audioCollection.AudioSources;
 
-		m_ThunderPlayer = gameObject.AddComponent<AudioSource>();
 		m_NextThunderTimer = Random.Range( 6f, 25f );
 
 		m_RainEvent = FMODUnity.RuntimeManager.CreateInstance( m_RainSound );
@@ -79,7 +86,8 @@ public class RainManager : MonoBehaviour {
 	{
 		m_Camera = Camera.current;
 
-		{//	m_RainFallParticleSystem Child
+		//	m_RainFallParticleSystem Child
+		{
 			Transform child = transform.Find( "RainFallParticleSystem" );;
 			if ( child )
 				m_RainFallParticleSystem = child.GetComponent<ParticleSystem>();
@@ -91,7 +99,8 @@ public class RainManager : MonoBehaviour {
 			}
 		}
 
-		{//	m_RainExplosionParticleSystem Child
+		//	m_RainExplosionParticleSystem Child
+		{
 			Transform child = transform.Find( "RainExplosionParticleSystem" );;
 			if ( child )
 				m_RainExplosionParticleSystem = child.GetComponent<ParticleSystem>();
@@ -102,6 +111,20 @@ public class RainManager : MonoBehaviour {
 				return;
 			}
 		}
+
+		// ThunderLight
+		{
+			Transform child = transform.Find( "ThunderLight" );
+			if ( child )
+				m_ThunderLight = child.GetComponent<Light>();
+
+			if ( m_ThunderLight == null )
+			{
+				enabled = false;
+				return;
+			}
+		}
+
 
 		// m_RainFallParticleSystem Setup
 		{
@@ -125,12 +148,31 @@ public class RainManager : MonoBehaviour {
 			}
 		}
 
+		// Get info from settings file
+		if ( GLOBALS.Configs != null )
+		{
+			Section pSection = GLOBALS.Configs.GetSection( "Thunderbolts" );
+			if ( pSection != null )
+			{
+				pSection.bAsFloat( "ThunderTimerMin",		ref m_ThunderTimerMin );
+				pSection.bAsFloat( "ThunderTimerMax",		ref m_ThunderTimerMax );
+
+				pSection.bAsFloat( "ThunderLifeTimeMin",	ref m_ThunderLifeTimeMin );
+				pSection.bAsFloat( "ThunderLifeTimeMax",	ref m_ThunderLifeTimeMax );
+
+				pSection.bAsFloat( "ThunderStepsMin",		ref m_ThunderStepsMin );
+				pSection.bAsFloat( "ThunderStepsMin",		ref m_ThunderStepsMax );
+
+			}
+		}
+
 		m_RainIntensityInternal = m_RainIntensity;
 		Instance = this;
-
+		/*
 #if UNITY_EDITOR
 		UnityEditor.EditorApplication.update += Update;
 #endif
+*/
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -143,11 +185,13 @@ public class RainManager : MonoBehaviour {
 		m_RainIntensityInternal = m_RainIntensity = 0f;
 		m_Camera = null;
 
-		m_RainEvent.stop( FMOD.Studio.STOP_MODE.IMMEDIATE );
+		m_RainEvent.stop( STOP_MODE.IMMEDIATE );
 		m_RainEvent.release();
+		/*
 #if UNITY_EDITOR
 		UnityEditor.EditorApplication.update -= Update;
 #endif
+*/
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -194,22 +238,58 @@ public class RainManager : MonoBehaviour {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	// ThunderCoroutine ( Coroutine )
+	private	IEnumerator	ThunderCoroutine()
+	{
+		float	thunderLifeTime = Random.Range( m_ThunderLifeTimeMin, m_ThunderLifeTimeMax );
+		float	thunderSteps	= Random.Range( m_ThunderStepsMin, m_ThunderStepsMax );
+		float	thunderLifeStep	= thunderLifeTime / thunderSteps;
+		float	currentLifeTime	= 0f;
+		bool	lightON			= false;
+
+		// Random rotation for thunder light
+		Quaternion thunderLightRotation = Quaternion.Euler( m_ThunderLight.transform.rotation.eulerAngles + Vector3.up * Random.Range( -360f, 360f ) );
+		m_ThunderLight.transform.rotation = thunderLightRotation;
+		
+		// Lighting effect
+		while ( currentLifeTime < thunderLifeTime )
+		{
+			m_ThunderLight.transform.rotation = thunderLightRotation;
+			m_ThunderLight.intensity = lightON ?
+				0.001f
+			:
+				Random.value + 1f;
+			lightON = !lightON;
+			currentLifeTime += thunderLifeStep;
+			yield return new WaitForSeconds ( Random.Range( thunderLifeStep, thunderLifeTime - currentLifeTime ) );
+		}
+		m_ThunderLight.intensity = 0.001f;
+
+
+		// Play Clip
+		AudioClip thunderClip =  m_ThundersCollection[ Random.Range( 0, m_ThundersCollection.Length ) ];
+		Vector3 thunderDirection = m_ThunderLight.transform.rotation.eulerAngles.normalized * Random.Range( 1f, 10f );
+		Vector3 thunderPosition = Player.CurrentActivePlayer.transform.position + thunderDirection;
+		AudioSource.PlayClipAtPoint( thunderClip, thunderPosition );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	// UpdateRain
 	private void	UpdateThunderbols()
 	{
-		if ( m_RainIntensity > 0.7f )
+		if ( m_RainIntensity > 0.4f )
 		{
-			m_CurrentThunderTimer += Time.deltaTime;
-			if ( m_CurrentThunderTimer > m_NextThunderTimer )
+			m_NextThunderTimer -= Time.deltaTime;
+			if ( m_NextThunderTimer < 0f )
 			{
-				if ( m_ThunderPlayer.isPlaying == false )
-					m_ThunderPlayer.PlayOneShot( m_ThundersCollection[ Random.Range( 0, m_ThundersCollection.Length ) ] );
+				StartCoroutine( ThunderCoroutine() );
 
-				m_CurrentThunderTimer = 0;
 				m_NextThunderTimer = Random.Range( 6f, 25f );
 			}
 		}
 	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// RainFallEmissionRate

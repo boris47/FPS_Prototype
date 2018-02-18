@@ -10,3 +10,11 @@
 TimeFactor = 1.0;
 StartTime = 09:00:00
 StartWeather = "Rainy"
+
+[Thunderbolts]
+ThunderTimerMin		= 6;
+ThunderTimerMax		= 25;
+ThunderLifeTimeMin	= 0.08;
+ThunderLifeTimeMax	= 0.05;
+ThunderStepsMin		= 3;
+ThunderStepsMax		= 9;
