@@ -1,18 +1,14 @@
 ﻿
 using UnityEngine;
+using FMOD.Studio;
 
 [ExecuteInEditMode]
 public class RainManager : MonoBehaviour {
 
+	public	static	RainManager		Instance						= null;
 
 	[FMODUnity.EventRef]
-    public string m_RainSound;
-
-	FMOD.Studio.EventInstance m_RainEvent;
-	FMOD.Studio.ParameterInstance m_RainIntensityEvent;
-
-
-	public	static	RainManager		Instance						= null;
+    public string					m_RainSound						= "";
 
 	[SerializeField]
 	private	bool					EnableInEditor					= false;
@@ -36,21 +32,24 @@ public class RainManager : MonoBehaviour {
 	[SerializeField]
 	private		float				m_RainForwardOffset				= -1.5f;
 
+	// FMOD
+	private		EventInstance		m_RainEvent;
+	private		ParameterInstance	m_RainIntensityEvent;
 
-
+	// RAIN
 	private		ParticleSystem		m_RainFallParticleSystem		= null;
 	private		ParticleSystem		m_RainExplosionParticleSystem	= null;
-
-	private		LoopingAudioSource	m_AudioSourceRainLight			= null;
-	private		LoopingAudioSource	m_AudioSourceRainMedium			= null;
-	private		LoopingAudioSource	m_AudioSourceRainHeavy			= null;
-	private		LoopingAudioSource	m_AudioSourceRainCurrent		= null;
-
 	private		Material			m_RainMaterial					= null;
 	private		Material			m_RainExplosionMaterial			= null;
+	private		float				m_RainIntensityInternal			= 0.0f;
+
+	// THUNDERBOLTS
+	private		AudioSource			m_ThunderPlayer					= null;
+	private		AudioClip[]			m_ThundersCollection			= null;
+	private		float				m_NextThunderTimer				= 0f;
+	private		float				m_CurrentThunderTimer			= 0f;
 
 	private		Camera				m_Camera						= null;
-	private		float				m_RainIntensityInternal			= 0.0f;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -61,6 +60,13 @@ public class RainManager : MonoBehaviour {
 		if ( UnityEditor.EditorApplication.isPlaying == false )
 			return;
 #endif
+		AudioCollection audioCollection = Resources.Load<AudioCollection>( "Weather/Sounds/Thunderbolts/Thunders" );
+		if ( audioCollection != null )
+			m_ThundersCollection = audioCollection.AudioSources;
+
+		m_ThunderPlayer = gameObject.AddComponent<AudioSource>();
+		m_NextThunderTimer = Random.Range( 6f, 25f );
+
 		m_RainEvent = FMODUnity.RuntimeManager.CreateInstance( m_RainSound );
 		m_RainEvent.getParameter( "RainIntensity", out m_RainIntensityEvent );
 		m_RainEvent.start();	
@@ -100,38 +106,24 @@ public class RainManager : MonoBehaviour {
 		// m_RainFallParticleSystem Setup
 		{
 			Renderer rainRenderer = m_RainFallParticleSystem.GetComponent<Renderer>();
-			m_RainMaterial = new Material( rainRenderer.sharedMaterial );
-			m_RainMaterial.EnableKeyword( "SOFTPARTICLES_OFF" );
-			rainRenderer.material = m_RainMaterial;
+			if ( rainRenderer != null && rainRenderer.sharedMaterial != null )
+			{
+				m_RainMaterial = new Material( rainRenderer.sharedMaterial );
+				m_RainMaterial.EnableKeyword( "SOFTPARTICLES_OFF" );
+				rainRenderer.material = m_RainMaterial;
+			}
 		}
 
 		// m_RainExplosionParticleSystem Setup
 		{
 			Renderer rainRenderer = m_RainExplosionParticleSystem.GetComponent<Renderer>();
-			m_RainExplosionMaterial = new Material( rainRenderer.sharedMaterial );
-			m_RainExplosionMaterial.EnableKeyword( "SOFTPARTICLES_OFF" );
-			rainRenderer.material = m_RainExplosionMaterial;
+			if ( rainRenderer != null && rainRenderer.sharedMaterial != null )
+			{
+				m_RainExplosionMaterial = new Material( rainRenderer.sharedMaterial );
+				m_RainExplosionMaterial.EnableKeyword( "SOFTPARTICLES_OFF" );
+				rainRenderer.material = m_RainExplosionMaterial;
+			}
 		}
-
-		/*
-		// Audio Sources Setup
-		Transform audioSources = transform.Find( "AudioSources" );
-		{
-			m_AudioSourceRainLight = new LoopingAudioSource();
-			m_AudioSourceRainLight.AudioSource	= audioSources.Find( "RainLight" ).GetComponent<AudioSource>();
-			m_AudioSourceRainLight.Silence();
-		}
-		{
-			m_AudioSourceRainMedium = new LoopingAudioSource();
-			m_AudioSourceRainMedium.AudioSource	= audioSources.Find( "RainMedium" ).GetComponent<AudioSource>();
-			m_AudioSourceRainMedium.Silence();
-		}
-		{
-			m_AudioSourceRainHeavy = new LoopingAudioSource();
-			m_AudioSourceRainHeavy.AudioSource	= audioSources.Find( "RainHeavy" ).GetComponent<AudioSource>();
-			m_AudioSourceRainHeavy.Silence();
-		}
-		*/
 
 		m_RainIntensityInternal = m_RainIntensity;
 		Instance = this;
@@ -145,6 +137,12 @@ public class RainManager : MonoBehaviour {
 	// OnDisable
 	private void OnDisable()
 	{
+		Instance = null;
+		m_RainExplosionMaterial = null;
+		m_RainMaterial = null;
+		m_RainIntensityInternal = m_RainIntensity = 0f;
+		m_Camera = null;
+
 		m_RainEvent.stop( FMOD.Studio.STOP_MODE.IMMEDIATE );
 		m_RainEvent.release();
 #if UNITY_EDITOR
@@ -162,8 +160,10 @@ public class RainManager : MonoBehaviour {
 				m_Camera = UnityEditor.SceneView.lastActiveSceneView.camera;
 #endif
 
+//		if ( m_Camera == null )
+//			m_Camera = Camera.current;
 		if ( m_Camera == null )
-			m_Camera = Camera.current;
+			m_Camera = Camera.main;
 		if ( m_Camera == null )
 			return;
 		
@@ -177,64 +177,39 @@ public class RainManager : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	// CheckForRainChange
 	private void	CheckForRainChange()
-	{/*
-		m_RainIntensityInternal = Mathf.Lerp( m_RainIntensityInternal, m_RainIntensity, Time.deltaTime );
-	//	if ( m_RainIntensityInternal != m_RainIntensity )
+	{
+		// Update particle system rate of emission
 		{
-			// If rain intensity is too low stop particle system and audiosource
-			if ( m_RainIntensityInternal <= 0.01f )
+			ParticleSystem.EmissionModule e = m_RainFallParticleSystem.emission;
+			if ( !m_RainFallParticleSystem.isPlaying )
 			{
-				m_AudioSourceRainCurrent = null;
-				m_AudioSourceRainLight.Silence();
-				m_AudioSourceRainMedium.Silence();
-				m_AudioSourceRainHeavy.Silence();
-				m_RainFallParticleSystem.Stop();
-				return;
+				m_RainFallParticleSystem.Play();
 			}
-	
-
-			LoopingAudioSource newSource = null;
-			{	// Get new AudioSource
-				if ( m_RainIntensityInternal < 0.33f )
-				{
-					newSource = m_AudioSourceRainLight;
-				}
-				if ( m_RainIntensityInternal >= 0.33f )
-				{
-					newSource = m_AudioSourceRainMedium;
-				}
-				if ( m_RainIntensityInternal >= 0.67f )
-				{
-					newSource = m_AudioSourceRainHeavy;
-				}
-			}
-
-			// If necessary chancge current AudioSource
-			if ( newSource != null )
-			{
-				if ( m_AudioSourceRainCurrent != null)
-				{
-					m_AudioSourceRainCurrent.Silence();
-				}
-				m_AudioSourceRainCurrent = newSource;
-				m_AudioSourceRainCurrent.SetVolume( 1.0f );
-			}
-				*/
-			// Update particle system rate of emission
-			{
-				ParticleSystem.EmissionModule e = m_RainFallParticleSystem.emission;
-				if ( !m_RainFallParticleSystem.isPlaying )
-				{
-					m_RainFallParticleSystem.Play();
-				}
-				ParticleSystem.MinMaxCurve rate = e.rateOverTime;
-				rate.mode			= ParticleSystemCurveMode.Constant;
-				rate.constantMin	= rate.constantMax = RainFallEmissionRate();
-				e.rateOverTime		= rate;
-			}
-//		}
+			ParticleSystem.MinMaxCurve rate = e.rateOverTime;
+			rate.mode			= ParticleSystemCurveMode.Constant;
+			rate.constantMin	= rate.constantMax = RainFallEmissionRate();
+			e.rateOverTime		= rate;
+		}
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// UpdateRain
+	private void	UpdateThunderbols()
+	{
+		if ( m_RainIntensity > 0.7f )
+		{
+			m_CurrentThunderTimer += Time.deltaTime;
+			if ( m_CurrentThunderTimer > m_NextThunderTimer )
+			{
+				if ( m_ThunderPlayer.isPlaying == false )
+					m_ThunderPlayer.PlayOneShot( m_ThundersCollection[ Random.Range( 0, m_ThundersCollection.Length ) ] );
+
+				m_CurrentThunderTimer = 0;
+				m_NextThunderTimer = Random.Range( 6f, 25f );
+			}
+		}
+	}
 
 	//////////////////////////////////////////////////////////////////////////
 	// RainFallEmissionRate
@@ -248,30 +223,19 @@ public class RainManager : MonoBehaviour {
 	// UNITY
 	private void	Update()
 	{
-		/*
-		FMOD.Studio.PLAYBACK_STATE playState;
-		m_RainEvent.getPlaybackState( out playState );
-
-		if ( EnableInEditor == false )
-		{
-			m_RainEvent.stop( FMOD.Studio.STOP_MODE.IMMEDIATE );
-			m_RainIntensity = 0;
-			return;
-		}
-
-		if ( m_RainIntensity > 0f && playState != FMOD.Studio.PLAYBACK_STATE.PLAYING )
-			m_RainEvent.start();
-			*/
-		m_RainIntensityEvent.setValue( m_RainIntensity );
-
 		CheckForRainChange();
 		UpdateRain();
 
-		/*
-		m_AudioSourceRainLight.Update();
-		m_AudioSourceRainMedium.Update();
-		m_AudioSourceRainHeavy.Update();
-		*/
+#if UNITY_EDITOR
+		if ( UnityEditor.EditorApplication.isPlaying == false )
+			return;
+#endif
+		if ( EnableInEditor == false )
+		{
+			m_RainIntensityEvent.setValue( m_RainIntensity );
+
+			UpdateThunderbols();
+		}
 	}
 	
 }

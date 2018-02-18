@@ -18,7 +18,7 @@ MonoBehaviour:
   - {fileID: 114440234937068682}
   MasterBankRef: {fileID: 114311486106998516}
   StringsBankRef: {fileID: 114468547852061050}
-  stringsBankWriteTime: 636542569605417764
+  stringsBankWriteTime: 636545121955872696
   cacheVersion: 2
 --- !u!114 &114031966216022124
 MonoBehaviour:
@@ -76,6 +76,21 @@ MonoBehaviour:
   MinDistance: 0
   MaxDistance: 0
   Length: 54500
+--- !u!114 &114263625577206580
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: RainIntensity
+  Min: 0
+  Max: 1
+  Default: 0
 --- !u!114 &114311486106998516
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -88,11 +103,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: D:\SourceTree\8_FPS_Prototype\FMOD_Build\Desktop\Master Bank.bank
-  lastModified: 636542569605402447
+  lastModified: 636545121955569079
   LoadResult: 0
   FileSizes:
   - Name: 
-    Value: 3459456
+    Value: 3459840
   Exists: 1
 --- !u!114 &114387466544099804
 MonoBehaviour:
@@ -128,7 +143,7 @@ MonoBehaviour:
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114889065175071220}
+  - {fileID: 114263625577206580}
   MinDistance: 0
   MaxDistance: 0
   Length: 63000
@@ -144,7 +159,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: FMOD_Build\Desktop\Master Bank.strings.bank
-  lastModified: 636542569605417764
+  lastModified: 636545121955872696
   LoadResult: 0
   FileSizes:
   - Name: 

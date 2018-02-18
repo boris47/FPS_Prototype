@@ -62,8 +62,9 @@ namespace WeatherSystem {
 		private		Weathers				m_Cycles				= null;
 		[ SerializeField ][ReadOnly]
 		private		string					m_CurrentCycleName		= string.Empty;
-
+		[SerializeField]
 		private		WeatherCycle			m_CurrentCycle			= null;
+		[SerializeField]
 		private		EnvDescriptor[]			m_Descriptors			= null;
 
 		// Descriptors
@@ -76,9 +77,11 @@ namespace WeatherSystem {
 		[SerializeField][ReadOnly]
 		private		float					m_WeatherChoiceFactor	= 1.0f;
 		private		EnvDescriptor			m_EnvDescriptorNext		= null;
+		[SerializeField]
 		private		EnvDescriptor			m_EnvDescriptorMixer	= null;
 
 		// Global light
+		[SerializeField]
 		private		Light					m_GlobalLight			= null;
 		public		Light					Sun
 		{
@@ -101,23 +104,13 @@ namespace WeatherSystem {
 		{
 			Instance = this;
 
-			string sStartTime = "09:30:00";	
-
-			if ( GLOBALS.Configs != null )
-			{
-				Section pSection = GLOBALS.Configs.GetSection( "Time" );
-
-				if ( pSection != null )
-					sStartTime = pSection.AsString( "StartTime", sStartTime );
-			}
-
-			m_GlobalLight = GameObject.Find( "Sun" ).GetComponent<Light>();
-
-			TansformTime( sStartTime, ref m_DayTimeNow );
-
+			// Create Env Mixer
 			m_EnvDescriptorMixer = new EnvDescriptor();
+
+			LoadAndSetup();
 		}
-		
+
+
 		/////////////////////////////////////////////////////////////////////////////
 		// START
 		void IWeatherManagerInternal.Start( WeatherCycle cycle, float choiceFactor )
@@ -129,14 +122,53 @@ namespace WeatherSystem {
 		}
 		private void	Start()
 		{
+			LoadAndSetup();
+
+			m_WeatherChoiceFactor = Random.value;
+
+			// Select descriptors
+			StartSelectDescriptors( m_DayTimeNow );
+
+			// Make first env lerp
+			EnvironmentLerp();
+
+			IsDynamic = true;
+//			m_IsOK = true;
+		}
+
+
+		/////////////////////////////////////////////////////////////////////////////
+		// OnEnable
+		private void OnEnable()
+		{
+			this.Start();
+		}
+
+
+		/////////////////////////////////////////////////////////////////////////////
+		// OnDisable
+		private void OnDisable()
+		{
+			m_CurrentCycle			= null; 
+			m_Descriptors			= null;
+			m_CurrentCycleName		= "";
+			m_WeatherChoiceFactor	= 1.0f;
+		}
+
+		/////////////////////////////////////////////////////////////////////////////
+		// LoadAndSetup
+		private	void	LoadAndSetup()
+		{
+			// Load Sky Material
 			if ( SkyMaterial == null )
 				SkyMaterial = Resources.Load<Material>( SKYMIXER_MATERIAL );
 			if ( SkyMaterial == null )
 			{
-				print( "WeatherManager::Start: SkyMateria is null !!" );
+				print( "WeatherManager::Start: SkyMaterial is null !!" );
 				return;
 			}
 
+			// Load Cylces
 			if ( m_Cycles == null )
 				m_Cycles = Resources.Load<Weathers>( WEATHERS_COLLECTION );
 			if ( m_Cycles == null )
@@ -145,17 +177,40 @@ namespace WeatherSystem {
 				return;
 			}
 
-			m_CurrentCycle = m_Cycles.Cycles[2]; 
-			m_Descriptors = m_CurrentCycle.Descriptors;
-			m_CurrentCycleName = m_CurrentCycle.name;
+			// Find sun
+			m_GlobalLight = GameObject.Find( "Sun" ).GetComponent<Light>();
 
-			m_WeatherChoiceFactor = Random.value;
+			// Defaults
+			string startTime = "09:30:00";	
+			string startWeather = "Rainy";
 
-			StartSelectDescriptors( m_DayTimeNow );
-			EnvironmentLerp();
+			// Get info from settings file
+			if ( GLOBALS.Configs != null )
+			{
+				Section pSection = GLOBALS.Configs.GetSection( "Time" );
+				if ( pSection != null )
+				{
+					pSection.bAsString( "StartTime", ref startTime );
+					pSection.bAsString( "StartWeather", ref startWeather );
+				}
+			}
 
-			IsDynamic = true;
-//			m_IsOK = true;
+			// Set current time
+			TansformTime( startTime, ref m_DayTimeNow );
+
+			startWeather = startWeather.Replace( "\"", "" );
+
+			// Set current cycle
+			WeatherCycle cycle = m_Cycles.Cycles.Find( c => c.name == startWeather );
+			if ( cycle != null )
+			{
+				// set as current
+				m_CurrentCycle = cycle;
+				// update current descriptors
+				m_Descriptors = m_CurrentCycle.Descriptors;
+				// current updated
+				m_EnvDescriptorCurrent = m_EnvDescriptorNext;
+			}
 		}
 
 
@@ -267,6 +322,7 @@ namespace WeatherSystem {
 
 			// set as current
 			m_CurrentCycle = newCycle;
+
 			// update current descriptors
 			m_Descriptors = m_CurrentCycle.Descriptors;
 					
@@ -283,7 +339,7 @@ namespace WeatherSystem {
 		// SetWeather
 		public	void	SetWeather( string weatherName )
 		{
-			if ( m_CurrentCycle.name == weatherName )
+			if ( m_CurrentCycle != null && m_CurrentCycle.name == weatherName )
 				return;
 
 			WeatherCycle newCycle = m_Cycles.Cycles.Find( c => c.name == weatherName );
@@ -293,6 +349,9 @@ namespace WeatherSystem {
 			ChangeWeather( newCycle );
 		}
 
+
+		/////////////////////////////////////////////////////////////////////////////
+		// RandomWeather
 		public	void	RandomWeather()
 		{
 			// Choose a new cycle
@@ -378,7 +437,7 @@ namespace WeatherSystem {
 			if ( Instance == null )
 				Instance = this;
 
-			if ( EnableInEditor == false && UnityEditor.EditorApplication.isPlaying == false )
+			if ( EnableInEditor == false )
 				return;
 
 			if ( IsDynamic == true )

@@ -11,22 +11,6 @@ Prefab:
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 1541899577724134}
   m_IsPrefabParent: 1
---- !u!1 &1034599577638558
-GameObject:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 4423981548148846}
-  - component: {fileID: 82165729098793176}
-  m_Layer: 0
-  m_Name: RainHeavy
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
 --- !u!1 &1178782271479278
 GameObject:
   m_ObjectHideFlags: 0
@@ -112,38 +96,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!1 &1583681306870100
-GameObject:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 4752258716869620}
-  - component: {fileID: 82123947114981468}
-  m_Layer: 0
-  m_Name: RainLight
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!1 &1660350927721624
-GameObject:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 4589008286730022}
-  - component: {fileID: 82183311236593860}
-  m_Layer: 0
-  m_Name: RainMedium
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
 --- !u!1 &1878229747730366
 GameObject:
   m_ObjectHideFlags: 0
@@ -178,8 +130,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1533928067152824}
-  m_LocalRotation: {x: -0, y: 0.57569396, z: -0, w: -0.8176653}
-  m_LocalPosition: {x: 393.22714, y: 48.09992, z: 281.49103}
+  m_LocalRotation: {x: -0, y: 0.6639192, z: -0, w: 0.7478043}
+  m_LocalPosition: {x: 76.36208, y: 62.903503, z: 127.21147}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4827692882280288}
@@ -198,51 +150,12 @@ Transform:
   m_Father: {fileID: 4827692882280288}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &4423981548148846
-Transform:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1034599577638558}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 4883519544451682}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4516119699771490
 Transform:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1572373427585080}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 4883519544451682}
-  m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &4589008286730022
-Transform:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1660350927721624}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 4883519544451682}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &4752258716869620
-Transform:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1583681306870100}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -277,253 +190,10 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 4752258716869620}
-  - {fileID: 4589008286730022}
-  - {fileID: 4423981548148846}
   - {fileID: 4516119699771490}
   m_Father: {fileID: 4827692882280288}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!82 &82123947114981468
-AudioSource:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1583681306870100}
-  m_Enabled: 1
-  serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: c980eda1ec9b9ff4b930005976b00f41, type: 3}
-  m_PlayOnAwake: 0
-  m_Volume: 1.10821745e-26
-  m_Pitch: 1
-  Loop: 1
-  Mute: 0
-  Spatialize: 0
-  SpatializePostEffects: 0
-  Priority: 128
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
-  Pan2D: 0
-  rolloffMode: 0
-  BypassEffects: 0
-  BypassListenerEffects: 0
-  BypassReverbZones: 0
-  rolloffCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 2
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    - serializedVersion: 2
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  panLevelCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 2
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 0
-  spreadCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 2
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  reverbZoneMixCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 2
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 0
---- !u!82 &82165729098793176
-AudioSource:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1034599577638558}
-  m_Enabled: 1
-  serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: db1471092e49b7445bfbd374a17ea61a, type: 3}
-  m_PlayOnAwake: 0
-  m_Volume: 2.3311736e-30
-  m_Pitch: 1
-  Loop: 1
-  Mute: 0
-  Spatialize: 0
-  SpatializePostEffects: 0
-  Priority: 128
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
-  Pan2D: 0
-  rolloffMode: 0
-  BypassEffects: 0
-  BypassListenerEffects: 0
-  BypassReverbZones: 0
-  rolloffCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 2
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    - serializedVersion: 2
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  panLevelCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 2
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 0
-  spreadCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 2
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  reverbZoneMixCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 2
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 0
---- !u!82 &82183311236593860
-AudioSource:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1660350927721624}
-  m_Enabled: 1
-  serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 3359e9d10af08ca46ae396298dbd1ed9, type: 3}
-  m_PlayOnAwake: 0
-  m_Volume: 7.399936e-30
-  m_Pitch: 1
-  Loop: 1
-  Mute: 0
-  Spatialize: 0
-  SpatializePostEffects: 0
-  Priority: 128
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
-  Pan2D: 0
-  rolloffMode: 0
-  BypassEffects: 0
-  BypassListenerEffects: 0
-  BypassReverbZones: 0
-  rolloffCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 2
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    - serializedVersion: 2
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  panLevelCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 2
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 0
-  spreadCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 2
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  reverbZoneMixCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 2
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 0
 --- !u!82 &82818872065444844
 AudioSource:
   m_ObjectHideFlags: 1
@@ -616,10 +286,264 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   EnableInEditor: 0
-  m_TimeFactor: 1
-  CurrentDayTime: 
-  m_CurrentCycleName: Partly
-  m_WeatherChoiceFactor: 0.44330198
+  m_TimeFactor: 500
+  CurrentDayTime: 16:43:40
+  m_CurrentCycleName: Rainy
+  m_CurrentCycle: {fileID: 11400000, guid: 5ea01de1776868a448e26a74ec01f51a, type: 2}
+  m_Descriptors:
+  - Identifier: 00:00
+    ExecTime: 0
+    AmbientColor: {r: 0.007813, g: 0.007813, b: 0.007813, a: 1}
+    FogFactor: 0
+    RainIntensity: 0.5
+    SkyCubemap: {fileID: 8900000, guid: eeca203541ad12d4fbe038c29efec630, type: 3}
+    SkyColor: {r: 0.378906, g: 0.378906, b: 0.378906, a: 1}
+    SunColor: {r: 0, g: 0, b: 0, a: 1}
+    SunRotation: {x: 0.22957811, y: -0.4468693, z: 0.86463964}
+    set: 1
+  - Identifier: 01:00
+    ExecTime: 3600
+    AmbientColor: {r: 0.007813, g: 0.007813, b: 0.007813, a: 1}
+    FogFactor: 0
+    RainIntensity: 0.5
+    SkyCubemap: {fileID: 8900000, guid: 3850904bd2df62a46928e80da9025420, type: 3}
+    SkyColor: {r: 0.378906, g: 0.378906, b: 0.378906, a: 1}
+    SunColor: {r: 0, g: 0, b: 0, a: 1}
+    SunRotation: {x: 0, y: -0.47255078, z: 0.8813034}
+    set: 1
+  - Identifier: 02:00
+    ExecTime: 7200
+    AmbientColor: {r: 0.007813, g: 0.007813, b: 0.007813, a: 1}
+    FogFactor: 0
+    RainIntensity: 0.5
+    SkyCubemap: {fileID: 8900000, guid: 60b5ef1f15b0e4f4a8b926f9c3823718, type: 3}
+    SkyColor: {r: 0.378906, g: 0.378906, b: 0.378906, a: 1}
+    SunColor: {r: 0, g: 0, b: 0, a: 1}
+    SunRotation: {x: -0.22957811, y: -0.4468693, z: 0.86463964}
+    set: 1
+  - Identifier: 03:00
+    ExecTime: 10800
+    AmbientColor: {r: 0.011719, g: 0.011719, b: 0.011719, a: 1}
+    FogFactor: 0
+    RainIntensity: 0.5
+    SkyCubemap: {fileID: 8900000, guid: 30eaa4f39714c4f4d86019323c096370, type: 3}
+    SkyColor: {r: 0.378906, g: 0.378906, b: 0.378906, a: 1}
+    SunColor: {r: 0, g: 0, b: 0, a: 1}
+    SunRotation: {x: -0.44548303, y: -0.34210214, z: 0.8273518}
+    set: 1
+  - Identifier: 04:00
+    ExecTime: 14400
+    AmbientColor: {r: 0.011719, g: 0.011719, b: 0.011719, a: 1}
+    FogFactor: 0
+    RainIntensity: 0.5
+    SkyCubemap: {fileID: 8900000, guid: 8632fa5280e27714f9997ca3f90b397e, type: 3}
+    SkyColor: {r: 0.378906, g: 0.378906, b: 0.378906, a: 1}
+    SunColor: {r: 0, g: 0, b: 0, a: 1}
+    SunRotation: {x: -0.6178853, y: -0.16623525, z: 0.7684943}
+    set: 1
+  - Identifier: 05:00
+    ExecTime: 18000
+    AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    FogFactor: 0
+    RainIntensity: 0.5
+    SkyCubemap: {fileID: 8900000, guid: e3348f7629ad3a840a22002c75233c31, type: 3}
+    SkyColor: {r: 0.671875, g: 0.671875, b: 0.671875, a: 1}
+    SunColor: {r: 0, g: 0, b: 0, a: 1}
+    SunRotation: {x: -0.69757414, y: 0.052911114, z: 0.71455634}
+    set: 1
+  - Identifier: 06:00
+    ExecTime: 21600
+    AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    FogFactor: 0
+    RainIntensity: 0.5
+    SkyCubemap: {fileID: 8900000, guid: fb909ed1b28131248bc6571446891f37, type: 3}
+    SkyColor: {r: 1, g: 1, b: 1, a: 1}
+    SunColor: {r: 0, g: 0, b: 0, a: 1}
+    SunRotation: {x: 0.9369672, y: -0.029823255, z: -0.34814227}
+    set: 1
+  - Identifier: 07:00
+    ExecTime: 25200
+    AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    FogFactor: 0
+    RainIntensity: 0.5
+    SkyCubemap: {fileID: 8900000, guid: c847de11d200b7a428c5c7ca4222c62f, type: 3}
+    SkyColor: {r: 1, g: 1, b: 1, a: 1}
+    SunColor: {r: 1, g: 0.8125, b: 0.671875, a: 1}
+    SunRotation: {x: 0.97047126, y: -0.18532361, z: -0.154404}
+    set: 1
+  - Identifier: 08:00
+    ExecTime: 28800
+    AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    FogFactor: 0
+    RainIntensity: 0.5
+    SkyCubemap: {fileID: 8900000, guid: b730eb28806e1fa4fbe4cbcb7d7eff4d, type: 3}
+    SkyColor: {r: 1, g: 1, b: 1, a: 1}
+    SunColor: {r: 0.652344, g: 0.59375, b: 0.464844, a: 1}
+    SunRotation: {x: 0.9379061, y: -0.34464294, z: 0.039412897}
+    set: 1
+  - Identifier: 09:00
+    ExecTime: 32400
+    AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    FogFactor: 0
+    RainIntensity: 0.5
+    SkyCubemap: {fileID: 8900000, guid: 17ea9b66b111fed4fa4d5d1f59de5fa9, type: 3}
+    SkyColor: {r: 1, g: 1, b: 1, a: 1}
+    SunColor: {r: 0.703125, g: 0.683594, b: 0.625, a: 1}
+    SunRotation: {x: 0.8414314, y: -0.49348652, z: 0.22014585}
+    set: 1
+  - Identifier: 10:00
+    ExecTime: 36000
+    AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    FogFactor: 0
+    RainIntensity: 0.5
+    SkyCubemap: {fileID: 8900000, guid: f19f974f19d7c8a4688f13308aec12ef, type: 3}
+    SkyColor: {r: 1, g: 1, b: 1, a: 1}
+    SunColor: {r: 0.640625, g: 0.617188, b: 0.5625, a: 1}
+    SunRotation: {x: 0.68752974, y: -0.62155807, z: 0.37545764}
+    set: 1
+  - Identifier: 11:00
+    ExecTime: 39600
+    AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    FogFactor: 0
+    RainIntensity: 0.5
+    SkyCubemap: {fileID: 8900000, guid: 42a0c164529f7654780be9ce2cc191cf, type: 3}
+    SkyColor: {r: 1, g: 1, b: 1, a: 1}
+    SunColor: {r: 0.632813, g: 0.601563, b: 0.558594, a: 1}
+    SunRotation: {x: 0.48682022, y: -0.7198246, z: 0.4948319}
+    set: 1
+  - Identifier: 12:00
+    ExecTime: 43200
+    AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    FogFactor: 0
+    RainIntensity: 0.5
+    SkyCubemap: {fileID: 8900000, guid: 3cc7927a970fb4c4cb44704bf8c9edbe, type: 3}
+    SkyColor: {r: 1, g: 1, b: 1, a: 1}
+    SunColor: {r: 0.679688, g: 0.667969, b: 0.632813, a: 1}
+    SunRotation: {x: 0.25285202, y: -0.78173816, z: 0.570045}
+    set: 1
+  - Identifier: 13:00
+    ExecTime: 46800
+    AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    FogFactor: 0
+    RainIntensity: 0.5
+    SkyCubemap: {fileID: 8900000, guid: a4a6fc440f55bc74880d7fa2932ba3d2, type: 3}
+    SkyColor: {r: 0.902344, g: 0.902344, b: 0.902344, a: 1}
+    SunColor: {r: 0.679688, g: 0.65625, b: 0.613281, a: 1}
+    SunRotation: {x: 0.0016489751, y: -0.80292153, z: 0.5960825}
+    set: 1
+  - Identifier: 14:00
+    ExecTime: 50400
+    AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    FogFactor: 0
+    RainIntensity: 0.5
+    SkyCubemap: {fileID: 8900000, guid: 6a5f9270d7b04f24284c81daab312935, type: 3}
+    SkyColor: {r: 1, g: 1, b: 1, a: 1}
+    SunColor: {r: 0.632813, g: 0.617188, b: 0.574219, a: 1}
+    SunRotation: {x: -0.2497206, y: -0.78195584, z: 0.57112586}
+    set: 1
+  - Identifier: 15:00
+    ExecTime: 54000
+    AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    FogFactor: 0
+    RainIntensity: 0.5
+    SkyCubemap: {fileID: 8900000, guid: 317967418b61457469112cf389988749, type: 3}
+    SkyColor: {r: 1, g: 1, b: 1, a: 1}
+    SunColor: {r: 0.652344, g: 0.644531, b: 0.609375, a: 1}
+    SunRotation: {x: -0.48407492, y: -0.720309, z: 0.49681622}
+    set: 1
+  - Identifier: 16:00
+    ExecTime: 57600
+    AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    FogFactor: 0
+    RainIntensity: 0.5
+    SkyCubemap: {fileID: 8900000, guid: c56d87576c94de147adc887cf26824d1, type: 3}
+    SkyColor: {r: 1, g: 1, b: 1, a: 1}
+    SunColor: {r: 1, g: 0.976563, b: 0.933594, a: 1}
+    SunRotation: {x: -0.6854712, y: -0.6221048, z: 0.37830526}
+    set: 1
+  - Identifier: 17:00
+    ExecTime: 61200
+    AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    FogFactor: 0
+    RainIntensity: 0.5
+    SkyCubemap: {fileID: 8900000, guid: 34845223714d9b84b815791f1af0cba2, type: 3}
+    SkyColor: {r: 0.921875, g: 0.921875, b: 0.921875, a: 1}
+    SunColor: {r: 0.640625, g: 0.613281, b: 0.539063, a: 1}
+    SunRotation: {x: -0.8401516, y: -0.49409363, z: 0.22364435}
+    set: 1
+  - Identifier: 18:00
+    ExecTime: 64800
+    AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    FogFactor: 0
+    RainIntensity: 0.814
+    SkyCubemap: {fileID: 8900000, guid: 7e2f1be8e28bf6548bbcc422e1b0e1dd, type: 3}
+    SkyColor: {r: 1, g: 1, b: 1, a: 1}
+    SunColor: {r: 0.671875, g: 0.609375, b: 0.46875, a: 1}
+    SunRotation: {x: -0.93760985, y: -0.34497058, z: 0.043393333}
+    set: 1
+  - Identifier: 19:00
+    ExecTime: 68400
+    AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    FogFactor: 0
+    RainIntensity: 1
+    SkyCubemap: {fileID: 8900000, guid: 1f091d21a7b2ce04f92fb4013307e08c, type: 3}
+    SkyColor: {r: 0.800781, g: 0.800781, b: 0.800781, a: 1}
+    SunColor: {r: 0.679688, g: 0.46875, b: 0.390625, a: 1}
+    SunRotation: {x: -0.97110415, y: -0.1854951, z: -0.15016128}
+    set: 1
+  - Identifier: 20:00
+    ExecTime: 72000
+    AmbientColor: {r: 0.011719, g: 0.011719, b: 0.011719, a: 1}
+    FogFactor: 0
+    RainIntensity: 0.5
+    SkyCubemap: {fileID: 8900000, guid: b6e6bc8df5bd79548ba259200837cc12, type: 3}
+    SkyColor: {r: 0.730469, g: 0.730469, b: 0.730469, a: 1}
+    SunColor: {r: 0, g: 0, b: 0, a: 1}
+    SunRotation: {x: -0.93856144, y: -0.029369665, z: -0.34386033}
+    set: 1
+  - Identifier: 21:00
+    ExecTime: 75600
+    AmbientColor: {r: 0.007813, g: 0.007813, b: 0.007813, a: 1}
+    FogFactor: 0
+    RainIntensity: 0.869
+    SkyCubemap: {fileID: 8900000, guid: fda9e832acef9af498bfddf66da58e12, type: 3}
+    SkyColor: {r: 0.433594, g: 0.425781, b: 0.460938, a: 1}
+    SunColor: {r: 0, g: 0, b: 0, a: 1}
+    SunRotation: {x: 0.69757414, y: 0.052911114, z: 0.71455634}
+    set: 1
+  - Identifier: 22:00
+    ExecTime: 79200
+    AmbientColor: {r: 0.007813, g: 0.007813, b: 0.007813, a: 1}
+    FogFactor: 0
+    RainIntensity: 0.793
+    SkyCubemap: {fileID: 8900000, guid: 7e372355180de8b4394f9b196373022d, type: 3}
+    SkyColor: {r: 0.378906, g: 0.378906, b: 0.378906, a: 1}
+    SunColor: {r: 0, g: 0, b: 0, a: 1}
+    SunRotation: {x: 0.6178853, y: -0.16623525, z: 0.7684943}
+    set: 1
+  - Identifier: 23:00
+    ExecTime: 82800
+    AmbientColor: {r: 0.007813, g: 0.007813, b: 0.007813, a: 1}
+    FogFactor: 0
+    RainIntensity: 0.653
+    SkyCubemap: {fileID: 8900000, guid: fb09551734ac19f4b9becfca708d59bf, type: 3}
+    SkyColor: {r: 0.378906, g: 0.378906, b: 0.378906, a: 1}
+    SunColor: {r: 0, g: 0, b: 0, a: 1}
+    SunRotation: {x: 0.44549745, y: -0.34210214, z: 0.827344}
+    set: 1
+  m_WeatherChoiceFactor: 0.033522967
+  m_EnvDescriptorMixer:
+    Identifier: none
+    ExecTime: 0
+    AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    FogFactor: 0
+    RainIntensity: 0.5
+    SkyCubemap: {fileID: 0}
+    SkyColor: {r: 1, g: 1, b: 1, a: 1}
+    SunColor: {r: 0.99993044, g: 0.81245625, b: 0.6718336, a: 1}
+    SunRotation: {x: 0.97046477, y: -0.18535547, z: -0.15436524}
+    set: 0
+  m_GlobalLight: {fileID: 0}
 --- !u!114 &114116998644837408
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -647,8 +571,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a491b8ef29b38624f9ae2d8beea4dd0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_RainSound: event:/RainTransition
   EnableInEditor: 0
-  m_RainIntensity: 0
+  m_RainIntensity: 0.5
   m_RainHeight: 25
   m_RainForwardOffset: -1.5
 --- !u!114 &114465194192239780
@@ -735,7 +660,7 @@ ParticleSystem:
   moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 2
-  randomSeed: 728694873
+  randomSeed: 2024919541
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -4003,7 +3928,7 @@ ParticleSystem:
   moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 2
-  randomSeed: -80122800
+  randomSeed: 274153226
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -4527,7 +4452,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 67.04862
+      scalar: 3333.3333
       minScalar: 10
       maxCurve:
         serializedVersion: 2

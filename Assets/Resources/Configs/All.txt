@@ -9,3 +9,4 @@
 [Time]
 TimeFactor = 1.0;
 StartTime = 09:00:00
+StartWeather = "Rainy"
