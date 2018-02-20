@@ -221,6 +221,18 @@ public partial class Player : Human {
 					DropEntityDragged();
 				}
 			}
+
+			if ( Inputmanager.Inputs.Item1 )
+			{
+				if ( m_GrabbedObject != null )
+				{
+					m_GrabbedObject.GetComponent<Rigidbody>().velocity = 
+					(
+						CameraControl.Instance.transform.forward * 10f
+					);
+					DropEntityDragged();
+				}
+			}
 		}
 #endregion
 		////////////////////////////////////////////////////////////////////////////////////////

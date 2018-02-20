@@ -27,7 +27,7 @@ MonoBehaviour:
     ExecTime: 3600
     AmbientColor: {r: 0.007813, g: 0.007813, b: 0.007813, a: 1}
     FogFactor: 0
-    RainIntensity: 0.5
+    RainIntensity: 0.675
     SkyCubemap: {fileID: 8900000, guid: 3850904bd2df62a46928e80da9025420, type: 3}
     SkyColor: {r: 0.378906, g: 0.378906, b: 0.378906, a: 1}
     SunColor: {r: 0, g: 0, b: 0, a: 1}
@@ -37,7 +37,7 @@ MonoBehaviour:
     ExecTime: 7200
     AmbientColor: {r: 0.007813, g: 0.007813, b: 0.007813, a: 1}
     FogFactor: 0
-    RainIntensity: 0.5
+    RainIntensity: 0.579
     SkyCubemap: {fileID: 8900000, guid: 60b5ef1f15b0e4f4a8b926f9c3823718, type: 3}
     SkyColor: {r: 0.378906, g: 0.378906, b: 0.378906, a: 1}
     SunColor: {r: 0, g: 0, b: 0, a: 1}
@@ -47,7 +47,7 @@ MonoBehaviour:
     ExecTime: 10800
     AmbientColor: {r: 0.011719, g: 0.011719, b: 0.011719, a: 1}
     FogFactor: 0
-    RainIntensity: 0.5
+    RainIntensity: 0.43
     SkyCubemap: {fileID: 8900000, guid: 30eaa4f39714c4f4d86019323c096370, type: 3}
     SkyColor: {r: 0.378906, g: 0.378906, b: 0.378906, a: 1}
     SunColor: {r: 0, g: 0, b: 0, a: 1}
@@ -57,7 +57,7 @@ MonoBehaviour:
     ExecTime: 14400
     AmbientColor: {r: 0.011719, g: 0.011719, b: 0.011719, a: 1}
     FogFactor: 0
-    RainIntensity: 0.5
+    RainIntensity: 0.177
     SkyCubemap: {fileID: 8900000, guid: 8632fa5280e27714f9997ca3f90b397e, type: 3}
     SkyColor: {r: 0.378906, g: 0.378906, b: 0.378906, a: 1}
     SunColor: {r: 0, g: 0, b: 0, a: 1}
@@ -67,7 +67,7 @@ MonoBehaviour:
     ExecTime: 18000
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
     FogFactor: 0
-    RainIntensity: 0.5
+    RainIntensity: 0.297
     SkyCubemap: {fileID: 8900000, guid: e3348f7629ad3a840a22002c75233c31, type: 3}
     SkyColor: {r: 0.671875, g: 0.671875, b: 0.671875, a: 1}
     SunColor: {r: 0, g: 0, b: 0, a: 1}
@@ -77,7 +77,7 @@ MonoBehaviour:
     ExecTime: 21600
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
     FogFactor: 0
-    RainIntensity: 0.5
+    RainIntensity: 0.43
     SkyCubemap: {fileID: 8900000, guid: fb909ed1b28131248bc6571446891f37, type: 3}
     SkyColor: {r: 1, g: 1, b: 1, a: 1}
     SunColor: {r: 0, g: 0, b: 0, a: 1}
@@ -87,7 +87,7 @@ MonoBehaviour:
     ExecTime: 25200
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
     FogFactor: 0
-    RainIntensity: 0.5
+    RainIntensity: 0.456
     SkyCubemap: {fileID: 8900000, guid: c847de11d200b7a428c5c7ca4222c62f, type: 3}
     SkyColor: {r: 1, g: 1, b: 1, a: 1}
     SunColor: {r: 1, g: 0.8125, b: 0.671875, a: 1}
@@ -97,7 +97,7 @@ MonoBehaviour:
     ExecTime: 28800
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
     FogFactor: 0
-    RainIntensity: 0.5
+    RainIntensity: 0.314
     SkyCubemap: {fileID: 8900000, guid: b730eb28806e1fa4fbe4cbcb7d7eff4d, type: 3}
     SkyColor: {r: 1, g: 1, b: 1, a: 1}
     SunColor: {r: 0.652344, g: 0.59375, b: 0.464844, a: 1}
@@ -107,7 +107,7 @@ MonoBehaviour:
     ExecTime: 32400
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
     FogFactor: 0
-    RainIntensity: 0.5
+    RainIntensity: 0.194
     SkyCubemap: {fileID: 8900000, guid: 17ea9b66b111fed4fa4d5d1f59de5fa9, type: 3}
     SkyColor: {r: 1, g: 1, b: 1, a: 1}
     SunColor: {r: 0.703125, g: 0.683594, b: 0.625, a: 1}
@@ -117,7 +117,7 @@ MonoBehaviour:
     ExecTime: 36000
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
     FogFactor: 0
-    RainIntensity: 0.5
+    RainIntensity: 0.277
     SkyCubemap: {fileID: 8900000, guid: f19f974f19d7c8a4688f13308aec12ef, type: 3}
     SkyColor: {r: 1, g: 1, b: 1, a: 1}
     SunColor: {r: 0.640625, g: 0.617188, b: 0.5625, a: 1}
@@ -127,7 +127,7 @@ MonoBehaviour:
     ExecTime: 39600
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
     FogFactor: 0
-    RainIntensity: 0.5
+    RainIntensity: 0.395
     SkyCubemap: {fileID: 8900000, guid: 42a0c164529f7654780be9ce2cc191cf, type: 3}
     SkyColor: {r: 1, g: 1, b: 1, a: 1}
     SunColor: {r: 0.632813, g: 0.601563, b: 0.558594, a: 1}
@@ -147,7 +147,7 @@ MonoBehaviour:
     ExecTime: 46800
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
     FogFactor: 0
-    RainIntensity: 0.5
+    RainIntensity: 0.677
     SkyCubemap: {fileID: 8900000, guid: a4a6fc440f55bc74880d7fa2932ba3d2, type: 3}
     SkyColor: {r: 0.902344, g: 0.902344, b: 0.902344, a: 1}
     SunColor: {r: 0.679688, g: 0.65625, b: 0.613281, a: 1}
@@ -157,7 +157,7 @@ MonoBehaviour:
     ExecTime: 50400
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
     FogFactor: 0
-    RainIntensity: 0.5
+    RainIntensity: 0.838
     SkyCubemap: {fileID: 8900000, guid: 6a5f9270d7b04f24284c81daab312935, type: 3}
     SkyColor: {r: 1, g: 1, b: 1, a: 1}
     SunColor: {r: 0.632813, g: 0.617188, b: 0.574219, a: 1}
@@ -167,7 +167,7 @@ MonoBehaviour:
     ExecTime: 54000
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
     FogFactor: 0
-    RainIntensity: 0.5
+    RainIntensity: 1
     SkyCubemap: {fileID: 8900000, guid: 317967418b61457469112cf389988749, type: 3}
     SkyColor: {r: 1, g: 1, b: 1, a: 1}
     SunColor: {r: 0.652344, g: 0.644531, b: 0.609375, a: 1}
@@ -177,7 +177,7 @@ MonoBehaviour:
     ExecTime: 57600
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
     FogFactor: 0
-    RainIntensity: 0.5
+    RainIntensity: 0.766
     SkyCubemap: {fileID: 8900000, guid: c56d87576c94de147adc887cf26824d1, type: 3}
     SkyColor: {r: 1, g: 1, b: 1, a: 1}
     SunColor: {r: 1, g: 0.976563, b: 0.933594, a: 1}
@@ -187,7 +187,7 @@ MonoBehaviour:
     ExecTime: 61200
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
     FogFactor: 0
-    RainIntensity: 0.5
+    RainIntensity: 0.688
     SkyCubemap: {fileID: 8900000, guid: 34845223714d9b84b815791f1af0cba2, type: 3}
     SkyColor: {r: 0.921875, g: 0.921875, b: 0.921875, a: 1}
     SunColor: {r: 0.640625, g: 0.613281, b: 0.539063, a: 1}
@@ -217,7 +217,7 @@ MonoBehaviour:
     ExecTime: 72000
     AmbientColor: {r: 0.011719, g: 0.011719, b: 0.011719, a: 1}
     FogFactor: 0
-    RainIntensity: 0.5
+    RainIntensity: 0.662
     SkyCubemap: {fileID: 8900000, guid: b6e6bc8df5bd79548ba259200837cc12, type: 3}
     SkyColor: {r: 0.730469, g: 0.730469, b: 0.730469, a: 1}
     SunColor: {r: 0, g: 0, b: 0, a: 1}

@@ -130,7 +130,7 @@ namespace WeatherSystem {
 			if ( m_IsOK == false )
 				return;
 
-			m_WeatherChoiceFactor = Random.value;
+			m_WeatherChoiceFactor = 1.1f;
 
 			// Select descriptors
 			StartSelectDescriptors( m_DayTimeNow );
@@ -428,12 +428,12 @@ namespace WeatherSystem {
 		//TimeDiff
 		private	void	InterpolateOthers( EnvDescriptor current, EnvDescriptor next, float interpolant )
 		{
-			m_EnvDescriptorMixer.AmbientColor		= Color.Lerp( current.AmbientColor, next.AmbientColor, interpolant );
-			m_EnvDescriptorMixer.FogFactor			= Mathf.Lerp( current.FogFactor, next.FogFactor, interpolant );
-			m_EnvDescriptorMixer.RainIntensity		= Mathf.Lerp( current.RainIntensity, next.RainIntensity, interpolant );
-			m_EnvDescriptorMixer.SkyColor			= Color.Lerp( current.SkyColor, next.SkyColor, interpolant );
-			m_EnvDescriptorMixer.SunColor			= Color.Lerp( current.SunColor, next.SunColor, interpolant );
-			m_EnvDescriptorMixer.SunRotation		= Vector3.Lerp( current.SunRotation, next.SunRotation, interpolant );
+			m_EnvDescriptorMixer.AmbientColor		= Color.Lerp( current.AmbientColor,		next.AmbientColor, interpolant );
+			m_EnvDescriptorMixer.FogFactor			= Mathf.Lerp( current.FogFactor,		next.FogFactor, interpolant );
+			m_EnvDescriptorMixer.RainIntensity		= Mathf.Lerp( current.RainIntensity,	next.RainIntensity, interpolant );
+			m_EnvDescriptorMixer.SkyColor			= Color.Lerp( current.SkyColor,			next.SkyColor, interpolant );
+			m_EnvDescriptorMixer.SunColor			= Color.Lerp( current.SunColor,			next.SunColor, interpolant );
+			m_EnvDescriptorMixer.SunRotation		= Vector3.Lerp( current.SunRotation,	next.SunRotation, interpolant );
 
 			RenderSettings.ambientSkyColor	= m_EnvDescriptorMixer.SkyColor;
 			RenderSettings.ambientLight		= m_EnvDescriptorMixer.AmbientColor;

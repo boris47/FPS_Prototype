@@ -13,12 +13,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   EditorBanks:
   - {fileID: 114468547852061050}
-  - {fileID: 114311486106998516}
+  - {fileID: 114415833130223848}
   EditorEvents:
   - {fileID: 114440234937068682}
-  MasterBankRef: {fileID: 114311486106998516}
+  MasterBankRef: {fileID: 114415833130223848}
   StringsBankRef: {fileID: 114468547852061050}
-  stringsBankWriteTime: 636545121955872696
+  stringsBankWriteTime: 636547165142782832
   cacheVersion: 2
 --- !u!114 &114031966216022124
 MonoBehaviour:
@@ -124,6 +124,25 @@ MonoBehaviour:
   Min: 0
   Max: 1
   Default: 0
+--- !u!114 &114415833130223848
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18180ecb35941f4682ae60107b85b7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Path: C:\Users\dbga_54\Desktop\Roberto\SourceTree_Projects\Prototype\FMOD_Build\Desktop\Master
+    Bank.bank
+  lastModified: 636547165142772832
+  LoadResult: 0
+  FileSizes:
+  - Name: 
+    Value: 3459840
+  Exists: 1
 --- !u!114 &114440234937068682
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -138,12 +157,12 @@ MonoBehaviour:
   Path: event:/RainTransition
   guid: d2af3b300c89b34ea8711d002aea077d
   Banks:
-  - {fileID: 114311486106998516}
+  - {fileID: 114415833130223848}
   IsStream: 0
   Is3D: 0
   IsOneShot: 0
   Parameters:
-  - {fileID: 114263625577206580}
+  - {fileID: 114870812402541116}
   MinDistance: 0
   MaxDistance: 0
   Length: 63000
@@ -159,7 +178,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Path: FMOD_Build\Desktop\Master Bank.strings.bank
-  lastModified: 636545121955872696
+  lastModified: 636547165142782832
   LoadResult: 0
   FileSizes:
   - Name: 
@@ -184,6 +203,21 @@ MonoBehaviour:
     Value: 724
   Exists: 1
 --- !u!114 &114769655213976312
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fecb8ef7f94ca804a8ab72049b86782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: RainIntensity
+  Min: 0
+  Max: 1
+  Default: 0
+--- !u!114 &114870812402541116
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}

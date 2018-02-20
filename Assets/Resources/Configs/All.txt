@@ -12,9 +12,9 @@ StartTime = 09:00:00
 StartWeather = "Rainy"
 
 [Thunderbolts]
-ThunderTimerMin		= 6;
-ThunderTimerMax		= 25;
+ThunderTimerMin		= 6.0;
+ThunderTimerMax		= 15.0;
 ThunderLifeTimeMin	= 0.08;
-ThunderLifeTimeMax	= 0.05;
-ThunderStepsMin		= 3;
-ThunderStepsMax		= 9;
+ThunderLifeTimeMax	= 0.5;
+ThunderStepsMin		= 3.0;
+ThunderStepsMax		= 9.0;

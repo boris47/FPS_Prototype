@@ -69,6 +69,11 @@ public partial class CameraControl : MonoBehaviour {
 		set { this.enabled = value; }
 	}
 
+	public	Camera			MainCamera
+	{
+		get { return GetComponent<Camera>(); }
+	}
+
 	private float			m_CurrentRotation_X_Delta	= 0.0f;
 //	private float			m_CurrentRotation_Y			= 0.0f;
 	private float			m_CurrentRotation_Y_Delta	= 0.0f;

@@ -52,6 +52,8 @@ public class GameManager : MonoBehaviour {
 		GLOBALS.Player3 = m_Players.GetChild( 2 ).GetComponent<Player>();
 		GLOBALS.Player4 = m_Players.GetChild( 3 ).GetComponent<Player>();
 
+		GLOBALS.Player2.IsActive = GLOBALS.Player3.IsActive = GLOBALS.Player3.IsActive = false;
+
 		GLOBALS.Player1.IsActive = true;
 		Player.CurrentActivePlayer = GLOBALS.Player1;
 	}
