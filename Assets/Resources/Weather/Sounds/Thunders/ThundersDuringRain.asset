@@ -9,7 +9,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b0bf768657534e84aa8c0b1819830f54, type: 3}
-  m_Name: Thunders
+  m_Name: ThundersDuringRain
   m_EditorClassIdentifier: 
   AudioSources:
   - {fileID: 8300000, guid: 2756325547f3079499e1e14c54ea0849, type: 3}

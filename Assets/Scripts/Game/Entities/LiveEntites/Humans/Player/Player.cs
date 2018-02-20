@@ -5,22 +5,25 @@ using UnityEngine;
 
 public partial class Player : Human {
 
-	public	static	Player	CurrentActivePlayer	= null;
+	public	static	Player			CurrentActivePlayer				= null;
 
-	private		Vector3				m_Move				= Vector3.zero;
 
-	private		bool				m_Active			= false;
+	private		bool				m_Active						= false;
 	public		bool				IsActive
 	{
 		get { return m_Active; }
-		set { m_Active = value; }
+		set { OnActiveChange( m_Active = value ); }
 	}
 
+
+	private		Vector3				m_Move							= Vector3.zero;
+	private		Vector3				m_CapsuleRotationScaleVector	= new Vector3( 0f, 1f, 0f );
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// START
-	void Start () {
+	private	void	Start ()
+	{
 
 		m_ID = NewID();
 		m_FaceDirection = transform.rotation;
@@ -102,14 +105,24 @@ public partial class Player : Human {
 
 	}
 
-
 	public override void OnInteraction()
 	{}
 
 
+	//////////////////////////////////////////////////////////////////////////
+	// OnActiveChange
+	private	void	OnActiveChange( bool state )
+	{
+		if ( state == false )
+		{
+			m_RigidBody.velocity = m_Move = Vector3.zero;
+		}
+	}
 
 
-	public	void DropEntityDragged()
+	//////////////////////////////////////////////////////////////////////////
+	// DropEntityDragged
+	public	void	DropEntityDragged()
 	{
 		if ( m_GrabbedObject == null )
 			return;
@@ -123,7 +136,7 @@ public partial class Player : Human {
 
 	//////////////////////////////////////////////////////////////////////////
 	// MoveGrabbedObject
-	private void MoveGrabbedObject()
+	private	void	MoveGrabbedObject()
 	{
 		if ( m_Active == false )
 			return;
@@ -146,19 +159,16 @@ public partial class Player : Human {
 	}
 
 
-	//////////////////////////////////////////////////////////////////////////
-	// UNITY
-	private void Update () {
 
-		if ( !m_Active )
+	//////////////////////////////////////////////////////////////////////////
+	// Update
+	private void	Update ()
+	{
+		if ( m_Active == false )
 			return;
 	
 		// Reset "local" states
 		m_States.Reset();
-
-		// Update Grab point position
-		m_GrabPoint.transform.position = CameraControl.Instance.transform.position + ( CameraControl.Instance.transform.forward * m_UseDistance );
-		m_GrabPoint.transform.rotation = CameraControl.Instance.transform.rotation;
 
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Pick eventual collision info from camera to up
@@ -171,22 +181,12 @@ public partial class Player : Human {
 
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Check for usage
-#region			GRAB OBJECT
+#region			OBJECT GRAB
 		{
-			/*
-			Debug.DrawLine
-			(
-				CameraControl.Instance.transform.position, 
-				CameraControl.Instance.transform.position + CameraControl.Instance.transform.forward.normalized * m_UseDistance,
-				Color.red,
-				0.0f
-			);
-			*/
-
 			// Get interactable / draggable object
-			RaycastHit hit = new RaycastHit();
-			Grabbable grabbable = null;
-			Interactable interactable = null;
+			RaycastHit hit				= new RaycastHit();
+			Grabbable grabbable			= null;
+			Interactable interactable	= null;
 			if ( m_GrabbedObject == null )
 			{
 				if ( Physics.Raycast( CameraControl.Instance.transform.position, CameraControl.Instance.transform.forward, out hit, m_UseDistance ) )
@@ -195,7 +195,13 @@ public partial class Player : Human {
 					interactable = hit.transform.GetComponent<Interactable>();
 				}
 			}
-			MoveGrabbedObject();
+			else
+			{
+				// Update Grab point position
+				m_GrabPoint.transform.position = CameraControl.Instance.transform.position + ( CameraControl.Instance.transform.forward * m_UseDistance );
+				m_GrabPoint.transform.rotation = CameraControl.Instance.transform.rotation;
+			}
+			
 
 			if ( Inputmanager.Inputs.Use )
 			{
@@ -222,19 +228,19 @@ public partial class Player : Human {
 				}
 			}
 
-			if ( Inputmanager.Inputs.Item1 )
+/*			if ( Inputmanager.Inputs.Item1 )
 			{
 				if ( m_GrabbedObject != null )
 				{
-					m_GrabbedObject.GetComponent<Rigidbody>().velocity = 
-					(
-						CameraControl.Instance.transform.forward * 10f
-					);
+					m_GrabbedObject.GetComponent<Rigidbody>().velocity = ( CameraControl.Instance.transform.forward * 10f );
 					DropEntityDragged();
 				}
 			}
-		}
+*/		}
+
 #endregion
+
+#region TO IMPLEMENT
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Water
 		/*		bool bIsEntityInWater, bIsCameraUnderWater, bIsCameraReallyUnderWater;
@@ -281,7 +287,7 @@ public partial class Player : Human {
 
 				}
 		*/
-
+#endregion
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Movement Update
 		{
@@ -295,7 +301,7 @@ public partial class Player : Human {
 		}
 
 		// rotate the capsule of the player
-		transform.rotation = Quaternion.Euler( Vector3.Scale( CameraControl.Instance.transform.rotation.eulerAngles, new Vector3( 0f, 1f, 0f ) ) );
+		transform.rotation = Quaternion.Euler( Vector3.Scale( CameraControl.Instance.transform.rotation.eulerAngles, m_CapsuleRotationScaleVector ) );
 		m_FaceDirection = CameraControl.Instance.transform.rotation;
 		// Update flashlight position and rotation
 //		pFlashLight->Update();
@@ -303,6 +309,17 @@ public partial class Player : Human {
 		// trace previuos states
 		m_PreviousStates = m_States;
 
+	}
+	
+
+	//////////////////////////////////////////////////////////////////////////
+	// FixedUpdate
+	private void	FixedUpdate()
+	{
+		if ( m_Active == false )
+			return;
+
+		MoveGrabbedObject();
 	}
 
 }

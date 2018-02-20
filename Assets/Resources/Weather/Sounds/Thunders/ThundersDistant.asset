@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0bf768657534e84aa8c0b1819830f54, type: 3}
+  m_Name: ThundersDistant
+  m_EditorClassIdentifier: 
+  AudioSources:
+  - {fileID: 8300000, guid: e1bfa59444eb7a043999813824727559, type: 3}
+  - {fileID: 8300000, guid: 73c0d7b52a902214fbbf0fc400176057, type: 3}
+  - {fileID: 8300000, guid: 679955b8c3103f64cb88b57e599f0640, type: 3}
+  - {fileID: 8300000, guid: 6a90cf9233cc82b458eb2d586fc02167, type: 3}
+  - {fileID: 8300000, guid: d3f4830f9a6182440a0c151d72bec9d6, type: 3}
+  - {fileID: 8300000, guid: 2f5f2eaa432dd9b4b9df5a730c5947ee, type: 3}
+  - {fileID: 8300000, guid: cc93f90afb03d094eac6b60a3e53ffed, type: 3}
+  - {fileID: 8300000, guid: 6eb79d35ce0b4764ba3183b8d12ec015, type: 3}
+  - {fileID: 8300000, guid: fa6240ed98b830643ac2539aaf50f752, type: 3}
+  - {fileID: 8300000, guid: c06d9484ab2477747a62b3a796358f3c, type: 3}
+  - {fileID: 8300000, guid: c868250e8554bc242be821e7996bcaba, type: 3}
+  - {fileID: 8300000, guid: f1ec97c5226f6f84d924c58128ecf105, type: 3}

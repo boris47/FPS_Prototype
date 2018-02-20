@@ -5,57 +5,62 @@ namespace QuestSystem {
 
 	public class Quest : MonoBehaviour {
 		
-		public	Task		currentTask		= null;
-		public	Quest		NextQuest		= null;
+		public	bool				Completed				{ get; private set;	}
 
-		[SerializeField]
-		private	Task[]		m_Tasks			= null;
-		public	Task[]		Tasks
+//		[SerializeField]
+		private	Task[]				m_Tasks					= null;
+		public	Task[]				Tasks
 		{
 			get { return m_Tasks; }
 		}
 
-		public	bool	Completed
-		{
-			get;
-			set;
-		}
+
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// AWAKE
 		private void Awake()
 		{
-			currentTask = m_Tasks[ 0 ];
-			foreach ( Task task in m_Tasks )
+			m_Tasks = GetComponentsInChildren<Task>();
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// CheckQuestStatus
+		public void	UpdateStatus()
+		{
+			this.Completed = true;
+			foreach( Task task in m_Tasks )
 			{
-				task.RelatedQuest = this;
+				if ( task.Completed == false )
+				{
+					task.Activate();
+					print( "-- Next Task is " + task.name );
+					this.Completed = false;
+					return;
+				}
+			}
+
+			if ( this.Completed )
+			{
+				print( "Completed quest " + name );
+				GlobalQuestManager.Instance.CurrentLocalQuestManager.UpdateStatus();
+
 			}
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// UpdateQuest
-		public void	UpdateQuest( Task lastCompletedTask )
+		// Activate
+		public	bool	Activate()
 		{
-			if ( lastCompletedTask.NextTask != null )
+			if ( m_Tasks == null || m_Tasks.Length == 0 )
 			{
-				lastCompletedTask.NextTask.Interactable.CanInteract = true;
-				currentTask =  lastCompletedTask.NextTask;
+				return false;
 			}
 
-			Completed = true;
-			foreach( Task task in m_Tasks )
-			{
-				if ( task.Completed == false )
-				{
-					Completed = false;
-					return;
-				}
-			}
-
-			if ( Completed )
-				print( "Completed quest " + name );
+			m_Tasks[ 0 ].Activate();
+			return true;
 		}
 		
 	}

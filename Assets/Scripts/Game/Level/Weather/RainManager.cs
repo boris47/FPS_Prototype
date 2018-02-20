@@ -11,6 +11,10 @@ namespace WeatherSystem {
 
 		public	static	RainManager		Instance						= null;
 
+		private	const	string			THUNDERS_DISTANT				= "Weather/Sounds/Thunders/ThundersDistant";
+		private	const	string			THUNDERS_DURING_RAIN			= "Weather/Sounds/Thunders/ThundersDuringRain";
+
+
 		[FMODUnity.EventRef]
 		public string					m_RainSound						= "";
 
@@ -47,7 +51,8 @@ namespace WeatherSystem {
 		private		Material			m_RainExplosionMaterial			= null;
 
 		// THUNDERBOLTS
-		private		AudioClip[]			m_ThundersCollection			= null;
+		private		AudioClip[]			m_ThundersDistantCollection		= null;
+		private		AudioClip[]			m_ThundersDuringRainCollection	= null;
 		[SerializeField]
 		private		float				m_NextThunderTimer				= 0f;
 		private		Light				m_ThunderLight					= null;
@@ -73,9 +78,23 @@ namespace WeatherSystem {
 			if ( UnityEditor.EditorApplication.isPlaying == false )
 				return;
 	#endif
-			AudioCollection audioCollection = Resources.Load<AudioCollection>( "Weather/Sounds/Thunderbolts/Thunders" );
-			if ( audioCollection != null )
-				m_ThundersCollection = audioCollection.AudioSources;
+			AudioCollection thundersDistantCollection = Resources.Load<AudioCollection>( THUNDERS_DISTANT );
+			if ( thundersDistantCollection != null )
+				m_ThundersDistantCollection = thundersDistantCollection.AudioSources;
+			else
+			{
+				enabled = false;
+				return;
+			}
+
+			AudioCollection thundersDurinRainCollection = Resources.Load<AudioCollection>( THUNDERS_DURING_RAIN );
+			if ( thundersDurinRainCollection != null )
+				m_ThundersDuringRainCollection = thundersDurinRainCollection.AudioSources;
+			else
+			{
+				enabled = false;
+				return;
+			}
 
 			m_NextThunderTimer = Random.Range( m_ThunderTimerMin, m_ThunderTimerMax );
 
@@ -256,7 +275,7 @@ namespace WeatherSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// ThunderCoroutine ( Coroutine )
-		private	IEnumerator	ThunderCoroutine()
+		private	IEnumerator	ThunderCoroutine( bool lighting )
 		{
 			// check fo avaiable audiosource
 			AudioSource thunderAudioSource = GetFreeAudioSource();
@@ -269,34 +288,49 @@ namespace WeatherSystem {
 			float	currentLifeTime	= 0f;
 			bool	lightON			= false;
 
-
+			
 			// Random rotation for thunder light
 			Quaternion thunderLightRotation = Quaternion.Euler( m_ThunderLight.transform.rotation.eulerAngles + Vector3.up * Random.Range( -360f, 360f ) );
 			m_ThunderLight.transform.rotation = thunderLightRotation;
-		
-			// Lighting effect
-			while ( currentLifeTime < thunderLifeTime )
+			
+			if ( lighting == true )
 			{
-				m_ThunderLight.transform.rotation = thunderLightRotation;
-				m_ThunderLight.intensity = lightON ?
-					0.001f
-				:
-					Random.Range( 1.2f, 3.0f );
-				lightON = !lightON;
-				currentLifeTime += thunderLifeStep;
-				yield return new WaitForSeconds ( Random.Range( thunderLifeStep, thunderLifeTime - currentLifeTime ) );
-			}
-			m_ThunderLight.intensity = 0.001f;
 
+				// Lighting effect
+				while ( currentLifeTime < thunderLifeTime )
+				{
+					m_ThunderLight.transform.rotation = thunderLightRotation;
+					m_ThunderLight.intensity = lightON ?
+						0.001f
+					:
+						Random.Range( 1.2f, 3.0f );
+					lightON = !lightON;
+					currentLifeTime += thunderLifeStep;
+					yield return new WaitForSeconds ( Random.Range( thunderLifeStep, thunderLifeTime - currentLifeTime ) );
+				}
+				m_ThunderLight.intensity = 0.001f;
+
+			}
 
 			// Play Clip
-			AudioClip thunderClip =  m_ThundersCollection[ Random.Range( 0, m_ThundersCollection.Length ) ];
-			Vector3 thunderDirection = m_ThunderLight.transform.forward * Random.Range( 15f, 25f );
-			
-			thunderAudioSource.clip = thunderClip;
+			if ( lighting == true )
+			{
+				AudioClip thunderClip =  m_ThundersDuringRainCollection[ Random.Range( 0, m_ThundersDuringRainCollection.Length ) ];
+				thunderAudioSource.clip = thunderClip;
+			}
+			else
+			{
+				AudioClip thunderClip =  m_ThundersDistantCollection[ Random.Range( 0, m_ThundersDistantCollection.Length ) ];
+				thunderAudioSource.clip = thunderClip;
+			}
+
 			thunderAudioSource.pitch = Random.Range( 1.2f, 1.6f );
+			thunderAudioSource.volume = Random.Range( 1f, 2f );
+			
+			Vector3 thunderDirection = m_ThunderLight.transform.forward * Random.Range( 15f, 25f );
 			thunderAudioSource.transform.localPosition = thunderDirection;
-			thunderAudioSource.PlayOneShot( thunderClip, Random.Range( 1f, 2f ) );
+
+			thunderAudioSource.Play();
 		}
 
 
@@ -309,7 +343,7 @@ namespace WeatherSystem {
 				m_NextThunderTimer -= Time.deltaTime;
 				if ( m_NextThunderTimer < 0f )
 				{
-					StartCoroutine( ThunderCoroutine() );
+					StartCoroutine( ThunderCoroutine( m_RainIntensity > 0.2f ) );
 
 					m_NextThunderTimer = Random.Range
 					(
@@ -339,6 +373,10 @@ namespace WeatherSystem {
 				if ( UnityEditor.SceneView.lastActiveSceneView != null )
 					m_Camera = UnityEditor.SceneView.lastActiveSceneView.camera;
 #endif
+			if ( m_Camera == null )
+				m_Camera = Camera.current;
+			if ( m_Camera == null )
+				m_Camera = Camera.main;
 			if ( m_Camera == null )
 				m_Camera = CameraControl.Instance.MainCamera;
 			if ( m_Camera == null )

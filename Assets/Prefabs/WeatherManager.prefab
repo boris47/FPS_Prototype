@@ -328,7 +328,6 @@ GameObject:
   - component: {fileID: 4827692882280288}
   - component: {fileID: 114100853236026210}
   - component: {fileID: 114321619059542430}
-  - component: {fileID: 114116998644837408}
   m_Layer: 0
   m_Name: WeatherManager
   m_TagString: Untagged
@@ -506,8 +505,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1533928067152824}
-  m_LocalRotation: {x: -0, y: 0.10747962, z: -0, w: -0.9942073}
-  m_LocalPosition: {x: 110.27022, y: 101.063515, z: 199.46532}
+  m_LocalRotation: {x: -0, y: 0.9970943, z: -0, w: -0.07617756}
+  m_LocalPosition: {x: 141.45308, y: 31.83613, z: 136.9346}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4827692882280288}
@@ -3243,22 +3242,6 @@ MonoBehaviour:
   CurrentDayTime: 09:30:02
   m_CurrentCycleName: Rainy
   m_WeatherChoiceFactor: 1.1
---- !u!114 &114116998644837408
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1541899577724134}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bad0d6fec58715041ba72fed6091e46e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  EnableInEditor: 0
-  m_WindSoundVolumeModifier: 1
-  m_WindSpeedRange: {x: 0, y: 10, z: 500}
-  m_WindChangeInterval: {x: 5, y: 30}
-  m_EnableWind: 0
 --- !u!114 &114321619059542430
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3272,7 +3255,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_RainSound: event:/RainTransition
   EnableInEditor: 0
-  m_RainIntensity: 0.31397602
+  m_RainIntensity: 0.4559716
   m_RainHeight: 25
   m_RainForwardOffset: -1.5
   m_NextThunderTimer: 0
@@ -6628,7 +6611,7 @@ ParticleSystem:
   moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 2
-  randomSeed: 551635157
+  randomSeed: 940926907
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -7043,7 +7026,7 @@ ParticleSystem:
     donutRadius: 0.2
     m_Position: {x: 0, y: 0, z: 0}
     m_Rotation: {x: 0, y: 0, z: 0}
-    m_Scale: {x: 100, y: 1, z: 100}
+    m_Scale: {x: 20, y: 1, z: 20}
     placementMode: 2
     m_Mesh: {fileID: 0}
     m_MeshRenderer: {fileID: 0}
@@ -7152,7 +7135,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 2093.1736
+      scalar: 3039.8105
       minScalar: 10
       maxCurve:
         serializedVersion: 2
