@@ -24,7 +24,7 @@ namespace QuestSystem {
 			if ( m_OnInteraction != null && m_OnInteraction.GetPersistentEventCount() > 0 )
 				m_OnInteraction.Invoke();
 			
-			print( "Task Objective completed: " + name );
+///			print( "Task Objective completed: " + name );
 
 			Completed = true;
 			RelatedTask.UpdateStatus();

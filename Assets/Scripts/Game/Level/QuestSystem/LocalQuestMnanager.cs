@@ -5,7 +5,7 @@ namespace QuestSystem {
 
 	public class LocalQuestMnanager : MonoBehaviour {
 
-
+//		[SerializeField]
 		private	Quest[]		m_Quests			= null;
 		
 
@@ -15,7 +15,7 @@ namespace QuestSystem {
 		// AWAKE
 		private void Awake()
 		{
-			m_Quests = FindObjectsOfType<Quest>();
+			m_Quests = GetComponentsInChildren<Quest>();
 			m_Quests[0].Activate();
 		}
 
@@ -30,20 +30,14 @@ namespace QuestSystem {
 				if ( quest.Completed == false )
 				{
 					quest.Activate();
-					print( "Next Quest is " + quest.name );
+///					print( "Next Quest is " + quest.name );
 					result = false;
 					return;
 				}
 			}
 
-			if ( result == true )
-				print( "bravo" );
-		}
-
-
-		public	void	Print()
-		{
-			print( "Now u are a Guardion!" );
+///			if ( result == true )
+///				print( "Now u are a Guardion!" );
 		}
 
 	}

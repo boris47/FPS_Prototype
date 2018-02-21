@@ -7,9 +7,16 @@ namespace QuestSystem {
 		
 
 		public bool					Completed				{ get; private set; }
+	
+
+
+		[SerializeField]
+		private GameEvent			m_OnCompletion			= null;
 
 		[SerializeField]
 		private	TaskObjective[]		m_TaskObjectives		= null;
+
+
 
 		private Quest				RelatedQuest			{ get; set; }
 		
@@ -20,7 +27,6 @@ namespace QuestSystem {
 		// AWAKE
 		private void Awake()
 		{
-
 			foreach ( TaskObjective o in m_TaskObjectives )
 				o.RelatedTask = this;
 
@@ -38,7 +44,7 @@ namespace QuestSystem {
 				if ( objective.Completed == false )
 				{
 					objective.CanInteract = true;
-					print( "-- -- Next TaskObjective is " + objective.name );
+///					print( "-- -- Next TaskObjective is " + objective.name );
 					this.Completed = false;
 					return;
 				}
@@ -46,7 +52,9 @@ namespace QuestSystem {
 
 			if ( this.Completed == true )
 			{
-				print( "Completed task " + name );
+///				print( "Completed task " + name );
+				if ( m_OnCompletion != null && m_OnCompletion.GetPersistentEventCount() > 0 )
+					m_OnCompletion.Invoke();
 				RelatedQuest.UpdateStatus();
 			}
 		}
@@ -60,10 +68,9 @@ namespace QuestSystem {
 			{
 				return false;
 			}
-
+///			print( name + " task activated" );
 			// Activate first objective
 			m_TaskObjectives[ 0 ].CanInteract = true;
-
 			return true;
 		}
 

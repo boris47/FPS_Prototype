@@ -282,7 +282,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4710381484077390}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4563742387848792
 Transform:
@@ -313,8 +313,8 @@ Transform:
   - {fileID: 4982536808643274}
   - {fileID: 4369610524174354}
   - {fileID: 4924570994674644}
-  - {fileID: 4922347554333846}
   - {fileID: 4543994303333592}
+  - {fileID: 4922347554333846}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -342,7 +342,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4710381484077390}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4924570994674644
 Transform:
@@ -593,6 +593,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8de1c056867684040b3c5d91cdde6711, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_OnCompletion:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: GameEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   m_TaskObjectives:
   - {fileID: 114540013221336786}
 --- !u!114 &114339195927469420
@@ -622,6 +626,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8de1c056867684040b3c5d91cdde6711, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_OnCompletion:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: GameEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   m_TaskObjectives:
   - {fileID: 114540013221336786}
   - {fileID: 114393305368818326}
@@ -653,6 +661,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8de1c056867684040b3c5d91cdde6711, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_OnCompletion:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: GameEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   m_TaskObjectives:
   - {fileID: 114393305368818326}
 --- !u!114 &114525630914754824
@@ -666,6 +678,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e3e0d87385ac0649ae39b5159f5dd3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_OnCompletion:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: GameEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
 --- !u!114 &114529712850592774
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -677,6 +693,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8de1c056867684040b3c5d91cdde6711, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_OnCompletion:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: GameEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   m_TaskObjectives:
   - {fileID: 114339195927469420}
 --- !u!114 &114540013221336786
@@ -717,6 +737,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e3e0d87385ac0649ae39b5159f5dd3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_OnCompletion:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: GameEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
 --- !u!114 &114597276781836014
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -728,6 +752,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e3e0d87385ac0649ae39b5159f5dd3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_OnCompletion:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: GameEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
 --- !u!114 &114619152966173546
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -739,6 +767,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e3e0d87385ac0649ae39b5159f5dd3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_OnCompletion:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: GameEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
 --- !u!114 &114638615093765290
 MonoBehaviour:
   m_ObjectHideFlags: 1

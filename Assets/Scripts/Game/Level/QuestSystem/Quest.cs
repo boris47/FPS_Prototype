@@ -7,13 +7,15 @@ namespace QuestSystem {
 		
 		public	bool				Completed				{ get; private set;	}
 
+		[SerializeField]
+		private	GameEvent			m_OnCompletion			= null;
+
 //		[SerializeField]
-		private	Task[]				m_Tasks					= null;
 		public	Task[]				Tasks
 		{
-			get { return m_Tasks; }
+			get; private set;
 		}
-
+		
 
 
 
@@ -21,7 +23,7 @@ namespace QuestSystem {
 		// AWAKE
 		private void Awake()
 		{
-			m_Tasks = GetComponentsInChildren<Task>();
+			Tasks = GetComponentsInChildren<Task>();
 		}
 
 
@@ -30,12 +32,12 @@ namespace QuestSystem {
 		public void	UpdateStatus()
 		{
 			this.Completed = true;
-			foreach( Task task in m_Tasks )
+			foreach( Task task in Tasks )
 			{
 				if ( task.Completed == false )
 				{
 					task.Activate();
-					print( "-- Next Task is " + task.name );
+///					print( "-- Next Task is " + task.name );
 					this.Completed = false;
 					return;
 				}
@@ -43,7 +45,9 @@ namespace QuestSystem {
 
 			if ( this.Completed )
 			{
-				print( "Completed quest " + name );
+///				print( "Completed quest " + name );
+				if ( m_OnCompletion != null && m_OnCompletion.GetPersistentEventCount() > 0 )
+					m_OnCompletion.Invoke();
 				GlobalQuestManager.Instance.CurrentLocalQuestManager.UpdateStatus();
 
 			}
@@ -54,12 +58,12 @@ namespace QuestSystem {
 		// Activate
 		public	bool	Activate()
 		{
-			if ( m_Tasks == null || m_Tasks.Length == 0 )
+			if ( Tasks == null || Tasks.Length == 0 )
 			{
 				return false;
 			}
-
-			m_Tasks[ 0 ].Activate();
+///			print( name + " quest activated" );
+			Tasks[ 0 ].Activate();
 			return true;
 		}
 		

@@ -95,7 +95,7 @@ namespace WeatherSystem {
 				enabled = false;
 				return;
 			}
-
+			
 			m_NextThunderTimer = Random.Range( m_ThunderTimerMin, m_ThunderTimerMax );
 
 			m_RainEvent = FMODUnity.RuntimeManager.CreateInstance( m_RainSound );
