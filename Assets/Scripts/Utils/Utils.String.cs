@@ -119,19 +119,34 @@ namespace Utils {
 
 			if ( type == typeof( string ) )
 			{
-				return sLine;
+				return sLine.Trim();
 			}
 			return null;
 		}
 
 
 		// parse a string and return a list of values
-		public static List < cValue > RecognizeValues( string _Line ) {
+		public static cValue[] RecognizeValues( string _Line )
+		{
+			string[] sValues = _Line.Split( ',' );
+
+			cValue[] cValues = new cValue[ sValues.Length ];
+
+			for ( int i = 0; i < sValues.Length; i++ )
+			{
+				cValues[ i ] = RecognizeValue( sValues[ i ] );
+			}
+
+
+
+			/*
 			List < cValue > Values = new List < cValue > ();
 			string Line = _Line;
 			int Start = 0;
-			for ( int i = 0; i < Line.Length; i++ ) {
-				if ( Line[ i ] == ',' ) {
+			for ( int i = 0; i < Line.Length; i++ )
+			{
+				if ( Line[ i ] == ',' )
+				{
 					string Result = ( Line.Substring( Start, i - Start ) ).Trim();
 					Values.Add( RecognizeValue( Result ) );
 					Start = i + 1;
@@ -139,7 +154,8 @@ namespace Utils {
 			}
 			cValue Value = RecognizeValue( Line.Substring( Start ) );	// last value is not followed by a colon
 			Values.Add( Value );					// So we save the last part of string entirely
-			return Values;
+			*/
+			return cValues;
 		}
 
 	}

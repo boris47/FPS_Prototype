@@ -4,46 +4,52 @@ using UnityEngine;
 
 public class cLineValue {
 
-	string				sKey				= "";
-	string				sRawValue			= "";
+	private	string						sKey				= string.Empty;
+	private	string						sRawValue			= string.Empty;
 
-	LineValueType		iType				= 0;
+	private	LineValueType				iType				= 0;
 
-	cMultiValue			pMultiValue			= null;
-	cValue				pValue				= null;
+	private	cMultiValue					pMultiValue			= null;
+	private	cValue						pValue				= null;
 
-	bool				bIsOK				= false;
+	public	bool						IsOK
+	{
+		get; private set;
+	}
 
 
 	// Can be NONE, SINGLE, MULTI, KEYONLY
-	public 	LineValueType Type 							{ get {return iType; } }
-	public 	string Key									{ get { return ( string ) sKey.Clone(); } }
-	public 	string RawValue 							{ get { return ( string ) sRawValue.Clone(); } }
-	public 	cValue		Value							{ get { return pValue; } }
-	public 	cMultiValue	MultiValue						{ get { return pMultiValue;	} }
-
-
-
+	public 	LineValueType		Type 				{ get {return iType; } }
+	public 	string				Key					{ get { return ( string ) sKey.Clone(); } }
+	public 	string				RawValue 			{ get { return ( string ) sRawValue.Clone(); } }
+	public 	cValue				Value				{ get { return pValue; } }
+	public 	cMultiValue			MultiValue			{ get { return pMultiValue;	} }
 
 
 
 	// Type can be Single or Multi
-	public cLineValue( string Key, LineValueType Type ) {
+	public cLineValue( string Key, LineValueType Type )
+	{
 		iType = Type; sKey = Key;
 	}
 
-	public cLineValue ( string Key, string sLine ) {
-
+	public cLineValue ( string Key, string sLine )
+	{
 		sKey = Key;
 		sRawValue = ( ( sLine.Length > 0 ) ? sLine : "" );
 
-		if ( sLine.IndexOf( ',' ) > -1 ) {				// Supposing is a MultiVal string
+		if ( sLine.IndexOf( ',' ) > -1 )
+		{				// Supposing is a MultiVal string
 			iType = LineValueType.MULTI;
-			List < cValue  > vValues = Utils.String.RecognizeValues( sLine );
-			if ( vValues.Count < 1 ) return;
+			cValue[] vValues = Utils.String.RecognizeValues( sLine );
+			if ( vValues.Length < 1 )
+				return;
+
 			pMultiValue = new cMultiValue( vValues );
 		
-		} else { // Single value
+		}
+		else
+		{ // Single value
 			iType = LineValueType.SINGLE;
 			cValue pValue = Utils.String.RecognizeValue( sLine );
 			if ( pValue == null ) {
@@ -52,14 +58,14 @@ public class cLineValue {
 			}
 			this.pValue = pValue;
 		}
-	
-		bIsOK = true;
-
+		IsOK = true;
 	}
 
-	public void Destroy() { pValue = null; pMultiValue = null; }
-
-	public bool IsOK() { return bIsOK; }
+	public void Destroy()
+	{
+		pValue = null;
+		pMultiValue = null;
+	}
 
 
 
