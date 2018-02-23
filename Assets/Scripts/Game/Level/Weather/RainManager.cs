@@ -11,8 +11,8 @@ namespace WeatherSystem {
 
 		public	static	RainManager		Instance						= null;
 
-		private	const	string			THUNDERS_DISTANT				= "Weather/Sounds/Thunders/ThundersDistant";
-		private	const	string			THUNDERS_DURING_RAIN			= "Weather/Sounds/Thunders/ThundersDuringRain";
+		private	const	string			THUNDERS_DISTANT				= "Sounds/Thunders/ThundersDistant";
+		private	const	string			THUNDERS_DURING_RAIN			= "Sounds/Thunders/ThundersDuringRain";
 
 
 		[FMODUnity.EventRef]
@@ -83,6 +83,7 @@ namespace WeatherSystem {
 				m_ThundersDistantCollection = thundersDistantCollection.AudioSources;
 			else
 			{
+				print( "Cannot load scriptable " +  THUNDERS_DISTANT );
 				enabled = false;
 				return;
 			}
@@ -92,6 +93,7 @@ namespace WeatherSystem {
 				m_ThundersDuringRainCollection = thundersDurinRainCollection.AudioSources;
 			else
 			{
+				print( "Cannot load scriptable " +  THUNDERS_DURING_RAIN );
 				enabled = false;
 				return;
 			}
@@ -190,7 +192,7 @@ namespace WeatherSystem {
 			// Get info from settings file
 			if ( GLOBALS.Configs != null )
 			{
-				Section pSection = GLOBALS.Configs.GetSection( "Thunderbolts" );
+				var pSection = GLOBALS.Configs.GetSection( "Thunderbolts" );
 				if ( pSection != null )
 				{
 					pSection.bAsFloat( "ThunderTimerMin",		ref m_ThunderTimerMin );

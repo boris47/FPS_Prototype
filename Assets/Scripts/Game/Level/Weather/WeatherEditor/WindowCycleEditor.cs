@@ -1,4 +1,8 @@
 ﻿using UnityEngine;
+using CFG_Reader;
+
+#if UNITY_EDITOR
+
 using UnityEditor;
 
 namespace WeatherSystem {
@@ -30,10 +34,11 @@ namespace WeatherSystem {
 
 			m_Window.m_CurrentCycle = cycle;
 
-			WeatherManager.EditorLinked = true;
-			m_Window.m_CurrentTime = ( WeatherManager.Instance.DayTime / WeatherManager.DAY_LENGTH );
 
-			 ( WeatherManager.Instance as IWeatherManagerInternal ).Start( cycle, 2f );
+
+			m_Window.m_CurrentTime = ( WeatherManager.Instance.DayTime / WeatherManager.DAY_LENGTH );
+			( WeatherManager.Instance as IWeatherManagerInternal ).EditorLinked = true;
+			( WeatherManager.Instance as IWeatherManagerInternal ).Start( cycle, 2f );
 
 			Setup();
 		}
@@ -182,10 +187,12 @@ namespace WeatherSystem {
 		private void OnDestroy()
 		{
 			( WeatherManager.Instance as IWeatherManagerInternal ).Start( m_CurrentCycle, Random.value );
-			WeatherManager.EditorLinked = false;
+			( WeatherManager.Instance as IWeatherManagerInternal ).EditorLinked = false;
 			EditorUtility.SetDirty( m_CurrentCycle );
 			AssetDatabase.SaveAssets();
 		}
 	}
 
 }
+
+#endif

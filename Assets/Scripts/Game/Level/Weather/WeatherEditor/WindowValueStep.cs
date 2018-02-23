@@ -1,4 +1,8 @@
 ﻿using UnityEngine;
+using CFG_Reader;
+
+#if UNITY_EDITOR
+
 using UnityEditor;
 
 public class WindowValueStep : EditorWindow {
@@ -104,3 +108,5 @@ public class WindowValueStep : EditorWindow {
 		Value = string.Empty;
 	}
 }
+
+#endif

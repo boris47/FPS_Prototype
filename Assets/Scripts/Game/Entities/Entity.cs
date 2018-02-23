@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using CFG_Reader;
 using UnityEngine;
 
 enum ENTITY_TYPE {

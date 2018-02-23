@@ -1,47 +1,49 @@
 ﻿
-using System.Collections.Generic;
+namespace CFG_Reader {
 
-public class cMultiValue {
+	public class cMultiValue {
 
-	private cValue[]		m_ValuesArray			= null;
-	public	cValue[]		ValueArray
-	{
-		get; private set;
-	}
-
-	public	int				Size
-	{
-		get 
+		private cValue[]		m_ValuesArray			= null;
+		public	cValue[]		ValueArray
 		{
-			if ( m_ValuesArray != null )
-				return m_ValuesArray.Length;
-			return 0;
+			get; private set;
 		}
-	}
 
-
-	public cMultiValue( cValue[] vValues )
-	{
-		m_ValuesArray = vValues;
-	}
-
-
-	// Indexer behaviour
-	public cValue this[ int Index ]
-	{
-		get
+		public	int				Size
 		{
-			if ( ( m_ValuesArray != null ) && Index < m_ValuesArray.Length )
-				return m_ValuesArray[ Index ];
-			return null;
+			get 
+			{
+				if ( m_ValuesArray != null )
+					return m_ValuesArray.Length;
+				return 0;
+			}
 		}
-	}
 
-	/////////////////////////////////////////////////////////
-	public void		Add( cValue pValue )
-	{
-		System.Array.Resize<cValue>( ref m_ValuesArray, m_ValuesArray.Length + 1 );
-		m_ValuesArray[ m_ValuesArray.Length - 1 ] = pValue;
-	}
+
+		public cMultiValue( cValue[] vValues )
+		{
+			m_ValuesArray = vValues;
+		}
+
+
+		// Indexer behaviour
+		public cValue this[ int Index ]
+		{
+			get
+			{
+				if ( ( m_ValuesArray != null ) && Index < m_ValuesArray.Length )
+					return m_ValuesArray[ Index ];
+				return null;
+			}
+		}
+
+		/////////////////////////////////////////////////////////
+		public void		Add( cValue pValue )
+		{
+			System.Array.Resize<cValue>( ref m_ValuesArray, m_ValuesArray.Length + 1 );
+			m_ValuesArray[ m_ValuesArray.Length - 1 ] = pValue;
+		}
 	
+	}
+
 }

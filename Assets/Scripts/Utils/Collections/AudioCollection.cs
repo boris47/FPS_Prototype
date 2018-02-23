@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using UnityEditor;
+﻿
+using UnityEngine;
 
 [CreateAssetMenu( fileName = "", menuName = "Collections/Audio Collection" )]
 public class AudioCollection : ScriptableObject {

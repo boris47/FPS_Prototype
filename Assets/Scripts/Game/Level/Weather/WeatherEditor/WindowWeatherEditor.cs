@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
+
+#if UNITY_EDITOR
 
 using UnityEditor;
 
@@ -8,8 +9,8 @@ namespace WeatherSystem {
 
 	public class WindowWeatherEditor : EditorWindow {
 
-		public const string CYCLESKIES_PATH			= "Assets/Resources/Weather/SkyMaterials";
-		public const string RESOURCE_PATH			= "Assets/Resources/Weather/Descriptors";
+		public const string CYCLESKIES_PATH			= "Assets/Resources/Materials/SkyCubeMaps";
+		public const string RESOURCE_PATH			= "Assets/Resources/Scriptables";
 		public const string COLLECTION_FILENAME		= "WeatherCollection";
 
 		public	static	WindowWeatherEditor				m_Window				= null;
@@ -221,3 +222,5 @@ namespace WeatherSystem {
 	}
 
 }
+
+#endif

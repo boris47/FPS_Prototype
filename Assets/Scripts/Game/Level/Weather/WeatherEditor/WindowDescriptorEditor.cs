@@ -1,4 +1,8 @@
 ﻿using UnityEngine;
+using CFG_Reader;
+
+#if UNITY_EDITOR
+
 using UnityEditor;
 
 namespace WeatherSystem {
@@ -27,7 +31,7 @@ namespace WeatherSystem {
 			m_Window.minSize = m_Window.maxSize = new Vector2( 300f, 430f );
 
 			m_Window.m_CurrentDescriptor = thisDescriptor;
-			WeatherManager.EditorDescriptorLinked = true;
+			( WeatherManager.Instance as IWeatherManagerInternal ).EditorDescriptorLinked = true;
 		}
 
 		private const float BUTTON_WIDTH = 180f;
@@ -183,9 +187,11 @@ namespace WeatherSystem {
 			if ( m_SunRotationString.Length > 0 )
 				Utils.Converters.StringToVector( m_SunRotationString, ref m_CurrentDescriptor.SunRotation );
 
-			WeatherManager.EditorDescriptorLinked = false;
+			( WeatherManager.Instance as IWeatherManagerInternal ).EditorDescriptorLinked = false;
 		}
 
 	}
 
 }
+
+#endif
