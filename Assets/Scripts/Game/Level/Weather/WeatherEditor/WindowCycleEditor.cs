@@ -29,7 +29,7 @@ namespace WeatherSystem {
 				m_Window.Close();
 				m_Window = null;
 			}
-			m_Window = EditorWindow.GetWindow<WindowCycleEditor>( true, "Cycle Editor" );
+			m_Window = EditorWindow.GetWindow<WindowCycleEditor>( true, "Cycle Editor: " + cycle.name );
 			m_Window.minSize = m_Window.maxSize = new Vector2( 600f, 600f );
 
 			m_Window.m_CurrentCycle = cycle;
@@ -37,8 +37,8 @@ namespace WeatherSystem {
 
 
 			m_Window.m_CurrentTime = ( WeatherManager.Instance.DayTime / WeatherManager.DAY_LENGTH );
-			( WeatherManager.Instance as IWeatherManagerInternal ).EditorLinked = true;
-			( WeatherManager.Instance as IWeatherManagerInternal ).Start( cycle, 2f );
+			WeatherManager.Internal.EditorLinked = true;
+			WeatherManager.Internal.Start( cycle, 2f );
 
 			Setup();
 		}
@@ -87,11 +87,11 @@ namespace WeatherSystem {
 			m_CurrentTime = EditorGUILayout.Slider( m_CurrentTime, 0.0001f, 1.0f );
 			if ( m_CurrentTime != m_PrevTieme )
 			{
-				( WeatherManager.Instance as IWeatherManagerInternal ).StartSelectDescriptors( WeatherManager.DAY_LENGTH * m_CurrentTime, m_CurrentCycle );
+				WeatherManager.Internal.StartSelectDescriptors( WeatherManager.DAY_LENGTH * m_CurrentTime, m_CurrentCycle );
 			}
 			m_PrevTieme = m_CurrentTime;
 
-			( WeatherManager.Instance as IWeatherManagerInternal ).DayTimeNow = WeatherManager.DAY_LENGTH * m_CurrentTime;
+			WeatherManager.Internal.DayTimeNow = WeatherManager.DAY_LENGTH * m_CurrentTime;
 
 
 			// CONFIG FILE
@@ -155,17 +155,12 @@ namespace WeatherSystem {
 
 				// BACKGROUND COLOR ADAPTED
 				m_OriginaColor = GUI.backgroundColor;
-				Color	toSet = thisDescriptor.set ? Color.green : Color.red;
-						toSet = thisDescriptor == ( WeatherManager.Instance as IWeatherManagerInternal ).CurrentDescriptor ? Color.yellow : toSet;
+				Color		toSet = ( thisDescriptor == WeatherManager.Internal.CurrentDescriptor ) ? Color.yellow : ( thisDescriptor.set ? Color.green : Color.red );
+							toSet = ( thisDescriptor == WeatherManager.Internal.NextDescriptor ) ? Color.cyan : toSet;
 				GUI.backgroundColor = toSet;
 				{
-					if ( GUI.Button( new Rect( 
-							Screen.width /2 + Mathf.Sin( bo * Mathf.Deg2Rad ) * 200f,
-							Screen.height/2 - Mathf.Cos( bo * Mathf.Deg2Rad ) * 200f,
-							50,
-							25 ),
-						thisDescriptor.Identifier )
-					)
+					Rect btnRect = new Rect( Screen.width /2 + Mathf.Sin( bo * Mathf.Deg2Rad ) * 200f, Screen.height/2 - Mathf.Cos( bo * Mathf.Deg2Rad ) * 200f, 50f, 25f );
+					if ( GUI.Button( btnRect, thisDescriptor.Identifier ) == true )
 					{
 						if ( i > 0 && m_CurrentCycle.Descriptors[ i - 1 ].set == true && thisDescriptor.set == false )
 						{
@@ -186,8 +181,11 @@ namespace WeatherSystem {
 		// UNITY
 		private void OnDestroy()
 		{
-			( WeatherManager.Instance as IWeatherManagerInternal ).Start( m_CurrentCycle, Random.value );
-			( WeatherManager.Instance as IWeatherManagerInternal ).EditorLinked = false;
+			if ( WindowDescriptorEditor.m_Window != null )
+				WindowDescriptorEditor.m_Window.Close();
+			WeatherManager.Internal.Start( m_CurrentCycle, Random.value );
+			WeatherManager.Internal.EditorDescriptorLinked = false;
+			WeatherManager.Internal.EditorLinked = false;
 			EditorUtility.SetDirty( m_CurrentCycle );
 			AssetDatabase.SaveAssets();
 		}

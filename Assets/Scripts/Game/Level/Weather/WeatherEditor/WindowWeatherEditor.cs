@@ -34,8 +34,8 @@ namespace WeatherSystem {
 				m_Window = null;
 			}
 			m_Window = EditorWindow.GetWindow<WindowWeatherEditor>( true, "Weather Manager" );
-			m_Window.minSize = new Vector2( 400f, 400f );
-			m_Window.maxSize = new Vector2( 400f, 800f );
+			m_Window.minSize = new Vector2( 400f, 200f );
+			m_Window.maxSize = new Vector2( 400f, 600f );
 			/*
 			if ( textAreaWrapTextStyle == null )
 			{

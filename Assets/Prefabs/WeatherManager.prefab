@@ -521,7 +521,7 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1604867923476440}
-  m_LocalRotation: {x: 0.44939646, y: -0.0012356506, z: 0.0006216025, w: 0.89333135}
+  m_LocalRotation: {x: 0.4313324, y: 0.15978329, z: -0.07791891, w: 0.8845057}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -534,8 +534,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1533928067152824}
-  m_LocalRotation: {x: -0, y: 0.9098627, z: -0, w: -0.41490954}
-  m_LocalPosition: {x: 154.95758, y: 59.60673, z: 164.32597}
+  m_LocalRotation: {x: -0, y: 0.6781427, z: -0, w: 0.7349302}
+  m_LocalPosition: {x: 137.30397, y: 43.486706, z: 147.88443}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4827692882280288}
@@ -3233,13 +3233,13 @@ Light:
   m_Enabled: 1
   serializedVersion: 8
   m_Type: 1
-  m_Color: {r: 0.6796786, g: 0.6562422, b: 0.6132732, a: 1}
+  m_Color: {r: 1, g: 0.94476724, b: 0.859375, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
   m_CookieSize: 10
   m_Shadows:
-    m_Type: 0
+    m_Type: 2
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
@@ -3335,11 +3335,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86b1a54e6e7867a4494416608a23faa8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CurrentDayTime: 12:54:23
+  CurrentDayTime: 
   EnableInEditor: 0
-  m_TimeFactor: 207
-  m_CurrentCycleName: Rainy
-  m_WeatherChoiceFactor: 1.1
+  m_TimeFactor: 1
+  m_CurrentCycleName: 
+  m_WeatherChoiceFactor: 1
 --- !u!114 &114321619059542430
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3353,7 +3353,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_RainSound: event:/RainTransition
   EnableInEditor: 0
-  m_RainIntensity: 0.6770322
+  m_RainIntensity: 0
   m_RainHeight: 25
   m_RainForwardOffset: -1.5
   m_NextThunderTimer: 0
@@ -6709,7 +6709,7 @@ ParticleSystem:
   moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 2
-  randomSeed: -1178909012
+  randomSeed: -394910293
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -7233,7 +7233,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 4513.548
+      scalar: 0
       minScalar: 10
       maxCurve:
         serializedVersion: 2
