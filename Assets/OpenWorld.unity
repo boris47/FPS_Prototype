@@ -109,6 +109,87 @@ NavMeshSettings:
     tileSize: 256
     accuratePlacement: 0
   m_NavMeshData: {fileID: 0}
+--- !u!21 &40017651
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: RainExplosionMaterial
+  m_Shader: {fileID: 4800000, guid: 0b828cb759e39534cab22fd7fa5d2982, type: 3}
+  m_ShaderKeywords: SOFTPARTICLES_OFF _ALPHABLEND_ON
+  m_LightmapFlags: 5
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 3000
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: a179eb5d4e82f814685a2bb151e33053, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - PixelSnap: 0
+    - _AmbientLightMultiplier: 0.25
+    - _BumpScale: 1
+    - _Cutoff: 0.5
+    - _DetailNormalMapScale: 1
+    - _DirectionalLightMultiplier: 1
+    - _DstBlend: 10
+    - _EmissionScaleUI: 0
+    - _Glossiness: 0.5
+    - _InvFade: 10
+    - _Metallic: 0
+    - _Mode: 2
+    - _OcclusionStrength: 1
+    - _Parallax: 0.02
+    - _PointSpotLightMultiplier: 0.5
+    - _SrcBlend: 5
+    - _UVSec: 0
+    - _ZWrite: 0
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 0.3529412}
+    - _DirectionalLightDirection: {r: 80, g: 0, b: 0, a: 0}
+    - _EmisColor: {r: 0.2, g: 0.2, b: 0.2, a: 0}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 0}
+    - _EmissionColorUI: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissiveColor: {r: 0, g: 0, b: 0, a: 0}
+    - _TintColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1001 &421241392
 Prefab:
   m_ObjectHideFlags: 0
@@ -148,10 +229,14 @@ Prefab:
       propertyPath: m_RootOrder
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 4924570994674644, guid: 03a8a098e28516640b12ffa05a437343, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 03a8a098e28516640b12ffa05a437343, type: 2}
   m_IsPrefabParent: 0
---- !u!21 &800908262
+--- !u!21 &656000198
 Material:
   serializedVersion: 6
   m_ObjectHideFlags: 0
@@ -302,87 +387,6 @@ Transform:
   m_PrefabParentObject: {fileID: 4737781815558436, guid: 39ff74885ffd56548b5d8bfef65c6ab4,
     type: 2}
   m_PrefabInternal: {fileID: 1779975122}
---- !u!21 &1267515660
-Material:
-  serializedVersion: 6
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_Name: RainExplosionMaterial
-  m_Shader: {fileID: 4800000, guid: 0b828cb759e39534cab22fd7fa5d2982, type: 3}
-  m_ShaderKeywords: SOFTPARTICLES_OFF _ALPHABLEND_ON
-  m_LightmapFlags: 5
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _BumpMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _DetailAlbedoMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _DetailMask:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _DetailNormalMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _EmissionMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MainTex:
-        m_Texture: {fileID: 2800000, guid: a179eb5d4e82f814685a2bb151e33053, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MetallicGlossMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _OcclusionMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _ParallaxMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Floats:
-    - PixelSnap: 0
-    - _AmbientLightMultiplier: 0.25
-    - _BumpScale: 1
-    - _Cutoff: 0.5
-    - _DetailNormalMapScale: 1
-    - _DirectionalLightMultiplier: 1
-    - _DstBlend: 10
-    - _EmissionScaleUI: 0
-    - _Glossiness: 0.5
-    - _InvFade: 10
-    - _Metallic: 0
-    - _Mode: 2
-    - _OcclusionStrength: 1
-    - _Parallax: 0.02
-    - _PointSpotLightMultiplier: 0.5
-    - _SrcBlend: 5
-    - _UVSec: 0
-    - _ZWrite: 0
-    m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 0.3529412}
-    - _DirectionalLightDirection: {r: 80, g: 0, b: 0, a: 0}
-    - _EmisColor: {r: 0.2, g: 0.2, b: 0.2, a: 0}
-    - _EmissionColor: {r: 0, g: 0, b: 0, a: 0}
-    - _EmissionColorUI: {r: 1, g: 1, b: 1, a: 1}
-    - _EmissiveColor: {r: 0, g: 0, b: 0, a: 0}
-    - _TintColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1001 &1480425269
 Prefab:
   m_ObjectHideFlags: 0
@@ -426,41 +430,41 @@ Prefab:
         type: 2}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 1267515660}
+      objectReference: {fileID: 40017651}
     - target: {fileID: 199827639284032552, guid: 28a210a39546819469a1344e049c89b1,
         type: 2}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 800908262}
+      objectReference: {fileID: 656000198}
     - target: {fileID: 108083045977652602, guid: 28a210a39546819469a1344e049c89b1,
         type: 2}
       propertyPath: m_Color.r
-      value: 0.6490646
+      value: 0.6481297
       objectReference: {fileID: 0}
     - target: {fileID: 108083045977652602, guid: 28a210a39546819469a1344e049c89b1,
         type: 2}
       propertyPath: m_Color.g
-      value: 0.626155
+      value: 0.6299518
       objectReference: {fileID: 0}
     - target: {fileID: 108083045977652602, guid: 28a210a39546819469a1344e049c89b1,
         type: 2}
       propertyPath: m_Color.b
-      value: 0.5709396
+      value: 0.5869828
       objectReference: {fileID: 0}
     - target: {fileID: 114100853236026210, guid: 28a210a39546819469a1344e049c89b1,
         type: 2}
       propertyPath: m_CurrentCycleName
-      value: Rainy
+      value: Cloudy
       objectReference: {fileID: 0}
     - target: {fileID: 114100853236026210, guid: 28a210a39546819469a1344e049c89b1,
         type: 2}
       propertyPath: m_WeatherChoiceFactor
-      value: 1.1
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 198807332865470268, guid: 28a210a39546819469a1344e049c89b1,
         type: 2}
       propertyPath: randomSeed
-      value: 2079728659
+      value: 58486010
       objectReference: {fileID: 0}
     - target: {fileID: 114100853236026210, guid: 28a210a39546819469a1344e049c89b1,
         type: 2}
@@ -470,7 +474,7 @@ Prefab:
     - target: {fileID: 198807332865470268, guid: 28a210a39546819469a1344e049c89b1,
         type: 2}
       propertyPath: EmissionModule.rateOverTime.scalar
-      value: 1771.9481
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 114100853236026210, guid: 28a210a39546819469a1344e049c89b1,
         type: 2}
@@ -479,24 +483,24 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4242706940138472, guid: 28a210a39546819469a1344e049c89b1, type: 2}
       propertyPath: m_LocalRotation.x
-      value: 0.2723387
+      value: 0.4387054
       objectReference: {fileID: 0}
     - target: {fileID: 4242706940138472, guid: 28a210a39546819469a1344e049c89b1, type: 2}
       propertyPath: m_LocalRotation.y
-      value: 0.49791625
+      value: -0.1258111
       objectReference: {fileID: 0}
     - target: {fileID: 4242706940138472, guid: 28a210a39546819469a1344e049c89b1, type: 2}
       propertyPath: m_LocalRotation.z
-      value: -0.16824454
+      value: 0.062183086
       objectReference: {fileID: 0}
     - target: {fileID: 4242706940138472, guid: 28a210a39546819469a1344e049c89b1, type: 2}
       propertyPath: m_LocalRotation.w
-      value: 0.8059807
+      value: 0.8876049
       objectReference: {fileID: 0}
     - target: {fileID: 114100853236026210, guid: 28a210a39546819469a1344e049c89b1,
         type: 2}
       propertyPath: CurrentDayTime
-      value: 09:51:53
+      value: 13:40:23
       objectReference: {fileID: 0}
     - target: {fileID: 114100853236026210, guid: 28a210a39546819469a1344e049c89b1,
         type: 2}
@@ -809,7 +813,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4485722033851488, guid: 88d37fedcc350894998b49c762eef64a, type: 2}
       propertyPath: m_LocalPosition.y
-      value: 6.3
+      value: 5.3
       objectReference: {fileID: 0}
     - target: {fileID: 4485722033851488, guid: 88d37fedcc350894998b49c762eef64a, type: 2}
       propertyPath: m_LocalPosition.z
@@ -817,19 +821,19 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4485722033851488, guid: 88d37fedcc350894998b49c762eef64a, type: 2}
       propertyPath: m_LocalRotation.x
-      value: 0.12364822
+      value: -0.04883404
       objectReference: {fileID: 0}
     - target: {fileID: 4485722033851488, guid: 88d37fedcc350894998b49c762eef64a, type: 2}
       propertyPath: m_LocalRotation.y
-      value: 0.3313072
+      value: 0.33374456
       objectReference: {fileID: 0}
     - target: {fileID: 4485722033851488, guid: 88d37fedcc350894998b49c762eef64a, type: 2}
       propertyPath: m_LocalRotation.z
-      value: -0.04384353
+      value: 0.017315583
       objectReference: {fileID: 0}
     - target: {fileID: 4485722033851488, guid: 88d37fedcc350894998b49c762eef64a, type: 2}
       propertyPath: m_LocalRotation.w
-      value: 0.93435776
+      value: 0.9412386
       objectReference: {fileID: 0}
     - target: {fileID: 4485722033851488, guid: 88d37fedcc350894998b49c762eef64a, type: 2}
       propertyPath: m_RootOrder
@@ -842,7 +846,7 @@ Prefab:
       objectReference: {fileID: 1611044765}
     - target: {fileID: 4485722033851488, guid: 88d37fedcc350894998b49c762eef64a, type: 2}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 15.077001
+      value: -5.94
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 88d37fedcc350894998b49c762eef64a, type: 2}

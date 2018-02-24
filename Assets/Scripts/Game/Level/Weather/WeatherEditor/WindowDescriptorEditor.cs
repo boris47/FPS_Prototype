@@ -13,10 +13,10 @@ namespace WeatherSystem {
 
 		private			EnvDescriptor				m_CurrentDescriptor		= null;
 
-		private         string                      m_AmbColorString		= string.Empty;
-		private         string                      m_SkyColorString		= string.Empty;
-		private         string                      m_SunColorString		= string.Empty;
-		private         string                      m_SunRotationString		= string.Empty;
+		private         string                      m_AmbColorString		= "Insert color as string";
+		private         string                      m_SkyColorString		= "Insert color as string";
+		private         string                      m_SunColorString		= "Insert color as string";
+		private         string                      m_SunRotationString		= "Insert vector as string";
 		
 		/////////////////////////////////////////////////////////////////////////////
 		// Init ( EDITING )
@@ -144,6 +144,9 @@ namespace WeatherSystem {
 			if ( GUILayout.Button( "Read Config File" ) )
 			{
 				string path = EditorUtility.OpenFilePanel( "Pick a config file", "", "ltx" );
+				if ( path.Length == 0 )
+					return;
+
 				Reader reader = new Reader();
 				if ( reader.LoadFile( path ) == false )
 				{
