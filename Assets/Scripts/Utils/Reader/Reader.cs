@@ -36,7 +36,7 @@ namespace CFG_Reader {
 				Section_Close();
 
 			// Get the name of mother section, if present
-			Section pInheritedSection = null;
+			ISection pInheritedSection = null;
 			int iIndex = sLine.IndexOf( "]:", 0 );
 			if ( iIndex > 0 )
 			{
@@ -231,7 +231,7 @@ namespace CFG_Reader {
 
 
 		// CREATE AND SAVE A NEW EMPTY SECTION
-		public Section NewSection ( string SecName, Section Inherited )
+		public ISection NewSection ( string SecName, Section Inherited )
 		{
 
 			Section pSec = null;
@@ -240,16 +240,16 @@ namespace CFG_Reader {
 
 			pSec = new Section( SecName, Inherited );
 			mSectionMap.Add( SecName, pSec );
-			return pSec;
+			return pSec as ISection;
 		}
 
 
 		// RETRIEVE A SECTION, IF EXISTS, OTHERWISE RETURN NULL
-		public Section GetSection( string SecName )
+		public ISection GetSection( string SecName )
 		{
 			Section result = null;
 			mSectionMap.TryGetValue( SecName, out result );
-			return result;
+			return result as ISection;
 		}
 
 	}

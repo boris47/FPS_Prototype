@@ -1,31 +1,26 @@
 ﻿
-using System.Collections;
 using UnityEngine;
 
 namespace WeatherSystem {
 
+	// Public interface
 	public interface IWeatherManager {
 
-		float				TimeFactor { get; set; }
-
-		bool				IsDynamic { get; set; }
-
-		float				DayTime { get; }
-
-		Light				Sun { get; }
+		float				TimeFactor				{ get; set; }
+		bool				IsDynamic				{ get; set; }
+		float				DayTime					{ get; }
+		Light				Sun						{ get; }
+		string				CurrentCycleName		{ get; }
 
 		void				SetWeatherByName( string weatherName );
-
 		void				SetTime( float DayTime );
-
 		void				SetTime( float H, float M, float S );
-
 		void				SetTime( string sTime );
-
 		string				GetTimeAsString( float t );
 
 	}
 
+	// Editing interface
 	internal interface IWeatherManagerInternal {
 
 		bool			EditorLinked				{ get; set; }
@@ -33,88 +28,88 @@ namespace WeatherSystem {
 		float			DayTimeNow					{ set; }
 		EnvDescriptor	CurrentDescriptor			{ get; }
 		EnvDescriptor	NextDescriptor				{ get; }
+		Material		SkyMixerMaterial			{ get; }
 
 		void			StartSelectDescriptors( float DayTime, WeatherCycle cycle );
 		void			Start( WeatherCycle cycle, float choiseFactor );
 	}
 
 	// CLASS
-
 	[ExecuteInEditMode]
 	public class WeatherManager : MonoBehaviour, IWeatherManager, IWeatherManagerInternal {
 
 #region VARS
 
 		// STATIC
-		public static IWeatherManager		Instance					= null;
-
-		internal static	IWeatherManagerInternal	Internal				= null;
+		public	 static	IWeatherManager			Instance					= null;
+		internal static	IWeatherManagerInternal	Internal					= null;
 
 
 		// CONST
-		public	const	float				DAY_LENGTH					= 86400f;
-		private	const	string				WEATHERS_COLLECTION			= "Scriptables/WeatherCollection";
-		private	const	string				SKYMIXER_MATERIAL			= "Materials/SkyMixer";
+		public	const	float					DAY_LENGTH					= 86400f;
+		private	const	string					WEATHERS_COLLECTION			= "Scriptables/WeatherCollection";
+		private	const	string					SKYMIXER_MATERIAL			= "Materials/SkyMixer";
 
 
 		// Editor Stuf
-		[ReadOnly]
-		public	string							CurrentDayTime			= string.Empty;
-		bool			IWeatherManagerInternal.EditorLinked			{ get; set; }
-		bool			IWeatherManagerInternal.EditorDescriptorLinked	{ get; set; }
-		float			IWeatherManagerInternal.DayTimeNow				{ set{ m_DayTimeNow = value; } }
-		EnvDescriptor	IWeatherManagerInternal.CurrentDescriptor		{ get { return m_EnvDescriptorCurrent; } }
-		EnvDescriptor	IWeatherManagerInternal.NextDescriptor			{ get { return m_EnvDescriptorNext; } }
+		[ SerializeField, ReadOnly ]
+		private	string							CurrentDayTime				= string.Empty;
+
+		bool			IWeatherManagerInternal.EditorLinked				{ get; set; }
+		bool			IWeatherManagerInternal.EditorDescriptorLinked		{ get; set; }
+		float			IWeatherManagerInternal.DayTimeNow					{ set{ m_DayTimeNow = value; } }
+		EnvDescriptor	IWeatherManagerInternal.CurrentDescriptor			{ get { return m_EnvDescriptorCurrent; } }
+		EnvDescriptor	IWeatherManagerInternal.NextDescriptor				{ get { return m_EnvDescriptorNext; } }
+		Material		IWeatherManagerInternal.SkyMixerMaterial			{ get { return m_SkyMaterial; } }
 
 
 		// SERIALIZED
-		[SerializeField]
-		private	bool						EnableInEditor			= false;
+		[ SerializeField ]
+		private	bool							EnableInEditor				= false;
 
-		[SerializeField][Range( 1f, 500f )]
-		private	float						m_TimeFactor			= 1.0f;
-		public	float						TimeFactor
+		[ SerializeField, Range( 1f, 500f ) ]
+		private	float							m_TimeFactor				= 1.0f;
+		public	float							TimeFactor
 		{
 			get { return m_TimeFactor; }
 			set { m_TimeFactor =  Mathf.Max( value, 0f ); }
 		}
 
-		[Header("Weather Info")]
+		[ Header("Weather Info") ]
 
-		[ SerializeField ][ReadOnly]
-		private		string					m_CurrentCycleName		= string.Empty;
+		[ SerializeField, ReadOnly ]
+		private		string						m_CurrentCycleName			= string.Empty;
 
-		[SerializeField][ReadOnly]
-		private		float					m_WeatherChoiceFactor	= 1.0f;
+		[ SerializeField, ReadOnly ]
+		private		float						m_WeatherChoiceFactor		= 1.0f;
 
 
 		// GET/SET
-		public		bool					IsDynamic				{ get; set; }
+		public		bool						IsDynamic					{ get; set; }
+		public		Light						Sun							{ get; private set;	}
 
-		private		float					m_DayTimeNow			= -1.0f;
-		float IWeatherManager.DayTime
+		private		float						m_DayTimeNow				= -1.0f;
+		float		IWeatherManager.DayTime
 		{
 			get { return m_DayTimeNow; }
 		}
-
-		public		Light					Sun
+		string		IWeatherManager.CurrentCycleName
 		{
-			get; private set;
+			get { return m_CurrentCycleName; }
 		}
 
 
-		private	Material					m_SkyMaterial			{ get; set; }
-
 
 		// PRIVATE PROPERTIES
-		private		Weathers				m_Cycles				= null;
-		private		WeatherCycle			m_CurrentCycle			= null;
-		private		EnvDescriptor[]			m_Descriptors			= null;
-		private		EnvDescriptor			m_EnvDescriptorCurrent	= null;
-		private		EnvDescriptor			m_EnvDescriptorNext		= null;
-		private		EnvDescriptor			m_EnvDescriptorMixer	= null;
+		private		Weathers					m_Cycles					= null;
+		private		WeatherCycle				m_CurrentCycle				= null;
+		private		EnvDescriptor[]				m_Descriptors				= null;
+		private		EnvDescriptor				m_EnvDescriptorCurrent		= null;
+		private		EnvDescriptor				m_EnvDescriptorNext			= null;
+		private		EnvDescriptor				m_EnvDescriptorMixer		= null;
+		private		Material					m_SkyMaterial				= null;
 
-		private		bool					m_IsOK					= false;
+		private		bool						m_IsOK						= false;
 
 #endregion
 
@@ -149,9 +144,8 @@ namespace WeatherSystem {
 
 			if ( considerSeconds )
 				Time +=  ( ":" + iS.ToString( "00" ) );
-//			print( Time );
 		}
-		public static bool IsValidTime( float h, float m, float s )
+		public static bool		IsValidTime( float h, float m, float s )
 		{
 			return ( ( h >= 0 ) && ( h < 24 ) && ( m >= 0 ) && ( m < 60 ) && ( s >= 0 ) && ( s < 60 ) );
 		}
@@ -162,7 +156,7 @@ namespace WeatherSystem {
 
 		/////////////////////////////////////////////////////////////////////////////
 		// AWAKE
-		private void	Awake()
+		private void			Awake()
 		{
 			Instance = this as IWeatherManager;
 			Internal = this as IWeatherManagerInternal;
@@ -176,7 +170,7 @@ namespace WeatherSystem {
 
 		/////////////////////////////////////////////////////////////////////////////
 		// START
-		private void	Start()
+		private void			Start()
 		{
 			LoadAndSetup();
 
@@ -197,22 +191,36 @@ namespace WeatherSystem {
 
 		/////////////////////////////////////////////////////////////////////////////
 		// OnEnable
-		private void OnEnable()
+		private void			OnEnable()
 		{
 			Instance = this as IWeatherManager;
 			Internal = this as IWeatherManagerInternal;
 
-//			UnityEditor.EditorApplication.update += Update;
+#if UNITY_EDITOR
+			if ( UnityEditor.EditorApplication.isPlaying == false )
+				UnityEditor.EditorApplication.update += Update;
+#endif
 
-			this.Start();
+			LoadAndSetup();
+
+			if ( m_IsOK == false )
+				return;
+
+			m_WeatherChoiceFactor = 1.1f;
+
+			// Select descriptors
+			StartSelectDescriptors( m_DayTimeNow );
 		}
 
 
 		/////////////////////////////////////////////////////////////////////////////
 		// OnDisable
-		private void OnDisable()
+		private void			OnDisable()
 		{
-//			UnityEditor.EditorApplication.update -= Update;
+#if UNITY_EDITOR
+			if ( UnityEditor.EditorApplication.isPlaying == false )
+				UnityEditor.EditorApplication.update -= Update;
+#endif
 			m_CurrentCycle			= null; 
 			m_Descriptors			= null;
 			m_EnvDescriptorCurrent	= null;
@@ -231,7 +239,7 @@ namespace WeatherSystem {
 		/// SetTime
 		void IWeatherManager.SetTime( float DayTime )
 		{
-			m_DayTimeNow = DayTime;
+			m_DayTimeNow = Mathf.Clamp( DayTime, 0f, DAY_LENGTH );
 		}
 
 
@@ -239,7 +247,8 @@ namespace WeatherSystem {
 		/// SetTime
 		void IWeatherManager.SetTime( float H, float M, float S )
 		{
-			m_DayTimeNow = ( ( H * 3600f ) + ( M * 60f ) + S );
+			m_DayTimeNow = Mathf.Clamp( ( ( H * 3600f ) + ( M * 60f ) + S ), 0f, DAY_LENGTH );
+			
 		}
 
 
@@ -255,11 +264,14 @@ namespace WeatherSystem {
 		/// GetTimeAsString
 		string	IWeatherManager.GetTimeAsString( float f )
 		{
-			int iH = ( int ) ( f / ( 60 * 60 ) );
-			int iM = ( int ) ( f / 60 ) % 60;
-			int iS = ( int ) f % 60;
+			if ( f == -1f )
+				f = m_DayTimeNow;
 
-			return string.Format( "%02d:%02d:%02d", iH, iM, iS );
+			string iH = ( ( f / ( 60 * 60 ) ) ).ToString( "00" );
+			string iM = ( ( f / 60 ) % 60 ).ToString( "00" );
+			string iS = ( f % 60 ).ToString( "00" );
+
+			return string.Format( "{0}:{1}:{2}", iH, iM, iS );
 		}
 
 		/////////////////////////////////////////////////////////////////////////////
@@ -304,7 +316,7 @@ namespace WeatherSystem {
 
 		/////////////////////////////////////////////////////////////////////////////
 		// LoadAndSetup
-		private void	LoadAndSetup()
+		private void			LoadAndSetup()
 		{
 			m_IsOK = false;
 
@@ -341,8 +353,9 @@ namespace WeatherSystem {
 				var pSection = GLOBALS.Configs.GetSection( "Time" );
 				if ( pSection != null )
 				{
-					pSection.bAsString( "StartTime", ref startTime );
+					pSection.bAsString( "StartTime",	ref startTime );
 					pSection.bAsString( "StartWeather", ref startWeather );
+					pSection.bAsFloat(	"TimeFactor",	ref m_TimeFactor );
 				}
 			}
 
@@ -370,7 +383,7 @@ namespace WeatherSystem {
 
 		/////////////////////////////////////////////////////////////////////////////
 		// TimeDiff
-		private	float	TimeDiff( float Current, float Next )
+		private	float			TimeDiff( float Current, float Next )
 		{
 			if ( Current > Next )
 				return  ( ( DAY_LENGTH - Current ) + Next );
@@ -383,7 +396,7 @@ namespace WeatherSystem {
 
 		/////////////////////////////////////////////////////////////////////////////
 		// TimeInterpolant
-		private	float	TimeInterpolant( float DayTime, float Current, float Next )
+		private	float			TimeInterpolant( float DayTime, float Current, float Next )
 		{
 			float interpolant = 0.0f;
 			float fLength = TimeDiff( Current, Next );
@@ -407,7 +420,7 @@ namespace WeatherSystem {
 
 		////////////////////////////////////////////////////////////////////////////
 		// SetCubemaps
-		private	void	SetCubemaps()
+		private	void			SetCubemaps()
 		{   
 			m_SkyMaterial.SetTexture( "_Skybox1", m_EnvDescriptorCurrent.SkyCubemap );
 			m_SkyMaterial.SetTexture( "_Skybox2", m_EnvDescriptorNext.SkyCubemap );
@@ -434,7 +447,7 @@ namespace WeatherSystem {
 
 		////////////////////////////////////////////////////////////////////////////
 		// StartSelectDescriptors
-		private	void	StartSelectDescriptors( float DayTime, WeatherCycle cycle = null )
+		private	void			StartSelectDescriptors( float DayTime, WeatherCycle cycle = null )
 		{
 			if ( cycle != null )
 				m_Descriptors = cycle.Descriptors;
@@ -467,7 +480,7 @@ namespace WeatherSystem {
 
 		/////////////////////////////////////////////////////////////////////////////
 		// ChangeWeather
-		private	void	ChangeWeather( WeatherCycle newCycle )
+		private	void			ChangeWeather( WeatherCycle newCycle )
 		{
 			// find the corresponding of the current descriptor in the nex cycle
 			EnvDescriptor correspondingDescriptor = System.Array.Find( newCycle.Descriptors, d => d.ExecTime == m_EnvDescriptorNext.ExecTime );
@@ -493,7 +506,7 @@ namespace WeatherSystem {
 
 		/////////////////////////////////////////////////////////////////////////////
 		// RandomWeather
-		private	void	RandomWeather()
+		private	void			RandomWeather()
 		{
 			// Choose a new cycle
 			int newIdx = Random.Range( 0, m_Cycles.Cycles.Count );
@@ -503,10 +516,10 @@ namespace WeatherSystem {
 		
 		/////////////////////////////////////////////////////////////////////////////
 		// SelectDescriptors
-		public void	SelectDescriptors( float DayTime )
+		public void				SelectDescriptors( float DayTime )
 		{
 			bool bSelect = false;
-			if ( DayTime > m_EnvDescriptorCurrent.ExecTime && DayTime > m_EnvDescriptorNext.ExecTime )
+		//	if ( DayTime > m_EnvDescriptorCurrent.ExecTime && DayTime > m_EnvDescriptorNext.ExecTime )
 
 			if ( m_EnvDescriptorCurrent.ExecTime > m_EnvDescriptorNext.ExecTime )
 			{
@@ -540,7 +553,7 @@ namespace WeatherSystem {
 
 		/////////////////////////////////////////////////////////////////////////////
 		// TimeDiff
-		private	void	EnvironmentLerp()
+		private	void			EnvironmentLerp()
 		{
 			float interpolant = TimeInterpolant( m_DayTimeNow, m_EnvDescriptorCurrent.ExecTime, m_EnvDescriptorNext.ExecTime );
 			InterpolateOthers( m_EnvDescriptorCurrent, m_EnvDescriptorNext, interpolant );
@@ -550,7 +563,7 @@ namespace WeatherSystem {
 		
 		/////////////////////////////////////////////////////////////////////////////
 		//TimeDiff
-		private	void	InterpolateOthers( EnvDescriptor current, EnvDescriptor next, float interpolant )
+		private	void			InterpolateOthers( EnvDescriptor current, EnvDescriptor next, float interpolant )
 		{
 			m_EnvDescriptorMixer.AmbientColor		= Color.Lerp( current.AmbientColor,		next.AmbientColor,	interpolant );
 			m_EnvDescriptorMixer.FogFactor			= Mathf.Lerp( current.FogFactor,		next.FogFactor,		interpolant );
@@ -568,13 +581,13 @@ namespace WeatherSystem {
 			if ( RainManager.Instance != null )
 				RainManager.Instance.RainIntensity	= m_EnvDescriptorMixer.RainIntensity;
 
-			Sun.color								= m_EnvDescriptorMixer.SunColor;
+			Instance.Sun.color						= m_EnvDescriptorMixer.SunColor;
 		}
 
 
 		/////////////////////////////////////////////////////////////////////////////
 		// UNITY
-		private void	Update()
+		private void			Update()
 		{
 			if ( m_IsOK == false )
 				return;
@@ -600,13 +613,21 @@ namespace WeatherSystem {
 
 			// Sun rotation by data
 			if ( Internal.EditorDescriptorLinked == false )
-				Sun.transform.rotation = Quaternion.LookRotation( m_EnvDescriptorMixer.SunRotation );
+			{
+				Instance.Sun.transform.rotation = Quaternion.AngleAxis( 180f, Vector3.up ) * Quaternion.LookRotation( m_EnvDescriptorMixer.SunRotation );
+			}
 
 
 			TransformTime( m_DayTimeNow, ref CurrentDayTime );
 		}
 
-#endregion
+		private void			OnDestroy()
+		{
+			m_SkyMaterial.SetFloat( "_Blend", 0f );
+			m_SkyMaterial.SetColor( "_Tint", Color.clear );
+		}
+
+		#endregion
 
 	}
 

@@ -9,14 +9,14 @@ FlySpeed				= 3.7;
 FlyBoost				= 2.0;
 
 ;Effects
-HeadBob_Amplitude		= 0.50;
-HeadBob_Speed			= 4.50;
+HeadBob_Amplitude		= 0.30;
+HeadBob_Speed			= 2.05;
 HeadBob_Step			= 0.80;
 HeadBob_Theta_Update	= 2.20;
 
 HeadLean_Max_Deegree	= 15.0;
 
-HeadMove_Amplitude		= 0.50;
-HeadMove_Speed			= 1.80;
+HeadMove_Amplitude		= 0.80;
+HeadMove_Speed			= 1.25;
 HeadMove_Theta_Upd_Vert	= 0.80;
 HeadMove_Theta_Upd_Oriz	= 0.40;

@@ -20,28 +20,27 @@ public partial class CameraControl : MonoBehaviour {
 		set { m_ClampedXAxis = value; }
 	}
 
-	[SerializeField][Tooltip("Camera Target")]
+	[SerializeField, Tooltip("Camera ViewPoint"), ReadOnly]
+	private	Transform		m_ViewPoint					= null;
+	public	Transform		ViewPoint
+	{
+		get { return m_ViewPoint; }
+	}
+
+	[SerializeField, Tooltip("Camera Target"), ReadOnly]
 	private	Transform		m_Target					= null;
-	public	Transform		Target {
+	public	Transform		Target
+	{
 		get { return m_Target; }
 	}
 
-
-	[SerializeField][Tooltip("Camera TPS Offset")]
-	private	Vector3			m_TPSOffset					= Vector3.zero;
-
-	[SerializeField][Range( 0.2f, 20.0f )]
+	[SerializeField, Range( 0.2f, 20.0f )]
 	private	float			m_MouseSensitivity			= 1.0f;
 
 	[SerializeField]
-	private	bool			m_TPSMode					= false;
-
-	[SerializeField]
 	private bool			m_SmoothedRotation			= true;
-	[SerializeField]
-	private	bool			m_SmoothedPosition			= true;
 
-	[SerializeField][Range( 1.0f, 10.0f )]
+	[SerializeField, Range( 1.0f, 10.0f )]
 	private float			m_SmoothFactor				= 1.0f;
 
 	[SerializeField]
@@ -63,15 +62,10 @@ public partial class CameraControl : MonoBehaviour {
 		get; set;
 	}
 
-	public	bool			PassiveMode
-	{
-		get { return this.enabled; }
-		set { this.enabled = value; }
-	}
-
+	private	Camera			m_CameraRef					= null;
 	public	Camera			MainCamera
 	{
-		get { return GetComponent<Camera>(); }
+		get { return m_CameraRef == null ? m_CameraRef = GetComponent<Camera>() : m_CameraRef; }
 	}
 
 	private float			m_CurrentRotation_X_Delta	= 0.0f;
@@ -85,8 +79,9 @@ public partial class CameraControl : MonoBehaviour {
 	private	Vector3			m_CurrentDirection			= Vector3.zero;
 
 
-	void Start()
+	private void Awake()
 	{
+
 		// Sinlgeton
 		if ( Instance != null )
 		{
@@ -94,8 +89,20 @@ public partial class CameraControl : MonoBehaviour {
 			return;
 		}
 		Instance = this;
-
 		DontDestroyOnLoad( this );
+
+		Player player = FindObjectOfType<Player>();
+		if ( player == null )
+		{
+			enabled = false;
+			return;
+		}
+		m_ViewPoint = player.transform.GetChild( 0 );
+
+	}
+
+	void Start()
+	{
 
 		m_CurrentDirection = transform.rotation.eulerAngles;
 
@@ -107,40 +114,18 @@ public partial class CameraControl : MonoBehaviour {
 
 	private void Update()
 	{
-
-		if ( m_Target == null )
+		if ( m_ViewPoint == null )
 			return;
-		/*
-		if ( Input.GetKeyDown( KeyCode.V ) )
-		{
-			if ( m_TPSMode )
-				m_TPSMode = false;
-			else {
-				m_TPSMode = true;
-				m_CurrentCameraOffset = 0.0f;
-			}
-		}
 		
-		if ( m_TPSMode )
+		// if Target is assigned force to stop camera effects
+		if ( m_Target != null )
 		{
-			if ( Input.GetAxis( "Mouse ScrollWheel" ) > 0f && m_CameraOffset > MIN_CAMERA_OFFSET )
-				m_CameraOffset -= 0.5f;
-
-			if ( Input.GetAxis( "Mouse ScrollWheel" ) < 0f && m_CameraOffset < MAX_CAMERA_OFFSET )
-				m_CameraOffset += 0.5f;
+			m_HeadBob.Reset ( bInstantly : true );
+			m_HeadMove.Reset( bInstantly : false );
+			return;
 		}
-		*/
 
-		/*
-		// Head Effects
-		if ( m_TPSMode )
-		{
-			m_HeadMove.Reset( false );
-			m_HeadBob.Reset( false );
-		}
-		else
-		{*/
-		LiveEntity pLiveEnitiy = m_Target.GetComponentInParent<LiveEntity>();
+		LiveEntity pLiveEnitiy = m_ViewPoint.GetComponentInParent<LiveEntity>();
 		if ( pLiveEnitiy && pLiveEnitiy.Grounded )
 		{
 			m_HeadBob.Update ( liveEntity : pLiveEnitiy, weight : pLiveEnitiy.IsMoving == true ? 1f : 0f );
@@ -151,19 +136,28 @@ public partial class CameraControl : MonoBehaviour {
 			m_HeadBob.Reset ( bInstantly : true );
 			m_HeadMove.Reset( bInstantly : false );
 		}
-	//	}
 
 	}
 
 
 	private void LateUpdate()
 	{
-		if ( m_Target == null )
+		if ( m_ViewPoint == null )
 			return;
 
-		m_SmoothFactor = Mathf.Clamp( m_SmoothFactor, 1.0f, 10.0f );
+		// Look at target is assigned
+		if ( m_Target != null )
+		{
+			transform.position = m_ViewPoint.position;
+			transform.LookAt( m_Target );
+			return;
+		}
 
-		LiveEntity pLiveEnitiy = m_Target.GetComponentInParent<LiveEntity>();
+
+		// User Control
+
+		LiveEntity pLiveEnitiy	= m_ViewPoint.GetComponentInParent<LiveEntity>();
+		m_SmoothFactor			= Mathf.Clamp( m_SmoothFactor, 1.0f, 10.0f );
 
 		// Rotation
 		{
@@ -196,35 +190,17 @@ public partial class CameraControl : MonoBehaviour {
 			// rotation with effect added
 			transform.rotation = Quaternion.Euler( m_CurrentDirection + m_HeadBob.Direction + m_HeadMove.Direction );
 
-			if ( pLiveEnitiy != null )
-			{
-				pLiveEnitiy.FaceDirection = transform.rotation;
-			}
+			pLiveEnitiy.FaceDirection = transform.rotation;
+
 		}
 
 
 		// Position
 		{
-			if ( m_TPSMode )
-			{
-				m_CurrentCameraOffset = Mathf.Lerp( m_CurrentCameraOffset, m_CameraOffset, Time.deltaTime * 6f );
-
-				if ( m_SmoothedPosition )
-					transform.position = Vector3.Lerp( transform.position, m_Target.transform.position - ( transform.forward * m_CurrentCameraOffset ), Time.deltaTime * 8f );
-				else
-					transform.position = m_Target.transform.position - ( transform.forward * m_CurrentCameraOffset );
-
-				transform.position = transform.position + transform.TransformDirection( m_TPSOffset );
-			}
-			else
-			{
-				bool isCrouched = pLiveEnitiy.IsCrouched;
-				m_CameraFPS_Shift = Mathf.Lerp( m_CameraFPS_Shift, ( isCrouched ) ? 0.5f : 1.0f, Time.deltaTime * 10f );
-
-				transform.position = m_Target.transform.parent.transform.TransformPoint( m_Target.transform.localPosition * m_CameraFPS_Shift );
-				
-			}
-
+			bool isCrouched = pLiveEnitiy.IsCrouched;
+			// manage camera height while crouching
+			m_CameraFPS_Shift = Mathf.Lerp( m_CameraFPS_Shift, ( isCrouched ) ? 0.5f : 1.0f, Time.deltaTime * 10f );
+			transform.position = m_ViewPoint.transform.parent.transform.TransformPoint( m_ViewPoint.transform.localPosition * m_CameraFPS_Shift );
 		}
 	
     }

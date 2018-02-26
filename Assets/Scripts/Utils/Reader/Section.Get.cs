@@ -2,8 +2,10 @@
 namespace CFG_Reader {
 
 	public partial class Section {
-	
 
+
+		//////////////////////////////////////////////////////////////////////////
+		// ValueType
 		public	global::System.Type		ValueType( string Key )
 		{
 			cLineValue pLineValue = null;
@@ -18,13 +20,33 @@ namespace CFG_Reader {
 		}
 
 
-		public	string					GetRawValue ( string Key, string Default = "" )
+		//////////////////////////////////////////////////////////////////////////
+		// GetRawValue
+		public	string					GetRawValue( string Key, string Default = "" )
 		{
 			cLineValue pLineValue = null;
 			return ( ( pLineValue = this[ Key ] ) != null ) ? pLineValue.RawValue : Default;
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
+		// As<T>
+		public	T						As<T>( string Key )
+		{
+			cLineValue pLineValue = this[ Key ];
+			if ( pLineValue != null )
+			{
+				if ( pLineValue.Type == LineValueType.SINGLE )
+				{
+					return pLineValue.Value.As<T>();
+				}
+			}
+			return default( T );
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// AsBool
 		public	bool					AsBool( string Key, bool Default = false )
 		{
 			cLineValue pLineValue = this[ Key ];
@@ -38,6 +60,9 @@ namespace CFG_Reader {
 			return Default;
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
+		// AsInt
 		public	int						AsInt( string Key, int Default = 0 )
 		{
 			cLineValue pLineValue = this[ Key ];
@@ -51,6 +76,9 @@ namespace CFG_Reader {
 			return Default;
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
+		// AsFloat
 		public	float					AsFloat( string Key, float Default = 0.0f )
 		{
 			cLineValue pLineValue = this[ Key ];
@@ -64,6 +92,9 @@ namespace CFG_Reader {
 			return Default;
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
+		// AsString
 		public	string					AsString( string Key, string Default = "" )
 		{
 			cLineValue pLineValue = this[ Key ];
@@ -77,6 +108,9 @@ namespace CFG_Reader {
 			return Default;
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
+		// AsMultiValue
 		public	cValue					AsMultiValue( string Key, int Index )
 		{
 			cLineValue pLineValue		= this[ Key ];
@@ -92,6 +126,8 @@ namespace CFG_Reader {
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
+		// AsMultiValue<T1,T2>
 		public	void					AsMultiValue<T1,T2>( string Key, int Idx1, int Idx2, ref T1 t1, ref T2 t2 )
 		{
 			cLineValue pLineValue		= this[ Key ];
@@ -106,6 +142,9 @@ namespace CFG_Reader {
 			}
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
+		// AsMultiValue<T1,T2,T3>
 		public	void					AsMultiValue<T1,T2,T3>( string Key, int Idx1, int Idx2, int Idx3, ref T1 t1, ref T2 t2, ref T3 t3 )
 		{
 			cLineValue pLineValue		= this[ Key ];
@@ -121,6 +160,9 @@ namespace CFG_Reader {
 			}
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
+		// AsMultiValue<T1,T2,T3,T4>
 		public	void					AsMultiValue<T1,T2,T3,T4>( string Key, int Idx1, int Idx2, int Idx3, int Idx4, ref T1 t1, ref T2 t2, ref T3 t3, ref T4 t4 )
 		{
 			cLineValue pLineValue		= this[ Key ];
@@ -138,6 +180,8 @@ namespace CFG_Reader {
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
+		// GetMultiSize
 		public	int						GetMultiSize( string Key )
 		{
 			cLineValue pLineValue = null; cMultiValue pMultiValue = null;

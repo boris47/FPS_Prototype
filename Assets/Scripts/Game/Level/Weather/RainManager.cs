@@ -2,19 +2,24 @@
 using UnityEngine;
 using FMOD.Studio;
 using System.Collections;
-using System.Collections.Generic;
 
 namespace WeatherSystem {
 
 	[ExecuteInEditMode]
 	public class RainManager : MonoBehaviour {
 
+#region VARS
+
+		// STATIC
 		public	static	RainManager		Instance						= null;
 
+
+		// CONST
 		private	const	string			THUNDERS_DISTANT				= "Sounds/Thunders/ThundersDistant";
 		private	const	string			THUNDERS_DURING_RAIN			= "Sounds/Thunders/ThundersDuringRain";
 
 
+		// SERIALIZED
 		[FMODUnity.EventRef]
 		public string					m_RainSound						= "";
 
@@ -22,9 +27,7 @@ namespace WeatherSystem {
 		private	bool					EnableInEditor					= false;
 	
 		[Header("Rain Properties")]
-		[Tooltip("Intensity of rain (0-1)")]
-		[Range(0.0f, 1.0f)]
-		[SerializeField]
+		[SerializeField, Tooltip("Intensity of rain (0-1)"), Range(0.0f, 1.0f)]
 		private		float				m_RainIntensity					= 0.0f;
 		public		float				RainIntensity
 		{
@@ -32,14 +35,15 @@ namespace WeatherSystem {
 			set { m_RainIntensity = value; }
 		}
 
-		[Tooltip("The height above the camera that the rain will start falling from")]
-		[SerializeField]
+		[SerializeField, Tooltip("The height above the camera that the rain will start falling from")]
 		private		float				m_RainHeight					= 25.0f;
 
-		[Tooltip("How far the rain particle system is ahead of the player")]
-		[SerializeField]
+		[SerializeField, Tooltip("How far the rain particle system is ahead of the player")]
 		private		float				m_RainForwardOffset				= -1.5f;
 
+
+		// PRIVATE PROPERTIES
+		
 		// FMOD
 		private		EventInstance		m_RainEvent;
 		private		ParameterInstance	m_RainIntensityEvent;
@@ -53,7 +57,7 @@ namespace WeatherSystem {
 		// THUNDERBOLTS
 		private		AudioClip[]			m_ThundersDistantCollection		= null;
 		private		AudioClip[]			m_ThundersDuringRainCollection	= null;
-		[SerializeField]
+		
 		private		float				m_NextThunderTimer				= 0f;
 		private		Light				m_ThunderLight					= null;
 		private		Transform			m_ThunderAudioContainer			= null;
@@ -66,18 +70,20 @@ namespace WeatherSystem {
 		private		float				m_ThunderStepsMax				= 9f;
 		private		AudioSource[]		m_ThunderAudioSources			= null;
 
-
 		private		Camera				m_Camera						= null;
 
+#endregion
+
+#region INITIALIZATION
 
 		//////////////////////////////////////////////////////////////////////////
 		// START
-		private void Start()
+		private void			Start()
 		{
-	#if UNITY_EDITOR
+#if UNITY_EDITOR
 			if ( UnityEditor.EditorApplication.isPlaying == false )
 				return;
-	#endif
+#endif
 			AudioCollection thundersDistantCollection = Resources.Load<AudioCollection>( THUNDERS_DISTANT );
 			if ( thundersDistantCollection != null )
 				m_ThundersDistantCollection = thundersDistantCollection.AudioSources;
@@ -108,7 +114,7 @@ namespace WeatherSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// OnEnable
-		private void	OnEnable()
+		private void			OnEnable()
 		{
 			m_Camera = Camera.current;
 
@@ -208,16 +214,12 @@ namespace WeatherSystem {
 			}
 
 			Instance = this;
-			/*
-	#if UNITY_EDITOR
-			UnityEditor.EditorApplication.update += Update;
-	#endif
-	*/
 		}
+
 
 		//////////////////////////////////////////////////////////////////////////
 		// OnDisable
-		private void OnDisable()
+		private void			OnDisable()
 		{
 			Instance = null;
 			m_RainExplosionMaterial = null;
@@ -227,16 +229,15 @@ namespace WeatherSystem {
 
 			m_RainEvent.stop( STOP_MODE.IMMEDIATE );
 			m_RainEvent.release();
-			/*
-	#if UNITY_EDITOR
-			UnityEditor.EditorApplication.update -= Update;
-	#endif
-	*/
 		}
+
+#endregion
+
+#region INTERNAL METHODS
 
 		//////////////////////////////////////////////////////////////////////////
 		// UpdateRain
-		private void	UpdateRain()
+		private void			UpdateRain()
 		{
 			// Keep rain particle system above the player
 			m_RainFallParticleSystem.transform.position = m_Camera.transform.position;
@@ -247,7 +248,7 @@ namespace WeatherSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// CheckForRainChange
-		private void	CheckForRainChange()
+		private void			CheckForRainChange()
 		{
 			// Update particle system rate of emission
 			{
@@ -264,7 +265,9 @@ namespace WeatherSystem {
 		}
 
 
-		private	AudioSource GetFreeAudioSource()
+		//////////////////////////////////////////////////////////////////////////
+		// GetFreeAudioSource
+		private	AudioSource		GetFreeAudioSource()
 		{
 			foreach( AudioSource a in m_ThunderAudioSources )
 			{
@@ -277,7 +280,7 @@ namespace WeatherSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// ThunderCoroutine ( Coroutine )
-		private	IEnumerator	ThunderCoroutine( bool lighting )
+		private	IEnumerator		ThunderCoroutine( bool lighting )
 		{
 			// check fo avaiable audiosource
 			AudioSource thunderAudioSource = GetFreeAudioSource();
@@ -290,6 +293,7 @@ namespace WeatherSystem {
 			float	currentLifeTime	= 0f;
 			bool	lightON			= false;
 
+			Material skyMixerMaterial = WeatherManager.Internal.SkyMixerMaterial;
 			
 			// Random rotation for thunder light
 			Quaternion thunderLightRotation = Quaternion.Euler( m_ThunderLight.transform.rotation.eulerAngles + Vector3.up * Random.Range( -360f, 360f ) );
@@ -297,22 +301,29 @@ namespace WeatherSystem {
 			
 			if ( lighting == true )
 			{
-
 				// Lighting effect
 				while ( currentLifeTime < thunderLifeTime )
 				{
+					// Thunder light rotation
 					m_ThunderLight.transform.rotation = thunderLightRotation;
-					m_ThunderLight.intensity = lightON ?
-						0.001f
-					:
-						Random.Range( 1.2f, 3.0f );
+
+					float randomIntensity = Random.Range( 0.3f, 1.0f );
+
+					// thunder light intensity
+					m_ThunderLight.intensity = lightON ? randomIntensity : 0.001f;
+
+					// Sky color
+					skyMixerMaterial.SetColor( "_Tint", lightON ? Color.white * randomIntensity * 0.2f : Color.clear );
+
 					lightON = !lightON;
 					currentLifeTime += thunderLifeStep;
 					yield return new WaitForSeconds ( Random.Range( thunderLifeStep, thunderLifeTime - currentLifeTime ) );
 				}
 				m_ThunderLight.intensity = 0.001f;
-
+				skyMixerMaterial.SetColor( "_Tint", Color.clear );
 			}
+
+			yield return new WaitForSeconds ( Random.Range( 0.1f, 3f ) );
 
 			// Play Clip
 			if ( lighting == true )
@@ -326,8 +337,8 @@ namespace WeatherSystem {
 				thunderAudioSource.clip = thunderClip;
 			}
 
-			thunderAudioSource.pitch = Random.Range( 1.2f, 1.6f );
-			thunderAudioSource.volume = Random.Range( 1f, 2f );
+			thunderAudioSource.pitch	= Random.Range( 1.2f, 1.6f );
+			thunderAudioSource.volume	= Random.Range( 1f, 2f );
 			
 			Vector3 thunderDirection = m_ThunderLight.transform.forward * Random.Range( 15f, 25f );
 			thunderAudioSource.transform.localPosition = thunderDirection;
@@ -338,7 +349,7 @@ namespace WeatherSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// UpdateRain
-		private void	UpdateThunderbols()
+		private void			UpdateThunderbols()
 		{
 			if ( m_RainIntensity > 0.1f )
 			{
@@ -360,7 +371,7 @@ namespace WeatherSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// RainFallEmissionRate
-		private float	RainFallEmissionRate()
+		private float			RainFallEmissionRate()
 		{
 			return ( m_RainFallParticleSystem.main.maxParticles / m_RainFallParticleSystem.main.startLifetime.constant ) * m_RainIntensity;
 		}
@@ -368,7 +379,7 @@ namespace WeatherSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// UNITY
-		private void	Update()
+		private void			Update()
 		{
 #if UNITY_EDITOR
 			if ( UnityEditor.EditorApplication.isPlaying == false )
@@ -387,10 +398,10 @@ namespace WeatherSystem {
 			CheckForRainChange();
 			UpdateRain();
 
-	#if UNITY_EDITOR
+#if UNITY_EDITOR
 			if ( UnityEditor.EditorApplication.isPlaying == false )
 				return;
-	#endif
+#endif
 			if ( EnableInEditor == false )
 			{
 				m_RainIntensityEvent.setValue( m_RainIntensity );
@@ -398,8 +409,9 @@ namespace WeatherSystem {
 				UpdateThunderbols();
 			}
 		}
-	
-	}
 
+#endregion
+
+	}
 
 }

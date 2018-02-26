@@ -12,11 +12,8 @@ namespace WeatherSystem {
 		public	static	WindowCycleEditor		m_Window			= null;
 	
 		private			WeatherCycle			m_CurrentCycle		= null;
-		
 		private			Color					m_OriginaColor		= Color.clear;
-
 		private			float					m_CurrentTime		= 0.0001f;
-
 		private			float					m_PrevTieme			= 0.0001f;
 
 
@@ -33,8 +30,6 @@ namespace WeatherSystem {
 			m_Window.minSize = m_Window.maxSize = new Vector2( 600f, 600f );
 
 			m_Window.m_CurrentCycle = cycle;
-
-
 
 			m_Window.m_CurrentTime = ( WeatherManager.Instance.DayTime / WeatherManager.DAY_LENGTH );
 			WeatherManager.Internal.EditorLinked = true;
@@ -66,6 +61,8 @@ namespace WeatherSystem {
 
 				string descriptorName = System.IO.Path.GetFileNameWithoutExtension( filePath );
 				string assetPath = cycleSkyiesPath + "/" + descriptorName + ".png";
+				if ( System.IO.File.Exists( assetPath ) == false )
+					break;
 //				Debug.Log( "FILEPATH:   " + filePath );
 //				Debug.Log( "DESCRIPTOR: " + descriptorName );
 //				Debug.Log( "ASSET PATH: " + assetPath );
@@ -111,7 +108,7 @@ namespace WeatherSystem {
 					foreach( EnvDescriptor descriptor in m_CurrentCycle.Descriptors )
 					{
 						Debug.Log( "Parsing data for descripter " + descriptor.Identifier );
-						Section section = reader.GetSection( descriptor.Identifier + ":00" );
+						var section = reader.GetSection( descriptor.Identifier + ":00" );
 						if ( section != null )
 						{
 							if ( section.HasKey( "ambient_color" ) )
@@ -155,8 +152,8 @@ namespace WeatherSystem {
 
 				// BACKGROUND COLOR ADAPTED
 				m_OriginaColor = GUI.backgroundColor;
-				Color		toSet = ( thisDescriptor == WeatherManager.Internal.CurrentDescriptor ) ? Color.yellow : ( thisDescriptor.set ? Color.green : Color.red );
-							toSet = ( thisDescriptor == WeatherManager.Internal.NextDescriptor ) ? Color.cyan : toSet;
+				Color		toSet = ( WeatherManager.Internal.CurrentDescriptor != null && thisDescriptor == WeatherManager.Internal.CurrentDescriptor ) ? Color.yellow : ( thisDescriptor.set ? Color.green : Color.red );
+							toSet = ( WeatherManager.Internal.NextDescriptor != null && thisDescriptor == WeatherManager.Internal.NextDescriptor ) ? Color.cyan : toSet;
 				GUI.backgroundColor = toSet;
 				{
 					Rect btnRect = new Rect( Screen.width /2 + Mathf.Sin( bo * Mathf.Deg2Rad ) * 200f, Screen.height/2 - Mathf.Cos( bo * Mathf.Deg2Rad ) * 200f, 50f, 25f );

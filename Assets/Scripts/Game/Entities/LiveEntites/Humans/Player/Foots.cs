@@ -4,29 +4,23 @@ using UnityEngine;
 
 public interface IFoots {
 
-	void PlayStep();
+	void			PlayStep();
 
 }
 
 
 public class Foots : MonoBehaviour, IFoots {
 
-	public		LiveEntity		Parent
-	{
-		set;
-		private get;
-	}
+	private		LiveEntity			m_Player			= null;
+	private		Collider			m_CurrentCollider	= null;
 
-	private	AudioSource			m_AudioSource		= null;
-	private	Collider			m_CurrentCollider	= null;
-	private	Vector3				m_CurrentCollPoint	= Vector3.zero;
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// START
-	private void Start()
-	{	
-		m_AudioSource = GetComponent<AudioSource>();
+	// AWAKE
+	private void Awake()
+	{
+		m_Player = transform.parent.GetComponent<LiveEntity>();
 	}
 
 
@@ -37,44 +31,35 @@ public class Foots : MonoBehaviour, IFoots {
 		if ( m_CurrentCollider == null )
 			return;
 
-		AudioClip footstepClip = SurfaceManager.Instance.GetFootstep( m_CurrentCollider, m_CurrentCollPoint );
-		if( footstepClip != null )
-		{
-			if ( m_AudioSource.isPlaying )
-				m_AudioSource.Stop();
-			m_AudioSource.clip = footstepClip;
-			m_AudioSource.Play();
-		}
+		AudioClip footstepClip = SurfaceManager.Instance.GetFootstep( m_CurrentCollider, transform.position );
+		if ( footstepClip == null )
+			return;
+
+		AudioSource.PlayClipAtPoint( footstepClip, transform.position );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// UNITY
+
 	private void OnTriggerEnter( Collider other )
 	{
-		if ( other.tag != "Terrain" )
-			return;
-
 		m_CurrentCollider = other;
-		m_CurrentCollPoint = transform.position;
-		if ( Parent != null )
-		{
-			Parent.Grounded = true;
-		}
+		m_Player.Grounded = true;
+		PlayStep();
+	}
+
+	private void OnTriggerStay( Collider other )
+	{
+		m_CurrentCollider = other;
+		m_Player.Grounded = true;
 	}
 
 
 	private void OnTriggerExit( Collider other )
 	{
-		if ( other.tag != "Terrain" )
-			return;
-
 		m_CurrentCollider = null;
-
-		if ( Parent != null )
-		{
-			Parent.Grounded = false;
-		}
+		m_Player.Grounded = false;
 	}
 
 

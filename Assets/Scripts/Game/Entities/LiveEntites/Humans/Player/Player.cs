@@ -5,10 +5,9 @@ using UnityEngine;
 
 public partial class Player : Human {
 
-	public	static	Player			CurrentActivePlayer				= null;
+	public	static	Player			Instance						= null;
 
-
-	private		bool				m_Active						= false;
+	private		bool				m_Active						= true;
 	public		bool				IsActive
 	{
 		get { return m_Active; }
@@ -16,8 +15,24 @@ public partial class Player : Human {
 	}
 
 
+
+
 	private		Vector3				m_Move							= Vector3.zero;
-	private		Vector3				m_CapsuleRotationScaleVector	= new Vector3( 0f, 1f, 0f );
+
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// AWAKE
+	private void Awake()
+	{
+		if ( Instance != null )
+		{
+			Destroy( gameObject );
+			return;
+		}
+		Instance = this;
+		DontDestroyOnLoad( this );
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -34,32 +49,28 @@ public partial class Player : Human {
 			m_Collider	= GetComponent<CapsuleCollider>();
 
 			// Foots
-			Transform pFoots = transform.Find( "FootSpace" );
-			if ( pFoots != null ) {
-				m_Foots = pFoots.GetComponent<Foots>();
-				m_Foots.Parent = this;
-			}
+			m_Foots = FindObjectOfType<Foots>() as IFoots;
 		}
 
 		// Player Data
 		{
 
 			m_SectionRef = GLOBALS.Configs.GetSection( m_SectionName = gameObject.name );
-
-			if ( m_SectionRef == null ) {
+			if ( m_SectionRef == null )
+			{
 				Destroy( gameObject );
 				return;
 			}
 
 
 			// Walking
-			m_SectionRef.AsMultiValue( "Walk", 1, 2, 3, ref m_WalkSpeed, ref m_WalkJumpCoef, ref m_WalkStamina );
+			m_SectionRef.AsMultiValue( "Walk",		1, 2, 3, ref m_WalkSpeed,	ref m_WalkJumpCoef,		ref m_WalkStamina );
 			
 			// Running
-			m_SectionRef.AsMultiValue( "Run", 1, 2, 3, ref m_RunSpeed, ref m_RunJumpCoef, ref m_RunStamina );
+			m_SectionRef.AsMultiValue( "Run",		1, 2, 3, ref m_RunSpeed,	ref m_RunJumpCoef,		ref m_RunStamina );
 
 			// Crouched
-			m_SectionRef.AsMultiValue( "Crouch", 1, 2, 3, ref m_CrouchSpeed, ref m_CrouchJumpCoef, ref m_CrouchStamina );
+			m_SectionRef.AsMultiValue( "Crouch",	1, 2, 3, ref m_CrouchSpeed,	ref m_CrouchJumpCoef,	ref m_CrouchStamina );
 
 
 			// Climbing
@@ -74,8 +85,7 @@ public partial class Player : Human {
 //				m_JumpForce				= JumpInfos[ 0 ].ToFloat();
 //				m_JumpForce				= JumpInfos[ 0 ];
 
-				m_SectionRef.AsMultiValue( "Jump", 1, 2, ref m_JumpForce, ref m_JumpStamina );
-
+				m_SectionRef.AsMultiValue( "Jump", 1, 2,	ref m_JumpForce,	ref m_JumpStamina );
 			}
 
 			// Stamina
@@ -104,9 +114,6 @@ public partial class Player : Human {
 //		rb.isKinematic = true;
 
 	}
-
-	public override void OnInteraction()
-	{}
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -154,10 +161,20 @@ public partial class Player : Human {
 		Rigidbody rb = m_GrabbedObject.GetComponent<Rigidbody>();
 		rb.rotation = CameraControl.Instance.transform.rotation;
 		rb.angularVelocity = Vector3.zero;
-		rb.velocity = ( m_GrabPoint.transform.position - m_GrabbedObject.transform.position ) / ( Time.deltaTime * 4f ) 
+		rb.velocity = ( m_GrabPoint.transform.position - m_GrabbedObject.transform.position ) / ( Time.fixedDeltaTime * 4f ) 
 		* ( 1.0f - Vector3.Angle( transform.forward, CameraControl.Instance.transform.forward ) / CameraControl.CLAMP_MAX_X_AXIS );
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// FixedUpdate
+	private void	FixedUpdate()
+	{
+		if ( m_Active == false )
+			return;
+
+		MoveGrabbedObject();
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -186,13 +203,13 @@ public partial class Player : Human {
 			// Get interactable / draggable object
 			RaycastHit hit				= new RaycastHit();
 			Grabbable grabbable			= null;
-			Interactable interactable	= null;
+			IInteractable interactable	= null;
 			if ( m_GrabbedObject == null )
 			{
 				if ( Physics.Raycast( CameraControl.Instance.transform.position, CameraControl.Instance.transform.forward, out hit, m_UseDistance ) )
 				{
 					grabbable = hit.transform.GetComponent<Grabbable>();
-					interactable = hit.transform.GetComponent<Interactable>();
+					interactable = hit.transform.GetComponent<IInteractable>();
 				}
 			}
 			else
@@ -301,7 +318,7 @@ public partial class Player : Human {
 		}
 
 		// rotate the capsule of the player
-		transform.rotation = Quaternion.Euler( Vector3.Scale( CameraControl.Instance.transform.rotation.eulerAngles, m_CapsuleRotationScaleVector ) );
+		transform.rotation = Quaternion.Euler( Vector3.Scale( CameraControl.Instance.transform.rotation.eulerAngles, new Vector3( 0f, 1f, 0f ) ) );
 		m_FaceDirection = CameraControl.Instance.transform.rotation;
 		// Update flashlight position and rotation
 //		pFlashLight->Update();
@@ -312,14 +329,5 @@ public partial class Player : Human {
 	}
 	
 
-	//////////////////////////////////////////////////////////////////////////
-	// FixedUpdate
-	private void	FixedUpdate()
-	{
-		if ( m_Active == false )
-			return;
-
-		MoveGrabbedObject();
-	}
 
 }

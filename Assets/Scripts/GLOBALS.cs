@@ -13,9 +13,4 @@ public static class GLOBALS {
 
 	public	static Inputmanager		InputMgr	= new Inputmanager();
 
-	public	static	Player			Player1		= null;
-	public	static	Player			Player2		= null;
-	public	static	Player			Player3		= null;
-	public	static	Player			Player4		= null;
-
 }

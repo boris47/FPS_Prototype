@@ -5,44 +5,49 @@ using UnityEngine;
 namespace CFG_Reader {
 
 	// PUBLIC INTERFACE
-	interface ISection {
+	public interface ISection {
 
-		bool					IsOK { get; }
+		bool					IsOK				{ get; }
 
-		void					Destroy();
-		cLineValue[]			GetData();
-		int						Lines();
-		string					Name();
-		void					Add( cLineValue LineValue );
-		bool					HasKey( string Key );
+		void					Destroy							();
+		cLineValue[]			GetData							();
+		int						Lines							();
+		string					Name							();
+		void					Add								( cLineValue LineValue );
+		bool					HasKey							( string Key );
 
-		System.Type				ValueType( string Key );
-		string					GetRawValue ( string Key, string Default = "" );
+		System.Type				ValueType						( string Key );
+		string					GetRawValue						( string Key, string Default = "" );
 
-		bool					AsBool( string Key, bool Default = false );
-		int						AsInt( string Key, int Default = 0 );
-		float					AsFloat( string Key, float Default = 0.0f );
-		string					AsString( string Key, string Default = "" );
+		T						As				<T>				( string Key );
+		bool					AsBool							( string Key, bool Default = false );
+		int						AsInt							( string Key, int Default = 0 );
+		float					AsFloat							( string Key, float Default = 0.0f );
+		string					AsString						( string Key, string Default = "" );
 
-		cValue					AsMultiValue( string Key, int Index );
+		cValue					AsMultiValue					( string Key, int Index );
+		void					AsMultiValue	<T1,T2>			( string Key, int Idx1, int Idx2, ref T1 t1, ref T2 t2 );
+		void					AsMultiValue	<T1,T2,T3>		( string Key, int Idx1, int Idx2, int Idx3, ref T1 t1, ref T2 t2, ref T3 t3 );
+		void					AsMultiValue	<T1,T2,T3,T4>	( string Key, int Idx1, int Idx2, int Idx3, int Idx4, ref T1 t1, ref T2 t2, ref T3 t3, ref T4 t4 );
 
-		bool					bAsBool( string Key, ref bool Out, bool Default = false );
-		bool					bAsInt( string Key, ref int Out, int Default = 0 );
-		bool					bAsFloat( string Key, ref float Out, float Default = 0.0f );
-		bool					bAsString( string Key, ref string Out, string Default = "" );
+		bool					bAs<T>							( string Key, ref T Out );
+		bool					bAsBool							( string Key, ref bool Out, bool Default = false );
+		bool					bAsInt							( string Key, ref int Out, int Default = 0 );
+		bool					bAsFloat						( string Key, ref float Out, float Default = 0.0f );
+		bool					bAsString						( string Key, ref string Out, string Default = "" );
 
-		int						GetMultiSize( string Key );
+		int						GetMultiSize					( string Key );
 
-		bool					bAsMultiValue( string Key, int Index, out cValue Out );
+		bool					bAsMultiValue					( string Key, int Index, out cValue Out );
 
-		bool					bAsVec2( string Key, ref Vector2 Out, Vector2 Default );
-		bool					bAsVec3( string Key, ref Vector3 Out, Vector3 Default );
-		bool					bAsVec4( string Key, ref Vector4 Out, Vector4 Default );
+		bool					bAsVec2							( string Key, ref Vector2 Out, Vector2 Default );
+		bool					bAsVec3							( string Key, ref Vector3 Out, Vector3 Default );
+		bool					bAsVec4							( string Key, ref Vector4 Out, Vector4 Default );
 
-		void					SetValue( string Key, cValue Value );
-		void					SetMultiValue( string Key, cValue[] vValues );
-		void					Set<T>( string Key, T Value );
-		void					PrintSection();
+		void					SetValue						( string Key, cValue Value );
+		void					SetMultiValue					( string Key, cValue[] vValues );
+		void					Set				<T>				( string Key, T Value );
+		void					PrintSection					();
 
 	}
 
@@ -75,7 +80,7 @@ namespace CFG_Reader {
 
 
 
-		public Section( string SecName, Section Mother = null )
+		public Section( string SecName, ISection Mother = null )
 		{
 			sName = SecName;
 			if ( Mother != null )

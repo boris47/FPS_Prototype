@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public abstract partial class LiveEntity : Interactable {
+public abstract partial class LiveEntity : Entity {
 	
-	protected	Foots			m_Foots						= null;
-	public		Foots			Foots
+	protected	IFoots			m_Foots						= null;
+	public		IFoots			Foots
 	{
 		get { return m_Foots; }
 	}

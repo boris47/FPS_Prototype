@@ -5,9 +5,29 @@ using UnityEngine;
 namespace CFG_Reader {
 
 	public partial class Section {
-	
 
-		public    bool                    bAsBool( string Key, ref bool Out, bool Default = false )
+
+		//////////////////////////////////////////////////////////////////////////
+		// bAs<T>
+		public	bool					bAs<T>( string Key, ref T Out )
+		{
+			cLineValue pLineValue = null;
+			if ( ( pLineValue = this[ Key ] ) != null )
+			{
+				if ( pLineValue.Type == LineValueType.SINGLE )
+				{
+					Out = pLineValue.Value.As<T>();
+					return true;
+				}
+			}
+			Out = default(T);
+			return false;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// bAsBool
+		public	bool                    bAsBool( string Key, ref bool Out, bool Default = false )
 		{
 			cLineValue pLineValue = null;
 			if ( ( pLineValue = this[ Key ] ) != null )
@@ -23,6 +43,8 @@ namespace CFG_Reader {
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
+		// bAsInt
 		public	bool					bAsInt( string Key, ref int Out, int Default = 0 )
 		{
 			cLineValue pLineValue = this[ Key ];
@@ -38,6 +60,9 @@ namespace CFG_Reader {
 			return false;
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
+		// bAsFloat
 		public	bool					bAsFloat( string Key, ref float Out, float Default = 0.0f )
 		{
 			cLineValue pLineValue = this[ Key ];
@@ -53,6 +78,9 @@ namespace CFG_Reader {
 			return false;
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
+		// bAsString
 		public	bool					bAsString( string Key, ref string Out, string Default = "" )
 		{
 			cLineValue pLineValue = this[ Key ];
@@ -69,6 +97,8 @@ namespace CFG_Reader {
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
+		// bAsMultiValue
 		public	bool					bAsMultiValue( string Key, int Index, out cValue Out )
 		{
 			cLineValue pLineValue = this[ Key ];
@@ -89,6 +119,9 @@ namespace CFG_Reader {
 			return false;
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
+		// bAsVec2
 		public	bool					bAsVec2( string Key, ref Vector2 Out, Vector2 Default )
 		{
 			cLineValue pLineValue		= this[ Key ];
@@ -112,6 +145,8 @@ namespace CFG_Reader {
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
+		// bAsVec3
 		public	bool					bAsVec3( string Key, ref Vector3 Out, Vector3 Default )
 		{
 			cLineValue pLineValue		= this[ Key ];
@@ -136,6 +171,8 @@ namespace CFG_Reader {
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
+		// bAsVec4
 		public	bool					bAsVec4( string Key, ref Vector4 Out, Vector4 Default )
 		{
 			cLineValue pLineValue		= this[ Key ];
@@ -161,6 +198,8 @@ namespace CFG_Reader {
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
+		// bAsColor
 		public	bool					bAsColor( string Key, ref Color Out, Color Default )
 		{
 			Vector4 refVec = Vector4.zero;

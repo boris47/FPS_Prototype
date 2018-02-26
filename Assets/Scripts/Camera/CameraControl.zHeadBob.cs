@@ -2,21 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/*
- *  BEST FONFIGS FOUND
- * - WALKING
- * 0.5, 30, 30
- * - RUNNING
- * 0.7, 60, 20
- * - CROUCHED
- * 0.15, 40, 20
- */
-
-
 [System.Serializable]
 public class HeadBob : CameraEffectBase {
 
 	const	float	STEP_VALUE					= 0.8f;
+	const	float	THETA_UPDATE_X				= 5.0f;
+	const	float	THETA_UPDATE_Y				= 2.5f;
+
 
 	[SerializeField]
 	private float	m_Amplitude					= 3.0f;
@@ -24,19 +16,18 @@ public class HeadBob : CameraEffectBase {
 	[SerializeField]
 	private float	m_Speed						= 1.0f;
 
+
 	private Vector3	m_Direction					= Vector3.zero;
 	public	Vector3 Direction
 	{
 		get { return m_Direction; }
 	}
 
-	private	bool	m_StepDone					= false;
-	
-	private float	m_ThetaUpdateX				= 5f;
-	private float	m_ThetaUpdateY				= 2.5f;
 
+	private	bool	m_StepDone					= false;
 	private float	m_ThetaX					= 0f;
 	private float	m_ThetaY					= 0f;
+
 
 
 	public void Update( LiveEntity liveEntity, float weight )
@@ -61,8 +52,8 @@ public class HeadBob : CameraEffectBase {
 	//	fAmplitude		*= ( ( bZoomed )	?	0.80f : 1.00f );
 //		fAmplitude		*= ( 3.0f - fStamina * 2.0f );
 
-		m_ThetaX += m_ThetaUpdateX * fSpeed * m_InternalWeight;
-		m_ThetaY += ( m_ThetaUpdateY + Random.Range( 0.0f, 0.03f ) ) * fSpeed * m_InternalWeight;
+		m_ThetaX +=   THETA_UPDATE_X * fSpeed * m_InternalWeight;
+		m_ThetaY += ( THETA_UPDATE_Y + Random.Range( 0.0f, 0.03f ) ) * fSpeed * m_InternalWeight;
 
 
 		m_Direction.Set
@@ -76,9 +67,9 @@ public class HeadBob : CameraEffectBase {
 		// Steps
 		if ( Mathf.Abs( Mathf.Cos( m_ThetaY ) ) > STEP_VALUE )
 		{
-			if ( !m_StepDone )
+			if ( m_StepDone == false )
 			{
-				( liveEntity.Foots as IFoots ).PlayStep();
+				liveEntity.Foots.PlayStep();
 				m_StepDone = true;
 			}
 		}

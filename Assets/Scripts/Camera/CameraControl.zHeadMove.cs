@@ -5,11 +5,16 @@ using UnityEngine;
 [System.Serializable]
 public class HeadMove : CameraEffectBase {
 
+	const	float	THETA_UPDATE_X				= 0.8f;
+	const	float	THETA_UPDATE_Y				= 0.4f;
+
+
 	[SerializeField]
 	private float	m_Amplitude					= 0.2f;
 
 	[SerializeField]
 	private float	m_Speed						= 5.0f;
+
 
 	private Vector3	m_Direction					= Vector3.zero;
 	public	Vector3 Direction
@@ -17,8 +22,6 @@ public class HeadMove : CameraEffectBase {
 		get { return m_Direction; }
 	}
 
-	private float	m_ThetaUpdateX				= 0.8f;
-	private float	m_ThetaUpdateY				= 0.4f;
 
 	private float	m_ThetaX					= 0f;
 	private float	m_ThetaY					= 0f;
@@ -47,8 +50,8 @@ public class HeadMove : CameraEffectBase {
 		fAmplitude		*= ( 5.0f - ( fStamina * 4.0f ) );
 
 
-		m_ThetaX += m_ThetaUpdateX * fSpeed * m_InternalWeight;
-		m_ThetaY += ( m_ThetaUpdateY + Random.Range( 0.0f, 0.03f ) ) * fSpeed * m_InternalWeight;
+		m_ThetaX +=   THETA_UPDATE_X * fSpeed * m_InternalWeight;
+		m_ThetaY += ( THETA_UPDATE_Y + Random.Range( 0.0f, 0.03f ) ) * fSpeed * m_InternalWeight;
 
 
 		m_Direction.Set

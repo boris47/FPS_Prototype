@@ -78,7 +78,7 @@ namespace WeatherSystem {
 
 			// Sky Material
 			GUILayout.Label( "Sky Cube Map" );
-			EditorGUILayout.ObjectField( m_CurrentDescriptor.SkyCubemap, typeof( Cubemap ), false );
+			m_CurrentDescriptor.SkyCubemap = EditorGUILayout.ObjectField( m_CurrentDescriptor.SkyCubemap, typeof( Cubemap ), false ) as Cubemap;
 
 
 
@@ -154,7 +154,7 @@ namespace WeatherSystem {
 				}
 				else
 				{
-					Section section = reader.GetSection( m_CurrentDescriptor.Identifier + ":00" );
+					var section = reader.GetSection( m_CurrentDescriptor.Identifier + ":00" );
 					if ( section != null )
 					{
 						Utils.Converters.StringToColor( section.GetRawValue("ambient_color"),		ref m_CurrentDescriptor.AmbientColor	);

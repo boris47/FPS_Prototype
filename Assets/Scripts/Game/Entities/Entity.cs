@@ -44,7 +44,7 @@ public abstract class Entity : MonoBehaviour, IEntity {
 		get { return m_ID; }
 	}
 
-	protected	Section			m_SectionRef					= null;
+	protected	ISection		m_SectionRef					= null;
 
 	protected 	string			m_SectionName					= "None";
 

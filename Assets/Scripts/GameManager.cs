@@ -10,8 +10,6 @@ public class GameManager : MonoBehaviour {
 
 	public static GameManager Instance = null;
 
-	public		Transform	m_Players = null;
-
 	// Use this for initialization
 	void Awake ()
 	{
@@ -41,24 +39,6 @@ public class GameManager : MonoBehaviour {
 	}
 
 
-	private void Start()
-	{	
-		if ( m_Players == null ) {
-			Debug.Log( "Cannot Find players" );
-			return;
-		}
-
-		GLOBALS.Player1 = m_Players.GetChild( 0 ).GetComponent<Player>();
-		GLOBALS.Player2 = m_Players.GetChild( 1 ).GetComponent<Player>();
-		GLOBALS.Player3 = m_Players.GetChild( 2 ).GetComponent<Player>();
-		GLOBALS.Player4 = m_Players.GetChild( 3 ).GetComponent<Player>();
-
-		GLOBALS.Player2.IsActive = GLOBALS.Player3.IsActive = GLOBALS.Player3.IsActive = false;
-
-		GLOBALS.Player1.IsActive = true;
-		Player.CurrentActivePlayer = GLOBALS.Player1;
-	}
-
 
 	// Update is called once per frame
 	private void Update()
@@ -74,11 +54,6 @@ public class GameManager : MonoBehaviour {
 		}
 
 		GLOBALS.InputMgr.Update();
-
-		if ( GLOBALS.Player1 != null && Input.GetKeyDown( KeyCode.F1 ) ) CameraControl.Instance.SwitchToTarget( GLOBALS.Player1 );
-		if ( GLOBALS.Player2 != null && Input.GetKeyDown( KeyCode.F2 ) ) CameraControl.Instance.SwitchToTarget( GLOBALS.Player2 );
-		if ( GLOBALS.Player3 != null && Input.GetKeyDown( KeyCode.F3 ) ) CameraControl.Instance.SwitchToTarget( GLOBALS.Player3 );
-		if ( GLOBALS.Player4 != null && Input.GetKeyDown( KeyCode.F4 ) ) CameraControl.Instance.SwitchToTarget( GLOBALS.Player4 );
 
 	}
 

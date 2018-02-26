@@ -9,7 +9,7 @@ namespace WeatherSystem {
 
 	public class WindowWeatherEditor : EditorWindow {
 
-		public const string CYCLESKIES_PATH			= "Assets/Resources/Materials/SkyCubeMaps";
+		public const string CYCLESKIES_PATH			= "Assets/Resources/SkyCubeMaps";
 		public const string RESOURCE_PATH			= "Assets/Resources/Scriptables";
 		public const string COLLECTION_FILENAME		= "WeatherCollection";
 
