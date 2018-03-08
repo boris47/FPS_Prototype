@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0bf768657534e84aa8c0b1819830f54, type: 3}
   m_Name: ThundersDuringRain
   m_EditorClassIdentifier: 
-  AudioSources:
+  AudioClips:
   - {fileID: 8300000, guid: 7da473534a4c652499eb968c6b03a4ce, type: 3}
   - {fileID: 8300000, guid: 147ea7955c33c9143a4c9b864b9a68e3, type: 3}
   - {fileID: 8300000, guid: c49889d8161e83b4ebc44d50c02865c0, type: 3}

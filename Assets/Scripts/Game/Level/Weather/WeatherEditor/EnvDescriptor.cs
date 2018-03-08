@@ -15,6 +15,8 @@ namespace WeatherSystem {
 		[SerializeField]
 		public	Color					AmbientColor		= Color.clear;
 		[SerializeField]
+		public	AudioCollection			AmbientEffects		= null;
+		[SerializeField]
 		public	float					FogFactor			= 0.0f;
 		[SerializeField]
 		public	float					RainIntensity		= 0.0f;

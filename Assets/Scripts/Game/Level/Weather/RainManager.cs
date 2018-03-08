@@ -84,31 +84,10 @@ namespace WeatherSystem {
 			if ( UnityEditor.EditorApplication.isPlaying == false )
 				return;
 #endif
-			AudioCollection thundersDistantCollection = Resources.Load<AudioCollection>( THUNDERS_DISTANT );
-			if ( thundersDistantCollection != null )
-				m_ThundersDistantCollection = thundersDistantCollection.AudioSources;
-			else
-			{
-				print( "Cannot load scriptable " +  THUNDERS_DISTANT );
-				enabled = false;
-				return;
-			}
-
-			AudioCollection thundersDurinRainCollection = Resources.Load<AudioCollection>( THUNDERS_DURING_RAIN );
-			if ( thundersDurinRainCollection != null )
-				m_ThundersDuringRainCollection = thundersDurinRainCollection.AudioSources;
-			else
-			{
-				print( "Cannot load scriptable " +  THUNDERS_DURING_RAIN );
-				enabled = false;
-				return;
-			}
-			
-			m_NextThunderTimer = Random.Range( m_ThunderTimerMin, m_ThunderTimerMax );
 
 			m_RainEvent = FMODUnity.RuntimeManager.CreateInstance( m_RainSound );
 			m_RainEvent.getParameter( "RainIntensity", out m_RainIntensityEvent );
-			m_RainEvent.start();	
+			m_RainEvent.start();
 		}
 
 
@@ -210,8 +189,29 @@ namespace WeatherSystem {
 					pSection.bAsFloat( "ThunderStepsMin",		ref m_ThunderStepsMin );
 					pSection.bAsFloat( "ThunderStepsMax",		ref m_ThunderStepsMax );
 				}
-				
 			}
+
+			AudioCollection thundersDistantCollection = Resources.Load<AudioCollection>( THUNDERS_DISTANT );
+			if ( thundersDistantCollection != null )
+				m_ThundersDistantCollection = thundersDistantCollection.AudioClips;
+			else
+			{
+				print( "Cannot load scriptable " +  THUNDERS_DISTANT );
+				enabled = false;
+				return;
+			}
+
+			AudioCollection thundersDurinRainCollection = Resources.Load<AudioCollection>( THUNDERS_DURING_RAIN );
+			if ( thundersDurinRainCollection != null )
+				m_ThundersDuringRainCollection = thundersDurinRainCollection.AudioClips;
+			else
+			{
+				print( "Cannot load scriptable " +  THUNDERS_DURING_RAIN );
+				enabled = false;
+				return;
+			}
+			
+			m_NextThunderTimer = Random.Range( m_ThunderTimerMin, m_ThunderTimerMax );
 
 			Instance = this;
 		}
@@ -397,6 +397,7 @@ namespace WeatherSystem {
 
 			CheckForRainChange();
 			UpdateRain();
+			UpdateThunderbols();
 
 #if UNITY_EDITOR
 			if ( UnityEditor.EditorApplication.isPlaying == false )
@@ -406,7 +407,6 @@ namespace WeatherSystem {
 			{
 				m_RainIntensityEvent.setValue( m_RainIntensity );
 
-				UpdateThunderbols();
 			}
 		}
 

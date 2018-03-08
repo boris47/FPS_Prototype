@@ -16,6 +16,7 @@ MonoBehaviour:
   - Identifier: 00:00
     ExecTime: 0
     AmbientColor: {r: 0.007813, g: 0.007813, b: 0.007813, a: 1}
+    AmbientEffects: {fileID: 0}
     FogFactor: 0
     RainIntensity: 0.5
     SkyCubemap: {fileID: 8900000, guid: eeca203541ad12d4fbe038c29efec630, type: 3}
@@ -26,6 +27,7 @@ MonoBehaviour:
   - Identifier: 01:00
     ExecTime: 3600
     AmbientColor: {r: 0.007813, g: 0.007813, b: 0.007813, a: 1}
+    AmbientEffects: {fileID: 0}
     FogFactor: 0
     RainIntensity: 0.675
     SkyCubemap: {fileID: 8900000, guid: 3850904bd2df62a46928e80da9025420, type: 3}
@@ -36,6 +38,7 @@ MonoBehaviour:
   - Identifier: 02:00
     ExecTime: 7200
     AmbientColor: {r: 0.007813, g: 0.007813, b: 0.007813, a: 1}
+    AmbientEffects: {fileID: 0}
     FogFactor: 0
     RainIntensity: 0.579
     SkyCubemap: {fileID: 8900000, guid: 60b5ef1f15b0e4f4a8b926f9c3823718, type: 3}
@@ -46,6 +49,7 @@ MonoBehaviour:
   - Identifier: 03:00
     ExecTime: 10800
     AmbientColor: {r: 0.011719, g: 0.011719, b: 0.011719, a: 1}
+    AmbientEffects: {fileID: 0}
     FogFactor: 0
     RainIntensity: 0.43
     SkyCubemap: {fileID: 8900000, guid: 30eaa4f39714c4f4d86019323c096370, type: 3}
@@ -56,6 +60,7 @@ MonoBehaviour:
   - Identifier: 04:00
     ExecTime: 14400
     AmbientColor: {r: 0.011719, g: 0.011719, b: 0.011719, a: 1}
+    AmbientEffects: {fileID: 0}
     FogFactor: 0
     RainIntensity: 0.177
     SkyCubemap: {fileID: 8900000, guid: 8632fa5280e27714f9997ca3f90b397e, type: 3}
@@ -66,6 +71,7 @@ MonoBehaviour:
   - Identifier: 05:00
     ExecTime: 18000
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    AmbientEffects: {fileID: 0}
     FogFactor: 0
     RainIntensity: 0.297
     SkyCubemap: {fileID: 8900000, guid: e3348f7629ad3a840a22002c75233c31, type: 3}
@@ -76,6 +82,7 @@ MonoBehaviour:
   - Identifier: 06:00
     ExecTime: 21600
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    AmbientEffects: {fileID: 0}
     FogFactor: 0
     RainIntensity: 0.43
     SkyCubemap: {fileID: 8900000, guid: fb909ed1b28131248bc6571446891f37, type: 3}
@@ -86,6 +93,7 @@ MonoBehaviour:
   - Identifier: 07:00
     ExecTime: 25200
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    AmbientEffects: {fileID: 0}
     FogFactor: 0
     RainIntensity: 0.456
     SkyCubemap: {fileID: 8900000, guid: c847de11d200b7a428c5c7ca4222c62f, type: 3}
@@ -96,6 +104,7 @@ MonoBehaviour:
   - Identifier: 08:00
     ExecTime: 28800
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    AmbientEffects: {fileID: 0}
     FogFactor: 0
     RainIntensity: 0.314
     SkyCubemap: {fileID: 8900000, guid: b730eb28806e1fa4fbe4cbcb7d7eff4d, type: 3}
@@ -106,6 +115,7 @@ MonoBehaviour:
   - Identifier: 09:00
     ExecTime: 32400
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    AmbientEffects: {fileID: 0}
     FogFactor: 0
     RainIntensity: 0.194
     SkyCubemap: {fileID: 8900000, guid: 17ea9b66b111fed4fa4d5d1f59de5fa9, type: 3}
@@ -116,6 +126,7 @@ MonoBehaviour:
   - Identifier: 10:00
     ExecTime: 36000
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    AmbientEffects: {fileID: 0}
     FogFactor: 0
     RainIntensity: 0.277
     SkyCubemap: {fileID: 8900000, guid: f19f974f19d7c8a4688f13308aec12ef, type: 3}
@@ -126,6 +137,7 @@ MonoBehaviour:
   - Identifier: 11:00
     ExecTime: 39600
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    AmbientEffects: {fileID: 0}
     FogFactor: 0
     RainIntensity: 0.395
     SkyCubemap: {fileID: 8900000, guid: 42a0c164529f7654780be9ce2cc191cf, type: 3}
@@ -136,6 +148,7 @@ MonoBehaviour:
   - Identifier: 12:00
     ExecTime: 43200
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    AmbientEffects: {fileID: 0}
     FogFactor: 0
     RainIntensity: 0.5
     SkyCubemap: {fileID: 8900000, guid: 3cc7927a970fb4c4cb44704bf8c9edbe, type: 3}
@@ -146,6 +159,7 @@ MonoBehaviour:
   - Identifier: 13:00
     ExecTime: 46800
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    AmbientEffects: {fileID: 0}
     FogFactor: 0
     RainIntensity: 0.677
     SkyCubemap: {fileID: 8900000, guid: a4a6fc440f55bc74880d7fa2932ba3d2, type: 3}
@@ -156,6 +170,7 @@ MonoBehaviour:
   - Identifier: 14:00
     ExecTime: 50400
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    AmbientEffects: {fileID: 0}
     FogFactor: 0
     RainIntensity: 0.838
     SkyCubemap: {fileID: 8900000, guid: 6a5f9270d7b04f24284c81daab312935, type: 3}
@@ -166,6 +181,7 @@ MonoBehaviour:
   - Identifier: 15:00
     ExecTime: 54000
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    AmbientEffects: {fileID: 0}
     FogFactor: 0
     RainIntensity: 1
     SkyCubemap: {fileID: 8900000, guid: 317967418b61457469112cf389988749, type: 3}
@@ -176,6 +192,7 @@ MonoBehaviour:
   - Identifier: 16:00
     ExecTime: 57600
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    AmbientEffects: {fileID: 0}
     FogFactor: 0
     RainIntensity: 0.766
     SkyCubemap: {fileID: 8900000, guid: c56d87576c94de147adc887cf26824d1, type: 3}
@@ -186,6 +203,7 @@ MonoBehaviour:
   - Identifier: 17:00
     ExecTime: 61200
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    AmbientEffects: {fileID: 0}
     FogFactor: 0
     RainIntensity: 0.688
     SkyCubemap: {fileID: 8900000, guid: 34845223714d9b84b815791f1af0cba2, type: 3}
@@ -196,6 +214,7 @@ MonoBehaviour:
   - Identifier: 18:00
     ExecTime: 64800
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    AmbientEffects: {fileID: 0}
     FogFactor: 0
     RainIntensity: 0.814
     SkyCubemap: {fileID: 8900000, guid: 7e2f1be8e28bf6548bbcc422e1b0e1dd, type: 3}
@@ -206,6 +225,7 @@ MonoBehaviour:
   - Identifier: 19:00
     ExecTime: 68400
     AmbientColor: {r: 0.019531, g: 0.019531, b: 0.019531, a: 1}
+    AmbientEffects: {fileID: 0}
     FogFactor: 0
     RainIntensity: 1
     SkyCubemap: {fileID: 8900000, guid: 1f091d21a7b2ce04f92fb4013307e08c, type: 3}
@@ -216,6 +236,7 @@ MonoBehaviour:
   - Identifier: 20:00
     ExecTime: 72000
     AmbientColor: {r: 0.011719, g: 0.011719, b: 0.011719, a: 1}
+    AmbientEffects: {fileID: 0}
     FogFactor: 0
     RainIntensity: 0.662
     SkyCubemap: {fileID: 8900000, guid: b6e6bc8df5bd79548ba259200837cc12, type: 3}
@@ -226,6 +247,7 @@ MonoBehaviour:
   - Identifier: 21:00
     ExecTime: 75600
     AmbientColor: {r: 0.007813, g: 0.007813, b: 0.007813, a: 1}
+    AmbientEffects: {fileID: 0}
     FogFactor: 0
     RainIntensity: 0.869
     SkyCubemap: {fileID: 8900000, guid: fda9e832acef9af498bfddf66da58e12, type: 3}
@@ -236,6 +258,7 @@ MonoBehaviour:
   - Identifier: 22:00
     ExecTime: 79200
     AmbientColor: {r: 0.007813, g: 0.007813, b: 0.007813, a: 1}
+    AmbientEffects: {fileID: 0}
     FogFactor: 0
     RainIntensity: 0.793
     SkyCubemap: {fileID: 8900000, guid: 7e372355180de8b4394f9b196373022d, type: 3}
@@ -246,6 +269,7 @@ MonoBehaviour:
   - Identifier: 23:00
     ExecTime: 82800
     AmbientColor: {r: 0.007813, g: 0.007813, b: 0.007813, a: 1}
+    AmbientEffects: {fileID: 0}
     FogFactor: 0
     RainIntensity: 0.653
     SkyCubemap: {fileID: 8900000, guid: fb09551734ac19f4b9becfca708d59bf, type: 3}

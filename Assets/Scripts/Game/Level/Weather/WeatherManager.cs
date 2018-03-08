@@ -108,6 +108,7 @@ namespace WeatherSystem {
 		private		EnvDescriptor				m_EnvDescriptorNext			= null;
 		private		EnvDescriptor				m_EnvDescriptorMixer		= null;
 		private		Material					m_SkyMaterial				= null;
+		private		float						m_EnvEffectTimer			= 0f;
 
 		private		bool						m_IsOK						= false;
 
@@ -207,6 +208,8 @@ namespace WeatherSystem {
 				return;
 
 			m_WeatherChoiceFactor = 1.1f;
+
+			m_EnvEffectTimer = Random.Range( 2f, 5f );
 
 			// Select descriptors
 			StartSelectDescriptors( m_DayTimeNow );
@@ -467,13 +470,6 @@ namespace WeatherSystem {
 				m_EnvDescriptorCurrent = descriptor;
 				m_EnvDescriptorNext = GetNextDescriptor( descriptor );
 			}
-
-			/*
-			EnvDescriptor descriptor = System.Array.FindLast( m_Descriptors, ( EnvDescriptor d ) => d.ExecTime < DayTime );
-
-			m_EnvDescriptorCurrent = descriptor;
-			m_EnvDescriptorNext = GetNextDescriptor( descriptor );
-			*/
 			SetCubemaps();
 		}
 
@@ -500,7 +496,7 @@ namespace WeatherSystem {
 
 			// get descriptor next current from new cycle
 			m_EnvDescriptorNext = GetNextDescriptor( correspondingDescriptor );
-			print( "New cycle: " + newCycle.name );
+//			print( "New cycle: " + newCycle.name );
 		}
 
 
@@ -586,6 +582,25 @@ namespace WeatherSystem {
 
 
 		/////////////////////////////////////////////////////////////////////////////
+		//TimeDiff
+		private	void			AmbientEffectUpdate()
+		{
+			m_EnvEffectTimer -= Time.deltaTime;
+			if ( m_EnvEffectTimer < 0f )
+			{
+				AudioCollection effectCollection = m_EnvDescriptorCurrent.AmbientEffects;
+				if ( effectCollection != null )
+				{
+					AudioClip clip = effectCollection.AudioClips[ Random.Range( 0, effectCollection.AudioClips.Length ) ];
+					AudioSource.PlayClipAtPoint( clip, Player.Instance.transform.position );
+				}
+
+				m_EnvEffectTimer = Random.Range( 3f, 7f );
+			}
+		}
+
+
+		/////////////////////////////////////////////////////////////////////////////
 		// UNITY
 		private void			Update()
 		{
@@ -610,6 +625,7 @@ namespace WeatherSystem {
 				SelectDescriptors( m_DayTimeNow );
 				EnvironmentLerp();
 			}
+			AmbientEffectUpdate();
 
 			// Sun rotation by data
 			if ( Internal.EditorDescriptorLinked == false )

@@ -28,7 +28,7 @@ namespace WeatherSystem {
 				m_Window = null;
 			}
 			m_Window = EditorWindow.GetWindow<WindowDescriptorEditor>( true, "Descriptor Editor" );
-			m_Window.minSize = m_Window.maxSize = new Vector2( 300f, 430f );
+			m_Window.minSize = m_Window.maxSize = new Vector2( 300f, 470f );
 
 			m_Window.m_CurrentDescriptor = thisDescriptor;
 			WeatherManager.Internal.EditorDescriptorLinked = true;
@@ -59,6 +59,10 @@ namespace WeatherSystem {
 			}
 			GUILayout.EndHorizontal();
 
+
+			// Ambient Effects
+			GUILayout.Label( "Ambient Effects" );
+			m_CurrentDescriptor.AmbientEffects = EditorGUILayout.ObjectField( m_CurrentDescriptor.AmbientEffects, typeof( AudioCollection ), false ) as AudioCollection;
 
 
 

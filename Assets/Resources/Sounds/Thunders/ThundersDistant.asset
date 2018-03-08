@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0bf768657534e84aa8c0b1819830f54, type: 3}
   m_Name: ThundersDistant
   m_EditorClassIdentifier: 
-  AudioSources:
+  AudioClips:
   - {fileID: 8300000, guid: c059417cc8253dd49996599793ed057b, type: 3}
   - {fileID: 8300000, guid: c4537440d5a6e1c49bd3e937f65d1902, type: 3}
   - {fileID: 8300000, guid: a48ba40679e1e6a49bf8984a2c761086, type: 3}

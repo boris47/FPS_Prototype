@@ -5,8 +5,8 @@
 
 [Time]
 TimeFactor			= 10.0;
-StartTime			= 10:00:00
-StartWeather		= "Clear"
+StartTime			= 08:00:00
+StartWeather		= "Rainy"
 
 [Thunderbolts]
 ThunderTimerMin		= 6.0;
