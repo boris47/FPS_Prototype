@@ -387,13 +387,15 @@ namespace WeatherSystem {
 					m_Camera = UnityEditor.SceneView.lastActiveSceneView.camera;
 #endif
 			if ( m_Camera == null )
+			{
 				m_Camera = Camera.current;
-			if ( m_Camera == null )
-				m_Camera = Camera.main;
-			if ( m_Camera == null )
-				m_Camera = CameraControl.Instance.MainCamera;
-			if ( m_Camera == null )
-				return;
+				if ( m_Camera == null )
+					m_Camera = Camera.main;
+				if ( m_Camera == null )
+					m_Camera = CameraControl.Instance.MainCamera;
+				if ( m_Camera == null )
+					return;
+			}
 
 			CheckForRainChange();
 			UpdateRain();

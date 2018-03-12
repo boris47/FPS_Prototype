@@ -3,20 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public struct inputs_t {
-		public bool Forward, Backward, StrafeLeft, StrafeRight;
-		public bool LeanLeft, LeanRight;
-		public bool Crouch, Jump, Run;
-		public bool Use;
-		public bool Item1, Item2, Item3, Item4;
+	public bool Forward, Backward, StrafeLeft, StrafeRight;
+	public bool LeanLeft, LeanRight;
+	public bool Crouch, Jump, Run;
+	public bool Use;
+	public bool Item1, Item2, Item3, Item4;
 
-		public void Reset() {
-			Forward = Backward = StrafeLeft = StrafeRight =
-			LeanLeft = LeanRight =
-			Crouch = Jump = Run =
-			Use =
-			Item1 = Item2 = Item3 = Item4 = false;
-		}
-
+	public void Reset()
+	{
+		Forward = Backward = StrafeLeft = StrafeRight =
+		LeanLeft = LeanRight =
+		Crouch = Jump = Run =
+		Use =
+		Item1 = Item2 = Item3 = Item4 = false;
+	}
 };
 
 
