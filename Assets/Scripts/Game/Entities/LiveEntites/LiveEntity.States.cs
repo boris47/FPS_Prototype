@@ -28,6 +28,7 @@ public abstract partial class LiveEntity {
 	};
 
 	protected   _States			m_States			= new _States();
+	[System.NonSerialized]
 	protected	_States			m_PreviousStates	= new _States();
 
 

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,18 +11,18 @@ namespace CFG_Reader {
 	public class Reader {
 
 		// READING PHASES
-		public const int ReadingNothing = 0;
-		public const int ReadingSection = 1;
+		private	const int							READING_NOTHING		= 0;
+		private	const int							READING_SECTION		= 1;
 
 		// CONTAINERS
-		private Dictionary < string, Section > mSectionMap = new Dictionary < string, Section > ();
-		private List < string > mFilePaths = new List < string >();
+		private	Dictionary < string, Section >		mSectionMap			= new Dictionary < string, Section > ();
+		private	List < string >						mFilePaths			= new List < string >();
 
 		// INTERNAL VARS
-		private	int				iReadingPhase = ReadingNothing;
-		private Section			pSection = null;
+		private	int									iReadingPhase		= READING_NOTHING;
+		private	Section								pSection			= null;
 
-		public	bool			IsOK
+		public	bool								IsOK
 		{
 			get; private set;
 		}
@@ -36,12 +36,13 @@ namespace CFG_Reader {
 				Section_Close();
 
 			// Get the name of mother section, if present
-			ISection pInheritedSection = null;
+			Section pInheritedSection = null;
 			int iIndex = sLine.IndexOf( "]:", 0 );
 			if ( iIndex > 0 )
 			{
 				string sMotherName = sLine.Substring( iIndex + 2 );
-				if ( ( pInheritedSection = GetSection( sMotherName ) ) == null )
+				GetSection( sMotherName, ref pInheritedSection );
+				if ( pInheritedSection == null )
 				{
 					 Debug.LogError( "Reader::Section_Create:" + sFilePath + ":[" + iLine + "]: Section requested for inheritance \"" + sMotherName + "\" doesn't exist!" );
 					return false;
@@ -55,13 +56,13 @@ namespace CFG_Reader {
 				Debug.LogError( "Reader::Section_Create:" + sFilePath + ":[" + iLine + "]: Section \"" + sSectionName + "\" already exists!" );
 				return false;
 			}
-			iReadingPhase = ReadingSection;
-			pSection = new Section( sSectionName, pInheritedSection );
+			iReadingPhase = READING_SECTION;
+			pSection = new Section( sSectionName, ref pInheritedSection );
 			return true;
 		}
 
 		// INSERT A KEY VALUE PAIR INSIDE THE ACTUAL PARSING SECTION
-		private bool Section_Add(  KeyValue Pair, string sFilePath, int iLine )
+		private bool Section_Add( KeyValue Pair, string sFilePath, int iLine )
 		{
 			cLineValue pLineValue = new cLineValue( Pair.Key , Pair.Value );
 			if ( pLineValue.IsOK == false )
@@ -80,7 +81,7 @@ namespace CFG_Reader {
 				mSectionMap.Add( pSection.Name(), pSection );
 
 			pSection = null;
-			iReadingPhase = ReadingNothing;
+			iReadingPhase = READING_NOTHING;
 		}
 
 
@@ -127,7 +128,7 @@ namespace CFG_Reader {
 			TextAsset pTextAsset = Resources.Load( sFilePath ) as TextAsset;
 			if ( pTextAsset == null )
 			{
-				Debug.LogError( "Reader::LoadFile:Error opening file: " + sFilePath );
+//				Debug.LogError( "Reader::LoadFile:Error opening file: " + sFilePath );
 				Application.Quit();
 				return false;
 			}
@@ -152,7 +153,7 @@ namespace CFG_Reader {
 #if UNITY_EDITOR
 					if ( LoadFile( Path.Combine( sPath, sFileName ) ) == false )
 					{
-	//					fs.Close();
+						fs.Close();
 						return false;
 					}
 #else
@@ -176,16 +177,18 @@ namespace CFG_Reader {
 
 					if ( pSection == null )
 					{
-						Debug.LogError( " Reader::LoadFile:No section created to insert KeyValue at line |" + iLine + "| in file |" + sFilePath + "| " );
 #if UNITY_EDITOR
+						Debug.LogError( " Reader::LoadFile:No section created to insert KeyValue at line |" + iLine + "| in file |" + sFilePath + "| " );
 						fs.Close();
 #endif
 						return false;
 					}
 
-					if ( iReadingPhase != ReadingSection )
+					if ( iReadingPhase != READING_SECTION )
 					{
-						 Debug.LogError( " Reader::LoadFile:Trying to insert a KeyValue into a non section type FileElement, line \"" + sLine + "\" of file " + sFilePath + "!" );
+#if UNITY_EDITOR
+						Debug.LogError( " Reader::LoadFile:Trying to insert a KeyValue into a non section type FileElement, line \"" + sLine + "\" of file " + sFilePath + "!" );
+#endif
 						continue;
 					}
 
@@ -200,7 +203,7 @@ namespace CFG_Reader {
 				}
 
 				// NO CORRECT LINE DETECTED
-				 Debug.LogError( "Reader::LoadFile:Incorrect line " + iLine + " in file " + sFilePath );
+				Debug.LogError( "Reader::LoadFile:Incorrect line " + iLine + " in file " + sFilePath );
 				return false;
 			}
 #if UNITY_EDITOR
@@ -231,25 +234,24 @@ namespace CFG_Reader {
 
 
 		// CREATE AND SAVE A NEW EMPTY SECTION
-		public ISection NewSection ( string SecName, Section Inherited )
+		public ISection NewSection ( string SecName, ref Section Inherited )
 		{
-
 			Section pSec = null;
 			if ( HasFileElement( SecName, ref pSec  ) )
 				pSec.Destroy();
 
-			pSec = new Section( SecName, Inherited );
+			pSec = new Section( SecName, ref Inherited );
 			mSectionMap.Add( SecName, pSec );
 			return pSec as ISection;
 		}
 
 
 		// RETRIEVE A SECTION, IF EXISTS, OTHERWISE RETURN NULL
-		public ISection GetSection( string SecName )
+		public void GetSection( string SecName, ref Section section )
 		{
-			Section result = null;
-			mSectionMap.TryGetValue( SecName, out result );
-			return result as ISection;
+//			Section result = null;
+			mSectionMap.TryGetValue( SecName, out section );
+//			section = result;
 		}
 
 	}

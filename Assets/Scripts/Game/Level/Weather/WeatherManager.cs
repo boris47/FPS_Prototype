@@ -30,8 +30,8 @@ namespace WeatherSystem {
 		EnvDescriptor	NextDescriptor				{ get; }
 		Material		SkyMixerMaterial			{ get; }
 
-		void			StartSelectDescriptors( float DayTime, WeatherCycle cycle );
-		void			Start( WeatherCycle cycle, float choiseFactor );
+		void			StartSelectDescriptors( float DayTime, ref WeatherCycle cycle );
+		void			Start( ref WeatherCycle cycle, float choiseFactor );
 	}
 
 	// CLASS
@@ -288,14 +288,14 @@ namespace WeatherSystem {
 			if ( newCycle == null )
 				return;
 
-			ChangeWeather( newCycle );
+			ChangeWeather( ref newCycle );
 		}
 
 #endregion
 
 #region INTERNAL INTERFACE
 
-		void IWeatherManagerInternal.Start( WeatherCycle cycle, float choiceFactor )
+		void IWeatherManagerInternal.Start( ref WeatherCycle cycle, float choiceFactor )
 		{
 			m_CurrentCycle			= cycle; 
 			m_Descriptors			= m_CurrentCycle.Descriptors;
@@ -303,7 +303,7 @@ namespace WeatherSystem {
 			m_WeatherChoiceFactor	= choiceFactor;
 		}
 
-		void IWeatherManagerInternal.StartSelectDescriptors( float DayTime, WeatherCycle cycle )
+		void IWeatherManagerInternal.StartSelectDescriptors( float DayTime, ref WeatherCycle cycle )
 		{
 			m_CurrentCycle					= cycle;
 			m_CurrentCycleName				= cycle.name;
@@ -351,9 +351,10 @@ namespace WeatherSystem {
 			string startWeather = "Rainy";
 
 			// Get info from settings file
-			if ( GLOBALS.Configs != null )
+			if ( GameManager.Configs != null )
 			{
-				var pSection = GLOBALS.Configs.GetSection( "Time" );
+				CFG_Reader.Section pSection = null;
+				GameManager.Configs.GetSection( "Time", ref pSection );
 				if ( pSection != null )
 				{
 					pSection.bAsString( "StartTime",	ref startTime );
@@ -432,7 +433,7 @@ namespace WeatherSystem {
 
 		////////////////////////////////////////////////////////////////////////////
 		// GetPreviousDescriptor
-		private	EnvDescriptor	GetPreviousDescriptor( EnvDescriptor current )
+		private	EnvDescriptor	GetPreviousDescriptor( ref EnvDescriptor current )
 		{
 			int idx = System.Array.IndexOf( m_Descriptors, current );
 			return m_Descriptors[ ( idx ) == 0 ? m_Descriptors.Length - 1 : ( idx - 1 ) ];
@@ -441,7 +442,7 @@ namespace WeatherSystem {
 
 		////////////////////////////////////////////////////////////////////////////
 		// GetNextDescriptor
-		private	EnvDescriptor	GetNextDescriptor( EnvDescriptor current )
+		private	EnvDescriptor	GetNextDescriptor( ref EnvDescriptor current )
 		{
 			int idx = System.Array.IndexOf( m_Descriptors, current );
 			return m_Descriptors[ ( idx + 1 ) == m_Descriptors.Length ? 0 : ( idx + 1 ) ];
@@ -468,7 +469,7 @@ namespace WeatherSystem {
 			else
 			{
 				m_EnvDescriptorCurrent = descriptor;
-				m_EnvDescriptorNext = GetNextDescriptor( descriptor );
+				m_EnvDescriptorNext = GetNextDescriptor( ref descriptor );
 			}
 			SetCubemaps();
 		}
@@ -476,7 +477,7 @@ namespace WeatherSystem {
 
 		/////////////////////////////////////////////////////////////////////////////
 		// ChangeWeather
-		private	void			ChangeWeather( WeatherCycle newCycle )
+		private	void			ChangeWeather( ref WeatherCycle newCycle )
 		{
 			// find the corresponding of the current descriptor in the nex cycle
 			EnvDescriptor correspondingDescriptor = System.Array.Find( newCycle.Descriptors, d => d.ExecTime == m_EnvDescriptorNext.ExecTime );
@@ -495,7 +496,7 @@ namespace WeatherSystem {
 			m_CurrentCycleName = m_CurrentCycle.name;
 
 			// get descriptor next current from new cycle
-			m_EnvDescriptorNext = GetNextDescriptor( correspondingDescriptor );
+			m_EnvDescriptorNext = GetNextDescriptor( ref correspondingDescriptor );
 //			print( "New cycle: " + newCycle.name );
 		}
 
@@ -506,7 +507,8 @@ namespace WeatherSystem {
 		{
 			// Choose a new cycle
 			int newIdx = Random.Range( 0, m_Cycles.Cycles.Count );
-			ChangeWeather( m_Cycles.Cycles[ newIdx ] );
+			WeatherCycle cycle = m_Cycles.Cycles[ newIdx ];
+			ChangeWeather( ref cycle );
 		}
 
 		
@@ -540,7 +542,7 @@ namespace WeatherSystem {
 					if ( m_WeatherChoiceFactor <= 2.0f )
 						m_WeatherChoiceFactor = Mathf.Clamp01( m_WeatherChoiceFactor  - 0.2f );
 					m_EnvDescriptorCurrent = m_EnvDescriptorNext;
-					m_EnvDescriptorNext = GetNextDescriptor( m_EnvDescriptorNext );
+					m_EnvDescriptorNext = GetNextDescriptor( ref m_EnvDescriptorNext );
 				}
 				SetCubemaps();
 			}
@@ -552,14 +554,14 @@ namespace WeatherSystem {
 		private	void			EnvironmentLerp()
 		{
 			float interpolant = TimeInterpolant( m_DayTimeNow, m_EnvDescriptorCurrent.ExecTime, m_EnvDescriptorNext.ExecTime );
-			InterpolateOthers( m_EnvDescriptorCurrent, m_EnvDescriptorNext, interpolant );
+			InterpolateOthers( ref m_EnvDescriptorCurrent, ref m_EnvDescriptorNext, interpolant );
 			m_SkyMaterial.SetFloat( "_Blend", interpolant );
 		}
 
 		
 		/////////////////////////////////////////////////////////////////////////////
 		//TimeDiff
-		private	void			InterpolateOthers( EnvDescriptor current, EnvDescriptor next, float interpolant )
+		private	void			InterpolateOthers( ref EnvDescriptor current, ref EnvDescriptor next, float interpolant )
 		{
 			m_EnvDescriptorMixer.AmbientColor		= Color.Lerp( current.AmbientColor,		next.AmbientColor,	interpolant );
 			m_EnvDescriptorMixer.FogFactor			= Mathf.Lerp( current.FogFactor,		next.FogFactor,		interpolant );

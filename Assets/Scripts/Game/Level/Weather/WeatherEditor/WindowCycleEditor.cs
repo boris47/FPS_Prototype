@@ -33,7 +33,7 @@ namespace WeatherSystem {
 
 			m_Window.m_CurrentTime = ( WeatherManager.Instance.DayTime / WeatherManager.DAY_LENGTH );
 			WeatherManager.Internal.EditorLinked = true;
-			WeatherManager.Internal.Start( cycle, 2f );
+			WeatherManager.Internal.Start( ref cycle, 2f );
 
 			Setup();
 		}
@@ -84,7 +84,7 @@ namespace WeatherSystem {
 			m_CurrentTime = EditorGUILayout.Slider( m_CurrentTime, 0.0001f, 1.0f );
 			if ( m_CurrentTime != m_PrevTieme )
 			{
-				WeatherManager.Internal.StartSelectDescriptors( WeatherManager.DAY_LENGTH * m_CurrentTime, m_CurrentCycle );
+				WeatherManager.Internal.StartSelectDescriptors( WeatherManager.DAY_LENGTH * m_CurrentTime, ref m_CurrentCycle );
 			}
 			m_PrevTieme = m_CurrentTime;
 
@@ -108,7 +108,8 @@ namespace WeatherSystem {
 					foreach( EnvDescriptor descriptor in m_CurrentCycle.Descriptors )
 					{
 						Debug.Log( "Parsing data for descripter " + descriptor.Identifier );
-						var section = reader.GetSection( descriptor.Identifier + ":00" );
+						CFG_Reader.Section section = null;
+						reader.GetSection( descriptor.Identifier + ":00", ref section );
 						if ( section != null )
 						{
 							if ( section.HasKey( "ambient_color" ) )
@@ -180,7 +181,7 @@ namespace WeatherSystem {
 		{
 			if ( WindowDescriptorEditor.m_Window != null )
 				WindowDescriptorEditor.m_Window.Close();
-			WeatherManager.Internal.Start( m_CurrentCycle, Random.value );
+			WeatherManager.Internal.Start( ref m_CurrentCycle, Random.value );
 			WeatherManager.Internal.EditorDescriptorLinked = false;
 			WeatherManager.Internal.EditorLinked = false;
 			EditorUtility.SetDirty( m_CurrentCycle );

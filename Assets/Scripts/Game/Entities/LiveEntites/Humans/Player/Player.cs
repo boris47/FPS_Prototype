@@ -1,23 +1,26 @@
 ﻿
-using System;
 using UnityEngine;
 
 
 public partial class Player : Human {
 
+	private	const	float			MAX_INTERACTION_DISTANCE		= 20f;
+
 	public	static	Player			Instance						= null;
 
-	private		bool				m_Active						= true;
-	public		bool				IsActive
-	{
-		get { return m_Active; }
-		set { OnActiveChange( m_Active = value ); }
-	}
+	// DASHING
+	[SerializeField]
+	private		float				m_DashSpeed						= 5f;
+	private		bool				m_IsDashing						= false;
+	private		DashTarget			m_CurrentDashTarget				= null;
+	private		DashTarget			m_PreviousDashTarget			= null;
 
 
-
+	private		Grabbable			m_Grabbable						= null;
+	private		IInteractable		m_Interactable					= null;
 
 	private		Vector3				m_Move							= Vector3.zero;
+
 
 
 
@@ -32,16 +35,6 @@ public partial class Player : Human {
 		}
 		Instance = this;
 		DontDestroyOnLoad( this );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// START
-	private	void	Start ()
-	{
-
-		m_ID = NewID();
-		m_FaceDirection = transform.rotation;
 
 		// Player Components
 		{
@@ -49,13 +42,14 @@ public partial class Player : Human {
 			m_Collider	= GetComponent<CapsuleCollider>();
 
 			// Foots
-			m_Foots = FindObjectOfType<Foots>() as IFoots;
+			m_Foots = transform.Find( "FootSpace" ).GetComponent<IFoots>();
 		}
+
+		m_ID = NewID();
 
 		// Player Data
 		{
-
-			m_SectionRef = GLOBALS.Configs.GetSection( m_SectionName = gameObject.name );
+			GameManager.Configs.GetSection( m_SectionName = gameObject.name, ref m_SectionRef );
 			if ( m_SectionRef == null )
 			{
 				Destroy( gameObject );
@@ -72,6 +66,7 @@ public partial class Player : Human {
 			// Crouched
 			m_SectionRef.AsMultiValue( "Crouch",	1, 2, 3, ref m_CrouchSpeed,	ref m_CrouchJumpCoef,	ref m_CrouchStamina );
 
+			m_FallDistanceThreshold = m_SectionRef.AsFloat( "FallDistanceThreshold" );
 
 			// Climbing
 ///			bool result = m_SectionRef.bAsFloat( "Climb", ref m_ClimbSpeed );
@@ -97,9 +92,11 @@ public partial class Player : Human {
 
 		}
 		
-		m_Health			= m_SectionRef.AsFloat( "Health", 100.0f );
+		Health				= m_SectionRef.AsFloat( "Health", 100.0f );
 		m_RigidBody.mass	= m_SectionRef.AsFloat( "phMass", 80.0f  );
 		m_Stamina = 1.0f;
+		GroundSpeedModifier = 1.0f;
+		IsActive = true;
 
 		SetMotionType( eMotionType.Walking );
 
@@ -109,21 +106,17 @@ public partial class Player : Human {
 		m_GrabPoint.transform.localPosition = Vector3.zero;
 		m_GrabPoint.transform.localRotation = Quaternion.identity;
 		m_GrabPoint.transform.Translate( 0f, 0f, m_UseDistance );
-//		var rb = m_DragPoint.AddComponent<Rigidbody>();
-//		rb.useGravity = false;
-//		rb.isKinematic = true;
+
+		CameraControl.Instance.transform.rotation = transform.rotation;
 
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnActiveChange
-	private	void	OnActiveChange( bool state )
+	// START
+	private	void	Start ()
 	{
-		if ( state == false )
-		{
-			m_RigidBody.velocity = m_Move = Vector3.zero;
-		}
+
 	}
 
 
@@ -134,10 +127,11 @@ public partial class Player : Human {
 		if ( m_GrabbedObject == null )
 			return;
 
-		Rigidbody rb	= m_GrabbedObject.GetComponent<Rigidbody>();
-		rb.useGravity	= m_GrabbedObjectUseGravity;
-		rb.mass			= m_GrabbedObjectMass;
-		m_GrabbedObject = null;
+		Rigidbody rb		= m_GrabbedObject.GetComponent<Rigidbody>();
+		rb.useGravity		= m_GrabbedObjectUseGravity;
+		rb.mass				= m_GrabbedObjectMass;
+		m_GrabbedObject		= null;
+		m_CanGrabObjects	= true;
 	}
 
 
@@ -145,7 +139,7 @@ public partial class Player : Human {
 	// MoveGrabbedObject
 	private	void	MoveGrabbedObject()
 	{
-		if ( m_Active == false )
+		if ( IsActive == false )
 			return;
 
 		if ( m_GrabbedObject == null )
@@ -170,7 +164,7 @@ public partial class Player : Human {
 	// FixedUpdate
 	private void	FixedUpdate()
 	{
-		if ( m_Active == false )
+		if ( IsActive == false )
 			return;
 
 		MoveGrabbedObject();
@@ -181,9 +175,9 @@ public partial class Player : Human {
 	// Update
 	private void	Update ()
 	{
-		if ( m_Active == false )
+		if ( IsActive == false || m_IsDashing == true )
 			return;
-	
+
 		// Reset "local" states
 		m_States.Reset();
 
@@ -198,18 +192,37 @@ public partial class Player : Human {
 
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Check for usage
-#region			OBJECT GRAB
+#region			INTERACTIONS
 		{
 			// Get interactable / draggable object
 			RaycastHit hit				= new RaycastHit();
-			Grabbable grabbable			= null;
-			IInteractable interactable	= null;
 			if ( m_GrabbedObject == null )
 			{
-				if ( Physics.Raycast( CameraControl.Instance.transform.position, CameraControl.Instance.transform.forward, out hit, m_UseDistance ) )
+
+				Debug.DrawLine(
+					CameraControl.Instance.transform.position, 
+					CameraControl.Instance.transform.position + CameraControl.Instance.transform.forward * MAX_INTERACTION_DISTANCE
+				);
+
+				if ( Physics.Raycast( CameraControl.Instance.transform.position, CameraControl.Instance.transform.forward, out hit, MAX_INTERACTION_DISTANCE ) )
 				{
-					grabbable = hit.transform.GetComponent<Grabbable>();
-					interactable = hit.transform.GetComponent<IInteractable>();
+
+					if ( m_IsDashing == false )
+					{
+						m_CurrentDashTarget = hit.transform.GetComponent<DashTarget>();
+					}
+
+					if ( m_CanGrabObjects == true && hit.distance <= m_UseDistance )
+					{
+						m_Grabbable		= hit.transform.GetComponent<Grabbable>();
+						m_Interactable	= hit.transform.GetComponent<IInteractable>();
+					}
+				}
+				else
+				{
+					m_CurrentDashTarget		= null;
+					m_Grabbable				= null;
+					m_Interactable			= null;
 				}
 			}
 			else
@@ -224,12 +237,18 @@ public partial class Player : Human {
 			{
 				if ( m_GrabbedObject == null )
 				{
-					// Interaction
-					if ( interactable != null && interactable.CanInteract )
-						interactable.OnInteraction();
+					if ( m_CurrentDashTarget != null )
+					{
+						OnDashTargetUsed( ref m_CurrentDashTarget );
+						return;
+					}
 
-					// Drag
-					if ( grabbable != null && interactable.CanInteract )
+					// Interaction
+					if ( m_Interactable != null && m_Interactable.CanInteract )
+						m_Interactable.OnInteraction();
+
+					// Grab
+					if ( m_Grabbable != null && m_Interactable.CanInteract )
 					{
 						m_GrabbedObject = hit.transform.gameObject;
 
@@ -237,6 +256,7 @@ public partial class Player : Human {
 						m_GrabbedObjectMass			= rb.mass;			rb.mass = 1f;
 						m_GrabbedObjectUseGravity	= rb.useGravity;	rb.useGravity = false;
 						rb.interpolation = RigidbodyInterpolation.Extrapolate;
+						m_CanGrabObjects = false;
 					}
 				}
 				else
@@ -308,7 +328,8 @@ public partial class Player : Human {
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Movement Update
 		{
-			switch ( m_MotionType ) {
+			switch ( MotionType )
+			{
 				case eMotionType.Walking:	{ this.Update_Walk();		break; }
 				case eMotionType.Flying:	{ this.Update_Fly();		break; }
 				case eMotionType.Swimming:	{ this.Update_Swim();		break; }
@@ -319,7 +340,6 @@ public partial class Player : Human {
 
 		// rotate the capsule of the player
 		transform.rotation = Quaternion.Euler( Vector3.Scale( CameraControl.Instance.transform.rotation.eulerAngles, new Vector3( 0f, 1f, 0f ) ) );
-		m_FaceDirection = CameraControl.Instance.transform.rotation;
 		// Update flashlight position and rotation
 //		pFlashLight->Update();
 

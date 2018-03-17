@@ -1,7 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿
 using UnityEngine;
-
+using UnityEngine.PostProcessing;
 
 public partial class CameraControl : MonoBehaviour {
 
@@ -14,11 +13,14 @@ public partial class CameraControl : MonoBehaviour {
 
 	public static CameraControl Instance				= null;
 
-	private	bool			m_ClampedXAxis				= true;
-	public	bool			ClampedXAxis {
-		get { return m_ClampedXAxis; }
-		set { m_ClampedXAxis = value; }
+
+	public	bool			ClampedXAxis				{ get; set; }
+	public	bool			CanParseInput				{ get; set; }
+	public	PostProcessingProfile GetPP_Profile
+	{
+		get { return GetComponent<PostProcessingBehaviour>().profile; }
 	}
+
 
 	[SerializeField, Tooltip("Camera ViewPoint"), ReadOnly]
 	private	Transform		m_ViewPoint					= null;
@@ -56,11 +58,6 @@ public partial class CameraControl : MonoBehaviour {
 	{
 		get { return m_HeadBob; }
 	}
-	
-	public	bool			CanParseInput
-	{
-		get; set;
-	}
 
 	private	Camera			m_CameraRef					= null;
 	public	Camera			MainCamera
@@ -72,11 +69,10 @@ public partial class CameraControl : MonoBehaviour {
 //	private float			m_CurrentRotation_Y			= 0.0f;
 	private float			m_CurrentRotation_Y_Delta	= 0.0f;
 
-	private float			m_CameraOffset				= 5.0f;
-	private float			m_CurrentCameraOffset		= 5.0f;
 	private	float			m_CameraFPS_Shift			= 0.0f;
 
 	private	Vector3			m_CurrentDirection			= Vector3.zero;
+	private	Vector3			m_CurrentDispersion			= Vector3.zero;
 
 
 	private void Awake()
@@ -91,13 +87,15 @@ public partial class CameraControl : MonoBehaviour {
 		Instance = this;
 		DontDestroyOnLoad( this );
 
+		ClampedXAxis = true;
+
 		Player player = FindObjectOfType<Player>();
 		if ( player == null )
 		{
 			enabled = false;
 			return;
 		}
-		m_ViewPoint = player.transform.GetChild( 0 );
+		m_ViewPoint = player.transform.Find( "ViewPivot" );
 
 	}
 
@@ -109,6 +107,14 @@ public partial class CameraControl : MonoBehaviour {
 		Cursor.visible = false;
 
 		CanParseInput = true;
+	}
+
+	           
+
+	public	void	ApplyDispersion( float range )
+	{
+		m_CurrentDispersion.x += Random.Range( -range, -range * 0.5f );
+		m_CurrentDispersion.y += Random.Range( -range, range );
 	}
 
 
@@ -125,11 +131,15 @@ public partial class CameraControl : MonoBehaviour {
 			return;
 		}
 
-		LiveEntity pLiveEnitiy = m_ViewPoint.GetComponentInParent<LiveEntity>();
-		if ( pLiveEnitiy && pLiveEnitiy.Grounded )
+		m_CurrentDirection = Vector3.Lerp( m_CurrentDirection, m_CurrentDirection + m_CurrentDispersion, Time.deltaTime * 8f );
+		m_CurrentDirection.x = Utils.Math.Clamp( m_CurrentDirection.x - m_CurrentRotation_Y_Delta, CLAMP_MIN_X_AXIS, CLAMP_MAX_X_AXIS );
+		m_CurrentDispersion = Vector3.Lerp ( m_CurrentDispersion, Vector3.zero, Time.deltaTime * 3f );
+
+		LiveEntity pLiveEnitiy = m_ViewPoint.parent.GetComponent<LiveEntity>();
+		if ( pLiveEnitiy && pLiveEnitiy.IsGrounded )
 		{
-			m_HeadBob.Update ( liveEntity : pLiveEnitiy, weight : pLiveEnitiy.IsMoving == true ? 1f : 0f );
-			m_HeadMove.Update( liveEntity : pLiveEnitiy, weight : pLiveEnitiy.IsMoving == true ? 0f : 1f );
+			m_HeadBob.Update ( liveEntity : ref pLiveEnitiy, weight : pLiveEnitiy.IsMoving == true ? 1f : 0f );
+			m_HeadMove.Update( liveEntity : ref pLiveEnitiy, weight : pLiveEnitiy.IsMoving == true ? 0f : 1f );
 		}
 		else
 		{
@@ -156,7 +166,7 @@ public partial class CameraControl : MonoBehaviour {
 
 		// User Control
 
-		LiveEntity pLiveEnitiy	= m_ViewPoint.GetComponentInParent<LiveEntity>();
+		LiveEntity pLiveEnitiy	= m_ViewPoint.parent.GetComponent<LiveEntity>();
 		m_SmoothFactor			= Mathf.Clamp( m_SmoothFactor, 1.0f, 10.0f );
 
 		// Rotation
@@ -179,7 +189,7 @@ public partial class CameraControl : MonoBehaviour {
 			////////////////////////////////////////////////////////////////////////////////
 			if ( CanParseInput == true && ( m_CurrentRotation_X_Delta != 0.0f || m_CurrentRotation_Y_Delta != 0.0f ) )
 			{
-				if ( m_ClampedXAxis )
+				if ( ClampedXAxis )
 					m_CurrentDirection.x = Utils.Math.Clamp( m_CurrentDirection.x - m_CurrentRotation_Y_Delta, CLAMP_MIN_X_AXIS, CLAMP_MAX_X_AXIS );
 				else
 					m_CurrentDirection.x = m_CurrentDirection.x - m_CurrentRotation_Y_Delta;
@@ -189,8 +199,6 @@ public partial class CameraControl : MonoBehaviour {
 
 			// rotation with effect added
 			transform.rotation = Quaternion.Euler( m_CurrentDirection + m_HeadBob.Direction + m_HeadMove.Direction );
-
-			pLiveEnitiy.FaceDirection = transform.rotation;
 
 		}
 

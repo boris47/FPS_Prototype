@@ -6,7 +6,7 @@ public partial class Player {
 
 	private	void	Update_Walk()
 	{
-		if ( m_Health <= 0.0f )
+		if ( Health <= 0.0f )
 			return;
 
 		float 	fMove 			= Inputmanager.Inputs.Forward     ? 1.0f : Inputmanager.Inputs.Backward   ? -1.0f : 0.0f;
@@ -22,7 +22,7 @@ public partial class Player {
 			m_States.IsCrouched = m_PreviousStates.IsCrouched;
 			
 
-		if ( m_Grounded == false )
+		if ( IsGrounded == false )
 		{
 			if ( m_RigidBody.velocity.y > 0.0f )
 				m_States.IsHanging = true;
@@ -206,10 +206,10 @@ public partial class Player {
 		m_Move.y = m_RigidBody.velocity.y;
 
 		// Apply ground speed modifier
-		m_Move *= m_GroundSpeedModifier;
+		m_Move *= GroundSpeedModifier;
 
 		// Add jump force
-		if ( bIsJumping && m_Grounded )
+		if ( bIsJumping && IsGrounded )
 			m_RigidBody.velocity = m_RigidBody.velocity + Vector3.up * fFinalJump;
 
 		m_RigidBody.velocity = new Vector3(  m_Move.x, m_RigidBody.velocity.y, m_Move.z );

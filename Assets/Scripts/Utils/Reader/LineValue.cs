@@ -20,11 +20,11 @@ namespace CFG_Reader {
 
 
 		// Can be NONE, SINGLE, MULTI, KEYONLY
-		public 	LineValueType		Type 				{ get {return iType; } }
-		public 	string				Key					{ get { return ( string ) sKey.Clone(); } }
-		public 	string				RawValue 			{ get { return ( string ) sRawValue.Clone(); } }
-		public 	cValue				Value				{ get { return pValue; } }
-		public 	cMultiValue			MultiValue			{ get { return pMultiValue;	} }
+		public 	LineValueType		Type 						{ get {return iType; } }
+		public 	string				Key							{ get { return ( string ) sKey.Clone(); } }
+		public 	string				RawValue 					{ get { return ( string ) sRawValue.Clone(); } }
+		public 	cValue				Value						{ get { return pValue; } }
+		public 	cMultiValue			MultiValue					{ get { return pMultiValue;	} }
 
 
 
@@ -46,7 +46,7 @@ namespace CFG_Reader {
 				if ( vValues.Length < 1 )
 					return;
 
-				pMultiValue = new cMultiValue( vValues );
+				pMultiValue = new cMultiValue( ref vValues );
 		
 			}
 			else
@@ -73,12 +73,12 @@ namespace CFG_Reader {
 		/////////////////////////////////////////////////////////////////////////////////
 
 
-		public 	bool IsKey( string Key )					{ return ( sKey == Key ); }
+		public 	bool IsKey( string Key )						{ return ( sKey == Key ); }
 
-		public 	void Clear()								{ pValue = null; pMultiValue = null; }
+		public 	void Clear()									{ pValue = null; pMultiValue = null; }
 		
-		public 	cLineValue Set( cValue _Value )				{ pValue = _Value; return this; }
-		public 	cLineValue Set( cMultiValue _MultiValue )	{ pMultiValue = _MultiValue; return this;	}
+		public 	cLineValue Set( ref cValue _Value )				{ pValue = _Value; return this; }
+		public 	cLineValue Set( ref cMultiValue _MultiValue )	{ pMultiValue = _MultiValue; return this;	}
 		
 	
 

@@ -36,9 +36,9 @@ public class SurfaceManager : MonoBehaviour {
 	}
 
 
-	public AudioClip GetFootstep( Collider groundCollider, Vector3 worldPosition )
+	public AudioClip GetFootstep( ref Collider groundCollider, Vector3 worldPosition )
 	{
-		int surfaceIndex = GetSurfaceIndex( groundCollider, worldPosition );
+		int surfaceIndex = GetSurfaceIndex( ref groundCollider, worldPosition );
 		if( surfaceIndex == -1 )
 			return null;
 
@@ -68,8 +68,8 @@ public class SurfaceManager : MonoBehaviour {
 		{
 			Terrain terrain = col.GetComponent<Terrain>();
 			TerrainData terrainData = terrain.terrainData;
-			float[] textureMix = GetTerrainTextureMix( worldPos, terrainData, terrain.GetPosition() );
-			int textureIndex = GetTextureIndex( textureMix );
+			float[] textureMix = GetTerrainTextureMix( worldPos, ref terrainData, terrain.GetPosition() );
+			int textureIndex = GetTextureIndex( ref textureMix );
 			textureName = terrainData.splatPrototypes[ textureIndex ].texture.name;
 
 		}
@@ -88,7 +88,7 @@ public class SurfaceManager : MonoBehaviour {
 	}
 
 	// This is for footsteps
-	private int GetSurfaceIndex( Collider col, Vector3 worldPos )
+	private int GetSurfaceIndex( ref Collider col, Vector3 worldPos )
 	{
 		string textureName = "";
 
@@ -97,8 +97,8 @@ public class SurfaceManager : MonoBehaviour {
 		{
 			Terrain terrain = col.GetComponent<Terrain>();
 			TerrainData terrainData = terrain.terrainData;
-			float[] textureMix = GetTerrainTextureMix( worldPos, terrainData, terrain.GetPosition() );
-			int textureIndex = GetTextureIndex( textureMix );
+			float[] textureMix = GetTerrainTextureMix( worldPos, ref terrainData, terrain.GetPosition() );
+			int textureIndex = GetTextureIndex( ref textureMix );
 			textureName = terrainData.splatPrototypes[ textureIndex ].texture.name;
 
 		}
@@ -168,7 +168,7 @@ public class SurfaceManager : MonoBehaviour {
 	}
 
 
-	private float[] GetTerrainTextureMix( Vector3 worldPos, TerrainData terrainData, Vector3 terrainPos )
+	private float[] GetTerrainTextureMix( Vector3 worldPos, ref TerrainData terrainData, Vector3 terrainPos )
 	{
 		// returns an array containing the relative mix of textures
 		// on the main terrain at this world position.
@@ -186,13 +186,13 @@ public class SurfaceManager : MonoBehaviour {
 		// extract the 3D array data to a 1D array:
 		float[] cellMix = new float[ splatmapData.GetUpperBound(2) + 1 ];
 
-		for(int n = 0;n < cellMix.Length;n++)
-			cellMix[n] = splatmapData[0, 0, n];
+		for( int n = 0; n < cellMix.Length; n++ )
+			cellMix[ n ] = splatmapData[ 0, 0, n ];
 
 		return cellMix;
 	}
 
-	private int GetTextureIndex( float[] textureMix )
+	private int GetTextureIndex( ref float[] textureMix )
 	{
 		// returns the zero-based index of the most dominant texture
 		// on the terrain at this world position.

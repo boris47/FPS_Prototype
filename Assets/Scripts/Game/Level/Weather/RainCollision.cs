@@ -29,7 +29,7 @@ namespace WeatherSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Emit
-		private void Emit( ParticleSystem particle, Vector3 position )
+		private void Emit( ref ParticleSystem particle, Vector3 position )
 		{
 			int count = Random.Range( 1, 4 );
 			while ( count != 0 )
@@ -70,7 +70,7 @@ namespace WeatherSystem {
 						continue;
 
 //					ParticleCollisionEvent evt = m_CollisionEvents[ i ];
-					this.Emit( m_RainExplosion, m_CollisionEvents[ i ].intersection );
+					this.Emit( ref m_RainExplosion, m_CollisionEvents[ i ].intersection );
 				}
 			}
 		}

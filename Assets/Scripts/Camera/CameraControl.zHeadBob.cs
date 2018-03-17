@@ -30,7 +30,7 @@ public class HeadBob : CameraEffectBase {
 
 
 
-	public void Update( LiveEntity liveEntity, float weight )
+	public void Update( ref LiveEntity liveEntity, float weight )
 	{
 		if ( m_IsActive == false )
 			return;

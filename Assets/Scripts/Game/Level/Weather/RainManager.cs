@@ -175,9 +175,10 @@ namespace WeatherSystem {
 			}
 
 			// Get info from settings file
-			if ( GLOBALS.Configs != null )
+			if ( GameManager.Configs != null )
 			{
-				var pSection = GLOBALS.Configs.GetSection( "Thunderbolts" );
+				CFG_Reader.Section pSection = null;
+				GameManager.Configs.GetSection( "Thunderbolts", ref pSection );
 				if ( pSection != null )
 				{
 					pSection.bAsFloat( "ThunderTimerMin",		ref m_ThunderTimerMin );

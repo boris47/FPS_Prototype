@@ -34,7 +34,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4807210114246860}
-  - component: {fileID: 136254034575231660}
+  - component: {fileID: 65375842574980010}
   - component: {fileID: 114211241402730314}
   m_Layer: 0
   m_Name: FootSpace
@@ -70,7 +70,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1822540948928968}
   m_LocalRotation: {x: -0, y: 0.38268343, z: -0, w: 0.92387956}
-  m_LocalPosition: {x: 141.58835, y: 6.389742, z: 133.13416}
+  m_LocalPosition: {x: 143.177, y: 28.02, z: 123.886}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4792625979256910}
@@ -98,7 +98,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1627956800696240}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.8, z: 0}
+  m_LocalPosition: {x: 0, y: -1.01, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4183834874118264}
@@ -158,6 +158,18 @@ Rigidbody:
   m_Interpolate: 2
   m_Constraints: 112
   m_CollisionDetection: 0
+--- !u!65 &65375842574980010
+BoxCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1627956800696240}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.8, y: 0.4, z: 0.8}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &114211241402730314
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -181,25 +193,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_UseDistance: 2
-  m_Health: 100
   m_Stamina: 0
   m_WalkSpeed: 3
   m_RunSpeed: 8
   m_CrouchSpeed: 3.5
   m_ClimbSpeed: 0.1
---- !u!136 &136254034575231660
-CapsuleCollider:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1627956800696240}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 0
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
+  velocity: 0
 --- !u!136 &136525288375170706
 CapsuleCollider:
   m_ObjectHideFlags: 1

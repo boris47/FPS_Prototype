@@ -22,26 +22,9 @@ public struct inputs_t {
 
 public class Inputmanager {
 
-	private	static bool m_HoldCrouch			= false;
-	public	static bool HoldCrouch
-	{
-		set { m_HoldCrouch = value; }
-		get { return m_HoldCrouch; }
-	}
-
-	private	static bool m_HoldJump				= false;
-	public	static bool HoldJump
-	{
-		set { m_HoldJump = value; }
-		get { return m_HoldJump; }
-	}
-
-	private	static bool m_HoldRun				= true;
-	public	static bool HoldRun
-	{
-		set { m_HoldRun = value; }
-		get { return m_HoldCrouch; }
-	}
+	public	static bool HoldCrouch		{ get; set; }
+	public	static bool HoldJump		{ get; set; }
+	public	static bool HoldRun			{ get; set; }
 
 	private static inputs_t m_Inputs;
 	public  static inputs_t	Inputs
@@ -50,7 +33,8 @@ public class Inputmanager {
 	}
 	
 	// Update is called once per frame
-	public void	Update () {
+	public void	Update ()
+	{
 		
 		Inputs.Reset();
 
@@ -62,17 +46,17 @@ public class Inputmanager {
 		m_Inputs.LeanLeft		= Input.GetKey ( KeyCode.Q ) || Input.GetKey ( KeyCode.Keypad7 );
 		m_Inputs.LeanRight		= Input.GetKey ( KeyCode.E ) || Input.GetKey ( KeyCode.Keypad9 );
 
-		m_Inputs.Crouch			= m_HoldCrouch ?
+		m_Inputs.Crouch			= HoldCrouch ?
 								( Input.GetKey ( KeyCode.LeftControl ) || Input.GetKey ( KeyCode.RightControl ) )
 								:
 								( Input.GetKeyDown ( KeyCode.LeftControl ) || Input.GetKeyDown ( KeyCode.RightControl ) );
 
-		m_Inputs.Jump			= m_HoldJump ?
+		m_Inputs.Jump			= HoldJump ?
 								( Input.GetKey ( KeyCode.Space ) || Input.GetKey ( KeyCode.Keypad0 ) )
 								:
 								( Input.GetKeyDown ( KeyCode.Space ) || Input.GetKeyDown ( KeyCode.Keypad0 ) );
 
-		m_Inputs.Run			= m_HoldRun ?
+		m_Inputs.Run			= HoldRun ?
 								( Input.GetKey ( KeyCode.LeftShift ) || Input.GetKey ( KeyCode.RightShift ) )
 								:
 								( Input.GetKeyDown ( KeyCode.LeftShift ) || Input.GetKeyDown ( KeyCode.RightShift ) );

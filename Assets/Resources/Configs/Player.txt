@@ -1,5 +1,5 @@
 [Player]
-Health					= 150.0;
+Health					= 100.0;
 MaxItemsMass			= 35.0
 FootStepsSection		= ActorFootSteeps;
 
@@ -11,6 +11,8 @@ Walk					= 3.0, 0.66, 0.0;
 Run						= 8.0, 0.72, 0.05;
 Crouch					= 1.2, 1.00, 0.0;
 Climb					= 0.1;
+
+FallDistanceThreshold	= 5.0; in meters
 
 ;						JumpForce,	Stamina usage
 Jump					= 8.2,		0.2;

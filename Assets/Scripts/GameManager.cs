@@ -8,7 +8,15 @@ public class GameEvent      : UnityEngine.Events.UnityEvent { }
 
 public class GameManager : MonoBehaviour {
 
-	public static GameManager Instance = null;
+	public	static Reader			Settings	= null;
+
+	public	static Reader			Configs		= null;
+
+	public	static Inputmanager		InputMgr	= new Inputmanager();
+
+	public	static GameManager		Instance	= null;
+
+	public	bool					HideCursor	= true;
 
 	// Use this for initialization
 	void Awake ()
@@ -21,19 +29,25 @@ public class GameManager : MonoBehaviour {
 		}
 		DontDestroyOnLoad( this );
 
-		GLOBALS.Settings = new Reader();
+		Settings = new Reader();
 #if UNITY_EDITOR
-		GLOBALS.Settings.LoadFile( "Assets/Resources/Settings.txt" );
+		Settings.LoadFile( "Assets/Resources/Settings.txt" );
 #else
-		GLOBALS.Settings.LoadFile( "Settings" );
+		Settings.LoadFile( "Settings" );
 #endif
 
-		GLOBALS.Configs = new Reader();
+		Configs = new Reader();
 #if UNITY_EDITOR
-		GLOBALS.Configs.LoadFile( "Assets/Resources/Configs/All.txt" );
+		Configs.LoadFile( "Assets/Resources/Configs/All.txt" );
 #else
-		GLOBALS.Configs.LoadFile( "Configs\\All" );
+		Configs.LoadFile( "Configs\\All" );
 #endif
+
+		if ( HideCursor )
+		{
+			Cursor.visible = false;
+			Cursor.lockState = CursorLockMode.Locked;
+		}
 
 		Application.targetFrameRate = 60;
 	}
@@ -53,7 +67,7 @@ public class GameManager : MonoBehaviour {
 #endif
 		}
 
-		GLOBALS.InputMgr.Update();
+		InputMgr.Update();
 
 	}
 

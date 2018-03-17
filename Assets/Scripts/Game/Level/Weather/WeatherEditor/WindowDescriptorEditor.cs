@@ -158,7 +158,8 @@ namespace WeatherSystem {
 				}
 				else
 				{
-					var section = reader.GetSection( m_CurrentDescriptor.Identifier + ":00" );
+					CFG_Reader.Section section = null;
+					reader.GetSection( m_CurrentDescriptor.Identifier + ":00", ref section );
 					if ( section != null )
 					{
 						Utils.Converters.StringToColor( section.GetRawValue("ambient_color"),		ref m_CurrentDescriptor.AmbientColor	);

@@ -20,7 +20,7 @@ namespace CFG_Reader {
 		}
 
 
-		public cMultiValue( cValue[] vValues )
+		public cMultiValue( ref cValue[] vValues )
 		{
 			m_ValuesArray = vValues;
 		}
@@ -38,7 +38,7 @@ namespace CFG_Reader {
 		}
 
 		/////////////////////////////////////////////////////////
-		public void		Add( cValue pValue )
+		public void		Add( ref cValue pValue )
 		{
 			System.Array.Resize<cValue>( ref m_ValuesArray, m_ValuesArray.Length + 1 );
 			m_ValuesArray[ m_ValuesArray.Length - 1 ] = pValue;

@@ -31,7 +31,7 @@ public interface IEntity {
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Collider))]
-public abstract class Entity : MonoBehaviour, IEntity {
+public abstract partial class Entity : MonoBehaviour, IEntity {
 
 	private	static uint CurrentID = 0;
 	public	static uint NewID() {
@@ -44,10 +44,10 @@ public abstract class Entity : MonoBehaviour, IEntity {
 		get { return m_ID; }
 	}
 
-	protected	ISection		m_SectionRef					= null;
+	protected	Section			m_SectionRef					= null;
 
 	protected 	string			m_SectionName					= "None";
-
+	[System.NonSerialized]
 	protected 	byte			m_EntityType					= ( byte ) ENTITY_TYPE.NONE;
 
 	protected 	bool			m_IsInWater						= false;
@@ -55,6 +55,10 @@ public abstract class Entity : MonoBehaviour, IEntity {
 
 
 	protected	Rigidbody		m_RigidBody						= null;
+	public		Rigidbody		RigidBody
+	{
+		get { return m_RigidBody; }
+	}
 
 
 	protected	bool 			m_IsOK							= false;
@@ -85,9 +89,4 @@ public abstract class Entity : MonoBehaviour, IEntity {
 
 	public		void			SetUnderWater( bool b )			{ m_IsUnderWater = b; }
 	public		bool			IsUnderWater()					{ return m_IsUnderWater; }
-
-
-
-		
-
 }

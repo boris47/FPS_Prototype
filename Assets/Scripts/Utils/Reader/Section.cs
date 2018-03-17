@@ -79,8 +79,13 @@ namespace CFG_Reader {
 		}
 
 
+		public Section( string SecName )
+		{
+			sName = SecName;
+			IsOK = true;
+		}
 
-		public Section( string SecName, ISection Mother = null )
+		public Section( string SecName, ref Section Mother )
 		{
 			sName = SecName;
 			if ( Mother != null )

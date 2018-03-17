@@ -11,16 +11,18 @@ public interface IFoots {
 
 public class Foots : MonoBehaviour, IFoots {
 
-	private		LiveEntity			m_Player			= null;
+	private		LiveEntity			m_LiveEntity		= null;
 	private		Collider			m_CurrentCollider	= null;
 
+	private		Vector3				m_PrevPosition		= Vector3.zero;
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// AWAKE
 	private void Awake()
 	{
-		m_Player = transform.parent.GetComponent<LiveEntity>();
+		m_LiveEntity	= transform.parent.GetComponent<LiveEntity>();
+		m_PrevPosition	= transform.position;
 	}
 
 
@@ -31,7 +33,7 @@ public class Foots : MonoBehaviour, IFoots {
 		if ( m_CurrentCollider == null )
 			return;
 
-		AudioClip footstepClip = SurfaceManager.Instance.GetFootstep( m_CurrentCollider, transform.position );
+		AudioClip footstepClip = SurfaceManager.Instance.GetFootstep( ref m_CurrentCollider, transform.position );
 		if ( footstepClip == null )
 			return;
 
@@ -45,21 +47,24 @@ public class Foots : MonoBehaviour, IFoots {
 	private void OnTriggerEnter( Collider other )
 	{
 		m_CurrentCollider = other;
-		m_Player.Grounded = true;
+		m_LiveEntity.IsGrounded = true;
+
+		m_LiveEntity.EvaluateFall( m_PrevPosition - transform.position );
+		m_PrevPosition = transform.position;
 		PlayStep();
 	}
 
 	private void OnTriggerStay( Collider other )
 	{
 		m_CurrentCollider = other;
-		m_Player.Grounded = true;
+		m_LiveEntity.IsGrounded = true;
 	}
 
 
 	private void OnTriggerExit( Collider other )
 	{
 		m_CurrentCollider = null;
-		m_Player.Grounded = false;
+		m_LiveEntity.IsGrounded = false;
 	}
 
 

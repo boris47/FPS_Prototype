@@ -13,15 +13,12 @@ public abstract partial class LiveEntity {
 	};
 
 	// This variable control which physic to use on entity
-	protected	eMotionType		m_MotionType		= eMotionType.Walking;
-	public		eMotionType	MotionType {
-		get { return m_MotionType; }
-		set { SetMotionType( value ); }
-	}
+	public		eMotionType		MotionType				{ get; set; }
 
-
-	protected	eMotionType	m_PrevMotionType		= eMotionType.Walking;
-	public		eMotionType	PrevMotionType {
+	[System.NonSerialized]
+	protected	eMotionType		m_PrevMotionType		= eMotionType.Walking;
+	public		eMotionType		PrevMotionType
+	{
 		get { return m_PrevMotionType; }
 	}
 
@@ -29,32 +26,31 @@ public abstract partial class LiveEntity {
 
 	public		void	SetMotionType( eMotionType m )
 	{
-		m_PrevMotionType = m_MotionType;
+		m_PrevMotionType = MotionType;
 		switch( m )
 		{
-			case eMotionType.Walking:	{ SetMotionTypeInternal( m, true,	new bool[3] { false, false, true } ); return; }
-			case eMotionType.Flying:	{ SetMotionTypeInternal( m, false,	new bool[3] { true,  true,  true } ); return; }
-			case eMotionType.Swimming:	{ SetMotionTypeInternal( m, false,	new bool[3] { true,  true,  true } ); return; }
-			case eMotionType.P1ToP2:	{ SetMotionTypeInternal( m, false,	new bool[3] { false, false, true } ); return; }
+			case eMotionType.Walking:	{ SetMotionTypeInternal( m, true,	false, false, true ); return; }
+			case eMotionType.Flying:	{ SetMotionTypeInternal( m, false,	true,  true,  true ); return; }
+			case eMotionType.Swimming:	{ SetMotionTypeInternal( m, false,	true,  true,  true ); return; }
+			case eMotionType.P1ToP2:	{ SetMotionTypeInternal( m, false,	false, false, true ); return; }
 		}
 
 	}
 
-	private	void	SetMotionTypeInternal( eMotionType type, bool useGravity, bool[] inputs )
+	private	void	SetMotionTypeInternal( eMotionType type, bool useGravity, bool HoldCrouch, bool HoldJump, bool HoldRun )
 	{
-		if ( m_MotionType == type )
+		if ( MotionType == type )
 			return;
 
-		m_PrevMotionType = m_MotionType;
-		m_MotionType	 = type;
+		m_PrevMotionType = MotionType;
+		MotionType		= type;
 
 		m_States.Reset();
 
-		m_RigidBody.useGravity = useGravity;
-
-		Inputmanager.HoldCrouch = inputs[0];
-		Inputmanager.HoldJump = inputs[1];
-		Inputmanager.HoldRun = inputs[2];
+		m_RigidBody.useGravity	= useGravity;
+		Inputmanager.HoldCrouch	= HoldCrouch;
+		Inputmanager.HoldJump	= HoldJump;
+		Inputmanager.HoldRun	= HoldRun;
 	}
 
 }
