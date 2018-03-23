@@ -38,11 +38,63 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		return CurrentID++;
 	}
 
+	public		bool			IsActive						{ get; set; }
 
 	protected 	uint			m_ID							= 0;
-	public		uint			ID {
+	public		uint			ID
+	{
 		get { return m_ID; }
 	}
+
+	protected	float			m_Health						= 1f;
+	public		float			Health
+	{
+		get { return m_Health; }
+		set { m_Health = value; }
+	}
+	protected		float		m_Shield						= 0f;
+	public		float			Shield
+	{
+		get { return m_Shield; }
+		set { m_Shield = value; }
+	}
+	protected	float			m_ViewRange						= 1f;
+	public		float			ViewRange
+	{
+		get { return m_ViewRange; }
+		set { m_ViewRange = value; }
+	}
+
+	public		string			Section
+	{
+		get { return m_SectionName; }
+	}
+
+	public		bool			IsLiveEntity()
+	{
+		return this is LiveEntity;
+	}
+
+	public		LiveEntity		GetAsLiveEntity()
+	{
+		return this as LiveEntity;
+	}
+
+	public		bool			IsHuman()
+	{
+		return this is LiveEntity;
+	}
+
+	public		Human			GetAsHuman()
+	{
+		return this as Human;
+	}
+
+	public		void			SetInWater( bool b )			{ m_IsInWater = b; }
+	public		bool			IsInWater()						{ return m_IsInWater; }
+
+	public		void			SetUnderWater( bool b )			{ m_IsUnderWater = b; }
+	public		bool			IsUnderWater()					{ return m_IsUnderWater; }
 
 	protected	Section			m_SectionRef					= null;
 
@@ -53,40 +105,11 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	protected 	bool			m_IsInWater						= false;
 	protected 	bool			m_IsUnderWater					= false;
 
-
 	protected	Rigidbody		m_RigidBody						= null;
 	public		Rigidbody		RigidBody
 	{
 		get { return m_RigidBody; }
 	}
 
-
 	protected	bool 			m_IsOK							= false;
-
-
-	public		string			Section {
-		get { return m_SectionName; }
-	}
-
-	public		bool			IsLiveEntity() {
-		return this is LiveEntity;
-	}
-
-	public		LiveEntity		GetAsLiveEntity() {
-		return this as LiveEntity;
-	}
-
-	public		bool			IsHuman() {
-		return this is LiveEntity;
-	}
-
-	public		Human			GetAsHuman() {
-		return this as Human;
-	}
-
-	public		void			SetInWater( bool b )			{ m_IsInWater = b; }
-	public		bool			IsInWater()						{ return m_IsInWater; }
-
-	public		void			SetUnderWater( bool b )			{ m_IsUnderWater = b; }
-	public		bool			IsUnderWater()					{ return m_IsUnderWater; }
 }

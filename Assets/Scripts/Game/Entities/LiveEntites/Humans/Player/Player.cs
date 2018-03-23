@@ -8,6 +8,8 @@ public partial class Player : Human {
 
 	public	static	Player			Instance						= null;
 
+	public		Weapon				CurrentWeapon					{ get; set; }
+
 	// DASHING
 	[SerializeField]
 	private		float				m_DashSpeed						= 5f;
@@ -20,7 +22,6 @@ public partial class Player : Human {
 	private		IInteractable		m_Interactable					= null;
 
 	private		Vector3				m_Move							= Vector3.zero;
-
 
 
 
@@ -347,7 +348,28 @@ public partial class Player : Human {
 		m_PreviousStates = m_States;
 
 	}
-	
 
+	/*
+
+	private void OnTriggerEnter( Collider other )
+	{
+		DashTarget target = other.GetComponent<DashTarget>();
+		if ( target != null )
+		{
+			print( "disalbed" );
+			target.Disable();
+		}
+	}
+
+	private void OnTriggerExit( Collider other )
+	{
+		DashTarget target = other.GetComponent<DashTarget>();
+		if ( target != null )
+		{
+			print( "Enalbed" );
+			target.Enable();
+		}
+	}
+	*/
 
 }

@@ -398,19 +398,15 @@ namespace WeatherSystem {
 					return;
 			}
 
+#if UNITY_EDITOR
+			if ( UnityEditor.EditorApplication.isPlaying == false && EnableInEditor == false )
+				return;
+#endif
+
 			CheckForRainChange();
 			UpdateRain();
 			UpdateThunderbols();
-
-#if UNITY_EDITOR
-			if ( UnityEditor.EditorApplication.isPlaying == false )
-				return;
-#endif
-			if ( EnableInEditor == false )
-			{
-				m_RainIntensityEvent.setValue( m_RainIntensity );
-
-			}
+			m_RainIntensityEvent.setValue( m_RainIntensity );
 		}
 
 #endregion

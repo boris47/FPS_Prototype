@@ -1,25 +1,85 @@
 ﻿
 
 using UnityEngine;
+using System.Reflection;
+
+public static class ObjectCloner {
+
+	private	static	void	CloneComponent( ref Component component, ref GameObject destinationObj, bool copyProperties = false )
+	{
+		System.Type componentType = component.GetType();
+		
+		Component tmpComponent = destinationObj.GetComponent( componentType );
+		if ( tmpComponent == null )
+			tmpComponent = destinationObj.AddComponent( componentType );
+
+        if (copyProperties)
+        {
+            PropertyInfo[] foundProperties = componentType.GetProperties();
+            for (int i = 0; i < foundProperties.Length; i++)
+            {
+                PropertyInfo foundProperty = foundProperties[i];
+                if (foundProperty.CanWrite)
+                {
+                    foundProperty.SetValue( tmpComponent, foundProperty.GetValue( component, null ) , null );
+                }
+            }
+        }
+
+        FieldInfo[] foundFields = componentType.GetFields();
+        for (int i = 0; i < foundFields.Length; i++)
+        {
+            FieldInfo foundField = foundFields[i];
+            foundField.SetValue( tmpComponent, foundField.GetValue( component ) );
+        }
+	}
+
+	public	static	void	Clone( ref GameObject sourceObj, ref GameObject destinationObj, bool copyProperties = false )
+	{
+		// ALL COMPONENTS AND PROPERTIES EXCEPT MESH FILTER MESH PROPERTY
+		Component[] copyModelComponents = sourceObj.GetComponents<Component>();
+		for (int i = 0; i < copyModelComponents.Length; i++)
+		{
+			Component copyModelComponent = copyModelComponents[ i ];
+			CloneComponent( ref copyModelComponent, ref destinationObj, copyProperties );
+		}
+
+		// MESH FILTER MESH
+		MeshFilter sourceMeshFilter = sourceObj.GetComponent<MeshFilter>();
+		if ( sourceMeshFilter != null )
+			destinationObj.GetComponent<MeshFilter>().mesh = sourceMeshFilter.mesh;
+
+		//	RENDERER MATERIAL
+		Material returnHighlightMaterial = sourceObj.GetComponent<Renderer>().material;
+		destinationObj.GetComponent<Renderer>().material = returnHighlightMaterial;
+
+		// SCALE
+		destinationObj.transform.localScale = sourceObj.transform.localScale;
+	}
+
+}
 
 
+/// <summary> Generic object pooler </summary>
 public class GameObjectsPool {
 
 	private	static	int		Counter				= 0;
 
-	private	GameObject		m_RefModel			= null;
+//	private	GameObject		m_RefModel			= null;
 	private	GameObject		m_Container			= null;
 	private	int				m_InternalIndex		= 0;
 
-	private	int				m_OriginalSize		= 0;
+//	private	int				m_OriginalSize		= 0;
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// Copstructor
 	public	GameObjectsPool( ref GameObject model, int size, bool destroyModel )
 	{
-		m_RefModel		= Object.Instantiate( model );
-		m_OriginalSize	= size;
+//		m_RefModel = new GameObject( model.name );
+//		m_RefModel.hideFlags = HideFlags.HideInHierarchy;
+//		ObjectCloner.Clone( ref model, ref m_RefModel, true );
+//		m_OriginalSize	= size;
 
 		if ( m_Container == null )
 		{
@@ -29,12 +89,15 @@ public class GameObjectsPool {
 
 		for ( int i = 0; i < size; i++ )
 		{
-			Object.Instantiate( m_RefModel ).transform.SetParent( m_Container.transform );
+			GameObject objectCopy = new GameObject( model.name + "_" + i );
+			objectCopy.hideFlags = HideFlags.NotEditable;
+			ObjectCloner.Clone( ref model, ref objectCopy, true );
+			objectCopy.transform.SetParent( m_Container.transform );
 		}
 
 		// if model is not a prefab and user wants destroy it
 		if ( model.scene.name != null && destroyModel == true )
-			Object.Destroy( model );
+			Object.Destroy( model.gameObject );
 	}
 
 
@@ -43,14 +106,16 @@ public class GameObjectsPool {
 	public	GameObject	Get()
 	{
 		// Restore child count if gameobjects have been destroyied outside
-		if ( m_Container.transform.childCount < m_OriginalSize )
+/*		if ( m_Container.transform.childCount < m_OriginalSize )
 		{
 			while( m_Container.transform.childCount < m_OriginalSize )
 			{
-				Object.Instantiate( m_RefModel ).transform.SetParent( m_Container.transform );
+				GameObject objectCopy = new GameObject( m_RefModel.name );
+				ObjectCloner.Clone( ref m_RefModel, ref objectCopy, true );
+				objectCopy.transform.SetParent( m_Container.transform );
 			}
 		}
-
+*/
 		m_InternalIndex ++;
 		if ( m_InternalIndex >= m_Container.transform.childCount )
 			m_InternalIndex = 0;
@@ -58,11 +123,33 @@ public class GameObjectsPool {
 		return m_Container.transform.GetChild( m_InternalIndex ).gameObject;
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	// Get<T>
+	public	T	Get<T>()
+	{
+		GameObject go = Get();
+		T component = go.GetComponent<T>();
+		return component;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Destroy
+	public	void	Destroy()
+	{
+		if ( m_Container == null )
+			return;
+
+		for ( int i = 0; i < m_Container.transform.childCount; i++ )
+		{
+			Object.Destroy( m_Container.transform.GetChild( i ).gameObject );
+		}
+	}
 }
 
 
 
-
+/// <summary> Object pooler with a specified component added on every object </summary>
 public class GameObjectsPool<T> where T : UnityEngine.Component  {
 
 	private	GameObject		m_Container			= null;
@@ -123,7 +210,7 @@ public class GameObjectsPool<T> where T : UnityEngine.Component  {
 }
 
 
-
+/// <summary> Components pooler </summary>
 public	class ObjectsPool<T> where T : UnityEngine.Component {
 
 	private	T[]		m_Storage			= null;

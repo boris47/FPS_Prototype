@@ -7,7 +7,7 @@ public partial class Player {
 	[SerializeField]
 	private	AnimationCurve	DashTimeScaleCurve = AnimationCurve.Linear( 0f, 1f, 1f, 1f );
 
-	public override void OnHith( HitInfo info )
+	public override void OnHit( HitInfo info )
 	{
 		
 	}

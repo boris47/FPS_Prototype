@@ -1,0 +1,29 @@
+﻿
+
+;======== TURRETS
+[TurretStandard]
+Health = 100.0;
+Shield = 0.0;
+DamageMax = 5.0;
+DamageMin = 1.2;
+
+[TurretArmored]
+Health = 100.0;
+Shield = 100.0;
+DamageMax = 6.0;
+DamageMin = 1.8;
+
+
+
+;========= DRONES
+[DronesStandard]
+Health = 100.0;
+Shield = 0.0;
+DamageMax = 5.0;
+DamageMin = 1.2;
+
+[DronesArmored]
+Health = 100.0;
+Shield = 100.0;
+DamageMax = 6.0;
+DamageMin = 1.8;

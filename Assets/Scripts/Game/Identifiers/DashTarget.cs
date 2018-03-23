@@ -29,20 +29,30 @@ public class DashTarget : MonoBehaviour {
 		gameObject.layer = m_Layer_Default;
 	}
 
+	public	void	Enable()
+	{
+		m_Renderer.enabled = true;
+		gameObject.layer = m_Layer_Default;
+	}
 
+	public	void	Disable()
+	{
+		gameObject.layer = m_LayerIgnoreRaycast;
+		m_Renderer.enabled = false;
+	}
+	
 	private void OnTriggerEnter( Collider other )
 	{
 		if ( other.GetComponent<Player>() )
 		{
-			gameObject.layer = m_LayerIgnoreRaycast;
-			m_Renderer.enabled = false;
+			Disable();
 		}
 	}
 
 	private void OnTriggerExit( Collider other )
 	{
 		if ( other.GetComponent<Player>() )
-			OnReset();
+			Enable();
 	}
-
+	
 }

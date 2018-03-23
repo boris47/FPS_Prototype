@@ -7,7 +7,7 @@ public partial class Player {
 	
 	private	void	Update_Fly() {
 		
-		if ( Health <= 0.0f )
+		if ( m_Health <= 0.0f )
 			return;
 
 		float 	fMove 			= Inputmanager.Inputs.Forward     ? 1.0f : Inputmanager.Inputs.Backward   ? -1.0f : 0.0f;

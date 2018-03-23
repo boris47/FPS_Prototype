@@ -32,11 +32,8 @@ public abstract partial class LiveEntity : Entity {
 
 
 
-	// PLAYER PARAMENTERS
-	public		float			Health						{ get; set; }
-	public		bool			IsActive					{ get; set; }
+	// LIVE ENTITY PARAMENTERS
 	public		bool			IsGrounded					{ get; set; }
-	public		float			ViewRange					{ get;set; }
 	public		float			GroundSpeedModifier			{ get; set; }
 
 

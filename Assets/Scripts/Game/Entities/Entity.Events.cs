@@ -1,7 +1,7 @@
 ﻿
 public abstract partial class Entity {
 
-	public	abstract	void		OnHith( HitInfo info );
+	public	abstract	void		OnHit( HitInfo info );
 
 	public	abstract	void		OnHurt( HurtInfo info );
 

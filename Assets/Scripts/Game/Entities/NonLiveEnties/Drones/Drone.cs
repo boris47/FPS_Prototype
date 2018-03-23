@@ -1,0 +1,52 @@
+﻿
+using UnityEngine;
+using System.Collections;
+
+public abstract class Drone : NonLiveEntity {
+	
+
+	[SerializeField]
+	private		float		m_MaxSpeed = 3f;
+
+
+	protected override void Awake()
+	{
+		base.Awake();
+
+		// LOAD CONFIGURATION
+		{
+			GameManager.Configs.GetSection( m_SectionName = gameObject.name, ref m_SectionRef );
+			if ( m_SectionRef == null )
+			{
+				Destroy( gameObject );
+				return;
+			}
+
+			Health		= m_SectionRef.AsFloat( "Health", 30.0f );
+			m_Shield	= m_SectionRef.AsFloat( "Shield", 0.0f );
+		}
+
+		// BULLETS POOL CREATION
+		{
+			GameObject go = GameObject.CreatePrimitive( PrimitiveType.Sphere );
+			go.name = "DroneBlt";
+			Rigidbody rb = go.AddComponent<Rigidbody>();
+			rb.useGravity = false;
+			rb.velocity = Vector3.zero;
+			rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+			rb.detectCollisions = false;
+			go.transform.localScale = Vector3.one * 0.1f;
+
+			m_Pool = new GameObjectsPool( ref go, 10, true );
+		}
+	}
+
+
+	protected virtual void Update()
+	{
+		
+
+
+	}
+
+}

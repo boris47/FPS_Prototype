@@ -2,6 +2,8 @@
 
 #include Camera.txt
 #include Player.txt
+#include Turrets.txt
+#include Drones.txt
 
 [Time]
 TimeFactor			= 10.0;

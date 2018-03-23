@@ -146,7 +146,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 521b52a5b41cbe04f9862aa1e3b8a44f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Volume: 1
+  Volume: 0.7
   Pitch: 1
 --- !u!114 &114879694635983574
 MonoBehaviour:

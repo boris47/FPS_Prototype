@@ -28,6 +28,9 @@ public class SoundEffectManager : MonoBehaviour {
 		for ( int i = 0; i < m_Sources.Length; i++ )
 		{
 			AudioSource source = m_Sources [ i ];
+			if ( source == null )
+				continue;
+
 			source.volume = Volume;
 			source.pitch = Pitch;
 		}
