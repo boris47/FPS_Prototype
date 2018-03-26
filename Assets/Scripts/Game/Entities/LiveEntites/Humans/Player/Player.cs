@@ -11,12 +11,13 @@ public partial class Player : Human {
 	public		Weapon				CurrentWeapon					{ get; set; }
 
 	// DASHING
-	[SerializeField]
-	private		float				m_DashSpeed						= 5f;
 	private		bool				m_IsDashing						= false;
+	public		bool				IsDashing
+	{
+		get { return m_IsDashing; }
+	}
 	private		DashTarget			m_CurrentDashTarget				= null;
 	private		DashTarget			m_PreviousDashTarget			= null;
-
 
 	private		Grabbable			m_Grabbable						= null;
 	private		IInteractable		m_Interactable					= null;
@@ -27,7 +28,7 @@ public partial class Player : Human {
 
 	//////////////////////////////////////////////////////////////////////////
 	// AWAKE
-	private void Awake()
+	protected override void Awake()
 	{
 		if ( Instance != null )
 		{
@@ -37,10 +38,12 @@ public partial class Player : Human {
 		Instance = this;
 		DontDestroyOnLoad( this );
 
+		base.Awake();
+		 
 		// Player Components
 		{
-			m_RigidBody = GetComponent<Rigidbody>();
-			m_Collider	= GetComponent<CapsuleCollider>();
+			m_RigidBody			= GetComponent<Rigidbody>();
+			m_PhysicCollider	= GetComponent<CapsuleCollider>();
 
 			// Foots
 			m_Foots = transform.Find( "FootSpace" ).GetComponent<IFoots>();
@@ -172,9 +175,12 @@ public partial class Player : Human {
 	}
 
 
+
+	private RaycastHit m_RaycastHit;
+
 	//////////////////////////////////////////////////////////////////////////
 	// Update
-	private void	Update ()
+	protected override void	Update ()
 	{
 		if ( IsActive == false || m_IsDashing == true )
 			return;
@@ -196,32 +202,56 @@ public partial class Player : Human {
 #region			INTERACTIONS
 		{
 			// Get interactable / draggable object
-			RaycastHit hit				= new RaycastHit();
 			if ( m_GrabbedObject == null )
 			{
-
 				Debug.DrawLine(
 					CameraControl.Instance.transform.position, 
 					CameraControl.Instance.transform.position + CameraControl.Instance.transform.forward * MAX_INTERACTION_DISTANCE
 				);
 
-				if ( Physics.Raycast( CameraControl.Instance.transform.position, CameraControl.Instance.transform.forward, out hit, MAX_INTERACTION_DISTANCE ) )
+				if ( Physics.Raycast( CameraControl.Instance.transform.position, CameraControl.Instance.transform.forward, out m_RaycastHit, MAX_INTERACTION_DISTANCE ) )
 				{
-
 					if ( m_IsDashing == false )
 					{
-						m_CurrentDashTarget = hit.transform.GetComponent<DashTarget>();
+						// Only if needed
+						DashTarget currentTarget = m_RaycastHit.transform.GetComponent<DashTarget>();
+						if ( currentTarget != m_CurrentDashTarget )
+						{
+							// First target
+							if ( currentTarget != null && m_CurrentDashTarget == null )
+							{
+								m_CurrentDashTarget = currentTarget;
+								m_CurrentDashTarget.ShowText();
+							}
+							// New hit
+							if ( currentTarget != null && m_CurrentDashTarget != null && currentTarget != m_CurrentDashTarget )
+							{
+								m_CurrentDashTarget.HideText();
+								currentTarget.ShowText();
+								m_CurrentDashTarget = currentTarget;
+							}
+							// No hit, reset previous
+							if ( currentTarget == null && m_CurrentDashTarget != null )
+							{
+								m_CurrentDashTarget.HideText();
+								m_CurrentDashTarget = null;
+							}
+						}
 					}
 
-					if ( m_CanGrabObjects == true && hit.distance <= m_UseDistance )
+					if ( m_CanGrabObjects == true && m_RaycastHit.distance <= m_UseDistance )
 					{
-						m_Grabbable		= hit.transform.GetComponent<Grabbable>();
-						m_Interactable	= hit.transform.GetComponent<IInteractable>();
+						m_Grabbable		= m_RaycastHit.transform.GetComponent<Grabbable>();
+						m_Interactable	= m_RaycastHit.transform.GetComponent<IInteractable>();
 					}
 				}
 				else
 				{
-					m_CurrentDashTarget		= null;
+					if ( m_CurrentDashTarget != null )
+					{
+						m_CurrentDashTarget.HideText();
+						m_CurrentDashTarget		= null;
+					}
 					m_Grabbable				= null;
 					m_Interactable			= null;
 				}
@@ -251,7 +281,7 @@ public partial class Player : Human {
 					// Grab
 					if ( m_Grabbable != null && m_Interactable.CanInteract )
 					{
-						m_GrabbedObject = hit.transform.gameObject;
+						m_GrabbedObject = m_RaycastHit.transform.gameObject;
 
 						Rigidbody rb = m_GrabbedObject.GetComponent<Rigidbody>();
 						m_GrabbedObjectMass			= rb.mass;			rb.mass = 1f;
@@ -349,27 +379,9 @@ public partial class Player : Human {
 
 	}
 
-	/*
-
-	private void OnTriggerEnter( Collider other )
+	public override void OnThink()
 	{
-		DashTarget target = other.GetComponent<DashTarget>();
-		if ( target != null )
-		{
-			print( "disalbed" );
-			target.Disable();
-		}
+		
 	}
-
-	private void OnTriggerExit( Collider other )
-	{
-		DashTarget target = other.GetComponent<DashTarget>();
-		if ( target != null )
-		{
-			print( "Enalbed" );
-			target.Enable();
-		}
-	}
-	*/
 
 }

@@ -21,7 +21,7 @@ public class WindowValueStep : EditorWindow {
 			m_Window = null;
 		}
 
-		var requestedType = typeof( T );
+		System.Type requestedType = typeof( T );
 		if ( requestedType != typeof( bool )  &&
 			 requestedType != typeof( int )   && 
 			 requestedType != typeof( float ) && 

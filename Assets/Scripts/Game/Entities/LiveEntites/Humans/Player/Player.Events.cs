@@ -4,32 +4,46 @@ using UnityEngine;
 
 public partial class Player {
 
+	private	const	float	DASH_SPEEED_FACTOR	= 0.5f;
+
 	[SerializeField]
-	private	AnimationCurve	DashTimeScaleCurve = AnimationCurve.Linear( 0f, 1f, 1f, 1f );
+	private	AnimationCurve	m_DashTimeScaleCurve = AnimationCurve.Linear( 0f, 1f, 1f, 1f );
 
-	public override void OnHit( HitInfo info )
-	{
-		
-	}
 
-	public override void OnHurt( HurtInfo info )
+	public override void OnHit( ref Entity who, float damage )
 	{
-		Health -= info.Damage;
+		Health -= damage;
+		UI_InGame.Instance.UpdateUI();
 
 		if ( Health < 0f )
 			OnKill();
-
 	}
 
-	public override void OnKill( HitInfo info = null )
+
+	public override void OnHurt( ref Entity who, float damage )
+	{
+		Health -= damage;
+		UI_InGame.Instance.UpdateUI();
+
+		if ( Health < 0f )
+			OnKill();
+	}
+
+
+	public override void OnKill()
 	{
 		print( "U r dead" );
+		enabled = false;
+
+		// to stop movements and camera effects
 	}
+
 
 	private	void	OnDashTargetUsed( ref DashTarget target )
 	{
 		if ( m_IsDashing )
 			return;
+
 		m_IsDashing = true;
 
 		if ( m_PreviousDashTarget != null && m_PreviousDashTarget != target )
@@ -38,6 +52,8 @@ public partial class Player {
 		}
 		m_PreviousDashTarget = target;
 
+		target.Disable();
+		target.HideText();
 		StartCoroutine( DashMoving( target ) );
 	}
 
@@ -46,41 +62,28 @@ public partial class Player {
 	{
 		Vector3	startPosition		= transform.position;
 		Vector3 targetPosition		= target.transform.position;
-//		Vector3 direction			= ( targetPosition - transform.position ).normalized;
-//		float	distanceToTravel	= ( targetPosition - transform.position ).sqrMagnitude;
-//		float	travelledDistance	= 0f;
 		float	currentTime			= 0f;
 		float	interpolant			= 0f;
-		/*
-		while( travelledDistance < distanceToTravel )
-		{
-			Time.timeScale = DashTimeScaleCurve.Evaluate( interpolant );
-			interpolant = travelledDistance / distanceToTravel;
-
-			transform.position += ( direction * m_DashSpeed ) * Time.deltaTime;
-			travelledDistance = ( transform.position - startPosition ).sqrMagnitude;
-			yield return null;
-		}
-		 */
 		
 		UnityEngine.PostProcessing.MotionBlurModel.Settings settings = CameraControl.Instance.GetPP_Profile.motionBlur.settings;
+
+		AnimationCurve animatioCurve = ( ( target.HasTimeScaleCurveOverride ) ? target.DashTimeScaleCurve : m_DashTimeScaleCurve );
 		while ( interpolant < 1f )
 		{
 			currentTime += Time.deltaTime;
-			interpolant = currentTime / m_DashSpeed;
+			interpolant = currentTime * DASH_SPEEED_FACTOR;
 
-			Time.timeScale = DashTimeScaleCurve.Evaluate( interpolant );
+			Time.timeScale =  animatioCurve.Evaluate( interpolant );
 			SoundEffectManager.Instance.Pitch = Time.timeScale;
-
+			
 			settings.frameBlending = ( 1f - Time.timeScale );
 			CameraControl.Instance.GetPP_Profile.motionBlur.settings = settings;
-
 
 			transform.position = Vector3.Lerp( startPosition, target.transform.position, interpolant );
 			yield return null;
 		}
 
-
+		SoundEffectManager.Instance.Pitch = 1f;
 		Time.timeScale = 1f;
 
 		target.OnTargetReached();

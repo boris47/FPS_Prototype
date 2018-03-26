@@ -1,8 +1,8 @@
 ﻿
 using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
-public abstract class NonLiveEntity : Entity {
+public abstract partial class NonLiveEntity : Entity {
 	
 	[SerializeField]
 	protected		float				m_MaxDamage			= 7f;
@@ -18,38 +18,34 @@ public abstract class NonLiveEntity : Entity {
 
 //	[SerializeField]
 	protected		AudioSource			m_FireAudioSource	= null;
+	protected		Shield				m_Shield			= null;
 
 	protected		Transform			m_GunTransform		= null;
 	protected		Transform			m_FirePoint			= null;
-	protected		Collider			m_Collider			= null;
+
 	protected		GameObjectsPool		m_Pool				= null;
 	protected		float				m_ShotTimer			= 0f;
 
+	protected		List<Entity>		m_Targets			= new List<Entity>();
+	protected		Entity				m_CurrentTarget		= null;
 
-	protected virtual void Awake()
+	protected override void Awake()
 	{
-		m_Collider = GetComponent<Collider>();
-		m_FireAudioSource = GetComponent<AudioSource>();
+		base.Awake();
 
-		m_GunTransform = transform.Find( "Gun" );
+		m_FireAudioSource	= GetComponent<AudioSource>();
+		m_Shield			= GetComponentInChildren<Shield>();
 
-		m_FirePoint = m_GunTransform.GetChild( 0 );
+		m_GunTransform		= transform.Find( "Gun" );
+
+		m_FirePoint			= m_GunTransform.GetChild( 0 );
 	}
 
 
-	protected virtual void OnCollisionEnter( Collision collision )
+	protected override void Update()
 	{
-		Bullet bullet = collision.gameObject.GetComponent<Bullet>();
-		if ( bullet == null )
-			return;
-
-		if ( bullet.WhoRef is Player )
-		{
-			if ( bullet.IsCloseRange )
-				OnHurt( null );
-			else
-				OnHit( null );
-		}
+		base.Update();
 	}
+	
 
 }

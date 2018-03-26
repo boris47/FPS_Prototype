@@ -12,15 +12,19 @@ public abstract partial class LiveEntity  {
 //		print( "Fall evaluation, magnitude " + sqrMagnitude );
 		if ( sqrMagnitude > m_FallDistanceThreshold * m_FallDistanceThreshold )
 		{
-			float rapport = ( 1f - ( ( m_FallDistanceThreshold * m_FallDistanceThreshold ) / sqrMagnitude ) );
+//			float rapport = ( 1f - ( ( m_FallDistanceThreshold * m_FallDistanceThreshold ) / sqrMagnitude ) );
 
-			HurtInfo info = new HurtInfo()
-			{
+//			Entity empty = null;
 //				Damage = ( magnitude + ( magnitude * rapport ) ) * 3f
-				Damage = rapport * sqrMagnitude
-			};
+//			float damage = rapport * sqrMagnitude;
 //			print( "Extimated damage " + info.Damage );
-			this.OnHurt( info );
+//			this.OnHurt( ref empty, damage );
+
+			if ( Health <= 0f )
+			{
+				print( "Morte da caduta" );
+			}
+
 		}
 	}
 
@@ -31,20 +35,21 @@ public abstract partial class LiveEntity  {
 		if ( bullet == null )
 			return;
 
-		if ( bullet.WhoRef is Turret )
-		{
-			if ( bullet.IsCloseRange )
-				OnHurt( null );	// never called
-			else
-				OnHit( null );	// long range attack
-		}
+		float damage	= Random.Range( bullet.DamageMin, bullet.DamageMax );
+		Entity who		= bullet.WhoRef;
 
-		if ( bullet.WhoRef is Drone )
+		if ( who is LiveEntity )
+			return;
+
+		if ( bullet.IsCloseRange )
 		{
-			if ( bullet.IsCloseRange )
-				OnHurt( null );	// close range attack
-			else
-				OnHit( null );	// long range attack
+			// close range attack
+			OnHurt( ref who, damage );
+		}
+		else
+		{
+			// long range attack
+			OnHit( ref who, damage );
 		}
 
 	}

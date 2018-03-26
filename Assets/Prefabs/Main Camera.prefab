@@ -1517,8 +1517,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce15eff0f718b7b42a9b65ecf1254ce9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Damage: 0
+  Damage: 5
   firePoint1: {fileID: 4372355633111222}
+  fireMode: 0
+  magazine: 25
   anim: {fileID: 95556688490613714}
   fire: {fileID: 7400000, guid: 71c430a232f539b459e35ecc7cc7001d, type: 3}
   reload: {fileID: 7400000, guid: a4dbfbd2851f33e46acca78fce91389f, type: 3}
@@ -1528,7 +1530,8 @@ MonoBehaviour:
   drawKey: 113
   audioSource: {fileID: 82281290498818910}
   shotDelay: 0.1
-  fireDispersion: 0.8
+  camDeviation: 1.14
+  fireDispersion: 0.02
 --- !u!114 &114237170714159078
 MonoBehaviour:
   m_ObjectHideFlags: 1

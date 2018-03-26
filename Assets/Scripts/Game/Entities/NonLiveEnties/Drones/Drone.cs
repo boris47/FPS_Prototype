@@ -4,6 +4,11 @@ using System.Collections;
 
 public abstract class Drone : NonLiveEntity {
 	
+	[SerializeField]
+	protected	float	m_DamageLongRange	= 2f;
+
+	[SerializeField]
+	protected	float	m_DamageCloseRange	= 5f;
 
 	[SerializeField]
 	private		float		m_MaxSpeed = 3f;
@@ -23,7 +28,10 @@ public abstract class Drone : NonLiveEntity {
 			}
 
 			Health		= m_SectionRef.AsFloat( "Health", 30.0f );
-			m_Shield	= m_SectionRef.AsFloat( "Shield", 0.0f );
+
+			float shieldStatus		= m_SectionRef.AsFloat( "Shield", 0.0f );
+			if ( m_Shield != null )
+				( m_Shield as IShield ).Status = shieldStatus;
 		}
 
 		// BULLETS POOL CREATION
@@ -42,9 +50,9 @@ public abstract class Drone : NonLiveEntity {
 	}
 
 
-	protected virtual void Update()
+	protected override void Update()
 	{
-		
+		base.Update();
 
 
 	}

@@ -122,7 +122,7 @@ namespace WeatherSystem {
 		{
 			int iH = 0, iM = 0, iS = 0;
 
-			var parts = sTime.Split( ':' );
+			string[] parts = sTime.Split( ':' );
 			iH = int.Parse( parts[0] );
 			iM = int.Parse( parts[1] );
 			iS = int.Parse( parts[2] );

@@ -65,22 +65,14 @@ public class GameObjectsPool {
 
 	private	static	int		Counter				= 0;
 
-//	private	GameObject		m_RefModel			= null;
 	private	GameObject		m_Container			= null;
 	private	int				m_InternalIndex		= 0;
-
-//	private	int				m_OriginalSize		= 0;
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// Copstructor
-	public	GameObjectsPool( ref GameObject model, int size, bool destroyModel )
+	public	GameObjectsPool( ref GameObject model, int size, bool destroyModel, System.Action<GameObject> actionOnObject = null )
 	{
-//		m_RefModel = new GameObject( model.name );
-//		m_RefModel.hideFlags = HideFlags.HideInHierarchy;
-//		ObjectCloner.Clone( ref model, ref m_RefModel, true );
-//		m_OriginalSize	= size;
-
 		if ( m_Container == null )
 		{
 			m_Container = new GameObject( "GameObjectsContainer_" + Counter.ToString() );
@@ -93,6 +85,8 @@ public class GameObjectsPool {
 			objectCopy.hideFlags = HideFlags.NotEditable;
 			ObjectCloner.Clone( ref model, ref objectCopy, true );
 			objectCopy.transform.SetParent( m_Container.transform );
+			if ( actionOnObject != null )
+				actionOnObject( objectCopy );
 		}
 
 		// if model is not a prefab and user wants destroy it
@@ -105,23 +99,13 @@ public class GameObjectsPool {
 	// Get
 	public	GameObject	Get()
 	{
-		// Restore child count if gameobjects have been destroyied outside
-/*		if ( m_Container.transform.childCount < m_OriginalSize )
-		{
-			while( m_Container.transform.childCount < m_OriginalSize )
-			{
-				GameObject objectCopy = new GameObject( m_RefModel.name );
-				ObjectCloner.Clone( ref m_RefModel, ref objectCopy, true );
-				objectCopy.transform.SetParent( m_Container.transform );
-			}
-		}
-*/
 		m_InternalIndex ++;
 		if ( m_InternalIndex >= m_Container.transform.childCount )
 			m_InternalIndex = 0;
 
 		return m_Container.transform.GetChild( m_InternalIndex ).gameObject;
 	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// Get<T>
@@ -166,10 +150,8 @@ public class GameObjectsPool<T> where T : UnityEngine.Component  {
 			m_Container = new GameObject( Name +  "_GameObjectsContainer" );
 		}
 
-
 		m_ObjectsPool = new ObjectsPool<T>();
 		T[] storage = new T[ size ];
-
 
 		for ( int i = 0; i < size; i++ )
 		{

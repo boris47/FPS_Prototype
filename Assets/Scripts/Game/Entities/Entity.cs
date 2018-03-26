@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿
 using CFG_Reader;
 using UnityEngine;
 
@@ -30,7 +29,7 @@ public interface IEntity {
 
 
 [RequireComponent(typeof(Rigidbody))]
-[RequireComponent(typeof(Collider))]
+[RequireComponent(typeof( CapsuleCollider ), typeof( SphereCollider ))]
 public abstract partial class Entity : MonoBehaviour, IEntity {
 
 	private	static uint CurrentID = 0;
@@ -45,20 +44,15 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	{
 		get { return m_ID; }
 	}
-
+	[SerializeField]
 	protected	float			m_Health						= 1f;
 	public		float			Health
 	{
 		get { return m_Health; }
 		set { m_Health = value; }
 	}
-	protected		float		m_Shield						= 0f;
-	public		float			Shield
-	{
-		get { return m_Shield; }
-		set { m_Shield = value; }
-	}
-	protected	float			m_ViewRange						= 1f;
+	[SerializeField]
+	protected	float			m_ViewRange						= 10f;
 	public		float			ViewRange
 	{
 		get { return m_ViewRange; }
@@ -111,5 +105,28 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		get { return m_RigidBody; }
 	}
 
+
+	protected	CapsuleCollider	m_PhysicCollider				= null;
+	protected	SphereCollider	m_ViewTrigger					= null;
+
 	protected	bool 			m_IsOK							= false;
+
+
+	private void OnValidate()
+	{
+		if ( this is Player )
+			return;
+
+		if ( m_ViewTrigger == null )
+		{
+			m_ViewTrigger = GetComponent<SphereCollider>();
+			if ( m_ViewTrigger == null )
+			{
+				m_ViewTrigger = gameObject.AddComponent<SphereCollider>();
+				m_ViewTrigger.isTrigger = true;
+			}
+		}
+
+		m_ViewTrigger.radius = m_ViewRange;
+	}
 }

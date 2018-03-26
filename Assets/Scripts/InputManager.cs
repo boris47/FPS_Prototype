@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public struct inputs_t {
-	public bool Forward, Backward, StrafeLeft, StrafeRight;
-	public bool LeanLeft, LeanRight;
-	public bool Crouch, Jump, Run;
-	public bool Use;
-	public bool Item1, Item2, Item3, Item4;
+	public	bool	Forward, Backward, StrafeLeft, StrafeRight;
+	public	bool	LeanLeft, LeanRight;
+	public	bool	Crouch, Jump, Run;
+	public	bool	Use;
+	public	bool	Item1, Item2, Item3, Item4;
+	public	bool	ItemAction1;
 
 	public void Reset()
 	{
@@ -15,7 +16,8 @@ public struct inputs_t {
 		LeanLeft = LeanRight =
 		Crouch = Jump = Run =
 		Use =
-		Item1 = Item2 = Item3 = Item4 = false;
+		Item1 = Item2 = Item3 = Item4 =
+		ItemAction1 = false;
 	}
 };
 
@@ -67,6 +69,8 @@ public class Inputmanager {
 		m_Inputs.Item2			= Input.GetKeyDown ( KeyCode.F2 ) || Input.GetKeyDown ( KeyCode.Keypad2 );
 		m_Inputs.Item3			= Input.GetKeyDown ( KeyCode.F3 ) || Input.GetKeyDown ( KeyCode.Keypad3 );
 		m_Inputs.Item4			= Input.GetKeyDown ( KeyCode.F4 ) || Input.GetKeyDown ( KeyCode.Keypad4 );
+
+		m_Inputs.ItemAction1	= Input.GetKeyDown( KeyCode.G );
 
 	}
 }

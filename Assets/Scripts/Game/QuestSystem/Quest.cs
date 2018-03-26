@@ -45,7 +45,7 @@ namespace QuestSystem {
 
 			if ( this.Completed )
 			{
-///				print( "Completed quest " + name );
+				print( "Completed quest " + name );
 				if ( m_OnCompletion != null && m_OnCompletion.GetPersistentEventCount() > 0 )
 					m_OnCompletion.Invoke();
 				GlobalQuestManager.Instance.CurrentLocalQuestManager.UpdateStatus();

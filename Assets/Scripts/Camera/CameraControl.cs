@@ -131,9 +131,10 @@ public partial class CameraControl : MonoBehaviour {
 			return;
 		}
 
+		// Cam Dispersion
 		m_CurrentDirection = Vector3.Lerp( m_CurrentDirection, m_CurrentDirection + m_CurrentDispersion, Time.deltaTime * 8f );
 		m_CurrentDirection.x = Utils.Math.Clamp( m_CurrentDirection.x - m_CurrentRotation_Y_Delta, CLAMP_MIN_X_AXIS, CLAMP_MAX_X_AXIS );
-		m_CurrentDispersion = Vector3.Lerp ( m_CurrentDispersion, Vector3.zero, Time.deltaTime * 3f );
+		m_CurrentDispersion = Vector3.Lerp ( m_CurrentDispersion, Vector3.zero, Time.deltaTime * 3.7f );
 
 		LiveEntity pLiveEnitiy = m_ViewPoint.parent.GetComponent<LiveEntity>();
 		if ( pLiveEnitiy && pLiveEnitiy.IsGrounded )

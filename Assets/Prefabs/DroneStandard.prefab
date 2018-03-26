@@ -302,10 +302,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35dd4dd079e59714e9df03147859afc4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_Health: 1
+  m_ViewRange: 1
   m_MaxDamage: 7
   m_MinDamage: 3
   m_ShotDelay: 0.7
   m_BulletSpeed: 10
+  m_DamageLongRange: 2
+  m_DamageCloseRange: 5
   m_MaxSpeed: 3
 --- !u!135 &135393089871222752
 SphereCollider:
@@ -317,5 +321,5 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 1
   m_Center: {x: 0, y: 0, z: 0}

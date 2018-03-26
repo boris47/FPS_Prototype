@@ -4,8 +4,4 @@ using UnityEngine;
 
 public abstract class Human : LiveEntity {
 
-
-	protected	CapsuleCollider		m_Collider	= null;
-
-
 }
