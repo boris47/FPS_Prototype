@@ -171,6 +171,7 @@ public partial class CameraControl : MonoBehaviour {
 		m_SmoothFactor			= Mathf.Clamp( m_SmoothFactor, 1.0f, 10.0f );
 
 		// Rotation
+		if ( CanParseInput == true )
 		{
 			float Axis_X_Delta = Input.GetAxis ( "Mouse X" ) * m_MouseSensitivity;
 			float Axis_Y_Delta = Input.GetAxis ( "Mouse Y" ) * m_MouseSensitivity;
@@ -185,10 +186,10 @@ public partial class CameraControl : MonoBehaviour {
 				m_CurrentRotation_X_Delta = Axis_X_Delta;
 				m_CurrentRotation_Y_Delta = Axis_Y_Delta;
 			}
-				
-				
+			
+			
 			////////////////////////////////////////////////////////////////////////////////
-			if ( CanParseInput == true && ( m_CurrentRotation_X_Delta != 0.0f || m_CurrentRotation_Y_Delta != 0.0f ) )
+			if ( ( m_CurrentRotation_X_Delta != 0.0f || m_CurrentRotation_Y_Delta != 0.0f ) )
 			{
 				if ( ClampedXAxis )
 					m_CurrentDirection.x = Utils.Math.Clamp( m_CurrentDirection.x - m_CurrentRotation_Y_Delta, CLAMP_MIN_X_AXIS, CLAMP_MAX_X_AXIS );

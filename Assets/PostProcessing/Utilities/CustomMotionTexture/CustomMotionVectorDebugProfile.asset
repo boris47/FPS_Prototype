@@ -40,7 +40,7 @@ MonoBehaviour:
         stationaryBlending: 0.95
         motionBlending: 0.85
   ambientOcclusion:
-    m_Enabled: 1
+    m_Enabled: 0
     m_Settings:
       intensity: 1.41
       radius: 0.3
@@ -50,7 +50,7 @@ MonoBehaviour:
       ambientOnly: 1
       highPrecision: 0
   screenSpaceReflection:
-    m_Enabled: 1
+    m_Enabled: 0
     m_Settings:
       reflection:
         blendType: 1
@@ -81,7 +81,7 @@ MonoBehaviour:
     m_Settings:
       shutterAngle: 253
       sampleCount: 22
-      frameBlending: 0.031608403
+      frameBlending: 0
   eyeAdaptation:
     m_Enabled: 1
     m_Settings:
@@ -286,7 +286,7 @@ MonoBehaviour:
       spectralTexture: {fileID: 0}
       intensity: 0.1
   grain:
-    m_Enabled: 1
+    m_Enabled: 0
     m_Settings:
       colored: 1
       intensity: 0

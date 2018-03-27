@@ -21,7 +21,7 @@ public class WindowValueStep : EditorWindow {
 			m_Window = null;
 		}
 
-		System.Type requestedType = typeof( T );
+		var requestedType = typeof( T );
 		if ( requestedType != typeof( bool )  &&
 			 requestedType != typeof( int )   && 
 			 requestedType != typeof( float ) && 
@@ -38,10 +38,10 @@ public class WindowValueStep : EditorWindow {
 
 	private	bool	HasValidValue()
 	{
-		if ( Value.Value == null )
+		if ( Value.ToSystemObject() == null )
 			return false;
 
-		if ( Value.Value.GetType() == typeof( string ) )
+		if ( Value.ToSystemObject().GetType() == typeof( string ) )
 			if ( Value.As<string>() == "" )
 				return false;
 
@@ -54,10 +54,10 @@ public class WindowValueStep : EditorWindow {
 		{
 			GUILayout.Label( "Value" );
 
-			if ( Value.Value != null )
+			if ( Value.ToSystemObject() != null )
 			{
 
-				System.Type valueType = Value.Value.GetType();
+				System.Type valueType = Value.ToSystemObject().GetType();
 
 				if ( valueType == typeof( bool ) )
 					Value = EditorGUILayout.Toggle( Value );

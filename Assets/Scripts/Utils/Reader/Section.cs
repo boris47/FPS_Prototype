@@ -153,12 +153,12 @@ namespace CFG_Reader {
 				}
 				else
 				{
-					if ( LineValue.Value.Value == null )
+					if ( LineValue.Value.ToSystemObject() == null )
 					{
 						Debug.Log( result + " " + LineValue.RawValue );
 					}
 					else
-					Debug.Log( result + " " + LineValue.Value.Value + ", " + LineValue.Value.Value.GetType() );
+					Debug.Log( result + " " + LineValue.Value.ToSystemObject() + ", " + LineValue.Value.ToSystemObject().GetType() );
 				}
 			}
 		}

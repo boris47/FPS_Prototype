@@ -4,15 +4,17 @@ using UnityEngine.UI;
 
 public class UI_InGame : MonoBehaviour {
 
-	public	static UI_InGame	Instance	= null;
+	public	static UI_InGame	Instance		= null;
 
-	private	Text timeText = null;
-	private	Text cycleText = null;
-	private	Text healthText = null;
+	private			Text		timeText		= null;
+	private			Text		cycleText		= null;
+	private			Text		healthText		= null;
 
-	private	Text wpnName = null;
-	private	Text bulletsCount = null;
-	private	Text fireMode = null;
+	private			Text		wpnName			= null;
+	private			Text		bulletsCount	= null;
+	private			Text		fireMode		= null;
+
+	private			Image		m_EffectFrame	= null;
 
 
 	private void Awake()
@@ -27,7 +29,15 @@ public class UI_InGame : MonoBehaviour {
 		bulletsCount	= transform.GetChild(1).GetChild(1).GetComponent<Text>();
 		fireMode		= transform.GetChild(1).GetChild(2).GetComponent<Text>();
 
+		m_EffectFrame	= transform.GetChild(2).GetComponent<Image>();
+
 		InvokeRepeating( "PrintTime", 0.3f, 0.2f );
+	}
+
+
+	public	Image	GetEffectFrame()
+	{
+		return m_EffectFrame;
 	}
 
 
@@ -40,8 +50,6 @@ public class UI_InGame : MonoBehaviour {
 		wpnName.text		= player.CurrentWeapon.name;
 		bulletsCount.text	= player.CurrentWeapon.magazine.ToString();
 		fireMode.text		= player.CurrentWeapon.fireMode.ToString();
-
-
 	}
 
 	private	void	PrintTime()
