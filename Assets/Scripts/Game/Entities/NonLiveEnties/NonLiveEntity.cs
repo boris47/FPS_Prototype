@@ -1,6 +1,6 @@
 ﻿
 using UnityEngine;
-using System.Collections.Generic;
+
 
 public abstract partial class NonLiveEntity : Entity {
 	
@@ -26,8 +26,10 @@ public abstract partial class NonLiveEntity : Entity {
 	protected		GameObjectsPool		m_Pool				= null;
 	protected		float				m_ShotTimer			= 0f;
 
-	protected		List<Entity>		m_Targets			= new List<Entity>();
-	protected		Entity				m_CurrentTarget		= null;
+	protected		bool				m_AllignedToTarget	= false;
+	protected		bool				m_AllignedGunToTarget	= false;
+
+
 
 	protected override void Awake()
 	{

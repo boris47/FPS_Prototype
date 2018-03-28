@@ -102,10 +102,6 @@ public abstract partial class LiveEntity : Entity {
 	[System.NonSerialized]
 	protected	float				m_LastLandTime				= 0f;
 
-
-	protected	List<Entity>		m_Targets					= null;
-	protected	Entity				m_CurrentTarget				= null;
-
 	protected override void Awake()
 	{
 		base.Awake();

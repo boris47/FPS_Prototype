@@ -7,33 +7,18 @@ public class TurretStandard : Turret {
 	{
 		base.Update();
 
-		m_ShotTimer -= Time.deltaTime;
-		if ( m_ShotTimer > 0 )
-				return;
-
-		if ( m_CurrentTarget == null )
-			return;
-
-		m_ShotTimer = m_ShotDelay;
-
-		Bullet bullet = m_Pool.Get<Bullet>();
-		bullet.enabled = true;
-		bullet.transform.position = m_FirePoint.position;
-		bullet.MaxLifeTime = 5f;
-		bullet.SetVelocity( m_GunTransform.forward * m_BulletSpeed );
-		bullet.SetActive( true );
-
-		m_FireAudioSource.Play();
 	}
 
+
 	// Hitted by ranged weapon
-	public override void OnHit( ref Entity who, float damage )	// info = null
+	public override void OnHit( ref Entity who, float damage )
 	{
 		m_Health -= damage;
 
 		if ( m_Health < 0f )
 			OnKill();
 	}
+
 
 	// Hitted by closed range weapon
 	public override void OnHurt( ref Entity who, float damage )
@@ -48,7 +33,6 @@ public class TurretStandard : Turret {
 		m_Pool.Destroy();
 		Destroy( gameObject );
 	}
-
 
 
 	public override void OnThink()

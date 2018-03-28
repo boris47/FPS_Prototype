@@ -32,7 +32,7 @@ namespace CFG_Reader {
 			{
 				result = (T1) m_Value;
 			}
-			catch ( System.Exception e )
+			catch ( System.Exception )
 			{
 				result = default( T1 );
 			}

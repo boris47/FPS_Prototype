@@ -1,14 +1,7 @@
 ﻿
 using CFG_Reader;
 using UnityEngine;
-
-enum ENTITY_TYPE {
-	NONE,
-	ACTOR,
-	HUMAN,
-	ANIMAL,
-	OBJECT
-};
+using System.Collections.Generic;
 
 
 public interface IEntity {
@@ -29,8 +22,17 @@ public interface IEntity {
 
 
 [RequireComponent(typeof(Rigidbody))]
-[RequireComponent(typeof( CapsuleCollider ), typeof( SphereCollider ))]
+[RequireComponent(typeof( CapsuleCollider ))]
 public abstract partial class Entity : MonoBehaviour, IEntity {
+
+	public enum ENTITY_TYPE {
+		NONE,
+		ACTOR,
+		HUMAN,
+		ROBOT,
+		ANIMAL,
+		OBJECT
+	};
 
 	private	static uint CurrentID = 0;
 	public	static uint NewID() {
@@ -94,8 +96,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 	protected 	string			m_SectionName					= "None";
 	[System.NonSerialized]
-	protected 	byte			m_EntityType					= ( byte ) ENTITY_TYPE.NONE;
-
+	protected 	ENTITY_TYPE		m_EntityType					= ENTITY_TYPE.NONE;
+	
 	protected 	bool			m_IsInWater						= false;
 	protected 	bool			m_IsUnderWater					= false;
 
@@ -105,28 +107,16 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		get { return m_RigidBody; }
 	}
 
-
 	protected	CapsuleCollider	m_PhysicCollider				= null;
-	protected	SphereCollider	m_ViewTrigger					= null;
+
+	protected	ViewAreaTrigger	m_ViewTrigger					= null;
+	public		ViewAreaTrigger	m_ViewArea
+	{
+		get { return m_ViewTrigger; }
+	}
+
+	protected	List<Entity>	m_Targets						= new List<Entity>();
+	protected	Entity			m_CurrentTarget					= null;
 
 	protected	bool 			m_IsOK							= false;
-
-
-	private void OnValidate()
-	{
-		if ( this is Player )
-			return;
-
-		if ( m_ViewTrigger == null )
-		{
-			m_ViewTrigger = GetComponent<SphereCollider>();
-			if ( m_ViewTrigger == null )
-			{
-				m_ViewTrigger = gameObject.AddComponent<SphereCollider>();
-				m_ViewTrigger.isTrigger = true;
-			}
-		}
-
-		m_ViewTrigger.radius = m_ViewRange;
-	}
 }

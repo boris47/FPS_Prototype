@@ -1,6 +1,6 @@
 ﻿
 using UnityEngine;
-using System.Collections;
+
 
 public abstract class Turret : NonLiveEntity {
 
@@ -23,7 +23,6 @@ public abstract class Turret : NonLiveEntity {
 				Destroy( gameObject );
 				return;
 			}
-			
 
 			Health					= m_SectionRef.AsFloat( "Health", 60.0f );
 
@@ -33,6 +32,8 @@ public abstract class Turret : NonLiveEntity {
 
 			m_DamageMax				= m_SectionRef.AsFloat( "DamageMax", 2.0f );
 			m_DamageMin				= m_SectionRef.AsFloat( "DamageMin", 0.5f );
+
+			m_EntityType			= ENTITY_TYPE.ROBOT;
 		}
 
 		// BULLETS POOL CREATION
@@ -58,6 +59,8 @@ public abstract class Turret : NonLiveEntity {
 	/// <summary>
 	/// Update forward direction and gun rotation
 	/// </summary>
+	public float bodyRotationSpeed = 5f;
+	public float gunRotationSpeed = 5f;
 	protected override void Update()
 	{
 		base.Update();
@@ -65,14 +68,45 @@ public abstract class Turret : NonLiveEntity {
 		if ( m_CurrentTarget == null )
 			return;
 
-		Vector3 directionToTarget = ( m_CurrentTarget.transform.position - transform.position );
-			
-		// set direction to player
-		Vector3 vForward = Vector3.Scale( directionToTarget, new Vector3( 1.0f, 0.0f, 1.0f ) );
-		transform.forward =  vForward;
+		Vector3 dirToTarget		= ( m_CurrentTarget.transform.position - transform.position );
+		Vector3 dirGunToTarget	= ( m_CurrentTarget.transform.position - m_GunTransform.position );
+		
 
-		// Gun looks at valid target
-		m_GunTransform.LookAt( m_CurrentTarget.transform.position );
+		// set direction to player
+		Vector3 vBodyForward	= Vector3.Scale( dirToTarget,		new Vector3( 1.0f, 0.0f, 1.0f ) );
+		transform.forward		= Vector3.RotateTowards( transform.forward, vBodyForward, bodyRotationSpeed * Time.deltaTime, 0.0f );
+
+		m_AllignedToTarget		= Vector3.Angle( transform.forward, vBodyForward ) < 7f;
+		if ( m_AllignedToTarget )
+		{
+			m_GunTransform.forward	=  Vector3.RotateTowards( m_GunTransform.forward, dirGunToTarget, gunRotationSpeed * Time.deltaTime, 0.0f );
+		}
+
+
+		m_AllignedGunToTarget	= Vector3.Angle( m_GunTransform.forward, dirGunToTarget ) < 7f;
+		if ( m_AllignedGunToTarget == false )
+			return;
+
+		// SHOOTING
+
+		m_ShotTimer -= Time.deltaTime;
+		if ( m_ShotTimer > 0 )
+				return;
+
+		if ( m_CurrentTarget == null )
+			return;
+
+		m_ShotTimer = m_ShotDelay;
+
+		Bullet bullet = m_Pool.Get<Bullet>();
+		bullet.enabled = true;
+		bullet.transform.position = m_FirePoint.position;
+		bullet.MaxLifeTime = 5f;
+		bullet.SetVelocity( m_GunTransform.forward * m_BulletSpeed );
+		bullet.SetActive( true );
+		
+		m_FireAudioSource.Play();
+
 	}
 
 }

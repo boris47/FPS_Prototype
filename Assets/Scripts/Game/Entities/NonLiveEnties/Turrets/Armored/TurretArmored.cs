@@ -1,6 +1,5 @@
 ﻿
 using UnityEngine;
-using System.Collections;
 
 public class TurretArmored : Turret {
 
@@ -8,24 +7,8 @@ public class TurretArmored : Turret {
 	{
 		base.Update();
 
-		m_ShotTimer -= Time.deltaTime;
-		if ( m_ShotTimer > 0 )
-				return;
-
-		if ( m_CurrentTarget == null )
-			return;
-
-		m_ShotTimer = m_ShotDelay;
-
-		Bullet bullet = m_Pool.Get<Bullet>();
-		bullet.enabled = true;
-		bullet.transform.position = m_FirePoint.position;
-		bullet.MaxLifeTime = 5f;
-		bullet.SetVelocity( m_GunTransform.forward * m_BulletSpeed );
-		bullet.SetActive( true );
-		
-		m_FireAudioSource.Play();
 	}
+
 
 	// Hitted by ranged weapon
 	public override void OnHit( ref Entity who, float damage )
