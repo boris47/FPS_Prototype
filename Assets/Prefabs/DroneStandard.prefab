@@ -20,7 +20,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4962688555281320}
   - component: {fileID: 33041380761029958}
-  - component: {fileID: 65886122092159570}
   - component: {fileID: 23543759273675588}
   m_Layer: 0
   m_Name: Gun
@@ -38,8 +37,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4661828763121242}
   - component: {fileID: 33943743110097936}
-  - component: {fileID: 135393089871222752}
   - component: {fileID: 23842285989104730}
+  - component: {fileID: 135393089871222752}
   - component: {fileID: 54999468765484176}
   - component: {fileID: 114768286573598508}
   - component: {fileID: 82441586941902330}
@@ -65,6 +64,36 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1 &1633405301999136
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4204290605299814}
+  - component: {fileID: 135649204466805206}
+  - component: {fileID: 114271440058447242}
+  m_Layer: 2
+  m_Name: VAT
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4204290605299814
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1633405301999136}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4661828763121242}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4371419879415382
 Transform:
   m_ObjectHideFlags: 1
@@ -85,10 +114,11 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1179847917434662}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 131.38, y: 10.009557, z: 127.15}
+  m_LocalPosition: {x: 133.5, y: 5.82, z: 129.92}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4962688555281320}
+  - {fileID: 4204290605299814}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -191,26 +221,14 @@ Rigidbody:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1179847917434662}
   serializedVersion: 2
-  m_Mass: 1
+  m_Mass: 500
   m_Drag: 0
   m_AngularDrag: 0.05
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!65 &65886122092159570
-BoxCollider:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1043989724507428}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!82 &82441586941902330
 AudioSource:
   m_ObjectHideFlags: 1
@@ -291,6 +309,18 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 0
+--- !u!114 &114271440058447242
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1633405301999136}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3e467bc52337d045bd1706e0803b43e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ViewRange: 20
 --- !u!114 &114768286573598508
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -308,9 +338,14 @@ MonoBehaviour:
   m_MinDamage: 3
   m_ShotDelay: 0.7
   m_BulletSpeed: 10
-  m_DamageLongRange: 2
+  m_DamageLongRangeMax: 2
+  m_DamageLongRangeMin: 0.5
   m_DamageCloseRange: 5
-  m_MaxSpeed: 3
+  m_CloseCombatRange: 1.2
+  m_CloseCombatDelay: 1
+  m_MoveMaxSpeed: 3
+  bodyRotationSpeed: 5
+  gunRotationSpeed: 5
 --- !u!135 &135393089871222752
 SphereCollider:
   m_ObjectHideFlags: 1
@@ -321,5 +356,17 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 1
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!135 &135649204466805206
+SphereCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1633405301999136}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 20
   m_Center: {x: 0, y: 0, z: 0}

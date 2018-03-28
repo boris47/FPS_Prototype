@@ -1,15 +1,32 @@
 ﻿
 ;========= DRONES
 
-[DronesStandard]
-Health		= 100.0;
-Shield		= 0.0;
-DamageMax	= 5.0;
-DamageMin	= 1.2;
 
 
-[DronesArmored]
-Health		= 100.0;
-Shield		= 100.0;
-DamageMax	= 6.0;
-DamageMin	= 1.8;
+[DroneStandard]
+Health				= 100.0;
+Shield				= 0.0;
+
+MoveMaxSpeed		= 3.5;
+
+DamageLongRangeMax	= 5.0;
+DamageCloseRangeMin	= 1.2;
+DamageCloseRange	= 5.0;
+
+CloseCombatRange	= 1.9;
+CloseCombatDelay	= 1.0;
+
+
+
+[DroneArmored]
+Health				= 50.0;
+Shield				= 60.0;
+
+MoveMaxSpeed		= 1.5;
+
+DamageLongRangeMax	= 8.0;
+DamageCloseRangeMin	= 3.0;
+DamageCloseRange	= 5.0;
+
+CloseCombatRange	= 3.0;
+CloseCombatDelay	= 1.0;

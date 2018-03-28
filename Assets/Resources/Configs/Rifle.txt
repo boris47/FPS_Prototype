@@ -3,4 +3,4 @@
 [Rifle]
 DamageMax		= 6.0;
 DamageMix		= 4.5;
-CanPenetrate	= false;
+CanPenetrate	= false; Can penetrate shield

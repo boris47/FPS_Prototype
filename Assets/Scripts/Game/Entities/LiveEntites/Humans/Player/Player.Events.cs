@@ -56,6 +56,8 @@ public partial class Player {
 		target.Disable();
 		target.HideText();
 
+		m_RigidBody.velocity = Vector3.zero;
+
 		StartCoroutine( DashMoving( target ) ); // Player.DashAbility
 	}
 

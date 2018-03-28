@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour {
 
 	public	static Reader			Configs		= null;
 
-	public	static Inputmanager		InputMgr	= new Inputmanager();
+	public	static InputManager		InputMgr	= new InputManager();
 
 	public	static GameManager		Instance	= null;
 

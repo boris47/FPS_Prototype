@@ -15,6 +15,9 @@ public class ViewAreaTrigger : MonoBehaviour {
 	private void Start()
 	{
 		m_Entity = transform.parent.GetComponent<IEntityInterface>();
+		if ( m_Entity == null )
+			print( transform.parent.name + " is not an \"Entity\"" );
+
 		m_ViewTriggerCollider = GetComponent<SphereCollider>();
 	}
 

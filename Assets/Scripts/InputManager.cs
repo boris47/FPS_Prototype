@@ -22,21 +22,25 @@ public struct inputs_t {
 };
 
 
-public class Inputmanager {
+public class InputManager {
 
-	public	static bool HoldCrouch		{ get; set; }
-	public	static bool HoldJump		{ get; set; }
-	public	static bool HoldRun			{ get; set; }
+	public	static	bool			HoldCrouch		{ get; set; }
+	public	static	bool			HoldJump		{ get; set; }
+	public	static	bool			HoldRun			{ get; set; }
 
-	private static inputs_t m_Inputs;
-	public  static inputs_t	Inputs
+	private static	inputs_t		m_Inputs;
+	public  static	inputs_t		Inputs
 	{
 		get { return m_Inputs; }
 	}
+
+	public	static	bool			IsEnabled		= true;
 	
 	// Update is called once per frame
 	public void	Update ()
 	{
+		if ( IsEnabled == false )
+			return;
 		
 		Inputs.Reset();
 

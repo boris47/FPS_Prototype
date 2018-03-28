@@ -48,9 +48,9 @@ public abstract partial class LiveEntity {
 		m_States.Reset();
 
 		m_RigidBody.useGravity	= useGravity;
-		Inputmanager.HoldCrouch	= HoldCrouch;
-		Inputmanager.HoldJump	= HoldJump;
-		Inputmanager.HoldRun	= HoldRun;
+		InputManager.HoldCrouch	= HoldCrouch;
+		InputManager.HoldJump	= HoldJump;
+		InputManager.HoldRun	= HoldRun;
 	}
 
 }

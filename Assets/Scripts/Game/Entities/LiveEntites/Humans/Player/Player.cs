@@ -211,8 +211,8 @@ public partial class Player : Human {
 
 				if ( Physics.Raycast( CameraControl.Instance.transform.position, CameraControl.Instance.transform.forward, out m_RaycastHit, MAX_INTERACTION_DISTANCE ) )
 				{
-					if ( m_IsDashing == false )
-					{
+//					if ( m_IsDashing == false )
+//					{
 						// Only if needed
 						DashTarget currentTarget = m_RaycastHit.transform.GetComponent<DashTarget>();
 						if ( currentTarget != m_CurrentDashTarget )
@@ -237,7 +237,7 @@ public partial class Player : Human {
 								m_CurrentDashTarget = null;
 							}
 						}
-					}
+//					}
 
 					if ( m_CanGrabObjects == true && m_RaycastHit.distance <= m_UseDistance )
 					{
@@ -264,7 +264,7 @@ public partial class Player : Human {
 			}
 			
 
-			if ( Inputmanager.Inputs.Use )
+			if ( InputManager.Inputs.Use )
 			{
 				if ( m_GrabbedObject == null )
 				{

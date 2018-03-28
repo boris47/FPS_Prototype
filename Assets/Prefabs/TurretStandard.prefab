@@ -20,7 +20,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4110412193112816}
   - component: {fileID: 33387272679199192}
-  - component: {fileID: 65429256982354342}
   - component: {fileID: 23179111053629402}
   m_Layer: 0
   m_Name: Gun
@@ -231,18 +230,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!65 &65429256982354342
-BoxCollider:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1492397051014418}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!82 &82183108172838462
 AudioSource:
   m_ObjectHideFlags: 1
@@ -370,7 +357,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3e467bc52337d045bd1706e0803b43e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_ViewRange: 19.38
+  m_ViewRange: 20
 --- !u!135 &135638210900172024
 SphereCollider:
   m_ObjectHideFlags: 1
@@ -381,7 +368,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 19.38
+  m_Radius: 20
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!136 &136912711273530594
 CapsuleCollider:

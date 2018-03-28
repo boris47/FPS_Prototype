@@ -9,16 +9,16 @@ public partial class Player {
 		if ( m_Health <= 0.0f )
 			return;
 
-		float 	fMove 			= Inputmanager.Inputs.Forward     ? 1.0f : Inputmanager.Inputs.Backward   ? -1.0f : 0.0f;
-		float 	fStrafe			= Inputmanager.Inputs.StrafeRight ? 1.0f : Inputmanager.Inputs.StrafeLeft ? -1.0f : 0.0f;
-		bool 	bIsJumping		= Inputmanager.Inputs.Jump;
-		bool 	bSprintInput	= Inputmanager.Inputs.Run;
-		bool	bCrouchInput	= Inputmanager.Inputs.Crouch;
-		bool	bJumpInput		= Inputmanager.Inputs.Jump;
+		float 	fMove 			= InputManager.Inputs.Forward     ? 1.0f : InputManager.Inputs.Backward   ? -1.0f : 0.0f;
+		float 	fStrafe			= InputManager.Inputs.StrafeRight ? 1.0f : InputManager.Inputs.StrafeLeft ? -1.0f : 0.0f;
+		bool 	bIsJumping		= InputManager.Inputs.Jump;
+		bool 	bSprintInput	= InputManager.Inputs.Run;
+		bool	bCrouchInput	= InputManager.Inputs.Crouch;
+		bool	bJumpInput		= InputManager.Inputs.Jump;
 
 		float fFinalJump		= 0.0f;
 		
-		if ( Inputmanager.HoldCrouch == false )
+		if ( InputManager.HoldCrouch == false )
 			m_States.IsCrouched = m_PreviousStates.IsCrouched;
 			
 

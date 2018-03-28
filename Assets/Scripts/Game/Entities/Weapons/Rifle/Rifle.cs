@@ -95,7 +95,7 @@ public class Rifle : Weapon
 			UI_InGame.Instance.UpdateUI();
 		}
 
-		if ( Inputmanager.Inputs.ItemAction1 )
+		if ( InputManager.Inputs.ItemAction1 )
 		{
 			fireMode = ( fireMode == FireModes.AUTO ) ? FireModes.SINGLE : FireModes.AUTO;
 			UI_InGame.Instance.UpdateUI();
@@ -113,7 +113,7 @@ public class Rifle : Weapon
 
 			Bullet bullet = m_Pool.Get<Bullet>();
 			bullet.enabled = true;
-			bullet.transform.position = firePoint1.position;
+			bullet.FirePosition = bullet.transform.position = firePoint1.position;
 			bullet.MaxLifeTime = 5f;
 
 			Vector3 dispersion = new Vector3

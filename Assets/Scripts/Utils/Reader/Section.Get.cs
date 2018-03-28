@@ -38,7 +38,8 @@ namespace CFG_Reader {
 			{
 				if ( pLineValue.Type == LineValueType.SINGLE )
 				{
-					return pLineValue.Value.As<T>();
+					if ( pLineValue.Value.ToSystemObject().GetType() == typeof( T ) )
+						return pLineValue.Value.As<T>();
 				}
 			}
 			return default( T );
@@ -54,7 +55,8 @@ namespace CFG_Reader {
 			{
 				if ( pLineValue.Type == LineValueType.SINGLE )
 				{
-					return pLineValue.Value.ToBool();
+					if ( pLineValue.Value.ToSystemObject().GetType() == typeof( bool ) )
+						return pLineValue.Value.ToBool();
 				}
 			}
 			return Default;
@@ -70,7 +72,8 @@ namespace CFG_Reader {
 			{
 				if ( pLineValue.Type == LineValueType.SINGLE )
 				{
-					return pLineValue.Value.ToInteger();
+					if ( pLineValue.Value.ToSystemObject().GetType() == typeof( int ) )
+						return pLineValue.Value.ToInteger();
 				}
 			}
 			return Default;
@@ -86,7 +89,8 @@ namespace CFG_Reader {
 			{
 				if ( pLineValue.Type == LineValueType.SINGLE )
 				{
-					return pLineValue.Value.ToFloat();
+					if ( pLineValue.Value.ToSystemObject().GetType() == typeof( float ) )
+						return pLineValue.Value.ToFloat();
 				}
 			}
 			return Default;
@@ -102,7 +106,8 @@ namespace CFG_Reader {
 			{
 				if ( pLineValue.Type == LineValueType.SINGLE )
 				{
-					return pLineValue.Value.ToString();
+					if ( pLineValue.Value.GetType() == typeof( string ) )
+						return pLineValue.Value.ToString();
 				}
 			}
 			return Default;

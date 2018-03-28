@@ -10,11 +10,11 @@ public partial class Player {
 		if ( m_Health <= 0.0f )
 			return;
 
-		float 	fMove 			= Inputmanager.Inputs.Forward     ? 1.0f : Inputmanager.Inputs.Backward   ? -1.0f : 0.0f;
-		float 	fStrafe			= Inputmanager.Inputs.StrafeRight ? 1.0f : Inputmanager.Inputs.StrafeLeft ? -1.0f : 0.0f;
-		float	fVertical		= Inputmanager.Inputs.Jump		  ? 1.0f : Inputmanager.Inputs.Crouch	  ? -1.0f : 0.0f;
+		float 	fMove 			= InputManager.Inputs.Forward     ? 1.0f : InputManager.Inputs.Backward   ? -1.0f : 0.0f;
+		float 	fStrafe			= InputManager.Inputs.StrafeRight ? 1.0f : InputManager.Inputs.StrafeLeft ? -1.0f : 0.0f;
+		float	fVertical		= InputManager.Inputs.Jump		  ? 1.0f : InputManager.Inputs.Crouch	  ? -1.0f : 0.0f;
 
-		float	fSpeed			= Inputmanager.Inputs.Run ? m_RunSpeed : m_WalkSpeed;
+		float	fSpeed			= InputManager.Inputs.Run ? m_RunSpeed : m_WalkSpeed;
 
 		float	fDirMul			= ( fMove > 0 ) ? 1.0f : 0.8f;
 

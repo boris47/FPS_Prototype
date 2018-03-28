@@ -10,6 +10,7 @@ public class Bullet : MonoBehaviour {
 	public	float		DamageMax		= 0f;
 	public	bool		IsCloseRange	= false;
 	public	bool		CanPenetrate	= false;
+	public	Vector3		FirePosition	= Vector3.zero;
 
 	public	float		MaxLifeTime		= 3f;
 	public	float		CurrentLifeTime	= 0f;
@@ -52,6 +53,7 @@ public class Bullet : MonoBehaviour {
 		{
 			transform.position		= Vector3.zero;
 			m_RigidBody.velocity	= Vector3.zero;
+			FirePosition			= Vector3.zero;
 		}
 		m_RigidBody.detectCollisions = state;
 		m_Collider.enabled = state;

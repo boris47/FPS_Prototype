@@ -56,11 +56,11 @@ public abstract class Turret : NonLiveEntity {
 	}
 
 
+	public float bodyRotationSpeed = 5f;
+	public float gunRotationSpeed = 5f;
 	/// <summary>
 	/// Update forward direction and gun rotation
 	/// </summary>
-	public float bodyRotationSpeed = 5f;
-	public float gunRotationSpeed = 5f;
 	protected override void Update()
 	{
 		base.Update();
@@ -87,14 +87,11 @@ public abstract class Turret : NonLiveEntity {
 		if ( m_AllignedGunToTarget == false )
 			return;
 
-		// SHOOTING
 
+		// SHOOTING
 		m_ShotTimer -= Time.deltaTime;
 		if ( m_ShotTimer > 0 )
 				return;
-
-		if ( m_CurrentTarget == null )
-			return;
 
 		m_ShotTimer = m_ShotDelay;
 

@@ -13,11 +13,11 @@ public abstract partial class Entity {
 		foreach( Entity entity in entities )
 		{
 			Vector3 direction = ( entity.transform.position - currentPosition );
-
-			Debug.DrawLine(
-					currentPosition, 
-					entity.transform.position
-				);
+			Debug.DrawLine
+			(
+				currentPosition, 
+				entity.transform.position
+			);
 
 			if ( Physics.Raycast( currentPosition, direction, out hit ) )
 			{
@@ -32,9 +32,7 @@ public abstract partial class Entity {
 				}
 			}
 		}
-
 		return bestResult;
-
 	}
 
 }

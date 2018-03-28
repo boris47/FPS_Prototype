@@ -19,6 +19,12 @@ public interface IEntity {
 	bool			IsUnderWater();
 }
 
+public enum BrainState {
+	QUIET,
+	WARNING,
+	ATTACKING
+}
+
 
 
 [RequireComponent(typeof(Rigidbody))]
@@ -97,6 +103,9 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	protected 	string			m_SectionName					= "None";
 	[System.NonSerialized]
 	protected 	ENTITY_TYPE		m_EntityType					= ENTITY_TYPE.NONE;
+
+	[System.NonSerialized]
+	protected	BrainState		m_BrainState					= BrainState.QUIET;
 	
 	protected 	bool			m_IsInWater						= false;
 	protected 	bool			m_IsUnderWater					= false;

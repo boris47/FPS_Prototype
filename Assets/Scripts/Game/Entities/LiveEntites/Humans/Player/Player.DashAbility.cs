@@ -12,7 +12,7 @@ public partial class Player {
 		float	fovEndVal					= 100f;
 		float	interpolant					= 0f;
 
-
+//		InputManager.IsEnabled						= false;
 		CameraControl.Instance.HeadBob.IsActive		= false;
 		CameraControl.Instance.HeadMove.IsActive	= false;
 		CameraControl.Instance.CanParseInput		= false;
@@ -77,6 +77,7 @@ public partial class Player {
 
 		CameraControl.Instance.HeadBob.IsActive		= true;
 		CameraControl.Instance.HeadMove.IsActive	= true;
+//		InputManager.IsEnabled						= true;
 
 	}
 
