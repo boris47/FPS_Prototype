@@ -3,62 +3,6 @@
 using UnityEngine;
 using System.Reflection;
 
-public static class ObjectCloner {
-
-	private	static	void	CloneComponent( ref Component component, ref GameObject destinationObj, bool copyProperties = false )
-	{
-		System.Type componentType = component.GetType();
-		
-		Component tmpComponent = destinationObj.GetComponent( componentType );
-		if ( tmpComponent == null )
-			tmpComponent = destinationObj.AddComponent( componentType );
-
-        if (copyProperties)
-        {
-            PropertyInfo[] foundProperties = componentType.GetProperties();
-            for (int i = 0; i < foundProperties.Length; i++)
-            {
-                PropertyInfo foundProperty = foundProperties[i];
-                if (foundProperty.CanWrite)
-                {
-                    foundProperty.SetValue( tmpComponent, foundProperty.GetValue( component, null ) , null );
-                }
-            }
-        }
-
-        FieldInfo[] foundFields = componentType.GetFields();
-        for (int i = 0; i < foundFields.Length; i++)
-        {
-            FieldInfo foundField = foundFields[i];
-            foundField.SetValue( tmpComponent, foundField.GetValue( component ) );
-        }
-	}
-
-	public	static	void	Clone( ref GameObject sourceObj, ref GameObject destinationObj, bool copyProperties = false )
-	{
-		// ALL COMPONENTS AND PROPERTIES EXCEPT MESH FILTER MESH PROPERTY
-		Component[] copyModelComponents = sourceObj.GetComponents<Component>();
-		for (int i = 0; i < copyModelComponents.Length; i++)
-		{
-			Component copyModelComponent = copyModelComponents[ i ];
-			CloneComponent( ref copyModelComponent, ref destinationObj, copyProperties );
-		}
-
-		// MESH FILTER MESH
-		MeshFilter sourceMeshFilter = sourceObj.GetComponent<MeshFilter>();
-		if ( sourceMeshFilter != null )
-			destinationObj.GetComponent<MeshFilter>().mesh = sourceMeshFilter.mesh;
-
-		//	RENDERER MATERIAL
-		Material returnHighlightMaterial = sourceObj.GetComponent<Renderer>().material;
-		destinationObj.GetComponent<Renderer>().material = returnHighlightMaterial;
-
-		// SCALE
-		destinationObj.transform.localScale = sourceObj.transform.localScale;
-	}
-
-}
-
 
 /// <summary> Generic object pooler </summary>
 public class GameObjectsPool {
@@ -70,7 +14,7 @@ public class GameObjectsPool {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Copstructor
+	// Constructor
 	public	GameObjectsPool( ref GameObject model, int size, bool destroyModel, System.Action<GameObject> actionOnObject = null )
 	{
 		if ( m_Container == null )
@@ -83,7 +27,7 @@ public class GameObjectsPool {
 		{
 			GameObject objectCopy = new GameObject( model.name + "_" + i );
 			objectCopy.hideFlags = HideFlags.NotEditable;
-			ObjectCloner.Clone( ref model, ref objectCopy, true );
+			Utils.Base.Clone( ref model, ref objectCopy, true );
 			objectCopy.transform.SetParent( m_Container.transform );
 			if ( actionOnObject != null )
 				actionOnObject( objectCopy );
@@ -135,34 +79,47 @@ public class GameObjectsPool {
 
 /// <summary> Object pooler with a specified component added on every object </summary>
 public class GameObjectsPool<T> where T : UnityEngine.Component  {
+	
+	private	static	int		Counter				= 0;
 
 	private	GameObject		m_Container			= null;
 	private	ObjectsPool<T>	m_ObjectsPool		= null;
 	private	int				m_InternalIndex		= 0;
 
 
-	//////////////////////////////////////////////////////////////////////////
-	// Costrunctor
-	public	GameObjectsPool( string Name, int size = 0 )
+		//////////////////////////////////////////////////////////////////////////
+	// Constructor
+	public	GameObjectsPool( ref GameObject model, int size, bool destroyModel, System.Action<T> actionOnObject = null )
 	{
 		if ( m_Container == null )
 		{
-			m_Container = new GameObject( Name +  "_GameObjectsContainer" );
+			m_Container = new GameObject( "GameObjectsContainer_" + Counter.ToString() );
+			Counter ++;
 		}
 
-		m_ObjectsPool = new ObjectsPool<T>();
-		T[] storage = new T[ size ];
+		T[] array = new T[ size ];
+		m_ObjectsPool = new ObjectsPool<T>( size );
 
 		for ( int i = 0; i < size; i++ )
 		{
-			GameObject go = new GameObject();
-			go.transform.SetParent( m_Container.transform );
-			T comp = go.AddComponent<T>();
-			storage[ i ] = comp;
+			GameObject objectCopy = new GameObject( model.name + "_" + i );		objectCopy.hideFlags = HideFlags.NotEditable;
+
+			Utils.Base.Clone( ref model, ref objectCopy, true );
+
+			objectCopy.transform.SetParent( m_Container.transform );
+
+			T comp = objectCopy.GetComponent<T>();
+			if ( actionOnObject != null )
+				actionOnObject( comp );
+
+			array[ i ] = comp;
 		}
 
-		m_ObjectsPool.Set( ref storage );
+		m_ObjectsPool.Set( ref array );
 
+		// if model is not a prefab and user wants destroy it
+		if ( model.scene.name != null && destroyModel == true )
+			Object.Destroy( model.gameObject );
 	}
 
 

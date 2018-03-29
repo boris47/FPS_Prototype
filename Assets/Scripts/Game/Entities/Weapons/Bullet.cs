@@ -11,13 +11,23 @@ public class Bullet : MonoBehaviour {
 	public	bool		IsCloseRange	= false;
 	public	bool		CanPenetrate	= false;
 	public	Vector3		FirePosition	= Vector3.zero;
+	public	float		Speed			= 15f;
 
 	public	float		MaxLifeTime		= 3f;
 	public	float		CurrentLifeTime	= 0f;
 
 
 	private	Rigidbody	m_RigidBody		= null;
+	public	Rigidbody	RigidBody
+	{
+		get { return m_RigidBody; }
+	}
+
 	private	Collider	m_Collider		= null;
+	public	Collider	Collider
+	{
+		get { return m_Collider; }
+	}
 	private	Renderer	m_Renderer		= null;
 
 

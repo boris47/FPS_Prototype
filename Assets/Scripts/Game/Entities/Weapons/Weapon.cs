@@ -14,4 +14,6 @@ public abstract class Weapon : MonoBehaviour {
 	public	FireModes	fireMode		= FireModes.AUTO;
 	public	int			magazine		= 25;
 
+	public	GameObject	bulletModel		= null;
+
 }

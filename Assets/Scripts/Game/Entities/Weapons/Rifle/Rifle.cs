@@ -26,7 +26,7 @@ public class Rifle : Weapon
 	float reloadTimer;
 
 
-	private	GameObjectsPool m_Pool;
+	private	GameObjectsPool<Bullet> m_Pool;
 
 
 
@@ -48,10 +48,23 @@ public class Rifle : Weapon
 			canPenetrate	= section.AsBool( "CanPenetrate", canPenetrate );
 		}
 
-		GameObject go = GameObject.CreatePrimitive( PrimitiveType.Sphere );
-		go.name = "PlayerBlt";
-		Rigidbody rb = go.AddComponent<Rigidbody>();
-		Bullet bullet = go.AddComponent<Bullet>();
+		GameObject go	= null;
+		Bullet bullet	= null;
+		Rigidbody rb	= null;
+		if ( bulletModel != null )
+		{
+			go		= bulletModel;
+			bullet  = bulletModel.GetComponent<Bullet>();
+			rb		= bullet.RigidBody;
+		}
+		else
+		{
+			go = GameObject.CreatePrimitive( PrimitiveType.Sphere );
+			go.name = "PlayerBlt";
+			rb = go.AddComponent<Rigidbody>();
+			bullet = go.AddComponent<Bullet>();
+			go.transform.localScale = Vector3.one * 0.2f;
+		}
 		bullet.DamageMax = bulletMaxDamage;
 		bullet.DamageMin = bulletMinDamage;
 		bullet.WhoRef = Player.Instance;
@@ -59,13 +72,13 @@ public class Rifle : Weapon
 		bullet.CanPenetrate = canPenetrate;
 		rb.useGravity = false;
 		rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-		go.transform.localScale = Vector3.one * 0.2f;
 
-		m_Pool = new GameObjectsPool( ref go, 25, true, 
-			actionOnObject : ( GameObject o ) =>
+		m_Pool = new GameObjectsPool<Bullet>( ref go, 25,
+			destroyModel : false, 
+			actionOnObject : ( Bullet o ) =>
 		{
-			o.GetComponent<Bullet>().SetActive( false );
-			Physics.IgnoreCollision( o.GetComponent<Collider>(), Player.Instance.GetComponent<CapsuleCollider>(), ignore : true );
+			o.SetActive( false );
+			Physics.IgnoreCollision( o.Collider, Player.Instance.PhysicCollider, ignore : true );
 
 		} );
 
@@ -111,7 +124,7 @@ public class Rifle : Weapon
 			if ( fire != null )
 				anim.Play(fire.name, -1, 0f);
 
-			Bullet bullet = m_Pool.Get<Bullet>();
+			Bullet bullet = m_Pool.GetComponent();
 			bullet.enabled = true;
 			bullet.FirePosition = bullet.transform.position = firePoint1.position;
 			bullet.MaxLifeTime = 5f;
@@ -123,7 +136,7 @@ public class Rifle : Weapon
 				Random.Range( -1f, 1f )
 			) * fireDispersion;
 			
-			bullet.SetVelocity( ( transform.right + dispersion ) * 20f );
+			bullet.SetVelocity( ( transform.right + dispersion ) * bullet.Speed );
 			bullet.SetActive( true );
 			
 			audioSource.Play();

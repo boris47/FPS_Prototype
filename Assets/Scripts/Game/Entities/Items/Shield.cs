@@ -3,7 +3,8 @@ using System.Collections;
 
 public interface IShield {
 
-	float		Status { set; }
+	float		Status		{ set; }
+	Entity		Father		{ set; }
 
 }
 
@@ -21,6 +22,11 @@ public class Shield : MonoBehaviour, IShield {
 	}
 
 	private		Entity		m_Father		= null;
+				Entity		IShield.Father
+	{
+		set { m_Father = value; }
+	}
+
 
 	private		Renderer	m_Renderer		= null;
 	private		Collider	m_Collider		= null;
@@ -31,6 +37,7 @@ public class Shield : MonoBehaviour, IShield {
 	private void Awake()
 	{
 		m_Father =  transform.parent.GetComponent<Entity>();
+
 
 		m_Renderer = GetComponent<Renderer>();
 		m_Collider = GetComponent<Collider>();
@@ -59,19 +66,22 @@ public class Shield : MonoBehaviour, IShield {
 		if ( bullet == null )
 			return;
 
+		// Reset bullet
+		bullet.SetActive( false );
+
+
+		// If bullet whoRef equals this shield father, skip damaging
 		if ( bullet.WhoRef == m_Father )
 			return;
 		
-		// Reset bullet
-		bullet.SetActive( false );
-		
-		// If shield is not "Broken"
+		// If shield is not "Broken" calculate damage
 		float damage	= Random.Range( bullet.DamageMin, bullet.DamageMax );
 		Entity who		= bullet.WhoRef;
+		// Shiled take hit
 		OnHit( who,  damage );
 
 		// Penetration effect
-		if ( bullet.CanPenetrate == true && bullet.Weapon != null )
+		if ( m_Father != null && bullet.CanPenetrate == true && bullet.Weapon != null )
 		{
 			damage /=  2f;
 			m_Father.OnHit( ref who, damage );

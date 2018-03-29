@@ -117,6 +117,10 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	}
 
 	protected	CapsuleCollider	m_PhysicCollider				= null;
+	public		CapsuleCollider	PhysicCollider
+	{
+		get { return m_PhysicCollider; }
+	}
 
 	protected	ViewAreaTrigger	m_ViewTrigger					= null;
 	public		ViewAreaTrigger	m_ViewArea
