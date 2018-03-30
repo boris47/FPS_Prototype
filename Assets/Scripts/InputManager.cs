@@ -9,6 +9,8 @@ public struct inputs_t {
 	public	bool	Use;
 	public	bool	Item1, Item2, Item3, Item4;
 	public	bool	ItemAction1;
+	public	bool	Fire1, Fire2, Fire1Loop, Fire2Loop;
+	public	bool	Reload;
 
 	public void Reset()
 	{
@@ -17,7 +19,9 @@ public struct inputs_t {
 		Crouch = Jump = Run =
 		Use =
 		Item1 = Item2 = Item3 = Item4 =
-		ItemAction1 = false;
+		ItemAction1 =
+		Fire1 = Fire2 = Fire1Loop = Fire2Loop =
+		Reload = false;
 	}
 };
 
@@ -75,6 +79,13 @@ public class InputManager {
 		m_Inputs.Item4			= Input.GetKeyDown ( KeyCode.F4 ) || Input.GetKeyDown ( KeyCode.Keypad4 );
 
 		m_Inputs.ItemAction1	= Input.GetKeyDown( KeyCode.G );
+
+		m_Inputs.Fire1			= Input.GetKeyDown( KeyCode.Mouse0 );
+		m_Inputs.Fire2			= Input.GetKeyDown( KeyCode.Mouse1 );
+		m_Inputs.Fire1Loop		= Input.GetKey( KeyCode.Mouse0 );
+		m_Inputs.Fire2Loop		= Input.GetKey( KeyCode.Mouse1 );
+
+		m_Inputs.Reload			= Input.GetKeyDown( KeyCode.R );
 
 	}
 }

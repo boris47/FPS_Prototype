@@ -937,7 +937,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1473855839537546}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.199, y: -0.03, z: -0.0291}
+  m_LocalPosition: {x: -0.307, y: -0.03, z: -0.029}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4653025670154340}
@@ -1306,7 +1306,7 @@ Transform:
   m_GameObject: {fileID: 1704016487070346}
   m_LocalRotation: {x: 0.5, y: 0.5, z: -0.5, w: 0.5}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  m_LocalScale: {x: 0.022641413, y: 0.11320718, z: 0.022641433}
   m_Children: []
   m_Father: {fileID: 4653025670154340}
   m_RootOrder: 7
@@ -1442,7 +1442,7 @@ MeshRenderer:
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: ea2fb6b04df67024bb77ef6e61b830f9, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1612,7 +1612,7 @@ MonoBehaviour:
   IsCloseRange: 0
   CanPenetrate: 0
   FirePosition: {x: 0, y: 0, z: 0}
-  Speed: 7
+  Speed: 20
   MaxLifeTime: 3
   CurrentLifeTime: 0
 --- !u!114 &114163592895464176
@@ -1630,14 +1630,11 @@ MonoBehaviour:
   firePoint1: {fileID: 4372355633111222}
   fireMode: 0
   magazine: 25
-  bulletModel: {fileID: 1704016487070346}
+  m_BulletGameObject: {fileID: 1704016487070346}
   anim: {fileID: 95556688490613714}
   fire: {fileID: 7400000, guid: 71c430a232f539b459e35ecc7cc7001d, type: 3}
   reload: {fileID: 7400000, guid: a4dbfbd2851f33e46acca78fce91389f, type: 3}
   draw: {fileID: 7400000, guid: bfb4cd7d20f86f443b2cc461b1143d8c, type: 3}
-  reloadKey: 114
-  fireKey: 323
-  drawKey: 113
   audioSource: {fileID: 82281290498818910}
   shotDelay: 0.12
   camDeviation: 1.14
@@ -1718,7 +1715,7 @@ CapsuleCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   m_Radius: 0.7
-  m_Height: 4
+  m_Height: 2.5
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!137 &137041510596930314

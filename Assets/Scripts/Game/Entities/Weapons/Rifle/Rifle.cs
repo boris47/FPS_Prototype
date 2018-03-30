@@ -8,9 +8,6 @@ public class Rifle : Weapon
 	public AnimationClip fire;
 	public AnimationClip reload;
 	public AnimationClip draw;
-	public KeyCode reloadKey = KeyCode.R;
-	public KeyCode fireKey = KeyCode.Mouse0;
-	public KeyCode drawKey = KeyCode.D;
 
 	public	AudioSource	audioSource;
 	public	float	shotDelay;
@@ -26,7 +23,7 @@ public class Rifle : Weapon
 	float reloadTimer;
 
 
-	private	GameObjectsPool<Bullet> m_Pool;
+	private	GameObjectsPool<Bullet> m_Pool = null;
 
 
 
@@ -43,44 +40,43 @@ public class Rifle : Weapon
 			CFG_Reader.Section section = null;
 			GameManager.Configs.GetSection( "Rifle", ref section );
 
-			bulletMaxDamage = section.AsFloat( "DamageMax", bulletMaxDamage );
-			bulletMinDamage = section.AsFloat( "DamageMix", bulletMinDamage );
-			canPenetrate	= section.AsBool( "CanPenetrate", canPenetrate );
+			bulletMaxDamage = section.AsFloat( "DamageMax",		bulletMaxDamage );
+			bulletMinDamage = section.AsFloat( "DamageMix",		bulletMinDamage );
+			canPenetrate	= section.AsBool(  "CanPenetrate",	canPenetrate );
 		}
 
-		GameObject go	= null;
-		Bullet bullet	= null;
-		Rigidbody rb	= null;
-		if ( bulletModel != null )
+		// BULLETS POOL CREATION
 		{
-			go		= bulletModel;
-			bullet  = bulletModel.GetComponent<Bullet>();
-			rb		= bullet.RigidBody;
-		}
-		else
-		{
-			go = GameObject.CreatePrimitive( PrimitiveType.Sphere );
-			go.name = "PlayerBlt";
-			rb = go.AddComponent<Rigidbody>();
-			bullet = go.AddComponent<Bullet>();
-			go.transform.localScale = Vector3.one * 0.2f;
-		}
-		bullet.DamageMax = bulletMaxDamage;
-		bullet.DamageMin = bulletMinDamage;
-		bullet.WhoRef = Player.Instance;
-		bullet.Weapon = this;
-		bullet.CanPenetrate = canPenetrate;
-		rb.useGravity = false;
-		rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+			GameObject	bulletGO		= null;
+			Bullet		bulletScript	= null;
+			if ( m_BulletGameObject != null )
+			{
+				bulletGO		= m_BulletGameObject;
+				bulletScript	= m_BulletGameObject.GetComponent<Bullet>();
+			}
+			else
+			{
+				bulletGO = GameObject.CreatePrimitive( PrimitiveType.Sphere );
+				bulletGO.name = "PlayerBlt";
+				bulletGO.AddComponent<Rigidbody>();
+				bulletScript = bulletGO.AddComponent<Bullet>();
+				bulletGO.transform.localScale = Vector3.one * 0.2f;
+			}
+			bulletScript.DamageMax = bulletMaxDamage;
+			bulletScript.DamageMin = bulletMinDamage;
+			bulletScript.WhoRef = Player.Instance;
+			bulletScript.Weapon = this;
+			bulletScript.CanPenetrate = canPenetrate;
 
-		m_Pool = new GameObjectsPool<Bullet>( ref go, 25,
-			destroyModel : false, 
-			actionOnObject : ( Bullet o ) =>
-		{
-			o.SetActive( false );
-			Physics.IgnoreCollision( o.Collider, Player.Instance.PhysicCollider, ignore : true );
+			m_Pool = new GameObjectsPool<Bullet>( ref bulletGO, 10,
+				destroyModel : false, 
+				actionOnObject : ( Bullet o ) =>
+			{
+				o.SetActive( false );
+				Physics.IgnoreCollision( o.Collider, Player.Instance.PhysicCollider, ignore : true );
 
-		} );
+			} );
+		}
 
 		Player.Instance.CurrentWeapon = this;
 	}
@@ -114,7 +110,10 @@ public class Rifle : Weapon
 			UI_InGame.Instance.UpdateUI();
 		}
 
-		if ( ( fireMode == FireModes.AUTO && Input.GetKey( fireKey ) ) || ( fireMode == FireModes.SINGLE && Input.GetKeyDown( fireKey ) ) )
+
+
+		if ( ( fireMode == FireModes.AUTO	&& InputManager.Inputs.Fire1Loop ) || 
+			 ( fireMode == FireModes.SINGLE	&& InputManager.Inputs.Fire1 ) )
 		{
 			if ( fireTimer > 0 )
 				return;
@@ -125,7 +124,6 @@ public class Rifle : Weapon
 				anim.Play(fire.name, -1, 0f);
 
 			Bullet bullet = m_Pool.GetComponent();
-			bullet.enabled = true;
 			bullet.FirePosition = bullet.transform.position = firePoint1.position;
 			bullet.MaxLifeTime = 5f;
 
@@ -136,7 +134,10 @@ public class Rifle : Weapon
 				Random.Range( -1f, 1f )
 			) * fireDispersion;
 			
-			bullet.SetVelocity( ( transform.right + dispersion ) * bullet.Speed );
+			Vector3 direction = ( transform.right + dispersion ).normalized;
+
+			bullet.SetVelocity( direction * bullet.Speed );
+			bullet.transform.up = direction;
 			bullet.SetActive( true );
 			
 			audioSource.Play();
@@ -151,7 +152,7 @@ public class Rifle : Weapon
 			UI_InGame.Instance.UpdateUI();
 		}
 
-		if ( magazine <= 0 || Input.GetKeyDown( reloadKey ) )
+		if ( magazine <= 0 || InputManager.Inputs.Reload )
 		{
 			anim.Play(reload.name);
 			reloadTimer = reload.length;

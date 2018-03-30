@@ -37,12 +37,18 @@ public class Bullet : MonoBehaviour {
 		m_RigidBody	= GetComponent<Rigidbody>();
 		m_Collider	= GetComponent<Collider>();
 		m_Renderer	= GetComponent<Renderer>();
+
+		m_RigidBody.useGravity					= false;
+		m_RigidBody.interpolation				= RigidbodyInterpolation.Interpolate;
+		m_RigidBody.collisionDetectionMode		= CollisionDetectionMode.ContinuousDynamic;
+		m_RigidBody.maxAngularVelocity			= 0f;
 	}
 
 
 	private void OnEnable()
 	{
 		CurrentLifeTime = 0f;
+		m_RigidBody.angularVelocity = Vector3.zero;
 	}
 
 	private void Update()

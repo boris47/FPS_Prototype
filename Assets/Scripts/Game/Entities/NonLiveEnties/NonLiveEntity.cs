@@ -23,7 +23,7 @@ public abstract partial class NonLiveEntity : Entity {
 	protected		Transform			m_GunTransform		= null;
 	protected		Transform			m_FirePoint			= null;
 
-	protected		GameObjectsPool		m_Pool				= null;
+	protected		GameObjectsPool<Bullet> m_Pool			= null;
 	protected		float				m_ShotTimer			= 0f;
 
 	protected		bool				m_AllignedToTarget	= false;

@@ -1,7 +1,6 @@
 ﻿
 
 using UnityEngine;
-using System.Reflection;
 
 
 /// <summary> Generic object pooler </summary>
@@ -63,7 +62,7 @@ public class GameObjectsPool {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Destroy
-	public	void	Destroy()
+	internal	void	Destroy()
 	{
 		if ( m_Container == null )
 			return;
@@ -72,9 +71,11 @@ public class GameObjectsPool {
 		{
 			Object.Destroy( m_Container.transform.GetChild( i ).gameObject );
 		}
+		Object.Destroy( m_Container );
+
+		Counter --;
 	}
 }
-
 
 
 /// <summary> Object pooler with a specified component added on every object </summary>
@@ -144,6 +145,23 @@ public class GameObjectsPool<T> where T : UnityEngine.Component  {
 			m_InternalIndex = 0;
 
 		return m_ObjectsPool.At( m_InternalIndex );
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// Destroy
+	internal	void	Destroy()
+	{
+		if ( m_Container == null )
+			return;
+
+		for ( int i = 0; i < m_Container.transform.childCount; i++ )
+		{
+			Object.Destroy( m_Container.transform.GetChild( i ).gameObject );
+		}
+
+		Object.Destroy( m_Container );
+
+		Counter --;
 	}
 
 }
@@ -216,4 +234,18 @@ public	class ObjectsPool<T> where T : UnityEngine.Component {
 		return m_Storage[ index ];
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// Destroy
+	internal	void	Destroy()
+	{
+		for ( int i = 0; i < m_Storage.Length; i++ )
+		{
+			Component comp = m_Storage[ i ];
+			if ( comp != null )
+			{
+				Object.Destroy( comp );
+			}
+		}
+	}
 }

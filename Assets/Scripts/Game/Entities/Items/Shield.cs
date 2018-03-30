@@ -27,9 +27,13 @@ public class Shield : MonoBehaviour, IShield {
 		set { m_Father = value; }
 	}
 
+	private		Collider	m_Collider		= null;
+	public		Collider	Collider
+	{
+		get { return m_Collider; }
+	}
 
 	private		Renderer	m_Renderer		= null;
-	private		Collider	m_Collider		= null;
 
 
 	//////////////////////////////////////////////////////////////////////////

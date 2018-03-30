@@ -13,6 +13,9 @@ public class DroneArmored : Drone {
 	// Hitted by ranged weapon
 	public override void OnHit( ref Entity who, float damage )
 	{
+		if ( m_Shield != null && m_Shield.Status > 0f )
+			return;
+
 		m_Health -= damage;
 
 		if ( m_Health < 0f )

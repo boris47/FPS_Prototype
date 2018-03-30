@@ -40,7 +40,7 @@ public partial class Player {
 	}
 
 
-	private	void	OnDashTargetUsed( ref DashTarget target )
+	private					void	OnDashTargetUsed( ref DashTarget target )
 	{
 		if ( m_IsDashing )
 			return;

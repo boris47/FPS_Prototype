@@ -4,6 +4,8 @@ using System.Collections;
 
 public partial class Player {
 
+	private	const	float	DASH_START_EXIT_EFFET_THRESOLD = 0.85f;
+
 	private	IEnumerator	DashStartEffect( DashTarget target )
 	{
 		UnityEngine.UI.Image effectFrame	= UI_InGame.Instance.GetEffectFrame();
@@ -12,7 +14,7 @@ public partial class Player {
 		float	fovEndVal					= 100f;
 		float	interpolant					= 0f;
 
-//		InputManager.IsEnabled						= false;
+		InputManager.IsEnabled						= false;
 		CameraControl.Instance.HeadBob.IsActive		= false;
 		CameraControl.Instance.HeadMove.IsActive	= false;
 		CameraControl.Instance.CanParseInput		= false;
@@ -28,6 +30,7 @@ public partial class Player {
 
 		effectFrame.color	= Color.Lerp ( Color.clear, Color.white, 0.5f );
 
+		InputManager.IsEnabled						= true;
 		CameraControl.Instance.CanParseInput		= true;
 		camera.fieldOfView							= fovStartVal;
 	}
@@ -58,12 +61,7 @@ public partial class Player {
 			CameraControl.Instance.GetPP_Profile.motionBlur.settings = settings;
 
 			transform.position = Vector3.Lerp( startPosition, target.transform.position, interpolant );
-
-			if ( interpolant > 0.6f )
-			{
-				DashEndEffect( interpolant - 0.6f );
-			}
-
+			
 			yield return null;
 		}
 
@@ -80,18 +78,5 @@ public partial class Player {
 //		InputManager.IsEnabled						= true;
 
 	}
-
-
-	private	void	DashEndEffect( float interpolant )
-	{
-		UnityEngine.UI.Image effectFrame	= UI_InGame.Instance.GetEffectFrame();
-
-		float dashFinalInterpolant = ( interpolant *= ( 0.3f * 10f ) );
-		effectFrame.color	= ( dashFinalInterpolant < 0.98f ) ?
-			Color.Lerp ( Color.clear, Color.white, Mathf.Clamp01( interpolant ) )
-			:
-			Color.clear;
-	}
-
 
 }
