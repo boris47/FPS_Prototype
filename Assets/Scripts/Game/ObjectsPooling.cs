@@ -4,7 +4,7 @@ using UnityEngine;
 
 
 /// <summary> Generic object pooler </summary>
-public class GameObjectsPool {
+public	class GameObjectsPool {
 
 	private	static	int		Counter				= 0;
 
@@ -24,9 +24,9 @@ public class GameObjectsPool {
 
 		for ( int i = 0; i < size; i++ )
 		{
-			GameObject objectCopy = new GameObject( model.name + "_" + i );
-			objectCopy.hideFlags = HideFlags.NotEditable;
-			Utils.Base.Clone( ref model, ref objectCopy, true );
+//			GameObject objectCopy =  new GameObject( model.name + "_" + i );
+			GameObject objectCopy = Object.Instantiate( model );
+//			Utils.Base.Clone( ref model, ref objectCopy, true );
 			objectCopy.transform.SetParent( m_Container.transform );
 			if ( actionOnObject != null )
 				actionOnObject( objectCopy );
@@ -79,7 +79,7 @@ public class GameObjectsPool {
 
 
 /// <summary> Object pooler with a specified component added on every object </summary>
-public class GameObjectsPool<T> where T : UnityEngine.Component  {
+public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	
 	private	static	int		Counter				= 0;
 
@@ -87,6 +87,10 @@ public class GameObjectsPool<T> where T : UnityEngine.Component  {
 	private	ObjectsPool<T>	m_ObjectsPool		= null;
 	private	int				m_InternalIndex		= 0;
 
+	public	string			ContainerName
+	{
+		set { m_Container.name = value; }
+	}
 
 		//////////////////////////////////////////////////////////////////////////
 	// Constructor
@@ -103,9 +107,11 @@ public class GameObjectsPool<T> where T : UnityEngine.Component  {
 
 		for ( int i = 0; i < size; i++ )
 		{
-			GameObject objectCopy = new GameObject( model.name + "_" + i );		objectCopy.hideFlags = HideFlags.NotEditable;
 
-			Utils.Base.Clone( ref model, ref objectCopy, true );
+
+			GameObject objectCopy = Object.Instantiate( model ); // new GameObject( model.name + "_" + i );		objectCopy.hideFlags = HideFlags.NotEditable;
+
+//			Utils.Base.Clone( ref model, ref objectCopy, true );
 
 			objectCopy.transform.SetParent( m_Container.transform );
 

@@ -30,7 +30,7 @@ public partial class Player {
 				m_States.IsFalling = true;
 			}
 
-
+			/*
 			if ( m_PreviousStates.IsHanging && m_States.IsFalling )
 				m_LastLandTime = Time.time;
 
@@ -40,7 +40,7 @@ public partial class Player {
 				m_Landed = false;
 			if ( iFallTime > 400 )
 				m_HeavyFall = true;
-
+				*/
 			m_Stamina = Mathf.Min( m_Stamina + ( m_StaminaRestore * Time.deltaTime ), 1.0f );
 
 			return;

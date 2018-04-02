@@ -4,13 +4,6 @@ using UnityEngine;
 
 public partial class Player {
 
-	private	const	float	DASH_EFFECT_SPEED	= 1.0f;
-	private	const	float	DASH_SPEEED_FACTOR	= 0.5f;
-
-	[SerializeField]
-	private	AnimationCurve	m_DashTimeScaleCurve = AnimationCurve.Linear( 0f, 1f, 1f, 1f );
-
-
 	public	override		void	OnHit( ref Entity who, float damage )
 	{
 		Health -= damage;

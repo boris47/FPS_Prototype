@@ -6,6 +6,7 @@ public interface IShield {
 	float		Status		{ set; }
 	Entity		Father		{ set; }
 
+	void		OnHit( Entity who, float damage );
 }
 
 [RequireComponent( typeof ( Collider ) )]
@@ -61,14 +62,14 @@ public class Shield : MonoBehaviour, IShield {
 	}
 
 	
-	//////////////////////////////////////////////////////////////////////////
-	// OnTriggerEnter
-	private void OnTriggerEnter( Collider other )
+	private void OnCollisionEnter( Collision collision )
 	{
 		// Skip if father is shiled owner
-		Bullet bullet = other.GetComponent<Bullet>();
+		IBullet bullet = collision.gameObject.GetComponent<IBullet>();
 		if ( bullet == null )
 			return;
+
+//		EffectManager.Instance.PlayOnHit( transform.position, ( other.transform.position - transform.position ).normalized );
 
 		// Reset bullet
 		bullet.SetActive( false );
@@ -91,6 +92,6 @@ public class Shield : MonoBehaviour, IShield {
 			m_Father.OnHit( ref who, damage );
 		}
 	}
-	
+
 
 }

@@ -31,7 +31,7 @@ public abstract partial class LiveEntity  {
 
 	private void OnCollisionEnter( Collision collision )
 	{
-		Bullet bullet = collision.gameObject.GetComponent<Bullet>();
+		IBullet bullet = collision.gameObject.GetComponent<IBullet>();
 		if ( bullet == null )
 			return;
 
@@ -41,12 +41,12 @@ public abstract partial class LiveEntity  {
 		if ( who is LiveEntity )
 			return;
 
-		if ( bullet.IsCloseRange )
-		{
+//		if ( bullet.IsCloseRange )
+///		{
 			// close range attack
-			OnHurt( ref who, damage );
-		}
-		else
+//			OnHurt( ref who, damage );
+//		}
+//		else
 		{
 			// long range attack
 			OnHit( ref who, damage );

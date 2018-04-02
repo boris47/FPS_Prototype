@@ -39,9 +39,9 @@ public abstract partial class LiveEntity {
 
 	public		bool	IsRunning {		get { return  m_States.IsRunning; }		set { m_States.IsRunning = value; }	}
 
-	public		bool	IsJumping {		get { return  m_States.IsRunning; }		set { m_States.IsJumping = value; }	}
-	public		bool	IsHanging {		get { return  m_States.IsRunning; }		set { m_States.IsHanging = value; }	}
-	public		bool	IsFalling {		get { return  m_States.IsRunning; }		set { m_States.IsFalling = value; }	}
+	public		bool	IsJumping {		get { return  m_States.IsJumping; }		set { m_States.IsJumping = value; }	}
+	public		bool	IsHanging {		get { return  m_States.IsHanging; }		set { m_States.IsHanging = value; }	}
+	public		bool	IsFalling {		get { return  m_States.IsFalling; }		set { m_States.IsFalling = value; }	}
 
 	public		bool	IsCrouched {	get { return  m_States.IsCrouched; }	set { m_States.IsCrouched = value; }}
 

@@ -1,6 +1,11 @@
 ﻿
 
 [Rifle]
-DamageMax		= 6.0;
-DamageMix		= 4.5;
-CanPenetrate	= false; Can penetrate shield
+DamageMax				= 6.0;
+DamageMix				= 4.5;
+CanPenetrate			= false; Can penetrate shield
+
+GranadeExplosionDelay	= 3.0;
+GranadeThrowForce		= 20.0;
+GranadeDamage			= 100.0;
+GranadeRadius			= 9.0;

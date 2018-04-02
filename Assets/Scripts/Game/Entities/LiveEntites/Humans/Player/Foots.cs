@@ -12,9 +12,11 @@ public interface IFoots {
 public class Foots : MonoBehaviour, IFoots {
 
 	private		LiveEntity			m_LiveEntity		= null;
+	public		LiveEntity			Onwer
+	{
+		get { return m_LiveEntity; }
+	}
 	private		Collider			m_CurrentCollider	= null;
-
-	private		Vector3				m_PrevPosition		= Vector3.zero;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -22,7 +24,6 @@ public class Foots : MonoBehaviour, IFoots {
 	private void Awake()
 	{
 		m_LiveEntity	= transform.parent.GetComponent<LiveEntity>();
-		m_PrevPosition	= transform.position;
 	}
 
 
@@ -42,30 +43,20 @@ public class Foots : MonoBehaviour, IFoots {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// UNITY
-
-	private void OnTriggerEnter( Collider other )
+	// FixedUpdate
+	private void FixedUpdate()
 	{
-		m_CurrentCollider = other;
-		m_LiveEntity.IsGrounded = true;
-
-		m_LiveEntity.EvaluateFall( m_PrevPosition - transform.position );
-		m_PrevPosition = transform.position;
-		PlayStep();
+		m_LiveEntity.IsGrounded = false;
+		m_CurrentCollider = null;
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnTriggerStay
 	private void OnTriggerStay( Collider other )
 	{
 		m_CurrentCollider = other;
 		m_LiveEntity.IsGrounded = true;
 	}
-
-
-	private void OnTriggerExit( Collider other )
-	{
-		m_CurrentCollider = null;
-		m_LiveEntity.IsGrounded = false;
-	}
-
 
 }

@@ -13,9 +13,6 @@ public abstract partial class NonLiveEntity : Entity {
 	[SerializeField]
 	protected		float				m_ShotDelay			= 0.7f;
 
-	[SerializeField]
-	protected		float				m_BulletSpeed		= 10f;
-
 //	[SerializeField]
 	protected		AudioSource			m_FireAudioSource	= null;
 	protected		Shield				m_Shield			= null;

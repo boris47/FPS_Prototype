@@ -29,6 +29,7 @@ namespace WeatherSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Emit
+		ParticleSystem.EmitParams param = new ParticleSystem.EmitParams();
 		private void Emit( ref ParticleSystem particle, Vector3 position )
 		{
 			int count = Random.Range( 1, 4 );
@@ -40,7 +41,6 @@ namespace WeatherSystem {
 				const float lifetime = 0.1f;// UnityEngine.Random.Range(0.25f, 0.75f);
 				float size = Random.Range( 0.05f, 0.1f );
 
-				ParticleSystem.EmitParams param = new ParticleSystem.EmitParams();
 				param.position			= position;
 				param.velocity			= new Vector3( xVelocity, yVelocity, zVelocity );
 				param.startLifetime		= lifetime;

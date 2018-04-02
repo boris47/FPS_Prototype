@@ -73,6 +73,8 @@ public partial class CameraControl : MonoBehaviour {
 
 	private	Vector3			m_CurrentDirection			= Vector3.zero;
 	private	Vector3			m_CurrentDispersion			= Vector3.zero;
+	private	Vector3			m_WeaponPositionDelta		= Vector3.zero;
+	private	Vector3			m_WeaponRotationDelta		= Vector3.zero;
 
 
 	private void Awake()
@@ -130,7 +132,7 @@ public partial class CameraControl : MonoBehaviour {
 			m_HeadMove.Reset( bInstantly : false );
 			return;
 		}
-
+		
 		// Cam Dispersion
 		m_CurrentDirection = Vector3.Lerp( m_CurrentDirection, m_CurrentDirection + m_CurrentDispersion, Time.deltaTime * 8f );
 		m_CurrentDirection.x = Utils.Math.Clamp( m_CurrentDirection.x - m_CurrentRotation_Y_Delta, CLAMP_MIN_X_AXIS, CLAMP_MAX_X_AXIS );
@@ -141,6 +143,15 @@ public partial class CameraControl : MonoBehaviour {
 		{
 			m_HeadBob.Update ( liveEntity : ref pLiveEnitiy, weight : pLiveEnitiy.IsMoving == true ? 1f : 0f );
 			m_HeadMove.Update( liveEntity : ref pLiveEnitiy, weight : pLiveEnitiy.IsMoving == true ? 0f : 1f );
+			
+			// Weapon movements
+			if ( Player.Instance.CurrentWeapon != null )
+			{
+				m_WeaponPositionDelta = m_HeadBob.WeaponPositionDelta + m_HeadMove.WeaponPositionDelta;
+				m_WeaponRotationDelta = m_HeadBob.WeaponRotationDelta + m_HeadMove.WeaponRotationDelta;
+				Player.Instance.CurrentWeapon.transform.localPosition = m_WeaponPositionDelta;
+				Player.Instance.CurrentWeapon.transform.localEulerAngles = m_WeaponRotationDelta;
+			}
 		}
 		else
 		{
@@ -201,7 +212,6 @@ public partial class CameraControl : MonoBehaviour {
 
 			// rotation with effect added
 			transform.rotation = Quaternion.Euler( m_CurrentDirection + m_HeadBob.Direction + m_HeadMove.Direction );
-
 		}
 
 

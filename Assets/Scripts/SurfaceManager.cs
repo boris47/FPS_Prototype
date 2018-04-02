@@ -51,7 +51,7 @@ public class SurfaceManager : MonoBehaviour {
 	{
 		string[] names = new string[ m_DefinedSurfaces.Length ];
 
-		for ( int i = 0;i < names.Length;i ++ )
+		for ( int i = 0; i < names.Length; i ++ )
 			names[i] = m_DefinedSurfaces[i].name;
 
 		return names;
@@ -60,7 +60,6 @@ public class SurfaceManager : MonoBehaviour {
 	// This is for bullet hit particles
 	private int GetSurfaceIndex( Ray ray, Collider col, Vector3 worldPos )
 	{
-
 		string textureName = "";
 
 		// Case when the ground is a terrain.
@@ -88,7 +87,7 @@ public class SurfaceManager : MonoBehaviour {
 	}
 
 	// This is for footsteps
-	private int GetSurfaceIndex( ref Collider col, Vector3 worldPos )
+	private int	GetSurfaceIndex( ref Collider col, Vector3 worldPos )
 	{
 		string textureName = "";
 
@@ -116,9 +115,8 @@ public class SurfaceManager : MonoBehaviour {
 		return -1;
 	}
 
-	string GetMeshMaterialAtPoint( Vector3 worldPosition, Ray ray )
+	private string	GetMeshMaterialAtPoint( Vector3 worldPosition, Ray ray )
 	{
-
 		if( ray.direction == Vector3.zero )
 		{
 			// direction down

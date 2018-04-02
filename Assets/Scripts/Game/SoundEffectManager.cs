@@ -5,8 +5,31 @@ public class SoundEffectManager : MonoBehaviour {
 
 	public static	SoundEffectManager	Instance = null;
 
-	public		float			Volume		= 1.0f;
-	public		float			Pitch		= 1.0f;
+	[SerializeField]
+	private		float			m_MainVolume	= 1f;
+
+	[SerializeField]
+	private		float			m_MainPitch		= 1f;
+
+	public		float			Volume
+	{
+		get { return m_MainVolume; }
+		set
+		{
+			m_MainVolume = value;
+			UpdateVolume( value );
+		}
+	}
+
+	public		float			Pitch
+	{
+		get { return m_MainPitch; }
+		set
+		{
+			m_MainPitch = value;
+			UpdatePitch( value );
+		}
+	}
 
 	private		AudioSource[]	m_Sources	= null;
 
@@ -17,14 +40,9 @@ public class SoundEffectManager : MonoBehaviour {
 	}
 
 	
-	private	void Start()
+	private	void	Start()
 	{
 		m_Sources = FindObjectsOfType<AudioSource>();
-	}
-
-	
-	private	void Update()
-	{
 		for ( int i = 0; i < m_Sources.Length; i++ )
 		{
 			AudioSource source = m_Sources [ i ];
@@ -33,6 +51,31 @@ public class SoundEffectManager : MonoBehaviour {
 
 			source.volume = Volume;
 			source.pitch = Pitch;
+		}
+	}
+
+	
+	private	void	UpdateVolume( float value )
+	{
+		for ( int i = 0; i < m_Sources.Length; i++ )
+		{
+			AudioSource source = m_Sources [ i ];
+			if ( source == null )
+				continue;
+
+			source.volume = value;
+		}
+	}
+
+	public	void	UpdatePitch( float value )
+	{
+		for ( int i = 0; i < m_Sources.Length; i++ )
+		{
+			AudioSource source = m_Sources [ i ];
+			if ( source == null )
+				continue;
+
+			source.pitch = value;
 		}
 	}
 

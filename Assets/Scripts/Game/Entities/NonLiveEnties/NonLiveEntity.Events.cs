@@ -6,19 +6,17 @@ public abstract partial class NonLiveEntity : Entity {
 	// COLLIDER EVENT
 	protected virtual void OnCollisionEnter( Collision collision )
 	{
-		Bullet bullet = collision.gameObject.GetComponent<Bullet>();
+		IBullet bullet = collision.gameObject.GetComponent<IBullet>();
 		if ( bullet == null )
 			return;
 
 		float  Damage	= Random.Range( bullet.DamageMin, bullet.DamageMax );
 		Entity Who		= bullet.WhoRef;
 
-		if ( bullet.WhoRef is Player )
+		// Avoid friendly fire
+		if ( bullet.WhoRef is LiveEntity )
 		{
-			if ( bullet.IsCloseRange )
-				OnHurt( ref Who, Damage );
-			else
-				OnHit( ref Who, Damage );
+			OnHit( ref Who, Damage );
 		}
 
 		bullet.SetActive( false );

@@ -14,7 +14,10 @@ public class TurretArmored : Turret {
 	public override void OnHit( ref Entity who, float damage )
 	{
 		if ( m_Shield != null && m_Shield.Status > 0f )
+		{
+			m_Shield.OnHit( who, damage );
 			return;
+		}
 
 		m_Health -= damage;
 

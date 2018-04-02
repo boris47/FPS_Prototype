@@ -41,36 +41,16 @@ public abstract class Turret : NonLiveEntity {
 
 		// BULLETS POOL CREATION
 		{
-			GameObject	bulletGO		= null;
-			Bullet		bulletScript	= null;
-			if ( m_BulletGameObject != null )
-			{
-				bulletGO		= m_BulletGameObject;
-				bulletScript	= m_BulletGameObject.GetComponent<Bullet>();
-			}
-			else
-			{
-				bulletGO = GameObject.CreatePrimitive( PrimitiveType.Sphere );
-				bulletGO.name = "TurretBlt";
-				bulletGO.AddComponent<Rigidbody>();
-				bulletScript = bulletGO.AddComponent<Bullet>();
-				bulletGO.transform.localScale = Vector3.one * 0.2f;
-			}
-			bulletScript.DamageMax = m_DamageMax;
-			bulletScript.DamageMin = m_DamageMin;
-			bulletScript.WhoRef = this;
-			bulletScript.Weapon = null;
-			bulletScript.CanPenetrate = false;
-
-			m_Pool = new GameObjectsPool<Bullet>( ref bulletGO, 5,
-				destroyModel : false, 
-				actionOnObject : ( Bullet o ) =>
+			GameObject	bulletGO		= m_BulletGameObject;
+			m_Pool = new GameObjectsPool<Bullet>( ref bulletGO, 5, destroyModel : false, actionOnObject : ( Bullet o ) =>
 			{
 				o.SetActive( false );
+				o.Setup( m_DamageMin, m_DamageMax, this, null, false );
 				Physics.IgnoreCollision( o.Collider, m_PhysicCollider, ignore : true );
 				if ( m_Shield != null )
 					Physics.IgnoreCollision( o.Collider, m_Shield.Collider, ignore : true );
 			} );
+			m_Pool.ContainerName = name + "BulletPool";
 		}
 	}
 
@@ -115,11 +95,8 @@ public abstract class Turret : NonLiveEntity {
 		m_ShotTimer = m_ShotDelay;
 
 		Bullet bullet = m_Pool.GetComponent();
-		bullet.enabled = true;
 		bullet.transform.position = m_FirePoint.position;
-		bullet.MaxLifeTime = 5f;
-		bullet.SetVelocity( m_GunTransform.forward * m_BulletSpeed );
-		bullet.transform.up = m_GunTransform.forward;
+		bullet.SetVelocity( bullet.transform.up = m_GunTransform.forward );
 		bullet.SetActive( true );
 		
 		m_FireAudioSource.Play();
