@@ -34,13 +34,16 @@ namespace CFG_Reader {
 			iType = Type; sKey = Key;
 		}
 
+		public cLineValue( cLineValue clone ) : this( clone.sKey, clone.sRawValue )
+		{}
+
 		public cLineValue ( string Key, string sLine )
 		{
 			sKey = Key;
 			sRawValue = ( ( sLine.Length > 0 ) ? sLine : "" );
 
 			if ( sLine.IndexOf( ',' ) > -1 )
-			{				// Supposing is a MultiVal string
+			{ // Supposing is a MultiVal string
 				iType = LineValueType.MULTI;
 				cValue[] vValues = Utils.String.RecognizeValues( sLine );
 				if ( vValues.Length < 1 )
@@ -61,6 +64,7 @@ namespace CFG_Reader {
 			}
 			IsOK = true;
 		}
+
 
 		public void Destroy()
 		{

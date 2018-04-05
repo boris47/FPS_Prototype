@@ -4,22 +4,24 @@ using UnityEngine;
 
 public partial class Player {
 
-	public	override		void	OnHit( ref Entity who, float damage )
+	public	override		void	OnHit( ref IBullet bullet )
 	{
-		Health -= damage;
+		float damage = Random.Range( bullet.DamageMin, bullet.DamageMax );
+		m_Health -= damage;
 		UI_InGame.Instance.UpdateUI();
 
-		if ( Health < 0f )
+		if ( m_Health < 0f )
 			OnKill();
 	}
 
 
-	public	override		void	OnHurt( ref Entity who, float damage )
+	public	override		void	OnHurt( ref IBullet bullet )
 	{
-		Health -= damage;
+		float damage = Random.Range( bullet.DamageMin, bullet.DamageMax );
+		m_Health -= damage;
 		UI_InGame.Instance.UpdateUI();
 
-		if ( Health < 0f )
+		if ( m_Health < 0f )
 			OnKill();
 	}
 

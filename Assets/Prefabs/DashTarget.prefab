@@ -20,8 +20,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4250280774412586}
   - component: {fileID: 33859222784704506}
-  - component: {fileID: 136128633188063840}
   - component: {fileID: 23892550519610568}
+  - component: {fileID: 136128633188063840}
   - component: {fileID: 114259461109988840}
   m_Layer: 0
   m_Name: DashTarget
@@ -144,8 +144,8 @@ MonoBehaviour:
       outSlope: -0.7818901
       tangentMode: 0
     - serializedVersion: 2
-      time: 0.7085645
-      value: 0.15557915
+      time: 0.7246647
+      value: 0.22295292
       inSlope: 0.42817935
       outSlope: 0.42817935
       tangentMode: 0

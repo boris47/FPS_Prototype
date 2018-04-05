@@ -17,6 +17,9 @@ public class Foots : MonoBehaviour, IFoots {
 		get { return m_LiveEntity; }
 	}
 	private		Collider			m_CurrentCollider	= null;
+	private		Collider			m_Collider			= null;
+
+	private		RaycastHit			m_RaycastHit		= default( RaycastHit );
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -24,6 +27,7 @@ public class Foots : MonoBehaviour, IFoots {
 	private void Awake()
 	{
 		m_LiveEntity	= transform.parent.GetComponent<LiveEntity>();
+		m_Collider		= transform.GetComponent<Collider>();
 	}
 
 
@@ -43,20 +47,25 @@ public class Foots : MonoBehaviour, IFoots {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// FixedUpdate
-	private void FixedUpdate()
+	// Update
+	private void Update()
 	{
-		m_LiveEntity.IsGrounded = false;
-		m_CurrentCollider = null;
-	}
+		Debug.DrawLine( transform.position, transform.position - transform.up * 0.2f );
 
+		if ( Physics.Raycast( transform.position, -transform.up, out m_RaycastHit, 0.2f ) )
+		{
+			m_CurrentCollider = m_RaycastHit.collider;
+		}
+		else
+		{
+			m_CurrentCollider = null;
+		}
 
-	//////////////////////////////////////////////////////////////////////////
-	// OnTriggerStay
-	private void OnTriggerStay( Collider other )
-	{
-		m_CurrentCollider = other;
-		m_LiveEntity.IsGrounded = true;
+		bool isGrounded = m_CurrentCollider != null;
+		if ( m_LiveEntity.IsGrounded == false && isGrounded )
+			PlayStep();
+
+		m_LiveEntity.IsGrounded = isGrounded;
 	}
 
 }

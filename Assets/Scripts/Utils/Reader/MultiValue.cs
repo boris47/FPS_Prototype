@@ -6,7 +6,7 @@ namespace CFG_Reader {
 		private cValue[]		m_ValuesArray			= null;
 		public	cValue[]		ValueArray
 		{
-			get; private set;
+			get { return m_ValuesArray; }
 		}
 
 		public	int				Size

@@ -59,6 +59,13 @@ public partial class CameraControl : MonoBehaviour {
 		get { return m_HeadBob; }
 	}
 
+	[SerializeField]
+	private Transform			m_WeaponPivot					= null;
+	public	Transform			WeaponPivot
+	{
+		get { return m_WeaponPivot; }
+	}
+
 	private	Camera			m_CameraRef					= null;
 	public	Camera			MainCamera
 	{
@@ -79,7 +86,6 @@ public partial class CameraControl : MonoBehaviour {
 
 	private void Awake()
 	{
-
 		// Sinlgeton
 		if ( Instance != null )
 		{
@@ -87,9 +93,11 @@ public partial class CameraControl : MonoBehaviour {
 			return;
 		}
 		Instance = this;
-		DontDestroyOnLoad( this );
+//		DontDestroyOnLoad( this );
 
 		ClampedXAxis = true;
+
+		m_WeaponPivot = transform.Find( "WeaponPivot" );
 
 		Player player = FindObjectOfType<Player>();
 		if ( player == null )
@@ -149,8 +157,8 @@ public partial class CameraControl : MonoBehaviour {
 			{
 				m_WeaponPositionDelta = m_HeadBob.WeaponPositionDelta + m_HeadMove.WeaponPositionDelta;
 				m_WeaponRotationDelta = m_HeadBob.WeaponRotationDelta + m_HeadMove.WeaponRotationDelta;
-				Player.Instance.CurrentWeapon.transform.localPosition = m_WeaponPositionDelta;
-				Player.Instance.CurrentWeapon.transform.localEulerAngles = m_WeaponRotationDelta;
+				Player.Instance.CurrentWeapon.Transform.localPosition = m_WeaponPositionDelta;
+				Player.Instance.CurrentWeapon.Transform.localEulerAngles = m_WeaponRotationDelta;
 			}
 		}
 		else
@@ -189,8 +197,8 @@ public partial class CameraControl : MonoBehaviour {
 
 			if ( m_SmoothedRotation )
 			{
-				m_CurrentRotation_X_Delta = Mathf.Lerp( m_CurrentRotation_X_Delta, Axis_X_Delta, Time.deltaTime * ( 100f / m_SmoothFactor ) );
-				m_CurrentRotation_Y_Delta = Mathf.Lerp( m_CurrentRotation_Y_Delta, Axis_Y_Delta, Time.deltaTime * ( 100f / m_SmoothFactor ) );
+				m_CurrentRotation_X_Delta = Mathf.Lerp( m_CurrentRotation_X_Delta, Axis_X_Delta, Time.unscaledDeltaTime * ( 100f / m_SmoothFactor ) );
+				m_CurrentRotation_Y_Delta = Mathf.Lerp( m_CurrentRotation_Y_Delta, Axis_Y_Delta, Time.unscaledDeltaTime * ( 100f / m_SmoothFactor ) );
 			}
 			else
 			{

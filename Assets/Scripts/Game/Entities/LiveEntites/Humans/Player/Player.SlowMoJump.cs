@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 
 public partial class Player {
-
+	/*
 
 	private	const	float	SLOWMO_EFFECT_SPEED			= 1.0f;
 	
@@ -33,8 +33,7 @@ public partial class Player {
 		m_States.Reset();
 	}
 
-	public float interG;
-	public float interP;
+
 	private IEnumerator SlowMoJump( Vector3[] curvePoints, AnimationCurve slowMoJumpTimeScaleCurve )
 	{
 		Vector3	startPosition				= transform.position;
@@ -53,7 +52,7 @@ public partial class Player {
 		AnimationCurve animationCurve = ( ( slowMoJumpTimeScaleCurve != null ) ? slowMoJumpTimeScaleCurve : m_SlowMoJumpTimeScaleCurve );
 		while ( interpolant < 1f )
 		{
-			interG = interpolant += Time.deltaTime * m_SlowMoJumpSpeed;
+			interpolant += Time.deltaTime * m_SlowMoJumpSpeed;
 			float curveValue = animationCurve.Evaluate( interpolant );
 			Time.timeScale = curveValue;
 
@@ -62,7 +61,7 @@ public partial class Player {
 			CameraControl.Instance.GetPP_Profile.motionBlur.settings = settings;
 
 			Vector3 position = GetPoint( curvePoints[0], curvePoints[1], curvePoints[2], curvePoints[3], curvePoints[4],
-				interP = interpolant * ( ( 1f - curveValue ) * 2f )
+				interpolant * ( ( 1f - curveValue ) * 2f )
 				);
 			transform.position = position;
 
@@ -147,5 +146,5 @@ public partial class Player {
 			2f * b
 		);
 	}
-
+	*/
 }

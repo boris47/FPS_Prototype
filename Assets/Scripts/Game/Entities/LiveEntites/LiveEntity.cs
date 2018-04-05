@@ -5,12 +5,14 @@ using UnityEngine;
 
 public abstract partial class LiveEntity : Entity {
 	
+	
+
 	protected	IFoots				m_Foots						= null;
 	public		IFoots				Foots
 	{
 		get { return m_Foots; }
 	}
-
+	[Header("Live Entity Properties")]
 	[SerializeField]
 	protected	float				m_UseDistance				= 1f;
 
@@ -107,9 +109,9 @@ public abstract partial class LiveEntity : Entity {
 		base.Awake();
 	}
 
-	protected override void Update()
+	public override void OnFrame( float deltaTime )
 	{
-		base.Update();
+		base.OnFrame( deltaTime );
 	}
 
 }

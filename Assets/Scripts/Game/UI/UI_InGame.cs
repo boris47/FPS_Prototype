@@ -14,7 +14,7 @@ public class UI_InGame : MonoBehaviour {
 	private			Text		bulletsCount	= null;
 	private			Text		fireMode		= null;
 
-	private			Image		chargeBar		= null;
+	private			Image		staminaBar		= null;
 
 	private			Image		m_EffectFrame	= null;
 
@@ -30,11 +30,9 @@ public class UI_InGame : MonoBehaviour {
 		wpnName			= transform.GetChild(1).GetChild(0).GetComponent<Text>();
 		bulletsCount	= transform.GetChild(1).GetChild(1).GetComponent<Text>();
 		fireMode		= transform.GetChild(1).GetChild(2).GetComponent<Text>();
-		chargeBar		= transform.GetChild(1).GetChild(3).GetChild(1).GetComponent<Image>();
+		staminaBar		= transform.GetChild(1).GetChild(3).GetChild(1).GetComponent<Image>();
 
 		m_EffectFrame	= transform.GetChild(2).GetComponent<Image>();
-
-		chargeBar.fillAmount = 1f;
 
 		InvokeRepeating( "PrintTime", 0.3f, 0.2f );
 	}
@@ -48,13 +46,13 @@ public class UI_InGame : MonoBehaviour {
 
 	public	void	UpdateUI()
 	{
-		Player player = Player.Instance;
+		IEntity player		= Player.Instance as IEntity;
 
 		healthText.text		= Mathf.CeilToInt( player.Health ).ToString();
 
-		wpnName.text		= player.CurrentWeapon.name;
-		bulletsCount.text	= player.CurrentWeapon.magazine.ToString();
-		fireMode.text		= player.CurrentWeapon.fireMode.ToString();
+		wpnName.text		= Player.Instance.CurrentWeapon.Transform.name;
+		bulletsCount.text	= Player.Instance.CurrentWeapon.Magazine.ToString();
+		fireMode.text		= Player.Instance.CurrentWeapon.FireMode.ToString();
 	}
 
 	private	void	PrintTime()
@@ -65,7 +63,7 @@ public class UI_InGame : MonoBehaviour {
 
 	private void Update()
 	{
-//		chargeBar.fillAmount = Player.Instance.CurrentWeapon.m_Bullet2GameObject.GetComponent<Granade>().GetRemainingTimeNormalized();
+		staminaBar.fillAmount = Player.Instance.Stamina;
 	}
 
 }

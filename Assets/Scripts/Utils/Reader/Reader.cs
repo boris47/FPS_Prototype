@@ -28,7 +28,8 @@ namespace CFG_Reader {
 		}
 
 
-
+		//////////////////////////////////////////////////////////////////////////
+		// Section_Create
 		// CREATE A NEW SECTION WHILE READING FILE
 		private bool Section_Create( string sLine, string sFilePath, int iLine )
 		{
@@ -37,14 +38,14 @@ namespace CFG_Reader {
 
 			// Get the name of mother section, if present
 			Section pInheritedSection = null;
-			int iIndex = sLine.IndexOf( "]:", 0 );
+			int iIndex = sLine.IndexOf( ":", 0 );
 			if ( iIndex > 0 )
 			{
-				string sMotherName = sLine.Substring( iIndex + 2 );
+				string sMotherName = sLine.Substring( iIndex + 1 ).Trim();
 				GetSection( sMotherName, ref pInheritedSection );
 				if ( pInheritedSection == null )
 				{
-					 Debug.LogError( "Reader::Section_Create:" + sFilePath + ":[" + iLine + "]: Section requested for inheritance \"" + sMotherName + "\" doesn't exist!" );
+					Debug.LogError( "Reader::Section_Create:" + sFilePath + ":[" + iLine + "]: Section requested for inheritance \"" + sMotherName + "\" doesn't exist!" );
 					return false;
 				}
 			}
@@ -61,19 +62,25 @@ namespace CFG_Reader {
 			return true;
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
+		// Section_Add
 		// INSERT A KEY VALUE PAIR INSIDE THE ACTUAL PARSING SECTION
 		private bool Section_Add( KeyValue Pair, string sFilePath, int iLine )
 		{
 			cLineValue pLineValue = new cLineValue( Pair.Key , Pair.Value );
 			if ( pLineValue.IsOK == false )
 			{
-				 Debug.LogError( " Reader::Section_Add:LineValue invalid for key |" + Pair.Key + "| in Section |" + pSection.Name() + "| in file |" + sFilePath + "|" );
+				Debug.LogError( " Reader::Section_Add:LineValue invalid for key |" + Pair.Key + "| in Section |" + pSection.Name() + "| in file |" + sFilePath + "|" );
 				return false;
 			}
 			pSection.Add( pLineValue );
 			return true;
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
+		// Section_Close
 		// DEFINITELY SAVE THE PARSING SECTION
 		private void Section_Close()
 		{
@@ -85,6 +92,8 @@ namespace CFG_Reader {
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
+		// LoadFile
 		// LOAD A FILE AND ALL INCLUDED FILES
 		public bool LoadFile( string sFilePath )
 		{
@@ -216,6 +225,8 @@ namespace CFG_Reader {
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
+		// IsLoaded
 		// CHECK IF A FILE IS ALREADY LOADED BY PATH
 		public bool IsLoaded( string sFilePath )
 		{
@@ -226,6 +237,8 @@ namespace CFG_Reader {
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
+		// HasFileElement
 		// CHECK AND RETURN IN CASE IF SECTION ALREADY EXISTS
 		public bool HasFileElement( string SecName, ref Section pSec )
 		{
@@ -233,6 +246,8 @@ namespace CFG_Reader {
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
+		// NewSection
 		// CREATE AND SAVE A NEW EMPTY SECTION
 		public ISection NewSection ( string SecName, ref Section Inherited )
 		{
@@ -246,12 +261,49 @@ namespace CFG_Reader {
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
+		// GetSection
 		// RETRIEVE A SECTION, IF EXISTS, OTHERWISE RETURN NULL
 		public void GetSection( string SecName, ref Section section )
 		{
 //			Section result = null;
 			mSectionMap.TryGetValue( SecName, out section );
 //			section = result;
+		}
+
+		public	void	PrintMap()
+		{
+			foreach( KeyValuePair<string, Section> KeyValuePair in mSectionMap )
+			{
+				string	sectionName = KeyValuePair.Key;
+				Section	section		= KeyValuePair.Value;
+
+				Debug.Log( "Section: " + sectionName );
+
+				foreach( cLineValue lineValue in section.GetData() )
+				{
+					string skey = lineValue.Key;
+					string sValue = "";
+
+					if ( lineValue.Type == LineValueType.SINGLE )
+					{
+						sValue = lineValue.Value.ToSystemObject().ToString();
+						Debug.Log( skey + " = " + sValue );
+						continue;
+					}
+					if ( lineValue.Type == LineValueType.MULTI )
+					{
+						foreach( cValue value in lineValue.MultiValue.ValueArray )
+						{
+							sValue += value.ToSystemObject().ToString() + ", ";
+						}
+						Debug.Log( skey + " = " + sValue );
+						continue;
+					}
+				}
+				Debug.Log( "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||" );
+
+			}
 		}
 
 	}

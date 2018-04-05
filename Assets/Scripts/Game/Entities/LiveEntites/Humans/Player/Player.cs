@@ -4,11 +4,13 @@ using UnityEngine;
 
 public partial class Player : Human {
 
+	[Header("Player Properties")]
+
 	private	const	float			MAX_INTERACTION_DISTANCE		= 20f;
 
 	public	static	Player			Instance						= null;
 
-	public		Weapon				CurrentWeapon					{ get; set; }
+	public		IWeapon				CurrentWeapon					{ get; set; }
 
 	// DASHING
 	private		bool				m_IsDashing						= false;
@@ -24,6 +26,8 @@ public partial class Player : Human {
 
 	private		Vector3				m_Move							= Vector3.zero;
 
+	private		ITourchLight		m_TourchLight					= null;
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -36,20 +40,19 @@ public partial class Player : Human {
 			return;
 		}
 		Instance = this;
-		DontDestroyOnLoad( this );
+//		DontDestroyOnLoad( this );
 
 		base.Awake();
 		 
+		
+
 		// Player Components
 		{
-			m_RigidBody			= GetComponent<Rigidbody>();
-			m_PhysicCollider	= GetComponent<CapsuleCollider>();
-
+			// TourchLight
+			m_TourchLight	= transform.Find("TourchLight").GetComponent<ITourchLight>();
 			// Foots
-			m_Foots = transform.Find( "FootSpace" ).GetComponent<IFoots>();
+			m_Foots			= transform.Find( "FootSpace" ).GetComponent<IFoots>();
 		}
-
-		m_ID = NewID();
 
 		// Player Data
 		{
@@ -96,11 +99,11 @@ public partial class Player : Human {
 
 		}
 		
-		Health				= m_SectionRef.AsFloat( "Health", 100.0f );
+		m_Health			= m_SectionRef.AsFloat( "Health", 100.0f );
 		m_RigidBody.mass	= m_SectionRef.AsFloat( "phMass", 80.0f  );
-		m_Stamina = 1.0f;
+		m_Stamina			= 1.0f;
 		GroundSpeedModifier = 1.0f;
-		IsActive = true;
+		m_IsActive			= true;
 
 		SetMotionType( eMotionType.Walking );
 
@@ -115,13 +118,6 @@ public partial class Player : Human {
 
 	}
 
-
-	//////////////////////////////////////////////////////////////////////////
-	// START
-	private	void	Start ()
-	{
-
-	}
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -143,7 +139,7 @@ public partial class Player : Human {
 	// MoveGrabbedObject
 	private	void	MoveGrabbedObject()
 	{
-		if ( IsActive == false )
+		if ( m_IsActive == false )
 			return;
 
 		if ( m_GrabbedObject == null )
@@ -168,7 +164,7 @@ public partial class Player : Human {
 	// FixedUpdate
 	private void	FixedUpdate()
 	{
-		if ( IsActive == false )
+		if ( m_IsActive == false )
 			return;
 
 		MoveGrabbedObject();
@@ -178,15 +174,25 @@ public partial class Player : Human {
 
 	private RaycastHit m_RaycastHit;
 
-	//////////////////////////////////////////////////////////////////////////
-	// Update
-	protected override void	Update ()
+	private void Update()
 	{
-		if ( IsActive == false || m_IsDashing == true )
+		this.OnFrame( Time.deltaTime );
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnFrame
+	public override void	OnFrame( float deltaTime )
+	{
+		if ( m_IsActive == false || m_IsDashing == true )
 			return;
 
 		// Reset "local" states
 		m_States.Reset();
+
+		if ( InputManager.Inputs.ItemAction3 )
+		{
+			m_TourchLight.Toggle();
+		}
 
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Pick eventual collision info from camera to up
@@ -370,7 +376,15 @@ public partial class Player : Human {
 		}
 
 		// rotate the capsule of the player
-		transform.rotation = Quaternion.Euler( Vector3.Scale( CameraControl.Instance.transform.rotation.eulerAngles, new Vector3( 0f, 1f, 0f ) ) );
+		transform.rotation = Quaternion.Euler( Vector3.Scale( CameraControl.Instance.transform.rotation.eulerAngles, Vector3.up ) );
+
+		if ( CurrentWeapon.FirePoint1 != null )
+		{
+			m_TourchLight.Transform.position = CurrentWeapon.FirePoint1.position;
+			m_TourchLight.Transform.forward = CurrentWeapon.FirePoint1.forward;
+		}
+
+
 		// Update flashlight position and rotation
 //		pFlashLight->Update();
 

@@ -52,7 +52,7 @@ public class SlowMoJumpPlate : MonoBehaviour {
 			{
 				AnimationCurve curve = ( m_HasTimeScaleCurveOverride ) ? m_SlowMoJumpTimeScaleCurve : null;
 
-				( foots.Onwer as Player ).StartSlowMoJump( ref m_CurvePoints, curve );
+//				( foots.Onwer as Player ).StartSlowMoJump( ref m_CurvePoints, curve );
 			}
 		}
 

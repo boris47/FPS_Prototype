@@ -109,7 +109,7 @@ public partial class Player {
 			{
 				m_Stamina	-= m_JumpStamina;
 				fFinalJump	+= m_JumpForce / ( m_States.IsCrouched ? 1.5f : 1.0f );
-				fFinalJump	*= IsInWater() ? 0.8f : 1.0f;
+//				fFinalJump	*= IsInWater() ? 0.8f : 1.0f;
 				m_States.IsJumping = true;
 
 			}

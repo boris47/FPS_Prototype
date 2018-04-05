@@ -774,7 +774,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1541899577724134}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.76, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4242706940138472}
@@ -3265,7 +3265,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 8
   m_Type: 1
-  m_Color: {r: 0.652344, g: 0.59375, b: 0.464844, a: 1}
+  m_Color: {r: 1, g: 0.914063, b: 0.710938, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
@@ -3397,7 +3397,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_RainSound: event:/RainTransition
   EnableInEditor: 0
-  m_RainIntensity: 0.314
+  m_RainIntensity: 0
   m_RainHeight: 25
   m_RainForwardOffset: -1.5
 --- !u!114 &114465194192239780
@@ -13111,7 +13111,7 @@ ParticleSystemRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: bd4df8ad7f6a91b4aad18ac427db8176, type: 2}
+  - {fileID: 0}
   - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
@@ -13215,7 +13215,7 @@ ParticleSystemRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: 5a5cdbef1fec3ec4ab759228c8234ed5, type: 2}
+  - {fileID: 0}
   - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0

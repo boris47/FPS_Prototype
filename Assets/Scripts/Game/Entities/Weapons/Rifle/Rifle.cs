@@ -3,88 +3,90 @@ using UnityEngine;
 
 public class Rifle : Weapon
 {
-
-	public Animator anim;
-	public AnimationClip fire;
-	public AnimationClip reload;
-	public AnimationClip draw;
-
-	public	AudioSource	audioSourceFire1;
-	public	AudioSource	audioSourceFire2;
-	public	float	shotDelay;
-	public	float	camDeviation					= 0.8f;
-	public	float	fireDispersion					= 0.05f;
-
-	private	float	bulletMaxDamage					= 5f;
-	private	float	bulletMinDamage					= 5f;
-
-	private	float	granadeDamage					= 40f;
-	private	float	granadeRadius					= 3f;
-	private	float	granadeThrowForce				= 5f;
-	private	float	granadeExplosionDelay			= 3f;
-	
-
-	int	  magazineCapacity		= 25;
-	float fire1Timer			= 1f;
-	float fire2Timer			= 1f;
-	float reloadTimer;
+	[Header("Rifle Properties")]
 
 	[SerializeField]
-	private	GranadeBase						m_GranadeType					= null;
+	private		Animator						m_Animator							= null;
 
-	private	GameObjectsPool<Bullet>			m_PoolBullets					= null;
-	private	GameObjectsPool<GranadeBase>	m_PoolGranade					= null;
+	[SerializeField]
+	private		AnimationClip					m_FireAnim							= null;
+
+	[SerializeField]
+	private		AnimationClip					m_ReloadAnim						= null;
+
+	[SerializeField]
+	private		AnimationClip					m_DrawAnim							= null;
+
+	[SerializeField]
+	private		AudioSource						m_AudioSourceFire1					= null;
+
+	[SerializeField]
+	private		AudioSource						m_AudioSourceFire2					= null;
+
+	[SerializeField]
+	private		float							m_ShotDelay							= 0f;
+
+	[SerializeField]
+	private		float							m_CamDeviation						= 0.8f;
+
+	[SerializeField]
+	private		float							m_FireDispersion					= 0.05f;
+	
+
+	private		float							m_FireTimer							= 0f;
+	private		float							m_LockTimer							= 0f;
+	private		uint							m_BrustCount						= 0;
+	private		GameObjectsPool<Bullet>			m_PoolBulletsFirst					= null;
+	private		GameObjectsPool<Bullet>			m_PoolBulletsSecond					= null;
+	private		float							m_AnimatorStdSpeed					= 1f;
 
 
-
+	//////////////////////////////////////////////////////////////////////////
+	// Awake ( Override )
 	protected	override void	Awake()
 	{
-		if (fire == null)	Debug.LogError("Please assign a fire aimation in the inspector!");
-		if (reload == null)	Debug.LogError("Please assign a reload animation in the inspector!");
-		if (draw == null)	Debug.LogError("Please assign a draw animation in the inspector!");
+		if ( m_FireAnim == null )
+			Debug.LogError("Please assign a fire aimation in the inspector!");
+		if ( m_ReloadAnim == null )
+			Debug.LogError("Please assign a reload animation in the inspector!");
+		if ( m_DrawAnim == null )
+			Debug.LogError("Please assign a draw animation in the inspector!");
 
-		bool	canPenetrate = false;
+		base.Awake();
 
 		// LOAD CONFIGURATION
 		{
 			CFG_Reader.Section section = null;
 			GameManager.Configs.GetSection( "Rifle", ref section );
 
-			bulletMaxDamage				= section.AsFloat( "DamageMax",		bulletMaxDamage );
-			bulletMinDamage				= section.AsFloat( "DamageMix",		bulletMinDamage );
-			canPenetrate				= section.AsBool(  "CanPenetrate",	canPenetrate );
-
-			granadeDamage				= section.AsFloat( "GranadeDamage",	granadeDamage );
-			granadeRadius				= section.AsFloat( "GranadeRadius",	granadeRadius );
-			granadeThrowForce			= section.AsFloat( "GranadeThrowForce",	granadeThrowForce );
-			granadeExplosionDelay		= section.AsFloat( "GranadeExplosionDelay",	granadeExplosionDelay );
+			m_Damage = section.AsFloat( "Damage", m_Damage );
 		}
+
+		m_Magazine = m_MagazineCapacity;
 
 		// BULLETS POOL CREATION
 		{
-			if ( m_Bullet1GameObject != null )
+			if ( m_Bullet1GameObject != null && m_FirstFireAvaiable )
 			{
-				m_FirstFireAvaiable			= true;
-				m_PoolBullets = new GameObjectsPool<Bullet>( ref m_Bullet1GameObject, 20, destroyModel : false, actionOnObject : ( Bullet o ) =>
+				m_PoolBulletsFirst = new GameObjectsPool<Bullet>( ref m_Bullet1GameObject, m_MagazineCapacity, destroyModel : false, actionOnObject : ( Bullet o ) =>
 				{
 					o.SetActive( false );
-					o.Setup( bulletMinDamage, bulletMaxDamage, Player.Instance, this, false );
-					Physics.IgnoreCollision( o.Collider, Player.Instance.PhysicCollider, ignore : true );
+					o.Setup( damage : m_Damage, canPenetrate : false, whoRef : Player.Instance, weapon : this );
+					Physics.IgnoreCollision( o.Collider, ( Player.Instance as IEntity ).PhysicCollider, ignore : true );
 				} );
-				m_PoolBullets.ContainerName = "RifleBulletPool";
+				m_PoolBulletsFirst.ContainerName = "RifleBulletsPoolFirst";
 			}
 
 
-			if ( m_Bullet2GameObject != null )
+			if ( m_Bullet2GameObject != null && m_SecondFireAvaiable )
 			{
-				m_SecondFireAvaiable			= true;
-				m_PoolGranade = new GameObjectsPool<GranadeBase>( ref m_Bullet2GameObject, 5, destroyModel : false, actionOnObject : ( GranadeBase o ) =>
+				m_PoolBulletsSecond = new GameObjectsPool<Bullet>( ref m_Bullet2GameObject, 10, destroyModel : false, actionOnObject : ( Bullet o ) =>
 				{
 					o.SetActive( false );
-					o.Setup( granadeDamage, granadeRadius, granadeExplosionDelay, Player.Instance, this );
-					Physics.IgnoreCollision( o.Collider, Player.Instance.PhysicCollider, ignore : true );
+					o.Setup( whoRef : Player.Instance, weapon : this );
+					Physics.IgnoreCollision( o.Collider, ( Player.Instance as IEntity ).PhysicCollider, ignore : true );
 				} );
-				m_PoolGranade.ContainerName = "RifleGranadePool";
+				m_PoolBulletsSecond.ContainerName = "RifleBulletsPoolSecond";
 			}
 
 		}
@@ -92,96 +94,200 @@ public class Rifle : Weapon
 		Player.Instance.CurrentWeapon = this;
 	}
 
-	private void OnEnable()
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnEnable
+	private		void OnEnable()
 	{
 		UI_InGame.Instance.UpdateUI();
 	}
 
 
-	// Update is called once per frame
-	private void Update()
+	//////////////////////////////////////////////////////////////////////////
+	// Update
+	private		void Update()
 	{
-		fire1Timer -= Time.deltaTime;
-		if ( reloadTimer > 0 )
+		m_FireTimer -= Time.deltaTime;
+		
+		// Reloading
+		if ( m_LockTimer > 0f )
 		{
-			reloadTimer -= Time.deltaTime;
+			m_LockTimer -= Time.deltaTime;
 			return;
 		}
-		else
-		if ( reloadTimer != 0 )
+		
+		// Just after reload
+		if ( m_LockTimer < 0f )
 		{
-			reloadTimer = 0;
-			magazine = magazineCapacity;
+//			anim.speed = m_AnimatorStdSpeed;
+			m_LockTimer = 0f;
+			m_Magazine = m_MagazineCapacity;
+			m_BrustCount = 0;
+			m_NeedRecharge = false;
 			UI_InGame.Instance.UpdateUI();
 		}
 
-		if ( InputManager.Inputs.ItemAction1 )
+		if ( InputManager.Inputs.ItemAction1 && m_InTransition == false )
 		{
-			fireMode = ( fireMode == FireModes.AUTO ) ? FireModes.SINGLE : FireModes.AUTO;
+			if ( m_ZoomedIn == true )
+				StartCoroutine( ZoomOut() );
+			else
+				StartCoroutine( ZoomIn() );
+		}
+
+		// Fire mode cycle
+		if ( InputManager.Inputs.ItemAction2 )
+		{
+			if ( m_FireMode == FireModes.AUTO )
+				m_FireMode = FireModes.SINGLE;
+			else
+				m_FireMode ++;
+
 			UI_InGame.Instance.UpdateUI();
 		}
 
-		if ( m_Bullet1GameObject == null )	m_FirstFireAvaiable  = false;
-		if ( m_Bullet2GameObject == null )	m_SecondFireAvaiable = false;
-
-
-		if ( m_FirstFireAvaiable && magazine > 0 &&
-			( ( fireMode == FireModes.AUTO		&& InputManager.Inputs.Fire1Loop ) || 
-			  ( fireMode == FireModes.SINGLE	&& InputManager.Inputs.Fire1 ) ) )
+		// End For Brust mode
+		if ( m_BrustCount > 0 && InputManager.Inputs.Fire1Released )
 		{
-			if ( fire1Timer > 0 )
+			m_BrustCount = 0;
+		}
+
+
+		if ( m_FireTimer > 0 )
+			return;
+
+
+		if ( m_FirstFireAvaiable && m_Magazine > 0 && m_InTransition == false && m_NeedRecharge == false )
+		{
+			switch ( m_FireMode )
+			{
+				case FireModes.SINGLE:
+					FireSingleMode();
+					break;
+				case FireModes.BURST:
+					FireBrustMode();
+					break;
+				case FireModes.AUTO:
+					FireAutoMode();
+					break;
+			}
+		}
+
+
+		if ( Player.Instance.IsRunning && m_ZoomedIn && m_InTransition == false )
+		{
+			StartCoroutine( ZoomOut() );
+		}
+
+		if ( m_Magazine <= 0 || InputManager.Inputs.Reload || m_NeedRecharge )
+		{
+//			m_AnimatorStdSpeed = anim.speed;
+//			anim.speed = 2f;
+
+			if ( m_ZoomedIn )
+			{
+				if ( m_InTransition == false )
+				{
+					StartCoroutine( ZoomOut() );
+					m_NeedRecharge = true;
+				}
 				return;
+			}
 
-			fire1Timer = shotDelay;
-
-			anim.Play( fire.name, -1, 0f );
-			
-			Vector3 dispersion = new Vector3 ( Random.Range( -1f, 1f ), Random.Range( -1f, 1f ), Random.Range( -1f, 1f ) ) * fireDispersion;
-			Vector3 direction = ( transform.right + dispersion ).normalized;
-
-			Bullet bullet = m_PoolBullets.GetComponent();
-			bullet.transform.position = firePoint1.position;
-			bullet.SetVelocity( bullet.transform.forward = direction );
-			bullet.SetActive( true );
-			
-			audioSourceFire1.Play();
-
-			magazine --;
-
-			float finalDispersion = camDeviation;
-			finalDispersion	= Player.Instance.IsCrouched	? finalDispersion	* 0.5f : finalDispersion;
-			finalDispersion	= Player.Instance.IsMoving		? finalDispersion	* 1.5f : finalDispersion;
-			finalDispersion	= Player.Instance.IsRunning		? finalDispersion	* 2.0f : finalDispersion;
-			finalDispersion *= ( fireMode == FireModes.SINGLE ) ? 0.5f : 1f;
-			CameraControl.Instance.ApplyDispersion( finalDispersion );
-
-			UI_InGame.Instance.UpdateUI();
-		}
-
-
-		fire2Timer -= Time.deltaTime;
-		if ( InputManager.Inputs.Fire2Loop && m_SecondFireAvaiable == true )
-		{
-			if ( fire2Timer > 0 )
-				return;
-
-			fire2Timer = 1f;
-
-			GranadeBase granade				= m_PoolGranade.GetComponent();
-			granade.transform.position		= firePoint1.position;
-			granade.RigidBody.velocity		= transform.right * granadeThrowForce;
-			granade.SetActive( true );
-
-			audioSourceFire2.Play();
-
-			CameraControl.Instance.ApplyDispersion( 5 );
-		}
-
-		if ( magazine <= 0 || InputManager.Inputs.Reload )
-		{
-			anim.Play(reload.name);
-			reloadTimer = reload.length;
+			m_Animator.Play( m_ReloadAnim.name, -1, 0f );
+			m_LockTimer = m_ReloadAnim.length; // / 2f;
 		}
 	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// FireSingleMode
+	private		void	FireSingleMode()
+	{
+		if (  m_FireMode == FireModes.SINGLE && ( InputManager.Inputs.Fire1 || ( InputManager.Inputs.Fire2 && m_SecondFireAvaiable ) ) )
+		{
+			ConfigureShot( fireFirst : InputManager.Inputs.Fire1 );
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// FireBrustMode
+	private		void	FireBrustMode()
+	{
+		if ( m_FireMode == FireModes.BURST && ( InputManager.Inputs.Fire1Loop || ( InputManager.Inputs.Fire2 && m_SecondFireAvaiable ) ) && m_BrustCount < 3 )
+		{
+			if ( InputManager.Inputs.Fire1Loop )
+				m_BrustCount ++;
+			ConfigureShot( fireFirst : InputManager.Inputs.Fire1Loop );
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// FireAutoMode
+	private		void	FireAutoMode()
+	{
+		if ( m_FireMode == FireModes.AUTO && ( InputManager.Inputs.Fire1Loop || ( InputManager.Inputs.Fire2 && m_SecondFireAvaiable ) ) )
+		{
+			ConfigureShot( fireFirst : InputManager.Inputs.Fire1Loop );
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ConfigureShot
+	private		void	ConfigureShot( bool fireFirst )
+	{
+		if ( fireFirst )
+			m_FireTimer = m_ShotDelay;
+		else
+			m_FireTimer = m_ShotDelay * 15f;
+
+//		if ( m_ZoomedIn == false )
+			m_Animator.Play( m_FireAnim.name, -1, 0f );
+			
+		m_Magazine --;
+
+		// BULLET
+		IBullet bullet = fireFirst ?  m_PoolBulletsFirst.GetComponent() : m_PoolBulletsSecond.GetComponent();
+
+		// POSITION
+		Vector3 position = fireFirst ? m_FirePointFirst.position : m_FirePointSecond.position;
+
+		// DIRECTION
+		Vector3 dispersion = new Vector3 ( Random.Range( -1f, 1f ), Random.Range( -1f, 1f ), Random.Range( -1f, 1f ) ) * m_FireDispersion;
+		Vector3 direction = fireFirst ? ( m_FirePointFirst.forward + dispersion ).normalized : m_FirePointSecond.forward;
+
+		// AUDIOSOURCE
+		AudioSource audioSource = ( fireFirst ) ? m_AudioSourceFire1 : m_AudioSourceFire2;
+
+		// CAM DISPERSION
+		float finalDispersion = m_CamDeviation * bullet.RecoilMult;
+		finalDispersion	*= Player.Instance.IsCrouched			? 0.50f : 1.00f;
+		finalDispersion	*= Player.Instance.IsMoving				? 1.50f : 1.00f;
+		finalDispersion	*= Player.Instance.IsRunning			? 2.00f : 1.00f;
+		finalDispersion *= ( m_FireMode == FireModes.SINGLE )	? 0.50f : 1.00f;
+		finalDispersion *= ( m_FireMode == FireModes.BURST )	? 0.80f : 1.00f;
+		finalDispersion *= ( m_FireMode == FireModes.AUTO )		? 1.10f : 1.00f;
+		finalDispersion	*= ( m_ZoomedIn == true )				? 0.80f : 1.00f;
+
+		// SHOOT
+		Shoot( ref bullet, ref position, ref direction, ref audioSource, finalDispersion );
+
+		// UPDATE UI
+		UI_InGame.Instance.UpdateUI();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Shoot
+	private		void	Shoot( ref IBullet bullet, ref Vector3 position, ref Vector3 direction, ref AudioSource audioSource, float camDispersion )
+	{
+		bullet.Shoot( position: position, direction: direction );
+		audioSource.Play();
+		CameraControl.Instance.ApplyDispersion( camDispersion );
+	}
+
 
 }

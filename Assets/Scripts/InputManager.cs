@@ -8,8 +8,8 @@ public struct inputs_t {
 	public	bool	Crouch, Jump, Run;
 	public	bool	Use;
 	public	bool	Item1, Item2, Item3, Item4;
-	public	bool	ItemAction1;
-	public	bool	Fire1, Fire2, Fire1Loop, Fire2Loop;
+	public	bool	ItemAction1, ItemAction2, ItemAction3;
+	public	bool	Fire1, Fire2, Fire1Loop, Fire2Loop, Fire1Released, Fire2Released;
 	public	bool	Reload;
 
 	public void Reset()
@@ -19,8 +19,8 @@ public struct inputs_t {
 		Crouch = Jump = Run =
 		Use =
 		Item1 = Item2 = Item3 = Item4 =
-		ItemAction1 =
-		Fire1 = Fire2 = Fire1Loop = Fire2Loop =
+		ItemAction1 = ItemAction2 = ItemAction3 =
+		Fire1 = Fire2 = Fire1Loop = Fire2Loop = Fire1Released = Fire2Released =
 		Reload = false;
 	}
 };
@@ -78,12 +78,18 @@ public class InputManager {
 		m_Inputs.Item3			= Input.GetKeyDown ( KeyCode.F3 ) || Input.GetKeyDown ( KeyCode.Keypad3 );
 		m_Inputs.Item4			= Input.GetKeyDown ( KeyCode.F4 ) || Input.GetKeyDown ( KeyCode.Keypad4 );
 
-		m_Inputs.ItemAction1	= Input.GetKeyDown( KeyCode.G );
+		m_Inputs.ItemAction1	= Input.GetKeyDown( KeyCode.Mouse1 );
+		m_Inputs.ItemAction2	= Input.GetKeyDown( KeyCode.H );
+		m_Inputs.ItemAction3	= Input.GetKeyDown( KeyCode.J);
 
 		m_Inputs.Fire1			= Input.GetKeyDown( KeyCode.Mouse0 );
-		m_Inputs.Fire2			= Input.GetKeyDown( KeyCode.Mouse1 );
+		m_Inputs.Fire2			= Input.GetKeyDown( KeyCode.Mouse2 );
 		m_Inputs.Fire1Loop		= Input.GetKey( KeyCode.Mouse0 );
-		m_Inputs.Fire2Loop		= Input.GetKey( KeyCode.Mouse1 );
+		m_Inputs.Fire2Loop		= Input.GetKey( KeyCode.Mouse2 );
+		m_Inputs.Fire1Released	= Input.GetKeyUp( KeyCode.Mouse0 );
+		m_Inputs.Fire2Released	= Input.GetKeyUp( KeyCode.Mouse2 );
+
+		m_Inputs.Fire2Released	= Input.GetKeyUp( KeyCode.Mouse2 );
 
 		m_Inputs.Reload			= Input.GetKeyDown( KeyCode.R );
 

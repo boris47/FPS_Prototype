@@ -1,11 +1,17 @@
 ﻿
+using System;
 using UnityEngine;
 
 
 public abstract class Turret : NonLiveEntity {
 
+	[Header("Turret Properties")]
+
 	[SerializeField]
 	private		GameObject		m_BulletGameObject	= null;
+
+	[SerializeField]
+	protected	float			m_ShotDelay			= 0.7f;
 
 	[SerializeField]
 	protected	float			m_DamageMax			= 2f;
@@ -14,6 +20,8 @@ public abstract class Turret : NonLiveEntity {
 	protected	float			m_DamageMin			= 0.5f;
 
 
+	//////////////////////////////////////////////////////////////////////////
+	// Awake ( Override )
 	protected override void Awake()
 	{
 		base.Awake();
@@ -23,11 +31,12 @@ public abstract class Turret : NonLiveEntity {
 			GameManager.Configs.GetSection( m_SectionName = gameObject.name, ref m_SectionRef );
 			if ( m_SectionRef == null )
 			{
+				print( "Cannot find cfg section for entity " + name );
 				Destroy( gameObject );
 				return;
 			}
 
-			Health					= m_SectionRef.AsFloat( "Health", 60.0f );
+			m_Health				= m_SectionRef.AsFloat( "Health", 60.0f );
 
 			float shieldStatus		= m_SectionRef.AsFloat( "Shield", 0.0f );
 			if ( m_Shield != null )
@@ -45,7 +54,7 @@ public abstract class Turret : NonLiveEntity {
 			m_Pool = new GameObjectsPool<Bullet>( ref bulletGO, 5, destroyModel : false, actionOnObject : ( Bullet o ) =>
 			{
 				o.SetActive( false );
-				o.Setup( m_DamageMin, m_DamageMax, this, null, false );
+				o.Setup( damageMin : m_DamageMin, damageMax : m_DamageMax, canPenetrate : false, whoRef : this, weapon : null );
 				Physics.IgnoreCollision( o.Collider, m_PhysicCollider, ignore : true );
 				if ( m_Shield != null )
 					Physics.IgnoreCollision( o.Collider, m_Shield.Collider, ignore : true );
@@ -55,52 +64,55 @@ public abstract class Turret : NonLiveEntity {
 	}
 
 
-	public float bodyRotationSpeed = 5f;
-	public float gunRotationSpeed = 5f;
-	/// <summary>
-	/// Update forward direction and gun rotation
-	/// </summary>
-	protected override void Update()
+	//////////////////////////////////////////////////////////////////////////
+	// FaceToPoint ( Override )
+	protected override void FaceToPoint( float deltaTime )
 	{
-		base.Update();
-
-		if ( m_CurrentTarget == null )
-			return;
-
-		Vector3 dirToTarget		= ( m_CurrentTarget.transform.position - transform.position );
-		Vector3 dirGunToTarget	= ( m_CurrentTarget.transform.position - m_GunTransform.position );
-		
+		Vector3 dirToPosition		= ( m_PointToFace - transform.position );
+		Vector3 dirGunToPosition	= ( m_PointToFace - m_GunTransform.position );
 
 		// set direction to player
-		Vector3 vBodyForward	= Vector3.Scale( dirToTarget,		new Vector3( 1.0f, 0.0f, 1.0f ) );
-		transform.forward		= Vector3.RotateTowards( transform.forward, vBodyForward, bodyRotationSpeed * Time.deltaTime, 0.0f );
+		Vector3 vBodyForward		= Vector3.Scale( dirToPosition,		new Vector3( 1.0f, 0.0f, 1.0f ) );
+		transform.forward			= Vector3.RotateTowards( transform.forward, vBodyForward, m_BodyRotationSpeed * deltaTime, 0.0f );
 
-		m_AllignedToTarget		= Vector3.Angle( transform.forward, vBodyForward ) < 7f;
-		if ( m_AllignedToTarget )
+		m_AllignedToPoint			= Vector3.Angle( transform.forward, vBodyForward ) < 7f;
+		if ( m_AllignedToPoint )
 		{
-			m_GunTransform.forward	=  Vector3.RotateTowards( m_GunTransform.forward, dirGunToTarget, gunRotationSpeed * Time.deltaTime, 0.0f );
+			m_GunTransform.forward	=  Vector3.RotateTowards( m_GunTransform.forward, dirGunToPosition, m_GunRotationSpeed * deltaTime, 0.0f );
 		}
 
-
-		m_AllignedGunToTarget	= Vector3.Angle( m_GunTransform.forward, dirGunToTarget ) < 7f;
-		if ( m_AllignedGunToTarget == false )
-			return;
+		m_AllignedGunToPoint		= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 7f;
+	}
 
 
-		// SHOOTING
-		m_ShotTimer -= Time.deltaTime;
+	//////////////////////////////////////////////////////////////////////////
+	// GoAtPoint ( Override )
+	protected override void GoAtPoint( float deltaTime )
+	{}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// FireLongRange ( Override )
+	protected override void FireLongRange( float deltaTime )
+	{
+		m_ShotTimer -= deltaTime;
 		if ( m_ShotTimer > 0 )
 				return;
 
 		m_ShotTimer = m_ShotDelay;
 
-		Bullet bullet = m_Pool.GetComponent();
-		bullet.transform.position = m_FirePoint.position;
-		bullet.SetVelocity( bullet.transform.up = m_GunTransform.forward );
-		bullet.SetActive( true );
+		IBullet bullet = m_Pool.GetComponent();
+		bullet.Shoot( position: m_FirePoint.position, direction: m_FirePoint.forward );
 		
 		m_FireAudioSource.Play();
+	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// FireCloseRange ( Override )
+	protected override void FireCloseRange( float deltaTime )
+	{
+		//	Nothing by default
 	}
 
 }

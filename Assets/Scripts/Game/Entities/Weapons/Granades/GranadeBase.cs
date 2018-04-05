@@ -1,67 +1,102 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿
+using UnityEngine;
 
 
 public interface IGranade {
-
-	Rigidbody	RigidBody				{ get; }
-	Collider	Collider				{ get; }
-
-	Entity		WhoRef					{ get; }
-	Weapon		Weapon					{ get; }
-	float		DamageMax				{ get; }
 	float		Radius					{ get; }
 	float		ExplosionDelay			{ get; }
 
-	void		Setup( float damageMax, float radius, float explosionDelay, Entity whoRef, Weapon weapon );
-	void		SetActive( bool state );
 	void		ForceExplosion();
 }
 
 
-public abstract class GranadeBase : MonoBehaviour, IGranade {
+public abstract class GranadeBase : Bullet, IGranade {
 	
-	protected	Entity			m_WhoRef				= null;
-	protected	Weapon			m_Weapon				= null;
-	protected	float			m_DamageMax				= 0f;
-	protected	float			m_Radius				= 0f;
-	protected	float			m_ExplosionDelay		= 0f;
+	[ReadOnly]
+	protected	float			m_ExplosionDelay			= 3f;
 
-	// INTERFACE
-				Rigidbody	IGranade.RigidBody		{	get { return m_RigidBody; }		}
-				Collider	IGranade.Collider		{	get { return m_Collider; }		}
-				Entity		IGranade.WhoRef			{	get { return m_WhoRef; }		}
-				Weapon		IGranade.Weapon			{	get { return m_Weapon; }		}
-				float		IGranade.DamageMax		{	get { return m_DamageMax; }		}
-				float		IGranade.Radius			{	get { return m_Radius; }		}
-				float		IGranade.ExplosionDelay	{	get { return m_ExplosionDelay; }}
+	// INTERFACE START
+				float			IGranade.Radius				{	get { return m_Range; }		}
+				float			IGranade.ExplosionDelay		{	get { return m_ExplosionDelay; }}
+	// INTERFACE END
+	
+	protected	float			m_InternalCounter			= 0f;
+	protected	float			m_Emission					= 0f;
 
 
-	protected	Rigidbody		m_RigidBody			= null;
-	public		Rigidbody		RigidBody
+	//////////////////////////////////////////////////////////////////////////
+	// Awake ( Override )
+	protected	override	void	Awake()
 	{
-		get { return m_RigidBody; }
+		base.Awake();
+
+
+
+		m_RigidBody.mass = float.Epsilon;
+
+		SetActive( false );
 	}
 
-	protected	Collider		m_Collider			= null;
-	public		Collider		Collider
+	//////////////////////////////////////////////////////////////////////////
+	// Setup ( Override )
+	public		override	void	Setup( Entity whoRef, Weapon weapon )
 	{
-		get { return m_Collider; }
+		m_Weapon	= weapon;
+		m_WhoRef	= whoRef;
 	}
 
 
-	protected	Renderer		m_Renderer			= null;
-	protected	float			m_InternalCounter	= 0f;
+	//////////////////////////////////////////////////////////////////////////
+	// SetActive ( Override )
+	public		override	void	SetActive( bool state )
+	{
+		// Reset
+		if ( state == false )
+		{
+			transform.position			= Vector3.zero;
+			m_RigidBody.velocity		= Vector3.zero;
+		}
+		else
+		{
+			m_Emission					= 0f;
+		}
+
+		m_RigidBody.useGravity			= state;
+		m_RigidBody.detectCollisions	= state;
+		m_Collider.enabled				= state;
+		m_Renderer.enabled				= state;
+		m_Renderer.material.SetColor( "_EmissionColor", Color.red );
+		m_InternalCounter				= m_ExplosionDelay;
+		this.enabled					= state;
+	}
 
 
-	public abstract void SetActive( bool state );
-	public abstract void Setup( float granadeDamage, float granadeRadius, float granadeExplosionDelay, Entity entity, Weapon weapon );
+	//////////////////////////////////////////////////////////////////////////
+	// GetRemainingTime ( Virtual )
+	public		virtual		float	GetRemainingTime()
+	{
+		return Mathf.Clamp( m_InternalCounter, 0f, 10f );
+	}
 
-	public virtual void		ForceExplosion()
+
+	//////////////////////////////////////////////////////////////////////////
+	// GetRemainingTimeNormalized ( Virtual )
+	public		virtual		float	GetRemainingTimeNormalized()
+	{
+		return 1f - (  m_InternalCounter / m_ExplosionDelay );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ForceExplosion ( Virtual )
+	public		virtual		void	ForceExplosion()
 	{
 		OnExplosion();
 	}
 
-	protected abstract	void	OnExplosion();
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnExplosion ( Abstract )
+	protected	abstract	void	OnExplosion();
 
 }

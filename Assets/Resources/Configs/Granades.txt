@@ -1,0 +1,13 @@
+﻿
+[FragGranade]
+Damage			= 100.0;
+Radius			= 9.0;
+ThrowForce		= 20.0;
+ExplosionDelay	= 3.0;
+
+
+[GlobeGranade]
+Damage			= 100.0;
+Radius			= 9.0;
+ThrowForce		= 12.0;
+ExplosionDelay	= 3.0;

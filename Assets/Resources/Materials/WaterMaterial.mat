@@ -12,26 +12,18 @@ Material:
   m_LightmapFlags: 5
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
+  m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _BumpMap:
-        m_Texture: {fileID: 2800000, guid: 90ff426733b42774fa4fb464cc68b2c9, type: 3}
-        m_Scale: {x: 2, y: 2}
-        m_Offset: {x: 0, y: 0}
     - _Height:
         m_Texture: {fileID: 2800000, guid: 7c4b27490d8aaec4ab985cdeab6e28d9, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Height2:
         m_Texture: {fileID: 2800000, guid: 7c4b27490d8aaec4ab985cdeab6e28d9, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MainTex:
-        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalMap:
@@ -42,44 +34,18 @@ Material:
         m_Texture: {fileID: 2800000, guid: 64ba073d6dec8f04aa76905e11b51d95, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - __foam:
-        m_Texture: {fileID: 2800000, guid: 15dc43c4d6678ec459767a577050b862, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _node_5100:
-        m_Texture: {fileID: 2800000, guid: b9b0a7505464056409ca5ec7a10c29bc, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _node_5643:
-        m_Texture: {fileID: 2800000, guid: 90ff426733b42774fa4fb464cc68b2c9, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _normal2:
-        m_Texture: {fileID: 2800000, guid: 90ff426733b42774fa4fb464cc68b2c9, type: 3}
-        m_Scale: {x: 2, y: 2}
-        m_Offset: {x: 0, y: 0}
     m_Floats:
     - _Cutoff: 0.5
     - _EmissionIntensity: 0
-    - _Falloff: 10
     - _Frequency: 0.009
     - _Gloss: 0.1
-    - _HeightAmount: 0.34
     - _Metallic: 0.8
     - _NormalTiling: 5
-    - _Opacity: 0.362
     - _OpacityDistance: 10
     - _RefractionIntensity: 0.09
-    - _TransitionDistance: 20
     - __heightSpeed: 0.1
     - __normalSpeed: 0.05
     - __scale: 0.81
-    - __speed: 10.87
-    - _node_1373: 5.9
-    - _node_3769: 0.002
-    - _node_3773: 0
-    - _node_4098: 1
     m_Colors:
-    - _Color: {r: 0.049145762, g: 0.45568085, b: 0.74264705, a: 1}
-    - _Color_copy: {r: 0, g: 0.39594314, b: 0.9411765, a: 0.5}
-    - _node_3701: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.050980393, g: 0.45490196, b: 0.7411765, a: 1}
+    - _Color_copy: {r: 0, g: 0.39607844, b: 0.9411765, a: 0.5019608}

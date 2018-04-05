@@ -8,6 +8,7 @@ public partial class Player {
 	private	const	float	DASH_SPEEED_FACTOR	= 0.5f;
 	private	const	float	DASH_START_EXIT_EFFET_THRESOLD = 0.85f;
 
+	[Header("Player Properties")]
 	[SerializeField]
 	private	AnimationCurve	m_DashTimeScaleCurve = AnimationCurve.Linear( 0f, 1f, 1f, 1f );
 

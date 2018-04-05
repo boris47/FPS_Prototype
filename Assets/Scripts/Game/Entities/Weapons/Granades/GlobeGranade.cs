@@ -1,75 +1,93 @@
 ﻿using UnityEngine;
 using System.Collections;
-
-
+using System;
 
 public class GlobeGranade : GranadeBase {
 	
-	public		float			m_Duration				= 1f;
+	[SerializeField]
+	private		float			m_Duration			= 3f;
 
 	private		Transform		m_ExplosionGlobe	= null;
 	private		bool			m_InExplosion		= false;
 
 
-	private void Awake()
+	//////////////////////////////////////////////////////////////////////////
+	// Awake ( Override )
+	protected override void	Awake()
 	{
-		m_RigidBody	= GetComponent<Rigidbody>();
-		m_Collider	= GetComponent<Collider>();
-		m_Renderer	= GetComponent<Renderer>();
+		base.Awake();
+
+		// LOAD CONFIGURATION
+		{
+			CFG_Reader.Section section = null;
+			GameManager.Configs.GetSection( "GlobeGranade", ref section );
+
+			m_DamageMax					= section.AsFloat( "Damage",			m_DamageMax );
+			m_Range						= section.AsFloat( "Radius",			m_Range );
+			m_Velocity					= section.AsFloat( "ThrowForce",		m_Velocity );
+			m_ExplosionDelay			= section.AsFloat( "ExplosionDelay",	m_ExplosionDelay );
+		}
 
 		m_ExplosionGlobe	= transform.GetChild(0);
-
-		m_RigidBody.mass						= float.Epsilon;
-		m_RigidBody.interpolation				= RigidbodyInterpolation.Interpolate;
-		m_RigidBody.collisionDetectionMode		= CollisionDetectionMode.ContinuousDynamic;
-
-		SetActive( false );
 	}
 
-
-	public override	void	Setup( float damageMax, float radius, float explosionDelay, Entity whoRef, Weapon weapon )
+	//////////////////////////////////////////////////////////////////////////
+	// OnEnable ( Override )
+	protected override void OnEnable()
 	{
-		m_WhoRef			= whoRef;
-		m_Weapon			= weapon;
-		m_DamageMax			= damageMax;
-		m_Radius			= radius;
-		m_ExplosionDelay	= explosionDelay;
+		m_ExplosionGlobe.localScale = Vector3.zero;
 	}
 
 
-	public override	void	SetActive( bool state )
+	//////////////////////////////////////////////////////////////////////////
+	// Setup ( Override )
+	public override void Setup( Entity whoRef, Weapon weapon )
 	{
-		// Reset
-		if ( state == false )
-		{
-			transform.position		= Vector3.zero;
-			m_RigidBody.velocity	= Vector3.zero;
-		}
-		m_RigidBody.useGravity			= state;
-		m_RigidBody.detectCollisions	= state;
-		m_Collider.enabled				= state;
-		m_Renderer.enabled				= state;
-		m_Renderer.material.SetColor( "_EmissionColor", Color.red );
-		m_InternalCounter				= m_ExplosionDelay;
-		this.enabled					= state;
+		m_WhoRef	= whoRef;
+		m_Weapon	= weapon;
 	}
 
 
-	public	float	GetRemainingTime()
+	//////////////////////////////////////////////////////////////////////////
+	// Shoot ( Override )
+	public override void Shoot( Vector3 position, Vector3 direction )
 	{
-		return Mathf.Clamp( m_InternalCounter, 0f, 10f );
+		transform.position		= position;
+		m_RigidBody.velocity	= m_Velocity * direction;
+		SetActive( true );
 	}
 
-	public	float	GetRemainingTimeNormalized()
+
+	//////////////////////////////////////////////////////////////////////////
+	// SetActive ( Override )
+	public override void	SetActive( bool state )
 	{
-		return 1f - (  m_InternalCounter / m_ExplosionDelay );
+		StopAllCoroutines();
+		m_RigidBody.constraints = RigidbodyConstraints.None;
+		m_InExplosion = false;
+		base.SetActive( state );
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
+	// GetRemainingTime ( Override )
+	public override float	GetRemainingTime()
+	{
+		return base.GetRemainingTime();
+	}
 
 
-	private	float	m_Theta = 0f;
-	private void Update()	// called only if active
+	//////////////////////////////////////////////////////////////////////////
+	// GetRemainingTimeNormalized ( Override )
+	public override float	GetRemainingTimeNormalized()
+	{
+		return base.GetRemainingTimeNormalized();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Update ( Override )
+	protected override void Update()
 	{
 		if ( m_InExplosion == true )
 			return;
@@ -81,73 +99,38 @@ public class GlobeGranade : GranadeBase {
 			return;
 		}
 
-		m_Theta += Time.deltaTime * 8f;
-
-		float emissionValue = ( 1f + Mathf.Sin( m_Theta ) ) * 5f;
-		m_Renderer.material.SetColor( "_EmissionColor", Color.red * emissionValue );
-
+		m_Emission += Time.deltaTime * 2f;
+		m_Renderer.material.SetColor( "_EmissionColor", Color.red * m_Emission );
 	}
 
-	public override void	ForceExplosion()
+
+	//////////////////////////////////////////////////////////////////////////
+	// ForceExplosion ( Override )
+	public override void ForceExplosion()
 	{
-		OnExplosion();
+		base.ForceExplosion();
 	}
 
 
+	///////////////////////////////////////////////////////////////////////////
+	// OnExplosion ( Override )
 	protected override	void	OnExplosion()
 	{
-
 		if ( m_InExplosion == true )
 			return;
 
 		m_InExplosion = true;
 
-
 		StartCoroutine( ExplosionCO() );
-
-		/*
-		Entity bumpEntity = null;
-		IGranade granadeFound = null;
-
-		Collider[] colliders = Physics.OverlapSphere( transform.position, m_Radius );
-		foreach ( Collider hit in colliders )
-		{
-			Entity entity = hit.GetComponent<Entity>();
-			if ( entity != null )
-			{
-//				float dmgMult = Vector3.Distance( transform.position, entity.transform.position ) / m_Radius;
-//				print( entity.name + ": " + dmgMult * DamageMax );
-				entity.OnHit( ref bumpEntity, m_DamageMax );
-				EffectManager.Instance.PlayOnHit( entity.transform.position, Vector3.up );
-			}
-
-			IGranade granade = hit.GetComponent<IGranade>();
-			if ( granade != null )
-			{
-				granadeFound = granade;
-			}
-
-			Rigidbody rb = hit.GetComponent<Rigidbody>();
-            if ( entity == null && rb != null )
-			{
-                rb.AddExplosionForce( 1000, transform.position, m_Radius, 3.0F );
-			}			
-		}
-
-		SetActive( false );
-		m_InternalCounter = 0f;
-
-		if ( granadeFound != null )
-			granadeFound.ForceExplosion();
-		*/
-
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
+	// ExplosionCO ( Coroutine )
 	private	IEnumerator	ExplosionCO()
 	{
 		m_ExplosionGlobe.localScale = Vector3.zero;
-		Vector3 finalScale			= Vector3.one * ( m_Radius ) * ( transform.localScale.x * 100f ); // ( 1f - transform.localScale.magnitude );
+		Vector3 finalScale			= Vector3.one * ( m_Range ) * ( transform.localScale.x * 40f );
 		float	interpolant			= 0f;
 
 		m_RigidBody.constraints = RigidbodyConstraints.FreezeAll;
@@ -171,23 +154,30 @@ public class GlobeGranade : GranadeBase {
 	}
 
 
-	private void OnCollisionEnter( Collision collision )
+	//////////////////////////////////////////////////////////////////////////
+	// OnCollisionEnter ( Override )
+	protected override void OnCollisionEnter( Collision collision )
 	{
-		if ( collision.gameObject.GetComponent<Entity>() != null )
-		{
+		Entity entity = collision.gameObject.GetComponent<Entity>();
+		Shield shield = collision.gameObject.GetComponent<Shield>();
+		if ( entity != null || shield != null )
 			OnExplosion();
-		}
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
+	// MakeDamage
 	public	void	MakeDamage( ref Entity entity )
 	{
-		float dmgMult = Vector3.Distance( m_ExplosionGlobe.position, entity.transform.position ) / m_Radius;
-//		print( entity.name + ": " + dmgMult * DamageMax );
-		entity.OnHit( ref m_WhoRef, m_DamageMax * Time.deltaTime );
+		float tmpDmg = m_DamageMax;
+		m_DamageMax *= Time.deltaTime * 0.5f;
+		entity.OnHit( ref m_Instance );
+		m_DamageMax = tmpDmg;
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
+	// OnTriggerStay
 	private void OnTriggerStay( Collider other )
 	{
 		Entity entity = other.GetComponent<Entity>();

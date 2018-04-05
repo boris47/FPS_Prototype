@@ -5,6 +5,7 @@
 #include Turrets.txt
 #include Drones.txt
 #include Rifle.txt
+#include Granades.txt
 
 [Time]
 TimeFactor			= 1.0;

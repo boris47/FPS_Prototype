@@ -1,142 +1,129 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿
+using UnityEngine;
+
 
 public interface IBullet {
 
+	Transform	Transform				{ get; }
 	Rigidbody	RigidBody				{ get; }
 	Collider	Collider				{ get; }
 
 	Entity		WhoRef					{ get; }
 	Weapon		Weapon					{ get; }
-	float		DamageMin				{ get; }
-	float		DamageMax				{ get; }
-	bool		CanPenetrate			{ get; }
+	float		DamageMin				{ get; set; }
+	float		DamageMax				{ get; set; }
+	float		DamageMult				{ get; }
+	float		RecoilMult				{ get; }
+	bool		CanPenetrate			{ get; set; }
+	Vector3		StartPosition			{ get; }
 
-	void		Setup( float damageMin, float damageMax, Entity whoRef, Weapon weapon, bool canPenetrate );
+	void		Setup( float damage, bool canPenetrate, Entity whoRef, Weapon weapon );						// bullets
+	void		Setup( Entity whoRef, Weapon weapon );														// granades and missiles
 	void		SetActive( bool state );
-	void		SetVelocity( Vector3 vector );
+	void		Shoot( Vector3 position, Vector3 direction );
 }
 
-[RequireComponent( typeof( Rigidbody ), typeof( Collider ) )]
-public class Bullet : MonoBehaviour, IBullet {
+
+[RequireComponent( typeof( Rigidbody ), typeof( Collider ), typeof( Renderer ) )]
+public abstract class Bullet : MonoBehaviour, IBullet {
 	
 	[SerializeField]
-	private		float		Speed					= 15f;
+	protected		float		m_Velocity				= 15f;
 
 	[SerializeField]
-	private		float		m_Range					= 30f;
+	protected		float		m_Range					= 30f;
 
-	public		Collider	Collider				{		get { return m_Collider; }		}
+	[SerializeField, Range( 0.5f, 3f )]
+	protected		float		m_DamageMult			= 1f;
 
-	private		Rigidbody	m_RigidBody				= null;
-	private		Collider	m_Collider				= null;
-	private		Entity		m_WhoRef				= null;
-	private		Weapon		m_Weapon				= null;
-	private		float		m_DamageMin				= 0f;
-	private		float		m_DamageMax				= 0f;
-	private		bool		m_CanPenetrate			= false;
+	[SerializeField, Range( 0.5f, 3f )]
+	protected		float		m_RecoilMult			= 1f;
+
+	public			Rigidbody	RigidBody				{		get { return m_RigidBody; }		}
+	public			Collider	Collider				{		get { return m_Collider; }		}
+
+
+	protected		Rigidbody	m_RigidBody				= null;
+	protected		Collider	m_Collider				= null;
+	protected		Entity		m_WhoRef				= null;
+	protected		Weapon		m_Weapon				= null;
+	protected		float		m_DamageMin				= 0f;
+	protected		float		m_DamageMax				= 0f;
+	protected		bool		m_CanPenetrate			= false;
 
 	// INTERFACE
-				Rigidbody	IBullet.RigidBody		{	get { return m_RigidBody; }		}
-				Collider	IBullet.Collider		{	get { return m_Collider; }		}
-				Entity		IBullet.WhoRef			{	get { return m_WhoRef; }		}
-				Weapon		IBullet.Weapon			{	get { return m_Weapon; }		}
-				float		IBullet.DamageMin		{	get { return m_DamageMin; }		}
-				float		IBullet.DamageMax		{	get { return m_DamageMax; }		}
-				bool		IBullet.CanPenetrate	{	get { return m_CanPenetrate; }	}
+					Transform	IBullet.Transform		{	get { return transform; }		}
+					Rigidbody	IBullet.RigidBody		{	get { return m_RigidBody; }		}
+					Collider	IBullet.Collider		{	get { return m_Collider; }		}
+					Entity		IBullet.WhoRef			{	get { return m_WhoRef; }		}
+					Weapon		IBullet.Weapon			{	get { return m_Weapon; }		}
+					float		IBullet.DamageMin		{	get { return m_DamageMin; }		set { m_DamageMax = value; } }
+					float		IBullet.DamageMax		{	get { return m_DamageMax;}		set { m_DamageMin = value; } }
+					float		IBullet.DamageMult		{	get { return m_DamageMult; }	}
+					float		IBullet.RecoilMult		{	get { return m_RecoilMult; }	}
+					bool		IBullet.CanPenetrate	{	get { return m_CanPenetrate; }	set { m_CanPenetrate = value; }	}
+					Vector3		IBullet.StartPosition	{	get { return m_StartPosition; }	}
 
 
+	protected		Renderer	m_Renderer				= null;
+	protected		IBullet		m_Instance				= null;
 
-	private		Renderer	m_Renderer				= null;
-
-	private		Vector3		m_StartPosition			= Vector3.zero;
+	protected		Vector3		m_StartPosition			= Vector3.zero;
 
 
-	private void Awake()
+	//////////////////////////////////////////////////////////////////////////
+	// Awake ( Virtual )
+	protected	virtual		void	Awake()
 	{
+		m_Instance = this as IBullet;
+
 		m_RigidBody	= GetComponent<Rigidbody>();
 		m_Collider	= GetComponent<Collider>();
 		m_Renderer	= GetComponent<Renderer>();
 
-		m_RigidBody.useGravity					= false;
 		m_RigidBody.interpolation				= RigidbodyInterpolation.Interpolate;
 		m_RigidBody.collisionDetectionMode		= CollisionDetectionMode.ContinuousDynamic;
 		m_RigidBody.maxAngularVelocity			= 0f;
 	}
 
 
-	public	void	Setup( float damageMin, float damageMax, Entity whoRef, Weapon weapon, bool canPenetrate )
-	{
-		m_DamageMin		= damageMin;
-		m_DamageMax		= damageMax;
-		m_WhoRef		= whoRef;
-		m_Weapon		= weapon;
-		m_CanPenetrate	= canPenetrate;
-	}
+	//////////////////////////////////////////////////////////////////////////
+	// Setup ( Virtual )
+	public		virtual		void	Setup( float damage, bool canPenetrate, Entity whoRef, Weapon weapon )						// For Generic Bullets
+	{}
+
+	//////////////////////////////////////////////////////////////////////////
+	// Setup ( Virtual )
+	public		virtual		void	Setup( float damageMin, float damageMax, bool canPenetrate, Entity whoRef, Weapon weapon )	// For Entities
+	{}
+
+	//////////////////////////////////////////////////////////////////////////
+	// Setup ( Virtual )
+	public		virtual		void	Setup( Entity whoRef, Weapon weapon )														 // For Granades and Missiles
+	{ }
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnEnable ( Abstract )
+	protected	abstract	void	OnEnable();
 
 
-	private	void	OnEnable()
-	{
-		m_RigidBody.angularVelocity = Vector3.zero;
-	}
+	//////////////////////////////////////////////////////////////////////////
+	// Update ( Abstract )
+	protected	abstract	void	Update();
+	
 
-	private	void	Update()
-	{
-		float traveledDistance = ( m_StartPosition - transform.position ).sqrMagnitude;
-		if ( traveledDistance > m_Range * m_Range )
-		{
-			SetActive( false );
-		}
-
-	}
-
-	public	void	SetActive( bool state )
-	{
-		// Reset
-		if ( state == false )
-		{
-			transform.position		= Vector3.zero;
-			m_RigidBody.velocity	= Vector3.zero;
-		}
-		m_StartPosition = transform.position;
-		m_RigidBody.detectCollisions = state;
-		m_Collider.enabled = state;
-		m_Renderer.enabled = state;
-		this.enabled = state;
-	}
-
-	public	void	SetVelocity( Vector3 vector )
-	{
-		m_RigidBody.velocity = vector.normalized * Speed;
-	}
+	//////////////////////////////////////////////////////////////////////////
+	// Shoot ( Abstract )
+	public		abstract	void	Shoot( Vector3 position, Vector3 direction );
 
 
-
-	private	void	OnCollisionEnter( Collision collision )
-	{
-		// When hit another bullet reset both bullets
-//		Bullet bullet = collision.gameObject.GetComponent<Bullet>();
-//		if ( bullet != null )
-//		{
-//			bullet.SetActive( false );
-			
-//		}
-
-		Entity entity = collision.gameObject.GetComponent<Entity>();
-		Shield shield = collision.gameObject.GetComponent<Shield>();
-		if ( entity != null || shield != null )
-		{
-			EffectManager.Instance.PlayOnHit( collision.contacts[0].point, collision.contacts[0].normal );
-		}
+	//////////////////////////////////////////////////////////////////////////
+	// SetActive ( Abstract )
+	public		abstract	void	SetActive( bool state );
 
 
-		Rigidbody rb = collision.gameObject.GetComponent<Rigidbody>();
-		if ( rb != null )
-		{
-			rb.AddForce( m_RigidBody.velocity );
-		}
-
-		this.SetActive( false );
-	}
+	//////////////////////////////////////////////////////////////////////////
+	// OnCollisionEnter ( Abstract )
+	protected	abstract	void	OnCollisionEnter( Collision collision );
 
 }

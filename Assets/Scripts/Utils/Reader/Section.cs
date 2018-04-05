@@ -89,7 +89,14 @@ namespace CFG_Reader {
 		{
 			sName = SecName;
 			if ( Mother != null )
-				vSection = Mother.GetData();
+			{
+				cLineValue[] motherValues = Mother.GetData();
+				vSection = new cLineValue[ motherValues.Length ];
+				for ( int i = 0; i < motherValues.Length; i++ )
+				{
+					vSection[ i ] = new cLineValue( motherValues[ i ] );
+				}
+			}
 
 			IsOK = true;
 		}
@@ -107,11 +114,25 @@ namespace CFG_Reader {
 		public	void					Add( cLineValue LineValue )
 		{
 			if ( vSection == null )
+			{
 				vSection = new cLineValue[ 1 ];
-			else
-				System.Array.Resize<cLineValue>( ref vSection, vSection.Length + 1 );
+				vSection[ 0 ] = LineValue;
+				return;
+			}
 
-			vSection[ vSection.Length - 1 ] = LineValue;
+			cLineValue lineValue = System.Array.Find( vSection, ( s ) => s.Key == LineValue.Key );
+			// Confirmed new linevalue
+			if ( lineValue == null )
+			{
+				System.Array.Resize<cLineValue>( ref vSection, vSection.Length + 1 );
+				vSection[ vSection.Length - 1 ] = LineValue;
+			}
+			// overwrite of existing linevalue
+			else
+			{
+				int index = System.Array.IndexOf( vSection, lineValue );
+				vSection[ index ] = new cLineValue( LineValue );
+			}
 		}
 
 

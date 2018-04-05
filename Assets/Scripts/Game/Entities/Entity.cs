@@ -1,34 +1,32 @@
 ﻿
 using CFG_Reader;
 using UnityEngine;
-using System.Collections.Generic;
+using AI_Behaviours;
 
 
 public interface IEntity {
+	bool				IsActive						{	get; set;	}
+	uint				ID								{	get;		}
+	float				Health							{	get; set;	}
+	float				ViewRange						{	get; set;	}
+	string				Section							{	get;		}
+	Rigidbody			RigidBody						{	get;		}
+	CapsuleCollider		PhysicCollider					{	get;		}
+	Transform			Transform						{	get;		}
+	IBrain				Brain							{	get;		}
 
-	bool			IsLiveEntity();
-	LiveEntity		GetAsLiveEntity();
 
-	bool			IsHuman();
-	Human			GetAsHuman();
+	void				OnFrame( float deltaTime );
+	void				OnThink();
 
-	void			SetInWater( bool b );
-	bool			IsInWater();
-
-	void			SetUnderWater( bool b );
-	bool			IsUnderWater();
+	void				OnHit( ref IBullet bullet );
+	void				OnHurt( ref IBullet bullet );
+	void				OnKill();
 }
 
-public enum BrainState {
-	QUIET,
-	WARNING,
-	ATTACKING
-}
 
 
-
-[RequireComponent(typeof(Rigidbody))]
-[RequireComponent(typeof( CapsuleCollider ))]
+[RequireComponent( typeof( Rigidbody ), typeof( CapsuleCollider ) )]
 public abstract partial class Entity : MonoBehaviour, IEntity {
 
 	public enum ENTITY_TYPE {
@@ -40,96 +38,72 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		OBJECT
 	};
 
-	private	static uint CurrentID = 0;
-	public	static uint NewID() {
-		return CurrentID++;
-	}
+	[Header("Entity Properties")]
+	private	static uint			CurrentID						= 0;
+	public	static uint			NewID()							{ return CurrentID++; }
 
-	public		bool			IsActive						{ get; set; }
 
-	protected 	uint			m_ID							= 0;
-	public		uint			ID
-	{
-		get { return m_ID; }
-	}
 	[SerializeField]
 	protected	float			m_Health						= 1f;
-	public		float			Health
-	{
-		get { return m_Health; }
-		set { m_Health = value; }
-	}
+
 	[SerializeField]
 	protected	float			m_ViewRange						= 10f;
-	public		float			ViewRange
-	{
-		get { return m_ViewRange; }
-		set { m_ViewRange = value; }
-	}
 
-	public		string			Section
-	{
-		get { return m_SectionName; }
-	}
+	// INTERFACE START
+				bool			IEntity.IsActive				{	get { return m_IsActive;		}	set { m_IsActive = value;		}	}
+				uint			IEntity.ID						{	get { return m_ID;				}	}
+				float			IEntity.Health					{	get { return m_Health;			}	set { m_Health		= value;	}	}
+				float			IEntity.ViewRange				{	get { return m_ViewRange;		}	set { m_ViewRange	= value;	}	}
+				string			IEntity.Section					{	get { return m_SectionName;		}	}
+				Rigidbody		IEntity.RigidBody				{	get { return m_RigidBody;		}	}
+				CapsuleCollider	IEntity.PhysicCollider			{	get { return m_PhysicCollider;	}	}
+				IBrain			IEntity.Brain					{	get { return m_Brain;		}	}
+				Transform		IEntity.Transform				{	get { return transform;			}	}
+	// INTERFACE END
 
-	public		bool			IsLiveEntity()
-	{
-		return this is LiveEntity;
-	}
 
-	public		LiveEntity		GetAsLiveEntity()
-	{
-		return this as LiveEntity;
-	}
+	protected	bool			m_IsActive						= true;
 
-	public		bool			IsHuman()
-	{
-		return this is LiveEntity;
-	}
-
-	public		Human			GetAsHuman()
-	{
-		return this as Human;
-	}
-
-	public		void			SetInWater( bool b )			{ m_IsInWater = b; }
-	public		bool			IsInWater()						{ return m_IsInWater; }
-
-	public		void			SetUnderWater( bool b )			{ m_IsUnderWater = b; }
-	public		bool			IsUnderWater()					{ return m_IsUnderWater; }
+	protected 	uint			m_ID							= 0;
 
 	protected	Section			m_SectionRef					= null;
 
 	protected 	string			m_SectionName					= "None";
+
 	[System.NonSerialized]
 	protected 	ENTITY_TYPE		m_EntityType					= ENTITY_TYPE.NONE;
 
-	[System.NonSerialized]
-	protected	BrainState		m_BrainState					= BrainState.QUIET;
-	
-	protected 	bool			m_IsInWater						= false;
-	protected 	bool			m_IsUnderWater					= false;
+	protected	Vector3			m_LastAttackPosition			= Vector3.zero;
 
 	protected	Rigidbody		m_RigidBody						= null;
-	public		Rigidbody		RigidBody
-	{
-		get { return m_RigidBody; }
-	}
 
 	protected	CapsuleCollider	m_PhysicCollider				= null;
-	public		CapsuleCollider	PhysicCollider
-	{
-		get { return m_PhysicCollider; }
-	}
 
-	protected	ViewAreaTrigger	m_ViewTrigger					= null;
-	public		ViewAreaTrigger	m_ViewArea
-	{
-		get { return m_ViewTrigger; }
-	}
+	protected	IBrain			m_Brain							= null;
 
-	protected	List<Entity>	m_Targets						= new List<Entity>();
-	protected	Entity			m_CurrentTarget					= null;
+	protected	Transform		m_Target						= null;
 
 	protected	bool 			m_IsOK							= false;
+
+
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Awake
+	protected virtual	void				Awake()
+	{
+		m_ID				= NewID();
+		m_PhysicCollider	= GetComponent<CapsuleCollider>();
+		m_RigidBody			= GetComponent<Rigidbody>();
+		m_Brain				= GetComponent<IBrain>();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Update
+	public virtual	void	OnFrame( float deltaTime )
+	{
+
+	}
+
 }

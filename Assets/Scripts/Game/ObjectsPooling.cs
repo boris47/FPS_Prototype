@@ -94,7 +94,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 
 		//////////////////////////////////////////////////////////////////////////
 	// Constructor
-	public	GameObjectsPool( ref GameObject model, int size, bool destroyModel, System.Action<T> actionOnObject = null )
+	public	GameObjectsPool( ref GameObject model, uint size, bool destroyModel, System.Action<T> actionOnObject = null )
 	{
 		if ( m_Container == null )
 		{
@@ -182,7 +182,7 @@ public	class ObjectsPool<T> where T : UnityEngine.Component {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Costructor
-	public	ObjectsPool( int size = 0 )
+	public	ObjectsPool( uint size = 0 )
 	{
 		if ( size > 0 )
 			m_Storage = new T[ size ];

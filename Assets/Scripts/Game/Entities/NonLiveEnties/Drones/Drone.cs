@@ -1,11 +1,17 @@
 ﻿
 using UnityEngine;
 using System.Collections;
+using System;
 
 public abstract class Drone : NonLiveEntity {
 
+	[Header("Drone Properties")]
+
 	[SerializeField]
-	private		GameObject		m_BulletGameObject	= null;
+	private		GameObject		m_BulletGameObject			= null;
+
+	[SerializeField]
+	protected	float			m_ShotDelay					= 0.7f;
 
 	[SerializeField]
 	protected	float			m_DamageLongRangeMax		= 2f;
@@ -30,7 +36,8 @@ public abstract class Drone : NonLiveEntity {
 	protected	float			m_CloseCombatDelayInternal	= 0f;
 
 
-
+	//////////////////////////////////////////////////////////////////////////
+	// Awake ( Override )
 	protected override void Awake()
 	{
 		base.Awake();
@@ -47,7 +54,7 @@ public abstract class Drone : NonLiveEntity {
 				return;
 			}
 
-			Health					= m_SectionRef.AsFloat( "Health",				30.0f );
+			m_Health				= m_SectionRef.AsFloat( "Health",				30.0f );
 			float shieldStatus		= m_SectionRef.AsFloat( "Shield",				60.0f );
 			if ( m_Shield != null )
 				( m_Shield as IShield ).Status = shieldStatus;
@@ -70,7 +77,7 @@ public abstract class Drone : NonLiveEntity {
 			m_Pool = new GameObjectsPool<Bullet>( ref bulletGO, 5, destroyModel : false, actionOnObject : ( Bullet o ) =>
 			{
 				o.SetActive( false );
-				o.Setup( m_DamageLongRangeMin, m_DamageLongRangeMax, this, null, false );
+				o.Setup( damageMin : m_DamageLongRangeMin, damageMax : m_DamageLongRangeMax, canPenetrate : false, whoRef : this, weapon : null );
 				Physics.IgnoreCollision( o.Collider, m_PhysicCollider, ignore : true );
 				if ( m_Shield != null )
 					Physics.IgnoreCollision( o.Collider, m_Shield.Collider, ignore : true );
@@ -79,65 +86,80 @@ public abstract class Drone : NonLiveEntity {
 		}
 	}
 
-	public float bodyRotationSpeed = 5f;
-	public float gunRotationSpeed = 5f;
-	protected override void Update()
+
+	//////////////////////////////////////////////////////////////////////////
+	// FaceToPoint ( Override )
+	protected override void FaceToPoint( float deltaTime )
 	{
-		base.Update();
-
-		if ( m_CurrentTarget == null )
-			return;
-
-		Vector3 dirToTarget		= ( m_CurrentTarget.transform.position - transform.position );
-		Vector3 dirGunToTarget	= ( m_CurrentTarget.transform.position - m_GunTransform.position );
-		
+		Vector3 dirToPosition		= ( m_PointToFace - transform.position );
+		Vector3 dirGunToPosition	= ( m_PointToFace - m_GunTransform.position );
+		m_CloseCombatDelayInternal -= deltaTime;
+		m_ShotTimer -= Time.deltaTime;
 
 		// set direction to player
-		Vector3 vBodyForward	= Vector3.Scale( dirToTarget,		new Vector3( 1.0f, 0.0f, 1.0f ) );
-		transform.forward		= Vector3.RotateTowards( transform.forward, vBodyForward, bodyRotationSpeed * Time.deltaTime, 0.0f );
+		Vector3 vBodyForward		= Vector3.Scale( dirToPosition,		new Vector3( 1.0f, 0.0f, 1.0f ) );
+		transform.forward			= Vector3.RotateTowards( transform.forward, vBodyForward, m_BodyRotationSpeed * deltaTime, 0.0f );
 
-		m_CloseCombatDelayInternal -= Time.deltaTime;
-
-		m_AllignedToTarget		= Vector3.Angle( transform.forward, vBodyForward ) < 7f;
-		if ( m_AllignedToTarget )
+		m_AllignedToPoint			= Vector3.Angle( transform.forward, vBodyForward ) < 7f;
+		if ( m_AllignedToPoint )
 		{
-			m_GunTransform.forward	=  Vector3.RotateTowards( m_GunTransform.forward, dirGunToTarget, gunRotationSpeed * Time.deltaTime, 0.0f );
-
-			// if near enough for close combat attack, attack target
-			if ( dirToTarget.sqrMagnitude < m_CloseCombatRange * m_CloseCombatRange )
-			{
-				if ( m_CloseCombatDelayInternal < 0f )
-				{
-					m_CloseCombatDelayInternal = m_CloseCombatDelay;
-					m_CurrentTarget.OnHit( ref m_Instance, m_DamageCloseRange );
-
-					// TODO: add a attack/hit effect
-				}
-				return;
-			}
-
-			// Move toward the current target
-			transform.position += dirToTarget.normalized * m_MoveMaxSpeed * Time.deltaTime;
+			m_GunTransform.forward	=  Vector3.RotateTowards( m_GunTransform.forward, dirGunToPosition, m_GunRotationSpeed * deltaTime, 0.0f );
 		}
 
+		m_AllignedGunToPoint		= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 7f;
+	}
 
-		m_ShotTimer -= Time.deltaTime;
-		m_AllignedGunToTarget	= Vector3.Angle( m_GunTransform.forward, dirGunToTarget ) < 7f;
-		if ( m_AllignedGunToTarget == false )
+
+	//////////////////////////////////////////////////////////////////////////
+	// GoAtPoint ( Override )
+	protected override void GoAtPoint( float deltaTime )
+	{
+		if ( m_IsMoving == false )
 			return;
 
-		// SHOOTING
+		Vector3 dirToPosition	 = ( m_PointToFace - transform.position );
+		float	travelledDistance = ( m_StartMovePosition - transform.position ).sqrMagnitude;
+		if ( travelledDistance > m_DistanceToTravel )   // point reached
+		{
+			if ( m_Brain.State == BrainState.ALARMED )
+				m_Brain.ChangeState( BrainState.NORMAL );
+			m_IsMoving = false;
+			m_StartMovePosition = m_PointToFace = Vector3.zero;
+			return;
+		}
+
+		transform.position		+= dirToPosition.normalized * m_MoveMaxSpeed * deltaTime;
+	}
+
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// FireLongRange ( Override )
+	protected override void FireLongRange( float deltaTime )
+	{
 		if ( m_ShotTimer > 0 )
 				return;
 
 		m_ShotTimer = m_ShotDelay;
 
 		Bullet bullet = m_Pool.GetComponent();
-		bullet.transform.position = m_FirePoint.position;
-		bullet.SetVelocity( bullet.transform.up = m_GunTransform.forward );
-		bullet.SetActive( true );
+		bullet.Shoot( position: m_FirePoint.position, direction: m_FirePoint.forward );
 		
 		m_FireAudioSource.Play();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// FireCloseRange ( Override )
+	protected override void FireCloseRange( float deltaTime )
+	{
+		if ( m_CloseCombatDelayInternal < 0f )
+		{
+			m_CloseCombatDelayInternal = m_CloseCombatDelay;
+//			m_Brain.CurrentTargetInfo.CurrentTarget.OnHit( ref m_Instance, m_DamageCloseRange );
+
+			// TODO: add a attack/hit effect
+		}	
 	}
 
 }

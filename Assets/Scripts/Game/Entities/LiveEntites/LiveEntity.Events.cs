@@ -20,7 +20,7 @@ public abstract partial class LiveEntity  {
 //			print( "Extimated damage " + info.Damage );
 //			this.OnHurt( ref empty, damage );
 
-			if ( Health <= 0f )
+			if ( m_Health <= 0f )
 			{
 				print( "Morte da caduta" );
 			}
@@ -35,21 +35,18 @@ public abstract partial class LiveEntity  {
 		if ( bullet == null )
 			return;
 
-		float damage	= Random.Range( bullet.DamageMin, bullet.DamageMax );
-		Entity who		= bullet.WhoRef;
-
-		if ( who is LiveEntity )
+		if ( bullet.WhoRef is LiveEntity )
 			return;
 
 //		if ( bullet.IsCloseRange )
 ///		{
 			// close range attack
-//			OnHurt( ref who, damage );
+//			OnHurt( ref bullet );
 //		}
 //		else
 		{
 			// long range attack
-			OnHit( ref who, damage );
+			OnHit( ref bullet );
 		}
 
 	}
