@@ -16,7 +16,39 @@ public class TurretHard : Turret {
 	private		uint		m_FiredBullets		= 0;
 
 
-	// Hitted by long range weapon
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnTargetAquired ( Override )
+	public override void OnTargetAquired( TargetInfo_t targetInfo )
+	{
+		base.OnTargetAquired( targetInfo );		// m_TargetInfo = targetInfo;
+
+		m_Brain.ChangeState( BrainState.ATTACKING );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnTargetChanged ( Override )
+	public override void OnTargetChanged( TargetInfo_t targetInfo )
+	{
+		base.OnTargetChanged( targetInfo );		// m_TargetInfo = targetInfo;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnTargetLost ( Override )
+	public override void OnTargetLost( TargetInfo_t targetInfo )
+	{
+		base.OnTargetLost( targetInfo );		// m_TargetInfo = default( TargetInfo_t );
+
+		if ( m_Brain.State == BrainState.ATTACKING )
+		{
+			m_Brain.ChangeState( BrainState.NORMAL );
+		}
+	}
+
+
+
 	//////////////////////////////////////////////////////////////////////////
 	// OnHit ( Override )
 	public override void OnHit( ref IBullet bullet )
@@ -35,16 +67,6 @@ public class TurretHard : Turret {
 
 		if ( m_Health < 0f )
 			OnKill();
-	}
-
-	// Hitted by close range weapon
-	//////////////////////////////////////////////////////////////////////////
-	// OnHurt ( Override )
-	public override void OnHurt( ref IBullet bullet )
-	{
-		base.OnHurt( ref bullet );
-
-
 	}
 
 
@@ -143,17 +165,18 @@ public class TurretHard : Turret {
 	public override void OnFrame( float deltaTime )
 	{
 		base.OnFrame( deltaTime );
-
+		
 		if ( m_IsRecharging == true )
 			return;
 
-		if ( m_Brain.CurrentTargetInfo.HasTarget == false )
+		if ( m_TargetInfo.HasTarget == false )
 			return;
 
 		if ( m_AllignedGunToPoint == false )
 			return;
 
 		FireLongRange( deltaTime );
+		
 	}
 
 

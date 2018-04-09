@@ -1,7 +1,6 @@
 ﻿
 using UnityEngine;
 
-
 [RequireComponent( typeof ( AI_Behaviours.Brain ) )]
 public abstract partial class NonLiveEntity : Entity {
 	
@@ -24,12 +23,9 @@ public abstract partial class NonLiveEntity : Entity {
 	protected		float				m_ShotTimer					= 0f;
 
 	protected		Vector3				m_PointToFace				= Vector3.zero;
-	protected		Vector3				m_StartMovePosition			= Vector3.zero;
 	protected		bool				m_IsMoving					= false;
 	protected		bool				m_AllignedToPoint			= false;
 	protected		bool				m_AllignedGunToPoint		= false;
-
-	protected		float				m_DistanceToTravel			= 0f;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -48,30 +44,19 @@ public abstract partial class NonLiveEntity : Entity {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Update
+	// OnFrame
 	public	override	void	OnFrame( float deltaTime )
 	{
 		base.OnFrame( deltaTime );
 		
 		if ( m_Brain.State != BrainState.NORMAL )
 		{
-			if ( m_Brain.CurrentTargetInfo.HasTarget == true )
+			if ( m_TargetInfo.HasTarget == true )
 			{
-				m_PointToFace		= m_Brain.CurrentTargetInfo.CurrentTarget.transform.position;
-				m_DistanceToTravel	= ( transform.position - m_PointToFace ).sqrMagnitude;
+				m_PointToFace		= m_TargetInfo.CurrentTarget.transform.position;
 			}
-
 			FaceToPoint( deltaTime );	// m_PointToFace
-
-			if ( m_AllignedToPoint && m_IsMoving == false )
-			{
-				m_IsMoving = true;
-				m_StartMovePosition = transform.position;
-			}
-
-			GoAtPoint( deltaTime );
 		}
-		
 	}
 
 
@@ -81,16 +66,16 @@ public abstract partial class NonLiveEntity : Entity {
 
 	//////////////////////////////////////////////////////////////////////////
 	// GoAtPoint
-	protected	abstract	void	GoAtPoint( float deltaTime );
+//	protected	abstract	void	GoAtPoint( float deltaTime );
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// FireLongRange
-	protected	abstract	void	FireLongRange( float deltaTime );
+//	protected	abstract	void	FireLongRange( float deltaTime );
 
 	//////////////////////////////////////////////////////////////////////////
 	// FireCloseRange
-	protected	abstract	void	FireCloseRange( float deltaTime );
+//	protected	abstract	void	FireCloseRange( float deltaTime );
 	
 
 }

@@ -8,7 +8,7 @@ public interface IEntity {
 	bool				IsActive						{	get; set;	}
 	uint				ID								{	get;		}
 	float				Health							{	get; set;	}
-	float				ViewRange						{	get; set;	}
+//	float				ViewRange						{	get; set;	}
 	string				Section							{	get;		}
 	Rigidbody			RigidBody						{	get;		}
 	CapsuleCollider		PhysicCollider					{	get;		}
@@ -19,8 +19,11 @@ public interface IEntity {
 	void				OnFrame( float deltaTime );
 	void				OnThink();
 
+	void				OnTargetAquired( TargetInfo_t targetInfo );
+	void				OnTargetChanged( TargetInfo_t targetInfo );
+	void				OnTargetLost( TargetInfo_t targetInfo );
+
 	void				OnHit( ref IBullet bullet );
-	void				OnHurt( ref IBullet bullet );
 	void				OnKill();
 }
 
@@ -46,14 +49,14 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	[SerializeField]
 	protected	float			m_Health						= 1f;
 
-	[SerializeField]
-	protected	float			m_ViewRange						= 10f;
+//	[SerializeField]
+//	protected	float			m_ViewRange						= 10f;
 
 	// INTERFACE START
 				bool			IEntity.IsActive				{	get { return m_IsActive;		}	set { m_IsActive = value;		}	}
 				uint			IEntity.ID						{	get { return m_ID;				}	}
 				float			IEntity.Health					{	get { return m_Health;			}	set { m_Health		= value;	}	}
-				float			IEntity.ViewRange				{	get { return m_ViewRange;		}	set { m_ViewRange	= value;	}	}
+//				float			IEntity.ViewRange				{	get { return m_ViewRange;		}	set { m_ViewRange	= value;	}	}
 				string			IEntity.Section					{	get { return m_SectionName;		}	}
 				Rigidbody		IEntity.RigidBody				{	get { return m_RigidBody;		}	}
 				CapsuleCollider	IEntity.PhysicCollider			{	get { return m_PhysicCollider;	}	}
@@ -81,7 +84,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 	protected	IBrain			m_Brain							= null;
 
-	protected	Transform		m_Target						= null;
+	protected	TargetInfo_t	m_TargetInfo					= default( TargetInfo_t );
 
 	protected	bool 			m_IsOK							= false;
 
@@ -96,6 +99,13 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		m_PhysicCollider	= GetComponent<CapsuleCollider>();
 		m_RigidBody			= GetComponent<Rigidbody>();
 		m_Brain				= GetComponent<IBrain>();
+
+		if ( this is Player )
+			return;
+
+		m_Brain.FieldOfView.OnTargetAquired = OnTargetAquired;
+		m_Brain.FieldOfView.OnTargetChanged = OnTargetChanged;
+		m_Brain.FieldOfView.OnTargetLost	= OnTargetLost;
 	}
 
 

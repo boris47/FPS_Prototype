@@ -19,6 +19,8 @@ public abstract class Turret : NonLiveEntity {
 	[SerializeField]
 	protected	float			m_DamageMin			= 0.5f;
 
+	protected	Vector3			m_ScaleVector		= new Vector3( 1.0f, 0.0f, 1.0f );
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
@@ -71,10 +73,9 @@ public abstract class Turret : NonLiveEntity {
 		Vector3 dirToPosition		= ( m_PointToFace - transform.position );
 		Vector3 dirGunToPosition	= ( m_PointToFace - m_GunTransform.position );
 
-		// set direction to player
-		Vector3 vBodyForward		= Vector3.Scale( dirToPosition,		new Vector3( 1.0f, 0.0f, 1.0f ) );
+		Vector3 vBodyForward		= Vector3.Scale( dirToPosition,	m_ScaleVector );
 		transform.forward			= Vector3.RotateTowards( transform.forward, vBodyForward, m_BodyRotationSpeed * deltaTime, 0.0f );
-
+		
 		m_AllignedToPoint			= Vector3.Angle( transform.forward, vBodyForward ) < 7f;
 		if ( m_AllignedToPoint )
 		{
@@ -84,16 +85,9 @@ public abstract class Turret : NonLiveEntity {
 		m_AllignedGunToPoint		= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 7f;
 	}
 
-
-	//////////////////////////////////////////////////////////////////////////
-	// GoAtPoint ( Override )
-	protected override void GoAtPoint( float deltaTime )
-	{}
-
-
 	//////////////////////////////////////////////////////////////////////////
 	// FireLongRange ( Override )
-	protected override void FireLongRange( float deltaTime )
+	protected virtual void FireLongRange( float deltaTime )
 	{
 		m_ShotTimer -= deltaTime;
 		if ( m_ShotTimer > 0 )
@@ -110,7 +104,7 @@ public abstract class Turret : NonLiveEntity {
 
 	//////////////////////////////////////////////////////////////////////////
 	// FireCloseRange ( Override )
-	protected override void FireCloseRange( float deltaTime )
+	protected void FireCloseRange( float deltaTime )
 	{
 		//	Nothing by default
 	}

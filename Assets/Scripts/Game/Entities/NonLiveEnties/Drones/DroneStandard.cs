@@ -4,7 +4,40 @@ using System.Collections;
 
 public class DroneStandard : Drone {
 
-	// Hitted by long range weapon
+	//////////////////////////////////////////////////////////////////////////
+	// OnTargetAquired ( Override )
+	public override void OnTargetAquired( TargetInfo_t targetInfo )
+	{
+		base.OnTargetAquired( targetInfo );		// m_TargetInfo = targetInfo;
+
+		m_Brain.ChangeState( BrainState.ATTACKING );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnTargetChanged ( Override )
+	public override void OnTargetChanged( TargetInfo_t targetInfo )
+	{
+		base.OnTargetChanged( targetInfo );		// m_TargetInfo = targetInfo;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnTargetLost ( Override )
+	public override void OnTargetLost( TargetInfo_t targetInfo )
+	{
+		base.OnTargetLost( targetInfo );		// m_TargetInfo = default( TargetInfo_t );
+
+		m_IsMoving = false;
+		m_StartMovePosition = m_PointToFace = Vector3.zero;
+
+		if ( m_Brain.State == BrainState.ATTACKING )
+		{
+			m_Brain.ChangeState( BrainState.NORMAL );
+		}
+	}
+
+	
 	//////////////////////////////////////////////////////////////////////////
 	// OnHit ( Override )
 	public override void OnHit( ref IBullet bullet )
@@ -30,17 +63,6 @@ public class DroneStandard : Drone {
 			return;
 		}
 	}
-
-	// Hitted by close range weapon
-	//////////////////////////////////////////////////////////////////////////
-	// OnHurt ( Override )
-	public override void OnHurt( ref IBullet bullet )
-	{
-		base.OnHurt( ref bullet );
-
-
-	}
-
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnKill ( Override )
@@ -68,14 +90,25 @@ public class DroneStandard : Drone {
 	{
 		base.OnFrame( deltaTime );
 
+		if ( m_Brain.State != BrainState.NORMAL )
+		{
+			if ( m_AllignedToPoint && m_IsMoving == false )
+			{
+				m_IsMoving = true;
+				m_StartMovePosition = transform.position;
+			}
+
+			GoAtPoint( deltaTime );
+		}
+
 		// Not have a target
-		if ( m_Brain.CurrentTargetInfo.HasTarget == false )
+		if ( m_TargetInfo.HasTarget == false )
 			return;
 
 		// Not aligned to target
 		if ( m_AllignedGunToPoint == false )
 			return;
-
+		
 /*		// CLOSE RANGE COMBAT
 		if ( m_Brain.CurrentTargetInfo.TargetSqrDistance < m_CloseCombatRange * m_CloseCombatRange )
 		{
@@ -86,7 +119,6 @@ public class DroneStandard : Drone {
 */		{
 			FireLongRange( deltaTime );
 		}
-		
 	}
 
 }

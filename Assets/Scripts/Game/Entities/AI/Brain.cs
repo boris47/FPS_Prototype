@@ -20,7 +20,6 @@ public struct TargetInfo_t {
 
 // Brain Interface
 public interface IBrain {
-	TargetInfo_t				CurrentTargetInfo				{	get;	}
 	IFieldOfView				FieldOfView						{	get;	}
 	BrainState					State							{	get;	}
 
@@ -57,7 +56,7 @@ namespace AI_Behaviours {
 		*/
 
 		// INTERFACE START
-							TargetInfo_t				IBrain.CurrentTargetInfo		{	get { return m_CurrentTargetInfo;		}	}
+//							TargetInfo_t				IBrain.CurrentTargetInfo		{	get { return m_CurrentTargetInfo;		}	}
 							IFieldOfView				IBrain.FieldOfView				{	get { return m_FieldOfView;				}	}
 							BrainState					IBrain.State					{	get { return m_CurrentBrainState;		}	}
 		// INTERFACE END
@@ -78,25 +77,22 @@ namespace AI_Behaviours {
 		private				IFieldOfView				m_FieldOfView					= null;
 		private				IEntity						m_ThisEntity					= null;
 
-		private				TargetInfo_t				m_CurrentTargetInfo				= default( TargetInfo_t );
+//		private				TargetInfo_t				m_CurrentTargetInfo				= default( TargetInfo_t );
 							
 
 
 		private void	Awake()
 		{
-/*
-			m_BehaviourEvasive				= new Behaviour_Evasive		( this,		null								);
+/*			m_BehaviourEvasive				= new Behaviour_Evasive		( this,		null								);
 			m_BehaviourNormal				= new Behaviour_Normal		( this,		null								);
 			m_BehaviourAggressiveAlarmed	= new Behaviour_Aggressive	( this,		null,		AggresiveMode.ALARMED	);
 			m_BehaviourAggressiveSeeker		= new Behaviour_Aggressive	( this,		null,		AggresiveMode.SEEKER	);
 			m_BehaviourAggressiveAttacker	= new Behaviour_Aggressive	( this,		null,		AggresiveMode.ATTACKER	);
 			m_CurrentBrain = m_BehaviourNormal;
 */
-
 			m_ThisEntity					= transform.GetComponent<IEntity>();
 			m_FieldOfView					= transform.GetComponentInChildren<IFieldOfView>();
 			m_FieldOfView.Setup( maxVisibleEntities : 10 );
-
 		}
 
 
@@ -108,9 +104,7 @@ namespace AI_Behaviours {
 			m_ThinkTimer += dt;
 			if ( m_ThinkTimer > THINK_TIMER )
 			{
-				m_FieldOfView.UpdateFOV( out m_CurrentTargetInfo );
-
-//				m_CurrentBrain.OnThink();
+				m_FieldOfView.UpdateFOV();
 				m_ThisEntity.OnThink();
 				m_ThinkTimer = 0f;
 			}

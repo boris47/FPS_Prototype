@@ -364,7 +364,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Health: 1
-  m_ViewRange: -1
   m_UseDistance: 2
   m_Stamina: 0
   m_WalkSpeed: 3

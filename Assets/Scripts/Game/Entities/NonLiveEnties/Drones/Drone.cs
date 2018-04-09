@@ -34,6 +34,8 @@ public abstract class Drone : NonLiveEntity {
 
 	protected	Entity			m_Instance					= null;
 	protected	float			m_CloseCombatDelayInternal	= 0f;
+	protected		Vector3		m_StartMovePosition			= Vector3.zero;
+	protected		float		m_DistanceToTravel			= 0f;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -111,8 +113,8 @@ public abstract class Drone : NonLiveEntity {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// GoAtPoint ( Override )
-	protected override void GoAtPoint( float deltaTime )
+	// GoAtPoint
+	protected	void	GoAtPoint( float deltaTime )
 	{
 		if ( m_IsMoving == false )
 			return;
@@ -135,7 +137,7 @@ public abstract class Drone : NonLiveEntity {
 
 	//////////////////////////////////////////////////////////////////////////
 	// FireLongRange ( Override )
-	protected override void FireLongRange( float deltaTime )
+	protected void FireLongRange( float deltaTime )
 	{
 		if ( m_ShotTimer > 0 )
 				return;
@@ -151,7 +153,7 @@ public abstract class Drone : NonLiveEntity {
 
 	//////////////////////////////////////////////////////////////////////////
 	// FireCloseRange ( Override )
-	protected override void FireCloseRange( float deltaTime )
+	protected void FireCloseRange( float deltaTime )
 	{
 		if ( m_CloseCombatDelayInternal < 0f )
 		{
@@ -160,6 +162,31 @@ public abstract class Drone : NonLiveEntity {
 
 			// TODO: add a attack/hit effect
 		}	
+	}
+
+
+
+	public override void OnHit( ref IBullet bullet )
+	{
+		base.OnHit( ref bullet );
+
+		m_DistanceToTravel	= ( transform.position - m_PointToFace ).sqrMagnitude;
+
+		if ( bullet is GranadeBase )
+		{
+			m_PointToFace = bullet.Transform.position;
+			m_DistanceToTravel	= 0f;	
+		}	
+	}
+
+	public override void OnThink()
+	{
+		base.OnThink();
+
+		if ( m_TargetInfo.HasTarget == true )
+		{
+			m_DistanceToTravel	= ( transform.position - m_PointToFace ).sqrMagnitude;
+		}
 	}
 
 }

@@ -22,3 +22,7 @@ DamageMin	= 3.0;
 [TurretHard]  : TurretArmored
 DamageMax	= 8.0;
 DamageMin	= 5.0;
+
+[TurretHidden]  : TurretStandard
+DamageMax	= 8.0;
+DamageMin	= 5.0;

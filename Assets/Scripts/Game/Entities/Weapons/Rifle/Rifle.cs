@@ -244,8 +244,7 @@ public class Rifle : Weapon
 		else
 			m_FireTimer = m_ShotDelay * 15f;
 
-//		if ( m_ZoomedIn == false )
-			m_Animator.Play( m_FireAnim.name, -1, 0f );
+		m_Animator.Play( m_FireAnim.name, -1, 0f );
 			
 		m_Magazine --;
 

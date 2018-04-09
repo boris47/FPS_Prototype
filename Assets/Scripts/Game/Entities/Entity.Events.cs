@@ -9,19 +9,33 @@ public abstract partial class Entity {
 	public	event		VoidArgsDelegate	OnKilled		= null;
 
 
+	//////////////////////////////////////////////////////////////////////////
+	// OnTargetAquired ( Abstract )
+	public	abstract	void				OnTargetAquired( TargetInfo_t targetInfo );
+	
+	
+	//////////////////////////////////////////////////////////////////////////
+	// OnTargetChanged ( Abstract )
+	public	abstract	void				OnTargetChanged( TargetInfo_t targetInfo );
+
+	
+	//////////////////////////////////////////////////////////////////////////
+	// OnTargetLost ( Abstract )
+	public	abstract	void				OnTargetLost( TargetInfo_t targetInfo );
+
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnHit
+	// OnHit ( Abstract )
 	public	abstract	void				OnHit( ref IBullet bullet );
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnHurt
-	public	abstract	void				OnHurt( ref IBullet bullet );
+//	public	abstract	void				OnHurt( ref IBullet bullet );
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnKill
+	// OnKill ( Virtual )
 	public	virtual		void				OnKill()
 	{
 		if ( OnKilled != null )
@@ -30,7 +44,7 @@ public abstract partial class Entity {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnThink
+	// OnThink ( Abstract )
 	public	abstract	void				OnThink();
 
 }

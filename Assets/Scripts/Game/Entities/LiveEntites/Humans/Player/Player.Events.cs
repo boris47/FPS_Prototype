@@ -4,6 +4,13 @@ using UnityEngine;
 
 public partial class Player {
 
+	public override void OnTargetAquired( TargetInfo_t targetInfo )	{ }
+	public override void OnTargetChanged( TargetInfo_t targetInfo ) { }
+	public override void OnTargetLost( TargetInfo_t targetInfo )	{ }
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnHit ( Override )
 	public	override		void	OnHit( ref IBullet bullet )
 	{
 		float damage = Random.Range( bullet.DamageMin, bullet.DamageMax );
@@ -15,17 +22,8 @@ public partial class Player {
 	}
 
 
-	public	override		void	OnHurt( ref IBullet bullet )
-	{
-		float damage = Random.Range( bullet.DamageMin, bullet.DamageMax );
-		m_Health -= damage;
-		UI_InGame.Instance.UpdateUI();
-
-		if ( m_Health < 0f )
-			OnKill();
-	}
-
-
+	//////////////////////////////////////////////////////////////////////////
+	// OnKill ( Override )
 	public	override		void	OnKill()
 	{
 		print( "U r dead" );
@@ -35,6 +33,8 @@ public partial class Player {
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
+	// OnDashTargetUsed
 	private					void	OnDashTargetUsed( ref DashTarget target )
 	{
 		if ( m_IsDashing )

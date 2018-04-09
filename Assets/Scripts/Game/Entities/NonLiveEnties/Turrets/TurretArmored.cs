@@ -5,7 +5,11 @@ using UnityEngine;
 public class TurretArmored : Turret {
 
 
-	// Hitted by long range weapon
+	public override void OnTargetAquired( TargetInfo_t targetInfo )	{ }
+	public override void OnTargetChanged( TargetInfo_t targetInfo ) { }
+	public override void OnTargetLost( TargetInfo_t targetInfo )	{ }
+
+
 	//////////////////////////////////////////////////////////////////////////
 	// OnHit ( Override )
 	public override void OnHit( ref IBullet bullet )
@@ -27,17 +31,6 @@ public class TurretArmored : Turret {
 
 		if ( m_Health < 0f )
 			OnKill();
-	}
-
-
-	// Hitted by close range weapon
-	//////////////////////////////////////////////////////////////////////////
-	// OnHurt ( Override )
-	public override void OnHurt( ref IBullet bullet )
-	{
-		base.OnHurt( ref bullet );
-
-
 	}
 
 
@@ -66,7 +59,7 @@ public class TurretArmored : Turret {
 	{
 		base.OnFrame( deltaTime );
 
-		if ( m_Brain.CurrentTargetInfo.HasTarget == false )
+		if ( m_TargetInfo.HasTarget == false )
 			return;
 
 		if ( m_AllignedGunToPoint == false )
