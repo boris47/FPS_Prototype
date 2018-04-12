@@ -76,15 +76,21 @@ public abstract class Drone : NonLiveEntity {
 		// BULLETS POOL CREATION
 		{
 			GameObject	bulletGO		= m_BulletGameObject;
-			m_Pool = new GameObjectsPool<Bullet>( ref bulletGO, 5, destroyModel : false, actionOnObject : ( Bullet o ) =>
-			{
-				o.SetActive( false );
-				o.Setup( damageMin : m_DamageLongRangeMin, damageMax : m_DamageLongRangeMax, canPenetrate : false, whoRef : this, weapon : null );
-				Physics.IgnoreCollision( o.Collider, m_PhysicCollider, ignore : true );
-				if ( m_Shield != null )
-					Physics.IgnoreCollision( o.Collider, m_Shield.Collider, ignore : true );
-			} );
-			m_Pool.ContainerName = name + "BulletPool";
+			m_Pool = new GameObjectsPool<Bullet>
+			(
+				model			: ref bulletGO,
+				size			: 5,
+				destroyModel	: false,
+				containerName	: name + "BulletPool",
+				actionOnObject	: ( Bullet o ) =>
+				{
+					o.SetActive( false );
+					o.Setup( damageMin : m_DamageLongRangeMin, damageMax : m_DamageLongRangeMax, canPenetrate : false, whoRef : this, weapon : null );
+					Physics.IgnoreCollision( o.Collider, m_PhysicCollider, ignore : true );
+					if ( m_Shield != null )
+						Physics.IgnoreCollision( o.Collider, m_Shield.Collider, ignore : true );
+				}
+			);
 		}
 	}
 

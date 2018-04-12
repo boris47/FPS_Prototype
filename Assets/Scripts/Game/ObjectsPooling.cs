@@ -87,18 +87,13 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	private	ObjectsPool<T>	m_ObjectsPool		= null;
 	private	int				m_InternalIndex		= 0;
 
-	public	string			ContainerName
-	{
-		set { m_Container.name = value; }
-	}
-
 		//////////////////////////////////////////////////////////////////////////
 	// Constructor
-	public	GameObjectsPool( ref GameObject model, uint size, bool destroyModel, System.Action<T> actionOnObject = null )
+	public	GameObjectsPool( ref GameObject model, uint size, bool destroyModel, string containerName = "GameObjectsContainer_", System.Action<T> actionOnObject = null )
 	{
 		if ( m_Container == null )
 		{
-			m_Container = new GameObject( "GameObjectsContainer_" + Counter.ToString() );
+			m_Container = new GameObject( containerName + Counter.ToString() );
 			Counter ++;
 		}
 

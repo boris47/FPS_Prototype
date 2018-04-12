@@ -343,12 +343,32 @@ namespace WeatherSystem {
 
 			// Create Sun
 			{
-				Sun = transform.GetChild( 0 ).GetComponent<Light>();
+				Transform child = ( transform.childCount > 0 ) ? transform.GetChild( 0 ) : null;
+				if ( child == null )
+				{
+					child = new GameObject( "Sun" ).transform;
+					child.SetParent( this.transform );
+					child.gameObject.AddComponent<Light>();
+				}
+				Sun = child.GetComponent<Light>();
+
+				if ( Sun == null )
+				{
+					Sun = child.gameObject.AddComponent<Light>();
+				}
+
+				Sun.type				= LightType.Directional;
+				Sun.lightmapBakeType	= LightmapBakeType.Realtime;
+				Sun.shadows				= LightShadows.Soft;
 			}
+
+			// Setup for Environment
+			RenderSettings.sun = Sun;
+			RenderSettings.skybox = m_SkyMaterial;
 
 			// Defaults
 			string startTime = "09:30:00";	
-			string startWeather = "Rainy";
+			string startWeather = "Clear";
 
 			// Get info from settings file
 			if ( GameManager.Configs != null )

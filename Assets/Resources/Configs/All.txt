@@ -9,7 +9,7 @@
 
 [Time]
 TimeFactor			= 1.0;
-StartTime			= 08:00:00
+StartTime			= 07:00:00
 StartWeather		= "Clear"
 
 [Thunderbolts]

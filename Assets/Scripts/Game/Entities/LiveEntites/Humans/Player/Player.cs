@@ -194,6 +194,18 @@ public partial class Player : Human {
 			m_TourchLight.Toggle();
 		}
 
+		if ( InputManager.Inputs.SwitchPrev )
+		{
+			CurrentWeapon.ChangeWeapon( -1 );
+		}
+
+		if ( InputManager.Inputs.SwitchNext )
+		{
+			CurrentWeapon.ChangeWeapon( 1 );
+		}
+
+
+
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Pick eventual collision info from camera to up
 		{

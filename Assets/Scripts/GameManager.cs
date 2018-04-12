@@ -6,7 +6,7 @@ using UnityEngine;
 [System.Serializable]
 public class GameEvent      : UnityEngine.Events.UnityEvent { }
 
-public class GameManager : MonoBehaviour {
+public partial class GameManager : MonoBehaviour {
 
 	public	static Reader			Settings	= null;
 

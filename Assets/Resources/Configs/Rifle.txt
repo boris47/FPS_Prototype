@@ -2,3 +2,4 @@
 
 [Rifle]
 Damage				= 6.0;
+ZoomingTime			= 0.2;

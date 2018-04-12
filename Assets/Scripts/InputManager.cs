@@ -7,17 +7,22 @@ public struct inputs_t {
 	public	bool	LeanLeft, LeanRight;
 	public	bool	Crouch, Jump, Run;
 	public	bool	Use;
+	public	bool	SwitchPrev, SwitchNext;
 	public	bool	Item1, Item2, Item3, Item4;
 	public	bool	ItemAction1, ItemAction2, ItemAction3;
 	public	bool	Fire1, Fire2, Fire1Loop, Fire2Loop, Fire1Released, Fire2Released;
 	public	bool	Reload;
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// Reset
 	public void Reset()
 	{
 		Forward = Backward = StrafeLeft = StrafeRight =
 		LeanLeft = LeanRight =
 		Crouch = Jump = Run =
 		Use =
+		SwitchPrev = SwitchNext =
 		Item1 = Item2 = Item3 = Item4 =
 		ItemAction1 = ItemAction2 = ItemAction3 =
 		Fire1 = Fire2 = Fire1Loop = Fire2Loop = Fire1Released = Fire2Released =
@@ -40,8 +45,9 @@ public class InputManager {
 
 	public	static	bool			IsEnabled		= true;
 	
-	// Update is called once per frame
-	public void	Update ()
+	//////////////////////////////////////////////////////////////////////////
+	// Update
+	public void	Update()
 	{
 		if ( IsEnabled == false )
 			return;
@@ -73,6 +79,9 @@ public class InputManager {
 
 		m_Inputs.Use			= Input.GetKeyDown ( KeyCode.F ) || Input.GetKeyDown ( KeyCode.Return );
 
+		m_Inputs.SwitchPrev		= Input.mouseScrollDelta.y > 0;
+		m_Inputs.SwitchNext		= Input.mouseScrollDelta.y < 0;
+
 		m_Inputs.Item1			= Input.GetKeyDown ( KeyCode.F1 ) || Input.GetKeyDown ( KeyCode.Keypad1 );
 		m_Inputs.Item2			= Input.GetKeyDown ( KeyCode.F2 ) || Input.GetKeyDown ( KeyCode.Keypad2 );
 		m_Inputs.Item3			= Input.GetKeyDown ( KeyCode.F3 ) || Input.GetKeyDown ( KeyCode.Keypad3 );
@@ -92,6 +101,5 @@ public class InputManager {
 		m_Inputs.Fire2Released	= Input.GetKeyUp( KeyCode.Mouse2 );
 
 		m_Inputs.Reload			= Input.GetKeyDown( KeyCode.R );
-
 	}
 }

@@ -5452,6 +5452,9 @@ MonoBehaviour:
   m_Bullet1GameObject: {fileID: 1704016487070346}
   m_Bullet2GameObject: {fileID: 0}
   m_ZoomOffset: {x: -0.0599, y: -0.01, z: 0}
+  m_FireAnim: {fileID: 7400000, guid: 71c430a232f539b459e35ecc7cc7001d, type: 3}
+  m_ReloadAnim: {fileID: 7400000, guid: a4dbfbd2851f33e46acca78fce91389f, type: 3}
+  m_DrawAnim: {fileID: 7400000, guid: bfb4cd7d20f86f443b2cc461b1143d8c, type: 3}
   m_Damage: 5
   m_Magazine: 42
   m_MagazineCapacity: 42
@@ -5459,15 +5462,12 @@ MonoBehaviour:
   m_FirePointFirst: {fileID: 4817637554360570}
   m_FirePointSecond: {fileID: 0}
   m_SlowMotionCoeff: 1
-  m_Animator: {fileID: 95556688490613714}
-  m_FireAnim: {fileID: 7400000, guid: 71c430a232f539b459e35ecc7cc7001d, type: 3}
-  m_ReloadAnim: {fileID: 7400000, guid: a4dbfbd2851f33e46acca78fce91389f, type: 3}
-  m_DrawAnim: {fileID: 7400000, guid: bfb4cd7d20f86f443b2cc461b1143d8c, type: 3}
+  m_ZoomingTime: 1
   m_AudioSourceFire1: {fileID: 82281290498818910}
   m_AudioSourceFire2: {fileID: 82118712888995268}
   m_ShotDelay: 0.09
   m_CamDeviation: 1
-  m_FireDispersion: 0.035
+  m_FireDispersion: 0.02
 --- !u!114 &114209431965998590
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -5482,6 +5482,9 @@ MonoBehaviour:
   m_Bullet1GameObject: {fileID: 1766069990974282}
   m_Bullet2GameObject: {fileID: 0}
   m_ZoomOffset: {x: -0.064, y: -0.01, z: 0}
+  m_FireAnim: {fileID: 7400000, guid: c58cca70d8e5a18488ba2af50941e736, type: 3}
+  m_ReloadAnim: {fileID: 7400000, guid: a4dbfbd2851f33e46acca78fce91389f, type: 3}
+  m_DrawAnim: {fileID: 7400000, guid: bfb4cd7d20f86f443b2cc461b1143d8c, type: 3}
   m_Damage: 5
   m_Magazine: 42
   m_MagazineCapacity: 42
@@ -5489,10 +5492,7 @@ MonoBehaviour:
   m_FirePointFirst: {fileID: 4062119523548566}
   m_FirePointSecond: {fileID: 0}
   m_SlowMotionCoeff: 1
-  m_Animator: {fileID: 95175786385758148}
-  m_FireAnim: {fileID: 7400000, guid: c58cca70d8e5a18488ba2af50941e736, type: 3}
-  m_ReloadAnim: {fileID: 7400000, guid: a4dbfbd2851f33e46acca78fce91389f, type: 3}
-  m_DrawAnim: {fileID: 7400000, guid: bfb4cd7d20f86f443b2cc461b1143d8c, type: 3}
+  m_ZoomingTime: 1
   m_AudioSourceFire1: {fileID: 82361980739612942}
   m_AudioSourceFire2: {fileID: 82050699291584466}
   m_ShotDelay: 0.09
@@ -5583,6 +5583,9 @@ MonoBehaviour:
   m_Bullet1GameObject: {fileID: 1022476795121846}
   m_Bullet2GameObject: {fileID: 1472223091863832}
   m_ZoomOffset: {x: -0.064, y: -0.01, z: 0}
+  m_FireAnim: {fileID: 7400000, guid: c58cca70d8e5a18488ba2af50941e736, type: 3}
+  m_ReloadAnim: {fileID: 7400000, guid: a4dbfbd2851f33e46acca78fce91389f, type: 3}
+  m_DrawAnim: {fileID: 7400000, guid: bfb4cd7d20f86f443b2cc461b1143d8c, type: 3}
   m_Damage: 5
   m_Magazine: 42
   m_MagazineCapacity: 42
@@ -5590,10 +5593,7 @@ MonoBehaviour:
   m_FirePointFirst: {fileID: 4635565931512590}
   m_FirePointSecond: {fileID: 4737935913899006}
   m_SlowMotionCoeff: 1
-  m_Animator: {fileID: 95071462126357074}
-  m_FireAnim: {fileID: 7400000, guid: c58cca70d8e5a18488ba2af50941e736, type: 3}
-  m_ReloadAnim: {fileID: 7400000, guid: a4dbfbd2851f33e46acca78fce91389f, type: 3}
-  m_DrawAnim: {fileID: 7400000, guid: bfb4cd7d20f86f443b2cc461b1143d8c, type: 3}
+  m_ZoomingTime: 1
   m_AudioSourceFire1: {fileID: 82783435004495410}
   m_AudioSourceFire2: {fileID: 82609173761328568}
   m_ShotDelay: 0.09
