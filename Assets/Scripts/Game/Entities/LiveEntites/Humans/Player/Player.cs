@@ -10,8 +10,6 @@ public partial class Player : Human {
 
 	public	static	Player			Instance						= null;
 
-	public		IWeapon				CurrentWeapon					{ get; set; }
-
 	// DASHING
 	private		bool				m_IsDashing						= false;
 	public		bool				IsDashing
@@ -28,6 +26,8 @@ public partial class Player : Human {
 
 	private		ITourchLight		m_TourchLight					= null;
 
+	private		RaycastHit			m_RaycastHit;
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -40,11 +40,9 @@ public partial class Player : Human {
 			return;
 		}
 		Instance = this;
-//		DontDestroyOnLoad( this );
+		DontDestroyOnLoad( this );
 
 		base.Awake();
-		 
-		
 
 		// Player Components
 		{
@@ -119,7 +117,6 @@ public partial class Player : Human {
 	}
 
 
-
 	//////////////////////////////////////////////////////////////////////////
 	// DropEntityDragged
 	public	void	DropEntityDragged()
@@ -171,13 +168,13 @@ public partial class Player : Human {
 	}
 
 
-
-	private RaycastHit m_RaycastHit;
-
+	//////////////////////////////////////////////////////////////////////////
+	// Update
 	private void Update()
 	{
 		this.OnFrame( Time.deltaTime );
 	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnFrame
@@ -194,14 +191,14 @@ public partial class Player : Human {
 			m_TourchLight.Toggle();
 		}
 
+		// Weapon switch
 		if ( InputManager.Inputs.SwitchPrev )
 		{
-			CurrentWeapon.ChangeWeapon( -1 );
+			WeaponManager.Instance.ChangeWeapon( -1 );
 		}
-
 		if ( InputManager.Inputs.SwitchNext )
 		{
-			CurrentWeapon.ChangeWeapon( 1 );
+			WeaponManager.Instance.ChangeWeapon( 1 );
 		}
 
 
@@ -390,10 +387,10 @@ public partial class Player : Human {
 		// rotate the capsule of the player
 		transform.rotation = Quaternion.Euler( Vector3.Scale( CameraControl.Instance.transform.rotation.eulerAngles, Vector3.up ) );
 
-		if ( CurrentWeapon.FirePoint1 != null )
+		if ( WeaponManager.Instance.CurrentWeapon.FirePoint1 != null )
 		{
-			m_TourchLight.Transform.position = CurrentWeapon.FirePoint1.position;
-			m_TourchLight.Transform.forward = CurrentWeapon.FirePoint1.forward;
+			m_TourchLight.Transform.position = WeaponManager.Instance.CurrentWeapon.FirePoint1.position;
+			m_TourchLight.Transform.forward = WeaponManager.Instance.CurrentWeapon.FirePoint1.forward;
 		}
 
 

@@ -14,7 +14,13 @@ public class EffectManager : MonoBehaviour {
 		if ( m_ParticleSystemOnHit == null )
 			return;
 
+		if ( Instance != null )
+		{
+			Destroy( gameObject );
+			return;
+		}
 		Instance = this;
+		DontDestroyOnLoad( this );
 	}
 
 

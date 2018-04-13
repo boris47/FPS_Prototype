@@ -87,9 +87,10 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	private	ObjectsPool<T>	m_ObjectsPool		= null;
 	private	int				m_InternalIndex		= 0;
 
-		//////////////////////////////////////////////////////////////////////////
+
+	//////////////////////////////////////////////////////////////////////////
 	// Constructor
-	public	GameObjectsPool( ref GameObject model, uint size, bool destroyModel, string containerName = "GameObjectsContainer_", System.Action<T> actionOnObject = null )
+	public	GameObjectsPool( ref GameObject model, uint size, bool destroyModel, string containerName = "GameObjectsContainer_", bool permanent = false, System.Action<T> actionOnObject = null )
 	{
 		if ( m_Container == null )
 		{
@@ -97,16 +98,15 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 			Counter ++;
 		}
 
+		if ( permanent == true )
+			Object.DontDestroyOnLoad( m_Container );
+
 		T[] array = new T[ size ];
 		m_ObjectsPool = new ObjectsPool<T>( size );
 
 		for ( int i = 0; i < size; i++ )
 		{
-
-
-			GameObject objectCopy = Object.Instantiate( model ); // new GameObject( model.name + "_" + i );		objectCopy.hideFlags = HideFlags.NotEditable;
-
-//			Utils.Base.Clone( ref model, ref objectCopy, true );
+			GameObject objectCopy = Object.Instantiate( model );
 
 			objectCopy.transform.SetParent( m_Container.transform );
 

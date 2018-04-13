@@ -27,21 +27,19 @@ public class Rifle : Weapon
 	private		GameObjectsPool<Bullet>			m_PoolBulletsSecond					= null;
 //	private		float							m_AnimatorStdSpeed					= 1f;
 	private		bool							m_IsRecharging						= false;
-	private		float							m_CrosshairMaxDisp					= 1f;
+//	private		float							m_CrosshairMaxDisp					= 1f;
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
 	protected	override void	Awake()
 	{
-		if ( m_FireAnim == null )
-			Debug.LogError("Please assign a fire aimation in the inspector!");
-		if ( m_ReloadAnim == null )
-			Debug.LogError("Please assign a reload animation in the inspector!");
-		if ( m_DrawAnim == null )
-			Debug.LogError("Please assign a draw animation in the inspector!");
-
 		base.Awake();
+
+		SoundEffectManager.Instance.RegisterSource( ref m_AudioSourceFire1 );
+		SoundEffectManager.Instance.RegisterSource( ref m_AudioSourceFire2 );
+		m_AudioSourceFire1.volume = SoundEffectManager.Instance.Volume;
+		m_AudioSourceFire2.volume = SoundEffectManager.Instance.Volume;
 
 		// LOAD CONFIGURATION
 		{
@@ -50,7 +48,7 @@ public class Rifle : Weapon
 
 			m_Damage			= section.AsFloat( "Damage", m_Damage );
 			m_ZoomingTime		= section.AsFloat( "ZoomingTime", m_ZoomingTime );
-			m_CrosshairMaxDisp	= section.AsFloat( "CrosshairMaxDisp", m_CrosshairMaxDisp );
+//			m_CrosshairMaxDisp	= section.AsFloat( "CrosshairMaxDisp", m_CrosshairMaxDisp );
 		}
 
 		m_Magazine = m_MagazineCapacity;
@@ -65,6 +63,7 @@ public class Rifle : Weapon
 					size			: m_MagazineCapacity,
 					destroyModel	: false,
 					containerName	: "RifleBulletsPoolFirst",
+					permanent		: true,
 					actionOnObject	: ( Bullet o ) =>
 					{
 						o.SetActive( false );
@@ -83,6 +82,7 @@ public class Rifle : Weapon
 					size			: 10,
 					destroyModel	: false,
 					containerName	: "RifleBulletsPoolSecond",
+					permanent		: true,
 					actionOnObject	: ( Bullet o ) =>
 					{
 						o.SetActive( false );
@@ -91,19 +91,8 @@ public class Rifle : Weapon
 					}
 				);
 			}
-
 		}
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnEnable
-	private		void OnEnable()
-	{
-		Player.Instance.CurrentWeapon = this;
-
-		UI_InGame.Instance.UpdateUI();
-
+//		DontDestroyOnLoad( this );
 		m_LockTimer = m_DrawAnim.length;
 	}
 
@@ -114,6 +103,14 @@ public class Rifle : Weapon
 	{
 		m_FireTimer -= Time.deltaTime;
 		
+		if ( InputManager.Inputs.ItemAction1 && m_InTransition == false )
+		{
+			if ( WeaponManager.Instance.Zoomed == false )
+				WeaponManager.Instance.ZoomIn( this, m_ZoomOffset, m_ZoomingTime );
+			else
+				WeaponManager.Instance.ZoomOut();
+		}
+
 		// Reloading
 		if ( m_LockTimer > 0f )
 		{
@@ -130,19 +127,12 @@ public class Rifle : Weapon
 			{
 				m_IsRecharging = false;
 				m_Magazine = m_MagazineCapacity;
-				UI_InGame.Instance.UpdateUI();
+				UI.Instance.InGame.UpdateUI();
 			}
 			m_BrustCount = 0;
 			m_NeedRecharge = false;
 		}
 
-		if ( InputManager.Inputs.ItemAction1 && m_InTransition == false )
-		{
-			if ( m_ZoomedIn == true )
-				StartCoroutine( ZoomOut() );
-			else
-				StartCoroutine( ZoomIn() );
-		}
 
 		// Fire mode cycle
 		if ( InputManager.Inputs.ItemAction2 )
@@ -152,7 +142,7 @@ public class Rifle : Weapon
 			else
 				m_FireMode ++;
 
-			UI_InGame.Instance.UpdateUI();
+			UI.Instance.InGame.UpdateUI();
 		}
 
 		// End For Brust mode
@@ -184,7 +174,8 @@ public class Rifle : Weapon
 
 		if ( Player.Instance.IsRunning && m_ZoomedIn && m_InTransition == false )
 		{
-			StartCoroutine( ZoomOut() );
+			WeaponManager.Instance.ZoomOut();
+//			StartCoroutine( ZoomOut() );
 		}
 
 		if ( m_Magazine <= 0 || InputManager.Inputs.Reload || m_NeedRecharge )
@@ -196,7 +187,8 @@ public class Rifle : Weapon
 			{
 				if ( m_InTransition == false )
 				{
-					StartCoroutine( ZoomOut() );
+					WeaponManager.Instance.ZoomOut();
+//					StartCoroutine( ZoomOut() );
 					m_NeedRecharge = true;
 				}
 				return;
@@ -208,6 +200,28 @@ public class Rifle : Weapon
 		}
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	// CanChangeWeapon
+	public	override		bool	CanChangeWeapon()
+	{
+		if ( m_InTransition == true )
+			return false;
+
+		return true;	
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// FireSingleMode
+	public	override		void	OnWeaponChange()
+	{
+		m_IsRecharging	= false;
+		m_NeedRecharge	= false;
+		m_BrustCount	= 0;
+		m_LockTimer		= 0f;
+		m_FireTimer		= 0f;
+		enabled			= false;
+	}
 
 	//////////////////////////////////////////////////////////////////////////
 	// FireSingleMode
@@ -285,7 +299,7 @@ public class Rifle : Weapon
 		Shoot( ref bullet, ref position, ref direction, ref audioSource, finalDispersion );
 
 		// UPDATE UI
-		UI_InGame.Instance.UpdateUI();
+		UI.Instance.InGame.UpdateUI();
 	}
 
 
@@ -298,5 +312,13 @@ public class Rifle : Weapon
 		CameraControl.Instance.ApplyDispersion( camDispersion );
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnDestroy
+	private void OnDestroy()
+	{
+		SoundEffectManager.Instance.UnRegisterSource( ref m_AudioSourceFire1 );
+		SoundEffectManager.Instance.UnRegisterSource( ref m_AudioSourceFire2 );
+	}
 
 }

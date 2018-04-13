@@ -74,7 +74,10 @@ namespace WeatherSystem {
 			Transform audioSource = transform.Find( "AudioSources" ).Find( "Wind" );
 
 			m_AudioSourceWind = new LoopingAudioSource();
-			m_AudioSourceWind.AudioSource = audioSource.GetComponent<AudioSource>();
+
+			AudioSource source = audioSource.GetComponent<AudioSource>();
+			m_AudioSourceWind.AudioSource = source;
+			SoundEffectManager.Instance.RegisterSource( ref source );
 			m_AudioSourceWind.Silence();
 
 			m_State1.windMain			= 0f;
@@ -171,7 +174,7 @@ namespace WeatherSystem {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// UNITY
+		// Update
 		private void Update()
 		{
 			if ( EnableInEditor == false )
@@ -179,6 +182,15 @@ namespace WeatherSystem {
 
 			UpdateWind();
 			m_AudioSourceWind.Update();
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// OnDestroy
+		private void OnDestroy()
+		{
+			AudioSource source = m_AudioSourceWind.AudioSource;
+			SoundEffectManager.Instance.UnRegisterSource( ref source );
 		}
 
 	}

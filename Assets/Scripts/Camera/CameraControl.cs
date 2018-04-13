@@ -84,16 +84,19 @@ public partial class CameraControl : MonoBehaviour {
 	private	Vector3			m_WeaponRotationDelta		= Vector3.zero;
 
 
-	private void Awake()
+	//////////////////////////////////////////////////////////////////////////
+	// Awake
+	private	void	Awake()
 	{
 		// Sinlgeton
 		if ( Instance != null )
 		{
-			Destroy( gameObject );
+//			Destroy( gameObject );	// this prevent missing weapons transform
+			gameObject.SetActive( false );
 			return;
 		}
 		Instance = this;
-//		DontDestroyOnLoad( this );
+		DontDestroyOnLoad( this );
 
 		ClampedXAxis = true;
 
@@ -109,7 +112,10 @@ public partial class CameraControl : MonoBehaviour {
 
 	}
 
-	void Start()
+
+	//////////////////////////////////////////////////////////////////////////
+	// Start
+	private	void	Start()
 	{
 
 		m_CurrentDirection = transform.rotation.eulerAngles;
@@ -120,7 +126,8 @@ public partial class CameraControl : MonoBehaviour {
 	}
 
 	           
-
+	//////////////////////////////////////////////////////////////////////////
+	// ApplyDispersion
 	public	void	ApplyDispersion( float range )
 	{
 		m_CurrentDispersion.x += Random.Range( -range, -range * 0.5f );
@@ -128,7 +135,9 @@ public partial class CameraControl : MonoBehaviour {
 	}
 
 
-	private void Update()
+	//////////////////////////////////////////////////////////////////////////
+	// Update
+	private	void	Update()
 	{
 		if ( m_ViewPoint == null )
 			return;
@@ -153,12 +162,16 @@ public partial class CameraControl : MonoBehaviour {
 			m_HeadMove.Update( liveEntity : ref pLiveEnitiy, weight : pLiveEnitiy.IsMoving == true ? 0f : 1f );
 			
 			// Weapon movements
-			if ( Player.Instance.CurrentWeapon != null )
+			if ( WeaponManager.Instance.CurrentWeapon != null )
 			{
 				m_WeaponPositionDelta = m_HeadBob.WeaponPositionDelta + m_HeadMove.WeaponPositionDelta;
 				m_WeaponRotationDelta = m_HeadBob.WeaponRotationDelta + m_HeadMove.WeaponRotationDelta;
-				Player.Instance.CurrentWeapon.Transform.localPosition = m_WeaponPositionDelta;
-				Player.Instance.CurrentWeapon.Transform.localEulerAngles = m_WeaponRotationDelta;
+
+				Weapon.Array[ WeaponManager.Instance.CurrentWeaponIndex ].Transform.localPosition = m_WeaponPositionDelta;
+				Weapon.Array[ WeaponManager.Instance.CurrentWeaponIndex ].Transform.localEulerAngles = m_WeaponRotationDelta;
+
+//				Player.Instance.CurrentWeapon.Transform.localPosition = m_WeaponPositionDelta;
+//				Player.Instance.CurrentWeapon.Transform.localEulerAngles = m_WeaponRotationDelta;
 			}
 		}
 		else
@@ -166,11 +179,12 @@ public partial class CameraControl : MonoBehaviour {
 			m_HeadBob.Reset ( bInstantly : true );
 			m_HeadMove.Reset( bInstantly : false );
 		}
-
 	}
 
 
-	private void LateUpdate()
+	//////////////////////////////////////////////////////////////////////////
+	// LateUpdate
+	private	void	LateUpdate()
 	{
 		if ( m_ViewPoint == null )
 			return;

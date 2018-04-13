@@ -11,6 +11,7 @@ public enum FireModes {
 public interface IWeapon {
 
 	Transform				Transform			{ get; }
+	bool					Enabled				{ get; set; }
 	float					Damage				{ get; }
 	uint					Magazine			{ get; }
 	uint					MagazineCapacity	{ get; }
@@ -21,7 +22,10 @@ public interface IWeapon {
 	bool					FirstFireAvaiable	{ get; }
 	bool					SecondFireAvaiable	{ get; }
 
-	void					ChangeWeapon( int versus );
+	Animator				Animator			{ get; }
+
+	bool					CanChangeWeapon		();
+	void					OnWeaponChange		();
 }
 
 
@@ -29,9 +33,9 @@ public interface IWeapon {
 
 public abstract class Weapon : MonoBehaviour, IWeapon {
 
-	public	static	int					CurrentWeaponIndex			= 0;
-
 	[Header("Weapon Properties")]
+
+	public static	IWeapon[]			Array						= null;
 
 	[SerializeField]
 	protected	GameObject				m_Bullet1GameObject			= null;
@@ -41,15 +45,6 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 
 	[SerializeField]
 	protected	Vector3					m_ZoomOffset				= Vector3.zero;
-
-	[SerializeField]
-	protected	AnimationClip			m_FireAnim					= null;
-
-	[SerializeField]
-	protected	AnimationClip			m_ReloadAnim				= null;
-
-	[SerializeField]
-	protected	AnimationClip			m_DrawAnim					= null;
 
 	[SerializeField]
 	protected	float					m_Damage					= 5f;
@@ -84,6 +79,7 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 
 	// INTERFACE START
 				Transform				IWeapon.Transform			{ get { return transform; } }
+				bool					IWeapon.Enabled				{ get { return enabled; } set { enabled = value; } }
 				float					IWeapon.Damage				{ get { return m_Damage; } }
 				uint					IWeapon.Magazine			{ get { return m_Magazine; } }
 				uint					IWeapon.MagazineCapacity	{ get { return m_MagazineCapacity; } }
@@ -96,16 +92,34 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	// INTERFACE END
 
 
-//	[SerializeField]
-	protected		Animator			m_Animator					= null;
-	protected		float				m_LockTimer					= 0f;
+	protected	Animator				m_Animator					= null;
+	public		Animator				Animator
+	{
+		get { return m_Animator; }
+	}
 
-	private			Coroutine			m_ChangingWpnCO				= null;
+
+	protected	float					m_LockTimer					= 0f;
+	
+	protected	AnimationClip			m_FireAnim					= null;
+	protected	AnimationClip			m_ReloadAnim				= null;
+	protected	AnimationClip			m_DrawAnim					= null;
+
+	
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Virtual )
 	protected	virtual	void	Awake()
 	{
+		// Create weapons list
+		if ( Array == null )
+		{
+			Array = new IWeapon[ CameraControl.Instance.WeaponPivot.childCount ];
+		}
+
+		// Assign this weapon in the list
+		Array[ transform.GetSiblingIndex() ] = this;
+
 		if ( m_Bullet1GameObject == null )
 		{
 			print( "Weapon " + name + " need a defined bullet to use " );
@@ -125,8 +139,12 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 		{
 			m_SecondFireAvaiable = false;
 		}
-
-		m_Animator = transform.GetComponent<Animator>();
+		
+		// animations
+		m_Animator		= transform.GetComponent<Animator>();
+		m_FireAnim		= m_Animator.GetClipFromAnimator( "fire" );
+		m_ReloadAnim	= m_Animator.GetClipFromAnimator( "reload" );
+		m_DrawAnim		= m_Animator.GetClipFromAnimator( "draw" );
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -137,106 +155,9 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	}
 
 
-	//////////////////////////////////////////////////////////////////////////
-	// OnValidate ( Coroutine )
-	protected	IEnumerator	ZoomIn()
-	{
-		bool	prevFirstFireAvaiable = m_FirstFireAvaiable;
-		bool	prevSecondFireAvaiable = m_SecondFireAvaiable;
-		float	cameraStartFov = Camera.main.fieldOfView;
-		float	cameraFinalFov = cameraStartFov * 0.5f;
-		m_StartOffset = CameraControl.Instance.WeaponPivot.localPosition;
-		m_FirstFireAvaiable = false;
-		m_InTransition = true;
-
-		float	interpolant = 0f;
-		float	currentTime = 0f;
-
-		while( interpolant < 1f )
-		{
-			currentTime += Time.deltaTime;
-			interpolant =  currentTime / m_ZoomingTime;
-			CameraControl.Instance.WeaponPivot.localPosition	= Vector3.Lerp( m_StartOffset, m_ZoomOffset, interpolant );
-			CameraControl.Instance.MainCamera.fieldOfView		= Mathf.Lerp( cameraStartFov, cameraFinalFov, interpolant );
-			yield return null;
-		}
-
-		m_FirstFireAvaiable = prevFirstFireAvaiable;
-		m_SecondFireAvaiable = prevSecondFireAvaiable;
-		m_InTransition = false;
-		m_ZoomedIn = true;
-	}
+	public	abstract	bool	CanChangeWeapon();
 
 
-	//////////////////////////////////////////////////////////////////////////
-	// ZoomOut ( Coroutine )
-	protected	IEnumerator	ZoomOut()
-	{
-		bool	prevFirstFireAvaiable = m_FirstFireAvaiable;
-		bool	prevSecondFireAvaiable = m_SecondFireAvaiable;
-		float	cameraStartFov = Camera.main.fieldOfView;
-		float	cameraFinalFov = cameraStartFov * 2.0f;
-
-		m_FirstFireAvaiable = false;
-		m_InTransition = true;
-
-		float	interpolant = 0f;
-		float	currentTime = 0f;
-
-		while( interpolant < 1f )
-		{	
-			currentTime += Time.deltaTime;
-			interpolant = currentTime / m_ZoomingTime;
-			CameraControl.Instance.WeaponPivot.localPosition	= Vector3.Lerp( m_ZoomOffset, m_StartOffset, interpolant );
-			CameraControl.Instance.MainCamera.fieldOfView		= Mathf.Lerp( cameraStartFov, cameraFinalFov, interpolant );
-			yield return null;
-		}
-
-		m_FirstFireAvaiable = prevFirstFireAvaiable;
-		m_SecondFireAvaiable = prevSecondFireAvaiable;
-		m_InTransition = false;
-		m_ZoomedIn = false;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// ChangeWeapon
-	public	void	ChangeWeapon( int versus )
-	{
-		if ( m_ChangingWpnCO != null )
-			return;
-
-		Transform weaponPivot = CameraControl.Instance.transform.GetChild( 0 );
-		int lastWeapIdx = weaponPivot.childCount - 1;
-
-		int tempIdx = versus + CurrentWeaponIndex;
-		if ( tempIdx == -1 )
-		{
-			tempIdx = lastWeapIdx;
-		}
-
-		if ( tempIdx > lastWeapIdx )
-		{
-			tempIdx = 0;
-		}
-
-		m_ChangingWpnCO = StartCoroutine( ChangeWeaponCO( weaponPivot, tempIdx ) );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// ChangeWeaponCO ( Coroutine )
-	private	IEnumerator	ChangeWeaponCO( Transform weaponPivot, int wpnIndex )
-	{
-		m_Animator.Play( "stash", -1, 0.0f );
-		m_LockTimer = m_DrawAnim.length;
-
-		yield return new WaitForSeconds( m_DrawAnim.length );
-
-		weaponPivot.GetChild( wpnIndex ).gameObject.SetActive( true );
-		weaponPivot.GetChild( CurrentWeaponIndex ).gameObject.SetActive( false );
-		CurrentWeaponIndex = wpnIndex;
-		m_ChangingWpnCO = null;
-	}
+	public	abstract	void	OnWeaponChange();
 
 }

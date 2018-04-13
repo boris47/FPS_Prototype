@@ -77,24 +77,10 @@ namespace WeatherSystem {
 #region INITIALIZATION
 
 		//////////////////////////////////////////////////////////////////////////
-		// START
-		private void			Start()
-		{
-#if UNITY_EDITOR
-			if ( UnityEditor.EditorApplication.isPlaying == false )
-				return;
-#endif
-
-			m_RainEvent = FMODUnity.RuntimeManager.CreateInstance( m_RainSound );
-			m_RainEvent.getParameter( "RainIntensity", out m_RainIntensityEvent );
-			m_RainEvent.start();
-		}
-
-
-		//////////////////////////////////////////////////////////////////////////
 		// OnEnable
 		private void			OnEnable()
 		{
+			Instance = this;
 			m_Camera = Camera.current;
 
 			//	m_RainFallParticleSystem Child
@@ -214,7 +200,6 @@ namespace WeatherSystem {
 			
 			m_NextThunderTimer = Random.Range( m_ThunderTimerMin, m_ThunderTimerMax );
 
-			Instance = this;
 		}
 
 
@@ -230,6 +215,28 @@ namespace WeatherSystem {
 
 			m_RainEvent.stop( STOP_MODE.IMMEDIATE );
 			m_RainEvent.release();
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// START
+		private void			Start()
+		{
+#if UNITY_EDITOR
+			if ( UnityEditor.EditorApplication.isPlaying == false )
+				return;
+#endif
+
+			System.Array.ForEach( m_ThunderAudioSources, ( AudioSource s ) =>
+				{
+					SoundEffectManager.Instance.RegisterSource( ref s );
+					s.volume = SoundEffectManager.Instance.Volume;
+				}
+			);
+
+			m_RainEvent = FMODUnity.RuntimeManager.CreateInstance( m_RainSound );
+			m_RainEvent.getParameter( "RainIntensity", out m_RainIntensityEvent );
+			m_RainEvent.start();
 		}
 
 #endregion
@@ -409,7 +416,7 @@ namespace WeatherSystem {
 			m_RainIntensityEvent.setValue( m_RainIntensity );
 		}
 
-#endregion
+		#endregion
 
 	}
 

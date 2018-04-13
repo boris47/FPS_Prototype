@@ -15,7 +15,7 @@ public partial class Player {
 
 	private	IEnumerator	DashStartEffect( DashTarget target )
 	{
-		UnityEngine.UI.Image effectFrame	= UI_InGame.Instance.GetEffectFrame();
+		UnityEngine.UI.Image effectFrame	= UI.Instance.InGame.GetEffectFrame();
 		Camera	camera						= Camera.main;
 		float	fovStartVal					= 60f;
 		float	fovEndVal					= 100f;
@@ -48,7 +48,7 @@ public partial class Player {
 		float	currentTime					= 0f;
 		float	interpolant					= 0f;
 		var		settings					= CameraControl.Instance.GetPP_Profile.motionBlur.settings;
-		UnityEngine.UI.Image effectFrame	= UI_InGame.Instance.GetEffectFrame();
+		UnityEngine.UI.Image effectFrame	= UI.Instance.InGame.GetEffectFrame();
 
 		CameraControl.Instance.HeadBob.IsActive		= false;
 		CameraControl.Instance.HeadMove.IsActive	= false;
@@ -57,7 +57,7 @@ public partial class Player {
 		yield return StartCoroutine( DashStartEffect( target ) );
 		Time.timeScale = 1.0f;
 
-		float slowMotionCoeff = CurrentWeapon.SlowMotionCoeff;
+		float slowMotionCoeff = WeaponManager.Instance.CurrentWeapon.SlowMotionCoeff;
 
 		AnimationCurve animationCurve = ( ( target.HasTimeScaleCurveOverride ) ? target.DashTimeScaleCurve : m_DashTimeScaleCurve );
 		while ( interpolant < 1f )

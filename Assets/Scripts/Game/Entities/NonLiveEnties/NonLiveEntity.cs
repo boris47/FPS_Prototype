@@ -40,6 +40,9 @@ public abstract partial class NonLiveEntity : Entity {
 		m_GunTransform		= transform.Find( "Gun" );
 
 		m_FirePoint			= m_GunTransform.GetChild( 0 );
+
+		SoundEffectManager.Instance.RegisterSource( ref m_FireAudioSource );
+		m_FireAudioSource.volume = SoundEffectManager.Instance.Volume;
 	}
 
 
@@ -76,6 +79,11 @@ public abstract partial class NonLiveEntity : Entity {
 	//////////////////////////////////////////////////////////////////////////
 	// FireCloseRange
 //	protected	abstract	void	FireCloseRange( float deltaTime );
+
 	
+	private void OnDestroy()
+	{
+		SoundEffectManager.Instance.UnRegisterSource( ref m_FireAudioSource );
+	}
 
 }

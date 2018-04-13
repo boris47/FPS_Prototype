@@ -11,11 +11,11 @@ public partial class Player {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnHit ( Override )
-	public	override		void	OnHit( ref IBullet bullet )
+	public	override	void	OnHit( ref IBullet bullet )
 	{
 		float damage = Random.Range( bullet.DamageMin, bullet.DamageMax );
 		m_Health -= damage;
-		UI_InGame.Instance.UpdateUI();
+		UI.Instance.InGame.UpdateUI();
 
 		if ( m_Health < 0f )
 			OnKill();
@@ -29,13 +29,13 @@ public partial class Player {
 		print( "U r dead" );
 		this.enabled = false;
 		CameraControl.Instance.enabled = false;
-		UI_InGame.Instance.UpdateUI();
+		UI.Instance.InGame.UpdateUI();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnDashTargetUsed
-	private					void	OnDashTargetUsed( ref DashTarget target )
+	private				void	OnDashTargetUsed( ref DashTarget target )
 	{
 		if ( m_IsDashing )
 			return;
@@ -55,6 +55,5 @@ public partial class Player {
 
 		StartCoroutine( DashMoving( target ) ); // Player.DashAbility
 	}
-
 
 }

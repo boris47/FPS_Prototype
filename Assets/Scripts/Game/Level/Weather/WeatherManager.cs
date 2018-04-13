@@ -168,28 +168,6 @@ namespace WeatherSystem {
 			LoadAndSetup();
 		}
 
-
-		/////////////////////////////////////////////////////////////////////////////
-		// START
-		private void			Start()
-		{
-			LoadAndSetup();
-
-			if ( m_IsOK == false )
-				return;
-
-			m_WeatherChoiceFactor = 1.1f;
-
-			// Select descriptors
-			StartSelectDescriptors( m_DayTimeNow );
-
-			// Make first env lerp
-			EnvironmentLerp();
-
-			IsDynamic = true;
-		}
-
-
 		/////////////////////////////////////////////////////////////////////////////
 		// OnEnable
 		private void			OnEnable()
@@ -215,6 +193,10 @@ namespace WeatherSystem {
 			StartSelectDescriptors( m_DayTimeNow );
 		}
 
+		private void OnLevelWasLoaded( int level )
+		{
+			Awake();
+		}
 
 		/////////////////////////////////////////////////////////////////////////////
 		// OnDisable
@@ -232,6 +214,27 @@ namespace WeatherSystem {
 			m_WeatherChoiceFactor	= 1.0f;
 			Instance				= null;
 			Internal				= null;
+		}
+
+
+		/////////////////////////////////////////////////////////////////////////////
+		// START
+		private void			Start()
+		{
+			LoadAndSetup();
+
+			if ( m_IsOK == false )
+				return;
+
+			m_WeatherChoiceFactor = 1.1f;
+
+			// Select descriptors
+			StartSelectDescriptors( m_DayTimeNow );
+
+			// Make first env lerp
+			EnvironmentLerp();
+
+			IsDynamic = true;
 		}
 
 #endregion
@@ -658,13 +661,6 @@ namespace WeatherSystem {
 
 			TransformTime( m_DayTimeNow, ref CurrentDayTime );
 		}
-
-		private void			OnDestroy()
-		{
-			m_SkyMaterial.SetFloat( "_Blend", 0f );
-			m_SkyMaterial.SetColor( "_Tint", Color.clear );
-		}
-
 		#endregion
 
 	}

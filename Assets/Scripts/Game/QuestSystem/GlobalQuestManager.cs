@@ -5,9 +5,9 @@ namespace QuestSystem {
 
 	public class GlobalQuestManager : MonoBehaviour {
 
-		public static GlobalQuestManager	Instance = null;
+		public static GlobalQuestManager	Instance						= null;
 
-		private	LocalQuestMnanager			m_currentLocalQuestMnanager = null;
+		private	LocalQuestMnanager			m_currentLocalQuestMnanager		= null;
 		public	LocalQuestMnanager			CurrentLocalQuestManager
 		{
 			get { return m_currentLocalQuestMnanager; }
@@ -18,14 +18,16 @@ namespace QuestSystem {
 		// AWAKE
 		private void Awake()
 		{
-			if ( Instance != null )
-			{
-				Instance.UpdateInstance();
-				Destroy( gameObject );
-				return;
-			}
-			DontDestroyOnLoad( Instance = this );
+			Instance = this;
 
+			m_currentLocalQuestMnanager = FindObjectOfType<LocalQuestMnanager>();
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// OnLevelWasLoaded
+		private void OnLevelWasLoaded( int level )
+		{
 			m_currentLocalQuestMnanager = FindObjectOfType<LocalQuestMnanager>();
 		}
 

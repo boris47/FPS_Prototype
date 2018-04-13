@@ -8,18 +8,27 @@ public class GameEvent      : UnityEngine.Events.UnityEvent { }
 
 public partial class GameManager : MonoBehaviour {
 
-	public	static Reader			Settings	= null;
+    /// <summary> Use this to identity is executing in editor or in build </summary>
+#if UNITY_EDITOR
+    public	const	bool InEditor = true;
+#else
+	public	const	bool InEditor = false;
+#endif
 
-	public	static Reader			Configs		= null;
+	public	static	Reader			Settings				= null;
 
-	public	static InputManager		InputMgr	= new InputManager();
+	public	static	Reader			Configs					= null;
 
-	public	static GameManager		Instance	= null;
+	public	static	InputManager	InputMgr				= new InputManager();
 
-	public	bool					HideCursor	= true;
+	public	static	GameManager		Instance				= null;
+
+	public	static	bool			IsChangingScene			= false;
+
+	public	bool					HideCursor				= true;
 
 	// Use this for initialization
-	void Awake ()
+	private	void	Awake ()
 	{
 		if ( Instance == null )
 			Instance = this;
@@ -55,7 +64,7 @@ public partial class GameManager : MonoBehaviour {
 
 
 	// Update is called once per frame
-	private void Update()
+	private	void	Update()
 	{
 		// APPLICATION EXIT
 		if ( Input.GetKeyDown( KeyCode.Escape ) )
@@ -68,7 +77,6 @@ public partial class GameManager : MonoBehaviour {
 		}
 
 		InputMgr.Update();
-
 	}
 
 

@@ -4,8 +4,6 @@ using UnityEngine.UI;
 
 public class UI_InGame : MonoBehaviour {
 
-	public	static UI_InGame		Instance		= null;
-
 	private			Text			timeText		= null;
 	private			Text			cycleText		= null;
 	private			Text			healthText		= null;
@@ -18,11 +16,13 @@ public class UI_InGame : MonoBehaviour {
 
 	private			Image			m_EffectFrame	= null;
 
+	private			bool			m_IsActive		= false;
 
-	private void Awake()
+
+	//////////////////////////////////////////////////////////////////////////
+	// Awake
+	private void	Awake()
 	{
-		Instance		= this;
-
 		cycleText		= transform.GetChild(0).GetChild(0).GetComponent<Text>();
 		timeText		= transform.GetChild(0).GetChild(1).GetComponent<Text>();
 		healthText		= transform.GetChild(0).GetChild(2).GetComponent<Text>();
@@ -37,33 +37,101 @@ public class UI_InGame : MonoBehaviour {
 		InvokeRepeating( "PrintTime", 0.3f, 0.2f );
 	}
 
+	
+	//////////////////////////////////////////////////////////////////////////
+	// OnEnable
+	private void OnEnable()
+	{
+#if UNITY_EDITOR
+		if ( UnityEditor.EditorApplication.isPlaying && GameManager.IsChangingScene == false )
+			m_IsActive = true;
+#endif
+	}
 
+	//////////////////////////////////////////////////////////////////////////
+	// OnDisable
+	private	void	OnDisable()
+	{
+		m_IsActive = false;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnLevelWasLoaded
+	private	void	OnLevelWasLoaded( int level )
+	{
+		m_IsActive = true;
+
+		Show();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Show
+	public	void	Show()
+	{
+		foreach( Transform t in transform )
+		{
+			t.gameObject.SetActive( true );
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Hide
+	public	void	Hide()
+	{
+		foreach( Transform t in transform )
+		{
+			t.gameObject.SetActive( false );
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// GetEffectFrame
 	public	Image	GetEffectFrame()
 	{
 		return m_EffectFrame;
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
+	// UpdateUI
 	public	void	UpdateUI()
 	{
+		if ( m_IsActive == false )
+			return;
+
 		IEntity player		= Player.Instance as IEntity;
 
 		healthText.text		= Mathf.CeilToInt( player.Health ).ToString();
 
-		wpnName.text		= Player.Instance.CurrentWeapon.Transform.name;
-		bulletsCount.text	= Player.Instance.CurrentWeapon.Magazine.ToString();
-		fireMode.text		= Player.Instance.CurrentWeapon.FireMode.ToString();
+		wpnName.text		= WeaponManager.Instance.CurrentWeapon.Transform.name;
+		bulletsCount.text	= WeaponManager.Instance.CurrentWeapon.Magazine.ToString();
+		fireMode.text		= WeaponManager.Instance.CurrentWeapon.FireMode.ToString();
 	}
 	
 
+	//////////////////////////////////////////////////////////////////////////
+	// PrintTime
 	private	void	PrintTime()
 	{
+		if ( m_IsActive == false )
+			return;
+
 		timeText.text	= WeatherSystem.WeatherManager.Instance.GetTimeAsString( -1f );
 		cycleText.text	= WeatherSystem.WeatherManager.Instance.CurrentCycleName;
 	}
 
-	private void Update()
+
+	//////////////////////////////////////////////////////////////////////////
+	// Update
+	private void	Update()
 	{
+		if ( m_IsActive == false )
+			return;
+
 		staminaBar.fillAmount = Player.Instance.Stamina;
 	}
 

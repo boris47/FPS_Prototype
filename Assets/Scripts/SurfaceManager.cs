@@ -23,16 +23,10 @@ public class SurfaceManager : MonoBehaviour {
 	[SerializeField]
 	SurfaceDefinition[]		m_DefinedSurfaces		= null;
 
+
 	private void Start()
 	{
-		// Singleton
-		if ( Instance == null )
-			Instance = this;
-		else {
-			Destroy(gameObject);
-			return;
-		}
-		DontDestroyOnLoad( this );
+		Instance = this;
 	}
 
 
