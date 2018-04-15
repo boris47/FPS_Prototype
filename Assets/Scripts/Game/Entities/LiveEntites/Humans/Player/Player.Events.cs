@@ -4,6 +4,9 @@ using UnityEngine;
 
 public partial class Player {
 
+	private		float				m_DamageEffect					= 0f;
+
+
 	public override void OnTargetAquired( TargetInfo_t targetInfo )	{ }
 	public override void OnTargetChanged( TargetInfo_t targetInfo ) { }
 	public override void OnTargetLost( TargetInfo_t targetInfo )	{ }
@@ -17,6 +20,8 @@ public partial class Player {
 		m_Health -= damage;
 		UI.Instance.InGame.UpdateUI();
 
+		m_DamageEffect = 0.2f;
+
 		if ( m_Health < 0f )
 			OnKill();
 	}
@@ -26,6 +31,11 @@ public partial class Player {
 	// OnKill ( Override )
 	public	override		void	OnKill()
 	{
+		var settings = CameraControl.Instance.GetPP_Profile.vignette.settings;
+		settings.intensity = 0f;
+		CameraControl.Instance.GetPP_Profile.vignette.settings = settings;
+
+
 		print( "U r dead" );
 		CameraControl.Instance.enabled = false;
 		UI.Instance.InGame.UpdateUI();

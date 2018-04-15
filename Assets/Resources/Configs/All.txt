@@ -5,7 +5,7 @@
 #include Turrets.txt
 #include Drones.txt
 #include Walkers.txt
-#include Rifle.txt
+#include Rifles.txt
 #include Granades.txt
 
 [Time]

@@ -32,7 +32,9 @@ public partial class GameManager : MonoBehaviour {
 	{
 		if ( Instance != null )
 		{
-			Destroy( gameObject );
+			print( "WeaponManager: Object set inactive" );
+			gameObject.SetActive( false );
+//			Destroy( gameObject );
 			return;
 		}
 		Instance = this;

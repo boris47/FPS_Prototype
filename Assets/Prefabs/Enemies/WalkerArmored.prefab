@@ -577,7 +577,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 958e2a5c1528d9e4fb0402b18841a807, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_MinEngageDistance: 2
+  m_MinEngageDistance: 3
   m_BodyRotationSpeed: 5
   m_GunRotationSpeed: 5
   m_BulletGameObject: {fileID: 1422478863309518}

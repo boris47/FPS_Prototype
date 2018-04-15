@@ -125,7 +125,7 @@ public partial class CameraControl : MonoBehaviour {
 		CanParseInput = true;
 	}
 
-	           
+
 	//////////////////////////////////////////////////////////////////////////
 	// ApplyDispersion
 	public	void	ApplyDispersion( float range )
@@ -203,8 +203,11 @@ public partial class CameraControl : MonoBehaviour {
 		// Rotation
 		if ( CanParseInput == true )
 		{
-			float Axis_X_Delta = Input.GetAxis ( "Mouse X" ) * m_MouseSensitivity;
-			float Axis_Y_Delta = Input.GetAxis ( "Mouse Y" ) * m_MouseSensitivity;
+			bool	isZoomed			= WeaponManager.Instance.Zoomed;
+			float	wpnZoomSensitivity  = WeaponManager.Instance.CurrentWeapon.ZommSensitivity;
+
+			float Axis_X_Delta = Input.GetAxis ( "Mouse X" ) * m_MouseSensitivity * ( ( isZoomed ) ? wpnZoomSensitivity : 1.0f );
+			float Axis_Y_Delta = Input.GetAxis ( "Mouse Y" ) * m_MouseSensitivity * ( ( isZoomed ) ? wpnZoomSensitivity : 1.0f );
 
 			if ( m_SmoothedRotation )
 			{

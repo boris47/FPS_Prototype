@@ -1,0 +1,19 @@
+﻿
+
+[G36]
+Damage				= 12.0;
+ZoomFactor			= 4.0;
+ZoomingTime			= 0.2;
+ZommSensitivity		= 0.3;
+
+[M4A1]
+Damage				= 15.0;
+ZoomFactor			= 2.0;
+ZoomingTime			= 0.2;
+ZommSensitivity		= 0.3;
+
+[ACR]
+Damage				= 10.0;
+ZoomFactor			= 2.0;
+ZoomingTime			= 0.2;
+ZommSensitivity		= 0.3;

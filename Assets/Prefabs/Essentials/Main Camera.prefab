@@ -936,7 +936,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4314000820184936}
   - component: {fileID: 95071462126357074}
-  - component: {fileID: 114693429309438930}
+  - component: {fileID: 114755324979956880}
   - component: {fileID: 82783435004495410}
   - component: {fileID: 114767906912868192}
   - component: {fileID: 82609173761328568}
@@ -2395,7 +2395,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4063933480281964}
   - component: {fileID: 95175786385758148}
-  - component: {fileID: 114209431965998590}
+  - component: {fileID: 114951842115457460}
   - component: {fileID: 82361980739612942}
   - component: {fileID: 114978917264316650}
   m_Layer: 0
@@ -4634,7 +4634,7 @@ MeshRenderer:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1812776974517260}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
@@ -5377,44 +5377,19 @@ MonoBehaviour:
   m_Bullet2GameObject: {fileID: 0}
   m_ZoomOffset: {x: -0.0599, y: -0.01, z: 0}
   m_Damage: 5
-  m_Magazine: 42
-  m_MagazineCapacity: 42
+  m_Magazine: 28
+  m_MagazineCapacity: 28
   m_FireMode: 1
   m_FirePointFirst: {fileID: 4817637554360570}
   m_FirePointSecond: {fileID: 0}
+  m_BrustSize: 2
   m_SlowMotionCoeff: 1
   m_ZoomingTime: 0.2
+  m_ZommSensitivity: 1
   m_AudioSourceFire1: {fileID: 114807672154305344}
   m_AudioSourceFire2: {fileID: 0}
   m_ShotDelay: 0.09
   m_CamDeviation: 1
-  m_FireDispersion: 0.02
---- !u!114 &114209431965998590
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1997180057052436}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce15eff0f718b7b42a9b65ecf1254ce9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Bullet1GameObject: {fileID: 1766069990974282}
-  m_Bullet2GameObject: {fileID: 0}
-  m_ZoomOffset: {x: -0.064, y: -0.01, z: 0}
-  m_Damage: 5
-  m_Magazine: 42
-  m_MagazineCapacity: 42
-  m_FireMode: 1
-  m_FirePointFirst: {fileID: 4062119523548566}
-  m_FirePointSecond: {fileID: 0}
-  m_SlowMotionCoeff: 1
-  m_ZoomingTime: 0.2
-  m_AudioSourceFire1: {fileID: 114978917264316650}
-  m_AudioSourceFire2: {fileID: 0}
-  m_ShotDelay: 0.09
-  m_CamDeviation: 1.2
   m_FireDispersion: 0.02
 --- !u!114 &114237170714159078
 MonoBehaviour:
@@ -5517,37 +5492,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Velocity: 15
-  m_Range: 30
-  m_DamageMult: 1
+  m_Range: 15
+  m_DamageMult: 3
   m_RecoilMult: 5
   m_Duration: 1
---- !u!114 &114693429309438930
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1397518007671094}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce15eff0f718b7b42a9b65ecf1254ce9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Bullet1GameObject: {fileID: 1022476795121846}
-  m_Bullet2GameObject: {fileID: 1472223091863832}
-  m_ZoomOffset: {x: -0.064, y: -0.01, z: 0}
-  m_Damage: 5
-  m_Magazine: 42
-  m_MagazineCapacity: 42
-  m_FireMode: 1
-  m_FirePointFirst: {fileID: 4635565931512590}
-  m_FirePointSecond: {fileID: 4737935913899006}
-  m_SlowMotionCoeff: 1
-  m_ZoomingTime: 0.2
-  m_AudioSourceFire1: {fileID: 114767906912868192}
-  m_AudioSourceFire2: {fileID: 114409309871609984}
-  m_ShotDelay: 0.09
-  m_CamDeviation: 1.2
-  m_FireDispersion: 0.02
 --- !u!114 &114750527817250716
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -5563,6 +5511,35 @@ MonoBehaviour:
   m_Range: 18
   m_DamageMult: 1
   m_RecoilMult: 1
+--- !u!114 &114755324979956880
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1397518007671094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d28b213bff4b8fc4781c1afe5db46825, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Bullet1GameObject: {fileID: 1022476795121846}
+  m_Bullet2GameObject: {fileID: 1472223091863832}
+  m_ZoomOffset: {x: -0.0635, y: -0.01, z: 0}
+  m_Damage: 8
+  m_Magazine: 30
+  m_MagazineCapacity: 30
+  m_FireMode: 2
+  m_FirePointFirst: {fileID: 4635565931512590}
+  m_FirePointSecond: {fileID: 4737935913899006}
+  m_BrustSize: 3
+  m_SlowMotionCoeff: 1
+  m_ZoomingTime: 0.2
+  m_ZommSensitivity: 1
+  m_AudioSourceFire1: {fileID: 114767906912868192}
+  m_AudioSourceFire2: {fileID: 114409309871609984}
+  m_ShotDelay: 0.09
+  m_CamDeviation: 0.9
+  m_FireDispersion: 0.03
 --- !u!114 &114767906912868192
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -5632,6 +5609,35 @@ MonoBehaviour:
     m_Amplitude: 0.3
     m_Speed: 2.05
   m_WeaponPivot: {fileID: 0}
+--- !u!114 &114951842115457460
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1997180057052436}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79cd5c095c58b244ebd456c4cc157c3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Bullet1GameObject: {fileID: 1766069990974282}
+  m_Bullet2GameObject: {fileID: 0}
+  m_ZoomOffset: {x: -0.0635, y: -0.01, z: 0}
+  m_Damage: 5
+  m_Magazine: 25
+  m_MagazineCapacity: 25
+  m_FireMode: 2
+  m_FirePointFirst: {fileID: 4062119523548566}
+  m_FirePointSecond: {fileID: 0}
+  m_BrustSize: 3
+  m_SlowMotionCoeff: 1
+  m_ZoomingTime: 0.2
+  m_ZommSensitivity: 1
+  m_AudioSourceFire1: {fileID: 114978917264316650}
+  m_AudioSourceFire2: {fileID: 0}
+  m_ShotDelay: 0.07
+  m_CamDeviation: 1
+  m_FireDispersion: 0.05
 --- !u!114 &114978917264316650
 MonoBehaviour:
   m_ObjectHideFlags: 1

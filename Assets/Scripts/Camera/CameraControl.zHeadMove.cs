@@ -55,6 +55,9 @@ public class HeadMove : CameraEffectBase {
 //		fSpeed		*= ( bZoomed )		?	0.85f : 1.00f;
 		fSpeed		*= ( 4.0f - ( fStamina * 2.0f ) );
 
+		bool	isZoomed	= WeaponManager.Instance.Zoomed;
+		float	zoomFactor  = WeaponManager.Instance.CurrentWeapon.ZoomFactor;
+
 		float fAmplitude = m_Amplitude * m_AmplitudeMult;
 		fAmplitude		*= ( ( bCrouched )	? 0.80f : 1.00f );
 //		fAmplitude		*= ( ( bZoomed )	? 0.85f : 1.00f );

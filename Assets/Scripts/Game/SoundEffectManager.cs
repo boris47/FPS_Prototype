@@ -55,6 +55,7 @@ public class SoundEffectManager : MonoBehaviour, ISoundEffectManager {
 	{
 		if ( Instance != null )
 		{
+			print( "SoundEffectManager: Object set inactive" );
 			gameObject.SetActive( false );
 			return;
 		}
@@ -138,6 +139,14 @@ public class SoundEffectManager : MonoBehaviour, ISoundEffectManager {
 
 			source.pitch = value;
 		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnDestroy
+	private void OnDestroy()
+	{
+		Instance = null;
 	}
 
 }

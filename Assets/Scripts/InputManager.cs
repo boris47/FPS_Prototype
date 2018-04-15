@@ -8,6 +8,7 @@ public struct inputs_t {
 	public	bool	Crouch, Jump, Run;
 	public	bool	Use;
 	public	bool	SwitchPrev, SwitchNext;
+	public	bool	Selection1, Selection2, Selection3;
 	public	bool	Item1, Item2, Item3, Item4;
 	public	bool	ItemAction1, ItemAction2, ItemAction3;
 	public	bool	Fire1, Fire2, Fire1Loop, Fire2Loop, Fire1Released, Fire2Released;
@@ -23,6 +24,7 @@ public struct inputs_t {
 		Crouch = Jump = Run =
 		Use =
 		SwitchPrev = SwitchNext =
+		Selection1 = Selection2 = Selection3 =
 		Item1 = Item2 = Item3 = Item4 =
 		ItemAction1 = ItemAction2 = ItemAction3 =
 		Fire1 = Fire2 = Fire1Loop = Fire2Loop = Fire1Released = Fire2Released =
@@ -82,6 +84,10 @@ public class InputManager {
 		m_Inputs.SwitchPrev		= Input.mouseScrollDelta.y > 0;
 		m_Inputs.SwitchNext		= Input.mouseScrollDelta.y < 0;
 
+		m_Inputs.Selection1		= Input.GetKeyDown( KeyCode.Alpha1 );
+		m_Inputs.Selection2		= Input.GetKeyDown( KeyCode.Alpha2 );
+		m_Inputs.Selection3		= Input.GetKeyDown( KeyCode.Alpha3 );
+
 		m_Inputs.Item1			= Input.GetKeyDown ( KeyCode.F1 ) || Input.GetKeyDown ( KeyCode.Keypad1 );
 		m_Inputs.Item2			= Input.GetKeyDown ( KeyCode.F2 ) || Input.GetKeyDown ( KeyCode.Keypad2 );
 		m_Inputs.Item3			= Input.GetKeyDown ( KeyCode.F3 ) || Input.GetKeyDown ( KeyCode.Keypad3 );
@@ -101,5 +107,7 @@ public class InputManager {
 		m_Inputs.Fire2Released	= Input.GetKeyUp( KeyCode.Mouse2 );
 
 		m_Inputs.Reload			= Input.GetKeyDown( KeyCode.R );
+
+
 	}
 }

@@ -98,7 +98,8 @@ public class GenericBullet : Bullet {
 	{
 		Entity entity = collision.gameObject.GetComponent<Entity>();
 		Shield shield = collision.gameObject.GetComponent<Shield>();
-		if ( entity != null || shield != null )
+
+		if ( ( entity != null || shield != null ) && ( m_WhoRef is NonLiveEntity && entity is NonLiveEntity ) == false )
 		{
 			EffectManager.Instance.PlayOnHit( collision.contacts[0].point, collision.contacts[0].normal );
 		}

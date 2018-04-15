@@ -1,6 +1,6 @@
 ﻿
 using UnityEngine;
-
+using System.Collections;
 
 public partial class Player : Human {
 
@@ -28,6 +28,19 @@ public partial class Player : Human {
 
 	private		RaycastHit			m_RaycastHit;
 
+	private		Collider			m_PlayerNearAreaTrigger			= null;
+	public		Collider			PlayerNearAreaTrigger
+	{
+		get { return m_PlayerNearAreaTrigger; }
+	}
+
+	private		Collider			m_PlayerFarAreaTrigger			= null;
+	public		Collider			PlayerFarAreaTrigger
+	{
+		get { return m_PlayerFarAreaTrigger; }
+	}
+
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -51,6 +64,10 @@ public partial class Player : Human {
 			// Foots
 			m_Foots			= transform.Find( "FootSpace" ).GetComponent<IFoots>();
 		}
+
+
+		m_PlayerNearAreaTrigger = transform.Find( "PNAT" ).GetComponent<Collider>();
+		m_PlayerFarAreaTrigger = transform.Find( "PFAT" ).GetComponent<Collider>();
 
 		// Player Data
 		{
@@ -114,6 +131,14 @@ public partial class Player : Human {
 
 		CameraControl.Instance.transform.rotation = transform.rotation;
 
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Start
+	private void Start()
+	{
+		StartCoroutine( DamageEffectCO() );
 	}
 
 
@@ -200,6 +225,9 @@ public partial class Player : Human {
 		{
 			WeaponManager.Instance.ChangeWeapon( 1 );
 		}
+
+
+
 
 
 
@@ -402,9 +430,23 @@ public partial class Player : Human {
 
 	}
 
-	public override void OnThink()
+
+	//////////////////////////////////////////////////////////////////////////
+	// DamageEffectCO ( Coroutine )
+	private	IEnumerator	DamageEffectCO()
 	{
-		
+		while( true )
+		{
+			var settings = CameraControl.Instance.GetPP_Profile.vignette.settings;
+			m_DamageEffect = Mathf.Lerp( m_DamageEffect, 0f, Time.deltaTime * 2f );
+			settings.intensity = m_DamageEffect;
+			CameraControl.Instance.GetPP_Profile.vignette.settings = settings;
+			yield return null;
+		}
 	}
+
+
+	public override void OnThink()
+	{ }
 
 }

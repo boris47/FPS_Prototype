@@ -23,6 +23,6 @@ DamageMin	= 5.0;
 
 
 [TurretHidden] : TurretStandard
-DamageMax	= 2.0;
+DamageMax	= 1.0;
 DamageMin	= 0.5;
 PoolSize	= 30;

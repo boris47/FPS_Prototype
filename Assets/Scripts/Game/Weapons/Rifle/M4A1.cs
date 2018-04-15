@@ -1,7 +1,7 @@
 ﻿
 using UnityEngine;
 
-public class Rifle : Weapon
+public class M4A1 : Weapon
 {
 	[Header("Rifle Properties")]
 
@@ -34,16 +34,19 @@ public class Rifle : Weapon
 	// Awake ( Override )
 	protected	override void	Awake()
 	{
+		m_SectionName = this.GetType().FullName;
+
 		base.Awake();
 
 		// LOAD CONFIGURATION
 		{
 			CFG_Reader.Section section = null;
-			GameManager.Configs.GetSection( "Rifle", ref section );
+			GameManager.Configs.GetSection( m_SectionName, ref section );
 
 			m_Damage			= section.AsFloat( "Damage", m_Damage );
 			m_ZoomingTime		= section.AsFloat( "ZoomingTime", m_ZoomingTime );
-//			m_CrosshairMaxDisp	= section.AsFloat( "CrosshairMaxDisp", m_CrosshairMaxDisp );
+			m_ZommSensitivity	= section.AsFloat( "ZommSensitivity", m_ZommSensitivity );
+			m_ZoomFactor		= section.AsFloat( "ZoomFactor", m_ZoomFactor );
 		}
 
 		m_Magazine = m_MagazineCapacity;
@@ -233,7 +236,7 @@ public class Rifle : Weapon
 	// FireBrustMode
 	private		void	FireBrustMode()
 	{
-		if ( m_FireMode == FireModes.BURST && ( InputManager.Inputs.Fire1Loop || ( InputManager.Inputs.Fire2 && m_SecondFireAvaiable ) ) && m_BrustCount < 3 )
+		if ( m_FireMode == FireModes.BURST && ( InputManager.Inputs.Fire1Loop || ( InputManager.Inputs.Fire2 && m_SecondFireAvaiable ) ) && m_BrustCount < m_BrustSize )
 		{
 			if ( InputManager.Inputs.Fire1Loop )
 				m_BrustCount ++;
@@ -275,6 +278,8 @@ public class Rifle : Weapon
 
 		// DIRECTION
 		dispVector.Set( Random.Range( -1f, 1f ), Random.Range( -1f, 1f ), Random.Range( -1f, 1f ) );
+		dispVector /= WeaponManager.Instance.Zoomed ? m_ZoomFactor : 1f;
+
 		Vector3 direction = fireFirst ? ( m_FirePointFirst.forward + dispVector * m_FireDispersion ).normalized : m_FirePointSecond.forward;
 
 		// AUDIOSOURCE

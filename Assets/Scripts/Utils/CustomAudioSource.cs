@@ -135,6 +135,9 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 	// OnDestroy
 	private void OnDestroy()
 	{
+		if ( SoundEffectManager.Instance == null )
+			return;
+
 		 bool result =  SoundEffectManager.Instance.UnRegisterSource( ref m_AudioSource );
 		if ( result == false )
 			print( name );

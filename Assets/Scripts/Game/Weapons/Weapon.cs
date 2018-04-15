@@ -21,6 +21,8 @@ public interface IWeapon {
 	float					SlowMotionCoeff		{ get; }
 	bool					FirstFireAvaiable	{ get; }
 	bool					SecondFireAvaiable	{ get; }
+	float					ZommSensitivity		{ get; }
+	float					ZoomFactor			{ get; }
 
 	Animator				Animator			{ get; }
 
@@ -49,7 +51,7 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	[SerializeField]
 	protected	float					m_Damage					= 5f;
 
-	[SerializeField]
+	[SerializeField, ReadOnly]
 	protected	uint					m_Magazine					= 27;
 
 	[SerializeField]
@@ -64,11 +66,17 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	[SerializeField]
 	protected	Transform				m_FirePointSecond			= null;
 
+	[SerializeField, Range( 1, 4 )]
+	protected	uint					m_BrustSize					= 3;
+
 	[SerializeField,Range(0.1f, 2f)]
 	protected	float					m_SlowMotionCoeff			= 1f;
 
 	[SerializeField]
 	protected	float					m_ZoomingTime				= 1f;
+
+	[SerializeField]
+	protected	float					m_ZommSensitivity			= 1f;
 
 	protected	bool					m_FirstFireAvaiable			= true;
 	protected	bool					m_SecondFireAvaiable		= true;
@@ -76,6 +84,7 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	protected	Vector3					m_StartOffset				= Vector3.zero;
 	protected	bool					m_InTransition				= false;
 	protected	bool					m_NeedRecharge				= false;
+	protected	float					m_ZoomFactor				= 1f;
 
 	// INTERFACE START
 				Transform				IWeapon.Transform			{ get { return transform; } }
@@ -89,6 +98,8 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 				float					IWeapon.SlowMotionCoeff		{ get { return m_SlowMotionCoeff; } }
 				bool					IWeapon.FirstFireAvaiable	{ get { return m_FirstFireAvaiable; } }
 				bool					IWeapon.SecondFireAvaiable	{ get { return m_SecondFireAvaiable; } }
+				float					IWeapon.ZommSensitivity		{ get { return m_ZommSensitivity; } }
+				float					IWeapon.ZoomFactor			{ get { return m_ZoomFactor; } }
 	// INTERFACE END
 
 
@@ -104,6 +115,7 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	protected	AnimationClip			m_FireAnim					= null;
 	protected	AnimationClip			m_ReloadAnim				= null;
 	protected	AnimationClip			m_DrawAnim					= null;
+	protected	string					m_SectionName				= "";
 
 	
 

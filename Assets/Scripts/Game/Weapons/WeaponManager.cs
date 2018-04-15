@@ -20,6 +20,7 @@ public class WeaponManager : MonoBehaviour {
 	private		Vector3				m_StartOffset					= Vector3.zero;
 	private		Vector3				m_FinalOffset					= Vector3.zero;
 	private		float				m_ZoomingTime					= 0f;
+	private		float				m_StartCameraFOV				= 0f;
 
 	// CHANGING WEAPON
 	private		Coroutine			m_ChangingWpnCO					= null;
@@ -34,6 +35,7 @@ public class WeaponManager : MonoBehaviour {
 	{
 		if ( Instance != null )
 		{
+			print( "WeaponManager: Object set inactive" );
 			gameObject.SetActive( false );
 			return;
 		}
@@ -77,6 +79,7 @@ public class WeaponManager : MonoBehaviour {
 		m_StartOffset		= CameraControl.Instance.WeaponPivot.localPosition;
 		m_FinalOffset		= zoomOffset;
 		m_ZoomingTime		= zoomingTime;
+		m_StartCameraFOV	= CameraControl.Instance.MainCamera.fieldOfView;
 
 		StartCoroutine( ZoomInCO() );
 	}
@@ -89,7 +92,7 @@ public class WeaponManager : MonoBehaviour {
 		StartCoroutine( ZoomOutCO() );
 	}
 
-		//////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////
 	// ChangeWeapon
 	public				void	ChangeWeapon( int versus )
 	{
@@ -113,6 +116,25 @@ public class WeaponManager : MonoBehaviour {
 		}
 
 		m_ChangingWpnCO = StartCoroutine( ChangeWeaponCO( tempIdx ) );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Update
+	private void Update()
+	{
+		if ( m_ChangingWpnCO != null )
+			return;
+
+		if ( InputManager.Inputs.Selection1 )
+			m_ChangingWpnCO = StartCoroutine( ChangeWeaponCO( 0 ) );
+
+		if ( InputManager.Inputs.Selection2 )
+			m_ChangingWpnCO = StartCoroutine( ChangeWeaponCO( 1 ) );
+
+		if ( InputManager.Inputs.Selection3 )
+			m_ChangingWpnCO = StartCoroutine( ChangeWeaponCO( 2 ) );
+
 	}
 
 
@@ -148,6 +170,9 @@ public class WeaponManager : MonoBehaviour {
 		if ( clip != null )
 			timeToWait = clip.length;
 
+		// Update UI
+		UI.Instance.InGame.UpdateUI();
+
 		// and wait its duraation
 		yield return new WaitForSeconds( timeToWait * 0.8f );
 
@@ -162,8 +187,7 @@ public class WeaponManager : MonoBehaviour {
 	// ZoomInCO ( Coroutine )
 	private				IEnumerator	ZoomInCO()
 	{
-		float cameraStartFov	= Camera.main.fieldOfView;
-		float cameraFinalFov	= cameraStartFov * 0.5f;
+		float cameraFinalFov = m_StartCameraFOV / CurrentWeapon.ZoomFactor;
 		CurrentWeapon.Enabled = false;
 
 		float	interpolant = 0f;
@@ -175,9 +199,11 @@ public class WeaponManager : MonoBehaviour {
 			currentTime += Time.deltaTime;
 			interpolant =  currentTime / m_ZoomingTime;
 			CameraControl.Instance.WeaponPivot.localPosition	= Vector3.Lerp( m_StartOffset, m_FinalOffset, interpolant );
-			CameraControl.Instance.MainCamera.fieldOfView		= Mathf.Lerp( cameraStartFov, cameraFinalFov, interpolant );
+			CameraControl.Instance.MainCamera.fieldOfView		= Mathf.Lerp( m_StartCameraFOV, cameraFinalFov, interpolant );
 			yield return null;
 		}
+
+		CameraControl.Instance.HeadMove.AmplitudeMult /= CurrentWeapon.ZoomFactor;
 
 		CurrentWeapon.Enabled = true;
 		m_ZoomedIn = true;
@@ -188,8 +214,7 @@ public class WeaponManager : MonoBehaviour {
 	// ZoomOut ( Coroutine )
 	private				IEnumerator	ZoomOutCO()
 	{
-		float	cameraStartFov = Camera.main.fieldOfView;
-		float	cameraFinalFov = cameraStartFov * 2.0f;
+		float	cameraCurrentFov = Camera.main.fieldOfView;
 		CurrentWeapon.Enabled = false;
 
 		float	interpolant = 0f;
@@ -201,9 +226,11 @@ public class WeaponManager : MonoBehaviour {
 			currentTime += Time.deltaTime;
 			interpolant = currentTime / m_ZoomingTime;
 			CameraControl.Instance.WeaponPivot.localPosition	= Vector3.Lerp( m_FinalOffset, m_StartOffset, interpolant );
-			CameraControl.Instance.MainCamera.fieldOfView		= Mathf.Lerp( cameraStartFov, cameraFinalFov, interpolant );
+			CameraControl.Instance.MainCamera.fieldOfView		= Mathf.Lerp( cameraCurrentFov, m_StartCameraFOV, interpolant );
 			yield return null;
 		}
+
+		CameraControl.Instance.HeadMove.AmplitudeMult *= CurrentWeapon.ZoomFactor;
 
 		CurrentWeapon.Enabled = true;
 		m_ZoomedIn = false;

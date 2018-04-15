@@ -28,7 +28,7 @@ public abstract partial class LiveEntity  {
 		}
 	}
 
-
+	/*
 	private void OnCollisionEnter( Collision collision )
 	{
 		IBullet bullet = collision.gameObject.GetComponent<IBullet>();
@@ -38,17 +38,34 @@ public abstract partial class LiveEntity  {
 		if ( bullet.WhoRef is LiveEntity )
 			return;
 
-//		if ( bullet.IsCloseRange )
-///		{
-			// close range attack
-//			OnHurt( ref bullet );
-//		}
-//		else
-		{
-			// long range attack
-			OnHit( ref bullet );
-		}
-
+		// long range attack
+		OnHit( ref bullet );
 	}
+	*/
+	
 
+	float currentHitTime;
+	private void OnTriggerEnter( Collider other )
+	{
+		
+		IBullet bullet = other.GetComponent<IBullet>();
+		if ( bullet == null )
+			return;
+
+		// Avoid hits on the same frame
+		if ( currentHitTime == Time.time )
+		{
+			return;
+		}
+		currentHitTime = Time.time;
+
+		if ( bullet.WhoRef is LiveEntity )
+			return;
+
+		// long range attack
+		OnHit( ref bullet );
+
+		bullet.SetActive( false );
+	}
+	
 }
