@@ -1,7 +1,6 @@
 ﻿
 using UnityEngine;
 using System.Collections;
-using System;
 
 public abstract class Drone : NonLiveEntity {
 
@@ -20,22 +19,11 @@ public abstract class Drone : NonLiveEntity {
 	protected	float			m_DamageLongRangeMin		= 0.5f;
 
 	[SerializeField]
-	protected	float			m_DamageCloseRange			= 5f;
-
-	[SerializeField]
-	protected	float			m_CloseCombatRange			= 1.2f;
-
-	[SerializeField]
-	protected	float			m_CloseCombatDelay			= 1f;
-
-	[SerializeField]
 	protected	float			m_MoveMaxSpeed				= 3f;
 
+	protected	int				m_PoolSize					= 5;
 
-	protected	Entity			m_Instance					= null;
-	protected	float			m_CloseCombatDelayInternal	= 0f;
-	protected		Vector3		m_StartMovePosition			= Vector3.zero;
-	protected		float		m_DistanceToTravel			= 0f;
+	protected	Vector3			m_ScaleVector				= new Vector3( 1.0f, 0.0f, 1.0f );
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -44,14 +32,12 @@ public abstract class Drone : NonLiveEntity {
 	{
 		base.Awake();
 
-		m_Instance = this;
-
 		// LOAD CONFIGURATION
 		{
 			GameManager.Configs.GetSection( m_SectionName = gameObject.name, ref m_SectionRef );
 			if ( m_SectionRef == null )
 			{
-				print( name + " cannot find his section !!" );
+				print( "Cannot find cfg section for entity " + name );
 				Destroy( gameObject );
 				return;
 			}
@@ -65,10 +51,8 @@ public abstract class Drone : NonLiveEntity {
 
 			m_DamageLongRangeMax	= m_SectionRef.AsFloat( "DamageLongRangeMax",	2.0f );
 			m_DamageLongRangeMin	= m_SectionRef.AsFloat( "DamageLongRangeMin",	0.5f );
-			m_DamageCloseRange		= m_SectionRef.AsFloat( "DamageCloseRange",		5.0f );
 
-			m_CloseCombatRange		= m_SectionRef.AsFloat( "CloseCombatRange",		1.2f );
-			m_CloseCombatDelay		= m_SectionRef.AsFloat( "CloseCombatDelay",		1.2f );
+			m_PoolSize				= m_SectionRef.AsInt( "PoolSize", m_PoolSize );
 
 			m_EntityType			= ENTITY_TYPE.ROBOT;
 		}
@@ -79,7 +63,7 @@ public abstract class Drone : NonLiveEntity {
 			m_Pool = new GameObjectsPool<Bullet>
 			(
 				model			: ref bulletGO,
-				size			: 5,
+				size			: ( uint ) m_PoolSize,
 				destroyModel	: false,
 				containerName	: name + "BulletPool",
 				actionOnObject	: ( Bullet o ) =>
@@ -96,43 +80,125 @@ public abstract class Drone : NonLiveEntity {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	// OnHit ( Override )
+	public override void OnHit( ref IBullet bullet )
+	{
+		// Avoid friendly fire
+		if ( bullet.WhoRef is NonLiveEntity )
+			return;
+		
+		base.OnHit( ref bullet ); // set start bullet position as point to face at if not attacking
+
+		m_DistanceToTravel	= ( transform.position - m_PointToFace ).sqrMagnitude;
+		m_Destination = bullet.Transform.position;
+		m_HasDestination = true;
+
+		if ( m_Shield != null && m_Shield.Status > 0f && m_Shield.IsUnbreakable == false )
+		{
+			m_Shield.OnHit( ref bullet );
+			return;
+		}
+
+		float damage = Random.Range( bullet.DamageMin, bullet.DamageMax );
+		m_Health -= damage;
+
+		if ( m_Health < 0f )
+			OnKill();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnKill ( Override )
+	public override void OnKill()
+	{
+		base.OnKill();
+		m_Pool.Destroy();
+		gameObject.SetActive( false );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnTargetLost ( Override )
+	public override void OnTargetLost( TargetInfo_t targetInfo )
+	{
+		// SEEKING MODE
+
+		// now point to face is target position
+		m_PointToFace = m_TargetInfo.CurrentTarget.transform.position;
+		m_HasFaceTarget = true;
+
+		// now point to reach is target position
+		m_Destination = m_TargetInfo.CurrentTarget.transform.position;
+		m_HasDestination = true;
+
+		// Set brain to SEKKER mode
+		m_Brain.ChangeState( BrainState.SEEKER );
+
+		// Reset internal ref to target
+		base.OnTargetLost( targetInfo );		// m_TargetInfo = default( TargetInfo_t );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	// FaceToPoint ( Override )
 	protected override void FaceToPoint( float deltaTime )
 	{
-		Vector3 dirToPosition		= ( m_PointToFace - transform.position );
-		Vector3 dirGunToPosition	= ( m_PointToFace - m_GunTransform.position );
-		m_CloseCombatDelayInternal -= deltaTime;
-		m_ShotTimer -= Time.deltaTime;
+		Vector3 dirToPosition			= ( m_PointToFace - transform.position );
+		Vector3 dirGunToPosition		= ( m_PointToFace - m_GunTransform.position );
 
 		// set direction to player
-		Vector3 vBodyForward		= Vector3.Scale( dirToPosition,		new Vector3( 1.0f, 0.0f, 1.0f ) );
-		transform.forward			= Vector3.RotateTowards( transform.forward, vBodyForward, m_BodyRotationSpeed * deltaTime, 0.0f );
+		Vector3 vBodyForward			= Vector3.Scale( dirToPosition, m_ScaleVector );
+		transform.forward				= Vector3.RotateTowards( transform.forward, vBodyForward, m_BodyRotationSpeed * deltaTime, 0.0f );
 
-		m_AllignedToPoint			= Vector3.Angle( transform.forward, vBodyForward ) < 7f;
-		if ( m_AllignedToPoint )
+		m_IsAllignedBodyToDestination	= Vector3.Angle( transform.forward, vBodyForward ) < 7f;
+		if ( m_IsAllignedBodyToDestination )
 		{
-			m_GunTransform.forward	=  Vector3.RotateTowards( m_GunTransform.forward, dirGunToPosition, m_GunRotationSpeed * deltaTime, 0.0f );
+			m_GunTransform.forward		= Vector3.RotateTowards( m_GunTransform.forward, dirGunToPosition, m_GunRotationSpeed * deltaTime, 0.0f );
 		}
 
-		m_AllignedGunToPoint		= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 7f;
+		m_AllignedGunToPoint			= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 7f;
+	}
+
+	
+	//////////////////////////////////////////////////////////////////////////
+	// Stop ( Virtual )
+	protected	virtual	void	Stop()
+	{
+		if ( m_Brain.State == BrainState.NORMAL )
+		{
+			m_HasFaceTarget					= false;
+			m_PointToFace					= Vector3.zero;
+			m_IsAllignedBodyToDestination	= false;
+		}
+		m_HasDestination				= false;
+		m_Destination					= Vector3.zero;
+		m_IsMoving						= false;
+		m_StartMovePosition				= Vector3.zero;
+		m_DistanceToTravel				= 0f;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// GoAtPoint
-	protected	void	GoAtPoint( float deltaTime )
+	protected override	void	GoAtPoint( float deltaTime )
 	{
-		if ( m_IsMoving == false )
+		if ( m_HasDestination == false )
 			return;
+
+		if ( m_DistanceToTravel < m_MinEngageDistance * m_MinEngageDistance )
+		{
+			Stop();
+			return;
+		}
 
 		Vector3 dirToPosition	 = ( m_PointToFace - transform.position );
 		float	travelledDistance = ( m_StartMovePosition - transform.position ).sqrMagnitude;
 		if ( travelledDistance > m_DistanceToTravel )   // point reached
 		{
-			if ( m_Brain.State == BrainState.ALARMED )
+			if ( m_Brain.State != BrainState.NORMAL )
 				m_Brain.ChangeState( BrainState.NORMAL );
-			m_IsMoving = false;
-			m_StartMovePosition = m_PointToFace = Vector3.zero;
+
+			Stop();
 			return;
 		}
 
@@ -140,10 +206,9 @@ public abstract class Drone : NonLiveEntity {
 	}
 
 
-
 	//////////////////////////////////////////////////////////////////////////
 	// FireLongRange ( Override )
-	protected void FireLongRange( float deltaTime )
+	 protected override void FireLongRange( float deltaTime )
 	{
 		if ( m_ShotTimer > 0 )
 				return;
@@ -154,45 +219,6 @@ public abstract class Drone : NonLiveEntity {
 		bullet.Shoot( position: m_FirePoint.position, direction: m_FirePoint.forward );
 		
 		m_FireAudioSource.Play();
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// FireCloseRange ( Override )
-	protected void FireCloseRange( float deltaTime )
-	{
-		if ( m_CloseCombatDelayInternal < 0f )
-		{
-			m_CloseCombatDelayInternal = m_CloseCombatDelay;
-//			m_Brain.CurrentTargetInfo.CurrentTarget.OnHit( ref m_Instance, m_DamageCloseRange );
-
-			// TODO: add a attack/hit effect
-		}	
-	}
-
-
-
-	public override void OnHit( ref IBullet bullet )
-	{
-		base.OnHit( ref bullet );
-
-		m_DistanceToTravel	= ( transform.position - m_PointToFace ).sqrMagnitude;
-
-		if ( bullet is GranadeBase )
-		{
-			m_PointToFace = bullet.Transform.position;
-			m_DistanceToTravel	= 0f;	
-		}	
-	}
-
-	public override void OnThink()
-	{
-		base.OnThink();
-
-		if ( m_TargetInfo.HasTarget == true )
-		{
-			m_DistanceToTravel	= ( transform.position - m_PointToFace ).sqrMagnitude;
-		}
 	}
 
 }

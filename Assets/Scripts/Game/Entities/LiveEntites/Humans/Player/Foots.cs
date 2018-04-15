@@ -20,7 +20,7 @@ public class Foots : MonoBehaviour, IFoots {
 	private		Collider			m_Collider			= null;
 
 	private		RaycastHit			m_RaycastHit		= default( RaycastHit );
-	private		AudioSource			m_AudioSource		= null;
+	private		ICustomAudioSource	m_AudioSource		= null;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -29,10 +29,7 @@ public class Foots : MonoBehaviour, IFoots {
 	{
 		m_LiveEntity	= transform.parent.GetComponent<LiveEntity>();
 		m_Collider		= transform.GetComponent<Collider>();
-		m_AudioSource	= transform.GetComponent<AudioSource>();
-
-		SoundEffectManager.Instance.RegisterSource( ref m_AudioSource );
-		m_AudioSource.volume = SoundEffectManager.Instance.Volume;
+		m_AudioSource	= transform.GetComponent<ICustomAudioSource>();
 	}
 
 
@@ -47,7 +44,7 @@ public class Foots : MonoBehaviour, IFoots {
 		if ( footstepClip == null )
 			return;
 
-		m_AudioSource.clip = footstepClip;
+		m_AudioSource.Clip = footstepClip;
 		m_AudioSource.Play();
 	}
 

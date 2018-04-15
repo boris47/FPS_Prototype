@@ -45,10 +45,10 @@ public class FragGranade : GranadeBase {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Shoot ( Override )
-	public override void Shoot( Vector3 position, Vector3 direction )
+	public override void Shoot( Vector3 position, Vector3 direction, float velocity )
 	{
 		transform.position		= position;
-		m_RigidBody.velocity	= direction;
+		m_RigidBody.velocity	= direction * ( ( velocity > 0f ) ? velocity : m_Velocity );
 		SetActive( true );
 	}
 

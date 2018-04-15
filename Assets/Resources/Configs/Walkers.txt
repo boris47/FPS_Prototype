@@ -1,0 +1,35 @@
+﻿
+[WalkerStandard]
+Health		= 100.0;
+Shield		= 0.0;
+DamageMax	= 5.0;
+DamageMin	= 2.5;
+PoolSize	= 10;
+
+[WalkerGatling]
+Health		= 100.0;
+Shield		= 100.0;
+DamageMax	= 5.0;
+DamageMin	= 2.5;
+PoolSize	= 30;
+
+[WalkerArmored]
+Health		= 100.0;
+Shield		= 100.0;
+DamageMax	= 5.0;
+DamageMin	= 2.5;
+PoolSize	= 10;
+
+[WalkerArmoredGatling]
+Health		= 100.0;
+Shield		= 100.0;
+DamageMax	= 5.0;
+DamageMin	= 2.5;
+PoolSize	= 30;
+
+[WalkerMortar]
+Health		= 100.0;
+Shield		= 0.0;
+DamageMax	= 0.10;
+DamageMin	= 0.02;
+PoolSize	= 10;

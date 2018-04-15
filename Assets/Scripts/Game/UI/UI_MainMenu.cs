@@ -18,14 +18,8 @@ public class UI_MainMenu : MonoBehaviour {
 	// OnNewGame
 	public	void	OnResume()
 	{
-		int savedSceneIdx = 2;
+//		int savedSceneIdx = 2;
 //		StartCoroutine( LoadSceneByIdx( savedSceneIdx ) );
 	}
-
-
-
-
-
-	
 
 }

@@ -61,7 +61,6 @@ public class UI : MonoBehaviour, IUI {
 	// LoadSceneByIdx ( Coroutine )
 	private	IEnumerator	LoadSceneByIdxCO( int sceneIdx )
 	{
-
 		GameManager.IsChangingScene = true;
 
 		m_AsyncOperation = SceneManager.LoadSceneAsync( sceneIdx );
@@ -78,6 +77,20 @@ public class UI : MonoBehaviour, IUI {
 		UI.Instance.InGame.Hide();
 
 		GameManager.IsChangingScene = false;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnQuit
+	public	void	OnQuit()
+	{
+
+#if UNITY_EDITOR
+		UnityEditor.EditorApplication.isPlaying = false;
+#else
+		Application.Quit();
+#endif
+
 	}
 
 }

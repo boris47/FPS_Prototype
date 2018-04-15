@@ -81,12 +81,12 @@ public	class GameObjectsPool {
 /// <summary> Object pooler with a specified component added on every object </summary>
 public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	
-	private	static	int		Counter				= 0;
+	private	static	int			Counter				= 0;
 
-	private	GameObject		m_Container			= null;
-	private	ObjectsPool<T>	m_ObjectsPool		= null;
-	private	int				m_InternalIndex		= 0;
-
+	private	GameObject			m_Container			= null;
+	private	ObjectsPool<T>		m_ObjectsPool		= null;
+	private	int					m_InternalIndex		= 0;
+	private	System.Action<T>	m_Action			= null;
 
 	//////////////////////////////////////////////////////////////////////////
 	// Constructor
@@ -97,6 +97,8 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 			m_Container = new GameObject( containerName + Counter.ToString() );
 			Counter ++;
 		}
+
+		m_Action = actionOnObject;
 
 		if ( permanent == true )
 			Object.DontDestroyOnLoad( m_Container );
@@ -124,6 +126,18 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 			Object.Destroy( model.gameObject );
 	}
 
+	/*
+	//////////////////////////////////////////////////////////////////////////
+	// Resize
+	public	void	Resize( uint newSize )
+	{
+		T[] tmpArray = new T[ newSize ];
+
+		ObjectsPool<T> objectsPool = new ObjectsPool<T>( newSize );
+
+
+	}
+	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	// GetGameObject

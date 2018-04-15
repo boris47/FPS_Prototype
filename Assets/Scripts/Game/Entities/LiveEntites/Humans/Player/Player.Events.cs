@@ -27,9 +27,9 @@ public partial class Player {
 	public	override		void	OnKill()
 	{
 		print( "U r dead" );
-		this.enabled = false;
 		CameraControl.Instance.enabled = false;
 		UI.Instance.InGame.UpdateUI();
+		gameObject.SetActive( false );
 	}
 
 

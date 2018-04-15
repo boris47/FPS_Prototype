@@ -108,10 +108,11 @@ public abstract partial class LiveEntity : Entity {
 	{
 		base.Awake();
 	}
-
+	/*
 	public override void OnFrame( float deltaTime )
 	{
-		base.OnFrame( deltaTime );
+//		base.OnFrame( deltaTime );
 	}
+	*/
 
 }

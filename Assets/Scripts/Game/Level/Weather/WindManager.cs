@@ -48,7 +48,7 @@ namespace WeatherSystem {
 		}
 
 		private		WindZone			m_WindZone						= null;
-		private		LoopingAudioSource	m_AudioSourceWind				= null;
+		private		ICustomAudioSource	m_AudioSourceWind				= null;
 
 		private		float				m_Interpolant					= 0.0f;
 		private		float				m_NextWindTime					= 0.0f;
@@ -73,12 +73,12 @@ namespace WeatherSystem {
 			// Audio Sources Setup
 			Transform audioSource = transform.Find( "AudioSources" ).Find( "Wind" );
 
-			m_AudioSourceWind = new LoopingAudioSource();
+			m_AudioSourceWind = GetComponent<ICustomAudioSource>();
 
-			AudioSource source = audioSource.GetComponent<AudioSource>();
-			m_AudioSourceWind.AudioSource = source;
-			SoundEffectManager.Instance.RegisterSource( ref source );
-			m_AudioSourceWind.Silence();
+//			AudioSource source = audioSource.GetComponent<AudioSource>();
+//			m_AudioSourceWind.AudioSource = source;
+//			SoundEffectManager.Instance.RegisterSource( ref source );
+			m_AudioSourceWind.Volume	= 0f;
 
 			m_State1.windMain			= 0f;
 			m_State1.windTurbolence		= 0f;
@@ -163,12 +163,12 @@ namespace WeatherSystem {
 			
 				}
 			
-				m_AudioSourceWind.SetVolume( ( m_WindZone.windMain / m_WindSpeedRange.z ) * m_WindSoundVolumeModifier );
+				m_AudioSourceWind.Volume = ( ( m_WindZone.windMain / m_WindSpeedRange.z ) * m_WindSoundVolumeModifier );
 			}
 			else
 			{
 				m_WindZone.windMain = 0f;
-				m_AudioSourceWind.Silence();
+				m_AudioSourceWind.Volume = 0f;
 			}
 		}
 
@@ -181,16 +181,6 @@ namespace WeatherSystem {
 				return;
 
 			UpdateWind();
-			m_AudioSourceWind.Update();
-		}
-
-
-		//////////////////////////////////////////////////////////////////////////
-		// OnDestroy
-		private void OnDestroy()
-		{
-			AudioSource source = m_AudioSourceWind.AudioSource;
-			SoundEffectManager.Instance.UnRegisterSource( ref source );
 		}
 
 	}

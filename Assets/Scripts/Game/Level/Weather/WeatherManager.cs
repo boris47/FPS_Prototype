@@ -88,7 +88,7 @@ namespace WeatherSystem {
 		public		bool						IsDynamic					{ get; set; }
 		public		Light						Sun							{ get; private set;	}
 
-		private		float						m_DayTimeNow				= -1.0f;
+		private	static float					m_DayTimeNow				= -1.0f;
 		float		IWeatherManager.DayTime
 		{
 			get { return m_DayTimeNow; }
@@ -97,7 +97,6 @@ namespace WeatherSystem {
 		{
 			get { return m_CurrentCycleName; }
 		}
-
 
 
 		// PRIVATE PROPERTIES
@@ -111,6 +110,7 @@ namespace WeatherSystem {
 		private		float						m_EnvEffectTimer			= 0f;
 
 		private		bool						m_IsOK						= false;
+		private		bool						m_IsThisTheClone			= false;
 
 #endregion
 
@@ -159,26 +159,38 @@ namespace WeatherSystem {
 		// AWAKE
 		private void			Awake()
 		{
+			if ( Instance != null )
+			{
+				m_IsThisTheClone = true;	// useful, to prevent that onDisable and onDestroy remove reference to the instance
+				Destroy( gameObject );
+				return;
+			}
+			
+#if UNITY_EDITOR
+			if ( UnityEditor.EditorApplication.isPlaying == true )
+				DontDestroyOnLoad( this );
+#else
+			DontDestroyOnLoad( this );
+#endif
+
 			Instance = this as IWeatherManager;
 			Internal = this as IWeatherManagerInternal;
-
-			// Create Env Mixer
-			m_EnvDescriptorMixer = new EnvDescriptor();
-
-			LoadAndSetup();
 		}
+
 
 		/////////////////////////////////////////////////////////////////////////////
 		// OnEnable
 		private void			OnEnable()
 		{
-			Instance = this as IWeatherManager;
-			Internal = this as IWeatherManagerInternal;
-
 #if UNITY_EDITOR
 			if ( UnityEditor.EditorApplication.isPlaying == false )
 				UnityEditor.EditorApplication.update += Update;
 #endif
+			Instance = this as IWeatherManager;
+			Internal = this as IWeatherManagerInternal;
+
+			if ( m_EnvDescriptorMixer == null )
+				m_EnvDescriptorMixer = new EnvDescriptor();
 
 			LoadAndSetup();
 
@@ -193,10 +205,13 @@ namespace WeatherSystem {
 			StartSelectDescriptors( m_DayTimeNow );
 		}
 
+		/////////////////////////////////////////////////////////////////////////////
+		// OnLevelWasLoaded
 		private void OnLevelWasLoaded( int level )
 		{
-			Awake();
+//			Awake();
 		}
+
 
 		/////////////////////////////////////////////////////////////////////////////
 		// OnDisable
@@ -212,8 +227,11 @@ namespace WeatherSystem {
 			m_EnvDescriptorNext		= null;
 			m_CurrentCycleName		= "";
 			m_WeatherChoiceFactor	= 1.0f;
-			Instance				= null;
-			Internal				= null;
+			if ( m_IsThisTheClone == false )
+			{
+				Instance				= null;
+				Internal				= null;
+			}
 		}
 
 
@@ -221,7 +239,10 @@ namespace WeatherSystem {
 		// START
 		private void			Start()
 		{
-			LoadAndSetup();
+			Instance = this as IWeatherManager;
+			Internal = this as IWeatherManagerInternal;
+
+//			LoadAndSetup();
 
 			if ( m_IsOK == false )
 				return;
@@ -316,7 +337,7 @@ namespace WeatherSystem {
 			StartSelectDescriptors( DayTime, cycle );
 		}
 
-		#endregion
+#endregion
 
 #region INTERNAL METHODS
 
@@ -387,7 +408,8 @@ namespace WeatherSystem {
 			}
 
 			// Set current time
-			TansformTime( startTime, ref m_DayTimeNow );
+			if ( m_DayTimeNow == -1f )
+				TansformTime( startTime, ref m_DayTimeNow );
 
 			startWeather = startWeather.Replace( "\"", "" );
 
@@ -602,7 +624,7 @@ namespace WeatherSystem {
 			if ( RainManager.Instance != null )
 				RainManager.Instance.RainIntensity	= m_EnvDescriptorMixer.RainIntensity;
 
-			Instance.Sun.color						= m_EnvDescriptorMixer.SunColor;
+			Sun.color						= m_EnvDescriptorMixer.SunColor;
 		}
 
 
@@ -661,7 +683,14 @@ namespace WeatherSystem {
 
 			TransformTime( m_DayTimeNow, ref CurrentDayTime );
 		}
-		#endregion
+#endregion
+
+
+
+		private void OnApplicationQuit()
+		{
+			m_DayTimeNow = -1f;
+		}
 
 	}
 

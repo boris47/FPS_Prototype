@@ -1,17 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+[System.Serializable]
 public class WeaponManager : MonoBehaviour {
 	
-	public	static	WeaponManager	Instance						= null;
-
-	private		bool				m_ZoomedIn						= false;
-	public		bool				Zoomed
+	
+	public static	WeaponManager	Instance						= null;
+	public WeaponManager	m_Instance
 	{
-		get { return m_ZoomedIn; }
+		get { return Instance; }
 	}
 
-
+	private		bool				m_ZoomedIn						= false;
+	public		bool				Zoomed							{ get { return m_ZoomedIn; } }
 	public		IWeapon				CurrentWeapon					{ get; set; }
 	public		int					CurrentWeaponIndex				{ get; set; }
 
@@ -29,9 +30,15 @@ public class WeaponManager : MonoBehaviour {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake
-	private void Awake()
+	private				void	Awake()
 	{
+		if ( Instance != null )
+		{
+			gameObject.SetActive( false );
+			return;
+		}
 		Instance = this;
+		DontDestroyOnLoad( this );
 	}
 
 

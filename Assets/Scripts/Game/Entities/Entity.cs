@@ -5,14 +5,13 @@ using AI_Behaviours;
 
 
 public interface IEntity {
-	bool				IsActive						{	get; set;	}
+	Transform			Transform						{	get;		}
+	bool				IsActive						{	get;		}
 	uint				ID								{	get;		}
-	float				Health							{	get; set;	}
-//	float				ViewRange						{	get; set;	}
+	float				Health							{	get;		}
 	string				Section							{	get;		}
 	Rigidbody			RigidBody						{	get;		}
 	CapsuleCollider		PhysicCollider					{	get;		}
-	Transform			Transform						{	get;		}
 	IBrain				Brain							{	get;		}
 
 
@@ -45,46 +44,51 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	private	static uint			CurrentID						= 0;
 	public	static uint			NewID()							{ return CurrentID++; }
 
-
-	[SerializeField]
-	protected	float			m_Health						= 1f;
-
-//	[SerializeField]
-//	protected	float			m_ViewRange						= 10f;
-
 	// INTERFACE START
-				bool			IEntity.IsActive				{	get { return m_IsActive;		}	set { m_IsActive = value;		}	}
+				Transform		IEntity.Transform				{	get { return transform;			}	}
+				bool			IEntity.IsActive				{	get { return m_IsActive;		}	}
 				uint			IEntity.ID						{	get { return m_ID;				}	}
-				float			IEntity.Health					{	get { return m_Health;			}	set { m_Health		= value;	}	}
-//				float			IEntity.ViewRange				{	get { return m_ViewRange;		}	set { m_ViewRange	= value;	}	}
+				float			IEntity.Health					{	get { return m_Health;			}	}
 				string			IEntity.Section					{	get { return m_SectionName;		}	}
 				Rigidbody		IEntity.RigidBody				{	get { return m_RigidBody;		}	}
 				CapsuleCollider	IEntity.PhysicCollider			{	get { return m_PhysicCollider;	}	}
 				IBrain			IEntity.Brain					{	get { return m_Brain;		}	}
-				Transform		IEntity.Transform				{	get { return transform;			}	}
 	// INTERFACE END
 
-
+	// INTERNALS
+	protected	float			m_Health						= 1f;
 	protected	bool			m_IsActive						= true;
-
 	protected 	uint			m_ID							= 0;
-
 	protected	Section			m_SectionRef					= null;
-
 	protected 	string			m_SectionName					= "None";
-
-	[System.NonSerialized]
 	protected 	ENTITY_TYPE		m_EntityType					= ENTITY_TYPE.NONE;
-
-	protected	Vector3			m_LastAttackPosition			= Vector3.zero;
-
 	protected	Rigidbody		m_RigidBody						= null;
-
 	protected	CapsuleCollider	m_PhysicCollider				= null;
 
+	// AI
 	protected	IBrain			m_Brain							= null;
-
 	protected	TargetInfo_t	m_TargetInfo					= default( TargetInfo_t );
+	protected	Vector3			m_LastAttackPosition			= Vector3.zero;			// store start position of hitting bullet
+
+	[SerializeField]
+	protected	float			m_MinEngageDistance				= 0f;
+
+
+	// NAVIGATION
+	protected	bool			m_HasDestination				= false;
+	protected	bool			m_HasFaceTarget					= false;
+	protected	Vector3			m_Destination					= Vector3.zero;
+	protected	Vector3			m_PointToFace					= Vector3.zero;
+	protected	bool			m_IsMoving						= false;
+
+	// Flag set if body of entity is aligned with target
+	protected	bool			m_IsAllignedBodyToDestination	= false;
+
+	// Position saved at start of movement ( used for distances check )
+	protected	Vector3			m_StartMovePosition				= Vector3.zero;
+
+	protected	float			m_DistanceToTravel				= 0f;
+
 
 	protected	bool 			m_IsOK							= false;
 
@@ -111,9 +115,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Update
-	public virtual	void	OnFrame( float deltaTime )
-	{
-
-	}
+	public abstract	void	OnFrame( float deltaTime );
 
 }

@@ -4,6 +4,7 @@
 #include Player.txt
 #include Turrets.txt
 #include Drones.txt
+#include Walkers.txt
 #include Rifle.txt
 #include Granades.txt
 

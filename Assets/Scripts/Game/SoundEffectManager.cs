@@ -8,7 +8,7 @@ public interface ISoundEffectManager {
 	float		Pitch				{ get; set; }
 
 	void		RegisterSource		( ref AudioSource audioSource );
-	void		UnRegisterSource	( ref AudioSource audioSource );
+	bool		UnRegisterSource	( ref AudioSource audioSource );
 
 	void		UpdateVolume		( float value );
 	void		UpdatePitch			( float value );
@@ -53,6 +53,19 @@ public class SoundEffectManager : MonoBehaviour, ISoundEffectManager {
 	// Awake
 	private void Awake()
 	{
+		if ( Instance != null )
+		{
+			gameObject.SetActive( false );
+			return;
+		}
+
+#if UNITY_EDITOR
+			if ( UnityEditor.EditorApplication.isPlaying == true )
+				DontDestroyOnLoad( this );
+#else
+			DontDestroyOnLoad( this );
+#endif
+
 		Instance = this as ISoundEffectManager;
 	}
 
@@ -73,18 +86,22 @@ public class SoundEffectManager : MonoBehaviour, ISoundEffectManager {
 
 	//////////////////////////////////////////////////////////////////////////
 	// UnRegisterSource
-	public	void	UnRegisterSource( ref AudioSource audioSource )
+	public	bool	UnRegisterSource( ref AudioSource audioSource )
 	{
 		if ( audioSource == null )
 		{
-			Debug.LogError( "SoundEffectManager::UnRegisterSource: Trying to unregister a non registered AudioSource !!" );
-			return;
+			Debug.LogError( "SoundEffectManager::UnRegisterSource: Trying to unregister a null ref of AudioSource !!" );
+			return false;
 		}
 
 		if ( m_Sources.Contains( audioSource ) == false )
-			return;
+		{
+			Debug.LogError( "SoundEffectManager::UnRegisterSource: Trying to unregister a non registered AudioSource !!" );
+			return false;
+		}
 
 		m_Sources.Remove( audioSource );
+		return true;
 	}
 	
 

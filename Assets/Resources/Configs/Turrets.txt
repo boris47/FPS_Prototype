@@ -1,28 +1,28 @@
 ﻿
 ;======== TURRETS
 
+[Turret]
+PoolSize	= 10;
+
 [TurretStandard]
 Health		= 100.0;
 Shield		= 0.0;
-
 DamageMax	= 5.0;
 DamageMin	= 2.5;
-
-
 
 [TurretArmored]
 Health		= 100.0;
 Shield		= 100.0;
-
 DamageMax	= 6.0;
 DamageMin	= 3.0;
 
 
-
-[TurretHard]  : TurretArmored
+[TurretHard] : TurretArmored
 DamageMax	= 8.0;
 DamageMin	= 5.0;
 
-[TurretHidden]  : TurretStandard
-DamageMax	= 8.0;
-DamageMin	= 5.0;
+
+[TurretHidden] : TurretStandard
+DamageMax	= 2.0;
+DamageMin	= 0.5;
+PoolSize	= 30;

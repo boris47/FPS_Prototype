@@ -13,7 +13,7 @@ public abstract partial class NonLiveEntity : Entity {
 	protected		float				m_GunRotationSpeed			= 5f;
 
 //	[SerializeField]
-	protected		AudioSource			m_FireAudioSource			= null;
+	protected		ICustomAudioSource	m_FireAudioSource			= null;
 	protected		Shield				m_Shield					= null;
 
 	protected		Transform			m_GunTransform				= null;
@@ -21,10 +21,7 @@ public abstract partial class NonLiveEntity : Entity {
 
 	protected		GameObjectsPool<Bullet> m_Pool					= null;
 	protected		float				m_ShotTimer					= 0f;
-
-	protected		Vector3				m_PointToFace				= Vector3.zero;
-	protected		bool				m_IsMoving					= false;
-	protected		bool				m_AllignedToPoint			= false;
+	
 	protected		bool				m_AllignedGunToPoint		= false;
 
 
@@ -34,33 +31,67 @@ public abstract partial class NonLiveEntity : Entity {
 	{
 		base.Awake();
 
-		m_FireAudioSource	= GetComponent<AudioSource>();
+		m_FireAudioSource	= GetComponent<ICustomAudioSource>();
 		m_Shield			= GetComponentInChildren<Shield>();
 
 		m_GunTransform		= transform.Find( "Gun" );
 
 		m_FirePoint			= m_GunTransform.GetChild( 0 );
-
-		SoundEffectManager.Instance.RegisterSource( ref m_FireAudioSource );
-		m_FireAudioSource.volume = SoundEffectManager.Instance.Volume;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnFrame
+	// OnFrame ( Override )
 	public	override	void	OnFrame( float deltaTime )
-	{
-		base.OnFrame( deltaTime );
+	{	
+		// Update internal timer
+		m_ShotTimer -= deltaTime;
 		
-		if ( m_Brain.State != BrainState.NORMAL )
+		if ( m_TargetInfo.HasTarget == true )
 		{
-			if ( m_TargetInfo.HasTarget == true )
-			{
-				m_PointToFace		= m_TargetInfo.CurrentTarget.transform.position;
-			}
-			FaceToPoint( deltaTime );	// m_PointToFace
+			if ( m_Brain.State != BrainState.ATTACKING )
+				m_Brain.ChangeState( BrainState.ATTACKING );
+			
+			m_PointToFace = m_TargetInfo.CurrentTarget.transform.position;
+			m_HasFaceTarget = true;
+
+			m_Destination = m_TargetInfo.CurrentTarget.transform.position;
+			m_HasDestination = true;
+
+			m_DistanceToTravel	= ( transform.position - m_PointToFace ).sqrMagnitude;
+		}
+
+		// if has target point to face at set
+		if ( m_HasFaceTarget )
+		{
+			FaceToPoint( deltaTime );   // m_PointToFace
+		}
+
+		// if body is alligned with target start moving
+		if ( m_IsAllignedBodyToDestination && m_IsMoving == false )
+		{
+			m_IsMoving = true;
+			m_StartMovePosition = transform.position;
+		}
+
+		// if has destination set
+		if ( m_HasDestination && m_IsAllignedBodyToDestination )
+		{
+			GoAtPoint( deltaTime );	// m_Destination
+		}
+
+		// if gun alligned, fire
+		if ( m_AllignedGunToPoint == true && m_TargetInfo.HasTarget == true )
+		{
+			FireLongRange( deltaTime );
 		}
 	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnThink ( Override )
+	public override void OnThink()
+	{	}
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -69,21 +100,8 @@ public abstract partial class NonLiveEntity : Entity {
 
 	//////////////////////////////////////////////////////////////////////////
 	// GoAtPoint
-//	protected	abstract	void	GoAtPoint( float deltaTime );
+	protected	abstract	void	GoAtPoint( float deltaTime );
 
-
-	//////////////////////////////////////////////////////////////////////////
-	// FireLongRange
-//	protected	abstract	void	FireLongRange( float deltaTime );
-
-	//////////////////////////////////////////////////////////////////////////
-	// FireCloseRange
-//	protected	abstract	void	FireCloseRange( float deltaTime );
-
-	
-	private void OnDestroy()
-	{
-		SoundEffectManager.Instance.UnRegisterSource( ref m_FireAudioSource );
-	}
+	protected	abstract	void	FireLongRange( float deltaTime );
 
 }

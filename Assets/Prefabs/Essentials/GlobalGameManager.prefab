@@ -1,0 +1,174 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 1934971665525628}
+  m_IsPrefabParent: 1
+--- !u!1 &1934971665525628
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4722807365482384}
+  - component: {fileID: 114879694635983574}
+  - component: {fileID: 114038355153827524}
+  - component: {fileID: 114220647494313820}
+  - component: {fileID: 114383776957302070}
+  - component: {fileID: 114682078790382006}
+  m_Layer: 0
+  m_Name: GlobalGameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4722807365482384
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1934971665525628}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &114038355153827524
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1934971665525628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: efd771b8daedadc47a1363e28836b08c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_RegisteredTextures:
+  - texture: {fileID: 2800000, guid: 705438840f2165e4d80c9f7e758017af, type: 3}
+    surfaceIndex: 2
+  m_DefinedSurfaces:
+  - name: Brush
+    footsteps:
+    - {fileID: 8300000, guid: a8a3a68b6de3dd04ca47ccb2b4cb4858, type: 3}
+    - {fileID: 8300000, guid: 0e468c42f18d425458238570b99bacf2, type: 3}
+    - {fileID: 8300000, guid: 51379cdda2c0d4440a77a7f70a0293fe, type: 3}
+    - {fileID: 8300000, guid: 605732c3bea5cf94f8ee4400434b1d70, type: 3}
+  - name: Concrete
+    footsteps:
+    - {fileID: 8300000, guid: aa4b946276a93f149bef43b7bf4eae0c, type: 3}
+    - {fileID: 8300000, guid: 31fc91d6a8e0e7c4f8188d0bac5636f8, type: 3}
+    - {fileID: 8300000, guid: 177578dd9645d17458b63fd300ab1cdf, type: 3}
+    - {fileID: 8300000, guid: 86db9668f70744e4d91ef4f1c4301763, type: 3}
+  - name: Default
+    footsteps:
+    - {fileID: 8300000, guid: 9608bdab5828a734ab063873dcc45285, type: 3}
+    - {fileID: 8300000, guid: 8baea5483e175854097bc29a1e67df2e, type: 3}
+    - {fileID: 8300000, guid: 27c725d6c68d4d2499392fde117674ae, type: 3}
+    - {fileID: 8300000, guid: a9caa42beac492140bc8cc1828ad3b98, type: 3}
+  - name: Earth
+    footsteps:
+    - {fileID: 8300000, guid: f7cadca320dbd6941b4c6f382a51e2a7, type: 3}
+    - {fileID: 8300000, guid: 75e7da71c87a4844e94ce7428f8d606a, type: 3}
+    - {fileID: 8300000, guid: 8ca5517cc8c6b104aa59632de9cb71c5, type: 3}
+    - {fileID: 8300000, guid: 2c62a34d98080ea4a91d72713582f86f, type: 3}
+  - name: Floortile
+    footsteps:
+    - {fileID: 8300000, guid: f6a9ffe75a9343441a9a6a0cd0a2c9a4, type: 3}
+    - {fileID: 8300000, guid: 0989196f0fb0ac24596576b1e199784a, type: 3}
+    - {fileID: 8300000, guid: f3954bcc28691eb43a69b1f8e5613bd5, type: 3}
+    - {fileID: 8300000, guid: 2cf4f875793b8d543a422cfe8bc8614b, type: 3}
+  - name: Grass
+    footsteps:
+    - {fileID: 8300000, guid: 753dd14801c042a4f8adffe50a79be4b, type: 3}
+    - {fileID: 8300000, guid: 6ab93caf204757543991e49976cfb213, type: 3}
+    - {fileID: 8300000, guid: 0fe44cc5320571c48b718c7b57e51dda, type: 3}
+    - {fileID: 8300000, guid: 4665e8b4a92193340870113b5db8508e, type: 3}
+  - name: Gravel
+    footsteps:
+    - {fileID: 8300000, guid: 604f32a4a76f33549a9bae8dc7cb578a, type: 3}
+    - {fileID: 8300000, guid: 518b87cfdcd4c034f986914fe2192fdc, type: 3}
+  - name: Metal
+    footsteps:
+    - {fileID: 8300000, guid: e8a27eda3bd118a42bc8d721f5dd0950, type: 3}
+    - {fileID: 8300000, guid: 46bf3b24383580940a27f8bb1791fc55, type: 3}
+    - {fileID: 8300000, guid: 8d3538392e700724098e3b51ddec12c6, type: 3}
+    - {fileID: 8300000, guid: 954daafe3668b7240b285e5710cc369d, type: 3}
+  - name: Tin
+    footsteps:
+    - {fileID: 8300000, guid: a812ac8e39ba65c47a95e69ceda0a97b, type: 3}
+    - {fileID: 8300000, guid: 52e77ac748b1f06468d9f17691e33c46, type: 3}
+    - {fileID: 8300000, guid: e4d3847bf088d5642b999ccf453928fc, type: 3}
+    - {fileID: 8300000, guid: 3c36a53d71b4c144295af016f67451c4, type: 3}
+  - name: Water
+    footsteps:
+    - {fileID: 8300000, guid: d3825ed2aac0b984bb042ffecdbd77f6, type: 3}
+    - {fileID: 8300000, guid: 16d0b40c78cd7404289596649e639d79, type: 3}
+    - {fileID: 8300000, guid: 07046b8251aaf274da35472d050dbbcc, type: 3}
+    - {fileID: 8300000, guid: 86224e89c19f15e4ab62a8b5a78035fc, type: 3}
+  - name: Wood
+    footsteps:
+    - {fileID: 8300000, guid: 46100fda67d57774b93da415dd7c9e4f, type: 3}
+    - {fileID: 8300000, guid: 64508016c866a4e4a8ab0f5b020e5836, type: 3}
+    - {fileID: 8300000, guid: ebefe735b9b904d4dab6e70b96f6f263, type: 3}
+    - {fileID: 8300000, guid: 72b4382cae039794bb0dd0df6fb3e292, type: 3}
+    - {fileID: 8300000, guid: af08ef3832215854f9bdaf450911ee8d, type: 3}
+    - {fileID: 8300000, guid: f8d171ce8bbdbab4bb4728814885a4a5, type: 3}
+--- !u!114 &114220647494313820
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1934971665525628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e2edbf12c3faa944b2a4822d590db04, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &114383776957302070
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1934971665525628}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 521b52a5b41cbe04f9862aa1e3b8a44f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MainVolume: 0.2
+  m_MainPitch: 1
+--- !u!114 &114682078790382006
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1934971665525628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: acd3cef4c95f6ce42b49d47f8b1640dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &114879694635983574
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1934971665525628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96ad52312f3c01b4493752b06715c1ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HideCursor: 1

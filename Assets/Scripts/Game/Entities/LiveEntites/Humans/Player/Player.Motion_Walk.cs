@@ -140,6 +140,8 @@ public partial class Player {
 
 		}
 
+		float dt = Time.deltaTime;
+
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Process inputs
 		// If receive input for moving
@@ -149,20 +151,20 @@ public partial class Player {
 			{
 				fMove		*=	m_RunSpeed * ( fMove > 0 ? 1.0f : 0.8f );
 				fStrafe		*=	m_RunSpeed * 0.6f;
-				m_Stamina	-= m_RunStamina * Time.deltaTime;
+				m_Stamina	-= m_RunStamina * dt;
 			}
 			else if ( m_States.IsCrouched )
 			{
 				fMove		*= m_CrouchSpeed * ( fMove > 0 ? 1.0f : 0.8f );
 				fStrafe		*= m_CrouchSpeed * 0.6f;
-				m_Stamina	-= m_CrouchStamina * Time.deltaTime;
+				m_Stamina	-= m_CrouchStamina * dt;
 			}
 			else
 			{	// walking
 				// stamina half restored because we are moving, but just walking
 				fMove		*= m_WalkSpeed * ( fMove > 0 ? 1.0f : 0.8f );;
 				fStrafe		*= m_WalkSpeed *  0.6f;
-				m_Stamina	+= m_StaminaRestore / 2.0f * Time.deltaTime;
+				m_Stamina	+= m_StaminaRestore / 2.0f * dt;
 				m_States.IsWalking = true;
 			}
 
@@ -174,7 +176,7 @@ public partial class Player {
 
 		// if don't move stamina regenerates at regular speed
 		if ( fMove == 0.0f && fStrafe == 0.0f )
-			m_Stamina += m_StaminaRestore * Time.deltaTime;
+			m_Stamina += m_StaminaRestore * dt;
 
 		// Clamp Stamina between 0.0 and 1.0
 		m_Stamina = Mathf.Clamp( m_Stamina, 0.0f, 1.0f );
@@ -187,8 +189,8 @@ public partial class Player {
 		}
 
 		// Apply smoothing on movements
-		m_MoveSmooth	= Mathf.Lerp( m_MoveSmooth,   fMove,   Time.deltaTime * 20f );
-		m_StrafeSmooth	= Mathf.Lerp( m_StrafeSmooth, fStrafe, Time.deltaTime * 10f );
+		m_MoveSmooth	= Mathf.Lerp( m_MoveSmooth,   fMove,   dt * 20f );
+		m_StrafeSmooth	= Mathf.Lerp( m_StrafeSmooth, fStrafe, dt * 10f );
 
 
 		// calculate camera relative direction to move:

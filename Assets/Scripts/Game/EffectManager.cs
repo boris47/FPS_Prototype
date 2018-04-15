@@ -3,13 +3,17 @@ using System.Collections;
 
 public class EffectManager : MonoBehaviour {
 
-	public	static	EffectManager Instance = null;
+	public	static	EffectManager	Instance					= null;
 
 	[ SerializeField ]
 	private		ParticleSystem		m_ParticleSystemOnHit		= null;
 
 
-	private void Awake()
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Awake
+	private void	Awake()
 	{
 		if ( m_ParticleSystemOnHit == null )
 			return;
@@ -24,7 +28,8 @@ public class EffectManager : MonoBehaviour {
 	}
 
 
-
+	//////////////////////////////////////////////////////////////////////////
+	// PlayOnHit
 	public	void	PlayOnHit( Vector3 position, Vector3 direction )
 	{
 		m_ParticleSystemOnHit.transform.position = position;

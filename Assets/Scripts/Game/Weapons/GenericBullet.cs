@@ -64,12 +64,12 @@ public class GenericBullet : Bullet {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Shoot ( Override )
-	public		override	void	Shoot( Vector3 position, Vector3 direction )
+	public		override	void	Shoot( Vector3 position, Vector3 direction, float velocity )
 	{
 		transform.up			= direction;
 		transform.position		= position;
 		m_StartPosition			= position;
-		m_RigidBody.velocity	= direction * m_Velocity;
+		m_RigidBody.velocity	= direction * ( ( velocity > 0f ) ? velocity : m_Velocity );
 		SetActive( true );
 	}
 

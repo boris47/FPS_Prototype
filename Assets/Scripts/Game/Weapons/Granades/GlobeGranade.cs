@@ -54,10 +54,10 @@ public class GlobeGranade : GranadeBase {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Shoot ( Override )
-	public override void Shoot( Vector3 position, Vector3 direction )
+	public override void Shoot( Vector3 position, Vector3 direction, float velocity )
 	{
 		transform.position		= position;
-		m_RigidBody.velocity	= m_Velocity * direction;
+		m_RigidBody.velocity	= direction * ( ( velocity > 0f ) ? velocity : m_Velocity );
 		SetActive( true );
 	}
 
@@ -138,6 +138,7 @@ public class GlobeGranade : GranadeBase {
 		float	interpolant			= 0f;
 
 		m_RigidBody.constraints = RigidbodyConstraints.FreezeAll;
+		m_Renderer.enabled = false;
 
 		while( interpolant < 1f )
 		{
@@ -166,6 +167,8 @@ public class GlobeGranade : GranadeBase {
 		Shield shield = collision.gameObject.GetComponent<Shield>();
 		if ( entity != null || shield != null )
 			OnExplosion();
+		else
+			m_RigidBody.constraints = RigidbodyConstraints.FreezeAll;
 	}
 
 
@@ -190,8 +193,5 @@ public class GlobeGranade : GranadeBase {
 		
 		MakeDamage( ref entity );
 	}
-
-
-
 
 }

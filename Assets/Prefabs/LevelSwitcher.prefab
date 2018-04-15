@@ -93,7 +93,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 008855208ab8cb64b81ac563ae5ca3eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_NextSceneIdx: 1
+  m_NextSceneIdx: 2
 --- !u!135 &135112747569676884
 SphereCollider:
   m_ObjectHideFlags: 1

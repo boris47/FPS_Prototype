@@ -11,66 +11,69 @@ namespace WeatherSystem {
 #region VARS
 
 		// STATIC
-		public	static	RainManager		Instance						= null;
+		public	static	RainManager			Instance						= null;
 
 
 		// CONST
-		private	const	string			THUNDERS_DISTANT				= "Sounds/Thunders/ThundersDistant";
-		private	const	string			THUNDERS_DURING_RAIN			= "Sounds/Thunders/ThundersDuringRain";
+		private	const	string				THUNDERS_DISTANT				= "Sounds/Thunders/ThundersDistant";
+		private	const	string				THUNDERS_DURING_RAIN			= "Sounds/Thunders/ThundersDuringRain";
+		private	const	string				RAIN_MATERIAL					= "Materials/Rain/RainMaterial";
+		private	const	string				RAIN_EXPLOSION_MATERIAL			= "Materials/Rain/RainExplosionMaterial";
+		private	const	string				RAIN_MIST_MATERIAL				= "Materials/Rain/RainMistMaterial";
 
 
 		// SERIALIZED
 		[FMODUnity.EventRef]
-		public string					m_RainSound						= "";
+		public string						m_RainSound						= "";
 
 		[SerializeField]
-		private	bool					EnableInEditor					= false;
+		private	bool						EnableInEditor					= false;
 	
 		[Header("Rain Properties")]
 		[SerializeField, Tooltip("Intensity of rain (0-1)"), Range(0.0f, 1.0f)]
-		private		float				m_RainIntensity					= 0.0f;
-		public		float				RainIntensity
+		private		float					m_RainIntensity					= 0.0f;
+		public		float					RainIntensity
 		{
 			get { return m_RainIntensity; }
 			set { m_RainIntensity = value; }
 		}
 
 		[SerializeField, Tooltip("The height above the camera that the rain will start falling from")]
-		private		float				m_RainHeight					= 25.0f;
+		private		float					m_RainHeight					= 25.0f;
 
 		[SerializeField, Tooltip("How far the rain particle system is ahead of the player")]
-		private		float				m_RainForwardOffset				= -1.5f;
+		private		float					m_RainForwardOffset				= -1.5f;
 
 
 		// PRIVATE PROPERTIES
 		
 		// FMOD
-		private		EventInstance		m_RainEvent;
-		private		ParameterInstance	m_RainIntensityEvent;
+		private		EventInstance			m_RainEvent;
+		private		ParameterInstance		m_RainIntensityEvent;
 
 		// RAIN
-		private		ParticleSystem		m_RainFallParticleSystem		= null;
-		private		ParticleSystem		m_RainExplosionParticleSystem	= null;
-		private		Material			m_RainMaterial					= null;
-		private		Material			m_RainExplosionMaterial			= null;
+		private		ParticleSystem			m_RainFallParticleSystem		= null;
+		private		ParticleSystem			m_RainExplosionParticleSystem	= null;
+		private		Material				m_RainMaterial					= null;
+		private		Material				m_RainExplosionMaterial			= null;
 
 		// THUNDERBOLTS
-		private		AudioClip[]			m_ThundersDistantCollection		= null;
-		private		AudioClip[]			m_ThundersDuringRainCollection	= null;
+		private		AudioClip[]				m_ThundersDistantCollection		= null;
+		private		AudioClip[]				m_ThundersDuringRainCollection	= null;
 		
-		private		float				m_NextThunderTimer				= 0f;
-		private		Light				m_ThunderLight					= null;
-		private		Transform			m_ThunderAudioContainer			= null;
+		private		float					m_NextThunderTimer				= 0f;
+		private		Light					m_ThunderLight					= null;
+		private		Transform				m_ThunderAudioContainer			= null;
 
-		private		float				m_ThunderTimerMin				= 6f;
-		private		float				m_ThunderTimerMax				= 25f;
-		private		float				m_ThunderLifeTimeMin			= 0.08f;
-		private		float				m_ThunderLifeTimeMax			= 0.5f;
-		private		float				m_ThunderStepsMin				= 3f;
-		private		float				m_ThunderStepsMax				= 9f;
-		private		AudioSource[]		m_ThunderAudioSources			= null;
-
-		private		Camera				m_Camera						= null;
+		private		float					m_ThunderTimerMin				= 6f;
+		private		float					m_ThunderTimerMax				= 25f;
+		private		float					m_ThunderLifeTimeMin			= 0.08f;
+		private		float					m_ThunderLifeTimeMax			= 0.5f;
+		private		float					m_ThunderStepsMin				= 3f;
+		private		float					m_ThunderStepsMax				= 9f;
+		private		CustomAudioSource[]		m_ThunderAudioSources			= null;
+		
+		private		Camera					m_Camera						= null;
 
 #endregion
 
@@ -134,7 +137,7 @@ namespace WeatherSystem {
 					return;
 				}
 
-				m_ThunderAudioSources = m_ThunderAudioContainer.GetComponentsInChildren<AudioSource>();
+				m_ThunderAudioSources = m_ThunderAudioContainer.GetComponentsInChildren<CustomAudioSource>();
 			}
 
 
@@ -143,7 +146,7 @@ namespace WeatherSystem {
 				Renderer rainRenderer = m_RainFallParticleSystem.GetComponent<Renderer>();
 				if ( rainRenderer != null && rainRenderer.sharedMaterial != null )
 				{
-					m_RainMaterial = new Material( rainRenderer.sharedMaterial );
+					m_RainMaterial = Resources.Load<Material>( RAIN_MATERIAL );
 					m_RainMaterial.EnableKeyword( "SOFTPARTICLES_OFF" );
 					rainRenderer.material = m_RainMaterial;
 				}
@@ -154,7 +157,7 @@ namespace WeatherSystem {
 				Renderer rainRenderer = m_RainExplosionParticleSystem.GetComponent<Renderer>();
 				if ( rainRenderer != null && rainRenderer.sharedMaterial != null )
 				{
-					m_RainExplosionMaterial = new Material( rainRenderer.sharedMaterial );
+					m_RainExplosionMaterial = Resources.Load<Material>( RAIN_EXPLOSION_MATERIAL );
 					m_RainExplosionMaterial.EnableKeyword( "SOFTPARTICLES_OFF" );
 					rainRenderer.material = m_RainExplosionMaterial;
 				}
@@ -227,13 +230,6 @@ namespace WeatherSystem {
 				return;
 #endif
 
-			System.Array.ForEach( m_ThunderAudioSources, ( AudioSource s ) =>
-				{
-					SoundEffectManager.Instance.RegisterSource( ref s );
-					s.volume = SoundEffectManager.Instance.Volume;
-				}
-			);
-
 			m_RainEvent = FMODUnity.RuntimeManager.CreateInstance( m_RainSound );
 			m_RainEvent.getParameter( "RainIntensity", out m_RainIntensityEvent );
 			m_RainEvent.start();
@@ -275,11 +271,11 @@ namespace WeatherSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// GetFreeAudioSource
-		private	AudioSource		GetFreeAudioSource()
+		private	ICustomAudioSource		GetFreeAudioSource()
 		{
-			foreach( AudioSource a in m_ThunderAudioSources )
+			foreach( ICustomAudioSource a in m_ThunderAudioSources )
 			{
-				if ( a.isPlaying == false )
+				if ( a.IsPlaying == false )
 					return a;
 			}
 			return null;
@@ -291,7 +287,7 @@ namespace WeatherSystem {
 		private	IEnumerator		ThunderCoroutine( bool lighting )
 		{
 			// check fo avaiable audiosource
-			AudioSource thunderAudioSource = GetFreeAudioSource();
+			ICustomAudioSource thunderAudioSource = GetFreeAudioSource();
 			if ( thunderAudioSource == null )
 				yield break;
 
@@ -337,19 +333,19 @@ namespace WeatherSystem {
 			if ( lighting == true )
 			{
 				AudioClip thunderClip =  m_ThundersDuringRainCollection[ Random.Range( 0, m_ThundersDuringRainCollection.Length ) ];
-				thunderAudioSource.clip = thunderClip;
+				thunderAudioSource.Clip = thunderClip;
 			}
 			else
 			{
 				AudioClip thunderClip =  m_ThundersDistantCollection[ Random.Range( 0, m_ThundersDistantCollection.Length ) ];
-				thunderAudioSource.clip = thunderClip;
+				thunderAudioSource.Clip = thunderClip;
 			}
 
-			thunderAudioSource.pitch	= Random.Range( 1.2f, 1.6f );
-			thunderAudioSource.volume	= Random.Range( 1f, 2f );
+			thunderAudioSource.Pitch	= Random.Range( 1.2f, 1.6f );
+			thunderAudioSource.Volume	= Random.Range( 1f, 2f );
 			
 			Vector3 thunderDirection = m_ThunderLight.transform.forward * Random.Range( 15f, 25f );
-			thunderAudioSource.transform.localPosition = thunderDirection;
+			thunderAudioSource.Transform.localPosition = thunderDirection;
 
 			thunderAudioSource.Play();
 		}

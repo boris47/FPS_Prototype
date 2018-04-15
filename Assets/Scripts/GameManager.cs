@@ -30,12 +30,12 @@ public partial class GameManager : MonoBehaviour {
 	// Use this for initialization
 	private	void	Awake ()
 	{
-		if ( Instance == null )
-			Instance = this;
-		else {
+		if ( Instance != null )
+		{
 			Destroy( gameObject );
 			return;
 		}
+		Instance = this;
 		DontDestroyOnLoad( this );
 
 		Settings = new Reader();

@@ -169,9 +169,6 @@ public partial class CameraControl : MonoBehaviour {
 
 				Weapon.Array[ WeaponManager.Instance.CurrentWeaponIndex ].Transform.localPosition = m_WeaponPositionDelta;
 				Weapon.Array[ WeaponManager.Instance.CurrentWeaponIndex ].Transform.localEulerAngles = m_WeaponRotationDelta;
-
-//				Player.Instance.CurrentWeapon.Transform.localPosition = m_WeaponPositionDelta;
-//				Player.Instance.CurrentWeapon.Transform.localEulerAngles = m_WeaponRotationDelta;
 			}
 		}
 		else

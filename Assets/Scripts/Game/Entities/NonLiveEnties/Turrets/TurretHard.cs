@@ -16,48 +16,38 @@ public class TurretHard : Turret {
 	private		uint		m_FiredBullets		= 0;
 
 
-
 	//////////////////////////////////////////////////////////////////////////
-	// OnTargetAquired ( Override )
-	public override void OnTargetAquired( TargetInfo_t targetInfo )
+	// Awake ( Override )
+	protected override void Awake()
 	{
-		base.OnTargetAquired( targetInfo );		// m_TargetInfo = targetInfo;
+		m_SectionName = this.GetType().FullName;
 
-		m_Brain.ChangeState( BrainState.ATTACKING );
+		base.Awake();
 	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnTargetChanged ( Override )
-	public override void OnTargetChanged( TargetInfo_t targetInfo )
-	{
-		base.OnTargetChanged( targetInfo );		// m_TargetInfo = targetInfo;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnTargetLost ( Override )
-	public override void OnTargetLost( TargetInfo_t targetInfo )
-	{
-		base.OnTargetLost( targetInfo );		// m_TargetInfo = default( TargetInfo_t );
-
-		if ( m_Brain.State == BrainState.ATTACKING )
-		{
-			m_Brain.ChangeState( BrainState.NORMAL );
-		}
-	}
-
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnHit ( Override )
 	public override void OnHit( ref IBullet bullet )
 	{
+
 		// Avoid friendly fire
 		if ( bullet.WhoRef is NonLiveEntity )
 			return;
 
-		base.OnHit( ref bullet );
+		// Hit event, set ALARMED State if actual is NORMAL
+		if ( m_Brain.State == BrainState.NORMAL )
+		{
+			m_Brain.ChangeState( BrainState.ALARMED );
+		}
+
+		// if is not attacking
+		if ( m_Brain.State != BrainState.ATTACKING )
+		{
+			// set start bullet position as point to face at
+			m_PointToFace	= bullet.StartPosition;	
+			m_HasFaceTarget = true;
+		}
 
 		if ( m_IsRecharging == false )
 			return;
@@ -76,16 +66,6 @@ public class TurretHard : Turret {
 	{
 		StopAllCoroutines();
 		base.OnKill();
-		m_Pool.Destroy();
-		Destroy( gameObject );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnThink ( Override )
-	public override void OnThink()
-	{
-		base.OnThink();
 	}
 
 
@@ -164,19 +144,47 @@ public class TurretHard : Turret {
 	// Update ( Override )
 	public override void OnFrame( float deltaTime )
 	{
-		base.OnFrame( deltaTime );
+		// Update internal timer
+		m_ShotTimer -= deltaTime;
 		
-		if ( m_IsRecharging == true )
-			return;
+		if ( m_TargetInfo.HasTarget == true )
+		{
+			if ( m_Brain.State != BrainState.ATTACKING )
+				m_Brain.ChangeState( BrainState.ATTACKING );
+			
+			m_PointToFace = m_TargetInfo.CurrentTarget.transform.position;
+			m_HasFaceTarget = true;
 
-		if ( m_TargetInfo.HasTarget == false )
-			return;
+			m_Destination = m_TargetInfo.CurrentTarget.transform.position;
+			m_HasDestination = true;
 
-		if ( m_AllignedGunToPoint == false )
-			return;
+			m_DistanceToTravel	= ( transform.position - m_PointToFace ).sqrMagnitude;
+		}
 
-		FireLongRange( deltaTime );
-		
+		// if has target point to face at set
+		if ( m_HasFaceTarget )
+		{
+			FaceToPoint( deltaTime );   // m_PointToFace
+		}
+
+		// if body is alligned with target start moving
+		if ( m_IsAllignedBodyToDestination && m_IsMoving == false )
+		{
+			m_IsMoving = true;
+			m_StartMovePosition = transform.position;
+		}
+
+		// if has destination set
+		if ( m_HasDestination && m_IsAllignedBodyToDestination )
+		{
+			GoAtPoint( deltaTime );	// m_Destination
+		}
+
+		// if gun alligned, fire
+		if ( m_AllignedGunToPoint == true && m_TargetInfo.HasTarget == true && m_IsRecharging == false )
+		{
+			FireLongRange( deltaTime );
+		}
 	}
 
 

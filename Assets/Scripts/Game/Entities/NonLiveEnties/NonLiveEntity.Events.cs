@@ -10,6 +10,16 @@ public abstract partial class NonLiveEntity : Entity {
 	public override void OnTargetAquired( TargetInfo_t targetInfo )
 	{
 		m_TargetInfo = targetInfo;
+
+		// now point to face is target position
+		m_PointToFace = m_TargetInfo.CurrentTarget.transform.position;
+		m_HasFaceTarget = true;
+
+		// now point to reach is target position
+		m_Destination = m_TargetInfo.CurrentTarget.transform.position;
+		m_HasDestination = true;
+
+		m_Brain.ChangeState( BrainState.ATTACKING );
 	}
 
 
@@ -27,8 +37,7 @@ public abstract partial class NonLiveEntity : Entity {
 	{
 		m_TargetInfo = default( TargetInfo_t );
 
-		m_AllignedToPoint = false;
-		m_AllignedGunToPoint = false;
+		m_Brain.ChangeState( BrainState.NORMAL );
 	}
 
 
@@ -42,17 +51,12 @@ public abstract partial class NonLiveEntity : Entity {
 			m_Brain.ChangeState( BrainState.ALARMED );
 		}
 
-		m_PointToFace		= bullet.StartPosition;	
-	}
-
-	
-	//////////////////////////////////////////////////////////////////////////
-	// OnThink ( Override )
-	public override void OnThink()
-	{	
-		if ( m_TargetInfo.HasTarget == true )
+		// if is not attacking
+		if ( m_Brain.State != BrainState.ATTACKING )
 		{
-			m_PointToFace		= m_TargetInfo.CurrentTarget.transform.position;
+			// set start bullet position as point to face at
+			m_PointToFace	= bullet.StartPosition;	
+			m_HasFaceTarget = true;
 		}
 	}
 

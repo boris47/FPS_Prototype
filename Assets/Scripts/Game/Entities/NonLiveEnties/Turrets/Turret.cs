@@ -1,5 +1,4 @@
 ﻿
-using System;
 using UnityEngine;
 
 
@@ -8,18 +7,22 @@ public abstract class Turret : NonLiveEntity {
 	[Header("Turret Properties")]
 
 	[SerializeField]
-	private		GameObject		m_BulletGameObject	= null;
+	private		GameObject		m_BulletGameObject			= null;
 
 	[SerializeField]
-	protected	float			m_ShotDelay			= 0.7f;
+	protected	float			m_ShotDelay					= 0.7f;
 
 	[SerializeField]
-	protected	float			m_DamageMax			= 2f;
+	protected	float			m_DamageMax					= 2f;
 
 	[SerializeField]
-	protected	float			m_DamageMin			= 0.5f;
+	protected	float			m_DamageMin					= 0.5f;
 
-	protected	Vector3			m_ScaleVector		= new Vector3( 1.0f, 0.0f, 1.0f );
+	[SerializeField, ReadOnly]
+	protected	int				m_PoolSize					= 5;
+
+	protected	Vector3			m_ScaleVector				= new Vector3( 1.0f, 0.0f, 1.0f );
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -46,6 +49,7 @@ public abstract class Turret : NonLiveEntity {
 
 			m_DamageMax				= m_SectionRef.AsFloat( "DamageMax", 2.0f );
 			m_DamageMin				= m_SectionRef.AsFloat( "DamageMin", 0.5f );
+			m_PoolSize				= m_SectionRef.AsInt( "PoolSize", m_PoolSize );
 
 			m_EntityType			= ENTITY_TYPE.ROBOT;
 		}
@@ -56,7 +60,7 @@ public abstract class Turret : NonLiveEntity {
 			m_Pool = new GameObjectsPool<Bullet>
 			(
 				model			: ref bulletGO,
-				size			: 5,
+				size			: ( uint ) m_PoolSize,
 				destroyModel	: false,
 				containerName	: name + "BulletPool",
 				actionOnObject	: ( Bullet o ) =>
@@ -71,48 +75,105 @@ public abstract class Turret : NonLiveEntity {
 		}
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	// OnHit ( Override )
+	public override void OnHit( ref IBullet bullet )
+	{
+		// Avoid friendly fire
+		if ( bullet.WhoRef is NonLiveEntity )
+			return;
+		
+		base.OnHit( ref bullet ); // set start bullet position as point to face at if not attacking
+
+//		m_DistanceToTravel	= ( transform.position - m_PointToFace ).sqrMagnitude;
+//		m_Destination = bullet.Transform.position;
+//		m_HasDestination = true;
+
+		if ( m_Shield != null && m_Shield.Status > 0f && m_Shield.IsUnbreakable == false )
+		{
+			m_Shield.OnHit( ref bullet );
+			return;
+		}
+
+		float damage = Random.Range( bullet.DamageMin, bullet.DamageMax );
+		m_Health -= damage;
+
+		if ( m_Health < 0f )
+			OnKill();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnKill ( Override )
+	public override void OnKill()
+	{
+		base.OnKill();
+		m_Pool.Destroy();
+		gameObject.SetActive( false );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnTargetLost ( Override )
+	public override void OnTargetLost( TargetInfo_t targetInfo )
+	{
+		// SEEKING MODE
+
+		// now point to face is target position
+		m_PointToFace = m_TargetInfo.CurrentTarget.transform.position;
+		m_HasFaceTarget = true;
+
+		// now point to reach is target position
+//		m_Destination = m_TargetInfo.CurrentTarget.transform.position;
+//		m_HasDestination = true;
+
+		// Set brain to SEKKER mode
+		m_Brain.ChangeState( BrainState.NORMAL );
+
+		// Reset internal ref to target
+		base.OnTargetLost( targetInfo );		// m_TargetInfo = default( TargetInfo_t );
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// FaceToPoint ( Override )
 	protected override void FaceToPoint( float deltaTime )
 	{
-		Vector3 dirToPosition		= ( m_PointToFace - transform.position );
-		Vector3 dirGunToPosition	= ( m_PointToFace - m_GunTransform.position );
+		Vector3 dirToPosition			= ( m_PointToFace - transform.position );
+		Vector3 dirGunToPosition		= ( m_PointToFace - m_GunTransform.position );
 
-		Vector3 vBodyForward		= Vector3.Scale( dirToPosition,	m_ScaleVector );
-		transform.forward			= Vector3.RotateTowards( transform.forward, vBodyForward, m_BodyRotationSpeed * deltaTime, 0.0f );
+		Vector3 vBodyForward			= Vector3.Scale( dirToPosition,	m_ScaleVector );
+		transform.forward				= Vector3.RotateTowards( transform.forward, vBodyForward, m_BodyRotationSpeed * deltaTime, 0.0f );
 		
-		m_AllignedToPoint			= Vector3.Angle( transform.forward, vBodyForward ) < 7f;
-		if ( m_AllignedToPoint )
+		m_IsAllignedBodyToDestination	= Vector3.Angle( transform.forward, vBodyForward ) < 7f;
+		if ( m_IsAllignedBodyToDestination )
 		{
-			m_GunTransform.forward	=  Vector3.RotateTowards( m_GunTransform.forward, dirGunToPosition, m_GunRotationSpeed * deltaTime, 0.0f );
+			m_GunTransform.forward		= Vector3.RotateTowards( m_GunTransform.forward, dirGunToPosition, m_GunRotationSpeed * deltaTime, 0.0f );
 		}
 
-		m_AllignedGunToPoint		= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 7f;
+		m_AllignedGunToPoint			= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 3f;
 	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// GoAtPoint ( Override )
+	protected override void GoAtPoint( float deltaTime )
+	{ }
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// FireLongRange ( Override )
-	protected virtual void FireLongRange( float deltaTime )
+	protected override void FireLongRange( float deltaTime )
 	{
-		m_ShotTimer -= deltaTime;
 		if ( m_ShotTimer > 0 )
 				return;
 
 		m_ShotTimer = m_ShotDelay;
-
+		
 		IBullet bullet = m_Pool.GetComponent();
 		bullet.Shoot( position: m_FirePoint.position, direction: m_FirePoint.forward );
 		
 		m_FireAudioSource.Play();
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// FireCloseRange ( Override )
-	protected void FireCloseRange( float deltaTime )
-	{
-		//	Nothing by default
 	}
 
 }

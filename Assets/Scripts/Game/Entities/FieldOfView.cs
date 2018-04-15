@@ -94,8 +94,8 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	{
 		for ( int i = m_AllTargets.Count - 1; i > 0; i-- )
 		{
-			Entity entity = m_AllTargets[ i ];
-			if ( entity == null )
+			IEntity entity = m_AllTargets[ i ];
+			if ( entity == null || entity.IsActive == false || entity.Health <= 0f )
 			{
 				m_AllTargets.RemoveAt( i );
 			}
@@ -172,23 +172,22 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		m_AllTargets.Sort( ( a, b ) => CompareTargetsDistances( currentViewPoint.position, a, b ) );
 
 		// FIND ALL VISIBLE TARGETS
-		foreach( Entity entity in m_AllTargets )
+		foreach( IEntity entity in m_AllTargets )
 		{
-			Vector3 direction = ( entity.transform.position - currentViewPoint.position );
-			
+			Vector3 direction = ( entity.Transform.position - currentViewPoint.position );
+
 			// CHECK IF IS IN VIEW CONE
 			if ( Vector3.Angle( currentViewPoint.forward, direction.normalized ) < ( m_ViewCone * 0.5f ) )
 			{
-
 				// CHECK IF THERE IS NOT OBSTACLES OR HITTED IS A TARGET
-				bool result = Physics.Raycast( currentViewPoint.position, direction, out m_RaycastHit );
-				if ( result == false || m_RaycastHit.transform == entity.transform )
+				bool result = Physics.Linecast( currentViewPoint.position, entity.Transform.position, out m_RaycastHit );
+				if ( result == false || m_RaycastHit.collider == entity.PhysicCollider )
 				{
-					m_ValidTargets[ currentCount ] = entity;
+					m_ValidTargets[ currentCount ] = entity as Entity;
 					currentCount ++;
 
 					// Debug stuff
-					Debug.DrawLine( currentViewPoint.position, entity.transform.position, Color.red );
+					Debug.DrawLine( currentViewPoint.position, entity.Transform.position, Color.red );
 					
 					if ( currentCount == m_ValidTargets.Length )
 					{
@@ -204,21 +203,25 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 			return false;
 		}
 
-		m_CurrentTargetInfo.CurrentTarget = m_ValidTargets[ 0 ];
-		m_CurrentTargetInfo.TargetSqrDistance = ( m_CurrentTargetInfo.CurrentTarget.transform.position - currentViewPoint.position ).sqrMagnitude;
+		Entity currentTarget  = m_ValidTargets[ 0 ];
+		Entity previousTarget = m_CurrentTargetInfo.CurrentTarget;
 
+		m_CurrentTargetInfo.CurrentTarget = currentTarget;
+
+		m_CurrentTargetInfo.TargetSqrDistance = ( m_CurrentTargetInfo.CurrentTarget.transform.position - currentViewPoint.position ).sqrMagnitude;
 		// SET NEW TARGET
 		if ( m_CurrentTargetInfo.HasTarget == false && m_OnTargetAquired != null )
 		{
-			m_CurrentTargetInfo.HasTarget = true;
+			m_CurrentTargetInfo.HasTarget = true;			
 			m_OnTargetAquired ( m_CurrentTargetInfo );
 		}
 		else
 		// CHANGING A TARGET
-		if ( m_CurrentTargetInfo.HasTarget == true && m_OnTargetChanged != null )
+		if ( m_CurrentTargetInfo.HasTarget == true && previousTarget != null && previousTarget != currentTarget && m_OnTargetChanged != null )
 		{
 			m_OnTargetChanged( m_CurrentTargetInfo );
 		}
+
 		return true;
 	}
 
@@ -228,7 +231,9 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	private void OnTriggerEnter( Collider other )
 	{
 		LiveEntity liveEntity = other.GetComponent<LiveEntity>();
-		if ( liveEntity != null )
+		IEntity entity = liveEntity as IEntity;
+
+		if ( liveEntity != null && entity.IsActive == true && entity.Health > 0f )
 		{
 			if ( m_AllTargets.Contains( liveEntity ) == true )
 				return;

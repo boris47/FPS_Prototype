@@ -20,7 +20,7 @@ public interface IBullet {
 	void		Setup( float damage, bool canPenetrate, Entity whoRef, Weapon weapon );						// bullets
 	void		Setup( Entity whoRef, Weapon weapon );														// granades and missiles
 	void		SetActive( bool state );
-	void		Shoot( Vector3 position, Vector3 direction );
+	void		Shoot( Vector3 position, Vector3 direction, float velocity = 0f );
 }
 
 
@@ -41,6 +41,7 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 
 	public			Rigidbody	RigidBody				{		get { return m_RigidBody; }		}
 	public			Collider	Collider				{		get { return m_Collider; }		}
+	public			float		Velocity				{		get { return m_Velocity; }		}
 
 
 	protected		Rigidbody	m_RigidBody				= null;
@@ -114,7 +115,7 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Shoot ( Abstract )
-	public		abstract	void	Shoot( Vector3 position, Vector3 direction );
+	public		abstract	void	Shoot( Vector3 position, Vector3 direction, float velocity = 0f );
 
 
 	//////////////////////////////////////////////////////////////////////////

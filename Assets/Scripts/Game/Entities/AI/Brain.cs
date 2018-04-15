@@ -3,7 +3,7 @@ using UnityEngine;
 
 [ System.Serializable ]
 public enum BrainState {
-	EVASIVE,
+//	EVASIVE,
 	NORMAL,
 	ALARMED,
 	SEEKER,

@@ -6,10 +6,10 @@ public class Rifle : Weapon
 	[Header("Rifle Properties")]
 
 	[SerializeField]
-	private		AudioSource						m_AudioSourceFire1					= null;
+	private		CustomAudioSource				m_AudioSourceFire1					= null;
 
 	[SerializeField]
-	private		AudioSource						m_AudioSourceFire2					= null;
+	private		CustomAudioSource				m_AudioSourceFire2					= null;
 
 	[SerializeField]
 	private		float							m_ShotDelay							= 0f;
@@ -35,11 +35,6 @@ public class Rifle : Weapon
 	protected	override void	Awake()
 	{
 		base.Awake();
-
-		SoundEffectManager.Instance.RegisterSource( ref m_AudioSourceFire1 );
-		SoundEffectManager.Instance.RegisterSource( ref m_AudioSourceFire2 );
-		m_AudioSourceFire1.volume = SoundEffectManager.Instance.Volume;
-		m_AudioSourceFire2.volume = SoundEffectManager.Instance.Volume;
 
 		// LOAD CONFIGURATION
 		{
@@ -283,7 +278,7 @@ public class Rifle : Weapon
 		Vector3 direction = fireFirst ? ( m_FirePointFirst.forward + dispVector * m_FireDispersion ).normalized : m_FirePointSecond.forward;
 
 		// AUDIOSOURCE
-		AudioSource audioSource = ( fireFirst ) ? m_AudioSourceFire1 : m_AudioSourceFire2;
+		ICustomAudioSource audioSource = ( fireFirst ) ? m_AudioSourceFire1 : m_AudioSourceFire2;
 
 		// CAM DISPERSION
 		float finalDispersion = m_CamDeviation * bullet.RecoilMult;
@@ -305,20 +300,11 @@ public class Rifle : Weapon
 
 	//////////////////////////////////////////////////////////////////////////
 	// Shoot
-	private		void	Shoot( ref IBullet bullet, ref Vector3 position, ref Vector3 direction, ref AudioSource audioSource, float camDispersion )
+	private		void	Shoot( ref IBullet bullet, ref Vector3 position, ref Vector3 direction, ref ICustomAudioSource audioSource, float camDispersion )
 	{
 		bullet.Shoot( position: position, direction: direction );
 		audioSource.Play();
 		CameraControl.Instance.ApplyDispersion( camDispersion );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnDestroy
-	private void OnDestroy()
-	{
-		SoundEffectManager.Instance.UnRegisterSource( ref m_AudioSourceFire1 );
-		SoundEffectManager.Instance.UnRegisterSource( ref m_AudioSourceFire2 );
 	}
 
 }
