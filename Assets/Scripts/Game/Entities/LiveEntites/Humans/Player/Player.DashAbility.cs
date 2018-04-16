@@ -53,7 +53,7 @@ public partial class Player {
 		CameraControl.Instance.HeadBob.IsActive		= false;
 		CameraControl.Instance.HeadMove.IsActive	= false;
 
-		Time.timeScale = 0.0f;
+		Time.timeScale = 0.1f;
 		yield return StartCoroutine( DashStartEffect( target ) );
 		Time.timeScale = 1.0f;
 

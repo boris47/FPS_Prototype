@@ -1,6 +1,7 @@
 ﻿
 using UnityEngine;
 using System.Collections;
+using FMODUnity;
 
 public interface ICustomAudioSource {
 
@@ -16,6 +17,7 @@ public interface ICustomAudioSource {
 	bool			IsPlaying			{ get; }
 
 	void			Play				();
+	void			Stop				();
 	void			FadeIn				( float time );
 	void			FadeOut				( float time );
 
@@ -25,22 +27,25 @@ public interface ICustomAudioSource {
 public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 
 	[SerializeField]
-	private		AudioSource		m_AudioSource			= null;
+	private		AudioSource			m_AudioSource			= null;
 
 	[SerializeField]
-	private		float			m_InternalVolume		= 1f;
+	private		StudioEventEmitter	m_AudioEmitter			= null;
 
 	[SerializeField]
-	private		float			m_InternalPitch			= 1f;
+	private		float				m_InternalVolume		= 1f;
+
+	[SerializeField]
+	private		float				m_InternalPitch			= 1f;
 
 	[SerializeField, ReadOnly]
-	private		float			m_Volume				= 1f;
+	private		float				m_Volume				= 1f;
 
 	[SerializeField, ReadOnly]
-	private		float			m_Pitch					= 1f;
+	private		float				m_Pitch					= 1f;
 
 	[SerializeField, ReadOnly]
-	private		bool			m_IsFading				= false;
+	private		bool				m_IsFading				= false;
 
 
 	// INTERFACE START
@@ -55,18 +60,37 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 			bool			ICustomAudioSource.IsPlaying			{ get { return m_AudioSource.isPlaying; } }
 	// INTERFACE END
 
+	
 	//////////////////////////////////////////////////////////////////////////
 	// Awake
 	private void Awake()
 	{
-		if ( m_AudioSource == null )
+		if ( m_AudioSource == null && m_AudioEmitter == null )
 		{
 			Destroy( this );
 			return;
 		}
+	}
 
-		SoundEffectManager.Instance.RegisterSource( ref m_AudioSource );
-		m_AudioSource.volume = m_InternalVolume = SoundEffectManager.Instance.Volume;
+
+	//////////////////////////////////////////////////////////////////////////
+	// Start
+	private void Start()
+	{
+		m_Volume = SoundEffectManager.Instance.Volume;
+
+		if ( m_AudioSource != null )
+		{
+			SoundEffectManager.Instance.RegisterSource( ref m_AudioSource );
+			m_AudioSource.volume = m_InternalVolume * m_Volume;
+			return;
+		}
+
+		if ( m_AudioEmitter != null )
+		{
+			SoundEffectManager.Instance.RegisterSource( ref m_AudioEmitter );
+			m_AudioEmitter.EventInstance.setVolume( m_InternalVolume * m_Volume );
+		}
 	}
 
 
@@ -77,8 +101,18 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 		if ( m_IsFading == true )
 			return;
 
-		m_AudioSource.volume = m_InternalVolume * m_Volume;
-		m_AudioSource.pitch	 = m_InternalPitch  * m_Pitch;
+		if ( m_AudioSource != null )
+		{
+			m_AudioSource.volume = m_InternalVolume * m_Volume;
+			m_AudioSource.pitch	 = m_InternalPitch  * m_Pitch;
+			return;
+		}
+
+		if ( m_AudioEmitter != null )
+		{
+			m_AudioEmitter.EventInstance.setVolume( m_InternalVolume * m_Volume );
+			m_AudioEmitter.EventInstance.setPitch( m_InternalPitch  * m_Pitch );
+		}
 	}
 
 
@@ -86,7 +120,33 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 	// Play
 	void	ICustomAudioSource.Play()
 	{
-		m_AudioSource.Play();
+		if ( m_AudioSource != null )
+		{
+			m_AudioSource.Play();
+			return;
+		}
+
+		if ( m_AudioEmitter != null )
+		{
+			m_AudioEmitter.Play();
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Play
+	void	ICustomAudioSource.Stop()
+	{
+		if ( m_AudioSource != null )
+		{
+			m_AudioSource.Stop();
+			return;
+		}
+
+		if ( m_AudioEmitter != null )
+		{
+			m_AudioEmitter.Stop();
+		}
 	}
 
 
@@ -122,11 +182,27 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 		{
 			currentTime += Time.unscaledDeltaTime;
 			interpolant = currentTime / time;
-			m_AudioSource.volume = m_InternalVolume * Mathf.Lerp( startMul, endMul, interpolant );
+
+			if ( m_AudioSource != null )
+			{
+				m_AudioSource.volume = m_InternalVolume * Mathf.Lerp( startMul, endMul, interpolant );
+			}
+			if ( m_AudioEmitter != null )
+			{
+				m_AudioEmitter.EventInstance.setVolume( m_InternalVolume * Mathf.Lerp( startMul, endMul, interpolant ) );
+			}
 			yield return null;
 		}
 
-		m_AudioSource.volume = m_Volume = m_InternalVolume * endMul;
+		if ( m_AudioSource != null )
+		{
+			m_AudioSource.volume = m_Volume = m_InternalVolume * endMul;
+		}
+		if ( m_AudioEmitter != null )
+		{
+			m_AudioEmitter.EventInstance.setVolume( m_Volume = m_InternalVolume * endMul );
+		}
+
 		m_IsFading = false;
 	}
 
@@ -138,8 +214,20 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 		if ( SoundEffectManager.Instance == null )
 			return;
 
-		 bool result =  SoundEffectManager.Instance.UnRegisterSource( ref m_AudioSource );
-		if ( result == false )
-			print( name );
+		if ( m_AudioSource != null )
+		{
+			bool result =  SoundEffectManager.Instance.UnRegisterSource( ref m_AudioSource );
+			if ( result == false )
+				print( name );
+			return;
+		}
+
+		if ( m_AudioEmitter != null )
+		{
+			bool result =  SoundEffectManager.Instance.UnRegisterSource( ref m_AudioEmitter );
+			if ( result == false )
+				print( name );
+		}
+		
 	}
 }

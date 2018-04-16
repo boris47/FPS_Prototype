@@ -166,8 +166,13 @@ public class GlobeGranade : GranadeBase {
 		Entity entity = collision.gameObject.GetComponent<Entity>();
 		Shield shield = collision.gameObject.GetComponent<Shield>();
 		if ( entity != null || shield != null )
+		{
 			OnExplosion();
-		else
+			return;
+		}
+
+		IBullet bullet = collision.gameObject.GetComponent<IBullet>();
+		if ( bullet == null )
 			m_RigidBody.constraints = RigidbodyConstraints.FreezeAll;
 	}
 
@@ -177,7 +182,7 @@ public class GlobeGranade : GranadeBase {
 	public	void	MakeDamage( ref Entity entity )
 	{
 		float tmpDmg = m_DamageMax;
-		m_DamageMax *= Time.deltaTime * 0.5f;
+		m_DamageMax *= Time.deltaTime * m_DamageMult;
 		entity.OnHit( ref m_Instance );
 		m_DamageMax = tmpDmg;
 	}

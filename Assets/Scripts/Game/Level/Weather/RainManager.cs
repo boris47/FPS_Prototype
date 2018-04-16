@@ -5,6 +5,8 @@ using System.Collections;
 
 namespace WeatherSystem {
 
+	using FMODUnity;
+
 	[ExecuteInEditMode]
 	public class RainManager : MonoBehaviour {
 
@@ -20,11 +22,6 @@ namespace WeatherSystem {
 		private	const	string				RAIN_MATERIAL					= "Materials/Rain/RainMaterial";
 		private	const	string				RAIN_EXPLOSION_MATERIAL			= "Materials/Rain/RainExplosionMaterial";
 		private	const	string				RAIN_MIST_MATERIAL				= "Materials/Rain/RainMistMaterial";
-
-
-		// SERIALIZED
-		[FMODUnity.EventRef]
-		public string						m_RainSound						= "";
 
 		[SerializeField]
 		private	bool						EnableInEditor					= false;
@@ -48,7 +45,7 @@ namespace WeatherSystem {
 		// PRIVATE PROPERTIES
 		
 		// FMOD
-		private		EventInstance			m_RainEvent;
+		private		StudioEventEmitter		m_AudioEmitter					= null;
 		private		ParameterInstance		m_RainIntensityEvent;
 
 		// RAIN
@@ -79,6 +76,7 @@ namespace WeatherSystem {
 
 #region INITIALIZATION
 
+
 		//////////////////////////////////////////////////////////////////////////
 		// OnEnable
 		private void			OnEnable()
@@ -88,7 +86,7 @@ namespace WeatherSystem {
 
 			//	m_RainFallParticleSystem Child
 			{
-				Transform child = transform.Find( "RainFallParticleSystem" );;
+				Transform child = transform.Find( "RainFallParticleSystem" );
 				if ( child )
 					m_RainFallParticleSystem = child.GetComponent<ParticleSystem>();
 
@@ -101,7 +99,7 @@ namespace WeatherSystem {
 
 			//	m_RainExplosionParticleSystem Child
 			{
-				Transform child = transform.Find( "RainExplosionParticleSystem" );;
+				Transform child = transform.Find( "RainExplosionParticleSystem" );
 				if ( child )
 					m_RainExplosionParticleSystem = child.GetComponent<ParticleSystem>();
 
@@ -203,6 +201,13 @@ namespace WeatherSystem {
 			
 			m_NextThunderTimer = Random.Range( m_ThunderTimerMin, m_ThunderTimerMax );
 
+#if UNITY_EDITOR
+			if ( UnityEditor.EditorApplication.isPlaying == false )
+				return;
+#endif
+
+			m_AudioEmitter = GetComponent<StudioEventEmitter>();
+			m_AudioEmitter.EventInstance.getParameter( "RainIntensity", out m_RainIntensityEvent );
 		}
 
 
@@ -215,9 +220,6 @@ namespace WeatherSystem {
 			m_RainMaterial = null;
 			m_RainIntensity = 0f;
 			m_Camera = null;
-
-			m_RainEvent.stop( STOP_MODE.IMMEDIATE );
-			m_RainEvent.release();
 		}
 
 
@@ -225,14 +227,11 @@ namespace WeatherSystem {
 		// START
 		private void			Start()
 		{
+
 #if UNITY_EDITOR
 			if ( UnityEditor.EditorApplication.isPlaying == false )
 				return;
 #endif
-
-			m_RainEvent = FMODUnity.RuntimeManager.CreateInstance( m_RainSound );
-			m_RainEvent.getParameter( "RainIntensity", out m_RainIntensityEvent );
-			m_RainEvent.start();
 		}
 
 #endregion
@@ -403,9 +402,10 @@ namespace WeatherSystem {
 
 #if UNITY_EDITOR
 			if ( UnityEditor.EditorApplication.isPlaying == false && EnableInEditor == false )
+			{
 				return;
+			}
 #endif
-
 			CheckForRainChange();
 			UpdateRain();
 			UpdateThunderbols();

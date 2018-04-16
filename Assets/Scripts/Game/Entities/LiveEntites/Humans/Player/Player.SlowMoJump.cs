@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 
 public partial class Player {
-	/*
+	
 
 	private	const	float	SLOWMO_EFFECT_SPEED			= 1.0f;
 	
@@ -18,7 +18,7 @@ public partial class Player {
 
 	private	IEnumerator	SlowMoJumpStartEffect()
 	{
-		UnityEngine.UI.Image effectFrame	= UI_InGame.Instance.GetEffectFrame();
+		UnityEngine.UI.Image effectFrame	= UI.Instance.InGame.GetEffectFrame();
 		
 		float	interpolant					= 0f;
 		while ( interpolant < 1f )
@@ -146,5 +146,5 @@ public partial class Player {
 			2f * b
 		);
 	}
-	*/
+	
 }

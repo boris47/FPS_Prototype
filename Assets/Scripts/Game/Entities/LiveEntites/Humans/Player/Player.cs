@@ -247,18 +247,18 @@ public partial class Player : Human {
 			// Get interactable / draggable object
 			if ( m_GrabbedObject == null )
 			{
-				Debug.DrawLine(
-					CameraControl.Instance.transform.position, 
-					CameraControl.Instance.transform.position + CameraControl.Instance.transform.forward * MAX_INTERACTION_DISTANCE
-				);
+				Vector3 startLine = CameraControl.Instance.transform.position;
+				Vector3 endLine = CameraControl.Instance.transform.position + CameraControl.Instance.transform.forward * MAX_INTERACTION_DISTANCE;
 
-				if ( Physics.Raycast( CameraControl.Instance.transform.position, CameraControl.Instance.transform.forward, out m_RaycastHit, MAX_INTERACTION_DISTANCE ) )
+				Debug.DrawLine( startLine, endLine );
+
+				if ( Physics.Linecast( startLine, endLine, out m_RaycastHit ) )
 				{
-//					if ( m_IsDashing == false )
-//					{
+					if ( m_IsDashing == false )
+					{
 						// Only if needed
 						DashTarget currentTarget = m_RaycastHit.transform.GetComponent<DashTarget>();
-						if ( currentTarget != m_CurrentDashTarget )
+						if ( currentTarget != null && currentTarget != m_CurrentDashTarget )
 						{
 							// First target
 							if ( currentTarget != null && m_CurrentDashTarget == null )
@@ -280,12 +280,12 @@ public partial class Player : Human {
 								m_CurrentDashTarget = null;
 							}
 						}
-//					}
 
-					if ( m_CanGrabObjects == true && m_RaycastHit.distance <= m_UseDistance )
-					{
-						m_Grabbable		= m_RaycastHit.transform.GetComponent<Grabbable>();
-						m_Interactable	= m_RaycastHit.transform.GetComponent<IInteractable>();
+						if ( m_CanGrabObjects == true && m_RaycastHit.distance <= m_UseDistance )
+						{
+							m_Grabbable		= m_RaycastHit.transform.GetComponent<Grabbable>();
+							m_Interactable	= m_RaycastHit.transform.GetComponent<IInteractable>();
+						}
 					}
 				}
 				else

@@ -5379,7 +5379,7 @@ MonoBehaviour:
   m_Damage: 5
   m_Magazine: 28
   m_MagazineCapacity: 28
-  m_FireMode: 1
+  m_FireMode: 2
   m_FirePointFirst: {fileID: 4817637554360570}
   m_FirePointSecond: {fileID: 0}
   m_BrustSize: 2
@@ -5445,6 +5445,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 82609173761328568}
+  m_AudioEmitter: {fileID: 0}
   m_InternalVolume: 1
   m_InternalPitch: 1
   m_Volume: 1
@@ -5475,6 +5476,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 82321352757280934}
+  m_AudioEmitter: {fileID: 0}
   m_InternalVolume: 1
   m_InternalPitch: 1
   m_Volume: 1
@@ -5491,7 +5493,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47f83079c3f965d4aac80037e816f753, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Velocity: 15
+  m_Velocity: 30
   m_Range: 15
   m_DamageMult: 3
   m_RecoilMult: 5
@@ -5508,7 +5510,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Velocity: 18
-  m_Range: 18
+  m_Range: 30
   m_DamageMult: 1
   m_RecoilMult: 1
 --- !u!114 &114755324979956880
@@ -5552,7 +5554,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 82783435004495410}
-  m_InternalVolume: 1
+  m_AudioEmitter: {fileID: 0}
+  m_InternalVolume: 0.2
   m_InternalPitch: 1
   m_Volume: 1
   m_Pitch: 1
@@ -5569,7 +5572,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 82281290498818910}
-  m_InternalVolume: 1
+  m_AudioEmitter: {fileID: 0}
+  m_InternalVolume: 0.2
   m_InternalPitch: 1
   m_Volume: 1
   m_Pitch: 1
@@ -5650,7 +5654,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 82361980739612942}
-  m_InternalVolume: 1
+  m_AudioEmitter: {fileID: 0}
+  m_InternalVolume: 0.2
   m_InternalPitch: 1
   m_Volume: 1
   m_Pitch: 1

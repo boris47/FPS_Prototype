@@ -101,7 +101,11 @@ public class GenericBullet : Bullet {
 
 		if ( ( entity != null || shield != null ) && ( m_WhoRef is NonLiveEntity && entity is NonLiveEntity ) == false )
 		{
-			EffectManager.Instance.PlayOnHit( collision.contacts[0].point, collision.contacts[0].normal );
+			EffectManager.Instance.PlayEntityOnHit( collision.contacts[0].point, collision.contacts[0].normal );
+		}
+		else
+		{
+			EffectManager.Instance.PlayAmbientOnHit( collision.contacts[0].point, collision.contacts[0].normal );
 		}
 
 

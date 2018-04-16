@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 4552957400381120}
   - component: {fileID: 135434726656573460}
   - component: {fileID: 114652192424628450}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: FieldOfView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -635,6 +635,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 82417872749296558}
+  m_AudioEmitter: {fileID: 0}
   m_InternalVolume: 1
   m_InternalPitch: 1
   m_Volume: 1
@@ -667,6 +668,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 82392063740203998}
+  m_AudioEmitter: {fileID: 0}
   m_InternalVolume: 1
   m_InternalPitch: 1
   m_Volume: 1

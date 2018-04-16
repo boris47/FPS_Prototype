@@ -1,6 +1,7 @@
 ﻿
 using UnityEngine;
 using System.Collections.Generic;
+using FMODUnity;
 
 public interface ISoundEffectManager {
 
@@ -8,7 +9,10 @@ public interface ISoundEffectManager {
 	float		Pitch				{ get; set; }
 
 	void		RegisterSource		( ref AudioSource audioSource );
+	void		RegisterSource		( ref StudioEventEmitter emitter );
 	bool		UnRegisterSource	( ref AudioSource audioSource );
+	bool		UnRegisterSource	( ref StudioEventEmitter emitter );
+
 
 	void		UpdateVolume		( float value );
 	void		UpdatePitch			( float value );
@@ -46,7 +50,8 @@ public class SoundEffectManager : MonoBehaviour, ISoundEffectManager {
 	}
 
 	private		List<AudioSource>				m_Sources		= new List<AudioSource>();
-
+	private		List<StudioEventEmitter>		m_Emitters		= new List<StudioEventEmitter>();
+//	private		FMOD.Studio.Bus					m_FMODBus;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -60,6 +65,13 @@ public class SoundEffectManager : MonoBehaviour, ISoundEffectManager {
 			return;
 		}
 
+		/*
+		if ( FMODUnity.RuntimeManager.IsInitialized )
+		{
+			m_FMODBus = FMODUnity.RuntimeManager.GetBus( "Bus:/" );
+			m_FMODBus.setVolume( m_MainVolume );
+		}
+		*/
 #if UNITY_EDITOR
 			if ( UnityEditor.EditorApplication.isPlaying == true )
 				DontDestroyOnLoad( this );
@@ -72,7 +84,7 @@ public class SoundEffectManager : MonoBehaviour, ISoundEffectManager {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// RegisterSource
+	// RegisterSource ( AudioSource )
 	public	void	RegisterSource( ref AudioSource audioSource )
 	{
 		if ( audioSource == null )
@@ -86,7 +98,19 @@ public class SoundEffectManager : MonoBehaviour, ISoundEffectManager {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// UnRegisterSource
+	// RegisterSource ( EventInstance )
+	public	void		RegisterSource( ref StudioEventEmitter emitter )
+	{
+		m_Emitters.Add( emitter );
+		if ( m_Emitters.Contains( emitter ) == true )
+			return;
+
+		m_Emitters.Add( emitter );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// UnRegisterSource ( AudioSource )
 	public	bool	UnRegisterSource( ref AudioSource audioSource )
 	{
 		if ( audioSource == null )
@@ -102,6 +126,21 @@ public class SoundEffectManager : MonoBehaviour, ISoundEffectManager {
 		}
 
 		m_Sources.Remove( audioSource );
+		return true;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// UnRegisterSource ( EventInstance )
+	public	bool		UnRegisterSource( ref StudioEventEmitter emitter )
+	{
+		if ( m_Emitters.Contains( emitter ) == false )
+		{
+			Debug.LogError( "SoundEffectManager::UnRegisterSource: Trying to unregister a non registered AudioSource !!" );
+			return false;
+		}
+
+		m_Emitters.Remove( emitter );
 		return true;
 	}
 	
@@ -121,6 +160,21 @@ public class SoundEffectManager : MonoBehaviour, ISoundEffectManager {
 
 			source.volume = value;
 		}
+
+		for ( int i = m_Emitters.Count - 1; i > 0; i-- )
+		{
+			StudioEventEmitter emitter = m_Emitters[ i ];
+			if ( emitter == null )
+			{
+				m_Emitters.RemoveAt( i );
+				continue;
+			}
+
+			emitter.EventInstance.setVolume( value );
+		}
+
+//		if ( FMODUnity.RuntimeManager.IsInitialized )
+//			m_FMODBus.setVolume( value );
 	}
 
 
@@ -136,8 +190,19 @@ public class SoundEffectManager : MonoBehaviour, ISoundEffectManager {
 				m_Sources.RemoveAt( i );
 				continue;
 			}
-
 			source.pitch = value;
+		}
+
+		for ( int i = m_Emitters.Count - 1; i > 0; i-- )
+		{
+			StudioEventEmitter emitter = m_Emitters[ i ];
+			if ( emitter == null )
+			{
+				m_Emitters.RemoveAt( i );
+				continue;
+			}
+
+			emitter.EventInstance.setPitch( value );
 		}
 	}
 

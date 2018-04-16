@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-public class SlowMoJumpPlate : MonoBehaviour {
+public class SlowMoJumpPlate : MonoBehaviour, IInteractable {
 
 	[SerializeField]
 	private	bool			m_HasTimeScaleCurveOverride		= false;
@@ -12,6 +12,16 @@ public class SlowMoJumpPlate : MonoBehaviour {
 
 	private		Vector3[] 	m_CurvePoints	= null;
 
+	bool IInteractable.CanInteract
+	{
+		get {
+			return true;
+		}
+
+		set {
+			
+		}
+	}
 
 	private void Awake()
 	{
@@ -38,24 +48,10 @@ public class SlowMoJumpPlate : MonoBehaviour {
 		
 	}
 
-
-	private void OnTriggerEnter( Collider other )
+	void IInteractable.OnInteraction()
 	{
-		print( other.name );
-		Foots foots = other.GetComponent<Foots>();
-		if ( foots == null )
-			return;
-
-		if ( foots.Onwer is Player )
-		{
-			if ( foots.Onwer.IsFalling )
-			{
-				AnimationCurve curve = ( m_HasTimeScaleCurveOverride ) ? m_SlowMoJumpTimeScaleCurve : null;
-
-//				( foots.Onwer as Player ).StartSlowMoJump( ref m_CurvePoints, curve );
-			}
-		}
-
+		AnimationCurve curve = ( m_HasTimeScaleCurveOverride ) ? m_SlowMoJumpTimeScaleCurve : null;
+		Player.Instance.StartSlowMoJump( ref m_CurvePoints, curve );
 	}
 
 }

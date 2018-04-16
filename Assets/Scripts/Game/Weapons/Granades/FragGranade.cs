@@ -117,8 +117,6 @@ public class FragGranade : GranadeBase {
 				m_DamageMax *= dmgMult;
 				entity.OnHit( ref m_Instance );
 				m_DamageMax = tmpDmg;
-
-				EffectManager.Instance.PlayOnHit( entity.transform.position, Vector3.up );
 			}
 
 			Rigidbody rb = hittedCollider.GetComponent<Rigidbody>();
@@ -127,6 +125,7 @@ public class FragGranade : GranadeBase {
                 rb.AddExplosionForce( 1000, transform.position, m_Range, 3.0F );
 			}			
 		}
+		EffectManager.Instance.PlayEntityExplosion( transform.position, Vector3.up );
 		SetActive( false );
 		m_InternalCounter	= 0f;
 	}

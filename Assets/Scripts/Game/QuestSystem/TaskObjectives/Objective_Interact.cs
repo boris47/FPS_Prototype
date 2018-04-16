@@ -9,7 +9,7 @@ namespace QuestSystem {
 		private GameEvent			m_OnInteraction					= null;
 
 		private bool                m_Interactable                  = false;
-		bool						IInteractable.CanInteract		{ get { return m_Interactable; } }
+		bool						IInteractable.CanInteract		{ get { return m_Interactable; } set { m_Interactable = value; } }
 
 
 

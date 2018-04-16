@@ -68,7 +68,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	// AI
 	protected	IBrain			m_Brain							= null;
 	protected	TargetInfo_t	m_TargetInfo					= default( TargetInfo_t );
-	protected	Vector3			m_LastAttackPosition			= Vector3.zero;			// store start position of hitting bullet
+//	protected	Vector3			m_LastAttackPosition			= Vector3.zero;			// store start position of hitting bullet
 
 	[SerializeField]
 	protected	float			m_MinEngageDistance				= 0f;

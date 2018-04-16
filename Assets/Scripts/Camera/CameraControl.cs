@@ -246,4 +246,11 @@ public partial class CameraControl : MonoBehaviour {
 		}
 	
     }
+
+	private void OnDestroy()
+	{
+		var settings = CameraControl.Instance.GetPP_Profile.vignette.settings;
+		settings.intensity = 0f;
+		CameraControl.Instance.GetPP_Profile.vignette.settings = settings;
+	}
 }

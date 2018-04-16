@@ -271,6 +271,8 @@ GameObject:
   - component: {fileID: 114804867122043236}
   - component: {fileID: 114605212361015308}
   - component: {fileID: 114076926009203636}
+  - component: {fileID: 114075304172289102}
+  - component: {fileID: 114195169058867262}
   m_Layer: 0
   m_Name: WeatherManager
   m_TagString: Untagged
@@ -615,7 +617,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1627767709264008}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 12.801796, y: -7.620655, z: 2.489618}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4860614132580272}
@@ -640,8 +642,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1743096916293264}
-  m_LocalRotation: {x: -0, y: 0.54270136, z: -0, w: 0.83992577}
-  m_LocalPosition: {x: 137.5666, y: 30.125713, z: 127.83272}
+  m_LocalRotation: {x: -0, y: 0.6207041, z: -0, w: 0.784045}
+  m_LocalPosition: {x: 131.74466, y: 30.961071, z: 117.40041}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4115387113946056}
@@ -653,7 +655,7 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1244539576925924}
-  m_LocalRotation: {x: 0.078526616, y: 0.9206417, z: -0.24926259, w: 0.29003555}
+  m_LocalRotation: {x: -0.10515181, y: 0.8836674, z: -0.2392522, w: -0.3883728}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -693,7 +695,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1908558156635460}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 15.599112, y: -12.091166, z: 13.595543}
+  m_LocalPosition: {x: -14.725547, y: -11.679954, z: -13.516629}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4860614132580272}
@@ -758,7 +760,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1225481750895570}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 6.645115, y: -9.954211, z: 15.685654}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4860614132580272}
@@ -783,7 +785,7 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1316071310226962}
-  m_LocalRotation: {x: -0.16594724, y: 0.78907585, z: -0.2427939, w: -0.53932554}
+  m_LocalRotation: {x: 0.16435261, y: 0.8291546, z: -0.31662515, w: 0.4303945}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -797,7 +799,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1170061622465358}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 138.9341, y: 5.1257133, z: 128.44914}
+  m_LocalPosition: {x: 133.20464, y: 5.961071, z: 117.74459}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4525273101603036}
@@ -867,7 +869,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1970162993740104}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -17.803755, y: -10.44742, z: 1.6411701}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4860614132580272}
@@ -1399,10 +1401,10 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 24300002, guid: 05bd17279fd96a74f8195ab433fc9d62,
     type: 2}
-  m_audioClip: {fileID: 8300000, guid: b76cbb7f9cd40e74da2846eb3a798757, type: 3}
+  m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1
-  m_Pitch: 1.4788508
+  m_Pitch: 1.5329838
   Loop: 0
   Mute: 0
   Spatialize: 0
@@ -1786,10 +1788,10 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 24300002, guid: 05bd17279fd96a74f8195ab433fc9d62,
     type: 2}
-  m_audioClip: {fileID: 8300000, guid: ab85fe1442074bd48973b4a370dc2f31, type: 3}
+  m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1
-  m_Pitch: 1.3734086
+  m_Pitch: 1.2411121
   Loop: 0
   Mute: 0
   Spatialize: 0
@@ -1995,10 +1997,10 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 24300002, guid: 05bd17279fd96a74f8195ab433fc9d62,
     type: 2}
-  m_audioClip: {fileID: 8300000, guid: b76cbb7f9cd40e74da2846eb3a798757, type: 3}
+  m_audioClip: {fileID: 8300000, guid: e47a756d06de9db4caf922a5578d94c4, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
-  m_Pitch: 1.2331406
+  m_Pitch: 1.3214161
   Loop: 0
   Mute: 0
   Spatialize: 0
@@ -2511,10 +2513,10 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 24300002, guid: 05bd17279fd96a74f8195ab433fc9d62,
     type: 2}
-  m_audioClip: {fileID: 8300000, guid: 52126b146d256554d809aaa35d3211ec, type: 3}
+  m_audioClip: {fileID: 8300000, guid: e47a756d06de9db4caf922a5578d94c4, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
-  m_Pitch: 1.3206944
+  m_Pitch: 1.4099532
   Loop: 0
   Mute: 0
   Spatialize: 0
@@ -3334,7 +3336,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 8
   m_Type: 1
-  m_Color: {r: 1, g: 0.765625, b: 0.613281, a: 1}
+  m_Color: {r: 0.652344, g: 0.644531, b: 0.609375, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
@@ -3387,6 +3389,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 82410980910016402}
+  m_AudioEmitter: {fileID: 0}
   m_InternalVolume: 1
   m_InternalPitch: 1
   m_Volume: 1
@@ -3404,11 +3407,36 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 82606189440422470}
+  m_AudioEmitter: {fileID: 0}
   m_InternalVolume: 1
   m_InternalPitch: 1
   m_Volume: 1
   m_Pitch: 1
   m_IsFading: 0
+--- !u!114 &114075304172289102
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1453529263754520}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Event: event:/RainTransition
+  PlayEvent: 11
+  StopEvent: 12
+  CollisionTag: 
+  AllowFadeout: 0
+  TriggerOnce: 0
+  Preload: 0
+  Params:
+  - Name: 
+    Value: 0.23
+  OverrideAttenuation: 0
+  OverrideMinDistance: 0
+  OverrideMaxDistance: 0
 --- !u!114 &114076926009203636
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3433,7 +3461,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 82123565984446262}
+  m_AudioEmitter: {fileID: 0}
   m_InternalVolume: 1
+  m_InternalPitch: 1
+  m_Volume: 1
+  m_Pitch: 1
+  m_IsFading: 0
+--- !u!114 &114195169058867262
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1453529263754520}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdfa74a5214869847b3bcaf4db64312b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AudioSource: {fileID: 0}
+  m_AudioEmitter: {fileID: 114075304172289102}
+  m_InternalVolume: 0.2
   m_InternalPitch: 1
   m_Volume: 1
   m_Pitch: 1
@@ -3450,6 +3497,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 82700547556709428}
+  m_AudioEmitter: {fileID: 0}
   m_InternalVolume: 1
   m_InternalPitch: 1
   m_Volume: 1
@@ -3467,6 +3515,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 82306654086819242}
+  m_AudioEmitter: {fileID: 0}
   m_InternalVolume: 1
   m_InternalPitch: 1
   m_Volume: 1
@@ -3484,6 +3533,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 82453561412330504}
+  m_AudioEmitter: {fileID: 0}
   m_InternalVolume: 1
   m_InternalPitch: 1
   m_Volume: 1
@@ -3501,6 +3551,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 82292849039930918}
+  m_AudioEmitter: {fileID: 0}
   m_InternalVolume: 1
   m_InternalPitch: 1
   m_Volume: 1
@@ -3530,6 +3581,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 82803527121598880}
+  m_AudioEmitter: {fileID: 0}
   m_InternalVolume: 1
   m_InternalPitch: 1
   m_Volume: 1
@@ -3547,6 +3599,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 82148027280089722}
+  m_AudioEmitter: {fileID: 0}
   m_InternalVolume: 1
   m_InternalPitch: 1
   m_Volume: 1
@@ -3564,6 +3617,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 82738306831061184}
+  m_AudioEmitter: {fileID: 0}
   m_InternalVolume: 1
   m_InternalPitch: 1
   m_Volume: 1
@@ -3581,6 +3635,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 82068565119255574}
+  m_AudioEmitter: {fileID: 0}
   m_InternalVolume: 1
   m_InternalPitch: 1
   m_Volume: 1
@@ -3598,10 +3653,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 82403385769713012}
+  m_AudioEmitter: {fileID: 0}
   m_InternalVolume: 1
   m_InternalPitch: 1
-  m_Volume: 1
-  m_Pitch: 1
+  m_Volume: 1.1260462
+  m_Pitch: 1.2411121
   m_IsFading: 0
 --- !u!114 &114605212361015308
 MonoBehaviour:
@@ -3614,9 +3670,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a491b8ef29b38624f9ae2d8beea4dd0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_RainSound: event:/RainTransition
   EnableInEditor: 0
-  m_RainIntensity: 0
+  m_RainIntensity: 1
   m_RainHeight: 25
   m_RainForwardOffset: -1.5
 --- !u!114 &114613563801474314
@@ -3631,10 +3686,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 82714487343950330}
+  m_AudioEmitter: {fileID: 0}
   m_InternalVolume: 1
   m_InternalPitch: 1
-  m_Volume: 1
-  m_Pitch: 1
+  m_Volume: 1.6863478
+  m_Pitch: 1.4099532
   m_IsFading: 0
 --- !u!114 &114624837312378682
 MonoBehaviour:
@@ -3648,6 +3704,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 82847016934890270}
+  m_AudioEmitter: {fileID: 0}
   m_InternalVolume: 1
   m_InternalPitch: 1
   m_Volume: 1
@@ -3665,6 +3722,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 82141017150279836}
+  m_AudioEmitter: {fileID: 0}
   m_InternalVolume: 1
   m_InternalPitch: 1
   m_Volume: 1
@@ -3682,6 +3740,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 82719005609502330}
+  m_AudioEmitter: {fileID: 0}
   m_InternalVolume: 1
   m_InternalPitch: 1
   m_Volume: 1
@@ -3699,6 +3758,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 82698796588473398}
+  m_AudioEmitter: {fileID: 0}
   m_InternalVolume: 1
   m_InternalPitch: 1
   m_Volume: 1
@@ -3715,10 +3775,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86b1a54e6e7867a4494416608a23faa8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CurrentDayTime: 09:30:02
+  CurrentDayTime: 15:35:59
   EnableInEditor: 0
   m_TimeFactor: 1
-  m_CurrentCycleName: Clear
+  m_CurrentCycleName: Rainy
   m_WeatherChoiceFactor: 1.1
 --- !u!114 &114923817651094834
 MonoBehaviour:
@@ -3732,6 +3792,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 82885341448640928}
+  m_AudioEmitter: {fileID: 0}
   m_InternalVolume: 1
   m_InternalPitch: 1
   m_Volume: 1
@@ -3749,6 +3810,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 82307895417713450}
+  m_AudioEmitter: {fileID: 0}
   m_InternalVolume: 1
   m_InternalPitch: 1
   m_Volume: 1
@@ -3826,7 +3888,7 @@ ParticleSystem:
   moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 2
-  randomSeed: -750941461
+  randomSeed: -1438398909
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -4350,7 +4412,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 2093.3335
+      scalar: 5730.512
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -7016,7 +7078,7 @@ ParticleSystem:
   moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 2
-  randomSeed: 1928565719
+  randomSeed: -1570042057
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -10284,7 +10346,7 @@ ParticleSystem:
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 2
-  randomSeed: -1533604000
+  randomSeed: -774806235
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -13453,7 +13515,7 @@ ParticleSystemRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: bd4df8ad7f6a91b4aad18ac427db8176, type: 2}
   - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
@@ -13557,7 +13619,7 @@ ParticleSystemRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: 5a5cdbef1fec3ec4ab759228c8234ed5, type: 2}
   - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0

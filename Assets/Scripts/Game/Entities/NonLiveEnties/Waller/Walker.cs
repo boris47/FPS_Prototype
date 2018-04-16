@@ -90,6 +90,11 @@ public abstract class Walker : NonLiveEntity {
 		
 		base.OnHit( ref bullet ); // set start bullet position as point to face at if not attacking
 
+		if ( m_TargetInfo.HasTarget == false && bullet is GranadeBase )
+		{
+			m_PointToFace = bullet.Transform.position;
+		}
+
 		m_DistanceToTravel	= ( transform.position - m_PointToFace ).sqrMagnitude;
 		m_Destination = bullet.Transform.position;
 		m_HasDestination = true;

@@ -40,6 +40,9 @@ public abstract partial class Entity {
 	{
 		if ( OnKilled != null )
 			OnKilled();
+
+		EffectManager.Instance.PlayEntityExplosion( transform.position, transform.up );
+		EffectManager.Instance.PlayerExplosionSound( transform.position );
 	}
 
 
