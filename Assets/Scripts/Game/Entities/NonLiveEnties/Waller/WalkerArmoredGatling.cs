@@ -12,5 +12,5 @@ public class WalkerArmoredGatling : Walker {
 
 		base.Awake();
 	}
-	
+
 }

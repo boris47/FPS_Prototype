@@ -2,7 +2,7 @@
 using UnityEngine;
 using System.Collections;
 
-public abstract class Drone : NonLiveEntity {
+public abstract class Drone : NonLiveEntity, IRespawn {
 
 	[Header("Drone Properties")]
 
@@ -58,6 +58,7 @@ public abstract class Drone : NonLiveEntity {
 		}
 
 		// BULLETS POOL CREATION
+		if ( m_Pool == null )		// check for respawn
 		{
 			GameObject	bulletGO		= m_BulletGameObject;
 			m_Pool = new GameObjectsPool<Bullet>
@@ -79,6 +80,8 @@ public abstract class Drone : NonLiveEntity {
 				}
 			);
 		}
+		m_Pool.SetActive( true );
+		m_ShotTimer = 0f;
 	}
 
 
@@ -115,8 +118,13 @@ public abstract class Drone : NonLiveEntity {
 	public override void OnKill()
 	{
 		base.OnKill();
-		m_Pool.Destroy();
+		m_Pool.SetActive( false );
 		gameObject.SetActive( false );
+
+		if ( m_RespawnPoint != null )
+		{
+			m_RespawnPoint.Respawn( this, 2f );
+		}
 	}
 
 
@@ -211,7 +219,7 @@ public abstract class Drone : NonLiveEntity {
 
 	//////////////////////////////////////////////////////////////////////////
 	// FireLongRange ( Override )
-	 protected override void FireLongRange( float deltaTime )
+	protected override void FireLongRange( float deltaTime )
 	{
 		if ( m_ShotTimer > 0 )
 				return;
@@ -224,4 +232,37 @@ public abstract class Drone : NonLiveEntity {
 		m_FireAudioSource.Play();
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnRespawn
+	void IRespawn.OnRespawn()
+	{
+		transform.position = m_RespawnPoint.transform.position;
+		transform.rotation = m_RespawnPoint.transform.rotation;
+
+		gameObject.SetActive( true );
+
+		// Entity
+		m_IsActive						= true;
+		m_TargetInfo					= default( TargetInfo_t );
+		m_HasDestination				= false;
+		m_HasFaceTarget					= false;
+		m_Destination					= Vector3.zero;
+		m_PointToFace					= Vector3.zero;
+		m_IsMoving						= false;
+		m_IsAllignedBodyToDestination	= false;
+		m_StartMovePosition				= Vector3.zero;
+		m_DistanceToTravel				= 0f;
+
+		// NonLiveEntity
+		m_ShotTimer						= 0f;
+		m_AllignedGunToPoint			= false;
+
+		// Reinitialize properties
+		Awake();
+
+		m_Brain.OnReset();
+		if ( m_Shield != null )
+			( m_Shield as IShield ).OnReset();
+	}
 }

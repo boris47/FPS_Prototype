@@ -12,7 +12,6 @@ public abstract partial class NonLiveEntity : Entity {
 	[SerializeField]
 	protected		float				m_GunRotationSpeed			= 5f;
 
-//	[SerializeField]
 	protected		ICustomAudioSource	m_FireAudioSource			= null;
 	protected		Shield				m_Shield					= null;
 

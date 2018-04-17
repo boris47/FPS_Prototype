@@ -3410,7 +3410,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1029250508258008}
   m_LocalRotation: {x: -0, y: 0.3826834, z: -0, w: 0.92387956}
-  m_LocalPosition: {x: 136.96, y: 5.9, z: 118.87}
+  m_LocalPosition: {x: 126.23, y: 5.9, z: 88.36}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4038474704227422}
@@ -4608,7 +4608,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.01
-  far clip plane: 1000
+  far clip plane: 100
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -5378,7 +5378,7 @@ MonoBehaviour:
   m_ZoomOffset: {x: -0.0599, y: -0.01, z: 0}
   m_Damage: 5
   m_Magazine: 28
-  m_MagazineCapacity: 28
+  m_MagazineCapacity: 32
   m_FireMode: 2
   m_FirePointFirst: {fileID: 4817637554360570}
   m_FirePointSecond: {fileID: 0}
@@ -5493,7 +5493,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47f83079c3f965d4aac80037e816f753, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Velocity: 30
+  m_Velocity: 35
   m_Range: 15
   m_DamageMult: 3
   m_RecoilMult: 5

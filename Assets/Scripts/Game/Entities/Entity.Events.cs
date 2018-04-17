@@ -38,8 +38,13 @@ public abstract partial class Entity {
 	// OnKill ( Virtual )
 	public	virtual		void				OnKill()
 	{
+		m_RigidBody.velocity			= Vector3.zero;
+		m_RigidBody.angularVelocity		= Vector3.zero;
+
 		if ( OnKilled != null )
 			OnKilled();
+
+		m_IsActive = false;
 
 		EffectManager.Instance.PlayEntityExplosion( transform.position, transform.up );
 		EffectManager.Instance.PlayerExplosionSound( transform.position );

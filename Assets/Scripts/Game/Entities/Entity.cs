@@ -73,6 +73,9 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	[SerializeField]
 	protected	float			m_MinEngageDistance				= 0f;
 
+	[SerializeField]
+	protected	RespawnPoint	m_RespawnPoint					= null;
+
 
 	// NAVIGATION
 	protected	bool			m_HasDestination				= false;
@@ -97,7 +100,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake
-	protected virtual	void				Awake()
+	protected	virtual	void	Awake()
 	{
 		m_ID				= NewID();
 		m_PhysicCollider	= GetComponent<CapsuleCollider>();
@@ -115,6 +118,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Update
-	public abstract	void	OnFrame( float deltaTime );
+	public	abstract	void	OnFrame( float deltaTime );
 
 }

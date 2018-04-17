@@ -15,7 +15,7 @@ Climb					= 0.1;
 FallDistanceThreshold	= 5.0; in meters
 
 ;						JumpForce,	Stamina usage
-Jump					= 4.2,		0.2;
+Jump					= 6.2,		0.2;
 
 ; Stamina
 StaminaRestore			= 0.08;

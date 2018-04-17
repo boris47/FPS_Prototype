@@ -20,10 +20,11 @@ public struct TargetInfo_t {
 
 // Brain Interface
 public interface IBrain {
-	IFieldOfView				FieldOfView						{	get;	}
-	BrainState					State							{	get;	}
+	IFieldOfView				FieldOfView				{	get;	}
+	BrainState					State					{	get;	}
 
 	void						ChangeState				( BrainState newState );
+	void						OnReset					();
 }
 
 namespace AI_Behaviours {
@@ -80,7 +81,8 @@ namespace AI_Behaviours {
 //		private				TargetInfo_t				m_CurrentTargetInfo				= default( TargetInfo_t );
 							
 
-
+		//////////////////////////////////////////////////////////////////////////
+		// Awake
 		private void	Awake()
 		{
 /*			m_BehaviourEvasive				= new Behaviour_Evasive		( this,		null								);
@@ -96,6 +98,8 @@ namespace AI_Behaviours {
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
+		// Update
 		private void	Update()
 		{
 			float dt = Time.deltaTime;
@@ -111,6 +115,8 @@ namespace AI_Behaviours {
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
+		// ChangeState
 		public	void	ChangeState( BrainState newState )
 		{
 			if ( newState == m_CurrentBrainState )
@@ -138,6 +144,16 @@ namespace AI_Behaviours {
 			}
 */
 //			m_CurrentBrain.OnEnable();
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		// OnReset
+		void	IBrain.OnReset()
+		{
+			m_CurrentBrainState		= BrainState.NORMAL;
+			m_ThinkTimer			= 0f;
+
+			m_FieldOfView.OnReset();
 		}
 		
 	}

@@ -14,8 +14,9 @@ public interface IFieldOfView {
 	OnTargetEvent		OnTargetChanged		{ set; }
 	OnTargetEvent		OnTargetLost		{ set; }
 
-	void				Setup( uint maxVisibleEntities );
-	bool				UpdateFOV();
+	void				Setup				( uint maxVisibleEntities );
+	bool				UpdateFOV			();
+	void				OnReset				();
 }
 
 
@@ -223,6 +224,16 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		}
 
 		return true;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnReset
+	void	IFieldOfView.OnReset()
+	{
+		m_CurrentTargetInfo	= default( TargetInfo_t );
+		System.Array.Clear( m_ValidTargets, 0, ( int ) m_MaxVisibleEntities );
+		m_AllTargets.Clear();
 	}
 
 

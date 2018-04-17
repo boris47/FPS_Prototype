@@ -92,6 +92,17 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 			m_AudioEmitter.EventInstance.setVolume( m_InternalVolume * m_Volume );
 		}
 	}
+	
+
+	//////////////////////////////////////////////////////////////////////////
+	// SetParamenter
+	public	void	SetParamenter( float value )
+	{
+		if ( m_AudioEmitter != null )
+		{
+			m_AudioEmitter.SetParameter( "Phase", value );
+		}
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////

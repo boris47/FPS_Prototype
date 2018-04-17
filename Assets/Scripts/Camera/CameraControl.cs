@@ -4,6 +4,8 @@ using UnityEngine.PostProcessing;
 
 public partial class CameraControl : MonoBehaviour {
 
+	private	const	float	WPN_ROTATION_CLAMP_VALUE	= 5f;
+
 	public	const	float	CLAMP_MAX_X_AXIS			= 80.0f;
 	public	const	float	CLAMP_MIN_X_AXIS			= -80.0f;
 
@@ -73,7 +75,6 @@ public partial class CameraControl : MonoBehaviour {
 	}
 
 	private float			m_CurrentRotation_X_Delta	= 0.0f;
-//	private float			m_CurrentRotation_Y			= 0.0f;
 	private float			m_CurrentRotation_Y_Delta	= 0.0f;
 
 	private	float			m_CameraFPS_Shift			= 0.0f;
@@ -82,6 +83,9 @@ public partial class CameraControl : MonoBehaviour {
 	private	Vector3			m_CurrentDispersion			= Vector3.zero;
 	private	Vector3			m_WeaponPositionDelta		= Vector3.zero;
 	private	Vector3			m_WeaponRotationDelta		= Vector3.zero;
+
+	private	Vector3			m_WpnRotationfeedbackX		= Vector3.zero;
+	private	Vector3			m_WpnRotationfeedbackY		= Vector3.zero;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -117,7 +121,6 @@ public partial class CameraControl : MonoBehaviour {
 	// Start
 	private	void	Start()
 	{
-
 		m_CurrentDirection = transform.rotation.eulerAngles;
 
 		Cursor.visible = false;
@@ -150,6 +153,9 @@ public partial class CameraControl : MonoBehaviour {
 			return;
 		}
 		
+		m_WpnRotationfeedbackX = Vector3.Lerp( m_WpnRotationfeedbackX, Vector3.zero, Time.deltaTime );
+		m_WpnRotationfeedbackY = Vector3.Lerp( m_WpnRotationfeedbackY, Vector3.zero, Time.deltaTime );
+
 		// Cam Dispersion
 		m_CurrentDirection = Vector3.Lerp( m_CurrentDirection, m_CurrentDirection + m_CurrentDispersion, Time.deltaTime * 8f );
 		m_CurrentDirection.x = Utils.Math.Clamp( m_CurrentDirection.x - m_CurrentRotation_Y_Delta, CLAMP_MIN_X_AXIS, CLAMP_MAX_X_AXIS );
@@ -166,9 +172,6 @@ public partial class CameraControl : MonoBehaviour {
 			{
 				m_WeaponPositionDelta = m_HeadBob.WeaponPositionDelta + m_HeadMove.WeaponPositionDelta;
 				m_WeaponRotationDelta = m_HeadBob.WeaponRotationDelta + m_HeadMove.WeaponRotationDelta;
-
-				Weapon.Array[ WeaponManager.Instance.CurrentWeaponIndex ].Transform.localPosition = m_WeaponPositionDelta;
-				Weapon.Array[ WeaponManager.Instance.CurrentWeaponIndex ].Transform.localEulerAngles = m_WeaponRotationDelta;
 			}
 		}
 		else
@@ -232,8 +235,19 @@ public partial class CameraControl : MonoBehaviour {
 				m_CurrentDirection.y = m_CurrentDirection.y + m_CurrentRotation_X_Delta;
 			}
 
-			// rotation with effect added
 			transform.rotation = Quaternion.Euler( m_CurrentDirection + m_HeadBob.Direction + m_HeadMove.Direction );
+
+			// rotation with effect added
+			{
+				Vector3 m_WpnRotationfeedbackXfinal = Vector3.ClampMagnitude(  Vector3.up		* Axis_X_Delta, WPN_ROTATION_CLAMP_VALUE * ( isZoomed ? 0.2f : 1.0f ) );
+				Vector3 m_WpnRotationfeedbackYfinal = Vector3.ClampMagnitude(  Vector3.forward  * Axis_Y_Delta, WPN_ROTATION_CLAMP_VALUE * ( isZoomed ? 0.2f : 1.0f ) );
+
+				m_WpnRotationfeedbackX = Vector3.Lerp( m_WpnRotationfeedbackX, m_WpnRotationfeedbackXfinal, Time.deltaTime * 5f );
+				m_WpnRotationfeedbackY = Vector3.Lerp( m_WpnRotationfeedbackY, m_WpnRotationfeedbackYfinal, Time.deltaTime * 5f );
+
+				m_WeaponRotationDelta += m_WpnRotationfeedbackX;
+				m_WeaponRotationDelta += m_WpnRotationfeedbackY;
+			}
 		}
 
 
@@ -244,9 +258,14 @@ public partial class CameraControl : MonoBehaviour {
 			m_CameraFPS_Shift = Mathf.Lerp( m_CameraFPS_Shift, ( isCrouched ) ? 0.5f : 1.0f, Time.deltaTime * 10f );
 			transform.position = m_ViewPoint.transform.parent.transform.TransformPoint( m_ViewPoint.transform.localPosition * m_CameraFPS_Shift );
 		}
-	
+
+		WeaponManager.Instance.CurrentWeapon.Transform.localPosition	 = m_WeaponPositionDelta;
+		WeaponManager.Instance.CurrentWeapon.Transform.localEulerAngles	 = m_WeaponRotationDelta;
     }
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnDestroy
 	private void OnDestroy()
 	{
 		var settings = CameraControl.Instance.GetPP_Profile.vignette.settings;

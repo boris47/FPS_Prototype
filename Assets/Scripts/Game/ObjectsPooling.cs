@@ -109,9 +109,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 		for ( int i = 0; i < size; i++ )
 		{
 			GameObject objectCopy = Object.Instantiate( model );
-
 			objectCopy.transform.SetParent( m_Container.transform );
-
 			T comp = objectCopy.GetComponent<T>();
 			if ( actionOnObject != null )
 				actionOnObject( comp );
@@ -125,19 +123,6 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 		if ( model.scene.name != null && destroyModel == true )
 			Object.Destroy( model.gameObject );
 	}
-
-	/*
-	//////////////////////////////////////////////////////////////////////////
-	// Resize
-	public	void	Resize( uint newSize )
-	{
-		T[] tmpArray = new T[ newSize ];
-
-		ObjectsPool<T> objectsPool = new ObjectsPool<T>( newSize );
-
-
-	}
-	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	// GetGameObject
@@ -160,6 +145,14 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 			m_InternalIndex = 0;
 
 		return m_ObjectsPool.At( m_InternalIndex );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// SetActive
+	public	void		SetActive( bool state )
+	{
+		m_Container.SetActive( state );
 	}
 
 	//////////////////////////////////////////////////////////////////////////

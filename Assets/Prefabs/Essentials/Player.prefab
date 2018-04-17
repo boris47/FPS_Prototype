@@ -464,6 +464,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MinEngageDistance: 3
+  m_RespawnPoint: {fileID: 0}
   m_UseDistance: 5
   m_Stamina: 0
   m_WalkSpeed: 3

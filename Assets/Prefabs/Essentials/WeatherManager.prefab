@@ -3671,7 +3671,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   EnableInEditor: 0
-  m_RainIntensity: 1
+  m_RainIntensity: 0
   m_RainHeight: 25
   m_RainForwardOffset: -1.5
 --- !u!114 &114613563801474314
@@ -3778,7 +3778,7 @@ MonoBehaviour:
   CurrentDayTime: 15:35:59
   EnableInEditor: 0
   m_TimeFactor: 1
-  m_CurrentCycleName: Rainy
+  m_CurrentCycleName: Clear
   m_WeatherChoiceFactor: 1.1
 --- !u!114 &114923817651094834
 MonoBehaviour:

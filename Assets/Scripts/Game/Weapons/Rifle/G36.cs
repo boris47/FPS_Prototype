@@ -176,7 +176,7 @@ public class G36 : Weapon
 //			StartCoroutine( ZoomOut() );
 		}
 
-		if ( m_Magazine <= 0 || InputManager.Inputs.Reload || m_NeedRecharge )
+		if ( m_Magazine <= 0 || ( InputManager.Inputs.Reload && m_Magazine < m_MagazineCapacity ) || m_NeedRecharge )
 		{
 //			m_AnimatorStdSpeed = anim.speed;
 //			anim.speed = 2f;
@@ -203,6 +203,9 @@ public class G36 : Weapon
 	public	override		bool	CanChangeWeapon()
 	{
 		if ( m_InTransition == true )
+			return false;
+
+		if ( m_LockTimer > 0 )
 			return false;
 
 		return true;	

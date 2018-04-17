@@ -2,7 +2,7 @@
 using UnityEngine;
 
 
-public abstract class Walker : NonLiveEntity {
+public abstract class Walker : NonLiveEntity, IRespawn {
 
 	[SerializeField]
 	protected	GameObject		m_BulletGameObject			= null;
@@ -55,6 +55,7 @@ public abstract class Walker : NonLiveEntity {
 		}
 
 		// BULLETS POOL CREATION
+		if ( m_Pool == null )		// check for respawn
 		{
 			GameObject	bulletGO		= m_BulletGameObject;
 			m_Pool = new GameObjectsPool<Bullet>
@@ -77,6 +78,8 @@ public abstract class Walker : NonLiveEntity {
 				}
 			);
 		}
+		m_Pool.SetActive( true );
+		m_ShotTimer = 0f;
 	}
 
 
@@ -118,9 +121,15 @@ public abstract class Walker : NonLiveEntity {
 	public override void OnKill()
 	{
 		base.OnKill();
-		m_Pool.Destroy();
+		m_Pool.SetActive( false );
 		gameObject.SetActive( false );
+
+		if ( m_RespawnPoint != null )
+		{
+			m_RespawnPoint.Respawn( this, 2f );
+		}
 	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnTargetLost ( Override )
@@ -178,6 +187,7 @@ public abstract class Walker : NonLiveEntity {
 		m_Destination					= Vector3.zero;
 		m_IsMoving						= false;
 		m_RigidBody.velocity			= Vector3.zero;
+		m_RigidBody.angularVelocity		= Vector3.zero;
 		m_StartMovePosition				= Vector3.zero;
 		m_DistanceToTravel				= 0f;
 	}
@@ -198,7 +208,7 @@ public abstract class Walker : NonLiveEntity {
 
 		Vector3 dirToPosition	 = ( m_PointToFace - transform.position );
 		float	travelledDistance = ( m_StartMovePosition - transform.position ).sqrMagnitude;
-		if ( travelledDistance > m_DistanceToTravel )   // point reached
+		if ( ( m_Destination - transform.position ).sqrMagnitude < 4f || travelledDistance > m_DistanceToTravel )   // point reached
 		{
 			if ( m_Brain.State != BrainState.NORMAL )
 				m_Brain.ChangeState( BrainState.NORMAL );
@@ -224,6 +234,40 @@ public abstract class Walker : NonLiveEntity {
 		bullet.Shoot( position: m_FirePoint.position, direction: m_FirePoint.forward );
 		
 		m_FireAudioSource.Play();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnRespawn
+	void IRespawn.OnRespawn()
+	{
+		transform.position = m_RespawnPoint.transform.position;
+		transform.rotation = m_RespawnPoint.transform.rotation;
+
+		gameObject.SetActive( true );
+
+		// Entity
+		m_IsActive						= true;
+		m_TargetInfo					= default( TargetInfo_t );
+		m_HasDestination				= false;
+		m_HasFaceTarget					= false;
+		m_Destination					= Vector3.zero;
+		m_PointToFace					= Vector3.zero;
+		m_IsMoving						= false;
+		m_IsAllignedBodyToDestination	= false;
+		m_StartMovePosition				= Vector3.zero;
+		m_DistanceToTravel				= 0f;
+
+		// NonLiveEntity
+		m_ShotTimer						= 0f;
+		m_AllignedGunToPoint			= false;
+
+		// Reinitialize properties
+		Awake();
+
+		m_Brain.OnReset();
+		if ( m_Shield != null )
+			( m_Shield as IShield ).OnReset();
 	}
 	
 }

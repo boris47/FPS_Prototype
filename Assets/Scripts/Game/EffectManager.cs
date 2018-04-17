@@ -3,29 +3,28 @@ using System.Collections;
 
 public class EffectManager : MonoBehaviour {
 
-	public	static	EffectManager	Instance						= null;
+	public	static	EffectManager	Instance								= null;
 
 	[ SerializeField ]
-	private		ParticleSystem		m_ParticleSystemEntityOnHit		= null;
+	private		ParticleSystem		m_ParticleSystemEntityOnHit				= null;
 
 	[ SerializeField ]
-	private		ParticleSystem		m_ParticleSystemAmbientOnHit	= null;
+	private		ParticleSystem		m_ParticleSystemAmbientOnHit			= null;
 
 	[ SerializeField ]
-	private		ParticleSystem		m_ParticleSystemEntityExplosion	= null;
-
+	private		GameObject			m_ExplosionParticleSystemsCollection	= null;
 
 	[ SerializeField ]
-	private		CustomAudioSource	m_ExplosionSource				= null;
+	private		CustomAudioSource	m_ExplosionSource						= null;
 
-
+	private		ParticleSystem[]	m_ExplosionParticleSystems				= null;
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake
 	private void	Awake()
 	{
-		if ( m_ParticleSystemEntityOnHit == null || m_ParticleSystemAmbientOnHit == null || m_ParticleSystemEntityExplosion == null || m_ExplosionSource == null )
+		if ( m_ParticleSystemEntityOnHit == null || m_ParticleSystemAmbientOnHit == null || m_ExplosionParticleSystemsCollection == null || m_ExplosionSource == null )
 			return;
 
 		if ( Instance != null )
@@ -35,6 +34,8 @@ public class EffectManager : MonoBehaviour {
 		}
 		Instance = this;
 		DontDestroyOnLoad( this );
+
+		m_ExplosionParticleSystems = m_ExplosionParticleSystemsCollection.GetComponentsInChildren<ParticleSystem>();
 	}
 
 
@@ -59,12 +60,31 @@ public class EffectManager : MonoBehaviour {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	// GetFreeParticleSystem
+	private	ParticleSystem	GetFreeParticleSystem()
+	{
+		foreach( ParticleSystem ps in m_ExplosionParticleSystems )
+		{
+			if ( ps.isPlaying )
+				continue;
+
+			return ps;
+		}
+		return null;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	// PlayEntityExplosion
 	public	void	PlayEntityExplosion( Vector3 position, Vector3 direction )
 	{
-		m_ParticleSystemEntityExplosion.transform.position = position;
-		m_ParticleSystemEntityExplosion.transform.forward = direction;
-		m_ParticleSystemEntityExplosion.Play( withChildren : true );
+		ParticleSystem ps =	GetFreeParticleSystem();
+		if ( ps == null )
+			return;
+
+		ps.transform.position = position;
+		ps.transform.forward = direction;
+		ps.Play( withChildren : true );
 	}
 
 

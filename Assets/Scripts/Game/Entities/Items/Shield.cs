@@ -7,8 +7,8 @@ public interface IShield {
 	Entity		Father				{ set; }
 	bool		IsUnbreakable		{ set; }
 
-	void		OnHit				( ref IBullet bullet
-		);
+	void		OnHit				( ref IBullet bullet );
+	void		OnReset				();
 }
 
 [RequireComponent( typeof ( Collider ) )]
@@ -57,6 +57,8 @@ public class Shield : MonoBehaviour, IShield {
 	}
 
 	
+	//////////////////////////////////////////////////////////////////////////
+	// OnCollisionEnter
 	private void OnCollisionEnter( Collision collision )
 	{
 		// Skip if father is shiled owner
@@ -83,6 +85,15 @@ public class Shield : MonoBehaviour, IShield {
 			m_Father.OnHit( ref bullet );
 		}
 		bullet.SetActive( false );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnReset
+	void	IShield.OnReset()
+	{
+		m_Renderer.enabled = true;
+		m_Collider.enabled = true;
 	}
 
 
