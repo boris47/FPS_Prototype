@@ -18,6 +18,9 @@ public class CutsceneEntityManager : MonoBehaviour {
 	private		bool					m_IsExecuted				= false;
 	private		int						m_CurrentIdx				= 0;
 
+	private		Vector3					m_Destination				= Vector3.zero;
+	private		Vector3					m_TargetPosition			= Vector3.zero;
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -45,6 +48,7 @@ public class CutsceneEntityManager : MonoBehaviour {
 		m_EntitySimulation = m_EntityRef as IEntitySimulation;
 		m_EntityRef.CutsceneManager = this;
 
+		/*
 		if ( m_PointsCollection.UseNormalizedTime == true )
 		{
 			switch( m_PointsCollection.Positions.Count )
@@ -56,7 +60,7 @@ public class CutsceneEntityManager : MonoBehaviour {
 				default :	m_InterpolationFunction = SexticInterpolant;		break;
 			}
 		}
-
+		*/
 		IsOK = true;
 	}
 
@@ -68,8 +72,12 @@ public class CutsceneEntityManager : MonoBehaviour {
 		m_PointsCollection				= pointsCollection;
 		m_InternalTimeNormalized		= 0f;
 		m_IsExecuted					= false;
-		IsOK							= false;
+		m_CurrentIdx					= 0;
 
+		m_Destination					= Vector3.zero;
+		m_TargetPosition				= Vector3.zero;
+
+		IsOK							= false;
 		Awake();
 	}
 
@@ -86,30 +94,32 @@ public class CutsceneEntityManager : MonoBehaviour {
 		m_EntitySimulation.EnterSimulationState();
 	}
 
-	private	Vector3	m_Destination		= Vector3.zero;
-	private	Vector3	m_TargetPosition	= Vector3.zero;
+
 	//////////////////////////////////////////////////////////////////////////
 	// Update
 	private	void	Update()
 	{
 		if ( IsPlaying == false )
 			return;
-
+		/*
 		if ( m_PointsCollection.UseNormalizedTime == true )
 		{
 			m_InternalTimeNormalized += Time.deltaTime;
 			if ( m_InternalTimeNormalized > 1f )
 			{
 				m_EntitySimulation.ExitSimulationState();
+				transform.localPosition = Vector3.zero;
 				IsPlaying = false;
 				this.enabled = false;
 			}
 			m_InterpolationFunction( Time.deltaTime );
 		}
 		else
-		{
-			if ( m_CurrentIdx < m_PointsCollection.Positions.Count )			m_Destination		= m_PointsCollection.Positions[ m_CurrentIdx ];
-			if ( m_CurrentIdx < m_PointsCollection.TargetPositions.Count )		m_TargetPosition	= m_PointsCollection.TargetPositions[ m_CurrentIdx ];
+*/		{
+			if ( m_CurrentIdx < m_PointsCollection.Positions.Count )		m_Destination	 = m_PointsCollection.Positions[ m_CurrentIdx ];
+			if ( m_CurrentIdx < m_PointsCollection.TargetPositions.Count )	m_TargetPosition = m_PointsCollection.TargetPositions[ m_CurrentIdx ];
+
+
 
 			transform.position	= m_TargetPosition;
 
@@ -117,16 +127,25 @@ public class CutsceneEntityManager : MonoBehaviour {
 			if ( result == false )
 			{
 				m_CurrentIdx ++;
+
+				// Update store start position for distance check
+				m_EntitySimulation.StarPosition = m_EntityRef.Transform.position;
+
 				if ( m_CurrentIdx >= m_PointsCollection.Positions.Count )
 				{
+					CameraControl.Instance.OnCutsceneEnd();
 					m_EntitySimulation.ExitSimulationState();
+					m_EntitySimulation.StarPosition = Vector3.zero;
+					transform.localPosition = Vector3.zero;
 					IsPlaying = false;
+					this.enabled = false;
 				}
 			}
 		}
 		
 	}
 
+	/*
 
 	//////////////////////////////////////////////////////////////////////////
 	// PlayLinearInterpolation
@@ -225,5 +244,5 @@ public class CutsceneEntityManager : MonoBehaviour {
 		transform.LookAt( targetPosition, Vector3.up );
 		m_EntitySimulation.SimulateMovement( m_PointsCollection.EntityState, position, transform, dt, m_InternalTimeNormalized );
 	}
-
+	*/
 }

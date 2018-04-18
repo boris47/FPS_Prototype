@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 public class PointsCollectionOnline : MonoBehaviour {
 	
-	public		bool								UseNormalizedTime	= false;
+//	public		bool								UseNormalizedTime	= false;
 
 	public		Entity.SimulationMovementType		EntityState			= Entity.SimulationMovementType.WALK;
 	

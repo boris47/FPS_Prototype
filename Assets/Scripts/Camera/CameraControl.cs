@@ -4,7 +4,6 @@ using UnityEngine.PostProcessing;
 
 public interface ICameraSetters {
 	Transform		Target						{ set; }
-	Vector3			CurrentDirection			{ set; }
 }
 
 public partial class CameraControl : MonoBehaviour, ICameraSetters {
@@ -62,16 +61,12 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 	private	Camera			m_CameraRef					= null;
 	public	Camera			MainCamera					{ get { return m_CameraRef == null ? m_CameraRef = GetComponent<Camera>() : m_CameraRef; } }
 
-
-
-
 	private float			m_CurrentRotation_X_Delta	= 0.0f;
 	private float			m_CurrentRotation_Y_Delta	= 0.0f;
 
 	private	float			m_CameraFPS_Shift			= 0.0f;
 
 	private	Vector3			m_CurrentDirection			= Vector3.zero;
-			Vector3			ICameraSetters.CurrentDirection		{ set { m_CurrentDirection = value; } }
 	private	Vector3			m_CurrentDispersion			= Vector3.zero;
 	private	Vector3			m_WeaponPositionDelta		= Vector3.zero;
 	private	Vector3			m_WeaponRotationDelta		= Vector3.zero;
@@ -122,6 +117,18 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	// OnCutsceneEnd
+	public	void	OnCutsceneEnd()
+	{
+		m_CurrentRotation_X_Delta = 0f;
+		m_CurrentRotation_Y_Delta = 0f;
+		m_CurrentDispersion = Vector3.zero;
+		transform.LookAt( m_Target );
+		m_CurrentDirection = transform.forward;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	// ApplyDispersion
 	public	void	ApplyDispersion( float range )
 	{
@@ -136,13 +143,36 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 	{
 		if ( m_ViewPoint == null )
 			return;
+
+		LiveEntity pLiveEnitiy = m_ViewPoint.parent.GetComponent<LiveEntity>();
+		if ( pLiveEnitiy && pLiveEnitiy.IsGrounded )
+		{
+			m_HeadBob.Update ( liveEntity : ref pLiveEnitiy, weight : pLiveEnitiy.IsMoving == true ? 1f : 0f );
+			m_HeadMove.Update( liveEntity : ref pLiveEnitiy, weight : pLiveEnitiy.IsMoving == true ? 0f : 1f );
+		}
+		else
+		{
+			m_HeadBob.Reset ( bInstantly : true );
+			m_HeadMove.Reset( bInstantly : false );
+		}
+
+		// Weapon movements
+		if ( WeaponManager.Instance.CurrentWeapon != null )
+		{
+			m_WeaponPositionDelta = m_HeadBob.WeaponPositionDelta + m_HeadMove.WeaponPositionDelta;
+			m_WeaponRotationDelta = m_HeadBob.WeaponRotationDelta + m_HeadMove.WeaponRotationDelta;
+		}
 		
-		// if Target is assigned force to stop camera effects
+		// Look at target is assigned
 		if ( m_Target != null )
 		{
-//			m_HeadBob.Reset ( bInstantly : true );
-//			m_HeadMove.Reset( bInstantly : false );
-//			return;
+			Vector3 direction = ( m_Target.position - transform.position );
+			transform.forward = Vector3.RotateTowards( transform.forward, direction.normalized, Time.deltaTime, 0.1f );
+			/*
+			transform.forward = Vector3.Slerp( transform.forward, direction.normalized, Time.deltaTime );
+			*/
+			m_CurrentDirection = transform.forward;
+			return;
 		}
 		
 		m_WpnRotationfeedbackX = Vector3.Lerp( m_WpnRotationfeedbackX, Vector3.zero, Time.deltaTime );
@@ -152,25 +182,6 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 		m_CurrentDirection = Vector3.Lerp( m_CurrentDirection, m_CurrentDirection + m_CurrentDispersion, Time.deltaTime * 8f );
 		m_CurrentDirection.x = Utils.Math.Clamp( m_CurrentDirection.x - m_CurrentRotation_Y_Delta, CLAMP_MIN_X_AXIS, CLAMP_MAX_X_AXIS );
 		m_CurrentDispersion = Vector3.Lerp ( m_CurrentDispersion, Vector3.zero, Time.deltaTime * 3.7f );
-
-		LiveEntity pLiveEnitiy = m_ViewPoint.parent.GetComponent<LiveEntity>();
-		if ( pLiveEnitiy && pLiveEnitiy.IsGrounded )
-		{
-			m_HeadBob.Update ( liveEntity : ref pLiveEnitiy, weight : pLiveEnitiy.IsMoving == true ? 1f : 0f );
-			m_HeadMove.Update( liveEntity : ref pLiveEnitiy, weight : pLiveEnitiy.IsMoving == true ? 0f : 1f );
-			
-			// Weapon movements
-			if ( WeaponManager.Instance.CurrentWeapon != null )
-			{
-				m_WeaponPositionDelta = m_HeadBob.WeaponPositionDelta + m_HeadMove.WeaponPositionDelta;
-				m_WeaponRotationDelta = m_HeadBob.WeaponRotationDelta + m_HeadMove.WeaponRotationDelta;
-			}
-		}
-		else
-		{
-			m_HeadBob.Reset ( bInstantly : true );
-			m_HeadMove.Reset( bInstantly : false );
-		}
 	}
 
 
@@ -180,13 +191,6 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 	{
 		if ( m_ViewPoint == null )
 			return;
-
-		// Look at target is assigned
-		if ( m_Target != null )
-		{
-			Vector3 direction = ( m_Target.position - transform.position );
-			transform.forward = Vector3.Slerp( transform.forward, direction.normalized, Time.deltaTime );
-		}
 
 		m_SmoothFactor = Mathf.Clamp( m_SmoothFactor, 1.0f, 10.0f );
 

@@ -14,6 +14,7 @@ public partial class Player {
 	{
 		base.EnterSimulationState();
 		CameraControl.Instance.CanParseInput = false;
+		WeaponManager.Instance.CurrentWeapon.Enabled = false;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -39,9 +40,11 @@ public partial class Player {
 		//	POSITION BY DISTANCE
 		{
 			Vector3 direction = ( destination - transform.position );
+			float distanceToTravel = direction.sqrMagnitude;
+			float distanceTravelled = ( transform.position - m_StartMovePosition ).sqrMagnitude;
 
-			if ( direction.sqrMagnitude < 12f )
-				return false;
+			if ( distanceTravelled > distanceToTravel )
+				return false;				// force logic update
 
 			bool isCrouched = ( movementType == SimulationMovementType.WALK_CROUCHED );
 			float fMove = ( isCrouched ) ? m_CrouchSpeed : m_WalkSpeed;
@@ -70,9 +73,11 @@ public partial class Player {
 		base.ExitSimulationState();
 
 		var cameraSetter = CameraControl.Instance as ICameraSetters;
-		cameraSetter.CurrentDirection = CameraControl.Instance.transform.forward;
 		cameraSetter.Target = null;
 		CameraControl.Instance.CanParseInput = true;
+		WeaponManager.Instance.CurrentWeapon.Enabled = true;
+
+		CameraControl.Instance.transform.rotation = transform.rotation;
 	}
 
 
