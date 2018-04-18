@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections;
 
+
 public partial class Player : Human {
 
 	[Header("Player Properties")]
@@ -192,6 +193,8 @@ public partial class Player : Human {
 		MoveGrabbedObject();
 	}
 
+	public	Transform destPoint;
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// Update
@@ -199,7 +202,6 @@ public partial class Player : Human {
 	{
 		this.OnFrame( Time.deltaTime );
 	}
-
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnFrame

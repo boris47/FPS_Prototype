@@ -63,8 +63,9 @@ public class EffectManager : MonoBehaviour {
 	// GetFreeParticleSystem
 	private	ParticleSystem	GetFreeParticleSystem()
 	{
-		foreach( ParticleSystem ps in m_ExplosionParticleSystems )
+		for ( int i = 0; i < m_ExplosionParticleSystems.Length; i++ )
 		{
+			ParticleSystem ps = m_ExplosionParticleSystems[ i ];
 			if ( ps.isPlaying )
 				continue;
 

@@ -2,11 +2,16 @@
 using UnityEngine;
 using UnityEngine.PostProcessing;
 
-public partial class CameraControl : MonoBehaviour {
+public interface ICameraSetters {
+	Transform		Target						{ set; }
+	Vector3			CurrentDirection			{ set; }
+}
+
+public partial class CameraControl : MonoBehaviour, ICameraSetters {
 
 	private	const	float	WPN_ROTATION_CLAMP_VALUE	= 5f;
 
-	public	const	float	CLAMP_MAX_X_AXIS			= 80.0f;
+	public	const	float	CLAMP_MAX_X_AXIS			=  80.0f;
 	public	const	float	CLAMP_MIN_X_AXIS			= -80.0f;
 
 	// Third person offset max distance
@@ -26,17 +31,12 @@ public partial class CameraControl : MonoBehaviour {
 
 	[SerializeField, Tooltip("Camera ViewPoint"), ReadOnly]
 	private	Transform		m_ViewPoint					= null;
-	public	Transform		ViewPoint
-	{
-		get { return m_ViewPoint; }
-	}
+	public	Transform		ViewPoint					{ get { return m_ViewPoint; } }
 
 	[SerializeField, Tooltip("Camera Target"), ReadOnly]
 	private	Transform		m_Target					= null;
-	public	Transform		Target
-	{
-		get { return m_Target; }
-	}
+	public	Transform		Target						{ get { return m_Target; } }
+			Transform		ICameraSetters.Target		{ set { m_Target = value; } }
 
 	[SerializeField, Range( 0.2f, 20.0f )]
 	private	float			m_MouseSensitivity			= 1.0f;
@@ -49,30 +49,21 @@ public partial class CameraControl : MonoBehaviour {
 
 	[SerializeField]
 	private HeadMove		m_HeadMove					= null;
-	public	HeadMove		HeadMove
-	{
-		get { return m_HeadMove; }
-	}
+	public	HeadMove		HeadMove					{ get { return m_HeadMove; } }
 
 	[SerializeField]
 	private HeadBob			m_HeadBob					= null;
-	public	HeadBob			HeadBob
-	{
-		get { return m_HeadBob; }
-	}
+	public	HeadBob			HeadBob						{ get { return m_HeadBob; } }
 
 	[SerializeField]
-	private Transform			m_WeaponPivot					= null;
-	public	Transform			WeaponPivot
-	{
-		get { return m_WeaponPivot; }
-	}
+	private Transform		m_WeaponPivot				= null;
+	public	Transform		WeaponPivot					{ get { return m_WeaponPivot; } }
 
 	private	Camera			m_CameraRef					= null;
-	public	Camera			MainCamera
-	{
-		get { return m_CameraRef == null ? m_CameraRef = GetComponent<Camera>() : m_CameraRef; }
-	}
+	public	Camera			MainCamera					{ get { return m_CameraRef == null ? m_CameraRef = GetComponent<Camera>() : m_CameraRef; } }
+
+
+
 
 	private float			m_CurrentRotation_X_Delta	= 0.0f;
 	private float			m_CurrentRotation_Y_Delta	= 0.0f;
@@ -80,6 +71,7 @@ public partial class CameraControl : MonoBehaviour {
 	private	float			m_CameraFPS_Shift			= 0.0f;
 
 	private	Vector3			m_CurrentDirection			= Vector3.zero;
+			Vector3			ICameraSetters.CurrentDirection		{ set { m_CurrentDirection = value; } }
 	private	Vector3			m_CurrentDispersion			= Vector3.zero;
 	private	Vector3			m_WeaponPositionDelta		= Vector3.zero;
 	private	Vector3			m_WeaponRotationDelta		= Vector3.zero;
@@ -148,9 +140,9 @@ public partial class CameraControl : MonoBehaviour {
 		// if Target is assigned force to stop camera effects
 		if ( m_Target != null )
 		{
-			m_HeadBob.Reset ( bInstantly : true );
-			m_HeadMove.Reset( bInstantly : false );
-			return;
+//			m_HeadBob.Reset ( bInstantly : true );
+//			m_HeadMove.Reset( bInstantly : false );
+//			return;
 		}
 		
 		m_WpnRotationfeedbackX = Vector3.Lerp( m_WpnRotationfeedbackX, Vector3.zero, Time.deltaTime );
@@ -192,16 +184,11 @@ public partial class CameraControl : MonoBehaviour {
 		// Look at target is assigned
 		if ( m_Target != null )
 		{
-			transform.position = m_ViewPoint.position;
-			transform.LookAt( m_Target );
-			return;
+			Vector3 direction = ( m_Target.position - transform.position );
+			transform.forward = Vector3.Slerp( transform.forward, direction.normalized, Time.deltaTime );
 		}
 
-
-		// User Control
-
-		LiveEntity pLiveEnitiy	= m_ViewPoint.parent.GetComponent<LiveEntity>();
-		m_SmoothFactor			= Mathf.Clamp( m_SmoothFactor, 1.0f, 10.0f );
+		m_SmoothFactor = Mathf.Clamp( m_SmoothFactor, 1.0f, 10.0f );
 
 		// Rotation
 		if ( CanParseInput == true )
@@ -253,6 +240,7 @@ public partial class CameraControl : MonoBehaviour {
 
 		// Position
 		{
+			LiveEntity pLiveEnitiy	= m_ViewPoint.parent.GetComponent<LiveEntity>();
 			bool isCrouched = pLiveEnitiy.IsCrouched;
 			// manage camera height while crouching
 			m_CameraFPS_Shift = Mathf.Lerp( m_CameraFPS_Shift, ( isCrouched ) ? 0.5f : 1.0f, Time.deltaTime * 10f );
@@ -268,8 +256,8 @@ public partial class CameraControl : MonoBehaviour {
 	// OnDestroy
 	private void OnDestroy()
 	{
-		var settings = CameraControl.Instance.GetPP_Profile.vignette.settings;
+		var settings = GetPP_Profile.vignette.settings;
 		settings.intensity = 0f;
-		CameraControl.Instance.GetPP_Profile.vignette.settings = settings;
+		GetPP_Profile.vignette.settings = settings;
 	}
 }

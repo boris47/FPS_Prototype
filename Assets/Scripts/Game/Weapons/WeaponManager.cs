@@ -92,6 +92,21 @@ public class WeaponManager : MonoBehaviour {
 		StartCoroutine( ZoomOutCO() );
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// ChangeWeaponRequest
+	public				void	ChangeWeaponRequest( int wpnIdx )
+	{
+		if ( m_ChangingWpnCO != null )
+			return;
+
+		if ( Weapon.Array[ CurrentWeaponIndex ].CanChangeWeapon() == false )
+			return;
+
+		m_ChangingWpnCO = StartCoroutine( ChangeWeaponCO( wpnIdx ) );
+	}
+
+
 	//////////////////////////////////////////////////////////////////////////
 	// ChangeWeapon
 	public				void	ChangeWeapon( int versus )
@@ -126,14 +141,17 @@ public class WeaponManager : MonoBehaviour {
 		if ( m_ChangingWpnCO != null )
 			return;
 
+		if ( Weapon.Array[ CurrentWeaponIndex ].CanChangeWeapon() == false )
+			return;
+
 		if ( InputManager.Inputs.Selection1 )
-			m_ChangingWpnCO = StartCoroutine( ChangeWeaponCO( 0 ) );
+			ChangeWeapon( 0 );
 
 		if ( InputManager.Inputs.Selection2 )
-			m_ChangingWpnCO = StartCoroutine( ChangeWeaponCO( 1 ) );
+			ChangeWeapon( 1 );
 
 		if ( InputManager.Inputs.Selection3 )
-			m_ChangingWpnCO = StartCoroutine( ChangeWeaponCO( 2 ) );
+			ChangeWeapon( 2 );
 
 	}
 

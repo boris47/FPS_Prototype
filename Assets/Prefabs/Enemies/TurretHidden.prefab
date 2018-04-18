@@ -474,6 +474,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_MinEngageDistance: 0
   m_RespawnPoint: {fileID: 0}
+  m_CutsceneManager: {fileID: 0}
   m_BodyRotationSpeed: 90
   m_GunRotationSpeed: 90
   m_BulletGameObject: {fileID: 1349076580485920}

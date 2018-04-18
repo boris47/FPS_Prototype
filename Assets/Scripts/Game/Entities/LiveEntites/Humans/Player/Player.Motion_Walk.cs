@@ -1,12 +1,89 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿
 using UnityEngine;
 
-public partial class Player {
 
+public partial class Player {
+	
+	private		Vector3		m_ScaleVector					= new Vector3( 1.0f, 0.0f, 1.0f );
+	private		Vector3		m_MovementVector				= new Vector3();
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// EnterSimulationState
+	public override void EnterSimulationState()
+	{
+		base.EnterSimulationState();
+		CameraControl.Instance.CanParseInput = false;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// SimulateMovement
+	public override	bool	SimulateMovement( SimulationMovementType movementType, Vector3 destination, Transform target, float deltaTime, float interpolant = 0f )
+	{
+		if ( interpolant > 1f )
+			return false;
+
+		// ROTATION
+		{
+			var cameraSetter = CameraControl.Instance as ICameraSetters;
+			cameraSetter.Target = target;
+		}
+
+		//	POSITION BY INTERPOLANT
+		if ( interpolant > 0f )
+		{
+			m_RigidBody.position = destination;
+			return true;
+		}
+		
+		//	POSITION BY DISTANCE
+		{
+			Vector3 direction = ( destination - transform.position );
+
+			if ( direction.sqrMagnitude < 12f )
+				return false;
+
+			bool isCrouched = ( movementType == SimulationMovementType.WALK_CROUCHED );
+			float fMove = ( isCrouched ) ? m_CrouchSpeed : m_WalkSpeed;
+
+			m_States.IsCrouched = isCrouched;
+			m_States.IsWalking = true;
+			m_States.IsMoving = true;
+
+			m_MoveSmooth = Mathf.Lerp( m_MoveSmooth,   fMove,   deltaTime * 20f );
+
+			direction.Normalize();
+			direction *= m_MoveSmooth;
+			direction *= GroundSpeedModifier;
+
+			m_MovementVector.Set( direction.x, m_RigidBody.velocity.y, direction.z );
+			m_RigidBody.velocity = m_MovementVector;
+		}
+		return true;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ExitSimulationState
+	public override void ExitSimulationState()
+	{
+		base.ExitSimulationState();
+
+		var cameraSetter = CameraControl.Instance as ICameraSetters;
+		cameraSetter.CurrentDirection = CameraControl.Instance.transform.forward;
+		cameraSetter.Target = null;
+		CameraControl.Instance.CanParseInput = true;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Update_Walk
 	private	void	Update_Walk()
 	{
 		if ( m_Health <= 0.0f )
+			return;
+
+		if ( m_MovementOverrideEnabled == true )
 			return;
 
 		float 	fMove 			= InputManager.Inputs.Forward     ? 1.0f : InputManager.Inputs.Backward   ? -1.0f : 0.0f;
@@ -16,7 +93,7 @@ public partial class Player {
 		bool	bCrouchInput	= InputManager.Inputs.Crouch;
 		bool	bJumpInput		= InputManager.Inputs.Jump;
 
-		float fFinalJump		= 0.0f;
+		float	fFinalJump		= 0.0f;
 		
 		if ( InputManager.HoldCrouch == false )
 			m_States.IsCrouched = m_PreviousStates.IsCrouched;
@@ -111,7 +188,6 @@ public partial class Player {
 				fFinalJump	+= m_JumpForce / ( m_States.IsCrouched ? 1.5f : 1.0f );
 //				fFinalJump	*= IsInWater() ? 0.8f : 1.0f;
 				m_States.IsJumping = true;
-
 			}
 		}
 
@@ -162,7 +238,7 @@ public partial class Player {
 			else
 			{	// walking
 				// stamina half restored because we are moving, but just walking
-				fMove		*= m_WalkSpeed * ( fMove > 0 ? 1.0f : 0.8f );;
+				fMove		*= m_WalkSpeed * ( fMove > 0 ? 1.0f : 0.8f );
 				fStrafe		*= m_WalkSpeed *  0.6f;
 				m_Stamina	+= m_StaminaRestore / 2.0f * dt;
 				m_States.IsWalking = true;
@@ -182,7 +258,8 @@ public partial class Player {
 		m_Stamina = Mathf.Clamp( m_Stamina, 0.0f, 1.0f );
 
 		// boost movements when Jumping
-		if ( m_States.IsJumping ) {
+		if ( m_States.IsJumping )
+		{
 			if ( m_States.IsWalking  )		{ fMove *= m_WalkJumpCoef;	fStrafe *= m_WalkJumpCoef;	fFinalJump *= m_WalkJumpCoef; }
 			if ( m_States.IsRunning  )		{ fMove *= m_RunJumpCoef;	fStrafe *= m_RunJumpCoef;	fFinalJump *= m_RunJumpCoef; }
 			if ( m_States.IsCrouched )		{ fFinalJump *= m_CrouchJumpCoef; }
@@ -195,7 +272,7 @@ public partial class Player {
 
 		// calculate camera relative direction to move:
 		{
-			Vector3 vCamForward = Vector3.Scale( CameraControl.Instance.transform.forward, new Vector3( 1.0f, 0.0f, 1.0f ) ).normalized;
+			Vector3 vCamForward = Vector3.Scale( CameraControl.Instance.transform.forward, m_ScaleVector ).normalized;
 			m_Move = ( m_MoveSmooth * vCamForward ) + ( m_StrafeSmooth * CameraControl.Instance.transform.right );
 		}
 
@@ -205,16 +282,17 @@ public partial class Player {
 			m_Move *= 0.707f;
 		}
 
-		m_Move.y = m_RigidBody.velocity.y;
-
 		// Apply ground speed modifier
 		m_Move *= GroundSpeedModifier;
 
+		m_Move.y = m_RigidBody.velocity.y;
+
 		// Add jump force
 		if ( bIsJumping && IsGrounded )
-			m_RigidBody.velocity = m_RigidBody.velocity + Vector3.up * fFinalJump;
+			m_RigidBody.velocity += Vector3.up * fFinalJump;
 
-		m_RigidBody.velocity = new Vector3(  m_Move.x, m_RigidBody.velocity.y, m_Move.z );
+		m_MovementVector.Set( m_Move.x, m_Move.y, m_Move.z );
+		m_RigidBody.velocity = m_MovementVector;
 
 		// Update internal time value
 		// Used for timed operation such as high jump or other things

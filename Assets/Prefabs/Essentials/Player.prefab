@@ -75,6 +75,22 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1 &1621363273381066
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4351366824399982}
+  - component: {fileID: 114085920552979528}
+  m_Layer: 0
+  m_Name: CutsceneEntityManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!1 &1627956800696240
 GameObject:
   m_ObjectHideFlags: 0
@@ -151,7 +167,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1822540948928968}
   m_LocalRotation: {x: -0, y: 0.3826834, z: -0, w: 0.92387956}
-  m_LocalPosition: {x: 135.91, y: 5.9, z: 118.7}
+  m_LocalPosition: {x: 126.23, y: 5.9, z: 88.36}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4792625979256910}
@@ -160,8 +176,22 @@ Transform:
   - {fileID: 4568273676256412}
   - {fileID: 4047799400994966}
   - {fileID: 4548626989747072}
+  - {fileID: 4351366824399982}
   m_Father: {fileID: 0}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4351366824399982
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1621363273381066}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4183834874118264}
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4548626989747072
 Transform:
@@ -423,6 +453,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 700809f73bf7eae45b26a94a8d9272fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &114085920552979528
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1621363273381066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75d4dc3ed3c9204418e2c498447e8d4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_PointsCollection: {fileID: 0}
 --- !u!114 &114143423439902638
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -465,12 +507,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_MinEngageDistance: 3
   m_RespawnPoint: {fileID: 0}
+  m_CutsceneManager: {fileID: 114085920552979528}
   m_UseDistance: 5
   m_Stamina: 0
   m_WalkSpeed: 3
   m_RunSpeed: 8
   m_CrouchSpeed: 3.5
   m_ClimbSpeed: 0.1
+  destPoint: {fileID: 0}
   m_DashTimeScaleCurve:
     serializedVersion: 2
     m_Curve:

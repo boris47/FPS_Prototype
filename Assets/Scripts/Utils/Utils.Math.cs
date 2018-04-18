@@ -55,6 +55,70 @@ namespace Utils {
 			float _sp = Mathf.Sin( p );
 			return new Vector3 ( _cp*_sh, _sp, _cp*_ch );
 		}
+
+
+
+
+
+
+		public static Vector3 GetPoint( Vector3 p0, Vector3 p1, Vector3 p2, float t )
+		{
+			t = Mathf.Clamp01( t );
+			float oneMinusT = 1f - t;
+			return
+				oneMinusT * oneMinusT * p0 +
+				2f * oneMinusT * t * p1 +
+				t * t * p2;
+		}
+
+
+		public static Vector3 GetPoint( Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t )
+		{
+			t = Mathf.Clamp01( t );
+			float OneMinusT = 1f - t;
+			return
+				OneMinusT * OneMinusT * OneMinusT * p0 +
+				3f * OneMinusT * OneMinusT * t * p1 +
+				3f * OneMinusT * t * t * p2 +
+				t * t * t * p3;
+		}
+
+
+		public static Vector3 GetPoint( Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, float t )
+		{
+			t = Mathf.Clamp01( t );
+			float OneMinusT = 1f - t;
+			return
+						OneMinusT	*	OneMinusT	*	OneMinusT	*	OneMinusT	*	p0 +
+				4f *	OneMinusT	*	OneMinusT	*	OneMinusT	*		t		*	p1 +
+				5f *	OneMinusT	*	OneMinusT	*		t		*		t		*	p2 +
+				4f *	OneMinusT	*		t		*		t		*		t		*	p3 +
+							t		*		t		*		t		*		t		*	p4;
+		}
+
+
+		public static Vector3 GetPoint( ref Vector3[] wayPoints, float t )
+		{
+			int numSections = wayPoints.Length - 3;
+			int currPt = Mathf.Min(Mathf.FloorToInt(t * (float) numSections), numSections - 1);
+			float u = t * (float) numSections - (float) currPt;
+		
+			Vector3 a = wayPoints[ currPt + 0 ];
+			Vector3 b = wayPoints[ currPt + 1 ];
+			Vector3 c = wayPoints[ currPt + 2 ];
+			Vector3 d = wayPoints[ currPt + 3 ];
+		
+			return .5f * 
+			(
+				( -a + 3f * b - 3f * c + d )		* ( u * u * u ) +
+				( 2f * a - 5f * b + 4f * c - d )	* ( u * u ) +
+				( -a + c )							* u +
+				2f * b
+			);
+		}
+
+
+
 	}
 		
 
