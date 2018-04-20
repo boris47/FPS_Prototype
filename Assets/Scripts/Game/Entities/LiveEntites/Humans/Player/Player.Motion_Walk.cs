@@ -12,7 +12,7 @@ public partial class Player {
 	// EnterSimulationState
 	public override void EnterSimulationState()
 	{
-		base.EnterSimulationState();
+		base.EnterSimulationState();							// m_SimulationStartPosition = transform.position;
 		CameraControl.Instance.CanParseInput = false;
 		WeaponManager.Instance.CurrentWeapon.Enabled = false;
 	}
@@ -24,7 +24,7 @@ public partial class Player {
 		if ( interpolant > 1f )
 			return false;
 
-		// ROTATION
+		// CAMERA ROTATION
 		{
 			var cameraSetter = CameraControl.Instance as ICameraSetters;
 			cameraSetter.Target = target;
@@ -36,16 +36,28 @@ public partial class Player {
 			m_RigidBody.position = destination;
 			return true;
 		}
+
+		Vector3 direction = ( destination - transform.position );
+		float distanceToTravel = direction.sqrMagnitude;
+		float distanceTravelled = ( transform.position - m_SimulationStartPosition ).sqrMagnitude;
+
+		Debug.DrawLine
+		(
+			transform.position,
+			transform.position + direction
+		);
+
+		if ( distanceTravelled > distanceToTravel )
+		{
+			print( "distanceToTravel  : " + distanceToTravel );
+			print( "distanceTravelled : " + distanceTravelled );
+			print( "/////////////////////////////////////////////////" );
+			m_SimulationStartPosition = transform.position;
+			return false;				// force logic update
+		}
 		
 		//	POSITION BY DISTANCE
 		{
-			Vector3 direction = ( destination - transform.position );
-			float distanceToTravel = direction.sqrMagnitude;
-			float distanceTravelled = ( transform.position - m_StartMovePosition ).sqrMagnitude;
-
-			if ( distanceTravelled > distanceToTravel )
-				return false;				// force logic update
-
 			bool isCrouched = ( movementType == SimulationMovementType.WALK_CROUCHED );
 			float fMove = ( isCrouched ) ? m_CrouchSpeed : m_WalkSpeed;
 

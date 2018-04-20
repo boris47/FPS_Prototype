@@ -59,7 +59,9 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 	public	Transform		WeaponPivot					{ get { return m_WeaponPivot; } }
 
 	private	Camera			m_CameraRef					= null;
-	public	Camera			MainCamera					{ get { return m_CameraRef == null ? m_CameraRef = GetComponent<Camera>() : m_CameraRef; } }
+	public	Camera			MainCamera					{ get { return m_CameraRef; } }
+
+	private	LiveEntity		m_LiveEntity				= null;
 
 	private float			m_CurrentRotation_X_Delta	= 0.0f;
 	private float			m_CurrentRotation_Y_Delta	= 0.0f;
@@ -67,10 +69,11 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 	private	float			m_CameraFPS_Shift			= 0.0f;
 
 	private	Vector3			m_CurrentDirection			= Vector3.zero;
+
+	// WEAPON
 	private	Vector3			m_CurrentDispersion			= Vector3.zero;
 	private	Vector3			m_WeaponPositionDelta		= Vector3.zero;
 	private	Vector3			m_WeaponRotationDelta		= Vector3.zero;
-
 	private	Vector3			m_WpnRotationfeedbackX		= Vector3.zero;
 	private	Vector3			m_WpnRotationfeedbackY		= Vector3.zero;
 
@@ -93,6 +96,8 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 
 		m_WeaponPivot = transform.Find( "WeaponPivot" );
 
+		m_CameraRef = GetComponent<Camera>();
+
 		Player player = FindObjectOfType<Player>();
 		if ( player == null )
 		{
@@ -100,7 +105,7 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 			return;
 		}
 		m_ViewPoint = player.transform.Find( "ViewPivot" );
-
+		m_LiveEntity = player as LiveEntity;
 	}
 
 
@@ -145,6 +150,21 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 		m_CurrentDispersion.y += Random.Range( -range,  range );
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	// FixedUpdate
+	private void FixedUpdate()
+	{
+		if ( m_Target != null )
+		{
+			Vector3 vDirection		= ( m_Target.position - transform.position );
+			Quaternion direction	= Quaternion.LookRotation( vDirection + m_HeadBob.Direction + m_HeadMove.Direction, Vector3.up );
+
+			transform.rotation		= Quaternion.RotateTowards( transform.rotation, direction, 0.5f * Time.fixedTime );
+			transform.position		= m_ViewPoint.transform.parent.transform.TransformPoint( m_ViewPoint.transform.localPosition * m_CameraFPS_Shift );
+			m_CurrentDirection		= transform.rotation.eulerAngles;
+		}
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// Update
@@ -153,11 +173,13 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 		if ( m_ViewPoint == null )
 			return;
 
-		LiveEntity pLiveEnitiy = m_ViewPoint.parent.GetComponent<LiveEntity>();
-		if ( pLiveEnitiy && pLiveEnitiy.IsGrounded )
+		m_WpnRotationfeedbackX = Vector3.Lerp( m_WpnRotationfeedbackX, Vector3.zero, Time.deltaTime );
+		m_WpnRotationfeedbackY = Vector3.Lerp( m_WpnRotationfeedbackY, Vector3.zero, Time.deltaTime );
+
+		if ( m_LiveEntity.IsGrounded )
 		{
-			m_HeadBob.Update ( liveEntity : ref pLiveEnitiy, weight : pLiveEnitiy.IsMoving == true ? 1f : 0f );
-			m_HeadMove.Update( liveEntity : ref pLiveEnitiy, weight : pLiveEnitiy.IsMoving == true ? 0f : 1f );
+			m_HeadBob.Update ( liveEntity : ref m_LiveEntity, weight : m_LiveEntity.IsMoving == true ? 1f : 0f );
+			m_HeadMove.Update( liveEntity : ref m_LiveEntity, weight : m_LiveEntity.IsMoving == true ? 0f : 1f );
 		}
 		else
 		{
@@ -165,12 +187,8 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 			m_HeadMove.Reset( bInstantly : false );
 		}
 
-		// Weapon movements
-		if ( WeaponManager.Instance.CurrentWeapon != null )
-		{
-			m_WeaponPositionDelta = m_HeadBob.WeaponPositionDelta + m_HeadMove.WeaponPositionDelta;
-			m_WeaponRotationDelta = m_HeadBob.WeaponRotationDelta + m_HeadMove.WeaponRotationDelta;
-		}
+		m_WeaponPositionDelta = m_HeadBob.WeaponPositionDelta + m_HeadMove.WeaponPositionDelta;
+		m_WeaponRotationDelta = m_HeadBob.WeaponRotationDelta + m_HeadMove.WeaponRotationDelta;
 	}
 
 
@@ -180,37 +198,27 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 	{
 		if ( m_ViewPoint == null )
 			return;
-
 		
+		m_WeaponRotationDelta += m_WpnRotationfeedbackX;
+		m_WeaponRotationDelta += m_WpnRotationfeedbackY;
+
+		// Weapon movements
+		if ( WeaponManager.Instance.CurrentWeapon != null )
+		{
+			WeaponManager.Instance.CurrentWeapon.Transform.localPosition	 = m_WeaponPositionDelta;
+			WeaponManager.Instance.CurrentWeapon.Transform.localEulerAngles	 = m_WeaponRotationDelta;
+		}
+
 		// Look at target is assigned
 		if ( m_Target != null )
 		{
-//			transform.LookAt( m_Target );
-/*
-			Vector3 vDirection = ( m_Target.position - transform.position );
-			Quaternion direction = Quaternion.LookRotation( vDirection, Vector3.up );
-//			Quaternion toRotation = Quaternion.FromToRotation( transform.forward, direction );
-
-			transform.rotation = Quaternion.Lerp( transform.rotation, direction, Time.deltaTime * 5f );
-			m_CurrentDirection = transform.rotation.eulerAngles;
-			*/
-//			transform.forward = Vector3.RotateTowards( transform.forward, direction.normalized, Time.deltaTime, 0.1f );
-
-//			direction = Vector3.Slerp( transform.forward, direction, Time.deltaTime );
-//			direction += m_HeadBob.Direction + m_HeadMove.Direction;
-//			m_CurrentDirection = transform.forward = direction;
 			return;
 		}
-		
-		m_WpnRotationfeedbackX = Vector3.Lerp( m_WpnRotationfeedbackX, Vector3.zero, Time.deltaTime );
-		m_WpnRotationfeedbackY = Vector3.Lerp( m_WpnRotationfeedbackY, Vector3.zero, Time.deltaTime );
 
 		// Cam Dispersion
 		m_CurrentDirection = Vector3.Lerp( m_CurrentDirection, m_CurrentDirection + m_CurrentDispersion, Time.deltaTime * 8f );
 		m_CurrentDirection.x = Utils.Math.Clamp( m_CurrentDirection.x - m_CurrentRotation_Y_Delta, CLAMP_MIN_X_AXIS, CLAMP_MAX_X_AXIS );
 		m_CurrentDispersion = Vector3.Lerp ( m_CurrentDispersion, Vector3.zero, Time.deltaTime * 3.7f );
-
-
 
 		m_SmoothFactor = Mathf.Clamp( m_SmoothFactor, 1.0f, 10.0f );
 
@@ -234,7 +242,6 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 				m_CurrentRotation_Y_Delta = Axis_Y_Delta;
 			}
 			
-			
 			////////////////////////////////////////////////////////////////////////////////
 			if ( ( m_CurrentRotation_X_Delta != 0.0f || m_CurrentRotation_Y_Delta != 0.0f ) )
 			{
@@ -255,24 +262,15 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 
 				m_WpnRotationfeedbackX = Vector3.Lerp( m_WpnRotationfeedbackX, m_WpnRotationfeedbackXfinal, Time.deltaTime * 5f );
 				m_WpnRotationfeedbackY = Vector3.Lerp( m_WpnRotationfeedbackY, m_WpnRotationfeedbackYfinal, Time.deltaTime * 5f );
-
-				m_WeaponRotationDelta += m_WpnRotationfeedbackX;
-				m_WeaponRotationDelta += m_WpnRotationfeedbackY;
 			}
 		}
 
-
 		// Position
 		{
-			LiveEntity pLiveEnitiy	= m_ViewPoint.parent.GetComponent<LiveEntity>();
-			bool isCrouched = pLiveEnitiy.IsCrouched;
 			// manage camera height while crouching
-			m_CameraFPS_Shift = Mathf.Lerp( m_CameraFPS_Shift, ( isCrouched ) ? 0.5f : 1.0f, Time.deltaTime * 10f );
-//			transform.position = m_ViewPoint.transform.parent.transform.TransformPoint( m_ViewPoint.transform.localPosition * m_CameraFPS_Shift );
+			m_CameraFPS_Shift = Mathf.Lerp( m_CameraFPS_Shift, ( m_LiveEntity.IsCrouched ) ? 0.5f : 1.0f, Time.deltaTime * 10f );
+			transform.position = m_ViewPoint.transform.parent.transform.TransformPoint( m_ViewPoint.transform.localPosition * m_CameraFPS_Shift );
 		}
-
-		WeaponManager.Instance.CurrentWeapon.Transform.localPosition	 = m_WeaponPositionDelta;
-		WeaponManager.Instance.CurrentWeapon.Transform.localEulerAngles	 = m_WeaponRotationDelta;
     }
 
 

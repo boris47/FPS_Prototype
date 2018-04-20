@@ -228,11 +228,6 @@ public partial class Player : Human {
 			WeaponManager.Instance.ChangeWeapon( 1 );
 		}
 
-
-
-
-
-
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Pick eventual collision info from camera to up
 		{

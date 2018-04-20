@@ -119,8 +119,6 @@ public class CutsceneEntityManager : MonoBehaviour {
 			if ( m_CurrentIdx < m_PointsCollection.Positions.Count )		m_Destination	 = m_PointsCollection.Positions[ m_CurrentIdx ];
 			if ( m_CurrentIdx < m_PointsCollection.TargetPositions.Count )	m_TargetPosition = m_PointsCollection.TargetPositions[ m_CurrentIdx ];
 
-
-
 			transform.position	= m_TargetPosition;
 
 			bool result = m_EntitySimulation.SimulateMovement( m_PointsCollection.EntityState, m_Destination, transform, Time.deltaTime );
