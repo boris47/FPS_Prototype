@@ -415,7 +415,7 @@ public partial class Player : Human {
 		}
 
 		// rotate the capsule of the player
-		transform.rotation = Quaternion.Euler( Vector3.Scale( CameraControl.Instance.transform.rotation.eulerAngles, Vector3.up ) );
+//		transform.rotation = Quaternion.Euler( Vector3.Scale( CameraControl.Instance.transform.rotation.eulerAngles, Vector3.up ) );
 
 		if ( WeaponManager.Instance.CurrentWeapon.FirePoint1 != null )
 		{
