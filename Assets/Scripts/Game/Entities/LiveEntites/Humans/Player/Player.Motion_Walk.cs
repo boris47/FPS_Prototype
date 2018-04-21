@@ -3,10 +3,6 @@ using UnityEngine;
 
 
 public partial class Player {
-	
-	private		Vector3		m_ScaleVector					= new Vector3( 1.0f, 0.0f, 1.0f );
-	private		Vector3		m_MovementVector				= new Vector3();
-
 
 	//////////////////////////////////////////////////////////////////////////
 	// EnterSimulationState
@@ -49,9 +45,9 @@ public partial class Player {
 
 		if ( distanceTravelled > distanceToTravel )
 		{
-			print( "distanceToTravel  : " + distanceToTravel );
-			print( "distanceTravelled : " + distanceTravelled );
-			print( "/////////////////////////////////////////////////" );
+//			print( "distanceToTravel  : " + distanceToTravel );
+//			print( "distanceTravelled : " + distanceTravelled );
+//			print( "/////////////////////////////////////////////////" );
 			m_SimulationStartPosition = transform.position;
 			return false;				// force logic update
 		}
@@ -71,8 +67,8 @@ public partial class Player {
 			direction *= m_MoveSmooth;
 			direction *= GroundSpeedModifier;
 
-			m_MovementVector.Set( direction.x, m_RigidBody.velocity.y, direction.z );
-			m_RigidBody.velocity = m_MovementVector;
+			m_Move.Set( direction.x, m_RigidBody.velocity.y, direction.z );
+			m_RigidBody.velocity = m_Move;
 		}
 		return true;
 	}
@@ -286,12 +282,7 @@ public partial class Player {
 		m_MoveSmooth	= Mathf.Lerp( m_MoveSmooth,   fMove,   dt * 20f );
 		m_StrafeSmooth	= Mathf.Lerp( m_StrafeSmooth, fStrafe, dt * 10f );
 
-
-		// calculate camera relative direction to move:
-		{
-			Vector3 vCamForward = Vector3.Scale( CameraControl.Instance.transform.forward, m_ScaleVector ).normalized;
-			m_Move = ( m_MoveSmooth * vCamForward ) + ( m_StrafeSmooth * CameraControl.Instance.transform.right );
-		}
+		m_Move = ( m_MoveSmooth * transform.forward ) + ( m_StrafeSmooth * transform.right );
 
 		// This prevents "speed hack" strafing
 		if ( ( fStrafe != 0.0f ) && ( fMove != 0.0f  ) )
@@ -302,14 +293,10 @@ public partial class Player {
 		// Apply ground speed modifier
 		m_Move *= GroundSpeedModifier;
 
-		m_Move.y = m_RigidBody.velocity.y;
-
-		// Add jump force
 		if ( bIsJumping && IsGrounded )
-			m_RigidBody.velocity += Vector3.up * fFinalJump;
+			m_Move.y = fFinalJump;
 
-		m_MovementVector.Set( m_Move.x, m_Move.y, m_Move.z );
-		m_RigidBody.velocity = m_MovementVector;
+		m_RigidBody.useGravity = false;
 
 		// Update internal time value
 		// Used for timed operation such as high jump or other things

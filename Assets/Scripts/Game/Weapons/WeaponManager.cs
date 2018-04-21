@@ -153,6 +153,16 @@ public class WeaponManager : MonoBehaviour {
 		if ( InputManager.Inputs.Selection3 )
 			ChangeWeapon( 2 );
 
+		// Weapon switch
+		if ( InputManager.Inputs.SwitchPrev )
+		{
+			ChangeWeapon( -1 );
+		}
+		if ( InputManager.Inputs.SwitchNext )
+		{
+			ChangeWeapon( 1 );
+		}
+
 	}
 
 

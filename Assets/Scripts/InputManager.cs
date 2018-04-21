@@ -4,6 +4,7 @@ using UnityEngine;
 
 public struct inputs_t {
 	public	bool	Forward, Backward, StrafeLeft, StrafeRight;
+	public	bool	Ability1;
 	public	bool	LeanLeft, LeanRight;
 	public	bool	Crouch, Jump, Run;
 	public	bool	Use;
@@ -20,7 +21,8 @@ public struct inputs_t {
 	public void Reset()
 	{
 		Forward = Backward = StrafeLeft = StrafeRight =
-		LeanLeft = LeanRight =
+		Ability1 =
+//		LeanLeft = LeanRight =
 		Crouch = Jump = Run =
 		Use =
 		SwitchPrev = SwitchNext =
@@ -61,8 +63,10 @@ public class InputManager {
 		m_Inputs.StrafeLeft		= Input.GetKey ( KeyCode.A ) || Input.GetKey ( KeyCode.LeftArrow );
 		m_Inputs.StrafeRight	= Input.GetKey ( KeyCode.D ) || Input.GetKey ( KeyCode.RightArrow );
 
-		m_Inputs.LeanLeft		= Input.GetKey ( KeyCode.Q ) || Input.GetKey ( KeyCode.Keypad7 );
-		m_Inputs.LeanRight		= Input.GetKey ( KeyCode.E ) || Input.GetKey ( KeyCode.Keypad9 );
+		m_Inputs.Ability1		= Input.GetKey ( KeyCode.Q );
+
+//		m_Inputs.LeanLeft		= Input.GetKey ( KeyCode.Q ) || Input.GetKey ( KeyCode.Keypad7 );
+//		m_Inputs.LeanRight		= Input.GetKey ( KeyCode.E ) || Input.GetKey ( KeyCode.Keypad9 );
 
 		m_Inputs.Crouch			= HoldCrouch ?
 								( Input.GetKey ( KeyCode.LeftControl ) || Input.GetKey ( KeyCode.RightControl ) )

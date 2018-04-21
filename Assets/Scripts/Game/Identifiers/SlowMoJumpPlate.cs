@@ -51,7 +51,7 @@ public class SlowMoJumpPlate : MonoBehaviour, IInteractable {
 	void IInteractable.OnInteraction()
 	{
 		AnimationCurve curve = ( m_HasTimeScaleCurveOverride ) ? m_SlowMoJumpTimeScaleCurve : null;
-		Player.Instance.StartSlowMoJump( ref m_CurvePoints, curve );
+//		Player.Instance.StartSlowMoJump( ref m_CurvePoints, curve );
 	}
 
 }

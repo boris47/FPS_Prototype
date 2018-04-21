@@ -41,16 +41,16 @@ public class HeadBob : CameraEffectBase {
 
 
 
-	public void Update( ref LiveEntity liveEntity, float weight )
+	public void Update( float weight )
 	{
 		if ( m_IsActive == false )
 			return;
 
 		m_InternalWeight = Mathf.Lerp( m_InternalWeight, weight, Time.deltaTime * 5f );
 
-		float	fStamina	= liveEntity.Stamina;
-		bool	bRunning	= liveEntity.IsRunning;
-		bool	bCrouched	= liveEntity.IsCrouched;
+		float	fStamina	= Player.Instance.Stamina;
+		bool	bRunning	= Player.Instance.IsRunning;
+		bool	bCrouched	= Player.Instance.IsCrouched;
 
 		float fSpeed = m_Speed * m_SpeedMul * Time.deltaTime;
 		fSpeed		*= ( ( bRunning )	?	1.70f : 1.00f );
@@ -84,7 +84,7 @@ public class HeadBob : CameraEffectBase {
 		{
 			if ( m_StepDone == false )
 			{
-				liveEntity.Foots.PlayStep();
+				Player.Instance.Foots.PlayStep();
 				m_StepDone = true;
 			}
 		}

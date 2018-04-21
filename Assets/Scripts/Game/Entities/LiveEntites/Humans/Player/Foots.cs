@@ -16,8 +16,8 @@ public class Foots : MonoBehaviour, IFoots {
 	{
 		get { return m_LiveEntity; }
 	}
-	private		Collider			m_CurrentCollider	= null;
 
+	private		Collider			m_CurrentCollider	= null;
 	private		RaycastHit			m_RaycastHit		= default( RaycastHit );
 	private		ICustomAudioSource	m_AudioSource		= null;
 
@@ -55,9 +55,9 @@ public class Foots : MonoBehaviour, IFoots {
 //		if ( m_LiveEntity.IsFalling == false || m_LiveEntity.IsMoving == false )
 //			return;
 
-		Debug.DrawLine( transform.position, transform.position - transform.up * 0.2f );
+		Debug.DrawLine( transform.position, transform.position - transform.up * 1.7f );
 
-		if ( Physics.Raycast( transform.position, -transform.up, out m_RaycastHit, 0.2f ) )
+		if ( Physics.Raycast( transform.position, -transform.up, out m_RaycastHit, 1.7f ) )
 		{
 			m_CurrentCollider = m_RaycastHit.collider;
 		}

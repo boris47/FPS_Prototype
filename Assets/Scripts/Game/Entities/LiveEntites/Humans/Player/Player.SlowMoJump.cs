@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 
 public partial class Player {
-	
+	/*
 
 	private	const	float	SLOWMO_EFFECT_SPEED			= 1.0f;
 	
@@ -89,5 +89,5 @@ public partial class Player {
 
 		StartCoroutine( SlowMoJump( curvePoints, slowMoJumpTimeScaleCurve ) );
 	}
-	
+	*/
 }

@@ -22,6 +22,7 @@ public partial class Player : Human {
 
 	private		Grabbable			m_Grabbable						= null;
 	private		IInteractable		m_Interactable					= null;
+	private		Transform			m_DashAbilityTarget				= null;
 
 	private		Vector3				m_Move							= Vector3.zero;
 
@@ -61,9 +62,12 @@ public partial class Player : Human {
 		// Player Components
 		{
 			// TourchLight
-			m_TourchLight	= transform.Find("TourchLight").GetComponent<ITourchLight>();
+			m_TourchLight		= transform.Find("TourchLight").GetComponent<ITourchLight>();
 			// Foots
-			m_Foots			= transform.Find( "FootSpace" ).GetComponent<IFoots>();
+			m_Foots				= transform.Find( "FootSpace" ).GetComponent<IFoots>();
+
+			m_DashAbilityTarget = transform.Find( "DashAbilityTarget" );
+			m_DashAbilityTarget.gameObject.SetActive( false );
 		}
 
 
@@ -78,7 +82,6 @@ public partial class Player : Human {
 				Destroy( gameObject );
 				return;
 			}
-
 
 			// Walking
 			m_SectionRef.AsMultiValue( "Walk",		1, 2, 3, ref m_WalkSpeed,	ref m_WalkJumpCoef,		ref m_WalkStamina );
@@ -117,6 +120,7 @@ public partial class Player : Human {
 		
 		m_Health			= m_SectionRef.AsFloat( "Health", 100.0f );
 		m_RigidBody.mass	= m_SectionRef.AsFloat( "phMass", 80.0f  );
+		m_RigidBody.maxAngularVelocity = 0f;
 		m_Stamina			= 1.0f;
 		GroundSpeedModifier = 1.0f;
 		m_IsActive			= true;
@@ -130,8 +134,9 @@ public partial class Player : Human {
 		m_GrabPoint.transform.localRotation = Quaternion.identity;
 		m_GrabPoint.transform.Translate( 0f, 0f, m_UseDistance );
 
-		CameraControl.Instance.transform.rotation = transform.rotation;
+		UnityEditor.Selection.activeTransform = m_GrabPoint.transform;
 
+		CameraControl.Instance.transform.rotation = transform.rotation;
 	}
 
 
@@ -178,7 +183,7 @@ public partial class Player : Human {
 		Rigidbody rb = m_GrabbedObject.GetComponent<Rigidbody>();
 		rb.rotation = CameraControl.Instance.transform.rotation;
 		rb.angularVelocity = Vector3.zero;
-		rb.velocity = ( m_GrabPoint.transform.position - m_GrabbedObject.transform.position ) / ( Time.fixedDeltaTime * 4f ) 
+		rb.velocity = ( m_GrabPoint.transform.position - m_GrabbedObject.transform.position ) / ( Time.fixedDeltaTime * 4f )
 		* ( 1.0f - Vector3.Angle( transform.forward, CameraControl.Instance.transform.forward ) / CameraControl.CLAMP_MAX_X_AXIS );
 	}
 
@@ -191,23 +196,235 @@ public partial class Player : Human {
 			return;
 
 		MoveGrabbedObject();
-	}
 
-	public	Transform destPoint;
+		m_RigidBody.angularVelocity = Vector3.zero;
+
+		if ( IsGrounded )
+			m_RigidBody.velocity = m_Move;
+		else
+
+		// add gravity force
+		m_RigidBody.AddForce( transform.up * Physics.gravity.y, ForceMode.Acceleration );
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// Update
-	private void Update()
+	private void	Update()
 	{
 		this.OnFrame( Time.deltaTime );
 	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// CheckForDash
+	private	void	CheckForDash( bool hasHit )
+	{
+		if ( m_GrabbedObject != null )
+			return;
+
+		if ( m_NormalDashCoroutine != null )
+			return;
+
+		// auto fall
+		if ( IsGrounded == false && m_IsDashing == false && transform.up != Vector3.up )
+		{
+			RaycastHit hit;
+			Physics.Raycast( transform.position, Vector3.down, out hit );
+
+			if ( m_RotorDashCoroutine != null )
+				StopCoroutine( m_RotorDashCoroutine );
+
+			m_IsDashing = true;
+
+			Vector3 destination = hit.point + Vector3.up * m_DashAbilityTarget.localScale.y * 1.7f;
+			m_RotorDashCoroutine = StartCoroutine( DashRotator( destination, Vector3.up ) );
+		}
+
+		// if actually has no target
+		if ( hasHit == false )
+		{
+			// if required reset last target
+			if ( m_CurrentDashTarget != null )
+			{
+				m_CurrentDashTarget.HideText();
+				m_CurrentDashTarget = null;
+			}
+			m_DashAbilityTarget.gameObject.SetActive( false );
+			return;
+		}
+
+		DashTarget currentTarget = null;
+		if ( hasHit == true )
+		{
+			currentTarget = m_RaycastHit.transform.GetComponent<DashTarget>();
+			if ( currentTarget == null && m_CurrentDashTarget != null )
+			{
+				m_CurrentDashTarget.HideText();
+				m_CurrentDashTarget = null;
+				return;
+			}
+		}
+
+		// hitting somewhere else
+		if ( currentTarget == null )
+		{
+			if ( InputManager.Inputs.Ability1 )
+			{
+				if ( Vector3.Angle( m_RaycastHit.normal, transform.up ) > 89.9f )
+				{
+					m_DashAbilityTarget.gameObject.SetActive( true );
+					m_DashAbilityTarget.position = m_RaycastHit.point;
+					m_DashAbilityTarget.up = m_RaycastHit.normal;
+				}
+			}
+			else
+			{
+				if ( m_DashAbilityTarget.gameObject.activeSelf )
+				{
+					if ( m_RotorDashCoroutine != null )
+						StopCoroutine( m_RotorDashCoroutine );
+
+					m_IsDashing = true;
+
+					Vector3 destination = m_DashAbilityTarget.position + m_DashAbilityTarget.up * m_DashAbilityTarget.localScale.y * 1.7f;
+					m_RotorDashCoroutine = StartCoroutine( DashRotator( destination, m_RaycastHit.normal ) );
+				}
+				m_DashAbilityTarget.gameObject.SetActive( false );
+			}
+		}
+
+
+		// Can be a dash target
+		if ( currentTarget != null && currentTarget != m_CurrentDashTarget )
+		{
+			// First target
+			if ( currentTarget != null && m_CurrentDashTarget == null )
+			{
+				m_CurrentDashTarget = currentTarget;
+				m_CurrentDashTarget.ShowText();
+			}
+			// New hit
+			if ( currentTarget != null && m_CurrentDashTarget != null && currentTarget != m_CurrentDashTarget )
+			{
+				m_CurrentDashTarget.HideText();
+				currentTarget.ShowText();
+				m_CurrentDashTarget = currentTarget;
+			}
+			// No hit, reset previous
+			if ( currentTarget == null && m_CurrentDashTarget != null )
+			{
+				m_CurrentDashTarget.HideText();
+				m_CurrentDashTarget = null;
+			}
+		}
+
+		// ACTION DASH
+		if ( InputManager.Inputs.Use )
+		{
+			if ( m_CurrentDashTarget != null )
+			{
+				OnDashTargetUsed( ref m_CurrentDashTarget );
+			}
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// CheckForInteraction
+	private	void	CheckForInteraction( bool hasHit )
+	{
+		// skip if no target
+		if ( hasHit == false )
+		{
+			m_Interactable = null;
+			return;
+		}
+
+		// skip if currently grabbing an object
+		if ( m_GrabbedObject != null )
+			return;
+
+		// skip if currently dask is active
+		if ( m_IsDashing == true )
+			return;
+
+		// Distance check
+		if ( m_RaycastHit.distance <= m_UseDistance )
+		{
+			m_Interactable = m_RaycastHit.transform.GetComponent<IInteractable>();
+		}
+
+		// ACTION INTERACT
+		if ( InputManager.Inputs.Use )
+		{
+			if ( m_Interactable != null && m_Interactable.CanInteract )
+			{
+				m_Interactable.OnInteraction();
+			}
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// CheckForGrab
+	private	void	CheckForGrab( bool hasHit )
+	{
+		// skip if no target
+		if ( hasHit == false )
+		{
+//			m_Grabbable = null;
+			return;
+		}
+
+		// skip grab evaluation is dash is active
+		if ( m_IsDashing == true )
+			return;
+
+		// ACTION RELEASE
+		if ( InputManager.Inputs.Use )
+		{
+			if ( m_GrabbedObject != null )
+			{
+				DropEntityDragged();
+				return;
+			}
+		}
+
+		// Distance check
+		if ( m_CanGrabObjects == true && m_RaycastHit.distance <= m_UseDistance )
+		{
+			m_Grabbable = m_RaycastHit.transform.GetComponent<Grabbable>();
+		}
+
+		// ACTION GRAB
+		if ( InputManager.Inputs.Use )
+		{
+			if ( m_GrabbedObject != null )
+			{
+				DropEntityDragged();
+				return;
+			}
+
+			if ( m_Grabbable != null && m_Interactable != null && m_Interactable.CanInteract )
+			{
+				m_GrabbedObject = m_RaycastHit.transform.gameObject;
+
+				Rigidbody rb = m_Grabbable.RigidBody;
+				m_GrabbedObjectMass			= rb.mass;			rb.mass = 1f;
+				m_GrabbedObjectUseGravity	= rb.useGravity;	rb.useGravity = false;
+//				rb.interpolation = RigidbodyInterpolation.Extrapolate;
+				m_CanGrabObjects = false;
+			}
+		}
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnFrame
 	public override void	OnFrame( float deltaTime )
 	{
-		if ( m_IsActive == false || m_IsDashing == true )
+		if ( m_IsActive == false )
 			return;
 
 		// Reset "local" states
@@ -216,16 +433,6 @@ public partial class Player : Human {
 		if ( InputManager.Inputs.ItemAction3 )
 		{
 			m_TourchLight.Toggle();
-		}
-
-		// Weapon switch
-		if ( InputManager.Inputs.SwitchPrev )
-		{
-			WeaponManager.Instance.ChangeWeapon( -1 );
-		}
-		if ( InputManager.Inputs.SwitchNext )
-		{
-			WeaponManager.Instance.ChangeWeapon( 1 );
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////////
@@ -239,114 +446,28 @@ public partial class Player : Human {
 
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Check for usage
-#region			INTERACTIONS
+#region		INTERACTIONS
 		{
-			// Get interactable / draggable object
-			if ( m_GrabbedObject == null )
-			{
-				Vector3 startLine = CameraControl.Instance.transform.position;
-				Vector3 endLine = CameraControl.Instance.transform.position + CameraControl.Instance.transform.forward * MAX_INTERACTION_DISTANCE;
+			Vector3 startLine = CameraControl.Instance.transform.position;
+			Vector3 endLine = CameraControl.Instance.transform.position + CameraControl.Instance.transform.forward * MAX_INTERACTION_DISTANCE;
 
-				Debug.DrawLine( startLine, endLine );
+			bool lineCastResult = Physics.Linecast( startLine, endLine, out m_RaycastHit );
 
-				if ( Physics.Linecast( startLine, endLine, out m_RaycastHit ) )
-				{
-					if ( m_IsDashing == false )
-					{
-						// Only if needed
-						DashTarget currentTarget = m_RaycastHit.transform.GetComponent<DashTarget>();
-						if ( currentTarget != null && currentTarget != m_CurrentDashTarget )
-						{
-							// First target
-							if ( currentTarget != null && m_CurrentDashTarget == null )
-							{
-								m_CurrentDashTarget = currentTarget;
-								m_CurrentDashTarget.ShowText();
-							}
-							// New hit
-							if ( currentTarget != null && m_CurrentDashTarget != null && currentTarget != m_CurrentDashTarget )
-							{
-								m_CurrentDashTarget.HideText();
-								currentTarget.ShowText();
-								m_CurrentDashTarget = currentTarget;
-							}
-							// No hit, reset previous
-							if ( currentTarget == null && m_CurrentDashTarget != null )
-							{
-								m_CurrentDashTarget.HideText();
-								m_CurrentDashTarget = null;
-							}
-						}
+			Debug.DrawLine( startLine, endLine );
 
-						if ( m_CanGrabObjects == true && m_RaycastHit.distance <= m_UseDistance )
-						{
-							m_Grabbable		= m_RaycastHit.transform.GetComponent<Grabbable>();
-							m_Interactable	= m_RaycastHit.transform.GetComponent<IInteractable>();
-						}
-					}
-				}
-				else
-				{
-					if ( m_CurrentDashTarget != null )
-					{
-						m_CurrentDashTarget.HideText();
-						m_CurrentDashTarget		= null;
-					}
-					m_Grabbable				= null;
-					m_Interactable			= null;
-				}
-			}
-			else
-			{
-				// Update Grab point position
-				m_GrabPoint.transform.position = CameraControl.Instance.transform.position + ( CameraControl.Instance.transform.forward * m_UseDistance );
-				m_GrabPoint.transform.rotation = CameraControl.Instance.transform.rotation;
-			}
+			CheckForDash ( lineCastResult );
+			CheckForInteraction( lineCastResult );
+			CheckForGrab ( lineCastResult );
 			
-
-			if ( InputManager.Inputs.Use )
-			{
-				if ( m_GrabbedObject == null )
-				{
-					if ( m_CurrentDashTarget != null )
-					{
-						OnDashTargetUsed( ref m_CurrentDashTarget );
-						return;
-					}
-
-					// Interaction
-					if ( m_Interactable != null && m_Interactable.CanInteract )
-						m_Interactable.OnInteraction();
-
-					// Grab
-					if ( m_Grabbable != null && m_Interactable.CanInteract )
-					{
-						m_GrabbedObject = m_RaycastHit.transform.gameObject;
-
-						Rigidbody rb = m_GrabbedObject.GetComponent<Rigidbody>();
-						m_GrabbedObjectMass			= rb.mass;			rb.mass = 1f;
-						m_GrabbedObjectUseGravity	= rb.useGravity;	rb.useGravity = false;
-						rb.interpolation = RigidbodyInterpolation.Extrapolate;
-						m_CanGrabObjects = false;
-					}
-				}
-				else
-				{
-					DropEntityDragged();
-				}
-			}
-
-/*			if ( Inputmanager.Inputs.Item1 )
-			{
-				if ( m_GrabbedObject != null )
-				{
-					m_GrabbedObject.GetComponent<Rigidbody>().velocity = ( CameraControl.Instance.transform.forward * 10f );
-					DropEntityDragged();
-				}
-			}
-*/		}
+			// Update Grab point position
+			m_GrabPoint.transform.position = CameraControl.Instance.transform.position + ( CameraControl.Instance.transform.forward * m_UseDistance );
+			m_GrabPoint.transform.rotation = CameraControl.Instance.transform.rotation;
+		}
 
 #endregion
+
+		if ( m_IsDashing == true )
+			return;
 
 #region TO IMPLEMENT
 		////////////////////////////////////////////////////////////////////////////////////////
@@ -396,6 +517,8 @@ public partial class Player : Human {
 				}
 		*/
 #endregion
+
+
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Movement Update
 		{
@@ -409,22 +532,14 @@ public partial class Player : Human {
 			}
 		}
 
-		// rotate the capsule of the player
-//		transform.rotation = Quaternion.Euler( Vector3.Scale( CameraControl.Instance.transform.rotation.eulerAngles, Vector3.up ) );
-
 		if ( WeaponManager.Instance.CurrentWeapon.FirePoint1 != null )
 		{
 			m_TourchLight.Transform.position = WeaponManager.Instance.CurrentWeapon.FirePoint1.position;
-			m_TourchLight.Transform.forward = WeaponManager.Instance.CurrentWeapon.FirePoint1.forward;
+			m_TourchLight.Transform.forward  = WeaponManager.Instance.CurrentWeapon.FirePoint1.forward;
 		}
-
-
-		// Update flashlight position and rotation
-//		pFlashLight->Update();
 
 		// trace previuos states
 		m_PreviousStates = m_States;
-
 	}
 
 

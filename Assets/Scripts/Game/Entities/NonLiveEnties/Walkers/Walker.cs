@@ -207,6 +207,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		}
 
 		Vector3 dirToPosition	 = ( m_PointToFace - transform.position );
+		dirToPosition = Vector3.Scale( dirToPosition, Vector3.forward );
 		float	travelledDistance = ( m_StartMovePosition - transform.position ).sqrMagnitude;
 		if ( ( m_Destination - transform.position ).sqrMagnitude < 4f || travelledDistance > m_DistanceToTravel )   // point reached
 		{

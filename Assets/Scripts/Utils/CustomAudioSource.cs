@@ -222,7 +222,7 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 	// OnDestroy
 	private void OnDestroy()
 	{
-		if ( SoundEffectManager.Instance == null )
+		if ( SoundEffectManager.Instance == null || enabled == false )
 			return;
 
 		if ( m_AudioSource != null )

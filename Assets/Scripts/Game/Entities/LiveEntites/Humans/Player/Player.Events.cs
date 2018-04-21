@@ -31,15 +31,29 @@ public partial class Player {
 	// OnKill ( Override )
 	public	override		void	OnKill()
 	{
+		// remove parent for camera
+		CameraControl.Instance.transform.SetParent( null );
+
+		// reset effect
 		var settings = CameraControl.Instance.GetPP_Profile.vignette.settings;
 		settings.intensity = 0f;
 		CameraControl.Instance.GetPP_Profile.vignette.settings = settings;
 
-
-		print( "U r dead" );
+		// disable weapon actions
+		WeaponManager.Instance.CurrentWeapon.Enabled = false;
+		WeaponManager.Instance.enabled = false;
+		
+		// Disable camera updates
 		CameraControl.Instance.enabled = false;
+
+		// Update UI elements
 		UI.Instance.InGame.UpdateUI();
+
+		// Turn off player object
 		gameObject.SetActive( false );
+
+		// print a message
+		print( "U r dead" );
 	}
 
 
@@ -63,7 +77,7 @@ public partial class Player {
 
 		m_RigidBody.velocity = Vector3.zero;
 
-		StartCoroutine( DashMoving( target ) ); // Player.DashAbility
+		StartCoroutine( DashRotator( target.transform.position, target.transform.up, target ) ); // Player.DashAbility
 	}
 
 }

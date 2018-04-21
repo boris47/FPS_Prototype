@@ -39,15 +39,15 @@ public class HeadMove : CameraEffectBase {
 
 
 
-	public void Update( ref LiveEntity liveEntity, float weight )
+	public void Update( float weight )
 	{
 		if ( m_IsActive == false )
 			return;
 
 		m_InternalWeight = Mathf.Lerp( m_InternalWeight, weight, Time.deltaTime * 5f );
 
-		float	fStamina	= liveEntity.Stamina;
-		bool	bCrouched	= liveEntity.IsCrouched;
+		float	fStamina	= Player.Instance.Stamina;
+		bool	bCrouched	= Player.Instance.IsCrouched;
 
 		float fSpeed = m_Speed * m_SpeedMul * Time.deltaTime;
 		fSpeed		*= ( bCrouched )	?	0.80f : 1.00f;

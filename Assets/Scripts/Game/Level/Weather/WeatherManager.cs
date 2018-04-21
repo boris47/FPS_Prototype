@@ -392,7 +392,7 @@ namespace WeatherSystem {
 
 			// Defaults
 			string startTime = "09:30:00";	
-			string startWeather = "Clear";
+			string startWeather = "Rainy";
 
 			// Get info from settings file
 			if ( GameManager.Configs != null )
