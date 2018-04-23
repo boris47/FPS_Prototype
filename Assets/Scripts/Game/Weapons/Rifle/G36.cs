@@ -271,7 +271,7 @@ public class G36 : Weapon
 
 		m_Animator.Play( m_FireAnim.name, -1, 0f );
 			
-		m_Magazine --;
+//		m_Magazine --;
 
 		// BULLET
 		IBullet bullet = fireFirst ?  m_PoolBulletsFirst.GetComponent() : m_PoolBulletsSecond.GetComponent();

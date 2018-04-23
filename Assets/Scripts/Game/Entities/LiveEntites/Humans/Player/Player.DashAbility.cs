@@ -127,7 +127,7 @@ public partial class Player {
 			settings.frameBlending = ( 1f - Time.timeScale );
 			CameraControl.Instance.GetPP_Profile.motionBlur.settings = settings;
 
-			m_RigidBody.MovePosition( Vector3.Lerp( startPosition, destination, interpolant ) );
+			transform.position = ( Vector3.Lerp( startPosition, destination, interpolant ) );
 			transform.up = Vector3.Lerp( startUpVector, destinationUp, interpolant );
 			yield return null;
 		}
@@ -139,10 +139,9 @@ public partial class Player {
 		Time.timeScale = 1f;
 		effectFrame.color = Color.clear;
 
-		transform.position = destination;
+//		transform.position = destination;
+//		transform.up = destinationUp;
 		m_IsDashing = false;
-
-		transform.up = destinationUp;
 
 		CameraControl.Instance.HeadBob.IsActive		= true;
 		CameraControl.Instance.HeadMove.IsActive	= true;

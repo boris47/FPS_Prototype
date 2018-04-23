@@ -67,6 +67,7 @@ public partial class Player : Human {
 			m_Foots				= transform.Find( "FootSpace" ).GetComponent<IFoots>();
 
 			m_DashAbilityTarget = transform.Find( "DashAbilityTarget" );
+			m_DashAbilityTarget.localScale = new Vector3( 0.5f, m_PhysicCollider.height, 0.5f );
 			m_DashAbilityTarget.gameObject.SetActive( false );
 		}
 
@@ -198,13 +199,24 @@ public partial class Player : Human {
 		MoveGrabbedObject();
 
 		m_RigidBody.angularVelocity = Vector3.zero;
-
+		 
 		if ( IsGrounded )
-			m_RigidBody.velocity = m_Move;
-		else
+		{
+			Vector3 forward = -Vector3.Cross( transform.up, CameraControl.Instance.transform.right );
+			m_Move = ( m_MoveSmooth * forward ) + ( m_StrafeSmooth * CameraControl.Instance.transform.right );
+			if ( ( m_Move.x != 0.0f ) && ( m_Move.z != 0.0f  ) )
+			{
+				m_Move *= 0.707f;
+			}
 
-		// add gravity force
-		m_RigidBody.AddForce( transform.up * Physics.gravity.y, ForceMode.Acceleration );
+			m_Move *= GroundSpeedModifier;
+			m_RigidBody.velocity = m_Move;
+		}
+		else
+		{
+			// add gravity force
+			m_RigidBody.AddForce( transform.up * Physics.gravity.y, ForceMode.Acceleration );
+		}
 	}
 
 
@@ -227,7 +239,7 @@ public partial class Player : Human {
 			return;
 
 		// auto fall
-		if ( IsGrounded == false && m_IsDashing == false && transform.up != Vector3.up )
+		if ( ( ( InputManager.Inputs.Jump ) || ( IsGrounded == false && m_IsDashing == false ) ) && transform.up != Vector3.up )
 		{
 			RaycastHit hit;
 			Physics.Raycast( transform.position, Vector3.down, out hit );
@@ -271,9 +283,11 @@ public partial class Player : Human {
 		{
 			if ( InputManager.Inputs.Ability1 )
 			{
-				if ( Vector3.Angle( m_RaycastHit.normal, transform.up ) > 89.9f )
+				float angle = Vector3.Angle( m_RaycastHit.normal, transform.up );
+				bool validAngle = angle >= 89f && angle < 179f;
+				m_DashAbilityTarget.gameObject.SetActive( validAngle );
+				if ( validAngle )
 				{
-					m_DashAbilityTarget.gameObject.SetActive( true );
 					m_DashAbilityTarget.position = m_RaycastHit.point;
 					m_DashAbilityTarget.up = m_RaycastHit.normal;
 				}
@@ -287,7 +301,7 @@ public partial class Player : Human {
 
 					m_IsDashing = true;
 
-					Vector3 destination = m_DashAbilityTarget.position + m_DashAbilityTarget.up * m_DashAbilityTarget.localScale.y * 1.7f;
+					Vector3 destination = m_DashAbilityTarget.position + m_DashAbilityTarget.up;
 					m_RotorDashCoroutine = StartCoroutine( DashRotator( destination, m_RaycastHit.normal ) );
 				}
 				m_DashAbilityTarget.gameObject.SetActive( false );

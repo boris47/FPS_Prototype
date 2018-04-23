@@ -22,16 +22,14 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 
 	public	bool			ClampedXAxis				{ get; set; }
 	public	bool			CanParseInput				{ get; set; }
-	public	PostProcessingProfile GetPP_Profile
-	{
-		get { return GetComponent<PostProcessingBehaviour>().profile; }
-	}
 
+	private	PostProcessingProfile m_PP_Profile			= null;
+	public	PostProcessingProfile GetPP_Profile			{ get { return m_PP_Profile; } }
 
-	[SerializeField, Tooltip("Camera ViewPoint"), ReadOnly]
+	[SerializeField, Tooltip("Camera ViewPoint")]
 	private	Transform		m_ViewPoint					= null;
 	public	Transform		ViewPoint					{ get { return m_ViewPoint; } }
-
+	
 	[SerializeField, Tooltip("Camera Target"), ReadOnly]
 	private	Transform		m_Target					= null;
 	public	Transform		Target						{ get { return m_Target; } }
@@ -95,9 +93,10 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 		m_WeaponPivot = transform.Find( "WeaponPivot" );
 
 		m_CameraRef = GetComponent<Camera>();
+		m_PP_Profile = GetComponent<PostProcessingBehaviour>().profile;
 
-		m_ViewPoint = transform.parent;
-/*
+//		m_ViewPoint = transform.parent;
+
 		Player player = FindObjectOfType<Player>();
 		if ( player == null )
 		{
@@ -105,7 +104,7 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 			return;
 		}
 		m_ViewPoint = player.transform.Find( "ViewPivot" );
-		*/
+		
 	}
 
 
@@ -159,8 +158,9 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 			Vector3 vDirection		= ( m_Target.position - transform.position );
 			Quaternion direction	= Quaternion.LookRotation( vDirection + m_HeadBob.Direction + m_HeadMove.Direction, Vector3.up );
 
-			transform.localRotation	= Quaternion.RotateTowards( transform.localRotation, direction, 0.5f * Time.fixedTime );
-			transform.position		= m_ViewPoint.transform.parent.transform.TransformPoint( m_ViewPoint.transform.localPosition * m_CameraFPS_Shift );
+//			transform.localRotation	= Quaternion.RotateTowards( transform.localRotation, direction, 0.5f * Time.fixedTime );
+
+			transform.position		= Player.Instance.transform.TransformPoint( m_ViewPoint.transform.localPosition * m_CameraFPS_Shift );
 			m_CurrentDirection		= transform.localRotation.eulerAngles;
 		}
 	}
@@ -253,12 +253,9 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 				m_CurrentDirection.y = m_CurrentDirection.y + m_CurrentRotation_X_Delta;
 			}
 
-//			m_CurrentDirection += m_HeadBob.Direction + m_HeadMove.Direction;
+			m_CurrentDirection += m_HeadBob.Direction + m_HeadMove.Direction;
 
-			transform.localRotation =  Quaternion.Euler( Vector3.Scale( m_CurrentDirection, Vector3.right + Vector3.forward ) );
-			Player.Instance.transform.Rotate ( Vector3.up, m_CurrentDirection.y, Space.Self );
-			if ( Player.Instance.IsDashing == false )
-				m_CurrentDirection.y = 0f;
+			transform.rotation = m_ViewPoint.transform.rotation * Quaternion.Euler( m_CurrentDirection );
 
 			// rotation with effect added
 			{
@@ -274,7 +271,7 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 		{
 			// manage camera height while crouching
 			m_CameraFPS_Shift = Mathf.Lerp( m_CameraFPS_Shift, ( Player.Instance.IsCrouched ) ? 0.5f : 1.0f, Time.deltaTime * 10f );
-			transform.position = m_ViewPoint.transform.parent.transform.TransformPoint( m_ViewPoint.transform.localPosition * m_CameraFPS_Shift );
+			transform.position = Player.Instance.transform.TransformPoint( m_ViewPoint.transform.localPosition * m_CameraFPS_Shift );
 		}
     }
 

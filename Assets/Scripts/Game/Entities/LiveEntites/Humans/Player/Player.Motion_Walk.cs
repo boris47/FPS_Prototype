@@ -281,7 +281,7 @@ public partial class Player {
 		// Apply smoothing on movements
 		m_MoveSmooth	= Mathf.Lerp( m_MoveSmooth,   fMove,   dt * 20f );
 		m_StrafeSmooth	= Mathf.Lerp( m_StrafeSmooth, fStrafe, dt * 10f );
-
+		/*
 		m_Move = ( m_MoveSmooth * transform.forward ) + ( m_StrafeSmooth * transform.right );
 
 		// This prevents "speed hack" strafing
@@ -295,7 +295,7 @@ public partial class Player {
 
 		if ( bIsJumping && IsGrounded )
 			m_Move.y = fFinalJump;
-
+			*/
 		m_RigidBody.useGravity = false;
 
 		// Update internal time value

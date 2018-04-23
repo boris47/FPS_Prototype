@@ -16,13 +16,6 @@ public class HeadBob : CameraEffectBase {
 	[SerializeField]
 	private float				m_Speed						= 1.0f;
 
-
-	private Vector3				m_Direction					= Vector3.zero;
-	public	Vector3				Direction
-	{
-		get { return m_Direction; }
-	}
-
 	private	Vector3				m_WeaponPositionDelta		= Vector3.zero;
 	public	Vector3				WeaponPositionDelta
 	{
@@ -36,8 +29,6 @@ public class HeadBob : CameraEffectBase {
 
 
 	private	bool				m_StepDone					= false;
-	private float				m_ThetaX					= 0f;
-	private float				m_ThetaY					= 0f;
 
 
 
@@ -71,13 +62,14 @@ public class HeadBob : CameraEffectBase {
 		float	deltaX = -Mathf.Cos( m_ThetaX ) * fAmplitude;
 		float	deltaY =  Mathf.Cos( m_ThetaY ) * fAmplitude;
 		m_Direction.Set ( deltaX, deltaY, 0.0f );
+		m_Direction *= m_InternalWeight;
 
 		m_WeaponPositionDelta.x = deltaY;
 		m_WeaponPositionDelta.y = deltaX;
 		m_WeaponRotationDelta.x = deltaY;
 		m_WeaponRotationDelta.y = deltaX;
-		m_WeaponPositionDelta *= 0.007f * m_InternalWeight;
-		m_WeaponRotationDelta *= 0.007f * m_InternalWeight;
+		m_WeaponPositionDelta *= m_WpnInfluence * m_InternalWeight;
+		m_WeaponRotationDelta *= m_WpnInfluence * m_InternalWeight;
 
 		// Steps
 		if ( Mathf.Abs( Mathf.Cos( m_ThetaY ) ) > STEP_VALUE )

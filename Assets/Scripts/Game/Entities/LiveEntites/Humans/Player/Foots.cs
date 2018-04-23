@@ -17,6 +17,7 @@ public class Foots : MonoBehaviour, IFoots {
 		get { return m_LiveEntity; }
 	}
 
+	private		IEntity				m_Entity			= null;
 	private		Collider			m_CurrentCollider	= null;
 	private		RaycastHit			m_RaycastHit		= default( RaycastHit );
 	private		ICustomAudioSource	m_AudioSource		= null;
@@ -27,6 +28,7 @@ public class Foots : MonoBehaviour, IFoots {
 	private void Awake()
 	{
 		m_LiveEntity	= transform.parent.GetComponent<LiveEntity>();
+		m_Entity		= m_LiveEntity as IEntity;
 		m_AudioSource	= transform.GetComponent<ICustomAudioSource>();
 	}
 
@@ -55,9 +57,9 @@ public class Foots : MonoBehaviour, IFoots {
 //		if ( m_LiveEntity.IsFalling == false || m_LiveEntity.IsMoving == false )
 //			return;
 
-		Debug.DrawLine( transform.position, transform.position - transform.up * 1.7f );
+		Debug.DrawLine( transform.position, transform.position - transform.up * ( m_Entity.PhysicCollider.height * 0.3f ) );
 
-		if ( Physics.Raycast( transform.position, -transform.up, out m_RaycastHit, 1.7f ) )
+		if ( Physics.Raycast( transform.position, -transform.up, out m_RaycastHit, ( m_Entity.PhysicCollider.height * 0.3f ) ) )
 		{
 			m_CurrentCollider = m_RaycastHit.collider;
 		}

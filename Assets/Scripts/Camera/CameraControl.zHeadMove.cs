@@ -15,27 +15,11 @@ public class HeadMove : CameraEffectBase {
 	[SerializeField]
 	private float				m_Speed						= 5.0f;
 
-
-	private Vector3				m_Direction					= Vector3.zero;
-	public	Vector3				Direction
-	{
-		get { return m_Direction; }
-	}
-
 	private	Vector3				m_WeaponPositionDelta		= Vector3.zero;
-	public	Vector3				WeaponPositionDelta
-	{
-		get { return m_WeaponPositionDelta; }
-	}
-	private	Vector3				m_WeaponRotationDelta		= Vector3.zero;
-	public	Vector3				WeaponRotationDelta
-	{
-		get { return m_WeaponRotationDelta; }
-	}
+	public	Vector3				WeaponPositionDelta			{ get { return m_WeaponPositionDelta; } }
 
-	private float				m_ThetaX					= 0f;
-	private float				m_ThetaY					= 0f;
-	
+	private	Vector3				m_WeaponRotationDelta		= Vector3.zero;
+	public	Vector3				WeaponRotationDelta			{ get { return m_WeaponRotationDelta; }	}
 
 
 
@@ -48,15 +32,15 @@ public class HeadMove : CameraEffectBase {
 
 		float	fStamina	= Player.Instance.Stamina;
 		bool	bCrouched	= Player.Instance.IsCrouched;
+		bool	bZoomed		= WeaponManager.Instance.Zoomed;
+		float	fZoomFactor	= WeaponManager.Instance.CurrentWeapon.ZoomFactor;
 
 		float fSpeed = m_Speed * m_SpeedMul * Time.deltaTime;
 		fSpeed		*= ( bCrouched )	?	0.80f : 1.00f;
 //		fSpeed		*= ( bIsUnderwater )?	0.50f : 1.00f;
 //		fSpeed		*= ( bZoomed )		?	0.85f : 1.00f;
 		fSpeed		*= ( 4.0f - ( fStamina * 2.0f ) );
-
-		bool	isZoomed	= WeaponManager.Instance.Zoomed;
-		float	zoomFactor  = WeaponManager.Instance.CurrentWeapon.ZoomFactor;
+		
 
 		float fAmplitude = m_Amplitude * m_AmplitudeMult;
 		fAmplitude		*= ( ( bCrouched )	? 0.80f : 1.00f );
@@ -71,13 +55,14 @@ public class HeadMove : CameraEffectBase {
 		float deltaX = -Mathf.Cos( m_ThetaX ) * fAmplitude;
 		float deltaY =  Mathf.Cos( m_ThetaY ) * fAmplitude * 0.2f;
 		m_Direction.Set ( deltaX, deltaY, 0.0f );
+		m_Direction *= m_InternalWeight;
 
 		m_WeaponPositionDelta.x = deltaY;
 		m_WeaponPositionDelta.y = deltaX;
 		m_WeaponRotationDelta.x = deltaY;
 		m_WeaponRotationDelta.y = deltaX;
-		m_WeaponPositionDelta *= 0.002f * m_InternalWeight;
-		m_WeaponRotationDelta *= 0.002f * m_InternalWeight;
+		m_WeaponPositionDelta *= m_WpnInfluence * m_InternalWeight;
+		m_WeaponRotationDelta *= m_WpnInfluence * m_InternalWeight;
 
 	}
 
