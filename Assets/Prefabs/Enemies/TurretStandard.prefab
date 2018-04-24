@@ -468,8 +468,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4e5e85689509d844aba8b1d99dc2d31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Velocity: 15
-  m_Range: 30
+  m_Velocity: 25
+  m_Range: 45
   m_DamageMult: 1
   m_RecoilMult: 1
 --- !u!114 &114771302524230968
@@ -484,7 +484,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ViewPoint: {fileID: 4109363453914702}
-  m_ViewDistance: 20
+  m_ViewDistance: 40
   m_ViewCone: 100
 --- !u!114 &114987407167767472
 MonoBehaviour:
@@ -517,7 +517,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 20
+  m_Radius: 40
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!136 &136204866479422964
 CapsuleCollider:

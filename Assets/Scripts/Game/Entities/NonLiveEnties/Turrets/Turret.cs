@@ -68,7 +68,7 @@ public abstract class Turret : NonLiveEntity {
 					o.SetActive( false );
 					o.Setup( damageMin : m_DamageMin, damageMax : m_DamageMax, canPenetrate : false, whoRef : this, weapon : null );
 					Physics.IgnoreCollision( o.Collider, m_PhysicCollider, ignore : true );
-					Physics.IgnoreCollision( o.Collider, ( Player.Instance as IEntity ).PhysicCollider );
+					Physics.IgnoreCollision( o.Collider, Player.Entity.PhysicCollider );
 					Physics.IgnoreCollision( o.Collider, Player.Instance.PlayerNearAreaTrigger );
 					Physics.IgnoreCollision( o.Collider, Player.Instance.PlayerFarAreaTrigger );
 					if ( m_Shield != null )

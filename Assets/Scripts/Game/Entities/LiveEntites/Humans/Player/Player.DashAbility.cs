@@ -117,18 +117,19 @@ public partial class Player {
 		AnimationCurve animationCurve = ( ( target != null && target.HasTimeScaleCurveOverride ) ? target.DashTimeScaleCurve : m_DashTimeScaleCurve );
 		while ( interpolant < 1f )
 		{
-			effectFrame.color	= Color.Lerp ( Color.white, Color.clear, interpolant * 6f );
-			currentTime += Time.deltaTime;
-			interpolant = currentTime * DASH_SPEED_FACTOR;
+			effectFrame.color		= Color.Lerp ( Color.white, Color.clear, interpolant * 6f );
+			currentTime				+= Time.deltaTime;
+			interpolant				= currentTime * DASH_SPEED_FACTOR;
 
-			Time.timeScale = m_DashTimeScaleCurve.Evaluate( interpolant ) * slowMotionCoeff;
-			SoundEffectManager.Instance.Pitch = Time.timeScale;
+			Time.timeScale			= animationCurve.Evaluate( interpolant ) * slowMotionCoeff;
 			
-			settings.frameBlending = ( 1f - Time.timeScale );
+			transform.position		= ( Vector3.Lerp( startPosition, destination, interpolant ) );
+			transform.up			= Vector3.Slerp( startUpVector, destinationUp, interpolant );
+
+			settings.frameBlending	= ( 1f - Time.timeScale );
 			CameraControl.Instance.GetPP_Profile.motionBlur.settings = settings;
 
-			transform.position = ( Vector3.Lerp( startPosition, destination, interpolant ) );
-			transform.up = Vector3.Lerp( startUpVector, destinationUp, interpolant );
+			SoundEffectManager.Instance.Pitch = Time.timeScale;
 			yield return null;
 		}
 
@@ -139,8 +140,10 @@ public partial class Player {
 		Time.timeScale = 1f;
 		effectFrame.color = Color.clear;
 
-//		transform.position = destination;
-//		transform.up = destinationUp;
+		CameraControl.Instance.OnCutsceneEnd();
+
+		transform.position = destination;
+		transform.up = destinationUp;
 		m_IsDashing = false;
 
 		CameraControl.Instance.HeadBob.IsActive		= true;

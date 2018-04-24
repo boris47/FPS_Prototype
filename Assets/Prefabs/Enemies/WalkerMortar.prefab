@@ -653,7 +653,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Velocity: 15
-  m_Range: 30
+  m_Range: 45
   m_DamageMult: 1
   m_RecoilMult: 1
 --- !u!114 &114427664141375946

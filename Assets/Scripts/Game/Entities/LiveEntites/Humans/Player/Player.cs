@@ -10,6 +10,7 @@ public partial class Player : Human {
 	private	const	float			MAX_INTERACTION_DISTANCE		= 20f;
 
 	public	static	Player			Instance						= null;
+	public	static	IEntity			Entity							= null;
 
 	// DASHING
 	private		bool				m_IsDashing						= false;
@@ -55,6 +56,7 @@ public partial class Player : Human {
 			return;
 		}
 		Instance = this;
+		Entity = this as IEntity;
 		DontDestroyOnLoad( this );
 
 		base.Awake();
@@ -72,8 +74,8 @@ public partial class Player : Human {
 		}
 
 
-		m_PlayerNearAreaTrigger = transform.Find( "PNAT" ).GetComponent<Collider>();
-		m_PlayerFarAreaTrigger = transform.Find( "PFAT" ).GetComponent<Collider>();
+		m_PlayerNearAreaTrigger	= transform.Find( "PNAT" ).GetComponent<Collider>(); // Player Near Area Trigger
+		m_PlayerFarAreaTrigger	= transform.Find( "PFAT" ).GetComponent<Collider>(); // Player Far  Area Trigger
 
 		// Player Data
 		{
@@ -128,16 +130,12 @@ public partial class Player : Human {
 
 		SetMotionType( eMotionType.Walking );
 
-
 		m_GrabPoint = new GameObject( "GrabPoint" );
 		m_GrabPoint.transform.SetParent( transform );
 		m_GrabPoint.transform.localPosition = Vector3.zero;
 		m_GrabPoint.transform.localRotation = Quaternion.identity;
 		m_GrabPoint.transform.Translate( 0f, 0f, m_UseDistance );
-
-		UnityEditor.Selection.activeTransform = m_GrabPoint.transform;
-
-		CameraControl.Instance.transform.rotation = transform.rotation;
+		IsGrounded = true;
 	}
 
 
@@ -145,6 +143,7 @@ public partial class Player : Human {
 	// Start
 	private void Start()
 	{
+		IsGrounded = true;
 		StartCoroutine( DamageEffectCO() );
 	}
 
@@ -199,7 +198,7 @@ public partial class Player : Human {
 		MoveGrabbedObject();
 
 		m_RigidBody.angularVelocity = Vector3.zero;
-		 
+
 		if ( IsGrounded )
 		{
 			Vector3 forward = -Vector3.Cross( transform.up, CameraControl.Instance.transform.right );

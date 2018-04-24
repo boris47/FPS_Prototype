@@ -2950,15 +2950,15 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1110418244205378}
-  m_LocalRotation: {x: -0, y: 0.3826834, z: -0, w: 0.92387956}
-  m_LocalPosition: {x: 120.45, y: 25.390001, z: 84.48}
+  m_LocalRotation: {x: -0.27059808, y: -0.6532815, z: -0.6532815, w: 0.27059808}
+  m_LocalPosition: {x: 125.57, y: 16.424236, z: 82.99}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4723938302884854}
   - {fileID: 4182777427273904}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: -45, z: -90}
 --- !u!4 &4213032674267198
 Transform:
   m_ObjectHideFlags: 1
@@ -5358,7 +5358,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4e5e85689509d844aba8b1d99dc2d31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Velocity: 18
+  m_Velocity: 50
   m_Range: 40
   m_DamageMult: 1
   m_RecoilMult: 1
@@ -5391,7 +5391,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4e5e85689509d844aba8b1d99dc2d31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Velocity: 18
+  m_Velocity: 50
   m_Range: 40
   m_DamageMult: 1
   m_RecoilMult: 1
@@ -5480,7 +5480,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4e5e85689509d844aba8b1d99dc2d31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Velocity: 18
+  m_Velocity: 50
   m_Range: 40
   m_DamageMult: 1
   m_RecoilMult: 1
@@ -5661,7 +5661,7 @@ MonoBehaviour:
     m_WpnInfluence: 0.03
     m_Amplitude: 0.04
     m_Speed: 2.05
-  m_WeaponPivot: {fileID: 0}
+  m_WeaponPivot: {fileID: 4723938302884854}
 --- !u!124 &124840828516165038
 Behaviour:
   m_ObjectHideFlags: 1

@@ -81,7 +81,6 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 		// Sinlgeton
 		if ( Instance != null )
 		{
-//			Destroy( gameObject );	// this prevent missing weapons transform
 			gameObject.SetActive( false );
 			return;
 		}
@@ -95,8 +94,6 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 		m_CameraRef = GetComponent<Camera>();
 		m_PP_Profile = GetComponent<PostProcessingBehaviour>().profile;
 
-//		m_ViewPoint = transform.parent;
-
 		Player player = FindObjectOfType<Player>();
 		if ( player == null )
 		{
@@ -104,7 +101,6 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 			return;
 		}
 		m_ViewPoint = player.transform.Find( "ViewPivot" );
-		
 	}
 
 
@@ -112,8 +108,6 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 	// Start
 	private	void	Start()
 	{
-		m_CurrentDirection = transform.localRotation.eulerAngles;
-
 		Cursor.visible = false;
 
 		CanParseInput = true;
@@ -138,6 +132,7 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 		{
 			m_CurrentDirection.x = m_CurrentDirection.x + 360f;
 		}
+
 	}
 
 
@@ -158,8 +153,6 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 			Vector3 vDirection		= ( m_Target.position - transform.position );
 			Quaternion direction	= Quaternion.LookRotation( vDirection + m_HeadBob.Direction + m_HeadMove.Direction, Vector3.up );
 
-//			transform.localRotation	= Quaternion.RotateTowards( transform.localRotation, direction, 0.5f * Time.fixedTime );
-
 			transform.position		= Player.Instance.transform.TransformPoint( m_ViewPoint.transform.localPosition * m_CameraFPS_Shift );
 			m_CurrentDirection		= transform.localRotation.eulerAngles;
 		}
@@ -178,8 +171,8 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 
 		if ( Player.Instance.IsGrounded )
 		{
-			m_HeadBob.Update (/*liveEntity : ref m_LiveEntity,*/ weight : Player.Instance.IsMoving == true ? 1f : 0f );
-			m_HeadMove.Update(/*liveEntity : ref m_LiveEntity,*/ weight : Player.Instance.IsMoving == true ? 0f : 1f );
+			m_HeadBob.Update ( weight : Player.Instance.IsMoving == true ? 1f : 0f );
+			m_HeadMove.Update( weight : Player.Instance.IsMoving == true ? 0f : 1f );
 		}
 		else
 		{
@@ -198,6 +191,8 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 	{
 		if ( m_ViewPoint == null )
 			return;
+
+		m_SmoothFactor = Mathf.Clamp( m_SmoothFactor, 1.0f, 10.0f );
 		
 		m_WeaponRotationDelta += m_WpnRotationfeedbackX;
 		m_WeaponRotationDelta += m_WpnRotationfeedbackY;
@@ -211,25 +206,20 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 
 		// Look at target is assigned
 		if ( m_Target != null )
-		{
 			return;
-		}
 
 		// Cam Dispersion
-		m_CurrentDirection = Vector3.Lerp( m_CurrentDirection, m_CurrentDirection + m_CurrentDispersion, Time.deltaTime * 8f );
-		m_CurrentDirection.x = Utils.Math.Clamp( m_CurrentDirection.x - m_CurrentRotation_Y_Delta, CLAMP_MIN_X_AXIS, CLAMP_MAX_X_AXIS );
-		m_CurrentDispersion = Vector3.Lerp ( m_CurrentDispersion, Vector3.zero, Time.deltaTime * 3.7f );
-
-		m_SmoothFactor = Mathf.Clamp( m_SmoothFactor, 1.0f, 10.0f );
+		m_CurrentDirection		= Vector3.Lerp( m_CurrentDirection, m_CurrentDirection + m_CurrentDispersion, Time.deltaTime * 8f );
+		m_CurrentDirection.x	= Utils.Math.Clamp( m_CurrentDirection.x - m_CurrentRotation_Y_Delta, CLAMP_MIN_X_AXIS, CLAMP_MAX_X_AXIS );
+		m_CurrentDispersion		= Vector3.Lerp ( m_CurrentDispersion, Vector3.zero, Time.deltaTime * 3.7f );
 
 		// Rotation
 		if ( CanParseInput == true )
 		{
 			bool	isZoomed			= WeaponManager.Instance.Zoomed;
 			float	wpnZoomSensitivity  = WeaponManager.Instance.CurrentWeapon.ZommSensitivity;
-
-			float Axis_X_Delta = Input.GetAxis ( "Mouse X" ) * m_MouseSensitivity * ( ( isZoomed ) ? wpnZoomSensitivity : 1.0f );
-			float Axis_Y_Delta = Input.GetAxis ( "Mouse Y" ) * m_MouseSensitivity * ( ( isZoomed ) ? wpnZoomSensitivity : 1.0f );
+			float	Axis_X_Delta		= Input.GetAxis ( "Mouse X" ) * m_MouseSensitivity * ( ( isZoomed ) ? wpnZoomSensitivity : 1.0f );
+			float	Axis_Y_Delta		= Input.GetAxis ( "Mouse Y" ) * m_MouseSensitivity * ( ( isZoomed ) ? wpnZoomSensitivity : 1.0f );
 
 			if ( m_SmoothedRotation )
 			{
@@ -254,7 +244,6 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 			}
 
 			m_CurrentDirection += m_HeadBob.Direction + m_HeadMove.Direction;
-
 			transform.rotation = m_ViewPoint.transform.rotation * Quaternion.Euler( m_CurrentDirection );
 
 			// rotation with effect added
