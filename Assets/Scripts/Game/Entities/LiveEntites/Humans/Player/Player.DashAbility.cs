@@ -100,8 +100,10 @@ public partial class Player {
 
 	private	IEnumerator	DashRotator( Vector3 destination, Vector3 destinationUp, DashTarget target = null )
 	{
-		Vector3	startPosition				= transform.position;
-		Vector3	startUpVector				= transform.up;
+		Vector3		startPosition			= transform.position;
+		Quaternion	startRotation			= transform.rotation;
+		Vector3		alignedPoint			= ProjectPointOnPlane( -transform.up, destination, transform.position );
+		Quaternion	finalRotation			= Quaternion.LookRotation( alignedPoint - startPosition, destinationUp );
 		float	currentTime					= 0f;
 		float	interpolant					= 0f;
 		var		settings					= CameraControl.Instance.GetPP_Profile.motionBlur.settings;
@@ -123,8 +125,10 @@ public partial class Player {
 
 			Time.timeScale			= animationCurve.Evaluate( interpolant ) * slowMotionCoeff;
 			
-			transform.position		= ( Vector3.Lerp( startPosition, destination, interpolant ) );
-			transform.up			= Vector3.Slerp( startUpVector, destinationUp, interpolant );
+			transform.position		= Vector3.Lerp( startPosition, destination, interpolant );
+			transform.rotation		= Quaternion.Lerp( startRotation, finalRotation, interpolant );
+
+//			transform.up			= Vector3.Slerp( startUpVector, destinationUp, interpolant );
 
 			settings.frameBlending	= ( 1f - Time.timeScale );
 			CameraControl.Instance.GetPP_Profile.motionBlur.settings = settings;
@@ -143,11 +147,51 @@ public partial class Player {
 		CameraControl.Instance.OnCutsceneEnd();
 
 		transform.position = destination;
-		transform.up = destinationUp;
+		transform.rotation = finalRotation;
+//		transform.up = destinationUp;
 		m_IsDashing = false;
 
 		CameraControl.Instance.HeadBob.IsActive		= true;
 		CameraControl.Instance.HeadMove.IsActive	= true;
+	}
+
+
+
+
+
+
+
+
+
+
+
+	//create a vector of direction "vector" with length "size"
+	private Vector3 SetVectorLength( Vector3 vector, float size )
+	{
+		//normalize the vector
+		Vector3 vectorNormalized = Vector3.Normalize(vector);
+
+		//scale the vector
+		return vectorNormalized *= size;
+	}
+
+	//This function returns a point which is a projection from a point to a plane.
+	private Vector3 ProjectPointOnPlane( Vector3 planeNormal, Vector3 planePoint, Vector3 point )
+	{
+		float distance;
+		Vector3 translationVector;
+
+		//First calculate the distance from the point to the plane:
+		distance = Vector3.Dot( planeNormal, ( point - planePoint ) );
+
+		//Reverse the sign of the distance
+		distance *= -1;
+
+		//Get a translation vector
+		translationVector = SetVectorLength(planeNormal, distance);
+
+		//Translate the point to form a projection
+		return point + translationVector;
 	}
 
 }

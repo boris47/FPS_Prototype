@@ -234,6 +234,9 @@ public partial class Player : Human {
 		if ( m_GrabbedObject != null )
 			return;
 
+		if ( m_IsDashing == true )
+			return;
+
 		if ( m_NormalDashCoroutine != null )
 			return;
 
