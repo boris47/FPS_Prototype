@@ -56,6 +56,35 @@ namespace Utils {
 			return new Vector3 ( _cp*_sh, _sp, _cp*_ch );
 		}
 
+		//create a vector of direction "vector" with length "size"
+		public static Vector3 SetVectorLength( Vector3 vector, float size )
+		{
+			//normalize the vector
+			Vector3 vectorNormalized = Vector3.Normalize(vector);
+
+			//scale the vector
+			return vectorNormalized *= size;
+		}
+
+		//This function returns a point which is a projection from a point to a plane.
+		public static Vector3 ProjectPointOnPlane( Vector3 planeNormal, Vector3 planePoint, Vector3 point )
+		{
+			float distance;
+			Vector3 translationVector;
+
+			//First calculate the distance from the point to the plane:
+			distance = Vector3.Dot( planeNormal, ( point - planePoint ) );
+
+			//Reverse the sign of the distance
+			distance *= -1;
+
+			//Get a translation vector
+			translationVector = SetVectorLength(planeNormal, distance);
+
+			//Translate the point to form a projection
+			return point + translationVector;
+		}
+
 
 
 

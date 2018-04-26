@@ -153,6 +153,16 @@ Prefab:
       propertyPath: m_PointsCollection
       value: 
       objectReference: {fileID: 939812494}
+    - target: {fileID: 54071830706854254, guid: 1e8cd66f4564dfa4aba3e75ce9ce2be5,
+        type: 2}
+      propertyPath: m_AngularDrag
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 54071830706854254, guid: 1e8cd66f4564dfa4aba3e75ce9ce2be5,
+        type: 2}
+      propertyPath: m_Constraints
+      value: 112
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 1e8cd66f4564dfa4aba3e75ce9ce2be5, type: 2}
   m_IsPrefabParent: 0
@@ -1897,11 +1907,6 @@ Prefab:
       propertyPath: m_RootOrder
       value: 4
       objectReference: {fileID: 0}
-    - target: {fileID: 114951415777524808, guid: d83c8c467b294284a8c700f19dc0a965,
-        type: 2}
-      propertyPath: m_ViewPoint
-      value: 
-      objectReference: {fileID: 2023726204}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: d83c8c467b294284a8c700f19dc0a965, type: 2}
   m_IsPrefabParent: 0
@@ -4147,7 +4152,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_AudioSource: {fileID: 0}
   m_AudioEmitter: {fileID: 1785255723}
-  m_InternalVolume: 1
+  m_InternalVolume: 0.3
   m_InternalPitch: 1
   m_Volume: 1
   m_Pitch: 1
@@ -4596,7 +4601,7 @@ Prefab:
     - target: {fileID: 114804867122043236, guid: 0938111bf6475d34585ee0df7bbb9cee,
         type: 2}
       propertyPath: m_CurrentCycleName
-      value: Clear
+      value: Rainy
       objectReference: {fileID: 0}
     - target: {fileID: 114804867122043236, guid: 0938111bf6475d34585ee0df7bbb9cee,
         type: 2}
@@ -4733,6 +4738,11 @@ Prefab:
         type: 2}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114195169058867262, guid: 0938111bf6475d34585ee0df7bbb9cee,
+        type: 2}
+      propertyPath: m_InternalVolume
+      value: 0.5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 0938111bf6475d34585ee0df7bbb9cee, type: 2}
@@ -4912,14 +4922,17 @@ Prefab:
       propertyPath: m_Pivot.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1773834787608834, guid: 26c59272f0db78e41b0bc276526e4f39, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1629490694608316, guid: 26c59272f0db78e41b0bc276526e4f39, type: 2}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 26c59272f0db78e41b0bc276526e4f39, type: 2}
   m_IsPrefabParent: 0
---- !u!4 &2023726204 stripped
-Transform:
-  m_PrefabParentObject: {fileID: 4560598195909022, guid: 1e8cd66f4564dfa4aba3e75ce9ce2be5,
-    type: 2}
-  m_PrefabInternal: {fileID: 1223556}
 --- !u!108 &2026387534 stripped
 Light:
   m_PrefabParentObject: {fileID: 108794403690500232, guid: 0938111bf6475d34585ee0df7bbb9cee,

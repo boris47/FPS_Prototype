@@ -2306,7 +2306,7 @@ GameObject:
   - component: {fileID: 23143193328945026}
   - component: {fileID: 136015765838976548}
   - component: {fileID: 54764845851395804}
-  - component: {fileID: 114375490441033294}
+  - component: {fileID: 114722588340917594}
   m_Layer: 2
   m_Name: Bullet
   m_TagString: Untagged
@@ -4672,7 +4672,7 @@ MeshRenderer:
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: ea2fb6b04df67024bb77ef6e61b830f9, type: 2}
+  - {fileID: 2100000, guid: 670ce048c3b7cea4f8b4add579063305, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5469,21 +5469,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   profile: {fileID: 11400000, guid: d982e879ff67b4d3fb6522d08c3cd5af, type: 2}
---- !u!114 &114375490441033294
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1946648283293752}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b4e5e85689509d844aba8b1d99dc2d31, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Velocity: 50
-  m_Range: 40
-  m_DamageMult: 1
-  m_RecoilMult: 1
 --- !u!114 &114400216235448902
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -5544,6 +5529,21 @@ MonoBehaviour:
   m_Volume: 1
   m_Pitch: 1
   m_IsFading: 0
+--- !u!114 &114722588340917594
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1946648283293752}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6be163f11e1b68f49896bbf4eba6781d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Velocity: 15
+  m_Range: 30
+  m_DamageMult: 0.5
+  m_RecoilMult: 1
 --- !u!114 &114760327536071886
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -5558,7 +5558,7 @@ MonoBehaviour:
   m_Bullet1GameObject: {fileID: 1946648283293752}
   m_Bullet2GameObject: {fileID: 0}
   m_ZoomOffset: {x: -0.0635, y: -0.01, z: 0}
-  m_Damage: 5
+  m_Damage: 1
   m_Magazine: 25
   m_MagazineCapacity: 25
   m_FireMode: 2

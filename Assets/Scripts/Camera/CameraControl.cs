@@ -132,7 +132,6 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 		{
 			m_CurrentDirection.x = m_CurrentDirection.x + 360f;
 		}
-
 	}
 
 
@@ -140,6 +139,9 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 	// ApplyDispersion
 	public	void	ApplyDispersion( float range )
 	{
+		if ( Player.Instance.IsDashing )
+			return;
+
 		m_CurrentDispersion.x += Random.Range( -range, -range * 0.5f );
 		m_CurrentDispersion.y += Random.Range( -range,  range );
 	}

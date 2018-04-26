@@ -108,13 +108,13 @@ public class GenericBullet : Bullet {
 			EffectManager.Instance.PlayAmbientOnHit( collision.contacts[0].point, collision.contacts[0].normal );
 		}
 
-
+		/*
 		Rigidbody rb = collision.gameObject.GetComponent<Rigidbody>();
 		if ( rb != null )
 		{
-			rb.AddForce( m_RigidBody.velocity );
+//			rb.AddForce( m_RigidBody.velocity * 0.01f );
 		}
-
+		*/
 		if ( shield != null )
 			shield.OnHit( ref m_Instance );
 		else

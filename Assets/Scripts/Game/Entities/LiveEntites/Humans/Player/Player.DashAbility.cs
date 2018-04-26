@@ -102,8 +102,17 @@ public partial class Player {
 	{
 		Vector3		startPosition			= transform.position;
 		Quaternion	startRotation			= transform.rotation;
-		Vector3		alignedPoint			= ProjectPointOnPlane( -transform.up, destination, transform.position );
-		Quaternion	finalRotation			= Quaternion.LookRotation( alignedPoint - startPosition, destinationUp );
+		Quaternion	finalRotation			= Quaternion.identity;
+		if ( target != null )
+		{
+			finalRotation = target.transform.rotation;
+		}
+		else
+		{
+			Vector3		alignedPoint		= Utils.Math.ProjectPointOnPlane( -transform.up, destination, transform.position );
+			finalRotation					= Quaternion.LookRotation( alignedPoint - startPosition, destinationUp );
+		}
+		
 		float	currentTime					= 0f;
 		float	interpolant					= 0f;
 		var		settings					= CameraControl.Instance.GetPP_Profile.motionBlur.settings;
@@ -112,6 +121,7 @@ public partial class Player {
 		CameraControl.Instance.HeadBob.IsActive		= false;
 		CameraControl.Instance.HeadMove.IsActive	= false;
 
+		m_RigidBody.velocity = Vector3.zero;
 		m_RigidBody.constraints = RigidbodyConstraints.None;
 
 		float slowMotionCoeff = WeaponManager.Instance.CurrentWeapon.SlowMotionCoeff;
@@ -123,21 +133,20 @@ public partial class Player {
 			currentTime				+= Time.deltaTime;
 			interpolant				= currentTime * DASH_SPEED_FACTOR;
 
-			Time.timeScale			= animationCurve.Evaluate( interpolant ) * slowMotionCoeff;
+			float	timeScaleNow	= animationCurve.Evaluate( interpolant ) * slowMotionCoeff;
+			Time.timeScale			= timeScaleNow;
 			
 			transform.position		= Vector3.Lerp( startPosition, destination, interpolant );
 			transform.rotation		= Quaternion.Lerp( startRotation, finalRotation, interpolant );
 
-//			transform.up			= Vector3.Slerp( startUpVector, destinationUp, interpolant );
-
-			settings.frameBlending	= ( 1f - Time.timeScale );
+			settings.frameBlending	= ( 1f - timeScaleNow );
 			CameraControl.Instance.GetPP_Profile.motionBlur.settings = settings;
 
-			SoundEffectManager.Instance.Pitch = Time.timeScale;
+			SoundEffectManager.Instance.Pitch = timeScaleNow;
 			yield return null;
 		}
 
-		m_RigidBody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+		m_RigidBody.constraints = RigidbodyConstraints.FreezeRotation;
 		m_RigidBody.velocity = Vector3.zero;
 
 		SoundEffectManager.Instance.Pitch = 1f;
@@ -148,50 +157,10 @@ public partial class Player {
 
 		transform.position = destination;
 		transform.rotation = finalRotation;
-//		transform.up = destinationUp;
 		m_IsDashing = false;
 
 		CameraControl.Instance.HeadBob.IsActive		= true;
 		CameraControl.Instance.HeadMove.IsActive	= true;
-	}
-
-
-
-
-
-
-
-
-
-
-
-	//create a vector of direction "vector" with length "size"
-	private Vector3 SetVectorLength( Vector3 vector, float size )
-	{
-		//normalize the vector
-		Vector3 vectorNormalized = Vector3.Normalize(vector);
-
-		//scale the vector
-		return vectorNormalized *= size;
-	}
-
-	//This function returns a point which is a projection from a point to a plane.
-	private Vector3 ProjectPointOnPlane( Vector3 planeNormal, Vector3 planePoint, Vector3 point )
-	{
-		float distance;
-		Vector3 translationVector;
-
-		//First calculate the distance from the point to the plane:
-		distance = Vector3.Dot( planeNormal, ( point - planePoint ) );
-
-		//Reverse the sign of the distance
-		distance *= -1;
-
-		//Get a translation vector
-		translationVector = SetVectorLength(planeNormal, distance);
-
-		//Translate the point to form a projection
-		return point + translationVector;
 	}
 
 }

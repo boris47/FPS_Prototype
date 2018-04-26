@@ -1,5 +1,6 @@
 ﻿
 using UnityEngine;
+using System.Collections.Generic;
 
 public	delegate	void	VoidArgsDelegate();
 
@@ -7,7 +8,6 @@ public	delegate	void	VoidArgsDelegate();
 public abstract partial class Entity {
 
 	public	event		VoidArgsDelegate	OnKilled		= null;
-
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnTargetAquired ( Abstract )
@@ -47,7 +47,7 @@ public abstract partial class Entity {
 		m_IsActive = false;
 
 		EffectManager.Instance.PlayEntityExplosion( transform.position, transform.up );
-		EffectManager.Instance.PlayerExplosionSound( transform.position );
+		EffectManager.Instance.PlayExplosionSound( transform.position );
 	}
 
 

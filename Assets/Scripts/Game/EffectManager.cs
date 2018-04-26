@@ -1,32 +1,50 @@
-﻿using UnityEngine;
+﻿
+using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+
+
+public enum EffectType {
+	SHOCK
+}
+
 
 public class EffectManager : MonoBehaviour {
 
-	public	static	EffectManager	Instance								= null;
+	public	static	EffectManager			Instance								= null;
 
 	[ SerializeField ]
-	private		ParticleSystem		m_ParticleSystemEntityOnHit				= null;
+	private		ParticleSystem				m_ParticleSystemEntityOnHit				= null;
 
 	[ SerializeField ]
-	private		ParticleSystem		m_ParticleSystemAmbientOnHit			= null;
+	private		ParticleSystem				m_ParticleSystemAmbientOnHit			= null;
 
 	[ SerializeField ]
-	private		GameObject			m_ExplosionParticleSystemsCollection	= null;
+	private		Transform					m_ExplosionParticleSystemsCollection	= null;
 
 	[ SerializeField ]
-	private		CustomAudioSource	m_ExplosionSource						= null;
+	private		Transform					m_ElettroParticleSystemsCollection		= null;
 
-	private		ParticleSystem[]	m_ExplosionParticleSystems				= null;
+
+	[ SerializeField ]
+	private		CustomAudioSource			m_ExplosionSource						= null;
+
+	private		ParticleSystem[]			m_ExplosionParticleSystems				= null;
+	private		ParticleSystem[]			m_ElettroParticleSystems				= null;
+
+
+	private struct LongParticleSystemData {
+		public	ParticleSystem	ps;
+		public	Transform		target;
+	}
+
+	private	List<LongParticleSystemData>	m_ActiveParticleSystems					= new List<LongParticleSystemData>();
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake
 	private void	Awake()
 	{
-		if ( m_ParticleSystemEntityOnHit == null || m_ParticleSystemAmbientOnHit == null || m_ExplosionParticleSystemsCollection == null || m_ExplosionSource == null )
-			return;
-
 		if ( Instance != null )
 		{
 			Destroy( gameObject );
@@ -35,7 +53,39 @@ public class EffectManager : MonoBehaviour {
 		Instance = this;
 		DontDestroyOnLoad( this );
 
-		m_ExplosionParticleSystems = m_ExplosionParticleSystemsCollection.GetComponentsInChildren<ParticleSystem>();
+		if ( m_ParticleSystemEntityOnHit			== null ||
+			m_ParticleSystemAmbientOnHit			== null ||
+			m_ExplosionParticleSystemsCollection	== null ||
+			m_ExplosionSource						== null ||
+			m_ElettroParticleSystemsCollection		== null
+		)
+		return;
+
+
+		m_ExplosionParticleSystems	= m_ExplosionParticleSystemsCollection.GetComponentsInChildren<ParticleSystem>();
+		m_ElettroParticleSystems	= m_ElettroParticleSystemsCollection.GetComponentsInChildren<ParticleSystem>();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// AttachAndPlay
+	public	ParticleSystem	AttachAndPlay( IEnumerable<ParticleSystem> collection, Transform target, int particleCount = -1 )
+	{
+		ParticleSystem ps = GetFreeParticleSystem( collection );
+		if ( ps == null )
+			return null;
+
+		if ( particleCount > 0 )
+		{
+			ps.Emit( particleCount );
+		}
+		else
+		{
+			ps.Play( withChildren : true );
+		}
+
+		m_ActiveParticleSystems.Add( new LongParticleSystemData() { ps = ps, target = target } );
+		return ps;
 	}
 
 
@@ -60,17 +110,24 @@ public class EffectManager : MonoBehaviour {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// GetFreeParticleSystem
-	private	ParticleSystem	GetFreeParticleSystem()
+	// PlayElettroHit
+	public	ParticleSystem	PlayElettroHit( Transform target )
 	{
-		for ( int i = 0; i < m_ExplosionParticleSystems.Length; i++ )
+		return AttachAndPlay( m_ElettroParticleSystems, target );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// GetFreeParticleSystem
+	private	ParticleSystem	GetFreeParticleSystem( IEnumerable<ParticleSystem> collection )
+	{
+		foreach( var ps in collection )
 		{
-			ParticleSystem ps = m_ExplosionParticleSystems[ i ];
 			if ( ps.isPlaying )
 				continue;
-
 			return ps;
 		}
+		print( "EffectManager::GetFreeParticleSystem: Cannot find a valid particle system !!" );
 		return null;
 	}
 
@@ -79,7 +136,7 @@ public class EffectManager : MonoBehaviour {
 	// PlayEntityExplosion
 	public	void	PlayEntityExplosion( Vector3 position, Vector3 direction )
 	{
-		ParticleSystem ps =	GetFreeParticleSystem();
+		ParticleSystem ps =	GetFreeParticleSystem( m_ExplosionParticleSystems );
 		if ( ps == null )
 			return;
 
@@ -91,10 +148,29 @@ public class EffectManager : MonoBehaviour {
 
 	//////////////////////////////////////////////////////////////////////////
 	// PlayerExplosionSound
-	public	void	PlayerExplosionSound( Vector3 position )
+	public	void	PlayExplosionSound( Vector3 position )
 	{
 		m_ExplosionSource.transform.position = position;
 		( m_ExplosionSource as ICustomAudioSource ).Play();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Update
+	private	void	Update()
+	{
+		for ( int i = 0; i < m_ActiveParticleSystems.Count; i++ )
+		{
+			LongParticleSystemData pair = m_ActiveParticleSystems[ i ];
+			pair.ps.transform.position = pair.target.position;
+
+			if ( pair.ps.IsAlive() == false )
+			{
+				pair.ps.transform.localPosition = Vector3.zero;
+				m_ActiveParticleSystems.RemoveAt( i );
+				return;
+			}
+		}
 	}
 
 }
