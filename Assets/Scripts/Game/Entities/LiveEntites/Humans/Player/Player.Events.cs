@@ -77,7 +77,7 @@ public partial class Player {
 
 		m_RigidBody.velocity = Vector3.zero;
 
-		StartCoroutine( DashRotator( target.transform.position, target.transform.up, target ) ); // Player.DashAbility
+		StartCoroutine( DashRotator( destination: target.transform.position, destinationUp: target.transform.up, falling: false, target: target ) ); // Player.DashAbility
 	}
 
 }

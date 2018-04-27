@@ -199,6 +199,20 @@ public partial class Player : Human {
 
 		m_RigidBody.angularVelocity = Vector3.zero;
 
+		// Forced by ovverride
+		if ( m_MovementOverrideEnabled )
+		{
+			if ( ( m_Move.x != 0.0f ) && ( m_Move.z != 0.0f  ) )
+			{
+				m_Move *= 0.707f;
+			}
+
+			m_Move *= GroundSpeedModifier;
+			m_RigidBody.velocity = m_Move;
+			return;
+		}
+
+		// User inputs
 		if ( IsGrounded )
 		{
 			Vector3 forward = -Vector3.Cross( transform.up, CameraControl.Instance.transform.right );
@@ -237,9 +251,6 @@ public partial class Player : Human {
 		if ( m_IsDashing == true )
 			return;
 
-		if ( m_NormalDashCoroutine != null )
-			return;
-
 		// auto fall
 		if ( ( ( InputManager.Inputs.Jump ) || ( IsGrounded == false && m_IsDashing == false ) ) && transform.up != Vector3.up )
 		{
@@ -252,7 +263,7 @@ public partial class Player : Human {
 			m_IsDashing = true;
 
 			Vector3 destination = hit.point + Vector3.up * m_DashAbilityTarget.localScale.y * 1.7f;
-			m_RotorDashCoroutine = StartCoroutine( DashRotator( destination, Vector3.up ) );
+			m_RotorDashCoroutine = StartCoroutine( DashRotator( destination: destination, destinationUp: Vector3.up, falling: true ) );
 		}
 
 		// if actually has no target
@@ -304,7 +315,7 @@ public partial class Player : Human {
 					m_IsDashing = true;
 
 					Vector3 destination = m_DashAbilityTarget.position + m_DashAbilityTarget.up;
-					m_RotorDashCoroutine = StartCoroutine( DashRotator( destination, m_RaycastHit.normal ) );
+					m_RotorDashCoroutine = StartCoroutine( DashRotator( destination: destination, destinationUp: m_RaycastHit.normal ) );
 				}
 				m_DashAbilityTarget.gameObject.SetActive( false );
 			}

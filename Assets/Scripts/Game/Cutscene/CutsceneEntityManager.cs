@@ -19,7 +19,7 @@ public class CutsceneEntityManager : MonoBehaviour {
 	private		int						m_CurrentIdx				= 0;
 
 	private		Vector3					m_Destination				= Vector3.zero;
-	private		Vector3					m_TargetPosition			= Vector3.zero;
+	private		Transform				m_Target					= null;
 
 
 
@@ -27,17 +27,6 @@ public class CutsceneEntityManager : MonoBehaviour {
 	// Awake
 	private void	Awake()
 	{
-		if ( m_PointsCollection == null ||
-			m_PointsCollection.Positions == null ||
-			m_PointsCollection.Positions.Count == 0 ||
-			m_PointsCollection.TargetPositions == null ||
-			m_PointsCollection.TargetPositions.Count == 0 ||
-			m_PointsCollection.Positions.Count != m_PointsCollection.TargetPositions.Count )
-		{
-			enabled = false;
-			return;
-		}
-
 		m_EntityRef = transform.parent.GetComponent<Entity>();
 		if ( m_EntityRef == null )
 		{
@@ -75,7 +64,7 @@ public class CutsceneEntityManager : MonoBehaviour {
 		m_CurrentIdx					= 0;
 
 		m_Destination					= Vector3.zero;
-		m_TargetPosition				= Vector3.zero;
+		m_Target						= null;
 
 		IsOK							= false;
 		Awake();
@@ -86,6 +75,17 @@ public class CutsceneEntityManager : MonoBehaviour {
 	// Play
 	public	void	Play()
 	{
+		if ( m_PointsCollection == null ||
+			m_PointsCollection.Destinations == null ||
+			m_PointsCollection.Destinations.Count == 0 ||
+			m_PointsCollection.Targets == null ||
+			m_PointsCollection.Targets.Count == 0
+		)
+		{
+			enabled = false;
+			return;
+		}
+
 		if ( m_IsExecuted == true || IsOK == false )
 			return;
 
@@ -116,12 +116,10 @@ public class CutsceneEntityManager : MonoBehaviour {
 		}
 		else
 */		{
-			if ( m_CurrentIdx < m_PointsCollection.Positions.Count )		m_Destination	 = m_PointsCollection.Positions[ m_CurrentIdx ];
-			if ( m_CurrentIdx < m_PointsCollection.TargetPositions.Count )	m_TargetPosition = m_PointsCollection.TargetPositions[ m_CurrentIdx ];
+			if ( m_CurrentIdx < m_PointsCollection.Destinations.Count )		m_Destination	= m_PointsCollection.Destinations[ m_CurrentIdx ];
+			if ( m_CurrentIdx < m_PointsCollection.Targets.Count )			m_Target		= m_PointsCollection.Targets[ m_CurrentIdx ];
 
-			transform.position	= m_TargetPosition;
-
-			bool result = m_EntitySimulation.SimulateMovement( m_PointsCollection.EntityState, m_Destination, transform, Time.deltaTime );
+			bool result = m_EntitySimulation.SimulateMovement( m_PointsCollection.EntityState, m_Destination, m_Target, Time.deltaTime );
 			if ( result == false )
 			{
 				m_CurrentIdx ++;
@@ -129,7 +127,7 @@ public class CutsceneEntityManager : MonoBehaviour {
 				// Update store start position for distance check
 				m_EntitySimulation.StarPosition = m_EntityRef.Transform.position;
 
-				if ( m_CurrentIdx >= m_PointsCollection.Positions.Count )
+				if ( m_CurrentIdx >= m_PointsCollection.Destinations.Count )
 				{
 					CameraControl.Instance.OnCutsceneEnd();
 					m_EntitySimulation.ExitSimulationState();

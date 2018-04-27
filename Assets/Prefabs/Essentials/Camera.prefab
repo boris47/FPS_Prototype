@@ -5437,7 +5437,7 @@ MonoBehaviour:
   m_AudioSourceFire1: {fileID: 114272587117299084}
   m_AudioSourceFire2: {fileID: 0}
   m_ShotDelay: 0.09
-  m_CamDeviation: 1
+  m_CamDeviation: 0.7
   m_FireDispersion: 0.02
 --- !u!114 &114272587117299084
 MonoBehaviour:

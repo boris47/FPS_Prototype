@@ -51,7 +51,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 	public enum SimulationMovementType {
 		WALK,
-		WALK_CROUCHED
+		WALK_CROUCHED,
+		RUN
 	}
 
 	[Header("Entity Properties")]
@@ -98,7 +99,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 	protected	bool						m_MovementOverrideEnabled		= false;
 	protected	Vector3						m_SimulationStartPosition		= Vector3.zero;
-	protected	float						m_SimulationdDistanceToTravel	= 0f;
+//	protected	float						m_SimulationdDistanceToTravel	= 0f;
 
 
 	// NAVIGATION
@@ -161,6 +162,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	{
 		m_MovementOverrideEnabled = false;
 		m_SimulationStartPosition = Vector3.zero;
+		Quaternion rotation = Quaternion.LookRotation( CameraControl.Instance.Target.position - transform.position, transform.up );
+		transform.rotation = rotation;
 	}
 
 

@@ -33,42 +33,37 @@ public partial class Player {
 			return true;
 		}
 
-		Vector3 direction = ( destination - transform.position );
-		float distanceToTravel = direction.sqrMagnitude;
-		float distanceTravelled = ( transform.position - m_SimulationStartPosition ).sqrMagnitude;
-
+		Vector3 direction = ( destination - m_SimulationStartPosition );
+		float simulationdDistanceToTravel = direction.sqrMagnitude;
+		float simulationDistanceTravelled = ( transform.position - m_SimulationStartPosition ).sqrMagnitude;
+		/*
 		Debug.DrawLine
 		(
 			transform.position,
 			transform.position + direction
 		);
-
-		if ( distanceTravelled > distanceToTravel )
+		*/
+		if ( simulationDistanceTravelled > simulationdDistanceToTravel )
 		{
-//			print( "distanceToTravel  : " + distanceToTravel );
-//			print( "distanceTravelled : " + distanceTravelled );
-//			print( "/////////////////////////////////////////////////" );
 			m_SimulationStartPosition = transform.position;
 			return false;				// force logic update
 		}
 		
 		//	POSITION BY DISTANCE
 		{
+			bool isWalking	= ( movementType != SimulationMovementType.RUN );
+			bool isRunning	= ( movementType == SimulationMovementType.RUN );
 			bool isCrouched = ( movementType == SimulationMovementType.WALK_CROUCHED );
-			float fMove = ( isCrouched ) ? m_CrouchSpeed : m_WalkSpeed;
+			float fMove = ( isCrouched ) ? m_CrouchSpeed : ( isRunning ) ? m_RunSpeed : m_WalkSpeed;
 
 			m_States.IsCrouched = isCrouched;
-			m_States.IsWalking = true;
+			m_States.IsWalking = isWalking;
+			m_States.IsRunning = isRunning;
 			m_States.IsMoving = true;
 
-			m_MoveSmooth = Mathf.Lerp( m_MoveSmooth,   fMove,   deltaTime * 20f );
+			m_MoveSmooth = Mathf.Lerp( m_MoveSmooth, fMove, deltaTime * 20f );
 
-			direction.Normalize();
-			direction *= m_MoveSmooth;
-			direction *= GroundSpeedModifier;
-
-			m_Move.Set( direction.x, m_RigidBody.velocity.y, direction.z );
-			m_RigidBody.velocity = m_Move;
+			m_Move = ( m_MoveSmooth * direction.normalized );
 		}
 		return true;
 	}
@@ -84,8 +79,6 @@ public partial class Player {
 		cameraSetter.Target = null;
 		CameraControl.Instance.CanParseInput = true;
 		WeaponManager.Instance.CurrentWeapon.Enabled = true;
-
-		CameraControl.Instance.transform.rotation = transform.rotation;
 	}
 
 
@@ -197,7 +190,7 @@ public partial class Player {
 			// If jump button is pressed, has enough space to jump, has stamina requirements and is not dragging an entity
 			if ( bJumpInput && !m_IsUnderSomething && ( m_Stamina > m_StaminaJumpMin ) && m_GrabbedObject == null )
 			{
-				m_Stamina	-= m_JumpStamina;
+///				m_Stamina	-= m_JumpStamina;
 				fFinalJump	+= m_JumpForce / ( m_States.IsCrouched ? 1.5f : 1.0f );
 //				fFinalJump	*= IsInWater() ? 0.8f : 1.0f;
 				m_States.IsJumping = true;
@@ -240,20 +233,20 @@ public partial class Player {
 			{
 				fMove		*=	m_RunSpeed * ( fMove > 0 ? 1.0f : 0.8f );
 				fStrafe		*=	m_RunSpeed * 0.6f;
-				m_Stamina	-= m_RunStamina * dt;
+///				m_Stamina	-= m_RunStamina * dt;
 			}
 			else if ( m_States.IsCrouched )
 			{
 				fMove		*= m_CrouchSpeed * ( fMove > 0 ? 1.0f : 0.8f );
 				fStrafe		*= m_CrouchSpeed * 0.6f;
-				m_Stamina	-= m_CrouchStamina * dt;
+///				m_Stamina	-= m_CrouchStamina * dt;
 			}
 			else
 			{	// walking
 				// stamina half restored because we are moving, but just walking
 				fMove		*= m_WalkSpeed * ( fMove > 0 ? 1.0f : 0.8f );
 				fStrafe		*= m_WalkSpeed *  0.6f;
-				m_Stamina	+= m_StaminaRestore / 2.0f * dt;
+///				m_Stamina	+= m_StaminaRestore / 2.0f * dt;
 				m_States.IsWalking = true;
 			}
 

@@ -33,7 +33,7 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 	[SerializeField, Tooltip("Camera Target"), ReadOnly]
 	private	Transform		m_Target					= null;
 	public	Transform		Target						{ get { return m_Target; } }
-			Transform		ICameraSetters.Target		{ set { m_Target = value; } }
+			Transform		ICameraSetters.Target		{ set { OnTargetSet( m_Target = value ); } }
 
 	[SerializeField, Range( 0.2f, 20.0f )]
 	private	float			m_MouseSensitivity			= 1.0f;
@@ -115,6 +115,15 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	// OnTargetSet
+	private	void	OnTargetSet( Transform value )
+	{
+		if ( value == null )
+			m_CurrentDirection = Vector3.zero;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	// OnCutsceneEnd
 	public	void	OnCutsceneEnd()
 	{
@@ -142,8 +151,8 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 		if ( Player.Instance.IsDashing )
 			return;
 
-		m_CurrentDispersion.x += Random.Range( -range, -range * 0.5f );
-		m_CurrentDispersion.y += Random.Range( -range,  range );
+		m_CurrentDispersion.x = Random.Range( -range, -range * 0.5f );
+		m_CurrentDispersion.y = Random.Range( -range,  range );
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -152,11 +161,12 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 	{
 		if ( m_Target != null )
 		{
-			Vector3 vDirection		= ( m_Target.position - transform.position );
-			Quaternion direction	= Quaternion.LookRotation( vDirection + m_HeadBob.Direction + m_HeadMove.Direction, Vector3.up );
-
+			// Position
 			transform.position		= Player.Instance.transform.TransformPoint( m_ViewPoint.transform.localPosition * m_CameraFPS_Shift );
-			m_CurrentDirection		= transform.localRotation.eulerAngles;
+
+			// Rotation
+			Quaternion rotation		= Quaternion.LookRotation( m_Target.position - transform.position, Player.Instance.transform.up );
+			transform.rotation		= Quaternion.Slerp( transform.rotation, rotation, Time.unscaledDeltaTime * 5f ) * Quaternion.Euler( m_HeadBob.Direction + m_HeadMove.Direction );
 		}
 	}
 

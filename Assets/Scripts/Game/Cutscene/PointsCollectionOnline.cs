@@ -10,9 +10,9 @@ public class PointsCollectionOnline : MonoBehaviour {
 
 	public		Entity.SimulationMovementType		EntityState			= Entity.SimulationMovementType.WALK;
 	
-	public		List<Vector3>						Positions			= new List<Vector3>();
+	public		List<Vector3>						Destinations		= new List<Vector3>();
 
-	public		List<Vector3>						TargetPositions		= new List<Vector3>();
+	public		List<Transform>						Targets				= new List<Transform>();
 
 	private void Awake()
 	{
@@ -21,12 +21,12 @@ public class PointsCollectionOnline : MonoBehaviour {
 
 		foreach( Transform t in positionsContainer )
 		{
-			Positions.Add( t.position );
+			Destinations.Add( t.position );
 		}
 
 		foreach( Transform t in targetsPositionContainer )
 		{
-			TargetPositions.Add( t.position );
+			Targets.Add( t );
 		}
 	}
 }

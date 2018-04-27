@@ -48,7 +48,6 @@ public class Foots : MonoBehaviour, IFoots {
 		m_AudioSource.Play();
 	}
 
-
 	//////////////////////////////////////////////////////////////////////////
 	// Update
 	private	void	Update()
@@ -59,7 +58,11 @@ public class Foots : MonoBehaviour, IFoots {
 
 		Debug.DrawLine( transform.position, transform.position - transform.up * ( m_Entity.PhysicCollider.height * 0.3f ) );
 
-		if ( Physics.Raycast( transform.position, -transform.up, out m_RaycastHit, ( m_Entity.PhysicCollider.height * 0.3f ) ) )
+///		if ( Physics.BoxCast( transform.position, m_Extents, transform.up, out m_RaycastHit, Quaternion.identity, asd ) )
+		
+		bool hasCollision = Physics.Raycast( transform.position, -transform.up, out m_RaycastHit, ( m_Entity.PhysicCollider.height * 0.3f ) );
+
+		if ( hasCollision && m_RaycastHit.distance < m_Entity.PhysicCollider.height * 0.2f )
 		{
 			m_CurrentCollider = m_RaycastHit.collider;
 		}
