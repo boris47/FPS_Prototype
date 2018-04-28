@@ -13,10 +13,10 @@ public partial class Player : Human {
 	public	static	IEntity			Entity							= null;
 
 	// DASHING
-	private		bool				m_IsDashing						= false;
-	public		bool				IsDashing
+	private		bool				m_IsDodging						= false;
+	public		bool				IsDodging
 	{
-		get { return m_IsDashing; }
+		get { return m_IsDodging; }
 	}
 	private		DashTarget			m_CurrentDashTarget				= null;
 	private		DashTarget			m_PreviousDashTarget			= null;
@@ -248,11 +248,11 @@ public partial class Player : Human {
 		if ( m_GrabbedObject != null )
 			return;
 
-		if ( m_IsDashing == true )
-			return;
+//		if ( m_IsDashing == true )
+//			return;
 
 		// auto fall
-		if ( ( ( InputManager.Inputs.Jump ) || ( IsGrounded == false && m_IsDashing == false ) ) && transform.up != Vector3.up )
+		if ( IsGrounded == false && m_IsDodging == false && transform.up != Vector3.up )
 		{
 			RaycastHit hit;
 			Physics.Raycast( transform.position, Vector3.down, out hit );
@@ -260,10 +260,10 @@ public partial class Player : Human {
 			if ( m_RotorDashCoroutine != null )
 				StopCoroutine( m_RotorDashCoroutine );
 
-			m_IsDashing = true;
+//			m_IsDashing = true;
 
 			Vector3 destination = hit.point + Vector3.up * m_DashAbilityTarget.localScale.y * 1.7f;
-			m_RotorDashCoroutine = StartCoroutine( DashRotator( destination: destination, destinationUp: Vector3.up, falling: true ) );
+			m_RotorDashCoroutine = StartCoroutine( Dodge( destination: destination, destinationUp: Vector3.up, falling: true ) );
 		}
 
 		// if actually has no target
@@ -312,10 +312,8 @@ public partial class Player : Human {
 					if ( m_RotorDashCoroutine != null )
 						StopCoroutine( m_RotorDashCoroutine );
 
-					m_IsDashing = true;
-
 					Vector3 destination = m_DashAbilityTarget.position + m_DashAbilityTarget.up;
-					m_RotorDashCoroutine = StartCoroutine( DashRotator( destination: destination, destinationUp: m_RaycastHit.normal ) );
+					m_RotorDashCoroutine = StartCoroutine( Dodge( destination: destination, destinationUp: m_RaycastHit.normal ) );
 				}
 				m_DashAbilityTarget.gameObject.SetActive( false );
 			}
@@ -373,7 +371,7 @@ public partial class Player : Human {
 			return;
 
 		// skip if currently dask is active
-		if ( m_IsDashing == true )
+		if ( m_IsDodging == true )
 			return;
 
 		// Distance check
@@ -405,7 +403,7 @@ public partial class Player : Human {
 		}
 
 		// skip grab evaluation is dash is active
-		if ( m_IsDashing == true )
+		if ( m_IsDodging == true )
 			return;
 
 		// ACTION RELEASE
@@ -493,7 +491,7 @@ public partial class Player : Human {
 
 #endregion
 
-		if ( m_IsDashing == true )
+		if ( m_IsDodging == true )
 			return;
 
 #region TO IMPLEMENT

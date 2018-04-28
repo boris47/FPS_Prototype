@@ -148,7 +148,7 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 	// ApplyDispersion
 	public	void	ApplyDispersion( float range )
 	{
-		if ( Player.Instance.IsDashing )
+		if ( Player.Instance.IsDodging )
 			return;
 
 		m_CurrentDispersion.x = Random.Range( -range, -range * 0.5f );

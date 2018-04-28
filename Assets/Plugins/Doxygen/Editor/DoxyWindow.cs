@@ -38,8 +38,7 @@ namespace ProjectNull.DocTools{
 		private static void ShowWindow()
 		{
 			//Show existing window instance. If one doesn't exist, make one.
-			EditorWindow w= EditorWindow.GetWindow(typeof(DoxyWindow));
-			w.title="Doxygen Doc";
+			EditorWindow w = EditorWindow.GetWindow<DoxyWindow>("Doxygen Doc");
 		}
 
 

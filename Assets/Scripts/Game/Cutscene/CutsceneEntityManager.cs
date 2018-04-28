@@ -10,9 +10,9 @@ public class CutsceneEntityManager : MonoBehaviour {
 	public		PointsCollectionOnline	m_PointsCollection			= null;
 
 
-	private		float					m_InternalTimeNormalized	= 0f;
-	private		delegate void			func( float dt );
-	private		func					m_InterpolationFunction		= null;
+//	private		float					m_InternalTimeNormalized	= 0f;
+//	private		delegate void			func( float dt );
+//	private		func					m_InterpolationFunction		= null;
 	private		IEntity					m_EntityRef					= null;
 	private		IEntitySimulation		m_EntitySimulation			= null;
 	private		bool					m_IsExecuted				= false;
@@ -59,7 +59,7 @@ public class CutsceneEntityManager : MonoBehaviour {
 	public	void	Setup( PointsCollectionOnline pointsCollection )
 	{
 		m_PointsCollection				= pointsCollection;
-		m_InternalTimeNormalized		= 0f;
+//		m_InternalTimeNormalized		= 0f;
 		m_IsExecuted					= false;
 		m_CurrentIdx					= 0;
 

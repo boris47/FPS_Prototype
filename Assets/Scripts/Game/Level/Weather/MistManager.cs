@@ -16,7 +16,7 @@ namespace WeatherSystem {
 
 
 		private			ParticleSystem	m_RainMistParticleSystem	= null;
-		private			bool			m_IsEnabled					= false;
+//		private			bool			m_IsEnabled					= false;
 		private			Camera			m_Camera					= null;
 
 

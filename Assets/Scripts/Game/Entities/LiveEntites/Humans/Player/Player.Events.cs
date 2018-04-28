@@ -61,10 +61,10 @@ public partial class Player {
 	// OnDashTargetUsed
 	private				void	OnDashTargetUsed( ref DashTarget target )
 	{
-		if ( m_IsDashing )
+		if ( m_IsDodging )
 			return;
 
-		m_IsDashing = true;
+		m_IsDodging = true;
 
 		if ( m_PreviousDashTarget != null && m_PreviousDashTarget != target )
 		{
@@ -77,7 +77,7 @@ public partial class Player {
 
 		m_RigidBody.velocity = Vector3.zero;
 
-		StartCoroutine( DashRotator( destination: target.transform.position, destinationUp: target.transform.up, falling: false, target: target ) ); // Player.DashAbility
+		StartCoroutine( Dodge( destination: target.transform.position, destinationUp: target.transform.up, falling: false, target: target ) ); // Player.DashAbility
 	}
 
 }
