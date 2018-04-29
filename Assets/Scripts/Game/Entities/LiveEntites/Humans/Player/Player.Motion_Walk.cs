@@ -36,13 +36,7 @@ public partial class Player {
 		Vector3 direction = ( destination - m_SimulationStartPosition );
 		float simulationdDistanceToTravel = direction.sqrMagnitude;
 		float simulationDistanceTravelled = ( transform.position - m_SimulationStartPosition ).sqrMagnitude;
-		/*
-		Debug.DrawLine
-		(
-			transform.position,
-			transform.position + direction
-		);
-		*/
+		
 		if ( simulationDistanceTravelled > simulationdDistanceToTravel )
 		{
 			m_SimulationStartPosition = transform.position;

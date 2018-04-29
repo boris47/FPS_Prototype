@@ -111,6 +111,35 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 		Cursor.visible = false;
 
 		CanParseInput = true;
+
+		GameManager.Instance.OnSave += OnSave;
+		GameManager.Instance.OnLoad += OnLoad;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnSave
+	private	void	OnSave( StreamingData streamingData )
+	{
+		StreamingUnit thisStream	= new StreamingUnit();
+		thisStream.InstanceID		= gameObject.GetInstanceID();
+		thisStream.Name				= gameObject.name;
+		thisStream.Internals		= m_CurrentDirection.x + ", " + m_CurrentDirection.y + ", " + m_CurrentDirection.z;
+
+		streamingData.Data.Add( thisStream );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnLoad
+	private	void	OnLoad( StreamingData streamingData )
+	{
+		int instanceID				= gameObject.GetInstanceID();
+		StreamingUnit thisStream	= streamingData.Data.Find( ( StreamingUnit data ) => data.InstanceID == instanceID );
+		if ( thisStream == null )
+			return;
+
+		Utils.Converters.StringToVector( thisStream.Internals, ref m_CurrentDirection );
 	}
 
 

@@ -3,30 +3,31 @@ using UnityEngine;
 using System.Collections.Generic;
 
 
+[System.Serializable]
+public class CutsceneWaypointData {
+	public	Entity.SimulationMovementType	movementType	= Entity.SimulationMovementType.WALK;
+	public	Transform						point			= null;
+	public	Transform						target			= null;
+}
+
 
 public class PointsCollectionOnline : MonoBehaviour {
 	
 //	public		bool								UseNormalizedTime	= false;
 
-	public		Entity.SimulationMovementType		EntityState			= Entity.SimulationMovementType.WALK;
-	
-	public		List<Vector3>						Destinations		= new List<Vector3>();
+	[SerializeField]
+	private		List<CutsceneWaypointData>			m_Waipoints			= new List<CutsceneWaypointData>();
 
-	public		List<Transform>						Targets				= new List<Transform>();
-
-	private void Awake()
+	// INDEXER
+	public		CutsceneWaypointData	this[int index]
 	{
-		Transform positionsContainer		= transform.Find( "Positions" );
-		Transform targetsPositionContainer	= transform.Find( "TargetPositions" );
-
-		foreach( Transform t in positionsContainer )
-		{
-			Destinations.Add( t.position );
+		get { 
+			return m_Waipoints[ index ];
 		}
+	}
 
-		foreach( Transform t in targetsPositionContainer )
-		{
-			Targets.Add( t );
-		}
+	public	int	Count
+	{
+		get { return m_Waipoints.Count; }
 	}
 }

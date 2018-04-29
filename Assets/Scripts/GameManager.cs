@@ -68,6 +68,18 @@ public partial class GameManager : MonoBehaviour {
 	// Update is called once per frame
 	private	void	Update()
 	{
+
+		if ( Input.GetKeyDown( KeyCode.F5 ) )
+		{
+			Save("");
+		}
+
+		if ( Input.GetKeyDown( KeyCode.F9 ) )
+		{
+			Load();
+		}
+
+
 		// APPLICATION EXIT
 		if ( Input.GetKeyDown( KeyCode.Escape ) )
 		{

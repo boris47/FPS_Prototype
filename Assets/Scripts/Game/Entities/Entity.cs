@@ -1,8 +1,8 @@
 ﻿
 using CFG_Reader;
 using UnityEngine;
-using AI_Behaviours;
-
+using System.Collections;
+using System.Collections.Generic;
 
 public interface IEntity {
 	Transform				Transform						{	get;		}
@@ -132,6 +132,13 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 		m_RigidBody			= GetComponent<Rigidbody>();
 		m_Brain				= GetComponent<IBrain>();
 
+
+
+		GameManager.Instance.OnSave += OnSave;
+		GameManager.Instance.OnLoad += OnLoad;
+
+
+
 		if ( this is Player )
 			return;
 
@@ -142,7 +149,35 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Update
+	// OnSave ( Abstract )
+	protected	virtual	void	OnSave( StreamingData streamingData )
+	{
+		StreamingUnit thisStream	= new StreamingUnit();
+		thisStream.InstanceID		= gameObject.GetInstanceID();
+		thisStream.Name				= gameObject.name;
+		thisStream.Position			= transform.position;
+		thisStream.Rotation			= transform.rotation;
+
+		streamingData.Data.Add( thisStream );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnLoad ( Abstract )
+	protected	virtual	void	OnLoad( StreamingData streamingData )
+	{
+		int instanceID				= gameObject.GetInstanceID();
+		StreamingUnit thisStream	= streamingData.Data.Find( ( StreamingUnit data ) => data.InstanceID == instanceID );
+		if ( thisStream == null )
+			return;
+
+		transform.position = thisStream.Position;
+		transform.rotation = thisStream.Rotation;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Update ( Abstract )
 	public	abstract	void	OnFrame( float deltaTime );
 
 

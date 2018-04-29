@@ -75,12 +75,7 @@ public class CutsceneEntityManager : MonoBehaviour {
 	// Play
 	public	void	Play()
 	{
-		if ( m_PointsCollection == null ||
-			m_PointsCollection.Destinations == null ||
-			m_PointsCollection.Destinations.Count == 0 ||
-			m_PointsCollection.Targets == null ||
-			m_PointsCollection.Targets.Count == 0
-		)
+		if ( m_PointsCollection == null || m_PointsCollection.Count == 0 )
 		{
 			enabled = false;
 			return;
@@ -116,10 +111,12 @@ public class CutsceneEntityManager : MonoBehaviour {
 		}
 		else
 */		{
-			if ( m_CurrentIdx < m_PointsCollection.Destinations.Count )		m_Destination	= m_PointsCollection.Destinations[ m_CurrentIdx ];
-			if ( m_CurrentIdx < m_PointsCollection.Targets.Count )			m_Target		= m_PointsCollection.Targets[ m_CurrentIdx ];
+			CutsceneWaypointData data = m_PointsCollection[ m_CurrentIdx ];
+			m_Destination		= data.point.position;
+			m_Target			= data.target;
+			var movementType	= data.movementType;
 
-			bool result = m_EntitySimulation.SimulateMovement( m_PointsCollection.EntityState, m_Destination, m_Target, Time.deltaTime );
+			bool result = m_EntitySimulation.SimulateMovement( movementType, m_Destination, m_Target, Time.deltaTime );
 			if ( result == false )
 			{
 				m_CurrentIdx ++;
@@ -127,7 +124,7 @@ public class CutsceneEntityManager : MonoBehaviour {
 				// Update store start position for distance check
 				m_EntitySimulation.StarPosition = m_EntityRef.Transform.position;
 
-				if ( m_CurrentIdx >= m_PointsCollection.Destinations.Count )
+				if ( m_CurrentIdx >= m_PointsCollection.Count )
 				{
 					CameraControl.Instance.OnCutsceneEnd();
 					m_EntitySimulation.ExitSimulationState();
