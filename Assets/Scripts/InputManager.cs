@@ -9,7 +9,7 @@ public struct inputs_t {
 	public	bool	Crouch, Jump, Run;
 	public	bool	Use;
 	public	bool	SwitchPrev, SwitchNext;
-	public	bool	Selection1, Selection2, Selection3;
+	public	bool	Selection1, Selection2, Selection3, Selection4, Selection5, Selection6, Selection7, Selection8, Selection9;
 	public	bool	Item1, Item2, Item3, Item4;
 	public	bool	ItemAction1, ItemAction2, ItemAction3;
 	public	bool	Fire1, Fire2, Fire1Loop, Fire2Loop, Fire1Released, Fire2Released;
@@ -26,7 +26,7 @@ public struct inputs_t {
 		Crouch = Jump = Run =
 		Use =
 		SwitchPrev = SwitchNext =
-		Selection1 = Selection2 = Selection3 =
+		Selection1 = Selection2 = Selection3 = Selection4 = Selection5 = Selection6 = Selection7 = Selection8 = Selection9 =
 		Item1 = Item2 = Item3 = Item4 =
 		ItemAction1 = ItemAction2 = ItemAction3 =
 		Fire1 = Fire2 = Fire1Loop = Fire2Loop = Fire1Released = Fire2Released =
@@ -91,6 +91,12 @@ public class InputManager {
 		m_Inputs.Selection1		= Input.GetKeyDown( KeyCode.Alpha1 );
 		m_Inputs.Selection2		= Input.GetKeyDown( KeyCode.Alpha2 );
 		m_Inputs.Selection3		= Input.GetKeyDown( KeyCode.Alpha3 );
+		m_Inputs.Selection4		= Input.GetKeyDown( KeyCode.Alpha4 );
+		m_Inputs.Selection5		= Input.GetKeyDown( KeyCode.Alpha5 );
+		m_Inputs.Selection6		= Input.GetKeyDown( KeyCode.Alpha6 );
+		m_Inputs.Selection7		= Input.GetKeyDown( KeyCode.Alpha7 );
+		m_Inputs.Selection8		= Input.GetKeyDown( KeyCode.Alpha8 );
+		m_Inputs.Selection9		= Input.GetKeyDown( KeyCode.Alpha9 );
 
 		m_Inputs.Item1			= Input.GetKeyDown ( KeyCode.F1 ) || Input.GetKeyDown ( KeyCode.Keypad1 );
 		m_Inputs.Item2			= Input.GetKeyDown ( KeyCode.F2 ) || Input.GetKeyDown ( KeyCode.Keypad2 );

@@ -23,6 +23,7 @@ public class WeaponManager : MonoBehaviour {
 	private		float				m_StartCameraFOV				= 0f;
 
 	// CHANGING WEAPON
+	private		int					m_WeaponsCount					= 0;
 	private		Coroutine			m_ChangingWpnCO					= null;
 	public		bool				IsChangingWeapon				{ get { return m_ChangingWpnCO != null; } }
 
@@ -50,7 +51,13 @@ public class WeaponManager : MonoBehaviour {
 	{
 		for ( int i = 0; i < CameraControl.Instance.WeaponPivot.childCount; i++ )
 		{
+			
 			Transform weapon = CameraControl.Instance.WeaponPivot.GetChild( i );
+			if ( weapon.gameObject.activeSelf == true )
+			{
+				m_WeaponsCount ++;
+			}
+
 			if ( i == CurrentWeaponIndex )
 				continue;
 
@@ -106,7 +113,7 @@ public class WeaponManager : MonoBehaviour {
 
 	//////////////////////////////////////////////////////////////////////////
 	// ChangeWeapon
-	public				void	ChangeWeapon( int versus )
+	public				void	ChangeWeapon( int index, int versus = 0 )
 	{
 		if ( m_ChangingWpnCO != null )
 			return;
@@ -114,9 +121,15 @@ public class WeaponManager : MonoBehaviour {
 		if ( Weapon.Array[ CurrentWeaponIndex ].CanChangeWeapon() == false )
 			return;
 
-		int lastWeapIdx = Weapon.Array.Length - 1;
+		if ( index > -1 && index != CurrentWeaponIndex && index < m_WeaponsCount )
+		{
+			m_ChangingWpnCO = StartCoroutine( ChangeWeaponCO( index ) );
+			return;
+		}
 
+		int lastWeapIdx = m_WeaponsCount - 1;
 		int tempIdx = versus + CurrentWeaponIndex;
+
 		if ( tempIdx == -1 )
 		{
 			tempIdx = lastWeapIdx;
@@ -126,6 +139,9 @@ public class WeaponManager : MonoBehaviour {
 		{
 			tempIdx = 0;
 		}
+
+		if ( tempIdx == CurrentWeaponIndex )
+			return;
 
 		m_ChangingWpnCO = StartCoroutine( ChangeWeaponCO( tempIdx ) );
 	}
@@ -141,23 +157,24 @@ public class WeaponManager : MonoBehaviour {
 		if ( Weapon.Array[ CurrentWeaponIndex ].CanChangeWeapon() == false )
 			return;
 
-		if ( InputManager.Inputs.Selection1 )
-			ChangeWeapon( 0 );
-
-		if ( InputManager.Inputs.Selection2 )
-			ChangeWeapon( 1 );
-
-		if ( InputManager.Inputs.Selection3 )
-			ChangeWeapon( 2 );
+		if ( InputManager.Inputs.Selection1 )	ChangeWeapon( 0 );
+		if ( InputManager.Inputs.Selection2 )	ChangeWeapon( 1 );
+		if ( InputManager.Inputs.Selection3 )	ChangeWeapon( 2 );
+		if ( InputManager.Inputs.Selection4 )	ChangeWeapon( 3 );
+		if ( InputManager.Inputs.Selection5 )	ChangeWeapon( 4 );
+		if ( InputManager.Inputs.Selection6 )	ChangeWeapon( 5 );
+		if ( InputManager.Inputs.Selection7 )	ChangeWeapon( 6 );
+		if ( InputManager.Inputs.Selection8 )	ChangeWeapon( 7 );
+		if ( InputManager.Inputs.Selection9 )	ChangeWeapon( 8 );
 
 		// Weapon switch
 		if ( InputManager.Inputs.SwitchPrev )
 		{
-			ChangeWeapon( -1 );
+			ChangeWeapon( -1, -1 );
 		}
 		if ( InputManager.Inputs.SwitchNext )
 		{
-			ChangeWeapon( 1 );
+			ChangeWeapon( -1, 1 );
 		}
 
 	}
