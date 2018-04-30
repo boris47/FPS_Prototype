@@ -710,7 +710,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3dc1354cc57bc3942b9b44e301855311, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Waipoints:
+  m_Waypoints:
   - movementType: 0
     point: {fileID: 4748236080620860}
     target: {fileID: 4184177789838550}

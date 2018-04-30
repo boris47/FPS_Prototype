@@ -150,29 +150,31 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnSave ( Abstract )
-	protected	virtual	void	OnSave( StreamingData streamingData )
+	protected	virtual	StreamingUnit	OnSave( StreamingData streamingData )
 	{
-		StreamingUnit thisStream	= new StreamingUnit();
-		thisStream.InstanceID		= gameObject.GetInstanceID();
-		thisStream.Name				= gameObject.name;
-		thisStream.Position			= transform.position;
-		thisStream.Rotation			= transform.rotation;
+		StreamingUnit streamingUnit	= new StreamingUnit();
+		streamingUnit.InstanceID		= gameObject.GetInstanceID();
+		streamingUnit.Name				= gameObject.name;
+		streamingUnit.Position			= transform.position;
+		streamingUnit.Rotation			= transform.rotation;
 
-		streamingData.Data.Add( thisStream );
+		streamingData.Data.Add( streamingUnit );
+		return streamingUnit;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnLoad ( Abstract )
-	protected	virtual	void	OnLoad( StreamingData streamingData )
+	protected	virtual	StreamingUnit	OnLoad( StreamingData streamingData )
 	{
 		int instanceID				= gameObject.GetInstanceID();
-		StreamingUnit thisStream	= streamingData.Data.Find( ( StreamingUnit data ) => data.InstanceID == instanceID );
-		if ( thisStream == null )
-			return;
+		StreamingUnit streamingUnit	= streamingData.Data.Find( ( StreamingUnit data ) => data.InstanceID == instanceID );
+		if ( streamingUnit == null )
+			return null;
 
-		transform.position = thisStream.Position;
-		transform.rotation = thisStream.Rotation;
+		transform.position = streamingUnit.Position;
+		transform.rotation = streamingUnit.Rotation;
+		return streamingUnit;
 	}
 
 
@@ -199,6 +201,24 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 		m_SimulationStartPosition = Vector3.zero;
 		Quaternion rotation = Quaternion.LookRotation( CameraControl.Instance.Target.position - transform.position, transform.up );
 		transform.rotation = rotation;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// SetDestination
+	public	virtual	void	SetDestination( Vector3 destination )
+	{
+		m_Destination = destination;
+		m_HasDestination = true;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// SetPoinToFace
+	public	virtual	void	SetPoinToFace( Vector3 point )
+	{
+		m_PointToFace = point;
+		m_HasFaceTarget = true;
 	}
 
 

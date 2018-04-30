@@ -119,27 +119,30 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnSave
-	private	void	OnSave( StreamingData streamingData )
+	private	StreamingUnit	OnSave( StreamingData streamingData )
 	{
-		StreamingUnit thisStream	= new StreamingUnit();
-		thisStream.InstanceID		= gameObject.GetInstanceID();
-		thisStream.Name				= gameObject.name;
-		thisStream.Internals		= m_CurrentDirection.x + ", " + m_CurrentDirection.y + ", " + m_CurrentDirection.z;
+		StreamingUnit streamingUnit	= new StreamingUnit();
+		streamingUnit.InstanceID		= gameObject.GetInstanceID();
+		streamingUnit.Name				= gameObject.name;
+		streamingUnit.Internals		= m_CurrentDirection.x + ", " + m_CurrentDirection.y + ", " + m_CurrentDirection.z;
 
-		streamingData.Data.Add( thisStream );
+		streamingData.Data.Add( streamingUnit );
+
+		return streamingUnit;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnLoad
-	private	void	OnLoad( StreamingData streamingData )
+	private	StreamingUnit	OnLoad( StreamingData streamingData )
 	{
 		int instanceID				= gameObject.GetInstanceID();
-		StreamingUnit thisStream	= streamingData.Data.Find( ( StreamingUnit data ) => data.InstanceID == instanceID );
-		if ( thisStream == null )
-			return;
+		StreamingUnit streamingUnit	= streamingData.Data.Find( ( StreamingUnit data ) => data.InstanceID == instanceID );
+		if ( streamingUnit == null )
+			return null;
 
-		Utils.Converters.StringToVector( thisStream.Internals, ref m_CurrentDirection );
+		Utils.Converters.StringToVector( streamingUnit.Internals, ref m_CurrentDirection );
+		return streamingUnit;
 	}
 
 

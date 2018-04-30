@@ -16,18 +16,18 @@ public class PointsCollectionOnline : MonoBehaviour {
 //	public		bool								UseNormalizedTime	= false;
 
 	[SerializeField]
-	private		List<CutsceneWaypointData>			m_Waipoints			= new List<CutsceneWaypointData>();
+	private		List<CutsceneWaypointData>			m_Waypoints			= new List<CutsceneWaypointData>();
 
 	// INDEXER
 	public		CutsceneWaypointData	this[int index]
 	{
 		get { 
-			return m_Waipoints[ index ];
+			return m_Waypoints[ index ];
 		}
 	}
 
 	public	int	Count
 	{
-		get { return m_Waipoints.Count; }
+		get { return m_Waypoints.Count; }
 	}
 }

@@ -322,7 +322,7 @@ Prefab:
     - target: {fileID: 114879694635983574, guid: c27640b70f6f62e45826a3ede9728fc4,
         type: 2}
       propertyPath: HideCursor
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: c27640b70f6f62e45826a3ede9728fc4, type: 2}

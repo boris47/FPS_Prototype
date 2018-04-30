@@ -76,11 +76,12 @@ public partial class Player {
 
 			// Time Scale
 			float timeScaleNow		= animationCurve.Evaluate( interpolant ) * slowMotionCoeff;
-			Time.timeScale			= ( falling == true ) ? Time.timeScale : timeScaleNow;
+			Time.timeScale			= /*( falling == true ) ? Time.timeScale :*/ timeScaleNow;
 			
 			// Position and Rotation
-			transform.position		= Vector3.Lerp( startPosition, destination, interpolant );
-			transform.rotation		= Quaternion.Lerp( startRotation, finalRotation, interpolant );
+			if ( falling == false )
+				transform.position	= Vector3.Lerp( startPosition, destination, interpolant );
+			transform.rotation		= Quaternion.Lerp( startRotation, finalRotation, interpolant * ( ( falling == true ) ? 4f : 1f ) );
 
 			// Motion Blur Intensity
 			settings.frameBlending	= ( 1f - Time.timeScale );
@@ -100,7 +101,8 @@ public partial class Player {
 		effectFrame.color							= Color.clear;
 
 		// Final Position and Rotation
-		transform.position							= destination;
+		if ( falling == false )
+			transform.position						= destination;
 		transform.rotation							= finalRotation;
 
 		// Disabling dodge ability

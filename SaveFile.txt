@@ -1,23 +1,24 @@
 {
     "Data": [
         {
-            "InstanceID": -1000,
+            "InstanceID": -6174,
             "Name": "Player",
             "Position": {
-                "x": 121.34996795654297,
-                "y": 16.262935638427736,
-                "z": 86.97648620605469
+                "x": 133.85787963867188,
+                "y": 15.291082382202149,
+                "z": 74.46857452392578
             },
             "Rotation": {
-                "x": -0.27059808373451235,
-                "y": -0.6532815098762512,
-                "z": -0.6532815098762512,
-                "w": 0.27059808373451235
+                "x": 0.27059802412986758,
+                "y": 0.6532815098762512,
+                "z": 0.6532815098762512,
+                "w": -0.27059802412986758
             },
+            "ShieldStatus": -1.0,
             "Internals": ""
         },
         {
-            "InstanceID": -4666,
+            "InstanceID": -9906,
             "Name": "TurretHidden (1)",
             "Position": {
                 "x": 139.05999755859376,
@@ -25,15 +26,33 @@
                 "z": 120.56999969482422
             },
             "Rotation": {
-                "x": -0.5,
-                "y": -0.5,
-                "z": 0.5,
-                "w": 0.5
+                "x": -0.5906455516815186,
+                "y": -0.38876447081565859,
+                "z": 0.3887694776058197,
+                "w": 0.5906423330307007
             },
+            "ShieldStatus": -1.0,
             "Internals": ""
         },
         {
-            "InstanceID": -4384,
+            "InstanceID": -9906,
+            "Name": "TurretHidden (1)",
+            "Position": {
+                "x": 139.05999755859376,
+                "y": 9.399999618530274,
+                "z": 120.56999969482422
+            },
+            "Rotation": {
+                "x": -0.5906455516815186,
+                "y": -0.38876447081565859,
+                "z": 0.3887694776058197,
+                "w": 0.5906423330307007
+            },
+            "ShieldStatus": -1.0,
+            "Internals": "IsEnabled=True"
+        },
+        {
+            "InstanceID": -9624,
             "Name": "TurretHard",
             "Position": {
                 "x": 135.52000427246095,
@@ -46,10 +65,28 @@
                 "z": 0.0,
                 "w": 0.8678209185600281
             },
+            "ShieldStatus": 100.0,
             "Internals": ""
         },
         {
-            "InstanceID": -2744,
+            "InstanceID": -9624,
+            "Name": "TurretHard",
+            "Position": {
+                "x": 135.52000427246095,
+                "y": 10.009556770324707,
+                "z": 132.42999267578126
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": -0.49687719345092776,
+                "z": 0.0,
+                "w": 0.8678209185600281
+            },
+            "ShieldStatus": -1.0,
+            "Internals": ""
+        },
+        {
+            "InstanceID": -7908,
             "Name": "WalkerGatling",
             "Position": {
                 "x": 142.10000610351563,
@@ -62,10 +99,28 @@
                 "z": 0.0,
                 "w": 0.9033353328704834
             },
+            "ShieldStatus": -1.0,
             "Internals": ""
         },
         {
-            "InstanceID": -2666,
+            "InstanceID": -7908,
+            "Name": "WalkerGatling",
+            "Position": {
+                "x": 142.10000610351563,
+                "y": 5.5,
+                "z": 98.0
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": 0.428935170173645,
+                "z": 0.0,
+                "w": 0.9033353328704834
+            },
+            "ShieldStatus": -1.0,
+            "Internals": ""
+        },
+        {
+            "InstanceID": -7832,
             "Name": "WalkerMortar",
             "Position": {
                 "x": 154.89999389648438,
@@ -78,10 +133,28 @@
                 "z": 0.0,
                 "w": 1.0
             },
+            "ShieldStatus": -1.0,
             "Internals": ""
         },
         {
-            "InstanceID": -2612,
+            "InstanceID": -7832,
+            "Name": "WalkerMortar",
+            "Position": {
+                "x": 154.89999389648438,
+                "y": 5.5,
+                "z": 114.9800033569336
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "ShieldStatus": -1.0,
+            "Internals": ""
+        },
+        {
+            "InstanceID": -7774,
             "Name": "DroneStandard",
             "Position": {
                 "x": 133.5,
@@ -94,10 +167,28 @@
                 "z": 0.0,
                 "w": 1.0
             },
+            "ShieldStatus": -1.0,
             "Internals": ""
         },
         {
-            "InstanceID": -2480,
+            "InstanceID": -7774,
+            "Name": "DroneStandard",
+            "Position": {
+                "x": 133.5,
+                "y": 5.820000171661377,
+                "z": 129.9199981689453
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "ShieldStatus": -1.0,
+            "Internals": ""
+        },
+        {
+            "InstanceID": -7642,
             "Name": "WalkerArmoredGatling",
             "Position": {
                 "x": 153.3300018310547,
@@ -110,10 +201,28 @@
                 "z": 0.0,
                 "w": 1.0
             },
+            "ShieldStatus": 100.0,
             "Internals": ""
         },
         {
-            "InstanceID": -2386,
+            "InstanceID": -7642,
+            "Name": "WalkerArmoredGatling",
+            "Position": {
+                "x": 153.3300018310547,
+                "y": 5.5,
+                "z": 103.6500015258789
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "ShieldStatus": -1.0,
+            "Internals": ""
+        },
+        {
+            "InstanceID": -7544,
             "Name": "TurretArmored",
             "Position": {
                 "x": 133.16029357910157,
@@ -126,10 +235,28 @@
                 "z": 0.0,
                 "w": 0.8678209185600281
             },
+            "ShieldStatus": 100.0,
             "Internals": ""
         },
         {
-            "InstanceID": -1410,
+            "InstanceID": -7544,
+            "Name": "TurretArmored",
+            "Position": {
+                "x": 133.16029357910157,
+                "y": 10.009556770324707,
+                "z": 128.72999572753907
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": -0.49687719345092776,
+                "z": 0.0,
+                "w": 0.8678209185600281
+            },
+            "ShieldStatus": -1.0,
+            "Internals": ""
+        },
+        {
+            "InstanceID": -6568,
             "Name": "WalkerStandard",
             "Position": {
                 "x": 146.72000122070313,
@@ -142,10 +269,28 @@
                 "z": 0.0,
                 "w": 0.9999275207519531
             },
+            "ShieldStatus": -1.0,
             "Internals": ""
         },
         {
-            "InstanceID": -1322,
+            "InstanceID": -6568,
+            "Name": "WalkerStandard",
+            "Position": {
+                "x": 146.72000122070313,
+                "y": 5.5,
+                "z": 112.43000030517578
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": 0.012042451649904251,
+                "z": 0.0,
+                "w": 0.9999275207519531
+            },
+            "ShieldStatus": -1.0,
+            "Internals": ""
+        },
+        {
+            "InstanceID": -6482,
             "Name": "TurretHidden",
             "Position": {
                 "x": 133.74000549316407,
@@ -153,15 +298,33 @@
                 "z": 122.43000030517578
             },
             "Rotation": {
-                "x": -0.5,
-                "y": -0.5,
-                "z": 0.5,
-                "w": 0.5
+                "x": -0.608116626739502,
+                "y": -0.3608242869377136,
+                "z": 0.3608267903327942,
+                "w": 0.6081151962280273
             },
+            "ShieldStatus": -1.0,
             "Internals": ""
         },
         {
-            "InstanceID": -1216,
+            "InstanceID": -6482,
+            "Name": "TurretHidden",
+            "Position": {
+                "x": 133.74000549316407,
+                "y": 10.289999961853028,
+                "z": 122.43000030517578
+            },
+            "Rotation": {
+                "x": -0.608116626739502,
+                "y": -0.3608242869377136,
+                "z": 0.3608267903327942,
+                "w": 0.6081151962280273
+            },
+            "ShieldStatus": -1.0,
+            "Internals": "IsEnabled=True"
+        },
+        {
+            "InstanceID": -6374,
             "Name": "DroneArmored",
             "Position": {
                 "x": 144.25,
@@ -174,10 +337,28 @@
                 "z": 0.0,
                 "w": 1.0
             },
+            "ShieldStatus": 60.0,
             "Internals": ""
         },
         {
-            "InstanceID": -1142,
+            "InstanceID": -6374,
+            "Name": "DroneArmored",
+            "Position": {
+                "x": 144.25,
+                "y": 6.395999908447266,
+                "z": 130.58999633789063
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "ShieldStatus": -1.0,
+            "Internals": ""
+        },
+        {
+            "InstanceID": -6308,
             "Name": "WalkerArmored",
             "Position": {
                 "x": 156.49000549316407,
@@ -190,10 +371,28 @@
                 "z": 0.0,
                 "w": 1.0
             },
+            "ShieldStatus": 100.0,
             "Internals": ""
         },
         {
-            "InstanceID": -1070,
+            "InstanceID": -6308,
+            "Name": "WalkerArmored",
+            "Position": {
+                "x": 156.49000549316407,
+                "y": 5.5,
+                "z": 111.01000213623047
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "ShieldStatus": -1.0,
+            "Internals": ""
+        },
+        {
+            "InstanceID": -6238,
             "Name": "TurretStandard",
             "Position": {
                 "x": 133.19088745117188,
@@ -206,10 +405,28 @@
                 "z": 0.0,
                 "w": 0.8555902242660523
             },
+            "ShieldStatus": -1.0,
             "Internals": ""
         },
         {
-            "InstanceID": -1518,
+            "InstanceID": -6238,
+            "Name": "TurretStandard",
+            "Position": {
+                "x": 133.19088745117188,
+                "y": 10.009556770324707,
+                "z": 125.21407318115235
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": -0.5176538228988648,
+                "z": 0.0,
+                "w": 0.8555902242660523
+            },
+            "ShieldStatus": -1.0,
+            "Internals": ""
+        },
+        {
+            "InstanceID": -6720,
             "Name": "Camera",
             "Position": {
                 "x": 0.0,
@@ -222,7 +439,8 @@
                 "z": 0.0,
                 "w": 1.0
             },
-            "Internals": "-80.01997, 193.7827, 0"
+            "ShieldStatus": -1.0,
+            "Internals": "-22.35349, -848.2066, 0"
         }
     ]
 }

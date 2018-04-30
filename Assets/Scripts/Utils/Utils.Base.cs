@@ -16,7 +16,30 @@ namespace Utils {
 
 	public static class Base {
 
-		public static KeyValue GetKeyValue( string Line )
+		public	static	KeyValue[]	GetKeyValues( string line )
+		{
+			string[] keyValues = line.Split( ',' );
+
+			KeyValue[] values = null;
+
+			if ( keyValues.Length == 0 )
+			{
+				values = new KeyValue[1];
+				values[0] = GetKeyValue( line );
+				return values;
+			}
+
+			values = new KeyValue[keyValues.Length];
+			for ( int i = 0; i < keyValues.Length; i++ )
+			{
+				values[ i ] = GetKeyValue( keyValues[ i ] );
+			}
+			return values;
+		}
+
+
+
+		public	static	KeyValue	GetKeyValue( string Line )
 		{
 			KeyValue Result;
 
@@ -28,8 +51,13 @@ namespace Utils {
 			int iEqualSign = 0;
 
 			for ( int i = 0; i < Line.Length; i++ )
+			{
 				if ( Line[ i ]  == '=' )
-				{ iEqualSign = i; break; }
+				{
+					iEqualSign = i;
+					break;
+				}
+			}
 
 			if ( iEqualSign > 0 )
 			{ // Key Value Pair
@@ -47,6 +75,8 @@ namespace Utils {
 			}
 			return Result;
 		}
+
+
 
 		private	static	void	CloneComponent( ref Component component, ref GameObject destinationObj, bool copyProperties = false )
 		{
@@ -76,6 +106,8 @@ namespace Utils {
 				foundField.SetValue( tmpComponent, foundField.GetValue( component ) );
 			}
 		}
+
+
 
 		public	static	void	Clone( ref GameObject sourceObj, ref GameObject destinationObj, bool copyProperties = false )
 		{

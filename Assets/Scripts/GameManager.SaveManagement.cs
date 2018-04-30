@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 //	DELEGATES FOR EVENTS
-public delegate void StreamingEvent( StreamingData streamingData );
+public delegate StreamingUnit StreamingEvent( StreamingData streamingData );
 
 
 public class SaveFileinfo {
@@ -91,18 +91,20 @@ public partial class GameManager : IGameManager_SaveManagement {
 [System.Serializable]
 public class StreamingUnit {
 	[SerializeField]
-	public	int			InstanceID	= -1;
+	public	int			InstanceID		= -1;
 
 	[SerializeField]
-	public	string		Name		= "";
+	public	string		Name			= "";
 
 	[SerializeField]
-	public	Vector3		Position	= Vector3.zero;
+	public	Vector3		Position		= Vector3.zero;
 	[SerializeField]
-	public	Quaternion	Rotation	= Quaternion.identity;
+	public	Quaternion	Rotation		= Quaternion.identity;
+
+	public	float		ShieldStatus	= -1f;
 
 	[SerializeField]
-	public	string		Internals	= "";
+	public	string		Internals		= "";
 
 }
 

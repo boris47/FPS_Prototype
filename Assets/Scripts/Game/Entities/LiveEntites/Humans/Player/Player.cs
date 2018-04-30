@@ -252,15 +252,13 @@ public partial class Player : Human {
 //			return;
 
 		// auto fall
-		if ( IsGrounded == false && m_IsDodging == false && transform.up != Vector3.up )
+		if ( ( m_IsDodging == false && transform.up != Vector3.up ) && ( InputManager.Inputs.Jump || IsGrounded == false ) )
 		{
 			RaycastHit hit;
 			Physics.Raycast( transform.position, Vector3.down, out hit );
 
 			if ( m_RotorDashCoroutine != null )
 				StopCoroutine( m_RotorDashCoroutine );
-
-//			m_IsDashing = true;
 
 			Vector3 destination = hit.point + Vector3.up * m_DashAbilityTarget.localScale.y * 1.7f;
 			m_RotorDashCoroutine = StartCoroutine( Dodge( destination: destination, destinationUp: Vector3.up, falling: true ) );
@@ -493,7 +491,7 @@ public partial class Player : Human {
 
 		if ( m_IsDodging == true )
 			return;
-
+// Water
 #region TO IMPLEMENT
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Water

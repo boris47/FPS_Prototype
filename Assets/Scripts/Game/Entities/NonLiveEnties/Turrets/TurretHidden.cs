@@ -31,6 +31,41 @@ public class TurretHidden : Turret {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	// OnSave ( Override )
+	protected override StreamingUnit OnSave( StreamingData streamingData )
+	{
+		StreamingUnit streamingUnit = base.OnSave( streamingData );
+		streamingUnit.Internals		+= "IsEnabled="+ m_IsEnabled.ToString();
+
+		return streamingUnit;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnLoad ( Override )
+	protected override StreamingUnit OnLoad( StreamingData streamingData )
+	{
+		StreamingUnit streamingUnit = base.OnLoad( streamingData );
+		if ( streamingUnit == null )
+			return null;
+
+		KeyValue[] values = Utils.Base.GetKeyValues( streamingUnit.Internals );
+		foreach ( KeyValue keyValue in values )
+		{
+			if ( keyValue.Key == "IsEnabled" )
+			{
+				m_IsEnabled = ( keyValue.Value.ToLower() == "true" ) ? true : false;
+				if ( m_IsEnabled )
+				{
+					Activate();
+				}
+			}
+		}
+		return streamingUnit;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	// OnTargetAquired ( Override )
 	public override void OnTargetAquired( TargetInfo_t targetInfo )
 	{

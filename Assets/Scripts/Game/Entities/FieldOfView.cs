@@ -285,12 +285,12 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 
 			// left
 			Quaternion leftRayRotation		= Quaternion.AngleAxis( halfFOV, axisLeft );
-			Vector3 leftRayDirection		= leftRayRotation  * transform.forward;
+			Vector3 leftRayDirection		= ( leftRayRotation  * currentViewPoint.forward ).normalized;
 			Gizmos.DrawRay( Vector3.zero, leftRayDirection  * m_ViewDistance );
 
 			// right
 			Quaternion rightRayRotation		= Quaternion.AngleAxis(  halfFOV, axisRight );
-			Vector3 rightRayDirection		= rightRayRotation * currentViewPoint.forward;
+			Vector3 rightRayDirection		= ( rightRayRotation * currentViewPoint.forward ).normalized;
 			Gizmos.DrawRay( Vector3.zero, rightRayDirection * m_ViewDistance );
 		}
 		Gizmos.matrix = Matrix4x4.identity;

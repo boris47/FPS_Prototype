@@ -88,6 +88,36 @@ public abstract partial class NonLiveEntity : Entity {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	// OnSave ( Override )
+	protected override StreamingUnit OnSave( StreamingData streamingData )
+	{
+		StreamingUnit streamingUnit = base.OnSave( streamingData );
+
+		if ( m_Shield != null )
+		{
+			streamingUnit.ShieldStatus = m_Shield.Status;
+		}
+
+		return base.OnSave( streamingData );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnLoad ( Override )
+	protected override StreamingUnit OnLoad( StreamingData streamingData )
+	{
+		StreamingUnit streamingUnit = base.OnSave( streamingData );
+
+		if ( streamingUnit.ShieldStatus > -1f )
+		{
+			( m_Shield as IShield ).Status = streamingUnit.ShieldStatus;
+		}
+
+		return base.OnLoad( streamingData );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	// OnThink ( Override )
 	public override void OnThink()
 	{	}
