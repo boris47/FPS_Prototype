@@ -57,9 +57,6 @@ public class WeaponManager : MonoBehaviour {
 			weapon.gameObject.SetActive( false );
 		}
 
-		// Disable all weapons
-		System.Array.ForEach( Weapon.Array, ( IWeapon w ) => w.Enabled = false );
-
 		// Set current weapon
 		CurrentWeapon = Weapon.Array[ CurrentWeaponIndex ];
 
@@ -172,6 +169,12 @@ public class WeaponManager : MonoBehaviour {
 	{
 		// Play stash animation
 		CurrentWeapon.Animator.Play( "stash", -1, 0.0f );
+
+		// Exit from zoom
+		if ( m_ZoomedIn == true )
+		{
+			StartCoroutine( ZoomOutCO() );
+		}
 
 		// time to wait before activate the other weapon
 		float timeToWait = 2f;

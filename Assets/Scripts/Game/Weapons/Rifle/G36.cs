@@ -173,7 +173,6 @@ public class G36 : Weapon
 		if ( Player.Instance.IsRunning && m_ZoomedIn && m_InTransition == false )
 		{
 			WeaponManager.Instance.ZoomOut();
-//			StartCoroutine( ZoomOut() );
 		}
 
 		if ( m_Magazine <= 0 || ( InputManager.Inputs.Reload && m_Magazine < m_MagazineCapacity ) || m_NeedRecharge )
@@ -186,7 +185,6 @@ public class G36 : Weapon
 				if ( m_InTransition == false )
 				{
 					WeaponManager.Instance.ZoomOut();
-//					StartCoroutine( ZoomOut() );
 					m_NeedRecharge = true;
 				}
 				return;
@@ -271,7 +269,7 @@ public class G36 : Weapon
 
 		m_Animator.Play( m_FireAnim.name, -1, 0f );
 			
-//		m_Magazine --;
+		m_Magazine --;
 
 		// BULLET
 		IBullet bullet = fireFirst ?  m_PoolBulletsFirst.GetComponent() : m_PoolBulletsSecond.GetComponent();

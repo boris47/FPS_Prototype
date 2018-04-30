@@ -2,7 +2,7 @@
 
 [G36]
 Damage				= 12.0;
-ZoomFactor			= 4.0;
+ZoomFactor			= 4.0;	Higher number lead to major zoom
 ZoomingTime			= 0.2;
 ZommSensitivity		= 0.3;
 
@@ -17,3 +17,6 @@ Damage				= 18.0;
 ZoomFactor			= 2.0;
 ZoomingTime			= 0.2;
 ZommSensitivity		= 0.3;
+
+[Razor] : G36
+ZoomFactor			= 2.0;
