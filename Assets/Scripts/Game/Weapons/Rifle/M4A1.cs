@@ -170,7 +170,7 @@ public class M4A1 : Weapon
 		}
 
 
-		if ( Player.Instance.IsRunning && m_ZoomedIn && m_InTransition == false )
+		if ( Player.Instance.IsRunning && WeaponManager.Instance.Zoomed && m_InTransition == false )
 		{
 			WeaponManager.Instance.ZoomOut();
 //			StartCoroutine( ZoomOut() );
@@ -181,7 +181,7 @@ public class M4A1 : Weapon
 //			m_AnimatorStdSpeed = anim.speed;
 //			anim.speed = 2f;
 
-			if ( m_ZoomedIn )
+			if ( WeaponManager.Instance.Zoomed )
 			{
 				if ( m_InTransition == false )
 				{
@@ -296,7 +296,7 @@ public class M4A1 : Weapon
 		finalDispersion *= ( m_FireMode == FireModes.SINGLE )	? 0.50f : 1.00f;
 		finalDispersion *= ( m_FireMode == FireModes.BURST )	? 0.80f : 1.00f;
 		finalDispersion *= ( m_FireMode == FireModes.AUTO )		? 1.10f : 1.00f;
-		finalDispersion	*= ( m_ZoomedIn == true )				? 0.80f : 1.00f;
+		finalDispersion	*= WeaponManager.Instance.Zoomed		? 0.80f : 1.00f;
 
 		// SHOOT
 		Shoot( ref bullet, ref position, ref direction, ref audioSource, finalDispersion );

@@ -78,9 +78,11 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	[SerializeField]
 	protected	float					m_ZommSensitivity			= 1f;
 
+	[SerializeField]
+	protected	Renderer				m_Renderer					= null;
+
 	protected	bool					m_FirstFireAvaiable			= true;
 	protected	bool					m_SecondFireAvaiable		= true;
-	protected	bool					m_ZoomedIn					= false;
 	protected	Vector3					m_StartOffset				= Vector3.zero;
 	protected	bool					m_InTransition				= false;
 	protected	bool					m_NeedRecharge				= false;
@@ -102,7 +104,7 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 				float					IWeapon.ZoomFactor			{ get { return m_ZoomFactor; } }
 	// INTERFACE END
 
-
+	
 	protected	Animator				m_Animator					= null;
 	public		Animator				Animator
 	{

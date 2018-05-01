@@ -27,7 +27,7 @@ public class CutsceneEntityManager : MonoBehaviour {
 	// Awake
 	private void	Awake()
 	{
-		m_EntityRef = transform.parent.GetComponent<Entity>();
+		m_EntityRef = transform.parent.GetComponent<IEntity>();
 		if ( m_EntityRef == null )
 		{
 			Destroy( gameObject );

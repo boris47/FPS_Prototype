@@ -111,7 +111,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		float damage = Random.Range( bullet.DamageMin, bullet.DamageMax );
 		m_Health -= damage;
 
-		if ( m_Health < 0f )
+		if ( m_Health <= 0f )
 			OnKill();
 	}
 
@@ -121,7 +121,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 	public override void OnKill()
 	{
 		base.OnKill();
-		m_Pool.SetActive( false );
+//		m_Pool.SetActive( false );
 		gameObject.SetActive( false );
 
 		if ( m_RespawnPoint != null )
@@ -207,7 +207,6 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		}
 
 		Vector3 dirToPosition	 = ( m_PointToFace - transform.position );
-		dirToPosition = Vector3.Scale( dirToPosition, Vector3.forward );
 		float	travelledDistance = ( m_StartMovePosition - transform.position ).sqrMagnitude;
 		if ( ( m_Destination - transform.position ).sqrMagnitude < 4f || travelledDistance > m_DistanceToTravel )   // point reached
 		{
@@ -237,12 +236,28 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		m_FireAudioSource.Play();
 	}
 
-	
+
+	//////////////////////////////////////////////////////////////////////////
+	// EnterSimulationState ( Override )
+	public override void EnterSimulationState()
+	{
+		base.EnterSimulationState();
+	}
+
+
 	//////////////////////////////////////////////////////////////////////////
 	// SimulateMovement ( Override )
 	public override	bool	SimulateMovement( SimulationMovementType movementType, Vector3 destination, Transform target, float deltaTime, float interpolant = 0f )
 	{
 		return false;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ExitSimulationState ( Override )
+	public override void ExitSimulationState()
+	{
+		base.ExitSimulationState();
 	}
 
 

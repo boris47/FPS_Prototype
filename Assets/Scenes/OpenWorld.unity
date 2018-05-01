@@ -319,11 +319,6 @@ Prefab:
       propertyPath: m_RootOrder
       value: 2
       objectReference: {fileID: 0}
-    - target: {fileID: 114879694635983574, guid: c27640b70f6f62e45826a3ede9728fc4,
-        type: 2}
-      propertyPath: HideCursor
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: c27640b70f6f62e45826a3ede9728fc4, type: 2}
   m_IsPrefabParent: 0
@@ -4119,172 +4114,6 @@ Prefab:
       propertyPath: m_RootOrder
       value: 3
       objectReference: {fileID: 0}
-    - target: {fileID: 108794403690500232, guid: 0938111bf6475d34585ee0df7bbb9cee,
-        type: 2}
-      propertyPath: m_Color.r
-      value: 0.652344
-      objectReference: {fileID: 0}
-    - target: {fileID: 108794403690500232, guid: 0938111bf6475d34585ee0df7bbb9cee,
-        type: 2}
-      propertyPath: m_Color.g
-      value: 0.644531
-      objectReference: {fileID: 0}
-    - target: {fileID: 108794403690500232, guid: 0938111bf6475d34585ee0df7bbb9cee,
-        type: 2}
-      propertyPath: m_Color.b
-      value: 0.609375
-      objectReference: {fileID: 0}
-    - target: {fileID: 114804867122043236, guid: 0938111bf6475d34585ee0df7bbb9cee,
-        type: 2}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114804867122043236, guid: 0938111bf6475d34585ee0df7bbb9cee,
-        type: 2}
-      propertyPath: m_CurrentCycleName
-      value: Rainy
-      objectReference: {fileID: 0}
-    - target: {fileID: 114804867122043236, guid: 0938111bf6475d34585ee0df7bbb9cee,
-        type: 2}
-      propertyPath: m_WeatherChoiceFactor
-      value: 1.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4850596315166450, guid: 0938111bf6475d34585ee0df7bbb9cee, type: 2}
-      propertyPath: m_LocalRotation.x
-      value: 0.11046031
-      objectReference: {fileID: 0}
-    - target: {fileID: 4850596315166450, guid: 0938111bf6475d34585ee0df7bbb9cee, type: 2}
-      propertyPath: m_LocalRotation.y
-      value: 0.69710183
-      objectReference: {fileID: 0}
-    - target: {fileID: 4850596315166450, guid: 0938111bf6475d34585ee0df7bbb9cee, type: 2}
-      propertyPath: m_LocalRotation.z
-      value: -0.11003211
-      objectReference: {fileID: 0}
-    - target: {fileID: 4850596315166450, guid: 0938111bf6475d34585ee0df7bbb9cee, type: 2}
-      propertyPath: m_LocalRotation.w
-      value: 0.6998146
-      objectReference: {fileID: 0}
-    - target: {fileID: 114804867122043236, guid: 0938111bf6475d34585ee0df7bbb9cee,
-        type: 2}
-      propertyPath: CurrentDayTime
-      value: 18:14:35
-      objectReference: {fileID: 0}
-    - target: {fileID: 114804867122043236, guid: 0938111bf6475d34585ee0df7bbb9cee,
-        type: 2}
-      propertyPath: EnableInEditor
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 114804867122043236, guid: 0938111bf6475d34585ee0df7bbb9cee,
-        type: 2}
-      propertyPath: m_TimeFactor
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114605212361015308, guid: 0938111bf6475d34585ee0df7bbb9cee,
-        type: 2}
-      propertyPath: EnableInEditor
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 114605212361015308, guid: 0938111bf6475d34585ee0df7bbb9cee,
-        type: 2}
-      propertyPath: m_RainIntensity
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4358717262039982, guid: 0938111bf6475d34585ee0df7bbb9cee, type: 2}
-      propertyPath: m_LocalRotation.y
-      value: 0.35112152
-      objectReference: {fileID: 0}
-    - target: {fileID: 4358717262039982, guid: 0938111bf6475d34585ee0df7bbb9cee, type: 2}
-      propertyPath: m_LocalRotation.w
-      value: -0.9363299
-      objectReference: {fileID: 0}
-    - target: {fileID: 4358717262039982, guid: 0938111bf6475d34585ee0df7bbb9cee, type: 2}
-      propertyPath: m_LocalPosition.x
-      value: 159.23285
-      objectReference: {fileID: 0}
-    - target: {fileID: 4358717262039982, guid: 0938111bf6475d34585ee0df7bbb9cee, type: 2}
-      propertyPath: m_LocalPosition.y
-      value: 40.857723
-      objectReference: {fileID: 0}
-    - target: {fileID: 4358717262039982, guid: 0938111bf6475d34585ee0df7bbb9cee, type: 2}
-      propertyPath: m_LocalPosition.z
-      value: 55.906296
-      objectReference: {fileID: 0}
-    - target: {fileID: 198008214588739018, guid: 0938111bf6475d34585ee0df7bbb9cee,
-        type: 2}
-      propertyPath: randomSeed
-      value: -996007824
-      objectReference: {fileID: 0}
-    - target: {fileID: 198008214588739018, guid: 0938111bf6475d34585ee0df7bbb9cee,
-        type: 2}
-      propertyPath: EmissionModule.rateOverTime.scalar
-      value: 3333.3333
-      objectReference: {fileID: 0}
-    - target: {fileID: 4860614132580272, guid: 0938111bf6475d34585ee0df7bbb9cee, type: 2}
-      propertyPath: m_LocalPosition.x
-      value: 158.24655
-      objectReference: {fileID: 0}
-    - target: {fileID: 4860614132580272, guid: 0938111bf6475d34585ee0df7bbb9cee, type: 2}
-      propertyPath: m_LocalPosition.y
-      value: 15.857721
-      objectReference: {fileID: 0}
-    - target: {fileID: 4860614132580272, guid: 0938111bf6475d34585ee0df7bbb9cee, type: 2}
-      propertyPath: m_LocalPosition.z
-      value: 57.036438
-      objectReference: {fileID: 0}
-    - target: {fileID: 4395054716003650, guid: 0938111bf6475d34585ee0df7bbb9cee, type: 2}
-      propertyPath: m_LocalRotation.x
-      value: 0.2547805
-      objectReference: {fileID: 0}
-    - target: {fileID: 4395054716003650, guid: 0938111bf6475d34585ee0df7bbb9cee, type: 2}
-      propertyPath: m_LocalRotation.y
-      value: -0.21490218
-      objectReference: {fileID: 0}
-    - target: {fileID: 4395054716003650, guid: 0938111bf6475d34585ee0df7bbb9cee, type: 2}
-      propertyPath: m_LocalRotation.z
-      value: 0.058184415
-      objectReference: {fileID: 0}
-    - target: {fileID: 4395054716003650, guid: 0938111bf6475d34585ee0df7bbb9cee, type: 2}
-      propertyPath: m_LocalRotation.w
-      value: 0.94101995
-      objectReference: {fileID: 0}
-    - target: {fileID: 108411090528481760, guid: 0938111bf6475d34585ee0df7bbb9cee,
-        type: 2}
-      propertyPath: m_Intensity
-      value: 0.001
-      objectReference: {fileID: 0}
-    - target: {fileID: 82714487343950330, guid: 0938111bf6475d34585ee0df7bbb9cee,
-        type: 2}
-      propertyPath: m_audioClip
-      value: 
-      objectReference: {fileID: 8300000, guid: 7da473534a4c652499eb968c6b03a4ce, type: 3}
-    - target: {fileID: 82714487343950330, guid: 0938111bf6475d34585ee0df7bbb9cee,
-        type: 2}
-      propertyPath: m_Pitch
-      value: 1.4891977
-      objectReference: {fileID: 0}
-    - target: {fileID: 4525273101603036, guid: 0938111bf6475d34585ee0df7bbb9cee, type: 2}
-      propertyPath: m_LocalPosition.x
-      value: -7.966551
-      objectReference: {fileID: 0}
-    - target: {fileID: 4525273101603036, guid: 0938111bf6475d34585ee0df7bbb9cee, type: 2}
-      propertyPath: m_LocalPosition.y
-      value: -10.723534
-      objectReference: {fileID: 0}
-    - target: {fileID: 4525273101603036, guid: 0938111bf6475d34585ee0df7bbb9cee, type: 2}
-      propertyPath: m_LocalPosition.z
-      value: 16.532412
-      objectReference: {fileID: 0}
-    - target: {fileID: 114605212361015308, guid: 0938111bf6475d34585ee0df7bbb9cee,
-        type: 2}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114195169058867262, guid: 0938111bf6475d34585ee0df7bbb9cee,
-        type: 2}
-      propertyPath: m_InternalVolume
-      value: 0.5
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 0938111bf6475d34585ee0df7bbb9cee, type: 2}
   m_IsPrefabParent: 0
@@ -4438,6 +4267,11 @@ Prefab:
     - target: {fileID: 1629490694608316, guid: 26c59272f0db78e41b0bc276526e4f39, type: 2}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 224469556440769738, guid: 26c59272f0db78e41b0bc276526e4f39,
+        type: 2}
+      propertyPath: m_AnchoredPosition.y
+      value: -1.9226685
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 26c59272f0db78e41b0bc276526e4f39, type: 2}

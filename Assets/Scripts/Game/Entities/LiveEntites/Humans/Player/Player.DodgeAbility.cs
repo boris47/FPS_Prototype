@@ -54,6 +54,7 @@ public partial class Player {
 		float	currentTime							= 0f;
 		float	interpolant							= 0f;
 		var		settings							= CameraControl.Instance.GetPP_Profile.motionBlur.settings;
+		float	drag								= m_RigidBody.drag;
 
 		// Enabling dodge ability
 		m_IsDodging									= true;
@@ -64,6 +65,7 @@ public partial class Player {
 		CameraControl.Instance.HeadMove.IsActive	= false;
 		m_RigidBody.velocity						= Vector3.zero;
 		m_RigidBody.constraints						= RigidbodyConstraints.None;
+		m_RigidBody.drag							= 0f;
 
 		float slowMotionCoeff			= WeaponManager.Instance.CurrentWeapon.SlowMotionCoeff;
 		AnimationCurve animationCurve	= ( ( target != null && target.HasTimeScaleCurveOverride ) ? target.DashTimeScaleCurve : m_DashTimeScaleCurve );
@@ -96,6 +98,7 @@ public partial class Player {
 		// Reset
 		m_RigidBody.constraints						= RigidbodyConstraints.FreezeRotation;
 		m_RigidBody.velocity						= Vector3.zero;
+		m_RigidBody.drag							= drag;
 		SoundEffectManager.Instance.Pitch			= 1f;
 		Time.timeScale								= 1f;
 		effectFrame.color							= Color.clear;

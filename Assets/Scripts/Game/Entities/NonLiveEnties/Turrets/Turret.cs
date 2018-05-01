@@ -101,7 +101,7 @@ public abstract class Turret : NonLiveEntity {
 		float damage = Random.Range( bullet.DamageMin, bullet.DamageMax );
 		m_Health -= damage;
 
-		if ( m_Health < 0f )
+		if ( m_Health <= 0f )
 			OnKill();
 	}
 
@@ -111,7 +111,7 @@ public abstract class Turret : NonLiveEntity {
 	public override void OnKill()
 	{
 		base.OnKill();
-		m_Pool.Destroy();
+//		m_Pool.Destroy();
 		gameObject.SetActive( false );
 	}
 

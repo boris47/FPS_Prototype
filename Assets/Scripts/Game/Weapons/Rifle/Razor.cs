@@ -126,6 +126,7 @@ public class Razor : Weapon
 				m_IsRecharging = false;
 				m_Magazine = m_MagazineCapacity;
 				UI.Instance.InGame.UpdateUI();
+				m_Renderer.material.SetColor( "_EmissionColor", Color.red );
 			}
 			m_BrustCount = 0;
 			m_NeedRecharge = false;
@@ -170,7 +171,7 @@ public class Razor : Weapon
 		}
 
 
-		if ( Player.Instance.IsRunning && m_ZoomedIn && m_InTransition == false )
+		if ( Player.Instance.IsRunning && WeaponManager.Instance.Zoomed && m_InTransition == false )
 		{
 			WeaponManager.Instance.ZoomOut();
 		}
@@ -180,7 +181,7 @@ public class Razor : Weapon
 //			m_AnimatorStdSpeed = anim.speed;
 //			anim.speed = 2f;
 
-			if ( m_ZoomedIn )
+			if ( WeaponManager.Instance.Zoomed )
 			{
 				if ( m_InTransition == false )
 				{
@@ -271,6 +272,9 @@ public class Razor : Weapon
 			
 		m_Magazine --;
 
+		float interpolant = 1f - ( (float)m_Magazine / (float)m_MagazineCapacity );
+		m_Renderer.material.SetColor( "_EmissionColor", Color.Lerp( Color.red, Color.clear, interpolant ) );
+
 		// BULLET
 		IBullet bullet = fireFirst ?  m_PoolBulletsFirst.GetComponent() : m_PoolBulletsSecond.GetComponent();
 
@@ -294,7 +298,7 @@ public class Razor : Weapon
 		finalDispersion *= ( m_FireMode == FireModes.SINGLE )	? 0.50f : 1.00f;
 		finalDispersion *= ( m_FireMode == FireModes.BURST )	? 0.80f : 1.00f;
 		finalDispersion *= ( m_FireMode == FireModes.AUTO )		? 1.10f : 1.00f;
-		finalDispersion	*= ( m_ZoomedIn == true )				? 0.80f : 1.00f;
+		finalDispersion	*= WeaponManager.Instance.Zoomed		? 0.80f : 1.00f;
 
 		// SHOOT
 		Shoot( ref bullet, ref position, ref direction, ref audioSource, finalDispersion );

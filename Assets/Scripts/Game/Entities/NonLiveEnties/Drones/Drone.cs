@@ -108,7 +108,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		float damage = Random.Range( bullet.DamageMin, bullet.DamageMax );
 		m_Health -= damage;
 
-		if ( m_Health < 0f )
+		if ( m_Health <= 0f )
 			OnKill();
 	}
 
@@ -118,7 +118,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 	public override void OnKill()
 	{
 		base.OnKill();
-		m_Pool.SetActive( false );
+//		m_Pool.SetActive( false );
 		gameObject.SetActive( false );
 
 		if ( m_RespawnPoint != null )
@@ -226,10 +226,18 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 		m_ShotTimer = m_ShotDelay;
 
-		Bullet bullet = m_Pool.GetComponent();
+		IBullet bullet = m_Pool.GetComponent();
 		bullet.Shoot( position: m_FirePoint.position, direction: m_FirePoint.forward );
 		
 		m_FireAudioSource.Play();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// EnterSimulationState ( Override )
+	public override void EnterSimulationState()
+	{
+		base.EnterSimulationState();
 	}
 
 
@@ -238,6 +246,14 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 	public override	bool	SimulateMovement( SimulationMovementType movementType, Vector3 destination, Transform target, float deltaTime, float interpolant = 0f )
 	{
 		return false;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ExitSimulationState ( Override )
+	public override void ExitSimulationState()
+	{
+		base.ExitSimulationState();
 	}
 
 
