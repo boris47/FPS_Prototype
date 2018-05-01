@@ -11,6 +11,3 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/OpenWorld.unity
     guid: 66458d2b5d85538439555847d2a1bf1d
-  - enabled: 1
-    path: Assets/Scenes/Scene2.unity
-    guid: cf403e56dab9a0a4c93c347f1c2b43df

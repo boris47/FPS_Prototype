@@ -121,9 +121,9 @@ public class EffectManager : MonoBehaviour {
 	// GetFreeParticleSystem
 	private	ParticleSystem	GetFreeParticleSystem( IEnumerable<ParticleSystem> collection )
 	{
-		foreach( var ps in collection )
+		foreach( ParticleSystem ps in collection )
 		{
-			if ( ps.isPlaying )
+			if ( ps.IsAlive() )
 				continue;
 			return ps;
 		}

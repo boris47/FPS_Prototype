@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class GenericBullet : Bullet {
 
+	private	Light		m_PointLight		= null;
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
@@ -12,6 +13,10 @@ public class GenericBullet : Bullet {
 		base.Awake();
 
 		m_RigidBody.useGravity					= false;
+
+		m_PointLight = GetComponent<Light>();
+		if ( m_PointLight != null )
+			m_PointLight.color = m_Renderer.material.GetColor( "_EmissionColor" );
 
 		SetActive( false );
 	}
@@ -59,6 +64,8 @@ public class GenericBullet : Bullet {
 		{
 			SetActive( false );
 		}
+
+		transform.up = m_RigidBody.velocity;
 	}
 
 
@@ -96,6 +103,10 @@ public class GenericBullet : Bullet {
 	// OnCollisionEnter ( Override )
 	protected	override	void	OnCollisionEnter( Collision collision )
 	{
+		Bullet bullet = collision.gameObject.GetComponent<Bullet>();
+		if ( bullet != null )
+			return;
+
 		Entity entity = collision.gameObject.GetComponent<Entity>();
 		Shield shield = collision.gameObject.GetComponent<Shield>();
 
@@ -108,13 +119,6 @@ public class GenericBullet : Bullet {
 			EffectManager.Instance.PlayAmbientOnHit( collision.contacts[0].point, collision.contacts[0].normal );
 		}
 
-		/*
-		Rigidbody rb = collision.gameObject.GetComponent<Rigidbody>();
-		if ( rb != null )
-		{
-//			rb.AddForce( m_RigidBody.velocity * 0.01f );
-		}
-		*/
 		if ( shield != null )
 			shield.OnHit( ref m_Instance );
 		else

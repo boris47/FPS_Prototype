@@ -28,6 +28,7 @@ public class Razor : Weapon
 //	private		float							m_AnimatorStdSpeed					= 1f;
 	private		bool							m_IsRecharging						= false;
 //	private		float							m_CrosshairMaxDisp					= 1f;
+	private		Color							m_StartEmissiveColor				= Color.clear;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -92,6 +93,8 @@ public class Razor : Weapon
 		}
 //		DontDestroyOnLoad( this );
 		m_LockTimer = m_DrawAnim.length;
+
+		m_StartEmissiveColor = m_Renderer.material.GetColor( "_EmissionColor" );
 	}
 
 
@@ -126,7 +129,7 @@ public class Razor : Weapon
 				m_IsRecharging = false;
 				m_Magazine = m_MagazineCapacity;
 				UI.Instance.InGame.UpdateUI();
-				m_Renderer.material.SetColor( "_EmissionColor", Color.red );
+				m_Renderer.material.SetColor( "_EmissionColor", m_StartEmissiveColor );
 			}
 			m_BrustCount = 0;
 			m_NeedRecharge = false;
@@ -273,7 +276,7 @@ public class Razor : Weapon
 		m_Magazine --;
 
 		float interpolant = 1f - ( (float)m_Magazine / (float)m_MagazineCapacity );
-		m_Renderer.material.SetColor( "_EmissionColor", Color.Lerp( Color.red, Color.clear, interpolant ) );
+		m_Renderer.material.SetColor( "_EmissionColor", Color.Lerp( m_StartEmissiveColor, Color.clear, interpolant ) );
 
 		// BULLET
 		IBullet bullet = fireFirst ?  m_PoolBulletsFirst.GetComponent() : m_PoolBulletsSecond.GetComponent();

@@ -382,7 +382,6 @@ namespace WeatherSystem {
 				}
 
 				Sun.type				= LightType.Directional;
-				Sun.lightmapBakeType	= LightmapBakeType.Realtime;
 				Sun.shadows				= LightShadows.Soft;
 			}
 

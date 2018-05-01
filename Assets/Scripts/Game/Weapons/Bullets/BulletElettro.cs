@@ -12,9 +12,12 @@ public class BulletElettro : GenericBullet {
 	// OnCollisionEnter ( Override )
 	protected override void OnCollisionEnter( Collision collision )
 	{
+		Bullet bullet = collision.gameObject.GetComponent<Bullet>();
+		if ( bullet != null )
+			return;
+
 		Entity entity = collision.gameObject.GetComponent<Entity>();
 		Shield shield = collision.gameObject.GetComponent<Shield>();
-
 		
 		if ( ( entity != null || shield != null ) && ( m_WhoRef is NonLiveEntity && entity is NonLiveEntity ) == false )
 		{

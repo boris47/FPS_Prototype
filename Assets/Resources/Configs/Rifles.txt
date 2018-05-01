@@ -19,5 +19,6 @@ ZoomingTime			= 0.2;
 ZommSensitivity		= 0.3;
 
 [Razor] : G36
-Damage				= 25.0;
-ZoomFactor			= 4.0;
+Damage				= 15.0;
+ZoomFactor			= 6.0;
+ZoomingTime			= 0.2;
