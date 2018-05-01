@@ -19,9 +19,9 @@ public abstract partial class LiveEntity : Entity {
 	// GRABBING OBJECT
 	[System.NonSerialized]
 	protected	GameObject			m_GrabPoint					= null;
-	[System.NonSerialized]
-	protected	GameObject			m_GrabbedObject				= null;
-	public		GameObject			GrabbedObject
+//	[System.NonSerialized]
+	protected	Grabbable			m_GrabbedObject				= null;
+	public		Grabbable			GrabbedObject
 	{
 		get { return m_GrabbedObject; }
 	}

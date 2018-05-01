@@ -142,13 +142,13 @@ public abstract class Turret : NonLiveEntity {
 	// FaceToPoint ( Override )
 	protected override void FaceToPoint( float deltaTime )
 	{
-		Vector3 dirToPosition			= ( m_PointToFace - transform.position );
+		Vector3 dirToPosition			= ( m_PointToFace - m_BodyTransform.position );
 		Vector3 dirGunToPosition		= ( m_PointToFace - m_GunTransform.position );
 
 		Vector3 vBodyForward			= Vector3.Scale( dirToPosition,	m_ScaleVector );
-		transform.forward				= Vector3.RotateTowards( transform.forward, vBodyForward, m_BodyRotationSpeed * deltaTime, 0.0f );
+		m_BodyTransform.forward			= Vector3.RotateTowards( m_BodyTransform.forward, vBodyForward, m_BodyRotationSpeed * deltaTime, 0.0f );
 		
-		m_IsAllignedBodyToDestination	= Vector3.Angle( transform.forward, vBodyForward ) < 7f;
+		m_IsAllignedBodyToDestination	= Vector3.Angle( m_BodyTransform.forward, vBodyForward ) < 7f;
 		if ( m_IsAllignedBodyToDestination )
 		{
 			m_GunTransform.forward		= Vector3.RotateTowards( m_GunTransform.forward, dirGunToPosition, m_GunRotationSpeed * deltaTime, 0.0f );

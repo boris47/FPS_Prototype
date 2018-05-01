@@ -21,7 +21,6 @@ public partial class Player : Human {
 	private		DashTarget			m_CurrentDashTarget				= null;
 	private		DashTarget			m_PreviousDashTarget			= null;
 
-	private		Grabbable			m_Grabbable						= null;
 	private		IInteractable		m_Interactable					= null;
 	private		Transform			m_DashAbilityTarget				= null;
 
@@ -131,7 +130,7 @@ public partial class Player : Human {
 		SetMotionType( eMotionType.Walking );
 
 		m_GrabPoint = new GameObject( "GrabPoint" );
-		m_GrabPoint.transform.SetParent( transform );
+		m_GrabPoint.transform.SetParent( CameraControl.Instance.transform );
 		m_GrabPoint.transform.localPosition = Vector3.zero;
 		m_GrabPoint.transform.localRotation = Quaternion.identity;
 		m_GrabPoint.transform.Translate( 0f, 0f, m_UseDistance );
@@ -155,7 +154,9 @@ public partial class Player : Human {
 		if ( m_GrabbedObject == null )
 			return;
 
-		Rigidbody rb		= m_GrabbedObject.GetComponent<Rigidbody>();
+		m_GrabPoint.transform.Translate( 0f, 0f, m_UseDistance );
+
+		Rigidbody rb		= m_GrabbedObject.RigidBody;
 		rb.useGravity		= m_GrabbedObjectUseGravity;
 		rb.mass				= m_GrabbedObjectMass;
 		m_GrabbedObject		= null;
@@ -183,8 +184,8 @@ public partial class Player : Human {
 		Rigidbody rb = m_GrabbedObject.GetComponent<Rigidbody>();
 		rb.rotation = CameraControl.Instance.transform.rotation;
 		rb.angularVelocity = Vector3.zero;
-		rb.velocity = ( m_GrabPoint.transform.position - m_GrabbedObject.transform.position ) / ( Time.fixedDeltaTime * 4f )
-		* ( 1.0f - Vector3.Angle( transform.forward, CameraControl.Instance.transform.forward ) / CameraControl.CLAMP_MAX_X_AXIS );
+		rb.velocity = ( m_GrabPoint.transform.position - m_GrabbedObject.transform.position ) / ( Time.fixedDeltaTime * 4f );
+//		* ( 1.0f - Vector3.Angle( transform.forward, CameraControl.Instance.transform.forward ) / CameraControl.CLAMP_MAX_X_AXIS );
 	}
 
 
@@ -397,7 +398,6 @@ public partial class Player : Human {
 		// skip if no target
 		if ( hasHit == false )
 		{
-//			m_Grabbable = null;
 			return;
 		}
 
@@ -415,10 +415,12 @@ public partial class Player : Human {
 			}
 		}
 
+		Grabbable grabbable = null;
+
 		// Distance check
 		if ( m_CanGrabObjects == true && m_RaycastHit.distance <= m_UseDistance )
 		{
-			m_Grabbable = m_RaycastHit.transform.GetComponent<Grabbable>();
+			grabbable = m_RaycastHit.transform.GetComponent<Grabbable>();
 		}
 
 		// ACTION GRAB
@@ -430,15 +432,16 @@ public partial class Player : Human {
 				return;
 			}
 
-			if ( m_Grabbable != null && m_Interactable != null && m_Interactable.CanInteract )
+			if ( grabbable != null && m_Interactable != null && m_Interactable.CanInteract )
 			{
-				m_GrabbedObject = m_RaycastHit.transform.gameObject;
+				m_GrabbedObject = grabbable;
+				m_GrabPoint.transform.localPosition = Vector3.forward * m_RaycastHit.distance;
 
-				Rigidbody rb = m_Grabbable.RigidBody;
-				m_GrabbedObjectMass			= rb.mass;			rb.mass = 1f;
-				m_GrabbedObjectUseGravity	= rb.useGravity;	rb.useGravity = false;
-//				rb.interpolation = RigidbodyInterpolation.Extrapolate;
-				m_CanGrabObjects = false;
+				Rigidbody rb				= grabbable.RigidBody;
+				m_GrabbedObjectMass			= rb.mass;			rb.mass				= 1f;
+				m_GrabbedObjectUseGravity	= rb.useGravity;	rb.useGravity		= false;
+				rb.velocity					= Vector3.zero;		rb.interpolation	= RigidbodyInterpolation.Interpolate;
+				m_CanGrabObjects			= false;
 			}
 		}
 	}
@@ -482,10 +485,6 @@ public partial class Player : Human {
 			CheckForDash ( lineCastResult );
 			CheckForInteraction( lineCastResult );
 			CheckForGrab ( lineCastResult );
-			
-			// Update Grab point position
-			m_GrabPoint.transform.position = CameraControl.Instance.transform.position + ( CameraControl.Instance.transform.forward * m_UseDistance );
-			m_GrabPoint.transform.rotation = CameraControl.Instance.transform.rotation;
 		}
 
 #endregion

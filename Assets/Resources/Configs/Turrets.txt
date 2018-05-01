@@ -16,11 +16,16 @@ Shield		= 100.0;
 DamageMax	= 6.0;
 DamageMin	= 3.0;
 
+[TurretGatling]
+Health		= 100.0;
+Shield		= 0.0;
+DamageMax	= 5.0;
+DamageMin	= 2.5;
+PoolSize	= 100;
 
 [TurretHard] : TurretArmored
 DamageMax	= 8.0;
 DamageMin	= 5.0;
-
 
 [TurretHidden] : TurretStandard
 DamageMax	= 1.0;

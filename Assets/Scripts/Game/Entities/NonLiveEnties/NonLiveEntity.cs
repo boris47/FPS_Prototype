@@ -15,6 +15,7 @@ public abstract partial class NonLiveEntity : Entity {
 	protected		ICustomAudioSource	m_FireAudioSource			= null;
 	protected		Shield				m_Shield					= null;
 
+	protected		Transform			m_BodyTransform				= null;
 	protected		Transform			m_GunTransform				= null;
 	protected		Transform			m_FirePoint					= null;
 
@@ -33,9 +34,9 @@ public abstract partial class NonLiveEntity : Entity {
 		m_FireAudioSource	= GetComponent<ICustomAudioSource>();
 		m_Shield			= GetComponentInChildren<Shield>();
 
-		m_GunTransform		= transform.Find( "Gun" );
-
-		m_FirePoint			= m_GunTransform.GetChild( 0 );
+		m_BodyTransform		= transform.Find( "Body" );
+		m_GunTransform		= m_BodyTransform.Find( "Gun" );
+		m_FirePoint			= m_GunTransform.Find( "FirePoint" );
 	}
 
 
