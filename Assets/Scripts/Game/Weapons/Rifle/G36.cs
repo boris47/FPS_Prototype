@@ -101,7 +101,7 @@ public class G36 : Weapon
 	{
 		m_FireTimer -= Time.deltaTime;
 		
-		if ( InputManager.Inputs.ItemAction1 && m_InTransition == false )
+		if ( InputManager.Inputs.ItemAction1 && m_InTransition == false && m_IsRecharging == false )
 		{
 			if ( WeaponManager.Instance.Zoomed == false )
 				WeaponManager.Instance.ZoomIn( this, m_ZoomOffset, m_ZoomingTime );
