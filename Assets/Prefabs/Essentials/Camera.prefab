@@ -475,7 +475,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4212771107986832}
   - component: {fileID: 20783133501646126}
-  - component: {fileID: 92026445848381328}
   - component: {fileID: 124840828516165038}
   - component: {fileID: 81264066404562068}
   - component: {fileID: 114951415777524808}
@@ -5945,7 +5944,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294966783
+    m_Bits: 4294967295
   m_RenderingPath: 3
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -6566,13 +6565,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 0
---- !u!92 &92026445848381328
-Behaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1110418244205378}
-  m_Enabled: 1
 --- !u!95 &95106754474067620
 Animator:
   serializedVersion: 3
@@ -7006,6 +6998,7 @@ MonoBehaviour:
     m_Amplitude: 0.04
     m_Speed: 2.05
   m_WeaponPivot: {fileID: 4723938302884854}
+  m_CurrentDirection: {x: 0, y: 0, z: 0}
 --- !u!120 &120902945318069242
 LineRenderer:
   m_ObjectHideFlags: 1

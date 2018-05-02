@@ -3,6 +3,7 @@ using System.Collections;
 
 public class TurretGatling : Turret {
 
+	private	const	float	FIRE_SPREAD				= 0.03f;
 	private	const	float	MAX_ROTATION_SPEED		= 20f;
 	private	const	float	ROTATION_ACC			= 0.2f;
 	private	const	float	ROTATION_DEACC			= 0.1f;
@@ -13,6 +14,8 @@ public class TurretGatling : Turret {
 	private		float		m_RotationSpeed			= 0f;
 
 	private		Transform	m_GatlingTransform		= null;
+
+	private		Vector3		m_DispersionVector		= new Vector3();
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -55,7 +58,7 @@ public class TurretGatling : Turret {
 		}
 	}
 
-
+	
 	//////////////////////////////////////////////////////////////////////////
 	// FireLongRange ( Override )
 	protected override void FireLongRange( float deltaTime )
@@ -63,15 +66,24 @@ public class TurretGatling : Turret {
 		if ( m_IsActivated == false )
 			return;
 
-		base.FireLongRange( deltaTime );
-
 		if ( m_ShotTimer > 0 )
 				return;
 
 		m_ShotTimer = m_ShotDelay;
 		
 		IBullet bullet = m_Pool.GetComponent();
-		bullet.Shoot( position: m_FirePoint.position, direction: m_FirePoint.forward );
+
+		// Add some dispersion
+		m_DispersionVector.Set
+		(
+			Random.Range( -FIRE_SPREAD, FIRE_SPREAD ),
+			Random.Range( -FIRE_SPREAD, FIRE_SPREAD ),
+			Random.Range( -FIRE_SPREAD, FIRE_SPREAD )
+		);
+
+		Vector3 direction = ( m_FirePoint.forward + m_DispersionVector ).normalized;
+
+		bullet.Shoot( position: m_FirePoint.position, direction: direction );
 		
 		m_FireAudioSource.Play();
 	}

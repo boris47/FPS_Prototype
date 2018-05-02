@@ -21,8 +21,6 @@ public abstract class Turret : NonLiveEntity {
 	[SerializeField, ReadOnly]
 	protected	int				m_PoolSize					= 5;
 
-	protected	Vector3			m_ScaleVector				= new Vector3( 1.0f, 0.0f, 1.0f );
-
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -141,13 +139,15 @@ public abstract class Turret : NonLiveEntity {
 	// FaceToPoint ( Override )
 	protected override void FaceToPoint( float deltaTime )
 	{
-		Vector3 dirToPosition			= ( m_PointToFace - m_BodyTransform.position );
+		Vector3 pointOnThisPlane		= Utils.Math.ProjectPointOnPlane( transform.up, transform.position, m_PointToFace );
+
+		Vector3 dirToPosition			= ( pointOnThisPlane - m_BodyTransform.position );
 		Vector3 dirGunToPosition		= ( m_PointToFace - m_GunTransform.position );
 
-		Vector3 vBodyForward			= Vector3.Scale( dirToPosition,	m_ScaleVector );
-		m_BodyTransform.forward			= Vector3.RotateTowards( m_BodyTransform.forward, vBodyForward, m_BodyRotationSpeed * deltaTime, 0.0f );
+		Quaternion	bodyRotation		= Quaternion.LookRotation( dirToPosition, transform.up );
+		m_BodyTransform.rotation		= Quaternion.RotateTowards( m_BodyTransform.rotation, bodyRotation, m_BodyRotationSpeed * deltaTime );
 		
-		m_IsAllignedBodyToDestination	= Vector3.Angle( m_BodyTransform.forward, vBodyForward ) < 7f;
+		m_IsAllignedBodyToDestination	= Vector3.Angle( m_BodyTransform.forward, dirToPosition ) < 2f;
 		if ( m_IsAllignedBodyToDestination )
 		{
 			m_GunTransform.forward		= Vector3.RotateTowards( m_GunTransform.forward, dirGunToPosition, m_GunRotationSpeed * deltaTime, 0.0f );

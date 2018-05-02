@@ -271,7 +271,7 @@ public partial class Player : Human {
 
 	//////////////////////////////////////////////////////////////////////////
 	// CheckForDash
-	private	void	CheckForDash( bool hasHit )
+	private	void	CheckForDodge( bool hasHit )
 	{
 		if ( m_GrabbedObject != null )
 			return;
@@ -288,8 +288,7 @@ public partial class Player : Human {
 			if ( m_RotorDashCoroutine != null )
 				StopCoroutine( m_RotorDashCoroutine );
 
-			Vector3 destination = hit.point + Vector3.up * m_DashAbilityTarget.localScale.y * 1.7f;
-			m_RotorDashCoroutine = StartCoroutine( Dodge( destination: destination, destinationUp: Vector3.up, falling: true ) );
+			m_RotorDashCoroutine = StartCoroutine( Dodge( destination: hit.point, destinationUp: Vector3.up, falling: true ) );
 		}
 
 		// if actually has no target
@@ -508,7 +507,7 @@ public partial class Player : Human {
 
 			Debug.DrawLine( startLine, endLine );
 
-			CheckForDash ( lineCastResult );
+			CheckForDodge ( lineCastResult );
 			CheckForInteraction( lineCastResult );
 			CheckForGrab ( lineCastResult );
 		}

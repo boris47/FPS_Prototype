@@ -93,14 +93,6 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 
 		m_CameraRef = GetComponent<Camera>();
 		m_PP_Profile = GetComponent<PostProcessingBehaviour>().profile;
-
-		Player player = FindObjectOfType<Player>();
-		if ( player == null )
-		{
-			enabled = false;
-			return;
-		}
-		m_ViewPoint = player.transform.Find( "ViewPivot" );
 	}
 
 
@@ -114,6 +106,8 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 
 		GameManager.Instance.OnSave += OnSave;
 		GameManager.Instance.OnLoad += OnLoad;
+
+		m_ViewPoint = Player.Instance.transform.Find( "ViewPivot" );
 	}
 
 
@@ -122,8 +116,8 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 	private	StreamingUnit	OnSave( StreamingData streamingData )
 	{
 		StreamingUnit streamingUnit	= new StreamingUnit();
-		streamingUnit.InstanceID		= gameObject.GetInstanceID();
-		streamingUnit.Name				= gameObject.name;
+		streamingUnit.InstanceID	= gameObject.GetInstanceID();
+		streamingUnit.Name			= gameObject.name;
 		streamingUnit.Internals		= m_CurrentDirection.x + ", " + m_CurrentDirection.y + ", " + m_CurrentDirection.z;
 
 		streamingData.Data.Add( streamingUnit );

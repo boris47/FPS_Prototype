@@ -75,11 +75,11 @@ public partial class Player {
 			// Flash effect
 			effectFrame.color		= Color.Lerp ( Color.white, Color.clear, interpolant * 6f );
 			currentTime				+= Time.deltaTime;
-			interpolant				= currentTime * DASH_SPEED_FACTOR;
+			interpolant				= currentTime * DASH_SPEED_FACTOR * ( ( falling == true ) ? 5f : 1f );
 
 			// Time Scale
 			float timeScaleNow		= animationCurve.Evaluate( interpolant ) * slowMotionCoeff;
-			Time.timeScale			= /*( falling == true ) ? Time.timeScale :*/ timeScaleNow;
+			Time.timeScale			= ( falling == true ) ? Time.timeScale : timeScaleNow;
 			
 			// Position and Rotation
 			if ( falling == false )

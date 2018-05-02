@@ -270,8 +270,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1315035216683690}
-  m_LocalRotation: {x: -0, y: 0.20517415, z: -0, w: 0.97872555}
-  m_LocalPosition: {x: 6.47, y: 4.48, z: -4.65}
+  m_LocalRotation: {x: 0.27059802, y: 0.65328157, z: -0.65328145, w: 0.27059805}
+  m_LocalPosition: {x: -2.02, y: 17.29, z: -3.37}
   m_LocalScale: {x: 0.40000042, y: 0.39999998, z: 0.40000042}
   m_Children:
   - {fileID: 4517046273102968}
@@ -279,7 +279,7 @@ Transform:
   - {fileID: 4582037824760696}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 23.679, z: 0}
+  m_LocalEulerAnglesHint: {x: 90.00001, y: 0, z: -135}
 --- !u!4 &4580956526069376
 Transform:
   m_ObjectHideFlags: 1
@@ -689,7 +689,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_ViewPoint: {fileID: 4776869813624912}
   m_ViewDistance: 40
-  m_ViewCone: 100
+  m_ViewCone: 120
 --- !u!114 &114992721271059316
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -704,7 +704,7 @@ MonoBehaviour:
   m_MinEngageDistance: 0
   m_RespawnPoint: {fileID: 0}
   m_CutsceneManager: {fileID: 0}
-  m_BodyRotationSpeed: 5
+  m_BodyRotationSpeed: 60
   m_GunRotationSpeed: 5
   m_BulletGameObject: {fileID: 1581252579289536, guid: 6022bac21992ba94bb2fd959d6d5f7f0,
     type: 2}

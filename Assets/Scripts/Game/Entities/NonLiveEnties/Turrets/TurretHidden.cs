@@ -8,11 +8,6 @@ public class TurretHidden : Turret {
 	private		bool		m_IsEnabled		= false;
 	private		Animator	m_Animator		= null;
 
-	private		bool		m_Horizontal	= true;
-
-	private		Vector3		m_ScaleVectorH	= new Vector3( 1.0f, 1.0f, 0.0f );
-	private		Vector3		m_ScaleVectorV	= new Vector3( 1.0f, 0.0f, 1.0f );
-
 	private		Vector3		m_BulletStartPositon = Vector3.zero;
 
 
@@ -25,8 +20,6 @@ public class TurretHidden : Turret {
 		base.Awake();
 
 		m_Animator = GetComponent<Animator>();
-
-		m_Horizontal = Vector3.Cross( Vector3.up, transform.up ).x != 0f;
 	}
 
 
@@ -157,27 +150,6 @@ public class TurretHidden : Turret {
 
 			FireLongRange( deltaTime );	
 		}
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// FaceToPoint ( Override )
-	protected override void FaceToPoint( float deltaTime )
-	{
-		Vector3 dirToPosition				= ( m_PointToFace - transform.position ).normalized;
-		Vector3 dirGunToPosition			= ( m_PointToFace - m_GunTransform.position ).normalized;
-		dirToPosition						= Vector3.Scale( dirToPosition, m_Horizontal ? m_ScaleVectorH : m_ScaleVectorV );
-
-		Quaternion rotation					= Quaternion.LookRotation( dirToPosition, transform.up );
-		transform.rotation					= Quaternion.RotateTowards( transform.rotation, rotation, m_BodyRotationSpeed * deltaTime );
-
-		m_IsAllignedBodyToDestination		= Quaternion.Angle( transform.rotation, rotation ) < 7f;
-		if ( m_IsAllignedBodyToDestination )
-		{
-			m_GunTransform.forward			=  Vector3.RotateTowards( m_GunTransform.forward, dirGunToPosition, m_GunRotationSpeed * deltaTime, 0.0f );
-		}
-
-		m_AllignedGunToPoint				= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 7f;
 	}
 
 
