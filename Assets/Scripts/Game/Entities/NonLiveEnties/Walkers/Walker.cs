@@ -156,13 +156,15 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 	// FaceToPoint ( Override )
 	protected override void FaceToPoint( float deltaTime )
 	{
-		Vector3 dirToPosition			= ( m_PointToFace - transform.position );
+		Vector3 pointOnThisPlane		= Utils.Math.ProjectPointOnPlane( transform.up, transform.position, m_PointToFace );
+
+		Vector3 dirToPosition			= ( pointOnThisPlane - transform.position );
 		Vector3 dirGunToPosition		= ( m_PointToFace - m_GunTransform.position );
 
-		Vector3 vBodyForward			= Vector3.Scale( dirToPosition,	m_ScaleVector );
-		transform.forward				= Vector3.RotateTowards( transform.forward, vBodyForward, m_BodyRotationSpeed * deltaTime, 0.0f );
-		
-		m_IsAllignedBodyToDestination	= Vector3.Angle( transform.forward, vBodyForward ) < 7f;
+		Quaternion	bodyRotation		= Quaternion.LookRotation( dirToPosition, transform.up );
+		transform.rotation				= Quaternion.RotateTowards( transform.rotation, bodyRotation, m_BodyRotationSpeed * deltaTime );
+
+		m_IsAllignedBodyToDestination	= Vector3.Angle( transform.forward, dirToPosition ) < 2f;
 		if ( m_IsAllignedBodyToDestination && m_TargetInfo.HasTarget == true )
 		{
 			m_GunTransform.forward		=  Vector3.RotateTowards( m_GunTransform.forward, dirGunToPosition, m_GunRotationSpeed * deltaTime, 0.0f );
