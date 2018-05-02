@@ -243,7 +243,7 @@ public partial class Player : Human {
 		if ( IsGrounded )
 		{
 			bool toReduce = ( m_Move.x != 0.0f ) && ( m_Move.z != 0.0f  );
-			Vector3 forward = -Vector3.Cross( transform.up, CameraControl.Instance.transform.right );
+			Vector3 forward = Vector3.Cross( CameraControl.Instance.transform.right, transform.up );
 			m_Move = ( m_MoveSmooth * forward ) + ( m_StrafeSmooth * CameraControl.Instance.transform.right );
 			if ( toReduce )
 			{

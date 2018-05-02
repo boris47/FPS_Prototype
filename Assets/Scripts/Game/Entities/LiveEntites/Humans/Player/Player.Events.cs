@@ -64,7 +64,7 @@ public partial class Player {
 		if ( m_IsDodging )
 			return;
 
-		m_IsDodging = true;
+//		m_IsDodging = true;
 
 		if ( m_PreviousDashTarget != null && m_PreviousDashTarget != target )
 		{
@@ -75,9 +75,7 @@ public partial class Player {
 		target.Disable();
 		target.HideText();
 
-		m_RigidBody.velocity = Vector3.zero;
-
-		StartCoroutine( Dodge( destination: target.transform.position, destinationUp: target.transform.up, falling: false, target: target ) ); // Player.DashAbility
+		StartCoroutine( Dodge( destination: target.transform.position, destinationUp: target.transform.up, falling: false, target: target) ); // Player.DodgeAbility
 	}
 
 }

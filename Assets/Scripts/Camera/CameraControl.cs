@@ -64,7 +64,7 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 
 	private	float			m_CameraFPS_Shift			= 0.0f;
 
-	private	Vector3			m_CurrentDirection			= Vector3.zero;
+	public	Vector3			m_CurrentDirection			= Vector3.zero;
 
 	// WEAPON
 	private	Vector3			m_CurrentDispersion			= Vector3.zero;

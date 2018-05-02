@@ -15,15 +15,16 @@ public partial class Player {
 
 	//////////////////////////////////////////////////////////////////////////
 	// FindFinalRotation
-	private	Quaternion	FindFinalRotation( Vector3 startPosition, Vector3 destination, Vector3 destinationUp, bool falling, DashTarget target )
+	private	Quaternion	FindFinalRotation( Vector3 startPosition, Vector3 destination, Vector3 destinationUp, bool falling /*, DashTarget target */)
 	{
-		Quaternion finalRotation = Quaternion.identity;
-
+		Quaternion finalRotation = transform.rotation;
+		/*
 		if ( target != null )
 		{
-			finalRotation = target.transform.rotation;
+			Vector3 alignedForward = Vector3.Cross( CameraControl.Instance.transform.right, target.transform.up );
+			finalRotation = Quaternion.LookRotation( alignedForward, target.transform.up );
 		}
-		else if ( falling == true)
+		else */if ( falling == true )
 		{
 			Vector3 alignedForward = Vector3.Cross( transform.right, Vector3.up );
 			finalRotation = Quaternion.LookRotation( alignedForward, destinationUp );
@@ -34,8 +35,8 @@ public partial class Player {
 			finalRotation = Quaternion.LookRotation( alignedForward, destinationUp );
 		}
 		else
-		{
-			Vector3 alignedPoint = Utils.Math.ProjectPointOnPlane( planeNormal: -transform.up, planePoint: destination, point: transform.position );
+		{  
+			Vector3 alignedPoint = Utils.Math.ProjectPointOnPlane( planeNormal: destinationUp, planePoint: startPosition, point: destination );
 			finalRotation = Quaternion.LookRotation( alignedPoint - startPosition, destinationUp );
 		}
 
@@ -49,7 +50,7 @@ public partial class Player {
 	{
 		Vector3		startPosition					= transform.position;
 		Quaternion	startRotation					= transform.rotation;
-		Quaternion	finalRotation					= FindFinalRotation( startPosition, destination, destinationUp, falling, target );
+		Quaternion	finalRotation					= FindFinalRotation( startPosition, destination, destinationUp, falling /* target */);
 		
 		float	currentTime							= 0f;
 		float	interpolant							= 0f;
