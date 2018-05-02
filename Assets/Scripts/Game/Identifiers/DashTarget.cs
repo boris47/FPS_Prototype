@@ -5,7 +5,7 @@ public class DashTarget : MonoBehaviour {
 
 	private static	LayerMask			m_Layer_Default				= 0;	// Default
 	private	static	LayerMask			m_LayerIgnoreRaycast		= 2;	// Ignore Raycast
-	private	static	ColorsCollection	m_ColorsCollection		= null;
+	private	static	ColorsCollection	m_ColorsCollection			= null;
 
 	[SerializeField]
 	private			AnimationCurve		m_DashTimeScaleCurve		= AnimationCurve.Linear( 0f, 1f, 1f, 1f );

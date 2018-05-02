@@ -152,7 +152,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	// OnSave ( Abstract )
 	protected	virtual	StreamingUnit	OnSave( StreamingData streamingData )
 	{
-		StreamingUnit streamingUnit	= new StreamingUnit();
+		StreamingUnit streamingUnit		= new StreamingUnit();
 		streamingUnit.InstanceID		= gameObject.GetInstanceID();
 		streamingUnit.Name				= gameObject.name;
 		streamingUnit.Position			= transform.position;

@@ -106,6 +106,12 @@ public class StreamingUnit {
 	[SerializeField]
 	public	string		Internals		= "";
 
+
+	public	void		AddInternal( string keyValue )
+	{
+		Internals += ( ( Internals.Length > 0 ) ? ", " : "" ) + keyValue;
+	}
+
 }
 
 [SerializeField]

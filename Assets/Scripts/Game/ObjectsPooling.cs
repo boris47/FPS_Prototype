@@ -14,7 +14,7 @@ public	class GameObjectsPool {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Constructor
-	public	GameObjectsPool( ref GameObject model, int size, bool destroyModel, System.Action<GameObject> actionOnObject = null )
+	public	GameObjectsPool( ref GameObject model, int size, System.Action<GameObject> actionOnObject = null )
 	{
 		if ( m_Container == null )
 		{
@@ -31,10 +31,6 @@ public	class GameObjectsPool {
 			if ( actionOnObject != null )
 				actionOnObject( objectCopy );
 		}
-
-		// if model is not a prefab and user wants destroy it
-		if ( model.scene.name != null && destroyModel == true )
-			Object.Destroy( model.gameObject );
 	}
 
 
@@ -90,7 +86,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Constructor
-	public	GameObjectsPool( ref GameObject model, uint size, bool destroyModel, string containerName = "GameObjectsContainer_", bool permanent = false, System.Action<T> actionOnObject = null )
+	public	GameObjectsPool( ref GameObject model, uint size, string containerName = "GameObjectsContainer_", bool permanent = false, System.Action<T> actionOnObject = null )
 	{
 		if ( m_Container == null )
 		{
@@ -118,10 +114,6 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 		}
 
 		m_ObjectsPool.Set( ref array );
-
-		// if model is not a prefab and user wants destroy it
-		if ( model.scene.name != null && destroyModel == true )
-			Object.Destroy( model.gameObject );
 	}
 
 	//////////////////////////////////////////////////////////////////////////

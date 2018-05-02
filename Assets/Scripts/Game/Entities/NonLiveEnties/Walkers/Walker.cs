@@ -62,7 +62,6 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 			(
 				model			: ref bulletGO,
 				size			: ( uint ) m_PoolSize,
-				destroyModel	: false,
 				containerName	: name + "BulletPool",
 				actionOnObject	: ( Bullet o ) =>
 				{

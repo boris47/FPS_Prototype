@@ -65,7 +65,6 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 			(
 				model			: ref bulletGO,
 				size			: ( uint ) m_PoolSize,
-				destroyModel	: false,
 				containerName	: name + "BulletPool",
 				actionOnObject	: ( Bullet o ) =>
 				{

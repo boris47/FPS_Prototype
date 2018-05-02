@@ -26,8 +26,6 @@ public partial class Player : Human {
 
 	private		Vector3				m_Move							= Vector3.zero;
 
-	private		ITourchLight		m_TourchLight					= null;
-
 	private		RaycastHit			m_RaycastHit;
 
 	private		Collider			m_PlayerNearAreaTrigger			= null;
@@ -62,8 +60,6 @@ public partial class Player : Human {
 
 		// Player Components
 		{
-			// TourchLight
-			m_TourchLight		= transform.Find("TourchLight").GetComponent<ITourchLight>();
 			// Foots
 			m_Foots				= transform.Find( "FootSpace" ).GetComponent<IFoots>();
 
@@ -144,6 +140,36 @@ public partial class Player : Human {
 	{
 		IsGrounded = true;
 		StartCoroutine( DamageEffectCO() );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnSave ( override )
+	protected override StreamingUnit OnSave( StreamingData streamingData )
+	{
+		StreamingUnit streamingUnit		= base.OnSave( streamingData );
+
+		streamingUnit.InstanceID		= gameObject.GetInstanceID();
+		streamingUnit.Name				= gameObject.name;
+
+		streamingUnit.AddInternal( "IsCrouched = " + IsCrouched );
+
+		return streamingUnit;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnLoad ( override )
+	protected override StreamingUnit OnLoad( StreamingData streamingData )
+	{
+		StreamingUnit streamingUnit = base.OnLoad( streamingData );
+
+		KeyValue[] internals = Utils.Base.GetKeyValues( streamingUnit.Internals );
+
+		// CROUNCH STATE
+		IsCrouched = internals[0].Value.ToLower() == "true" ? true : false;
+
+		return streamingUnit;
 	}
 
 
@@ -457,9 +483,9 @@ public partial class Player : Human {
 		// Reset "local" states
 		m_States.Reset();
 
-		if ( InputManager.Inputs.ItemAction3 )
+		if ( InputManager.Inputs.ItemAction3 && WeaponManager.Instance.CurrentWeapon.FlashLight != null )
 		{
-			m_TourchLight.Toggle();
+			WeaponManager.Instance.CurrentWeapon.FlashLight.Toggle();
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////////
@@ -478,7 +504,7 @@ public partial class Player : Human {
 			Vector3 startLine = CameraControl.Instance.transform.position;
 			Vector3 endLine = CameraControl.Instance.transform.position + CameraControl.Instance.transform.forward * MAX_INTERACTION_DISTANCE;
 
-			bool lineCastResult = Physics.Linecast( startLine, endLine, out m_RaycastHit );
+			bool lineCastResult = Physics.Raycast( startLine, endLine - startLine, out m_RaycastHit, MAX_INTERACTION_DISTANCE, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Collide );
 
 			Debug.DrawLine( startLine, endLine );
 
@@ -553,12 +579,6 @@ public partial class Player : Human {
 //				case eMotionType.Swimming:	{ this->Update_Swim( bIsEntityInWater, bIsCameraUnderWater, bIsCameraReallyUnderWater );	break; }
 				case eMotionType.P1ToP2:	{ this.Update_P1ToP2();		break; }
 			}
-		}
-
-		if ( WeaponManager.Instance.CurrentWeapon.FirePoint1 != null )
-		{
-			m_TourchLight.Transform.position = WeaponManager.Instance.CurrentWeapon.FirePoint1.position;
-			m_TourchLight.Transform.forward  = WeaponManager.Instance.CurrentWeapon.FirePoint1.forward;
 		}
 
 		// trace previuos states

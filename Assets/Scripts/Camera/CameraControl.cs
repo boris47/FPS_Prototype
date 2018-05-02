@@ -183,8 +183,8 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 		if ( Player.Instance.IsDodging )
 			return;
 
-		m_CurrentDispersion.x = Random.Range( -range, -range * 0.5f );
-		m_CurrentDispersion.y = Random.Range( -range,  range );
+		m_CurrentDispersion.x += Random.Range( -range, -range * 0.5f );
+		m_CurrentDispersion.y += Random.Range( -range,  range );
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -210,9 +210,6 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 		if ( m_ViewPoint == null )
 			return;
 
-		m_WpnRotationfeedbackX = Vector3.Lerp( m_WpnRotationfeedbackX, Vector3.zero, Time.deltaTime );
-		m_WpnRotationfeedbackY = Vector3.Lerp( m_WpnRotationfeedbackY, Vector3.zero, Time.deltaTime );
-
 		if ( Player.Instance.IsGrounded )
 		{
 			m_HeadBob.Update ( weight : Player.Instance.IsMoving == true ? 1f : 0f );
@@ -224,8 +221,18 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 			m_HeadMove.Reset( bInstantly : false );
 		}
 
+		m_WpnRotationfeedbackX = Vector3.Lerp( m_WpnRotationfeedbackX, Vector3.zero, Time.deltaTime );
+		m_WpnRotationfeedbackY = Vector3.Lerp( m_WpnRotationfeedbackY, Vector3.zero, Time.deltaTime );
+
 		m_WeaponPositionDelta = m_HeadBob.WeaponPositionDelta + m_HeadMove.WeaponPositionDelta;
 		m_WeaponRotationDelta = m_HeadBob.WeaponRotationDelta + m_HeadMove.WeaponRotationDelta;
+
+		if ( WeaponManager.Instance.CurrentWeapon.IsFiring == true )
+		{
+			float fireDispersion = WeaponManager.Instance.CurrentWeapon.FireDispersion;
+			Vector3 finalRotationDelta = m_WeaponRotationDelta + ( m_CurrentDispersion * fireDispersion );
+			m_WeaponRotationDelta = Vector3.Lerp( m_WeaponRotationDelta, finalRotationDelta, Time.deltaTime );
+		}
 	}
 
 
@@ -238,8 +245,11 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 
 		m_SmoothFactor = Mathf.Clamp( m_SmoothFactor, 1.0f, 10.0f );
 		
-		m_WeaponRotationDelta += m_WpnRotationfeedbackX;
-		m_WeaponRotationDelta += m_WpnRotationfeedbackY;
+		if ( WeaponManager.Instance.CurrentWeapon.IsFiring == false )
+		{
+			m_WeaponRotationDelta += m_WpnRotationfeedbackX;
+			m_WeaponRotationDelta += m_WpnRotationfeedbackY;
+		}
 
 		// Weapon movements
 		if ( WeaponManager.Instance.CurrentWeapon != null )
