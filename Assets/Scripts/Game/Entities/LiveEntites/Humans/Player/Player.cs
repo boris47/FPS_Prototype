@@ -12,14 +12,19 @@ public partial class Player : Human {
 	public	static	Player			Instance						= null;
 	public	static	IEntity			Entity							= null;
 
-	// DASHING
+	// DODGING
 	private		bool				m_IsDodging						= false;
 	public		bool				IsDodging
 	{
 		get { return m_IsDodging; }
 	}
-	private		DashTarget			m_CurrentDashTarget				= null;
-	private		DashTarget			m_PreviousDashTarget			= null;
+	private		bool				m_ChosingDodgeRotation			= false;
+	public		bool				ChosingDodgeRotation
+	{
+		get { return m_ChosingDodgeRotation; }
+	}
+	private		DodgeTarget			m_CurrentDodgeTarget			= null;
+	private		DodgeTarget			m_PreviousDodgeTarget			= null;
 
 	private		IInteractable		m_Interactable					= null;
 	private		Transform			m_DashAbilityTarget				= null;
@@ -65,6 +70,8 @@ public partial class Player : Human {
 
 			m_DashAbilityTarget = transform.Find( "DashAbilityTarget" );
 			m_DashAbilityTarget.localScale = new Vector3( 0.5f, m_PhysicCollider.height, 0.5f );
+			m_DashAbilityTarget.SetParent( null );
+
 			m_DashAbilityTarget.gameObject.SetActive( false );
 		}
 
@@ -266,117 +273,6 @@ public partial class Player : Human {
 	private void	Update()
 	{
 		this.OnFrame( Time.deltaTime );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// CheckForDash
-	private	void	CheckForDodge( bool hasHit )
-	{
-		if ( m_GrabbedObject != null )
-			return;
-
-//		if ( m_IsDashing == true )
-//			return;
-
-		// auto fall
-		if ( ( m_IsDodging == false && transform.up != Vector3.up ) && ( InputManager.Inputs.Jump || IsGrounded == false ) )
-		{
-			RaycastHit hit;
-			Physics.Raycast( transform.position, Vector3.down, out hit );
-
-			if ( m_RotorDashCoroutine != null )
-				StopCoroutine( m_RotorDashCoroutine );
-
-			m_RotorDashCoroutine = StartCoroutine( Dodge( destination: hit.point, destinationUp: Vector3.up, falling: true ) );
-		}
-
-		// if actually has no target
-		if ( hasHit == false )
-		{
-			// if required reset last target
-			if ( m_CurrentDashTarget != null )
-			{
-				m_CurrentDashTarget.HideText();
-				m_CurrentDashTarget = null;
-			}
-			m_DashAbilityTarget.gameObject.SetActive( false );
-			return;
-		}
-
-		DashTarget currentTarget = null;
-		if ( hasHit == true )
-		{
-			currentTarget = m_RaycastHit.transform.GetComponent<DashTarget>();
-			if ( currentTarget == null && m_CurrentDashTarget != null )
-			{
-				m_CurrentDashTarget.HideText();
-				m_CurrentDashTarget = null;
-				return;
-			}
-		}
-
-		// hitting somewhere else
-		if ( currentTarget == null )
-		{
-			if ( InputManager.Inputs.Ability1 )
-			{
-				float angle = Vector3.Angle( m_RaycastHit.normal, transform.up );
-				bool validAngle = angle >= 89f && angle < 179f;
-				m_DashAbilityTarget.gameObject.SetActive( validAngle );
-				if ( validAngle )
-				{
-					m_DashAbilityTarget.position = m_RaycastHit.point;
-					m_DashAbilityTarget.up = m_RaycastHit.normal;
-				}
-			}
-			else
-			{
-				if ( m_DashAbilityTarget.gameObject.activeSelf )
-				{
-					if ( m_RotorDashCoroutine != null )
-						StopCoroutine( m_RotorDashCoroutine );
-
-					Vector3 destination = m_DashAbilityTarget.position + m_DashAbilityTarget.up;
-					m_RotorDashCoroutine = StartCoroutine( Dodge( destination: destination, destinationUp: m_RaycastHit.normal ) );
-				}
-				m_DashAbilityTarget.gameObject.SetActive( false );
-			}
-		}
-
-
-		// Can be a dash target
-		if ( currentTarget != null && currentTarget != m_CurrentDashTarget )
-		{
-			// First target
-			if ( currentTarget != null && m_CurrentDashTarget == null )
-			{
-				m_CurrentDashTarget = currentTarget;
-				m_CurrentDashTarget.ShowText();
-			}
-			// New hit
-			if ( currentTarget != null && m_CurrentDashTarget != null && currentTarget != m_CurrentDashTarget )
-			{
-				m_CurrentDashTarget.HideText();
-				currentTarget.ShowText();
-				m_CurrentDashTarget = currentTarget;
-			}
-			// No hit, reset previous
-			if ( currentTarget == null && m_CurrentDashTarget != null )
-			{
-				m_CurrentDashTarget.HideText();
-				m_CurrentDashTarget = null;
-			}
-		}
-
-		// ACTION DASH
-		if ( InputManager.Inputs.Use )
-		{
-			if ( m_CurrentDashTarget != null )
-			{
-				OnDashTargetUsed( ref m_CurrentDashTarget );
-			}
-		}
 	}
 
 

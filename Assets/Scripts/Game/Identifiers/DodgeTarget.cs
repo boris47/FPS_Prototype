@@ -1,17 +1,17 @@
 ﻿
 using UnityEngine;
 
-public class DashTarget : MonoBehaviour {
+public class DodgeTarget : MonoBehaviour {
 
 	private static	LayerMask			m_Layer_Default				= 0;	// Default
 	private	static	LayerMask			m_LayerIgnoreRaycast		= 2;	// Ignore Raycast
 	private	static	ColorsCollection	m_ColorsCollection			= null;
 
 	[SerializeField]
-	private			AnimationCurve		m_DashTimeScaleCurve		= AnimationCurve.Linear( 0f, 1f, 1f, 1f );
-	public			AnimationCurve		DashTimeScaleCurve
+	private			AnimationCurve		m_DodgeTimeScaleCurve		= AnimationCurve.Linear( 0f, 1f, 1f, 1f );
+	public			AnimationCurve		DodgeTimeScaleCurve
 	{
-		get { return m_DashTimeScaleCurve; }
+		get { return m_DodgeTimeScaleCurve; }
 	}
 
 	[SerializeField]
@@ -40,10 +40,10 @@ public class DashTarget : MonoBehaviour {
 		// Load colors collection
 		if ( m_ColorsCollection == null )
 		{
-			m_ColorsCollection = Resources.Load<ColorsCollection>( "Scriptables/DashTargetColors" );
+			m_ColorsCollection = Resources.Load<ColorsCollection>( "Scriptables/DodgeTargetColors" );
 			if ( m_ColorsCollection == null )
 			{
-				print( "Cannot load \"Scriptables/DashTargetColors\"" );
+				print( "Cannot load \"Scriptables/DodgeTargetColors\"" );
 				enabled = false;
 				return;
 			}
@@ -65,7 +65,7 @@ public class DashTarget : MonoBehaviour {
 		float minValue = 1f;
 		for ( float i = 0f; i < 1f; i += 0.05f )
 		{
-			float currentValue = m_DashTimeScaleCurve.Evaluate ( i );
+			float currentValue = m_DodgeTimeScaleCurve.Evaluate ( i );
 			if ( currentValue < minValue )
 			{
 				minValue = currentValue;

@@ -17,14 +17,11 @@ public interface IWeapon {
 	uint					Magazine			{ get; }
 	uint					MagazineCapacity	{ get; }
 	FireModes				FireMode			{ get; }
-	Transform				FirePoint1			{ get; }
-	Transform				FirePoint2			{ get; }
+	Transform				FirePoint			{ get; }
 	IFlashLight				FlashLight			{ get; }
 	float					CamDeviation		{ get; }
 	float					FireDispersion		{ get; }
 	float					SlowMotionCoeff		{ get; }
-	bool					FirstFireAvaiable	{ get; }
-	bool					SecondFireAvaiable	{ get; }
 	float					ZommSensitivity		{ get; }
 	float					ZoomFactor			{ get; }
 
@@ -44,10 +41,7 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	public static	IWeapon[]						Array						= null;
 
 	[SerializeField]
-	protected		GameObject						m_Bullet1GameObject			= null;
-
-	[SerializeField]
-	protected		GameObject						m_Bullet2GameObject			= null;
+	protected		GameObject						m_BulletGameObject			= null;
 
 	[SerializeField]
 	protected		Vector3							m_ZoomOffset				= Vector3.zero;
@@ -65,10 +59,7 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	protected		FireModes						m_FireMode					= FireModes.AUTO;
 
 	[SerializeField]
-	protected		Transform						m_FirePointFirst			= null;
-
-	[SerializeField]
-	protected		Transform						m_FirePointSecond			= null;
+	protected		Transform						m_FirePoint					= null;
 
 	[SerializeField, Range( 1, 4 )]
 	protected		uint							m_BrustSize					= 3;
@@ -95,14 +86,8 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	protected		Renderer						m_Renderer					= null;
 
 	[SerializeField]
-	private			CustomAudioSource				m_AudioSourceFire1			= null;
+	private			CustomAudioSource				m_AudioSourceFire			= null;
 
-	[SerializeField]
-	private			CustomAudioSource				m_AudioSourceFire2			= null;
-
-
-	protected		bool							m_FirstFireAvaiable			= true;
-	protected		bool							m_SecondFireAvaiable		= true;
 	protected		Vector3							m_StartOffset				= Vector3.zero;
 	protected		bool							m_InTransition				= false;
 	protected		bool							m_NeedRecharge				= false;
@@ -119,14 +104,11 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	uint					IWeapon.Magazine			{ get { return m_Magazine; } }
 	uint					IWeapon.MagazineCapacity	{ get { return m_MagazineCapacity; } }
 	FireModes				IWeapon.FireMode			{ get { return m_FireMode; } }
-	Transform				IWeapon.FirePoint1			{ get { return m_FirePointFirst; } }
-	Transform				IWeapon.FirePoint2			{ get { return m_FirePointSecond; } }
+	Transform				IWeapon.FirePoint			{ get { return m_FirePoint; } }
 	IFlashLight				IWeapon.FlashLight			{ get { return m_FlashLight; } }
 	float					IWeapon.CamDeviation		{ get { return m_CamDeviation; } }
 	float					IWeapon.FireDispersion		{ get { return m_FireDispersion; } }
 	float					IWeapon.SlowMotionCoeff		{ get { return m_SlowMotionCoeff; } }
-	bool					IWeapon.FirstFireAvaiable	{ get { return m_FirstFireAvaiable; } }
-	bool					IWeapon.SecondFireAvaiable	{ get { return m_SecondFireAvaiable; } }
 	float					IWeapon.ZommSensitivity		{ get { return m_ZommSensitivity; } }
 	float					IWeapon.ZoomFactor			{ get { return m_ZoomFactor; } }
 	// INTERFACE END
@@ -148,8 +130,7 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	protected		float							m_FireTimer					= 0f;
 
 	protected		uint							m_BrustCount				= 0;
-	protected		GameObjectsPool<Bullet>			m_PoolBulletsFirst			= null;
-	protected		GameObjectsPool<Bullet>			m_PoolBulletsSecond			= null;
+	protected		GameObjectsPool<Bullet>			m_PoolBullets				= null;
 //	protected		float							m_AnimatorStdSpeed			= 1f;
 	protected		bool							m_IsRecharging				= false;
 	
@@ -171,24 +152,10 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 		// Assign this weapon in the list
 		Array[ transform.GetSiblingIndex() ] = this;
 
-		if ( m_Bullet1GameObject == null )
+		if ( m_BulletGameObject == null )
 		{
 			print( "Weapon " + name + " need a defined bullet to use " );
-			m_FirstFireAvaiable  = false;
 			enabled = false;
-		}
-
-		if ( m_FirePointFirst == null )
-		{
-			print( "Weapon " + name + " need a defined fire point for first bullet " );
-			m_FirstFireAvaiable  = false;
-			enabled = false;
-		}
-
-
-		if ( m_Bullet2GameObject == null || m_FirePointFirst == null )
-		{
-			m_SecondFireAvaiable = false;
 		}
 		
 		m_FlashLight = GetComponentInChildren<IFlashLight>();
@@ -220,36 +187,18 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 
 		// BULLETS POOL CREATION
 		{
-			if ( m_Bullet1GameObject != null && m_FirstFireAvaiable )
+			if ( m_BulletGameObject != null )
 			{
-				m_PoolBulletsFirst = new GameObjectsPool<Bullet>
+				m_PoolBullets = new GameObjectsPool<Bullet>
 				(
-					model			: ref m_Bullet1GameObject,
+					model			: ref m_BulletGameObject,
 					size			: m_MagazineCapacity,
-					containerName	: "RifleBulletsPoolFirst",
+					containerName	: "RifleBulletsPool",
 					permanent		: true,
 					actionOnObject	: ( Bullet o ) =>
 					{
 						o.SetActive( false );
 						o.Setup( damage : m_Damage, canPenetrate : false, whoRef : Player.Instance, weapon : this );
-						Physics.IgnoreCollision( o.Collider, ( Player.Instance as IEntity ).PhysicCollider, ignore : true );
-					}
-				);
-			}
-
-
-			if ( m_Bullet2GameObject != null && m_SecondFireAvaiable )
-			{
-				m_PoolBulletsSecond = new GameObjectsPool<Bullet>
-				(
-					model			: ref m_Bullet2GameObject,
-					size			: 10,
-					containerName	: "RifleBulletsPoolSecond",
-					permanent		: true,
-					actionOnObject	: ( Bullet o ) =>
-					{
-						o.SetActive( false );
-						o.Setup( whoRef : Player.Instance, weapon : this );
 						Physics.IgnoreCollision( o.Collider, ( Player.Instance as IEntity ).PhysicCollider, ignore : true );
 					}
 				);
@@ -358,13 +307,17 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	{
 		m_FireTimer -= Time.deltaTime;
 		
-		if ( InputManager.Inputs.ItemAction1 && m_InTransition == false && m_IsRecharging == false )
+		if ( Player.Instance.ChosingDodgeRotation == true )
+			return;
+		
+		if ( InputManager.Inputs.Fire2 && m_InTransition == false && m_IsRecharging == false )
 		{
 			if ( WeaponManager.Instance.Zoomed == false )
 				WeaponManager.Instance.ZoomIn( this, m_ZoomOffset, m_ZoomingTime );
 			else
 				WeaponManager.Instance.ZoomOut();
 		}
+		
 
 		// Reloading
 		if ( m_LockTimer > 0f )
@@ -410,7 +363,7 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 			return;
 
 		m_IsFiring = false;
-		if ( m_FirstFireAvaiable && m_Magazine > 0 && m_InTransition == false && m_NeedRecharge == false )
+		if ( m_Magazine > 0 && m_InTransition == false && m_NeedRecharge == false )
 		{
 			m_FireFunction();
 		}
@@ -474,9 +427,9 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	// FireSingleMode
 	protected	virtual		void		FireSingleMode()
 	{
-		if (  m_FireMode == FireModes.SINGLE && ( InputManager.Inputs.Fire1 || ( InputManager.Inputs.Fire2 && m_SecondFireAvaiable ) ) )
+		if ( InputManager.Inputs.Fire1 )
 		{
-			ConfigureShot( fireFirst : InputManager.Inputs.Fire1 );
+			ConfigureShot();
 			m_IsFiring = true;
 		}
 	}
@@ -486,12 +439,12 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	// FireBrustMode
 	protected	virtual		void		FireBrustMode()
 	{
-		if ( m_FireMode == FireModes.BURST && ( InputManager.Inputs.Fire1Loop || ( InputManager.Inputs.Fire2 && m_SecondFireAvaiable ) ) && m_BrustCount < m_BrustSize )
+		if ( m_BrustCount < m_BrustSize )
 		{
 			if ( InputManager.Inputs.Fire1Loop )
 				m_BrustCount ++;
 
-			ConfigureShot( fireFirst : InputManager.Inputs.Fire1Loop );
+			ConfigureShot();
 			m_IsFiring = true;
 		}
 	}
@@ -501,9 +454,9 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	// FireAutoMode
 	protected	virtual		void		FireAutoMode()
 	{
-		if ( m_FireMode == FireModes.AUTO && ( InputManager.Inputs.Fire1Loop || ( InputManager.Inputs.Fire2 && m_SecondFireAvaiable ) ) )
+		if ( ( InputManager.Inputs.Fire1Loop ) )
 		{
-			ConfigureShot( fireFirst : InputManager.Inputs.Fire1Loop );
+			ConfigureShot();
 			m_IsFiring = true;
 		}
 	}
@@ -511,31 +464,29 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 
 	//////////////////////////////////////////////////////////////////////////
 	// ConfigureShot
-	protected	virtual		void		ConfigureShot( bool fireFirst )
+	protected	virtual		void		ConfigureShot()
 	{
-		if ( fireFirst )
-			m_FireTimer = m_ShotDelay;
-		else
-			m_FireTimer = m_ShotDelay * 15f;
+		
+		m_FireTimer = m_ShotDelay;
 
 		m_Animator.Play( m_FireAnim.name, -1, 0f );
 			
 		m_Magazine --;
 
 		// BULLET
-		IBullet bullet = fireFirst ?  m_PoolBulletsFirst.GetComponent() : m_PoolBulletsSecond.GetComponent();
+		IBullet bullet = m_PoolBullets.GetComponent();
 
 		// POSITION
-		Vector3 position = fireFirst ? m_FirePointFirst.position : m_FirePointSecond.position;
+		Vector3 position = m_FirePoint.position;
 
 		// DIRECTION
 		m_DispersionVector.Set( Random.Range( -1f, 1f ), Random.Range( -1f, 1f ), Random.Range( -1f, 1f ) );
 		m_DispersionVector /= WeaponManager.Instance.Zoomed ? m_ZoomFactor : 1f;
 
-		Vector3 direction = fireFirst ? m_FirePointFirst.forward : m_FirePointSecond.forward;
+		Vector3 direction = m_FirePoint.forward;
 
 		// AUDIOSOURCE
-		ICustomAudioSource audioSource = ( fireFirst ) ? m_AudioSourceFire1 : m_AudioSourceFire2;
+		ICustomAudioSource audioSource = m_AudioSourceFire;
 
 		// CAM DISPERSION
 		float finalDispersion = m_CamDeviation * bullet.RecoilMult;

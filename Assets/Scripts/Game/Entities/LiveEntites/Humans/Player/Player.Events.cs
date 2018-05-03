@@ -55,27 +55,27 @@ public partial class Player {
 		// print a message
 		print( "U r dead" );
 	}
-
-
+	/*
+	
 	//////////////////////////////////////////////////////////////////////////
 	// OnDashTargetUsed
-	private				void	OnDashTargetUsed( ref DashTarget target )
+	private				void	OnDodgeTargetUsed( ref DodgeTarget target )
 	{
 		if ( m_IsDodging )
 			return;
 
 //		m_IsDodging = true;
 
-		if ( m_PreviousDashTarget != null && m_PreviousDashTarget != target )
+		if ( m_PreviousDodgeTarget != null && m_PreviousDodgeTarget != target )
 		{
-			m_PreviousDashTarget.OnReset();
+			m_PreviousDodgeTarget.OnReset();
 		}
-		m_PreviousDashTarget = target;
+		m_PreviousDodgeTarget = target;
 
 		target.Disable();
 		target.HideText();
 
-		StartCoroutine( Dodge( destination: target.transform.position, destinationUp: target.transform.up, falling: false, target: target) ); // Player.DodgeAbility
+//		StartCoroutine( Dodge( destination: target.transform.position, destinationUp: target.transform.up, falling: false, target: target) ); // Player.DodgeAbility
 	}
-
+	*/
 }

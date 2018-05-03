@@ -70,7 +70,8 @@ public class WalkerMortar : Walker {
 	// FaceToPoint ( Override )
 	protected override void FaceToPoint( float deltaTime )
 	{
-		Vector3 dirToPosition				= ( m_PointToFace - transform.position );
+		Vector3 pointOnThisPlane			= Utils.Math.ProjectPointOnPlane( transform.up, transform.position, m_PointToFace );
+		Vector3 dirToPosition				= ( pointOnThisPlane - transform.position );
 
 		Vector3 vBodyForward				= Vector3.Scale( dirToPosition,	m_ScaleVector );
 		transform.forward					= Vector3.RotateTowards( transform.forward, vBodyForward, m_BodyRotationSpeed * deltaTime, 0.0f );

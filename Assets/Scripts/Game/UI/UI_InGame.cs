@@ -120,8 +120,11 @@ public class UI_InGame : MonoBehaviour {
 		if ( m_IsActive == false )
 			return;
 
-		timeText.text	= WeatherSystem.WeatherManager.Instance.GetTimeAsString( -1f );
-		cycleText.text	= WeatherSystem.WeatherManager.Instance.CurrentCycleName;
+		if ( WeatherSystem.WeatherManager.Instance != null )
+		{
+			timeText.text	= WeatherSystem.WeatherManager.Instance.GetTimeAsString( -1f );
+			cycleText.text	= WeatherSystem.WeatherManager.Instance.CurrentCycleName;
+		}
 	}
 
 

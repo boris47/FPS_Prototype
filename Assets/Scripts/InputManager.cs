@@ -4,7 +4,10 @@ using UnityEngine;
 
 public struct inputs_t {
 	public	bool	Forward, Backward, StrafeLeft, StrafeRight;
+
 	public	bool	Ability1;
+	public	bool	Ability1Loop;
+	public	bool	Ability1Released;
 	public	bool	LeanLeft, LeanRight;
 	public	bool	Crouch, Jump, Run;
 	public	bool	Use;
@@ -21,7 +24,7 @@ public struct inputs_t {
 	public void Reset()
 	{
 		Forward = Backward = StrafeLeft = StrafeRight =
-		Ability1 =
+		Ability1Loop = Ability1 = Ability1Released = 
 //		LeanLeft = LeanRight =
 		Crouch = Jump = Run =
 		Use =
@@ -58,63 +61,60 @@ public class InputManager {
 		
 		Inputs.Reset();
 
-		m_Inputs.Forward		= Input.GetKey ( KeyCode.W ) || Input.GetKey ( KeyCode.UpArrow );
-		m_Inputs.Backward		= Input.GetKey ( KeyCode.S ) || Input.GetKey ( KeyCode.DownArrow );
-		m_Inputs.StrafeLeft		= Input.GetKey ( KeyCode.A ) || Input.GetKey ( KeyCode.LeftArrow );
-		m_Inputs.StrafeRight	= Input.GetKey ( KeyCode.D ) || Input.GetKey ( KeyCode.RightArrow );
+		m_Inputs.Forward				= Input.GetKey ( KeyCode.W ) || Input.GetKey ( KeyCode.UpArrow );
+		m_Inputs.Backward				= Input.GetKey ( KeyCode.S ) || Input.GetKey ( KeyCode.DownArrow );
+		m_Inputs.StrafeLeft				= Input.GetKey ( KeyCode.A ) || Input.GetKey ( KeyCode.LeftArrow );
+		m_Inputs.StrafeRight			= Input.GetKey ( KeyCode.D ) || Input.GetKey ( KeyCode.RightArrow );
 
-		m_Inputs.Ability1		= Input.GetKey ( KeyCode.Q );
+		m_Inputs.Ability1				= Input.GetKeyDown ( KeyCode.Q );
+		m_Inputs.Ability1Loop			= Input.GetKey ( KeyCode.Q );
+		m_Inputs.Ability1Released		= Input.GetKeyUp ( KeyCode.Q );
 
-//		m_Inputs.LeanLeft		= Input.GetKey ( KeyCode.Q ) || Input.GetKey ( KeyCode.Keypad7 );
-//		m_Inputs.LeanRight		= Input.GetKey ( KeyCode.E ) || Input.GetKey ( KeyCode.Keypad9 );
+		m_Inputs.Crouch					= HoldCrouch ?
+										( Input.GetKey ( KeyCode.LeftControl ) || Input.GetKey ( KeyCode.RightControl ) )
+										:
+										( Input.GetKeyDown ( KeyCode.LeftControl ) || Input.GetKeyDown ( KeyCode.RightControl ) );
 
-		m_Inputs.Crouch			= HoldCrouch ?
-								( Input.GetKey ( KeyCode.LeftControl ) || Input.GetKey ( KeyCode.RightControl ) )
-								:
-								( Input.GetKeyDown ( KeyCode.LeftControl ) || Input.GetKeyDown ( KeyCode.RightControl ) );
+		m_Inputs.Jump					= HoldJump ?
+										( Input.GetKey ( KeyCode.Space ) || Input.GetKey ( KeyCode.Keypad0 ) )
+										:
+										( Input.GetKeyDown ( KeyCode.Space ) || Input.GetKeyDown ( KeyCode.Keypad0 ) );
 
-		m_Inputs.Jump			= HoldJump ?
-								( Input.GetKey ( KeyCode.Space ) || Input.GetKey ( KeyCode.Keypad0 ) )
-								:
-								( Input.GetKeyDown ( KeyCode.Space ) || Input.GetKeyDown ( KeyCode.Keypad0 ) );
+		m_Inputs.Run					= HoldRun ?
+										( Input.GetKey ( KeyCode.LeftShift ) || Input.GetKey ( KeyCode.RightShift ) )
+										:
+										( Input.GetKeyDown ( KeyCode.LeftShift ) || Input.GetKeyDown ( KeyCode.RightShift ) );
 
-		m_Inputs.Run			= HoldRun ?
-								( Input.GetKey ( KeyCode.LeftShift ) || Input.GetKey ( KeyCode.RightShift ) )
-								:
-								( Input.GetKeyDown ( KeyCode.LeftShift ) || Input.GetKeyDown ( KeyCode.RightShift ) );
+		m_Inputs.Use					= Input.GetKeyDown ( KeyCode.F ) || Input.GetKeyDown ( KeyCode.Return );
 
-		m_Inputs.Use			= Input.GetKeyDown ( KeyCode.F ) || Input.GetKeyDown ( KeyCode.Return );
+		m_Inputs.SwitchPrev				= Input.mouseScrollDelta.y > 0;
+		m_Inputs.SwitchNext				= Input.mouseScrollDelta.y < 0;
 
-		m_Inputs.SwitchPrev		= Input.mouseScrollDelta.y > 0;
-		m_Inputs.SwitchNext		= Input.mouseScrollDelta.y < 0;
+		m_Inputs.Selection1				= Input.GetKeyDown( KeyCode.Alpha1 );
+		m_Inputs.Selection2				= Input.GetKeyDown( KeyCode.Alpha2 );
+		m_Inputs.Selection3				= Input.GetKeyDown( KeyCode.Alpha3 );
+		m_Inputs.Selection4				= Input.GetKeyDown( KeyCode.Alpha4 );
+		m_Inputs.Selection5				= Input.GetKeyDown( KeyCode.Alpha5 );
+		m_Inputs.Selection6				= Input.GetKeyDown( KeyCode.Alpha6 );
+		m_Inputs.Selection7				= Input.GetKeyDown( KeyCode.Alpha7 );
+		m_Inputs.Selection8				= Input.GetKeyDown( KeyCode.Alpha8 );
+		m_Inputs.Selection9				= Input.GetKeyDown( KeyCode.Alpha9 );
 
-		m_Inputs.Selection1		= Input.GetKeyDown( KeyCode.Alpha1 );
-		m_Inputs.Selection2		= Input.GetKeyDown( KeyCode.Alpha2 );
-		m_Inputs.Selection3		= Input.GetKeyDown( KeyCode.Alpha3 );
-		m_Inputs.Selection4		= Input.GetKeyDown( KeyCode.Alpha4 );
-		m_Inputs.Selection5		= Input.GetKeyDown( KeyCode.Alpha5 );
-		m_Inputs.Selection6		= Input.GetKeyDown( KeyCode.Alpha6 );
-		m_Inputs.Selection7		= Input.GetKeyDown( KeyCode.Alpha7 );
-		m_Inputs.Selection8		= Input.GetKeyDown( KeyCode.Alpha8 );
-		m_Inputs.Selection9		= Input.GetKeyDown( KeyCode.Alpha9 );
+		m_Inputs.Item1					= Input.GetKeyDown ( KeyCode.F1 ) || Input.GetKeyDown ( KeyCode.Keypad1 );
+		m_Inputs.Item2					= Input.GetKeyDown ( KeyCode.F2 ) || Input.GetKeyDown ( KeyCode.Keypad2 );
+		m_Inputs.Item3					= Input.GetKeyDown ( KeyCode.F3 ) || Input.GetKeyDown ( KeyCode.Keypad3 );
+		m_Inputs.Item4					= Input.GetKeyDown ( KeyCode.F4 ) || Input.GetKeyDown ( KeyCode.Keypad4 );
 
-		m_Inputs.Item1			= Input.GetKeyDown ( KeyCode.F1 ) || Input.GetKeyDown ( KeyCode.Keypad1 );
-		m_Inputs.Item2			= Input.GetKeyDown ( KeyCode.F2 ) || Input.GetKeyDown ( KeyCode.Keypad2 );
-		m_Inputs.Item3			= Input.GetKeyDown ( KeyCode.F3 ) || Input.GetKeyDown ( KeyCode.Keypad3 );
-		m_Inputs.Item4			= Input.GetKeyDown ( KeyCode.F4 ) || Input.GetKeyDown ( KeyCode.Keypad4 );
+		m_Inputs.ItemAction1			= Input.GetKeyDown( KeyCode.G );
+		m_Inputs.ItemAction2			= Input.GetKeyDown( KeyCode.H );
+		m_Inputs.ItemAction3			= Input.GetKeyDown( KeyCode.J);
 
-		m_Inputs.ItemAction1	= Input.GetKeyDown( KeyCode.Mouse1 );
-		m_Inputs.ItemAction2	= Input.GetKeyDown( KeyCode.H );
-		m_Inputs.ItemAction3	= Input.GetKeyDown( KeyCode.J);
-
-		m_Inputs.Fire1			= Input.GetKeyDown( KeyCode.Mouse0 );
-		m_Inputs.Fire2			= Input.GetKeyDown( KeyCode.Mouse2 );
-		m_Inputs.Fire1Loop		= Input.GetKey( KeyCode.Mouse0 );
-		m_Inputs.Fire2Loop		= Input.GetKey( KeyCode.Mouse2 );
-		m_Inputs.Fire1Released	= Input.GetKeyUp( KeyCode.Mouse0 );
-		m_Inputs.Fire2Released	= Input.GetKeyUp( KeyCode.Mouse2 );
-
-		m_Inputs.Fire2Released	= Input.GetKeyUp( KeyCode.Mouse2 );
+		m_Inputs.Fire1					= Input.GetKeyDown( KeyCode.Mouse0 );
+		m_Inputs.Fire2					= Input.GetKeyDown( KeyCode.Mouse1 );
+		m_Inputs.Fire1Loop				= Input.GetKey( KeyCode.Mouse0 );
+		m_Inputs.Fire2Loop				= Input.GetKey( KeyCode.Mouse1 );
+		m_Inputs.Fire1Released			= Input.GetKeyUp( KeyCode.Mouse0 );
+		m_Inputs.Fire2Released			= Input.GetKeyUp( KeyCode.Mouse1 );
 
 		m_Inputs.Reload			= Input.GetKeyDown( KeyCode.R );
 

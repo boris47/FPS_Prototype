@@ -27,9 +27,9 @@ public class Razor : Weapon
 
 	//////////////////////////////////////////////////////////////////////////
 	// ConfigureShot
-	protected override		void	ConfigureShot( bool fireFirst )
+	protected override		void	ConfigureShot()
 	{
-		base.ConfigureShot( fireFirst );
+		base.ConfigureShot();
 
 		float interpolant = 1f - ( (float)m_Magazine / (float)m_MagazineCapacity );
 		m_Renderer.material.SetColor( "_EmissionColor", Color.Lerp( m_StartEmissiveColor, Color.clear, interpolant ) );

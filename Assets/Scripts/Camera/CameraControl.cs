@@ -291,7 +291,10 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 				m_CurrentDirection.y = m_CurrentDirection.y + m_CurrentRotation_X_Delta;
 			}
 
-			m_CurrentDirection += m_HeadBob.Direction + m_HeadMove.Direction;
+			if ( Player.Instance.ChosingDodgeRotation == false )
+			{
+				m_CurrentDirection += m_HeadBob.Direction + m_HeadMove.Direction;
+			}
 			transform.rotation = m_ViewPoint.transform.rotation * Quaternion.Euler( m_CurrentDirection );
 
 			// rotation with effect added
