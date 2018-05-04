@@ -41,13 +41,16 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	public static	IWeapon[]						Array						= null;
 
 	[SerializeField]
-	protected		GameObject						m_BulletGameObject			= null;
+	protected		Bullet							m_Bullet1					= null;
+
+	[SerializeField]
+	protected		Bullet							m_Bullet2					= null;
+
+	[SerializeField]
+	protected		float							m_MainDamage				= 2f;
 
 	[SerializeField]
 	protected		Vector3							m_ZoomOffset				= Vector3.zero;
-
-	[SerializeField]
-	protected		float							m_Damage					= 5f;
 
 	[SerializeField, ReadOnly]
 	protected		uint							m_Magazine					= 27;
@@ -86,7 +89,10 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	protected		Renderer						m_Renderer					= null;
 
 	[SerializeField]
-	private			CustomAudioSource				m_AudioSourceFire			= null;
+	protected		CustomAudioSource				m_AudioSourceFire1			= null;
+
+	[SerializeField]
+	protected		CustomAudioSource				m_AudioSourceFire2			= null;
 
 	protected		Vector3							m_StartOffset				= Vector3.zero;
 	protected		bool							m_InTransition				= false;
@@ -100,7 +106,7 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	Transform				IWeapon.Transform			{ get { return transform; } }
 	bool					IWeapon.Enabled				{ get { return enabled; } set { enabled = value; } }
 	bool					IWeapon.IsFiring			{ get { return m_IsFiring; } }
-	float					IWeapon.Damage				{ get { return m_Damage; } }
+	float					IWeapon.Damage				{ get { return m_MainDamage; } }
 	uint					IWeapon.Magazine			{ get { return m_Magazine; } }
 	uint					IWeapon.MagazineCapacity	{ get { return m_MagazineCapacity; } }
 	FireModes				IWeapon.FireMode			{ get { return m_FireMode; } }
@@ -130,7 +136,8 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	protected		float							m_FireTimer					= 0f;
 
 	protected		uint							m_BrustCount				= 0;
-	protected		GameObjectsPool<Bullet>			m_PoolBullets				= null;
+	protected		GameObjectsPool<Bullet>			m_PoolBullets1				= null;
+	protected		GameObjectsPool<Bullet>			m_PoolBullets2				= null;
 //	protected		float							m_AnimatorStdSpeed			= 1f;
 	protected		bool							m_IsRecharging				= false;
 	
@@ -139,9 +146,11 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	private	delegate	void	FireFunction();
 	private			FireFunction					m_FireFunction				= null;
 
+
+
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Virtual )
-	protected	virtual	void			Awake()
+	protected	virtual	void				Awake()
 	{
 		// Create weapons list
 		if ( Array == null )
@@ -152,7 +161,7 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 		// Assign this weapon in the list
 		Array[ transform.GetSiblingIndex() ] = this;
 
-		if ( m_BulletGameObject == null )
+		if ( m_Bullet1 == null )
 		{
 			print( "Weapon " + name + " need a defined bullet to use " );
 			enabled = false;
@@ -176,7 +185,7 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 			CFG_Reader.Section section = null;
 			GameManager.Configs.GetSection( m_SectionName, ref section );
 
-			m_Damage			= section.AsFloat( "Damage", m_Damage );
+			m_MainDamage		= section.AsFloat( "Damage", m_MainDamage );
 			m_ZoomingTime		= section.AsFloat( "ZoomingTime", m_ZoomingTime );
 			m_ZommSensitivity	= section.AsFloat( "ZommSensitivity", m_ZommSensitivity );
 			m_ZoomFactor		= section.AsFloat( "ZoomFactor", m_ZoomFactor );
@@ -187,30 +196,49 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 
 		// BULLETS POOL CREATION
 		{
-			if ( m_BulletGameObject != null )
+			if ( m_Bullet1 != null )
 			{
-				m_PoolBullets = new GameObjectsPool<Bullet>
+				GameObject bulletGO = m_Bullet1.gameObject;
+				m_PoolBullets1 = new GameObjectsPool<Bullet>
 				(
-					model			: ref m_BulletGameObject,
+					model			: m_Bullet1.gameObject,
 					size			: m_MagazineCapacity,
-					containerName	: "RifleBulletsPool",
+					containerName	: "RifleBulletsPool1",
 					permanent		: true,
 					actionOnObject	: ( Bullet o ) =>
 					{
 						o.SetActive( false );
-						o.Setup( damage : m_Damage, canPenetrate : false, whoRef : Player.Instance, weapon : this );
+						o.Setup( damage : m_MainDamage, canPenetrate : false, whoRef : Player.Instance, weapon : this );
 						Physics.IgnoreCollision( o.Collider, ( Player.Instance as IEntity ).PhysicCollider, ignore : true );
 					}
 				);
 			}
+			/*
+			if ( m_Bullet2 != null )
+			{
+				m_PoolBullets2 = new GameObjectsPool<Bullet>
+				(
+					model			: m_Bullet2.gameObject,
+					size			: m_MagazineCapacity,
+					containerName	: "RifleBulletsPool2",
+					permanent		: true,
+					actionOnObject	: ( Bullet o ) =>
+					{
+						o.SetActive( false );
+						o.Setup( damage : m_MainDamage, canPenetrate : false, whoRef : Player.Instance, weapon : this );
+						Physics.IgnoreCollision( o.Collider, ( Player.Instance as IEntity ).PhysicCollider, ignore : true );
+					}
+				);
+			}
+			*/
 		}
 		m_LockTimer = m_DrawAnim.length;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnValidate
-	protected	virtual	void			OnValidate()
+	// OnValidate ( Virtual )
+	protected	virtual	void				OnValidate()
 	{
 		m_ZoomingTime = Mathf.Max( m_ZoomingTime, 0.1f );
 	}
@@ -218,26 +246,26 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 
 	//////////////////////////////////////////////////////////////////////////
 	// SelectFireFunction
-	private		void	SelectFireFunction()
+	protected	virtual		void			SelectFireFunction()
 	{
 		switch ( m_FireMode )
 		{
 			case FireModes.SINGLE:
-				m_FireFunction = FireSingleMode;
+				m_FireFunction = OnFireSingleMode;
 				break;
 			case FireModes.BURST:
-				m_FireFunction = FireBrustMode;
+				m_FireFunction = OnFireBrustMode;
 				break;
 			case FireModes.AUTO:
-				m_FireFunction = FireAutoMode;
+				m_FireFunction = OnFireAutoMode;
 				break;
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnSave
-	protected	virtual	StreamingUnit	OnSave( StreamingData streamingData )
+	// OnSave ( Virtual )
+	protected	virtual		StreamingUnit	OnSave( StreamingData streamingData )
 	{
 		StreamingUnit streamingUnit		= new StreamingUnit();
 		streamingUnit.InstanceID		= gameObject.GetInstanceID();
@@ -255,8 +283,8 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnLoad
-	protected	virtual	StreamingUnit	OnLoad( StreamingData streamingData )
+	// OnLoad ( Virtual )
+	protected	virtual		StreamingUnit	OnLoad( StreamingData streamingData )
 	{
 		int instanceID				= gameObject.GetInstanceID();
 		StreamingUnit streamingUnit	= streamingData.Data.Find( ( StreamingUnit data ) => data.InstanceID == instanceID );
@@ -293,8 +321,8 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnEndReload
-	protected	virtual		void		OnEndReload()
+	// OnEndReload ( Virtual )
+	protected	virtual		void			OnEndReload()
 	{
 		m_Magazine = m_MagazineCapacity;
 		UI.Instance.InGame.UpdateUI();
@@ -302,20 +330,19 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	
 
 	//////////////////////////////////////////////////////////////////////////
-	// Update
-	protected	virtual		void		Update()
+	// Update ( Virtual )
+	protected	virtual		void			Update()
 	{
 		m_FireTimer -= Time.deltaTime;
 		
 		if ( Player.Instance.ChosingDodgeRotation == true )
 			return;
 		
+		// Secondary fire
 		if ( InputManager.Inputs.Fire2 && m_InTransition == false && m_IsRecharging == false )
 		{
-			if ( WeaponManager.Instance.Zoomed == false )
-				WeaponManager.Instance.ZoomIn( this, m_ZoomOffset, m_ZoomingTime );
-			else
-				WeaponManager.Instance.ZoomOut();
+			OnSecondaryFire();
+			return;
 		}
 		
 
@@ -351,12 +378,6 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 
 			UI.Instance.InGame.UpdateUI();
 			SelectFireFunction();
-		}
-
-		// End For Brust mode
-		if ( m_BrustCount > 0 && InputManager.Inputs.Fire1Released )
-		{
-			m_BrustCount = 0;
 		}
 
 		if ( m_FireTimer > 0 )
@@ -397,8 +418,13 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// CanChangeWeapon
-	public		virtual		bool		CanChangeWeapon()
+	// CanChangeWeapon ( Abstract )
+	protected	abstract	void			OnSecondaryFire();
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// CanChangeWeapon ( Virtual )
+	public		virtual		bool			CanChangeWeapon()
 	{
 		if ( m_InTransition == true )
 			return false;
@@ -410,9 +436,10 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	}
 
 
+	// Called before weapon change
 	//////////////////////////////////////////////////////////////////////////
-	// FireSingleMode
-	public		virtual		void		OnWeaponChange()
+	// FireSingleMode ( Virtual )
+	public		virtual		void			OnWeaponChange()
 	{
 		m_IsRecharging	= false;
 		m_NeedRecharge	= false;
@@ -424,95 +451,27 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// FireSingleMode
-	protected	virtual		void		FireSingleMode()
-	{
-		if ( InputManager.Inputs.Fire1 )
-		{
-			ConfigureShot();
-			m_IsFiring = true;
-		}
-	}
+	// FireSingleMode ( Abstract )
+	protected	abstract	void			OnFireSingleMode();
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// FireBrustMode
-	protected	virtual		void		FireBrustMode()
-	{
-		if ( m_BrustCount < m_BrustSize )
-		{
-			if ( InputManager.Inputs.Fire1Loop )
-				m_BrustCount ++;
-
-			ConfigureShot();
-			m_IsFiring = true;
-		}
-	}
+	// FireBrustMode ( Abstract )
+	protected	abstract	void			OnFireBrustMode();
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// FireAutoMode
-	protected	virtual		void		FireAutoMode()
-	{
-		if ( ( InputManager.Inputs.Fire1Loop ) )
-		{
-			ConfigureShot();
-			m_IsFiring = true;
-		}
-	}
+	// FireAutoMode ( Abstract )
+	protected	abstract	void			OnFireAutoMode();
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ConfigureShot
-	protected	virtual		void		ConfigureShot()
-	{
-		
-		m_FireTimer = m_ShotDelay;
-
-		m_Animator.Play( m_FireAnim.name, -1, 0f );
-			
-		m_Magazine --;
-
-		// BULLET
-		IBullet bullet = m_PoolBullets.GetComponent();
-
-		// POSITION
-		Vector3 position = m_FirePoint.position;
-
-		// DIRECTION
-		m_DispersionVector.Set( Random.Range( -1f, 1f ), Random.Range( -1f, 1f ), Random.Range( -1f, 1f ) );
-		m_DispersionVector /= WeaponManager.Instance.Zoomed ? m_ZoomFactor : 1f;
-
-		Vector3 direction = m_FirePoint.forward;
-
-		// AUDIOSOURCE
-		ICustomAudioSource audioSource = m_AudioSourceFire;
-
-		// CAM DISPERSION
-		float finalDispersion = m_CamDeviation * bullet.RecoilMult;
-		finalDispersion	*= Player.Instance.IsCrouched			? 0.50f : 1.00f;
-		finalDispersion	*= Player.Instance.IsMoving				? 1.50f : 1.00f;
-		finalDispersion	*= Player.Instance.IsRunning			? 2.00f : 1.00f;
-		finalDispersion *= ( m_FireMode == FireModes.SINGLE )	? 0.50f : 1.00f;
-		finalDispersion *= ( m_FireMode == FireModes.BURST )	? 0.80f : 1.00f;
-		finalDispersion *= ( m_FireMode == FireModes.AUTO )		? 1.10f : 1.00f;
-		finalDispersion	*= WeaponManager.Instance.Zoomed		? 0.80f : 1.00f;
-
-		// SHOOT
-		Shoot( ref bullet, ref position, ref direction, ref audioSource, finalDispersion );
-
-		// UPDATE UI
-		UI.Instance.InGame.UpdateUI();
-	}
+	// ConfigureShot ( Abstract )
+	protected	abstract	void			ConfigureShot();
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Shoot
-	protected	virtual		void		Shoot( ref IBullet bullet, ref Vector3 position, ref Vector3 direction, ref ICustomAudioSource audioSource, float camDispersion )
-	{
-		bullet.Shoot( position: position, direction: direction );
-		audioSource.Play();
-		CameraControl.Instance.ApplyDispersion( camDispersion );
-	}
+	// Shoot ( Abstract )
+	protected	abstract	void			Shoot( IBullet bullet, Vector3 position, Vector3 direction, ICustomAudioSource audioSource, float camDispersion );
 
 }

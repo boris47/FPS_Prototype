@@ -14,7 +14,7 @@ public	class GameObjectsPool {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Constructor
-	public	GameObjectsPool( ref GameObject model, int size, System.Action<GameObject> actionOnObject = null )
+	public	GameObjectsPool( GameObject model, int size, System.Action<GameObject> actionOnObject = null )
 	{
 		if ( m_Container == null )
 		{
@@ -24,9 +24,7 @@ public	class GameObjectsPool {
 
 		for ( int i = 0; i < size; i++ )
 		{
-//			GameObject objectCopy =  new GameObject( model.name + "_" + i );
 			GameObject objectCopy = Object.Instantiate( model );
-//			Utils.Base.Clone( ref model, ref objectCopy, true );
 			objectCopy.transform.SetParent( m_Container.transform );
 			if ( actionOnObject != null )
 				actionOnObject( objectCopy );
@@ -86,7 +84,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Constructor
-	public	GameObjectsPool( ref GameObject model, uint size, string containerName = "GameObjectsContainer_", bool permanent = false, System.Action<T> actionOnObject = null )
+	public	GameObjectsPool( GameObject model, uint size, string containerName = "GameObjectsContainer_", bool permanent = false, System.Action<T> actionOnObject = null )
 	{
 		if ( m_Container == null )
 		{
@@ -113,7 +111,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 			array[ i ] = comp;
 		}
 
-		m_ObjectsPool.Set( ref array );
+		m_ObjectsPool.Set( array );
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -185,7 +183,7 @@ public	class ObjectsPool<T> where T : UnityEngine.Component {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Set
-	public	void	Set( ref T[] array )
+	public	void	Set( T[] array )
 	{
 		m_Storage = array;
 	}

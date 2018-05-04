@@ -443,8 +443,7 @@ MonoBehaviour:
   m_CutsceneManager: {fileID: 0}
   m_BodyRotationSpeed: 2
   m_GunRotationSpeed: 1
-  m_BulletGameObject: {fileID: 1147230146795202, guid: 6022bac21992ba94bb2fd959d6d5f7f0,
-    type: 2}
+  m_Bullet: {fileID: 114671673385870204, guid: 6022bac21992ba94bb2fd959d6d5f7f0, type: 2}
   m_ShotDelay: 2.6
   m_MoveMaxSpeed: 25
   m_DamageMax: 2

@@ -14,6 +14,9 @@ public interface IFieldOfView {
 	OnTargetEvent		OnTargetChanged		{ set; }
 	OnTargetEvent		OnTargetLost		{ set; }
 
+	float				Distance			{ get; set; }
+	float				Angle				{ get; set; }
+
 	void				Setup				( uint maxVisibleEntities );
 	bool				UpdateFOV			();
 	void				OnReset				();
@@ -34,8 +37,6 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	public		OnTargetEvent			OnTargetLost			{ set { m_OnTargetLost = value; } }
 
 
-
-
 	[SerializeField]
 	private		Transform				m_ViewPoint				= null;
 
@@ -44,6 +45,20 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 
 	[SerializeField,Range( 20f, 150f)]
 	private		float					m_ViewCone				= 100f;
+
+
+	float	IFieldOfView.Angle
+	{
+		get { return m_ViewCone; }
+		set { m_ViewCone = value; }
+	}
+
+	float	IFieldOfView.Distance
+	{
+		get { return m_ViewDistance; }
+		set { m_ViewDistance = value; }
+	}
+
 
 
 	private		RaycastHit				m_RaycastHit			= default( RaycastHit );
@@ -178,7 +193,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 			Vector3 direction = ( entity.Transform.position - currentViewPoint.position );
 
 			// CHECK IF IS IN VIEW CONE
-			if ( Vector3.Angle( currentViewPoint.forward, direction.normalized ) < ( m_ViewCone * 0.5f ) )
+			if ( Vector3.Angle( currentViewPoint.forward, direction.normalized ) <= ( m_ViewCone * 0.5f ) )
 			{
 				// CHECK IF THERE IS NOT OBSTACLES OR HITTED IS A TARGET
 				bool result = Physics.Linecast( currentViewPoint.position, entity.Transform.position, out m_RaycastHit );

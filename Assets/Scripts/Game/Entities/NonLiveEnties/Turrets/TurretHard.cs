@@ -30,7 +30,6 @@ public class TurretHard : Turret {
 	// OnHit ( Override )
 	public override void OnHit( ref IBullet bullet )
 	{
-
 		// Avoid friendly fire
 		if ( bullet.WhoRef is NonLiveEntity )
 			return;
@@ -55,7 +54,7 @@ public class TurretHard : Turret {
 		float damage = Random.Range( bullet.DamageMin, bullet.DamageMax );
 		m_Health -= damage;
 
-		if ( m_Health < 0f )
+		if ( m_Health <= 0f )
 			OnKill();
 	}
 

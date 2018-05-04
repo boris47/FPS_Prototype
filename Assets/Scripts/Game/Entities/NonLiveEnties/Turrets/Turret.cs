@@ -7,7 +7,7 @@ public abstract class Turret : NonLiveEntity {
 	[Header("Turret Properties")]
 
 	[SerializeField]
-	private		GameObject		m_BulletGameObject			= null;
+	private		Bullet			m_Bullet					= null;
 
 	[SerializeField]
 	protected	float			m_ShotDelay					= 0.7f;
@@ -52,12 +52,16 @@ public abstract class Turret : NonLiveEntity {
 			m_EntityType			= ENTITY_TYPE.ROBOT;
 		}
 
+		Laser laser = GetComponentInChildren<Laser>();
+		if ( laser != null )
+			laser.LaserLength = m_Brain.FieldOfView.Distance;
+
 		// BULLETS POOL CREATION
 		{
-			GameObject	bulletGO		= m_BulletGameObject;
+			GameObject	bulletGO		= m_Bullet.gameObject;
 			m_Pool = new GameObjectsPool<Bullet>
 			(
-				model			: ref bulletGO,
+				model			: bulletGO,
 				size			: ( uint ) m_PoolSize,
 				containerName	: name + "BulletPool",
 				actionOnObject	: ( Bullet o ) =>
@@ -89,10 +93,15 @@ public abstract class Turret : NonLiveEntity {
 //		m_Destination = bullet.Transform.position;
 //		m_HasDestination = true;
 
-		if ( m_Shield != null && m_Shield.Status > 0f && m_Shield.IsUnbreakable == false )
+
+		if ( m_Shield != null && m_Shield.Status > 0f )
 		{
-			m_Shield.OnHit( ref bullet );
-			return;
+			if ( m_Shield.IsUnbreakable == false )
+			{
+				m_Shield.OnHit( ref bullet );
+			}
+			if ( bullet.CanPenetrate == false )
+				return;
 		}
 
 		float damage = Random.Range( bullet.DamageMin, bullet.DamageMax );
@@ -139,7 +148,7 @@ public abstract class Turret : NonLiveEntity {
 	// FaceToPoint ( Override )
 	protected override void FaceToPoint( float deltaTime )
 	{
-		Vector3 pointOnThisPlane		= Utils.Math.ProjectPointOnPlane( transform.up, transform.position, m_PointToFace );
+		Vector3 pointOnThisPlane		= Utils.Math.ProjectPointOnPlane( transform.up, m_BodyTransform.position, m_PointToFace );
 
 		Vector3 dirToPosition			= ( pointOnThisPlane - m_BodyTransform.position );
 		Vector3 dirGunToPosition		= ( m_PointToFace - m_GunTransform.position );
@@ -148,7 +157,9 @@ public abstract class Turret : NonLiveEntity {
 		m_BodyTransform.rotation		= Quaternion.RotateTowards( m_BodyTransform.rotation, bodyRotation, m_BodyRotationSpeed * deltaTime );
 		
 		m_IsAllignedBodyToDestination	= Vector3.Angle( m_BodyTransform.forward, dirToPosition ) < 2f;
-		if ( m_IsAllignedBodyToDestination )
+
+		bool canAllignGun = Vector3.Angle( m_GunTransform.forward, m_BodyTransform.forward ) < ( m_Brain.FieldOfView.Angle / 2f );
+		if ( m_IsAllignedBodyToDestination & canAllignGun )
 		{
 			m_GunTransform.forward		= Vector3.RotateTowards( m_GunTransform.forward, dirGunToPosition, m_GunRotationSpeed * deltaTime, 0.0f );
 		}

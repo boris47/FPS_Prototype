@@ -3,29 +3,53 @@ using System.Collections;
 
 public class Laser : WeaponAttachment {
 
-	private		LineRenderer		m_LineRenderer	= null;
+	[SerializeField]
+	private		float				m_ScaleFactor		= 0.03f;
 
+	[SerializeField]
+	private		Color				m_Color				= Color.red;
+
+	[SerializeField]
+	private		float				m_LaserLength		= 100f;
+	public		float				LaserLength
+	{
+		get { return m_LaserLength; }
+		set { m_LaserLength = value; }
+	}
+
+	private		RaycastHit			m_RayCastHit		= default( RaycastHit );
+	private		Transform			m_LaserTransform	= null;
+
+	private		Vector3				m_LocalScale		= new Vector3();
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Awake
 	private void Awake()
 	{
-		m_LineRenderer = GetComponent<LineRenderer>();
+		m_LaserTransform = transform.GetChild( 0 );
+
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// Update
 	private void Update()
 	{
-		m_LineRenderer.SetPosition( 0, transform.position );
-		m_LineRenderer.SetPosition( 1, transform.position + ( -transform.up ) * 100f );
-	}
+		bool hasCollision = Physics.Raycast( transform.position, transform.forward, out m_RayCastHit, m_LaserLength );
 
-	private void LateUpdate()
-	{
-		m_LineRenderer.SetPosition( 0, transform.position );
-		m_LineRenderer.SetPosition( 1, transform.position + ( -transform.up ) * 100f );
-	}
+//		if ( hasCollision ) print( m_RayCastHit.transform.name );
 
-	private void FixedUpdate()
-	{
-		m_LineRenderer.SetPosition( 0, transform.position );
-		m_LineRenderer.SetPosition( 1, transform.position + ( -transform.up ) * 100f );
-	}
+		float	currentLength = m_LaserLength;
+		if ( hasCollision )
+			currentLength = m_RayCastHit.distance;
 
+		 //if the additional decimal isn't added then the beam position glitches
+		float beamPosition = currentLength / ( 2f + 0.0001f );
+
+		m_LocalScale.Set( m_ScaleFactor, m_ScaleFactor, currentLength );
+		m_LaserTransform.localScale		= m_LocalScale;
+		m_LaserTransform.localPosition	= Vector3.forward * beamPosition;
+	}
+	
 }

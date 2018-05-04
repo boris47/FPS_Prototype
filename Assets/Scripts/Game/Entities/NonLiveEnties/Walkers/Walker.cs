@@ -5,7 +5,7 @@ using UnityEngine;
 public abstract class Walker : NonLiveEntity, IRespawn {
 
 	[SerializeField]
-	protected	GameObject		m_BulletGameObject			= null;
+	protected	Bullet			m_Bullet			= null;
 
 	[SerializeField]
 	protected	float			m_ShotDelay					= 0.7f;
@@ -57,10 +57,10 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		// BULLETS POOL CREATION
 		if ( m_Pool == null )		// check for respawn
 		{
-			GameObject	bulletGO		= m_BulletGameObject;
+			GameObject	bulletGO		= m_Bullet.gameObject;
 			m_Pool = new GameObjectsPool<Bullet>
 			(
-				model			: ref bulletGO,
+				model			: bulletGO,
 				size			: ( uint ) m_PoolSize,
 				containerName	: name + "BulletPool",
 				actionOnObject	: ( Bullet o ) =>

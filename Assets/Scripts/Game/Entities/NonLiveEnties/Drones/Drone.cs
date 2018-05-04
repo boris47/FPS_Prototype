@@ -7,7 +7,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 	[Header("Drone Properties")]
 
 	[SerializeField]
-	private		GameObject		m_BulletGameObject			= null;
+	private		Bullet			m_Bullet					= null;
 
 	[SerializeField]
 	protected	float			m_ShotDelay					= 0.7f;
@@ -60,10 +60,10 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		// BULLETS POOL CREATION
 		if ( m_Pool == null )		// check for respawn
 		{
-			GameObject	bulletGO		= m_BulletGameObject;
+			GameObject	bulletGO		= m_Bullet.gameObject;
 			m_Pool = new GameObjectsPool<Bullet>
 			(
-				model			: ref bulletGO,
+				model			: bulletGO,
 				size			: ( uint ) m_PoolSize,
 				containerName	: name + "BulletPool",
 				actionOnObject	: ( Bullet o ) =>

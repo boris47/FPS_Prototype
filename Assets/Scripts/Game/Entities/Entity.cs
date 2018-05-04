@@ -12,6 +12,7 @@ public interface IEntity {
 	string					Section							{	get;		}
 	Rigidbody				RigidBody						{	get;		}
 	CapsuleCollider			PhysicCollider					{	get;		}
+	Transform				EffectsPivot					{	get;		}
 	IBrain					Brain							{	get;		}
 	CutsceneEntityManager	CutsceneManager					{	get; set;	}
 
@@ -67,6 +68,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 				string					IEntity.Section						{	get { return m_SectionName;		}	}
 				Rigidbody				IEntity.RigidBody					{	get { return m_RigidBody;		}	}
 				CapsuleCollider			IEntity.PhysicCollider				{	get { return m_PhysicCollider;	}	}
+				Transform				IEntity.EffectsPivot				{	get { return m_EffectsPivot;	}	}
 				IBrain					IEntity.Brain						{	get { return m_Brain;			}	}
 				CutsceneEntityManager	IEntity.CutsceneManager				{	get { return m_CutsceneManager; } set { m_CutsceneManager = value; } }
 	// INTERFACE END
@@ -80,6 +82,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	protected 	ENTITY_TYPE					m_EntityType					= ENTITY_TYPE.NONE;
 	protected	Rigidbody					m_RigidBody						= null;
 	protected	CapsuleCollider				m_PhysicCollider				= null;
+	protected	Transform					m_EffectsPivot					= null;
 
 	// AI
 	protected	IBrain						m_Brain							= null;
@@ -99,7 +102,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 	protected	bool						m_MovementOverrideEnabled		= false;
 	protected	Vector3						m_SimulationStartPosition		= Vector3.zero;
-//	protected	float						m_SimulationdDistanceToTravel	= 0f;
 
 
 	// NAVIGATION
@@ -132,7 +134,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 		m_RigidBody			= GetComponent<Rigidbody>();
 		m_Brain				= GetComponent<IBrain>();
 
-
+		m_EffectsPivot		= transform.Find( "EffectsPivot" );
 
 		GameManager.Instance.OnSave += OnSave;
 		GameManager.Instance.OnLoad += OnLoad;

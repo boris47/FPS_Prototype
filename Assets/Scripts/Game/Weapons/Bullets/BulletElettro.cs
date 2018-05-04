@@ -4,9 +4,6 @@ using System.Collections;
 
 public class BulletElettro : GenericBullet {
 
-	private		ParticleSystem			m_PS			= null;
-
-
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnCollisionEnter ( Override )
@@ -16,13 +13,17 @@ public class BulletElettro : GenericBullet {
 		if ( bullet != null )
 			return;
 
-		Entity entity = collision.gameObject.GetComponent<Entity>();
-		Shield shield = collision.gameObject.GetComponent<Shield>();
+		IEntity entity = collision.gameObject.GetComponent<IEntity>();
+		IShield shield = collision.gameObject.GetComponent<Shield>();
 		
 		if ( ( entity != null || shield != null ) && ( m_WhoRef is NonLiveEntity && entity is NonLiveEntity ) == false )
 		{
 			EffectManager.Instance.PlayEntityOnHit( collision.contacts[0].point, collision.contacts[0].normal );
-			m_PS = EffectManager.Instance.PlayElettroHit( collision.transform );
+
+			Transform effectPivot = ( entity.EffectsPivot != null ) ?  entity.EffectsPivot : collision.transform;
+			EffectManager.Instance.PlayElettroHit( effectPivot);
+
+			
 		}
 		else
 		{
@@ -34,7 +35,7 @@ public class BulletElettro : GenericBullet {
 		else
 		if ( entity != null )
 		{
-			Rigidbody erg = ( entity as IEntity ).RigidBody;
+			Rigidbody erg = entity.RigidBody;
 			erg.angularVelocity = erg.velocity = Vector3.zero;
 			entity.OnHit( ref m_Instance );
 		}
