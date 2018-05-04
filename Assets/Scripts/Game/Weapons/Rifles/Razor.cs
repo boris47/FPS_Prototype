@@ -9,7 +9,7 @@ public class Razor : Weapon
 	private		Color							m_StartEmissiveColor				= Color.clear;
 
 	private		Canvas							m_Canvas							= null;
-
+	private		Image							m_Panel								= null;
 	private		Text							m_AmmoText							= null;
 
 
@@ -21,10 +21,12 @@ public class Razor : Weapon
 
 		m_StartEmissiveColor = m_Renderer.material.GetColor( "_EmissionColor" );
 
-		m_Canvas = GetComponentInChildren<Canvas>();
-
-		m_AmmoText = m_Canvas.transform.GetChild(0).GetChild(0).GetComponent<Text>();
+		m_Canvas	= GetComponentInChildren<Canvas>();
+		m_Panel		= m_Canvas.transform.GetChild(0).GetComponent<Image>();
+		m_AmmoText	= m_Panel.transform.GetChild(0).GetComponent<Text>();
 		m_AmmoText.text = m_Magazine.ToString();
+
+//		StartCoroutine( ChangeColor( m_Panel ) );
 	}
 
 
@@ -57,6 +59,34 @@ public class Razor : Weapon
 	protected	override	void			SelectFireFunction()
 	{
 		base.SelectFireFunction();
+	}
+
+	private	Color	colorToSet = new Color();
+	private bool inTransition = false;
+	System.Collections.IEnumerator ChangeColor( Image image )
+	{
+		float interpolant = 0f;
+		while( true )
+		{
+			if ( inTransition == false )
+			{
+				colorToSet.r = Random.value;
+				colorToSet.g = Random.value;
+				colorToSet.b = Random.value;
+				colorToSet.a = Random.Range( 0.2f, 0.3f );
+				inTransition = true;
+			}
+
+			while( interpolant < 0.05f )
+			{
+				image.color = Color.Lerp( image.color, colorToSet, interpolant );
+				interpolant += Time.unscaledDeltaTime * 0.09f;
+				yield return null;
+			}
+			interpolant = 0f;
+			inTransition = false;
+			yield return null;
+		}
 	}
 
 

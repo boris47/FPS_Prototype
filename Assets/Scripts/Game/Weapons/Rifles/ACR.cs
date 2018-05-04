@@ -4,12 +4,17 @@ using UnityEngine;
 public class ACR : Weapon
 {
 
+	[SerializeField]
+	private             int					m_BuckshotSize          = 6;
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
 	protected	override	void			Awake()
 	{
 		base.Awake();
+
+		SelectFireFunction();
 	}
 
 
@@ -41,7 +46,9 @@ public class ACR : Weapon
 	// Awake ( Override )
 	protected	override	void			SelectFireFunction()
 	{
+		m_FireMode = FireModes.SINGLE;
 		base.SelectFireFunction();
+		m_FireMode = FireModes.SINGLE;
 	}
 
 
@@ -86,8 +93,12 @@ public class ACR : Weapon
 	{
 		if ( InputManager.Inputs.Fire1 )
 		{
-			ConfigureShot();
-			m_IsFiring = true;
+			for ( int i = 0; i < m_BuckshotSize; i++ )
+			{
+				ConfigureShot();
+				m_IsFiring = true;
+			}
+			m_Magazine --;
 		}
 	}
 
@@ -95,36 +106,15 @@ public class ACR : Weapon
 	//////////////////////////////////////////////////////////////////////////
 	// FireBrustMode
 	protected	override	void			OnFireBrustMode()
-	{
-		// Start of brust
-		if ( InputManager.Inputs.Fire1Loop && m_BrustCount < m_BrustSize )
-		{
-			m_BrustCount ++;
-
-			ConfigureShot();
-			m_IsFiring = true;
-		}
-
-		// End of brust
-		if ( InputManager.Inputs.Fire1Released && m_BrustCount > 0 )
-		{
-			m_BrustCount = 0;
-		}
-	}
+	{}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// FireAutoMode
 	protected	override	void			OnFireAutoMode()
-	{
-		if ( ( InputManager.Inputs.Fire1Loop ) )
-		{
-			ConfigureShot();
-			m_IsFiring = true;
-		}
-	}
+	{}
 
-
+	public float maxDeviation = 0.2f;
 	//////////////////////////////////////////////////////////////////////////
 	// ConfigureShot
 	protected	override	void			ConfigureShot()
@@ -132,8 +122,6 @@ public class ACR : Weapon
 		m_FireTimer = m_ShotDelay;
 
 		m_Animator.Play( m_FireAnim.name, -1, 0f );
-			
-		m_Magazine --;
 
 		// BULLET
 		IBullet bullet = m_PoolBullets1.GetComponent();
@@ -142,10 +130,14 @@ public class ACR : Weapon
 		Vector3 position = m_FirePoint.position;
 
 		// DIRECTION
-		m_DispersionVector.Set( Random.Range( -1f, 1f ), Random.Range( -1f, 1f ), Random.Range( -1f, 1f ) );
-		m_DispersionVector /= WeaponManager.Instance.Zoomed ? m_ZoomFactor : 1f;
+		m_DispersionVector.Set
+		(
+			Random.Range( -maxDeviation, maxDeviation ),
+			Random.Range( -maxDeviation, maxDeviation ),
+			Random.Range( -maxDeviation, maxDeviation )
+		);
 
-		Vector3 direction = m_FirePoint.forward;
+		Vector3 direction = ( m_FirePoint.forward + m_DispersionVector ).normalized;
 
 		// AUDIOSOURCE
 		ICustomAudioSource audioSource = m_AudioSourceFire1;
