@@ -12,3 +12,13 @@
 	- BRIGHTNESS SETUP
 
 	- Lens Flare
+
+
+Weapons:
+
+	-	1.Laser gun			(  )
+**	-	2.Rifle				( Blackjack )
+**	-	3.Laser Rifle		( Razor )
+**	-	4.Shotgun			( Hammer )
+	-	5.Granade Laucher	(  )
+	-	6.Sniper Rifle		( Arrow )

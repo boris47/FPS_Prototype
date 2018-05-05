@@ -115,7 +115,7 @@ public class FragGranade : GranadeBase {
 				float dmgMult = Vector3.Distance( transform.position, entity.transform.position ) / m_Range;
 				float tmpDmg = m_DamageMax;
 				m_DamageMax *= dmgMult;
-				entity.OnHit( ref m_Instance );
+				entity.OnHit( m_Instance );
 				m_DamageMax = tmpDmg;
 			}
 

@@ -1,24 +1,26 @@
 ﻿
 
+
 [G36]
 Damage				= 12.0;
 ZoomFactor			= 4.0;	Higher number lead to major zoom
 ZoomingTime			= 0.2;
 ZommSensitivity		= 0.3;
 
-[M4A1]
+
+[Blackjack]
 Damage				= 15.0;
-ZoomFactor			= 2.0;
+ZoomFactor			= 4.0;
 ZoomingTime			= 0.2;
 ZommSensitivity		= 0.3;
 
-[ACR]
-Damage				= 18.0;
+[Hammer]
+Damage				= 13.0;
 ZoomFactor			= 2.0;
 ZoomingTime			= 0.2;
 ZommSensitivity		= 0.3;
 
 [Razor] : G36
-Damage				= 15.0;
+Damage				= 2.0;
 ZoomFactor			= 6.0;
 ZoomingTime			= 0.2;

@@ -120,13 +120,13 @@ public class GenericBullet : Bullet {
 		}
 
 		if ( shield != null )
-			shield.OnHit( ref m_Instance );
+			shield.OnHit( m_Instance );
 		else
 		if ( entity != null )
 		{
 			Rigidbody erg = ( entity as IEntity ).RigidBody;
 			erg.angularVelocity = erg.velocity = Vector3.zero;
-			entity.OnHit( ref m_Instance );
+			entity.OnHit( m_Instance );
 		}
 
 

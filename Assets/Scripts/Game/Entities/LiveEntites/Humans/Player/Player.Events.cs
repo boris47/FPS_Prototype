@@ -1,5 +1,4 @@
 ﻿
-using System.Collections;
 using UnityEngine;
 
 public partial class Player {
@@ -14,7 +13,7 @@ public partial class Player {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnHit ( Override )
-	public	override	void	OnHit( ref IBullet bullet )
+	public	override	void	OnHit( IBullet bullet )
 	{
 		float damage = Random.Range( bullet.DamageMin, bullet.DamageMax );
 		m_Health -= damage;
@@ -24,6 +23,11 @@ public partial class Player {
 
 		if ( m_Health < 0f )
 			OnKill();
+	}
+
+	public override void OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
+	{
+		
 	}
 
 

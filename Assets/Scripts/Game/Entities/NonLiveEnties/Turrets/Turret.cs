@@ -81,30 +81,52 @@ public abstract class Turret : NonLiveEntity {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnHit ( Override )
-	public override void OnHit( ref IBullet bullet )
+	public override void OnHit( IBullet bullet )
 	{
 		// Avoid friendly fire
 		if ( bullet.WhoRef is NonLiveEntity )
 			return;
 		
-		base.OnHit( ref bullet ); // set start bullet position as point to face at if not attacking
-
-//		m_DistanceToTravel	= ( transform.position - m_PointToFace ).sqrMagnitude;
-//		m_Destination = bullet.Transform.position;
-//		m_HasDestination = true;
-
+		base.OnHit( bullet ); // set start bullet position as point to face at if not attacking
 
 		if ( m_Shield != null && m_Shield.Status > 0f )
 		{
 			if ( m_Shield.IsUnbreakable == false )
 			{
-				m_Shield.OnHit( ref bullet );
+				m_Shield.OnHit( bullet );
 			}
 			if ( bullet.CanPenetrate == false )
 				return;
 		}
 
 		float damage = Random.Range( bullet.DamageMin, bullet.DamageMax );
+		m_Health -= damage;
+
+		if ( m_Health <= 0f )
+			OnKill();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnHit ( Override )
+	public override void OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
+	{
+		// Avoid friendly fire
+		if ( whoRef is NonLiveEntity )
+			return;
+		
+		base.OnHit( startPosition, whoRef, 0f ); // set start bullet position as point to face at if not attacking
+
+		if ( m_Shield != null && m_Shield.Status > 0f )
+		{
+			if ( m_Shield.IsUnbreakable == false )
+			{
+				m_Shield.OnHit( damage );
+			}
+			if ( canPenetrate == false )
+				return;
+		}
+
 		m_Health -= damage;
 
 		if ( m_Health <= 0f )

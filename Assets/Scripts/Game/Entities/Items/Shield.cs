@@ -7,7 +7,7 @@ public interface IShield {
 	Entity		Father				{ set; }
 	bool		IsUnbreakable		{ set; }
 
-	void		OnHit				( ref IBullet bullet );
+	void		OnHit				( IBullet bullet );
 	void		OnReset				();
 }
 
@@ -45,9 +45,22 @@ public class Shield : MonoBehaviour, IShield {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnHit
-	public	void	OnHit( ref IBullet bullet )
+	public	void	OnHit( IBullet bullet )
 	{
 		float damage = Random.Range( bullet.DamageMin, bullet.DamageMax );
+		m_Status -= damage;
+		if ( m_Status <= 0f )
+		{
+			m_Renderer.enabled = false;
+			m_Collider.enabled = false;
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnHit
+	public	void	OnHit( float damage )
+	{
 		m_Status -= damage;
 		if ( m_Status <= 0f )
 		{
@@ -75,14 +88,14 @@ public class Shield : MonoBehaviour, IShield {
 		}
 		
 		// Shiled take hit
-		OnHit( ref bullet );
+		OnHit( bullet );
 
 		// Penetration effect
 		if ( m_Father != null && bullet.CanPenetrate == true && bullet.Weapon != null )
 		{
 			bullet.DamageMax *= 0.5f;
 			bullet.DamageMin *= 0.5f;
-			m_Father.OnHit( ref bullet );
+			m_Father.OnHit( bullet );
 		}
 		bullet.SetActive( false );
 	}

@@ -28,7 +28,7 @@ public class TurretHard : Turret {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnHit ( Override )
-	public override void OnHit( ref IBullet bullet )
+	public override void OnHit( IBullet bullet )
 	{
 		// Avoid friendly fire
 		if ( bullet.WhoRef is NonLiveEntity )

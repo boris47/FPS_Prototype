@@ -43,7 +43,15 @@ public abstract partial class NonLiveEntity : Entity {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnHit ( Override )
-	public override void OnHit( ref IBullet bullet )
+	public override void OnHit( IBullet bullet )
+	{
+		OnHit( bullet.StartPosition, bullet.WhoRef, 0f );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnHit ( Override )
+	public	override	void	OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
 		// Hit event, set ALARMED State if actual is NORMAL
 		if ( m_Brain.State == BrainState.NORMAL )
@@ -55,7 +63,7 @@ public abstract partial class NonLiveEntity : Entity {
 		if ( m_Brain.State != BrainState.ATTACKING )
 		{
 			// set start bullet position as point to face at
-			m_PointToFace	= bullet.StartPosition;	
+			m_PointToFace	= startPosition;	
 			m_HasFaceTarget = true;
 		}
 	}

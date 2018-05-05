@@ -65,7 +65,7 @@ public abstract partial class LiveEntity  {
 //		print( other.transform.parent.name );
 
 		// long range attack
-		OnHit( ref bullet );
+		OnHit( bullet );
 
 		bullet.SetActive( false );
 	}

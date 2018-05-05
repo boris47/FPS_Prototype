@@ -91,21 +91,21 @@ public class EffectManager : MonoBehaviour {
 
 	//////////////////////////////////////////////////////////////////////////
 	// PlayEntityOnHit
-	public	void	PlayEntityOnHit( Vector3 position, Vector3 direction )
+	public	void	PlayEntityOnHit( Vector3 position, Vector3 direction, int count = 3 )
 	{
 		m_ParticleSystemEntityOnHit.transform.position = position;
 		m_ParticleSystemEntityOnHit.transform.forward = direction;
-		m_ParticleSystemEntityOnHit.Emit( 3 );
+		m_ParticleSystemEntityOnHit.Emit( count );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// PlayAmbientOnHit
-	public	void	PlayAmbientOnHit( Vector3 position, Vector3 direction )
+	public	void	PlayAmbientOnHit( Vector3 position, Vector3 direction, int count = 3 )
 	{
 		m_ParticleSystemAmbientOnHit.transform.position = position;
 		m_ParticleSystemAmbientOnHit.transform.forward = direction;
-		m_ParticleSystemAmbientOnHit.Emit( 3 );
+		m_ParticleSystemAmbientOnHit.Emit( count );
 	}
 
 

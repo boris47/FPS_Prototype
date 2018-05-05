@@ -183,7 +183,7 @@ public class GlobeGranade : GranadeBase {
 	{
 		float tmpDmg = m_DamageMax;
 		m_DamageMax *= Time.deltaTime * m_DamageMult;
-		entity.OnHit( ref m_Instance );
+		entity.OnHit( m_Instance );
 		m_DamageMax = tmpDmg;
 	}
 

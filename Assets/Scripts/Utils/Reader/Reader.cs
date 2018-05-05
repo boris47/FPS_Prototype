@@ -264,10 +264,10 @@ namespace CFG_Reader {
 		//////////////////////////////////////////////////////////////////////////
 		// GetSection
 		// RETRIEVE A SECTION, IF EXISTS, OTHERWISE RETURN NULL
-		public void GetSection( string SecName, ref Section section )
+		public bool GetSection( string SecName, ref Section section )
 		{
 //			Section result = null;
-			mSectionMap.TryGetValue( SecName, out section );
+			return mSectionMap.TryGetValue( SecName, out section );
 //			section = result;
 		}
 

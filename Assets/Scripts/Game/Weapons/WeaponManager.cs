@@ -121,7 +121,7 @@ public class WeaponManager : MonoBehaviour {
 		if ( Weapon.Array[ CurrentWeaponIndex ].CanChangeWeapon() == false )
 			return;
 
-		if ( index > -1 && index != CurrentWeaponIndex && index < m_WeaponsCount )
+		if ( index > -1 && index != CurrentWeaponIndex && index < m_WeaponsCount && Weapon.Array[index] != null )
 		{
 			m_ChangingWpnCO = StartCoroutine( ChangeWeaponCO( index ) );
 			return;

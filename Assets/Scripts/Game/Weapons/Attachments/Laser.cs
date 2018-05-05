@@ -17,11 +17,22 @@ public class Laser : WeaponAttachment {
 		set { m_LaserLength = value; }
 	}
 
+	public		Transform			Target
+	{
+		get { return m_RayCastHit.transform; }
+	}
+
+	public		Vector3				HitPoint
+	{
+		get { return m_RayCastHit.point; }
+	}
+
 	private		RaycastHit			m_RayCastHit		= default( RaycastHit );
 	private		Transform			m_LaserTransform	= null;
 
 	private		Vector3				m_LocalScale		= new Vector3();
 
+	private		Renderer			m_Renderer			= null;
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake
@@ -29,6 +40,24 @@ public class Laser : WeaponAttachment {
 	{
 		m_LaserTransform = transform.GetChild( 0 );
 
+		m_Renderer = GetComponentInChildren<Renderer>();
+		m_Renderer.material.color = m_Color;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnDisable
+	private void OnEnable()
+	{
+		m_LaserTransform.gameObject.SetActive( true );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnDisable
+	private void OnDisable()
+	{
+		m_LaserTransform.gameObject.SetActive( false );
 	}
 
 
@@ -43,6 +72,8 @@ public class Laser : WeaponAttachment {
 		float	currentLength = m_LaserLength;
 		if ( hasCollision )
 			currentLength = m_RayCastHit.distance;
+		else
+			m_RayCastHit = default( RaycastHit );
 
 		 //if the additional decimal isn't added then the beam position glitches
 		float beamPosition = currentLength / ( 2f + 0.0001f );

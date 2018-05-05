@@ -10,7 +10,7 @@ public class UI_InGame : MonoBehaviour {
 
 	private			Text			wpnName			= null;
 	private			Text			bulletsCount	= null;
-	private			Text			fireMode		= null;
+	private			Text			otherInfo		= null;
 
 	private			Image			staminaBar		= null;
 
@@ -29,7 +29,7 @@ public class UI_InGame : MonoBehaviour {
 
 		wpnName			= transform.GetChild(1).GetChild(0).GetComponent<Text>();
 		bulletsCount	= transform.GetChild(1).GetChild(1).GetComponent<Text>();
-		fireMode		= transform.GetChild(1).GetChild(2).GetComponent<Text>();
+		otherInfo		= transform.GetChild(1).GetChild(2).GetComponent<Text>();
 		staminaBar		= transform.GetChild(1).GetChild(3).GetChild(1).GetComponent<Image>();
 
 		m_EffectFrame	= transform.GetChild(2).GetComponent<Image>();
@@ -109,7 +109,7 @@ public class UI_InGame : MonoBehaviour {
 
 		wpnName.text		= WeaponManager.Instance.CurrentWeapon.Transform.name;
 		bulletsCount.text	= WeaponManager.Instance.CurrentWeapon.Magazine.ToString();
-		fireMode.text		= WeaponManager.Instance.CurrentWeapon.FireMode.ToString();
+		otherInfo.text		= WeaponManager.Instance.CurrentWeapon.OtherInfo;
 	}
 	
 

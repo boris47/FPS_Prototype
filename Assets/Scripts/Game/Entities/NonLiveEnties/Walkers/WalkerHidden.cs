@@ -64,13 +64,13 @@ public class WalkerHidden : Walker {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnHit ( Override )
-	public		override	void	OnHit( ref IBullet bullet )
+	public		override	void	OnHit( IBullet bullet )
 	{
 		// Avoid friendly fire
 		if ( bullet.WhoRef is NonLiveEntity )
 			return;
 
-		base.OnHit( ref bullet );
+		base.OnHit( bullet );
 
 		if ( m_IsEnabled == false )
 		{

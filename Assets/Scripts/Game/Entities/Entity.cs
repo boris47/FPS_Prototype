@@ -23,7 +23,8 @@ public interface IEntity {
 	void					OnTargetChanged					( TargetInfo_t targetInfo );
 	void					OnTargetLost					( TargetInfo_t targetInfo );
 
-	void					OnHit							( ref IBullet bullet );
+	void					OnHit							( IBullet bullet );
+	void					OnHit							( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false );
 	void					OnKill							();
 }
 

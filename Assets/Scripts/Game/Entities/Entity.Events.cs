@@ -26,7 +26,9 @@ public abstract partial class Entity {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnHit ( Abstract )
-	public	abstract	void				OnHit( ref IBullet bullet );
+	public	abstract	void				OnHit( IBullet bullet );
+
+	public	abstract	void				OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false );
 
 
 	//////////////////////////////////////////////////////////////////////////

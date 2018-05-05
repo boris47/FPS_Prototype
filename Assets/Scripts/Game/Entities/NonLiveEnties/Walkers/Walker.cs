@@ -84,13 +84,13 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnHit ( Override )
-	public override void OnHit( ref IBullet bullet )
+	public override void OnHit( IBullet bullet )
 	{
 		// Avoid friendly fire
 		if ( bullet.WhoRef is NonLiveEntity )
 			return;
 		
-		base.OnHit( ref bullet ); // set start bullet position as point to face at if not attacking
+		base.OnHit( bullet ); // set start bullet position as point to face at if not attacking
 
 		if ( m_TargetInfo.HasTarget == false && bullet is GranadeBase )
 		{
@@ -103,7 +103,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 		if ( m_Shield != null && m_Shield.Status > 0f && m_Shield.IsUnbreakable == false )
 		{
-			m_Shield.OnHit( ref bullet );
+			m_Shield.OnHit( bullet );
 			return;
 		}
 
@@ -113,6 +113,26 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		if ( m_Health <= 0f )
 			OnKill();
 	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnHit ( Override )
+	public override void OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
+	{
+		base.OnHit( startPosition, whoRef, 0f );
+
+		if ( m_Shield != null && m_Shield.Status > 0f && m_Shield.IsUnbreakable == false )
+		{
+			m_Shield.OnHit( damage );
+			return;
+		}
+
+		m_Health -= damage;
+
+		if ( m_Health <= 0f )
+			OnKill();
+	}
+	
 
 
 	//////////////////////////////////////////////////////////////////////////
