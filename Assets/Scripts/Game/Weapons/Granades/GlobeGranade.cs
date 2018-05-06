@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿
+using UnityEngine;
 using System.Collections;
-using System;
+using System.Collections.Generic;
 
 public class GlobeGranade : GranadeBase {
 	
@@ -10,8 +11,11 @@ public class GlobeGranade : GranadeBase {
 	private		Transform		m_ExplosionGlobe	= null;
 	private		bool			m_InExplosion		= false;
 
-//	private		ParticleSystem	m_ParticleSystem	= null;
+	private		List<Entity>	m_Entites			= new List<Entity>();
 
+	private		ParticleSystem	m_ParticleSystem	= null;
+
+	private		WaitForSeconds	m_WaitInstruction	= null;
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
@@ -30,16 +34,19 @@ public class GlobeGranade : GranadeBase {
 			m_ExplosionDelay			= section.AsFloat( "ExplosionDelay",	m_ExplosionDelay );
 		}
 
+		m_WaitInstruction	= new WaitForSeconds( m_Duration );
 		m_ExplosionGlobe	= transform.GetChild(0);
-//		m_ParticleSystem	= GetComponentInChildren<ParticleSystem>();
+		m_ParticleSystem	= m_ExplosionGlobe.GetComponent<ParticleSystem>();
+		m_ExplosionGlobe.gameObject.SetActive( false );
 	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnEnable ( Override )
 	protected override void OnEnable()
 	{
 		m_ExplosionGlobe.localScale = Vector3.zero;
-//		m_ParticleSystem.Play( withChildren : true );
+		m_ExplosionGlobe.gameObject.SetActive( false );
 	}
 
 
@@ -69,6 +76,7 @@ public class GlobeGranade : GranadeBase {
 		StopAllCoroutines();
 		m_RigidBody.constraints = RigidbodyConstraints.None;
 		m_InExplosion = false;
+		m_Entites.Clear();
 		base.SetActive( state );
 	}
 
@@ -94,7 +102,10 @@ public class GlobeGranade : GranadeBase {
 	protected override void Update()
 	{
 		if ( m_InExplosion == true )
+		{
+			MakeDamage();
 			return;
+		}
 
 		m_InternalCounter -= Time.deltaTime;
 		if ( m_InternalCounter < 0 )
@@ -110,7 +121,7 @@ public class GlobeGranade : GranadeBase {
 
 	//////////////////////////////////////////////////////////////////////////
 	// ForceExplosion ( Override )
-	public override void ForceExplosion()
+	public		override	void		ForceExplosion()
 	{
 		base.ForceExplosion();
 	}
@@ -118,7 +129,7 @@ public class GlobeGranade : GranadeBase {
 
 	///////////////////////////////////////////////////////////////////////////
 	// OnExplosion ( Override )
-	protected override	void	OnExplosion()
+	protected	override	void		OnExplosion()
 	{
 		if ( m_InExplosion == true )
 			return;
@@ -131,7 +142,7 @@ public class GlobeGranade : GranadeBase {
 
 	//////////////////////////////////////////////////////////////////////////
 	// ExplosionCO ( Coroutine )
-	private	IEnumerator	ExplosionCO()
+	private					IEnumerator	ExplosionCO()
 	{
 		m_ExplosionGlobe.localScale = Vector3.zero;
 		Vector3 finalScale			= Vector3.one * ( m_Range ) * ( transform.localScale.x * 40f );
@@ -139,6 +150,7 @@ public class GlobeGranade : GranadeBase {
 
 		m_RigidBody.constraints = RigidbodyConstraints.FreezeAll;
 		m_Renderer.enabled = false;
+		m_ExplosionGlobe.gameObject.SetActive( true );
 
 		while( interpolant < 1f )
 		{
@@ -147,15 +159,38 @@ public class GlobeGranade : GranadeBase {
 			yield return null;
 		}
 
-		yield return new WaitForSeconds( m_Duration );
+		yield return m_WaitInstruction; // wait for m_Duration
 
 		m_RigidBody.constraints = RigidbodyConstraints.None;
 
 		m_ExplosionGlobe.localScale = Vector3.zero;
+		m_ExplosionGlobe.gameObject.SetActive( false );
 		m_InExplosion = false;
 
-		SetActive( false );
 		m_InternalCounter = 0f;
+		SetActive( false );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// MakeDamage
+	public	void	MakeDamage()
+	{
+		for ( int i = m_Entites.Count - 1; i > 0; i-- )
+		{
+			IEntity entity = m_Entites[ i ];
+			/*
+			if ( entity.IsActive == false )
+			{
+				m_Entites.RemoveAt( i );
+				continue;
+			}
+			*/
+			float tmpDmg = m_DamageMax;
+			m_DamageMax *= m_DamageMult;
+			entity.OnHit( m_Instance );
+			m_DamageMax = tmpDmg;
+		}
 	}
 
 
@@ -163,40 +198,49 @@ public class GlobeGranade : GranadeBase {
 	// OnCollisionEnter ( Override )
 	protected override void OnCollisionEnter( Collision collision )
 	{
-		Entity entity = collision.gameObject.GetComponent<Entity>();
-		Shield shield = collision.gameObject.GetComponent<Shield>();
-		if ( entity != null || shield != null )
+		if ( m_InExplosion == true )
+			return;
+
+		m_RigidBody.constraints = RigidbodyConstraints.FreezeAll;
+
+		bool hitEntity = collision.gameObject.GetComponent<Entity>() != null;
+		bool hitShield = collision.gameObject.GetComponent<Shield>() != null;
+		bool hitBullet = collision.gameObject.GetComponent<Bullet>() != null;
+
+		if ( ( hitEntity || hitShield || hitShield ) && m_InExplosion == false )
 		{
 			OnExplosion();
-			return;
 		}
-
-		IBullet bullet = collision.gameObject.GetComponent<IBullet>();
-		if ( bullet == null )
-			m_RigidBody.constraints = RigidbodyConstraints.FreezeAll;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// MakeDamage
-	public	void	MakeDamage( ref Entity entity )
-	{
-		float tmpDmg = m_DamageMax;
-		m_DamageMax *= Time.deltaTime * m_DamageMult;
-		entity.OnHit( m_Instance );
-		m_DamageMax = tmpDmg;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnTriggerStay
-	private void OnTriggerStay( Collider other )
+	// OnTriggerEnter
+	private void OnTriggerEnter( Collider other )
 	{
 		Entity entity = other.GetComponent<Entity>();
 		if ( entity == null )
 			return;
 		
-		MakeDamage( ref entity );
+		if ( m_Entites.Contains( entity ) )
+			return;
+
+		m_Entites.Add( entity );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnTriggerEnter
+	private void OnTriggerExit( Collider other )
+	{
+		Entity entity = other.GetComponent<Entity>();
+		if ( entity == null )
+			return;
+
+		if ( m_Entites.Contains( entity ) )
+			return;
+
+		m_Entites.Remove( entity );
 	}
 
 }

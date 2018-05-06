@@ -25,12 +25,16 @@ public class EffectManager : MonoBehaviour {
 	[ SerializeField ]
 	private		Transform					m_ElettroParticleSystemsCollection		= null;
 
+	[ SerializeField ]
+	private		Transform					m_PLasmaParticleSystemsCollection		= null;
+
 
 	[ SerializeField ]
 	private		CustomAudioSource			m_ExplosionSource						= null;
 
 	private		ParticleSystem[]			m_ExplosionParticleSystems				= null;
 	private		ParticleSystem[]			m_ElettroParticleSystems				= null;
+	private		ParticleSystem[]			m_PlasmaParticleSystems					= null;
 
 
 	private struct LongParticleSystemData {
@@ -57,13 +61,15 @@ public class EffectManager : MonoBehaviour {
 			m_ParticleSystemAmbientOnHit			== null ||
 			m_ExplosionParticleSystemsCollection	== null ||
 			m_ExplosionSource						== null ||
-			m_ElettroParticleSystemsCollection		== null
+			m_ElettroParticleSystemsCollection		== null	||
+			m_PLasmaParticleSystemsCollection		== null
 		)
 		return;
 
 
 		m_ExplosionParticleSystems	= m_ExplosionParticleSystemsCollection.GetComponentsInChildren<ParticleSystem>();
 		m_ElettroParticleSystems	= m_ElettroParticleSystemsCollection.GetComponentsInChildren<ParticleSystem>();
+		m_PlasmaParticleSystems		= m_PLasmaParticleSystemsCollection.GetComponentsInChildren<ParticleSystem>();
 	}
 
 
@@ -118,6 +124,20 @@ public class EffectManager : MonoBehaviour {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	// PlayPLasmaHit
+	public	void	PlayPlasmaHit( Vector3 position, Vector3 direction, int count = 3 )
+	{
+//		return AttachAndPlay( m_PlasmaParticleSystems, target );
+
+		ParticleSystem ps = m_PlasmaParticleSystems[0];
+
+		ps.transform.position = position;
+		ps.transform.forward = direction;
+		ps.Emit( count );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	// GetFreeParticleSystem
 	private	ParticleSystem	GetFreeParticleSystem( IEnumerable<ParticleSystem> collection )
 	{
@@ -127,8 +147,14 @@ public class EffectManager : MonoBehaviour {
 				continue;
 			return ps;
 		}
+
 		print( "EffectManager::GetFreeParticleSystem: Cannot find a valid particle system !!" );
-		return null;
+		using ( IEnumerator<ParticleSystem> enumer = collection.GetEnumerator() )
+		{
+			enumer.Reset();
+			enumer.MoveNext();
+			return enumer.Current;
+		}
 	}
 
 

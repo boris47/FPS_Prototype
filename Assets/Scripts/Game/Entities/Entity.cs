@@ -140,8 +140,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 		GameManager.Instance.OnSave += OnSave;
 		GameManager.Instance.OnLoad += OnLoad;
 
-
-
 		if ( this is Player )
 			return;
 

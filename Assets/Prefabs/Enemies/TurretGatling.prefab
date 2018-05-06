@@ -792,6 +792,7 @@ MonoBehaviour:
   m_ScaleFactor: 0.01
   m_Color: {r: 1, g: 0, b: 0, a: 1}
   m_LaserLength: 100
+  HasHit: 0
 --- !u!114 &114463819889316848
 MonoBehaviour:
   m_ObjectHideFlags: 1

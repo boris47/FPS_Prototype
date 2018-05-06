@@ -97,18 +97,21 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Setup ( Virtual )
-	public		virtual		void	Setup( float damage, bool canPenetrate, Entity whoRef, Weapon weapon )						// For Generic Bullets
+	/// <summary> For Generic Bullets </summary>
+	public		virtual		void	Setup( float damage, bool canPenetrate, Entity whoRef, Weapon weapon )
 	{}
 
 	//////////////////////////////////////////////////////////////////////////
 	// Setup ( Virtual )
-	public		virtual		void	Setup( float damageMin, float damageMax, bool canPenetrate, Entity whoRef, Weapon weapon )	// For Entities
+	/// <summary> For Entities </summary>
+	public		virtual		void	Setup( float damageMin, float damageMax, bool canPenetrate, Entity whoRef, Weapon weapon )
 	{}
 
 	//////////////////////////////////////////////////////////////////////////
 	// Setup ( Virtual )
-	public		virtual		void	Setup( Entity whoRef, Weapon weapon )														 // For Granades and Missiles
-	{ }
+	/// <summary> For Granades and Missiles </summary>
+	public		virtual		void	Setup( Entity whoRef, Weapon weapon )
+	{}
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnEnable ( Abstract )

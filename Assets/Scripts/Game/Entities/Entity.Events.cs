@@ -40,6 +40,9 @@ public abstract partial class Entity {
 	// OnKill ( Virtual )
 	public	virtual		void				OnKill()
 	{
+		if ( m_IsActive == false )
+			return;
+
 		m_RigidBody.velocity			= Vector3.zero;
 		m_RigidBody.angularVelocity		= Vector3.zero;
 

@@ -30,8 +30,6 @@ public abstract class GranadeBase : Bullet, IGranade {
 	{
 		base.Awake();
 
-
-
 		m_RigidBody.mass = float.Epsilon;
 
 		SetActive( false );

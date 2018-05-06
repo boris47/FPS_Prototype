@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Hammer : Weapon
 {
-	[Header("ACR Properties")]
+	[Header("Hammer Properties")]
 	[SerializeField]
 	protected		Bullet							m_Bullet					= null;
 
@@ -224,37 +224,18 @@ public class Hammer : Weapon
 		// DIRECTION
 		m_DispersionVector.Set
 		(
-			Random.Range( -maxDeviation, maxDeviation ),
-			Random.Range( -maxDeviation, maxDeviation ),
-			Random.Range( -maxDeviation, maxDeviation )
+			Random.Range( -m_FireDispersion, m_FireDispersion ),
+			Random.Range( -m_FireDispersion, m_FireDispersion ),
+			Random.Range( -m_FireDispersion, m_FireDispersion )
 		);
 
 		Vector3 direction = ( m_FirePoint.forward + m_DispersionVector ).normalized;
 
-		// AUDIOSOURCE
-		ICustomAudioSource audioSource = m_AudioSourceFire;
-
-		// CAM DISPERSION
-		float finalDispersion = m_CamDeviation * bullet.RecoilMult;
-		finalDispersion	*= Player.Instance.IsCrouched			? 0.50f : 1.00f;
-		finalDispersion	*= Player.Instance.IsMoving				? 1.50f : 1.00f;
-		finalDispersion	*= Player.Instance.IsRunning			? 2.00f : 1.00f;
-		finalDispersion	*= WeaponManager.Instance.Zoomed		? 0.80f : 1.00f;
-
 		// SHOOT
-		Shoot( bullet, position, direction, audioSource, finalDispersion );
-
-		// UPDATE UI
+		bullet.Shoot( position: position, direction: direction );
+		m_AudioSourceFire.Play();
+		CameraControl.Instance.ApplyDeviation( m_CamDeviation );
 		UI.Instance.InGame.UpdateUI();
 	}
 
-
-	//////////////////////////////////////////////////////////////////////////
-	// Shoot ( Override )
-	private					void		Shoot( IBullet bullet, Vector3 position, Vector3 direction, ICustomAudioSource audioSource, float camDispersion )
-	{
-		bullet.Shoot( position: position, direction: direction );
-		audioSource.Play();
-		CameraControl.Instance.ApplyDispersion( camDispersion );
-	}
 }

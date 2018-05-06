@@ -16,14 +16,18 @@ public class Razor : Weapon
 	private		Laser							m_Laser						= null;
 
 	[SerializeField]
-	protected	Renderer						m_Renderer					= null;
+	private		float							m_AmmoUnitRechargeDelay		= 0.1f;
 
+	[SerializeField]
+	protected	Renderer						m_Renderer					= null;
 
 	private		Color							m_StartEmissiveColor		= Color.clear;
 
+	private		float							m_AmmoRestoreCounter		= 0f;
+
 	private		Canvas							m_Canvas					= null;
 	private		Image							m_Panel						= null;
-	private		Text							m_AmmoText					= null;
+	private		Slider							m_MagazineSlider			= null;
 
 
 	protected override string OtherInfo
@@ -48,10 +52,10 @@ public class Razor : Weapon
 
 		m_StartEmissiveColor = m_Renderer.material.GetColor( "_EmissionColor" );
 
-		m_Canvas	= GetComponentInChildren<Canvas>();
-		m_Panel		= m_Canvas.transform.GetChild(0).GetComponent<Image>();
-		m_AmmoText	= m_Panel.transform.GetChild(0).GetComponent<Text>();
-		m_AmmoText.text = m_Magazine.ToString();
+		m_Canvas			= GetComponentInChildren<Canvas>();
+		m_Panel				= m_Canvas.transform.GetChild(0).GetComponent<Image>();
+		m_MagazineSlider	= m_Panel.transform.GetChild(0).GetComponent<Slider>();
+		m_MagazineSlider.value = 1f;
 
 		m_Laser.LaserLength = m_BeamLength;
 	}
@@ -97,7 +101,7 @@ public class Razor : Weapon
 
 	//////////////////////////////////////////////////////////////////////////
 	// Update ( override )
-	protected	override	void			Update()
+	protected override void Update()
 	{
 		// Zom fire
 		if ( InputManager.Inputs.Fire2 && m_InTransition == false && m_IsRecharging == false )
@@ -124,13 +128,28 @@ public class Razor : Weapon
 		if ( InputManager.Inputs.Fire1 && m_Magazine > 0 && m_InTransition == false && m_NeedRecharge == false )
 		{
 			m_Laser.enabled = true;
-			m_IsFiring = true;
 		}
 
+		//Is Firing
+		m_IsFiring = m_Laser.enabled;
+
 		// Stop Firing
-		if ( InputManager.Inputs.Fire1Released )
+		if ( InputManager.Inputs.Fire1Released || m_Magazine <= 0f )
 		{
 			m_Laser.enabled = false;
+		}
+
+		if ( m_Magazine < m_MagazineCapacity && m_IsFiring == false )
+		{
+			m_AmmoRestoreCounter -= Time.deltaTime;
+			if ( m_AmmoRestoreCounter < 0f )
+			{
+				m_Magazine ++;
+				m_AmmoRestoreCounter = m_AmmoUnitRechargeDelay;
+				m_MagazineSlider.value = ( float )( ( float )m_Magazine / ( float )m_MagazineCapacity );
+				Color current = Color.Lerp( Color.blue, m_StartEmissiveColor, m_MagazineSlider.value );
+				m_Renderer.material.SetColor( "_EmissionColor", current );
+			}
 		}
 	}
 
@@ -140,14 +159,32 @@ public class Razor : Weapon
 	private void FixedUpdate()
 	{
 		// Hit target(s)
-		if ( m_Laser.Target != null )
+		if ( m_Laser.enabled == true)
 		{
-			IEntity entity = m_Laser.Target.GetComponent<IEntity>();
-			if ( entity != null )
+			if ( m_Laser.HasHit == true )
 			{
-				entity.OnHit( transform.position, Player.Instance, m_MainDamage, false );
-				EffectManager.Instance.PlayEntityOnHit( m_Laser.HitPoint, ( entity.Transform.position - transform.position ).normalized, 1 );
+				IEntity entity = m_Laser.RayCastHit.transform.GetComponent<IEntity>();
+				if ( entity != null )
+				{
+					// Do damage scaled with time scale
+					entity.OnHit( transform.position, Player.Instance, m_MainDamage * Time.timeScale, false );
+
+					EffectManager.Instance.PlayPlasmaHit( m_Laser.RayCastHit.point, m_Laser.RayCastHit.normal, 1 );
+				}
+				EffectManager.Instance.PlayEntityOnHit( m_Laser.RayCastHit.point, m_Laser.RayCastHit.normal, 1 );
 			}
+			m_Magazine --;
+
+
+			// disperion scaled with time scale
+			float dispersion = Random.Range( -m_FireDispersion, m_FireDispersion ) * ( 2f - m_MagazineSlider.value );
+			CameraControl.Instance.ApplyDispersion( dispersion, 1f, 1f );
+
+			// deviation scaled with time scale
+			float deviation = Random.Range( -m_CamDeviation, m_CamDeviation ) * ( 2f - m_MagazineSlider.value );
+			CameraControl.Instance.ApplyDeviation( deviation, 1f, 0.5f );
+
+			m_MagazineSlider.value = ( float )( ( float )m_Magazine / ( float )m_MagazineCapacity );
 		}
 	}
 

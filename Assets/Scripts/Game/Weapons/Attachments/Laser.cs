@@ -17,17 +17,12 @@ public class Laser : WeaponAttachment {
 		set { m_LaserLength = value; }
 	}
 
-	public		Transform			Target
-	{
-		get { return m_RayCastHit.transform; }
-	}
-
-	public		Vector3				HitPoint
-	{
-		get { return m_RayCastHit.point; }
-	}
-
+	public		bool				HasHit				= false;
 	private		RaycastHit			m_RayCastHit		= default( RaycastHit );
+	public		RaycastHit			RayCastHit
+	{
+		get { return m_RayCastHit; }
+	}
 	private		Transform			m_LaserTransform	= null;
 
 	private		Vector3				m_LocalScale		= new Vector3();
@@ -65,12 +60,12 @@ public class Laser : WeaponAttachment {
 	// Update
 	private void Update()
 	{
-		bool hasCollision = Physics.Raycast( transform.position, transform.forward, out m_RayCastHit, m_LaserLength );
+		HasHit = Physics.Raycast( transform.position, transform.forward, out m_RayCastHit, m_LaserLength );
 
 //		if ( hasCollision ) print( m_RayCastHit.transform.name );
 
 		float	currentLength = m_LaserLength;
-		if ( hasCollision )
+		if ( HasHit )
 			currentLength = m_RayCastHit.distance;
 		else
 			m_RayCastHit = default( RaycastHit );

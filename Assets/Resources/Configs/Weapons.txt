@@ -14,13 +14,19 @@ ZoomFactor			= 4.0;
 ZoomingTime			= 0.2;
 ZommSensitivity		= 0.3;
 
+[Razor] : G36
+Damage				= 2.0;
+ZoomFactor			= 6.0;
+ZoomingTime			= 0.2;
+
 [Hammer]
 Damage				= 13.0;
 ZoomFactor			= 2.0;
 ZoomingTime			= 0.2;
 ZommSensitivity		= 0.3;
 
-[Razor] : G36
-Damage				= 2.0;
-ZoomFactor			= 6.0;
+[Breaker]
+Damage				= 13.0;
+ZoomFactor			= 2.0;
 ZoomingTime			= 0.2;
+ZommSensitivity		= 0.3;

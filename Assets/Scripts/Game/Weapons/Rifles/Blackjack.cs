@@ -7,7 +7,7 @@ public class Blackjack : Weapon {
 		SINGLE, BURST, AUTO
 	}
 
-	[Header("M4A1 Properties")]
+	[Header("Blackjack Properties")]
 
 	[SerializeField]
 	protected		Bullet							m_Bullet					= null;
@@ -271,7 +271,7 @@ public class Blackjack : Weapon {
 	{
 		if ( InputManager.Inputs.Fire1 )
 		{
-			ConfigureShot();
+			Shoot();
 			m_IsFiring = true;
 		}
 	}
@@ -286,7 +286,7 @@ public class Blackjack : Weapon {
 		{
 			m_BrustCount ++;
 
-			ConfigureShot();
+			Shoot();
 			m_IsFiring = true;
 		}
 	}
@@ -298,7 +298,7 @@ public class Blackjack : Weapon {
 	{
 		if ( ( InputManager.Inputs.Fire1Loop ) )
 		{
-			ConfigureShot();
+			Shoot();
 			m_IsFiring = true;
 		}
 	}
@@ -306,7 +306,7 @@ public class Blackjack : Weapon {
 
 	//////////////////////////////////////////////////////////////////////////
 	// ConfigureShot
-	private					void			ConfigureShot()
+	private					void			Shoot()
 	{
 		m_FireTimer = m_ShotDelay;
 
@@ -326,11 +326,8 @@ public class Blackjack : Weapon {
 
 		Vector3 direction = m_FirePoint.forward;
 
-		// AUDIOSOURCE
-		ICustomAudioSource audioSource = m_AudioSourceFire;
-
 		// CAM DISPERSION
-		float finalDispersion = m_CamDeviation * bullet.RecoilMult;
+		float finalDispersion = m_FireDispersion * bullet.RecoilMult;
 		finalDispersion	*= Player.Instance.IsCrouched			? 0.50f : 1.00f;
 		finalDispersion	*= Player.Instance.IsMoving				? 1.50f : 1.00f;
 		finalDispersion	*= Player.Instance.IsRunning			? 2.00f : 1.00f;
@@ -340,19 +337,11 @@ public class Blackjack : Weapon {
 		finalDispersion	*= WeaponManager.Instance.Zoomed		? 0.80f : 1.00f;
 
 		// SHOOT
-		Shoot( bullet, position, direction, audioSource, finalDispersion );
-
-		// UPDATE UI
+		bullet.Shoot( position: position, direction: direction );
+		m_AudioSourceFire.Play();
+		CameraControl.Instance.ApplyDeviation( m_CamDeviation );
+		CameraControl.Instance.ApplyDispersion( finalDispersion );
 		UI.Instance.InGame.UpdateUI();
 	}
 
-
-	//////////////////////////////////////////////////////////////////////////
-	// Shoot ( Override )
-	private					void		Shoot( IBullet bullet, Vector3 position, Vector3 direction, ICustomAudioSource audioSource, float camDispersion )
-	{
-		bullet.Shoot( position: position, direction: direction );
-		audioSource.Play();
-		CameraControl.Instance.ApplyDispersion( camDispersion );
-	}
 }

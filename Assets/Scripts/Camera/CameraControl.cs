@@ -8,7 +8,7 @@ public interface ICameraSetters {
 
 public partial class CameraControl : MonoBehaviour, ICameraSetters {
 
-	private	const	float	WPN_ROTATION_CLAMP_VALUE	= 5f;
+	private	const	float	WPN_ROTATION_CLAMP_VALUE	= 2f;
 
 	public	const	float	CLAMP_MAX_X_AXIS			=  80.0f;
 	public	const	float	CLAMP_MIN_X_AXIS			= -80.0f;
@@ -67,11 +67,9 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 	public	Vector3			m_CurrentDirection			= Vector3.zero;
 
 	// WEAPON
-	private	Vector3			m_CurrentDispersion			= Vector3.zero;
-	private	Vector3			m_WeaponPositionDelta		= Vector3.zero;
-	private	Vector3			m_WeaponRotationDelta		= Vector3.zero;
-	private	Vector3			m_WpnRotationfeedbackX		= Vector3.zero;
-	private	Vector3			m_WpnRotationfeedbackY		= Vector3.zero;
+	private	Vector3			m_WpnCurrentDeviation		= Vector3.zero;
+	private	Vector3			m_WpnCurrentDispersion		= Vector3.zero;
+	private	Vector3			m_WpnRotationfeedback		= Vector3.zero;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -155,31 +153,33 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 	{
 		m_CurrentRotation_X_Delta = 0f;
 		m_CurrentRotation_Y_Delta = 0f;
-		m_CurrentDispersion = Vector3.zero;
+		m_WpnCurrentDeviation = m_WpnCurrentDispersion = Vector3.zero;
 
-		if ( m_CurrentDirection.x > CLAMP_MAX_X_AXIS )
-		{
-			m_CurrentDirection.x = m_CurrentDirection.x - 360f;
+		if ( m_CurrentDirection.x > CLAMP_MAX_X_AXIS )	m_CurrentDirection.x = m_CurrentDirection.x - 360f;
+		if ( m_CurrentDirection.x < CLAMP_MIN_X_AXIS )	m_CurrentDirection.x = m_CurrentDirection.x + 360f;
+	}
 
-		}
 
-		if ( m_CurrentDirection.x < CLAMP_MIN_X_AXIS )
-		{
-			m_CurrentDirection.x = m_CurrentDirection.x + 360f;
-		}
+	//////////////////////////////////////////////////////////////////////////
+	// ApplyDeviation
+	public	void	ApplyDeviation( float deviation, float weightX = 1f, float weightY = 1f )
+	{
+		if ( Player.Instance.IsDodging )
+			return;
+
+		m_WpnCurrentDeviation.x += Random.Range( -deviation, -deviation * 0.5f ) * weightX;
+		m_WpnCurrentDeviation.y += Random.Range( -deviation,  deviation ) * weightY;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// ApplyDispersion
-	public	void	ApplyDispersion( float range )
+	public	void	ApplyDispersion( float dispersion, float weightX = 1f, float weightY = 1f )
 	{
-		if ( Player.Instance.IsDodging )
-			return;
-
-		m_CurrentDispersion.x += Random.Range( -range, -range * 0.5f );
-		m_CurrentDispersion.y += Random.Range( -range,  range );
+		m_WpnCurrentDispersion.x += Random.Range( -dispersion, -dispersion * 0.5f ) * weightX;
+		m_WpnCurrentDispersion.y += Random.Range( -dispersion,  dispersion ) * weightY;
 	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// FixedUpdate
@@ -198,12 +198,15 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Update
-	private	void	Update()
+	// LateUpdate
+	private	void	LateUpdate()
 	{
 		if ( m_ViewPoint == null )
 			return;
 
+		float dt = Time.deltaTime;
+
+		// CAMERA EFFECTS
 		if ( Player.Instance.IsGrounded )
 		{
 			m_HeadBob.Update ( weight : Player.Instance.IsMoving == true ? 1f : 0f );
@@ -215,41 +218,34 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 			m_HeadMove.Reset( bInstantly : false );
 		}
 
-		m_WpnRotationfeedbackX = Vector3.Lerp( m_WpnRotationfeedbackX, Vector3.zero, Time.deltaTime );
-		m_WpnRotationfeedbackY = Vector3.Lerp( m_WpnRotationfeedbackY, Vector3.zero, Time.deltaTime );
-
-		m_WeaponPositionDelta = m_HeadBob.WeaponPositionDelta + m_HeadMove.WeaponPositionDelta;
-		m_WeaponRotationDelta = m_HeadBob.WeaponRotationDelta + m_HeadMove.WeaponRotationDelta;
-
-		if ( WeaponManager.Instance.CurrentWeapon.IsFiring == true )
-		{
-			float fireDispersion = WeaponManager.Instance.CurrentWeapon.FireDispersion;
-			Vector3 finalRotationDelta = m_WeaponRotationDelta + ( m_CurrentDispersion * fireDispersion );
-			m_WeaponRotationDelta = Vector3.Lerp( m_WeaponRotationDelta, finalRotationDelta, Time.deltaTime );
-		}
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// LateUpdate
-	private	void	LateUpdate()
-	{
-		if ( m_ViewPoint == null )
-			return;
-
+		// Used for view smotthness
 		m_SmoothFactor = Mathf.Clamp( m_SmoothFactor, 1.0f, 10.0f );
-		
-		if ( WeaponManager.Instance.CurrentWeapon.IsFiring == false )
-		{
-			m_WeaponRotationDelta += m_WpnRotationfeedbackX;
-			m_WeaponRotationDelta += m_WpnRotationfeedbackY;
-		}
 
 		// Weapon movements
 		if ( WeaponManager.Instance.CurrentWeapon != null )
 		{
-			WeaponManager.Instance.CurrentWeapon.Transform.localPosition	 = m_WeaponPositionDelta;
-			WeaponManager.Instance.CurrentWeapon.Transform.localEulerAngles	 = m_WeaponRotationDelta;
+			m_WpnRotationfeedback	= Vector3.Lerp( m_WpnRotationfeedback, Vector3.zero, dt );
+			m_WpnCurrentDeviation	= Vector3.Lerp( m_WpnCurrentDeviation,  Vector3.zero, dt * 3.7f );
+			m_WpnCurrentDispersion	= Vector3.Lerp( m_WpnCurrentDispersion, Vector3.zero, dt * 3.7f );
+
+			Vector3 wpnPositionDelta = m_HeadBob.WeaponPositionDelta + m_HeadMove.WeaponPositionDelta;
+			Vector3 wpnRotationDelta = m_HeadBob.WeaponRotationDelta + m_HeadMove.WeaponRotationDelta;
+
+			if ( WeaponManager.Instance.CurrentWeapon.IsFiring == true )
+			{
+				wpnRotationDelta += m_WpnCurrentDispersion;
+
+//				float fireDispersion = WeaponManager.Instance.CurrentWeapon.FireDispersion;
+//				Vector3 finalRotationDelta = m_WeaponRotationDelta + ( m_CurrentDispersion * fireDispersion );
+//				m_WeaponRotationDelta = Vector3.Lerp( m_WeaponRotationDelta, finalRotationDelta, Time.deltaTime );
+			}
+			else
+			{
+//				wpnPositionDelta += m_WpnRotationfeedback.x;
+				wpnRotationDelta += m_WpnRotationfeedback;
+			}
+			WeaponManager.Instance.CurrentWeapon.Transform.localPosition	 = wpnPositionDelta;
+			WeaponManager.Instance.CurrentWeapon.Transform.localEulerAngles	 = wpnRotationDelta;
 		}
 
 		// Look at target is assigned
@@ -257,17 +253,17 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 			return;
 
 		// Cam Dispersion
-		m_CurrentDirection		= Vector3.Lerp( m_CurrentDirection, m_CurrentDirection + m_CurrentDispersion, Time.deltaTime * 8f );
+		m_CurrentDirection		= Vector3.Lerp( m_CurrentDirection, m_CurrentDirection + m_WpnCurrentDeviation, dt * 8f );
 		m_CurrentDirection.x	= Utils.Math.Clamp( m_CurrentDirection.x - m_CurrentRotation_Y_Delta, CLAMP_MIN_X_AXIS, CLAMP_MAX_X_AXIS );
-		m_CurrentDispersion		= Vector3.Lerp ( m_CurrentDispersion, Vector3.zero, Time.deltaTime * 3.7f );
+		
 
 		// Rotation
 		if ( CanParseInput == true )
 		{
 			bool	isZoomed			= WeaponManager.Instance.Zoomed;
 			float	wpnZoomSensitivity  = WeaponManager.Instance.CurrentWeapon.ZommSensitivity;
-			float	Axis_X_Delta		= Input.GetAxis ( "Mouse X" ) * m_MouseSensitivity * ( ( isZoomed ) ? wpnZoomSensitivity : 1.0f );
-			float	Axis_Y_Delta		= Input.GetAxis ( "Mouse Y" ) * m_MouseSensitivity * ( ( isZoomed ) ? wpnZoomSensitivity : 1.0f );
+			float	Axis_X_Delta		= Input.GetAxisRaw ( "Mouse X" ) * m_MouseSensitivity * ( ( isZoomed ) ? wpnZoomSensitivity : 1.0f );
+			float	Axis_Y_Delta		= Input.GetAxisRaw ( "Mouse Y" ) * m_MouseSensitivity * ( ( isZoomed ) ? wpnZoomSensitivity : 1.0f );
 
 			if ( m_SmoothedRotation )
 			{
@@ -299,18 +295,15 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 
 			// rotation with effect added
 			{
-				Vector3 m_WpnRotationfeedbackXfinal = Vector3.ClampMagnitude(  Vector3.up		* Axis_X_Delta, WPN_ROTATION_CLAMP_VALUE * ( isZoomed ? 0.2f : 1.0f ) );
-				Vector3 m_WpnRotationfeedbackYfinal = Vector3.ClampMagnitude(  Vector3.forward  * Axis_Y_Delta, WPN_ROTATION_CLAMP_VALUE * ( isZoomed ? 0.2f : 1.0f ) );
-
-				m_WpnRotationfeedbackX = Vector3.Lerp( m_WpnRotationfeedbackX, m_WpnRotationfeedbackXfinal, Time.deltaTime * 5f );
-				m_WpnRotationfeedbackY = Vector3.Lerp( m_WpnRotationfeedbackY, m_WpnRotationfeedbackYfinal, Time.deltaTime * 5f );
+				Vector3 finalWpnRotationFeedback = Vector3.right * Axis_Y_Delta + Vector3.up * Axis_X_Delta;
+				m_WpnRotationfeedback = Vector3.Lerp( m_WpnRotationfeedback, finalWpnRotationFeedback, dt * 5f );
 			}
 		}
 
 		// Position
 		{
 			// manage camera height while crouching
-			m_CameraFPS_Shift = Mathf.Lerp( m_CameraFPS_Shift, ( Player.Instance.IsCrouched ) ? 0.5f : 1.0f, Time.deltaTime * 10f );
+			m_CameraFPS_Shift = Mathf.Lerp( m_CameraFPS_Shift, ( Player.Instance.IsCrouched ) ? 0.5f : 1.0f, dt * 10f );
 			transform.position = Player.Instance.transform.TransformPoint( m_ViewPoint.transform.localPosition * m_CameraFPS_Shift );
 		}
     }

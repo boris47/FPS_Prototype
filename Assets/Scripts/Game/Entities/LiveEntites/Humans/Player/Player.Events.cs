@@ -38,6 +38,8 @@ public partial class Player {
 		// remove parent for camera
 		CameraControl.Instance.transform.SetParent( null );
 
+		m_IsActive = false;
+
 		// reset effect
 		var settings = CameraControl.Instance.GetPP_Profile.vignette.settings;
 		settings.intensity = 0f;
