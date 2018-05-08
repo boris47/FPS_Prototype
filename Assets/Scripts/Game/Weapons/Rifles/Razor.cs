@@ -128,6 +128,7 @@ public class Razor : Weapon
 		if ( InputManager.Inputs.Fire1 && m_Magazine > 0 && m_InTransition == false && m_NeedRecharge == false )
 		{
 			m_Laser.enabled = true;
+			m_AudioSourceFire.Play();
 		}
 
 		//Is Firing
@@ -137,6 +138,7 @@ public class Razor : Weapon
 		if ( InputManager.Inputs.Fire1Released || m_Magazine <= 0f )
 		{
 			m_Laser.enabled = false;
+			m_AudioSourceFire.Stop();
 		}
 
 		if ( m_Magazine < m_MagazineCapacity && m_IsFiring == false )

@@ -2,74 +2,99 @@
 using UnityEngine;
 using UnityEngine.PostProcessing;
 
+public interface ICameraControl {
+
+	Transform					Transform							{ get; }
+	bool						Enabled								{ get; set; } 
+	bool						ClampedXAxis						{ get; set; }
+	bool						CanParseInput						{ get; set; }
+	PostProcessingProfile		GetPP_Profile						{ get; }
+	Transform					ViewPoint							{ get; }
+	Camera						MainCamera							{ get; }
+	Transform					Target								{ get; }
+	Transform					WeaponPivot							{ get; }
+	Vector3						CurrentDirection					{ get; set; }
+
+	HeadBob						HeadBob								{ get; }
+	HeadMove					HeadMove							{ get; }
+
+	void						OnCutsceneEnd						();
+	void						ApplyDeviation						( float deviation, float weightX = 1f, float weightY = 1f );
+	void						ApplyDispersion						( float dispersion, float weightX = 1f, float weightY = 1f );
+	void						ApplyFallFeedback					( float delta, float weightX = 1f, float weightY = 1f );
+}
+
+
 public interface ICameraSetters {
 	Transform		Target						{ set; }
 }
 
-public partial class CameraControl : MonoBehaviour, ICameraSetters {
+public partial class CameraControl : MonoBehaviour, ICameraControl, ICameraSetters {
 
-	private	const	float	WPN_ROTATION_CLAMP_VALUE	= 2f;
+	private		const		float				WPN_ROTATION_CLAMP_VALUE				= 2f;
+	private		const		float				WPN_FALL_FEEDBACK_CLAMP_VALUE			= 5f;
 
-	public	const	float	CLAMP_MAX_X_AXIS			=  80.0f;
-	public	const	float	CLAMP_MIN_X_AXIS			= -80.0f;
+	public		const		float				CLAMP_MAX_X_AXIS						=  80.0f;
+	public		const		float				CLAMP_MIN_X_AXIS						= -80.0f;
 
-	// Third person offset max distance
-	public	const	float	MAX_CAMERA_OFFSET			= 15f;
-	public	const	float	MIN_CAMERA_OFFSET			= 1.5f;
+	public		static		ICameraControl		Instance								= null;
 
-	public static CameraControl Instance				= null;
+	// INTERFACE START
+				Transform						ICameraControl.Transform				{ get { return transform; } }
+				bool							ICameraControl.Enabled					{ get { return enabled; } set { enabled = value; } }
+				bool							ICameraControl.ClampedXAxis				{ get { return m_ClampedXAxis; } set { m_ClampedXAxis = value; } }
+				bool							ICameraControl.CanParseInput			{ get { return m_CanParseInput; } set { m_CanParseInput = value; } }
+				PostProcessingProfile			ICameraControl.GetPP_Profile			{ get { return m_PP_Profile; } }
+				Transform						ICameraControl.ViewPoint				{ get { return m_ViewPoint; } }
+				Camera							ICameraControl.MainCamera				{ get { return m_CameraRef; } }
+				Transform						ICameraControl.Target					{ get { return m_Target; } }
+				Transform						ICameraControl.WeaponPivot				{ get { return m_WeaponPivot; } }
+				Vector3							ICameraControl.CurrentDirection			{ get { return m_CurrentDirection; } set{ m_CurrentDirection = value; } }
+				HeadMove						ICameraControl.HeadMove					{ get { return m_HeadMove; } }
+				HeadBob							ICameraControl.HeadBob					{ get { return m_HeadBob; } }
 
-
-	public	bool			ClampedXAxis				{ get; set; }
-	public	bool			CanParseInput				{ get; set; }
-
-	private	PostProcessingProfile m_PP_Profile			= null;
-	public	PostProcessingProfile GetPP_Profile			{ get { return m_PP_Profile; } }
+				Transform						ICameraSetters.Target					{ set { OnTargetSet( m_Target = value ); } }
+	// INTERFACE END
 
 	[SerializeField, Tooltip("Camera ViewPoint")]
-	private	Transform		m_ViewPoint					= null;
-	public	Transform		ViewPoint					{ get { return m_ViewPoint; } }
+	private		Transform						m_ViewPoint								= null;
 	
 	[SerializeField, Tooltip("Camera Target"), ReadOnly]
-	private	Transform		m_Target					= null;
-	public	Transform		Target						{ get { return m_Target; } }
-			Transform		ICameraSetters.Target		{ set { OnTargetSet( m_Target = value ); } }
+	private		Transform						m_Target								= null;
 
 	[SerializeField, Range( 0.2f, 20.0f )]
-	private	float			m_MouseSensitivity			= 1.0f;
+	private		float							m_MouseSensitivity						= 1.0f;
 
 	[SerializeField]
-	private bool			m_SmoothedRotation			= true;
+	private		bool							m_SmoothedRotation						= true;
 
 	[SerializeField, Range( 1.0f, 10.0f )]
-	private float			m_SmoothFactor				= 1.0f;
+	private		float							m_SmoothFactor							= 1.0f;
 
 	[SerializeField]
-	private HeadMove		m_HeadMove					= null;
-	public	HeadMove		HeadMove					{ get { return m_HeadMove; } }
+	private		HeadMove						m_HeadMove								= null;
 
 	[SerializeField]
-	private HeadBob			m_HeadBob					= null;
-	public	HeadBob			HeadBob						{ get { return m_HeadBob; } }
+	private		HeadBob							m_HeadBob								= null;
 
 	[SerializeField]
-	private Transform		m_WeaponPivot				= null;
-	public	Transform		WeaponPivot					{ get { return m_WeaponPivot; } }
+	private		Transform						m_WeaponPivot							= null;
 
-	private	Camera			m_CameraRef					= null;
-	public	Camera			MainCamera					{ get { return m_CameraRef; } }
-
-	private float			m_CurrentRotation_X_Delta	= 0.0f;
-	private float			m_CurrentRotation_Y_Delta	= 0.0f;
-
-	private	float			m_CameraFPS_Shift			= 0.0f;
-
-	public	Vector3			m_CurrentDirection			= Vector3.zero;
+	private		Vector3							m_CurrentDirection						= Vector3.zero;
+	private		bool							m_ClampedXAxis							= true;
+	private		bool							m_CanParseInput							= true;
+	private		PostProcessingProfile			m_PP_Profile							= null;
+	private		Camera							m_CameraRef								= null;
+	private		float							m_CurrentRotation_X_Delta				= 0.0f;
+	private		float							m_CurrentRotation_Y_Delta				= 0.0f;
+	private		float							m_CameraFPS_Shift						= 0.0f;
 
 	// WEAPON
-	private	Vector3			m_WpnCurrentDeviation		= Vector3.zero;
-	private	Vector3			m_WpnCurrentDispersion		= Vector3.zero;
-	private	Vector3			m_WpnRotationfeedback		= Vector3.zero;
+	private		Vector3							m_WpnCurrentDeviation					= Vector3.zero;
+	private		Vector3							m_WpnCurrentDispersion					= Vector3.zero;
+	private		Vector3							m_WpnRotationFeedback					= Vector3.zero;
+	private		Vector3							m_WpnFallFeedback						= Vector3.zero;
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -82,10 +107,8 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 			gameObject.SetActive( false );
 			return;
 		}
-		Instance = this;
+		Instance = this  as ICameraControl;
 		DontDestroyOnLoad( this );
-
-		ClampedXAxis = true;
 
 		m_WeaponPivot = transform.Find( "WeaponPivot" );
 
@@ -99,8 +122,6 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 	private	void	Start()
 	{
 		Cursor.visible = false;
-
-		CanParseInput = true;
 
 		GameManager.Instance.OnSave += OnSave;
 		GameManager.Instance.OnLoad += OnLoad;
@@ -149,35 +170,45 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnCutsceneEnd
-	public	void	OnCutsceneEnd()
+	void	ICameraControl.OnCutsceneEnd()
 	{
 		m_CurrentRotation_X_Delta = 0f;
 		m_CurrentRotation_Y_Delta = 0f;
 		m_WpnCurrentDeviation = m_WpnCurrentDispersion = Vector3.zero;
 
-		if ( m_CurrentDirection.x > CLAMP_MAX_X_AXIS )	m_CurrentDirection.x = m_CurrentDirection.x - 360f;
-		if ( m_CurrentDirection.x < CLAMP_MIN_X_AXIS )	m_CurrentDirection.x = m_CurrentDirection.x + 360f;
+		if ( m_CurrentDirection.x > CLAMP_MAX_X_AXIS )	m_CurrentDirection.x -= 360f;
+		if ( m_CurrentDirection.x < CLAMP_MIN_X_AXIS )	m_CurrentDirection.x += 360f;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// ApplyDeviation
-	public	void	ApplyDeviation( float deviation, float weightX = 1f, float weightY = 1f )
+	void	ICameraControl.ApplyDeviation( float deviation, float weightX, float weightY )
 	{
 		if ( Player.Instance.IsDodging )
 			return;
 
-		m_WpnCurrentDeviation.x += Random.Range( -deviation, -deviation * 0.5f ) * weightX;
+		m_WpnCurrentDeviation.x += Random.Range( -deviation, -deviation ) * weightX;
 		m_WpnCurrentDeviation.y += Random.Range( -deviation,  deviation ) * weightY;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// ApplyDispersion
-	public	void	ApplyDispersion( float dispersion, float weightX = 1f, float weightY = 1f )
+	void	ICameraControl.ApplyDispersion( float dispersion, float weightX, float weightY )
 	{
 		m_WpnCurrentDispersion.x += Random.Range( -dispersion, -dispersion * 0.5f ) * weightX;
 		m_WpnCurrentDispersion.y += Random.Range( -dispersion,  dispersion ) * weightY;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ApplyFallFeedback
+	void	ICameraControl.ApplyFallFeedback( float delta, float weightX, float weightY )
+	{
+		m_WpnFallFeedback.x += delta * weightX;
+		m_WpnFallFeedback.y += delta * weightY;
+		m_WpnFallFeedback = Vector3.ClampMagnitude( m_WpnCurrentDeviation, WPN_FALL_FEEDBACK_CLAMP_VALUE );
 	}
 
 
@@ -224,9 +255,10 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 		// Weapon movements
 		if ( WeaponManager.Instance.CurrentWeapon != null )
 		{
-			m_WpnRotationfeedback	= Vector3.Lerp( m_WpnRotationfeedback, Vector3.zero, dt );
+			m_WpnRotationFeedback	= Vector3.Lerp( m_WpnRotationFeedback, Vector3.zero, dt );
 			m_WpnCurrentDeviation	= Vector3.Lerp( m_WpnCurrentDeviation,  Vector3.zero, dt * 3.7f );
 			m_WpnCurrentDispersion	= Vector3.Lerp( m_WpnCurrentDispersion, Vector3.zero, dt * 3.7f );
+			m_WpnFallFeedback		= Vector3.Lerp( m_WpnFallFeedback, Vector3.zero, dt * 3.7f );
 
 			Vector3 wpnPositionDelta = m_HeadBob.WeaponPositionDelta + m_HeadMove.WeaponPositionDelta;
 			Vector3 wpnRotationDelta = m_HeadBob.WeaponRotationDelta + m_HeadMove.WeaponRotationDelta;
@@ -234,16 +266,13 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 			if ( WeaponManager.Instance.CurrentWeapon.IsFiring == true )
 			{
 				wpnRotationDelta += m_WpnCurrentDispersion;
-
-//				float fireDispersion = WeaponManager.Instance.CurrentWeapon.FireDispersion;
-//				Vector3 finalRotationDelta = m_WeaponRotationDelta + ( m_CurrentDispersion * fireDispersion );
-//				m_WeaponRotationDelta = Vector3.Lerp( m_WeaponRotationDelta, finalRotationDelta, Time.deltaTime );
 			}
 			else
 			{
-//				wpnPositionDelta += m_WpnRotationfeedback.x;
-				wpnRotationDelta += m_WpnRotationfeedback;
+				wpnRotationDelta += m_WpnRotationFeedback;
 			}
+
+			wpnRotationDelta += m_WpnFallFeedback;
 			WeaponManager.Instance.CurrentWeapon.Transform.localPosition	 = wpnPositionDelta;
 			WeaponManager.Instance.CurrentWeapon.Transform.localEulerAngles	 = wpnRotationDelta;
 		}
@@ -258,7 +287,7 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 		
 
 		// Rotation
-		if ( CanParseInput == true )
+		if ( m_CanParseInput == true )
 		{
 			bool	isZoomed			= WeaponManager.Instance.Zoomed;
 			float	wpnZoomSensitivity  = WeaponManager.Instance.CurrentWeapon.ZommSensitivity;
@@ -279,7 +308,7 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 			////////////////////////////////////////////////////////////////////////////////
 			if ( ( m_CurrentRotation_X_Delta != 0.0f || m_CurrentRotation_Y_Delta != 0.0f ) )
 			{
-				if ( ClampedXAxis )
+				if ( m_ClampedXAxis )
 					m_CurrentDirection.x = Utils.Math.Clamp( m_CurrentDirection.x - m_CurrentRotation_Y_Delta, CLAMP_MIN_X_AXIS, CLAMP_MAX_X_AXIS );
 				else
 					m_CurrentDirection.x = m_CurrentDirection.x - m_CurrentRotation_Y_Delta;
@@ -296,7 +325,7 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 			// rotation with effect added
 			{
 				Vector3 finalWpnRotationFeedback = Vector3.right * Axis_Y_Delta + Vector3.up * Axis_X_Delta;
-				m_WpnRotationfeedback = Vector3.Lerp( m_WpnRotationfeedback, finalWpnRotationFeedback, dt * 5f );
+				m_WpnRotationFeedback = Vector3.Lerp( m_WpnRotationFeedback, finalWpnRotationFeedback, dt * 5f );
 			}
 		}
 
@@ -313,8 +342,8 @@ public partial class CameraControl : MonoBehaviour, ICameraSetters {
 	// OnDestroy
 	private void OnDestroy()
 	{
-		var settings = GetPP_Profile.vignette.settings;
+		var settings = m_PP_Profile.vignette.settings;
 		settings.intensity = 0f;
-		GetPP_Profile.vignette.settings = settings;
+		m_PP_Profile.vignette.settings = settings;
 	}
 }

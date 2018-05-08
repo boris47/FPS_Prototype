@@ -309,8 +309,10 @@ public partial class Player {
 				SoundEffectManager.Instance.Pitch = Time.timeScale = 1f;
 				Vector3 destination = m_DashAbilityTarget.position + m_DashAbilityTarget.up;
 				
-				transform.Rotate( Vector3.up, CameraControl.Instance.m_CurrentDirection.y, Space.Self );
-				CameraControl.Instance.m_CurrentDirection.y = 0f;
+				transform.Rotate( Vector3.up, CameraControl.Instance.CurrentDirection.y, Space.Self );
+				Vector3 alias = CameraControl.Instance.CurrentDirection;
+				alias.y = 0f;
+				CameraControl.Instance.CurrentDirection = alias;
 
 				m_DashAbilityTarget.gameObject.SetActive( false );
 				m_RotorDashCoroutine = StartCoroutine( Dodge( destination: destination, rotation: m_DashAbilityTarget.rotation ) );

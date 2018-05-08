@@ -10,7 +10,7 @@ ZommSensitivity		= 0.3;
 
 [Blackjack]
 Damage				= 15.0;
-ZoomFactor			= 4.0;
+ZoomFactor			= 2.0;
 ZoomingTime			= 0.2;
 ZommSensitivity		= 0.3;
 

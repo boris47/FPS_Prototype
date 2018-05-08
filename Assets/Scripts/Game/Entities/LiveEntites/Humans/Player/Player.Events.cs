@@ -36,7 +36,7 @@ public partial class Player {
 	public	override		void	OnKill()
 	{
 		// remove parent for camera
-		CameraControl.Instance.transform.SetParent( null );
+		CameraControl.Instance.Transform.SetParent( null );
 
 		m_IsActive = false;
 
@@ -50,7 +50,7 @@ public partial class Player {
 		WeaponManager.Instance.enabled = false;
 		
 		// Disable camera updates
-		CameraControl.Instance.enabled = false;
+		CameraControl.Instance.Enabled = false;
 
 		// Update UI elements
 		UI.Instance.InGame.UpdateUI();

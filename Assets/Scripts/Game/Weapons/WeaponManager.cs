@@ -79,6 +79,9 @@ public class WeaponManager : MonoBehaviour {
 	// ZoomIn
 	public				void	ZoomIn( IWeapon weapon, Vector3 zoomOffset, float zoomingTime )
 	{
+		if ( IsChangingWeapon == true )
+			return;
+
 		CurrentWeapon		= weapon;
 		m_StartOffset		= CameraControl.Instance.WeaponPivot.localPosition;
 		m_FinalOffset		= zoomOffset;

@@ -153,30 +153,12 @@ public class TurretHard : Turret {
 			
 			m_PointToFace = m_TargetInfo.CurrentTarget.transform.position;
 			m_HasFaceTarget = true;
-
-			m_Destination = m_TargetInfo.CurrentTarget.transform.position;
-			m_HasDestination = true;
-
-			m_DistanceToTravel	= ( transform.position - m_PointToFace ).sqrMagnitude;
 		}
 
 		// if has target point to face at set
 		if ( m_HasFaceTarget )
 		{
 			FaceToPoint( deltaTime );   // m_PointToFace
-		}
-
-		// if body is alligned with target start moving
-		if ( m_IsAllignedBodyToDestination && m_IsMoving == false )
-		{
-			m_IsMoving = true;
-			m_StartMovePosition = transform.position;
-		}
-
-		// if has destination set
-		if ( m_HasDestination && m_IsAllignedBodyToDestination )
-		{
-			GoAtPoint( deltaTime );	// m_Destination
 		}
 
 		// if gun alligned, fire

@@ -6,16 +6,14 @@ using System.Collections.Generic;
 public class GlobeGranade : GranadeBase {
 	
 	[SerializeField]
-	private		float			m_Duration			= 3f;
+	private		float					m_Duration					= 3f;
 
-	private		Transform		m_ExplosionGlobe	= null;
-	private		bool			m_InExplosion		= false;
+	private		Transform				m_ExplosionGlobe			= null;
+	private		bool					m_InExplosion				= false;
 
-	private		List<Entity>	m_Entites			= new List<Entity>();
+	private		List<Entity>			m_Entites					= new List<Entity>();
 
-	private		ParticleSystem	m_ParticleSystem	= null;
-
-	private		WaitForSeconds	m_WaitInstruction	= null;
+	private		WaitForSeconds			m_WaitInstruction			= null;
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
@@ -36,7 +34,6 @@ public class GlobeGranade : GranadeBase {
 
 		m_WaitInstruction	= new WaitForSeconds( m_Duration );
 		m_ExplosionGlobe	= transform.GetChild(0);
-		m_ParticleSystem	= m_ExplosionGlobe.GetComponent<ParticleSystem>();
 		m_ExplosionGlobe.gameObject.SetActive( false );
 	}
 
@@ -47,6 +44,14 @@ public class GlobeGranade : GranadeBase {
 	{
 		m_ExplosionGlobe.localScale = Vector3.zero;
 		m_ExplosionGlobe.gameObject.SetActive( false );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnDisable
+	private void OnDisable()
+	{
+		m_ExplosionGlobe.localScale = Vector3.zero;
 	}
 
 
@@ -63,6 +68,7 @@ public class GlobeGranade : GranadeBase {
 	// Shoot ( Override )
 	public override void Shoot( Vector3 position, Vector3 direction, float velocity )
 	{
+		SetActive( false );
 		transform.position		= position;
 		m_RigidBody.velocity	= direction * ( ( velocity > 0f ) ? velocity : m_Velocity );
 		SetActive( true );
@@ -73,8 +79,9 @@ public class GlobeGranade : GranadeBase {
 	// SetActive ( Override )
 	public override void	SetActive( bool state )
 	{
-		StopAllCoroutines();
 		m_RigidBody.constraints = RigidbodyConstraints.None;
+		StopAllCoroutines();
+		m_InternalCounter = 0f;
 		m_InExplosion = false;
 		m_Entites.Clear();
 		base.SetActive( state );
@@ -116,6 +123,20 @@ public class GlobeGranade : GranadeBase {
 
 		m_Emission += Time.deltaTime * 2f;
 		m_Renderer.material.SetColor( "_EmissionColor", Color.red * m_Emission );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// MakeDamage
+	public	void	MakeDamage()
+	{
+		foreach( IEntity entity in m_Entites )
+		{
+			float tmpDmg = m_DamageMax;
+			m_DamageMax *= m_DamageMult;
+			entity.OnHit( m_Instance );
+			m_DamageMax = tmpDmg;
+		}
 	}
 
 
@@ -169,28 +190,6 @@ public class GlobeGranade : GranadeBase {
 
 		m_InternalCounter = 0f;
 		SetActive( false );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// MakeDamage
-	public	void	MakeDamage()
-	{
-		for ( int i = m_Entites.Count - 1; i > 0; i-- )
-		{
-			IEntity entity = m_Entites[ i ];
-			/*
-			if ( entity.IsActive == false )
-			{
-				m_Entites.RemoveAt( i );
-				continue;
-			}
-			*/
-			float tmpDmg = m_DamageMax;
-			m_DamageMax *= m_DamageMult;
-			entity.OnHit( m_Instance );
-			m_DamageMax = tmpDmg;
-		}
 	}
 
 

@@ -57,8 +57,6 @@ public class Foots : MonoBehaviour, IFoots {
 //			return;
 
 		Debug.DrawLine( transform.position, transform.position - transform.up * ( m_Entity.PhysicCollider.height * 0.3f ) );
-
-///		if ( Physics.BoxCast( transform.position, m_Extents, transform.up, out m_RaycastHit, Quaternion.identity, asd ) )
 		
 		bool hasCollision = Physics.Raycast( transform.position, -transform.up, out m_RaycastHit, ( m_Entity.PhysicCollider.height * 0.3f ) );
 
@@ -73,7 +71,10 @@ public class Foots : MonoBehaviour, IFoots {
 
 		bool isGrounded = m_CurrentCollider != null;
 		if ( m_LiveEntity.IsGrounded == false && isGrounded )
+		{
+//			CameraControl.Instance.ApplyFallFeedback( 5f, 1f, 0f );
 			PlayStep();
+		}
 
 		m_LiveEntity.IsGrounded = isGrounded;
 	}

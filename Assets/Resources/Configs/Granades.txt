@@ -7,7 +7,7 @@ ExplosionDelay	= 3.0;
 
 
 [GlobeGranade]
-Damage			= 2.5; // Damage over time
+Damage			= 0.5; // Damage over time
 Radius			= 9.0;
 ;ThrowForce		= 12.0;
 ExplosionDelay	= 3.0;

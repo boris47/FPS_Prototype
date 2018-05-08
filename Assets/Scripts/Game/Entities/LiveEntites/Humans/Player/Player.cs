@@ -133,7 +133,7 @@ public partial class Player : Human {
 		SetMotionType( eMotionType.Walking );
 
 		m_GrabPoint = new GameObject( "GrabPoint" );
-		m_GrabPoint.transform.SetParent( CameraControl.Instance.transform );
+		m_GrabPoint.transform.SetParent( CameraControl.Instance.Transform );
 		m_GrabPoint.transform.localPosition = Vector3.zero;
 		m_GrabPoint.transform.localRotation = Quaternion.identity;
 		m_GrabPoint.transform.Translate( 0f, 0f, m_UseDistance );
@@ -215,7 +215,7 @@ public partial class Player : Human {
 		}
 
 		Rigidbody rb = m_GrabbedObject.GetComponent<Rigidbody>();
-		rb.rotation = CameraControl.Instance.transform.rotation;
+		rb.rotation = CameraControl.Instance.Transform.rotation;
 		rb.angularVelocity = Vector3.zero;
 		rb.velocity = ( m_GrabPoint.transform.position - m_GrabbedObject.transform.position ) / ( Time.fixedDeltaTime * 4f );
 //		* ( 1.0f - Vector3.Angle( transform.forward, CameraControl.Instance.transform.forward ) / CameraControl.CLAMP_MAX_X_AXIS );
@@ -250,8 +250,8 @@ public partial class Player : Human {
 		if ( IsGrounded )
 		{
 			bool toReduce = ( m_Move.x != 0.0f ) && ( m_Move.z != 0.0f  );
-			Vector3 forward = Vector3.Cross( CameraControl.Instance.transform.right, transform.up );
-			m_Move = ( m_MoveSmooth * forward ) + ( m_StrafeSmooth * CameraControl.Instance.transform.right );
+			Vector3 forward = Vector3.Cross( CameraControl.Instance.Transform.right, transform.up );
+			m_Move = ( m_MoveSmooth * forward ) + ( m_StrafeSmooth * CameraControl.Instance.Transform.right );
 			if ( toReduce )
 			{
 				m_Move *= 0.707f;
@@ -396,8 +396,8 @@ public partial class Player : Human {
 		// Check for usage
 #region		INTERACTIONS
 		{
-			Vector3 startLine = CameraControl.Instance.transform.position;
-			Vector3 endLine = CameraControl.Instance.transform.position + CameraControl.Instance.transform.forward * MAX_INTERACTION_DISTANCE;
+			Vector3 startLine = CameraControl.Instance.Transform.position;
+			Vector3 endLine = CameraControl.Instance.Transform.position + CameraControl.Instance.Transform.forward * MAX_INTERACTION_DISTANCE;
 
 			bool lineCastResult = Physics.Raycast( startLine, endLine - startLine, out m_RaycastHit, MAX_INTERACTION_DISTANCE, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Collide );
 
