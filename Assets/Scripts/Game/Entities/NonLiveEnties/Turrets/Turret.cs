@@ -211,12 +211,4 @@ public abstract class Turret : NonLiveEntity {
 		m_FireAudioSource.Play();
 	}
 
-	
-	//////////////////////////////////////////////////////////////////////////
-	// SimulateMovement ( Override )
-	public override	bool	SimulateMovement( SimulationMovementType movementType, Vector3 destination, Transform target, float deltaTime, float interpolant = 0f )
-	{
-		return false;
-	}
-
 }

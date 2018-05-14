@@ -8,31 +8,23 @@ public partial class Player {
 	// EnterSimulationState
 	public override void EnterSimulationState()
 	{
-		base.EnterSimulationState();							// m_SimulationStartPosition = transform.position;
+		m_MovementOverrideEnabled = true;
+		m_SimulationStartPosition = transform.position;
+
 		CameraControl.Instance.CanParseInput = false;
-		WeaponManager.Instance.CurrentWeapon.Enabled = false;
+		InputManager.IsEnabled = false;
+
+	//	WeaponManager.Instance.CurrentWeapon.Enabled = false;
+		DropEntityDragged();
 	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// SimulateMovement
-	public override	bool	SimulateMovement( SimulationMovementType movementType, Vector3 destination, Transform target, float deltaTime, float interpolant = 0f )
+	public override	bool	SimulateMovement( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
-		if ( interpolant > 1f )
-			return false;
 
-		// CAMERA ROTATION
-		{
-			var cameraSetter = CameraControl.Instance as ICameraSetters;
-			cameraSetter.Target = target;
-		}
-
-		//	POSITION BY INTERPOLANT
-		if ( interpolant > 0f )
-		{
-			m_RigidBody.position = destination;
-			return true;
-		}
-
+		// END OF SIMULATION STEP
 		Vector3 direction = ( destination - m_SimulationStartPosition );
 		float simulationdDistanceToTravel = direction.sqrMagnitude;
 		float simulationDistanceTravelled = ( transform.position - m_SimulationStartPosition ).sqrMagnitude;
@@ -42,21 +34,30 @@ public partial class Player {
 			m_SimulationStartPosition = transform.position;
 			return false;				// force logic update
 		}
+
+		// TIME SCALE
+		Time.timeScale = Mathf.Lerp( Time.timeScale, timeScaleTarget, Time.unscaledDeltaTime * 0.5f );
+		SoundEffectManager.Instance.Pitch = Time.timeScale;
+
+		// CAMERA ROTATION
+		{
+			var cameraSetter = CameraControl.Instance as ICameraSetters;
+			cameraSetter.Target = target;
+		}
 		
 		//	POSITION BY DISTANCE
 		{
-			bool isWalking	= ( movementType != SimulationMovementType.RUN );
-			bool isRunning	= ( movementType == SimulationMovementType.RUN );
-			bool isCrouched = ( movementType == SimulationMovementType.WALK_CROUCHED );
+			bool isWalking	= ( movementType != SimMovementType.RUN );
+			bool isRunning	= !isWalking;
+			bool isCrouched = ( movementType == SimMovementType.CROUCHED );
 			float fMove = ( isCrouched ) ? m_CrouchSpeed : ( isRunning ) ? m_RunSpeed : m_WalkSpeed;
 
-			m_States.IsCrouched = isCrouched;
-			m_States.IsWalking = isWalking;
-			m_States.IsRunning = isRunning;
-			m_States.IsMoving = true;
+			m_States.IsWalking	= isWalking;
+			m_States.IsRunning	= isRunning;
+			m_States.IsCrouched	= isCrouched;
+			m_States.IsMoving	= true;
 
-			m_MoveSmooth = Mathf.Lerp( m_MoveSmooth, fMove, deltaTime * 20f );
-
+			m_MoveSmooth = Mathf.Lerp( m_MoveSmooth, fMove, Time.deltaTime * 20f );
 			m_Move = ( m_MoveSmooth * direction.normalized );
 		}
 		return true;
@@ -67,12 +68,18 @@ public partial class Player {
 	// ExitSimulationState
 	public override void ExitSimulationState()
 	{
-		base.ExitSimulationState();
+		m_MovementOverrideEnabled = false;
+		m_SimulationStartPosition = Vector3.zero;
+		Vector3 projectedTarget = Utils.Math.ProjectPointOnPlane( transform.up, transform.position, CameraControl.Instance.Target.position );
+		Quaternion rotation = Quaternion.LookRotation( projectedTarget - transform.position, transform.up );
+		transform.rotation = rotation;
+
+		Time.timeScale = 1f;
 
 		var cameraSetter = CameraControl.Instance as ICameraSetters;
 		cameraSetter.Target = null;
 		CameraControl.Instance.CanParseInput = true;
-		WeaponManager.Instance.CurrentWeapon.Enabled = true;
+		InputManager.IsEnabled = true;
 	}
 
 

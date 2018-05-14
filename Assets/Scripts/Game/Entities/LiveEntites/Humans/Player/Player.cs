@@ -12,22 +12,7 @@ public partial class Player : Human {
 	public	static	Player			Instance						= null;
 	public	static	IEntity			Entity							= null;
 
-	// DODGING
-	private		bool				m_IsDodging						= false;
-	public		bool				IsDodging
-	{
-		get { return m_IsDodging; }
-	}
-	private		bool				m_ChosingDodgeRotation			= false;
-	public		bool				ChosingDodgeRotation
-	{
-		get { return m_ChosingDodgeRotation; }
-	}
-	private		DodgeTarget			m_CurrentDodgeTarget			= null;
-	private		DodgeTarget			m_PreviousDodgeTarget			= null;
-
 	private		IInteractable		m_Interactable					= null;
-	private		Transform			m_DashAbilityTarget				= null;
 
 	private		Vector3				m_Move							= Vector3.zero;
 
@@ -68,11 +53,11 @@ public partial class Player : Human {
 			// Foots
 			m_Foots				= transform.Find( "FootSpace" ).GetComponent<IFoots>();
 
-			m_DashAbilityTarget = transform.Find( "DashAbilityTarget" );
-			m_DashAbilityTarget.localScale = new Vector3( 0.5f, m_PhysicCollider.height, 0.5f );
-			m_DashAbilityTarget.SetParent( null );
+			m_DodgeAbilityTarget = transform.Find( "DodgeAbilityTarget" );
+			m_DodgeAbilityTarget.localScale = new Vector3( 0.5f, m_PhysicCollider.height, 0.5f );
+			m_DodgeAbilityTarget.SetParent( null );
 
-			m_DashAbilityTarget.gameObject.SetActive( false );
+			m_DodgeAbilityTarget.gameObject.SetActive( false );
 		}
 
 
@@ -192,6 +177,9 @@ public partial class Player : Human {
 		Rigidbody rb		= m_GrabbedObject.RigidBody;
 		rb.useGravity		= m_GrabbedObjectUseGravity;
 		rb.mass				= m_GrabbedObjectMass;
+
+		Physics.IgnoreCollision( m_PhysicCollider, m_GrabbedObject.Collider, ignore: false );
+
 		m_GrabbedObject		= null;
 		m_CanGrabObjects	= true;
 	}
@@ -236,12 +224,7 @@ public partial class Player : Human {
 		// Forced by ovverride
 		if ( m_MovementOverrideEnabled )
 		{
-			if ( ( m_Move.x != 0.0f ) && ( m_Move.z != 0.0f  ) )
-			{
-				m_Move *= 0.707f;
-			}
-
-			m_Move *= GroundSpeedModifier;
+			m_Move *= GroundSpeedModifier * Time.timeScale;
 			m_RigidBody.velocity = m_Move;
 			return;
 		}
@@ -249,13 +232,8 @@ public partial class Player : Human {
 		// User inputs
 		if ( IsGrounded )
 		{
-			bool toReduce = ( m_Move.x != 0.0f ) && ( m_Move.z != 0.0f  );
 			Vector3 forward = Vector3.Cross( CameraControl.Instance.Transform.right, transform.up );
 			m_Move = ( m_MoveSmooth * forward ) + ( m_StrafeSmooth * CameraControl.Instance.Transform.right );
-			if ( toReduce )
-			{
-				m_Move *= 0.707f;
-			}
 
 			m_Move *= GroundSpeedModifier;
 			m_RigidBody.velocity = m_Move;
@@ -363,6 +341,8 @@ public partial class Player : Human {
 				m_GrabbedObjectUseGravity	= rb.useGravity;	rb.useGravity		= false;
 				rb.velocity					= Vector3.zero;		rb.interpolation	= RigidbodyInterpolation.Interpolate;
 				m_CanGrabObjects			= false;
+
+				Physics.IgnoreCollision( m_PhysicCollider, grabbable.Collider, ignore: true );
 			}
 		}
 	}
@@ -399,7 +379,7 @@ public partial class Player : Human {
 			Vector3 startLine = CameraControl.Instance.Transform.position;
 			Vector3 endLine = CameraControl.Instance.Transform.position + CameraControl.Instance.Transform.forward * MAX_INTERACTION_DISTANCE;
 
-			bool lineCastResult = Physics.Raycast( startLine, endLine - startLine, out m_RaycastHit, MAX_INTERACTION_DISTANCE, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Collide );
+			bool lineCastResult = Physics.Raycast( startLine, endLine - startLine, out m_RaycastHit, MAX_INTERACTION_DISTANCE, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore );
 
 			Debug.DrawLine( startLine, endLine );
 

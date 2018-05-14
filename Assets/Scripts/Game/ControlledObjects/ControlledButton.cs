@@ -2,26 +2,22 @@
 using UnityEngine;
 
 
-public class ControlledButton : ControlledObject, IInteractable {
+public class ControlledButton : MonoBehaviour, IInteractable {
 
-	 [SerializeField]
+	[SerializeField]
     private GameEvent           m_OnUse                = null;
 
+	[SerializeField]
+	private	bool	m_CanInteract						= true;
+	bool IInteractable.CanInteract						{ get { return m_CanInteract; } set { m_CanInteract = value; } }
 
-	bool IInteractable.CanInteract						{ get; set; }
 
 
-
-	public override void OnActivation()
+	void IInteractable.OnInteraction()
 	{
 		if ( m_OnUse != null && m_OnUse.GetPersistentEventCount() > 0 )
         {
             m_OnUse.Invoke();
         }
-	}
-
-	void IInteractable.OnInteraction()
-	{
-		throw new System.NotImplementedException();
 	}
 }

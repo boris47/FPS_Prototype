@@ -1,241 +1,144 @@
 ﻿
 using UnityEngine;
 
+namespace CutScene {
 
-public class CutsceneEntityManager : MonoBehaviour {
+	public class CutsceneEntityManager : MonoBehaviour {
 	
-	public		bool					IsPlaying					{ get; private set; }
-	public		bool					IsOK						{ get; private set; }
+		public		bool							IsPlaying					{ get; private set; }
+		public		bool							IsOK						{ get; private set; }
 
-	public		PointsCollectionOnline	m_PointsCollection			= null;
+		public		PointsCollectionOnline			m_PointsCollection			= null;
 
 
-//	private		float					m_InternalTimeNormalized	= 0f;
-//	private		delegate void			func( float dt );
-//	private		func					m_InterpolationFunction		= null;
-	private		IEntity					m_EntityRef					= null;
-	private		IEntitySimulation		m_EntitySimulation			= null;
-	private		bool					m_IsExecuted				= false;
-	private		int						m_CurrentIdx				= 0;
+		private		IEntity							m_EntityRef					= null;
+		private		IEntitySimulation				m_EntitySimulation			= null;
+		private		int								m_CurrentIdx				= 0;
 
-	private		Vector3					m_Destination				= Vector3.zero;
-	private		Transform				m_Target					= null;
+		private		Entity.SimMovementType			m_MovementType				= Entity.SimMovementType.WALK;
+		private		Vector3							m_Destination				= Vector3.zero;
+		private		Transform						m_Target					= null;
+		private		float							m_TimeScaleTarget			= 1f;
 
 
 
-	//////////////////////////////////////////////////////////////////////////
-	// Awake
-	private void	Awake()
-	{
-		m_EntityRef = transform.parent.GetComponent<IEntity>();
-		if ( m_EntityRef == null )
+		//////////////////////////////////////////////////////////////////////////
+		// Awake
+		private void	Awake()
 		{
-			Destroy( gameObject );
-			return;
-		}
-
-		m_EntitySimulation = m_EntityRef as IEntitySimulation;
-		m_EntityRef.CutsceneManager = this;
-
-		/*
-		if ( m_PointsCollection.UseNormalizedTime == true )
-		{
-			switch( m_PointsCollection.Positions.Count )
+			m_EntityRef = transform.parent.GetComponent<IEntity>();
+			if ( m_EntityRef == null )
 			{
-				case 1:		m_InterpolationFunction = LinearInterpolation;		break;
-				case 2:		m_InterpolationFunction = CubicInterpolation;		break;
-				case 3:		m_InterpolationFunction = QuarticInterpolation;		break;
-				case 4:		m_InterpolationFunction = QuinticInterpoolation;	break;
-				default :	m_InterpolationFunction = SexticInterpolant;		break;
+				Destroy( gameObject );
+				return;
 			}
-		}
-		*/
-		IsOK = true;
-	}
 
-
-	//////////////////////////////////////////////////////////////////////////
-	// Setup
-	public	void	Setup( PointsCollectionOnline pointsCollection )
-	{
-		m_PointsCollection				= pointsCollection;
-//		m_InternalTimeNormalized		= 0f;
-		m_IsExecuted					= false;
-		m_CurrentIdx					= 0;
-
-		m_Destination					= Vector3.zero;
-		m_Target						= null;
-
-		IsOK							= false;
-		Awake();
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// Play
-	public	void	Play()
-	{
-		if ( m_PointsCollection == null || m_PointsCollection.Count == 0 )
-		{
-			enabled = false;
-			return;
+			m_EntitySimulation = m_EntityRef as IEntitySimulation;
+			m_EntityRef.CutsceneManager = this;
+			IsOK = true;
 		}
 
-		if ( m_IsExecuted == true || IsOK == false )
-			return;
 
-		IsPlaying = true;
-
-		m_EntitySimulation.EnterSimulationState();
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// Update
-	private	void	Update()
-	{
-		if ( IsPlaying == false )
-			return;
-		/*
-		if ( m_PointsCollection.UseNormalizedTime == true )
+		//////////////////////////////////////////////////////////////////////////
+		// Setup
+		public	void	Play( PointsCollectionOnline pointsCollection )
 		{
-			m_InternalTimeNormalized += Time.deltaTime;
-			if ( m_InternalTimeNormalized > 1f )
+			m_PointsCollection				= pointsCollection;
+			InternalPlay();
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// Play
+		public	void	InternalPlay()
+		{
+			if ( IsOK == false )
+				return;
+
+			if ( m_PointsCollection == null || m_PointsCollection.Count == 0 )
 			{
-				m_EntitySimulation.ExitSimulationState();
-				transform.localPosition = Vector3.zero;
-				IsPlaying = false;
-				this.enabled = false;
+				m_PointsCollection = null;
+				return;
 			}
-			m_InterpolationFunction( Time.deltaTime );
-		}
-		else
-*/		{
-			CutsceneWaypointData data = m_PointsCollection[ m_CurrentIdx ];
-			m_Destination		= data.point.position;
-			m_Target			= data.target;
-			var movementType	= data.movementType;
+			IsPlaying = true;
 
-			bool result = m_EntitySimulation.SimulateMovement( movementType, m_Destination, m_Target, Time.deltaTime );
-			if ( result == false )
+			m_EntitySimulation.EnterSimulationState();
+
+			// Let's start
+			CutsceneWaypointData data	= m_PointsCollection[ m_CurrentIdx ];
+			m_Destination				= data.point.position;
+			m_Target					= data.target;
+			m_MovementType				= data.movementType;
+			m_TimeScaleTarget			= data.timeScaleTraget;
+
+			if ( m_PointsCollection.OnStart != null && m_PointsCollection.OnStart.GetPersistentEventCount() > 0 )
 			{
-				m_CurrentIdx ++;
-
-				// Update store start position for distance check
-				m_EntitySimulation.StarPosition = m_EntityRef.Transform.position;
-
-				if ( m_CurrentIdx >= m_PointsCollection.Count )
-				{
-					CameraControl.Instance.OnCutsceneEnd();
-					m_EntitySimulation.ExitSimulationState();
-					m_EntitySimulation.StarPosition = Vector3.zero;
-					transform.localPosition = Vector3.zero;
-					IsPlaying = false;
-					this.enabled = false;
-				}
+				m_PointsCollection.OnStart.Invoke();
 			}
+
+			m_EntitySimulation.SimulateMovement( m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
 		}
-		
-	}
-
-	/*
-
-	//////////////////////////////////////////////////////////////////////////
-	// PlayLinearInterpolation
-	private	void	LinearInterpolation( float dt )
-	{
-		Vector3 position		= Vector3.Lerp( m_EntityRef.Transform.position, m_PointsCollection.Positions[0],		m_InternalTimeNormalized );
-		Vector3 targetPosition	= Vector3.Lerp( m_EntityRef.Transform.forward,  m_PointsCollection.TargetPositions[0],	m_InternalTimeNormalized );
-
-		transform.LookAt( targetPosition, Vector3.up );
-		m_EntitySimulation.SimulateMovement( m_PointsCollection.EntityState, position, transform, dt, m_InternalTimeNormalized );
-	}
 
 
-	//////////////////////////////////////////////////////////////////////////
-	// PlayCubicInterpolation
-	private	void	CubicInterpolation( float dt )
-	{
-		Vector3 position;
+		//////////////////////////////////////////////////////////////////////////
+		// Update
+		private	void	Update()
 		{
-			Vector3 a = m_PointsCollection.Positions[0];
-			Vector3 b = m_PointsCollection.Positions[1];
-			position = Utils.Math.GetPoint( m_EntityRef.Transform.position, a, b, m_InternalTimeNormalized );
+			if ( IsPlaying == false )
+				return;
+
+			// Continue simulation until need updates
+			bool result = m_EntitySimulation.SimulateMovement( m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
+			if ( result == true ) // if true is currently simulating
+				return;
+
+			// call callback when each waypoint is reached
+			GameEvent onWayPointReached = m_PointsCollection[ m_CurrentIdx ].OnWayPointReached;
+			if ( onWayPointReached != null && onWayPointReached.GetPersistentEventCount() > 0 )
+			{
+				onWayPointReached.Invoke();
+			}
+
+			// Next waypoint index
+			m_CurrentIdx ++;
+
+			// End of simulation
+			if ( m_CurrentIdx == m_PointsCollection.Count )
+			{
+				Termiante();
+				return;
+			}
+
+			// Update store start position for distance check
+			m_EntitySimulation.StarPosition = m_EntityRef.Transform.position;
+
+			// Update to next simulation targets
+			CutsceneWaypointData data	= m_PointsCollection[ m_CurrentIdx ];
+			m_Destination				= data.point.position;
+			m_Target					= data.target != null ? data.target : m_Target;
+			m_MovementType				= data.movementType;
+			m_TimeScaleTarget			= data.timeScaleTraget;
 		}
 
-		Vector3 targetPosition;
+
+		//////////////////////////////////////////////////////////////////////////
+		// Termiante
+		public	void	Termiante()
 		{
-			Vector3 a = m_PointsCollection.TargetPositions[0];
-			Vector3 b = m_PointsCollection.TargetPositions[1];
-			targetPosition = Utils.Math.GetPoint( m_EntityRef.Transform.position, a, b, m_InternalTimeNormalized );
+			CameraControl.Instance.OnCutsceneEnd();
+			m_EntitySimulation.ExitSimulationState();
+			m_EntitySimulation.StarPosition	= Vector3.zero;
+			IsPlaying						= false;
+			m_CurrentIdx					= 0;
+			m_MovementType					= Entity.SimMovementType.WALK;
+			m_Destination					= Vector3.zero;
+			m_Target						= null;
+			m_TimeScaleTarget				= 1f;
+			m_PointsCollection				= null;
+			this.enabled = false;
 		}
-		transform.LookAt( targetPosition, Vector3.up );
-		m_EntitySimulation.SimulateMovement( m_PointsCollection.EntityState, position, transform, dt, m_InternalTimeNormalized );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// QuarticInterpolation
-	public	void	QuarticInterpolation( float dt )
-	{
-		Vector3 position;
-		{
-			Vector3 a = m_PointsCollection.Positions[0];
-			Vector3 b = m_PointsCollection.Positions[1];
-			Vector3 c = m_PointsCollection.Positions[2];
-			position = Utils.Math.GetPoint( m_EntityRef.Transform.position, a, b, c, m_InternalTimeNormalized );
-		}
-
-		Vector3 targetPosition;
-		{
-			Vector3 a = m_PointsCollection.TargetPositions[0];
-			Vector3 b = m_PointsCollection.TargetPositions[1];
-			Vector3 c = m_PointsCollection.TargetPositions[2];
-			targetPosition = Utils.Math.GetPoint( m_EntityRef.Transform.position, a, b, c, m_InternalTimeNormalized );
-		}
-		transform.LookAt( targetPosition, Vector3.up );
-		m_EntitySimulation.SimulateMovement( m_PointsCollection.EntityState, position, transform, dt, m_InternalTimeNormalized );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// QuinticInterpoolation
-	public	void	QuinticInterpoolation( float dt )
-	{
-		Vector3 position;
-		{
-			Vector3 a = m_PointsCollection.Positions[0];
-			Vector3 b = m_PointsCollection.Positions[1];
-			Vector3 c = m_PointsCollection.Positions[2];
-			Vector3 d = m_PointsCollection.Positions[3];
-			position = Utils.Math.GetPoint( m_EntityRef.Transform.position, a, b, c, d, m_InternalTimeNormalized );
-		}
-
-		Vector3 targetPosition;
-		{
-			Vector3 a = m_PointsCollection.TargetPositions[0];
-			Vector3 b = m_PointsCollection.TargetPositions[1];
-			Vector3 c = m_PointsCollection.TargetPositions[2];
-			Vector3 d = m_PointsCollection.TargetPositions[3];
-			targetPosition = Utils.Math.GetPoint( m_EntityRef.Transform.position, a, b, c, d, m_InternalTimeNormalized );
-		}
-		transform.LookAt( targetPosition, Vector3.up );
-		m_EntitySimulation.SimulateMovement( m_PointsCollection.EntityState, position, transform, dt, m_InternalTimeNormalized );
+	
 	}
 
 
-	//////////////////////////////////////////////////////////////////////////
-	// SexticInterpolant
-	private	void	SexticInterpolant( float dt )
-	{
-		var positions = m_PointsCollection.Positions.ToArray();
-		Vector3 position = Utils.Math.GetPoint( ref positions, m_InternalTimeNormalized );
-
-		var forwards = m_PointsCollection.TargetPositions.ToArray();
-		Vector3 targetPosition = Utils.Math.GetPoint( ref forwards, m_InternalTimeNormalized );
-
-		transform.LookAt( targetPosition, Vector3.up );
-		m_EntitySimulation.SimulateMovement( m_PointsCollection.EntityState, position, transform, dt, m_InternalTimeNormalized );
-	}
-	*/
 }

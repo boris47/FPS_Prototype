@@ -259,30 +259,6 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// EnterSimulationState ( Override )
-	public override void EnterSimulationState()
-	{
-		base.EnterSimulationState();
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// SimulateMovement ( Override )
-	public override	bool	SimulateMovement( SimulationMovementType movementType, Vector3 destination, Transform target, float deltaTime, float interpolant = 0f )
-	{
-		return false;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// ExitSimulationState ( Override )
-	public override void ExitSimulationState()
-	{
-		base.ExitSimulationState();
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
 	// OnRespawn
 	void IRespawn.OnRespawn()
 	{

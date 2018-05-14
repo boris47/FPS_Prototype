@@ -125,13 +125,32 @@ public abstract partial class NonLiveEntity : Entity {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// FaceToPoint
+	// FaceToPoint ( Abstract )
 	protected	abstract	void	FaceToPoint( float deltaTime );
 
 	//////////////////////////////////////////////////////////////////////////
-	// GoAtPoint
+	// GoAtPoint ( Abstract )
 	protected	abstract	void	GoAtPoint( float deltaTime );
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// FireLongRange ( Abstract )
 	protected	abstract	void	FireLongRange( float deltaTime );
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// EnterSimulationState ( Override )
+	public override void EnterSimulationState()
+	{
+		
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ExitSimulationState ( Override )
+	public override void ExitSimulationState()
+	{
+		
+	}
 
 }

@@ -2,32 +2,41 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+namespace CutScene {
 
-[System.Serializable]
-public class CutsceneWaypointData {
-	public	Entity.SimulationMovementType	movementType	= Entity.SimulationMovementType.WALK;
-	public	Transform						point			= null;
-	public	Transform						target			= null;
-}
+	[System.Serializable]
+	public class CutsceneWaypointData {
+		public	Entity.SimMovementType			movementType		= Entity.SimMovementType.WALK;
+		public	Transform						point				= null;
+		public	Transform						target				= null;
+		[Range( 0.01f, 1f )]
+		public	float							timeScaleTraget		= 1f;
+
+		[SerializeField]
+		public	GameEvent						OnWayPointReached	= null;
+	}
 
 
-public class PointsCollectionOnline : MonoBehaviour {
-	
-//	public		bool								UseNormalizedTime	= false;
+	public class PointsCollectionOnline : MonoBehaviour {
 
-	[SerializeField]
-	private		List<CutsceneWaypointData>			m_Waypoints			= new List<CutsceneWaypointData>();
+		[SerializeField]
+		public	GameEvent					OnStart			= null;
 
-	// INDEXER
-	public		CutsceneWaypointData	this[int index]
-	{
-		get { 
-			return m_Waypoints[ index ];
+		[SerializeField]
+		private		CutsceneWaypointData[]	m_Waypoints		= null;
+
+		// INDEXER
+		public		CutsceneWaypointData	this[int index]
+		{
+			get { 
+				return m_Waypoints[ index ];
+			}
+		}
+
+		public	int	Count
+		{
+			get { return m_Waypoints.Length; }
 		}
 	}
 
-	public	int	Count
-	{
-		get { return m_Waypoints.Count; }
-	}
 }

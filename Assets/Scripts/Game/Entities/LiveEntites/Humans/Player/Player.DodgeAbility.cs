@@ -5,16 +5,32 @@ using System.Collections;
 public partial class Player {
 
 	private	const	float	DASH_SPEED_FACTOR		= 0.5f;
+	// DODGING
 
-	[Header("Player Properties")]
+	[Header("Dodge Properties")]
+
 	[SerializeField]
-	private	AnimationCurve	m_DashTimeScaleCurve	= AnimationCurve.Linear( 0f, 1f, 1f, 1f );
+	private		AnimationCurve		m_DodgeTimeScaleCurve			= AnimationCurve.Linear( 0f, 1f, 1f, 1f );
+
+	private		Transform			m_DodgeAbilityTarget			= null;
+	private		bool				m_IsDodging						= false;
+	public		bool				IsDodging
+	{
+		get { return m_IsDodging; }
+	}
+	private		bool				m_ChosingDodgeRotation			= false;
+	public		bool				ChosingDodgeRotation
+	{
+		get { return m_ChosingDodgeRotation; }
+	}
+//	private		DodgeTarget			m_CurrentDodgeTarget			= null;
+//	private		DodgeTarget			m_PreviousDodgeTarget			= null;
+
 
 	private	Coroutine		m_RotorDashCoroutine	= null;
-
-	private	Vector3			m_RaycastNormal			= Vector3.zero;
-
+	private	Vector3			m_DodgeRaycastNormal	= Vector3.zero;
 	private	float			m_DodgeInterpolant		= 0f;
+
 	
 	/*
 	//////////////////////////////////////////////////////////////////////////
@@ -141,6 +157,9 @@ public partial class Player {
 			RaycastHit hit;
 			Physics.Raycast( transform.position, Vector3.down, out hit );
 
+			if ( m_CutsceneManager.IsPlaying )
+				m_CutsceneManager.Termiante();
+
 			Vector3 alignedForward = Vector3.Cross( transform.right, Vector3.up );
 			Quaternion finalRotation = Quaternion.LookRotation( alignedForward, Vector3.up );
 			m_RotorDashCoroutine = StartCoroutine( Dodge( destination: hit.point, rotation: finalRotation, falling: true ) );
@@ -157,10 +176,10 @@ public partial class Player {
 				m_CurrentDodgeTarget = null;
 			}
 */
-			if ( m_DashAbilityTarget.gameObject.activeSelf == true )
+			if ( m_DodgeAbilityTarget.gameObject.activeSelf == true )
 			{
-				m_DashAbilityTarget.gameObject.SetActive( false );
-				m_RaycastNormal = Vector3.zero;
+				m_DodgeAbilityTarget.gameObject.SetActive( false );
+				m_DodgeRaycastNormal = Vector3.zero;
 				SoundEffectManager.Instance.Pitch = Time.timeScale = 1f;
 			}
 			m_ChosingDodgeRotation = false;
@@ -217,12 +236,12 @@ public partial class Player {
 		{
 			if ( InputManager.Inputs.Ability1 && m_ChosingDodgeRotation == false && m_CurrentDodgeTarget != null )		// GetKey Q
 			{
-				m_DashAbilityTarget.gameObject.SetActive( true );
-				m_DashAbilityTarget.position = m_CurrentDodgeTarget.transform.position;
-				m_DashAbilityTarget.rotation = m_CurrentDodgeTarget.transform.rotation;
+				m_DodgeAbilityTarget.gameObject.SetActive( true );
+				m_DodgeAbilityTarget.position = m_CurrentDodgeTarget.transform.position;
+				m_DodgeAbilityTarget.rotation = m_CurrentDodgeTarget.transform.rotation;
 				SoundEffectManager.Instance.Pitch = Time.timeScale = 0.001f;
 			}
-			if ( InputManager.Inputs.Ability1Loop && m_DashAbilityTarget.gameObject.activeSelf == true )				// GetKeyDown Q
+			if ( InputManager.Inputs.Ability1Loop && m_DodgeAbilityTarget.gameObject.activeSelf == true )				// GetKeyDown Q
 			{
 				m_ChosingDodgeRotation = true;
 			}
@@ -247,7 +266,7 @@ public partial class Player {
 				m_CurrentDodgeTarget.Disable();
 				m_CurrentDodgeTarget.HideText();
 
-				m_DashAbilityTarget.gameObject.SetActive( false );
+				m_DodgeAbilityTarget.gameObject.SetActive( false );
 				m_RotorDashCoroutine = StartCoroutine
 				(
 					Dodge
@@ -268,36 +287,36 @@ public partial class Player {
 		/////////////////////////////////////////////////////
 
 		// hitting somewhere else
-		if ( m_CurrentDodgeTarget == null )
+//		if ( m_CurrentDodgeTarget == null )
 		{
 			float angle = Vector3.Angle( m_RaycastHit.normal, transform.up );
 			bool validAngle = angle >= 89f && angle < 179f;
 			if ( InputManager.Inputs.Ability1 && validAngle == true && m_ChosingDodgeRotation == false )        // GetKeyDown Q one frame
 			{
-				if ( m_RaycastNormal != Vector3.zero && m_RaycastNormal == m_RaycastHit.normal )
+				if ( m_DodgeRaycastNormal != Vector3.zero && m_DodgeRaycastNormal == m_RaycastHit.normal )
 				{
 					return;
 				}
 
-				m_DashAbilityTarget.gameObject.SetActive( true );
-				m_DashAbilityTarget.position = m_RaycastHit.point;
-				m_DashAbilityTarget.up = m_RaycastHit.normal;
-				m_RaycastNormal = m_RaycastHit.normal;
-				SoundEffectManager.Instance.Pitch = Time.timeScale = 0.001f;
+				m_DodgeAbilityTarget.gameObject.SetActive( true );
+				m_DodgeAbilityTarget.position = m_RaycastHit.point;
+				m_DodgeAbilityTarget.up = m_RaycastHit.normal;
+				m_DodgeRaycastNormal = m_RaycastHit.normal;
+				SoundEffectManager.Instance.Pitch = Time.timeScale = 0.008f;
 			}
 
-			if ( InputManager.Inputs.Ability1Loop && m_DashAbilityTarget.gameObject.activeSelf == true )		// GetKey Q more frames
+			if ( InputManager.Inputs.Ability1Loop && m_DodgeAbilityTarget.gameObject.activeSelf == true )		// GetKey Q more frames
 			{
-				if ( m_RaycastNormal != m_RaycastHit.normal )
+				if ( m_DodgeRaycastNormal != m_RaycastHit.normal )
 				{
 					m_ChosingDodgeRotation = false;
 					return;
 				}
 
 				m_ChosingDodgeRotation = true;
-				Vector3 pointToFace = Utils.Math.ProjectPointOnPlane( m_RaycastHit.normal, m_DashAbilityTarget.position, m_RaycastHit.point );
-				if ( pointToFace != m_DashAbilityTarget.position )
-					m_DashAbilityTarget.rotation = Quaternion.LookRotation( ( pointToFace - m_DashAbilityTarget.position ), m_RaycastHit.normal );
+				Vector3 pointToFace = Utils.Math.ProjectPointOnPlane( m_RaycastHit.normal, m_DodgeAbilityTarget.position, m_RaycastHit.point );
+				if ( pointToFace != m_DodgeAbilityTarget.position )
+					m_DodgeAbilityTarget.rotation = Quaternion.LookRotation( ( pointToFace - m_DodgeAbilityTarget.position ), m_RaycastHit.normal );
 			}
 
 			if ( InputManager.Inputs.Ability1Released && m_ChosingDodgeRotation == true )						// GetKeyUp Q one frame
@@ -305,23 +324,23 @@ public partial class Player {
 				if ( m_RotorDashCoroutine != null )
 						StopCoroutine( m_RotorDashCoroutine );
 
-				m_RaycastNormal = Vector3.zero;
+				m_DodgeRaycastNormal = Vector3.zero;
 				SoundEffectManager.Instance.Pitch = Time.timeScale = 1f;
-				Vector3 destination = m_DashAbilityTarget.position + m_DashAbilityTarget.up;
+				Vector3 destination = m_DodgeAbilityTarget.position + m_DodgeAbilityTarget.up;
 				
 				transform.Rotate( Vector3.up, CameraControl.Instance.CurrentDirection.y, Space.Self );
 				Vector3 alias = CameraControl.Instance.CurrentDirection;
 				alias.y = 0f;
 				CameraControl.Instance.CurrentDirection = alias;
 
-				m_DashAbilityTarget.gameObject.SetActive( false );
-				m_RotorDashCoroutine = StartCoroutine( Dodge( destination: destination, rotation: m_DashAbilityTarget.rotation ) );
+				m_DodgeAbilityTarget.gameObject.SetActive( false );
+				m_RotorDashCoroutine = StartCoroutine( Dodge( destination: destination, rotation: m_DodgeAbilityTarget.rotation ) );
 				m_ChosingDodgeRotation = false;
 			}
 		}
 	}
 
-	
+
 	//////////////////////////////////////////////////////////////////////////
 	// Dodge ( Coroutine )
 	private	IEnumerator	Dodge( Vector3 destination, Quaternion rotation, bool falling = false, DodgeTarget dodgeTarget = null )
@@ -330,11 +349,9 @@ public partial class Player {
 		Quaternion	startRotation					= transform.rotation;
 		Quaternion	finalRotation					= rotation;
 		
-		float	currentTime							= 0f;
 		var		settings							= CameraControl.Instance.GetPP_Profile.motionBlur.settings;
 		float	drag								= m_RigidBody.drag;
-
-		m_DodgeInterpolant							*= 0.2f;
+		m_DodgeInterpolant							= 0f;
 
 		// Enabling dodge ability
 		m_IsDodging									= true;
@@ -348,20 +365,18 @@ public partial class Player {
 		m_RigidBody.drag							= 0f;
 
 		float slowMotionCoeff			= WeaponManager.Instance.CurrentWeapon.SlowMotionCoeff;
-		AnimationCurve animationCurve	= ( ( dodgeTarget != null && dodgeTarget.HasTimeScaleCurveOverride ) ? dodgeTarget.DodgeTimeScaleCurve : m_DashTimeScaleCurve );
+		AnimationCurve animationCurve	= ( ( dodgeTarget != null && dodgeTarget.HasTimeScaleCurveOverride ) ? dodgeTarget.DodgeTimeScaleCurve : m_DodgeTimeScaleCurve );
 		while ( m_DodgeInterpolant < 1f )
 		{
-			if ( m_ChosingDodgeRotation == true )
-				yield return null;
+			m_DodgeInterpolant		+= Time.deltaTime;
 
 			// Flash effect
 			effectFrame.color		= Color.Lerp ( Color.white, Color.clear, m_DodgeInterpolant * 6f );
-			currentTime				+= Time.deltaTime;
-			m_DodgeInterpolant				= currentTime * DASH_SPEED_FACTOR * ( ( falling == true ) ? 5f : 1f );
 
 			// Time Scale
 			float timeScaleNow		= animationCurve.Evaluate( m_DodgeInterpolant ) * slowMotionCoeff;
-			Time.timeScale			= ( falling == true ) ? Time.timeScale : timeScaleNow;
+			if ( m_ChosingDodgeRotation == false )
+				Time.timeScale			= ( falling == true ) ? Time.timeScale : timeScaleNow;
 			
 			// Position and Rotation
 			if ( falling == false )
@@ -386,6 +401,9 @@ public partial class Player {
 		SoundEffectManager.Instance.Pitch			= 1f;
 		Time.timeScale								= 1f;
 		effectFrame.color							= Color.clear;
+		m_DodgeRaycastNormal						= Vector3.zero;
+		m_DodgeAbilityTarget.gameObject.SetActive( false );
+		m_ChosingDodgeRotation						= false;
 
 		// Final Position and Rotation
 		if ( falling == false )
@@ -399,6 +417,8 @@ public partial class Player {
 		CameraControl.Instance.OnCutsceneEnd();
 		CameraControl.Instance.HeadBob.IsActive		= true;
 		CameraControl.Instance.HeadMove.IsActive	= true;
+
+		SetMotionType( eMotionType.Walking );
 
 		m_RotorDashCoroutine = null;
 	}

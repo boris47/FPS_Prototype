@@ -3,6 +3,7 @@ using CFG_Reader;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using CutScene;
 
 public interface IEntity {
 	Transform				Transform						{	get;		}
@@ -34,7 +35,7 @@ public interface IEntitySimulation {
 
 	void		EnterSimulationState	();
 	void		ExitSimulationState		();
-	bool		SimulateMovement		( Entity.SimulationMovementType movementType, Vector3 destination, Transform target, float deltaTime, float interpolant = 0f );
+	bool		SimulateMovement		( Entity.SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1f );
 
 }
 
@@ -51,9 +52,9 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 		OBJECT
 	};
 
-	public enum SimulationMovementType {
+	public enum SimMovementType {
 		WALK,
-		WALK_CROUCHED,
+		CROUCHED,
 		RUN
 	}
 
@@ -127,7 +128,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Awake
+	// Awake ( virtual )
 	protected	virtual	void	Awake()
 	{
 		m_ID				= NewID();
@@ -150,7 +151,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnSave ( Abstract )
+	// OnSave ( virtual )
 	protected	virtual	StreamingUnit	OnSave( StreamingData streamingData )
 	{
 		StreamingUnit streamingUnit		= new StreamingUnit();
@@ -165,7 +166,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnLoad ( Abstract )
+	// OnLoad ( virtual )
 	protected	virtual	StreamingUnit	OnLoad( StreamingData streamingData )
 	{
 		int instanceID				= gameObject.GetInstanceID();
@@ -180,33 +181,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Update ( Abstract )
-	public	abstract	void	OnFrame( float deltaTime );
-
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// EnterSimulationState
-	public virtual void	EnterSimulationState()
-	{
-		m_MovementOverrideEnabled = true;
-		m_SimulationStartPosition = transform.position;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// ExitSimulationState
-	public virtual void	ExitSimulationState()
-	{
-		m_MovementOverrideEnabled = false;
-		m_SimulationStartPosition = Vector3.zero;
-		Quaternion rotation = Quaternion.LookRotation( CameraControl.Instance.Target.position - transform.position, transform.up );
-		transform.rotation = rotation;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// SetDestination
+	// SetDestination ( Virtual )
 	public	virtual	void	SetDestination( Vector3 destination )
 	{
 		m_Destination = destination;
@@ -215,7 +190,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// SetPoinToFace
+	// SetPoinToFace ( Firtual )
 	public	virtual	void	SetPoinToFace( Vector3 point )
 	{
 		m_PointToFace = point;
@@ -224,7 +199,22 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// SimulateMovement
-	public abstract	bool	SimulateMovement( SimulationMovementType movementType, Vector3 destination, Transform target, float deltaTime, float interpolant = 0f );
+	// Update ( Abstract )
+	public	abstract	void	OnFrame( float deltaTime );
+
+	//////////////////////////////////////////////////////////////////////////
+	// EnterSimulationState ( Abstract )
+	public abstract void	EnterSimulationState();
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ExitSimulationState ( Abstract )
+	public abstract void	ExitSimulationState();
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// SimulateMovement ( Abstract )
+	public virtual	bool	SimulateMovement( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1f )
+	{ return false; }
 
 }
