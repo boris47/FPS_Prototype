@@ -71,9 +71,10 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 					o.SetActive( false );
 					o.Setup( damageMin : m_DamageLongRangeMin, damageMax : m_DamageLongRangeMax, canPenetrate : false, whoRef : this, weapon : null );
 					Physics.IgnoreCollision( o.Collider, m_PhysicCollider, ignore : true );
-					Physics.IgnoreCollision( o.Collider, Player.Entity.PhysicCollider );
-					Physics.IgnoreCollision( o.Collider, Player.Instance.PlayerNearAreaTrigger );
-					Physics.IgnoreCollision( o.Collider, Player.Instance.PlayerFarAreaTrigger );
+
+					// this allow to receive only trigger enter callback
+					Player.Instance.DisableCollisionsWith( o.Collider );
+
 					if ( m_Shield != null )
 						Physics.IgnoreCollision( o.Collider, m_Shield.Collider, ignore : true );
 				}
@@ -134,11 +135,11 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		// SEEKING MODE
 
 		// now point to face is target position
-		m_PointToFace = m_TargetInfo.CurrentTarget.transform.position;
+		m_PointToFace = m_TargetInfo.CurrentTarget.Transform.position;
 		m_HasFaceTarget = true;
 
 		// now point to reach is target position
-		m_Destination = m_TargetInfo.CurrentTarget.transform.position;
+		m_Destination = m_TargetInfo.CurrentTarget.Transform.position;
 		m_HasDestination = true;
 
 		// Set brain to SEKKER mode
@@ -166,7 +167,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 			m_GunTransform.forward		= Vector3.RotateTowards( m_GunTransform.forward, dirGunToPosition, m_GunRotationSpeed * deltaTime, 0.0f );
 		}
 
-		m_AllignedGunToPoint			= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 7f;
+		m_IsAllignedGunToPoint			= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 7f;
 	}
 
 	
@@ -255,7 +256,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 		// NonLiveEntity
 		m_ShotTimer						= 0f;
-		m_AllignedGunToPoint			= false;
+		m_IsAllignedGunToPoint			= false;
 
 		// Reinitialize properties
 		Awake();

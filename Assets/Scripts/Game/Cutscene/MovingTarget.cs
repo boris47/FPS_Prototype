@@ -6,21 +6,22 @@ namespace CutScene {
 
 	public class MovingTarget : MonoBehaviour {
 
-		public	Path	m_path	= null;
-		public	float	m_Speed = 1f;
+		public	Path		m_Path			= null;
+		public	float		m_Speed			= 1f;
+
+		private	Vector3		m_Position		= Vector3.zero;
 
 
 		private void Update()
 		{
-		
-			Vector3 position = Vector3.zero;
-			if ( m_path.Move( m_Speed, ref position ) )
-			{
-				transform.position = position;
-			}
-
+			enabled = m_Path.Move( m_Speed, ref m_Position );
 		}
 
+
+		private void FixedUpdate()
+		{
+			transform.position = m_Position;
+		}
 	}
 
 }

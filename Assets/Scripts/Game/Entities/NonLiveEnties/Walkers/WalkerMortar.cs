@@ -17,7 +17,7 @@ public class WalkerMortar : Walker {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Update ( Override )
-	public override void OnFrame( float deltaTime )
+	protected override void OnFrame( float deltaTime )
 	{
 		// Update internal timer
 		m_ShotTimer -= deltaTime;
@@ -27,10 +27,10 @@ public class WalkerMortar : Walker {
 			if ( m_Brain.State != BrainState.ATTACKING )
 				m_Brain.ChangeState( BrainState.ATTACKING );
 			
-			m_PointToFace = m_TargetInfo.CurrentTarget.transform.position;
+			m_PointToFace = m_TargetInfo.CurrentTarget.Transform.position;
 			m_HasFaceTarget = true;
 
-			m_Destination = m_TargetInfo.CurrentTarget.transform.position;
+			m_Destination = m_TargetInfo.CurrentTarget.Transform.position;
 			m_HasDestination = true;
 
 			m_DistanceToTravel	= ( transform.position - m_PointToFace ).sqrMagnitude;
@@ -52,14 +52,14 @@ public class WalkerMortar : Walker {
 		// if has destination set
 		if ( m_HasDestination && m_IsAllignedBodyToDestination )
 		{
-			if ( m_TargetInfo.HasTarget && ( transform.position - m_TargetInfo.CurrentTarget.transform.position ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
+			if ( m_TargetInfo.HasTarget && ( transform.position - m_TargetInfo.CurrentTarget.Transform.position ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
 				GoAtPoint( deltaTime );	// m_Destination
 			else
 				GoAtPoint( deltaTime );	// m_Destination
 		}
 
 		// if gun alligned, fire
-		if ( m_AllignedGunToPoint == true )
+		if ( m_IsAllignedGunToPoint == true )
 		{
 			FireLongRange( deltaTime );
 		}
@@ -87,7 +87,7 @@ public class WalkerMortar : Walker {
 			m_GunTransform.forward			=  Vector3.RotateTowards( m_GunTransform.forward, ballisticDirOfGun, m_GunRotationSpeed * deltaTime, 0.0f );
 		}
 
-		m_AllignedGunToPoint				= Vector3.Angle( m_GunTransform.forward, ballisticDirOfGun ) < 3f;
+		m_IsAllignedGunToPoint				= Vector3.Angle( m_GunTransform.forward, ballisticDirOfGun ) < 3f;
 	}
 	
 
@@ -124,7 +124,7 @@ public class WalkerMortar : Walker {
 		Vector2 a = new Vector2( startPosition.x, startPosition.z );
 		Vector2 b = new Vector2( endPosition.x, endPosition.z );
 		float dis = Vector2.Distance( a, b );
-		alt = -( startPosition.y - m_TargetInfo.CurrentTarget.transform.position.y );
+		alt = -( startPosition.y - m_TargetInfo.CurrentTarget.Transform.position.y );
         
 		float g = Mathf.Abs( Physics.gravity.y );
                 

@@ -2,6 +2,11 @@
 using UnityEngine;
 using System.Collections;
 
+public	interface	IRespawn
+{
+	void	OnRespawn();
+}
+
 public class RespawnPoint : MonoBehaviour {
 
 	private	float	m_Counter	= 0f;

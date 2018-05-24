@@ -5,7 +5,7 @@ using UnityEngine;
 public abstract class Walker : NonLiveEntity, IRespawn {
 
 	[SerializeField]
-	protected	Bullet			m_Bullet			= null;
+	protected	Bullet			m_Bullet					= null;
 
 	[SerializeField]
 	protected	float			m_ShotDelay					= 0.7f;
@@ -69,9 +69,10 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 					o.Setup( damageMin : m_DamageMin, damageMax : m_DamageMax, canPenetrate : false, whoRef : this, weapon : null );
 					o.Setup( whoRef: this, weapon: null );
 					Physics.IgnoreCollision( o.Collider, m_PhysicCollider, ignore : true );
-					Physics.IgnoreCollision( o.Collider, Player.Entity.PhysicCollider );
-					Physics.IgnoreCollision( o.Collider, Player.Instance.PlayerNearAreaTrigger );
-					Physics.IgnoreCollision( o.Collider, Player.Instance.PlayerFarAreaTrigger );
+
+					// this allow to receive only trigger enter callback
+					Player.Instance.DisableCollisionsWith( o.Collider );
+
 					if ( m_Shield != null )
 						Physics.IgnoreCollision( o.Collider, m_Shield.Collider, ignore : true );
 				}
@@ -145,7 +146,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 		if ( m_RespawnPoint != null )
 		{
-			m_RespawnPoint.Respawn( this, 2f );
+//			m_RespawnPoint.Respawn( this, 2f );
 		}
 	}
 
@@ -157,11 +158,11 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		// SEEKING MODE
 
 		// now point to face is target position
-		m_PointToFace = m_TargetInfo.CurrentTarget.transform.position;
+		m_PointToFace = m_TargetInfo.CurrentTarget.Transform.position;
 		m_HasFaceTarget = true;
 
 		// now point to reach is target position
-		m_Destination = m_TargetInfo.CurrentTarget.transform.position;
+		m_Destination = m_TargetInfo.CurrentTarget.Transform.position;
 		m_HasDestination = true;
 
 		// Set brain to SEKKER mode
@@ -190,7 +191,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 			m_GunTransform.forward		=  Vector3.RotateTowards( m_GunTransform.forward, dirGunToPosition, m_GunRotationSpeed * deltaTime, 0.0f );
 		}
 
-		m_AllignedGunToPoint			= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 3f;
+		m_IsAllignedGunToPoint			= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 3f;
 	}
 
 
@@ -215,7 +216,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// GoAtPoint
+	// GoAtPoint ( Override )
 	protected override	void	GoAtPoint( float deltaTime )
 	{
 		if ( m_HasDestination == false )
@@ -281,7 +282,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 		// NonLiveEntity
 		m_ShotTimer						= 0f;
-		m_AllignedGunToPoint			= false;
+		m_IsAllignedGunToPoint			= false;
 
 		// Reinitialize properties
 		Awake();

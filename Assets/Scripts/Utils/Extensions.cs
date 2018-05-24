@@ -25,4 +25,21 @@ public static class Extensions {
 		return null;
 	}
 
+
+	public	static	T[]	GetComponentOnlyInChildren<T>( this Transform transform ) where T : Component
+	{
+		var list = new System.Collections.Generic.List<T>();
+
+		for ( int i = 0; i < transform.childCount; i++ )
+		{
+			Transform child = transform.GetChild( i );
+			T component = child.GetComponent<T>();
+			if ( component != null )
+			{
+				list.Add( component );
+			}
+		}
+		return list.ToArray();
+	}
+
 }

@@ -7,9 +7,10 @@ public interface IBullet {
 	Transform	Transform				{ get; }
 	Rigidbody	RigidBody				{ get; }
 	Collider	Collider				{ get; }
-
+	float		Velocity				{ get; }
 	Entity		WhoRef					{ get; }
 	Weapon		Weapon					{ get; }
+	Object		Effect					{ get; }
 	float		DamageMin				{ get; set; }
 	float		DamageMax				{ get; set; }
 	float		DamageMult				{ get; }
@@ -49,6 +50,7 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 	protected		Collider	m_Collider				= null;
 	protected		Entity		m_WhoRef				= null;
 	protected		Weapon		m_Weapon				= null;
+	protected		Object		m_BulletEffect			= null;
 	protected		float		m_DamageMin				= 0f;
 	protected		float		m_DamageMax				= 0f;
 	protected		bool		m_CanPenetrate			= false;
@@ -57,8 +59,10 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 					Transform	IBullet.Transform		{	get { return transform; }		}
 					Rigidbody	IBullet.RigidBody		{	get { return m_RigidBody; }		}
 					Collider	IBullet.Collider		{	get { return m_Collider; }		}
+					float		IBullet.Velocity		{	get { return m_Velocity; }		}
 					Entity		IBullet.WhoRef			{	get { return m_WhoRef; }		}
 					Weapon		IBullet.Weapon			{	get { return m_Weapon; }		}
+					Object		IBullet.Effect			{	get { return m_BulletEffect; }	}
 					float		IBullet.DamageMin		{	get { return m_DamageMin; }		set { m_DamageMax = value; } }
 					float		IBullet.DamageMax		{	get { return m_DamageMax;}		set { m_DamageMin = value; } }
 					float		IBullet.DamageMult		{	get { return m_DamageMult; }	}
@@ -71,7 +75,7 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 	protected		IBullet		m_Instance				= null;
 
 	protected		Vector3		m_StartPosition			= Vector3.zero;
-
+	protected		Vector3		m_RigidBodyVelocity		= Vector3.zero;
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Virtual )
@@ -112,11 +116,6 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 	/// <summary> For Granades and Missiles </summary>
 	public		virtual		void	Setup( Entity whoRef, Weapon weapon )
 	{}
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnEnable ( Abstract )
-	protected	abstract	void	OnEnable();
-
 
 	//////////////////////////////////////////////////////////////////////////
 	// Update ( Abstract )

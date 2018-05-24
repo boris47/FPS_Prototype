@@ -12,11 +12,11 @@ public abstract partial class NonLiveEntity : Entity {
 		m_TargetInfo = targetInfo;
 
 		// now point to face is target position
-		m_PointToFace = m_TargetInfo.CurrentTarget.transform.position;
+		m_PointToFace = m_TargetInfo.CurrentTarget.Transform.position;
 		m_HasFaceTarget = true;
 
 		// now point to reach is target position
-		m_Destination = m_TargetInfo.CurrentTarget.transform.position;
+		m_Destination = m_TargetInfo.CurrentTarget.Transform.position;
 		m_HasDestination = true;
 
 		m_Brain.ChangeState( BrainState.ATTACKING );

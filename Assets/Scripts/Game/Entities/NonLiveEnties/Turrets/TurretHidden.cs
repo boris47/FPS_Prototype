@@ -28,7 +28,10 @@ public class TurretHidden : Turret {
 	protected override StreamingUnit OnSave( StreamingData streamingData )
 	{
 		StreamingUnit streamingUnit = base.OnSave( streamingData );
-		streamingUnit.Internals		+= "IsEnabled="+ m_IsEnabled.ToString();
+		if ( streamingUnit == null )
+			return null;
+
+		streamingUnit.AddInternal( "IsEnabled", m_IsEnabled );
 
 		return streamingUnit;
 	}
@@ -42,18 +45,8 @@ public class TurretHidden : Turret {
 		if ( streamingUnit == null )
 			return null;
 
-		KeyValue[] values = Utils.Base.GetKeyValues( streamingUnit.Internals );
-		foreach ( KeyValue keyValue in values )
-		{
-			if ( keyValue.Key == "IsEnabled" )
-			{
-				m_IsEnabled = ( keyValue.Value.ToLower() == "true" ) ? true : false;
-				if ( m_IsEnabled )
-				{
-					Activate();
-				}
-			}
-		}
+		m_IsEnabled = streamingUnit.GetAsBool( "IsEnabled" );
+		
 		return streamingUnit;
 	}
 
@@ -65,7 +58,7 @@ public class TurretHidden : Turret {
 		m_TargetInfo = targetInfo;
 
 		// now point to face is target position
-		m_PointToFace = m_TargetInfo.CurrentTarget.transform.position;
+		m_PointToFace = m_TargetInfo.CurrentTarget.Transform.position;
 		m_HasFaceTarget = true;
 
 		// now point to reach is target position
@@ -121,7 +114,7 @@ public class TurretHidden : Turret {
 	// Update forward direction and gun rotation
 	//////////////////////////////////////////////////////////////////////////
 	// OnFrame ( Override )
-	public		override	void	OnFrame( float deltaTime )
+	protected		override	void	OnFrame( float deltaTime )
 	{
 		// Update internal timer
 		m_ShotTimer -= deltaTime;
@@ -141,11 +134,11 @@ public class TurretHidden : Turret {
 		{
 			if ( m_TargetInfo.HasTarget == true )
 			{
-				m_PointToFace		= m_TargetInfo.CurrentTarget.transform.position;
+				m_PointToFace		= m_TargetInfo.CurrentTarget.Transform.position;
 			}
 			FaceToPoint( deltaTime );	// m_PointToFace
 
-			if ( m_AllignedGunToPoint == false )
+			if ( m_IsAllignedGunToPoint == false )
 			return;
 
 			FireLongRange( deltaTime );	

@@ -5,6 +5,9 @@ using UnityEngine;
 public class GenericBullet : Bullet {
 
 	private	Light		m_PointLight		= null;
+	private	LensFlare	m_LensFlare			= null;
+
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
@@ -14,9 +17,15 @@ public class GenericBullet : Bullet {
 
 		m_RigidBody.useGravity					= false;
 
-		m_PointLight = GetComponent<Light>();
+		m_BulletEffect = m_PointLight = GetComponent<Light>();
+
+		m_LensFlare = GetComponent<LensFlare>();
+
 		if ( m_PointLight != null )
 			m_PointLight.color = m_Renderer.material.GetColor( "_EmissionColor" );
+
+		if ( m_LensFlare != null )
+			m_LensFlare.color = m_PointLight.color;
 
 		SetActive( false );
 	}
@@ -48,14 +57,6 @@ public class GenericBullet : Bullet {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnEnable ( Override )
-	protected	override	void	OnEnable()
-	{
-		m_RigidBody.angularVelocity = Vector3.zero;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
 	// Update ( Override )
 	protected	override	void	Update()
 	{
@@ -65,7 +66,8 @@ public class GenericBullet : Bullet {
 			SetActive( false );
 		}
 
-		transform.up = m_RigidBody.velocity;
+		m_RigidBody.velocity	= m_RigidBodyVelocity;
+		transform.up			= m_RigidBodyVelocity;
 	}
 
 
@@ -76,7 +78,7 @@ public class GenericBullet : Bullet {
 		transform.up			= direction;
 		transform.position		= position;
 		m_StartPosition			= position;
-		m_RigidBody.velocity	= direction * ( ( velocity > 0f ) ? velocity : m_Velocity );
+		m_RigidBody.velocity	= m_RigidBodyVelocity = direction * ( ( velocity > 0f ) ? velocity : m_Velocity );
 		SetActive( true );
 	}
 
@@ -92,9 +94,11 @@ public class GenericBullet : Bullet {
 			m_RigidBody.velocity	= Vector3.zero;
 		}
 		
+		m_RigidBody.angularVelocity = Vector3.zero;
 		m_RigidBody.detectCollisions = state;
 		m_Collider.enabled = state;
 		m_Renderer.enabled = state;
+		gameObject.SetActive( state );
 		this.enabled = state;
 	}
 	
@@ -124,11 +128,10 @@ public class GenericBullet : Bullet {
 		else
 		if ( entity != null )
 		{
-			Rigidbody erg = ( entity as IEntity ).RigidBody;
-			erg.angularVelocity = erg.velocity = Vector3.zero;
+			Rigidbody rb = entity.Interface.RigidBody;
+			rb.angularVelocity = rb.velocity = Vector3.zero;
 			entity.OnHit( m_Instance );
 		}
-
 
 		this.SetActive( false );
 	}

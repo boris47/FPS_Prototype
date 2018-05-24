@@ -3,30 +3,30 @@ using UnityEngine;
 
 
 public enum InputFlags {
-	/// <summary> Controls movements </summary>
+	/// <summary> Controls movements ( default: WASD ) </summary>
 	MOVE		= 1 << 01,
-	/// <summary> Cotnrols State </summary>
+	/// <summary> Cotnrols State ( default: CTRL, SFIFT ) </summary>
 	STATE		= 1 << 02,
-	/// <summary> Ability input </summary>
+	/// <summary> Ability input ( default: Q ) </summary>
 	ABILITY		= 1 << 03,
-	/// <summary> Usage input </summary>
+	/// <summary> Usage input ( default: E and F ) </summary>
 	USE			= 1 << 04,
-	/// <summary> Weapons switch </summary>
+	/// <summary> Weapons switch ( default: Mouse wheel ) </summary>
 	SWITCH		= 1 << 05,
-	/// <summary> Selection input </summary>
+	/// <summary> Selection input ( default: 1 ... 9 ) </summary>
 	SELECTION	= 1 << 06,
-	/// <summary> Item usage </summary>
+	/// <summary> Item usage ( default: F1 .. F4 ) </summary>
 	ITEM		= 1 << 07,
-	/// <summary> Accessory usage </summary>
-	ITEMACTION	= 1 << 08,
-	/// <summary> Primary fire </summary>
+	/// <summary> Accessory usage ( default: G, H, J ) </summary>
+	GADGET		= 1 << 08,
+	/// <summary> Primary fire ( default: Mouse Left Button ) </summary>
 	FIRE1		= 1 << 09,
-	/// <summary> Secondary fire </summary>
+	/// <summary> Secondary fire ( default: Mouse Right Button ) </summary>
 	FIRE2		= 1 << 10,
-	/// <summary> Reload </summary>
+	/// <summary> Reload ( default: R ) </summary>
 	RELOAD		= 1 << 11,
 	/// <summary> All </summary>
-	ALL			= MOVE | STATE | ABILITY | USE | SWITCH | SELECTION | ITEM | ITEMACTION | FIRE1 | FIRE2 | RELOAD
+	ALL			= MOVE | STATE | ABILITY | USE | SWITCH | SELECTION | ITEM | GADGET | FIRE1 | FIRE2 | RELOAD
 }
 
 
@@ -39,7 +39,7 @@ public struct inputs_t {
 	public	bool	SwitchPrev, SwitchNext;
 	public	bool	Selection1, Selection2, Selection3, Selection4, Selection5, Selection6, Selection7, Selection8, Selection9;
 	public	bool	Item1, Item2, Item3, Item4;
-	public	bool	ItemAction1, ItemAction2, ItemAction3;
+	public	bool	Gadget1, Gadget2, Gadget3;
 	public	bool	Fire1, Fire1Loop, Fire1Released;
 	public	bool	Fire2, Fire2Loop, Fire2Released;
 	public	bool	Reload;
@@ -56,7 +56,7 @@ public struct inputs_t {
 		SwitchPrev = SwitchNext =
 		Selection1 = Selection2 = Selection3 = Selection4 = Selection5 = Selection6 = Selection7 = Selection8 = Selection9 =
 		Item1 = Item2 = Item3 = Item4 =
-		ItemAction1 = ItemAction2 = ItemAction3 =
+		Gadget1 = Gadget2 = Gadget3 =
 		Fire1 = Fire1Loop = Fire1Released =
 		Fire2 = Fire2Loop = Fire2Released =
 		Reload = false;
@@ -73,12 +73,47 @@ public class InputManager {
 	public  static	inputs_t		Inputs;
 
 	public	static	bool			IsEnabled		= true;
-	
 
-	private	InputFlags				m_Flags			= InputFlags.MOVE | InputFlags.STATE | InputFlags.ABILITY | InputFlags.USE
-		| InputFlags.SWITCH | InputFlags.SELECTION | InputFlags.ITEM | InputFlags.ITEMACTION | InputFlags.FIRE1 | InputFlags.FIRE2 | InputFlags.RELOAD;
+	private	InputFlags				m_Flags			= InputFlags.ALL;
+
+	/*
+	//////////////////////////////////////////////////////////////////////////
+	// OnSave ( Constructor )
+	public	InputManager()
+	{
+		GameManager.Instance.OnSave += OnSave;
+		GameManager.Instance.OnLoad += OnLoad;
+	}
+	*/
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnSave
+	private	StreamingUnit	OnSave( StreamingData streamingData )
+	{
+		StreamingUnit streamingUnit	= streamingData.NewUnit( GameManager.Instance.gameObject );
+
+		streamingUnit.AddInternal( "InputFlags", m_Flags );
+
+		return streamingUnit;
+	}
 
 
+	//////////////////////////////////////////////////////////////////////////
+	// OnLoad
+	private	StreamingUnit	OnLoad( StreamingData streamingData )
+	{
+		StreamingUnit streamingUnit = null;
+		if ( streamingData.GetUnit( GameManager.Instance.gameObject, ref streamingUnit ) == false )
+			return null;
+
+		m_Flags = (InputFlags) streamingUnit.GetAsInt( "InputFlags" );
+
+		return streamingUnit;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// SetFlags
 	public	void	SetFlags( InputFlags flags )
 	{
 		if ( ( m_Flags & InputFlags.MOVE )			== 0 && ( flags & InputFlags.MOVE )			!= 0 ) m_Flags |= InputFlags.MOVE;
@@ -88,12 +123,15 @@ public class InputManager {
 		if ( ( m_Flags & InputFlags.SWITCH )		== 0 && ( flags & InputFlags.SWITCH )		!= 0 ) m_Flags |= InputFlags.SWITCH;
 		if ( ( m_Flags & InputFlags.SELECTION )		== 0 && ( flags & InputFlags.SELECTION )	!= 0 ) m_Flags |= InputFlags.SELECTION;
 		if ( ( m_Flags & InputFlags.ITEM )			== 0 && ( flags & InputFlags.ITEM )			!= 0 ) m_Flags |= InputFlags.ITEM;
-		if ( ( m_Flags & InputFlags.ITEMACTION )	== 0 && ( flags & InputFlags.ITEMACTION )	!= 0 ) m_Flags |= InputFlags.ITEMACTION;
+		if ( ( m_Flags & InputFlags.GADGET )		== 0 && ( flags & InputFlags.GADGET )		!= 0 ) m_Flags |= InputFlags.GADGET;
 		if ( ( m_Flags & InputFlags.FIRE1 )			== 0 && ( flags & InputFlags.FIRE1 )		!= 0 ) m_Flags |= InputFlags.FIRE1;
 		if ( ( m_Flags & InputFlags.FIRE2 )			== 0 && ( flags & InputFlags.FIRE2 )		!= 0 ) m_Flags |= InputFlags.FIRE2;
 		if ( ( m_Flags & InputFlags.RELOAD )		== 0 && ( flags & InputFlags.RELOAD )		!= 0 ) m_Flags |= InputFlags.RELOAD;
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// RemoveFlags
 	public	void	RemoveFlags( InputFlags flags )
 	{
 		if ( ( m_Flags & InputFlags.MOVE )			!= 0 && ( flags & InputFlags.MOVE )			== 0 ) m_Flags &= ~InputFlags.MOVE;
@@ -103,11 +141,12 @@ public class InputManager {
 		if ( ( m_Flags & InputFlags.SWITCH )		!= 0 && ( flags & InputFlags.SWITCH )		== 0 ) m_Flags &= ~InputFlags.SWITCH;
 		if ( ( m_Flags & InputFlags.SELECTION )		!= 0 && ( flags & InputFlags.SELECTION )	== 0 ) m_Flags &= ~InputFlags.SELECTION;
 		if ( ( m_Flags & InputFlags.ITEM )			!= 0 && ( flags & InputFlags.ITEM )			== 0 ) m_Flags &= ~InputFlags.ITEM;
-		if ( ( m_Flags & InputFlags.ITEMACTION )	!= 0 && ( flags & InputFlags.ITEMACTION )	== 0 ) m_Flags &= ~InputFlags.ITEMACTION;
+		if ( ( m_Flags & InputFlags.GADGET )		!= 0 && ( flags & InputFlags.GADGET )		== 0 ) m_Flags &= ~InputFlags.GADGET;
 		if ( ( m_Flags & InputFlags.FIRE1 )			!= 0 && ( flags & InputFlags.FIRE1 )		== 0 ) m_Flags &= ~InputFlags.FIRE1;
 		if ( ( m_Flags & InputFlags.FIRE2 )			!= 0 && ( flags & InputFlags.FIRE2 )		== 0 ) m_Flags &= ~InputFlags.FIRE2;
 		if ( ( m_Flags & InputFlags.RELOAD )		!= 0 && ( flags & InputFlags.RELOAD )		== 0 ) m_Flags &= ~InputFlags.RELOAD;
 	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// Update
@@ -122,26 +161,26 @@ public class InputManager {
 		{
 			Inputs.Forward				= Input.GetKey ( KeyCode.W ) || Input.GetKey ( KeyCode.UpArrow );
 			Inputs.Backward				= Input.GetKey ( KeyCode.S ) || Input.GetKey ( KeyCode.DownArrow );
-			Inputs.StrafeLeft				= Input.GetKey ( KeyCode.A ) || Input.GetKey ( KeyCode.LeftArrow );
+			Inputs.StrafeLeft			= Input.GetKey ( KeyCode.A ) || Input.GetKey ( KeyCode.LeftArrow );
 			Inputs.StrafeRight			= Input.GetKey ( KeyCode.D ) || Input.GetKey ( KeyCode.RightArrow );
 		}
 
 		if ( ( m_Flags & InputFlags.STATE ) != 0 )
 		{
-			Inputs.Crouch					= HoldCrouch ?
-											( Input.GetKey ( KeyCode.LeftControl ) || Input.GetKey ( KeyCode.RightControl ) )
-											:
-											( Input.GetKeyDown ( KeyCode.LeftControl ) || Input.GetKeyDown ( KeyCode.RightControl ) );
+			Inputs.Crouch				= HoldCrouch ?
+										( Input.GetKey ( KeyCode.LeftControl ) || Input.GetKey ( KeyCode.RightControl ) )
+										:
+										( Input.GetKeyDown ( KeyCode.LeftControl ) || Input.GetKeyDown ( KeyCode.RightControl ) );
 
 			Inputs.Jump					= HoldJump ?
-											( Input.GetKey ( KeyCode.Space ) || Input.GetKey ( KeyCode.Keypad0 ) )
-											:
-											( Input.GetKeyDown ( KeyCode.Space ) || Input.GetKeyDown ( KeyCode.Keypad0 ) );
+										( Input.GetKey ( KeyCode.Space ) || Input.GetKey ( KeyCode.Keypad0 ) )
+										:
+										( Input.GetKeyDown ( KeyCode.Space ) || Input.GetKeyDown ( KeyCode.Keypad0 ) );
 
 			Inputs.Run					= HoldRun ?
-											( Input.GetKey ( KeyCode.LeftShift ) || Input.GetKey ( KeyCode.RightShift ) )
-											:
-											( Input.GetKeyDown ( KeyCode.LeftShift ) || Input.GetKeyDown ( KeyCode.RightShift ) );
+										( Input.GetKey ( KeyCode.LeftShift ) || Input.GetKey ( KeyCode.RightShift ) )
+										:
+										( Input.GetKeyDown ( KeyCode.LeftShift ) || Input.GetKeyDown ( KeyCode.RightShift ) );
 		}
 
 		if ( ( m_Flags & InputFlags.ABILITY ) != 0 )
@@ -158,56 +197,56 @@ public class InputManager {
 
 		if ( ( m_Flags & InputFlags.SWITCH ) != 0 )
 		{
-			Inputs.SwitchPrev				= Input.mouseScrollDelta.y > 0;
-			Inputs.SwitchNext				= Input.mouseScrollDelta.y < 0;
+			Inputs.SwitchPrev			= Input.mouseScrollDelta.y > 0;
+			Inputs.SwitchNext			= Input.mouseScrollDelta.y < 0;
 		}
 
 		if ( ( m_Flags & InputFlags.SELECTION ) != 0 )
 		{
-			Inputs.Selection1				= Input.GetKeyDown( KeyCode.Alpha1 );
-			Inputs.Selection2				= Input.GetKeyDown( KeyCode.Alpha2 );
-			Inputs.Selection3				= Input.GetKeyDown( KeyCode.Alpha3 );
-			Inputs.Selection4				= Input.GetKeyDown( KeyCode.Alpha4 );
-			Inputs.Selection5				= Input.GetKeyDown( KeyCode.Alpha5 );
-			Inputs.Selection6				= Input.GetKeyDown( KeyCode.Alpha6 );
-			Inputs.Selection7				= Input.GetKeyDown( KeyCode.Alpha7 );
-			Inputs.Selection8				= Input.GetKeyDown( KeyCode.Alpha8 );
-			Inputs.Selection9				= Input.GetKeyDown( KeyCode.Alpha9 );
+			Inputs.Selection1			= Input.GetKeyDown( KeyCode.Alpha1 );
+			Inputs.Selection2			= Input.GetKeyDown( KeyCode.Alpha2 );
+			Inputs.Selection3			= Input.GetKeyDown( KeyCode.Alpha3 );
+			Inputs.Selection4			= Input.GetKeyDown( KeyCode.Alpha4 );
+			Inputs.Selection5			= Input.GetKeyDown( KeyCode.Alpha5 );
+			Inputs.Selection6			= Input.GetKeyDown( KeyCode.Alpha6 );
+			Inputs.Selection7			= Input.GetKeyDown( KeyCode.Alpha7 );
+			Inputs.Selection8			= Input.GetKeyDown( KeyCode.Alpha8 );
+			Inputs.Selection9			= Input.GetKeyDown( KeyCode.Alpha9 );
 		}
 
 		if ( ( m_Flags & InputFlags.ITEM ) != 0 )
 		{
-			Inputs.Item1					= Input.GetKeyDown ( KeyCode.F1 ) || Input.GetKeyDown ( KeyCode.Keypad1 );
-			Inputs.Item2					= Input.GetKeyDown ( KeyCode.F2 ) || Input.GetKeyDown ( KeyCode.Keypad2 );
-			Inputs.Item3					= Input.GetKeyDown ( KeyCode.F3 ) || Input.GetKeyDown ( KeyCode.Keypad3 );
-			Inputs.Item4					= Input.GetKeyDown ( KeyCode.F4 ) || Input.GetKeyDown ( KeyCode.Keypad4 );
+			Inputs.Item1				= Input.GetKeyDown ( KeyCode.F1 ) || Input.GetKeyDown ( KeyCode.Keypad1 );
+			Inputs.Item2				= Input.GetKeyDown ( KeyCode.F2 ) || Input.GetKeyDown ( KeyCode.Keypad2 );
+			Inputs.Item3				= Input.GetKeyDown ( KeyCode.F3 ) || Input.GetKeyDown ( KeyCode.Keypad3 );
+			Inputs.Item4				= Input.GetKeyDown ( KeyCode.F4 ) || Input.GetKeyDown ( KeyCode.Keypad4 );
 		}
 
-		if ( ( m_Flags & InputFlags.ITEMACTION ) != 0 )
+		if ( ( m_Flags & InputFlags.GADGET ) != 0 )
 		{
-			Inputs.ItemAction1			= Input.GetKeyDown( KeyCode.G );
-			Inputs.ItemAction2			= Input.GetKeyDown( KeyCode.H );
-			Inputs.ItemAction3			= Input.GetKeyDown( KeyCode.J);
+			Inputs.Gadget1				= Input.GetKeyDown( KeyCode.G );
+			Inputs.Gadget2				= Input.GetKeyDown( KeyCode.H );
+			Inputs.Gadget3				= Input.GetKeyDown( KeyCode.J);
 		}
 
 		if ( ( m_Flags & InputFlags.FIRE1 ) != 0 )
 		{
-			Inputs.Fire1					= Input.GetKeyDown( KeyCode.Mouse0 );
-			Inputs.Fire1Loop				= Input.GetKey( KeyCode.Mouse0 );
-			Inputs.Fire1Released			= Input.GetKeyUp( KeyCode.Mouse0 );
+			Inputs.Fire1				= Input.GetKeyDown( KeyCode.Mouse0 );
+			Inputs.Fire1Loop			= Input.GetKey( KeyCode.Mouse0 );
+			Inputs.Fire1Released		= Input.GetKeyUp( KeyCode.Mouse0 );
 		}
 
 		if ( ( m_Flags & InputFlags.FIRE2 ) != 0 )
 		{
-			Inputs.Fire2					= Input.GetKeyDown( KeyCode.Mouse1 );
-			Inputs.Fire2Loop				= Input.GetKey( KeyCode.Mouse1 );
-			Inputs.Fire2Released			= Input.GetKeyUp( KeyCode.Mouse1 );
+			Inputs.Fire2				= Input.GetKeyDown( KeyCode.Mouse1 );
+			Inputs.Fire2Loop			= Input.GetKey( KeyCode.Mouse1 );
+			Inputs.Fire2Released		= Input.GetKeyUp( KeyCode.Mouse1 );
 		}
 
 
 		if ( ( m_Flags & InputFlags.RELOAD ) != 0 )
 		{
-			Inputs.Reload					= Input.GetKeyDown( KeyCode.R );
+			Inputs.Reload				= Input.GetKeyDown( KeyCode.R );
 		}
 
 	}

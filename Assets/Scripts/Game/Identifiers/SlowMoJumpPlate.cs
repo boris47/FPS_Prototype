@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 
 public class SlowMoJumpPlate : MonoBehaviour, IInteractable {
-
+	/*
 	[SerializeField]
 	private	bool			m_HasTimeScaleCurveOverride		= false;
 
 	[SerializeField]
 	private	AnimationCurve	m_SlowMoJumpTimeScaleCurve		= AnimationCurve.Linear( 0f, 1f, 1f, 1f );
-
+	*/
 
 	private		Vector3[] 	m_CurvePoints	= null;
 
@@ -50,7 +50,7 @@ public class SlowMoJumpPlate : MonoBehaviour, IInteractable {
 
 	void IInteractable.OnInteraction()
 	{
-		AnimationCurve curve = ( m_HasTimeScaleCurveOverride ) ? m_SlowMoJumpTimeScaleCurve : null;
+//		AnimationCurve curve = ( m_HasTimeScaleCurveOverride ) ? m_SlowMoJumpTimeScaleCurve : null;
 //		Player.Instance.StartSlowMoJump( ref m_CurvePoints, curve );
 	}
 

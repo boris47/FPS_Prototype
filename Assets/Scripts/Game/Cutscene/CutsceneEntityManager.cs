@@ -8,8 +8,8 @@ namespace CutScene {
 		public		bool							IsPlaying					{ get; private set; }
 		public		bool							IsOK						{ get; private set; }
 
-		public		PointsCollectionOnline			m_PointsCollection			= null;
 
+		private		PointsCollectionOnline			m_PointsCollection			= null;
 
 		private		IEntity							m_EntityRef					= null;
 		private		IEntitySimulation				m_EntitySimulation			= null;

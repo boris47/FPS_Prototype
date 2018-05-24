@@ -42,10 +42,10 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	protected		Vector3							m_ZoomOffset				= Vector3.zero;
 
 	[SerializeField, ReadOnly]
-	protected		uint							m_Magazine					= 27;
+	protected		uint							m_Magazine					= 1;
 
 	[SerializeField]
-	protected		uint							m_MagazineCapacity			= 27;
+	protected		uint							m_MagazineCapacity			= 1;
 
 	[SerializeField]
 	protected		Transform						m_FirePoint					= null;
@@ -67,6 +67,9 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 
 	[SerializeField]
 	protected		float							m_ZommSensitivity			= 1f;
+
+	[SerializeField]
+	protected		Laser							m_Laser						= null;
 
 
 	protected		Vector3							m_StartOffset				= Vector3.zero;
@@ -114,7 +117,6 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	protected		string							m_SectionName				= "";
 	protected		float							m_FireTimer					= 0f;
 
-	protected		uint							m_BrustCount				= 0;
 //	protected		float							m_AnimatorStdSpeed			= 1f;
 	protected		bool							m_IsRecharging				= false;
 	
@@ -181,11 +183,8 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	// OnSave ( Virtual )
 	protected	virtual		StreamingUnit	OnSave( StreamingData streamingData )
 	{
-		StreamingUnit streamingUnit		= new StreamingUnit();
-		streamingUnit.InstanceID		= gameObject.GetInstanceID();
-		streamingUnit.Name				= gameObject.name;
+		StreamingUnit streamingUnit	= streamingData.NewUnit( gameObject );
 
-		streamingData.Data.Add( streamingUnit );
 		return streamingUnit;
 	}
 
@@ -194,11 +193,16 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	// OnLoad ( Virtual )
 	protected	virtual		StreamingUnit	OnLoad( StreamingData streamingData )
 	{
-		int instanceID				= gameObject.GetInstanceID();
-		StreamingUnit streamingUnit	= streamingData.Data.Find( ( StreamingUnit data ) => data.InstanceID == instanceID );
-		if ( streamingUnit == null )
+		m_Animator.Play( "draw", -1, 0.99f );
+
+		StreamingUnit streamingUnit = null;
+		if ( streamingData.GetUnit( gameObject, ref streamingUnit ) == false )
 			return null;
 		
+		m_InTransition = false;
+		m_NeedRecharge = false;
+		m_IsFiring = false;
+
 		UI.Instance.InGame.UpdateUI();
 		return streamingUnit;
 	}
@@ -229,7 +233,6 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	{
 		m_IsRecharging	= false;
 		m_NeedRecharge	= false;
-		m_BrustCount	= 0;
 		m_LockTimer		= 0f;
 		m_FireTimer		= 0f;
 		enabled			= false;

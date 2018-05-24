@@ -17,7 +17,8 @@ public interface IEntity {
 	IBrain					Brain							{	get;		}
 	CutsceneEntityManager	CutsceneManager					{	get; set;	}
 
-	void					OnFrame							( float deltaTime );
+	bool					CanTrigger();
+
 	void					OnThink							();
 
 	void					OnTargetAquired					( TargetInfo_t targetInfo );
@@ -75,6 +76,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 				CutsceneEntityManager	IEntity.CutsceneManager				{	get { return m_CutsceneManager; } set { m_CutsceneManager = value; } }
 	// INTERFACE END
 
+	public		IEntity						Interface						{ get { return m_Interface; } }
+
 	// INTERNALS
 	protected	float						m_Health						= 1f;
 	protected	bool						m_IsActive						= true;
@@ -85,6 +88,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	protected	Rigidbody					m_RigidBody						= null;
 	protected	CapsuleCollider				m_PhysicCollider				= null;
 	protected	Transform					m_EffectsPivot					= null;
+	protected	IEntity						m_Interface						= null;
 
 	// AI
 	protected	IBrain						m_Brain							= null;
@@ -94,12 +98,11 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	[SerializeField]
 	protected	float						m_MinEngageDistance				= 0f;
 
-	[SerializeField]
+//	[SerializeField]
 	protected	RespawnPoint				m_RespawnPoint					= null;
 
 
 	// CUTSCENE DATA
-	[SerializeField]
 	protected	CutsceneEntityManager		m_CutsceneManager				= null;
 
 	protected	bool						m_MovementOverrideEnabled		= false;
@@ -115,6 +118,9 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 	// Flag set if body of entity is aligned with target
 	protected	bool						m_IsAllignedBodyToDestination	= false;
+
+	// Flag set if gun of entity is aligned with target
+	protected	bool						m_IsAllignedGunToPoint			= false;
 
 	// Position saved at start of movement ( used for distances check )
 	protected	Vector3						m_StartMovePosition				= Vector3.zero;
@@ -132,6 +138,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	protected	virtual	void	Awake()
 	{
 		m_ID				= NewID();
+		m_Interface			= this as IEntity;
 		m_PhysicCollider	= GetComponent<CapsuleCollider>();
 		m_RigidBody			= GetComponent<Rigidbody>();
 		m_Brain				= GetComponent<IBrain>();
@@ -154,25 +161,45 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	// OnSave ( virtual )
 	protected	virtual	StreamingUnit	OnSave( StreamingData streamingData )
 	{
-		StreamingUnit streamingUnit		= new StreamingUnit();
-		streamingUnit.InstanceID		= gameObject.GetInstanceID();
-		streamingUnit.Name				= gameObject.name;
+		if ( m_IsActive == false )
+			return null;
+
+		StreamingUnit streamingUnit		= streamingData.NewUnit( gameObject );
 		streamingUnit.Position			= transform.position;
 		streamingUnit.Rotation			= transform.rotation;
 
-		streamingData.Data.Add( streamingUnit );
 		return streamingUnit;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnLoad ( virtual )
-	protected	virtual	StreamingUnit	OnLoad( StreamingData streamingData )
+	protected	virtual		StreamingUnit	OnLoad( StreamingData streamingData )
 	{
-		int instanceID				= gameObject.GetInstanceID();
-		StreamingUnit streamingUnit	= streamingData.Data.Find( ( StreamingUnit data ) => data.InstanceID == instanceID );
-		if ( streamingUnit == null )
+		StreamingUnit streamingUnit = null;
+		if ( streamingData.GetUnit( gameObject, ref streamingUnit ) == false )
+		{
+			gameObject.SetActive( false );
+			m_IsActive = false;
 			return null;
+		}
+
+		gameObject.SetActive( true );
+		m_IsActive						= true;
+
+		// Entity
+		m_TargetInfo					= default( TargetInfo_t );
+		m_HasDestination				= false;
+		m_HasFaceTarget					= false;
+		m_Destination					= Vector3.zero;
+		m_PointToFace					= Vector3.zero;
+		m_IsMoving						= false;
+		m_IsAllignedBodyToDestination	= false;
+		m_StartMovePosition				= Vector3.zero;
+		m_DistanceToTravel				= 0f;
+
+		// NonLiveEntity
+		m_IsAllignedGunToPoint			= false;
 
 		transform.position = streamingUnit.Position;
 		transform.rotation = streamingUnit.Rotation;
@@ -182,7 +209,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 	//////////////////////////////////////////////////////////////////////////
 	// SetDestination ( Virtual )
-	public	virtual	void	SetDestination( Vector3 destination )
+	public	virtual		void	SetDestination( Vector3 destination )
 	{
 		m_Destination = destination;
 		m_HasDestination = true;
@@ -191,7 +218,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 	//////////////////////////////////////////////////////////////////////////
 	// SetPoinToFace ( Firtual )
-	public	virtual	void	SetPoinToFace( Vector3 point )
+	public	virtual		void	SetPoinToFace( Vector3 point )
 	{
 		m_PointToFace = point;
 		m_HasFaceTarget = true;
@@ -199,18 +226,33 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Update ( Abstract )
-	public	abstract	void	OnFrame( float deltaTime );
+	// CanTrigger ( virtual )
+	public	virtual		bool	CanTrigger()
+	{
+		return true;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Update ( virtual )
+	protected	virtual	void	Update()
+	{
+		this.OnFrame( Time.deltaTime );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnFrame ( Abstract )
+	protected	abstract	void	OnFrame( float deltaTime );
 
 	//////////////////////////////////////////////////////////////////////////
 	// EnterSimulationState ( Abstract )
-	public abstract void	EnterSimulationState();
+	public	abstract	void	EnterSimulationState();
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// ExitSimulationState ( Abstract )
-	public abstract void	ExitSimulationState();
-
+	public	abstract	void	ExitSimulationState();
 
 	//////////////////////////////////////////////////////////////////////////
 	// SimulateMovement ( Abstract )

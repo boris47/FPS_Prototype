@@ -18,12 +18,11 @@ public partial class Player {
 		DropEntityDragged();
 	}
 
-
+	
 	//////////////////////////////////////////////////////////////////////////
 	// SimulateMovement
 	public override	bool	SimulateMovement( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
-
 		// END OF SIMULATION STEP
 		Vector3 direction = ( destination - m_SimulationStartPosition );
 		float simulationdDistanceToTravel = direction.sqrMagnitude;
@@ -36,7 +35,7 @@ public partial class Player {
 		}
 
 		// TIME SCALE
-		Time.timeScale = Mathf.Lerp( Time.timeScale, timeScaleTarget, Time.unscaledDeltaTime * 0.5f );
+		Time.timeScale = Mathf.Lerp( Time.timeScale, timeScaleTarget, Time.unscaledDeltaTime );
 		SoundEffectManager.Instance.Pitch = Time.timeScale;
 
 		// CAMERA ROTATION
@@ -70,9 +69,17 @@ public partial class Player {
 	{
 		m_MovementOverrideEnabled = false;
 		m_SimulationStartPosition = Vector3.zero;
+
 		Vector3 projectedTarget = Utils.Math.ProjectPointOnPlane( transform.up, transform.position, CameraControl.Instance.Target.position );
 		Quaternion rotation = Quaternion.LookRotation( projectedTarget - transform.position, transform.up );
 		transform.rotation = rotation;
+
+		m_RigidBody.velocity = Vector3.zero;
+		m_Move = Vector3.zero;
+		m_MoveSmooth = 0f;
+		m_States.IsWalking	= false;
+		m_States.IsRunning	= false;
+		m_States.IsMoving	= false;
 
 		Time.timeScale = 1f;
 
@@ -95,7 +102,7 @@ public partial class Player {
 
 		float 	fMove 			= InputManager.Inputs.Forward     ? 1.0f : InputManager.Inputs.Backward   ? -1.0f : 0.0f;
 		float 	fStrafe			= InputManager.Inputs.StrafeRight ? 1.0f : InputManager.Inputs.StrafeLeft ? -1.0f : 0.0f;
-		bool 	bIsJumping		= InputManager.Inputs.Jump;
+//		bool 	bIsJumping		= InputManager.Inputs.Jump;
 		bool 	bSprintInput	= InputManager.Inputs.Run;
 		bool	bCrouchInput	= InputManager.Inputs.Crouch;
 		bool	bJumpInput		= InputManager.Inputs.Jump;

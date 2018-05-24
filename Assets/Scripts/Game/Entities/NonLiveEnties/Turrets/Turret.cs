@@ -69,9 +69,10 @@ public abstract class Turret : NonLiveEntity {
 					o.SetActive( false );
 					o.Setup( damageMin : m_DamageMin, damageMax : m_DamageMax, canPenetrate : false, whoRef : this, weapon : null );
 					Physics.IgnoreCollision( o.Collider, m_PhysicCollider, ignore : true );
-					Physics.IgnoreCollision( o.Collider, Player.Entity.PhysicCollider );
-					Physics.IgnoreCollision( o.Collider, Player.Instance.PlayerNearAreaTrigger );
-					Physics.IgnoreCollision( o.Collider, Player.Instance.PlayerFarAreaTrigger );
+
+					// this allow to receive only trigger enter callback
+					Player.Instance.DisableCollisionsWith( o.Collider );
+
 					if ( m_Shield != null )
 						Physics.IgnoreCollision( o.Collider, m_Shield.Collider, ignore : true );
 				}
@@ -149,10 +150,13 @@ public abstract class Turret : NonLiveEntity {
 	public override void OnTargetLost( TargetInfo_t targetInfo )
 	{
 		// SEEKING MODE
-
+		
 		// now point to face is target position
-		m_PointToFace = m_TargetInfo.CurrentTarget.transform.position;
-		m_HasFaceTarget = true;
+		if ( targetInfo.CurrentTarget != null )
+		{
+			m_PointToFace = m_TargetInfo.CurrentTarget.Transform.position;
+			m_HasFaceTarget = true;
+		}
 
 		// now point to reach is target position
 //		m_Destination = m_TargetInfo.CurrentTarget.transform.position;
@@ -165,6 +169,11 @@ public abstract class Turret : NonLiveEntity {
 		base.OnTargetLost( targetInfo );		// m_TargetInfo = default( TargetInfo_t );
 	}
 
+	private static float GetAngle( Vector2 v1, Vector2 v2 )
+	{
+		float sign = Mathf.Sign( v1.x * v2.y - v1.y * v2.x );
+		return Vector2.Angle( v1, v2 ) * sign;
+	}
 
 	//////////////////////////////////////////////////////////////////////////
 	// FaceToPoint ( Override )
@@ -180,13 +189,22 @@ public abstract class Turret : NonLiveEntity {
 		
 		m_IsAllignedBodyToDestination	= Vector3.Angle( m_BodyTransform.forward, dirToPosition ) < 2f;
 
-		bool canAllignGun = Vector3.Angle( m_GunTransform.forward, m_BodyTransform.forward ) < ( m_Brain.FieldOfView.Angle / 2f );
-		if ( m_IsAllignedBodyToDestination & canAllignGun )
+		if ( m_IsAllignedBodyToDestination == false )
 		{
-			m_GunTransform.forward		= Vector3.RotateTowards( m_GunTransform.forward, dirGunToPosition, m_GunRotationSpeed * deltaTime, 0.0f );
+			m_IsAllignedGunToPoint = false;
+			return;
 		}
 
-		m_AllignedGunToPoint			= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 3f;
+		m_IsAllignedGunToPoint			= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 3f;
+
+		float signedAngleToTarget = Vector3.SignedAngle( m_GunTransform.forward, dirGunToPosition, m_GunTransform.right );
+		float currentAngle = m_GunTransform.transform.localRotation.eulerAngles.x;
+		currentAngle -= currentAngle > 180f ? 360f : 0f;
+		float rotation = m_GunRotationSpeed * Utils.Math.Sign( signedAngleToTarget ) * deltaTime;
+		if ( Mathf.Abs( currentAngle + rotation ) < ( m_Brain.FieldOfView.Angle / 2f ) )
+		{
+			m_GunTransform.Rotate( Vector3.right, rotation, Space.Self );	
+		}
 	}
 
 

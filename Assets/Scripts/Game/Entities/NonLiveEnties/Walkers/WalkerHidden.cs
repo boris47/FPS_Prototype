@@ -112,7 +112,7 @@ public class WalkerHidden : Walker {
 	// Update forward direction and gun rotation
 	//////////////////////////////////////////////////////////////////////////
 	// OnFrame ( Override )
-	public		override	void	OnFrame( float deltaTime )
+	protected		override	void	OnFrame( float deltaTime )
 	{
 		if ( m_IsEnabled == false )
 			return;
@@ -136,7 +136,7 @@ public class WalkerHidden : Walker {
 			return;
 
 		// Not aligned to target
-		if ( m_AllignedGunToPoint == false )
+		if ( m_IsAllignedGunToPoint == false )
 			return;
 		{
 			FireLongRange( deltaTime );

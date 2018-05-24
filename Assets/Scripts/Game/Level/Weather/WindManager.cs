@@ -71,7 +71,7 @@ namespace WeatherSystem {
 				return;
 
 			// Audio Sources Setup
-			Transform audioSource = transform.Find( "AudioSources" ).Find( "Wind" );
+//			Transform audioSource = transform.Find( "AudioSources" ).Find( "Wind" );
 
 			m_AudioSourceWind = GetComponent<ICustomAudioSource>();
 

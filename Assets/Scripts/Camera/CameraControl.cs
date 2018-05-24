@@ -53,7 +53,7 @@ public partial class CameraControl : MonoBehaviour, ICameraControl, ICameraSette
 				HeadMove						ICameraControl.HeadMove					{ get { return m_HeadMove; } }
 				HeadBob							ICameraControl.HeadBob					{ get { return m_HeadBob; } }
 
-				Transform						ICameraSetters.Target					{ set { OnTargetSet( m_Target = value ); } }
+				Transform						ICameraSetters.Target					{ set { OnTargetSet( value ); } }
 	// INTERFACE END
 
 	[SerializeField, Tooltip("Camera ViewPoint")]
@@ -134,12 +134,19 @@ public partial class CameraControl : MonoBehaviour, ICameraControl, ICameraSette
 	// OnSave
 	private	StreamingUnit	OnSave( StreamingData streamingData )
 	{
-		StreamingUnit streamingUnit	= new StreamingUnit();
-		streamingUnit.InstanceID	= gameObject.GetInstanceID();
-		streamingUnit.Name			= gameObject.name;
-		streamingUnit.Internals		= m_CurrentDirection.x + ", " + m_CurrentDirection.y + ", " + m_CurrentDirection.z;
+		StreamingUnit streamingUnit	= streamingData.NewUnit( gameObject );
 
-		streamingData.Data.Add( streamingUnit );
+		// Current internal direction
+		streamingUnit.AddInternal( "CurrentDirection", Utils.Converters.Vector3ToString( m_CurrentDirection ) );
+
+		// Can parse input
+		streamingUnit.AddInternal( "CanParseInput", m_CanParseInput );
+
+		// Headbob
+		streamingUnit.AddInternal( "HeadbobActive", m_HeadBob.IsActive );
+
+		// Headmove
+		streamingUnit.AddInternal( "HeadmoveActive", m_HeadBob.IsActive );
 
 		return streamingUnit;
 	}
@@ -149,12 +156,28 @@ public partial class CameraControl : MonoBehaviour, ICameraControl, ICameraSette
 	// OnLoad
 	private	StreamingUnit	OnLoad( StreamingData streamingData )
 	{
-		int instanceID				= gameObject.GetInstanceID();
-		StreamingUnit streamingUnit	= streamingData.Data.Find( ( StreamingUnit data ) => data.InstanceID == instanceID );
-		if ( streamingUnit == null )
+		StreamingUnit streamingUnit = null;
+		if ( streamingData.GetUnit( gameObject, ref streamingUnit ) == false )
 			return null;
 
-		Utils.Converters.StringToVector( streamingUnit.Internals, ref m_CurrentDirection );
+		// Camera internals
+		m_WpnCurrentDeviation	= Vector3.zero;
+		m_WpnCurrentDispersion	= Vector3.zero;
+		m_WpnRotationFeedback	= Vector3.zero;
+		m_WpnFallFeedback		= Vector3.zero;
+
+		// Current internal direction
+		m_CurrentDirection		= streamingUnit.GetAsVector( "CurrentDirection" );
+
+		// Can parse input
+		m_CanParseInput			= streamingUnit.GetAsBool( "CanParseInput" );
+
+		// Headbob
+		m_HeadBob.IsActive		= streamingUnit.GetAsBool( "HeadbobActive" );
+
+		// Headmove
+		m_HeadMove.IsActive		= streamingUnit.GetAsBool( "HeadmoveActive" );
+
 		return streamingUnit;
 	}
 
@@ -164,7 +187,13 @@ public partial class CameraControl : MonoBehaviour, ICameraControl, ICameraSette
 	private	void	OnTargetSet( Transform value )
 	{
 		if ( value == null )
+		{
+			float x = transform.rotation.eulerAngles.x;
 			m_CurrentDirection = Vector3.zero;
+			m_CurrentDirection.x = x;
+		}
+
+		m_Target = value;
 	}
 
 
@@ -197,7 +226,7 @@ public partial class CameraControl : MonoBehaviour, ICameraControl, ICameraSette
 	// ApplyDispersion
 	void	ICameraControl.ApplyDispersion( float dispersion, float weightX, float weightY )
 	{
-		m_WpnCurrentDispersion.x += Random.Range( -dispersion, -dispersion * 0.5f ) * weightX;
+		m_WpnCurrentDispersion.x += Random.Range( -dispersion, -dispersion ) * weightX;
 		m_WpnCurrentDispersion.y += Random.Range( -dispersion,  dispersion ) * weightY;
 	}
 
@@ -223,7 +252,7 @@ public partial class CameraControl : MonoBehaviour, ICameraControl, ICameraSette
 
 			// Rotation
 			Quaternion rotation		= Quaternion.LookRotation( m_Target.position - transform.position, Player.Instance.transform.up );
-			transform.rotation		= Quaternion.Slerp( transform.rotation, rotation, Time.unscaledDeltaTime * 5f ) * Quaternion.Euler( m_HeadBob.Direction + m_HeadMove.Direction );
+			transform.rotation		= Quaternion.Slerp( transform.rotation, rotation, Time.unscaledDeltaTime * 8f ) * Quaternion.Euler( m_HeadBob.Direction + m_HeadMove.Direction );
 		}
 	}
 

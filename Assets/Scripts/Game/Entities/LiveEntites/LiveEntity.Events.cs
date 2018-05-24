@@ -47,7 +47,6 @@ public abstract partial class LiveEntity  {
 	float currentHitTime;
 	private void OnTriggerEnter( Collider other )
 	{
-		
 		IBullet bullet = other.GetComponent<IBullet>();
 		if ( bullet == null )
 			return;

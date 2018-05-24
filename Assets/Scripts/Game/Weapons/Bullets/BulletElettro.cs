@@ -22,8 +22,6 @@ public class BulletElettro : GenericBullet {
 
 			Transform effectPivot = ( entity.EffectsPivot != null ) ?  entity.EffectsPivot : collision.transform;
 			EffectManager.Instance.PlayElettroHit( effectPivot);
-
-			
 		}
 		else
 		{

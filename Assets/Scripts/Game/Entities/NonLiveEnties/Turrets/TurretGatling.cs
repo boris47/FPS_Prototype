@@ -4,11 +4,10 @@ using System.Collections;
 public class TurretGatling : Turret {
 
 	private	const	float	FIRE_SPREAD				= 0.03f;
-	private	const	float	MAX_ROTATION_SPEED		= 20f;
-	private	const	float	ROTATION_ACC			= 0.2f;
-	private	const	float	ROTATION_DEACC			= 0.1f;
+	private	const	float	MAX_ROTATION_SPEED		= 3000f;
+	private	const	float	ROTATION_ACC			= 1200f;
+	private	const	float	ROTATION_DEACC			= 400f;
 
-	private     bool        m_IsActivating			= false;
 	private		bool		m_IsActivated			= false;
 
 	private		float		m_RotationSpeed			= 0f;
@@ -33,23 +32,25 @@ public class TurretGatling : Turret {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Update
-	private void Update()
+	protected override void OnFrame( float deltaTime )
 	{
+		base.OnFrame( deltaTime );
+
 		// DECELLERATION
 		if ( m_TargetInfo.HasTarget == false )
 		{
 			m_IsActivated = false;
-			m_RotationSpeed = Mathf.Max( m_RotationSpeed - ROTATION_DEACC, 0f );
+			m_RotationSpeed = Mathf.Max( m_RotationSpeed - ROTATION_DEACC * deltaTime, 0f );
 		}
 
 		// APPLY ROTATION
 		if ( m_RotationSpeed > 0f )
-			m_GatlingTransform.Rotate( Vector3.right, m_RotationSpeed, Space.Self );
+			m_GatlingTransform.Rotate( Vector3.right, m_RotationSpeed * deltaTime, Space.Self );
 
 		// ACTIVATION
 		if ( m_TargetInfo.HasTarget == true)
 		{
-			m_RotationSpeed = Mathf.Clamp( m_RotationSpeed + ROTATION_ACC, 0f, MAX_ROTATION_SPEED );
+			m_RotationSpeed = Mathf.Clamp( m_RotationSpeed + ROTATION_ACC * deltaTime, 0f, MAX_ROTATION_SPEED );
 			if ( m_RotationSpeed < MAX_ROTATION_SPEED )
 			{
 				return;

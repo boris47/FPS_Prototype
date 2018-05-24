@@ -80,7 +80,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	private	GameObject			m_Container			= null;
 	private	ObjectsPool<T>		m_ObjectsPool		= null;
 	private	int					m_InternalIndex		= 0;
-	private	System.Action<T>	m_Action			= null;
+//	private	System.Action<T>	m_Action			= null;
 
 	//////////////////////////////////////////////////////////////////////////
 	// Constructor
@@ -92,7 +92,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 			Counter ++;
 		}
 
-		m_Action = actionOnObject;
+//		m_Action = actionOnObject;
 
 		if ( permanent == true )
 			Object.DontDestroyOnLoad( m_Container );

@@ -1,10 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿
 using CFG_Reader;
 using UnityEngine;
 
 [System.Serializable]
 public class GameEvent      : UnityEngine.Events.UnityEvent { }
+
+public	delegate	void	OnTriggerCall( Collider collider );
+
+
 
 public partial class GameManager : MonoBehaviour {
 
@@ -19,79 +22,110 @@ public partial class GameManager : MonoBehaviour {
 
 	public	static	Reader			Configs					= null;
 
-	public	static	InputManager	InputMgr				= new InputManager();
+	public	static	InputManager	InputMgr				= null;
 
 	public	static	GameManager		Instance				= null;
 
 	public	static	bool			IsChangingScene			= false;
 
-	public	bool					HideCursor				= true;
+	public	static	bool			CanSave					= true;
 
-	// Use this for initialization
+	public	static	bool			IsPaused				= false;
+
+	[SerializeField]
+	private	bool					m_HideCursor			= true;
+
+
+	private	bool					m_QuitRequest			= false;
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Awake
 	private	void	Awake ()
 	{
+		// SINGLETON
 		if ( Instance != null )
 		{
 			print( "WeaponManager: Object set inactive" );
 			gameObject.SetActive( false );
-//			Destroy( gameObject );
 			return;
 		}
 		Instance = this;
 		DontDestroyOnLoad( this );
 
+		// Internal classes
+		InputMgr = new InputManager();
 		Settings = new Reader();
+		Configs = new Reader();
 #if UNITY_EDITOR
 		Settings.LoadFile( "Assets/Resources/Settings.txt" );
 #else
 		Settings.LoadFile( "Settings" );
 #endif
 
-		Configs = new Reader();
 #if UNITY_EDITOR
 		Configs.LoadFile( "Assets/Resources/Configs/All.txt" );
 #else
 		Configs.LoadFile( "Configs\\All" );
 #endif
 
-		if ( HideCursor )
+		if ( m_HideCursor )
 		{
 			Cursor.visible = false;
 			Cursor.lockState = CursorLockMode.Locked;
 		}
-
-//		Application.targetFrameRate = 60;
 	}
 
 
-
-	// Update is called once per frame
+	//////////////////////////////////////////////////////////////////////////
+	// Update
 	private	void	Update()
 	{
-
-		if ( Input.GetKeyDown( KeyCode.F5 ) )
+		// Save
+		if ( Input.GetKeyDown( KeyCode.F5 ) && CanSave == true )
 		{
-			Save("");
+			Save();
 		}
 
+		// Load
 		if ( Input.GetKeyDown( KeyCode.F9 ) )
 		{
 			Load();
 		}
 
+		// Update inputs
+		InputMgr.Update();
 
-		// APPLICATION EXIT
+		// APPLICATION QUIT REQUEST
 		if ( Input.GetKeyDown( KeyCode.Escape ) )
 		{
+			IsPaused = !IsPaused;
+			UI.Instance.TooglePauseMenu();
+
+			Cursor.visible = IsPaused;
+			Cursor.lockState = IsPaused == true ? CursorLockMode.None : CursorLockMode.Locked;
+			/*
+			m_QuitRequest = true;
+			print( "Quit request" );
+			if ( m_SaveLoadCO != null )
+			{
+				print( "Wait End Encryption" );
+			}
+			*/
+		}
+
+
+		if ( m_QuitRequest == true )
+		{
+			if ( m_SaveLoadCO == null )
+			{
 #if UNITY_EDITOR
 			UnityEditor.EditorApplication.isPlaying = false;
 #else
 			Application.Quit();
 #endif
+			}
 		}
-
-		InputMgr.Update();
 	}
-
 
 }

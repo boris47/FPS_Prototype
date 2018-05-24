@@ -92,6 +92,30 @@ public class TurretHard : Turret {
 	}
 
 
+	protected override StreamingUnit OnSave( StreamingData streamingData )
+	{
+		StreamingUnit streamingUnit = base.OnSave( streamingData );
+		if ( streamingUnit == null )
+			return null;
+
+		streamingUnit.AddInternal( "FiredBullets", m_FiredBullets );
+
+		return streamingUnit;
+	}
+
+
+	protected override StreamingUnit OnLoad( StreamingData streamingData )
+	{
+		StreamingUnit streamingUnit = base.OnLoad( streamingData );
+		if ( streamingUnit == null )
+			return null;
+
+		m_FiredBullets = ( uint ) streamingUnit.GetAsInt( "FiredBullets" );
+		
+		return streamingUnit;
+	}
+
+
 	//////////////////////////////////////////////////////////////////////////
 	// ChargingCO ( Coroutine )
 	private	IEnumerator	ChargingCO()
@@ -141,7 +165,7 @@ public class TurretHard : Turret {
 	// Update forward direction and gun rotation
 	//////////////////////////////////////////////////////////////////////////
 	// Update ( Override )
-	public override void OnFrame( float deltaTime )
+	protected override void OnFrame( float deltaTime )
 	{
 		// Update internal timer
 		m_ShotTimer -= deltaTime;
@@ -151,7 +175,7 @@ public class TurretHard : Turret {
 			if ( m_Brain.State != BrainState.ATTACKING )
 				m_Brain.ChangeState( BrainState.ATTACKING );
 			
-			m_PointToFace = m_TargetInfo.CurrentTarget.transform.position;
+			m_PointToFace = m_TargetInfo.CurrentTarget.Transform.position;
 			m_HasFaceTarget = true;
 		}
 
@@ -162,7 +186,7 @@ public class TurretHard : Turret {
 		}
 
 		// if gun alligned, fire
-		if ( m_AllignedGunToPoint == true && m_TargetInfo.HasTarget == true && m_IsRecharging == false )
+		if ( m_IsAllignedGunToPoint == true && m_TargetInfo.HasTarget == true && m_IsRecharging == false )
 		{
 			FireLongRange( deltaTime );
 		}

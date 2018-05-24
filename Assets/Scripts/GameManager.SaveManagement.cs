@@ -2,6 +2,10 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Security.Cryptography;
+using System.Threading;
 
 //	DELEGATES FOR EVENTS
 public delegate StreamingUnit StreamingEvent( StreamingData streamingData );
@@ -39,19 +43,34 @@ public interface IGameManager_SaveManagement {
 
 public partial class GameManager : IGameManager_SaveManagement {
 
+	private const	string				ENCRIPTION_KEY	= "Boris474Ever";
+	
 	/// <summary> Events called when game is saving </summary>
-	public event StreamingEvent			OnSave	= null;
+	public event StreamingEvent			OnSave			= null;
 
 	/// <summary> Events called when game is loading </summary>
-	public event StreamingEvent			OnLoad	= null;
+	public event StreamingEvent			OnLoad			= null;
+
+
+	private		Coroutine				m_SaveLoadCO	= null;
+	private		bool					m_IsSaving		= false;
+	private		Thread					m_SavingThread	= null;
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// Save
 	/// <summary> Used to save data of puzzles </summary>
-	public void Save( string fileName, bool isAutomaic = false )
+	public		void			Save( string fileName = "SaveFile.txt", bool isAutomaic = false )
 	{
 		// TODO: CHECK FOR AUTOMAIC SAVE
+		m_IsSaving = true;
+
+		if ( m_SaveLoadCO != null )
+		{
+			StopCoroutine( m_SaveLoadCO );
+			m_SavingThread.Abort();
+			m_SavingThread = null;
+		}
 
 		StreamingData streamingData = new StreamingData();
 
@@ -59,23 +78,42 @@ public partial class GameManager : IGameManager_SaveManagement {
 		OnSave( streamingData );
 
 		// write data on disk
-		string toSave = JsonUtility.ToJson( streamingData, prettyPrint: true );
-		System.IO.File.WriteAllText( "SaveFile.txt", toSave );
+		string toSave = JsonUtility.ToJson( streamingData, prettyPrint: false );
+
+		print( "Saving" );
+		m_SavingThread = new Thread( () => { File.WriteAllText( fileName, Encrypt( toSave ) ); });
+		m_SavingThread.Start();
+		m_SaveLoadCO = StartCoroutine( SaveLoadCO( m_SavingThread ) );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// SaveLoadCO ( Coroutine )
+	private	IEnumerator SaveLoadCO( Thread savingThread )
+	{
+		while( savingThread.ThreadState == ThreadState.Running )
+		{
+			yield return null;
+		}
+		print( "Saved" );
+		m_SavingThread = null;
+		m_SaveLoadCO = null;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// Load
 	/// <summary> Used to send signal of load to all registered callbacks </summary>
-	public void Load( string fileName = "SaveFile.txt" )
+	public		void			Load( string fileName = "SaveFile.txt" )
 	{
-		if ( fileName == null || fileName.Length == 0 )
+		if ( m_SaveLoadCO != null || fileName == null || fileName.Length == 0 )
 			return;
 		
-		// load data from disk
-		string toLoad = System.IO.File.ReadAllText( fileName );
-		StreamingData streamingData = JsonUtility.FromJson< StreamingData >( toLoad );
+		InputManager.IsEnabled = false;
 
+		// load data from disk
+		string toLoad = File.ReadAllText( fileName );
+		StreamingData streamingData = JsonUtility.FromJson< StreamingData >( Decrypt( toLoad ) );
 		if ( streamingData == null )
 		{
 			Debug.LogError( "GameManager::Load:: Save \"" + fileName +"\" cannot be loaded" );
@@ -84,40 +122,215 @@ public partial class GameManager : IGameManager_SaveManagement {
 
 		// call all load callbacks
 		OnLoad( streamingData );
+
+		InputManager.IsEnabled = true;
 	}
+
+	
+	// https://stackoverflow.com/questions/10168240/encrypting-decrypting-a-string-in-c-sharp
+	//////////////////////////////////////////////////////////////////////////
+	// Encrypt
+	private string Encrypt( string clearText )
+	{
+		byte[] clearBytes = Encoding.Unicode.GetBytes( clearText );
+		using ( Aes encryptor = Aes.Create() )
+		{
+			Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes( ENCRIPTION_KEY,
+				new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
+			encryptor.Key = pdb.GetBytes(32);
+			encryptor.IV = pdb.GetBytes(16);
+			using ( MemoryStream ms = new MemoryStream() )
+			{
+				using ( CryptoStream cs = new CryptoStream( ms, encryptor.CreateEncryptor(), CryptoStreamMode.Write ) )
+				{
+					cs.Write( clearBytes, 0, clearBytes.Length );
+					cs.Close();
+				}
+				clearText = System.Convert.ToBase64String( ms.ToArray() );
+			}
+		}
+		return clearText;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Decrypt
+	private string Decrypt( string cipherText )
+	{
+		cipherText = cipherText.Replace( " ", "+" );
+		byte[] cipherBytes = System.Convert.FromBase64String( cipherText );
+		using ( Aes encryptor = Aes.Create() )
+		{
+			Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes( ENCRIPTION_KEY,
+				new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
+			encryptor.Key = pdb.GetBytes(32);
+			encryptor.IV = pdb.GetBytes(16);
+			using ( MemoryStream ms = new MemoryStream() )
+			{
+				using ( CryptoStream cs = new CryptoStream( ms, encryptor.CreateDecryptor(), CryptoStreamMode.Write ) )
+				{
+					cs.Write( cipherBytes, 0, cipherBytes.Length );
+					cs.Close();
+				}
+				cipherText = Encoding.Unicode.GetString( ms.ToArray() );
+			}
+		}
+		return cipherText;
+	}
+
 
 }
 
 [System.Serializable]
+public	class MyKeyValuePair {
+	[SerializeField]
+	public	string	Key;
+	[SerializeField]
+	public	string	Value;
+}
+
+[System.Serializable]
 public class StreamingUnit {
-	[SerializeField]
-	public	int			InstanceID		= -1;
 
 	[SerializeField]
-	public	string		Name			= "";
+	public	int						InstanceID		= -1;
 
 	[SerializeField]
-	public	Vector3		Position		= Vector3.zero;
-	[SerializeField]
-	public	Quaternion	Rotation		= Quaternion.identity;
-
-	public	float		ShieldStatus	= -1f;
+	public	string					Name			= "";
 
 	[SerializeField]
-	public	string		Internals		= "";
+	public	Vector3					Position		= Vector3.zero;
+	[SerializeField]
+	public	Quaternion				Rotation		= Quaternion.identity;
+
+	public	float					ShieldStatus	= -1f;
+
+	[SerializeField]
+	private	List<MyKeyValuePair>	Internals		= new List<MyKeyValuePair>();
 
 
-	public	void		AddInternal( string keyValue )
+	//////////////////////////////////////////////////////////////////////////
+	// AddInternal
+	public	void		AddInternal( string key, object value )
 	{
-		Internals += ( ( Internals.Length > 0 ) ? ", " : "" ) + keyValue;
+		MyKeyValuePair keyValue = new MyKeyValuePair();
+		keyValue.Key	= key;
+		keyValue.Value	= value.ToString();
+		Internals.Add( keyValue );
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// GetInternal
+	private	string		GetInternal( string key )
+	{
+		MyKeyValuePair keyValue = Internals.Find( ( MyKeyValuePair kv ) => kv.Key == key );
+		if ( keyValue == null || keyValue.Value == null )
+		{
+			Debug.Log( "Cannot retrieve value for key " + key );
+			return "";
+		}
+		return keyValue.Value;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// GetAsBool
+	public	bool	GetAsBool( string key )
+	{
+		string value = GetInternal( key );
+		bool result = false;
+		bool.TryParse( value, out result );
+		return result;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// GetAsInt
+	public	int		GetAsInt( string key )
+	{
+		string value = GetInternal( key );
+		int result = 0;
+		int.TryParse( value, out result );
+		return result;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// GetAsFloat
+	public	float	GetAsFloat( string key )
+	{
+		string value = GetInternal( key );
+		float result = 0f;
+		float.TryParse( value, out result );
+		return result;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// GetAsEnum
+	public	T GetAsEnum<T>( string key )
+	{
+		string value = GetInternal( key );
+		return ( T ) System.Enum.Parse( typeof( T ), value );
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// GetAsEnum
+	public Vector3	GetAsVector( string key )
+	{
+		string value = GetInternal( key );
+		Vector3 result = Vector3.zero;
+		Utils.Converters.StringToVector( value, ref result );
+		return result;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// GetAsQuaternion
+	public Quaternion	GetAsQuaternion( string key )
+	{
+		string value = GetInternal( key );
+		Quaternion result = Quaternion.identity;
+		Utils.Converters.StringToQuaternion( value, ref result );
+		return result;
 	}
 
 }
+
 
 [SerializeField]
 public class StreamingData {
 
 	[SerializeField]
-	public List<StreamingUnit> Data = new List<StreamingUnit>();
+	private List<StreamingUnit>		m_Data = new List<StreamingUnit>();
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// NewUnit
+	public	StreamingUnit	NewUnit( GameObject gameObject )
+	{
+		int index = m_Data.FindIndex( ( StreamingUnit data ) => data.InstanceID == gameObject.GetInstanceID() );
+		if ( index > -1 )
+		{
+			Debug.Log( gameObject.name + " already saved" );
+		}
+		StreamingUnit streamingUnit		= new StreamingUnit();
+		streamingUnit.InstanceID		= gameObject.GetInstanceID();
+		streamingUnit.Name				= gameObject.name;
+
+		m_Data.Add( streamingUnit );
+
+		return streamingUnit;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// GetUnit
+	public	bool	GetUnit( GameObject gameObject, ref StreamingUnit streamingUnit )
+	{
+		int index = m_Data.FindIndex( ( StreamingUnit data ) => data.InstanceID == gameObject.GetInstanceID() );
+		bool found = index > -1;
+		if ( found )
+		{
+			streamingUnit = m_Data[ index ];
+		}
+
+		return found;
+	}
 
 }

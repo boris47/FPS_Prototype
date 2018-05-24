@@ -13,7 +13,7 @@ public enum BrainState {
 [System.Serializable]
 public struct TargetInfo_t {
 	public	bool	HasTarget;
-	public	Entity	CurrentTarget;
+	public	IEntity	CurrentTarget;
 	public	float	TargetSqrDistance;
 }
 
@@ -36,7 +36,7 @@ namespace AI_Behaviours {
 
 		private	const		float						THINK_TIMER						= 0.2f;
 
-		[ReadOnly]
+		[SerializeField, ReadOnly]
 		private				BrainState					m_CurrentBrainState				= BrainState.NORMAL;
 
 		/*
@@ -102,10 +102,7 @@ namespace AI_Behaviours {
 		// Update
 		private void	Update()
 		{
-			float dt = Time.deltaTime;
-			m_ThisEntity.OnFrame( dt );
-
-			m_ThinkTimer += dt;
+			m_ThinkTimer += Time.deltaTime;
 			if ( m_ThinkTimer > THINK_TIMER )
 			{
 				m_FieldOfView.UpdateFOV();

@@ -39,15 +39,6 @@ public class GlobeGranade : GranadeBase {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnEnable ( Override )
-	protected override void OnEnable()
-	{
-		m_ExplosionGlobe.localScale = Vector3.zero;
-		m_ExplosionGlobe.gameObject.SetActive( false );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
 	// OnDisable
 	private void OnDisable()
 	{
@@ -84,6 +75,14 @@ public class GlobeGranade : GranadeBase {
 		m_InternalCounter = 0f;
 		m_InExplosion = false;
 		m_Entites.Clear();
+
+		if ( m_ExplosionGlobe == null )
+		{
+			m_ExplosionGlobe	= transform.GetChild(0);
+		}
+		m_ExplosionGlobe.localScale = Vector3.zero;
+		m_ExplosionGlobe.gameObject.SetActive( false );
+
 		base.SetActive( state );
 	}
 
@@ -206,7 +205,7 @@ public class GlobeGranade : GranadeBase {
 		bool hitShield = collision.gameObject.GetComponent<Shield>() != null;
 		bool hitBullet = collision.gameObject.GetComponent<Bullet>() != null;
 
-		if ( ( hitEntity || hitShield || hitShield ) && m_InExplosion == false )
+		if ( ( hitEntity || hitShield || hitBullet ) && m_InExplosion == false )
 		{
 			OnExplosion();
 		}

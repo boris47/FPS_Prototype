@@ -27,7 +27,7 @@ public partial class Player {
 //	private		DodgeTarget			m_PreviousDodgeTarget			= null;
 
 
-	private	Coroutine		m_RotorDashCoroutine	= null;
+	private	Coroutine		m_DodgeCoroutine		= null;
 	private	Vector3			m_DodgeRaycastNormal	= Vector3.zero;
 	private	float			m_DodgeInterpolant		= 0f;
 
@@ -152,7 +152,7 @@ public partial class Player {
 			return;
 
 		// Auto fall or user input
-		if ( ( m_IsDodging == false && transform.up != Vector3.up ) && ( InputManager.Inputs.Jump || IsGrounded == false ) && m_RotorDashCoroutine == null )
+		if ( ( m_IsDodging == false && transform.up != Vector3.up ) && ( InputManager.Inputs.Jump || IsGrounded == false ) && m_DodgeCoroutine == null )
 		{
 			RaycastHit hit;
 			Physics.Raycast( transform.position, Vector3.down, out hit );
@@ -162,7 +162,7 @@ public partial class Player {
 
 			Vector3 alignedForward = Vector3.Cross( transform.right, Vector3.up );
 			Quaternion finalRotation = Quaternion.LookRotation( alignedForward, Vector3.up );
-			m_RotorDashCoroutine = StartCoroutine( Dodge( destination: hit.point, rotation: finalRotation, falling: true ) );
+			m_DodgeCoroutine = StartCoroutine( Dodge( destination: hit.point, rotation: finalRotation, falling: true ) );
 			return;
 		}
 
@@ -321,8 +321,8 @@ public partial class Player {
 
 			if ( InputManager.Inputs.Ability1Released && m_ChosingDodgeRotation == true )						// GetKeyUp Q one frame
 			{
-				if ( m_RotorDashCoroutine != null )
-						StopCoroutine( m_RotorDashCoroutine );
+				if ( m_DodgeCoroutine != null )
+						StopCoroutine( m_DodgeCoroutine );
 
 				m_DodgeRaycastNormal = Vector3.zero;
 				SoundEffectManager.Instance.Pitch = Time.timeScale = 1f;
@@ -334,7 +334,7 @@ public partial class Player {
 				CameraControl.Instance.CurrentDirection = alias;
 
 				m_DodgeAbilityTarget.gameObject.SetActive( false );
-				m_RotorDashCoroutine = StartCoroutine( Dodge( destination: destination, rotation: m_DodgeAbilityTarget.rotation ) );
+				m_DodgeCoroutine = StartCoroutine( Dodge( destination: destination, rotation: m_DodgeAbilityTarget.rotation ) );
 				m_ChosingDodgeRotation = false;
 			}
 		}
@@ -362,12 +362,15 @@ public partial class Player {
 		CameraControl.Instance.HeadMove.IsActive	= false;
 		m_RigidBody.velocity						= Vector3.zero;
 		m_RigidBody.constraints						= RigidbodyConstraints.None;
-		m_RigidBody.drag							= 0f;
 
 		float slowMotionCoeff			= WeaponManager.Instance.CurrentWeapon.SlowMotionCoeff;
 		AnimationCurve animationCurve	= ( ( dodgeTarget != null && dodgeTarget.HasTimeScaleCurveOverride ) ? dodgeTarget.DodgeTimeScaleCurve : m_DodgeTimeScaleCurve );
 		while ( m_DodgeInterpolant < 1f )
 		{
+			// If is paused, wait for resume
+			while ( GameManager.IsPaused == true )
+				yield return null;
+
 			m_DodgeInterpolant		+= Time.deltaTime;
 
 			// Flash effect
@@ -397,7 +400,6 @@ public partial class Player {
 		// Reset
 		m_RigidBody.constraints						= RigidbodyConstraints.FreezeRotation;
 		m_RigidBody.velocity						= Vector3.zero;
-		m_RigidBody.drag							= drag;
 		SoundEffectManager.Instance.Pitch			= 1f;
 		Time.timeScale								= 1f;
 		effectFrame.color							= Color.clear;
@@ -420,7 +422,7 @@ public partial class Player {
 
 		SetMotionType( eMotionType.Walking );
 
-		m_RotorDashCoroutine = null;
+		m_DodgeCoroutine = null;
 	}
 
 }

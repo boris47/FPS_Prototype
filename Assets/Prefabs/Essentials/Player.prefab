@@ -518,7 +518,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75d4dc3ed3c9204418e2c498447e8d4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_PointsCollection: {fileID: 0}
 --- !u!114 &114143423439902638
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -560,8 +559,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MinEngageDistance: 3
-  m_RespawnPoint: {fileID: 0}
-  m_CutsceneManager: {fileID: 114085920552979528}
   m_UseDistance: 2
   m_Stamina: 0
   m_WalkSpeed: 3

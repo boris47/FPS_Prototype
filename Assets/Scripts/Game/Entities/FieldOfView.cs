@@ -185,25 +185,23 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		Transform	currentViewPoint	= ( m_ViewPoint == null ) ? transform : m_ViewPoint;
 
 		// Sort targets by distance
-		m_AllTargets.Sort( ( a, b ) => CompareTargetsDistances( currentViewPoint.position, a, b ) );
+		if ( m_AllTargets.Count > 1 )
+			m_AllTargets.Sort( ( a, b ) => CompareTargetsDistances( currentViewPoint.position, a, b ) );
 
 		// FIND ALL VISIBLE TARGETS
-		foreach( IEntity entity in m_AllTargets )
+		foreach( Entity entity in m_AllTargets )
 		{
-			Vector3 direction = ( entity.Transform.position - currentViewPoint.position );
+			Vector3 direction = ( entity.transform.position - currentViewPoint.position );
 
 			// CHECK IF IS IN VIEW CONE
 			if ( Vector3.Angle( currentViewPoint.forward, direction.normalized ) <= ( m_ViewCone * 0.5f ) )
 			{
-				// CHECK IF THERE IS NOT OBSTACLES OR HITTED IS A TARGET
-				bool result = Physics.Linecast( currentViewPoint.position, entity.Transform.position, out m_RaycastHit );
-				if ( result == false || m_RaycastHit.collider == entity.PhysicCollider )
+				// CHECK IF HITTED IS A TARGET
+				bool result = Physics.Linecast( currentViewPoint.position, entity.transform.position, out m_RaycastHit, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore );
+				if ( result == true && m_RaycastHit.collider == entity.Interface.PhysicCollider )
 				{
-					m_ValidTargets[ currentCount ] = entity as Entity;
+					m_ValidTargets[ currentCount ] = entity;
 					currentCount ++;
-
-					// Debug stuff
-					Debug.DrawLine( currentViewPoint.position, entity.Transform.position, Color.red );
 					
 					if ( currentCount == m_ValidTargets.Length )
 					{
@@ -219,12 +217,12 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 			return false;
 		}
 
-		Entity currentTarget  = m_ValidTargets[ 0 ];
-		Entity previousTarget = m_CurrentTargetInfo.CurrentTarget;
+		IEntity currentTarget  = m_ValidTargets[ 0 ];
+		IEntity previousTarget = m_CurrentTargetInfo.CurrentTarget;
 
 		m_CurrentTargetInfo.CurrentTarget = currentTarget;
 
-		m_CurrentTargetInfo.TargetSqrDistance = ( m_CurrentTargetInfo.CurrentTarget.transform.position - currentViewPoint.position ).sqrMagnitude;
+		m_CurrentTargetInfo.TargetSqrDistance = ( m_CurrentTargetInfo.CurrentTarget.Transform.position - currentViewPoint.position ).sqrMagnitude;
 		// SET NEW TARGET
 		if ( m_CurrentTargetInfo.HasTarget == false && m_OnTargetAquired != null )
 		{

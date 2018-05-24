@@ -2,7 +2,6 @@
 using UnityEngine;
 using System.Collections;
 
-
 public partial class Player : Human {
 
 	[Header("Player Properties")]
@@ -139,12 +138,21 @@ public partial class Player : Human {
 	// OnSave ( override )
 	protected override StreamingUnit OnSave( StreamingData streamingData )
 	{
-		StreamingUnit streamingUnit		= base.OnSave( streamingData );
+		StreamingUnit streamingUnit	= base.OnSave( streamingData );
+		if ( streamingUnit == null )
+			return null;
 
-		streamingUnit.InstanceID		= gameObject.GetInstanceID();
-		streamingUnit.Name				= gameObject.name;
+		// Health
+		streamingUnit.AddInternal( "Health", m_Health );
 
-		streamingUnit.AddInternal( "IsCrouched = " + IsCrouched );
+		// Stamina
+		streamingUnit.AddInternal( "Stamina", m_Stamina );
+
+		// Crouch state
+		streamingUnit.AddInternal( "IsCrouched", IsCrouched );
+
+		// Motion Type
+		streamingUnit.AddInternal( "MotionType", MotionType );
 
 		return streamingUnit;
 	}
@@ -155,13 +163,79 @@ public partial class Player : Human {
 	protected override StreamingUnit OnLoad( StreamingData streamingData )
 	{
 		StreamingUnit streamingUnit = base.OnLoad( streamingData );
+		if ( streamingUnit == null )
+			return null;
 
-		KeyValue[] internals = Utils.Base.GetKeyValues( streamingUnit.Internals );
+		// Cutscene Manager
+		if ( m_CutsceneManager.IsPlaying == true )
+			m_CutsceneManager.Termiante();
 
-		// CROUNCH STATE
-		IsCrouched = internals[0].Value.ToLower() == "true" ? true : false;
+		// UI effect reset
+		UI.Instance.InGame.GetEffectFrame().color = Color.clear;
+
+		// Dodging reset
+		if ( m_DodgeCoroutine != null )
+		{
+			StopCoroutine( m_DodgeCoroutine );
+		}
+		m_RigidBody.constraints						= RigidbodyConstraints.FreezeRotation;
+		m_RigidBody.velocity						= Vector3.zero;
+		SoundEffectManager.Instance.Pitch			= 1f;
+		Time.timeScale								= 1f;
+		m_DodgeRaycastNormal						= Vector3.zero;
+		m_DodgeAbilityTarget.gameObject.SetActive( false );
+		m_ChosingDodgeRotation						= false;
+		m_DodgeInterpolant							= 0f;
+		var settings								= CameraControl.Instance.GetPP_Profile.motionBlur.settings;
+		settings.frameBlending						= 0f;
+		CameraControl.Instance.GetPP_Profile.motionBlur.settings = settings;
+		m_IsDodging = false;
+
+		// Player internals
+		m_Interactable								= null;
+		m_Move										= Vector3.zero;
+		m_RaycastHit								= default( RaycastHit );
+
+		DropEntityDragged();
+
+		m_MoveSmooth = m_StrafeSmooth = 0f;
+
+		// Health
+		m_Health			= streamingUnit.GetAsFloat( "Health" );
+
+		// Stamina
+		m_Stamina			= streamingUnit.GetAsFloat( "Stamina" );
+
+		// Crouch state
+		m_States.IsCrouched = streamingUnit.GetAsBool( "IsCrouched" );
+
+		// Motion Type
+		MotionType			= streamingUnit.GetAsEnum<eMotionType>( "MotionType");
+		SetMotionType( MotionType );
 
 		return streamingUnit;
+	}
+
+
+	public	void	DisableCollisionsWith( Collider collider )
+	{
+		Physics.IgnoreCollision( collider, m_PhysicCollider, ignore: true );
+		Physics.IgnoreCollision( collider, m_PlayerNearAreaTrigger, ignore: true );
+		Physics.IgnoreCollision( collider, m_PlayerFarAreaTrigger, ignore: true );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// CanTrigger ( Override )
+	public override bool CanTrigger()
+	{
+		if ( base.CanTrigger() == false )
+			return false;
+
+		if ( m_IsDodging == true )
+			return false;
+
+		return true;
 	}
 
 
@@ -245,14 +319,14 @@ public partial class Player : Human {
 		}
 	}
 
-
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	// Update
 	private void	Update()
 	{
 		this.OnFrame( Time.deltaTime );
 	}
-
+	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	// CheckForInteraction
@@ -349,8 +423,8 @@ public partial class Player : Human {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnFrame
-	public override void	OnFrame( float deltaTime )
+	// OnFrame ( Override )
+	protected override void	OnFrame( float deltaTime )
 	{
 		if ( m_IsActive == false )
 			return;
@@ -358,7 +432,7 @@ public partial class Player : Human {
 		// Reset "local" states
 		m_States.Reset();
 
-		if ( InputManager.Inputs.ItemAction3 && WeaponManager.Instance.CurrentWeapon.FlashLight != null )
+		if ( InputManager.Inputs.Gadget3 && WeaponManager.Instance.CurrentWeapon.FlashLight != null )
 		{
 			WeaponManager.Instance.CurrentWeapon.FlashLight.Toggle();
 		}

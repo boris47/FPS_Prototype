@@ -4,8 +4,6 @@ using UnityEngine;
 
 
 public abstract partial class LiveEntity : Entity {
-	
-	
 
 	protected	IFoots				m_Foots						= null;
 	public		IFoots				Foots

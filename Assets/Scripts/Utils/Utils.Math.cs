@@ -10,9 +10,16 @@ namespace Utils {
 
 	public static class Math {
 
-		public const float EPS = 0.0000100f;
+		public const float EPS = 0.00001f;
 
-		public	static	bool	SimilarZero( float a, float cmp )
+		public	static	float	Sign( float value )
+		{
+			if ( value > 0f ) return  1f;
+			if ( value < 0f ) return -1f;
+			return 0f;
+		}
+
+		public	static	bool	SimilarZero( float a, float cmp = EPS )
 		{
 			return Mathf.Abs( a ) < cmp;
 		}

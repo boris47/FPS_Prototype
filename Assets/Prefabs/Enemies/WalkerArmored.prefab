@@ -501,6 +501,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24787e8476ba97b4ebf3145f4d2d97e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_CurrentBrainState: 0
 --- !u!114 &114342475991932516
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -513,8 +514,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MinEngageDistance: 3
-  m_RespawnPoint: {fileID: 0}
-  m_CutsceneManager: {fileID: 0}
   m_BodyRotationSpeed: 60
   m_GunRotationSpeed: 5
   m_Bullet: {fileID: 114103055898007134, guid: 6022bac21992ba94bb2fd959d6d5f7f0, type: 2}

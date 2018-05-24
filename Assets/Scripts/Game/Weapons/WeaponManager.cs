@@ -42,6 +42,9 @@ public class WeaponManager : MonoBehaviour {
 		}
 		Instance = this;
 		DontDestroyOnLoad( this );
+
+		GameManager.Instance.OnSave += OnSave;
+		GameManager.Instance.OnLoad += OnLoad;
 	}
 
 
@@ -70,8 +73,65 @@ public class WeaponManager : MonoBehaviour {
 		// Enable current weapon
 		CurrentWeapon.Enabled = true;
 
+		m_StartCameraFOV = Camera.main.fieldOfView;
+
 		// Make sure that ui show data of currnt active weapon
 		UI.Instance.InGame.UpdateUI();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnSave
+	private	StreamingUnit	OnSave( StreamingData streamingData )
+	{
+		StreamingUnit streamingUnit	= streamingData.NewUnit( gameObject );
+
+		streamingUnit.AddInternal( "CurrentWeaponIndex",			CurrentWeaponIndex );
+		streamingUnit.AddInternal( "ZoomedIn",						m_ZoomedIn );
+		streamingUnit.AddInternal( "StartOffset",					Utils.Converters.Vector3ToString( m_StartOffset ) );
+		streamingUnit.AddInternal( "FinalOffset",					Utils.Converters.Vector3ToString( m_FinalOffset ) );
+		streamingUnit.AddInternal( "ZoomingTime",					m_ZoomingTime );
+		streamingUnit.AddInternal( "StartCameraFOV",				m_StartCameraFOV );
+
+		return streamingUnit;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnLoad
+	private	StreamingUnit	OnLoad( StreamingData streamingData )
+	{
+		StreamingUnit streamingUnit = null;
+		streamingData.GetUnit( GameManager.Instance.gameObject, ref streamingUnit );
+
+		StopAllCoroutines();
+		m_ZoomingTime					= 0f;
+		m_ChangingWpnCO					= null;
+
+		// Current Weapon
+		{
+			CurrentWeaponIndex			= streamingUnit.GetAsInt("CurrentWeaponIndex" );
+			System.Array.ForEach( Weapon.Array, ( IWeapon w ) => {  w.Enabled = false; w.Transform.gameObject.SetActive( false ); } );
+			CurrentWeapon				= Weapon.Array[ CurrentWeaponIndex ];
+			CurrentWeapon.Transform.gameObject.SetActive( true );
+			CurrentWeapon.Enabled		= true;
+		}
+
+		// Zoom
+		{
+			m_ZoomedIn					= streamingUnit.GetAsBool( "ZoomedIn" );
+			m_StartOffset				= streamingUnit.GetAsVector( "StartOffset" );
+			m_FinalOffset				= streamingUnit.GetAsVector( "FinalOffset" );
+			m_ZoomingTime				= streamingUnit.GetAsFloat( "ZoomingTime" );
+			m_StartCameraFOV			= streamingUnit.GetAsFloat( "StartCameraFOV" );
+
+			CameraControl.Instance.WeaponPivot.localPosition = ( m_ZoomedIn == true ) ? m_FinalOffset : m_StartOffset;
+
+			float cameraFinalFov = m_StartCameraFOV / CurrentWeapon.ZoomFactor;
+			Camera.main.fieldOfView = ( m_ZoomedIn == true ) ? cameraFinalFov : m_StartCameraFOV;
+		}
+
+		return streamingUnit;
 	}
 
 
