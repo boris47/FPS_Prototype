@@ -4,7 +4,7 @@ using UnityEngine;
 public class CommandPanel : MonoBehaviour {
 
 	[SerializeField]
-	private		ObjectActivator			m_Activator				= null;
+	private		Interactable			m_Activator				= null;
 
 	[SerializeField]
 	private		ControlledObject		m_ObjectToControl		= null;
@@ -54,12 +54,12 @@ public class CommandPanel : MonoBehaviour {
 		if ( m_IsTriggered == true )
 		{
 			m_ObjectToControl.OnActivation();
-			m_Activator.transform.position		= m_TriggerZone.transform.position;
-			m_Activator.transform.rotation		= m_TriggerZone.transform.rotation;
-			m_Activator.Rigidbody.constraints	= RigidbodyConstraints.FreezeAll;
-			m_Activator.Rigidbody.useGravity	= false;
-			m_Activator.Collider.enabled		= false;
-			m_TriggerCollider.enabled			= false;
+			m_Activator.transform.position			= m_TriggerZone.transform.position;
+			m_Activator.transform.rotation			= m_TriggerZone.transform.rotation;
+			m_Activator.RigidBody.constraints		= RigidbodyConstraints.FreezeAll;
+			m_Activator.RigidBody.useGravity		= false;
+			m_Activator.Collider.enabled			= false;
+			m_TriggerCollider.enabled				= false;
 		}
 
 		return streamingUnit;
@@ -77,12 +77,12 @@ public class CommandPanel : MonoBehaviour {
 			m_ObjectToControl.OnActivation();
 			m_IsTriggered = true;
 
-			m_Activator.transform.position		= m_TriggerZone.transform.position;
-			m_Activator.transform.rotation		= m_TriggerZone.transform.rotation;
-			m_Activator.Rigidbody.constraints	= RigidbodyConstraints.FreezeAll;
-			m_Activator.Rigidbody.useGravity	= false;
-			m_Activator.Collider.enabled		= false;
-			m_TriggerCollider.enabled			= false;
+			m_Activator.transform.position			= m_TriggerZone.transform.position;
+			m_Activator.transform.rotation			= m_TriggerZone.transform.rotation;
+			m_Activator.RigidBody.constraints		= RigidbodyConstraints.FreezeAll;
+			m_Activator.RigidBody.useGravity		= false;
+			m_Activator.Collider.enabled			= false;
+			m_TriggerCollider.enabled				= false;
 		}
 	}
 

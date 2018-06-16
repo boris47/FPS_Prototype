@@ -185,6 +185,10 @@ public class EffectManager : MonoBehaviour {
 	// Update
 	private	void	Update()
 	{
+		// Only every 10 frames
+		if ( Time.frameCount % 90 == 0 )
+			return;
+
 		for ( int i = 0; i < m_ActiveParticleSystems.Count; i++ )
 		{
 			LongParticleSystemData pair = m_ActiveParticleSystems[ i ];

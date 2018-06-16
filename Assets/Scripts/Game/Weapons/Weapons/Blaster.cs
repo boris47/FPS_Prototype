@@ -161,7 +161,18 @@ public class Blaster : Weapon
 	// Update ( override )
 	protected	override	void			Update()
 	{
+		// Lock Timer
+		if ( m_LockTimer > 0f )
+		{
+			m_LockTimer -= Time.deltaTime;
+			return;
+		}
+
+		// Shoot delay
 		m_FireTimer -= Time.deltaTime;
+
+		if ( m_WeaponState == WeaponState.STASHED )
+			return;
 		
 		if ( Player.Instance.ChosingDodgeRotation == true )
 			return;
@@ -172,15 +183,6 @@ public class Blaster : Weapon
 			ToggleZoom();
 			return;
 		}
-
-
-		// Reloading
-		if ( m_LockTimer > 0f )
-		{
-			m_LockTimer -= Time.deltaTime;
-			return;
-		}
-		
 
 		// Just after reload
 		if ( m_LockTimer < 0f )
@@ -319,4 +321,11 @@ public class Blaster : Weapon
 		UI.Instance.InGame.UpdateUI();
 	}
 
+	
+	//////////////////////////////////////////////////////////////////////////
+	// OnDestroy
+	private void OnDestroy()
+	{
+		m_PoolBullets.Destroy();
+	}
 }

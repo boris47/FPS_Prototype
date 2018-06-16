@@ -60,6 +60,10 @@ public class GenericBullet : Bullet {
 	// Update ( Override )
 	protected	override	void	Update()
 	{
+		// Only every 10 frames
+		if ( Time.frameCount % 10 == 0 )
+			return;
+
 		float traveledDistance = ( m_StartPosition - transform.position ).sqrMagnitude;
 		if ( traveledDistance > m_Range * m_Range )
 		{

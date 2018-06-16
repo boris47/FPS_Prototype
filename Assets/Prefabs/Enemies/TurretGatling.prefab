@@ -89,6 +89,8 @@ GameObject:
   - component: {fileID: 114992721271059316}
   - component: {fileID: 82759251972465842}
   - component: {fileID: 114521802811212170}
+  - component: {fileID: 114402927285331916}
+  - component: {fileID: 114254182991230732}
   m_Layer: 0
   m_Name: TurretGatling
   m_TagString: Untagged
@@ -320,8 +322,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1315035216683690}
   m_LocalRotation: {x: 0.27059802, y: 0.65328157, z: -0.65328145, w: 0.27059805}
-  m_LocalPosition: {x: -3.76, y: 10.673904, z: 21.66}
-  m_LocalScale: {x: 0.40000004, y: 0.40000015, z: 0.40000024}
+  m_LocalPosition: {x: -9.195222, y: 17.29, z: -10.546017}
+  m_LocalScale: {x: 0.40000004, y: 0.4000004, z: 0.40000048}
   m_Children:
   - {fileID: 4517046273102968}
   - {fileID: 4830165556814416}
@@ -778,6 +780,36 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 0
+--- !u!114 &114254182991230732
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1315035216683690}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5eb3bb5ea0f4eb4a9239049ac9bbecb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_OnDestroy:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: GameEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+--- !u!114 &114402927285331916
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1315035216683690}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5eb3bb5ea0f4eb4a9239049ac9bbecb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_OnDestroy:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: GameEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
 --- !u!114 &114451407299412102
 MonoBehaviour:
   m_ObjectHideFlags: 1

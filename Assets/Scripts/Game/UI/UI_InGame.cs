@@ -14,8 +14,6 @@ public class UI_InGame : MonoBehaviour {
 
 	private			Image			staminaBar		= null;
 
-	private			Image			m_EffectFrame	= null;
-
 	private			bool			m_IsActive		= false;
 
 
@@ -31,8 +29,6 @@ public class UI_InGame : MonoBehaviour {
 		bulletsCount	= transform.GetChild(1).GetChild(1).GetComponent<Text>();
 		otherInfo		= transform.GetChild(1).GetChild(2).GetComponent<Text>();
 		staminaBar		= transform.GetChild(1).GetChild(3).GetChild(1).GetComponent<Image>();
-
-		m_EffectFrame	= transform.GetChild(2).GetComponent<Image>();
 
 		InvokeRepeating( "PrintTime", 0.3f, 0.2f );
 	}
@@ -89,14 +85,6 @@ public class UI_InGame : MonoBehaviour {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// GetEffectFrame
-	public	Image	GetEffectFrame()
-	{
-		return m_EffectFrame;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
 	// UpdateUI
 	public	void	UpdateUI()
 	{
@@ -133,6 +121,10 @@ public class UI_InGame : MonoBehaviour {
 	private void	Update()
 	{
 		if ( m_IsActive == false )
+			return;
+
+		// Only every 10 frames
+		if ( Time.frameCount % 10 == 0 )
 			return;
 
 		staminaBar.fillAmount = Player.Instance.Stamina;

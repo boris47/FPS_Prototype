@@ -16,6 +16,8 @@ public interface ICustomAudioSource {
 
 	void			Play				();
 	void			Stop				();
+	void			Pause				();
+	void			Resume				();
 	void			FadeIn				( float time );
 	void			FadeOut				( float time );
 
@@ -65,53 +67,50 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 	{
 		if ( m_AudioSource == null && m_AudioEmitter == null )
 		{
+			print( gameObject.name + ": custom audio source with no reference assigned !!" );
 			Destroy( this );
-			return;
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Start
-	private void Start()
+	// OnEnable
+	private void OnEnable()
 	{
-		if ( m_AudioSource == null && m_AudioEmitter == null )
-		{
-			print( gameObject.name + ": custom audio source with no reference assigned !!" );
-			return;
-		}
-
-		m_Volume = SoundEffectManager.Instance.Volume;
 		m_IsUnityAudioSource = m_AudioSource != null;
-
 		if ( m_IsUnityAudioSource == true )
 		{
-			m_AudioSource.volume = m_InternalVolume * m_Volume;
+			SoundManager.OnSoundVolumeChange += OnSoundVolumeChange;
+			OnSoundVolumeChange( SoundManager.Instance.SoundVolume );
 		}
 		else
 		{
-			m_AudioEmitter.EventInstance.setVolume( m_InternalVolume * m_Volume );
+			SoundManager.OnMusicVolumeChange += OnMusicVolumeChange;
+			OnMusicVolumeChange( SoundManager.Instance.MusicVolume );
 		}
 
-		SoundEffectManager.Instance.OnVolumeChange += OnVolumeChange;
-		SoundEffectManager.Instance.OnPitchChange  += OnPitchChange;
+		SoundManager.OnPitchChange += OnPitchChange;
+		GameManager.OnPauseSet += OnPauseSet;
 	}
-	
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnVolumeChange
-	private	void	OnVolumeChange( float value )
+	private	void	OnSoundVolumeChange( float value )
 	{
 		m_Volume = value;
 		float currentVolume = m_InternalVolume * m_Volume;
-		if ( m_IsUnityAudioSource == true )
-		{
-			m_AudioSource.volume = currentVolume;
-		}
-		else
-		{
-			m_AudioEmitter.EventInstance.setVolume( currentVolume );
-		}
+		m_AudioSource.volume = currentVolume;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnVolumeChange
+	private	void	OnMusicVolumeChange( float value )
+	{
+		m_Volume = value;
+		float currentVolume = m_InternalVolume * m_Volume;
+		m_AudioEmitter.EventInstance.setVolume( currentVolume );
 	}
 
 
@@ -128,6 +127,20 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 		else
 		{
 			m_AudioEmitter.EventInstance.setPitch( currentPitch );
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnPitchChange
+	private	void	OnPauseSet( bool isPaused )
+	{
+		if ( isPaused == true )
+		{
+			( this as ICustomAudioSource ).Pause();
+		}
+		else
+		{
+			( this as ICustomAudioSource ).Resume();
 		}
 	}
 
@@ -196,6 +209,36 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 
 	//////////////////////////////////////////////////////////////////////////
 	// FadeIn
+	void	ICustomAudioSource.Pause()
+	{
+		if ( m_IsUnityAudioSource == true )
+		{
+			m_AudioSource.Pause();
+		}
+		else
+		{
+			m_AudioEmitter.EventInstance.setPaused( true );
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// FadeIn
+	void	ICustomAudioSource.Resume()
+	{
+		if ( m_IsUnityAudioSource == true )
+		{
+			m_AudioSource.UnPause();
+		}
+		else
+		{
+			m_AudioEmitter.EventInstance.setPaused( false );
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// FadeIn
 	void	ICustomAudioSource.FadeIn( float time )
 	{
 		m_IsFading = true;
@@ -253,12 +296,19 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnDestroy
-	private void OnDestroy()
+	private void OnDisable()
 	{
-		if ( SoundEffectManager.Instance == null || enabled == false )
-			return;
-
-		SoundEffectManager.Instance.OnVolumeChange -= OnVolumeChange;
-		SoundEffectManager.Instance.OnPitchChange  -= OnPitchChange;
+		if ( m_IsUnityAudioSource == true )
+		{
+			SoundManager.OnSoundVolumeChange -= OnSoundVolumeChange;
+			m_AudioSource.Stop();
+		}
+		else
+		{
+			SoundManager.OnMusicVolumeChange -= OnMusicVolumeChange;
+			m_AudioEmitter.Stop();
+		}
+		SoundManager.OnPitchChange -= OnPitchChange;
+		GameManager.OnPauseSet -= OnPauseSet;
 	}
 }

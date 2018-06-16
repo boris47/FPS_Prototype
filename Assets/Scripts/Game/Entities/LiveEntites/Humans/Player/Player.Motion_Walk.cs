@@ -35,8 +35,9 @@ public partial class Player {
 		}
 
 		// TIME SCALE
-		Time.timeScale = Mathf.Lerp( Time.timeScale, timeScaleTarget, Time.unscaledDeltaTime );
-		SoundEffectManager.Instance.Pitch = Time.timeScale;
+		float timeScale = Mathf.Lerp( Time.timeScale, timeScaleTarget, Time.unscaledDeltaTime );
+		Time.timeScale = timeScale;
+		SoundManager.Instance.Pitch = timeScale;
 
 		// CAMERA ROTATION
 		{

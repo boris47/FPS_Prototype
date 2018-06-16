@@ -32,7 +32,7 @@ public interface IEntity {
 
 
 public interface IEntitySimulation {
-	Vector3		StarPosition			{ get; set; }
+	Vector3		StartPosition			{ get; set; }
 
 	void		EnterSimulationState	();
 	void		ExitSimulationState		();
@@ -124,7 +124,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 	// Position saved at start of movement ( used for distances check )
 	protected	Vector3						m_StartMovePosition				= Vector3.zero;
-				Vector3						IEntitySimulation.StarPosition { get { return m_StartMovePosition; } set { m_StartMovePosition = value; } }
+				Vector3						IEntitySimulation.StartPosition { get { return m_StartMovePosition; } set { m_StartMovePosition = value; } }
 	protected	float						m_DistanceToTravel				= 0f;
 
 
@@ -237,6 +237,13 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	// Update ( virtual )
 	protected	virtual	void	Update()
 	{
+		if ( GameManager.IsPaused == true )
+			return;
+
+		// Only every 10 frames
+		if ( Time.frameCount % 5 == 0 )
+			return;
+
 		this.OnFrame( Time.deltaTime );
 	}
 

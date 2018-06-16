@@ -8,7 +8,7 @@ namespace QuestSystem {
 	public class Objective_Destroy : Objective_Base {
 
 		[SerializeField]
-		private GameEvent			m_OnDestoyied					= null;
+		private GameEvent			m_OnDestroy						= null;
 
 		private	Entity				m_Target						= null;
 
@@ -33,8 +33,8 @@ namespace QuestSystem {
 		// OnDestroy
 		private void OnKill()
 		{
-			if ( m_OnDestoyied != null && m_OnDestoyied.GetPersistentEventCount() > 0 )
-				m_OnDestoyied.Invoke();
+			if ( m_OnDestroy != null && m_OnDestroy.GetPersistentEventCount() > 0 )
+				m_OnDestroy.Invoke();
 
 			Completed = true;
 			RelatedTask.UpdateStatus();

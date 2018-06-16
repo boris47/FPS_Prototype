@@ -13,6 +13,13 @@ public partial class Player {
 	private		AnimationCurve		m_DodgeTimeScaleCurve			= AnimationCurve.Linear( 0f, 1f, 1f, 1f );
 
 	private		Transform			m_DodgeAbilityTarget			= null;
+
+	private		bool				m_CanDodge						= false;
+	public		bool				CanDodge
+	{
+		get { return m_CanDodge; }
+	}
+
 	private		bool				m_IsDodging						= false;
 	public		bool				IsDodging
 	{
@@ -180,7 +187,7 @@ public partial class Player {
 			{
 				m_DodgeAbilityTarget.gameObject.SetActive( false );
 				m_DodgeRaycastNormal = Vector3.zero;
-				SoundEffectManager.Instance.Pitch = Time.timeScale = 1f;
+				SoundManager.Instance.Pitch = Time.timeScale = 1f;
 			}
 			m_ChosingDodgeRotation = false;
 			return;
@@ -302,7 +309,7 @@ public partial class Player {
 				m_DodgeAbilityTarget.position = m_RaycastHit.point;
 				m_DodgeAbilityTarget.up = m_RaycastHit.normal;
 				m_DodgeRaycastNormal = m_RaycastHit.normal;
-				SoundEffectManager.Instance.Pitch = Time.timeScale = 0.008f;
+				SoundManager.Instance.Pitch = Time.timeScale = 0.008f;
 			}
 
 			if ( InputManager.Inputs.Ability1Loop && m_DodgeAbilityTarget.gameObject.activeSelf == true )		// GetKey Q more frames
@@ -325,7 +332,7 @@ public partial class Player {
 						StopCoroutine( m_DodgeCoroutine );
 
 				m_DodgeRaycastNormal = Vector3.zero;
-				SoundEffectManager.Instance.Pitch = Time.timeScale = 1f;
+				SoundManager.Instance.Pitch = Time.timeScale = 1f;
 				Vector3 destination = m_DodgeAbilityTarget.position + m_DodgeAbilityTarget.up;
 				
 				transform.Rotate( Vector3.up, CameraControl.Instance.CurrentDirection.y, Space.Self );
@@ -357,7 +364,7 @@ public partial class Player {
 		m_IsDodging									= true;
 
 		// Setup
-		UnityEngine.UI.Image effectFrame			= UI.Instance.InGame.GetEffectFrame();
+		UnityEngine.UI.Image effectFrame			= UI.Instance.EffectFrame;
 		CameraControl.Instance.HeadBob.IsActive		= false;
 		CameraControl.Instance.HeadMove.IsActive	= false;
 		m_RigidBody.velocity						= Vector3.zero;
@@ -391,7 +398,7 @@ public partial class Player {
 			CameraControl.Instance.GetPP_Profile.motionBlur.settings = settings;
 
 			// Audio Global Pitch
-			SoundEffectManager.Instance.Pitch = Time.timeScale;
+			SoundManager.Instance.Pitch = Time.timeScale;
 			yield return null;
 		}
 
@@ -400,7 +407,7 @@ public partial class Player {
 		// Reset
 		m_RigidBody.constraints						= RigidbodyConstraints.FreezeRotation;
 		m_RigidBody.velocity						= Vector3.zero;
-		SoundEffectManager.Instance.Pitch			= 1f;
+		SoundManager.Instance.Pitch					= 1f;
 		Time.timeScale								= 1f;
 		effectFrame.color							= Color.clear;
 		m_DodgeRaycastNormal						= Vector3.zero;

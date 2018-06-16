@@ -1,28 +1,37 @@
 ﻿
 using UnityEngine;
 
+public interface IGrabbable : IInteractable {
 
-[RequireComponent(typeof(Rigidbody))]
-public class Grabbable : MonoBehaviour, IInteractable {
+	Transform		Transform		{ get; }
+	IInteractable	Interactable	{ get; }
 
-	private	Rigidbody	m_RigidBody		= null;
-	public	Rigidbody	RigidBody		{ get { return m_RigidBody; } }
-
-	private	Collider	m_Collider		= null;
-	public	Collider	Collider		{ get { return m_Collider; } }
-
-	[SerializeField]
-	private	bool		m_CanInteract	= true;
-	public	bool		CanInteract		{ get { return m_CanInteract; } set { m_CanInteract = value; } }
+}
 
 
-	void IInteractable.OnInteraction()
+public class Grabbable : Interactable, IGrabbable {
+
+	// TRANSFORM
+	public	Transform		Transform		{ get { return transform; } }
+
+//	// INTERACTABLE REF
+	private	IInteractable	m_Interactable	= null;
+	public	IInteractable	Interactable	{ get { return m_Interactable; } }
+
+
+	
+	//////////////////////////////////////////////////////////////////////////
+	// Awake ( Override )
+	protected override void Awake()
+	{
+		base.Awake();
+		m_Interactable = ( this as IInteractable );
+	}
+	
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnInteraction ( Override )
+	public override void OnInteraction()
 	{ }
 
-
-	private void Awake()
-	{
-		m_RigidBody = GetComponent<Rigidbody>();
-		m_Collider	= GetComponent<Collider>();
-	}
 }

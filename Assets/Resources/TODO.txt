@@ -13,6 +13,8 @@
 
 ***	- LENS FLARE
 
+	- IMPLEMENT HEAP STRUCTURE IN FIELD OF VIEW
+
 
 Weapons:
 

@@ -6,7 +6,8 @@ using UnityEngine;
 public class GameEvent      : UnityEngine.Events.UnityEvent { }
 
 public	delegate	void	OnTriggerCall( Collider collider );
-
+public	delegate	void	OnPauseSet( bool isPaused );
+public	delegate	void	OnThink();
 
 
 public partial class GameManager : MonoBehaviour {
@@ -18,25 +19,56 @@ public partial class GameManager : MonoBehaviour {
 	public	const	bool InEditor = false;
 #endif
 
-	public	static	Reader			Settings				= null;
+	public	static			Reader			Settings				= null;
+	public	static			Reader			Configs					= null;
+	public	static			InputManager	InputMgr				= null;
+	public	static			GameManager		Instance				= null;
+	public	static			bool			IsChangingScene			= false;
+	public	static			bool			IsLoadingScene			= false;
+	public	static			bool			CanSave					= true;
 
-	public	static	Reader			Configs					= null;
 
-	public	static	InputManager	InputMgr				= null;
+	private static event	OnPauseSet		m_OnPauseSet			= null;
+	public	static			OnPauseSet		OnPauseSet
+	{
+		get { return m_OnPauseSet; }
+		set { if ( value != null ) m_OnPauseSet = value; }
+	}
 
-	public	static	GameManager		Instance				= null;
+	private static event	OnThink			m_OnThink				= null;
+	public	static			OnThink			OnThink
+	{
+		get { return m_OnThink; }
+		set { if ( value != null ) m_OnThink = value; }
+	}
 
-	public	static	bool			IsChangingScene			= false;
+	private	static			bool			m_InGame				= true;
+	public static			bool			InGame
+	{
+		get { return m_InGame; }
+		set { m_InGame = value; }
+	}
 
-	public	static	bool			CanSave					= true;
+	private static			bool			m_IsPaused				= false;
+	public static			bool			IsPaused
+	{
+		get { return m_IsPaused; }
+		set { OnPauseChange( value ); }
+	}
 
-	public	static	bool			IsPaused				= false;
+	private	static			bool			m_QuitRequest			= false;
 
 	[SerializeField]
-	private	bool					m_HideCursor			= true;
+	private					bool			m_HideCursor			= true;
 
 
-	private	bool					m_QuitRequest			= false;
+	private					bool			m_SkipOneFrame			= false;
+	private					float			m_ThinkTimer            = 0f;
+
+	// Pause vars
+	private					float			m_PrevTimeScale			= 1f;
+	private					bool			m_PrevCanParseInput		= false;
+	private					bool			m_PrevInputEnabled		= false;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -46,7 +78,8 @@ public partial class GameManager : MonoBehaviour {
 		// SINGLETON
 		if ( Instance != null )
 		{
-			print( "WeaponManager: Object set inactive" );
+			print( "GameManager: Object set inactive" );
+//			Destroy( gameObject );
 			gameObject.SetActive( false );
 			return;
 		}
@@ -57,23 +90,84 @@ public partial class GameManager : MonoBehaviour {
 		InputMgr = new InputManager();
 		Settings = new Reader();
 		Configs = new Reader();
-#if UNITY_EDITOR
-		Settings.LoadFile( "Assets/Resources/Settings.txt" );
-#else
-		Settings.LoadFile( "Settings" );
-#endif
 
-#if UNITY_EDITOR
-		Configs.LoadFile( "Assets/Resources/Configs/All.txt" );
-#else
-		Configs.LoadFile( "Configs\\All" );
-#endif
+		// Load Settings and Configs
+		string settingspath = InEditor ? "Assets/Resources/Settings.txt" : "Settings";
+		string configsPath = InEditor ? "Assets/Resources/Configs/All.txt" : "Configs\\All";
+		Settings.LoadFile( settingspath );
+		Configs.LoadFile( configsPath );
+	}
 
-		if ( m_HideCursor )
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnEnable
+	private void OnEnable()
+	{
+//		Cursor.visible = false;
+//		Cursor.lockState = CursorLockMode.Locked;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnLevelWasLoaded
+	private void OnLevelWasLoaded( int level )
+	{
+		m_InGame = level != 0;
+		if ( m_InGame )
 		{
-			Cursor.visible = false;
-			Cursor.lockState = CursorLockMode.Locked;
+			if ( m_HideCursor )
+			{
+				Cursor.visible = false;
+				Cursor.lockState = CursorLockMode.Locked;
+			}
 		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnPauseChange
+	private static	void	OnPauseChange( bool isPaused )
+	{
+		m_IsPaused = isPaused;
+		OnPauseSet( IsPaused );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// TooglePauseState
+	public	void	TooglePauseState()
+	{
+		IsPaused = !IsPaused;
+		UI.Instance.TooglePauseMenu();
+
+		Cursor.visible = IsPaused;
+		Cursor.lockState = IsPaused == true ? CursorLockMode.None : CursorLockMode.Locked;
+		
+		// Pausing
+		if ( m_IsPaused == true )
+		{
+			m_PrevTimeScale							= Time.timeScale;
+			m_PrevCanParseInput						= CameraControl.Instance.CanParseInput;
+			m_PrevInputEnabled						= InputManager.IsEnabled;
+			Time.timeScale							= 0f;
+			CameraControl.Instance.CanParseInput	= false;
+			InputManager.IsEnabled					= false;
+		}
+		else
+		{
+			Time.timeScale							= m_PrevTimeScale;
+			CameraControl.Instance.CanParseInput	= m_PrevCanParseInput;
+			InputManager.IsEnabled					= m_PrevInputEnabled;
+		}
+		m_SkipOneFrame = true;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnDestroy
+	public	static	void	QuitRequest()
+	{
+		m_QuitRequest = true;
 	}
 
 
@@ -81,6 +175,23 @@ public partial class GameManager : MonoBehaviour {
 	// Update
 	private	void	Update()
 	{
+		if ( m_InGame == false )
+			return;
+
+		m_ThinkTimer += Time.deltaTime;
+		if ( m_ThinkTimer > Brain.THINK_TIMER )
+		{
+			m_OnThink();
+			m_ThinkTimer = 0f;
+		}
+
+		// This prevent the ui interaction can trigger actions in-game
+		if ( m_SkipOneFrame == true )
+		{
+			m_SkipOneFrame = false;
+			return;
+		}
+
 		// Save
 		if ( Input.GetKeyDown( KeyCode.F5 ) && CanSave == true )
 		{
@@ -99,32 +210,46 @@ public partial class GameManager : MonoBehaviour {
 		// APPLICATION QUIT REQUEST
 		if ( Input.GetKeyDown( KeyCode.Escape ) )
 		{
-			IsPaused = !IsPaused;
-			UI.Instance.TooglePauseMenu();
-
-			Cursor.visible = IsPaused;
-			Cursor.lockState = IsPaused == true ? CursorLockMode.None : CursorLockMode.Locked;
-			/*
-			m_QuitRequest = true;
-			print( "Quit request" );
-			if ( m_SaveLoadCO != null )
-			{
-				print( "Wait End Encryption" );
-			}
-			*/
+			TooglePauseState();
 		}
-
 
 		if ( m_QuitRequest == true )
 		{
 			if ( m_SaveLoadCO == null )
 			{
-#if UNITY_EDITOR
-			UnityEditor.EditorApplication.isPlaying = false;
-#else
-			Application.Quit();
-#endif
+				QuitInstanly();
 			}
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnDestroy
+	private void OnDestroy()
+	{
+		Settings				= null;
+		Configs					= null;
+		InputMgr				= null;
+		Instance				= null;
+		IsChangingScene			= false;
+		IsLoadingScene			= false;
+		CanSave					= true;
+		m_OnPauseSet			= null;
+		m_IsPaused				= false;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// QuitApplication
+	public	static	void	QuitInstanly()
+	{
+		if ( InEditor == true )
+		{
+			UnityEditor.EditorApplication.isPlaying = false;
+		} 
+		else
+		{
+			Application.Quit();
 		}
 	}
 

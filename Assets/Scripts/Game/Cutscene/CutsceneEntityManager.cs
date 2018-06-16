@@ -8,10 +8,11 @@ namespace CutScene {
 		public		bool							IsPlaying					{ get; private set; }
 		public		bool							IsOK						{ get; private set; }
 
+		[SerializeField]
+		private		Entity							m_EntityRef					= null;
 
 		private		PointsCollectionOnline			m_PointsCollection			= null;
 
-		private		IEntity							m_EntityRef					= null;
 		private		IEntitySimulation				m_EntitySimulation			= null;
 		private		int								m_CurrentIdx				= 0;
 
@@ -26,7 +27,6 @@ namespace CutScene {
 		// Awake
 		private void	Awake()
 		{
-			m_EntityRef = transform.parent.GetComponent<IEntity>();
 			if ( m_EntityRef == null )
 			{
 				Destroy( gameObject );
@@ -34,7 +34,7 @@ namespace CutScene {
 			}
 
 			m_EntitySimulation = m_EntityRef as IEntitySimulation;
-			m_EntityRef.CutsceneManager = this;
+			( m_EntityRef as IEntity).CutsceneManager = this;
 			IsOK = true;
 		}
 
@@ -84,6 +84,9 @@ namespace CutScene {
 		// Update
 		private	void	Update()
 		{
+			if ( GameManager.IsPaused == true )
+				return;
+
 			if ( IsPlaying == false )
 				return;
 
@@ -110,7 +113,7 @@ namespace CutScene {
 			}
 
 			// Update store start position for distance check
-			m_EntitySimulation.StarPosition = m_EntityRef.Transform.position;
+			m_EntitySimulation.StartPosition = m_EntityRef.transform.position;
 
 			// Update to next simulation targets
 			CutsceneWaypointData data	= m_PointsCollection[ m_CurrentIdx ];
@@ -127,15 +130,15 @@ namespace CutScene {
 		{
 			CameraControl.Instance.OnCutsceneEnd();
 			m_EntitySimulation.ExitSimulationState();
-			m_EntitySimulation.StarPosition	= Vector3.zero;
-			IsPlaying						= false;
-			m_CurrentIdx					= 0;
-			m_MovementType					= Entity.SimMovementType.WALK;
-			m_Destination					= Vector3.zero;
-			m_Target						= null;
-			m_TimeScaleTarget				= 1f;
-			m_PointsCollection				= null;
-			this.enabled = false;
+			m_EntitySimulation.StartPosition	= Vector3.zero;
+			IsPlaying							= false;
+			m_CurrentIdx						= 0;
+			m_MovementType						= Entity.SimMovementType.WALK;
+			m_Destination						= Vector3.zero;
+			m_Target							= null;
+			m_TimeScaleTarget					= 1f;
+			m_PointsCollection					= null;
+			this.enabled						= false;
 		}
 	
 	}

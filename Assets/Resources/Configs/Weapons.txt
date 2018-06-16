@@ -1,36 +1,39 @@
-﻿
-
-
+﻿;;;;;;;;;;;;;;;; BLASTER
 [Blaster]
 Damage				= 6.0;
 ZoomFactor			= 1.8;
 ZoomingTime			= 0.2;
 ZommSensitivity		= 0.3;
 
-
+;;;;;;;;;;;;;;;; BLACKJACK
 [Blackjack]
 Damage				= 15.0;
 ZoomFactor			= 2.0;
 ZoomingTime			= 0.2;
 ZommSensitivity		= 0.3;
 
+;;;;;;;;;;;;;;;; RAZOR
 [Razor]
 Damage				= 2.0;
 ZoomFactor			= 6.0;
 ZoomingTime			= 0.2;
+ZommSensitivity		= 0.2;
 
+;;;;;;;;;;;;;;;; HAMMER
 [Hammer]
 Damage				= 13.0;
 ZoomFactor			= 2.0;
 ZoomingTime			= 0.2;
 ZommSensitivity		= 0.3;
 
+;;;;;;;;;;;;;;;; BREAKER
 [Breaker]
 Damage				= 13.0;
 ZoomFactor			= 2.0;
 ZoomingTime			= 0.2;
 ZommSensitivity		= 0.3;
 
+;;;;;;;;;;;;;;;; ARROW
 [Arrow]
 Damage				= 100.0;
 ZoomFactor			= 8.0;

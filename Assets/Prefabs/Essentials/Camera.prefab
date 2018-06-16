@@ -10495,7 +10495,7 @@ MonoBehaviour:
   m_MainDamage: 2
   m_ZoomOffset: {x: -0.0599, y: -0.01, z: 0}
   m_Magazine: 28
-  m_MagazineCapacity: 5
+  m_MagazineCapacity: 8
   m_FirePoint: {fileID: 4592349170502510}
   m_ShotDelay: 1.5
   m_CamDeviation: 3
@@ -10505,6 +10505,7 @@ MonoBehaviour:
   m_ZommSensitivity: 1
   m_Laser: {fileID: 0}
   m_Bullet: {fileID: 114434699516155368, guid: 6022bac21992ba94bb2fd959d6d5f7f0, type: 2}
+  m_ShotsDelay: 0.1
 --- !u!114 &114250441779907284
 MonoBehaviour:
   m_ObjectHideFlags: 1

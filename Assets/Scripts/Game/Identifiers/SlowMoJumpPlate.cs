@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 public class SlowMoJumpPlate : MonoBehaviour, IInteractable {
 	/*
@@ -20,6 +21,20 @@ public class SlowMoJumpPlate : MonoBehaviour, IInteractable {
 
 		set {
 			
+		}
+	}
+
+	Collider IInteractable.Collider
+	{
+		get {
+			throw new NotImplementedException();
+		}
+	}
+
+	Rigidbody IInteractable.RigidBody
+	{
+		get {
+			throw new NotImplementedException();
 		}
 	}
 

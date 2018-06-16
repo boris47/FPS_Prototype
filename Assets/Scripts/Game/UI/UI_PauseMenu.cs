@@ -1,13 +1,11 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿
+using UnityEngine;
 
 public class UI_PauseMenu : MonoBehaviour {
 
-	private void Awake()
+	public	void	ReturnToMenu()
 	{
-		
+		UI.Instance.ReturnToMainMenu();
 	}
-
-
 
 }

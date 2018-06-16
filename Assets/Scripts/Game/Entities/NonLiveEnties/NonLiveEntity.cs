@@ -1,7 +1,7 @@
 ﻿
 using UnityEngine;
 
-[RequireComponent( typeof ( AI_Behaviours.Brain ) )]
+[RequireComponent( typeof ( Brain ) )]
 public abstract partial class NonLiveEntity : Entity {
 	
 	[Header("Non Live Entity Properties")]

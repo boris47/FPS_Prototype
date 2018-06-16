@@ -3,12 +3,23 @@ using UnityEngine;
 
 public class Arrow : Weapon {
 
+	private			uint							BURSTSIZE					= 2;
+
+
 	[Header("Arrow Properties")]
 
 	[SerializeField]
-	protected		Bullet							m_Bullet					= null;
+	private			Bullet							m_Bullet					= null;
+
+	[SerializeField]
+	private			float							m_ShotsDelay				= 0.1f;
 
 	private			GameObjectsPool<Bullet>			m_PoolBullets				= null;
+
+	private			uint							m_ShotsCount				= 0;
+
+	private			float							m_ShotsTimer				= 0f;
+
 
 	protected override string OtherInfo
 	{
@@ -118,7 +129,43 @@ public class Arrow : Weapon {
 	// Update ( override )
 	protected	override	void			Update()
 	{
+
+		if ( m_Magazine > 0 )
+		{
+			// Continue burst
+			if ( m_ShotsCount > 0 && m_ShotsCount < BURSTSIZE && m_ShotsTimer < 0f )
+			{
+				m_ShotsTimer = m_ShotsDelay;
+				m_ShotsCount ++;
+				FireShot( m_ShotsCount == BURSTSIZE );
+				return;
+			}
+
+			// End of burst
+			if ( m_ShotsCount == BURSTSIZE )
+			{
+				m_ShotsCount = 0;
+				return;
+			}
+		}
+
+		// Lock Timer
+		if ( m_LockTimer > 0f )
+		{
+			m_LockTimer -= Time.deltaTime;
+
+			if ( m_ShotsCount == 0 )
+				return;
+		}
+
+		// burst shots delay
+		m_ShotsTimer -= Time.deltaTime;
+
+		// Shoot delay
 		m_FireTimer -= Time.deltaTime;
+
+		if ( m_WeaponState == WeaponState.STASHED )
+			return;
 		
 		if ( Player.Instance.ChosingDodgeRotation == true )
 			return;
@@ -129,15 +176,6 @@ public class Arrow : Weapon {
 			ToggleZoom();
 			return;
 		}
-
-
-		// Reloading
-		if ( m_LockTimer > 0f )
-		{
-			m_LockTimer -= Time.deltaTime;
-			return;
-		}
-
 
 		// Just after reload
 		if ( m_LockTimer < 0f )
@@ -154,7 +192,7 @@ public class Arrow : Weapon {
 		
 
 		// Reload
-		if ( m_Magazine <= 0 || ( InputManager.Inputs.Reload && m_Magazine < m_MagazineCapacity ) || m_NeedRecharge )
+		if ( m_Magazine == 0 || ( InputManager.Inputs.Reload && m_Magazine < m_MagazineCapacity ) || m_NeedRecharge )
 		{
 //			m_AnimatorStdSpeed = anim.speed;
 //			anim.speed = 2f;
@@ -172,6 +210,7 @@ public class Arrow : Weapon {
 			m_Animator.Play( m_ReloadAnim.name, -1, 0f );
 			m_LockTimer = m_ReloadAnim.length; // / 2f;
 			m_IsRecharging = true;
+			return;
 		}
 
 		// Check
@@ -189,8 +228,13 @@ public class Arrow : Weapon {
 		m_IsFiring = false;
 		if ( InputManager.Inputs.Fire1 && m_Magazine > 0 && m_InTransition == false && m_NeedRecharge == false )
 		{
-			FireShot();
-			m_IsFiring = true;
+			if ( m_ShotsCount == 0 )
+			{
+				m_ShotsTimer = m_ShotsDelay;
+				m_ShotsCount ++;
+			}
+			FireShot( false );
+
 		}
 	}
 
@@ -208,17 +252,17 @@ public class Arrow : Weapon {
 
 	//////////////////////////////////////////////////////////////////////////
 	// FireSingleMode
-	private					void			FireShot()
+	private					void			FireShot( bool applyDeviation )
 	{
 		m_Magazine --;
-		Shoot();
+		Shoot( applyDeviation );
 		m_IsFiring = true;
 	}
 	
 
 	//////////////////////////////////////////////////////////////////////////
 	// ConfigureShot
-	private					void			Shoot()
+	private					void			Shoot( bool applyDeviation )
 	{
 		m_FireTimer = m_ShotDelay;
 
@@ -237,8 +281,17 @@ public class Arrow : Weapon {
 		// SHOOT
 		bullet.Shoot( position: m_FirePoint.position, direction: m_FirePoint.forward );
 		m_AudioSourceFire.Play();
-		CameraControl.Instance.ApplyDeviation( m_CamDeviation );
+		if ( applyDeviation == true )
+			CameraControl.Instance.ApplyDeviation( m_CamDeviation );
 		CameraControl.Instance.ApplyDispersion( finalDispersion );
 		UI.Instance.InGame.UpdateUI();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnDestroy
+	private void OnDestroy()
+	{
+		m_PoolBullets.Destroy();
 	}
 }

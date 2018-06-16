@@ -14,28 +14,10 @@ public abstract partial class LiveEntity : Entity {
 	[SerializeField]
 	protected	float				m_UseDistance				= 1f;
 
-	// GRABBING OBJECT
-	[System.NonSerialized]
-	protected	GameObject			m_GrabPoint					= null;
-//	[System.NonSerialized]
-	protected	Grabbable			m_GrabbedObject				= null;
-	public		Grabbable			GrabbedObject
-	{
-		get { return m_GrabbedObject; }
-	}
-	[System.NonSerialized]
-	protected	float				m_GrabbedObjectMass			= 0f;
-	[System.NonSerialized]
-	protected	bool				m_GrabbedObjectUseGravity	= false;
-	protected	bool				m_CanGrabObjects			= true;
-
-
-
 
 	// LIVE ENTITY PARAMENTERS
 	public		bool				IsGrounded					{ get; set; }
 	public		float				GroundSpeedModifier			{ get; set; }
-
 
 	// Stamina always reach 1.0f
 	[SerializeField]
@@ -68,7 +50,7 @@ public abstract partial class LiveEntity : Entity {
 	protected	float				m_RunStamina				= 0f;
 	[System.NonSerialized]
 	protected	float				m_CrouchStamina				= 0f;
-//	[System.NonSerialized]
+	[System.NonSerialized]
 	protected	float				m_FallDistanceThreshold		= 0f;
 	[System.NonSerialized]
 	protected	float				m_JumpForce					= 0f;
@@ -106,11 +88,5 @@ public abstract partial class LiveEntity : Entity {
 	{
 		base.Awake();
 	}
-	/*
-	public override void OnFrame( float deltaTime )
-	{
-//		base.OnFrame( deltaTime );
-	}
-	*/
 
 }

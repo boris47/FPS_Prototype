@@ -13,6 +13,21 @@ public partial class Player : Human {
 
 	private		IInteractable		m_Interactable					= null;
 
+	// GRABBING OBJECT
+	[System.NonSerialized]
+	protected	GameObject			m_GrabPoint					= null;
+//	[System.NonSerialized]
+	protected	IGrabbable			m_GrabbedObject				= null;
+	public		IGrabbable			GrabbedObject
+	{
+		get { return m_GrabbedObject; }
+	}
+	[System.NonSerialized]
+	protected	float				m_GrabbedObjectMass			= 0f;
+	[System.NonSerialized]
+	protected	bool				m_GrabbedObjectUseGravity	= false;
+	protected	bool				m_CanGrabObjects			= true;
+
 	private		Vector3				m_Move							= Vector3.zero;
 
 	private		RaycastHit			m_RaycastHit;
@@ -28,8 +43,6 @@ public partial class Player : Human {
 	{
 		get { return m_PlayerFarAreaTrigger; }
 	}
-
-
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -55,10 +68,8 @@ public partial class Player : Human {
 			m_DodgeAbilityTarget = transform.Find( "DodgeAbilityTarget" );
 			m_DodgeAbilityTarget.localScale = new Vector3( 0.5f, m_PhysicCollider.height, 0.5f );
 			m_DodgeAbilityTarget.SetParent( null );
-
 			m_DodgeAbilityTarget.gameObject.SetActive( false );
 		}
-
 
 		m_PlayerNearAreaTrigger	= transform.Find( "PNAT" ).GetComponent<Collider>(); // Player Near Area Trigger
 		m_PlayerFarAreaTrigger	= transform.Find( "PFAT" ).GetComponent<Collider>(); // Player Far  Area Trigger
@@ -135,6 +146,18 @@ public partial class Player : Human {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	// OnDestroy
+	private void OnDestroy()
+	{
+		if ( m_DodgeAbilityTarget != null )
+			Destroy( m_DodgeAbilityTarget.gameObject );
+
+		Instance = null;
+		Entity = null;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	// OnSave ( override )
 	protected override StreamingUnit OnSave( StreamingData streamingData )
 	{
@@ -171,7 +194,7 @@ public partial class Player : Human {
 			m_CutsceneManager.Termiante();
 
 		// UI effect reset
-		UI.Instance.InGame.GetEffectFrame().color = Color.clear;
+		UI.Instance.EffectFrame.color = Color.clear;
 
 		// Dodging reset
 		if ( m_DodgeCoroutine != null )
@@ -180,7 +203,7 @@ public partial class Player : Human {
 		}
 		m_RigidBody.constraints						= RigidbodyConstraints.FreezeRotation;
 		m_RigidBody.velocity						= Vector3.zero;
-		SoundEffectManager.Instance.Pitch			= 1f;
+		SoundManager.Instance.Pitch					= 1f;
 		Time.timeScale								= 1f;
 		m_DodgeRaycastNormal						= Vector3.zero;
 		m_DodgeAbilityTarget.gameObject.SetActive( false );
@@ -248,11 +271,11 @@ public partial class Player : Human {
 
 		m_GrabPoint.transform.Translate( 0f, 0f, m_UseDistance );
 
-		Rigidbody rb		= m_GrabbedObject.RigidBody;
+		Rigidbody rb		= m_GrabbedObject.Interactable.RigidBody;
 		rb.useGravity		= m_GrabbedObjectUseGravity;
 		rb.mass				= m_GrabbedObjectMass;
 
-		Physics.IgnoreCollision( m_PhysicCollider, m_GrabbedObject.Collider, ignore: false );
+		Physics.IgnoreCollision( m_PhysicCollider, m_GrabbedObject.Interactable.Collider, ignore: false );
 
 		m_GrabbedObject		= null;
 		m_CanGrabObjects	= true;
@@ -269,17 +292,17 @@ public partial class Player : Human {
 		if ( m_GrabbedObject == null )
 			return;
 
-		float distance = ( m_GrabbedObject.transform.position - m_GrabPoint.transform.position ).sqrMagnitude;
+		float distance = ( m_GrabbedObject.Transform.position - m_GrabPoint.transform.position ).sqrMagnitude;
 		if ( distance > m_UseDistance * m_UseDistance + 0.1f )
 		{
 			DropEntityDragged();
 			return;
 		}
 
-		Rigidbody rb = m_GrabbedObject.GetComponent<Rigidbody>();
+		Rigidbody rb = m_GrabbedObject.Interactable.RigidBody;
 		rb.rotation = CameraControl.Instance.Transform.rotation;
 		rb.angularVelocity = Vector3.zero;
-		rb.velocity = ( m_GrabPoint.transform.position - m_GrabbedObject.transform.position ) / ( Time.fixedDeltaTime * 4f );
+		rb.velocity = ( m_GrabPoint.transform.position - m_GrabbedObject.Transform.position ) / ( Time.fixedDeltaTime * 4f );
 //		* ( 1.0f - Vector3.Angle( transform.forward, CameraControl.Instance.transform.forward ) / CameraControl.CLAMP_MAX_X_AXIS );
 	}
 
@@ -368,13 +391,7 @@ public partial class Player : Human {
 	// CheckForGrab
 	private	void	CheckForGrab( bool hasHit )
 	{
-		// skip if no target
-		if ( hasHit == false )
-		{
-			return;
-		}
-
-		// skip grab evaluation is dash is active
+		// skip grab evaluation if dodging
 		if ( m_IsDodging == true )
 			return;
 
@@ -388,36 +405,28 @@ public partial class Player : Human {
 			}
 		}
 
-		Grabbable grabbable = null;
+		// Skip if cannot grab objects
+		if ( m_CanGrabObjects == false )
+			return;
 
-		// Distance check
-		if ( m_CanGrabObjects == true && m_RaycastHit.distance <= m_UseDistance )
+		// skip if no target
+		if ( hasHit == false )
+			return;
+
+		// GRAB ACTION
+		Grabbable grabbable = m_RaycastHit.transform.GetComponent<Grabbable>();
+		if ( InputManager.Inputs.Use && grabbable != null && m_Interactable.CanInteract )
 		{
-			grabbable = m_RaycastHit.transform.GetComponent<Grabbable>();
-		}
+			m_GrabbedObject = grabbable;
+			m_GrabPoint.transform.localPosition = Vector3.forward * Vector3.Distance( transform.position, grabbable.transform.position );
 
-		// ACTION GRAB
-		if ( InputManager.Inputs.Use )
-		{
-			if ( m_GrabbedObject != null )
-			{
-				DropEntityDragged();
-				return;
-			}
+			Rigidbody rb				= grabbable.Interactable.RigidBody;
+			m_GrabbedObjectMass			= rb.mass;			rb.mass				= 1f;
+			m_GrabbedObjectUseGravity	= rb.useGravity;	rb.useGravity		= false;
+			rb.velocity					= Vector3.zero;		rb.interpolation	= RigidbodyInterpolation.Interpolate;
+			m_CanGrabObjects			= false;
 
-			if ( grabbable != null && m_Interactable != null && m_Interactable.CanInteract )
-			{
-				m_GrabbedObject = grabbable;
-				m_GrabPoint.transform.localPosition = Vector3.forward * m_RaycastHit.distance;
-
-				Rigidbody rb				= grabbable.RigidBody;
-				m_GrabbedObjectMass			= rb.mass;			rb.mass				= 1f;
-				m_GrabbedObjectUseGravity	= rb.useGravity;	rb.useGravity		= false;
-				rb.velocity					= Vector3.zero;		rb.interpolation	= RigidbodyInterpolation.Interpolate;
-				m_CanGrabObjects			= false;
-
-				Physics.IgnoreCollision( m_PhysicCollider, grabbable.Collider, ignore: true );
-			}
+			Physics.IgnoreCollision( m_PhysicCollider, grabbable.Interactable.Collider, ignore: true );
 		}
 	}
 

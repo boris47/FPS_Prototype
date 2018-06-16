@@ -1,8 +1,6 @@
 ﻿
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
-using AI_Behaviours;
 
 public	delegate	void	OnTargetEvent( TargetInfo_t targetInfo );
 
@@ -34,7 +32,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 
 	public		OnTargetEvent			OnTargetAquired			{ set { m_OnTargetAquired = value; } }
 	public		OnTargetEvent			OnTargetChanged			{ set { m_OnTargetChanged = value; } }
-	public		OnTargetEvent			OnTargetLost			{ set { m_OnTargetLost = value; } }
+	public		OnTargetEvent			OnTargetLost			{ set { m_OnTargetLost    = value; } }
 
 
 	[SerializeField]

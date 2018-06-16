@@ -8,6 +8,9 @@ namespace QuestSystem {
 	public class Objective_Trigger : Objective_Base {
 
 		[SerializeField]
+		private	Collider			m_ObjectThatTrigger				= null;
+
+		[SerializeField]
 		private GameEvent			m_OnTriggerEnter				= null;
 
 		[SerializeField]
@@ -21,6 +24,12 @@ namespace QuestSystem {
 		// AWAKE
 		private void Awake()
 		{
+			if ( m_ObjectThatTrigger == null )
+			{
+				gameObject.SetActive( false );
+				return;
+			}
+
 			m_Collider = GetComponent<Collider>();
 			m_Collider.isTrigger = true;
 			m_Collider.enabled = false;
@@ -39,7 +48,7 @@ namespace QuestSystem {
 		// OnTriggerEnter
 		private void OnTriggerEnter( Collider other )
 		{
-			if ( other.GetComponent<Player>() == null )
+			if ( other.GetInstanceID() != m_ObjectThatTrigger.GetInstanceID() )
 				return;
 
 			// One time trigger

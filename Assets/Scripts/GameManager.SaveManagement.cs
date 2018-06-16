@@ -98,6 +98,12 @@ public partial class GameManager : IGameManager_SaveManagement {
 		print( "Saved" );
 		m_SavingThread = null;
 		m_SaveLoadCO = null;
+
+		if ( PlayerPrefs.HasKey( "SaveSceneIdx" ) == false )
+		{
+			PlayerPrefs.DeleteKey( "SaveSceneIdx" );
+			PlayerPrefs.SetInt( "SaveSceneIdx", UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex );
+		}
 	}
 
 
@@ -323,7 +329,15 @@ public class StreamingData {
 	// GetUnit
 	public	bool	GetUnit( GameObject gameObject, ref StreamingUnit streamingUnit )
 	{
-		int index = m_Data.FindIndex( ( StreamingUnit data ) => data.InstanceID == gameObject.GetInstanceID() );
+//		Debug.Log( gameObject.name );
+		int GOInstanceID = gameObject.GetInstanceID();
+		int index = m_Data.FindIndex( ( StreamingUnit data ) => data.InstanceID == GOInstanceID );
+
+		if ( index == -1 )
+		{
+			index = m_Data.FindIndex( ( StreamingUnit data ) => data.Name == gameObject.name );
+		}
+
 		bool found = index > -1;
 		if ( found )
 		{

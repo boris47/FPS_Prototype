@@ -1,11 +1,15 @@
 ﻿
 using UnityEngine;
 
+public enum WeaponState {
+	DRAWED, STASHED
+}
 
 public interface IWeapon {
 
 	Transform				Transform			{ get; }
 	bool					Enabled				{ get; set; }
+	WeaponState				WeaponState			{ get; }
 	bool					IsFiring			{ get; }
 	float					Damage				{ get; }
 	uint					Magazine			{ get; }
@@ -24,6 +28,8 @@ public interface IWeapon {
 
 	bool					CanChangeWeapon		();
 	void					OnWeaponChange		();
+	float					Draw();
+	float					Stash();
 }
 
 
@@ -72,6 +78,7 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	protected		Laser							m_Laser						= null;
 
 
+	protected		WeaponState						m_WeaponState				= WeaponState.STASHED;
 	protected		Vector3							m_StartOffset				= Vector3.zero;
 	protected		bool							m_InTransition				= false;
 	protected		bool							m_NeedRecharge				= false;
@@ -89,6 +96,7 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	uint					IWeapon.MagazineCapacity	{ get { return m_MagazineCapacity; } }
 	Transform				IWeapon.FirePoint			{ get { return m_FirePoint; } }
 	IFlashLight				IWeapon.FlashLight			{ get { return m_FlashLight; } }
+	WeaponState				IWeapon.WeaponState			{ get { return m_WeaponState; } }
 	float					IWeapon.CamDeviation		{ get { return m_CamDeviation; } }
 	float					IWeapon.FireDispersion		{ get { return m_FireDispersion; } }
 	float					IWeapon.SlowMotionCoeff		{ get { return m_SlowMotionCoeff; } }
@@ -167,7 +175,6 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 		}
 
 		m_Magazine = m_MagazineCapacity;
-		m_LockTimer = m_DrawAnim.length;
 	}
 
 
@@ -206,11 +213,7 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 		UI.Instance.InGame.UpdateUI();
 		return streamingUnit;
 	}
-	
 
-	//////////////////////////////////////////////////////////////////////////
-	// Update ( Abstract )
-	protected	abstract	void			Update();
 
 	//////////////////////////////////////////////////////////////////////////
 	// CanChangeWeapon ( Virtual )
@@ -237,4 +240,32 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 		m_FireTimer		= 0f;
 		enabled			= false;
 	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Draw ( virtual )
+	public		virtual		float			Draw()
+	{
+		m_Animator.Play( "draw", -1, 0f );
+		m_LockTimer		= m_DrawAnim.length;
+		m_WeaponState	= WeaponState.DRAWED;
+		return m_LockTimer;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Stash ( virtual )
+	public		virtual		float			Stash()
+	{
+		m_Animator.Play( "stash", -1, 0f );
+		m_LockTimer		= m_DrawAnim.length;
+		m_WeaponState	= WeaponState.STASHED;
+		return m_LockTimer;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Update ( Abstract )
+	protected	abstract	void			Update();
+
 }

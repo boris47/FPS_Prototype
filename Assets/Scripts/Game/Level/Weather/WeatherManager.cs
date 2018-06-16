@@ -6,6 +6,7 @@ namespace WeatherSystem {
 	// Public interface
 	public interface IWeatherManager {
 
+		Transform			Transform				{ get; }
 		float				TimeFactor				{ get; set; }
 		bool				IsDynamic				{ get; set; }
 		float				DayTime					{ get; }
@@ -61,6 +62,8 @@ namespace WeatherSystem {
 		EnvDescriptor	IWeatherManagerInternal.CurrentDescriptor			{ get { return m_EnvDescriptorCurrent; } }
 		EnvDescriptor	IWeatherManagerInternal.NextDescriptor				{ get { return m_EnvDescriptorNext; } }
 		Material		IWeatherManagerInternal.SkyMixerMaterial			{ get { return m_SkyMaterial; } }
+
+		Transform		IWeatherManager.Transform							{ get { return transform; } }
 
 
 		// SERIALIZED
@@ -647,10 +650,14 @@ namespace WeatherSystem {
 
 
 		/////////////////////////////////////////////////////////////////////////////
-		// UNITY
+		// Update
 		private void			Update()
 		{
 			if ( m_IsOK == false )
+				return;
+
+			// Only every 10 frames
+			if ( Time.frameCount % 10 == 0 )
 				return;
 
 #if UNITY_EDITOR
@@ -685,7 +692,17 @@ namespace WeatherSystem {
 #endregion
 
 
+		/////////////////////////////////////////////////////////////////////////////
+		// OnDestroy
+		private void OnDestroy()
+		{
+			Instance = null;
+			Internal = null;
+		}
 
+
+		/////////////////////////////////////////////////////////////////////////////
+		// OnApplicationQuit
 		private void OnApplicationQuit()
 		{
 			m_DayTimeNow = -1f;

@@ -120,7 +120,18 @@ public class Hammer : Weapon
 	// Awake ( Override )
 	protected	override	void			Update()
 	{
+		// Lock Timer
+		if ( m_LockTimer > 0f )
+		{
+			m_LockTimer -= Time.deltaTime;
+			return;
+		}
+
+		// Shoot delay
 		m_FireTimer -= Time.deltaTime;
+
+		if ( m_WeaponState == WeaponState.STASHED )
+			return;
 		
 		if ( Player.Instance.ChosingDodgeRotation == true )
 			return;
@@ -129,13 +140,6 @@ public class Hammer : Weapon
 		if ( InputManager.Inputs.Fire2 && m_InTransition == false && m_IsRecharging == false )
 		{
 			OnSecondaryFire();
-			return;
-		}
-
-		// Reloading
-		if ( m_LockTimer > 0f )
-		{
-			m_LockTimer -= Time.deltaTime;
 			return;
 		}
 		
@@ -247,4 +251,11 @@ public class Hammer : Weapon
 		UI.Instance.InGame.UpdateUI();
 	}
 
+	
+	//////////////////////////////////////////////////////////////////////////
+	// OnDestroy
+	private void OnDestroy()
+	{
+		m_PoolBullets.Destroy();
+	}
 }
