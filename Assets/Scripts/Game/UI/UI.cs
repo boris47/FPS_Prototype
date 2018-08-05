@@ -61,7 +61,6 @@ public class UI : MonoBehaviour, IUI {
 	private			Transform		m_CurrentActiveTrasform			= null;
 	private			Transform		m_PrevActiveTransform			= null;
 	private			Transform		m_RayCastInterceptor			= null;
-	private			bool			m_IsSwitching					= false;
 
 
 

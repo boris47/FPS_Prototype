@@ -5,7 +5,15 @@ public enum WeaponState {
 	DRAWED, STASHED
 }
 
-public interface IWeapon {
+public interface IWeaponZoom {
+
+	Vector3					ZoomOffset			 { get; }
+	float					ZoomingTime			 { get; }
+	float					ZommSensitivity		 { get; }
+	float					ZoomFactor			{ get; }
+}
+
+public interface IWeapon :  IWeaponZoom {
 
 	Transform				Transform			{ get; }
 	bool					Enabled				{ get; set; }
@@ -19,8 +27,6 @@ public interface IWeapon {
 	float					CamDeviation		{ get; }
 	float					FireDispersion		{ get; }
 	float					SlowMotionCoeff		{ get; }
-	float					ZommSensitivity		{ get; }
-	float					ZoomFactor			{ get; }
 
 	string					OtherInfo			 { get; }
 
@@ -31,7 +37,6 @@ public interface IWeapon {
 	float					Draw();
 	float					Stash();
 }
-
 
 
 
@@ -46,6 +51,12 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 
 	[SerializeField]
 	protected		Vector3							m_ZoomOffset				= Vector3.zero;
+
+	[SerializeField]
+	protected		float							m_ZoomingTime				= 1f;
+
+	[SerializeField]
+	protected		float							m_ZommSensitivity			= 1f;
 
 	[SerializeField, ReadOnly]
 	protected		uint							m_Magazine					= 1;
@@ -67,12 +78,6 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 
 	[SerializeField,Range(0.1f, 2f)]
 	protected		float							m_SlowMotionCoeff			= 1f;
-
-	[SerializeField]
-	protected		float							m_ZoomingTime				= 1f;
-
-	[SerializeField]
-	protected		float							m_ZommSensitivity			= 1f;
 
 	[SerializeField]
 	protected		Laser							m_Laser						= null;
@@ -100,9 +105,12 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	float					IWeapon.CamDeviation		{ get { return m_CamDeviation; } }
 	float					IWeapon.FireDispersion		{ get { return m_FireDispersion; } }
 	float					IWeapon.SlowMotionCoeff		{ get { return m_SlowMotionCoeff; } }
-	float					IWeapon.ZommSensitivity		{ get { return m_ZommSensitivity; } }
-	float					IWeapon.ZoomFactor			{ get { return m_ZoomFactor; } }
 	string					IWeapon.OtherInfo			{ get { return OtherInfo; } }
+
+	Vector3					IWeaponZoom.ZoomOffset		{ get { return m_ZoomOffset; } }
+	float					IWeaponZoom.ZoomingTime		{ get { return m_ZoomingTime; } }
+	float					IWeaponZoom.ZommSensitivity	{ get { return m_ZommSensitivity; } }
+	float					IWeaponZoom.ZoomFactor		{ get { return m_ZoomFactor; } }
 	// INTERFACE END
 
 	protected	abstract		string				OtherInfo { get; }

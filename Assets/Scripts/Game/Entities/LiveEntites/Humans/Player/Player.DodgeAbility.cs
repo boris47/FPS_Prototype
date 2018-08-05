@@ -341,7 +341,15 @@ public partial class Player {
 				CameraControl.Instance.CurrentDirection = alias;
 
 				m_DodgeAbilityTarget.gameObject.SetActive( false );
-				m_DodgeCoroutine = StartCoroutine( Dodge( destination: destination, rotation: m_DodgeAbilityTarget.rotation ) );
+				m_DodgeCoroutine = StartCoroutine (
+					Dodge (
+						destination:		destination,
+						rotation:			m_DodgeAbilityTarget.rotation,
+						falling :			false,
+						dodgeTarget :		null,
+						bInstantly :		false
+					)
+				);
 				m_ChosingDodgeRotation = false;
 			}
 		}
@@ -350,7 +358,7 @@ public partial class Player {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Dodge ( Coroutine )
-	private	IEnumerator	Dodge( Vector3 destination, Quaternion rotation, bool falling = false, DodgeTarget dodgeTarget = null )
+	private	IEnumerator	Dodge( Vector3 destination, Quaternion rotation, bool falling = false, DodgeTarget dodgeTarget = null, bool bInstantly = false )
 	{
 		Vector3		startPosition					= transform.position;
 		Quaternion	startRotation					= transform.rotation;
@@ -379,6 +387,9 @@ public partial class Player {
 				yield return null;
 
 			m_DodgeInterpolant		+= Time.deltaTime;
+
+			if ( bInstantly == true )
+				m_DodgeInterpolant = 1.0f;
 
 			// Flash effect
 			effectFrame.color		= Color.Lerp ( Color.white, Color.clear, m_DodgeInterpolant * 6f );

@@ -11,6 +11,7 @@ namespace CutScene {
 		public	Transform						target				= null;
 		[Range( 0.01f, 1f )]
 		public	float							timeScaleTraget		= 1f;
+		public	bool							zoomEnabled			= false;
 
 		[SerializeField]
 		public	GameEvent						OnWayPointReached	= null;

@@ -57,9 +57,6 @@ public class Brain : MonoBehaviour, IBrain {
 						IFieldOfView				IBrain.FieldOfView				{	get { return m_FieldOfView;				}	}
 						BrainState					IBrain.State					{	get { return m_CurrentBrainState;		}	}
 	// INTERFACE END
-
-
-	private				float						m_ThinkTimer					= 0f;
 	/*
 	private				Behaviour_Normal			m_BehaviourNormal				= null;
 	private				Behaviour_Aggressive		m_BehaviourAggressiveAlarmed	= null;
@@ -165,7 +162,6 @@ public class Brain : MonoBehaviour, IBrain {
 	void	IBrain.OnReset()
 	{
 		m_CurrentBrainState		= BrainState.NORMAL;
-		m_ThinkTimer			= 0f;
 
 		m_FieldOfView.OnReset();
 	}

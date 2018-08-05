@@ -53,9 +53,14 @@ public partial class GameManager : IGameManager_SaveManagement {
 
 
 	private		Coroutine				m_SaveLoadCO	= null;
-	private		bool					m_IsSaving		= false;
 	private		Thread					m_SavingThread	= null;
 
+	private		Rfc2898DeriveBytes		m_PDB			= new Rfc2898DeriveBytes( ENCRIPTION_KEY,
+				new byte[] {
+					0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76
+				} );
+
+	private		Aes						m_Encryptor		= Aes.Create();
 
 	//////////////////////////////////////////////////////////////////////////
 	// Save
@@ -63,7 +68,6 @@ public partial class GameManager : IGameManager_SaveManagement {
 	public		void			Save( string fileName = "SaveFile.txt", bool isAutomaic = false )
 	{
 		// TODO: CHECK FOR AUTOMAIC SAVE
-		m_IsSaving = true;
 
 		if ( m_SaveLoadCO != null )
 		{
@@ -139,22 +143,20 @@ public partial class GameManager : IGameManager_SaveManagement {
 	private string Encrypt( string clearText )
 	{
 		byte[] clearBytes = Encoding.Unicode.GetBytes( clearText );
-		using ( Aes encryptor = Aes.Create() )
+		m_Encryptor.Key = m_PDB.GetBytes( 32 );
+		m_Encryptor.IV = m_PDB.GetBytes( 16 );
+
+		MemoryStream stream = new MemoryStream();
 		{
-			Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes( ENCRIPTION_KEY,
-				new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
-			encryptor.Key = pdb.GetBytes(32);
-			encryptor.IV = pdb.GetBytes(16);
-			using ( MemoryStream ms = new MemoryStream() )
+			CryptoStream crypter = new CryptoStream( stream, m_Encryptor.CreateEncryptor(), CryptoStreamMode.Write );
 			{
-				using ( CryptoStream cs = new CryptoStream( ms, encryptor.CreateEncryptor(), CryptoStreamMode.Write ) )
-				{
-					cs.Write( clearBytes, 0, clearBytes.Length );
-					cs.Close();
-				}
-				clearText = System.Convert.ToBase64String( ms.ToArray() );
+				crypter.Write( clearBytes, 0, clearBytes.Length );
 			}
+			crypter.Close();
+			crypter.Dispose();
+			clearText = System.Convert.ToBase64String( stream.ToArray() );
 		}
+		stream.Dispose();
 		return clearText;
 	}
 
@@ -165,22 +167,20 @@ public partial class GameManager : IGameManager_SaveManagement {
 	{
 		cipherText = cipherText.Replace( " ", "+" );
 		byte[] cipherBytes = System.Convert.FromBase64String( cipherText );
-		using ( Aes encryptor = Aes.Create() )
+		m_Encryptor.Key = m_PDB.GetBytes( 32 );
+		m_Encryptor.IV = m_PDB.GetBytes( 16 );
+
+		MemoryStream stream = new MemoryStream();
 		{
-			Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes( ENCRIPTION_KEY,
-				new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
-			encryptor.Key = pdb.GetBytes(32);
-			encryptor.IV = pdb.GetBytes(16);
-			using ( MemoryStream ms = new MemoryStream() )
+			CryptoStream crypter = new CryptoStream( stream, m_Encryptor.CreateDecryptor(), CryptoStreamMode.Write );
 			{
-				using ( CryptoStream cs = new CryptoStream( ms, encryptor.CreateDecryptor(), CryptoStreamMode.Write ) )
-				{
-					cs.Write( cipherBytes, 0, cipherBytes.Length );
-					cs.Close();
-				}
-				cipherText = Encoding.Unicode.GetString( ms.ToArray() );
+				crypter.Write( cipherBytes, 0, cipherBytes.Length );
 			}
+			crypter.Close();
+			crypter.Dispose();
+			cipherText = Encoding.Unicode.GetString( stream.ToArray() );
 		}
+		stream.Dispose();
 		return cipherText;
 	}
 

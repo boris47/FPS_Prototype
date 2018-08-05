@@ -29,7 +29,7 @@ public interface ICameraSetters {
 	Transform		Target						{ set; }
 }
 
-public partial class CameraControl : MonoBehaviour, ICameraControl, ICameraSetters {
+public class CameraControl : MonoBehaviour, ICameraControl, ICameraSetters {
 
 	private		const		float				WPN_ROTATION_CLAMP_VALUE				= 2f;
 	private		const		float				WPN_FALL_FEEDBACK_CLAMP_VALUE			= 5f;
@@ -278,7 +278,7 @@ public partial class CameraControl : MonoBehaviour, ICameraControl, ICameraSette
 			m_HeadMove.Reset( bInstantly : false );
 		}
 
-		// Used for view smotthness
+		// Used for view smoothness
 		m_SmoothFactor = Mathf.Clamp( m_SmoothFactor, 1.0f, 10.0f );
 
 		// Weapon movements

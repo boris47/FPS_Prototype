@@ -209,7 +209,7 @@ public class Razor : Weapon
 	private					void			OnSecondaryFire()
 	{
 		if ( WeaponManager.Instance.Zoomed == false )
-			WeaponManager.Instance.ZoomIn( this, m_ZoomOffset, m_ZoomingTime );
+			WeaponManager.Instance.ZoomIn();
 		else
 			WeaponManager.Instance.ZoomOut();
 	}

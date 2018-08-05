@@ -25,7 +25,6 @@ public class Blaster : Weapon
 	private		Slider							m_ChargeSlider				= null;
 
 	private		float							m_Charge					= 0f;
-	private		bool							m_IsCharging				= false;
 	private		bool							m_HasCharged				= false;
 
 	private		float							m_BulletMaxDamage			= 0f;
@@ -103,7 +102,6 @@ public class Blaster : Weapon
 
 		// RESET INTERNALS
 		m_Charge					= 0f;
-		m_IsCharging				= false;
 		m_HasCharged				= false;
 		m_ChargeSlider.value		= 0f;
 		m_Renderer.material.SetColor( "_EmissionColor", m_StartEmissiveColor );
@@ -148,7 +146,6 @@ public class Blaster : Weapon
 
 		// RESET INTERNALS
 		m_Charge					= 0f;
-		m_IsCharging				= false;
 		m_HasCharged				= false;
 		m_ChargeSlider.value		= 0f;
 		m_Renderer.material.SetColor( "_EmissionColor", m_StartEmissiveColor );
@@ -208,7 +205,6 @@ public class Blaster : Weapon
 		{
 			if ( m_HasCharged == false )
 			{
-				m_IsCharging = true;
 				m_Charge += Time.deltaTime * m_ChargeSpeed;
 				if ( m_Charge > 1f )
 				{
@@ -241,7 +237,6 @@ public class Blaster : Weapon
 			m_Renderer.material.SetColor( "_EmissionColor", m_StartEmissiveColor );
 			m_ChargeSlider.value = 0f;
 			m_Charge		= 0f;
-			m_IsCharging	= false;
 			m_HasCharged	= false;
 		}
 
@@ -278,7 +273,7 @@ public class Blaster : Weapon
 	private					void			ToggleZoom()
 	{
 		if ( WeaponManager.Instance.Zoomed == false )
-			WeaponManager.Instance.ZoomIn( this, m_ZoomOffset, m_ZoomingTime );
+			WeaponManager.Instance.ZoomIn();
 		else
 			WeaponManager.Instance.ZoomOut();
 	}

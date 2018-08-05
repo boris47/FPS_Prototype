@@ -36,6 +36,8 @@ namespace CutScene {
 			m_EntitySimulation = m_EntityRef as IEntitySimulation;
 			( m_EntityRef as IEntity).CutsceneManager = this;
 			IsOK = true;
+
+			this.enabled						= false;
 		}
 
 
@@ -43,6 +45,8 @@ namespace CutScene {
 		// Setup
 		public	void	Play( PointsCollectionOnline pointsCollection )
 		{
+			this.enabled						= true;
+
 			m_PointsCollection				= pointsCollection;
 			InternalPlay();
 		}
@@ -71,12 +75,27 @@ namespace CutScene {
 			m_MovementType				= data.movementType;
 			m_TimeScaleTarget			= data.timeScaleTraget;
 
+			// On start event called
 			if ( m_PointsCollection.OnStart != null && m_PointsCollection.OnStart.GetPersistentEventCount() > 0 )
 			{
 				m_PointsCollection.OnStart.Invoke();
 			}
 
+			// emit for movement silìmulation
 			m_EntitySimulation.SimulateMovement( m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
+
+			// Zoom is controlled by waypoint setting
+			if ( WeaponManager.Instance.CurrentWeapon.WeaponState == WeaponState.DRAWED )
+			{
+				if ( data.zoomEnabled == true )
+				{
+					if ( WeaponManager.Instance.Zoomed == false ) WeaponManager.Instance.ZoomIn();
+				}
+				else
+				{
+					if ( WeaponManager.Instance.Zoomed == true ) WeaponManager.Instance.ZoomOut();
+				}
+			}
 		}
 
 
@@ -117,10 +136,10 @@ namespace CutScene {
 
 			// Update to next simulation targets
 			CutsceneWaypointData data	= m_PointsCollection[ m_CurrentIdx ];
-			m_Destination				= data.point.position;
-			m_Target					= data.target != null ? data.target : m_Target;
-			m_MovementType				= data.movementType;
-			m_TimeScaleTarget			= data.timeScaleTraget;
+			m_Destination				= data.point.position;							// destination to reach
+			m_Target					= data.target != null ? data.target : m_Target;	// target to look at
+			m_MovementType				= data.movementType;							// movement type
+			m_TimeScaleTarget			= data.timeScaleTraget;							// time scale for this trip
 		}
 
 
@@ -128,8 +147,13 @@ namespace CutScene {
 		// Termiante
 		public	void	Termiante()
 		{
+			// Reset some internal variables
 			CameraControl.Instance.OnCutsceneEnd();
+
+			// Called on entity in order to reset vars or evething else
 			m_EntitySimulation.ExitSimulationState();
+
+			// Resetting internals
 			m_EntitySimulation.StartPosition	= Vector3.zero;
 			IsPlaying							= false;
 			m_CurrentIdx						= 0;
@@ -138,6 +162,8 @@ namespace CutScene {
 			m_Target							= null;
 			m_TimeScaleTarget					= 1f;
 			m_PointsCollection					= null;
+
+			// to save performance disable this script
 			this.enabled						= false;
 		}
 	
