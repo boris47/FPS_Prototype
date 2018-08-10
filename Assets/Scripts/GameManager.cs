@@ -108,6 +108,11 @@ public partial class GameManager : MonoBehaviour {
 	}
 
 
+	public	static	void	SetTimeScale( float value )
+	{
+		SoundManager.Instance.Pitch = Time.timeScale = value;
+	}
+
 	//////////////////////////////////////////////////////////////////////////
 	// OnLevelWasLoaded
 	private void OnLevelWasLoaded( int level )
@@ -178,6 +183,9 @@ public partial class GameManager : MonoBehaviour {
 		if ( m_InGame == false )
 			return;
 
+		// Update inputs
+		InputMgr.Update();
+
 		m_ThinkTimer += Time.deltaTime;
 		if ( m_ThinkTimer > Brain.THINK_TIMER )
 		{
@@ -203,9 +211,6 @@ public partial class GameManager : MonoBehaviour {
 		{
 			Load();
 		}
-
-		// Update inputs
-		InputMgr.Update();
 
 		// APPLICATION QUIT REQUEST
 		if ( Input.GetKeyDown( KeyCode.Escape ) )

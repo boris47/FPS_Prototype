@@ -60,19 +60,21 @@ public partial class Player : Human {
 
 		base.Awake();
 
+		m_PlayerNearAreaTrigger	= transform.Find( "PNAT" ).GetComponent<Collider>(); // Player Near Area Trigger
+		m_PlayerFarAreaTrigger	= transform.Find( "PFAT" ).GetComponent<Collider>(); // Player Far  Area Trigger
+
 		// Player Components
 		{
 			// Foots
-			m_Foots				= transform.Find( "FootSpace" ).GetComponent<IFoots>();
+			Transform foots		= transform.Find( "FootSpace" );
+			m_Foots				= foots.GetComponent<IFoots>();
+			DisableCollisionsWith( foots.GetComponent<Collider>() );
 
 			m_DodgeAbilityTarget = transform.Find( "DodgeAbilityTarget" );
 			m_DodgeAbilityTarget.localScale = new Vector3( 0.5f, m_PhysicCollider.height, 0.5f );
 			m_DodgeAbilityTarget.SetParent( null );
 			m_DodgeAbilityTarget.gameObject.SetActive( false );
 		}
-
-		m_PlayerNearAreaTrigger	= transform.Find( "PNAT" ).GetComponent<Collider>(); // Player Near Area Trigger
-		m_PlayerFarAreaTrigger	= transform.Find( "PFAT" ).GetComponent<Collider>(); // Player Far  Area Trigger
 
 		// Player Data
 		{
@@ -132,7 +134,10 @@ public partial class Player : Human {
 		m_GrabPoint.transform.localPosition = Vector3.zero;
 		m_GrabPoint.transform.localRotation = Quaternion.identity;
 		m_GrabPoint.transform.Translate( 0f, 0f, m_UseDistance );
+
 		IsGrounded = true;
+
+		m_RigidBody.useGravity = false;
 	}
 
 
@@ -203,8 +208,9 @@ public partial class Player : Human {
 		}
 		m_RigidBody.constraints						= RigidbodyConstraints.FreezeRotation;
 		m_RigidBody.velocity						= Vector3.zero;
-		SoundManager.Instance.Pitch					= 1f;
-		Time.timeScale								= 1f;
+
+		GameManager.SetTimeScale( 1.0f );
+
 		m_DodgeRaycastNormal						= Vector3.zero;
 		m_DodgeAbilityTarget.gameObject.SetActive( false );
 		m_ChosingDodgeRotation						= false;
@@ -221,7 +227,7 @@ public partial class Player : Human {
 
 		DropEntityDragged();
 
-		m_MoveSmooth = m_StrafeSmooth = 0f;
+		m_ForwardSmooth = m_RightSmooth = 0f;
 
 		// Health
 		m_Health			= streamingUnit.GetAsFloat( "Health" );
@@ -235,6 +241,8 @@ public partial class Player : Human {
 		// Motion Type
 		MotionType			= streamingUnit.GetAsEnum<eMotionType>( "MotionType");
 		SetMotionType( MotionType );
+
+		m_RigidBody.useGravity = false;
 
 		return streamingUnit;
 	}
@@ -321,7 +329,7 @@ public partial class Player : Human {
 		// Forced by ovverride
 		if ( m_MovementOverrideEnabled )
 		{
-			m_Move *= GroundSpeedModifier * Time.timeScale;
+			// Controlled in Player.Motion_Walk::SimulateMovement
 			m_RigidBody.velocity = m_Move;
 			return;
 		}
@@ -329,15 +337,22 @@ public partial class Player : Human {
 		// User inputs
 		if ( IsGrounded )
 		{
-			Vector3 forward = Vector3.Cross( CameraControl.Instance.Transform.right, transform.up );
-			m_Move = ( m_MoveSmooth * forward ) + ( m_StrafeSmooth * CameraControl.Instance.Transform.right );
+			// Controlled in Player.Motion_Walk::Update_Walk
+			Vector3 forward	= Vector3.Cross( CameraControl.Instance.Transform.right, transform.up );
+			Vector3 right	= CameraControl.Instance.Transform.right;
+			Vector3 up		= transform.up;
+			m_Move = (
+				// float			  Vector
+				( m_ForwardSmooth	* forward	) + 
+				( m_RightSmooth		* right		) +
+				( m_UpSmooth		* up		)
+			) *	GroundSpeedModifier;
 
-			m_Move *= GroundSpeedModifier;
 			m_RigidBody.velocity = m_Move;
 		}
 		else
 		{
-			// add gravity force
+			// add RELATIVE gravity force
 			m_RigidBody.AddForce( transform.up * Physics.gravity.y, ForceMode.Acceleration );
 		}
 	}
@@ -438,6 +453,8 @@ public partial class Player : Human {
 		if ( m_IsActive == false )
 			return;
 
+		m_Foots.OnFrame();
+
 		// Reset "local" states
 		m_States.Reset();
 
@@ -460,7 +477,7 @@ public partial class Player : Human {
 #region		INTERACTIONS
 		{
 			Vector3 startLine = CameraControl.Instance.Transform.position;
-			Vector3 endLine = CameraControl.Instance.Transform.position + CameraControl.Instance.Transform.forward * MAX_INTERACTION_DISTANCE;
+			Vector3 endLine   = CameraControl.Instance.Transform.position + CameraControl.Instance.Transform.forward * MAX_INTERACTION_DISTANCE;
 
 			bool lineCastResult = Physics.Raycast( startLine, endLine - startLine, out m_RaycastHit, MAX_INTERACTION_DISTANCE, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore );
 

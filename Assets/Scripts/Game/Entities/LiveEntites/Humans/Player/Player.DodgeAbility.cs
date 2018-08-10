@@ -5,6 +5,8 @@ using System.Collections;
 public partial class Player {
 
 	private	const	float	DASH_SPEED_FACTOR		= 0.5f;
+	private	const	float	SELECTION_TIME_SCALE	= 0.008f;
+
 	// DODGING
 
 	[Header("Dodge Properties")]
@@ -30,6 +32,7 @@ public partial class Player {
 	{
 		get { return m_ChosingDodgeRotation; }
 	}
+
 //	private		DodgeTarget			m_CurrentDodgeTarget			= null;
 //	private		DodgeTarget			m_PreviousDodgeTarget			= null;
 
@@ -152,14 +155,59 @@ public partial class Player {
 	
 	//////////////////////////////////////////////////////////////////////////
 	// CheckForDash
-	private	void	CheckForDodge( bool hasHit )
+	private	void	CheckForDodge( bool hasInteractiveRayCastHit )
 	{
 		// forbidden if currently grabbing an object
 		if ( m_GrabbedObject != null )
 			return;
 
 		// Auto fall or user input
-		if ( ( m_IsDodging == false && transform.up != Vector3.up ) && ( InputManager.Inputs.Jump || IsGrounded == false ) && m_DodgeCoroutine == null )
+//		if ( this.CheckForFallOrUserBreck() == false )
+		{
+//			return;
+		}
+
+		// hitting somewhere else
+		if ( hasInteractiveRayCastHit == true )
+		{
+			// When user just press dodge ability button
+			if ( InputManager.Inputs.Ability1 )					// GetKeyDown Q one frame
+			{
+				OnDodgeAbilityEnable();
+			}
+
+			// When user keep pressed dodge ability button
+			if ( InputManager.Inputs.Ability1Loop )				// GetKey Q more frames
+			{
+				OnDodgeAbilitySelection();
+			}
+
+			// When user just release dodge ability button
+			if ( InputManager.Inputs.Ability1Released )			// GetKeyUp Q one frame
+			{
+				OnDodgeAbilityAction();
+			}
+		}
+		// if actually has no hit so reset dodge target
+		else
+		{
+			if ( m_DodgeAbilityTarget.gameObject.activeSelf == true )
+			{
+				m_DodgeAbilityTarget.gameObject.SetActive( false );
+				m_DodgeRaycastNormal = Vector3.zero;
+				GameManager.SetTimeScale( 1.0f );
+			}
+			m_ChosingDodgeRotation = false;
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// CheckForFallOrUserBreck
+	private	bool	CheckForFallOrUserBreck()
+	{
+		bool condition = ( m_IsDodging == false && transform.up != Vector3.up && m_DodgeCoroutine == null ) && ( InputManager.Inputs.Jump || IsGrounded == false );
+		if ( condition )
 		{
 			RaycastHit hit;
 			Physics.Raycast( transform.position, Vector3.down, out hit );
@@ -170,188 +218,111 @@ public partial class Player {
 			Vector3 alignedForward = Vector3.Cross( transform.right, Vector3.up );
 			Quaternion finalRotation = Quaternion.LookRotation( alignedForward, Vector3.up );
 			m_DodgeCoroutine = StartCoroutine( Dodge( destination: hit.point, rotation: finalRotation, falling: true ) );
-			return;
 		}
+		return condition;
+	}
 
-		// if actually has no hit
-		if ( hasHit == false )
-		{
-/*			// if required reset last target
-			if ( m_CurrentDodgeTarget != null )
-			{
-				m_CurrentDodgeTarget.HideText();
-				m_CurrentDodgeTarget = null;
-			}
-*/
-			if ( m_DodgeAbilityTarget.gameObject.activeSelf == true )
-			{
-				m_DodgeAbilityTarget.gameObject.SetActive( false );
-				m_DodgeRaycastNormal = Vector3.zero;
-				SoundManager.Instance.Pitch = Time.timeScale = 1f;
-			}
-			m_ChosingDodgeRotation = false;
-			return;
-		}
-		/*
-		// Checking for dodge target
-		DodgeTarget currentDodgeTarget = null;
-		if ( hasHit == true )
-		{
-			currentDodgeTarget = m_RaycastHit.transform.GetComponent<DodgeTarget>();
 
-			// Hitting something that is not a dodge target but previously it was
-			if ( currentDodgeTarget == null && m_CurrentDodgeTarget != null )
+	//////////////////////////////////////////////////////////////////////////
+	// OnDodgeAbilityEnable
+	private	void	OnDodgeAbilityEnable()
+	{
+		float angle = Vector3.Angle( m_RaycastHit.normal, transform.up );
+		bool validAngle = angle >= 89f && angle < 179f;
+
+		if ( validAngle == true && m_ChosingDodgeRotation == false )
+		{
+			// return if 
+			if ( m_DodgeRaycastNormal != Vector3.zero && m_DodgeRaycastNormal == m_RaycastHit.normal )
 			{
-				m_CurrentDodgeTarget.HideText();
-				m_CurrentDodgeTarget = null;
-				m_ChosingDodgeRotation = false;
-				SoundEffectManager.Instance.Pitch = Time.timeScale = 1f;
 				return;
 			}
+
+			// Enable dodge target object and scale time
+			m_DodgeAbilityTarget.gameObject.SetActive( true );
+			m_DodgeAbilityTarget.position	= m_RaycastHit.point;
+			m_DodgeAbilityTarget.up			= m_RaycastHit.normal;
+			m_DodgeRaycastNormal			= m_RaycastHit.normal;
+			GameManager.SetTimeScale( SELECTION_TIME_SCALE );
 		}
+	}
 
-		// this is ad odge target and is different from previous value
-		if ( currentDodgeTarget != m_CurrentDodgeTarget )
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnDodgeAbilitySelection
+	private	void	OnDodgeAbilitySelection()
+	{
+		if ( m_DodgeAbilityTarget.gameObject.activeSelf == true )
 		{
-			// First target
-			if ( currentDodgeTarget != null && m_CurrentDodgeTarget == null )
+			// "Abort" because pointing to a point with different normals
+			if ( m_DodgeRaycastNormal != m_RaycastHit.normal )
 			{
-				m_CurrentDodgeTarget = currentDodgeTarget;
-				m_CurrentDodgeTarget.ShowText();
-			}
-			// New hit
-			if ( currentDodgeTarget != null && m_CurrentDodgeTarget != null && currentDodgeTarget != m_CurrentDodgeTarget )
-			{
-				m_CurrentDodgeTarget.HideText();
-				currentDodgeTarget.ShowText();
-				m_CurrentDodgeTarget = currentDodgeTarget;
-			}
-			// No hit, reset previous
-			if ( currentDodgeTarget == null && m_CurrentDodgeTarget != null )
-			{
-				m_CurrentDodgeTarget.HideText();
-				m_CurrentDodgeTarget = null;
-			}
-		}
-
-
-		/////////////////////////////////////////////////////
-		//////////////  DODGE TARGET POINTED ////////////////
-		/////////////////////////////////////////////////////
-
-		if ( m_CurrentDodgeTarget != null )
-		{
-			if ( InputManager.Inputs.Ability1 && m_ChosingDodgeRotation == false && m_CurrentDodgeTarget != null )		// GetKey Q
-			{
-				m_DodgeAbilityTarget.gameObject.SetActive( true );
-				m_DodgeAbilityTarget.position = m_CurrentDodgeTarget.transform.position;
-				m_DodgeAbilityTarget.rotation = m_CurrentDodgeTarget.transform.rotation;
-				SoundEffectManager.Instance.Pitch = Time.timeScale = 0.001f;
-			}
-			if ( InputManager.Inputs.Ability1Loop && m_DodgeAbilityTarget.gameObject.activeSelf == true )				// GetKeyDown Q
-			{
-				m_ChosingDodgeRotation = true;
-			}
-
-			if ( InputManager.Inputs.Ability1Released && m_ChosingDodgeRotation == true )								// GetKeyUp Q
-			{
-				if ( m_RotorDashCoroutine != null )
-					StopCoroutine( m_RotorDashCoroutine );
-
-				SoundEffectManager.Instance.Pitch = Time.timeScale = 1f;
-				Vector3 destination = m_CurrentDodgeTarget.transform.position;
-				
-				transform.Rotate( Vector3.up, CameraControl.Instance.m_CurrentDirection.y, Space.Self );
-				CameraControl.Instance.m_CurrentDirection.y = 0f;
-
-				if ( m_PreviousDodgeTarget != null && m_PreviousDodgeTarget != m_CurrentDodgeTarget )
-				{
-					m_PreviousDodgeTarget.OnReset();
-				}
-				m_PreviousDodgeTarget = m_CurrentDodgeTarget;
-
-				m_CurrentDodgeTarget.Disable();
-				m_CurrentDodgeTarget.HideText();
-
-				m_DodgeAbilityTarget.gameObject.SetActive( false );
-				m_RotorDashCoroutine = StartCoroutine
-				(
-					Dodge
-					(
-						destination: destination,
-						rotation: m_CurrentDodgeTarget.transform.rotation,
-						falling: false,
-						dodgeTarget: m_CurrentDodgeTarget
-					)
-				);
 				m_ChosingDodgeRotation = false;
 			}
-		}
-		*/
-
-		/////////////////////////////////////////////////////
-		///////////// NO DODGE TARGET POINTED ///////////////
-		/////////////////////////////////////////////////////
-
-		// hitting somewhere else
-//		if ( m_CurrentDodgeTarget == null )
-		{
-			float angle = Vector3.Angle( m_RaycastHit.normal, transform.up );
-			bool validAngle = angle >= 89f && angle < 179f;
-			if ( InputManager.Inputs.Ability1 && validAngle == true && m_ChosingDodgeRotation == false )        // GetKeyDown Q one frame
+			// pointing on the same surface
+			else
 			{
-				if ( m_DodgeRaycastNormal != Vector3.zero && m_DodgeRaycastNormal == m_RaycastHit.normal )
-				{
-					return;
-				}
-
-				m_DodgeAbilityTarget.gameObject.SetActive( true );
-				m_DodgeAbilityTarget.position = m_RaycastHit.point;
-				m_DodgeAbilityTarget.up = m_RaycastHit.normal;
-				m_DodgeRaycastNormal = m_RaycastHit.normal;
-				SoundManager.Instance.Pitch = Time.timeScale = 0.008f;
-			}
-
-			if ( InputManager.Inputs.Ability1Loop && m_DodgeAbilityTarget.gameObject.activeSelf == true )		// GetKey Q more frames
-			{
-				if ( m_DodgeRaycastNormal != m_RaycastHit.normal )
-				{
-					m_ChosingDodgeRotation = false;
-					return;
-				}
-
 				m_ChosingDodgeRotation = true;
+
+				// finding the point in the space where target must look at
+				// Pojecting the hit point on same hitted surface plane at the height of dodge ability target
 				Vector3 pointToFace = Utils.Math.ProjectPointOnPlane( m_RaycastHit.normal, m_DodgeAbilityTarget.position, m_RaycastHit.point );
+
+				// if found point is different from the current dodge target position
 				if ( pointToFace != m_DodgeAbilityTarget.position )
+				{
+					// Force dodge ability target to look at found point
 					m_DodgeAbilityTarget.rotation = Quaternion.LookRotation( ( pointToFace - m_DodgeAbilityTarget.position ), m_RaycastHit.normal );
+				}
+			}
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnDodgeAbilityAction
+	private	void	OnDodgeAbilityAction()
+	{
+		if ( m_ChosingDodgeRotation == true )
+		{
+			if ( m_DodgeCoroutine != null )
+			{
+				StopCoroutine( m_DodgeCoroutine );
 			}
 
-			if ( InputManager.Inputs.Ability1Released && m_ChosingDodgeRotation == true )						// GetKeyUp Q one frame
-			{
-				if ( m_DodgeCoroutine != null )
-						StopCoroutine( m_DodgeCoroutine );
+			// restore internals
+			m_DodgeRaycastNormal = Vector3.zero;
+			m_ChosingDodgeRotation = false;
 
-				m_DodgeRaycastNormal = Vector3.zero;
-				SoundManager.Instance.Pitch = Time.timeScale = 1f;
-				Vector3 destination = m_DodgeAbilityTarget.position + m_DodgeAbilityTarget.up;
+			// restore time scale
+			GameManager.SetTimeScale( 1.0f );
+
+			// destination is on dodge target position
+			Vector3 destination = m_DodgeAbilityTarget.position + m_DodgeAbilityTarget.up;
 				
-				transform.Rotate( Vector3.up, CameraControl.Instance.CurrentDirection.y, Space.Self );
+			// Allign actor body to camera vertical axis
+			transform.Rotate( Vector3.up, CameraControl.Instance.CurrentDirection.y, Space.Self );
+
+			// remove value of current rotation on veritcal axis of camera
+			{
 				Vector3 alias = CameraControl.Instance.CurrentDirection;
 				alias.y = 0f;
 				CameraControl.Instance.CurrentDirection = alias;
-
-				m_DodgeAbilityTarget.gameObject.SetActive( false );
-				m_DodgeCoroutine = StartCoroutine (
-					Dodge (
-						destination:		destination,
-						rotation:			m_DodgeAbilityTarget.rotation,
-						falling :			false,
-						dodgeTarget :		null,
-						bInstantly :		false
-					)
-				);
-				m_ChosingDodgeRotation = false;
 			}
+
+			// hide dodge ability target object
+			m_DodgeAbilityTarget.gameObject.SetActive( false );
+
+			// finally start dodge coroutine
+			m_DodgeCoroutine = StartCoroutine (
+				Dodge (
+					destination:		destination,
+					rotation:			m_DodgeAbilityTarget.rotation,
+					falling :			false,
+					dodgeTarget :		null,
+					bInstantly :		false
+				)
+			);
 		}
 	}
 

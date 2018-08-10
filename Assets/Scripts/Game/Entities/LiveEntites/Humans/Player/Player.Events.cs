@@ -47,7 +47,8 @@ public partial class Player {
 
 		// disable weapon actions
 		WeaponManager.Instance.CurrentWeapon.Enabled = false;
-		WeaponManager.Instance.enabled = false;
+		WeaponManager.Instance.Enabled = false;
+		
 		
 		// Disable camera updates
 		CameraControl.Instance.Enabled = false;

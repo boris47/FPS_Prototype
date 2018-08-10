@@ -241,8 +241,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 			return;
 
 		// Only every 10 frames
-		if ( Time.frameCount % 5 == 0 )
-			return;
+//		if ( Time.frameCount % 5 == 0 )
+//			return;
 
 		this.OnFrame( Time.deltaTime );
 	}

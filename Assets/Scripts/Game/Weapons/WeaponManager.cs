@@ -1,31 +1,46 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-[System.Serializable]
-public class WeaponManager : MonoBehaviour {
-	
-	
-	public static	WeaponManager	Instance						= null;
-	public WeaponManager	m_Instance
-	{
-		get { return Instance; }
-	}
+public interface IWeaponManager {
 
-	private		bool				m_ZoomedIn						= false;
-	public		bool				Zoomed							{ get { return m_ZoomedIn; } }
-	public		IWeapon				CurrentWeapon					{ get; set; }
-	public		int					CurrentWeaponIndex				{ get; set; }
+	GameObject			GameObject						{ get; }
+	bool				Enabled							{ get; set; }
+
+	bool				Zoomed							{ get; }
+	IWeapon				CurrentWeapon					{ get; set; }
+	int					CurrentWeaponIndex				{ get; set; }
+	bool				IsChangingWeapon				{ get; }
+
+	void				ZoomIn							();
+	void				ZoomOut							();
+	void				ChangeWeaponRequest				( int wpnIdx );
+
+}
+
+[System.Serializable]
+public class WeaponManager : MonoBehaviour, IWeaponManager {
+	
+	public static	IWeaponManager	Instance						= null;
+
+	// INTERFACE START
+	public			GameObject		GameObject						{ get { return gameObject; } }
+	public			bool			Enabled							{ get { return enabled; } set { enabled = value; } }
+
+	public			bool			Zoomed							{ get { return m_ZoomedIn; } }
+	public			IWeapon			CurrentWeapon					{ get; set; }
+	public			int				CurrentWeaponIndex				{ get; set; }
+	public			bool			IsChangingWeapon				{ get { return m_ChangingWpnCO != null; } }
+	// INTERFACE END
 
 	// ZOOMING
+	private		bool				m_ZoomedIn						= false;
 	private		Vector3				m_StartOffset					= Vector3.zero;
 	private		Vector3				m_FinalOffset					= Vector3.zero;
 	private		float				m_ZoomingTime					= 0f;
 	private		float				m_StartCameraFOV				= 0f;
 
 	// CHANGING WEAPON
-	private		int					m_WeaponsCount					= 0;
 	private		Coroutine			m_ChangingWpnCO					= null;
-	public		bool				IsChangingWeapon				{ get { return m_ChangingWpnCO != null; } }
 
 
 
@@ -40,7 +55,7 @@ public class WeaponManager : MonoBehaviour {
 			gameObject.SetActive( false );
 			return;
 		}
-		Instance = this;
+		Instance = this as IWeaponManager;
 		DontDestroyOnLoad( this );
 
 		GameManager.Instance.OnSave += OnSave;
@@ -52,24 +67,7 @@ public class WeaponManager : MonoBehaviour {
 	// Start
 	private				void	Start()
 	{
-		/*
-		f*or ( int i = 0; i < CameraControl.Instance.WeaponPivot.childCount; i++ )
-		{
-			Transform weapon = CameraControl.Instance.WeaponPivot.GetChild( i );
-			if ( weapon.gameObject.activeSelf == true )
-			{
-				m_WeaponsCount ++;
-			}
-
-			if ( i == CurrentWeaponIndex )
-				continue;
-
-			weapon.gameObject.SetActive( false );
-		}
-		*/
-
-		m_WeaponsCount = Weapon.Array.Length;
-		System.Array.ForEach( Weapon.Array, ( IWeapon w ) => {  w.Enabled = false; w.Transform.gameObject.SetActive( false ); } );
+		Weapon.DisableAll();
 
 		// Set current weapon
 		CurrentWeapon = Weapon.Array[ CurrentWeaponIndex ];
@@ -116,8 +114,9 @@ public class WeaponManager : MonoBehaviour {
 
 		// Current Weapon
 		{
+			Weapon.DisableAll();
+
 			CurrentWeaponIndex			= streamingUnit.GetAsInt("CurrentWeaponIndex" );
-			System.Array.ForEach( Weapon.Array, ( IWeapon w ) => {  w.Enabled = false; w.Transform.gameObject.SetActive( false ); } );
 			CurrentWeapon				= Weapon.Array[ CurrentWeaponIndex ];
 			CurrentWeapon.Transform.gameObject.SetActive( true );
 			CurrentWeapon.Enabled		= true;
@@ -228,8 +227,10 @@ public class WeaponManager : MonoBehaviour {
 			return;
 		}
 
+		int weaponsCount = Weapon.Array.Length;
+
 		// For a valid index
-		if ( index > -1 && index < m_WeaponsCount && Weapon.Array[index] != null )
+		if ( index > -1 && index < weaponsCount && Weapon.Array[index] != null )
 		{
 			// Start weapon change
 			m_ChangingWpnCO = StartCoroutine( ChangeWeaponCO( index ) );
@@ -237,40 +238,33 @@ public class WeaponManager : MonoBehaviour {
 		}
 
 		// if a versus is definded, find out next weapon index
-		int lastWeapIdx = m_WeaponsCount - 1;
-		int tempIdx = CurrentWeaponIndex + versus;
+		int lastWeapIdx = weaponsCount - 1;
+		int newWeaponIdx = CurrentWeaponIndex + versus;
 
-		if ( tempIdx == -1 )
-		{
-			tempIdx = lastWeapIdx;
-		}
+		if ( newWeaponIdx == -1 )			newWeaponIdx = lastWeapIdx;
+		if ( newWeaponIdx >  lastWeapIdx )	newWeaponIdx = 0;
 
-		if ( tempIdx > lastWeapIdx )
-		{
-			tempIdx = 0;
-		}
-
-		// in case there is only a weapon avaible
-		if ( tempIdx == CurrentWeaponIndex )
+		// in case there is only a weapon available
+		if ( newWeaponIdx == CurrentWeaponIndex )
 			return;
 
 		// Start weapon change
-		m_ChangingWpnCO = StartCoroutine( ChangeWeaponCO( tempIdx ) );
+		m_ChangingWpnCO = StartCoroutine( ChangeWeaponCO( newWeaponIdx ) );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// ChangeWeaponCO ( Coroutine )
-	private				IEnumerator	ChangeWeaponCO( int wpnIndex )
+	private				IEnumerator	ChangeWeaponCO( int newWeaponIdx )
 	{
 		// Exit from zoom
 		if ( m_ZoomedIn == true )
 		{
-			StartCoroutine( ZoomOutCO() );
+			yield return StartCoroutine( ZoomOutCO() );
 		}
 		
 		IWeapon currentWeapon	= Weapon.Array[ CurrentWeaponIndex ];
-		IWeapon nextWeapon		= Weapon.Array[ wpnIndex ];
+		IWeapon nextWeapon		= Weapon.Array[ newWeaponIdx ];
 
 		// last event before changing
 		currentWeapon.OnWeaponChange();		//  Weapon properties reset ( enable = false )
@@ -282,7 +276,7 @@ public class WeaponManager : MonoBehaviour {
 			float stashTime			= CurrentWeapon.Stash();
 
 			// wait for stash animation to terminate
-			yield return new WaitForSeconds( stashTime * 0.7f );
+			yield return new WaitForSeconds( stashTime );
 		}
 
 		// switch active object
@@ -290,7 +284,7 @@ public class WeaponManager : MonoBehaviour {
 		nextWeapon.Transform.gameObject.SetActive( true );
 
 		// set current weapon index and ref
-		CurrentWeaponIndex		= wpnIndex;
+		CurrentWeaponIndex		= newWeaponIdx;
 		CurrentWeapon			= nextWeapon;
 
 		// Play draw animation and get animation time

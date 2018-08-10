@@ -39,7 +39,7 @@ public class UI_MainMenu : MonoBehaviour {
 			Destroy( CameraControl.Instance.Transform.gameObject );
 
 		if ( WeaponManager.Instance != null )
-			Destroy( WeaponManager.Instance.gameObject );
+			Destroy( WeaponManager.Instance.GameObject );
 
 		if ( EffectManager.Instance != null )
 			Destroy( EffectManager.Instance.gameObject );

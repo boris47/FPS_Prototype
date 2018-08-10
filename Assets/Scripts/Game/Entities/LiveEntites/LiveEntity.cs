@@ -68,11 +68,11 @@ public abstract partial class LiveEntity : Entity {
 
 	// Var used for smooth movements of entity
 	[System.NonSerialized]
-	protected	float				m_MoveSmooth				= 0f;
+	protected	float				m_ForwardSmooth				= 0f;
 	[System.NonSerialized]
-	protected	float				m_StrafeSmooth				= 0f;
+	protected	float				m_RightSmooth				= 0f;
 	[System.NonSerialized]
-	protected	float				m_VerticalSmooth			= 0f;
+	protected	float				m_UpSmooth			= 0f;
 	[System.NonSerialized]
 	protected	bool				m_IsUnderSomething			= false;
 	[System.NonSerialized]

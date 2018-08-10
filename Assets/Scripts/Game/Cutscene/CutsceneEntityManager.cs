@@ -111,7 +111,7 @@ namespace CutScene {
 
 			// Continue simulation until need updates
 			bool result = m_EntitySimulation.SimulateMovement( m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
-			if ( result == true ) // if true is currently simulating
+			if ( result == true ) // if true is currently simulating and here we have to wait simulation to be completed
 				return;
 
 			// call callback when each waypoint is reached
@@ -125,21 +125,22 @@ namespace CutScene {
 			m_CurrentIdx ++;
 
 			// End of simulation
-			if ( m_CurrentIdx == m_PointsCollection.Count )
+			if ( m_CurrentIdx != m_PointsCollection.Count )
+			{
+				// Update store start position for distance check
+				m_EntitySimulation.StartPosition = m_EntityRef.transform.position;
+
+				// Update to next simulation targets
+				CutsceneWaypointData data	= m_PointsCollection[ m_CurrentIdx ];
+				m_Destination				= data.point.position;							// destination to reach
+				m_Target					= data.target != null ? data.target : m_Target;	// target to look at
+				m_MovementType				= data.movementType;							// movement type
+				m_TimeScaleTarget			= data.timeScaleTraget;                         // time scale for this trip
+			}
+			else
 			{
 				Termiante();
-				return;
 			}
-
-			// Update store start position for distance check
-			m_EntitySimulation.StartPosition = m_EntityRef.transform.position;
-
-			// Update to next simulation targets
-			CutsceneWaypointData data	= m_PointsCollection[ m_CurrentIdx ];
-			m_Destination				= data.point.position;							// destination to reach
-			m_Target					= data.target != null ? data.target : m_Target;	// target to look at
-			m_MovementType				= data.movementType;							// movement type
-			m_TimeScaleTarget			= data.timeScaleTraget;							// time scale for this trip
 		}
 
 

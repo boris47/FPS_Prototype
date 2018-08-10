@@ -91,6 +91,7 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	protected		bool							m_IsFiring					= false;
 	protected		IFlashLight						m_FlashLight				= null;
 
+	protected	abstract		string				OtherInfo { get; }
 
 	// INTERFACE START
 	Transform				IWeapon.Transform			{ get { return transform; } }
@@ -112,9 +113,6 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	float					IWeaponZoom.ZommSensitivity	{ get { return m_ZommSensitivity; } }
 	float					IWeaponZoom.ZoomFactor		{ get { return m_ZoomFactor; } }
 	// INTERFACE END
-
-	protected	abstract		string				OtherInfo { get; }
-	
 	
 	protected		Animator						m_Animator					= null;
 	public			Animator						Animator
@@ -139,6 +137,12 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	protected		Vector3							m_DispersionVector			= new Vector3 ();
 	
 	protected	delegate	void	FireFunction();
+
+
+	public static void	DisableAll()
+	{
+		System.Array.ForEach( Array, ( IWeapon w ) => {  w.Enabled = false; w.Transform.gameObject.SetActive( false ); } );
+	}
 
 
 

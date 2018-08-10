@@ -1,8 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public interface IFoots {
+	
+	void			OnFrame();
 
 	void			PlayStep();
 
@@ -21,6 +24,8 @@ public class Foots : MonoBehaviour, IFoots {
 	private		Collider			m_CurrentCollider	= null;
 	private		RaycastHit			m_RaycastHit		= default( RaycastHit );
 	private		ICustomAudioSource	m_AudioSource		= null;
+	private		MeshCollider		m_Collider			= null;
+	private		bool				m_IsColliding		= false;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -30,6 +35,7 @@ public class Foots : MonoBehaviour, IFoots {
 		m_LiveEntity	= transform.parent.GetComponent<LiveEntity>();
 		m_Entity		= m_LiveEntity as IEntity;
 		m_AudioSource	= transform.GetComponent<ICustomAudioSource>();
+		m_Collider		= GetComponent<MeshCollider>();
 	}
 
 
@@ -48,19 +54,19 @@ public class Foots : MonoBehaviour, IFoots {
 		m_AudioSource.Play();
 	}
 
+
 	//////////////////////////////////////////////////////////////////////////
-	// Update
-	private	void	Update()
+	// OnFrame
+	public	void	OnFrame()
 	{
-		// Check only if falling or moving
-//		if ( m_LiveEntity.IsFalling == false || m_LiveEntity.IsMoving == false )
-//			return;
+		const float offset = 0.05f;
 
-		Debug.DrawLine( transform.position, transform.position - transform.up * ( m_Entity.PhysicCollider.height * 0.3f ) );
-		
-		bool hasCollision = Physics.Raycast( transform.position, -transform.up, out m_RaycastHit, ( m_Entity.PhysicCollider.height * 0.3f ) );
+		Vector3 startLine = m_Entity.Transform.position;
+		Vector3 endLine   = m_Entity.Transform.position - m_Entity.Transform.up * offset;
+		Debug.DrawLine( startLine, endLine );
 
-		if ( hasCollision && m_RaycastHit.distance < m_Entity.PhysicCollider.height * 0.2f )
+		bool isGrounded = Physics.Linecast( startLine, endLine, out m_RaycastHit );
+		if ( isGrounded  )
 		{
 			m_CurrentCollider = m_RaycastHit.collider;
 		}
@@ -69,7 +75,6 @@ public class Foots : MonoBehaviour, IFoots {
 			m_CurrentCollider = null;
 		}
 
-		bool isGrounded = m_CurrentCollider != null;
 		if ( m_LiveEntity.IsGrounded == false && isGrounded )
 		{
 //			CameraControl.Instance.ApplyFallFeedback( 5f, 1f, 0f );

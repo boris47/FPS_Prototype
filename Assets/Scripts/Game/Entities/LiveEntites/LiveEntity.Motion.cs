@@ -28,16 +28,16 @@ public abstract partial class LiveEntity {
 	{
 		m_PrevMotionType = MotionType;
 		switch( m )
-		{
-			case eMotionType.Walking:	{ SetMotionTypeInternal( m, true,	false, false, true ); return; }
-			case eMotionType.Flying:	{ SetMotionTypeInternal( m, false,	true,  true,  true ); return; }
-			case eMotionType.Swimming:	{ SetMotionTypeInternal( m, false,	true,  true,  true ); return; }
-			case eMotionType.P1ToP2:	{ SetMotionTypeInternal( m, false,	false, false, true ); return; }
+		{	//													HoldCrouch, HoldJump, HoldRun
+			case eMotionType.Walking:	{ SetMotionTypeInternal( m, false,	false,	true ); return; }
+			case eMotionType.Flying:	{ SetMotionTypeInternal( m, true,	true,	true ); return; }
+			case eMotionType.Swimming:	{ SetMotionTypeInternal( m, true,	true,	true ); return; }
+			case eMotionType.P1ToP2:	{ SetMotionTypeInternal( m, false,	false,	true ); return; }
 		}
 
 	}
 
-	private	void	SetMotionTypeInternal( eMotionType type, bool useGravity, bool HoldCrouch, bool HoldJump, bool HoldRun )
+	private	void	SetMotionTypeInternal( eMotionType type, bool HoldCrouch, bool HoldJump, bool HoldRun )
 	{
 		if ( MotionType == type )
 			return;
@@ -47,7 +47,6 @@ public abstract partial class LiveEntity {
 
 		m_States.Reset();
 
-		m_RigidBody.useGravity	= useGravity;
 		InputManager.HoldCrouch	= HoldCrouch;
 		InputManager.HoldJump	= HoldJump;
 		InputManager.HoldRun	= HoldRun;
