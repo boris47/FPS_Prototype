@@ -285,7 +285,7 @@ namespace WeatherSystem {
 		// ThunderCoroutine ( Coroutine )
 		private	IEnumerator		ThunderCoroutine( bool lighting )
 		{
-			// check fo avaiable audiosource
+			// check fo available audiosource
 			ICustomAudioSource thunderAudioSource = GetFreeAudioSource();
 			if ( thunderAudioSource == null )
 				yield break;
@@ -363,8 +363,8 @@ namespace WeatherSystem {
 
 					m_NextThunderTimer = Random.Range
 					(
-						( m_ThunderTimerMin / 2f ) + ( m_ThunderTimerMin * ( 1f - m_RainIntensity ) ),
-						( m_ThunderTimerMax / 2f ) + ( m_ThunderTimerMax * ( 1f - m_RainIntensity ) )
+						( m_ThunderTimerMin * 0.5f ) + ( m_ThunderTimerMin * ( 1f - m_RainIntensity ) ),
+						( m_ThunderTimerMax * 0.5f ) + ( m_ThunderTimerMax * ( 1f - m_RainIntensity ) )
 					);
 				}
 			}

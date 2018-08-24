@@ -129,8 +129,7 @@ public class Arrow : Weapon {
 	// Update ( override )
 	protected	override	void			Update()
 	{
-
-		if ( m_Magazine > 0 )
+		// Burst
 		{
 			// Continue burst
 			if ( m_ShotsCount > 0 && m_ShotsCount < BURSTSIZE && m_ShotsTimer < 0f )
@@ -197,7 +196,7 @@ public class Arrow : Weapon {
 //			m_AnimatorStdSpeed = anim.speed;
 //			anim.speed = 2f;
 
-			if ( WeaponManager.Instance.Zoomed )
+			if ( WeaponManager.Instance.IsZoomed )
 			{
 				if ( m_InTransition == false )
 				{
@@ -214,7 +213,7 @@ public class Arrow : Weapon {
 		}
 
 		// Check
-		if ( Player.Instance.IsRunning && WeaponManager.Instance.Zoomed && m_InTransition == false )
+		if ( Player.Instance.IsRunning && WeaponManager.Instance.IsZoomed && m_InTransition == false )
 		{
 			WeaponManager.Instance.ZoomOut();
 		}
@@ -243,7 +242,7 @@ public class Arrow : Weapon {
 	// OnSecondaryFire
 	private					void			ToggleZoom()
 	{
-		if ( WeaponManager.Instance.Zoomed == false )
+		if ( WeaponManager.Instance.IsZoomed == false )
 			WeaponManager.Instance.ZoomIn();
 		else
 			WeaponManager.Instance.ZoomOut();
@@ -276,7 +275,7 @@ public class Arrow : Weapon {
 		finalDispersion	*= Player.Instance.IsCrouched			? 0.50f : 1.00f;
 		finalDispersion	*= Player.Instance.IsMoving				? 1.50f : 1.00f;
 		finalDispersion	*= Player.Instance.IsRunning			? 2.00f : 1.00f;
-		finalDispersion	*= WeaponManager.Instance.Zoomed		? 0.80f : 1.00f;
+		finalDispersion	*= WeaponManager.Instance.IsZoomed		? 0.80f : 1.00f;
 
 		// SHOOT
 		bullet.Shoot( position: m_FirePoint.position, direction: m_FirePoint.forward );

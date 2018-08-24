@@ -89,11 +89,11 @@ namespace CutScene {
 			{
 				if ( data.zoomEnabled == true )
 				{
-					if ( WeaponManager.Instance.Zoomed == false ) WeaponManager.Instance.ZoomIn();
+					if ( WeaponManager.Instance.IsZoomed == false ) WeaponManager.Instance.ZoomIn();
 				}
 				else
 				{
-					if ( WeaponManager.Instance.Zoomed == true ) WeaponManager.Instance.ZoomOut();
+					if ( WeaponManager.Instance.IsZoomed == true ) WeaponManager.Instance.ZoomOut();
 				}
 			}
 		}

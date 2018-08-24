@@ -9,10 +9,15 @@ public interface IFoots {
 
 	void			PlayStep();
 
+	bool			IsTouching { get; }
+
 }
 
+// TODO prevent actor not stepping on box borders
 
 public class Foots : MonoBehaviour, IFoots {
+
+	bool		IFoots.IsTouching { get { return m_IsColliding; } }
 
 	private		LiveEntity			m_LiveEntity		= null;
 	public		LiveEntity			Onwer
@@ -24,7 +29,7 @@ public class Foots : MonoBehaviour, IFoots {
 	private		Collider			m_CurrentCollider	= null;
 	private		RaycastHit			m_RaycastHit		= default( RaycastHit );
 	private		ICustomAudioSource	m_AudioSource		= null;
-	private		MeshCollider		m_Collider			= null;
+//	private		MeshCollider		m_Collider			= null;
 	private		bool				m_IsColliding		= false;
 
 
@@ -35,7 +40,7 @@ public class Foots : MonoBehaviour, IFoots {
 		m_LiveEntity	= transform.parent.GetComponent<LiveEntity>();
 		m_Entity		= m_LiveEntity as IEntity;
 		m_AudioSource	= transform.GetComponent<ICustomAudioSource>();
-		m_Collider		= GetComponent<MeshCollider>();
+//		m_Collider		= GetComponent<MeshCollider>();
 	}
 
 
@@ -59,10 +64,11 @@ public class Foots : MonoBehaviour, IFoots {
 	// OnFrame
 	public	void	OnFrame()
 	{
+		return;
 		const float offset = 0.05f;
 
-		Vector3 startLine = m_Entity.Transform.position;
-		Vector3 endLine   = m_Entity.Transform.position - m_Entity.Transform.up * offset;
+		Vector3 startLine = transform.position;
+		Vector3 endLine   = transform.position - transform.up * offset;
 		Debug.DrawLine( startLine, endLine );
 
 		bool isGrounded = Physics.Linecast( startLine, endLine, out m_RaycastHit );
@@ -81,7 +87,25 @@ public class Foots : MonoBehaviour, IFoots {
 			PlayStep();
 		}
 
-		m_LiveEntity.IsGrounded = isGrounded;
+		m_IsColliding = isGrounded;
+
+//		m_LiveEntity.IsGrounded = isGrounded;
 	}
 
+	private void OnTriggerEnter( Collider other )
+	{
+		if ( other.isTrigger == true )
+			return;
+
+//		print( other.name );
+		m_LiveEntity.IsGrounded = true;
+	}
+
+	private void OnTriggerExit( Collider other )
+	{
+		if ( other.isTrigger == true )
+			return;
+
+		m_LiveEntity.IsGrounded = false;
+	}
 }

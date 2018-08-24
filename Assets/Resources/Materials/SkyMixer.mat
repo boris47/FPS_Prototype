@@ -55,15 +55,15 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Skybox1:
-        m_Texture: {fileID: 8900000, guid: 317967418b61457469112cf389988749, type: 3}
+        m_Texture: {fileID: 8900000, guid: 17ea9b66b111fed4fa4d5d1f59de5fa9, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Skybox2:
-        m_Texture: {fileID: 8900000, guid: c56d87576c94de147adc887cf26824d1, type: 3}
+        m_Texture: {fileID: 8900000, guid: f19f974f19d7c8a4688f13308aec12ef, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - _Blend: 0.012427473
+    - _Blend: 0.5001
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1

@@ -35,13 +35,13 @@ public class Razor : Weapon
 	// Awake ( Override )
 	protected	override	void			Awake()
 	{
+		base.Awake();
+
 		if ( m_Laser == null )
 		{
 			enabled = false;
 			return;
 		}
-
-		base.Awake();
 
 		m_StartEmissiveColor = m_Renderer.material.GetColor( "_EmissionColor" );
 
@@ -122,7 +122,7 @@ public class Razor : Weapon
 		}
 
 		// Check
-		if ( Player.Instance.IsRunning && WeaponManager.Instance.Zoomed && m_InTransition == false )
+		if ( Player.Instance.IsRunning && WeaponManager.Instance.IsZoomed && m_InTransition == false )
 		{
 			WeaponManager.Instance.ZoomOut();
 		}
@@ -208,7 +208,7 @@ public class Razor : Weapon
 	// OnSecondaryFire
 	private					void			OnSecondaryFire()
 	{
-		if ( WeaponManager.Instance.Zoomed == false )
+		if ( WeaponManager.Instance.IsZoomed == false )
 			WeaponManager.Instance.ZoomIn();
 		else
 			WeaponManager.Instance.ZoomOut();

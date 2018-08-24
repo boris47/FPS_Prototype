@@ -226,7 +226,7 @@ public class Blackjack : Weapon {
 		}
 
 
-		if ( Player.Instance.IsRunning && WeaponManager.Instance.Zoomed && m_InTransition == false )
+		if ( Player.Instance.IsRunning && WeaponManager.Instance.IsZoomed && m_InTransition == false )
 		{
 			WeaponManager.Instance.ZoomOut();
 		}
@@ -237,7 +237,7 @@ public class Blackjack : Weapon {
 //			m_AnimatorStdSpeed = anim.speed;
 //			anim.speed = 2f;
 
-			if ( WeaponManager.Instance.Zoomed )
+			if ( WeaponManager.Instance.IsZoomed )
 			{
 				if ( m_InTransition == false )
 				{
@@ -258,7 +258,7 @@ public class Blackjack : Weapon {
 	// OnSecondaryFire
 	private					void			ToggleZoom()
 	{
-		if ( WeaponManager.Instance.Zoomed == false )
+		if ( WeaponManager.Instance.IsZoomed == false )
 			WeaponManager.Instance.ZoomIn();
 		else
 			WeaponManager.Instance.ZoomOut();
@@ -325,7 +325,7 @@ public class Blackjack : Weapon {
 		finalDispersion *= ( m_FireMode == FireModes.SINGLE )	? 0.50f : 1.00f;
 		finalDispersion *= ( m_FireMode == FireModes.BURST )	? 0.80f : 1.00f;
 		finalDispersion *= ( m_FireMode == FireModes.AUTO )		? 1.10f : 1.00f;
-		finalDispersion	*= WeaponManager.Instance.Zoomed		? 0.80f : 1.00f;
+		finalDispersion	*= WeaponManager.Instance.IsZoomed		? 0.80f : 1.00f;
 
 		// SHOOT
 		bullet.Shoot( position: m_FirePoint.position, direction: m_FirePoint.forward );

@@ -67,6 +67,10 @@ public class Laser : WeaponAttachment {
 	// Update
 	private void Update()
 	{
+		// Save cpu
+		if ( Time.frameCount % 5 == 0 )
+			return;
+
 		m_HasHit = Physics.Raycast( transform.position, transform.forward, out m_RayCastHit, m_LaserLength );
 
 		float	currentLength = m_LaserLength;

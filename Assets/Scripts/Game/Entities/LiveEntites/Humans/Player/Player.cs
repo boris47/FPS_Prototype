@@ -8,6 +8,8 @@ public partial class Player : Human {
 
 	private	const	float			MAX_INTERACTION_DISTANCE		= 20f;
 
+	private	const	float			BODY_DRAG = 8f;
+
 	public	static	Player			Instance						= null;
 	public	static	IEntity			Entity							= null;
 
@@ -68,10 +70,10 @@ public partial class Player : Human {
 			// Foots
 			Transform foots		= transform.Find( "FootSpace" );
 			m_Foots				= foots.GetComponent<IFoots>();
-			DisableCollisionsWith( foots.GetComponent<Collider>() );
+			Collider footsCollider = foots.GetComponent<Collider>();
+			this.DisableCollisionsWith( footsCollider );
 
 			m_DodgeAbilityTarget = transform.Find( "DodgeAbilityTarget" );
-			m_DodgeAbilityTarget.localScale = new Vector3( 0.5f, m_PhysicCollider.height, 0.5f );
 			m_DodgeAbilityTarget.SetParent( null );
 			m_DodgeAbilityTarget.gameObject.SetActive( false );
 		}
@@ -123,8 +125,10 @@ public partial class Player : Human {
 		m_Health			= m_SectionRef.AsFloat( "Health", 100.0f );
 		m_RigidBody.mass	= m_SectionRef.AsFloat( "phMass", 80.0f  );
 		m_RigidBody.maxAngularVelocity = 0f;
+		m_RigidBody.useGravity = false;
 		m_Stamina			= 1.0f;
 		GroundSpeedModifier = 1.0f;
+		IsGrounded			= false;
 		m_IsActive			= true;
 
 		SetMotionType( eMotionType.Walking );
@@ -135,9 +139,7 @@ public partial class Player : Human {
 		m_GrabPoint.transform.localRotation = Quaternion.identity;
 		m_GrabPoint.transform.Translate( 0f, 0f, m_UseDistance );
 
-		IsGrounded = true;
 
-		m_RigidBody.useGravity = false;
 	}
 
 
@@ -145,7 +147,7 @@ public partial class Player : Human {
 	// Start
 	private void Start()
 	{
-		IsGrounded = true;
+		IsGrounded = false;
 		StartCoroutine( DamageEffectCO() );
 	}
 
@@ -250,6 +252,7 @@ public partial class Player : Human {
 
 	public	void	DisableCollisionsWith( Collider collider )
 	{
+		Physics.IgnoreCollision( collider, m_TriggerCollider, ignore: true );
 		Physics.IgnoreCollision( collider, m_PhysicCollider, ignore: true );
 		Physics.IgnoreCollision( collider, m_PlayerNearAreaTrigger, ignore: true );
 		Physics.IgnoreCollision( collider, m_PlayerFarAreaTrigger, ignore: true );
@@ -314,7 +317,6 @@ public partial class Player : Human {
 //		* ( 1.0f - Vector3.Angle( transform.forward, CameraControl.Instance.transform.forward ) / CameraControl.CLAMP_MAX_X_AXIS );
 	}
 
-
 	//////////////////////////////////////////////////////////////////////////
 	// FixedUpdate
 	private void	FixedUpdate()
@@ -334,26 +336,32 @@ public partial class Player : Human {
 			return;
 		}
 
+		m_RigidBody.drag = IsGrounded ? BODY_DRAG : 0.0f;
+
 		// User inputs
 		if ( IsGrounded )
 		{
+			
 			// Controlled in Player.Motion_Walk::Update_Walk
 			Vector3 forward	= Vector3.Cross( CameraControl.Instance.Transform.right, transform.up );
 			Vector3 right	= CameraControl.Instance.Transform.right;
 			Vector3 up		= transform.up;
-			m_Move = (
-				// float			  Vector
-				( m_ForwardSmooth	* forward	) + 
-				( m_RightSmooth		* right		) +
-				( m_UpSmooth		* up		)
-			) *	GroundSpeedModifier;
 
-			m_RigidBody.velocity = m_Move;
+			if ( m_ForwardSmooth != 0.0f )
+				m_RigidBody.AddForce( forward	* m_ForwardSmooth	* GroundSpeedModifier,	m_UpSmooth > 0.0f ? ForceMode.Impulse : ForceMode.Acceleration );
+
+			if ( m_RightSmooth != 0.0f )
+				m_RigidBody.AddForce( right		* m_RightSmooth		* GroundSpeedModifier,	m_UpSmooth > 0.0f ? ForceMode.Impulse : ForceMode.Acceleration );
+
+			if ( m_UpSmooth > 0.0f )
+				m_RigidBody.AddForce( up		* m_UpSmooth		* GroundSpeedModifier,	ForceMode.VelocityChange );
 		}
-		else
+
+		// Apply gravity
 		{
 			// add RELATIVE gravity force
-			m_RigidBody.AddForce( transform.up * Physics.gravity.y, ForceMode.Acceleration );
+			Vector3 gravity = transform.up * Physics.gravity.y * ( IsGrounded ? 1.0f: 30f );
+			m_RigidBody.AddForce( gravity, ForceMode.Force );
 		}
 	}
 

@@ -169,7 +169,7 @@ public class Hammer : Weapon
 		}
 
 		// Check
-		if ( Player.Instance.IsRunning && WeaponManager.Instance.Zoomed && m_InTransition == false )
+		if ( Player.Instance.IsRunning && WeaponManager.Instance.IsZoomed && m_InTransition == false )
 		{
 			WeaponManager.Instance.ZoomOut();
 		}
@@ -179,7 +179,7 @@ public class Hammer : Weapon
 //			m_AnimatorStdSpeed = anim.speed;
 //			anim.speed = 2f;
 
-			if ( WeaponManager.Instance.Zoomed )
+			if ( WeaponManager.Instance.IsZoomed )
 			{
 				if ( m_InTransition == false )
 				{
@@ -200,7 +200,7 @@ public class Hammer : Weapon
 	// OnSecondaryFire
 	private					void			OnSecondaryFire()
 	{
-		if ( WeaponManager.Instance.Zoomed == false )
+		if ( WeaponManager.Instance.IsZoomed == false )
 			WeaponManager.Instance.ZoomIn();
 		else
 			WeaponManager.Instance.ZoomOut();

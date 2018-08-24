@@ -5990,14 +5990,14 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1110418244205378}
-  m_LocalRotation: {x: -0.27059808, y: -0.6532815, z: -0.6532815, w: 0.27059808}
+  m_LocalRotation: {x: -0.6532815, y: -0.6532815, z: -0.27059805, w: -0.27059805}
   m_LocalPosition: {x: -15.784508, y: 16.424236, z: -26.081917}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4723938302884854}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: -90, y: -45, z: -90}
+  m_LocalEulerAnglesHint: {x: -180, y: -45, z: -90}
 --- !u!4 &4213032674267198
 Transform:
   m_ObjectHideFlags: 1
@@ -9372,7 +9372,7 @@ MeshRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1258316272608486}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -10494,6 +10494,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_MainDamage: 2
   m_ZoomOffset: {x: -0.0599, y: -0.01, z: 0}
+  m_ZoomingTime: 0.3
+  m_ZommSensitivity: 1
   m_Magazine: 28
   m_MagazineCapacity: 8
   m_FirePoint: {fileID: 4592349170502510}
@@ -10501,9 +10503,6 @@ MonoBehaviour:
   m_CamDeviation: 3
   m_FireDispersion: 0
   m_SlowMotionCoeff: 1
-  m_ZoomingTime: 0.3
-  m_ZommSensitivity: 1
-  m_Laser: {fileID: 0}
   m_Bullet: {fileID: 114434699516155368, guid: 6022bac21992ba94bb2fd959d6d5f7f0, type: 2}
   m_ShotsDelay: 0.1
 --- !u!114 &114250441779907284
@@ -10630,6 +10629,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_MainDamage: 2
   m_ZoomOffset: {x: -0.0655, y: -0.01, z: 0}
+  m_ZoomingTime: 0.2
+  m_ZommSensitivity: 1
   m_Magazine: 30
   m_MagazineCapacity: 30
   m_FirePoint: {fileID: 4295589452651700}
@@ -10637,9 +10638,6 @@ MonoBehaviour:
   m_CamDeviation: 0.8
   m_FireDispersion: 1
   m_SlowMotionCoeff: 1
-  m_ZoomingTime: 0.2
-  m_ZommSensitivity: 1
-  m_Laser: {fileID: 0}
   m_Bullet: {fileID: 114645033644827460, guid: 6022bac21992ba94bb2fd959d6d5f7f0, type: 2}
   m_FireMode: 2
   m_BrustSize: 3
@@ -10685,6 +10683,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_MainDamage: 2
   m_ZoomOffset: {x: 0, y: 0, z: 0}
+  m_ZoomingTime: 1
+  m_ZommSensitivity: 1
   m_Magazine: 27
   m_MagazineCapacity: 5
   m_FirePoint: {fileID: 4217471835134772}
@@ -10692,9 +10692,6 @@ MonoBehaviour:
   m_CamDeviation: 1.5
   m_FireDispersion: 0
   m_SlowMotionCoeff: 1
-  m_ZoomingTime: 1
-  m_ZommSensitivity: 1
-  m_Laser: {fileID: 0}
   m_Bullet: {fileID: 114671673385870204, guid: 6022bac21992ba94bb2fd959d6d5f7f0, type: 2}
 --- !u!114 &114445728336159366
 MonoBehaviour:
@@ -10803,6 +10800,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_MainDamage: 2
   m_ZoomOffset: {x: -0.0635, y: 0, z: 0}
+  m_ZoomingTime: 1
+  m_ZommSensitivity: 1
   m_Magazine: 27
   m_MagazineCapacity: 500
   m_FirePoint: {fileID: 4124307811157592}
@@ -10810,9 +10809,6 @@ MonoBehaviour:
   m_CamDeviation: 0.5
   m_FireDispersion: 0.5
   m_SlowMotionCoeff: 1
-  m_ZoomingTime: 1
-  m_ZommSensitivity: 1
-  m_Laser: {fileID: 114080290059994440}
   m_BeamLength: 50
   m_AmmoUnitRechargeDelay: 0.02
   m_Renderer: {fileID: 137779191506364944}
@@ -10858,6 +10854,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_MainDamage: 2
   m_ZoomOffset: {x: -0.0655, y: -0.01, z: 0}
+  m_ZoomingTime: 1
+  m_ZommSensitivity: 1
   m_Magazine: 27
   m_MagazineCapacity: 15
   m_FirePoint: {fileID: 4956809850060666}
@@ -10865,9 +10863,6 @@ MonoBehaviour:
   m_CamDeviation: 20
   m_FireDispersion: 20
   m_SlowMotionCoeff: 1
-  m_ZoomingTime: 1
-  m_ZommSensitivity: 1
-  m_Laser: {fileID: 0}
   m_Bullet: {fileID: 114645033644827460, guid: 6022bac21992ba94bb2fd959d6d5f7f0, type: 2}
   m_ChargeSpeed: 0.54
   m_Renderer: {fileID: 137180369920164378}
@@ -11024,6 +11019,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_MainDamage: 2
   m_ZoomOffset: {x: -0.0635, y: -0.01, z: 0}
+  m_ZoomingTime: 0.2
+  m_ZommSensitivity: 1
   m_Magazine: 25
   m_MagazineCapacity: 8
   m_FirePoint: {fileID: 4217830225141172}
@@ -11031,9 +11028,6 @@ MonoBehaviour:
   m_CamDeviation: 1.2
   m_FireDispersion: 0.05
   m_SlowMotionCoeff: 1
-  m_ZoomingTime: 0.2
-  m_ZommSensitivity: 1
-  m_Laser: {fileID: 0}
   m_Bullet: {fileID: 114645033644827460, guid: 6022bac21992ba94bb2fd959d6d5f7f0, type: 2}
   m_BuckshotSize: 8
   maxDeviation: 0.1
@@ -11198,11 +11192,11 @@ MonoBehaviour:
   m_ViewPoint: {fileID: 0}
   m_Target: {fileID: 0}
   m_MouseSensitivity: 2.8
-  m_SmoothedRotation: 1
+  m_SmoothedRotation: 0
   m_SmoothFactor: 1.7
   m_HeadMove:
     m_WpnInfluence: 0.1
-    m_Amplitude: 0.02
+    m_Amplitude: 0.009
     m_Speed: 1.25
   m_HeadBob:
     m_WpnInfluence: 0.03

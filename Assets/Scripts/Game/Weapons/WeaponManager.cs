@@ -6,7 +6,7 @@ public interface IWeaponManager {
 	GameObject			GameObject						{ get; }
 	bool				Enabled							{ get; set; }
 
-	bool				Zoomed							{ get; }
+	bool				IsZoomed							{ get; }
 	IWeapon				CurrentWeapon					{ get; set; }
 	int					CurrentWeaponIndex				{ get; set; }
 	bool				IsChangingWeapon				{ get; }
@@ -26,7 +26,7 @@ public class WeaponManager : MonoBehaviour, IWeaponManager {
 	public			GameObject		GameObject						{ get { return gameObject; } }
 	public			bool			Enabled							{ get { return enabled; } set { enabled = value; } }
 
-	public			bool			Zoomed							{ get { return m_ZoomedIn; } }
+	public			bool			IsZoomed							{ get { return m_ZoomedIn; } }
 	public			IWeapon			CurrentWeapon					{ get; set; }
 	public			int				CurrentWeaponIndex				{ get; set; }
 	public			bool			IsChangingWeapon				{ get { return m_ChangingWpnCO != null; } }

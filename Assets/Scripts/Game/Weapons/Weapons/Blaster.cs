@@ -219,7 +219,7 @@ public class Blaster : Weapon
 			finalDispersion	*= Player.Instance.IsCrouched			? 0.50f : 1.00f;
 			finalDispersion	*= Player.Instance.IsMoving				? 1.50f : 1.00f;
 			finalDispersion	*= Player.Instance.IsRunning			? 2.00f : 1.00f;
-			finalDispersion	*= WeaponManager.Instance.Zoomed		? 0.80f : 1.00f;
+			finalDispersion	*= WeaponManager.Instance.IsZoomed		? 0.80f : 1.00f;
 			CameraControl.Instance.ApplyDispersion( finalDispersion );
 			// deviation scaled with time delta
 			float deviation = Random.Range( -m_CamDeviation, m_CamDeviation ) * ( 2f - m_Charge );
@@ -241,7 +241,7 @@ public class Blaster : Weapon
 		}
 
 		// Check
-		if ( Player.Instance.IsRunning && WeaponManager.Instance.Zoomed && m_InTransition == false )
+		if ( Player.Instance.IsRunning && WeaponManager.Instance.IsZoomed && m_InTransition == false )
 		{
 			WeaponManager.Instance.ZoomOut();
 		}
@@ -251,7 +251,7 @@ public class Blaster : Weapon
 //			m_AnimatorStdSpeed = anim.speed;
 //			anim.speed = 2f;
 
-			if ( WeaponManager.Instance.Zoomed )
+			if ( WeaponManager.Instance.IsZoomed )
 			{
 				if ( m_InTransition == false )
 				{
@@ -272,7 +272,7 @@ public class Blaster : Weapon
 	// OnSecondaryFire
 	private					void			ToggleZoom()
 	{
-		if ( WeaponManager.Instance.Zoomed == false )
+		if ( WeaponManager.Instance.IsZoomed == false )
 			WeaponManager.Instance.ZoomIn();
 		else
 			WeaponManager.Instance.ZoomOut();

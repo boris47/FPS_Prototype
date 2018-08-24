@@ -114,6 +114,7 @@ namespace WeatherSystem {
 
 		private		bool						m_IsOK						= false;
 		private		bool						m_IsThisTheClone			= false;
+		private		Quaternion					m_RotationOffset			= Quaternion.AngleAxis( 180f, Vector3.up );
 
 #endregion
 
@@ -186,8 +187,8 @@ namespace WeatherSystem {
 		private void			OnEnable()
 		{
 #if UNITY_EDITOR
-			if ( UnityEditor.EditorApplication.isPlaying == false )
-				UnityEditor.EditorApplication.update += Update;
+//			if ( UnityEditor.EditorApplication.isPlaying == false )
+//				UnityEditor.EditorApplication.update += Update;
 #endif
 			Instance = this as IWeatherManager;
 			Internal = this as IWeatherManagerInternal;
@@ -221,8 +222,8 @@ namespace WeatherSystem {
 		private void			OnDisable()
 		{
 #if UNITY_EDITOR
-			if ( UnityEditor.EditorApplication.isPlaying == false )
-				UnityEditor.EditorApplication.update -= Update;
+//			if ( UnityEditor.EditorApplication.isPlaying == false )
+//				UnityEditor.EditorApplication.update -= Update;
 #endif
 			m_CurrentCycle			= null; 
 			m_Descriptors			= null;
@@ -656,12 +657,16 @@ namespace WeatherSystem {
 			if ( m_IsOK == false )
 				return;
 
+#if UNITY_EDITOR
+			// Only every 10 frames
+			if ( UnityEditor.EditorApplication.isPlaying == true && Time.frameCount % 10 == 0 )
+				return;
+			
+			if ( EnableInEditor == false && UnityEditor.EditorApplication.isPlaying == false )
+				return;
+#else
 			// Only every 10 frames
 			if ( Time.frameCount % 10 == 0 )
-				return;
-
-#if UNITY_EDITOR
-			if ( EnableInEditor == false && UnityEditor.EditorApplication.isPlaying == false )
 				return;
 #endif
 
@@ -683,7 +688,7 @@ namespace WeatherSystem {
 			// Sun rotation by data
 			if ( Internal.EditorDescriptorLinked == false )
 			{
-				Instance.Sun.transform.rotation = Quaternion.AngleAxis( 180f, Vector3.up ) * Quaternion.LookRotation( m_EnvDescriptorMixer.SunRotation );
+				Sun.transform.rotation = m_RotationOffset * Quaternion.LookRotation( m_EnvDescriptorMixer.SunRotation );
 			}
 
 

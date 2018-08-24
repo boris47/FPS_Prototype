@@ -8,15 +8,18 @@
 #include Weapons.txt
 #include Granades.txt
 
+
+; WEATHER SETTINGS
+
 [Time]
-TimeFactor			= 1.0;
+TimeFactor			= 1.0000;
 StartTime			= 15:00:00
 StartWeather		= "Rainy"
 
 [Thunderbolts]
-ThunderTimerMin		= 6.0;
-ThunderTimerMax		= 15.0;
-ThunderLifeTimeMin	= 0.08;
-ThunderLifeTimeMax	= 0.5;
-ThunderStepsMin		= 3.0;
-ThunderStepsMax		= 9.0;
+ThunderTimerMin		= 10.0;		// Minimum time between two bolts scaled by rain intensity
+ThunderTimerMax		= 25.0;		// Maximum time between two bolts scaled by rain intensity
+ThunderLifeTimeMin	= 0.08;		// Miminum lifeTime of thunder 
+ThunderLifeTimeMax	= 0.50;		// Maximum lifeTime of thunder
+ThunderStepsMin		= 3.00;		// Minimum lighting count during thunderbolt
+ThunderStepsMax		= 9.00;		// Maximum lighting count during thunderbolt

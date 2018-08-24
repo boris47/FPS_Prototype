@@ -79,8 +79,6 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	[SerializeField,Range(0.1f, 2f)]
 	protected		float							m_SlowMotionCoeff			= 1f;
 
-	[SerializeField]
-	protected		Laser							m_Laser						= null;
 
 
 	protected		WeaponState						m_WeaponState				= WeaponState.STASHED;
@@ -90,6 +88,7 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	protected		float							m_ZoomFactor				= 1f;
 	protected		bool							m_IsFiring					= false;
 	protected		IFlashLight						m_FlashLight				= null;
+	protected		Laser							m_Laser						= null;
 
 	protected	abstract		string				OtherInfo { get; }
 
@@ -159,7 +158,7 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 		// Assign this weapon in the list
 		Array[ transform.GetSiblingIndex() ] = this;
 		
-		m_FlashLight = GetComponentInChildren<IFlashLight>();
+		m_FlashLight = GetComponentInChildren<FlashLight>() as IFlashLight;
 
 		// animations
 		m_Animator		= transform.GetComponent<Animator>();
@@ -167,7 +166,10 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 		m_ReloadAnim	= m_Animator.GetClipFromAnimator( "reload" );
 		m_DrawAnim		= m_Animator.GetClipFromAnimator( "draw" );
 
-		m_AudioSourceFire = GetComponent<ICustomAudioSource>();
+		// laser
+		m_Laser			= transform.GetComponentInChildren<Laser>();
+
+		m_AudioSourceFire = GetComponent<CustomAudioSource>() as ICustomAudioSource;
 
 		GameManager.Instance.OnSave += OnSave;
 		GameManager.Instance.OnLoad += OnLoad;

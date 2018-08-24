@@ -31,7 +31,7 @@ public interface ICameraSetters {
 
 public class CameraControl : MonoBehaviour, ICameraControl, ICameraSetters {
 
-	private		const		float				WPN_ROTATION_CLAMP_VALUE				= 2f;
+	private		const		float				WPN_ROTATION_CLAMP_VALUE				= 0.6f;
 	private		const		float				WPN_FALL_FEEDBACK_CLAMP_VALUE			= 5f;
 
 	public		const		float				CLAMP_MAX_X_AXIS						=  80.0f;
@@ -318,7 +318,7 @@ public class CameraControl : MonoBehaviour, ICameraControl, ICameraSetters {
 		// Rotation
 		if ( m_CanParseInput == true )
 		{
-			bool	isZoomed			= WeaponManager.Instance.Zoomed;
+			bool	isZoomed			= WeaponManager.Instance.IsZoomed;
 			float	wpnZoomSensitivity  = WeaponManager.Instance.CurrentWeapon.ZommSensitivity;
 			float	Axis_X_Delta		= Input.GetAxisRaw ( "Mouse X" ) * m_MouseSensitivity * ( ( isZoomed ) ? wpnZoomSensitivity : 1.0f );
 			float	Axis_Y_Delta		= Input.GetAxisRaw ( "Mouse Y" ) * m_MouseSensitivity * ( ( isZoomed ) ? wpnZoomSensitivity : 1.0f );
@@ -345,6 +345,7 @@ public class CameraControl : MonoBehaviour, ICameraControl, ICameraSetters {
 				m_CurrentDirection.y = m_CurrentDirection.y + m_CurrentRotation_X_Delta;
 			}
 
+			// Apply effects only if not chosing dodge rotation
 			if ( Player.Instance.ChosingDodgeRotation == false )
 			{
 				m_CurrentDirection += m_HeadBob.Direction + m_HeadMove.Direction;
@@ -354,7 +355,7 @@ public class CameraControl : MonoBehaviour, ICameraControl, ICameraSetters {
 			// rotation with effect added
 			{
 				Vector3 finalWpnRotationFeedback = Vector3.right * Axis_Y_Delta + Vector3.up * Axis_X_Delta;
-				m_WpnRotationFeedback = Vector3.Lerp( m_WpnRotationFeedback, finalWpnRotationFeedback, dt * 5f );
+				m_WpnRotationFeedback = Vector3.ClampMagnitude( Vector3.Lerp( m_WpnRotationFeedback, finalWpnRotationFeedback, dt * 8f ), WPN_ROTATION_CLAMP_VALUE );
 			}
 		}
 

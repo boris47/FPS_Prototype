@@ -12,7 +12,8 @@ public interface IEntity {
 	float					Health							{	get;		}
 	string					Section							{	get;		}
 	Rigidbody				RigidBody						{	get;		}
-	CapsuleCollider			PhysicCollider					{	get;		}
+	Collider				PhysicCollider					{	get;		}
+	CapsuleCollider			TriggerCollider					{	get;		}
 	Transform				EffectsPivot					{	get;		}
 	IBrain					Brain							{	get;		}
 	CutsceneEntityManager	CutsceneManager					{	get; set;	}
@@ -40,7 +41,7 @@ public interface IEntitySimulation {
 
 }
 
-
+//					Physics intreractions,		entity volume,		Hit detection
 [RequireComponent( typeof( Rigidbody ), typeof( CapsuleCollider ) )]
 public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation {
 
@@ -70,7 +71,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 				float					IEntity.Health						{	get { return m_Health;			}	}
 				string					IEntity.Section						{	get { return m_SectionName;		}	}
 				Rigidbody				IEntity.RigidBody					{	get { return m_RigidBody;		}	}
-				CapsuleCollider			IEntity.PhysicCollider				{	get { return m_PhysicCollider;	}	}
+				Collider				IEntity.PhysicCollider				{	get { return m_PhysicCollider;	}	}
+				CapsuleCollider			IEntity.TriggerCollider				{	get { return m_TriggerCollider;	}	}
 				Transform				IEntity.EffectsPivot				{	get { return m_EffectsPivot;	}	}
 				IBrain					IEntity.Brain						{	get { return m_Brain;			}	}
 				CutsceneEntityManager	IEntity.CutsceneManager				{	get { return m_CutsceneManager; } set { m_CutsceneManager = value; } }
@@ -86,7 +88,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	protected 	string						m_SectionName					= "None";
 	protected 	ENTITY_TYPE					m_EntityType					= ENTITY_TYPE.NONE;
 	protected	Rigidbody					m_RigidBody						= null;
-	protected	CapsuleCollider				m_PhysicCollider				= null;
+	protected	Collider					m_PhysicCollider				= null;
+	protected	CapsuleCollider				m_TriggerCollider				= null;
 	protected	Transform					m_EffectsPivot					= null;
 	protected	IEntity						m_Interface						= null;
 
@@ -139,7 +142,12 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	{
 		m_ID				= NewID();
 		m_Interface			= this as IEntity;
-		m_PhysicCollider	= GetComponent<CapsuleCollider>();
+
+		if ( ( m_PhysicCollider	= GetComponent<MeshCollider>() ) == null )
+		{
+			m_PhysicCollider	= GetComponent<CapsuleCollider>();
+		}
+		m_TriggerCollider	= GetComponent<CapsuleCollider>();
 		m_RigidBody			= GetComponent<Rigidbody>();
 		m_Brain				= GetComponent<IBrain>();
 

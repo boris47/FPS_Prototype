@@ -50,14 +50,14 @@ public partial class Player {
 			bool isWalking	= ( movementType != SimMovementType.RUN );
 			bool isRunning	= !isWalking;
 			bool isCrouched = ( movementType == SimMovementType.CROUCHED );
-			float fMove = ( isCrouched ) ? m_CrouchSpeed : ( isRunning ) ? m_RunSpeed : m_WalkSpeed;
+			float fMoveSpeed = ( isCrouched ) ? m_CrouchSpeed : ( isRunning ) ? m_RunSpeed : m_WalkSpeed;
 
 			m_States.IsWalking	= isWalking;
 			m_States.IsRunning	= isRunning;
 			m_States.IsCrouched	= isCrouched;
 			m_States.IsMoving	= true;
 
-			m_ForwardSmooth = Mathf.Lerp( m_ForwardSmooth, fMove, Time.deltaTime * 20f );
+			m_ForwardSmooth = Mathf.Lerp( m_ForwardSmooth, fMoveSpeed, Time.deltaTime * 20f );
 			m_Move = ( m_ForwardSmooth * direction.normalized ) * GroundSpeedModifier * Time.timeScale;
 		}
 		return true;
@@ -112,10 +112,11 @@ public partial class Player {
 		if ( InputManager.HoldCrouch == false )
 			m_States.IsCrouched = m_PreviousStates.IsCrouched;
 
+		
 		if ( IsGrounded == false && bJumpInput == false )
 		{
+
 			float verticalSpeed = transform.InverseTransformDirection( m_RigidBody.velocity ).y;
-			
 			if ( verticalSpeed >  0.01f )		m_States.IsHanging = true;
 			if ( verticalSpeed < -0.01f )		m_States.IsFalling = true;
 
@@ -195,7 +196,7 @@ public partial class Player {
 		// Jump
 		{
 			// If jump button is pressed, has enough space to jump, has stamina requirements and is not dragging an entity
-			if ( bJumpInput && !m_IsUnderSomething && ( m_Stamina > m_StaminaJumpMin ) && m_GrabbedObject == null )
+			if ( bJumpInput && !m_IsUnderSomething && ( m_Stamina > m_StaminaJumpMin ) && m_GrabbedObject == null && IsGrounded )
 			{
 ///				m_Stamina	-= m_JumpStamina;
 				fFinalJump	+= m_JumpForce / ( m_States.IsCrouched ? 1.5f : 1.0f );
@@ -239,20 +240,20 @@ public partial class Player {
 			if ( m_States.IsRunning )
 			{
 				forward		*=	m_RunSpeed * ( forward > 0 ? 1.0f : 0.8f );
-				right		*=	m_RunSpeed * 0.6f;
+				right		*=	m_RunSpeed * 0.8f;
 ///				m_Stamina	-= m_RunStamina * dt;
 			}
 			else if ( m_States.IsCrouched )
 			{
 				forward		*= m_CrouchSpeed * ( forward > 0 ? 1.0f : 0.8f );
-				right		*= m_CrouchSpeed * 0.6f;
+				right		*= m_CrouchSpeed * 0.8f;
 ///				m_Stamina	-= m_CrouchStamina * dt;
 			}
 			else
 			{	// walking
 				// stamina half restored because we are moving, but just walking
 				forward		*= m_WalkSpeed * ( forward > 0 ? 1.0f : 0.8f );
-				right		*= m_WalkSpeed *  0.6f;
+				right		*= m_WalkSpeed *  0.8f;
 ///				m_Stamina	+= m_StaminaRestore / 2.0f * dt;
 				m_States.IsWalking = true;
 			}
@@ -279,8 +280,8 @@ public partial class Player {
 		}
 
 		// Apply smoothing on movements
-		m_ForwardSmooth	= Mathf.Lerp( m_ForwardSmooth,  forward,	dt * 20f );
-		m_RightSmooth	= Mathf.Lerp( m_RightSmooth,	right,		dt * 10f );
+		m_ForwardSmooth	= forward; // Mathf.Lerp( m_ForwardSmooth,  forward,	dt * 20f );
+		m_RightSmooth	= right; // Mathf.Lerp( m_RightSmooth,	right,		dt * 10f );
 		m_UpSmooth		= fFinalJump;
 		/*
 		m_Move = ( m_MoveSmooth * transform.forward ) + ( m_StrafeSmooth * transform.right );
