@@ -144,7 +144,7 @@ public abstract class Turret : NonLiveEntity {
 		gameObject.SetActive( false );
 	}
 
-
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	// OnTargetLost ( Override )
 	public override void OnTargetLost( TargetInfo_t targetInfo )
@@ -168,13 +168,8 @@ public abstract class Turret : NonLiveEntity {
 		// Reset internal ref to target
 		base.OnTargetLost( targetInfo );		// m_TargetInfo = default( TargetInfo_t );
 	}
-
-	private static float GetAngle( Vector2 v1, Vector2 v2 )
-	{
-		float sign = Mathf.Sign( v1.x * v2.y - v1.y * v2.x );
-		return Vector2.Angle( v1, v2 ) * sign;
-	}
-
+	*/
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	// FaceToPoint ( Override )
 	protected override void FaceToPoint( float deltaTime )
@@ -206,13 +201,13 @@ public abstract class Turret : NonLiveEntity {
 			m_GunTransform.Rotate( Vector3.right, rotation, Space.Self );	
 		}
 	}
-
-
+	*/
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	// GoAtPoint ( Override )
 	protected override void GoAtPoint( float deltaTime )
 	{ }
-
+	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	// FireLongRange ( Override )

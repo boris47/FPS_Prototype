@@ -44,8 +44,8 @@ public class TurretHard : Turret {
 		if ( m_Brain.State != BrainState.ATTACKING )
 		{
 			// set start bullet position as point to face at
-			m_PointToFace	= bullet.StartPosition;	
-			m_HasFaceTarget = true;
+//			m_PointToFace	= bullet.StartPosition;	
+//			m_HasFaceTarget = true;
 		}
 
 		if ( m_IsRecharging == false )
@@ -175,15 +175,15 @@ public class TurretHard : Turret {
 			if ( m_Brain.State != BrainState.ATTACKING )
 				m_Brain.ChangeState( BrainState.ATTACKING );
 			
-			m_PointToFace = m_TargetInfo.CurrentTarget.Transform.position;
-			m_HasFaceTarget = true;
+//			m_PointToFace = m_TargetInfo.CurrentTarget.Transform.position;
+//			m_HasFaceTarget = true;
 		}
 
 		// if has target point to face at set
-		if ( m_HasFaceTarget )
-		{
-			FaceToPoint( deltaTime );   // m_PointToFace
-		}
+//		if ( m_HasFaceTarget )
+//		{
+//			FaceToPoint( deltaTime );   // m_PointToFace
+//		}
 
 		// if gun alligned, fire
 		if ( m_IsAllignedGunToPoint == true && m_TargetInfo.HasTarget == true && m_IsRecharging == false )

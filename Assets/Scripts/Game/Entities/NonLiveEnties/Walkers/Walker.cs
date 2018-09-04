@@ -4,6 +4,8 @@ using UnityEngine;
 
 public abstract class Walker : NonLiveEntity, IRespawn {
 
+	[Header("Walker Properties")]
+
 	[SerializeField]
 	protected	Bullet			m_Bullet					= null;
 
@@ -92,7 +94,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 			return;
 		
 		base.OnHit( bullet ); // set start bullet position as point to face at if not attacking
-
+		/*
 		if ( m_TargetInfo.HasTarget == false && bullet is GranadeBase )
 		{
 			m_PointToFace = bullet.Transform.position;
@@ -101,7 +103,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		m_DistanceToTravel	= ( transform.position - m_PointToFace ).sqrMagnitude;
 		m_Destination = bullet.Transform.position;
 		m_HasDestination = true;
-
+		*/
 		if ( m_Shield != null && m_Shield.Status > 0f && m_Shield.IsUnbreakable == false )
 		{
 			m_Shield.OnHit( bullet );
@@ -158,12 +160,14 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		// SEEKING MODE
 
 		// now point to face is target position
-		m_PointToFace = m_TargetInfo.CurrentTarget.Transform.position;
-		m_HasFaceTarget = true;
+//		m_PointToFace = m_TargetInfo.CurrentTarget.Transform.position;
+//		m_HasFaceTarget = true;
 
 		// now point to reach is target position
-		m_Destination = m_TargetInfo.CurrentTarget.Transform.position;
-		m_HasDestination = true;
+//		m_Destination = m_TargetInfo.CurrentTarget.Transform.position;
+//		m_HasDestination = true;
+
+//		m_Brain.TryToReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
 
 		// Set brain to SEKKER mode
 		m_Brain.ChangeState( BrainState.SEEKER );
@@ -172,7 +176,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		base.OnTargetLost( targetInfo );		// m_TargetInfo = default( TargetInfo_t );
 	}
 
-
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	// FaceToPoint ( Override )
 	protected override void FaceToPoint( float deltaTime )
@@ -193,8 +197,8 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 		m_IsAllignedGunToPoint			= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 3f;
 	}
-
-
+	*/
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	// Stop ( Virtual )
 	protected	virtual	void	Stop()
@@ -213,8 +217,8 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		m_StartMovePosition				= Vector3.zero;
 		m_DistanceToTravel				= 0f;
 	}
-
-
+	*/
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	// GoAtPoint ( Override )
 	protected override	void	GoAtPoint( float deltaTime )
@@ -241,7 +245,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 		m_RigidBody.velocity	= dirToPosition.normalized * m_MoveMaxSpeed * deltaTime * m_RigidBody.drag;
 	}
-
+	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	// FireLongRange ( Override )
@@ -271,14 +275,14 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		// Entity
 		m_IsActive						= true;
 		m_TargetInfo					= default( TargetInfo_t );
-		m_HasDestination				= false;
-		m_HasFaceTarget					= false;
-		m_Destination					= Vector3.zero;
-		m_PointToFace					= Vector3.zero;
+//		m_HasDestination				= false;
+//		m_HasFaceTarget					= false;
+//		m_Destination					= Vector3.zero;
+//		m_PointToFace					= Vector3.zero;
 		m_IsMoving						= false;
 		m_IsAllignedBodyToDestination	= false;
 		m_StartMovePosition				= Vector3.zero;
-		m_DistanceToTravel				= 0f;
+//		m_DistanceToTravel				= 0f;
 
 		// NonLiveEntity
 		m_ShotTimer						= 0f;

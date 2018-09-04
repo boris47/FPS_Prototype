@@ -95,9 +95,9 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		
 		base.OnHit( bullet ); // set start bullet position as point to face at if not attacking
 
-		m_DistanceToTravel	= ( transform.position - m_PointToFace ).sqrMagnitude;
-		m_Destination = bullet.Transform.position;
-		m_HasDestination = true;
+//		m_DistanceToTravel	= ( transform.position - m_PointToFace ).sqrMagnitude;
+//		m_Destination = bullet.Transform.position;
+//		m_HasDestination = true;
 
 		if ( m_Shield != null && m_Shield.Status > 0f && m_Shield.IsUnbreakable == false )
 		{
@@ -135,11 +135,11 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		// SEEKING MODE
 
 		// now point to face is target position
-		m_PointToFace = m_TargetInfo.CurrentTarget.Transform.position;
-		m_HasFaceTarget = true;
+//		m_PointToFace = m_TargetInfo.CurrentTarget.Transform.position;
+//		m_HasFaceTarget = true;
 
 		// now point to reach is target position
-		m_Destination = m_TargetInfo.CurrentTarget.Transform.position;
+//		m_Destination = m_TargetInfo.CurrentTarget.Transform.position;
 		m_HasDestination = true;
 
 		// Set brain to SEKKER mode
@@ -149,7 +149,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		base.OnTargetLost( targetInfo );		// m_TargetInfo = default( TargetInfo_t );
 	}
 
-
+/*
 	//////////////////////////////////////////////////////////////////////////
 	// FaceToPoint ( Override )
 	protected override void FaceToPoint( float deltaTime )
@@ -169,8 +169,8 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 		m_IsAllignedGunToPoint			= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 7f;
 	}
-
-	
+	*/
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	// Stop ( Virtual )
 	protected	virtual	void	Stop()
@@ -187,8 +187,8 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		m_StartMovePosition				= Vector3.zero;
 		m_DistanceToTravel				= 0f;
 	}
-
-
+	*/
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	// GoAtPoint
 	protected override	void	GoAtPoint( float deltaTime )
@@ -215,7 +215,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 		transform.position		+= dirToPosition.normalized * m_MoveMaxSpeed * deltaTime;
 	}
-
+	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	// FireLongRange ( Override )
@@ -245,14 +245,14 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		// Entity
 		m_IsActive						= true;
 		m_TargetInfo					= default( TargetInfo_t );
-		m_HasDestination				= false;
-		m_HasFaceTarget					= false;
-		m_Destination					= Vector3.zero;
-		m_PointToFace					= Vector3.zero;
+//		m_HasDestination				= false;
+//		m_HasFaceTarget					= false;
+//		m_Destination					= Vector3.zero;
+//		m_PointToFace					= Vector3.zero;
 		m_IsMoving						= false;
 		m_IsAllignedBodyToDestination	= false;
 		m_StartMovePosition				= Vector3.zero;
-		m_DistanceToTravel				= 0f;
+//		m_DistanceToTravel				= 0f;
 
 		// NonLiveEntity
 		m_ShotTimer						= 0f;

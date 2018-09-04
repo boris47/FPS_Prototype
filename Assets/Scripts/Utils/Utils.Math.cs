@@ -44,13 +44,29 @@ namespace Utils {
 
 			return Angle;
 		}
-		/*
-			sun_dir.setHP(
-			deg2rad(config.r_float(m_identifier.c_str(), "sun_altitude")),
-			deg2rad(config.r_float(m_identifier.c_str(), "sun_longitude"))
-			);
-		*/
 
+		/// <summary>
+		/// Get planar squared distance between two positions, position1 is projected on position2 plane
+		/// </summary>
+		/// <returns>Planar Squared Distance</returns>
+		public	static	float		PlanarSqrDistance( Vector3 position1, Vector3 position2, Vector3 position2PlaneNormal )
+		{
+			// with given plane normal, project position1 on position2 plane
+			Vector3 projectedPoint = ProjectPointOnPlane( position2PlaneNormal, position1, position2 );
+
+			return ( position2 - projectedPoint ).sqrMagnitude;
+		}
+
+		/// <summary>
+		/// Get planar distance between two positions, position1 is projected on position2 plane
+		/// </summary>
+		/// <returns>Planar Distance</returns>
+		public	static	float		PlanarDistance( Vector3 position1, Vector3 position2, Vector3 planeNormal )
+		{
+			float sqrDistance = PlanarSqrDistance( position1, position2, planeNormal );
+			
+			return Mathf.Sqrt( sqrDistance );
+		}
 
 		public	static	Vector3		VectorByHP( float h, float p )
 		{

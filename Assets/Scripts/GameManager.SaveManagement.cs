@@ -82,7 +82,7 @@ public partial class GameManager : IGameManager_SaveManagement {
 		OnSave( streamingData );
 
 		// write data on disk
-		string toSave = JsonUtility.ToJson( streamingData, prettyPrint: false );
+		string toSave = JsonUtility.ToJson( streamingData, prettyPrint: true );
 
 		print( "Saving" );
 		m_SavingThread = new Thread( () => { File.WriteAllText( fileName, Encrypt( toSave ) ); });
@@ -142,6 +142,8 @@ public partial class GameManager : IGameManager_SaveManagement {
 	// Encrypt
 	private string Encrypt( string clearText )
 	{
+		return clearText;
+
 		byte[] clearBytes = Encoding.Unicode.GetBytes( clearText );
 		m_Encryptor.Key = m_PDB.GetBytes( 32 );
 		m_Encryptor.IV = m_PDB.GetBytes( 16 );
@@ -165,6 +167,8 @@ public partial class GameManager : IGameManager_SaveManagement {
 	// Decrypt
 	private string Decrypt( string cipherText )
 	{
+		return cipherText;
+
 		cipherText = cipherText.Replace( " ", "+" );
 		byte[] cipherBytes = System.Convert.FromBase64String( cipherText );
 		m_Encryptor.Key = m_PDB.GetBytes( 32 );
@@ -209,8 +213,6 @@ public class StreamingUnit {
 	[SerializeField]
 	public	Quaternion				Rotation		= Quaternion.identity;
 
-	public	float					ShieldStatus	= -1f;
-
 	[SerializeField]
 	private	List<MyKeyValuePair>	Internals		= new List<MyKeyValuePair>();
 
@@ -225,6 +227,16 @@ public class StreamingUnit {
 		Internals.Add( keyValue );
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// HasInternal
+	public	bool		HasInternal( string key )
+	{
+		MyKeyValuePair keyValue = Internals.Find( ( MyKeyValuePair kv ) => kv.Key == key );
+		return keyValue != null;
+	}
+
+
 	//////////////////////////////////////////////////////////////////////////
 	// GetInternal
 	private	string		GetInternal( string key )
@@ -237,6 +249,7 @@ public class StreamingUnit {
 		}
 		return keyValue.Value;
 	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// GetAsBool

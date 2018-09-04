@@ -128,7 +128,7 @@ public class WalkerHidden : Walker {
 				m_StartMovePosition = transform.position;
 			}
 
-			GoAtPoint( deltaTime );
+//			GoAtPoint( deltaTime );
 		}
 
 		// Not have a target
@@ -168,8 +168,8 @@ public class WalkerHidden : Walker {
 	// OnEndAnimation
 	private		void	OnEndAnimation()
 	{
-		if ( m_IsEnabled == true )
-			m_PointToFace = m_BulletStartPositon;
+//		if ( m_IsEnabled == true )
+//			m_PointToFace = m_BulletStartPositon;
 
 		m_InTransition = false;
 	}

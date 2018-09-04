@@ -96,7 +96,9 @@ public class SoundManager : MonoBehaviour, ISoundManager {
 		}
 		else
 		{
+#pragma warning disable CS0162 // È stato rilevato codice non raggiungibile
 			DontDestroyOnLoad( this );
+#pragma warning restore CS0162 // È stato rilevato codice non raggiungibile
 		}
 	}
 

@@ -1,7 +1,7 @@
 ﻿
 using UnityEngine;
 
-[RequireComponent( typeof ( Brain ) )]
+[RequireComponent( typeof ( AI.Brain ) )]
 public abstract partial class NonLiveEntity : Entity {
 	
 	[Header("Non Live Entity Properties")]
@@ -15,6 +15,7 @@ public abstract partial class NonLiveEntity : Entity {
 	protected		ICustomAudioSource	m_FireAudioSource			= null;
 	protected		Shield				m_Shield					= null;
 
+	protected		Transform			m_MovementBaseTransform		= null;
 	protected		Transform			m_BodyTransform				= null;
 	protected		Transform			m_GunTransform				= null;
 	protected		Transform			m_FirePoint					= null;
@@ -45,11 +46,13 @@ public abstract partial class NonLiveEntity : Entity {
 		// Update internal timer
 		m_ShotTimer -= deltaTime;
 		
+		NavUpdate();
+
 		if ( m_TargetInfo.HasTarget == true )
 		{
 			if ( m_Brain.State != BrainState.ATTACKING )
 				m_Brain.ChangeState( BrainState.ATTACKING );
-			
+			/*
 			m_PointToFace = m_TargetInfo.CurrentTarget.Transform.position;
 			m_HasFaceTarget = true;
 
@@ -57,14 +60,15 @@ public abstract partial class NonLiveEntity : Entity {
 			m_HasDestination = true;
 
 			m_DistanceToTravel	= ( transform.position - m_PointToFace ).sqrMagnitude;
+			*/
 		}
-
+		/*
 		// if has target point to face at set
 		if ( m_HasFaceTarget )
 		{
 			FaceToPoint( deltaTime );   // m_PointToFace
 		}
-
+		*/
 		// if body is alligned with target start moving
 		if ( m_IsAllignedBodyToDestination && m_IsMoving == false )
 		{
@@ -73,9 +77,9 @@ public abstract partial class NonLiveEntity : Entity {
 		}
 
 		// if has destination set
-		if ( m_HasDestination && m_IsAllignedBodyToDestination )
+//		if ( m_HasDestination && m_IsAllignedBodyToDestination )
 		{
-			GoAtPoint( deltaTime );	// m_Destination
+//			GoAtPoint( deltaTime );	// m_Destination
 		}
 
 		// if gun alligned, fire
@@ -98,19 +102,19 @@ public abstract partial class NonLiveEntity : Entity {
 		// Shield
 		if ( m_Shield != null )
 		{
-			streamingUnit.ShieldStatus = m_Shield.Status;
+			streamingUnit.AddInternal( "ShieldStatus", m_Shield.Status );
 		}
 
 		// Internals
-		streamingUnit.AddInternal( "HasDestination",				m_HasDestination );
-		streamingUnit.AddInternal( "HasFaceTarget",					m_HasFaceTarget );
-		streamingUnit.AddInternal( "Destination",					Utils.Converters.Vector3ToString( m_Destination ) );
-		streamingUnit.AddInternal( "PointToFace",					Utils.Converters.Vector3ToString( m_PointToFace ) );
+//		streamingUnit.AddInternal( "HasDestination",				m_HasDestination );
+//		streamingUnit.AddInternal( "HasFaceTarget",					m_HasFaceTarget );
+//		streamingUnit.AddInternal( "Destination",					Utils.Converters.Vector3ToString( m_Destination ) );
+//		streamingUnit.AddInternal( "PointToFace",					Utils.Converters.Vector3ToString( m_PointToFace ) );
 		streamingUnit.AddInternal( "IsMoving",						m_IsMoving );
 		streamingUnit.AddInternal( "IsAllignedBodyToDestination",	m_IsAllignedBodyToDestination );
 		streamingUnit.AddInternal( "IsAllignedGunToPoint",			m_IsAllignedGunToPoint );
 		streamingUnit.AddInternal( "StartMovePosition",				Utils.Converters.Vector3ToString( m_StartMovePosition ) );
-		streamingUnit.AddInternal( "DistanceToTravel",				m_DistanceToTravel );
+//		streamingUnit.AddInternal( "DistanceToTravel",				m_DistanceToTravel );
 		
 		// Body and Gun
 		{
@@ -137,21 +141,23 @@ public abstract partial class NonLiveEntity : Entity {
 		m_Health = streamingUnit.GetAsFloat( "Health" );
 
 		// Shield
-		if ( streamingUnit.ShieldStatus > -1f )
+		if ( streamingUnit.HasInternal( "ShieldStatus" ) )
 		{
-			( m_Shield as IShield ).Status = streamingUnit.ShieldStatus;
+			( m_Shield as IShield ).Status = streamingUnit.GetAsFloat( "ShieldStatus" );//  .ShieldStatus;
+
+
 		}
 
 		// Internals
-		m_HasDestination					= streamingUnit.GetAsBool( "HasDestination" );
-		m_HasFaceTarget						= streamingUnit.GetAsBool( "HasFaceTarget" );
-		m_Destination						= streamingUnit.GetAsVector( "Destination" );
-		m_PointToFace						= streamingUnit.GetAsVector( "PointToFace" );
+//		m_HasDestination					= streamingUnit.GetAsBool( "HasDestination" );
+//		m_HasFaceTarget						= streamingUnit.GetAsBool( "HasFaceTarget" );
+//		m_Destination						= streamingUnit.GetAsVector( "Destination" );
+//		m_PointToFace						= streamingUnit.GetAsVector( "PointToFace" );
 		m_IsMoving							= streamingUnit.GetAsBool( "IsMoving" );
 		m_IsAllignedBodyToDestination		= streamingUnit.GetAsBool( "IsAllignedBodyToDestination" );
 		m_IsAllignedGunToPoint				= streamingUnit.GetAsBool( "IsAllignedGunToPoint" );
 		m_StartMovePosition					= streamingUnit.GetAsVector( "StartMovePosition" );
-		m_DistanceToTravel					= streamingUnit.GetAsFloat( "DistanceToTravel" );
+//		m_DistanceToTravel					= streamingUnit.GetAsFloat( "DistanceToTravel" );
 
 		// Body and Gun
 		{
@@ -169,9 +175,12 @@ public abstract partial class NonLiveEntity : Entity {
 	//////////////////////////////////////////////////////////////////////////
 	// OnThink ( Override )
 	public		override	void	OnThink()
-	{	}
+	{
+//		if ( m_TargetInfo.HasTarget )
+//			m_Brain.TryToReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
+	}
 
-
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	// FaceToPoint ( Abstract )
 	protected	abstract	void	FaceToPoint( float deltaTime );
@@ -179,7 +188,7 @@ public abstract partial class NonLiveEntity : Entity {
 	//////////////////////////////////////////////////////////////////////////
 	// GoAtPoint ( Abstract )
 	protected	abstract	void	GoAtPoint( float deltaTime );
-
+	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	// FireLongRange ( Abstract )

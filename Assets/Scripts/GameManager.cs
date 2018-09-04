@@ -187,7 +187,7 @@ public partial class GameManager : MonoBehaviour {
 		InputMgr.Update();
 
 		m_ThinkTimer += Time.deltaTime;
-		if ( m_ThinkTimer > Brain.THINK_TIMER )
+		if ( m_ThinkTimer > AI.Brain.THINK_TIMER )
 		{
 			m_OnThink();
 			m_ThinkTimer = 0f;
@@ -254,7 +254,9 @@ public partial class GameManager : MonoBehaviour {
 		} 
 		else
 		{
+#pragma warning disable CS0162 // È stato rilevato codice non raggiungibile
 			Application.Quit();
+#pragma warning restore CS0162 // È stato rilevato codice non raggiungibile
 		}
 	}
 

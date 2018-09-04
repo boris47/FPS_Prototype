@@ -1,7 +1,7 @@
 ﻿
 using UnityEngine;
 
-namespace AI_Behaviours {
+namespace AI.Behaviours {
 
 	public class Behaviour_Normal : Behaviour_Base {
 

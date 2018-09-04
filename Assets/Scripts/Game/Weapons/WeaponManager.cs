@@ -106,7 +106,7 @@ public class WeaponManager : MonoBehaviour, IWeaponManager {
 	private	StreamingUnit	OnLoad( StreamingData streamingData )
 	{
 		StreamingUnit streamingUnit = null;
-		streamingData.GetUnit( GameManager.Instance.gameObject, ref streamingUnit );
+		streamingData.GetUnit( gameObject, ref streamingUnit );
 
 		StopAllCoroutines();
 		m_ZoomingTime					= 0f;

@@ -4,8 +4,22 @@ using System.Collections.Generic;
 
 public	delegate	void	VoidArgsDelegate();
 
+public partial interface IEntity {
 
-public abstract partial class Entity {
+	void					OnTargetAquired					( TargetInfo_t targetInfo );
+	void					OnTargetChanged					( TargetInfo_t targetInfo );
+	void					OnTargetLost					( TargetInfo_t targetInfo );
+
+	void					OnHit							( IBullet bullet );
+	void					OnHit							( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false );
+	void					OnKill							();
+
+	void					OnThink							();
+
+}
+
+
+public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation {
 
 	public	event		VoidArgsDelegate	OnKilled		= null;
 

@@ -2,7 +2,7 @@
 using System;
 using UnityEngine;
 
-namespace AI_Behaviours {
+namespace AI.Behaviours {
 
 	public class Behaviour_Evasive : Behaviour_Base {
 

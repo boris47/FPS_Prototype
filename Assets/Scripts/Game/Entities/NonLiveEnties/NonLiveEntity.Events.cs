@@ -13,11 +13,16 @@ public abstract partial class NonLiveEntity : Entity {
 
 		// now point to face is target position
 		m_PointToFace = m_TargetInfo.CurrentTarget.Transform.position;
-		m_HasFaceTarget = true;
+		m_HasPointToFace = true;
 
 		// now point to reach is target position
-		m_Destination = m_TargetInfo.CurrentTarget.Transform.position;
-		m_HasDestination = true;
+//		m_Destination = m_TargetInfo.CurrentTarget.Transform.position;
+//		m_HasDestination = true;
+
+		if ( Vector3.Distance( transform.position, m_TargetInfo.CurrentTarget.Transform.position ) > m_MinEngageDistance )
+		{
+			m_Brain.TryToReachPoint( targetInfo.CurrentTarget.Transform.position );
+		}
 
 		m_Brain.ChangeState( BrainState.ATTACKING );
 	}
@@ -28,6 +33,11 @@ public abstract partial class NonLiveEntity : Entity {
 	public override void OnTargetChanged( TargetInfo_t targetInfo )
 	{
 		m_TargetInfo = targetInfo;
+
+		if ( Vector3.Distance( transform.position, m_TargetInfo.CurrentTarget.Transform.position ) > m_MinEngageDistance )
+		{
+			m_Brain.TryToReachPoint( targetInfo.CurrentTarget.Transform.position );
+		}
 	}
 
 
@@ -36,6 +46,9 @@ public abstract partial class NonLiveEntity : Entity {
 	public override void OnTargetLost( TargetInfo_t targetInfo )
 	{
 		m_TargetInfo = default( TargetInfo_t );
+
+		// Stop moving
+		m_Brain.Stop();
 
 		m_Brain.ChangeState( BrainState.NORMAL );
 	}
@@ -59,12 +72,15 @@ public abstract partial class NonLiveEntity : Entity {
 			m_Brain.ChangeState( BrainState.ALARMED );
 		}
 
+//		m_PointToFace = startPosition;
+//		m_HasPointToFace = true;
+
 		// if is not attacking
 		if ( m_Brain.State != BrainState.ATTACKING )
 		{
 			// set start bullet position as point to face at
 			m_PointToFace	= startPosition;	
-			m_HasFaceTarget = true;
+			m_HasPointToFace = true;
 		}
 	}
 

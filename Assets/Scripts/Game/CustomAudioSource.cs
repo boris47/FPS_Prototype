@@ -164,15 +164,18 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 		if ( m_IsFading == true )
 			return;
 
+		float volume = m_InternalVolume * m_Volume;
+		float pitch = m_InternalPitch  * m_Pitch;
+
 		if ( m_IsUnityAudioSource == true )
 		{
-			m_AudioSource.volume = m_InternalVolume * m_Volume;
-			m_AudioSource.pitch	 = m_InternalPitch  * m_Pitch;
+			m_AudioSource.volume = volume;
+			m_AudioSource.pitch	 = pitch;
 		}
 		else
 		{
-			m_AudioEmitter.EventInstance.setVolume( m_InternalVolume * m_Volume );
-			m_AudioEmitter.EventInstance.setPitch( m_InternalPitch  * m_Pitch );
+			m_AudioEmitter.EventInstance.setVolume( volume );
+			m_AudioEmitter.EventInstance.setPitch( pitch );
 		}
 	}
 
@@ -270,13 +273,15 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 			currentTime += Time.unscaledDeltaTime;
 			interpolant = currentTime / time;
 
+			float volume = m_InternalVolume * Mathf.Lerp( startMul, endMul, interpolant );
+
 			if ( m_IsUnityAudioSource == true )
 			{
-				m_AudioSource.volume = m_InternalVolume * Mathf.Lerp( startMul, endMul, interpolant );
+				m_AudioSource.volume = volume;
 			}
 			else
 			{
-				m_AudioEmitter.EventInstance.setVolume( m_InternalVolume * Mathf.Lerp( startMul, endMul, interpolant ) );
+				m_AudioEmitter.EventInstance.setVolume( volume );
 			}
 			yield return null;
 		}

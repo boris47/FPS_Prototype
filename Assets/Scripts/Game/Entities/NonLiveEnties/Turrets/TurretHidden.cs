@@ -58,8 +58,8 @@ public class TurretHidden : Turret {
 		m_TargetInfo = targetInfo;
 
 		// now point to face is target position
-		m_PointToFace = m_TargetInfo.CurrentTarget.Transform.position;
-		m_HasFaceTarget = true;
+//		m_PointToFace = m_TargetInfo.CurrentTarget.Transform.position;
+//		m_HasFaceTarget = true;
 
 		// now point to reach is target position
 //		m_Destination = m_TargetInfo.CurrentTarget.transform.position;
@@ -127,16 +127,16 @@ public class TurretHidden : Turret {
 
 		if ( m_Brain.State == BrainState.ALARMED )
 		{
-			FaceToPoint( deltaTime );
+//			FaceToPoint( deltaTime );
 		}
 
 		if ( m_Brain.State == BrainState.ATTACKING )
 		{
 			if ( m_TargetInfo.HasTarget == true )
 			{
-				m_PointToFace		= m_TargetInfo.CurrentTarget.Transform.position;
+//				m_PointToFace		= m_TargetInfo.CurrentTarget.Transform.position;
 			}
-			FaceToPoint( deltaTime );	// m_PointToFace
+//			FaceToPoint( deltaTime );	// m_PointToFace
 
 			if ( m_IsAllignedGunToPoint == false )
 			return;
@@ -170,8 +170,8 @@ public class TurretHidden : Turret {
 	// OnEndAnimation
 	private		void	OnEndAnimation()
 	{
-		if ( m_IsEnabled == true )
-			m_PointToFace = m_BulletStartPositon;
+//		if ( m_IsEnabled == true )
+//			m_PointToFace = m_BulletStartPositon;
 
 		m_InTransition = false;
 	}

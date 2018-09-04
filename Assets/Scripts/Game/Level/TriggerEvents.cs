@@ -24,6 +24,15 @@ public class TriggerEvents : MonoBehaviour {
 	// Awake
 	private void Awake()
 	{
+		Collider collider = GetComponent<Collider>();
+		if ( collider == null )
+		{
+			Destroy(this);
+			return;
+		}
+
+		collider.isTrigger = true; // ensure is used as trigger
+
 		GameManager.Instance.OnSave += OnSave;
 		GameManager.Instance.OnLoad += OnLoad;
 	}

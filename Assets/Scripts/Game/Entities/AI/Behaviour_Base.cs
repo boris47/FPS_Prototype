@@ -2,7 +2,7 @@
 using UnityEngine;
 
 
-namespace AI_Behaviours {
+namespace AI.Behaviours {
 
 	public abstract class Behaviour_Base {
 

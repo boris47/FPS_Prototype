@@ -1,34 +1,44 @@
 ﻿
-using CFG_Reader;
 using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
+using CFG_Reader;
 using CutScene;
+using AI;
 
-public interface IEntity {
+public partial interface IEntity {
+	// Entity Transform
 	Transform				Transform						{	get;		}
+
+	// Generic flag for entity state
 	bool					IsActive						{	get;		}
+
+	// Entity unique ID
 	uint					ID								{	get;		}
+
+	// Entity Health
 	float					Health							{	get;		}
+
+	// Entity Section
 	string					Section							{	get;		}
+
+	// RigidBody
 	Rigidbody				RigidBody						{	get;		}
+
+	// Physic collider, only manage entity in space
 	Collider				PhysicCollider					{	get;		}
+
+	// Trigger collider, used for interactions with incoming objects or trigger areas
 	CapsuleCollider			TriggerCollider					{	get;		}
+
+	// Transform where to play effects at
 	Transform				EffectsPivot					{	get;		}
+
+	// Entity brain
 	IBrain					Brain							{	get;		}
+
+	// Cutscene manager, that take control over entity during cutscene sequences
 	CutsceneEntityManager	CutsceneManager					{	get; set;	}
 
 	bool					CanTrigger();
-
-	void					OnThink							();
-
-	void					OnTargetAquired					( TargetInfo_t targetInfo );
-	void					OnTargetChanged					( TargetInfo_t targetInfo );
-	void					OnTargetLost					( TargetInfo_t targetInfo );
-
-	void					OnHit							( IBullet bullet );
-	void					OnHit							( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false );
-	void					OnKill							();
 }
 
 
@@ -96,7 +106,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	// AI
 	protected	IBrain						m_Brain							= null;
 	protected	TargetInfo_t				m_TargetInfo					= default( TargetInfo_t );
-//	protected	Vector3						m_LastAttackPosition			= Vector3.zero;			// store start position of hitting bullet
 
 	[SerializeField]
 	protected	float						m_MinEngageDistance				= 0f;
@@ -105,7 +114,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	protected	RespawnPoint				m_RespawnPoint					= null;
 
 
-	// CUTSCENE DATA
+	// CUTSCENE MANAGER
 	protected	CutsceneEntityManager		m_CutsceneManager				= null;
 
 	protected	bool						m_MovementOverrideEnabled		= false;
@@ -113,11 +122,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 
 	// NAVIGATION
-	protected	bool						m_HasDestination				= false;
-	protected	bool						m_HasFaceTarget					= false;
-	protected	Vector3						m_Destination					= Vector3.zero;
+	protected	bool						m_HasPointToFace				= false;
 	protected	Vector3						m_PointToFace					= Vector3.zero;
-	protected	bool						m_IsMoving						= false;
 
 	// Flag set if body of entity is aligned with target
 	protected	bool						m_IsAllignedBodyToDestination	= false;
@@ -125,10 +131,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	// Flag set if gun of entity is aligned with target
 	protected	bool						m_IsAllignedGunToPoint			= false;
 
-	// Position saved at start of movement ( used for distances check )
-	protected	Vector3						m_StartMovePosition				= Vector3.zero;
-				Vector3						IEntitySimulation.StartPosition { get { return m_StartMovePosition; } set { m_StartMovePosition = value; } }
-	protected	float						m_DistanceToTravel				= 0f;
+	
+				Vector3						IEntitySimulation.StartPosition { get; set; }
 
 
 	protected	bool 						m_IsOK							= false;
@@ -167,7 +171,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnSave ( virtual )
-	protected	virtual	StreamingUnit	OnSave( StreamingData streamingData )
+	protected	virtual		StreamingUnit	OnSave( StreamingData streamingData )
 	{
 		if ( m_IsActive == false )
 			return null;
@@ -198,13 +202,13 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 		// Entity
 		m_TargetInfo					= default( TargetInfo_t );
 		m_HasDestination				= false;
-		m_HasFaceTarget					= false;
-		m_Destination					= Vector3.zero;
-		m_PointToFace					= Vector3.zero;
+//		m_HasFaceTarget					= false;
+//		m_Destination					= Vector3.zero;
+//		m_PointToFace					= Vector3.zero;
 		m_IsMoving						= false;
 		m_IsAllignedBodyToDestination	= false;
 		m_StartMovePosition				= Vector3.zero;
-		m_DistanceToTravel				= 0f;
+//		m_DistanceToTravel				= 0f;
 
 		// NonLiveEntity
 		m_IsAllignedGunToPoint			= false;
@@ -215,21 +219,15 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	}
 
 
-	//////////////////////////////////////////////////////////////////////////
-	// SetDestination ( Virtual )
-	public	virtual		void	SetDestination( Vector3 destination )
-	{
-		m_Destination = destination;
-		m_HasDestination = true;
-	}
+	
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// SetPoinToFace ( Firtual )
 	public	virtual		void	SetPoinToFace( Vector3 point )
 	{
-		m_PointToFace = point;
-		m_HasFaceTarget = true;
+//		m_PointToFace = point;
+//		m_HasFaceTarget = true;
 	}
 
 
