@@ -6,84 +6,44 @@ using System.Collections.ObjectModel;
 
 namespace AI.Pathfinding {
 
-	[ExecuteInEditMode] [RequireComponent(typeof(BoxCollider))]
+	[ExecuteInEditMode] [RequireComponent(typeof(MeshRenderer))]
 	public class NavMeshVolume : MonoBehaviour {
 
 		[SerializeField]
-		private		float			m_StepSize	= 1f;
+		private		float			m_StepSize		= 1f;
 		public		float			StepSize
 		{
 			get { return m_StepSize; }
 			set { m_StepSize = Mathf.Max( 0.01f, value ); }
 		}
 
-		private		BoxCollider		m_Collider	= null;
-
-		[SerializeField]
-		private		List<AINode>	m_Nodes		= new List<AINode>();
+		private		MeshRenderer	m_MeshRenderer	= null;
 
 
-		private void CreateColliderIfNeed()
+		//////////////////////////////////////////////////////////////////////////
+		private void Awake()
 		{
-			if ( ( m_Collider = GetComponent<BoxCollider>() ) == null )
-				m_Collider = gameObject.AddComponent<BoxCollider>();
-
-			m_Collider.enabled = false;
+			EnsureComponents();
 		}
 
-		private void OnEnable()
+		//////////////////////////////////////////////////////////////////////////
+		private	void	EnsureComponents()
 		{
-			CreateColliderIfNeed();
-		}
-
-		private void OnValidate()
-		{
-			m_StepSize = Mathf.Max( m_StepSize, 0.1f );
-		}
-
-
-		public ReadOnlyCollection<AINode> GetNodes()
-		{
-			return new ReadOnlyCollection<AINode>( m_Nodes );
-		}
-
-		public void ReleaseNode( AINode node )
-		{
-			if ( node != null )
+			MeshRenderer renderer = null;
+			if ( ( renderer = GetComponent<MeshRenderer>() ) == null )
 			{
-				m_Nodes.Remove( node );
-
-				DestroyImmediate( node.gameObject );
+				renderer = gameObject.AddComponent<MeshRenderer>();
 			}
 
+			m_MeshRenderer = renderer;
 		}
 
 
-		public void	UpdateWithNodes( ref List<AINode> NodeList )
+		//////////////////////////////////////////////////////////////////////////
+		public	void	IterateOver( System.Action<Vector3> OnPosition )
 		{
-			CreateColliderIfNeed();
-
-			Quaternion prevRotation = transform.rotation;
-
-			transform.rotation = Quaternion.identity;
-
-			AINode nodePrefab = Resources.Load<AINode>( "Prefabs/AI/AINode" );
-
-			// Find already inside nodes
-			for ( int i = NodeList.Count - 1; i >= 0; i-- )
-			{
-				AINode node = NodeList[i];
-
-				if ( IsNodeInside( node ) )
-				{
-					NodeList.Remove( node );
-
-					//	Destroy this node
-					NavMeshVolume volume = node.transform.parent.GetComponent<NavMeshVolume>();
-					volume.ReleaseNode( node );
-				}
-			}
-
+			if ( OnPosition == null )
+				return;
 
 			float extentsX = transform.localScale.x / 2.0f;
 			float extentsZ = transform.localScale.z / 2.0f;
@@ -91,29 +51,17 @@ namespace AI.Pathfinding {
 			float currentStepX = transform.localScale.x;
 			float currentStepZ = transform.localScale.z;
 
+			Vector3 position = Vector3.zero;
+
 			while ( true )
 			{
 				float currentX = transform.position.x - extentsX + currentStepX;
 				float currentZ = transform.position.z - extentsZ + currentStepZ;
 				float currentY = transform.position.y;
 
-				// Create AINode
-				AINode node  = Instantiate<AINode>( nodePrefab, new Vector3( currentX, currentY, currentZ ), Quaternion.identity, transform );
+				position.Set( currentX, currentY, currentZ );
 
-				Vector3 localScale = node.transform.localScale;
-
-				Vector3 lossyScale =  node.transform.lossyScale;
-
-				Vector3 newScale = new Vector3( 
-					localScale.x / lossyScale.x,
-					localScale.y / lossyScale.y,
-					localScale.z / lossyScale.z
-				);
-
-				node.transform.localScale = newScale;
-
-				m_Nodes.Add( node );
-				NodeList.Add( node );
+				OnPosition( position );
 
 				currentStepX -= m_StepSize;
 				if ( currentStepX <= 0.0f )
@@ -126,43 +74,22 @@ namespace AI.Pathfinding {
 					currentStepX = transform.localScale.x;
 				}
 			}
-
-			transform.rotation = prevRotation;
 		}
+		
 
+		//////////////////////////////////////////////////////////////////////////
 		public	void	Clear()
 		{
-			for ( int i = m_Nodes.Count - 1; i >= 0; i-- )
-			{
-				AINode node = m_Nodes[i];
-				ReleaseNode( node );
-			}
-
-//			GraphMaker.CollectNodes();
-//			foreach( AINode node in GraphMaker.Nodes )
-//			{
-//				GraphMaker.UpdateNeighbours( node, m_StepSize, isUpdate: true );
-//			}
-
-			m_Nodes.Clear();
-		}
-
-		public	bool IsNodeInside( AINode node )
-		{
-			return GetComponent<MeshRenderer>().bounds.Contains( node.transform.position );
+			PathFinder.ReleaseNodesByVolume( this );
 		}
 
 
-
-		private void OnDrawGizmosSelected()
+		//////////////////////////////////////////////////////////////////////////
+		public	bool	IsPositionInside( Vector3 Position )
 		{
-			if ( m_Nodes != null && m_Nodes.Count > 0 )
-			{
-				foreach( AINode node in m_Nodes )
-				{
-					Gizmos.DrawSphere( node.transform.position, 0.5f );
-				}
-			}
+			EnsureComponents();
+
+			return m_MeshRenderer.bounds.Contains( Position );
 		}
 	}
 

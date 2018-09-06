@@ -19,6 +19,7 @@ public enum BrainState {
 
 namespace AI {
 
+	using Pathfinding;
 
 	// Brain Interface
 	public interface IBrain {
@@ -124,16 +125,8 @@ namespace AI {
 		// OnThink
 		public	void	TryToReachPoint( Vector3 destination )
 		{
-			IAINode startNode	= Pathfinding.GraphMaker.Instance.GetNearestNode( transform.position );
-			IAINode endNode		= Pathfinding.GraphMaker.Instance.GetNearestNode( destination );
-
-			if ( startNode.ID == endNode.ID )
-			{
-				return;
-			}
-
-			IAINode[] path = null;
-			uint nodeCount = Pathfinding.AStarSearch.FindPath( startNode, endNode, ref path );
+			Vector3[] path = null;
+			uint nodeCount = PathFinder.FindPath( transform.position, destination, ref path );
 
 			if ( nodeCount > 0 )
 			{
