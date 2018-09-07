@@ -80,13 +80,13 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 		{
 			m_NavCurrentNodeIdx ++;
 
-			print( "NodeReached" );
+//			print( "NodeReached" );
 
 			// Arrived
-			if ( m_NavCurrentNodeIdx == m_NavPathLength || m_NavPath[ m_NavCurrentNodeIdx ] == null )
+			if ( m_NavCurrentNodeIdx == m_NavPathLength )
 			{
 				NavReset();
-				print( "Path completed" );
+//				print( "Path completed" );
 				return;
 			}
 

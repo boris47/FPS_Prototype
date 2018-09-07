@@ -12,6 +12,8 @@ namespace AI.Pathfinding
 	[ExecuteInEditMode]
 	public class PathFinder : MonoBehaviour
 	{
+		private	const	string	NODE_PREFAB_PATH = "Prefabs/AI/AINode";
+
 		// Node graph
 		public		static	int							NodeCount			{ get { return ( m_Nodes != null ) ? m_Nodes.Count : 0; } }
 		private		static	AINode						m_NodeModel			= null;
@@ -28,20 +30,7 @@ namespace AI.Pathfinding
 		{
 			if ( m_NodeModel == null )
 			{
-				GameObject nodeObj = null;
-				if ( ( nodeObj = GameObject.Find( "AINodeModel" ) ) == null )
-				{
-					nodeObj = new GameObject( "AINodeModel" );
-				}
-				nodeObj.hideFlags = HideFlags.HideAndDontSave;
-
-				AINode nodeModel = null;
-				if ( ( nodeModel = nodeObj.GetComponent<AINode>() ) == null )
-				{
-					nodeModel = nodeObj.AddComponent<AINode>();
-				}
-
-				m_NodeModel = nodeModel;
+				m_NodeModel = Resources.Load<AINode>( NODE_PREFAB_PATH );
 			}
 		}
 
@@ -318,7 +307,7 @@ namespace AI.Pathfinding
 					AINode iNeighbour = currentNode.Neighbours[ i ];
 					if ( iNeighbour == null )
 					{
-						UnityEngine.Debug.Log( "node " + ( currentNode as AINode ).name + " has neighbour as null " );
+						UnityEngine.Debug.Log( "node " + currentNode.name + " has neighbour as null " );
 						return 0;
 					}
 
@@ -425,7 +414,6 @@ namespace AI.Pathfinding
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// AWAKE
 		private		void	Awake ()
 		{
 			// Find all nodes
@@ -434,6 +422,8 @@ namespace AI.Pathfinding
 			SetOpenSetSize( m_Nodes.Count );
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
 		private		void	OnEnable()
 		{
 			m_Nodes = new List<AINode>( FindObjectsOfType<AINode>() );
@@ -441,84 +431,10 @@ namespace AI.Pathfinding
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// ONDESTROY
 		private		void	OnDestroy()
 		{
 			ClearSet();
 		}
-
-		/*
-
-		//////////////////////////////////////////////////////////////////////////
-		// UpdaeNeighbours
-		public static  void	UpdateNeighbours( IAINode iNode, float scanRadius, bool isUpdate )
-		{
-			if (  iNode is IAINodeLinker )
-				return;
-
-			if ( m_Nodes == null )
-				m_Nodes = FindObjectsOfType<AINode>();
-
-			// UPDATE PREVIOUS NEIGHBOURS
-			if ( isUpdate == true )
-			{
-				// update previous neighbours
-				foreach( IAINode neigh in iNode.Neighbours )
-				{
-					if ( neigh != null )
-						UpdateNeighbours( neigh, scanRadius, false );
-				}
-			}
-
-			// Get neighbours by distance
-			IAINode[] neighbours = System.Array.FindAll<AINode>
-			( 
-				m_Nodes, 
-				n =>
-				( n.transform.position - iNode.Position ).sqrMagnitude <= scanRadius * scanRadius
-				&& (AINode)n != (AINode)iNode
-//				&& Physics.CheckCapsule( iNode.Position, n.transform.position, 0.5f ) == false
-				&& Physics.Raycast( iNode.Position, ( n.transform.position - iNode.Position ), scanRadius ) == false
-			);
-
-			// create temporary array of neighbours and copy neighbours found
-			bool hasLinker = iNode.Linker != null;
-			AINode[] nodeNeighbours = new AINode[ neighbours.Length + ( hasLinker ? 1 : 0 ) ];
-			System.Array.Copy( neighbours, nodeNeighbours, neighbours.Length );
-
-
-			// LINKER ASSIGNMENT
-			if ( hasLinker )
-			{
-				// add linker to this node
-				nodeNeighbours[ nodeNeighbours.Length - 1 ] = iNode.Linker as AINode;
-				
-				IAINode			ILinker		= iNode.Linker;
-
-				// resize Neighbours array
-				var tmpNeighbours = ILinker.Neighbours;
-				System.Array.Resize( ref tmpNeighbours, ( ILinker.Neighbours != null ) ? ILinker.Neighbours.Length + 1 : 1 );
-				// add this node to linker
-				tmpNeighbours[ tmpNeighbours.Length - 1 ] = iNode as AINode;
-				ILinker.Neighbours = tmpNeighbours;
-			}
-		
-			iNode.Neighbours = nodeNeighbours;
-			
-
-			// UPDATE CURRENT NEIGHBOURS
-			if ( isUpdate == true )
-			{
-				// update previous neighbours
-				foreach( IAINode neigh in iNode.Neighbours )
-				{
-					if ( neigh != null )
-						UpdateNeighbours( neigh, scanRadius, false );
-				}
-			}
-		}
-		*/
-
 
 
 		//////////////////////////////////////////////////////////////////////////
@@ -539,108 +455,5 @@ namespace AI.Pathfinding
 		}
 
 	}
-
-	
-
-
-
-
-
-
-	public interface IAINode {
-
-	}
-
-	[System.Serializable]
-	class AINode : MonoBehaviour, IAINode, IHeapItem<AINode> {
-
-		private	static	uint					g_ID		= 0;
-
-		internal	uint						ID			= 0;
-		internal	AINode						Parent		= null;
-
-		///
-		/// PATHFINDING		START
-		///
-		internal	AINode						Linker	= null;
-		internal	float						gCost		= 0.0f;
-		internal	float						Heuristic	= 0.0f;
-		internal	float						fCost		{ get { return gCost + Heuristic; } }
-		internal	Vector3						Position	{ get { return transform.position; } }
-		internal	bool						Visited		= false;
-		///
-		/// PATHFINDING		END
-		///
-
-
-		[SerializeField]
-		internal	List<AINode>				Neighbours			= new List<AINode>();
-
-		[SerializeField]
-		internal	bool						m_IsWalkable		= true;
-
-
-		internal	NavMeshVolume				Volume				= null;
-
-
-
-
-		public		bool						IsWalkable
-		{
-			get { return m_IsWalkable; }
-			set { m_IsWalkable = value; }
-		}
-
-		private		int							m_HeapIndex;
-					int							IHeapItem<AINode>.HeapIndex
-		{
-			get { return m_HeapIndex; }
-			set { m_HeapIndex = value; }
-		}
-
-		public	void	SetID()
-		{
-			ID = g_ID;
-			g_ID ++;
-		}
-
-		int IComparable<AINode>.CompareTo( AINode other )
-		{
-			int compare =  this.fCost.CompareTo( other.fCost );
-			if (compare == 0)
-			{
-				compare = this.Heuristic.CompareTo( other.Heuristic );
-			}
-			return -compare;
-		}
-
-
-		bool IEquatable<AINode>.Equals( AINode other )
-		{
-			return this.ID == other.ID;
-		}
-
-		private	void	OnDrawGizmosSelected()
-		{
-			if ( this == null )
-				return;
-
-			if ( Neighbours != null && Neighbours.Count > 0 )
-			{
-				foreach( AINode neigh in Neighbours )
-				{
-					if ( neigh != null )
-					{
-						Gizmos.DrawLine( transform.position, neigh.transform.position );
-					}
-				}
-			}
-		}
-	}
-
-
-
-
-
 
 }

@@ -72,6 +72,9 @@ public abstract partial class NonLiveEntity : Entity {
 			m_Brain.ChangeState( BrainState.ALARMED );
 		}
 
+
+		m_Brain.TryToReachPoint( startPosition );
+
 //		m_PointToFace = startPosition;
 //		m_HasPointToFace = true;
 

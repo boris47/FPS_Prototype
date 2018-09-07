@@ -6,7 +6,7 @@ using System.Collections.ObjectModel;
 
 namespace AI.Pathfinding {
 
-	[ExecuteInEditMode] [RequireComponent(typeof(MeshRenderer))]
+	[RequireComponent(typeof(MeshRenderer))]
 	public class NavMeshVolume : MonoBehaviour {
 
 		[SerializeField]
@@ -20,11 +20,13 @@ namespace AI.Pathfinding {
 		private		MeshRenderer	m_MeshRenderer	= null;
 
 
+
 		//////////////////////////////////////////////////////////////////////////
 		private void Awake()
 		{
 			EnsureComponents();
 		}
+
 
 		//////////////////////////////////////////////////////////////////////////
 		private	void	EnsureComponents()
@@ -36,6 +38,13 @@ namespace AI.Pathfinding {
 			}
 
 			m_MeshRenderer = renderer;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		private void	Start()
+		{
+			m_MeshRenderer.enabled = false;
 		}
 
 

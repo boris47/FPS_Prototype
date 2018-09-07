@@ -144,6 +144,9 @@ public class Blaster : Weapon
 		if ( m_FlashLight != null )
 			m_FlashLight.SetActive( streamingUnit.GetAsBool( "FlashLightActive") );
 
+		// MAGAZINE
+		m_Magazine = ( uint ) streamingUnit.GetAsInt( "Magazine" );
+
 		// RESET INTERNALS
 		m_Charge					= 0f;
 		m_HasCharged				= false;
