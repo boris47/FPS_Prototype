@@ -11,18 +11,15 @@ public abstract partial class NonLiveEntity : Entity {
 	{
 		m_TargetInfo = targetInfo;
 
+
+		print( "OntargetAcquired" );
+
+		// PathFinding
+		CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
+
 		// now point to face is target position
-		m_PointToFace = m_TargetInfo.CurrentTarget.Transform.position;
-		m_HasPointToFace = true;
-
-		// now point to reach is target position
-//		m_Destination = m_TargetInfo.CurrentTarget.Transform.position;
-//		m_HasDestination = true;
-
-		if ( Vector3.Distance( transform.position, m_TargetInfo.CurrentTarget.Transform.position ) > m_MinEngageDistance )
-		{
-			m_Brain.TryToReachPoint( targetInfo.CurrentTarget.Transform.position );
-		}
+		m_PointToFace		= m_TargetInfo.CurrentTarget.Transform.position;
+		m_HasPointToFace	= true;
 
 		m_Brain.ChangeState( BrainState.ATTACKING );
 	}
@@ -34,10 +31,10 @@ public abstract partial class NonLiveEntity : Entity {
 	{
 		m_TargetInfo = targetInfo;
 
-		if ( Vector3.Distance( transform.position, m_TargetInfo.CurrentTarget.Transform.position ) > m_MinEngageDistance )
-		{
-			m_Brain.TryToReachPoint( targetInfo.CurrentTarget.Transform.position );
-		}
+		print( "OnTargetChanged" );
+
+		// PathFinding
+		CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
 	}
 
 
@@ -47,8 +44,10 @@ public abstract partial class NonLiveEntity : Entity {
 	{
 		m_TargetInfo = default( TargetInfo_t );
 
+		print( "OnTargetLost" );
+
 		// Stop moving
-		m_Brain.Stop();
+		m_Brain.Stop(); // temp, cheasing feature awaiting
 
 		m_Brain.ChangeState( BrainState.NORMAL );
 	}
@@ -56,7 +55,7 @@ public abstract partial class NonLiveEntity : Entity {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnHit ( Override )
-	public override void OnHit( IBullet bullet )
+	public	override	void	OnHit( IBullet bullet )
 	{
 		OnHit( bullet.StartPosition, bullet.WhoRef, 0f );
 	}
@@ -72,18 +71,17 @@ public abstract partial class NonLiveEntity : Entity {
 			m_Brain.ChangeState( BrainState.ALARMED );
 		}
 
-
-		m_Brain.TryToReachPoint( startPosition );
-
-//		m_PointToFace = startPosition;
-//		m_HasPointToFace = true;
+		if ( m_Brain.State != BrainState.ATTACKING )
+		{
+			SetPoinToFace( startPosition );
+		}
 
 		// if is not attacking
 		if ( m_Brain.State != BrainState.ATTACKING )
 		{
 			// set start bullet position as point to face at
-			m_PointToFace	= startPosition;	
-			m_HasPointToFace = true;
+			m_PointToFace		= startPosition;	
+			m_HasPointToFace	= true;
 		}
 	}
 

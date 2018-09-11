@@ -44,6 +44,9 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	[SerializeField,Range( 20f, 150f)]
 	private		float					m_ViewCone				= 100f;
 
+//	[SerializeField]
+	private		LayerMask				m_LayerMaskToSkip		= 0;
+
 
 	float	IFieldOfView.Angle
 	{
@@ -78,6 +81,8 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		m_ViewTriggerCollider = GetComponent<SphereCollider>();
 		m_ViewTriggerCollider.isTrigger = true;
 		m_ViewTriggerCollider.radius = m_ViewDistance;
+
+		m_LayerMaskToSkip		= LayerMask.NameToLayer("Bullets");
 	}
 
 
@@ -195,7 +200,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 			if ( Vector3.Angle( currentViewPoint.forward, direction.normalized ) <= ( m_ViewCone * 0.5f ) )
 			{
 				// CHECK IF HITTED IS A TARGET
-				bool result = Physics.Linecast( currentViewPoint.position, entity.transform.position, out m_RaycastHit, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore );
+				bool result = Physics.Linecast( currentViewPoint.position, entity.transform.position, out m_RaycastHit, Physics.AllLayers | m_LayerMaskToSkip, QueryTriggerInteraction.Ignore );
 				if ( result == true && m_RaycastHit.collider == entity.Interface.PhysicCollider )
 				{
 					m_ValidTargets[ currentCount ] = entity;
@@ -211,7 +216,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 
 		if ( currentCount == 0 )
 		{
-			ClearLastTarget();
+//			ClearLastTarget();
 			return false;
 		}
 

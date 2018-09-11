@@ -1,12 +1,12 @@
 {
     "m_Data": [
         {
-            "InstanceID": -7316,
+            "InstanceID": -7228,
             "Name": "Player",
             "Position": {
-                "x": -5.193115234375,
+                "x": 5.7569379806518559,
                 "y": 5.5,
-                "z": -16.745086669921876
+                "z": -34.06737518310547
             },
             "Rotation": {
                 "x": 0.0,
@@ -34,7 +34,7 @@
             ]
         },
         {
-            "InstanceID": -6892,
+            "InstanceID": -6842,
             "Name": "WeaponManager",
             "Position": {
                 "x": 0.0,
@@ -54,7 +54,7 @@
                 },
                 {
                     "Key": "ZoomedIn",
-                    "Value": "False"
+                    "Value": "True"
                 },
                 {
                     "Key": "StartOffset",
@@ -75,7 +75,7 @@
             ]
         },
         {
-            "InstanceID": -8622,
+            "InstanceID": -8456,
             "Name": "TurretGatling (6)",
             "Position": {
                 "x": 11.850000381469727,
@@ -95,7 +95,7 @@
                 },
                 {
                     "Key": "IsMoving",
-                    "Value": "False"
+                    "Value": "True"
                 },
                 {
                     "Key": "IsAllignedBodyToDestination",
@@ -124,7 +124,7 @@
             ]
         },
         {
-            "InstanceID": -8572,
+            "InstanceID": -8406,
             "Name": "WalkerMortar",
             "Position": {
                 "x": 13.545486450195313,
@@ -144,7 +144,7 @@
                 },
                 {
                     "Key": "IsMoving",
-                    "Value": "False"
+                    "Value": "True"
                 },
                 {
                     "Key": "IsAllignedBodyToDestination",
@@ -173,7 +173,7 @@
             ]
         },
         {
-            "InstanceID": -8466,
+            "InstanceID": -8306,
             "Name": "TurretGatling (16)",
             "Position": {
                 "x": -5.865221977233887,
@@ -193,7 +193,7 @@
                 },
                 {
                     "Key": "IsMoving",
-                    "Value": "False"
+                    "Value": "True"
                 },
                 {
                     "Key": "IsAllignedBodyToDestination",
@@ -217,12 +217,12 @@
                 },
                 {
                     "Key": "BrainState",
-                    "Value": "ATTACKING"
+                    "Value": "NORMAL"
                 }
             ]
         },
         {
-            "InstanceID": -8406,
+            "InstanceID": -8258,
             "Name": "TurretHidden",
             "Position": {
                 "x": -7.614501953125,
@@ -242,7 +242,7 @@
                 },
                 {
                     "Key": "IsMoving",
-                    "Value": "False"
+                    "Value": "True"
                 },
                 {
                     "Key": "IsAllignedBodyToDestination",
@@ -275,7 +275,7 @@
             ]
         },
         {
-            "InstanceID": -8326,
+            "InstanceID": -8190,
             "Name": "WalkerArmoredGatling",
             "Position": {
                 "x": 11.975494384765625,
@@ -299,7 +299,7 @@
                 },
                 {
                     "Key": "IsMoving",
-                    "Value": "False"
+                    "Value": "True"
                 },
                 {
                     "Key": "IsAllignedBodyToDestination",
@@ -328,7 +328,7 @@
             ]
         },
         {
-            "InstanceID": -8010,
+            "InstanceID": -7874,
             "Name": "TurretGatling (13)",
             "Position": {
                 "x": 13.464776992797852,
@@ -348,7 +348,7 @@
                 },
                 {
                     "Key": "IsMoving",
-                    "Value": "False"
+                    "Value": "True"
                 },
                 {
                     "Key": "IsAllignedBodyToDestination",
@@ -377,7 +377,7 @@
             ]
         },
         {
-            "InstanceID": 15530,
+            "InstanceID": 18972,
             "Name": "TurretGatling (17)",
             "Position": {
                 "x": -7.335222244262695,
@@ -397,56 +397,7 @@
                 },
                 {
                     "Key": "IsMoving",
-                    "Value": "False"
-                },
-                {
-                    "Key": "IsAllignedBodyToDestination",
-                    "Value": "False"
-                },
-                {
-                    "Key": "IsAllignedGunToPoint",
-                    "Value": "False"
-                },
-                {
-                    "Key": "StartMovePosition",
-                    "Value": "0, 0, 0"
-                },
-                {
-                    "Key": "BodyRotation",
-                    "Value": "0, 0, 0, 1"
-                },
-                {
-                    "Key": "GunRotation",
-                    "Value": "0, 0, 0, 1"
-                },
-                {
-                    "Key": "BrainState",
-                    "Value": "ATTACKING"
-                }
-            ]
-        },
-        {
-            "InstanceID": -7800,
-            "Name": "TurretGatling (7)",
-            "Position": {
-                "x": 10.544776916503907,
-                "y": 17.25,
-                "z": 2.9739837646484377
-            },
-            "Rotation": {
-                "x": 0.27059802412986758,
-                "y": -0.653281569480896,
-                "z": 0.6532814502716065,
-                "w": 0.27059805393218996
-            },
-            "Internals": [
-                {
-                    "Key": "Health",
-                    "Value": "100"
-                },
-                {
-                    "Key": "IsMoving",
-                    "Value": "False"
+                    "Value": "True"
                 },
                 {
                     "Key": "IsAllignedBodyToDestination",
@@ -475,7 +426,56 @@
             ]
         },
         {
-            "InstanceID": -7684,
+            "InstanceID": -7670,
+            "Name": "TurretGatling (7)",
+            "Position": {
+                "x": 10.544776916503907,
+                "y": 17.25,
+                "z": 2.9739837646484377
+            },
+            "Rotation": {
+                "x": 0.27059802412986758,
+                "y": -0.653281569480896,
+                "z": 0.6532814502716065,
+                "w": 0.27059805393218996
+            },
+            "Internals": [
+                {
+                    "Key": "Health",
+                    "Value": "100"
+                },
+                {
+                    "Key": "IsMoving",
+                    "Value": "True"
+                },
+                {
+                    "Key": "IsAllignedBodyToDestination",
+                    "Value": "False"
+                },
+                {
+                    "Key": "IsAllignedGunToPoint",
+                    "Value": "False"
+                },
+                {
+                    "Key": "StartMovePosition",
+                    "Value": "0, 0, 0"
+                },
+                {
+                    "Key": "BodyRotation",
+                    "Value": "0, 0, 0, 1"
+                },
+                {
+                    "Key": "GunRotation",
+                    "Value": "0, 0, 0, 1"
+                },
+                {
+                    "Key": "BrainState",
+                    "Value": "NORMAL"
+                }
+            ]
+        },
+        {
+            "InstanceID": -7578,
             "Name": "CommandPanel",
             "Position": {
                 "x": 0.0,
@@ -496,7 +496,7 @@
             ]
         },
         {
-            "InstanceID": -7522,
+            "InstanceID": -7416,
             "Name": "TurretGatling (12)",
             "Position": {
                 "x": 5.5547776222229,
@@ -516,7 +516,7 @@
                 },
                 {
                     "Key": "IsMoving",
-                    "Value": "False"
+                    "Value": "True"
                 },
                 {
                     "Key": "IsAllignedBodyToDestination",
@@ -545,7 +545,7 @@
             ]
         },
         {
-            "InstanceID": -7394,
+            "InstanceID": -7294,
             "Name": "TurretHard",
             "Position": {
                 "x": 12.939998626708985,
@@ -569,7 +569,7 @@
                 },
                 {
                     "Key": "IsMoving",
-                    "Value": "False"
+                    "Value": "True"
                 },
                 {
                     "Key": "IsAllignedBodyToDestination",
@@ -602,7 +602,7 @@
             ]
         },
         {
-            "InstanceID": -7178,
+            "InstanceID": -7096,
             "Name": "TurretArmored",
             "Position": {
                 "x": 26.919998168945314,
@@ -626,7 +626,7 @@
                 },
                 {
                     "Key": "IsMoving",
-                    "Value": "False"
+                    "Value": "True"
                 },
                 {
                     "Key": "IsAllignedBodyToDestination",
@@ -655,7 +655,7 @@
             ]
         },
         {
-            "InstanceID": -7126,
+            "InstanceID": -7044,
             "Name": "WalkerStandard",
             "Position": {
                 "x": 5.365494251251221,
@@ -675,7 +675,7 @@
                 },
                 {
                     "Key": "IsMoving",
-                    "Value": "False"
+                    "Value": "True"
                 },
                 {
                     "Key": "IsAllignedBodyToDestination",
@@ -704,7 +704,7 @@
             ]
         },
         {
-            "InstanceID": -6996,
+            "InstanceID": -6920,
             "Name": "TurretGatling (15)",
             "Position": {
                 "x": -3.7552223205566408,
@@ -724,56 +724,7 @@
                 },
                 {
                     "Key": "IsMoving",
-                    "Value": "False"
-                },
-                {
-                    "Key": "IsAllignedBodyToDestination",
-                    "Value": "False"
-                },
-                {
-                    "Key": "IsAllignedGunToPoint",
-                    "Value": "False"
-                },
-                {
-                    "Key": "StartMovePosition",
-                    "Value": "0, 0, 0"
-                },
-                {
-                    "Key": "BodyRotation",
-                    "Value": "0, 0, 0, 1"
-                },
-                {
-                    "Key": "GunRotation",
-                    "Value": "0, 0, 0, 1"
-                },
-                {
-                    "Key": "BrainState",
-                    "Value": "ATTACKING"
-                }
-            ]
-        },
-        {
-            "InstanceID": -6922,
-            "Name": "WalkerGatling",
-            "Position": {
-                "x": 14.78477668762207,
-                "y": 5.5,
-                "z": -0.5960159301757813
-            },
-            "Rotation": {
-                "x": 0.0,
-                "y": 0.428935170173645,
-                "z": 0.0,
-                "w": 0.9033353328704834
-            },
-            "Internals": [
-                {
-                    "Key": "Health",
-                    "Value": "100"
-                },
-                {
-                    "Key": "IsMoving",
-                    "Value": "False"
+                    "Value": "True"
                 },
                 {
                     "Key": "IsAllignedBodyToDestination",
@@ -802,18 +753,18 @@
             ]
         },
         {
-            "InstanceID": 15168,
-            "Name": "TurretGatling (18)",
+            "InstanceID": 19230,
+            "Name": "WalkerGatling",
             "Position": {
-                "x": -9.195221900939942,
-                "y": 17.290000915527345,
-                "z": -10.546016693115235
+                "x": 7.504777431488037,
+                "y": 5.5,
+                "z": -6.036016464233398
             },
             "Rotation": {
-                "x": 0.27059802412986758,
-                "y": 0.653281569480896,
-                "z": -0.6532814502716065,
-                "w": 0.27059805393218996
+                "x": 0.0,
+                "y": 0.428935170173645,
+                "z": 0.0,
+                "w": 0.9033353328704834
             },
             "Internals": [
                 {
@@ -822,7 +773,7 @@
                 },
                 {
                     "Key": "IsMoving",
-                    "Value": "False"
+                    "Value": "True"
                 },
                 {
                     "Key": "IsAllignedBodyToDestination",
@@ -846,12 +797,61 @@
                 },
                 {
                     "Key": "BrainState",
-                    "Value": "ATTACKING"
+                    "Value": "NORMAL"
                 }
             ]
         },
         {
-            "InstanceID": -5348,
+            "InstanceID": 16430,
+            "Name": "TurretGatling (18)",
+            "Position": {
+                "x": -9.195221900939942,
+                "y": 17.290000915527345,
+                "z": -10.546016693115235
+            },
+            "Rotation": {
+                "x": 0.27059802412986758,
+                "y": 0.653281569480896,
+                "z": -0.6532814502716065,
+                "w": 0.27059805393218996
+            },
+            "Internals": [
+                {
+                    "Key": "Health",
+                    "Value": "100"
+                },
+                {
+                    "Key": "IsMoving",
+                    "Value": "True"
+                },
+                {
+                    "Key": "IsAllignedBodyToDestination",
+                    "Value": "False"
+                },
+                {
+                    "Key": "IsAllignedGunToPoint",
+                    "Value": "False"
+                },
+                {
+                    "Key": "StartMovePosition",
+                    "Value": "0, 0, 0"
+                },
+                {
+                    "Key": "BodyRotation",
+                    "Value": "0, 0, 0, 1"
+                },
+                {
+                    "Key": "GunRotation",
+                    "Value": "0, 0, 0, 1"
+                },
+                {
+                    "Key": "BrainState",
+                    "Value": "NORMAL"
+                }
+            ]
+        },
+        {
+            "InstanceID": -5304,
             "Name": "Blackjack",
             "Position": {
                 "x": 0.0,
@@ -880,7 +880,7 @@
             ]
         },
         {
-            "InstanceID": -5318,
+            "InstanceID": -5274,
             "Name": "Razor",
             "Position": {
                 "x": 0.0,
@@ -905,7 +905,7 @@
             ]
         },
         {
-            "InstanceID": -5390,
+            "InstanceID": -5346,
             "Name": "Arrow",
             "Position": {
                 "x": 0.0,
@@ -926,7 +926,7 @@
             ]
         },
         {
-            "InstanceID": -5374,
+            "InstanceID": -5330,
             "Name": "Breaker",
             "Position": {
                 "x": 0.0,
@@ -947,7 +947,7 @@
             ]
         },
         {
-            "InstanceID": -5404,
+            "InstanceID": -5360,
             "Name": "Blaster",
             "Position": {
                 "x": 0.0,
@@ -972,7 +972,7 @@
             ]
         },
         {
-            "InstanceID": -5332,
+            "InstanceID": -5288,
             "Name": "Hammer",
             "Position": {
                 "x": 0.0,
@@ -993,7 +993,7 @@
             ]
         },
         {
-            "InstanceID": -5180,
+            "InstanceID": -5136,
             "Name": "TurretGatling (14)",
             "Position": {
                 "x": 15.224777221679688,
@@ -1013,7 +1013,7 @@
                 },
                 {
                     "Key": "IsMoving",
-                    "Value": "False"
+                    "Value": "True"
                 },
                 {
                     "Key": "IsAllignedBodyToDestination",
@@ -1042,7 +1042,7 @@
             ]
         },
         {
-            "InstanceID": -2564,
+            "InstanceID": -2522,
             "Name": "TurretGatling (11)",
             "Position": {
                 "x": 3.8047776222229006,
@@ -1062,7 +1062,7 @@
                 },
                 {
                     "Key": "IsMoving",
-                    "Value": "False"
+                    "Value": "True"
                 },
                 {
                     "Key": "IsAllignedBodyToDestination",
@@ -1091,7 +1091,7 @@
             ]
         },
         {
-            "InstanceID": -2464,
+            "InstanceID": -2422,
             "Name": "TurretGatling (9)",
             "Position": {
                 "x": -0.14522218704223634,
@@ -1111,56 +1111,7 @@
                 },
                 {
                     "Key": "IsMoving",
-                    "Value": "False"
-                },
-                {
-                    "Key": "IsAllignedBodyToDestination",
-                    "Value": "False"
-                },
-                {
-                    "Key": "IsAllignedGunToPoint",
-                    "Value": "False"
-                },
-                {
-                    "Key": "StartMovePosition",
-                    "Value": "0, 0, 0"
-                },
-                {
-                    "Key": "BodyRotation",
-                    "Value": "0, 0, 0, 1"
-                },
-                {
-                    "Key": "GunRotation",
-                    "Value": "0, 0, 0, 1"
-                },
-                {
-                    "Key": "BrainState",
-                    "Value": "ATTACKING"
-                }
-            ]
-        },
-        {
-            "InstanceID": -2382,
-            "Name": "TurretStandard",
-            "Position": {
-                "x": 19.829999923706056,
-                "y": 4.480000019073486,
-                "z": -8.279998779296875
-            },
-            "Rotation": {
-                "x": 0.0,
-                "y": 0.20517414808273316,
-                "z": 0.0,
-                "w": 0.9787255525588989
-            },
-            "Internals": [
-                {
-                    "Key": "Health",
-                    "Value": "100"
-                },
-                {
-                    "Key": "IsMoving",
-                    "Value": "False"
+                    "Value": "True"
                 },
                 {
                     "Key": "IsAllignedBodyToDestination",
@@ -1189,18 +1140,18 @@
             ]
         },
         {
-            "InstanceID": -2282,
-            "Name": "TurretGatling (10)",
+            "InstanceID": -2340,
+            "Name": "TurretStandard",
             "Position": {
-                "x": 2.144777774810791,
-                "y": 17.290000915527345,
-                "z": 0.7939834594726563
+                "x": 19.829999923706056,
+                "y": 4.480000019073486,
+                "z": -8.279998779296875
             },
             "Rotation": {
-                "x": 0.27059802412986758,
-                "y": 0.653281569480896,
-                "z": -0.6532814502716065,
-                "w": 0.27059805393218996
+                "x": 0.0,
+                "y": 0.20517414808273316,
+                "z": 0.0,
+                "w": 0.9787255525588989
             },
             "Internals": [
                 {
@@ -1209,7 +1160,7 @@
                 },
                 {
                     "Key": "IsMoving",
-                    "Value": "False"
+                    "Value": "True"
                 },
                 {
                     "Key": "IsAllignedBodyToDestination",
@@ -1233,7 +1184,56 @@
                 },
                 {
                     "Key": "BrainState",
-                    "Value": "ATTACKING"
+                    "Value": "NORMAL"
+                }
+            ]
+        },
+        {
+            "InstanceID": -2240,
+            "Name": "TurretGatling (10)",
+            "Position": {
+                "x": 2.144777774810791,
+                "y": 17.290000915527345,
+                "z": 0.7939834594726563
+            },
+            "Rotation": {
+                "x": 0.27059802412986758,
+                "y": 0.653281569480896,
+                "z": -0.6532814502716065,
+                "w": 0.27059805393218996
+            },
+            "Internals": [
+                {
+                    "Key": "Health",
+                    "Value": "100"
+                },
+                {
+                    "Key": "IsMoving",
+                    "Value": "True"
+                },
+                {
+                    "Key": "IsAllignedBodyToDestination",
+                    "Value": "False"
+                },
+                {
+                    "Key": "IsAllignedGunToPoint",
+                    "Value": "False"
+                },
+                {
+                    "Key": "StartMovePosition",
+                    "Value": "0, 0, 0"
+                },
+                {
+                    "Key": "BodyRotation",
+                    "Value": "0, 0, 0, 1"
+                },
+                {
+                    "Key": "GunRotation",
+                    "Value": "0, 0, 0, 1"
+                },
+                {
+                    "Key": "BrainState",
+                    "Value": "NORMAL"
                 }
             ]
         },
@@ -1258,7 +1258,7 @@
                 },
                 {
                     "Key": "IsMoving",
-                    "Value": "False"
+                    "Value": "True"
                 },
                 {
                     "Key": "IsAllignedBodyToDestination",
@@ -1307,60 +1307,7 @@
                 },
                 {
                     "Key": "IsMoving",
-                    "Value": "False"
-                },
-                {
-                    "Key": "IsAllignedBodyToDestination",
-                    "Value": "False"
-                },
-                {
-                    "Key": "IsAllignedGunToPoint",
-                    "Value": "False"
-                },
-                {
-                    "Key": "StartMovePosition",
-                    "Value": "0, 0, 0"
-                },
-                {
-                    "Key": "BodyRotation",
-                    "Value": "0, 0, 0, 1"
-                },
-                {
-                    "Key": "GunRotation",
-                    "Value": "0, 0, 0, 1"
-                },
-                {
-                    "Key": "BrainState",
-                    "Value": "ATTACKING"
-                }
-            ]
-        },
-        {
-            "InstanceID": -1122,
-            "Name": "WalkerArmored",
-            "Position": {
-                "x": 15.135498046875,
-                "y": 5.5,
-                "z": 1.9380874633789063
-            },
-            "Rotation": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0,
-                "w": 1.0
-            },
-            "Internals": [
-                {
-                    "Key": "Health",
-                    "Value": "100"
-                },
-                {
-                    "Key": "ShieldStatus",
-                    "Value": "100"
-                },
-                {
-                    "Key": "IsMoving",
-                    "Value": "False"
+                    "Value": "True"
                 },
                 {
                     "Key": "IsAllignedBodyToDestination",
@@ -1389,7 +1336,60 @@
             ]
         },
         {
-            "InstanceID": 15456,
+            "InstanceID": -1122,
+            "Name": "WalkerArmored",
+            "Position": {
+                "x": 15.135498046875,
+                "y": 5.5,
+                "z": 1.9380874633789063
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "Internals": [
+                {
+                    "Key": "Health",
+                    "Value": "100"
+                },
+                {
+                    "Key": "ShieldStatus",
+                    "Value": "100"
+                },
+                {
+                    "Key": "IsMoving",
+                    "Value": "True"
+                },
+                {
+                    "Key": "IsAllignedBodyToDestination",
+                    "Value": "False"
+                },
+                {
+                    "Key": "IsAllignedGunToPoint",
+                    "Value": "False"
+                },
+                {
+                    "Key": "StartMovePosition",
+                    "Value": "0, 0, 0"
+                },
+                {
+                    "Key": "BodyRotation",
+                    "Value": "0, 0, 0, 1"
+                },
+                {
+                    "Key": "GunRotation",
+                    "Value": "0, 0, 0, 1"
+                },
+                {
+                    "Key": "BrainState",
+                    "Value": "NORMAL"
+                }
+            ]
+        },
+        {
+            "InstanceID": 18400,
             "Name": "CutsceneTrigger",
             "Position": {
                 "x": 0.0,
@@ -1410,8 +1410,8 @@
             ]
         },
         {
-            "InstanceID": 15600,
-            "Name": "Trigger",
+            "InstanceID": 19358,
+            "Name": "MusicTrigger",
             "Position": {
                 "x": 0.0,
                 "y": 0.0,
@@ -1431,7 +1431,7 @@
             ]
         },
         {
-            "InstanceID": 15816,
+            "InstanceID": 20916,
             "Name": "TurretHidden (1)",
             "Position": {
                 "x": -2.2945098876953127,
@@ -1451,7 +1451,7 @@
                 },
                 {
                     "Key": "IsMoving",
-                    "Value": "False"
+                    "Value": "True"
                 },
                 {
                     "Key": "IsAllignedBodyToDestination",
@@ -1484,7 +1484,7 @@
             ]
         },
         {
-            "InstanceID": -5280,
+            "InstanceID": -5236,
             "Name": "Camera",
             "Position": {
                 "x": 0.0,
@@ -1500,7 +1500,7 @@
             "Internals": [
                 {
                     "Key": "CurrentDirection",
-                    "Value": "0.7905387, -58.54972, 0"
+                    "Value": "1.128944, -106.435, 0"
                 },
                 {
                     "Key": "CanParseInput",

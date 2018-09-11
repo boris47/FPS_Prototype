@@ -97,7 +97,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 //		m_DistanceToTravel	= ( transform.position - m_PointToFace ).sqrMagnitude;
 //		m_Destination = bullet.Transform.position;
-//		m_HasDestination = true;
+//		m_NavHasDestination = true;
 
 		if ( m_Shield != null && m_Shield.Status > 0f && m_Shield.IsUnbreakable == false )
 		{
@@ -140,7 +140,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 		// now point to reach is target position
 //		m_Destination = m_TargetInfo.CurrentTarget.Transform.position;
-		m_HasDestination = true;
+		m_NavHasDestination = true;
 
 		// Set brain to SEKKER mode
 		m_Brain.ChangeState( BrainState.SEEKER );
@@ -149,7 +149,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		base.OnTargetLost( targetInfo );		// m_TargetInfo = default( TargetInfo_t );
 	}
 
-/*
+
 	//////////////////////////////////////////////////////////////////////////
 	// FaceToPoint ( Override )
 	protected override void FaceToPoint( float deltaTime )
@@ -169,7 +169,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 		m_IsAllignedGunToPoint			= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 7f;
 	}
-	*/
+	
 	/*
 	//////////////////////////////////////////////////////////////////////////
 	// Stop ( Virtual )
@@ -181,7 +181,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 			m_PointToFace					= Vector3.zero;
 			m_IsAllignedBodyToDestination	= false;
 		}
-		m_HasDestination				= false;
+		m_NavHasDestination				= false;
 		m_Destination					= Vector3.zero;
 		m_IsMoving						= false;
 		m_StartMovePosition				= Vector3.zero;
@@ -193,7 +193,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 	// GoAtPoint
 	protected override	void	GoAtPoint( float deltaTime )
 	{
-		if ( m_HasDestination == false )
+		if ( m_NavHasDestination == false )
 			return;
 
 		if ( m_DistanceToTravel < m_MinEngageDistance * m_MinEngageDistance )
@@ -245,11 +245,10 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		// Entity
 		m_IsActive						= true;
 		m_TargetInfo					= default( TargetInfo_t );
-//		m_HasDestination				= false;
+//		m_NavHasDestination				= false;
 //		m_HasFaceTarget					= false;
 //		m_Destination					= Vector3.zero;
 //		m_PointToFace					= Vector3.zero;
-		m_IsMoving						= false;
 		m_IsAllignedBodyToDestination	= false;
 		m_StartMovePosition				= Vector3.zero;
 //		m_DistanceToTravel				= 0f;

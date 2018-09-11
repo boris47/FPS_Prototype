@@ -45,42 +45,6 @@ public abstract partial class NonLiveEntity : Entity {
 	{	
 		// Update internal timer
 		m_ShotTimer -= deltaTime;
-		
-		NavUpdate();
-
-		if ( m_TargetInfo.HasTarget == true )
-		{
-			if ( m_Brain.State != BrainState.ATTACKING )
-				m_Brain.ChangeState( BrainState.ATTACKING );
-			/*
-			m_PointToFace = m_TargetInfo.CurrentTarget.Transform.position;
-			m_HasFaceTarget = true;
-
-			m_Destination = m_TargetInfo.CurrentTarget.Transform.position;
-			m_HasDestination = true;
-
-			m_DistanceToTravel	= ( transform.position - m_PointToFace ).sqrMagnitude;
-			*/
-		}
-		/*
-		// if has target point to face at set
-		if ( m_HasFaceTarget )
-		{
-			FaceToPoint( deltaTime );   // m_PointToFace
-		}
-		*/
-		// if body is alligned with target start moving
-		if ( m_IsAllignedBodyToDestination && m_IsMoving == false )
-		{
-			m_IsMoving = true;
-			m_StartMovePosition = transform.position;
-		}
-
-		// if has destination set
-//		if ( m_HasDestination && m_IsAllignedBodyToDestination )
-		{
-//			GoAtPoint( deltaTime );	// m_Destination
-		}
 
 		// if gun alligned, fire
 		if ( m_IsAllignedGunToPoint == true && m_TargetInfo.HasTarget == true )
@@ -106,11 +70,11 @@ public abstract partial class NonLiveEntity : Entity {
 		}
 
 		// Internals
-//		streamingUnit.AddInternal( "HasDestination",				m_HasDestination );
+//		streamingUnit.AddInternal( "HasDestination",				m_NavHasDestination );
 //		streamingUnit.AddInternal( "HasFaceTarget",					m_HasFaceTarget );
 //		streamingUnit.AddInternal( "Destination",					Utils.Converters.Vector3ToString( m_Destination ) );
 //		streamingUnit.AddInternal( "PointToFace",					Utils.Converters.Vector3ToString( m_PointToFace ) );
-		streamingUnit.AddInternal( "IsMoving",						m_IsMoving );
+		streamingUnit.AddInternal( "IsMoving",						m_NavCanMoveAlongPath );
 		streamingUnit.AddInternal( "IsAllignedBodyToDestination",	m_IsAllignedBodyToDestination );
 		streamingUnit.AddInternal( "IsAllignedGunToPoint",			m_IsAllignedGunToPoint );
 		streamingUnit.AddInternal( "StartMovePosition",				Utils.Converters.Vector3ToString( m_StartMovePosition ) );
@@ -149,11 +113,11 @@ public abstract partial class NonLiveEntity : Entity {
 		}
 
 		// Internals
-//		m_HasDestination					= streamingUnit.GetAsBool( "HasDestination" );
+//		m_NavHasDestination					= streamingUnit.GetAsBool( "HasDestination" );
 //		m_HasFaceTarget						= streamingUnit.GetAsBool( "HasFaceTarget" );
 //		m_Destination						= streamingUnit.GetAsVector( "Destination" );
 //		m_PointToFace						= streamingUnit.GetAsVector( "PointToFace" );
-		m_IsMoving							= streamingUnit.GetAsBool( "IsMoving" );
+		m_NavCanMoveAlongPath							= streamingUnit.GetAsBool( "IsMoving" );
 		m_IsAllignedBodyToDestination		= streamingUnit.GetAsBool( "IsAllignedBodyToDestination" );
 		m_IsAllignedGunToPoint				= streamingUnit.GetAsBool( "IsAllignedGunToPoint" );
 		m_StartMovePosition					= streamingUnit.GetAsVector( "StartMovePosition" );
@@ -176,19 +140,14 @@ public abstract partial class NonLiveEntity : Entity {
 	// OnThink ( Override )
 	public		override	void	OnThink()
 	{
-//		if ( m_TargetInfo.HasTarget )
-//			m_Brain.TryToReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
+		
 	}
 
-	/*
+	
 	//////////////////////////////////////////////////////////////////////////
 	// FaceToPoint ( Abstract )
 	protected	abstract	void	FaceToPoint( float deltaTime );
 
-	//////////////////////////////////////////////////////////////////////////
-	// GoAtPoint ( Abstract )
-	protected	abstract	void	GoAtPoint( float deltaTime );
-	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	// FireLongRange ( Abstract )
@@ -197,7 +156,7 @@ public abstract partial class NonLiveEntity : Entity {
 
 	//////////////////////////////////////////////////////////////////////////
 	// EnterSimulationState ( Override )
-	public override void EnterSimulationState()
+	public		override	void	EnterSimulationState()
 	{
 		
 	}
@@ -205,7 +164,7 @@ public abstract partial class NonLiveEntity : Entity {
 
 	//////////////////////////////////////////////////////////////////////////
 	// ExitSimulationState ( Override )
-	public override void ExitSimulationState()
+	public		override	void	ExitSimulationState()
 	{
 		
 	}

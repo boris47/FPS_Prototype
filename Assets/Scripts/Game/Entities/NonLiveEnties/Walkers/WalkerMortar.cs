@@ -31,7 +31,7 @@ public class WalkerMortar : Walker {
 //			m_HasFaceTarget = true;
 
 //			m_Destination = m_TargetInfo.CurrentTarget.Transform.position;
-//			m_HasDestination = true;
+//			m_NavHasDestination = true;
 
 //			m_DistanceToTravel	= ( transform.position - m_PointToFace ).sqrMagnitude;
 		}
@@ -43,14 +43,14 @@ public class WalkerMortar : Walker {
 //		}
 
 		// if body is alligned with target start moving
-		if ( m_IsAllignedBodyToDestination && m_IsMoving == false )
+		if ( m_IsAllignedBodyToDestination && m_NavCanMoveAlongPath == false )
 		{
-			m_IsMoving = true;
+			m_NavCanMoveAlongPath = true;
 			m_StartMovePosition = transform.position;
 		}
 
 		// if has destination set
-//		if ( m_HasDestination && m_IsAllignedBodyToDestination )
+//		if ( m_NavHasDestination && m_IsAllignedBodyToDestination )
 		{
 //			if ( m_TargetInfo.HasTarget && ( transform.position - m_TargetInfo.CurrentTarget.Transform.position ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
 //				GoAtPoint( deltaTime );	// m_Destination

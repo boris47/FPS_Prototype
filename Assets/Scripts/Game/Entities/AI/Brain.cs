@@ -26,7 +26,8 @@ namespace AI {
 		IFieldOfView				FieldOfView				{	get;	}
 		BrainState					State					{	get;	}
 
-		void						TryToReachPoint( Vector3 destination );
+		bool						TryToReachPoint( Vector3 destination );
+		bool						TryToReachPoint( int NodeIndex );
 		void						Stop();
 
 		void						ChangeState				( BrainState newState );
@@ -122,16 +123,38 @@ namespace AI {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// OnThink
-		public	void	TryToReachPoint( Vector3 destination )
+		// TryToReachPoint( Vector3 )
+		public	bool	TryToReachPoint( Vector3 destination )
 		{
 			Vector3[] path = null;
-			uint nodeCount = PathFinder.FindPath( transform.position, destination, ref path );
 
+			uint nodeCount = PathFinder.FindPath( transform.position, destination, ref path );
 			if ( nodeCount > 0 )
 			{
 				m_ThisEntity.NavSetPath( nodeCount, path );
 			}
+
+			return nodeCount > 0;
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		// TryToReachPoint( int )
+		public	bool	TryToReachPoint( int EndNodeIndex )
+		{
+			Vector3[] path = null;
+
+			int startNodeindex = PathFinder.GetNearestNodeIdx( transform.position );
+			if ( startNodeindex == EndNodeIndex )
+				return false;
+
+			// Search by using direct node indexing
+			uint nodeCount = PathFinder.FindPath( startNodeindex, EndNodeIndex, ref path );
+			if ( nodeCount > 0 )
+			{
+				m_ThisEntity.NavSetPath( nodeCount, path );
+			}
+
+			return nodeCount > 0;
 		}
 
 

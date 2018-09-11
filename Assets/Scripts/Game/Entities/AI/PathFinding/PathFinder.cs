@@ -230,7 +230,7 @@ namespace AI.Pathfinding
 
 
 		//////////////////////////////////////////////////////////////////////////
-		private		static	int 	GetNearestNodeIdx( Vector3 Position )
+		public		static	int 	GetNearestNodeIdx( Vector3 Position )
 		{
 			float currentDistance = float.MaxValue;
 			int result = -1;
@@ -249,6 +249,19 @@ namespace AI.Pathfinding
 
 			return result;
 		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// FindPath
+		static		public	uint	FindPath( int StartnodeIndex, int EndNodeIndex, ref Vector3[] Path  )
+		{
+			AINode startNode	= m_Nodes[ StartnodeIndex ];
+			AINode endNode		= m_Nodes[ EndNodeIndex ];
+
+			return FindPathInternal( startNode, endNode, ref Path );
+
+		}
+
 
 		//////////////////////////////////////////////////////////////////////////
 		// FindPath
@@ -269,7 +282,16 @@ namespace AI.Pathfinding
 			AINode startNode	= m_Nodes[ startNodeID ];
 			AINode endNode		= m_Nodes[ endNodeID ];
 
-			if ( endNode.IsWalkable == false )
+			return FindPathInternal( startNode, endNode, ref path );
+			
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// FindPathInternal
+		static		private	uint	FindPathInternal( AINode StartNode, AINode EndNode, ref Vector3[] Path )
+		{
+			if ( EndNode.IsWalkable == false )
 				return 0;
 
 			if ( m_OpenSet == null || m_OpenSet.Capacity != NodeCount )
@@ -278,11 +300,11 @@ namespace AI.Pathfinding
 
 			}
 
-			endNode.gCost = 0;
-			endNode.Heuristic = ( endNode.Position - startNode.Position ).sqrMagnitude;
+			EndNode.gCost = 0;
+			EndNode.Heuristic = ( EndNode.Position - StartNode.Position ).sqrMagnitude;
 
 			// First node is always discovered
-			m_OpenSet.Add( endNode );
+			m_OpenSet.Add( EndNode );
 
 //			sw.Reset();
 //			sw.Start();
@@ -291,10 +313,10 @@ namespace AI.Pathfinding
 			while ( m_OpenSet.Count > 0 )
 			{
 				AINode currentNode = m_OpenSet.RemoveFirst();
-				if ( currentNode.ID == startNode.ID )
+				if ( currentNode.ID == StartNode.ID )
 				{
 				//	Debug.Log("We found the end node!");
-					return RetracePath( endNode, startNode, ref path );
+					return RetracePath( EndNode, StartNode, ref Path );
 				}
 
 //				if ( currentNode == null )	return null;
@@ -321,7 +343,7 @@ namespace AI.Pathfinding
 					if ( gCost < iNeighbour.gCost || containsNehigbour == false )
 					{
 						iNeighbour.gCost		= gCost;
-						iNeighbour.Heuristic	= ( iNeighbour.Position - startNode.Position ).sqrMagnitude;
+						iNeighbour.Heuristic	= ( iNeighbour.Position - StartNode.Position ).sqrMagnitude;
 						iNeighbour.Parent		= currentNode;
 
 						if ( containsNehigbour == false )
@@ -337,7 +359,6 @@ namespace AI.Pathfinding
 			// no path found
 			return 0;
 		}
-
 
 		//////////////////////////////////////////////////////////////////////////
 		private		static	uint	RetracePath( AINode startNode, AINode endNode, ref Vector3[] path )

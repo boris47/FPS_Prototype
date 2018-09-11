@@ -63,7 +63,7 @@ public class TurretHidden : Turret {
 
 		// now point to reach is target position
 //		m_Destination = m_TargetInfo.CurrentTarget.transform.position;
-//		m_HasDestination = true;
+//		m_NavHasDestination = true;
 
 		m_Brain.ChangeState( BrainState.ATTACKING );
 

@@ -131,6 +131,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	// Flag set if gun of entity is aligned with target
 	protected	bool						m_IsAllignedGunToPoint			= false;
 
+	protected	int							m_TargetNodeIndex				= 0;
+
 	
 				Vector3						IEntitySimulation.StartPosition { get; set; }
 
@@ -201,14 +203,11 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 		// Entity
 		m_TargetInfo					= default( TargetInfo_t );
-		m_HasDestination				= false;
-//		m_HasFaceTarget					= false;
-//		m_Destination					= Vector3.zero;
-//		m_PointToFace					= Vector3.zero;
-		m_IsMoving						= false;
+		m_NavHasDestination				= false;
+
+		m_NavCanMoveAlongPath			= false;
 		m_IsAllignedBodyToDestination	= false;
 		m_StartMovePosition				= Vector3.zero;
-//		m_DistanceToTravel				= 0f;
 
 		// NonLiveEntity
 		m_IsAllignedGunToPoint			= false;
@@ -226,8 +225,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	// SetPoinToFace ( Firtual )
 	public	virtual		void	SetPoinToFace( Vector3 point )
 	{
-//		m_PointToFace = point;
-//		m_HasFaceTarget = true;
+		m_PointToFace		= point;
+		m_HasPointToFace	= true;
 	}
 
 
@@ -255,21 +254,35 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 
 	//////////////////////////////////////////////////////////////////////////
+	// SetCollisionStateWith
+	protected	void	SetCollisionStateWith( Collider coll, bool state )
+	{
+		Collider[] thisColliders = GetComponentsInChildren<Collider>( includeInactive: true );
+		for ( int i = 0; i < thisColliders.Length; i++ )
+		{
+			Collider thisColl = thisColliders[i];
+			Physics.IgnoreCollision( thisColl, coll, ignore: !state );
+		}
+
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	// OnFrame ( Abstract )
 	protected	abstract	void	OnFrame( float deltaTime );
 
 	//////////////////////////////////////////////////////////////////////////
 	// EnterSimulationState ( Abstract )
-	public	abstract	void	EnterSimulationState();
+	public		abstract	void	EnterSimulationState();
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// ExitSimulationState ( Abstract )
-	public	abstract	void	ExitSimulationState();
+	public		abstract	void	ExitSimulationState();
 
 	//////////////////////////////////////////////////////////////////////////
 	// SimulateMovement ( Abstract )
-	public virtual	bool	SimulateMovement( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1f )
+	public		virtual		bool	SimulateMovement( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1f )
 	{ return false; }
 
 }

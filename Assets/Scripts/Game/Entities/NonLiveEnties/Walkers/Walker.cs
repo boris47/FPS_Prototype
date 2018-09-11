@@ -70,13 +70,11 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 					o.SetActive( false );
 					o.Setup( damageMin : m_DamageMin, damageMax : m_DamageMax, canPenetrate : false, whoRef : this, weapon : null );
 					o.Setup( whoRef: this, weapon: null );
-					Physics.IgnoreCollision( o.Collider, m_PhysicCollider, ignore : true );
+					this.SetCollisionStateWith( o.Collider, false );
 
 					// this allow to receive only trigger enter callback
 					Player.Instance.DisableCollisionsWith( o.Collider );
 
-					if ( m_Shield != null )
-						Physics.IgnoreCollision( o.Collider, m_Shield.Collider, ignore : true );
 				}
 			);
 		}
@@ -94,16 +92,12 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 			return;
 		
 		base.OnHit( bullet ); // set start bullet position as point to face at if not attacking
-		/*
-		if ( m_TargetInfo.HasTarget == false && bullet is GranadeBase )
+		
+		if ( m_Brain.State != BrainState.ATTACKING )
 		{
-			m_PointToFace = bullet.Transform.position;
+			SetPoinToFace( bullet.StartPosition );
 		}
 
-		m_DistanceToTravel	= ( transform.position - m_PointToFace ).sqrMagnitude;
-		m_Destination = bullet.Transform.position;
-		m_HasDestination = true;
-		*/
 		if ( m_Shield != null && m_Shield.Status > 0f && m_Shield.IsUnbreakable == false )
 		{
 			m_Shield.OnHit( bullet );
@@ -123,6 +117,11 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 	public override void OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
 		base.OnHit( startPosition, whoRef, 0f );
+
+		if ( m_Brain.State != BrainState.ATTACKING )
+		{
+			SetPoinToFace( startPosition );
+		}
 
 		if ( m_Shield != null && m_Shield.Status > 0f && m_Shield.IsUnbreakable == false )
 		{
@@ -160,23 +159,74 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		// SEEKING MODE
 
 		// now point to face is target position
-//		m_PointToFace = m_TargetInfo.CurrentTarget.Transform.position;
-//		m_HasFaceTarget = true;
+		m_PointToFace = m_TargetInfo.CurrentTarget.Transform.position;
+		m_HasPointToFace = true;
 
-		// now point to reach is target position
-//		m_Destination = m_TargetInfo.CurrentTarget.Transform.position;
-//		m_HasDestination = true;
+		m_Brain.TryToReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
 
-//		m_Brain.TryToReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
+		print( "target lost" );
 
-		// Set brain to SEKKER mode
-		m_Brain.ChangeState( BrainState.SEEKER );
+		m_TargetNodeIndex = -1;
+
+		m_TargetInfo = default( TargetInfo_t );
+
+		// TODO Set brain to SEKKER mode
+//		m_Brain.ChangeState( BrainState.SEEKER );
 
 		// Reset internal ref to target
-		base.OnTargetLost( targetInfo );		// m_TargetInfo = default( TargetInfo_t );
+//		base.OnTargetLost( targetInfo );		// m_TargetInfo = default( TargetInfo_t );
 	}
 
-	/*
+
+	protected override void OnFrame( float deltaTime )
+	{
+		base.OnFrame( deltaTime );
+
+		// Update internal timer
+		m_ShotTimer -= deltaTime;
+
+		if ( m_NavHasDestination == true )
+			NavUpdate( Speed: m_MoveMaxSpeed );
+
+		if ( m_TargetInfo.HasTarget == true )
+		{
+			if ( m_Brain.State != BrainState.ATTACKING )
+				m_Brain.ChangeState( BrainState.ATTACKING );
+
+			SetPoinToFace( m_TargetInfo.CurrentTarget.Transform.position );
+
+			// PathFinding
+			CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
+
+			if ( Vector3.Distance( transform.position, m_TargetInfo.CurrentTarget.Transform.position ) < m_MinEngageDistance && m_NavHasDestination )
+			{
+				m_NavCanMoveAlongPath = true;;
+			}
+			else
+			{
+				m_NavCanMoveAlongPath = false;
+			}
+		}
+		
+		// if has target point to face at set
+		if ( m_HasPointToFace )
+		{
+			FaceToPoint( deltaTime );   // m_PointToFace
+		}
+		
+		// if body is alligned with target start moving
+		if ( m_IsAllignedBodyToDestination )
+		{
+			m_NavCanMoveAlongPath = true;
+		}
+		else
+		{
+			m_NavCanMoveAlongPath = false;
+		}
+
+	}
+
+
 	//////////////////////////////////////////////////////////////////////////
 	// FaceToPoint ( Override )
 	protected override void FaceToPoint( float deltaTime )
@@ -186,18 +236,21 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		Vector3 dirToPosition			= ( pointOnThisPlane - transform.position );
 		Vector3 dirGunToPosition		= ( m_PointToFace - m_GunTransform.position );
 
-		Quaternion	bodyRotation		= Quaternion.LookRotation( dirToPosition, transform.up );
-		transform.rotation				= Quaternion.RotateTowards( transform.rotation, bodyRotation, m_BodyRotationSpeed * deltaTime );
-
+//		m_NavCanMoveAlongPath = 
 		m_IsAllignedBodyToDestination	= Vector3.Angle( transform.forward, dirToPosition ) < 2f;
 		if ( m_IsAllignedBodyToDestination && m_TargetInfo.HasTarget == true )
 		{
 			m_GunTransform.forward		=  Vector3.RotateTowards( m_GunTransform.forward, dirGunToPosition, m_GunRotationSpeed * deltaTime, 0.0f );
 		}
+		else
+		{
+			Quaternion	bodyRotation	= Quaternion.LookRotation( dirToPosition, transform.up );
+			transform.rotation			= Quaternion.RotateTowards( transform.rotation, bodyRotation, m_BodyRotationSpeed * deltaTime );
+		}
 
 		m_IsAllignedGunToPoint			= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 3f;
 	}
-	*/
+	
 	/*
 	//////////////////////////////////////////////////////////////////////////
 	// Stop ( Virtual )
@@ -209,7 +262,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 			m_PointToFace					= Vector3.zero;
 			m_IsAllignedBodyToDestination	= false;
 		}
-		m_HasDestination				= false;
+		m_NavHasDestination				= false;
 		m_Destination					= Vector3.zero;
 		m_IsMoving						= false;
 		m_RigidBody.velocity			= Vector3.zero;
@@ -223,7 +276,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 	// GoAtPoint ( Override )
 	protected override	void	GoAtPoint( float deltaTime )
 	{
-		if ( m_HasDestination == false )
+		if ( m_NavHasDestination == false )
 			return;
 
 		if ( m_DistanceToTravel < m_MinEngageDistance * m_MinEngageDistance )
@@ -275,11 +328,11 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		// Entity
 		m_IsActive						= true;
 		m_TargetInfo					= default( TargetInfo_t );
-//		m_HasDestination				= false;
+//		m_NavHasDestination				= false;
 //		m_HasFaceTarget					= false;
 //		m_Destination					= Vector3.zero;
 //		m_PointToFace					= Vector3.zero;
-		m_IsMoving						= false;
+		m_NavCanMoveAlongPath						= false;
 		m_IsAllignedBodyToDestination	= false;
 		m_StartMovePosition				= Vector3.zero;
 //		m_DistanceToTravel				= 0f;

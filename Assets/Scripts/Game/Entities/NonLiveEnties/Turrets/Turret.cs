@@ -144,32 +144,28 @@ public abstract class Turret : NonLiveEntity {
 		gameObject.SetActive( false );
 	}
 
-	/*
+	
 	//////////////////////////////////////////////////////////////////////////
 	// OnTargetLost ( Override )
 	public override void OnTargetLost( TargetInfo_t targetInfo )
 	{
 		// SEEKING MODE
-		
+		/*
 		// now point to face is target position
 		if ( targetInfo.CurrentTarget != null )
 		{
 			m_PointToFace = m_TargetInfo.CurrentTarget.Transform.position;
-			m_HasFaceTarget = true;
+			m_HasPointToFace = true;
 		}
-
-		// now point to reach is target position
-//		m_Destination = m_TargetInfo.CurrentTarget.transform.position;
-//		m_HasDestination = true;
-
+		*/
 		// Set brain to SEKKER mode
 		m_Brain.ChangeState( BrainState.NORMAL );
 
 		// Reset internal ref to target
 		base.OnTargetLost( targetInfo );		// m_TargetInfo = default( TargetInfo_t );
 	}
-	*/
-	/*
+	
+	
 	//////////////////////////////////////////////////////////////////////////
 	// FaceToPoint ( Override )
 	protected override void FaceToPoint( float deltaTime )
@@ -201,7 +197,7 @@ public abstract class Turret : NonLiveEntity {
 			m_GunTransform.Rotate( Vector3.right, rotation, Space.Self );	
 		}
 	}
-	*/
+	
 	/*
 	//////////////////////////////////////////////////////////////////////////
 	// GoAtPoint ( Override )
