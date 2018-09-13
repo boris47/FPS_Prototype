@@ -13,10 +13,10 @@ namespace WeatherSystem {
 
 		private			EnvDescriptor				m_CurrentDescriptor		= null;
 
-		private         string                      m_AmbColorString		= "Insert color as string";
-		private         string                      m_SkyColorString		= "Insert color as string";
-		private         string                      m_SunColorString		= "Insert color as string";
-		private         string                      m_SunRotationString		= "Insert vector as string";
+		private		 string					  m_AmbColorString		= "Insert color as string";
+		private		 string					  m_SkyColorString		= "Insert color as string";
+		private		 string					  m_SunColorString		= "Insert color as string";
+		private		 string					  m_SunRotationString		= "Insert vector as string";
 		
 		/////////////////////////////////////////////////////////////////////////////
 		// Init ( EDITING )

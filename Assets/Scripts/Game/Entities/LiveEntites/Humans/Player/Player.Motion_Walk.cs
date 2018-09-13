@@ -101,7 +101,7 @@ public partial class Player {
 		if ( m_MovementOverrideEnabled == true )
 			return;
 
-		float 	forward 		= InputManager.Inputs.Forward     ? 1.0f : InputManager.Inputs.Backward   ? -1.0f : 0.0f;
+		float 	forward 		= InputManager.Inputs.Forward	 ? 1.0f : InputManager.Inputs.Backward   ? -1.0f : 0.0f;
 		float 	right			= InputManager.Inputs.StrafeRight ? 1.0f : InputManager.Inputs.StrafeLeft ? -1.0f : 0.0f;
 		bool 	bSprintInput	= InputManager.Inputs.Run;
 		bool	bCrouchInput	= InputManager.Inputs.Crouch;

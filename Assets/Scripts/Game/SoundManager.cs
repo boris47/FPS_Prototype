@@ -70,7 +70,7 @@ public class SoundManager : MonoBehaviour, ISoundManager {
 		{
 //			print( "SoundEffectManager: Object destroyied" );
 			OnMusicVolumeChange	= null;
-			OnSoundVolumeChange	= null;    
+			OnSoundVolumeChange	= null;	
 			OnPitchChange		= null;
 			Destroy( gameObject );
 //			gameObject.SetActive( false );

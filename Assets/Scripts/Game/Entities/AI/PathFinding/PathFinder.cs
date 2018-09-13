@@ -20,7 +20,7 @@ namespace AI.Pathfinding
 		private		static	List<AINode>				m_Nodes				= new List<AINode>();
 
 		// Pathfinding
-		private		static	Heap<AINode>				m_OpenSet			= null;
+		private		static	Heap<IAINode>				m_OpenSet			= null;
 		private		static	int							m_PathNodeCount		= 0;
 
 
@@ -36,16 +36,16 @@ namespace AI.Pathfinding
 
 
 		//////////////////////////////////////////////////////////////////////////
-		private		static	AINode	GenerateNode( Vector3 Position, NavMeshVolume Volume )
+		private		static	AINode	GenerateNode( Vector3 Position, NavMeshVolume Volume, bool CanParent )
 		{
 			// Create AINode
-			AINode node = Instantiate( m_NodeModel, Position, Quaternion.identity );
+			AINode node = Instantiate( m_NodeModel, Position, Quaternion.identity, ( CanParent ) ? Volume.transform : null );
 
 			node.SetID();
 
-			node.Volume = Volume;
+			IAINode iNode = node as IAINode;
 
-			node.transform.SetParent( Volume.transform );
+			iNode.Volume = Volume;
 
 			m_Nodes.Add( node );
 
@@ -87,7 +87,7 @@ namespace AI.Pathfinding
 				for ( int i = m_Nodes.Count - 1; i > -1; i-- )
 				{
 					AINode node = m_Nodes[i];
-					if ( Volume.IsPositionInside( node.Position ) && node.Volume == Volume )
+					if ( Volume.IsPositionInside( node.transform.position ) && node.Volume == Volume )
 					{
 						ReleaseNode( node, i );
 					}
@@ -118,7 +118,7 @@ namespace AI.Pathfinding
 
 			return
 				node.ID != neigh.ID
-				&& ( neigh.Position - node.Position ).sqrMagnitude <= ( scanRadius * scanRadius ) * 2.4f
+				&& ( neigh.transform.position - node.transform.position ).sqrMagnitude <= ( scanRadius * scanRadius ) * 2.4f
 				&& Physics.Linecast( position1Up, position2Up ) == false
 			;
 		}
@@ -133,8 +133,8 @@ namespace AI.Pathfinding
 			{
 				if ( IsValidNeighbour( node, neigh, scanRadius ) == true )
 				{
-					node.Neighbours.Add( neigh );
-					neigh.Neighbours.Add( node );
+					( node as IAINode ).Neighbours.Add( neigh );
+					( neigh as IAINode ).Neighbours.Add( node );
 				}
 			}
 		}
@@ -143,7 +143,7 @@ namespace AI.Pathfinding
 		//////////////////////////////////////////////////////////////////////////
 		private		static	void	RemoveFromNeighbours( AINode node )
 		{
-			foreach( AINode neigh in node.Neighbours )
+			foreach( IAINode neigh in ( node as IAINode ).Neighbours )
 			{
 				neigh.Neighbours.Remove( node );
 			}
@@ -152,12 +152,15 @@ namespace AI.Pathfinding
 
 		private	static LayerMask terrainLayer = 0;
 		//////////////////////////////////////////////////////////////////////////
-		private		static	bool	CanSpawnNode( Vector3 position )
+		private		static	bool	CanSpawnNode( NavMeshVolume Volume, Vector3 position )
 		{
-			LayerMask validLayers = Physics.AllLayers | terrainLayer;
+			bool result = true;
 
-			RaycastHit[] hits = Physics.SphereCastAll( position, 1.0f, Vector3.zero, Mathf.Infinity );
-			return hits.Length == 0;
+			return result;
+//			LayerMask validLayers = Physics.AllLayers | terrainLayer;
+
+//			RaycastHit[] hits = Physics.SphereCastAll( position, 1.0f, Vector3.zero, Mathf.Infinity );
+//			return hits.Length == 0;
 
 		}
 
@@ -171,16 +174,18 @@ namespace AI.Pathfinding
 
 			CreateNodeModel();
 
-			foreach( NavMeshVolume volume in FindObjectsOfType<NavMeshVolume>() )
+			NavMeshVolume[] volumes = FindObjectsOfType<NavMeshVolume>();
+
+			foreach( NavMeshVolume volume in volumes )
 			{
 				if ( volume.gameObject.activeSelf )
 				{
-					// removing overlapping nodes
 					for ( int i = m_Nodes.Count - 1; i > -1; i-- )
 					{
-						AINode node = m_Nodes[i];
-						if ( volume.IsPositionInside( node.Position ) && node.Volume != volume )
-						{
+ 						// removing overlapping nodes
+ 						AINode node = m_Nodes[i];
+ 						if ( volume.IsPositionInside( node.transform.position ) )
+ 						{
 							ReleaseNode( node, i );
 						}
 					}
@@ -190,16 +195,37 @@ namespace AI.Pathfinding
 
 					volume.IterateOver( 
 						( Vector3 position ) => {
-							if ( CanSpawnNode( position ) )
+							if ( CanSpawnNode( volume, position ) )
 							{
-								AINode node =  GenerateNode( position, volume );
-								FindNeighbours( node );
+								GenerateNode( position, volume, CanParent: true );
 							}
-						} 
+						}
 					);
 
 					volume.transform.rotation = volumetStartRotation;
 				}
+			}
+/*
+			foreach( NavMeshVolume volume in volumes )
+			{
+				if ( volume.gameObject.activeSelf )
+				{
+					for ( int i = m_Nodes.Count - 1; i > -1; i-- )
+					{
+						// removing overlapping nodes
+						AINode node = m_Nodes[i];
+						if ( node.Volume.GetInstanceID() != volume.GetInstanceID() && volume.IsPositionInside( node.transform.position ) )
+						{
+							ReleaseNode( node, i );
+						}
+					}
+				}
+			}
+*/
+			
+			foreach ( AINode node in m_Nodes )
+			{
+				FindNeighbours( node );
 			}
 
 			return true;
@@ -213,7 +239,7 @@ namespace AI.Pathfinding
 		{
 			if ( m_OpenSet == null || m_OpenSet.Capacity != size )
 			{
-				m_OpenSet = new Heap<AINode>( size );
+				m_OpenSet = new Heap<IAINode>( size );
 			}
 		}
 
@@ -239,7 +265,7 @@ namespace AI.Pathfinding
 			{
 				AINode node = m_Nodes[i];
 
-				float distance = ( node.Position - Position ).magnitude;
+				float distance = ( node.transform.position - Position ).magnitude;
 				if ( distance < currentDistance )
 				{
 					currentDistance = distance;
@@ -289,18 +315,18 @@ namespace AI.Pathfinding
 
 		//////////////////////////////////////////////////////////////////////////
 		// FindPathInternal
-		static		private	uint	FindPathInternal( AINode StartNode, AINode EndNode, ref Vector3[] Path )
+		static		private	uint	FindPathInternal( IAINode StartNode, IAINode EndNode, ref Vector3[] Path )
 		{
 			if ( EndNode.IsWalkable == false )
 				return 0;
 
 			if ( m_OpenSet == null || m_OpenSet.Capacity != NodeCount )
 			{
-				m_OpenSet = new Heap<AINode>( NodeCount );
+				m_OpenSet = new Heap<IAINode>( NodeCount );
 
 			}
 
-			EndNode.gCost = 0;
+			EndNode.GCost = 0;
 			EndNode.Heuristic = ( EndNode.Position - StartNode.Position ).sqrMagnitude;
 
 			// First node is always discovered
@@ -312,7 +338,7 @@ namespace AI.Pathfinding
 			// Start scan
 			while ( m_OpenSet.Count > 0 )
 			{
-				AINode currentNode = m_OpenSet.RemoveFirst();
+				IAINode currentNode = m_OpenSet.RemoveFirst();
 				if ( currentNode.ID == StartNode.ID )
 				{
 				//	Debug.Log("We found the end node!");
@@ -326,10 +352,10 @@ namespace AI.Pathfinding
 				// Setup its neighbours
 				for ( int i = 0; i < currentNode.Neighbours.Count; i++ )
 				{
-					AINode iNeighbour = currentNode.Neighbours[ i ];
+					IAINode iNeighbour = currentNode.Neighbours[ i ];
 					if ( iNeighbour == null )
 					{
-						UnityEngine.Debug.Log( "node " + currentNode.name + " has neighbour as null " );
+//						UnityEngine.Debug.Log( "node " + currentNode.name + " has neighbour as null " );
 						return 0;
 					}
 
@@ -338,13 +364,13 @@ namespace AI.Pathfinding
 						continue;
 
 
-					float gCost = currentNode.gCost + ( currentNode.Position - iNeighbour.Position ).sqrMagnitude;
+					float gCost = currentNode.GCost + ( currentNode.Position - iNeighbour.Position ).sqrMagnitude;
 					bool containsNehigbour = m_OpenSet.Contains( iNeighbour );
-					if ( gCost < iNeighbour.gCost || containsNehigbour == false )
+					if ( gCost < iNeighbour.GCost || containsNehigbour == false )
 					{
-						iNeighbour.gCost		= gCost;
+						iNeighbour.GCost		= gCost;
 						iNeighbour.Heuristic	= ( iNeighbour.Position - StartNode.Position ).sqrMagnitude;
-						iNeighbour.Parent		= currentNode;
+						iNeighbour.Parent		= ( currentNode as AINode );
 
 						if ( containsNehigbour == false )
 						{
@@ -361,10 +387,10 @@ namespace AI.Pathfinding
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		private		static	uint	RetracePath( AINode startNode, AINode endNode, ref Vector3[] path )
+		private		static	uint	RetracePath( IAINode startNode, IAINode endNode, ref Vector3[] path )
 		{
 			uint currentNodeCount = 1;
-			AINode currentNode = endNode;
+			IAINode currentNode = endNode;
 			
 			// Count path nodes
 			while ( currentNode.Equals( startNode ) == false )
@@ -411,10 +437,7 @@ namespace AI.Pathfinding
 		{
 			foreach ( AINode node in m_Nodes )
 			{
-				node.Heuristic	= 0f;
-				node.gCost		= float.MaxValue;
-				node.Parent		= null;
-				node.Visited	= false;
+				node.ResetNode();
 			}
 		}
 
@@ -465,11 +488,11 @@ namespace AI.Pathfinding
 			{
 				if ( node != null && node.transform != null )
 				{
-					Gizmos.DrawSphere( node.Position, 0.5f );
+					Gizmos.DrawSphere( node.transform.position, 0.5f );
 
-					foreach( AINode neigh in node.Neighbours )
+					foreach( AINode neigh in ( node as IAINode ).Neighbours )
 					{
-						Debug.DrawLine( node.Position, neigh.Position );
+						Debug.DrawLine( node.transform.position, neigh.transform.position );
 					}
 				}
 			}

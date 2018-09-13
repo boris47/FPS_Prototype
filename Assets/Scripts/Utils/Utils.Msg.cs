@@ -15,7 +15,7 @@ namespace Utils {
 
 
 		public static void MSGCRT( string format, params object[] args ) {
-			Debug.Log( "CRT:     " + global::System.String.Format( format, args ) );
+			Debug.Log( "CRT:	 " + global::System.String.Format( format, args ) );
 		}
 	}
 

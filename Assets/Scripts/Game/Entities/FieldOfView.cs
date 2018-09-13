@@ -32,7 +32,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 
 	public		OnTargetEvent			OnTargetAquired			{ set { m_OnTargetAquired = value; } }
 	public		OnTargetEvent			OnTargetChanged			{ set { m_OnTargetChanged = value; } }
-	public		OnTargetEvent			OnTargetLost			{ set { m_OnTargetLost    = value; } }
+	public		OnTargetEvent			OnTargetLost			{ set { m_OnTargetLost	= value; } }
 
 
 	[SerializeField]

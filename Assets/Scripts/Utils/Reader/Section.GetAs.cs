@@ -27,7 +27,7 @@ namespace CFG_Reader {
 
 		//////////////////////////////////////////////////////////////////////////
 		// bAsBool
-		public	bool                    bAsBool( string Key, ref bool Out, bool Default = false )
+		public	bool					bAsBool( string Key, ref bool Out, bool Default = false )
 		{
 			cLineValue pLineValue = null;
 			if ( ( pLineValue = this[ Key ] ) != null )

@@ -135,7 +135,7 @@ namespace CutScene {
 				m_Destination				= data.point.position;							// destination to reach
 				m_Target					= data.target != null ? data.target : m_Target;	// target to look at
 				m_MovementType				= data.movementType;							// movement type
-				m_TimeScaleTarget			= data.timeScaleTraget;                         // time scale for this trip
+				m_TimeScaleTarget			= data.timeScaleTraget;						 // time scale for this trip
 			}
 			else
 			{

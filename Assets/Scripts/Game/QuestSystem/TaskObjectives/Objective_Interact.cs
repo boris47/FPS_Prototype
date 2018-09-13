@@ -15,7 +15,7 @@ namespace QuestSystem {
 		private GameEvent			m_OnInteraction					= null;
 
 		[SerializeField]
-		private bool                m_Interactable                  = false;
+		private bool				m_Interactable				  = false;
 		bool						IInteractable.CanInteract		{ get { return m_Interactable; } set { m_Interactable = value; } }
 
 

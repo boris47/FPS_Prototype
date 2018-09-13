@@ -365,7 +365,7 @@ public class CameraControl : MonoBehaviour, ICameraControl, ICameraSetters {
 			m_CameraFPS_Shift = Mathf.Lerp( m_CameraFPS_Shift, ( Player.Instance.IsCrouched ) ? 0.5f : 1.0f, dt * 10f );
 			transform.position = Player.Instance.transform.TransformPoint( m_ViewPoint.transform.localPosition * m_CameraFPS_Shift );
 		}
-    }
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////

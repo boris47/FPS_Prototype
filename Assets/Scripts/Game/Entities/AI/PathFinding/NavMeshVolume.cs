@@ -18,6 +18,7 @@ namespace AI.Pathfinding {
 		}
 
 		private		MeshRenderer	m_MeshRenderer	= null;
+		private		MeshFilter		m_MeshFilter	= null;
 
 
 
@@ -31,13 +32,15 @@ namespace AI.Pathfinding {
 		//////////////////////////////////////////////////////////////////////////
 		private	void	EnsureComponents()
 		{
-			MeshRenderer renderer = null;
-			if ( ( renderer = GetComponent<MeshRenderer>() ) == null )
+			if ( ( m_MeshRenderer == null ) && ( m_MeshRenderer = GetComponent<MeshRenderer>() ) == null )
 			{
-				renderer = gameObject.AddComponent<MeshRenderer>();
+				m_MeshRenderer = gameObject.AddComponent<MeshRenderer>();
 			}
 
-			m_MeshRenderer = renderer;
+			if ( ( m_MeshFilter == null ) && ( m_MeshFilter = GetComponent<MeshFilter>() ) == null )
+			{
+				m_MeshFilter = gameObject.AddComponent<MeshFilter>();
+			}
 		}
 
 
@@ -97,8 +100,31 @@ namespace AI.Pathfinding {
 		public	bool	IsPositionInside( Vector3 Position )
 		{
 			EnsureComponents();
+		
+			return IsPointInside( Position );
+		}
 
-			return m_MeshRenderer.bounds.Contains( Position );
+		// TODO move this into utils
+		//////////////////////////////////////////////////////////////////////////
+		private bool IsPointInside( Vector3 WorldPosition )
+		{
+			Mesh aMesh = m_MeshFilter.sharedMesh;
+			Vector3 aLocalPoint = m_MeshRenderer.transform.InverseTransformPoint(WorldPosition);
+			Plane plane = new Plane();
+			
+			var verts = aMesh.vertices;
+			var tris = aMesh.triangles;
+			int triangleCount = tris.Length / 3;
+			for ( int i = 0; i < triangleCount; i++ )
+			{
+				var V1 = verts[ tris[ i * 3 ] ];
+				var V2 = verts[ tris[ i * 3 + 1 ] ];
+				var V3 = verts[ tris[ i * 3 + 2 ] ];
+				plane.Set3Points( V1, V2, V3 );
+				if ( plane.GetSide( aLocalPoint ) )
+					return false;
+			}
+			return true;
 		}
 	}
 

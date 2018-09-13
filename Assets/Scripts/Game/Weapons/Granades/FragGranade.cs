@@ -113,9 +113,9 @@ public class FragGranade : GranadeBase {
 			}
 
 			Rigidbody rb = hittedCollider.GetComponent<Rigidbody>();
-            if ( entity == null && rb != null )
+			if ( entity == null && rb != null )
 			{
-                rb.AddExplosionForce( 1000, transform.position, m_Range, 3.0F );
+				rb.AddExplosionForce( 1000, transform.position, m_Range, 3.0F );
 			}			
 		}
 		EffectManager.Instance.PlayEntityExplosion( transform.position, Vector3.up );

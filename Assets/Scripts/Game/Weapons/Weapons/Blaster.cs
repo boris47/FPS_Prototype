@@ -29,7 +29,7 @@ public class Blaster : Weapon
 
 	private		float							m_BulletMaxDamage			= 0f;
 	private		float							m_BulletMinDamage			= 0f;
-	private     float                           m_BulletEffectIntensity		= 0f;
+	private	 float						   m_BulletEffectIntensity		= 0f;
 
 	protected override string OtherInfo
 	{

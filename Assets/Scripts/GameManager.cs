@@ -3,7 +3,7 @@ using CFG_Reader;
 using UnityEngine;
 
 [System.Serializable]
-public class GameEvent      : UnityEngine.Events.UnityEvent { }
+public class GameEvent	  : UnityEngine.Events.UnityEvent { }
 
 public	delegate	void	OnTriggerCall( Collider collider );
 public	delegate	void	OnPauseSet( bool isPaused );
@@ -12,9 +12,9 @@ public	delegate	void	OnThink();
 
 public partial class GameManager : MonoBehaviour {
 
-    /// <summary> Use this to identity is executing in editor or in build </summary>
+	/// <summary> Use this to identity is executing in editor or in build </summary>
 #if UNITY_EDITOR
-    public	const	bool InEditor = true;
+	public	const	bool InEditor = true;
 #else
 	public	const	bool InEditor = false;
 #endif
@@ -63,7 +63,7 @@ public partial class GameManager : MonoBehaviour {
 
 
 	private					bool			m_SkipOneFrame			= false;
-	private					float			m_ThinkTimer            = 0f;
+	private					float			m_ThinkTimer			= 0f;
 
 	// Pause vars
 	private					float			m_PrevTimeScale			= 1f;

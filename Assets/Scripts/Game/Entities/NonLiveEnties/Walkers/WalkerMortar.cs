@@ -113,7 +113,7 @@ public class WalkerMortar : Walker {
 	//////////////////////////////////////////////////////////////////////////
 	// CalculateProjectileFiringSolution
 	private float CalculateFireAngle( float alt, Vector3 startPosition, Vector3 endPosition )
-    { 
+	{ 
 		Bullet bullet = m_Pool.GetAsModel();
 		float bulletVelocity = bullet.Velocity;
 
@@ -121,9 +121,9 @@ public class WalkerMortar : Walker {
 		Vector2 b = new Vector2( endPosition.x, endPosition.z );
 		float dis = Vector2.Distance( a, b );
 		alt = -( startPosition.y - m_TargetInfo.CurrentTarget.Transform.position.y );
-        
+		
 		float g = Mathf.Abs( Physics.gravity.y );
-                
+				
 		float dis2 = dis * dis;
 		float vel2 = bulletVelocity * bulletVelocity;
 		float vel4 = bulletVelocity * bulletVelocity * bulletVelocity * bulletVelocity;
@@ -137,11 +137,11 @@ public class WalkerMortar : Walker {
 			num = vel2 - Mathf.Sqrt( vel4 - g * ( ( g * dis2 ) + ( 2f * alt * vel2 ) ) );
 		else
 			num = vel2 + Mathf.Sqrt( vel4 - g * ( ( g * dis2 ) + ( 2f * alt * vel2 ) ) );
-        
+		
 		float dom = g * dis;
 		float angle = Mathf.Atan( num / dom );
 
 		return angle * Mathf.Rad2Deg;
-    }
+	}
 
 }

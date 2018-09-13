@@ -9,7 +9,7 @@ namespace CFG_Reader {
 	
 		//////////////////////////////////////////////////////////////////////////
 		// SetValue
-		public    void                    SetValue( string Key, cValue Value )
+		public	void					SetValue( string Key, cValue Value )
 		{
 			cLineValue pLineValue = this[ Key ];
 
@@ -24,7 +24,7 @@ namespace CFG_Reader {
 
 		//////////////////////////////////////////////////////////////////////////
 		// SetMultiValue
-		public    void                    SetMultiValue( string Key, cValue[] vValues )
+		public	void					SetMultiValue( string Key, cValue[] vValues )
 		{
 			cLineValue pLineValue = this[ Key ];
 
