@@ -71,9 +71,8 @@ public partial class GameManager : IGameManager_SaveManagement {
 
 		if ( m_SaveLoadCO != null )
 		{
-			StopCoroutine( m_SaveLoadCO );
-			m_SavingThread.Abort();
-			m_SavingThread = null;
+			UnityEngine.Debug.Log( "Another save must finish write actions !!" );
+			return;
 		}
 
 		StreamingData streamingData = new StreamingData();
@@ -82,10 +81,11 @@ public partial class GameManager : IGameManager_SaveManagement {
 		OnSave( streamingData );
 
 		// write data on disk
-		string toSave = JsonUtility.ToJson( streamingData, prettyPrint: true );
+		string toSave = JsonUtility.ToJson( streamingData, prettyPrint: false );
 
 		print( "Saving" );
-		m_SavingThread = new Thread( () => { File.WriteAllText( fileName, Encrypt( toSave ) ); });
+		toSave = Encrypt( toSave );
+		m_SavingThread = new Thread( () => { File.WriteAllText( fileName, toSave ); });
 		m_SavingThread.Start();
 		m_SaveLoadCO = StartCoroutine( SaveLoadCO( m_SavingThread ) );
 	}
@@ -103,6 +103,7 @@ public partial class GameManager : IGameManager_SaveManagement {
 		m_SavingThread = null;
 		m_SaveLoadCO = null;
 
+		
 		if ( PlayerPrefs.HasKey( "SaveSceneIdx" ) == false )
 		{
 			PlayerPrefs.DeleteKey( "SaveSceneIdx" );
@@ -144,6 +145,8 @@ public partial class GameManager : IGameManager_SaveManagement {
 	{
 		return clearText;
 
+		// TODO re-enable encryption
+#pragma warning disable CS0162 // È stato rilevato codice non raggiungibile
 		byte[] clearBytes = Encoding.Unicode.GetBytes( clearText );
 		m_Encryptor.Key = m_PDB.GetBytes( 32 );
 		m_Encryptor.IV = m_PDB.GetBytes( 16 );
@@ -160,6 +163,7 @@ public partial class GameManager : IGameManager_SaveManagement {
 		}
 		stream.Dispose();
 		return clearText;
+#pragma warning restore CS0162 // È stato rilevato codice non raggiungibile
 	}
 
 
@@ -169,6 +173,8 @@ public partial class GameManager : IGameManager_SaveManagement {
 	{
 		return cipherText;
 
+		// TODO re-enable decryption
+#pragma warning disable CS0162 // È stato rilevato codice non raggiungibile
 		cipherText = cipherText.Replace( " ", "+" );
 		byte[] cipherBytes = System.Convert.FromBase64String( cipherText );
 		m_Encryptor.Key = m_PDB.GetBytes( 32 );
@@ -186,6 +192,7 @@ public partial class GameManager : IGameManager_SaveManagement {
 		}
 		stream.Dispose();
 		return cipherText;
+#pragma warning restore CS0162 // È stato rilevato codice non raggiungibile
 	}
 
 
@@ -253,7 +260,7 @@ public class StreamingUnit {
 
 	//////////////////////////////////////////////////////////////////////////
 	// GetAsBool
-	public	bool	GetAsBool( string key )
+	public	bool		GetAsBool( string key )
 	{
 		string value = GetInternal( key );
 		bool result = false;
@@ -263,7 +270,7 @@ public class StreamingUnit {
 
 	//////////////////////////////////////////////////////////////////////////
 	// GetAsInt
-	public	int		GetAsInt( string key )
+	public	int			GetAsInt( string key )
 	{
 		string value = GetInternal( key );
 		int result = 0;
@@ -273,7 +280,7 @@ public class StreamingUnit {
 
 	//////////////////////////////////////////////////////////////////////////
 	// GetAsFloat
-	public	float	GetAsFloat( string key )
+	public	float		GetAsFloat( string key )
 	{
 		string value = GetInternal( key );
 		float result = 0f;
@@ -283,7 +290,7 @@ public class StreamingUnit {
 
 	//////////////////////////////////////////////////////////////////////////
 	// GetAsEnum
-	public	T GetAsEnum<T>( string key )
+	public	T			GetAsEnum<T>( string key )
 	{
 		string value = GetInternal( key );
 		return ( T ) System.Enum.Parse( typeof( T ), value );
@@ -291,7 +298,7 @@ public class StreamingUnit {
 
 	//////////////////////////////////////////////////////////////////////////
 	// GetAsEnum
-	public Vector3	GetAsVector( string key )
+	public Vector3		GetAsVector( string key )
 	{
 		string value = GetInternal( key );
 		Vector3 result = Vector3.zero;
@@ -323,12 +330,15 @@ public class StreamingData {
 	// NewUnit
 	public	StreamingUnit	NewUnit( GameObject gameObject )
 	{
+		StreamingUnit streamingUnit		= new StreamingUnit();
+
 		int index = m_Data.FindIndex( ( StreamingUnit data ) => data.InstanceID == gameObject.GetInstanceID() );
 		if ( index > -1 )
 		{
 			Debug.Log( gameObject.name + " already saved" );
+			streamingUnit = m_Data[index];
 		}
-		StreamingUnit streamingUnit		= new StreamingUnit();
+
 		streamingUnit.InstanceID		= gameObject.GetInstanceID();
 		streamingUnit.Name				= gameObject.name;
 

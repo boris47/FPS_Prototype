@@ -65,6 +65,10 @@ public class Foots : MonoBehaviour, IFoots {
 	public	void	OnFrame()
 	{
 		return;
+
+		// TODO: RESOLVE THIS PROBLEM
+
+#pragma warning disable CS0162 // È stato rilevato codice non raggiungibile
 		const float offset = 0.05f;
 
 		Vector3 startLine = transform.position;
@@ -90,6 +94,7 @@ public class Foots : MonoBehaviour, IFoots {
 		m_IsColliding = isGrounded;
 
 //		m_LiveEntity.IsGrounded = isGrounded;
+#pragma warning restore CS0162 // È stato rilevato codice non raggiungibile
 	}
 
 	private void OnTriggerEnter( Collider other )

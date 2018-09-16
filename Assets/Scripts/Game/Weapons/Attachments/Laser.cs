@@ -24,6 +24,15 @@ public class Laser : WeaponAttachment {
 		get { return m_HasHit; }
 	}
 
+	[SerializeField]
+	private		LayerMask			m_LayerMaskToExclude = default( LayerMask );
+	// Layer mask to exclude during raycast
+	public		LayerMask			LayerMaskToExclude
+	{
+		get { return m_LayerMaskToExclude; }
+		set { m_LayerMaskToExclude = value; }
+	}
+
 	private		RaycastHit			m_RayCastHit		= default( RaycastHit );
 	private		RaycastHit			m_DefaultRaycastHit	= default( RaycastHit );
 	public		RaycastHit			RayCastHit
@@ -44,6 +53,8 @@ public class Laser : WeaponAttachment {
 
 		m_Renderer = GetComponentInChildren<Renderer>();
 		m_Renderer.material.color = m_Color;
+
+		m_LayerMaskToExclude		&= LayerMask.NameToLayer("Bullets");
 	}
 
 
@@ -71,7 +82,7 @@ public class Laser : WeaponAttachment {
 		if ( Time.frameCount % 5 == 0 )
 			return;
 
-		m_HasHit = Physics.Raycast( transform.position, transform.forward, out m_RayCastHit, m_LaserLength );
+		m_HasHit = Physics.Raycast( transform.position, transform.forward, out m_RayCastHit, m_LaserLength, Utils.Base.LayersAllButOne( 1, m_LayerMaskToExclude ) );
 
 		float	currentLength = m_LaserLength;
 		if ( HasHit )

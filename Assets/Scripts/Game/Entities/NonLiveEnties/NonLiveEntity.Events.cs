@@ -9,17 +9,12 @@ public abstract partial class NonLiveEntity : Entity {
 	// OnTargetAquired ( Override )
 	public override void OnTargetAquired( TargetInfo_t targetInfo )
 	{
-		m_TargetInfo = targetInfo;
-
-
 		print( "OntargetAcquired" );
 
-		// PathFinding
-		CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
+		m_TargetInfo = targetInfo;
 
 		// now point to face is target position
-		m_PointToFace		= m_TargetInfo.CurrentTarget.Transform.position;
-		m_HasPointToFace	= true;
+		SetPoinToFace( m_TargetInfo.CurrentTarget.Transform.position );
 
 		m_Brain.ChangeState( BrainState.ATTACKING );
 	}
@@ -29,12 +24,9 @@ public abstract partial class NonLiveEntity : Entity {
 	// OnTargetChanged ( Override )
 	public override void OnTargetChanged( TargetInfo_t targetInfo )
 	{
-		m_TargetInfo = targetInfo;
-
 		print( "OnTargetChanged" );
 
-		// PathFinding
-		CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
+		m_TargetInfo = targetInfo;
 	}
 
 
@@ -42,12 +34,9 @@ public abstract partial class NonLiveEntity : Entity {
 	// OnTargetLost ( Override )
 	public override void OnTargetLost( TargetInfo_t targetInfo )
 	{
-		m_TargetInfo = default( TargetInfo_t );
-
 		print( "OnTargetLost" );
 
-		// Stop moving
-		m_Brain.Stop(); // temp, cheasing feature awaiting
+		m_TargetInfo = default( TargetInfo_t );
 
 		m_Brain.ChangeState( BrainState.NORMAL );
 	}

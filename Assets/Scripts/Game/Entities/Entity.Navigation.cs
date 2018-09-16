@@ -40,6 +40,13 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	// Position saved at start of movement ( used for distances check )
 	protected	Vector3						m_StartMovePosition				= Vector3.zero;
 
+	// Questa funzione viene chiamata durante il caricamento dello script o quando si modifica un valore nell'inspector (chiamata solo nell'editor)
+	private void OnValidate()
+	{
+
+	}
+
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -84,7 +91,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 	//////////////////////////////////////////////////////////////////////////
 	// UpdateNavigation ( virtual )
-	protected	virtual		void	NavUpdate( float Speed )
+	protected	virtual		void	NavUpdate( float deltaTime, float Speed )
 	{
 		// check
 		if ( m_NavHasDestination == false || m_NavCanMoveAlongPath == false )
@@ -114,14 +121,27 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 		// go to node
 
-		Vector3 projectedDestination = Utils.Math.ProjectPointOnPlane( transform.up, transform.position, m_NavPath[ m_NavCurrentNodeIdx ] );
+		Vector3 projectedDestination = Utils.Math.ProjectPointOnPlane( transform.up, m_RigidBody.position, m_NavPath[ m_NavCurrentNodeIdx ] );
 		Vector3 targetDirection = ( projectedDestination - transform.position ).normalized;
+
+		SetPoinToFace( projectedDestination );
+
+		// TODO Implement three parts entities body: Foots, body, head
+
+		if ( m_Brain.State == BrainState.SEEKER || m_Brain.State == BrainState.NORMAL )
+		{
+			m_RigidBody.velocity = transform.forward * Speed * 10f * deltaTime;
+		}
+		else
+		{
+			m_RigidBody.velocity = targetDirection * Speed * 10f * deltaTime;
+		}
 
 //		m_RigidBody.AddForce( targetDirection * Speed, ForceMode.VelocityChange );
 
 //		transform.position += targetDirection * Speed * 10f * Time.deltaTime;
 
-		m_RigidBody.velocity = targetDirection *Speed* 10f * Time.deltaTime;
+//		m_RigidBody.velocity = targetDirection * Speed * 10f * Time.deltaTime;
 	}
 
 
@@ -129,15 +149,13 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	// CheckForNewReachPoint ( virtual )
 	protected	virtual		void	CheckForNewReachPoint( Vector3 TargetPosition )
 	{
-		
 		if ( m_TargetInfo.HasTarget == true )
 		{
-
 			// TODO find a way to no spawm path finding request
 
 			// Path search event if not already near enough
 			int targetNodeIndex = AI.Pathfinding.PathFinder.GetNearestNodeIdx( TargetPosition );
-			if ( m_TargetNodeIndex != targetNodeIndex && Vector3.Distance( transform.position, TargetPosition ) > m_MinEngageDistance )
+			if ( m_TargetNodeIndex != targetNodeIndex && ( transform.position - TargetPosition ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
 			{
 				if ( m_Brain.TryToReachPoint( targetNodeIndex ) )
 				{

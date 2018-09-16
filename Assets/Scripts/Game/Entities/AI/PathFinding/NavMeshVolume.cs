@@ -6,7 +6,6 @@ using System.Collections.ObjectModel;
 
 namespace AI.Pathfinding {
 
-	[RequireComponent(typeof(MeshRenderer))]
 	public class NavMeshVolume : MonoBehaviour {
 
 		[SerializeField]
@@ -19,7 +18,6 @@ namespace AI.Pathfinding {
 
 		private		MeshRenderer	m_MeshRenderer	= null;
 		private		MeshFilter		m_MeshFilter	= null;
-
 
 
 		//////////////////////////////////////////////////////////////////////////
@@ -57,23 +55,24 @@ namespace AI.Pathfinding {
 			if ( OnPosition == null )
 				return;
 
-			float extentsX = transform.localScale.x / 2.0f;
-			float extentsZ = transform.localScale.z / 2.0f;
+			float extentsX = -transform.lossyScale.x / 2.0f;
+			float extentsY =  transform.lossyScale.y / 2.0f;
+			float extentsZ = -transform.lossyScale.z / 2.0f;
 
-			float currentStepX = transform.localScale.x;
-			float currentStepZ = transform.localScale.z;
+			float currentStepX = transform.lossyScale.x;
+			float currentStepZ = transform.lossyScale.z;
 
 			Vector3 position = Vector3.zero;
 
 			while ( true )
 			{
-				float currentX = transform.position.x - extentsX + currentStepX;
-				float currentZ = transform.position.z - extentsZ + currentStepZ;
-				float currentY = transform.position.y;
+				float currentX = extentsX + currentStepX;
+				float currentZ = extentsZ + currentStepZ;
+				float currentY = extentsY;
 
 				position.Set( currentX, currentY, currentZ );
 
-				OnPosition( position );
+				OnPosition( transform.position + transform.rotation * position );
 
 				currentStepX -= m_StepSize;
 				if ( currentStepX <= 0.0f )
@@ -83,7 +82,7 @@ namespace AI.Pathfinding {
 					{
 						break;
 					}
-					currentStepX = transform.localScale.x;
+					currentStepX = transform.lossyScale.x;
 				}
 			}
 		}
@@ -101,30 +100,7 @@ namespace AI.Pathfinding {
 		{
 			EnsureComponents();
 		
-			return IsPointInside( Position );
-		}
-
-		// TODO move this into utils
-		//////////////////////////////////////////////////////////////////////////
-		private bool IsPointInside( Vector3 WorldPosition )
-		{
-			Mesh aMesh = m_MeshFilter.sharedMesh;
-			Vector3 aLocalPoint = m_MeshRenderer.transform.InverseTransformPoint(WorldPosition);
-			Plane plane = new Plane();
-			
-			var verts = aMesh.vertices;
-			var tris = aMesh.triangles;
-			int triangleCount = tris.Length / 3;
-			for ( int i = 0; i < triangleCount; i++ )
-			{
-				var V1 = verts[ tris[ i * 3 ] ];
-				var V2 = verts[ tris[ i * 3 + 1 ] ];
-				var V3 = verts[ tris[ i * 3 + 2 ] ];
-				plane.Set3Points( V1, V2, V3 );
-				if ( plane.GetSide( aLocalPoint ) )
-					return false;
-			}
-			return true;
+			return Utils.Math.IsPointInside( m_MeshFilter, Position );
 		}
 	}
 

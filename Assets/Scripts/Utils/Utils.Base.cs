@@ -16,66 +16,10 @@ namespace Utils {
 
 	public static class Base {
 
-		public	static	KeyValue[]	GetKeyValues( string line )
+		public	static	int		LayersAllButOne( int all, int one )
 		{
-			string[] keyValues = line.Split( ',' );
-
-			KeyValue[] values = null;
-
-			if ( keyValues.Length == 0 )
-			{
-				values = new KeyValue[1];
-				values[0] = GetKeyValue( line );
-				return values;
-			}
-
-			values = new KeyValue[keyValues.Length];
-			for ( int i = 0; i < keyValues.Length; i++ )
-			{
-				values[ i ] = GetKeyValue( keyValues[ i ] );
-			}
-			return values;
+			return ~( all << one );
 		}
-
-
-
-		public	static	KeyValue	GetKeyValue( string Line )
-		{
-			KeyValue Result;
-
-			Result.IsOK = false;
-			Result.Key = Result.Value = "";
-
-			if ( ! String.IsValid( ref Line ) ) return Result;
-
-			int iEqualSign = 0;
-
-			for ( int i = 0; i < Line.Length; i++ )
-			{
-				if ( Line[ i ]  == '=' )
-				{
-					iEqualSign = i;
-					break;
-				}
-			}
-
-			if ( iEqualSign > 0 )
-			{ // Key Value Pair
-				string sKey = Line.Substring( 0, iEqualSign ).Trim();
-				string sValue = Line.Substring( iEqualSign + 1 );
-				if ( sValue.Length > 0 ) sValue = sValue.Trim();
-
-				if ( sKey.Length > 0 )
-				{
-					Result.Key = sKey;
-					Result.Value = sValue;
-					Result.IsOK = true;
-					return Result;
-				}
-			}
-			return Result;
-		}
-
 
 
 		private	static	void	CloneComponent( ref Component component, ref GameObject destinationObj, bool copyProperties = false )

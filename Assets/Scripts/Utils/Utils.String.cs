@@ -10,17 +10,27 @@ namespace Utils {
 
 	public static class String {
 
-		public static string ToDotStr( string FilePath )
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// Replace all '\\' with a dot each one
+		/// </summary>
+		public	static		string ToDotStr( string FilePath )
 		{
 			return FilePath.Replace( '\\', '.' ).Replace( '/', '.' );
 		}
 
-		public static void CleanComments( ref string str )
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// Search for comment char and discard all presente on the right side of comment char, default char is ';'
+		/// </summary>
+		public	static		void CleanComments( ref string str, char commentChar = ';' )
 		{
 			if ( str.Length < 1 ) return;
 			for ( int i = 0; i < str.Length; i++ )
 			{
-				if ( str[ i ] == ';' )
+				if ( str[ i ] == commentChar )
 				{
 					str = str.Remove( i );
 					return;
@@ -29,54 +39,72 @@ namespace Utils {
 
 		}
 
-		public static bool ContainsAlpha( string str )
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// Return if string contains at last one letter
+		/// </summary>
+		public	static		bool ContainsLetter( string str )
 		{
-			for ( int i = 0; i < str.Length; i++ )
+			bool found = false;
+			for ( int i = 0; i < str.Length && found == false; i++ )
 			{
-				if ( char.IsLetter( str[ i ] ) )
+				if ( char.IsLetter( str[ i ] ) ) // true if is letter
 				{
-					return true;
+					found = true;
 				}
 			}
-			return false;
-
+			return found;
 		}
 
-		public static bool ContainsDigit( string str )
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// Return if string contains at last one digit
+		/// </summary>
+		public	static		bool ContainsDigit( string str )
 		{
-			for ( int i = 0; i < str.Length; i++ )
+			bool found = false;
+			for ( int i = 0; i < str.Length && found == false; i++ )
 			{
-				if ( char.IsDigit( str[ i ] ) )
+				if ( char.IsDigit( str[ i ] ) )  // true if is a number
 				{
-					return true;
+					found = true;
 				}
 			}
-			return false;
-
+			return found;
 		}
 
-		public static bool IsValid( ref string str )
-		{
 
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// Return true for non empty string, that non contains at last one number or one letter
+		/// </summary>
+		public	static		bool IsValid( ref string str )
+		{
 			CleanComments( ref str );
-			if ( ( str.Length < 1 )  || ( ContainsAlpha( str ) == false && ContainsDigit( str ) == false ) ) return false;
-
-			return true;
+			return ( ( str.Length > 0 )  && ( ( ContainsLetter( str ) == true || ContainsDigit( str ) == true ) ) );
 		}
 
-		// Only contains letters and ':'
-		private static bool IsValidChar( char Char )
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// Return true for valid chars ( A - Z, ':' )
+		/// </summary>
+		private	static		bool IsValidChar( char Char )
 		{
-			if ( ( Char > 64 && Char < 91  ) || // A - Z
-				 ( Char > 96 && Char < 123 ) || // a - z
-				 ( Char == 58 ) 				// : ( Double dot )
-				 )
-				 return true;
-			return false;
+			return ( ( Char > 64 && Char < 91  ) || // A - Z
+					 ( Char > 96 && Char < 123 ) || // a - z
+					 ( Char == 58 ) 				// : ( Double dot )
+				 );
 		}
 
-		// Return the type of value reading the string
-		private static global::System.Type ReturnValueType( string sLine )
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// Return the System.Type of value reading the entire string ( bool, int, float, string )
+		/// </summary>
+		private	static		global::System.Type ReturnValueType( string sLine )
 		{
 			CleanComments( ref sLine );
 
@@ -87,7 +115,7 @@ namespace Utils {
 			{
 				char Char = sLine[ i ];
 				if ( Char == 32 ) continue;								// skip parsing spaces
-				if ( Char == 46 )										// (Dot)Useful for number determination
+				if ( Char == 46 )										// (Dot) Useful for number determination
 				{
 					b_DotFound = true;
 					continue;
@@ -125,47 +153,113 @@ namespace Utils {
 			return null;
 		}
 
-		// Return a cValue object if value is identified, otherwise null
-		public static cValue RecognizeValue( string sLine )
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// Return a cValue object if value is identified, otherwise null
+		/// </summary>
+		public	static		cValue RecognizeValue( string line )
 		{
-			global::System.Type type = ReturnValueType( sLine );
+			global::System.Type type = ReturnValueType( line );
 			if ( type == typeof( bool ) )
 			{
-				return ( sLine.ToLower() == "true" ) ? true : false;
+				return ( line.ToLower() == "true" ) ? true : false;
 			}
 
 			if ( type == typeof( int ) )
 			{
-				return Int32.Parse( sLine );
+				return Int32.Parse( line );
 			}
 
 			if ( type == typeof( float ) )
 			{
-				return float.Parse( sLine );
+				return float.Parse( line );
 			}
 
 			if ( type == typeof( string ) )
 			{
-				return sLine.Trim();
+				return line.Trim();
 			}
 			return null;
 		}
 
 
-		// parse a string and return a list of values
-		public static cValue[] RecognizeValues( string _Line )
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// Parse a string and return a list of values
+		/// </summary>
+		public	static		cValue[] RecognizeValues( string line )
 		{
-			string[] sValues = _Line.Split( ',' );
-			cValue[] cValues = new cValue[ sValues.Length ];
-
-			for ( int i = 0; i < sValues.Length; i++ )
+			string[] values = line.Split( ',' );
+			if ( values.Length > 0 )
 			{
-				cValues[ i ] = RecognizeValue( sValues[ i ] );
+				cValue[] cValues = new cValue[ values.Length ];
+				for ( int i = 0; i < values.Length; i++ )
+				{
+					cValues[ i ] = RecognizeValue( values[ i ] );
+				}
+				return cValues;
 			}
-			return cValues;
+			return null;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// Return an array of KeyValue on the same line
+		/// </summary>
+		public	static	KeyValue[]	GetKeyValues( string line )
+		{
+			string[] keyValues = line.Split( ',' );
+
+			KeyValue[] values = null;
+
+			if ( keyValues.Length == 0 )	// It can be that on this line there is only one Key Value
+			{								// try parse it
+				values = new KeyValue[1];
+				values[0] = GetKeyValue( line );
+				return values;
+			}
+
+			// Multiple results
+			values = new KeyValue[keyValues.Length];
+			for ( int i = 0; i < keyValues.Length; i++ )
+			{
+				values[ i ] = GetKeyValue( keyValues[ i ] );
+			}
+			return values;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// Return a KeyValue fìgiven a string the fourmat should be String = String
+		/// </summary>
+		public	static	KeyValue	GetKeyValue( string Line )
+		{
+			KeyValue Result = new KeyValue() { IsOK = false, Key = "", Value = "" };
+
+			if ( Utils.String.IsValid( ref Line ) == true )
+			{
+				int iEqualSign = Line.IndexOf( '=' );
+
+				if ( iEqualSign > -1 )
+				{	// Key Value Pair
+					string sKey = Line.Substring( 0, iEqualSign ).Trim();
+					string sValue = Line.Substring( iEqualSign + 1 );
+					if ( sValue.Length > 0 ) sValue = sValue.Trim();
+
+					if ( sKey.Length > 0 )
+					{
+						Result.Key = sKey;
+						Result.Value = sValue;
+						Result.IsOK = true;
+					}
+				}
+			}
+			return Result;
 		}
 
 	}
-
 }
 

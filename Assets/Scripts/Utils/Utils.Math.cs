@@ -7,33 +7,53 @@ namespace Utils {
 
 	public static class Math {
 
-		public const float EPS = 0.00001f;
+		public	const	float	EPS		= 0.00001f;
 
-		public	static	float		Sign( float value )
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// Equal to Mathf.Sign but this works
+		/// </summary>
+		public	static		float		Sign( float value )
 		{
 			return ( value > 0f ) ? 1f : ( value < 0f ) ? -1f : 0f;
 		}
 
 
-		public	static	float		Sqr( float value )
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// Return a better performance method to get squared value
+		public	static		float		Sqr( float value )
 		{
 			return Mathf.Pow( value, 0.5f );
 		}
 
 
-		public	static	bool		SimilarZero( float a, float cmp = EPS )
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// With a facoltative Epsilon, determines if value is similar to Zero
+		/// </summary>
+		public	static		bool		SimilarZero( float a, float cmp = EPS )
 		{
 			return Mathf.Abs( a ) < cmp;
 		}
 
 
-		public	static	float		Clamp( float Value, float Min, float Max )
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// Return a clamped value
+		/// </summary>
+		public	static		float		Clamp( float Value, float Min, float Max )
 		{
 			return ( Value > Max ) ? Max : ( Value < Min ) ? Min : Value;
 		}
 
 
-		public	static	float		ClampAngle( float Angle, float Min, float Max )
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// Return a clamped angle
+		/// </summary>
+		public	static		float		ClampAngle( float Angle, float Min, float Max )
 		{
 			while ( Angle > 360 )
 				Angle =-360;
@@ -45,11 +65,13 @@ namespace Utils {
 			return Angle;
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
 		/// <summary>
 		/// Get planar squared distance between two positions, position1 is projected on position2 plane
 		/// </summary>
 		/// <returns>Planar Squared Distance</returns>
-		public	static	float		PlanarSqrDistance( Vector3 position1, Vector3 position2, Vector3 position2PlaneNormal )
+		public	static		float		PlanarSqrDistance( Vector3 position1, Vector3 position2, Vector3 position2PlaneNormal )
 		{
 			// with given plane normal, project position1 on position2 plane
 			Vector3 projectedPoint = ProjectPointOnPlane( position2PlaneNormal, position1, position2 );
@@ -57,18 +79,25 @@ namespace Utils {
 			return ( position2 - projectedPoint ).sqrMagnitude;
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
 		/// <summary>
 		/// Get planar distance between two positions, position1 is projected on position2 plane
 		/// </summary>
 		/// <returns>Planar Distance</returns>
-		public	static	float		PlanarDistance( Vector3 position1, Vector3 position2, Vector3 planeNormal )
+		public	static		float		PlanarDistance( Vector3 position1, Vector3 position2, Vector3 planeNormal )
 		{
 			float sqrDistance = PlanarSqrDistance( position1, position2, planeNormal );
 			
 			return Mathf.Sqrt( sqrDistance );
 		}
 
-		public	static	Vector3		VectorByHP( float h, float p )
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// Get a direction vector from polar coordinates
+		/// </summary>>
+		public	static		Vector3		VectorByHP( float h, float p )
 		{
 			h *= Mathf.Deg2Rad;
 			p *= Mathf.Deg2Rad;
@@ -80,8 +109,37 @@ namespace Utils {
 		}
 
 
-		//create a vector of direction "vector" with length "size"
-		public	static	Vector3		SetVectorLength( Vector3 vector, float size )
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// Return if a position is inside a mesh
+		/// </summary>
+		public	static		bool		IsPointInside( MeshFilter MeshFilter, Vector3 WorldPosition )
+		{
+			Mesh aMesh = MeshFilter.sharedMesh;
+			Vector3 aLocalPoint = MeshFilter.transform.InverseTransformPoint(WorldPosition);
+			Plane plane = new Plane();
+			
+			var verts = aMesh.vertices;
+			var tris = aMesh.triangles;
+			int triangleCount = tris.Length / 3;
+			for ( int i = 0; i < triangleCount; i++ )
+			{
+				var V1 = verts[ tris[ i * 3 ] ];
+				var V2 = verts[ tris[ i * 3 + 1 ] ];
+				var V3 = verts[ tris[ i * 3 + 2 ] ];
+				plane.Set3Points( V1, V2, V3 );
+				if ( plane.GetSide( aLocalPoint ) )
+					return false;
+			}
+			return true;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// Create a vector of direction "vector" with length "size"
+		/// </summary>
+		public	static		Vector3		SetVectorLength( Vector3 vector, float size )
 		{
 			//normalize the vector
 			Vector3 vectorNormalized = Vector3.Normalize(vector);
@@ -91,8 +149,11 @@ namespace Utils {
 		}
 
 
-		//This function returns a point which is a projection from a point to a plane.
-		public	static	Vector3		ProjectPointOnPlane( Vector3 planeNormal, Vector3 planePoint, Vector3 point )
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// This function returns a point which is a projection from a point to a plane.
+		/// </summary>
+		public	static		Vector3		ProjectPointOnPlane( Vector3 planeNormal, Vector3 planePoint, Vector3 point )
 		{
 			//First calculate the distance from the point to the plane:
 			float distance = Vector3.Dot( planeNormal, ( point - planePoint ) );
@@ -108,7 +169,11 @@ namespace Utils {
 		}
 
 
-		public	static	Vector3		GetPoint( Vector3 p0, Vector3 p1, Vector3 p2, float t )
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// Return a cubic interpolated vector 
+		/// </summary>
+		public	static		Vector3		GetPoint( Vector3 p0, Vector3 p1, Vector3 p2, float t )
 		{
 			t = Mathf.Clamp01( t );
 			float oneMinusT = 1f - t;
@@ -119,7 +184,11 @@ namespace Utils {
 		}
 
 
-		public	static	Vector3		GetPoint( Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t )
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// Return a quadratic interpolated vector
+		/// </summary>
+		public	static		Vector3		GetPoint( Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t )
 		{
 			t = Mathf.Clamp01( t );
 			float OneMinusT = 1f - t;
@@ -131,7 +200,11 @@ namespace Utils {
 		}
 
 
-		public	static	Vector3		GetPoint( Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, float t )
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// Return a Five dimensional interpolated vector
+		/// </summary>
+		public	static		Vector3		GetPoint( Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, float t )
 		{
 			t = Mathf.Clamp01( t );
 			float OneMinusT = 1f - t;
@@ -144,8 +217,18 @@ namespace Utils {
 		}
 
 
-		public	static	Vector3		GetPoint( Vector3[] points, float t )
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// Return a Spline interpolation between given points
+		/// </summary>
+		public	static		Vector3		GetPoint( Vector3[] points, float t )
 		{
+			if ( points == null || points.Length < 4 )
+			{
+				UnityEngine.Debug.Log( "GetPoint Called with points invalid array" );
+				UnityEngine.Debug.DebugBreak();
+			}
+
 			int numSections = points.Length - 3;
 			int currPt = Mathf.Min( Mathf.FloorToInt( t * ( float ) numSections ), numSections - 1 );
 			float u = t * ( float ) numSections - ( float ) currPt;
@@ -165,6 +248,5 @@ namespace Utils {
 		}
 
 	}
-		
 
 }

@@ -61,7 +61,7 @@ public	class GameObjectsPool {
 		if ( m_Container == null )
 			return;
 
-		for ( int i = 0; i < m_Container.transform.childCount; i++ )
+		for ( int i = m_Container.transform.childCount - 1; i >= 0; i-- )
 		{
 			Object.Destroy( m_Container.transform.GetChild( i ).gameObject );
 		}
@@ -100,7 +100,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 		T[] array = new T[ size ];
 		m_ObjectsPool = new ObjectsPool<T>( size );
 
-		for ( int i = 0; i < size; i++ )
+		for ( uint i = 0; i < size; i++ )
 		{
 			GameObject objectCopy = Object.Instantiate( model );
 			objectCopy.transform.SetParent( m_Container.transform );
@@ -161,7 +161,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 		if ( m_Container == null )
 			return;
 
-		for ( int i = 0; i < m_Container.transform.childCount; i++ )
+		for ( int i = m_Container.transform.childCount - 1; i >= 0; i-- )
 		{
 			Object.Destroy( m_Container.transform.GetChild( i ).gameObject );
 		}

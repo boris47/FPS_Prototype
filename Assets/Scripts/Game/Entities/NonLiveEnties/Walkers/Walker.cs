@@ -24,7 +24,6 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 	[SerializeField, ReadOnly]
 	protected	int				m_PoolSize					= 5;
 
-	protected	Vector3			m_ScaleVector				= new Vector3( 1.0f, 0.0f, 1.0f );
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -74,7 +73,6 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 					// this allow to receive only trigger enter callback
 					Player.Instance.DisableCollisionsWith( o.Collider );
-
 				}
 			);
 		}
@@ -153,31 +151,53 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnTargetLost ( Override )
-	public override void OnTargetLost( TargetInfo_t targetInfo )
+	// OnTargetAquired ( Override )
+	public override void OnTargetAquired( TargetInfo_t targetInfo )
 	{
-		// SEEKING MODE
+		base.OnTargetAquired( targetInfo );
 
-		// now point to face is target position
-		m_PointToFace = m_TargetInfo.CurrentTarget.Transform.position;
-		m_HasPointToFace = true;
-
-		m_Brain.TryToReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
-
-		print( "target lost" );
-
-		m_TargetNodeIndex = -1;
-
-		m_TargetInfo = default( TargetInfo_t );
-
-		// TODO Set brain to SEKKER mode
-//		m_Brain.ChangeState( BrainState.SEEKER );
-
-		// Reset internal ref to target
-//		base.OnTargetLost( targetInfo );		// m_TargetInfo = default( TargetInfo_t );
+		// PathFinding
+		CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
+	// OnTargetLost ( Override )
+	public override void OnTargetChanged( TargetInfo_t targetInfo )
+	{
+		base.OnTargetChanged( targetInfo );
+
+		// PathFinding
+		CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnTargetLost ( Override )
+	public override void OnTargetLost( TargetInfo_t targetInfo )
+	{
+		base.OnTargetLost( targetInfo );
+
+		// Stop moving
+		m_Brain.Stop(); // temp, cheasing feature awaiting
+
+		// now point to face is target position
+		SetPoinToFace( targetInfo.CurrentTarget.Transform.position );
+
+		m_TargetNodeIndex = -1;
+
+		m_Brain.TryToReachPoint( targetInfo.CurrentTarget.Transform.position );
+
+		// SEEKING MODE
+
+		// TODO Set brain to SEKKER mode
+		m_Brain.ChangeState( BrainState.SEEKER );
+
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnFrame ( Override )
 	protected override void OnFrame( float deltaTime )
 	{
 		base.OnFrame( deltaTime );
@@ -185,8 +205,10 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		// Update internal timer
 		m_ShotTimer -= deltaTime;
 
+
 		if ( m_NavHasDestination == true )
-			NavUpdate( Speed: m_MoveMaxSpeed );
+			NavUpdate( deltaTime, Speed: ( m_IsAllignedBodyToDestination ) ? m_MoveMaxSpeed : ( m_MoveMaxSpeed * 0.5f ) );
+
 
 		if ( m_TargetInfo.HasTarget == true )
 		{
@@ -198,7 +220,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 			// PathFinding
 			CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
 
-			if ( Vector3.Distance( transform.position, m_TargetInfo.CurrentTarget.Transform.position ) < m_MinEngageDistance && m_NavHasDestination )
+			if ( m_NavHasDestination && ( transform.position - m_TargetInfo.CurrentTarget.Transform.position ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
 			{
 				m_NavCanMoveAlongPath = true;;
 			}
@@ -217,11 +239,11 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		// if body is alligned with target start moving
 		if ( m_IsAllignedBodyToDestination )
 		{
-			m_NavCanMoveAlongPath = true;
+//			m_NavCanMoveAlongPath = true;
 		}
 		else
 		{
-			m_NavCanMoveAlongPath = false;
+//			m_NavCanMoveAlongPath = false;
 		}
 
 	}

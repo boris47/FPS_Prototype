@@ -12,7 +12,8 @@ namespace AI.Pathfinding
 	[ExecuteInEditMode]
 	public class PathFinder : MonoBehaviour
 	{
-		private	const	string	NODE_PREFAB_PATH = "Prefabs/AI/AINode";
+		private	const	string	NODE_PREFAB_PATH	= "Prefabs/AI/AINode";
+		private	const	float	AGENT_RADIUS		= 1.7f;
 
 		// Node graph
 		public		static	int							NodeCount			{ get { return ( m_Nodes != null ) ? m_Nodes.Count : 0; } }
@@ -152,16 +153,18 @@ namespace AI.Pathfinding
 
 		private	static LayerMask terrainLayer = 0;
 		//////////////////////////////////////////////////////////////////////////
-		private		static	bool	CanSpawnNode( NavMeshVolume Volume, Vector3 position )
+		private		static	bool	CanSpawnNode( NavMeshVolume Volume, Vector3 Position )
 		{
 			bool result = true;
+			{
+				// non è sospeso sul vuoto
+//				 result |= Physics.Raycast( Position, -Volume.transform.up );
 
+				// niente ingombra il punto
+				int validLayers = Utils.Base.LayersAllButOne( Physics.AllLayers, terrainLayer );
+				result &= Physics.CheckSphere( Position, AGENT_RADIUS ) == false;
+			}
 			return result;
-//			LayerMask validLayers = Physics.AllLayers | terrainLayer;
-
-//			RaycastHit[] hits = Physics.SphereCastAll( position, 1.0f, Vector3.zero, Mathf.Infinity );
-//			return hits.Length == 0;
-
 		}
 
 
@@ -171,18 +174,14 @@ namespace AI.Pathfinding
 			terrainLayer = LayerMask.NameToLayer( "Terrain" );
 
 			ClearAllNodes();
-
 			CreateNodeModel();
 
-			NavMeshVolume[] volumes = FindObjectsOfType<NavMeshVolume>();
-
-			foreach( NavMeshVolume volume in volumes )
+			foreach( NavMeshVolume volume in FindObjectsOfType<NavMeshVolume>() )
 			{
 				if ( volume.gameObject.activeSelf )
-				{
+				{	// removing overlapping nodes
 					for ( int i = m_Nodes.Count - 1; i > -1; i-- )
 					{
- 						// removing overlapping nodes
  						AINode node = m_Nodes[i];
  						if ( volume.IsPositionInside( node.transform.position ) )
  						{
@@ -190,38 +189,17 @@ namespace AI.Pathfinding
 						}
 					}
 
-					Quaternion volumetStartRotation = volume.transform.rotation;
-					volume.transform.rotation = Quaternion.identity;
-
+					// Spawn nodes inside this volume
 					volume.IterateOver( 
-						( Vector3 position ) => {
-							if ( CanSpawnNode( volume, position ) )
+						( Vector3 worldPosition ) => {
+							if ( CanSpawnNode( volume, worldPosition ) )
 							{
-								GenerateNode( position, volume, CanParent: true );
+								GenerateNode( worldPosition, volume, CanParent: true );
 							}
 						}
 					);
-
-					volume.transform.rotation = volumetStartRotation;
 				}
 			}
-/*
-			foreach( NavMeshVolume volume in volumes )
-			{
-				if ( volume.gameObject.activeSelf )
-				{
-					for ( int i = m_Nodes.Count - 1; i > -1; i-- )
-					{
-						// removing overlapping nodes
-						AINode node = m_Nodes[i];
-						if ( node.Volume.GetInstanceID() != volume.GetInstanceID() && volume.IsPositionInside( node.transform.position ) )
-						{
-							ReleaseNode( node, i );
-						}
-					}
-				}
-			}
-*/
 			
 			foreach ( AINode node in m_Nodes )
 			{
@@ -230,8 +208,6 @@ namespace AI.Pathfinding
 
 			return true;
 		}
-
-
 
 
 		//////////////////////////////////////////////////////////////////////////
@@ -456,7 +432,7 @@ namespace AI.Pathfinding
 
 
 
-
+		
 		//////////////////////////////////////////////////////////////////////////
 		private		void	Awake ()
 		{

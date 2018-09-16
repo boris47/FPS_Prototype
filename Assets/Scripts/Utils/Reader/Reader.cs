@@ -180,7 +180,7 @@ namespace CFG_Reader {
 				}
 
 				// INSERTION
-				KeyValue pKeyValue = Utils.Base.GetKeyValue( sLine );
+				KeyValue pKeyValue = Utils.String.GetKeyValue( sLine );
 				if ( pKeyValue.IsOK )
 				{
 

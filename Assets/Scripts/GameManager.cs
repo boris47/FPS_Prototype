@@ -12,7 +12,7 @@ public	delegate	void	OnThink();
 
 public partial class GameManager : MonoBehaviour {
 
-	/// <summary> Use this to identity is executing in editor or in build </summary>
+	/// <summary> Use this to identify if is executing in editor or in build </summary>
 #if UNITY_EDITOR
 	public	const	bool InEditor = true;
 #else

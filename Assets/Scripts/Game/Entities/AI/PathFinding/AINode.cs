@@ -103,6 +103,13 @@ namespace AI.Pathfinding {
 			g_ID++;
 		}
 
+
+		// Questa funzione viene chiamata durante il caricamento dello script o quando si modifica un valore nell'inspector (chiamata solo nell'editor)
+		private void OnValidate()
+		{
+			m_HeapIndex = 0;
+		}
+
 		int IComparable<IAINode>.CompareTo( IAINode other )
 		{
 			int compare = this.m_FCost.CompareTo( other.FCost );

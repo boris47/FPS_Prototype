@@ -708,6 +708,9 @@ MonoBehaviour:
   m_ViewPoint: {fileID: 4551632843615698}
   m_ViewDistance: 40
   m_ViewCone: 100
+  m_LayerMaskToSkip:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!114 &114959178987505176
 MonoBehaviour:
   m_ObjectHideFlags: 1

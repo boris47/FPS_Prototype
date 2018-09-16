@@ -21,6 +21,7 @@ public abstract class Turret : NonLiveEntity {
 	[SerializeField, ReadOnly]
 	protected	int				m_PoolSize					= 5;
 
+	private		Laser			m_Laser						= null;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -52,10 +53,12 @@ public abstract class Turret : NonLiveEntity {
 			m_EntityType			= ENTITY_TYPE.ROBOT;
 		}
 
-		Laser laser = GetComponentInChildren<Laser>();
-		if ( laser != null )
-			laser.LaserLength = m_Brain.FieldOfView.Distance;
-
+		m_Laser = GetComponentInChildren<Laser>();
+		if ( m_Laser != null )
+		{
+			m_Laser.LaserLength = m_Brain.FieldOfView.Distance;
+			m_Laser.LayerMaskToExclude = LayerMask.NameToLayer("Bullets");
+		}
 		// BULLETS POOL CREATION
 		{
 			GameObject	bulletGO		= m_Bullet.gameObject;
@@ -68,13 +71,10 @@ public abstract class Turret : NonLiveEntity {
 				{
 					o.SetActive( false );
 					o.Setup( damageMin : m_DamageMin, damageMax : m_DamageMax, canPenetrate : false, whoRef : this, weapon : null );
-					Physics.IgnoreCollision( o.Collider, m_PhysicCollider, ignore : true );
+					this.SetCollisionStateWith( o.Collider, false );
 
 					// this allow to receive only trigger enter callback
 					Player.Instance.DisableCollisionsWith( o.Collider );
-
-					if ( m_Shield != null )
-						Physics.IgnoreCollision( o.Collider, m_Shield.Collider, ignore : true );
 				}
 			);
 		}
@@ -159,12 +159,37 @@ public abstract class Turret : NonLiveEntity {
 		}
 		*/
 		// Set brain to SEKKER mode
-		m_Brain.ChangeState( BrainState.NORMAL );
+//		m_Brain.ChangeState( BrainState.NORMAL );
 
 		// Reset internal ref to target
 		base.OnTargetLost( targetInfo );		// m_TargetInfo = default( TargetInfo_t );
 	}
 	
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnFrame ( Override )
+	protected override void OnFrame( float deltaTime )
+	{
+		base.OnFrame( deltaTime );
+
+		// Update internal timer
+		m_ShotTimer -= deltaTime;
+
+		if ( m_TargetInfo.HasTarget == true )
+		{
+			if ( m_Brain.State != BrainState.ATTACKING )
+				m_Brain.ChangeState( BrainState.ATTACKING );
+
+			SetPoinToFace( m_TargetInfo.CurrentTarget.Transform.position );
+		}
+		
+		// if has target point to face at set
+		if ( m_HasPointToFace )
+		{
+			FaceToPoint( deltaTime );   // m_PointToFace
+		}
+	}
+
 	
 	//////////////////////////////////////////////////////////////////////////
 	// FaceToPoint ( Override )
@@ -186,24 +211,20 @@ public abstract class Turret : NonLiveEntity {
 			return;
 		}
 
-		m_IsAllignedGunToPoint			= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 3f;
-
-		float signedAngleToTarget = Vector3.SignedAngle( m_GunTransform.forward, dirGunToPosition, m_GunTransform.right );
-		float currentAngle = m_GunTransform.transform.localRotation.eulerAngles.x;
-		currentAngle -= currentAngle > 180f ? 360f : 0f;
-		float rotation = m_GunRotationSpeed * Utils.Math.Sign( signedAngleToTarget ) * deltaTime;
-		if ( Mathf.Abs( currentAngle + rotation ) < ( m_Brain.FieldOfView.Angle / 2f ) )
+		m_IsAllignedGunToPoint			= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 1.2f;
+		if ( m_IsAllignedGunToPoint == false )
 		{
-			m_GunTransform.Rotate( Vector3.right, rotation, Space.Self );	
+			float signedAngleToTarget = Vector3.SignedAngle( m_GunTransform.forward, dirGunToPosition, m_GunTransform.right );
+			float currentAngle = m_GunTransform.transform.localRotation.eulerAngles.x;
+			currentAngle -= currentAngle > 180f ? 360f : 0f;
+			float rotation = m_GunRotationSpeed * Utils.Math.Sign( signedAngleToTarget ) * deltaTime;
+			if ( Mathf.Abs( currentAngle + rotation ) < ( m_Brain.FieldOfView.Angle / 2f ) )
+			{
+				m_GunTransform.Rotate( Vector3.right, rotation, Space.Self );	
+			}
 		}
 	}
-	
-	/*
-	//////////////////////////////////////////////////////////////////////////
-	// GoAtPoint ( Override )
-	protected override void GoAtPoint( float deltaTime )
-	{ }
-	*/
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// FireLongRange ( Override )

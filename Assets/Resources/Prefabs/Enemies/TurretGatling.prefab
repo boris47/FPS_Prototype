@@ -825,6 +825,9 @@ MonoBehaviour:
   m_Color: {r: 1, g: 0, b: 0, a: 1}
   m_LaserLength: 100
   m_HasHit: 0
+  m_LayerMaskToExclude:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!114 &114463819889316848
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -869,6 +872,9 @@ MonoBehaviour:
   m_ViewPoint: {fileID: 4776869813624912}
   m_ViewDistance: 40
   m_ViewCone: 120
+  m_LayerMaskToSkip:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!114 &114992721271059316
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class WalkerMortar : Walker {
 
+	protected	Vector3			m_ScaleVector				= new Vector3( 1.0f, 0.0f, 1.0f );
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
@@ -27,35 +28,35 @@ public class WalkerMortar : Walker {
 			if ( m_Brain.State != BrainState.ATTACKING )
 				m_Brain.ChangeState( BrainState.ATTACKING );
 			
-//			m_PointToFace = m_TargetInfo.CurrentTarget.Transform.position;
-//			m_HasFaceTarget = true;
+			SetPoinToFace( m_TargetInfo.CurrentTarget.Transform.position );
 
-//			m_Destination = m_TargetInfo.CurrentTarget.Transform.position;
-//			m_NavHasDestination = true;
+			// PathFinding
+			CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
 
-//			m_DistanceToTravel	= ( transform.position - m_PointToFace ).sqrMagnitude;
+			if ( m_NavHasDestination && ( transform.position - m_TargetInfo.CurrentTarget.Transform.position ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
+			{
+				m_NavCanMoveAlongPath = true;;
+			}
+			else
+			{
+				m_NavCanMoveAlongPath = false;
+			}
 		}
 
 		// if has target point to face at set
-//		if ( m_HasFaceTarget )
-//		{
-//			FaceToPoint( deltaTime );   // m_PointToFace
-//		}
-
+		if ( m_HasPointToFace )
+		{
+			FaceToPoint( deltaTime );   // m_PointToFace
+		}
+		
 		// if body is alligned with target start moving
-		if ( m_IsAllignedBodyToDestination && m_NavCanMoveAlongPath == false )
+		if ( m_IsAllignedBodyToDestination )
 		{
 			m_NavCanMoveAlongPath = true;
-			m_StartMovePosition = transform.position;
 		}
-
-		// if has destination set
-//		if ( m_NavHasDestination && m_IsAllignedBodyToDestination )
+		else
 		{
-//			if ( m_TargetInfo.HasTarget && ( transform.position - m_TargetInfo.CurrentTarget.Transform.position ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
-//				GoAtPoint( deltaTime );	// m_Destination
-///			else
-//				GoAtPoint( deltaTime );	// m_Destination
+			m_NavCanMoveAlongPath = false;
 		}
 
 		// if gun alligned, fire
@@ -65,7 +66,7 @@ public class WalkerMortar : Walker {
 		}
 	}
 
-	/*
+	
 	//////////////////////////////////////////////////////////////////////////
 	// FaceToPoint ( Override )
 	protected override void FaceToPoint( float deltaTime )
@@ -89,7 +90,7 @@ public class WalkerMortar : Walker {
 
 		m_IsAllignedGunToPoint				= Vector3.Angle( m_GunTransform.forward, ballisticDirOfGun ) < 3f;
 	}
-	*/
+	
 
 	// https://unity3d.college/2017/06/30/unity3d-cannon-projectile-ballistics/
 	//////////////////////////////////////////////////////////////////////////
