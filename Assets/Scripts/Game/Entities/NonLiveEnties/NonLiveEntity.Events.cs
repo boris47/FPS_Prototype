@@ -7,7 +7,7 @@ public abstract partial class NonLiveEntity : Entity {
 	
 	//////////////////////////////////////////////////////////////////////////
 	// OnTargetAquired ( Override )
-	public override void OnTargetAquired( TargetInfo_t targetInfo )
+	public	override	void	OnTargetAquired( TargetInfo_t targetInfo )
 	{
 		print( "OntargetAcquired" );
 
@@ -22,7 +22,7 @@ public abstract partial class NonLiveEntity : Entity {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnTargetChanged ( Override )
-	public override void OnTargetChanged( TargetInfo_t targetInfo )
+	public	override	void	OnTargetChanged( TargetInfo_t targetInfo )
 	{
 		print( "OnTargetChanged" );
 
@@ -32,7 +32,7 @@ public abstract partial class NonLiveEntity : Entity {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnTargetLost ( Override )
-	public override void OnTargetLost( TargetInfo_t targetInfo )
+	public	override	void	OnTargetLost( TargetInfo_t targetInfo )
 	{
 		print( "OnTargetLost" );
 
@@ -60,17 +60,10 @@ public abstract partial class NonLiveEntity : Entity {
 			m_Brain.ChangeState( BrainState.ALARMED );
 		}
 
-		if ( m_Brain.State != BrainState.ATTACKING )
-		{
-			SetPoinToFace( startPosition );
-		}
-
 		// if is not attacking
 		if ( m_Brain.State != BrainState.ATTACKING )
 		{
-			// set start bullet position as point to face at
-			m_PointToFace		= startPosition;	
-			m_HasPointToFace	= true;
+			SetPoinToFace( startPosition );
 		}
 	}
 

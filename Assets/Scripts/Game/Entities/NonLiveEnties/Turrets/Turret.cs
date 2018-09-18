@@ -207,12 +207,12 @@ public abstract class Turret : NonLiveEntity {
 
 		if ( m_IsAllignedBodyToDestination == false )
 		{
-			m_IsAllignedGunToPoint = false;
+			m_IsAllignedHeadToPoint = false;
 			return;
 		}
 
-		m_IsAllignedGunToPoint			= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 1.2f;
-		if ( m_IsAllignedGunToPoint == false )
+		m_IsAllignedHeadToPoint			= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 1.2f;
+		if ( m_IsAllignedHeadToPoint == false )
 		{
 			float signedAngleToTarget = Vector3.SignedAngle( m_GunTransform.forward, dirGunToPosition, m_GunTransform.right );
 			float currentAngle = m_GunTransform.transform.localRotation.eulerAngles.x;

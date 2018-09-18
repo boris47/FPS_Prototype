@@ -128,8 +128,11 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	// Flag set if body of entity is aligned with target
 	protected	bool						m_IsAllignedBodyToDestination	= false;
 
+	// Flag set if head of entity is aligned with target
+	protected	bool						m_IsAllignedHeadToPoint			= false;
+
 	// Flag set if gun of entity is aligned with target
-	protected	bool						m_IsAllignedGunToPoint			= false;
+	protected   bool                        m_IsAllignedGunToPoint         = false;
 
 	protected	int							m_TargetNodeIndex				= 0;
 
@@ -210,7 +213,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 		m_StartMovePosition				= Vector3.zero;
 
 		// NonLiveEntity
-		m_IsAllignedGunToPoint			= false;
+		m_IsAllignedHeadToPoint			= false;
 
 		transform.position = streamingUnit.Position;
 		transform.rotation = streamingUnit.Rotation;

@@ -136,7 +136,7 @@ public class WalkerHidden : Walker {
 			return;
 
 		// Not aligned to target
-		if ( m_IsAllignedGunToPoint == false )
+		if ( m_IsAllignedHeadToPoint == false )
 			return;
 		{
 			FireLongRange( deltaTime );

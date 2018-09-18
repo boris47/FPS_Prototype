@@ -60,7 +60,7 @@ public class WalkerMortar : Walker {
 		}
 
 		// if gun alligned, fire
-		if ( m_IsAllignedGunToPoint == true )
+		if ( m_IsAllignedHeadToPoint == true )
 		{
 			FireLongRange( deltaTime );
 		}
@@ -88,7 +88,7 @@ public class WalkerMortar : Walker {
 			m_GunTransform.forward			=  Vector3.RotateTowards( m_GunTransform.forward, ballisticDirOfGun, m_GunRotationSpeed * deltaTime, 0.0f );
 		}
 
-		m_IsAllignedGunToPoint				= Vector3.Angle( m_GunTransform.forward, ballisticDirOfGun ) < 3f;
+		m_IsAllignedHeadToPoint				= Vector3.Angle( m_GunTransform.forward, ballisticDirOfGun ) < 3f;
 	}
 	
 

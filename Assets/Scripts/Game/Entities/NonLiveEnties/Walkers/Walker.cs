@@ -67,9 +67,9 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 				actionOnObject	: ( Bullet o ) =>
 				{
 					o.SetActive( false );
-					o.Setup( damageMin : m_DamageMin, damageMax : m_DamageMax, canPenetrate : false, whoRef : this, weapon : null );
+					o.Setup( m_DamageMin, m_DamageMax, canPenetrate : false, whoRef : this, weapon : null );
 					o.Setup( whoRef: this, weapon: null );
-					this.SetCollisionStateWith( o.Collider, false );
+					this.SetCollisionStateWith( o.Collider, state: false );
 
 					// this allow to receive only trigger enter callback
 					Player.Instance.DisableCollisionsWith( o.Collider );
@@ -88,25 +88,32 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		// Avoid friendly fire
 		if ( bullet.WhoRef is NonLiveEntity )
 			return;
-		
-		base.OnHit( bullet ); // set start bullet position as point to face at if not attacking
-		
-		if ( m_Brain.State != BrainState.ATTACKING )
+
+		// BRAIN
+		// Hit event, set ALARMED State if actual is NORMAL
+		if ( m_Brain.State == BrainState.NORMAL )
 		{
+			m_Brain.ChangeState( BrainState.ALARMED );
 			SetPoinToFace( bullet.StartPosition );
 		}
 
+		// DAMAGE
+		// Shiled damage
 		if ( m_Shield != null && m_Shield.Status > 0f && m_Shield.IsUnbreakable == false )
 		{
 			m_Shield.OnHit( bullet );
-			return;
 		}
+		// Direct damage
+		else
+		{
+			float damage = Random.Range( bullet.DamageMin, bullet.DamageMax );
+			m_Health -= damage;
 
-		float damage = Random.Range( bullet.DamageMin, bullet.DamageMax );
-		m_Health -= damage;
-
-		if ( m_Health <= 0f )
-			OnKill();
+			if ( m_Health <= 0f )
+			{
+				OnKill();
+			}
+		}
 	}
 
 
@@ -114,6 +121,8 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 	// OnHit ( Override )
 	public override void OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
+		print( name + " OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate )" );
+		/*
 		base.OnHit( startPosition, whoRef, 0f );
 
 		if ( m_Brain.State != BrainState.ATTACKING )
@@ -131,6 +140,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 		if ( m_Health <= 0f )
 			OnKill();
+		*/
 	}
 	
 
@@ -253,24 +263,91 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 	// FaceToPoint ( Override )
 	protected override void FaceToPoint( float deltaTime )
 	{
-		Vector3 pointOnThisPlane		= Utils.Math.ProjectPointOnPlane( transform.up, transform.position, m_PointToFace );
+		/*
+		m_FootsTransform = transform
+		m_BodyTransform = transform.Find( "Body" );
+		m_HeadTransform = m_BodyTransform.Find( "Head" );
+		m_GunTransform = m_HeadTransform.Find( "Gun" );
+		m_FirePoint = m_GunTransform.Find( "FirePoint" );
+		*/
 
-		Vector3 dirToPosition			= ( pointOnThisPlane - transform.position );
-		Vector3 dirGunToPosition		= ( m_PointToFace - m_GunTransform.position );
+		//		Vector3 pointOnThisPlane		= Utils.Math.ProjectPointOnPlane( transform.up, transform.position, m_PointToFace );
 
-//		m_NavCanMoveAlongPath = 
+		//		Vector3 dirToPosition			= ( pointOnThisPlane - transform.position );
+		//		Vector3 dirGunToPosition		= ( m_PointToFace - m_HeadTransform.position );
+
+		// FOOTS
+		{
+			Vector3 pointOnThisPlane = Utils.Math.ProjectPointOnPlane( transform.up, m_FootsTransform.position, m_PointToFace );
+			Vector3 dirToPosition = ( pointOnThisPlane - m_FootsTransform.position );
+
+			m_IsAllignedBodyToDestination = Vector3.Angle( m_FootsTransform.forward, dirToPosition ) < 30.0f;
+//			if ( m_IsAllignedBodyToDestination == false )
+			{
+				m_FootsTransform.Rotate( m_BodyTransform.up, Vector3.SignedAngle( m_FootsTransform.forward, dirToPosition, m_BodyTransform.up ) * m_BodyRotationSpeed * deltaTime, Space.Self );
+
+//				Quaternion bodyRotation = Quaternion.LookRotation( dirToPosition, transform.up );
+//				m_FootsTransform.rotation = Quaternion.RotateTowards( transform.rotation, bodyRotation, m_BodyRotationSpeed * deltaTime );
+			}
+		}
+		// BODY
+		{
+			// Nothing
+		}
+		// HEAD
+		{
+			Vector3 pointOnThisPlane = Utils.Math.ProjectPointOnPlane( transform.up, m_HeadTransform.position, m_PointToFace );
+			Vector3 dirToPosition = ( pointOnThisPlane - m_HeadTransform.position );
+
+			m_IsAllignedHeadToPoint = Vector3.Angle( m_HeadTransform.forward, dirToPosition ) < 2f;
+			if ( m_IsAllignedBodyToDestination == true )
+			{
+
+				float speed = m_HeadRotationSpeed * ( m_TargetInfo.HasTarget ? 5.0f : 1.0f );
+				m_HeadTransform.Rotate( m_BodyTransform.up, Vector3.SignedAngle( m_HeadTransform.forward, dirToPosition, m_BodyTransform.up ) * speed * deltaTime, Space.Self );
+
+//				Quaternion bodyRotation = Quaternion.LookRotation( dirToPosition, transform.up );
+//				m_HeadTransform.rotation = Quaternion.RotateTowards( transform.rotation, bodyRotation, m_BodyRotationSpeed * deltaTime );
+			}
+		}
+		// GUN
+		{
+			Vector3 dirToPosition = ( m_PointToFace - m_HeadTransform.position );
+
+			if ( m_IsAllignedHeadToPoint == true )
+			{
+//				m_GunTransform.forward		= Vector3.RotateTowards( m_GunTransform.forward, dirToPosition, m_GunRotationSpeed * deltaTime, 0.0f );
+
+				m_GunTransform.Rotate( m_HeadTransform.up, Vector3.SignedAngle( m_GunTransform.forward, dirToPosition, m_HeadTransform.up ) * m_GunRotationSpeed * deltaTime, Space.Self );
+			}
+			m_IsAllignedGunToPoint = Vector3.Angle( m_GunTransform.forward, dirToPosition ) < 2f;
+		}
+
+
+
+
+
+
+
+
+		/*
 		m_IsAllignedBodyToDestination	= Vector3.Angle( transform.forward, dirToPosition ) < 2f;
-		if ( m_IsAllignedBodyToDestination && m_TargetInfo.HasTarget == true )
+		if ( m_IsAllignedBodyToDestination == false )
 		{
-			m_GunTransform.forward		=  Vector3.RotateTowards( m_GunTransform.forward, dirGunToPosition, m_GunRotationSpeed * deltaTime, 0.0f );
-		}
-		else
-		{
-			Quaternion	bodyRotation	= Quaternion.LookRotation( dirToPosition, transform.up );
-			transform.rotation			= Quaternion.RotateTowards( transform.rotation, bodyRotation, m_BodyRotationSpeed * deltaTime );
+			Quaternion bodyRotation = Quaternion.LookRotation( dirToPosition, transform.up );
+			transform.rotation = Quaternion.RotateTowards( transform.rotation, bodyRotation, m_BodyRotationSpeed * deltaTime );
 		}
 
-		m_IsAllignedGunToPoint			= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 3f;
+		{
+			m_HeadTransform.forward		= Vector3.RotateTowards( m_HeadTransform.forward, dirGunToPosition, m_GunRotationSpeed * deltaTime, 0.0f );
+		}
+
+		m_IsAllignedHeadToPoint			= Vector3.Angle( m_HeadTransform.forward, dirGunToPosition ) < 3f;
+		if ( m_IsAllignedHeadToPoint == true )
+		{
+			m_GunTransform.forward		= Vector3.RotateTowards( m_HeadTransform.forward, dirGunToPosition, m_GunRotationSpeed * deltaTime, 0.0f );
+		}
+		*/
 	}
 	
 	/*

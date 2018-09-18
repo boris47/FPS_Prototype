@@ -184,7 +184,7 @@ public class TurretHard : Turret {
 		}
 
 		// if gun alligned, fire
-		if ( m_IsAllignedGunToPoint == true && m_TargetInfo.HasTarget == true && m_IsRecharging == false )
+		if ( m_IsAllignedHeadToPoint == true && m_TargetInfo.HasTarget == true && m_IsRecharging == false )
 		{
 			FireLongRange( deltaTime );
 		}

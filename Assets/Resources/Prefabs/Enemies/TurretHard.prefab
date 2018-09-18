@@ -763,6 +763,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_MinEngageDistance: 0
   m_BodyRotationSpeed: 60
+  m_HeadRotationSpeed: 5
   m_GunRotationSpeed: 5
   m_Bullet: {fileID: 114103055898007134, guid: 6022bac21992ba94bb2fd959d6d5f7f0, type: 2}
   m_ShotDelay: 0.3

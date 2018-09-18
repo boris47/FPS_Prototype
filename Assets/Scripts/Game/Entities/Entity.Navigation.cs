@@ -108,6 +108,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 			// Arrived
 			if ( m_NavCurrentNodeIdx == m_NavPathLength )
 			{
+				m_HasPointToFace = false;
 				NavReset();
 				print( "Path completed" );
 				return;
@@ -122,12 +123,17 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 		// go to node
 
 		Vector3 projectedDestination = Utils.Math.ProjectPointOnPlane( transform.up, m_RigidBody.position, m_NavPath[ m_NavCurrentNodeIdx ] );
-		Vector3 targetDirection = ( projectedDestination - transform.position ).normalized;
+//		Vector3 targetDirection = ( projectedDestination - transform.position ).normalized;
 
 		SetPoinToFace( projectedDestination );
 
 		// TODO Implement three parts entities body: Foots, body, head
 
+		if ( m_HasPointToFace )
+		{
+			m_RigidBody.velocity = transform.forward * Speed * 10f * deltaTime;
+		}
+		/*
 		if ( m_Brain.State == BrainState.SEEKER || m_Brain.State == BrainState.NORMAL )
 		{
 			m_RigidBody.velocity = transform.forward * Speed * 10f * deltaTime;
@@ -136,7 +142,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 		{
 			m_RigidBody.velocity = targetDirection * Speed * 10f * deltaTime;
 		}
-
+		*/
 //		m_RigidBody.AddForce( targetDirection * Speed, ForceMode.VelocityChange );
 
 //		transform.position += targetDirection * Speed * 10f * Time.deltaTime;

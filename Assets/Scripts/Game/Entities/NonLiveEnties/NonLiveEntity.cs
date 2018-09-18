@@ -10,13 +10,18 @@ public abstract partial class NonLiveEntity : Entity {
 	protected		float				m_BodyRotationSpeed			= 5f;
 
 	[SerializeField]
+	protected       float               m_HeadRotationSpeed			= 5f;
+
+	[SerializeField]
 	protected		float				m_GunRotationSpeed			= 5f;
 
 	protected		ICustomAudioSource	m_FireAudioSource			= null;
 	protected		Shield				m_Shield					= null;
 
-	protected		Transform			m_MovementBaseTransform		= null;
+	protected		Transform			m_HeadTransform				= null;
 	protected		Transform			m_BodyTransform				= null;
+	protected		Transform			m_FootsTransform			{ get { return transform; } }
+
 	protected		Transform			m_GunTransform				= null;
 	protected		Transform			m_FirePoint					= null;
 
@@ -33,8 +38,10 @@ public abstract partial class NonLiveEntity : Entity {
 		m_FireAudioSource	= GetComponent<ICustomAudioSource>();
 		m_Shield			= GetComponentInChildren<Shield>();
 
+//		m_FootsTransform	= transform
 		m_BodyTransform		= transform.Find( "Body" );
-		m_GunTransform		= m_BodyTransform.Find( "Gun" );
+		m_HeadTransform		= m_BodyTransform.Find( "Head" );
+		m_GunTransform		= m_HeadTransform.Find( "Gun" );
 		m_FirePoint			= m_GunTransform.Find( "FirePoint" );
 	}
 
@@ -47,7 +54,7 @@ public abstract partial class NonLiveEntity : Entity {
 		m_ShotTimer -= deltaTime;
 
 		// if gun alligned, fire
-		if ( m_IsAllignedGunToPoint == true && m_TargetInfo.HasTarget == true )
+		if ( m_TargetInfo.HasTarget == true && m_IsAllignedGunToPoint == true )
 		{
 			FireLongRange( deltaTime );
 		}
@@ -56,7 +63,7 @@ public abstract partial class NonLiveEntity : Entity {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnSave ( Override )
-	protected override StreamingUnit OnSave( StreamingData streamingData )
+	protected	override	StreamingUnit	OnSave( StreamingData streamingData )
 	{
 		StreamingUnit streamingUnit = base.OnSave( streamingData );
 
@@ -76,7 +83,7 @@ public abstract partial class NonLiveEntity : Entity {
 //		streamingUnit.AddInternal( "PointToFace",					Utils.Converters.Vector3ToString( m_PointToFace ) );
 		streamingUnit.AddInternal( "IsMoving",						m_NavCanMoveAlongPath );
 		streamingUnit.AddInternal( "IsAllignedBodyToDestination",	m_IsAllignedBodyToDestination );
-		streamingUnit.AddInternal( "IsAllignedGunToPoint",			m_IsAllignedGunToPoint );
+		streamingUnit.AddInternal( "IsAllignedGunToPoint",			m_IsAllignedHeadToPoint );
 		streamingUnit.AddInternal( "StartMovePosition",				Utils.Converters.Vector3ToString( m_StartMovePosition ) );
 //		streamingUnit.AddInternal( "DistanceToTravel",				m_DistanceToTravel );
 		
@@ -95,7 +102,7 @@ public abstract partial class NonLiveEntity : Entity {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnLoad ( Override )
-	protected override StreamingUnit OnLoad( StreamingData streamingData )
+	protected	override	StreamingUnit	OnLoad( StreamingData streamingData )
 	{
 		StreamingUnit streamingUnit = base.OnLoad( streamingData );
 		if ( streamingUnit == null )
@@ -119,7 +126,7 @@ public abstract partial class NonLiveEntity : Entity {
 //		m_PointToFace						= streamingUnit.GetAsVector( "PointToFace" );
 		m_NavCanMoveAlongPath							= streamingUnit.GetAsBool( "IsMoving" );
 		m_IsAllignedBodyToDestination		= streamingUnit.GetAsBool( "IsAllignedBodyToDestination" );
-		m_IsAllignedGunToPoint				= streamingUnit.GetAsBool( "IsAllignedGunToPoint" );
+		m_IsAllignedHeadToPoint				= streamingUnit.GetAsBool( "IsAllignedGunToPoint" );
 		m_StartMovePosition					= streamingUnit.GetAsVector( "StartMovePosition" );
 //		m_DistanceToTravel					= streamingUnit.GetAsFloat( "DistanceToTravel" );
 
@@ -135,14 +142,14 @@ public abstract partial class NonLiveEntity : Entity {
 		return streamingUnit;
 	}
 
-
+	
 	//////////////////////////////////////////////////////////////////////////
 	// OnThink ( Override )
 	public		override	void	OnThink()
 	{
 		
 	}
-
+	
 	
 	//////////////////////////////////////////////////////////////////////////
 	// FaceToPoint ( Abstract )

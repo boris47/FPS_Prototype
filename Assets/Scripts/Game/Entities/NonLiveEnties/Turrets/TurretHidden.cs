@@ -138,7 +138,7 @@ public class TurretHidden : Turret {
 			}
 //			FaceToPoint( deltaTime );	// m_PointToFace
 
-			if ( m_IsAllignedGunToPoint == false )
+			if ( m_IsAllignedHeadToPoint == false )
 			return;
 
 			FireLongRange( deltaTime );	
