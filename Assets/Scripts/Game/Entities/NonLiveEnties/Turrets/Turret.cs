@@ -26,7 +26,7 @@ public abstract class Turret : NonLiveEntity {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
-	protected override void Awake()
+	protected	override	void	Awake()
 	{
 		base.Awake();
 
@@ -82,7 +82,7 @@ public abstract class Turret : NonLiveEntity {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnHit ( Override )
-	public override void OnHit( IBullet bullet )
+	public		override	void	OnHit( IBullet bullet )
 	{
 		// Avoid friendly fire
 		if ( bullet.WhoRef is NonLiveEntity )
@@ -110,7 +110,7 @@ public abstract class Turret : NonLiveEntity {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnHit ( Override )
-	public override void OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
+	public		override	void	OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
 		// Avoid friendly fire
 		if ( whoRef is NonLiveEntity )
@@ -136,39 +136,43 @@ public abstract class Turret : NonLiveEntity {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnKill ( Override )
-	public override void OnKill()
+	// OnTargetAquired ( Override )
+	public		override	void	OnTargetAquired( TargetInfo_t targetInfo )
 	{
-		base.OnKill();
-//		m_Pool.Destroy();
-		gameObject.SetActive( false );
+		base.OnTargetAquired( targetInfo );
 	}
 
-	
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnTargetChanged ( Override )
+	public		override	void	OnTargetChanged( TargetInfo_t targetInfo )
+	{
+		base.OnTargetChanged( targetInfo ); // 	m_TargetInfo = targetInfo;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnTargetUpdate ( Override )
+	public		override	void	OnTargetUpdate( TargetInfo_t targetInfo )
+	{
+		base.OnTargetUpdate( targetInfo );
+	}
+
+
 	//////////////////////////////////////////////////////////////////////////
 	// OnTargetLost ( Override )
-	public override void OnTargetLost( TargetInfo_t targetInfo )
+	public		override	void	OnTargetLost( TargetInfo_t targetInfo )
 	{
-		// SEEKING MODE
-		/*
-		// now point to face is target position
-		if ( targetInfo.CurrentTarget != null )
-		{
-			m_PointToFace = m_TargetInfo.CurrentTarget.Transform.position;
-			m_HasPointToFace = true;
-		}
-		*/
-		// Set brain to SEKKER mode
+		// Set brain to ALLARMED mode
 //		m_Brain.ChangeState( BrainState.NORMAL );
 
-		// Reset internal ref to target
-		base.OnTargetLost( targetInfo );		// m_TargetInfo = default( TargetInfo_t );
+		// TODO manage alarmed state
 	}
 	
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnFrame ( Override )
-	protected override void OnFrame( float deltaTime )
+	protected	override	void	OnFrame( float deltaTime )
 	{
 		base.OnFrame( deltaTime );
 
@@ -190,10 +194,20 @@ public abstract class Turret : NonLiveEntity {
 		}
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnKill ( Override )
+	public		override	void	OnKill()
+	{
+		base.OnKill();
+//		m_Pool.Destroy();
+		gameObject.SetActive( false );
+	}
 	
+
 	//////////////////////////////////////////////////////////////////////////
 	// FaceToPoint ( Override )
-	protected override void FaceToPoint( float deltaTime )
+	protected	override	void	FaceToPoint( float deltaTime )
 	{
 		Vector3 pointOnThisPlane		= Utils.Math.ProjectPointOnPlane( transform.up, m_BodyTransform.position, m_PointToFace );
 
@@ -228,7 +242,7 @@ public abstract class Turret : NonLiveEntity {
 
 	//////////////////////////////////////////////////////////////////////////
 	// FireLongRange ( Override )
-	protected override void FireLongRange( float deltaTime )
+	protected	override	void	FireLongRange( float deltaTime )
 	{
 		if ( m_ShotTimer > 0 )
 				return;

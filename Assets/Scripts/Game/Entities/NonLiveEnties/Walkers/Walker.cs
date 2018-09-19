@@ -28,7 +28,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
-	protected override void Awake()
+	protected	override	void	Awake()
 	{
 		base.Awake();
 
@@ -83,7 +83,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnHit ( Override )
-	public override void OnHit( IBullet bullet )
+	public		override	void	OnHit( IBullet bullet )
 	{
 		// Avoid friendly fire
 		if ( bullet.WhoRef is NonLiveEntity )
@@ -119,7 +119,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnHit ( Override )
-	public override void OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
+	public		override	void	OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
 		print( name + " OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate )" );
 		/*
@@ -142,27 +142,11 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 			OnKill();
 		*/
 	}
-	
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnKill ( Override )
-	public override void OnKill()
-	{
-		base.OnKill();
-//		m_Pool.SetActive( false );
-		gameObject.SetActive( false );
-
-		if ( m_RespawnPoint != null )
-		{
-//			m_RespawnPoint.Respawn( this, 2f );
-		}
-	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnTargetAquired ( Override )
-	public override void OnTargetAquired( TargetInfo_t targetInfo )
+	public		override	void	OnTargetAquired( TargetInfo_t targetInfo )
 	{
 		base.OnTargetAquired( targetInfo );
 
@@ -172,8 +156,16 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	// OnTargetUpdate ( Override )
+	public		override	void	OnTargetUpdate( TargetInfo_t targetInfo )
+	{
+		
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	// OnTargetLost ( Override )
-	public override void OnTargetChanged( TargetInfo_t targetInfo )
+	public		override	void	OnTargetChanged( TargetInfo_t targetInfo )
 	{
 		base.OnTargetChanged( targetInfo );
 
@@ -184,7 +176,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnTargetLost ( Override )
-	public override void OnTargetLost( TargetInfo_t targetInfo )
+	public		override	void	OnTargetLost( TargetInfo_t targetInfo )
 	{
 		base.OnTargetLost( targetInfo );
 
@@ -208,7 +200,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnFrame ( Override )
-	protected override void OnFrame( float deltaTime )
+	protected	override	void	OnFrame( float deltaTime )
 	{
 		base.OnFrame( deltaTime );
 
@@ -260,8 +252,23 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	// OnKill ( Override )
+	public		override	void	OnKill()
+	{
+		base.OnKill();
+		//		m_Pool.SetActive( false );
+		gameObject.SetActive( false );
+
+		if ( m_RespawnPoint != null )
+		{
+			//			m_RespawnPoint.Respawn( this, 2f );
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	// FaceToPoint ( Override )
-	protected override void FaceToPoint( float deltaTime )
+	protected	override	void	FaceToPoint( float deltaTime )
 	{
 		/*
 		m_FootsTransform = transform
@@ -284,7 +291,8 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 			m_IsAllignedBodyToDestination = Vector3.Angle( m_FootsTransform.forward, dirToPosition ) < 30.0f;
 //			if ( m_IsAllignedBodyToDestination == false )
 			{
-				m_FootsTransform.Rotate( m_BodyTransform.up, Vector3.SignedAngle( m_FootsTransform.forward, dirToPosition, m_BodyTransform.up ) * m_BodyRotationSpeed * deltaTime, Space.Self );
+				float angle = Vector3.SignedAngle( m_FootsTransform.forward, dirToPosition, m_BodyTransform.up );
+				m_FootsTransform.Rotate( m_BodyTransform.up, angle * m_BodyRotationSpeed * deltaTime, Space.Self );
 
 //				Quaternion bodyRotation = Quaternion.LookRotation( dirToPosition, transform.up );
 //				m_FootsTransform.rotation = Quaternion.RotateTowards( transform.rotation, bodyRotation, m_BodyRotationSpeed * deltaTime );
@@ -302,9 +310,9 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 			m_IsAllignedHeadToPoint = Vector3.Angle( m_HeadTransform.forward, dirToPosition ) < 2f;
 			if ( m_IsAllignedBodyToDestination == true )
 			{
-
+				float angle = Vector3.SignedAngle( m_HeadTransform.forward, dirToPosition, m_BodyTransform.up );
 				float speed = m_HeadRotationSpeed * ( m_TargetInfo.HasTarget ? 5.0f : 1.0f );
-				m_HeadTransform.Rotate( m_BodyTransform.up, Vector3.SignedAngle( m_HeadTransform.forward, dirToPosition, m_BodyTransform.up ) * speed * deltaTime, Space.Self );
+				m_HeadTransform.Rotate( m_BodyTransform.up, angle * speed * deltaTime, Space.Self );
 
 //				Quaternion bodyRotation = Quaternion.LookRotation( dirToPosition, transform.up );
 //				m_HeadTransform.rotation = Quaternion.RotateTowards( transform.rotation, bodyRotation, m_BodyRotationSpeed * deltaTime );
@@ -318,7 +326,8 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 			{
 //				m_GunTransform.forward		= Vector3.RotateTowards( m_GunTransform.forward, dirToPosition, m_GunRotationSpeed * deltaTime, 0.0f );
 
-				m_GunTransform.Rotate( m_HeadTransform.up, Vector3.SignedAngle( m_GunTransform.forward, dirToPosition, m_HeadTransform.up ) * m_GunRotationSpeed * deltaTime, Space.Self );
+				float angle = Vector3.SignedAngle( m_GunTransform.forward, dirToPosition, m_HeadTransform.up );
+				m_GunTransform.Rotate( m_HeadTransform.up, angle * m_GunRotationSpeed * deltaTime, Space.Self );
 			}
 			m_IsAllignedGunToPoint = Vector3.Angle( m_GunTransform.forward, dirToPosition ) < 2f;
 		}
@@ -349,59 +358,11 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		}
 		*/
 	}
-	
-	/*
-	//////////////////////////////////////////////////////////////////////////
-	// Stop ( Virtual )
-	protected	virtual	void	Stop()
-	{
-		if ( m_Brain.State == BrainState.NORMAL )
-		{
-			m_HasFaceTarget					= false;
-			m_PointToFace					= Vector3.zero;
-			m_IsAllignedBodyToDestination	= false;
-		}
-		m_NavHasDestination				= false;
-		m_Destination					= Vector3.zero;
-		m_IsMoving						= false;
-		m_RigidBody.velocity			= Vector3.zero;
-		m_RigidBody.angularVelocity		= Vector3.zero;
-		m_StartMovePosition				= Vector3.zero;
-		m_DistanceToTravel				= 0f;
-	}
-	*/
-	/*
-	//////////////////////////////////////////////////////////////////////////
-	// GoAtPoint ( Override )
-	protected override	void	GoAtPoint( float deltaTime )
-	{
-		if ( m_NavHasDestination == false )
-			return;
 
-		if ( m_DistanceToTravel < m_MinEngageDistance * m_MinEngageDistance )
-		{
-			Stop();
-			return;
-		}
-
-		Vector3 dirToPosition	 = ( m_PointToFace - transform.position );
-		float	travelledDistance = ( m_StartMovePosition - transform.position ).sqrMagnitude;
-		if ( ( m_Destination - transform.position ).sqrMagnitude < 4f || travelledDistance > m_DistanceToTravel )   // point reached
-		{
-			if ( m_Brain.State != BrainState.NORMAL )
-				m_Brain.ChangeState( BrainState.NORMAL );
-
-			Stop();
-			return;
-		}
-
-		m_RigidBody.velocity	= dirToPosition.normalized * m_MoveMaxSpeed * deltaTime * m_RigidBody.drag;
-	}
-	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	// FireLongRange ( Override )
-	protected override void FireLongRange( float deltaTime )
+	protected	override	void	FireLongRange( float deltaTime )
 	{
 		if ( m_ShotTimer > 0 )
 				return;

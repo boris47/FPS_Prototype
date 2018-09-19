@@ -170,6 +170,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 		m_Brain.FieldOfView.OnTargetAquired = OnTargetAquired;
 		m_Brain.FieldOfView.OnTargetChanged = OnTargetChanged;
+		m_Brain.FieldOfView.OnTargetChanged = OnTargetUpdate;
 		m_Brain.FieldOfView.OnTargetLost	= OnTargetLost;
 	}
 

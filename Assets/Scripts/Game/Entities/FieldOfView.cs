@@ -28,10 +28,12 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	
 	private		OnTargetEvent			m_OnTargetAquired		= null;
 	private		OnTargetEvent			m_OnTargetChanged		= null;
+	private		OnTargetEvent			m_OnTargetUpdate		= null;
 	private		OnTargetEvent			m_OnTargetLost			= null;
 
 	public		OnTargetEvent			OnTargetAquired			{ set { m_OnTargetAquired = value; } }
 	public		OnTargetEvent			OnTargetChanged			{ set { m_OnTargetChanged = value; } }
+	public		OnTargetEvent			OnTargetUpdate			{ set { m_OnTargetUpdate = value; } }
 	public		OnTargetEvent			OnTargetLost			{ set { m_OnTargetLost	= value; } }
 
 

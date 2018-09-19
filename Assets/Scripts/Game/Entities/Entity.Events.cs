@@ -26,7 +26,11 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	//////////////////////////////////////////////////////////////////////////
 	// OnTargetAquired ( Abstract )
 	public	abstract	void				OnTargetAquired( TargetInfo_t targetInfo );
-	
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnTargetUpdate ( Abstract )
+	public abstract		void				OnTargetUpdate( TargetInfo_t targetInfo );
 	
 	//////////////////////////////////////////////////////////////////////////
 	// OnTargetChanged ( Abstract )

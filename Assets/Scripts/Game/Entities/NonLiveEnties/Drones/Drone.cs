@@ -28,7 +28,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
-	protected override void Awake()
+	protected	override	void	Awake()
 	{
 		base.Awake();
 
@@ -70,13 +70,10 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 				{
 					o.SetActive( false );
 					o.Setup( damageMin : m_DamageLongRangeMin, damageMax : m_DamageLongRangeMax, canPenetrate : false, whoRef : this, weapon : null );
-					Physics.IgnoreCollision( o.Collider, m_PhysicCollider, ignore : true );
+					this.SetCollisionStateWith( o.Collider, state: false );
 
 					// this allow to receive only trigger enter callback
 					Player.Instance.DisableCollisionsWith( o.Collider );
-
-					if ( m_Shield != null )
-						Physics.IgnoreCollision( o.Collider, m_Shield.Collider, ignore : true );
 				}
 			);
 		}
@@ -87,35 +84,113 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnHit ( Override )
-	public override void OnHit( IBullet bullet )
+	public		override	void	OnHit( IBullet bullet )
 	{
 		// Avoid friendly fire
 		if ( bullet.WhoRef is NonLiveEntity )
 			return;
-		
-		base.OnHit( bullet ); // set start bullet position as point to face at if not attacking
 
-//		m_DistanceToTravel	= ( transform.position - m_PointToFace ).sqrMagnitude;
-//		m_Destination = bullet.Transform.position;
-//		m_NavHasDestination = true;
+		// BRAIN
+		// Hit event, set ALARMED State if actual is NORMAL
+		if ( m_Brain.State == BrainState.NORMAL )
+		{
+			m_Brain.ChangeState( BrainState.ALARMED );
+			SetPoinToFace( bullet.StartPosition );
+		}
 
+		// DAMAGE
+		// Shiled damage
 		if ( m_Shield != null && m_Shield.Status > 0f && m_Shield.IsUnbreakable == false )
 		{
 			m_Shield.OnHit( bullet );
 			return;
 		}
+		// Direct damage
+		else
+		{
+			float damage = Random.Range( bullet.DamageMin, bullet.DamageMax );
+			m_Health -= damage;
 
-		float damage = Random.Range( bullet.DamageMin, bullet.DamageMax );
-		m_Health -= damage;
+			if ( m_Health <= 0f )
+			{
+				OnKill();
+			}
+		}
+	}
 
-		if ( m_Health <= 0f )
-			OnKill();
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnHit ( Override )
+	public		override	void	OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
+	{
+		print( name + " OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate )" );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnTargetAquired ( Override )
+	public		override	void	OnTargetAquired( TargetInfo_t targetInfo )
+	{
+		base.OnTargetAquired( targetInfo );
+
+		// PathFinding
+		CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnTargetUpdate ( Override )
+	public		override	void	OnTargetUpdate( TargetInfo_t targetInfo )
+	{
+
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnTargetLost ( Override )
+	public		override	void	OnTargetChanged( TargetInfo_t targetInfo )
+	{
+		base.OnTargetChanged( targetInfo );
+
+		// PathFinding
+		CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnTargetLost ( Override )
+	public		override	void	OnTargetLost( TargetInfo_t targetInfo )
+	{
+		base.OnTargetLost( targetInfo );
+
+		// Stop moving
+		m_Brain.Stop(); // temp, cheasing feature awaiting
+
+		// now point to face is target position
+		SetPoinToFace( targetInfo.CurrentTarget.Transform.position );
+
+		m_TargetNodeIndex = -1;
+
+		m_Brain.TryToReachPoint( targetInfo.CurrentTarget.Transform.position );
+
+		// SEEKING MODE
+
+		// TODO Set brain to SEKKER mode
+		m_Brain.ChangeState( BrainState.SEEKER );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnFrame ( Override )
+	protected	override	void	OnFrame( float deltaTime )
+	{
+		
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnKill ( Override )
-	public override void OnKill()
+	public		override	void	OnKill()
 	{
 		base.OnKill();
 //		m_Pool.SetActive( false );
@@ -129,30 +204,8 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnTargetLost ( Override )
-	public override void OnTargetLost( TargetInfo_t targetInfo )
-	{
-		// SEEKING MODE
-
-		// now point to face is target position
-//		m_PointToFace = m_TargetInfo.CurrentTarget.Transform.position;
-//		m_HasFaceTarget = true;
-
-		// now point to reach is target position
-//		m_Destination = m_TargetInfo.CurrentTarget.Transform.position;
-		m_NavHasDestination = true;
-
-		// Set brain to SEKKER mode
-		m_Brain.ChangeState( BrainState.SEEKER );
-
-		// Reset internal ref to target
-		base.OnTargetLost( targetInfo );		// m_TargetInfo = default( TargetInfo_t );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
 	// FaceToPoint ( Override )
-	protected override void FaceToPoint( float deltaTime )
+	protected	override	void	FaceToPoint( float deltaTime )
 	{
 		Vector3 dirToPosition			= ( m_PointToFace - transform.position );
 		Vector3 dirGunToPosition		= ( m_PointToFace - m_GunTransform.position );
@@ -170,56 +223,10 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		m_IsAllignedHeadToPoint			= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 7f;
 	}
 	
-	/*
-	//////////////////////////////////////////////////////////////////////////
-	// Stop ( Virtual )
-	protected	virtual	void	Stop()
-	{
-		if ( m_Brain.State == BrainState.NORMAL )
-		{
-			m_HasFaceTarget					= false;
-			m_PointToFace					= Vector3.zero;
-			m_IsAllignedBodyToDestination	= false;
-		}
-		m_NavHasDestination				= false;
-		m_Destination					= Vector3.zero;
-		m_IsMoving						= false;
-		m_StartMovePosition				= Vector3.zero;
-		m_DistanceToTravel				= 0f;
-	}
-	*/
-	/*
-	//////////////////////////////////////////////////////////////////////////
-	// GoAtPoint
-	protected override	void	GoAtPoint( float deltaTime )
-	{
-		if ( m_NavHasDestination == false )
-			return;
-
-		if ( m_DistanceToTravel < m_MinEngageDistance * m_MinEngageDistance )
-		{
-			Stop();
-			return;
-		}
-
-		Vector3 dirToPosition	 = ( m_PointToFace - transform.position );
-		float	travelledDistance = ( m_StartMovePosition - transform.position ).sqrMagnitude;
-		if ( travelledDistance > m_DistanceToTravel )   // point reached
-		{
-			if ( m_Brain.State != BrainState.NORMAL )
-				m_Brain.ChangeState( BrainState.NORMAL );
-
-			Stop();
-			return;
-		}
-
-		transform.position		+= dirToPosition.normalized * m_MoveMaxSpeed * deltaTime;
-	}
-	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	// FireLongRange ( Override )
-	protected override void FireLongRange( float deltaTime )
+	protected	override	void	FireLongRange( float deltaTime )
 	{
 		if ( m_ShotTimer > 0 )
 				return;

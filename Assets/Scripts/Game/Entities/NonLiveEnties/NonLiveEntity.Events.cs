@@ -21,6 +21,14 @@ public abstract partial class NonLiveEntity : Entity {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	// OnTargetUpdate ( Override )
+	public	override	void	OnTargetUpdate( TargetInfo_t targetInfo )
+	{
+
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	// OnTargetChanged ( Override )
 	public	override	void	OnTargetChanged( TargetInfo_t targetInfo )
 	{

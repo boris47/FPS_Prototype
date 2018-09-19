@@ -6,14 +6,41 @@ public partial class Player {
 	private		float				m_DamageEffect					= 0f;
 
 
-	public override void OnTargetAquired( TargetInfo_t targetInfo )	{ }
-	public override void OnTargetChanged( TargetInfo_t targetInfo ) { }
-	public override void OnTargetLost( TargetInfo_t targetInfo )	{ }
+	//////////////////////////////////////////////////////////////////////////
+	// OnTargetAquired ( Override )
+	public		override	void	OnTargetAquired( TargetInfo_t targetInfo )
+	{
+
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnTargetUpdate ( Override )
+	public		override	void	OnTargetUpdate( TargetInfo_t targetInfo )
+	{
+
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnTargetChanged ( Override )
+	public		override	void	OnTargetChanged( TargetInfo_t targetInfo )
+	{
+
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnTargetLost ( Override )
+	public		override	void	OnTargetLost( TargetInfo_t targetInfo )
+	{
+
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnHit ( Override )
-	public	override	void	OnHit( IBullet bullet )
+	public		override	void	OnHit( IBullet bullet )
 	{
 		float damage = Random.Range( bullet.DamageMin, bullet.DamageMax );
 		m_Health -= damage;
@@ -25,7 +52,10 @@ public partial class Player {
 			OnKill();
 	}
 
-	public override void OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnHit ( Override )
+	public		override	void	OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
 		
 	}
@@ -62,27 +92,5 @@ public partial class Player {
 		// print a message
 		print( "U r dead" );
 	}
-	/*
-	
-	//////////////////////////////////////////////////////////////////////////
-	// OnDashTargetUsed
-	private				void	OnDodgeTargetUsed( ref DodgeTarget target )
-	{
-		if ( m_IsDodging )
-			return;
 
-//		m_IsDodging = true;
-
-		if ( m_PreviousDodgeTarget != null && m_PreviousDodgeTarget != target )
-		{
-			m_PreviousDodgeTarget.OnReset();
-		}
-		m_PreviousDodgeTarget = target;
-
-		target.Disable();
-		target.HideText();
-
-//		StartCoroutine( Dodge( destination: target.transform.position, destinationUp: target.transform.up, falling: false, target: target) ); // Player.DodgeAbility
-	}
-	*/
 }
