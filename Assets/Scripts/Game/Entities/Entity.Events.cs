@@ -46,6 +46,9 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	// OnHit ( Abstract )
 	public	abstract	void				OnHit( IBullet bullet );
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnHit ( Abstract )
 	public	abstract	void				OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false );
 
 

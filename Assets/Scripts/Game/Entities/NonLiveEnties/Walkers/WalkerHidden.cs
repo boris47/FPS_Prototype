@@ -122,7 +122,7 @@ public class WalkerHidden : Walker {
 
 		if ( m_Brain.State != BrainState.NORMAL )
 		{
-			if ( m_IsAllignedBodyToDestination && m_NavCanMoveAlongPath == false )
+			if ( m_IsAllignedBodyToPoint && m_NavCanMoveAlongPath == false )
 			{
 				m_NavCanMoveAlongPath = true;
 				m_StartMovePosition = transform.position;

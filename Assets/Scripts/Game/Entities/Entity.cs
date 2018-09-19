@@ -121,20 +121,26 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	protected	Vector3						m_SimulationStartPosition		= Vector3.zero;
 
 
-	// NAVIGATION
+	// ORIENTATION
 	protected	bool						m_HasPointToFace				= false;
 	protected	Vector3						m_PointToFace					= Vector3.zero;
 
+
+	// NAVIGATION
+	protected	bool						m_HasDestination				= false;
+	protected	Vector3						m_DestinationToReach			= Vector3.zero;
+
+	// Flag set if foots of entity is aligned with target
+	protected	bool						m_IsAllignedFootsToDestination	= false;
+
 	// Flag set if body of entity is aligned with target
-	protected	bool						m_IsAllignedBodyToDestination	= false;
+	protected	bool						m_IsAllignedBodyToPoint			= false;
 
 	// Flag set if head of entity is aligned with target
 	protected	bool						m_IsAllignedHeadToPoint			= false;
 
 	// Flag set if gun of entity is aligned with target
-	protected   bool                        m_IsAllignedGunToPoint         = false;
-
-	protected	int							m_TargetNodeIndex				= 0;
+	protected   bool                        m_IsAllignedGunToPoint			= false;
 
 	
 				Vector3						IEntitySimulation.StartPosition { get; set; }
@@ -207,10 +213,10 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 		// Entity
 		m_TargetInfo					= default( TargetInfo_t );
-		m_NavHasDestination				= false;
+		m_HasDestination				= false;
 
 		m_NavCanMoveAlongPath			= false;
-		m_IsAllignedBodyToDestination	= false;
+		m_IsAllignedBodyToPoint	= false;
 		m_StartMovePosition				= Vector3.zero;
 
 		// NonLiveEntity

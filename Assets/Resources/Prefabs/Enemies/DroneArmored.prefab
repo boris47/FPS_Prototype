@@ -401,6 +401,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MinEngageDistance: 3
+  m_FeetsRotationSpeed: 5
   m_BodyRotationSpeed: 5
   m_HeadRotationSpeed: 5
   m_GunRotationSpeed: 5

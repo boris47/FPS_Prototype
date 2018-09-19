@@ -159,7 +159,9 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 	// OnTargetUpdate ( Override )
 	public		override	void	OnTargetUpdate( TargetInfo_t targetInfo )
 	{
-		
+		m_TargetInfo = targetInfo;
+
+		SetPoinToFace( m_TargetInfo.CurrentTarget.Transform.position );
 	}
 
 
@@ -186,15 +188,14 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		// now point to face is target position
 		SetPoinToFace( targetInfo.CurrentTarget.Transform.position );
 
-		m_TargetNodeIndex = -1;
+		m_NavTargetNodeIndex = -1;
 
 		m_Brain.TryToReachPoint( targetInfo.CurrentTarget.Transform.position );
 
 		// SEEKING MODE
 
 		// TODO Set brain to SEKKER mode
-		m_Brain.ChangeState( BrainState.SEEKER );
-
+//		m_Brain.ChangeState( BrainState.SEEKER );
 	}
 
 
@@ -207,47 +208,73 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		// Update internal timer
 		m_ShotTimer -= deltaTime;
 
+		// Update navigation
+		if ( m_HasDestination == true )
+		{
+			NavUpdate( Speed: m_MoveMaxSpeed, DeltaTime: deltaTime );
+		}
 
-		if ( m_NavHasDestination == true )
-			NavUpdate( deltaTime, Speed: ( m_IsAllignedBodyToDestination ) ? m_MoveMaxSpeed : ( m_MoveMaxSpeed * 0.5f ) );
-
-
+		// Update targeting
 		if ( m_TargetInfo.HasTarget == true )
 		{
 			if ( m_Brain.State != BrainState.ATTACKING )
-				m_Brain.ChangeState( BrainState.ATTACKING );
-
-			SetPoinToFace( m_TargetInfo.CurrentTarget.Transform.position );
-
-			// PathFinding
-			CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
-
-			if ( m_NavHasDestination && ( transform.position - m_TargetInfo.CurrentTarget.Transform.position ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
 			{
+				m_Brain.ChangeState( BrainState.ATTACKING );
+			}
+
+			// Update PathFinding and movement along path
+			if ( m_HasDestination && ( transform.position - m_TargetInfo.CurrentTarget.Transform.position ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
+			{
+				CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
 				m_NavCanMoveAlongPath = true;;
 			}
 			else
 			{
 				m_NavCanMoveAlongPath = false;
 			}
+
+			// with a target, if gun alligned, fire
+			if ( m_IsAllignedGunToPoint == true )
+			{
+				FireLongRange( deltaTime );
+			}
 		}
 		
-		// if has target point to face at set
+		// if has point to face, update entity orientation
 		if ( m_HasPointToFace )
 		{
 			FaceToPoint( deltaTime );   // m_PointToFace
 		}
-		
-		// if body is alligned with target start moving
-		if ( m_IsAllignedBodyToDestination )
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// NavUpdate ( Override )
+	protected	override	void	NavUpdate( float Speed, float DeltaTime )
+	{
+		Speed = ( m_IsAllignedFootsToDestination ) ? m_MoveMaxSpeed : ( m_MoveMaxSpeed * 0.5f );
+
+		base.NavUpdate( Speed, DeltaTime );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// NavMove ( Override )
+	protected	override	void	NavMove( Vector3 CurrentDestination, float Speed, float DeltaTime )
+	{
+		// NAVIGATION
+		// FOOTS
+		Vector3 pointOnThisPlane = Utils.Math.ProjectPointOnPlane( m_FootsTransform.up, m_FootsTransform.position, CurrentDestination );
+		Vector3 dirToPosition = ( pointOnThisPlane - m_FootsTransform.position );
+
+		m_IsAllignedFootsToDestination = Vector3.Angle( m_FootsTransform.forward, dirToPosition ) < 3.0f;
+		if ( m_IsAllignedFootsToDestination == false )
 		{
-//			m_NavCanMoveAlongPath = true;
-		}
-		else
-		{
-//			m_NavCanMoveAlongPath = false;
+			float angle = Vector3.SignedAngle( m_FootsTransform.forward, dirToPosition, m_FootsTransform.up );
+			m_FootsTransform.Rotate( m_FootsTransform.up, angle * m_FeetsRotationSpeed * DeltaTime, Space.Self );
 		}
 
+		m_RigidBody.velocity = transform.forward * Speed * 10f * DeltaTime + transform.up * 0.1f;
 	}
 
 
@@ -268,95 +295,37 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 	//////////////////////////////////////////////////////////////////////////
 	// FaceToPoint ( Override )
-	protected	override	void	FaceToPoint( float deltaTime )
+	protected	override	void	FaceToPoint( float DeltaTime )
 	{
-		/*
-		m_FootsTransform = transform
-		m_BodyTransform = transform.Find( "Body" );
-		m_HeadTransform = m_BodyTransform.Find( "Head" );
-		m_GunTransform = m_HeadTransform.Find( "Gun" );
-		m_FirePoint = m_GunTransform.Find( "FirePoint" );
-		*/
-
-		//		Vector3 pointOnThisPlane		= Utils.Math.ProjectPointOnPlane( transform.up, transform.position, m_PointToFace );
-
-		//		Vector3 dirToPosition			= ( pointOnThisPlane - transform.position );
-		//		Vector3 dirGunToPosition		= ( m_PointToFace - m_HeadTransform.position );
-
-		// FOOTS
-		{
-			Vector3 pointOnThisPlane = Utils.Math.ProjectPointOnPlane( transform.up, m_FootsTransform.position, m_PointToFace );
-			Vector3 dirToPosition = ( pointOnThisPlane - m_FootsTransform.position );
-
-			m_IsAllignedBodyToDestination = Vector3.Angle( m_FootsTransform.forward, dirToPosition ) < 30.0f;
-//			if ( m_IsAllignedBodyToDestination == false )
-			{
-				float angle = Vector3.SignedAngle( m_FootsTransform.forward, dirToPosition, m_BodyTransform.up );
-				m_FootsTransform.Rotate( m_BodyTransform.up, angle * m_BodyRotationSpeed * deltaTime, Space.Self );
-
-//				Quaternion bodyRotation = Quaternion.LookRotation( dirToPosition, transform.up );
-//				m_FootsTransform.rotation = Quaternion.RotateTowards( transform.rotation, bodyRotation, m_BodyRotationSpeed * deltaTime );
-			}
-		}
+		// ORIENTATION
 		// BODY
 		{
-			// Nothing
+			// Nothing, rotation not allowed here
 		}
 		// HEAD
 		{
-			Vector3 pointOnThisPlane = Utils.Math.ProjectPointOnPlane( transform.up, m_HeadTransform.position, m_PointToFace );
+			Vector3 pointOnThisPlane = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_HeadTransform.position, m_PointToFace );
 			Vector3 dirToPosition = ( pointOnThisPlane - m_HeadTransform.position );
 
 			m_IsAllignedHeadToPoint = Vector3.Angle( m_HeadTransform.forward, dirToPosition ) < 2f;
-			if ( m_IsAllignedBodyToDestination == true )
+			if ( m_IsAllignedHeadToPoint == false )
 			{
 				float angle = Vector3.SignedAngle( m_HeadTransform.forward, dirToPosition, m_BodyTransform.up );
-				float speed = m_HeadRotationSpeed * ( m_TargetInfo.HasTarget ? 5.0f : 1.0f );
-				m_HeadTransform.Rotate( m_BodyTransform.up, angle * speed * deltaTime, Space.Self );
-
-//				Quaternion bodyRotation = Quaternion.LookRotation( dirToPosition, transform.up );
-//				m_HeadTransform.rotation = Quaternion.RotateTowards( transform.rotation, bodyRotation, m_BodyRotationSpeed * deltaTime );
+				float speed = m_HeadRotationSpeed * (float)m_Brain.State;// ( m_Brain.State == BrainState.ATTACKING ? 10.0f : 1.0f );
+				m_HeadTransform.Rotate( m_BodyTransform.up, angle * speed * DeltaTime, Space.Self );
 			}
 		}
 		// GUN
 		{
-			Vector3 dirToPosition = ( m_PointToFace - m_HeadTransform.position );
+			Vector3 dirToPosition = ( m_PointToFace - m_GunTransform.position );
 
 			if ( m_IsAllignedHeadToPoint == true )
 			{
-//				m_GunTransform.forward		= Vector3.RotateTowards( m_GunTransform.forward, dirToPosition, m_GunRotationSpeed * deltaTime, 0.0f );
-
 				float angle = Vector3.SignedAngle( m_GunTransform.forward, dirToPosition, m_HeadTransform.up );
-				m_GunTransform.Rotate( m_HeadTransform.up, angle * m_GunRotationSpeed * deltaTime, Space.Self );
+				m_GunTransform.Rotate( m_HeadTransform.up, angle * m_GunRotationSpeed * DeltaTime, Space.Self );
 			}
-			m_IsAllignedGunToPoint = Vector3.Angle( m_GunTransform.forward, dirToPosition ) < 2f;
+			m_IsAllignedGunToPoint = Vector3.Angle( m_GunTransform.forward, dirToPosition ) < 6f;
 		}
-
-
-
-
-
-
-
-
-		/*
-		m_IsAllignedBodyToDestination	= Vector3.Angle( transform.forward, dirToPosition ) < 2f;
-		if ( m_IsAllignedBodyToDestination == false )
-		{
-			Quaternion bodyRotation = Quaternion.LookRotation( dirToPosition, transform.up );
-			transform.rotation = Quaternion.RotateTowards( transform.rotation, bodyRotation, m_BodyRotationSpeed * deltaTime );
-		}
-
-		{
-			m_HeadTransform.forward		= Vector3.RotateTowards( m_HeadTransform.forward, dirGunToPosition, m_GunRotationSpeed * deltaTime, 0.0f );
-		}
-
-		m_IsAllignedHeadToPoint			= Vector3.Angle( m_HeadTransform.forward, dirGunToPosition ) < 3f;
-		if ( m_IsAllignedHeadToPoint == true )
-		{
-			m_GunTransform.forward		= Vector3.RotateTowards( m_HeadTransform.forward, dirGunToPosition, m_GunRotationSpeed * deltaTime, 0.0f );
-		}
-		*/
 	}
 
 
@@ -368,7 +337,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 				return;
 
 		m_ShotTimer = m_ShotDelay;
-		
+
 		IBullet bullet = m_Pool.GetComponent();
 		bullet.Shoot( position: m_FirePoint.position, direction: m_FirePoint.forward );
 		
@@ -393,7 +362,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 //		m_Destination					= Vector3.zero;
 //		m_PointToFace					= Vector3.zero;
 		m_NavCanMoveAlongPath						= false;
-		m_IsAllignedBodyToDestination	= false;
+		m_IsAllignedBodyToPoint	= false;
 		m_StartMovePosition				= Vector3.zero;
 //		m_DistanceToTravel				= 0f;
 

@@ -33,7 +33,7 @@ public class WalkerMortar : Walker {
 			// PathFinding
 			CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
 
-			if ( m_NavHasDestination && ( transform.position - m_TargetInfo.CurrentTarget.Transform.position ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
+			if ( m_HasDestination && ( transform.position - m_TargetInfo.CurrentTarget.Transform.position ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
 			{
 				m_NavCanMoveAlongPath = true;;
 			}
@@ -50,7 +50,7 @@ public class WalkerMortar : Walker {
 		}
 		
 		// if body is alligned with target start moving
-		if ( m_IsAllignedBodyToDestination )
+		if ( m_IsAllignedBodyToPoint )
 		{
 			m_NavCanMoveAlongPath = true;
 		}
@@ -79,8 +79,8 @@ public class WalkerMortar : Walker {
 
 		Vector3 ballisticDirOfGun			= Vector3.zero;
 
-		m_IsAllignedBodyToDestination		= Vector3.Angle( transform.forward, vBodyForward ) < 7f;
-		if ( m_IsAllignedBodyToDestination && m_TargetInfo.HasTarget == true )
+		m_IsAllignedBodyToPoint		= Vector3.Angle( transform.forward, vBodyForward ) < 7f;
+		if ( m_IsAllignedBodyToPoint && m_TargetInfo.HasTarget == true )
 		{
 			float angle = CalculateFireAngle( 0f, m_GunTransform.position, m_PointToFace );
 			ballisticDirOfGun = m_GunTransform.forward + BallisticVelocity( m_PointToFace, angle ).normalized;

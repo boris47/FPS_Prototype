@@ -7,6 +7,9 @@ public abstract partial class NonLiveEntity : Entity {
 	[Header("Non Live Entity Properties")]
 
 	[SerializeField]
+	protected		float				m_FeetsRotationSpeed		= 5f;
+
+	[SerializeField]
 	protected		float				m_BodyRotationSpeed			= 5f;
 
 	[SerializeField]
@@ -50,14 +53,23 @@ public abstract partial class NonLiveEntity : Entity {
 	// OnFrame ( Override )
 	protected	override	void	OnFrame( float deltaTime )
 	{	
-		// Update internal timer
-		m_ShotTimer -= deltaTime;
+		
+	}
 
-		// if gun alligned, fire
-		if ( m_TargetInfo.HasTarget == true && m_IsAllignedGunToPoint == true )
-		{
-			FireLongRange( deltaTime );
-		}
+
+	//////////////////////////////////////////////////////////////////////////
+	// NavUpdate ( Override )
+	protected	override	void	NavUpdate( float Speed, float DeltaTime )
+	{
+		base.NavUpdate( Speed, DeltaTime );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// NavUpdate ( Override )
+	protected	override	void	NavMove( Vector3 CurrentDestination, float Speed, float DeltaTime )
+	{
+
 	}
 
 
@@ -82,7 +94,7 @@ public abstract partial class NonLiveEntity : Entity {
 //		streamingUnit.AddInternal( "Destination",					Utils.Converters.Vector3ToString( m_Destination ) );
 //		streamingUnit.AddInternal( "PointToFace",					Utils.Converters.Vector3ToString( m_PointToFace ) );
 		streamingUnit.AddInternal( "IsMoving",						m_NavCanMoveAlongPath );
-		streamingUnit.AddInternal( "IsAllignedBodyToDestination",	m_IsAllignedBodyToDestination );
+		streamingUnit.AddInternal( "IsAllignedBodyToDestination",	m_IsAllignedBodyToPoint );
 		streamingUnit.AddInternal( "IsAllignedGunToPoint",			m_IsAllignedHeadToPoint );
 		streamingUnit.AddInternal( "StartMovePosition",				Utils.Converters.Vector3ToString( m_StartMovePosition ) );
 //		streamingUnit.AddInternal( "DistanceToTravel",				m_DistanceToTravel );
@@ -125,7 +137,7 @@ public abstract partial class NonLiveEntity : Entity {
 //		m_Destination						= streamingUnit.GetAsVector( "Destination" );
 //		m_PointToFace						= streamingUnit.GetAsVector( "PointToFace" );
 		m_NavCanMoveAlongPath							= streamingUnit.GetAsBool( "IsMoving" );
-		m_IsAllignedBodyToDestination		= streamingUnit.GetAsBool( "IsAllignedBodyToDestination" );
+		m_IsAllignedBodyToPoint		= streamingUnit.GetAsBool( "IsAllignedBodyToDestination" );
 		m_IsAllignedHeadToPoint				= streamingUnit.GetAsBool( "IsAllignedGunToPoint" );
 		m_StartMovePosition					= streamingUnit.GetAsVector( "StartMovePosition" );
 //		m_DistanceToTravel					= streamingUnit.GetAsFloat( "DistanceToTravel" );
@@ -149,8 +161,8 @@ public abstract partial class NonLiveEntity : Entity {
 	{
 		
 	}
-	
-	
+
+
 	//////////////////////////////////////////////////////////////////////////
 	// FaceToPoint ( Abstract )
 	protected	abstract	void	FaceToPoint( float deltaTime );

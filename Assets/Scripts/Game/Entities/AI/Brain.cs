@@ -11,10 +11,10 @@ public struct TargetInfo_t {
 [ System.Serializable ]
 public enum BrainState {
 //	EVASIVE,
-	NORMAL,
-	ALARMED,
-	SEEKER,
-	ATTACKING
+	NORMAL		= 1,
+	SEEKER		= 2,
+	ALARMED		= 3,
+	ATTACKING	= 4
 }
 
 namespace AI {

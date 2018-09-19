@@ -3,18 +3,18 @@ using System.Collections;
 
 public class TurretGatling : Turret {
 
-	private	const	float	FIRE_SPREAD				= 0.03f;
-	private	const	float	MAX_ROTATION_SPEED		= 3000f;
-	private	const	float	ROTATION_ACC			= 1200f;
-	private	const	float	ROTATION_DEACC			= 400f;
+	private	const	float		FIRE_SPREAD					= 0.03f;
+	private	const	float		MAX_ROTATION_SPEED			= 3000f;
+	private	const	float		ROTATION_ACC				= 1200f;
+	private	const	float		ROTATION_DEACC				= 400f;
 
-	private		bool		m_IsActivated			= false;
+	private		bool			m_IsActivated				= false;
 
-	private		float		m_RotationSpeed			= 0f;
+	private		float			m_RotationSpeed				= 0.0f;
 
-	private		Transform	m_GatlingTransform		= null;
+	private		Transform		m_GatlingTransform			= null;
 
-	private		Vector3		m_DispersionVector		= new Vector3();
+	private		Vector3			m_DispersionVector			= Vector3.zero;
 
 
 	//////////////////////////////////////////////////////////////////////////

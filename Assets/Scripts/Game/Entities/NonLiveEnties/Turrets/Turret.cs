@@ -217,9 +217,9 @@ public abstract class Turret : NonLiveEntity {
 		Quaternion	bodyRotation		= Quaternion.LookRotation( dirToPosition, transform.up );
 		m_BodyTransform.rotation		= Quaternion.RotateTowards( m_BodyTransform.rotation, bodyRotation, m_BodyRotationSpeed * deltaTime );
 		
-		m_IsAllignedBodyToDestination	= Vector3.Angle( m_BodyTransform.forward, dirToPosition ) < 2f;
+		m_IsAllignedBodyToPoint	= Vector3.Angle( m_BodyTransform.forward, dirToPosition ) < 2f;
 
-		if ( m_IsAllignedBodyToDestination == false )
+		if ( m_IsAllignedBodyToPoint == false )
 		{
 			m_IsAllignedHeadToPoint = false;
 			return;

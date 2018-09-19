@@ -23,13 +23,13 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	protected	uint						m_NavCurrentNodeIdx				= 0;
 	protected	Vector3						m_NavCurrentNodePosition		= Vector3.zero;
 	protected	float						m_NavNextNodeDistance			= 0.0f;
-	protected	bool						m_NavHasDestination				= false;
-	protected	Vector3						m_NavDestination				= Vector3.zero;
+
 	protected	bool						m_NavCanMoveAlongPath			= true;
+	protected	int							m_NavTargetNodeIndex			= 0;
 
 	protected	Vector3						CurrentNodeToReachPosition {
 		get {
-			if ( m_NavHasDestination && m_NavPath != null && m_NavPath.Length > 0 )
+			if ( m_HasDestination && m_NavPath != null && m_NavPath.Length > 0 )
 			{
 				return m_NavPath[ m_NavCurrentNodeIdx ];
 			}
@@ -39,6 +39,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 	// Position saved at start of movement ( used for distances check )
 	protected	Vector3						m_StartMovePosition				= Vector3.zero;
+
 
 	// Questa funzione viene chiamata durante il caricamento dello script o quando si modifica un valore nell'inspector (chiamata solo nell'editor)
 	private void OnValidate()
@@ -64,7 +65,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 		NavReset();
 
 		// Fills navigation data
-		m_NavHasDestination		= true;
+		m_HasDestination		= true;
 		m_NavPrevPosition		= transform.position;
 		m_NavCurrentNodeIdx		= 0;
 		m_NavPath				= path;
@@ -73,7 +74,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 		Vector3 projectedNodePosition = Utils.Math.ProjectPointOnPlane( transform.up, transform.position, m_NavPath[ 0 ] );
 		m_NavNextNodeDistance	= ( projectedNodePosition - transform.position ).sqrMagnitude;
 
-		m_NavDestination			= projectedNodePosition;
+		m_DestinationToReach		= projectedNodePosition;
 		m_NavCanMoveAlongPath		= true;
 	}
 
@@ -91,24 +92,22 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 	//////////////////////////////////////////////////////////////////////////
 	// UpdateNavigation ( virtual )
-	protected	virtual		void	NavUpdate( float deltaTime, float Speed )
+	protected	virtual		void	NavUpdate( float Speed, float DeltaTime )
 	{
 		// check
-		if ( m_NavHasDestination == false || m_NavCanMoveAlongPath == false )
+		if ( m_HasDestination == false || m_NavCanMoveAlongPath == false )
 			return;
 
 		// check traveled distance;
 		float traveledDistance = ( m_NavPrevPosition - transform.position ).sqrMagnitude;
 		if ( traveledDistance >= m_NavNextNodeDistance )
 		{
-			m_NavCurrentNodeIdx ++;
-
 			print( "NodeReached" );
+			m_NavCurrentNodeIdx ++;
 
 			// Arrived
 			if ( m_NavCurrentNodeIdx == m_NavPathLength )
 			{
-				m_HasPointToFace = false;
 				NavReset();
 				print( "Path completed" );
 				return;
@@ -120,19 +119,19 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 			m_NavPrevPosition = transform.position;
 		}
 
-		// go to node
+		// go to node with custom movement, if present
+		NavMove( m_NavPath[ m_NavCurrentNodeIdx ], Speed, DeltaTime );
 
-		Vector3 projectedDestination = Utils.Math.ProjectPointOnPlane( transform.up, m_RigidBody.position, m_NavPath[ m_NavCurrentNodeIdx ] );
+
+//		Vector3 projectedDestination = Utils.Math.ProjectPointOnPlane( transform.up, m_RigidBody.position, m_NavPath[ m_NavCurrentNodeIdx ] );
 //		Vector3 targetDirection = ( projectedDestination - transform.position ).normalized;
 
-		SetPoinToFace( projectedDestination );
+//		SetPoinToFace(  m_NavPath[ m_NavCurrentNodeIdx ] );
 
 		// TODO Implement three parts entities body: Foots, body, head
+		/*
+		NavMove( m_NavPath[ m_NavCurrentNodeIdx ] );
 
-		if ( m_HasPointToFace )
-		{
-			m_RigidBody.velocity = transform.forward * Speed * 10f * deltaTime;
-		}
 		/*
 		if ( m_Brain.State == BrainState.SEEKER || m_Brain.State == BrainState.NORMAL )
 		{
@@ -152,20 +151,33 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 
 	//////////////////////////////////////////////////////////////////////////
+	// NavMove ( virtual )
+	protected	virtual	void	NavMove( Vector3 CurrentDestination, float Speed, float DeltaTime )
+	{
+		print( "You should not call this function" );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	// CheckForNewReachPoint ( virtual )
 	protected	virtual		void	CheckForNewReachPoint( Vector3 TargetPosition )
 	{
+		// Only every 10000 frames
+		if ( Time.frameCount % 10000 == 0 )
+			return;
+
+
 		if ( m_TargetInfo.HasTarget == true )
 		{
 			// TODO find a way to no spawm path finding request
 
 			// Path search event if not already near enough
 			int targetNodeIndex = AI.Pathfinding.PathFinder.GetNearestNodeIdx( TargetPosition );
-			if ( m_TargetNodeIndex != targetNodeIndex && ( transform.position - TargetPosition ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
+			if ( m_NavTargetNodeIndex != targetNodeIndex && ( transform.position - TargetPosition ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
 			{
 				if ( m_Brain.TryToReachPoint( targetNodeIndex ) )
 				{
-					m_TargetNodeIndex = targetNodeIndex;
+					m_NavTargetNodeIndex = targetNodeIndex;
 					print( "found path" );
 				}
 			}
@@ -178,7 +190,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	// Resetnavigation ( virtual )
 	protected	virtual		void	NavReset()
 	{
-		m_NavHasDestination					= false;
+		m_HasDestination					= false;
 		m_NavPath							= null;
 		m_NavPathLength						= 0;
 		m_NavPrevPosition					= Vector3.zero;

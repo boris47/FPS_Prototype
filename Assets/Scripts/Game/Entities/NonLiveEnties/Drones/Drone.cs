@@ -169,7 +169,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		// now point to face is target position
 		SetPoinToFace( targetInfo.CurrentTarget.Transform.position );
 
-		m_TargetNodeIndex = -1;
+		m_NavTargetNodeIndex = -1;
 
 		m_Brain.TryToReachPoint( targetInfo.CurrentTarget.Transform.position );
 
@@ -214,8 +214,8 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		Vector3 vBodyForward			= Vector3.Scale( dirToPosition, m_ScaleVector );
 		transform.forward				= Vector3.RotateTowards( transform.forward, vBodyForward, m_BodyRotationSpeed * deltaTime, 0.0f );
 
-		m_IsAllignedBodyToDestination	= Vector3.Angle( transform.forward, vBodyForward ) < 7f;
-		if ( m_IsAllignedBodyToDestination )
+		m_IsAllignedBodyToPoint	= Vector3.Angle( transform.forward, vBodyForward ) < 7f;
+		if ( m_IsAllignedBodyToPoint )
 		{
 			m_GunTransform.forward		= Vector3.RotateTowards( m_GunTransform.forward, dirGunToPosition, m_GunRotationSpeed * deltaTime, 0.0f );
 		}
@@ -256,7 +256,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 //		m_HasFaceTarget					= false;
 //		m_Destination					= Vector3.zero;
 //		m_PointToFace					= Vector3.zero;
-		m_IsAllignedBodyToDestination	= false;
+		m_IsAllignedBodyToPoint	= false;
 		m_StartMovePosition				= Vector3.zero;
 //		m_DistanceToTravel				= 0f;
 
