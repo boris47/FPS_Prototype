@@ -5,10 +5,13 @@ using UnityEngine;
 public abstract partial class NonLiveEntity : Entity {
 	
 	[Header("Non Live Entity Properties")]
+	[Space]
 
+	[Header("Navigation")]
 	[SerializeField]
 	protected		float				m_FeetsRotationSpeed		= 5f;
 
+	[Header("Orientation")]
 	[SerializeField]
 	protected		float				m_BodyRotationSpeed			= 5f;
 

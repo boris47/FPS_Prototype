@@ -74,7 +74,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 		Vector3 projectedNodePosition = Utils.Math.ProjectPointOnPlane( transform.up, transform.position, m_NavPath[ 0 ] );
 		m_NavNextNodeDistance	= ( projectedNodePosition - transform.position ).sqrMagnitude;
 
-		m_DestinationToReach		= projectedNodePosition;
+		m_DestinationToReach		= m_NavPath[nodeCount - 1];
 		m_NavCanMoveAlongPath		= true;
 	}
 
@@ -102,7 +102,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 		float traveledDistance = ( m_NavPrevPosition - transform.position ).sqrMagnitude;
 		if ( traveledDistance >= m_NavNextNodeDistance )
 		{
-			print( "NodeReached" );
+//			print( "NodeReached" );
 			m_NavCurrentNodeIdx ++;
 
 			// Arrived
@@ -122,11 +122,13 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 		// go to node with custom movement, if present
 		NavMove( m_NavPath[ m_NavCurrentNodeIdx ], Speed, DeltaTime );
 
+		////
+		#region
 
-//		Vector3 projectedDestination = Utils.Math.ProjectPointOnPlane( transform.up, m_RigidBody.position, m_NavPath[ m_NavCurrentNodeIdx ] );
-//		Vector3 targetDirection = ( projectedDestination - transform.position ).normalized;
+		//		Vector3 projectedDestination = Utils.Math.ProjectPointOnPlane( transform.up, m_RigidBody.position, m_NavPath[ m_NavCurrentNodeIdx ] );
+		//		Vector3 targetDirection = ( projectedDestination - transform.position ).normalized;
 
-//		SetPoinToFace(  m_NavPath[ m_NavCurrentNodeIdx ] );
+		//		SetPoinToFace(  m_NavPath[ m_NavCurrentNodeIdx ] );
 
 		// TODO Implement three parts entities body: Foots, body, head
 		/*
@@ -142,11 +144,12 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 			m_RigidBody.velocity = targetDirection * Speed * 10f * deltaTime;
 		}
 		*/
-//		m_RigidBody.AddForce( targetDirection * Speed, ForceMode.VelocityChange );
+		//		m_RigidBody.AddForce( targetDirection * Speed, ForceMode.VelocityChange );
 
-//		transform.position += targetDirection * Speed * 10f * Time.deltaTime;
+		//		transform.position += targetDirection * Speed * 10f * Time.deltaTime;
 
-//		m_RigidBody.velocity = targetDirection * Speed * 10f * Time.deltaTime;
+		//		m_RigidBody.velocity = targetDirection * Speed * 10f * Time.deltaTime;
+		#endregion
 	}
 
 
@@ -160,27 +163,26 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 	//////////////////////////////////////////////////////////////////////////
 	// CheckForNewReachPoint ( virtual )
-	protected	virtual		void	CheckForNewReachPoint( Vector3 TargetPosition )
+	protected	virtual		void	CheckForNewReachPoint( Vector3 TargetPosition ) // m_TargetInfo.CurrentTarget.Transform.position
 	{
-		// Only every 10000 frames
-		if ( Time.frameCount % 10000 == 0 )
-			return;
-
 
 		if ( m_TargetInfo.HasTarget == true )
 		{
 			// TODO find a way to no spawm path finding request
 
 			// Path search event if not already near enough
-			int targetNodeIndex = AI.Pathfinding.PathFinder.GetNearestNodeIdx( TargetPosition );
-			if ( m_NavTargetNodeIndex != targetNodeIndex && ( transform.position - TargetPosition ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
+			if ( ( TargetPosition - m_DestinationToReach ).sqrMagnitude > 200.0f )
 			{
-				if ( m_Brain.TryToReachPoint( targetNodeIndex ) )
+				if ( ( transform.position - TargetPosition ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
 				{
-					m_NavTargetNodeIndex = targetNodeIndex;
-					print( "found path" );
+					int targetNodeIndex = AI.Pathfinding.PathFinder.GetNearestNodeIdx( TargetPosition );
+					if ( m_Brain.TryToReachPoint( targetNodeIndex ) )
+					{
+						print( "Re-found path" );
+					}
 				}
 			}
+
 		}
 		
 	}

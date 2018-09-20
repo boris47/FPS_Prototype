@@ -151,7 +151,9 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		base.OnTargetAquired( targetInfo );
 
 		// PathFinding
-		CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
+//		CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
+
+		m_Brain.TryToReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
 	}
 
 
@@ -160,8 +162,6 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 	public		override	void	OnTargetUpdate( TargetInfo_t targetInfo )
 	{
 		m_TargetInfo = targetInfo;
-
-		SetPoinToFace( m_TargetInfo.CurrentTarget.Transform.position );
 	}
 
 
@@ -221,6 +221,8 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 			{
 				m_Brain.ChangeState( BrainState.ATTACKING );
 			}
+
+			SetPoinToFace( m_TargetInfo.CurrentTarget.Transform.position );
 
 			// Update PathFinding and movement along path
 			if ( m_HasDestination && ( transform.position - m_TargetInfo.CurrentTarget.Transform.position ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )

@@ -10,6 +10,7 @@ public interface IFieldOfView {
 	
 	OnTargetEvent		OnTargetAquired		{ set; }
 	OnTargetEvent		OnTargetChanged		{ set; }
+	OnTargetEvent		OnTargetUpdate		{ set; }
 	OnTargetEvent		OnTargetLost		{ set; }
 
 	float				Distance			{ get; set; }
@@ -246,6 +247,12 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		if ( m_CurrentTargetInfo.HasTarget == true && previousTarget != null && previousTarget != currentTarget && m_OnTargetChanged != null )
 		{
 			m_OnTargetChanged( m_CurrentTargetInfo );
+		}
+		else
+
+		if( m_CurrentTargetInfo.HasTarget == true && previousTarget != null && previousTarget == currentTarget && m_OnTargetUpdate != null )
+		{
+			m_OnTargetUpdate( m_CurrentTargetInfo );
 		}
 
 		return true;
