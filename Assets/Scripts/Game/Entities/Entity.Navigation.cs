@@ -171,7 +171,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 			// TODO find a way to no spawm path finding request
 
 			// Path search event if not already near enough
-			if ( ( TargetPosition - m_DestinationToReach ).sqrMagnitude > 200.0f )
+			if ( ( TargetPosition - m_DestinationToReach ).sqrMagnitude > 180.0f )
 			{
 				if ( ( transform.position - TargetPosition ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
 				{

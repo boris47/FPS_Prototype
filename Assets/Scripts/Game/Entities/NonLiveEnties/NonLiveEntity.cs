@@ -47,6 +47,17 @@ public abstract partial class NonLiveEntity : Entity {
 //		m_FootsTransform	= transform
 		m_BodyTransform		= transform.Find( "Body" );
 		m_HeadTransform		= m_BodyTransform.Find( "Head" );
+
+		// This method is the same as the parent property except that it is possible to make the Transform keep its local orientation rather than its global orientation
+		// When SetParent is called with only the single Transform argument the worldPositionStays argument is set to true.
+		//   worldPositionStays:
+		//     If true, the parent-relative position, scale and rotation are modified such
+		//     that the object keeps the same world space position, rotation and scale as
+		//     before.
+		Vector3 localPos = m_HeadTransform.localPosition;
+		m_HeadTransform.SetParent( null );
+		m_HeadTransform.SetParent( m_BodyTransform, worldPositionStays: false );
+		m_HeadTransform.localPosition = localPos;
 		m_GunTransform		= m_HeadTransform.Find( "Gun" );
 		m_FirePoint			= m_GunTransform.Find( "FirePoint" );
 	}
