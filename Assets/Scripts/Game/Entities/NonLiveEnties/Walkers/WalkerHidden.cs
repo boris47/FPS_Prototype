@@ -125,7 +125,7 @@ public class WalkerHidden : Walker {
 			if ( m_IsAllignedBodyToPoint && m_NavCanMoveAlongPath == false )
 			{
 				m_NavCanMoveAlongPath = true;
-				m_StartMovePosition = transform.position;
+				
 			}
 
 //			GoAtPoint( deltaTime );

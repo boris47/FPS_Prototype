@@ -124,6 +124,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	// ORIENTATION
 	protected	bool						m_HasPointToFace				= false;
 	protected	Vector3						m_PointToFace					= Vector3.zero;
+	protected	Quaternion					m_RotationToAllignTo			= Quaternion.identity;
 
 
 	// NAVIGATION
@@ -217,7 +218,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 		m_NavCanMoveAlongPath			= false;
 		m_IsAllignedBodyToPoint	= false;
-		m_StartMovePosition				= Vector3.zero;
 
 		// NonLiveEntity
 		m_IsAllignedHeadToPoint			= false;

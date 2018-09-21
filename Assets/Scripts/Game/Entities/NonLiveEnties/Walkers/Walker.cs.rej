@@ -1,0 +1,9 @@
+diff a/Assets/Scripts/Game/Entities/NonLiveEnties/Walkers/Walker.cs b/Assets/Scripts/Game/Entities/NonLiveEnties/Walkers/Walker.cs	(rejected hunks)
+@@ -222,6 +222,7 @@
+ 				m_Brain.ChangeState( BrainState.ATTACKING );
+ 			}
+ 
++			SetPoinToFace( m_TargetInfo.CurrentTarget.Transform.position );
+ 
+ 			// Update PathFinding and movement along path
+ 			if ( m_HasDestination && ( transform.position - m_TargetInfo.CurrentTarget.Transform.position ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )

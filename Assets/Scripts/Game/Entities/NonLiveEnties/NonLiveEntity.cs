@@ -54,10 +54,10 @@ public abstract partial class NonLiveEntity : Entity {
 		//     If true, the parent-relative position, scale and rotation are modified such
 		//     that the object keeps the same world space position, rotation and scale as
 		//     before.
-		Vector3 localPos = m_HeadTransform.localPosition;
-		m_HeadTransform.SetParent( null );
-		m_HeadTransform.SetParent( m_BodyTransform, worldPositionStays: false );
-		m_HeadTransform.localPosition = localPos;
+//		Vector3 localPos = m_HeadTransform.localPosition;
+//		m_HeadTransform.SetParent( null );
+//		m_HeadTransform.SetParent( m_BodyTransform, worldPositionStays: false );
+//		m_HeadTransform.localPosition = localPos;
 		m_GunTransform		= m_HeadTransform.Find( "Gun" );
 		m_FirePoint			= m_GunTransform.Find( "FirePoint" );
 	}
@@ -102,6 +102,8 @@ public abstract partial class NonLiveEntity : Entity {
 			streamingUnit.AddInternal( "ShieldStatus", m_Shield.Status );
 		}
 
+
+
 		// Internals
 //		streamingUnit.AddInternal( "HasDestination",				m_NavHasDestination );
 //		streamingUnit.AddInternal( "HasFaceTarget",					m_HasFaceTarget );
@@ -110,7 +112,6 @@ public abstract partial class NonLiveEntity : Entity {
 		streamingUnit.AddInternal( "IsMoving",						m_NavCanMoveAlongPath );
 		streamingUnit.AddInternal( "IsAllignedBodyToDestination",	m_IsAllignedBodyToPoint );
 		streamingUnit.AddInternal( "IsAllignedGunToPoint",			m_IsAllignedHeadToPoint );
-		streamingUnit.AddInternal( "StartMovePosition",				Utils.Converters.Vector3ToString( m_StartMovePosition ) );
 //		streamingUnit.AddInternal( "DistanceToTravel",				m_DistanceToTravel );
 		
 		// Body and Gun
@@ -153,7 +154,6 @@ public abstract partial class NonLiveEntity : Entity {
 		m_NavCanMoveAlongPath							= streamingUnit.GetAsBool( "IsMoving" );
 		m_IsAllignedBodyToPoint		= streamingUnit.GetAsBool( "IsAllignedBodyToDestination" );
 		m_IsAllignedHeadToPoint				= streamingUnit.GetAsBool( "IsAllignedGunToPoint" );
-		m_StartMovePosition					= streamingUnit.GetAsVector( "StartMovePosition" );
 //		m_DistanceToTravel					= streamingUnit.GetAsFloat( "DistanceToTravel" );
 
 		// Body and Gun

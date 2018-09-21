@@ -37,14 +37,11 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 		}
 	}
 
-	// Position saved at start of movement ( used for distances check )
-	protected	Vector3						m_StartMovePosition				= Vector3.zero;
-
 
 	// Questa funzione viene chiamata durante il caricamento dello script o quando si modifica un valore nell'inspector (chiamata solo nell'editor)
 	private void OnValidate()
 	{
-
+		// get call 3 times plus 1 on application quit
 	}
 
 
@@ -99,8 +96,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 			return;
 
 		// check traveled distance;
-		float traveledDistance = ( m_NavPrevPosition - transform.position ).sqrMagnitude;
-		if ( traveledDistance >= m_NavNextNodeDistance )
+		if ( ( m_NavPrevPosition - transform.position ).sqrMagnitude >= m_NavNextNodeDistance )
 		{
 //			print( "NodeReached" );
 			m_NavCurrentNodeIdx ++;
@@ -114,13 +110,13 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 			}
 
 			// distance To Travel
-			Vector3 projectedNextNodePosition = Utils.Math.ProjectPointOnPlane( transform.up, transform.position, m_NavPath[ m_NavCurrentNodeIdx ] );
+			Vector3 projectedNextNodePosition = Utils.Math.ProjectPointOnPlane( transform.up, transform.position, CurrentNodeToReachPosition );
 			m_NavNextNodeDistance = ( projectedNextNodePosition - transform.position ).sqrMagnitude;
 			m_NavPrevPosition = transform.position;
 		}
 
 		// go to node with custom movement, if present
-		NavMove( m_NavPath[ m_NavCurrentNodeIdx ], Speed, DeltaTime );
+		NavMove( CurrentNodeToReachPosition, Speed, DeltaTime );
 
 		////
 		#region
@@ -192,12 +188,19 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	// Resetnavigation ( virtual )
 	protected	virtual		void	NavReset()
 	{
-		m_HasDestination					= false;
-		m_NavPath							= null;
-		m_NavPathLength						= 0;
-		m_NavPrevPosition					= Vector3.zero;
-		m_NavCurrentNodeIdx					= 0;
-		m_NavNextNodeDistance				= 0.0f;
+//		if ( m_Brain.State != BrainState.ATTACKING )
+		{
+			m_NavPath							= null;
+			m_NavPathLength						= 0;
+			m_NavPrevPosition					= Vector3.zero;
+			m_NavCurrentNodeIdx					= 0;
+			m_NavCurrentNodePosition			= Vector3.zero;
+			m_NavNextNodeDistance				= 0.0f;
+
+			m_NavCanMoveAlongPath				= false;
+
+			m_HasDestination					= false;
+		}
 	}
 
 }

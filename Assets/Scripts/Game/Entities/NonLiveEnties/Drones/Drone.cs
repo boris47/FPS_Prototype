@@ -257,7 +257,6 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 //		m_Destination					= Vector3.zero;
 //		m_PointToFace					= Vector3.zero;
 		m_IsAllignedBodyToPoint	= false;
-		m_StartMovePosition				= Vector3.zero;
 //		m_DistanceToTravel				= 0f;
 
 		// NonLiveEntity

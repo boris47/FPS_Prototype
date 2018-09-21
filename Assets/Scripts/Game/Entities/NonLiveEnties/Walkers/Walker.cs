@@ -89,6 +89,8 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		if ( bullet.WhoRef is NonLiveEntity )
 			return;
 
+//		print( name + " OnHit( IBullet bullet )" );
+
 		// BRAIN
 		// Hit event, set ALARMED State if actual is NORMAL
 		if ( m_Brain.State == BrainState.NORMAL )
@@ -151,8 +153,6 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		base.OnTargetAquired( targetInfo );
 
 		// PathFinding
-//		CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
-
 		m_Brain.TryToReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
 	}
 
@@ -172,7 +172,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		base.OnTargetChanged( targetInfo );
 
 		// PathFinding
-		CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
+		m_Brain.TryToReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
 	}
 
 
@@ -323,13 +323,14 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 			if ( m_IsAllignedHeadToPoint == true )
 			{
-				float angle = Vector3.SignedAngle( m_GunTransform.forward, dirToPosition, m_HeadTransform.up );
-				m_GunTransform.Rotate( m_HeadTransform.up, angle * m_GunRotationSpeed * DeltaTime, Space.Self );
+				m_RotationToAllignTo.SetLookRotation( dirToPosition, m_BodyTransform.up );
+				m_GunTransform.rotation = Quaternion.RotateTowards( m_GunTransform.rotation, m_RotationToAllignTo, m_GunRotationSpeed * DeltaTime );
 			}
 			m_IsAllignedGunToPoint = Vector3.Angle( m_GunTransform.forward, dirToPosition ) < 6f;
 		}
 	}
 
+	
 
 	//////////////////////////////////////////////////////////////////////////
 	// FireLongRange ( Override )
@@ -365,7 +366,6 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 //		m_PointToFace					= Vector3.zero;
 		m_NavCanMoveAlongPath						= false;
 		m_IsAllignedBodyToPoint	= false;
-		m_StartMovePosition				= Vector3.zero;
 //		m_DistanceToTravel				= 0f;
 
 		// NonLiveEntity
