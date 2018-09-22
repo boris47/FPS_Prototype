@@ -21,45 +21,116 @@ public partial interface IEntity {
 
 public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation {
 
-	public	event		VoidArgsDelegate	OnKilled		= null;
+	public		event		VoidArgsDelegate	OnKilled		= null;
+
+
+	// Questa funzione viene chiamata durante il caricamento dello script o quando si modifica un valore nell'inspector (chiamata solo nell'editor)
+	protected	virtual		void		OnValidate()
+	{
+		// get call 3 times plus 1 on application quit
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnTargetAquired ( Abstract )
-	public	abstract	void				OnTargetAquired( TargetInfo_t targetInfo );
+	protected	virtual		void		OnEnable()
+	{
+
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnTargetUpdate ( Abstract )
-	public abstract		void				OnTargetUpdate( TargetInfo_t targetInfo );
+	protected	virtual		void		OnDisable()
+	{
+
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	virtual		StreamUnit	OnSave( StreamData streamData )
+	{
+		if ( m_IsActive == false )
+			return null;
+
+		StreamUnit streamUnit		= streamData.NewUnit( gameObject );
+		streamUnit.Position			= transform.position;
+		streamUnit.Rotation			= transform.rotation;
+
+		return streamUnit;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	virtual		StreamUnit	OnLoad( StreamData streamData )
+	{
+		StreamUnit streamUnit = null;
+		if ( streamData.GetUnit( gameObject, ref streamUnit ) == false )
+		{
+			gameObject.SetActive( false );
+			m_IsActive = false;
+			return null;
+		}
+
+		gameObject.SetActive( true );
+		m_IsActive						= true;
+
+		// Entity
+		m_TargetInfo					= default( TargetInfo_t );
+		m_HasDestination				= false;
+
+		m_NavCanMoveAlongPath			= false;
+		m_IsAllignedBodyToPoint	= false;
+
+		// NonLiveEntity
+		m_IsAllignedHeadToPoint			= false;
+
+		transform.position = streamUnit.Position;
+		transform.rotation = streamUnit.Rotation;
+		return streamUnit;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public		abstract	void		OnTargetAquired( TargetInfo_t targetInfo );
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public		abstract	void		OnTargetUpdate( TargetInfo_t targetInfo );
+	
+
+	//////////////////////////////////////////////////////////////////////////
+	public		abstract	void		OnTargetChanged( TargetInfo_t targetInfo );
+
 	
 	//////////////////////////////////////////////////////////////////////////
-	// OnTargetChanged ( Abstract )
-	public	abstract	void				OnTargetChanged( TargetInfo_t targetInfo );
-
-	
-	//////////////////////////////////////////////////////////////////////////
-	// OnTargetLost ( Abstract )
-	public	abstract	void				OnTargetLost( TargetInfo_t targetInfo );
+	public		abstract	void		OnTargetLost( TargetInfo_t targetInfo );
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnHit ( Abstract )
-	public	abstract	void				OnHit( IBullet bullet );
+	public		abstract	void		OnHit( IBullet bullet );
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnHit ( Abstract )
-	public	abstract	void				OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false );
+	public		abstract	void		OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false );
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnHurt
-//	public	abstract	void				OnHurt( ref IBullet bullet );
+//	public		abstract	void		OnHurt( ref IBullet bullet );
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnKill ( Virtual )
-	public	virtual		void				OnKill()
+	public		abstract	void		OnThink();
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	abstract	void		OnPhysicFrame( float fixedDeltaTime );
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	abstract	void		OnFrame( float deltaTime );
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public		virtual		void		OnKill()
 	{
 		if ( m_IsActive == false )
 			return;
@@ -78,7 +149,9 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnThink ( Abstract )
-	public	abstract	void				OnThink();
+	protected	virtual		void		OnDestroy()
+	{
+		
+	}
 
 }

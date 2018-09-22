@@ -27,7 +27,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	protected	bool						m_NavCanMoveAlongPath			= true;
 	protected	int							m_NavTargetNodeIndex			= 0;
 
-	protected	Vector3						CurrentNodeToReachPosition {
+	protected	Vector3						CurrentPositionToReach {
 		get {
 			if ( m_HasDestination && m_NavPath != null && m_NavPath.Length > 0 )
 			{
@@ -38,17 +38,9 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	}
 
 
-	// Questa funzione viene chiamata durante il caricamento dello script o quando si modifica un valore nell'inspector (chiamata solo nell'editor)
-	private void OnValidate()
-	{
-		// get call 3 times plus 1 on application quit
-	}
-
-
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// SetNavPath ( virtual )
 	public		virtual		void	NavSetPath( uint nodeCount, Vector3[] path )
 	{
 		// path check
@@ -71,13 +63,12 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 		Vector3 projectedNodePosition = Utils.Math.ProjectPointOnPlane( transform.up, transform.position, m_NavPath[ 0 ] );
 		m_NavNextNodeDistance	= ( projectedNodePosition - transform.position ).sqrMagnitude;
 
-		m_DestinationToReach		= m_NavPath[nodeCount - 1];
-		m_NavCanMoveAlongPath		= true;
+		m_DestinationToReach	= m_NavPath[nodeCount - 1];
+		m_NavCanMoveAlongPath	= true;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// NavStop ( virtual )
 	public		virtual		void	NavStop()
 	{
 		// Reset internals
@@ -88,8 +79,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// UpdateNavigation ( virtual )
-	protected	virtual		void	NavUpdate( float Speed, float DeltaTime )
+	protected	virtual		void	NavUpdate( float DeltaTime )
 	{
 		// check
 		if ( m_HasDestination == false || m_NavCanMoveAlongPath == false )
@@ -110,13 +100,13 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 			}
 
 			// distance To Travel
-			Vector3 projectedNextNodePosition = Utils.Math.ProjectPointOnPlane( transform.up, transform.position, CurrentNodeToReachPosition );
+			Vector3 projectedNextNodePosition = Utils.Math.ProjectPointOnPlane( transform.up, transform.position, CurrentPositionToReach );
 			m_NavNextNodeDistance = ( projectedNextNodePosition - transform.position ).sqrMagnitude;
 			m_NavPrevPosition = transform.position;
 		}
 
 		// go to node with custom movement, if present
-		NavMove( CurrentNodeToReachPosition, Speed, DeltaTime );
+//		NavMove( CurrentNodeToReachPosition, Speed, DeltaTime );
 
 		////
 		#region
@@ -150,15 +140,13 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// NavMove ( virtual )
-	protected	virtual	void	NavMove( Vector3 CurrentDestination, float Speed, float DeltaTime )
+	protected	virtual		void	NavMove( float Speed, float FixedDeltaTime )
 	{
 		print( "You should not call this function" );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// CheckForNewReachPoint ( virtual )
 	protected	virtual		void	CheckForNewReachPoint( Vector3 TargetPosition ) // m_TargetInfo.CurrentTarget.Transform.position
 	{
 
@@ -185,7 +173,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Resetnavigation ( virtual )
 	protected	virtual		void	NavReset()
 	{
 //		if ( m_Brain.State != BrainState.ATTACKING )

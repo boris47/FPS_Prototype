@@ -52,7 +52,7 @@ public interface IEntitySimulation {
 }
 
 //					Physics intreractions,		entity volume,		Hit detection
-[RequireComponent( typeof( Rigidbody ), typeof( CapsuleCollider ) )]
+[RequireComponent( typeof( Rigidbody ), typeof( CapsuleCollider ),  typeof( Brain ) )]
 public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation {
 
 	public enum ENTITY_TYPE {
@@ -153,8 +153,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Awake ( virtual )
-	protected	virtual	void	Awake()
+	protected	virtual		void	Awake()
 	{
 		m_ID				= NewID();
 		m_Interface			= this as IEntity;
@@ -183,74 +182,24 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnSave ( virtual )
-	protected	virtual		StreamingUnit	OnSave( StreamingData streamingData )
+	protected	virtual		void	Start()
 	{
-		if ( m_IsActive == false )
-			return null;
 
-		StreamingUnit streamingUnit		= streamingData.NewUnit( gameObject );
-		streamingUnit.Position			= transform.position;
-		streamingUnit.Rotation			= transform.rotation;
-
-		return streamingUnit;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnLoad ( virtual )
-	protected	virtual		StreamingUnit	OnLoad( StreamingData streamingData )
+	private					void	FixedUpdate()
 	{
-		StreamingUnit streamingUnit = null;
-		if ( streamingData.GetUnit( gameObject, ref streamingUnit ) == false )
-		{
-			gameObject.SetActive( false );
-			m_IsActive = false;
-			return null;
-		}
+		if ( GameManager.IsPaused == true )
+			return;
 
-		gameObject.SetActive( true );
-		m_IsActive						= true;
-
-		// Entity
-		m_TargetInfo					= default( TargetInfo_t );
-		m_HasDestination				= false;
-
-		m_NavCanMoveAlongPath			= false;
-		m_IsAllignedBodyToPoint	= false;
-
-		// NonLiveEntity
-		m_IsAllignedHeadToPoint			= false;
-
-		transform.position = streamingUnit.Position;
-		transform.rotation = streamingUnit.Rotation;
-		return streamingUnit;
-	}
-
-
-	
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// SetPoinToFace ( Firtual )
-	public	virtual		void	SetPoinToFace( Vector3 point )
-	{
-		m_PointToFace		= point;
-		m_HasPointToFace	= true;
+		this.OnPhysicFrame( Time.fixedDeltaTime );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// CanTrigger ( virtual )
-	public	virtual		bool	CanTrigger()
-	{
-		return true;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// Update ( virtual )
-	protected	virtual	void	Update()
+	private					void	Update()
 	{
 		if ( GameManager.IsPaused == true )
 			return;
@@ -264,8 +213,22 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// SetCollisionStateWith
-	protected	void	SetCollisionStateWith( Collider coll, bool state )
+	public		virtual		void	SetPoinToFace( Vector3 point )
+	{
+		m_PointToFace		= point;
+		m_HasPointToFace	= true;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public		virtual		bool	CanTrigger()
+	{
+		return true;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected				void	SetCollisionStateWith( Collider coll, bool state )
 	{
 		Collider[] thisColliders = GetComponentsInChildren<Collider>( includeInactive: true );
 		for ( int i = 0; i < thisColliders.Length; i++ )
@@ -276,22 +239,14 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 	}
 
-
 	//////////////////////////////////////////////////////////////////////////
-	// OnFrame ( Abstract )
-	protected	abstract	void	OnFrame( float deltaTime );
-
-	//////////////////////////////////////////////////////////////////////////
-	// EnterSimulationState ( Abstract )
 	public		abstract	void	EnterSimulationState();
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ExitSimulationState ( Abstract )
 	public		abstract	void	ExitSimulationState();
 
 	//////////////////////////////////////////////////////////////////////////
-	// SimulateMovement ( Abstract )
 	public		virtual		bool	SimulateMovement( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1f )
 	{ return false; }
 

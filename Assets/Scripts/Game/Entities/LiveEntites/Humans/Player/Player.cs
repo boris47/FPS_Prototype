@@ -1,6 +1,7 @@
 ﻿
 using UnityEngine;
 using System.Collections;
+using System;
 
 public partial class Player : Human {
 
@@ -17,18 +18,20 @@ public partial class Player : Human {
 
 	// GRABBING OBJECT
 	[System.NonSerialized]
-	protected	GameObject			m_GrabPoint					= null;
-//	[System.NonSerialized]
-	protected	IGrabbable			m_GrabbedObject				= null;
+	protected	GameObject			m_GrabPoint						= null;
+
+	protected	IGrabbable			m_GrabbedObject					= null;
 	public		IGrabbable			GrabbedObject
 	{
 		get { return m_GrabbedObject; }
 	}
+
 	[System.NonSerialized]
-	protected	float				m_GrabbedObjectMass			= 0f;
+	protected	float				m_GrabbedObjectMass				= 0f;
+
 	[System.NonSerialized]
-	protected	bool				m_GrabbedObjectUseGravity	= false;
-	protected	bool				m_CanGrabObjects			= true;
+	protected	bool				m_GrabbedObjectUseGravity		= false;
+	protected	bool				m_CanGrabObjects				= true;
 
 	private		Vector3				m_Move							= Vector3.zero;
 
@@ -48,8 +51,7 @@ public partial class Player : Human {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// AWAKE
-	protected override void Awake()
+	protected	override	void	Awake()
 	{
 		if ( Instance != null )
 		{
@@ -144,8 +146,7 @@ public partial class Player : Human {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Start
-	private void Start()
+	protected	override	void	Start()
 	{
 		IsGrounded = false;
 		StartCoroutine( DamageEffectCO() );
@@ -153,104 +154,7 @@ public partial class Player : Human {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnDestroy
-	private void OnDestroy()
-	{
-		if ( m_DodgeAbilityTarget != null )
-			Destroy( m_DodgeAbilityTarget.gameObject );
-
-		Instance = null;
-		Entity = null;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnSave ( override )
-	protected override StreamingUnit OnSave( StreamingData streamingData )
-	{
-		StreamingUnit streamingUnit	= base.OnSave( streamingData );
-		if ( streamingUnit == null )
-			return null;
-
-		// Health
-		streamingUnit.AddInternal( "Health", m_Health );
-
-		// Stamina
-		streamingUnit.AddInternal( "Stamina", m_Stamina );
-
-		// Crouch state
-		streamingUnit.AddInternal( "IsCrouched", IsCrouched );
-
-		// Motion Type
-		streamingUnit.AddInternal( "MotionType", MotionType );
-
-		return streamingUnit;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnLoad ( override )
-	protected override StreamingUnit OnLoad( StreamingData streamingData )
-	{
-		StreamingUnit streamingUnit = base.OnLoad( streamingData );
-		if ( streamingUnit == null )
-			return null;
-
-		// Cutscene Manager
-		if ( m_CutsceneManager.IsPlaying == true )
-			m_CutsceneManager.Termiante();
-
-		// UI effect reset
-		UI.Instance.EffectFrame.color = Color.clear;
-
-		// Dodging reset
-		if ( m_DodgeCoroutine != null )
-		{
-			StopCoroutine( m_DodgeCoroutine );
-		}
-		m_RigidBody.constraints						= RigidbodyConstraints.FreezeRotation;
-		m_RigidBody.velocity						= Vector3.zero;
-
-		GameManager.SetTimeScale( 1.0f );
-
-		m_DodgeRaycastNormal						= Vector3.zero;
-		m_DodgeAbilityTarget.gameObject.SetActive( false );
-		m_ChosingDodgeRotation						= false;
-		m_DodgeInterpolant							= 0f;
-		var settings								= CameraControl.Instance.GetPP_Profile.motionBlur.settings;
-		settings.frameBlending						= 0f;
-		CameraControl.Instance.GetPP_Profile.motionBlur.settings = settings;
-		m_IsDodging = false;
-
-		// Player internals
-		m_Interactable								= null;
-		m_Move										= Vector3.zero;
-		m_RaycastHit								= default( RaycastHit );
-
-		DropEntityDragged();
-
-		m_ForwardSmooth = m_RightSmooth = 0f;
-
-		// Health
-		m_Health			= streamingUnit.GetAsFloat( "Health" );
-
-		// Stamina
-		m_Stamina			= streamingUnit.GetAsFloat( "Stamina" );
-
-		// Crouch state
-		m_States.IsCrouched = streamingUnit.GetAsBool( "IsCrouched" );
-
-		// Motion Type
-		MotionType			= streamingUnit.GetAsEnum<eMotionType>( "MotionType");
-		SetMotionType( MotionType );
-
-		m_RigidBody.useGravity = false;
-
-		return streamingUnit;
-	}
-
-
-	public	void	DisableCollisionsWith( Collider collider )
+	public					void	DisableCollisionsWith( Collider collider )
 	{
 //		Physics.IgnoreCollision( collider, m_TriggerCollider, ignore: true );
 		Physics.IgnoreCollision( collider, m_PhysicCollider, ignore: true );
@@ -260,8 +164,7 @@ public partial class Player : Human {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// CanTrigger ( Override )
-	public override bool CanTrigger()
+	public		override	bool	CanTrigger()
 	{
 		if ( base.CanTrigger() == false )
 			return false;
@@ -274,8 +177,7 @@ public partial class Player : Human {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// DropEntityDragged
-	public	void	DropEntityDragged()
+	public					void	DropEntityDragged()
 	{
 		if ( m_GrabbedObject == null )
 			return;
@@ -294,8 +196,7 @@ public partial class Player : Human {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// MoveGrabbedObject
-	private	void	MoveGrabbedObject()
+	private					void	MoveGrabbedObject()
 	{
 		if ( m_IsActive == false )
 			return;
@@ -317,66 +218,9 @@ public partial class Player : Human {
 //		* ( 1.0f - Vector3.Angle( transform.forward, CameraControl.Instance.transform.forward ) / CameraControl.CLAMP_MAX_X_AXIS );
 	}
 
-	//////////////////////////////////////////////////////////////////////////
-	// FixedUpdate
-	private void	FixedUpdate()
-	{
-		if ( m_IsActive == false )
-			return;
-
-		MoveGrabbedObject();
-
-		m_RigidBody.angularVelocity = Vector3.zero;
-
-		// Forced by ovverride
-		if ( m_MovementOverrideEnabled )
-		{
-			// Controlled in Player.Motion_Walk::SimulateMovement
-			m_RigidBody.velocity = m_Move;
-			return;
-		}
-
-		m_RigidBody.drag = IsGrounded ? BODY_DRAG : 0.0f;
-
-		// User inputs
-		if ( IsGrounded )
-		{
-			
-			// Controlled in Player.Motion_Walk::Update_Walk
-			Vector3 forward	= Vector3.Cross( CameraControl.Instance.Transform.right, transform.up );
-			Vector3 right	= CameraControl.Instance.Transform.right;
-			Vector3 up		= transform.up;
-
-			if ( m_ForwardSmooth != 0.0f )
-				m_RigidBody.AddForce( forward	* m_ForwardSmooth	* GroundSpeedModifier,	m_UpSmooth > 0.0f ? ForceMode.Impulse : ForceMode.Acceleration );
-
-			if ( m_RightSmooth != 0.0f )
-				m_RigidBody.AddForce( right		* m_RightSmooth		* GroundSpeedModifier,	m_UpSmooth > 0.0f ? ForceMode.Impulse : ForceMode.Acceleration );
-
-			if ( m_UpSmooth > 0.0f )
-				m_RigidBody.AddForce( up		* m_UpSmooth		* GroundSpeedModifier,	ForceMode.VelocityChange );
-		}
-
-		// Apply gravity
-		{
-			// add RELATIVE gravity force
-			Vector3 gravity = transform.up * Physics.gravity.y * ( IsGrounded ? 1.0f: 30f );
-			m_RigidBody.AddForce( gravity, ForceMode.Force );
-		}
-	}
-
-	/*
-	//////////////////////////////////////////////////////////////////////////
-	// Update
-	private void	Update()
-	{
-		this.OnFrame( Time.deltaTime );
-	}
-	*/
 
 	//////////////////////////////////////////////////////////////////////////
-	// CheckForInteraction
-	private	void	CheckForInteraction( bool hasHit )
+	private					void	CheckForInteraction( bool hasHit )
 	{
 		// skip if no target
 		if ( hasHit == false )
@@ -411,8 +255,7 @@ public partial class Player : Human {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// CheckForGrab
-	private	void	CheckForGrab( bool hasHit )
+	private					void	CheckForGrab( bool hasHit )
 	{
 		// skip grab evaluation if dodging
 		if ( m_IsDodging == true )
@@ -455,127 +298,11 @@ public partial class Player : Human {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnFrame ( Override )
-	protected override void	OnFrame( float deltaTime )
+	private					IEnumerator	DamageEffectCO()
 	{
-		if ( m_IsActive == false )
-			return;
-
-		m_Foots.OnFrame();
-
-		// Reset "local" states
-		m_States.Reset();
-
-		if ( InputManager.Inputs.Gadget3 && WeaponManager.Instance.CurrentWeapon.FlashLight != null )
-		{
-			WeaponManager.Instance.CurrentWeapon.FlashLight.Toggle();
-		}
-
-		////////////////////////////////////////////////////////////////////////////////////////
-		// Pick eventual collision info from camera to up
-		{
-			// my check hight formula
-///			Leadwerks::Vec3 vCheckHeigth = { 0.0f, ( CamManager()->GetStdHeight() / 2 ) * ( fJumpForce / 10 ), 0.0f };
-///			vCheckHeigth *= IsCrouched() ? 0.5f : 1.0f;
-///			bIsUnderSomething = World()->GetWorld()->Pick( vCamPos, vCamPos + vCheckHeigth, Leadwerks::PickInfo(), 0.36 );
-		}
-
-		////////////////////////////////////////////////////////////////////////////////////////
-		// Check for usage
-#region		INTERACTIONS
-		{
-			Vector3 startLine = CameraControl.Instance.Transform.position;
-			Vector3 endLine   = CameraControl.Instance.Transform.position + CameraControl.Instance.Transform.forward * MAX_INTERACTION_DISTANCE;
-
-			bool lineCastResult = Physics.Raycast( startLine, endLine - startLine, out m_RaycastHit, MAX_INTERACTION_DISTANCE, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore );
-
-			Debug.DrawLine( startLine, endLine );
-
-			CheckForDodge ( lineCastResult );
-			CheckForInteraction( lineCastResult );
-			CheckForGrab ( lineCastResult );
-		}
-
-#endregion
-
-		if ( m_IsDodging == true )
-			return;
-// Water
-#region TO IMPLEMENT
-		////////////////////////////////////////////////////////////////////////////////////////
-		// Water
-		/*		bool bIsEntityInWater, bIsCameraUnderWater, bIsCameraReallyUnderWater;
-				if ( !IsClimbing() && World()->GetWorld()->GetWaterMode() ) {
-
-					float fWaterHeight		 = World()->GetWorld()->GetWaterHeight();
-					// camera is under water level
-					bIsCameraUnderWater = ( vCamPos.y - 0.1f ) < fWaterHeight;
-					bIsCameraReallyUnderWater = vCamPos.y < fWaterHeight;
-					// entity is under water level, but camera is over water level
-					bIsEntityInWater = pEntity->GetPosition().y-0.1 < fWaterHeight && !bIsCameraUnderWater;
-
-					SetInWater( bIsEntityInWater );
-
-					// If now camera is over water level, but prev update was under it
-					if ( bIsEntityInWater ) {
-
-						// if distance beetwen ground and parent is minus than camera height
-						if ( GetAirbourneHeigth() < CamManager()->GetStdHeight() ) {
-							// restore walking state
-						//	if ( iMotionType != LIVE_ENTITY::Motion::Walk ) {
-								SetMotionType( LIVE_ENTITY::Motion::Walk );
-							//	SetCrouched( true );
-						//	}
-						}
-
-					}
-
-					// If camera go under water level enable underwater state
-					if ( bIsCameraUnderWater && iMotionType != LIVE_ENTITY::Motion::Swim ) {
-						SetSwimming();
-					}
-
-					// if actual motion is 'Swim' but is not entity and camera underwater restore 'walk' motion
-					if ( iMotionType == LIVE_ENTITY::Motion::Swim && !bIsEntityInWater && !bIsCameraUnderWater )
-						SetMotionType( LIVE_ENTITY::Motion::Walk );
-
-					if ( bIsCameraReallyUnderWater ) {
-						SetUnderWater( true );
-
-						// Underwater stamina is consumed as oxygen
-						fStamina -= fRunStamina * 2.0f;
-					}
-
-				}
-		*/
-#endregion
-
-
-		////////////////////////////////////////////////////////////////////////////////////////
-		// Movement Update
-		{
-			switch ( MotionType )
-			{
-				case eMotionType.Walking:	{ this.Update_Walk();		break; }
-				case eMotionType.Flying:	{ this.Update_Fly();		break; }
-				case eMotionType.Swimming:	{ this.Update_Swim();		break; }
-//				case eMotionType.Swimming:	{ this->Update_Swim( bIsEntityInWater, bIsCameraUnderWater, bIsCameraReallyUnderWater );	break; }
-				case eMotionType.P1ToP2:	{ this.Update_P1ToP2();		break; }
-			}
-		}
-
-		// trace previuos states
-		m_PreviousStates = m_States;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// DamageEffectCO ( Coroutine )
-	private	IEnumerator	DamageEffectCO()
-	{
+		var settings = CameraControl.Instance.GetPP_Profile.vignette.settings;
 		while( true )
 		{
-			var settings = CameraControl.Instance.GetPP_Profile.vignette.settings;
 			m_DamageEffect = Mathf.Lerp( m_DamageEffect, 0f, Time.deltaTime * 2f );
 			settings.intensity = m_DamageEffect;
 			CameraControl.Instance.GetPP_Profile.vignette.settings = settings;
@@ -583,8 +310,5 @@ public partial class Player : Human {
 		}
 	}
 
-
-	public override void OnThink()
-	{ }
 
 }

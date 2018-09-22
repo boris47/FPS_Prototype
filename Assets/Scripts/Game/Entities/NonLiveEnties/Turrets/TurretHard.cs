@@ -91,27 +91,27 @@ public class TurretHard : Turret {
 	}
 
 
-	protected override StreamingUnit OnSave( StreamingData streamingData )
+	protected override StreamUnit OnSave( StreamData streamData )
 	{
-		StreamingUnit streamingUnit = base.OnSave( streamingData );
-		if ( streamingUnit == null )
+		StreamUnit streamUnit = base.OnSave( streamData );
+		if ( streamUnit == null )
 			return null;
 
-		streamingUnit.AddInternal( "FiredBullets", m_FiredBullets );
+		streamUnit.AddInternal( "FiredBullets", m_FiredBullets );
 
-		return streamingUnit;
+		return streamUnit;
 	}
 
 
-	protected override StreamingUnit OnLoad( StreamingData streamingData )
+	protected override StreamUnit OnLoad( StreamData streamData )
 	{
-		StreamingUnit streamingUnit = base.OnLoad( streamingData );
-		if ( streamingUnit == null )
+		StreamUnit streamUnit = base.OnLoad( streamData );
+		if ( streamUnit == null )
 			return null;
 
-		m_FiredBullets = ( uint ) streamingUnit.GetAsInt( "FiredBullets" );
+		m_FiredBullets = ( uint ) streamUnit.GetAsInt( "FiredBullets" );
 		
-		return streamingUnit;
+		return streamUnit;
 	}
 
 

@@ -31,25 +31,25 @@ public class CommandPanel : MonoBehaviour {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnSave
-	private	StreamingUnit	OnSave( StreamingData streamingData )
+	private	StreamUnit	OnSave( StreamData streamData )
 	{
-		StreamingUnit streamingUnit	= streamingData.NewUnit( gameObject );
+		StreamUnit streamUnit	= streamData.NewUnit( gameObject );
 
-		streamingUnit.AddInternal( "IsTriggered", m_IsTriggered );
+		streamUnit.AddInternal( "IsTriggered", m_IsTriggered );
 
-		return streamingUnit;
+		return streamUnit;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnLoad
-	private	StreamingUnit	OnLoad( StreamingData streamingData )
+	private	StreamUnit	OnLoad( StreamData streamData )
 	{
-		StreamingUnit streamingUnit = null;
-		if ( streamingData.GetUnit( gameObject, ref streamingUnit ) == false )
+		StreamUnit streamUnit = null;
+		if ( streamData.GetUnit( gameObject, ref streamUnit ) == false )
 			return null;
 
-		m_IsTriggered = streamingUnit.GetAsBool( "IsTriggered" );
+		m_IsTriggered = streamUnit.GetAsBool( "IsTriggered" );
 
 		if ( m_IsTriggered == true )
 		{
@@ -62,7 +62,7 @@ public class CommandPanel : MonoBehaviour {
 			m_TriggerCollider.enabled				= false;
 		}
 
-		return streamingUnit;
+		return streamUnit;
 	}
 
 

@@ -200,6 +200,19 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	// OnPhysicFrame ( Override )
+	protected	override	void	OnPhysicFrame( float FixedDeltaTime )
+	{
+		// Update navigation
+		if ( m_HasDestination == true )
+		{
+			float speed = ( m_IsAllignedFootsToDestination ) ? m_MoveMaxSpeed : ( m_MoveMaxSpeed * 0.5f );
+			NavMove( speed, FixedDeltaTime );
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	// OnFrame ( Override )
 	protected	override	void	OnFrame( float deltaTime )
 	{
@@ -207,12 +220,6 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 		// Update internal timer
 		m_ShotTimer -= deltaTime;
-
-		// Update navigation
-		if ( m_HasDestination == true )
-		{
-			NavUpdate( Speed: m_MoveMaxSpeed, DeltaTime: deltaTime );
-		}
 
 		// Update targeting
 		if ( m_TargetInfo.HasTarget == true )
@@ -247,26 +254,26 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		{
 			FaceToPoint( deltaTime );   // m_PointToFace
 		}
+
+		// If has destination defined, update navigation
+		if ( m_HasDestination )
+		{
+			NavUpdate( deltaTime );
+		}
+		
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// NavUpdate ( Override )
-	protected	override	void	NavUpdate( float Speed, float DeltaTime )
+	protected	override	void	NavUpdate( float DeltaTime )
 	{
-		Speed = ( m_IsAllignedFootsToDestination ) ? m_MoveMaxSpeed : ( m_MoveMaxSpeed * 0.5f );
+		// Update nodes
+		base.NavUpdate( DeltaTime );
 
-		base.NavUpdate( Speed, DeltaTime );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// NavMove ( Override )
-	protected	override	void	NavMove( Vector3 CurrentDestination, float Speed, float DeltaTime )
-	{
 		// NAVIGATION
 		// FOOTS
-		Vector3 pointOnThisPlane = Utils.Math.ProjectPointOnPlane( m_FootsTransform.up, m_FootsTransform.position, CurrentDestination );
+		Vector3 pointOnThisPlane = Utils.Math.ProjectPointOnPlane( m_FootsTransform.up, m_FootsTransform.position, CurrentPositionToReach );
 		Vector3 dirToPosition = ( pointOnThisPlane - m_FootsTransform.position );
 
 		m_IsAllignedFootsToDestination = Vector3.Angle( m_FootsTransform.forward, dirToPosition ) < 3.0f;
@@ -275,8 +282,14 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 			float angle = Vector3.SignedAngle( m_FootsTransform.forward, dirToPosition, m_FootsTransform.up );
 			m_FootsTransform.Rotate( m_FootsTransform.up, angle * m_FeetsRotationSpeed * DeltaTime, Space.Self );
 		}
+	}
 
-		m_RigidBody.velocity = transform.forward * Speed * 10f * DeltaTime + transform.up * 0.1f;
+
+	//////////////////////////////////////////////////////////////////////////
+	// NavMove ( Override )
+	protected	override	void	NavMove( float Speed, float FixedDeltaTime )
+	{
+		m_RigidBody.velocity = transform.forward * Speed * 10f * FixedDeltaTime + transform.up * 0.1f;
 	}
 
 

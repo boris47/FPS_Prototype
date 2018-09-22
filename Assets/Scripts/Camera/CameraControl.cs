@@ -132,32 +132,32 @@ public class CameraControl : MonoBehaviour, ICameraControl, ICameraSetters {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnSave
-	private	StreamingUnit	OnSave( StreamingData streamingData )
+	private	StreamUnit	OnSave( StreamData streamData )
 	{
-		StreamingUnit streamingUnit	= streamingData.NewUnit( gameObject );
+		StreamUnit streamUnit	= streamData.NewUnit( gameObject );
 
 		// Current internal direction
-		streamingUnit.AddInternal( "CurrentDirection", Utils.Converters.Vector3ToString( m_CurrentDirection ) );
+		streamUnit.AddInternal( "CurrentDirection", Utils.Converters.Vector3ToString( m_CurrentDirection ) );
 
 		// Can parse input
-		streamingUnit.AddInternal( "CanParseInput", m_CanParseInput );
+		streamUnit.AddInternal( "CanParseInput", m_CanParseInput );
 
 		// Headbob
-		streamingUnit.AddInternal( "HeadbobActive", m_HeadBob.IsActive );
+		streamUnit.AddInternal( "HeadbobActive", m_HeadBob.IsActive );
 
 		// Headmove
-		streamingUnit.AddInternal( "HeadmoveActive", m_HeadBob.IsActive );
+		streamUnit.AddInternal( "HeadmoveActive", m_HeadBob.IsActive );
 
-		return streamingUnit;
+		return streamUnit;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnLoad
-	private	StreamingUnit	OnLoad( StreamingData streamingData )
+	private	StreamUnit	OnLoad( StreamData streamData )
 	{
-		StreamingUnit streamingUnit = null;
-		if ( streamingData.GetUnit( gameObject, ref streamingUnit ) == false )
+		StreamUnit streamUnit = null;
+		if ( streamData.GetUnit( gameObject, ref streamUnit ) == false )
 			return null;
 
 		// Camera internals
@@ -167,18 +167,18 @@ public class CameraControl : MonoBehaviour, ICameraControl, ICameraSetters {
 		m_WpnFallFeedback		= Vector3.zero;
 
 		// Current internal direction
-		m_CurrentDirection		= streamingUnit.GetAsVector( "CurrentDirection" );
+		m_CurrentDirection		= streamUnit.GetAsVector( "CurrentDirection" );
 
 		// Can parse input
-		m_CanParseInput			= streamingUnit.GetAsBool( "CanParseInput" );
+		m_CanParseInput			= streamUnit.GetAsBool( "CanParseInput" );
 
 		// Headbob
-		m_HeadBob.IsActive		= streamingUnit.GetAsBool( "HeadbobActive" );
+		m_HeadBob.IsActive		= streamUnit.GetAsBool( "HeadbobActive" );
 
 		// Headmove
-		m_HeadMove.IsActive		= streamingUnit.GetAsBool( "HeadmoveActive" );
+		m_HeadMove.IsActive		= streamUnit.GetAsBool( "HeadmoveActive" );
 
-		return streamingUnit;
+		return streamUnit;
 	}
 
 

@@ -97,47 +97,47 @@ public class Blackjack : Weapon {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
-	protected	override	StreamingUnit	OnSave( StreamingData streamingData )
+	protected	override	StreamUnit	OnSave( StreamData streamData )
 	{
 
-		StreamingUnit streamingUnit		= base.OnSave( streamingData );
+		StreamUnit streamUnit		= base.OnSave( streamData );
 
 		// MAGAZINE
-		streamingUnit.AddInternal( "Magazine", m_Magazine );
+		streamUnit.AddInternal( "Magazine", m_Magazine );
 
 		// FIREMODE
-		streamingUnit.AddInternal( "Firemode", m_FireMode );
+		streamUnit.AddInternal( "Firemode", m_FireMode );
 
 		// FLASHLIGHT
 		if ( m_FlashLight != null )
-			streamingUnit.AddInternal( "FlashLightActive", m_FlashLight.Activated );
+			streamUnit.AddInternal( "FlashLightActive", m_FlashLight.Activated );
 
-		return streamingUnit;
+		return streamUnit;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
-	protected	override	StreamingUnit	OnLoad( StreamingData streamingData )
+	protected	override	StreamUnit	OnLoad( StreamData streamData )
 	{
-		StreamingUnit streamingUnit = base.OnLoad( streamingData );
-		if ( streamingUnit == null )
+		StreamUnit streamUnit = base.OnLoad( streamData );
+		if ( streamUnit == null )
 			return null;
 
 		// MAGAZINE
-		m_Magazine = ( uint ) streamingUnit.GetAsInt( "Magazine" );
+		m_Magazine = ( uint ) streamUnit.GetAsInt( "Magazine" );
 
 		// FIREMODE
 		{
-			m_FireMode = streamingUnit.GetAsEnum<FireModes>( "Firemode" );
+			m_FireMode = streamUnit.GetAsEnum<FireModes>( "Firemode" );
 			SelectFireFunction();
 		}
 
 		// FLASHLIGHT
 		if ( m_FlashLight != null )
-			m_FlashLight.SetActive( streamingUnit.GetAsBool( "FlashLightActive") );
+			m_FlashLight.SetActive( streamUnit.GetAsBool( "FlashLightActive") );
 
-		return streamingUnit;
+		return streamUnit;
 	}
 
 

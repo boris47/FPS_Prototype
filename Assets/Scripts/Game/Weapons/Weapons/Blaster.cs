@@ -119,33 +119,33 @@ public class Blaster : Weapon
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
-	protected	override	StreamingUnit	OnSave( StreamingData streamingData )
+	protected	override	StreamUnit	OnSave( StreamData streamData )
 	{
-		StreamingUnit streamingUnit		= base.OnSave( streamingData );
+		StreamUnit streamUnit		= base.OnSave( streamData );
 
-		streamingUnit.AddInternal( "Magazine", m_Magazine );
+		streamUnit.AddInternal( "Magazine", m_Magazine );
 
 		if ( m_FlashLight != null )
-			streamingUnit.AddInternal( "FlashLightActive", m_FlashLight.Activated );
+			streamUnit.AddInternal( "FlashLightActive", m_FlashLight.Activated );
 
-		return streamingUnit;
+		return streamUnit;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
-	protected	override	StreamingUnit	OnLoad( StreamingData streamingData )
+	protected	override	StreamUnit	OnLoad( StreamData streamData )
 	{
-		StreamingUnit streamingUnit = base.OnLoad( streamingData );
-		if ( streamingUnit == null )
+		StreamUnit streamUnit = base.OnLoad( streamData );
+		if ( streamUnit == null )
 			return null;
 
 		// FLASHLIGHT
 		if ( m_FlashLight != null )
-			m_FlashLight.SetActive( streamingUnit.GetAsBool( "FlashLightActive") );
+			m_FlashLight.SetActive( streamUnit.GetAsBool( "FlashLightActive") );
 
 		// MAGAZINE
-		m_Magazine = ( uint ) streamingUnit.GetAsInt( "Magazine" );
+		m_Magazine = ( uint ) streamUnit.GetAsInt( "Magazine" );
 
 		// RESET INTERNALS
 		m_Charge					= 0f;
@@ -153,7 +153,7 @@ public class Blaster : Weapon
 		m_ChargeSlider.value		= 0f;
 		m_Renderer.material.SetColor( "_EmissionColor", m_StartEmissiveColor );
 
-		return streamingUnit;
+		return streamUnit;
 	}
 
 

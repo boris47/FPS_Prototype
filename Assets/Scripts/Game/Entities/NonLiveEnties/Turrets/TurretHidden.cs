@@ -25,29 +25,29 @@ public class TurretHidden : Turret {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnSave ( Override )
-	protected override StreamingUnit OnSave( StreamingData streamingData )
+	protected override StreamUnit OnSave( StreamData streamData )
 	{
-		StreamingUnit streamingUnit = base.OnSave( streamingData );
-		if ( streamingUnit == null )
+		StreamUnit streamUnit = base.OnSave( streamData );
+		if ( streamUnit == null )
 			return null;
 
-		streamingUnit.AddInternal( "IsEnabled", m_IsEnabled );
+		streamUnit.AddInternal( "IsEnabled", m_IsEnabled );
 
-		return streamingUnit;
+		return streamUnit;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnLoad ( Override )
-	protected override StreamingUnit OnLoad( StreamingData streamingData )
+	protected override StreamUnit OnLoad( StreamData streamData )
 	{
-		StreamingUnit streamingUnit = base.OnLoad( streamingData );
-		if ( streamingUnit == null )
+		StreamUnit streamUnit = base.OnLoad( streamData );
+		if ( streamUnit == null )
 			return null;
 
-		m_IsEnabled = streamingUnit.GetAsBool( "IsEnabled" );
+		m_IsEnabled = streamUnit.GetAsBool( "IsEnabled" );
 		
-		return streamingUnit;
+		return streamUnit;
 	}
 
 

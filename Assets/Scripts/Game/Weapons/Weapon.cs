@@ -202,22 +202,22 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnSave ( Virtual )
-	protected	virtual		StreamingUnit	OnSave( StreamingData streamingData )
+	protected	virtual		StreamUnit	OnSave( StreamData streamData )
 	{
-		StreamingUnit streamingUnit	= streamingData.NewUnit( gameObject );
+		StreamUnit streamUnit	= streamData.NewUnit( gameObject );
 
-		return streamingUnit;
+		return streamUnit;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnLoad ( Virtual )
-	protected	virtual		StreamingUnit	OnLoad( StreamingData streamingData )
+	protected	virtual		StreamUnit	OnLoad( StreamData streamData )
 	{
 		m_Animator.Play( "draw", -1, 0.99f );
 
-		StreamingUnit streamingUnit = null;
-		if ( streamingData.GetUnit( gameObject, ref streamingUnit ) == false )
+		StreamUnit streamUnit = null;
+		if ( streamData.GetUnit( gameObject, ref streamUnit ) == false )
 			return null;
 		
 		m_InTransition = false;
@@ -225,7 +225,7 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 		m_IsFiring = false;
 
 		UI.Instance.InGame.UpdateUI();
-		return streamingUnit;
+		return streamUnit;
 	}
 
 

@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 using System.Threading;
 
 //	DELEGATES FOR EVENTS
-public delegate StreamingUnit StreamingEvent( StreamingData streamingData );
+public delegate StreamUnit StreamingEvent( StreamData streamData );
 
 
 public class SaveFileinfo {
@@ -20,9 +20,13 @@ public class SaveFileinfo {
 
 }
 
+public enum SaveLoadState {
+	NONE, SAVING, LOADING
+}
+
 // INTERFACE
 /// <summary> Clean interface of only GameManager class </summary>
-public interface IGameManager_SaveManagement {
+public interface SaveManagement {
 
 	// PROPERTIES
 
@@ -37,13 +41,20 @@ public interface IGameManager_SaveManagement {
 
 	/// <summary> Load a file </summary>
 					void				Load	( string fileName );
+
+	SaveLoadState			State	{ get; }
 }
 
 
-
-public partial class GameManager : IGameManager_SaveManagement {
+public partial class GameManager : SaveManagement {
 
 	private const	string				ENCRIPTION_KEY	= "Boris474Ever";
+
+	private	static	SaveManagement		m_SaveManagement = null;
+	public	static	SaveManagement		SaveManagement
+	{
+		get { return m_SaveManagement; }
+	}
 	
 	/// <summary> Events called when game is saving </summary>
 	public event StreamingEvent			OnSave			= null;
@@ -62,6 +73,13 @@ public partial class GameManager : IGameManager_SaveManagement {
 
 	private		Aes						m_Encryptor		= Aes.Create();
 
+	private		SaveLoadState			m_SaveLoadState	= SaveLoadState.NONE;
+	SaveLoadState	SaveManagement.State
+	{
+		get { return m_SaveLoadState; }
+	}
+
+
 	//////////////////////////////////////////////////////////////////////////
 	// Save
 	/// <summary> Used to save data of puzzles </summary>
@@ -75,13 +93,15 @@ public partial class GameManager : IGameManager_SaveManagement {
 			return;
 		}
 
-		StreamingData streamingData = new StreamingData();
+		m_SaveLoadState = SaveLoadState.SAVING;
+
+		StreamData streamData = new StreamData();
 
 		// call all save callbacks
-		OnSave( streamingData );
+		OnSave( streamData );
 
 		// write data on disk
-		string toSave = JsonUtility.ToJson( streamingData, prettyPrint: false );
+		string toSave = JsonUtility.ToJson( streamData, prettyPrint: false );
 
 		print( "Saving" );
 		toSave = Encrypt( toSave );
@@ -109,6 +129,8 @@ public partial class GameManager : IGameManager_SaveManagement {
 			PlayerPrefs.DeleteKey( "SaveSceneIdx" );
 			PlayerPrefs.SetInt( "SaveSceneIdx", UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex );
 		}
+
+		m_SaveLoadState = SaveLoadState.NONE;
 	}
 
 
@@ -120,21 +142,25 @@ public partial class GameManager : IGameManager_SaveManagement {
 		if ( m_SaveLoadCO != null || fileName == null || fileName.Length == 0 )
 			return;
 		
+		m_SaveLoadState = SaveLoadState.LOADING;
+
 		InputManager.IsEnabled = false;
 
 		// load data from disk
 		string toLoad = File.ReadAllText( fileName );
-		StreamingData streamingData = JsonUtility.FromJson< StreamingData >( Decrypt( toLoad ) );
-		if ( streamingData == null )
+		StreamData streamData = JsonUtility.FromJson< StreamData >( Decrypt( toLoad ) );
+		if ( streamData == null )
 		{
 			Debug.LogError( "GameManager::Load:: Save \"" + fileName +"\" cannot be loaded" );
 			return;
 		}
 
 		// call all load callbacks
-		OnLoad( streamingData );
+		OnLoad( streamData );
 
 		InputManager.IsEnabled = true;
+
+		m_SaveLoadState = SaveLoadState.NONE;
 	}
 
 	
@@ -207,7 +233,7 @@ public	class MyKeyValuePair {
 }
 
 [System.Serializable]
-public class StreamingUnit {
+public class StreamUnit {
 
 	[SerializeField]
 	public	int						InstanceID		= -1;
@@ -320,51 +346,59 @@ public class StreamingUnit {
 
 
 [SerializeField]
-public class StreamingData {
+public class StreamData {
 
 	[SerializeField]
-	private List<StreamingUnit>		m_Data = new List<StreamingUnit>();
+	private List<StreamUnit>		m_Data = new List<StreamUnit>();
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// NewUnit
-	public	StreamingUnit	NewUnit( GameObject gameObject )
+	/// <summary> To be used ONLY during the SAVE event </summary>
+	public	StreamUnit	NewUnit( GameObject gameObject )
 	{
-		StreamingUnit streamingUnit		= new StreamingUnit();
+		if ( GameManager.SaveManagement.State != SaveLoadState.SAVING )
+			return null;
 
-		int index = m_Data.FindIndex( ( StreamingUnit data ) => data.InstanceID == gameObject.GetInstanceID() );
+		StreamUnit streamUnit		= null;
+		int index = m_Data.FindIndex( ( StreamUnit data ) => data.InstanceID == gameObject.GetInstanceID() );
 		if ( index > -1 )
 		{
-			Debug.Log( gameObject.name + " already saved" );
-			streamingUnit = m_Data[index];
+//			Debug.Log( gameObject.name + " already saved" );
+			streamUnit = m_Data[index];
+		}
+		else
+		{
+			streamUnit					= new StreamUnit();
+			streamUnit.InstanceID		= gameObject.GetInstanceID();
+			streamUnit.Name				= gameObject.name;
+
+			m_Data.Add( streamUnit );
 		}
 
-		streamingUnit.InstanceID		= gameObject.GetInstanceID();
-		streamingUnit.Name				= gameObject.name;
-
-		m_Data.Add( streamingUnit );
-
-		return streamingUnit;
+		return streamUnit;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// GetUnit
-	public	bool	GetUnit( GameObject gameObject, ref StreamingUnit streamingUnit )
+	/// <summary> To be used ONLY during the LOAD event </summary>
+	public	bool		GetUnit( GameObject gameObject, ref StreamUnit streamUnit )
 	{
+		if ( GameManager.SaveManagement.State != SaveLoadState.LOADING )
+			return false;
+
 //		Debug.Log( gameObject.name );
 		int GOInstanceID = gameObject.GetInstanceID();
-		int index = m_Data.FindIndex( ( StreamingUnit data ) => data.InstanceID == GOInstanceID );
+		int index = m_Data.FindIndex( ( StreamUnit data ) => data.InstanceID == GOInstanceID );
 
 		if ( index == -1 )
 		{
-			index = m_Data.FindIndex( ( StreamingUnit data ) => data.Name == gameObject.name );
+			index = m_Data.FindIndex( ( StreamUnit data ) => data.Name == gameObject.name );
 		}
 
 		bool found = index > -1;
 		if ( found )
 		{
-			streamingUnit = m_Data[ index ];
+			streamUnit = m_Data[ index ];
 		}
 
 		return found;

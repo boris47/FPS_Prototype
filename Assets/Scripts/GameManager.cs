@@ -84,6 +84,7 @@ public partial class GameManager : MonoBehaviour {
 			return;
 		}
 		Instance = this;
+		m_SaveManagement = this;
 		DontDestroyOnLoad( this );
 
 		// Internal classes

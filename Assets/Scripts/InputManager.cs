@@ -88,27 +88,27 @@ public class InputManager {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnSave
-	private	StreamingUnit	OnSave( StreamingData streamingData )
+	private	StreamUnit	OnSave( StreamData streamData )
 	{
-		StreamingUnit streamingUnit	= streamingData.NewUnit( GameManager.Instance.gameObject );
+		StreamUnit streamUnit	= streamData.NewUnit( GameManager.Instance.gameObject );
 
-		streamingUnit.AddInternal( "InputFlags", m_Flags );
+		streamUnit.AddInternal( "InputFlags", m_Flags );
 
-		return streamingUnit;
+		return streamUnit;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnLoad
-	private	StreamingUnit	OnLoad( StreamingData streamingData )
+	private	StreamUnit	OnLoad( StreamData streamData )
 	{
-		StreamingUnit streamingUnit = null;
-		if ( streamingData.GetUnit( GameManager.Instance.gameObject, ref streamingUnit ) == false )
+		StreamUnit streamUnit = null;
+		if ( streamData.GetUnit( GameManager.Instance.gameObject, ref streamUnit ) == false )
 			return null;
 
-		m_Flags = (InputFlags) streamingUnit.GetAsInt( "InputFlags" );
+		m_Flags = (InputFlags) streamUnit.GetAsInt( "InputFlags" );
 
-		return streamingUnit;
+		return streamUnit;
 	}
 
 

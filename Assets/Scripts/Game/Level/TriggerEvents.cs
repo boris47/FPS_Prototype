@@ -40,38 +40,38 @@ public class TriggerEvents : MonoBehaviour {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnSave ( override )
-	private StreamingUnit OnSave( StreamingData streamingData )
+	private StreamUnit OnSave( StreamData streamData )
 	{
 		// Skip if no required
 		if ( m_TriggerOnce == false )
 			return null;
 
-		StreamingUnit streamingUnit		= streamingData.NewUnit( gameObject );
-		streamingUnit.AddInternal( "HasTriggered", m_HasTriggered );
+		StreamUnit streamUnit		= streamData.NewUnit( gameObject );
+		streamUnit.AddInternal( "HasTriggered", m_HasTriggered );
 
-		return streamingUnit;
+		return streamUnit;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnLoad ( override )
-	private StreamingUnit OnLoad( StreamingData streamingData )
+	private StreamUnit OnLoad( StreamData streamData )
 	{
 		// Skip if no required
 		if ( m_TriggerOnce == false )
 			return null;
 
 		// Get unit
-		StreamingUnit streamingUnit = null;
-		if ( streamingData.GetUnit( gameObject, ref streamingUnit ) == false )
+		StreamUnit streamUnit = null;
+		if ( streamData.GetUnit( gameObject, ref streamUnit ) == false )
 		{
 			return null;
 		}
 		
 		// TRIGGERED
-		m_HasTriggered = streamingUnit.GetAsBool( "HasTriggered" );
+		m_HasTriggered = streamUnit.GetAsBool( "HasTriggered" );
 		
-		return streamingUnit;
+		return streamUnit;
 	}
 
 
