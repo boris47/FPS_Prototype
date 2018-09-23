@@ -24,8 +24,8 @@ public class CommandPanel : MonoBehaviour {
 		m_TriggerCollider = m_TriggerZone.GetComponent<Collider>();
 		m_TriggerCollider.isTrigger = true;
 
-		GameManager.Instance.OnSave += OnSave;
-		GameManager.Instance.OnLoad += OnLoad;
+		GameManager.StreamEvents.OnSave += OnSave;
+		GameManager.StreamEvents.OnLoad += OnLoad;
 	}
 
 

@@ -95,7 +95,12 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 			if ( m_NavCurrentNodeIdx == m_NavPathLength )
 			{
 				NavReset();
-				print( "Path completed" );
+				print( "path completed" );
+				if ( m_Brain.State != BrainState.NORMAL && m_HasPointToFace == true )
+				{
+					print( "New path acqiuired" );
+					m_Brain.TryToReachPoint( m_PointToFace );
+				}
 				return;
 			}
 

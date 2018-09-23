@@ -2,13 +2,6 @@
 using CFG_Reader;
 using UnityEngine;
 
-[System.Serializable]
-public class GameEvent	  : UnityEngine.Events.UnityEvent { }
-
-public	delegate	void	OnTriggerCall( Collider collider );
-public	delegate	void	OnPauseSet( bool isPaused );
-public	delegate	void	OnThink();
-
 
 public partial class GameManager : MonoBehaviour {
 
@@ -18,29 +11,19 @@ public partial class GameManager : MonoBehaviour {
 #else
 	public	const	bool InEditor = false;
 #endif
+	public	static			GameManager		m_Instance				= null;
+	public	static			GameManager		Instance
+	{
+		get { return m_Instance; }
+	}
 
 	public	static			Reader			Settings				= null;
 	public	static			Reader			Configs					= null;
 	public	static			InputManager	InputMgr				= null;
-	public	static			GameManager		Instance				= null;
+
 	public	static			bool			IsChangingScene			= false;
 	public	static			bool			IsLoadingScene			= false;
 	public	static			bool			CanSave					= true;
-
-
-	private static event	OnPauseSet		m_OnPauseSet			= null;
-	public	static			OnPauseSet		OnPauseSet
-	{
-		get { return m_OnPauseSet; }
-		set { if ( value != null ) m_OnPauseSet = value; }
-	}
-
-	private static event	OnThink			m_OnThink				= null;
-	public	static			OnThink			OnThink
-	{
-		get { return m_OnThink; }
-		set { if ( value != null ) m_OnThink = value; }
-	}
 
 	private	static			bool			m_InGame				= true;
 	public static			bool			InGame
@@ -49,14 +32,8 @@ public partial class GameManager : MonoBehaviour {
 		set { m_InGame = value; }
 	}
 
-	private static			bool			m_IsPaused				= false;
-	public static			bool			IsPaused
-	{
-		get { return m_IsPaused; }
-		set { OnPauseChange( value ); }
-	}
-
 	private	static			bool			m_QuitRequest			= false;
+
 
 	[SerializeField]
 	private					bool			m_HideCursor			= true;
@@ -65,58 +42,50 @@ public partial class GameManager : MonoBehaviour {
 	private					bool			m_SkipOneFrame			= false;
 	private					float			m_ThinkTimer			= 0f;
 
-	// Pause vars
-	private					float			m_PrevTimeScale			= 1f;
-	private					bool			m_PrevCanParseInput		= false;
-	private					bool			m_PrevInputEnabled		= false;
-
 
 	//////////////////////////////////////////////////////////////////////////
-	// Awake
-	private	void	Awake ()
+	private			void		Awake ()
 	{
 		// SINGLETON
 		if ( Instance != null )
 		{
 			print( "GameManager: Object set inactive" );
-//			Destroy( gameObject );
 			gameObject.SetActive( false );
 			return;
 		}
-		Instance = this;
-		m_SaveManagement = this;
 		DontDestroyOnLoad( this );
+		
+		// Instances
+		m_Instance		= this;
+		m_StreamEvents	= this;
+		m_PauseEvents	= this;
+		m_UpdateEvents	= this;
 
 		// Internal classes
-		InputMgr = new InputManager();
-		Settings = new Reader();
-		Configs = new Reader();
+		InputMgr	= new InputManager();
+		Settings	= new Reader();
+		Configs		= new Reader();
+
 
 		// Load Settings and Configs
-		string settingspath = InEditor ? "Assets/Resources/Settings.txt" : "Settings";
-		string configsPath = InEditor ? "Assets/Resources/Configs/All.txt" : "Configs\\All";
+		string settingspath		= InEditor ? "Assets/Resources/Settings.txt" : "Settings";
+		string configsPath		= InEditor ? "Assets/Resources/Configs/All.txt" : "Configs\\All";
+
 		Settings.LoadFile( settingspath );
 		Configs.LoadFile( configsPath );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnEnable
-	private void OnEnable()
+	private			void		OnEnable()
 	{
 //		Cursor.visible = false;
 //		Cursor.lockState = CursorLockMode.Locked;
 	}
 
 
-	public	static	void	SetTimeScale( float value )
-	{
-		SoundManager.Instance.Pitch = Time.timeScale = value;
-	}
-
 	//////////////////////////////////////////////////////////////////////////
-	// OnLevelWasLoaded
-	private void OnLevelWasLoaded( int level )
+	private			void		OnLevelWasLoaded( int level )
 	{
 		m_InGame = level != 0;
 		if ( m_InGame )
@@ -131,68 +100,32 @@ public partial class GameManager : MonoBehaviour {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnPauseChange
-	private static	void	OnPauseChange( bool isPaused )
+	public	static	void		SetTimeScale( float value )
 	{
-		m_IsPaused = isPaused;
-		OnPauseSet( IsPaused );
+		SoundManager.Instance.Pitch = Time.timeScale = value;
 	}
 
 
-	//////////////////////////////////////////////////////////////////////////
-	// TooglePauseState
-	public	void	TooglePauseState()
-	{
-		IsPaused = !IsPaused;
-		UI.Instance.TooglePauseMenu();
-
-		Cursor.visible = IsPaused;
-		Cursor.lockState = IsPaused == true ? CursorLockMode.None : CursorLockMode.Locked;
-		
-		// Pausing
-		if ( m_IsPaused == true )
-		{
-			m_PrevTimeScale							= Time.timeScale;
-			m_PrevCanParseInput						= CameraControl.Instance.CanParseInput;
-			m_PrevInputEnabled						= InputManager.IsEnabled;
-			Time.timeScale							= 0f;
-			CameraControl.Instance.CanParseInput	= false;
-			InputManager.IsEnabled					= false;
-		}
-		else
-		{
-			Time.timeScale							= m_PrevTimeScale;
-			CameraControl.Instance.CanParseInput	= m_PrevCanParseInput;
-			InputManager.IsEnabled					= m_PrevInputEnabled;
-		}
-		m_SkipOneFrame = true;
-	}
-
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnDestroy
-	public	static	void	QuitRequest()
+	public	static	void		QuitRequest()
 	{
 		m_QuitRequest = true;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Update
-	private	void	Update()
+	private			void		FixedUpdate()
+	{
+		m_OnPhysicFrame( Time.fixedDeltaTime );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private			void		Update()
 	{
 		if ( m_InGame == false )
 			return;
-
-		// Update inputs
-		InputMgr.Update();
-
-		m_ThinkTimer += Time.deltaTime;
-		if ( m_ThinkTimer > AI.Brain.THINK_TIMER )
-		{
-			m_OnThink();
-			m_ThinkTimer = 0f;
-		}
 
 		// This prevent the ui interaction can trigger actions in-game
 		if ( m_SkipOneFrame == true )
@@ -201,24 +134,43 @@ public partial class GameManager : MonoBehaviour {
 			return;
 		}
 
-		// Save
+		// Update inputs
+		InputMgr.Update();
+
+		// Thinking Update
+		m_ThinkTimer += Time.deltaTime;
+		if ( m_ThinkTimer > AI.Brain.THINK_TIMER )
+		{
+			m_OnThink();
+			m_ThinkTimer = 0f;
+		}
+
+		// Frame Update
+		if ( m_IsPaused == false )
+		{
+			m_OnFrame( Time.deltaTime );
+		}
+
+
+		// Save Event
 		if ( Input.GetKeyDown( KeyCode.F5 ) && CanSave == true )
 		{
-			Save();
+			m_StreamEvents.Save();
 		}
 
-		// Load
+		// Load Event
 		if ( Input.GetKeyDown( KeyCode.F9 ) )
 		{
-			Load();
+			m_StreamEvents.Load();
 		}
 
-		// APPLICATION QUIT REQUEST
+		// Pause Event
 		if ( Input.GetKeyDown( KeyCode.Escape ) )
 		{
-			TooglePauseState();
+			m_PauseEvents.SetPauseState( !m_IsPaused );
 		}
 
+		// Exit request
 		if ( m_QuitRequest == true )
 		{
 			if ( m_SaveLoadCO == null )
@@ -230,24 +182,38 @@ public partial class GameManager : MonoBehaviour {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnDestroy
-	private void OnDestroy()
+	private			void		OnDestroy()
 	{
+		// Clear instances refs
+		m_Instance				= null;
+		m_StreamEvents			= null;
+		m_PauseEvents			= null;
+		m_UpdateEvents			= null;
+
+		// Clear Internal classes
+		InputMgr				= null;
 		Settings				= null;
 		Configs					= null;
-		InputMgr				= null;
-		Instance				= null;
+
+		// Internal Vars
 		IsChangingScene			= false;
 		IsLoadingScene			= false;
 		CanSave					= true;
+
+		// Reset Events
+		m_OnSave				= null;
+		m_OnLoad				= null;
 		m_OnPauseSet			= null;
+		m_OnThink				= null;
+		m_OnFrame				= null;
+		m_OnPhysicFrame			= null;
+
 		m_IsPaused				= false;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// QuitApplication
-	public	static	void	QuitInstanly()
+	public	static	void		QuitInstanly()
 	{
 		if ( InEditor == true )
 		{

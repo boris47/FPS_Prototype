@@ -33,8 +33,8 @@ public class TriggerEvents : MonoBehaviour {
 
 		collider.isTrigger = true; // ensure is used as trigger
 
-		GameManager.Instance.OnSave += OnSave;
-		GameManager.Instance.OnLoad += OnLoad;
+		GameManager.StreamEvents.OnSave += OnSave;
+		GameManager.StreamEvents.OnLoad += OnLoad;
 	}
 
 

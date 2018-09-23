@@ -72,7 +72,7 @@ public abstract partial class LiveEntity : Entity {
 	[System.NonSerialized]
 	protected	float				m_RightSmooth				= 0f;
 	[System.NonSerialized]
-	protected	float				m_UpSmooth			= 0f;
+	protected	float				m_UpSmooth					= 0f;
 	[System.NonSerialized]
 	protected	bool				m_IsUnderSomething			= false;
 	[System.NonSerialized]
@@ -84,9 +84,32 @@ public abstract partial class LiveEntity : Entity {
 	[System.NonSerialized]
 	protected	float				m_LastLandTime				= 0f;
 
-	protected override void Awake()
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	override	void		Awake()
 	{
 		base.Awake();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	override	void		EnterSimulationState()
+	{
+		
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	override	void		ExitSimulationState()
+	{
+		
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	override	bool		SimulateMovement( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1 )
+	{
+		return false;
 	}
 
 }

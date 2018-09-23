@@ -58,8 +58,8 @@ public class WeaponManager : MonoBehaviour, IWeaponManager {
 		Instance = this as IWeaponManager;
 		DontDestroyOnLoad( this );
 
-		GameManager.Instance.OnSave += OnSave;
-		GameManager.Instance.OnLoad += OnLoad;
+		GameManager.StreamEvents.OnSave += OnSave;
+		GameManager.StreamEvents.OnLoad += OnLoad;
 	}
 
 

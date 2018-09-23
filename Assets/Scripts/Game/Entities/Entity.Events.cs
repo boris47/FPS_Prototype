@@ -1,8 +1,5 @@
 ﻿
 using UnityEngine;
-using System.Collections.Generic;
-
-public	delegate	void	VoidArgsDelegate();
 
 public partial interface IEntity {
 
@@ -14,14 +11,12 @@ public partial interface IEntity {
 	void					OnHit							( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false );
 	void					OnKill							();
 
-	void					OnThink							();
-
 }
 
 
 public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation {
 
-	public		event		VoidArgsDelegate	OnKilled		= null;
+	public		event		GameEvents.VoidArgsEvent	OnKilled		= null;
 
 
 	// Questa funzione viene chiamata durante il caricamento dello script o quando si modifica un valore nell'inspector (chiamata solo nell'editor)
@@ -34,14 +29,48 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void		OnEnable()
 	{
+		// Events registration
+		{
+			GameManager.StreamEvents.OnSave				+= OnSave;
+			GameManager.StreamEvents.OnLoad				+= OnLoad;
 
+			GameManager.UpdateEvents.OnPhysicFrame		+= OnPhysicFrame;
+			GameManager.UpdateEvents.OnFrame			+= OnFrame;
+			GameManager.UpdateEvents.OnThink			+= OnThink;
+
+			// Only register for non player entities ( AI )
+			if ( ( this is Player ) == false )
+			{
+				m_Brain.FieldOfView.OnTargetAquired = OnTargetAquired;
+				m_Brain.FieldOfView.OnTargetChanged = OnTargetChanged;
+				m_Brain.FieldOfView.OnTargetUpdate	= OnTargetUpdate;
+				m_Brain.FieldOfView.OnTargetLost	= OnTargetLost;
+			}
+		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void		OnDisable()
 	{
+		// Events un-registration
+		if ( GameManager.Instance != null )
+		{
+			GameManager.StreamEvents.OnSave				-= OnSave;
+			GameManager.StreamEvents.OnLoad				-= OnLoad;
 
+			GameManager.UpdateEvents.OnPhysicFrame		-= OnPhysicFrame;
+			GameManager.UpdateEvents.OnFrame			-= OnFrame;
+			GameManager.UpdateEvents.OnThink			-= OnThink;
+
+			if ( ( this is Player ) == false )
+			{
+				m_Brain.FieldOfView.OnTargetAquired = null;
+				m_Brain.FieldOfView.OnTargetChanged = null;
+				m_Brain.FieldOfView.OnTargetUpdate	= null;
+				m_Brain.FieldOfView.OnTargetLost	= null;
+			}
+		}
 	}
 
 
@@ -78,7 +107,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 		m_HasDestination				= false;
 
 		m_NavCanMoveAlongPath			= false;
-		m_IsAllignedBodyToPoint	= false;
+		m_IsAllignedBodyToPoint			= false;
 
 		// NonLiveEntity
 		m_IsAllignedHeadToPoint			= false;

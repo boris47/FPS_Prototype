@@ -204,7 +204,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 	protected	override	void	OnPhysicFrame( float FixedDeltaTime )
 	{
 		// Update navigation
-		if ( m_HasDestination == true )
+		if ( m_HasDestination == true && m_HasPointToFace && ( transform.position - m_PointToFace ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
 		{
 			float speed = ( m_IsAllignedFootsToDestination ) ? m_MoveMaxSpeed : ( m_MoveMaxSpeed * 0.5f );
 			NavMove( speed, FixedDeltaTime );

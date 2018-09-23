@@ -78,16 +78,23 @@ public abstract partial class NonLiveEntity : Entity {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		override	void		EnterSimulationState()
+	protected	override	void		EnterSimulationState()
 	{
 		
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		override	void		ExitSimulationState()
+	protected	override	void		ExitSimulationState()
 	{
 		
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	override	bool		SimulateMovement( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1 )
+	{
+		return false;
 	}
 
 }

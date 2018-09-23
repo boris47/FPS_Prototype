@@ -90,7 +90,7 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 		}
 
 		SoundManager.OnPitchChange += OnPitchChange;
-		GameManager.OnPauseSet += OnPauseSet;
+		GameManager.PauseEvents.OnPauseSet += OnPauseSet;
 	}
 
 
@@ -314,6 +314,5 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 			m_AudioEmitter.Stop();
 		}
 		SoundManager.OnPitchChange -= OnPitchChange;
-		GameManager.OnPauseSet -= OnPauseSet;
 	}
 }

@@ -81,7 +81,6 @@ namespace AI {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// Awake
 		private void	Awake()
 		{
 	/*		m_BehaviourEvasive				= new Behaviour_Evasive		( this,		null								);
@@ -98,32 +97,27 @@ namespace AI {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// OnEnable
-		private void OnEnable()
+		private void	OnEnable()
 		{
-			GameManager.OnThink += OnThink;
+			GameManager.UpdateEvents.OnThink += OnThink;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// OnDisable
-		private void OnDisable()
+		private void	OnDisable()
 		{
-			GameManager.OnThink -= OnThink;
+			GameManager.UpdateEvents.OnThink -= OnThink;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// OnThink
 		private	void	OnThink()
 		{
 			m_FieldOfView.UpdateFOV();
-			m_ThisEntity.OnThink();
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// TryToReachPoint( Vector3 )
 		public	bool	TryToReachPoint( Vector3 destination )
 		{
 			Vector3[] path = null;
@@ -137,8 +131,8 @@ namespace AI {
 			return nodeCount > 0;
 		}
 
+
 		//////////////////////////////////////////////////////////////////////////
-		// TryToReachPoint( int )
 		public	bool	TryToReachPoint( int EndNodeIndex )
 		{
 			Vector3[] path = null;
@@ -159,15 +153,13 @@ namespace AI {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// Stop
-		public void Stop()
+		public	void	Stop()
 		{
 			m_ThisEntity.NavStop();
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// ChangeState
 		public	void	ChangeState( BrainState newState )
 		{
 			if ( newState == m_CurrentBrainState )
@@ -199,8 +191,7 @@ namespace AI {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// OnReset
-		void	IBrain.OnReset()
+				void	IBrain.OnReset()
 		{
 			m_CurrentBrainState		= BrainState.NORMAL;
 

@@ -171,8 +171,8 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 
 		m_AudioSourceFire = GetComponent<CustomAudioSource>() as ICustomAudioSource;
 
-		GameManager.Instance.OnSave += OnSave;
-		GameManager.Instance.OnLoad += OnLoad;
+		GameManager.StreamEvents.OnSave += OnSave;
+		GameManager.StreamEvents.OnLoad += OnLoad;
 
 		m_SectionName = this.GetType().FullName;
 

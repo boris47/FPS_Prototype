@@ -5,8 +5,7 @@ using UnityEngine;
 public partial class Player {
 
 	//////////////////////////////////////////////////////////////////////////
-	// EnterSimulationState
-	public override void	EnterSimulationState()
+	protected	override	void		EnterSimulationState()
 	{
 		m_MovementOverrideEnabled = true;
 		m_SimulationStartPosition = transform.position;
@@ -20,8 +19,7 @@ public partial class Player {
 
 	
 	//////////////////////////////////////////////////////////////////////////
-	// SimulateMovement
-	public override	bool	SimulateMovement( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
+	protected	override	bool		SimulateMovement( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
 		// END OF SIMULATION STEP
 		Vector3 direction = ( destination - m_SimulationStartPosition );
@@ -65,8 +63,7 @@ public partial class Player {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ExitSimulationState
-	public override void	ExitSimulationState()
+	protected	override	void		ExitSimulationState()
 	{
 		m_MovementOverrideEnabled = false;
 		m_SimulationStartPosition = Vector3.zero;
@@ -92,8 +89,7 @@ public partial class Player {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Update_Walk
-	private	void	Update_Walk()
+	private					void		Update_Walk()
 	{
 		if ( m_Health <= 0.0f )
 			return;

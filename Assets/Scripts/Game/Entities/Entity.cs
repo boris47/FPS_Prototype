@@ -167,17 +167,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 		m_Brain				= GetComponent<IBrain>();
 
 		m_EffectsPivot		= transform.Find( "EffectsPivot" );
-
-		GameManager.Instance.OnSave += OnSave;
-		GameManager.Instance.OnLoad += OnLoad;
-
-		if ( this is Player )
-			return;
-
-		m_Brain.FieldOfView.OnTargetAquired = OnTargetAquired;
-		m_Brain.FieldOfView.OnTargetChanged = OnTargetChanged;
-		m_Brain.FieldOfView.OnTargetUpdate	= OnTargetUpdate;
-		m_Brain.FieldOfView.OnTargetLost	= OnTargetLost;
 	}
 
 
@@ -187,32 +176,19 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 	}
 
-
+/*
 	//////////////////////////////////////////////////////////////////////////
 	private					void	FixedUpdate()
 	{
 		if ( GameManager.IsPaused == true )
 			return;
 
-		this.OnPhysicFrame( Time.fixedDeltaTime );
+//		this.OnPhysicFrame( Time.fixedDeltaTime );
 	}
-
+*/
 
 	//////////////////////////////////////////////////////////////////////////
-	private					void	Update()
-	{
-		if ( GameManager.IsPaused == true )
-			return;
-
-		// Only every 10 frames
-//		if ( Time.frameCount % 5 == 0 )
-//			return;
-
-		this.OnFrame( Time.deltaTime );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
+	/// <summary> Set the point to Face At </summary>
 	public		virtual		void	SetPoinToFace( Vector3 point )
 	{
 		m_PointToFace		= point;
@@ -221,6 +197,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 
 	//////////////////////////////////////////////////////////////////////////
+	/// <summary> Return if this player can trigger with Trigger Areas </summary>
 	public		virtual		bool	CanTrigger()
 	{
 		return true;
@@ -228,6 +205,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 
 	//////////////////////////////////////////////////////////////////////////
+	/// <summary> Set the Collision state with another collider </summary>
 	protected				void	SetCollisionStateWith( Collider coll, bool state )
 	{
 		Collider[] thisColliders = GetComponentsInChildren<Collider>( includeInactive: true );
@@ -239,15 +217,40 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 	}
 
+
 	//////////////////////////////////////////////////////////////////////////
-	public		abstract	void	EnterSimulationState();
+	/// <summary> Set the Collision state with another collider </summary>
+	void	IEntitySimulation.EnterSimulationState()
+	{
+		this.EnterSimulationState();
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		abstract	void	ExitSimulationState();
+	/// <summary> Set the Collision state with another collider </summary>
+	void	IEntitySimulation.ExitSimulationState()
+	{
+		this.ExitSimulationState();
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
-	public		virtual		bool	SimulateMovement( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1f )
-	{ return false; }
+	bool	IEntitySimulation.SimulateMovement( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
+	{
+		return this.SimulateMovement( movementType, destination, target, timeScaleTarget );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	abstract	void	EnterSimulationState();
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	abstract	void	ExitSimulationState();
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	abstract	bool	SimulateMovement( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1f );
+
 
 }

@@ -11,7 +11,7 @@ public interface IUI {
 
 	Image			EffectFrame			{ get; }
 
-	void			TooglePauseMenu		();
+	void			SetPauseMenuState	( bool IsVisible );
 
 	void			LoadSceneByIdx		( int sceneIdx, bool loadSave = false );
 	void			ReturnToMainMenu	();
@@ -188,12 +188,10 @@ public class UI : MonoBehaviour, IUI {
 
 	//////////////////////////////////////////////////////////////////////////
 	// ShowPauseMenu ( Interface )
-	void	IUI.TooglePauseMenu()
+	void	IUI.SetPauseMenuState	( bool IsVisible )
 	{
-		bool isActive = m_PauseMenu.gameObject.activeSelf;
-
 		// Pausing
-		if ( isActive == false )
+		if ( IsVisible == true )
 		{
 			m_PrevActiveTransform = m_CurrentActiveTrasform;
 			m_CurrentActiveTrasform.gameObject.SetActive( false );
@@ -213,7 +211,7 @@ public class UI : MonoBehaviour, IUI {
 	// ReturnToMainMenu ( Interface )
 	void	IUI.ReturnToMainMenu()
 	{
-		GameManager.Instance.TooglePauseState();
+		GameManager.PauseEvents.SetPauseState( false );
 
 		Cursor.visible = true;
 		Cursor.lockState = CursorLockMode.None;
@@ -283,7 +281,7 @@ public class UI : MonoBehaviour, IUI {
 		// if is loading process, complete load
 		if ( loadSave == true )
 		{
-			GameManager.Instance.Load();
+			GameManager.StreamEvents.Load();
 		}
 
 		// Enable in game UI

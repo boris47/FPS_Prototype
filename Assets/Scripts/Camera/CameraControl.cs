@@ -122,9 +122,10 @@ public class CameraControl : MonoBehaviour, ICameraControl, ICameraSetters {
 	private	void	Start()
 	{
 		Cursor.visible = false;
+		Cursor.lockState = CursorLockMode.Locked;
 
-		GameManager.Instance.OnSave += OnSave;
-		GameManager.Instance.OnLoad += OnLoad;
+		GameManager.StreamEvents.OnSave += OnSave;
+		GameManager.StreamEvents.OnLoad += OnLoad;
 
 		m_ViewPoint = Player.Instance.transform.Find( "ViewPivot" );
 	}

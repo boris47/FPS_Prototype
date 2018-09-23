@@ -16,21 +16,23 @@ public struct RegisteredMaterial {
 
 public class SurfaceManager : MonoBehaviour {
 
-	public	static	SurfaceManager Instance			= null;
+	public		static		SurfaceManager	Instance				= null;
 
 	[SerializeField]
-	RegisteredMaterial[]	m_RegisteredTextures	= null;
+	private		RegisteredMaterial[]		m_RegisteredTextures	= null;
 	[SerializeField]
-	SurfaceDefinition[]		m_DefinedSurfaces		= null;
+	private		SurfaceDefinition[]			m_DefinedSurfaces		= null;
 
 
-	private void Start()
+	//////////////////////////////////////////////////////////////////////////
+	private		void		Start()
 	{
 		Instance = this;
 	}
 
 
-	public AudioClip GetFootstep( ref Collider groundCollider, Vector3 worldPosition )
+	//////////////////////////////////////////////////////////////////////////
+	public		AudioClip	GetFootstep( ref Collider groundCollider, Vector3 worldPosition )
 	{
 		int surfaceIndex = GetSurfaceIndex( ref groundCollider, worldPosition );
 		if( surfaceIndex == -1 )
@@ -41,7 +43,9 @@ public class SurfaceManager : MonoBehaviour {
 		return footsteps[ Random.Range( 0, footsteps.Length ) ];
 	}
 
-	public string[] GetAllSurfaceNames()
+
+	//////////////////////////////////////////////////////////////////////////
+	public		string[]	GetAllSurfaceNames()
 	{
 		string[] names = new string[ m_DefinedSurfaces.Length ];
 
@@ -51,8 +55,10 @@ public class SurfaceManager : MonoBehaviour {
 		return names;
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
 	// This is for bullet hit particles
-	private int GetSurfaceIndex( Ray ray, Collider col, Vector3 worldPos )
+	private		int			GetSurfaceIndex( Ray ray, Collider col, Vector3 worldPos )
 	{
 		string textureName = "";
 
@@ -80,8 +86,10 @@ public class SurfaceManager : MonoBehaviour {
 		return -1;
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
 	// This is for footsteps
-	private int	GetSurfaceIndex( ref Collider col, Vector3 worldPos )
+	private		int			GetSurfaceIndex( ref Collider col, Vector3 worldPos )
 	{
 		string textureName = "";
 
@@ -109,7 +117,9 @@ public class SurfaceManager : MonoBehaviour {
 		return -1;
 	}
 
-	private string	GetMeshMaterialAtPoint( Vector3 worldPosition, Ray ray )
+
+	//////////////////////////////////////////////////////////////////////////
+	private		string		GetMeshMaterialAtPoint( Vector3 worldPosition, Ray ray )
 	{
 		if( ray.direction == Vector3.zero )
 		{
@@ -118,7 +128,6 @@ public class SurfaceManager : MonoBehaviour {
 		}
 
 		RaycastHit hit;
-
 		if ( Physics.Raycast( ray, out hit ) == false )
 			return "";
 
@@ -134,9 +143,9 @@ public class SurfaceManager : MonoBehaviour {
 		int materialIndex = -1;
 		Mesh m = mc.sharedMesh;
 		int triangleIdx = hit.triangleIndex;
-		int lookupIdx1 = m.triangles[ triangleIdx * 3 ];
-		int lookupIdx2 = m.triangles[ triangleIdx * 3 + 1 ];
-		int lookupIdx3 = m.triangles[ triangleIdx * 3 + 2 ];
+		int lookupIdx1	= m.triangles[ triangleIdx * 3 ];
+		int lookupIdx2	= m.triangles[ triangleIdx * 3 + 1 ];
+		int lookupIdx3	= m.triangles[ triangleIdx * 3 + 2 ];
 		int subMeshesNr = m.subMeshCount;
 
 		for( int i = 0;i < subMeshesNr; i ++ )
@@ -160,7 +169,8 @@ public class SurfaceManager : MonoBehaviour {
 	}
 
 
-	private float[] GetTerrainTextureMix( Vector3 worldPos, ref TerrainData terrainData, Vector3 terrainPos )
+	//////////////////////////////////////////////////////////////////////////
+	private		float[]		GetTerrainTextureMix( Vector3 worldPos, ref TerrainData terrainData, Vector3 terrainPos )
 	{
 		// returns an array containing the relative mix of textures
 		// on the main terrain at this world position.
@@ -179,12 +189,16 @@ public class SurfaceManager : MonoBehaviour {
 		float[] cellMix = new float[ splatmapData.GetUpperBound(2) + 1 ];
 
 		for( int n = 0; n < cellMix.Length; n++ )
+		{
 			cellMix[ n ] = splatmapData[ 0, 0, n ];
+		}
 
 		return cellMix;
 	}
 
-	private int GetTextureIndex( ref float[] textureMix )
+
+	//////////////////////////////////////////////////////////////////////////
+	private		int			GetTextureIndex( ref float[] textureMix )
 	{
 		// returns the zero-based index of the most dominant texture
 		// on the terrain at this world position.
@@ -192,9 +206,10 @@ public class SurfaceManager : MonoBehaviour {
 		int maxIndex = 0;
 
 		// loop through each mix value and find the maximum
-		for( int n = 0; n < textureMix.Length; n ++ )
+		for ( int n = 0; n < textureMix.Length; n ++ )
 		{
-			if ( textureMix[n] > maxMix ){
+			if ( textureMix[n] > maxMix )
+			{
 				maxIndex = n;
 				maxMix = textureMix[ n ];
 			}

@@ -1,7 +1,7 @@
 ﻿
 using UnityEngine;
 
-
+[System.FlagsAttribute] 
 public enum InputFlags {
 	/// <summary> Controls movements ( default: WASD ) </summary>
 	MOVE		= 1 << 01,
