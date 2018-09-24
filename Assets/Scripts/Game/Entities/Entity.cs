@@ -17,6 +17,9 @@ public partial interface IEntity {
 	// Entity Health
 	float					Health							{ get; }
 
+	// Entity Shield
+	IShield					Shield							{ get; }
+
 	// Entity Section
 	string					Section							{ get; }
 
@@ -79,6 +82,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 				bool					IEntity.IsActive					{	get { return m_IsActive;		}	}
 				uint					IEntity.ID							{	get { return m_ID;				}	}
 				float					IEntity.Health						{	get { return m_Health;			}	}
+				IShield					IEntity.Shield						{	get { return m_Shield;			}	}
 				string					IEntity.Section						{	get { return m_SectionName;		}	}
 				Rigidbody				IEntity.RigidBody					{	get { return m_RigidBody;		}	}
 				Collider				IEntity.PhysicCollider				{	get { return m_PhysicCollider;	}	}
@@ -92,6 +96,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 	// INTERNALS
 	protected	float						m_Health						= 1f;
+	protected	Shield						m_Shield						= null;
 	protected	bool						m_IsActive						= true;
 	protected 	uint						m_ID							= 0;
 	protected	Section						m_SectionRef					= null;
@@ -169,6 +174,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 		m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_TriggerCollider,		SearchContext.LOCAL );
 		m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_RigidBody,			SearchContext.LOCAL );
+
+		Utils.Base.SearchComponent( gameObject, ref m_Shield, SearchContext.CHILDREN );
 
 		print( name + " is OK = " + m_IsOK );
 

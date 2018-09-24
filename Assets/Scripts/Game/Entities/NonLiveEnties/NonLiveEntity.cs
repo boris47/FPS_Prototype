@@ -22,9 +22,6 @@ public abstract partial class NonLiveEntity : Entity {
 	[SerializeField]
 	protected		float				m_GunRotationSpeed			= 5f;
 
-	// Shield
-	protected		Shield				m_Shield					= null;
-
 	// Transforms
 	protected		Transform			m_HeadTransform				= null;
 	protected		Transform			m_BodyTransform				= null;
@@ -44,8 +41,7 @@ public abstract partial class NonLiveEntity : Entity {
 	{
 		base.Awake();
 
-		m_FireAudioSource	= GetComponent<ICustomAudioSource>();
-		m_Shield			= GetComponentInChildren<Shield>();
+		Utils.Base.SearchComponent( gameObject, ref m_FireAudioSource, SearchContext.LOCAL );
 
 //		m_FootsTransform	= transform
 		m_BodyTransform		= transform.Find( "Body" );

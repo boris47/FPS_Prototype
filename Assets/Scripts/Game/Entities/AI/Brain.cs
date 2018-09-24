@@ -106,7 +106,10 @@ namespace AI {
 		//////////////////////////////////////////////////////////////////////////
 		private void	OnDisable()
 		{
-			GameManager.UpdateEvents.OnThink -= OnThink;
+			if ( GameManager.Instance != null )
+			{
+				GameManager.UpdateEvents.OnThink -= OnThink;
+			}
 		}
 
 

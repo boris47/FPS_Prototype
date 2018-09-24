@@ -289,7 +289,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 	// NavMove ( Override )
 	protected	override	void	NavMove( float Speed, float FixedDeltaTime )
 	{
-		m_RigidBody.velocity = transform.forward * Speed * 10f * FixedDeltaTime + transform.up * 0.1f;
+		m_RigidBody.velocity = ( transform.forward * Speed );
 	}
 
 
@@ -303,7 +303,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 		if ( m_RespawnPoint != null )
 		{
-			//			m_RespawnPoint.Respawn( this, 2f );
+//			m_RespawnPoint.Respawn( this, 2f );
 		}
 	}
 
@@ -326,20 +326,26 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 			if ( m_IsAllignedHeadToPoint == false )
 			{
 				float angle = Vector3.SignedAngle( m_HeadTransform.forward, dirToPosition, m_BodyTransform.up );
-				float speed = m_HeadRotationSpeed * (float)m_Brain.State;// ( m_Brain.State == BrainState.ATTACKING ? 10.0f : 1.0f );
+				float speed = m_HeadRotationSpeed * (float)m_Brain.State + m_FeetsRotationSpeed + m_BodyRotationSpeed;// ( m_Brain.State == BrainState.ATTACKING ? 10.0f : 1.0f );
 				m_HeadTransform.Rotate( m_BodyTransform.up, angle * speed * DeltaTime, Space.Self );
 			}
 		}
 		// GUN
 		{
+			// TOD Real prediction
+//			Vector3 gunPointToFace = m_PointToFace;
+//			if ( m_TargetInfo.HasTarget == true )
+//			{
+//				gunPointToFace = m_PointToFace + m_TargetInfo.CurrentTarget.RigidBody.velocity;
+//			}
 			Vector3 dirToPosition = ( m_PointToFace - m_GunTransform.position );
 
-			if ( m_IsAllignedHeadToPoint == true )
+			if ( m_IsAllignedHeadToPoint == true && m_IsAllignedGunToPoint == false )
 			{
 				m_RotationToAllignTo.SetLookRotation( dirToPosition, m_BodyTransform.up );
 				m_GunTransform.rotation = Quaternion.RotateTowards( m_GunTransform.rotation, m_RotationToAllignTo, m_GunRotationSpeed * DeltaTime );
 			}
-			m_IsAllignedGunToPoint = Vector3.Angle( m_GunTransform.forward, dirToPosition ) < 6f;
+			m_IsAllignedGunToPoint = Vector3.Angle( m_GunTransform.forward, dirToPosition ) < 16f;
 		}
 	}
 

@@ -115,10 +115,11 @@ public class GenericBullet : Bullet {
 		if ( bullet != null )
 			return;
 
-		Entity entity = collision.gameObject.GetComponent<Entity>();
-		Shield shield = collision.gameObject.GetComponent<Shield>();
+		IEntity entity = null;
+		bool bIsAnEntity = Utils.Base.SearchComponent( collision.gameObject, ref entity, SearchContext.ALL );
 
-		if ( ( entity != null || shield != null ) && ( m_WhoRef is NonLiveEntity && entity is NonLiveEntity ) == false )
+		// If is an entity and who and hitted entites are of different category
+		if ( bIsAnEntity == true && ( ( m_WhoRef is NonLiveEntity && entity is NonLiveEntity ) == false ) )
 		{
 			EffectManager.Instance.PlayEntityOnHit( collision.contacts[0].point, collision.contacts[0].normal );
 		}
@@ -127,14 +128,21 @@ public class GenericBullet : Bullet {
 			EffectManager.Instance.PlayAmbientOnHit( collision.contacts[0].point, collision.contacts[0].normal );
 		}
 
-		if ( shield != null )
-			shield.OnHit( m_Instance );
-		else
-		if ( entity != null )
+		// if is an entity
+		if ( bIsAnEntity == true )
 		{
-			Rigidbody rb = entity.Interface.RigidBody;
-			rb.angularVelocity = rb.velocity = Vector3.zero;
-			entity.OnHit( m_Instance );
+			// if has shield
+			if ( entity.Shield != null )
+			{	
+				// shield get the hit
+				entity.Shield.OnHit( m_Instance );
+			}
+			// otherwise entity get direct damage
+			else
+			{
+				entity.RigidBody.angularVelocity = entity.RigidBody.velocity = m_RigidBody.velocity = Vector3.zero;
+				entity.OnHit( m_Instance );
+			}
 		}
 
 		this.SetActive( false );

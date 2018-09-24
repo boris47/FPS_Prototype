@@ -358,7 +358,7 @@ Rigidbody:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1164801924296172}
   serializedVersion: 2
-  m_Mass: 1e+9
+  m_Mass: 80
   m_Drag: 0
   m_AngularDrag: 0
   m_UseGravity: 1
@@ -475,13 +475,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MinEngageDistance: 3
-  m_FeetsRotationSpeed: 0.7
+  m_FeetsRotationSpeed: 1
   m_BodyRotationSpeed: 1
-  m_HeadRotationSpeed: 2
+  m_HeadRotationSpeed: 3.7
   m_GunRotationSpeed: 35
   m_Bullet: {fileID: 114103055898007134, guid: 6022bac21992ba94bb2fd959d6d5f7f0, type: 2}
   m_ShotDelay: 0.25
-  m_MoveMaxSpeed: 20
+  m_MoveMaxSpeed: 5
   m_DamageMax: 2
   m_DamageMin: 0.5
   m_PoolSize: 5
