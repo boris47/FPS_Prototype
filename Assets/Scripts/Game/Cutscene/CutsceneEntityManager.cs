@@ -8,8 +8,7 @@ namespace CutScene {
 		public		bool							IsPlaying					{ get; private set; }
 		public		bool							IsOK						{ get; private set; }
 
-		[SerializeField]
-		private		Entity							m_EntityRef					= null;
+		private		Entity							m_EntityParent				= null;
 
 		private		PointsCollectionOnline			m_PointsCollection			= null;
 
@@ -24,17 +23,16 @@ namespace CutScene {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// Awake
 		private void	Awake()
 		{
-			if ( m_EntityRef == null )
+			m_EntityParent = GetComponentInParent<Entity>();
+			if ( m_EntityParent == null )
 			{
 				Destroy( gameObject );
 				return;
 			}
 
-			m_EntitySimulation = m_EntityRef as IEntitySimulation;
-			( m_EntityRef as IEntity).CutsceneManager = this;
+			m_EntitySimulation = m_EntityParent as IEntitySimulation;
 			IsOK = true;
 
 			this.enabled						= false;
@@ -42,7 +40,6 @@ namespace CutScene {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// Setup
 		public	void	Play( PointsCollectionOnline pointsCollection )
 		{
 			this.enabled						= true;
@@ -53,7 +50,6 @@ namespace CutScene {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// Play
 		public	void	InternalPlay()
 		{
 			if ( IsOK == false )
@@ -100,7 +96,6 @@ namespace CutScene {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// Update
 		private	void	Update()
 		{
 			if ( GameManager.IsPaused == true )
@@ -128,7 +123,7 @@ namespace CutScene {
 			if ( m_CurrentIdx != m_PointsCollection.Count )
 			{
 				// Update store start position for distance check
-				m_EntitySimulation.StartPosition = m_EntityRef.transform.position;
+				m_EntitySimulation.StartPosition = m_EntityParent.transform.position;
 
 				// Update to next simulation targets
 				CutsceneWaypointData data	= m_PointsCollection[ m_CurrentIdx ];
@@ -145,7 +140,6 @@ namespace CutScene {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// Termiante
 		public	void	Termiante()
 		{
 			// Reset some internal variables

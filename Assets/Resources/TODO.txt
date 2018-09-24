@@ -24,3 +24,6 @@ Weapons:
 ***	-	4.Shotgun			( Hammer )
 ***	-	5.Granade Laucher	( Breaker )
 ***	-	6.Sniper Rifle		( Arrow )
+
+
+

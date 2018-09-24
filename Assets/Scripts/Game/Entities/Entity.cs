@@ -6,39 +6,37 @@ using AI;
 
 public partial interface IEntity {
 	// Entity Transform
-	Transform				Transform						{	get;		}
+	Transform				Transform						{ get; }
 
 	// Generic flag for entity state
-	bool					IsActive						{	get;		}
+	bool					IsActive						{ get; }
 
 	// Entity unique ID
-	uint					ID								{	get;		}
+	uint					ID								{ get; }
 
 	// Entity Health
-	float					Health							{	get;		}
+	float					Health							{ get; }
 
 	// Entity Section
-	string					Section							{	get;		}
+	string					Section							{ get; }
 
 	// RigidBody
-	Rigidbody				RigidBody						{	get;		}
+	Rigidbody				RigidBody						{ get; }
 
 	// Physic collider, only manage entity in space
-	Collider				PhysicCollider					{	get;		}
+	Collider				PhysicCollider					{ get; }
 
 	// Trigger collider, used for interactions with incoming objects or trigger areas
-	CapsuleCollider			TriggerCollider					{	get;		}
+	CapsuleCollider			TriggerCollider					{ get; }
 
 	// Transform where to play effects at
-	Transform				EffectsPivot					{	get;		}
+	Transform				EffectsPivot					{ get; }
 
 	// Entity brain
-	IBrain					Brain							{	get;		}
+	IBrain					Brain							{ get; }
 
 	// Cutscene manager, that take control over entity during cutscene sequences
-	CutsceneEntityManager	CutsceneManager					{	get; set;	}
-
-	bool					CanTrigger();
+	CutsceneEntityManager	CutsceneManager					{ get; }
 }
 
 
@@ -51,8 +49,10 @@ public interface IEntitySimulation {
 
 }
 
-//					Physics intreractions,		entity volume,		Hit detection
-[RequireComponent( typeof( Rigidbody ), typeof( CapsuleCollider ),  typeof( Brain ) )]
+//					Physics intreractions,		entity volume,		Hit detection & Pathfinding
+[RequireComponent( typeof( Rigidbody ), typeof( CapsuleCollider ),  typeof( Brain ) ) ]
+//					Cutscene Simulation Manager
+[RequireComponent( typeof( CutsceneEntityManager ) ) ]
 public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation {
 
 	public enum ENTITY_TYPE {
@@ -85,7 +85,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 				CapsuleCollider			IEntity.TriggerCollider				{	get { return m_TriggerCollider;	}	}
 				Transform				IEntity.EffectsPivot				{	get { return m_EffectsPivot;	}	}
 				IBrain					IEntity.Brain						{	get { return m_Brain;			}	}
-				CutsceneEntityManager	IEntity.CutsceneManager				{	get { return m_CutsceneManager; } set { m_CutsceneManager = value; } }
+				CutsceneEntityManager	IEntity.CutsceneManager				{	get { return m_CutsceneManager; }	}
 	// INTERFACE END
 
 	public		IEntity						Interface						{ get { return m_Interface; } }
@@ -147,8 +147,10 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 				Vector3						IEntitySimulation.StartPosition { get; set; }
 
 
-	protected	bool 						m_IsOK							= false;
+	protected	bool 						m_IsOK							= true;
 
+
+	
 
 
 
@@ -158,15 +160,21 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 		m_ID				= NewID();
 		m_Interface			= this as IEntity;
 
-		if ( ( m_PhysicCollider	= GetComponent<MeshCollider>() ) == null )
-		{
-			m_PhysicCollider	= GetComponent<CapsuleCollider>();
-		}
-		m_TriggerCollider	= GetComponent<CapsuleCollider>();
-		m_RigidBody			= GetComponent<Rigidbody>();
-		m_Brain				= GetComponent<IBrain>();
-
 		m_EffectsPivot		= transform.Find( "EffectsPivot" );
+
+		if ( ( m_IsOK = Utils.Base.SearchComponent( gameObject, ref m_PhysicCollider, SearchContext.LOCAL ) ) == false )
+		{
+			m_IsOK &= Utils.Base.SearchComponent( gameObject, ref m_PhysicCollider, SearchContext.LOCAL );
+		}
+
+		m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_TriggerCollider,		SearchContext.LOCAL );
+		m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_RigidBody,			SearchContext.LOCAL );
+
+		print( name + " is OK = " + m_IsOK );
+
+		Utils.Base.SearchComponent( gameObject, ref m_Brain,				SearchContext.LOCAL );
+		Utils.Base.SearchComponent( gameObject, ref m_CutsceneManager,		SearchContext.CHILDREN );
+
 	}
 
 

@@ -85,7 +85,7 @@ public class TriggerEvents : MonoBehaviour {
 		if ( other.GetInstanceID() != Player.Entity.PhysicCollider.GetInstanceID() )
 			return;
 
-		if ( m_BypassEntityCheck == false && Player.Entity.CanTrigger() == false )
+		if ( m_BypassEntityCheck == false && Player.Instance.CanTrigger() == false )
 			return;
 
 		m_HasTriggered = true;
