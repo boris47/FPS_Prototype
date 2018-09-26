@@ -200,7 +200,24 @@ namespace AI.Pathfinding
 					);
 				}
 			}
+
+			{	// Nodes physic Simulation
+				foreach ( AINode node in m_Nodes )
+				{
+					node.transform.gameObject.AddComponent<SphereCollider>();
+					node.transform.gameObject.AddComponent<Rigidbody>();
+				}
+
+				Physics.autoSimulation = true;
+				Physics.Simulate( Time.fixedDeltaTime );
 			
+				foreach ( AINode node in m_Nodes )
+				{
+					DestroyImmediate( node.transform.gameObject.GetComponent<SphereCollider>() );
+					DestroyImmediate( node.transform.gameObject.GetComponent<Rigidbody>() );
+				}
+			}
+
 			foreach ( AINode node in m_Nodes )
 			{
 				FindNeighbours( node );

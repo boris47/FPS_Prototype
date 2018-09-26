@@ -330,6 +330,8 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 				m_HeadTransform.Rotate( m_BodyTransform.up, angle * speed * DeltaTime, Space.Self );
 			}
 		}
+
+		
 		// GUN
 		{
 			// TOD Real prediction
