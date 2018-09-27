@@ -171,6 +171,91 @@ namespace Utils {
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary>
+		/// First-order intercept using absolute target position
+		/// </summary>
+		public	static		Vector3		CalculateBulletPrediction( Vector3 shooterPosition, Vector3 shooterVelocity, float shotSpeed, Vector3 targetPosition, Vector3 targetVelocity )
+		{
+			Vector3 targetRelativePosition = targetPosition - shooterPosition;
+			Vector3 targetRelativeVelocity = targetVelocity - shooterVelocity;
+			float t = FirstOrderInterceptTime
+			(
+				shotSpeed:				shotSpeed,
+				targetRelativePosition:	targetRelativePosition,
+				targetRelativeVelocity:	targetRelativeVelocity
+			);
+			return targetPosition + t * ( targetRelativeVelocity );
+		}
+
+		//first-order intercept using relative target position
+		public	static		float		FirstOrderInterceptTime( float shotSpeed, Vector3 targetRelativePosition, Vector3 targetRelativeVelocity )
+		{
+			float velocitySquared = targetRelativeVelocity.sqrMagnitude;
+			if ( velocitySquared < 0.001f )
+				return 0f;
+
+			float a = velocitySquared - shotSpeed * shotSpeed;
+
+			//handle similar velocities
+			if ( Mathf.Abs( a ) < 0.001f )
+			{
+				float t = -targetRelativePosition.sqrMagnitude / ( 2f * Vector3.Dot( targetRelativeVelocity, targetRelativePosition ) );
+				return Mathf.Max( t, 0f ); //don't shoot back in time
+			}
+
+			float b = 2f * Vector3.Dot( targetRelativeVelocity, targetRelativePosition );
+			float c = targetRelativePosition.sqrMagnitude;
+			float determinant = b * b - 4f * a * c;
+
+			// First assignment: Determinant == 0; one intercept path, pretty much never happens
+			float result = result = Mathf.Max( -b / ( 2f * a ), 0f ); //don't shoot back in time
+
+			if ( determinant > 0f )
+			{	//	Determinant > 0; two intercept paths (most common)
+				float t1 = ( -b + Mathf.Sqrt( determinant ) ) / ( 2f * a );
+				float t2 = ( -b - Mathf.Sqrt( determinant ) ) / ( 2f * a );
+				if ( t1 > 0f )
+				{
+					if ( t2 > 0f )
+						result = Mathf.Min( t1, t2 ); //both are positive
+					else
+						result = t1; //only t1 is positive
+				}
+				else
+				{
+					result = Mathf.Max( t2, 0f ); //don't shoot back in time
+				}
+			}
+			
+			//determinant < 0; no intercept path
+			if ( determinant < 0f ) 
+			{
+				result = 0f;
+			}
+
+			return result;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// 
+		/// </summary>
+		public	static		float		FindClosestPointOfApproach( Vector3 aPos1, Vector3 aSpeed1, Vector3 aPos2, Vector3 aSpeed2 )
+		{
+			Vector3 PVec = aPos1 - aPos2;
+			Vector3 SVec = aSpeed1 - aSpeed2;
+			float d = SVec.sqrMagnitude;
+			// if d is 0 then the distance between Pos1 and Pos2 is never changing
+			// so there is no point of closest approach... return 0
+			// 0 means the closest approach is now!
+			if ( d >= -0.0001f && d <= 0.0002f )
+				return 0.0f;
+			return ( -Vector3.Dot( PVec, SVec ) / d );
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
 		/// Return a cubic interpolated vector 
 		/// </summary>
 		public	static		Vector3		GetPoint( Vector3 p0, Vector3 p1, Vector3 p2, float t )

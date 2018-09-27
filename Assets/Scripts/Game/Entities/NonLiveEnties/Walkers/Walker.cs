@@ -82,7 +82,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnHit ( Override )
+
 	public		override	void	OnHit( IBullet bullet )
 	{
 		// Avoid friendly fire
@@ -118,36 +118,16 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		}
 	}
 
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnHit ( Override )
+		//////////////////////////////////////////////////////////////////////////
+	
 	public		override	void	OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
 		print( name + " OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate )" );
-		/*
-		base.OnHit( startPosition, whoRef, 0f );
-
-		if ( m_Brain.State != BrainState.ATTACKING )
-		{
-			SetPoinToFace( startPosition );
-		}
-
-		if ( m_Shield != null && m_Shield.Status > 0f && m_Shield.IsUnbreakable == false )
-		{
-			m_Shield.OnHit( damage );
-			return;
-		}
-
-		m_Health -= damage;
-
-		if ( m_Health <= 0f )
-			OnKill();
-		*/
 	}
 
-
 	//////////////////////////////////////////////////////////////////////////
-	public override void OnDestinationReached()
+
+	public		override	void	OnDestinationReached()
 	{
 		if ( m_Brain.State == BrainState.SEEKER )
 		{
@@ -156,9 +136,8 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		}
 	}
 
-
 	//////////////////////////////////////////////////////////////////////////
-	// OnTargetAquired ( Override )
+
 	public		override	void	OnTargetAquired( TargetInfo_t targetInfo )
 	{
 		base.OnTargetAquired( targetInfo );
@@ -169,17 +148,15 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		m_Brain.TryToReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
 	}
 
-
 	//////////////////////////////////////////////////////////////////////////
-	// OnTargetUpdate ( Override )
+
 	public		override	void	OnTargetUpdate( TargetInfo_t targetInfo )
 	{
 		m_TargetInfo = targetInfo;
 	}
 
-
 	//////////////////////////////////////////////////////////////////////////
-	// OnTargetLost ( Override )
+
 	public		override	void	OnTargetChanged( TargetInfo_t targetInfo )
 	{
 		base.OnTargetChanged( targetInfo );
@@ -188,9 +165,8 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		m_Brain.TryToReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
 	}
 
-
 	//////////////////////////////////////////////////////////////////////////
-	// OnTargetLost ( Override )
+
 	public		override	void	OnTargetLost( TargetInfo_t targetInfo )
 	{
 		base.OnTargetLost( targetInfo );
@@ -311,15 +287,33 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 			m_IsAllignedHeadToPoint = Vector3.Angle( m_HeadTransform.forward, dirToPosition ) < 2f;
 			if ( m_IsAllignedHeadToPoint == false )
 			{
+				float speed = m_HeadRotationSpeed * ( ( m_TargetInfo.HasTarget ) ? 3.0f : 1.0f );
+
 				m_RotationToAllignTo.SetLookRotation( dirToPosition, m_BodyTransform.up );
-				m_HeadTransform.rotation = Quaternion.RotateTowards( m_HeadTransform.rotation, m_RotationToAllignTo, m_HeadRotationSpeed * DeltaTime );
+				m_HeadTransform.rotation = Quaternion.RotateTowards( m_HeadTransform.rotation, m_RotationToAllignTo, speed * DeltaTime );
 			}
 		}
 
 		
 		// GUN
 		{
-			// TOD Real prediction
+			// TODO Real prediction
+			/*
+			Vector3 pointToLookAt = m_PointToFace;
+			if ( m_TargetInfo.HasTarget == true ) // PREDICTION
+			{
+				// Vector3 shooterPosition, Vector3 shooterVelocity, float shotSpeed, Vector3 targetPosition, Vector3 targetVelocity
+				pointToLookAt = Utils.Math.CalculateBulletPrediction
+				(
+					shooterPosition:	m_GunTransform.position,
+					shooterVelocity:	m_RigidBody.velocity,
+					shotSpeed:			m_Pool.GetAsModel().Velocity,
+					targetPosition:		m_TargetInfo.CurrentTarget.Transform.position,
+					targetVelocity:		m_TargetInfo.CurrentTarget.RigidBody.velocity
+				);
+			}
+			*/
+			
 			Vector3 gunPointToFace = m_PointToFace;
 			if ( m_TargetInfo.HasTarget == true )
 			{
@@ -333,6 +327,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 				m_GunTransform.rotation = Quaternion.RotateTowards( m_GunTransform.rotation, m_RotationToAllignTo, m_GunRotationSpeed * DeltaTime );
 			}
 			m_IsAllignedGunToPoint = Vector3.Angle( m_GunTransform.forward, dirToPosition ) < 16f;
+			
 		}
 	}
 

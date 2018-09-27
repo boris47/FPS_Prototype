@@ -7,7 +7,6 @@ public class WalkerMortar : Walker {
 	protected	Vector3			m_ScaleVector				= new Vector3( 1.0f, 0.0f, 1.0f );
 
 	//////////////////////////////////////////////////////////////////////////
-	// Awake ( Override )
 	protected override void Awake()
 	{
 		m_SectionName = this.GetType().FullName;
@@ -17,7 +16,6 @@ public class WalkerMortar : Walker {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Update ( Override )
 	protected override void OnFrame( float deltaTime )
 	{
 		// Update internal timer
@@ -68,7 +66,6 @@ public class WalkerMortar : Walker {
 
 	
 	//////////////////////////////////////////////////////////////////////////
-	// FaceToPoint ( Override )
 	protected override void FaceToPoint( float deltaTime )
 	{
 		Vector3 pointOnThisPlane			= Utils.Math.ProjectPointOnPlane( transform.up, transform.position, m_PointToFace );
@@ -94,7 +91,6 @@ public class WalkerMortar : Walker {
 
 	// https://unity3d.college/2017/06/30/unity3d-cannon-projectile-ballistics/
 	//////////////////////////////////////////////////////////////////////////
-	// BallisticVelocity
 	private Vector3 BallisticVelocity( Vector3 destination, float angle )
 	{
 		Vector3 dir = destination - m_GunTransform.position;	// get Target Direction
@@ -112,7 +108,6 @@ public class WalkerMortar : Walker {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// CalculateProjectileFiringSolution
 	private float CalculateFireAngle( float alt, Vector3 startPosition, Vector3 endPosition )
 	{ 
 		Bullet bullet = m_Pool.GetAsModel();

@@ -1,0 +1,7 @@
+
+//	VERIFIEND INFOS WITH UNITY 2017.2.0f3
+-	Constructors are called 3 times on game launch and 1 time on application exit
+
+-	OnValidate is called 3 times on game launch and 1 time on application exit
+
+-	
