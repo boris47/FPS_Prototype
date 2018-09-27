@@ -85,8 +85,6 @@ NavMeshProjectSettings:
     manualTileSize: 0
     tileSize: 256
     accuratePlacement: 0
-    debug:
-      m_Flags: 0
   - serializedVersion: 2
     agentTypeID: -1372625422
     agentRadius: 0.5
@@ -101,14 +99,12 @@ NavMeshProjectSettings:
     manualTileSize: 0
     tileSize: 256
     accuratePlacement: 0
-    debug:
-      m_Flags: 0
   - serializedVersion: 2
     agentTypeID: 1479372276
     agentRadius: 0.8
-    agentHeight: 1.8
+    agentHeight: 2
     agentSlope: 60
-    agentClimb: 1.8
+    agentClimb: 1
     ledgeDropHeight: 0
     maxJumpAcrossDistance: 0
     minRegionArea: 2
@@ -117,8 +113,6 @@ NavMeshProjectSettings:
     manualTileSize: 0
     tileSize: 256
     accuratePlacement: 0
-    debug:
-      m_Flags: 0
   m_SettingNames:
   - Humanoid
   - Drone

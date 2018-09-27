@@ -187,8 +187,8 @@ namespace WeatherSystem {
 		private void			OnEnable()
 		{
 #if UNITY_EDITOR
-//			if ( UnityEditor.EditorApplication.isPlaying == false )
-//				UnityEditor.EditorApplication.update += Update;
+			if ( UnityEditor.EditorApplication.isPlaying == false )
+				UnityEditor.EditorApplication.update += Update;
 #endif
 			Instance = this as IWeatherManager;
 			Internal = this as IWeatherManagerInternal;
@@ -222,8 +222,8 @@ namespace WeatherSystem {
 		private void			OnDisable()
 		{
 #if UNITY_EDITOR
-//			if ( UnityEditor.EditorApplication.isPlaying == false )
-//				UnityEditor.EditorApplication.update -= Update;
+			if ( UnityEditor.EditorApplication.isPlaying == false )
+				UnityEditor.EditorApplication.update -= Update;
 #endif
 			m_CurrentCycle			= null; 
 			m_Descriptors			= null;

@@ -120,6 +120,13 @@ public partial class Player {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	public override void OnDestinationReached()
+	{
+
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	public		override	void		OnHit( IBullet bullet )
 	{
 		float damage = Random.Range( bullet.DamageMin, bullet.DamageMax );

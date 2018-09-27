@@ -134,7 +134,9 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 	// NAVIGATION
 	protected	bool						m_HasDestination				= false;
-	protected	Vector3						m_DestinationToReach			= Vector3.zero;
+	protected	Vector3						m_DestinationToReachPosition	= Vector3.zero;
+	protected	Vector3						m_DestinationToReachRotation	= Vector3.zero;
+
 
 	// Flag set if foots of entity is aligned with target
 	protected	bool						m_IsAllignedFootsToDestination	= false;
@@ -174,14 +176,13 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 		m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_TriggerCollider,		SearchContext.LOCAL );
 		m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_RigidBody,			SearchContext.LOCAL );
-
-		Utils.Base.SearchComponent( gameObject, ref m_Shield, SearchContext.CHILDREN );
+		m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_NavAgent,				SearchContext.LOCAL	);
 
 		print( name + " is OK = " + m_IsOK );
 
+		Utils.Base.SearchComponent( gameObject, ref m_Shield,				SearchContext.CHILDREN );
 		Utils.Base.SearchComponent( gameObject, ref m_Brain,				SearchContext.LOCAL );
 		Utils.Base.SearchComponent( gameObject, ref m_CutsceneManager,		SearchContext.CHILDREN );
-
 	}
 
 

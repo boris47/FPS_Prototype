@@ -147,10 +147,23 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	public override void OnDestinationReached()
+	{
+		if ( m_Brain.State == BrainState.SEEKER )
+		{
+			SetPoinToFace( m_PointToFace + m_DestinationToReachRotation ); 
+			print( "OnDestinationReached" );
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	// OnTargetAquired ( Override )
 	public		override	void	OnTargetAquired( TargetInfo_t targetInfo )
 	{
 		base.OnTargetAquired( targetInfo );
+
+		m_DestinationToReachRotation = Vector3.zero;
 
 		// PathFinding
 		m_Brain.TryToReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
@@ -187,8 +200,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 		// now point to face is target position
 		SetPoinToFace( targetInfo.CurrentTarget.Transform.position );
-
-		m_NavTargetNodeIndex = -1;
+		m_DestinationToReachRotation = targetInfo.CurrentTarget.RigidBody.velocity;
 
 		m_Brain.TryToReachPoint( targetInfo.CurrentTarget.Transform.position );
 
@@ -203,12 +215,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 	// OnPhysicFrame ( Override )
 	protected	override	void	OnPhysicFrame( float FixedDeltaTime )
 	{
-		// Update navigation
-		if ( m_HasDestination == true && m_HasPointToFace && ( transform.position - m_PointToFace ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
-		{
-			float speed = ( m_IsAllignedFootsToDestination ) ? m_MoveMaxSpeed : ( m_MoveMaxSpeed * 0.5f );
-			NavMove( speed, FixedDeltaTime );
-		}
+		
 	}
 
 
@@ -231,17 +238,6 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 			SetPoinToFace( m_TargetInfo.CurrentTarget.Transform.position );
 
-			// Update PathFinding and movement along path
-			if ( m_HasDestination && ( transform.position - m_TargetInfo.CurrentTarget.Transform.position ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
-			{
-				CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
-				m_NavCanMoveAlongPath = true;;
-			}
-			else
-			{
-				m_NavCanMoveAlongPath = false;
-			}
-
 			// with a target, if gun alligned, fire
 			if ( m_IsAllignedGunToPoint == true )
 			{
@@ -255,43 +251,33 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 			FaceToPoint( deltaTime );   // m_PointToFace
 		}
 
-		// If has destination defined, update navigation
-		if ( m_HasDestination )
+		// Update PathFinding and movement along path
+		if ( m_HasDestination && ( transform.position - m_PointToFace ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
 		{
-			NavUpdate( deltaTime );
+			if ( m_TargetInfo.HasTarget == true )
+			{
+				CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
+			}
+
+			if ( m_IsAllignedHeadToPoint )
+			{
+				m_NavCanMoveAlongPath = true;
+				m_NavAgent.speed = m_MoveMaxSpeed;
+			}
+			else
+			{
+				m_NavCanMoveAlongPath = false;
+				m_NavAgent.speed = 0.0f;
+			}
+		}
+		else
+		{
+			m_NavCanMoveAlongPath = false;
+			m_NavAgent.speed = 0.0f;
 		}
 		
 	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// NavUpdate ( Override )
-	protected	override	void	NavUpdate( float DeltaTime )
-	{
-		// Update nodes
-		base.NavUpdate( DeltaTime );
-
-		// NAVIGATION
-		// FOOTS
-		Vector3 pointOnThisPlane = Utils.Math.ProjectPointOnPlane( m_FootsTransform.up, m_FootsTransform.position, CurrentPositionToReach );
-		Vector3 dirToPosition = ( pointOnThisPlane - m_FootsTransform.position );
-
-		m_IsAllignedFootsToDestination = Vector3.Angle( m_FootsTransform.forward, dirToPosition ) < 3.0f;
-		if ( m_IsAllignedFootsToDestination == false )
-		{
-			float angle = Vector3.SignedAngle( m_FootsTransform.forward, dirToPosition, m_FootsTransform.up );
-			m_FootsTransform.Rotate( m_FootsTransform.up, angle * m_FeetsRotationSpeed * DeltaTime, Space.Self );
-		}
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// NavMove ( Override )
-	protected	override	void	NavMove( float Speed, float FixedDeltaTime )
-	{
-		m_RigidBody.velocity = ( transform.forward * Speed );
-	}
-
+	
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnKill ( Override )
@@ -325,9 +311,8 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 			m_IsAllignedHeadToPoint = Vector3.Angle( m_HeadTransform.forward, dirToPosition ) < 2f;
 			if ( m_IsAllignedHeadToPoint == false )
 			{
-				float angle = Vector3.SignedAngle( m_HeadTransform.forward, dirToPosition, m_BodyTransform.up );
-				float speed = m_HeadRotationSpeed * (float)m_Brain.State + m_FeetsRotationSpeed + m_BodyRotationSpeed;// ( m_Brain.State == BrainState.ATTACKING ? 10.0f : 1.0f );
-				m_HeadTransform.Rotate( m_BodyTransform.up, angle * speed * DeltaTime, Space.Self );
+				m_RotationToAllignTo.SetLookRotation( dirToPosition, m_BodyTransform.up );
+				m_HeadTransform.rotation = Quaternion.RotateTowards( m_HeadTransform.rotation, m_RotationToAllignTo, m_HeadRotationSpeed * DeltaTime );
 			}
 		}
 
@@ -335,14 +320,14 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		// GUN
 		{
 			// TOD Real prediction
-//			Vector3 gunPointToFace = m_PointToFace;
-//			if ( m_TargetInfo.HasTarget == true )
-//			{
-//				gunPointToFace = m_PointToFace + m_TargetInfo.CurrentTarget.RigidBody.velocity;
-//			}
-			Vector3 dirToPosition = ( m_PointToFace - m_GunTransform.position );
+			Vector3 gunPointToFace = m_PointToFace;
+			if ( m_TargetInfo.HasTarget == true )
+			{
+				gunPointToFace = m_TargetInfo.CurrentTarget.Transform.position;
+			}
+			Vector3 dirToPosition = ( gunPointToFace - m_GunTransform.position );
 
-			if ( m_IsAllignedHeadToPoint == true && m_IsAllignedGunToPoint == false )
+			if ( m_IsAllignedHeadToPoint == true )
 			{
 				m_RotationToAllignTo.SetLookRotation( dirToPosition, m_BodyTransform.up );
 				m_GunTransform.rotation = Quaternion.RotateTowards( m_GunTransform.rotation, m_RotationToAllignTo, m_GunRotationSpeed * DeltaTime );

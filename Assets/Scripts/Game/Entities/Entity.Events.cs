@@ -134,6 +134,9 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	public		abstract	void		OnTargetLost( TargetInfo_t targetInfo );
 
 
+	public		abstract	void		OnDestinationReached();
+
+
 	//////////////////////////////////////////////////////////////////////////
 	public		abstract	void		OnHit( IBullet bullet );
 

@@ -169,8 +169,6 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		// now point to face is target position
 		SetPoinToFace( targetInfo.CurrentTarget.Transform.position );
 
-		m_NavTargetNodeIndex = -1;
-
 		m_Brain.TryToReachPoint( targetInfo.CurrentTarget.Transform.position );
 
 		// SEEKING MODE

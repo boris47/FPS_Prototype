@@ -208,6 +208,8 @@ namespace WeatherSystem {
 
 			m_AudioEmitter = GetComponent<StudioEventEmitter>();
 			m_AudioEmitter.EventInstance.getParameter( "RainIntensity", out m_RainIntensityEvent );
+
+			m_RainFallParticleSystem.Play( withChildren: true );
 		}
 
 
@@ -215,6 +217,8 @@ namespace WeatherSystem {
 		// OnDisable
 		private void			OnDisable()
 		{
+			m_RainFallParticleSystem.Stop( withChildren:true, stopBehavior: ParticleSystemStopBehavior.StopEmittingAndClear );
+
 			Instance = null;
 			m_RainExplosionMaterial = null;
 			m_RainMaterial = null;

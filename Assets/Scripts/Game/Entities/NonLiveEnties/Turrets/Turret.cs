@@ -224,7 +224,7 @@ public abstract class Turret : NonLiveEntity {
 			m_IsAllignedHeadToPoint = false;
 			return;
 		}
-
+		/*
 		m_IsAllignedHeadToPoint			= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 1.2f;
 		if ( m_IsAllignedHeadToPoint == false )
 		{
@@ -237,6 +237,8 @@ public abstract class Turret : NonLiveEntity {
 				m_GunTransform.Rotate( Vector3.right, rotation, Space.Self );	
 			}
 		}
+
+	*/
 	}
 
 

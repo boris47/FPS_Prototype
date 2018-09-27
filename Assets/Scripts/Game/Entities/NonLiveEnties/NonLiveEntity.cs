@@ -50,21 +50,6 @@ public abstract partial class NonLiveEntity : Entity {
 		m_FirePoint			= m_GunTransform.Find( "FirePoint" );
 	}
 
-
-	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		NavUpdate( float DeltaTime )
-	{
-		base.NavUpdate( DeltaTime );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		NavMove( float Speed, float FixedDeltaTime )
-	{
-
-	}
-
-
 	//////////////////////////////////////////////////////////////////////////
 	protected	abstract	void		FaceToPoint( float deltaTime );
 

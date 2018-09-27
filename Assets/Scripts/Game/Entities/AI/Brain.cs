@@ -19,7 +19,7 @@ public enum BrainState {
 
 namespace AI {
 
-	using Pathfinding;
+	using UnityEngine.AI;
 
 	// Brain Interface
 	public interface IBrain {
@@ -27,7 +27,6 @@ namespace AI {
 		BrainState					State					{	get;	}
 
 		bool						TryToReachPoint( Vector3 destination );
-		bool						TryToReachPoint( int NodeIndex );
 		void						Stop();
 
 		void						ChangeState				( BrainState newState );
@@ -38,6 +37,7 @@ namespace AI {
 	public class Brain : MonoBehaviour, IBrain {
 
 		public	const		float						THINK_TIMER						= 0.2f; // 200 ms
+
 
 		[SerializeField, ReadOnly]
 		private				BrainState					m_CurrentBrainState				= BrainState.NORMAL;
@@ -123,35 +123,7 @@ namespace AI {
 		//////////////////////////////////////////////////////////////////////////
 		public	bool	TryToReachPoint( Vector3 destination )
 		{
-			Vector3[] path = null;
-
-			uint nodeCount = PathFinder.FindPath( transform.position, destination, ref path );
-			if ( nodeCount > 0 )
-			{
-				m_ThisEntity.NavSetPath( nodeCount, path );
-			}
-
-			return nodeCount > 0;
-		}
-
-
-		//////////////////////////////////////////////////////////////////////////
-		public	bool	TryToReachPoint( int EndNodeIndex )
-		{
-			Vector3[] path = null;
-
-			int startNodeindex = PathFinder.GetNearestNodeIdx( transform.position );
-			if ( startNodeindex == EndNodeIndex )
-				return false;
-
-			// Search by using direct node indexing
-			uint nodeCount = PathFinder.FindPath( startNodeindex, EndNodeIndex, ref path );
-			if ( nodeCount > 0 )
-			{
-				m_ThisEntity.NavSetPath( nodeCount, path );
-			}
-
-			return nodeCount > 0;
+			return m_ThisEntity.NavGoto( destination );
 		}
 
 

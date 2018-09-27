@@ -1,4 +1,5 @@
 ﻿
+using System;
 using UnityEngine;
 
 
@@ -127,6 +128,13 @@ public abstract partial class NonLiveEntity : Entity {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	public		override	void		OnDestinationReached()
+	{
+		Debug.Log( "This function should not be called" );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	public		override	void		OnHit( IBullet bullet )
 	{
 		OnHit( bullet.StartPosition, bullet.WhoRef, 0f );
@@ -167,7 +175,7 @@ public abstract partial class NonLiveEntity : Entity {
 	//////////////////////////////////////////////////////////////////////////
 	public		override	void		OnThink()
 	{
-		
+//		NavUpdate();
 	}
 
 
