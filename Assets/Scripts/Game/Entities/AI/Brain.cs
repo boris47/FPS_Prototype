@@ -23,11 +23,8 @@ namespace AI {
 
 	// Brain Interface
 	public interface IBrain {
-		IFieldOfView				FieldOfView				{	get;	}
-		BrainState					State					{	get;	}
-
-		bool						TryToReachPoint( Vector3 destination );
-		void						Stop();
+		IFieldOfView				FieldOfView				{ get; }
+		BrainState					State					{ get; }
 
 		void						ChangeState				( BrainState newState );
 		void						OnReset					();

@@ -1,6 +1,6 @@
 ﻿
-using System;
 using UnityEngine;
+using UnityEngine.AI;
 
 
 public abstract partial class NonLiveEntity : Entity {
@@ -119,11 +119,7 @@ public abstract partial class NonLiveEntity : Entity {
 	//////////////////////////////////////////////////////////////////////////
 	public		override	void		OnTargetLost( TargetInfo_t targetInfo )
 	{
-		print( "OnTargetLost" );
 
-		m_TargetInfo = default( TargetInfo_t );
-
-		m_Brain.ChangeState( BrainState.NORMAL );
 	}
 
 
@@ -167,8 +163,23 @@ public abstract partial class NonLiveEntity : Entity {
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		OnFrame( float deltaTime )
-	{	
-		
+	{
+
+		// Check if we've reached the destination
+		if ( m_HasDestination == true && m_NavAgent.pathPending == false )
+		{
+			if ( m_NavAgent.remainingDistance <= m_NavAgent.stoppingDistance + Mathf.Epsilon )
+			{
+				print(2);
+				if ( m_NavAgent.hasPath == false || m_NavAgent.velocity.sqrMagnitude == 0.0f )
+				{
+					print(3);
+					NavStop();
+					OnDestinationReached();
+				}
+			}
+		}
+
 	}
 
 

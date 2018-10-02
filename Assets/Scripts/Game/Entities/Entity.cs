@@ -3,6 +3,7 @@ using UnityEngine;
 using CFG_Reader;
 using CutScene;
 using AI;
+using UnityEngine.AI;
 
 public partial interface IEntity {
 	// Entity Transform
@@ -55,7 +56,7 @@ public interface IEntitySimulation {
 //					Physics intreractions,		entity volume,		Hit detection & Pathfinding
 [RequireComponent( typeof( Rigidbody ), typeof( CapsuleCollider ),  typeof( Brain ) ) ]
 //					Cutscene Simulation Manager
-[RequireComponent( typeof( CutsceneEntityManager ) ) ]
+[RequireComponent( typeof( CutsceneEntityManager ), typeof( NavMeshAgent ) ) ]
 public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation {
 
 	public enum ENTITY_TYPE {
@@ -135,7 +136,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	// NAVIGATION
 	protected	bool						m_HasDestination				= false;
 	protected	Vector3						m_DestinationToReachPosition	= Vector3.zero;
-	protected	Vector3						m_DestinationToReachRotation	= Vector3.zero;
 
 
 	// Flag set if foots of entity is aligned with target
@@ -177,6 +177,9 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 		m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_TriggerCollider,		SearchContext.LOCAL );
 		m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_RigidBody,			SearchContext.LOCAL );
 		m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_NavAgent,				SearchContext.LOCAL	);
+
+		if ( m_NavAgent != null )
+			m_IsOK	&= m_NavAgent.isOnNavMesh;
 
 		print( name + " is OK = " + m_IsOK );
 

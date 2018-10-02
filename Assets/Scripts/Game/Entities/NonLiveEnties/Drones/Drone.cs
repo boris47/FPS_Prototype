@@ -134,7 +134,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		base.OnTargetAquired( targetInfo );
 
 		// PathFinding
-		CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
+		NavGoto( targetInfo.CurrentTarget.Transform.position );
 	}
 
 
@@ -142,7 +142,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 	// OnTargetUpdate ( Override )
 	public		override	void	OnTargetUpdate( TargetInfo_t targetInfo )
 	{
-
+		m_TargetInfo = targetInfo;
 	}
 
 
@@ -153,7 +153,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		base.OnTargetChanged( targetInfo );
 
 		// PathFinding
-		CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
+		NavGoto( m_TargetInfo.CurrentTarget.Transform.position );
 	}
 
 
@@ -163,18 +163,8 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 	{
 		base.OnTargetLost( targetInfo );
 
-		// Stop moving
-		m_Brain.Stop(); // temp, cheasing feature awaiting
-
-		// now point to face is target position
-		SetPoinToFace( targetInfo.CurrentTarget.Transform.position );
-
-		m_Brain.TryToReachPoint( targetInfo.CurrentTarget.Transform.position );
-
-		// SEEKING MODE
-
 		// TODO Set brain to SEKKER mode
-		m_Brain.ChangeState( BrainState.SEEKER );
+//		m_Brain.ChangeState( BrainState.SEEKER );
 	}
 
 
@@ -182,7 +172,51 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 	// OnFrame ( Override )
 	protected	override	void	OnFrame( float deltaTime )
 	{
-		
+		base.OnFrame( deltaTime );
+
+		// Update internal timer
+		m_ShotTimer -= deltaTime;
+
+		// Update targeting
+		if ( m_TargetInfo.HasTarget == true )
+		{
+			if ( m_Brain.State != BrainState.ATTACKING )
+			{
+				m_Brain.ChangeState( BrainState.ATTACKING );
+			}
+
+			SetPoinToFace( m_TargetInfo.CurrentTarget.Transform.position );
+
+			// with a target, if gun alligned, fire
+			if ( m_IsAllignedGunToPoint == true )
+			{
+				FireLongRange( deltaTime );
+			}
+		}
+
+		// if has point to face, update entity orientation
+		if ( m_HasPointToFace )
+		{
+			FaceToPoint( deltaTime );   // m_PointToFace
+		}
+
+		m_NavCanMoveAlongPath = false;
+		m_NavAgent.speed = 0.0f;
+
+		// Update PathFinding and movement along path
+		if ( m_HasDestination && ( transform.position - m_PointToFace ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
+		{
+			if ( m_TargetInfo.HasTarget == true )
+			{
+				CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
+			}
+
+			if ( m_IsAllignedHeadToPoint )
+			{
+				m_NavCanMoveAlongPath = true;
+				m_NavAgent.speed = m_MoveMaxSpeed;
+			}
+		}
 	}
 
 
@@ -205,20 +239,21 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 	// FaceToPoint ( Override )
 	protected	override	void	FaceToPoint( float deltaTime )
 	{
-		Vector3 dirToPosition			= ( m_PointToFace - transform.position );
-		Vector3 dirGunToPosition		= ( m_PointToFace - m_GunTransform.position );
+		Vector3 pointOnThisPlane	= Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_HeadTransform.position, m_PointToFace );
+		Vector3 dirToPosition		= ( pointOnThisPlane - transform.position );
+		Vector3 dirGunToPosition	= ( m_PointToFace - m_GunTransform.position );
 
 		// set direction to player
-		Vector3 vBodyForward			= Vector3.Scale( dirToPosition, m_ScaleVector );
-		transform.forward				= Vector3.RotateTowards( transform.forward, vBodyForward, m_BodyRotationSpeed * deltaTime, 0.0f );
+		Vector3 vHeadForward			= Vector3.Scale( dirToPosition, m_ScaleVector );
+		m_HeadTransform.forward			= Vector3.RotateTowards( m_HeadTransform.forward, vHeadForward, m_HeadRotationSpeed * deltaTime, 0.0f );
 
-		m_IsAllignedBodyToPoint	= Vector3.Angle( transform.forward, vBodyForward ) < 7f;
+		m_IsAllignedBodyToPoint	= Vector3.Angle( transform.forward, vHeadForward ) < 7f;
 		if ( m_IsAllignedBodyToPoint )
 		{
 			m_GunTransform.forward		= Vector3.RotateTowards( m_GunTransform.forward, dirGunToPosition, m_GunRotationSpeed * deltaTime, 0.0f );
 		}
 
-		m_IsAllignedHeadToPoint			= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 7f;
+		m_IsAllignedGunToPoint			= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 7f;
 	}
 	
 

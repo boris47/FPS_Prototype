@@ -29,9 +29,9 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	// INTERFACE END
 
 
-	protected	NavMeshAgent				m_NavAgent						= null;
+	protected	NavMeshAgent			m_NavAgent						= null;
 
-	protected	bool						m_NavCanMoveAlongPath			= true;
+	protected	bool					m_NavCanMoveAlongPath			= true;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		bool	NavGoto( Vector3 Destination )
 	{
+		print( "NavGoto" );
 		bool result = true;
 		if ( result &= m_NavAgent.SetDestination( Destination ) )
 		{
@@ -81,6 +82,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 			{
 				if ( ( transform.position - TargetPosition ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
 				{
+					print( "CheckForNewReachPoint" );
 					NavGoto ( TargetPosition );
 				}
 			}
@@ -93,7 +95,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	{
 		m_HasDestination				= false;
 		m_DestinationToReachPosition	= Vector3.zero;
-		m_DestinationToReachRotation	= Vector3.zero;
 		m_NavCanMoveAlongPath			= false;
 	}
 

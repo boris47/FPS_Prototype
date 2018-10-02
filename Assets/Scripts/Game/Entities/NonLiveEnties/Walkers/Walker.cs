@@ -27,7 +27,6 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Awake ( Override )
 	protected	override	void	Awake()
 	{
 		base.Awake();
@@ -118,7 +117,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		}
 	}
 
-		//////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////
 	
 	public		override	void	OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
@@ -129,9 +128,8 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 	public		override	void	OnDestinationReached()
 	{
-		if ( m_Brain.State == BrainState.SEEKER )
+//		if ( m_Brain.State == BrainState.SEEKER )
 		{
-			SetPoinToFace( m_PointToFace + m_DestinationToReachRotation ); 
 			print( "OnDestinationReached" );
 		}
 	}
@@ -142,10 +140,8 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 	{
 		base.OnTargetAquired( targetInfo );
 
-		m_DestinationToReachRotation = Vector3.zero;
-
 		// PathFinding
-		m_Brain.TryToReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
+		NavGoto( targetInfo.CurrentTarget.Transform.position );
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -162,7 +158,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		base.OnTargetChanged( targetInfo );
 
 		// PathFinding
-		m_Brain.TryToReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
+		NavGoto( m_TargetInfo.CurrentTarget.Transform.position );
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -171,14 +167,10 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 	{
 		base.OnTargetLost( targetInfo );
 
-		// Stop moving
-		m_Brain.Stop(); // temp, cheasing feature awaiting
-
 		// now point to face is target position
-		SetPoinToFace( targetInfo.CurrentTarget.Transform.position );
-		m_DestinationToReachRotation = targetInfo.CurrentTarget.RigidBody.velocity;
+//		SetPoinToFace( m_TargetInfo.CurrentTarget.Transform.position );
 
-		m_Brain.TryToReachPoint( targetInfo.CurrentTarget.Transform.position );
+//		NavGoto( targetInfo.CurrentTarget.Transform.position );
 
 		// SEEKING MODE
 
@@ -227,6 +219,9 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 			FaceToPoint( deltaTime );   // m_PointToFace
 		}
 
+		m_NavCanMoveAlongPath = false;
+		m_NavAgent.speed = 0.0f;
+
 		// Update PathFinding and movement along path
 		if ( m_HasDestination && ( transform.position - m_PointToFace ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
 		{
@@ -240,16 +235,6 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 				m_NavCanMoveAlongPath = true;
 				m_NavAgent.speed = m_MoveMaxSpeed;
 			}
-			else
-			{
-				m_NavCanMoveAlongPath = false;
-				m_NavAgent.speed = 0.0f;
-			}
-		}
-		else
-		{
-			m_NavCanMoveAlongPath = false;
-			m_NavAgent.speed = 0.0f;
 		}
 		
 	}
