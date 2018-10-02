@@ -22,12 +22,11 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 	protected	float			m_MoveMaxSpeed				= 3f;
 
 	protected	int				m_PoolSize					= 5;
-
-	protected	Vector3			m_ScaleVector				= new Vector3( 1.0f, 0.0f, 1.0f );
+	
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Awake ( Override )
+
 	protected	override	void	Awake()
 	{
 		base.Awake();
@@ -83,7 +82,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnHit ( Override )
+
 	public		override	void	OnHit( IBullet bullet )
 	{
 		// Avoid friendly fire
@@ -99,7 +98,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		}
 
 		// DAMAGE
-		// Shiled damage
+		// Shield damage
 		if ( m_Shield != null && m_Shield.Status > 0f && m_Shield.IsUnbreakable == false )
 		{
 			m_Shield.OnHit( bullet );
@@ -120,7 +119,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnHit ( Override )
+
 	public		override	void	OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
 		print( name + " OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate )" );
@@ -128,7 +127,17 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnTargetAquired ( Override )
+
+	public		override	void	OnDestinationReached()
+	{
+//		if ( m_Brain.State == BrainState.SEEKER )
+		{
+			print( "OnDestinationReached" );
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+
 	public		override	void	OnTargetAquired( TargetInfo_t targetInfo )
 	{
 		base.OnTargetAquired( targetInfo );
@@ -139,7 +148,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnTargetUpdate ( Override )
+
 	public		override	void	OnTargetUpdate( TargetInfo_t targetInfo )
 	{
 		m_TargetInfo = targetInfo;
@@ -147,7 +156,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnTargetLost ( Override )
+
 	public		override	void	OnTargetChanged( TargetInfo_t targetInfo )
 	{
 		base.OnTargetChanged( targetInfo );
@@ -158,7 +167,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnTargetLost ( Override )
+
 	public		override	void	OnTargetLost( TargetInfo_t targetInfo )
 	{
 		base.OnTargetLost( targetInfo );
@@ -169,7 +178,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnFrame ( Override )
+
 	protected	override	void	OnFrame( float deltaTime )
 	{
 		base.OnFrame( deltaTime );
@@ -204,7 +213,8 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		m_NavAgent.speed = 0.0f;
 
 		// Update PathFinding and movement along path
-		if ( m_HasDestination && ( transform.position - m_PointToFace ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
+		Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_BodyTransform.position, m_PointToFace );
+		if ( m_HasDestination && ( transform.position - projectedPoint ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
 		{
 			if ( m_TargetInfo.HasTarget == true )
 			{
@@ -221,7 +231,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnKill ( Override )
+
 	public		override	void	OnKill()
 	{
 		base.OnKill();
@@ -236,29 +246,53 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// FaceToPoint ( Override )
-	protected	override	void	FaceToPoint( float deltaTime )
+
+	protected	override	void	FaceToPoint( float DeltaTime )
 	{
-		Vector3 pointOnThisPlane	= Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_HeadTransform.position, m_PointToFace );
-		Vector3 dirToPosition		= ( pointOnThisPlane - transform.position );
-		Vector3 dirGunToPosition	= ( m_PointToFace - m_GunTransform.position );
-
-		// set direction to player
-		Vector3 vHeadForward			= Vector3.Scale( dirToPosition, m_ScaleVector );
-		m_HeadTransform.forward			= Vector3.RotateTowards( m_HeadTransform.forward, vHeadForward, m_HeadRotationSpeed * deltaTime, 0.0f );
-
-		m_IsAllignedBodyToPoint	= Vector3.Angle( transform.forward, vHeadForward ) < 7f;
-		if ( m_IsAllignedBodyToPoint )
+		// HEAD
 		{
-			m_GunTransform.forward		= Vector3.RotateTowards( m_GunTransform.forward, dirGunToPosition, m_GunRotationSpeed * deltaTime, 0.0f );
+			Vector3 pointOnThisPlane = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_HeadTransform.position, m_PointToFace );
+			Vector3 dirToPosition = ( pointOnThisPlane - m_HeadTransform.position );
+
+			m_IsAllignedHeadToPoint = Vector3.Angle( m_HeadTransform.forward, dirToPosition ) < 12f;
+			{
+				float speed = m_HeadRotationSpeed * ( ( m_TargetInfo.HasTarget ) ? 3.0f : 1.0f );
+
+				m_RotationToAllignTo.SetLookRotation( dirToPosition, m_BodyTransform.up );
+				m_HeadTransform.rotation = Quaternion.RotateTowards( m_HeadTransform.rotation, m_RotationToAllignTo, speed * DeltaTime );
+			}
 		}
 
-		m_IsAllignedGunToPoint			= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 7f;
+		// GUN
+		{
+			Vector3 pointToLookAt = m_PointToFace;
+			if ( m_TargetInfo.HasTarget == true ) // PREDICTION
+			{
+				// Vector3 shooterPosition, Vector3 shooterVelocity, float shotSpeed, Vector3 targetPosition, Vector3 targetVelocity
+				pointToLookAt = Utils.Math.CalculateBulletPrediction
+				(
+					shooterPosition:	m_GunTransform.position,
+					shooterVelocity:	m_RigidBody.velocity,
+					shotSpeed:			m_Pool.GetAsModel().Velocity,
+					targetPosition:		m_TargetInfo.CurrentTarget.Transform.position,
+					targetVelocity:		m_TargetInfo.CurrentTarget.RigidBody.velocity
+				);
+			}
+
+			Vector3 dirToPosition = ( pointToLookAt - m_GunTransform.position );
+
+			if ( m_IsAllignedHeadToPoint == true )
+			{
+				m_RotationToAllignTo.SetLookRotation( dirToPosition, m_BodyTransform.up );
+				m_GunTransform.rotation = Quaternion.RotateTowards( m_GunTransform.rotation, m_RotationToAllignTo, m_GunRotationSpeed * DeltaTime );
+			}
+			m_IsAllignedGunToPoint = Vector3.Angle( m_GunTransform.forward, dirToPosition ) < 16f;
+		}
 	}
 	
 
 	//////////////////////////////////////////////////////////////////////////
-	// FireLongRange ( Override )
+
 	protected	override	void	FireLongRange( float deltaTime )
 	{
 		if ( m_ShotTimer > 0 )
@@ -274,7 +308,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 	
 	//////////////////////////////////////////////////////////////////////////
-	// OnRespawn
+
 	void IRespawn.OnRespawn()
 	{
 		transform.position = m_RespawnPoint.transform.position;

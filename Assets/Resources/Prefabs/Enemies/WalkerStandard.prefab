@@ -139,7 +139,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1164801924296172}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 10.752, y: -1.954, z: 35.753}
+  m_LocalPosition: {x: 10.752, y: -2.3, z: 35.753}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4689461027854792}
@@ -473,7 +473,7 @@ MonoBehaviour:
   m_FeetsRotationSpeed: 80
   m_BodyRotationSpeed: 1
   m_HeadRotationSpeed: 65
-  m_GunRotationSpeed: 35
+  m_GunRotationSpeed: 80
   m_Bullet: {fileID: 114103055898007134, guid: 6022bac21992ba94bb2fd959d6d5f7f0, type: 2}
   m_ShotDelay: 0.25
   m_MoveMaxSpeed: 1.5

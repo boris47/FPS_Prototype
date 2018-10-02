@@ -2464,11 +2464,6 @@ Prefab:
       propertyPath: m_RootOrder
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 114483509181092660, guid: eac1be7a40dec314e9da8ed82e047771,
-        type: 2}
-      propertyPath: m_MinEngageDistance
-      value: 5
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: eac1be7a40dec314e9da8ed82e047771, type: 2}
   m_IsPrefabParent: 0
@@ -2829,7 +2824,7 @@ MonoBehaviour:
   m_OverrideVoxelSize: 0
   m_VoxelSize: 0.26666668
   m_BuildHeightMesh: 0
-  m_NavMeshData: {fileID: 23800000, guid: 3aeb566eb3ba1574ab071e20820bd3e8, type: 2}
+  m_NavMeshData: {fileID: 23800000, guid: 6aa1a2b819de8ab4b9b84466a81866d6, type: 2}
 --- !u!1 &844696086
 GameObject:
   m_ObjectHideFlags: 0
