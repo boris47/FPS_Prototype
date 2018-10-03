@@ -1,5 +1,4 @@
 ﻿
-using System;
 using UnityEngine;
 
 
@@ -8,19 +7,18 @@ public abstract partial class NonLiveEntity : Entity {
 	[Header("Non Live Entity Properties")]
 	[Space]
 
-	[Header("Navigation")]
-	[SerializeField]
-	protected		float				m_FeetsRotationSpeed		= 5f;
-
 	[Header("Orientation")]
 	[SerializeField]
-	protected		float				m_BodyRotationSpeed			= 5f;
+	protected		float				m_BodyRotationSpeed			= 5.0f;
 
 	[SerializeField]
-	protected       float               m_HeadRotationSpeed			= 5f;
+	protected       float               m_HeadRotationSpeed			= 5.0f;
 
 	[SerializeField]
-	protected		float				m_GunRotationSpeed			= 5f;
+	protected		float				m_GunRotationSpeed			= 5.0f;
+
+	[SerializeField]
+	protected		float				m_FireDispersion			= 0.01f;
 
 	// Transforms
 	protected		Transform			m_HeadTransform				= null;
@@ -31,7 +29,7 @@ public abstract partial class NonLiveEntity : Entity {
 
 	// Weapon
 	protected		GameObjectsPool<Bullet> m_Pool					= null;
-	protected		float				m_ShotTimer					= 0f;
+	protected		float				m_ShotTimer					= 0.0f;
 	protected		ICustomAudioSource	m_FireAudioSource			= null;
 
 

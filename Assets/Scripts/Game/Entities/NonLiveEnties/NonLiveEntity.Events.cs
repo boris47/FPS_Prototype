@@ -91,7 +91,7 @@ public abstract partial class NonLiveEntity : Entity {
 	{
 		print( "OntargetAcquired" );
 
-		m_TargetInfo = targetInfo;
+		m_TargetInfo.Update( targetInfo );
 
 		// now point to face is target position
 		SetPoinToFace( m_TargetInfo.CurrentTarget.Transform.position );
@@ -103,7 +103,7 @@ public abstract partial class NonLiveEntity : Entity {
 	//////////////////////////////////////////////////////////////////////////
 	public		override	void		OnTargetUpdate( TargetInfo_t targetInfo )
 	{
-
+		m_TargetInfo.Update( targetInfo );
 	}
 
 
@@ -112,14 +112,14 @@ public abstract partial class NonLiveEntity : Entity {
 	{
 		print( "OnTargetChanged" );
 
-		m_TargetInfo = targetInfo;
+		m_TargetInfo.Update( targetInfo );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public		override	void		OnTargetLost( TargetInfo_t targetInfo )
 	{
-
+		m_TargetInfo.Reset();
 	}
 
 
@@ -164,22 +164,31 @@ public abstract partial class NonLiveEntity : Entity {
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		OnFrame( float deltaTime )
 	{
-
+		/*
 		// Check if we've reached the destination
-		if ( m_HasDestination == true && m_NavAgent.pathPending == false )
+		print( m_NavAgent.hasPath );
+		if ( m_HasDestination == true && 
+			 m_NavAgent.pathPending == false && 
+			 ( ( m_NavAgent.remainingDistance != Mathf.Infinity &&
+				m_NavAgent.remainingDistance <= m_NavAgent.stoppingDistance + Mathf.Epsilon ) || true ) &&
+			 ( m_NavAgent.hasPath == false && Mathf.Approximately( m_NavAgent.velocity.sqrMagnitude, Mathf.Epsilon ) )
+		)
 		{
-			if ( m_NavAgent.remainingDistance <= m_NavAgent.stoppingDistance + Mathf.Epsilon )
+			NavStop();
+			OnDestinationReached();
+			
+			if ( ( m_NavAgent.remainingDistance != Mathf.Infinity &&
+				m_NavAgent.remainingDistance <= m_NavAgent.stoppingDistance + Mathf.Epsilon ) || true )
 			{
-				print(2);
-				if ( m_NavAgent.hasPath == false || m_NavAgent.velocity.sqrMagnitude == 0.0f )
+				if ( m_NavAgent.hasPath == false || Mathf.Approximately( m_NavAgent.velocity.sqrMagnitude, Mathf.Epsilon ) )
 				{
-					print(3);
 					NavStop();
 					OnDestinationReached();
 				}
 			}
+			
 		}
-
+	*/
 	}
 
 

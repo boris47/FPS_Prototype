@@ -7,6 +7,9 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 	[Header("Drone Properties")]
 
 	[SerializeField]
+	protected	float			m_MoveMaxSpeed				= 3f;
+
+	[SerializeField]
 	private		Bullet			m_Bullet					= null;
 
 	[SerializeField]
@@ -17,9 +20,6 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 	[SerializeField]
 	protected	float			m_DamageLongRangeMin		= 0.5f;
-
-	[SerializeField]
-	protected	float			m_MoveMaxSpeed				= 3f;
 
 	protected	int				m_PoolSize					= 5;
 	
@@ -130,11 +130,19 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 	public		override	void	OnDestinationReached()
 	{
-//		if ( m_Brain.State == BrainState.SEEKER )
+		NavReset();
+
+		print( "OnDestinationReached" );
+		if ( m_TargetInfo.HasTarget == true )
 		{
-			print( "OnDestinationReached" );
+			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_BodyTransform.position, m_TargetInfo.CurrentTarget.Transform.position );
+			if ( ( transform.position - projectedPoint ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
+			{
+				RequestMovement( projectedPoint );
+			}
 		}
 	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -143,7 +151,8 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		base.OnTargetAquired( targetInfo );
 
 		// PathFinding
-		NavGoto( targetInfo.CurrentTarget.Transform.position );
+		Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_BodyTransform.position, m_TargetInfo.CurrentTarget.Transform.position );
+		RequestMovement( projectedPoint );
 	}
 
 
@@ -151,7 +160,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 	public		override	void	OnTargetUpdate( TargetInfo_t targetInfo )
 	{
-		m_TargetInfo = targetInfo;
+//		m_TargetInfo.Update( targetInfo );
 	}
 
 
@@ -162,7 +171,8 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		base.OnTargetChanged( targetInfo );
 
 		// PathFinding
-		NavGoto( m_TargetInfo.CurrentTarget.Transform.position );
+		Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_BodyTransform.position, m_TargetInfo.CurrentTarget.Transform.position );
+		RequestMovement( projectedPoint );
 	}
 
 
@@ -170,7 +180,19 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 	public		override	void	OnTargetLost( TargetInfo_t targetInfo )
 	{
-		base.OnTargetLost( targetInfo );
+//		NavReset();
+
+		Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_BodyTransform.position, m_TargetInfo.CurrentTarget.Transform.position );
+		RequestMovement( projectedPoint );
+
+		base.OnTargetLost( targetInfo ); // m_TargetInfo.Reset();
+
+		// now point to face is target position
+//		SetPoinToFace( m_TargetInfo.CurrentTarget.Transform.position );
+
+//		NavGoto( targetInfo.CurrentTarget.Transform.position );
+
+		// SEEKING MODE
 
 		// TODO Set brain to SEKKER mode
 //		m_Brain.ChangeState( BrainState.SEEKER );
@@ -218,7 +240,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		{
 			if ( m_TargetInfo.HasTarget == true )
 			{
-				CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
+//				CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
 			}
 
 			if ( m_IsAllignedHeadToPoint )
@@ -249,6 +271,11 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 	protected	override	void	FaceToPoint( float DeltaTime )
 	{
+		// ORIENTATION
+		// BODY
+		{
+			// Nothing, rotation not allowed here
+		}
 		// HEAD
 		{
 			Vector3 pointOnThisPlane = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_HeadTransform.position, m_PointToFace );
@@ -272,7 +299,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 				pointToLookAt = Utils.Math.CalculateBulletPrediction
 				(
 					shooterPosition:	m_GunTransform.position,
-					shooterVelocity:	m_RigidBody.velocity,
+					shooterVelocity:	m_NavAgent.velocity,
 					shotSpeed:			m_Pool.GetAsModel().Velocity,
 					targetPosition:		m_TargetInfo.CurrentTarget.Transform.position,
 					targetVelocity:		m_TargetInfo.CurrentTarget.RigidBody.velocity
@@ -280,7 +307,6 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 			}
 
 			Vector3 dirToPosition = ( pointToLookAt - m_GunTransform.position );
-
 			if ( m_IsAllignedHeadToPoint == true )
 			{
 				m_RotationToAllignTo.SetLookRotation( dirToPosition, m_BodyTransform.up );
@@ -301,7 +327,15 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		m_ShotTimer = m_ShotDelay;
 
 		IBullet bullet = m_Pool.GetComponent();
-		bullet.Shoot( position: m_FirePoint.position, direction: m_FirePoint.forward );
+		
+		Vector3 direction = m_FirePoint.forward;
+		{
+			direction.x += Random.Range( -m_FireDispersion, m_FireDispersion );
+			direction.y += Random.Range( -m_FireDispersion, m_FireDispersion );
+			direction.z += Random.Range( -m_FireDispersion, m_FireDispersion );
+		}
+		direction.Normalize();
+		bullet.Shoot( position: m_FirePoint.position, direction: direction );
 		
 		m_FireAudioSource.Play();
 	}

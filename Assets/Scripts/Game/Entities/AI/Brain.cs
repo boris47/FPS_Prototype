@@ -6,6 +6,20 @@ public struct TargetInfo_t {
 	public	bool	HasTarget;
 	public	IEntity	CurrentTarget;
 	public	float	TargetSqrDistance;
+
+	public	void	Update( TargetInfo_t Infos )
+	{
+		HasTarget			= Infos.HasTarget;
+		CurrentTarget		= Infos.CurrentTarget;
+		TargetSqrDistance	= Infos.TargetSqrDistance;
+	}
+
+	public	void	Reset()
+	{
+		HasTarget = false;
+		CurrentTarget = null;
+		TargetSqrDistance = 0.0f;
+	}
 }
 
 [ System.Serializable ]
@@ -118,9 +132,9 @@ namespace AI {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		public	bool	TryToReachPoint( Vector3 destination )
+		public	void	TryToReachPoint( Vector3 destination )
 		{
-			return m_ThisEntity.NavGoto( destination );
+			m_ThisEntity.RequestMovement( destination );
 		}
 
 

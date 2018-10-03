@@ -7,13 +7,13 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 	[Header("Walker Properties")]
 
 	[SerializeField]
+	protected	float			m_MoveMaxSpeed				= 3f;
+
+	[SerializeField]
 	protected	Bullet			m_Bullet					= null;
 
 	[SerializeField]
 	protected	float			m_ShotDelay					= 0.7f;
-
-	[SerializeField]
-	protected	float			m_MoveMaxSpeed				= 3f;
 
 	[SerializeField]
 	protected	float			m_DamageMax					= 2f;
@@ -129,9 +129,15 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 	public		override	void	OnDestinationReached()
 	{
-//		if ( m_Brain.State == BrainState.SEEKER )
+		print( "OnDestinationReached" );
+		if ( m_TargetInfo.HasTarget == true )
 		{
-			print( "OnDestinationReached" );
+			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_BodyTransform.position, m_TargetInfo.CurrentTarget.Transform.position );
+			RequestMovement( projectedPoint );
+		}
+		else
+		{
+			NavReset();
 		}
 	}
 
@@ -143,7 +149,8 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		base.OnTargetAquired( targetInfo );
 
 		// PathFinding
-		NavGoto( targetInfo.CurrentTarget.Transform.position );
+		Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_BodyTransform.position, m_TargetInfo.CurrentTarget.Transform.position );
+		RequestMovement( projectedPoint );
 	}
 
 
@@ -151,7 +158,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 	public		override	void	OnTargetUpdate( TargetInfo_t targetInfo )
 	{
-		m_TargetInfo = targetInfo;
+		m_TargetInfo.Update( targetInfo );
 	}
 
 
@@ -162,7 +169,8 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		base.OnTargetChanged( targetInfo );
 
 		// PathFinding
-		NavGoto( m_TargetInfo.CurrentTarget.Transform.position );
+		Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_BodyTransform.position, m_TargetInfo.CurrentTarget.Transform.position );
+		RequestMovement( projectedPoint );
 	}
 
 
@@ -170,7 +178,9 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 	public		override	void	OnTargetLost( TargetInfo_t targetInfo )
 	{
-		base.OnTargetLost( targetInfo );
+		NavReset();
+
+		base.OnTargetLost( targetInfo ); // m_TargetInfo.Reset();
 
 		// now point to face is target position
 //		SetPoinToFace( m_TargetInfo.CurrentTarget.Transform.position );
@@ -228,7 +238,8 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		m_NavAgent.speed = 0.0f;
 
 		// Update PathFinding and movement along path
-		if ( m_HasDestination && ( transform.position - m_PointToFace ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
+		Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_BodyTransform.position, m_PointToFace );
+		if ( m_HasDestination && ( transform.position - projectedPoint ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
 		{
 			if ( m_TargetInfo.HasTarget == true )
 			{
@@ -241,7 +252,6 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 				m_NavAgent.speed = m_MoveMaxSpeed;
 			}
 		}
-		
 	}
 	
 
@@ -282,12 +292,9 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 				m_HeadTransform.rotation = Quaternion.RotateTowards( m_HeadTransform.rotation, m_RotationToAllignTo, speed * DeltaTime );
 			}
 		}
-
 		
 		// GUN
 		{
-			// TODO Real prediction
-			
 			Vector3 pointToLookAt = m_PointToFace;
 			if ( m_TargetInfo.HasTarget == true ) // PREDICTION
 			{
@@ -295,7 +302,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 				pointToLookAt = Utils.Math.CalculateBulletPrediction
 				(
 					shooterPosition:	m_GunTransform.position,
-					shooterVelocity:	m_RigidBody.velocity,
+					shooterVelocity:	m_NavAgent.velocity,
 					shotSpeed:			m_Pool.GetAsModel().Velocity,
 					targetPosition:		m_TargetInfo.CurrentTarget.Transform.position,
 					targetVelocity:		m_TargetInfo.CurrentTarget.RigidBody.velocity
@@ -303,7 +310,6 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 			}
 			
 			Vector3 dirToPosition = ( pointToLookAt - m_GunTransform.position );
-
 			if ( m_IsAllignedHeadToPoint == true )
 			{
 				m_RotationToAllignTo.SetLookRotation( dirToPosition, m_BodyTransform.up );
@@ -312,7 +318,6 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 			m_IsAllignedGunToPoint = Vector3.Angle( m_GunTransform.forward, dirToPosition ) < 16f;
 		}
 	}
-
 	
 
 	//////////////////////////////////////////////////////////////////////////
@@ -325,7 +330,15 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		m_ShotTimer = m_ShotDelay;
 
 		IBullet bullet = m_Pool.GetComponent();
-		bullet.Shoot( position: m_FirePoint.position, direction: m_FirePoint.forward );
+
+		Vector3 direction = m_FirePoint.forward;
+		{
+			direction.x += Random.Range( -m_FireDispersion, m_FireDispersion );
+			direction.y += Random.Range( -m_FireDispersion, m_FireDispersion );
+			direction.z += Random.Range( -m_FireDispersion, m_FireDispersion );
+		}
+		direction.Normalize();
+		bullet.Shoot( position: m_FirePoint.position, direction: direction );
 		
 		m_FireAudioSource.Play();
 	}
