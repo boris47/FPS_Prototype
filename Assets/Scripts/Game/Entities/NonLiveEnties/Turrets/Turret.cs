@@ -181,14 +181,14 @@ public abstract class Turret : NonLiveEntity {
 
 		if ( m_TargetInfo.HasTarget == true )
 		{
-			if ( m_Brain.State != BrainState.ATTACKING )
-				m_Brain.ChangeState( BrainState.ATTACKING );
+			if ( m_Brain.State != BrainState.ATTACKER )
+				m_Brain.ChangeState( BrainState.ATTACKER );
 
-			SetPoinToFace( m_TargetInfo.CurrentTarget.Transform.position );
+			SetPoinToLookAt( m_TargetInfo.CurrentTarget.Transform.position );
 		}
 		
 		// if has target point to face at set
-		if ( m_HasPointToFace )
+		if ( m_HasLookAtObject )
 		{
 			FaceToPoint( deltaTime );   // m_PointToFace
 		}

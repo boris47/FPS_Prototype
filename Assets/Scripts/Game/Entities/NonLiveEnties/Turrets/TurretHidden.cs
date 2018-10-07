@@ -65,7 +65,7 @@ public class TurretHidden : Turret {
 //		m_Destination = m_TargetInfo.CurrentTarget.transform.position;
 //		m_NavHasDestination = true;
 
-		m_Brain.ChangeState( BrainState.ATTACKING );
+		m_Brain.ChangeState( BrainState.ATTACKER );
 
 		if ( m_IsEnabled == false )
 		{
@@ -130,7 +130,7 @@ public class TurretHidden : Turret {
 //			FaceToPoint( deltaTime );
 		}
 
-		if ( m_Brain.State == BrainState.ATTACKING )
+		if ( m_Brain.State == BrainState.ATTACKER )
 		{
 			if ( m_TargetInfo.HasTarget == true )
 			{

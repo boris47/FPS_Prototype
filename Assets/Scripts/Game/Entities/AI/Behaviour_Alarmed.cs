@@ -1,9 +1,9 @@
-﻿
+
 using UnityEngine;
 
 namespace AI.Behaviours {
 
-	public class Behaviour_Evasive : Behaviour_Base {
+	public class Behaviour_Alarmed : Behaviour_Base {
 
 
 		public override void OnEnable()

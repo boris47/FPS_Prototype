@@ -24,16 +24,17 @@ public struct TargetInfo_t {
 
 [ System.Serializable ]
 public enum BrainState {
-//	EVASIVE,
+	EVASIVE,
 	NORMAL		= 1,
 	SEEKER		= 2,
 	ALARMED		= 3,
-	ATTACKING	= 4
+	ATTACKER	= 4
 }
 
 namespace AI {
 
 	using UnityEngine.AI;
+	using AI.Behaviours;
 
 	// Brain Interface
 	public interface IBrain {
@@ -53,37 +54,20 @@ namespace AI {
 		[SerializeField, ReadOnly]
 		private				BrainState					m_CurrentBrainState				= BrainState.NORMAL;
 
-		/*
-		[SerializeField]
-		private				MonoBehaviour				m_MonoBehaviourEvasive			= null;
-
-		[SerializeField]
-		private				MonoBehaviour				m_MonoBehaviourNormal			= null;
-
-		[SerializeField]
-		private				MonoBehaviour				m_MonoBehaviourAlarmed			= null;
-
-		[SerializeField]
-		private				MonoBehaviour				m_MonoBehaviourSeeker			= null;
-
-		[SerializeField]
-		private				MonoBehaviour				m_MonoBehaviourAttacker			= null;
-		*/
 
 		// INTERFACE START
-	//						TargetInfo_t				IBrain.CurrentTargetInfo		{	get { return m_CurrentTargetInfo;		}	}
 							IFieldOfView				IBrain.FieldOfView				{	get { return m_FieldOfView;				}	}
 							BrainState					IBrain.State					{	get { return m_CurrentBrainState;		}	}
 		// INTERFACE END
-		/*
-		private				Behaviour_Normal			m_BehaviourNormal				= null;
-		private				Behaviour_Aggressive		m_BehaviourAggressiveAlarmed	= null;
-		private				Behaviour_Aggressive		m_BehaviourAggressiveSeeker		= null;
-		private				Behaviour_Aggressive		m_BehaviourAggressiveAttacker	= null;
+		
 		private				Behaviour_Evasive			m_BehaviourEvasive				= null;
+		private				Behaviour_Normal			m_BehaviourNormal				= null;
+		private				Behaviour_Alarmed			m_BehaviourAlarmed				= null;
+		private				Behaviour_Seeker			m_BehaviourSeeker				= null;
+		private				Behaviour_Attacker			m_BehaviourAttacker				= null;
 
-		private				Behaviour_Base				m_CurrentBrain					= null;
-		*/
+		private				Behaviour_Base				m_CurrentBehaviour					= null;
+		
 		private				IFieldOfView				m_FieldOfView					= null;
 		private				IEntity						m_ThisEntity					= null;
 
@@ -94,15 +78,41 @@ namespace AI {
 		//////////////////////////////////////////////////////////////////////////
 		private void	Awake()
 		{
-	/*		m_BehaviourEvasive				= new Behaviour_Evasive		( this,		null								);
-			m_BehaviourNormal				= new Behaviour_Normal		( this,		null								);
-			m_BehaviourAggressiveAlarmed	= new Behaviour_Aggressive	( this,		null,		AggresiveMode.ALARMED	);
-			m_BehaviourAggressiveSeeker		= new Behaviour_Aggressive	( this,		null,		AggresiveMode.SEEKER	);
-			m_BehaviourAggressiveAttacker	= new Behaviour_Aggressive	( this,		null,		AggresiveMode.ATTACKER	);
-			m_CurrentBrain = m_BehaviourNormal;
-	*/
-			m_ThisEntity					= transform.GetComponent<IEntity>();
-			m_FieldOfView					= transform.GetComponentInChildren<IFieldOfView>();
+			// SEARCH AND SETUP FOR BEHAVIOUR:	EVASIVE
+			if ( Utils.Base.SearchComponent( gameObject, ref m_BehaviourEvasive, SearchContext.LOCAL ) )
+			{
+				m_BehaviourEvasive.Setup( this,		m_ThisEntity	);
+			}
+
+			// SEARCH AND SETUP FOR BEHAVIOUR:	NORMAL
+			if ( Utils.Base.SearchComponent( gameObject, ref m_BehaviourNormal, SearchContext.LOCAL ) )
+			{
+				m_BehaviourNormal.Setup( this,		m_ThisEntity	);
+			}
+
+			// SEARCH AND SETUP FOR BEHAVIOUR:	ALARMED
+			if ( Utils.Base.SearchComponent( gameObject, ref m_BehaviourAlarmed, SearchContext.LOCAL ) )
+			{
+				m_BehaviourAlarmed.Setup( this,		m_ThisEntity	);
+			}
+
+			// SEARCH AND SETUP FOR BEHAVIOUR:	SEEKER
+			if ( Utils.Base.SearchComponent( gameObject, ref m_BehaviourSeeker, SearchContext.LOCAL ) )
+			{
+				m_BehaviourSeeker.Setup( this,		m_ThisEntity	);
+			}
+
+			// SEARCH AND SETUP FOR BEHAVIOUR:	ATTACKER
+			if ( Utils.Base.SearchComponent( gameObject, ref m_BehaviourAttacker, SearchContext.LOCAL ) )
+			{
+				m_BehaviourAttacker.Setup( this,		m_ThisEntity	);
+			}
+
+
+			m_CurrentBehaviour		= m_BehaviourNormal;
+	
+			m_ThisEntity			= transform.GetComponent<IEntity>();
+			m_FieldOfView			= transform.GetComponentInChildren<IFieldOfView>();
 			m_FieldOfView.Setup( maxVisibleEntities : 10 );
 		}
 
@@ -110,7 +120,10 @@ namespace AI {
 		//////////////////////////////////////////////////////////////////////////
 		private void	OnEnable()
 		{
-			GameManager.UpdateEvents.OnThink += OnThink;
+			if ( GameManager.Instance != null )
+			{
+				GameManager.UpdateEvents.OnThink += OnThink;
+			}
 		}
 
 
@@ -128,6 +141,7 @@ namespace AI {
 		private	void	OnThink()
 		{
 			m_FieldOfView.UpdateFOV();
+//			m_CurrentBehaviour.OnThink();
 		}
 
 
@@ -151,28 +165,28 @@ namespace AI {
 			if ( newState == m_CurrentBrainState )
 				return;
 
-	//			m_CurrentBrain.OnDisable();
+			m_CurrentBehaviour.OnDisable();
 			m_CurrentBrainState = newState;
-	/*			
+	
 			switch( m_CurrentBrainState )
 			{
 				case BrainState.EVASIVE:
-					m_CurrentBrain = m_BehaviourEvasive;					break;
+					m_CurrentBehaviour = m_BehaviourEvasive;		break;
 
 				case BrainState.NORMAL:
-					m_CurrentBrain = m_BehaviourNormal;						break;
+					m_CurrentBehaviour = m_BehaviourNormal;			break;
 
 				case BrainState.ALARMED:
-					m_CurrentBrain = m_BehaviourAggressiveAlarmed;			break;
+					m_CurrentBehaviour = m_BehaviourAlarmed;		break;
 
 				case BrainState.SEEKER:
-					m_CurrentBrain = m_BehaviourAggressiveSeeker;			break;
+					m_CurrentBehaviour = m_BehaviourSeeker;			break;
 
-				case BrainState.ATTACKING:
-					m_CurrentBrain = m_BehaviourAggressiveAttacker;			break;
+				case BrainState.ATTACKER:
+					m_CurrentBehaviour = m_BehaviourAttacker;		break;
 			}
-	*/
-	//			m_CurrentBrain.OnEnable();
+	
+				m_CurrentBehaviour.OnEnable();
 		}
 
 

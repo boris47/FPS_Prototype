@@ -25,6 +25,8 @@ Weapons:
 ***	-	5.Granade Laucher	( Breaker )
 ***	-	6.Sniper Rifle		( Arrow )
 
+
+AI Behiaviours
 -	complete walker behiaviour
--	complete drone behiaviour
+***	complete drone behiaviour
 -	complete tower behiaviour

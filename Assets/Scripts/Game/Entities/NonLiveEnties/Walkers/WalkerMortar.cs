@@ -23,10 +23,10 @@ public class WalkerMortar : Walker {
 		
 		if ( m_TargetInfo.HasTarget == true )
 		{
-			if ( m_Brain.State != BrainState.ATTACKING )
-				m_Brain.ChangeState( BrainState.ATTACKING );
+			if ( m_Brain.State != BrainState.ATTACKER )
+				m_Brain.ChangeState( BrainState.ATTACKER );
 			
-			SetPoinToFace( m_TargetInfo.CurrentTarget.Transform.position );
+			SetPoinToLookAt( m_TargetInfo.CurrentTarget.Transform.position );
 
 			// PathFinding
 			CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
@@ -42,7 +42,7 @@ public class WalkerMortar : Walker {
 		}
 
 		// if has target point to face at set
-		if ( m_HasPointToFace )
+		if ( m_HasLookAtObject )
 		{
 			FaceToPoint( deltaTime );   // m_PointToFace
 		}

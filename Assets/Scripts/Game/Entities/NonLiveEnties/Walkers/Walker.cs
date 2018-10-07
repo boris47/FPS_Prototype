@@ -95,7 +95,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		if ( m_Brain.State == BrainState.NORMAL )
 		{
 			m_Brain.ChangeState( BrainState.ALARMED );
-			SetPoinToFace( bullet.StartPosition );
+			SetPoinToLookAt( bullet.StartPosition );
 		}
 
 		// DAMAGE
@@ -214,12 +214,12 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		// Update targeting
 		if ( m_TargetInfo.HasTarget == true )
 		{
-			if ( m_Brain.State != BrainState.ATTACKING )
+			if ( m_Brain.State != BrainState.ATTACKER )
 			{
-				m_Brain.ChangeState( BrainState.ATTACKING );
+				m_Brain.ChangeState( BrainState.ATTACKER );
 			}
 
-			SetPoinToFace( m_TargetInfo.CurrentTarget.Transform.position );
+			SetPoinToLookAt( m_TargetInfo.CurrentTarget.Transform.position );
 
 			// with a target, if gun alligned, fire
 			if ( m_IsAllignedGunToPoint == true )
@@ -229,7 +229,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		}
 		
 		// if has point to face, update entity orientation
-		if ( m_HasPointToFace )
+		if ( m_HasLookAtObject )
 		{
 			FaceToPoint( deltaTime );   // m_PointToFace
 		}

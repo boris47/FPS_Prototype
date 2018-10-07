@@ -7,6 +7,7 @@ public abstract partial class NonLiveEntity : Entity {
 
 	
 	//////////////////////////////////////////////////////////////////////////
+
 	protected	override	StreamUnit	OnSave( StreamData streamData )
 	{
 		StreamUnit streamUnit = base.OnSave( streamData );
@@ -46,6 +47,7 @@ public abstract partial class NonLiveEntity : Entity {
 
 
 	//////////////////////////////////////////////////////////////////////////
+
 	protected	override	StreamUnit	OnLoad( StreamData streamData )
 	{
 		StreamUnit streamUnit = base.OnLoad( streamData );
@@ -87,6 +89,7 @@ public abstract partial class NonLiveEntity : Entity {
 
 
 	//////////////////////////////////////////////////////////////////////////
+
 	public		override	void		OnTargetAquired( TargetInfo_t targetInfo )
 	{
 		print( "OntargetAcquired" );
@@ -94,13 +97,14 @@ public abstract partial class NonLiveEntity : Entity {
 		m_TargetInfo.Update( targetInfo );
 
 		// now point to face is target position
-		SetPoinToFace( m_TargetInfo.CurrentTarget.Transform.position );
+		SetPoinToLookAt( m_TargetInfo.CurrentTarget.Transform.position );
 
-		m_Brain.ChangeState( BrainState.ATTACKING );
+		m_Brain.ChangeState( BrainState.ATTACKER );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
+
 	public		override	void		OnTargetUpdate( TargetInfo_t targetInfo )
 	{
 		m_TargetInfo.Update( targetInfo );
@@ -108,6 +112,7 @@ public abstract partial class NonLiveEntity : Entity {
 
 
 	//////////////////////////////////////////////////////////////////////////
+
 	public		override	void		OnTargetChanged( TargetInfo_t targetInfo )
 	{
 		print( "OnTargetChanged" );
@@ -117,6 +122,7 @@ public abstract partial class NonLiveEntity : Entity {
 
 
 	//////////////////////////////////////////////////////////////////////////
+
 	public		override	void		OnTargetLost( TargetInfo_t targetInfo )
 	{
 		m_TargetInfo.Reset();
@@ -124,6 +130,7 @@ public abstract partial class NonLiveEntity : Entity {
 
 
 	//////////////////////////////////////////////////////////////////////////
+
 	public		override	void		OnDestinationReached()
 	{
 		Debug.Log( "This function should not be called" );
@@ -131,6 +138,7 @@ public abstract partial class NonLiveEntity : Entity {
 
 
 	//////////////////////////////////////////////////////////////////////////
+
 	public		override	void		OnHit( IBullet bullet )
 	{
 		OnHit( bullet.StartPosition, bullet.WhoRef, 0f );
@@ -138,6 +146,7 @@ public abstract partial class NonLiveEntity : Entity {
 
 
 	//////////////////////////////////////////////////////////////////////////
+
 	public		override	void		OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
 		// Hit event, set ALARMED State if actual is NORMAL
@@ -147,59 +156,44 @@ public abstract partial class NonLiveEntity : Entity {
 		}
 
 		// if is not attacking
-		if ( m_Brain.State != BrainState.ATTACKING )
+		if ( m_Brain.State != BrainState.ATTACKER )
 		{
-			SetPoinToFace( startPosition );
+			SetPoinToLookAt( startPosition );
 		}
 	}
 	
 
 	//////////////////////////////////////////////////////////////////////////
+
 	protected	override	void		OnPhysicFrame( float fixedDeltaTime )
 	{
 		
 	}
-
+	
 
 	//////////////////////////////////////////////////////////////////////////
+	protected	bool	WasMoving = false;
 	protected	override	void		OnFrame( float deltaTime )
 	{
-		/*
-		// Check if we've reached the destination
-		print( m_NavAgent.hasPath );
-		if ( m_HasDestination == true && 
-			 m_NavAgent.pathPending == false && 
-			 ( ( m_NavAgent.remainingDistance != Mathf.Infinity &&
-				m_NavAgent.remainingDistance <= m_NavAgent.stoppingDistance + Mathf.Epsilon ) || true ) &&
-			 ( m_NavAgent.hasPath == false && Mathf.Approximately( m_NavAgent.velocity.sqrMagnitude, Mathf.Epsilon ) )
-		)
+		bool nowIsMoving = m_NavAgent.velocity.sqrMagnitude > 0.0f;
+		if ( m_HasDestination == true && WasMoving == true && nowIsMoving == false )
 		{
-			NavStop();
 			OnDestinationReached();
-			
-			if ( ( m_NavAgent.remainingDistance != Mathf.Infinity &&
-				m_NavAgent.remainingDistance <= m_NavAgent.stoppingDistance + Mathf.Epsilon ) || true )
-			{
-				if ( m_NavAgent.hasPath == false || Mathf.Approximately( m_NavAgent.velocity.sqrMagnitude, Mathf.Epsilon ) )
-				{
-					NavStop();
-					OnDestinationReached();
-				}
-			}
-			
 		}
-	*/
+		WasMoving = m_NavAgent.velocity.sqrMagnitude > 0.0f;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
+
 	public		override	void		OnThink()
 	{
 //		NavUpdate();
 	}
 
-
+	
 	//////////////////////////////////////////////////////////////////////////
+
 	public		override	void		OnKill()
 	{
 		base.OnKill();

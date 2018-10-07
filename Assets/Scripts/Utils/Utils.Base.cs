@@ -87,36 +87,36 @@ namespace Utils {
 		}
 
 
-		public	static	bool	SearchComponent<T>( GameObject GameObject, ref T Component, SearchContext Context )
+		public	static	bool	SearchComponent<T1>( GameObject GameObject, ref T1 Component, SearchContext Context )
 		{
-			T result = default( T );
+			T1 result = default( T1 ); // null 
 
 			switch ( Context )
 			{
 				case SearchContext.LOCAL:
 				{
-					result = GameObject.GetComponent<T>();
+					result = GameObject.GetComponent<T1>();
 					break;
 				}
 					
 				case SearchContext.CHILDREN:
 				{
-					result = GameObject.GetComponentInChildren<T>();
+					result = GameObject.GetComponentInChildren<T1>();
 					break;
 				}
 
 				case SearchContext.PARENT:
 				{
-					result = GameObject.GetComponentInParent<T>();
+					result = GameObject.GetComponentInParent<T1>();
 					break;
 				}
 
 				case SearchContext.ALL:
 				{
-					result = GameObject.GetComponentInChildren<T>();
+					result = GameObject.GetComponentInChildren<T1>();
 					if ( result == null )
 					{
-						result = GameObject.GetComponentInParent<T>();
+						result = GameObject.GetComponentInParent<T1>();
 					}
 					break;
 				}

@@ -41,10 +41,10 @@ public class TurretHard : Turret {
 		}
 
 		// if is not attacking
-		if ( m_Brain.State != BrainState.ATTACKING )
+		if ( m_Brain.State != BrainState.ATTACKER )
 		{
 			// set start bullet position as point to face at
-			SetPoinToFace( bullet.StartPosition );
+			SetPoinToLookAt( bullet.StartPosition );
 		}
 
 		if ( m_IsRecharging == false )
@@ -171,14 +171,14 @@ public class TurretHard : Turret {
 		
 		if ( m_TargetInfo.HasTarget == true )
 		{
-			if ( m_Brain.State != BrainState.ATTACKING )
-				m_Brain.ChangeState( BrainState.ATTACKING );
+			if ( m_Brain.State != BrainState.ATTACKER )
+				m_Brain.ChangeState( BrainState.ATTACKER );
 			
-			SetPoinToFace( m_TargetInfo.CurrentTarget.Transform.position );
+			SetPoinToLookAt( m_TargetInfo.CurrentTarget.Transform.position );
 		}
 		
 		// if has target point to face at set
-		if ( m_HasPointToFace )
+		if ( m_HasLookAtObject )
 		{
 			FaceToPoint( deltaTime );   // m_PointToFace
 		}

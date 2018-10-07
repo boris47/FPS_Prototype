@@ -94,8 +94,8 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		if ( m_Brain.State == BrainState.NORMAL )
 		{
 			m_Brain.ChangeState( BrainState.ALARMED );
-			SetPoinToFace( bullet.StartPosition );
 		}
+		SetPoinToLookAt( bullet.StartPosition );
 
 		// DAMAGE
 		// Shield damage
@@ -180,22 +180,27 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 	public		override	void	OnTargetLost( TargetInfo_t targetInfo )
 	{
-//		NavReset();
-
-		Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_BodyTransform.position, m_TargetInfo.CurrentTarget.Transform.position );
-		RequestMovement( projectedPoint );
-
-		base.OnTargetLost( targetInfo ); // m_TargetInfo.Reset();
-
-		// now point to face is target position
-//		SetPoinToFace( m_TargetInfo.CurrentTarget.Transform.position );
-
-//		NavGoto( targetInfo.CurrentTarget.Transform.position );
-
 		// SEEKING MODE
 
 		// TODO Set brain to SEKKER mode
-//		m_Brain.ChangeState( BrainState.SEEKER );
+		m_Brain.ChangeState( BrainState.SEEKER );
+
+		// Destination
+		{
+			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_BodyTransform.position, m_TargetInfo.CurrentTarget.Transform.position );
+			RequestMovement( projectedPoint );
+		}
+
+		// Orientation
+		{
+			Vector3 newPointToLookAt = m_TargetInfo.CurrentTarget.Transform.position + m_TargetInfo.CurrentTarget.RigidBody.velocity.normalized;
+			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_BodyTransform.position, newPointToLookAt );
+			SetPoinToLookAt( projectedPoint );
+		}
+
+		base.OnTargetLost( targetInfo ); // m_TargetInfo.Reset();
+
+		
 	}
 
 
@@ -211,12 +216,12 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		// Update targeting
 		if ( m_TargetInfo.HasTarget == true )
 		{
-			if ( m_Brain.State != BrainState.ATTACKING )
+			if ( m_Brain.State != BrainState.ATTACKER )
 			{
-				m_Brain.ChangeState( BrainState.ATTACKING );
+				m_Brain.ChangeState( BrainState.ATTACKER );
 			}
 
-			SetPoinToFace( m_TargetInfo.CurrentTarget.Transform.position );
+			SetPoinToLookAt( m_TargetInfo.CurrentTarget.Transform.position );
 
 			// with a target, if gun alligned, fire
 			if ( m_IsAllignedGunToPoint == true )
@@ -226,29 +231,40 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		}
 
 		// if has point to face, update entity orientation
-		if ( m_HasPointToFace )
+		if ( m_HasLookAtObject )
 		{
 			FaceToPoint( deltaTime );   // m_PointToFace
 		}
 
+
 		m_NavCanMoveAlongPath = false;
-		m_NavAgent.speed = 0.0f;
 
 		// Update PathFinding and movement along path
-		Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_BodyTransform.position, m_PointToFace );
-		if ( m_HasDestination && ( transform.position - projectedPoint ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
+		if ( m_HasDestination && m_IsAllignedHeadToPoint )
 		{
-			if ( m_TargetInfo.HasTarget == true )
+			float agentFinalSpeed = 0.0f;
+			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_BodyTransform.position, m_PointToFace );
+			bool IsNotUnderEngageDistance = ( transform.position - projectedPoint ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance;
+			if ( m_TargetInfo.HasTarget )
 			{
-//				CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
+				if ( IsNotUnderEngageDistance )
+				{
+					agentFinalSpeed = m_MoveMaxSpeed;
+				}
+				else
+				{
+					agentFinalSpeed = 0.0f;
+				}
 			}
-
-			if ( m_IsAllignedHeadToPoint )
+			else
 			{
-				m_NavCanMoveAlongPath = true;
-				m_NavAgent.speed = m_MoveMaxSpeed;
+				agentFinalSpeed = m_MoveMaxSpeed;
 			}
+			print(agentFinalSpeed);
+			m_NavAgent.speed = agentFinalSpeed;
 		}
+
+		
 	}
 
 

@@ -31,7 +31,7 @@ public class WalkerHidden : Walker {
 	{
 		base.OnTargetAquired( targetInfo );		// m_TargetInfo = targetInfo;
 
-		m_Brain.ChangeState( BrainState.ATTACKING );
+		m_Brain.ChangeState( BrainState.ATTACKER );
 
 		if ( m_IsEnabled == false )
 		{
@@ -55,7 +55,7 @@ public class WalkerHidden : Walker {
 	{
 		base.OnTargetLost( targetInfo );		// m_TargetInfo = default( TargetInfo_t );
 
-		if ( m_Brain.State == BrainState.ATTACKING )
+		if ( m_Brain.State == BrainState.ATTACKER )
 		{
 			m_Brain.ChangeState( BrainState.NORMAL );
 		}

@@ -128,8 +128,9 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 
 	// ORIENTATION
-	protected	bool						m_HasPointToFace				= false;
+	protected	bool						m_HasLookAtObject				= false;
 	protected	Vector3						m_PointToFace					= Vector3.zero;
+	protected	Transform					m_TrasformToLookAt				= null;
 	protected	Quaternion					m_RotationToAllignTo			= Quaternion.identity;
 
 
@@ -169,10 +170,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 		m_EffectsPivot		= transform.Find( "EffectsPivot" );
 
-		if ( ( m_IsOK = Utils.Base.SearchComponent( gameObject, ref m_PhysicCollider, SearchContext.LOCAL ) ) == false )
-		{
-			m_IsOK &= Utils.Base.SearchComponent( gameObject, ref m_PhysicCollider, SearchContext.LOCAL );
-		}
+		m_IsOK =	Utils.Base.SearchComponent( gameObject, ref m_PhysicCollider, SearchContext.LOCAL )
+				||	Utils.Base.SearchComponent( gameObject, ref m_PhysicCollider, SearchContext.LOCAL );
 
 		m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_TriggerCollider,		SearchContext.LOCAL );
 		m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_RigidBody,			SearchContext.LOCAL );
@@ -207,11 +206,21 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 */
 
 	//////////////////////////////////////////////////////////////////////////
-	/// <summary> Set the point to Face At </summary>
-	public		virtual		void	SetPoinToFace( Vector3 point )
+	/// <summary> Set the trasform to Look At </summary>
+	public		virtual		void	SetTrasformTolookAt( Transform t )
+	{
+		m_TrasformToLookAt	= t;
+		m_PointToFace		= Vector3.zero;
+		m_HasLookAtObject	= true;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> Set the point to Look At </summary>
+	public		virtual		void	SetPoinToLookAt( Vector3 point )
 	{
 		m_PointToFace		= point;
-		m_HasPointToFace	= true;
+		m_TrasformToLookAt	= null;
+		m_HasLookAtObject	= true;
 	}
 
 
