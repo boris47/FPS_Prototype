@@ -6,20 +6,21 @@ namespace AI.Behaviours {
 
 	public abstract class Behaviour_Base : MonoBehaviour {
 
-		protected			Brain				m_Brain				= null;
+		protected			IBrain				m_Brain				= null;
 		protected			IEntity				m_ThisEntity		= null;
 
-		public void	Setup( Brain brain, IEntity ThisEntity )
+		public Behaviour_Base	Setup( Brain brain, IEntity ThisEntity )
 		{
 			m_ThisEntity = ThisEntity;
-			this.m_Brain = brain;
+			m_Brain = brain;
+			return this;
 		}
 
-		public	abstract	void	OnEnable();
+		protected	abstract	void	OnEnable();
 
-		public	abstract	void	OnDisable();
+		protected	abstract	void	OnDisable();
 
-		public	abstract	void	OnThink();
+		public		abstract	void	OnThink();
 
 	}
 

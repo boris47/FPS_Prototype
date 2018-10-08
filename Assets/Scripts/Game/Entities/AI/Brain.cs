@@ -70,50 +70,56 @@ namespace AI {
 		
 		private				IFieldOfView				m_FieldOfView					= null;
 		private				IEntity						m_ThisEntity					= null;
-
-	//	private				TargetInfo_t				m_CurrentTargetInfo				= default( TargetInfo_t );
 							
 
 
 		//////////////////////////////////////////////////////////////////////////
 		private void	Awake()
 		{
-			// SEARCH AND SETUP FOR BEHAVIOUR:	EVASIVE
-			if ( Utils.Base.SearchComponent( gameObject, ref m_BehaviourEvasive, SearchContext.LOCAL ) )
-			{
-				m_BehaviourEvasive.Setup( this,		m_ThisEntity	);
-			}
-
-			// SEARCH AND SETUP FOR BEHAVIOUR:	NORMAL
-			if ( Utils.Base.SearchComponent( gameObject, ref m_BehaviourNormal, SearchContext.LOCAL ) )
-			{
-				m_BehaviourNormal.Setup( this,		m_ThisEntity	);
-			}
-
-			// SEARCH AND SETUP FOR BEHAVIOUR:	ALARMED
-			if ( Utils.Base.SearchComponent( gameObject, ref m_BehaviourAlarmed, SearchContext.LOCAL ) )
-			{
-				m_BehaviourAlarmed.Setup( this,		m_ThisEntity	);
-			}
-
-			// SEARCH AND SETUP FOR BEHAVIOUR:	SEEKER
-			if ( Utils.Base.SearchComponent( gameObject, ref m_BehaviourSeeker, SearchContext.LOCAL ) )
-			{
-				m_BehaviourSeeker.Setup( this,		m_ThisEntity	);
-			}
-
-			// SEARCH AND SETUP FOR BEHAVIOUR:	ATTACKER
-			if ( Utils.Base.SearchComponent( gameObject, ref m_BehaviourAttacker, SearchContext.LOCAL ) )
-			{
-				m_BehaviourAttacker.Setup( this,		m_ThisEntity	);
-			}
-
-
-			m_CurrentBehaviour		= m_BehaviourNormal;
-	
 			m_ThisEntity			= transform.GetComponent<IEntity>();
 			m_FieldOfView			= transform.GetComponentInChildren<IFieldOfView>();
 			m_FieldOfView.Setup( maxVisibleEntities : 10 );
+
+
+			GameObject behaviours = transform.Find("Behaviours").gameObject;
+
+			// SEARCH AND SETUP FOR BEHAVIOUR:	EVASIVE
+			if ( Utils.Base.SearchComponent( behaviours, ref m_BehaviourEvasive, SearchContext.LOCAL ) )
+			{
+				m_BehaviourEvasive.Setup( this,		m_ThisEntity	).enabled = false;
+			}
+
+			// SEARCH AND SETUP FOR BEHAVIOUR:	NORMAL
+			if ( Utils.Base.SearchComponent( behaviours, ref m_BehaviourNormal, SearchContext.LOCAL ) )
+			{
+				m_BehaviourNormal.Setup( this,		m_ThisEntity	);
+				m_BehaviourNormal.enabled = false;
+			}
+
+			// SEARCH AND SETUP FOR BEHAVIOUR:	ALARMED
+			if ( Utils.Base.SearchComponent( behaviours, ref m_BehaviourAlarmed, SearchContext.LOCAL ) )
+			{
+				m_BehaviourAlarmed.Setup( this,		m_ThisEntity	);
+				m_BehaviourAlarmed.enabled = false;
+			}
+
+			// SEARCH AND SETUP FOR BEHAVIOUR:	SEEKER
+			if ( Utils.Base.SearchComponent( behaviours, ref m_BehaviourSeeker, SearchContext.LOCAL ) )
+			{
+				m_BehaviourSeeker.Setup( this,		m_ThisEntity	);
+				m_BehaviourSeeker.enabled = false;
+			}
+
+			// SEARCH AND SETUP FOR BEHAVIOUR:	ATTACKER
+			if ( Utils.Base.SearchComponent( behaviours, ref m_BehaviourAttacker, SearchContext.LOCAL ) )
+			{
+				m_BehaviourAttacker.Setup( this,	m_ThisEntity	);
+				m_BehaviourAttacker.enabled = false;
+			}
+
+			// Enable current behaviour ( Normal )
+			m_CurrentBehaviour		= m_BehaviourNormal;
+			m_CurrentBehaviour.enabled = false;
 		}
 
 
@@ -141,7 +147,7 @@ namespace AI {
 		private	void	OnThink()
 		{
 			m_FieldOfView.UpdateFOV();
-//			m_CurrentBehaviour.OnThink();
+			m_CurrentBehaviour.OnThink();
 		}
 
 
@@ -165,7 +171,7 @@ namespace AI {
 			if ( newState == m_CurrentBrainState )
 				return;
 
-			m_CurrentBehaviour.OnDisable();
+			m_CurrentBehaviour.enabled = false;
 			m_CurrentBrainState = newState;
 	
 			switch( m_CurrentBrainState )
@@ -186,14 +192,15 @@ namespace AI {
 					m_CurrentBehaviour = m_BehaviourAttacker;		break;
 			}
 	
-				m_CurrentBehaviour.OnEnable();
+				m_CurrentBehaviour.enabled = true;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-				void	IBrain.OnReset()
+		void	IBrain.OnReset()
 		{
-			m_CurrentBrainState		= BrainState.NORMAL;
+
+			ChangeState( BrainState.NORMAL );
 
 			m_FieldOfView.OnReset();
 		}
