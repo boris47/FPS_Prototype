@@ -1,9 +1,14 @@
 ﻿
 ;========= DRONES
 
+[DroneBase]
+BehaviourEvasive	= AI.Behaviours.Drone_AI_Beaviour_Evasive;
+BehaviourNormal		= AI.Behaviours.Drone_AI_Beaviour_Normal;
+BehaviourAlarmed	= AI.Behaviours.Drone_AI_Beaviour_Alarmed;
+BehaviourSeeker		= AI.Behaviours.Drone_AI_Beaviour_Seeker;
+BehaviourAttacker	= AI.Behaviours.Drone_AI_Beaviour_Attacker;
 
-
-[DroneStandard]
+[DroneStandard] : DroneBase
 Health				= 100.0;
 Shield				= 0.0;
 
@@ -18,7 +23,7 @@ CloseCombatDelay	= 1.0;
 
 
 
-[DroneArmored]
+[DroneArmored] : DroneBase
 Health				= 50.0;
 Shield				= 60.0;
 

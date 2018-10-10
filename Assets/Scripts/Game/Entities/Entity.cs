@@ -170,14 +170,12 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 		m_EffectsPivot		= transform.Find( "EffectsPivot" );
 
-		m_IsOK =	Utils.Base.SearchComponent( gameObject, ref m_PhysicCollider, SearchContext.LOCAL )
-				||	Utils.Base.SearchComponent( gameObject, ref m_PhysicCollider, SearchContext.LOCAL );
-
+		m_IsOK   =	Utils.Base.SearchComponent( gameObject, ref m_PhysicCollider,		SearchContext.LOCAL );
 		m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_TriggerCollider,		SearchContext.LOCAL );
 		m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_RigidBody,			SearchContext.LOCAL );
 		m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_NavAgent,				SearchContext.LOCAL	);
 
-		if ( m_NavAgent != null )
+		if ( m_IsOK && m_NavAgent != null )
 			m_IsOK	&= m_NavAgent.isOnNavMesh;
 
 		print( name + " is OK = " + m_IsOK );

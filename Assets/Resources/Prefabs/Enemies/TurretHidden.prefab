@@ -417,6 +417,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_CurrentBrainState: 0
+  m_BehaviourEvasive: {fileID: 0}
+  m_BehaviourNormal: {fileID: 0}
+  m_BehaviourAlarmed: {fileID: 0}
+  m_BehaviourSeeker: {fileID: 0}
+  m_BehaviourAttacker: {fileID: 0}
+  m_CurrentBehaviour: {fileID: 0}
 --- !u!114 &114595204640482798
 MonoBehaviour:
   m_ObjectHideFlags: 1

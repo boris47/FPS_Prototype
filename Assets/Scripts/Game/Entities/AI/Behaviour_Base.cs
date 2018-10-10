@@ -1,26 +1,29 @@
 ﻿
-using UnityEngine;
-
-
 namespace AI.Behaviours {
-
-	public abstract class Behaviour_Base : MonoBehaviour {
-
+	
+	public abstract class Behaviour_Base {
+		
 		protected			IBrain				m_Brain				= null;
 		protected			IEntity				m_ThisEntity		= null;
 
-		public Behaviour_Base	Setup( Brain brain, IEntity ThisEntity )
+		public		virtual		void			Setup( Brain brain, IEntity ThisEntity )
 		{
 			m_ThisEntity = ThisEntity;
 			m_Brain = brain;
-			return this;
 		}
 
-		protected	abstract	void	OnEnable();
+		public		abstract	void			Enable();
 
-		protected	abstract	void	OnDisable();
+		public		abstract	void			Disable();
 
-		public		abstract	void	OnThink();
+		public		abstract	void			OnThink();
+
+		public		abstract	void			OnFrame( float DeltaTime );
+
+		protected	virtual		void			print( string msg )
+		{
+			UnityEngine.Debug.Log( msg );
+		}
 
 	}
 

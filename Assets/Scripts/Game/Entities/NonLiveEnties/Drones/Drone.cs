@@ -33,14 +33,6 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 		// LOAD CONFIGURATION
 		{
-			GameManager.Configs.GetSection( m_SectionName = gameObject.name, ref m_SectionRef );
-			if ( m_SectionRef == null )
-			{
-				print( "Cannot find cfg section for entity " + name );
-				Destroy( gameObject );
-				return;
-			}
-
 			m_Health				= m_SectionRef.AsFloat( "Health",				30.0f );
 			float shieldStatus		= m_SectionRef.AsFloat( "Shield",				60.0f );
 			if ( m_Shield != null )

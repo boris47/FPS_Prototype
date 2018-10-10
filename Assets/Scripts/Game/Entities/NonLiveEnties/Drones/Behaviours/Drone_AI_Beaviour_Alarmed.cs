@@ -1,14 +1,19 @@
 ﻿
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace AI.Behaviours {
 
-	public class Drone_AI_Normal_Beaviour : Behaviour_Normal {
+	public class Drone_AI_Beaviour_Alarmed : Behaviour_Normal {
 
+		public Drone_AI_Beaviour_Alarmed()
+		{
+			
+		}
 
-		protected override void OnEnable()
+		public override void Enable()
 		{
 			// Events registration
 			GameManager.UpdateEvents.OnFrame		+= OnFrame;
@@ -23,7 +28,8 @@ namespace AI.Behaviours {
 			m_Brain.FieldOfView.OnTargetLost		= OnTargetLost;
 		}
 
-		protected override void OnDisable()
+
+		public override void Disable()
 		{
 			// Events un-registration
 			GameManager.UpdateEvents.OnFrame		-= OnFrame;
@@ -37,25 +43,30 @@ namespace AI.Behaviours {
 			m_Brain.FieldOfView.OnTargetLost		= null;
 		}
 
-		private void OnFrame(float DeltaTime)
-		{
-			
-		}
 
 		public override void OnThink()
 		{
 			
 		}
 
+
+		public override void OnFrame( float DeltaTime )
+		{
+			
+		}
+
+
 		private		StreamUnit	OnSave( StreamData streamData )
 		{
 			return null;
 		}
 
+
 		private		StreamUnit	OnLoad( StreamData streamData )
 		{
 			return null;
 		}
+
 
 		//////////////////////////////////////////////////////////////////////////
 		public			void		OnTargetAquired( TargetInfo_t targetInfo )

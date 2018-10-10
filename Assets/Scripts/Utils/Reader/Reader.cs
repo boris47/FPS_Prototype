@@ -41,7 +41,7 @@ namespace CFG_Reader {
 			int iIndex = sLine.IndexOf( ":", 0 );
 			if ( iIndex > 0 )
 			{
-				string sMotherName = sLine.Substring( iIndex + 1 ).Trim();
+				string sMotherName = sLine.Trim().Substring( iIndex + 1 ).Trim();
 				GetSection( sMotherName, ref pInheritedSection );
 				if ( pInheritedSection == null )
 				{

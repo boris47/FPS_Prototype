@@ -63,6 +63,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 			GameManager.UpdateEvents.OnFrame			-= OnFrame;
 			GameManager.UpdateEvents.OnThink			-= OnThink;
 
+			// Only un-register for non player entities ( AI )
 			if ( ( this is Player ) == false )
 			{
 				m_Brain.FieldOfView.OnTargetAquired = null;

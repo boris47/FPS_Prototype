@@ -106,7 +106,7 @@ namespace CFG_Reader {
 			{
 				if ( pLineValue.Type == LineValueType.SINGLE )
 				{
-					if ( pLineValue.Value.GetType() == typeof( string ) )
+					if ( pLineValue.Value.ToSystemObject().GetType() == typeof( string ) )
 						return pLineValue.Value.ToString();
 				}
 			}

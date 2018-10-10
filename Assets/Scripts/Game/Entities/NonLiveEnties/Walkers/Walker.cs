@@ -1,6 +1,6 @@
 ﻿
 using UnityEngine;
-
+using AI.Behaviours;
 
 public abstract class Walker : NonLiveEntity, IRespawn {
 
@@ -33,14 +33,6 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 		// LOAD CONFIGURATION
 		{
-			GameManager.Configs.GetSection( m_SectionName, ref m_SectionRef );
-			if ( m_SectionRef == null )
-			{
-				print( "Cannot find cfg section for entity " + name );
-				Destroy( gameObject );
-				return;
-			}
-
 			m_Health				= m_SectionRef.AsFloat( "Health", 60.0f );
 
 			float shieldStatus		= m_SectionRef.AsFloat( "Shield", 0.0f );

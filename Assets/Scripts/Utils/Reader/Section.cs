@@ -159,7 +159,7 @@ namespace CFG_Reader {
 
 		public void PrintSection()
 		{
-			Debug.Log( "Section " + sName );
+			Debug.Log( "---|Section START" + sName );
 			foreach ( cLineValue LineValue in vSection )
 			{
 				string result = LineValue.Key;
@@ -170,7 +170,7 @@ namespace CFG_Reader {
 					{
 						result += " " + multi[ i ];
 					}
-					Debug.Log( result );
+					Debug.Log( "\t" + result );
 				}
 				else
 				{
@@ -179,9 +179,10 @@ namespace CFG_Reader {
 						Debug.Log( result + " " + LineValue.RawValue );
 					}
 					else
-					Debug.Log( result + " " + LineValue.Value.ToSystemObject() + ", " + LineValue.Value.ToSystemObject().GetType() );
+					Debug.Log( "\t" + result + " " + LineValue.Value.ToSystemObject() + ", " + LineValue.Value.ToSystemObject().GetType() );
 				}
 			}
+			Debug.Log( "---|Section END" );
 		}
 
 

@@ -39,6 +39,25 @@ public abstract partial class NonLiveEntity : Entity {
 	{
 		base.Awake();
 
+
+		if ( GameManager.Configs.GetSection( m_SectionName, ref m_SectionRef ) == false )
+		{
+			print( "Cannot find cfg section for entity " + name );
+			Destroy( gameObject );
+			return;
+		}
+
+		// AI BEHAVIOURS
+		{
+			m_Brain.SetBehaviour( BrainState.EVASIVE,	m_SectionRef.AsString( "BehaviourEvasive"	), false );
+			m_Brain.SetBehaviour( BrainState.NORMAL,	m_SectionRef.AsString( "BehaviourNormal"	), true  );
+			m_Brain.SetBehaviour( BrainState.ALARMED,	m_SectionRef.AsString( "BehaviourAlarmed"	), false );
+			m_Brain.SetBehaviour( BrainState.SEEKER,	m_SectionRef.AsString( "BehaviourSeeker"	), false );
+			m_Brain.SetBehaviour( BrainState.ATTACKER,	m_SectionRef.AsString( "BehaviourAttacker"	), false );
+
+			m_Brain.ChangeState( BrainState.NORMAL );
+		}
+
 		Utils.Base.SearchComponent( gameObject, ref m_FireAudioSource, SearchContext.LOCAL );
 
 //		m_FootsTransform	= transform
@@ -46,6 +65,7 @@ public abstract partial class NonLiveEntity : Entity {
 		m_HeadTransform		= m_BodyTransform.Find( "Head" );
 		m_GunTransform		= m_HeadTransform.Find( "Gun" );
 		m_FirePoint			= m_GunTransform.Find( "FirePoint" );
+
 	}
 
 	//////////////////////////////////////////////////////////////////////////
