@@ -1,33 +1,42 @@
 ﻿
 ;======== TURRETS
 
-[Turret]
-PoolSize	= 10;
+[TurretBase]
+PoolSize			= 10;
+BehaviourEvasive	= AI.Behaviours.Turret_AI_Beaviour_Evasive;
+BehaviourNormal		= AI.Behaviours.Turret_AI_Beaviour_Normal;
+BehaviourAlarmed	= AI.Behaviours.Turret_AI_Beaviour_Alarmed;
+BehaviourSeeker		= AI.Behaviours.Turret_AI_Beaviour_Seeker;
+BehaviourAttacker	= AI.Behaviours.Turret_AI_Beaviour_Attacker;
 
-[TurretStandard]
+[TurretStandard] : TurretBase
 Health		= 100.0;
 Shield		= 0.0;
 DamageMax	= 5.0;
 DamageMin	= 2.5;
 
-[TurretArmored]
+[TurretArmored] : TurretBase
 Health		= 100.0;
 Shield		= 100.0;
 DamageMax	= 6.0;
 DamageMin	= 3.0;
 
-[TurretGatling]
+[TurretGatling] : TurretBase
 Health		= 100.0;
 Shield		= 0.0;
 DamageMax	= 5.0;
 DamageMin	= 2.5;
 PoolSize	= 100;
 
-[TurretHard] : TurretArmored
+[TurretHard] : TurretBase
+Health		= 100.0;
+Shield		= 100.0;
 DamageMax	= 8.0;
 DamageMin	= 5.0;
 
-[TurretHidden] : TurretStandard
+[TurretHidden] : TurretBase
+Health		= 100.0;
+Shield		= 0.0;
 DamageMax	= 1.0;
 DamageMin	= 0.5;
 PoolSize	= 30;

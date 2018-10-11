@@ -41,10 +41,10 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 			// Only register for non player entities ( AI )
 			if ( ( this is Player ) == false )
 			{
-				m_Brain.FieldOfView.OnTargetAquired = OnTargetAquired;
-				m_Brain.FieldOfView.OnTargetChanged = OnTargetChanged;
-				m_Brain.FieldOfView.OnTargetUpdate	= OnTargetUpdate;
-				m_Brain.FieldOfView.OnTargetLost	= OnTargetLost;
+				m_Brain.FieldOfView.OnTargetAquired += OnTargetAquired;
+				m_Brain.FieldOfView.OnTargetChanged += OnTargetChanged;
+				m_Brain.FieldOfView.OnTargetUpdate	+= OnTargetUpdate;
+				m_Brain.FieldOfView.OnTargetLost	+= OnTargetLost;
 			}
 		}
 	}
@@ -66,10 +66,10 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 			// Only un-register for non player entities ( AI )
 			if ( ( this is Player ) == false )
 			{
-				m_Brain.FieldOfView.OnTargetAquired = null;
-				m_Brain.FieldOfView.OnTargetChanged = null;
-				m_Brain.FieldOfView.OnTargetUpdate	= null;
-				m_Brain.FieldOfView.OnTargetLost	= null;
+				m_Brain.FieldOfView.OnTargetAquired	-= OnTargetAquired;
+				m_Brain.FieldOfView.OnTargetChanged	-= OnTargetChanged;
+				m_Brain.FieldOfView.OnTargetUpdate	-= OnTargetUpdate;
+				m_Brain.FieldOfView.OnTargetLost	-= OnTargetLost;
 			}
 		}
 	}
@@ -84,6 +84,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 		StreamUnit streamUnit		= streamData.NewUnit( gameObject );
 		streamUnit.Position			= transform.position;
 		streamUnit.Rotation			= transform.rotation;
+
+
 
 		return streamUnit;
 	}

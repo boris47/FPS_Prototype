@@ -6,12 +6,13 @@ using UnityEngine;
 
 namespace AI.Behaviours {
 
-	public class Drone_AI_Beaviour_Normal : Behaviour_Normal {
+	public class Walker_AI_Beaviour_Normal : Behaviour_Normal {
 
-		public Drone_AI_Beaviour_Normal()
+		public	Walker_AI_Beaviour_Normal()
 		{
 
 		}
+
 
 		public	override	void	Setup( Brain brain, IEntity ThisEntity, BehaviourSetupData Data )
 		{

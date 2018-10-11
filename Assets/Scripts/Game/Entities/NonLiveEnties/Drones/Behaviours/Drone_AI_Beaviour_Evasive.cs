@@ -6,93 +6,60 @@ using UnityEngine;
 
 namespace AI.Behaviours {
 
-	public class Drone_AI_Beaviour_Evasive : Behaviour_Normal {
+	public class Drone_AI_Beaviour_Evasive : Behaviour_Evasive {
 
 		public Drone_AI_Beaviour_Evasive()
 		{
 			
 		}
 
-		public override void Enable()
+		public	override	void	Setup( Brain brain, IEntity ThisEntity, BehaviourSetupData Data )
 		{
-			// Events registration
-			GameManager.UpdateEvents.OnFrame		+= OnFrame;
-
-			GameManager.StreamEvents.OnSave			+= OnSave;
-			GameManager.StreamEvents.OnLoad			+= OnLoad;
-
-
-			m_Brain.FieldOfView.OnTargetAquired		= OnTargetAquired;
-			m_Brain.FieldOfView.OnTargetChanged		= OnTargetChanged;
-			m_Brain.FieldOfView.OnTargetUpdate		= OnTargetUpdate;
-			m_Brain.FieldOfView.OnTargetLost		= OnTargetLost;
+			base.Setup( brain, ThisEntity, null );
 		}
 
 
-		public override void Disable()
-		{
-			// Events un-registration
-			GameManager.UpdateEvents.OnFrame		-= OnFrame;
-
-			GameManager.StreamEvents.OnSave			-= OnSave;
-			GameManager.StreamEvents.OnLoad			-= OnLoad;
-
-			m_Brain.FieldOfView.OnTargetAquired		= null;
-			m_Brain.FieldOfView.OnTargetChanged		= null;
-			m_Brain.FieldOfView.OnTargetUpdate		= null;
-			m_Brain.FieldOfView.OnTargetLost		= null;
-		}
-
-
-		public override void OnThink()
+		public	override	void	Enable()
 		{
 			
 		}
 
 
-		public override void OnFrame( float DeltaTime )
+		public	override	void	Disable()
 		{
 			
 		}
 
 
-		private		StreamUnit	OnSave( StreamData streamData )
+		public	override	void	OnThink()
 		{
-			return null;
+			
 		}
 
 
-		private		StreamUnit	OnLoad( StreamData streamData )
+		public	override	void	OnPhysicFrame( float FixedDeltaTime )
 		{
-			return null;
+			
 		}
 
 
-		//////////////////////////////////////////////////////////////////////////
-		public			void		OnTargetAquired( TargetInfo_t targetInfo )
+		public	override	void	OnFrame( float DeltaTime )
 		{
-
+			
 		}
 
 
-		//////////////////////////////////////////////////////////////////////////
-		public			void		OnTargetUpdate( TargetInfo_t targetInfo )
+		public	override	void	OnSave( StreamUnit streamUnit )
 		{
 
-		}
-	
-
-		//////////////////////////////////////////////////////////////////////////
-		public			void		OnTargetChanged( TargetInfo_t targetInfo )
-		{
-
+			return;
 		}
 
-	
-		//////////////////////////////////////////////////////////////////////////
-		public			void		OnTargetLost( TargetInfo_t targetInfo )
+
+		public	override	void	OnLoad( StreamUnit streamUnit )
 		{
 
+			return;
 		}
 
 	}

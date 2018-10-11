@@ -1,33 +1,40 @@
 ﻿
-[WalkerStandard]
+[WalkerBase]
+BehaviourEvasive	= AI.Behaviours.Walker_AI_Beaviour_Evasive;
+BehaviourNormal		= AI.Behaviours.Walker_AI_Beaviour_Normal;
+BehaviourAlarmed	= AI.Behaviours.Walker_AI_Beaviour_Alarmed;
+BehaviourSeeker		= AI.Behaviours.Walker_AI_Beaviour_Seeker;
+BehaviourAttacker	= AI.Behaviours.Walker_AI_Beaviour_Attacker;
+
+[WalkerStandard] : WalkerBase
 Health		= 100.0;
 Shield		= 0.0;
 DamageMax	= 5.0;
 DamageMin	= 2.5;
 PoolSize	= 10;
 
-[WalkerGatling]
+[WalkerGatling] : WalkerBase
 Health		= 100.0;
 Shield		= 100.0;
 DamageMax	= 5.0;
 DamageMin	= 2.5;
 PoolSize	= 30;
 
-[WalkerArmored]
+[WalkerArmored] : WalkerBase
 Health		= 100.0;
 Shield		= 100.0;
 DamageMax	= 5.0;
 DamageMin	= 2.5;
 PoolSize	= 10;
 
-[WalkerArmoredGatling]
+[WalkerArmoredGatling] : WalkerBase
 Health		= 100.0;
 Shield		= 100.0;
 DamageMax	= 5.0;
 DamageMin	= 2.5;
 PoolSize	= 30;
 
-[WalkerMortar]
+[WalkerMortar] : WalkerBase
 Health		= 100.0;
 Shield		= 0.0;
 DamageMax	= 0.10;

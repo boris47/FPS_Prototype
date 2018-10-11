@@ -8,10 +8,10 @@ public	delegate	void	OnTargetEvent( TargetInfo_t targetInfo );
 
 public interface IFieldOfView {
 	
-	OnTargetEvent		OnTargetAquired		{ set; }
-	OnTargetEvent		OnTargetChanged		{ set; }
-	OnTargetEvent		OnTargetUpdate		{ set; }
-	OnTargetEvent		OnTargetLost		{ set; }
+	event	OnTargetEvent		OnTargetAquired;
+	event	OnTargetEvent		OnTargetChanged;
+	event	OnTargetEvent		OnTargetUpdate;
+	event	OnTargetEvent		OnTargetLost;
 
 	float				Distance			{ get; set; }
 	float				Angle				{ get; set; }
@@ -32,10 +32,28 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	private		OnTargetEvent			m_OnTargetUpdate		= null;
 	private		OnTargetEvent			m_OnTargetLost			= null;
 
-	public		OnTargetEvent			OnTargetAquired			{ set { m_OnTargetAquired = value; } }
-	public		OnTargetEvent			OnTargetChanged			{ set { m_OnTargetChanged = value; } }
-	public		OnTargetEvent			OnTargetUpdate			{ set { m_OnTargetUpdate = value; } }
-	public		OnTargetEvent			OnTargetLost			{ set { m_OnTargetLost	= value; } }
+
+	event OnTargetEvent IFieldOfView.OnTargetAquired
+	{
+		add		{ if ( value != null )	m_OnTargetAquired += value; }
+		remove	{ if ( value != null )	m_OnTargetAquired -= value; }
+	}
+	event OnTargetEvent IFieldOfView.OnTargetChanged
+	{
+		add		{ if ( value != null )	m_OnTargetChanged += value; }
+		remove	{ if ( value != null )	m_OnTargetChanged -= value; }
+	}
+	event OnTargetEvent IFieldOfView.OnTargetUpdate
+	{
+		add		{ if ( value != null )	m_OnTargetUpdate += value; }
+		remove	{ if ( value != null )	m_OnTargetUpdate -= value; }
+	}
+	event OnTargetEvent IFieldOfView.OnTargetLost
+	{
+		add		{ if ( value != null )	m_OnTargetLost += value; }
+		remove	{ if ( value != null )	m_OnTargetLost -= value; }
+	}
+
 
 
 	[SerializeField]

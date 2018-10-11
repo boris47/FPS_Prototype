@@ -6,11 +6,11 @@ using UnityEngine;
 
 namespace AI.Behaviours {
 
-	public class Drone_AI_Beaviour_Normal : Behaviour_Normal {
+	public class Turret_AI_Beaviour_Attacker : Behaviour_Attacker {
 
-		public Drone_AI_Beaviour_Normal()
+		public Turret_AI_Beaviour_Attacker()
 		{
-
+			
 		}
 
 		public	override	void	Setup( Brain brain, IEntity ThisEntity, BehaviourSetupData Data )

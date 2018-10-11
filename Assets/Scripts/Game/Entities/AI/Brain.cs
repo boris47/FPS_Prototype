@@ -43,6 +43,10 @@ public interface IBrain {
 	void						SetBehaviour			( BrainState State, string behaviourId, bool state = false );
 
 	void						ChangeState				( BrainState newState );
+
+	void						OnSave					( StreamUnit streamUnit );
+	void						OnLoad					( StreamUnit streamUnit );
+
 	void						OnReset					();
 }
 
@@ -92,7 +96,9 @@ public class Brain : MonoBehaviour, IBrain {
 	{
 		if ( GameManager.Instance != null )
 		{
-			GameManager.UpdateEvents.OnThink += OnThink;
+			GameManager.UpdateEvents.OnThink		+= OnThink;
+			GameManager.UpdateEvents.OnPhysicFrame	+= OnPhysicFrame;
+			GameManager.UpdateEvents.OnFrame		+= OnFrame;
 		}
 	}
 
@@ -102,7 +108,9 @@ public class Brain : MonoBehaviour, IBrain {
 	{
 		if ( GameManager.Instance != null )
 		{
-			GameManager.UpdateEvents.OnThink -= OnThink;
+			GameManager.UpdateEvents.OnThink		-= OnThink;
+			GameManager.UpdateEvents.OnPhysicFrame	-= OnPhysicFrame;
+			GameManager.UpdateEvents.OnFrame		-= OnFrame;
 		}
 	}
 
@@ -123,8 +131,13 @@ public class Brain : MonoBehaviour, IBrain {
 			return;
 		}
 
+		BehaviourSetupData data = new BehaviourSetupData();
+		{
+
+		};
+
 		Behaviour_Base behaviour = System.Activator.CreateInstance(type) as Behaviour_Base; //gameObject.AddComponent( type ) as Behaviour_Base;
-		behaviour.Setup( this, m_ThisEntity );
+		behaviour.Setup( this, m_ThisEntity, data );
 		if ( state == true )
 		{
 			behaviour.Enable();
@@ -155,7 +168,21 @@ public class Brain : MonoBehaviour, IBrain {
 	private	void	OnThink()
 	{
 		m_FieldOfView.UpdateFOV();
-//		m_CurrentBehaviour.OnThink();
+		m_CurrentBehaviour.OnThink();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void OnPhysicFrame( float FixedDeltaTime )
+	{
+		m_CurrentBehaviour.OnPhysicFrame( FixedDeltaTime );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private	void	OnFrame( float DeltaTime )
+	{
+		m_CurrentBehaviour.OnFrame( DeltaTime );
 	}
 
 
@@ -201,6 +228,20 @@ public class Brain : MonoBehaviour, IBrain {
 		}
 
 		m_CurrentBehaviour.Enable();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public	void	OnSave( StreamUnit streamUnit )
+	{
+		m_CurrentBehaviour.OnSave( streamUnit );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public	void	OnLoad( StreamUnit streamUnit )
+	{
+		m_CurrentBehaviour.OnLoad( streamUnit );
 	}
 
 
