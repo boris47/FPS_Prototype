@@ -45,6 +45,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 				m_Brain.FieldOfView.OnTargetChanged += OnTargetChanged;
 				m_Brain.FieldOfView.OnTargetUpdate	+= OnTargetUpdate;
 				m_Brain.FieldOfView.OnTargetLost	+= OnTargetLost;
+				( m_Brain as Brain ).enabled = true;
 			}
 		}
 	}
@@ -70,6 +71,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 				m_Brain.FieldOfView.OnTargetChanged	-= OnTargetChanged;
 				m_Brain.FieldOfView.OnTargetUpdate	-= OnTargetUpdate;
 				m_Brain.FieldOfView.OnTargetLost	-= OnTargetLost;
+
 			}
 		}
 	}

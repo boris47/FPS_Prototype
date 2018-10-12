@@ -1,6 +1,6 @@
 ﻿
 using UnityEngine;
-using System.Collections;
+using AI.Behaviours;
 
 public abstract class Drone : NonLiveEntity, IRespawn {
 
@@ -70,6 +70,20 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		}
 		m_Pool.SetActive( true );
 		m_ShotTimer = 0f;
+
+
+		// AI BEHAVIOURS
+		{
+			BehaviourSetupData data = new BehaviourSetupData();
+			{
+				data.BulletstPool = m_Pool;
+			};
+			m_Brain.SetBehaviour( BrainState.EVASIVE,	m_SectionRef.AsString( "BehaviourEvasive"	), data, false );
+			m_Brain.SetBehaviour( BrainState.NORMAL,	m_SectionRef.AsString( "BehaviourNormal"	), data, true  );
+			m_Brain.SetBehaviour( BrainState.ALARMED,	m_SectionRef.AsString( "BehaviourAlarmed"	), data, false );
+			m_Brain.SetBehaviour( BrainState.SEEKER,	m_SectionRef.AsString( "BehaviourSeeker"	), data, false );
+			m_Brain.SetBehaviour( BrainState.ATTACKER,	m_SectionRef.AsString( "BehaviourAttacker"	), data, false );
+		}
 	}
 
 
@@ -202,6 +216,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 	{
 		base.OnFrame( deltaTime );
 
+		return;
 		// Update internal timer
 		m_ShotTimer -= deltaTime;
 

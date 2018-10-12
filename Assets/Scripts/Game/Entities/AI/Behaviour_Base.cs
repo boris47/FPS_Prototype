@@ -4,7 +4,7 @@ namespace AI.Behaviours {
 
 	public	class BehaviourSetupData {
 
-
+		public	GameObjectsPool<Bullet>			BulletstPool				= null;
 
 	}
 

@@ -23,7 +23,6 @@ public abstract partial class NonLiveEntity : Entity {
 	// Transforms
 	protected		Transform			m_HeadTransform				= null;
 	protected		Transform			m_BodyTransform				= null;
-	protected		Transform			m_FootsTransform			{ get { return transform; } }
 	protected		Transform			m_GunTransform				= null;
 	protected		Transform			m_FirePoint					= null;
 
@@ -45,17 +44,6 @@ public abstract partial class NonLiveEntity : Entity {
 			print( "Cannot find cfg section for entity " + name );
 			Destroy( gameObject );
 			return;
-		}
-
-		// AI BEHAVIOURS
-		{
-			m_Brain.SetBehaviour( BrainState.EVASIVE,	m_SectionRef.AsString( "BehaviourEvasive"	), false );
-			m_Brain.SetBehaviour( BrainState.NORMAL,	m_SectionRef.AsString( "BehaviourNormal"	), true  );
-			m_Brain.SetBehaviour( BrainState.ALARMED,	m_SectionRef.AsString( "BehaviourAlarmed"	), false );
-			m_Brain.SetBehaviour( BrainState.SEEKER,	m_SectionRef.AsString( "BehaviourSeeker"	), false );
-			m_Brain.SetBehaviour( BrainState.ATTACKER,	m_SectionRef.AsString( "BehaviourAttacker"	), false );
-
-			m_Brain.ChangeState( BrainState.NORMAL );
 		}
 
 		Utils.Base.SearchComponent( gameObject, ref m_FireAudioSource, SearchContext.LOCAL );

@@ -8,6 +8,12 @@ namespace AI.Behaviours {
 
 	public class Turret_AI_Beaviour_Alarmed : Behaviour_Alarmed {
 
+		// ORIENTATION
+		protected	bool						m_HasLookAtObject				= false;
+		protected	Vector3						m_PointToFace					= Vector3.zero;
+		protected	Transform					m_TrasformToLookAt				= null;
+		protected	Quaternion					m_RotationToAllignTo			= Quaternion.identity;
+
 		public Turret_AI_Beaviour_Alarmed()
 		{
 			

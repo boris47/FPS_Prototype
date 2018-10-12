@@ -40,7 +40,7 @@ public interface IBrain {
 	IFieldOfView				FieldOfView				{ get; }
 	BrainState					State					{ get; }
 
-	void						SetBehaviour			( BrainState State, string behaviourId, bool state = false );
+	void						SetBehaviour			( BrainState State, string behaviourId, BehaviourSetupData data, bool state = false );
 
 	void						ChangeState				( BrainState newState );
 
@@ -100,6 +100,11 @@ public class Brain : MonoBehaviour, IBrain {
 			GameManager.UpdateEvents.OnPhysicFrame	+= OnPhysicFrame;
 			GameManager.UpdateEvents.OnFrame		+= OnFrame;
 		}
+
+		if ( m_CurrentBehaviour != null )
+		{
+			m_CurrentBehaviour.Enable();
+		}
 	}
 
 
@@ -112,11 +117,16 @@ public class Brain : MonoBehaviour, IBrain {
 			GameManager.UpdateEvents.OnPhysicFrame	-= OnPhysicFrame;
 			GameManager.UpdateEvents.OnFrame		-= OnFrame;
 		}
+
+		if ( m_CurrentBehaviour != null )
+		{
+			m_CurrentBehaviour.Disable();
+		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public	void	SetBehaviour( BrainState State, string behaviourId, bool state )
+	public	void	SetBehaviour( BrainState State, string behaviourId, BehaviourSetupData data, bool state = false )
 	{
 		if ( behaviourId == null || behaviourId.Trim().Length == 0 )
 		{
@@ -130,11 +140,6 @@ public class Brain : MonoBehaviour, IBrain {
 			Debug.Log( "Brain.SetBehaviour Setting invalid behaviour with id " + behaviourId );
 			return;
 		}
-
-		BehaviourSetupData data = new BehaviourSetupData();
-		{
-
-		};
 
 		Behaviour_Base behaviour = System.Activator.CreateInstance(type) as Behaviour_Base; //gameObject.AddComponent( type ) as Behaviour_Base;
 		behaviour.Setup( this, m_ThisEntity, data );
@@ -206,6 +211,8 @@ public class Brain : MonoBehaviour, IBrain {
 		if ( newState == m_CurrentBrainState )
 			return;
 
+		var prevState = m_CurrentBrainState;
+
 		m_CurrentBehaviour.Disable();
 		m_CurrentBrainState = newState;
 	
@@ -226,6 +233,8 @@ public class Brain : MonoBehaviour, IBrain {
 			case BrainState.ATTACKER:
 				m_CurrentBehaviour = m_BehaviourAttacker;		break;
 		}
+
+		Debug.Log( name + ":Brain:: Switched from " + prevState + " to state " + m_CurrentBrainState );
 
 		m_CurrentBehaviour.Enable();
 	}

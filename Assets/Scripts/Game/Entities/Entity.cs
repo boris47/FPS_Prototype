@@ -41,6 +41,9 @@ public partial interface IEntity {
 
 	// Cutscene manager, that take control over entity during cutscene sequences
 	CutsceneEntityManager	CutsceneManager					{ get; }
+
+	// Store information for the current target
+	TargetInfo_t			TargetInfo						{ get; }
 }
 
 
@@ -91,6 +94,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 				Transform				IEntity.EffectsPivot				{	get { return m_EffectsPivot;	}	}
 				IBrain					IEntity.Brain						{	get { return m_Brain;			}	}
 				CutsceneEntityManager	IEntity.CutsceneManager				{	get { return m_CutsceneManager; }	}
+				TargetInfo_t			IEntity.TargetInfo					{	get { return m_TargetInfo;		}	}
 	// INTERFACE END
 
 	public		IEntity						Interface						{ get { return m_Interface; } }
@@ -138,9 +142,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	protected	bool						m_HasDestination				= false;
 	protected	Vector3						m_DestinationToReachPosition	= Vector3.zero;
 
-
-	// Flag set if foots of entity is aligned with target
-	protected	bool						m_IsAllignedFootsToDestination	= false;
 
 	// Flag set if body of entity is aligned with target
 	protected	bool						m_IsAllignedBodyToPoint			= false;
