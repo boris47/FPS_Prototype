@@ -1,8 +1,106 @@
 ﻿
+using System;
 using UnityEngine;
 
 
-public abstract class Turret : NonLiveEntity {
+public abstract partial class Turret {
+
+	protected	abstract	class Behaviour_Base : AIBehaviour {
+	
+		protected				Turret			m_ThisEntity		= null;
+
+		public override void Setup( Entity BaseEntity )
+		{
+			m_ThisEntity = BaseEntity as Turret;
+		}
+
+		public		override	void			Enable()
+		{
+			m_ThisEntity.Behaviour_OnSave			= OnSave;
+			m_ThisEntity.Behaviour_OnLoad			= OnLoad;
+
+			m_ThisEntity.Behaviour_OnHitWithBullet	= OnHit;
+			m_ThisEntity.Behaviour_OnHitWithDetails	= OnHit;
+
+			m_ThisEntity.Behaviour_OnThink			= OnThink;
+			m_ThisEntity.Behaviour_OnPhysicFrame	= OnPhysicFrame;
+			m_ThisEntity.Behaviour_OnFrame			= OnFrame;
+
+			m_ThisEntity.Behaviour_OnTargetAcquired	= OnTargetAcquired;
+			m_ThisEntity.Behaviour_OnTargetUpdate	= OnTargetUpdate;
+			m_ThisEntity.Behaviour_OnTargetChange	= OnTargetChange;
+			m_ThisEntity.Behaviour_OnTargetLost		= OnTargetLost;
+
+			m_ThisEntity.Behaviour_OnDestinationReached = OnDestinationReached;
+
+			m_ThisEntity.OnKilled					= OnKilled;
+
+		}
+
+		public		override	void			Disable()
+		{
+			m_ThisEntity.Behaviour_OnSave			= null;
+			m_ThisEntity.Behaviour_OnLoad			= null;
+
+			m_ThisEntity.Behaviour_OnHitWithBullet	= null;
+			m_ThisEntity.Behaviour_OnHitWithDetails	= null;
+
+			m_ThisEntity.Behaviour_OnThink			= null;
+			m_ThisEntity.Behaviour_OnPhysicFrame	= null;
+			m_ThisEntity.Behaviour_OnFrame			= null;
+
+			m_ThisEntity.Behaviour_OnTargetAcquired	= null;
+			m_ThisEntity.Behaviour_OnTargetUpdate	= null;
+			m_ThisEntity.Behaviour_OnTargetChange	= null;
+			m_ThisEntity.Behaviour_OnTargetLost		= null;
+
+			m_ThisEntity.Behaviour_OnDestinationReached = null;
+
+			m_ThisEntity.OnKilled					= null;
+
+		}
+
+		public		abstract	StreamUnit		OnSave( StreamData streamData );
+
+		public		abstract	StreamUnit		OnLoad( StreamData streamData );
+
+		public		abstract	void			OnHit( IBullet bullet );
+
+		public		abstract	void			OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false );
+
+		public		abstract	void			OnThink();
+
+		public		abstract	void			OnPhysicFrame( float FixedDeltaTime );
+
+		public		abstract	void			OnFrame( float DeltaTime );
+
+		public		abstract	void			OnPauseSet( bool isPaused );
+
+		public		abstract	void			OnTargetAcquired( TargetInfo_t targetInfo );
+
+		public		abstract	void			OnTargetUpdate( TargetInfo_t targetInfo );
+
+		public		abstract	void			OnTargetChange( TargetInfo_t targetInfo );
+
+		public		abstract	void			OnTargetLost( TargetInfo_t targetInfo );
+
+		public		abstract	void			OnDestinationReached( Vector3 Destination );
+
+		public		abstract	void			OnKilled();
+	}
+
+	protected	partial		class Drone_AI_Beaviour_Evasive {}
+
+	protected	partial		class Drone_AI_Beaviour_Normal {}
+
+	protected	partial		class Drone_AI_Beaviour_Alarmed {}
+
+	protected	partial		class Drone_AI_Beaviour_Seeker {}
+
+	protected	partial		class Drone_AI_Beaviour_Attacker {}
+}
+
+public abstract partial class Turret : NonLiveEntity {
 
 	[Header("Turret Properties")]
 
@@ -56,7 +154,7 @@ public abstract class Turret : NonLiveEntity {
 		m_Laser = GetComponentInChildren<Laser>();
 		if ( m_Laser != null )
 		{
-			m_Laser.LaserLength = m_Brain.FieldOfView.Distance;
+			m_Laser.LaserLength = m_FieldOfView.Distance;
 			m_Laser.LayerMaskToExclude = LayerMask.NameToLayer("Bullets");
 		}
 		// BULLETS POOL CREATION
@@ -80,6 +178,7 @@ public abstract class Turret : NonLiveEntity {
 		}
 	}
 
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	// OnHit ( Override )
 	public		override	void	OnHit( IBullet bullet )
@@ -181,10 +280,10 @@ public abstract class Turret : NonLiveEntity {
 
 		if ( m_TargetInfo.HasTarget == true )
 		{
-			if ( m_Brain.State != BrainState.ATTACKER )
-				m_Brain.ChangeState( BrainState.ATTACKER );
+			if ( m_CurrentBrainState != BrainState.ATTACKER )
+				ChangeState( BrainState.ATTACKER );
 
-			SetPoinToLookAt( m_TargetInfo.CurrentTarget.Transform.position );
+			SetPointToLookAt( m_TargetInfo.CurrentTarget.Transform.position );
 		}
 		
 		// if has target point to face at set
@@ -224,21 +323,7 @@ public abstract class Turret : NonLiveEntity {
 			m_IsAllignedHeadToPoint = false;
 			return;
 		}
-		/*
-		m_IsAllignedHeadToPoint			= Vector3.Angle( m_GunTransform.forward, dirGunToPosition ) < 1.2f;
-		if ( m_IsAllignedHeadToPoint == false )
-		{
-			float signedAngleToTarget = Vector3.SignedAngle( m_GunTransform.forward, dirGunToPosition, m_GunTransform.right );
-			float currentAngle = m_GunTransform.transform.localRotation.eulerAngles.x;
-			currentAngle -= currentAngle > 180f ? 360f : 0f;
-			float rotation = m_GunRotationSpeed * Utils.Math.Sign( signedAngleToTarget ) * deltaTime;
-			if ( Mathf.Abs( currentAngle + rotation ) < ( m_Brain.FieldOfView.Angle / 2f ) )
-			{
-				m_GunTransform.Rotate( Vector3.right, rotation, Space.Self );	
-			}
-		}
-
-	*/
+		
 	}
 
 
@@ -256,5 +341,5 @@ public abstract class Turret : NonLiveEntity {
 		
 		m_FireAudioSource.Play();
 	}
-
+	*/
 }

@@ -92,37 +92,44 @@ public partial class Player {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		override	void		OnTargetAquired( TargetInfo_t targetInfo )
+	protected	override	void		OnTargetAquired( TargetInfo_t targetInfo )
 	{
 
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		override	void		OnTargetUpdate( TargetInfo_t targetInfo )
+	protected	override	void		OnTargetUpdate( TargetInfo_t targetInfo )
 	{
 
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		override	void		OnTargetChanged( TargetInfo_t targetInfo )
+	protected	override	void		OnTargetChanged( TargetInfo_t targetInfo )
 	{
 
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		override	void		OnTargetLost( TargetInfo_t targetInfo )
+	protected	override	void		OnTargetLost( TargetInfo_t targetInfo )
 	{
 
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public override void OnDestinationReached()
+	protected	override	void		OnDestinationReached( Vector3 Destination )
 	{
 
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected override void Brain_OnReset()
+	{
+		
 	}
 
 
@@ -148,7 +155,7 @@ public partial class Player {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		override	void		OnThink()
+	protected	override	void		OnThink()
 	{
 
 	}

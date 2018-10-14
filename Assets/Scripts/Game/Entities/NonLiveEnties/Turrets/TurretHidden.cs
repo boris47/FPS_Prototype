@@ -22,7 +22,7 @@ public class TurretHidden : Turret {
 		m_Animator = GetComponent<Animator>();
 	}
 
-
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	// OnSave ( Override )
 	protected override StreamUnit OnSave( StreamData streamData )
@@ -175,5 +175,5 @@ public class TurretHidden : Turret {
 
 		m_InTransition = false;
 	}
-
+	*/
 }

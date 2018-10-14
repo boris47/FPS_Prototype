@@ -23,11 +23,11 @@ public class WalkerHidden : Walker {
 
 		m_Animator = GetComponent<Animator>();
 	}
-
+	/*
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnTargetAquired ( Override )
-	public override void OnTargetAquired( TargetInfo_t targetInfo )
+	protected override void OnTargetAquired( TargetInfo_t targetInfo )
 	{
 		base.OnTargetAquired( targetInfo );		// m_TargetInfo = targetInfo;
 
@@ -43,7 +43,7 @@ public class WalkerHidden : Walker {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnTargetChanged ( Override )
-	public override void OnTargetChanged( TargetInfo_t targetInfo )
+	protected override void OnTargetChanged( TargetInfo_t targetInfo )
 	{
 		base.OnTargetChanged( targetInfo );		// m_TargetInfo = targetInfo;
 	}
@@ -51,7 +51,7 @@ public class WalkerHidden : Walker {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnTargetLost ( Override )
-	public override void OnTargetLost( TargetInfo_t targetInfo )
+	protected override void OnTargetLost( TargetInfo_t targetInfo )
 	{
 		base.OnTargetLost( targetInfo );		// m_TargetInfo = default( TargetInfo_t );
 
@@ -108,7 +108,7 @@ public class WalkerHidden : Walker {
 		base.OnThink();
 	}
 
-
+	
 	// Update forward direction and gun rotation
 	//////////////////////////////////////////////////////////////////////////
 	// OnFrame ( Override )
@@ -142,7 +142,7 @@ public class WalkerHidden : Walker {
 			FireLongRange( deltaTime );
 		}
 	}
-
+	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	// Activate

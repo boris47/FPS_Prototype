@@ -540,6 +540,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 983c6976c4b8bb14388e50f16a1b97a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_CurrentBrainState: 1
   m_MinEngageDistance: 3
   m_UseDistance: 2
   m_Stamina: 0

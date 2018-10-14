@@ -12,7 +12,7 @@ public partial interface IEntity {
 }
 
 
-public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation {
+public abstract partial class Entity : IEntity {
 	
 	// INTERFACE START
 	NavMeshAgent				IEntity.NavAgent						{ get { return m_NavAgent; } }
@@ -34,7 +34,9 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	protected	bool					m_NavCanMoveAlongPath			= true;
 
 
-	protected	virtual		void	OnPathSearchTimeOutReached()
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	virtual		void		OnPathSearchTimeOutReached()
 	{
 
 	}

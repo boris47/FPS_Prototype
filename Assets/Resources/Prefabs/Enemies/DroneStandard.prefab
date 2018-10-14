@@ -56,7 +56,6 @@ GameObject:
   - component: {fileID: 136822801505488156}
   - component: {fileID: 54999468765484176}
   - component: {fileID: 114483509181092660}
-  - component: {fileID: 114231372857857946}
   - component: {fileID: 114049331937683466}
   - component: {fileID: 82441586941902330}
   - component: {fileID: 114446132884332732}
@@ -382,18 +381,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75d4dc3ed3c9204418e2c498447e8d4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &114231372857857946
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1179847917434662}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24787e8476ba97b4ebf3145f4d2d97e3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_CurrentBrainState: 1
 --- !u!114 &114446132884332732
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -423,6 +410,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbc47d66525a5be47a185e7d83b1e421, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_CurrentBrainState: 5
   m_MinEngageDistance: 5
   m_BodyRotationSpeed: 5
   m_HeadRotationSpeed: 65

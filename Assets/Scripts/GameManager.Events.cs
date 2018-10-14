@@ -563,7 +563,7 @@ public partial class GameManager : UpdateEvents {
 	}
 
 	private static event	GameEvents.OnThinkEvent			m_OnThink				= null;
-	private static event	GameEvents.OnPhysicFrameEvent		m_OnPhysicFrame			= null;
+	private static event	GameEvents.OnPhysicFrameEvent	m_OnPhysicFrame			= null;
 	private static event	GameEvents.OnFrameEvent			m_OnFrame				= null;
 
 

@@ -1,67 +1,119 @@
 ﻿
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace AI.Behaviours {
+public abstract partial class Drone {
 
-	public class Drone_AI_Beaviour_Normal : Behaviour_Normal {
+	protected partial class Drone_AI_Beaviour_Normal {
 
-		public Drone_AI_Beaviour_Normal()
+		public		override	StreamUnit	OnSave( StreamData streamData )
 		{
-
+			return null;
 		}
 
-		public	override	void	Setup( Brain brain, IEntity ThisEntity, BehaviourSetupData Data )
+		public		override	StreamUnit	OnLoad( StreamData streamData )
 		{
-			base.Setup( brain, ThisEntity, null );
+			return null;
 		}
 
+		public		override	void		OnHit( IBullet bullet )
+		{
+			// Avoid friendly fire
+			if ( bullet.WhoRef is NonLiveEntity )
+				return;
 
-		public	override	void	Enable()
+			Debug.Log( "hitted with bullet" );
+
+			// Hit event, set ALARMED State
+			float damage = UnityEngine.Random.Range( bullet.DamageMin, bullet.DamageMax );
+			m_ThisEntity.TakeDamage( damage );
+
+			if ( m_ThisEntity.m_Health > 0.0f )
+			{
+				m_ThisEntity.SetPointToLookAt( bullet.StartPosition );
+
+				m_ThisEntity.ChangeState( BrainState.ALARMED );
+			}
+		}
+
+		public		override	void		OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
+		{
+			Debug.Log( "hitted with details" );
+		}
+
+		public		override	void		OnThink()
 		{
 			
 		}
 
-
-		public	override	void	Disable()
+		public		override	void		OnPhysicFrame( float FixedDeltaTime )
 		{
 			
 		}
 
+		public		override	void		OnFrame( float DeltaTime )
+		{
+			// Update internal timer
+			m_ThisEntity.m_ShotTimer -= DeltaTime;
 
-		public	override	void	OnThink()
+			// if has point to face, update entity orientation
+			if ( m_ThisEntity.m_HasLookAtObject )
+			{
+				m_ThisEntity.FaceToPoint( DeltaTime );   // m_PointToFace
+			}
+
+			// Update PathFinding and movement along path
+			if ( m_ThisEntity.m_HasDestination && m_ThisEntity.m_IsAllignedHeadToPoint )
+			{
+				float agentFinalSpeed = 0.0f;
+				Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_ThisEntity.m_BodyTransform.up, m_ThisEntity.m_BodyTransform.position, m_ThisEntity.m_PointToFace );
+
+				agentFinalSpeed = m_ThisEntity.m_MoveMaxSpeed;
+
+				m_ThisEntity.m_NavAgent.speed = agentFinalSpeed;
+			}
+		}
+
+		public		override	void		OnPauseSet( bool isPaused )
 		{
 			
 		}
 
+		public		override	void		OnTargetAcquired( TargetInfo_t targetInfo )
+		{
+			// PathFinding
+			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_ThisEntity.m_BodyTransform.up, m_ThisEntity.m_BodyTransform.position, targetInfo.CurrentTarget.Transform.position );
+			m_ThisEntity.RequestMovement( projectedPoint );
 
-		public	override	void	OnPhysicFrame( float FixedDeltaTime )
+			// Switch brain State
+			m_ThisEntity.ChangeState( BrainState.ATTACKER );
+		}
+
+		public		override	void		OnTargetUpdate( TargetInfo_t targetInfo )
 		{
 			
 		}
+		
+		public		override	void		OnTargetChange( TargetInfo_t targetInfo )
+		{
 
+		}
+		
+		public		override	void		OnTargetLost( TargetInfo_t targetInfo )
+		{
 
-		public	override	void	OnFrame( float DeltaTime )
+		}
+
+		public		override	void		OnDestinationReached( Vector3 Destination )
+		{
+			m_ThisEntity.NavReset();
+		}
+
+		public		override	void		OnKilled()
 		{
 			
-		}
-
-
-		public	override	void	OnSave( StreamUnit streamUnit )
-		{
-
-			return;
-		}
-
-
-		public	override	void	OnLoad( StreamUnit streamUnit )
-		{
-
-			return;
 		}
 
 	}
-
 }

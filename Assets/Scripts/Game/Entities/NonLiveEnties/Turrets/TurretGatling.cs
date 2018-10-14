@@ -28,7 +28,7 @@ public class TurretGatling : Turret {
 		m_GatlingTransform = m_GunTransform.Find( "Gatling" );
 	}
 
-
+	/*
 
 	//////////////////////////////////////////////////////////////////////////
 	// Update
@@ -88,5 +88,5 @@ public class TurretGatling : Turret {
 		
 		m_FireAudioSource.Play();
 	}
-
+	*/
 }

@@ -2,11 +2,11 @@
 ;========= DRONES
 
 [DroneBase]
-BehaviourEvasive	= AI.Behaviours.Drone_AI_Beaviour_Evasive;
-BehaviourNormal		= AI.Behaviours.Drone_AI_Beaviour_Normal;
-BehaviourAlarmed	= AI.Behaviours.Drone_AI_Beaviour_Alarmed;
-BehaviourSeeker		= AI.Behaviours.Drone_AI_Beaviour_Seeker;
-BehaviourAttacker	= AI.Behaviours.Drone_AI_Beaviour_Attacker;
+BehaviourEvasive	= Drone+Drone_AI_Beaviour_Evasive;
+BehaviourNormal		= Drone+Drone_AI_Beaviour_Normal;
+BehaviourAlarmed	= Drone+Drone_AI_Beaviour_Alarmed;
+BehaviourSeeker		= Drone+Drone_AI_Beaviour_Seeker;
+BehaviourAttacker	= Drone+Drone_AI_Beaviour_Attacker;
 
 [DroneStandard] : DroneBase
 Health				= 100.0;

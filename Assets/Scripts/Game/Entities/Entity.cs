@@ -1,8 +1,6 @@
 ﻿
 using UnityEngine;
 using CFG_Reader;
-using CutScene;
-using AI;
 using UnityEngine.AI;
 
 public partial interface IEntity {
@@ -38,29 +36,14 @@ public partial interface IEntity {
 
 	// Entity brain
 	IBrain					Brain							{ get; }
-
-	// Cutscene manager, that take control over entity during cutscene sequences
-	CutsceneEntityManager	CutsceneManager					{ get; }
-
-	// Store information for the current target
-	TargetInfo_t			TargetInfo						{ get; }
 }
 
 
-public interface IEntitySimulation {
-	Vector3		StartPosition			{ get; set; }
 
-	void		EnterSimulationState	();
-	void		ExitSimulationState		();
-	bool		SimulateMovement		( Entity.SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1f );
 
-}
-
-//					Physics intreractions,		entity volume,		Hit detection & Pathfinding
-[RequireComponent( typeof( Rigidbody ), typeof( CapsuleCollider ),  typeof( Brain ) ) ]
-//					Cutscene Simulation Manager
-[RequireComponent( typeof( CutsceneEntityManager ), typeof( NavMeshAgent ) ) ]
-public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation {
+//					Physics intreractions,		Entity volume,		   Navigation
+[RequireComponent( typeof( Rigidbody ), typeof( CapsuleCollider ), typeof( NavMeshAgent ) ) ]
+public abstract partial class Entity : MonoBehaviour, IEntity {
 
 	public enum ENTITY_TYPE {
 		NONE,
@@ -70,12 +53,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 		ANIMAL,
 		OBJECT
 	};
-
-	public enum SimMovementType {
-		WALK,
-		CROUCHED,
-		RUN
-	}
 
 	[Header("Entity Properties")]
 	private	static uint			CurrentID							= 0;
@@ -92,9 +69,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 				Collider				IEntity.PhysicCollider				{	get { return m_PhysicCollider;	}	}
 				CapsuleCollider			IEntity.TriggerCollider				{	get { return m_TriggerCollider;	}	}
 				Transform				IEntity.EffectsPivot				{	get { return m_EffectsPivot;	}	}
-				IBrain					IEntity.Brain						{	get { return m_Brain;			}	}
-				CutsceneEntityManager	IEntity.CutsceneManager				{	get { return m_CutsceneManager; }	}
-				TargetInfo_t			IEntity.TargetInfo					{	get { return m_TargetInfo;		}	}
+				IBrain					IEntity.Brain						{	get { return this;				}	}
 	// INTERFACE END
 
 	public		IEntity						Interface						{ get { return m_Interface; } }
@@ -112,9 +87,9 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	protected	CapsuleCollider				m_TriggerCollider				= null;
 	protected	Transform					m_EffectsPivot					= null;
 	protected	IEntity						m_Interface						= null;
+	protected	bool						m_IsPlayer						= true;
 
 	// AI
-	protected	IBrain						m_Brain							= null;
 	protected	TargetInfo_t				m_TargetInfo					= default( TargetInfo_t );
 
 	[SerializeField]
@@ -122,13 +97,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 //	[SerializeField]
 	protected	RespawnPoint				m_RespawnPoint					= null;
-
-
-	// CUTSCENE MANAGER
-	protected	CutsceneEntityManager		m_CutsceneManager				= null;
-
-	protected	bool						m_MovementOverrideEnabled		= false;
-	protected	Vector3						m_SimulationStartPosition		= Vector3.zero;
 
 
 	// ORIENTATION
@@ -143,6 +111,9 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 	protected	Vector3						m_DestinationToReachPosition	= Vector3.zero;
 
 
+	// Flag set if foots of entity is aligned with target
+	protected	bool						m_IsAllignedFootsToDestination	= false;
+
 	// Flag set if body of entity is aligned with target
 	protected	bool						m_IsAllignedBodyToPoint			= false;
 
@@ -151,9 +122,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 	// Flag set if gun of entity is aligned with target
 	protected   bool                        m_IsAllignedGunToPoint			= false;
-
-	
-				Vector3						IEntitySimulation.StartPosition { get; set; }
 
 
 	protected	bool 						m_IsOK							= true;
@@ -174,7 +142,9 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 		m_IsOK   =	Utils.Base.SearchComponent( gameObject, ref m_PhysicCollider,		SearchContext.LOCAL );
 		m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_TriggerCollider,		SearchContext.LOCAL );
 		m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_RigidBody,			SearchContext.LOCAL );
-		m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_NavAgent,				SearchContext.LOCAL	);
+		m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_FieldOfView,			SearchContext.ALL	);
+
+		Utils.Base.SearchComponent( gameObject, ref m_NavAgent,				SearchContext.LOCAL	);
 
 		if ( m_IsOK && m_NavAgent != null )
 			m_IsOK	&= m_NavAgent.isOnNavMesh;
@@ -182,8 +152,9 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 		print( name + " is OK = " + m_IsOK );
 
 		Utils.Base.SearchComponent( gameObject, ref m_Shield,				SearchContext.CHILDREN );
-		Utils.Base.SearchComponent( gameObject, ref m_Brain,				SearchContext.LOCAL );
 		Utils.Base.SearchComponent( gameObject, ref m_CutsceneManager,		SearchContext.CHILDREN );
+
+		m_IsPlayer = ( m_EntityType == ENTITY_TYPE.ACTOR );
 	}
 
 
@@ -206,7 +177,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Set the trasform to Look At </summary>
-	public		virtual		void	SetTrasformTolookAt( Transform t )
+	protected	virtual		void	SetTrasformTolookAt( Transform t )
 	{
 		m_TrasformToLookAt	= t;
 		m_PointToFace		= Vector3.zero;
@@ -215,7 +186,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Set the point to Look At </summary>
-	public		virtual		void	SetPoinToLookAt( Vector3 point )
+	protected	virtual		void	SetPointToLookAt( Vector3 point )
 	{
 		m_PointToFace		= point;
 		m_TrasformToLookAt	= null;
@@ -241,43 +212,28 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IEntitySimulation
 			Collider thisColl = thisColliders[i];
 			Physics.IgnoreCollision( thisColl, coll, ignore: !state );
 		}
-
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	/// <summary> Set the Collision state with another collider </summary>
-	void	IEntitySimulation.EnterSimulationState()
+	protected	virtual		void	TakeDamage( float Damage )
 	{
-		this.EnterSimulationState();
+		// DAMAGE
+		// Shield damage
+		if ( m_Shield != null && m_Shield.Status > 0f && m_Shield.IsUnbreakable == false )
+		{
+			m_Shield.OnHit( Damage );
+			return;
+		}
+		// Direct damage
+		else
+		{
+			m_Health -= Damage;
+			if ( m_Health <= 0f )
+			{
+				OnKill();
+			}
+		}
 	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	/// <summary> Set the Collision state with another collider </summary>
-	void	IEntitySimulation.ExitSimulationState()
-	{
-		this.ExitSimulationState();
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	bool	IEntitySimulation.SimulateMovement( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
-	{
-		return this.SimulateMovement( movementType, destination, target, timeScaleTarget );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	protected	abstract	void	EnterSimulationState();
-
-
-	//////////////////////////////////////////////////////////////////////////
-	protected	abstract	void	ExitSimulationState();
-
-
-	//////////////////////////////////////////////////////////////////////////
-	protected	abstract	bool	SimulateMovement( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1f );
-
 
 }

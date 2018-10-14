@@ -809,6 +809,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4a00d2295445e046af875a303c598ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_CurrentBrainState: 1
   m_MinEngageDistance: 0
   m_BodyRotationSpeed: 60
   m_HeadRotationSpeed: 5

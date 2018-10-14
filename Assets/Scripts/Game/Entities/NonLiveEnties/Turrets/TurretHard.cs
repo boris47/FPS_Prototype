@@ -24,7 +24,7 @@ public class TurretHard : Turret {
 
 		base.Awake();
 	}
-
+	/*
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnHit ( Override )
@@ -189,6 +189,6 @@ public class TurretHard : Turret {
 			FireLongRange( deltaTime );
 		}
 	}
-
+	*/
 
 }

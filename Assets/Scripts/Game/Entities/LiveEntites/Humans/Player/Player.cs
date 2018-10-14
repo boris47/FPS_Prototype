@@ -62,6 +62,9 @@ public partial class Player : Human {
 		Entity = this as IEntity;
 		DontDestroyOnLoad( this );
 
+
+		m_EntityType = ENTITY_TYPE.ACTOR;
+
 		base.Awake();
 
 		m_PlayerNearAreaTrigger	= transform.Find( "PNAT" ).GetComponent<Collider>(); // Player Near Area Trigger
@@ -140,8 +143,6 @@ public partial class Player : Human {
 		m_GrabPoint.transform.localPosition = Vector3.zero;
 		m_GrabPoint.transform.localRotation = Quaternion.identity;
 		m_GrabPoint.transform.Translate( 0f, 0f, m_UseDistance );
-
-
 	}
 
 

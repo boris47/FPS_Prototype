@@ -13,7 +13,7 @@ public class WalkerMortar : Walker {
 
 		base.Awake();
 	}
-
+	/*
 
 	//////////////////////////////////////////////////////////////////////////
 	protected override void OnFrame( float deltaTime )
@@ -139,5 +139,5 @@ public class WalkerMortar : Walker {
 
 		return angle * Mathf.Rad2Deg;
 	}
-
+	*/
 }

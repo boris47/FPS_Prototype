@@ -1,10 +1,10 @@
 ﻿
 [WalkerBase]
-BehaviourEvasive	= AI.Behaviours.Walker_AI_Beaviour_Evasive;
-BehaviourNormal		= AI.Behaviours.Walker_AI_Beaviour_Normal;
-BehaviourAlarmed	= AI.Behaviours.Walker_AI_Beaviour_Alarmed;
-BehaviourSeeker		= AI.Behaviours.Walker_AI_Beaviour_Seeker;
-BehaviourAttacker	= AI.Behaviours.Walker_AI_Beaviour_Attacker;
+BehaviourEvasive	= Walker+Walker_AI_Beaviour_Evasive;
+BehaviourNormal		= Walker+Walker_AI_Beaviour_Normal;
+BehaviourAlarmed	= Walker+Walker_AI_Beaviour_Alarmed;
+BehaviourSeeker		= Walker+Walker_AI_Beaviour_Seeker;
+BehaviourAttacker	= Walker+Walker_AI_Beaviour_Attacker;
 
 [WalkerStandard] : WalkerBase
 Health		= 100.0;

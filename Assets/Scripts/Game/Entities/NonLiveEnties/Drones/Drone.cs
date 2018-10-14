@@ -1,8 +1,104 @@
 ﻿
 using UnityEngine;
-using AI.Behaviours;
 
-public abstract class Drone : NonLiveEntity, IRespawn {
+public abstract partial class Drone {
+
+	protected	abstract	class Behaviour_Base : AIBehaviour {
+	
+		protected				Drone			m_ThisEntity		= null;
+
+		public override void Setup( Entity ThisEntity )
+		{
+			m_ThisEntity = ThisEntity as Drone;
+		}
+
+		public		override	void			Enable()
+		{
+			m_ThisEntity.Behaviour_OnSave			= OnSave;
+			m_ThisEntity.Behaviour_OnLoad			= OnLoad;
+
+			m_ThisEntity.Behaviour_OnHitWithBullet	= OnHit;
+			m_ThisEntity.Behaviour_OnHitWithDetails	= OnHit;
+
+			m_ThisEntity.Behaviour_OnThink			= OnThink;
+			m_ThisEntity.Behaviour_OnPhysicFrame	= OnPhysicFrame;
+			m_ThisEntity.Behaviour_OnFrame			= OnFrame;
+
+			m_ThisEntity.Behaviour_OnTargetAcquired	= OnTargetAcquired;
+			m_ThisEntity.Behaviour_OnTargetUpdate	= OnTargetUpdate;
+			m_ThisEntity.Behaviour_OnTargetChange	= OnTargetChange;
+			m_ThisEntity.Behaviour_OnTargetLost		= OnTargetLost;
+
+			m_ThisEntity.Behaviour_OnDestinationReached = OnDestinationReached;
+
+			m_ThisEntity.OnKilled					= OnKilled;
+
+		}
+
+		public		override	void			Disable()
+		{
+			m_ThisEntity.Behaviour_OnSave			= null;
+			m_ThisEntity.Behaviour_OnLoad			= null;
+
+			m_ThisEntity.Behaviour_OnHitWithBullet	= null;
+			m_ThisEntity.Behaviour_OnHitWithDetails	= null;
+
+			m_ThisEntity.Behaviour_OnThink			= null;
+			m_ThisEntity.Behaviour_OnPhysicFrame	= null;
+			m_ThisEntity.Behaviour_OnFrame			= null;
+
+			m_ThisEntity.Behaviour_OnTargetAcquired	= null;
+			m_ThisEntity.Behaviour_OnTargetUpdate	= null;
+			m_ThisEntity.Behaviour_OnTargetChange	= null;
+			m_ThisEntity.Behaviour_OnTargetLost		= null;
+
+			m_ThisEntity.Behaviour_OnDestinationReached = null;
+
+			m_ThisEntity.OnKilled					= null;
+
+		}
+
+		public		abstract	StreamUnit		OnSave( StreamData streamData );
+
+		public		abstract	StreamUnit		OnLoad( StreamData streamData );
+
+		public		abstract	void			OnHit( IBullet bullet );
+
+		public		abstract	void			OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false );
+
+		public		abstract	void			OnThink();
+
+		public		abstract	void			OnPhysicFrame( float FixedDeltaTime );
+
+		public		abstract	void			OnFrame( float DeltaTime );
+
+		public		abstract	void			OnPauseSet( bool isPaused );
+
+		public		abstract	void			OnTargetAcquired( TargetInfo_t targetInfo );
+
+		public		abstract	void			OnTargetUpdate( TargetInfo_t targetInfo );
+
+		public		abstract	void			OnTargetChange( TargetInfo_t targetInfo );
+
+		public		abstract	void			OnTargetLost( TargetInfo_t targetInfo );
+
+		public		abstract	void			OnDestinationReached( Vector3 Destination );
+
+		public		abstract	void			OnKilled();
+	}
+
+	protected	partial		class Drone_AI_Beaviour_Evasive : Behaviour_Base {}
+
+	protected	partial		class Drone_AI_Beaviour_Normal : Behaviour_Base {}
+
+	protected	partial		class Drone_AI_Beaviour_Alarmed : Behaviour_Base {}
+
+	protected	partial		class Drone_AI_Beaviour_Seeker : Behaviour_Base {}
+
+	protected	partial		class Drone_AI_Beaviour_Attacker : Behaviour_Base {}
+}
+
+public abstract partial class Drone : NonLiveEntity, IRespawn {
 
 	[Header("Drone Properties")]
 
@@ -22,8 +118,6 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 	protected	float			m_DamageLongRangeMin		= 0.5f;
 
 	protected	int				m_PoolSize					= 5;
-	
-
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -73,56 +167,25 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 
 		// AI BEHAVIOURS
-		{
-			BehaviourSetupData data = new BehaviourSetupData();
-			{
-				data.BulletstPool = m_Pool;
-			};
-			m_Brain.SetBehaviour( BrainState.EVASIVE,	m_SectionRef.AsString( "BehaviourEvasive"	), data, false );
-			m_Brain.SetBehaviour( BrainState.NORMAL,	m_SectionRef.AsString( "BehaviourNormal"	), data, true  );
-			m_Brain.SetBehaviour( BrainState.ALARMED,	m_SectionRef.AsString( "BehaviourAlarmed"	), data, false );
-			m_Brain.SetBehaviour( BrainState.SEEKER,	m_SectionRef.AsString( "BehaviourSeeker"	), data, false );
-			m_Brain.SetBehaviour( BrainState.ATTACKER,	m_SectionRef.AsString( "BehaviourAttacker"	), data, false );
+		{	m_Behaviours = new AIBehaviour[ 5 ];
+			SetBehaviour( BrainState.EVASIVE,	m_SectionRef.AsString( "BehaviourEvasive"	), false, this );
+			SetBehaviour( BrainState.NORMAL,	m_SectionRef.AsString( "BehaviourNormal"	), true , this );
+			SetBehaviour( BrainState.ALARMED,	m_SectionRef.AsString( "BehaviourAlarmed"	), false, this );
+			SetBehaviour( BrainState.SEEKER,	m_SectionRef.AsString( "BehaviourSeeker"	), false, this );
+			SetBehaviour( BrainState.ATTACKER,	m_SectionRef.AsString( "BehaviourAttacker"	), false, this );
+
+			ChangeState( BrainState.NORMAL );
 		}
 	}
-
+	
 
 	//////////////////////////////////////////////////////////////////////////
 
 	public		override	void	OnHit( IBullet bullet )
 	{
-		// Avoid friendly fire
-		if ( bullet.WhoRef is NonLiveEntity )
-			return;
-
-		// BRAIN
-		// Hit event, set ALARMED State if actual is NORMAL
-		if ( m_Brain.State == BrainState.NORMAL )
-		{
-			m_Brain.ChangeState( BrainState.ALARMED );
-		}
-		SetPoinToLookAt( bullet.StartPosition );
-
-		// DAMAGE
-		// Shield damage
-		if ( m_Shield != null && m_Shield.Status > 0f && m_Shield.IsUnbreakable == false )
-		{
-			m_Shield.OnHit( bullet );
-			return;
-		}
-		// Direct damage
-		else
-		{
-			float damage = Random.Range( bullet.DamageMin, bullet.DamageMax );
-			m_Health -= damage;
-
-			if ( m_Health <= 0f )
-			{
-				OnKill();
-			}
-		}
+		Behaviour_OnHitWithBullet( bullet );
 	}
-
+	/*
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -133,148 +196,54 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 
 	//////////////////////////////////////////////////////////////////////////
-
-	public		override	void	OnDestinationReached()
+	*/
+	protected		override	void	OnDestinationReached( Vector3 Destionation )
 	{
-		NavReset();
-
-		print( "OnDestinationReached" );
-		if ( m_TargetInfo.HasTarget == true )
-		{
-			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_BodyTransform.position, m_TargetInfo.CurrentTarget.Transform.position );
-			if ( ( transform.position - projectedPoint ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
-			{
-				RequestMovement( projectedPoint );
-			}
-		}
+		base.OnDestinationReached( Destionation );
 	}
 
-
+	
 	//////////////////////////////////////////////////////////////////////////
 
-	public		override	void	OnTargetAquired( TargetInfo_t targetInfo )
+	protected		override	void	OnTargetAquired( TargetInfo_t targetInfo )
 	{
 		base.OnTargetAquired( targetInfo );
-
-		// PathFinding
-		Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_BodyTransform.position, m_TargetInfo.CurrentTarget.Transform.position );
-		RequestMovement( projectedPoint );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 
-	public		override	void	OnTargetUpdate( TargetInfo_t targetInfo )
+	protected		override	void	OnTargetUpdate( TargetInfo_t targetInfo )
 	{
-//		m_TargetInfo.Update( targetInfo );
+		base.OnTargetUpdate( targetInfo );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 
-	public		override	void	OnTargetChanged( TargetInfo_t targetInfo )
+	protected		override	void	OnTargetChanged( TargetInfo_t targetInfo )
 	{
 		base.OnTargetChanged( targetInfo );
-
-		// PathFinding
-		Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_BodyTransform.position, m_TargetInfo.CurrentTarget.Transform.position );
-		RequestMovement( projectedPoint );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 
-	public		override	void	OnTargetLost( TargetInfo_t targetInfo )
+	protected		override	void	OnTargetLost( TargetInfo_t targetInfo )
 	{
-		// SEEKING MODE
-
-		// TODO Set brain to SEKKER mode
-		m_Brain.ChangeState( BrainState.SEEKER );
-
-		// Destination
-		{
-			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_BodyTransform.position, m_TargetInfo.CurrentTarget.Transform.position );
-			RequestMovement( projectedPoint );
-		}
-
-		// Orientation
-		{
-			Vector3 newPointToLookAt = m_TargetInfo.CurrentTarget.Transform.position + m_TargetInfo.CurrentTarget.RigidBody.velocity.normalized;
-			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_BodyTransform.position, newPointToLookAt );
-			SetPoinToLookAt( projectedPoint );
-		}
-
-		base.OnTargetLost( targetInfo ); // m_TargetInfo.Reset();
-
-		
+		base.OnTargetLost( targetInfo );
+	
 	}
 
-
+	
 	//////////////////////////////////////////////////////////////////////////
 
 	protected	override	void	OnFrame( float deltaTime )
 	{
 		base.OnFrame( deltaTime );
-
-		return;
-		// Update internal timer
-		m_ShotTimer -= deltaTime;
-
-		// Update targeting
-		if ( m_TargetInfo.HasTarget == true )
-		{
-			if ( m_Brain.State != BrainState.ATTACKER )
-			{
-				m_Brain.ChangeState( BrainState.ATTACKER );
-			}
-
-			SetPoinToLookAt( m_TargetInfo.CurrentTarget.Transform.position );
-
-			// with a target, if gun alligned, fire
-			if ( m_IsAllignedGunToPoint == true )
-			{
-				FireLongRange( deltaTime );
-			}
-		}
-
-		// if has point to face, update entity orientation
-		if ( m_HasLookAtObject )
-		{
-			FaceToPoint( deltaTime );   // m_PointToFace
-		}
-
-
-		m_NavCanMoveAlongPath = false;
-
-		// Update PathFinding and movement along path
-		if ( m_HasDestination && m_IsAllignedHeadToPoint )
-		{
-			float agentFinalSpeed = 0.0f;
-			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_BodyTransform.position, m_PointToFace );
-			bool IsNotUnderEngageDistance = ( transform.position - projectedPoint ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance;
-			if ( m_TargetInfo.HasTarget )
-			{
-				if ( IsNotUnderEngageDistance )
-				{
-					agentFinalSpeed = m_MoveMaxSpeed;
-				}
-				else
-				{
-					agentFinalSpeed = 0.0f;
-				}
-			}
-			else
-			{
-				agentFinalSpeed = m_MoveMaxSpeed;
-			}
-			print(agentFinalSpeed);
-			m_NavAgent.speed = agentFinalSpeed;
-		}
-
-		
 	}
 
-
+	
 	//////////////////////////////////////////////////////////////////////////
 
 	public		override	void	OnKill()
@@ -288,11 +257,11 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 			m_RespawnPoint.Respawn( this, 2f );
 		}
 	}
-
+	
 
 	//////////////////////////////////////////////////////////////////////////
 
-	protected	override	void	FaceToPoint( float DeltaTime )
+	protected		void	FaceToPoint( float DeltaTime )
 	{
 		// ORIENTATION
 		// BODY
@@ -341,8 +310,8 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 	
 
 	//////////////////////////////////////////////////////////////////////////
-
-	protected	override	void	FireLongRange( float deltaTime )
+	
+	protected		void	FireLongRange( float deltaTime )
 	{
 		if ( m_ShotTimer > 0 )
 				return;
@@ -362,7 +331,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		
 		m_FireAudioSource.Play();
 	}
-
+	
 	
 	//////////////////////////////////////////////////////////////////////////
 
@@ -390,8 +359,12 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		// Reinitialize properties
 		Awake();
 
-		m_Brain.OnReset();
+		
+
+		Brain_OnReset();
 		if ( m_Shield != null )
 			( m_Shield as IShield ).OnReset();
 	}
+
 }
+

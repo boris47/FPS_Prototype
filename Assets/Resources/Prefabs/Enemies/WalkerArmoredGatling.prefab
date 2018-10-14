@@ -534,6 +534,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0323a7d665bcae24e9875f4a2064e3b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_CurrentBrainState: 1
   m_MinEngageDistance: 0
   m_BodyRotationSpeed: 1
   m_HeadRotationSpeed: 2

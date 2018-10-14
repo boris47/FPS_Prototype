@@ -40,7 +40,7 @@ public abstract partial class NonLiveEntity : Entity {
 		}
 
 		// Brain state
-		streamUnit.AddInternal( "BrainState", m_Brain.State );
+//		streamUnit.AddInternal( "BrainState", m_Brain.State );
 
 		return streamUnit;
 	}
@@ -82,7 +82,7 @@ public abstract partial class NonLiveEntity : Entity {
 		}
 
 		// Brain state
-		m_Brain.ChangeState ( streamUnit.GetAsEnum<BrainState>( "BrainState" ) );
+//		m_Brain.ChangeState ( streamUnit.GetAsEnum<BrainState>( "BrainState" ) );
 
 		return streamUnit;
 	}
@@ -90,50 +90,49 @@ public abstract partial class NonLiveEntity : Entity {
 
 	//////////////////////////////////////////////////////////////////////////
 
-	public		override	void		OnTargetAquired( TargetInfo_t targetInfo )
+	protected	override	void		OnTargetAquired( TargetInfo_t targetInfo )
 	{
-		print( "OntargetAcquired" );
-
 		m_TargetInfo.Update( targetInfo );
 
-		// now point to face is target position
-		SetPoinToLookAt( m_TargetInfo.CurrentTarget.Transform.position );
-
-		m_Brain.ChangeState( BrainState.ATTACKER );
+		base.OnTargetAquired( targetInfo );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 
-	public		override	void		OnTargetUpdate( TargetInfo_t targetInfo )
+	protected	override	void		OnTargetUpdate( TargetInfo_t targetInfo )
 	{
 		m_TargetInfo.Update( targetInfo );
+
+		base.OnTargetUpdate( targetInfo );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 
-	public		override	void		OnTargetChanged( TargetInfo_t targetInfo )
+	protected	override	void		OnTargetChanged( TargetInfo_t targetInfo )
 	{
-		print( "OnTargetChanged" );
-
 		m_TargetInfo.Update( targetInfo );
+
+		base.OnTargetChanged( targetInfo );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 
-	public		override	void		OnTargetLost( TargetInfo_t targetInfo )
+	protected	override	void		OnTargetLost( TargetInfo_t targetInfo )
 	{
 		m_TargetInfo.Reset();
+
+		base.OnTargetLost( targetInfo );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 
-	public		override	void		OnDestinationReached()
+	protected	override	void		OnDestinationReached( Vector3 Destination )
 	{
-		Debug.Log( "This function should not be called" );
+		base.OnDestinationReached(  Destination );
 	}
 
 
@@ -149,17 +148,7 @@ public abstract partial class NonLiveEntity : Entity {
 
 	public		override	void		OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
-		// Hit event, set ALARMED State if actual is NORMAL
-		if ( m_Brain.State == BrainState.NORMAL )
-		{
-			m_Brain.ChangeState( BrainState.ALARMED );
-		}
-
-		// if is not attacking
-		if ( m_Brain.State != BrainState.ATTACKER )
-		{
-			SetPoinToLookAt( startPosition );
-		}
+		base.OnHit( startPosition, whoRef, damage, canPenetrate );
 	}
 	
 
@@ -167,7 +156,7 @@ public abstract partial class NonLiveEntity : Entity {
 
 	protected	override	void		OnPhysicFrame( float fixedDeltaTime )
 	{
-		
+		base.OnPhysicFrame( fixedDeltaTime );
 	}
 	
 
@@ -178,17 +167,19 @@ public abstract partial class NonLiveEntity : Entity {
 		bool nowIsMoving = m_NavAgent.velocity.sqrMagnitude > 0.0f;
 		if ( m_HasDestination == true && WasMoving == true && nowIsMoving == false )
 		{
-			OnDestinationReached();
+			OnDestinationReached( transform.position );
 		}
 		WasMoving = m_NavAgent.velocity.sqrMagnitude > 0.0f;
+
+		base.OnFrame( deltaTime );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 
-	public		override	void		OnThink()
+	protected	override	void		OnThink()
 	{
-//		NavUpdate();
+		base.OnThink();
 	}
 
 	

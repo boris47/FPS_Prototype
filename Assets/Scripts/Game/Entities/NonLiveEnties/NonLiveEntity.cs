@@ -55,15 +55,16 @@ public abstract partial class NonLiveEntity : Entity {
 		m_FirePoint			= m_GunTransform.Find( "FirePoint" );
 
 	}
-
+	
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	protected	abstract	void		FaceToPoint( float deltaTime );
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	abstract	void		FireLongRange( float deltaTime );
-
-
+	*/
+	
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		EnterSimulationState()
 	{

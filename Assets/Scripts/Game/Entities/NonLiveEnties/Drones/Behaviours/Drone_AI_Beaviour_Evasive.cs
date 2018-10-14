@@ -4,64 +4,79 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace AI.Behaviours {
+public abstract partial class Drone {
 
-	public class Drone_AI_Beaviour_Evasive : Behaviour_Evasive {
+	protected partial class Drone_AI_Beaviour_Evasive {
 
-		public Drone_AI_Beaviour_Evasive()
+		public		override	StreamUnit	OnSave( StreamData streamData )
+		{
+			return null;
+		}
+
+		public		override	StreamUnit	OnLoad( StreamData streamData )
+		{
+			return null;
+		}
+
+		public		override	void		OnHit( IBullet bullet )
 		{
 			
 		}
 
-		public	override	void	Setup( Brain brain, IEntity ThisEntity, BehaviourSetupData Data )
-		{
-			base.Setup( brain, ThisEntity, null );
-		}
-
-
-		public	override	void	Enable()
+		public		override	void		OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 		{
 			
 		}
 
-
-		public	override	void	Disable()
+		public		override	void		OnThink()
 		{
 			
 		}
 
-
-		public	override	void	OnThink()
+		public		override	void		OnPhysicFrame( float FixedDeltaTime )
 		{
 			
 		}
 
-
-		public	override	void	OnPhysicFrame( float FixedDeltaTime )
+		public		override	void		OnFrame( float DeltaTime )
 		{
 			
 		}
 
-
-		public	override	void	OnFrame( float DeltaTime )
+		public		override	void		OnPauseSet( bool isPaused )
 		{
 			
 		}
 
-
-		public	override	void	OnSave( StreamUnit streamUnit )
+		public		override	void		OnTargetAcquired( TargetInfo_t targetInfo )
 		{
-
-			return;
+			
 		}
 
-
-		public	override	void	OnLoad( StreamUnit streamUnit )
+		public		override	void		OnTargetUpdate( TargetInfo_t targetInfo )
 		{
-
-			return;
+			
+		}
+		
+		public		override	void		OnTargetChange( TargetInfo_t targetInfo )
+		{
+			
+		}
+		
+		public		override	void		OnTargetLost( TargetInfo_t targetInfo )
+		{
+			
 		}
 
+		public		override	void		OnDestinationReached( Vector3 Destination )
+		{
+			
+		}
+
+		public		override	void		OnKilled()
+		{
+			
+		}
 	}
 
 }

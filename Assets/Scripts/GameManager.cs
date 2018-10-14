@@ -141,7 +141,7 @@ public partial class GameManager : MonoBehaviour {
 
 		// Thinking Update
 		m_ThinkTimer += Time.deltaTime;
-		if ( m_ThinkTimer > Brain.THINK_TIMER )
+		if ( m_ThinkTimer > Entity.THINK_TIMER )
 		{
 			m_OnThink();
 			m_ThinkTimer = 0f;
