@@ -39,7 +39,6 @@ GameObject:
   - component: {fileID: 136923642479919412}
   - component: {fileID: 54160108086043520}
   - component: {fileID: 114816624389794800}
-  - component: {fileID: 114825460107659640}
   - component: {fileID: 82573306180339646}
   - component: {fileID: 114299718002156272}
   m_Layer: 0
@@ -48,7 +47,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1393093096009116
 GameObject:
   m_ObjectHideFlags: 1
@@ -808,18 +807,6 @@ MonoBehaviour:
   m_DamageMax: 2
   m_DamageMin: 0.5
   m_PoolSize: 5
---- !u!114 &114825460107659640
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1299214103800878}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24787e8476ba97b4ebf3145f4d2d97e3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_CurrentBrainState: 0
 --- !u!135 &135481550678796230
 SphereCollider:
   m_ObjectHideFlags: 1

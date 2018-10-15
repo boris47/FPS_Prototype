@@ -24,19 +24,23 @@ public abstract partial class Drone {
 			if ( bullet.WhoRef is NonLiveEntity )
 				return;
 
-			// Hit event, set ALARMED State
-			float damage = UnityEngine.Random.Range( bullet.DamageMin, bullet.DamageMax );
-			m_ThisEntity.TakeDamage( damage );
+			Debug.Log( "hitted with bullet" );
 
-			if ( m_ThisEntity.m_Health > 0.0f )
-			{
-				m_ThisEntity.SetPointToLookAt( bullet.StartPosition );
-			}
+			float damage = UnityEngine.Random.Range( bullet.DamageMin, bullet.DamageMax );
+			this.OnHit( bullet.StartPosition, bullet.WhoRef, damage, bullet.CanPenetrate );
 		}
 
 		public		override	void		OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 		{
-			
+			Debug.Log( "hitted with details" );
+
+			// Hit event, set ALARMED State
+			if ( m_ThisEntity.m_Health > 0.0f )
+			{
+				m_ThisEntity.TakeDamage( damage );
+
+				m_ThisEntity.SetPointToLookAt( startPosition );
+			}
 		}
 
 		public		override	void		OnThink()

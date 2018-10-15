@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
 public abstract partial class Walker {
 
 	protected partial class Walker_AI_Beaviour_Evasive {

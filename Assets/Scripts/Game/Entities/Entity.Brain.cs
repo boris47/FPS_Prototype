@@ -52,7 +52,7 @@ public abstract partial class Entity : IBrain {
 
 	[Header( "Brain" )]
 
-	[SerializeField, ReadOnly]
+	[SerializeField]
 	protected			BrainState					m_CurrentBrainState				= BrainState.COUNT;
 
 	// INTERFACE START

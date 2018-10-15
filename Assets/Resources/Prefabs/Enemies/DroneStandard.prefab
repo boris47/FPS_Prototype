@@ -421,6 +421,7 @@ MonoBehaviour:
   m_ShotDelay: 0.32
   m_DamageLongRangeMax: 2
   m_DamageLongRangeMin: 0.5
+  m_PoolSize: 5
 --- !u!114 &114608295052453368
 MonoBehaviour:
   m_ObjectHideFlags: 1

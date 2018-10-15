@@ -54,7 +54,6 @@ GameObject:
   - component: {fileID: 136030365488619698}
   - component: {fileID: 54849663416391536}
   - component: {fileID: 114222663979186554}
-  - component: {fileID: 114504461975654062}
   - component: {fileID: 82191995526071614}
   - component: {fileID: 114361102782724796}
   m_Layer: 0
@@ -63,7 +62,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1531486504970878
 GameObject:
   m_ObjectHideFlags: 0
@@ -450,17 +449,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3e45e9f5ec9f8540aca700f8d80d932, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_CurrentBrainState: 1
-  m_MinEngageDistance: 0
+  m_CurrentBrainState: 5
+  m_MinEngageDistance: 5
   m_BodyRotationSpeed: 5
-  m_HeadRotationSpeed: 5
-  m_GunRotationSpeed: 5
+  m_HeadRotationSpeed: 65
+  m_GunRotationSpeed: 80
   m_FireDispersion: 0.01
-  m_MoveMaxSpeed: 20
+  m_MoveMaxSpeed: 1
   m_Bullet: {fileID: 114671673385870204, guid: 6022bac21992ba94bb2fd959d6d5f7f0, type: 2}
   m_ShotDelay: 2.6
-  m_DamageMax: 2
-  m_DamageMin: 0.5
+  m_DamageMax: 20
+  m_DamageMin: 13
   m_PoolSize: 5
 --- !u!114 &114361102782724796
 MonoBehaviour:
@@ -480,18 +479,6 @@ MonoBehaviour:
   m_Volume: 1
   m_Pitch: 1
   m_IsFading: 0
---- !u!114 &114504461975654062
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1372509024084370}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24787e8476ba97b4ebf3145f4d2d97e3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_CurrentBrainState: 0
 --- !u!114 &114535515681892772
 MonoBehaviour:
   m_ObjectHideFlags: 1

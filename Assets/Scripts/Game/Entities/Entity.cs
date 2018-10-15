@@ -137,6 +137,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		m_ID				= NewID();
 		m_Interface			= this as IEntity;
 
+		m_IsPlayer = ( m_EntityType == ENTITY_TYPE.ACTOR );
+
 		m_EffectsPivot		= transform.Find( "EffectsPivot" );
 
 		m_IsOK   =	Utils.Base.SearchComponent( gameObject, ref m_PhysicCollider,		SearchContext.LOCAL );
@@ -146,15 +148,16 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 		Utils.Base.SearchComponent( gameObject, ref m_NavAgent,				SearchContext.LOCAL	);
 
-		if ( m_IsOK && m_NavAgent != null )
+		if ( m_IsOK && m_NavAgent != null && m_IsPlayer == false )
 			m_IsOK	&= m_NavAgent.isOnNavMesh;
 
-		print( name + " is OK = " + m_IsOK );
+		if ( m_IsOK == false && m_IsPlayer == false )
+			print( name + " is not OK" );
 
 		Utils.Base.SearchComponent( gameObject, ref m_Shield,				SearchContext.CHILDREN );
 		Utils.Base.SearchComponent( gameObject, ref m_CutsceneManager,		SearchContext.CHILDREN );
 
-		m_IsPlayer = ( m_EntityType == ENTITY_TYPE.ACTOR );
+		
 	}
 
 

@@ -185,18 +185,18 @@ public abstract partial class Walker : NonLiveEntity, IRespawn {
 	{
 		Behaviour_OnHitWithBullet( bullet );
 	}
-	/*
+	
 
 	//////////////////////////////////////////////////////////////////////////
 
 	public		override	void	OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
-		print( name + " OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate )" );
+		Behaviour_OnHitWithDetails( startPosition, whoRef, damage, canPenetrate );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	*/
+	
 	protected		override	void	OnDestinationReached( Vector3 Destionation )
 	{
 		base.OnDestinationReached( Destionation );

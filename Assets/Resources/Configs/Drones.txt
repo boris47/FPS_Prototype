@@ -24,7 +24,7 @@ CloseCombatDelay	= 1.0;
 
 
 [DroneArmored] : DroneBase
-Health				= 50.0;
+Health				= 80.0;
 Shield				= 60.0;
 
 MoveMaxSpeed		= 1.5;

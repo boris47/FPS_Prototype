@@ -117,6 +117,7 @@ public abstract partial class Drone : NonLiveEntity, IRespawn {
 	[SerializeField]
 	protected	float			m_DamageLongRangeMin		= 0.5f;
 
+	[SerializeField, ReadOnly]
 	protected	int				m_PoolSize					= 5;
 
 	//////////////////////////////////////////////////////////////////////////
@@ -185,18 +186,18 @@ public abstract partial class Drone : NonLiveEntity, IRespawn {
 	{
 		Behaviour_OnHitWithBullet( bullet );
 	}
-	/*
+	
 
 	//////////////////////////////////////////////////////////////////////////
 
 	public		override	void	OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
-		print( name + " OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate )" );
+		Behaviour_OnHitWithDetails( startPosition, whoRef, damage, canPenetrate );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	*/
+	
 	protected		override	void	OnDestinationReached( Vector3 Destionation )
 	{
 		base.OnDestinationReached( Destionation );

@@ -4,7 +4,7 @@ using System.Collections;
 public interface IShield {
 
 	float		Status				{ set; }
-	Entity		Father				{ set; }
+	Entity		Parent				{ set; }
 	bool		IsUnbreakable		{ set; }
 
 	void		OnHit				( IBullet bullet );
@@ -14,32 +14,34 @@ public interface IShield {
 [RequireComponent( typeof ( Collider ) )]
 public class Shield : MonoBehaviour, IShield {
 
+
+	bool		IShield.IsUnbreakable		{	set { m_IsUnbreakable = value; } }
+	Entity		IShield.Parent				{	set { m_Parent = value; }			}
+	float		IShield.Status				{	set { m_Status = m_StartStatus = value; } }
+
+
 	[SerializeField]
 	private		bool		m_IsUnbreakable		= false;
+
 	public		bool		IsUnbreakable				{	get { return m_IsUnbreakable;  }	}
-				bool		IShield.IsUnbreakable		{	set { m_IsUnbreakable = value; }	}
-
-	private		float		m_Status			= 100f;
-	public		float		Status						{	get { return m_Status; }			}
-				float		IShield.Status				{	set { m_Status = value; }			}
-
-	private		Entity		m_Father			= null;
-				Entity		IShield.Father				{	set { m_Father = value; }			}
-
-	private		Collider	m_Collider			= null;
 	public		Collider	Collider					{	get { return m_Collider; }			}
+	public		float		Status						{	get { return m_Status; }			}
 
+
+	private		Entity		m_Parent			= null;
+	private		Collider	m_Collider			= null;
 	private		Renderer	m_Renderer			= null;
+	private		float		m_Status			= 100f;
+	private		float		m_StartStatus		= 0.0f;
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake
 	private void Awake()
 	{
-		m_Father =  transform.parent.GetComponent<Entity>();
-
-		m_Renderer = GetComponent<Renderer>();
-		m_Collider = GetComponent<Collider>();
+		Utils.Base.SearchComponent( gameObject, ref m_Parent, SearchContext.PARENT );
+		Utils.Base.SearchComponent( gameObject, ref m_Renderer, SearchContext.LOCAL );
+		Utils.Base.SearchComponent( gameObject, ref m_Collider, SearchContext.LOCAL );
 	}
 
 
@@ -54,6 +56,9 @@ public class Shield : MonoBehaviour, IShield {
 			m_Renderer.enabled = false;
 			m_Collider.enabled = false;
 		}
+
+		// Notify hit
+		m_Parent.OnHit( transform.position, bullet.WhoRef, 0.0f );
 	}
 
 
@@ -87,15 +92,15 @@ public class Shield : MonoBehaviour, IShield {
 			return;
 		}
 		
-		// Shiled take hit
+		// Shield take hit
 		OnHit( bullet );
 
 		// Penetration effect
-		if ( m_Father != null && bullet.CanPenetrate == true && bullet.Weapon != null )
+		if ( m_Parent != null && bullet.CanPenetrate == true && bullet.Weapon != null )
 		{
 			bullet.DamageMax *= 0.5f;
 			bullet.DamageMin *= 0.5f;
-			m_Father.OnHit( bullet );
+			m_Parent.OnHit( bullet );
 		}
 		bullet.SetActive( false );
 	}
@@ -107,6 +112,7 @@ public class Shield : MonoBehaviour, IShield {
 	{
 		m_Renderer.enabled = true;
 		m_Collider.enabled = true;
+		m_Status = m_StartStatus;
 	}
 
 

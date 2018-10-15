@@ -4,10 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
 public abstract partial class Walker {
 
-	protected  partial class Walker_AI_Beaviour_Seeker {
+	protected partial class Walker_AI_Beaviour_Seeker {
 
 		public		override	StreamUnit	OnSave( StreamData streamData )
 		{
@@ -25,22 +24,25 @@ public abstract partial class Walker {
 			if ( bullet.WhoRef is NonLiveEntity )
 				return;
 
+			Debug.Log( "hitted with bullet" );
 
-			// Hit event, set ALARMED State
 			float damage = UnityEngine.Random.Range( bullet.DamageMin, bullet.DamageMax );
-			m_ThisEntity.TakeDamage( damage );
-
-			if ( m_ThisEntity.m_Health > 0.0f )
-			{
-				m_ThisEntity.SetPointToLookAt( bullet.StartPosition );
-
-				m_ThisEntity.ChangeState( BrainState.ALARMED );
-			}
+			this.OnHit( bullet.StartPosition, bullet.WhoRef, damage, bullet.CanPenetrate );
 		}
 
 		public		override	void		OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 		{
-			
+			Debug.Log( "hitted with details" );
+
+			// Hit event, set ALARMED State
+			if ( m_ThisEntity.m_Health > 0.0f )
+			{
+				m_ThisEntity.TakeDamage( damage );
+
+				m_ThisEntity.SetPointToLookAt( startPosition );
+
+				m_ThisEntity.ChangeState( BrainState.ALARMED );
+			}
 		}
 
 		public		override	void		OnThink()

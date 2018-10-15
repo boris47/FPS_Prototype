@@ -44,7 +44,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	[SerializeField, Range( 1f, 200f )]
 	private		float					m_ViewDistance			= 10f;
 
-	[SerializeField,Range( 20f, 150f)]
+	[SerializeField,Range( 1f, 150f)]
 	private		float					m_ViewCone				= 100f;
 
 	[SerializeField]

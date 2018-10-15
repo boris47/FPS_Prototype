@@ -60,8 +60,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	{
 		Brain_SetActive( true );
 
-		print("entity_enabled");
-
 		// Events registration
 		{
 			GameManager.StreamEvents.OnSave				+= OnSave;
@@ -120,7 +118,10 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		streamUnit.Position			= transform.position;
 		streamUnit.Rotation			= transform.rotation;
 
-		Behaviour_OnSave( streamData );
+		if ( m_IsPlayer == false )
+		{
+			Behaviour_OnSave( streamData );
+		}
 
 		return streamUnit;
 	}
@@ -153,7 +154,10 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		transform.position = streamUnit.Position;
 		transform.rotation = streamUnit.Rotation;
 
-		Behaviour_OnLoad( streamData );
+		if ( m_IsPlayer == false )
+		{
+			Behaviour_OnLoad( streamData );
+		}
 
 		return streamUnit;
 	}
