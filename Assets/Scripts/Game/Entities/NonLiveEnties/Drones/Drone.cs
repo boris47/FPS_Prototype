@@ -155,7 +155,14 @@ public abstract partial class Drone : NonLiveEntity, IRespawn {
 				actionOnObject	: ( Bullet o ) =>
 				{
 					o.SetActive( false );
-					o.Setup( damageMin : m_DamageLongRangeMin, damageMax : m_DamageLongRangeMax, canPenetrate : false, whoRef : this, weapon : null );
+					o.Setup
+					(
+						canPenetrate: false,
+						whoRef: this,
+						weaponRef: null,
+						damageMin: m_DamageLongRangeMax,
+						damageMax: m_DamageLongRangeMin
+					);
 					this.SetCollisionStateWith( o.Collider, state: false );
 
 					// this allow to receive only trigger enter callback

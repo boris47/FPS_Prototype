@@ -154,8 +154,14 @@ public abstract partial class Walker : NonLiveEntity, IRespawn {
 				actionOnObject	: ( Bullet o ) =>
 				{
 					o.SetActive( false );
-					o.Setup( m_DamageMin, m_DamageMax, canPenetrate : false, whoRef : this, weapon : null );
-					o.Setup( whoRef: this, weapon: null );
+					o.Setup
+					(
+						canPenetrate: false,
+						whoRef: this,
+						weaponRef: null,
+						damageMin: m_DamageMin,
+						damageMax: m_DamageMin
+					);
 					this.SetCollisionStateWith( o.Collider, state: false );
 
 					// this allow to receive only trigger enter callback
@@ -284,18 +290,43 @@ public abstract partial class Walker : NonLiveEntity, IRespawn {
 		// GUN
 		{
 			Vector3 pointToLookAt = m_PointToFace;
-			if ( m_TargetInfo.HasTarget == true ) // PREDICTION
+			if ( m_TargetInfo.HasTarget == true )
 			{
-				// Vector3 shooterPosition, Vector3 shooterVelocity, float shotSpeed, Vector3 targetPosition, Vector3 targetVelocity
+				Vector3 targetPosition = m_TargetInfo.CurrentTarget.Transform.position;
+				Bullet model = m_Pool.GetAsModel();
+				if ( model.MotionType == BulletMotionType.PARBOLIC )
+				{
+					// BALLISTIC TRAJECTORY
+					float targetHeight = targetPosition.y;
+					float angle = Utils.Math.CalculateFireAngle
+					(
+						alt:			0f,
+						startPosition:	m_GunTransform.position,
+						endPosition:	m_PointToFace,
+						bulletVelocity:	model.Velocity,
+						targetHeight:	targetHeight
+					);
+					Vector3 ballisticVelocity = Utils.Math.BallisticVelocity
+					(
+						startPosition:	m_GunTransform.position,
+						destination:	targetPosition,
+						angle:			angle
+					);
+
+					targetPosition += ballisticVelocity;
+				}
+
+				// PREDICTION
 				pointToLookAt = Utils.Math.CalculateBulletPrediction
 				(
 					shooterPosition:	m_GunTransform.position,
 					shooterVelocity:	m_NavAgent.velocity,
 					shotSpeed:			m_Pool.GetAsModel().Velocity,
-					targetPosition:		m_TargetInfo.CurrentTarget.Transform.position,
+					targetPosition:		targetPosition,
 					targetVelocity:		m_TargetInfo.CurrentTarget.RigidBody.velocity
 				);
 			}
+		
 
 			Vector3 dirToPosition = ( pointToLookAt - m_GunTransform.position );
 			if ( m_IsAllignedHeadToPoint == true )
@@ -306,7 +337,6 @@ public abstract partial class Walker : NonLiveEntity, IRespawn {
 			m_IsAllignedGunToPoint = Vector3.Angle( m_GunTransform.forward, dirToPosition ) < 16f;
 		}
 	}
-	
 
 	//////////////////////////////////////////////////////////////////////////
 	

@@ -150,7 +150,13 @@ public partial class Player {
 	//////////////////////////////////////////////////////////////////////////
 	public		override	void		OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
-		
+		m_Health -= damage;
+		UI.Instance.InGame.UpdateUI();
+
+		m_DamageEffect = 0.2f;
+
+		if ( m_Health < 0f )
+			OnKill();
 	}
 
 
@@ -179,7 +185,7 @@ public partial class Player {
 			return;
 		}
 
-		m_RigidBody.drag = IsGrounded ? BODY_DRAG : 0.0f;
+//		m_RigidBody.drag = IsGrounded ? BODY_DRAG : 0.0f;
 
 		// User inputs
 		if ( IsGrounded )
@@ -196,15 +202,15 @@ public partial class Player {
 			if ( m_RightSmooth != 0.0f )
 				m_RigidBody.AddForce( right		* m_RightSmooth		* GroundSpeedModifier,	m_UpSmooth > 0.0f ? ForceMode.Impulse : ForceMode.Acceleration );
 
-			if ( m_UpSmooth > 0.0f )
-				m_RigidBody.AddForce( up		* m_UpSmooth		* GroundSpeedModifier,	ForceMode.VelocityChange );
+//			if ( m_UpSmooth > 0.0f )
+//				m_RigidBody.AddForce( up		* m_UpSmooth		* GroundSpeedModifier,	ForceMode.VelocityChange );
 		}
 
 		// Apply gravity
 		{
 			// add RELATIVE gravity force
-			Vector3 gravity = transform.up * Physics.gravity.y * ( IsGrounded ? 1.0f: 30f );
-			m_RigidBody.AddForce( gravity, ForceMode.Force );
+			Vector3 gravity = transform.up * Physics.gravity.y;// * 30;// ( IsGrounded ? 1.0f: 30f );
+			m_RigidBody.AddForce( gravity, ForceMode.Acceleration );
 		}
 	}
 
@@ -214,8 +220,6 @@ public partial class Player {
 	{
 		if ( m_IsActive == false )
 			return;
-
-		m_Foots.OnFrame();
 
 		// Reset "local" states
 		m_States.Reset();

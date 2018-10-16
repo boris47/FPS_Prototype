@@ -1,4 +1,5 @@
 ﻿
+using System;
 using UnityEngine;
 
 
@@ -35,12 +36,14 @@ public abstract class GranadeBase : Bullet, IGranade {
 		SetActive( false );
 	}
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// Setup ( Override )
-	public		override	void	Setup( Entity whoRef, Weapon weapon )
+	public override void Setup( bool canPenetrate, Entity whoRef, Weapon weaponRef, float damageMin = -1f, float damageMax = -1f )
 	{
-		m_Weapon	= weapon;
-		m_WhoRef	= whoRef;
+		m_Weapon		= weaponRef;
+		m_WhoRef		= whoRef;
+		m_CanPenetrate	= canPenetrate;
 	}
 
 

@@ -28,15 +28,6 @@ public class FragGranade : GranadeBase {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Setup ( Override )
-	public override void Setup( Entity whoRef, Weapon weapon )
-	{
-		m_WhoRef	= whoRef;
-		m_Weapon	= weapon;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
 	// Shoot ( Override )
 	public override void Shoot( Vector3 position, Vector3 direction, float velocity )
 	{

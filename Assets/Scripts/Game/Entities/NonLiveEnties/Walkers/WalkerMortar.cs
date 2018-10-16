@@ -13,58 +13,9 @@ public class WalkerMortar : Walker {
 
 		base.Awake();
 	}
-	/*
-
-	//////////////////////////////////////////////////////////////////////////
-	protected override void OnFrame( float deltaTime )
-	{
-		// Update internal timer
-		m_ShotTimer -= deltaTime;
-		
-		if ( m_TargetInfo.HasTarget == true )
-		{
-			if ( m_Brain.State != BrainState.ATTACKER )
-				m_Brain.ChangeState( BrainState.ATTACKER );
-			
-			SetPoinToLookAt( m_TargetInfo.CurrentTarget.Transform.position );
-
-			// PathFinding
-			CheckForNewReachPoint( m_TargetInfo.CurrentTarget.Transform.position );
-
-			if ( m_HasDestination && ( transform.position - m_TargetInfo.CurrentTarget.Transform.position ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
-			{
-				m_NavCanMoveAlongPath = true;;
-			}
-			else
-			{
-				m_NavCanMoveAlongPath = false;
-			}
-		}
-
-		// if has target point to face at set
-		if ( m_HasLookAtObject )
-		{
-			FaceToPoint( deltaTime );   // m_PointToFace
-		}
-		
-		// if body is alligned with target start moving
-		if ( m_IsAllignedBodyToPoint )
-		{
-			m_NavCanMoveAlongPath = true;
-		}
-		else
-		{
-			m_NavCanMoveAlongPath = false;
-		}
-
-		// if gun alligned, fire
-		if ( m_IsAllignedHeadToPoint == true )
-		{
-			FireLongRange( deltaTime );
-		}
-	}
-
 	
+
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	protected override void FaceToPoint( float deltaTime )
 	{
@@ -88,7 +39,7 @@ public class WalkerMortar : Walker {
 		m_IsAllignedHeadToPoint				= Vector3.Angle( m_GunTransform.forward, ballisticDirOfGun ) < 3f;
 	}
 	
-
+	
 	// https://unity3d.college/2017/06/30/unity3d-cannon-projectile-ballistics/
 	//////////////////////////////////////////////////////////////////////////
 	private Vector3 BallisticVelocity( Vector3 destination, float angle )

@@ -234,7 +234,55 @@ namespace Utils {
 
 			return result;
 		}
+		
+		
+		// https://unity3d.college/2017/06/30/unity3d-cannon-projectile-ballistics/
+		//////////////////////////////////////////////////////////////////////////
+		public	static		Vector3		BallisticVelocity( Vector3 startPosition, Vector3 destination, float angle )
+		{
+			Vector3 dir = destination - startPosition;				// get Target Direction
+			float height = dir.y;									// get height difference
+			dir.y = 0;												// retain only the horizontal difference
+			float dist = dir.magnitude;								// get horizontal direction
+			float a = angle * Mathf.Deg2Rad;						// Convert angle to radians
+			dir.y = dist * Mathf.Tan(a);							// set dir to the elevation angle.
+			dist += height / Mathf.Tan(a);							// Correction for small height differences
 
+			// Calculate the velocity magnitude
+			float velocity = Mathf.Sqrt(dist * Physics.gravity.magnitude / Mathf.Sin(2 * a));
+			return velocity * dir;						// Return a normalized vector.
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		public	static		float	CalculateFireAngle( float alt, Vector3 startPosition, Vector3 endPosition, float bulletVelocity, float targetHeight )
+		{ 
+			Vector2 a = new Vector2( startPosition.x, startPosition.z );
+			Vector2 b = new Vector2( endPosition.x, endPosition.z );
+			float dis = Vector2.Distance( a, b );
+			alt = -( startPosition.y - targetHeight );
+		
+			float g = Mathf.Abs( Physics.gravity.y );
+				
+			float dis2 = dis * dis;
+			float vel2 = bulletVelocity * bulletVelocity;
+			float vel4 = bulletVelocity * bulletVelocity * bulletVelocity * bulletVelocity;
+			float num;
+			float sqrt = vel4 - g * ( ( g * dis2 ) + ( 2f * alt * vel2 ) );
+			if ( sqrt < 0 )
+				return(45f);
+
+			//Direct Fire
+			if ( Vector3.Distance( startPosition, endPosition ) > bulletVelocity / 2f )
+				num = vel2 - Mathf.Sqrt( vel4 - g * ( ( g * dis2 ) + ( 2f * alt * vel2 ) ) );
+			else
+				num = vel2 + Mathf.Sqrt( vel4 - g * ( ( g * dis2 ) + ( 2f * alt * vel2 ) ) );
+		
+			float dom = g * dis;
+			float angle = Mathf.Atan( num / dom );
+
+			return angle * Mathf.Rad2Deg;
+		}
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary>

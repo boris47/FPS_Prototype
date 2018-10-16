@@ -31,28 +31,25 @@ public class GenericBullet : Bullet {
 	}
 
 
-	//////////////////////////////////////////////////////////////////////////											// For Generic Bullets
-	// Setup ( Override )
-	public		override	void	Setup( float damage,  bool canPenetrate, Entity whoRef, Weapon weapon )
-	{
-		float multDamage = damage * m_DamageMult;
-		m_DamageMin		= Mathf.Min( damage, multDamage );
-		m_DamageMax		= Mathf.Max( damage, multDamage );
-		m_WhoRef		= whoRef;
-		m_Weapon		= weapon;
-		m_CanPenetrate	= canPenetrate;
-	}
-
-
 	//////////////////////////////////////////////////////////////////////////
 	// Setup ( Override )
-	public override void Setup( float damageMin, float damageMax, bool canPenetrate, Entity whoRef, Weapon weapon )		// For Entities
+	public	override		void	Setup( bool canPenetrate, Entity whoRef, Weapon weaponRef, float damageMin = -1f, float damageMax = -1f )
 	{
-		m_DamageMin		= damageMin;
-		m_DamageMax		= damageMax;
-		m_WhoRef		= whoRef;
-		m_Weapon		= weapon;
 		m_CanPenetrate	= canPenetrate;
+		m_WhoRef		= whoRef;
+		m_Weapon		= weaponRef;
+
+		if ( damageMin <= 0.0f )
+		{
+			float multDamage = damageMax * m_DamageMult;
+			m_DamageMin		= Mathf.Min( damageMax, multDamage );
+			m_DamageMax		= Mathf.Max( damageMax, multDamage );
+		}
+		else
+		{
+			m_DamageMin = damageMin;
+			m_DamageMax = damageMax;
+		}
 	}
 
 

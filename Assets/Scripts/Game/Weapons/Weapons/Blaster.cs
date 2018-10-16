@@ -72,7 +72,14 @@ public class Blaster : Weapon
 					actionOnObject	: ( Bullet o ) =>
 					{
 						o.SetActive( false );
-						o.Setup( damage : m_MainDamage, canPenetrate : false, whoRef : Player.Instance, weapon : this );
+						o.Setup
+						(
+							canPenetrate: false,
+							whoRef: Player.Instance,
+							weaponRef: this,
+							damageMin: -1.0f,
+							damageMax: m_MainDamage
+						);
 						Player.Instance.DisableCollisionsWith( o.Collider );
 					}
 				);

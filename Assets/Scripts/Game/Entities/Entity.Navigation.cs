@@ -69,9 +69,6 @@ public abstract partial class Entity : IEntity {
 			}
 			yield return null;
 		}
-
-
-		print( "path successifully found" );
 		m_NavAgent.isStopped			= false;
 		m_NavCanMoveAlongPath			= true;
 		m_HasDestination				= true;

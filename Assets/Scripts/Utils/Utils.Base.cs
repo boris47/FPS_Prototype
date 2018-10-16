@@ -87,39 +87,52 @@ namespace Utils {
 		}
 
 
-		public	static	bool	SearchComponent<T1>( GameObject GameObject, ref T1 Component, SearchContext Context )
+		public	static	bool	SearchComponent<T1>( GameObject GameObject, ref T1 Component, SearchContext Context, global::System.Predicate<T1> filter = null )
 		{
-			T1 result = default( T1 ); // null 
-
+			T1[] results = null;
+			
 			switch ( Context )
 			{
 				case SearchContext.LOCAL:
 				{
-					result = GameObject.GetComponent<T1>();
+					results = GameObject.GetComponents<T1>();
 					break;
 				}
 					
 				case SearchContext.CHILDREN:
 				{
-					result = GameObject.GetComponentInChildren<T1>();
+					results = GameObject.GetComponentsInChildren<T1>();
 					break;
 				}
 
 				case SearchContext.PARENT:
 				{
-					result = GameObject.GetComponentInParent<T1>();
+					results = GameObject.GetComponentsInParent<T1>();
 					break;
 				}
 
 				case SearchContext.ALL:
 				{
-					result = GameObject.GetComponentInChildren<T1>();
-					if ( result == null )
+					results = GameObject.GetComponentsInChildren<T1>();
+					if ( results != null && results.Length == 0 )
 					{
-						result = GameObject.GetComponentInParent<T1>();
+						results = GameObject.GetComponentsInParent<T1>();
 					}
 					break;
 				}
+			}
+
+			T1 result = default( T1 );
+
+			// Filtered search
+			if ( filter != null && results != null && results.Length > 0 )
+			{
+				result = global::System.Array.Find( results, filter );
+			}
+			// Normal search
+			else
+			{
+				result = ( results != null && results.Length > 0 ) ? results[0] : result;
 			}
 
 			Component = result;

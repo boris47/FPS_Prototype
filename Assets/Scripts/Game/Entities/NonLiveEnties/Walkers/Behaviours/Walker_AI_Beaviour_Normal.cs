@@ -24,16 +24,12 @@ public abstract partial class Walker {
 			if ( bullet.WhoRef is NonLiveEntity )
 				return;
 
-			Debug.Log( "hitted with bullet" );
-
 			float damage = UnityEngine.Random.Range( bullet.DamageMin, bullet.DamageMax );
 			this.OnHit( bullet.StartPosition, bullet.WhoRef, damage, bullet.CanPenetrate );
 		}
 
 		public		override	void		OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 		{
-			Debug.Log( "hitted with details" );
-
 			// Hit event, set ALARMED State
 			if ( m_ThisEntity.m_Health > 0.0f )
 			{

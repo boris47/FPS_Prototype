@@ -47,21 +47,14 @@ public class GlobeGranade : GranadeBase {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Setup ( Override )
-	public override void Setup( Entity whoRef, Weapon weapon )
-	{
-		m_WhoRef	= whoRef;
-		m_Weapon	= weapon;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
 	// Shoot ( Override )
 	public override void Shoot( Vector3 position, Vector3 direction, float velocity )
 	{
 		SetActive( false );
-		transform.position		= position;
-		m_RigidBody.velocity	= direction * ( ( velocity > 0f ) ? velocity : m_Velocity );
+		{
+			transform.position		= position;
+			m_RigidBody.velocity	= direction * ( ( velocity > 0f ) ? velocity : m_Velocity );
+		}
 		SetActive( true );
 	}
 
@@ -70,10 +63,10 @@ public class GlobeGranade : GranadeBase {
 	// SetActive ( Override )
 	public override void	SetActive( bool state )
 	{
-		m_RigidBody.constraints = RigidbodyConstraints.None;
 		StopAllCoroutines();
-		m_InternalCounter = 0f;
-		m_InExplosion = false;
+		m_RigidBody.constraints		= RigidbodyConstraints.None;
+		m_InternalCounter			= 0f;
+		m_InExplosion				= false;
 		m_Entites.Clear();
 
 		if ( m_ExplosionGlobe == null )
@@ -129,13 +122,10 @@ public class GlobeGranade : GranadeBase {
 	// MakeDamage
 	public	void	MakeDamage()
 	{
-		foreach( IEntity entity in m_Entites )
+		m_Entites.ForEach( ( Entity entity ) =>
 		{
-			float tmpDmg = m_DamageMax;
-			m_DamageMax *= m_DamageMult;
-			entity.OnHit( m_Instance );
-			m_DamageMax = tmpDmg;
-		}
+			entity.OnHit( m_StartPosition, m_WhoRef, m_DamageMax * m_DamageMult, m_CanPenetrate );
+		} );
 	}
 
 
@@ -197,6 +187,11 @@ public class GlobeGranade : GranadeBase {
 	protected override void OnCollisionEnter( Collision collision )
 	{
 		if ( m_InExplosion == true )
+			return;
+
+		print("OnCollision");
+
+		if ( m_RigidBody.constraints == RigidbodyConstraints.FreezeAll )
 			return;
 
 		m_RigidBody.constraints = RigidbodyConstraints.FreezeAll;

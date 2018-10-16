@@ -168,7 +168,14 @@ public abstract partial class Turret : NonLiveEntity {
 				actionOnObject	: ( Bullet o ) =>
 				{
 					o.SetActive( false );
-					o.Setup( damageMin : m_DamageMin, damageMax : m_DamageMax, canPenetrate : false, whoRef : this, weapon : null );
+					o.Setup
+					(
+						canPenetrate: false,
+						whoRef: this,
+						weaponRef: null,
+						damageMin: m_DamageMin,
+						damageMax: m_DamageMin
+					);
 					this.SetCollisionStateWith( o.Collider, false );
 
 					// this allow to receive only trigger enter callback

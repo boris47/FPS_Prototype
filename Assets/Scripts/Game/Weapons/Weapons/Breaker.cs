@@ -44,8 +44,14 @@ public class Breaker : Weapon
 					actionOnObject	: ( Bullet o ) =>
 					{
 						o.SetActive( false );
-//						o.Setup( damageMin : m_MainDamage, damageMax : m_MainDamage, canPenetrate : false, whoRef : Player.Instance, weapon : null );
-						o.Setup( whoRef: Player.Instance, weapon: null );
+						o.Setup
+						(
+							canPenetrate: false,
+							whoRef: Player.Instance,
+							weaponRef: this,
+							damageMin: -1.0f,
+							damageMax: m_MainDamage
+						);
 						Player.Instance.DisableCollisionsWith( o.Collider );
 					}
 				);

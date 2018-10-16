@@ -4,12 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public interface IFoots {
-	
-	void			OnFrame();
+
+	Collider		Collider { get; }
 
 	void			PlayStep();
-
-	bool			IsTouching { get; }
 
 }
 
@@ -17,20 +15,22 @@ public interface IFoots {
 
 public class Foots : MonoBehaviour, IFoots {
 
-	bool		IFoots.IsTouching { get { return m_IsColliding; } }
-
 	private		LiveEntity			m_LiveEntity		= null;
 	public		LiveEntity			Onwer
 	{
 		get { return m_LiveEntity; }
 	}
 
-	private		IEntity				m_Entity			= null;
+	public		Collider			Collider
+	{
+		get { return GetComponent<Collider>(); }
+	}
+
 	private		Collider			m_CurrentCollider	= null;
 	private		RaycastHit			m_RaycastHit		= default( RaycastHit );
 	private		ICustomAudioSource	m_AudioSource		= null;
 //	private		MeshCollider		m_Collider			= null;
-	private		bool				m_IsColliding		= false;
+//	private		bool				m_IsColliding		= false;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -38,9 +38,7 @@ public class Foots : MonoBehaviour, IFoots {
 	private void Awake()
 	{
 		m_LiveEntity	= transform.parent.GetComponent<LiveEntity>();
-		m_Entity		= m_LiveEntity as IEntity;
 		m_AudioSource	= transform.GetComponent<ICustomAudioSource>();
-//		m_Collider		= GetComponent<MeshCollider>();
 	}
 
 
@@ -59,48 +57,12 @@ public class Foots : MonoBehaviour, IFoots {
 		m_AudioSource.Play();
 	}
 
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnFrame
-	public	void	OnFrame()
-	{
-		return;
-
-		// TODO: RESOLVE THIS PROBLEM
-
-#pragma warning disable CS0162 // È stato rilevato codice non raggiungibile
-		const float offset = 0.05f;
-
-		Vector3 startLine = transform.position;
-		Vector3 endLine   = transform.position - transform.up * offset;
-		Debug.DrawLine( startLine, endLine );
-
-		bool isGrounded = Physics.Linecast( startLine, endLine, out m_RaycastHit );
-		if ( isGrounded  )
-		{
-			m_CurrentCollider = m_RaycastHit.collider;
-		}
-		else
-		{
-			m_CurrentCollider = null;
-		}
-
-		if ( m_LiveEntity.IsGrounded == false && isGrounded )
-		{
-//			CameraControl.Instance.ApplyFallFeedback( 5f, 1f, 0f );
-			PlayStep();
-		}
-
-		m_IsColliding = isGrounded;
-
-//		m_LiveEntity.IsGrounded = isGrounded;
-#pragma warning restore CS0162 // È stato rilevato codice non raggiungibile
-	}
-
 	private void OnTriggerEnter( Collider other )
 	{
 		if ( other.isTrigger == true )
 			return;
+
+		m_CurrentCollider = other;
 
 //		print( other.name );
 		m_LiveEntity.IsGrounded = true;

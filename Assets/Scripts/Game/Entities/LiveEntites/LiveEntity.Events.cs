@@ -47,9 +47,13 @@ public abstract partial class LiveEntity  {
 	float currentHitTime;
 	private void OnTriggerEnter( Collider other )
 	{
+		return;
+
 		IBullet bullet = other.GetComponent<IBullet>();
 		if ( bullet == null )
 			return;
+
+		print("OnTriggerEnter: " + other.name + ", " + m_TriggerCollider.name );
 
 		// Avoid hits on the same frame
 		if ( currentHitTime == Time.time )
@@ -64,9 +68,9 @@ public abstract partial class LiveEntity  {
 //		print( other.transform.parent.name );
 
 		// long range attack
-		OnHit( bullet );
+//		OnHit( bullet );
 
-		bullet.SetActive( false );
+//		bullet.SetActive( false );
 	}
 	
 }

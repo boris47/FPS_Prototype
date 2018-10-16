@@ -132,7 +132,7 @@ public abstract partial class Entity : IBrain {
 		if ( newState == m_CurrentBrainState )
 			return;
 
-		print( "State changing " + m_CurrentBrainState + " to " + newState );
+//		print( "State changing " + m_CurrentBrainState + " to " + newState );
 		m_CurrentBehaviour.Disable();
 		m_CurrentBrainState = newState;
 
