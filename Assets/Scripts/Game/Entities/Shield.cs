@@ -49,16 +49,13 @@ public class Shield : MonoBehaviour, IShield {
 	// OnHit
 	public	void	OnHit( IBullet bullet )
 	{
-		float damage = Random.Range( bullet.DamageMin, bullet.DamageMax );
+		float damage = UnityEngine.Random.Range( bullet.DamageMin, bullet.DamageMax );
 		m_Status -= damage;
 		if ( m_Status <= 0f )
 		{
 			m_Renderer.enabled = false;
 			m_Collider.enabled = false;
 		}
-
-		// Notify hit
-		m_Parent.OnHit( transform.position, bullet.WhoRef, 0.0f );
 	}
 
 
@@ -91,16 +88,21 @@ public class Shield : MonoBehaviour, IShield {
 			bullet.SetActive( false );
 			return;
 		}
-		
-		// Shield take hit
-		OnHit( bullet );
 
-		// Penetration effect
-		if ( m_Parent != null && bullet.CanPenetrate == true && bullet.Weapon != null )
+		// Shield take hit
 		{
-			bullet.DamageMax *= 0.5f;
-			bullet.DamageMin *= 0.5f;
-			m_Parent.OnHit( bullet );
+			float damage = UnityEngine.Random.Range( bullet.DamageMin, bullet.DamageMax );
+			OnHit( damage );
+		}
+		
+		// Parent notify hit/damage
+		{
+			float damage = 0.0f;
+			if ( bullet.CanPenetrate == true && bullet.Weapon != null )
+			{
+				damage = UnityEngine.Random.Range( bullet.DamageMin*0.5f, bullet.DamageMax*0.5f );
+			}
+			m_Parent.OnHit( transform.position, bullet.WhoRef, damage );
 		}
 		bullet.SetActive( false );
 	}

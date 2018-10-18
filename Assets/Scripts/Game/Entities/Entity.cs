@@ -17,7 +17,7 @@ public partial interface IEntity {
 	float					Health							{ get; }
 
 	// Entity Shield
-	IShield					Shield							{ get; }
+	Shield					Shield							{ get; }
 
 	// Entity Section
 	string					Section							{ get; }
@@ -63,7 +63,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 				bool					IEntity.IsActive					{	get { return m_IsActive;		}	}
 				uint					IEntity.ID							{	get { return m_ID;				}	}
 				float					IEntity.Health						{	get { return m_Health;			}	}
-				IShield					IEntity.Shield						{	get { return m_Shield;			}	}
+				Shield					IEntity.Shield						{	get { return m_Shield;			}	}
 				string					IEntity.Section						{	get { return m_SectionName;		}	}
 				Rigidbody				IEntity.RigidBody					{	get { return m_RigidBody;		}	}
 				Collider				IEntity.PhysicCollider				{	get { return m_PhysicCollider;	}	}
@@ -142,7 +142,12 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		m_EffectsPivot		= transform.Find( "EffectsPivot" );
 
 		m_IsOK   =	Utils.Base.SearchComponent( gameObject, ref m_PhysicCollider,		SearchContext.LOCAL, (p) => { return p && p.isTrigger == false; } );
-		m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_TriggerCollider,		SearchContext.LOCAL, (p) => { return p && p.isTrigger == true;  } );
+
+		if ( m_IsPlayer == true )
+		{
+			m_IsOK	&= Utils.Base.SearchComponent( gameObject, ref m_TriggerCollider,		SearchContext.LOCAL, (p) => { return p && p.isTrigger == true;  } );
+		}
+
 		m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_RigidBody,			SearchContext.LOCAL );
 		m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_FieldOfView,			SearchContext.ALL	);
 

@@ -44,11 +44,11 @@ public abstract partial class LiveEntity  {
 	*/
 	
 
-	float currentHitTime;
+//	float currentHitTime;
 	private void OnTriggerEnter( Collider other )
 	{
 		return;
-
+/*
 		IBullet bullet = other.GetComponent<IBullet>();
 		if ( bullet == null )
 			return;
@@ -64,7 +64,7 @@ public abstract partial class LiveEntity  {
 
 		if ( bullet.WhoRef is LiveEntity )
 			return;
-
+*/
 //		print( other.transform.parent.name );
 
 		// long range attack

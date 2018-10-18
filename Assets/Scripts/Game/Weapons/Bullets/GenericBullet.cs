@@ -129,16 +129,18 @@ public class GenericBullet : Bullet {
 		if ( bIsAnEntity == true )
 		{
 			// if has shield
-			if ( entity.Shield != null )
+			if ( entity.Shield != null && entity.Shield.Status > 0.0f )
 			{	
 				// shield get the hit
+				entity.RigidBody.angularVelocity = entity.RigidBody.velocity = m_RigidBody.velocity = Vector3.zero;
 				entity.Shield.OnHit( m_Instance );
 			}
 			// otherwise entity get direct damage
 			else
 			{
 				entity.RigidBody.angularVelocity = entity.RigidBody.velocity = m_RigidBody.velocity = Vector3.zero;
-				entity.OnHit( m_Instance );
+				float damage = UnityEngine.Random.Range( m_DamageMin, m_DamageMax );
+				entity.OnHit( m_StartPosition, m_WhoRef, damage, m_CanPenetrate );
 			}
 		}
 
