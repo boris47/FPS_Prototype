@@ -6,6 +6,7 @@ public class FragGranade : GranadeBase {
 
 	private		Collider[]		m_SphereResults		= new Collider[ 100 ];
 
+	private		bool			m_BlowOnHit			= false;
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
@@ -22,8 +23,8 @@ public class FragGranade : GranadeBase {
 			m_Range						= section.AsFloat( "Radius",			m_Range );
 			m_Velocity					= section.AsFloat( "ThrowForce",		m_Velocity );
 			m_ExplosionDelay			= section.AsFloat( "ExplosionDelay",	m_ExplosionDelay );
+			m_BlowOnHit					= section.AsBool(  "BlowOnHit",			m_BlowOnHit );
 		}
-
 	}
 
 
@@ -33,6 +34,7 @@ public class FragGranade : GranadeBase {
 	{
 		transform.position		= position;
 		m_RigidBody.velocity	= direction * ( ( velocity > 0f ) ? velocity : m_Velocity );
+		m_StartPosition = position;
 		SetActive( true );
 	}
 
@@ -93,20 +95,27 @@ public class FragGranade : GranadeBase {
 		{
 			Collider hittedCollider = m_SphereResults[ i ];
 
-			Entity entity = hittedCollider.GetComponent<Entity>();
+			// Entites
+			IEntity entity = hittedCollider.GetComponent<IEntity>();
 			if ( entity != null )
 			{
-				float dmgMult = Vector3.Distance( transform.position, entity.transform.position ) / m_Range;
-				float tmpDmg = m_DamageMax;
-				m_DamageMax *= dmgMult;
-				entity.OnHit( m_Instance );
-				m_DamageMax = tmpDmg;
+				float dmgMult = Vector3.Distance( transform.position, entity.Transform.position ) / m_Range + 0.001f;
+				float damage = m_DamageMax * dmgMult;
+				if ( entity.Shield != null && entity.Shield.Status > 0.0f )
+				{
+					entity.Shield.OnHit( m_StartPosition, m_WhoRef, m_Weapon, damage, m_CanPenetrate );
+				}
+				else
+				{
+					entity.OnHit( m_StartPosition, m_WhoRef, damage, m_CanPenetrate );
+				}
 			}
 
+			// Dynamic props
 			Rigidbody rb = hittedCollider.GetComponent<Rigidbody>();
 			if ( entity == null && rb != null )
 			{
-				rb.AddExplosionForce( 1000, transform.position, m_Range, 3.0F );
+				rb.AddExplosionForce( 1000, transform.position, m_Range, 3.0f );
 			}			
 		}
 		EffectManager.Instance.PlayEntityExplosion( transform.position, Vector3.up );
@@ -118,6 +127,11 @@ public class FragGranade : GranadeBase {
 	//////////////////////////////////////////////////////////////////////////
 	// OnCollisionEnter ( Override )
 	protected override void OnCollisionEnter( Collision collision )
-	{}
+	{
+		if ( m_BlowOnHit == true )
+		{
+			ForceExplosion();
+		}
+	}
 
 }

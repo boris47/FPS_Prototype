@@ -7,7 +7,7 @@ public interface IShield {
 	Entity		Parent				{ set; }
 	bool		IsUnbreakable		{ set; }
 
-	void		OnHit				( IBullet bullet );
+	void		OnHit				( Vector3 startPosition, Entity whoRef, Weapon weaponRef, float damage, bool canPenetrate = false );
 	void		OnReset				();
 }
 
@@ -47,64 +47,37 @@ public class Shield : MonoBehaviour, IShield {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnHit
-	public	void	OnHit( IBullet bullet )
+	public		void		OnHit( Vector3 startPosition, Entity whoRef, Weapon weaponRef, float damage, bool canPenetrate = false )
 	{
-		float damage = UnityEngine.Random.Range( bullet.DamageMin, bullet.DamageMax );
-		m_Status -= damage;
-		if ( m_Status <= 0f )
+		if ( canPenetrate == true && weaponRef != null )
 		{
-			m_Renderer.enabled = false;
-			m_Collider.enabled = false;
+			damage *= 0.5f;
+			m_Parent.OnHit( startPosition, whoRef, damage );
 		}
+
+		// notify hit
+		m_Parent.OnHit( startPosition, whoRef, 0.0f );
+
+		// Shield damage
+		TakeDamage( damage );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnHit
-	public	void	OnHit( float damage )
+	// TakeDamage
+	public	void	TakeDamage( float damage )
 	{
-		m_Status -= damage;
-		if ( m_Status <= 0f )
-		{
-			m_Renderer.enabled = false;
-			m_Collider.enabled = false;
-		}
-	}
-
-	
-	//////////////////////////////////////////////////////////////////////////
-	// OnCollisionEnter
-	private void OnCollisionEnter( Collision collision )
-	{
-		// Skip if father is shiled owner
-		IBullet bullet = collision.gameObject.GetComponent<IBullet>();
-		if ( bullet == null )
-			return;
-
-//		EffectManager.Instance.PlayOnHit( transform.position, ( other.transform.position - transform.position ).normalized );
-
 		if ( m_IsUnbreakable == true )
 		{
-			bullet.SetActive( false );
 			return;
 		}
 
-		// Shield take hit
+		m_Status -= damage;
+		if ( m_Status <= 0.0f )
 		{
-			float damage = UnityEngine.Random.Range( bullet.DamageMin, bullet.DamageMax );
-			OnHit( damage );
+			m_Renderer.enabled = false;
+			m_Collider.enabled = false;
 		}
-		
-		// Parent notify hit/damage
-		{
-			float damage = 0.0f;
-			if ( bullet.CanPenetrate == true && bullet.Weapon != null )
-			{
-				damage = UnityEngine.Random.Range( bullet.DamageMin*0.5f, bullet.DamageMax*0.5f );
-			}
-			m_Parent.OnHit( transform.position, bullet.WhoRef, damage );
-		}
-		bullet.SetActive( false );
 	}
 
 

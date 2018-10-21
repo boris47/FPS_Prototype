@@ -5,7 +5,11 @@ using System.Collections.Generic;
 
 
 public enum EffectType {
-	SHOCK
+	ENTITY_ON_HIT,
+	AMBIENT_ON_HIT,
+	EXPLOSION,
+	ELETTRO,
+	PLASMA
 }
 
 
@@ -20,29 +24,16 @@ public class EffectManager : MonoBehaviour {
 	private		ParticleSystem				m_ParticleSystemAmbientOnHit			= null;
 
 	[ SerializeField ]
-	private		Transform					m_ExplosionParticleSystemsCollection	= null;
+	private		ParticleSystem				m_ParticleSystemElettroEffect			= null;
 
 	[ SerializeField ]
-	private		Transform					m_ElettroParticleSystemsCollection		= null;
+	private		ParticleSystem				m_ParticleSystemPlasmaEffect			= null;
 
 	[ SerializeField ]
-	private		Transform					m_PLasmaParticleSystemsCollection		= null;
-
+	private		ParticleSystem				m_ParticleSystemBigExplosion			= null;
 
 	[ SerializeField ]
 	private		CustomAudioSource			m_ExplosionSource						= null;
-
-	private		ParticleSystem[]			m_ExplosionParticleSystems				= null;
-	private		ParticleSystem[]			m_ElettroParticleSystems				= null;
-	private		ParticleSystem[]			m_PlasmaParticleSystems					= null;
-
-
-	private struct LongParticleSystemData {
-		public	ParticleSystem	ps;
-		public	Transform		target;
-	}
-
-	private	List<LongParticleSystemData>	m_ActiveParticleSystems					= new List<LongParticleSystemData>();
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -59,39 +50,11 @@ public class EffectManager : MonoBehaviour {
 
 		if ( m_ParticleSystemEntityOnHit			== null ||
 			m_ParticleSystemAmbientOnHit			== null ||
-			m_ExplosionParticleSystemsCollection	== null ||
-			m_ExplosionSource						== null ||
-			m_ElettroParticleSystemsCollection		== null	||
-			m_PLasmaParticleSystemsCollection		== null
+			m_ParticleSystemBigExplosion			== null ||
+			m_ParticleSystemElettroEffect			== null ||
+			m_ParticleSystemPlasmaEffect			== null
 		)
 		return;
-
-
-		m_ExplosionParticleSystems	= m_ExplosionParticleSystemsCollection.GetComponentsInChildren<ParticleSystem>();
-		m_ElettroParticleSystems	= m_ElettroParticleSystemsCollection.GetComponentsInChildren<ParticleSystem>();
-		m_PlasmaParticleSystems		= m_PLasmaParticleSystemsCollection.GetComponentsInChildren<ParticleSystem>();
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// AttachAndPlay
-	public	ParticleSystem	AttachAndPlay( IEnumerable<ParticleSystem> collection, Transform target, int particleCount = -1 )
-	{
-		ParticleSystem ps = GetFreeParticleSystem( collection );
-		if ( ps == null )
-			return null;
-
-		if ( particleCount > 0 )
-		{
-			ps.Emit( particleCount );
-		}
-		else
-		{
-			ps.Play( withChildren : true );
-		}
-
-		m_ActiveParticleSystems.Add( new LongParticleSystemData() { ps = ps, target = target } );
-		return ps;
 	}
 
 
@@ -116,45 +79,22 @@ public class EffectManager : MonoBehaviour {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// PlayElettroHit
-	public	ParticleSystem	PlayElettroHit( Transform target )
+	// PlayAmbientOnHit
+	public	void	PlayElettroEffect( Vector3 position, Vector3 direction, int count = 3 )
 	{
-		return AttachAndPlay( m_ElettroParticleSystems, target );
+		m_ParticleSystemElettroEffect.transform.position = position;
+		m_ParticleSystemElettroEffect.transform.forward = direction;
+		m_ParticleSystemElettroEffect.Emit( count );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// PlayPLasmaHit
-	public	void	PlayPlasmaHit( Vector3 position, Vector3 direction, int count = 3 )
+	// PlayAmbientOnHit
+	public	void	PlayPlasmaEffect( Vector3 position, Vector3 direction, int count = 3 )
 	{
-//		return AttachAndPlay( m_PlasmaParticleSystems, target );
-
-		ParticleSystem ps = m_PlasmaParticleSystems[0];
-
-		ps.transform.position = position;
-		ps.transform.forward = direction;
-		ps.Emit( count );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// GetFreeParticleSystem
-	private	ParticleSystem	GetFreeParticleSystem( IEnumerable<ParticleSystem> collection )
-	{
-		foreach( ParticleSystem ps in collection )
-		{
-			if ( ps.IsAlive() )
-				continue;
-			return ps;
-		}
-
-		print( "EffectManager::GetFreeParticleSystem: Cannot find a valid particle system !!" );
-		using ( IEnumerator<ParticleSystem> enumer = collection.GetEnumerator() )
-		{
-			enumer.Reset();
-			enumer.MoveNext();
-			return enumer.Current;
-		}
+		m_ParticleSystemPlasmaEffect.transform.position = position;
+		m_ParticleSystemPlasmaEffect.transform.forward = direction;
+		m_ParticleSystemPlasmaEffect.Emit( count );
 	}
 
 
@@ -162,13 +102,10 @@ public class EffectManager : MonoBehaviour {
 	// PlayEntityExplosion
 	public	void	PlayEntityExplosion( Vector3 position, Vector3 direction )
 	{
-		ParticleSystem ps =	GetFreeParticleSystem( m_ExplosionParticleSystems );
-		if ( ps == null )
-			return;
-
-		ps.transform.position = position;
-		ps.transform.forward = direction;
-		ps.Play( withChildren : true );
+		ParticleSystem instantiated = Instantiate( m_ParticleSystemBigExplosion );
+		instantiated.transform.position = position;
+		instantiated.transform.forward = direction;
+		instantiated.Play( withChildren : true );
 	}
 
 
@@ -178,29 +115,6 @@ public class EffectManager : MonoBehaviour {
 	{
 		m_ExplosionSource.transform.position = position;
 		( m_ExplosionSource as ICustomAudioSource ).Play();
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// Update
-	private	void	Update()
-	{
-		// Only every 10 frames
-		if ( Time.frameCount % 10 == 0 )
-			return;
-
-		for ( int i = 0; i < m_ActiveParticleSystems.Count; i++ )
-		{
-			LongParticleSystemData pair = m_ActiveParticleSystems[ i ];
-			pair.ps.transform.position = pair.target.position;
-
-			if ( pair.ps.IsAlive() == false )
-			{
-				pair.ps.transform.localPosition = Vector3.zero;
-				m_ActiveParticleSystems.RemoveAt( i );
-				return;
-			}
-		}
 	}
 
 }

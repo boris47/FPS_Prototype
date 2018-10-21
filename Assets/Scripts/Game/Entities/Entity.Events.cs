@@ -181,14 +181,13 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	public		virtual		void		OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
 		Behaviour_OnHitWithDetails( startPosition, whoRef, damage, canPenetrate );
+		print("on hit");
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void		OnThink()
 	{
-		m_FieldOfView.UpdateFOV();
-
 		Behaviour_OnThink();
 	}
 

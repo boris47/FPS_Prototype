@@ -29,7 +29,13 @@ namespace Utils {
 
 		public	static	int		LayersAllButOne( int all, int one )
 		{
-			return ~( all << one );
+			// This would creates a layer only with the one given layer
+			int layerMask = 1 << one;
+
+			// But instead we want a layer mask with all except given layer. The ~ operator does this, it inverts a bitmask.
+			layerMask = ~layerMask;
+
+			return layerMask;
 		}
 
 

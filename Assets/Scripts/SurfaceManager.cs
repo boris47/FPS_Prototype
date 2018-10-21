@@ -132,37 +132,31 @@ public class SurfaceManager : MonoBehaviour {
 			return "";
 
 		Renderer r = hit.collider.GetComponent<Renderer>();
-		MeshCollider mc = hit.collider as MeshCollider;
-
 		if ( r == null || r.sharedMaterial == null || r.sharedMaterial.mainTexture == null || r == null )
 			return "";
 
+		MeshCollider mc = hit.collider as MeshCollider;
 		if ( mc == null || mc.convex )
 			return r.material.mainTexture.name;
 
-		int materialIndex = -1;
 		Mesh m = mc.sharedMesh;
+		int materialIndex = -1;
 		int triangleIdx = hit.triangleIndex;
 		int lookupIdx1	= m.triangles[ triangleIdx * 3 ];
 		int lookupIdx2	= m.triangles[ triangleIdx * 3 + 1 ];
 		int lookupIdx3	= m.triangles[ triangleIdx * 3 + 2 ];
 		int subMeshesNr = m.subMeshCount;
 
-		for( int i = 0;i < subMeshesNr; i ++ )
+		for( int i = 0;i < subMeshesNr && materialIndex == -1; i ++ )
 		{
 			int[] tr = m.GetTriangles( i );
-
-			for( int j = 0; j < tr.Length; j += 3 )
+			for( int j = 0; j < tr.Length && materialIndex == -1; j += 3 )
 			{
 				if ( tr[ j ] == lookupIdx1 && tr[ j+1 ] == lookupIdx2 && tr[ j+2 ] == lookupIdx3 )
 				{
 					materialIndex = i;
-					break;
 				}
 			}
-
-			if ( materialIndex != -1 )
-				break;
 		}
 
 		return r.materials[materialIndex].mainTexture.name;

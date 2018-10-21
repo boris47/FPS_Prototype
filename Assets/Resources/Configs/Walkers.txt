@@ -6,6 +6,8 @@ BehaviourAlarmed	= Walker+Walker_AI_Beaviour_Alarmed;
 BehaviourSeeker		= Walker+Walker_AI_Beaviour_Seeker;
 BehaviourAttacker	= Walker+Walker_AI_Beaviour_Attacker;
 
+DefaultTarget		= ROBOT;
+
 [WalkerStandard] : WalkerBase
 Health		= 100.0;
 Shield		= 0.0;

@@ -16,6 +16,9 @@ public partial interface IEntity {
 	// Entity Health
 	float					Health							{ get; }
 
+	// Entity Type
+	Entity.ENTITY_TYPE		EntityType						{ get; }
+
 	// Entity Shield
 	Shield					Shield							{ get; }
 
@@ -29,7 +32,7 @@ public partial interface IEntity {
 	Collider				PhysicCollider					{ get; }
 
 	// Trigger collider, used for interactions with incoming objects or trigger areas
-	CapsuleCollider			TriggerCollider					{ get; }
+	Collider				TriggerCollider					{ get; }
 
 	// Transform where to play effects at
 	Transform				EffectsPivot					{ get; }
@@ -59,7 +62,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	public	static uint			NewID()								{ return CurrentID++; }
 
 	// INTERFACE START
-				Transform				IEntity.Transform					{	get { return transform;			}	}
+				Transform				IEntity.Transform					{	get { return m_Targettable;		}	}
 				bool					IEntity.IsActive					{	get { return m_IsActive;		}	}
 				uint					IEntity.ID							{	get { return m_ID;				}	}
 				float					IEntity.Health						{	get { return m_Health;			}	}
@@ -67,9 +70,10 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 				string					IEntity.Section						{	get { return m_SectionName;		}	}
 				Rigidbody				IEntity.RigidBody					{	get { return m_RigidBody;		}	}
 				Collider				IEntity.PhysicCollider				{	get { return m_PhysicCollider;	}	}
-				CapsuleCollider			IEntity.TriggerCollider				{	get { return m_TriggerCollider;	}	}
+				Collider				IEntity.TriggerCollider				{	get { return m_TriggerCollider;	}	}
 				Transform				IEntity.EffectsPivot				{	get { return m_EffectsPivot;	}	}
 				IBrain					IEntity.Brain						{	get { return this;				}	}
+				ENTITY_TYPE				IEntity.EntityType					{	get { return m_EntityType;		}	}
 	// INTERFACE END
 
 	public		IEntity						Interface						{ get { return m_Interface; } }
@@ -84,7 +88,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	protected 	ENTITY_TYPE					m_EntityType					= ENTITY_TYPE.NONE;
 	protected	Rigidbody					m_RigidBody						= null;
 	protected	Collider					m_PhysicCollider				= null;
-	protected	CapsuleCollider				m_TriggerCollider				= null;
+	protected	Collider					m_TriggerCollider				= null;
 	protected	Transform					m_EffectsPivot					= null;
 	protected	IEntity						m_Interface						= null;
 	protected	bool						m_IsPlayer						= true;
@@ -123,11 +127,23 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	// Flag set if gun of entity is aligned with target
 	protected   bool                        m_IsAllignedGunToPoint			= false;
 
+	// Transforms
+	protected	Transform					m_HeadTransform					= null;
+	protected	Transform					m_BodyTransform					= null;
+	protected	Transform					m_GunTransform					= null;
+	protected	Transform					m_FirePoint						= null;
+
+	[Header("Orientation")]
+	[SerializeField]
+	protected	float						m_BodyRotationSpeed				= 5.0f;
+
+	[SerializeField]
+	protected	float						m_HeadRotationSpeed				= 5.0f;
+
+	protected	Transform					m_Targettable					= null;
 
 	protected	bool 						m_IsOK							= true;
 
-
-	
 
 
 
@@ -141,6 +157,17 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 		m_EffectsPivot		= transform.Find( "EffectsPivot" );
 
+		if ( m_IsPlayer == false )
+		{
+			m_BodyTransform		= transform.Find( "Body" );
+			m_HeadTransform		= m_BodyTransform.Find( "Head" );
+			m_Targettable = m_HeadTransform;
+		}
+		else
+		{
+			m_Targettable = transform;
+		}
+
 		m_IsOK   =	Utils.Base.SearchComponent( gameObject, ref m_PhysicCollider,		SearchContext.LOCAL, (p) => { return p && p.isTrigger == false; } );
 
 		if ( m_IsPlayer == true )
@@ -149,9 +176,10 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		}
 
 		m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_RigidBody,			SearchContext.LOCAL );
-		m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_FieldOfView,			SearchContext.ALL	);
 
 		Utils.Base.SearchComponent( gameObject, ref m_NavAgent,				SearchContext.LOCAL	);
+
+		InitializeBrain();
 
 		if ( m_IsOK && m_NavAgent != null && m_IsPlayer == false )
 			m_IsOK	&= m_NavAgent.isOnNavMesh;
@@ -227,14 +255,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	protected	virtual		void	TakeDamage( float Damage )
 	{
 		// DAMAGE
-		// Shield damage
-		if ( m_Shield != null && m_Shield.Status > 0f && m_Shield.IsUnbreakable == false )
-		{
-			m_Shield.OnHit( Damage );
-			return;
-		}
-		// Direct damage
-		else
 		{
 			m_Health -= Damage;
 			if ( m_Health <= 0f )

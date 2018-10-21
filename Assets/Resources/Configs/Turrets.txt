@@ -9,6 +9,8 @@ BehaviourAlarmed	= AI.Behaviours.Turret_AI_Beaviour_Alarmed;
 BehaviourSeeker		= AI.Behaviours.Turret_AI_Beaviour_Seeker;
 BehaviourAttacker	= AI.Behaviours.Turret_AI_Beaviour_Attacker;
 
+DefaultTarget		= ACTOR;
+
 [TurretStandard] : TurretBase
 Health		= 100.0;
 Shield		= 0.0;

@@ -8,6 +8,8 @@ BehaviourAlarmed	= Drone+Drone_AI_Beaviour_Alarmed;
 BehaviourSeeker		= Drone+Drone_AI_Beaviour_Seeker;
 BehaviourAttacker	= Drone+Drone_AI_Beaviour_Attacker;
 
+DefaultTarget		= ROBOT;
+
 [DroneStandard] : DroneBase
 Health				= 100.0;
 Shield				= 0.0;

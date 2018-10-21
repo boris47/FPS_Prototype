@@ -21,7 +21,7 @@ public class BulletElettro : GenericBullet {
 			EffectManager.Instance.PlayEntityOnHit( collision.contacts[0].point, collision.contacts[0].normal );
 
 			Transform effectPivot = ( entity.EffectsPivot != null ) ?  entity.EffectsPivot : collision.transform;
-			EffectManager.Instance.PlayElettroHit( effectPivot);
+			EffectManager.Instance.PlayElettroEffect( effectPivot.position, collision.contacts[0].normal );
 		}
 		else
 		{
@@ -29,7 +29,10 @@ public class BulletElettro : GenericBullet {
 		}
 
 		if ( shield != null )
-			shield.OnHit( m_Instance );
+		{
+			float damage = UnityEngine.Random.Range( m_DamageMin, m_DamageMax );
+			shield.OnHit( m_StartPosition, m_WhoRef, m_Weapon, damage, m_CanPenetrate );
+		}
 		else
 		if ( entity != null )
 		{

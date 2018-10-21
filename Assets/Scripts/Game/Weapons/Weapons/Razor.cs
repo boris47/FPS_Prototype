@@ -182,7 +182,7 @@ public class Razor : Weapon
 					// Do damage scaled with time scale
 					entity.OnHit( transform.position, Player.Instance, m_MainDamage * Time.timeScale, false );
 
-					EffectManager.Instance.PlayPlasmaHit( m_Laser.RayCastHit.point, m_Laser.RayCastHit.normal, 1 );
+					EffectManager.Instance.PlayPlasmaEffect( m_Laser.RayCastHit.point, m_Laser.RayCastHit.normal, 1 );
 				}
 				EffectManager.Instance.PlayEntityOnHit( m_Laser.RayCastHit.point, m_Laser.RayCastHit.normal, 1 );
 			}

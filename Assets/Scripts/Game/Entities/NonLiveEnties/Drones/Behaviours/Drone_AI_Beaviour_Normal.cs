@@ -32,7 +32,7 @@ public abstract partial class Drone {
 
 		public		override	void		OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 		{
-			Debug.Log( "hitted with details" );
+			Debug.Log( "hitted with details sp " + startPosition );
 
 			// Hit event, set ALARMED State
 			if ( m_ThisEntity.m_Health > 0.0f )

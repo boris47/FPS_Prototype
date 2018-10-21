@@ -192,7 +192,6 @@ public abstract partial class Drone : NonLiveEntity, IRespawn {
 	public		override	void	OnHit( IBullet bullet )
 	{
 		Behaviour_OnHitWithBullet( bullet );
-		print("on hit with bullet");
 	}
 	
 
@@ -201,7 +200,6 @@ public abstract partial class Drone : NonLiveEntity, IRespawn {
 	public		override	void	OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
 		Behaviour_OnHitWithDetails( startPosition, whoRef, damage, canPenetrate );
-		print("on hit with details");
 	}
 
 

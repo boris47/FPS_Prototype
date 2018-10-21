@@ -7,24 +7,11 @@ public abstract partial class NonLiveEntity : Entity {
 	[Header("Non Live Entity Properties")]
 	[Space]
 
-	[Header("Orientation")]
-	[SerializeField]
-	protected		float				m_BodyRotationSpeed			= 5.0f;
-
-	[SerializeField]
-	protected       float               m_HeadRotationSpeed			= 5.0f;
-
 	[SerializeField]
 	protected		float				m_GunRotationSpeed			= 5.0f;
 
 	[SerializeField]
 	protected		float				m_FireDispersion			= 0.01f;
-
-	// Transforms
-	protected		Transform			m_HeadTransform				= null;
-	protected		Transform			m_BodyTransform				= null;
-	protected		Transform			m_GunTransform				= null;
-	protected		Transform			m_FirePoint					= null;
 
 	// Weapon
 	protected		GameObjectsPool<Bullet> m_Pool					= null;
@@ -46,11 +33,11 @@ public abstract partial class NonLiveEntity : Entity {
 			return;
 		}
 
+		string TargetType = m_SectionRef.AsString( "DefaultTarget" );
+		m_FieldOfView.TargetType = (ENTITY_TYPE) System.Enum.Parse( typeof( ENTITY_TYPE ), TargetType );
+
 		Utils.Base.SearchComponent( gameObject, ref m_FireAudioSource, SearchContext.LOCAL );
 
-//		m_FootsTransform	= transform
-		m_BodyTransform		= transform.Find( "Body" );
-		m_HeadTransform		= m_BodyTransform.Find( "Head" );
 		m_GunTransform		= m_HeadTransform.Find( "Gun" );
 		m_FirePoint			= m_GunTransform.Find( "FirePoint" );
 

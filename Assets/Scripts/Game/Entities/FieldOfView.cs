@@ -15,6 +15,7 @@ public interface IFieldOfView {
 
 	float				Distance			{ get; set; }
 	float				Angle				{ get; set; }
+	Entity.ENTITY_TYPE	TargetType			{ get; set; }
 
 	void				Setup				( uint maxVisibleEntities );
 	bool				UpdateFOV			();
@@ -47,9 +48,19 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	[SerializeField,Range( 1f, 150f)]
 	private		float					m_ViewCone				= 100f;
 
-	[SerializeField]
-	private		LayerMask				m_LayerMaskToSkip		 = default( LayerMask );
 
+	[ SerializeField ]
+	private		Entity.ENTITY_TYPE		m_EntityType			= Entity.ENTITY_TYPE.NONE;
+
+	[SerializeField]
+	private		LayerMask				m_LayerMask				 = default( LayerMask );
+
+
+	float	IFieldOfView.Distance
+	{
+		get { return m_ViewDistance; }
+		set { m_ViewDistance = value; }
+	}
 
 	float	IFieldOfView.Angle
 	{
@@ -57,10 +68,10 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		set { m_ViewCone = value; }
 	}
 
-	float	IFieldOfView.Distance
+	Entity.ENTITY_TYPE IFieldOfView.TargetType
 	{
-		get { return m_ViewDistance; }
-		set { m_ViewDistance = value; }
+		get { return m_EntityType; }
+		set { m_EntityType = value; }
 	}
 
 
@@ -85,7 +96,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		m_ViewTriggerCollider.isTrigger = true;
 		m_ViewTriggerCollider.radius = m_ViewDistance;
 
-		m_LayerMaskToSkip		= LayerMask.NameToLayer("Bullets");
+		m_LayerMask = Utils.Base.LayersAllButOne( 1, LayerMask.NameToLayer ("Bullets") );
 	}
 
 
@@ -116,8 +127,11 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	{
 		for ( int i = m_AllTargets.Count - 1; i > 0; i-- )
 		{
-			IEntity entity = m_AllTargets[ i ];
-			if ( entity == null || entity.IsActive == false || entity.Health <= 0f )
+			Entity entity = m_AllTargets[ i ];
+			if ( entity == null 
+				|| entity.Interface.IsActive == false 
+				|| entity.Interface.Health <= 0.0f 
+				|| entity.transform.gameObject.activeSelf == false )
 			{
 				m_AllTargets.RemoveAt( i );
 			}
@@ -166,7 +180,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 			if ( m_NeedSetup == true )
 			{
 				( this as IFieldOfView ).Setup( maxVisibleEntities : 10 );
-				print( transform.parent.name + " need Field of view setup, default settings applied" );
+				print( transform.parent.name + " need Field of view setup, default settings applyed" );
 				m_NeedSetup = false;
 			}
 
@@ -195,25 +209,44 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 			m_AllTargets.Sort( ( a, b ) => CompareTargetsDistances( currentViewPoint.position, a, b ) );
 
 		// FIND ALL VISIBLE TARGETS
-		foreach( Entity entity in m_AllTargets )
+		foreach( Entity target in m_AllTargets )
 		{
-			Vector3 direction = ( entity.transform.position - currentViewPoint.position );
+			Vector3 targettablePosition = target.Interface.Transform.position;
+			Vector3 direction = ( targettablePosition - currentViewPoint.position );
 
 			// CHECK IF IS IN VIEW CONE
 			if ( Vector3.Angle( currentViewPoint.forward, direction.normalized ) <= ( m_ViewCone * 0.5f ) )
 			{
+//				Debug.DrawLine( currentViewPoint.position, targettablePosition, Color.white, 1.0f );
+
+				bool result = Physics.Raycast
+				(
+					origin:						currentViewPoint.position,
+					direction:					direction,
+					hitInfo:					out m_RaycastHit,
+					maxDistance:				Mathf.Infinity,
+					layerMask:					m_LayerMask,
+					queryTriggerInteraction:	QueryTriggerInteraction.Ignore
+				);
+				/*
+				if ( result && m_RaycastHit.collider != target.Interface.PhysicCollider )
+				{
+					print("steange " + m_RaycastHit.collider.name + ", " + target.Interface.PhysicCollider.name );
+				}
+				*/
+				/*
 				// CHECK IF HITTED IS A TARGET
 				bool result = Physics.Linecast(
 					currentViewPoint.position,
-					entity.transform.position,
-					out m_RaycastHit,
-					Utils.Base.LayersAllButOne( 1, m_LayerMaskToSkip ),
-					QueryTriggerInteraction.Ignore
+					targettablePosition,
+					out m_RaycastHit //,
+//					Utils.Base.LayersAllButOne( 1, m_LayerMaskToSkip ),
+//					QueryTriggerInteraction.Ignore
 				);
-
-				if ( result == true && m_RaycastHit.collider == entity.Interface.PhysicCollider )
+				*/
+				if ( result == true && m_RaycastHit.collider == target.Interface.PhysicCollider )
 				{
-					m_ValidTargets[ currentCount ] = entity;
+					m_ValidTargets[ currentCount ] = target;
 					currentCount ++;
 					
 					if ( currentCount == m_ValidTargets.Length )
@@ -273,15 +306,13 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	// OnTriggerEnter
 	private void OnTriggerEnter( Collider other )
 	{
-		LiveEntity liveEntity = other.GetComponent<LiveEntity>();
-		IEntity entity = liveEntity as IEntity;
-
-		if ( liveEntity != null && entity.IsActive == true && entity.Health > 0f )
+		Entity entity = other.GetComponent<Entity>();
+		if ( entity != null && entity.Interface.IsActive == true && entity.Interface.Health > 0.0f )
 		{
-			if ( m_AllTargets.Contains( liveEntity ) == true )
+			if ( m_AllTargets.Contains( entity ) == true || entity.Interface.EntityType != m_EntityType )
 				return;
 
-			m_AllTargets.Add( liveEntity );
+			m_AllTargets.Add( entity );
 		}
 	}
 
@@ -290,10 +321,10 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	// OnTriggerExit
 	private void OnTriggerExit( Collider other )
 	{
-		LiveEntity liveEntity = other.GetComponent<LiveEntity>();
-		if ( liveEntity != null )
+		Entity entity = other.GetComponent<Entity>();
+		if ( entity != null && m_AllTargets.Contains( entity ) == true )
 		{
-			m_AllTargets.Remove( liveEntity );
+			m_AllTargets.Remove( entity );
 		}
 	}
 

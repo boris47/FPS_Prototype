@@ -2,8 +2,9 @@
 [FragGranade]
 Damage			= 100.0;
 Radius			= 9.0;
-ThrowForce		= 12.0;
+ThrowForce		= 32.0;
 ExplosionDelay	= 3.0;
+BlowOnHit		= true
 
 
 [GlobeGranade]

@@ -74,7 +74,7 @@ public abstract partial class Entity : IBrain {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual	void	InitializeBrain()
 	{
-		m_FieldOfView	= transform.GetComponentInChildren<IFieldOfView>();
+		Utils.Base.SearchComponent( gameObject, ref m_FieldOfView, SearchContext.CHILDREN );
 		m_FieldOfView.Setup( maxVisibleEntities : 10 );
 
 		GameManager.UpdateEvents.OnThink += OnThinkBrain;

@@ -54,6 +54,7 @@ public class GlobeGranade : GranadeBase {
 		{
 			transform.position		= position;
 			m_RigidBody.velocity	= direction * ( ( velocity > 0f ) ? velocity : m_Velocity );
+			m_StartPosition = position;
 		}
 		SetActive( true );
 	}
