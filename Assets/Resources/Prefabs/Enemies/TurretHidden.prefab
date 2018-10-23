@@ -428,6 +428,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1fab7cdcdf9dbe49a24c6e5e076ba29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_CurrentBrainState: 5
   m_MinEngageDistance: 0
   m_BodyRotationSpeed: 90
   m_HeadRotationSpeed: 5
@@ -452,7 +453,8 @@ MonoBehaviour:
   m_ViewPoint: {fileID: 4530116063350688}
   m_ViewDistance: 40
   m_ViewCone: 100
-  m_LayerMaskToSkip:
+  m_EntityType: 0
+  m_LayerMask:
     serializedVersion: 2
     m_Bits: 0
 --- !u!135 &135836187610851662

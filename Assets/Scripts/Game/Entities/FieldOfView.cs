@@ -85,6 +85,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	private		bool					m_NeedSetup				= true;
 
 	private		TargetInfo_t			m_CurrentTargetInfo		= default( TargetInfo_t );
+	private		Quaternion				m_LookRotation			= Quaternion.identity;
 
 
 
@@ -214,8 +215,12 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 			Vector3 targettablePosition = target.Interface.Transform.position;
 			Vector3 direction = ( targettablePosition - currentViewPoint.position );
 
+			m_LookRotation.SetLookRotation( direction, currentViewPoint.up );
+
+			float angle = Quaternion.Angle( m_LookRotation, currentViewPoint.rotation );
+
 			// CHECK IF IS IN VIEW CONE
-			if ( Vector3.Angle( currentViewPoint.forward, direction.normalized ) <= ( m_ViewCone * 0.5f ) )
+			if ( angle <= ( m_ViewCone * 0.5f ) )
 			{
 //				Debug.DrawLine( currentViewPoint.position, targettablePosition, Color.white, 1.0f );
 
@@ -224,9 +229,9 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 					origin:						currentViewPoint.position,
 					direction:					direction,
 					hitInfo:					out m_RaycastHit,
-					maxDistance:				Mathf.Infinity,
-					layerMask:					m_LayerMask,
-					queryTriggerInteraction:	QueryTriggerInteraction.Ignore
+					maxDistance:				Mathf.Infinity //,
+//					layerMask:					m_LayerMask,
+//					queryTriggerInteraction:	QueryTriggerInteraction.Ignore
 				);
 				/*
 				if ( result && m_RaycastHit.collider != target.Interface.PhysicCollider )
@@ -307,9 +312,9 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	private void OnTriggerEnter( Collider other )
 	{
 		Entity entity = other.GetComponent<Entity>();
-		if ( entity != null && entity.Interface.IsActive == true && entity.Interface.Health > 0.0f )
+		if ( entity != null && entity.Interface.IsActive == true && entity.Interface.Health > 0.0f && entity.Interface.EntityType == m_EntityType )
 		{
-			if ( m_AllTargets.Contains( entity ) == true || entity.Interface.EntityType != m_EntityType )
+			if ( m_AllTargets.Contains( entity ) == true )
 				return;
 
 			m_AllTargets.Add( entity );
