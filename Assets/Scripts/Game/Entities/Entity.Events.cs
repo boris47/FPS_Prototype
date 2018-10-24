@@ -245,7 +245,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 		m_IsActive = false;
 
-		EffectManager.Instance.PlayEntityExplosion( transform.position, transform.up );
+		EffectManager.Instance.PlayEffect( EffectType.EXPLOSION, transform.position, transform.up, 0 );
 		EffectManager.Instance.PlayExplosionSound( transform.position );
 
 		OnKilled();

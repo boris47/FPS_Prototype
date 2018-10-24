@@ -118,11 +118,11 @@ public class GenericBullet : Bullet {
 		// If is an entity and who and hitted entites are of different category
 		if ( bIsAnEntity == true && ( ( m_WhoRef is NonLiveEntity && entity is NonLiveEntity ) == false ) )
 		{
-			EffectManager.Instance.PlayEntityOnHit( collision.contacts[0].point, collision.contacts[0].normal );
+			EffectManager.Instance.PlayEffect( EffectType.ENTITY_ON_HIT, collision.contacts[0].point, collision.contacts[0].normal, 3 );
 		}
 		else
 		{
-			EffectManager.Instance.PlayAmbientOnHit( collision.contacts[0].point, collision.contacts[0].normal );
+			EffectManager.Instance.PlayEffect( EffectType.AMBIENT_ON_HIT, collision.contacts[0].point, collision.contacts[0].normal, 3 );
 		}
 
 		// if is an entity

@@ -118,7 +118,7 @@ public class FragGranade : GranadeBase {
 				rb.AddExplosionForce( 1000, transform.position, m_Range, 3.0f );
 			}			
 		}
-		EffectManager.Instance.PlayEntityExplosion( transform.position, Vector3.up );
+		EffectManager.Instance.PlayEffect( EffectType.EXPLOSION, transform.position, Vector3.up, 0 );
 		SetActive( false );
 		m_InternalCounter	= 0f;
 	}

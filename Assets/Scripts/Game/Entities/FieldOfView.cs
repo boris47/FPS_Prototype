@@ -222,33 +222,17 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 			// CHECK IF IS IN VIEW CONE
 			if ( angle <= ( m_ViewCone * 0.5f ) )
 			{
-//				Debug.DrawLine( currentViewPoint.position, targettablePosition, Color.white, 1.0f );
-
+				// CHECK IF HITTED IS A TARGET
 				bool result = Physics.Raycast
 				(
 					origin:						currentViewPoint.position,
 					direction:					direction,
 					hitInfo:					out m_RaycastHit,
-					maxDistance:				Mathf.Infinity //,
-//					layerMask:					m_LayerMask,
-//					queryTriggerInteraction:	QueryTriggerInteraction.Ignore
+					maxDistance:				Mathf.Infinity,
+					layerMask:					m_LayerMask,
+					queryTriggerInteraction:	QueryTriggerInteraction.Ignore
 				);
-				/*
-				if ( result && m_RaycastHit.collider != target.Interface.PhysicCollider )
-				{
-					print("steange " + m_RaycastHit.collider.name + ", " + target.Interface.PhysicCollider.name );
-				}
-				*/
-				/*
-				// CHECK IF HITTED IS A TARGET
-				bool result = Physics.Linecast(
-					currentViewPoint.position,
-					targettablePosition,
-					out m_RaycastHit //,
-//					Utils.Base.LayersAllButOne( 1, m_LayerMaskToSkip ),
-//					QueryTriggerInteraction.Ignore
-				);
-				*/
+
 				if ( result == true && m_RaycastHit.collider == target.Interface.PhysicCollider )
 				{
 					m_ValidTargets[ currentCount ] = target;
@@ -312,7 +296,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	private void OnTriggerEnter( Collider other )
 	{
 		Entity entity = other.GetComponent<Entity>();
-		if ( entity != null && entity.Interface.IsActive == true && entity.Interface.Health > 0.0f && entity.Interface.EntityType == m_EntityType )
+		if ( entity != null && entity.Interface.IsActive == true && entity.Interface.EntityType == m_EntityType && entity.Interface.Health > 0.0f )
 		{
 			if ( m_AllTargets.Contains( entity ) == true )
 				return;

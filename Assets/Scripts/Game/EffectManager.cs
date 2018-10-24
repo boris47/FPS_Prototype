@@ -53,59 +53,27 @@ public class EffectManager : MonoBehaviour {
 
 	//////////////////////////////////////////////////////////////////////////
 	// PlayEntityOnHit
-	public	void	PlayEntityOnHit( Vector3 position, Vector3 direction, int count = 3 )
+	public	void	PlayEffect( EffectType effectType,  Vector3 position, Vector3 direction, int count = 0 )
 	{
-		ParticleSystem p = m_Effects[ (int) EffectType.ENTITY_ON_HIT ];
-		p.transform.position = position;
-		p.transform.forward = direction;
-		p.Emit( count );
+
+		ParticleSystem p = null;
+		if ( count > 0 )
+		{
+			p = m_Effects[ (int) effectType ];
+			p.transform.position = position;
+			p.transform.forward = direction;
+			p.Emit( count );
+		}
+		else
+		{
+			p = Instantiate( m_Effects[ (int) effectType ] );
+			p.transform.position = position;
+			p.transform.forward = direction;
+			p.Play( withChildren : true );
+			Destroy( p.gameObject, 5.0f );
+		}
 	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// PlayAmbientOnHit
-	public	void	PlayAmbientOnHit( Vector3 position, Vector3 direction, int count = 3 )
-	{
-		ParticleSystem p = m_Effects[ (int) EffectType.AMBIENT_ON_HIT ];
-		p.transform.position = position;
-		p.transform.forward = direction;
-		p.Emit( count );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// PlayAmbientOnHit
-	public	void	PlayElettroEffect( Vector3 position, Vector3 direction, int count = 3 )
-	{
-		ParticleSystem p = m_Effects[ (int) EffectType.ELETTRO ];
-		p.transform.position = position;
-		p.transform.forward = direction;
-		p.Emit( count );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// PlayAmbientOnHit
-	public	void	PlayPlasmaEffect( Vector3 position, Vector3 direction, int count = 3 )
-	{
-		ParticleSystem p = m_Effects[ (int) EffectType.PLASMA ];
-		p.transform.position = position;
-		p.transform.forward = direction;
-		p.Emit( count );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// PlayEntityExplosion
-	public	void	PlayEntityExplosion( Vector3 position, Vector3 direction )
-	{
-		ParticleSystem p = Instantiate( m_Effects[ (int) EffectType.EXPLOSION ] );
-		p.transform.position = position;
-		p.transform.forward = direction;
-		p.Play( withChildren : true );
-		Destroy( p, 5.0f );
-	}
-
+	
 
 	//////////////////////////////////////////////////////////////////////////
 	// PlayerExplosionSound
