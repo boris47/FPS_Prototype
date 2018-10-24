@@ -79,16 +79,14 @@ public class Laser : WeaponAttachment {
 	private void Update()
 	{
 		// Save cpu
-		if ( Time.frameCount % 5 == 0 )
+		if ( Time.frameCount % 15 == 0 )
 			return;
+
+		m_RayCastHit = m_DefaultRaycastHit;
 
 		m_HasHit = Physics.Raycast( transform.position, transform.forward, out m_RayCastHit, m_LaserLength, Utils.Base.LayersAllButOne( 1, m_LayerMaskToExclude ) );
 
-		float	currentLength = m_LaserLength;
-		if ( HasHit )
-			currentLength = m_RayCastHit.distance;
-		else
-			m_RayCastHit = m_DefaultRaycastHit;
+		float currentLength = HasHit ? m_RayCastHit.distance : m_LaserLength;
 
 		 //if the additional decimal isn't added then the beam position glitches
 		float beamPosition = currentLength / ( 2f + 0.0001f );

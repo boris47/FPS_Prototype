@@ -99,8 +99,8 @@ namespace CFG_Reader {
 		{
 			if ( IsLoaded( sFilePath ) )
 				return true;
-			IsOK = false;
 
+			IsOK = false;
 
 #if UNITY_EDITOR
 			// Editor Mode
@@ -148,7 +148,6 @@ namespace CFG_Reader {
 				string sLine = vLines[ iLine - 1 ];
 
 #endif
-
 
 				if ( Utils.String.IsValid( ref sLine ) == false )
 					continue;
