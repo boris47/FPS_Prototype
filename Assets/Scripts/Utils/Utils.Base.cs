@@ -1,5 +1,6 @@
 ﻿
 using System.Reflection;
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -20,7 +21,7 @@ public enum SearchContext {
 	/// <summary> On this object and parents </summary>
 	PARENT,
 	/// <summary> On all the object hierarchy </summary>
-	ALL = CHILDREN | PARENT
+	ALL = CHILDREN | LOCAL | PARENT
 }
 
 namespace Utils {
@@ -93,56 +94,107 @@ namespace Utils {
 		}
 
 
-		public	static	bool	SearchComponent<T1>( GameObject GameObject, ref T1 Component, SearchContext Context, global::System.Predicate<T1> filter = null )
+		private	static	T[]		SearchResults<T>( GameObject GameObject, SearchContext Context )
 		{
-			T1[] results = null;
+			T[] results = null;
 			
 			switch ( Context )
 			{
 				case SearchContext.LOCAL:
 				{
-					results = GameObject.GetComponents<T1>();
+					results = GameObject.GetComponents<T>();
 					break;
 				}
 					
 				case SearchContext.CHILDREN:
 				{
-					results = GameObject.GetComponentsInChildren<T1>();
+					results = GameObject.GetComponentsInChildren<T>();
 					break;
 				}
-
+				
 				case SearchContext.PARENT:
 				{
-					results = GameObject.GetComponentsInParent<T1>();
+					results = GameObject.GetComponentsInParent<T>();
 					break;
 				}
 
 				case SearchContext.ALL:
 				{
-					results = GameObject.GetComponentsInChildren<T1>();
-					if ( results != null && results.Length == 0 )
-					{
-						results = GameObject.GetComponentsInParent<T1>();
-					}
+					results = GameObject.transform.root.GetComponentsInChildren<T>();
 					break;
 				}
 			}
 
+			return results;
+		}
+
+
+		public	static	bool	SearchComponent<T1>( GameObject GameObject, ref T1 Component, SearchContext Context, global::System.Predicate<T1> Filter = null )
+		{
+			T1[] results = SearchResults<T1>( GameObject, Context );
+			
 			T1 result = default( T1 );
 
 			// Filtered search
-			if ( filter != null && results != null && results.Length > 0 )
+			if ( Filter != null && results != null && results.Length > 0 )
 			{
-				result = global::System.Array.Find( results, filter );
+				result = global::System.Array.Find( results, Filter );
 			}
 			// Normal search
 			else
 			{
-				result = ( results != null && results.Length > 0 ) ? results[0] : result;
+				if ( results != null && results.Length > 0 )
+				{
+					result = results[0];
+				}
 			}
 
 			Component = result;
 			return ( result != null );
+		}
+
+
+		public	static	bool	SearchComponents<T1>( GameObject GameObject, ref T1[] Components, SearchContext Context, global::System.Predicate<T1> Filter = null )
+		{
+			T1[] results = SearchResults<T1>( GameObject, Context );
+
+			if ( Filter != null && results.Length > 0 )
+			{
+				Components = global::System.Array.FindAll( results, ( T1 c ) => Filter( c ) );
+			}
+			else
+			{
+				Components = results;
+			}
+
+			return ( Components != null && Components.Length > 0 );
+		}
+	}
+
+	public class DoubleBuffer<T> {
+
+		private	T[]		m_Buffer = null;
+		private uint	m_Latest = 0;
+
+		public DoubleBuffer( T t1, T t2 )
+		{
+			m_Buffer = new T[] { t1, t2 };
+		}
+
+		public	T	Current()
+		{
+			return m_Buffer[ m_Latest ];
+		}
+
+		public	T Previous()
+		{
+			return m_Buffer[ ( m_Latest + 1 ) % 2 ];
+		}
+
+		public	T SwapBuffers()
+		{
+			m_Latest = ( m_Latest + 1 ) % 2;
+			return m_Buffer[ m_Latest ];
 		}
 	}
 
