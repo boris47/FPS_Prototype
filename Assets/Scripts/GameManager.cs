@@ -68,7 +68,6 @@ public partial class GameManager : MonoBehaviour {
 
 		new Blackboard.BlackboardSingleton();
 
-
 		// Load Settings and Configs
 		string settingspath		= InEditor ? "Assets/Resources/Settings.txt" : "Settings";
 		string configsPath		= InEditor ? "Assets/Resources/Configs/All.txt" : "Configs\\All";
@@ -180,6 +179,11 @@ public partial class GameManager : MonoBehaviour {
 				QuitInstanly();
 			}
 		}
+	}
+
+	public	void	ResumeFromPause()
+	{
+		m_PauseEvents.SetPauseState( false );
 	}
 
 

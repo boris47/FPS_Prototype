@@ -358,12 +358,12 @@ public class WeaponManager : MonoBehaviour, IWeaponManager {
 		m_ZoomedIn = false;
 	}
 
-	/*
+	
 	//////////////////////////////////////////////////////////////////////////
 	// OnDestroy
 	private void OnDestroy()
 	{
 		Instance = null;
 	}
-	*/
+	
 }

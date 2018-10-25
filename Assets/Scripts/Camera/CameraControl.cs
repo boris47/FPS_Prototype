@@ -376,5 +376,7 @@ public class CameraControl : MonoBehaviour, ICameraControl, ICameraSetters {
 		var settings = m_PP_Profile.vignette.settings;
 		settings.intensity = 0f;
 		m_PP_Profile.vignette.settings = settings;
+
+		Instance = null;
 	}
 }

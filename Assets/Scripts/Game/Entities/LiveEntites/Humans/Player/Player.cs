@@ -311,6 +311,4 @@ public partial class Player : Human {
 			yield return null;
 		}
 	}
-
-
 }

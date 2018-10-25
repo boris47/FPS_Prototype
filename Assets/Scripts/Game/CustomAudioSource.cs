@@ -89,8 +89,11 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 			OnMusicVolumeChange( SoundManager.Instance.MusicVolume );
 		}
 
-		SoundManager.OnPitchChange += OnPitchChange;
-		GameManager.PauseEvents.OnPauseSet += OnPauseSet;
+		if ( GameManager.Instance != null )
+		{
+			SoundManager.OnPitchChange += OnPitchChange;
+			GameManager.PauseEvents.OnPauseSet += OnPauseSet;
+		}
 	}
 
 
