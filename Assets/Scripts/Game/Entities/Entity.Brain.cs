@@ -2,27 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
-public struct TargetInfo_t {
-	public	bool	HasTarget;
-	public	IEntity	CurrentTarget;
-	public	float	TargetSqrDistance;
-
-	public	void	Update( TargetInfo_t Infos )
-	{
-		HasTarget			= Infos.HasTarget;
-		CurrentTarget		= Infos.CurrentTarget;
-		TargetSqrDistance	= Infos.TargetSqrDistance;
-	}
-
-	public	void	Reset()
-	{
-		HasTarget = false;
-		CurrentTarget = null;
-		TargetSqrDistance = 0.0f;
-	}
-}
-
 
 [ System.Serializable ]
 public enum BrainState {
@@ -72,12 +51,17 @@ public abstract partial class Entity : IBrain {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual	void	InitializeBrain()
+	protected	virtual	void	EnableBrain()
 	{
 		Utils.Base.SearchComponent( gameObject, ref m_FieldOfView, SearchContext.CHILDREN );
 		m_FieldOfView.Setup( maxVisibleEntities : 10 );
 
 		GameManager.UpdateEvents.OnThink += OnThinkBrain;
+	}
+
+	protected	virtual	void	DisableBrain()
+	{
+		GameManager.UpdateEvents.OnThink -= OnThinkBrain;
 	}
 
 
@@ -149,4 +133,25 @@ public abstract partial class Entity : IBrain {
 //		m_FieldOfView.OnReset();
 	}
 
+}
+
+[System.Serializable]
+public struct TargetInfo_t {
+	public	bool	HasTarget;
+	public	IEntity	CurrentTarget;
+	public	float	TargetSqrDistance;
+
+	public	void	Update( TargetInfo_t Infos )
+	{
+		HasTarget			= Infos.HasTarget;
+		CurrentTarget		= Infos.CurrentTarget;
+		TargetSqrDistance	= Infos.TargetSqrDistance;
+	}
+
+	public	void	Reset()
+	{
+		HasTarget = false;
+		CurrentTarget = null;
+		TargetSqrDistance = 0.0f;
+	}
 }

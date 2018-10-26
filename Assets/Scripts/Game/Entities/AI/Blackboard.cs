@@ -6,7 +6,54 @@ using CFG_Reader;
 
 public static class Blackboard {
 
-	public class BlackboardSingleton {
+
+	private	static	bool	m_bIsInitialized = false;
+
+
+	public	static	void	Initialize()
+	{
+		if ( m_bIsInitialized == false )
+		{
+			new BlackboardSingleton();
+		}
+	}
+
+	public	static	bool	Register( uint EntityID )
+	{
+		Initialize();
+		return BlackboardSingleton.Instance.Register( EntityID );
+	}
+
+	public	static	bool	UnRegister( uint EntityID )
+	{
+		Initialize();
+		return BlackboardSingleton.Instance.UnRegister( EntityID );
+	}
+
+	public	static	cValue	GetValue( uint EntityID, string Key )
+	{
+		return m_bIsInitialized ? BlackboardSingleton.Instance[ EntityID, Key ] : null;
+	}
+
+	public	static	bool	IsEntityRegistered( uint EntityID )
+	{
+		return m_bIsInitialized ? BlackboardSingleton.Instance.IsEntityRegistered( EntityID ) : false;
+	}
+
+	public	static	bool	HasValue( uint EntityID, string Key )
+	{
+		return m_bIsInitialized ? BlackboardSingleton.Instance.HasValue( EntityID, Key ) : false;
+	}
+
+	public	static	bool	bGetValue( uint EntityID, string Key, out cValue Value )
+	{
+		Value = null;
+		return m_bIsInitialized ? BlackboardSingleton.Instance.bGetValue( EntityID, Key, out Value ) : false;
+	}
+
+
+
+	protected class BlackboardSingleton {
 
 		private	static	BlackboardSingleton m_Instance = null;
 		public	static	BlackboardSingleton Instance
@@ -14,15 +61,17 @@ public static class Blackboard {
 			get { return m_Instance; }
 		}
 
+		private Dictionary< uint, Dictionary< string, cValue > > Data = new Dictionary< uint, Dictionary< string, cValue > >();
+
+
 		public	BlackboardSingleton()
 		{
 			m_Instance = this;
 		}
 
-		private Dictionary< int, Dictionary< string, cValue > > Data = new Dictionary< int, Dictionary< string, cValue > >();
 
 		// INDEXER
-		public	cValue	this [ int EntityID, string Key ]
+		public	cValue	this [ uint EntityID, string Key ]
 		{
 			get
 			{
@@ -40,13 +89,36 @@ public static class Blackboard {
 		}
 
 
-		public	bool	IsEntityRegistered( int EntityID )
+		public	bool	Register( uint EntityID )
+		{
+			if ( Data.ContainsKey( EntityID ) )
+			{
+				return false;
+			}
+
+			var entityData = new Dictionary< string, cValue > ();
+			Data.Add( EntityID, entityData );
+			return true;
+		}
+
+
+		public	bool	UnRegister( uint EntityID )
+		{
+			if ( IsEntityRegistered( EntityID ) )
+			{
+				return Data.Remove( EntityID );
+			}
+			return false;
+		}
+
+
+		public	bool	IsEntityRegistered( uint EntityID )
 		{
 			return Data.ContainsKey( EntityID );
 		}
 
 
-		public	bool	HasValue( int EntityID, string Key )
+		public	bool	HasValue( uint EntityID, string Key )
 		{
 			if ( IsEntityRegistered( EntityID ) )
 			{
@@ -60,7 +132,7 @@ public static class Blackboard {
 		}
 
 
-		public	bool	bGetValue( int EntityID, string Key, out cValue Value )
+		public	bool	bGetValue( uint EntityID, string Key, out cValue Value )
 		{
 			bool result = false;
 			Value = null;
@@ -77,32 +149,11 @@ public static class Blackboard {
 		}
 
 
-		private	Dictionary< string, cValue > GetEntityData( int EntityID )
+		private	Dictionary< string, cValue > GetEntityData( uint EntityID )
 		{
 			return Data[ EntityID ];
 		}
 
-	}
-
-
-	public	static	cValue	GetValue( int EntityID, string Key )
-	{
-		return BlackboardSingleton.Instance[ EntityID, Key ];
-	}
-
-	public	static	bool	IsEntityRegistered( int EntityID )
-	{
-		return BlackboardSingleton.Instance.IsEntityRegistered( EntityID );
-	}
-
-	public	static	bool	HasValue( int EntityID, string Key )
-	{
-		return BlackboardSingleton.Instance.HasValue( EntityID, Key );
-	}
-
-	public	static	bool	bGetValue( int EntityID, string Key, out cValue Value )
-	{
-		return BlackboardSingleton.Instance.bGetValue( EntityID, Key, out Value );
 	}
 	
 }

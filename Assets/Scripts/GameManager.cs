@@ -55,18 +55,21 @@ public partial class GameManager : MonoBehaviour {
 		}
 		DontDestroyOnLoad( this );
 		
-		// Instances
-		m_Instance		= this;
-		m_StreamEvents	= this;
-		m_PauseEvents	= this;
-		m_UpdateEvents	= this;
+		// Instance
+		m_Instance		= this as GameManager;
+		m_StreamEvents	= this as StreamEvents;
+		m_PauseEvents	= this as PauseEvents;
+		m_UpdateEvents	= this as UpdateEvents;
 
 		// Internal classes
 		InputMgr	= new InputManager();
 		Settings	= new Reader();
 		Configs		= new Reader();
 
-		new Blackboard.BlackboardSingleton();
+
+		// Initialize blackboard by creating internal singleton
+		Blackboard.Initialize();
+
 
 		// Load Settings and Configs
 		string settingspath		= InEditor ? "Assets/Resources/Settings.txt" : "Settings";

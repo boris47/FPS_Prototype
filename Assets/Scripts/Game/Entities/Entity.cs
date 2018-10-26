@@ -179,8 +179,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 		Utils.Base.SearchComponent( gameObject, ref m_NavAgent,				SearchContext.LOCAL	);
 
-		InitializeBrain();
-
 		if ( m_IsOK && m_NavAgent != null && m_IsPlayer == false )
 			m_IsOK	&= m_NavAgent.isOnNavMesh;
 
@@ -190,6 +188,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		Utils.Base.SearchComponent( gameObject, ref m_Shield,				SearchContext.CHILDREN );
 		Utils.Base.SearchComponent( gameObject, ref m_CutsceneManager,		SearchContext.CHILDREN );
 
+
+		Blackboard.Register( m_ID );
 		
 	}
 

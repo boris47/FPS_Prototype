@@ -71,6 +71,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 			if ( m_IsPlayer == false )
 			{
+				EnableBrain();
+
 				m_FieldOfView.Setup( maxVisibleEntities : 10 );
 				m_FieldOfView.OnTargetAquired			= OnTargetAquired;
 				m_FieldOfView.OnTargetUpdate			= OnTargetUpdate;
@@ -99,6 +101,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 			if ( m_IsPlayer == false )
 			{
+				DisableBrain();
+
 				m_FieldOfView.OnTargetAquired			= null;
 				m_FieldOfView.OnTargetUpdate			= null;
 				m_FieldOfView.OnTargetChanged			= null;
@@ -249,13 +253,15 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		EffectManager.Instance.PlayExplosionSound( transform.position );
 
 		OnKilled();
+
+		Blackboard.UnRegister( m_ID );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void		OnDestroy()
 	{
-		
+		Blackboard.UnRegister( m_ID );
 	}
 
 }
