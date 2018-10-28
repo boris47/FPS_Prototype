@@ -1,4 +1,5 @@
 ﻿
+using System;
 using UnityEngine;
 
 
@@ -32,9 +33,6 @@ public abstract partial class NonLiveEntity : Entity {
 			Destroy( gameObject );
 			return;
 		}
-
-		string TargetType = m_SectionRef.AsString( "DefaultTarget" );
-		m_FieldOfView.TargetType = (ENTITY_TYPE) System.Enum.Parse( typeof( ENTITY_TYPE ), TargetType );
 
 		Utils.Base.SearchComponent( gameObject, ref m_FireAudioSource, SearchContext.LOCAL );
 
@@ -72,4 +70,9 @@ public abstract partial class NonLiveEntity : Entity {
 		return false;
 	}
 
+
+	public override bool CanFire()
+	{
+		return m_IsAllignedGunToPoint;
+	}
 }

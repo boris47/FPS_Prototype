@@ -205,7 +205,7 @@ public abstract partial class Drone : NonLiveEntity, IRespawn {
 
 	//////////////////////////////////////////////////////////////////////////
 	
-	protected		override	void	OnDestinationReached( Vector3 Destionation )
+	public		override	void	OnDestinationReached( Vector3 Destionation )
 	{
 		base.OnDestinationReached( Destionation );
 	}
@@ -269,7 +269,7 @@ public abstract partial class Drone : NonLiveEntity, IRespawn {
 
 	//////////////////////////////////////////////////////////////////////////
 
-	protected		void	FaceToPoint( float DeltaTime )
+	public		void	FaceToPoint()
 	{
 		// ORIENTATION
 		// BODY
@@ -278,7 +278,7 @@ public abstract partial class Drone : NonLiveEntity, IRespawn {
 		}
 		// HEAD
 		{
-			Vector3 pointOnThisPlane = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_HeadTransform.position, m_PointToFace );
+			Vector3 pointOnThisPlane = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_HeadTransform.position, m_PointToLookAt );
 			Vector3 dirToPosition = ( pointOnThisPlane - m_HeadTransform.position );
 
 			m_IsAllignedHeadToPoint = Vector3.Angle( m_HeadTransform.forward, dirToPosition ) < 12f;
@@ -286,13 +286,13 @@ public abstract partial class Drone : NonLiveEntity, IRespawn {
 				float speed = m_HeadRotationSpeed * ( ( m_TargetInfo.HasTarget ) ? 3.0f : 1.0f );
 
 				m_RotationToAllignTo.SetLookRotation( dirToPosition, m_BodyTransform.up );
-				m_HeadTransform.rotation = Quaternion.RotateTowards( m_HeadTransform.rotation, m_RotationToAllignTo, speed * DeltaTime );
+				m_HeadTransform.rotation = Quaternion.RotateTowards( m_HeadTransform.rotation, m_RotationToAllignTo, speed * Time.deltaTime );
 			}
 		}
 
 		// GUN
 		{
-			Vector3 pointToLookAt = m_PointToFace;
+			Vector3 pointToLookAt = m_PointToLookAt;
 			if ( m_TargetInfo.HasTarget == true ) // PREDICTION
 			{
 				// Vector3 shooterPosition, Vector3 shooterVelocity, float shotSpeed, Vector3 targetPosition, Vector3 targetVelocity
@@ -310,7 +310,7 @@ public abstract partial class Drone : NonLiveEntity, IRespawn {
 			if ( m_IsAllignedHeadToPoint == true )
 			{
 				m_RotationToAllignTo.SetLookRotation( dirToPosition, m_BodyTransform.up );
-				m_GunTransform.rotation = Quaternion.RotateTowards( m_GunTransform.rotation, m_RotationToAllignTo, m_GunRotationSpeed * DeltaTime );
+				m_GunTransform.rotation = Quaternion.RotateTowards( m_GunTransform.rotation, m_RotationToAllignTo, m_GunRotationSpeed * Time.deltaTime );
 			}
 			m_IsAllignedGunToPoint = Vector3.Angle( m_GunTransform.forward, dirToPosition ) < 16f;
 		}
@@ -319,7 +319,7 @@ public abstract partial class Drone : NonLiveEntity, IRespawn {
 
 	//////////////////////////////////////////////////////////////////////////
 	
-	protected		void	FireLongRange( float deltaTime )
+	public	override		void	FireLongRange()
 	{
 		if ( m_ShotTimer > 0 )
 				return;

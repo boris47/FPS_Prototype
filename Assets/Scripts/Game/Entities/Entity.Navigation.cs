@@ -14,6 +14,8 @@ public partial interface IEntity {
 
 public abstract partial class Entity : IEntity {
 	
+	protected	const	float PATH_SEARCH_TIMEOUT		=		3.0f;
+
 	// INTERFACE START
 	NavMeshAgent				IEntity.NavAgent						{ get { return m_NavAgent; } }
 	
@@ -44,8 +46,7 @@ public abstract partial class Entity : IEntity {
 
 	//////////////////////////////////////////////////////////////////////////
 
-	protected	const	float PATH_SEARCH_TIMEOUT = 3.0f;
-	protected	System.Collections.IEnumerator RequestMovementCO( Vector3 Destination )
+	protected	virtual System.Collections.IEnumerator RequestMovementCO( Vector3 Destination )
 	{
 		m_NavAgent.SetDestination( Destination );
 		m_NavAgent.isStopped = true;
@@ -78,7 +79,7 @@ public abstract partial class Entity : IEntity {
 
 	//////////////////////////////////////////////////////////////////////////
 
-	protected	virtual		void	RequestMovement( Vector3 Destination )
+	public	virtual		void	RequestMovement( Vector3 Destination )
 	{
 		StartCoroutine( RequestMovementCO( Destination ) );
 	}
@@ -86,7 +87,7 @@ public abstract partial class Entity : IEntity {
 
 	//////////////////////////////////////////////////////////////////////////
 
-	protected	virtual		void	NavStop()
+	public	virtual		void	NavStop()
 	{
 		m_NavAgent.isStopped = true;
 

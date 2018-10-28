@@ -59,14 +59,14 @@ public abstract partial class Drone {
 			// if has point to face, update entity orientation
 			if ( m_ThisEntity.m_HasLookAtObject )
 			{
-				m_ThisEntity.FaceToPoint( DeltaTime );   // m_PointToFace
+				m_ThisEntity.FaceToPoint();   // m_PointToFace
 			}
 
 			// Update PathFinding and movement along path
 			if ( m_ThisEntity.m_HasDestination && m_ThisEntity.m_IsAllignedHeadToPoint )
 			{
 				float agentFinalSpeed = 0.0f;
-				Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_ThisEntity.m_BodyTransform.up, m_ThisEntity.m_BodyTransform.position, m_ThisEntity.m_PointToFace );
+				Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_ThisEntity.m_BodyTransform.up, m_ThisEntity.m_BodyTransform.position, m_ThisEntity.m_PointToLookAt );
 
 				agentFinalSpeed = m_ThisEntity.m_MoveMaxSpeed * 0.7f;
 

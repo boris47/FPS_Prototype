@@ -62,14 +62,14 @@ public abstract partial class Drone {
 				// with a target, if gun alligned, fire
 				if ( m_ThisEntity.m_IsAllignedGunToPoint == true )
 				{
-					m_ThisEntity.FireLongRange( DeltaTime );
+					m_ThisEntity.FireLongRange();
 				}
 			}
 
 			// if has point to face, update entity orientation
 			if ( m_ThisEntity.m_HasLookAtObject )
 			{
-				m_ThisEntity.FaceToPoint( DeltaTime );   // m_PointToFace
+				m_ThisEntity.FaceToPoint();   // m_PointToFace
 			}
 
 
@@ -79,7 +79,7 @@ public abstract partial class Drone {
 			if ( m_ThisEntity.m_HasDestination && m_ThisEntity.m_IsAllignedHeadToPoint )
 			{
 				float agentFinalSpeed = 0.0f;
-				Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_ThisEntity.m_BodyTransform.up, m_ThisEntity.m_BodyTransform.position, m_ThisEntity.m_PointToFace );
+				Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_ThisEntity.m_BodyTransform.up, m_ThisEntity.m_BodyTransform.position, m_ThisEntity.m_PointToLookAt );
 				bool IsNotUnderEngageDistance = ( m_ThisEntity.transform.position - projectedPoint ).sqrMagnitude > m_ThisEntity.m_MinEngageDistance * m_ThisEntity.m_MinEngageDistance;
 				if ( m_ThisEntity.m_TargetInfo.HasTarget )
 				{

@@ -130,7 +130,7 @@ public abstract partial class NonLiveEntity : Entity {
 
 	//////////////////////////////////////////////////////////////////////////
 
-	protected	override	void		OnDestinationReached( Vector3 Destination )
+	public	override	void		OnDestinationReached( Vector3 Destination )
 	{
 		base.OnDestinationReached(  Destination );
 	}
@@ -164,6 +164,8 @@ public abstract partial class NonLiveEntity : Entity {
 	protected	bool	WasMoving = false;
 	protected	override	void		OnFrame( float deltaTime )
 	{
+		m_ShotTimer -= deltaTime;
+
 		bool nowIsMoving = m_NavAgent.velocity.sqrMagnitude > 0.0f;
 		if ( m_HasDestination == true && WasMoving == true && nowIsMoving == false )
 		{

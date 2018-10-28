@@ -120,7 +120,7 @@ public partial class Player {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		OnDestinationReached( Vector3 Destination )
+	public	override	void		OnDestinationReached( Vector3 Destination )
 	{
 
 	}

@@ -1,19 +1,11 @@
 ﻿
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-/*
-public abstract class AIBehaviour {
-
-	protected				EntityBlackBoardData	m_EntityData	= null;
 
 
-	public		abstract	void			Enable();
-	public		abstract	void			Disable();
-
-	public		abstract	void			Setup( Entity BaseEntity );
-}
-*/
-
-public abstract	class	AIBehaviour {
+public abstract	class	AIBehaviour_Static {
 
 	protected			EntityBlackBoardData	m_EntityData	= null;
 
@@ -63,3 +55,5 @@ public abstract	class	AIBehaviour {
 
 	public	abstract	void			OnKilled();
 }
+
+

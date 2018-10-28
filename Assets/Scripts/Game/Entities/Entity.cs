@@ -76,6 +76,16 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 				ENTITY_TYPE				IEntity.EntityType					{	get { return m_EntityType;		}	}
 	// INTERFACE END
 
+	// GETTERS START
+	public		bool						IsAllignedHeadToPoin			{ get { return m_IsAllignedHeadToPoint; } }
+	public		bool						IsAllignedBodyToPoint			{ get { return m_IsAllignedBodyToPoint; } }
+	public		bool						IsAllignedGunToPoint			{ get { return m_IsAllignedGunToPoint; } }
+	public		bool						HasLookAtObject					{ get { return m_HasLookAtObject; } }
+	public		bool						HasDestination					{ get { return m_HasDestination; } }
+	public		float						MinEngageDistance				{ get { return m_MinEngageDistance; } }
+	// GETTERS END
+
+
 	public		IEntity						Interface						{ get { return m_Interface; } }
 
 	// INTERNALS
@@ -105,7 +115,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 	// ORIENTATION
 	protected	bool						m_HasLookAtObject				= false;
-	protected	Vector3						m_PointToFace					= Vector3.zero;
+	protected	Vector3						m_PointToLookAt					= Vector3.zero;
 	protected	Transform					m_TrasformToLookAt				= null;
 	protected	Quaternion					m_RotationToAllignTo			= Quaternion.identity;
 
@@ -213,20 +223,30 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Set the trasform to Look At </summary>
-	protected	virtual		void	SetTrasformTolookAt( Transform t )
+	public	virtual		void	SetTrasformTolookAt( Transform t )
 	{
 		m_TrasformToLookAt	= t;
-		m_PointToFace		= Vector3.zero;
+		m_PointToLookAt		= Vector3.zero;
 		m_HasLookAtObject	= true;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Set the point to Look At </summary>
-	protected	virtual		void	SetPointToLookAt( Vector3 point )
+	public	virtual		void	SetPointToLookAt( Vector3 point )
 	{
-		m_PointToFace		= point;
+		m_PointToLookAt		= point;
 		m_TrasformToLookAt	= null;
 		m_HasLookAtObject	= true;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> Stop looking to target point or target </summary>
+	public	virtual		void	StopLooking()
+	{
+		m_HasLookAtObject = false;
+		m_TrasformToLookAt = null;
+		m_PointToLookAt = Vector3.zero;
 	}
 
 
@@ -235,6 +255,14 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	public		virtual		bool	CanTrigger()
 	{
 		return true;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> Return if this player can fire </summary>
+	public		virtual	bool	CanFire()
+	{
+		return false;
 	}
 
 
@@ -252,16 +280,28 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		void	TakeDamage( float Damage )
+	protected	virtual	void	UpdateHeadRotation()
 	{
-		// DAMAGE
+		if ( m_HasLookAtObject == false )
+			return;
+
+		// HEAD
 		{
-			m_Health -= Damage;
-			if ( m_Health <= 0f )
+			Vector3 pointOnThisPlane = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_HeadTransform.position, m_PointToLookAt );
+			Vector3 dirToPosition = ( pointOnThisPlane - m_HeadTransform.position );
+
+			m_IsAllignedHeadToPoint = Vector3.Angle( m_HeadTransform.forward, dirToPosition ) < 12f;
 			{
-				OnKill();
+				float speed = m_HeadRotationSpeed * ( ( m_TargetInfo.HasTarget ) ? 3.0f : 1.0f );
+
+				m_RotationToAllignTo.SetLookRotation( dirToPosition, m_BodyTransform.up );
+				m_HeadTransform.rotation = Quaternion.RotateTowards( m_HeadTransform.rotation, m_RotationToAllignTo, speed * Time.deltaTime );
 			}
 		}
 	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public	abstract	void	FireLongRange();
 
 }

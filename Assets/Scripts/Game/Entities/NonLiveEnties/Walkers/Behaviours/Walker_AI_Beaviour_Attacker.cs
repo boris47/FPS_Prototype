@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+/*
 public abstract partial class Walker {
 
 	protected partial class Walker_AI_Beaviour_Attacker {
@@ -52,9 +52,6 @@ public abstract partial class Walker {
 
 		public		override	void		OnFrame( float DeltaTime )
 		{
-			// Update internal timer
-			m_ThisEntity.m_ShotTimer -= DeltaTime;
-
 			// Update targeting
 			if ( m_ThisEntity.m_TargetInfo.HasTarget == true )
 			{
@@ -63,16 +60,9 @@ public abstract partial class Walker {
 				// with a target, if gun alligned, fire
 				if ( m_ThisEntity.m_IsAllignedGunToPoint == true )
 				{
-					m_ThisEntity.FireLongRange( DeltaTime );
+					m_ThisEntity.FireLongRange();
 				}
 			}
-
-			// if has point to face, update entity orientation
-			if ( m_ThisEntity.m_HasLookAtObject )
-			{
-				m_ThisEntity.FaceToPoint( DeltaTime );   // m_PointToFace
-			}
-
 
 			m_ThisEntity.m_NavCanMoveAlongPath = false;
 
@@ -80,7 +70,7 @@ public abstract partial class Walker {
 			if ( m_ThisEntity.m_HasDestination && m_ThisEntity.m_IsAllignedHeadToPoint )
 			{
 				float agentFinalSpeed = 0.0f;
-				Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_ThisEntity.m_BodyTransform.up, m_ThisEntity.m_BodyTransform.position, m_ThisEntity.m_PointToFace );
+				Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( m_ThisEntity.m_BodyTransform.up, m_ThisEntity.m_BodyTransform.position, m_ThisEntity.m_PointToLookAt );
 				bool IsNotUnderEngageDistance = ( m_ThisEntity.transform.position - projectedPoint ).sqrMagnitude > m_ThisEntity.m_MinEngageDistance * m_ThisEntity.m_MinEngageDistance;
 				if ( m_ThisEntity.m_TargetInfo.HasTarget )
 				{
@@ -159,6 +149,99 @@ public abstract partial class Walker {
 			
 		}
 
+	}
+
+}
+
+*/
+
+
+public class Walker_AI_Behavior_Attacker : AIBehaviour {
+	
+
+	public override void OnEnable()
+	{
+		
+	}
+
+	public override void OnDisable()
+	{
+		
+	}
+
+	public override StreamUnit OnSave( StreamData streamData )
+	{
+		return null;
+	}
+
+	public override StreamUnit OnLoad( StreamData streamData )
+	{
+		return null;
+	}
+
+	public override void OnHit( IBullet bullet )
+	{
+		// Avoid friendly fire
+		if ( bullet.WhoRef is NonLiveEntity )
+			return;
+
+		float damage = UnityEngine.Random.Range( bullet.DamageMin, bullet.DamageMax );
+		this.OnHit( bullet.StartPosition, bullet.WhoRef, damage, bullet.CanPenetrate );
+	}
+
+	public override void OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
+	{
+		
+	}
+
+	public override void OnDestinationReached( Vector3 Destination )
+	{
+		
+	}
+
+	public override void OnThink()
+	{
+		
+	}
+
+	public override void OnPhysicFrame( float FixedDeltaTime )
+	{
+		
+	}
+
+	public override void OnFrame( float DeltaTime )
+	{
+		
+	}
+
+	public override void OnPauseSet( bool isPaused )
+	{
+		
+	}
+
+	public override void OnTargetAcquired( TargetInfo_t targetInfo )
+	{
+		
+	}
+
+	public override void OnTargetUpdate( TargetInfo_t targetInfo )
+	{
+		
+	}
+
+	public override void OnTargetChange( TargetInfo_t targetInfo )
+	{
+		
+	}
+
+	public override void OnTargetLost( TargetInfo_t targetInfo )
+	{
+		
+	}
+
+	public override void OnKilled()
+	{
+		
 	}
 
 }

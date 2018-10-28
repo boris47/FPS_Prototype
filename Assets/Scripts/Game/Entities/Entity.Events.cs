@@ -73,6 +73,9 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 			{
 				EnableBrain();
 
+				string TargetType = m_SectionRef.AsString( "DefaultTarget" );
+				m_FieldOfView.TargetType = (ENTITY_TYPE) System.Enum.Parse( typeof( ENTITY_TYPE ), TargetType );
+
 				m_FieldOfView.Setup( maxVisibleEntities : 10 );
 				m_FieldOfView.OnTargetAquired			= OnTargetAquired;
 				m_FieldOfView.OnTargetUpdate			= OnTargetUpdate;
@@ -168,7 +171,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		void		OnDestinationReached( Vector3 Destination )
+	public	virtual		void		OnDestinationReached( Vector3 Destination )
 	{
 		Behaviour_OnDestinationReached( Destination );
 	}
@@ -206,6 +209,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void		OnFrame( float DeltaTime )
 	{
+		UpdateHeadRotation();
+
 		Behaviour_OnFrame( DeltaTime );
 	}
 
@@ -235,6 +240,20 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	protected	virtual		void		OnTargetLost( TargetInfo_t targetInfo )
 	{
 		Behaviour_OnTargetLost( targetInfo );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public		virtual		void		OnTakeDamage( float Damage )
+	{
+		// DAMAGE
+		{
+			m_Health -= Damage;
+			if ( m_Health <= 0f )
+			{
+				OnKill();
+			}
+		}
 	}
 
 

@@ -1,159 +1,119 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿
+using UnityEngine;
 using System.Collections.Generic;
-using CFG_Reader;
+
+/* TODO
+--- * make getter m_IsAllignedHeadToPoint
+--- * make getter m_IsAllignedBodyToPoint
+--- * make getter m_IsAllignedGunToPoint
+--- * make getter m_HasLookAtObject
+--- * make getter m_HasDestination
+--- * make getter m_MinEngageDistance
+--- * make method bool CanFire()		USUALLY CHECK m_IsAllignedGunToPoint
+--- * make public Entity.UpdateHeadRotation
+--- * make public Entity.FireLongRange
+--- * make public Entity.RequestMovement
+--- * make public Entity.SetPointToLookAt
+--- * make public Entity.TakeDamage
+ * make public 
+ */
+
+public class EntityBlackBoardData {
+
+	public	Entity				EntityRef							= null;
+	public	Transform			Transform							= null;
+
+	public	Transform			HeadTransform						= null;
+	public	Transform			BodyTransform						= null;
+
+	public	TargetInfo_t		TargetInfo							= default( TargetInfo_t );
+
+	public	Transform			TrasformToLookAt					= null;
+	public	Vector3				PointToLookAt						= Vector3.zero;
+
+	public	BrainState			BrainState							= BrainState.COUNT;
+
+	public	float				AgentSpeed							= 0.0f;
+
+}
 
 
 public static class Blackboard {
 
+	private static	Dictionary< uint, EntityBlackBoardData >	m_Data						= null;
 
-	private	static	bool	m_bIsInitialized = false;
+	private	static	bool										m_bIsInitialized			= false;
 
 
+	/// <summary>
+	/// If not initialized, initialize blackboard data
+	/// </summary>
 	public	static	void	Initialize()
 	{
 		if ( m_bIsInitialized == false )
 		{
-			new BlackboardSingleton();
+			m_Data = new Dictionary< uint, EntityBlackBoardData >();
 		}
 	}
 
+
+	/// <summary>
+	/// If not already registered, register an entity by its ID
+	/// </summary>
+	/// <param name="EntityID"></param>
+	/// <returns></returns>
 	public	static	bool	Register( uint EntityID )
 	{
 		Initialize();
-		return BlackboardSingleton.Instance.Register( EntityID );
-	}
 
-	public	static	bool	UnRegister( uint EntityID )
-	{
-		Initialize();
-		return BlackboardSingleton.Instance.UnRegister( EntityID );
-	}
-
-	public	static	cValue	GetValue( uint EntityID, string Key )
-	{
-		return m_bIsInitialized ? BlackboardSingleton.Instance[ EntityID, Key ] : null;
-	}
-
-	public	static	bool	IsEntityRegistered( uint EntityID )
-	{
-		return m_bIsInitialized ? BlackboardSingleton.Instance.IsEntityRegistered( EntityID ) : false;
-	}
-
-	public	static	bool	HasValue( uint EntityID, string Key )
-	{
-		return m_bIsInitialized ? BlackboardSingleton.Instance.HasValue( EntityID, Key ) : false;
-	}
-
-	public	static	bool	bGetValue( uint EntityID, string Key, out cValue Value )
-	{
-		Value = null;
-		return m_bIsInitialized ? BlackboardSingleton.Instance.bGetValue( EntityID, Key, out Value ) : false;
-	}
-
-
-
-	protected class BlackboardSingleton {
-
-		private	static	BlackboardSingleton m_Instance = null;
-		public	static	BlackboardSingleton Instance
+		if ( m_Data.ContainsKey( EntityID ) )
 		{
-			get { return m_Instance; }
-		}
-
-		private Dictionary< uint, Dictionary< string, cValue > > Data = new Dictionary< uint, Dictionary< string, cValue > >();
-
-
-		public	BlackboardSingleton()
-		{
-			m_Instance = this;
-		}
-
-
-		// INDEXER
-		public	cValue	this [ uint EntityID, string Key ]
-		{
-			get
-			{
-				if ( IsEntityRegistered( EntityID ) )
-				{
-					var entityData = this.GetEntityData( EntityID );
-					if ( entityData.ContainsKey( Key ) )
-					{
-						return entityData[ Key ];
-					}
-				}
-
-				return null;	
-			}
-		}
-
-
-		public	bool	Register( uint EntityID )
-		{
-			if ( Data.ContainsKey( EntityID ) )
-			{
-				return false;
-			}
-
-			var entityData = new Dictionary< string, cValue > ();
-			Data.Add( EntityID, entityData );
-			return true;
-		}
-
-
-		public	bool	UnRegister( uint EntityID )
-		{
-			if ( IsEntityRegistered( EntityID ) )
-			{
-				return Data.Remove( EntityID );
-			}
 			return false;
 		}
 
-
-		public	bool	IsEntityRegistered( uint EntityID )
-		{
-			return Data.ContainsKey( EntityID );
-		}
-
-
-		public	bool	HasValue( uint EntityID, string Key )
-		{
-			if ( IsEntityRegistered( EntityID ) )
-			{
-				var entityData = this.GetEntityData( EntityID );
-				if ( entityData.ContainsKey( Key ) )
-				{
-					return true;
-				}
-			}
-			return true;
-		}
-
-
-		public	bool	bGetValue( uint EntityID, string Key, out cValue Value )
-		{
-			bool result = false;
-			Value = null;
-			if ( IsEntityRegistered( EntityID ) )
-			{
-				var entityData = this.GetEntityData( EntityID );
-				if ( entityData.ContainsKey( Key ) )
-				{
-					Value = entityData[ Key ];
-					result = true;
-				}
-			}
-			return result;
-		}
-
-
-		private	Dictionary< string, cValue > GetEntityData( uint EntityID )
-		{
-			return Data[ EntityID ];
-		}
-
+		EntityBlackBoardData entityData = new EntityBlackBoardData();
+		m_Data.Add( EntityID, entityData );
+		return true;
 	}
+
+
+	/// <summary>
+	/// If already registered, Un-register an entity by its ID
+	/// </summary>
+	/// <param name="EntityID"></param>
+	/// <returns></returns>
+	public	static	bool	UnRegister( uint EntityID )
+	{
+		Initialize();
+		if ( IsEntityRegistered( EntityID ) )
+		{
+			return m_Data.Remove( EntityID );
+		}
+		return false;
+	}
+
+
+	/// <summary>
+	/// Check and returns if an entity is registered by its ID
+	/// </summary>
+	/// <param name="EntityID"></param>
+	/// <returns></returns>
+	public	static	bool	IsEntityRegistered( uint EntityID )
+	{
+		return m_bIsInitialized ? m_Data.ContainsKey( EntityID ) : false;
+	}
+
 	
+	/// <summary>
+	/// Return data for a given entity ID if registered
+	/// </summary>
+	/// <param name="EntityID"></param>
+	/// <param name="Key"></param>
+	/// <param name="Default"></param>
+	/// <returns></returns>
+	public	static	EntityBlackBoardData	GetData( uint EntityID )
+	{
+		return IsEntityRegistered( EntityID ) ? m_Data[ EntityID ] : null;
+	}
+
 }
