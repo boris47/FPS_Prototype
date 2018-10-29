@@ -2,7 +2,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public	delegate	void	OnTargetEvent( TargetInfo_t targetInfo );
+public	delegate	void	OnTargetEvent( TargetInfo targetInfo );
 
 
 
@@ -84,7 +84,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 
 	private		bool					m_NeedSetup				= true;
 
-	private		TargetInfo_t			m_CurrentTargetInfo		= default( TargetInfo_t );
+	private		TargetInfo				m_CurrentTargetInfo		= new TargetInfo();
 	private		Quaternion				m_LookRotation			= Quaternion.identity;
 
 
@@ -166,7 +166,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		{
 			m_OnTargetLost ( m_CurrentTargetInfo );
 		}
-		m_CurrentTargetInfo = default( TargetInfo_t );
+		m_CurrentTargetInfo = new TargetInfo();
 	}
 
 
@@ -285,7 +285,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	// OnReset
 	void	IFieldOfView.OnReset()
 	{
-		m_CurrentTargetInfo	= default( TargetInfo_t );
+		m_CurrentTargetInfo	= new TargetInfo();
 		System.Array.Clear( m_ValidTargets, 0, ( int ) m_MaxVisibleEntities );
 		m_AllTargets.Clear();
 	}

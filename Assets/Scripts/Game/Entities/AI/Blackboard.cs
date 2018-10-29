@@ -14,10 +14,11 @@ using System.Collections.Generic;
 --- * make public Entity.FireLongRange
 --- * make public Entity.RequestMovement
 --- * make public Entity.SetPointToLookAt
---- * make public Entity.TakeDamage
- * make public 
+--- * make public Entity.TakeDamage  // made protected becaues damages is managed inside entity
+ * Somewhere m_ThisEntity.m_NavAgent.speed = agentFinalSpeed
  */
 
+[System.Serializable]
 public class EntityBlackBoardData {
 
 	public	Entity				EntityRef							= null;
@@ -26,7 +27,9 @@ public class EntityBlackBoardData {
 	public	Transform			HeadTransform						= null;
 	public	Transform			BodyTransform						= null;
 
-	public	TargetInfo_t		TargetInfo							= default( TargetInfo_t );
+	public	LookData			LookData							= null;
+
+	public	TargetInfo		TargetInfo							= default( TargetInfo );
 
 	public	Transform			TrasformToLookAt					= null;
 	public	Vector3				PointToLookAt						= Vector3.zero;
@@ -53,6 +56,7 @@ public static class Blackboard {
 		if ( m_bIsInitialized == false )
 		{
 			m_Data = new Dictionary< uint, EntityBlackBoardData >();
+			m_bIsInitialized = true;
 		}
 	}
 
@@ -62,16 +66,18 @@ public static class Blackboard {
 	/// </summary>
 	/// <param name="EntityID"></param>
 	/// <returns></returns>
-	public	static	bool	Register( uint EntityID )
+	public	static	bool	Register( uint EntityID, EntityBlackBoardData entityData )
 	{
-		Initialize();
+		if ( m_bIsInitialized == false )
+		{
+			Initialize();
+		}
 
 		if ( m_Data.ContainsKey( EntityID ) )
 		{
 			return false;
 		}
 
-		EntityBlackBoardData entityData = new EntityBlackBoardData();
 		m_Data.Add( EntityID, entityData );
 		return true;
 	}
@@ -82,12 +88,12 @@ public static class Blackboard {
 	/// </summary>
 	/// <param name="EntityID"></param>
 	/// <returns></returns>
-	public	static	bool	UnRegister( uint EntityID )
+	public	static	bool	UnRegister( IEntity entity )
 	{
 		Initialize();
-		if ( IsEntityRegistered( EntityID ) )
+		if ( IsEntityRegistered( entity.ID ) )
 		{
-			return m_Data.Remove( EntityID );
+			return m_Data.Remove( entity.ID );
 		}
 		return false;
 	}

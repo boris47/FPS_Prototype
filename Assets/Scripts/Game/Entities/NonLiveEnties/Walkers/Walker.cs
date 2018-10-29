@@ -74,14 +74,15 @@ public abstract partial class Walker : NonLiveEntity, IRespawn {
 		}
 		m_Pool.SetActive( true );
 		m_ShotTimer = 0f;
+		m_MaxAgentSpeed = m_MoveMaxSpeed;
 
 		// AI BEHAVIOURS
 		{	m_Behaviours = new AIBehaviour[ 5 ] { null, null, null,null, null };
-			SetBehaviour( BrainState.EVASIVE,	m_SectionRef.AsString( "BehaviourEvasive"	), false, this );
-			SetBehaviour( BrainState.NORMAL,	m_SectionRef.AsString( "BehaviourNormal"	), true , this );
-			SetBehaviour( BrainState.ALARMED,	m_SectionRef.AsString( "BehaviourAlarmed"	), false, this );
-			SetBehaviour( BrainState.SEEKER,	m_SectionRef.AsString( "BehaviourSeeker"	), false, this );
-			SetBehaviour( BrainState.ATTACKER,	m_SectionRef.AsString( "BehaviourAttacker"	), false, this );
+			SetBehaviour( BrainState.EVASIVE,	m_SectionRef.AsString( "BehaviourEvasive"	), false );
+			SetBehaviour( BrainState.NORMAL,	m_SectionRef.AsString( "BehaviourNormal"	), true  );
+			SetBehaviour( BrainState.ALARMED,	m_SectionRef.AsString( "BehaviourAlarmed"	), false );
+			SetBehaviour( BrainState.SEEKER,	m_SectionRef.AsString( "BehaviourSeeker"	), false );
+			SetBehaviour( BrainState.ATTACKER,	m_SectionRef.AsString( "BehaviourAttacker"	), false );
 
 			ChangeState( BrainState.NORMAL );
 		}
@@ -92,7 +93,10 @@ public abstract partial class Walker : NonLiveEntity, IRespawn {
 
 	public		override	void	OnHit( IBullet bullet )
 	{
-		Behaviour_OnHitWithBullet( bullet );
+		m_CurrentBehaviour.OnHit( bullet );
+
+		float damage = UnityEngine.Random.Range( bullet.DamageMin, bullet.DamageMax );
+		this.OnHit( bullet.StartPosition, bullet.WhoRef, damage, bullet.CanPenetrate );
 	}
 	
 
@@ -100,7 +104,9 @@ public abstract partial class Walker : NonLiveEntity, IRespawn {
 
 	public		override	void	OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
-		Behaviour_OnHitWithDetails( startPosition, whoRef, damage, canPenetrate );
+		m_CurrentBehaviour.OnHit( startPosition, whoRef, damage, canPenetrate );
+
+		OnTakeDamage( damage );
 	}
 
 
@@ -114,7 +120,7 @@ public abstract partial class Walker : NonLiveEntity, IRespawn {
 	
 	//////////////////////////////////////////////////////////////////////////
 
-	protected		override	void	OnTargetAquired( TargetInfo_t targetInfo )
+	protected		override	void	OnTargetAquired( TargetInfo targetInfo )
 	{
 		base.OnTargetAquired( targetInfo );
 	}
@@ -122,7 +128,7 @@ public abstract partial class Walker : NonLiveEntity, IRespawn {
 
 	//////////////////////////////////////////////////////////////////////////
 
-	protected		override	void	OnTargetUpdate( TargetInfo_t targetInfo )
+	protected		override	void	OnTargetUpdate( TargetInfo targetInfo )
 	{
 		base.OnTargetUpdate( targetInfo );
 	}
@@ -130,7 +136,7 @@ public abstract partial class Walker : NonLiveEntity, IRespawn {
 
 	//////////////////////////////////////////////////////////////////////////
 
-	protected		override	void	OnTargetChanged( TargetInfo_t targetInfo )
+	protected		override	void	OnTargetChanged( TargetInfo targetInfo )
 	{
 		base.OnTargetChanged( targetInfo );
 	}
@@ -138,7 +144,7 @@ public abstract partial class Walker : NonLiveEntity, IRespawn {
 
 	//////////////////////////////////////////////////////////////////////////
 
-	protected		override	void	OnTargetLost( TargetInfo_t targetInfo )
+	protected		override	void	OnTargetLost( TargetInfo targetInfo )
 	{
 		base.OnTargetLost( targetInfo );
 	}
@@ -154,7 +160,7 @@ public abstract partial class Walker : NonLiveEntity, IRespawn {
 	
 	//////////////////////////////////////////////////////////////////////////
 
-	public		override	void	OnKill()
+	protected		override	void	OnKill()
 	{
 		base.OnKill();
 //		m_Pool.SetActive( false );
@@ -194,7 +200,7 @@ public abstract partial class Walker : NonLiveEntity, IRespawn {
 		*/
 		// GUN
 		{
-			Vector3 pointToLookAt = m_PointToLookAt;
+			Vector3 pointToLookAt = m_LookData.PointToLookAt;
 			if ( m_TargetInfo.HasTarget == true )
 			{
 				Vector3 targetPosition = m_TargetInfo.CurrentTarget.Transform.position;
@@ -207,7 +213,7 @@ public abstract partial class Walker : NonLiveEntity, IRespawn {
 					(
 						alt:			0f,
 						startPosition:	m_GunTransform.position,
-						endPosition:	m_PointToLookAt,
+						endPosition:	pointToLookAt,
 						bulletVelocity:	model.Velocity,
 						targetHeight:	targetHeight
 					);
@@ -278,7 +284,7 @@ public abstract partial class Walker : NonLiveEntity, IRespawn {
 
 		// Entity
 		m_IsActive						= true;
-		m_TargetInfo					= default( TargetInfo_t );
+		m_TargetInfo					= new TargetInfo();
 //		m_NavHasDestination				= false;
 //		m_HasFaceTarget					= false;
 //		m_Destination					= Vector3.zero;
@@ -299,102 +305,4 @@ public abstract partial class Walker : NonLiveEntity, IRespawn {
 			( m_Shield as IShield ).OnReset();
 	}
 	
-}
-
-
-public abstract partial class Walker {
-
-	protected	abstract	class Behaviour_Base : AIBehaviour {
-	
-		protected				Walker			m_ThisEntity		= null;
-
-		public override void Setup( Entity BaseEntity )
-		{
-			m_ThisEntity = BaseEntity as Walker;
-		}
-
-		public		override	void			Enable()
-		{
-			m_ThisEntity.Behaviour_OnSave			= OnSave;
-			m_ThisEntity.Behaviour_OnLoad			= OnLoad;
-
-			m_ThisEntity.Behaviour_OnHitWithBullet	= OnHit;
-			m_ThisEntity.Behaviour_OnHitWithDetails	= OnHit;
-
-			m_ThisEntity.Behaviour_OnThink			= OnThink;
-			m_ThisEntity.Behaviour_OnPhysicFrame	= OnPhysicFrame;
-			m_ThisEntity.Behaviour_OnFrame			= OnFrame;
-
-			m_ThisEntity.Behaviour_OnTargetAcquired	= OnTargetAcquired;
-			m_ThisEntity.Behaviour_OnTargetUpdate	= OnTargetUpdate;
-			m_ThisEntity.Behaviour_OnTargetChange	= OnTargetChange;
-			m_ThisEntity.Behaviour_OnTargetLost		= OnTargetLost;
-
-			m_ThisEntity.Behaviour_OnDestinationReached = OnDestinationReached;
-
-			m_ThisEntity.OnKilled					= OnKilled;
-
-		}
-
-		public		override	void			Disable()
-		{
-			m_ThisEntity.Behaviour_OnSave			= null;
-			m_ThisEntity.Behaviour_OnLoad			= null;
-
-			m_ThisEntity.Behaviour_OnHitWithBullet	= null;
-			m_ThisEntity.Behaviour_OnHitWithDetails	= null;
-
-			m_ThisEntity.Behaviour_OnThink			= null;
-			m_ThisEntity.Behaviour_OnPhysicFrame	= null;
-			m_ThisEntity.Behaviour_OnFrame			= null;
-
-			m_ThisEntity.Behaviour_OnTargetAcquired	= null;
-			m_ThisEntity.Behaviour_OnTargetUpdate	= null;
-			m_ThisEntity.Behaviour_OnTargetChange	= null;
-			m_ThisEntity.Behaviour_OnTargetLost		= null;
-
-			m_ThisEntity.Behaviour_OnDestinationReached = null;
-
-			m_ThisEntity.OnKilled					= null;
-
-		}
-
-		public		abstract	StreamUnit		OnSave( StreamData streamData );
-
-		public		abstract	StreamUnit		OnLoad( StreamData streamData );
-
-		public		abstract	void			OnHit( IBullet bullet );
-
-		public		abstract	void			OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false );
-
-		public		abstract	void			OnThink();
-
-		public		abstract	void			OnPhysicFrame( float FixedDeltaTime );
-
-		public		abstract	void			OnFrame( float DeltaTime );
-
-		public		abstract	void			OnPauseSet( bool isPaused );
-
-		public		abstract	void			OnTargetAcquired( TargetInfo_t targetInfo );
-
-		public		abstract	void			OnTargetUpdate( TargetInfo_t targetInfo );
-
-		public		abstract	void			OnTargetChange( TargetInfo_t targetInfo );
-
-		public		abstract	void			OnTargetLost( TargetInfo_t targetInfo );
-
-		public		abstract	void			OnDestinationReached( Vector3 Destination );
-
-		public		abstract	void			OnKilled();
-	}
-
-	protected	partial		class Walker_AI_Beaviour_Evasive	: Behaviour_Base {}
-
-	protected	partial		class Walker_AI_Beaviour_Normal		: Behaviour_Base {}
-
-	protected	partial		class Walker_AI_Beaviour_Alarmed	: Behaviour_Base {}
-
-	protected	partial		class Walker_AI_Beaviour_Seeker		: Behaviour_Base {}
-
-	protected	partial		class Walker_AI_Beaviour_Attacker	: Behaviour_Base {}
 }

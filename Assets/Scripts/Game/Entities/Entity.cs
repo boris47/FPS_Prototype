@@ -77,12 +77,14 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	// INTERFACE END
 
 	// GETTERS START
-	public		bool						IsAllignedHeadToPoin			{ get { return m_IsAllignedHeadToPoint; } }
+	public		bool						IsAlive							{ get { return m_Health > 0.0f; } }
+	public		bool						IsAllignedHeadToPoint			{ get { return m_IsAllignedHeadToPoint; } }
 	public		bool						IsAllignedBodyToPoint			{ get { return m_IsAllignedBodyToPoint; } }
 	public		bool						IsAllignedGunToPoint			{ get { return m_IsAllignedGunToPoint; } }
-	public		bool						HasLookAtObject					{ get { return m_HasLookAtObject; } }
+	public		bool						HasLookAtObject					{ get { return m_LookData.HasLookAtObject; } }
 	public		bool						HasDestination					{ get { return m_HasDestination; } }
 	public		float						MinEngageDistance				{ get { return m_MinEngageDistance; } }
+	public		float						MaxAgentSpeed					{ get { return m_MaxAgentSpeed; } }
 	// GETTERS END
 
 
@@ -104,7 +106,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	protected	bool						m_IsPlayer						= true;
 
 	// AI
-	protected	TargetInfo_t				m_TargetInfo					= default( TargetInfo_t );
+	protected	TargetInfo					m_TargetInfo					= new TargetInfo();
+	protected	EntityBlackBoardData		m_BlackBoardData				= null;
 
 	[SerializeField]
 	protected	float						m_MinEngageDistance				= 0f;
@@ -114,15 +117,14 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 
 	// ORIENTATION
-	protected	bool						m_HasLookAtObject				= false;
-	protected	Vector3						m_PointToLookAt					= Vector3.zero;
-	protected	Transform					m_TrasformToLookAt				= null;
 	protected	Quaternion					m_RotationToAllignTo			= Quaternion.identity;
+	protected	LookData					m_LookData						= new LookData();
 
 
 	// NAVIGATION
 	protected	bool						m_HasDestination				= false;
 	protected	Vector3						m_DestinationToReachPosition	= Vector3.zero;
+	protected	float						m_MaxAgentSpeed					= 0.0f;
 
 
 	// Flag set if foots of entity is aligned with target
@@ -198,9 +200,20 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		Utils.Base.SearchComponent( gameObject, ref m_Shield,				SearchContext.CHILDREN );
 		Utils.Base.SearchComponent( gameObject, ref m_CutsceneManager,		SearchContext.CHILDREN );
 
+		// Blackboard
+		if ( Blackboard.IsEntityRegistered( m_ID ) == false )
+		{
+			m_BlackBoardData				= new EntityBlackBoardData();
+			m_BlackBoardData.EntityRef		= this;
+			m_BlackBoardData.Transform		= m_Targettable;
+			m_BlackBoardData.HeadTransform	= m_HeadTransform;
+			m_BlackBoardData.BodyTransform	= m_BodyTransform;
+			m_BlackBoardData.LookData		= m_LookData;
+			m_BlackBoardData.TargetInfo		= m_TargetInfo;
 
-		Blackboard.Register( m_ID );
-		
+			Blackboard.Register( m_ID, m_BlackBoardData );
+		}
+		m_BlackBoardData = Blackboard.GetData( m_ID );
 	}
 
 
@@ -225,18 +238,20 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	/// <summary> Set the trasform to Look At </summary>
 	public	virtual		void	SetTrasformTolookAt( Transform t )
 	{
-		m_TrasformToLookAt	= t;
-		m_PointToLookAt		= Vector3.zero;
-		m_HasLookAtObject	= true;
+		m_LookData.HasLookAtObject		= true;
+		m_LookData.TrasformToLookAt		= t;
+		m_LookData.PointToLookAt		= Vector3.zero;
+		m_LookData.LookTargetType		= LookTargetType.TRANSFORM;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Set the point to Look At </summary>
 	public	virtual		void	SetPointToLookAt( Vector3 point )
 	{
-		m_PointToLookAt		= point;
-		m_TrasformToLookAt	= null;
-		m_HasLookAtObject	= true;
+		m_LookData.HasLookAtObject		= true;
+		m_LookData.TrasformToLookAt		= null;
+		m_LookData.PointToLookAt		= point;
+		m_LookData.LookTargetType		= LookTargetType.POSITION;
 	}
 
 
@@ -244,9 +259,10 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	/// <summary> Stop looking to target point or target </summary>
 	public	virtual		void	StopLooking()
 	{
-		m_HasLookAtObject = false;
-		m_TrasformToLookAt = null;
-		m_PointToLookAt = Vector3.zero;
+		m_LookData.HasLookAtObject		= false;
+		m_LookData.TrasformToLookAt		= null;
+		m_LookData.PointToLookAt		= Vector3.zero;
+		m_LookData.LookTargetType		= LookTargetType.POSITION;
 	}
 
 
@@ -282,12 +298,12 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual	void	UpdateHeadRotation()
 	{
-		if ( m_HasLookAtObject == false )
+		if ( m_LookData.HasLookAtObject == false )
 			return;
 
 		// HEAD
 		{
-			Vector3 pointOnThisPlane = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_HeadTransform.position, m_PointToLookAt );
+			Vector3 pointOnThisPlane = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_HeadTransform.position, m_LookData.PointToLookAt );
 			Vector3 dirToPosition = ( pointOnThisPlane - m_HeadTransform.position );
 
 			m_IsAllignedHeadToPoint = Vector3.Angle( m_HeadTransform.forward, dirToPosition ) < 12f;
@@ -302,6 +318,22 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public	abstract	void	FireLongRange();
+	public	virtual	void	FireLongRange()
+	{
 
+	}
+
+}
+
+
+public	enum LookTargetType {
+	POSITION,
+	TRANSFORM
+}
+
+public class LookData {
+	public	bool			HasLookAtObject		= false;
+	public	Vector3			PointToLookAt		= Vector3.zero;
+	public	Transform		TrasformToLookAt	= null;
+	public	LookTargetType	LookTargetType		= LookTargetType.POSITION;
 }

@@ -1,10 +1,10 @@
 ﻿
 [WalkerBase]
-BehaviourEvasive	= Walker+Walker_AI_Beaviour_Evasive;
-BehaviourNormal		= Walker+Walker_AI_Beaviour_Normal;
-BehaviourAlarmed	= Walker+Walker_AI_Beaviour_Alarmed;
-BehaviourSeeker		= Walker+Walker_AI_Beaviour_Seeker;
-BehaviourAttacker	= Walker+Walker_AI_Beaviour_Attacker;
+BehaviourEvasive	= Walker_AI_Behaviour_Evasive;
+BehaviourNormal		= Walker_AI_Behaviour_Normal;
+BehaviourAlarmed	= Walker_AI_Behaviour_Alarmed;
+BehaviourSeeker		= Walker_AI_Behaviour_Seeker;
+BehaviourAttacker	= Walker_AI_Behaviour_Attacker;
 
 DefaultTarget		= ROBOT;
 

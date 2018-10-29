@@ -18,8 +18,7 @@ public interface IBrain {
 	IFieldOfView				FieldOfView				{ get; }
 	BrainState					State					{ get; }
 
-	void						SetBehaviour<T1>( BrainState brainState, string behaviourId, bool state, T1 Class ) 
-								where T1 : Entity;
+	void						SetBehaviour( BrainState brainState, string behaviourId, bool State ); 
 
 	void						ChangeState				( BrainState newState );
 }
@@ -43,9 +42,9 @@ public abstract partial class Entity : IBrain {
 	protected			IEntity						m_ThisEntity					= null;
 
 	protected			bool						m_IsBrainActive					= true;
-
+	[SerializeField]
 	protected			AIBehaviour					m_CurrentBehaviour				= null;
-
+	[SerializeField]
 	protected			AIBehaviour[]				m_Behaviours					= null;
 
 
@@ -66,8 +65,7 @@ public abstract partial class Entity : IBrain {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public	void	SetBehaviour<T1>( BrainState brainState, string behaviourId, bool state, T1 Class ) 
-		where T1 : Entity
+	public	void	SetBehaviour( BrainState brainState, string behaviourId, bool state ) 
 	{
 		if ( behaviourId == null || behaviourId.Trim().Length == 0 )
 		{
@@ -83,7 +81,7 @@ public abstract partial class Entity : IBrain {
 		}
 
 		AIBehaviour behaviour = System.Activator.CreateInstance( type ) as AIBehaviour;
-		behaviour.Setup( Class );
+		behaviour.Setup( m_ID );
 		if ( state == true )
 		{
 			m_CurrentBehaviour = behaviour as AIBehaviour;
@@ -116,32 +114,38 @@ public abstract partial class Entity : IBrain {
 		if ( newState == m_CurrentBrainState )
 			return;
 
+		if ( this is Drone )
+		{
+			print( newState );
+		}
+
 //		print( "State changing " + m_CurrentBrainState + " to " + newState );
-		m_CurrentBehaviour.Disable();
+		m_CurrentBehaviour.OnDisable();
 		m_CurrentBrainState = newState;
 
 		m_CurrentBehaviour = m_Behaviours[ (int)newState ];
 
-		m_CurrentBehaviour.Enable();
+		m_CurrentBehaviour.OnEnable();
+		m_BlackBoardData.BrainState = newState;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected virtual void	Brain_OnReset()
 	{
-//		ChangeState( BrainState.NORMAL );
-//		m_FieldOfView.OnReset();
+		ChangeState( BrainState.NORMAL );
+		m_FieldOfView.OnReset();
 	}
 
 }
 
 [System.Serializable]
-public struct TargetInfo_t {
+public class TargetInfo {
 	public	bool	HasTarget;
 	public	IEntity	CurrentTarget;
 	public	float	TargetSqrDistance;
 
-	public	void	Update( TargetInfo_t Infos )
+	public	void	Update( TargetInfo Infos )
 	{
 		HasTarget			= Infos.HasTarget;
 		CurrentTarget		= Infos.CurrentTarget;

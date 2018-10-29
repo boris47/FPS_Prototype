@@ -1,39 +1,28 @@
 ﻿
 using UnityEngine;
-/*
-public abstract class AIBehaviour {
-
-	protected				EntityBlackBoardData	m_EntityData	= null;
 
 
-	public		abstract	void			Enable();
-	public		abstract	void			Disable();
-
-	public		abstract	void			Setup( Entity BaseEntity );
-}
-*/
-
+[System.Serializable]
 public abstract	class	AIBehaviour {
 
-	protected			EntityBlackBoardData	m_EntityData	= null;
+	[SerializeField]
+	protected	EntityBlackBoardData	EntityData	= null;
 
-	// // // // // // // // // // // // // // // // // // // // // // // //
 
-	public	void		Setup( uint EntityID )
+	public	virtual	void				Setup( uint EntityId )
 	{
-		if ( m_EntityData != null )
-			return;
-
-		m_EntityData = Blackboard.GetData( EntityID );
+		EntityData = Blackboard.GetData( EntityId );
 	}
 
+	public	virtual	void				OnEnable()
+	{
+		
+	}
 
-	// // // // // // // // // // // // // // // // // // // // // // // //
-
-	
-	public	abstract	void			OnEnable();
-
-	public	abstract	void			OnDisable();
+	public	virtual	void				OnDisable()
+	{
+		
+	}
 
 	public	abstract	StreamUnit		OnSave( StreamData streamData );
 
@@ -51,13 +40,13 @@ public abstract	class	AIBehaviour {
 
 	public	abstract	void			OnPauseSet( bool isPaused );
 
-	public	abstract	void			OnTargetAcquired( TargetInfo_t targetInfo );
+	public	abstract	void			OnTargetAcquired();
 
-	public	abstract	void			OnTargetUpdate( TargetInfo_t targetInfo );
+	public	abstract	void			OnTargetUpdate();
 
-	public	abstract	void			OnTargetChange( TargetInfo_t targetInfo );
+	public	abstract	void			OnTargetChange();
 
-	public	abstract	void			OnTargetLost( TargetInfo_t targetInfo );
+	public	abstract	void			OnTargetLost();
 
 	public	abstract	void			OnDestinationReached( Vector3 Destination );
 

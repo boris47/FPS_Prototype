@@ -2,11 +2,11 @@
 ;========= DRONES
 
 [DroneBase]
-BehaviourEvasive	= Drone+Drone_AI_Beaviour_Evasive;
-BehaviourNormal		= Drone+Drone_AI_Beaviour_Normal;
-BehaviourAlarmed	= Drone+Drone_AI_Beaviour_Alarmed;
-BehaviourSeeker		= Drone+Drone_AI_Beaviour_Seeker;
-BehaviourAttacker	= Drone+Drone_AI_Beaviour_Attacker;
+BehaviourEvasive	= Drone_AI_Behaviour_Evasive;
+BehaviourNormal		= Drone_AI_Behaviour_Normal;
+BehaviourAlarmed	= Drone_AI_Behaviour_Alarmed;
+BehaviourSeeker		= Drone_AI_Behaviour_Seeker;
+BehaviourAttacker	= Drone_AI_Behaviour_Attacker;
 
 DefaultTarget		= ROBOT;
 

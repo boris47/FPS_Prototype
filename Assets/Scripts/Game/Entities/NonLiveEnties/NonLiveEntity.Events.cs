@@ -90,7 +90,7 @@ public abstract partial class NonLiveEntity : Entity {
 
 	//////////////////////////////////////////////////////////////////////////
 
-	protected	override	void		OnTargetAquired( TargetInfo_t targetInfo )
+	protected	override	void		OnTargetAquired( TargetInfo targetInfo )
 	{
 		m_TargetInfo.Update( targetInfo );
 
@@ -100,7 +100,7 @@ public abstract partial class NonLiveEntity : Entity {
 
 	//////////////////////////////////////////////////////////////////////////
 
-	protected	override	void		OnTargetUpdate( TargetInfo_t targetInfo )
+	protected	override	void		OnTargetUpdate( TargetInfo targetInfo )
 	{
 		m_TargetInfo.Update( targetInfo );
 
@@ -110,7 +110,7 @@ public abstract partial class NonLiveEntity : Entity {
 
 	//////////////////////////////////////////////////////////////////////////
 
-	protected	override	void		OnTargetChanged( TargetInfo_t targetInfo )
+	protected	override	void		OnTargetChanged( TargetInfo targetInfo )
 	{
 		m_TargetInfo.Update( targetInfo );
 
@@ -120,7 +120,7 @@ public abstract partial class NonLiveEntity : Entity {
 
 	//////////////////////////////////////////////////////////////////////////
 
-	protected	override	void		OnTargetLost( TargetInfo_t targetInfo )
+	protected	override	void		OnTargetLost( TargetInfo targetInfo )
 	{
 		m_TargetInfo.Reset();
 
@@ -187,7 +187,7 @@ public abstract partial class NonLiveEntity : Entity {
 	
 	//////////////////////////////////////////////////////////////////////////
 
-	public		override	void		OnKill()
+	protected		override	void		OnKill()
 	{
 		base.OnKill();
 	}

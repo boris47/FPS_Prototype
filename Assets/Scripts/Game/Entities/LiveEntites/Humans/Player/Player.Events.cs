@@ -92,28 +92,28 @@ public partial class Player {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		OnTargetAquired( TargetInfo_t targetInfo )
+	protected	override	void		OnTargetAquired( TargetInfo targetInfo )
 	{
 
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		OnTargetUpdate( TargetInfo_t targetInfo )
+	protected	override	void		OnTargetUpdate( TargetInfo targetInfo )
 	{
 
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		OnTargetChanged( TargetInfo_t targetInfo )
+	protected	override	void		OnTargetChanged( TargetInfo targetInfo )
 	{
 
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		OnTargetLost( TargetInfo_t targetInfo )
+	protected	override	void		OnTargetLost( TargetInfo targetInfo )
 	{
 
 	}
@@ -328,7 +328,7 @@ public partial class Player {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		override	void		OnKill()
+	protected		override	void		OnKill()
 	{
 		// remove parent for camera
 		CameraControl.Instance.Transform.SetParent( null );

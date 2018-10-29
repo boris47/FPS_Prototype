@@ -117,7 +117,7 @@ public abstract partial class Entity : IEntity {
 
 	//////////////////////////////////////////////////////////////////////////
 
-	protected	virtual		void	NavReset()
+	public	virtual		void	NavReset()
 	{
 		m_HasDestination				= false;
 		m_DestinationToReachPosition	= Vector3.zero;
