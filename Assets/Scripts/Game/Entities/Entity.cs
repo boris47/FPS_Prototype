@@ -48,7 +48,7 @@ public partial interface IEntity {
 [RequireComponent( typeof( Rigidbody ), typeof( CapsuleCollider ), typeof( NavMeshAgent ) ) ]
 public abstract partial class Entity : MonoBehaviour, IEntity {
 
-	public enum ENTITY_TYPE {
+	public enum ENTITY_TYPE : uint {
 		NONE,
 		ACTOR,
 		HUMAN,
@@ -169,6 +169,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 		m_EffectsPivot		= transform.Find( "EffectsPivot" );
 
+		// BODY AND HEAD
 		if ( m_IsPlayer == false )
 		{
 			m_BodyTransform		= transform.Find( "Body" );
@@ -180,16 +181,23 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 			m_Targettable = transform;
 		}
 
+		// PHYSIC COLLIDER
 		m_IsOK   =	Utils.Base.SearchComponent( gameObject, ref m_PhysicCollider,		SearchContext.LOCAL, (p) => { return p && p.isTrigger == false; } );
 
+		// TRIGGER COLLIDER ( PLAYER ONLY )
 		if ( m_IsPlayer == true )
 		{
 			m_IsOK	&= Utils.Base.SearchComponent( gameObject, ref m_TriggerCollider,		SearchContext.LOCAL, (p) => { return p && p.isTrigger == true;  } );
 		}
 
+		// RIGIDBODY
 		m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_RigidBody,			SearchContext.LOCAL );
 
+		// NAV AGENT
 		Utils.Base.SearchComponent( gameObject, ref m_NavAgent,				SearchContext.LOCAL	);
+
+		// FIELD OF VIEW
+		Utils.Base.SearchComponent( gameObject, ref m_FieldOfView, SearchContext.CHILDREN );
 
 		if ( m_IsOK && m_NavAgent != null && m_IsPlayer == false )
 			m_IsOK	&= m_NavAgent.isOnNavMesh;
@@ -197,10 +205,14 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		if ( m_IsOK == false && m_IsPlayer == false )
 			print( name + " is not OK" );
 
+		// SHIELD
 		Utils.Base.SearchComponent( gameObject, ref m_Shield,				SearchContext.CHILDREN );
+
+		// CUTSCENE MANAGER
 		Utils.Base.SearchComponent( gameObject, ref m_CutsceneManager,		SearchContext.CHILDREN );
 
-		// Blackboard
+
+		// BLACKBOARD
 		if ( Blackboard.IsEntityRegistered( m_ID ) == false )
 		{
 			m_BlackBoardData				= new EntityBlackBoardData();
@@ -310,8 +322,11 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 			{
 				float speed = m_HeadRotationSpeed * ( ( m_TargetInfo.HasTarget ) ? 3.0f : 1.0f );
 
-				m_RotationToAllignTo.SetLookRotation( dirToPosition, m_BodyTransform.up );
-				m_HeadTransform.rotation = Quaternion.RotateTowards( m_HeadTransform.rotation, m_RotationToAllignTo, speed * Time.deltaTime );
+				if ( dirToPosition != Vector3.zero )
+				{
+					m_RotationToAllignTo.SetLookRotation( dirToPosition, m_BodyTransform.up );
+					m_HeadTransform.rotation = Quaternion.RotateTowards( m_HeadTransform.rotation, m_RotationToAllignTo, speed * Time.deltaTime );
+				}
 			}
 		}
 	}
@@ -326,7 +341,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 }
 
 
-public	enum LookTargetType {
+public	enum LookTargetType : uint {
 	POSITION,
 	TRANSFORM
 }

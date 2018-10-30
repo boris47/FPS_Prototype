@@ -37,7 +37,15 @@ namespace QuestSystem {
 				m_OnDestroy.Invoke();
 
 			Completed = true;
-			RelatedTask.UpdateStatus();
+
+			if ( RelatedTask != null )
+			{
+				RelatedTask.UpdateStatus();
+			}
+			else
+			{
+				print( "Entity " + name + "  has Objective_Destroy attached but not belongs any task" );
+			}
 		}
 
 	}

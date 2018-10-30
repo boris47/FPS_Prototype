@@ -5,8 +5,6 @@ public partial interface IEntity {
 
 	void					OnHit							( IBullet bullet );
 	void					OnHit							( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false );
-//	void					OnKill							();
-
 }
 
 public struct EntityEvents {
@@ -53,7 +51,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 				m_FieldOfView.Setup( maxVisibleEntities : 10 );
 				m_FieldOfView.OnTargetAquired			= OnTargetAquired;
-				m_FieldOfView.OnTargetUpdate			= OnTargetUpdate;
 				m_FieldOfView.OnTargetChanged			= OnTargetChanged;
 				m_FieldOfView.OnTargetLost				= OnTargetLost;
 			}
@@ -81,8 +78,12 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 			{
 				DisableBrain();
 
+				if ( m_FieldOfView == null )
+				{
+					print( "entity: " + name + " has not m_FieldOfView" );
+				}
+
 				m_FieldOfView.OnTargetAquired			= null;
-				m_FieldOfView.OnTargetUpdate			= null;
 				m_FieldOfView.OnTargetChanged			= null;
 				m_FieldOfView.OnTargetLost				= null;
 			}
@@ -146,7 +147,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	
 
 	//////////////////////////////////////////////////////////////////////////
-	public	virtual		void		OnDestinationReached( Vector3 Destination )
+	public		virtual		void		OnDestinationReached( Vector3 Destination )
 	{
 		m_CurrentBehaviour.OnDestinationReached( Destination );
 	}
@@ -155,18 +156,19 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	//////////////////////////////////////////////////////////////////////////
 	public		virtual		void		OnHit( IBullet bullet )
 	{
-		m_CurrentBehaviour.OnHit( bullet );
+//		m_CurrentBehaviour.OnHit( bullet );
+
+		float damage = UnityEngine.Random.Range( bullet.DamageMin, bullet.DamageMax );
+		this.OnHit( bullet.StartPosition, bullet.WhoRef, damage, bullet.CanPenetrate ); 
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public		virtual		void		OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
-		m_CurrentBehaviour.OnHit(  startPosition, whoRef, damage, canPenetrate );
-
+		m_CurrentBehaviour.OnHit( startPosition, whoRef, damage, canPenetrate );
+		
 		this.OnTakeDamage( damage );
-
-		print("on hit");
 	}
 
 
@@ -191,30 +193,21 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 		m_CurrentBehaviour.OnFrame( DeltaTime );
 
-		m_NavAgent.speed = m_BlackBoardData.AgentSpeed;
+		if ( m_NavAgent != null )
+			m_NavAgent.speed = m_BlackBoardData.AgentSpeed;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void		OnTargetAquired( TargetInfo targetInfo )
 	{
-		m_TargetInfo = targetInfo;
 		m_CurrentBehaviour.OnTargetAcquired();
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		void		OnTargetUpdate( TargetInfo targetInfo )
-	{
-		m_TargetInfo = targetInfo;
-		m_CurrentBehaviour.OnTargetUpdate();
 	}
 	
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void		OnTargetChanged( TargetInfo targetInfo )
 	{
-		m_TargetInfo = targetInfo;
 		m_CurrentBehaviour.OnTargetChange();
 	}
 
@@ -222,7 +215,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void		OnTargetLost( TargetInfo targetInfo )
 	{
-		m_TargetInfo = targetInfo;
 		m_CurrentBehaviour.OnTargetLost();
 	}
 
@@ -247,10 +239,10 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		if ( m_IsActive == false )
 			return;
 
+		m_IsActive = false;
+
 		m_RigidBody.velocity			= Vector3.zero;
 		m_RigidBody.angularVelocity		= Vector3.zero;
-
-		m_IsActive = false;
 
 		EffectManager.Instance.PlayEffect( EffectType.EXPLOSION, transform.position, transform.up, 0 );
 		EffectManager.Instance.PlayExplosionSound( transform.position );

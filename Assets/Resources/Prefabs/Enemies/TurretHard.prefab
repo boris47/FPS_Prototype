@@ -122,6 +122,7 @@ GameObject:
   - component: {fileID: 136455060312064436}
   - component: {fileID: 54077275906169256}
   - component: {fileID: 114995149994903012}
+  - component: {fileID: 114092302229778300}
   - component: {fileID: 82773315623900536}
   - component: {fileID: 114993413591171486}
   m_Layer: 0
@@ -130,7 +131,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!1 &1646718645036170
 GameObject:
   m_ObjectHideFlags: 0
@@ -248,7 +249,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1636731148291262}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 27.19, y: -2, z: 31.88}
+  m_LocalPosition: {x: 4.18468, y: 4.5, z: -1.6971283}
   m_LocalScale: {x: 0.39999998, y: 0.39999998, z: 0.39999998}
   m_Children:
   - {fileID: 4117760743423076}
@@ -738,6 +739,17 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 0
+--- !u!114 &114092302229778300
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1636731148291262}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75d4dc3ed3c9204418e2c498447e8d4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114492942768034452
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -799,8 +811,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CurrentBrainState: 1
   m_MinEngageDistance: 0
-  m_BodyRotationSpeed: 60
-  m_HeadRotationSpeed: 5
+  m_BodyRotationSpeed: 1
+  m_HeadRotationSpeed: 65
   m_GunRotationSpeed: 5
   m_FireDispersion: 0.01
   m_Bullet: {fileID: 114103055898007134, guid: 6022bac21992ba94bb2fd959d6d5f7f0, type: 2}

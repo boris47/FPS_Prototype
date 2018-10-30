@@ -94,17 +94,7 @@ public abstract partial class NonLiveEntity : Entity {
 	{
 		m_TargetInfo.Update( targetInfo );
 
-		base.OnTargetAquired( targetInfo );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-
-	protected	override	void		OnTargetUpdate( TargetInfo targetInfo )
-	{
-		m_TargetInfo.Update( targetInfo );
-
-		base.OnTargetUpdate( targetInfo );
+		base.OnTargetAquired( m_TargetInfo );
 	}
 
 
@@ -114,7 +104,7 @@ public abstract partial class NonLiveEntity : Entity {
 	{
 		m_TargetInfo.Update( targetInfo );
 
-		base.OnTargetChanged( targetInfo );
+		base.OnTargetChanged( m_TargetInfo );
 	}
 
 
@@ -122,33 +112,17 @@ public abstract partial class NonLiveEntity : Entity {
 
 	protected	override	void		OnTargetLost( TargetInfo targetInfo )
 	{
-		m_TargetInfo.Reset();
+		base.OnTargetLost( m_TargetInfo );
 
-		base.OnTargetLost( targetInfo );
+		m_TargetInfo.Reset();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 
-	public	override	void		OnDestinationReached( Vector3 Destination )
+	public		override	void		OnDestinationReached( Vector3 Destination )
 	{
 		base.OnDestinationReached(  Destination );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-
-	public		override	void		OnHit( IBullet bullet )
-	{
-		OnHit( bullet.StartPosition, bullet.WhoRef, 0f );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-
-	public		override	void		OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
-	{
-		base.OnHit( startPosition, whoRef, damage, canPenetrate );
 	}
 	
 
@@ -166,12 +140,15 @@ public abstract partial class NonLiveEntity : Entity {
 	{
 		m_ShotTimer -= deltaTime;
 
-		bool nowIsMoving = m_NavAgent.velocity.sqrMagnitude > 0.0f;
-		if ( m_HasDestination == true && WasMoving == true && nowIsMoving == false )
+		if ( m_NavAgent != null )
 		{
-			OnDestinationReached( transform.position );
+			bool nowIsMoving = m_NavAgent.velocity.sqrMagnitude > 0.0f;
+			if ( m_HasDestination == true && WasMoving == true && nowIsMoving == false )
+			{
+				OnDestinationReached( transform.position );
+			}
+			WasMoving = m_NavAgent.velocity.sqrMagnitude > 0.0f;
 		}
-		WasMoving = m_NavAgent.velocity.sqrMagnitude > 0.0f;
 
 		base.OnFrame( deltaTime );
 	}
@@ -187,7 +164,7 @@ public abstract partial class NonLiveEntity : Entity {
 	
 	//////////////////////////////////////////////////////////////////////////
 
-	protected		override	void		OnKill()
+	protected	override	void		OnKill()
 	{
 		base.OnKill();
 	}

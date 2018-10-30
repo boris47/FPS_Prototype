@@ -28,7 +28,9 @@ namespace QuestSystem {
 		private void Awake()
 		{
 			foreach ( Objective_Base o in m_TaskObjectives )
+			{
 				o.RelatedTask = this;
+			}
 
 			RelatedQuest = transform.parent.GetComponent<Quest>();
 		}

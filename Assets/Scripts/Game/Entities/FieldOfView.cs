@@ -10,7 +10,6 @@ public interface IFieldOfView {
 	
 	OnTargetEvent		OnTargetAquired		{ set; }
 	OnTargetEvent		OnTargetChanged		{ set; }
-	OnTargetEvent		OnTargetUpdate		{ set; }
 	OnTargetEvent		OnTargetLost		{ set; }
 
 	float				Distance			{ get; set; }
@@ -30,12 +29,10 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	
 	private		OnTargetEvent			m_OnTargetAquired		= null;
 	private		OnTargetEvent			m_OnTargetChanged		= null;
-	private		OnTargetEvent			m_OnTargetUpdate		= null;
 	private		OnTargetEvent			m_OnTargetLost			= null;
 
 	public		OnTargetEvent			OnTargetAquired			{ set { m_OnTargetAquired = value; } }
 	public		OnTargetEvent			OnTargetChanged			{ set { m_OnTargetChanged = value; } }
-	public		OnTargetEvent			OnTargetUpdate			{ set { m_OnTargetUpdate = value; } }
 	public		OnTargetEvent			OnTargetLost			{ set { m_OnTargetLost	= value; } }
 
 
@@ -130,8 +127,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		{
 			Entity entity = m_AllTargets[ i ];
 			if ( entity == null 
-				|| entity.Interface.IsActive == false 
-				|| entity.Interface.Health <= 0.0f 
+				|| entity.IsAlive == false
 				|| entity.transform.gameObject.activeSelf == false )
 			{
 				m_AllTargets.RemoveAt( i );
@@ -162,11 +158,11 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	private	void	ClearLastTarget()
 	{
 		// TARGET LOST
-		if ( m_CurrentTargetInfo.HasTarget == true && m_OnTargetLost != null )
+		if ( m_CurrentTargetInfo.HasTarget == true )
 		{
 			m_OnTargetLost ( m_CurrentTargetInfo );
 		}
-		m_CurrentTargetInfo = new TargetInfo();
+		m_CurrentTargetInfo.Reset();
 	}
 
 
@@ -256,25 +252,22 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		IEntity previousTarget = m_CurrentTargetInfo.CurrentTarget;
 
 		m_CurrentTargetInfo.CurrentTarget = currentTarget;
-
 		m_CurrentTargetInfo.TargetSqrDistance = ( m_CurrentTargetInfo.CurrentTarget.Transform.position - currentViewPoint.position ).sqrMagnitude;
+		
 		// SET NEW TARGET
-		if ( m_CurrentTargetInfo.HasTarget == false && m_OnTargetAquired != null )
+		if ( m_CurrentTargetInfo.HasTarget == false )
 		{
 			m_CurrentTargetInfo.HasTarget = true;			
-			m_OnTargetAquired ( m_CurrentTargetInfo );
+			m_OnTargetAquired( m_CurrentTargetInfo );
 		}
 		else
 		// CHANGING A TARGET
-		if ( m_CurrentTargetInfo.HasTarget == true && previousTarget != null && previousTarget != currentTarget && m_OnTargetChanged != null )
+//		if ( m_CurrentTargetInfo.HasTarget == true )
 		{
-			m_OnTargetChanged( m_CurrentTargetInfo );
-		}
-		else
-
-		if( m_CurrentTargetInfo.HasTarget == true && previousTarget != null && previousTarget == currentTarget && m_OnTargetUpdate != null )
-		{
-			m_OnTargetUpdate( m_CurrentTargetInfo );
+			if ( previousTarget != null && previousTarget != currentTarget )
+			{
+				m_OnTargetChanged( m_CurrentTargetInfo );
+			}
 		}
 
 		return true;
@@ -285,7 +278,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	// OnReset
 	void	IFieldOfView.OnReset()
 	{
-		m_CurrentTargetInfo	= new TargetInfo();
+		m_CurrentTargetInfo.Reset();
 		System.Array.Clear( m_ValidTargets, 0, ( int ) m_MaxVisibleEntities );
 		m_AllTargets.Clear();
 	}
@@ -296,7 +289,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	private void OnTriggerEnter( Collider other )
 	{
 		Entity entity = other.GetComponent<Entity>();
-		if ( entity != null && entity.Interface.IsActive == true && entity.Interface.EntityType == m_EntityType && entity.Interface.Health > 0.0f )
+		if ( entity != null && entity.IsAlive == true && entity.Interface.EntityType == m_EntityType )
 		{
 			if ( m_AllTargets.Contains( entity ) == true )
 				return;

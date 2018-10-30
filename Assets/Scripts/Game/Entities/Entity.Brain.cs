@@ -5,7 +5,7 @@ using UnityEngine;
 
 [ System.Serializable ]
 public enum BrainState {
-	EVASIVE		,
+	EVASIVE		= 0,
 	NORMAL		= 1,
 	ALARMED		= 2,
 	SEEKER		= 3,
@@ -48,16 +48,16 @@ public abstract partial class Entity : IBrain {
 	protected			AIBehaviour[]				m_Behaviours					= null;
 
 
-
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual	void	EnableBrain()
 	{
-		Utils.Base.SearchComponent( gameObject, ref m_FieldOfView, SearchContext.CHILDREN );
 		m_FieldOfView.Setup( maxVisibleEntities : 10 );
 
 		GameManager.UpdateEvents.OnThink += OnThinkBrain;
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
 	protected	virtual	void	DisableBrain()
 	{
 		GameManager.UpdateEvents.OnThink -= OnThinkBrain;
@@ -114,18 +114,11 @@ public abstract partial class Entity : IBrain {
 		if ( newState == m_CurrentBrainState )
 			return;
 
-		if ( this is Drone )
-		{
-			print( newState );
-		}
-
 //		print( "State changing " + m_CurrentBrainState + " to " + newState );
-		m_CurrentBehaviour.OnDisable();
 		m_CurrentBrainState = newState;
 
 		m_CurrentBehaviour = m_Behaviours[ (int)newState ];
 
-		m_CurrentBehaviour.OnEnable();
 		m_BlackBoardData.BrainState = newState;
 	}
 
@@ -154,8 +147,8 @@ public class TargetInfo {
 
 	public	void	Reset()
 	{
-		HasTarget = false;
-		CurrentTarget = null;
-		TargetSqrDistance = 0.0f;
+		HasTarget			= false;
+		CurrentTarget		= null;
+		TargetSqrDistance	= 0.0f;
 	}
 }

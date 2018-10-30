@@ -1,7 +1,7 @@
 ﻿
 using UnityEngine;
 
-public abstract partial class Drone : NonLiveEntity, IRespawn {
+public abstract class Drone : NonLiveEntity, IRespawn {
 
 	[Header("Drone Properties")]
 
@@ -88,27 +88,6 @@ public abstract partial class Drone : NonLiveEntity, IRespawn {
 			ChangeState( BrainState.NORMAL );
 		}
 	}
-	
-
-	//////////////////////////////////////////////////////////////////////////
-
-	public		override	void	OnHit( IBullet bullet )
-	{
-		m_CurrentBehaviour.OnHit( bullet );
-
-		float damage = UnityEngine.Random.Range( bullet.DamageMin, bullet.DamageMax );
-		this.OnHit( bullet.StartPosition, bullet.WhoRef, damage, bullet.CanPenetrate );
-	}
-	
-
-	//////////////////////////////////////////////////////////////////////////
-
-	public		override	void	OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
-	{
-		m_CurrentBehaviour.OnHit( startPosition, whoRef, damage, canPenetrate );
-
-		OnTakeDamage( damage );
-	}
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -116,39 +95,6 @@ public abstract partial class Drone : NonLiveEntity, IRespawn {
 	public		override	void	OnDestinationReached( Vector3 Destionation )
 	{
 		base.OnDestinationReached( Destionation );
-	}
-
-	
-	//////////////////////////////////////////////////////////////////////////
-
-	protected		override	void	OnTargetAquired( TargetInfo targetInfo )
-	{
-		base.OnTargetAquired( targetInfo );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-
-	protected		override	void	OnTargetUpdate( TargetInfo targetInfo )
-	{
-		base.OnTargetUpdate( targetInfo );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-
-	protected		override	void	OnTargetChanged( TargetInfo targetInfo )
-	{
-		base.OnTargetChanged( targetInfo );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-
-	protected		override	void	OnTargetLost( TargetInfo targetInfo )
-	{
-		base.OnTargetLost( targetInfo );
-	
 	}
 
 	
@@ -162,40 +108,23 @@ public abstract partial class Drone : NonLiveEntity, IRespawn {
 	
 	//////////////////////////////////////////////////////////////////////////
 
-	protected		override	void	OnKill()
+	protected	override	void	OnKill()
 	{
 		base.OnKill();
 //		m_Pool.SetActive( false );
 		gameObject.SetActive( false );
-
-		if ( m_RespawnPoint != null )
-		{
-			m_RespawnPoint.Respawn( this, 2f );
-		}
 	}
 	
 
 	//////////////////////////////////////////////////////////////////////////
 
-	public		void	FaceToPoint()
+	protected	override	void	UpdateHeadRotation()
 	{
+		base.UpdateHeadRotation();
 		// ORIENTATION
 		// BODY
 		{
 			// Nothing, rotation not allowed here
-		}
-		// HEAD
-		{
-			Vector3 pointOnThisPlane = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_HeadTransform.position, m_LookData.PointToLookAt );
-			Vector3 dirToPosition = ( pointOnThisPlane - m_HeadTransform.position );
-
-			m_IsAllignedHeadToPoint = Vector3.Angle( m_HeadTransform.forward, dirToPosition ) < 12f;
-			{
-				float speed = m_HeadRotationSpeed * ( ( m_TargetInfo.HasTarget ) ? 3.0f : 1.0f );
-
-				m_RotationToAllignTo.SetLookRotation( dirToPosition, m_BodyTransform.up );
-				m_HeadTransform.rotation = Quaternion.RotateTowards( m_HeadTransform.rotation, m_RotationToAllignTo, speed * Time.deltaTime );
-			}
 		}
 
 		// GUN

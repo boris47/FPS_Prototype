@@ -17,61 +17,38 @@ public class TurretHard : Turret {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Awake ( Override )
 	protected override void Awake()
 	{
 		m_SectionName = this.GetType().FullName;
 
 		base.Awake();
 	}
-	/*
+	
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnHit ( Override )
+
 	public override void OnHit( IBullet bullet )
 	{
-		// Avoid friendly fire
-		if ( bullet.WhoRef is NonLiveEntity )
-			return;
-
-		// Hit event, set ALARMED State if actual is NORMAL
-		if ( m_Brain.State == BrainState.NORMAL )
-		{
-			m_Brain.ChangeState( BrainState.ALARMED );
-		}
-
-		// if is not attacking
-		if ( m_Brain.State != BrainState.ATTACKER )
-		{
-			// set start bullet position as point to face at
-			SetPoinToLookAt( bullet.StartPosition );
-		}
-
 		if ( m_IsRecharging == false )
 			return;
 
-		float damage = Random.Range( bullet.DamageMin, bullet.DamageMax );
-		m_Health -= damage;
-
-		if ( m_Health <= 0f )
-			OnKill();
+		base.OnHit( bullet );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnKill ( Override )
-	public override void OnKill()
+
+	protected override void OnKill()
 	{
 		StopAllCoroutines();
 		base.OnKill();
 	}
-
+	
 
 	//////////////////////////////////////////////////////////////////////////
-	// FireLongRange ( Override )
-	protected override void FireLongRange( float deltaTime )
+
+	public override void FireLongRange()
 	{
-		m_ShotTimer -= deltaTime;
 		if ( m_ShotTimer > 0 )
 			return;
 
@@ -89,7 +66,9 @@ public class TurretHard : Turret {
 			StartCoroutine( ChargingCO() );
 		}
 	}
+	
 
+	//////////////////////////////////////////////////////////////////////////
 
 	protected override StreamUnit OnSave( StreamData streamData )
 	{
@@ -103,6 +82,8 @@ public class TurretHard : Turret {
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
+
 	protected override StreamUnit OnLoad( StreamData streamData )
 	{
 		StreamUnit streamUnit = base.OnLoad( streamData );
@@ -113,10 +94,10 @@ public class TurretHard : Turret {
 		
 		return streamUnit;
 	}
-
+	
 
 	//////////////////////////////////////////////////////////////////////////
-	// ChargingCO ( Coroutine )
+	
 	private	IEnumerator	ChargingCO()
 	{
 		float	currentTime = 0f;
@@ -160,35 +141,15 @@ public class TurretHard : Turret {
 		m_FiredBullets = 0;
 	}
 
-
-	// Update forward direction and gun rotation
+	
 	//////////////////////////////////////////////////////////////////////////
-	// Update ( Override )
+
 	protected override void OnFrame( float deltaTime )
 	{
-		// Update internal timer
-		m_ShotTimer -= deltaTime;
-		
-		if ( m_TargetInfo.HasTarget == true )
+		if ( m_IsRecharging == false )
 		{
-			if ( m_Brain.State != BrainState.ATTACKER )
-				m_Brain.ChangeState( BrainState.ATTACKER );
-			
-			SetPoinToLookAt( m_TargetInfo.CurrentTarget.Transform.position );
-		}
-		
-		// if has target point to face at set
-		if ( m_HasLookAtObject )
-		{
-			FaceToPoint( deltaTime );   // m_PointToFace
-		}
-
-		// if gun alligned, fire
-		if ( m_IsAllignedHeadToPoint == true && m_TargetInfo.HasTarget == true && m_IsRecharging == false )
-		{
-			FireLongRange( deltaTime );
+			base.OnFrame( deltaTime );
 		}
 	}
-	*/
 
 }

@@ -3,13 +3,13 @@
 
 [TurretBase]
 PoolSize			= 10;
-BehaviourEvasive	= AI.Behaviours.Turret_AI_Beaviour_Evasive;
-BehaviourNormal		= AI.Behaviours.Turret_AI_Beaviour_Normal;
-BehaviourAlarmed	= AI.Behaviours.Turret_AI_Beaviour_Alarmed;
-BehaviourSeeker		= AI.Behaviours.Turret_AI_Beaviour_Seeker;
-BehaviourAttacker	= AI.Behaviours.Turret_AI_Beaviour_Attacker;
+BehaviourEvasive	= Turret_AI_Behaviour_Evasive;
+BehaviourNormal		= Turret_AI_Behaviour_Normal;
+BehaviourAlarmed	= Turret_AI_Behaviour_Alarmed;
+BehaviourSeeker		= Turret_AI_Behaviour_Seeker;
+BehaviourAttacker	= Turret_AI_Behaviour_Attacker;
 
-DefaultTarget		= ACTOR;
+DefaultTarget		= ROBOT;
 
 [TurretStandard] : TurretBase
 Health		= 100.0;

@@ -2,22 +2,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-/* TODO
---- * make getter m_IsAllignedHeadToPoint
---- * make getter m_IsAllignedBodyToPoint
---- * make getter m_IsAllignedGunToPoint
---- * make getter m_HasLookAtObject
---- * make getter m_HasDestination
---- * make getter m_MinEngageDistance
---- * make method bool CanFire()		USUALLY CHECK m_IsAllignedGunToPoint
---- * make public Entity.UpdateHeadRotation
---- * make public Entity.FireLongRange
---- * make public Entity.RequestMovement
---- * make public Entity.SetPointToLookAt
---- * make public Entity.TakeDamage  // made protected becaues damages is managed inside entity
- * Somewhere m_ThisEntity.m_NavAgent.speed = agentFinalSpeed
- */
-
 [System.Serializable]
 public class EntityBlackBoardData {
 
@@ -29,7 +13,7 @@ public class EntityBlackBoardData {
 
 	public	LookData			LookData							= null;
 
-	public	TargetInfo		TargetInfo							= default( TargetInfo );
+	public	TargetInfo			TargetInfo							= null;
 
 	public	Transform			TrasformToLookAt					= null;
 	public	Vector3				PointToLookAt						= Vector3.zero;

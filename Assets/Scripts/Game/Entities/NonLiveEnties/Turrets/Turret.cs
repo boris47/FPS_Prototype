@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 
 
-public abstract partial class Turret : NonLiveEntity {
+public abstract class Turret : NonLiveEntity {
 
 	[Header("Turret Properties")]
 
@@ -60,6 +60,7 @@ public abstract partial class Turret : NonLiveEntity {
 			m_Laser.LaserLength = m_FieldOfView.Distance;
 			m_Laser.LayerMaskToExclude = LayerMask.NameToLayer("Bullets");
 		}
+
 		// BULLETS POOL CREATION
 		{
 			GameObject	bulletGO		= m_Bullet.gameObject;
@@ -86,160 +87,81 @@ public abstract partial class Turret : NonLiveEntity {
 				}
 			);
 		}
-	}
 
-	/*
-	//////////////////////////////////////////////////////////////////////////
-	// OnHit ( Override )
-	public		override	void	OnHit( IBullet bullet )
-	{
-		// Avoid friendly fire
-		if ( bullet.WhoRef is NonLiveEntity )
-			return;
-		
-		base.OnHit( bullet ); // set start bullet position as point to face at if not attacking
+		m_Pool.SetActive( true );
+		m_ShotTimer = 0f;
 
-		if ( m_Shield != null && m_Shield.Status > 0f )
-		{
-			if ( m_Shield.IsUnbreakable == false )
-			{
-				m_Shield.OnHit( bullet );
-			}
-			if ( bullet.CanPenetrate == false )
-				return;
+		// AI BEHAVIOURS
+		{	m_Behaviours = new AIBehaviour[ 5 ] { null, null, null,null, null };
+			SetBehaviour( BrainState.EVASIVE,	m_SectionRef.AsString( "BehaviourEvasive"	), false );
+			SetBehaviour( BrainState.NORMAL,	m_SectionRef.AsString( "BehaviourNormal"	), true  );
+			SetBehaviour( BrainState.ALARMED,	m_SectionRef.AsString( "BehaviourAlarmed"	), false );
+			SetBehaviour( BrainState.SEEKER,	m_SectionRef.AsString( "BehaviourSeeker"	), false );
+			SetBehaviour( BrainState.ATTACKER,	m_SectionRef.AsString( "BehaviourAttacker"	), false );
+
+			ChangeState( BrainState.NORMAL );
 		}
-
-		float damage = Random.Range( bullet.DamageMin, bullet.DamageMax );
-		m_Health -= damage;
-
-		if ( m_Health <= 0f )
-			OnKill();
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnHit ( Override )
-	public		override	void	OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
-	{
-		// Avoid friendly fire
-		if ( whoRef is NonLiveEntity )
-			return;
-		
-		base.OnHit( startPosition, whoRef, 0f ); // set start bullet position as point to face at if not attacking
-
-		if ( m_Shield != null && m_Shield.Status > 0f )
-		{
-			if ( m_Shield.IsUnbreakable == false )
-			{
-				m_Shield.OnHit( damage );
-			}
-			if ( canPenetrate == false )
-				return;
-		}
-
-		m_Health -= damage;
-
-		if ( m_Health <= 0f )
-			OnKill();
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnTargetAquired ( Override )
-	public		override	void	OnTargetAquired( TargetInfo_t targetInfo )
-	{
-		base.OnTargetAquired( targetInfo );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnTargetChanged ( Override )
-	public		override	void	OnTargetChanged( TargetInfo_t targetInfo )
-	{
-		base.OnTargetChanged( targetInfo ); // 	m_TargetInfo = targetInfo;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnTargetUpdate ( Override )
-	public		override	void	OnTargetUpdate( TargetInfo_t targetInfo )
-	{
-		base.OnTargetUpdate( targetInfo );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnTargetLost ( Override )
-	public		override	void	OnTargetLost( TargetInfo_t targetInfo )
-	{
-		// Set brain to ALLARMED mode
-//		m_Brain.ChangeState( BrainState.NORMAL );
-
-		// TODO manage alarmed state
 	}
 	
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnFrame ( Override )
+	
 	protected	override	void	OnFrame( float deltaTime )
 	{
 		base.OnFrame( deltaTime );
-
-		// Update internal timer
-		m_ShotTimer -= deltaTime;
-
-		if ( m_TargetInfo.HasTarget == true )
-		{
-			if ( m_CurrentBrainState != BrainState.ATTACKER )
-				ChangeState( BrainState.ATTACKER );
-
-			SetPointToLookAt( m_TargetInfo.CurrentTarget.Transform.position );
-		}
-		
-		// if has target point to face at set
-		if ( m_HasLookAtObject )
-		{
-			FaceToPoint( deltaTime );   // m_PointToFace
-		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnKill ( Override )
-	public		override	void	OnKill()
+	
+	protected		override	void	OnKill()
 	{
 		base.OnKill();
-//		m_Pool.Destroy();
+//		m_Pool.SetActive( false );
 		gameObject.SetActive( false );
 	}
 	
-
 	//////////////////////////////////////////////////////////////////////////
-	// FaceToPoint ( Override )
-	protected	override	void	FaceToPoint( float deltaTime )
+
+	protected	override		void	UpdateHeadRotation()
 	{
-		Vector3 pointOnThisPlane		= Utils.Math.ProjectPointOnPlane( transform.up, m_BodyTransform.position, m_PointToFace );
-
-		Vector3 dirToPosition			= ( pointOnThisPlane - m_BodyTransform.position );
-		Vector3 dirGunToPosition		= ( m_PointToFace - m_GunTransform.position );
-
-		Quaternion	bodyRotation		= Quaternion.LookRotation( dirToPosition, transform.up );
-		m_BodyTransform.rotation		= Quaternion.RotateTowards( m_BodyTransform.rotation, bodyRotation, m_BodyRotationSpeed * deltaTime );
-		
-		m_IsAllignedBodyToPoint	= Vector3.Angle( m_BodyTransform.forward, dirToPosition ) < 2f;
-
-		if ( m_IsAllignedBodyToPoint == false )
+		base.UpdateHeadRotation();
+		// ORIENTATION
+		// BODY
 		{
-			m_IsAllignedHeadToPoint = false;
-			return;
+			// Nothing, rotation not allowed here
 		}
-		
+
+		// GUN
+		{
+			Vector3 pointToLookAt = m_LookData.PointToLookAt;
+			if ( m_TargetInfo.HasTarget == true ) // PREDICTION
+			{
+				// Vector3 shooterPosition, Vector3 shooterVelocity, float shotSpeed, Vector3 targetPosition, Vector3 targetVelocity
+				pointToLookAt = Utils.Math.CalculateBulletPrediction
+				(
+					shooterPosition:	m_GunTransform.position,
+					shooterVelocity:	Vector3.zero,
+					shotSpeed:			m_Pool.GetAsModel().Velocity,
+					targetPosition:		m_TargetInfo.CurrentTarget.Transform.position,
+					targetVelocity:		m_TargetInfo.CurrentTarget.RigidBody.velocity
+				);
+			}
+
+			Vector3 dirToPosition = ( pointToLookAt - m_GunTransform.position );
+			if ( m_IsAllignedHeadToPoint == true )
+			{
+				m_RotationToAllignTo.SetLookRotation( dirToPosition, m_BodyTransform.up );
+				m_GunTransform.rotation = Quaternion.RotateTowards( m_GunTransform.rotation, m_RotationToAllignTo, m_GunRotationSpeed * Time.deltaTime );
+			}
+			m_IsAllignedGunToPoint = Vector3.Angle( m_GunTransform.forward, dirToPosition ) < 16f;
+		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// FireLongRange ( Override )
-	protected	override	void	FireLongRange( float deltaTime )
+	
+	public	override		void	FireLongRange()
 	{
 		if ( m_ShotTimer > 0 )
 				return;
@@ -251,5 +173,4 @@ public abstract partial class Turret : NonLiveEntity {
 		
 		m_FireAudioSource.Play();
 	}
-	*/
 }

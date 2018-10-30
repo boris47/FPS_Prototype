@@ -1,7 +1,7 @@
 ﻿
 using UnityEngine;
 
-public abstract partial class Walker : NonLiveEntity, IRespawn {
+public abstract class Walker : NonLiveEntity, IRespawn {
 
 	[Header("Walker Properties")]
 
@@ -90,63 +90,10 @@ public abstract partial class Walker : NonLiveEntity, IRespawn {
 
 
 	//////////////////////////////////////////////////////////////////////////
-
-	public		override	void	OnHit( IBullet bullet )
-	{
-		m_CurrentBehaviour.OnHit( bullet );
-
-		float damage = UnityEngine.Random.Range( bullet.DamageMin, bullet.DamageMax );
-		this.OnHit( bullet.StartPosition, bullet.WhoRef, damage, bullet.CanPenetrate );
-	}
-	
-
-	//////////////////////////////////////////////////////////////////////////
-
-	public		override	void	OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
-	{
-		m_CurrentBehaviour.OnHit( startPosition, whoRef, damage, canPenetrate );
-
-		OnTakeDamage( damage );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
 	
 	public		override	void	OnDestinationReached( Vector3 Destionation )
 	{
 		base.OnDestinationReached( Destionation );
-	}
-
-	
-	//////////////////////////////////////////////////////////////////////////
-
-	protected		override	void	OnTargetAquired( TargetInfo targetInfo )
-	{
-		base.OnTargetAquired( targetInfo );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-
-	protected		override	void	OnTargetUpdate( TargetInfo targetInfo )
-	{
-		base.OnTargetUpdate( targetInfo );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-
-	protected		override	void	OnTargetChanged( TargetInfo targetInfo )
-	{
-		base.OnTargetChanged( targetInfo );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-
-	protected		override	void	OnTargetLost( TargetInfo targetInfo )
-	{
-		base.OnTargetLost( targetInfo );
 	}
 
 	

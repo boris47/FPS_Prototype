@@ -18,7 +18,7 @@ public class TurretGatling : Turret {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Awake ( Override )
+	
 	protected override void Awake()
 	{
 		m_SectionName = this.GetType().FullName;
@@ -28,10 +28,9 @@ public class TurretGatling : Turret {
 		m_GatlingTransform = m_GunTransform.Find( "Gatling" );
 	}
 
-	/*
 
 	//////////////////////////////////////////////////////////////////////////
-	// Update
+
 	protected override void OnFrame( float deltaTime )
 	{
 		base.OnFrame( deltaTime );
@@ -44,25 +43,26 @@ public class TurretGatling : Turret {
 		}
 
 		// APPLY ROTATION
-		if ( m_RotationSpeed > 0f )
+		if ( m_RotationSpeed > 0.0f )
+		{
 			m_GatlingTransform.Rotate( Vector3.right, m_RotationSpeed * deltaTime, Space.Self );
+		}
 
 		// ACTIVATION
-		if ( m_TargetInfo.HasTarget == true)
+		if ( m_TargetInfo.HasTarget == true )
 		{
 			m_RotationSpeed = Mathf.Clamp( m_RotationSpeed + ROTATION_ACC * deltaTime, 0f, MAX_ROTATION_SPEED );
-			if ( m_RotationSpeed < MAX_ROTATION_SPEED )
+			if ( m_RotationSpeed >= MAX_ROTATION_SPEED )
 			{
-				return;
+				m_IsActivated = true;
 			}
-			m_IsActivated = true;
 		}
 	}
 
-	
+
 	//////////////////////////////////////////////////////////////////////////
-	// FireLongRange ( Override )
-	protected override void FireLongRange( float deltaTime )
+	
+	public	override		void	FireLongRange()
 	{
 		if ( m_IsActivated == false )
 			return;
@@ -88,5 +88,5 @@ public class TurretGatling : Turret {
 		
 		m_FireAudioSource.Play();
 	}
-	*/
+
 }

@@ -128,6 +128,8 @@ public class GenericBullet : Bullet {
 		// if is an entity
 		if ( bIsAnEntity == true )
 		{
+			
+			print( "hitted "+ entity.Section );
 			entity.RigidBody.angularVelocity = entity.RigidBody.velocity = m_RigidBody.velocity = Vector3.zero;
 			float damage = UnityEngine.Random.Range( m_DamageMin, m_DamageMax );
 			
