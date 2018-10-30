@@ -42,7 +42,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 			GameManager.UpdateEvents.OnFrame			+= OnFrame;
 			GameManager.UpdateEvents.OnThink			+= OnThink;
 
-			if ( m_IsPlayer == false )
+			if ( ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
 			{
 				EnableBrain();
 
@@ -74,14 +74,9 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 			GameManager.UpdateEvents.OnFrame			-= OnFrame;
 			GameManager.UpdateEvents.OnThink			-= OnThink;
 
-			if ( m_IsPlayer == false )
+			if ( ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
 			{
 				DisableBrain();
-
-				if ( m_FieldOfView == null )
-				{
-					print( "entity: " + name + " has not m_FieldOfView" );
-				}
 
 				m_FieldOfView.OnTargetAquired			= null;
 				m_FieldOfView.OnTargetChanged			= null;
@@ -101,7 +96,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		streamUnit.Position			= transform.position;
 		streamUnit.Rotation			= transform.rotation;
 
-		if ( m_IsPlayer == false )
+		if ( ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
 		{
 			m_CurrentBehaviour.OnSave( streamData );
 		}
@@ -137,7 +132,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		transform.position = streamUnit.Position;
 		transform.rotation = streamUnit.Rotation;
 
-		if ( m_IsPlayer == false )
+		if ( ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
 		{
 			m_CurrentBehaviour.OnLoad( streamData );
 		}

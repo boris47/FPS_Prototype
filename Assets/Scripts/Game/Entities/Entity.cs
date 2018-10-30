@@ -103,7 +103,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	protected	Collider					m_TriggerCollider				= null;
 	protected	Transform					m_EffectsPivot					= null;
 	protected	IEntity						m_Interface						= null;
-	protected	bool						m_IsPlayer						= true;
 
 	// AI
 	protected	TargetInfo					m_TargetInfo					= new TargetInfo();
@@ -165,12 +164,10 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		m_ID				= NewID();
 		m_Interface			= this as IEntity;
 
-		m_IsPlayer = ( m_EntityType == ENTITY_TYPE.ACTOR );
-
 		m_EffectsPivot		= transform.Find( "EffectsPivot" );
 
 		// BODY AND HEAD
-		if ( m_IsPlayer == false )
+		if ( ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
 		{
 			m_BodyTransform		= transform.Find( "Body" );
 			m_HeadTransform		= m_BodyTransform.Find( "Head" );
@@ -185,7 +182,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		m_IsOK   =	Utils.Base.SearchComponent( gameObject, ref m_PhysicCollider,		SearchContext.LOCAL, (p) => { return p && p.isTrigger == false; } );
 
 		// TRIGGER COLLIDER ( PLAYER ONLY )
-		if ( m_IsPlayer == true )
+		if ( ( m_EntityType == ENTITY_TYPE.ACTOR ) == true )
 		{
 			m_IsOK	&= Utils.Base.SearchComponent( gameObject, ref m_TriggerCollider,		SearchContext.LOCAL, (p) => { return p && p.isTrigger == true;  } );
 		}
@@ -199,10 +196,10 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		// FIELD OF VIEW
 		Utils.Base.SearchComponent( gameObject, ref m_FieldOfView, SearchContext.CHILDREN );
 
-		if ( m_IsOK && m_NavAgent != null && m_IsPlayer == false )
+		if ( m_IsOK && m_NavAgent != null && ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
 			m_IsOK	&= m_NavAgent.isOnNavMesh;
 
-		if ( m_IsOK == false && m_IsPlayer == false )
+		if ( m_IsOK == false && ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
 			print( name + " is not OK" );
 
 		// SHIELD

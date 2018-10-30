@@ -11,6 +11,9 @@ public class TriggerEvents : MonoBehaviour {
 	private		GameEvent		m_OnExit				= null;
 
 	[SerializeField]
+	private		GameObject		m_Target				= null;
+
+	[SerializeField]
 	private		bool			m_TriggerOnce			= false;
 
 	[SerializeField]
@@ -82,11 +85,15 @@ public class TriggerEvents : MonoBehaviour {
 		if ( m_TriggerOnce == true && m_HasTriggered == true )
 			return;
 
-		if ( other.GetInstanceID() != Player.Entity.PhysicCollider.GetInstanceID() )
+		if ( other.gameObject.GetInstanceID() != m_Target.GetInstanceID() )
 			return;
 
-		if ( m_BypassEntityCheck == false && Player.Instance.CanTrigger() == false )
+		Entity entity = null;
+		bool bIsEntity = Utils.Base.SearchComponent( other.gameObject, ref entity, SearchContext.ALL );
+		if ( bIsEntity && m_BypassEntityCheck == false && entity.CanTrigger() == false )
+		{
 			return;
+		}
 
 		m_HasTriggered = true;
 
@@ -104,7 +111,7 @@ public class TriggerEvents : MonoBehaviour {
 		if ( m_TriggerOnce == true && m_HasTriggered == true )
 			return;
 
-		if ( other.GetInstanceID() != Player.Entity.PhysicCollider.GetInstanceID() )
+		if ( other.gameObject.GetInstanceID() != m_Target.GetInstanceID() )
 			return;
 
 		if ( m_OnExit != null && m_OnExit.GetPersistentEventCount() > 0 )

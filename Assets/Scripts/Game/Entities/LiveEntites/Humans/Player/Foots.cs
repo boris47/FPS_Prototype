@@ -27,7 +27,7 @@ public class Foots : MonoBehaviour, IFoots {
 	}
 
 	private		Collider			m_CurrentCollider	= null;
-	private		RaycastHit			m_RaycastHit		= default( RaycastHit );
+//	private		RaycastHit			m_RaycastHit		= default( RaycastHit );
 	private		ICustomAudioSource	m_AudioSource		= null;
 //	private		MeshCollider		m_Collider			= null;
 //	private		bool				m_IsColliding		= false;
