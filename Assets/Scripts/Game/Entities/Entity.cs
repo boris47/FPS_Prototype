@@ -17,7 +17,7 @@ public partial interface IEntity {
 	float					Health							{ get; }
 
 	// Entity Type
-	Entity.ENTITY_TYPE		EntityType						{ get; }
+	ENTITY_TYPE				EntityType						{ get; }
 
 	// Entity Shield
 	Shield					Shield							{ get; }
@@ -47,15 +47,6 @@ public partial interface IEntity {
 //					Physics intreractions,		Entity volume,		   Navigation
 [RequireComponent( typeof( Rigidbody ), typeof( CapsuleCollider ), typeof( NavMeshAgent ) ) ]
 public abstract partial class Entity : MonoBehaviour, IEntity {
-
-	public enum ENTITY_TYPE : uint {
-		NONE,
-		ACTOR,
-		HUMAN,
-		ROBOT,
-		ANIMAL,
-		OBJECT
-	};
 
 	[Header("Entity Properties")]
 	private	static uint			CurrentID							= 0;
@@ -335,17 +326,4 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 	}
 
-}
-
-
-public	enum LookTargetType : uint {
-	POSITION,
-	TRANSFORM
-}
-
-public class LookData {
-	public	bool			HasLookAtObject		= false;
-	public	Vector3			PointToLookAt		= Vector3.zero;
-	public	Transform		TrasformToLookAt	= null;
-	public	LookTargetType	LookTargetType		= LookTargetType.POSITION;
 }

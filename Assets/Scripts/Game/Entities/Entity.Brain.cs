@@ -3,16 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-[ System.Serializable ]
-public enum BrainState {
-	EVASIVE		= 0,
-	NORMAL		= 1,
-	ALARMED		= 2,
-	SEEKER		= 3,
-	ATTACKER	= 4,
-	COUNT		= 5
-}
-
 // Brain Interface
 public interface IBrain {
 	IFieldOfView				FieldOfView				{ get; }
@@ -27,6 +17,9 @@ public interface IBrain {
 public abstract partial class Entity : IBrain {
 
 	public	const		float						THINK_TIMER						= 0.2f; // 200 ms
+
+	private				IBrain						m_BrainIstance					= null;
+	public				IBrain						Brain							{ get { return m_BrainIstance; } }
 
 	[Header( "Brain" )]
 
@@ -54,12 +47,16 @@ public abstract partial class Entity : IBrain {
 		m_FieldOfView.Setup( maxVisibleEntities : 10 );
 
 		GameManager.UpdateEvents.OnThink += OnThinkBrain;
+
+		m_BrainIstance = this as IBrain;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual	void	DisableBrain()
 	{
+		m_BrainIstance = null;
+
 		GameManager.UpdateEvents.OnThink -= OnThinkBrain;
 	}
 
@@ -130,25 +127,4 @@ public abstract partial class Entity : IBrain {
 		m_FieldOfView.OnReset();
 	}
 
-}
-
-[System.Serializable]
-public class TargetInfo {
-	public	bool	HasTarget;
-	public	IEntity	CurrentTarget;
-	public	float	TargetSqrDistance;
-
-	public	void	Update( TargetInfo Infos )
-	{
-		HasTarget			= Infos.HasTarget;
-		CurrentTarget		= Infos.CurrentTarget;
-		TargetSqrDistance	= Infos.TargetSqrDistance;
-	}
-
-	public	void	Reset()
-	{
-		HasTarget			= false;
-		CurrentTarget		= null;
-		TargetSqrDistance	= 0.0f;
-	}
 }

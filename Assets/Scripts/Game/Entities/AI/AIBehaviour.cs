@@ -11,6 +11,11 @@ public abstract	class AIBehaviour {
 		EntityData = Blackboard.GetData( EntityId );
 	}
 
+	protected			void			print( string msg )
+	{
+		UnityEngine.Debug.Log( msg );
+	}
+
 	public	abstract	StreamUnit		OnSave( StreamData streamData );
 
 	public	abstract	StreamUnit		OnLoad( StreamData streamData );

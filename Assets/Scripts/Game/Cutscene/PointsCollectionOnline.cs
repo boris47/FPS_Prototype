@@ -6,7 +6,7 @@ namespace CutScene {
 
 	[System.Serializable]
 	public class CutsceneWaypointData {
-		public	Entity.SimMovementType			movementType		= Entity.SimMovementType.WALK;
+		public	SimMovementType					movementType		= SimMovementType.WALK;
 		public	Transform						point				= null;
 		public	Transform						target				= null;
 		[Range( 0.01f, 1f )]

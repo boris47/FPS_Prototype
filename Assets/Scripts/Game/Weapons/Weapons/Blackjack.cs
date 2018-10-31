@@ -3,10 +3,6 @@ using UnityEngine;
 
 public class Blackjack : Weapon {
 
-	public enum FireModes {
-		SINGLE, BURST, AUTO
-	}
-
 	[Header("Blackjack Properties")]
 
 	[SerializeField]

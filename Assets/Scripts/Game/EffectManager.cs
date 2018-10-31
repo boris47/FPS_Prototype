@@ -4,15 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 
 
-public enum EffectType {
-	ENTITY_ON_HIT,
-	AMBIENT_ON_HIT,
-	ELETTRO,
-	PLASMA,
-	EXPLOSION,
-	COUNT
-}
-
 
 public class EffectManager : MonoBehaviour {
 
@@ -55,7 +46,6 @@ public class EffectManager : MonoBehaviour {
 	// PlayEntityOnHit
 	public	void	PlayEffect( EffectType effectType,  Vector3 position, Vector3 direction, int count = 0 )
 	{
-
 		ParticleSystem p = null;
 		if ( count > 0 )
 		{

@@ -14,7 +14,7 @@ public interface IFieldOfView {
 
 	float				Distance			{ get; set; }
 	float				Angle				{ get; set; }
-	Entity.ENTITY_TYPE	TargetType			{ get; set; }
+	ENTITY_TYPE			TargetType			{ get; set; }
 
 	void				Setup				( uint maxVisibleEntities );
 	bool				UpdateFOV			();
@@ -25,11 +25,6 @@ public interface IFieldOfView {
 
 [RequireComponent( typeof( SphereCollider ) )]
 public class FieldOfView : MonoBehaviour, IFieldOfView {
-
-	
-	private		OnTargetEvent			m_OnTargetAquired		= null;
-	private		OnTargetEvent			m_OnTargetChanged		= null;
-	private		OnTargetEvent			m_OnTargetLost			= null;
 
 	public		OnTargetEvent			OnTargetAquired			{ set { m_OnTargetAquired = value; } }
 	public		OnTargetEvent			OnTargetChanged			{ set { m_OnTargetChanged = value; } }
@@ -47,7 +42,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 
 
 	[ SerializeField ]
-	private		Entity.ENTITY_TYPE		m_EntityType			= Entity.ENTITY_TYPE.NONE;
+	private		ENTITY_TYPE				m_EntityType			= ENTITY_TYPE.NONE;
 
 	[SerializeField]
 	private		LayerMask				m_LayerMask				 = default( LayerMask );
@@ -65,13 +60,15 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		set { m_ViewCone = value; }
 	}
 
-	Entity.ENTITY_TYPE IFieldOfView.TargetType
+	ENTITY_TYPE IFieldOfView.TargetType
 	{
 		get { return m_EntityType; }
 		set { m_EntityType = value; }
 	}
 
-
+	private		OnTargetEvent			m_OnTargetAquired		= null;
+	private		OnTargetEvent			m_OnTargetChanged		= null;
+	private		OnTargetEvent			m_OnTargetLost			= null;
 
 	private		RaycastHit				m_RaycastHit			= default( RaycastHit );
 	private		SphereCollider			m_ViewTriggerCollider	= null;
@@ -137,19 +134,42 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	// CheckTargets
+	public	void	UpdateTargets( ENTITY_TYPE newType )
+	{
+		if ( newType == m_EntityType )
+			return;
+
+		m_EntityType = newType;
+
+		m_AllTargets.Clear();
+
+		Collider[] colliders = Physics.OverlapSphere( transform.position, m_ViewTriggerCollider.radius );
+
+		IEntity entity = null;
+		System.Array.ForEach( colliders, ( Collider c ) => {
+
+			if ( Utils.Base.SearchComponent( c.gameObject, ref entity, SearchContext.ALL, ( IEntity e ) => { return e.EntityType == newType; } ) )
+			{
+				// This avoid to the current entity being added
+				if ( transform.parent.GetInstanceID() != entity.Transform.GetInstanceID() )
+				{
+					m_AllTargets.Add( entity as Entity );
+				}
+			}
+
+		} );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	// CompareTargetsDistances
 	private	int  CompareTargetsDistances( Vector3 currentPosition, Entity a, Entity b )
 	{
 		float distanceA = ( a.transform.position - currentPosition ).sqrMagnitude;
 		float distanceB = ( b.transform.position - currentPosition ).sqrMagnitude;
 
-		if ( distanceA > distanceB )
-			return 1;
-
-		if ( distanceA < distanceB )
-			return -1;
-
-		return 0;
+		return ( distanceA > distanceB ) ? 1 : ( distanceA < distanceB ) ? -1 : 0;
 	}
 
 
@@ -229,7 +249,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 					queryTriggerInteraction:	QueryTriggerInteraction.Ignore
 				);
 
-				if ( result == true && m_RaycastHit.collider == target.Interface.PhysicCollider )
+				if ( result == true && m_RaycastHit.collider.GetInstanceID() == target.Interface.PhysicCollider.GetInstanceID() )
 				{
 					m_ValidTargets[ currentCount ] = target;
 					currentCount ++;
@@ -291,6 +311,10 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		Entity entity = other.GetComponent<Entity>();
 		if ( entity != null && entity.IsAlive == true && entity.Interface.EntityType == m_EntityType )
 		{
+			// This avoid to the current entity being added
+			if ( entity.transform.GetInstanceID() == transform.parent.GetInstanceID() )
+				return;
+
 			if ( m_AllTargets.Contains( entity ) == true )
 				return;
 

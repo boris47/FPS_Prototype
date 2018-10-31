@@ -1,11 +1,6 @@
 ﻿
 using UnityEngine;
 
-public enum BulletMotionType {
-	DIRECT,
-	PARBOLIC
-}
-
 public interface IBullet {
 
 	Transform			Transform		{ get; }
@@ -22,8 +17,6 @@ public interface IBullet {
 	bool				CanPenetrate	{ get; set; }
 	Vector3				StartPosition	{ get; }
 	BulletMotionType	GetMotionType	{ get; }
-
-
 
 	void				Setup			( bool canPenetrate, Entity whoRef, Weapon weaponRef, float damageMin = -1.0f, float damageMax = -1.0f );
 	void				SetActive		( bool state );

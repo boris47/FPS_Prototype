@@ -14,7 +14,7 @@ public interface IEntitySimulation {
 
 	void		EnterSimulationState	();
 	void		ExitSimulationState		();
-	bool		SimulateMovement		( Entity.SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1f );
+	bool		SimulateMovement		( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1f );
 
 }
 
@@ -25,12 +25,6 @@ public abstract partial class Entity : IEntitySimulation {
 	CutsceneEntityManager	IEntity.CutsceneManager				{ get { return m_CutsceneManager; }	}
 
 	Vector3					IEntitySimulation.StartPosition		{ get; set; }
-
-	public enum SimMovementType {
-		WALK,
-		CROUCHED,
-		RUN
-	}
 
 	[Header("Cutscene Manager")]
 

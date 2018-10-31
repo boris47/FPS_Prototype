@@ -4,11 +4,8 @@ using UnityEngine;
 namespace QuestSystem {
 
 	public class Task : MonoBehaviour {
-		
 
 		public bool							Completed				{ get; private set; }
-	
-
 
 		[SerializeField]
 		private GameEvent					m_OnCompletion			= null;
@@ -16,12 +13,8 @@ namespace QuestSystem {
 		[SerializeField]
 		private	Objective_Base[]			m_TaskObjectives		= null;
 
-
-
 		private Quest						RelatedQuest			{ get; set; }
 		
-
-
 
 		//////////////////////////////////////////////////////////////////////////
 		// AWAKE

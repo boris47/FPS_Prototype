@@ -15,7 +15,7 @@ namespace CutScene {
 		private		IEntitySimulation				m_EntitySimulation			= null;
 		private		int								m_CurrentIdx				= 0;
 
-		private		Entity.SimMovementType			m_MovementType				= Entity.SimMovementType.WALK;
+		private		SimMovementType					m_MovementType				= SimMovementType.WALK;
 		private		Vector3							m_Destination				= Vector3.zero;
 		private		Transform						m_Target					= null;
 		private		float							m_TimeScaleTarget			= 1f;
@@ -152,7 +152,7 @@ namespace CutScene {
 			m_EntitySimulation.StartPosition	= Vector3.zero;
 			IsPlaying							= false;
 			m_CurrentIdx						= 0;
-			m_MovementType						= Entity.SimMovementType.WALK;
+			m_MovementType						= SimMovementType.WALK;
 			m_Destination						= Vector3.zero;
 			m_Target							= null;
 			m_TimeScaleTarget					= 1f;

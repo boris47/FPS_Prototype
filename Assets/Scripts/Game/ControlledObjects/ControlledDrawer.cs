@@ -114,7 +114,7 @@ public class ControlledDrawer : ControlledObject {
 		switch( m_OperatingAxis )
 		{
 			case axisDirection.X: endPosition = startPosition + transform.right.normalized   * (m_Opened ? -m_LocalMovement : m_LocalMovement); break;
-			case axisDirection.Y: endPosition = startPosition + transform.up.normalized	  * (m_Opened ? -m_LocalMovement : m_LocalMovement); break;
+			case axisDirection.Y: endPosition = startPosition + transform.up.normalized		 * (m_Opened ? -m_LocalMovement : m_LocalMovement); break;
 			case axisDirection.Z: endPosition = startPosition + transform.forward.normalized * (m_Opened ? -m_LocalMovement : m_LocalMovement); break;
 		}
 		

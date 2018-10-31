@@ -1,10 +1,6 @@
 ﻿
 using UnityEngine;
 
-public enum WeaponState {
-	DRAWED, STASHED
-}
-
 public interface IWeaponZoom {
 
 	Vector3					ZoomOffset			 { get; }
