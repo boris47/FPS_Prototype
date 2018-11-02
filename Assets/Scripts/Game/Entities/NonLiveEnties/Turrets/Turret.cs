@@ -54,13 +54,6 @@ public abstract class Turret : NonLiveEntity {
 			m_EntityType			= ENTITY_TYPE.ROBOT;
 		}
 
-		m_Laser = GetComponentInChildren<Laser>();
-		if ( m_Laser != null )
-		{
-			m_Laser.LaserLength = m_FieldOfView.Distance;
-			m_Laser.LayerMaskToExclude = LayerMask.NameToLayer("Bullets");
-		}
-
 		// BULLETS POOL CREATION
 		{
 			GameObject	bulletGO		= m_Bullet.gameObject;
@@ -92,7 +85,7 @@ public abstract class Turret : NonLiveEntity {
 		m_ShotTimer = 0f;
 
 		// AI BEHAVIOURS
-		{	m_Behaviours = new AIBehaviour[ 5 ] { null, null, null,null, null };
+		{
 			SetBehaviour( BrainState.EVASIVE,	m_SectionRef.AsString( "BehaviourEvasive"	), false );
 			SetBehaviour( BrainState.NORMAL,	m_SectionRef.AsString( "BehaviourNormal"	), true  );
 			SetBehaviour( BrainState.ALARMED,	m_SectionRef.AsString( "BehaviourAlarmed"	), false );
@@ -102,10 +95,22 @@ public abstract class Turret : NonLiveEntity {
 			ChangeState( BrainState.NORMAL );
 		}
 	}
-	
+
+	protected override void OnEnable()
+	{
+		base.OnEnable();
+
+		m_Laser = GetComponentInChildren<Laser>();
+		if ( m_Laser != null )
+		{
+			m_Laser.LaserLength = Brain.FieldOfView.Distance;
+			m_Laser.LayerMaskToExclude = LayerMask.NameToLayer("Bullets");
+		}
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
-	
+
 	protected	override	void	OnFrame( float deltaTime )
 	{
 		base.OnFrame( deltaTime );

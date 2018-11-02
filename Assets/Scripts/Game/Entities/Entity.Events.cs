@@ -39,7 +39,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 				EnableBrain();
 
 				string TargetType = m_SectionRef.AsString( "DefaultTarget" );
-				m_FieldOfView.TargetType = (ENTITY_TYPE) System.Enum.Parse( typeof( ENTITY_TYPE ), TargetType );
+				Brain.FieldOfView.TargetType = (ENTITY_TYPE) System.Enum.Parse( typeof( ENTITY_TYPE ), TargetType );
 
 				m_FieldOfView.Setup( maxVisibleEntities : 10 );
 				m_FieldOfView.OnTargetAquired			= OnTargetAquired;
@@ -208,7 +208,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected		virtual		void		OnTakeDamage( float Damage )
+	protected	virtual		void		OnTakeDamage( float Damage )
 	{
 		// DAMAGE
 		{
@@ -222,7 +222,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected		virtual		void		OnKill()
+	protected	virtual		void		OnKill()
 	{
 		if ( m_IsActive == false )
 			return;

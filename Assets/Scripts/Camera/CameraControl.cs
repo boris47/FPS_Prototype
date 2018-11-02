@@ -145,7 +145,8 @@ public class CameraControl : MonoBehaviour, ICameraControl, ICameraSetters {
 		Cursor.visible = false;
 		Cursor.lockState = CursorLockMode.Locked;
 
-		m_ViewPoint = Player.Instance.transform.Find( "ViewPivot" );
+		EntityBlackBoardData playerData = Blackboard.GetData( Player.Entity.ID );
+		m_ViewPoint = playerData.HeadTransform;
 	}
 
 
@@ -259,7 +260,7 @@ public class CameraControl : MonoBehaviour, ICameraControl, ICameraSetters {
 		m_WpnFallFeedback = Vector3.ClampMagnitude( m_WpnCurrentDeviation, WPN_FALL_FEEDBACK_CLAMP_VALUE );
 	}
 
-
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	// FixedUpdate
 	private void FixedUpdate()
@@ -267,14 +268,14 @@ public class CameraControl : MonoBehaviour, ICameraControl, ICameraSetters {
 		if ( m_Target != null )
 		{
 			// Position
-			transform.position		= Player.Instance.transform.TransformPoint( m_ViewPoint.transform.localPosition * m_CameraFPS_Shift );
+			transform.position		= Player.Instance.transform.TransformPoint( m_ViewPoint.localPosition * m_CameraFPS_Shift );
 
 			// Rotation
 			Quaternion rotation		= Quaternion.LookRotation( m_Target.position - transform.position, Player.Instance.transform.up );
-			transform.rotation		= Quaternion.Slerp( transform.rotation, rotation, Time.unscaledDeltaTime * 8f ) * Quaternion.Euler( m_HeadBob.Direction + m_HeadMove.Direction );
+			transform.rotation		= Quaternion.Slerp( transform.rotation, rotation, Time.unscaledDeltaTime * 3f ) * Quaternion.Euler( m_HeadBob.Direction + m_HeadMove.Direction );
 		}
 	}
-
+	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	// LateUpdate
@@ -327,7 +328,17 @@ public class CameraControl : MonoBehaviour, ICameraControl, ICameraSetters {
 
 		// Look at target is assigned
 		if ( m_Target != null )
+		{
+			// Position
+			m_CameraFPS_Shift		= Mathf.Lerp( m_CameraFPS_Shift, ( Player.Instance.IsCrouched ) ? 0.5f : 1.0f, dt * 10f );
+			transform.position		= Player.Instance.transform.TransformPoint( m_ViewPoint.localPosition * m_CameraFPS_Shift );
+
+			// Rotation
+			Quaternion rotation		= Quaternion.LookRotation( m_Target.position - transform.position, Player.Instance.transform.up );
+			transform.rotation		= Quaternion.Slerp( transform.rotation, rotation, Time.unscaledDeltaTime * 20f ) * Quaternion.Euler( m_HeadBob.Direction + m_HeadMove.Direction );
 			return;
+		}
+
 
 		// Cam Dispersion
 		m_CurrentDirection		= Vector3.Lerp( m_CurrentDirection, m_CurrentDirection + m_WpnCurrentDeviation, dt * 8f );
@@ -369,7 +380,7 @@ public class CameraControl : MonoBehaviour, ICameraControl, ICameraSetters {
 			{
 				m_CurrentDirection += m_HeadBob.Direction + m_HeadMove.Direction;
 			}
-			transform.rotation = m_ViewPoint.transform.rotation * Quaternion.Euler( m_CurrentDirection );
+			transform.rotation = m_ViewPoint.rotation * Quaternion.Euler( m_CurrentDirection );
 
 			// rotation with effect added
 			{
@@ -382,7 +393,7 @@ public class CameraControl : MonoBehaviour, ICameraControl, ICameraSetters {
 		{
 			// manage camera height while crouching
 			m_CameraFPS_Shift = Mathf.Lerp( m_CameraFPS_Shift, ( Player.Instance.IsCrouched ) ? 0.5f : 1.0f, dt * 10f );
-			transform.position = Player.Instance.transform.TransformPoint( m_ViewPoint.transform.localPosition * m_CameraFPS_Shift );
+			transform.position = Player.Instance.transform.TransformPoint( m_ViewPoint.localPosition * m_CameraFPS_Shift );
 		}
 	}
 

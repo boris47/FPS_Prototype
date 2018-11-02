@@ -15,6 +15,7 @@ namespace CutScene {
 		private		IEntitySimulation				m_EntitySimulation			= null;
 		private		int								m_CurrentIdx				= 0;
 
+
 		private		SimMovementType					m_MovementType				= SimMovementType.WALK;
 		private		Vector3							m_Destination				= Vector3.zero;
 		private		Transform						m_Target					= null;
@@ -127,7 +128,22 @@ namespace CutScene {
 
 				// Update to next simulation targets
 				CutsceneWaypointData data	= m_PointsCollection[ m_CurrentIdx ];
-				m_Destination				= data.point.position;							// destination to reach
+
+				{
+					Vector3 destination = data.point.position;
+					RaycastHit hit;
+					if ( Physics.Raycast( destination, -m_EntityParent.transform.up, out hit ) )
+					{
+						m_Destination = Utils.Math.ProjectPointOnPlane( m_EntityParent.transform.up, m_EntityParent.transform.position, hit.point );
+					}
+					else
+					{
+						m_EntitySimulation.SimulateMovement( SimMovementType.WALK, m_EntityParent.transform.position, null, 1.0f ); // ensure valid state
+						Termiante();
+					}
+				}
+
+//				m_Destination				= data.point.position;							// destination to reach
 				m_Target					= data.target != null ? data.target : m_Target;	// target to look at
 				m_MovementType				= data.movementType;							// movement type
 				m_TimeScaleTarget			= data.timeScaleTraget;						 // time scale for this trip

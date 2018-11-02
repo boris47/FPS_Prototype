@@ -15,13 +15,9 @@ namespace CutScene {
 		private void Update()
 		{
 			enabled = m_Path.Move( m_Speed, ref m_Position );
-		}
-
-
-		private void FixedUpdate()
-		{
 			transform.position = m_Position;
 		}
+		
 	}
 
 }

@@ -78,7 +78,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		m_MaxAgentSpeed = m_MoveMaxSpeed;
 
 		// AI BEHAVIOURS
-		{	m_Behaviours = new AIBehaviour[ 5 ] { null, null, null,null, null };
+		{	
 			SetBehaviour( BrainState.EVASIVE,	m_SectionRef.AsString( "BehaviourEvasive"	), false );
 			SetBehaviour( BrainState.NORMAL,	m_SectionRef.AsString( "BehaviourNormal"	), true  );
 			SetBehaviour( BrainState.ALARMED,	m_SectionRef.AsString( "BehaviourAlarmed"	), false );

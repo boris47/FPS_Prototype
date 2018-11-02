@@ -31,14 +31,13 @@ public abstract partial class Entity : IBrain {
 						BrainState					IBrain.State					{	get { return m_CurrentBrainState;		}	}
 	// INTERFACE END
 
-	protected			IFieldOfView				m_FieldOfView					= null;
-	protected			IEntity						m_ThisEntity					= null;
-
-	protected			bool						m_IsBrainActive					= true;
 	[SerializeField]
 	protected			AIBehaviour					m_CurrentBehaviour				= null;
 	[SerializeField]
-	protected			AIBehaviour[]				m_Behaviours					= null;
+	protected			List<AIBehaviour>			m_Behaviours					= new List<AIBehaviour>( new AIBehaviour[5] );
+
+	protected			FieldOfView					m_FieldOfView					= null;
+	protected			bool						m_IsBrainActive					= true;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -111,8 +110,6 @@ public abstract partial class Entity : IBrain {
 		m_CurrentBrainState = newState;
 
 		m_CurrentBehaviour = m_Behaviours[ (int)newState ];
-
-		m_BlackBoardData.BrainState = newState;
 	}
 
 

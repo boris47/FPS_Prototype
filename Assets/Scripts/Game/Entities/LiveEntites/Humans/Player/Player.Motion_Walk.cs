@@ -32,8 +32,10 @@ public partial class Player {
 			return false;				// force logic update
 		}
 
+		float interpolant = simulationDistanceTravelled / simulationdDistanceToTravel;
+
 		// TIME SCALE
-		float timeScale = Mathf.Lerp( Time.timeScale, timeScaleTarget, Time.unscaledDeltaTime );
+		float timeScale = Mathf.Lerp( Time.timeScale, timeScaleTarget, interpolant );
 		Time.timeScale = timeScale;
 		SoundManager.Instance.Pitch = timeScale;
 
@@ -48,15 +50,14 @@ public partial class Player {
 			bool isWalking	= ( movementType != SimMovementType.RUN );
 			bool isRunning	= !isWalking;
 			bool isCrouched = ( movementType == SimMovementType.CROUCHED );
-			float fMoveSpeed = ( isCrouched ) ? m_CrouchSpeed : ( isRunning ) ? m_RunSpeed : m_WalkSpeed;
+			m_ForwardSmooth = ( isCrouched ) ? m_CrouchSpeed : ( isRunning ) ? m_RunSpeed : m_WalkSpeed;
 
 			m_States.IsWalking	= isWalking;
 			m_States.IsRunning	= isRunning;
 			m_States.IsCrouched	= isCrouched;
 			m_States.IsMoving	= true;
 
-			m_ForwardSmooth = Mathf.Lerp( m_ForwardSmooth, fMoveSpeed, Time.deltaTime * 20f );
-			m_Move = ( m_ForwardSmooth * direction.normalized ) * GroundSpeedModifier * Time.timeScale;
+			m_Move = ( m_ForwardSmooth * direction.normalized ) * GroundSpeedModifier * timeScale;
 		}
 		return true;
 	}

@@ -155,65 +155,75 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		m_ID				= NewID();
 		m_Interface			= this as IEntity;
 
-		m_EffectsPivot		= transform.Find( "EffectsPivot" );
-
-		// BODY AND HEAD
-		if ( ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
+		// TRANSFORMS
 		{
 			m_BodyTransform		= transform.Find( "Body" );
 			m_HeadTransform		= m_BodyTransform.Find( "Head" );
-			m_Targettable = m_HeadTransform;
+			m_Targettable		= m_HeadTransform;
+			m_EffectsPivot		= transform.Find( "EffectsPivot" );
 		}
-		else
+
+		// ESSENTIALS CHECK
+		m_IsOK = true;
 		{
-			m_Targettable = transform;
+			// PHYSIC COLLIDER
+			m_IsOK   =	Utils.Base.SearchComponent( gameObject, ref m_PhysicCollider, SearchContext.LOCAL, (p) => { return p && p.isTrigger == false; } );
+
+			// TRIGGER COLLIDER ( PLAYER ONLY )
+			if ( m_EntityType == ENTITY_TYPE.ACTOR )
+			{
+				m_IsOK	&= Utils.Base.SearchComponent( gameObject, ref m_TriggerCollider, SearchContext.LOCAL, (p) => { return p && p.isTrigger == true;  } );
+			}
+
+			// RIGIDBODY
+			m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_RigidBody, SearchContext.LOCAL );
+
+			if ( m_IsOK && m_NavAgent != null && ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
+			{
+				m_IsOK	&= m_NavAgent.isOnNavMesh;
+			}
+
+			if ( m_IsOK == false && ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
+			{
+				print( name + " is not OK" );
+			}
 		}
-
-		// PHYSIC COLLIDER
-		m_IsOK   =	Utils.Base.SearchComponent( gameObject, ref m_PhysicCollider,		SearchContext.LOCAL, (p) => { return p && p.isTrigger == false; } );
-
-		// TRIGGER COLLIDER ( PLAYER ONLY )
-		if ( ( m_EntityType == ENTITY_TYPE.ACTOR ) == true )
-		{
-			m_IsOK	&= Utils.Base.SearchComponent( gameObject, ref m_TriggerCollider,		SearchContext.LOCAL, (p) => { return p && p.isTrigger == true;  } );
-		}
-
-		// RIGIDBODY
-		m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_RigidBody,			SearchContext.LOCAL );
-
-		// NAV AGENT
-		Utils.Base.SearchComponent( gameObject, ref m_NavAgent,				SearchContext.LOCAL	);
-
-		// FIELD OF VIEW
-		Utils.Base.SearchComponent( gameObject, ref m_FieldOfView, SearchContext.CHILDREN );
-
-		if ( m_IsOK && m_NavAgent != null && ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
-			m_IsOK	&= m_NavAgent.isOnNavMesh;
-
-		if ( m_IsOK == false && ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
-			print( name + " is not OK" );
 
 		// SHIELD
-		Utils.Base.SearchComponent( gameObject, ref m_Shield,				SearchContext.CHILDREN );
+		Utils.Base.SearchComponent( gameObject, ref m_Shield, SearchContext.CHILDREN );
 
 		// CUTSCENE MANAGER
-		Utils.Base.SearchComponent( gameObject, ref m_CutsceneManager,		SearchContext.CHILDREN );
+		Utils.Base.SearchComponent( gameObject, ref m_CutsceneManager, SearchContext.CHILDREN );
 
-
-		// BLACKBOARD
-		if ( Blackboard.IsEntityRegistered( m_ID ) == false )
+		// AI
 		{
-			m_BlackBoardData				= new EntityBlackBoardData();
-			m_BlackBoardData.EntityRef		= this;
-			m_BlackBoardData.Transform		= m_Targettable;
-			m_BlackBoardData.HeadTransform	= m_HeadTransform;
-			m_BlackBoardData.BodyTransform	= m_BodyTransform;
-			m_BlackBoardData.LookData		= m_LookData;
-			m_BlackBoardData.TargetInfo		= m_TargetInfo;
+			// NAV AGENT
+			Utils.Base.SearchComponent( gameObject, ref m_NavAgent, SearchContext.LOCAL	);
 
-			Blackboard.Register( m_ID, m_BlackBoardData );
+			// FIELD OF VIEW
+			Utils.Base.SearchComponent( gameObject, ref m_FieldOfView, SearchContext.CHILDREN );
+
+			// BLACKBOARD
+			if ( Blackboard.IsEntityRegistered( m_ID ) == false )
+			{
+				m_BlackBoardData	= new EntityBlackBoardData()
+				{
+					EntityRef		= this,
+					Transform		= m_Targettable,
+					HeadTransform	= m_HeadTransform,
+					BodyTransform	= m_BodyTransform,
+					LookData		= m_LookData,
+					TargetInfo		= m_TargetInfo,
+				};
+
+				Blackboard.Register( m_ID, m_BlackBoardData );
+			}
+			m_BlackBoardData = Blackboard.GetData( m_ID );
+
+			// BRAINSTATE
+			m_CurrentBrainState = BrainState.COUNT;
 		}
-		m_BlackBoardData = Blackboard.GetData( m_ID );
+
 	}
 
 

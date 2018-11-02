@@ -446,7 +446,8 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: GameEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   m_Waypoints:
-  - movementType: 1
+  - Name: CutsceneWaypointData
+    movementType: 0
     point: {fileID: 4748236080620860}
     target: {fileID: 0}
     timeScaleTraget: 1
@@ -455,16 +456,18 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
       m_TypeName: GameEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-  - movementType: 0
+  - Name: CutsceneWaypointData
+    movementType: 0
     point: {fileID: 4198035080718330}
     target: {fileID: 0}
-    timeScaleTraget: 0.592
+    timeScaleTraget: 0.225
     zoomEnabled: 0
     OnWayPointReached:
       m_PersistentCalls:
         m_Calls: []
       m_TypeName: GameEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-  - movementType: 0
+  - Name: CutsceneWaypointData
+    movementType: 0
     point: {fileID: 4746161472688282}
     target: {fileID: 0}
     timeScaleTraget: 1
@@ -473,7 +476,8 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
       m_TypeName: GameEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-  - movementType: 0
+  - Name: CutsceneWaypointData
+    movementType: 0
     point: {fileID: 4737617074801694}
     target: {fileID: 0}
     timeScaleTraget: 1

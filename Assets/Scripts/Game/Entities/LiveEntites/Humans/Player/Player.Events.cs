@@ -169,32 +169,31 @@ public partial class Player {
 		MoveGrabbedObject();
 
 		m_RigidBody.angularVelocity = Vector3.zero;
+//		m_RigidBody.drag = IsGrounded ? BODY_DRAG : 0.0f;
 
 		// Forced by ovverride
 		if ( m_MovementOverrideEnabled )
 		{
 			// Controlled in Player.Motion_Walk::SimulateMovement
 			m_RigidBody.velocity = m_Move;
+//			m_RigidBody.AddForce( m_Move, ForceMode.Acceleration );
 			return;
 		}
-
-//		m_RigidBody.drag = IsGrounded ? BODY_DRAG : 0.0f;
 
 		// User inputs
 		if ( IsGrounded )
 		{
-			
 			// Controlled in Player.Motion_Walk::Update_Walk
 			Vector3 forward	= Vector3.Cross( CameraControl.Instance.Transform.right, transform.up );
 			Vector3 right	= CameraControl.Instance.Transform.right;
 			Vector3 up		= transform.up;
-
+			
 			if ( m_ForwardSmooth != 0.0f )
 				m_RigidBody.AddForce( forward	* m_ForwardSmooth	* GroundSpeedModifier,	m_UpSmooth > 0.0f ? ForceMode.Impulse : ForceMode.Acceleration );
 
 			if ( m_RightSmooth != 0.0f )
 				m_RigidBody.AddForce( right		* m_RightSmooth		* GroundSpeedModifier,	m_UpSmooth > 0.0f ? ForceMode.Impulse : ForceMode.Acceleration );
-
+				
 //			if ( m_UpSmooth > 0.0f )
 //				m_RigidBody.AddForce( up		* m_UpSmooth		* GroundSpeedModifier,	ForceMode.VelocityChange );
 		}

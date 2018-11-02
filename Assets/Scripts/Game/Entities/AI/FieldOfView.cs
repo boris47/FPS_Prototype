@@ -107,10 +107,10 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Setup
-	void	IFieldOfView.Setup( uint maxVisibleEntities )
+	public	void	Setup( uint maxVisibleEntities )
 	{
 		m_MaxVisibleEntities = maxVisibleEntities;
-		m_ValidTargets = new Entity[ maxVisibleEntities ];
+		m_ValidTargets = new Entity[ m_MaxVisibleEntities ];
 
 		m_NeedSetup = false;
 	}
@@ -188,7 +188,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 
 	//////////////////////////////////////////////////////////////////////////
 	// UpdateFoV
-	bool	IFieldOfView.UpdateFOV()
+	public	bool	UpdateFOV()
 	{
 		// Prepare results array
 		System.Array.Clear( m_ValidTargets, 0, m_ValidTargets.Length );
@@ -216,8 +216,6 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 			}
 		}
 
-		int currentCount = 0;
-
 		// Choose view point
 		Transform	currentViewPoint	= ( m_ViewPoint == null ) ? transform : m_ViewPoint;
 
@@ -226,8 +224,11 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 			m_AllTargets.Sort( ( a, b ) => CompareTargetsDistances( currentViewPoint.position, a, b ) );
 
 		// FIND ALL VISIBLE TARGETS
-		foreach( Entity target in m_AllTargets )
+		int currentCount = 0;
+		for ( int i = 0; i < m_AllTargets.Count && i < m_MaxVisibleEntities; i++ )
 		{
+			Entity target = m_AllTargets[ i ];
+
 			Vector3 targettablePosition = target.Interface.Transform.position;
 			Vector3 direction = ( targettablePosition - currentViewPoint.position );
 
@@ -284,7 +285,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		// CHANGING A TARGET
 //		if ( m_CurrentTargetInfo.HasTarget == true )
 		{
-			if ( previousTarget != null && previousTarget != currentTarget )
+			if ( previousTarget != null && previousTarget.ID != currentTarget.ID )
 			{
 				m_OnTargetChanged( m_CurrentTargetInfo );
 			}
@@ -296,7 +297,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnReset
-	void	IFieldOfView.OnReset()
+	public	void	OnReset()
 	{
 		m_CurrentTargetInfo.Reset();
 		System.Array.Clear( m_ValidTargets, 0, ( int ) m_MaxVisibleEntities );

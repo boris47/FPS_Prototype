@@ -5,7 +5,6 @@ TagManager:
   serializedVersion: 2
   tags:
   - Terrain
-  - Entity
   layers:
   - Default
   - TransparentFX
@@ -19,7 +18,7 @@ TagManager:
   - AvoidCollisions
   - Bullets
   - Entities
-  - 
+  - FiledOfView
   - 
   - 
   - 

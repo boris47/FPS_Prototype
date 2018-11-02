@@ -38,7 +38,7 @@ GameObject:
   - component: {fileID: 4424624358289504}
   - component: {fileID: 135202634986895800}
   - component: {fileID: 114608295052453368}
-  m_Layer: 2
+  m_Layer: 12
   m_Name: FieldOfView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -175,8 +175,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1179847917434662}
   m_LocalRotation: {x: -0, y: 0.84185344, z: -0, w: 0.5397063}
-  m_LocalPosition: {x: -6.06, y: 1.0700002, z: 29.11}
-  m_LocalScale: {x: 1.0000006, y: 1, z: 1.0000006}
+  m_LocalPosition: {x: -2.98, y: 1.07, z: 36.88}
+  m_LocalScale: {x: 0.99999976, y: 1, z: 0.99999976}
   m_Children:
   - {fileID: 4341158557105010}
   - {fileID: 4424624358289504}
@@ -288,7 +288,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 80
+  m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!82 &82441586941902330
 AudioSource:

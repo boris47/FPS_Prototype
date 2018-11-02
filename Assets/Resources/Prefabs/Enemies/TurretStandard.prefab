@@ -31,7 +31,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1148639279287804
 GameObject:
   m_ObjectHideFlags: 0
@@ -157,7 +157,7 @@ GameObject:
   - component: {fileID: 4209564309503272}
   - component: {fileID: 135230730656867690}
   - component: {fileID: 114338137534307330}
-  m_Layer: 2
+  m_Layer: 12
   m_Name: FieldOfView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -243,8 +243,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1059597412450330}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.0105622, y: 4.5, z: 10.546465}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 24.39085, y: -2.1160965, z: 19.9761}
   m_LocalScale: {x: 0.40000042, y: 0.39999998, z: 0.40000042}
   m_Children:
   - {fileID: 4823444059623292}

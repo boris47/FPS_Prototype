@@ -18,8 +18,6 @@ public class EntityBlackBoardData {
 	public	Transform			TrasformToLookAt					= null;
 	public	Vector3				PointToLookAt						= Vector3.zero;
 
-	public	BrainState			BrainState							= BrainState.COUNT;
-
 	public	float				AgentSpeed							= 0.0f;
 
 }

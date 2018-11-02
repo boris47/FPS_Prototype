@@ -72,7 +72,7 @@ GameObject:
   - component: {fileID: 4692035501002494}
   - component: {fileID: 135239126106301818}
   - component: {fileID: 114988564248507602}
-  m_Layer: 2
+  m_Layer: 12
   m_Name: FieldOfView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -131,7 +131,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1646718645036170
 GameObject:
   m_ObjectHideFlags: 0
@@ -249,7 +249,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1636731148291262}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 4.18468, y: 4.5, z: -1.6971283}
+  m_LocalPosition: {x: 27.19, y: -2, z: 31.88}
   m_LocalScale: {x: 0.39999998, y: 0.39999998, z: 0.39999998}
   m_Children:
   - {fileID: 4117760743423076}
@@ -809,7 +809,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4a00d2295445e046af875a303c598ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_CurrentBrainState: 1
+  m_CurrentBrainState: 5
   m_Health: 1
   m_MinEngageDistance: 0
   m_BodyRotationSpeed: 1

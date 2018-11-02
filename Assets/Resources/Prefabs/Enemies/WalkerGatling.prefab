@@ -107,7 +107,7 @@ GameObject:
   - component: {fileID: 4498023231737436}
   - component: {fileID: 135535639602161524}
   - component: {fileID: 114445720393615974}
-  m_Layer: 2
+  m_Layer: 12
   m_Name: FieldOfView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -199,7 +199,7 @@ Transform:
   - {fileID: 4498023231737436}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -75.97, z: 0}
 --- !u!4 &4864617661514944
 Transform:
   m_ObjectHideFlags: 1
@@ -358,7 +358,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 80
+  m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!82 &82276586724622984
 AudioSource:
