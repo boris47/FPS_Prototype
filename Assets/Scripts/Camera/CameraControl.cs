@@ -118,14 +118,32 @@ public class CameraControl : MonoBehaviour, ICameraControl, ICameraSetters {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	// OnEnable
+	private void OnEnable()
+	{
+		GameManager.StreamEvents.OnSave += OnSave;
+		GameManager.StreamEvents.OnLoad += OnLoad;
+	}
+	
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnEnable
+	private void OnDisable()
+	{
+		if ( GameManager.Instance != null )
+		{
+			GameManager.StreamEvents.OnSave -= OnSave;
+			GameManager.StreamEvents.OnLoad -= OnLoad;
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	// Start
 	private	void	Start()
 	{
 		Cursor.visible = false;
 		Cursor.lockState = CursorLockMode.Locked;
-
-		GameManager.StreamEvents.OnSave += OnSave;
-		GameManager.StreamEvents.OnLoad += OnLoad;
 
 		m_ViewPoint = Player.Instance.transform.Find( "ViewPivot" );
 	}

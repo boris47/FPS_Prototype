@@ -92,7 +92,7 @@ GameObject:
   - component: {fileID: 114095621382387008}
   - component: {fileID: 82209904593309322}
   - component: {fileID: 114082163640902998}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: TurretHidden
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -429,6 +429,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_CurrentBrainState: 5
+  m_Health: 1
   m_MinEngageDistance: 0
   m_BodyRotationSpeed: 90
   m_HeadRotationSpeed: 5

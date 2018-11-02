@@ -41,7 +41,7 @@ GameObject:
   - component: {fileID: 82483119458123396}
   - component: {fileID: 114691695907130400}
   - component: {fileID: 195558543351171630}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: DroneArmored
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -465,6 +465,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_CurrentBrainState: 5
+  m_Health: 1
   m_MinEngageDistance: 5
   m_BodyRotationSpeed: 5
   m_HeadRotationSpeed: 65

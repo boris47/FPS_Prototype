@@ -60,7 +60,7 @@ GameObject:
   - component: {fileID: 82276586724622984}
   - component: {fileID: 114927656490946046}
   - component: {fileID: 195874714679513880}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: WalkerGatling
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -499,6 +499,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_CurrentBrainState: 5
+  m_Health: 1
   m_MinEngageDistance: 4
   m_BodyRotationSpeed: 1
   m_HeadRotationSpeed: 65

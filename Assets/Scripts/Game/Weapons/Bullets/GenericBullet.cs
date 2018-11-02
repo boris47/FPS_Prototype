@@ -113,7 +113,7 @@ public class GenericBullet : Bullet {
 			return;
 
 		IEntity entity = null;
-		bool bIsAnEntity = Utils.Base.SearchComponent( collision.gameObject, ref entity, SearchContext.ALL );
+		bool bIsAnEntity = Utils.Base.SearchComponent( collision.gameObject, ref entity, SearchContext.LOCAL );
 
 		// If is an entity and who and hitted entites are of different category
 		if ( bIsAnEntity == true && ( ( m_WhoRef is NonLiveEntity && entity is NonLiveEntity ) == false ) )

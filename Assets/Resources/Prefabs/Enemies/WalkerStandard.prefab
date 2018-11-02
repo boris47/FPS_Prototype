@@ -41,7 +41,7 @@ GameObject:
   - component: {fileID: 82685545484345426}
   - component: {fileID: 114519163962488432}
   - component: {fileID: 195213442948639722}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: WalkerStandard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -470,6 +470,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_CurrentBrainState: 5
+  m_Health: 1
   m_MinEngageDistance: 4
   m_BodyRotationSpeed: 1
   m_HeadRotationSpeed: 65

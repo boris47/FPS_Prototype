@@ -186,7 +186,7 @@ GameObject:
   - component: {fileID: 114872758057632290}
   - component: {fileID: 82067419947073184}
   - component: {fileID: 114503133465203000}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: TurretGatling
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -796,6 +796,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_CurrentBrainState: 5
+  m_Health: 1
   m_MinEngageDistance: 1
   m_BodyRotationSpeed: 1
   m_HeadRotationSpeed: 65

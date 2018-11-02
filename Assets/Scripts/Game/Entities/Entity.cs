@@ -48,7 +48,6 @@ public partial interface IEntity {
 [RequireComponent( typeof( Rigidbody ), typeof( CapsuleCollider ), typeof( NavMeshAgent ) ) ]
 public abstract partial class Entity : MonoBehaviour, IEntity {
 
-	[Header("Entity Properties")]
 	private	static uint			CurrentID							= 0;
 	public	static uint			NewID()								{ return CurrentID++; }
 
@@ -78,10 +77,11 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	public		float						MaxAgentSpeed					{ get { return m_MaxAgentSpeed; } }
 	// GETTERS END
 
-
 	public		IEntity						Interface						{ get { return m_Interface; } }
 
 	// INTERNALS
+	[Header("Entity Properties")]
+	[SerializeField]
 	protected	float						m_Health						= 1f;
 	protected	Shield						m_Shield						= null;
 	protected	bool						m_IsActive						= true;

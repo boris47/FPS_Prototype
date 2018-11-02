@@ -125,7 +125,7 @@ GameObject:
   - component: {fileID: 114092302229778300}
   - component: {fileID: 82773315623900536}
   - component: {fileID: 114993413591171486}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: TurretHard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -810,6 +810,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_CurrentBrainState: 1
+  m_Health: 1
   m_MinEngageDistance: 0
   m_BodyRotationSpeed: 1
   m_HeadRotationSpeed: 65

@@ -126,7 +126,7 @@ GameObject:
   - component: {fileID: 82264460989645112}
   - component: {fileID: 114946061167060654}
   - component: {fileID: 195674762122104854}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: WalkerArmored
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -524,6 +524,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_CurrentBrainState: 5
+  m_Health: 1
   m_MinEngageDistance: 5
   m_BodyRotationSpeed: 1
   m_HeadRotationSpeed: 65

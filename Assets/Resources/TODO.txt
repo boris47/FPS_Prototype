@@ -27,6 +27,6 @@ Weapons:
 
 
 AI Behiaviours
--	complete walker behiaviour
+***	complete walker behiaviour
 ***	complete drone behiaviour
--	complete tower behiaviour
+***	complete tower behiaviour

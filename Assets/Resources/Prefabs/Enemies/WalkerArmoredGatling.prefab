@@ -109,7 +109,7 @@ GameObject:
   - component: {fileID: 82122933972162302}
   - component: {fileID: 114334935575783640}
   - component: {fileID: 195979066415522584}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: WalkerArmoredGatling
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -524,6 +524,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_CurrentBrainState: 5
+  m_Health: 1
   m_MinEngageDistance: 5
   m_BodyRotationSpeed: 1
   m_HeadRotationSpeed: 65

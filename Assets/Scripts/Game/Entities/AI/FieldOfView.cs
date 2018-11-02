@@ -91,7 +91,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		m_ViewTriggerCollider.isTrigger = true;
 		m_ViewTriggerCollider.radius = m_ViewDistance;
 
-		m_LayerMask = Utils.Base.LayersAllButOne( 1, LayerMask.NameToLayer ("Bullets") );
+		m_LayerMask = 1 << LayerMask.NameToLayer("Entities");
 	}
 
 

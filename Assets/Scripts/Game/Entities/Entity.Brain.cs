@@ -46,8 +46,6 @@ public abstract partial class Entity : IBrain {
 	{
 		m_FieldOfView.Setup( maxVisibleEntities : 10 );
 
-		GameManager.UpdateEvents.OnThink += OnThinkBrain;
-
 		m_BrainIstance = this as IBrain;
 	}
 
@@ -56,8 +54,6 @@ public abstract partial class Entity : IBrain {
 	protected	virtual	void	DisableBrain()
 	{
 		m_BrainIstance = null;
-
-		GameManager.UpdateEvents.OnThink -= OnThinkBrain;
 	}
 
 

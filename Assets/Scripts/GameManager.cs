@@ -184,6 +184,8 @@ public partial class GameManager : MonoBehaviour {
 		}
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
 	public	void	ResumeFromPause()
 	{
 		m_PauseEvents.SetPauseState( false );

@@ -162,6 +162,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void		OnThink()
 	{
+		OnThinkBrain();
 		m_CurrentBehaviour.OnThink();
 	}
 

@@ -42,7 +42,7 @@ GameObject:
   - component: {fileID: 114494597453120562}
   - component: {fileID: 82573306180339646}
   - component: {fileID: 114299718002156272}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: TurretArmored
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -810,6 +810,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_CurrentBrainState: 5
+  m_Health: 1
   m_MinEngageDistance: 0
   m_BodyRotationSpeed: 1
   m_HeadRotationSpeed: 65

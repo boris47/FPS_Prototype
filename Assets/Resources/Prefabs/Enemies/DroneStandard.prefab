@@ -60,7 +60,7 @@ GameObject:
   - component: {fileID: 82441586941902330}
   - component: {fileID: 114446132884332732}
   - component: {fileID: 195787863059953482}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: DroneStandard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -411,6 +411,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_CurrentBrainState: 5
+  m_Health: 1
   m_MinEngageDistance: 5
   m_BodyRotationSpeed: 5
   m_HeadRotationSpeed: 65

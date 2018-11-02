@@ -58,7 +58,7 @@ GameObject:
   - component: {fileID: 82191995526071614}
   - component: {fileID: 114361102782724796}
   - component: {fileID: 195093106456601058}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: WalkerMortar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -452,6 +452,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_CurrentBrainState: 5
+  m_Health: 1
   m_MinEngageDistance: 12
   m_BodyRotationSpeed: 1
   m_HeadRotationSpeed: 65
