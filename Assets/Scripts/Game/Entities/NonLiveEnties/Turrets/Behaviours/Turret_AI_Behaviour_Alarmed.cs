@@ -6,6 +6,16 @@ using UnityEngine;
 
 public class Turret_AI_Behaviour_Alarmed : AIBehaviour {
 	
+	public override void OnEnable()
+	{
+		
+	}
+
+	public override void OnDisable()
+	{
+		
+	}
+
 	public override StreamUnit OnSave( StreamData streamData )
 	{
 		return null;

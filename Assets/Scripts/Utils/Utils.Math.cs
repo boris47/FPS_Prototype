@@ -329,7 +329,7 @@ namespace Utils {
 						OneMinusT	*	OneMinusT	*	OneMinusT	*	p0 +
 				3f	*	OneMinusT	*	OneMinusT	*		t		*	p1 +
 				3f	*	OneMinusT	*		t		*		t		*	p2 +
-				t	*		t		*		t		*		p3;
+				t	*		t		*		t		*		1.0f	*	p3;
 		}
 
 

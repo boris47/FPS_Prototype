@@ -106,17 +106,19 @@ public abstract partial class Entity : IBrain {
 		if ( newState == m_CurrentBrainState )
 			return;
 
-//		print( "State changing " + m_CurrentBrainState + " to " + newState );
-		m_CurrentBrainState = newState;
-
-		m_CurrentBehaviour = m_Behaviours[ (int)newState ];
+		m_CurrentBehaviour.OnDisable();
+		{
+			m_CurrentBrainState	= newState;
+			m_CurrentBehaviour	= m_Behaviours[ (int)newState ];
+		}
+		m_CurrentBehaviour.OnEnable();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected virtual void	Brain_OnReset()
+	protected virtual void	Brain_OnReset( BrainState brainState = BrainState.NORMAL )
 	{
-		ChangeState( BrainState.NORMAL );
+		ChangeState( brainState );
 		m_FieldOfView.OnReset();
 	}
 

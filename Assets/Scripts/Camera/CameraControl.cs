@@ -11,7 +11,7 @@ public interface ICameraControl {
 	PostProcessingProfile		GetPP_Profile						{ get; }
 	Transform					ViewPoint							{ get; }
 	Camera						MainCamera							{ get; }
-	Transform					Target								{ get; }
+	Transform					Target								{ get; set; }
 	Transform					WeaponPivot							{ get; }
 	Vector3						CurrentDirection					{ get; set; }
 
@@ -24,12 +24,7 @@ public interface ICameraControl {
 	void						ApplyFallFeedback					( float delta, float weightX = 1f, float weightY = 1f );
 }
 
-
-public interface ICameraSetters {
-	Transform		Target						{ set; }
-}
-
-public class CameraControl : MonoBehaviour, ICameraControl, ICameraSetters {
+public class CameraControl : MonoBehaviour, ICameraControl {
 
 	private		const		float				WPN_ROTATION_CLAMP_VALUE				= 0.6f;
 	private		const		float				WPN_FALL_FEEDBACK_CLAMP_VALUE			= 5f;
@@ -47,13 +42,11 @@ public class CameraControl : MonoBehaviour, ICameraControl, ICameraSetters {
 				PostProcessingProfile			ICameraControl.GetPP_Profile			{ get { return m_PP_Profile; } }
 				Transform						ICameraControl.ViewPoint				{ get { return m_ViewPoint; } }
 				Camera							ICameraControl.MainCamera				{ get { return m_CameraRef; } }
-				Transform						ICameraControl.Target					{ get { return m_Target; } }
+				Transform						ICameraControl.Target					{ get { return m_Target; } set { OnTargetSet( value ); } }
 				Transform						ICameraControl.WeaponPivot				{ get { return m_WeaponPivot; } }
 				Vector3							ICameraControl.CurrentDirection			{ get { return m_CurrentDirection; } set{ m_CurrentDirection = value; } }
 				HeadMove						ICameraControl.HeadMove					{ get { return m_HeadMove; } }
 				HeadBob							ICameraControl.HeadBob					{ get { return m_HeadBob; } }
-
-				Transform						ICameraSetters.Target					{ set { OnTargetSet( value ); } }
 	// INTERFACE END
 
 	[SerializeField, Tooltip("Camera ViewPoint")]
@@ -304,21 +297,21 @@ public class CameraControl : MonoBehaviour, ICameraControl, ICameraSetters {
 		m_SmoothFactor = Mathf.Clamp( m_SmoothFactor, 1.0f, 10.0f );
 
 		// Weapon movements
-		if ( WeaponManager.Instance.CurrentWeapon != null )
+//		if ( WeaponManager.Instance.CurrentWeapon != null )
 		{
-			m_WpnRotationFeedback	= Vector3.Lerp( m_WpnRotationFeedback, Vector3.zero, dt );
+			m_WpnRotationFeedback	= Vector3.Lerp( m_WpnRotationFeedback,	Vector3.zero, dt );
 			m_WpnCurrentDeviation	= Vector3.Lerp( m_WpnCurrentDeviation,  Vector3.zero, dt * 3.7f );
 			m_WpnCurrentDispersion	= Vector3.Lerp( m_WpnCurrentDispersion, Vector3.zero, dt * 3.7f );
-			m_WpnFallFeedback		= Vector3.Lerp( m_WpnFallFeedback, Vector3.zero, dt * 3.7f );
+			m_WpnFallFeedback		= Vector3.Lerp( m_WpnFallFeedback,		Vector3.zero, dt * 3.7f );
 
 			Vector3 wpnPositionDelta = m_HeadBob.WeaponPositionDelta + m_HeadMove.WeaponPositionDelta;
 			Vector3 wpnRotationDelta = m_HeadBob.WeaponRotationDelta + m_HeadMove.WeaponRotationDelta;
 
-			if ( WeaponManager.Instance.CurrentWeapon.IsFiring == true )
+	//		if ( WeaponManager.Instance.CurrentWeapon.IsFiring == true )
 			{
 				wpnRotationDelta += m_WpnCurrentDispersion;
 			}
-			else
+	//		else
 			{
 				wpnRotationDelta += m_WpnRotationFeedback;
 			}
@@ -337,7 +330,7 @@ public class CameraControl : MonoBehaviour, ICameraControl, ICameraSetters {
 
 			// Rotation
 			Quaternion rotation		= Quaternion.LookRotation( m_Target.position - transform.position, Player.Instance.transform.up );
-			transform.rotation		= Quaternion.Slerp( transform.rotation, rotation, Time.unscaledDeltaTime * 20f ) * Quaternion.Euler( m_HeadBob.Direction + m_HeadMove.Direction );
+			transform.rotation		= Quaternion.Slerp( transform.rotation, rotation, Time.unscaledDeltaTime * 8f ) * Quaternion.Euler( m_HeadBob.Direction + m_HeadMove.Direction );
 			return;
 		}
 

@@ -5,9 +5,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Walker_AI_Behaviour_Alarmed : AIBehaviour {
-	
 
+	public override void OnEnable()
+	{
+		
+	}
 
+	public override void OnDisable()
+	{
+		
+	}
 
 	public override StreamUnit OnSave( StreamData streamData )
 	{

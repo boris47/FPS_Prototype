@@ -16,6 +16,10 @@ public abstract	class AIBehaviour {
 		UnityEngine.Debug.Log( msg );
 	}
 
+	public	abstract	void			OnEnable();
+
+	public	abstract	void			OnDisable();
+
 	public	abstract	StreamUnit		OnSave( StreamData streamData );
 
 	public	abstract	StreamUnit		OnLoad( StreamData streamData );

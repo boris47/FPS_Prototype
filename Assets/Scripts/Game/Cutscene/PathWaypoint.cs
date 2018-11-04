@@ -5,19 +5,10 @@ using CutScene;
 
 public class PathWaypoint : MonoBehaviour {
 
-	private	Path	m_Path	= null;
-
-	private void Awake()
-	{
-		if( ( m_Path = GetComponentInParent<Path>() ) == null )
-		{
-			this.enabled = false;
-		}
-	}
-
 	private void OnDrawGizmosSelected()
 	{
-		m_Path.DraawGizmos();
+		Path path = GetComponentInParent<Path>();
+		path.DraawGizmos();
 	}
 
 }

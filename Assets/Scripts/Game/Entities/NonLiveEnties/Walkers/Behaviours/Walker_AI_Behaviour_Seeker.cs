@@ -6,8 +6,15 @@ using UnityEngine;
 
 public class Walker_AI_Behaviour_Seeker : AIBehaviour {
 	
+	public override void OnEnable()
+	{
+		
+	}
 
-
+	public override void OnDisable()
+	{
+		
+	}
 
 	public override StreamUnit OnSave( StreamData streamData )
 	{

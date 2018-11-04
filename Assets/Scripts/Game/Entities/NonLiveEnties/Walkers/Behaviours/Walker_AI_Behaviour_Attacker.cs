@@ -6,8 +6,15 @@ using UnityEngine;
 
 public class Walker_AI_Behaviour_Attacker : AIBehaviour {
 	
+	public override void OnEnable()
+	{
+		
+	}
 
-
+	public override void OnDisable()
+	{
+		
+	}
 
 	public override StreamUnit OnSave( StreamData streamData )
 	{
@@ -27,7 +34,7 @@ public class Walker_AI_Behaviour_Attacker : AIBehaviour {
 
 	public override void OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
-		if ( EntityData.EntityRef.IsAlive )
+		if ( EntityData.EntityRef.IsAlive && whoRef.IsAlive && EntityData.TargetInfo.CurrentTarget.ID == whoRef.Id )
 		{
 			EntityData.EntityRef.SetPointToLookAt( startPosition );
 		}

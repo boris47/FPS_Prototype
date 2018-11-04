@@ -43,12 +43,6 @@ public partial class Player {
 		float timeScale = Mathf.Lerp( Time.timeScale, timeScaleTarget, interpolant );
 		Time.timeScale = timeScale;
 		SoundManager.Instance.Pitch = timeScale;
-
-		// CAMERA ROTATION
-		{
-			var cameraSetter = CameraControl.Instance as ICameraSetters;
-			cameraSetter.Target = target;
-		}
 		
 		//	POSITION BY DISTANCE
 		{
@@ -92,10 +86,6 @@ public partial class Player {
 		m_States.IsMoving		= false;
 		Time.timeScale			= 1f;
 
-		var cameraSetter = CameraControl.Instance as ICameraSetters;
-		{
-			cameraSetter.Target = null;
-		}
 		CameraControl.Instance.CanParseInput = true;
 		InputManager.IsEnabled = true;
 	}

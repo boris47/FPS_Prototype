@@ -67,6 +67,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	// INTERFACE END
 
 	// GETTERS START
+	public		uint						Id								{ get { return m_ID; } }
 	public		bool						IsAlive							{ get { return m_Health > 0.0f; } }
 	public		bool						IsAllignedHeadToPoint			{ get { return m_IsAllignedHeadToPoint; } }
 	public		bool						IsAllignedBodyToPoint			{ get { return m_IsAllignedBodyToPoint; } }

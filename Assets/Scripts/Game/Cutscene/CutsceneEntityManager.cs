@@ -43,48 +43,32 @@ namespace CutScene {
 		//////////////////////////////////////////////////////////////////////////
 		public	void	Play( PointsCollectionOnline pointsCollection )
 		{
+			if ( this.enabled == true )
+				return;
+
+			if ( IsOK == false )
+				return;
+
+			if ( pointsCollection == null || pointsCollection.Count == 0 )
+			{
+				return;
+			}
+
 			this.enabled						= true;
+
 			m_PointsCollection					= pointsCollection;
+			m_CurrentIdx						= 0;
 
 			InternalPlay();
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		public	void	InternalPlay()
+		private	void	InternalPlay()
 		{
-			if ( IsOK == false )
-				return;
-
-			if ( m_PointsCollection == null || m_PointsCollection.Count == 0 )
-			{
-				m_PointsCollection = null;
-				return;
-			}
 			IsPlaying = true;
 
 			m_EntitySimulation.EnterSimulationState();
-
-			// Let's start
-			CutsceneWaypointData data	= m_PointsCollection[ m_CurrentIdx ];
-			{
-				Vector3 destination = data.point.position;	// destination to reach
-				RaycastHit hit;
-				if ( Physics.Raycast( destination, -m_EntityParent.transform.up, out hit ) )
-				{
-					m_Destination = Utils.Math.ProjectPointOnPlane( m_EntityParent.transform.up, m_EntityParent.transform.position, hit.point );
-				}
-				else
-				{
-					m_EntitySimulation.SimulateMovement( SimMovementType.WALK, m_EntityParent.transform.position, null, 1.0f ); // ensure valid state
-					Termiante();
-					return;
-				}
-			}
-
-			m_Target					= data.target;
-			m_MovementType				= data.movementType;
-			m_TimeScaleTarget			= data.timeScaleTraget;
 
 			// On start event called
 			if ( m_PointsCollection.OnStart != null && m_PointsCollection.OnStart.GetPersistentEventCount() > 0 )
@@ -92,21 +76,10 @@ namespace CutScene {
 				m_PointsCollection.OnStart.Invoke();
 			}
 
-			// emit for movement silìmulation
-			m_EntitySimulation.SimulateMovement( m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
-
-			// Zoom is controlled by waypoint setting
-			if ( WeaponManager.Instance.CurrentWeapon.WeaponState == WeaponState.DRAWED )
-			{
-				if ( data.zoomEnabled == true )
-				{
-					if ( WeaponManager.Instance.IsZoomed == false ) WeaponManager.Instance.ZoomIn();
-				}
-				else
-				{
-					if ( WeaponManager.Instance.IsZoomed == true ) WeaponManager.Instance.ZoomOut();
-				}
-			}
+			// Let's start
+			CutsceneWaypointData data = m_PointsCollection[ m_CurrentIdx ];
+			
+			SetupForNextWaypoint( data );
 		}
 
 
@@ -143,36 +116,44 @@ namespace CutScene {
 				// Update to next simulation targets
 				CutsceneWaypointData data	= m_PointsCollection[ m_CurrentIdx ];
 
-				{
-					Vector3 destination = data.point.position;	// destination to reach
-					RaycastHit hit;
-					if ( Physics.Raycast( destination, -m_EntityParent.transform.up, out hit ) )
-					{
-						m_Destination = Utils.Math.ProjectPointOnPlane( m_EntityParent.transform.up, m_EntityParent.transform.position, hit.point );
-					}
-					else
-					{
-						m_EntitySimulation.SimulateMovement( SimMovementType.WALK, m_EntityParent.transform.position, null, 1.0f ); // ensure valid state
-						Termiante();
-					}
-				}
+				SetupForNextWaypoint( data );
+			}
+			else
+			{
+				Termiante();
+			}
+		}
 
-				m_Target					= data.target;									// target to look at
-				m_MovementType				= data.movementType;							// movement type
-				m_TimeScaleTarget			= data.timeScaleTraget;							// time scale for this trip
 
-				// Zoom is controlled by waypoint setting
-				if ( WeaponManager.Instance.CurrentWeapon.WeaponState == WeaponState.DRAWED )
+		//////////////////////////////////////////////////////////////////////////
+		private	void	SetupForNextWaypoint( CutsceneWaypointData data )
+		{
+			m_Target					= data.target;									// target to look at
+			m_MovementType				= data.movementType;							// movement type
+			m_TimeScaleTarget			= data.timeScaleTraget;							// time scale for this trip
+
+			// ORIENTATION
+			CameraControl.Instance.Target = m_Target;
+
+			// WEAPON ZOOM
+			if ( WeaponManager.Instance.CurrentWeapon.WeaponState == WeaponState.DRAWED )
+			{
+				if ( data.zoomEnabled == true )
 				{
-					if ( data.zoomEnabled == true )
-					{
-						if ( WeaponManager.Instance.IsZoomed == false ) WeaponManager.Instance.ZoomIn();
-					}
-					else
-					{
-						if ( WeaponManager.Instance.IsZoomed == true ) WeaponManager.Instance.ZoomOut();
-					}
+					if ( WeaponManager.Instance.IsZoomed == false ) WeaponManager.Instance.ZoomIn();
 				}
+				else
+				{
+					if ( WeaponManager.Instance.IsZoomed == true ) WeaponManager.Instance.ZoomOut();
+				}
+			}
+
+			// MOVEMENT
+			Vector3 destination = data.point.position;	// destination to reach
+			RaycastHit hit;
+			if ( Physics.Raycast( destination, -m_EntityParent.transform.up, out hit ) )
+			{
+				m_Destination = Utils.Math.ProjectPointOnPlane( m_EntityParent.transform.up, m_EntityParent.transform.position, hit.point );
 			}
 			else
 			{
@@ -189,6 +170,10 @@ namespace CutScene {
 
 			// Called on entity in order to reset vars or evething else
 			m_EntitySimulation.ExitSimulationState();
+
+			// Restore zoom
+			if ( WeaponManager.Instance.IsZoomed == true )
+				WeaponManager.Instance.ZoomOut();
 
 			// Resetting internals
 			m_EntitySimulation.StartPosition	= Vector3.zero;
