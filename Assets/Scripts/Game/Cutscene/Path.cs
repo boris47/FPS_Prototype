@@ -28,7 +28,7 @@ namespace CutScene {
 			m_Interpolant += ( Time.deltaTime * 1 / magnitude ) * speed;
 			if ( m_Interpolant > 1f )
 			{
-				m_Interpolant = 0f;
+				m_Interpolant = 0.0f;
 				m_CurrentSegment ++;
 
 				if ( m_CurrentSegment == m_Nodes.Length - 1 )
@@ -73,12 +73,12 @@ namespace CutScene {
 		}
 
 
-		private	Vector3 Interpolate( Vector3 a, Vector3 b, Vector3 c, Vector3 d, float interpolant )
+		private    Vector3 Interpolate( Vector3 a, Vector3 b, Vector3 c, Vector3 d, float interpolant )
 		{
 			float t1 = interpolant;
 			float t2 = interpolant * interpolant;
 			float t3 = t2 * interpolant;
-		
+        
 			return 0.5f * 
 			(
 				( 2f * b )								 +
@@ -89,6 +89,10 @@ namespace CutScene {
 		}
 
 
+		public	void	DraawGizmos()
+		{
+			OnDrawGizmosSelected();
+		}
 
 		private void OnDrawGizmosSelected()
 		{
@@ -98,7 +102,8 @@ namespace CutScene {
 			{
 				Transform p1 = m_Nodes[i];
 				Transform p2 = m_Nodes[i+1];
-				Debug.DrawLine ( p1.position, p2.position );
+//				Debug.DrawLine ( p1.position, p2.position );
+				Gizmos.DrawLine ( p1.position, p2.position );
 			}
 
 		}

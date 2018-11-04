@@ -44,8 +44,8 @@ namespace CutScene {
 		public	void	Play( PointsCollectionOnline pointsCollection )
 		{
 			this.enabled						= true;
+			m_PointsCollection					= pointsCollection;
 
-			m_PointsCollection				= pointsCollection;
 			InternalPlay();
 		}
 
@@ -67,7 +67,21 @@ namespace CutScene {
 
 			// Let's start
 			CutsceneWaypointData data	= m_PointsCollection[ m_CurrentIdx ];
-			m_Destination				= data.point.position;
+			{
+				Vector3 destination = data.point.position;	// destination to reach
+				RaycastHit hit;
+				if ( Physics.Raycast( destination, -m_EntityParent.transform.up, out hit ) )
+				{
+					m_Destination = Utils.Math.ProjectPointOnPlane( m_EntityParent.transform.up, m_EntityParent.transform.position, hit.point );
+				}
+				else
+				{
+					m_EntitySimulation.SimulateMovement( SimMovementType.WALK, m_EntityParent.transform.position, null, 1.0f ); // ensure valid state
+					Termiante();
+					return;
+				}
+			}
+
 			m_Target					= data.target;
 			m_MovementType				= data.movementType;
 			m_TimeScaleTarget			= data.timeScaleTraget;
@@ -130,7 +144,7 @@ namespace CutScene {
 				CutsceneWaypointData data	= m_PointsCollection[ m_CurrentIdx ];
 
 				{
-					Vector3 destination = data.point.position;
+					Vector3 destination = data.point.position;	// destination to reach
 					RaycastHit hit;
 					if ( Physics.Raycast( destination, -m_EntityParent.transform.up, out hit ) )
 					{
@@ -143,10 +157,22 @@ namespace CutScene {
 					}
 				}
 
-//				m_Destination				= data.point.position;							// destination to reach
-				m_Target					= data.target != null ? data.target : m_Target;	// target to look at
+				m_Target					= data.target;									// target to look at
 				m_MovementType				= data.movementType;							// movement type
-				m_TimeScaleTarget			= data.timeScaleTraget;						 // time scale for this trip
+				m_TimeScaleTarget			= data.timeScaleTraget;							// time scale for this trip
+
+				// Zoom is controlled by waypoint setting
+				if ( WeaponManager.Instance.CurrentWeapon.WeaponState == WeaponState.DRAWED )
+				{
+					if ( data.zoomEnabled == true )
+					{
+						if ( WeaponManager.Instance.IsZoomed == false ) WeaponManager.Instance.ZoomIn();
+					}
+					else
+					{
+						if ( WeaponManager.Instance.IsZoomed == true ) WeaponManager.Instance.ZoomOut();
+					}
+				}
 			}
 			else
 			{

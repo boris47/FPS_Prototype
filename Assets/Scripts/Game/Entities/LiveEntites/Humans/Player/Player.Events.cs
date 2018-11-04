@@ -113,14 +113,14 @@ public partial class Player {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public	override	void		OnDestinationReached( Vector3 Destination )
+	public		override	void		OnDestinationReached( Vector3 Destination )
 	{
 
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected override void Brain_OnReset()
+	protected	override	void		Brain_OnReset()
 	{
 		
 	}
@@ -175,7 +175,7 @@ public partial class Player {
 		if ( m_MovementOverrideEnabled )
 		{
 			// Controlled in Player.Motion_Walk::SimulateMovement
-			m_RigidBody.velocity = m_Move;
+//			m_RigidBody.velocity = m_Move;
 //			m_RigidBody.AddForce( m_Move, ForceMode.Acceleration );
 			return;
 		}

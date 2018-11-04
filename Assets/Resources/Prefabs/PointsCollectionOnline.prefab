@@ -460,7 +460,7 @@ MonoBehaviour:
     movementType: 0
     point: {fileID: 4198035080718330}
     target: {fileID: 0}
-    timeScaleTraget: 0.225
+    timeScaleTraget: 1
     zoomEnabled: 0
     OnWayPointReached:
       m_PersistentCalls:

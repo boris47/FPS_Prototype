@@ -9,8 +9,7 @@ public class CommandPanel : MonoBehaviour {
 	[SerializeField]
 	private		ControlledObject		m_ObjectToControl		= null;
 
-
-	private		Transform				m_TriggerZone			= null;
+	[SerializeField]
 	private		Collider				m_TriggerCollider		= null;
 	private		bool					m_IsTriggered			= false;
 
@@ -20,9 +19,19 @@ public class CommandPanel : MonoBehaviour {
 	private void Awake()
 	{
 		// Get Trigger Collider
-		m_TriggerZone = transform.Find( "TriggerZone" );
-		m_TriggerCollider = m_TriggerZone.GetComponent<Collider>();
+		if ( m_TriggerCollider == null )
+		{
+			Debug.LogError( "CommandPanel " + name + " has not TriggerCollider child" );
+		}
+
 		m_TriggerCollider.isTrigger = true;
+
+		if ( m_ObjectToControl == null || m_Activator == null )
+		{
+			Debug.LogError( "CommandPanel " + name + " has not ObjectToControl and Activator set!!" );
+			m_TriggerCollider.enabled = false;
+			return;
+		}
 
 		GameManager.StreamEvents.OnSave += OnSave;
 		GameManager.StreamEvents.OnLoad += OnLoad;
@@ -49,13 +58,11 @@ public class CommandPanel : MonoBehaviour {
 		if ( streamData.GetUnit( gameObject, ref streamUnit ) == false )
 			return null;
 
-		m_IsTriggered = streamUnit.GetAsBool( "IsTriggered" );
-
-		if ( m_IsTriggered == true )
+		if ( m_IsTriggered = streamUnit.GetAsBool( "IsTriggered" ) == true )
 		{
 			m_ObjectToControl.OnActivation();
-			m_Activator.transform.position			= m_TriggerZone.transform.position;
-			m_Activator.transform.rotation			= m_TriggerZone.transform.rotation;
+			m_Activator.transform.position			= m_TriggerCollider.transform.position;
+			m_Activator.transform.rotation			= m_TriggerCollider.transform.rotation;
 			m_Activator.RigidBody.constraints		= RigidbodyConstraints.FreezeAll;
 			m_Activator.RigidBody.useGravity		= false;
 			m_Activator.Collider.enabled			= false;
@@ -70,15 +77,15 @@ public class CommandPanel : MonoBehaviour {
 	// OnTriggerEnter
 	private void OnTriggerEnter( Collider other )
 	{
-		if ( other == m_Activator.Collider )
+		if ( other.GetInstanceID() == m_Activator.Collider.GetInstanceID() )
 		{
 			Player.Instance.DropEntityDragged();
 
 			m_ObjectToControl.OnActivation();
 			m_IsTriggered = true;
 
-			m_Activator.transform.position			= m_TriggerZone.transform.position;
-			m_Activator.transform.rotation			= m_TriggerZone.transform.rotation;
+			m_Activator.transform.position			= m_TriggerCollider.transform.position;
+			m_Activator.transform.rotation			= m_TriggerCollider.transform.rotation;
 			m_Activator.RigidBody.constraints		= RigidbodyConstraints.FreezeAll;
 			m_Activator.RigidBody.useGravity		= false;
 			m_Activator.Collider.enabled			= false;

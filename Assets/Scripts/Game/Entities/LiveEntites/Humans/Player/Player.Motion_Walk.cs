@@ -4,6 +4,8 @@ using UnityEngine;
 
 public partial class Player {
 
+	RigidbodyInterpolation prevInterpolation;
+
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		EnterSimulationState()
 	{
@@ -12,6 +14,9 @@ public partial class Player {
 
 		CameraControl.Instance.CanParseInput = false;
 		InputManager.IsEnabled = false;
+
+		prevInterpolation = m_RigidBody.interpolation;
+		m_RigidBody.interpolation = RigidbodyInterpolation.Interpolate;
 
 	//	WeaponManager.Instance.CurrentWeapon.Enabled = false;
 		DropEntityDragged();
@@ -58,6 +63,7 @@ public partial class Player {
 			m_States.IsMoving	= true;
 
 			m_Move = ( m_ForwardSmooth * direction.normalized ) * GroundSpeedModifier * timeScale;
+			m_RigidBody.velocity = m_Move * 0.1f;
 		}
 		return true;
 	}
@@ -69,21 +75,27 @@ public partial class Player {
 		m_MovementOverrideEnabled = false;
 		m_SimulationStartPosition = Vector3.zero;
 
-		Vector3 projectedTarget = Utils.Math.ProjectPointOnPlane( transform.up, transform.position, CameraControl.Instance.Target.position );
-		Quaternion rotation = Quaternion.LookRotation( projectedTarget - transform.position, transform.up );
-		transform.rotation = rotation;
+		m_RigidBody.interpolation = prevInterpolation;
 
-		m_RigidBody.velocity = Vector3.zero;
-		m_Move = Vector3.zero;
-		m_ForwardSmooth = 0f;
-		m_States.IsWalking	= false;
-		m_States.IsRunning	= false;
-		m_States.IsMoving	= false;
+		if ( CameraControl.Instance.Target != null )
+		{
+			Vector3 projectedTarget = Utils.Math.ProjectPointOnPlane( transform.up, transform.position, CameraControl.Instance.Target.position );
+			Quaternion rotation = Quaternion.LookRotation( projectedTarget - transform.position, transform.up );
+			transform.rotation = rotation;
+		}
 
-		Time.timeScale = 1f;
+		m_RigidBody.velocity	= Vector3.zero;
+		m_Move					= Vector3.zero;
+		m_ForwardSmooth			= 0f;
+		m_States.IsWalking		= false;
+		m_States.IsRunning		= false;
+		m_States.IsMoving		= false;
+		Time.timeScale			= 1f;
 
 		var cameraSetter = CameraControl.Instance as ICameraSetters;
-		cameraSetter.Target = null;
+		{
+			cameraSetter.Target = null;
+		}
 		CameraControl.Instance.CanParseInput = true;
 		InputManager.IsEnabled = true;
 	}
@@ -98,7 +110,7 @@ public partial class Player {
 		if ( m_MovementOverrideEnabled == true )
 			return;
 
-		float 	forward 		= InputManager.Inputs.Forward	 ? 1.0f : InputManager.Inputs.Backward   ? -1.0f : 0.0f;
+		float 	forward 		= InputManager.Inputs.Forward	  ? 1.0f : InputManager.Inputs.Backward   ? -1.0f : 0.0f;
 		float 	right			= InputManager.Inputs.StrafeRight ? 1.0f : InputManager.Inputs.StrafeLeft ? -1.0f : 0.0f;
 		bool 	bSprintInput	= InputManager.Inputs.Run;
 		bool	bCrouchInput	= InputManager.Inputs.Crouch;
