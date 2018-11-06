@@ -25,15 +25,15 @@ public class EntityBlackBoardData {
 
 public static class Blackboard {
 
-	private static	Dictionary< uint, EntityBlackBoardData >	m_Data						= null;
+	private static readonly	Dictionary< uint, EntityBlackBoardData >	m_Data						= null;
 
-	private	static	bool										m_bIsInitialized			= false;
+	private	static	bool												m_bIsInitialized			= false;
 
 
 	/// <summary>
 	/// If not initialized, initialize blackboard data
 	/// </summary>
-	public	static	void	Initialize()
+	static	Blackboard()
 	{
 		if ( m_bIsInitialized == false )
 		{
@@ -52,7 +52,7 @@ public static class Blackboard {
 	{
 		if ( m_bIsInitialized == false )
 		{
-			Initialize();
+		//	Initialize();
 		}
 
 		if ( m_Data.ContainsKey( EntityID ) )
@@ -72,7 +72,7 @@ public static class Blackboard {
 	/// <returns></returns>
 	public	static	bool	UnRegister( IEntity entity )
 	{
-		Initialize();
+	//	Initialize();
 		if ( IsEntityRegistered( entity.ID ) )
 		{
 			return m_Data.Remove( entity.ID );

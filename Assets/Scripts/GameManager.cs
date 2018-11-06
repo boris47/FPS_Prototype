@@ -66,11 +66,6 @@ public partial class GameManager : MonoBehaviour {
 		Settings	= new Reader();
 		Configs		= new Reader();
 
-
-		// Initialize blackboard by creating internal singleton
-		Blackboard.Initialize();
-
-
 		// Load Settings and Configs
 		string settingspath		= InEditor ? "Assets/Resources/Settings.txt" : "Settings";
 		string configsPath		= InEditor ? "Assets/Resources/Configs/All.txt" : "Configs\\All";
