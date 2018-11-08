@@ -400,7 +400,7 @@ namespace WeatherSystem {
 			// Get info from settings file
 			if ( GameManager.Configs != null )
 			{
-				CFG_Reader.Section pSection = null;
+				Database.Section pSection = null;
 				GameManager.Configs.GetSection( "Time", ref pSection );
 				if ( pSection != null )
 				{

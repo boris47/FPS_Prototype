@@ -1,6 +1,6 @@
 ﻿
 using UnityEngine;
-using CFG_Reader;
+using Database;
 using UnityEngine.AI;
 
 public partial interface IEntity {

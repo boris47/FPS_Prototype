@@ -2,12 +2,12 @@
 
 using UnityEngine;
 
-namespace CFG_Reader {
+namespace Database {
 
 	// PUBLIC INTERFACE
 	public interface ISection {
 
-		bool					IsOK				{ get; }
+		bool					IsOK							{ get; }
 
 		void					Destroy							();
 		cLineValue[]			GetData							();
@@ -48,7 +48,6 @@ namespace CFG_Reader {
 		void					SetMultiValue					( string Key, cValue[] vValues );
 		void					Set				<T>				( string Key, T Value );
 		void					PrintSection					();
-
 	}
 
 	public partial class Section : ISection {
@@ -61,6 +60,12 @@ namespace CFG_Reader {
 			get; private set;
 		}
 
+
+		public Section( string SecName )
+		{
+			sName = SecName;
+			IsOK = true;
+		}
 
 
 		public static bool operator !( Section Sec )
@@ -78,28 +83,23 @@ namespace CFG_Reader {
 			return Sec != null;
 		}
 
-
-		public Section( string SecName )
+		public static Section operator +( Section SecA, Section SecB )
 		{
-			sName = SecName;
-			IsOK = true;
-		}
-
-		public Section( string SecName, ref Section Mother )
-		{
-			sName = SecName;
-			if ( Mother != null )
+			if ( SecB.IsOK == true )
 			{
-				cLineValue[] motherValues = Mother.GetData();
-				vSection = new cLineValue[ motherValues.Length ];
-				for ( int i = 0; i < motherValues.Length; i++ )
+				foreach( cLineValue lineValue in SecB.GetData() )
 				{
-					vSection[ i ] = new cLineValue( motherValues[ i ] );
+					if ( SecA.HasKey( lineValue.Key ) == false )
+					{
+						SecA.Add( lineValue );
+					}
 				}
 			}
-
-			IsOK = true;
+			return SecA;
 		}
+
+
+		
 
 		public void Destroy()
 		{

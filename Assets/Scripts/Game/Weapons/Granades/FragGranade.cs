@@ -16,7 +16,7 @@ public class FragGranade : GranadeBase {
 
 		// LOAD CONFIGURATION
 		{
-			CFG_Reader.Section section = null;
+			Database.Section section = null;
 			GameManager.Configs.GetSection( "FragGranade", ref section );
 
 			m_DamageMax					= section.AsFloat( "Damage",			m_DamageMax );

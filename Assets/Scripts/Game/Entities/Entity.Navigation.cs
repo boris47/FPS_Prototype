@@ -1,6 +1,6 @@
 ﻿
 using UnityEngine;
-using CFG_Reader;
+using Database;
 using CutScene;
 using UnityEngine.AI;
 

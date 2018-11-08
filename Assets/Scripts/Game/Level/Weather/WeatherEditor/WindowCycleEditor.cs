@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using CFG_Reader;
+using Database;
 
 #if UNITY_EDITOR
 
@@ -95,7 +95,7 @@ namespace WeatherSystem {
 			if ( GUILayout.Button( "Read Config File" ) )
 			{
 				string path = EditorUtility.OpenFilePanel( "Pick a config file", "", "ltx" );
-				Reader reader = new Reader();
+				SectionMap reader = new SectionMap();
 				if ( path.Length == 0 )
 					return;
 
@@ -108,7 +108,7 @@ namespace WeatherSystem {
 					foreach( EnvDescriptor descriptor in m_CurrentCycle.Descriptors )
 					{
 						Debug.Log( "Parsing data for descripter " + descriptor.Identifier );
-						CFG_Reader.Section section = null;
+						Database.Section section = null;
 						reader.GetSection( descriptor.Identifier + ":00", ref section );
 						if ( section != null )
 						{

@@ -1,5 +1,5 @@
 ﻿
-namespace CFG_Reader {
+namespace Database {
 
 	public class cMultiValue {
 

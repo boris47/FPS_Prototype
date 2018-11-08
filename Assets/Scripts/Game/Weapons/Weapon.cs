@@ -174,7 +174,7 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 
 		// LOAD CONFIGURATION
 		{
-			CFG_Reader.Section section = null;
+			Database.Section section = null;
 			if ( GameManager.Configs.GetSection( m_SectionName, ref section ) )
 			{
 				m_MainDamage		= section.AsFloat( "Damage", m_MainDamage );

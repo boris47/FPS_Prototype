@@ -1,7 +1,7 @@
 ﻿
 using UnityEngine;
 
-namespace CFG_Reader {
+namespace Database {
 
 	public class cLineValue {
 

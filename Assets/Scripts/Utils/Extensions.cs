@@ -1,5 +1,6 @@
 ﻿
 using UnityEngine;
+using System.Collections.Generic;
 
 public static class Extensions {
 
@@ -51,4 +52,27 @@ public static class Extensions {
 		return list.ToArray();
 	}
 
+	public	static	string TrimInside( this string str, params char[] trimChars )
+	{
+		List<char> charsToSearch = new List<char>(1);
+		if ( trimChars != null && trimChars.Length > 0 )
+		{
+			charsToSearch.AddRange( trimChars );
+		}
+		else
+		{
+			charsToSearch.Add( ' ' );
+		}
+
+		for ( int i = str.Length - 1; i >= 0; i-- )
+		{
+			if ( charsToSearch.IndexOf( str[ i ] ) != -1 )
+			{
+				str = str.Remove( i, 1 );
+			}
+		}
+		return str;
+	}
 }
+
+

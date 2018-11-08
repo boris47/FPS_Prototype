@@ -1,6 +1,6 @@
 ﻿
 
-namespace CFG_Reader {
+namespace Database {
 
 	public class cValue {
 
@@ -23,7 +23,11 @@ namespace CFG_Reader {
 			if ( type == typeof ( string	) )	{ m_Value = "";		return; }
 			m_Value = null;
 		}
-	
+
+		public	bool	Is<T>()
+		{
+			return m_Value is T;
+		}
 
 		public T1 As<T1>()
 		{

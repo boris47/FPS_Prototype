@@ -1,5 +1,5 @@
 ﻿
-using CFG_Reader;
+
 using UnityEngine;
 
 
@@ -17,8 +17,8 @@ public partial class GameManager : MonoBehaviour {
 		get { return m_Instance; }
 	}
 
-	public	static			Reader			Settings				= null;
-	public	static			Reader			Configs					= null;
+	public	static			SectionMap			Settings				= null;
+	public	static			SectionMap			Configs					= null;
 	public	static			InputManager	InputMgr				= null;
 
 	public	static			bool			IsChangingScene			= false;
@@ -63,8 +63,8 @@ public partial class GameManager : MonoBehaviour {
 
 		// Internal classes
 		InputMgr	= new InputManager();
-		Settings	= new Reader();
-		Configs		= new Reader();
+		Settings	= new SectionMap();
+		Configs		= new SectionMap();
 
 		// Load Settings and Configs
 		string settingspath		= InEditor ? "Assets/Resources/Settings.txt" : "Settings";

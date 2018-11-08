@@ -5,7 +5,7 @@ using UnityEngine;
 
 
 
-public class EntitySkills {
+public class EntityMultliers {
 
 	private		Dictionary<string, float>	m_Skills = new Dictionary<string, float>();
 
@@ -83,7 +83,7 @@ public class EntitySkills {
 public	static class SkillManager {
 
 
-	private	static	readonly	Dictionary<uint, EntitySkills>		m_Data			= new Dictionary<uint, EntitySkills>();
+	private	static	readonly	Dictionary<uint, EntityMultliers>		m_Data			= new Dictionary<uint, EntityMultliers>();
 
 	private	static	bool											m_bIsInitialized	= false;
 
@@ -95,7 +95,7 @@ public	static class SkillManager {
 	{
 		if ( m_bIsInitialized == false )
 		{
-			m_Data = new Dictionary<uint, EntitySkills>();
+			m_Data = new Dictionary<uint, EntityMultliers>();
 			m_bIsInitialized = true;
 		}
 	}
@@ -110,7 +110,7 @@ public	static class SkillManager {
 		bool result = false;
 		if ( m_Data.ContainsKey( EntityID ) == false )
 		{
-			m_Data.Add( EntityID, new EntitySkills() );
+			m_Data.Add( EntityID, new EntityMultliers() );
 			result = true;
 		}
 		return result;

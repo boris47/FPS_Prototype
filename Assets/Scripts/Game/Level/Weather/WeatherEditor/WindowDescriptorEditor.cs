@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using CFG_Reader;
+using Database;
 
 #if UNITY_EDITOR
 
@@ -151,14 +151,14 @@ namespace WeatherSystem {
 				if ( path.Length == 0 )
 					return;
 
-				Reader reader = new Reader();
+				SectionMap reader = new SectionMap();
 				if ( reader.LoadFile( path ) == false )
 				{
 					 EditorUtility.DisplayDialog( "Error !", "Selected file cannot be parsed !", "OK" );
 				}
 				else
 				{
-					CFG_Reader.Section section = null;
+					Database.Section section = null;
 					reader.GetSection( m_CurrentDescriptor.Identifier + ":00", ref section );
 					if ( section != null )
 					{

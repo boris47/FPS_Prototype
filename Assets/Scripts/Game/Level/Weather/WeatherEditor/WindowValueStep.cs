@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using CFG_Reader;
+using Database;
 
 #if UNITY_EDITOR
 
