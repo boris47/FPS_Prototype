@@ -55,6 +55,7 @@ public enum BrainState {
 /////////////////////////////////////////
 
 public enum SimMovementType {
+	STATIONARY,
 	WALK,
 	CROUCHED,
 	RUN

@@ -7,13 +7,14 @@ namespace CutScene {
 	[System.Serializable]
 	public class CutsceneWaypointData {
 		[HideInInspector]
-		public	string							Name = "CutsceneWaypointData";
+		public	string							Name				= "CutsceneWaypointData";
 		public	SimMovementType					movementType		= SimMovementType.WALK;
 		public	Transform						point				= null;
 		public	Transform						target				= null;
 		[Range( 0.01f, 1f )]
-		public	float							timeScaleTraget		= 1f;
+		public	float							timeScaleTraget		= 1.0f;
 		public	bool							zoomEnabled			= false;
+		public	Cutscene_Waiter_Base			waiter				= null;
 
 		[SerializeField]
 		public	GameEvent						OnWayPointReached	= null;

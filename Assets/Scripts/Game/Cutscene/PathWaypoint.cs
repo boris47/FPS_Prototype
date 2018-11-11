@@ -8,7 +8,7 @@ public class PathWaypoint : MonoBehaviour {
 	private void OnDrawGizmosSelected()
 	{
 		Path path = GetComponentInParent<Path>();
-		path.DraawGizmos();
+		path.DrawGizmos();
 	}
 
 }

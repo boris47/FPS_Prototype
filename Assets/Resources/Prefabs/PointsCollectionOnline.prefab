@@ -54,6 +54,7 @@ GameObject:
   - component: {fileID: 4198035080718330}
   - component: {fileID: 33365224861881760}
   - component: {fileID: 23508906885443230}
+  - component: {fileID: 114644856241673260}
   m_Layer: 0
   m_Name: Point 1
   m_TagString: Untagged
@@ -419,6 +420,19 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1457675006253816}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &114644856241673260
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1158345570420242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bae30155b2d4f948a8ba8e55d7e0678, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_TimeToWait: 1
+  m_ScaledTime: 1
 --- !u!114 &114688778193651536
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -447,11 +461,12 @@ MonoBehaviour:
     m_TypeName: GameEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   m_Waypoints:
   - Name: CutsceneWaypointData
-    movementType: 0
+    movementType: 1
     point: {fileID: 4748236080620860}
     target: {fileID: 0}
-    timeScaleTraget: 1
+    timeScaleTraget: 0.872
     zoomEnabled: 0
+    waiter: {fileID: 0}
     OnWayPointReached:
       m_PersistentCalls:
         m_Calls: []
@@ -460,28 +475,31 @@ MonoBehaviour:
     movementType: 0
     point: {fileID: 4198035080718330}
     target: {fileID: 0}
-    timeScaleTraget: 1
+    timeScaleTraget: 0.631
     zoomEnabled: 0
+    waiter: {fileID: 114644856241673260}
     OnWayPointReached:
       m_PersistentCalls:
         m_Calls: []
       m_TypeName: GameEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - Name: CutsceneWaypointData
-    movementType: 0
+    movementType: 1
     point: {fileID: 4746161472688282}
     target: {fileID: 0}
-    timeScaleTraget: 1
+    timeScaleTraget: 0.868
     zoomEnabled: 0
+    waiter: {fileID: 0}
     OnWayPointReached:
       m_PersistentCalls:
         m_Calls: []
       m_TypeName: GameEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - Name: CutsceneWaypointData
-    movementType: 0
+    movementType: 1
     point: {fileID: 4737617074801694}
     target: {fileID: 0}
     timeScaleTraget: 1
     zoomEnabled: 0
+    waiter: {fileID: 0}
     OnWayPointReached:
       m_PersistentCalls:
         m_Calls: []

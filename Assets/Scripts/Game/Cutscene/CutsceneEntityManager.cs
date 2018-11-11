@@ -20,6 +20,7 @@ namespace CutScene {
 		private		Vector3							m_Destination				= Vector3.zero;
 		private		Transform						m_Target					= null;
 		private		float							m_TimeScaleTarget			= 1f;
+		private		Cutscene_Waiter_Base			m_Waiter					= null;
 
 
 
@@ -92,9 +93,21 @@ namespace CutScene {
 			if ( IsPlaying == false )
 				return;
 
-			// Continue simulation until need updates
-			bool result = m_EntitySimulation.SimulateMovement( m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
-			if ( result == true ) // if true is currently simulating and here we have to wait simulation to be completed
+			bool isBusy = false;
+
+			if ( m_Waiter != null && m_Waiter.HasToWait == true )
+			{
+				isBusy = true;    // busy
+				m_Waiter.Wait();
+				return;
+			}
+			else
+			{
+				// Continue simulation until need updates
+				isBusy = m_EntitySimulation.SimulateMovement( m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
+			}
+
+			if ( isBusy == true ) // if true is currently simulating and here we have to wait simulation to be completed
 				return;
 
 			// call callback when each waypoint is reached
@@ -130,7 +143,7 @@ namespace CutScene {
 		{
 			m_Target					= data.target;									// target to look at
 			m_MovementType				= data.movementType;							// movement type
-			m_TimeScaleTarget			= data.timeScaleTraget;							// time scale for this trip
+			m_TimeScaleTarget			= Mathf.Clamp01( data.timeScaleTraget );		// time scale for this trip
 
 			// ORIENTATION
 			CameraControl.Instance.Target = m_Target;
@@ -148,18 +161,27 @@ namespace CutScene {
 				}
 			}
 
-			// MOVEMENT
-			Vector3 destination = data.point.position;	// destination to reach
-			RaycastHit hit;
-			if ( Physics.Raycast( destination, -m_EntityParent.transform.up, out hit ) )
+			if ( data.waiter != null && data.movementType == SimMovementType.STATIONARY )
 			{
-				m_Destination = Utils.Math.ProjectPointOnPlane( m_EntityParent.transform.up, m_EntityParent.transform.position, hit.point );
+				m_Waiter = data.waiter;
 			}
 			else
 			{
-				Termiante();
+				m_Waiter = null;
+
+				// MOVEMENT
+				Vector3 destination = data.point.position;	// destination to reach
+				RaycastHit hit;
+				if ( Physics.Raycast( destination, -m_EntityParent.transform.up, out hit ) )
+				{
+					m_Destination = Utils.Math.ProjectPointOnPlane( m_EntityParent.transform.up, m_EntityParent.transform.position, hit.point );
+				}
+				else
+				{
+					Termiante(); 
+				}
 			}
-		}
+}
 
 
 		//////////////////////////////////////////////////////////////////////////

@@ -5510,7 +5510,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1048123011}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 13.3, y: 1.6900003, z: 30.9}
+  m_LocalPosition: {x: 13.3, y: 7.88, z: 30.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1638336853}
@@ -7568,7 +7568,7 @@ Prefab:
         type: 2}
       propertyPath: m_Waypoints.Array.data[1].target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 2128297248}
     - target: {fileID: 114688778193651536, guid: 378d97350317e744b92462d75bab508a,
         type: 2}
       propertyPath: m_Waypoints.Array.data[2].target
@@ -7578,25 +7578,10 @@ Prefab:
         type: 2}
       propertyPath: m_Waypoints.Array.data[3].target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 2128297248}
     - target: {fileID: 114688778193651536, guid: 378d97350317e744b92462d75bab508a,
         type: 2}
-      propertyPath: m_Waypoints.Array.data[0].timeScaleTraget
-      value: 0.872
-      objectReference: {fileID: 0}
-    - target: {fileID: 114688778193651536, guid: 378d97350317e744b92462d75bab508a,
-        type: 2}
-      propertyPath: m_Waypoints.Array.data[1].timeScaleTraget
-      value: 0.631
-      objectReference: {fileID: 0}
-    - target: {fileID: 114688778193651536, guid: 378d97350317e744b92462d75bab508a,
-        type: 2}
-      propertyPath: m_Waypoints.Array.data[2].timeScaleTraget
-      value: 0.868
-      objectReference: {fileID: 0}
-    - target: {fileID: 114688778193651536, guid: 378d97350317e744b92462d75bab508a,
-        type: 2}
-      propertyPath: m_Waypoints.Array.data[2].zoomEnabled
+      propertyPath: m_Waypoints.Array.data[1].movementType
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -8234,7 +8219,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1638336848}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.65, y: 5.45, z: -22.89}
+  m_LocalPosition: {x: -2.65, y: 5.53, z: -22.89}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1927321449}
@@ -10368,7 +10353,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Path: {fileID: 1638336849}
-  m_Speed: 8
+  m_Speed: 0.09
 --- !u!23 &2128297245
 MeshRenderer:
   m_ObjectHideFlags: 0

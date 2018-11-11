@@ -1,4 +1,5 @@
 ﻿
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -6,16 +7,44 @@ namespace CutScene {
 
 	public class Path : MonoBehaviour {
 	
-		private		Transform[]			m_Nodes				= null;
+		[SerializeField]
+		private		GameEvent			m_OnPathCompleted	= null;
+
+		private		Vector3[]			m_Nodes				= null;
 		private		int					m_CurrentSegment	= 0;
 		private		float				m_Interpolant		= 0f;
 		private		bool				m_IsCompleted		= false;
 
+		private		Vector3				m_PrevPosition		= Vector3.zero;
+		private		float				m_PathLength		= 0.0f;
 
 
 		private void Awake()
 		{
-			m_Nodes = GetComponentsInChildren<Transform>();
+			List<Vector3> vectors = new List<Vector3>();
+			foreach( Transform child in transform.GetComponentOnlyInChildren<Transform>() )
+			{
+				vectors.Add( child.position );
+			}
+
+			vectors.Insert( 0, vectors[0] );
+			vectors.Insert( vectors.Count-1, vectors[vectors.Count-1] );
+
+			m_Nodes = vectors.ToArray();
+
+			const float density = 100.0f;
+			float step = 0.01f;
+			while ( step < density )
+			{
+				float interpolant = step / density;
+				Vector3 position = Utils.Math.GetPoint( m_Nodes, interpolant );
+				m_PathLength = ( m_PrevPosition - position ).magnitude;
+
+				m_PrevPosition = position;
+
+				step += 1.0f;
+			}
+
 		}
 
 
@@ -24,88 +53,54 @@ namespace CutScene {
 			if ( m_IsCompleted )
 				return false;
 
-			float magnitude = ( m_Nodes[ m_CurrentSegment + 1 ].position - m_Nodes[ m_CurrentSegment ].position ).magnitude;
-			m_Interpolant += ( Time.deltaTime * 1 / magnitude ) * speed;
-			if ( m_Interpolant > 1f )
-			{
-				m_Interpolant = 0.0f;
-				m_CurrentSegment ++;
+			m_Interpolant += ( Time.deltaTime ) * speed;
+			position = Utils.Math.GetPoint( m_Nodes, m_Interpolant );
 
-				if ( m_CurrentSegment == m_Nodes.Length - 1 )
+			if ( m_Interpolant >= 1.0f )
+			{
+				m_IsCompleted = true;
+
+				if ( m_OnPathCompleted != null && m_OnPathCompleted.GetPersistentEventCount() > 0 )
 				{
-					m_IsCompleted = true;
-					return false;
+					m_OnPathCompleted.Invoke();
 				}
 			}
 
-			position = CutMullInterpolation( m_CurrentSegment, m_Interpolant );
 			return true;
 		}
+		
 
-
-		private	Vector3	CutMullInterpolation( int segment, float interpolant )
-		{
-			Vector3 p1, p2, p3, p4;
-
-			if ( segment == 0 )
-			{
-				p1 = m_Nodes[ segment + 0 ].position;
-				p3 = m_Nodes[ segment + 1 ].position;
-				p4 = m_Nodes[ segment + 2 ].position;
-				p2 = p1;
-			}
-			else
-			if ( segment == m_Nodes.Length - 2 )
-			{
-				p1 = m_Nodes[ segment - 1 ].position;
-				p2 = m_Nodes[ segment + 0 ].position;
-				p3 = m_Nodes[ segment + 1 ].position;
-				p4 = p3;
-			}
-			else
-			{
-				p1 = m_Nodes[ segment - 1 ].position;
-				p2 = m_Nodes[ segment + 0 ].position;
-				p3 = m_Nodes[ segment + 1 ].position;
-				p4 = m_Nodes[ segment + 2 ].position;
-			}
-			return Interpolate( p1, p2, p3, p4, interpolant );
-		}
-
-
-		private    Vector3 Interpolate( Vector3 a, Vector3 b, Vector3 c, Vector3 d, float interpolant )
-		{
-			float t1 = interpolant;
-			float t2 = interpolant * interpolant;
-			float t3 = t2 * interpolant;
-        
-			return 0.5f * 
-			(
-				( 2f * b )								 +
-				( -a + c )							* t1 +
-				( 2f * a - 5f * b + 4f * c - d )	* t2 +
-				( -a + 3f * b - 3f * c + d )		* t3
-			);
-		}
-
-
-		public	void	DraawGizmos()
+		public	void	DrawGizmos()
 		{
 			OnDrawGizmosSelected();
 		}
+		
 
 		private void OnDrawGizmosSelected()
 		{
-			m_Nodes = GetComponentsInChildren<Transform>();
-
-			for ( int i = 0; i < m_Nodes.Length - 1; i++ )
+			List<Vector3> vectors = new List<Vector3>();
+			foreach( Transform child in transform.GetComponentOnlyInChildren<Transform>() )
 			{
-				Transform p1 = m_Nodes[i];
-				Transform p2 = m_Nodes[i+1];
-//				Debug.DrawLine ( p1.position, p2.position );
-				Gizmos.DrawLine ( p1.position, p2.position );
+				vectors.Add( child.position );
 			}
 
+			vectors.Insert( 0, vectors[0] );
+			vectors.Insert( vectors.Count-1, vectors[vectors.Count-1] );
+
+			m_Nodes = vectors.ToArray();
+
+			Vector3 prevPosition = Vector3.zero;
+			const float density = 100.0f;
+			float step = 0.01f;
+			while ( step < density )
+			{
+				float interpolant = step / density;
+				Vector3 position = Utils.Math.GetPoint( m_Nodes, interpolant );
+				Gizmos.DrawLine( prevPosition, position );
+				prevPosition = position;
+
+				step += 1.0f;
+			}
 		}
 
 	}

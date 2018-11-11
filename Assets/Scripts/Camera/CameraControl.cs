@@ -203,12 +203,10 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 		{
 			float x = transform.rotation.eulerAngles.x;
 
-			m_CurrentDirection.x = x;
-//			m_CurrentDirection.y = 0.0f;
-//			m_CurrentDirection.z = 0.0f;
+			while( x > CLAMP_MAX_X_AXIS ) x -= 360f;
+			while( x < CLAMP_MIN_X_AXIS ) x += 360f;
 
-			if ( m_CurrentDirection.x > CLAMP_MAX_X_AXIS )	m_CurrentDirection.x -= 360f;
-			if ( m_CurrentDirection.x < CLAMP_MIN_X_AXIS )	m_CurrentDirection.x += 360f;
+			m_CurrentDirection.x = x;
 		}
 
 		m_Target = value;
@@ -219,8 +217,9 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 	// OnCutsceneEnd
 	void	ICameraControl.OnCutsceneEnd()
 	{
-		m_CurrentRotation_X_Delta	= 0f;
-		m_CurrentRotation_Y_Delta	= 0f;
+		OnTargetSet( null );
+		m_CurrentRotation_X_Delta	= 0.0f;
+		m_CurrentRotation_Y_Delta	= 0.0f;
 		m_WpnCurrentDeviation		= m_WpnCurrentDispersion = Vector3.zero;
 	}
 
