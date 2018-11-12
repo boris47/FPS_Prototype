@@ -7,6 +7,7 @@ public class UI_InGame : MonoBehaviour {
 	private			Text			timeText		= null;
 	private			Text			cycleText		= null;
 	private			Text			healthText		= null;
+	private			Text			timeeText		= null;
 
 	private			Text			wpnName			= null;
 	private			Text			bulletsCount	= null;
@@ -24,6 +25,7 @@ public class UI_InGame : MonoBehaviour {
 		cycleText		= transform.GetChild(0).GetChild(0).GetComponent<Text>();
 		timeText		= transform.GetChild(0).GetChild(1).GetComponent<Text>();
 		healthText		= transform.GetChild(0).GetChild(2).GetComponent<Text>();
+		timeeText		= transform.GetChild(0).GetChild(3).GetComponent<Text>();
 
 		wpnName			= transform.GetChild(1).GetChild(0).GetComponent<Text>();
 		bulletsCount	= transform.GetChild(1).GetChild(1).GetComponent<Text>();
@@ -126,6 +128,8 @@ public class UI_InGame : MonoBehaviour {
 		// Only every 10 frames
 		if ( Time.frameCount % 10 == 0 )
 			return;
+
+		timeeText.text = Time.timeScale.ToString("R");
 
 		staminaBar.fillAmount = Player.Instance.Stamina;
 	}

@@ -7,7 +7,7 @@ public class PathWaypoint : MonoBehaviour {
 
 	private void OnDrawGizmosSelected()
 	{
-		Path path = GetComponentInParent<Path>();
+		SplinePath path = GetComponentInParent<SplinePath>();
 		path.DrawGizmos();
 	}
 

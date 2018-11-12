@@ -6,7 +6,9 @@ namespace CutScene {
 
 	public class MovingTarget : MonoBehaviour {
 
-		private		Path		m_Path				= null;
+		[SerializeField]
+		private		SplinePath	m_Path				= null;
+		[SerializeField]
 		private		float		m_Speed				= 1f;
 
 		private		Vector3		m_Position			= Vector3.zero;

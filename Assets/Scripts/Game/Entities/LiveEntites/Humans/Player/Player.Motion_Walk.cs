@@ -56,8 +56,8 @@ public partial class Player {
 			m_States.IsCrouched	= isCrouched;
 			m_States.IsMoving	= true;
 
-			m_Move = ( m_ForwardSmooth * direction.normalized ) * GroundSpeedModifier * timeScale;
-			m_RigidBody.velocity = m_Move * 0.1f;
+			m_Move = ( m_ForwardSmooth * direction.normalized ) * GroundSpeedModifier;
+			m_RigidBody.velocity = m_Move;
 		}
 		return true;
 	}
