@@ -170,10 +170,10 @@ public class SectionMap {
 			/// Able to include file in same dir of root file
 			if ( ( sLine[ 0 ] == '#' ) && sLine.Contains( "#include" ) )
 			{
-				string sPath = Path.GetDirectoryName( sFilePath ); //Utils.System.GetPathFromFilePath( sFilePath );
+				string sPath = System.IO.Path.GetDirectoryName( sFilePath ); //Utils.System.GetPathFromFilePath( sFilePath );
 				string sFileName = sLine.Trim().Substring( "#include".Length + 1 );
 #if UNITY_EDITOR
-				if ( LoadFile( Path.Combine( sPath, sFileName ) ) == false )
+				if ( LoadFile( System.IO.Path.Combine( sPath, sFileName ) ) == false )
 				{
 					fs.Close();
 					return false;

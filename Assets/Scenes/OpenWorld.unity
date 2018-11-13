@@ -2691,9 +2691,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 462093287}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1fb81023d6cf1874aa6e5d4b9e61b177, type: 3}
+  m_Script: {fileID: 11500000, guid: f23d888b5d78d104da27eab359668472, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_OnWaipointReached:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: GameEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
 --- !u!1 &477785830
 GameObject:
   m_ObjectHideFlags: 0
@@ -5602,9 +5606,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1048123011}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1fb81023d6cf1874aa6e5d4b9e61b177, type: 3}
+  m_Script: {fileID: 11500000, guid: f23d888b5d78d104da27eab359668472, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_OnWaipointReached:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: GameEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
 --- !u!1 &1054879651
 GameObject:
   m_ObjectHideFlags: 0
@@ -5985,9 +5993,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1119784015}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1fb81023d6cf1874aa6e5d4b9e61b177, type: 3}
+  m_Script: {fileID: 11500000, guid: f23d888b5d78d104da27eab359668472, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_OnWaipointReached:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: GameEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
 --- !u!1001 &1125729700
 Prefab:
   m_ObjectHideFlags: 0
@@ -8258,7 +8270,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1638336848}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2ec4db9505c572442989dbb37c516bc3, type: 3}
+  m_Script: {fileID: 11500000, guid: bf01a4de726894349856f7d7013ae049, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_OnPathCompleted:
@@ -9416,9 +9428,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1927321448}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1fb81023d6cf1874aa6e5d4b9e61b177, type: 3}
+  m_Script: {fileID: 11500000, guid: f23d888b5d78d104da27eab359668472, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_OnWaipointReached:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: GameEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
 --- !u!1001 &1935756119
 Prefab:
   m_ObjectHideFlags: 0
@@ -9623,9 +9639,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1946069148}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1fb81023d6cf1874aa6e5d4b9e61b177, type: 3}
+  m_Script: {fileID: 11500000, guid: f23d888b5d78d104da27eab359668472, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_OnWaipointReached:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: GameEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
 --- !u!1 &1985417815
 GameObject:
   m_ObjectHideFlags: 0

@@ -7,7 +7,7 @@ namespace CutScene {
 	public class MovingTarget : MonoBehaviour {
 
 		[SerializeField]
-		private		SplinePath	m_Path				= null;
+		private		PathBase	m_Path				= null;
 		[SerializeField]
 		private		float		m_Speed				= 1f;
 
