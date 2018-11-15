@@ -39,7 +39,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 				EnableBrain();
 
 				string TargetType = m_SectionRef.AsString( "DefaultTarget" );
-				Brain.FieldOfView.TargetType = (ENTITY_TYPE) System.Enum.Parse( typeof( ENTITY_TYPE ), TargetType );
+				object selected = System.Enum.Parse( typeof( ENTITY_TYPE ), TargetType );
+				Brain.FieldOfView.TargetType = ( selected != null ? (ENTITY_TYPE)selected : ENTITY_TYPE.NONE );
 
 				m_FieldOfView.Setup( maxVisibleEntities : 10 );
 				m_FieldOfView.OnTargetAquired			= OnTargetAquired;

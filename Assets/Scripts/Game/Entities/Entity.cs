@@ -76,6 +76,12 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	public		bool						HasDestination					{ get { return m_HasDestination; } }
 	public		float						MinEngageDistance				{ get { return m_MinEngageDistance; } }
 	public		float						MaxAgentSpeed					{ get { return m_MaxAgentSpeed; } }
+
+	public		Vector3						HeadPosition					{ get { return m_HeadTransform.position; } }
+	public		Quaternion					HeadRotation					{ get { return m_HeadTransform.rotation; } }
+
+	public		Vector3						BodyPosition					{ get { return m_BodyTransform.position; } }
+	public		Quaternion					BodyRotation					{ get { return m_BodyTransform.rotation; } }
 	// GETTERS END
 
 	public		IEntity						Interface						{ get { return m_Interface; } }
@@ -117,9 +123,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	protected	Vector3						m_DestinationToReachPosition	= Vector3.zero;
 	protected	float						m_MaxAgentSpeed					= 0.0f;
 
-
-	// Flag set if foots of entity is aligned with target
-	protected	bool						m_IsAllignedFootsToDestination	= false;
 
 	// Flag set if body of entity is aligned with target
 	protected	bool						m_IsAllignedBodyToPoint			= false;

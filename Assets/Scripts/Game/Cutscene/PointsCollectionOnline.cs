@@ -41,6 +41,26 @@ namespace CutScene {
 		{
 			get { return m_Waypoints.Length; }
 		}
+
+
+		private void OnDrawGizmosSelected()
+		{
+			if ( m_Waypoints == null || m_Waypoints.Length < 2 )
+				return;
+
+			Vector3 prevPosition = m_Waypoints[0].point.position;
+			for ( int i = 1; i < m_Waypoints.Length; i++ )
+			{
+				if ( m_Waypoints[ i ].point != null )
+				{
+					Vector3 currentPosition = m_Waypoints[ i ].point.position;
+
+					Gizmos.DrawLine( prevPosition, currentPosition );
+
+					prevPosition = currentPosition;
+				}				
+			}
+		}
 	}
 
 }

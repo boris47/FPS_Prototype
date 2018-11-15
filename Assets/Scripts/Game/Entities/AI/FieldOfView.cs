@@ -193,7 +193,8 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		// Prepare results array
 		System.Array.Clear( m_ValidTargets, 0, m_ValidTargets.Length );
 
-		{	// SANITY CHECK
+#region Sanity Check
+		{   // SANITY CHECK
 			if ( m_NeedSetup == true )
 			{
 				( this as IFieldOfView ).Setup( maxVisibleEntities : 10 );
@@ -215,9 +216,10 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 				return false;
 			}
 		}
+#endregion
 
 		// Choose view point
-		Transform	currentViewPoint	= ( m_ViewPoint == null ) ? transform : m_ViewPoint;
+		Transform currentViewPoint	= ( m_ViewPoint == null ) ? transform : m_ViewPoint;
 
 		// Sort targets by distance
 		if ( m_AllTargets.Count > 1 )
@@ -225,7 +227,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 
 		// FIND ALL VISIBLE TARGETS
 		int currentCount = 0;
-		for ( int i = 0; i < m_AllTargets.Count && i < m_MaxVisibleEntities; i++ )
+		for ( int i = 0; i < m_AllTargets.Count && currentCount < m_MaxVisibleEntities; i++ )
 		{
 			Entity target = m_AllTargets[ i ];
 
@@ -245,7 +247,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 					origin:						currentViewPoint.position,
 					direction:					direction,
 					hitInfo:					out m_RaycastHit,
-					maxDistance:				Mathf.Infinity,
+					maxDistance:				m_ViewDistance,
 					layerMask:					m_LayerMask,
 					queryTriggerInteraction:	QueryTriggerInteraction.Ignore
 				);
@@ -254,11 +256,6 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 				{
 					m_ValidTargets[ currentCount ] = target;
 					currentCount ++;
-					
-					if ( currentCount == m_ValidTargets.Length )
-					{
-						break;
-					}
 				}
 			}
 		}

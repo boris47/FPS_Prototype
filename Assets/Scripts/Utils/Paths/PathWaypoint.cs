@@ -3,23 +3,31 @@ using System.Collections.Generic;
 using UnityEngine;
 using CutScene;
 
+[System.Serializable]
 public class PathWaypoint : MonoBehaviour {
 
-	[SerializeField]
-	private	GameEvent	m_OnWaipointReached	= null;
+	public	SimMovementType					movementType		= SimMovementType.WALK;
+	public	Transform						point				= null;
+	public	Transform						target				= null;
+	[Range( 0.01f, 1f )]
+	public	float							timeScaleTraget		= 1.0f;
+	public	bool							zoomEnabled			= false;
+	public	Cutscene_Waiter_Base			waiter				= null;
 
+	[SerializeField]
+	public	GameEvent						OnWayPointReached	= null;
 
 	public	void	OnReached()
 	{
-		if ( m_OnWaipointReached != null && m_OnWaipointReached.GetPersistentEventCount() > 0 )
+		if ( OnWayPointReached != null && OnWayPointReached.GetPersistentEventCount() > 0 )
 		{
-			m_OnWaipointReached.Invoke();
+			OnWayPointReached.Invoke();
 		}
 	}
 
 	private void OnDrawGizmosSelected()
 	{
-		SplinePath path = GetComponentInParent<SplinePath>();
+		PathSpline path = GetComponentInParent<PathSpline>();
 		path.DrawGizmos();
 	}
 

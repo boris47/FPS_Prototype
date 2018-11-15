@@ -20,6 +20,22 @@ namespace Utils {
 		}
 
 
+		/// <summary>
+		/// Return true if the value lays betweeen bound values, otherwise return false
+		/// </summary>
+		/// <param name="Value"></param>
+		/// <param name="Val1"></param>
+		/// <param name="Val2"></param>
+		/// <returns></returns>
+		public	static		bool		BetweenValues( float Value, float Val1, float Val2 )
+		{
+			float minBound = Mathf.Min( Val1, Val2 );
+			float maxBound = Mathf.Max( Val1, Val2 );
+
+			return Value > minBound && Val1 < maxBound;
+		}
+
+
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary>
 		/// Return a better performance method to get squared value

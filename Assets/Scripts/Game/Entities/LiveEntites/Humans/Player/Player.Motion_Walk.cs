@@ -57,7 +57,7 @@ public partial class Player {
 			m_States.IsMoving	= true;
 
 			m_Move = ( m_ForwardSmooth * direction.normalized ) * GroundSpeedModifier;
-			m_RigidBody.velocity = m_Move;
+//			m_RigidBody.velocity = m_Move;
 		}
 		return true;
 	}
@@ -108,7 +108,7 @@ public partial class Player {
 
 		float	fFinalJump		= 0.0f;
 		
-		if ( InputManager.HoldCrouch == false )
+		if ( InputManager.HoldCrouch == true )
 			m_States.IsCrouched = m_PreviousStates.IsCrouched;
 
 		
@@ -147,11 +147,14 @@ public partial class Player {
 		   
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Crouch State
-		{  
+		{
 			// If crouch button is pressed
 			if ( bCrouchInput )
 			{
-				m_States.IsCrouched = !m_PreviousStates.IsCrouched;
+				m_States.IsCrouched = m_PreviousStates.IsCrouched;
+
+
+
 				/*
 				m_Collider.center = new Vector3
 				(

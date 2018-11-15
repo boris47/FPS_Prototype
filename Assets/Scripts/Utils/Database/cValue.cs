@@ -4,41 +4,53 @@ namespace Database {
 
 	public class cValue {
 
-		private	object	m_Value
-		{
-			get;
-			set;
-		}
+		private	readonly	object			m_Value	= null;
+		private readonly 	System.Type		m_Type	= null;
+
+
+		///////////////////////////////////////////////////////////////////////////////
 
 		public	cValue( object value )
 		{
 			m_Value = value;
+			m_Type = value.GetType();
 		}
-	
+
+		///////////////////////////////////////////////////////////////////////////////
+
 		public	cValue( System.Type type )
 		{
-			if ( type == typeof ( bool		) )	{ m_Value = false;	return; }
-			if ( type == typeof ( int		) )	{ m_Value = 0;		return; }
-			if ( type == typeof ( float		) )	{ m_Value = 0.0f;	return; }
-			if ( type == typeof ( string	) )	{ m_Value = "";		return; }
 			m_Value = null;
+
+			// In case of a value type use Activator.CreateInstance and it should work fine
+			if ( type.IsValueType )
+			{
+				m_Value = System.Activator.CreateInstance( type );
+			}
+			m_Type = type;
 		}
+
+
+		///////////////////////////////////////////////////////////////////////////////
 
 		public	bool	Is<T>()
 		{
-			return m_Value is T;
+			return m_Type == default(T).GetType();
 		}
 
-		public T1 As<T1>()
+
+		///////////////////////////////////////////////////////////////////////////////
+
+		public T As<T>()
 		{
-			T1 result;
+			T result;
 			try
 			{
-				result = (T1) m_Value;
+				result = (T) m_Value;
 			}
 			catch ( System.Exception )
 			{
-				result = default( T1 );
+				result = default( T );
 			}
 			return result;
 		}

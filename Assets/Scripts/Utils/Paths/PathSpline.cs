@@ -2,26 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SplinePath : PathBase {
-	
-	[SerializeField]
-	private		GameEvent			m_OnPathCompleted	= null;
+public class PathSpline : PathBase {
 
 	private		Vector3[]			m_Nodes				= null;
-	private		float				m_Interpolant		= 0f;
-	private		bool				m_IsCompleted		= false;
 
 	private		Vector3				m_PrevPosition		= Vector3.zero;
-	private		float				m_PathLength		= 0.0f;
 
 
-	private void	Awake()
+	// 
+	private				void		Awake()
 	{
 		m_Nodes = FindNodes();
 
 		Vector3 prevPosition = m_Nodes[0];
 
-		IterateSpline( 100.0f, 1.0f, 
+		IteratePath( 100.0f, 1.0f, 
 			( Vector3 position, Quaternion rotation ) => {
 				m_PathLength = ( prevPosition - position ).magnitude;
 				prevPosition = position;
@@ -30,7 +25,9 @@ public class SplinePath : PathBase {
 
 	}
 
-	private	Vector3[]	FindNodes()
+
+	// 
+	private				Vector3[]	FindNodes()
 	{
 		List<Vector3> vectors = new List<Vector3>();
 		foreach( PathWaypoint child in transform.GetComponentOnlyInChildren<PathWaypoint>() )
@@ -44,16 +41,18 @@ public class SplinePath : PathBase {
 		return vectors.ToArray();
 	}
 
+
 	// Spline iteration
-	public 	override void	IterateSpline( float Steps, float StepLength, System.Action<Vector3, Quaternion> OnPosition )
+	public 	override	void		IteratePath( float Steps, System.Action<Vector3, Quaternion> OnPosition )
 	{
-		if ( OnPosition == null )
+		if ( OnPosition == null || Steps > m_PathLength )
 		{
 			return;
 		}
 
 		Vector3 prevPosition = m_Nodes[0];
 		float currentStep = 0.001f;
+		float stepLength = m_PathLength / Steps;
 		while ( currentStep < Steps )
 		{
 			float interpolant = currentStep / Steps;
@@ -61,11 +60,13 @@ public class SplinePath : PathBase {
 				
 			OnPosition( position, Quaternion.identity );
 
-			currentStep += StepLength;
+			currentStep += stepLength;
 		}
 	}
 
-	public	override	bool	Move( float speed, ref Vector3 position )
+
+	//
+	public	override	bool		Move( float speed, ref Vector3 position )
 	{
 		if ( m_IsCompleted )
 			return false;
@@ -85,21 +86,23 @@ public class SplinePath : PathBase {
 
 		return true;
 	}
-		
+	
+
 	// called by childs
-	public	override	void	DrawGizmos()
+	public	override	void		DrawGizmos()
 	{
 		OnDrawGizmosSelected();
 	}
-		
+	
 
-	private void	OnDrawGizmosSelected()
+	// 
+	private				void		OnDrawGizmosSelected()
 	{
 		m_Nodes = FindNodes();
 
 		Vector3 prevPosition = m_Nodes[0];
 
-		IterateSpline( 100.0f, 1.0f, 
+		IteratePath( 100.0f, 1.0f, 
 			( Vector3 position, Quaternion rotation ) => {
 				m_PathLength = ( prevPosition - position ).magnitude;
 				Gizmos.DrawLine( prevPosition, position );

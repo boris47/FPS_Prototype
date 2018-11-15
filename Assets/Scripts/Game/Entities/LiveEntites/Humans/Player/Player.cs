@@ -149,6 +149,11 @@ public partial class Player : Human {
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void	Start()
 	{
+		if ( CameraControl.Instance.IsParentedWith( m_HeadTransform ) == false )
+		{
+			CameraControl.Instance.SetViewPoint( m_HeadTransform );
+		}
+
 		IsGrounded = false;
 		StartCoroutine( DamageEffectCO() );
 	}

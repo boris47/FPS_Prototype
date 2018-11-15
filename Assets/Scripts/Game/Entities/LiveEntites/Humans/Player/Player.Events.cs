@@ -162,7 +162,7 @@ public partial class Player {
 		{
 			// Controlled in Player.Motion_Walk::SimulateMovement
 //			m_RigidBody.velocity = m_Move;
-//			m_RigidBody.AddForce( m_Move, ForceMode.Acceleration );
+			m_RigidBody.AddForce( m_Move, ForceMode.Acceleration );
 			return;
 		}
 
