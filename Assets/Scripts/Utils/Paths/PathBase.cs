@@ -10,6 +10,8 @@ public abstract	class PathBase : MonoBehaviour {
 	protected		float				m_Interpolant		= 0f;
 	protected		bool				m_IsCompleted		= false;
 
+	protected		Vector3[]			m_Positions			= null;
+
 	protected		float				m_PathLength		= 0.0f;
 	public			float				PathLength
 	{
@@ -18,15 +20,19 @@ public abstract	class PathBase : MonoBehaviour {
 
 
 	// 
-	public	abstract void	IteratePath( float Steps, System.Action<Vector3, Quaternion> OnPosition );
+	public		abstract void	IteratePath( System.Action<Vector3, Quaternion> OnPosition );
 
 
 	// 
-	public	abstract bool	Move( float speed, ref Vector3 position );
+	protected	abstract void	ElaboratePath( float Steps, float StepLength = 1.0f );
 
 
 	// 
-	public	virtual void	ResetPath()
+	public		abstract bool	Move( float speed, ref Vector3 position );
+
+
+	// 
+	public		virtual void	ResetPath()
 	{
 		m_Interpolant		= 0f;
 		m_IsCompleted		= false;

@@ -1,78 +1,71 @@
 ﻿
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class PathSpline : PathBase {
 
-	private		Vector3[]			m_Nodes				= null;
-
-	private		Vector3				m_PrevPosition		= Vector3.zero;
+	[SerializeField]
+	private		PathWaypoint[]		m_Nodes				= null;
 
 
 	// 
-	private				void		Awake()
+	private				void			Awake()
 	{
-		m_Nodes = FindNodes();
-
-		Vector3 prevPosition = m_Nodes[0];
-
-		IteratePath( 100.0f, 1.0f, 
-			( Vector3 position, Quaternion rotation ) => {
-				m_PathLength = ( prevPosition - position ).magnitude;
-				prevPosition = position;
-			}
-		);
-
+		ElaboratePath( Steps: 100f );
 	}
 
 
-	// 
-	private				Vector3[]	FindNodes()
+
+	//
+	protected	override	void			ElaboratePath( float Steps, float StepLength = 1.0f )
 	{
-		List<Vector3> vectors = new List<Vector3>();
-		foreach( PathWaypoint child in transform.GetComponentOnlyInChildren<PathWaypoint>() )
+		m_Nodes = transform.GetComponentsInChildren<PathWaypoint>();
+
+		m_PathLength = 0.0f;
+		
+		List<Vector3> positionsList = new List<Vector3>();
+
+		Vector3 prevPosition = m_Nodes[0].transform.position;
+		float currentStep = 0.001f;
+		while ( currentStep < Steps )
 		{
-			vectors.Add( child.transform.position );
+			float interpolant = currentStep / Steps;
+			Vector3 currentPosition = Utils.Math.GetPoint( m_Positions, interpolant );
+
+			positionsList.Add( currentPosition );
+			m_PathLength += Vector3.Distance( prevPosition, currentPosition );
+
+			prevPosition = currentPosition;
+			currentStep += StepLength;
 		}
 
-		vectors.Insert( 0, vectors[0] );
-		vectors.Insert( vectors.Count-1, vectors[vectors.Count-1] );
-
-		return vectors.ToArray();
+		m_Positions = positionsList.ToArray();
 	}
 
 
 	// Spline iteration
-	public 	override	void		IteratePath( float Steps, System.Action<Vector3, Quaternion> OnPosition )
+	public 	override	void			IteratePath( System.Action<Vector3, Quaternion> OnPosition  )
 	{
-		if ( OnPosition == null || Steps > m_PathLength )
+		if ( OnPosition == null )
 		{
 			return;
 		}
 
-		Vector3 prevPosition = m_Nodes[0];
-		float currentStep = 0.001f;
-		float stepLength = m_PathLength / Steps;
-		while ( currentStep < Steps )
-		{
-			float interpolant = currentStep / Steps;
-			Vector3 position = Utils.Math.GetPoint( m_Nodes, interpolant );
-				
+		System.Array.ForEach( m_Positions, ( Vector3 position ) => {
 			OnPosition( position, Quaternion.identity );
-
-			currentStep += stepLength;
-		}
+		});
 	}
 
 
 	//
-	public	override	bool		Move( float speed, ref Vector3 position )
+	public	override	bool			Move( float speed, ref Vector3 position )
 	{
 		if ( m_IsCompleted )
 			return false;
 
 		m_Interpolant += ( Time.deltaTime ) * speed;
-		position = Utils.Math.GetPoint( m_Nodes, m_Interpolant );
+		position = Utils.Math.GetPoint( m_Positions, m_Interpolant );
 
 		if ( m_Interpolant >= 1.0f )
 		{
@@ -89,27 +82,27 @@ public class PathSpline : PathBase {
 	
 
 	// called by childs
-	public	override	void		DrawGizmos()
+	public	override	void			DrawGizmos()
 	{
 		OnDrawGizmosSelected();
 	}
 	
 
 	// 
-	private				void		OnDrawGizmosSelected()
+	private				void			OnDrawGizmosSelected()
 	{
-		m_Nodes = FindNodes();
+		ElaboratePath( Steps: 100f );
 
-		Vector3 prevPosition = m_Nodes[0];
+		Vector3 prevPosition = m_Nodes[0].transform.position;
 
-		IteratePath( 100.0f, 1.0f, 
-			( Vector3 position, Quaternion rotation ) => {
+		IteratePath(
+			OnPosition: ( Vector3 position, Quaternion rotation ) => {
 				m_PathLength = ( prevPosition - position ).magnitude;
 				Gizmos.DrawLine( prevPosition, position );
 				prevPosition = position;
 			}
 		);
-			
+		
 	}
 
 }

@@ -5,7 +5,7 @@ using UnityEngine;
 public class PathLinear : PathBase {
 
 	[SerializeField]
-	private		PathWaypoint[]		m_Nodes			= null;
+	private		PathWaypoint[]		m_Nodes				= null;
 
 	private		int					m_CurrentSegment	= 0;
 	
@@ -13,17 +13,7 @@ public class PathLinear : PathBase {
 	//
 	private				void	Awake()
 	{
-		m_Nodes = FindNodes();
-
-		Vector3 prevPosition = m_Nodes[0].transform.position;
-
-		for( int i = 1; i < m_Nodes.Length; i ++ )
-		{
-			Vector3 currentPostion = m_Nodes[i].transform.position;
-			m_PathLength += Vector3.Distance( prevPosition, currentPostion );
-			prevPosition = currentPostion;
-		}
-
+		ElaboratePath( 100f );
 	}
 
 
@@ -34,31 +24,17 @@ public class PathLinear : PathBase {
 	}
 
 
-	// 
-	public	override	void	IteratePath( float Steps, System.Action<Vector3, Quaternion> OnPosition )
+	//
+	protected	override	void		ElaboratePath( float Steps, float StepLength = 1.0f )
 	{
-		if ( OnPosition == null || Steps > m_PathLength )
-		{
-			return;
-		}
+		
+	}
 
-		Vector3 prevPosition = m_Nodes[0].transform.position;
-		if ( Steps > 0.0f )// 100f
-		{
-			float stepLength = m_PathLength / Steps;
 
-		}
-		else
-		{
-			for( int i = 1; i < m_Nodes.Length; i ++ )
-			{
-				Vector3 currentPostion = m_Nodes[i].transform.position;
-
-				OnPosition( currentPostion, Quaternion.identity );
-
-				prevPosition = currentPostion;
-			}
-		}
+	// 
+	public	override	void	IteratePath( System.Action<Vector3, Quaternion> OnPosition )
+	{
+		
 	}
 
 
