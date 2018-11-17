@@ -20,7 +20,7 @@ namespace CutScene {
 		private		Vector3							m_Destination				= Vector3.zero;
 		private		Transform						m_Target					= null;
 		private		float							m_TimeScaleTarget			= 1f;
-		private		Cutscene_Waiter_Base			m_Waiter					= null;
+		private		Waiter_Base						m_Waiter					= null;
 
 
 
@@ -93,20 +93,16 @@ namespace CutScene {
 			if ( IsPlaying == false )
 				return;
 
-			bool isBusy = false;
-
 			if ( m_Waiter != null && m_Waiter.HasToWait == true )
 			{
-				isBusy = true;    // busy
+				Vector3 tempDestination = Utils.Math.ProjectPointOnPlane( m_EntityParent.transform.up, m_Destination, m_EntityParent.transform.position );
+				m_EntitySimulation.SimulateMovement( SimMovementType.STATIONARY, tempDestination, m_Target, m_TimeScaleTarget );
 				m_Waiter.Wait();
 				return;
 			}
-			else
-			{
-				// Continue simulation until need updates
-				isBusy = m_EntitySimulation.SimulateMovement( m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
-			}
 
+				// Continue simulation until need updates
+			bool isBusy = m_EntitySimulation.SimulateMovement( m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
 			if ( isBusy == true ) // if true is currently simulating and here we have to wait simulation to be completed
 				return;
 

@@ -6,28 +6,35 @@ using CutScene;
 [System.Serializable]
 public class PathWaypoint : MonoBehaviour {
 
-	public	SimMovementType					movementType		= SimMovementType.WALK;
-	public	Transform						point				= null;
-	public	Transform						target				= null;
-	[Range( 0.01f, 1f )]
-	public	float							timeScaleTraget		= 1.0f;
-	public	bool							zoomEnabled			= false;
-	public	Cutscene_Waiter_Base			waiter				= null;
+	[SerializeField]
+	protected	Waiter_Base						m_Waiter			= null;
 
 	[SerializeField]
-	public	GameEvent						OnWayPointReached	= null;
+	protected	GameEvent						m_OnWayPointReached	= null;
 
+
+
+	//
+	public	bool	HasToWait()
+	{
+		return ( m_Waiter != null && m_Waiter.HasToWait );
+	}
+
+
+	//
 	public	void	OnReached()
 	{
-		if ( OnWayPointReached != null && OnWayPointReached.GetPersistentEventCount() > 0 )
+		if ( m_OnWayPointReached != null && m_OnWayPointReached.GetPersistentEventCount() > 0 )
 		{
-			OnWayPointReached.Invoke();
+			m_OnWayPointReached.Invoke();
 		}
 	}
 
+
+	//
 	private void OnDrawGizmosSelected()
 	{
-		PathSpline path = GetComponentInParent<PathSpline>();
+		PathBase path = GetComponentInParent<PathBase>();
 		path.DrawGizmos();
 	}
 

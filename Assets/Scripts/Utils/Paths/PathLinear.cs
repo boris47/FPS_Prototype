@@ -18,23 +18,41 @@ public class PathLinear : PathBase {
 
 
 	//
-	private				PathWaypoint[]	FindNodes()
-	{
-		return transform.GetComponentsInChildren<PathWaypoint>();
-	}
-
-
-	//
 	protected	override	void		ElaboratePath( float Steps, float StepLength = 1.0f )
 	{
-		
+		{
+			m_Nodes = transform.GetComponentsInChildren<PathWaypoint>();
+
+			List<Vector3> positionsList = new List<Vector3>( m_Nodes.Length );
+			{
+				System.Array.ForEach( m_Nodes, ( PathWaypoint w ) => { positionsList.Add( w.transform.position ); } );
+			}
+			m_Positions = positionsList.ToArray();
+		}
+
+		m_PathLength = 0.0f;
+
+		Vector3 prevPosition = m_Positions[0];
+		for ( int i = 1; i < m_Positions.Length; i++ )
+		{
+			Vector3 currentposition = m_Positions[i];
+			m_PathLength += Vector3.Distance( prevPosition, currentposition );
+			prevPosition = currentposition;
+		}
 	}
 
 
 	// 
 	public	override	void	IteratePath( System.Action<Vector3, Quaternion> OnPosition )
 	{
-		
+		if ( OnPosition == null )
+		{
+			return;
+		}
+
+		System.Array.ForEach( m_Positions, ( Vector3 position ) => {
+			OnPosition( position, Quaternion.identity );
+		});
 	}
 
 
@@ -44,56 +62,39 @@ public class PathLinear : PathBase {
 		if ( m_IsCompleted )
 			return false;
 
-		float magnitude = ( m_Nodes[ m_CurrentSegment + 1 ].transform.position - m_Nodes[ m_CurrentSegment ].transform.position ).magnitude;
-		m_Interpolant += ( Time.deltaTime * 1.0f / magnitude ) * speed;
-		if ( m_Interpolant > 1f )
+		if ( m_Interpolant == 0.0f && m_CurrentSegment == 0 )
+		{
+			if ( m_OnPathStart != null && m_OnPathStart.GetPersistentEventCount() > 0 )
+			{
+				m_OnPathStart.Invoke();
+			}
+		}
+
+		Vector3 p1 = m_Nodes[ m_CurrentSegment + 0 ].transform.position;
+		Vector3 p2 = m_Nodes[ m_CurrentSegment + 1 ].transform.position;
+
+		float magnitude = ( p2 - p1 ).magnitude;
+		m_Interpolant += ( Time.deltaTime ) * speed * m_Nodes.Length;
+
+		position = Vector3.Lerp( p1, p2, m_Interpolant );
+
+		if ( m_Interpolant > 1.0f )
 		{
 			m_Interpolant = 0.0f;
+			m_Nodes[ m_CurrentSegment ].OnReached();
 			m_CurrentSegment ++;
 			if ( m_CurrentSegment == m_Nodes.Length - 1 )
 			{
 				m_IsCompleted = true;
-				return false;
+
+				if ( m_OnPathCompleted != null && m_OnPathCompleted.GetPersistentEventCount() > 0 )
+				{
+					m_OnPathCompleted.Invoke();
+				}
 			}
 		}
 
-		position = Interpolation( m_CurrentSegment, m_Interpolant );
 		return true;
-	}
-
-
-	//
-	private	Vector3 Interpolation( int segment, float interpolant )
-	{
-		Vector3 p1 = Vector3.zero;
-		Vector3 p2 = Vector3.zero;
-		Vector3 p3 = Vector3.zero;
-		Vector3 p4 = Vector3.zero;
-		if ( segment == 0 )
-		{
-			p1 = m_Nodes[ segment + 0 ].transform.position;
-			p3 = m_Nodes[ segment + 1 ].transform.position;
-			p4 = m_Nodes[ segment + 2 ].transform.position;
-			p2 = p1;
-		}
-		else
-		if ( segment == m_Nodes.Length - 2 )
-		{
-			p1 = m_Nodes[ segment - 1 ].transform.position;
-			p2 = m_Nodes[ segment + 0 ].transform.position;
-			p3 = m_Nodes[ segment + 1 ].transform.position;
-			p4 = p3;
-		}
-		else
-		if ( m_Interpolant >= 1.0f )
-		{
-			p1 = m_Nodes[ segment - 1 ].transform.position;
-			p2 = m_Nodes[ segment + 0 ].transform.position;
-			p3 = m_Nodes[ segment + 1 ].transform.position;
-			p4 = m_Nodes[ segment + 2 ].transform.position;
-		}
-		return Utils.Math.GetPoint( p1, p2, p3, p4, interpolant );
-
 	}
 
 
@@ -101,7 +102,7 @@ public class PathLinear : PathBase {
 	public override void ResetPath()
 	{
 		base.ResetPath();
-
+		m_CurrentSegment = 0;
 	}
 
 
@@ -114,7 +115,16 @@ public class PathLinear : PathBase {
 	//
 	private				void	OnDrawGizmosSelected()
 	{
-		
+		ElaboratePath( Steps: 100f );
+
+		Vector3 prevPosition = m_Positions[0];
+		IteratePath
+		(
+			OnPosition: ( Vector3 position, Quaternion rotation ) => {
+				Gizmos.DrawLine( prevPosition, position );
+				prevPosition = position;
+			}
+		);
 	}
 
 }

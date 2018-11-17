@@ -16,31 +16,40 @@ public class PathSpline : PathBase {
 	}
 
 
-
 	//
 	protected	override	void			ElaboratePath( float Steps, float StepLength = 1.0f )
 	{
-		m_Nodes = transform.GetComponentsInChildren<PathWaypoint>();
+		Vector3[] positions = null;
+		{
+			m_Nodes = transform.GetComponentsInChildren<PathWaypoint>();
 
+			List<Vector3> positionsList = new List<Vector3>( m_Nodes.Length );
+			{
+				positionsList.Add( m_Nodes.First().transform.position );
+					System.Array.ForEach( m_Nodes, ( PathWaypoint w ) => { positionsList.Add( w.transform.position ); } );
+				positionsList.Add( m_Nodes.Last().transform.position );
+			}
+			positions = positionsList.ToArray();
+		}
+
+		List<Vector3> allNeededPositions = new List<Vector3>();
 		m_PathLength = 0.0f;
-		
-		List<Vector3> positionsList = new List<Vector3>();
 
-		Vector3 prevPosition = m_Nodes[0].transform.position;
+		Vector3 prevPosition = positions[0];
 		float currentStep = 0.001f;
 		while ( currentStep < Steps )
 		{
 			float interpolant = currentStep / Steps;
-			Vector3 currentPosition = Utils.Math.GetPoint( m_Positions, interpolant );
+			Vector3 currentPosition = Utils.Math.GetPoint( positions, interpolant );
 
-			positionsList.Add( currentPosition );
+			allNeededPositions.Add( currentPosition );
 			m_PathLength += Vector3.Distance( prevPosition, currentPosition );
 
 			prevPosition = currentPosition;
 			currentStep += StepLength;
 		}
 
-		m_Positions = positionsList.ToArray();
+		m_Positions = allNeededPositions.ToArray();
 	}
 
 
@@ -52,9 +61,11 @@ public class PathSpline : PathBase {
 			return;
 		}
 
-		System.Array.ForEach( m_Positions, ( Vector3 position ) => {
-			OnPosition( position, Quaternion.identity );
-		});
+		System.Array.ForEach
+		(	m_Positions, ( Vector3 position ) => {
+				OnPosition( position, Quaternion.identity );
+			}
+		);
 	}
 
 
@@ -64,8 +75,15 @@ public class PathSpline : PathBase {
 		if ( m_IsCompleted )
 			return false;
 
+		if ( m_Interpolant == 0.0f )
+		{
+			if ( m_OnPathStart != null && m_OnPathStart.GetPersistentEventCount() > 0 )
+			{
+				m_OnPathStart.Invoke();
+			}
+		}
+
 		m_Interpolant += ( Time.deltaTime ) * speed;
-		position = Utils.Math.GetPoint( m_Positions, m_Interpolant );
 
 		if ( m_Interpolant >= 1.0f )
 		{
@@ -77,6 +95,7 @@ public class PathSpline : PathBase {
 			}
 		}
 
+		position = Utils.Math.GetPoint( m_Positions, m_Interpolant );
 		return true;
 	}
 	
@@ -93,11 +112,10 @@ public class PathSpline : PathBase {
 	{
 		ElaboratePath( Steps: 100f );
 
-		Vector3 prevPosition = m_Nodes[0].transform.position;
-
-		IteratePath(
+		Vector3 prevPosition = m_Positions[0];
+		IteratePath
+		(
 			OnPosition: ( Vector3 position, Quaternion rotation ) => {
-				m_PathLength = ( prevPosition - position ).magnitude;
 				Gizmos.DrawLine( prevPosition, position );
 				prevPosition = position;
 			}

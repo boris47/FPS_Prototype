@@ -2,10 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public	class	PathWayPointOnline {
+
+	public	Vector3	Position = Vector3.zero;
+
+}
+
 public abstract	class PathBase : MonoBehaviour {
 
 	[SerializeField]
+	protected		GameEvent			m_OnPathStart		= null;
+
+	[SerializeField]
 	protected		GameEvent			m_OnPathCompleted	= null;
+
 
 	protected		float				m_Interpolant		= 0f;
 	protected		bool				m_IsCompleted		= false;
@@ -40,5 +50,5 @@ public abstract	class PathBase : MonoBehaviour {
 
 
 	// 
-	public	abstract void	DrawGizmos();
+	public		abstract void	DrawGizmos();
 }

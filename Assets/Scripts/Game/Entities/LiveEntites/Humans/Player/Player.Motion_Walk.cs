@@ -49,12 +49,12 @@ public partial class Player {
 			bool isWalking	= ( movementType != SimMovementType.RUN );
 			bool isRunning	= !isWalking;
 			bool isCrouched = ( movementType == SimMovementType.CROUCHED );
-			m_ForwardSmooth = ( isCrouched ) ? m_CrouchSpeed : ( isRunning ) ? m_RunSpeed : m_WalkSpeed;
+			m_ForwardSmooth = ( movementType != SimMovementType.STATIONARY ) ? ( isCrouched ) ? m_CrouchSpeed : ( isRunning ) ? m_RunSpeed : m_WalkSpeed : 0.0f;
 
 			m_States.IsWalking	= isWalking;
 			m_States.IsRunning	= isRunning;
 			m_States.IsCrouched	= isCrouched;
-			m_States.IsMoving	= true;
+			m_States.IsMoving	= movementType != SimMovementType.STATIONARY;
 
 			m_Move = ( m_ForwardSmooth * direction.normalized ) * GroundSpeedModifier;
 //			m_RigidBody.velocity = m_Move;
@@ -78,7 +78,7 @@ public partial class Player {
 			transform.rotation = rotation;
 		}
 
-		m_RigidBody.velocity	= Vector3.zero;
+//		m_RigidBody.velocity	= Vector3.zero;
 		m_Move					= Vector3.zero;
 		m_ForwardSmooth			= 0f;
 		m_States.IsWalking		= false;

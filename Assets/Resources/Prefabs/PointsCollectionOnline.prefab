@@ -72,6 +72,7 @@ GameObject:
   - component: {fileID: 4737617074801694}
   - component: {fileID: 33280083043521590}
   - component: {fileID: 23859444374461490}
+  - component: {fileID: 114535139908095914}
   m_Layer: 0
   m_Name: Point 3
   m_TagString: Untagged
@@ -135,7 +136,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1158345570420242}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 3.54, y: 0, z: 9.55}
+  m_LocalPosition: {x: 5.7599993, y: 0, z: 5.719999}
   m_LocalScale: {x: 0.19999999, y: 0.19999999, z: 0.19999999}
   m_Children: []
   m_Father: {fileID: 4889181094142638}
@@ -161,7 +162,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1272650434456132}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 10, y: 0, z: 19.1}
+  m_LocalPosition: {x: 12.219999, y: 0, z: 15.269999}
   m_LocalScale: {x: 0.19999999, y: 0.19999999, z: 0.19999999}
   m_Children: []
   m_Father: {fileID: 4889181094142638}
@@ -174,7 +175,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1547418053352498}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 3.2, y: 0, z: 15.24}
+  m_LocalPosition: {x: 5.4199996, y: 0, z: 11.409998}
   m_LocalScale: {x: 0.19999999, y: 0.19999999, z: 0.19999999}
   m_Children: []
   m_Father: {fileID: 4889181094142638}
@@ -187,7 +188,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1457675006253816}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.24, y: 0, z: 3.77}
+  m_LocalPosition: {x: -0.02, y: 0, z: -0.06}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_Children: []
   m_Father: {fileID: 4889181094142638}
@@ -199,15 +200,15 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1107321734566324}
-  m_LocalRotation: {x: -0, y: -0.58391166, z: -0, w: 0.8118173}
-  m_LocalPosition: {x: 10.58, y: 4.41, z: -29.76}
+  m_LocalRotation: {x: -0, y: -0.6527024, z: -0, w: 0.75761443}
+  m_LocalPosition: {x: 9.48, y: 9.33, z: -29.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4889181094142638}
   - {fileID: 4729120834514148}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: -71.452, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -81.491005, z: 0}
 --- !u!4 &4889181094142638
 Transform:
   m_ObjectHideFlags: 1
@@ -215,7 +216,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1105014619630428}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0, y: 0.95, z: 0}
+  m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4748236080620860}
@@ -420,6 +421,17 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1457675006253816}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &114535139908095914
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1272650434456132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb80fbecf5a7f7642bcedd8af41abc20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114644856241673260
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -472,12 +484,12 @@ MonoBehaviour:
         m_Calls: []
       m_TypeName: GameEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   - Name: CutsceneWaypointData
-    movementType: 0
+    movementType: 1
     point: {fileID: 4198035080718330}
     target: {fileID: 0}
-    timeScaleTraget: 0.631
+    timeScaleTraget: 0.312
     zoomEnabled: 0
-    waiter: {fileID: 114644856241673260}
+    waiter: {fileID: 0}
     OnWayPointReached:
       m_PersistentCalls:
         m_Calls: []
@@ -486,7 +498,7 @@ MonoBehaviour:
     movementType: 1
     point: {fileID: 4746161472688282}
     target: {fileID: 0}
-    timeScaleTraget: 0.868
+    timeScaleTraget: 0.619
     zoomEnabled: 0
     waiter: {fileID: 0}
     OnWayPointReached:
@@ -502,5 +514,16 @@ MonoBehaviour:
     waiter: {fileID: 0}
     OnWayPointReached:
       m_PersistentCalls:
-        m_Calls: []
+        m_Calls:
+        - m_Target: {fileID: 114535139908095914}
+          m_MethodName: CanContinue
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
       m_TypeName: GameEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null

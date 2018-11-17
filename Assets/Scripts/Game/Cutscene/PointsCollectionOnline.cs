@@ -14,7 +14,7 @@ namespace CutScene {
 		[Range( 0.01f, 1f )]
 		public	float							timeScaleTraget		= 1.0f;
 		public	bool							zoomEnabled			= false;
-		public	Cutscene_Waiter_Base			waiter				= null;
+		public	Waiter_Base						waiter				= null;
 
 		[SerializeField]
 		public	GameEvent						OnWayPointReached	= null;

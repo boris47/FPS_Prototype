@@ -11419,7 +11419,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 200dc60ea7d438642adefe8304f23e0d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_ViewPoint: {fileID: 4721506159835518}
   m_Target: {fileID: 0}
   m_MouseSensitivity: 2.8
   m_SmoothedRotation: 0

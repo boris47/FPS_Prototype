@@ -300,6 +300,7 @@ namespace Utils {
 			return angle * Mathf.Rad2Deg;
 		}
 
+
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary>
 		/// 
@@ -315,6 +316,39 @@ namespace Utils {
 			if ( d >= -0.0001f && d <= 0.0002f )
 				return 0.0f;
 			return ( -Vector3.Dot( PVec, SVec ) / d );
+		}
+
+
+		/// <summary>
+		/// Returns the quadratic interpolation of given vectors
+		/// </summary>
+		public	static		Vector3		GetPointLinear( Vector3 p0, Vector3 p1, Vector3 p2, float t )
+		{
+			Vector3 v1 = Vector3.Lerp( p0, p1, t );
+			Vector3 v2 = Vector3.Lerp( p1, p2, t );
+			return Vector3.Lerp( v1, v2, t );
+		}
+
+
+		/// <summary>
+		/// Returns the cubic interpolation of given vectors
+		/// </summary>>
+		public	static		Vector3		GetPointLinear( Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t )
+		{
+			Vector3 v1 = GetPointLinear( p0, p1, p2, t );
+			Vector3 v2 = GetPointLinear( p1, p2, p3, t );
+			return Vector3.Lerp( v1, v2, t );
+		}
+
+
+		/// <summary>
+		/// Return a Five dimensional interpolation of given vectors
+		/// </summary>
+		public	static		Vector3		GetPointLinear( Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, float t )
+		{
+			Vector3 v1 = GetPointLinear( p0, p1, p2, p3, t );
+			Vector3 v2 = GetPointLinear( p1, p2, p3, p4, t );
+			return Vector3.Lerp( v1, v2, t );
 		}
 
 
@@ -381,7 +415,7 @@ namespace Utils {
 			int numSections = points.Length - 3;
 			int currPt = Mathf.Min( Mathf.FloorToInt( t * ( float ) numSections ), numSections - 1 );
 			float u = t * ( float ) numSections - ( float ) currPt;
-		
+			
 			Vector3 a = points[ currPt + 0 ];
 			Vector3 b = points[ currPt + 1 ];
 			Vector3 c = points[ currPt + 2 ];
