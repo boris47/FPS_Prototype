@@ -22,6 +22,11 @@ public class UI_InGame : MonoBehaviour {
 	// Awake
 	private void	Awake()
 	{
+
+	}
+
+	private void Start()
+	{
 		cycleText		= transform.GetChild(0).GetChild(0).GetComponent<Text>();
 		timeText		= transform.GetChild(0).GetChild(1).GetComponent<Text>();
 		healthText		= transform.GetChild(0).GetChild(2).GetComponent<Text>();
@@ -32,10 +37,10 @@ public class UI_InGame : MonoBehaviour {
 		otherInfo		= transform.GetChild(1).GetChild(2).GetComponent<Text>();
 		staminaBar		= transform.GetChild(1).GetChild(3).GetChild(1).GetComponent<Image>();
 
-		InvokeRepeating( "PrintTime", 0.3f, 0.2f );
+		InvokeRepeating( "PrintTime", 0.3f, 0.2f );	
 	}
 
-	
+
 	//////////////////////////////////////////////////////////////////////////
 	// OnEnable
 	private void OnEnable()

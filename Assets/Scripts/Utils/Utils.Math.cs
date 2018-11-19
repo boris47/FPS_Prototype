@@ -430,6 +430,41 @@ namespace Utils {
 			);
 		}
 
+		/*
+
+				//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// Return a Spline interpolation between given points
+		/// </summary>
+		public	static		Vector3		GetPoint( IList<Vector3> points, float t, out PathWayPointOnline w1, out PathWayPointOnline w2 )
+		{
+			if ( points == null || points.Count < 4 )
+			{
+				Debug.Log( "GetPoint Called with points invalid array" );
+				Debug.DebugBreak();
+			}
+
+			int numSections = points.Count - 3;
+			int currPt = Mathf.Min( Mathf.FloorToInt( t * ( float ) numSections ), numSections - 1 );
+			float u = t * ( float ) numSections - ( float ) currPt;
+
+			w1 = points[ currPt + 1 ];
+			w2 = points[ currPt + 2 ];
+
+			Vector3 a = points[ currPt + 0 ];
+			Vector3 b = points[ currPt + 1 ];
+			Vector3 c = points[ currPt + 1 ];
+			Vector3 d = points[ currPt + 3 ];
+		
+			return .5f * 
+			(
+				( -a + 3f * b - 3f * c + d )		* ( u * u * u ) +
+				( 2f * a - 5f * b + 4f * c - d )	* ( u * u ) +
+				( -a + c )							* u +
+				2f * b
+			);
+		}
+		*/
 	}
 
 }

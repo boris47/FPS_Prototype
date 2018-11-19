@@ -15,7 +15,8 @@ namespace CutScene {
 		private void Update()
 		{
 			Vector3	position = Vector3.zero;
-			if ( false == m_Path.Move( m_Speed, ref position ) )
+			Quaternion rotation = Quaternion.identity;
+			if ( false == m_Path.Move( m_Speed, ref position, ref rotation, transform.up ) )
 			{
 				enabled = false;
 			}

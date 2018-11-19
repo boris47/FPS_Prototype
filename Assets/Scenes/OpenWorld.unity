@@ -4116,12 +4116,6 @@ Transform:
   m_PrefabParentObject: {fileID: 4246184149967360, guid: b745044dc48c8c644aff72fb004757c6,
     type: 2}
   m_PrefabInternal: {fileID: 812340638}
---- !u!114 &835571323 stripped
-MonoBehaviour:
-  m_PrefabParentObject: {fileID: 114287356882946300, guid: 3bb2695d42c392e4aa36f332709b1a41,
-    type: 2}
-  m_PrefabInternal: {fileID: 305206047}
-  m_Script: {fileID: 11500000, guid: d9ab3339db36fb543b17254b128d4800, type: 3}
 --- !u!1001 &840529230
 Prefab:
   m_ObjectHideFlags: 0
@@ -6704,6 +6698,12 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 90.00001, y: 0, z: 135}
+--- !u!114 &1289218663 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 114835706423332420, guid: a9976094a79f9534eacd86483b925837,
+    type: 2}
+  m_PrefabInternal: {fileID: 2084422527}
+  m_Script: {fileID: 11500000, guid: bf01a4de726894349856f7d7013ae049, type: 3}
 --- !u!1001 &1314660441
 Prefab:
   m_ObjectHideFlags: 0
@@ -9178,6 +9178,21 @@ Prefab:
       propertyPath: m_RootOrder
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 108794403690500232, guid: 0938111bf6475d34585ee0df7bbb9cee,
+        type: 2}
+      propertyPath: m_Color.r
+      value: 0.67186874
+      objectReference: {fileID: 0}
+    - target: {fileID: 108794403690500232, guid: 0938111bf6475d34585ee0df7bbb9cee,
+        type: 2}
+      propertyPath: m_Color.g
+      value: 0.65038437
+      objectReference: {fileID: 0}
+    - target: {fileID: 108794403690500232, guid: 0938111bf6475d34585ee0df7bbb9cee,
+        type: 2}
+      propertyPath: m_Color.b
+      value: 0.59374374
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 0938111bf6475d34585ee0df7bbb9cee, type: 2}
   m_IsPrefabParent: 0
@@ -9842,7 +9857,9 @@ Prefab:
       propertyPath: m_OnPathCompleted.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 144791201}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 23296457299308360, guid: a9976094a79f9534eacd86483b925837, type: 2}
+    - {fileID: 33477250552167820, guid: a9976094a79f9534eacd86483b925837, type: 2}
   m_ParentPrefab: {fileID: 100100000, guid: a9976094a79f9534eacd86483b925837, type: 2}
   m_IsPrefabParent: 0
 --- !u!1001 &2088530169
@@ -10237,7 +10254,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50f55ed0cf840184d81cbadd9715a960, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Path: {fileID: 835571323}
+  m_Path: {fileID: 1289218663}
   m_Speed: 0.1
 --- !u!23 &2128297245
 MeshRenderer:

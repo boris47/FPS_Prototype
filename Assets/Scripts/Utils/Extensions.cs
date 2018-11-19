@@ -28,26 +28,27 @@ public static class Extensions {
 
 	public	static	T[]	GetComponentOnlyInChildren<T>( this Transform transform, bool deepSearch = false ) where T : Component
 	{
-		var list = new System.Collections.Generic.List<T>();
-		for ( int i = 0; i < transform.childCount; i++ )
+		List<T> list = new List<T>();
 		{
-			Transform child = transform.GetChild( i );
+			for ( int i = 0; i < transform.childCount; i++ )
+			{
+				Transform child = transform.GetChild( i );
 
-			if ( deepSearch == true )
-			{
-				T[] childComponents = child.GetComponentsInChildren<T>( child );
-				if ( childComponents.Length > 0 )
-					list.AddRange( childComponents );
-			}
-			else
-			{
-				T childComponent = child.GetComponent<T>();
-				if ( childComponent != null )
+				if ( deepSearch == true )
 				{
-					list.Add( childComponent );
+					T[] childComponents = child.GetComponentsInChildren<T>( child );
+					list.AddRange( childComponents );
 				}
-			}
+				else
+				{
+					T childComponent = child.GetComponent<T>();
+					if ( childComponent != null )
+					{
+						list.Add( childComponent );
+					}
+				}
 
+			}
 		}
 		return list.ToArray();
 	}

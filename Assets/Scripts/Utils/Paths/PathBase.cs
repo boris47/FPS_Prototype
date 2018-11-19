@@ -1,36 +1,42 @@
 
 using System.Collections.Generic;
+
 using UnityEngine;
 
-public	class	PathWayPointOnline {
+[System.Serializable]
+public	struct	PathWayPointOnline {
 
-	public	Vector3	Position = Vector3.zero;
+	public	Vector3		Position;
+	public	Quaternion	Rotation;
+
+	public static implicit operator Vector3		( PathWayPointOnline w )		{	return w.Position;	}
+	public static implicit operator Quaternion	( PathWayPointOnline w )		{	return w.Rotation;	}
 
 }
 
 public abstract	class PathBase : MonoBehaviour {
 
 	[SerializeField]
-	protected		GameEvent			m_OnPathStart		= null;
+	protected		GameEvent				m_OnPathStart		= null;
 
 	[SerializeField]
-	protected		GameEvent			m_OnPathCompleted	= null;
+	protected		GameEvent				m_OnPathCompleted	= null;
 
 
-	protected		float				m_Interpolant		= 0f;
-	protected		bool				m_IsCompleted		= false;
+	protected		float					m_Interpolant		= 0f;
+	protected		bool					m_IsCompleted		= false;
 
-	protected		Vector3[]			m_Positions			= null;
+	protected		PathWayPointOnline[]	m_Waypoints			= null;
 
-	protected		float				m_PathLength		= 0.0f;
-	public			float				PathLength
+	protected		float					m_PathLength		= 0.0f;
+	public			float					PathLength
 	{
 		get { return m_PathLength; }
 	}
 
 
 	// 
-	public		abstract void	IteratePath( System.Action<Vector3, Quaternion> OnPosition );
+	public		abstract void	IteratePath( System.Action<PathWayPointOnline> OnPosition );
 
 
 	// 
@@ -38,7 +44,7 @@ public abstract	class PathBase : MonoBehaviour {
 
 
 	// 
-	public		abstract bool	Move( float speed, ref Vector3 position );
+	public		abstract bool	Move( float speed, ref Vector3 position, ref Quaternion rotation, Vector3 upwards = new Vector3() );
 
 
 	// 
