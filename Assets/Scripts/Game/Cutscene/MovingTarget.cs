@@ -14,15 +14,16 @@ namespace CutScene {
 
 		private void Update()
 		{
-			Vector3	position = Vector3.zero;
-			Quaternion rotation = Quaternion.identity;
-			if ( false == m_Path.Move( m_Speed, ref position, ref rotation, transform.up ) )
+			Vector3	position	= transform.position;
+			Quaternion rotation = transform.rotation;
+			if ( false == m_Path.Move( m_Speed, ref position, ref rotation, Vector3.up ) )
 			{
 				enabled = false;
 			}
 			else
 			{
 				transform.position = position;
+				transform.rotation = rotation;
 			}
 		}
 		

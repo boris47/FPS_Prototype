@@ -8,13 +8,15 @@ public class PathSpline : PathBase {
 	[SerializeField]
 	private		PathWaypoint[]		m_Nodes				= null;
 
+	private		Vector3[]			m_Positions			= null;
+
 	GameObject sphere1, sphere2;
 
 
 	// 
 	private				void			Awake()
 	{
-		ElaboratePath( Steps: 100f );
+		ElaboratePath( Steps: 250 );
 
 		sphere1 = GameObject.CreatePrimitive( PrimitiveType.Sphere );
 		sphere2 = GameObject.CreatePrimitive( PrimitiveType.Sphere );
@@ -38,20 +40,13 @@ public class PathSpline : PathBase {
 			List<Vector3> positionsList = new List<Vector3>( m_Nodes.Length + 2 );
 			{
 				// Fist node
-				positionsList.Add
-				(
-					m_Nodes.First().transform.position
-				);
+				positionsList.Add ( m_Nodes.First().transform.position );
 
 				// All middle nodes
 				positionsList.AddRange( m_Nodes.Select( w => w.transform.position ).ToArray() );
-				
 
 				// Last node
-				positionsList.Add
-				(
-					m_Nodes.Last().transform.position
-				);
+				positionsList.Add ( m_Nodes.Last().transform.position );
 				
 			}
 			
@@ -62,14 +57,14 @@ public class PathSpline : PathBase {
 		{
 			List<PathWayPointOnline> waypointsList = new List<PathWayPointOnline>();
 
-			PathWayPointOnline bump;
+			Vector3 bump;
 
 			Vector3 prevPosition = positions[0];
 			float currentStep = 0.001f;
 			while ( currentStep < Steps )
 			{
 				float interpolant = currentStep / Steps;
-				Vector3 currentPosition = Utils.Math.GetPoint( positions, interpolant /*, out bump, out bump*/ );
+				Vector3 currentPosition = Utils.Math.GetPoint( positions, interpolant, out bump, out bump );
 
 				waypointsList.Add
 				(
@@ -87,6 +82,8 @@ public class PathSpline : PathBase {
 				currentStep += StepLength;
 			}
 			m_Waypoints = waypointsList.ToArray();
+
+			m_Positions = m_Waypoints.Select( w => w.Position ).ToArray();
 		}
 	}
 
@@ -108,7 +105,8 @@ public class PathSpline : PathBase {
 		);
 	}
 
-
+	private	Vector3 p1Temp, p2Temp;
+	private float rotationSpeed = 1.0f;
 	//
 	public		override	bool			Move( float speed, ref Vector3 position, ref Quaternion rotation, Vector3 upwards = new Vector3() )
 	{
@@ -129,16 +127,26 @@ public class PathSpline : PathBase {
 
 		// Position
 
-///		PathWayPointOnline w1, w2;
+		Vector3 p1, p2;
 
-		position = Utils.Math.GetPoint( m_Nodes.Select( w => w.transform.position ).ToArray(), m_Interpolant /*, out w1, out w2*/ );
+		position = Utils.Math.GetPoint( m_Positions, m_Interpolant , out p1, out p2 );
 
-///		sphere1.transform.position = w1;
-///		sphere2.transform.position = w2;
+//		sphere1.transform.position = p1; // red
+//		sphere2.transform.position = p2; // green
+
+		p1Temp = Vector3.Lerp( p1Temp, p1, ( Time.deltaTime * rotationSpeed ) );
+		p2Temp = Vector3.Lerp( p2Temp, p2, ( Time.deltaTime * rotationSpeed) );
 
 		// Rotation
 		{
+			float t = ( p1Temp - position ).magnitude / ( p2Temp - p1Temp ).magnitude;
+			Vector3 direction = ( p2Temp - p1Temp );
+			Quaternion newRotation = Quaternion.LookRotation( direction, upwards );
 
+			float angleNow  = Quaternion.Angle( rotation, newRotation );
+			rotationSpeed = 1.0f + angleNow;
+
+			rotation = Quaternion.Slerp( rotation, newRotation, t * rotationSpeed );
 		}
 
 		if ( m_Interpolant >= 1.0f )
@@ -150,7 +158,6 @@ public class PathSpline : PathBase {
 				m_OnPathCompleted.Invoke();
 			}
 		}
-
 		
 		return true;
 	}
@@ -166,7 +173,7 @@ public class PathSpline : PathBase {
 	// 
 	private				void			OnDrawGizmosSelected()
 	{
-		ElaboratePath( Steps: 100f );
+		ElaboratePath( Steps: 250 );
 
 		Vector3 prevPosition = m_Waypoints[0];
 		IteratePath

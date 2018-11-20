@@ -111,6 +111,7 @@ public struct EntityEvents {
 /////////////////////////////////////////
 
 public enum BulletMotionType {
+	INSTANT,
 	DIRECT,
 	PARBOLIC
 }

@@ -135,22 +135,26 @@ namespace Utils {
 			
 			T1 result = default( T1 );
 
-			// Filtered search
-			if ( Filter != null && results != null && results.Length > 0 )
+			if ( results != null && results.Length > 0 )
 			{
-				result = global::System.Array.Find( results, Filter );
-			}
-			// Normal search
-			else
-			{
-				if ( results != null && results.Length > 0 )
+				// Filtered search
+				if (  Filter != null )
+				{
+					result = global::System.Array.Find( results, Filter );
+				}
+				// Normal search
+				else
 				{
 					result = results[0];
 				}
 			}
 
-			Component = result;
-			return ( result != null );
+			bool bHasValidResult = ( result != null );
+			if ( bHasValidResult )
+			{
+				Component = result;
+			}
+			return bHasValidResult;
 		}
 
 
@@ -158,16 +162,19 @@ namespace Utils {
 		{
 			T1[] results = SearchResults<T1>( GameObject, Context );
 
+			// Filtered search
 			if ( Filter != null && results.Length > 0 )
 			{
 				Components = global::System.Array.FindAll( results, ( T1 c ) => Filter( c ) );
 			}
+			// Normal search
 			else
 			{
 				Components = results;
 			}
 
-			return ( Components != null && Components.Length > 0 );
+			bool bHasValidResult = ( Components != null && Components.Length > 0 );
+			return bHasValidResult;
 		}
 	}
 

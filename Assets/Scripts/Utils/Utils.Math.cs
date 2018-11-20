@@ -404,7 +404,7 @@ namespace Utils {
 		/// <summary>
 		/// Return a Spline interpolation between given points
 		/// </summary>
-		public	static		Vector3		GetPoint( Vector3[] points, float t )
+		public	static		Vector3		GetPoint( Vector3[] points, float t, out Vector3 pos1, out Vector3 pos2 )
 		{
 			if ( points == null || points.Length < 4 )
 			{
@@ -415,12 +415,15 @@ namespace Utils {
 			int numSections = points.Length - 3;
 			int currPt = Mathf.Min( Mathf.FloorToInt( t * ( float ) numSections ), numSections - 1 );
 			float u = t * ( float ) numSections - ( float ) currPt;
-			
+
 			Vector3 a = points[ currPt + 0 ];
 			Vector3 b = points[ currPt + 1 ];
 			Vector3 c = points[ currPt + 2 ];
 			Vector3 d = points[ currPt + 3 ];
-		
+
+			pos1 = b;
+			pos2 = c;
+
 			return .5f * 
 			(
 				( -a + 3f * b - 3f * c + d )		* ( u * u * u ) +

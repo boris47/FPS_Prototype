@@ -16,16 +16,21 @@ public class GenericBullet : Bullet {
 		base.Awake();
 
 		m_RigidBody.useGravity					= false;
+			
+		bool bHasLight = transform.SearchComponent( ref m_PointLight, SearchContext.LOCAL, null );
+		bool bHasFlare = transform.SearchComponent( ref m_LensFlare,  SearchContext.LOCAL, null );
 
-		m_BulletEffect = m_PointLight = GetComponent<Light>();
-
-		m_LensFlare = GetComponent<LensFlare>();
-
-		if ( m_PointLight != null )
+		if ( bHasLight )
+		{
 			m_PointLight.color = m_Renderer.material.GetColor( "_EmissionColor" );
+			m_BulletEffect = m_PointLight;
 
-		if ( m_LensFlare != null )
-			m_LensFlare.color = m_PointLight.color;
+			if ( bHasFlare  )
+			{
+				m_LensFlare.color = m_PointLight.color;
+			}
+		}
+
 
 		SetActive( false );
 	}

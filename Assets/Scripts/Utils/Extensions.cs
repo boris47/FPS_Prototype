@@ -26,6 +26,16 @@ public static class Extensions {
 		return null;
 	}
 
+	public	static	bool	SearchComponent<T>( this Transform transform, ref T Component, SearchContext Context, global::System.Predicate<T> Filter = null )
+	{
+		return Utils.Base.SearchComponent( transform.gameObject, ref Component, Context, Filter );
+	}
+
+	public	static	bool	SearchComponents<T>( this Transform transform, ref T[] Component, SearchContext Context, global::System.Predicate<T> Filter = null )
+	{
+		return Utils.Base.SearchComponents( transform.gameObject, ref Component, Context, Filter );
+	}
+
 	public	static	T[]	GetComponentOnlyInChildren<T>( this Transform transform, bool deepSearch = false ) where T : Component
 	{
 		List<T> list = new List<T>();
