@@ -152,7 +152,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 			{
 				Vector3 targetPosition = m_TargetInfo.CurrentTarget.Transform.position;
 				Bullet model = m_Pool.GetAsModel();
-				if ( model.MotionType == BulletMotionType.PARBOLIC )
+				if ( model.MotionType == BulletMotionType.PARABOLIC )
 				{
 					// BALLISTIC TRAJECTORY
 					float targetHeight = targetPosition.y;

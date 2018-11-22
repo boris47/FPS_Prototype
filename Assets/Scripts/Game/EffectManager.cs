@@ -16,6 +16,8 @@ public class EffectManager : MonoBehaviour {
 	private		ParticleSystem[]			m_Effects = new ParticleSystem[ (int)EffectType.COUNT ];
 
 
+	private		bool						m_IsOK = true;
+
 	//////////////////////////////////////////////////////////////////////////
 	// Awake
 	private void	Awake()
@@ -28,17 +30,14 @@ public class EffectManager : MonoBehaviour {
 		Instance = this;
 		DontDestroyOnLoad( this );
 
-		bool result = true;
-		{
+			{
 			for ( int i = 0; i < (int)EffectType.COUNT; i++ )
 			{
 				ParticleSystem particleSystem = null;
-				result &= Utils.Base.SearchComponent( gameObject, ref particleSystem, SearchContext.CHILDREN, ( p ) => { return p.transform.GetSiblingIndex() == i; } );
+				m_IsOK &= Utils.Base.SearchComponent( gameObject, ref particleSystem, SearchContext.CHILDREN, ( p ) => { return p.transform.GetSiblingIndex() == i; } );
 				m_Effects[i] = particleSystem;
 			}
 		}
-		if ( result == false )
-			return;
 	}
 
 
@@ -46,6 +45,9 @@ public class EffectManager : MonoBehaviour {
 	// PlayEntityOnHit
 	public	void	PlayEffect( EffectType effectType,  Vector3 position, Vector3 direction, int count = 0 )
 	{
+		if ( m_IsOK == false )
+			return;
+
 		ParticleSystem p = null;
 		if ( count > 0 )
 		{
@@ -69,6 +71,9 @@ public class EffectManager : MonoBehaviour {
 	// PlayerExplosionSound
 	public	void	PlayExplosionSound( Vector3 position )
 	{
+		if ( m_ExplosionSource == null )
+			return;
+
 		m_ExplosionSource.transform.position = position;
 		( m_ExplosionSource as ICustomAudioSource ).Play();
 	}

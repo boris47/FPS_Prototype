@@ -246,8 +246,8 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 		if ( Player.Instance.IsDodging )
 			return;
 
-		m_WpnCurrentDeviation.x += Random.Range( -deviation, -deviation ) * weightX;
-		m_WpnCurrentDeviation.y += Random.Range( -deviation,  deviation ) * weightY;
+		m_WpnCurrentDeviation.x += Random.Range( -deviation, deviation ) * weightX;
+		m_WpnCurrentDeviation.y += Random.Range( -deviation, deviation ) * weightY;
 	}
 
 
@@ -255,8 +255,8 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 	// ApplyDispersion
 	void	ICameraControl.ApplyDispersion( float dispersion, float weightX, float weightY )
 	{
-		m_WpnCurrentDispersion.x += Random.Range( -dispersion, -dispersion ) * weightX;
-		m_WpnCurrentDispersion.y += Random.Range( -dispersion,  dispersion ) * weightY;
+		m_WpnCurrentDispersion.x += Random.Range( -dispersion, dispersion ) * weightX;
+		m_WpnCurrentDispersion.y += Random.Range( -dispersion, dispersion ) * weightY;
 	}
 
 

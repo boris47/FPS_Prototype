@@ -32,7 +32,7 @@ public abstract partial class Entity : IBrain {
 	// INTERFACE END
 
 	[SerializeField]
-	protected			AIBehaviour					m_CurrentBehaviour				= null;
+	protected			AIBehaviour					m_CurrentBehaviour				= new Behaviour_Empty();
 	[SerializeField]
 	protected			List<AIBehaviour>			m_Behaviours					= new List<AIBehaviour>( new AIBehaviour[5] );
 
@@ -59,12 +59,16 @@ public abstract partial class Entity : IBrain {
 	//////////////////////////////////////////////////////////////////////////
 	public	void	SetBehaviour( BrainState brainState, string behaviourId, bool state ) 
 	{
+		// Pre-set empty behaviour as default
+		m_Behaviours[ (int)brainState ] = new Behaviour_Empty();
+
 		if ( behaviourId == null || behaviourId.Trim().Length == 0 )
 		{
 			Debug.Log( "Brain.SetBehaviour Setting invalid behaviour for state " + state + ", " + behaviourId );
 			return;
 		}
 
+		// Check behaviour id validity
 		System.Type type = System.Type.GetType( behaviourId.Trim() );
 		if ( type == null )
 		{
@@ -72,6 +76,14 @@ public abstract partial class Entity : IBrain {
 			return;
 		}
 
+		// Check behaviour type as child of AIBehaviour
+		if ( type.IsSubclassOf( typeof( AIBehaviour ) ) == false )
+		{
+			Debug.Log( "Brain.SetBehaviour Class Requested is not a supported behaviour " + behaviourId );
+			return;
+		}
+
+		// Setup of the instanced behaviour
 		AIBehaviour behaviour = System.Activator.CreateInstance( type ) as AIBehaviour;
 		behaviour.Setup( m_ID );
 		if ( state == true )
@@ -79,6 +91,7 @@ public abstract partial class Entity : IBrain {
 			m_CurrentBehaviour = behaviour as AIBehaviour;
 		}
 
+		// Behaviour assignment
 		m_Behaviours[ (int)brainState ] = behaviour;
 	}
 

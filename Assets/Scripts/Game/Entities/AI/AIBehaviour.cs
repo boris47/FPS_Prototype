@@ -16,33 +16,52 @@ public abstract	class AIBehaviour {
 		UnityEngine.Debug.Log( msg );
 	}
 
-	public	abstract	void			OnEnable();
+	public	virtual	void			OnEnable()
+	{ }
 
-	public	abstract	void			OnDisable();
+	public	virtual	void			OnDisable()
+	{ }
 
-	public	abstract	StreamUnit		OnSave( StreamData streamData );
+	public	virtual	StreamUnit		OnSave( StreamData streamData )
+	{ return null; }
 
-	public	abstract	StreamUnit		OnLoad( StreamData streamData );
+	public	virtual	StreamUnit		OnLoad( StreamData streamData )
+	{ return null; }
 
-	public	abstract	void			OnHit( IBullet bullet );
+	public	virtual	void			OnHit( IBullet bullet )
+	{ }
 
-	public	abstract	void			OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false );
+	public	virtual	void			OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
+	{ }
 
-	public	abstract	void			OnThink();
+	public	virtual	void			OnThink()
+	{ }
 
-	public	abstract	void			OnPhysicFrame( float FixedDeltaTime );
+	public	virtual	void			OnPhysicFrame( float FixedDeltaTime )
+	{ }
 
-	public	abstract	void			OnFrame( float DeltaTime );
+	public	virtual	void			OnFrame( float DeltaTime )
+	{ }
 
-	public	abstract	void			OnPauseSet( bool isPaused );
+	public	virtual	void			OnPauseSet( bool isPaused )
+	{ }
 
-	public	abstract	void			OnTargetAcquired();
+	public	virtual	void			OnTargetAcquired()
+	{ }
 
-	public	abstract	void			OnTargetChange();
+	public	virtual	void			OnTargetChange()
+	{ }
 
-	public	abstract	void			OnTargetLost();
+	public	virtual	void			OnTargetLost()
+	{ }
 
-	public	abstract	void			OnDestinationReached( Vector3 Destination );
+	public	virtual	void			OnDestinationReached( Vector3 Destination )
+	{ }
 
-	public	abstract	void			OnKilled();
+	public	virtual	void			OnKilled()
+	{ }
+
 }
+
+
+public class Behaviour_Empty : AIBehaviour { }

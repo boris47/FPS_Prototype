@@ -30,3 +30,18 @@ AI Behiaviours
 ***	complete walker behiaviour
 ***	complete drone behiaviour
 ***	complete tower behiaviour
+
+***	default empty behaviour
+***	well done behaviour change
+	Muzzle effects
+	Remake of bullets
+	Memory introduction
+	Entity dead parts
+	Infected enemies
+	Biological danger
+	Units group
+	Awareness by target
+
+
+	m_IsCompletelyDisallignWithPoint
+	( se l'angolo è maggiore di 90 gradi allora deve fermarsi e stare fermo fin quando l'angolo non torna ad aessere inferiore di 90 gradi )

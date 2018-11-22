@@ -317,6 +317,14 @@ public class Blackjack : Weapon {
 			
 		m_Magazine --;
 
+		// TODO muzzle flash
+//		EffectManager.Instance.PlayEffect( EffectType.MUZZLE, m_FirePoint.position, m_FirePoint.forward, 1 );
+//		EffectManager.Instance.PlayEffect( EffectType.SMOKE, m_FirePoint.position, m_FirePoint.forward, 1 );
+
+//		Time.timeScale = 0.0001f;
+
+//		UnityEditor.EditorApplication.isPaused = true;
+
 		// BULLET
 		IBullet bullet = m_PoolBullets.GetComponent();
 

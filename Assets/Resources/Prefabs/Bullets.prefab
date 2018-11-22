@@ -1048,7 +1048,7 @@ MonoBehaviour:
   m_Range: 45
   m_DamageMult: 1
   m_RecoilMult: 1
-  m_MotionType: 0
+  m_MotionType: 1
 --- !u!114 &114147719676162380
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1064,7 +1064,7 @@ MonoBehaviour:
   m_Range: 45
   m_DamageMult: 1
   m_RecoilMult: 1
-  m_MotionType: 0
+  m_MotionType: 1
 --- !u!114 &114208799347563724
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1114,7 +1114,7 @@ MonoBehaviour:
   m_Range: 50
   m_DamageMult: 1
   m_RecoilMult: 1
-  m_MotionType: 0
+  m_MotionType: 1
 --- !u!114 &114654618817302108
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1130,7 +1130,7 @@ MonoBehaviour:
   m_Range: 30
   m_DamageMult: 1
   m_RecoilMult: 1
-  m_MotionType: 1
+  m_MotionType: 2
 --- !u!114 &114671673385870204
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1146,7 +1146,7 @@ MonoBehaviour:
   m_Range: 15
   m_DamageMult: 1
   m_RecoilMult: 5
-  m_MotionType: 1
+  m_MotionType: 2
   m_Duration: 1
 --- !u!114 &114734588386207940
 MonoBehaviour:
@@ -1163,7 +1163,7 @@ MonoBehaviour:
   m_Range: 90
   m_DamageMult: 1
   m_RecoilMult: 1
-  m_MotionType: 0
+  m_MotionType: 1
 --- !u!114 &114799048232639802
 MonoBehaviour:
   m_ObjectHideFlags: 1

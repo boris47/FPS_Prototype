@@ -35,6 +35,9 @@ public enum EffectType {
 	ELETTRO,
 	PLASMA,
 	EXPLOSION,
+
+	MUZZLE,
+	SMOKE,
 	COUNT
 };
 
@@ -113,7 +116,7 @@ public struct EntityEvents {
 public enum BulletMotionType {
 	INSTANT,
 	DIRECT,
-	PARBOLIC
+	PARABOLIC
 }
 
 /////////////////////////////////////////

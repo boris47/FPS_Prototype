@@ -3,9 +3,6 @@ using UnityEngine;
 
 public interface IBullet {
 
-	Transform			Transform		{ get; }
-	Rigidbody			RigidBody		{ get; }
-	Collider			Collider		{ get; }
 	float				Velocity		{ get; }
 	Entity				WhoRef			{ get; }
 	Weapon				Weapon			{ get; }
@@ -42,26 +39,24 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 	[SerializeField]
 	protected		BulletMotionType	m_MotionType			= BulletMotionType.DIRECT;
 
-
+	// TODO remove this getter
 	public			Rigidbody			RigidBody				{		get { return m_RigidBody; }		}
 	public			Collider			Collider				{		get { return m_Collider; }		}
 	public			float				Velocity				{		get { return m_Velocity; }		}
 	public			BulletMotionType	MotionType				{		get { return m_MotionType; }	}
-
+	
 
 	protected		Rigidbody			m_RigidBody				= null;
 	protected		Collider			m_Collider				= null;
 	protected		Entity				m_WhoRef				= null;
 	protected		Weapon				m_Weapon				= null;
 	protected		Object				m_BulletEffect			= null;
+
 	protected		float				m_DamageMin				= 0f;
 	protected		float				m_DamageMax				= 0f;
 	protected		bool				m_CanPenetrate			= false;
 
 	// INTERFACE START
-					Transform			IBullet.Transform		{	get { return transform; }		}
-					Rigidbody			IBullet.RigidBody		{	get { return m_RigidBody; }		}
-					Collider			IBullet.Collider		{	get { return m_Collider; }		}
 					float				IBullet.Velocity		{	get { return m_Velocity; }		}
 					Entity				IBullet.WhoRef			{	get { return m_WhoRef; }		}
 					Weapon				IBullet.Weapon			{	get { return m_Weapon; }		}
@@ -94,15 +89,6 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 		m_RigidBody.interpolation				= RigidbodyInterpolation.Interpolate;
 		m_RigidBody.collisionDetectionMode		= CollisionDetectionMode.ContinuousDynamic;
 		m_RigidBody.maxAngularVelocity			= 0f;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// Hide ( Virtual )
-	public		virtual		void	Hide()
-	{
-		m_Renderer.enabled = false;
-		m_Collider.enabled = false;
 	}
 
 
