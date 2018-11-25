@@ -11455,10 +11455,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_CurrentBrainState: 5
+  m_Memories: []
+  MemoriesCount: 0
   m_Health: 1
   m_MinEngageDistance: 3
   m_BodyRotationSpeed: 5
   m_HeadRotationSpeed: 5
+  SpawnPoint: {x: 0, y: 0, z: 0}
+  SpawnDirection: {x: 0, y: 0, z: 0}
   m_UseDistance: 2
   m_Stamina: 0
   m_WalkSpeed: 22

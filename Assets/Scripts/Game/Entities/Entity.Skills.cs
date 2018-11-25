@@ -75,12 +75,7 @@ public	abstract	partial	class Entity : IEntitySkills {
 	//////////////////////////////////////////////////////////////////////////
 	public		float	GetSkill( string Key, float Default = 0.0f )
 	{
-		float result = Default;
-		if ( HasSkill( Key ) && m_SkillsMap[Key].IsEnabled )
-		{
-			result = m_SkillsMap[ Key ].Value;
-		}
-		return result;
+		return ( ( HasSkill( Key ) && m_SkillsMap[Key].IsEnabled ) ? m_SkillsMap[Key].Value : Default );
 	}
 
 

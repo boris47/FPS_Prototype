@@ -74,8 +74,8 @@ public class Drone_AI_Behaviour_Alarmed : AIBehaviour {
 		// Destination
 		{
 			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
-				planeNormal:	EntityData.BodyTransform.up,
-				planePoint:		EntityData.BodyTransform.position,
+				planeNormal:	EntityData.Body_Up,
+				planePoint:		EntityData.Body_Position,
 				point:			EntityData.TargetInfo.CurrentTarget.Transform.position
 			);
 

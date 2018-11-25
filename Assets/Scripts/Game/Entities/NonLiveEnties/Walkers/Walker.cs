@@ -75,20 +75,9 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		m_Pool.SetActive( true );
 		m_ShotTimer = 0f;
 		m_MaxAgentSpeed = m_MoveMaxSpeed;
-
-		// AI BEHAVIOURS
-		{	
-			SetBehaviour( BrainState.EVASIVE,	m_SectionRef.AsString( "BehaviourEvasive"	), false );
-			SetBehaviour( BrainState.NORMAL,	m_SectionRef.AsString( "BehaviourNormal"	), true  );
-			SetBehaviour( BrainState.ALARMED,	m_SectionRef.AsString( "BehaviourAlarmed"	), false );
-			SetBehaviour( BrainState.SEEKER,	m_SectionRef.AsString( "BehaviourSeeker"	), false );
-			SetBehaviour( BrainState.ATTACKER,	m_SectionRef.AsString( "BehaviourAttacker"	), false );
-
-			ChangeState( BrainState.NORMAL );
-		}
 	}
 
-
+	
 	//////////////////////////////////////////////////////////////////////////
 	
 	public		override	void	OnDestinationReached( Vector3 Destionation )

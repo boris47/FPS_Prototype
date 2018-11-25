@@ -19,11 +19,17 @@ public	enum LookTargetType : uint {
 	TRANSFORM
 };
 
+public	enum LookTargetMode : uint {
+	HEAD_ONLY,
+	WITH_BODY
+}
+
 public class LookData {
 	public	bool			HasLookAtObject		= false;
 	public	Vector3			PointToLookAt		= Vector3.zero;
 	public	Transform		TrasformToLookAt	= null;
 	public	LookTargetType	LookTargetType		= LookTargetType.POSITION;
+	public	LookTargetMode	LookTargetMode		= LookTargetMode.HEAD_ONLY;
 };
 
 /////////////////////////////////////////

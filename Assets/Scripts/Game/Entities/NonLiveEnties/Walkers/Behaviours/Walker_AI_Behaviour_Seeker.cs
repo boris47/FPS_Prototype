@@ -47,7 +47,7 @@ public class Walker_AI_Behaviour_Seeker : AIBehaviour {
 		EntityData.EntityRef.NavReset();
 
 		// Set the point to look just in front ho him
-		EntityData.EntityRef.SetPointToLookAt( EntityData.HeadTransform.position + EntityData.EntityRef.transform.forward );
+		EntityData.EntityRef.SetPointToLookAt( EntityData.Head_Position + EntityData.EntityRef.transform.forward );
 
 		EntityData.EntityRef.ChangeState( BrainState.NORMAL );
 	}
@@ -81,8 +81,8 @@ public class Walker_AI_Behaviour_Seeker : AIBehaviour {
 		// Destination
 		{
 			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
-				planeNormal:	EntityData.BodyTransform.up,
-				planePoint:		EntityData.BodyTransform.position,
+				planeNormal:	EntityData.Body_Up,
+				planePoint:		EntityData.Body_Position,
 				point:			EntityData.TargetInfo.CurrentTarget.Transform.position
 			);
 

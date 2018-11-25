@@ -18,8 +18,8 @@ public abstract partial class Entity : IBrain {
 
 	public	const		float						THINK_TIMER						= 0.2f; // 200 ms
 
-	private				IBrain						m_BrainIstance					= null;
-	public				IBrain						Brain							{ get { return m_BrainIstance; } }
+	private				IBrain						m_BrainInstance					= null;
+	public				IBrain						Brain							{ get { return m_BrainInstance; } }
 
 	[Header( "Brain" )]
 
@@ -41,18 +41,22 @@ public abstract partial class Entity : IBrain {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual	void	EnableBrain()
+	protected	void	EnableBrain()
 	{
 		m_FieldOfView.Setup( maxVisibleEntities : 10 );
 
-		m_BrainIstance = this as IBrain;
+		m_BrainInstance = this as IBrain;
+
+		EnableMemory();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual	void	DisableBrain()
+	protected	void	DisableBrain()
 	{
-		m_BrainIstance = null;
+		m_BrainInstance = null;
+
+		DisableMemory();
 	}
 
 
@@ -64,7 +68,7 @@ public abstract partial class Entity : IBrain {
 
 		if ( behaviourId == null || behaviourId.Trim().Length == 0 )
 		{
-			Debug.Log( "Brain.SetBehaviour Setting invalid behaviour for state " + state + ", " + behaviourId );
+			Debug.Log( "Brain.SetBehaviour Setting invalid behaviour for state " + brainState + ", with id" + behaviourId + ", for entity (section) " + m_SectionName );
 			return;
 		}
 
@@ -110,6 +114,8 @@ public abstract partial class Entity : IBrain {
 			return;
 
 		m_FieldOfView.UpdateFOV();
+
+		m_MemoryInstance.ValidateMemories();
 	}
 
 

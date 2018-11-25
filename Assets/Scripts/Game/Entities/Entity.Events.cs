@@ -32,21 +32,38 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 			GameManager.UpdateEvents.OnPhysicFrame		+= OnPhysicFrame;
 			GameManager.UpdateEvents.OnFrame			+= OnFrame;
-			GameManager.UpdateEvents.OnThink			+= OnThink;
 
+			// Executed only for non player entities
 			if ( ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
 			{
-				EnableBrain();
+				GameManager.UpdateEvents.OnThink			+= OnThink;
 
-				string TargetType = m_SectionRef.AsString( "DefaultTarget" );
-				object selected = System.Enum.Parse( typeof( ENTITY_TYPE ), TargetType );
-				Brain.FieldOfView.TargetType = ( selected != null ? (ENTITY_TYPE)selected : ENTITY_TYPE.NONE );
+				EnableBrain(); // Setaup for field of view and memory
 
-				m_FieldOfView.Setup( maxVisibleEntities : 10 );
-				m_FieldOfView.OnTargetAquired			= OnTargetAquired;
-				m_FieldOfView.OnTargetChanged			= OnTargetChanged;
-				m_FieldOfView.OnTargetLost				= OnTargetLost;
+				// Field Of View Callbacks
+				{
+					string TargetType = m_SectionRef.AsString( "DefaultTarget" );
+					object selected = System.Enum.Parse( typeof( ENTITY_TYPE ), TargetType.ToUpper() );
+					Brain.FieldOfView.TargetType = ( selected != null ? (ENTITY_TYPE)selected : ENTITY_TYPE.NONE );
+
+					m_FieldOfView.Setup( maxVisibleEntities : 10 );
+					m_FieldOfView.OnTargetAquired			= OnTargetAquired;
+					m_FieldOfView.OnTargetChanged			= OnTargetChanged;
+					m_FieldOfView.OnTargetLost				= OnTargetLost;
+				}
+
+				// AI BEHAVIOURS
+				{	
+					Brain.SetBehaviour( BrainState.EVASIVE,		m_SectionRef.AsString( "BehaviourEvasive"	), false );
+					Brain.SetBehaviour( BrainState.NORMAL,		m_SectionRef.AsString( "BehaviourNormal"	), true  );
+					Brain.SetBehaviour( BrainState.ALARMED,		m_SectionRef.AsString( "BehaviourAlarmed"	), false );
+					Brain.SetBehaviour( BrainState.SEEKER,		m_SectionRef.AsString( "BehaviourSeeker"	), false );
+					Brain.SetBehaviour( BrainState.ATTACKER,	m_SectionRef.AsString( "BehaviourAttacker"	), false );
+
+					ChangeState( BrainState.NORMAL );
+				}
 			}
+			
 		}
 		
 	}
@@ -142,6 +159,13 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	public		virtual		void		OnLookRotationReached( Vector3 Direction )
+	{
+		m_CurrentBehaviour.OnLookRotationReached( Direction );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	public		virtual		void		OnHit( IBullet bullet )
 	{
 //		m_CurrentBehaviour.OnHit( bullet );
@@ -191,6 +215,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	protected	virtual		void		OnTargetAquired( TargetInfo targetInfo )
 	{
 		m_CurrentBehaviour.OnTargetAcquired();
+//		Memory.Add( targetInfo.CurrentTarget as Entity );
 	}
 	
 
@@ -205,6 +230,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	protected	virtual		void		OnTargetLost( TargetInfo targetInfo )
 	{
 		m_CurrentBehaviour.OnTargetLost();
+
+//		Memory.Remove( targetInfo.CurrentTarget as Entity );
 	}
 
 

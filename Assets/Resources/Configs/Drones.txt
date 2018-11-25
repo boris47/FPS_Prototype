@@ -8,7 +8,7 @@ BehaviourAlarmed	= Drone_AI_Behaviour_Alarmed;
 BehaviourSeeker		= Drone_AI_Behaviour_Seeker;
 BehaviourAttacker	= Drone_AI_Behaviour_Attacker;
 
-DefaultTarget		= ROBOT;
+DefaultTarget		= actor;
 
 [DroneStandard] : DroneBase
 Health				= 100.0;

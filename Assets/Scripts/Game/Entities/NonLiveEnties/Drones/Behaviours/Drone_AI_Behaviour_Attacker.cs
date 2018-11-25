@@ -34,7 +34,7 @@ public class Drone_AI_Behaviour_Attacker : AIBehaviour {
 
 	public override void OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
-		if ( EntityData.EntityRef.IsAlive && whoRef.IsAlive && EntityData.TargetInfo.CurrentTarget.ID == whoRef.Id )
+		if ( EntityData.EntityRef.IsAlive && whoRef.IsAlive && EntityData.TargetInfo.CurrentTarget.ID == whoRef.ID )
 		{
 			EntityData.EntityRef.SetPointToLookAt( startPosition );
 		}
@@ -43,13 +43,13 @@ public class Drone_AI_Behaviour_Attacker : AIBehaviour {
 	public override void OnDestinationReached( Vector3 Destination )
 	{
 		Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
-			planeNormal:	EntityData.BodyTransform.up,
-			planePoint:		EntityData.BodyTransform.position,
+			planeNormal:	EntityData.Body_Up,
+			planePoint:		EntityData.Body_Position,
 			point:			EntityData.TargetInfo.CurrentTarget.Transform.position
 		);
 
 
-		bool IsNotUnderEngageDistance = ( EntityData.Transform.position - projectedPoint ).sqrMagnitude > EntityData.EntityRef.MinEngageDistance * EntityData.EntityRef.MinEngageDistance;
+		bool IsNotUnderEngageDistance = ( EntityData.Transform_Position - projectedPoint ).sqrMagnitude > EntityData.EntityRef.MinEngageDistance * EntityData.EntityRef.MinEngageDistance;
 		if ( IsNotUnderEngageDistance )
 		{
 			EntityData.EntityRef.RequestMovement( projectedPoint );
@@ -85,12 +85,12 @@ public class Drone_AI_Behaviour_Attacker : AIBehaviour {
 		{
 			float agentFinalSpeed = 0.0f;
 			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
-				planeNormal:	EntityData.BodyTransform.up,
-				planePoint:		EntityData.BodyTransform.position,
+				planeNormal:	EntityData.Body_Up,
+				planePoint:		EntityData.Body_Position,
 				point:			EntityData.PointToLookAt
 			);
 
-			bool IsNotUnderEngageDistance = ( EntityData.Transform.position - projectedPoint ).sqrMagnitude > EntityData.EntityRef.MinEngageDistance * EntityData.EntityRef.MinEngageDistance;
+			bool IsNotUnderEngageDistance = ( EntityData.Transform_Position - projectedPoint ).sqrMagnitude > EntityData.EntityRef.MinEngageDistance * EntityData.EntityRef.MinEngageDistance;
 
 			if ( EntityData.TargetInfo.HasTarget == true )
 			{
@@ -134,8 +134,8 @@ public class Drone_AI_Behaviour_Attacker : AIBehaviour {
 		// Destination
 		{
 			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
-				planeNormal:	EntityData.BodyTransform.up,
-				planePoint:		EntityData.BodyTransform.position,
+				planeNormal:	EntityData.Body_Up,
+				planePoint:		EntityData.Body_Position,
 				point:			EntityData.TargetInfo.CurrentTarget.Transform.position
 			);
 
@@ -147,8 +147,8 @@ public class Drone_AI_Behaviour_Attacker : AIBehaviour {
 		{
 			Vector3 newPointToLookAt = EntityData.TargetInfo.CurrentTarget.Transform.position + EntityData.TargetInfo.CurrentTarget.RigidBody.velocity.normalized;
 			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
-				planeNormal:	EntityData.BodyTransform.up,
-				planePoint:		EntityData.HeadTransform.position,
+				planeNormal:	EntityData.Body_Up,
+				planePoint:		EntityData.Body_Position,
 				point:			newPointToLookAt
 			);
 

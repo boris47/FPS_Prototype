@@ -34,7 +34,7 @@ public class Turret_AI_Behaviour_Attacker : AIBehaviour {
 
 	public override void OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
-		if ( EntityData.EntityRef.IsAlive && whoRef.IsAlive && EntityData.TargetInfo.CurrentTarget.ID == whoRef.Id )
+		if ( EntityData.EntityRef.IsAlive && whoRef.IsAlive && EntityData.TargetInfo.CurrentTarget.ID == whoRef.ID )
 		{
 			EntityData.EntityRef.SetPointToLookAt( startPosition );
 		}
@@ -91,8 +91,8 @@ public class Turret_AI_Behaviour_Attacker : AIBehaviour {
 		{
 			Vector3 newPointToLookAt = EntityData.TargetInfo.CurrentTarget.Transform.position + EntityData.TargetInfo.CurrentTarget.RigidBody.velocity.normalized;
 			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
-				planeNormal:	EntityData.BodyTransform.up,
-				planePoint:		EntityData.HeadTransform.position,
+				planeNormal:	EntityData.Body_Up,
+				planePoint:		EntityData.Head_Position,
 				point:			newPointToLookAt
 			);
 

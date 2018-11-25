@@ -452,10 +452,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_CurrentBrainState: 5
+  m_Memories: []
+  MemoriesCount: 0
   m_Health: 1
   m_MinEngageDistance: 12
   m_BodyRotationSpeed: 1
   m_HeadRotationSpeed: 65
+  SpawnPoint: {x: 0, y: 0, z: 0}
+  SpawnDirection: {x: 0, y: 0, z: 0}
   m_GunRotationSpeed: 80
   m_FireDispersion: 0.01
   m_MoveMaxSpeed: 1

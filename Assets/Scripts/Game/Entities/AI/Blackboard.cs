@@ -5,11 +5,39 @@ using System.Collections.Generic;
 [System.Serializable]
 public class EntityBlackBoardData {
 
-	public	Entity				EntityRef							= null;
-	public	Transform			Transform							= null;
+	public	Transform			m_Transform							= null;
+	private	Transform			m_HeadTransform						= null;
+	private	Transform			m_BodyTransform						= null;
 
-	public	Transform			HeadTransform						= null;
-	public	Transform			BodyTransform						= null;
+
+	//*/////////////////////////////////////////////////////////////////////
+	//*/////////////////////////////////////////////////////////////////////
+
+	public	Entity				EntityRef							= null;
+
+//	public	Transform			HeadTransform						= null;
+//	public	Transform			BodyTransform						= null;
+
+	// Body
+	public	Vector3				Head_Position						{ get { return m_HeadTransform.position; } }
+	public	Quaternion			Head_Rotation						{ get { return m_HeadTransform.rotation; } }
+	public	Vector3				Head_Forward						{ get { return m_HeadTransform.forward; } }
+	public	Vector3				Head_Up								{ get { return m_HeadTransform.up; } }
+	public	Vector3				Head_Right							{ get { return m_HeadTransform.right; } }
+
+	// Body
+	public	Vector3				Body_Position						{ get { return m_BodyTransform.position; } }
+	public	Quaternion			Body_Rotation						{ get { return m_BodyTransform.rotation; } }
+	public	Vector3				Body_Forward						{ get { return m_BodyTransform.forward; } }
+	public	Vector3				Body_Up								{ get { return m_BodyTransform.up; } }
+	public	Vector3				Body_Right							{ get { return m_BodyTransform.right; } }
+
+	// Targettable
+	public	Vector3				Transform_Position					{ get { return m_Transform.position; } }
+	public	Quaternion			Transform_Rotation					{ get { return m_Transform.rotation; } }
+	public	Vector3				Transform_Forward					{ get { return m_Transform.forward; } }
+	public	Vector3				Transform_Up						{ get { return m_Transform.up; } }
+	public	Vector3				Transform_Right						{ get { return m_Transform.right; } }
 
 	public	LookData			LookData							= null;
 
@@ -19,6 +47,14 @@ public class EntityBlackBoardData {
 	public	Vector3				PointToLookAt						= Vector3.zero;
 
 	public	float				AgentSpeed							= 0.0f;
+
+
+	public	EntityBlackBoardData( Transform Transform, Transform Head, Transform Body )
+	{
+		m_Transform			= Transform;
+		m_HeadTransform		= Head;
+		m_BodyTransform		= Body;
+	}
 
 }
 

@@ -4,7 +4,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public	enum InvestigationDirection : uint {
+	RIGHT, LEFT, BACK, FRONT, END
+}
+
 public class Drone_AI_Behaviour_Seeker : AIBehaviour {
+
+	private	InvestigationDirection		m_CurrentInvestigationDirection = InvestigationDirection.RIGHT;
 
 	public override void OnEnable()
 	{
@@ -41,15 +47,59 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour {
 			EntityData.EntityRef.ChangeState( BrainState.ALARMED );
 		}
 	}
+	/*
+	protected	void	InnvestigateAroundCO()
+	{
+		// Set the point to look just in front ho him
+		Vector3 pointToLookAt = EntityData.Head_Position + EntityData.EntityRef.transform.forward;
+		EntityData.EntityRef.SetPointToLookAt( pointToLookAt, LookTargetMode.HEAD_ONLY );
 
+		EntityData.EntityRef.ChangeState( BrainState.NORMAL );
+	}
+	*/
+
+	public override void OnLookRotationReached( Vector3 Direction )
+	{
+		Vector3 newDirection = Vector3.zero;
+
+		Quaternion rotation = Quaternion.AngleAxis( +90.0f, EntityData.Head_Up );
+
+		switch ( m_CurrentInvestigationDirection )
+		{
+			case InvestigationDirection.RIGHT:	newDirection = EntityData.Head_Right;				m_CurrentInvestigationDirection ++; print("Right");
+				break;
+			case InvestigationDirection.LEFT:	newDirection = EntityData.Head_Forward * -1f;		m_CurrentInvestigationDirection ++; print("left");
+				break;
+			case InvestigationDirection.BACK:	newDirection = EntityData.Head_Right * -1f;			m_CurrentInvestigationDirection ++; print("back");
+				break;
+			case InvestigationDirection.FRONT:	newDirection = EntityData.Head_Right;				m_CurrentInvestigationDirection ++; print("Front");
+				break;
+			case InvestigationDirection.END:
+				EntityData.EntityRef.RequestMovement( EntityData.EntityRef.SpawnPoint );
+				EntityData.EntityRef.SetPointToLookAt( EntityData.EntityRef.SpawnPoint + EntityData.EntityRef.SpawnDirection );
+				EntityData.EntityRef.ChangeState( BrainState.NORMAL );
+				m_CurrentInvestigationDirection = InvestigationDirection.RIGHT;
+				return;
+		}
+		
+		Vector3 newDirectionh = rotation * EntityData.Head_Forward;
+
+		EntityData.EntityRef.SetPointToLookAt( EntityData.Head_Position + newDirection, LookTargetMode.HEAD_ONLY );
+	}
+	
 	public override void OnDestinationReached( Vector3 Destination )
 	{
 		EntityData.EntityRef.NavReset();
 
-		// Set the point to look just in front ho him
-		EntityData.EntityRef.SetPointToLookAt( EntityData.HeadTransform.position + EntityData.EntityRef.transform.forward );
+		// TODO
+		// before returning to normal state should investigate around current position
 
-		EntityData.EntityRef.ChangeState( BrainState.NORMAL );
+//		EntityData.EntityRef.StartCoroutine( InnvestigateAroundCO() );
+
+		// Set the point to look just in front ho him
+		EntityData.EntityRef.SetPointToLookAt( EntityData.Head_Position + EntityData.EntityRef.transform.forward );
+
+//		EntityData.EntityRef.ChangeState( BrainState.NORMAL );
 	}
 
 	public override void OnThink()
@@ -64,10 +114,18 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour {
 
 	public override void OnFrame( float DeltaTime )
 	{
-		// Update PathFinding and movement along path
-		if ( EntityData.EntityRef.HasDestination && EntityData.EntityRef.IsAllignedHeadToPoint )
+		// Update movement speed along path
+		if ( EntityData.EntityRef.HasDestination )
 		{
-			EntityData.AgentSpeed = EntityData.EntityRef.MaxAgentSpeed;
+			if ( EntityData.EntityRef.IsAllignedHeadToPoint )
+			{
+				EntityData.AgentSpeed = EntityData.EntityRef.MaxAgentSpeed;
+			}
+
+			if ( EntityData.EntityRef.IsDisallignedHeadWithPoint )
+			{
+				EntityData.AgentSpeed = 0.0f;
+			}
 		}
 	}
 
@@ -81,8 +139,8 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour {
 		// Destination
 		{
 			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
-				planeNormal:	EntityData.BodyTransform.up,
-				planePoint:		EntityData.BodyTransform.position,
+				planeNormal:	EntityData.Body_Up,
+				planePoint:		EntityData.Body_Position,
 				point:			EntityData.TargetInfo.CurrentTarget.Transform.position
 			);
 

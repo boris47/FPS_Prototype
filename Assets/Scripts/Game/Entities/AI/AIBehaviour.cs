@@ -58,6 +58,9 @@ public abstract	class AIBehaviour {
 	public	virtual	void			OnDestinationReached( Vector3 Destination )
 	{ }
 
+	public	virtual	void			OnLookRotationReached( Vector3 Direction )
+	{ }
+
 	public	virtual	void			OnKilled()
 	{ }
 

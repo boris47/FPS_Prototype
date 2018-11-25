@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 public	delegate	void	OnTargetEvent( TargetInfo targetInfo );
-
+public	delegate	void	OnTargetsAcquired( Entity[] entities );
 
 
 public interface IFieldOfView {
@@ -28,7 +28,8 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 
 	public		OnTargetEvent			OnTargetAquired			{ set { m_OnTargetAquired = value; } }
 	public		OnTargetEvent			OnTargetChanged			{ set { m_OnTargetChanged = value; } }
-	public		OnTargetEvent			OnTargetLost			{ set { m_OnTargetLost	= value; } }
+	public		OnTargetEvent			OnTargetLost			{ set { m_OnTargetLost	  = value; } }
+	public		OnTargetsAcquired		OnTargetsAcquired		{ set { m_OnTargetsAcquired = value; } }
 
 
 	[SerializeField]
@@ -69,6 +70,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	private		OnTargetEvent			m_OnTargetAquired		= null;
 	private		OnTargetEvent			m_OnTargetChanged		= null;
 	private		OnTargetEvent			m_OnTargetLost			= null;
+	private		OnTargetsAcquired		m_OnTargetsAcquired		= null;
 
 	private		RaycastHit				m_RaycastHit			= default( RaycastHit );
 	private		SphereCollider			m_ViewTriggerCollider	= null;
@@ -248,7 +250,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 					direction:					direction,
 					hitInfo:					out m_RaycastHit,
 					maxDistance:				m_ViewDistance,
-					layerMask:					m_LayerMask,
+					layerMask:					Physics.AllLayers, //m_LayerMask,
 					queryTriggerInteraction:	QueryTriggerInteraction.Ignore
 				);
 
@@ -288,6 +290,11 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 			}
 		}
 
+
+//		if ( m_OnTargetsAcquired != null )
+//		{
+//			m_OnTargetsAcquired( m_ValidTargets );
+//		}
 		return true;
 	}
 

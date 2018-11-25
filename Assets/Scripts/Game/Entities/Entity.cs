@@ -67,9 +67,10 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	// INTERFACE END
 
 	// GETTERS START
-	public		uint						Id								{ get { return m_ID; } }
+	public		uint						ID								{ get { return m_ID; } }
 	public		bool						IsAlive							{ get { return m_Health > 0.0f; } }
 	public		bool						IsAllignedHeadToPoint			{ get { return m_IsAllignedHeadToPoint; } }
+	public		bool						IsDisallignedHeadWithPoint		{ get { return m_IsDisallignedHeadWithPoint; } }
 	public		bool						IsAllignedBodyToPoint			{ get { return m_IsAllignedBodyToPoint; } }
 	public		bool						IsAllignedGunToPoint			{ get { return m_IsAllignedGunToPoint; } }
 	public		bool						HasLookAtObject					{ get { return m_LookData.HasLookAtObject; } }
@@ -130,6 +131,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	// Flag set if head of entity is aligned with target
 	protected	bool						m_IsAllignedHeadToPoint			= false;
 
+	protected	bool						m_IsDisallignedHeadWithPoint		= false;
+
 	// Flag set if gun of entity is aligned with target
 	protected   bool                        m_IsAllignedGunToPoint			= false;
 
@@ -149,9 +152,9 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	protected	Transform					m_Targettable					= null;
 
 	protected	bool 						m_IsOK							= true;
-
-
-
+	
+	public		Vector3						SpawnPoint;
+	public		Vector3						SpawnDirection;
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void	Awake()
@@ -159,6 +162,9 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		m_ID				= NewID();
 		m_Interface			= this as IEntity;
 
+		SpawnPoint = transform.position;
+		SpawnDirection = transform.forward;
+		
 		// TRANSFORMS
 		{
 			m_BodyTransform		= transform.Find( "Body" );
@@ -181,16 +187,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 			// RIGIDBODY
 			m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_RigidBody, SearchContext.LOCAL );
-
-			if ( m_IsOK && m_NavAgent != null && ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
-			{
-				m_IsOK	&= m_NavAgent.isOnNavMesh;
-			}
-
-			if ( m_IsOK == false && ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
-			{
-				print( name + " is not OK" );
-			}
 		}
 
 		// SHIELD
@@ -210,12 +206,9 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 			// BLACKBOARD
 			if ( Blackboard.IsEntityRegistered( m_ID ) == false )
 			{
-				m_BlackBoardData	= new EntityBlackBoardData()
+				m_BlackBoardData	= new EntityBlackBoardData( m_Targettable, m_HeadTransform, m_BodyTransform )
 				{
 					EntityRef		= this,
-					Transform		= m_Targettable,
-					HeadTransform	= m_HeadTransform,
-					BodyTransform	= m_BodyTransform,
 					LookData		= m_LookData,
 					TargetInfo		= m_TargetInfo,
 				};
@@ -228,6 +221,15 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 			m_CurrentBrainState = BrainState.COUNT;
 		}
 
+		if ( m_IsOK && m_NavAgent != null && ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
+		{
+			m_IsOK	&= m_NavAgent.isOnNavMesh;
+		}
+
+		if ( m_IsOK == false && ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
+		{
+			print( name + " is not OK" );
+		}
 	}
 
 
@@ -250,22 +252,24 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Set the trasform to Look At </summary>
-	public	virtual		void	SetTrasformTolookAt( Transform t )
+	public	virtual		void	SetTrasformTolookAt( Transform t, LookTargetMode LookMode = LookTargetMode.HEAD_ONLY )
 	{
 		m_LookData.HasLookAtObject		= true;
 		m_LookData.TrasformToLookAt		= t;
 		m_LookData.PointToLookAt		= Vector3.zero;
 		m_LookData.LookTargetType		= LookTargetType.TRANSFORM;
+		m_LookData.LookTargetMode		= LookMode;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Set the point to Look At </summary>
-	public	virtual		void	SetPointToLookAt( Vector3 point )
+	public	virtual		void	SetPointToLookAt( Vector3 point, LookTargetMode LookMode = LookTargetMode.HEAD_ONLY )
 	{
 		m_LookData.HasLookAtObject		= true;
 		m_LookData.TrasformToLookAt		= null;
 		m_LookData.PointToLookAt		= point;
 		m_LookData.LookTargetType		= LookTargetType.POSITION;
+		m_LookData.LookTargetMode		= LookMode;
 	}
 
 
@@ -277,6 +281,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		m_LookData.TrasformToLookAt		= null;
 		m_LookData.PointToLookAt		= Vector3.zero;
 		m_LookData.LookTargetType		= LookTargetType.POSITION;
+		m_LookData.LookTargetMode		= LookTargetMode.HEAD_ONLY;
 	}
 
 
@@ -317,18 +322,53 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 		// HEAD
 		{
-			Vector3 pointOnThisPlane = Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_HeadTransform.position, m_LookData.PointToLookAt );
-			Vector3 dirToPosition = ( pointOnThisPlane - m_HeadTransform.position );
+			Vector3 pointToLookAt = m_LookData.LookTargetType == LookTargetType.TRANSFORM ? m_LookData.TrasformToLookAt.position : m_LookData.PointToLookAt;
 
-			m_IsAllignedHeadToPoint = Vector3.Angle( m_HeadTransform.forward, dirToPosition ) < 12f;
+			// point on the head 'Horizontal'  plane
+			Vector3 pointOnHeadPlane	= Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_HeadTransform.position,		 pointToLookAt );
+
+			// point on the entity 'Horizontal' plane
+			Vector3 pointOnEntityPlane	= Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, transform.position, pointToLookAt );
+
+			// Direction from head to  point
+			Vector3 dirHeadToPosition	= ( pointOnHeadPlane - m_HeadTransform.position );
+
+			// Direction from entity to point
+			Vector3 dirEntityToPosition	= ( pointOnEntityPlane - transform.position );
+
+			// Angle between head and projected point
+			float lookDeltaAngle = Vector3.Angle( m_HeadTransform.forward, dirHeadToPosition );
+
+			// Current head allignment state
+			bool isCurrentlyAlligned = lookDeltaAngle < 4f;
+		
+			// Head allignment comparison and event
 			{
-				float speed = m_HeadRotationSpeed * ( ( m_TargetInfo.HasTarget ) ? 3.0f : 1.0f );
-
-				if ( dirToPosition != Vector3.zero )
+				bool wasPreviousAlligned = m_IsAllignedHeadToPoint;
+				if ( wasPreviousAlligned == false && isCurrentlyAlligned == true )
 				{
-					m_RotationToAllignTo.SetLookRotation( dirToPosition, m_BodyTransform.up );
-					m_HeadTransform.rotation = Quaternion.RotateTowards( m_HeadTransform.rotation, m_RotationToAllignTo, speed * Time.deltaTime );
+					OnLookRotationReached( m_HeadTransform.forward );
 				}
+			}
+
+			// Flags assignment
+			m_IsAllignedHeadToPoint			= isCurrentlyAlligned;
+			m_IsDisallignedHeadWithPoint	= lookDeltaAngle > 90f;
+			
+			// Rotation Speed
+			float rotationSpeed = m_HeadRotationSpeed * ( ( m_TargetInfo.HasTarget ) ? 3.0f : 1.0f ) * Time.deltaTime;
+
+			// Execute Rotation
+			if ( m_LookData.LookTargetMode == LookTargetMode.WITH_BODY )
+			{
+				m_RotationToAllignTo.SetLookRotation( dirEntityToPosition, m_BodyTransform.up );
+				transform.rotation = Quaternion.RotateTowards( transform.rotation, m_RotationToAllignTo, rotationSpeed );
+			}
+			// Head only
+			else
+			{
+				m_RotationToAllignTo.SetLookRotation( dirHeadToPosition, m_BodyTransform.up );
+				m_HeadTransform.rotation = Quaternion.RotateTowards( m_HeadTransform.rotation, m_RotationToAllignTo, rotationSpeed );
 			}
 		}
 	}

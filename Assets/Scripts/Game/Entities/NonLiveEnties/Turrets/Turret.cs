@@ -84,16 +84,7 @@ public abstract class Turret : NonLiveEntity {
 		m_Pool.SetActive( true );
 		m_ShotTimer = 0f;
 
-		// AI BEHAVIOURS
-		{
-			SetBehaviour( BrainState.EVASIVE,	m_SectionRef.AsString( "BehaviourEvasive"	), false );
-			SetBehaviour( BrainState.NORMAL,	m_SectionRef.AsString( "BehaviourNormal"	), true  );
-			SetBehaviour( BrainState.ALARMED,	m_SectionRef.AsString( "BehaviourAlarmed"	), false );
-			SetBehaviour( BrainState.SEEKER,	m_SectionRef.AsString( "BehaviourSeeker"	), false );
-			SetBehaviour( BrainState.ATTACKER,	m_SectionRef.AsString( "BehaviourAttacker"	), false );
 
-			ChangeState( BrainState.NORMAL );
-		}
 	}
 
 	protected override void OnEnable()
@@ -106,8 +97,9 @@ public abstract class Turret : NonLiveEntity {
 			m_Laser.LaserLength = Brain.FieldOfView.Distance;
 			m_Laser.LayerMaskToExclude = LayerMask.NameToLayer("Bullets");
 		}
-	}
 
+	}
+	
 
 	//////////////////////////////////////////////////////////////////////////
 
