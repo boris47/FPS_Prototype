@@ -33,8 +33,8 @@ AI Behiaviours
 ***	default empty behaviour
 ***	well done behaviour change
 	Memory introduction
-	Seeker mode extended
-	Extended head rotation function
+**	Seeker mode extended
+*	Extended head rotation function
 	Muzzle effects
 	Remake of bullets
 	Entity dead parts
@@ -44,7 +44,7 @@ AI Behiaviours
 	Awareness by target
 
 
-	m_IsCompletelyDisallignedWithPoint
+*	m_IsCompletelyDisallignedWithPoint
 	( se l'angolo è maggiore di 90 gradi allora deve fermarsi e stare fermo fin quando l'angolo non torna ad aessere inferiore di 90 gradi )
 
 	Memory System, when no target is available but memory is not empty, we should switch to seeker mode and search for the last entity in memory.

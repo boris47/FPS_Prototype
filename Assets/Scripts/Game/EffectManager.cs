@@ -52,16 +52,20 @@ public class EffectManager : MonoBehaviour {
 		if ( count > 0 )
 		{
 			p = m_Effects[ (int) effectType ];
-			p.transform.position = position;
-			p.transform.forward = direction;
+			{
+				p.transform.position = position;
+				p.transform.forward = direction;
+			}
 			p.Emit( count );
 		}
 		else
 		{
 			p = Instantiate( m_Effects[ (int) effectType ] );
-			p.transform.position = position;
-			p.transform.forward = direction;
-			p.Play( withChildren : true );
+			{
+				p.transform.position = position;
+				p.transform.forward = direction;
+				p.Play( withChildren : true );
+			}
 			Destroy( p.gameObject, 5.0f );
 		}
 	}

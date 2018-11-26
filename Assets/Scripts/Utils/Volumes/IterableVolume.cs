@@ -38,8 +38,8 @@ public class IterableVolume : MonoBehaviour {
 	}
 
 
-	private		MeshRenderer	m_MeshRenderer	= null;
 	private		MeshFilter		m_MeshFilter	= null;
+	private		MeshRenderer	m_MeshRenderer	= null;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -72,21 +72,21 @@ public class IterableVolume : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private	void	EnsureComponents()
 	{
-		MeshRenderer renderer = null;
-		if ( ( renderer = GetComponent<MeshRenderer>() ) == null )
-		{
-			renderer = gameObject.AddComponent<MeshRenderer>();
-		}
-
-		m_MeshRenderer = renderer;
-
+		// Mesh Filter
 		MeshFilter filter = null;
 		if ( ( filter = GetComponent<MeshFilter>() ) == null )
 		{
 			filter = gameObject.AddComponent<MeshFilter>();
 		}
-
 		m_MeshFilter = filter;
+
+		// mesh renderer
+		MeshRenderer renderer = null;
+		if ( ( renderer = GetComponent<MeshRenderer>() ) == null )
+		{
+			renderer = gameObject.AddComponent<MeshRenderer>();
+		}
+		m_MeshRenderer = renderer;
 	}
 
 
@@ -100,9 +100,9 @@ public class IterableVolume : MonoBehaviour {
 		float extentsY = -transform.lossyScale.y / 2.0f;
 		float extentsZ = -transform.lossyScale.z / 2.0f;
 
-		float currentStepX = m_StepSizeX * transform.lossyScale.x;
-		float currentStepY = m_StepSizeY * ( m_VerticalAlso ? transform.lossyScale.y : 0.0f );
-		float currentStepZ = m_StepSizeZ * transform.lossyScale.z;
+		float currentStepX = m_StepSizeX * transform.lossyScale.x - m_StepSizeX * 0.5f;
+		float currentStepZ = m_StepSizeZ * transform.lossyScale.z - m_StepSizeZ * 0.5f;
+		float currentStepY = m_StepSizeY * transform.lossyScale.y - m_StepSizeY * 0.5f;
 
 		Vector3 position = Vector3.zero;
 
@@ -129,14 +129,14 @@ public class IterableVolume : MonoBehaviour {
 						{
 							break;
 						}
-						currentStepZ = transform.lossyScale.z;
+						currentStepZ = transform.lossyScale.z - m_StepSizeZ*0.5f;
 					}
 					else
 					{
 						break;
 					}
 				}
-				currentStepX = transform.lossyScale.x;
+				currentStepX = transform.lossyScale.x - m_StepSizeX*0.5f;
 			}
 		}
 		return true;
@@ -144,7 +144,7 @@ public class IterableVolume : MonoBehaviour {
 
 	private void OnDrawGizmosSelected()
 	{
-		IterateOver( ( Vector3 p ) => Gizmos.DrawSphere( p, 0.5f ) );
+		IterateOver( ( Vector3 p ) => Gizmos.DrawSphere( p, 0.25f ) );
 	}
 
 }
