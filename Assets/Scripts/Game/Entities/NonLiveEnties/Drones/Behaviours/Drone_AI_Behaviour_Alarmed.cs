@@ -8,7 +8,7 @@ public class Drone_AI_Behaviour_Alarmed : AIBehaviour {
 
 	public override void OnEnable()
 	{
-		
+
 	}
 
 	public override void OnDisable()
@@ -16,14 +16,14 @@ public class Drone_AI_Behaviour_Alarmed : AIBehaviour {
 		
 	}
 
-	public override StreamUnit OnSave( StreamData streamData )
+	public override void OnSave( StreamUnit streamUnit )
 	{
-		return null;
+		
 	}
 
-	public override StreamUnit OnLoad( StreamData streamData )
+	public override void OnLoad( StreamUnit streamUnit )
 	{
-		return null;
+		
 	}
 
 	public override void OnHit( IBullet bullet )

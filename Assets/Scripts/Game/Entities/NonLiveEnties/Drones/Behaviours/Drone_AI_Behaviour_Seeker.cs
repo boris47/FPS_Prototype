@@ -22,14 +22,14 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour {
 		
 	}
 
-	public override StreamUnit OnSave( StreamData streamData )
+	public override void OnSave( StreamUnit streamUnit )
 	{
-		return null;
+		streamUnit.SetInternal( BrainState.SEEKER.ToString() + "_CurrentInvestigationDirection", m_CurrentInvestigationDirection );
 	}
 
-	public override StreamUnit OnLoad( StreamData streamData )
+	public override void OnLoad( StreamUnit streamUnit )
 	{
-		return null;
+		m_CurrentInvestigationDirection = streamUnit.GetAsEnum<InvestigationDirection>( BrainState.SEEKER.ToString() + "_CurrentInvestigationDirection" );
 	}
 
 	public override void OnHit( IBullet bullet )

@@ -16,16 +16,15 @@ public class Turret_AI_Behaviour_Evasive : AIBehaviour {
 		
 	}
 
-	public override StreamUnit OnSave( StreamData streamData )
+	public override void OnSave( StreamUnit streamUnit )
 	{
-		return null;
+		
 	}
 
-	public override StreamUnit OnLoad( StreamData streamData )
+	public override void OnLoad( StreamUnit streamUnit )
 	{
-		return null;
+		
 	}
-
 	public override void OnHit( IBullet bullet )
 	{
 		

@@ -8,7 +8,11 @@ public class Drone_AI_Behaviour_Attacker : AIBehaviour {
 
 	public override void OnEnable()
 	{
-		
+		if ( EntityData.TargetInfo.HasTarget == false )
+		{
+			print( "Behaviour: Drone_AI_Behaviour_Attacker, Entity: " + EntityData.EntityRef.name + " Enabled without target\nGoing to ALARMED state" );
+			EntityData.EntityRef.ChangeState( BrainState.ALARMED );
+		}
 	}
 
 	public override void OnDisable()
@@ -16,14 +20,14 @@ public class Drone_AI_Behaviour_Attacker : AIBehaviour {
 		
 	}
 
-	public override StreamUnit OnSave( StreamData streamData )
+	public override void OnSave( StreamUnit streamUnit )
 	{
-		return null;
+		
 	}
 
-	public override StreamUnit OnLoad( StreamData streamData )
+	public override void OnLoad( StreamUnit streamUnit )
 	{
-		return null;
+		
 	}
 
 	public override void OnHit( IBullet bullet )
@@ -69,7 +73,7 @@ public class Drone_AI_Behaviour_Attacker : AIBehaviour {
 	public override void OnFrame( float DeltaTime )
 	{
 		// Update targeting
-		if ( EntityData.TargetInfo.HasTarget == true )
+//		if ( EntityData.TargetInfo.HasTarget == true )
 		{
 			EntityData.EntityRef.SetPointToLookAt( EntityData.TargetInfo.CurrentTarget.Transform.position );
 
@@ -92,7 +96,7 @@ public class Drone_AI_Behaviour_Attacker : AIBehaviour {
 
 			bool IsNotUnderEngageDistance = ( EntityData.Transform_Position - projectedPoint ).sqrMagnitude > EntityData.EntityRef.MinEngageDistance * EntityData.EntityRef.MinEngageDistance;
 
-			if ( EntityData.TargetInfo.HasTarget == true )
+//			if ( EntityData.TargetInfo.HasTarget == true )
 			{
 				if ( IsNotUnderEngageDistance )
 				{
@@ -103,11 +107,11 @@ public class Drone_AI_Behaviour_Attacker : AIBehaviour {
 					agentFinalSpeed = 0.0f;
 				}
 			}
-			else
+/*			else
 			{
 				agentFinalSpeed = EntityData.EntityRef.MaxAgentSpeed;
 			}
-
+*/
 			EntityData.AgentSpeed = agentFinalSpeed;
 		}
 	}

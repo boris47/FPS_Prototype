@@ -292,6 +292,13 @@ public class StreamUnit {
 		Internals.Add( keyValue );
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	public	void		SetInternal( string key, object value )
+	{
+		MyKeyValuePair keyValue = HasInternal( key ) ? Internals.Find( ( MyKeyValuePair kv ) => kv.Key == key ) : new MyKeyValuePair();
+		keyValue.Value = value.ToString();
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	public	bool		HasInternal( string key )
@@ -358,11 +365,7 @@ public class StreamUnit {
 	{
 		string value = GetInternal( key );
 		T result = default( T );
-		try
-		{
-			result = ( T ) System.Enum.Parse( typeof( T ), value );
-		}
-		catch ( System.Exception )
+		if ( Utils.Converters.StringToEnum( value, ref result ) == false )
 		{
 			Debug.Log( "Cannot retrieve value for key  " + key + " as ENUM" );
 		}

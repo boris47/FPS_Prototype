@@ -22,11 +22,11 @@ public abstract	class AIBehaviour {
 	public	virtual	void			OnDisable()
 	{ }
 
-	public	virtual	StreamUnit		OnSave( StreamData streamData )
-	{ return null; }
+	public virtual void OnSave( StreamUnit streamUnit )
+	{ }
 
-	public	virtual	StreamUnit		OnLoad( StreamData streamData )
-	{ return null; }
+	public virtual void OnLoad( StreamUnit streamUnit )
+	{ }
 
 	public	virtual	void			OnHit( IBullet bullet )
 	{ }

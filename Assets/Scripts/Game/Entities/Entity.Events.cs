@@ -30,21 +30,22 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 			GameManager.StreamEvents.OnSave				+= OnSave;
 			GameManager.StreamEvents.OnLoad				+= OnLoad;
 
+			GameManager.UpdateEvents.OnThink			+= OnThink;
 			GameManager.UpdateEvents.OnPhysicFrame		+= OnPhysicFrame;
 			GameManager.UpdateEvents.OnFrame			+= OnFrame;
 
 			// Executed only for non player entities
 			if ( ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
 			{
-				GameManager.UpdateEvents.OnThink			+= OnThink;
-
 				EnableBrain(); // Setaup for field of view and memory
 
 				// Field Of View Callbacks
 				{
-					string TargetType = m_SectionRef.AsString( "DefaultTarget" );
-					object selected = System.Enum.Parse( typeof( ENTITY_TYPE ), TargetType.ToUpper() );
-					Brain.FieldOfView.TargetType = ( selected != null ? (ENTITY_TYPE)selected : ENTITY_TYPE.NONE );
+					string targetType = m_SectionRef.AsString( "DefaultTarget" );
+					ENTITY_TYPE type = ENTITY_TYPE.NONE;
+					Utils.Converters.StringToEnum( targetType, ref type );
+					Brain.FieldOfView.TargetType = type;
+					
 
 					m_FieldOfView.Setup( maxVisibleEntities : 10 );
 					m_FieldOfView.OnTargetAquired			= OnTargetAquired;
@@ -108,7 +109,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 		if ( ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
 		{
-			m_CurrentBehaviour.OnSave( streamData );
+			// save data of every behaviour
+			m_Behaviours.ForEach( ( AIBehaviour b ) => b.OnSave( streamUnit ) );
 		}
 
 		return streamUnit;
@@ -142,10 +144,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		transform.position = streamUnit.Position;
 		transform.rotation = streamUnit.Rotation;
 
-		if ( ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
-		{
-			m_CurrentBehaviour.OnLoad( streamData );
-		}
+		m_Behaviours.ForEach( ( AIBehaviour b ) => b.OnLoad( streamUnit ) );
 
 		return streamUnit;
 	}

@@ -10,6 +10,25 @@ namespace Utils {
 		/// <summary>
 		/// Accept a ref Color and return read result
 		/// </summary>
+		public	static	bool	StringToEnum<T>( string s, ref T e, bool ignoreCase = true )
+		{
+			if ( s.Length == 0 )
+				return false;
+
+			if ( typeof( T ).IsEnum == false )
+				return false;
+
+			e = ( T ) global::System.Enum.Parse( typeof( T ), s, ignoreCase: true );			
+			return true;
+		}
+
+
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// Accept a ref Color and return read result
+		/// </summary>
 		public	static	bool	StringToColor( string s, ref Color c, float Alpha = 1.0f )
 		{
 			if ( s.Length == 0 )
