@@ -44,7 +44,7 @@ public class EntityBlackBoardData {
 	public	TargetInfo			TargetInfo							= null;
 
 	public	Transform			TrasformToLookAt					= null;
-	public	Vector3				PointToLookAt						= Vector3.zero;
+//	public	Vector3				PointToLookAt						= Vector3.zero;
 
 	public	float				AgentSpeed							= 0.0f;
 

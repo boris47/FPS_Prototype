@@ -44,7 +44,7 @@ public abstract	class PathBase : MonoBehaviour {
 
 
 	// 
-	public		abstract bool	Move( float speed, ref Vector3 position, ref Quaternion rotation, Vector3 upwards = new Vector3() );
+	public		abstract bool	Move( float speed, ref Vector3 position, ref Quaternion rotation, Vector3? upwards );
 
 
 	// 

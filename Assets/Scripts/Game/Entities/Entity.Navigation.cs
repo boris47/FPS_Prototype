@@ -34,7 +34,7 @@ public abstract partial class Entity : IEntity {
 	protected	NavMeshAgent			m_NavAgent						= null;
 	protected	bool					m_NavCanMoveAlongPath			= true;
 
-	private		bool					m_HaspendingRequest				= false;
+	private		bool					m_HasPendingRequest				= false;
 
 
 
@@ -59,7 +59,7 @@ public abstract partial class Entity : IEntity {
 			if ( m_NavAgent.pathStatus == NavMeshPathStatus.PathPartial )
 			{
 				print(  "For " + name + " destination is unreachable" );
-				m_HaspendingRequest = false;
+				m_HasPendingRequest = false;
 				yield break;
 			}
 
@@ -68,7 +68,7 @@ public abstract partial class Entity : IEntity {
 			{
 				print( "On Path Search TimeOut Reached" );
 				OnPathSearchTimeOutReached();
-				m_HaspendingRequest = false;
+				m_HasPendingRequest = false;
 				yield break;
 			}
 			yield return null;
@@ -77,7 +77,7 @@ public abstract partial class Entity : IEntity {
 		m_NavCanMoveAlongPath			= true;
 		m_HasDestination				= true;
 		m_DestinationToReachPosition	= Destination;
-		m_HaspendingRequest				= false;
+		m_HasPendingRequest				= false;
 	}
 
 
@@ -85,10 +85,10 @@ public abstract partial class Entity : IEntity {
 
 	public	virtual		void	RequestMovement( Vector3 Destination )
 	{
-		if ( m_HaspendingRequest == false )
+		if ( m_HasPendingRequest == false )
 		{
 			StartCoroutine( RequestMovementCO( Destination ) );
-			m_HaspendingRequest = true;
+			m_HasPendingRequest = true;
 		}
 	}
 	

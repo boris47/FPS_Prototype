@@ -73,7 +73,7 @@ public class PathLinear : PathBase {
 
 
 	//
-	public	override	bool	Move( float speed, ref Vector3 position, ref Quaternion rotation, Vector3 upwards = new Vector3() )
+	public	override	bool	Move( float speed, ref Vector3 position, ref Quaternion rotation, Vector3? upwards )
 	{
 		if ( m_IsCompleted )
 			return false;
@@ -104,14 +104,18 @@ public class PathLinear : PathBase {
 			Vector3 rotationLerped = Vector3.Lerp( r1, r2, m_Interpolant );
 
 			// Upwards
-			Vector3 finalUpwards = upwards;
-			if ( upwards == Vector3.zero )
+			Vector3 finalUpwards = Vector3.zero;
+			if ( upwards.HasValue == false )
 			{
 				Vector3 u1 = m_Nodes[ m_CurrentSegment + 0 ].transform.up;
 				Vector3 u2 = m_Nodes[ m_CurrentSegment + 1 ].transform.up;
 
 				Vector3 upwardsLerped = Vector3.Lerp( u1, u2, m_Interpolant );
 				finalUpwards = upwardsLerped;
+			}
+			else
+			{
+				finalUpwards = upwards.GetValueOrDefault();
 			}
 
 			rotation = Quaternion.LookRotation( rotationLerped, finalUpwards );

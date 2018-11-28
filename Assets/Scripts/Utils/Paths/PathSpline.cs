@@ -17,7 +17,7 @@ public class PathSpline : PathBase {
 	private				void			Awake()
 	{
 		ElaboratePath( Steps: 250 );
-
+		/*
 		sphere1 = GameObject.CreatePrimitive( PrimitiveType.Sphere );
 		sphere2 = GameObject.CreatePrimitive( PrimitiveType.Sphere );
 
@@ -25,6 +25,7 @@ public class PathSpline : PathBase {
 		sphere2.GetComponent<Renderer>().material.color = Color.green;
 
 		sphere1.GetComponent<Collider>().enabled = sphere2.GetComponent<Collider>().enabled = false;
+		*/
 	}
 
 
@@ -108,7 +109,7 @@ public class PathSpline : PathBase {
 	private	Vector3 p1Temp, p2Temp;
 	private float rotationSpeed = 1.0f;
 	//
-	public		override	bool			Move( float speed, ref Vector3 position, ref Quaternion rotation, Vector3 upwards = new Vector3() )
+	public		override	bool			Move( float speed, ref Vector3 position, ref Quaternion rotation, Vector3? upwards )
 	{
 		if ( m_IsCompleted )
 			return false;
@@ -141,9 +142,24 @@ public class PathSpline : PathBase {
 		{
 			float t = ( p1Temp - position ).magnitude / ( p2Temp - p1Temp ).magnitude;
 			Vector3 direction = ( p2Temp - p1Temp );
-			Quaternion newRotation = Quaternion.LookRotation( direction, upwards );
 
-			float angleNow  = Quaternion.Angle( rotation, newRotation );
+			Vector3 finalUpwards = Vector3.up;
+			if ( upwards.HasValue == false )
+			{
+				Vector3 currentForward = rotation.GetForwardVector();
+				Vector3 nextForward = direction;
+				float angle = Vector3.Angle( currentForward, nextForward );
+				Vector3 currentUp = rotation.GetUpVector();
+				Vector3 upward = Quaternion.AngleAxis(angle, Vector3.up) * currentUp;
+				finalUpwards = Vector3.RotateTowards( Vector3.up, upward, angle * 5f, 0f );
+			}
+			else
+			{
+				finalUpwards = upwards.Value;
+			}
+			Quaternion newRotation = Quaternion.LookRotation( direction, finalUpwards );
+
+			float angleNow = Quaternion.Angle( rotation, newRotation );
 			rotationSpeed = 1.0f + angleNow;
 
 			rotation = Quaternion.Slerp( rotation, newRotation, t * rotationSpeed );

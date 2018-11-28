@@ -12,9 +12,15 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour {
 
 	private	InvestigationDirection		m_CurrentInvestigationDirection = InvestigationDirection.RIGHT;
 
+	private	Coroutine					m_InvestigationCO = null;
+
 	public override void OnEnable()
 	{
-		
+		if (false && EntityData.EntityRef.HasDestination == false && m_InvestigationCO == null )
+		{
+			m_CurrentInvestigationDirection = InvestigationDirection.RIGHT;
+			m_InvestigationCO = EntityData.EntityRef.StartCoroutine( InvestigateAroundCO() );
+		}
 	}
 
 	public override void OnDisable()
@@ -42,49 +48,50 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour {
 	{
 		if ( EntityData.EntityRef.IsAlive )
 		{
+			if ( m_InvestigationCO != null )
+			EntityData.EntityRef.StopCoroutine( m_InvestigationCO );
+
 			EntityData.EntityRef.SetPointToLookAt( startPosition );
 
 			EntityData.EntityRef.ChangeState( BrainState.ALARMED );
 		}
 	}
-	/*
-	protected	void	InnvestigateAroundCO()
+	
+	private	bool IsInView( Vector3 newForward )
 	{
-		// Set the point to look just in front ho him
-		Vector3 pointToLookAt = EntityData.Head_Position + EntityData.EntityRef.transform.forward;
-		EntityData.EntityRef.SetPointToLookAt( pointToLookAt, LookTargetMode.HEAD_ONLY );
-
-		EntityData.EntityRef.ChangeState( BrainState.NORMAL );
+		return Vector3.Angle( EntityData.Head_Forward, newForward ) < 4.5f;
 	}
-	*/
+
+	protected	IEnumerator	InvestigateAroundCO()
+	{
+		while( m_CurrentInvestigationDirection < InvestigationDirection.END )
+		{
+			yield return new WaitForSecondsRealtime( UnityEngine.Random.Range( 0.7f, 1.3f ) );
+			Vector3 newDirection = Vector3.zero;
+			switch ( m_CurrentInvestigationDirection )
+			{
+				case InvestigationDirection.RIGHT:	newDirection = EntityData.Head_Right;			print("Right"); break;
+				case InvestigationDirection.LEFT:	newDirection = EntityData.Head_Forward * -1f;	print("left");  break;
+				case InvestigationDirection.BACK:	newDirection = EntityData.Head_Right   * -1f;	print("back");  break;
+				case InvestigationDirection.FRONT:	newDirection = EntityData.Head_Forward * -1f;	print("Front"); break;
+			}
+
+			m_CurrentInvestigationDirection ++;
+			EntityData.EntityRef.SetPointToLookAt( EntityData.Head_Position + newDirection, LookTargetMode.HEAD_ONLY );
+			yield return new WaitUntil( () => Vector3.Angle( EntityData.Head_Forward, newDirection ) < 4.5f );
+		}
+
+		EntityData.EntityRef.RequestMovement( EntityData.EntityRef.SpawnPoint );
+		EntityData.EntityRef.SetPointToLookAt( EntityData.EntityRef.SpawnPoint + EntityData.EntityRef.SpawnDirection );
+		EntityData.EntityRef.ChangeState( BrainState.NORMAL );
+		m_CurrentInvestigationDirection = InvestigationDirection.RIGHT;
+		m_InvestigationCO = null;
+	}
+	
 
 	public override void OnLookRotationReached( Vector3 Direction )
 	{
-		Vector3 newDirection = Vector3.zero;
-
-		Quaternion rotation = Quaternion.AngleAxis( +90.0f, EntityData.Head_Up );
-
-		switch ( m_CurrentInvestigationDirection )
-		{
-			case InvestigationDirection.RIGHT:	newDirection = EntityData.Head_Right;				m_CurrentInvestigationDirection ++; print("Right");
-				break;
-			case InvestigationDirection.LEFT:	newDirection = EntityData.Head_Forward * -1f;		m_CurrentInvestigationDirection ++; print("left");
-				break;
-			case InvestigationDirection.BACK:	newDirection = EntityData.Head_Right * -1f;			m_CurrentInvestigationDirection ++; print("back");
-				break;
-			case InvestigationDirection.FRONT:	newDirection = EntityData.Head_Right;				m_CurrentInvestigationDirection ++; print("Front");
-				break;
-			case InvestigationDirection.END:
-				EntityData.EntityRef.RequestMovement( EntityData.EntityRef.SpawnPoint );
-				EntityData.EntityRef.SetPointToLookAt( EntityData.EntityRef.SpawnPoint + EntityData.EntityRef.SpawnDirection );
-				EntityData.EntityRef.ChangeState( BrainState.NORMAL );
-				m_CurrentInvestigationDirection = InvestigationDirection.RIGHT;
-				return;
-		}
 		
-		Vector3 newDirectionh = rotation * EntityData.Head_Forward;
-
-		EntityData.EntityRef.SetPointToLookAt( EntityData.Head_Position + newDirection, LookTargetMode.HEAD_ONLY );
 	}
 	
 	public override void OnDestinationReached( Vector3 Destination )
@@ -94,10 +101,16 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour {
 		// TODO
 		// before returning to normal state should investigate around current position
 
+		if ( m_InvestigationCO == null )
+		{
+			m_CurrentInvestigationDirection = InvestigationDirection.RIGHT;
+			m_InvestigationCO = EntityData.EntityRef.StartCoroutine( InvestigateAroundCO() );
+		}
+
 //		EntityData.EntityRef.StartCoroutine( InnvestigateAroundCO() );
 
 		// Set the point to look just in front ho him
-		EntityData.EntityRef.SetPointToLookAt( EntityData.Head_Position + EntityData.EntityRef.transform.forward );
+//		EntityData.EntityRef.SetPointToLookAt( EntityData.Head_Position + EntityData.EntityRef.transform.forward );
 
 //		EntityData.EntityRef.ChangeState( BrainState.NORMAL );
 	}
@@ -114,6 +127,8 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour {
 
 	public override void OnFrame( float DeltaTime )
 	{
+		Debug.DrawLine( EntityData.Head_Position, EntityData.Head_Position + EntityData.Head_Forward, Color.red, 0.0f );
+
 		// Update movement speed along path
 		if ( EntityData.EntityRef.HasDestination )
 		{
@@ -136,6 +151,9 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour {
 
 	public override void OnTargetAcquired()
 	{
+		if ( m_InvestigationCO != null )
+		EntityData.EntityRef.StopCoroutine( m_InvestigationCO );
+
 		// Destination
 		{
 			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 

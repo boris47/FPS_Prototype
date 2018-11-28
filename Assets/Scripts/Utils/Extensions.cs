@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public static class Extensions {
 
-	public	static	T	GetComponent<T>( Transform Base ) where T : Component
+	public	static	T				GetComponent<T>( Transform Base ) where T : Component
 	{
 		if ( Base == null )
 			return null;
@@ -26,17 +26,17 @@ public static class Extensions {
 		return null;
 	}
 
-	public	static	bool	SearchComponent<T>( this Transform transform, ref T Component, SearchContext Context, global::System.Predicate<T> Filter = null )
+	public	static	bool			SearchComponent<T>( this Transform transform, ref T Component, SearchContext Context, global::System.Predicate<T> Filter = null )
 	{
 		return Utils.Base.SearchComponent( transform.gameObject, ref Component, Context, Filter );
 	}
 
-	public	static	bool	SearchComponents<T>( this Transform transform, ref T[] Component, SearchContext Context, global::System.Predicate<T> Filter = null )
+	public	static	bool			SearchComponents<T>( this Transform transform, ref T[] Component, SearchContext Context, global::System.Predicate<T> Filter = null )
 	{
 		return Utils.Base.SearchComponents( transform.gameObject, ref Component, Context, Filter );
 	}
 
-	public	static	T[]	GetComponentOnlyInChildren<T>( this Transform transform, bool deepSearch = false ) where T : Component
+	public	static	T[]				GetComponentOnlyInChildren<T>( this Transform transform, bool deepSearch = false ) where T : Component
 	{
 		List<T> list = new List<T>();
 		{
@@ -63,7 +63,7 @@ public static class Extensions {
 		return list.ToArray();
 	}
 
-	public	static	string TrimInside( this string str, params char[] trimChars )
+	public	static	string			TrimInside( this string str, params char[] trimChars )
 	{
 		List<char> charsToSearch = new List<char>(1);
 		if ( trimChars != null && trimChars.Length > 0 )
@@ -83,6 +83,31 @@ public static class Extensions {
 			}
 		}
 		return str;
+	}
+
+
+	public	static	Vector3			GetForwardVector( this Quaternion q )
+	{
+		Vector3 direction = Vector3.forward;
+		Vector3 Q = new Vector3( q.x, q.y, q.z );
+		Vector3 T = 2.0f * Vector3.Cross( Q, direction );
+		return direction + ( T * q.w ) + Vector3.Cross( Q, T );
+	}
+
+	public	static	Vector3			GetUpVector( this Quaternion q )
+	{
+		Vector3 direction = Vector3.up;
+		Vector3 Q = new Vector3( q.x, q.y, q.z );
+		Vector3 T = 2.0f * Vector3.Cross( Q, direction );
+		return direction + ( T * q.w ) + Vector3.Cross( Q, T );
+	}
+
+	public	static	Vector3			GetRightVector( this Quaternion q )
+	{
+		Vector3 direction = Vector3.right;
+		Vector3 Q = new Vector3( q.x, q.y, q.z );
+		Vector3 T = 2.0f * Vector3.Cross( Q, direction );
+		return direction + ( T * q.w ) + Vector3.Cross( Q, T );
 	}
 }
 

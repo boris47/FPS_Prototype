@@ -162,8 +162,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		m_ID				= NewID();
 		m_Interface			= this as IEntity;
 
-		SpawnPoint = transform.position;
-		SpawnDirection = transform.forward;
 		
 		// TRANSFORMS
 		{
@@ -172,6 +170,10 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 			m_Targettable		= m_HeadTransform;
 			m_EffectsPivot		= transform.Find( "EffectsPivot" );
 		}
+
+
+		SpawnPoint = m_BodyTransform.position;
+		SpawnDirection = m_HeadTransform.forward;
 
 		// ESSENTIALS CHECK
 		m_IsOK = true;
