@@ -25,7 +25,10 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour {
 
 	public override void OnDisable()
 	{
-		
+		if ( m_InvestigationCO != null )
+		{
+			EntityData.EntityRef.StopCoroutine( m_InvestigationCO );
+		}
 	}
 
 	public override void OnSave( StreamUnit streamUnit )
@@ -48,9 +51,6 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour {
 	{
 		if ( EntityData.EntityRef.IsAlive )
 		{
-			if ( m_InvestigationCO != null )
-			EntityData.EntityRef.StopCoroutine( m_InvestigationCO );
-
 			EntityData.EntityRef.SetPointToLookAt( startPosition );
 
 			EntityData.EntityRef.ChangeState( BrainState.ALARMED );
@@ -151,9 +151,6 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour {
 
 	public override void OnTargetAcquired()
 	{
-		if ( m_InvestigationCO != null )
-		EntityData.EntityRef.StopCoroutine( m_InvestigationCO );
-
 		// Destination
 		{
 			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
