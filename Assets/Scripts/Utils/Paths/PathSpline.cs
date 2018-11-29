@@ -6,9 +6,14 @@ using UnityEngine;
 public class PathSpline : PathBase {
 
 	[SerializeField]
-	private		PathWaypoint[]		m_Nodes				= null;
+	private		PathWaypoint[]		m_Nodes					= null;
 
-	private		Vector3[]			m_Positions			= null;
+	[SerializeField]
+	private		bool				m_Cycle					= false;
+
+//	private		Vector3[]			m_Positions				= null;
+	private		bool				m_IsStartEventCalled	= false;
+	private		bool				m_IsEndEventCalled		= false;
 
 	GameObject sphere1, sphere2;
 
@@ -17,7 +22,7 @@ public class PathSpline : PathBase {
 	private				void			Awake()
 	{
 		ElaboratePath( Steps: 250 );
-		/*
+		
 		sphere1 = GameObject.CreatePrimitive( PrimitiveType.Sphere );
 		sphere2 = GameObject.CreatePrimitive( PrimitiveType.Sphere );
 
@@ -25,7 +30,10 @@ public class PathSpline : PathBase {
 		sphere2.GetComponent<Renderer>().material.color = Color.green;
 
 		sphere1.GetComponent<Collider>().enabled = sphere2.GetComponent<Collider>().enabled = false;
-		*/
+
+		sphere1.transform.localScale = Vector3.one * 0.1f;
+		sphere2.transform.localScale = Vector3.one * 0.1f;
+		
 	}
 
 
@@ -58,33 +66,38 @@ public class PathSpline : PathBase {
 		{
 			List<PathWayPointOnline> waypointsList = new List<PathWayPointOnline>();
 
-			Vector3 bump;
-
 			Vector3 prevPosition = positions[0];
+			Vector3 prevDirection = Vector3.zero;
 			float currentStep = 0.001f;
-			while ( currentStep < Steps )
+			while ( Mathf.Abs( currentStep ) < Steps )
 			{
 				float interpolant = currentStep / Steps;
-				Vector3 currentPosition = Utils.Math.GetPoint( positions, interpolant, out bump, out bump );
 
-				waypointsList.Add
-				(
-					new PathWayPointOnline() {
-						Position = currentPosition,
-						Rotation = Quaternion.identity // Quaternion.LookRotation( prevPosition - currentPosition + ( Vector3.up * 0.001f ), Vector3.up )
-					}
+				// Position
+				Vector3 currentPosition = Utils.Math.GetPoint( positions, interpolant );
 
-				);
+				// Rotation
+				Vector3 currentDirection = currentPosition - prevPosition;
+				Quaternion currentRotation = Quaternion.identity;
+				{
+					Vector3 right   = Vector3.Cross( currentDirection, prevDirection );
+					Vector3 forward = Vector3.Lerp( currentDirection, prevDirection, 0.5f );
+					Vector3 upwards = Vector3.Cross( forward, right );
+					currentRotation = Quaternion.LookRotation( forward, upwards );
+				}
+
+				waypointsList.Add( new PathWayPointOnline() { Position = currentPosition, Rotation = currentRotation } );
 
 				// Path Length
 				m_PathLength += Vector3.Distance( prevPosition, currentPosition );
 
 				prevPosition = currentPosition;
+				prevDirection = currentDirection;
 				currentStep += StepLength;
 			}
 			m_Waypoints = waypointsList.ToArray();
 
-			m_Positions = m_Waypoints.Select( w => w.Position ).ToArray();
+//			m_Positions = m_Waypoints.Select( w => w.Position ).ToArray();
 		}
 	}
 
@@ -106,66 +119,39 @@ public class PathSpline : PathBase {
 		);
 	}
 
-	private	Vector3 p1Temp, p2Temp;
-	private float rotationSpeed = 1.0f;
+//	private	Vector3 p1Temp, p2Temp;
+//	private float rotationSpeed = 80.0f;
+
 	//
-	public		override	bool			Move( float speed, ref Vector3 position, ref Quaternion rotation, Vector3? upwards )
+	public		override	bool			Move( float speed, ref Transform t, Vector3? upwards )
 	{
 		if ( m_IsCompleted )
-			return false;
+		{
+			if ( m_Cycle == true )
+			{
+				ResetPath();
+			}
+			else
+			{
+				return false;
+			}
+		}
 
 		// Start event
-		if ( m_Interpolant == 0.0f )
+		if ( m_IsStartEventCalled == false && m_Interpolant == 0.0f )
 		{
 			if ( m_OnPathStart != null && m_OnPathStart.GetPersistentEventCount() > 0 )
 			{
 				m_OnPathStart.Invoke();
 			}
+			m_IsStartEventCalled = true;
 		}
 
 		// Interpolant
 		m_Interpolant += ( Time.deltaTime ) * speed;
 
-		// Position
-
-		Vector3 p1, p2;
-
-		position = Utils.Math.GetPoint( m_Positions, m_Interpolant , out p1, out p2 );
-
-//		sphere1.transform.position = p1; // red
-//		sphere2.transform.position = p2; // green
-
-		p1Temp = Vector3.Lerp( p1Temp, p1, ( Time.deltaTime * rotationSpeed ) );
-		p2Temp = Vector3.Lerp( p2Temp, p2, ( Time.deltaTime * rotationSpeed) );
-
-		// Rotation
-		{
-			float t = ( p1Temp - position ).magnitude / ( p2Temp - p1Temp ).magnitude;
-			Vector3 direction = ( p2Temp - p1Temp );
-
-			Vector3 finalUpwards = Vector3.up;
-			if ( upwards.HasValue == false )
-			{
-				Vector3 currentForward = rotation.GetForwardVector();
-				Vector3 nextForward = direction;
-				float angle = Vector3.Angle( currentForward, nextForward );
-				Vector3 currentUp = rotation.GetUpVector();
-				Vector3 upward = Quaternion.AngleAxis(angle, Vector3.up) * currentUp;
-				finalUpwards = Vector3.RotateTowards( Vector3.up, upward, angle * 5f, 0f );
-			}
-			else
-			{
-				finalUpwards = upwards.Value;
-			}
-			Quaternion newRotation = Quaternion.LookRotation( direction, finalUpwards );
-
-			float angleNow = Quaternion.Angle( rotation, newRotation );
-			rotationSpeed = 1.0f + angleNow;
-
-			rotation = Quaternion.Slerp( rotation, newRotation, t * rotationSpeed );
-		}
-
-		if ( m_Interpolant >= 1.0f )
+		// End event
+		if ( m_IsEndEventCalled == false && m_Interpolant >= 1.0f )
 		{
 			m_IsCompleted = true;
 
@@ -173,7 +159,17 @@ public class PathSpline : PathBase {
 			{
 				m_OnPathCompleted.Invoke();
 			}
+			m_IsEndEventCalled = true;
 		}
+
+		
+		Vector3 position = t.position;
+		Quaternion rotation = t.rotation;
+
+		GetPoint( m_Waypoints, m_Interpolant, ref position, ref rotation );
+
+		t.position = position;
+		t.rotation = rotation;
 		
 		return true;
 	}
@@ -200,5 +196,91 @@ public class PathSpline : PathBase {
 			}
 		);
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	private	bool		GetPoint( PathWayPointOnline[] ws, float t, ref Vector3 position, ref Quaternion rotation )
+	{
+		if ( ws == null || ws.Length < 4 )
+		{
+			UnityEngine.Debug.Log( "GetPoint Called with points invalid array" );
+			UnityEngine.Debug.DebugBreak();
+			return false;
+		}
+
+		int numSections = ws.Length - 3;
+		int currPt = Mathf.Min( Mathf.FloorToInt( t * ( float ) numSections ), numSections - 1 );
+		float u = t * ( float ) numSections - ( float ) currPt;
+
+		float rotationInterpolant = 0.0f;
+		// Position
+		{
+			Vector3 p_a = ws[ currPt + 0 ];
+			Vector3 p_b = ws[ currPt + 1 ];
+			Vector3 p_c = ws[ currPt + 2 ];
+			Vector3 p_d = ws[ currPt + 3 ];
+
+			rotationInterpolant = ( p_b - position ).magnitude / ( p_c - p_b ).magnitude;
+
+			position = .5f * 
+			(
+				( -p_a + 3f * p_b - 3f * p_c + p_d )		* ( u * u * u ) +
+				( 2f * p_a - 5f * p_b + 4f * p_c - p_d )	* ( u * u ) +
+				( -p_a + p_c )								* u +
+				2f * p_b
+			);
+		}
+
+		// Rotation
+		{
+//			Vector3 forward, upwards;
+
+			// Forward
+//			Vector3 d_a = ws[ currPt + 0 ].Rotation.GetForwardVector();
+//			Vector3 d_b = ws[ currPt + 1 ].Rotation.GetForwardVector();
+//			Vector3 d_c = ws[ currPt + 2 ].Rotation.GetForwardVector();
+//			Vector3 d_d = ws[ currPt + 3 ].Rotation.GetForwardVector();
+			
+//			forward = Utils.Math.GetPoint( d_a, d_b, d_c, d_d, rotationInterpolant );
+
+			// Upward
+//			Vector3 u_a = ws[ currPt + 0 ].Rotation.GetUpVector();
+//			Vector3 u_b = ws[ currPt + 1 ].Rotation.GetUpVector();
+//			Vector3 u_c = ws[ currPt + 2 ].Rotation.GetUpVector();
+//			Vector3 u_d = ws[ currPt + 3 ].Rotation.GetUpVector();
+
+//			upwards = Utils.Math.GetPoint( u_a, u_b, u_c, u_d, 1f -	rotationInterpolant );
+
+//			forward = Vector3.Lerp( d_b, d_c, rotationInterpolant );
+//			upwards = Vector3.Lerp( u_b, u_c, rotationInterpolant );
+
+//			Quaternion newRotation = Quaternion.LookRotation( forward, upwards );
+			rotation = Quaternion.Lerp( ws[ currPt + 1 ], ws[ currPt + 2 ], rotationInterpolant );
+		}
+
+		return true;
+	}
+
+
 
 }

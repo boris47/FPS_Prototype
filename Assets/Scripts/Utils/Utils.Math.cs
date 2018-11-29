@@ -404,7 +404,7 @@ namespace Utils {
 		/// <summary>
 		/// Return a Spline interpolation between given points
 		/// </summary>
-		public	static		Vector3		GetPoint( Vector3[] points, float t, out Vector3 pos1, out Vector3 pos2 )
+		public	static		Vector3		GetPoint( Vector3[] points, float t )
 		{
 			if ( points == null || points.Length < 4 )
 			{
@@ -420,9 +420,6 @@ namespace Utils {
 			Vector3 b = points[ currPt + 1 ];
 			Vector3 c = points[ currPt + 2 ];
 			Vector3 d = points[ currPt + 3 ];
-
-			pos1 = b;
-			pos2 = c;
 
 			return .5f * 
 			(

@@ -139,7 +139,7 @@ public partial class Player : Human {
 		SetMotionType( eMotionType.Walking );
 
 		m_GrabPoint = new GameObject( "GrabPoint" );
-		m_GrabPoint.transform.SetParent( CameraControl.Instance.Transform );
+		m_GrabPoint.transform.SetParent( m_HeadTransform/* CameraControl.Instance.Transform */);
 		m_GrabPoint.transform.localPosition = Vector3.zero;
 		m_GrabPoint.transform.localRotation = Quaternion.identity;
 		m_GrabPoint.transform.Translate( 0f, 0f, m_UseDistance );
