@@ -130,7 +130,7 @@ public partial class Player : Human {
 		m_Health			= m_SectionRef.AsFloat( "Health", 100.0f );
 		m_RigidBody.mass	= m_SectionRef.AsFloat( "phMass", 80.0f  );
 		m_RigidBody.maxAngularVelocity = 0f;
-		m_RigidBody.useGravity = true;
+		m_RigidBody.useGravity = false;
 		m_Stamina			= 1.0f;
 		GroundSpeedModifier = 1.0f;
 		IsGrounded			= false;
