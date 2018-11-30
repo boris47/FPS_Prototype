@@ -431,38 +431,71 @@ namespace Utils {
 		}
 
 		/*
-
-				//////////////////////////////////////////////////////////////////////////
+		//////////////////////////////////////////////////////////////////////////
 		/// <summary>
-		/// Return a Spline interpolation between given points
+		/// 
 		/// </summary>
-		public	static		Vector3		GetPoint( IList<Vector3> points, float t, out PathWayPointOnline w1, out PathWayPointOnline w2 )
+		public	static		bool GetPoint( PathWayPointOnline[] waypoints, float t, ref Vector3 position, ref Quaternion rotation )
 		{
-			if ( points == null || points.Count < 4 )
+			if ( waypoints == null || waypoints.Length < 4 )
 			{
-				Debug.Log( "GetPoint Called with points invalid array" );
-				Debug.DebugBreak();
+				UnityEngine.Debug.Log( "GetPoint Called with points invalid array" );
+				UnityEngine.Debug.DebugBreak();
+				return false;
 			}
 
-			int numSections = points.Count - 3;
+			int numSections = waypoints.Length - 3;
 			int currPt = Mathf.Min( Mathf.FloorToInt( t * ( float ) numSections ), numSections - 1 );
 			float u = t * ( float ) numSections - ( float ) currPt;
 
-			w1 = points[ currPt + 1 ];
-			w2 = points[ currPt + 2 ];
+			float rotationInterpolant = 0.0f;
+			// Position
+			{
+				Vector3 p_a = waypoints[ currPt + 0 ];
+				Vector3 p_b = waypoints[ currPt + 1 ];
+				Vector3 p_c = waypoints[ currPt + 2 ];
+				Vector3 p_d = waypoints[ currPt + 3 ];
 
-			Vector3 a = points[ currPt + 0 ];
-			Vector3 b = points[ currPt + 1 ];
-			Vector3 c = points[ currPt + 1 ];
-			Vector3 d = points[ currPt + 3 ];
-		
-			return .5f * 
-			(
-				( -a + 3f * b - 3f * c + d )		* ( u * u * u ) +
-				( 2f * a - 5f * b + 4f * c - d )	* ( u * u ) +
-				( -a + c )							* u +
-				2f * b
-			);
+				rotationInterpolant = ( p_b - position ).magnitude / ( p_c - p_b ).magnitude;
+
+				position = .5f * 
+				(
+					( -p_a + 3f * p_b - 3f * p_c + p_d )		* ( u * u * u ) +
+					( 2f * p_a - 5f * p_b + 4f * p_c - p_d )	* ( u * u ) +
+					( -p_a + p_c )								* u +
+					2f * p_b
+				);
+			}
+
+
+
+			// Rotation
+			{
+				Vector3 forward, upwards;
+
+				// Forward
+				Vector3 d_a = waypoints[ currPt + 0 ].Rotation.GetForwardVector();
+				Vector3 d_b = waypoints[ currPt + 1 ].Rotation.GetForwardVector();
+				Vector3 d_c = waypoints[ currPt + 2 ].Rotation.GetForwardVector();
+				Vector3 d_d = waypoints[ currPt + 3 ].Rotation.GetForwardVector();
+			
+				forward = Utils.Math.GetPoint( d_a, d_b, d_c, d_d, rotationInterpolant );
+
+				// Upward
+				Vector3 u_a = waypoints[ currPt + 0 ].Rotation.GetUpVector();
+				Vector3 u_b = waypoints[ currPt + 1 ].Rotation.GetUpVector();
+				Vector3 u_c = waypoints[ currPt + 2 ].Rotation.GetUpVector();
+				Vector3 u_d = waypoints[ currPt + 3 ].Rotation.GetUpVector();
+
+				upwards = Utils.Math.GetPoint( u_a, u_b, u_c, u_d, 1f -	rotationInterpolant );
+
+//				forward = Vector3.Lerp( d_b, d_c, rotationInterpolant );
+//				upwards = Vector3.Lerp( u_b, u_c, rotationInterpolant );
+
+				Quaternion newRotation = Quaternion.LookRotation( forward, upwards );
+				rotation = Quaternion.Lerp( waypoints[ currPt + 1 ], waypoints[ currPt + 2 ], rotationInterpolant );
+			}
+			return true;
 		}
 		*/
 	}

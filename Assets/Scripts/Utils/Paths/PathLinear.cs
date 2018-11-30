@@ -32,13 +32,7 @@ public class PathLinear : PathBase {
 				( 	m_Nodes,
 					( PathWaypoint w ) =>
 					{
-						waypointsList.Add
-						(
-							new PathWayPointOnline() {
-								Position = w.transform.position,
-								Rotation = w.transform.rotation
-							}
-						);
+						waypointsList.Add( new PathWayPointOnline( w.transform.position, w.transform.rotation ) );
 					}
 				);
 			}

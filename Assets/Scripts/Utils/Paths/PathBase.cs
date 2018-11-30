@@ -6,8 +6,30 @@ using UnityEngine;
 [System.Serializable]
 public	struct	PathWayPointOnline {
 
-	public	Vector3		Position;
-	public	Quaternion	Rotation;
+	private	Vector3		m_Position;
+	private	Quaternion	m_Rotation;
+
+	public	Vector3		Position
+	{
+		get { return m_Position; }
+	}
+
+	public	Quaternion	Rotation
+	{
+		get { return m_Rotation; }
+	}
+
+	public PathWayPointOnline( Transform t )
+	{
+		m_Position = t.position;
+		m_Rotation = t.rotation;
+	}
+
+	public PathWayPointOnline( Vector3 position, Quaternion rotation )
+	{
+		m_Position = position;
+		m_Rotation = rotation;
+	}
 
 	public static implicit operator Vector3		( PathWayPointOnline w )		{	return w.Position;	}
 	public static implicit operator Quaternion	( PathWayPointOnline w )		{	return w.Rotation;	}

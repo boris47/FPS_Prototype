@@ -11,7 +11,6 @@ public class PathSpline : PathBase {
 	[SerializeField]
 	private		bool				m_Cycle					= false;
 
-//	private		Vector3[]			m_Positions				= null;
 	private		bool				m_IsStartEventCalled	= false;
 	private		bool				m_IsEndEventCalled		= false;
 
@@ -40,6 +39,7 @@ public class PathSpline : PathBase {
 	//
 	protected	override	void			ElaboratePath( float Steps, float StepLength = 1.0f )
 	{
+		/*
 		// Nodes
 		m_Nodes = transform.GetComponentsInChildren<PathWaypoint>();
 
@@ -62,6 +62,8 @@ public class PathSpline : PathBase {
 			positions = positionsList.ToArray();
 		}
 		
+		
+
 		// Waypoints and path length
 		{
 			List<PathWayPointOnline> waypointsList = new List<PathWayPointOnline>();
@@ -86,7 +88,7 @@ public class PathSpline : PathBase {
 					currentRotation = Quaternion.LookRotation( forward, upwards );
 				}
 
-				waypointsList.Add( new PathWayPointOnline() { Position = currentPosition, Rotation = currentRotation } );
+				waypointsList.Add( new PathWayPointOnline( currentPosition, currentRotation ) );
 
 				// Path Length
 				m_PathLength += Vector3.Distance( prevPosition, currentPosition );
@@ -96,9 +98,112 @@ public class PathSpline : PathBase {
 				currentStep += StepLength;
 			}
 			m_Waypoints = waypointsList.ToArray();
-
-//			m_Positions = m_Waypoints.Select( w => w.Position ).ToArray();
 		}
+
+		*/
+
+
+
+		// Nodes
+		m_Nodes = transform.GetComponentsInChildren<PathWaypoint>();
+
+		// Spline base points
+		PathWayPointOnline[] wayPoints = null;
+		{
+			List<PathWayPointOnline> waypointsList = new List<PathWayPointOnline>( m_Nodes.Length + 2 );
+			{
+				// Fist node
+				waypointsList.Add ( new PathWayPointOnline( m_Nodes.First().transform ) );
+
+				// All middle nodes
+				waypointsList.AddRange( m_Nodes.Select( w => new PathWayPointOnline( w.transform ) ) );
+
+				// Last node
+				waypointsList.Add ( new PathWayPointOnline( m_Nodes.Last().transform ) );
+			}
+			wayPoints = waypointsList.ToArray();
+		}
+
+		{
+			int currentIndex = 0;
+			PathWayPointOnline prevWaypoint		= default( PathWayPointOnline );
+			PathWayPointOnline currentWaypoint	= default( PathWayPointOnline );
+			List<PathWayPointOnline> waypointsList = new List<PathWayPointOnline>();
+			Vector3[] positionArray = wayPoints.Select( w => w.Position ).ToArray();
+
+
+			List<Vector3> Positions = new List<Vector3>();
+			List<Quaternion> Rotations = new List<Quaternion>();
+
+			// Positions
+			for ( float currentStep = 0.001f; currentStep < Steps; currentStep += StepLength / ( float ) wayPoints.Length )
+			{
+				float interpolant = currentStep / Steps;
+				Vector3 position = Utils.Math.GetPoint( positionArray, interpolant );
+				Positions.Add( position );
+			}
+
+			while ( currentIndex < wayPoints.Length )
+			{
+				prevWaypoint = wayPoints[currentIndex];
+				currentIndex ++;
+				currentWaypoint = wayPoints[currentIndex - 1];
+
+
+				// Rotations
+				{
+					for ( float currentStep = 0.001f; currentStep < Steps; currentStep += StepLength )
+					{
+						float interpolant = currentStep / Steps;
+						Quaternion rotation = Quaternion.Lerp( prevWaypoint, currentWaypoint, interpolant );
+						Rotations.Add( rotation );
+					}
+				}
+
+				/*
+				for ( float currentStep = 0.001f; currentStep < Steps; currentStep += StepLength )
+				{
+
+					// Rotation
+					Quaternion rotation = Quaternion.Lerp( prevWaypoint, currentWaypoint, interpolant );
+
+					waypointsList.Add( new PathWayPointOnline( position, rotation ) );
+				}
+				*/
+//				Positions.ForEach( p => waypointsList.Add( new PathWayPointOnline( p, Quaternion.identity ) ) );
+			}
+			
+
+
+			m_Waypoints = waypointsList.ToArray();
+		}
+		/*
+		// Waypoints and path length
+		{
+			List<PathWayPointOnline> waypointsList = new List<PathWayPointOnline>();
+
+			Vector3 prevPosition		= wayPoints[0];
+			Vector3 currentPosition		= wayPoints[0];
+			Quaternion currentRotation	= wayPoints[0];
+			float currentStep			= 0.001f;
+			while ( Mathf.Abs( currentStep ) < Steps )
+			{
+				float interpolant = currentStep / Steps;
+
+				Utils.Math.GetPoint( wayPoints, interpolant, ref currentPosition, ref currentRotation );
+
+				waypointsList.Add( new PathWayPointOnline( currentPosition, currentRotation ) );
+
+				// Path Length
+				m_PathLength += Vector3.Distance( prevPosition, currentPosition );
+
+				prevPosition = currentPosition;
+
+				currentStep += StepLength;
+			}
+			m_Waypoints = waypointsList.ToArray();
+		}
+		*/
 	}
 
 	// Spline iteration
@@ -166,7 +271,7 @@ public class PathSpline : PathBase {
 		Vector3 position = t.position;
 		Quaternion rotation = t.rotation;
 
-		GetPoint( m_Waypoints, m_Interpolant, ref position, ref rotation );
+///		Utils.Math.GetPoint( m_Waypoints, m_Interpolant, ref position, ref rotation );
 
 		t.position = position;
 		t.rotation = rotation;
@@ -185,13 +290,14 @@ public class PathSpline : PathBase {
 	// 
 	private				void			OnDrawGizmosSelected()
 	{
-		ElaboratePath( Steps: 250 );
+		ElaboratePath( Steps: 150f );
 
 		Vector3 prevPosition = m_Waypoints[0];
 		IteratePath
 		(
 			OnPosition: ( PathWayPointOnline w ) => {
 				Gizmos.DrawLine( prevPosition, w );
+				Gizmos.DrawRay( w.Position, w.Rotation.GetForwardVector() );
 				prevPosition = w;
 			}
 		);
@@ -253,28 +359,28 @@ public class PathSpline : PathBase {
 
 		// Rotation
 		{
-//			Vector3 forward, upwards;
+			Vector3 forward, upwards;
 
 			// Forward
-//			Vector3 d_a = ws[ currPt + 0 ].Rotation.GetForwardVector();
-//			Vector3 d_b = ws[ currPt + 1 ].Rotation.GetForwardVector();
-//			Vector3 d_c = ws[ currPt + 2 ].Rotation.GetForwardVector();
-//			Vector3 d_d = ws[ currPt + 3 ].Rotation.GetForwardVector();
+			Vector3 d_a = ws[ currPt + 0 ].Rotation.GetForwardVector();
+			Vector3 d_b = ws[ currPt + 1 ].Rotation.GetForwardVector();
+			Vector3 d_c = ws[ currPt + 2 ].Rotation.GetForwardVector();
+			Vector3 d_d = ws[ currPt + 3 ].Rotation.GetForwardVector();
 			
-//			forward = Utils.Math.GetPoint( d_a, d_b, d_c, d_d, rotationInterpolant );
+			forward = Utils.Math.GetPoint( d_a, d_b, d_c, d_d, rotationInterpolant );
 
 			// Upward
-//			Vector3 u_a = ws[ currPt + 0 ].Rotation.GetUpVector();
-//			Vector3 u_b = ws[ currPt + 1 ].Rotation.GetUpVector();
-//			Vector3 u_c = ws[ currPt + 2 ].Rotation.GetUpVector();
-//			Vector3 u_d = ws[ currPt + 3 ].Rotation.GetUpVector();
+			Vector3 u_a = ws[ currPt + 0 ].Rotation.GetUpVector();
+			Vector3 u_b = ws[ currPt + 1 ].Rotation.GetUpVector();
+			Vector3 u_c = ws[ currPt + 2 ].Rotation.GetUpVector();
+			Vector3 u_d = ws[ currPt + 3 ].Rotation.GetUpVector();
 
-//			upwards = Utils.Math.GetPoint( u_a, u_b, u_c, u_d, 1f -	rotationInterpolant );
+			upwards = Utils.Math.GetPoint( u_a, u_b, u_c, u_d, rotationInterpolant );
 
-//			forward = Vector3.Lerp( d_b, d_c, rotationInterpolant );
-//			upwards = Vector3.Lerp( u_b, u_c, rotationInterpolant );
+			forward = Vector3.Lerp( d_b, d_c, rotationInterpolant );
+			upwards = Vector3.Lerp( u_b, u_c, rotationInterpolant );
 
-//			Quaternion newRotation = Quaternion.LookRotation( forward, upwards );
+			Quaternion newRotation = Quaternion.LookRotation( forward, upwards );
 			rotation = Quaternion.Lerp( ws[ currPt + 1 ], ws[ currPt + 2 ], rotationInterpolant );
 		}
 
