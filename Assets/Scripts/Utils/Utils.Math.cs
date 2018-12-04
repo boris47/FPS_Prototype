@@ -172,16 +172,23 @@ namespace Utils {
 		public	static		Vector3		ProjectPointOnPlane( Vector3 planeNormal, Vector3 planePoint, Vector3 point )
 		{
 			//First calculate the distance from the point to the plane:
-			float distance = Vector3.Dot( planeNormal, ( point - planePoint ) );
+//			float distance = Vector3.Dot( planeNormal, ( point - planePoint ) );
 
 			//Reverse the sign of the distance
-			distance *= -1;
+//			distance *= -1;
 
 			//Get a translation vector
-			Vector3 translationVector = SetVectorLength( planeNormal, distance );
+//			Vector3 translationVector = SetVectorLength( planeNormal, distance );
 
 			//Translate the point to form a projection
-			return point + translationVector;
+//			return point - translationVector;
+			
+			// Dot product of two normalize vector means the cos of the angle between this two vectors
+			// If it's positive means a < 180 angle and negative and angle >= 180
+			// Dot product can also be: ( ax × bx ) + ( ay × by ), that's the point
+			float pointPlaneDistance = Vector3.Dot( planeNormal, point - planePoint );
+
+			return point - ( planeNormal * pointPlaneDistance );
 		}
 
 
@@ -271,7 +278,7 @@ namespace Utils {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		public	static		float	CalculateFireAngle( float alt, Vector3 startPosition, Vector3 endPosition, float bulletVelocity, float targetHeight )
+		public	static		float		CalculateFireAngle( float alt, Vector3 startPosition, Vector3 endPosition, float bulletVelocity, float targetHeight )
 		{ 
 			Vector2 a = new Vector2( startPosition.x, startPosition.z );
 			Vector2 b = new Vector2( endPosition.x, endPosition.z );
@@ -310,12 +317,11 @@ namespace Utils {
 			Vector3 PVec = aPos1 - aPos2;
 			Vector3 SVec = aSpeed1 - aSpeed2;
 			float d = SVec.sqrMagnitude;
+
 			// if d is 0 then the distance between Pos1 and Pos2 is never changing
 			// so there is no point of closest approach... return 0
 			// 0 means the closest approach is now!
-			if ( d >= -0.0001f && d <= 0.0002f )
-				return 0.0f;
-			return ( -Vector3.Dot( PVec, SVec ) / d );
+			return ( d >= -0.0001f && d <= 0.0002f ) ? 0.0f : ( -Vector3.Dot( PVec, SVec ) / d );
 		}
 
 
@@ -349,6 +355,29 @@ namespace Utils {
 			Vector3 v1 = GetPointLinear( p0, p1, p2, p3, t );
 			Vector3 v2 = GetPointLinear( p1, p2, p3, p4, t );
 			return Vector3.Lerp( v1, v2, t );
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		public	static		Quaternion	GetRotation( Quaternion r0, Quaternion r1, Quaternion r2, float t )
+		{
+			float slerpT = 2.0f * t * (1.0f - t);
+			Quaternion q1 = Quaternion.Slerp( r0, r1, t );
+			Quaternion q2 = Quaternion.Slerp( r1, r2, t );
+			return Quaternion.Slerp( q1, q2, slerpT );
+		}
+
+
+		/// <summary>
+		/// Return a spherical quadrangle interpolation of given quaterniions
+		/// </summary>
+		public	static		Quaternion	GetRotation( Quaternion r0, Quaternion r1, Quaternion r2, Quaternion r3, float t )
+		{
+			float slerpT = 2.0f * t * (1.0f - t);
+			Quaternion q1 = GetRotation( r0, r1, r2, t );
+			Quaternion q2 = GetRotation( r1, r2, r3, t );
+			return Quaternion.Slerp( q1, q2, t );
 		}
 
 
@@ -421,6 +450,7 @@ namespace Utils {
 			Vector3 c = points[ currPt + 2 ];
 			Vector3 d = points[ currPt + 3 ];
 
+			// catmull Rom interpolation
 			return .5f * 
 			(
 				( -a + 3f * b - 3f * c + d )		* ( u * u * u ) +
@@ -429,32 +459,32 @@ namespace Utils {
 				2f * b
 			);
 		}
+		
 
-		/*
-		//////////////////////////////////////////////////////////////////////////
 		/// <summary>
-		/// 
+		/// Compute spline's waypoints interpolation, assigning position and rotation, return true if everything fine otherwise false
 		/// </summary>
-		public	static		bool GetPoint( PathWayPointOnline[] waypoints, float t, ref Vector3 position, ref Quaternion rotation )
+		public	static		bool		GetInterpolatedWaypoint( PathWayPointOnline[] ws, float t, ref Vector3 position, ref Quaternion rotation )
 		{
-			if ( waypoints == null || waypoints.Length < 4 )
+			if ( ws == null || ws.Length < 4 )
 			{
 				UnityEngine.Debug.Log( "GetPoint Called with points invalid array" );
 				UnityEngine.Debug.DebugBreak();
 				return false;
 			}
 
-			int numSections = waypoints.Length - 3;
+			int numSections = ws.Length - 3;
 			int currPt = Mathf.Min( Mathf.FloorToInt( t * ( float ) numSections ), numSections - 1 );
 			float u = t * ( float ) numSections - ( float ) currPt;
 
 			float rotationInterpolant = 0.0f;
-			// Position
+
+			#region Position
 			{
-				Vector3 p_a = waypoints[ currPt + 0 ];
-				Vector3 p_b = waypoints[ currPt + 1 ];
-				Vector3 p_c = waypoints[ currPt + 2 ];
-				Vector3 p_d = waypoints[ currPt + 3 ];
+				Vector3 p_a = ws[ currPt + 0 ];
+				Vector3 p_b = ws[ currPt + 1 ];
+				Vector3 p_c = ws[ currPt + 2 ];
+				Vector3 p_d = ws[ currPt + 3 ];
 
 				rotationInterpolant = ( p_b - position ).magnitude / ( p_c - p_b ).magnitude;
 
@@ -465,39 +495,22 @@ namespace Utils {
 					( -p_a + p_c )								* u +
 					2f * p_b
 				);
+				
 			}
+			#endregion
 
-
-
-			// Rotation
+			#region Rotation
 			{
-				Vector3 forward, upwards;
+				Quaternion r_a = ws[ currPt + 0 ];
+				Quaternion r_b = ws[ currPt + 1 ];
+				Quaternion r_c = ws[ currPt + 2 ];
+				Quaternion r_d = ws[ currPt + 3 ];
 
-				// Forward
-				Vector3 d_a = waypoints[ currPt + 0 ].Rotation.GetForwardVector();
-				Vector3 d_b = waypoints[ currPt + 1 ].Rotation.GetForwardVector();
-				Vector3 d_c = waypoints[ currPt + 2 ].Rotation.GetForwardVector();
-				Vector3 d_d = waypoints[ currPt + 3 ].Rotation.GetForwardVector();
-			
-				forward = Utils.Math.GetPoint( d_a, d_b, d_c, d_d, rotationInterpolant );
-
-				// Upward
-				Vector3 u_a = waypoints[ currPt + 0 ].Rotation.GetUpVector();
-				Vector3 u_b = waypoints[ currPt + 1 ].Rotation.GetUpVector();
-				Vector3 u_c = waypoints[ currPt + 2 ].Rotation.GetUpVector();
-				Vector3 u_d = waypoints[ currPt + 3 ].Rotation.GetUpVector();
-
-				upwards = Utils.Math.GetPoint( u_a, u_b, u_c, u_d, 1f -	rotationInterpolant );
-
-//				forward = Vector3.Lerp( d_b, d_c, rotationInterpolant );
-//				upwards = Vector3.Lerp( u_b, u_c, rotationInterpolant );
-
-				Quaternion newRotation = Quaternion.LookRotation( forward, upwards );
-				rotation = Quaternion.Lerp( waypoints[ currPt + 1 ], waypoints[ currPt + 2 ], rotationInterpolant );
+				rotation = Utils.Math.GetRotation( r_a, r_b, r_c, r_d, u );
 			}
+			#endregion
+
 			return true;
 		}
-		*/
 	}
-
 }

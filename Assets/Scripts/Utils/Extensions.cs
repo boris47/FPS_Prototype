@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 public static class Extensions {
-
+	/*
 	public	static	T				GetComponent<T>( Transform Base ) where T : Component
 	{
 		if ( Base == null )
@@ -11,7 +11,9 @@ public static class Extensions {
 
 		return Base.GetComponent<T>();
 	}
+	*/
 
+	//		ANIMATOR
 	public	static	AnimationClip	GetClipFromAnimator( this Animator animator, string name )
 	{
 		//favor for above foreach due to performance issues
@@ -26,6 +28,8 @@ public static class Extensions {
 		return null;
 	}
 
+
+	//		TRANSFORM
 	public	static	bool			SearchComponent<T>( this Transform transform, ref T Component, SearchContext Context, global::System.Predicate<T> Filter = null )
 	{
 		return Utils.Base.SearchComponent( transform.gameObject, ref Component, Context, Filter );
@@ -63,6 +67,8 @@ public static class Extensions {
 		return list.ToArray();
 	}
 
+
+	//		STRING
 	public	static	string			TrimInside( this string str, params char[] trimChars )
 	{
 		List<char> charsToSearch = new List<char>(1);
@@ -86,28 +92,17 @@ public static class Extensions {
 	}
 
 
-	public	static	Vector3			GetForwardVector( this Quaternion q )
+	//		QUATERNION
+	public	static	Vector3			GetVector( this Quaternion q, Vector3 d )
 	{
-		Vector3 direction = Vector3.forward;
 		Vector3 Q = new Vector3( q.x, q.y, q.z );
-		Vector3 T = 2.0f * Vector3.Cross( Q, direction );
-		return direction + ( T * q.w ) + Vector3.Cross( Q, T );
+		Vector3 T = 2.0f * Vector3.Cross( Q, d );
+		return d + ( T * q.w ) + Vector3.Cross( Q, T );
 	}
 
-	public	static	Vector3			GetUpVector( this Quaternion q )
+	public	static	float			GetLength( this Quaternion q )
 	{
-		Vector3 direction = Vector3.up;
-		Vector3 Q = new Vector3( q.x, q.y, q.z );
-		Vector3 T = 2.0f * Vector3.Cross( Q, direction );
-		return direction + ( T * q.w ) + Vector3.Cross( Q, T );
-	}
-
-	public	static	Vector3			GetRightVector( this Quaternion q )
-	{
-		Vector3 direction = Vector3.right;
-		Vector3 Q = new Vector3( q.x, q.y, q.z );
-		Vector3 T = 2.0f * Vector3.Cross( Q, direction );
-		return direction + ( T * q.w ) + Vector3.Cross( Q, T );
+		return Mathf.Sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
 	}
 }
 

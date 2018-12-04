@@ -29,6 +29,8 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour {
 		{
 			EntityData.EntityRef.StopCoroutine( m_InvestigationCO );
 		}
+
+		m_CurrentInvestigationDirection = InvestigationDirection.RIGHT;
 	}
 
 	public override void OnSave( StreamUnit streamUnit )

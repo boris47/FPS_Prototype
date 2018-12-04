@@ -39,6 +39,7 @@ public class PathSpline : PathBase {
 	//
 	protected	override	void			ElaboratePath( float Steps, float StepLength = 1.0f )
 	{
+		#region AAA
 		/*
 		// Nodes
 		m_Nodes = transform.GetComponentsInChildren<PathWaypoint>();
@@ -102,7 +103,7 @@ public class PathSpline : PathBase {
 
 		*/
 
-
+		#endregion
 
 		// Nodes
 		m_Nodes = transform.GetComponentsInChildren<PathWaypoint>();
@@ -124,60 +125,6 @@ public class PathSpline : PathBase {
 			wayPoints = waypointsList.ToArray();
 		}
 
-		{
-			int currentIndex = 0;
-			PathWayPointOnline prevWaypoint		= default( PathWayPointOnline );
-			PathWayPointOnline currentWaypoint	= default( PathWayPointOnline );
-			List<PathWayPointOnline> waypointsList = new List<PathWayPointOnline>();
-			Vector3[] positionArray = wayPoints.Select( w => w.Position ).ToArray();
-
-
-			List<Vector3> Positions = new List<Vector3>();
-			List<Quaternion> Rotations = new List<Quaternion>();
-
-			// Positions
-			for ( float currentStep = 0.001f; currentStep < Steps; currentStep += StepLength / ( float ) wayPoints.Length )
-			{
-				float interpolant = currentStep / Steps;
-				Vector3 position = Utils.Math.GetPoint( positionArray, interpolant );
-				Positions.Add( position );
-			}
-
-			while ( currentIndex < wayPoints.Length )
-			{
-				prevWaypoint = wayPoints[currentIndex];
-				currentIndex ++;
-				currentWaypoint = wayPoints[currentIndex - 1];
-
-
-				// Rotations
-				{
-					for ( float currentStep = 0.001f; currentStep < Steps; currentStep += StepLength )
-					{
-						float interpolant = currentStep / Steps;
-						Quaternion rotation = Quaternion.Lerp( prevWaypoint, currentWaypoint, interpolant );
-						Rotations.Add( rotation );
-					}
-				}
-
-				/*
-				for ( float currentStep = 0.001f; currentStep < Steps; currentStep += StepLength )
-				{
-
-					// Rotation
-					Quaternion rotation = Quaternion.Lerp( prevWaypoint, currentWaypoint, interpolant );
-
-					waypointsList.Add( new PathWayPointOnline( position, rotation ) );
-				}
-				*/
-//				Positions.ForEach( p => waypointsList.Add( new PathWayPointOnline( p, Quaternion.identity ) ) );
-			}
-			
-
-
-			m_Waypoints = waypointsList.ToArray();
-		}
-		/*
 		// Waypoints and path length
 		{
 			List<PathWayPointOnline> waypointsList = new List<PathWayPointOnline>();
@@ -190,7 +137,7 @@ public class PathSpline : PathBase {
 			{
 				float interpolant = currentStep / Steps;
 
-				Utils.Math.GetPoint( wayPoints, interpolant, ref currentPosition, ref currentRotation );
+				Utils.Math.GetInterpolatedWaypoint( wayPoints, interpolant, ref currentPosition, ref currentRotation );
 
 				waypointsList.Add( new PathWayPointOnline( currentPosition, currentRotation ) );
 
@@ -203,8 +150,9 @@ public class PathSpline : PathBase {
 			}
 			m_Waypoints = waypointsList.ToArray();
 		}
-		*/
+		
 	}
+
 
 	// Spline iteration
 	public 		override	void			IteratePath( System.Action<PathWayPointOnline> OnPosition )
@@ -224,8 +172,6 @@ public class PathSpline : PathBase {
 		);
 	}
 
-//	private	Vector3 p1Temp, p2Temp;
-//	private float rotationSpeed = 80.0f;
 
 	//
 	public		override	bool			Move( float speed, ref Transform t, Vector3? upwards )
@@ -266,15 +212,13 @@ public class PathSpline : PathBase {
 			}
 			m_IsEndEventCalled = true;
 		}
-
 		
-		Vector3 position = t.position;
-		Quaternion rotation = t.rotation;
-
-///		Utils.Math.GetPoint( m_Waypoints, m_Interpolant, ref position, ref rotation );
-
-		t.position = position;
-		t.rotation = rotation;
+		// get position and rotation asnd assign them
+		Vector3 position = t.position;	Quaternion rotation = t.rotation;
+		{
+			Utils.Math.GetInterpolatedWaypoint( m_Waypoints, m_Interpolant, ref position, ref rotation );
+		}
+		t.position = position;	t.rotation = rotation;
 		
 		return true;
 	}
@@ -297,96 +241,10 @@ public class PathSpline : PathBase {
 		(
 			OnPosition: ( PathWayPointOnline w ) => {
 				Gizmos.DrawLine( prevPosition, w );
-				Gizmos.DrawRay( w.Position, w.Rotation.GetForwardVector() );
+				Gizmos.DrawRay( w.Position, w.Rotation.GetVector( Vector3.forward ) );
 				prevPosition = w;
 			}
 		);
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	private	bool		GetPoint( PathWayPointOnline[] ws, float t, ref Vector3 position, ref Quaternion rotation )
-	{
-		if ( ws == null || ws.Length < 4 )
-		{
-			UnityEngine.Debug.Log( "GetPoint Called with points invalid array" );
-			UnityEngine.Debug.DebugBreak();
-			return false;
-		}
-
-		int numSections = ws.Length - 3;
-		int currPt = Mathf.Min( Mathf.FloorToInt( t * ( float ) numSections ), numSections - 1 );
-		float u = t * ( float ) numSections - ( float ) currPt;
-
-		float rotationInterpolant = 0.0f;
-		// Position
-		{
-			Vector3 p_a = ws[ currPt + 0 ];
-			Vector3 p_b = ws[ currPt + 1 ];
-			Vector3 p_c = ws[ currPt + 2 ];
-			Vector3 p_d = ws[ currPt + 3 ];
-
-			rotationInterpolant = ( p_b - position ).magnitude / ( p_c - p_b ).magnitude;
-
-			position = .5f * 
-			(
-				( -p_a + 3f * p_b - 3f * p_c + p_d )		* ( u * u * u ) +
-				( 2f * p_a - 5f * p_b + 4f * p_c - p_d )	* ( u * u ) +
-				( -p_a + p_c )								* u +
-				2f * p_b
-			);
-		}
-
-		// Rotation
-		{
-			Vector3 forward, upwards;
-
-			// Forward
-			Vector3 d_a = ws[ currPt + 0 ].Rotation.GetForwardVector();
-			Vector3 d_b = ws[ currPt + 1 ].Rotation.GetForwardVector();
-			Vector3 d_c = ws[ currPt + 2 ].Rotation.GetForwardVector();
-			Vector3 d_d = ws[ currPt + 3 ].Rotation.GetForwardVector();
-			
-			forward = Utils.Math.GetPoint( d_a, d_b, d_c, d_d, rotationInterpolant );
-
-			// Upward
-			Vector3 u_a = ws[ currPt + 0 ].Rotation.GetUpVector();
-			Vector3 u_b = ws[ currPt + 1 ].Rotation.GetUpVector();
-			Vector3 u_c = ws[ currPt + 2 ].Rotation.GetUpVector();
-			Vector3 u_d = ws[ currPt + 3 ].Rotation.GetUpVector();
-
-			upwards = Utils.Math.GetPoint( u_a, u_b, u_c, u_d, rotationInterpolant );
-
-			forward = Vector3.Lerp( d_b, d_c, rotationInterpolant );
-			upwards = Vector3.Lerp( u_b, u_c, rotationInterpolant );
-
-			Quaternion newRotation = Quaternion.LookRotation( forward, upwards );
-			rotation = Quaternion.Lerp( ws[ currPt + 1 ], ws[ currPt + 2 ], rotationInterpolant );
-		}
-
-		return true;
-	}
-
-
 
 }
