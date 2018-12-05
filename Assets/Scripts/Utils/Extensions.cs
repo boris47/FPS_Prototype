@@ -95,9 +95,15 @@ public static class Extensions {
 	//		QUATERNION
 	public	static	Vector3			GetVector( this Quaternion q, Vector3 d )
 	{
-		Vector3 Q = new Vector3( q.x, q.y, q.z );
+		// A quaternion doesn't have a direction by itself. It is a rotation.
+		// It can be used to rotate any vector by the rotation it represents. Just multiply a Vector3 by the quaternion.
+		// Ref: http://answers.unity.com/answers/525956/view.html
+		return q * d;
+
+/*		Vector3 Q = new Vector3( q.x, q.y, q.z );
 		Vector3 T = 2.0f * Vector3.Cross( Q, d );
 		return d + ( T * q.w ) + Vector3.Cross( Q, T );
+*/
 	}
 
 	public	static	float			GetLength( this Quaternion q )

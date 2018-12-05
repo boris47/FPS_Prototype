@@ -477,7 +477,7 @@ namespace Utils {
 			int currPt = Mathf.Min( Mathf.FloorToInt( t * ( float ) numSections ), numSections - 1 );
 			float u = t * ( float ) numSections - ( float ) currPt;
 
-			float rotationInterpolant = 0.0f;
+//			float rotationInterpolant = 0.0f;
 
 			#region Position
 			{
@@ -486,7 +486,7 @@ namespace Utils {
 				Vector3 p_c = ws[ currPt + 2 ];
 				Vector3 p_d = ws[ currPt + 3 ];
 
-				rotationInterpolant = ( p_b - position ).magnitude / ( p_c - p_b ).magnitude;
+//				rotationInterpolant = ( p_b - position ).magnitude / ( p_c - p_b ).magnitude;
 
 				position = .5f * 
 				(

@@ -241,7 +241,7 @@ public class PathSpline : PathBase {
 		(
 			OnPosition: ( PathWayPointOnline w ) => {
 				Gizmos.DrawLine( prevPosition, w );
-				Gizmos.DrawRay( w.Position, w.Rotation.GetVector( Vector3.forward ) );
+				Gizmos.DrawRay( w.Position, w.Rotation * Vector3.forward );
 				prevPosition = w;
 			}
 		);
