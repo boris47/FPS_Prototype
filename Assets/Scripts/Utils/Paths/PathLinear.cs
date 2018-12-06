@@ -53,7 +53,7 @@ public class PathLinear : PathBase {
 
 
 	// 
-	public	override	void	IteratePath( System.Action<PathWayPointOnline> OnPosition )
+	public 	override void	IteratePath( System.Action<PathWayPointOnline> OnPosition )
 	{
 		if ( OnPosition == null )
 		{

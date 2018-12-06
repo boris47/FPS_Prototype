@@ -365,7 +365,7 @@ namespace Utils {
 			float slerpT = 2.0f * t * (1.0f - t);
 			Quaternion q1 = Quaternion.Slerp( r0, r1, t );
 			Quaternion q2 = Quaternion.Slerp( r1, r2, t );
-			return Quaternion.Slerp( q1, q2, slerpT );
+			return Quaternion.Slerp( q1, q2, t );
 		}
 
 
@@ -375,9 +375,14 @@ namespace Utils {
 		public	static		Quaternion	GetRotation( Quaternion r0, Quaternion r1, Quaternion r2, Quaternion r3, float t )
 		{
 			float slerpT = 2.0f * t * (1.0f - t);
-			Quaternion q1 = GetRotation( r0, r1, r2, t );
-			Quaternion q2 = GetRotation( r1, r2, r3, t );
-			return Quaternion.Slerp( q1, q2, t );
+
+//			Quaternion q1 = GetRotation( r0, r1, r2, t );
+//			Quaternion q2 = GetRotation( r1, r2, r3, t );
+//			return Slerp( q1, q2, slerpT );
+
+			Quaternion T1 = GetSquadIntermediate(r0, r1, r2);
+			Quaternion T2 = GetSquadIntermediate(r1, r2, r3);
+			return GetQuatSquad(t, r1, r2, T1, T2);
 		}
 
 
@@ -477,7 +482,7 @@ namespace Utils {
 			int currPt = Mathf.Min( Mathf.FloorToInt( t * ( float ) numSections ), numSections - 1 );
 			float u = t * ( float ) numSections - ( float ) currPt;
 
-//			float rotationInterpolant = 0.0f;
+			float rotationInterpolant = 0.0f;
 
 			#region Position
 			{
@@ -486,7 +491,7 @@ namespace Utils {
 				Vector3 p_c = ws[ currPt + 2 ];
 				Vector3 p_d = ws[ currPt + 3 ];
 
-//				rotationInterpolant = ( p_b - position ).magnitude / ( p_c - p_b ).magnitude;
+				rotationInterpolant = ( p_b - position ).magnitude / ( p_c - p_b ).magnitude;
 
 				position = .5f * 
 				(
@@ -501,10 +506,30 @@ namespace Utils {
 
 			#region Rotation
 			{
+/*				// Upwards interpolation
+
+				Vector3 u_a = ws[ currPt + 0 ].Rotation.GetVector( Vector3.up );
+				Vector3 u_b = ws[ currPt + 1 ].Rotation.GetVector( Vector3.up );
+				Vector3 u_c = ws[ currPt + 2 ].Rotation.GetVector( Vector3.up );
+				Vector3 u_d = ws[ currPt + 3 ].Rotation.GetVector( Vector3.up );
+
+				// Forwards interpolation
+				Vector3 f_a = ws[ currPt + 0 ].Rotation.GetVector( Vector3.forward );
+				Vector3 f_b = ws[ currPt + 1 ].Rotation.GetVector( Vector3.forward );
+				Vector3 f_c = ws[ currPt + 2 ].Rotation.GetVector( Vector3.forward );
+				Vector3 f_d = ws[ currPt + 3 ].Rotation.GetVector( Vector3.forward );
+
+				Vector3 upwards = GetPointLinear( u_a, u_b, u_c, u_d, u );
+				Vector3 forward = GetPointLinear( f_a, f_b, f_c, f_d, u );
+
+				rotation.SetLookRotation( forward, upwards );
+*/
 				Quaternion r_a = ws[ currPt + 0 ];
 				Quaternion r_b = ws[ currPt + 1 ];
 				Quaternion r_c = ws[ currPt + 2 ];
 				Quaternion r_d = ws[ currPt + 3 ];
+
+///				rotation = Quaternion.Slerp( r_b, r_c, rotationInterpolant ) ;
 
 				rotation = Utils.Math.GetRotation( r_a, r_b, r_c, r_d, u );
 			}
@@ -512,5 +537,146 @@ namespace Utils {
 
 			return true;
 		}
+
+
+		public static float GetQuatLength(Quaternion q)
+		{
+			return Mathf.Sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
+		}
+
+		public static Quaternion GetQuatConjugate(Quaternion q)
+		{
+			return new Quaternion(-q.x, -q.y, -q.z, q.w);
+		}
+
+		/// <summary>
+		/// Logarithm of a unit quaternion. The result is not necessary a unit quaternion.
+		/// </summary>
+		public static Quaternion GetQuatLog(Quaternion q)
+		{
+			Quaternion res = q;
+			res.w = 0;
+
+			if (Mathf.Abs(q.w) < 1.0f)
+			{
+				float theta = Mathf.Acos(q.w);
+				float sin_theta = Mathf.Sin(theta);
+
+				if (Mathf.Abs(sin_theta) > 0.0001)
+				{
+					float coef = theta / sin_theta;
+					res.x = q.x * coef;
+					res.y = q.y * coef;
+					res.z = q.z * coef;
+				}
+			}
+
+			return res;
+		}
+
+		public static Quaternion GetQuatExp(Quaternion q)
+		{
+			Quaternion res = q;
+
+			float fAngle = Mathf.Sqrt(q.x * q.x + q.y * q.y + q.z * q.z);
+			float fSin = Mathf.Sin(fAngle);
+
+			res.w = Mathf.Cos(fAngle);
+
+			if (Mathf.Abs(fSin) > 0.0001)
+			{
+				float coef = fSin / fAngle;
+				res.x = coef * q.x;
+				res.y = coef * q.y;
+				res.z = coef * q.z;
+			}
+
+			return res;
+		}
+
+		/// <summary>
+		/// SQUAD Spherical Quadrangle interpolation [Shoe87]
+		/// </summary>
+		public static Quaternion GetQuatSquad(float t, Quaternion q0, Quaternion q1, Quaternion a0, Quaternion a1)
+		{
+			float slerpT = 2.0f * t * (1.0f - t);
+
+			Quaternion slerpP = Slerp(q0, q1, t);
+			Quaternion slerpQ = Slerp(a0, a1, t);
+
+			return Slerp(slerpP, slerpQ, slerpT);
+		}
+
+		public static Quaternion GetSquadIntermediate(Quaternion q0, Quaternion q1, Quaternion q2)
+		{
+			Quaternion q1Inv = GetQuatConjugate(q1);
+			Quaternion p0 = GetQuatLog(q1Inv * q0);
+			Quaternion p2 = GetQuatLog(q1Inv * q2);
+			Quaternion sum = new Quaternion(-0.25f * (p0.x + p2.x), -0.25f * (p0.y + p2.y), -0.25f * (p0.z + p2.z), -0.25f * (p0.w + p2.w));
+
+			return q1 * GetQuatExp(sum);
+		}
+		
+
+		/// <summary>
+		/// We need this because Quaternion.Slerp always uses the shortest arc.
+		/// </summary>
+		public static Quaternion Slerp(Quaternion p, Quaternion q, float t)
+		{
+			Quaternion ret;
+
+			float fCos = Quaternion.Dot(p, q);
+
+			fCos = ( fCos >= 0.0f ) ? fCos : -fCos;
+
+			float fCoeff0, fCoeff1;
+
+			if( fCos < 0.9999f )
+			{
+				float omega = Mathf.Acos(fCos);
+				float invSin = 1.0f / Mathf.Sin(omega);
+				fCoeff0 = Mathf.Sin((1.0f - t) * omega) * invSin;
+				fCoeff1 = Mathf.Sin(t * omega) * invSin;
+			}
+			else
+			{
+				// Use linear interpolation
+				fCoeff0 = 1.0f - t;
+				fCoeff1 = t;
+			}
+
+			fCoeff1 = ( fCos >= 0.0f ) ? fCoeff1 : -fCoeff1;
+
+			ret.x = fCoeff0 * p.x + fCoeff1 * q.x;
+			ret.y = fCoeff0 * p.y + fCoeff1 * q.y;
+			ret.z = fCoeff0 * p.z + fCoeff1 * q.z;
+			ret.w = fCoeff0 * p.w + fCoeff1 * q.w;
+			
+			return ret;
+		}
+
+		public static float Ease(float t, float k1, float k2)
+		{
+			float f; float s;
+
+			f = k1 * 2 / Mathf.PI + k2 - k1 + (1.0f - k2) * 2 / Mathf.PI;
+
+			if (t < k1)
+			{
+				s = k1 * (2 / Mathf.PI) * (Mathf.Sin((t / k1) * Mathf.PI / 2 - Mathf.PI / 2) + 1);
+			}
+			else
+				if (t < k2)
+				{
+					s = (2 * k1 / Mathf.PI + t - k1);
+				}
+				else
+				{
+					s = 2 * k1 / Mathf.PI + k2 - k1 + ((1 - k2) * (2 / Mathf.PI)) * Mathf.Sin(((t - k2) / (1.0f - k2)) * Mathf.PI / 2);
+				}
+
+			return (s / f);
+		}
 	}
+
 }

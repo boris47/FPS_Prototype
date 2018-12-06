@@ -56,13 +56,12 @@ public abstract	class PathBase : MonoBehaviour {
 		get { return m_PathLength; }
 	}
 
+	// 
+	protected	abstract void	ElaboratePath( float Steps, float StepLength = 1.0f );
+
 
 	// 
 	public		abstract void	IteratePath( System.Action<PathWayPointOnline> OnPosition );
-
-
-	// 
-	protected	abstract void	ElaboratePath( float Steps, float StepLength = 1.0f );
 
 
 	// 
