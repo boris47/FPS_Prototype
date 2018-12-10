@@ -40,7 +40,7 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 
 	[Header("Weapon Properties")]
 
-	public static	IWeapon[]						Array						= null;
+	private static	IWeapon[]						Array						= null;
 
 	[SerializeField]
 	protected		float							m_MainDamage				= 2f;
@@ -133,12 +133,28 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	
 	protected	delegate	void	FireFunction();
 
+	////////////////////////////////////////////////////
+	////////////////////////////////////////////////////
+	// WEAPON STATICS
 
-	public static void	DisableAll()
+	public	static	void	DisableAll()
 	{
 		System.Array.ForEach( Array, ( IWeapon w ) => {  w.Enabled = false; w.Transform.gameObject.SetActive( false ); } );
 	}
+	
+	public	static	IWeapon	GetByIndex( int WpnIdx )
+	{
+		return Array.GetByIndex<IWeapon>( WpnIdx );
+	}
 
+	public	static	int		Count
+	{
+		get { return Array.Length; }
+	}
+
+	////////////////////////////////////////////////////
+	////////////////////////////////////////////////////
+	////////////////////////////////////////////////////
 
 
 	//////////////////////////////////////////////////////////////////////////

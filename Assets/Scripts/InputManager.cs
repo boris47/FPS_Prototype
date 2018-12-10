@@ -29,6 +29,13 @@ public enum InputFlags {
 	ALL			= MOVE | STATE | ABILITY | USE | SWITCH | SELECTION | ITEM | GADGET | FIRE1 | FIRE2 | RELOAD
 }
 
+public	enum	InputMovement {
+	FORWARD, BACKWARD, LEFT, RIGHT
+}
+
+public	enum	InputEntityStates {
+	CROUCH, JUMP, RUN
+}
 
 public struct inputs_t {
 
@@ -63,6 +70,17 @@ public struct inputs_t {
 	}
 };
 
+public	delegate	void	Delegate_Inputs_OnMove();
+public	delegate	void	Delegate_Inputs_OnState();
+public	delegate	void	Delegate_Inputs_OnAbility();
+public	delegate	void	Delegate_Inputs_OnUse();
+public	delegate	void	Delegate_Inputs_OnWpnSwitch();
+public	delegate	void	Delegate_Inputs_OnSelection();
+public	delegate	void	Delegate_Inputs_OnItemUsage();
+public	delegate	void	Delegate_Inputs_OnAccessoryUsage();
+public	delegate	void	Delegate_Inputs_OnPrimaryFire();
+public	delegate	void	Delegate_Inputs_OnSecondaryFire();
+public	delegate	void	Delegate_Inputs_OnReload();
 
 public class InputManager {
 
@@ -75,6 +93,9 @@ public class InputManager {
 	public	static	bool			IsEnabled		= true;
 
 	private	InputFlags				m_Flags			= InputFlags.ALL;
+
+
+
 
 	/*
 	//////////////////////////////////////////////////////////////////////////

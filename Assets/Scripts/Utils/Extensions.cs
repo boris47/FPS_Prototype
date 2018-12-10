@@ -3,15 +3,6 @@ using UnityEngine;
 using System.Collections.Generic;
 
 public static class Extensions {
-	/*
-	public	static	T				GetComponent<T>( Transform Base ) where T : Component
-	{
-		if ( Base == null )
-			return null;
-
-		return Base.GetComponent<T>();
-	}
-	*/
 
 	//		ANIMATOR
 	public	static	AnimationClip	GetClipFromAnimator( this Animator animator, string name )
@@ -89,6 +80,13 @@ public static class Extensions {
 			}
 		}
 		return str;
+	}
+
+
+	//		ARRAY
+	public	static	T				GetByIndex<T>( this global::System.Array a, int idx, T Default = default(T) )
+	{
+		return ( idx > -1 && idx < a.Length ) ? (T)a.GetValue(idx) : Default;
 	}
 
 
