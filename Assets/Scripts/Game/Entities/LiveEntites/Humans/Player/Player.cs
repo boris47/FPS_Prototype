@@ -145,6 +145,11 @@ public partial class Player : Human {
 		m_GrabPoint.transform.Translate( 0f, 0f, m_UseDistance );
 	}
 
+	protected void asd()
+	{
+		Debug.Log("Funge");
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void	Start()
@@ -153,6 +158,8 @@ public partial class Player : Human {
 		{
 			CameraControl.Instance.SetViewPoint( m_HeadTransform );
 		}
+
+		GameManager.InputMgr.BindCall(InputCommands.MOVE_FORWARD, asd);
 
 		IsGrounded = false;
 		StartCoroutine( DamageEffectCO() );

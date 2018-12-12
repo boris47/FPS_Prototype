@@ -30,13 +30,8 @@ public enum InputFlags {
 	ALL			= MOVE | STATE | ABILITY | USE | SWITCH | SELECTION | ITEM | GADGET | FIRE1 | FIRE2 | RELOAD
 }
 
-public	enum	InputMovement {
-	FORWARD, BACKWARD, LEFT, RIGHT
-}
 
-public	enum	InputEntityStates {
-	CROUCH, JUMP, RUN
-}
+
 
 public struct inputs_t {
 
@@ -71,6 +66,41 @@ public struct inputs_t {
 	}
 };
 
+public	delegate	void	InputDelegateHandler();
+
+public class InputEventClass {
+
+	static int id = 0;
+	private InputEventClass thisaa;
+
+	private	event InputDelegateHandler m_InputEvent = null;
+	private int iid;
+
+	public	InputEventClass()
+	{
+		iid = id;
+		id ++;
+//		m_InputEvent = () => { };	// Ensure at last one call, this avoids null check every call
+	}
+
+	public	void	Bind( InputDelegateHandler method )
+	{
+		m_InputEvent += method;
+		thisaa = this;
+	}
+
+	public	void	Unbind( InputDelegateHandler method )
+	{
+		m_InputEvent -= method;
+	}
+
+	public void Call()
+	{
+		if ( thisaa == this )
+
+		m_InputEvent();
+	}
+}
 
 public class InputManager {
 
@@ -87,57 +117,40 @@ public class InputManager {
 
 	private	KeyBindings				m_Bindings		= null;
 
-	private	Dictionary<InputCommands, System.Action> m_ActionMap = new Dictionary<InputCommands, System.Action>();
-
-	#region Delegates
-	public	delegate	void	InputEvent();
-	private	event InputEvent m_event;
-	#endregion
-
-	public InputManager()
-	{
-		m_ActionMap.Add( InputCommands.MOVE_FORWARD, () => m_event() );
-	}
-
-	/*
-	//////////////////////////////////////////////////////////////////////////
-	// ( Constructor )
-	public	InputManager()
-	{
-		GameManager.Instance.OnSave += OnSave;
-		GameManager.Instance.OnLoad += OnLoad;
-	}
+	private	Dictionary<InputCommands, InputEventClass> m_ActionMap = new Dictionary<InputCommands, InputEventClass>();
 	
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnSave
-	private	StreamUnit	OnSave( StreamData streamData )
+	// ( Constructor )
+	public InputManager()
 	{
-		StreamUnit streamUnit	= streamData.NewUnit( GameManager.Instance.gameObject );
+		foreach ( InputCommands command in System.Enum.GetValues(typeof(InputCommands)))
+		{
+			m_ActionMap.Add( command, new InputEventClass() );
+		}
 
-		streamUnit.AddInternal( "InputFlags", m_Flags );
-
-		return streamUnit;
+		GenerateDefaultBindings();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnLoad
-	private	StreamUnit	OnLoad( StreamData streamData )
+	// BindCall
+	public	void	BindCall( InputCommands command, InputDelegateHandler method )
 	{
-		StreamUnit streamUnit = null;
-		if ( streamData.GetUnit( GameManager.Instance.gameObject, ref streamUnit ) == false )
-			return null;
-
-		m_Flags = (InputFlags) streamUnit.GetAsInt( "InputFlags" );
-
-		return streamUnit;
+		m_ActionMap[command].Bind( method );
 	}
-	*/
+
+	//////////////////////////////////////////////////////////////////////////
+	// UnbindCall
+	public	void	UnbindCall( InputCommands command, InputDelegateHandler method )
+	{
+		m_ActionMap[command].Unbind( method );
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// SetFlags
-	public void	SetFlags( InputFlags flags )
+	public	void	SetFlags( InputFlags flags )
 	{
 		if ( ( m_Flags & InputFlags.MOVE )			== 0 && ( flags & InputFlags.MOVE )			!= 0 ) m_Flags |= InputFlags.MOVE;
 		if ( ( m_Flags & InputFlags.STATE )			== 0 && ( flags & InputFlags.STATE )		!= 0 ) m_Flags |= InputFlags.STATE;
@@ -172,67 +185,55 @@ public class InputManager {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	// ScrollUpCheck
+	private	bool	ScrollUpCheck( KeyCode k )
+	{
+		return Input.mouseScrollDelta.y > 0f;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ScrollDownCheck
+	private	bool	ScrollDownCheck( KeyCode k )
+	{
+		return Input.mouseScrollDelta.y < 0f;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	// Update
 	public	void	Update()
 	{
 		if ( IsEnabled == false )
 			return;
-		/*
+		
 		m_Bindings.Pairs.ForEach
 		(
 			( KeyCommandPair commandPair ) =>
 			{
+				// Choose the check function based on the requested key state 
 				System.Func<KeyCode, bool> keyCheck = null;
 				switch ( commandPair.KeyState )
 				{
-					case KeyState.PRESS:		keyCheck	= Input.GetKeyDown;			break;
-					case KeyState.HOLD:			keyCheck	= Input.GetKey;				break;
-					case KeyState.RELEASE:		keyCheck	= Input.GetKeyUp;			break;
+					case KeyState.PRESS:		keyCheck	= Input.GetKeyDown;		break;
+					case KeyState.HOLD:			keyCheck	= Input.GetKey;			break;
+					case KeyState.RELEASE:		keyCheck	= Input.GetKeyUp;		break;
+					case KeyState.SCROLL_UP:	keyCheck	= ScrollUpCheck;		break;
+					case KeyState.SCROLL_DOWN:	keyCheck	= ScrollDownCheck;		break;
 				}
 
-				if ( keyCheck != null )
+				// Check Primary and secodnary button
+				if ( keyCheck( commandPair.Keys[0] ) || keyCheck( commandPair.Keys[1] ) )
 				{
-					bool result = true;
-					commandPair.Keys.ForEach( ( KeyCode keyCode ) => result &= keyCheck( keyCode ) );
-
-					if ( result == true )
-					{
-						// call binded delegate
-					}
-				}
-				// Mouse Event
-				else
-				{
-					if ( commandPair.KeyState == KeyState.SCROLL_UP )
-					{
-						
-					}
-					// commandPair.KeyState == KeyState.SCROLL_DOWN
-					else
-					{
-
-					}
+					// call binded delegate
+					m_ActionMap[commandPair.Command].Call();
 				}
 			}
 		);
-		*/
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		#region old
+		/*
 		Inputs.Reset();
 
 		if ( ( m_Flags & InputFlags.MOVE ) != 0 )
@@ -326,72 +327,74 @@ public class InputManager {
 		{
 			Inputs.Reload				= Input.GetKeyDown( KeyCode.R );
 		}
-
+		*/
+		#endregion
 	}
 
 	private	void	GenerateDefaultBindings()
 	{
-		KeyBindings bindings = new KeyBindings();
+		m_Bindings = new KeyBindings();
 		{
 			// Movements
-			GenerateBinding( bindings,	InputCommands.MOVE_FORWARD,				KeyState.HOLD,			KeyCode.W,				KeyCode.UpArrow			);
-			GenerateBinding( bindings,	InputCommands.MOVE_BACKWARD,			KeyState.HOLD,			KeyCode.S,				KeyCode.PageDown		);
-			GenerateBinding( bindings,	InputCommands.MOVE_LEFT,				KeyState.HOLD,			KeyCode.A,				KeyCode.LeftArrow		);
-			GenerateBinding( bindings,	InputCommands.MOVE_RIGHT,				KeyState.HOLD,			KeyCode.D,				KeyCode.RightArrow		);
+			GenerateBinding( m_Bindings,	InputCommands.MOVE_FORWARD,				KeyState.HOLD,			KeyCode.W,				KeyCode.UpArrow			);
+			GenerateBinding( m_Bindings,	InputCommands.MOVE_BACKWARD,			KeyState.HOLD,			KeyCode.S,				KeyCode.PageDown		);
+			GenerateBinding( m_Bindings,	InputCommands.MOVE_LEFT,				KeyState.HOLD,			KeyCode.A,				KeyCode.LeftArrow		);
+			GenerateBinding( m_Bindings,	InputCommands.MOVE_RIGHT,				KeyState.HOLD,			KeyCode.D,				KeyCode.RightArrow		);
 
 			// States
-			GenerateBinding( bindings,	InputCommands.STATE_CROUCH,				KeyState.HOLD,			KeyCode.LeftControl,	KeyCode.RightControl	);
-			GenerateBinding( bindings,	InputCommands.STATE_JUMP,				KeyState.PRESS,			KeyCode.Space,			KeyCode.Keypad0			);
-			GenerateBinding( bindings,	InputCommands.STATE_RUN,				KeyState.HOLD,			KeyCode.LeftShift,		KeyCode.RightShift		);
+			GenerateBinding( m_Bindings,	InputCommands.STATE_CROUCH,				KeyState.HOLD,			KeyCode.LeftControl,	KeyCode.RightControl	);
+			GenerateBinding( m_Bindings,	InputCommands.STATE_JUMP,				KeyState.PRESS,			KeyCode.Space,			KeyCode.Keypad0			);
+			GenerateBinding( m_Bindings,	InputCommands.STATE_RUN,				KeyState.HOLD,			KeyCode.LeftShift,		KeyCode.RightShift		);
 
 			// Ability
-			GenerateBinding( bindings,	InputCommands.ABILITY_PRESS,			KeyState.PRESS,			KeyCode.Q,				KeyCode.None			);
-			GenerateBinding( bindings,	InputCommands.ABILITY_HOLD,				KeyState.HOLD,			KeyCode.Q,				KeyCode.None			);
-			GenerateBinding( bindings,	InputCommands.ABILITY_RELEASE,			KeyState.RELEASE,		KeyCode.Q,				KeyCode.None			);
+			GenerateBinding( m_Bindings,	InputCommands.ABILITY_PRESS,			KeyState.PRESS,			KeyCode.Q,				KeyCode.None			);
+			GenerateBinding( m_Bindings,	InputCommands.ABILITY_HOLD,				KeyState.HOLD,			KeyCode.Q,				KeyCode.None			);
+			GenerateBinding( m_Bindings,	InputCommands.ABILITY_RELEASE,			KeyState.RELEASE,		KeyCode.Q,				KeyCode.None			);
 
 			// Usage
-			GenerateBinding( bindings,	InputCommands.USAGE,					KeyState.PRESS,			KeyCode.F,				KeyCode.Return			);
+			GenerateBinding( m_Bindings,	InputCommands.USAGE,					KeyState.PRESS,			KeyCode.F,				KeyCode.Return			);
 
 			// Weapons Switch
-			GenerateBinding( bindings,	InputCommands.SWITCH_PREVIOUS,			KeyState.SCROLL_UP,		KeyCode.None,			KeyCode.None			);
-			GenerateBinding( bindings,	InputCommands.SWITCH_NEXT,				KeyState.SCROLL_DOWN,	KeyCode.None,			KeyCode.None			);
+			GenerateBinding( m_Bindings,	InputCommands.SWITCH_PREVIOUS,			KeyState.SCROLL_UP,		KeyCode.None,			KeyCode.None			);
+			GenerateBinding( m_Bindings,	InputCommands.SWITCH_NEXT,				KeyState.SCROLL_DOWN,	KeyCode.None,			KeyCode.None			);
 
 			// Selection
-			GenerateBinding( bindings,	InputCommands.SELECTION1,				KeyState.PRESS,			KeyCode.Alpha1,			KeyCode.None			);
-			GenerateBinding( bindings,	InputCommands.SELECTION2,				KeyState.PRESS,			KeyCode.Alpha2,			KeyCode.None			);
-			GenerateBinding( bindings,	InputCommands.SELECTION3,				KeyState.PRESS,			KeyCode.Alpha3,			KeyCode.None			);
-			GenerateBinding( bindings,	InputCommands.SELECTION4,				KeyState.PRESS,			KeyCode.Alpha4,			KeyCode.None			);
-			GenerateBinding( bindings,	InputCommands.SELECTION5,				KeyState.PRESS,			KeyCode.Alpha5,			KeyCode.None			);
-			GenerateBinding( bindings,	InputCommands.SELECTION6,				KeyState.PRESS,			KeyCode.Alpha6,			KeyCode.None			);
-			GenerateBinding( bindings,	InputCommands.SELECTION7,				KeyState.PRESS,			KeyCode.Alpha7,			KeyCode.None			);
-			GenerateBinding( bindings,	InputCommands.SELECTION8,				KeyState.PRESS,			KeyCode.Alpha8,			KeyCode.None			);
-			GenerateBinding( bindings,	InputCommands.SELECTION9,				KeyState.PRESS,			KeyCode.Alpha9,			KeyCode.None			);
+			GenerateBinding( m_Bindings,	InputCommands.SELECTION1,				KeyState.PRESS,			KeyCode.Alpha1,			KeyCode.None			);
+			GenerateBinding( m_Bindings,	InputCommands.SELECTION2,				KeyState.PRESS,			KeyCode.Alpha2,			KeyCode.None			);
+			GenerateBinding( m_Bindings,	InputCommands.SELECTION3,				KeyState.PRESS,			KeyCode.Alpha3,			KeyCode.None			);
+			GenerateBinding( m_Bindings,	InputCommands.SELECTION4,				KeyState.PRESS,			KeyCode.Alpha4,			KeyCode.None			);
+			GenerateBinding( m_Bindings,	InputCommands.SELECTION5,				KeyState.PRESS,			KeyCode.Alpha5,			KeyCode.None			);
+			GenerateBinding( m_Bindings,	InputCommands.SELECTION6,				KeyState.PRESS,			KeyCode.Alpha6,			KeyCode.None			);
+			GenerateBinding( m_Bindings,	InputCommands.SELECTION7,				KeyState.PRESS,			KeyCode.Alpha7,			KeyCode.None			);
+			GenerateBinding( m_Bindings,	InputCommands.SELECTION8,				KeyState.PRESS,			KeyCode.Alpha8,			KeyCode.None			);
+			GenerateBinding( m_Bindings,	InputCommands.SELECTION9,				KeyState.PRESS,			KeyCode.Alpha9,			KeyCode.None			);
 
 			// Item 
-			GenerateBinding( bindings,	InputCommands.ITEM1,					KeyState.PRESS,			KeyCode.F1,				KeyCode.Keypad1			);
-			GenerateBinding( bindings,	InputCommands.ITEM2,					KeyState.PRESS,			KeyCode.F2,				KeyCode.Keypad2			);
-			GenerateBinding( bindings,	InputCommands.ITEM3,					KeyState.PRESS,			KeyCode.F3,				KeyCode.Keypad3			);
-			GenerateBinding( bindings,	InputCommands.ITEM4,					KeyState.PRESS,			KeyCode.F4,				KeyCode.Keypad4			);
+			GenerateBinding( m_Bindings,	InputCommands.ITEM1,					KeyState.PRESS,			KeyCode.F1,				KeyCode.Keypad1			);
+			GenerateBinding( m_Bindings,	InputCommands.ITEM2,					KeyState.PRESS,			KeyCode.F2,				KeyCode.Keypad2			);
+			GenerateBinding( m_Bindings,	InputCommands.ITEM3,					KeyState.PRESS,			KeyCode.F3,				KeyCode.Keypad3			);
+			GenerateBinding( m_Bindings,	InputCommands.ITEM4,					KeyState.PRESS,			KeyCode.F4,				KeyCode.Keypad4			);
 
 			// Gadget
-			GenerateBinding( bindings,	InputCommands.GADGET1,					KeyState.PRESS,			KeyCode.G,				KeyCode.None			);
-			GenerateBinding( bindings,	InputCommands.GADGET2,					KeyState.PRESS,			KeyCode.H,				KeyCode.None			);
-			GenerateBinding( bindings,	InputCommands.GADGET3,					KeyState.PRESS,			KeyCode.J,				KeyCode.None			);
+			GenerateBinding( m_Bindings,	InputCommands.GADGET1,					KeyState.PRESS,			KeyCode.G,				KeyCode.None			);
+			GenerateBinding( m_Bindings,	InputCommands.GADGET2,					KeyState.PRESS,			KeyCode.H,				KeyCode.None			);
+			GenerateBinding( m_Bindings,	InputCommands.GADGET3,					KeyState.PRESS,			KeyCode.J,				KeyCode.None			);
 
 			// Primary Fire
-			GenerateBinding( bindings,	InputCommands.PRIMARY_FIRE_PRESS,		KeyState.PRESS,			KeyCode.Mouse0,			KeyCode.None			);
-			GenerateBinding( bindings,	InputCommands.PRIMARY_FIRE_HOLD,		KeyState.HOLD,			KeyCode.Mouse0,			KeyCode.None			);
-			GenerateBinding( bindings,	InputCommands.PRIMARY_FIRE_RELEASE,		KeyState.RELEASE,		KeyCode.Mouse0,			KeyCode.None			);
+			GenerateBinding( m_Bindings,	InputCommands.PRIMARY_FIRE_PRESS,		KeyState.PRESS,			KeyCode.Mouse0,			KeyCode.None			);
+			GenerateBinding( m_Bindings,	InputCommands.PRIMARY_FIRE_HOLD,		KeyState.HOLD,			KeyCode.Mouse0,			KeyCode.None			);
+			GenerateBinding( m_Bindings,	InputCommands.PRIMARY_FIRE_RELEASE,		KeyState.RELEASE,		KeyCode.Mouse0,			KeyCode.None			);
 
 			// Secondary Fire
-			GenerateBinding( bindings,	InputCommands.SECONDARY_FIRE_PRESS,		KeyState.PRESS,			KeyCode.Mouse1,			KeyCode.None			);
-			GenerateBinding( bindings,	InputCommands.SECONDARY_FIRE_HOLD,		KeyState.HOLD,			KeyCode.Mouse1,			KeyCode.None			);
-			GenerateBinding( bindings,	InputCommands.SECONDARY_FIRE_RELEASE,	KeyState.RELEASE,		KeyCode.Mouse1,			KeyCode.None			);
+			GenerateBinding( m_Bindings,	InputCommands.SECONDARY_FIRE_PRESS,		KeyState.PRESS,			KeyCode.Mouse1,			KeyCode.None			);
+			GenerateBinding( m_Bindings,	InputCommands.SECONDARY_FIRE_HOLD,		KeyState.HOLD,			KeyCode.Mouse1,			KeyCode.None			);
+			GenerateBinding( m_Bindings,	InputCommands.SECONDARY_FIRE_RELEASE,	KeyState.RELEASE,		KeyCode.Mouse1,			KeyCode.None			);
 
 			// Reload
-			GenerateBinding( bindings,	InputCommands.RELOAD_WPN,				KeyState.PRESS,			KeyCode.R,				KeyCode.End				);
+			GenerateBinding( m_Bindings,	InputCommands.RELOAD_WPN,				KeyState.PRESS,			KeyCode.R,				KeyCode.End				);
 		}
-		JsonUtility.ToJson( bindings, prettyPrint: true );
+
+		JsonUtility.ToJson( m_Bindings, prettyPrint: true );
 	}
 
 	private	void	GenerateBinding( KeyBindings bindings, InputCommands command, KeyState keyState, KeyCode mainKey, KeyCode secondaryKey )
