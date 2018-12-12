@@ -376,13 +376,9 @@ namespace Utils {
 		{
 			float slerpT = 2.0f * t * (1.0f - t);
 
-//			Quaternion q1 = GetRotation( r0, r1, r2, t );
-//			Quaternion q2 = GetRotation( r1, r2, r3, t );
-//			return Slerp( q1, q2, slerpT );
-
-			Quaternion T1 = GetSquadIntermediate(r0, r1, r2);
-			Quaternion T2 = GetSquadIntermediate(r1, r2, r3);
-			return GetQuatSquad(t, r1, r2, T1, T2);
+			Quaternion q1 = GetRotation( r0, r1, r2, t );
+			Quaternion q2 = GetRotation( r1, r2, r3, t );
+			return q1.Slerp( q2, t );
 		}
 
 
@@ -482,7 +478,7 @@ namespace Utils {
 			int currPt = Mathf.Min( Mathf.FloorToInt( t * ( float ) numSections ), numSections - 1 );
 			float u = t * ( float ) numSections - ( float ) currPt;
 
-			float rotationInterpolant = 0.0f;
+//			float rotationInterpolant = 0.0f;
 
 			#region Position
 			{
@@ -491,7 +487,7 @@ namespace Utils {
 				Vector3 p_c = ws[ currPt + 2 ];
 				Vector3 p_d = ws[ currPt + 3 ];
 
-				rotationInterpolant = ( p_b - position ).magnitude / ( p_c - p_b ).magnitude;
+//				rotationInterpolant = ( p_b - position ).magnitude / ( p_c - p_b ).magnitude;
 
 				position = .5f * 
 				(
@@ -506,32 +502,14 @@ namespace Utils {
 
 			#region Rotation
 			{
-/*				// Upwards interpolation
-
-				Vector3 u_a = ws[ currPt + 0 ].Rotation.GetVector( Vector3.up );
-				Vector3 u_b = ws[ currPt + 1 ].Rotation.GetVector( Vector3.up );
-				Vector3 u_c = ws[ currPt + 2 ].Rotation.GetVector( Vector3.up );
-				Vector3 u_d = ws[ currPt + 3 ].Rotation.GetVector( Vector3.up );
-
-				// Forwards interpolation
-				Vector3 f_a = ws[ currPt + 0 ].Rotation.GetVector( Vector3.forward );
-				Vector3 f_b = ws[ currPt + 1 ].Rotation.GetVector( Vector3.forward );
-				Vector3 f_c = ws[ currPt + 2 ].Rotation.GetVector( Vector3.forward );
-				Vector3 f_d = ws[ currPt + 3 ].Rotation.GetVector( Vector3.forward );
-
-				Vector3 upwards = GetPointLinear( u_a, u_b, u_c, u_d, u );
-				Vector3 forward = GetPointLinear( f_a, f_b, f_c, f_d, u );
-
-				rotation.SetLookRotation( forward, upwards );
-*/
 				Quaternion r_a = ws[ currPt + 0 ];
 				Quaternion r_b = ws[ currPt + 1 ];
 				Quaternion r_c = ws[ currPt + 2 ];
 				Quaternion r_d = ws[ currPt + 3 ];
 
-///				rotation = Quaternion.Slerp( r_b, r_c, rotationInterpolant ) ;
+				rotation = Quaternion.Slerp( r_b, r_c, u ) ;
 
-				rotation = Utils.Math.GetRotation( r_a, r_b, r_c, r_d, u );
+//				rotation = Utils.Math.GetRotation( r_a, r_b, r_c, r_d, u );
 			}
 			#endregion
 
@@ -539,6 +517,29 @@ namespace Utils {
 		}
 
 
+		// 
+		public    static        bool        GetSegment<T>( global::System.Collections.Generic.IList<T> collection, float t, ref T a, ref T b, ref T c, ref T d )
+		{
+			if ( collection == null || collection.Count < 4 )
+			{
+				UnityEngine.Debug.Log( "GetSegment Called with points invalid list" );
+				UnityEngine.Debug.DebugBreak();
+				return false;
+			}
+			
+			int numSections = collection.Count - 3;
+			int currPt = Mathf.Min( Mathf.FloorToInt( t * ( float ) numSections ), numSections - 1 );
+
+			a = collection[ currPt + 0 ];
+			b = collection[ currPt + 1 ];
+			c = collection[ currPt + 2 ];
+			d = collection[ currPt + 2 ];
+
+			return true;
+		}
+
+		#region Too complex to explain
+		/*
 		public static float GetQuatLength(Quaternion q)
 		{
 			return Mathf.Sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
@@ -631,7 +632,7 @@ namespace Utils {
 
 			float fCoeff0, fCoeff1;
 
-			if( fCos < 0.9999f )
+			if ( fCos < 0.9999f )
 			{
 				float omega = Mathf.Acos(fCos);
 				float invSin = 1.0f / Mathf.Sin(omega);
@@ -677,6 +678,8 @@ namespace Utils {
 
 			return (s / f);
 		}
+		*/
+		#endregion
 	}
 
 }

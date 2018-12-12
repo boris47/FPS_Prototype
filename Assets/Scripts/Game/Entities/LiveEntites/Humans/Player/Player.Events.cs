@@ -39,7 +39,7 @@ public partial class Player {
 
 		// Cutscene Manager
 		if ( m_CutsceneManager.IsPlaying == true )
-			m_CutsceneManager.Termiante();
+			m_CutsceneManager.Terminate();
 
 		// UI effect reset
 		UI.Instance.EffectFrame.color = Color.clear;

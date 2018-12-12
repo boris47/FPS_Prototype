@@ -3,40 +3,21 @@ using UnityEngine;
 
 namespace CutScene {
 
+	public	enum CutsceneSubject { ENTITY, CAMERA }
+
 	public class CutsceneEntityManager : MonoBehaviour {
 	
 		public		bool							IsPlaying					{ get; private set; }
-		public		bool							IsOK						{ get; private set; }
 
-		private		Entity							m_EntityParent				= null;
-
-		private		PointsCollectionOnline			m_PointsCollection			= null;
-
-		private		IEntitySimulation				m_EntitySimulation			= null;
-		private		int								m_CurrentIdx				= 0;
-
-
-		private		SimMovementType					m_MovementType				= SimMovementType.WALK;
-		private		Vector3							m_Destination				= Vector3.zero;
-		private		Transform						m_Target					= null;
-		private		float							m_TimeScaleTarget			= 1f;
-		private		Waiter_Base						m_Waiter					= null;
+		private		EntityCutsceneController		m_EntityCutsceneController	= new EntityCutsceneController();
+		private		CameraCutsceneController		m_CameraCutsceneController	= new CameraCutsceneController();
+		private		CutsceneSubject					m_CutsceneSubject			= CutsceneSubject.ENTITY;
 
 
 
 		//////////////////////////////////////////////////////////////////////////
 		private void	Awake()
 		{
-			m_EntityParent = GetComponentInParent<Entity>();
-			if ( m_EntityParent == null )
-			{
-				Destroy( gameObject );
-				return;
-			}
-
-			m_EntitySimulation = m_EntityParent as IEntitySimulation;
-			IsOK = true;
-
 			this.enabled						= false;
 		}
 
@@ -47,40 +28,55 @@ namespace CutScene {
 			if ( this.enabled == true )
 				return;
 
-			if ( IsOK == false )
-				return;
-
 			if ( pointsCollection == null || pointsCollection.Count == 0 )
+			{
+				return;
+			}
+
+			Entity entityParent = null;
+			bool found = Utils.Base.SearchComponent( gameObject, ref entityParent, SearchContext.PARENT );
+
+			if ( found == false )
 			{
 				return;
 			}
 
 			this.enabled						= true;
 
-			m_PointsCollection					= pointsCollection;
-			m_CurrentIdx						= 0;
+			m_CutsceneSubject = CutsceneSubject.ENTITY;
 
-			InternalPlay();
+			m_EntityCutsceneController.Setup( entityParent, pointsCollection );
+
+			IsPlaying = true;
+
+			( entityParent as IEntitySimulation ).EnterSimulationState();
+
+			// On start event called
+			if ( pointsCollection.OnStart != null && pointsCollection.OnStart.GetPersistentEventCount() > 0 )
+			{
+				pointsCollection.OnStart.Invoke();
+			}
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		private	void	InternalPlay()
+		public	void	Play( PathBase cameraPath )
 		{
+			if ( this.enabled == true )
+				return;
+
+			if ( cameraPath == null )
+				return;
+
+			this.enabled						= true;
+
+			m_CutsceneSubject = CutsceneSubject.CAMERA;
+
+			m_CameraCutsceneController.Setup( cameraPath );
+
 			IsPlaying = true;
 
-			m_EntitySimulation.EnterSimulationState();
-
-			// On start event called
-			if ( m_PointsCollection.OnStart != null && m_PointsCollection.OnStart.GetPersistentEventCount() > 0 )
-			{
-				m_PointsCollection.OnStart.Invoke();
-			}
-
-			// Let's start
-			CutsceneWaypointData data = m_PointsCollection[ m_CurrentIdx ];
-			
-			SetupForNextWaypoint( data );
+			// start event called automatically called by path
 		}
 
 
@@ -92,116 +88,38 @@ namespace CutScene {
 
 			if ( IsPlaying == false )
 				return;
-
-			if ( m_Waiter != null && m_Waiter.HasToWait == true )
+			
+			bool bHasCompleted = true;
+			if ( m_CutsceneSubject == CutsceneSubject.ENTITY )
 			{
-				Vector3 tempDestination = Utils.Math.ProjectPointOnPlane( m_EntityParent.transform.up, m_Destination, m_EntityParent.transform.position );
-				m_EntitySimulation.SimulateMovement( SimMovementType.STATIONARY, tempDestination, m_Target, m_TimeScaleTarget );
-				m_Waiter.Wait();
-				return;
-			}
-
-				// Continue simulation until need updates
-			bool isBusy = m_EntitySimulation.SimulateMovement( m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
-			if ( isBusy == true ) // if true is currently simulating and here we have to wait simulation to be completed
-				return;
-
-			// call callback when each waypoint is reached
-			GameEvent onWayPointReached = m_PointsCollection[ m_CurrentIdx ].OnWayPointReached;
-			if ( onWayPointReached != null && onWayPointReached.GetPersistentEventCount() > 0 )
-			{
-				onWayPointReached.Invoke();
-			}
-
-			// Next waypoint index
-			m_CurrentIdx ++;
-
-			// End of simulation
-			if ( m_CurrentIdx != m_PointsCollection.Count )
-			{
-				// Update store start position for distance check
-				m_EntitySimulation.StartPosition = m_EntityParent.transform.position;
-
-				// Update to next simulation targets
-				CutsceneWaypointData data	= m_PointsCollection[ m_CurrentIdx ];
-
-				SetupForNextWaypoint( data );
+				bHasCompleted = m_EntityCutsceneController.Update();
 			}
 			else
 			{
-				Termiante();
+				bHasCompleted = m_CameraCutsceneController.Update();
+			}
+
+			if ( bHasCompleted )
+			{
+				Terminate();
 			}
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		private	void	SetupForNextWaypoint( CutsceneWaypointData data )
+		public	void	Terminate()
 		{
-			m_Target					= data.target;									// target to look at
-			m_MovementType				= data.movementType;							// movement type
-			m_TimeScaleTarget			= Mathf.Clamp01( data.timeScaleTraget );		// time scale for this trip
-
-			// ORIENTATION
-			CameraControl.Instance.Target = m_Target;
-
-			// WEAPON ZOOM
-			if ( WeaponManager.Instance.CurrentWeapon.WeaponState == WeaponState.DRAWED )
+			if ( m_CutsceneSubject == CutsceneSubject.ENTITY )
 			{
-				if ( data.zoomEnabled == true )
-				{
-					if ( WeaponManager.Instance.IsZoomed == false ) WeaponManager.Instance.ZoomIn();
-				}
-				else
-				{
-					if ( WeaponManager.Instance.IsZoomed == true ) WeaponManager.Instance.ZoomOut();
-				}
-			}
-
-			if ( data.waiter != null && data.movementType == SimMovementType.STATIONARY )
-			{
-				m_Waiter = data.waiter;
+				m_EntityCutsceneController.Terminate();
 			}
 			else
 			{
-				m_Waiter = null;
-
-				// MOVEMENT
-				Vector3 destination = data.point.position;	// destination to reach
-				RaycastHit hit;
-				if ( Physics.Raycast( destination, -m_EntityParent.transform.up, out hit ) )
-				{
-					m_Destination = Utils.Math.ProjectPointOnPlane( m_EntityParent.transform.up, m_EntityParent.transform.position, hit.point );
-				}
-				else
-				{
-					Termiante(); 
-				}
+				m_CameraCutsceneController.Terminate();
 			}
-}
-
-
-		//////////////////////////////////////////////////////////////////////////
-		public	void	Termiante()
-		{
-			// Reset some internal variables
-			CameraControl.Instance.OnCutsceneEnd();
-
-			// Called on entity in order to reset vars or evething else
-			m_EntitySimulation.ExitSimulationState();
-
-			// Restore zoom
-			if ( WeaponManager.Instance.IsZoomed == true )
-				WeaponManager.Instance.ZoomOut();
 
 			// Resetting internals
-			m_EntitySimulation.StartPosition	= Vector3.zero;
 			IsPlaying							= false;
-			m_CurrentIdx						= 0;
-			m_MovementType						= SimMovementType.WALK;
-			m_Destination						= Vector3.zero;
-			m_Target							= null;
-			m_TimeScaleTarget					= 1f;
-			m_PointsCollection					= null;
 
 			// to save performance disable this script
 			this.enabled						= false;

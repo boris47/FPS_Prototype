@@ -67,7 +67,7 @@ public class PathLinear : PathBase {
 
 
 	//
-	public	override	bool	Move( float speed, ref Transform t, Vector3? upwards )
+	public	override	bool	Move( ref Transform subject, float? speed, Vector3? upwards )
 	{
 		if ( m_IsCompleted )
 			return false;
@@ -82,13 +82,13 @@ public class PathLinear : PathBase {
 		}
 
 		// Interpolant
-		m_Interpolant += Time.deltaTime * speed * m_Nodes.Length;
+		m_Interpolant += Time.deltaTime * ( speed.HasValue ? speed.Value : m_Speed ) * m_Nodes.Length;
 
 		// Position
 		{
 			Vector3 p1 = m_Nodes[ m_CurrentSegment + 0 ].transform.position;
 			Vector3 p2 = m_Nodes[ m_CurrentSegment + 1 ].transform.position;
-			t.position = Vector3.Lerp( p1, p2, m_Interpolant );
+			subject.position = Vector3.Lerp( p1, p2, m_Interpolant );
 		}
 
 		// Rotation
@@ -112,7 +112,7 @@ public class PathLinear : PathBase {
 				finalUpwards = upwards.GetValueOrDefault();
 			}
 
-			t.rotation = Quaternion.LookRotation( rotationLerped, finalUpwards );
+			subject.rotation = Quaternion.LookRotation( rotationLerped, finalUpwards );
 		}
 
 		// Interpolant upgrade

@@ -26,9 +26,9 @@ namespace CutScene {
 		{
 			Vector3	position	= transform.position;
 			Quaternion rotation = transform.rotation;
-			bool result = m_UseUpVector ? m_Path.Move( m_Speed, ref thisTransform, Vector3.up ) : m_Path.Move( m_Speed, ref thisTransform, null );
+			bool completed = m_UseUpVector ? m_Path.Move( ref thisTransform, m_Speed, Vector3.up ) : m_Path.Move( ref thisTransform, m_Speed, null );
 
-			if ( result == false )
+			if ( completed == true )
 			{
 				enabled = false;
 			}

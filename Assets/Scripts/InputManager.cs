@@ -177,7 +177,7 @@ public class InputManager {
 	{
 		if ( IsEnabled == false )
 			return;
-		
+		/*
 		m_Bindings.Pairs.ForEach
 		(
 			( KeyCommandPair commandPair ) =>
@@ -215,7 +215,7 @@ public class InputManager {
 				}
 			}
 		);
-
+		*/
 
 
 

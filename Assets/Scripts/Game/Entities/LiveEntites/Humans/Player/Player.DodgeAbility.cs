@@ -213,7 +213,7 @@ public partial class Player {
 			Physics.Raycast( transform.position, Vector3.down, out hit );
 
 			if ( m_CutsceneManager.IsPlaying )
-				m_CutsceneManager.Termiante();
+				m_CutsceneManager.Terminate();
 
 			Vector3 alignedForward = Vector3.Cross( transform.right, Vector3.up );
 			Quaternion finalRotation = Quaternion.LookRotation( alignedForward, Vector3.up );

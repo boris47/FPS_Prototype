@@ -44,6 +44,9 @@ public abstract	class PathBase : MonoBehaviour {
 	[SerializeField]
 	protected		GameEvent				m_OnPathCompleted	= null;
 
+	[SerializeField]
+	protected		float					m_Speed				= 0.02f;
+
 
 	protected		float					m_Interpolant		= 0f;
 	protected		bool					m_IsCompleted		= false;
@@ -65,7 +68,7 @@ public abstract	class PathBase : MonoBehaviour {
 
 
 	// 
-	public		abstract bool	Move( float speed, ref Transform transform, Vector3? upwards );
+	public		abstract bool	Move( ref Transform subject, float? speed, Vector3? upwards );
 
 
 	// 

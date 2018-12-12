@@ -173,13 +173,11 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 		m_FlashLight = GetComponentInChildren<FlashLight>() as IFlashLight;
 
 		// animations
-		{
-			bool result = true;
-			result &= Utils.Base.SearchComponent( gameObject, ref m_Animator, SearchContext.LOCAL);// transform.GetComponent<Animator>();
-			result &= m_Animator.GetClipFromAnimator( "fire",		ref m_FireAnim );
-			result &= m_Animator.GetClipFromAnimator( "reload",		ref m_ReloadAnim );
-			result &= m_Animator.GetClipFromAnimator( "draw",		ref m_DrawAnim );
-		}
+		m_Animator		= transform.GetComponent<Animator>();
+		m_FireAnim		= m_Animator.GetClipFromAnimator( "fire" );
+		m_ReloadAnim	= m_Animator.GetClipFromAnimator( "reload" );
+		m_DrawAnim		= m_Animator.GetClipFromAnimator( "draw" );
+
 		// laser
 		m_Laser			= transform.GetComponentInChildren<Laser>();
 

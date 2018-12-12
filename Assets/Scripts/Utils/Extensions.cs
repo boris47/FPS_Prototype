@@ -4,33 +4,61 @@ using System.Collections.Generic;
 
 public static class Extensions {
 
+	/////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
 	//		ANIMATOR
-	public	static	AnimationClip	GetClipFromAnimator( this Animator animator, string name )
+	public	static	bool	GetClipFromAnimator( this Animator animator, string name, ref AnimationClip result )
 	{
-		//favor for above foreach due to performance issues
-		for ( int i = 0; i < animator.runtimeAnimatorController.animationClips.Length; i++ )
+		if ( animator.runtimeAnimatorController == null )
+		{
+			return false;
+		}
+
+		if ( animator.runtimeAnimatorController.animationClips == null || animator.runtimeAnimatorController.animationClips.Length == 0 )
+		{
+			return false;
+		}
+
+		bool bIsClipFound = false;
+		for ( int i = 0; i < animator.runtimeAnimatorController.animationClips.Length && bIsClipFound == false; i++ )
 		{
 			AnimationClip clip = animator.runtimeAnimatorController.animationClips [i];
 
 			if ( clip.name == name )
-				return clip;
+			{
+				bIsClipFound = true;
+				result = clip;
+			}
 		}
 
-		return null;
+		return bIsClipFound;
 	}
 
 
+	/////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
 	//		TRANSFORM
+	/// <summary>
+	/// Can be used to retrieve a component with more detailed research details
+	/// </summary>
 	public	static	bool			SearchComponent<T>( this Transform transform, ref T Component, SearchContext Context, global::System.Predicate<T> Filter = null )
 	{
 		return Utils.Base.SearchComponent( transform.gameObject, ref Component, Context, Filter );
 	}
 
+
+	/// <summary>
+	/// Can be used to retrieve a component's array with more detailed research details
+	/// </summary>
 	public	static	bool			SearchComponents<T>( this Transform transform, ref T[] Component, SearchContext Context, global::System.Predicate<T> Filter = null )
 	{
 		return Utils.Base.SearchComponents( transform.gameObject, ref Component, Context, Filter );
 	}
 
+
+	/// <summary>
+	/// Search for the given component only in children of given transform
+	/// </summary>
 	public	static	T[]				GetComponentOnlyInChildren<T>( this Transform transform, bool deepSearch = false ) where T : Component
 	{
 		List<T> list = new List<T>();
@@ -59,7 +87,12 @@ public static class Extensions {
 	}
 
 
+	/////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
 	//		STRING
+	/// <summary>
+	/// This method also trim inside the string
+	/// </summary>
 	public	static	string			TrimInside( this string str, params char[] trimChars )
 	{
 		List<char> charsToSearch = new List<char>(1);
@@ -81,16 +114,26 @@ public static class Extensions {
 		}
 		return str;
 	}
-
-
+	
+	
+	/////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
 	//		ARRAY
+	// <summary>
+	/// Allow to easly get a value from an array checking given index, default value is supported
+	/// </summary>
 	public	static	T				GetByIndex<T>( this global::System.Array a, int idx, T Default = default(T) )
 	{
 		return ( idx > -1 && idx < a.Length ) ? (T)a.GetValue(idx) : Default;
 	}
 
 
+	/////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
 	//		QUATERNION
+	/// <summary>
+	/// Returna vector which rotation is the given quaternion
+	/// </summary>
 	public	static	Vector3			GetVector( this Quaternion q, Vector3 d )
 	{
 		// A quaternion doesn't have a direction by itself. It is a rotation.
@@ -98,12 +141,53 @@ public static class Extensions {
 		// Ref: http://answers.unity.com/answers/525956/view.html
 		return q * d;
 
-/*		Vector3 Q = new Vector3( q.x, q.y, q.z );
+/*		// Ref: Unreal math Library
+		Vector3 Q = new Vector3( q.x, q.y, q.z );
 		Vector3 T = 2.0f * Vector3.Cross( Q, d );
 		return d + ( T * q.w ) + Vector3.Cross( Q, T );
 */
 	}
 
+	/// <summary>
+	/// We need this because Quaternion.Slerp always uses the shortest arc.
+	/// </summary>
+	public	static	Quaternion		Slerp( this Quaternion p, Quaternion q, float t)
+	{
+		Quaternion ret;
+
+		float fCos = Quaternion.Dot(p, q);
+
+		fCos = ( fCos >= 0.0f ) ? fCos : -fCos;
+
+		float fCoeff0, fCoeff1;
+
+		if ( fCos < 0.9999f )
+		{
+			float omega = Mathf.Acos(fCos);
+			float invSin = 1.0f / Mathf.Sin(omega);
+			fCoeff0 = Mathf.Sin((1.0f - t) * omega) * invSin;
+			fCoeff1 = Mathf.Sin(t * omega) * invSin;
+		}
+		else
+		{
+			// Use linear interpolation
+			fCoeff0 = 1.0f - t;
+			fCoeff1 = t;
+		}
+
+		fCoeff1 = ( fCos >= 0.0f ) ? fCoeff1 : -fCoeff1;
+
+		ret.x = fCoeff0 * p.x + fCoeff1 * q.x;
+		ret.y = fCoeff0 * p.y + fCoeff1 * q.y;
+		ret.z = fCoeff0 * p.z + fCoeff1 * q.z;
+		ret.w = fCoeff0 * p.w + fCoeff1 * q.w;
+			
+		return ret;
+	}
+
+	/// <summary>
+	/// Return th lenght of a quaternion
+	/// </summary>
 	public	static	float			GetLength( this Quaternion q )
 	{
 		return Mathf.Sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
