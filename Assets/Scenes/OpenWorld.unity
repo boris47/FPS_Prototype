@@ -5540,7 +5540,7 @@ GameObject:
   - component: {fileID: 970367872}
   - component: {fileID: 970367871}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: IterableVolume
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

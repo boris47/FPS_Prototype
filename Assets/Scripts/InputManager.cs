@@ -71,19 +71,18 @@ public	delegate	void	InputDelegateHandler();
 
 public class InputManager {
 
-	public	static	bool			HoldCrouch		{ get; set; }
-	public	static	bool			HoldJump		{ get; set; }
-	public	static	bool			HoldRun			{ get; set; }
+	public	static	bool					HoldCrouch		{ get; set; }
+	public	static	bool					HoldJump		{ get; set; }
+	public	static	bool					HoldRun			{ get; set; }
 
-	public  static	inputs_t		Inputs;
-	public	static	bool			IsEnabled		= true;
+	public  static	inputs_t				Inputs;
+	public	static	bool					IsEnabled		= true;
 
-	private	InputFlags				m_Flags			= InputFlags.ALL;
+	private	InputFlags						m_Flags			= InputFlags.ALL;
 
-	private	KeyBindings				m_Bindings		= null;
-	System.Action<KeyCommandPair>	m_CommandPairCheck	= null;
+	private	KeyBindings						m_Bindings		= null;
 
-	public class InputEventClass {
+	private class InputEventClass {
 
 		private	event InputDelegateHandler m_InputEvent = null;
 
@@ -115,22 +114,45 @@ public class InputManager {
 
 	//////////////////////////////////////////////////////////////////////////
 	// ( Constructor )
-	public InputManager()
+	public				InputManager()
 	{
 		foreach ( InputCommands command in System.Enum.GetValues(typeof(InputCommands)))
 		{
 			m_ActionMap.Add( command, new InputEventClass() );
 		}
 
-		GenerateDefaultBindings();
+		// C:/Users/Drako/AppData/LocalLow/BeWide&Co/Project Orion
+		string bindingsPath = Application.persistentDataPath + "/KeyBindings.json";
+		if ( System.IO.File.Exists( bindingsPath ) )
+		{
+			ReadBindings( bindingsPath );
+		}
+		else
+		{
+			GenerateDefaultBindings( bindingsPath );
+		}
+	}
 
-		m_CommandPairCheck = CommandPairCheck;
+
+	//////////////////////////////////////////////////////////////////////////
+	// Save
+	public		void	Save()
+	{
+
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Load
+	public		void	Load()
+	{
+
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// BindCall
-	public	void	BindCall( InputCommands command, InputDelegateHandler method )
+	public		void	BindCall( InputCommands command, InputDelegateHandler method )
 	{
 		InputEventClass methodWrapper = null;
 		if ( m_ActionMap.TryGetValue( command, out methodWrapper ) )
@@ -143,9 +165,10 @@ public class InputManager {
 		}
 	}
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// UnbindCall
-	public	void	UnbindCall( InputCommands command, InputDelegateHandler method )
+	public		void	UnbindCall( InputCommands command, InputDelegateHandler method )
 	{
 		InputEventClass methodWrapper = null;
 		if ( m_ActionMap.TryGetValue( command, out methodWrapper ) )
@@ -157,7 +180,7 @@ public class InputManager {
 
 	//////////////////////////////////////////////////////////////////////////
 	// SetFlags
-	public	void	SetFlags( InputFlags flags )
+	public		void	SetFlags( InputFlags flags )
 	{
 		if ( ( m_Flags & InputFlags.MOVE )			== 0 && ( flags & InputFlags.MOVE )			!= 0 ) m_Flags |= InputFlags.MOVE;
 		if ( ( m_Flags & InputFlags.STATE )			== 0 && ( flags & InputFlags.STATE )		!= 0 ) m_Flags |= InputFlags.STATE;
@@ -175,7 +198,7 @@ public class InputManager {
 
 	//////////////////////////////////////////////////////////////////////////
 	// RemoveFlags
-	public	void	RemoveFlags( InputFlags flags )
+	public		void	RemoveFlags( InputFlags flags )
 	{
 		if ( ( m_Flags & InputFlags.MOVE )			!= 0 && ( flags & InputFlags.MOVE )			== 0 ) m_Flags &= ~InputFlags.MOVE;
 		if ( ( m_Flags & InputFlags.STATE )			!= 0 && ( flags & InputFlags.STATE )		== 0 ) m_Flags &= ~InputFlags.STATE;
@@ -192,43 +215,23 @@ public class InputManager {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ScrollUpCheck
-	private	bool	ScrollUpCheck( KeyCode k )
-	{
-		return Input.mouseScrollDelta.y > 0f;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// ScrollDownCheck
-	private	bool	ScrollDownCheck( KeyCode k )
-	{
-		return Input.mouseScrollDelta.y < 0f;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// CommandPairCheck
-	private	void	CommandPairCheck( KeyCommandPair commandPair )
-	{
-		// Check Primary and secondary button
-		InputEventClass methodWrapper = null;
-		if ( commandPair.IsValidKeyCheck && m_ActionMap.TryGetValue( commandPair.Command, out methodWrapper ) )
-		{
-			// call binded delegate
-			methodWrapper.Call();
-		}
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
 	// Update
-	public	void	Update()
+	public		void	Update()
 	{
 		if ( IsEnabled == false )
 			return;
 
-		m_Bindings.Pairs.ForEach( m_CommandPairCheck );
+		System.Action<KeyCommandPair> commandPairCheck = ( KeyCommandPair commandPair ) =>
+		{
+			// Check Primary and secondary button
+			InputEventClass methodWrapper = null;
+			if ( commandPair.IsValidKeyCheck && m_ActionMap.TryGetValue( commandPair.Command, out methodWrapper ) )
+			{
+				// call binded delegate
+				methodWrapper.Call();
+			}
+		};
+		m_Bindings.Pairs.ForEach( commandPairCheck );
 
 
 		#region old
@@ -332,7 +335,10 @@ public class InputManager {
 		#endregion
 	}
 
-	private	void	GenerateDefaultBindings()
+
+	//////////////////////////////////////////////////////////////////////////
+	// GenerateDefaultBindings
+	private		void	GenerateDefaultBindings( string bindingsPath )
 	{
 		m_Bindings = new KeyBindings();
 		{
@@ -395,33 +401,39 @@ public class InputManager {
 			GenerateBinding( m_Bindings,	InputCommands.RELOAD_WPN,				KeyState.PRESS,			KeyCode.R,				KeyCode.End				);
 		}
 
-		JsonUtility.ToJson( m_Bindings, prettyPrint: true );
+		string data = JsonUtility.ToJson( m_Bindings, prettyPrint: true );
+		System.IO.File.WriteAllText( bindingsPath, data );
 	}
 
-	private	void	GenerateBinding( KeyBindings bindings, InputCommands command, KeyState keyState, KeyCode mainKey, KeyCode secondaryKey )
+
+	//////////////////////////////////////////////////////////////////////////
+	// GenerateBinding
+	private		void	GenerateBinding( KeyBindings bindings, InputCommands command, KeyState keyState, KeyCode primaryKey, KeyCode secondaryKey )
 	{
-		// Choose the check function based on the requested key state 
-		System.Func<KeyCode, bool> keyCheck = null;
-		switch ( keyState )
+		KeyCommandPair pair =  new KeyCommandPair();
+		pair.Setup( command, keyState, primaryKey, secondaryKey );
+		bindings.Pairs.Add( pair );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ReadBindings
+	public		void	ReadBindings( string bindingsPath )
+	{
+//		string data = System.IO.File.ReadAllText( bindingsPath );
+//		m_Bindings = JsonUtility.FromJson<KeyBindings>( data );
+//		if ( m_Bindings == null )
 		{
-			case KeyState.PRESS:		keyCheck	= Input.GetKeyDown;		break;
-			case KeyState.HOLD:			keyCheck	= Input.GetKey;			break;
-			case KeyState.RELEASE:		keyCheck	= Input.GetKeyUp;		break;
-			case KeyState.SCROLL_UP:	keyCheck	= ScrollUpCheck;		break;
-			case KeyState.SCROLL_DOWN:	keyCheck	= ScrollDownCheck;		break;
+//			Debug.Log( "Unable to load key bindings at path " + bindingsPath );
+			Debug.Log( "Key bindings file read is not available" );
+			GenerateDefaultBindings( bindingsPath );
 		}
-
-		bindings.Pairs.Add( new KeyCommandPair( command, keyState, new KeyCode[] { mainKey, secondaryKey }, keyCheck ) );
 	}
 
-	public	void	ReadBindings()
-	{
-//		JsonUtility.FromJson
-	}
 }
 
 [System.Serializable]
-public enum KeyState {
+public	enum KeyState {
 	PRESS, HOLD, RELEASE, SCROLL_UP, SCROLL_DOWN
 }
 
@@ -444,31 +456,64 @@ public	enum InputCommands {
 public	struct KeyCommandPair {
 
 	[SerializeField]
-	private	InputCommands				m_Command;
-	public	InputCommands				Command
-	{
-		get { return m_Command; }
-	}
+	public	InputCommands				Command;
 
 	[SerializeField]
-	private	KeyState					m_KeyState;
+	private	KeyState					KeyState;
 
 	[SerializeField]
-	private	KeyCode[]					m_Keys;
+	private	KeyCode						PrimaryKey;
+
+	[SerializeField]
+	private	KeyCode						SecondaryKey;
 
 	private System.Func<KeyCode, bool>	m_KeyCheck;
 	private	bool						m_bIsValidKeyCheckFunc;
 
-	public KeyCommandPair ( InputCommands Command, KeyState KeyState, KeyCode[] Keys, System.Func<KeyCode, bool> KeyCheck )
+	public	void	Setup( InputCommands Command, KeyState KeyState, KeyCode PrimaryKey, KeyCode SecondaryKey )
 	{
-		this.m_Command = Command;
-		this.m_KeyState = KeyState;
-		this.m_Keys = Keys;
-		this.m_KeyCheck = KeyCheck;
-		m_bIsValidKeyCheckFunc = KeyCheck != null;
+		this.Command		= Command;
+		this.KeyState		= KeyState;
+		this.PrimaryKey		= PrimaryKey;
+		this.SecondaryKey	= SecondaryKey;
+
+		UpdateKeyCheck();
 	}
 
-	public	bool	IsValidKeyCheck { get { return m_bIsValidKeyCheckFunc && m_KeyCheck( m_Keys[0] ) || m_KeyCheck( m_Keys[ 1 ] ); } }
+	public	void	UpdateKeyCheck()
+	{
+		System.Func<KeyCode, bool> ScrollUpCheck   = ( KeyCode k ) => { return Input.mouseScrollDelta.y > 0f; };
+		System.Func<KeyCode, bool> ScrollDownCheck = ( KeyCode k ) => { return Input.mouseScrollDelta.y < 0f; };
+
+		// Choose the check function based on the requested key state 
+		System.Func<KeyCode, bool> keyCheck = null;
+		switch ( KeyState )
+		{
+			case KeyState.PRESS:		keyCheck	= Input.GetKeyDown;		break;
+			case KeyState.HOLD:			keyCheck	= Input.GetKey;			break;
+			case KeyState.RELEASE:		keyCheck	= Input.GetKeyUp;		break;
+			case KeyState.SCROLL_UP:	keyCheck	= ScrollUpCheck;		break;
+			case KeyState.SCROLL_DOWN:	keyCheck	= ScrollDownCheck;		break;
+		}
+
+		this.m_KeyCheck				= keyCheck;
+		this.m_bIsValidKeyCheckFunc	= keyCheck != null;
+	}
+
+	public	bool	IsValidKeyCheck
+	{
+		get {
+			if ( m_bIsValidKeyCheckFunc == false )
+			{
+				this.UpdateKeyCheck();
+			}
+
+			return 
+				m_bIsValidKeyCheckFunc && 
+				m_KeyCheck( PrimaryKey ) || 
+				m_KeyCheck( SecondaryKey );
+		}
+	}
 }
 
 [System.Serializable]
