@@ -159,7 +159,7 @@ public partial class Player : Human {
 			CameraControl.Instance.SetViewPoint( m_HeadTransform );
 		}
 
-		GameManager.InputMgr.BindCall(InputCommands.MOVE_FORWARD, asd);
+		GameManager.InputMgr.BindCall(eInputCommands.MOVE_FORWARD, asd);
 
 		IsGrounded = false;
 		StartCoroutine( DamageEffectCO() );
