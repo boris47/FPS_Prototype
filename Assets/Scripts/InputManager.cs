@@ -84,7 +84,9 @@ public class InputManager {
 
 	private class InputEventClass {
 
-		private	event InputDelegateHandler m_InputEvent = null;
+		private	InputDelegateHandler m_InputEvent = null;
+
+		private	static	InputDelegateHandler m_EmptyMethod = () => { };
 
 		public	InputEventClass()
 		{
@@ -93,13 +95,13 @@ public class InputManager {
 
 		public	InputEventClass	Bind( InputDelegateHandler method )
 		{
-			m_InputEvent += method;
+			m_InputEvent = method;
 			return this;
 		}
 
-		public	InputEventClass	Unbind( InputDelegateHandler method )
+		public	InputEventClass	Unbind()
 		{
-			m_InputEvent -= method;
+			m_InputEvent = m_EmptyMethod;
 			return this;
 		}
 
@@ -168,12 +170,12 @@ public class InputManager {
 
 	//////////////////////////////////////////////////////////////////////////
 	// UnbindCall
-	public		void	UnbindCall( InputCommands command, InputDelegateHandler method )
+	public		void	UnbindCall( InputCommands command )
 	{
 		InputEventClass methodWrapper = null;
 		if ( m_ActionMap.TryGetValue( command, out methodWrapper ) )
 		{
-			methodWrapper.Unbind( method );
+			methodWrapper.Unbind();
 		}
 	}
 
@@ -214,6 +216,8 @@ public class InputManager {
 	}
 
 
+	System.Func<KeyCode, bool> ScrollUpCheck   = ( KeyCode k ) => { return Input.mouseScrollDelta.y > 0f; };
+	System.Func<KeyCode, bool> ScrollDownCheck = ( KeyCode k ) => { return Input.mouseScrollDelta.y < 0f; };
 	//////////////////////////////////////////////////////////////////////////
 	// Update
 	public		void	Update()
@@ -223,16 +227,27 @@ public class InputManager {
 
 		System.Action<KeyCommandPair> commandPairCheck = ( KeyCommandPair commandPair ) =>
 		{
+
+			// Choose the check function based on the requested key state 
+			System.Func<KeyCode, bool> keyCheck = null;
+			switch ( commandPair.KeyState )
+			{
+				case KeyState.PRESS:		keyCheck	= Input.GetKeyDown;		break;
+				case KeyState.HOLD:			keyCheck	= Input.GetKey;			break;
+				case KeyState.RELEASE:		keyCheck	= Input.GetKeyUp;		break;
+				case KeyState.SCROLL_UP:	keyCheck	= ScrollUpCheck;		break;
+				case KeyState.SCROLL_DOWN:	keyCheck	= ScrollDownCheck;		break;
+			}
+
 			// Check Primary and secondary button
 			InputEventClass methodWrapper = null;
-			if ( commandPair.IsValidKeyCheck && m_ActionMap.TryGetValue( commandPair.Command, out methodWrapper ) )
+			if ( ( keyCheck( commandPair.PrimaryKey ) || keyCheck( commandPair.SecondaryKey ) ) && m_ActionMap.TryGetValue( commandPair.Command, out methodWrapper ) )
 			{
 				// call binded delegate
 				methodWrapper.Call();
 			}
 		};
 		m_Bindings.Pairs.ForEach( commandPairCheck );
-
 
 		#region old
 		
@@ -420,16 +435,14 @@ public class InputManager {
 	// ReadBindings
 	public		void	ReadBindings( string bindingsPath )
 	{
-//		string data = System.IO.File.ReadAllText( bindingsPath );
-//		m_Bindings = JsonUtility.FromJson<KeyBindings>( data );
-//		if ( m_Bindings == null )
+		string data = System.IO.File.ReadAllText( bindingsPath );
+		m_Bindings = JsonUtility.FromJson<KeyBindings>( data );
+		if ( m_Bindings == null )
 		{
-//			Debug.Log( "Unable to load key bindings at path " + bindingsPath );
-			Debug.Log( "Key bindings file read is not available" );
+			Debug.Log( "Unable to load key bindings at path " + bindingsPath );
 			GenerateDefaultBindings( bindingsPath );
 		}
 	}
-
 }
 
 [System.Serializable]
@@ -459,16 +472,13 @@ public	struct KeyCommandPair {
 	public	InputCommands				Command;
 
 	[SerializeField]
-	private	KeyState					KeyState;
+	public	KeyState					KeyState;
 
 	[SerializeField]
-	private	KeyCode						PrimaryKey;
+	public	KeyCode						PrimaryKey;
 
 	[SerializeField]
-	private	KeyCode						SecondaryKey;
-
-	private System.Func<KeyCode, bool>	m_KeyCheck;
-	private	bool						m_bIsValidKeyCheckFunc;
+	public	KeyCode						SecondaryKey;
 
 	public	void	Setup( InputCommands Command, KeyState KeyState, KeyCode PrimaryKey, KeyCode SecondaryKey )
 	{
@@ -476,44 +486,8 @@ public	struct KeyCommandPair {
 		this.KeyState		= KeyState;
 		this.PrimaryKey		= PrimaryKey;
 		this.SecondaryKey	= SecondaryKey;
-
-		UpdateKeyCheck();
 	}
 
-	public	void	UpdateKeyCheck()
-	{
-		System.Func<KeyCode, bool> ScrollUpCheck   = ( KeyCode k ) => { return Input.mouseScrollDelta.y > 0f; };
-		System.Func<KeyCode, bool> ScrollDownCheck = ( KeyCode k ) => { return Input.mouseScrollDelta.y < 0f; };
-
-		// Choose the check function based on the requested key state 
-		System.Func<KeyCode, bool> keyCheck = null;
-		switch ( KeyState )
-		{
-			case KeyState.PRESS:		keyCheck	= Input.GetKeyDown;		break;
-			case KeyState.HOLD:			keyCheck	= Input.GetKey;			break;
-			case KeyState.RELEASE:		keyCheck	= Input.GetKeyUp;		break;
-			case KeyState.SCROLL_UP:	keyCheck	= ScrollUpCheck;		break;
-			case KeyState.SCROLL_DOWN:	keyCheck	= ScrollDownCheck;		break;
-		}
-
-		this.m_KeyCheck				= keyCheck;
-		this.m_bIsValidKeyCheckFunc	= keyCheck != null;
-	}
-
-	public	bool	IsValidKeyCheck
-	{
-		get {
-			if ( m_bIsValidKeyCheckFunc == false )
-			{
-				this.UpdateKeyCheck();
-			}
-
-			return 
-				m_bIsValidKeyCheckFunc && 
-				m_KeyCheck( PrimaryKey ) || 
-				m_KeyCheck( SecondaryKey );
-		}
-	}
 }
 
 [System.Serializable]
