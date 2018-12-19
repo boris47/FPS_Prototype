@@ -66,7 +66,6 @@ public class UI_Bindings : MonoBehaviour {
 				bIsWaiting &= !Input.GetKeyDown( key );
 				keyChosen = key;
 			}
-
 			yield return null;
 		}
 
@@ -81,7 +80,7 @@ public class UI_Bindings : MonoBehaviour {
 
 	
 	//////////////////////////////////////////////////////////////////////////
-	public	void	FillGrid()
+	private	void	FillGrid()
 	{
 
 		foreach( Transform t in m_ScrollContent )
@@ -90,7 +89,7 @@ public class UI_Bindings : MonoBehaviour {
 		}
 
 		// Fill the grid
-		System.Array.ForEach( m_InputMgr.GetBindings(), ( KeyCommandPair info ) =>
+		System.Array.ForEach( m_InputMgr.Bindings, ( KeyCommandPair info ) =>
 		{
 			GameObject commandRow = Instantiate<GameObject>( m_UI_CommandRow );
 			{
@@ -129,7 +128,7 @@ public class UI_Bindings : MonoBehaviour {
 				);
 
 				Text label = primaryKeyChoiceButton.transform.GetChild(0).GetComponent<Text>();
-				label.text = info.Get( eKeys.PRIMARY ).ToString();
+				label.text = info.GetKeyCode( eKeys.PRIMARY ).ToString();
 			}
 
 			// Secondary KeyState Dropdown
@@ -157,7 +156,7 @@ public class UI_Bindings : MonoBehaviour {
 				);
 
 				Text label = secondaryKeyChoiceButton.transform.GetChild(0).GetComponent<Text>();
-				label.text = info.Get( eKeys.SECONDARY ).ToString();
+				label.text = info.GetKeyCode( eKeys.SECONDARY ).ToString();
 			}
 			
 		} );
@@ -167,26 +166,62 @@ public class UI_Bindings : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private	void	OnPrimaryKeyStateChanged( KeyCommandPair info, int newValue )
 	{
-		eKeys key = eKeys.PRIMARY;
-		m_InputMgr.AssignNewBinding( info.Get( key ), key, ( eKeyState ) newValue, info.Command );
+		eKeyState newKeyState = ( eKeyState ) newValue;
+		{
+			m_InputMgr.AssignNewKeyState( eKeys.PRIMARY, newKeyState, info.Command );
+
+			if ( newKeyState == eKeyState.SCROLL_DOWN || newKeyState == eKeyState.SCROLL_UP )
+			{
+				info.Assign( eKeys.PRIMARY, null, KeyCode.None );
+			}
+		}
+		FillGrid();
 	}
 
 	
 	//////////////////////////////////////////////////////////////////////////
 	private	void	OnSecondaryKeyStateChanged( KeyCommandPair info, int newValue )
 	{
-		eKeys key = eKeys.PRIMARY;
-		m_InputMgr.AssignNewBinding( info.Get( key ), key, ( eKeyState ) newValue, info.Command );
+		eKeyState newKeyState = ( eKeyState ) newValue;
+		{
+			m_InputMgr.AssignNewKeyState( eKeys.SECONDARY, newKeyState, info.Command );
+
+			if ( newKeyState == eKeyState.SCROLL_DOWN || newKeyState == eKeyState.SCROLL_UP )
+			{
+				info.Assign( eKeys.SECONDARY, null, KeyCode.None );
+			}
+		}
+		FillGrid();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private	void	OnPrimaryKeyChoiceButtonClicked( KeyCommandPair info )
 	{
+		// Create callback for key assigning
 		System.Action<KeyCode> onKeyPressed = delegate( KeyCode keyCode )
 		{
-			eKeys key = eKeys.PRIMARY;
-			m_InputMgr.AssignNewBinding( keyCode, key, info.PrimaryKeyState, info.Command );
+			if ( m_InputMgr.CanNewKeyCodeBeAssigned( eKeys.PRIMARY, keyCode, info.Command ) )
+			{
+				if ( m_InputMgr.AssignNewKeyCode( eKeys.PRIMARY, keyCode, info.Command, false ) )
+				{
+					m_InputMgr.SaveBindings();
+				}
+			}
+			else
+			{
+				System.Action onConfirm = delegate()
+				{
+					if ( m_InputMgr.AssignNewKeyCode( eKeys.PRIMARY, keyCode, info.Command, true ) )
+					{
+						m_InputMgr.SaveBindings();
+					}
+
+					FillGrid();
+				};
+
+				UI.Instance.Confirmation.Show( "Confirm key substitution?", OnConfirm: onConfirm, OnCancel: null );
+			}
 		};
 		StartCoroutine( WaitForKeyCO( onKeyPressed ) );
 	}
@@ -195,22 +230,39 @@ public class UI_Bindings : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private	void	OnSecondaryKeyChoiceButtonClicked( KeyCommandPair info )
 	{
+		// Create callback for key assigning
 		System.Action<KeyCode> onKeyPressed = delegate( KeyCode keyCode )
 		{
-			eKeys key = eKeys.SECONDARY;
-			m_InputMgr.AssignNewBinding( keyCode, key, info.SecondaryKeyState, info.Command );
+			if ( m_InputMgr.CanNewKeyCodeBeAssigned( eKeys.SECONDARY, keyCode, info.Command ) )
+			{
+				if ( m_InputMgr.AssignNewKeyCode( eKeys.SECONDARY, keyCode, info.Command, false ) )
+				{
+					m_InputMgr.SaveBindings();
+				}
+			}
+			else
+			{
+				System.Action onConfirm = delegate()
+				{
+					if ( m_InputMgr.AssignNewKeyCode( eKeys.SECONDARY, keyCode, info.Command, true ) )
+					{
+						m_InputMgr.SaveBindings();
+					}
+
+					FillGrid();
+				};
+
+				UI.Instance.Confirmation.Show( "Confirm key substitution?", OnConfirm: onConfirm, OnCancel: null );
+			}
 		};
-		StartCoroutine( WaitForKeyCO( onKeyPressed ) );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public	void	Apply()
 	{
-		foreach( Transform t in m_ScrollContent )
-		{
-
-		}
+		m_InputMgr.SaveBindings();
+		FillGrid();
 	}
 
 

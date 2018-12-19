@@ -9,6 +9,7 @@ public interface IUI {
 	UI_MainMenu		MainMenu			{ get; }
 	UI_InGame		InGame				{ get; }
 	UI_Bindings		Bindings			{ get; }
+	UI_Confirmation	Confirmation		{ get; }
 
 	Image			EffectFrame			{ get; }
 
@@ -30,6 +31,7 @@ public class UI : MonoBehaviour, IUI {
 	private			UI_InGame		m_InGame						= null;
 	private			UI_PauseMenu	m_PauseMenu						= null;
 	private			UI_Bindings		m_Bindings						= null;
+	private			UI_Confirmation	m_Confirmation					= null;
 
 	private			Image			m_EffectFrame					= null;
 
@@ -55,6 +57,7 @@ public class UI : MonoBehaviour, IUI {
 					UI_InGame		IUI.InGame						{ get { return m_InGame; } }
 					UI_Bindings		IUI.Bindings					{ get { return m_Bindings; } }
 					Image			IUI.EffectFrame					{ get { return m_EffectFrame; } }
+					UI_Confirmation	IUI.Confirmation				{ get { return m_Confirmation; } }
 
 	// INTERFACE END
 
@@ -81,10 +84,11 @@ public class UI : MonoBehaviour, IUI {
 		DontDestroyOnLoad( this );
 
 		// Get Menus
-		m_MainMenu	= GetComponentInChildren<UI_MainMenu>( includeInactive : true );
-		m_InGame	= GetComponentInChildren<UI_InGame>( includeInactive : true  );
-		m_PauseMenu	= GetComponentInChildren<UI_PauseMenu>( includeInactive : true  );
-		m_Bindings	= GetComponentInChildren<UI_Bindings>( includeInactive: true );
+		m_MainMenu		= GetComponentInChildren<UI_MainMenu>( includeInactive : true );
+		m_InGame		= GetComponentInChildren<UI_InGame>( includeInactive : true  );
+		m_PauseMenu		= GetComponentInChildren<UI_PauseMenu>( includeInactive : true  );
+		m_Bindings		= GetComponentInChildren<UI_Bindings>( includeInactive: true );
+		m_Confirmation	= GetComponentInChildren<UI_Confirmation>( includeInactive: true );
 
 		// Find Transforms
 		m_Settings						= transform.Find( "Settings" );
