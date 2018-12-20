@@ -105,12 +105,8 @@ public class UI : MonoBehaviour, IUI {
 		m_MusicSlider.value				= SoundManager.Instance.MusicVolume;
 		m_SoundSlider.value				= SoundManager.Instance.SoundVolume;;
 
-
 		m_MainMenuImages			= m_MainMenu.GetComponentsInChildren<Image>();
-/*		m_SettingsImages			= m_Settings.GetComponentsInChildren<Image>();
-		m_SettingsGraphicsImages	= m_Settings_Graphics.GetComponentsInChildren<Image>();
-		m_SettingsAudioImages		= m_Settings_Audio.GetComponentsInChildren<Image>();
-*/
+
 		m_CurrentActiveTrasform = m_InGame.gameObject.activeSelf ? m_InGame.transform : m_MainMenu.transform;
 	}
 
@@ -119,59 +115,11 @@ public class UI : MonoBehaviour, IUI {
 	// SwitchTo
 	public	void	SwitchTo( Transform trasformToShow )
 	{
-//		if ( m_IsSwitching == true )
-//			return;
-
-//		StartCoroutine( SwitchToCO( trasformToShow ) );
-
 		m_CurrentActiveTrasform.gameObject.SetActive( false );
 		trasformToShow.gameObject.SetActive( true );
 		m_CurrentActiveTrasform	= trasformToShow;
 	}
 
-	/*
-	//////////////////////////////////////////////////////////////////////////
-	// SwitchToCO ( Coroutine )
-	private	IEnumerator	SwitchToCO( Transform trasformToShow )
-	{
-		m_IsSwitching = true;
-		m_RayCastInterceptor.gameObject.SetActive( true );
-
-		Image[] toHide = m_CurrentActiveTrasform.GetComponentOnlyInChildren<Image>( deepSearch: true );
-		Image[] toShow = trasformToShow.GetComponentOnlyInChildren<Image>( deepSearch: true );
-
-		float interpolant = 0f;
-		while( interpolant < 1f )
-		{
-			interpolant += Time.unscaledDeltaTime * TRANSITION_SPEED;
-			for ( int i = 0; i < toHide.Length; i++ )
-			{
-				Image image = toHide[ i ];
-				image.color = Color.Lerp( Color.white, Color.clear, interpolant );
-				yield return null;
-			}
-		}
-
-		m_CurrentActiveTrasform.gameObject.SetActive( false );
-		trasformToShow.gameObject.SetActive( true );
-
-		interpolant = 0f;
-		while( interpolant < 1f )
-		{
-			interpolant += Time.unscaledDeltaTime * TRANSITION_SPEED;
-			for ( int i = 0; i < toShow.Length; i++ )
-			{
-				Image image = toShow[ i ];
-				image.color = Color.Lerp( Color.clear, Color.white, interpolant );
-				yield return null;
-			}
-		}
-
-		m_RayCastInterceptor.gameObject.SetActive( false );
-		m_CurrentActiveTrasform	= trasformToShow;
-		m_IsSwitching			= false;
-	}
-	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	// ShowPauseMenu ( Interface )
@@ -196,19 +144,36 @@ public class UI : MonoBehaviour, IUI {
 
 	//////////////////////////////////////////////////////////////////////////
 	// ReturnToMainMenu ( Interface )
+	/// <summary> used to return to menu from in-game pause menu </summary>
 	void	IUI.ReturnToMainMenu()
 	{
+		// Only if paused can return to main menu
+		if ( GameManager.IsPaused == false )
+			return;
+
+		// Exit pause state
 		GameManager.PauseEvents.SetPauseState( false );
 
+		// Force curso to be visible
 		Cursor.visible = true;
 		Cursor.lockState = CursorLockMode.None;
 
-		UI.Instance.EffectFrame.color = Color.black;
+		// Effect frame reset
+		m_EffectFrame.color = Color.black;
+
+		// Sho MainMenu object
 		m_MainMenu.gameObject.SetActive( true );
+
+		// Hide In-Game UI
 		m_InGame.gameObject.SetActive( false );
+
+		// Hide Pause menu UI
 		m_PauseMenu.gameObject.SetActive( false );
+
+		// update current active transform
 		m_CurrentActiveTrasform = m_MainMenu.transform;
 
+		// Load menu
 		SceneManager.LoadScene( 0 );
 	}
 
@@ -243,7 +208,7 @@ public class UI : MonoBehaviour, IUI {
 		m_AsyncOperation = SceneManager.LoadSceneAsync( sceneIdx );
 		m_AsyncOperation.allowSceneActivation = false;
 
-		// Wait for load comletion
+		// Wait for load completion
 		while ( m_AsyncOperation.progress < 0.9f )
 			yield return null;
 
@@ -257,18 +222,20 @@ public class UI : MonoBehaviour, IUI {
 		// Remove global state as ChangingScene state
 		GameManager.IsChangingScene = false;
 
-		bool bCanContinue = false;
-		
-		// Wait for script initialization
-		while( bCanContinue == false )
+		// Wait until main calsses are loaded
 		{
-			bCanContinue = GameManager.Instance != null
-			&& CameraControl.Instance != null
-			&& WeaponManager.Instance != null;
-		//	WeatherSystem.WeatherManager.Instance == null
-			yield return null;
+			bool bCanContinue = false;
+		
+			// Wait for script initialization
+			while( bCanContinue == false )
+			{
+				bCanContinue = GameManager.Instance != null
+				&& CameraControl.Instance != null
+				&& WeaponManager.Instance != null;
+			//	WeatherSystem.WeatherManager.Instance == null
+				yield return null;
+			}
 		}
-
 		// if is loading process, complete load
 		if ( bMustLoadSave == true )
 		{
