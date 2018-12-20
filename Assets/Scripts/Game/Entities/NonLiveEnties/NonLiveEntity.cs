@@ -26,19 +26,10 @@ public abstract partial class NonLiveEntity : Entity {
 	{
 		base.Awake();
 
-
-		if ( GameManager.Configs.GetSection( m_SectionName, ref m_SectionRef ) == false )
-		{
-			print( "Cannot find cfg section for entity " + name );
-			Destroy( gameObject );
-			return;
-		}
-
 		Utils.Base.SearchComponent( gameObject, ref m_FireAudioSource, SearchContext.LOCAL );
 
 		m_GunTransform		= m_HeadTransform.Find( "Gun" );
 		m_FirePoint			= m_GunTransform.Find( "FirePoint" );
-
 	}
 	
 	//////////////////////////////////////////////////////////////////////////

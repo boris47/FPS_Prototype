@@ -15,12 +15,15 @@ public class UI_Confirmation : MonoBehaviour {
 	{
 		Transform panel = transform.GetChild( 0 );
 
+		// Label
 		m_LabelText = panel.GetChild( 0 ).GetComponent<Text>();
 
+		Navigation noNavigationMode = new Navigation() { mode = Navigation.Mode.None };
+
+		// Confirm button
 		Button onConfirmButton = panel.GetChild( 1 ).GetComponent<Button>();
 		{
-			onConfirmButton.navigation = new Navigation() { mode = Navigation.Mode.None };
-			onConfirmButton.onClick.RemoveAllListeners();
+			onConfirmButton.navigation = noNavigationMode;
 			onConfirmButton.onClick.AddListener( 
 				() => {
 					m_OnConfirmAction();
@@ -29,10 +32,10 @@ public class UI_Confirmation : MonoBehaviour {
 			);
 		}
 
+		// Cancel button
 		Button onCancelButton = panel.GetChild( 2 ).GetComponent<Button>();
 		{
-			onCancelButton.navigation = new Navigation() { mode = Navigation.Mode.None };
-			onCancelButton.onClick.RemoveAllListeners();
+			onCancelButton.navigation = noNavigationMode;
 			onCancelButton.onClick.AddListener( 
 				() => {
 					m_OnCancelAction();
@@ -46,7 +49,6 @@ public class UI_Confirmation : MonoBehaviour {
 
 	public	void	Show( string LabelMsg, System.Action OnConfirm , System.Action OnCancel = null )
 	{
-		Initialize();
 		m_LabelText.text	= LabelMsg;
 		m_OnConfirmAction	= OnConfirm != null ? OnConfirm : () => { };
 		m_OnCancelAction	= OnCancel  != null ? OnCancel  : () => { };

@@ -162,6 +162,14 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		m_ID				= NewID();
 		m_Interface			= this as IEntity;
 
+		// config file
+		if ( GameManager.Configs.GetSection( m_SectionName, ref m_SectionRef ) == false )
+		{
+			print( "Cannot find cfg section \""+ m_SectionName +"\" for entity " + name );
+			Destroy( gameObject );
+			return;
+		}
+
 		
 		// TRANSFORMS
 		{
@@ -231,6 +239,24 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		if ( m_IsOK == false && ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
 		{
 			print( name + " is not OK" );
+		}
+
+		// Executed only for non player entities
+		if ( ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
+		{
+			Brain_Setup();				// Setup for field of view and memory
+			Brain_SetActive( true );	// Brain updates activation
+
+			// AI BEHAVIOURS
+			{	
+				Brain.SetBehaviour( BrainState.EVASIVE,		m_SectionRef.AsString( "BehaviourEvasive"	), false );
+				Brain.SetBehaviour( BrainState.NORMAL,		m_SectionRef.AsString( "BehaviourNormal"	), true  );
+				Brain.SetBehaviour( BrainState.ALARMED,		m_SectionRef.AsString( "BehaviourAlarmed"	), false );
+				Brain.SetBehaviour( BrainState.SEEKER,		m_SectionRef.AsString( "BehaviourSeeker"	), false );
+				Brain.SetBehaviour( BrainState.ATTACKER,	m_SectionRef.AsString( "BehaviourAttacker"	), false );
+
+				ChangeState( BrainState.NORMAL );
+			}
 		}
 	}
 

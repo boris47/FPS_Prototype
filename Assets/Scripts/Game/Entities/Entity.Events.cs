@@ -23,8 +23,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void		OnEnable()
 	{
-		Brain_SetActive( true );
-
 		// Events registration
 		{
 			GameManager.StreamEvents.OnSave				+= OnSave;
@@ -33,38 +31,20 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 			GameManager.UpdateEvents.OnThink			+= OnThink;
 			GameManager.UpdateEvents.OnPhysicFrame		+= OnPhysicFrame;
 			GameManager.UpdateEvents.OnFrame			+= OnFrame;
-
-			// Executed only for non player entities
+			
+			// Field Of View Callbacks
 			if ( ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
 			{
-				EnableBrain(); // Setaup for field of view and memory
+				string targetType = m_SectionRef.AsString( "DefaultTarget" );
+				ENTITY_TYPE type = ENTITY_TYPE.NONE;
+				Utils.Converters.StringToEnum( targetType, ref type );
+				m_BrainInstance.FieldOfView.TargetType = type;
 
-				// Field Of View Callbacks
-				{
-					string targetType = m_SectionRef.AsString( "DefaultTarget" );
-					ENTITY_TYPE type = ENTITY_TYPE.NONE;
-					Utils.Converters.StringToEnum( targetType, ref type );
-					Brain.FieldOfView.TargetType = type;
-					
-
-					m_FieldOfView.Setup( maxVisibleEntities : 10 );
-					m_FieldOfView.OnTargetAquired			= OnTargetAquired;
-					m_FieldOfView.OnTargetChanged			= OnTargetChanged;
-					m_FieldOfView.OnTargetLost				= OnTargetLost;
-				}
-
-				// AI BEHAVIOURS
-				{	
-					Brain.SetBehaviour( BrainState.EVASIVE,		m_SectionRef.AsString( "BehaviourEvasive"	), false );
-					Brain.SetBehaviour( BrainState.NORMAL,		m_SectionRef.AsString( "BehaviourNormal"	), true  );
-					Brain.SetBehaviour( BrainState.ALARMED,		m_SectionRef.AsString( "BehaviourAlarmed"	), false );
-					Brain.SetBehaviour( BrainState.SEEKER,		m_SectionRef.AsString( "BehaviourSeeker"	), false );
-					Brain.SetBehaviour( BrainState.ATTACKER,	m_SectionRef.AsString( "BehaviourAttacker"	), false );
-
-					ChangeState( BrainState.NORMAL );
-				}
-			}
-			
+				m_FieldOfView.Setup( maxVisibleEntities : 10 );
+				m_FieldOfView.OnTargetAquired			= OnTargetAquired;
+				m_FieldOfView.OnTargetChanged			= OnTargetChanged;
+				m_FieldOfView.OnTargetLost				= OnTargetLost;
+			}		
 		}
 		
 	}
@@ -87,7 +67,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 			if ( ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
 			{
-				DisableBrain();
+				Destroy_Brain();
 
 				m_FieldOfView.OnTargetAquired			= null;
 				m_FieldOfView.OnTargetChanged			= null;
@@ -144,11 +124,13 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		transform.position = streamUnit.Position;
 		transform.rotation = streamUnit.Rotation;
 
-		m_Behaviours.ForEach( ( AIBehaviour b ) => b.OnLoad( streamUnit ) );
+		if ( ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
+		{
+			m_Behaviours.ForEach( ( AIBehaviour b ) => b.OnLoad( streamUnit ) );
+		}
 
 		return streamUnit;
 	}
-	
 
 	//////////////////////////////////////////////////////////////////////////
 	public		virtual		void		OnDestinationReached( Vector3 Destination )

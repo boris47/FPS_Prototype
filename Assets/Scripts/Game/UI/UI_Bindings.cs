@@ -88,6 +88,8 @@ public class UI_Bindings : MonoBehaviour {
 			Destroy( t.gameObject );
 		}
 
+		Navigation noNavigationMode = new Navigation() { mode = Navigation.Mode.None };
+
 		// Fill the grid
 		System.Array.ForEach( m_InputMgr.Bindings, ( KeyCommandPair info ) =>
 		{
@@ -121,6 +123,7 @@ public class UI_Bindings : MonoBehaviour {
 			// Primary Key Choice Button
 			{
 				Button primaryKeyChoiceButton = commandRow.transform.GetChild( 2 ).GetComponent<Button>();
+				primaryKeyChoiceButton.navigation = noNavigationMode;
 				primaryKeyChoiceButton.onClick.AddListener( 
 					() => {
 						OnPrimaryKeyChoiceButtonClicked( info );
@@ -149,6 +152,7 @@ public class UI_Bindings : MonoBehaviour {
 			// Secondary Key Choice Button
 			{
 				Button secondaryKeyChoiceButton = commandRow.transform.GetChild( 4 ).GetComponent<Button>();
+				secondaryKeyChoiceButton.navigation = noNavigationMode;
 				secondaryKeyChoiceButton.onClick.AddListener( 
 					() => {
 						OnSecondaryKeyChoiceButtonClicked( info );

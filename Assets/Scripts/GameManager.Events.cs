@@ -263,6 +263,12 @@ public class MyKeyValuePair {
 	public	string	Key;
 	[SerializeField]
 	public	string	Value;
+
+	public	MyKeyValuePair( string Key, string Value )
+	{
+		this.Key	= Key;
+		this.Value	= Value;
+	}
 }
 
 [System.Serializable]
@@ -276,6 +282,7 @@ public class StreamUnit {
 
 	[SerializeField]
 	public	Vector3					Position		= Vector3.zero;
+
 	[SerializeField]
 	public	Quaternion				Rotation		= Quaternion.identity;
 
@@ -286,17 +293,24 @@ public class StreamUnit {
 	//////////////////////////////////////////////////////////////////////////
 	public	void		AddInternal( string key, object value )
 	{
-		MyKeyValuePair keyValue = new MyKeyValuePair();
-		keyValue.Key	= key;
-		keyValue.Value	= value.ToString();
+		MyKeyValuePair keyValue = new MyKeyValuePair( key, value.ToString() );
 		Internals.Add( keyValue );
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	public	void		SetInternal( string key, object value )
 	{
-		MyKeyValuePair keyValue = HasInternal( key ) ? Internals.Find( ( MyKeyValuePair kv ) => kv.Key == key ) : new MyKeyValuePair();
-		keyValue.Value = value.ToString();
+		MyKeyValuePair keyValue = null;
+		int index = Internals.FindIndex( ( MyKeyValuePair kv ) => kv.Key == key );
+		if ( index == -1 )
+		{
+			AddInternal( key, value );
+		}
+		else
+		{
+			keyValue = Internals[ index ];
+			keyValue.Value = value.ToString();
+		}
 	}
 
 

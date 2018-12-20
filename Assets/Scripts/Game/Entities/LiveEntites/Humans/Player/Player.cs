@@ -65,6 +65,8 @@ public partial class Player : Human {
 
 		m_EntityType = ENTITY_TYPE.ACTOR;
 
+		m_SectionName = this.GetType().FullName;
+
 		base.Awake();
 
 		m_PlayerNearAreaTrigger	= transform.Find( "PNAT" ).GetComponent<Collider>(); // Player Near Area Trigger
@@ -85,13 +87,6 @@ public partial class Player : Human {
 
 		// Player Data
 		{
-			GameManager.Configs.GetSection( m_SectionName = gameObject.name, ref m_SectionRef );
-			if ( m_SectionRef == null )
-			{
-				Destroy( gameObject );
-				return;
-			}
-
 			// Walking
 			m_SectionRef.AsMultiValue( "Walk",		1, 2, 3, ref m_WalkSpeed,	ref m_WalkJumpCoef,		ref m_WalkStamina );
 			
@@ -145,11 +140,6 @@ public partial class Player : Human {
 		m_GrabPoint.transform.Translate( 0f, 0f, m_UseDistance );
 	}
 
-	protected void asd()
-	{
-		Debug.Log("Funge");
-	}
-
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void	Start()
@@ -158,8 +148,6 @@ public partial class Player : Human {
 		{
 			CameraControl.Instance.SetViewPoint( m_HeadTransform );
 		}
-
-		GameManager.InputMgr.BindCall(eInputCommands.MOVE_FORWARD, asd);
 
 		IsGrounded = false;
 		StartCoroutine( DamageEffectCO() );

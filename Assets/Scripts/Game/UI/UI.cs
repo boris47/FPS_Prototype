@@ -43,8 +43,6 @@ public class UI : MonoBehaviour, IUI {
 
 	private			Slider			m_MusicSlider					= null;
 	private			Slider			m_SoundSlider					= null;
-	private			Slider			m_MusicSlider_InGame			= null;
-	private			Slider			m_SoundSlider_InGame			= null;
 
 
 	private			Image[]			m_MainMenuImages				= null;
@@ -89,6 +87,7 @@ public class UI : MonoBehaviour, IUI {
 		m_PauseMenu		= GetComponentInChildren<UI_PauseMenu>( includeInactive : true  );
 		m_Bindings		= GetComponentInChildren<UI_Bindings>( includeInactive: true );
 		m_Confirmation	= GetComponentInChildren<UI_Confirmation>( includeInactive: true );
+		m_Confirmation.Initialize();
 
 		// Find Transforms
 		m_Settings						= transform.Find( "Settings" );
@@ -103,12 +102,8 @@ public class UI : MonoBehaviour, IUI {
 		// Get Audio Sliders and Set Value
 		m_MusicSlider					= m_Settings_Audio.Find( "Slider_MusicVolume" ).GetComponent<Slider>();
 		m_SoundSlider					= m_Settings_Audio.Find( "Slider_SoundVolume" ).GetComponent<Slider>();
-		m_MusicSlider_InGame			= m_Settings_AudioInGame.Find( "Slider_MusicVolume" ).GetComponent<Slider>();
-		m_SoundSlider_InGame			= m_Settings_AudioInGame.Find( "Slider_SoundVolume" ).GetComponent<Slider>();
 		m_MusicSlider.value				= SoundManager.Instance.MusicVolume;
-		m_SoundSlider.value				= SoundManager.Instance.SoundVolume;
-		m_MusicSlider_InGame.value		= SoundManager.Instance.MusicVolume;
-		m_SoundSlider_InGame.value		= SoundManager.Instance.SoundVolume;
+		m_SoundSlider.value				= SoundManager.Instance.SoundVolume;;
 
 
 		m_MainMenuImages			= m_MainMenu.GetComponentsInChildren<Image>();
@@ -117,22 +112,6 @@ public class UI : MonoBehaviour, IUI {
 		m_SettingsAudioImages		= m_Settings_Audio.GetComponentsInChildren<Image>();
 */
 		m_CurrentActiveTrasform = m_InGame.gameObject.activeSelf ? m_InGame.transform : m_MainMenu.transform;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnMusicVolumeSet
-	public	void	OnMusicVolumeSet( float value )
-	{
-		SoundManager.Instance.MusicVolume = value;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnSoundsVolumeSet
-	public	void	OnSoundsVolumeSet( float value )
-	{
-		SoundManager.Instance.SoundVolume = value;
 	}
 
 
@@ -255,7 +234,7 @@ public class UI : MonoBehaviour, IUI {
 
 	//////////////////////////////////////////////////////////////////////////
 	// LoadSceneByIdx ( Coroutine )
-	private	IEnumerator	LoadSceneByIdxCO( int sceneIdx, bool loadSave )
+	private	IEnumerator	LoadSceneByIdxCO( int sceneIdx, bool bMustLoadSave, string SaveToLoad = "SaveFile.txt" )
 	{
 		// Set global state as ChangingScene state
 		GameManager.IsChangingScene = true;
@@ -278,21 +257,25 @@ public class UI : MonoBehaviour, IUI {
 		// Remove global state as ChangingScene state
 		GameManager.IsChangingScene = false;
 
+		bool bCanContinue = false;
+		
 		// Wait for script initialization
-		while ( GameManager.Instance == null
-			|| CameraControl.Instance == null
-			|| WeaponManager.Instance == null
-//			|| WeatherSystem.WeatherManager.Instance == null
-		)
+		while( bCanContinue == false )
+		{
+			bCanContinue = GameManager.Instance != null
+			&& CameraControl.Instance != null
+			&& WeaponManager.Instance != null;
+		//	WeatherSystem.WeatherManager.Instance == null
 			yield return null;
+		}
 
 		// if is loading process, complete load
-		if ( loadSave == true )
+		if ( bMustLoadSave == true )
 		{
 			GameManager.StreamEvents.Load();
 		}
 
-		// Enable in game UI
+		// Enable in-game UI
 		m_InGame.gameObject.SetActive( true );
 	}
 
@@ -301,12 +284,8 @@ public class UI : MonoBehaviour, IUI {
 	// DisableInteraction
 	private	void	DisableInteraction( Transform menu )
 	{
-		Button[] buttons = menu.GetComponentsInChildren<Button>( includeInactive: true );
-		for ( int i = 0; i < buttons.Length; i++ )
-		{
-			Button button = buttons[i];
-			button.interactable = false;
-		}
+		Selectable[] selectables = menu.GetComponentsInChildren<Selectable>( includeInactive: true );
+		System.Array.ForEach( selectables, ( s ) => s.interactable = false );
 	}
 
 
@@ -314,12 +293,8 @@ public class UI : MonoBehaviour, IUI {
 	// EnableInteraction
 	private	void	EnableInteraction( Transform menu )
 	{
-		Button[] buttons = menu.GetComponentsInChildren<Button>( includeInactive: true );
-		for ( int i = 0; i < buttons.Length; i++ )
-		{
-			Button button = buttons[i];
-			button.interactable = true;
-		}
+		Selectable[] selectables = menu.GetComponentsInChildren<Selectable>( includeInactive: true );
+		System.Array.ForEach( selectables, ( s ) => s.interactable = true );
 	}
 
 
