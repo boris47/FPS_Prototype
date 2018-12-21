@@ -171,8 +171,8 @@ public partial class GameManager : MonoBehaviour {
 
 		// Exit request
 		if ( m_QuitRequest == true )
-		{
-			if ( m_SaveLoadCO == null )
+		{			
+			if ( m_SaveLoadState != StreamingState.SAVING )
 			{
 				QuitInstanly();
 			}

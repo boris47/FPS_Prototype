@@ -224,18 +224,15 @@ public class UI : MonoBehaviour, IUI {
 
 		// Wait until main calsses are loaded
 		{
-			bool bCanContinue = false;
-		
-			// Wait for script initialization
-			while( bCanContinue == false )
+			System.Func<bool> mainClassesLoaded = delegate()
 			{
-				bCanContinue = GameManager.Instance != null
-				&& CameraControl.Instance != null
-				&& WeaponManager.Instance != null;
-			//	WeatherSystem.WeatherManager.Instance == null
-				yield return null;
-			}
+				return GameManager.Instance != null
+					&& CameraControl.Instance != null
+					&& WeaponManager.Instance != null;;
+			};
+			yield return new WaitUntil( mainClassesLoaded );
 		}
+		
 		// if is loading process, complete load
 		if ( bMustLoadSave == true )
 		{

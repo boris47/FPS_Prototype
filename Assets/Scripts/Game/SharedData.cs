@@ -108,6 +108,23 @@ public class TargetInfo {
 /////////////////////////////////////////
 /////////////////////////////////////////
 
+[System.Serializable]
+public class MyKeyValuePair {
+	[SerializeField]
+	public	string	Key;
+	[SerializeField]
+	public	string	Value;
+
+	public	MyKeyValuePair( string Key, string Value )
+	{
+		this.Key	= Key;
+		this.Value	= Value;
+	}
+}
+
+/////////////////////////////////////////
+/////////////////////////////////////////
+
 public struct EntityEvents {
 	public	delegate	void		HitWithBullet( IBullet bullet );
 	public	delegate	void		HitDetailsEvent( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false );

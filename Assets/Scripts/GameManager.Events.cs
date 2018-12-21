@@ -36,7 +36,7 @@ public struct GameEvents {
 //////////////////////////////////////////////////////////////////
 
 public enum StreamingState {
-	NONE, SAVING, LOADING
+	NONE, SAVING, SAVE_COMPLETE, LOADING, LOAD_COMPLETE
 }
 
 /// <summary> Clean interface of only GameManager Save&load Section </summary>
@@ -76,7 +76,9 @@ public partial class GameManager : StreamEvents {
 
 	// Events
 	private	event	GameEvents.StreamingEvent		m_OnSave;
+	private	event	GameEvents.StreamingEvent		m_OnSaveComplete;
 	private	event	GameEvents.StreamingEvent		m_OnLoad;
+	private	event	GameEvents.StreamingEvent		m_OnLoadComplete;
 	private			StreamingState					m_SaveLoadState	= StreamingState.NONE;
 
 #region INTERFACE
@@ -110,8 +112,8 @@ public partial class GameManager : StreamEvents {
 #endregion INTERFACE
 
 	// Vars
-	private     Coroutine				m_SaveLoadCO	= null;
-	private		Thread					m_SavingThread	= null;
+	private     Coroutine				m_SaveCO		= null;
+	private     Coroutine				m_LoadCO		= null;
 
 	private		Aes						m_Encryptor		= Aes.Create();
 	private		Rfc2898DeriveBytes		m_PDB			= new Rfc2898DeriveBytes( 
@@ -126,7 +128,7 @@ public partial class GameManager : StreamEvents {
 	{
 		// TODO: CHECK FOR AUTOMAIC SAVE
 
-		if ( m_SaveLoadCO != null )
+		if ( m_SaveLoadState == StreamingState.SAVING )
 		{
 			UnityEngine.Debug.Log( "Another save must finish write actions !!" );
 			return;
@@ -134,79 +136,76 @@ public partial class GameManager : StreamEvents {
 
 		m_SaveLoadState = StreamingState.SAVING;
 
-		StreamData streamData = new StreamData();
-
-		// call all save callbacks
-		m_OnSave( streamData );
-
-		// write data on disk
-		string toSave = JsonUtility.ToJson( streamData, prettyPrint: false );
-
-		print( "Saving" );
-		toSave = Encrypt( toSave );
-		m_SavingThread = new Thread( () => { File.WriteAllText( fileName, toSave ); });
-		m_SavingThread.Start();
-		m_SaveLoadCO = StartCoroutine( SaveLoadCO( m_SavingThread ) );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	/// <summary> Used to load data for all registered objects </summary>
-	void						StreamEvents.Load( string fileName )
-	{
-		if ( m_SaveLoadCO != null || fileName == null || fileName.Length == 0 )
-			return;
-		
-		m_SaveLoadState = StreamingState.LOADING;
-
-		InputManager.IsEnabled = false;
-
-		// load data from disk
-		string toLoad = File.ReadAllText( fileName );
-		StreamData streamData = JsonUtility.FromJson< StreamData >( Decrypt( toLoad ) );
-		if ( streamData == null )
-		{
-			Debug.LogError( "GameManager::Load:: Save \"" + fileName +"\" cannot be loaded" );
-			return;
-		}
-
-		// call all load callbacks
-		m_OnLoad( streamData );
-
-		InputManager.IsEnabled = true;
-
-		m_SaveLoadState = StreamingState.NONE;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private		IEnumerator		SaveLoadCO( Thread savingThread )
-	{
-		while( savingThread.ThreadState == ThreadState.Running )
-		{
-			yield return null;
-		}
-		print( "Saved" );
-		m_SavingThread = null;
-		m_SaveLoadCO = null;
-
-		
 		if ( PlayerPrefs.HasKey( "SaveSceneIdx" ) == false )
 		{
 			PlayerPrefs.DeleteKey( "SaveSceneIdx" );
 			PlayerPrefs.SetInt( "SaveSceneIdx", UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex );
 		}
 
-		m_SaveLoadState = StreamingState.NONE;
+		StreamData streamData = new StreamData();
+
+		// call all save callbacks
+		m_OnSave( streamData );
+
+		// Thread Body
+		System.Action body = delegate()
+		{
+			print( "Saving" );
+
+			// Serialize data
+			string toSave = JsonUtility.ToJson( streamData, prettyPrint: true );
+			Encrypt( ref toSave );
+			File.WriteAllText( fileName, toSave );
+		};
+
+		// Thread OnCompletion
+		System.Action onCompletion = delegate()
+		{
+			m_SaveLoadState = StreamingState.SAVE_COMPLETE;
+			print( "Saved" );
+		};
+		MultiThreading.CreateThread( body: body, bCanStart: true, onCompletion: onCompletion );
+	}
+	
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> Used to load data for all registered objects </summary>
+	void						StreamEvents.Load( string fileName )
+	{
+		if ( m_SaveLoadState == StreamingState.SAVING || m_SaveLoadState == StreamingState.LOADING || string.IsNullOrEmpty( fileName ) )
+			return;
+		
+		m_SaveLoadState = StreamingState.LOADING;
+
+		print( "Loading" );
+		InputManager.IsEnabled = false;
+
+		// Deserialize data
+		string toLoad = File.ReadAllText( fileName );
+		Decrypt( ref toLoad );
+		StreamData streamData = JsonUtility.FromJson< StreamData >( toLoad );
+
+		m_SaveLoadState = StreamingState.LOAD_COMPLETE;
+		InputManager.IsEnabled = true;
+
+		if ( streamData != null )
+		{
+			// call all load callbacks
+			m_OnLoad( streamData );
+			print( "Loaded" );
+		}
+		else
+		{
+			Debug.LogError( "GameManager::Load:: Save \"" + fileName + "\" cannot be loaded" );
+		}
+		
 	}
 
 	
 	// https://stackoverflow.com/questions/10168240/encrypting-decrypting-a-string-in-c-sharp
 	//////////////////////////////////////////////////////////////////////////
-	private		string			Encrypt( string clearText )
+	private		void			Encrypt( ref string clearText )
 	{
-		return clearText;
-
+		return ;
 		// TODO re-enable encryption
 #pragma warning disable CS0162 // È stato rilevato codice non raggiungibile
 		byte[] clearBytes = Encoding.Unicode.GetBytes( clearText );
@@ -224,16 +223,14 @@ public partial class GameManager : StreamEvents {
 			clearText = System.Convert.ToBase64String( stream.ToArray() );
 		}
 		stream.Dispose();
-		return clearText;
 #pragma warning restore CS0162 // È stato rilevato codice non raggiungibile
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private		string			Decrypt( string cipherText )
+	private		void			Decrypt( ref string cipherText )
 	{
-		return cipherText;
-
+		return;
 		// TODO re-enable decryption
 #pragma warning disable CS0162 // È stato rilevato codice non raggiungibile
 		cipherText = cipherText.Replace( " ", "+" );
@@ -252,24 +249,10 @@ public partial class GameManager : StreamEvents {
 			cipherText = Encoding.Unicode.GetString( stream.ToArray() );
 		}
 		stream.Dispose();
-		return cipherText;
 #pragma warning restore CS0162 // È stato rilevato codice non raggiungibile
 	}
 }
 
-[System.Serializable]
-public class MyKeyValuePair {
-	[SerializeField]
-	public	string	Key;
-	[SerializeField]
-	public	string	Value;
-
-	public	MyKeyValuePair( string Key, string Value )
-	{
-		this.Key	= Key;
-		this.Value	= Value;
-	}
-}
 
 [System.Serializable]
 public class StreamUnit {
@@ -452,7 +435,7 @@ public class StreamData {
 	/// <summary> To be used ONLY during the LOAD event, otherwise nothing happen </summary>
 	public	bool		GetUnit( GameObject gameObject, ref StreamUnit streamUnit )
 	{
-		if ( GameManager.StreamEvents.State != StreamingState.LOADING )
+		if ( GameManager.StreamEvents.State != StreamingState.LOAD_COMPLETE )
 			return false;
 
 		int GOInstanceID = gameObject.GetInstanceID();

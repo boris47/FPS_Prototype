@@ -1,12 +1,60 @@
 ﻿
+using System.Threading;
 using UnityEngine;
 using System.Collections.Generic;
 
 public static class Extensions {
 
 	/////////////////////////////////////////////////////////////////////////////
+	///////////////	C# ///////////////
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+	//		STRING
+
+	/// <summary> This method also trim inside the string </summary>
+	public	static	string			TrimInside( this string str, params char[] trimChars )
+	{
+		List<char> charsToSearch = new List<char>(1);
+		if ( trimChars != null && trimChars.Length > 0 )
+		{
+			charsToSearch.AddRange( trimChars );
+		}
+		else
+		{
+			charsToSearch.Add( ' ' );
+		}
+
+		for ( int i = str.Length - 1; i >= 0; i-- )
+		{
+			if ( charsToSearch.IndexOf( str[ i ] ) != -1 )
+			{
+				str = str.Remove( i, 1 );
+			}
+		}
+		return str;
+	}
+	
+	
+	/////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+	//		ARRAY
+
+	/// <summary> Allow to easly get a value from an array checking given index, default value is supported </summary>
+	public	static	T				GetByIndex<T>( this global::System.Array a, int idx, T Default = default(T) )
+	{
+		return ( idx > -1 && idx < a.Length ) ? (T)a.GetValue(idx) : Default;
+	}
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	///////////////	UNITY ///////////////
+
+	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
 	//		ANIMATOR
+
 	public	static	bool	GetClipFromAnimator( this Animator animator, string name, ref AnimationClip result )
 	{
 		if ( animator.runtimeAnimatorController == null )
@@ -38,27 +86,22 @@ public static class Extensions {
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
 	//		TRANSFORM
-	/// <summary>
-	/// Can be used to retrieve a component with more detailed research details
-	/// </summary>
+
+	/// <summary> Can be used to retrieve a component with more detailed research details </summary>
 	public	static	bool			SearchComponent<T>( this Transform transform, ref T Component, SearchContext Context, global::System.Predicate<T> Filter = null )
 	{
 		return Utils.Base.SearchComponent( transform.gameObject, ref Component, Context, Filter );
 	}
 
 
-	/// <summary>
-	/// Can be used to retrieve a component's array with more detailed research details
-	/// </summary>
+	/// <summary> Can be used to retrieve a component's array with more detailed research details </summary>
 	public	static	bool			SearchComponents<T>( this Transform transform, ref T[] Component, SearchContext Context, global::System.Predicate<T> Filter = null )
 	{
 		return Utils.Base.SearchComponents( transform.gameObject, ref Component, Context, Filter );
 	}
 
 
-	/// <summary>
-	/// Search for the given component only in children of given transform
-	/// </summary>
+	/// <summary> Search for the given component only in children of given transform </summary>
 	public	static	T[]				GetComponentOnlyInChildren<T>( this Transform transform, bool deepSearch = false ) where T : Component
 	{
 		List<T> list = new List<T>();
@@ -89,51 +132,9 @@ public static class Extensions {
 
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
-	//		STRING
-	/// <summary>
-	/// This method also trim inside the string
-	/// </summary>
-	public	static	string			TrimInside( this string str, params char[] trimChars )
-	{
-		List<char> charsToSearch = new List<char>(1);
-		if ( trimChars != null && trimChars.Length > 0 )
-		{
-			charsToSearch.AddRange( trimChars );
-		}
-		else
-		{
-			charsToSearch.Add( ' ' );
-		}
-
-		for ( int i = str.Length - 1; i >= 0; i-- )
-		{
-			if ( charsToSearch.IndexOf( str[ i ] ) != -1 )
-			{
-				str = str.Remove( i, 1 );
-			}
-		}
-		return str;
-	}
-	
-	
-	/////////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////
-	//		ARRAY
-	// <summary>
-	/// Allow to easly get a value from an array checking given index, default value is supported
-	/// </summary>
-	public	static	T				GetByIndex<T>( this global::System.Array a, int idx, T Default = default(T) )
-	{
-		return ( idx > -1 && idx < a.Length ) ? (T)a.GetValue(idx) : Default;
-	}
-
-
-	/////////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////
 	//		QUATERNION
-	/// <summary>
-	/// Returna vector which rotation is the given quaternion
-	/// </summary>
+
+	/// <summary> Returna vector which rotation is the given quaternion </summary>
 	public	static	Vector3			GetVector( this Quaternion q, Vector3 d )
 	{
 		// A quaternion doesn't have a direction by itself. It is a rotation.
@@ -148,9 +149,7 @@ public static class Extensions {
 */
 	}
 
-	/// <summary>
-	/// We need this because Quaternion.Slerp always uses the shortest arc.
-	/// </summary>
+	/// <summary> We need this because Quaternion.Slerp always uses the shortest arc </summary>
 	public	static	Quaternion		Slerp( this Quaternion p, Quaternion q, float t)
 	{
 		Quaternion ret;
@@ -185,9 +184,7 @@ public static class Extensions {
 		return ret;
 	}
 
-	/// <summary>
-	/// Return th lenght of a quaternion
-	/// </summary>
+	/// <summary> Return th lenght of a quaternion </summary>
 	public	static	float			GetLength( this Quaternion q )
 	{
 		return Mathf.Sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
