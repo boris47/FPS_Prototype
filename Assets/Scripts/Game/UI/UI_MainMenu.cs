@@ -1,50 +1,90 @@
 ﻿
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class UI_MainMenu : MonoBehaviour {
 
-	private		Button	m_NewGameResume			= null;
-	private		Button	m_ButtonResume			= null;
-	private		Button	m_SettingsResume		= null;
+	private	const string shaderPath = "VR/SpatialMapping/Wireframe";
+
+	private		Button	m_NewGameButton			= null;
+	private		Button	m_ResumeButton			= null;
+	private		Button	m_SettingsButtond		= null;
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake
 	private void Awake()
 	{
-		m_NewGameResume		= transform.Find( "Button_NewGame" ).GetComponent<Button>();
-		m_ButtonResume		= transform.Find( "Button_Resume" ).GetComponent<Button>();
-		m_SettingsResume	= transform.Find( "Button_Settings" ).GetComponent<Button>();
+		// NEW GAME BUTTON
+		if ( transform.SearchComponentInChild( "Button_NewGame", ref m_NewGameButton ) )
+		{
+			m_NewGameButton.onClick.AddListener( OnNewGame );
+		}
+
+		// RESUME BUTTON
+		if ( transform.SearchComponentInChild( "Button_Resume", ref m_ResumeButton ) )
+		{
+			m_ResumeButton.onClick.AddListener( OnResume );
+		}
+
+		// SETTINGS BUTTON
+		if ( transform.SearchComponentInChild( "Button_Settings", ref m_SettingsButtond ) )
+		{
+			m_SettingsButtond.onClick.AddListener( delegate()
+			{
+				UI.Instance.SwitchTo( UI.Instance.Settings.transform );
+			});
+		}
+
+		RenderSettings.skybox	= new Material( Shader.Find( shaderPath ) );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnEnable
-	private void OnEnable()
+	private IEnumerator Start()
 	{
 		if ( Player.Instance != null )
 			Destroy( Player.Instance.gameObject );
 
+		yield return null;
+
+		// UI interaction
+		UI.Instance.DisableInteraction( this.transform );
+		{
+			System.Func<bool> weatherIsReady = delegate()
+			{
+				return WeatherSystem.WeatherManager.Cycles != null && WeatherSystem.WeatherManager.Cycles.AreResLoaded == true;
+			};
+			yield return new WaitUntil( weatherIsReady );
+		}
+		UI.Instance.EnableInteraction( this.transform );
+
+		// Cursor
 		Cursor.visible		= true;
 		Cursor.lockState	= CursorLockMode.None;
+
+		// Game Manager
 		GameManager.InGame	= false;
-		if ( GameManager.Instance != null )
-			Destroy( GameManager.Instance.gameObject );
 
-		if ( WeatherSystem.WeatherManager.Instance != null )
-			Destroy( WeatherSystem.WeatherManager.Instance.Transform.gameObject );
-
+		// Destroying singleton
 		if ( CameraControl.Instance != null )
 			Destroy( CameraControl.Instance.Transform.gameObject );
 
 		if ( WeaponManager.Instance != null )
 			Destroy( WeaponManager.Instance.GameObject );
 
-		if ( EffectManager.Instance != null )
-			Destroy( EffectManager.Instance.gameObject );
+		if ( CameraControl.Instance != null )
+			Destroy( CameraControl.Instance.Transform.gameObject );
 
-		m_ButtonResume.interactable = PlayerPrefs.HasKey( "SaveSceneIdx" );
+		bool bHasSavedSceneIndex	= PlayerPrefs.HasKey( "SaveSceneIdx" );
+		bool bHasSaveFilePath		= PlayerPrefs.HasKey( "SaveFilePath" );
+		bool bSaveFileExists		= bHasSaveFilePath && System.IO.File.Exists( PlayerPrefs.GetString( "SaveFilePath" ) );
+		
+		// Resume button
+		m_ResumeButton.interactable = bHasSavedSceneIndex && bHasSaveFilePath && bSaveFileExists;
 	}
 
 
@@ -52,10 +92,28 @@ public class UI_MainMenu : MonoBehaviour {
 	// OnNewGame
 	public	void	OnNewGame()
 	{
-		if ( GameManager.Instance != null )
-			GameManager.Instance.enabled = true;
+		System.Action onNewGame = delegate()
+		{
+			PlayerPrefs.DeleteKey( "SaveSceneIdx" );
 
-		UI.Instance.LoadSceneByIdx( 1 );
+			CustomSceneManager.LoadSceneData loadData = new CustomSceneManager.LoadSceneData()
+			{
+				iSceneIdx			= 1,
+				sSaveToLoad			= "",
+				bMustLoadSave		= false,
+				pOnLoadCompleted	= delegate { UI.Instance.SwitchTo( UI.Instance.InGame.transform ); }
+			};
+			CustomSceneManager.LoadSceneAsync( loadData );
+		};
+
+		if ( PlayerPrefs.HasKey( "SaveSceneIdx" ) )
+		{
+			UI.Instance.Confirmation.Show( "Do you want to start another game?", onNewGame );
+		}
+		else
+		{
+			onNewGame();
+		}
 	}
 
 
@@ -63,14 +121,23 @@ public class UI_MainMenu : MonoBehaviour {
 	// OnNewGame
 	public	void	OnResume()
 	{
-		if ( PlayerPrefs.HasKey( "SaveSceneIdx" ) == true )
+
+		int saveSceneIdx	= PlayerPrefs.GetInt( "SaveSceneIdx" );
+		string saveFilePath	= PlayerPrefs.GetString( "SaveFilePath" );
+
+		CustomSceneManager.LoadSceneData loadData = new CustomSceneManager.LoadSceneData()
 		{
-			int sceneIdx = PlayerPrefs.GetInt( "SaveSceneIdx" );
-			UI.Instance.LoadSceneByIdx( sceneIdx, true );
-		}
+			iSceneIdx			= saveSceneIdx,
+			sSaveToLoad			= saveFilePath,
+			bMustLoadSave		= true,
+			pOnLoadCompleted	= delegate { UI.Instance.SwitchTo( UI.Instance.InGame.transform ); }
+		};
+		CustomSceneManager.LoadSceneAsync( loadData );
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
+	// OnLevelWasLoaded
 	private void OnLevelWasLoaded( int level )
 	{
 		UI.Instance.EffectFrame.color = Color.clear;

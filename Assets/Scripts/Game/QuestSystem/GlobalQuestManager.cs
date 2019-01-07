@@ -26,7 +26,7 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// OnLevelWasLoaded
-		private void OnLevelWasLoaded( int level )
+		private void OnLevelWasLoaded( int sceneIdx )
 		{
 			m_currentLocalQuestMnanager = FindObjectOfType<LocalQuestMnanager>();
 		}

@@ -89,11 +89,11 @@ public class InputManager {
 
 		private	InputDelegateHandler m_InputEvent = null;
 
-		private	static	InputDelegateHandler m_EmptyMethod = () => { };
+		private	static	InputDelegateHandler m_EmptyMethod = delegate { };
 
 		public	InputEventClass()
 		{
-			m_InputEvent = () => { };	// Ensure at last one call, this avoids null check every call
+			m_InputEvent = m_EmptyMethod;	// Ensure at last one call, this avoids null check every call
 		}
 
 		public	InputEventClass	Bind( InputDelegateHandler method )

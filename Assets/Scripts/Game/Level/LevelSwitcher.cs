@@ -2,11 +2,11 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+[RequireComponent( typeof( Collider ) )]
 public class LevelSwitcher : MonoBehaviour {
 
 	[SerializeField]
 	private		int					m_NextSceneIdx				= 0;
-
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -20,7 +20,13 @@ public class LevelSwitcher : MonoBehaviour {
 		if ( player == null )
 			return;
 
-		UI.Instance.LoadSceneByIdx( m_NextSceneIdx );
+		CustomSceneManager.LoadSceneData loadData = new CustomSceneManager.LoadSceneData()
+		{
+			iSceneIdx = m_NextSceneIdx,
+			sSaveToLoad = "",
+			bMustLoadSave = false
+		};
+		CustomSceneManager.LoadSceneSync( loadData );
 	}
 
 }

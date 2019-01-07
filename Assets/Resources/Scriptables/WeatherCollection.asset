@@ -11,9 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29a158ec80ce9224698daf818037ce8a, type: 3}
   m_Name: WeatherCollection
   m_EditorClassIdentifier: 
-  Cycles:
-  - {fileID: 11400000, guid: 87d01de88f4aeb34bb41187ea2712757, type: 2}
-  - {fileID: 11400000, guid: d9ba7b76c6ab2d74abdc1e940a999636, type: 2}
-  - {fileID: 11400000, guid: 9e29166077b597f489953efc3f9f7d42, type: 2}
-  - {fileID: 11400000, guid: 5ea01de1776868a448e26a74ec01f51a, type: 2}
-  - {fileID: 11400000, guid: 9a10207c51ef923458494010c4442672, type: 2}
+  CyclesPaths:
+  - Scriptables/Clear
+  - Scriptables/Rainy
+  LoadedCycles: []

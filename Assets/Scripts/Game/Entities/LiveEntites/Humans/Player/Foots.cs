@@ -49,6 +49,9 @@ public class Foots : MonoBehaviour, IFoots {
 		if ( m_CurrentCollider == null )
 			return;
 
+		if ( SurfaceManager.Instance == null )
+			return;
+
 		AudioClip footstepClip = SurfaceManager.Instance.GetFootstep( ref m_CurrentCollider, transform.position );
 		if ( footstepClip == null )
 			return;

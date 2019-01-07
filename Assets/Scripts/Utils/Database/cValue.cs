@@ -20,12 +20,25 @@ namespace Database {
 
 		public	cValue( System.Type type )
 		{
-			m_Value = null;
+
+			if ( type == typeof( bool ) )
+				m_Value = false;
+
+			if ( type == typeof( int ) )
+				m_Value = 0;
+
+			if ( type == typeof( float ) )
+				m_Value = 0.0f;
+
+			if ( type == typeof( string ) )
+				m_Value = "";
+
+//			m_Value = null;
 
 			// In case of a value type use Activator.CreateInstance and it should work fine
-			if ( type.IsValueType )
+//			if ( type.IsValueType )
 			{
-				m_Value = System.Activator.CreateInstance( type );
+//				m_Value = System.Activator.CreateInstance( type );
 			}
 			m_Type = type;
 		}
@@ -53,6 +66,11 @@ namespace Database {
 				result = default( T );
 			}
 			return result;
+		}
+
+		public	new 	System.Type	GetType()
+		{
+			return m_Type;
 		}
 
 		///////////////////////////////////////////////////////////////////////////////

@@ -211,7 +211,7 @@ namespace Database {
 			}
 			else
 			{
-				Out = Color.clear;
+				Out = Default;
 			}
 			return result;
 		}

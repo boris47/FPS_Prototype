@@ -100,6 +100,19 @@ public static class Extensions {
 		return Utils.Base.SearchComponents( transform.gameObject, ref Component, Context, Filter );
 	}
 
+	/// <summary> Search for a specific component at specific child, if found, return operation result </summary>
+	public	static	bool			SearchComponentInChild<T>( this Transform t, string childName, ref T Component)
+	{
+		if ( t.childCount == 0 )
+			return false;
+
+		Transform child = t.Find( childName );
+		if ( child == null )
+			return false;
+
+		Component = child.GetComponent<T>();
+		return Component != null;
+	} 
 
 	/// <summary> Search for the given component only in children of given transform </summary>
 	public	static	T[]				GetComponentOnlyInChildren<T>( this Transform transform, bool deepSearch = false ) where T : Component
@@ -129,6 +142,16 @@ public static class Extensions {
 		return list.ToArray();
 	}
 
+	/// <summary> Look for given component, if not found add it, return component reference  </summary>
+	public	static	T				GetOrAddIfNotFound<T>( this Transform t ) where T : Component
+	{
+		T result = null;
+		if ( ( result = t.GetComponent<T>() ) == null )
+		{
+			result = t.gameObject.AddComponent<T>();
+		}
+		return result;
+	}
 
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////

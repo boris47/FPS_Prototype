@@ -82,12 +82,4 @@ public class EffectManager : MonoBehaviour {
 		( m_ExplosionSource as ICustomAudioSource ).Play();
 	}
 
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnDestroy
-	private void OnDestroy()
-	{
-		Instance = null;
-	}
-
 }

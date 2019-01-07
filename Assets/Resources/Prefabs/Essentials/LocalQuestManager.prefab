@@ -378,8 +378,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
     m_TypeName: GameEvent, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_TaskObjectives:
-  - {fileID: 0}
+  m_TaskObjectives: []
 --- !u!114 &114330855017753294
 MonoBehaviour:
   m_ObjectHideFlags: 1

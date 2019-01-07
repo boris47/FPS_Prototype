@@ -9,16 +9,56 @@ public interface ISoundManager {
 	float				MusicVolume				{ get; set; }
 	float				SoundVolume				{ get; set; }
 	float				Pitch					{ get; set; }
+
+	void				OnSceneLoaded			();
 }
 
 
 public class SoundManager : MonoBehaviour, ISoundManager {
 
-	public	static				ISoundManager			Instance			= null;
+	// STATIC
+	private	static	ISoundManager						m_Instance				= null;
+	public	static	ISoundManager						Instance
+	{
+		get { return m_Instance; }
+	}
 
-	public	static	event		OnValueChange			OnMusicVolumeChange	= null;
-	public	static	event		OnValueChange			OnSoundVolumeChange	= null;
-	public	static	event		OnValueChange			OnPitchChange		= null;
+	private	static	event		OnValueChange			m_OnMusicVolumeChange	= delegate { };
+	private	static	event		OnValueChange			m_OnSoundVolumeChange	= delegate { };
+	private	static	event		OnValueChange			m_OnPitchChange			= delegate { };
+
+	public	static	event		OnValueChange			OnMusicVolumeChange
+	{
+		add { if ( value != null )
+			m_OnMusicVolumeChange += value;
+		}
+
+		remove { if ( value != null )
+			m_OnMusicVolumeChange -= value;
+		}
+	}
+
+	public	static	event		OnValueChange			OnSoundVolumeChange
+	{
+		add { if ( value != null )
+			m_OnSoundVolumeChange += value;
+		}
+
+		remove { if ( value != null )
+			m_OnSoundVolumeChange -= value;
+		}
+	}
+
+	public	static	event		OnValueChange			OnPitchChange
+	{
+		add { if ( value != null )
+			m_OnPitchChange += value;
+		}
+
+		remove { if ( value != null )
+			m_OnPitchChange -= value;
+		}
+	}
 
 	// EDITOR ONLY
 	[SerializeField, ReadOnly]
@@ -35,7 +75,6 @@ public class SoundManager : MonoBehaviour, ISoundManager {
 		get { return m_MusicVolume; }
 		set
 		{
-			m_MusicVolume = value;
 			UpdateMusicVolume( value );
 		}
 	}
@@ -45,7 +84,6 @@ public class SoundManager : MonoBehaviour, ISoundManager {
 		get { return m_SoundVolume; }
 		set
 		{
-			m_SoundVolume = value;
 			UpdateSoundVolume( value );
 		}
 	}
@@ -55,7 +93,6 @@ public class SoundManager : MonoBehaviour, ISoundManager {
 		get { return m_Pitch; }
 		set
 		{
-			m_Pitch = value;
 			UpdatePitch( value );
 		}
 	}
@@ -65,41 +102,30 @@ public class SoundManager : MonoBehaviour, ISoundManager {
 	// Awake
 	private void Awake()
 	{
-		// SINGLETON
-		if ( Instance != null )
+		// Singleton
+		if ( m_Instance != null )
 		{
-//			print( "SoundEffectManager: Object destroyied" );
-			OnMusicVolumeChange	= null;
-			OnSoundVolumeChange	= null;	
-			OnPitchChange		= null;
+#if UNITY_EDITOR
+			if ( UnityEditor.EditorApplication.isPlaying == true )
+				DestroyImmediate( gameObject );
+			else
+				Destroy( gameObject );
+#else
 			Destroy( gameObject );
-//			gameObject.SetActive( false );
+#endif
 			return;
 		}
-		Instance = this as ISoundManager;
+		m_OnMusicVolumeChange	= delegate { };
+		m_OnSoundVolumeChange	= delegate { };	
+		m_OnPitchChange			= delegate { };
+		m_Instance = this as ISoundManager;
 
-		if ( PlayerPrefs.HasKey( "MusicVolume" ) )
-		{
-			m_MusicVolume = PlayerPrefs.GetFloat( "MusicVolume" );
-		}
-
-		if ( PlayerPrefs.HasKey( "SoundVolume" ) )
-		{
-			m_SoundVolume = PlayerPrefs.GetFloat( "SoundVolume" );
-		}
-
-
-		if ( GameManager.InEditor == true )
-		{
-			if ( UnityEditor.EditorApplication.isPlaying == true )
+#if UNITY_EDITOR
+		if ( UnityEditor.EditorApplication.isPlaying == true )
 				DontDestroyOnLoad( this );
-		}
-		else
-		{
-#pragma warning disable CS0162 // È stato rilevato codice non raggiungibile
-			DontDestroyOnLoad( this );
-#pragma warning restore CS0162 // È stato rilevato codice non raggiungibile
-		}
+#else
+		DontDestroyOnLoad( this );
+#endif
 	}
 
 
@@ -107,11 +133,9 @@ public class SoundManager : MonoBehaviour, ISoundManager {
 	// UpdateMusicVolume
 	private	void	UpdateMusicVolume( float value )
 	{
-		if ( OnMusicVolumeChange == null )
-			return;
-
 		m_MusicVolume = value;
-		OnMusicVolumeChange( value );
+
+		m_OnMusicVolumeChange( value );
 	}
 
 
@@ -119,11 +143,9 @@ public class SoundManager : MonoBehaviour, ISoundManager {
 	// UpdateSoundVolume
 	private	void	UpdateSoundVolume( float value )
 	{
-		if ( OnSoundVolumeChange == null )
-			return;
-
 		m_SoundVolume = value;
-		OnSoundVolumeChange( value );
+
+		m_OnSoundVolumeChange( value );
 	}
 
 
@@ -131,24 +153,19 @@ public class SoundManager : MonoBehaviour, ISoundManager {
 	// UpdatePitch
 	private	void	UpdatePitch( float value )
 	{
-		OnPitchChange( value );
+		m_Pitch = value;
+
+		m_OnPitchChange( value );
 	}
 
+	//
 
-	//////////////////////////////////////////////////////////////////////////
-	// SaveSettings
-	public	void	SaveSettings()
+	public void OnSceneLoaded()
 	{
-		PlayerPrefs.SetFloat( "MusicVolume", Instance.MusicVolume );
-		PlayerPrefs.SetFloat( "SoundVolume", Instance.SoundVolume );
-	}
+		m_OnMusicVolumeChange( m_MusicVolume );
+		m_OnSoundVolumeChange( m_SoundVolume );
 
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnDestroy
-	private void OnDestroy()
-	{
-		SaveSettings();
+		m_OnPitchChange( m_Pitch );
 	}
 
 }

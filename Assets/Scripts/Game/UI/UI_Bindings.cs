@@ -14,10 +14,6 @@ public class UI_Bindings : MonoBehaviour {
 
 	private		Transform			m_ScrollContent		= null;
 
-	// Wait For Button Press
-	private		Coroutine			m_WaitForKeyCO		= null;
-	private		bool				m_IsWaitingForKey	= false;
-
 	private		Transform			m_BlockPanel		= null;
 
 
@@ -54,7 +50,6 @@ public class UI_Bindings : MonoBehaviour {
 	private	IEnumerator	WaitForKeyCO( System.Action<KeyCode> OnKeyPressed )
 	{
 		KeyCode keyChosen	= KeyCode.None;
-		m_IsWaitingForKey = true;
 
 		m_BlockPanel.gameObject.SetActive( true );
 
@@ -71,10 +66,88 @@ public class UI_Bindings : MonoBehaviour {
 
 		m_BlockPanel.gameObject.SetActive( false );
 
-		m_IsWaitingForKey = false;
 		if ( OnKeyPressed != null )
 		{
 			OnKeyPressed(keyChosen);
+		}
+	}
+
+	private Navigation noNavigationMode = new Navigation() { mode = Navigation.Mode.None };
+	private	void CreateGridElement( KeyCommandPair info )
+	{
+		GameObject commandRow = Instantiate<GameObject>( m_UI_CommandRow );
+		{
+			commandRow.transform.SetParent( m_ScrollContent );
+			commandRow.transform.localScale  = Vector3.one;
+			commandRow.name = info.Command.ToString();
+		}
+
+		// Command Label
+		{
+			Text commandLabel = commandRow.transform.GetChild( 0 ).GetComponent<Text>();
+			commandLabel.text = info.Command.ToString();
+		}
+
+		// Primary KeyState Dropdown
+		{
+			Dropdown primaryKeyStateDropdown = commandRow.transform.GetChild( 1 ).GetComponent<Dropdown>();
+			primaryKeyStateDropdown.AddOptions( keyStateDropDownList );
+			primaryKeyStateDropdown.value = (int)info.PrimaryKeyState;
+			primaryKeyStateDropdown.onValueChanged.AddListener( 
+				delegate( int i )
+				{
+					OnKeyStateChanged( info, eKeys.PRIMARY, i );
+				}
+			);
+
+			Text label = primaryKeyStateDropdown.transform.GetChild(0).GetComponent<Text>();
+			label.text = info.PrimaryKeyState.ToString();
+		}
+
+		// Primary Key Choice Button
+		{
+			Button primaryKeyChoiceButton = commandRow.transform.GetChild( 2 ).GetComponent<Button>();
+			primaryKeyChoiceButton.navigation = noNavigationMode;
+			primaryKeyChoiceButton.onClick.AddListener( 
+				delegate() 
+				{
+					OnKeyChoiceButtonClicked( info, eKeys.PRIMARY );
+				}
+			);
+
+			Text label = primaryKeyChoiceButton.transform.GetChild(0).GetComponent<Text>();
+			label.text = info.GetKeyCode( eKeys.PRIMARY ).ToString();
+		}
+
+		// Secondary KeyState Dropdown
+		{
+			Dropdown secondaryKeyStateDropdown = commandRow.transform.GetChild( 3 ).GetComponent<Dropdown>();
+			secondaryKeyStateDropdown.AddOptions( keyStateDropDownList );
+			secondaryKeyStateDropdown.value = (int)info.SecondaryKeyState;
+			secondaryKeyStateDropdown.onValueChanged.AddListener( 
+				delegate( int i )
+				{
+					OnKeyStateChanged( info, eKeys.SECONDARY, i );
+				}
+			);
+
+			Text label = secondaryKeyStateDropdown.transform.GetChild(0).GetComponent<Text>();
+			label.text = info.SecondaryKeyState.ToString();
+		}
+
+		// Secondary Key Choice Button
+		{
+			Button secondaryKeyChoiceButton = commandRow.transform.GetChild( 4 ).GetComponent<Button>();
+			secondaryKeyChoiceButton.navigation = noNavigationMode;
+			secondaryKeyChoiceButton.onClick.AddListener( 
+				delegate()
+				{
+					OnKeyChoiceButtonClicked( info, eKeys.SECONDARY );
+				}
+			);
+
+			Text label = secondaryKeyChoiceButton.transform.GetChild(0).GetComponent<Text>();
+			label.text = info.GetKeyCode( eKeys.SECONDARY ).ToString();
 		}
 	}
 
@@ -82,132 +155,50 @@ public class UI_Bindings : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private	void	FillGrid()
 	{
-
+		// Clear the content of scroll view
 		foreach( Transform t in m_ScrollContent )
 		{
 			Destroy( t.gameObject );
 		}
 
-		Navigation noNavigationMode = new Navigation() { mode = Navigation.Mode.None };
-
 		// Fill the grid
-		System.Array.ForEach( m_InputMgr.Bindings, ( KeyCommandPair info ) =>
-		{
-			GameObject commandRow = Instantiate<GameObject>( m_UI_CommandRow );
-			{
-				commandRow.transform.SetParent( m_ScrollContent );
-				commandRow.name = info.Command.ToString();
-			}
-
-			// Command Label
-			{
-				Text commandLabel = commandRow.transform.GetChild( 0 ).GetComponent<Text>();
-				commandLabel.text = info.Command.ToString();
-			}
-
-			// Primary KeyState Dropdown
-			{
-				Dropdown primaryKeyStateDropdown = commandRow.transform.GetChild( 1 ).GetComponent<Dropdown>();
-				primaryKeyStateDropdown.AddOptions( keyStateDropDownList );
-				primaryKeyStateDropdown.value = (int)info.PrimaryKeyState;
-				primaryKeyStateDropdown.onValueChanged.AddListener( 
-					(int i) => {
-						OnPrimaryKeyStateChanged( info, i );
-					}
-				);
-
-				Text label = primaryKeyStateDropdown.transform.GetChild(0).GetComponent<Text>();
-				label.text = info.PrimaryKeyState.ToString();
-			}
-
-			// Primary Key Choice Button
-			{
-				Button primaryKeyChoiceButton = commandRow.transform.GetChild( 2 ).GetComponent<Button>();
-				primaryKeyChoiceButton.navigation = noNavigationMode;
-				primaryKeyChoiceButton.onClick.AddListener( 
-					() => {
-						OnPrimaryKeyChoiceButtonClicked( info );
-					}
-				);
-
-				Text label = primaryKeyChoiceButton.transform.GetChild(0).GetComponent<Text>();
-				label.text = info.GetKeyCode( eKeys.PRIMARY ).ToString();
-			}
-
-			// Secondary KeyState Dropdown
-			{
-				Dropdown secondaryKeyStateDropdown = commandRow.transform.GetChild( 3 ).GetComponent<Dropdown>();
-				secondaryKeyStateDropdown.AddOptions( keyStateDropDownList );
-				secondaryKeyStateDropdown.value = (int)info.SecondaryKeyState;
-				secondaryKeyStateDropdown.onValueChanged.AddListener( 
-					(int i) => {
-						OnSecondaryKeyStateChanged( info, i );
-					}
-				);
-
-				Text label = secondaryKeyStateDropdown.transform.GetChild(0).GetComponent<Text>();
-				label.text = info.SecondaryKeyState.ToString();
-			}
-
-			// Secondary Key Choice Button
-			{
-				Button secondaryKeyChoiceButton = commandRow.transform.GetChild( 4 ).GetComponent<Button>();
-				secondaryKeyChoiceButton.navigation = noNavigationMode;
-				secondaryKeyChoiceButton.onClick.AddListener( 
-					() => {
-						OnSecondaryKeyChoiceButtonClicked( info );
-					}
-				);
-
-				Text label = secondaryKeyChoiceButton.transform.GetChild(0).GetComponent<Text>();
-				label.text = info.GetKeyCode( eKeys.SECONDARY ).ToString();
-			}
-			
-		} );
+		System.Array.ForEach( m_InputMgr.Bindings, CreateGridElement );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private	void	OnPrimaryKeyStateChanged( KeyCommandPair info, int newValue )
+	private	void	OnKeyStateChanged( KeyCommandPair info, eKeys Key, int newValue )
 	{
 		eKeyState newKeyState = ( eKeyState ) newValue;
+
+		// skip for identical assignment
+		if ( newKeyState == info.GetKeyState( Key ) )
+			return;
+
 		{
-			m_InputMgr.AssignNewKeyState( eKeys.PRIMARY, newKeyState, info.Command );
+			m_InputMgr.AssignNewKeyState( Key, newKeyState, info.Command );
 
 			if ( newKeyState == eKeyState.SCROLL_DOWN || newKeyState == eKeyState.SCROLL_UP )
 			{
-				info.Assign( eKeys.PRIMARY, null, KeyCode.None );
+				info.Assign( Key, null, KeyCode.None );
 			}
 		}
 		FillGrid();
 	}
-
 	
 	//////////////////////////////////////////////////////////////////////////
-	private	void	OnSecondaryKeyStateChanged( KeyCommandPair info, int newValue )
-	{
-		eKeyState newKeyState = ( eKeyState ) newValue;
-		{
-			m_InputMgr.AssignNewKeyState( eKeys.SECONDARY, newKeyState, info.Command );
-
-			if ( newKeyState == eKeyState.SCROLL_DOWN || newKeyState == eKeyState.SCROLL_UP )
-			{
-				info.Assign( eKeys.SECONDARY, null, KeyCode.None );
-			}
-		}
-		FillGrid();
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private	void	OnPrimaryKeyChoiceButtonClicked( KeyCommandPair info )
+	private	void	OnKeyChoiceButtonClicked( KeyCommandPair info, eKeys Key )
 	{
 		// Create callback for key assigning
 		System.Action<KeyCode> onKeyPressed = delegate( KeyCode keyCode )
 		{
-			if ( m_InputMgr.CanNewKeyCodeBeAssigned( eKeys.PRIMARY, keyCode, info.Command ) )
+			// skip for identical assignment
+			if ( keyCode == info.GetKeyCode( Key ) )
+				return;
+
+			if ( m_InputMgr.CanNewKeyCodeBeAssigned( Key, keyCode, info.Command ) )
 			{
-				if ( m_InputMgr.AssignNewKeyCode( eKeys.PRIMARY, keyCode, info.Command, false ) )
+				if ( m_InputMgr.AssignNewKeyCode( Key, keyCode, info.Command, false ) )
 				{
 					m_InputMgr.SaveBindings();
 				}
@@ -216,7 +207,7 @@ public class UI_Bindings : MonoBehaviour {
 			{
 				System.Action onConfirm = delegate()
 				{
-					if ( m_InputMgr.AssignNewKeyCode( eKeys.PRIMARY, keyCode, info.Command, true ) )
+					if ( m_InputMgr.AssignNewKeyCode( Key, keyCode, info.Command, true ) )
 					{
 						m_InputMgr.SaveBindings();
 					}
@@ -227,38 +218,8 @@ public class UI_Bindings : MonoBehaviour {
 				UI.Instance.Confirmation.Show( "Confirm key substitution?", OnConfirm: onConfirm, OnCancel: null );
 			}
 		};
-		StartCoroutine( WaitForKeyCO( onKeyPressed ) );
-	}
 
-	
-	//////////////////////////////////////////////////////////////////////////
-	private	void	OnSecondaryKeyChoiceButtonClicked( KeyCommandPair info )
-	{
-		// Create callback for key assigning
-		System.Action<KeyCode> onKeyPressed = delegate( KeyCode keyCode )
-		{
-			if ( m_InputMgr.CanNewKeyCodeBeAssigned( eKeys.SECONDARY, keyCode, info.Command ) )
-			{
-				if ( m_InputMgr.AssignNewKeyCode( eKeys.SECONDARY, keyCode, info.Command, false ) )
-				{
-					m_InputMgr.SaveBindings();
-				}
-			}
-			else
-			{
-				System.Action onConfirm = delegate()
-				{
-					if ( m_InputMgr.AssignNewKeyCode( eKeys.SECONDARY, keyCode, info.Command, true ) )
-					{
-						m_InputMgr.SaveBindings();
-					}
-
-					FillGrid();
-				};
-
-				UI.Instance.Confirmation.Show( "Confirm key substitution?", OnConfirm: onConfirm, OnCancel: null );
-			}
-		};
+		StartCoroutine( WaitForKeyCO( onKeyPressed ));
 	}
 
 

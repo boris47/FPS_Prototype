@@ -10,14 +10,14 @@ public	static	class	MultiThreading {
 		if ( body == null )
 			return null;
 
-		ThreadStart starter = delegate()
+		ThreadStart starter = delegate
 		{
 			body();
 		};
 
 		if ( onCompletion != null )
 		{
-			starter += delegate()
+			starter += delegate
 			{
 				onCompletion();
 			};

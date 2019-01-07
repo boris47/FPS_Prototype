@@ -28,6 +28,47 @@ namespace Utils {
 
 	public static class Base {
 
+		public	static	bool		GetTemplateSingle<T>( ref T Output, bool bSpawnIfNecessary = false ) where T : Component
+		{
+			T[] results = Object.FindObjectsOfType<T>();
+			if ( results.Length == 0 )
+			{
+				if ( bSpawnIfNecessary == true )
+				{
+					Output = new GameObject( typeof(T).FullName ).AddComponent<T>();
+					return true; 
+				}
+				else
+				{
+					const string msg = "WeatherManager not found!";
+#if UNITY_EDITOR
+					UnityEditor.EditorUtility.DisplayDialog( "Warning!", msg, "OK" );
+#endif
+					Debug.Log( msg );
+					return false;
+				}
+			}
+
+			if ( results.Length > 1 )
+			{
+				string msg = "Multiple components found:\n";
+				foreach ( var a in results )
+				{
+					msg += "Root: " + a.transform.root.name + "\n";
+				}
+				msg += "\nIn order to work only one component must live";
+
+#if UNITY_EDITOR
+				UnityEditor.EditorUtility.DisplayDialog( "Warning!", msg, "OK" );
+#endif
+				Debug.Log( msg );
+				return false;
+			}
+
+			Output = results[0];
+			return true;
+		}
+
 		public	static	int		LayersAllButOne( int all, int one )
 		{
 			// This would creates a layer only with the one given layer

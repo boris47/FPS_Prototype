@@ -45,8 +45,14 @@ public interface StreamEvents {
 	/// <summary> Events called when game is saving </summary>
 		event		GameEvents.StreamingEvent		OnSave;
 
+	/// <summary> Events called when game has saved </summary>
+		event		GameEvents.StreamingEvent		OnSaveComplete;
+
 	/// <summary> Events called when game is loading </summary>
 		event		GameEvents.StreamingEvent		OnLoad;
+
+	/// <summary> Events called when game has loaded </summary>
+		event		GameEvents.StreamingEvent		OnLoadComplete;
 
 	/// <summary> Save current play </summary>
 					void									Save	( string fileName = "SaveFile.txt", bool isAutomaic = false );
@@ -75,10 +81,10 @@ public partial class GameManager : StreamEvents {
 	private	static	StreamEvents		m_StreamEvents	= null;
 
 	// Events
-	private	event	GameEvents.StreamingEvent		m_OnSave;
-	private	event	GameEvents.StreamingEvent		m_OnSaveComplete;
-	private	event	GameEvents.StreamingEvent		m_OnLoad;
-	private	event	GameEvents.StreamingEvent		m_OnLoadComplete;
+	private	event	GameEvents.StreamingEvent		m_OnSave			= delegate ( StreamData streamData ) { return null; };
+	private	event	GameEvents.StreamingEvent		m_OnSaveComplete	= delegate ( StreamData streamData ) { return null; };
+	private	event	GameEvents.StreamingEvent		m_OnLoad			= delegate ( StreamData streamData ) { return null; };
+	private	event	GameEvents.StreamingEvent		m_OnLoadComplete	= delegate ( StreamData streamData ) { return null; };
 	private			StreamingState					m_SaveLoadState	= StreamingState.NONE;
 
 #region INTERFACE
@@ -102,19 +108,31 @@ public partial class GameManager : StreamEvents {
 		remove	{ if ( value != null )	m_OnSave -= value; }
 	}
 
+	/// <summary> Events called when game is saving </summary>
+	event GameEvents.StreamingEvent StreamEvents.OnSaveComplete
+	{
+		add		{ if ( value != null )	m_OnSaveComplete += value; }
+		remove	{ if ( value != null )	m_OnSaveComplete -= value; }
+	}
+
 	/// <summary> Events called when game is loading </summary>
 	event GameEvents.StreamingEvent StreamEvents.OnLoad
 	{
 		add		{ if ( value != null )	m_OnLoad += value; }
 		remove	{ if ( value != null )	m_OnLoad -= value; }
 	}
+
+	/// <summary> Events called when game is loading </summary>
+	event GameEvents.StreamingEvent StreamEvents.OnLoadComplete
+	{
+		add		{ if ( value != null )	m_OnLoadComplete += value; }
+		remove	{ if ( value != null )	m_OnLoadComplete -= value; }
+	}
+
 	// INTERFACE END
 #endregion INTERFACE
 
 	// Vars
-	private     Coroutine				m_SaveCO		= null;
-	private     Coroutine				m_LoadCO		= null;
-
 	private		Aes						m_Encryptor		= Aes.Create();
 	private		Rfc2898DeriveBytes		m_PDB			= new Rfc2898DeriveBytes( 
 		password:	ENCRIPTION_KEY,
@@ -128,6 +146,7 @@ public partial class GameManager : StreamEvents {
 	{
 		// TODO: CHECK FOR AUTOMAIC SAVE
 
+		// Conditions
 		if ( m_SaveLoadState == StreamingState.SAVING )
 		{
 			UnityEngine.Debug.Log( "Another save must finish write actions !!" );
@@ -136,11 +155,8 @@ public partial class GameManager : StreamEvents {
 
 		m_SaveLoadState = StreamingState.SAVING;
 
-		if ( PlayerPrefs.HasKey( "SaveSceneIdx" ) == false )
-		{
-			PlayerPrefs.DeleteKey( "SaveSceneIdx" );
-			PlayerPrefs.SetInt( "SaveSceneIdx", UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex );
-		}
+		PlayerPrefs.SetInt( "SaveSceneIdx", UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex );
+		PlayerPrefs.SetString( "SaveFilePath", fileName );
 
 		StreamData streamData = new StreamData();
 
@@ -150,10 +166,10 @@ public partial class GameManager : StreamEvents {
 		// Thread Body
 		System.Action body = delegate()
 		{
-			print( "Saving" );
+			print( "Saving..." );
 
 			// Serialize data
-			string toSave = JsonUtility.ToJson( streamData, prettyPrint: true );
+			string toSave = JsonUtility.ToJson( streamData, prettyPrint: false );
 			Encrypt( ref toSave );
 			File.WriteAllText( fileName, toSave );
 		};
@@ -162,7 +178,8 @@ public partial class GameManager : StreamEvents {
 		System.Action onCompletion = delegate()
 		{
 			m_SaveLoadState = StreamingState.SAVE_COMPLETE;
-			print( "Saved" );
+			m_OnSaveComplete( streamData );
+			print( "Saved!" );
 		};
 		MultiThreading.CreateThread( body: body, bCanStart: true, onCompletion: onCompletion );
 	}
@@ -171,33 +188,56 @@ public partial class GameManager : StreamEvents {
 	/// <summary> Used to load data for all registered objects </summary>
 	void						StreamEvents.Load( string fileName )
 	{
-		if ( m_SaveLoadState == StreamingState.SAVING || m_SaveLoadState == StreamingState.LOADING || string.IsNullOrEmpty( fileName ) )
+		// Conditions
+		if ( m_SaveLoadState == StreamingState.SAVING || m_SaveLoadState == StreamingState.LOADING )
+		{
+			UnityEngine.Debug.Log( "Cannot load while loading or saving !!" );
 			return;
-		
-		m_SaveLoadState = StreamingState.LOADING;
+		}
 
-		print( "Loading" );
+		if ( string.IsNullOrEmpty( fileName ) )
+		{
+			UnityEngine.Debug.Log( "Cannot load because invalid filename !!" );
+			return;
+		}
+		
+		// Body
+		m_SaveLoadState = StreamingState.LOADING;
 		InputManager.IsEnabled = false;
+		print( "Loading "  + Utils.System.RemoveExtension( fileName ) + "..." );
 
 		// Deserialize data
 		string toLoad = File.ReadAllText( fileName );
 		Decrypt( ref toLoad );
 		StreamData streamData = JsonUtility.FromJson< StreamData >( toLoad );
 
-		m_SaveLoadState = StreamingState.LOAD_COMPLETE;
-		InputManager.IsEnabled = true;
-
 		if ( streamData != null )
 		{
-			// call all load callbacks
-			m_OnLoad( streamData );
-			print( "Loaded" );
+			StartCoroutine( LoadCO( streamData ) );
 		}
 		else
 		{
+			m_SaveLoadState = StreamingState.LOAD_COMPLETE;
+			InputManager.IsEnabled = true;
 			Debug.LogError( "GameManager::Load:: Save \"" + fileName + "\" cannot be loaded" );
 		}
-		
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	private IEnumerator LoadCO( StreamData streamData )
+	{
+		yield return null;
+
+		// call all load callbacks
+		m_OnLoad( streamData );
+
+		yield return null;
+
+		m_OnLoadComplete( streamData );
+		print( "Loaded!" );
+
+		m_SaveLoadState = StreamingState.LOAD_COMPLETE;
+		InputManager.IsEnabled = true;
 	}
 
 	
@@ -205,7 +245,6 @@ public partial class GameManager : StreamEvents {
 	//////////////////////////////////////////////////////////////////////////
 	private		void			Encrypt( ref string clearText )
 	{
-		return ;
 		// TODO re-enable encryption
 #pragma warning disable CS0162 // È stato rilevato codice non raggiungibile
 		byte[] clearBytes = Encoding.Unicode.GetBytes( clearText );
@@ -230,7 +269,6 @@ public partial class GameManager : StreamEvents {
 	//////////////////////////////////////////////////////////////////////////
 	private		void			Decrypt( ref string cipherText )
 	{
-		return;
 		// TODO re-enable decryption
 #pragma warning disable CS0162 // È stato rilevato codice non raggiungibile
 		cipherText = cipherText.Replace( " ", "+" );
@@ -244,9 +282,9 @@ public partial class GameManager : StreamEvents {
 			{
 				crypter.Write( cipherBytes, 0, cipherBytes.Length );
 			}
-			crypter.Close();
-			crypter.Dispose();
 			cipherText = Encoding.Unicode.GetString( stream.ToArray() );
+		//	crypter.Close();
+		//	crypter.Dispose();
 		}
 		stream.Dispose();
 #pragma warning restore CS0162 // È stato rilevato codice non raggiungibile
@@ -435,8 +473,8 @@ public class StreamData {
 	/// <summary> To be used ONLY during the LOAD event, otherwise nothing happen </summary>
 	public	bool		GetUnit( GameObject gameObject, ref StreamUnit streamUnit )
 	{
-		if ( GameManager.StreamEvents.State != StreamingState.LOAD_COMPLETE )
-			return false;
+//		if ( GameManager.StreamEvents.State != StreamingState.LOAD_COMPLETE )
+//			return false;
 
 		int GOInstanceID = gameObject.GetInstanceID();
 		int index = m_Data.FindIndex( ( StreamUnit data ) => data.InstanceID == GOInstanceID );
@@ -467,7 +505,7 @@ public interface PauseEvents {
 	/// <summary> Events called when game is setting on pause </summary>
 		event		GameEvents.OnPauseSetEvent		OnPauseSet;
 
-					void								SetPauseState( bool bPauseState );
+					void							SetPauseState( bool bPauseState );
 }
 
 // PAUSE IMPLEMENTATION
@@ -480,7 +518,7 @@ public partial class GameManager : PauseEvents {
 	}
 
 	// Event
-	private static event	GameEvents.OnPauseSetEvent	m_OnPauseSet			= null;
+	private static event	GameEvents.OnPauseSetEvent	m_OnPauseSet			= delegate { };
 
 	/// <summary> Events called when game is setting on pause </summary>
 	event GameEvents.OnPauseSetEvent PauseEvents.OnPauseSet
@@ -511,6 +549,7 @@ public partial class GameManager : PauseEvents {
 		m_OnPauseSet( bPauseState );
 
 		m_IsPaused = bPauseState;
+		UI.Instance.SwitchTo( UI.Instance.InGame.transform );
 		UI.Instance.SetPauseMenuState( bPauseState );
 
 		Cursor.visible = bPauseState == true;
@@ -547,7 +586,7 @@ public interface UpdateEvents {
 		event		GameEvents.OnThinkEvent			OnThink;
 
 	/// <summary> TODO </summary>
-		event		GameEvents.OnPhysicFrameEvent		OnPhysicFrame;
+		event		GameEvents.OnPhysicFrameEvent	OnPhysicFrame;
 
 	/// <summary> TODO </summary>
 		event		GameEvents.OnFrameEvent			OnFrame;
@@ -562,9 +601,9 @@ public partial class GameManager : UpdateEvents {
 		get { return m_UpdateEvents; }
 	}
 
-	private static event	GameEvents.OnThinkEvent			m_OnThink				= null;
-	private static event	GameEvents.OnPhysicFrameEvent	m_OnPhysicFrame			= null;
-	private static event	GameEvents.OnFrameEvent			m_OnFrame				= null;
+	private static event	GameEvents.OnThinkEvent			m_OnThink				= delegate { };
+	private static event	GameEvents.OnPhysicFrameEvent	m_OnPhysicFrame			= delegate { };
+	private static event	GameEvents.OnFrameEvent			m_OnFrame				= delegate { };
 
 
 	event		GameEvents.OnThinkEvent			UpdateEvents.OnThink

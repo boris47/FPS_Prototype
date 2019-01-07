@@ -4,11 +4,14 @@ using System.Collections;
 namespace WeatherSystem {
 
 	[System.Serializable]
-	public class EnvDescriptor/*: ScriptableObject*/ {
+	public class EnvDescriptor : ScriptableObject {
+		
+		[SerializeField][ReadOnly]//[HideInInspector]
+		public	string					AssetPath			= string.Empty;
 
-		[SerializeField][HideInInspector]
+		[SerializeField][ReadOnly]//[HideInInspector]
 		public	string					Identifier			= "none";
-		[SerializeField]
+		[SerializeField][ReadOnly]
 		public	float					ExecTime			= 0.0f;
 
 		// Ambient Color
@@ -43,13 +46,38 @@ namespace WeatherSystem {
 		public bool						set					= false;
 
 
-		public	void	Copy ( EnvDescriptor other )
+		public	static	EnvDescriptor	Copy ( ref EnvDescriptor A, EnvDescriptor B, bool DeepCopy = false )
 		{
-			AmbientColor	= other.AmbientColor;
-			FogFactor		= other.FogFactor;
-			SkyColor		= other.SkyColor;
-			SunColor		= other.SunColor;
+			A.AmbientColor	= B.AmbientColor;
+			A.FogFactor		= B.FogFactor;
+			A.SkyColor		= B.SkyColor;
+			A.SunColor		= B.SunColor;
+
+			if ( DeepCopy )
+			{
+				A.Identifier		= B.Identifier;
+				A.ExecTime			= B.ExecTime;
+				A.AmbientEffects	= B.AmbientEffects;
+				A.RainIntensity		= B.RainIntensity;
+				A.SkyCubemap		= B.SkyCubemap;
+				A.SunRotation		= B.SunRotation;
+			}
+			return A;
 		}
 	}
 
+	[System.Serializable]
+	public struct EnvDescriptorMixer {
+
+		// Ambient Color
+		public	Color					AmbientColor;
+		public	float					FogFactor;
+		public	float					RainIntensity;
+
+		// Sky
+		public	Color					SkyColor;
+		
+		public	Color					SunColor;
+		public	Vector3					SunRotation;
+	};
 }

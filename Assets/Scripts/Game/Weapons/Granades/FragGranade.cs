@@ -17,7 +17,7 @@ public class FragGranade : GranadeBase {
 		// LOAD CONFIGURATION
 		{
 			Database.Section section = null;
-			GameManager.Configs.GetSection( "FragGranade", ref section );
+			GameManager.Configs.bGetSection( "FragGranade", ref section );
 
 			m_DamageMax					= section.AsFloat( "Damage",			m_DamageMax );
 			m_Range						= section.AsFloat( "Radius",			m_Range );

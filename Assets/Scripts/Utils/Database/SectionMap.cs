@@ -39,7 +39,8 @@ public class SectionMap {
 		}
 
 		Section bump = null;
-		string sSectionName = sLine.Substring( 1, sLine.IndexOf( "]", 0 ) - 1 );
+		int squareBracketIndex = sLine.IndexOf( "]", 0 );
+		string sSectionName = sLine.Substring( 1, squareBracketIndex - 1 );
 		if ( HasFileElement( sSectionName, ref bump ) )
 		{
 			Debug.LogError( "SectionMap::Section_Create:" + sFilePath + ":[" + iLine + "]: Section \"" + sSectionName + "\" already exists!" );
@@ -50,7 +51,7 @@ public class SectionMap {
 		pCurentSection = new Section( sSectionName );
 
 		// Get the name of mother section, if present
-		int iIndex = sLine.IndexOf( ":", 0 );
+		int iIndex = sLine.IndexOf( ":", squareBracketIndex );
 		if ( iIndex > 0 )
 		{
 			string[] mothers = sLine.Substring( iIndex + 1 ).Split( ',' );
@@ -63,7 +64,7 @@ public class SectionMap {
 			foreach ( string motherName in mothers )
 			{
 				Section motherSection = null;
-				if ( GetSection( motherName, ref motherSection ) )
+				if ( bGetSection( motherName, ref motherSection ) )
 				{
 					pCurentSection += motherSection;
 				} else
@@ -190,15 +191,19 @@ public class SectionMap {
 			{	
 				if ( sLine.IndexOf( ']' ) == -1 )
 				{
+#if UNITY_EDITOR
 					Debug.LogError( " SectionMap::LoadFile:Invalid Section definition at line |" + iLine + "| in file |" + sFilePath + "| " );
 					fs.Close();
+#endif
 					return false;
 				}
 
 				// Create a new section
 				if ( Section_Create( sLine.TrimInside(), sFilePath, iLine ) == false )
 				{
+#if UNITY_EDITOR
 					fs.Close();
+#endif
 					return false;
 				}
 				continue;
@@ -291,9 +296,9 @@ public class SectionMap {
 	//////////////////////////////////////////////////////////////////////////
 	// GetSection
 	// RETRIEVE A SECTION, IF EXISTS, RETURN IS BASED ON RESULT
-	public bool GetSection( string SecName, ref Section section )
+	public bool bGetSection( string SectionName, ref Section section )
 	{
-		return mSectionMap.TryGetValue( SecName, out section );
+		return mSectionMap.TryGetValue( SectionName, out section );
 	}
 
 

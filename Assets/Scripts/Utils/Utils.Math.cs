@@ -230,7 +230,7 @@ namespace Utils {
 			float determinant = b * b - 4f * a * c;
 
 			// First assignment: Determinant == 0; one intercept path, pretty much never happens
-			float result = result = Mathf.Max( -b / ( 2f * a ), 0f ); //don't shoot back in time
+			float result = Mathf.Max( -b / ( 2f * a ), 0f ); //don't shoot back in time
 
 			if ( determinant > 0f )
 			{	//	Determinant > 0; two intercept paths (most common)

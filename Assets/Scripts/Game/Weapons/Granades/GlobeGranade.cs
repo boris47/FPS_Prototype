@@ -24,7 +24,7 @@ public class GlobeGranade : GranadeBase {
 		// LOAD CONFIGURATION
 		{
 			Database.Section section = null;
-			GameManager.Configs.GetSection( "GlobeGranade", ref section );
+			GameManager.Configs.bGetSection( "GlobeGranade", ref section );
 
 			m_DamageMax					= section.AsFloat( "Damage",			m_DamageMax );
 			m_Range						= section.AsFloat( "Radius",			m_Range );

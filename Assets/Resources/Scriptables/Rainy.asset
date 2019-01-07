@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 886f455805ca8ed41a014c7982b8f483, type: 3}
+  m_Name: Rainy
+  m_EditorClassIdentifier: 
+  AssetPath: Assets/Resources/Scriptables/Rainy.asset
+  DescriptorsPaths:
+  - Scriptables/Descriptors/Rainy/00-00
+  - Scriptables/Descriptors/Rainy/01-00
+  - Scriptables/Descriptors/Rainy/02-00
+  - Scriptables/Descriptors/Rainy/03-00
+  - Scriptables/Descriptors/Rainy/04-00
+  - Scriptables/Descriptors/Rainy/05-00
+  - Scriptables/Descriptors/Rainy/06-00
+  - Scriptables/Descriptors/Rainy/07-00
+  - Scriptables/Descriptors/Rainy/08-00
+  - Scriptables/Descriptors/Rainy/09-00
+  - Scriptables/Descriptors/Rainy/10-00
+  - Scriptables/Descriptors/Rainy/11-00
+  - Scriptables/Descriptors/Rainy/12-00
+  - Scriptables/Descriptors/Rainy/13-00
+  - Scriptables/Descriptors/Rainy/14-00
+  - Scriptables/Descriptors/Rainy/15-00
+  - Scriptables/Descriptors/Rainy/16-00
+  - Scriptables/Descriptors/Rainy/17-00
+  - Scriptables/Descriptors/Rainy/18-00
+  - Scriptables/Descriptors/Rainy/19-00
+  - Scriptables/Descriptors/Rainy/20-00
+  - Scriptables/Descriptors/Rainy/21-00
+  - Scriptables/Descriptors/Rainy/22-00
+  - Scriptables/Descriptors/Rainy/23-00
+  LoadedDescriptors: []

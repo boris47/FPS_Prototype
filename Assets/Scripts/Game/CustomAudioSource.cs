@@ -5,21 +5,22 @@ using FMODUnity;
 
 public interface ICustomAudioSource {
 
-	Transform		Transform			{ get; }
+	Transform				Transform				{ get; }
 
-	AudioSource		AudioSource			{ get; }
-	float			Volume				{ get; set; }
-	float			Pitch				{ get; set; }
-	AudioClip		Clip				{ get; set; }
-	bool			IsFading			{ get; }
-	bool			IsPlaying			{ get; }
+	AudioSource				AudioSource				{ get; }
+	StudioEventEmitter		Emitter					{ get; }
+	float					Volume					{ get; set; }
+	float					Pitch					{ get; set; }
+	AudioClip				Clip					{ get; set; }
+	bool					IsFading				{ get; }
+	bool					IsPlaying				{ get; }
 
-	void			Play				();
-	void			Stop				();
-	void			Pause				();
-	void			Resume				();
-	void			FadeIn				( float time );
-	void			FadeOut				( float time );
+	void					Play					();
+	void					Stop					();
+	void					Pause					();
+	void					Resume					();
+	void					FadeIn					( float time );
+	void					FadeOut					( float time );
 
 }
 
@@ -51,13 +52,17 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 	private		bool				m_IsUnityAudioSource	= true;
 
 	// INTERFACE START
-			Transform		ICustomAudioSource.Transform			{ get { return transform; } }
-			AudioSource		ICustomAudioSource.AudioSource			{ get { return m_AudioSource; } }
-			float			ICustomAudioSource.Volume				{ get { return m_Volume; }			 set { m_Volume = value; this.UpdateInternal(); } }
-			float			ICustomAudioSource.Pitch				{ get { return m_Pitch; }			 set { m_Pitch = value;  this.UpdateInternal(); } }
-			AudioClip		ICustomAudioSource.Clip					{ get { return m_AudioSource.clip; } set { m_AudioSource.clip = value; } }
-			bool			ICustomAudioSource.IsFading				{ get { return m_IsFading; } }
-			bool			ICustomAudioSource.IsPlaying			{ get { return m_AudioSource.isPlaying; } }
+			Transform			ICustomAudioSource.Transform				{ get { return transform; } }
+			AudioSource			ICustomAudioSource.AudioSource				{ get { return m_AudioSource; } }
+			StudioEventEmitter	ICustomAudioSource.Emitter					{ get { return m_AudioEmitter; } }
+			float				ICustomAudioSource.Volume					{ get { return m_Volume; }			 set { m_Volume = value; this.UpdateInternal(); } }
+			float				ICustomAudioSource.Pitch					{ get { return m_Pitch; }			 set { m_Pitch = value;  this.UpdateInternal(); } }
+			AudioClip			ICustomAudioSource.Clip						{ get { return m_AudioSource.clip; } set { m_AudioSource.clip = value; } }
+			bool				ICustomAudioSource.IsFading					{ get { return m_IsFading; } }
+			bool				ICustomAudioSource.IsPlaying
+			{
+				get { return m_IsUnityAudioSource ? m_AudioSource.isPlaying : m_AudioEmitter.IsPlaying(); }
+			}
 	// INTERFACE END
 
 	
@@ -92,10 +97,9 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 		if ( GameManager.Instance != null )
 		{
 			SoundManager.OnPitchChange += OnPitchChange;
-			GameManager.PauseEvents.OnPauseSet += OnPauseSet;
+//			GameManager.PauseEvents.OnPauseSet += OnPauseSet;
 		}
 	}
-
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnVolumeChange
@@ -168,7 +172,7 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 			return;
 
 		float volume = m_InternalVolume * m_Volume;
-		float pitch = m_InternalPitch  * m_Pitch;
+		float pitch  = m_InternalPitch  * m_Pitch;
 
 		if ( m_IsUnityAudioSource == true )
 		{
@@ -265,8 +269,8 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 	// FadeCO ( Coroutine )
 	private	IEnumerator	FadeCO( float time, bool fadeIn )
 	{
-		float startMul = ( fadeIn == true ) ? 0f : 1f;
-		float endMul	 = ( fadeIn == true ) ? 1f : 0f;
+		float startMul	= ( fadeIn == true ) ? 0f : 1f;
+		float endMul	= ( fadeIn == true ) ? 1f : 0f;
 
 		float interpolant = 0f;
 		float currentTime = 0;

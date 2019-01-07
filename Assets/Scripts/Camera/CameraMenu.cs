@@ -19,7 +19,7 @@ public class CameraMenu : MonoBehaviour {
 //		m_Theta += Time.deltaTime * 0.5f;
 //		m_CameraComponent.fieldOfView = 80f + ( 20f * Mathf.Cos( m_Theta ) );
 
-		transform.Rotate( Vector3.right, Time.deltaTime );
+		transform.Rotate( Vector3.up, Time.deltaTime );
 	}
 
 }

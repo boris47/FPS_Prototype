@@ -31,14 +31,17 @@ namespace WeatherSystem {
 			m_Window.minSize = m_Window.maxSize = new Vector2( 300f, 470f );
 
 			m_Window.m_CurrentDescriptor = thisDescriptor;
-			WeatherManager.Internal.EditorDescriptorLinked = true;
+			WindowWeatherEditor.GetWMGR().INTERNAL_EditorDescriptorLinked = true;
 		}
+
+		
 
 		private const float BUTTON_WIDTH = 180f;
 		/////////////////////////////////////////////////////////////////////////////
 		// UNITY
 		private void OnGUI()
 		{
+			WindowWeatherEditor.GetWMGR().INTERNAL_EditorDescriptorLinked = true;
 			GUILayout.Label( "DESCRIPTOR " + m_CurrentDescriptor.Identifier );
 			GUILayout.Space( 10f );
 
@@ -138,7 +141,8 @@ namespace WeatherSystem {
 				}
 				if ( GUILayout.Button( "SET CURRENT" ) )
 				{
-					m_CurrentDescriptor.SunRotation = WeatherManager.Instance.Sun.transform.rotation.eulerAngles;
+					Vector3 current = WindowWeatherEditor.GetWMGR().INTERNAL_Sun.transform.rotation.eulerAngles;
+					m_CurrentDescriptor.SunRotation = current;
 				}
 				GUILayout.EndHorizontal();
 			}
@@ -159,7 +163,7 @@ namespace WeatherSystem {
 				else
 				{
 					Database.Section section = null;
-					reader.GetSection( m_CurrentDescriptor.Identifier + ":00", ref section );
+					reader.bGetSection( m_CurrentDescriptor.Identifier + ":00", ref section );
 					if ( section != null )
 					{
 						Utils.Converters.StringToColor( section.GetRawValue("ambient_color"),		ref m_CurrentDescriptor.AmbientColor	);
@@ -195,7 +199,7 @@ namespace WeatherSystem {
 			if ( m_SunRotationString.Length > 0 )
 				Utils.Converters.StringToVector( m_SunRotationString, ref m_CurrentDescriptor.SunRotation );
 
-			WeatherManager.Internal.EditorDescriptorLinked = false;
+			WindowWeatherEditor.GetWMGR().INTERNAL_EditorDescriptorLinked = false;
 		}
 
 	}

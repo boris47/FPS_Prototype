@@ -27,9 +27,7 @@ public class Blaster : Weapon
 	private		float							m_Charge					= 0f;
 	private		bool							m_HasCharged				= false;
 
-	private		float							m_BulletMaxDamage			= 0f;
-	private		float							m_BulletMinDamage			= 0f;
-	private	 float						   m_BulletEffectIntensity		= 0f;
+	private		float						   m_BulletEffectIntensity		= 0f;
 
 	protected override string OtherInfo
 	{
@@ -84,8 +82,6 @@ public class Blaster : Weapon
 					}
 				);
 				IBullet bullet = m_PoolBullets.GetComponent();
-				m_BulletMaxDamage = bullet.DamageMax;
-				m_BulletMinDamage = bullet.DamageMin;
 				Light bulletLight =	bullet.Effect as Light;
 				m_BulletEffectIntensity = bulletLight.intensity;
 			}

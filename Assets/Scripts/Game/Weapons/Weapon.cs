@@ -193,7 +193,7 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 		// LOAD CONFIGURATION
 		{
 			Database.Section section = null;
-			if ( GameManager.Configs.GetSection( m_SectionName, ref section ) )
+			if ( GameManager.Configs.bGetSection( m_SectionName, ref section ) )
 			{
 				m_MainDamage		= section.AsFloat( "Damage", m_MainDamage );
 				m_ZoomingTime		= section.AsFloat( "ZoomingTime", m_ZoomingTime );

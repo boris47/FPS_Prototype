@@ -163,7 +163,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		m_Interface			= this as IEntity;
 
 		// config file
-		if ( GameManager.Configs.GetSection( m_SectionName, ref m_SectionRef ) == false )
+		if ( GameManager.Configs.bGetSection( m_SectionName, ref m_SectionRef ) == false )
 		{
 			print( "Cannot find cfg section \""+ m_SectionName +"\" for entity " + name );
 			Destroy( gameObject );

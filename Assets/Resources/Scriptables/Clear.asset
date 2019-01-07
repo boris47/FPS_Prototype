@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 886f455805ca8ed41a014c7982b8f483, type: 3}
+  m_Name: Clear
+  m_EditorClassIdentifier: 
+  AssetPath: Assets/Resources/Scriptables/Clear.asset
+  DescriptorsPaths:
+  - Scriptables/Descriptors/Clear/00-00
+  - Scriptables/Descriptors/Clear/01-00
+  - Scriptables/Descriptors/Clear/02-00
+  - Scriptables/Descriptors/Clear/03-00
+  - Scriptables/Descriptors/Clear/04-00
+  - Scriptables/Descriptors/Clear/05-00
+  - Scriptables/Descriptors/Clear/06-00
+  - Scriptables/Descriptors/Clear/07-00
+  - Scriptables/Descriptors/Clear/08-00
+  - Scriptables/Descriptors/Clear/09-00
+  - Scriptables/Descriptors/Clear/10-00
+  - Scriptables/Descriptors/Clear/11-00
+  - Scriptables/Descriptors/Clear/12-00
+  - Scriptables/Descriptors/Clear/13-00
+  - Scriptables/Descriptors/Clear/14-00
+  - Scriptables/Descriptors/Clear/15-00
+  - Scriptables/Descriptors/Clear/16-00
+  - Scriptables/Descriptors/Clear/17-00
+  - Scriptables/Descriptors/Clear/18-00
+  - Scriptables/Descriptors/Clear/19-00
+  - Scriptables/Descriptors/Clear/20-00
+  - Scriptables/Descriptors/Clear/21-00
+  - Scriptables/Descriptors/Clear/22-00
+  - Scriptables/Descriptors/Clear/23-00
+  LoadedDescriptors: []

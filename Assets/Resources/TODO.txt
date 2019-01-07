@@ -30,6 +30,12 @@ AI Behiaviours
 ***	complete drone behiaviour
 ***	complete tower behiaviour
 
+	WEATHER MANAGER
+	- In editor, se non già caricati, caricare tutte le risorse instantaneamente
+	- in game caricare le risorse progressivamente
+	- Weather manager must load only the saved time, then, in async mode the others!
+
+
 ***	default empty behaviour
 ***	well done behaviour change
 	Memory introduction

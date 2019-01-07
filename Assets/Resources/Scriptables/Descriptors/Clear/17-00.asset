@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af7b80db5fb80454dba369dac91302de, type: 3}
+  m_Name: 17-00
+  m_EditorClassIdentifier: 
+  AssetPath: Assets/Resources/Scriptables/Descriptors/Clear/17-00.asset
+  Identifier: 17:00
+  ExecTime: 61200
+  AmbientColor: {r: 0.0625, g: 0.066406, b: 0.074219, a: 1}
+  AmbientEffects: {fileID: 0}
+  FogFactor: 1
+  RainIntensity: 0
+  SkyCubemap: {fileID: 8900000, guid: 74f6038da85bc614784fccb18f208f92, type: 3}
+  SkyColor: {r: 1, g: 1, b: 1, a: 1}
+  SunColor: {r: 1, g: 0.980469, b: 0.910156, a: 1}
+  SunRotation: {x: -0.8401516, y: -0.49409363, z: 0.22364435}
+  set: 1

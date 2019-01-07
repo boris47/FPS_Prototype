@@ -13,7 +13,11 @@ namespace WeatherSystem {
 #region VARS
 
 		// STATIC
-		public	static	RainManager			Instance						= null;
+		private	static	RainManager			m_Instance						= null;
+		public	static	RainManager			Instance
+		{
+			get { return m_Instance; }
+		}
 
 
 		// CONST
@@ -81,46 +85,28 @@ namespace WeatherSystem {
 		// OnEnable
 		private void			OnEnable()
 		{
-			Instance = this;
+			m_Instance = this;
 			m_Camera = Camera.current;
 
 			//	m_RainFallParticleSystem Child
+			if ( transform.SearchComponentInChild( "RainFallParticleSystem", ref m_RainFallParticleSystem ) == false ) 
 			{
-				Transform child = transform.Find( "RainFallParticleSystem" );
-				if ( child )
-					m_RainFallParticleSystem = child.GetComponent<ParticleSystem>();
-
-				if ( m_RainFallParticleSystem == null )
-				{
-					enabled = false;
-					return;
-				}
+				enabled = false;
+				return;
 			}
 
 			//	m_RainExplosionParticleSystem Child
+			if ( transform.SearchComponentInChild( "RainExplosionParticleSystem", ref m_RainExplosionParticleSystem ) == false ) 
 			{
-				Transform child = transform.Find( "RainExplosionParticleSystem" );
-				if ( child )
-					m_RainExplosionParticleSystem = child.GetComponent<ParticleSystem>();
-
-				if ( m_RainExplosionParticleSystem == null )
-				{
-					enabled = false;
-					return;
-				}
+				enabled = false;
+				return;
 			}
 
 			// ThunderLight
+			if ( transform.SearchComponentInChild( "ThunderLight", ref m_ThunderLight ) == false ) 
 			{
-				Transform child = transform.Find( "ThunderLight" );
-				if ( child )
-					m_ThunderLight = child.GetComponent<Light>();
-
-				if ( m_ThunderLight == null )
-				{
-					enabled = false;
-					return;
-				}
+				enabled = false;
+				return;
 			}
 
 			// Thunderbolts audio container
@@ -165,8 +151,7 @@ namespace WeatherSystem {
 			if ( GameManager.Configs != null )
 			{
 				Database.Section pSection = null;
-				GameManager.Configs.GetSection( "Thunderbolts", ref pSection );
-				if ( pSection != null )
+				if ( GameManager.Configs.bGetSection( "Thunderbolts", ref pSection ) )
 				{
 					pSection.bAsFloat( "ThunderTimerMin",		ref m_ThunderTimerMin );
 					pSection.bAsFloat( "ThunderTimerMax",		ref m_ThunderTimerMax );
@@ -219,11 +204,11 @@ namespace WeatherSystem {
 		{
 			m_RainFallParticleSystem.Stop( withChildren:true, stopBehavior: ParticleSystemStopBehavior.StopEmittingAndClear );
 
-			Instance = null;
-			m_RainExplosionMaterial = null;
-			m_RainMaterial = null;
-			m_RainIntensity = 0f;
-			m_Camera = null;
+			m_Instance				= null;
+			m_RainExplosionMaterial	= null;
+			m_RainMaterial			= null;
+			m_RainIntensity			= 0f;
+			m_Camera				= null;
 		}
 
 
@@ -244,12 +229,10 @@ namespace WeatherSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// UpdateRain
-		private void			UpdateRain()
+		private void			UpdateRainPosition()
 		{
 			// Keep rain particle system above the player
-			m_RainFallParticleSystem.transform.position = m_Camera.transform.position;
-			m_RainFallParticleSystem.transform.Translate( 0.0f, m_RainHeight, m_RainForwardOffset );
-			m_RainFallParticleSystem.transform.rotation = Quaternion.Euler( 0.0f, m_Camera.transform.rotation.eulerAngles.y, 0.0f );
+			m_RainFallParticleSystem.transform.position = m_Camera.transform.position + Vector3.up * m_RainHeight;
 		}
 
 
@@ -260,7 +243,7 @@ namespace WeatherSystem {
 			// Update particle system rate of emission
 			{
 				ParticleSystem.EmissionModule e = m_RainFallParticleSystem.emission;
-				if ( !m_RainFallParticleSystem.isPlaying )
+				if ( m_RainFallParticleSystem.isPlaying == false )
 				{
 					m_RainFallParticleSystem.Play();
 				}
@@ -300,7 +283,7 @@ namespace WeatherSystem {
 			float	currentLifeTime	= 0f;
 			bool	lightON			= false;
 
-			Material skyMixerMaterial = WeatherManager.Internal.SkyMixerMaterial;
+			Material skyMixerMaterial = WeatherManager.Cycles.SkyMixerMaterial;
 			
 			// Random rotation for thunder light
 			Quaternion thunderLightRotation = Quaternion.Euler( m_ThunderLight.transform.rotation.eulerAngles + Vector3.up * Random.Range( -360f, 360f ) );
@@ -332,19 +315,14 @@ namespace WeatherSystem {
 
 			yield return new WaitForSeconds ( Random.Range( 0.1f, 3f ) );
 
-			// Play Clip
-			if ( lighting == true )
-			{
-				AudioClip thunderClip =  m_ThundersDuringRainCollection[ Random.Range( 0, m_ThundersDuringRainCollection.Length ) ];
-				thunderAudioSource.Clip = thunderClip;
-			}
-			else
-			{
-				AudioClip thunderClip =  m_ThundersDistantCollection[ Random.Range( 0, m_ThundersDistantCollection.Length ) ];
-				thunderAudioSource.Clip = thunderClip;
-			}
 
-			thunderAudioSource.Pitch	= Random.Range( 1.2f, 1.6f );
+			AudioClip[] collection = lighting == true ? m_ThundersDuringRainCollection : m_ThundersDistantCollection;
+
+			// Play Clip
+			AudioClip thunderClip =  collection[ Random.Range( 0, collection.Length ) ];
+			thunderAudioSource.Clip = thunderClip;
+
+			thunderAudioSource.Pitch	= Random.Range( 1.0f, 1.6f );
 			thunderAudioSource.Volume	= Random.Range( 1f, 2f );
 			
 			Vector3 thunderDirection = m_ThunderLight.transform.forward * Random.Range( 15f, 25f );
@@ -411,7 +389,7 @@ namespace WeatherSystem {
 			}
 #endif
 			CheckForRainChange();
-			UpdateRain();
+			UpdateRainPosition();
 			UpdateThunderbols();
 			m_RainIntensityEvent.setValue( m_RainIntensity );
 		}

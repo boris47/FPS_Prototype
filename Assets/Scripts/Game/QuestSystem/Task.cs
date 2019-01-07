@@ -20,12 +20,19 @@ namespace QuestSystem {
 		// AWAKE
 		private void Awake()
 		{
+			RelatedQuest = transform.parent.GetComponent<Quest>();
+
 			foreach ( Objective_Base o in m_TaskObjectives )
 			{
-				o.RelatedTask = this;
+				if ( o == null )
+				{
+					Debug.Log( "task " + name + ", related to quest " + RelatedQuest.name + " has invalid objective" );
+				}
+				else
+				{
+					o.RelatedTask = this;
+				}
 			}
-
-			RelatedQuest = transform.parent.GetComponent<Quest>();
 		}
 
 

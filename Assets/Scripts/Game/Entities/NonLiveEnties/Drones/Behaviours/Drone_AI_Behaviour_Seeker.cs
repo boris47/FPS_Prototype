@@ -16,11 +16,12 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour {
 
 	public override void OnEnable()
 	{
-		if (false && EntityData.EntityRef.HasDestination == false && m_InvestigationCO == null )
+/*		if ( EntityData.EntityRef.HasDestination == false && m_InvestigationCO == null )
 		{
 			m_CurrentInvestigationDirection = InvestigationDirection.RIGHT;
 			m_InvestigationCO = EntityData.EntityRef.StartCoroutine( InvestigateAroundCO() );
 		}
+*/
 	}
 
 	public override void OnDisable()

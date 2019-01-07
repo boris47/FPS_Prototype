@@ -268,7 +268,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4115387113946056}
-  - component: {fileID: 114804867122043236}
+  - component: {fileID: 114795497204184128}
   - component: {fileID: 114605212361015308}
   - component: {fileID: 114076926009203636}
   - component: {fileID: 114075304172289102}
@@ -785,7 +785,7 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1316071310226962}
-  m_LocalRotation: {x: -0.16664317, y: 0.7919373, z: -0.24778365, w: -0.5326056}
+  m_LocalRotation: {x: -0.15594831, y: 0.7653451, z: -0.20199853, w: -0.59086686}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -3322,7 +3322,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 8
   m_Type: 1
-  m_Color: {r: 0.67186874, g: 0.65038437, b: 0.59374374, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 0}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
@@ -3643,7 +3643,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   EnableInEditor: 0
-  m_RainIntensity: 0.23550831
+  m_RainIntensity: 0
   m_RainHeight: 25
   m_RainForwardOffset: 1.5
 --- !u!114 &114613563801474314
@@ -3736,7 +3736,7 @@ MonoBehaviour:
   m_Volume: 1
   m_Pitch: 1
   m_IsFading: 0
---- !u!114 &114804867122043236
+--- !u!114 &114795497204184128
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -3747,11 +3747,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86b1a54e6e7867a4494416608a23faa8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CurrentDayTime: 09:33:42
-  EnableInEditor: 0
+  m_Cycles: {fileID: 0}
+  m_CurrentCycle: {fileID: 0}
+  m_CurrentCycleName: 
+  m_Descriptors: []
+  m_AreResLoaded_Cylces: 0
+  CurrentDayTime: 
   m_TimeFactor: 1
-  m_CurrentCycleName: Rainy
-  m_WeatherChoiceFactor: 1.1
+  m_WeatherChoiceFactor: 1
+  m_IsOK: 1
 --- !u!114 &114923817651094834
 MonoBehaviour:
   m_ObjectHideFlags: 1

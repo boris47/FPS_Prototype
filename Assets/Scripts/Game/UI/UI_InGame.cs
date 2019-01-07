@@ -35,7 +35,7 @@ public class UI_InGame : MonoBehaviour {
 		otherInfo		= transform.GetChild(1).GetChild(2).GetComponent<Text>();
 		staminaBar		= transform.GetChild(1).GetChild(3).GetChild(1).GetComponent<Image>();
 
-		InvokeRepeating( "PrintTime", 0.3f, 0.2f );	
+		InvokeRepeating( "PrintTime", 1.0f, 1.0f );	
 	}
 
 
@@ -47,7 +47,11 @@ public class UI_InGame : MonoBehaviour {
 		if ( UnityEditor.EditorApplication.isPlaying && GameManager.IsChangingScene == false )
 			m_IsActive = true;
 #endif
+		UI.Instance.EffectFrame.color = Color.clear;
+
+		SoundManager.Instance.OnSceneLoaded();
 	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnDisable
@@ -61,6 +65,12 @@ public class UI_InGame : MonoBehaviour {
 	// OnLevelWasLoaded
 	private	void	OnLevelWasLoaded( int level )
 	{
+		if ( level == 0 ) // if returned at main menu using trigger ensure the switch to the main menu
+		{
+			UI.Instance.SwitchTo( UI.Instance.MainMenu.transform );
+			return;
+		}
+
 		m_IsActive = true;
 
 		Show();
@@ -115,12 +125,12 @@ public class UI_InGame : MonoBehaviour {
 
 		if ( WeatherSystem.WeatherManager.Instance != null )
 		{
-			timeText.text	= WeatherSystem.WeatherManager.Instance.GetTimeAsString( -1f );
-			cycleText.text	= WeatherSystem.WeatherManager.Instance.CurrentCycleName;
+			timeText.text	= WeatherSystem.WeatherManager.Cycles.GetTimeAsString();
+			cycleText.text	= WeatherSystem.WeatherManager.Cycles.CurrentCycleName;
 		}
 	}
 
-
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	// Update
 	private void	Update()
@@ -134,5 +144,5 @@ public class UI_InGame : MonoBehaviour {
 
 		staminaBar.fillAmount = Player.Instance.Stamina;
 	}
-
+	*/
 }

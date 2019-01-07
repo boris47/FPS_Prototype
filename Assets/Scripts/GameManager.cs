@@ -1,5 +1,4 @@
 ﻿
-
 using UnityEngine;
 
 
@@ -11,7 +10,7 @@ public partial class GameManager : MonoBehaviour {
 #else
 	public	const	bool InEditor = false;
 #endif
-	public	static			GameManager		m_Instance				= null;
+	private	static			GameManager		m_Instance				= null;
 	public	static			GameManager		Instance
 	{
 		get { return m_Instance; }
@@ -42,19 +41,19 @@ public partial class GameManager : MonoBehaviour {
 	private					bool			m_SkipOneFrame			= false;
 	private					float			m_ThinkTimer			= 0f;
 
-
 	//////////////////////////////////////////////////////////////////////////
 	private			void		Awake ()
 	{
 		// SINGLETON
-		if ( Instance != null )
+		if ( m_Instance != null )
 		{
 			print( "GameManager: Object set inactive" );
-			gameObject.SetActive( false );
+			Destroy( gameObject );
+//			gameObject.SetActive( false );
 			return;
 		}
 		DontDestroyOnLoad( this );
-		
+
 		// Instance
 		m_Instance		= this as GameManager;
 		m_StreamEvents	= this as StreamEvents;
@@ -186,7 +185,7 @@ public partial class GameManager : MonoBehaviour {
 		m_PauseEvents.SetPauseState( false );
 	}
 
-
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	private			void		OnDestroy()
 	{
@@ -216,21 +215,16 @@ public partial class GameManager : MonoBehaviour {
 
 		m_IsPaused				= false;
 	}
-
+	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	public	static	void		QuitInstanly()
 	{
-		if ( InEditor == true )
-		{
-			UnityEditor.EditorApplication.isPlaying = false;
-		} 
-		else
-		{
-#pragma warning disable CS0162 // È stato rilevato codice non raggiungibile
-			Application.Quit();
-#pragma warning restore CS0162 // È stato rilevato codice non raggiungibile
-		}
+#if UNITY_EDITOR
+			UnityEditor.EditorApplication.isPlaying = false;		
+#else
+		Application.Quit();
+#endif
 	}
 
 }

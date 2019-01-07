@@ -13,6 +13,7 @@ public class WindowValueStep : EditorWindow {
 	private	System.Action		OnOK		= null;
 	private	System.Action		OnCancel	= null;
 
+	//
 	public static void Init<T>( System.Action callbackOK , System.Action callbackCancel = null )
 	{
 		if ( m_Window != null )
@@ -21,13 +22,14 @@ public class WindowValueStep : EditorWindow {
 			m_Window = null;
 		}
 
-		var requestedType = typeof( T );
+		System.Type requestedType = typeof( T );
 		if ( requestedType != typeof( bool )  &&
 			 requestedType != typeof( int )   && 
 			 requestedType != typeof( float ) && 
 			 requestedType != typeof( string )
 		)
 		return;
+
 		m_Window = EditorWindow.GetWindow<WindowValueStep>( true, "Weather Manager" );
 
 		m_Window.OnOK		= callbackOK;
@@ -36,28 +38,29 @@ public class WindowValueStep : EditorWindow {
 		Value = new cValue( requestedType );
 	}
 
+	//
 	private	bool	HasValidValue()
 	{
 		if ( Value.ToSystemObject() == null )
 			return false;
 
-		if ( Value.ToSystemObject().GetType() == typeof( string ) )
+		if ( Value.GetType() == typeof( string ) )
 			if ( Value.As<string>() == "" )
 				return false;
 
 		return true;
 	}
 
+	//
 	private void OnGUI()
 	{
 		GUILayout.BeginVertical();
 		{
 			GUILayout.Label( "Value" );
 
-			if ( Value.ToSystemObject() != null )
+	//		if ( Value.ToSystemObject() != null )
 			{
-
-				System.Type valueType = Value.ToSystemObject().GetType();
+				System.Type valueType = Value.GetType();
 
 				if ( valueType == typeof( bool ) )
 					Value = EditorGUILayout.Toggle( Value );
@@ -70,7 +73,6 @@ public class WindowValueStep : EditorWindow {
 
 				if ( valueType == typeof( string ) )
 					Value = EditorGUILayout.TextField( Value );
-
 			}
 
 			GUILayout.BeginHorizontal();
@@ -96,13 +98,7 @@ public class WindowValueStep : EditorWindow {
 		GUILayout.EndVertical();
 	}
 
-	/*
-	private void OnLostFocus()
-	{
-		m_Window.Close();
-	}
-	*/
-
+	//
 	private void OnDestroy()
 	{
 		Value = string.Empty;
