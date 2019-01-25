@@ -94,6 +94,7 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 		// Sinlgeton
 		if ( Instance != null )
 		{
+			print( "Camera Awake: Instance already found" );
 			gameObject.SetActive( false );
 			return;
 		}

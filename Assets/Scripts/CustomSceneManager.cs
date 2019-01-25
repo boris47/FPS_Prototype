@@ -11,8 +11,6 @@ public class CustomSceneManager : MonoBehaviour {
 
 	private	static	CustomSceneManager		m_Instance = null;
 
-	private	static	bool				m_IsInitialized = false;
-
 	private void Awake()
 	{
 		// Singleton
@@ -23,7 +21,6 @@ public class CustomSceneManager : MonoBehaviour {
 		}
 		DontDestroyOnLoad( this );
 		m_Instance = this;
-		m_IsInitialized = true;
 	}
 
 	public class LoadSceneData {

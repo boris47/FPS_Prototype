@@ -260,3 +260,12 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	}
 
 }
+
+
+public struct EntityEvents {
+	public	delegate	void		HitWithBullet( IBullet bullet );
+	public	delegate	void		HitDetailsEvent( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false );
+	public	delegate	void		TargetEvent( TargetInfo targetInfo );
+	public	delegate	void		NavigationEvent( Vector3 Destination );
+	public	delegate	void		KilledEvent();
+}

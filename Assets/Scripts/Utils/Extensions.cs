@@ -55,7 +55,7 @@ public static class Extensions {
 	/////////////////////////////////////////////////////////////////////////////
 	//		ANIMATOR
 
-	public	static	bool	GetClipFromAnimator( this Animator animator, string name, ref AnimationClip result )
+	public	static	bool			GetClipFromAnimator( this Animator animator, string name, ref AnimationClip result )
 	{
 		if ( animator.runtimeAnimatorController == null )
 		{
@@ -93,7 +93,6 @@ public static class Extensions {
 		return Utils.Base.SearchComponent( transform.gameObject, ref Component, Context, Filter );
 	}
 
-
 	/// <summary> Can be used to retrieve a component's array with more detailed research details </summary>
 	public	static	bool			SearchComponents<T>( this Transform transform, ref T[] Component, SearchContext Context, global::System.Predicate<T> Filter = null )
 	{
@@ -113,6 +112,31 @@ public static class Extensions {
 		Component = child.GetComponent<T>();
 		return Component != null;
 	} 
+
+	/// <summary> Create and fills up given array with components found paired in childrens to the given enum type </summary>
+	public	static	bool			PairComponentsInChildrenIntoArray<T>( this Transform t, ref T[] array, System.Type enumType ) where T :Component
+	{
+		if ( enumType.IsEnum == false )
+			return false;
+
+		string[] names = System.Enum.GetNames( enumType );
+
+		if ( t.childCount < names.Length )
+			return false;
+
+		array = new T[ names.Length ];
+
+		bool bResult = true;
+		for ( int i = 0; i < names.Length; i++ )
+		{
+			Transform child = t.GetChild( i );
+			T comp = null;
+			bResult &= Utils.Base.SearchComponent<T>( child.gameObject, ref comp, SearchContext.LOCAL );
+			array[i] = comp;
+		}
+
+		return bResult;
+	}
 
 	/// <summary> Search for the given component only in children of given transform </summary>
 	public	static	T[]				GetComponentOnlyInChildren<T>( this Transform transform, bool deepSearch = false ) where T : Component

@@ -67,7 +67,7 @@ public class UI_InGame : MonoBehaviour {
 	{
 		if ( level == 0 ) // if returned at main menu using trigger ensure the switch to the main menu
 		{
-			UI.Instance.SwitchTo( UI.Instance.MainMenu.transform );
+			UI.Instance.GoToMenu( UI.Instance.MainMenu.transform );
 			return;
 		}
 
@@ -111,7 +111,7 @@ public class UI_InGame : MonoBehaviour {
 		healthText.text		= Mathf.CeilToInt( player.Health ).ToString();
 
 		wpnName.text		= WeaponManager.Instance.CurrentWeapon.Transform.name;
-		bulletsCount.text	= WeaponManager.Instance.CurrentWeapon.Magazine.ToString();
+//		bulletsCount.text	= WeaponManager.Instance.CurrentWeapon.Magazine.ToString();
 		otherInfo.text		= WeaponManager.Instance.CurrentWeapon.OtherInfo;
 	}
 	

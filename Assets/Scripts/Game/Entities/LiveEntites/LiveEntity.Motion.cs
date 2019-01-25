@@ -45,3 +45,12 @@ public abstract partial class LiveEntity {
 	}
 
 }
+
+
+public enum eMotionType {
+	None		= 1 << 0,
+	Walking		= 1 << 1,
+	Flying		= 1 << 2,
+	Swimming	= 1 << 3,
+	P1ToP2		= 1 << 4
+};

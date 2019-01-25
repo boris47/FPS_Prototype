@@ -24,10 +24,12 @@ public enum InputFlags {
 	FIRE1		= 1 << 09,
 	/// <summary> Secondary fire ( default: Mouse Right Button ) </summary>
 	FIRE2		= 1 << 10,
+	/// <summary> Secondary fire ( default: Mouse Middle Button ) </summary>
+	FIRE3		= 1 << 11,
 	/// <summary> Reload ( default: R ) </summary>
-	RELOAD		= 1 << 11,
+	RELOAD		= 1 << 12,
 	/// <summary> All </summary>
-	ALL			= MOVE | STATE | ABILITY | USE | SWITCH | SELECTION | ITEM | GADGET | FIRE1 | FIRE2 | RELOAD
+	ALL			= MOVE | STATE | ABILITY | USE | SWITCH | SELECTION | ITEM | GADGET | FIRE1 | FIRE2 | FIRE3 | RELOAD
 }
 
 
@@ -45,6 +47,7 @@ public struct inputs_t {
 	public	bool	Gadget1, Gadget2, Gadget3;
 	public	bool	Fire1, Fire1Loop, Fire1Released;
 	public	bool	Fire2, Fire2Loop, Fire2Released;
+	public	bool	Fire3, Fire3Loop, Fire3Released;
 	public	bool	Reload;
 
 
@@ -62,6 +65,7 @@ public struct inputs_t {
 		Gadget1 = Gadget2 = Gadget3 =
 		Fire1 = Fire1Loop = Fire1Released =
 		Fire2 = Fire2Loop = Fire2Released =
+		Fire3 = Fire3Loop = Fire3Released =
 		Reload = false;
 	}
 };
@@ -85,36 +89,7 @@ public class InputManager {
 
 	private	System.Action<KeyCommandPair>	m_CommandPairCheck = null;
 
-	private class InputEventClass {
-
-		private	InputDelegateHandler m_InputEvent = null;
-
-		private	static	InputDelegateHandler m_EmptyMethod = delegate { };
-
-		public	InputEventClass()
-		{
-			m_InputEvent = m_EmptyMethod;	// Ensure at last one call, this avoids null check every call
-		}
-
-		public	InputEventClass	Bind( InputDelegateHandler method )
-		{
-			m_InputEvent = method;
-			return this;
-		}
-
-		public	InputEventClass	Unbind()
-		{
-			m_InputEvent = m_EmptyMethod;
-			return this;
-		}
-
-		public void Call()
-		{
-			m_InputEvent();
-		}
-	}
-
-	private	Dictionary<eInputCommands, InputEventClass> m_ActionMap = new Dictionary<eInputCommands, InputEventClass>();
+	private	Dictionary<eInputCommands, InputEventCollection> m_ActionMap = new Dictionary<eInputCommands, InputEventCollection>();
 	
 
 	/// <summary> Return an array structure of bindings </summary>
@@ -130,7 +105,7 @@ public class InputManager {
 	{
 		for ( eInputCommands command = eInputCommands.NONE + 1; command < eInputCommands.COUNT; command++ )
 		{
-			m_ActionMap.Add( command, new InputEventClass() );
+			m_ActionMap.Add( command, new InputEventCollection() );
 		}
 
 		// C:/Users/Drako/AppData/LocalLow/BeWide&Co/Project Orion
@@ -168,16 +143,16 @@ public class InputManager {
 			}
 
 			// Check Primary and secondary button
-			InputEventClass methodWrapper = null;
+			InputEventCollection inputEventCollection = null;
 
 			// Key keys
 			KeyCode primary		= commandPair.GetKeyCode( eKeys.PRIMARY );
 			KeyCode secondary	= commandPair.GetKeyCode( eKeys.SECONDARY );
 
-			if ( ( primaryKeyCheck( primary ) || secondaryKeyCheck( secondary ) ) && m_ActionMap.TryGetValue( commandPair.Command, out methodWrapper ) )
+			if ( ( primaryKeyCheck( primary ) || secondaryKeyCheck( secondary ) ) && m_ActionMap.TryGetValue( commandPair.Command, out inputEventCollection ) )
 			{
 				// call binded delegate
-				methodWrapper.Call();
+				inputEventCollection.Call();
 			}
 		};
 	}
@@ -232,29 +207,27 @@ public class InputManager {
 	//////////////////////////////////////////////////////////////////////////
 	// BindCall
 	/// <summary> Allow to bind a method to specified command </summary>
-	public		void	BindCall( eInputCommands command, InputDelegateHandler method )
+	public		void	BindCall( eInputCommands command, string inputEventID, InputDelegateHandler method, System.Func<bool> condition = null )
 	{
-		InputEventClass methodWrapper = null;
-		if ( m_ActionMap.TryGetValue( command, out methodWrapper ) )
+		InputEventCollection inputEventCollection = null;
+		if ( m_ActionMap.TryGetValue( command, out inputEventCollection ) == false )
 		{
-			methodWrapper.Bind( method );
+			inputEventCollection = new InputEventCollection();
 		}
-		else
-		{
-			m_ActionMap.Add( command, new InputEventClass().Bind( method ) );
-		}
+
+		inputEventCollection.Bind( inputEventID, method, condition );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// UnbindCall
 	/// <summary> Un bind a command from method </summary>
-	public		void	UnbindCall( eInputCommands command )
+	public		void	UnbindCall( eInputCommands command, string inputEventID )
 	{
-		InputEventClass methodWrapper = null;
-		if ( m_ActionMap.TryGetValue( command, out methodWrapper ) )
+		InputEventCollection inputEventCollection = null;
+		if ( m_ActionMap.TryGetValue( command, out inputEventCollection ) )
 		{
-			methodWrapper.Unbind();
+			inputEventCollection.Unbind( inputEventID );
 		}
 	}
 
@@ -399,6 +372,13 @@ public class InputManager {
 			Inputs.Fire2Released		= Input.GetKeyUp( KeyCode.Mouse1 );
 		}
 
+		if ( ( m_Flags & InputFlags.FIRE3 ) != 0 )
+		{
+			Inputs.Fire3				= Input.GetKeyDown( KeyCode.Mouse2 );
+			Inputs.Fire3Loop			= Input.GetKey( KeyCode.Mouse2 );
+			Inputs.Fire3Released		= Input.GetKeyUp( KeyCode.Mouse2 );
+		}
+
 
 		if ( ( m_Flags & InputFlags.RELOAD ) != 0 )
 		{
@@ -470,6 +450,11 @@ public class InputManager {
 			GenerateDefaultBinding( m_Bindings,	eInputCommands.SECONDARY_FIRE_PRESS,	eKeyState.PRESS,			KeyCode.Mouse1,		null,	KeyCode.None			);
 			GenerateDefaultBinding( m_Bindings,	eInputCommands.SECONDARY_FIRE_HOLD,		eKeyState.HOLD,				KeyCode.Mouse1,		null,	KeyCode.None			);
 			GenerateDefaultBinding( m_Bindings,	eInputCommands.SECONDARY_FIRE_RELEASE,	eKeyState.RELEASE,			KeyCode.Mouse1,		null,	KeyCode.None			);
+
+			// Secondary Fire
+			GenerateDefaultBinding( m_Bindings,	eInputCommands.TERTIARY_FIRE_PRESS,		eKeyState.PRESS,			KeyCode.Mouse2,		null,	KeyCode.None			);
+			GenerateDefaultBinding( m_Bindings,	eInputCommands.TERTIARY_FIRE_HOLD,		eKeyState.HOLD,				KeyCode.Mouse2,		null,	KeyCode.None			);
+			GenerateDefaultBinding( m_Bindings,	eInputCommands.TERTIARY_FIRE_RELEASE,	eKeyState.RELEASE,			KeyCode.Mouse2,		null,	KeyCode.None			);
 
 			// Reload
 			GenerateDefaultBinding( m_Bindings,	eInputCommands.RELOAD_WPN,				eKeyState.PRESS,			KeyCode.R,			null,	KeyCode.End				);
@@ -672,6 +657,7 @@ public	enum eInputCommands {
 	GADGET1, GADGET2, GADGET3,
 	PRIMARY_FIRE_PRESS, PRIMARY_FIRE_HOLD, PRIMARY_FIRE_RELEASE,
 	SECONDARY_FIRE_PRESS, SECONDARY_FIRE_HOLD, SECONDARY_FIRE_RELEASE,
+	TERTIARY_FIRE_PRESS, TERTIARY_FIRE_HOLD, TERTIARY_FIRE_RELEASE,
 	RELOAD_WPN,
 	COUNT
 }

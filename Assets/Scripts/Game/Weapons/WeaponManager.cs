@@ -1,18 +1,22 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public interface IWeaponManager {
 
 	GameObject			GameObject						{ get; }
 	bool				Enabled							{ get; set; }
 
-	bool				IsZoomed							{ get; }
+	bool				IsZoomed						{ get; }
 	IWeapon				CurrentWeapon					{ get; set; }
 	int					CurrentWeaponIndex				{ get; set; }
 	bool				IsChangingWeapon				{ get; }
 
+	void				RegisterWpn						( Weapon wpn );
 	void				ZoomIn							();
 	void				ZoomOut							();
+	IEnumerator			ZoomInCO						();
+	IEnumerator			ZoomOutCO						();
 	void				ChangeWeaponRequest				( int wpnIdx );
 
 }
@@ -21,6 +25,8 @@ public interface IWeaponManager {
 public class WeaponManager : MonoBehaviour, IWeaponManager {
 	
 	public static	IWeaponManager	Instance						= null;
+
+	private			List<Weapon>	WeaponsList						= new List<Weapon>(10);
 
 	// INTERFACE START
 	public			GameObject		GameObject						{ get { return gameObject; } }
@@ -39,15 +45,39 @@ public class WeaponManager : MonoBehaviour, IWeaponManager {
 	private		float				m_ZoomingTime					= 0f;
 	private		float				m_StartCameraFOV				= 0f;
 
-	// CHANGING WEAPON
+	// TRANSITIONS
 	private		bool				m_IsChangingWpn					= false;
+	private		bool				m_IsChangingZoom				= false;
 
 
+	////////////////////////////////////////////////////
+	////////////////////////////////////////////////////
+	// WEAPON STATICS
+
+	public	void	DisableAll()
+	{
+		WeaponsList.ForEach( w => { w.enabled = false; w.transform.gameObject.SetActive( false ); } );
+	}
+	
+	public	IWeapon	GetByIndex( int WpnIdx )
+	{
+		return ( WpnIdx > -1 && WpnIdx < WeaponsList.Count ) ? WeaponsList[WpnIdx] : null;
+	}
+
+	public	int		Count
+	{
+		get { return WeaponsList.Count; }
+	}
+
+	public	void	RegisterWpn( Weapon wpn )
+	{
+		WeaponsList.Add( wpn );
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake
-	private				void	Awake()
+	private void Awake()
 	{
 		if ( Instance != null )
 		{
@@ -57,9 +87,35 @@ public class WeaponManager : MonoBehaviour, IWeaponManager {
 		}
 		Instance = this as IWeaponManager;
 		DontDestroyOnLoad( this );
+	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnEnable
+	private void OnEnable()
+	{
 		GameManager.StreamEvents.OnSave += OnSave;
 		GameManager.StreamEvents.OnLoad += OnLoad;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnDisable
+	private void OnDisable()
+	{
+		GameManager.StreamEvents.OnSave -= OnSave;
+		GameManager.StreamEvents.OnLoad -= OnLoad;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// WeaponComparer ( Static )
+	private static int WeaponOrderComparer( Weapon a, Weapon b )
+	{
+		int indexA = a.transform.GetSiblingIndex();
+		int indexB = b.transform.GetSiblingIndex();
+
+		return ( indexA > indexB ) ? 1 : ( indexA < indexB ) ? -1 : 0;
 	}
 
 
@@ -67,10 +123,12 @@ public class WeaponManager : MonoBehaviour, IWeaponManager {
 	// Start
 	private				void	Start()
 	{
-		Weapon.DisableAll();
+		DisableAll();
+
+		WeaponsList.Sort( WeaponOrderComparer );
 
 		// Set current weapon
-		CurrentWeapon = Weapon.GetByIndex( CurrentWeaponIndex );
+		CurrentWeapon = GetByIndex( CurrentWeaponIndex );
 
 		// Enable current weapon
 		CurrentWeapon.Transform.gameObject.SetActive( true );
@@ -81,6 +139,19 @@ public class WeaponManager : MonoBehaviour, IWeaponManager {
 
 		// Make sure that ui show data of currnt active weapon
 		UI.Instance.InGame.UpdateUI();
+
+		GameManager.InputMgr.BindCall( eInputCommands.SELECTION1, 		"WeaponChange_0",	() => ChangeWeapon( 0, 0 ) );
+		GameManager.InputMgr.BindCall( eInputCommands.SELECTION2, 		"WeaponChange_1",	() => ChangeWeapon( 1, 0 ) );
+		GameManager.InputMgr.BindCall( eInputCommands.SELECTION3, 		"WeaponChange_2",	() => ChangeWeapon( 2, 0 ) );
+		GameManager.InputMgr.BindCall( eInputCommands.SELECTION4, 		"WeaponChange_3",	() => ChangeWeapon( 3, 0 ) );
+		GameManager.InputMgr.BindCall( eInputCommands.SELECTION5, 		"WeaponChange_4",	() => ChangeWeapon( 4, 0 ) );
+		GameManager.InputMgr.BindCall( eInputCommands.SELECTION6, 		"WeaponChange_5",	() => ChangeWeapon( 5, 0 ) );
+		GameManager.InputMgr.BindCall( eInputCommands.SELECTION7,		"WeaponChange_6",	() => ChangeWeapon( 6, 0 ) );
+		GameManager.InputMgr.BindCall( eInputCommands.SELECTION8,		"WeaponChange_7",	() => ChangeWeapon( 7, 0 ) );
+		GameManager.InputMgr.BindCall( eInputCommands.SELECTION9,		"WeaponChange_8",	() => ChangeWeapon( 8, 0 ) );
+
+		GameManager.InputMgr.BindCall( eInputCommands.SWITCH_NEXT,		"WeaponChange_Next",	() => ChangeWeapon( -1,  1 ) );
+		GameManager.InputMgr.BindCall( eInputCommands.SWITCH_PREVIOUS,	"WeaponChange_Prev",	() => ChangeWeapon( -1, -1 ) );
 	}
 
 
@@ -114,10 +185,10 @@ public class WeaponManager : MonoBehaviour, IWeaponManager {
 
 		// Current Weapon
 		{
-			Weapon.DisableAll();
+			DisableAll();
 
 			CurrentWeaponIndex			= streamUnit.GetAsInt("CurrentWeaponIndex" );
-			CurrentWeapon				= Weapon.GetByIndex( CurrentWeaponIndex );
+			CurrentWeapon				= GetByIndex( CurrentWeaponIndex );
 			CurrentWeapon.Transform.gameObject.SetActive( true );
 			CurrentWeapon.Enabled		= true;
 		}
@@ -142,25 +213,47 @@ public class WeaponManager : MonoBehaviour, IWeaponManager {
 
 	//////////////////////////////////////////////////////////////////////////
 	// ZoomIn
-	public				void	ZoomIn()
+	public				void		ZoomIn()
 	{
-		if ( IsChangingWeapon == true )
-			return;
+		if ( m_ZoomedIn == false && m_IsChangingZoom == false )
+		{
+			StartCoroutine( ZoomInCO() );
+		}
+	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// ZoomIn
+	public				void		ZoomOut()
+	{
+		if ( m_ZoomedIn == true && m_IsChangingZoom == false )
+		{
+			StartCoroutine( ZoomOutCO() );
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ZoomInCO ( Coroutine )
+	public				IEnumerator	ZoomInCO()
+	{
 		m_StartOffset		= CameraControl.Instance.WeaponPivot.localPosition;
 		m_StartCameraFOV	= CameraControl.Instance.MainCamera.fieldOfView;
 		m_FinalOffset		= CurrentWeapon.ZoomOffset;
 		m_ZoomingTime		= CurrentWeapon.ZoomingTime;
 
-		StartCoroutine( ZoomInCO() );
+		yield return StartCoroutine( Internal_ZoomInCO() );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ZoomOut
-	public				void	ZoomOut()
+	// ZoomOutCO ( Coroutine )
+	public				IEnumerator	ZoomOutCO()
 	{
-		StartCoroutine( ZoomOutCO() );
+		if ( m_ZoomedIn == true )
+		{
+			yield return StartCoroutine( Internal_ZoomOutCO() );
+		}
 	}
 
 
@@ -171,47 +264,20 @@ public class WeaponManager : MonoBehaviour, IWeaponManager {
 		if ( m_IsChangingWpn == true )
 			return;
 
-		if ( Weapon.GetByIndex( CurrentWeaponIndex ).CanChangeWeapon() == false )
+		if ( GetByIndex( CurrentWeaponIndex ).CanChangeWeapon() == false )
 			return;
 
 		StartCoroutine( ChangeWeaponCO( wpnIdx ) );
 	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// Update
-	private				void	Update()
-	{
-		if ( m_IsChangingWpn == true )
-			return;
-
-		if ( InputManager.Inputs.Selection1 )	ChangeWeapon( 0 );
-		if ( InputManager.Inputs.Selection2 )	ChangeWeapon( 1 );
-		if ( InputManager.Inputs.Selection3 )	ChangeWeapon( 2 );
-		if ( InputManager.Inputs.Selection4 )	ChangeWeapon( 3 );
-		if ( InputManager.Inputs.Selection5 )	ChangeWeapon( 4 );
-		if ( InputManager.Inputs.Selection6 )	ChangeWeapon( 5 );
-		if ( InputManager.Inputs.Selection7 )	ChangeWeapon( 6 );
-		if ( InputManager.Inputs.Selection8 )	ChangeWeapon( 7 );
-		if ( InputManager.Inputs.Selection9 )	ChangeWeapon( 8 );
-
-		// Weapon switch
-		if ( InputManager.Inputs.SwitchPrev )
-		{
-			ChangeWeapon( -1, -1 );
-		}
-		if ( InputManager.Inputs.SwitchNext )
-		{
-			ChangeWeapon( -1, 1 );
-		}
-
-	}
-
+	
 
 	//////////////////////////////////////////////////////////////////////////
 	// ChangeWeapon
 	private				void	ChangeWeapon( int index, int versus = 0 )
 	{
+		if ( m_IsChangingWpn == true )
+			return;
+
 		// If same weapon index of current weapon
 		if ( index == CurrentWeaponIndex )
 		{
@@ -228,10 +294,8 @@ public class WeaponManager : MonoBehaviour, IWeaponManager {
 		if ( CurrentWeapon.CanChangeWeapon() == false )
 			return;
 
-		int weaponsCount = Weapon.Count;
-
 		// For a valid index
-		if ( index > -1 && index < weaponsCount )
+		if ( index > -1 && index < WeaponsList.Count )
 		{
 			// Start weapon change
 			StartCoroutine( ChangeWeaponCO( index ) );
@@ -239,7 +303,7 @@ public class WeaponManager : MonoBehaviour, IWeaponManager {
 		}
 
 		// if a versus is definded, find out next weapon index
-		int lastWeapIdx = weaponsCount - 1;
+		int lastWeapIdx = WeaponsList.Count - 1;
 		int newWeaponIdx = CurrentWeaponIndex + versus;
 
 		if ( newWeaponIdx == -1 )			newWeaponIdx = lastWeapIdx;
@@ -266,15 +330,14 @@ public class WeaponManager : MonoBehaviour, IWeaponManager {
 			yield return StartCoroutine( ZoomOutCO() );
 		}
 		
-		IWeapon currentWeapon	= Weapon.GetByIndex( CurrentWeaponIndex );
-		IWeapon nextWeapon		= Weapon.GetByIndex( newWeaponIdx );
+		IWeapon currentWeapon	= GetByIndex( CurrentWeaponIndex );
+		IWeapon nextWeapon		= GetByIndex( newWeaponIdx );
 
 		// last event before changing
 		currentWeapon.OnWeaponChange();		//  Weapon properties reset ( enable = false )
 
 		// If weapon is drawed play stash animation
-		bool wasDrawed;
-		if ( wasDrawed = ( currentWeapon.WeaponState == WeaponState.DRAWED ) )
+		if ( ( currentWeapon.WeaponState == WeaponState.DRAWED ) )
 		{
 			// Play stash animation and get animation time
 			float stashTime			= CurrentWeapon.Stash();
@@ -293,7 +356,8 @@ public class WeaponManager : MonoBehaviour, IWeaponManager {
 
 		// Play draw animation and get animation time
 		float drawTime			= CurrentWeapon.Draw();
-		yield return new WaitForSeconds( drawTime );
+		yield return new WaitForSeconds( drawTime * 0.8f );
+
 		// Update UI
 		UI.Instance.InGame.UpdateUI();
 
@@ -305,7 +369,7 @@ public class WeaponManager : MonoBehaviour, IWeaponManager {
 
 	//////////////////////////////////////////////////////////////////////////
 	// ZoomInCO ( Coroutine )
-	private				IEnumerator	ZoomInCO()
+	private				IEnumerator	Internal_ZoomInCO()
 	{
 		float cameraFinalFov = m_StartCameraFOV / CurrentWeapon.ZoomFactor;
 		CurrentWeapon.Enabled = false;
@@ -330,12 +394,13 @@ public class WeaponManager : MonoBehaviour, IWeaponManager {
 
 		CurrentWeapon.Enabled = true;
 		m_ZoomedIn = true;
+		m_IsChangingZoom = false;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// ZoomOut ( Coroutine )
-	private				IEnumerator	ZoomOutCO()
+	private				IEnumerator	Internal_ZoomOutCO()
 	{
 		float	cameraCurrentFov = Camera.main.fieldOfView;
 		CurrentWeapon.Enabled = false;
@@ -360,6 +425,7 @@ public class WeaponManager : MonoBehaviour, IWeaponManager {
 
 		CurrentWeapon.Enabled = true;
 		m_ZoomedIn = false;
+		m_IsChangingZoom = false;
 	}
 
 	

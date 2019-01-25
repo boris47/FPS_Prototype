@@ -10964,20 +10964,48 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 564932368caac6b4e896761a5ad67e9d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_PrimaryBullet: {fileID: 0}
   m_MainDamage: 2
+  m_SecondaryBullet: {fileID: 0}
+  m_SecondaryDamage: 0
   m_ZoomOffset: {x: -0.0635, y: 0, z: 0}
   m_ZoomingTime: 1
   m_ZommSensitivity: 1
-  m_Magazine: 27
-  m_MagazineCapacity: 500
   m_FirePoint: {fileID: 4142782318268870}
   m_ShotDelay: 0.08
   m_CamDeviation: 0.5
   m_FireDispersion: 0.5
   m_SlowMotionCoeff: 1
+  m_SectionName: 
+  m_Laser: {fileID: 0}
+  m_GranadeLauncher: {fileID: 0}
+  m_WeaponState: 1
+  m_StartOffset: {x: 0, y: 0, z: 0}
+  m_ZoomFactor: 1
+  m_Animator: {fileID: 0}
+  m_FireDelay: 0
+  m_RechargeTimer: 0
+  m_FireAnim: {fileID: 0}
+  m_ReloadAnim: {fileID: 0}
+  m_DrawAnim: {fileID: 0}
+  m_NeedRecharge: 0
+  m_IsLocked: 0
+  m_IsRecharging: 0
+  m_IsFiring: 0
+  m_PrimaryWeaponModule: {fileID: 0}
+  m_SecondaryWeaponModule: {fileID: 0}
   m_BeamLength: 50
   m_AmmoUnitRechargeDelay: 0.02
   m_Renderer: {fileID: 137778757642590530}
+  m_StartEmissiveColor:
+    r: 0
+    g: 0
+    b: 0
+    a: 0
+  m_AmmoRestoreCounter: 0
+  m_Canvas: {fileID: 0}
+  m_Panel: {fileID: 0}
+  m_MagazineSlider: {fileID: 0}
 --- !u!114 &114211241402730314
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -11149,20 +11177,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d28b213bff4b8fc4781c1afe5db46825, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_MainDamage: 2
   m_ZoomOffset: {x: -0.0655, y: -0.01, z: 0}
   m_ZoomingTime: 0.2
-  m_ZommSensitivity: 1
-  m_Magazine: 30
-  m_MagazineCapacity: 30
-  m_FirePoint: {fileID: 4726856177922278}
-  m_ShotDelay: 0.08
-  m_CamDeviation: 0.8
-  m_FireDispersion: 1
-  m_SlowMotionCoeff: 1
-  m_Bullet: {fileID: 114645033644827460, guid: 6022bac21992ba94bb2fd959d6d5f7f0, type: 2}
-  m_FireMode: 2
-  m_BrustSize: 3
+  m_PrimaryWeaponModule: {fileID: 0}
+  m_SecondaryWeaponModule: {fileID: 0}
+  m_TertiaryWeaponModule: {fileID: 0}
 --- !u!114 &114382534251624950
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -11240,19 +11259,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce15eff0f718b7b42a9b65ecf1254ce9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_PrimaryBullet: {fileID: 0}
   m_MainDamage: 2
+  m_SecondaryBullet: {fileID: 0}
+  m_SecondaryDamage: 0
   m_ZoomOffset: {x: -0.0599, y: -0.01, z: 0}
   m_ZoomingTime: 0.3
   m_ZommSensitivity: 1
-  m_Magazine: 28
-  m_MagazineCapacity: 8
   m_FirePoint: {fileID: 4212872598300844}
   m_ShotDelay: 1.5
   m_CamDeviation: 3
   m_FireDispersion: 0
   m_SlowMotionCoeff: 1
+  m_SectionName: 
+  m_Laser: {fileID: 0}
+  m_GranadeLauncher: {fileID: 0}
+  m_WeaponState: 1
+  m_StartOffset: {x: 0, y: 0, z: 0}
+  m_ZoomFactor: 1
+  m_Animator: {fileID: 0}
+  m_FireDelay: 0
+  m_RechargeTimer: 0
+  m_FireAnim: {fileID: 0}
+  m_ReloadAnim: {fileID: 0}
+  m_DrawAnim: {fileID: 0}
+  m_NeedRecharge: 0
+  m_IsLocked: 0
+  m_IsRecharging: 0
+  m_IsFiring: 0
+  m_PrimaryWeaponModule: {fileID: 0}
+  m_SecondaryWeaponModule: {fileID: 0}
   m_Bullet: {fileID: 114434699516155368, guid: 6022bac21992ba94bb2fd959d6d5f7f0, type: 2}
   m_ShotsDelay: 0.1
+  m_ShotsTimer: 0
 --- !u!114 &114494976109590448
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -11318,17 +11357,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 218158ce6f2788048adc9b807b72e4b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_PrimaryBullet: {fileID: 0}
   m_MainDamage: 2
+  m_SecondaryBullet: {fileID: 0}
+  m_SecondaryDamage: 0
   m_ZoomOffset: {x: 0, y: 0, z: 0}
   m_ZoomingTime: 1
   m_ZommSensitivity: 1
-  m_Magazine: 27
-  m_MagazineCapacity: 5
   m_FirePoint: {fileID: 4731242768745854}
   m_ShotDelay: 0.9
   m_CamDeviation: 1.5
   m_FireDispersion: 0
   m_SlowMotionCoeff: 1
+  m_SectionName: 
+  m_Laser: {fileID: 0}
+  m_GranadeLauncher: {fileID: 0}
+  m_WeaponState: 1
+  m_StartOffset: {x: 0, y: 0, z: 0}
+  m_ZoomFactor: 1
+  m_Animator: {fileID: 0}
+  m_FireDelay: 0
+  m_RechargeTimer: 0
+  m_FireAnim: {fileID: 0}
+  m_ReloadAnim: {fileID: 0}
+  m_DrawAnim: {fileID: 0}
+  m_NeedRecharge: 0
+  m_IsLocked: 0
+  m_IsRecharging: 0
+  m_IsFiring: 0
+  m_PrimaryWeaponModule: {fileID: 0}
+  m_SecondaryWeaponModule: {fileID: 0}
   m_Bullet: {fileID: 114654618817302108, guid: 6022bac21992ba94bb2fd959d6d5f7f0, type: 2}
 --- !u!114 &114560364202211414
 MonoBehaviour:
@@ -11562,20 +11620,50 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be98c3c30b705e74a8e4f35649bf5ac8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_PrimaryBullet: {fileID: 0}
   m_MainDamage: 0
+  m_SecondaryBullet: {fileID: 0}
+  m_SecondaryDamage: 0
   m_ZoomOffset: {x: -0.0655, y: -0.01, z: 0}
   m_ZoomingTime: 1
   m_ZommSensitivity: 1
-  m_Magazine: 27
-  m_MagazineCapacity: 15
   m_FirePoint: {fileID: 4485334142183270}
   m_ShotDelay: 0.7
   m_CamDeviation: 20
   m_FireDispersion: 20
   m_SlowMotionCoeff: 1
+  m_SectionName: 
+  m_Laser: {fileID: 0}
+  m_GranadeLauncher: {fileID: 0}
+  m_WeaponState: 1
+  m_StartOffset: {x: 0, y: 0, z: 0}
+  m_ZoomFactor: 1
+  m_Animator: {fileID: 0}
+  m_FireDelay: 0
+  m_RechargeTimer: 0
+  m_FireAnim: {fileID: 0}
+  m_ReloadAnim: {fileID: 0}
+  m_DrawAnim: {fileID: 0}
+  m_NeedRecharge: 0
+  m_IsLocked: 0
+  m_IsRecharging: 0
+  m_IsFiring: 0
+  m_PrimaryWeaponModule: {fileID: 0}
+  m_SecondaryWeaponModule: {fileID: 0}
   m_Bullet: {fileID: 114645033644827460, guid: 6022bac21992ba94bb2fd959d6d5f7f0, type: 2}
   m_ChargeSpeed: 0.54
   m_Renderer: {fileID: 137395290482283570}
+  m_StartEmissiveColor:
+    r: 0
+    g: 0
+    b: 0
+    a: 0
+  m_Canvas: {fileID: 0}
+  m_Panel: {fileID: 0}
+  m_ChargeSlider: {fileID: 0}
+  m_Charge: 0
+  m_HasCharged: 0
+  m_BulletEffectIntensity: 0
 --- !u!114 &114646095066026220
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -11680,20 +11768,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79cd5c095c58b244ebd456c4cc157c3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_PrimaryBullet: {fileID: 0}
   m_MainDamage: 2
+  m_SecondaryBullet: {fileID: 0}
+  m_SecondaryDamage: 0
   m_ZoomOffset: {x: -0.0635, y: -0.01, z: 0}
   m_ZoomingTime: 0.2
   m_ZommSensitivity: 1
-  m_Magazine: 25
-  m_MagazineCapacity: 8
   m_FirePoint: {fileID: 4597339835942060}
   m_ShotDelay: 0.3
   m_CamDeviation: 1.2
   m_FireDispersion: 0.05
   m_SlowMotionCoeff: 1
+  m_SectionName: 
+  m_Laser: {fileID: 0}
+  m_GranadeLauncher: {fileID: 0}
+  m_WeaponState: 1
+  m_StartOffset: {x: 0, y: 0, z: 0}
+  m_ZoomFactor: 1
+  m_Animator: {fileID: 0}
+  m_FireDelay: 0
+  m_RechargeTimer: 0
+  m_FireAnim: {fileID: 0}
+  m_ReloadAnim: {fileID: 0}
+  m_DrawAnim: {fileID: 0}
+  m_NeedRecharge: 0
+  m_IsLocked: 0
+  m_IsRecharging: 0
+  m_IsFiring: 0
+  m_PrimaryWeaponModule: {fileID: 0}
+  m_SecondaryWeaponModule: {fileID: 0}
   m_Bullet: {fileID: 114645033644827460, guid: 6022bac21992ba94bb2fd959d6d5f7f0, type: 2}
   m_BuckshotSize: 8
   maxDeviation: 0.1
+  m_DispersionVector: {x: 0, y: 0, z: 0}
 --- !u!114 &114724307181564678
 MonoBehaviour:
   m_ObjectHideFlags: 1

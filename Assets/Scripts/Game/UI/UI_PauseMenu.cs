@@ -1,7 +1,69 @@
 ﻿
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UI_PauseMenu : MonoBehaviour {
+
+/*
+	private		Button	m_ResumeButton			= null;
+	private		Button	m_SaveButton			= null;
+	private		Button	m_SettingsButton		= null;
+	private		Button	m_MainMenuButton		= null;
+	private		Button	m_QuitButton			= null;
+*/
+	private void Awake()
+	{
+		/*
+		// RESUME BUTTON
+		if ( transform.SearchComponentInChild( "Button_Resume", ref m_ResumeButton ) )
+		{
+			m_ResumeButton.onClick.AddListener( delegate()
+			{
+				UI.Instance.SetPauseMenuState( false );
+			} );
+		}
+
+		// SAVE BUTTON
+		if ( transform.SearchComponentInChild( "Button_Save", ref m_SaveButton ) )
+		{
+			m_SaveButton.onClick.AddListener( Save );
+		}
+
+		// SETTINGS BUTTON
+		if ( transform.SearchComponentInChild( "Button_Settings", ref m_SettingsButton ) )
+		{
+			m_SettingsButton.onClick.AddListener( delegate()
+			{
+				UI.Instance.GoToSubMenu( UI.Instance.InGame_Settings.transform );
+			});
+		}
+
+		// SETTINGS BUTTON
+		if ( transform.SearchComponentInChild( "Button_MainMenu", ref m_MainMenuButton ) )
+		{
+			m_MainMenuButton.onClick.AddListener( delegate()
+			{
+				ReturnToMenu();
+			});
+		}
+
+		// SETTINGS BUTTON
+		if ( transform.SearchComponentInChild( "Button_Quit", ref m_QuitButton ) )
+		{
+			m_QuitButton.onClick.AddListener( delegate()
+			{
+				GameManager.QuitInstanly();
+			});
+		}
+		*/
+	}
+
+
+	public	void	Resume()
+	{
+		GameManager.Instance.ResumeFromPause();
+	}
+
 
 	public	void	ReturnToMenu()
 	{
@@ -29,10 +91,24 @@ public class UI_PauseMenu : MonoBehaviour {
 		UI.Instance.MainMenu.gameObject.SetActive( true );
 
 		// update current active transform
-		UI.Instance.SwitchTo( UI.Instance.MainMenu.transform );
+		UI.Instance.GoToMenu( UI.Instance.MainMenu.transform );
 
 		// Load menu
 		UnityEngine.SceneManagement.SceneManager.LoadScene( 0 );
+	}
+
+
+	// 
+	public	void	Save()
+	{
+		GameManager.StreamEvents.Save();
+	}
+
+
+	//
+	public	void	Quit()
+	{
+		GameManager.QuitInstanly();
 	}
 
 }

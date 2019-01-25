@@ -7,38 +7,52 @@ using UnityEngine.UI;
 public class UI_MainMenu : MonoBehaviour {
 
 	private	const string shaderPath = "VR/SpatialMapping/Wireframe";
-
-	private		Button	m_NewGameButton			= null;
+	
+//	private		Button	m_NewGameButton			= null;
 	private		Button	m_ResumeButton			= null;
-	private		Button	m_SettingsButtond		= null;
-
+//	private		Button	m_SettingsButton		= null;
+	
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake
 	private void Awake()
 	{
+		/*
 		// NEW GAME BUTTON
 		if ( transform.SearchComponentInChild( "Button_NewGame", ref m_NewGameButton ) )
 		{
 			m_NewGameButton.onClick.AddListener( OnNewGame );
 		}
-
+		*/
 		// RESUME BUTTON
 		if ( transform.SearchComponentInChild( "Button_Resume", ref m_ResumeButton ) )
 		{
-			m_ResumeButton.onClick.AddListener( OnResume );
+//			m_ResumeButton.onClick.AddListener( OnResume );
 		}
-
+		/*
 		// SETTINGS BUTTON
-		if ( transform.SearchComponentInChild( "Button_Settings", ref m_SettingsButtond ) )
+		if ( transform.SearchComponentInChild( "Button_Settings", ref m_SettingsButton ) )
 		{
-			m_SettingsButtond.onClick.AddListener( delegate()
+			m_SettingsButton.onClick.AddListener( delegate()
 			{
-				UI.Instance.SwitchTo( UI.Instance.Settings.transform );
+				UI.Instance.GoToSubMenu( UI.Instance.Settings.transform );
 			});
 		}
-
+		*/
 		RenderSettings.skybox	= new Material( Shader.Find( shaderPath ) );
+	}
+
+
+	private void OnEnable()
+	{
+		if ( CameraControl.Instance != null )
+			Destroy( CameraControl.Instance.Transform.gameObject );
+
+		if ( Player.Instance != null )
+			Destroy( Player.Instance.gameObject );
+
+		if ( WeaponManager.Instance != null )
+			Destroy( WeaponManager.Instance.GameObject );
 	}
 
 
@@ -76,9 +90,6 @@ public class UI_MainMenu : MonoBehaviour {
 		if ( WeaponManager.Instance != null )
 			Destroy( WeaponManager.Instance.GameObject );
 
-		if ( CameraControl.Instance != null )
-			Destroy( CameraControl.Instance.Transform.gameObject );
-
 		bool bHasSavedSceneIndex	= PlayerPrefs.HasKey( "SaveSceneIdx" );
 		bool bHasSaveFilePath		= PlayerPrefs.HasKey( "SaveFilePath" );
 		bool bSaveFileExists		= bHasSaveFilePath && System.IO.File.Exists( PlayerPrefs.GetString( "SaveFilePath" ) );
@@ -101,7 +112,7 @@ public class UI_MainMenu : MonoBehaviour {
 				iSceneIdx			= 1,
 				sSaveToLoad			= "",
 				bMustLoadSave		= false,
-				pOnLoadCompleted	= delegate { UI.Instance.SwitchTo( UI.Instance.InGame.transform ); }
+				pOnLoadCompleted	= delegate { UI.Instance.GoToMenu( UI.Instance.InGame.transform ); }
 			};
 			CustomSceneManager.LoadSceneAsync( loadData );
 		};
@@ -121,7 +132,6 @@ public class UI_MainMenu : MonoBehaviour {
 	// OnNewGame
 	public	void	OnResume()
 	{
-
 		int saveSceneIdx	= PlayerPrefs.GetInt( "SaveSceneIdx" );
 		string saveFilePath	= PlayerPrefs.GetString( "SaveFilePath" );
 
@@ -130,7 +140,7 @@ public class UI_MainMenu : MonoBehaviour {
 			iSceneIdx			= saveSceneIdx,
 			sSaveToLoad			= saveFilePath,
 			bMustLoadSave		= true,
-			pOnLoadCompleted	= delegate { UI.Instance.SwitchTo( UI.Instance.InGame.transform ); }
+			pOnLoadCompleted	= delegate { UI.Instance.GoToMenu( UI.Instance.InGame.transform ); }
 		};
 		CustomSceneManager.LoadSceneAsync( loadData );
 	}

@@ -118,3 +118,10 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 	protected	abstract	void	OnCollisionEnter( Collision collision );
 
 }
+
+
+public enum BulletMotionType {
+	INSTANT,
+	DIRECT,
+	PARABOLIC
+}

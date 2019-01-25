@@ -6,6 +6,7 @@
 #include Drones.txt
 #include Walkers.txt
 #include Weapons.txt
+#include WeaponFireModules.txt
 #include Granades.txt
 
 

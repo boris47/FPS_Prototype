@@ -92,7 +92,7 @@ public abstract partial class Entity : IBrain {
 		behaviour.Setup( m_ID );
 		if ( state == true )
 		{
-			m_CurrentBehaviour = behaviour as AIBehaviour;
+			m_CurrentBehaviour = behaviour;
 		}
 
 		// Behaviour assignment
@@ -141,4 +141,15 @@ public abstract partial class Entity : IBrain {
 		m_FieldOfView.OnReset();
 	}
 
+}
+
+
+[ System.Serializable ]
+public enum BrainState {
+	EVASIVE		= 0,
+	NORMAL		= 1,
+	ALARMED		= 2,
+	SEEKER		= 3,
+	ATTACKER	= 4,
+	COUNT		= 5
 }

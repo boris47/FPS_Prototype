@@ -47,7 +47,6 @@ public partial class GameManager : MonoBehaviour {
 		// SINGLETON
 		if ( m_Instance != null )
 		{
-			print( "GameManager: Object set inactive" );
 			Destroy( gameObject );
 //			gameObject.SetActive( false );
 			return;
@@ -149,7 +148,6 @@ public partial class GameManager : MonoBehaviour {
 			m_OnFrame( Time.deltaTime );
 		}
 
-
 		// Save Event
 		if ( Input.GetKeyDown( KeyCode.F5 ) && CanSave == true )
 		{
@@ -159,7 +157,14 @@ public partial class GameManager : MonoBehaviour {
 		// Load Event
 		if ( Input.GetKeyDown( KeyCode.F9 ) )
 		{
-			m_StreamEvents.Load();
+			bool bHasSavedSceneIndex	= PlayerPrefs.HasKey( "SaveSceneIdx" );
+			bool bHasSaveFilePath		= PlayerPrefs.HasKey( "SaveFilePath" );
+			if ( bHasSavedSceneIndex && bHasSaveFilePath )
+			{
+				int saveSceneIdx	= PlayerPrefs.GetInt( "SaveSceneIdx" );
+				string saveFilePath	= PlayerPrefs.GetString( "SaveFilePath" );
+				m_StreamEvents.Load( saveFilePath );
+			}
 		}
 
 		// Pause Event

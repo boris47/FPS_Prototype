@@ -148,19 +148,19 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 
 		Collider[] colliders = Physics.OverlapSphere( transform.position, m_ViewTriggerCollider.radius );
 
-		IEntity entity = null;
-		System.Array.ForEach( colliders, ( Collider c ) => {
-
-			if ( Utils.Base.SearchComponent( c.gameObject, ref entity, SearchContext.ALL, ( IEntity e ) => { return e.EntityType == newType; } ) )
+		IEntity entityComponent = null;
+		System.Action<Collider> addToTargets = delegate( Collider c )
+		{
+			if ( Utils.Base.SearchComponent<IEntity>( c.gameObject, ref entityComponent, SearchContext.ALL, ( IEntity e ) => { return e.EntityType == newType; } ) )
 			{
 				// This avoid to the current entity being added
-				if ( transform.parent.GetInstanceID() != entity.Transform.GetInstanceID() )
+				if ( transform.parent.GetInstanceID() != entityComponent.Transform.GetInstanceID() )
 				{
-					m_AllTargets.Add( entity as Entity );
+					m_AllTargets.Add( entityComponent as Entity );
 				}
 			}
-
-		} );
+		};
+		System.Array.ForEach( colliders, addToTargets );
 	}
 
 
@@ -370,4 +370,26 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		Gizmos.matrix = Matrix4x4.identity;
 	}
 
+}
+
+
+[System.Serializable]
+public class TargetInfo {
+	public	bool	HasTarget;
+	public	IEntity	CurrentTarget;
+	public	float	TargetSqrDistance;
+
+	public	void	Update( TargetInfo Infos )
+	{
+		HasTarget			= Infos.HasTarget;
+		CurrentTarget		= Infos.CurrentTarget;
+		TargetSqrDistance	= Infos.TargetSqrDistance;
+	}
+
+	public	void	Reset()
+	{
+		HasTarget			= false;
+		CurrentTarget		= null;
+		TargetSqrDistance	= 0.0f;
+	}
 }

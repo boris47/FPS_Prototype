@@ -34,6 +34,8 @@ AI Behiaviours
 	- In editor, se non già caricati, caricare tutte le risorse instantaneamente
 	- in game caricare le risorse progressivamente
 	- Weather manager must load only the saved time, then, in async mode the others!
+		! DENIED: In Main menu could be a weather different from the possible weather into a save
+
 
 
 ***	default empty behaviour
@@ -57,3 +59,17 @@ AI Behiaviours
 	If this entity is 'not valid', remove this memory unit, and if memory is not empty repeat this process for the new last entity in memory.
 	Proceed in this way until the entire memory stack is free, at that point return to normal state, or if new target is found, auto switch to
 	attacker behaviour
+
+
+
+///////////////////////////
+	WEAPONS
+
+	Modular weapons
+	{
+		- One or two modules( PrimaryFire, SecondaryFire ) ( types: Single, Burst, Auto, Zoom )
+		- Every module need a attachment ( Barrel, GrenadeLauncher ( DEFAULT: Barrel ) )
+		- Each module needs internal events called ( Start, Update, End )
+		- The weapon mantain the condition end call setup as for old Blackjack
+		- The weapon cna have other attachments that can be Activated and Deactivated / Attached and Removed ( Flashlight, Laser, Optic )
+	}

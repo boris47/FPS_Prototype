@@ -9,10 +9,11 @@ namespace Footsteps {
 
 		SurfaceManager surfManag = null;
 
-
-		public override void OnGUI (Rect position, SerializedProperty property, GUIContent label) {
-
-			if( !surfManag ) {
+		//
+		public override void OnGUI (Rect position, SerializedProperty property, GUIContent label)
+		{
+			if ( surfManag == null )
+			{
 				surfManag = GameObject.FindObjectOfType<SurfaceManager>();
 				return;
 			}
@@ -39,8 +40,11 @@ namespace Footsteps {
 			surfaceIndex.intValue = EditorGUI.Popup(position, surfaceIndex.intValue, surfManag.GetAllSurfaceNames());
 		}
 
-		public override float GetPropertyHeight (SerializedProperty property, GUIContent label) {
+		//
+		public override float GetPropertyHeight( SerializedProperty property, GUIContent label )
+		{
 			return 32f;
 		}
 	}
 }
+

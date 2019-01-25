@@ -21,7 +21,16 @@ public class UI_Bindings : MonoBehaviour {
 	private void OnEnable()
 	{
 		m_ThisRect = transform as RectTransform;
-		m_InputMgr	= new InputManager();
+
+		if ( GameManager.InputMgr != null )
+		{
+			m_InputMgr = GameManager.InputMgr;
+		}
+		else
+		{
+			m_InputMgr	= new InputManager();
+		}
+
 
 		if ( keyStateDropDownList == null )
 		{

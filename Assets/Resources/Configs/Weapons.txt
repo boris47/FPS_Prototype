@@ -1,41 +1,53 @@
-﻿;;;;;;;;;;;;;;;; BLASTER
-[Blaster]
-Damage				= 6.0;
-ZoomFactor			= 1.8;
-ZoomingTime			= 0.2;
-ZommSensitivity		= 0.3;
+﻿[EmptyWeapon]
+ZoomOffset			= 0.0, 0.0, 0.0;
+ZoomSensitivity		= 1.0;
+HasPrimaryModule	= false;
+HasSecondaryModule	= false;
+
+;;;;;;;;;;;;;;;; BLASTER
+[Blaster] : EmptyWeapon
+Damage					= 6.0;
+ZoomFactor				= 1.8;
+ZoomingTime				= 0.2;
+ZoomSensitivity			= 0.3;
 
 ;;;;;;;;;;;;;;;; BLACKJACK
-[Blackjack]
-Damage				= 15.0;
-ZoomFactor			= 2.0;
-ZoomingTime			= 0.2;
-ZommSensitivity		= 0.3;
+[Blackjack] : EmptyWeapon
+Damage					= 15.0;
+ZoomFactor				= 2.0;
+ZoomingTime				= 0.2;
+ZoomSensitivity			= 0.3;
+HasPrimaryModule		= true;
+PrimaryWeaponModule		= WPN_FireModule_BurstAuto;
+HasSecondaryModule		= true;
+SecondaryWeaponModule	= WPN_FireModule_Auto;
+HasTertiaryModule		= true;
+TertiaryWeaponModule	= WPN_WeaponModule_Zoom;
 
 ;;;;;;;;;;;;;;;; RAZOR
-[Razor]
-Damage				= 2.0;
-ZoomFactor			= 6.0;
-ZoomingTime			= 0.2;
-ZommSensitivity		= 0.2;
+[Razor] : EmptyWeapon
+Damage					= 2.0;
+ZoomFactor				= 6.0;
+ZoomingTime				= 0.2;
+ZoomSensitivity			= 0.2;
 
 ;;;;;;;;;;;;;;;; HAMMER
-[Hammer]
-Damage				= 13.0;
-ZoomFactor			= 2.0;
-ZoomingTime			= 0.2;
-ZommSensitivity		= 0.3;
+[Hammer] : EmptyWeapon
+Damage					= 13.0;
+ZoomFactor				= 2.0;
+ZoomingTime				= 0.2;
+ZoomSensitivity			= 0.3;
 
 ;;;;;;;;;;;;;;;; BREAKER
-[Breaker]
-Damage				= 13.0;
-ZoomFactor			= 2.0;
-ZoomingTime			= 0.2;
-ZommSensitivity		= 0.3;
+[Breaker] : EmptyWeapon
+Damage					= 13.0;
+ZoomFactor				= 2.0;
+ZoomingTime				= 0.2;
+ZoomSensitivity			= 0.3;
 
 ;;;;;;;;;;;;;;;; ARROW
-[Arrow]
-Damage				= 100.0;
-ZoomFactor			= 8.0;
-ZoomingTime			= 0.2;
-ZommSensitivity		= 0.2;
+[Arrow] : EmptyWeapon
+Damage					= 100.0;
+ZoomFactor				= 8.0;
+ZoomingTime				= 0.2;
+ZoomSensitivity			= 0.2;

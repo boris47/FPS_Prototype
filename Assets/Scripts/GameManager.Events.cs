@@ -55,7 +55,7 @@ public interface StreamEvents {
 		event		GameEvents.StreamingEvent		OnLoadComplete;
 
 	/// <summary> Save current play </summary>
-					void									Save	( string fileName = "SaveFile.txt", bool isAutomaic = false );
+					void									Save	( string filePath = "SaveFile.txt", bool isAutomaic = false );
 
 	/// <summary> Load a file </summary>
 					void									Load	( string fileName = "SaveFile.txt" );
@@ -85,7 +85,7 @@ public partial class GameManager : StreamEvents {
 	private	event	GameEvents.StreamingEvent		m_OnSaveComplete	= delegate ( StreamData streamData ) { return null; };
 	private	event	GameEvents.StreamingEvent		m_OnLoad			= delegate ( StreamData streamData ) { return null; };
 	private	event	GameEvents.StreamingEvent		m_OnLoadComplete	= delegate ( StreamData streamData ) { return null; };
-	private			StreamingState					m_SaveLoadState	= StreamingState.NONE;
+	private			StreamingState					m_SaveLoadState		= StreamingState.NONE;
 
 #region INTERFACE
 	// INTERFACE START
@@ -142,7 +142,7 @@ public partial class GameManager : StreamEvents {
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Used to save data of all registered objects </summary>
-	void						StreamEvents.Save( string fileName, bool isAutomaic )
+	void						StreamEvents.Save( string filePath, bool isAutomaic )
 	{
 		// TODO: CHECK FOR AUTOMAIC SAVE
 
@@ -156,7 +156,7 @@ public partial class GameManager : StreamEvents {
 		m_SaveLoadState = StreamingState.SAVING;
 
 		PlayerPrefs.SetInt( "SaveSceneIdx", UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex );
-		PlayerPrefs.SetString( "SaveFilePath", fileName );
+		PlayerPrefs.SetString( "SaveFilePath", filePath );
 
 		StreamData streamData = new StreamData();
 
@@ -170,8 +170,8 @@ public partial class GameManager : StreamEvents {
 
 			// Serialize data
 			string toSave = JsonUtility.ToJson( streamData, prettyPrint: false );
-			Encrypt( ref toSave );
-			File.WriteAllText( fileName, toSave );
+//			Encrypt( ref toSave );
+			File.WriteAllText( filePath, toSave );
 		};
 
 		// Thread OnCompletion
@@ -208,7 +208,7 @@ public partial class GameManager : StreamEvents {
 
 		// Deserialize data
 		string toLoad = File.ReadAllText( fileName );
-		Decrypt( ref toLoad );
+//		Decrypt( ref toLoad );
 		StreamData streamData = JsonUtility.FromJson< StreamData >( toLoad );
 
 		if ( streamData != null )
@@ -549,7 +549,7 @@ public partial class GameManager : PauseEvents {
 		m_OnPauseSet( bPauseState );
 
 		m_IsPaused = bPauseState;
-		UI.Instance.SwitchTo( UI.Instance.InGame.transform );
+		UI.Instance.GoToMenu( UI.Instance.InGame.transform );
 		UI.Instance.SetPauseMenuState( bPauseState );
 
 		Cursor.visible = bPauseState == true;
@@ -622,5 +622,20 @@ public partial class GameManager : UpdateEvents {
 	{
 		add		{	if ( value != null )	m_OnFrame += value;	}
 		remove	{	if ( value != null )	m_OnFrame -= value; }
+	}
+}
+
+
+[System.Serializable]
+public class MyKeyValuePair {
+	[SerializeField]
+	public	string	Key;
+	[SerializeField]
+	public	string	Value;
+
+	public	MyKeyValuePair( string Key, string Value )
+	{
+		this.Key	= Key;
+		this.Value	= Value;
 	}
 }

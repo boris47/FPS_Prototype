@@ -3,6 +3,7 @@ using UnityEngine;
 using Database;
 using UnityEngine.AI;
 
+
 public partial interface IEntity {
 	// Entity Transform
 	Transform				Transform						{ get; }
@@ -409,3 +410,32 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	}
 
 }
+
+
+
+public enum ENTITY_TYPE : uint {
+	NONE,
+	ACTOR,
+	HUMAN,
+	ROBOT,
+	ANIMAL,
+	OBJECT
+};
+
+public	enum LookTargetType : uint {
+	POSITION,
+	TRANSFORM
+};
+
+public	enum LookTargetMode : uint {
+	HEAD_ONLY,
+	WITH_BODY
+}
+
+public class LookData {
+	public	bool			HasLookAtObject		= false;
+	public	Vector3			PointToLookAt		= Vector3.zero;
+	public	Transform		TrasformToLookAt	= null;
+	public	LookTargetType	LookTargetType		= LookTargetType.POSITION;
+	public	LookTargetMode	LookTargetMode		= LookTargetMode.HEAD_ONLY;
+};

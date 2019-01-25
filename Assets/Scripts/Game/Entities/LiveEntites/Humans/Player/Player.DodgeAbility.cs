@@ -349,7 +349,7 @@ public partial class Player {
 		m_RigidBody.velocity						= Vector3.zero;
 		m_RigidBody.constraints						= RigidbodyConstraints.None;
 
-		float slowMotionCoeff			= WeaponManager.Instance.CurrentWeapon.SlowMotionCoeff;
+//		float slowMotionCoeff			= WeaponManager.Instance.CurrentWeapon.SlowMotionCoeff;
 		AnimationCurve animationCurve	= ( ( dodgeTarget != null && dodgeTarget.HasTimeScaleCurveOverride ) ? dodgeTarget.DodgeTimeScaleCurve : m_DodgeTimeScaleCurve );
 		while ( m_DodgeInterpolant < 1f )
 		{
@@ -366,7 +366,7 @@ public partial class Player {
 			effectFrame.color		= Color.Lerp ( Color.white, Color.clear, m_DodgeInterpolant * 6f );
 
 			// Time Scale
-			float timeScaleNow		= animationCurve.Evaluate( m_DodgeInterpolant ) * slowMotionCoeff;
+			float timeScaleNow		= animationCurve.Evaluate( m_DodgeInterpolant );// * slowMotionCoeff;
 			if ( m_ChosingDodgeRotation == false )
 				Time.timeScale			= ( falling == true ) ? Time.timeScale : timeScaleNow;
 			

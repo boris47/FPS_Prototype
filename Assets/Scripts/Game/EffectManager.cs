@@ -3,6 +3,16 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+public enum EffectType {
+	ENTITY_ON_HIT,
+	AMBIENT_ON_HIT,
+	ELETTRO,
+	PLASMA,
+	EXPLOSION,
+
+	MUZZLE,
+	SMOKE
+};
 
 
 public class EffectManager : MonoBehaviour {
@@ -13,15 +23,18 @@ public class EffectManager : MonoBehaviour {
 	private		CustomAudioSource			m_ExplosionSource						= null;
 
 
-	private		ParticleSystem[]			m_Effects = new ParticleSystem[ (int)EffectType.COUNT ];
+	private		ParticleSystem[]			m_Effects			= null;
 
 
-	private		bool						m_IsOK = true;
+	private		Transform					m_ParticleEffects	= null;
+	private		bool						m_IsOK				= true;
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake
 	private void	Awake()
 	{
+		// SINGLETON
 		if ( Instance != null )
 		{
 			Destroy( gameObject );
@@ -29,15 +42,10 @@ public class EffectManager : MonoBehaviour {
 		}
 		Instance = this;
 		DontDestroyOnLoad( this );
+		
+		m_ParticleEffects = transform.Find("ParticleEffects");
 
-			{
-			for ( int i = 0; i < (int)EffectType.COUNT; i++ )
-			{
-				ParticleSystem particleSystem = null;
-				m_IsOK &= Utils.Base.SearchComponent( gameObject, ref particleSystem, SearchContext.CHILDREN, ( p ) => { return p.transform.GetSiblingIndex() == i; } );
-				m_Effects[i] = particleSystem;
-			}
-		}
+		m_IsOK = m_ParticleEffects.PairComponentsInChildrenIntoArray( ref m_Effects, typeof( EffectType ) );
 	}
 
 

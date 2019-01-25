@@ -1,0 +1,39 @@
+;; SINGLE SHOT
+[WPN_FireModule_Single]
+BaseMagazineCapacity		= 5;
+BaseDamage					= 5;
+BaseShotDelay				= 1.0;
+BaseCamDeviation			= 0.2;
+BaseFireDispersion			= 0.5f;
+Bullet						= BulletRifle;
+
+;; BURST SEMI
+[WPN_FireModule_Burst]
+BaseMagazineCapacity		= 20;
+BaseDamage					= 5;
+BaseShotDelay				= 0.08;
+BaseCamDeviation			= 0.8;
+BaseFireDispersion			= 8.0f;
+Bullet						= BulletRifle;
+BurstSize					= 3;
+ApplyDeviationOnLastShot	= false;
+
+;; BURST AUTO
+[WPN_FireModule_BurstAuto] : WPN_FireModule_Burst
+ApplyDeviationOnLastShot	= false;
+
+
+;; FULL AUTO
+[WPN_FireModule_Auto]
+BaseMagazineCapacity		= 30;
+BaseDamage					= 5;
+BaseShotDelay				= 0.08;
+BaseCamDeviation			= 0.7;
+BaseFireDispersion			= 8.0f;
+Bullet						= BulletRifle;
+
+
+[WPN_FireModuleShotgun]
+
+
+[WPN_FireModuleGranadeLauncher]

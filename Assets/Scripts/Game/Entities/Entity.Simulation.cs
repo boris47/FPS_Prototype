@@ -71,3 +71,10 @@ public abstract partial class Entity : IEntitySimulation {
 
 
 }
+
+public enum SimMovementType {
+	STATIONARY,
+	WALK,
+	CROUCHED,
+	RUN
+}
