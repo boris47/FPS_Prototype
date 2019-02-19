@@ -1,7 +1,7 @@
 ﻿
-
 namespace Database {
 
+	
 	public class cValue {
 
 		private	readonly	object			m_Value	= null;
@@ -16,39 +16,13 @@ namespace Database {
 			m_Type = value.GetType();
 		}
 
-		///////////////////////////////////////////////////////////////////////////////
-
-		public	cValue( System.Type type )
-		{
-
-			if ( type == typeof( bool ) )
-				m_Value = false;
-
-			if ( type == typeof( int ) )
-				m_Value = 0;
-
-			if ( type == typeof( float ) )
-				m_Value = 0.0f;
-
-			if ( type == typeof( string ) )
-				m_Value = "";
-
-//			m_Value = null;
-
-			// In case of a value type use Activator.CreateInstance and it should work fine
-//			if ( type.IsValueType )
-			{
-//				m_Value = System.Activator.CreateInstance( type );
-			}
-			m_Type = type;
-		}
-
 
 		///////////////////////////////////////////////////////////////////////////////
 
 		public	bool	Is<T>()
-		{
-			return m_Type == default(T).GetType();
+		{	
+			System.Type requiredType = typeof(T);
+			return m_Type == requiredType;
 		}
 
 
@@ -67,6 +41,9 @@ namespace Database {
 			}
 			return result;
 		}
+
+
+		///////////////////////////////////////////////////////////////////////////////
 
 		public	new 	System.Type	GetType()
 		{

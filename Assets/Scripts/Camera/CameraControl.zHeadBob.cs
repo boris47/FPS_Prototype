@@ -5,30 +5,30 @@ using UnityEngine;
 [System.Serializable]
 public class HeadBob : CameraEffectBase {
 
-	const	float				STEP_VALUE					= 0.8f;
-	const	float				THETA_UPDATE_X				= 5.0f;
-	const	float				THETA_UPDATE_Y				= 2.5f;
-
-
-	[SerializeField]
-	private float				m_Amplitude					= 3.0f;
+	private	const	float				STEP_VALUE					= 0.8f;
+	private	const	float				THETA_UPDATE_X				= 5.0f;
+	private	const	float				THETA_UPDATE_Y				= 2.5f;
 
 	[SerializeField]
-	private float				m_Speed						= 1.0f;
+	private float						m_Amplitude					= 3.0f;
 
-	private	Vector3				m_WeaponPositionDelta		= Vector3.zero;
-	public	Vector3				WeaponPositionDelta
+	[SerializeField]
+	private float						m_Speed						= 1.0f;
+
+	private	static	Vector3				m_WeaponPositionDelta		= Vector3.zero;
+	public	static	Vector3				WeaponPositionDelta
 	{
 		get { return m_WeaponPositionDelta; }
 	}
-	private	Vector3				m_WeaponRotationDelta		= Vector3.zero;
-	public	Vector3				WeaponRotationDelta
+
+	private	static	Vector3				m_WeaponRotationDelta		= Vector3.zero;
+	public	static	Vector3				WeaponRotationDelta
 	{
 		get { return m_WeaponRotationDelta; }
 	}
 
 
-	private	bool				m_StepDone					= false;
+	private	bool						m_StepDone					= false;
 
 
 

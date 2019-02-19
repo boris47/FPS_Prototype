@@ -73,3 +73,9 @@ AI Behiaviours
 		- The weapon mantain the condition end call setup as for old Blackjack
 		- The weapon cna have other attachments that can be Activated and Deactivated / Attached and Removed ( Flashlight, Laser, Optic )
 	}
+
+
+
+
+	[WPN_FireModule_Shotgun]
+	FireMode = Auto

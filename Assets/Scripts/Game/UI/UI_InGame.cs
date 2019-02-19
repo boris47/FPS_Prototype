@@ -9,7 +9,6 @@ public class UI_InGame : MonoBehaviour {
 	private			Text			healthText		= null;
 
 	private			Text			wpnName			= null;
-	private			Text			bulletsCount	= null;
 	private			Text			otherInfo		= null;
 
 	private			Image			staminaBar		= null;
@@ -31,7 +30,6 @@ public class UI_InGame : MonoBehaviour {
 		healthText		= transform.GetChild(0).GetChild(2).GetComponent<Text>();
 
 		wpnName			= transform.GetChild(1).GetChild(0).GetComponent<Text>();
-		bulletsCount	= transform.GetChild(1).GetChild(1).GetComponent<Text>();
 		otherInfo		= transform.GetChild(1).GetChild(2).GetComponent<Text>();
 		staminaBar		= transform.GetChild(1).GetChild(3).GetChild(1).GetComponent<Image>();
 
@@ -111,10 +109,8 @@ public class UI_InGame : MonoBehaviour {
 		healthText.text		= Mathf.CeilToInt( player.Health ).ToString();
 
 		wpnName.text		= WeaponManager.Instance.CurrentWeapon.Transform.name;
-//		bulletsCount.text	= WeaponManager.Instance.CurrentWeapon.Magazine.ToString();
 		otherInfo.text		= WeaponManager.Instance.CurrentWeapon.OtherInfo;
 	}
-	
 
 	//////////////////////////////////////////////////////////////////////////
 	// PrintTime

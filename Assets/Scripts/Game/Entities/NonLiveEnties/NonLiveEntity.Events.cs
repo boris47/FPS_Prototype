@@ -13,12 +13,12 @@ public abstract partial class NonLiveEntity : Entity {
 		StreamUnit streamUnit = base.OnSave( streamData );
 
 		// Health
-		streamUnit.AddInternal( "Health", m_Health );
+		streamUnit.SetInternal( "Health", m_Health );
 
 		// Shield
 		if ( m_Shield != null )
 		{
-			streamUnit.AddInternal( "ShieldStatus", m_Shield.Status );
+			streamUnit.SetInternal( "ShieldStatus", m_Shield.Status );
 		}
 
 
@@ -28,15 +28,15 @@ public abstract partial class NonLiveEntity : Entity {
 //		streamUnit.AddInternal( "HasFaceTarget",					m_HasFaceTarget );
 //		streamUnit.AddInternal( "Destination",					Utils.Converters.Vector3ToString( m_Destination ) );
 //		streamUnit.AddInternal( "PointToFace",					Utils.Converters.Vector3ToString( m_PointToFace ) );
-		streamUnit.AddInternal( "IsMoving",						m_NavCanMoveAlongPath );
-		streamUnit.AddInternal( "IsAllignedBodyToDestination",	m_IsAllignedBodyToPoint );
-		streamUnit.AddInternal( "IsAllignedGunToPoint",			m_IsAllignedHeadToPoint );
+		streamUnit.SetInternal( "IsMoving",						m_NavCanMoveAlongPath );
+		streamUnit.SetInternal( "IsAllignedBodyToDestination",	m_IsAllignedBodyToPoint );
+		streamUnit.SetInternal( "IsAllignedGunToPoint",			m_IsAllignedHeadToPoint );
 //		streamUnit.AddInternal( "DistanceToTravel",				m_DistanceToTravel );
 		
 		// Body and Gun
 		{
-			streamUnit.AddInternal( "BodyRotation",				Utils.Converters.QauternionToString( m_BodyTransform.localRotation ) );
-			streamUnit.AddInternal( "GunRotation",				Utils.Converters.QauternionToString( m_GunTransform.localRotation ) );
+			streamUnit.SetInternal( "BodyRotation",				Utils.Converters.QauternionToString( m_BodyTransform.localRotation ) );
+			streamUnit.SetInternal( "GunRotation",				Utils.Converters.QauternionToString( m_GunTransform.localRotation ) );
 		}
 
 		// Brain state

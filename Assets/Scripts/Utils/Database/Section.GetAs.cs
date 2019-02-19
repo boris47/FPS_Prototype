@@ -1,5 +1,6 @@
 ﻿
 
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Database {
@@ -21,6 +22,29 @@ namespace Database {
 				}
 			}
 			Out = default(T);
+			return false;
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		// bAs<T>
+		public	bool					bAs<T>( string Key, ref T[] Out )
+		{
+			cLineValue pLineValue = null;
+			if ( ( pLineValue = this[ Key ] ) != null )
+			{
+				if ( pLineValue.Type == LineValueType.MULTI )
+				{
+					List<cValue> values = pLineValue.MultiValue.ValueArray;
+					bool bAreValidValues = true;
+					values.ForEach( ( cValue value ) => bAreValidValues &= typeof(T) == value.GetType() );
+					if ( bAreValidValues )
+					{
+						Out = values.ConvertAll( ( s ) => s.As<T>() ).ToArray();
+						return true;
+					}
+				}
+			}
+			Out = null;
 			return false;
 		}
 
@@ -107,12 +131,8 @@ namespace Database {
 				cMultiValue pMultiValue = pLineValue.MultiValue;
 				if ( pMultiValue != null )
 				{
-					cValue pValue = pMultiValue[ Index - 1 ];
-					if ( pValue != null )
-					{
-						Out = pValue;
-						return true;
-					}
+					Out = pMultiValue[ Index - 1 ];
+					return true;
 				}
 			}
 			Out = null;
@@ -122,7 +142,7 @@ namespace Database {
 
 		//////////////////////////////////////////////////////////////////////////
 		// bAsVec2
-		public	bool					bAsVec2( string Key, ref Vector2 Out, Vector2 Default )
+		public	bool					bAsVec2( string Key, ref Vector2 Out, Vector2? Default )
 		{
 			cLineValue pLineValue		= this[ Key ];
 			if ( pLineValue != null )
@@ -140,14 +160,14 @@ namespace Database {
 					}
 				}
 			}
-			Out = Default;
+			Out = Default.GetValueOrDefault();
 			return false;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// bAsVec3
-		public	bool					bAsVec3( string Key, ref Vector3 Out, Vector3 Default )
+		public	bool					bAsVec3( string Key, ref Vector3 Out, Vector3? Default )
 		{
 			cLineValue pLineValue		= this[ Key ];
 			if ( pLineValue != null )
@@ -155,25 +175,22 @@ namespace Database {
 				cMultiValue pMultiValue		= pLineValue.MultiValue;
 				if ( pMultiValue != null )
 				{
-					cValue pValue1				= pMultiValue[ 0 ];
-					cValue pValue2				= pMultiValue[ 1 ];
-					cValue pValue3				= pMultiValue[ 2 ];
+					float x = pMultiValue[ 0 ];
+					float y = pMultiValue[ 1 ];
+					float z = pMultiValue[ 2 ];
 
-					if ( ( pValue1 != null ) && ( pValue2 != null ) && ( pValue3 != null ) )
-					{
-						Out = new Vector3( pValue1.ToFloat(), pValue2.ToFloat(), pValue3.ToFloat() );
-						return true;
-					}
+					Out = new Vector3( x, y, z );
+					return true;
 				}
 			}
-			Out = Default;
+			Out = Default.GetValueOrDefault();
 			return false;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// bAsVec4
-		public	bool					bAsVec4( string Key, ref Vector4 Out, Vector4 Default )
+		public	bool					bAsVec4( string Key, ref Vector4 Out, Vector4? Default )
 		{
 			cLineValue pLineValue		= this[ Key ];
 			if ( pLineValue != null )
@@ -181,19 +198,16 @@ namespace Database {
 				cMultiValue pMultiValue		= pLineValue.MultiValue;
 				if ( pMultiValue != null )
 				{
-					cValue pValue1				= pMultiValue[ 0 ];
-					cValue pValue2				= pMultiValue[ 1 ];
-					cValue pValue3				= pMultiValue[ 2 ];
-					cValue pValue4				= pMultiValue[ 3 ];
+					float x = pMultiValue[ 0 ];
+					float y = pMultiValue[ 1 ];
+					float z = pMultiValue[ 2 ];
+					float w = pMultiValue[ 3 ];
 
-					if ( ( pValue1 != null ) && ( pValue2 != null ) && ( pValue3 != null ) && ( pValue4 != null ) )
-					{
-						Out = new Vector4( pValue1.ToFloat(), pValue2.ToFloat(), pValue3.ToFloat(), pValue4.ToFloat() );
-						return true;
-					}
+					Out = new Vector4( x, y, z, w );
+					return true;
 				}
 			}
-			Out = Default;
+			Out = Default.GetValueOrDefault();
 			return false;
 		}
 

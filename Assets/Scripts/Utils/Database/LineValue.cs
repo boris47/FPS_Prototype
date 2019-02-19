@@ -1,10 +1,13 @@
 ﻿
-using UnityEngine;
+using System.Collections.Generic;
 
 namespace Database {
 
-	public class cLineValue {
+	//* TYPES */
+	public enum LineValueType		{ SINGLE, MULTI };
 
+	[System.Serializable]
+	public class cLineValue {
 		private	string						sKey				= string.Empty;
 		private	string						sRawValue			= string.Empty;
 
@@ -49,7 +52,7 @@ namespace Database {
 				if ( vValues.Length < 1 )
 					return;
 
-				pMultiValue = new cMultiValue( ref vValues );
+				pMultiValue = new cMultiValue( vValues );
 		
 			}
 			else
@@ -57,7 +60,7 @@ namespace Database {
 				iType = LineValueType.SINGLE;
 				cValue pValue = Utils.String.RecognizeValue( sLine );
 				if ( pValue == null ) {
-					 Debug.LogError( " cLineValue::Constructor: for key " + Key + " value type is undefined" );
+					UnityEngine.Debug.LogError( " cLineValue::Constructor: for key " + Key + " value type is undefined" );
 					return;
 				}
 				this.pValue = pValue;

@@ -52,6 +52,9 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 	[SerializeField, Tooltip("Camera Target"), ReadOnly]
 	private		Transform						m_Target								= null;
 
+	[SerializeField]
+	private		bool							m_WeaponMoveEffectEnabled				= true;
+
 	[SerializeField, Range( 0.2f, 20.0f )]
 	private		float							m_MouseSensitivity						= 1.0f;
 
@@ -145,16 +148,16 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 		StreamUnit streamUnit	= streamData.NewUnit( gameObject );
 
 		// Current internal direction
-		streamUnit.AddInternal( "CurrentDirection", Utils.Converters.Vector3ToString( m_CurrentDirection ) );
+		streamUnit.SetInternal( "CurrentDirection", Utils.Converters.Vector3ToString( m_CurrentDirection ) );
 
 		// Can parse input
-		streamUnit.AddInternal( "CanParseInput", m_CanParseInput );
+		streamUnit.SetInternal( "CanParseInput", m_CanParseInput );
 
 		// Headbob
-		streamUnit.AddInternal( "HeadbobActive", m_HeadBob.IsActive );
+		streamUnit.SetInternal( "HeadbobActive", m_HeadBob.IsActive );
 
 		// Headmove
-		streamUnit.AddInternal( "HeadmoveActive", m_HeadBob.IsActive );
+		streamUnit.SetInternal( "HeadmoveActive", m_HeadBob.IsActive );
 
 		return streamUnit;
 	}
@@ -247,7 +250,7 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 		if ( Player.Instance.IsDodging )
 			return;
 
-		m_WpnCurrentDeviation.x += Random.Range( -deviation, deviation ) * weightX;
+		m_WpnCurrentDeviation.x -= Random.Range( 0.001f, deviation ) * weightX;
 		m_WpnCurrentDeviation.y += Random.Range( -deviation, deviation ) * weightY;
 	}
 
@@ -256,7 +259,7 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 	// ApplyDispersion
 	void	ICameraControl.ApplyDispersion( float dispersion, float weightX, float weightY )
 	{
-		m_WpnCurrentDispersion.x += Random.Range( -dispersion, dispersion ) * weightX;
+		m_WpnCurrentDispersion.x += Random.Range( 0.001f, dispersion ) * weightX;
 		m_WpnCurrentDispersion.y += Random.Range( -dispersion, dispersion ) * weightY;
 	}
 
@@ -297,18 +300,24 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 
 		// Weapon movements
 		{
-			Vector3 wpnPositionDelta = m_HeadBob.WeaponPositionDelta + m_HeadMove.WeaponPositionDelta;
-			Vector3 wpnRotationDelta = m_HeadBob.WeaponRotationDelta + m_HeadMove.WeaponRotationDelta;
-
 			m_WpnCurrentDispersion	= Vector3.Lerp( m_WpnCurrentDispersion, Vector3.zero, dt * 3.7f );
 			m_WpnRotationFeedback	= Vector3.Lerp( m_WpnRotationFeedback,	Vector3.zero, dt );
 			m_WpnFallFeedback		= Vector3.Lerp( m_WpnFallFeedback,		Vector3.zero, dt * 3.7f );
 			m_WpnCurrentDeviation	= Vector3.Lerp( m_WpnCurrentDeviation,  Vector3.zero, dt * 3.7f );
 
-			wpnRotationDelta += m_WpnCurrentDispersion + m_WpnRotationFeedback + m_WpnFallFeedback;
+			if ( m_WeaponMoveEffectEnabled )
+			{
+				// Position
+				Vector3 localPosition		= HeadBob.WeaponPositionDelta + HeadMove.WeaponPositionDelta;
+				WeaponManager.Instance.CurrentWeapon.Transform.localPosition	 = localPosition;
 
-			WeaponManager.Instance.CurrentWeapon.Transform.localPosition	 = wpnPositionDelta;
-			WeaponManager.Instance.CurrentWeapon.Transform.localEulerAngles	 = wpnRotationDelta;
+				// Rotation
+				Vector3 localEulerAngles	= HeadBob.WeaponRotationDelta + HeadMove.WeaponRotationDelta + m_WpnCurrentDispersion + m_WpnRotationFeedback + m_WpnFallFeedback;
+				WeaponManager.Instance.CurrentWeapon.Transform.localEulerAngles	 = localEulerAngles;
+
+				Vector3 basePivotRotation = Vector3.up * -90f;
+				m_WeaponPivot.localEulerAngles = m_HeadBob.Direction*10f + basePivotRotation;
+			}
 		}
 
 		// Look at target is assigned
@@ -328,14 +337,14 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 		}
 
 		// Cam Dispersion
-		m_CurrentDirection		= Vector3.Lerp( m_CurrentDirection, m_CurrentDirection + m_WpnCurrentDeviation, dt * 8f );
+		m_CurrentDirection		= Vector3.Lerp( m_CurrentDirection, m_CurrentDirection + m_WpnCurrentDeviation, dt * 13f );
 		m_CurrentDirection.x	= Utils.Math.Clamp( m_CurrentDirection.x - m_CurrentRotation_Y_Delta, CLAMP_MIN_X_AXIS, CLAMP_MAX_X_AXIS );
 
 		// Rotation
 		if ( m_CanParseInput == true )
 		{
 			bool	isZoomed			= WeaponManager.Instance.IsZoomed;
-			float	wpnZoomSensitivity  = WeaponManager.Instance.CurrentWeapon.ZommSensitivity;
+			float	wpnZoomSensitivity  = WeaponManager.Instance.ZoomSensitivity;
 			float	Axis_X_Delta		= Input.GetAxisRaw ( "Mouse X" ) * m_MouseSensitivity * ( ( isZoomed ) ? wpnZoomSensitivity : 1.0f );
 			float	Axis_Y_Delta		= Input.GetAxisRaw ( "Mouse Y" ) * m_MouseSensitivity * ( ( isZoomed ) ? wpnZoomSensitivity : 1.0f );
 

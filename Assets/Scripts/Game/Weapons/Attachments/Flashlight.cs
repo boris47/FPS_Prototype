@@ -14,7 +14,7 @@ public interface IFlashLight {
 }
 
 
-public class FlashLight : MonoBehaviour, IFlashLight {
+public class FlashLight : WeaponAttachment, IFlashLight {
 	
 	Transform	IFlashLight.Transform		{ get { return transform; } }
 	bool		IFlashLight.Activated		{ get { return m_Active; } }

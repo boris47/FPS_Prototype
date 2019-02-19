@@ -44,7 +44,7 @@ public class CommandPanel : MonoBehaviour {
 	{
 		StreamUnit streamUnit	= streamData.NewUnit( gameObject );
 
-		streamUnit.AddInternal( "IsTriggered", m_IsTriggered );
+		streamUnit.SetInternal( "IsTriggered", m_IsTriggered );
 
 		return streamUnit;
 	}

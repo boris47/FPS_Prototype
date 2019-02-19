@@ -5,9 +5,13 @@
 #include Turrets.txt
 #include Drones.txt
 #include Walkers.txt
-#include Weapons.txt
-#include WeaponFireModules.txt
-#include Granades.txt
+
+
+#include Weapons/Weapons.txt
+#include Weapons/WeaponModules.txt
+#include Weapons/WeaponModulesModifiers.txt
+#include Weapons/WeaponFireModes.txt
+#include Weapons/Granades.txt
 
 
 ; WEATHER SETTINGS

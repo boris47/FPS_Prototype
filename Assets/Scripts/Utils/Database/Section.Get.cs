@@ -1,4 +1,6 @@
 ﻿
+using System.Collections.Generic;
+
 namespace Database {
 
 	public partial class Section {
@@ -34,13 +36,9 @@ namespace Database {
 		public	T						As<T>( string Key )
 		{
 			cLineValue pLineValue = this[ Key ];
-			if ( pLineValue != null )
+			if ( pLineValue != null && pLineValue.Type == LineValueType.SINGLE )
 			{
-				if ( pLineValue.Type == LineValueType.SINGLE )
-				{
-					if ( pLineValue.Value.ToSystemObject().GetType() == typeof( T ) )
-						return pLineValue.Value.As<T>();
-				}
+				return pLineValue.Value.As<T>();
 			}
 			return default( T );
 		}
@@ -51,13 +49,9 @@ namespace Database {
 		public	bool					AsBool( string Key, bool Default = false )
 		{
 			cLineValue pLineValue = this[ Key ];
-			if ( pLineValue != null )
+			if ( pLineValue != null && pLineValue.Type == LineValueType.SINGLE )
 			{
-				if ( pLineValue.Type == LineValueType.SINGLE )
-				{
-					if ( pLineValue.Value.ToSystemObject().GetType() == typeof( bool ) )
-						return pLineValue.Value.ToBool();
-				}
+				return pLineValue.Value.As<bool>();
 			}
 			return Default;
 		}
@@ -68,13 +62,9 @@ namespace Database {
 		public	int						AsInt( string Key, int Default = 0 )
 		{
 			cLineValue pLineValue = this[ Key ];
-			if ( pLineValue != null )
+			if ( pLineValue != null && pLineValue.Type == LineValueType.SINGLE )
 			{
-				if ( pLineValue.Type == LineValueType.SINGLE )
-				{
-					if ( pLineValue.Value.ToSystemObject().GetType() == typeof( int ) )
-						return pLineValue.Value.ToInteger();
-				}
+				return pLineValue.Value.As<int>();
 			}
 			return Default;
 		}
@@ -92,13 +82,10 @@ namespace Database {
 		public	float					AsFloat( string Key, float Default = 0.0f )
 		{
 			cLineValue pLineValue = this[ Key ];
-			if ( pLineValue != null )
+			if ( pLineValue != null && pLineValue.Type == LineValueType.SINGLE )
 			{
-				if ( pLineValue.Type == LineValueType.SINGLE )
-				{
-					if ( pLineValue.Value.ToSystemObject().GetType() == typeof( float ) )
-						return pLineValue.Value.ToFloat();
-				}
+				float value = pLineValue.Value;
+				return value;
 			}
 			return Default;
 		}
@@ -111,11 +98,7 @@ namespace Database {
 			cLineValue pLineValue = this[ Key ];
 			if ( pLineValue != null )
 			{
-				if ( pLineValue.Type == LineValueType.SINGLE )
-				{
-					if ( pLineValue.Value.ToSystemObject().GetType() == typeof( string ) )
-						return pLineValue.Value.ToString();
-				}
+				return pLineValue.Value.As<string>();
 			}
 			return Default;
 		}
@@ -198,6 +181,43 @@ namespace Database {
 		{
 			cLineValue pLineValue = null; cMultiValue pMultiValue = null;
 			return ( ( pLineValue = this[ Key ] ) != null ) && ( ( pMultiValue = pLineValue.MultiValue ) != null ) ? pMultiValue.Size : 0;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// GetMultiAsArray
+		public	T[]						GetMultiAsArray<T>( string Key )
+		{
+			T[] array = null;
+
+			cLineValue pLineValue = null;
+			if ( ( pLineValue = this[ Key ] ) != null )
+			{
+				cValue value = null;
+				if ( pLineValue.Type == LineValueType.SINGLE && ( ( value = pLineValue.Value ) != null ) )
+				{
+					array = new T[1] { value.As<T>() };
+				}
+
+				 cMultiValue pMultiValue = null;
+				if ( pLineValue.Type == LineValueType.MULTI && ( ( pMultiValue = pLineValue.MultiValue ) != null ) )
+				{
+					array = new T[ pMultiValue.Size ];
+					for ( int i = 0; i < pMultiValue.ValueArray.Count; i++ )
+					{
+						array[i] = pMultiValue.ValueArray[ i ].As<T>();
+					}
+				}
+			}
+			return array;
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		// GetMultiAsArray
+		public	bool						bGetMultiAsArray<T>( string Key, ref T[] array )
+		{
+			array = GetMultiAsArray<T>( Key );
+			return array != null;
 		}
 
 	};

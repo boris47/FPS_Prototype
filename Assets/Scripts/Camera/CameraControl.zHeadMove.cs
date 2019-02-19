@@ -5,21 +5,26 @@ using UnityEngine;
 [System.Serializable]
 public class HeadMove : CameraEffectBase {
 
-	private	const	float		THETA_UPDATE_X				= 0.8f;
-	private	const	float		THETA_UPDATE_Y				= 0.4f;
-
-
-	[SerializeField]
-	private float				m_Amplitude					= 0.2f;
+	private	const	float				THETA_UPDATE_X				= 0.8f;
+	private	const	float				THETA_UPDATE_Y				= 0.4f;
 
 	[SerializeField]
-	private float				m_Speed						= 5.0f;
+	private float						m_Amplitude					= 0.2f;
 
-	private	Vector3				m_WeaponPositionDelta		= Vector3.zero;
-	public	Vector3				WeaponPositionDelta			{ get { return m_WeaponPositionDelta; } }
+	[SerializeField]
+	private float						m_Speed						= 5.0f;
 
-	private	Vector3				m_WeaponRotationDelta		= Vector3.zero;
-	public	Vector3				WeaponRotationDelta			{ get { return m_WeaponRotationDelta; }	}
+	private	static	Vector3				m_WeaponPositionDelta		= Vector3.zero;
+	public	static	Vector3				WeaponPositionDelta
+	{
+		get { return m_WeaponPositionDelta; }
+	}
+
+	private	static	Vector3				m_WeaponRotationDelta		= Vector3.zero;
+	public	static	Vector3				WeaponRotationDelta
+	{
+		get { return m_WeaponRotationDelta; }
+	}
 
 
 

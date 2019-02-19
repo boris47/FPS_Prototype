@@ -8,10 +8,11 @@ using UnityEditor;
 public class WindowValueStep : EditorWindow {
 
 	public	static	WindowValueStep		m_Window		= null;
-	public	static	cValue		Value		= null;
+	public	static	cValue				Value			= null;
 
-	private	System.Action		OnOK		= null;
-	private	System.Action		OnCancel	= null;
+	private	System.Action		OnOK					= null;
+	private System.Action       OnCancel				= null;
+	private	System.Type			RequesteType			= null;
 
 	//
 	public static void Init<T>( System.Action callbackOK , System.Action callbackCancel = null )
@@ -32,14 +33,13 @@ public class WindowValueStep : EditorWindow {
 
 		m_Window = EditorWindow.GetWindow<WindowValueStep>( true, "Weather Manager" );
 
-		m_Window.OnOK		= callbackOK;
-		m_Window.OnCancel	= callbackCancel;
-
-		Value = new cValue( requestedType );
+		m_Window.OnOK				= callbackOK;
+		m_Window.OnCancel			= callbackCancel;
+		m_Window.RequesteType		= requestedType;
 	}
 
 	//
-	private	bool	HasValidValue()
+	private static	bool	HasValidValue( cValue Value )
 	{
 		if ( Value.ToSystemObject() == null )
 			return false;
@@ -60,24 +60,22 @@ public class WindowValueStep : EditorWindow {
 
 	//		if ( Value.ToSystemObject() != null )
 			{
-				System.Type valueType = Value.GetType();
-
-				if ( valueType == typeof( bool ) )
+				if ( RequesteType == typeof( bool ) )
 					Value = EditorGUILayout.Toggle( Value );
 
-				if ( valueType == typeof( int ) )
+				if ( RequesteType == typeof( int ) )
 					Value = EditorGUILayout.IntField( Value );
 
-				if ( valueType == typeof( float ) )
+				if ( RequesteType == typeof( float ) )
 					Value = EditorGUILayout.FloatField( Value );
 
-				if ( valueType == typeof( string ) )
+				if ( RequesteType == typeof( string ) )
 					Value = EditorGUILayout.TextField( Value );
 			}
 
 			GUILayout.BeginHorizontal();
 			{
-				if ( GUILayout.Button( "OK" ) && HasValidValue() )
+				if ( GUILayout.Button( "OK" ) && HasValidValue(Value) )
 				{
 					if ( OnOK != null )
 						OnOK.Invoke();
@@ -98,11 +96,7 @@ public class WindowValueStep : EditorWindow {
 		GUILayout.EndVertical();
 	}
 
-	//
-	private void OnDestroy()
-	{
-		Value = string.Empty;
-	}
+
 }
 
 #endif

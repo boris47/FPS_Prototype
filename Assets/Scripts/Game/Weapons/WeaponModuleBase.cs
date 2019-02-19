@@ -10,14 +10,13 @@ public interface IWPN_FireModule {
 	float					Damage							{ get; }
 	uint					Magazine						{ get; }
 	uint					MagazineCapacity				{ get; }
-	float					ShotDelay						{ get; }
 
 	float					CamDeviation					{ get; }
 	float					FireDispersion					{ get; }
 
-	bool					NeedRecharge					{ get; }
-
-	void					OnLoad( uint magazine );
+	bool					NeedReload						();
+	bool					ChangeFireMode					( string FireMode );
+	bool					ChangeFireMode				<T>	();
 }
 
 
@@ -26,23 +25,35 @@ public interface IWPN_FireModule {
 /// <summary> Abstract base class for weapon modules </summary>
 [System.Serializable]
 public abstract class WPN_BaseModule : MonoBehaviour {
-	
-	[SerializeField]
-	public		float			m_ZoomSensitivity			= 1f;
-	public			float		ZoomSensitivity
-	{
-		get { return m_ZoomSensitivity; }
-	}
 
-	public	abstract	void	Setup( IWeapon w );
+	public	abstract	bool	Setup			( IWeapon w );
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	abstract	bool	InternalSetup( Database.Section moduleSection );
+
+
+	//		MODIFIERS
+	//////////////////////////////////////////////////////////////////////////
+	public		virtual		void	ApplyModifier( Database.Section modifier )
+	{ }
+
+	public		virtual		void	RestoreModuleProperties()
+	{ }
+
+	public		virtual		void	RemoveModifier( Database.Section modifier )
+	{ }
+
+	public	abstract	bool	OnSave			( StreamUnit streamUnit );
+	public	abstract	bool	OnLoad			( StreamUnit streamUnit );
 
 	public	abstract	bool	CanChangeWeapon	();
-	public	abstract	bool	CanBeUsed();
+	public	abstract	bool	CanBeUsed		();
 	public	abstract	void	OnWeaponChange	();
 
-	public	abstract	void	OnAfterReload();
+	public	abstract	bool	NeedReload		();
+	public	abstract	void	OnAfterReload	();
 
-	public	abstract	void	InternalUpdate();
+	public	abstract	void	InternalUpdate( float DeltaTime );
 
 	//
 	public	virtual		void	OnStart		()	{ }
@@ -58,13 +69,17 @@ public abstract class WPN_BaseModule : MonoBehaviour {
 [System.Serializable]
 public class WPN_BaseModuleEmpty : WPN_BaseModule {
 
-	public	override	void	Setup( IWeapon w )
-	{ }
+	public	override	bool	Setup			( IWeapon w ) { return true; }
+	protected	override	bool	InternalSetup( Database.Section moduleSection ) { return true; }
+
+	public	override	bool	OnSave			( StreamUnit streamUnit ) { return true; }
+	public	override	bool	OnLoad			( StreamUnit streamUnit ) {	return true; }
 
 	public	override	bool	CanChangeWeapon	() {  return true; }
 	public	override	bool	CanBeUsed		() {  return true; }
 	public	override	void	OnWeaponChange	() { }
-	public	override	void	InternalUpdate	() { }
+	public	override	void	InternalUpdate	( float DeltaTime ) { }
+	public	override	bool	NeedReload		() { return false; }
 	public	override	void	OnAfterReload	() { }
 
 	//
@@ -81,179 +96,335 @@ public class WPN_BaseModuleEmpty : WPN_BaseModule {
 [System.Serializable]
 public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 
-	// Weapon reference
-	[SerializeField]
-	private		IWeapon								m_Weapon					= null;
-	protected	IWeapon								Weapon
-	{
-		get { return m_Weapon; }
-	}
+	private	static		AudioCollection							m_ModuleSounds				= null;
 
-	[SerializeField]
-	protected	Transform							m_FirePoint					= null;
-	[SerializeField]
-	protected	uint								m_Magazine					= 0;
-	[SerializeField]
-	protected	uint								m_BaseMagazineCapacity		= 1;
-	[SerializeField]
-	protected	float								m_BaseDamage				= 0.0f;
-	[SerializeField]
-	protected	float								m_BaseShotDelay				= 1.0f;
-
-	[SerializeField]
-	protected	float								m_BaseCamDeviation			= 0.02f;
-	[SerializeField]
-	protected	float								m_BaseFireDispersion		= 0.05f;
-
-	[SerializeField]
-	protected	float								m_FireDelay					= 0.5f;
+	[SerializeField]	protected	Transform					m_FirePoint					= null;
+	[SerializeField]	protected	uint						m_Magazine					= 0;
+	[SerializeField]	protected	uint						m_MagazineCapacity			= 1;
+	[SerializeField]	protected	float						m_Damage					= 0.0f;
+	[SerializeField]	protected	float						m_ShotDelay					= 0.5f;
+	[SerializeField]	protected	float						m_CamDeviation				= 0.02f;
+	[SerializeField]	protected	float						m_FireDispersion			= 0.05f;
+	[SerializeField]	protected	Database.Section			m_ModuleSection				= null;
+	[SerializeField]	protected	WPN_FireMode_Base			m_WpnFireMode				= new WPN_FireMode_Empty(null);
 
 	// INTERFACE START
-	public abstract	FireModes						FireMode					{ get; }
-	public			Vector3							FirePointPosition			{ get { return m_FirePoint.position; } } // TODO Assign m_FirePoint
-	public			Quaternion						FirePointRotation			{ get { return m_FirePoint.rotation; } }
-	public			uint							Magazine					{ get { return m_Magazine; } }				// TODO apply multipliers
-	public			uint							MagazineCapacity			{ get { return m_BaseMagazineCapacity; } }
-	public			float							Damage						{ get { return m_BaseDamage; } }
-	public			float							ShotDelay					{ get { return m_BaseShotDelay; } }
+	public abstract	FireModes									FireMode					{ get; }
+	public			Vector3										FirePointPosition			{ get { return m_FirePoint.position; } } // TODO Assign m_FirePoint
+	public			Quaternion									FirePointRotation			{ get { return m_FirePoint.rotation; } }
+	public			uint										Magazine					{ get { return m_Magazine; } }
+	public			uint										MagazineCapacity			{ get { return m_MagazineCapacity; } }
+	public			float										Damage						{ get { return m_Damage; } }
 
-	public			float							CamDeviation				{ get { return m_BaseCamDeviation; } }
-	public			float							FireDispersion				{ get { return m_BaseFireDispersion; } }
-
-	public			bool							NeedRecharge				{
-		get {
-			return m_Magazine == 0 || m_Magazine < m_BaseMagazineCapacity;
-		}
-	}
+	public			float										CamDeviation				{ get { return m_CamDeviation; } }
+	public			float										FireDispersion				{ get { return m_FireDispersion; } }
 	// INTERFACE END
 
-	protected		GameObjectsPool<Bullet>			m_PoolBullets				= null;	// TODO Create pool of bullets
-
-	protected		bool							m_Initialized				= false;
-
-	protected		ICustomAudioSource				m_AudioSourceFire			= null; // TODO Create audio
-
-	[SerializeField]
-	protected		Database.Section				m_ModuleSection				= null;
+	protected		GameObjectsPool<Bullet>						m_PoolBullets				= null;
+	protected		bool										m_Initialized				= false;
+	protected		CustomAudioSource							m_AudioSourceFire			= null; // TODO Create audio
+	protected		IWeapon										m_WeaponRef					= null;
+	protected		List<Database.Section>						m_Modifiers					= new List<Database.Section>();
 
 
-	// CONTRUCTOR
-	public		override	void	Setup( IWeapon w )
+	//		SETUP
+	//////////////////////////////////////////////////////////////////////////
+	public		override	bool	Setup( IWeapon wpn )
 	{
+		if ( m_Initialized )
+			return false;
+
 		string moduleSectionName = this.GetType().FullName;
 
-		if ( w != null && GameManager.Configs.bGetSection( moduleSectionName, ref m_ModuleSection ) )
+		// TRY RECOVER MODULE SECTION
+		if ( GameManager.Configs.bGetSection( moduleSectionName, ref m_ModuleSection ) == false )			// Get Module Section
+			return false;
+
+		// GET FIRE MODE SECTION NAME
+		string weaponFireModeSectionName = null;
+		if ( m_ModuleSection.bAsString( "FireMode", ref weaponFireModeSectionName ) == false )
+			return false;
+
+		// LOAD FIRE MODE
+		weaponFireModeSectionName = "WPN_FireMode_" + weaponFireModeSectionName;
+		if ( TryLoadFireMode( weaponFireModeSectionName, ref m_WpnFireMode ) == false )
+			return false;
+
+		// Get variables from file
+		m_ShotDelay				= m_ModuleSection.AsFloat( "BaseShotDelay", m_ShotDelay );
+		m_MagazineCapacity		= m_ModuleSection.AsInt( "BaseMagazineCapacity", m_MagazineCapacity );
+		m_Damage				= m_ModuleSection.AsFloat( "BaseDamage", m_Damage );
+		m_CamDeviation			= m_ModuleSection.AsFloat( "BaseCamDeviation", m_CamDeviation );
+		m_FireDispersion		= m_ModuleSection.AsFloat( "BaseFireDispersion", m_FireDispersion );
+
+		// Create Fire Mode
+		m_WpnFireMode.Setup( m_ShotDelay, Shoot );
+
+		// Assign internals
+		m_Magazine					= m_MagazineCapacity;
+		m_FirePoint					= wpn.Transform.Find( "FirePoint" );
+		m_WeaponRef					= wpn;
+
+		if ( InternalSetup( m_ModuleSection ) == false )
+			return false;
+
+		#region to remove
+		/*
+		// APPLY MODIFIERS
+		string[] modifiers = null;
+		if ( m_ModuleSection.bGetMultiAsArray( "Modifiers", ref modifiers ) )
 		{
-			m_Weapon = w;
-
-			m_FirePoint					= m_Weapon.Transform.Find( "FirePoint" );
-
-			m_BaseMagazineCapacity		= m_ModuleSection.AsInt( "BaseMagazineCapacity", m_BaseMagazineCapacity );
-			m_BaseDamage				= m_ModuleSection.AsFloat( "BaseDamage", m_BaseDamage );
-			m_BaseShotDelay				= m_ModuleSection.AsFloat( "BaseShotDelay", m_BaseShotDelay );
-			m_BaseCamDeviation			= m_ModuleSection.AsFloat( "BaseCamDeviation", m_BaseCamDeviation );
-			m_BaseFireDispersion		= m_ModuleSection.AsFloat( "BaseFireDispersion", m_BaseFireDispersion );
-			m_BaseShotDelay				= m_ModuleSection.AsFloat( "FireDelay", m_BaseShotDelay );
-			
-			m_Magazine = m_BaseMagazineCapacity;
-
-			// Bullet pool
-			if ( m_ModuleSection.HasKey( "Bullet" ) )
+			foreach( string modifierSectionName in modifiers )
 			{
-//				Resources.FindObjectsOfTypeAll TODO check that the bullet specified is present into resources
-				string bulletName = m_ModuleSection.AsString( "Bullet" );
-				GameObject bulletGO = Resources.Load<GameObject>( "Prefabs/Bullets/" + bulletName );
-				m_PoolBullets = new GameObjectsPool<Bullet>
-				(
-					model			: bulletGO,
-					size			: m_BaseMagazineCapacity,
-					containerName	: moduleSectionName + "_BulletsPool_" + m_Weapon.Transform.name,
-					permanent		: true,
-					actionOnObject	: ( Bullet o ) =>
-					{
-						o.SetActive( false );
-						o.Setup
-						(
-							canPenetrate: false,
-							whoRef: Player.Instance,
-							weaponRef: m_Weapon as Weapon,
-							damageMin: -1.0f,
-							damageMax: m_BaseDamage
-						);
-						Player.Instance.DisableCollisionsWith( o.Collider );
-					}
-				);
+				Database.Section modifierSection = null;
+				if ( GameManager.Configs.bGetSection( modifierSectionName, ref modifierSection ) )
+				{
+					ApplyModifier( modifierSection );
+				}
+			}
+		}
+		*/
+		#endregion
+
+
+		// MODULE CONTAINER
+		string containerID = moduleSectionName;
+		GameObject container = transform.Find(containerID) != null ? transform.Find(containerID).gameObject : null;
+		if ( container )
+		{
+			Destroy(container);
+		}
+
+		container = new GameObject( containerID );
+		container.transform.SetParent( transform );
+
+		// AUDIO
+		{
+			if ( m_ModuleSounds == null )
+			{
+				const string fireSoundCollectionPath = "Scriptables/WeaponsFireSound";
+				m_ModuleSounds = Resources.Load<AudioCollection>( fireSoundCollectionPath );
 			}
 
-			m_Initialized = true;
+			string fireSound = null;
+			if ( m_ModuleSection.bAsString( "FireSound", ref fireSound ) )
+			{
+
+				AudioSource source = container.GetComponent<AudioSource>();
+				if ( source == null )
+				{
+					source = container.AddComponent<AudioSource>();
+				}
+				{
+					source.playOnAwake = false;
+					if ( source.clip = System.Array.Find( m_ModuleSounds.AudioClips, s => s.name == fireSound ) )
+					{
+						DynamicCustomAudioSource audioSource = container.GetComponent<DynamicCustomAudioSource>();
+						if ( audioSource == null )
+						{
+							audioSource = container.AddComponent<DynamicCustomAudioSource>();
+						}
+						audioSource.enabled = true;
+
+						audioSource.Setup( source );
+						m_AudioSourceFire = audioSource;
+					}
+				}
+			}
+		}
+
+
+		if ( m_PoolBullets != null )
+		{
+			m_PoolBullets.Destroy();
+			m_PoolBullets = null;
+		}
+
+		// BULLET POOL
+		string bulletObjectName = m_ModuleSection.AsString( "Bullet", "InvalidBulletResource");
+		GameObject bulletGO = null;
+		if ( ( bulletGO = Resources.Load<GameObject>( "Prefabs/Bullets/" + bulletObjectName ) ) != null ) 
+		{
+			m_PoolBullets = new GameObjectsPool<Bullet>
+			(
+				model			: bulletGO,
+				size			: m_MagazineCapacity,
+				containerName	: moduleSectionName + "_BulletsPool_" + wpn.Transform.name,
+				actionOnObject	: ActionOnBullet
+			);
+		}
+
+		m_Initialized = true;
+		return true;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected				void	ActionOnBullet( Bullet bullet )
+	{
+		bullet.SetActive( false );
+		bullet.Setup
+		(
+			canPenetrate: false,
+			whoRef: Player.Instance,
+			weaponRef: m_WeaponRef as Weapon,
+			damageMin: -1.0f,
+			damageMax: Damage
+		);
+		Player.Instance.DisableCollisionsWith( bullet.Collider );
+	}
+
+
+	//		MODIFIERS
+	//////////////////////////////////////////////////////////////////////////
+	public		override	void	ApplyModifier( Database.Section modifier )
+	{
+		base.ApplyModifier( modifier );
+
+		float MultMagazineCapacity			= modifier.AsFloat( "MultMagazineCapacity",			1.0f );
+		float MultDamage					= modifier.AsFloat( "MultDamage",					1.0f );
+		float MultShotDelay					= modifier.AsFloat( "MultShotDelay",				1.0f );
+		float MultCamDeviation				= modifier.AsFloat( "MultCamDeviation",				1.0f );
+		float MultFireDispersion			= modifier.AsFloat( "MultFireDispersion",			1.0f );
+	
+		// MAGAZINE
+		m_MagazineCapacity				= (uint)( (float)m_MagazineCapacity * MultMagazineCapacity );
+		m_PoolBullets.Resize( m_Magazine = m_MagazineCapacity );
+
+		// DAMAGE
+		m_Damage						= m_Damage * MultDamage;
+		m_PoolBullets.ExecuteActionOnObjectr( ActionOnBullet );
+
+
+		// FIRE MODE
+		string newFireModeSecName = null;
+		if ( modifier.bAsString( "FireMode", ref newFireModeSecName ) )
+		{
+			ChangeFireMode( newFireModeSecName );
+		}
+
+		m_ShotDelay						= m_ShotDelay * MultShotDelay;
+		m_WpnFireMode.Setup( m_ShotDelay, Shoot );
+
+		// DEVIATION AND DISPERSION
+		m_CamDeviation					= m_CamDeviation * MultCamDeviation;
+		m_FireDispersion				= m_FireDispersion * MultFireDispersion;
+
+		// BULLET
+		string bulletObjectName = null;
+		if ( modifier.bAsString( "Bullet", ref bulletObjectName ) )
+		{
+			GameObject bulletGO = null;
+			if ( ( bulletGO = Resources.Load<GameObject>( "Prefabs/Bullets/" + bulletObjectName ) ) != null )
+			{
+				m_PoolBullets.Convert( bulletGO, ActionOnBullet );
+			}
+		}
+
+		m_Modifiers.Add( modifier );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public		override	void	RestoreModuleProperties()
+	{
+		Setup( m_WeaponRef );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public		override	void	RemoveModifier( Database.Section modifier )
+	{
+		if ( m_Modifiers.Contains( modifier ) )
+		{
+			m_Modifiers.Remove( modifier );
+
+			RestoreModuleProperties();
+
+			foreach( Database.Section mod in m_Modifiers )
+			{
+				ApplyModifier( mod );
+			}
 		}
 	}
 
-	//
-	public		override	void	OnAfterReload()
+
+	//		FIREMODE
+	//////////////////////////////////////////////////////////////////////////
+	public					bool	ChangeFireMode( string FireMode )
 	{
-		m_Magazine = m_BaseMagazineCapacity;
+		FireMode = "WPN_FireMode_" + FireMode;
+		return TryLoadFireMode( FireMode, ref m_WpnFireMode );
 	}
 
-	// ON LOAD
-	public		virtual		void	OnLoad( uint magazine )
+
+	//////////////////////////////////////////////////////////////////////////
+	public					bool	ChangeFireMode<T>()
 	{
-		m_Magazine = magazine;
+		return TryLoadFireMode( typeof(T).Name, ref m_WpnFireMode );
 	}
 
-	// CAN SHOOT
-	public	override		bool	CanBeUsed()
+
+	//////////////////////////////////////////////////////////////////////////
+	private	static			bool	TryLoadFireMode( string weaponFireModeSectionName, ref WPN_FireMode_Base fireMode )
 	{
-		return m_Magazine > 0;
-	}
-	//
-	protected	abstract	float	GetFireDispersion();
-	//
-	protected	abstract	float	GetCamDeviation();
+		System.Type type = System.Type.GetType( weaponFireModeSectionName.Trim() );
+		if ( type == null )
+		{
+			Debug.Log( "WPN_FireModule:Setting invalid weapon fire mode \"" + weaponFireModeSectionName + "\"" );
+			return false;
+		}
+			
+		// Check module type as child of WPN_BaseModule
+		if ( type.IsSubclassOf( typeof( WPN_FireMode_Base ) ) == false )
+		{
+			Debug.Log( "WPN_FireModule:Class Requested is not a supported weapon fire mode, \"" + weaponFireModeSectionName + "\"" );
+			return false;
+		}
 
-	// SHOOT
-	protected	virtual		void	Shoot( float moduleFireDispersion, float moduleCamDeviation )
+		Database.Section section = null;
+		if ( GameManager.Configs.bGetSection( weaponFireModeSectionName, ref section ) == false )
+		{
+			Debug.Log( "WPN_FireModule: CAnnot find section for fire mode \"" + weaponFireModeSectionName + "\"" );
+			return false;
+		}
+
+		object[] arguments = new object[1]
+		{
+			section
+		};
+		fireMode = System.Activator.CreateInstance( type, arguments ) as WPN_FireMode_Base;
+		return true;
+	}
+
+
+	//		DISPERSION
+	//////////////////////////////////////////////////////////////////////////
+	protected	virtual		float	GetFireDispersion()
 	{
-		m_FireDelay = m_BaseShotDelay;
-
-		m_Magazine --;
-
-		// TODO muzzle flash
-//		EffectManager.Instance.PlayEffect( EffectType.MUZZLE, m_FirePoint.position, m_FirePoint.forward, 1 );
-//		EffectManager.Instance.PlayEffect( EffectType.SMOKE, m_FirePoint.position, m_FirePoint.forward, 1 );
-
-		// BULLET
-		IBullet bullet = m_PoolBullets.GetComponent();
-		
-		float finalDispersion =  
-			m_BaseFireDispersion * moduleFireDispersion // TODO calculate fire dispersion
-			* bullet.RecoilMult;
-
-		finalDispersion	*= Player.Instance.IsCrouched			? 0.50f : 1.00f;
-		finalDispersion	*= Player.Instance.IsMoving				? 1.50f : 1.00f;
-		finalDispersion	*= Player.Instance.IsRunning			? 2.00f : 1.00f;
-		finalDispersion	*= WeaponManager.Instance.IsZoomed		? 0.80f : 1.00f;
-		// SHOOT
-		bullet.Shoot( position: m_FirePoint.position, direction: m_FirePoint.forward );
-
-///		m_AudioSourceFire.Play();
-
-		// CAM DEVIATION
-		float camDeviation = m_BaseCamDeviation * moduleCamDeviation;
-		CameraControl.Instance.ApplyDeviation( camDeviation );
-
-		// CAM DISPERSION
-		CameraControl.Instance.ApplyDispersion( finalDispersion );
-
-		// UI ELEMENTS
-		UI.Instance.InGame.UpdateUI();
+		return m_FireDispersion;
 	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	virtual		float	GetCamDeviation()
+	{
+		return m_CamDeviation;
+	}
+
+
+	//		SHOOT ACTION
+	//////////////////////////////////////////////////////////////////////////
+	protected	abstract	void	Shoot( float moduleFireDispersion, float moduleCamDeviation );
 
 
 	// DESTRUCTOR
 	~WPN_FireModule()
 	{
-		m_PoolBullets.Destroy();
+		if ( m_PoolBullets != null )
+		{
+			m_PoolBullets.Destroy();
+		}
 	}
 
 }

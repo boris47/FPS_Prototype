@@ -33,7 +33,7 @@ namespace Database {
 				pLineValue = new cLineValue( Key, LineValueType.MULTI );
 
 			pLineValue.Clear();
-			cMultiValue multivalue = new cMultiValue( ref vValues );
+			cMultiValue multivalue = new cMultiValue( vValues );
 			pLineValue.Set( ref multivalue );
 		}
 
@@ -58,7 +58,7 @@ namespace Database {
 
 			pLineValue.Clear();
 			cValue[] vValues = new cValue[2] { new cValue( Vec.x ), new cValue( Vec.y ) };
-			cMultiValue multivalue = new cMultiValue( ref vValues );
+			cMultiValue multivalue = new cMultiValue( vValues );
 			pLineValue.Set( ref multivalue );
 
 		}
@@ -76,7 +76,7 @@ namespace Database {
 
 			pLineValue.Clear();
 			cValue[] vValues = new cValue[] { new cValue( Vec.x ), new cValue( Vec.y ), new cValue( Vec.z ) };
-			cMultiValue multivalue = new cMultiValue( ref vValues );
+			cMultiValue multivalue = new cMultiValue( vValues );
 			pLineValue.Set( ref multivalue );
 
 		}
@@ -94,7 +94,7 @@ namespace Database {
 
 			pLineValue.Clear();
 			cValue[] vValues = new cValue[] { new cValue( Vec.x ), new cValue( Vec.y ), new cValue( Vec.z ), new cValue( Vec.w ) };
-			cMultiValue multivalue = new cMultiValue( ref vValues );
+			cMultiValue multivalue = new cMultiValue( vValues );
 			pLineValue.Set( ref multivalue );
 
 		}

@@ -15,16 +15,16 @@ public partial class Player {
 			return null;
 
 		// Health
-		streamUnit.AddInternal( "Health", m_Health );
+		streamUnit.SetInternal( "Health", m_Health );
 
 		// Stamina
-		streamUnit.AddInternal( "Stamina", m_Stamina );
+		streamUnit.SetInternal( "Stamina", m_Stamina );
 
 		// Crouch state
-		streamUnit.AddInternal( "IsCrouched", IsCrouched );
+		streamUnit.SetInternal( "IsCrouched", IsCrouched );
 
 		// Motion Type
-		streamUnit.AddInternal( "MotionType", MotionType );
+		streamUnit.SetInternal( "MotionType", MotionType );
 
 		return streamUnit;
 	}

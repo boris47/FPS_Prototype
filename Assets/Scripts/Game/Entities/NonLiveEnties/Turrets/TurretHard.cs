@@ -76,7 +76,7 @@ public class TurretHard : Turret {
 		if ( streamUnit == null )
 			return null;
 
-		streamUnit.AddInternal( "FiredBullets", m_FiredBullets );
+		streamUnit.SetInternal( "FiredBullets", m_FiredBullets );
 
 		return streamUnit;
 	}

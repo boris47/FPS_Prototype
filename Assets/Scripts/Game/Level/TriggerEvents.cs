@@ -50,7 +50,7 @@ public class TriggerEvents : MonoBehaviour {
 			return null;
 
 		StreamUnit streamUnit		= streamData.NewUnit( gameObject );
-		streamUnit.AddInternal( "HasTriggered", m_HasTriggered );
+		streamUnit.SetInternal( "HasTriggered", m_HasTriggered );
 
 		return streamUnit;
 	}

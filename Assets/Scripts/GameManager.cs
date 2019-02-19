@@ -117,7 +117,8 @@ public partial class GameManager : MonoBehaviour {
 		m_OnPhysicFrame( Time.fixedDeltaTime );
 	}
 
-
+//	private const float	m_InputUpdateDelay = 0.020f;
+//	private	float	m_CurrentInputDelay = 0.0f;
 	//////////////////////////////////////////////////////////////////////////
 	private			void		Update()
 	{
@@ -131,8 +132,14 @@ public partial class GameManager : MonoBehaviour {
 			return;
 		}
 
-		// Update inputs
-		InputMgr.Update();
+		/// TODO Manage problems on update
+//		m_CurrentInputDelay -= Time.deltaTime;
+//		if ( m_CurrentInputDelay <= 0.0f )
+		{
+//			m_CurrentInputDelay = m_InputUpdateDelay;
+			// Update inputs
+			InputMgr.Update();
+		}
 
 		// Thinking Update
 		m_ThinkTimer += Time.deltaTime;

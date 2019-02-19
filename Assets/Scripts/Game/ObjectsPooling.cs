@@ -22,7 +22,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 
 	//////////////////////////////////////////////////////////////////////////
 	// CONSTRUCTOR
-	public	GameObjectsPool( GameObject model, uint size, string containerName = "GameObjectsContainer_", bool permanent = false, System.Action<T> actionOnObject = null )
+	public	GameObjectsPool( GameObject model, uint size, string containerName = "GameObjectsContainer_", Transform parent = null, System.Action<T> actionOnObject = null )
 	{
 		if ( model != null && size > 0 )
 		{
@@ -31,10 +31,9 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 			m_Container = new GameObject( containerName + Counter.ToString() );
 			Counter ++;
 
-			// Set as permanent the container
-			if ( permanent == true )
+			if ( parent != null )
 			{
-				Object.DontDestroyOnLoad( m_Container );
+				m_Container.transform.SetParent( parent );
 			}
 
 			// Assign action for every object
@@ -58,6 +57,44 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	// Convert
+	public		bool		Convert( GameObject model, System.Action<T> actionOnObject = null )
+	{
+		bool bIsValid = model != null;
+		if ( bIsValid )
+		{
+			m_ModelGO = model;
+
+			if ( actionOnObject != null )
+			{
+				m_ActionOnObject = actionOnObject;
+			}
+
+			int size = m_ObjectsPool.Count;
+			m_ObjectsPool.Clear();
+
+			// Clear previous childs
+			for ( int i = m_Container.transform.childCount - 1; i >= 0; i-- )
+			{
+				Object.Destroy( m_Container.transform.GetChild(i).gameObject );
+			}
+
+			// Create the internal pool
+			m_ObjectsPool = new List<T>( size );
+			{
+				for ( uint i = 0; i < size; i++ )
+				{
+					T comp = Createitem( model );
+					m_ActionOnObject( comp );
+					m_ObjectsPool.Add( comp );
+				}
+			}
+		}
+		return bIsValid;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	// Createitem
 	private		T			Createitem( GameObject model )
 	{	//											Model	Position,		Rotation			Parent
@@ -68,14 +105,22 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	// ExecuteActionOnObject
+	public		void		ExecuteActionOnObjectr( System.Action<T> actionOnObject )
+	{
+		m_ObjectsPool.ForEach( actionOnObject );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	// Resize
-	public		bool		Resize( int newSize )
+	public		bool		Resize( uint newSize )
 	{
 		if ( IsValid == false )
 			return false;
 
 		// Skip for invalid new size
-		if ( newSize <= 0 )
+		if ( newSize == 0 )
 		{
 			return false;
 		}
@@ -84,7 +129,8 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 		if ( m_Container.transform.childCount == newSize )
 			return true;
 
-		int delta = Mathf.Abs( m_Container.transform.childCount - newSize );
+		// Calculate the delta
+		int delta = Mathf.Abs( m_Container.transform.childCount - (int)newSize );
 
 		// Enlarge
 		if ( m_Container.transform.childCount < newSize )
@@ -188,6 +234,8 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	// Destroy
 	internal	void		Destroy()
 	{
+		Counter --;
+
 		if ( IsValid == false )
 			return;
 
@@ -197,7 +245,6 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 		}
 
 		Object.Destroy( m_Container );
-		Counter --;
 	}
 
 }
@@ -244,19 +291,19 @@ public	class ObjectsPool<T> where T : UnityEngine.Component {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Resize
-	public void	Resize( int newSize )
+	public void	Resize( uint newSize )
 	{
 		if ( m_Storage == null || ( m_Storage.Count == 0 && newSize > 0 ) )
 		{
-			m_Storage = new List<T>( newSize );
+			m_Storage = new List<T>( (int)newSize );
 		}
 
 		if ( newSize == m_Storage.Count )
 			return;
 
 		m_InternalIndex = 0;
-			
-		m_Storage.Capacity = newSize;
+		
+		m_Storage.Capacity = (int)newSize;
 	}
 
 
@@ -296,4 +343,5 @@ public	class ObjectsPool<T> where T : UnityEngine.Component {
 			}
 		}
 	}
+
 }

@@ -1,0 +1,31 @@
+
+;********************************
+; Must start with "WPN_FireMode_"
+;; SINGLE SHOT
+[WPN_FireMode_Single]
+
+
+
+;; BURST SEMI
+[WPN_FireMode_Burst]
+BurstSize					= 3;
+ApplyDeviationOnLastShot	= false;
+
+
+
+;; BURST AUTO
+[WPN_FireMode_BurstAuto]
+BurstSize					= 3;
+ApplyDeviationOnLastShot	= false;
+
+
+
+;; FULL AUTO
+[WPN_FireMode_Auto]
+
+
+
+;; FULL AUTO INCREMENTAL
+[WPN_FireMode_Auto_Incremental]
+IncremetalSpeed				= 0.1;
+MaxIncrement				= 5.0;

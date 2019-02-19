@@ -95,7 +95,7 @@ namespace Utils {
 		{
 			return ( ( Char > 64 && Char < 91  ) || // A - Z
 					 ( Char > 96 && Char < 123 ) || // a - z
-					 ( Char == 58 ) 				// : ( Double dot )
+					 ( Char == 58 ) 			 	// : ( Double dot )
 				 );
 		}
 

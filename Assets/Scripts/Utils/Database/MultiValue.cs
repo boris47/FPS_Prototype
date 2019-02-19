@@ -1,10 +1,12 @@
 ﻿
 namespace Database {
 
+	using System.Collections.Generic;
+
 	public class cMultiValue {
 
-		private cValue[]		m_ValuesArray			= null;
-		public	cValue[]		ValueArray
+		private List<cValue>		m_ValuesArray			= new List<cValue>();
+		public	List<cValue>		ValueArray
 		{
 			get { return m_ValuesArray; }
 		}
@@ -13,16 +15,14 @@ namespace Database {
 		{
 			get 
 			{
-				if ( m_ValuesArray != null )
-					return m_ValuesArray.Length;
-				return 0;
+				return m_ValuesArray.Count;
 			}
 		}
 
 
-		public cMultiValue( ref cValue[] vValues )
+		public cMultiValue( cValue[] vValues )
 		{
-			m_ValuesArray = vValues;
+			m_ValuesArray = new List<cValue>( vValues );
 		}
 
 
@@ -31,17 +31,16 @@ namespace Database {
 		{
 			get
 			{
-				if ( ( m_ValuesArray != null ) && Index < m_ValuesArray.Length )
-					return m_ValuesArray[ Index ];
+				if ( m_ValuesArray.Count > Index )
+					return m_ValuesArray[Index];
 				return null;
 			}
 		}
 
 		/////////////////////////////////////////////////////////
-		public void		Add( ref cValue pValue )
+		public void		Add( cValue pValue )
 		{
-			System.Array.Resize<cValue>( ref m_ValuesArray, m_ValuesArray.Length + 1 );
-			m_ValuesArray[ m_ValuesArray.Length - 1 ] = pValue;
+			m_ValuesArray.Add( pValue );
 		}
 	
 	}

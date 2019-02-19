@@ -4,9 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-//* TYPES */
-public enum LineValueType		{ SINGLE, MULTI };
-
 public struct KeyValue {
 	public	string	Key, Value;
 	public	bool	IsOK;
@@ -40,7 +37,7 @@ namespace Utils {
 				}
 				else
 				{
-					const string msg = "WeatherManager not found!";
+					string msg = typeof(T).FullName + " not found!";
 #if UNITY_EDITOR
 					UnityEditor.EditorUtility.DisplayDialog( "Warning!", msg, "OK" );
 #endif

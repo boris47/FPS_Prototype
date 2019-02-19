@@ -1,0 +1,87 @@
+
+;********************************
+
+; COMMON BARREL
+[WPN_FireModule_Barrel]
+BaseMagazineCapacity		= 50;
+BaseDamage					= 15.0;
+BaseCamDeviation			= 0.3;
+BaseFireDispersion			= 0.9;
+BaseShotDelay				= 0.08;
+FireMode					= Auto;
+Bullet						= BulletRifle;
+FireSound					= Shot;
+
+
+; BLASTER
+[WPN_FireModule_Blaster]	
+BaseMagazineCapacity		= 500;
+BaseDamage					= 15.0;
+;;;BaseMaxDamage				= 45.0;
+BaseCamDeviation			= 0.3;
+BaseFireDispersion			= 0.9;
+BaseShotDelay				= 0.3;
+FireMode					= Auto_Incremental;
+Bullet						= BulletBlaster
+FireSound					= BlasterShot;
+
+
+; SYPHON
+[WPN_FireModule_Syphon]
+BaseMagazineCapacity		= 500;
+BaseAmmoRestoreCounter		= 0.1;
+BaseDamage					= 1.0;
+BaseCamDeviation			= 0.05;
+BaseFireDispersion			= 0.6;
+BaseShotDelay				= 0.02;
+FireMode					= Auto;
+Bullet						= BulletSyphon;
+FireSound					= Syphon;
+Module_Prefab				= Prefabs/WeaponModules/FireModules/Module_Beam;
+
+
+; SHOTGUN
+[WPN_FireModule_Shotgun]
+BaseMagazineCapacity		= 5;
+BaseBucketSize				= 9;
+BaseCamDeviation			= 2.7;
+BaseFireDispersion			= 2.8;
+BasePerShotFireDispersion	= 0.05;
+BaseDamage					= 5.0;
+BaseShotDelay				= 0.8;
+FireMode					= Auto_Incremental;
+Bullet						= BulletRifle;
+FireSound					= Shotgun;
+
+
+; GRANADE LAUNCHER
+[WPN_FireModule_GranadeLauncher]
+BaseMagazineCapacity		= 50;
+BaseLaunchForce				= 150;
+BaseCamDeviation			= 1.5;
+BaseFireDispersion			= 1.6;
+BaseDamage					= 60.0;
+BaseShotDelay				= 1.0;
+FireMode					= Single;
+Bullet						= GranadeFrammentation
+FireSound					= Shotgun;
+
+
+; SNIPER BARREL
+[WPN_FireModule_SniperBarrel]
+BaseMagazineCapacity		= 50;
+BaseDamage					= 15.0;
+BaseCamDeviation			= 0.3;
+BaseFireDispersion			= 0.9;
+BaseShotDelay				= 0.08;
+FireMode					= Brust;
+Bullet						= BulletRifle;
+FireSound					= Shot;
+
+
+
+; ZOOM MODULE
+[WPN_WeaponModule_Zoom]
+ZoomingTime				= 0.1;
+ZoomSensitivity			= 0.3;
+ZoomFactor				= 2.0;

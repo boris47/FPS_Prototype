@@ -312,26 +312,32 @@ public class StreamUnit {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public	void		AddInternal( string key, object value )
-	{
-		MyKeyValuePair keyValue = new MyKeyValuePair( key, value.ToString() );
-		Internals.Add( keyValue );
-	}
-
-	//////////////////////////////////////////////////////////////////////////
 	public	void		SetInternal( string key, object value )
 	{
 		MyKeyValuePair keyValue = null;
 		int index = Internals.FindIndex( ( MyKeyValuePair kv ) => kv.Key == key );
 		if ( index == -1 )
 		{
-			AddInternal( key, value );
+			SetInternal( key, value );
 		}
 		else
 		{
 			keyValue = Internals[ index ];
 			keyValue.Value = value.ToString();
 		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public	bool		RemoveInternal( string key )
+	{
+		int index = Internals.FindIndex( ( MyKeyValuePair kv ) => kv.Key == key );
+		bool found = ( index != -1 );
+		if ( found )
+		{
+			Internals.RemoveAt( index );
+		}
+		return found;
 	}
 
 
