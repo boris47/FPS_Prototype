@@ -95,8 +95,8 @@ BaseZoomSensitivity			= 0.3;
 HasPrimaryWeaponModule		= true;
 PrimaryWeaponModule			= WPN_FireModule_GranadeLauncher;
 
-HasSecondaryWeaponModule	= false;
-SecondaryWeaponModule		= WPN_WeaponModule_Zoom;
+HasSecondaryWeaponModule	= true;
+SecondaryWeaponModule		= WPN_WeaponModule_Shield;
 
 HasTertiaryWeaponModule		= false;
 TertiaryWeaponModule		= WPN_FireModule_Auto;

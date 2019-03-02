@@ -22,3 +22,12 @@ ZoomSensitivity				= 0.2;
 FramePath					= Prefabs/WeaponModules/Scope;
 MaxModuleCount				= 1;
 AllowedSlots				= 2;
+
+
+
+; SYPHON
+[WPN_WeaponModule_Shield]
+BaseShieldLife				= 100;
+Module_Prefab				= Prefabs/WeaponModules/UtilityModules/Shield;
+MaxModuleCount				= 1;
+AllowedSlots				= 1;
