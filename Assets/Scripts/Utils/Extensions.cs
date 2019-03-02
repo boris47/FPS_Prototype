@@ -93,20 +93,26 @@ public static class Extensions {
 	/////////////////////////////////////////////////////////////////////////////
 	//		TRANSFORM
 
+	/// <summary> Return true if component is found in hierarchy, otherwise return false </summary>
+	public	static	bool			HasComponent<T>( this Transform transform ) where T : Component
+	{
+		return transform.GetComponentInChildren<T>() != null;
+	}
+
 	/// <summary> Can be used to retrieve a component with more detailed research details </summary>
-	public	static	bool			SearchComponent<T>( this Transform transform, ref T Component, SearchContext Context, global::System.Predicate<T> Filter = null )
+	public	static	bool			SearchComponent<T>( this Transform transform, ref T Component, SearchContext Context, global::System.Predicate<T> Filter = null ) where T : Component
 	{
 		return Utils.Base.SearchComponent( transform.gameObject, ref Component, Context, Filter );
 	}
 
 	/// <summary> Can be used to retrieve a component's array with more detailed research details </summary>
-	public	static	bool			SearchComponents<T>( this Transform transform, ref T[] Component, SearchContext Context, global::System.Predicate<T> Filter = null )
+	public	static	bool			SearchComponents<T>( this Transform transform, ref T[] Component, SearchContext Context, global::System.Predicate<T> Filter = null ) where T : Component
 	{
 		return Utils.Base.SearchComponents( transform.gameObject, ref Component, Context, Filter );
 	}
 
 	/// <summary> Search for a specific component at specific child, if found, return operation result </summary>
-	public	static	bool			SearchComponentInChild<T>( this Transform t, string childName, ref T Component)
+	public	static	bool			SearchComponentInChild<T>( this Transform t, string childName, ref T Component) where T : Component
 	{
 		if ( t.childCount == 0 )
 			return false;

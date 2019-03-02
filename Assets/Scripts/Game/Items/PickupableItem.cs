@@ -6,26 +6,39 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public class PickupableItem : MonoBehaviour {
 
-	public	string	m_PickUpSectionName = "";
+	[SerializeField]
+	protected	string		m_PickUpSectionName		= string.Empty;
 
-	private void Awake()
+	private		bool		m_Initialized			= false;
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public	bool	SetPickupSectionName( string PickupSectionName )
 	{
 		Database.Section m_PickupableSection	= null;
-		if ( GameManager.Configs.bGetSection( m_PickUpSectionName, ref m_PickupableSection ) == false )
+		if ( GameManager.Configs.bGetSection( m_PickUpSectionName, ref m_PickupableSection ) )
 		{
-			enabled = false;
+			m_PickUpSectionName = PickupSectionName;
+			m_Initialized = true;
 		}
+		return m_PickupableSection != null;
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
 	private void OnTriggerEnter( Collider other )
 	{
-		if ( other.isTrigger && other.name == "Player" )
+		if ( m_Initialized && other.isTrigger && other.name == "Player" )
 		{
 			WeaponManager.Instance.ApplyModifierToWeaponSlot( WeaponManager.Instance.CurrentWeapon, WeaponSlots.PRIMARY, m_PickUpSectionName );
 			enabled = false;
 			Destroy( gameObject );
 		}
-	}
 
+		if ( m_Initialized == false )
+		{
+			enabled = false;
+		}
+	}
 
 }
