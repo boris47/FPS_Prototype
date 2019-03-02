@@ -71,7 +71,7 @@ namespace Database {
 
 		//////////////////////////////////////////////////////////////////////////
 		// AsInt ( UInt )
-		public	uint					AsInt( string Key, uint Default = 0 )
+		public	uint					AsInt( string Key, uint Default = 0u )
 		{
 			return (uint)AsInt( Key, (int)Default );
 		}
@@ -81,6 +81,7 @@ namespace Database {
 		// AsFloat
 		public	float					AsFloat( string Key, float Default = 0.0f )
 		{
+			
 			cLineValue pLineValue = this[ Key ];
 			if ( pLineValue != null && pLineValue.Type == LineValueType.SINGLE )
 			{

@@ -18,18 +18,32 @@ public class WPN_FireMode_Single : WPN_FireMode_Base {
 
 	}
 
-	public	override	void	Setup			( float shotDelay, FireFunctionDel fireFunction )
+
+	public	override	void	Setup			( WPN_FireModule fireModule, float shotDelay, FireFunctionDel fireFunction )
 	{
 		if ( fireFunction != null )
 		{
 			m_FireFunction = fireFunction;
 			m_FireDelay = shotDelay;
+			m_FireModule = fireModule;
 		}
 	}
 	
 
 	public	override	void	ApplyModifier	( Database.Section modifier )
-	{ }
+	{
+		m_Modifiers.Add( modifier );
+	}
+
+	public	override	void	ResetBaseConfiguration()
+	{
+
+	}
+
+	public	override	void	RemoveModifier( Database.Section modifier )
+	{
+		m_Modifiers.Remove( modifier );
+	}
 
 
 	public	override	bool	OnSave			( StreamUnit streamUnit )

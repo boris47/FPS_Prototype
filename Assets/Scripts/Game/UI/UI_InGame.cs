@@ -4,16 +4,21 @@ using UnityEngine.UI;
 
 public class UI_InGame : MonoBehaviour {
 
-	private			Text			timeText		= null;
-	private			Text			cycleText		= null;
-	private			Text			healthText		= null;
+	private			Text			m_TimeText					= null;
+	private			Text			m_CycleNameText				= null;
+	private			Text			m_HealthText				= null;
 
-	private			Text			wpnName			= null;
-	private			Text			otherInfo		= null;
+	private			Text			m_WpnNameText				= null;
+	private			Text			m_WpnOtherInfoText			= null;
 
-	private			Image			staminaBar		= null;
+	private			Image			m_StaminaBarImage			= null;
+	private			Transform		m_CrosshairTransform		= null;
 
-	private			bool			m_IsActive		= false;
+	private			Image			m_ZoomFrameImage			= null;
+	private			float			m_FrameOrigWidth			= 0.0f;
+	private			float			m_FrameOrigHeight			= 0.0f;
+
+	private			bool			m_IsActive					= false;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -25,13 +30,17 @@ public class UI_InGame : MonoBehaviour {
 
 	private void Start()
 	{
-		cycleText		= transform.GetChild(0).GetChild(0).GetComponent<Text>();
-		timeText		= transform.GetChild(0).GetChild(1).GetComponent<Text>();
-		healthText		= transform.GetChild(0).GetChild(2).GetComponent<Text>();
+		m_CycleNameText			= transform.GetChild(0).GetChild(0).GetComponent<Text>();
+		m_TimeText				= transform.GetChild(0).GetChild(1).GetComponent<Text>();
+		m_HealthText			= transform.GetChild(0).GetChild(2).GetComponent<Text>();
 
-		wpnName			= transform.GetChild(1).GetChild(0).GetComponent<Text>();
-		otherInfo		= transform.GetChild(1).GetChild(2).GetComponent<Text>();
-		staminaBar		= transform.GetChild(1).GetChild(3).GetChild(1).GetComponent<Image>();
+		m_WpnNameText			= transform.GetChild(1).GetChild(0).GetComponent<Text>();
+		m_WpnOtherInfoText		= transform.GetChild(1).GetChild(2).GetComponent<Text>();
+		m_StaminaBarImage		= transform.GetChild(1).GetChild(3).GetChild(1).GetComponent<Image>();
+		m_ZoomFrameImage		= transform.Find("UI_Frame").GetComponent<Image>();
+		m_ZoomFrameImage.raycastTarget = false;
+
+		m_CrosshairTransform	= transform.Find( "Crosshair" );
 
 		InvokeRepeating( "PrintTime", 1.0f, 1.0f );	
 	}
@@ -69,6 +78,7 @@ public class UI_InGame : MonoBehaviour {
 			return;
 		}
 
+		// if level is greater than 0 we suppose being in a level where ingame UI must be shown
 		m_IsActive = true;
 
 		Show();
@@ -106,11 +116,68 @@ public class UI_InGame : MonoBehaviour {
 
 		IEntity player		= Player.Instance as IEntity;
 
-		healthText.text		= Mathf.CeilToInt( player.Health ).ToString();
+		m_HealthText.text		= Mathf.CeilToInt( player.Health ).ToString();
 
-		wpnName.text		= WeaponManager.Instance.CurrentWeapon.Transform.name;
-		otherInfo.text		= WeaponManager.Instance.CurrentWeapon.OtherInfo;
+		m_WpnNameText.text		= WeaponManager.Instance.CurrentWeapon.Transform.name;
+		m_WpnOtherInfoText.text		= WeaponManager.Instance.CurrentWeapon.OtherInfo;
 	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ShowCrosshair
+	public	void	ShowCrosshair()
+	{
+		m_CrosshairTransform.gameObject.SetActive( true );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// HideCrosshair
+	public	void	HideCrosshair()
+	{
+		m_CrosshairTransform.gameObject.SetActive( false );
+
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// SetFrame
+	public void SetFrame( Image frame )
+	{
+		if ( frame != null )
+		{
+			// Size
+			m_ZoomFrameImage.rectTransform.SetSizeWithCurrentAnchors( RectTransform.Axis.Horizontal, m_FrameOrigWidth = frame.rectTransform.rect.width );
+			m_ZoomFrameImage.rectTransform.SetSizeWithCurrentAnchors( RectTransform.Axis.Vertical, m_FrameOrigHeight = frame.rectTransform.rect.height );
+
+			m_ZoomFrameImage.sprite	= frame.sprite;
+			m_ZoomFrameImage.color		= frame.color;
+			m_ZoomFrameImage.material	= frame.material;
+			m_ZoomFrameImage.enabled	= true;
+			HideCrosshair();
+		}
+		else
+		{
+			m_ZoomFrameImage.enabled	= false;
+			m_ZoomFrameImage.sprite	= null;
+			m_ZoomFrameImage.color		= Color.clear;
+			m_ZoomFrameImage.material	= null;
+			ShowCrosshair();
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// PrintTime
+	public void FrameFeedBack( float feedback, Vector2 delta )
+	{
+		if ( m_ZoomFrameImage.enabled == true )
+		{
+			m_ZoomFrameImage.rectTransform.localScale = Vector3.one * feedback;
+			m_ZoomFrameImage.rectTransform.position = delta;
+		}
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// PrintTime
@@ -121,16 +188,17 @@ public class UI_InGame : MonoBehaviour {
 
 		if ( WeatherSystem.WeatherManager.Instance != null )
 		{
-			timeText.text	= WeatherSystem.WeatherManager.Cycles.GetTimeAsString();
-			cycleText.text	= WeatherSystem.WeatherManager.Cycles.CurrentCycleName;
+			m_TimeText.text	= WeatherSystem.WeatherManager.Cycles.GetTimeAsString();
+			m_CycleNameText.text	= WeatherSystem.WeatherManager.Cycles.CurrentCycleName;
 		}
 	}
 
-	/*
+	
 	//////////////////////////////////////////////////////////////////////////
 	// Update
 	private void	Update()
 	{
+		/*
 		if ( m_IsActive == false )
 			return;
 
@@ -139,6 +207,7 @@ public class UI_InGame : MonoBehaviour {
 			return;
 
 		staminaBar.fillAmount = Player.Instance.Stamina;
+		*/
 	}
-	*/
+	
 }

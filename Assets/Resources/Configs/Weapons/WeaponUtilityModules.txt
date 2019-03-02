@@ -1,0 +1,24 @@
+
+;********************************
+
+; IRON SIGHT ZOOM
+[WPN_WeaponModule_Zoom]
+ZoomOffset					= -0.0655, 0.009, -0.052;
+ZoomFactor					= 2.0;
+ZoomingTime					= 0.1;
+ZoomSensitivity				= 0.3;
+
+MaxModuleCount				= 1;
+AllowedSlots				= 2;
+
+
+; OPTIC ZOOM
+[WPN_WeaponModule_OpticZoom]
+ZoomOffset					= -0.0655, 0.009, -0.052;
+ZoomFactor					= 8.0;
+ZoomingTime					= 0.2;
+ZoomSensitivity				= 0.2;
+
+FramePath					= Prefabs/WeaponModules/Scope;
+MaxModuleCount				= 1;
+AllowedSlots				= 2;

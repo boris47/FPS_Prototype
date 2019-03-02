@@ -8,7 +8,8 @@
 
 
 #include Weapons/Weapons.txt
-#include Weapons/WeaponModules.txt
+#include Weapons/WeaponFireModules.txt
+#include Weapons/WeaponUtilityModules.txt
 #include Weapons/WeaponModulesModifiers.txt
 #include Weapons/WeaponFireModes.txt
 #include Weapons/Granades.txt

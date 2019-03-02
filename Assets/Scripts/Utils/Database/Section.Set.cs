@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Database {
 
+
 	public partial class Section : ISection {
 	
 		//////////////////////////////////////////////////////////////////////////
@@ -19,6 +20,7 @@ namespace Database {
 
 			pLineValue.Clear();
 			pLineValue.Set( ref Value );
+			vSection.Add( pLineValue );
 		}
 
 
@@ -35,6 +37,7 @@ namespace Database {
 			pLineValue.Clear();
 			cMultiValue multivalue = new cMultiValue( vValues );
 			pLineValue.Set( ref multivalue );
+			vSection.Add( pLineValue );
 		}
 
 
@@ -60,7 +63,7 @@ namespace Database {
 			cValue[] vValues = new cValue[2] { new cValue( Vec.x ), new cValue( Vec.y ) };
 			cMultiValue multivalue = new cMultiValue( vValues );
 			pLineValue.Set( ref multivalue );
-
+			vSection.Add( pLineValue );
 		}
 
 
@@ -78,7 +81,7 @@ namespace Database {
 			cValue[] vValues = new cValue[] { new cValue( Vec.x ), new cValue( Vec.y ), new cValue( Vec.z ) };
 			cMultiValue multivalue = new cMultiValue( vValues );
 			pLineValue.Set( ref multivalue );
-
+			vSection.Add( pLineValue );
 		}
 
 
@@ -96,7 +99,7 @@ namespace Database {
 			cValue[] vValues = new cValue[] { new cValue( Vec.x ), new cValue( Vec.y ), new cValue( Vec.z ), new cValue( Vec.w ) };
 			cMultiValue multivalue = new cMultiValue( vValues );
 			pLineValue.Set( ref multivalue );
-
+			vSection.Add( pLineValue );
 		}
 
 	};

@@ -8,9 +8,11 @@ MultDamage						= 1.0;
 MultShotDelay					= 1.0;
 MultCamDeviation				= 1.0;
 MultFireDispersion				= 1.0;
+MultRecoil						= 1.0;
 MultPerShotFireDispersion		= 1.0;
 MultBucketSize					= 1.0;
 MultLaunchForce					= 1.0;
+bCanPenetrate					= 0;  0 no change, 1 disable, 2 enable
 
 
 ;		Module_Properties
@@ -35,6 +37,7 @@ MultMagazineCapacity			= 1.5;
 MultCamDeviation				= 0.7;
 MultFireDispersion				= 0.6;
 MultPerShotFireDispersion		= 0.6;
+MultRecoil						= 0.6;
 
 
 ;********************************

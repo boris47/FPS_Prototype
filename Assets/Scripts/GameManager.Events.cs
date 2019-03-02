@@ -204,7 +204,7 @@ public partial class GameManager : StreamEvents {
 		// Body
 		m_SaveLoadState = StreamingState.LOADING;
 		InputManager.IsEnabled = false;
-		print( "Loading "  + Utils.System.RemoveExtension( fileName ) + "..." );
+		print( "Loading "  + System.IO.Path.GetFileNameWithoutExtension( fileName ) + "..." );
 
 		// Deserialize data
 		string toLoad = File.ReadAllText( fileName );
@@ -318,7 +318,9 @@ public class StreamUnit {
 		int index = Internals.FindIndex( ( MyKeyValuePair kv ) => kv.Key == key );
 		if ( index == -1 )
 		{
-			SetInternal( key, value );
+			//SetInternal( key, value );
+			MyKeyValuePair kv = new MyKeyValuePair( key, value.ToString() );
+			Internals.Add( kv );
 		}
 		else
 		{
@@ -350,7 +352,7 @@ public class StreamUnit {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private	string		GetInternal( string key )
+	public	string		GetInternal( string key )
 	{
 		MyKeyValuePair keyValue = Internals.Find( ( MyKeyValuePair kv ) => kv.Key == key );
 		if ( keyValue == null || keyValue.Value == null )
@@ -399,6 +401,7 @@ public class StreamUnit {
 		}
 		return result;
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////

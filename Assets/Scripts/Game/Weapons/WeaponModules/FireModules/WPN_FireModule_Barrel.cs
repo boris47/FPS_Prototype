@@ -15,6 +15,28 @@ public class WPN_FireModule_Barrel : WPN_FireModule {
 	protected	override	bool	InternalSetup( Database.Section moduleSection )
 	{ return true; }
 
+	public override void ApplyModifier( Database.Section modifier )
+	{
+		base.ApplyModifier( modifier );
+
+		// Do actions here
+	}
+
+
+	public	override	void	ResetBaseConfiguration()
+	{
+		base.ResetBaseConfiguration();
+
+		// Do actions here
+	}
+
+	public	override	void	RemoveModifier( Database.Section modifier )
+	{
+		base.RemoveModifier( modifier );
+
+		// Do Actions here
+	}
+
 
 	public	override	bool	OnSave			( StreamUnit streamUnit )
 	{
@@ -91,6 +113,9 @@ public class WPN_FireModule_Barrel : WPN_FireModule {
 		// CAM DISPERSION
 		CameraControl.Instance.ApplyDispersion( moduleFireDispersion );
 
+		// CAM RECOIL
+		CameraControl.Instance.AddRecoil( m_Recoil );
+
 		// UI ELEMENTS
 		UI.Instance.InGame.UpdateUI();
 	}
@@ -136,4 +161,9 @@ public class WPN_FireModule_Barrel : WPN_FireModule {
 			m_WpnFireMode.OnEnd( GetFireDispersion(), GetCamDeviation() );
 		}
 	}
+}
+
+
+[System.Serializable]
+public class WPN_FireModule_SniperBarrel : WPN_FireModule_Barrel {
 }

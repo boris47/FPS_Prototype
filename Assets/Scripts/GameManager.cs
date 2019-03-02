@@ -141,6 +141,19 @@ public partial class GameManager : MonoBehaviour {
 			InputMgr.Update();
 		}
 
+		
+		if ( Input.GetKeyDown( KeyCode.K ) )
+		{
+			WeaponManager.Instance.ApplyModifierToWeaponSlot( WeaponManager.Instance.CurrentWeapon, WeaponSlots.PRIMARY, "WPN_Module_Prop_BiggerMag" );
+		}
+		if ( Input.GetKeyDown( KeyCode.L ) )
+		{
+			WeaponModuleSlot slot = null;
+			WeaponManager.Instance.CurrentWeapon.bGetModuleSlot( WeaponSlots.PRIMARY, ref slot );
+			slot.WeaponModule.ResetBaseConfiguration();
+		}
+		
+
 		// Thinking Update
 		m_ThinkTimer += Time.deltaTime;
 		if ( m_ThinkTimer > Entity.THINK_TIMER )

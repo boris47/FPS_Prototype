@@ -1,28 +1,39 @@
 ﻿
 namespace Database {
 
+	using System.Collections;
 	using System.Collections.Generic;
 
-	public class cMultiValue {
+	public class cMultiValue : IEnumerable {
 
-		private List<cValue>		m_ValuesArray			= new List<cValue>();
+		private List<cValue>		m_ValuesList			= new List<cValue>();
 		public	List<cValue>		ValueArray
 		{
-			get { return m_ValuesArray; }
+			get { return m_ValuesList; }
 		}
 
 		public	int				Size
 		{
 			get 
 			{
-				return m_ValuesArray.Count;
+				return m_ValuesList.Count;
 			}
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return (IEnumerator) GetEnumerator();
+		}
+
+		public List<cValue>.Enumerator  GetEnumerator()
+		{
+			return m_ValuesList.GetEnumerator();
 		}
 
 
 		public cMultiValue( cValue[] vValues )
 		{
-			m_ValuesArray = new List<cValue>( vValues );
+			m_ValuesList = new List<cValue>( vValues );
 		}
 
 
@@ -31,8 +42,8 @@ namespace Database {
 		{
 			get
 			{
-				if ( m_ValuesArray.Count > Index )
-					return m_ValuesArray[Index];
+				if ( m_ValuesList.Count > Index )
+					return m_ValuesList[Index];
 				return null;
 			}
 		}
@@ -40,7 +51,7 @@ namespace Database {
 		/////////////////////////////////////////////////////////
 		public void		Add( cValue pValue )
 		{
-			m_ValuesArray.Add( pValue );
+			m_ValuesList.Add( pValue );
 		}
 	
 	}

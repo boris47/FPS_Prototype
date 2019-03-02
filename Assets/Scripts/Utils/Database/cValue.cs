@@ -30,6 +30,9 @@ namespace Database {
 
 		public T As<T>()
 		{
+			// Alternative: 
+			T result = (T) System.Convert.ChangeType( m_Value, typeof(T) );
+			/*
 			T result;
 			try
 			{
@@ -39,6 +42,7 @@ namespace Database {
 			{
 				result = default( T );
 			}
+			*/
 			return result;
 		}
 

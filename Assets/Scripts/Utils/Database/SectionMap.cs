@@ -1,4 +1,5 @@
 ﻿
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Database;
@@ -8,19 +9,20 @@ using Database;
 	using System.IO;
 
 
-public class SectionMap {
+public class SectionMap : IEnumerable {
 
 	// READING PHASES
-	private	const int							READING_NOTHING		= 0;
-	private	const int							READING_SECTION		= 1;
+	private	static int							READING_NOTHING		= 0;
+	private	static int							READING_SECTION		= 1;
+	private static int							READING_LIST		= 2;	// TODO Implement this
 
 	// CONTAINERS
-	private	Dictionary < string, Section >		mSectionMap			= new Dictionary < string, Section > ();
-	private	List < string >						mFilePaths			= new List < string >();
+	private	Dictionary < string, Section >		m_SectionMap		= new Dictionary < string, Section > ();
+	private	List < string >						m_FilePaths			= new List < string >();
 
 	// INTERNAL VARS
-	private	int									iReadingPhase		= READING_NOTHING;
-	private	Section								pCurentSection		= null;
+	private	int									m_ReadingPhase		= READING_NOTHING;
+	private	Section								m_CurrentSection	= null;
 
 	public	bool								IsOK
 	{
@@ -28,12 +30,23 @@ public class SectionMap {
 	}
 
 
+	IEnumerator IEnumerable.GetEnumerator()
+	{
+		return (IEnumerator) GetEnumerator();
+	}
+	
+	public Dictionary<string, Section>.ValueCollection.Enumerator  GetEnumerator()
+    {
+        return m_SectionMap.Values.GetEnumerator();
+    }
+
+
 	//////////////////////////////////////////////////////////////////////////
 	// Section_Create
 	// CREATE A NEW SECTION WHILE READING FILE
 	private bool Section_Create( string sLine, string sFilePath, int iLine )
 	{
-		if ( pCurentSection != null )
+		if ( m_CurrentSection != null )
 		{
 			Section_Close();
 		}
@@ -47,8 +60,10 @@ public class SectionMap {
 			return false;
 		}
 
-		iReadingPhase = READING_SECTION;
-		pCurentSection = new Section( sSectionName );
+		m_ReadingPhase = READING_SECTION;
+
+		string context = System.IO.Path.GetFileNameWithoutExtension( sFilePath );
+		m_CurrentSection = new Section( sSectionName, context: context );
 
 		// Get the name of mother section, if present
 		int iIndex = sLine.IndexOf( ":", squareBracketIndex );
@@ -66,7 +81,7 @@ public class SectionMap {
 				Section motherSection = null;
 				if ( bGetSection( motherName, ref motherSection ) )
 				{
-					pCurentSection += motherSection;
+					m_CurrentSection += motherSection;
 				} else
 				{
 					Debug.LogError( "SectionMap::Section_Create:" + sFilePath + ":[" + iLine + "]: Section requested for inheritance \"" + motherName + "\" doesn't exist!" );
@@ -86,10 +101,10 @@ public class SectionMap {
 		cLineValue pLineValue = new cLineValue( Pair.Key , Pair.Value );
 		if ( pLineValue.IsOK == false )
 		{
-			Debug.LogError( " SectionMap::Section_Add:LineValue invalid for key |" + Pair.Key + "| in Section |" + pCurentSection.Name() + "| in file |" + sFilePath + "|" );
+			Debug.LogError( " SectionMap::Section_Add:LineValue invalid for key |" + Pair.Key + "| in Section |" + m_CurrentSection.Name() + "| in file |" + sFilePath + "|" );
 			return false;
 		}
-		pCurentSection.Add( pLineValue );
+		m_CurrentSection.Add( pLineValue );
 		return true;
 	}
 
@@ -99,11 +114,11 @@ public class SectionMap {
 	// DEFINITELY SAVE THE PARSING SECTION
 	private void Section_Close()
 	{
-		if ( pCurentSection != null )
-			mSectionMap.Add( pCurentSection.Name(), pCurentSection );
+		if ( m_CurrentSection != null )
+			m_SectionMap.Add( m_CurrentSection.Name(), m_CurrentSection );
 
-		pCurentSection = null;
-		iReadingPhase = READING_NOTHING;
+		m_CurrentSection = null;
+		m_ReadingPhase = READING_NOTHING;
 	}
 
 
@@ -171,8 +186,8 @@ public class SectionMap {
 			/// Able to include file in same dir of root file
 			if ( ( sLine[ 0 ] == '#' ) && sLine.Contains( "#include" ) )
 			{
-				string sPath = System.IO.Path.GetDirectoryName( sFilePath ); //Utils.System.GetPathFromFilePath( sFilePath );
-				string sFileName = sLine.Trim().Substring( "#include".Length + 1 );
+				string sPath = System.IO.Path.GetDirectoryName( sFilePath );
+				string sFileName = sLine.Trim().Substring( "#include".Length + 1 ).TrimInside();
 #if UNITY_EDITOR
 				if ( LoadFile( System.IO.Path.Combine( sPath, sFileName ) ) == false )
 				{
@@ -213,8 +228,7 @@ public class SectionMap {
 			KeyValue pKeyValue = Utils.String.GetKeyValue( sLine );
 			if ( pKeyValue.IsOK )
 			{
-
-				if ( pCurentSection == null )
+				if ( m_CurrentSection == null )
 				{
 #if UNITY_EDITOR
 					Debug.LogError( " SectionMap::LoadFile:No section created to insert KeyValue at line |" + iLine + "| in file |" + sFilePath + "| " );
@@ -223,7 +237,7 @@ public class SectionMap {
 					return false;
 				}
 
-				if ( iReadingPhase != READING_SECTION )
+				if ( m_ReadingPhase != READING_SECTION )
 				{
 #if UNITY_EDITOR
 					Debug.LogError( " SectionMap::LoadFile:Trying to insert a KeyValue into a non section type FileElement, line \"" + sLine + "\" of file " + sFilePath + "!" );
@@ -249,7 +263,7 @@ public class SectionMap {
 		fs.Close();
 #endif
 		Section_Close();
-		mFilePaths.Add( sFilePath );
+		m_FilePaths.Add( sFilePath );
 		IsOK = true;
 		return true;
 	}
@@ -260,10 +274,10 @@ public class SectionMap {
 	// CHECK IF A FILE IS ALREADY LOADED BY PATH
 	public bool IsLoaded( string sFilePath )
 	{
-		if ( mFilePaths.Count < 1 )
+		if ( m_FilePaths.Count < 1 )
 			return false;
 
-		return mFilePaths.Find( (s) => s == sFilePath ) != null;
+		return m_FilePaths.Find( (s) => s == sFilePath ) != null;
 	}
 
 
@@ -272,14 +286,14 @@ public class SectionMap {
 	// CHECK AND RETURN IN CASE IF SECTION ALREADY EXISTS
 	public bool HasFileElement( string SecName, ref Section pSec )
 	{
-		return mSectionMap.TryGetValue( SecName, out pSec );
+		return m_SectionMap.TryGetValue( SecName, out pSec );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// NewSection
 	// CREATE AND SAVE A NEW EMPTY SECTION
-	public Section NewSection ( string SecName )
+	public Section NewSection ( string SecName, string Context )
 	{
 		Section pSec = null;
 		if ( HasFileElement( SecName, ref pSec  ) )
@@ -287,18 +301,34 @@ public class SectionMap {
 			pSec.Destroy();
 		}
 
-		pSec = new Section( SecName );
-		mSectionMap[SecName] = pSec; // Adding in this way will overwrite section, if already exists
+		pSec = new Section( SecName, context: Context );
+		m_SectionMap[SecName] = pSec; // Adding in this way will overwrite section, if already exists
 		return pSec;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// GetSection
-	// RETRIEVE A SECTION, IF EXISTS, RETURN IS BASED ON RESULT
+	/// <summary> Retrieve a section, return true if section exists otherwise false </summary>
 	public bool bGetSection( string SectionName, ref Section section )
 	{
-		return mSectionMap.TryGetValue( SectionName, out section );
+		return m_SectionMap.TryGetValue( SectionName, out section );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// GetSectionsByContext
+	/// <summary> Return an array of sections that shares a context in this instance of sectionMap </summary>
+	public	Section[]	GetSectionsByContext( string context )
+	{
+		List<Section> results = new List<Section>();
+		{
+			foreach( Section sec in m_SectionMap.Values )
+			{
+				if ( sec.Context == context ) results.Add( sec );
+			}
+		}
+		return results.ToArray();
 	}
 
 
@@ -307,14 +337,11 @@ public class SectionMap {
 	// PRINT IN A READABLE FORMAT THE MAP SECTION
 	public	void	PrintMap()
 	{
-		foreach( KeyValuePair<string, Section> KeyValuePair in mSectionMap )
+		foreach( Section section in this )
 		{
-			string	sectionName = KeyValuePair.Key;
-			Section	section		= KeyValuePair.Value;
+			Debug.Log( "Section: " + section.Name() );
 
-			Debug.Log( "Section: " + sectionName );
-
-			foreach( cLineValue lineValue in section.GetData() )
+			foreach( cLineValue lineValue in section )
 			{
 				string skey = lineValue.Key;
 				string sValue = "";
@@ -338,6 +365,4 @@ public class SectionMap {
 			Debug.Log( "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||" );
 		}
 	}
-
 }
-

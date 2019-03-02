@@ -17,17 +17,24 @@ public class WPN_FireMode_Auto : WPN_FireMode_Base {
 	public	WPN_FireMode_Auto( Database.Section section )
 	{ }
 
-	public	override	void	Setup			( float shotDelay, FireFunctionDel fireFunction )
+	public	override	void	Setup			( WPN_FireModule fireModule, float shotDelay, FireFunctionDel fireFunction )
 	{
 		if ( fireFunction != null )
 		{
 			m_FireFunction = fireFunction;
 			m_FireDelay = shotDelay;
+			m_FireModule = fireModule;
 		}
 	}
 
 
 	public	override	void	ApplyModifier	( Database.Section modifier )
+	{ }
+
+	public	override	void	ResetBaseConfiguration()
+	{ }
+
+	public	override	void	RemoveModifier( Database.Section modifier )
 	{ }
 
 
@@ -102,6 +109,29 @@ public class WPN_FireMode_Auto_Incremental : WPN_FireMode_Auto {
 	{
 		m_IncremetalSpeed	= section.AsFloat( "IncremetalSpeed", m_IncremetalSpeed );
 		m_MaxIncrement		= section.AsFloat( "MaxIncrement", m_MaxIncrement );
+	}
+
+
+	public override void ApplyModifier( Database.Section modifier )
+	{
+		base.ApplyModifier( modifier );
+
+		// Do actions here
+	}
+
+
+	public	override	void	ResetBaseConfiguration()
+	{
+		base.ResetBaseConfiguration();
+
+		// Do actions here
+	}
+
+	public	override	void	RemoveModifier( Database.Section modifier )
+	{
+		base.RemoveModifier( modifier );
+
+		// Do Actions here
 	}
 
 

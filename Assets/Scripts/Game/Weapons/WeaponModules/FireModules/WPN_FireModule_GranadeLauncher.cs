@@ -22,10 +22,27 @@ public class WPN_FireModule_GranadeLauncher : WPN_FireModule {
 
 	public		override		void	ApplyModifier( Database.Section modifier )
 	{
-		base.ApplyModifier( modifier );
+		// Do actions here
 
 		float MultLaunchForce		= modifier.AsFloat( "MultLaunchForce",	1.0f );
 		m_BaseLaunchForce			= m_BaseLaunchForce * MultLaunchForce;
+
+		base.ApplyModifier( modifier );
+	}
+
+
+	public	override	void	ResetBaseConfiguration()
+	{
+		// Do actions here
+
+		base.ResetBaseConfiguration();
+	}
+
+	public	override	void	RemoveModifier( Database.Section modifier )
+	{
+		// Do Actions here
+
+		base.RemoveModifier( modifier );
 	}
 
 
@@ -103,6 +120,9 @@ public class WPN_FireModule_GranadeLauncher : WPN_FireModule {
 
 		// CAM DISPERSION
 		CameraControl.Instance.ApplyDispersion( moduleFireDispersion );
+
+		// CAM RECOIL
+		CameraControl.Instance.AddRecoil( m_Recoil );
 
 		// UI ELEMENTS
 		UI.Instance.InGame.UpdateUI();

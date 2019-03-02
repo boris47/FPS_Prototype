@@ -19,46 +19,88 @@ public interface IWPN_FireModule {
 	bool					ChangeFireMode				<T>	();
 }
 
+public interface IWPN_UtilityModule {
+
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // WPN_BaseModule ( Abstract )
 /// <summary> Abstract base class for weapon modules </summary>
 [System.Serializable]
-public abstract class WPN_BaseModule : MonoBehaviour {
+public abstract class WPN_BaseModule : MonoBehaviour, IModifiable {
 
-	public	abstract	bool	Setup			( IWeapon w );
+	protected		Database.Section			m_ModuleSection				= null;
+	protected		IWeapon						m_WeaponRef					= null;
+	protected		WeaponSlots					m_ModuleSlot				= WeaponSlots.NONE;
+	protected		List<Database.Section>		m_Modifiers					= new List<Database.Section>();
+
+
+	public		Database.Section			ModuleSection
+	{
+		get { return m_ModuleSection; }
+	}
+
+	public		abstract	bool	Setup			( IWeapon w, WeaponSlots slot );
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	abstract	bool	InternalSetup( Database.Section moduleSection );
 
 
+	//////////////////////////////////////////////////////////////////////////
+	public	static	bool	GetRules( Database.Section moduleSection, ref string[] allowedBullets )
+	{
+		bool result = true;
+
+		string[] localAllowedBullets = null;
+		if ( result &= moduleSection.bGetMultiAsArray<string>( "AllowedBullets", ref localAllowedBullets ) )
+		{
+			allowedBullets = localAllowedBullets;
+		}
+
+		return result;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public		bool		CanAssignBullet( string bulletName )
+	{
+		bool result = true;
+
+		string[] allowedBullets = null;
+		if ( result &= GetRules( m_ModuleSection, ref allowedBullets ) )
+		{
+			result &= System.Array.IndexOf( allowedBullets, bulletName ) > -1;
+		}
+
+		return result;
+	}
+
 	//		MODIFIERS
 	//////////////////////////////////////////////////////////////////////////
-	public		virtual		void	ApplyModifier( Database.Section modifier )
-	{ }
 
-	public		virtual		void	RestoreModuleProperties()
-	{ }
 
-	public		virtual		void	RemoveModifier( Database.Section modifier )
-	{ }
+	public		virtual		void	ApplyModifier( Database.Section modifier )	{ }
+	public		virtual		void	ResetBaseConfiguration()	{ }
+	public		virtual		void	RemoveModifier( Database.Section modifier )	{ }
 
-	public	abstract	bool	OnSave			( StreamUnit streamUnit );
-	public	abstract	bool	OnLoad			( StreamUnit streamUnit );
 
-	public	abstract	bool	CanChangeWeapon	();
-	public	abstract	bool	CanBeUsed		();
-	public	abstract	void	OnWeaponChange	();
+	public		abstract	bool	OnSave			( StreamUnit streamUnit );
+	public		abstract	bool	OnLoad			( StreamUnit streamUnit );
 
-	public	abstract	bool	NeedReload		();
-	public	abstract	void	OnAfterReload	();
+	public		abstract	bool	CanChangeWeapon	();
+	public		abstract	bool	CanBeUsed		();
+	public		abstract	void	OnWeaponChange	();
 
-	public	abstract	void	InternalUpdate( float DeltaTime );
+	public		abstract	bool	NeedReload		();
+	public		abstract	void	OnAfterReload	();
+
+	public		abstract	void	InternalUpdate( float DeltaTime );
 
 	//
-	public	virtual		void	OnStart		()	{ }
-	public	virtual		void	OnUpdate	()	{ }
-	public	virtual		void	OnEnd		()	{ }
+	public		virtual		void	OnStart		()	{ }
+	public		virtual		void	OnUpdate	()	{ }
+	public		virtual		void	OnEnd		()	{ }
 
 }
 
@@ -69,23 +111,23 @@ public abstract class WPN_BaseModule : MonoBehaviour {
 [System.Serializable]
 public class WPN_BaseModuleEmpty : WPN_BaseModule {
 
-	public	override	bool	Setup			( IWeapon w ) { return true; }
-	protected	override	bool	InternalSetup( Database.Section moduleSection ) { return true; }
+	public		override	bool	Setup				( IWeapon w, WeaponSlots slot ) { return true; }
+	protected	override	bool	InternalSetup		( Database.Section moduleSection ) { return true; }
 
-	public	override	bool	OnSave			( StreamUnit streamUnit ) { return true; }
-	public	override	bool	OnLoad			( StreamUnit streamUnit ) {	return true; }
+	public		override	bool	OnSave				( StreamUnit streamUnit ) { return true; }
+	public		override	bool	OnLoad				( StreamUnit streamUnit ) {	return true; }
 
-	public	override	bool	CanChangeWeapon	() {  return true; }
-	public	override	bool	CanBeUsed		() {  return true; }
-	public	override	void	OnWeaponChange	() { }
-	public	override	void	InternalUpdate	( float DeltaTime ) { }
-	public	override	bool	NeedReload		() { return false; }
-	public	override	void	OnAfterReload	() { }
+	public		override	bool	CanChangeWeapon		() {  return true; }
+	public		override	bool	CanBeUsed			() {  return true; }
+	public		override	void	OnWeaponChange		() { }
+	public		override	void	InternalUpdate		( float DeltaTime ) { }
+	public		override	bool	NeedReload			() { return false; }
+	public		override	void	OnAfterReload		() { }
 
 	//
-	public	override	void	OnStart		()	{ }
-	public	override	void	OnUpdate	()	{ }
-	public	override	void	OnEnd		()	{ }
+	public		override	void	OnStart				()	{ }
+	public		override	void	OnUpdate			()	{ }
+	public		override	void	OnEnd				()	{ }
 
 }
 
@@ -101,11 +143,12 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 	[SerializeField]	protected	Transform					m_FirePoint					= null;
 	[SerializeField]	protected	uint						m_Magazine					= 0;
 	[SerializeField]	protected	uint						m_MagazineCapacity			= 1;
+	[SerializeField]	protected	bool						m_CanPenetrate				= false;
 	[SerializeField]	protected	float						m_Damage					= 0.0f;
 	[SerializeField]	protected	float						m_ShotDelay					= 0.5f;
 	[SerializeField]	protected	float						m_CamDeviation				= 0.02f;
 	[SerializeField]	protected	float						m_FireDispersion			= 0.05f;
-	[SerializeField]	protected	Database.Section			m_ModuleSection				= null;
+	[SerializeField]	protected	float						m_Recoil					= 0.3f;
 	[SerializeField]	protected	WPN_FireMode_Base			m_WpnFireMode				= new WPN_FireMode_Empty(null);
 
 	// INTERFACE START
@@ -123,18 +166,18 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 	protected		GameObjectsPool<Bullet>						m_PoolBullets				= null;
 	protected		bool										m_Initialized				= false;
 	protected		CustomAudioSource							m_AudioSourceFire			= null; // TODO Create audio
-	protected		IWeapon										m_WeaponRef					= null;
-	protected		List<Database.Section>						m_Modifiers					= new List<Database.Section>();
 
 
 	//		SETUP
 	//////////////////////////////////////////////////////////////////////////
-	public		override	bool	Setup( IWeapon wpn )
+	public		override	bool	Setup( IWeapon wpn, WeaponSlots slot )
 	{
-		if ( m_Initialized )
-			return false;
-
 		string moduleSectionName = this.GetType().FullName;
+
+		m_WeaponRef = wpn;
+		m_ModuleSlot = slot;
+
+		m_FirePoint					= m_WeaponRef.Transform.Find( "FirePoint" );
 
 		// TRY RECOVER MODULE SECTION
 		if ( GameManager.Configs.bGetSection( moduleSectionName, ref m_ModuleSection ) == false )			// Get Module Section
@@ -150,45 +193,27 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 		if ( TryLoadFireMode( weaponFireModeSectionName, ref m_WpnFireMode ) == false )
 			return false;
 
-		// Get variables from file
+		// ASSIGN INTERNALS
 		m_ShotDelay				= m_ModuleSection.AsFloat( "BaseShotDelay", m_ShotDelay );
 		m_MagazineCapacity		= m_ModuleSection.AsInt( "BaseMagazineCapacity", m_MagazineCapacity );
 		m_Damage				= m_ModuleSection.AsFloat( "BaseDamage", m_Damage );
+		m_CanPenetrate			= m_ModuleSection.AsBool( "bCanPenetrate" );
 		m_CamDeviation			= m_ModuleSection.AsFloat( "BaseCamDeviation", m_CamDeviation );
 		m_FireDispersion		= m_ModuleSection.AsFloat( "BaseFireDispersion", m_FireDispersion );
+		m_Recoil				= m_ModuleSection.AsFloat( "BaseRecoil", m_Recoil);
+		m_CanPenetrate			= m_ModuleSection.AsBool( "bCanPenetrate" );
+		m_Magazine				= m_MagazineCapacity;
 
-		// Create Fire Mode
-		m_WpnFireMode.Setup( m_ShotDelay, Shoot );
+		// CREATE FIRE MODE
+		m_WpnFireMode.Setup( this, m_ShotDelay, Shoot );
 
-		// Assign internals
-		m_Magazine					= m_MagazineCapacity;
-		m_FirePoint					= wpn.Transform.Find( "FirePoint" );
-		m_WeaponRef					= wpn;
 
 		if ( InternalSetup( m_ModuleSection ) == false )
 			return false;
 
-		#region to remove
-		/*
-		// APPLY MODIFIERS
-		string[] modifiers = null;
-		if ( m_ModuleSection.bGetMultiAsArray( "Modifiers", ref modifiers ) )
-		{
-			foreach( string modifierSectionName in modifiers )
-			{
-				Database.Section modifierSection = null;
-				if ( GameManager.Configs.bGetSection( modifierSectionName, ref modifierSection ) )
-				{
-					ApplyModifier( modifierSection );
-				}
-			}
-		}
-		*/
-		#endregion
-
 
 		// MODULE CONTAINER
-		string containerID = moduleSectionName;
+		string containerID = moduleSectionName + Weapon.GetModuleSlotName( slot );
 		GameObject container = transform.Find(containerID) != null ? transform.Find(containerID).gameObject : null;
 		if ( container )
 		{
@@ -200,6 +225,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 
 		// AUDIO
 		{
+			// Load fire sounds collection
 			if ( m_ModuleSounds == null )
 			{
 				const string fireSoundCollectionPath = "Scriptables/WeaponsFireSound";
@@ -209,7 +235,6 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 			string fireSound = null;
 			if ( m_ModuleSection.bAsString( "FireSound", ref fireSound ) )
 			{
-
 				AudioSource source = container.GetComponent<AudioSource>();
 				if ( source == null )
 				{
@@ -233,28 +258,31 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 			}
 		}
 
-
-		if ( m_PoolBullets != null )
-		{
-			m_PoolBullets.Destroy();
-			m_PoolBullets = null;
-		}
-
 		// BULLET POOL
-		string bulletObjectName = m_ModuleSection.AsString( "Bullet", "InvalidBulletResource");
-		GameObject bulletGO = null;
-		if ( ( bulletGO = Resources.Load<GameObject>( "Prefabs/Bullets/" + bulletObjectName ) ) != null ) 
 		{
-			m_PoolBullets = new GameObjectsPool<Bullet>
-			(
-				model			: bulletGO,
-				size			: m_MagazineCapacity,
-				containerName	: moduleSectionName + "_BulletsPool_" + wpn.Transform.name,
-				actionOnObject	: ActionOnBullet
-			);
+			// Remove previous if exists
+			if ( m_PoolBullets != null )
+			{
+				m_PoolBullets.Destroy();
+				m_PoolBullets = null;
+			}
+
+			// Create new pool
+			string bulletObjectName = m_ModuleSection.AsString( "Bullet", "InvalidBulletResource");
+			GameObject bulletGO = null;
+			if ( ( bulletGO = Resources.Load<GameObject>( "Prefabs/Bullets/" + bulletObjectName ) ) != null ) 
+			{
+				m_PoolBullets = new GameObjectsPool<Bullet>
+				(
+					model			: bulletGO,
+					size			: m_MagazineCapacity,
+					containerName	: moduleSectionName + "_BulletsPool_" + wpn.Transform.name,
+					actionOnObject	: ActionOnBullet
+				);
+			}
 		}
 
-		m_Initialized = true;
+
 		return true;
 	}
 
@@ -265,7 +293,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 		bullet.SetActive( false );
 		bullet.Setup
 		(
-			canPenetrate: false,
+			canPenetrate: m_CanPenetrate,
 			whoRef: Player.Instance,
 			weaponRef: m_WeaponRef as Weapon,
 			damageMin: -1.0f,
@@ -277,74 +305,119 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 
 	//		MODIFIERS
 	//////////////////////////////////////////////////////////////////////////
-	public		override	void	ApplyModifier( Database.Section modifier )
+	protected	static	Database.Section GetCurrentConfiguration( Database.Section ModuleSection, List<Database.Section> Modifiers )
 	{
-		base.ApplyModifier( modifier );
+		// Module Section values
+		uint	MagazineCapacity		= ModuleSection.AsInt( "BaseMagazineCapacity", 0u );
+		float	Damage					= ModuleSection.AsFloat( "BaseDamage" );
+		float	CamDeviation			= ModuleSection.AsFloat( "BaseCamDeviation" );
+		float	FireDispersion			= ModuleSection.AsFloat( "BaseFireDispersion" );
+		float	Recoil					= ModuleSection.AsFloat( "BaseRecoil");
+		float	ShotDelay				= ModuleSection.AsFloat( "BaseShotDelay" );
+		string	FireMode				= ModuleSection.AsString( "FireMode", "Single" );
+		string	Bullet					= ModuleSection.AsString( "Bullet", "RifleBullet");
+		bool	CanPenetrate			= ModuleSection.AsBool( "bCanPenetrate" );
 
-		float MultMagazineCapacity			= modifier.AsFloat( "MultMagazineCapacity",			1.0f );
-		float MultDamage					= modifier.AsFloat( "MultDamage",					1.0f );
-		float MultShotDelay					= modifier.AsFloat( "MultShotDelay",				1.0f );
-		float MultCamDeviation				= modifier.AsFloat( "MultCamDeviation",				1.0f );
-		float MultFireDispersion			= modifier.AsFloat( "MultFireDispersion",			1.0f );
-	
-		// MAGAZINE
-		m_MagazineCapacity				= (uint)( (float)m_MagazineCapacity * MultMagazineCapacity );
-		m_PoolBullets.Resize( m_Magazine = m_MagazineCapacity );
-
-		// DAMAGE
-		m_Damage						= m_Damage * MultDamage;
-		m_PoolBullets.ExecuteActionOnObjectr( ActionOnBullet );
-
-
-		// FIRE MODE
-		string newFireModeSecName = null;
-		if ( modifier.bAsString( "FireMode", ref newFireModeSecName ) )
+		// Apply modifiers
+		foreach( Database.Section mod in Modifiers )
 		{
-			ChangeFireMode( newFireModeSecName );
+			float multCapacity		= mod.AsFloat( "MultMagazineCapacity", 1.0f );
+			MagazineCapacity		= (uint)((float)MagazineCapacity * multCapacity );
+			Damage					*= mod.AsFloat( "MultDamage", Damage );
+			CamDeviation			*= mod.AsFloat( "MultCamDeviation", CamDeviation );
+			FireDispersion			*= mod.AsFloat( "MultFireDispersion", FireDispersion );
+			Recoil					*= mod.AsFloat( "MultRecoil", Recoil );
+			ShotDelay				*= mod.AsFloat( "MultShotDelay", ShotDelay );
+
+			FireMode				= mod.AsString( "FireMode", FireMode );
+			Bullet					= mod.AsString( "Bullet", Bullet );
+			CanPenetrate			= mod.AsInt( "bCanPenetrate", 0u ) > 0 ? true : false;
 		}
 
-		m_ShotDelay						= m_ShotDelay * MultShotDelay;
-		m_WpnFireMode.Setup( m_ShotDelay, Shoot );
-
-		// DEVIATION AND DISPERSION
-		m_CamDeviation					= m_CamDeviation * MultCamDeviation;
-		m_FireDispersion				= m_FireDispersion * MultFireDispersion;
-
-		// BULLET
-		string bulletObjectName = null;
-		if ( modifier.bAsString( "Bullet", ref bulletObjectName ) )
-		{
-			GameObject bulletGO = null;
-			if ( ( bulletGO = Resources.Load<GameObject>( "Prefabs/Bullets/" + bulletObjectName ) ) != null )
-			{
-				m_PoolBullets.Convert( bulletGO, ActionOnBullet );
-			}
-		}
-
-		m_Modifiers.Add( modifier );
+		// return new configuration
+		Database.Section config = new Database.Section( "LastConfigSection", ModuleSection.Name() );
+		config.Set( "MagazineCapacity",				MagazineCapacity	);
+		config.Set( "Damage",						Damage				);
+		config.Set( "CamDeviation",					CamDeviation		);
+		config.Set( "FireDispersion",				FireDispersion		);
+		config.Set( "Recoil",						Recoil				);
+		config.Set( "ShotDelay",					ShotDelay			);
+		config.Set( "FireMode",						FireMode			);
+		config.Set( "Bullet",						Bullet				);
+		config.Set( "bCanPenetrate",				CanPenetrate		);
+		return config;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		override	void	RestoreModuleProperties()
+	public		override	void	ApplyModifier( Database.Section modifier )
 	{
-		Setup( m_WeaponRef );
+		m_Modifiers.Add( modifier );
+
+		Database.Section Configuration = GetCurrentConfiguration( m_ModuleSection, m_Modifiers );
+
+		ApplyConfiguration( Configuration );
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	public		override	void	ResetBaseConfiguration()
+	{
+		// Reset everything of this module
+		Setup( m_WeaponRef, m_ModuleSlot );
+		m_Modifiers.Clear();
+	}
+	
 
 	//////////////////////////////////////////////////////////////////////////
 	public		override	void	RemoveModifier( Database.Section modifier )
 	{
-		if ( m_Modifiers.Contains( modifier ) )
+		int indexOfModifier = m_Modifiers.IndexOf( modifier );
+		if ( indexOfModifier < 0 )
 		{
-			m_Modifiers.Remove( modifier );
+			return;
+		}
+		
+		m_Modifiers.Remove( modifier );
+		
+		Database.Section Configuration = GetCurrentConfiguration( m_ModuleSection, m_Modifiers );
 
-			RestoreModuleProperties();
+		ApplyConfiguration( Configuration );
+	}
 
-			foreach( Database.Section mod in m_Modifiers )
-			{
-				ApplyModifier( mod );
-			}
+
+	//////////////////////////////////////////////////////////////////////////
+	private	void	ApplyConfiguration( Database.Section Configuration )
+	{
+		// MAGAZINE
+		m_MagazineCapacity					= Configuration.AsInt( "MagazineCapacity", m_MagazineCapacity );
+		m_PoolBullets.Resize( m_Magazine = m_MagazineCapacity );
+
+		// DAMAGE
+		int CanPenetrate					= Configuration.As<int>( "bCanPenetrate" );		// 0 no change, 1 disable, 2 enable
+		m_CanPenetrate						= CanPenetrate == 0 ? m_CanPenetrate : CanPenetrate == 0 ? false : true;
+		m_PoolBullets.ExecuteActionOnObjectr( ActionOnBullet );
+		m_Damage							= Configuration.AsFloat( "Damage" );
+
+
+		// DEVIATION AND DISPERSION
+		m_CamDeviation						= Configuration.AsFloat( "CamDeviation" );
+		m_FireDispersion					= Configuration.AsFloat( "FireDispersion");
+		m_Recoil							= Configuration.AsFloat( "Recoil");
+
+
+		// FIRE MODE
+		string newFireModeSecName			= Configuration.AsString( "FireMode" );
+		ChangeFireMode( newFireModeSecName );
+		m_ShotDelay							= Configuration.AsFloat( "ShotDelay");
+		m_WpnFireMode.Setup( this, m_ShotDelay, Shoot );
+
+		// BULLET
+		string bulletObjectName				= Configuration.AsString( "Bullet" );
+		GameObject bulletGO = null;
+		if ( ( bulletGO = Resources.Load<GameObject>( "Prefabs/Bullets/" + bulletObjectName ) ) != null )
+		{
+			m_PoolBullets.Convert( bulletGO, ActionOnBullet );
 		}
 	}
 
@@ -373,6 +446,11 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 		{
 			Debug.Log( "WPN_FireModule:Setting invalid weapon fire mode \"" + weaponFireModeSectionName + "\"" );
 			return false;
+		}
+		
+		if ( fireMode != null && fireMode.GetType() == type )
+		{
+			return true; // same firemode, change masked as success
 		}
 			
 		// Check module type as child of WPN_BaseModule

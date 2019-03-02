@@ -1,4 +1,5 @@
 ﻿
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,7 +11,6 @@ namespace Database {
 		bool					IsOK							{ get; }
 
 		void					Destroy							();
-		List<cLineValue>		GetData							();
 		int						Lines							();
 		string					Name							();
 		void					Add								( cLineValue LineValue );
@@ -52,21 +52,45 @@ namespace Database {
 		void					PrintSection					();
 	}
 	
-	public partial class Section : ISection {
+	[System.Serializable]
+	public partial class Section : ISection, IEnumerable {
 
 		// INTERNAL VARS
-		private		string				sName			= "";
+		[SerializeField]
+		private		string				sName			= null;
+		[SerializeField]
+		private		string				sContext		= null;
+		[SerializeField]
 		private		List<cLineValue>	vSection		= new List<cLineValue>();
+		[SerializeField]
 		private		List<string>		vMothers		= new List<string>();
+		[SerializeField]
 		public		bool				IsOK
 		{
 			get; private set;
 		}
 
+		public	string	Context
+		{
+			get { return ( sContext.IsNotNull() ) ? (string)Context.Clone() :""; }
+		}
 
-		public Section( string SecName )
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return (IEnumerator) GetEnumerator();
+		}
+	
+		public List<cLineValue>.Enumerator  GetEnumerator()
+		{
+			return vSection.GetEnumerator();
+		}
+
+
+		public Section( string SecName, string context )
 		{
 			sName = SecName;
+			sContext = context;
 			IsOK = true;
 		}
 
@@ -90,7 +114,7 @@ namespace Database {
 		{
 			if ( SecB.IsOK == true )
 			{
-				foreach( cLineValue lineValue in SecB.GetData() )
+				foreach( cLineValue lineValue in SecB )
 				{
 					if ( SecA.HasKey( lineValue.Key ) == false )
 					{
@@ -120,7 +144,6 @@ namespace Database {
 			vSection.ForEach( ( cLineValue lv ) => lv.Destroy() );
 		}
 
-		public	List<cLineValue>		GetData()			{ return vSection; }
 		public	int						Lines()				{ return vSection.Count; }
 		public	string					Name()				{ return ( string ) sName.Clone(); }
 	

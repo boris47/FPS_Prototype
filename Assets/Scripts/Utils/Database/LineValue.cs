@@ -1,19 +1,26 @@
 ﻿
+using UnityEngine;
 using System.Collections.Generic;
 
 namespace Database {
 
 	//* TYPES */
+	[System.Serializable]
 	public enum LineValueType		{ SINGLE, MULTI };
 
 	[System.Serializable]
 	public class cLineValue {
+		[SerializeField]
 		private	string						sKey				= string.Empty;
+		[SerializeField]
 		private	string						sRawValue			= string.Empty;
 
+		[SerializeField]
 		private	LineValueType				iType				= 0;
 
+		[SerializeField]
 		private	cMultiValue					pMultiValue			= null;
+		[SerializeField]
 		private	cValue						pValue				= null;
 
 		public	bool						IsOK
@@ -34,7 +41,7 @@ namespace Database {
 		// Type can be Single or Multi
 		public cLineValue( string Key, LineValueType Type )
 		{
-			iType = Type; sKey = Key;
+			iType = Type; sKey = Key; sRawValue = Key;
 		}
 
 		public cLineValue( cLineValue clone ) : this( clone.sKey, clone.sRawValue )
@@ -84,8 +91,8 @@ namespace Database {
 
 		public 	void Clear()									{ pValue = null; pMultiValue = null; }
 		
-		public 	cLineValue Set( ref cValue _Value )				{ pValue = _Value; return this; }
-		public 	cLineValue Set( ref cMultiValue _MultiValue )	{ pMultiValue = _MultiValue; return this;	}
+		public 	cLineValue Set( ref cValue _Value )				{ pValue = _Value;				return this; }
+		public 	cLineValue Set( ref cMultiValue _MultiValue )	{ pMultiValue = _MultiValue;	return this;	}
 		
 	
 

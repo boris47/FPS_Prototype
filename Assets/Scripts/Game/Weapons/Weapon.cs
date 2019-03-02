@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
 public interface IWeaponZoom {
 
 	Vector3					ZoomOffset			{ get; }
@@ -12,12 +11,25 @@ public interface IWeaponZoom {
 	float					ZoomFactor			{ get; }
 }
 
-public interface IWeapon :  IWeaponZoom {
+public interface IModifiable {
+
+	void					ApplyModifier			( Database.Section modifier );
+	void					ResetBaseConfiguration	();
+	void					RemoveModifier			( Database.Section modifier );
+}
+
+public interface IWeapon :  IWeaponZoom, IModifiable {
 	
 	Transform				Transform						{ get; }
 	bool					Enabled							{ get; set; }
 	WeaponState				WeaponState						{ get; }
-	bool					IsFiring						{ get; }
+
+	bool					bGetModuleBySlot				( WeaponSlots slot, ref WPN_BaseModule weaponModule );
+	bool					bGetModuleSlot					( WeaponSlots slot, ref WeaponModuleSlot moduleSlot );
+
+
+
+	// Weapon Attachments
 	IFlashLight				FlashLight						{ get; }
 	Laser					Laser							{ get; }
 	GranadeLauncher			GranadeLauncher					{ get; }
@@ -29,26 +41,22 @@ public interface IWeapon :  IWeaponZoom {
 	void					OnWeaponChange					();
 	float					Draw							();
 	float					Stash							();
+
+	void					Hide							();
+	void					Show							();
 }
 
 
+
 [System.Serializable]
-public abstract class Weapon : MonoBehaviour, IWeapon {
+public abstract partial class Weapon : MonoBehaviour, IWeapon, IModifiable {
 
 	[Header("Weapon Properties")]
 
 	[SerializeField, ReadOnly]	protected		Vector3				m_ZoomOffset				= Vector3.zero;
 
-	[Header("WeaponModules")]
-
-	[SerializeField]	protected		WPN_BaseModule		m_PrimaryWeaponModule		= new WPN_BaseModuleEmpty();
-	[SerializeField]	protected		WPN_BaseModule		m_SecondaryWeaponModule		= new WPN_BaseModuleEmpty();
-	[SerializeField]	protected		WPN_BaseModule		m_TertiaryWeaponModule		= new WPN_BaseModuleEmpty();
-
-	[SerializeField]	protected		Database.Section	m_WpnSection				= null;
-
-
-	// SECTION NAME
+	// SECTION
+	protected		Database.Section						m_WpnSection				= null;
 	protected		string									m_WpnBaseSectionName		= "";
 
 	// ATTACHMENTS
@@ -70,19 +78,19 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	// INTERFACE START
 					Transform								IWeapon.Transform			{ get { return transform; } }
 					bool									IWeapon.Enabled				{ get { return enabled; } set { enabled = value; } }
-					bool									IWeapon.IsFiring			{ get { return m_IsFiring; } }
 					IFlashLight								IWeapon.FlashLight			{ get { return m_FlashLight; } }
 					Laser									IWeapon.Laser				{ get { return m_Laser; } }
 					GranadeLauncher							IWeapon.GranadeLauncher		{ get { return m_GranadeLauncher; } }
 					WeaponState								IWeapon.WeaponState			{ get { return m_WeaponState; } }
 					Database.Section						IWeapon.Section				{ get { return m_WpnSection; } }
 					string									IWeapon.OtherInfo			{ get { return OtherInfo; } }
-
+	
 					Vector3									IWeaponZoom.ZoomOffset		{ get { return m_ZoomOffset; } }
-
+	
 					float									IWeaponZoom.ZoomingTime		{ get { return m_BaseZoomingTime; } }
 					float									IWeaponZoom.ZoomSensitivity	{ get { return GetZoomSensitivity(); } }
 					float									IWeaponZoom.ZoomFactor		{ get { return m_BaseZoomFactor; } }
+	
 	// INTERFACE END
 
 	
@@ -90,29 +98,29 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	protected		Animator								m_Animator					= null;
 	
 	// ANIMATIONS
-	protected		AnimationClip							m_FireAnim					= null;
+//	protected		AnimationClip							m_FireAnim					= null;
 	protected		AnimationClip							m_ReloadAnim				= null;
 	protected		AnimationClip							m_DrawAnim					= null;
 
 	// Weapon Flags
 	protected		bool									m_IsLocked					= false;
-	protected		bool									m_IsFiring					= false;
 	protected		bool									m_NeedRecharge
 	{
 		get {
-			return m_PrimaryWeaponModule.NeedReload() || m_SecondaryWeaponModule.NeedReload() || m_TertiaryWeaponModule.NeedReload();
+			return m_PrimaryWeaponModuleSlot.WeaponModule.NeedReload() || 
+				m_SecondaryWeaponModuleSlot.WeaponModule.NeedReload() || 
+				m_TertiaryWeaponModuleSlot.WeaponModule.NeedReload();
 		}
 	}
 
 
-
 	//////////////////////////////////////////////////////////////////////////
-	protected virtual string OtherInfo
+	protected	virtual	string				OtherInfo
 	{
 		get {
-			string primaryModule	= m_PrimaryWeaponModule.name;
-			string secondaryModule	= m_SecondaryWeaponModule.name;
-			string tertiaryModule	= m_TertiaryWeaponModule.name;
+			string primaryModule	= m_PrimaryWeaponModuleSlot.WeaponModule.name;
+			string secondaryModule	= m_SecondaryWeaponModuleSlot.WeaponModule.name;
+			string tertiaryModule	= m_TertiaryWeaponModuleSlot.WeaponModule.name;
 			return primaryModule + ", " + secondaryModule + ", " + tertiaryModule;
 		}
 	}
@@ -128,7 +136,7 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 		// Animations
 		{
 			weaponAwakeSuccess &= Utils.Base.SearchComponent<Animator>( gameObject, ref m_Animator, SearchContext.LOCAL);
-			weaponAwakeSuccess &= m_Animator.GetClipFromAnimator( "fire",		ref m_FireAnim );
+//			weaponAwakeSuccess &= m_Animator.GetClipFromAnimator( "fire",		ref m_FireAnim );
 			weaponAwakeSuccess &= m_Animator.GetClipFromAnimator( "reload",		ref m_ReloadAnim );
 			weaponAwakeSuccess &= m_Animator.GetClipFromAnimator( "draw",		ref m_DrawAnim );
 			Debug.Log( "Animations for weapon " + m_WpnBaseSectionName + " are " + ( ( weaponAwakeSuccess ) ? "correctly loaded" : "invalid!!!" ) );
@@ -147,38 +155,101 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 		GameManager.StreamEvents.OnSave += OnSave;
 		GameManager.StreamEvents.OnLoad += OnLoad;
 
-		m_PrimaryWeaponModule	= gameObject.AddComponent<WPN_BaseModuleEmpty>();
-		m_SecondaryWeaponModule	= gameObject.AddComponent<WPN_BaseModuleEmpty>();
-		m_TertiaryWeaponModule	= gameObject.AddComponent<WPN_BaseModuleEmpty>();
-
-		// LOAD CONFIGURATION
-		if ( weaponAwakeSuccess &= GameManager.Configs.bGetSection( m_WpnBaseSectionName, ref m_WpnSection ) )
-		{
-			m_WpnSection.bAsVec3( "ZoomOffset", ref m_ZoomOffset, null );
-
-			m_BaseZoomingTime		= m_WpnSection.AsFloat( "BaseZoomingTime",		m_BaseZoomingTime );
-			m_BaseZoomSensitivity	= m_WpnSection.AsFloat( "BaseZoomSensitivity",	m_BaseZoomSensitivity );
-			m_BaseZoomFactor		= m_WpnSection.AsFloat( "BaseZoomFactor",		m_BaseZoomFactor );
-
-			// Primary Weapon Module
-			weaponAwakeSuccess &= LoadAndConfigureModule( this, m_WpnSection, "PrimaryWeaponModule", ref m_PrimaryWeaponModule );
-
-			// Secondary Weapon Module
-			weaponAwakeSuccess &= LoadAndConfigureModule( this, m_WpnSection, "SecondaryWeaponModule", ref m_SecondaryWeaponModule );
-
-			//Tertiary Weapon Module
-			weaponAwakeSuccess &= LoadAndConfigureModule( this, m_WpnSection, "TertiaryWeaponModule", ref m_TertiaryWeaponModule );
-		}
+		weaponAwakeSuccess &= ReloadBaseConfiguration();
 
 		// Only if the construction complete successflly, the weapon get registered
 		if ( weaponAwakeSuccess )
 		{
-			WeaponManager.Instance.RegisterWpn( this );
+			WeaponManager.Instance.RegisterWeapon( this );
 		}
 	}
 
+
 	//////////////////////////////////////////////////////////////////////////
-	protected		void					ApplyModifier( Database.Section modifier )
+	private		bool						ReloadBaseConfiguration()
+	{
+		bool result = true;
+		m_PrimaryWeaponModuleSlot.TrySetModule		( this,	typeof( WPN_BaseModuleEmpty ) );
+		m_SecondaryWeaponModuleSlot.TrySetModule	( this,	typeof( WPN_BaseModuleEmpty ) );
+		m_TertiaryWeaponModuleSlot.TrySetModule		( this,	typeof( WPN_BaseModuleEmpty ) );
+
+		m_Modifiers.Clear();
+
+		// LOAD BASE CONFIGURATION
+		if ( result &= GameManager.Configs.bGetSection( m_WpnBaseSectionName, ref m_WpnSection ) )
+		{
+			m_WpnSection.bAsVec3( "ZoomOffset", ref m_ZoomOffset, null );
+
+			m_BaseZoomFactor		= m_WpnSection.AsFloat( "BaseZoomFactor",		m_BaseZoomFactor );
+			m_BaseZoomingTime		= m_WpnSection.AsFloat( "BaseZoomingTime",		m_BaseZoomingTime );
+			m_BaseZoomSensitivity	= m_WpnSection.AsFloat( "BaseZoomSensitivity",	m_BaseZoomSensitivity );
+
+			// Primary Weapon Module
+			result &= LoadAndConfigureModule( this, m_WpnSection, ref m_PrimaryWeaponModuleSlot );
+
+			// Secondary Weapon Module
+			result &= LoadAndConfigureModule( this, m_WpnSection, ref m_SecondaryWeaponModuleSlot );
+
+			//Tertiary Weapon Module
+			result &= LoadAndConfigureModule( this, m_WpnSection, ref m_TertiaryWeaponModuleSlot );
+		}
+		return result;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public		bool						bGetModuleBySlot( WeaponSlots slot, ref WPN_BaseModule weaponModule )
+	{
+		weaponModule = null;
+		switch ( slot )
+		{
+			case WeaponSlots.PRIMARY:	weaponModule = m_PrimaryWeaponModuleSlot.WeaponModule;		break;
+			case WeaponSlots.SECONDARY:	weaponModule = m_SecondaryWeaponModuleSlot.WeaponModule;	break;
+			case WeaponSlots.TERTIARY:	weaponModule = m_TertiaryWeaponModuleSlot.WeaponModule;		break;
+			default:	break;
+		}
+
+		return weaponModule != null;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public		bool						bGetModuleSlot( WeaponSlots slot, ref WeaponModuleSlot moduleSlot )
+	{
+		moduleSlot = null;
+		switch ( slot )
+		{
+			case WeaponSlots.PRIMARY:	moduleSlot = m_PrimaryWeaponModuleSlot;		break;
+			case WeaponSlots.SECONDARY:	moduleSlot = m_SecondaryWeaponModuleSlot;		break;
+			case WeaponSlots.TERTIARY:	moduleSlot = m_TertiaryWeaponModuleSlot;		break;
+			default:	break;
+		}
+
+		return moduleSlot != null;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public static	string					GetModuleSlotName( WeaponSlots slot )
+	{
+		string result = "";
+		switch ( slot )
+		{
+			case WeaponSlots.PRIMARY: result = "PrimaryWeaponModule";
+				break;
+			case WeaponSlots.SECONDARY: result = "SecondaryWeaponModule";
+				break;
+			case WeaponSlots.TERTIARY: result = "TertiaryWeaponModule";
+				break;
+			default:
+				break;
+		}
+		return result;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public		void						ApplyModifier( Database.Section modifier )
 	{
 		float MultZoomFactor			= modifier.AsFloat( "MultZoomFactor",					1.0f );
 		float MultZoomingTime			= modifier.AsFloat( "MultZoomingTime",					1.0f );
@@ -189,97 +260,51 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 		m_BaseZoomSensitivity			*= MultZoomSensitivity;
 
 		// Primary Weapon Module
-		LoadAndConfigureModule( this, modifier, "PrimaryWeaponModule", ref m_PrimaryWeaponModule );
+		LoadAndConfigureModule( this, modifier, ref m_PrimaryWeaponModuleSlot );
 
 		// Secondary Weapon Module
-		LoadAndConfigureModule( this, modifier, "SecondaryWeaponModule", ref m_SecondaryWeaponModule );
+		LoadAndConfigureModule( this, modifier, ref m_SecondaryWeaponModuleSlot );
 
 		// Tertiary Weapon Module
-		LoadAndConfigureModule( this, modifier, "TertiaryWeaponModule", ref m_TertiaryWeaponModule );
+		LoadAndConfigureModule( this, modifier, ref m_TertiaryWeaponModuleSlot );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private	static	bool					LoadAndConfigureModule( IWeapon wpn, Database.Section section, string weaponModuleSectionName, ref WPN_BaseModule weaponModule )
+	public		void						ResetBaseConfiguration()
 	{
-		string WeaponModuleSection = null;
-		if ( section.AsBool( "Has" + weaponModuleSectionName ) && section.bAsString( weaponModuleSectionName, ref WeaponModuleSection ) )
-		{
-			Database.Section moduleSection = null;
-			if ( GameManager.Configs.bGetSection( WeaponModuleSection, ref moduleSection ) )
-
-
-			if ( LoadWeaponModule( wpn, WeaponModuleSection, ref weaponModule ) == false )
-			{
-				Destroy( weaponModule );
-				weaponModule	= wpn.Transform.gameObject.AddComponent<WPN_BaseModuleEmpty>();
-				return false;
-			}
-
-			ConfigureModule( section, weaponModuleSectionName, weaponModule );
-		}
-		return true;
+		// Reload Base Configuration
+		ReloadBaseConfiguration();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private	static	bool					LoadWeaponModule( IWeapon wpn, string weaponModuleSection, ref WPN_BaseModule weaponModule )
+	public		void						RemoveModifier( Database.Section modifier )
 	{
-		System.Type type = System.Type.GetType( weaponModuleSection.Trim() );
-		if ( type == null )
+		if ( m_Modifiers.Contains( modifier ) )
 		{
-			Debug.Log( "Weapon:AWAKE: " + wpn.Section.Name() + ": Setting invalid weapon module \"" + weaponModuleSection + "\"" );
-			return false;
-		}
-			
-		// Check module type as child of WPN_BaseModule
-		if ( type.IsSubclassOf( typeof( WPN_BaseModule ) ) == false )
-		{
-			Debug.Log( "Weapon:AWAKE: " + wpn.Section.Name() + ": Class Requested is not a supported weapon module, \"" + weaponModuleSection + "\"" );
-			return false;
+			m_Modifiers.Remove( modifier );
 		}
 
-		if ( weaponModule != null )
+		ResetBaseConfiguration();
+
+		foreach( Database.Section otherModifier in m_Modifiers )
 		{
-			Destroy( weaponModule );
-		}
-		
-		weaponModule = wpn.Transform.gameObject.AddComponent( type ) as WPN_BaseModule;
-
-		return weaponModule.Setup( wpn );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private static	void					ConfigureModule( Database.Section section, string weaponModuleSectionName, WPN_BaseModule weaponModule )
-	{
-		string[] mods = null;
-		if ( section.bGetMultiAsArray( weaponModuleSectionName + "Mods", ref mods ) )
-		{
-			Database.Section modifierSection = null;
-			foreach( string modifierSectionName in mods )
-			{
-				if ( GameManager.Configs.bGetSection( modifierSectionName, ref modifierSection ) )
-				{
-					weaponModule.ApplyModifier( modifierSection );
-				}
-			}
-
+			ApplyModifier( otherModifier );
 		}
 	}
-
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private		float						GetZoomSensitivity()
 	{
 		float zoomSensitivity		= m_BaseZoomSensitivity;
-
-		System.Array.ForEach
-		(
-			GetComponents<WPN_WeaponModule_Zoom>(),
-			s => zoomSensitivity *= s.ZoomSensitivity
-		);
+		
+		WPN_WeaponModule_Zoom zoomModule = null;
+		if ( transform.SearchComponent( ref zoomModule, SearchContext.CHILDREN ) )
+		{
+			zoomSensitivity *= zoomModule.ZoomSensitivity;
+		}
 		
 		return zoomSensitivity;
 	}
@@ -296,9 +321,9 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	protected	virtual		void			OnEnable()
 	{
 		// Update events registration
-		GameManager.UpdateEvents.OnFrame += m_PrimaryWeaponModule.InternalUpdate;
-		GameManager.UpdateEvents.OnFrame += m_SecondaryWeaponModule.InternalUpdate;
-		GameManager.UpdateEvents.OnFrame += m_TertiaryWeaponModule.InternalUpdate;
+		GameManager.UpdateEvents.OnFrame += m_PrimaryWeaponModuleSlot.WeaponModule.InternalUpdate;
+		GameManager.UpdateEvents.OnFrame += m_SecondaryWeaponModuleSlot.WeaponModule.InternalUpdate;
+		GameManager.UpdateEvents.OnFrame += m_TertiaryWeaponModuleSlot.WeaponModule.InternalUpdate;
 
 		//										COMMAND								COMMAND ID						ACTION							PREDICATE
 		GameManager.InputMgr.BindCall( eInputCommands.PRIMARY_FIRE_PRESS,		"Wpn_Primary_Fire_Start",		PrimaryFire_Start,		Predicate_PrimaryFire_Start		);
@@ -326,9 +351,9 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	protected	virtual		void			OnDisable()
 	{
 		// Update events un-registration
-		GameManager.UpdateEvents.OnFrame -= m_PrimaryWeaponModule.InternalUpdate;
-		GameManager.UpdateEvents.OnFrame -= m_SecondaryWeaponModule.InternalUpdate;
-		GameManager.UpdateEvents.OnFrame -= m_TertiaryWeaponModule.InternalUpdate;
+		GameManager.UpdateEvents.OnFrame -= m_PrimaryWeaponModuleSlot.WeaponModule.InternalUpdate;
+		GameManager.UpdateEvents.OnFrame -= m_SecondaryWeaponModuleSlot.WeaponModule.InternalUpdate;
+		GameManager.UpdateEvents.OnFrame -= m_TertiaryWeaponModuleSlot.WeaponModule.InternalUpdate;
 
 		GameManager.InputMgr.UnbindCall( eInputCommands.PRIMARY_FIRE_PRESS,		"Wpn_Primary_Fire_Start"	);
 		GameManager.InputMgr.UnbindCall( eInputCommands.PRIMARY_FIRE_HOLD,		"Wpn_Primary_Fire_Update"	);
@@ -348,43 +373,6 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	}
 
 
-	#region		PREDICATES
-	// PREDICATES	START
-	protected virtual		bool			Predicate_Base() { return m_WeaponState == WeaponState.DRAWED && Player.Instance.ChosingDodgeRotation == false && m_IsLocked == false; }
-	protected	virtual		bool			Predicate_PrimaryFire_Start()		{ return Predicate_Base() && m_PrimaryWeaponModule.CanBeUsed(); }
-	protected	virtual		bool			Predicate_PrimaryFire_Update()		{ return Predicate_Base() && m_PrimaryWeaponModule.CanBeUsed(); }
-	protected	virtual		bool			Predicate_PrimaryFire_End()			{ return Predicate_Base() && m_PrimaryWeaponModule.CanBeUsed(); }
-
-	protected	virtual		bool			Predicate_SecondaryFire_Start()		{ return Predicate_Base() && m_SecondaryWeaponModule.CanBeUsed(); }
-	protected	virtual		bool			Predicate_SecondaryFire_Update()	{ return Predicate_Base() && m_SecondaryWeaponModule.CanBeUsed(); }
-	protected	virtual		bool			Predicate_SecondaryFire_End()		{ return Predicate_Base() && m_SecondaryWeaponModule.CanBeUsed(); }
-
-	protected	virtual		bool			Predicate_TertiaryFire_Start()		{ return Predicate_Base() && m_TertiaryWeaponModule.CanBeUsed(); }
-	protected	virtual		bool			Predicate_TertiaryFire_Update()		{ return Predicate_Base() && m_TertiaryWeaponModule.CanBeUsed(); }
-	protected	virtual		bool			Predicate_TertiaryFire_End()		{ return Predicate_Base() && m_TertiaryWeaponModule.CanBeUsed(); }
-
-	protected	virtual		bool			Predicate_Reload()					{ return Predicate_Base() && m_NeedRecharge == true; }
-	// PREDICATES	END
-	#endregion
-	
-	
-	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		void			PrimaryFire_Start()		{	m_PrimaryWeaponModule.OnStart();	}
-	protected	virtual		void			PrimaryFire_Update()	{	m_PrimaryWeaponModule.OnUpdate();	}
-	protected	virtual		void			PrimaryFire_End()		{	m_PrimaryWeaponModule.OnEnd();		}
-	
-	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		void			SecondaryFire_Start()	{	m_SecondaryWeaponModule.OnStart();	}
-	protected	virtual		void			SecondaryFire_Update()	{	m_SecondaryWeaponModule.OnUpdate();	}
-	protected	virtual		void			SecondaryFire_End()		{	m_SecondaryWeaponModule.OnEnd();	}
-
-	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		void			TertiaryFire_Update()	{	m_TertiaryWeaponModule.OnStart();	}
-	protected	virtual		void			TertiaryFire_Start()	{	m_TertiaryWeaponModule.OnUpdate();	}
-	protected	virtual		void			TertiaryFire_End()		{	m_TertiaryWeaponModule.OnEnd();		}
-
-
-
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void			Reload()
 	{
@@ -397,9 +385,9 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	{
 		StreamUnit streamUnit	= streamData.NewUnit( gameObject );
 		
-		m_PrimaryWeaponModule.OnSave( streamUnit );
-		m_SecondaryWeaponModule.OnSave( streamUnit );
-		m_TertiaryWeaponModule.OnSave( streamUnit );
+		m_PrimaryWeaponModuleSlot.WeaponModule.OnSave( streamUnit );
+		m_SecondaryWeaponModuleSlot.WeaponModule.OnSave( streamUnit );
+		m_TertiaryWeaponModuleSlot.WeaponModule.OnSave( streamUnit );
 
 		// FLASHLIGHT
 		if ( m_FlashLight != null )
@@ -421,11 +409,9 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 		StreamUnit streamUnit = null;
 		if ( streamData.GetUnit( gameObject, ref streamUnit ) )
 		{
-			m_IsFiring = false;
-
-			m_PrimaryWeaponModule.OnLoad( streamUnit );
-			m_SecondaryWeaponModule.OnLoad( streamUnit );
-			m_TertiaryWeaponModule.OnLoad( streamUnit );
+			m_PrimaryWeaponModuleSlot.WeaponModule.OnLoad( streamUnit );
+			m_SecondaryWeaponModuleSlot.WeaponModule.OnLoad( streamUnit );
+			m_TertiaryWeaponModuleSlot.WeaponModule.OnLoad( streamUnit );
 
 			// FLASHLIGHT
 			if ( m_FlashLight != null )
@@ -446,9 +432,9 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	public		virtual		bool			CanChangeWeapon()
 	{
 		bool result = m_IsLocked == false;
-		result &= m_PrimaryWeaponModule.CanChangeWeapon();
-		result &= m_SecondaryWeaponModule.CanChangeWeapon();
-		result &= m_TertiaryWeaponModule.CanChangeWeapon();
+		result &= m_PrimaryWeaponModuleSlot.WeaponModule.CanChangeWeapon();
+		result &= m_SecondaryWeaponModuleSlot.WeaponModule.CanChangeWeapon();
+		result &= m_TertiaryWeaponModuleSlot.WeaponModule.CanChangeWeapon();
 		return result;
 	}
 
@@ -457,9 +443,9 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	/// <summary> Called before weapon change </summary>
 	public		virtual		void			OnWeaponChange()
 	{
-		m_PrimaryWeaponModule.OnWeaponChange();
-		m_SecondaryWeaponModule.OnWeaponChange();
-		m_TertiaryWeaponModule.OnWeaponChange();
+		m_PrimaryWeaponModuleSlot.WeaponModule.OnWeaponChange();
+		m_SecondaryWeaponModuleSlot.WeaponModule.OnWeaponChange();
+		m_TertiaryWeaponModuleSlot.WeaponModule.OnWeaponChange();
 
 		enabled			= false;
 	}
@@ -469,9 +455,9 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	/// <summary> Callback after the reload animation </summary>
 	protected	virtual		void			OnEndReload()
 	{
-		m_PrimaryWeaponModule.OnAfterReload();
-		m_SecondaryWeaponModule.OnAfterReload();
-		m_TertiaryWeaponModule.OnAfterReload();
+		m_PrimaryWeaponModuleSlot.WeaponModule.OnAfterReload();
+		m_SecondaryWeaponModuleSlot.WeaponModule.OnAfterReload();
+		m_TertiaryWeaponModuleSlot.WeaponModule.OnAfterReload();
 
 		// Update UI
 		UI.Instance.InGame.UpdateUI();
@@ -498,6 +484,30 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	}
 
 
+	private List<Renderer> toBeShow = new List<Renderer>();
+	//////////////////////////////////////////////////////////////////////////
+	public		void						Hide							()
+	{
+		toBeShow.Clear();
+		Renderer[] toBeHidden = null;
+		transform.SearchComponents( ref toBeHidden, SearchContext.CHILDREN, (r) => r.enabled == true );
+
+		toBeShow.AddRange( toBeHidden );
+
+		foreach( Renderer r in GetComponentsInChildren<Renderer>() )
+		{
+			r.enabled = false;
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public		void						Show							()
+	{
+		toBeShow.ForEach( ( r ) => r.enabled = true );
+	}
+
+
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void			Update() { }
 
@@ -507,13 +517,13 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 	{
 		m_IsLocked = true;
 
-		m_PrimaryWeaponModule.enabled = false;
-		m_SecondaryWeaponModule.enabled = false;
-		m_TertiaryWeaponModule.enabled = false;
+		m_PrimaryWeaponModuleSlot.WeaponModule.enabled = false;
+		m_SecondaryWeaponModuleSlot.WeaponModule.enabled = false;
+		m_TertiaryWeaponModuleSlot.WeaponModule.enabled = false;
 
 		if ( WeaponManager.Instance.IsZoomed )
 		{
-			yield return WeaponManager.Instance.ZoomOutCO();
+			yield return WeaponManager.Instance.ZoomOut();
 		}
 
 		// Reload animation
@@ -523,9 +533,9 @@ public abstract class Weapon : MonoBehaviour, IWeapon {
 			yield return new WaitForSeconds( rechargeTimer );
 		}
 
-		m_PrimaryWeaponModule.enabled = true;
-		m_SecondaryWeaponModule.enabled = true;
-		m_TertiaryWeaponModule.enabled = true;
+		m_PrimaryWeaponModuleSlot.WeaponModule.enabled = true;
+		m_SecondaryWeaponModuleSlot.WeaponModule.enabled = true;
+		m_TertiaryWeaponModuleSlot.WeaponModule.enabled = true;
 
 		m_IsLocked = false;
 

@@ -4,7 +4,7 @@
 ; BASE VARS FOR WEAPONS
 [EmptyWeapon]
 ZoomOffset					= 0.0, 0.0, 0.0;
-ZoomSensitivity				= 1.0;
+BaseZoomSensitivity			= 1.0;
 HasPrimaryModule			= false;
 HasSecondaryModule			= false;
 HasTertiaryModule			= false;
@@ -13,6 +13,7 @@ HasTertiaryModule			= false;
 
 ;;;;;;;;;;;;;;;; BLASTER
 [Blaster] : EmptyWeapon
+ZoomOffset					= -0.0655, 0.009, -0.052;
 BaseZoomFactor				= 1.8;
 BaseZoomingTime				= 0.2;
 BaseZoomSensitivity			= 0.3;
@@ -37,20 +38,20 @@ BaseZoomSensitivity			= 0.3;
 
 HasPrimaryWeaponModule		= true;
 PrimaryWeaponModule			= WPN_FireModule_Barrel;
-PrimaryWeaponModuleMods		= WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy;
+;PrimaryWeaponModuleMods		= WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy;
 
 HasSecondaryWeaponModule	= true;
-SecondaryWeaponModule		= WPN_WeaponModule_Zoom;
+SecondaryWeaponModule		= WPN_FireModule_Barrel;
 
 HasTertiaryWeaponModule		= true;
-TertiaryWeaponModule		= WPN_FireModule_Shotgun;
-TertiaryWeaponModuleMods	= WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_BiggerMag, WPN_Module_Prop_BiggerMag;
+TertiaryWeaponModule		= WPN_WeaponModule_Zoom;
+;TertiaryWeaponModuleMods	= WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_BiggerMag, WPN_Module_Prop_BiggerMag;
 
 
 
 ;;;;;;;;;;;;;;;; RAZOR
 [Razor] : EmptyWeapon
-ZoomOffset					= -0.0655, 0.009, -0.052;
+ZoomOffset					= -0.064, 0.0, -0.052;
 BaseZoomFactor				= 6.0;
 BaseZoomingTime				= 0.2;
 BaseZoomSensitivity			= 0.2;
@@ -68,6 +69,7 @@ TertiaryWeaponModule		= WPN_FireModule_Auto;
 
 ;;;;;;;;;;;;;;;; HAMMER
 [Hammer] : EmptyWeapon
+ZoomOffset					= -0.0655, 0.009, -0.052;
 BaseZoomFactor				= 2.0;
 BaseZoomingTime				= 0.2;
 BaseZoomSensitivity			= 0.3;
@@ -85,6 +87,7 @@ TertiaryWeaponModule		= WPN_FireModule_Auto;
 
 ;;;;;;;;;;;;;;;; BREAKER
 [Breaker] : EmptyWeapon
+ZoomOffset					= -0.0655, 0.009, -0.052;
 BaseZoomFactor				= 2.0;
 BaseZoomingTime				= 0.2;
 BaseZoomSensitivity			= 0.3;
@@ -102,7 +105,8 @@ TertiaryWeaponModule		= WPN_FireModule_Auto;
 
 ;;;;;;;;;;;;;;;; ARROW
 [Arrow] : EmptyWeapon
-BaseZoomFactor				= 8.0;
+ZoomOffset					= -0.0655, 0.009, -0.052;
+BaseZoomFactor				= 2.0;
 BaseZoomingTime				= 0.2;
 BaseZoomSensitivity			= 0.2;
 
@@ -110,7 +114,7 @@ HasPrimaryWeaponModule		= true;
 PrimaryWeaponModule			= WPN_FireModule_SniperBarrel;
 
 HasSecondaryWeaponModule	= true;
-SecondaryWeaponModule		= WPN_WeaponModule_Zoom;
+SecondaryWeaponModule		= WPN_WeaponModule_OpticZoom;
 
 HasTertiaryWeaponModule		= false;
 TertiaryWeaponModule		= WPN_FireModule_Auto;

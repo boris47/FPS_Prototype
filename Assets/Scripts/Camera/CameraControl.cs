@@ -23,6 +23,7 @@ public interface ICameraControl {
 	void						ApplyDeviation						( float deviation, float weightX = 1f, float weightY = 1f );
 	void						ApplyDispersion						( float dispersion, float weightX = 1f, float weightY = 1f );
 	void						ApplyFallFeedback					( float delta, float weightX = 1f, float weightY = 1f );
+	void						AddRecoil							( float recoil );
 }
 
 public class CameraControl : MonoBehaviour, ICameraControl {
@@ -87,6 +88,7 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 	private		Vector3							m_WpnCurrentDispersion					= Vector3.zero;
 	private		Vector3							m_WpnRotationFeedback					= Vector3.zero;
 	private		Vector3							m_WpnFallFeedback						= Vector3.zero;
+	private		float							m_Recoil								= 0.0f;
 
 
 
@@ -273,6 +275,11 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 //		m_WpnFallFeedback = Vector3.ClampMagnitude( m_WpnCurrentDeviation, WPN_FALL_FEEDBACK_CLAMP_VALUE );
 	}
 
+	void	ICameraControl.AddRecoil							( float recoil )
+	{
+		m_Recoil += recoil;
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// LateUpdate
@@ -304,11 +311,14 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 			m_WpnRotationFeedback	= Vector3.Lerp( m_WpnRotationFeedback,	Vector3.zero, dt );
 			m_WpnFallFeedback		= Vector3.Lerp( m_WpnFallFeedback,		Vector3.zero, dt * 3.7f );
 			m_WpnCurrentDeviation	= Vector3.Lerp( m_WpnCurrentDeviation,  Vector3.zero, dt * 3.7f );
+			m_Recoil				= Mathf.Lerp( m_Recoil, 0.0f, dt * 3.7f );
+			m_Recoil				= Mathf.Clamp( m_Recoil, 0.0f, 0.05f );
 
 			if ( m_WeaponMoveEffectEnabled )
 			{
 				// Position
-				Vector3 localPosition		= HeadBob.WeaponPositionDelta + HeadMove.WeaponPositionDelta;
+				Vector3 localPosition		= HeadBob.WeaponPositionDelta + HeadMove.WeaponPositionDelta + ( Vector3.left * m_Recoil );
+
 				WeaponManager.Instance.CurrentWeapon.Transform.localPosition	 = localPosition;
 
 				// Rotation
@@ -317,6 +327,23 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 
 				Vector3 basePivotRotation = Vector3.up * -90f;
 				m_WeaponPivot.localEulerAngles = m_HeadBob.Direction*10f + basePivotRotation;
+			}
+
+			// Optic sight allignment
+			if ( WeaponManager.Instance.IsZoomed )
+			{
+				Vector2 delta = Vector2.zero;
+				{
+					Vector3 wpnDir = WeaponManager.Instance.CurrentWeapon.Transform.right;
+					Vector3 wpnPos = WeaponManager.Instance.CurrentWeapon.Transform.position;
+					Vector3 distantPoint = wpnPos + wpnDir * 1000f;
+					Vector3 projectedPoint = m_CameraRef.WorldToScreenPoint( distantPoint );
+
+					delta =  projectedPoint;
+				}
+
+				float frameFeedBack = m_Recoil * 10.0f;
+				UI.Instance.InGame.FrameFeedBack( 1.0f + frameFeedBack, delta ); // 1.0f + Because is scale factor
 			}
 		}
 

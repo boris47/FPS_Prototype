@@ -30,18 +30,31 @@ public class WPN_FireMode_Burst : WPN_FireMode_Base {
 
 
 	// Setup
-	public	override void Setup( float shotDelay, FireFunctionDel fireFunction )
+	public	override void Setup( WPN_FireModule fireModule, float shotDelay, FireFunctionDel fireFunction )
 	{
 		if ( fireFunction != null )
 		{
 			m_FireDelay = shotDelay;
 			m_FireFunction = fireFunction;
+			m_FireModule = fireModule;
 		}
 	}
 
 
 	public	override	void	ApplyModifier	( Database.Section modifier )
-	{ }
+	{
+		m_Modifiers.Add( modifier );
+	}
+
+	public	override	void	ResetBaseConfiguration()
+	{
+
+	}
+
+	public	override	void	RemoveModifier( Database.Section modifier )
+	{
+		m_Modifiers.Remove( modifier );
+	}
 
 
 	public	override	bool	OnSave			( StreamUnit streamUnit )
@@ -118,6 +131,35 @@ public class WPN_FireMode_BurstAuto : WPN_FireMode_Burst {
 	public	WPN_FireMode_BurstAuto( Database.Section section ) : base( section )
 	{ }
 
+	public override		void	ApplyModifier( Database.Section modifier )
+	{
+		base.ApplyModifier( modifier );
+
+		// Do actions here
+	}
+
+
+	public	override	void	ResetBaseConfiguration()
+	{
+		base.ResetBaseConfiguration();
+
+		// Do actions here
+	}
+
+	public	override	void	RemoveModifier( Database.Section modifier )
+	{
+		base.RemoveModifier( modifier );
+
+		// Do Actions here
+	}
+
+
+	private	void	StopAutoBurstSequence()
+	{
+		m_BurstCount = 0;
+		m_BurstActive = false;
+	}
+
 
 	//	INTERNAL UPDATE
 	public	override	void	InternalUpdate( float DeltaTime, uint magazineSize )
@@ -134,9 +176,13 @@ public class WPN_FireMode_BurstAuto : WPN_FireMode_Burst {
 
 			if ( m_BurstCount >= m_BurstSize || magazineSize == 0 )
 			{
-				m_BurstCount = 0;
-				m_BurstActive = false;
+				StopAutoBurstSequence();
 			}
+		}
+
+		if ( m_FireModule.Magazine <= 0 )
+		{
+			StopAutoBurstSequence();
 		}
 	}
 	

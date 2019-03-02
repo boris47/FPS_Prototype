@@ -35,6 +35,20 @@ public class WPN_FireModule_Shotgun : WPN_FireModule {
 		m_BuckshotSize						= (uint)( (float)m_BuckshotSize * MultBucketSize);
 	}
 
+	public	override	void	ResetBaseConfiguration()
+	{
+		base.ResetBaseConfiguration();
+
+		// Do actions here
+	}
+
+	public	override	void	RemoveModifier( Database.Section modifier )
+	{
+		base.RemoveModifier( modifier );
+
+		// Do Actions here
+	}
+
 	public	override	bool	OnSave			( StreamUnit streamUnit )
 	{
 		streamUnit.SetInternal( name, m_Magazine );
@@ -96,6 +110,9 @@ public class WPN_FireModule_Shotgun : WPN_FireModule {
 
 		// CAM DISPERSION
 		CameraControl.Instance.ApplyDispersion( moduleFireDispersion );
+
+		// CAM RECOIL
+		CameraControl.Instance.AddRecoil( m_Recoil );
 
 		// UI ELEMENTS
 		UI.Instance.InGame.UpdateUI();

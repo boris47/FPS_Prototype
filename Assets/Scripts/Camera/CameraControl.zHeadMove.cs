@@ -37,8 +37,7 @@ public class HeadMove : CameraEffectBase {
 
 		float	fStamina	= Player.Instance.Stamina;
 		bool	bCrouched	= Player.Instance.IsCrouched;
-		bool	bZoomed		= WeaponManager.Instance.IsZoomed;
-		float	fZoomFactor	= WeaponManager.Instance.CurrentWeapon.ZoomFactor;
+//		bool	bZoomed		= WeaponManager.Instance.IsZoomed;
 
 		float fSpeed = m_Speed * m_SpeedMul * Time.deltaTime;
 		fSpeed		*= ( bCrouched )	?	0.80f : 1.00f;

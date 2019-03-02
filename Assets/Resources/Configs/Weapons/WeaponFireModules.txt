@@ -7,10 +7,13 @@ BaseMagazineCapacity		= 50;
 BaseDamage					= 15.0;
 BaseCamDeviation			= 0.3;
 BaseFireDispersion			= 0.9;
+BaseRecoil					= 0.01;
 BaseShotDelay				= 0.08;
 FireMode					= Auto;
 Bullet						= BulletRifle;
 FireSound					= Shot;
+MaxModuleCount				= 3;
+AllowedSlots				= 1, 2, 3;
 
 
 ; BLASTER
@@ -20,10 +23,13 @@ BaseDamage					= 15.0;
 ;;;BaseMaxDamage				= 45.0;
 BaseCamDeviation			= 0.3;
 BaseFireDispersion			= 0.9;
+BaseRecoil					= 0.1;
 BaseShotDelay				= 0.3;
 FireMode					= Auto_Incremental;
 Bullet						= BulletBlaster
 FireSound					= BlasterShot;
+MaxModuleCount				= 2;
+AllowedSlots				= 1, 2;
 
 
 ; SYPHON
@@ -34,10 +40,13 @@ BaseDamage					= 1.0;
 BaseCamDeviation			= 0.05;
 BaseFireDispersion			= 0.6;
 BaseShotDelay				= 0.02;
+BaseRecoil					= 0.0;
 FireMode					= Auto;
 Bullet						= BulletSyphon;
 FireSound					= Syphon;
 Module_Prefab				= Prefabs/WeaponModules/FireModules/Module_Beam;
+MaxModuleCount				= 1;
+AllowedSlots				= 1;
 
 
 ; SHOTGUN
@@ -46,12 +55,15 @@ BaseMagazineCapacity		= 5;
 BaseBucketSize				= 9;
 BaseCamDeviation			= 2.7;
 BaseFireDispersion			= 2.8;
+BaseRecoil					= 1.0;
 BasePerShotFireDispersion	= 0.05;
 BaseDamage					= 5.0;
 BaseShotDelay				= 0.8;
 FireMode					= Auto_Incremental;
 Bullet						= BulletRifle;
 FireSound					= Shotgun;
+MaxModuleCount				= 2;
+AllowedSlots				= 1, 2;
 
 
 ; GRANADE LAUNCHER
@@ -60,28 +72,26 @@ BaseMagazineCapacity		= 50;
 BaseLaunchForce				= 150;
 BaseCamDeviation			= 1.5;
 BaseFireDispersion			= 1.6;
+BaseRecoil					= 0.5;
 BaseDamage					= 60.0;
 BaseShotDelay				= 1.0;
 FireMode					= Single;
 Bullet						= GranadeFrammentation
 FireSound					= Shotgun;
+MaxModuleCount				= 1;
+AllowedSlots				= 1;
 
 
 ; SNIPER BARREL
 [WPN_FireModule_SniperBarrel]
-BaseMagazineCapacity		= 50;
+BaseMagazineCapacity		= 9;
 BaseDamage					= 15.0;
 BaseCamDeviation			= 0.3;
 BaseFireDispersion			= 0.9;
+BaseRecoil					= 0.4;
 BaseShotDelay				= 0.08;
-FireMode					= Brust;
+FireMode					= BurstAuto;
 Bullet						= BulletRifle;
 FireSound					= Shot;
-
-
-
-; ZOOM MODULE
-[WPN_WeaponModule_Zoom]
-ZoomingTime				= 0.1;
-ZoomSensitivity			= 0.3;
-ZoomFactor				= 2.0;
+MaxModuleCount				= 2;
+AllowedSlots				= 1, 2;
