@@ -23,10 +23,9 @@ public class TurretHard : Turret {
 
 		base.Awake();
 	}
-	
 
 	//////////////////////////////////////////////////////////////////////////
-
+	/*
 	public override void OnHit( IBullet bullet )
 	{
 		if ( m_IsRecharging == false )
@@ -34,7 +33,7 @@ public class TurretHard : Turret {
 
 		base.OnHit( bullet );
 	}
-
+	*/
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -105,7 +104,9 @@ public class TurretHard : Turret {
 
 		float	timeStep = ( m_RechargeTime / 3f );
 
-		Vector3 savedShieldScale = m_Shield.transform.localScale;
+		Transform shiledTransform = ( m_Shield as Shield ).transform;
+
+		Vector3 savedShieldScale = shiledTransform.localScale;
 
 		// PHASE 1: Shield scaling down
 		while( interpolant < 1f )
@@ -113,7 +114,7 @@ public class TurretHard : Turret {
 			currentTime += Time.deltaTime;
 			interpolant = currentTime / timeStep;
 
-			m_Shield.transform.localScale = Vector3.Lerp( savedShieldScale, Vector3.zero, interpolant );
+			shiledTransform.localScale = Vector3.Lerp( savedShieldScale, Vector3.zero, interpolant );
 			yield return null;
 		}
 		interpolant = currentTime = 0f;
@@ -133,7 +134,7 @@ public class TurretHard : Turret {
 			currentTime += Time.deltaTime;
 			interpolant = currentTime / timeStep;
 
-			m_Shield.transform.localScale = Vector3.Lerp( Vector3.zero, savedShieldScale, interpolant );
+			shiledTransform.localScale = Vector3.Lerp( Vector3.zero, savedShieldScale, interpolant );
 			yield return null;
 		}
 

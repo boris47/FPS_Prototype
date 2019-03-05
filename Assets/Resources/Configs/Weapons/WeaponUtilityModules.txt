@@ -25,7 +25,7 @@ AllowedSlots				= 2;
 
 
 
-; SYPHON
+; SHIELD
 [WPN_WeaponModule_Shield]
 BaseShieldLife				= 100;
 Module_Prefab				= Prefabs/WeaponModules/UtilityModules/Shield;

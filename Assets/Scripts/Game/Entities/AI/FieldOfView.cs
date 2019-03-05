@@ -249,10 +249,11 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 					origin:						currentViewPoint.position,
 					direction:					direction,
 					hitInfo:					out m_RaycastHit,
-					maxDistance:				m_ViewDistance,
-					layerMask:					Physics.AllLayers, //m_LayerMask,
-					queryTriggerInteraction:	QueryTriggerInteraction.Ignore
+					maxDistance:				m_ViewDistance//,
+				//	layerMask:					Physics.AllLayers, //m_LayerMask,
+				//	queryTriggerInteraction:	QueryTriggerInteraction.Ignore
 				);
+				
 
 				if ( result == true && m_RaycastHit.collider.GetInstanceID() == target.Interface.PhysicCollider.GetInstanceID() )
 				{

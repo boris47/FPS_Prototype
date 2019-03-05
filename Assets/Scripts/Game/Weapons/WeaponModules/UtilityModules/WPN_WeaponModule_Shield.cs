@@ -6,6 +6,10 @@ public class WPN_WeaponModule_Shield : WPN_BaseModule, IWPN_UtilityModule {
 
 	protected	float		m_ShieldLife		= 1f;
 
+//	protected	Renderer	m_Renderer			= null;
+
+	protected	Shield		m_Shield			= null;
+
 	//////////////////////////////////////////////////////////////////////////
 	public	override	bool	Setup			( IWeapon w, WeaponSlots slot )
 	{
@@ -23,10 +27,11 @@ public class WPN_WeaponModule_Shield : WPN_BaseModule, IWPN_UtilityModule {
 				modulePrefab = Instantiate<GameObject>( modulePrefab, transform );
 				modulePrefab.transform.localPosition = Vector3.zero;
 				modulePrefab.transform.localRotation = Quaternion.identity;
+				m_Shield	= modulePrefab.GetComponentInChildren<Shield>();
 			}
 		}
 
-		m_ShieldLife = m_ModuleSection.AsFloat( "ShieldLife", 50f );
+		m_ShieldLife = m_ModuleSection.AsFloat( "BaseShieldLife", 50f );
 
 		if ( InternalSetup( m_ModuleSection ) == false )
 			return false;
@@ -91,14 +96,19 @@ public class WPN_WeaponModule_Shield : WPN_BaseModule, IWPN_UtilityModule {
 
 	public override		void	OnStart()
 	{
-
+		if ( m_ShieldLife > 0.0f )
+		{
+			m_Shield.enabled = true;
+			Player.Entity.TriggerCollider.enabled = false;
+		}
 	}
 
 
 
 	public override void OnEnd()
 	{
-		
+		m_Shield.enabled = false;
+		Player.Entity.TriggerCollider.enabled = true;
 	}
 
 }

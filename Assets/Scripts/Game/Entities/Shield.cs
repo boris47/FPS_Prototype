@@ -1,37 +1,49 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
-public interface IShield {
+public interface IShield : IStreamableByEvents {
 
-	float		Status				{ set; }
-	Entity		Parent				{ set; }
-	bool		IsUnbreakable		{ set; }
+	/// <summary> Event called when shiled is hitted </summary>
+	event		Shield.ShieldHitEvent		OnHit;
 
-	void		OnHit				( Vector3 startPosition, Entity whoRef, Weapon weaponRef, float damage, bool canPenetrate = false );
-	void		OnReset				();
+	float		Status						{ get; }
+	bool		IsUnbreakable				{ get; }
+
+
+	void		Setup						( float StartStatus, bool IsUnbreakable = false );
+	void		OnReset						();
 }
 
 [RequireComponent( typeof ( Collider ) )]
 public class Shield : MonoBehaviour, IShield {
 
+	// Delegate definition
+	public	delegate	void	ShieldHitEvent( Vector3 startPosition, Entity whoRef, Weapon weaponRef, float damage, bool canPenetrate = false );
 
-	bool		IShield.IsUnbreakable		{	set { m_IsUnbreakable = value; } }
-	Entity		IShield.Parent				{	set { m_Parent = value; }			}
-	float		IShield.Status				{	set { m_Status = m_StartStatus = value; } }
-
+	// Internal Event
+	protected	ShieldHitEvent	m_ShielHitEvent			= null;
 
 	[SerializeField]
-	private		bool		m_IsUnbreakable		= false;
+	protected		bool		m_IsUnbreakable			= false;
 
-	public		bool		IsUnbreakable				{	get { return m_IsUnbreakable;  }	}
-	public		Collider	Collider					{	get { return m_Collider; }			}
-	public		float		Status						{	get { return m_Status; }			}
+	/// INTERFACE START
+	/// <summary> Event called when shiled is hitted </summary>
+	event ShieldHitEvent	IShield.OnHit
+	{
+		add		{ if ( value != null )	m_ShielHitEvent += value; }
+		remove	{ if ( value != null )	m_ShielHitEvent -= value; }
+	}
 
+	bool		IShield.IsUnbreakable				{	get { return m_IsUnbreakable;	}	}
+	float		IShield.Status						{	get { return m_CurrentStatus;	}	}
 
-	private		Entity		m_Parent			= null;
+	/// INTERFACE END
+	/// 
+	
 	private		Collider	m_Collider			= null;
 	private		Renderer	m_Renderer			= null;
-	private		float		m_Status			= 100f;
+	private		float		m_CurrentStatus		= 100f;
 	private		float		m_StartStatus		= 0.0f;
 
 
@@ -39,56 +51,137 @@ public class Shield : MonoBehaviour, IShield {
 	// Awake
 	private void Awake()
 	{
-		Utils.Base.SearchComponent( gameObject, ref m_Parent, SearchContext.PARENT );
 		Utils.Base.SearchComponent( gameObject, ref m_Renderer, SearchContext.LOCAL );
 		Utils.Base.SearchComponent( gameObject, ref m_Collider, SearchContext.LOCAL );
+
+		// First assignment
+		ResetDelegate();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnHit
-	public		void		OnHit( Vector3 startPosition, Entity whoRef, Weapon weaponRef, float damage, bool canPenetrate = false )
+	// ResetDelegate
+	private	void	ResetDelegate()
 	{
-		if ( canPenetrate == true && weaponRef != null )
+		
+		Shield.ShieldHitEvent onShiledHit = delegate( Vector3 startPosition, Entity whoRef, Weapon weaponRef, float damage, bool canPenetrate )
 		{
-			damage *= 0.5f;
-			m_Parent.OnHit( startPosition, whoRef, damage );
+			this.TakeDamage( startPosition, whoRef, weaponRef, damage, canPenetrate );
+		};
+		m_ShielHitEvent = onShiledHit;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnTriggerEnter
+	private void OnTriggerEnter( Collider other )
+	{
+		IBullet bullet = null;
+		print("Triggered on shield");
+		bool bIsBullet = Utils.Base.SearchComponent( other.gameObject, ref bullet, SearchContext.CHILDREN );
+		if ( bIsBullet == true )
+		{
+			m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageRandom, bullet.CanPenetrate );
+		}
+	}
+	/*
+	//////////////////////////////////////////////////////////////////////////
+	// OnCollisionEnter
+	private void OnCollisionEnter( Collision collision )
+	{
+		
+		
+	}
+	*/
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnEnable
+	private void OnEnable()
+	{
+		m_Renderer.enabled = true;
+		m_Collider.enabled = true;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnDisable
+	private void OnDisable()
+	{
+		m_Renderer.enabled = false;
+		m_Collider.enabled = false;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnSave
+	StreamUnit IStreamableByEvents.OnSave( StreamData streamData )
+	{
+		StreamUnit streamUnit = null;
+		if ( streamData.GetUnit( gameObject, ref streamUnit ) == false )
+		{
+			enabled = false;
+			ResetDelegate();
+//			gameObject.SetActive( false );
+			return null;
 		}
 
-		// notify hit
-		m_Parent.OnHit( startPosition, whoRef, 0.0f );
+		streamUnit.SetInternal( "CurrentStatus", m_CurrentStatus );
 
-		// Shield damage
-		TakeDamage( damage );
+		return streamUnit;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnLoad
+	StreamUnit IStreamableByEvents.OnLoad( StreamData streamData )
+	{
+		StreamUnit streamUnit = null;
+		if ( streamData.GetUnit( gameObject, ref streamUnit ) == false )
+		{
+			enabled = false;
+			ResetDelegate();
+//			gameObject.SetActive( false );
+			return null;
+		}
+
+		m_CurrentStatus = streamUnit.GetAsFloat( "CurrentStatus" );
+
+		return streamUnit;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Setup
+	void		IShield.Setup( float StartStatus, bool IsUnbreakable )
+	{
+		m_StartStatus	= StartStatus;
+		m_IsUnbreakable	= IsUnbreakable;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnReset
+	void		IShield.OnReset()
+	{
+		m_Renderer.enabled = true;
+		m_Collider.enabled = true;
+		m_CurrentStatus = m_StartStatus;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// TakeDamage
-	public	void	TakeDamage( float damage )
+	protected		void	TakeDamage( Vector3 startPosition, Entity whoRef, Weapon weaponRef, float damage, bool canPenetrate )
 	{
 		if ( m_IsUnbreakable == true )
 		{
 			return;
 		}
 
-		m_Status -= damage;
-		if ( m_Status <= 0.0f )
+		m_CurrentStatus -= damage;
+		if ( m_CurrentStatus <= 0.0f )
 		{
 			m_Renderer.enabled = false;
 			m_Collider.enabled = false;
 		}
 	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnReset
-	void	IShield.OnReset()
-	{
-		m_Renderer.enabled = true;
-		m_Collider.enabled = true;
-		m_Status = m_StartStatus;
-	}
-
 
 }

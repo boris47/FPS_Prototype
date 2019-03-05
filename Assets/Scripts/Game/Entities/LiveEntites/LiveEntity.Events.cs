@@ -3,6 +3,7 @@ using UnityEngine;
 
 public abstract partial class LiveEntity  {
 
+	/*
 	public		void	EvaluateFall( Vector3 fallDistance )
 	{
 		if ( IsFalling == false )
@@ -27,7 +28,7 @@ public abstract partial class LiveEntity  {
 
 		}
 	}
-
+	*/
 	/*
 	private void OnCollisionEnter( Collision collision )
 	{
@@ -45,9 +46,9 @@ public abstract partial class LiveEntity  {
 	
 
 //	float currentHitTime;
-	private void OnTriggerEnter( Collider other )
-	{
-		return;
+//	private void OnTriggerEnter( Collider other )
+//	{
+//		return;
 /*
 		IBullet bullet = other.GetComponent<IBullet>();
 		if ( bullet == null )
@@ -71,6 +72,6 @@ public abstract partial class LiveEntity  {
 //		OnHit( bullet );
 
 //		bullet.SetActive( false );
-	}
+//	}
 	
 }

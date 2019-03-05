@@ -28,17 +28,20 @@ public class BulletElettro : GenericBullet {
 			EffectManager.Instance.PlayEffect( EffectType.AMBIENT_ON_HIT, collision.contacts[0].point, collision.contacts[0].normal, 3 );
 		}
 
-		if ( shield != null )
+/*		if ( shield != null )
 		{
 			float damage = UnityEngine.Random.Range( m_DamageMin, m_DamageMax );
 			shield.OnHit( m_StartPosition, m_WhoRef, m_Weapon, damage, m_CanPenetrate );
 		}
 		else
-		if ( entity != null )
+*/		if ( entity != null )
 		{
 			Rigidbody erg = entity.RigidBody;
 			erg.angularVelocity = erg.velocity = Vector3.zero;
-			entity.OnHit( m_Instance );
+//			entity.OnHit( m_Instance );
+
+			float damage = UnityEngine.Random.Range( m_DamageMin, m_DamageMax );
+			entity.OnHit( m_StartPosition, m_WhoRef, damage, m_CanPenetrate );
 		}
 
 		this.SetActive( false );

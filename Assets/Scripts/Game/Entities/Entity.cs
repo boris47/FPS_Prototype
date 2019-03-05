@@ -21,7 +21,7 @@ public partial interface IEntity {
 	ENTITY_TYPE				EntityType						{ get; }
 
 	// Entity Shield
-	Shield					Shield							{ get; }
+	IShield					Shield							{ get; }
 
 	// Entity Section
 	string					Section							{ get; }
@@ -57,7 +57,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 				bool					IEntity.IsActive					{	get { return m_IsActive;		}	}
 				uint					IEntity.ID							{	get { return m_ID;				}	}
 				float					IEntity.Health						{	get { return m_Health;			}	}
-				Shield					IEntity.Shield						{	get { return m_Shield;			}	}
+				IShield					IEntity.Shield						{	get { return m_Shield;			}	}
 				string					IEntity.Section						{	get { return m_SectionName;		}	}
 				Rigidbody				IEntity.RigidBody					{	get { return m_RigidBody;		}	}
 				Collider				IEntity.PhysicCollider				{	get { return m_PhysicCollider;	}	}
@@ -92,7 +92,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	[Header("Entity Properties")]
 	[SerializeField]
 	protected	float						m_Health						= 1f;
-	protected	Shield						m_Shield						= null;
+	protected	IShield						m_Shield						= null;
 	protected	bool						m_IsActive						= true;
 	protected 	uint						m_ID							= 0;
 	protected	Section						m_SectionRef					= null;
@@ -201,7 +201,11 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		}
 
 		// SHIELD
-		Utils.Base.SearchComponent( gameObject, ref m_Shield, SearchContext.CHILDREN );
+		if ( Utils.Base.SearchComponent( gameObject, ref m_Shield, SearchContext.CHILDREN ) )
+		{
+			m_Shield.OnHit += OnShieldHit;
+		}
+
 
 		// CUTSCENE MANAGER
 		Utils.Base.SearchComponent( gameObject, ref m_CutsceneManager, SearchContext.CHILDREN );
@@ -278,6 +282,15 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 //		this.OnPhysicFrame( Time.fixedDeltaTime );
 	}
 */
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	virtual	void	OnShieldHit( Vector3 startPosition, Entity whoRef, Weapon weaponRef, float damage, bool canPenetrate = false )
+	{
+		if ( m_Shield.Status <= 0f )
+		{
+			this.OnHit( startPosition, whoRef, damage, canPenetrate );
+		}
+	}
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Set the trasform to Look At </summary>

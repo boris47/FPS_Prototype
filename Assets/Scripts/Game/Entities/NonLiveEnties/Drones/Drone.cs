@@ -32,9 +32,12 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		// LOAD CONFIGURATION
 		{
 			m_Health				= m_SectionRef.AsFloat( "Health",				30.0f );
-			float shieldStatus		= m_SectionRef.AsFloat( "Shield",				60.0f );
+			
 			if ( m_Shield != null )
-				( m_Shield as IShield ).Status = shieldStatus;
+			{
+				float shieldStatus	= m_SectionRef.AsFloat( "Shield",				60.0f );
+				m_Shield.Setup( shieldStatus );
+			}
 
 			m_MoveMaxSpeed			= m_SectionRef.AsFloat( "MoveMaxSpeed",			1.0f );
 
@@ -198,8 +201,11 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		
 
 		Brain_OnReset();
+
 		if ( m_Shield != null )
-			( m_Shield as IShield ).OnReset();
+		{
+			m_Shield.OnReset();
+		}
 	}
 
 }

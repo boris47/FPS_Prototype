@@ -9,6 +9,7 @@ public interface IBullet {
 	Object				Effect			{ get; }
 	float				DamageMin		{ get; set; }
 	float				DamageMax		{ get; set; }
+	float				DamageRandom	{ get; }
 	float				DamageMult		{ get; }
 	float				RecoilMult		{ get; }
 	bool				CanPenetrate	{ get; set; }
@@ -63,6 +64,7 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 					Object				IBullet.Effect			{	get { return m_BulletEffect; }	}
 					float				IBullet.DamageMin		{	get { return m_DamageMin; }		set { m_DamageMax = value; } }
 					float				IBullet.DamageMax		{	get { return m_DamageMax;}		set { m_DamageMin = value; } }
+					float				IBullet.DamageRandom	{	get { return UnityEngine.Random.Range( m_DamageMin, m_DamageMax ); } }
 					float				IBullet.DamageMult		{	get { return m_DamageMult; }	}
 					float				IBullet.RecoilMult		{	get { return m_RecoilMult; }	}
 					bool				IBullet.CanPenetrate	{	get { return m_CanPenetrate; }	set { m_CanPenetrate = value; }	}

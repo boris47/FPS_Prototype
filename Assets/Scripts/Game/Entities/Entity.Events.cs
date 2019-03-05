@@ -3,7 +3,7 @@ using UnityEngine;
 
 public partial interface IEntity {
 
-	void					OnHit							( IBullet bullet );
+//	void					OnHit							( IBullet bullet );
 	void					OnHit							( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false );
 }
 
@@ -76,6 +76,58 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		}
 	}
 
+	
+	//////////////////////////////////////////////////////////////////////////
+	private void OnTriggerEnter( Collider other )
+	{
+		IBullet bullet = null;
+		bool bIsBullet = Utils.Base.SearchComponent( other.gameObject, ref bullet, SearchContext.CHILDREN );
+		if ( bIsBullet )
+		{
+			if ( m_Shield != null && m_Shield.Status > 0.0f && bullet.CanPenetrate == false )
+			{
+				return;
+			}
+
+			float dmgMultiplier = 1.0f;
+			if ( m_Shield != null )
+			{
+				if ( m_Shield.Status > 0.0f )
+				{
+					if ( bullet.CanPenetrate == true )
+					{
+						dmgMultiplier = 0.5f;
+					}
+					else
+					{
+						dmgMultiplier = 0.0f;
+					}
+				}
+				else
+				{
+					dmgMultiplier = 0.0f;
+				}
+			}
+			
+			float damage = UnityEngine.Random.Range( bullet.DamageMin, bullet.DamageMax );
+			OnHit( bullet.StartPosition, bullet.WhoRef, damage * dmgMultiplier, bullet.CanPenetrate );
+		}
+	}
+	
+	/*
+	//////////////////////////////////////////////////////////////////////////
+	protected	virtual		void		OnCollisionEnter( Collision collision )
+	{
+		IBullet bullet = null;
+		bool bIsBullet = Utils.Base.SearchComponent( collision.gameObject, ref bullet, SearchContext.CHILDREN );
+		if ( bIsBullet )
+		{
+			float damage = UnityEngine.Random.Range( bullet.DamageMin, bullet.DamageMax );
+			OnHit( bullet.StartPosition, bullet.WhoRef, damage, bullet.CanPenetrate );
+		}
+	}
+	*/
+
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		StreamUnit	OnSave( StreamData streamData )
@@ -145,7 +197,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		m_CurrentBehaviour.OnLookRotationReached( Direction );
 	}
 
-
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	public		virtual		void		OnHit( IBullet bullet )
 	{
@@ -154,7 +206,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		float damage = UnityEngine.Random.Range( bullet.DamageMin, bullet.DamageMax );
 		this.OnHit( bullet.StartPosition, bullet.WhoRef, damage, bullet.CanPenetrate ); 
 	}
-
+	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	public		virtual		void		OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )

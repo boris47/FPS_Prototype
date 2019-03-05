@@ -158,7 +158,7 @@ public partial class Player : Human {
 	public					void	DisableCollisionsWith( Collider collider )
 	{
 //		Physics.IgnoreCollision( collider, m_TriggerCollider, ignore: true );
-		Physics.IgnoreCollision( collider, m_PhysicCollider, ignore: true );
+//		Physics.IgnoreCollision( collider, m_PhysicCollider, ignore: true );
 		Physics.IgnoreCollision( collider, m_PlayerNearAreaTrigger, ignore: true );
 		Physics.IgnoreCollision( collider, m_PlayerFarAreaTrigger, ignore: true );
 		Physics.IgnoreCollision( collider, m_Foots.Collider, ignore: true );

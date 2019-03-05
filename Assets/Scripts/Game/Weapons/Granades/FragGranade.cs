@@ -95,25 +95,30 @@ public class FragGranade : GranadeBase {
 		{
 			Collider hittedCollider = m_SphereResults[ i ];
 
-			// Entites
-			IEntity entity = hittedCollider.GetComponent<IEntity>();
-			if ( entity != null )
+
+			// Entity
+			IEntity entity = null;
+			IShield shield = null;
+			bool bIsEntity = Utils.Base.SearchComponent( hittedCollider.gameObject, ref entity, SearchContext.LOCAL );
+			bool bHasShield = Utils.Base.SearchComponent( hittedCollider.gameObject, ref shield, SearchContext.LOCAL );
+
+			if ( bIsEntity && ( ( bHasShield && shield.Status > 0f ) || true ) )
 			{
 				float dmgMult = Vector3.Distance( transform.position, entity.Transform.position ) / m_Range + 0.001f;
 				float damage = m_DamageMax * dmgMult;
-				if ( entity.Shield != null && entity.Shield.Status > 0.0f )
-				{
-					entity.Shield.OnHit( m_StartPosition, m_WhoRef, m_Weapon, damage, m_CanPenetrate );
-				}
-				else
+//				if ( entity.Shield != null && entity.Shield.Status > 0.0f )
+//				{
+//					entity.Shield.OnHit( m_StartPosition, m_WhoRef, m_Weapon, damage, m_CanPenetrate );
+//				}
+//				else
 				{
 					entity.OnHit( m_StartPosition, m_WhoRef, damage, m_CanPenetrate );
 				}
 			}
 
 			// Dynamic props
-			Rigidbody rb = hittedCollider.GetComponent<Rigidbody>();
-			if ( entity == null && rb != null )
+			Rigidbody rb = null;
+			if ( bIsEntity == false && hittedCollider.transform.SearchComponent( ref rb, SearchContext.LOCAL ) )
 			{
 				rb.AddExplosionForce( 1000, transform.position, m_Range, 3.0f );
 			}			

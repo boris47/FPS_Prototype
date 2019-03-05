@@ -282,7 +282,6 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 			}
 		}
 
-
 		return true;
 	}
 
@@ -300,6 +299,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 			damageMax: Damage
 		);
 		Player.Instance.DisableCollisionsWith( bullet.Collider );
+		Physics.IgnoreCollision( Player.Entity.PhysicCollider, bullet.Collider, ignore: true );
 	}
 
 

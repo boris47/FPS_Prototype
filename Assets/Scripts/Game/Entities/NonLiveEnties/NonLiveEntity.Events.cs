@@ -58,11 +58,9 @@ public abstract partial class NonLiveEntity : Entity {
 		m_Health = streamUnit.GetAsFloat( "Health" );
 
 		// Shield
-		if ( streamUnit.HasInternal( "ShieldStatus" ) )
+		if ( m_Shield != null )
 		{
-			( m_Shield as IShield ).Status = streamUnit.GetAsFloat( "ShieldStatus" );//  .ShieldStatus;
-
-
+			m_Shield.OnLoad( streamData );
 		}
 
 		// Internals

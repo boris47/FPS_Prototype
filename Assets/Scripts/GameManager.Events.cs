@@ -11,6 +11,12 @@ using System.Threading;
 [System.Serializable]
 public class GameEvent	  : UnityEngine.Events.UnityEvent { }
 
+public interface IStreamableByEvents {
+
+	StreamUnit	OnSave( StreamData streamData );
+
+	StreamUnit	OnLoad( StreamData streamData );
+}
 
 //	DELEGATES FOR EVENTS
 public struct GameEvents {

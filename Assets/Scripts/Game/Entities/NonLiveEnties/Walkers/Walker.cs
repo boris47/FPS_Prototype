@@ -34,9 +34,11 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		{
 			m_Health				= m_SectionRef.AsFloat( "Health", 60.0f );
 
-			float shieldStatus		= m_SectionRef.AsFloat( "Shield", 0.0f );
 			if ( m_Shield != null )
-				( m_Shield as IShield ).Status = shieldStatus;
+			{
+				float shieldStatus	= m_SectionRef.AsFloat( "Shield", 0.0f );
+				m_Shield.Setup( shieldStatus );
+			}
 
 			m_DamageMax				= m_SectionRef.AsFloat( "DamageMax", 2.0f );
 			m_DamageMin				= m_SectionRef.AsFloat( "DamageMin", 0.5f );
@@ -238,7 +240,9 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 //		m_Brain.OnReset();
 		if ( m_Shield != null )
-			( m_Shield as IShield ).OnReset();
+		{
+			m_Shield.OnReset();
+		}
 	}
 	
 }

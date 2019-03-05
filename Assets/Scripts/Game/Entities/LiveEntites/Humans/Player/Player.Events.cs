@@ -111,7 +111,7 @@ public partial class Player {
 
 	}
 
-
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	public		override	void		OnHit( IBullet bullet )
 	{
@@ -124,7 +124,7 @@ public partial class Player {
 		if ( m_Health < 0f )
 			OnKill();
 	}
-
+	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	public		override	void		OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
