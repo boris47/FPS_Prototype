@@ -175,7 +175,7 @@ public partial class GameManager : StreamEvents {
 			print( "Saving..." );
 
 			// Serialize data
-			string toSave = JsonUtility.ToJson( streamData, prettyPrint: false );
+			string toSave = JsonUtility.ToJson( streamData, prettyPrint: true );
 //			Encrypt( ref toSave );
 			File.WriteAllText( filePath, toSave );
 		};

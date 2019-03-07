@@ -93,22 +93,20 @@ public class WPN_WeaponModule_Shield : WPN_BaseModule, IWPN_UtilityModule {
 	public	override	void	InternalUpdate	( float DeltaTime ) { }
 
 
-
+	//////////////////////////////////////////////////////////////////////////
 	public override		void	OnStart()
 	{
 		if ( m_ShieldLife > 0.0f )
 		{
 			m_Shield.enabled = true;
-			Player.Entity.TriggerCollider.enabled = false;
 		}
 	}
 
 
-
+	//////////////////////////////////////////////////////////////////////////
 	public override void OnEnd()
 	{
 		m_Shield.enabled = false;
-		Player.Entity.TriggerCollider.enabled = true;
 	}
 
 }

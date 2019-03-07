@@ -159,10 +159,10 @@ public partial class Player : Human {
 	//////////////////////////////////////////////////////////////////////////
 	public					void	DisableCollisionsWith( Collider collider, bool bAlsoTriggerCollider = true )
 	{
-		if ( bAlsoTriggerCollider )
-		{
-			Physics.IgnoreCollision( collider, m_TriggerCollider, ignore: true );
-		}
+//		if ( bAlsoTriggerCollider )
+	//	{
+	//		Physics.IgnoreCollision( collider, m_TriggerCollider, ignore: true );
+	//	}
 		Physics.IgnoreCollision( collider, m_PhysicCollider, ignore: true );
 		Physics.IgnoreCollision( collider, m_PlayerNearAreaTrigger, ignore: true );
 		Physics.IgnoreCollision( collider, m_PlayerFarAreaTrigger, ignore: true );

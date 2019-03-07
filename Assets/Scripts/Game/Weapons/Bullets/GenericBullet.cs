@@ -202,22 +202,19 @@ public class GenericBullet : Bullet {
 	// OnCollisionEnter ( Override )
 	protected	override	void	OnCollisionEnter( Collision collision )
 	{
-		print( collision.gameObject.name );
 		bool bIsBullet = collision.transform.HasComponent<Bullet>();
 		if ( bIsBullet == true )
 			return;
 
-
 		IEntity entity = null;
-		bool bIsAnEntity = Utils.Base.SearchComponent( collision.gameObject, ref entity, SearchContext.LOCAL );
 		IShield shield = null;
-		bool bIsShield = Utils.Base.SearchComponent( collision.gameObject, ref shield, SearchContext.CHILDREN );
+		bool bIsAnEntity = Utils.Base.SearchComponent( collision.gameObject, ref entity, SearchContext.LOCAL    );
+		bool bIsShield   = Utils.Base.SearchComponent( collision.gameObject, ref shield, SearchContext.CHILDREN );
 
-		Vector3 position = collision.contacts[0].point;
+		Vector3 position  = collision.contacts[0].point;
 		Vector3 direction = collision.contacts[0].normal;
 
 		EffectType effectToPlay;
-
 		if ( bIsShield )
 		{
 			effectToPlay = EffectType.ENTITY_ON_HIT;

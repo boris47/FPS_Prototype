@@ -33,7 +33,7 @@ public partial interface IEntity {
 	Collider				PhysicCollider					{ get; }
 
 	// Trigger collider, used for interactions with incoming objects or trigger areas
-	Collider				TriggerCollider					{ get; }
+//	Collider				TriggerCollider					{ get; }
 
 	// Transform where to play effects at
 	Transform				EffectsPivot					{ get; }
@@ -61,7 +61,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 				string					IEntity.Section						{	get { return m_SectionName;		}	}
 				Rigidbody				IEntity.RigidBody					{	get { return m_RigidBody;		}	}
 				Collider				IEntity.PhysicCollider				{	get { return m_PhysicCollider;	}	}
-				Collider				IEntity.TriggerCollider				{	get { return m_TriggerCollider;	}	}
+//				Collider				IEntity.TriggerCollider				{	get { return m_TriggerCollider;	}	}
 				Transform				IEntity.EffectsPivot				{	get { return m_EffectsPivot;	}	}
 				IBrain					IEntity.Brain						{	get { return this;				}	}
 				ENTITY_TYPE				IEntity.EntityType					{	get { return m_EntityType;		}	}
@@ -191,10 +191,10 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 			m_IsOK   =	Utils.Base.SearchComponent( gameObject, ref m_PhysicCollider, SearchContext.LOCAL, (p) => { return p && p.isTrigger == false; } );
 
 			// TRIGGER COLLIDER ( PLAYER ONLY )
-			if ( m_EntityType == ENTITY_TYPE.ACTOR )
-			{
-				m_IsOK	&= Utils.Base.SearchComponent( gameObject, ref m_TriggerCollider, SearchContext.LOCAL, (p) => { return p && p.isTrigger == true;  } );
-			}
+//			if ( m_EntityType == ENTITY_TYPE.ACTOR )
+//			{
+//				m_IsOK	&= Utils.Base.SearchComponent( gameObject, ref m_TriggerCollider, SearchContext.LOCAL, (p) => { return p && p.isTrigger == true;  } );
+//			}
 
 			// RIGIDBODY
 			m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_RigidBody, SearchContext.LOCAL );
