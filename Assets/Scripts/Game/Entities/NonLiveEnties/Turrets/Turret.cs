@@ -78,7 +78,7 @@ public abstract class Turret : NonLiveEntity {
 					this.SetCollisionStateWith( o.Collider, false );
 
 					// this allow to receive only trigger enter callback
-					Player.Instance.DisableCollisionsWith( o.Collider );
+					Player.Instance.DisableCollisionsWith( o.Collider, bAlsoTriggerCollider: false );
 				}
 			);
 		}
@@ -97,7 +97,7 @@ public abstract class Turret : NonLiveEntity {
 		if ( m_Laser != null )
 		{
 			m_Laser.LaserLength = Brain.FieldOfView.Distance;
-			m_Laser.LayerMaskToExclude = LayerMask.NameToLayer("Bullets");
+//			m_Laser.LayerMaskToExclude = LayerMask.NameToLayer("Bullets");
 		}
 
 	}

@@ -71,8 +71,9 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 					);
 					this.SetCollisionStateWith( o.Collider, state: false );
 
+					
 					// this allow to receive only trigger enter callback
-					Player.Instance.DisableCollisionsWith( o.Collider );
+			//		Player.Instance.DisableCollisionsWith( o.Collider, bAlsoTriggerCollider: false );
 				}
 			);
 		}

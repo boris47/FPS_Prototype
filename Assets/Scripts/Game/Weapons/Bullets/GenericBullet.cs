@@ -97,11 +97,10 @@ public class GenericBullet : Bullet {
 
 	//////////////////////////////////////////////////////////////////////////
 	// ShootInstant ( Virtual )
-	protected	virtual		void	ShootInstant( Vector3 position, Vector3 direction, float velocity )
+	protected	virtual		void	ShootInstant( Vector3 position, Vector3 direction, float maxDistance = Mathf.Infinity )
 	{
 		RaycastHit hit = default( RaycastHit );
-		// public static bool Raycast( Vector3 origin, Vector3 direction, out RaycastHit hitInfo, float maxDistance, int layerMask,QueryTriggerInteraction queryTriggerInteraction );
-		bool bHasHit = Physics.Raycast( position, direction, out hit, Mathf.Infinity, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Collide );
+		bool bHasHit = Physics.Raycast( position, direction, out hit, Mathf.Infinity );
 		if ( bHasHit )
 		{
 			Bullet bullet = hit.transform.gameObject.GetComponent<Bullet>();
@@ -110,35 +109,39 @@ public class GenericBullet : Bullet {
 
 			IEntity entity = null;
 			bool bIsAnEntity = Utils.Base.SearchComponent( hit.transform.gameObject, ref entity, SearchContext.LOCAL );
+			IShield shield = null;
+			bool bIsShield = Utils.Base.SearchComponent( hit.transform.gameObject, ref shield, SearchContext.CHILDREN );
 
+
+			if ( bIsAnEntity )
+			{
+				entity.CheckBulletHit( gameObject );
+			}
+			else
+			if ( bIsShield )
+			{
+				shield.OnTriggerHit( gameObject );
+			}
+
+			EffectType effectToPlay;
+
+			if ( bIsShield )
+			{
+				effectToPlay = EffectType.ENTITY_ON_HIT;
+			}
+			else
 			// If is an entity and who and hitted entites are of different category
 			if ( bIsAnEntity == true && ( ( m_WhoRef is NonLiveEntity && entity is NonLiveEntity ) == false ) )
 			{
-				EffectManager.Instance.PlayEffect( EffectType.ENTITY_ON_HIT, hit.point, hit.normal, 3 );
+				effectToPlay = EffectType.ENTITY_ON_HIT;
+				entity.RigidBody.angularVelocity = entity.RigidBody.velocity = Vector3.zero;
 			}
 			else
 			{
-				EffectManager.Instance.PlayEffect( EffectType.AMBIENT_ON_HIT, hit.point, hit.normal, 3 );
+				effectToPlay = EffectType.AMBIENT_ON_HIT;
 			}
-			
-			// if is an entity
-			if ( bIsAnEntity == true )
-			{
-				entity.RigidBody.angularVelocity = entity.RigidBody.velocity = m_RigidBody.velocity = Vector3.zero;
-				float damage = UnityEngine.Random.Range( m_DamageMin, m_DamageMax );
-			
-				// if has shield
-//				if ( entity.Shield != null && entity.Shield.Status > 0.0f )
-//				{	
-					// shield get the hit
-//					entity.Shield.OnHit( m_StartPosition, m_WhoRef, m_Weapon, damage, m_CanPenetrate );
-//				}
-				// otherwise entity get direct damage
-//				else
-				{
-					entity.OnHit( m_StartPosition, m_WhoRef, damage, m_CanPenetrate );
-				}
-			}
+
+			EffectManager.Instance.PlayEffect( effectToPlay, hit.point, hit.normal, 3 );;
 		}
 	}
 
@@ -187,49 +190,53 @@ public class GenericBullet : Bullet {
 		gameObject.SetActive( state );
 		this.enabled = state;
 	}
-	
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnTriggerEnter ( Override )
+	protected override void OnTriggerEnter( Collider other )
+	{ }
+
+	
 	//////////////////////////////////////////////////////////////////////////
 	// OnCollisionEnter ( Override )
 	protected	override	void	OnCollisionEnter( Collision collision )
 	{
+		print( collision.gameObject.name );
 		bool bIsBullet = collision.transform.HasComponent<Bullet>();
 		if ( bIsBullet == true )
 			return;
 
+
 		IEntity entity = null;
 		bool bIsAnEntity = Utils.Base.SearchComponent( collision.gameObject, ref entity, SearchContext.LOCAL );
+		IShield shield = null;
+		bool bIsShield = Utils.Base.SearchComponent( collision.gameObject, ref shield, SearchContext.CHILDREN );
 
+		Vector3 position = collision.contacts[0].point;
+		Vector3 direction = collision.contacts[0].normal;
+
+		EffectType effectToPlay;
+
+		if ( bIsShield )
+		{
+			effectToPlay = EffectType.ENTITY_ON_HIT;
+		}
+		else
 		// If is an entity and who and hitted entites are of different category
 		if ( bIsAnEntity == true && ( ( m_WhoRef is NonLiveEntity && entity is NonLiveEntity ) == false ) )
 		{
-			EffectManager.Instance.PlayEffect( EffectType.ENTITY_ON_HIT, collision.contacts[0].point, collision.contacts[0].normal, 3 );
+			effectToPlay = EffectType.ENTITY_ON_HIT;
+			entity.RigidBody.angularVelocity = entity.RigidBody.velocity = Vector3.zero;
 		}
 		else
 		{
-			EffectManager.Instance.PlayEffect( EffectType.AMBIENT_ON_HIT, collision.contacts[0].point, collision.contacts[0].normal, 3 );
+			effectToPlay = EffectType.AMBIENT_ON_HIT;
 		}
-		
-		// if is an entity
-//		if ( bIsAnEntity == true && false )
-		{
-//			entity.RigidBody.angularVelocity = entity.RigidBody.velocity = m_RigidBody.velocity = Vector3.zero;
-//			float damage = UnityEngine.Random.Range( m_DamageMin, m_DamageMax );
-			
-			// if has shield
-/*			if ( entity.Shield != null && entity.Shield.Status > 0.0f )
-			{	
-				// shield get the hit
-				entity.Shield.OnHit( m_StartPosition, m_WhoRef, m_Weapon, damage, m_CanPenetrate );
-			}
-			// otherwise entity get direct damage
-			else
-*/			{
-//				entity.OnHit( m_StartPosition, m_WhoRef, damage, m_CanPenetrate );
-			}
-		}
+
+		EffectManager.Instance.PlayEffect( effectToPlay, position, direction, 3 );
 
 		this.SetActive( false );
 	}
-
+	
 }

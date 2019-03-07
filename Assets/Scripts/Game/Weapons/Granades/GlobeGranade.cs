@@ -210,7 +210,7 @@ public class GlobeGranade : GranadeBase {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnTriggerEnter
-	private void OnTriggerEnter( Collider other )
+	protected	override void OnTriggerEnter( Collider other )
 	{
 		Entity entity = other.GetComponent<Entity>();
 		if ( entity == null )

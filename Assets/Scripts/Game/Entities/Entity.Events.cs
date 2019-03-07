@@ -2,8 +2,10 @@
 using UnityEngine;
 
 public partial interface IEntity {
+	// Evaluate bullet damage
+	void					CheckBulletHit					( GameObject collidingObject );
 
-//	void					OnHit							( IBullet bullet );
+	// Directly damage
 	void					OnHit							( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false );
 }
 
@@ -76,58 +78,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		}
 	}
 
-	
-	//////////////////////////////////////////////////////////////////////////
-	private void OnTriggerEnter( Collider other )
-	{
-		IBullet bullet = null;
-		bool bIsBullet = Utils.Base.SearchComponent( other.gameObject, ref bullet, SearchContext.CHILDREN );
-		if ( bIsBullet )
-		{
-			if ( m_Shield != null && m_Shield.Status > 0.0f && bullet.CanPenetrate == false )
-			{
-				return;
-			}
-
-			float dmgMultiplier = 1.0f;
-			if ( m_Shield != null )
-			{
-				if ( m_Shield.Status > 0.0f )
-				{
-					if ( bullet.CanPenetrate == true )
-					{
-						dmgMultiplier = 0.5f;
-					}
-					else
-					{
-						dmgMultiplier = 0.0f;
-					}
-				}
-				else
-				{
-					dmgMultiplier = 0.0f;
-				}
-			}
-			
-			float damage = UnityEngine.Random.Range( bullet.DamageMin, bullet.DamageMax );
-			OnHit( bullet.StartPosition, bullet.WhoRef, damage * dmgMultiplier, bullet.CanPenetrate );
-		}
-	}
-	
-	/*
-	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		void		OnCollisionEnter( Collision collision )
-	{
-		IBullet bullet = null;
-		bool bIsBullet = Utils.Base.SearchComponent( collision.gameObject, ref bullet, SearchContext.CHILDREN );
-		if ( bIsBullet )
-		{
-			float damage = UnityEngine.Random.Range( bullet.DamageMin, bullet.DamageMax );
-			OnHit( bullet.StartPosition, bullet.WhoRef, damage, bullet.CanPenetrate );
-		}
-	}
-	*/
-
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		StreamUnit	OnSave( StreamData streamData )
@@ -197,21 +147,61 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		m_CurrentBehaviour.OnLookRotationReached( Direction );
 	}
 
-	/*
-	//////////////////////////////////////////////////////////////////////////
-	public		virtual		void		OnHit( IBullet bullet )
-	{
-//		m_CurrentBehaviour.OnHit( bullet );
 
-		float damage = UnityEngine.Random.Range( bullet.DamageMin, bullet.DamageMax );
-		this.OnHit( bullet.StartPosition, bullet.WhoRef, damage, bullet.CanPenetrate ); 
+	//////////////////////////////////////////////////////////////////////////
+	protected	virtual		void		OnShieldHit( Vector3 startPosition, Entity whoRef, Weapon weaponRef, float damage, bool canPenetrate = false )
+	{
+		// Notify this entity of the received hit
+		NotifyHit( startPosition, whoRef, damage, canPenetrate );
 	}
-	*/
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public	void			CheckBulletHit					( GameObject collidingObject )
+	{
+		IBullet bullet = null;
+		bool bIsBullet = Utils.Base.SearchComponent( collidingObject, ref bullet, SearchContext.CHILDREN );
+		if ( bIsBullet )
+		{
+			float dmgMultiplier = ( m_Shield != null && m_Shield.Status > 0.0f ) ? 
+				( bullet.CanPenetrate ) ? 0.5f : 0.0f
+				: 
+				1.0f;
+			
+			OnHit( bullet.StartPosition, bullet.WhoRef, bullet.DamageRandom * dmgMultiplier, bullet.CanPenetrate );
+		}
+	}
+
+	
+	//////////////////////////////////////////////////////////////////////////
+	protected	virtual		void OnCollisionEnter( Collision collision )
+	{
+		IBullet bullet = null;
+		bool bIsBullet = Utils.Base.SearchComponent( collision.gameObject, ref bullet, SearchContext.CHILDREN );
+		if ( bIsBullet )
+		{
+			float dmgMultiplier = ( m_Shield != null && m_Shield.Status > 0.0f ) ? 
+				( bullet.CanPenetrate ) ? 0.5f : 0.0f
+				: 
+				1.0f;
+			
+//			OnHit( bullet.StartPosition, bullet.WhoRef, bullet.DamageRandom * dmgMultiplier, bullet.CanPenetrate );
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	virtual		void		NotifyHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
+	{
+		m_CurrentBehaviour.OnHit( startPosition, whoRef, damage, canPenetrate );
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	public		virtual		void		OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
-		m_CurrentBehaviour.OnHit( startPosition, whoRef, damage, canPenetrate );
+		// Notify behaviur
+		NotifyHit( startPosition, whoRef, damage, canPenetrate );
 		
 		this.OnTakeDamage( damage );
 	}

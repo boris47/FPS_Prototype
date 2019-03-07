@@ -284,15 +284,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 */
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual	void	OnShieldHit( Vector3 startPosition, Entity whoRef, Weapon weaponRef, float damage, bool canPenetrate = false )
-	{
-		if ( m_Shield.Status <= 0f )
-		{
-			this.OnHit( startPosition, whoRef, damage, canPenetrate );
-		}
-	}
-
-	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Set the trasform to Look At </summary>
 	public	virtual		void	SetTrasformTolookAt( Transform t, LookTargetMode LookMode = LookTargetMode.HEAD_ONLY )
 	{

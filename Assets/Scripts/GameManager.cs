@@ -70,6 +70,8 @@ public partial class GameManager : MonoBehaviour {
 
 		Settings.LoadFile( settingspath );
 		Configs.LoadFile( configsPath );
+
+		Physics.queriesHitBackfaces = false;
 	}
 
 

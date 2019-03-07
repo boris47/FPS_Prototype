@@ -119,6 +119,11 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 	// OnCollisionEnter ( Abstract )
 	protected	abstract	void	OnCollisionEnter( Collision collision );
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnTriggerEnter ( Abstract )
+	protected	abstract	void	OnTriggerEnter( Collider other );
+
 }
 
 

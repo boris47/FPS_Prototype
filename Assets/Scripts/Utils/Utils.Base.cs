@@ -25,7 +25,9 @@ namespace Utils {
 
 	public static class Base {
 
-		public	static	bool		GetTemplateSingle<T>( ref T Output, bool bSpawnIfNecessary = false ) where T : Component
+
+		////////////////////////////////////////////////
+		public	static	bool	GetTemplateSingle<T>( ref T Output, bool bSpawnIfNecessary = false ) where T : Component
 		{
 			T[] results = Object.FindObjectsOfType<T>();
 			if ( results.Length == 0 )
@@ -66,18 +68,38 @@ namespace Utils {
 			return true;
 		}
 
-		public	static	int		LayersAllButOne( int all, int one )
-		{
-			// This would creates a layer only with the one given layer
-			int layerMask = 1 << one;
 
-			// But instead we want a layer mask with all except given layer. The ~ operator does this, it inverts a bitmask.
-			layerMask = ~layerMask;
+		////////////////////////////////////////////////
+		public	static	int		LayersAllButOne( string layerName )
+		{
+			int layer = LayerMask.NameToLayer( layerName );
+
+			int layerMask = 1 << layer;
+
+			return ~layerMask;
+		}
+
+
+		////////////////////////////////////////////////
+		public	static	int		LayersOneOnly( string layerName )
+		{
+			int layer = LayerMask.NameToLayer( layerName );
+
+			int layerMask = 1 << layer;
 
 			return layerMask;
 		}
 
 
+		////////////////////////////////////////////////
+		public	static	bool	Chhose<T>( T a, T b, ref T choosen ) where T : Object
+		{
+			choosen = a ?? b;
+			return choosen != null;
+		}
+
+
+		////////////////////////////////////////////////
 		private	static	void	CloneComponent( ref Component component, ref GameObject destinationObj, bool copyProperties = false )
 		{
 			global::System.Type componentType = component.GetType();
@@ -108,6 +130,7 @@ namespace Utils {
 		}
 
 
+		////////////////////////////////////////////////
 		public	static	void	Clone( ref GameObject sourceObj, ref GameObject destinationObj, bool copyProperties = false )
 		{
 			// ALL COMPONENTS AND PROPERTIES EXCEPT MESH FILTER MESH PROPERTY
@@ -132,6 +155,7 @@ namespace Utils {
 		}
 
 
+		////////////////////////////////////////////////
 		private	static	T[]		SearchResults<T>( GameObject GameObject, SearchContext Context )
 		{
 			T[] results = null;
@@ -167,6 +191,7 @@ namespace Utils {
 		}
 
 
+		////////////////////////////////////////////////
 		public	static	bool	SearchComponent<T1>( GameObject GameObject, ref T1 Component, SearchContext Context, global::System.Predicate<T1> Filter = null )
 		{
 			T1[] results = SearchResults<T1>( GameObject, Context );
@@ -196,6 +221,7 @@ namespace Utils {
 		}
 
 
+		////////////////////////////////////////////////
 		public	static	bool	SearchComponents<T1>( GameObject GameObject, ref T1[] Components, SearchContext Context, global::System.Predicate<T1> Filter = null )
 		{
 			T1[] results = SearchResults<T1>( GameObject, Context );
@@ -216,31 +242,22 @@ namespace Utils {
 		}
 	}
 
+
+	////////////////////////////////////////////////
 	public class DoubleBuffer<T> {
 
 		private	T[]		m_Buffer = null;
 		private uint	m_Latest = 0;
 
-		public DoubleBuffer( T t1, T t2 )
-		{
-			m_Buffer = new T[] { t1, t2 };
-		}
+		////////////////////////////////////////////////
+		public DoubleBuffer( T t1, T t2 )	{		m_Buffer = new T[] { t1, t2 };						}
+		////////////////////////////////////////////////
+		public	T	Current()				{		return m_Buffer[ m_Latest ];						}
+		////////////////////////////////////////////////
+		public	T	Previous()				{		return m_Buffer[ ( m_Latest + 1 ) % 2 ];			}
+		////////////////////////////////////////////////
+		public	T	SwapBuffers()			{		return m_Buffer[ m_Latest = ( m_Latest + 1 ) % 2 ]; }
 
-		public	T	Current()
-		{
-			return m_Buffer[ m_Latest ];
-		}
-
-		public	T Previous()
-		{
-			return m_Buffer[ ( m_Latest + 1 ) % 2 ];
-		}
-
-		public	T SwapBuffers()
-		{
-			m_Latest = ( m_Latest + 1 ) % 2;
-			return m_Buffer[ m_Latest ];
-		}
 	}
 
 }

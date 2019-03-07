@@ -141,7 +141,7 @@ public	struct ZoomWeaponData {
 
 	/// <summary> Zoom toggle </summary>
 	public override		void	OnStart()
-	{	
+	{
 		if ( WeaponManager.Instance.IsZoomed )
 		{
 			WeaponManager.Instance.ZoomOut();

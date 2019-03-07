@@ -93,7 +93,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		m_ViewTriggerCollider.isTrigger = true;
 		m_ViewTriggerCollider.radius = m_ViewDistance;
 
-		m_LayerMask = 1 << LayerMask.NameToLayer("Entities");
+		m_LayerMask = Utils.Base.LayersAllButOne( "Shield" );// 1 << LayerMask.NameToLayer("Entities");
 	}
 
 
@@ -249,9 +249,9 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 					origin:						currentViewPoint.position,
 					direction:					direction,
 					hitInfo:					out m_RaycastHit,
-					maxDistance:				m_ViewDistance//,
-				//	layerMask:					Physics.AllLayers, //m_LayerMask,
-				//	queryTriggerInteraction:	QueryTriggerInteraction.Ignore
+					maxDistance:				m_ViewDistance,
+					layerMask:					m_LayerMask,
+					queryTriggerInteraction:	QueryTriggerInteraction.Ignore
 				);
 				
 

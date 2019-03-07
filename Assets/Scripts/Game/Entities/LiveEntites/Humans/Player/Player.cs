@@ -7,6 +7,8 @@ public partial class Player : Human {
 
 	[Header("Player Properties")]
 
+	public LayerMask mask;
+
 	private	const	float			MAX_INTERACTION_DISTANCE		= 20f;
 
 	private	const	float			BODY_DRAG = 8f;
@@ -155,10 +157,13 @@ public partial class Player : Human {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public					void	DisableCollisionsWith( Collider collider )
+	public					void	DisableCollisionsWith( Collider collider, bool bAlsoTriggerCollider = true )
 	{
-//		Physics.IgnoreCollision( collider, m_TriggerCollider, ignore: true );
-//		Physics.IgnoreCollision( collider, m_PhysicCollider, ignore: true );
+		if ( bAlsoTriggerCollider )
+		{
+			Physics.IgnoreCollision( collider, m_TriggerCollider, ignore: true );
+		}
+		Physics.IgnoreCollision( collider, m_PhysicCollider, ignore: true );
 		Physics.IgnoreCollision( collider, m_PlayerNearAreaTrigger, ignore: true );
 		Physics.IgnoreCollision( collider, m_PlayerFarAreaTrigger, ignore: true );
 		Physics.IgnoreCollision( collider, m_Foots.Collider, ignore: true );

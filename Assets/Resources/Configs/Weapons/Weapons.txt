@@ -38,13 +38,13 @@ BaseZoomSensitivity			= 0.3;
 
 HasPrimaryWeaponModule		= true;
 PrimaryWeaponModule			= WPN_FireModule_Barrel;
-;PrimaryWeaponModuleMods		= WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy;
+;PrimaryWeaponModuleMods	= WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy;
 
 HasSecondaryWeaponModule	= true;
-SecondaryWeaponModule		= WPN_FireModule_Barrel;
+SecondaryWeaponModule		= WPN_WeaponModule_Zoom;
 
 HasTertiaryWeaponModule		= true;
-TertiaryWeaponModule		= WPN_WeaponModule_Zoom;
+TertiaryWeaponModule		= WPN_WeaponModule_Shield;
 ;TertiaryWeaponModuleMods	= WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_BiggerMag, WPN_Module_Prop_BiggerMag;
 
 

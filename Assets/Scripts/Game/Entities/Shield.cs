@@ -7,6 +7,8 @@ public interface IShield : IStreamableByEvents {
 	/// <summary> Event called when shiled is hitted </summary>
 	event		Shield.ShieldHitEvent		OnHit;
 
+	void		OnTriggerHit				( GameObject collidingObject );
+
 	float		Status						{ get; }
 	bool		IsUnbreakable				{ get; }
 
@@ -63,36 +65,44 @@ public class Shield : MonoBehaviour, IShield {
 	// ResetDelegate
 	private	void	ResetDelegate()
 	{
-		
 		Shield.ShieldHitEvent onShiledHit = delegate( Vector3 startPosition, Entity whoRef, Weapon weaponRef, float damage, bool canPenetrate )
 		{
-			this.TakeDamage( startPosition, whoRef, weaponRef, damage, canPenetrate );
+			TakeDamage( startPosition, whoRef, weaponRef, damage, canPenetrate );
 		};
 		m_ShielHitEvent = onShiledHit;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnTriggerEnter
-	private void OnTriggerEnter( Collider other )
+	// OnTriggerHit
+	public		void		OnTriggerHit				( GameObject collidingObject )
 	{
 		IBullet bullet = null;
-		print("Triggered on shield");
-		bool bIsBullet = Utils.Base.SearchComponent( other.gameObject, ref bullet, SearchContext.CHILDREN );
+		bool bIsBullet = Utils.Base.SearchComponent( collidingObject, ref bullet, SearchContext.CHILDREN );
 		if ( bIsBullet == true )
 		{
 			m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageRandom, bullet.CanPenetrate );
 		}
 	}
-	/*
-	//////////////////////////////////////////////////////////////////////////
-	// OnCollisionEnter
+
+/*	//////////////////////////////////////////////////////////////////////////
+	// OnTriggerEnter
+	private		void		OnTriggerEnter( Collider other )
+	{
+		OnTriggerHit( other.gameObject );
+	}
+*/
 	private void OnCollisionEnter( Collision collision )
 	{
-		
-		
+		print("Shield collision");
+		IBullet bullet = null;
+		bool bIsBullet = Utils.Base.SearchComponent( collision.gameObject, ref bullet, SearchContext.CHILDREN );
+		if ( bIsBullet == true )
+		{
+			m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageRandom, bullet.CanPenetrate );
+		}
 	}
-	*/
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnEnable

@@ -128,6 +128,11 @@ public class FragGranade : GranadeBase {
 		m_InternalCounter	= 0f;
 	}
 
+	protected override void OnTriggerEnter( Collider other )
+	{
+		
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnCollisionEnter ( Override )
