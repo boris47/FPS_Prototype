@@ -1,25 +1,26 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+[System.Serializable]
 public class Laser : WeaponAttachment {
 
 	[SerializeField]
-	private		float				m_ScaleFactor		= 0.03f;
+	protected		float				m_ScaleFactor		= 0.03f;
 
 	[SerializeField]
-	private		Color				m_Color				= Color.red;
+	protected		Color				m_Color				= Color.red;
 
 	[SerializeField]
-	private		float				m_LaserLength		= 100f;
-	public		float				LaserLength
+	protected		float				m_LaserLength		= 100f;
+	public			float				LaserLength
 	{
 		get { return m_LaserLength; }
 		set { m_LaserLength = value; }
 	}
 
 	[SerializeField, ReadOnly]
-	private		bool				m_HasHit			= false;
-	public		bool				HasHit
+	protected		bool				m_HasHit			= false;
+	public			bool				HasHit
 	{
 		get { return m_HasHit; }
 	}
@@ -33,49 +34,69 @@ public class Laser : WeaponAttachment {
 		set { m_LayerMaskToExclude = value; }
 	}
 */
-	private		RaycastHit			m_RayCastHit		= default( RaycastHit );
-	private		RaycastHit			m_DefaultRaycastHit	= default( RaycastHit );
-	public		RaycastHit			RayCastHit
+	protected		RaycastHit			m_RayCastHit		= default( RaycastHit );
+	protected		RaycastHit			m_DefaultRaycastHit	= default( RaycastHit );
+	public			RaycastHit			RayCastHit
 	{
 		get { return m_RayCastHit; }
 	}
-	private		Transform			m_LaserTransform	= null;
 
-	private		Vector3				m_LocalScale		= new Vector3();
-
-	private		Renderer			m_Renderer			= null;
+	protected		Transform			m_LaserTransform	= null;
+	protected		Vector3				m_LocalScale		= new Vector3();
+	protected		Renderer			m_Renderer			= null;
+	protected		bool				m_CanBeUsed			= true;
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake
-	private void Awake()
+	protected void Awake()
 	{
-		m_LaserTransform = transform.GetChild( 0 );
+		m_CanBeUsed &= transform.childCount > 0;
+		if ( m_CanBeUsed )
+		{
+			m_LaserTransform = transform.GetChild( 0 );
+		}
 
-		m_Renderer = GetComponentInChildren<Renderer>();
-		m_Renderer.material.color = m_Color;
+		m_CanBeUsed &= transform.SearchComponent( ref m_Renderer, SearchContext.CHILDREN );
+		if ( m_CanBeUsed )
+		{
+			m_Renderer.material.color = m_Color;
+		}
+
+		enabled = m_CanBeUsed;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnDisable
-	private void OnEnable()
+	// OnEnable
+	protected void OnEnable()
 	{
+		if ( m_CanBeUsed == false )
+			return;
+
 		m_LaserTransform.gameObject.SetActive( true );
+
+		GameManager.UpdateEvents.OnFrame += InternalUpdate;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnDisable
-	private void OnDisable()
+	protected void OnDisable()
 	{
+		if ( m_CanBeUsed == false )
+			return;
+
 		m_LaserTransform.gameObject.SetActive( false );
 	}
 
 	
 	//////////////////////////////////////////////////////////////////////////
 	// Update
-	private void Update()
+	protected void InternalUpdate( float DeltaTime )
 	{
+		if ( m_CanBeUsed == false )
+			return;
+
 		// Save cpu
 		if ( Time.frameCount % 15 == 0 )
 			return;
@@ -87,7 +108,7 @@ public class Laser : WeaponAttachment {
 		float currentLength = HasHit ? m_RayCastHit.distance : m_LaserLength;
 
 		 //if the additional decimal isn't added then the beam position glitches
-		float beamPosition = currentLength / ( 2f + 0.0001f );
+		float beamPosition = currentLength * ( 0.5f + 0.0001f );
 
 		m_LocalScale.Set( m_ScaleFactor, m_ScaleFactor, currentLength );
 		m_LaserTransform.localScale		= m_LocalScale;

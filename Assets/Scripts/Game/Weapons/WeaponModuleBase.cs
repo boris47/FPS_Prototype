@@ -298,6 +298,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 			damageMin: -1.0f,
 			damageMax: Damage
 		);
+		bullet.gameObject.layer = LayerMask.NameToLayer("PlayerBullets");
 		Player.Instance.DisableCollisionsWith( bullet.Collider );
 		Physics.IgnoreCollision( Player.Entity.PhysicCollider, bullet.Collider, ignore: true );
 	}

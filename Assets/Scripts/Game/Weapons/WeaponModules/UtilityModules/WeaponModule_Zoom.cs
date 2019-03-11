@@ -15,6 +15,7 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 	protected	float				m_ZoomSensitivity		= 1.0f;
 
 	protected	Image				m_ZoomFrame				= null;
+	protected	Scope				m_Scope					= null;
 
 
 	public	virtual	float			ZoomSensitivity
@@ -47,6 +48,7 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 		float zoomingTime		= moduleSection.AsFloat( "ZoomingTime",		m_ZoomFactor );
 		float zoomSensitivity	= moduleSection.AsFloat( "ZoomSensitivity",	m_ZoomFactor );
 		string FramePath		= moduleSection.AsString( "FramePath", null );
+		string ScopePath		= moduleSection.AsString( "ScopePath", null );
 
 		m_ZoomOffset			= zoomOffset;
 		m_ZoomFactor			= zoomFactor;
@@ -58,7 +60,22 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 			GameObject go = Resources.Load<GameObject>( FramePath );
 			if ( go )
 			{
-				m_ZoomFrame = go.GetComponent<Image>();
+				m_ZoomFrame = Instantiate( go, UI.Instance.InGame.transform ).GetComponent<Image>();
+			}
+		}
+
+		if ( ScopePath.IsNotNull() )
+		{
+			GameObject go = Resources.Load<GameObject>( ScopePath );
+			if ( go )
+			{
+				if ( go.transform.HasComponent<Scope>() )
+				{
+					m_Scope = Instantiate( go, transform ).GetComponent<Scope>();
+					m_Scope.transform.localPosition = new Vector3( -0.002097698f, 0.02158966f, -0.02812803f );
+				}
+
+				
 			}
 		}
 		

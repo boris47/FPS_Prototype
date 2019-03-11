@@ -34,7 +34,6 @@ public class WPN_FireModule_Syphon : WPN_FireModule {
 		{
 			m_BaseAmmoRestoreCounter = moduleSection.AsFloat( "BaseAmmoRestoreCounter", m_BaseAmmoRestoreCounter );
 
-
 			GameObject modulePrefab = Resources.Load( modulePrefabPath ) as GameObject;
 			if ( modulePrefab )
 			{	
@@ -43,8 +42,11 @@ public class WPN_FireModule_Syphon : WPN_FireModule {
 				modulePrefab.transform.localRotation = Quaternion.identity;
 			}
 
-			modulePrefab.transform.SearchComponent( ref m_Laser, SearchContext.LOCAL );
-			m_Laser.LaserLength = m_BeamLength;
+			if ( modulePrefab.transform.SearchComponent( ref m_Laser, SearchContext.LOCAL ) )
+			{
+				m_Laser.LaserLength = m_BeamLength;
+				m_Laser.enabled = false;
+			}
 
 			if ( m_WeaponRef.Transform.SearchComponent( ref m_Renderer, SearchContext.CHILDREN, s => s.name == "Graphics" ) )
 			{

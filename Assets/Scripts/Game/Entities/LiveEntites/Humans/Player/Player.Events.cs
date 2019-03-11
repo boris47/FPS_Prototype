@@ -202,9 +202,9 @@ public partial class Player {
 		// Reset "local" states
 		m_States.Reset();
 
-		if ( InputManager.Inputs.Gadget3 && WeaponManager.Instance.CurrentWeapon.FlashLight != null )
+		if ( InputManager.Inputs.Gadget3 && WeaponManager.Instance.CurrentWeapon.Flashlight != null )
 		{
-			WeaponManager.Instance.CurrentWeapon.FlashLight.Toggle();
+			WeaponManager.Instance.CurrentWeapon.Flashlight.Toggle();
 		}
 
 		////////////////////////////////////////////////////////////////////////////////////////

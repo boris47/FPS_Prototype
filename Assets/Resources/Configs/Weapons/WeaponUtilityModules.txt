@@ -19,7 +19,8 @@ ZoomFactor					= 8.0;
 ZoomingTime					= 0.2;
 ZoomSensitivity				= 0.2;
 
-FramePath					= Prefabs/WeaponModules/Scope;
+FramePath					= Prefabs/WeaponModules/UtilityModules/Scope;
+ScopePath					= Prefabs/WeaponModules/UtilityModules/ACOG;
 MaxModuleCount				= 1;
 AllowedSlots				= 2;
 

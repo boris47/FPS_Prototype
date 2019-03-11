@@ -185,7 +185,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 				: 
 				1.0f;
 			
-//			OnHit( bullet.StartPosition, bullet.WhoRef, bullet.DamageRandom * dmgMultiplier, bullet.CanPenetrate );
+			OnHit( bullet.StartPosition, bullet.WhoRef, bullet.DamageRandom * dmgMultiplier, bullet.CanPenetrate );
 		}
 	}
 

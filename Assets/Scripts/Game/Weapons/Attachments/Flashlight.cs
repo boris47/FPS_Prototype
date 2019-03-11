@@ -14,45 +14,60 @@ public interface IFlashLight {
 }
 
 
-public class FlashLight : WeaponAttachment, IFlashLight {
+[System.Serializable]
+public class Flashlight : MonoBehaviour, IFlashLight {
 	
+	// INTERFACE START
 	Transform	IFlashLight.Transform		{ get { return transform; } }
 	bool		IFlashLight.Activated		{ get { return m_Active; } }
+	// INTERFACE END
 
-	private		Light	m_SpotLight			= null;
-	private		bool	m_Active			= false;
+	protected		Light	m_SpotLight			= null;
+	protected		bool	m_Active			= false;
+	protected		bool	m_CanBeUsed			= true;
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake
-	private	void	Awake()
+	protected	void	Awake()
 	{
-		m_SpotLight = transform.GetComponentInChildren<Light>();
-		m_SpotLight.type = LightType.Spot;
-		m_SpotLight.intensity = 0.001f;
+		m_CanBeUsed = transform.SearchComponent( ref m_SpotLight, SearchContext.CHILDREN );
+		if ( m_CanBeUsed )
+		{
+			m_SpotLight.type = LightType.Spot;
+			m_SpotLight.intensity = 0.001f;
+		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// TurnOn
-	void	IFlashLight.TurnOn()
+	public	void	TurnOn()
 	{
+		if ( m_CanBeUsed == false )
+			return;
+
 		m_SpotLight.intensity = 1f;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// TurnOff
-	void	IFlashLight.TurnOff()
+	public	void	TurnOff()
 	{
-		m_SpotLight.intensity = 0.001f;
-	}
+		if ( m_CanBeUsed == false )
+			return;
 
+		m_SpotLight.intensity = 0.001f;
+}
 
 	//////////////////////////////////////////////////////////////////////////
 	// Toggle
-	void	IFlashLight.Toggle()
+	public	void	Toggle()
 	{
+		if ( m_CanBeUsed == false )
+			return;
+
 		m_Active = !m_Active;
 		if ( m_Active == true )
 		{
@@ -67,8 +82,11 @@ public class FlashLight : WeaponAttachment, IFlashLight {
 
 	//////////////////////////////////////////////////////////////////////////
 	// SetActive
-	void	IFlashLight.SetActive( bool state )
+	public	void	SetActive( bool state )
 	{
+		if ( m_CanBeUsed == false )
+			return;
+
 		IFlashLight thisInterface = this as IFlashLight;
 		if ( state == true )
 			thisInterface.TurnOn();

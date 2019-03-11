@@ -1,15 +1,16 @@
-﻿using UnityEngine;
-using System.Collections;
-using System;
+﻿
+using UnityEngine;
+
 
 public interface IShield : IStreamableByEvents {
 
-	/// <summary> Event called when shiled is hitted </summary>
+	/// <summary> Event called when shield is hitted </summary>
 	event		Shield.ShieldHitEvent		OnHit;
 
-	void		OnTriggerHit				( GameObject collidingObject );
+	void		CollisionHit				( GameObject collidingObject );
 
-	float		Status						{ get; }
+	float		StartStatus					{ get; }
+	float		Status						{ get; set; }
 	bool		IsUnbreakable				{ get; }
 
 
@@ -37,8 +38,9 @@ public class Shield : MonoBehaviour, IShield {
 		remove	{ if ( value != null )	m_ShielHitEvent -= value; }
 	}
 
+	float		IShield.StartStatus					{	get { return m_StartStatus; } }
+	float		IShield.Status						{	get { return m_CurrentStatus;	} set { m_CurrentStatus = value; }  }
 	bool		IShield.IsUnbreakable				{	get { return m_IsUnbreakable;	}	}
-	float		IShield.Status						{	get { return m_CurrentStatus;	}	}
 
 	/// INTERFACE END
 	/// 
@@ -46,7 +48,7 @@ public class Shield : MonoBehaviour, IShield {
 	private		Collider	m_Collider			= null;
 	private		Renderer	m_Renderer			= null;
 	private		float		m_CurrentStatus		= 100f;
-	private		float		m_StartStatus		= 0.0f;
+	private		float		m_StartStatus		= 100f;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -75,7 +77,7 @@ public class Shield : MonoBehaviour, IShield {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnTriggerHit
-	public		void		OnTriggerHit				( GameObject collidingObject )
+	public		void		CollisionHit				( GameObject collidingObject )
 	{
 		IBullet bullet = null;
 		bool bIsBullet = Utils.Base.SearchComponent( collidingObject, ref bullet, SearchContext.CHILDREN );
@@ -84,17 +86,12 @@ public class Shield : MonoBehaviour, IShield {
 			m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageRandom, bullet.CanPenetrate );
 		}
 	}
+	
 
-/*	//////////////////////////////////////////////////////////////////////////
-	// OnTriggerEnter
-	private		void		OnTriggerEnter( Collider other )
-	{
-		OnTriggerHit( other.gameObject );
-	}
-*/
+	//////////////////////////////////////////////////////////////////////////
+	// OnCollisionEnter
 	private void OnCollisionEnter( Collision collision )
 	{
-		print("Shield collision");
 		IBullet bullet = null;
 		bool bIsBullet = Utils.Base.SearchComponent( collision.gameObject, ref bullet, SearchContext.CHILDREN );
 		if ( bIsBullet == true )
@@ -121,6 +118,7 @@ public class Shield : MonoBehaviour, IShield {
 		m_Collider.enabled = false;
 	}
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// OnSave
 	StreamUnit IStreamableByEvents.OnSave( StreamData streamData )
@@ -134,10 +132,11 @@ public class Shield : MonoBehaviour, IShield {
 			return null;
 		}
 
-		streamUnit.SetInternal( "CurrentStatus", m_CurrentStatus );
+		streamUnit.SetInternal( "CurrentStatus", m_CurrentStatus );	
 
 		return streamUnit;
 	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnLoad
@@ -153,6 +152,10 @@ public class Shield : MonoBehaviour, IShield {
 		}
 
 		m_CurrentStatus = streamUnit.GetAsFloat( "CurrentStatus" );
+
+		bool bIsActive = m_CurrentStatus > 0.0f;
+		m_Renderer.enabled = bIsActive;
+		m_Collider.enabled = bIsActive;
 
 		return streamUnit;
 	}
@@ -189,8 +192,7 @@ public class Shield : MonoBehaviour, IShield {
 		m_CurrentStatus -= damage;
 		if ( m_CurrentStatus <= 0.0f )
 		{
-			m_Renderer.enabled = false;
-			m_Collider.enabled = false;
+			enabled = false;
 		}
 	}
 

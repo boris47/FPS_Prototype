@@ -30,7 +30,7 @@ public interface IWeapon :  IWeaponZoom, IModifiable {
 
 
 	// Weapon Attachments
-	IFlashLight				FlashLight						{ get; }
+	IFlashLight				Flashlight						{ get; }
 	Laser					Laser							{ get; }
 	GranadeLauncher			GranadeLauncher					{ get; }
 
@@ -78,7 +78,7 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon, IModifiable {
 	// INTERFACE START
 					Transform								IWeapon.Transform			{ get { return transform; } }
 					bool									IWeapon.Enabled				{ get { return enabled; } set { enabled = value; } }
-					IFlashLight								IWeapon.FlashLight			{ get { return m_FlashLight; } }
+					IFlashLight								IWeapon.Flashlight			{ get { return m_FlashLight; } }
 					Laser									IWeapon.Laser				{ get { return m_Laser; } }
 					GranadeLauncher							IWeapon.GranadeLauncher		{ get { return m_GranadeLauncher; } }
 					WeaponState								IWeapon.WeaponState			{ get { return m_WeaponState; } }
@@ -149,7 +149,7 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon, IModifiable {
 		m_GranadeLauncher = GetComponentInChildren<GranadeLauncher>();
 
 		// Flashlight
-		m_FlashLight = GetComponentInChildren<FlashLight>() as IFlashLight;
+		m_FlashLight = GetComponentInChildren<Flashlight>() as IFlashLight;
 
 		// Registering game events
 		GameManager.StreamEvents.OnSave += OnSave;
@@ -389,7 +389,7 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon, IModifiable {
 		m_SecondaryWeaponModuleSlot.WeaponModule.OnSave( streamUnit );
 		m_TertiaryWeaponModuleSlot.WeaponModule.OnSave( streamUnit );
 
-		// FLASHLIGHT
+		// Flashlight
 		if ( m_FlashLight != null )
 		{
 			streamUnit.SetInternal( "FlashLightActive", m_FlashLight.Activated );
@@ -413,7 +413,7 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon, IModifiable {
 			m_SecondaryWeaponModuleSlot.WeaponModule.OnLoad( streamUnit );
 			m_TertiaryWeaponModuleSlot.WeaponModule.OnLoad( streamUnit );
 
-			// FLASHLIGHT
+			// Flashlight
 			if ( m_FlashLight != null )
 			{
 				m_FlashLight.SetActive( streamUnit.GetAsBool( "FlashLightActive") );

@@ -18,7 +18,6 @@ public interface ICameraControl {
 	HeadMove					HeadMove							{ get; }
 
 	void						SetViewPoint						( Transform viewPoint );
-	bool						IsParentedWith						( Transform transform );
 	void						OnCutsceneEnd						();
 	void						ApplyDeviation						( float deviation, float weightX = 1f, float weightY = 1f );
 	void						ApplyDispersion						( float dispersion, float weightX = 1f, float weightY = 1f );
@@ -226,13 +225,6 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 		transform.localRotation = Quaternion.identity;
 	}
 
-
-	//////////////////////////////////////////////////////////////////////////
-	// SetViewPoint
-	bool	ICameraControl.IsParentedWith( Transform transform )
-	{
-		return transform.parent == transform;
-	}
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnCutsceneEnd

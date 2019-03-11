@@ -120,7 +120,7 @@ public class GenericBullet : Bullet {
 			else
 			if ( bIsShield )
 			{
-				shield.OnTriggerHit( gameObject );
+				shield.CollisionHit( gameObject );
 			}
 
 			EffectType effectToPlay;
