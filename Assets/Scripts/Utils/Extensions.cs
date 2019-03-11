@@ -96,7 +96,7 @@ public static class Extensions {
 	/// <summary> Return true if component is found in hierarchy, otherwise return false </summary>
 	public	static	bool			HasComponent<T>( this Transform transform ) where T : Component
 	{
-		return transform.GetComponentInChildren<T>() != null;
+		return transform.GetComponent<T>() != null;
 	}
 
 	/// <summary> Can be used to retrieve a component with more detailed research details </summary>

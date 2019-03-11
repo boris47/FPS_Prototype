@@ -67,7 +67,7 @@ public class Shield : MonoBehaviour, IShield {
 	// ResetDelegate
 	private	void	ResetDelegate()
 	{
-		Shield.ShieldHitEvent onShiledHit = delegate( Vector3 startPosition, Entity whoRef, Weapon weaponRef, float damage, bool canPenetrate )
+		ShieldHitEvent onShiledHit = delegate( Vector3 startPosition, Entity whoRef, Weapon weaponRef, float damage, bool canPenetrate )
 		{
 			TakeDamage( startPosition, whoRef, weaponRef, damage, canPenetrate );
 		};

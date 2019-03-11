@@ -71,11 +71,12 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 			{
 				if ( go.transform.HasComponent<Scope>() )
 				{
-					m_Scope = Instantiate( go, transform ).GetComponent<Scope>();
-					m_Scope.transform.localPosition = new Vector3( -0.002097698f, 0.02158966f, -0.02812803f );
-				}
+					Transform receiver = transform.Find( "car15_reciever" );
 
-				
+					m_Scope = Instantiate( go, receiver ).GetComponent<Scope>();
+//					m_Scope.transform.localPosition = new Vector3( -0.0869f, -0.008f, -0.0281f );
+//					m_Scope.transform.localRotation = Quaternion.Euler( -90f, -90f, 0.0f );
+				}
 			}
 		}
 		
