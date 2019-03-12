@@ -92,7 +92,7 @@ namespace Utils {
 
 
 		////////////////////////////////////////////////
-		public	static	bool	Chhose<T>( T a, T b, ref T choosen ) where T : Object
+		public	static	bool	Choose<T>( T a, T b, ref T choosen ) where T : Object
 		{
 			choosen = a ?? b;
 			return choosen != null;

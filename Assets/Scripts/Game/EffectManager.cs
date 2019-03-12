@@ -45,7 +45,7 @@ public class EffectManager : MonoBehaviour {
 		
 		m_ParticleEffects = transform.Find("ParticleEffects");
 
-		m_IsOK = m_ParticleEffects.PairComponentsInChildrenIntoArray( ref m_Effects, typeof( EffectType ) );
+		m_IsOK = m_ParticleEffects.PairComponentsInChildrenIntoArray<ParticleSystem, EffectType>( ref m_Effects );
 	}
 
 

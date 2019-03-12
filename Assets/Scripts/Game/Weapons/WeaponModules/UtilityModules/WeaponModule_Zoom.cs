@@ -55,28 +55,27 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 		m_ZoomingTime			= zoomingTime;
 		m_ZoomSensitivity		= zoomSensitivity;
 		
+		// Image frame
 		if ( FramePath.IsNotNull() )
 		{
 			GameObject go = Resources.Load<GameObject>( FramePath );
-			if ( go )
+			if ( go && go.transform.HasComponent<Image>() )
 			{
 				m_ZoomFrame = Instantiate( go, UI.Instance.InGame.transform ).GetComponent<Image>();
 			}
 		}
 
+		// Scope Prefab
 		if ( ScopePath.IsNotNull() )
 		{
+			Transform opticSpot = null;
+			bool bHasSpot = transform.SearchChildWithName( "OpticSpot", ref opticSpot );
 			GameObject go = Resources.Load<GameObject>( ScopePath );
-			if ( go )
+			if ( go && go.transform.HasComponent<Scope>() && bHasSpot )
 			{
-				if ( go.transform.HasComponent<Scope>() )
-				{
-					Transform receiver = transform.Find( "car15_reciever" );
-
-					m_Scope = Instantiate( go, receiver ).GetComponent<Scope>();
-//					m_Scope.transform.localPosition = new Vector3( -0.0869f, -0.008f, -0.0281f );
-//					m_Scope.transform.localRotation = Quaternion.Euler( -90f, -90f, 0.0f );
-				}
+				m_Scope = Instantiate( go, opticSpot ).GetComponent<Scope>();
+				m_Scope.transform.localPosition = Vector3.zero;
+				m_Scope.transform.localRotation = Quaternion.identity;
 			}
 		}
 		

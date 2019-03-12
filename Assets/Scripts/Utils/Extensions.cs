@@ -93,10 +93,16 @@ public static class Extensions {
 	/////////////////////////////////////////////////////////////////////////////
 	//		TRANSFORM
 
-	/// <summary> Return true if component is found in hierarchy, otherwise return false </summary>
+	/// <summary> Return true if component is found, otherwise return false </summary>
 	public	static	bool			HasComponent<T>( this Transform transform ) where T : Component
 	{
 		return transform.GetComponent<T>() != null;
+	}
+
+	/// <summary> Return the first transform found in child hiearchy with the given name or null if not found </summary>
+	public	static	bool			SearchChildWithName( this Transform transform, string childName, ref Transform child )
+	{
+		return Utils.Base.SearchComponent( transform.gameObject, ref child, SearchContext.CHILDREN, t => t.name == childName );
 	}
 
 	/// <summary> Can be used to retrieve a component with more detailed research details </summary>
@@ -126,24 +132,24 @@ public static class Extensions {
 	} 
 
 	/// <summary> Create and fills up given array with components found paired in childrens to the given enum type </summary>
-	public	static	bool			PairComponentsInChildrenIntoArray<T>( this Transform t, ref T[] array, System.Type enumType ) where T :Component
+	public	static	bool			PairComponentsInChildrenIntoArray<T0, T1>( this Transform t, ref T0[] array ) where T0 :Component
 	{
-		if ( enumType.IsEnum == false )
+		if ( typeof(T1).IsEnum == false )
 			return false;
 
-		string[] names = System.Enum.GetNames( enumType );
+		string[] names = System.Enum.GetNames( typeof(T1) );
 
 		if ( t.childCount < names.Length )
 			return false;
 
-		array = new T[ names.Length ];
+		array = new T0[ names.Length ];
 
 		bool bResult = true;
 		for ( int i = 0; i < names.Length; i++ )
 		{
 			Transform child = t.GetChild( i );
-			T comp = null;
-			bResult &= Utils.Base.SearchComponent<T>( child.gameObject, ref comp, SearchContext.LOCAL );
+			T0 comp = null;
+			bResult &= Utils.Base.SearchComponent<T0>( child.gameObject, ref comp, SearchContext.LOCAL );
 			array[i] = comp;
 		}
 
