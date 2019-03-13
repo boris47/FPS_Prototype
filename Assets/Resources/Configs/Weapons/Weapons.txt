@@ -11,24 +11,6 @@ HasTertiaryModule			= false;
 
 
 
-;;;;;;;;;;;;;;;; BLASTER
-[Blaster] : EmptyWeapon
-ZoomOffset					= -0.0655, 0.009, -0.052;
-BaseZoomFactor				= 1.8;
-BaseZoomingTime				= 0.2;
-BaseZoomSensitivity			= 0.3;
-
-HasPrimaryWeaponModule		= true;
-PrimaryWeaponModule			= WPN_FireModule_Blaster;
-
-HasSecondaryWeaponModule	= true;
-SecondaryWeaponModule		= WPN_WeaponModule_Zoom;
-
-HasTertiaryWeaponModule		= false;
-TertiaryWeaponModule		= WPN_FireModule_Auto;
-
-
-
 ;;;;;;;;;;;;;;;; BLACKJACK
 [Blackjack] : EmptyWeapon
 ZoomOffset					= -0.0655, 0.009, -0.052;
@@ -46,6 +28,42 @@ SecondaryWeaponModule		= WPN_WeaponModule_Zoom;
 HasTertiaryWeaponModule		= true;
 TertiaryWeaponModule		= WPN_WeaponModule_Shield;
 ;TertiaryWeaponModuleMods	= WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_BiggerMag, WPN_Module_Prop_BiggerMag;
+
+
+
+;;;;;;;;;;;;;;;; BLASTER
+[Blaster] : EmptyWeapon
+ZoomOffset					= -0.0655, 0.009, -0.052;
+BaseZoomFactor				= 1.8;
+BaseZoomingTime				= 0.2;
+BaseZoomSensitivity			= 0.3;
+
+HasPrimaryWeaponModule		= true;
+PrimaryWeaponModule			= WPN_FireModule_Blaster;
+
+HasSecondaryWeaponModule	= true;
+SecondaryWeaponModule		= WPN_WeaponModule_OpticZoom;
+
+HasTertiaryWeaponModule		= false;
+TertiaryWeaponModule		= WPN_FireModule_Auto;
+
+
+
+;;;;;;;;;;;;;;;; BREAKER
+[Breaker] : EmptyWeapon
+ZoomOffset					= -0.0655, 0.009, -0.052;
+BaseZoomFactor				= 2.0;
+BaseZoomingTime				= 0.2;
+BaseZoomSensitivity			= 0.3;
+
+HasPrimaryWeaponModule		= true;
+PrimaryWeaponModule			= WPN_FireModule_GranadeLauncher;
+
+HasSecondaryWeaponModule	= true;
+SecondaryWeaponModule		= WPN_WeaponModule_Shield;
+
+HasTertiaryWeaponModule		= false;
+TertiaryWeaponModule		= WPN_FireModule_Auto;
 
 
 
@@ -79,24 +97,6 @@ PrimaryWeaponModule			= WPN_FireModule_Shotgun;
 
 HasSecondaryWeaponModule	= true;
 SecondaryWeaponModule		= WPN_WeaponModule_Zoom;
-
-HasTertiaryWeaponModule		= false;
-TertiaryWeaponModule		= WPN_FireModule_Auto;
-
-
-
-;;;;;;;;;;;;;;;; BREAKER
-[Breaker] : EmptyWeapon
-ZoomOffset					= -0.0655, 0.009, -0.052;
-BaseZoomFactor				= 2.0;
-BaseZoomingTime				= 0.2;
-BaseZoomSensitivity			= 0.3;
-
-HasPrimaryWeaponModule		= true;
-PrimaryWeaponModule			= WPN_FireModule_GranadeLauncher;
-
-HasSecondaryWeaponModule	= true;
-SecondaryWeaponModule		= WPN_WeaponModule_Shield;
 
 HasTertiaryWeaponModule		= false;
 TertiaryWeaponModule		= WPN_FireModule_Auto;

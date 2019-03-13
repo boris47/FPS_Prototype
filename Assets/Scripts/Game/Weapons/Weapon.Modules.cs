@@ -27,18 +27,36 @@ public abstract partial class Weapon {
 		string wpnModuleSect = null;
 		string wpnModuleSectName = GetModuleSlotName( weaponModuleSlot.ThisSlot );
 		Database.Section moduleSection = null;
-		if ( section.AsBool( "Has" + wpnModuleSectName ) && section.bAsString( wpnModuleSectName, ref wpnModuleSect ) && GameManager.Configs.bGetSection( wpnModuleSect, ref moduleSection ) )
-		{
-			if ( LoadWeaponModule( wpn, wpnModuleSect, ref weaponModuleSlot ) == false )
-			{
-				Destroy( weaponModuleSlot.WeaponModule );
-				weaponModuleSlot.TrySetModule( wpn, typeof( WPN_BaseModuleEmpty ) );
-				return false;
-			}
 
-			ApplyModuleMods( section, wpnModuleSectName, weaponModuleSlot );
-			
+		// Check if slot has module assigned
+		if ( section.AsBool( "Has" + wpnModuleSectName ) == false )
+		{
+			return true;
 		}
+
+		// Get Module Section Name
+		if ( section.bAsString( wpnModuleSectName, ref wpnModuleSect ) == false )
+		{
+			Debug.Log( "Error: Weapon " + wpn.Transform.name + ": Unable to retrieve module section name " + wpnModuleSectName );
+			return false;
+		}
+
+		// Get Module Section
+		if ( GameManager.Configs.bGetSection( wpnModuleSect, ref moduleSection ) == false )
+		{
+			Debug.Log( "Error: Weapon " + wpn.Transform.name + ": Unable to retrieve module section data " + wpnModuleSectName );
+			return false;
+		}
+
+		// Try Load up Module into module Slot
+		if ( LoadWeaponModule( wpn, wpnModuleSect, ref weaponModuleSlot ) == false )
+		{
+			Debug.Log( "Error: Weapon " + wpn.Transform.name + ": Unable to load module " + wpnModuleSectName );
+			return false;
+		}
+
+		// Apply mods, if assigned to module
+		ApplyModuleMods( section, wpnModuleSectName, weaponModuleSlot );
 		return true;
 	}
 
@@ -233,7 +251,7 @@ public class WeaponModuleSlot {
 		else
 		{
 			Object.Destroy( wpnModule );
-			wpn.Transform.gameObject.AddComponent<WPN_BaseModuleEmpty>();
+			m_WeaponModule = wpn.Transform.gameObject.AddComponent<WPN_BaseModuleEmpty>();
 			Debug.Log( "WeaponModuleSlot::TrySetModule: " + wpn.Section.Name() + ": Class Requested is not a supported weapon module, \"" + type.ToString() + "\"" );
 		}
 

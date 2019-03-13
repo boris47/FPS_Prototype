@@ -6,7 +6,7 @@
 ZoomOffset					= -0.0655, 0.009, -0.052;
 ZoomFactor					= 2.0;
 ZoomingTime					= 0.1;
-ZoomSensitivity				= 0.3;
+ZoomSensitivity				= 1.0;
 
 MaxModuleCount				= 1;
 AllowedSlots				= 2;

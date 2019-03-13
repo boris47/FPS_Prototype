@@ -15,7 +15,7 @@ public interface IFlashLight {
 
 
 [System.Serializable]
-public class Flashlight : MonoBehaviour, IFlashLight {
+public class Flashlight : WeaponAttachment, IFlashLight {
 	
 	// INTERFACE START
 	Transform	IFlashLight.Transform		{ get { return transform; } }

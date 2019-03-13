@@ -605,6 +605,8 @@ public interface UpdateEvents {
 
 	/// <summary> TODO </summary>
 		event		GameEvents.OnFrameEvent			OnFrame;
+
+		event		GameEvents.OnFrameEvent			OnLateFrame;
 }
 
 // UPDATES IMPLEMENTATION
@@ -619,6 +621,7 @@ public partial class GameManager : UpdateEvents {
 	private static event	GameEvents.OnThinkEvent			m_OnThink				= delegate { };
 	private static event	GameEvents.OnPhysicFrameEvent	m_OnPhysicFrame			= delegate { };
 	private static event	GameEvents.OnFrameEvent			m_OnFrame				= delegate { };
+	private static event	GameEvents.OnFrameEvent			m_OnLateFrame			= delegate { };
 
 
 	event		GameEvents.OnThinkEvent			UpdateEvents.OnThink
@@ -627,7 +630,7 @@ public partial class GameManager : UpdateEvents {
 		remove	{	if ( value != null )	m_OnThink -= value;	}
 	}
 
-	event		GameEvents.OnPhysicFrameEvent		UpdateEvents.OnPhysicFrame
+	event		GameEvents.OnPhysicFrameEvent	UpdateEvents.OnPhysicFrame
 	{
 		add		{	if ( value != null )	m_OnPhysicFrame += value; }
 		remove	{	if ( value != null )	m_OnPhysicFrame -= value; }
@@ -637,6 +640,12 @@ public partial class GameManager : UpdateEvents {
 	{
 		add		{	if ( value != null )	m_OnFrame += value;	}
 		remove	{	if ( value != null )	m_OnFrame -= value; }
+	}
+
+	event		GameEvents.OnFrameEvent			UpdateEvents.OnLateFrame
+	{
+		add		{	if ( value != null )	m_OnLateFrame += value;	}
+		remove	{	if ( value != null )	m_OnLateFrame -= value; }
 	}
 }
 
