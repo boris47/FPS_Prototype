@@ -20,7 +20,6 @@ public abstract partial class Weapon {
 	[SerializeField, ReadOnly]	protected		WeaponModuleSlot		m_SecondaryWeaponModuleSlot		= new WeaponModuleSlot( WeaponSlots.SECONDARY );
 	[SerializeField, ReadOnly]	protected		WeaponModuleSlot		m_TertiaryWeaponModuleSlot		= new WeaponModuleSlot( WeaponSlots.TERTIARY );
 
-
 	//////////////////////////////////////////////////////////////////////////
 	private	static	bool					LoadAndConfigureModule( IWeapon wpn, Database.Section section, ref WeaponModuleSlot weaponModuleSlot )
 	{

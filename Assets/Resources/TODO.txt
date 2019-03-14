@@ -67,15 +67,30 @@ AI Behiaviours
 
 	Modular weapons
 	{
-		- One or two modules( PrimaryFire, SecondaryFire ) ( types: Single, Burst, Auto, Zoom )
-		- Every module need a attachment ( Barrel, GrenadeLauncher ( DEFAULT: Barrel ) )
-		- Each module needs internal events called ( Start, Update, End )
-		- The weapon mantain the condition end call setup as for old Blackjack
+		- Fire Modes ( Single, Burst, BurstAuto, Auto, Auto_Incremental )
+
+		- Three modules ( Primary, Secondary, Tertiary )
+
+		- Default Module: WPN_BaseModuleEmpty
+
+		- Fire Modules	
+						WPN_FireModule_Barrel,
+						WPN_FireModule_Blaster,
+						WPN_FireModule_Syphon, 
+						WPN_FireModule_Shotgun, 
+						WPN_FireModule_GranadeLauncher,
+						WPN_FireModule_SniperBarrel
+
+		- utility modules
+						WPN_WeaponModule_Zoom,
+						WPN_WeaponModule_OpticZoom,
+						WPN_WeaponModule_Shield
+
+		- Almost each module loads a different prefab for the weapon composition
+
+		- All module can have some modifiers applied
+
+		- Each module has some callable events ( ApplyModifier, RemoveModifier, ResetBaseConfiguration, Start, Update, End )
+
 		- The weapon cna have other attachments that can be Activated and Deactivated / Attached and Removed ( Flashlight, Laser, Optic )
 	}
-
-
-
-
-	[WPN_FireModule_Shotgun]
-	FireMode = Auto
