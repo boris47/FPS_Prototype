@@ -1,6 +1,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 
 
@@ -14,11 +15,11 @@ public interface IResourceComposite {
 
 public class ResourceManager : MonoBehaviour {
 
-	private	static	ResourceManager		m_Instance = null;
+	private	static	ResourceManager		m_Instance			= null;
 
-	private	static	bool				m_IsInitialized = false;
+	private	static	bool				m_IsInitialized		= false;
 
-	private	static	bool				m_ShowDebugInfo	= false;
+	private	static	bool				m_ShowDebugInfo		= false;
 
 	// 
 	private void Awake()
@@ -31,6 +32,12 @@ public class ResourceManager : MonoBehaviour {
 		DontDestroyOnLoad( this );
 		m_Instance = this;
 		m_IsInitialized = true;
+
+		Database.Section debugInfosSection = null;
+		if ( GameManager.Configs.bGetSection( "DebugInfos", ref debugInfosSection ) )
+		{
+			m_ShowDebugInfo = debugInfosSection.AsBool( "ResourceManager", false);
+		}
 	}
 
 	public class LoadData<T> {
@@ -55,6 +62,7 @@ public class ResourceManager : MonoBehaviour {
 			GameObject go = new GameObject();
 			go.hideFlags = HideFlags.HideAndDontSave;
 			m_Instance = go.AddComponent<ResourceManager>();
+
 			m_IsInitialized = true;
 		}
 	}
@@ -74,18 +82,11 @@ public class ResourceManager : MonoBehaviour {
 
 		bool result = true;
 
-		string fullPath = GetFullPath( ResourcePath );
-		if ( System.IO.File.Exists( fullPath ) == false )
-		{
-			print( "Cannot find resource: " + fullPath );
-			return false;
-		}
-
-		if ( m_ShowDebugInfo )				print( "SYNC Loading: " + fullPath );
+//		if ( m_ShowDebugInfo )				print( "SYNC Loading: " + ResourcePath );
 		{
 			result &= InternalLoadResourceSync( ResourcePath, loadData, ref result );
 		}
-		if ( m_ShowDebugInfo && result )	print( "SYNC Loaded: " + fullPath );
+//		if ( m_ShowDebugInfo && result )	print( "SYNC Loaded: " + ResourcePath );
 
 		return result;
 	}
@@ -96,16 +97,22 @@ public class ResourceManager : MonoBehaviour {
 	{
 		if ( bResult == true )
 		{
-			string fullPath = GetFullPath( ResourcePath );
-
-			if ( m_ShowDebugInfo )				print( "INTERNAL SYNC Loading: " + fullPath );
+			if ( m_ShowDebugInfo )				print( "INTERNAL SYNC Loading: " + ResourcePath );
 			{
-				T asset = Resources.Load<T>( ResourcePath );
-				loadData.Asset = asset;
-
-				if ( asset is IResourceComposite )
+				Stopwatch m_StopWatch = new Stopwatch();
+				m_StopWatch.Start();
 				{
-					IResourceComposite composite = asset as IResourceComposite;
+					loadData.Asset = Resources.Load<T>( ResourcePath );
+				}
+				m_StopWatch.Stop();
+
+				if ( m_ShowDebugInfo )				print( "INTERNAL SYNC Loaded: " + ResourcePath + " in " + m_StopWatch.Elapsed.Milliseconds + "ms" );
+
+				bResult = loadData.Asset.IsNotNull();
+
+				if ( loadData.Asset is IResourceComposite )
+				{
+					IResourceComposite composite = loadData.Asset as IResourceComposite;
 					if ( composite.NeedToBeLoaded() == true )
 					{
 						composite.Reinit();
@@ -121,7 +128,7 @@ public class ResourceManager : MonoBehaviour {
 					}
 				}
 			}
-			if ( m_ShowDebugInfo && bResult )	print( "INTERNAL SYNC Loaded: " + RESOURCES_PATH + fullPath );
+			if ( m_ShowDebugInfo && bResult )	print( "INTERNAL SYNC Loaded: " + RESOURCES_PATH + ResourcePath );
 		}
 
 		return bResult;
@@ -148,45 +155,43 @@ public class ResourceManager : MonoBehaviour {
 	/// <summary> Asynchronously load resource with given path, load recursively if composite type. Onload completed with success callbeck is called
 	/// return iterator of the MAIN load coroutine </summary>
 
-	public	static  	IEnumerator LoadResourceAsyncCoroutine<T>( string ResourcePath, LoadData<T> loadData, System.Action<T> OnResourceLoaded = null ) where T : Object
+	public	static  	IEnumerator LoadResourceAsyncCoroutine<T>( string ResourcePath, LoadData<T> loadData, System.Action<T> OnResourceLoaded ) where T : Object
 	{
 		Initialize();
 
-		string fullPath = GetFullPath( ResourcePath );
-		if ( System.IO.File.Exists( fullPath ) == false )
-		{
-			print( "Cannot find resource: " + fullPath );
-			yield break;
-		}
-
-		if ( m_ShowDebugInfo )					print( "COROUTINE ASYNC Loading: " + fullPath );
+//		if ( m_ShowDebugInfo )				print( "COROUTINE ASYNC Loading: " + ResourcePath );
 		{
 			yield return m_Instance.StartCoroutine( InternalLoadResourceAsync( ResourcePath, loadData ) );
 		}
-		if ( m_ShowDebugInfo && loadData.Asset != null )	print( "COROUTINE ASYNC Loaded: " + fullPath );
+//		if ( m_ShowDebugInfo )				print( "COROUTINE ASYNC Loaded: " + ResourcePath );
 
-		if ( OnResourceLoaded != null )
+		if ( OnResourceLoaded.IsNotNull() )
+		{
 			OnResourceLoaded( loadData.Asset as T );
+		}
 	}
 
 	
 	/////////////////////////////////////////////////////////////////
 	private	static  IEnumerator InternalLoadResourceAsync<T>( string ResourcePath, LoadData<T> loadData ) where T : Object
 	{
-		string fullPath = GetFullPath( ResourcePath );
-
-		T asset = null;
-		if ( m_ShowDebugInfo )			print( "INTERNAL ASYNC Loading: " + fullPath );
+		if ( m_ShowDebugInfo )			print( "INTERNAL ASYNC Loading: " + ResourcePath );
 		{
-			ResourceRequest request = Resources.LoadAsync( ResourcePath );
-			yield return request;
-
-			asset =  request.asset as T;
-			loadData.Asset = asset;
-
-			if ( asset is IResourceComposite )
+			Stopwatch m_StopWatch = new Stopwatch();
+			m_StopWatch.Start();
 			{
-				IResourceComposite composite = request.asset as IResourceComposite;
+				ResourceRequest request = Resources.LoadAsync( ResourcePath );
+				yield return request;
+				loadData.Asset = request.asset as T;
+			}
+			m_StopWatch.Stop();
+
+			if ( m_ShowDebugInfo )				print( "INTERNAL ASYNC Loaded: " + ResourcePath + " in " + m_StopWatch.Elapsed.Milliseconds + "ms" );
+			m_StopWatch.Reset();
+
+			if ( loadData.Asset is IResourceComposite )
+			{
+				IResourceComposite composite = loadData.Asset as IResourceComposite;
 				if ( composite.NeedToBeLoaded() == true )
 				{
 					composite.Reinit();
@@ -199,7 +204,7 @@ public class ResourceManager : MonoBehaviour {
 				}
 			}
 		}
-		if ( m_ShowDebugInfo && asset != null )		print( "INTERNAL ASYNC Loaded: " + RESOURCES_PATH + fullPath );
+//		if ( m_ShowDebugInfo )			print( "INTERNAL ASYNC Loaded: " + RESOURCES_PATH + ResourcePath );
 	}
 
 

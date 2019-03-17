@@ -285,7 +285,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 		return true;
 	}
 
-
+	
 	//////////////////////////////////////////////////////////////////////////
 	protected				void	ActionOnBullet( Bullet bullet )
 	{
@@ -497,8 +497,8 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 	protected	abstract	void	Shoot( float moduleFireDispersion, float moduleCamDeviation );
 
 
-	// DESTRUCTOR
-	~WPN_FireModule()
+	//////////////////////////////////////////////////////////////////////////
+	private void OnDestroy()
 	{
 		if ( m_PoolBullets != null )
 		{

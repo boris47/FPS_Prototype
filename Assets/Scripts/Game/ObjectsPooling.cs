@@ -234,11 +234,10 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	// Destroy
 	internal	void		Destroy()
 	{
-		Counter --;
-
 		if ( IsValid == false )
 			return;
 
+		Counter --;
 		for ( int i = m_Container.transform.childCount - 1; i >= 0; i-- )
 		{
 			Object.Destroy( m_Container.transform.GetChild( i ).gameObject );
@@ -334,14 +333,17 @@ public	class ObjectsPool<T> where T : UnityEngine.Component {
 	// Destroy
 	internal	void	Destroy()
 	{
-		for ( int i = 0; i < m_Storage.Count; i++ )
+		for ( int i = m_Storage.Count - 1; i >= 0; i-- )
 		{
 			Component comp = m_Storage[ i ];
-			if ( comp != null )
+			if ( comp.IsNotNull() )
 			{
 				Object.Destroy( comp );
 			}
+			m_Storage.RemoveAt(i);
 		}
+		m_Storage.Clear();
+		m_Storage= null;
 	}
 
 }

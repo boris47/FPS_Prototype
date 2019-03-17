@@ -153,8 +153,9 @@ namespace WeatherSystem {
 				ResourceManager.LoadData<Weathers> cycles = new ResourceManager.LoadData<Weathers>();
 				yield return ResourceManager.LoadResourceAsyncCoroutine
 				(
-					WEATHERS_COLLECTION,
-					cycles
+					ResourcePath: WEATHERS_COLLECTION,
+					loadData: cycles,
+				 	OnResourceLoaded: null
 				);
 				m_Cycles = cycles.Asset;
 				m_AreResLoaded_Cylces	= m_Cycles != null;

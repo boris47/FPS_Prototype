@@ -6,7 +6,7 @@
 #include Drones.txt
 #include Walkers.txt
 
-
+#include DebugInfos.txt
 #include Weapons/Weapons.txt
 #include Weapons/WeaponFireModules.txt
 #include Weapons/WeaponUtilityModules.txt

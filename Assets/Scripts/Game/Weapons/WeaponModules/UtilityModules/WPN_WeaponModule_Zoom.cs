@@ -58,11 +58,16 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 		// Image frame
 		if ( FramePath.IsNotNull() )
 		{
-			GameObject go = Resources.Load<GameObject>( FramePath );
-			if ( go && go.transform.HasComponent<Image>() )
+			ResourceManager.LoadData<GameObject> imageData = new ResourceManager.LoadData<GameObject>();
+			System.Action<GameObject> onLoadSuccess = delegate( GameObject t )
 			{
-				m_ZoomFrame = Instantiate( go, UI.Instance.InGame.transform ).GetComponent<Image>();
-			}
+				if ( t && t.transform.HasComponent<Image>() )
+				{
+					m_ZoomFrame = Instantiate( t, UI.Instance.InGame.transform ).GetComponent<Image>();
+				}
+			};
+			ResourceManager.LoadResourceAsync( FramePath, imageData, onLoadSuccess );
+
 		}
 
 		// Scope Prefab
@@ -70,23 +75,21 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 		{
 			Transform opticSpot = null;
 			bool bHasSpot = transform.SearchChildWithName( "OpticSpot", ref opticSpot );
-			GameObject go = Resources.Load<GameObject>( ScopePath );
-			if ( go && go.transform.HasComponent<Scope>() && bHasSpot )
+			if ( bHasSpot )
 			{
-				m_Scope = Instantiate( go, opticSpot ).GetComponent<Scope>();
-				m_Scope.transform.localPosition = Vector3.zero;
-				m_Scope.transform.localRotation = Quaternion.identity;
+				ResourceManager.LoadData<GameObject> ScopeObject = new ResourceManager.LoadData<GameObject>();
+				System.Action<GameObject> onLoadSuccess = delegate( GameObject t )
+				{
+					if ( t.transform.HasComponent<Scope>() )
+					{
+						m_Scope = Instantiate( t, opticSpot ).GetComponent<Scope>();
+						m_Scope.transform.localPosition = Vector3.zero;
+						m_Scope.transform.localRotation = Quaternion.identity;
+					}
+				};
+				ResourceManager.LoadResourceAsync( ScopePath, ScopeObject, onLoadSuccess );
 			}
 		}
-		
-		/*
-		ResourceManager.LoadData<GameObject> imageData = new ResourceManager.LoadData<GameObject>();
-		System.Action<GameObject> onLoadSuccess = delegate( GameObject t )
-		{
-			m_ZoomFrame = t.GetComponent<Image>();
-		};
-		ResourceManager.LoadResourceAsync( FramePath, imageData, onLoadSuccess );
-		*/
 
 		return true;
 	}

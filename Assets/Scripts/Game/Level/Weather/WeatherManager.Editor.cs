@@ -16,7 +16,9 @@ namespace WeatherSystem {
 		EnvDescriptor				INTERNAL_NextDescriptor				{ get; }
 		Weathers					INTERNAL_Cycles						{ get; set; }
 		List<EnvDescriptor>			INTERNAL_CurrentDescriptors			{ get; set; }
+#if UNITY_EDITOR
 		bool						INTERNAL_EditModeEnabled			{ get; set; }
+#endif
 		Light						INTERNAL_Sun						{ get; }
 
 		void						INTERNAL_StartSelectDescriptors( float DayTime, WeatherCycle cycle );
@@ -63,12 +65,13 @@ namespace WeatherSystem {
 			get { return m_Descriptors; }
 			set { m_Descriptors = value; }
 		}
+#if UNITY_EDITOR
 		bool IWeatherManager_Editor.INTERNAL_EditModeEnabled
 		{
 			get { return this.runInEditMode; }
 			set { this.runInEditMode = value; }
 		}
-
+#endif
 		Light	IWeatherManager_Editor.INTERNAL_Sun
 		{
 			get { return m_Sun; }

@@ -195,7 +195,7 @@ public class SectionMap : IEnumerable {
 					return false;
 				}
 #else
-				if ( LoadFile( Utils.System.RemoveExtension( Path.Combine( sPath, sFileName ) ) ) == false )
+				if ( LoadFile( System.IO.Path.GetFileNameWithoutExtension( Path.Combine( sPath, sFileName ) ) ) == false )
 					return false;
 #endif
 				continue;

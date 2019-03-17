@@ -23,7 +23,7 @@ PrimaryWeaponModule			= WPN_FireModule_Barrel;
 ;PrimaryWeaponModuleMods	= WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy;
 
 HasSecondaryWeaponModule	= true;
-SecondaryWeaponModule		= WPN_WeaponModule_Zoom;
+SecondaryWeaponModule		= WPN_WeaponModule_OpticZoom;
 
 HasTertiaryWeaponModule		= true;
 TertiaryWeaponModule		= WPN_WeaponModule_Shield;

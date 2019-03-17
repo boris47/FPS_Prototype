@@ -306,7 +306,7 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 			m_Recoil				= Mathf.Lerp( m_Recoil, 0.0f, dt * 3.7f );
 			m_Recoil				= Mathf.Clamp( m_Recoil, 0.0f, 0.05f );
 
-			if ( m_WeaponMoveEffectEnabled )
+			if ( m_WeaponMoveEffectEnabled && WeaponManager.Instance.CurrentWeapon != null )
 			{
 				// Position
 				Vector3 localPosition		= HeadBob.WeaponPositionDelta + HeadMove.WeaponPositionDelta + ( Vector3.left * m_Recoil );
