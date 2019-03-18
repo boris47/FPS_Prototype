@@ -13,10 +13,7 @@ public class WPN_FireMode_Single : WPN_FireMode_Base {
 		}
 	}
 
-	public	WPN_FireMode_Single( Database.Section section )
-	{
-
-	}
+//	public	WPN_FireMode_Single( Database.Section section ) { }
 
 
 	public	override	void	Setup			( WPN_FireModule fireModule, float shotDelay, FireFunctionDel fireFunction )

@@ -34,6 +34,7 @@ public abstract class WPN_BaseModule : MonoBehaviour, IModifiable {
 	protected		IWeapon						m_WeaponRef					= null;
 	protected		WeaponSlots					m_ModuleSlot				= WeaponSlots.NONE;
 	protected		List<Database.Section>		m_Modifiers					= new List<Database.Section>();
+	protected		GameObject					m_Container					= null;
 
 
 	public		Database.Section			ModuleSection
@@ -149,7 +150,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 	[SerializeField]	protected	float						m_CamDeviation				= 0.02f;
 	[SerializeField]	protected	float						m_FireDispersion			= 0.05f;
 	[SerializeField]	protected	float						m_Recoil					= 0.3f;
-	[SerializeField]	protected	WPN_FireMode_Base			m_WpnFireMode				= new WPN_FireMode_Empty(null);
+	[SerializeField]	protected	WPN_FireMode_Base			m_WpnFireMode				= null;
 
 	// INTERFACE START
 	public abstract	FireModes									FireMode					{ get; }
@@ -179,6 +180,18 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 
 		m_FirePoint					= m_WeaponRef.Transform.Find( "FirePoint" );
 
+		// MODULE CONTAINER
+		string containerID = moduleSectionName + Weapon.GetModuleSlotName( slot );
+		m_Container = transform.Find(containerID) != null ? transform.Find(containerID).gameObject : null;
+		if ( m_Container == null )
+		{
+			m_Container = new GameObject( containerID );
+			m_Container.transform.SetParent( transform );
+			m_Container.transform.localPosition = Vector3.zero;
+			m_Container.transform.localRotation = Quaternion.identity;
+		}
+		
+
 		// TRY RECOVER MODULE SECTION
 		if ( GameManager.Configs.bGetSection( moduleSectionName, ref m_ModuleSection ) == false )			// Get Module Section
 			return false;
@@ -190,8 +203,10 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 
 		// LOAD FIRE MODE
 		weaponFireModeSectionName = "WPN_FireMode_" + weaponFireModeSectionName;
-		if ( TryLoadFireMode( weaponFireModeSectionName, ref m_WpnFireMode ) == false )
+		if ( TryLoadFireMode( m_Container, weaponFireModeSectionName, ref m_WpnFireMode ) == false )
 			return false;
+
+		m_WpnFireMode.transform.SetParent( m_Container.transform );
 
 		// ASSIGN INTERNALS
 		m_ShotDelay				= m_ModuleSection.AsFloat( "BaseShotDelay", m_ShotDelay );
@@ -212,17 +227,6 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 			return false;
 
 
-		// MODULE CONTAINER
-		string containerID = moduleSectionName + Weapon.GetModuleSlotName( slot );
-		GameObject container = transform.Find(containerID) != null ? transform.Find(containerID).gameObject : null;
-		if ( container )
-		{
-			Destroy(container);
-		}
-
-		container = new GameObject( containerID );
-		container.transform.SetParent( transform );
-
 		// AUDIO
 		{
 			// Load fire sounds collection
@@ -235,19 +239,19 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 			string fireSound = null;
 			if ( m_ModuleSection.bAsString( "FireSound", ref fireSound ) )
 			{
-				AudioSource source = container.GetComponent<AudioSource>();
+				AudioSource source = m_Container.GetComponent<AudioSource>();
 				if ( source == null )
 				{
-					source = container.AddComponent<AudioSource>();
+					source = m_Container.AddComponent<AudioSource>();
 				}
 				{
 					source.playOnAwake = false;
 					if ( source.clip = System.Array.Find( m_ModuleSounds.AudioClips, s => s.name == fireSound ) )
 					{
-						DynamicCustomAudioSource audioSource = container.GetComponent<DynamicCustomAudioSource>();
+						DynamicCustomAudioSource audioSource = m_Container.GetComponent<DynamicCustomAudioSource>();
 						if ( audioSource == null )
 						{
-							audioSource = container.AddComponent<DynamicCustomAudioSource>();
+							audioSource = m_Container.AddComponent<DynamicCustomAudioSource>();
 						}
 						audioSource.enabled = true;
 
@@ -428,19 +432,19 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 	public					bool	ChangeFireMode( string FireMode )
 	{
 		FireMode = "WPN_FireMode_" + FireMode;
-		return TryLoadFireMode( FireMode, ref m_WpnFireMode );
+		return TryLoadFireMode( m_Container, FireMode, ref m_WpnFireMode );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public					bool	ChangeFireMode<T>()
 	{
-		return TryLoadFireMode( typeof(T).Name, ref m_WpnFireMode );
+		return TryLoadFireMode( m_Container, typeof(T).Name, ref m_WpnFireMode );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private	static			bool	TryLoadFireMode( string weaponFireModeSectionName, ref WPN_FireMode_Base fireMode )
+	private	static			bool	TryLoadFireMode( GameObject container, string weaponFireModeSectionName, ref WPN_FireMode_Base fireMode )
 	{
 		System.Type type = System.Type.GetType( weaponFireModeSectionName.Trim() );
 		if ( type == null )
@@ -449,9 +453,16 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 			return false;
 		}
 		
-		if ( fireMode != null && fireMode.GetType() == type )
+		if ( fireMode != null )
 		{
-			return true; // same firemode, change masked as success
+			if ( fireMode.GetType() == type )
+			{
+				return true; // same firemode, change masked as success
+			}
+			else
+			{
+				Object.Destroy( fireMode );
+			}
 		}
 			
 		// Check module type as child of WPN_BaseModule
@@ -468,11 +479,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 			return false;
 		}
 
-		object[] arguments = new object[1]
-		{
-			section
-		};
-		fireMode = System.Activator.CreateInstance( type, arguments ) as WPN_FireMode_Base;
+		fireMode = container.AddComponent( type ) as WPN_FireMode_Base;
 		return true;
 	}
 
@@ -503,6 +510,11 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 		if ( m_PoolBullets != null )
 		{
 			m_PoolBullets.Destroy();
+		}
+
+		if ( m_Container )
+		{
+			Destroy( m_Container );
 		}
 	}
 

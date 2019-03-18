@@ -72,7 +72,7 @@ namespace Database {
 
 		public	string	Context
 		{
-			get { return ( sContext.IsNotNull() ) ? (string)Context.Clone() :""; }
+			get { return ( sContext.IsNotNull() ) ? (string)sContext.Clone() :""; }
 		}
 
 

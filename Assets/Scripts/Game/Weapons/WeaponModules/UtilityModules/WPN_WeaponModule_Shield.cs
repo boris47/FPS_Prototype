@@ -163,4 +163,9 @@ public class WPN_WeaponModule_Shield : WPN_BaseModule, IWPN_UtilityModule {
 		m_RigidBody.detectCollisions = false;
 	}
 
+
+	private void OnDestroy()
+	{
+		Destroy( m_ShieldGO );
+	}
 }

@@ -25,6 +25,7 @@ public interface IUI {
 
 	UI_MainMenu				MainMenu					{ get; }
 	UI_InGame				InGame						{ get; }
+	UI_WeaponCustomization	WeaponCustomization			{ get; }
 	UI_Settings				Settings					{ get; }
 	UI_Bindings				Bindings					{ get; }
 	UI_Graphics				Graphics					{ get; }
@@ -53,6 +54,7 @@ public class UI : MonoBehaviour, IUI {
 
 	private			UI_MainMenu				m_MainMenu						= null;
 	private			UI_InGame				m_InGame						= null;
+	private			UI_WeaponCustomization	m_WeaponCustomization		= null;
 	private			UI_Settings				m_Settings						= null;
 	private			UI_PauseMenu			m_PauseMenu						= null;
 	private			UI_Bindings				m_Bindings						= null;
@@ -65,6 +67,7 @@ public class UI : MonoBehaviour, IUI {
 	// INTERFACE START
 					UI_MainMenu				IUI.MainMenu					{ get { return m_MainMenu; } }
 					UI_InGame				IUI.InGame						{ get { return m_InGame; } }
+					UI_WeaponCustomization	IUI.WeaponCustomization			{ get { return m_WeaponCustomization; } }
 					UI_Settings				IUI.Settings					{ get { return m_Settings; } }
 					UI_Bindings				IUI.Bindings					{ get { return m_Bindings; } }
 					UI_Graphics				IUI.Graphics					{ get { return m_Graphics; } }
@@ -96,21 +99,23 @@ public class UI : MonoBehaviour, IUI {
 		DontDestroyOnLoad( this );
 
 		// Get Menu
-		m_MainMenu			= GetComponentInChildren<UI_MainMenu>		( includeInactive: true );
-		m_InGame			= GetComponentInChildren<UI_InGame>			( includeInactive: true );
-		m_Settings			= GetComponentInChildren<UI_Settings>		( includeInactive: true );
-		m_PauseMenu			= GetComponentInChildren<UI_PauseMenu>		( includeInactive: true );
-		m_Bindings			= GetComponentInChildren<UI_Bindings>		( includeInactive: true );
-		m_Graphics			= GetComponentInChildren<UI_Graphics>		( includeInactive: true );
-		m_Audio				= GetComponentInChildren<UI_Audio>			( includeInactive: true );
-		m_Confirmation		= GetComponentInChildren<UI_Confirmation>	( includeInactive: true );
+		m_MainMenu				= GetComponentInChildren<UI_MainMenu>			( includeInactive: true );
+		m_InGame				= GetComponentInChildren<UI_InGame>				( includeInactive: true );
+		m_WeaponCustomization	= GetComponentInChildren<UI_WeaponCustomization>( includeInactive: true );
+		m_Settings				= GetComponentInChildren<UI_Settings>			( includeInactive: true );
+		m_PauseMenu				= GetComponentInChildren<UI_PauseMenu>			( includeInactive: true );
+		m_Bindings				= GetComponentInChildren<UI_Bindings>			( includeInactive: true );
+		m_Graphics				= GetComponentInChildren<UI_Graphics>			( includeInactive: true );
+		m_Audio					= GetComponentInChildren<UI_Audio>				( includeInactive: true );
+		m_Confirmation			= GetComponentInChildren<UI_Confirmation>		( includeInactive: true );
 
 		// Menu initialization
 		m_Audio.Initialize();
 		m_Graphics.Initialize();
 		m_Confirmation.Initialize();
+		m_WeaponCustomization.Initialize();
 		
-		m_EffectFrame					= transform.Find( "EffectFrame" ).GetComponent<Image>();
+		transform.SearchComponentInChild( "EffectFrame", ref m_EffectFrame );
 		m_RayCastInterceptor			= transform.Find( "RayCastInterceptor" );
 		m_RayCastInterceptor.gameObject.SetActive( false );
 

@@ -2,7 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class WPN_FireModule_Blaster : WPN_FireModule_Barrel {
+
+	public override void InternalUpdate( float DeltaTime )
+	{
+		m_WpnFireMode.InternalUpdate( DeltaTime, m_Magazine );
+	}
 
 	public override void ApplyModifier( Database.Section modifier )
 	{

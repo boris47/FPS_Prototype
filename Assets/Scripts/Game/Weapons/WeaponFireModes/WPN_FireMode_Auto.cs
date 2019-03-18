@@ -1,10 +1,11 @@
-﻿using System;
+﻿
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 //////////////////////////////////////////////////////////////////////////
 // WPN_FireMode_Auto
+[System.Serializable]
 public class WPN_FireMode_Auto : WPN_FireMode_Base {
 
 	public override FireModes FireMode
@@ -14,8 +15,7 @@ public class WPN_FireMode_Auto : WPN_FireMode_Base {
 		}
 	}
 
-	public	WPN_FireMode_Auto( Database.Section section )
-	{ }
+//	public	WPN_FireMode_Auto( Database.Section section ) { }
 
 	public	override	void	Setup			( WPN_FireModule fireModule, float shotDelay, FireFunctionDel fireFunction )
 	{
@@ -99,16 +99,25 @@ public class WPN_FireMode_Auto : WPN_FireMode_Base {
 // WPN_FireMode_Auto_Incremental
 public class WPN_FireMode_Auto_Incremental : WPN_FireMode_Auto {
 
-	private	readonly	float	m_IncremetalSpeed			= 1.0f;
-	private	readonly	float	m_MaxIncrement				= 2.0f;
+	private		float	m_IncremetalSpeed			= 1.0f;
+	private		float	m_MaxIncrement				= 2.0f;
 
-	private	float	m_CurrentMultiplier			= 1.0f;
+	private		float	m_CurrentMultiplier			= 1.0f;
 
 
-	public WPN_FireMode_Auto_Incremental( Database.Section section ) : base( section )
+//	public WPN_FireMode_Auto_Incremental( Database.Section section ) : base( section ) { }
+
+	public override void Setup( WPN_FireModule fireModule, float shotDelay, FireFunctionDel fireFunction )
 	{
-		m_IncremetalSpeed	= section.AsFloat( "IncremetalSpeed", m_IncremetalSpeed );
-		m_MaxIncrement		= section.AsFloat( "MaxIncrement", m_MaxIncrement );
+		base.Setup( fireModule, shotDelay, fireFunction );
+
+		string moduleSectionName = this.GetType().Name;
+		Database.Section section = null;
+		if ( GameManager.Configs.bGetSection( moduleSectionName, ref section ) )
+		{
+			m_IncremetalSpeed	= section.AsFloat( "IncremetalSpeed", m_IncremetalSpeed );
+			m_MaxIncrement		= section.AsFloat( "MaxIncrement", m_MaxIncrement );
+		}
 	}
 
 

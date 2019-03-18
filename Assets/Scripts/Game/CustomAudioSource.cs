@@ -313,12 +313,14 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 		if ( m_IsUnityAudioSource == true )
 		{
 			SoundManager.OnSoundVolumeChange -= OnSoundVolumeChange;
-			m_AudioSource.Stop();
+			if ( m_AudioSource )
+				m_AudioSource.Stop();
 		}
 		else
 		{
 			SoundManager.OnMusicVolumeChange -= OnMusicVolumeChange;
-			m_AudioEmitter.Stop();
+			if ( m_AudioEmitter )
+				m_AudioEmitter.Stop();
 		}
 		SoundManager.OnPitchChange -= OnPitchChange;
 	}

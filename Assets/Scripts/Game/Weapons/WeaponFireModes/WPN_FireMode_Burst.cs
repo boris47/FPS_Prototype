@@ -22,11 +22,7 @@ public class WPN_FireMode_Burst : WPN_FireMode_Base {
 	}
 
 
-	public	WPN_FireMode_Burst( Database.Section section )
-	{
-		m_BurstSize			= section.AsInt( "BurstSize", m_BurstSize );
-		m_ApplyDeviation	= section.AsBool( "ApplyDeviationOnLastShot", m_ApplyDeviation );
-	}
+//	public	WPN_FireMode_Burst( Database.Section section ) { }
 
 
 	// Setup
@@ -37,6 +33,14 @@ public class WPN_FireMode_Burst : WPN_FireMode_Base {
 			m_FireDelay = shotDelay;
 			m_FireFunction = fireFunction;
 			m_FireModule = fireModule;
+		}
+
+		string moduleSectionName = this.GetType().Name;
+		Database.Section section = null;
+		if ( GameManager.Configs.bGetSection( moduleSectionName, ref section ) )
+		{
+			m_BurstSize			= section.AsInt( "BurstSize", m_BurstSize );
+			m_ApplyDeviation	= section.AsBool( "ApplyDeviationOnLastShot", m_ApplyDeviation );
 		}
 	}
 
@@ -128,8 +132,7 @@ public class WPN_FireMode_BurstAuto : WPN_FireMode_Burst {
 	private		float	m_BaseCamDeviation		= 0.0f;
 	
 
-	public	WPN_FireMode_BurstAuto( Database.Section section ) : base( section )
-	{ }
+//	public	WPN_FireMode_BurstAuto( Database.Section section ) : base( section ) { }
 
 	public override		void	ApplyModifier( Database.Section modifier )
 	{

@@ -1,10 +1,10 @@
-﻿using System;
+﻿
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-public	abstract	class	WPN_FireMode_Base : IModifiable {
+[System.Serializable]
+public	abstract	class	WPN_FireMode_Base : MonoBehaviour, IModifiable {
 	
 	public delegate	void FireFunctionDel( float baseFireDispersion, float baseCamDeviation );
 
@@ -15,7 +15,9 @@ public	abstract	class	WPN_FireMode_Base : IModifiable {
 
 	protected			WPN_FireModule				m_FireModule				= null;
 	protected			List<Database.Section>		m_Modifiers					= new List<Database.Section>();
+	[SerializeField]
 	protected			float						m_FireDelay					= 1.0f;
+	[SerializeField]
 	protected			float						m_CurrentDelay				= 0.0f;
 
 
@@ -50,8 +52,7 @@ public	class WPN_FireMode_Empty : WPN_FireMode_Base {
 		}
 	}
 
-	public	WPN_FireMode_Empty( Database.Section section )
-	{ }
+//	public	WPN_FireMode_Empty( Database.Section section )	{ }
 
 	public	override	void	Setup			( WPN_FireModule fireModule, float shotDelay, FireFunctionDel fireFunction )
 	{ }

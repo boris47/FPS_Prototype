@@ -118,10 +118,10 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon, IModifiable {
 	protected	virtual	string				OtherInfo
 	{
 		get {
-			string primaryModule	= m_PrimaryWeaponModuleSlot.WeaponModule.name;
-			string secondaryModule	= m_SecondaryWeaponModuleSlot.WeaponModule.name;
-			string tertiaryModule	= m_TertiaryWeaponModuleSlot.WeaponModule.name;
-			return primaryModule + ", " + secondaryModule + ", " + tertiaryModule;
+			string primaryModule	= m_PrimaryWeaponModuleSlot.WeaponModule.ModuleSection.Name();
+			string secondaryModule	= m_SecondaryWeaponModuleSlot.WeaponModule.ModuleSection.Name();
+			string tertiaryModule	= m_TertiaryWeaponModuleSlot.WeaponModule.ModuleSection.Name();
+			return primaryModule + "," + secondaryModule + "," + tertiaryModule;
 		}
 	}
 

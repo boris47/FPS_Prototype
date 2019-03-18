@@ -3,6 +3,7 @@
 
 ; COMMON BARREL
 [WPN_FireModule_Barrel]
+Name						= Barrel;
 BaseMagazineCapacity		= 50;
 BaseDamage					= 15.0;
 BaseCamDeviation			= 0.3;
@@ -18,6 +19,7 @@ AllowedSlots				= 1, 2, 3;
 
 ; BLASTER
 [WPN_FireModule_Blaster]	
+Name						= Blaster;
 BaseMagazineCapacity		= 500;
 BaseDamage					= 15.0;
 ;;;BaseMaxDamage				= 45.0;
@@ -34,6 +36,7 @@ AllowedSlots				= 1, 2;
 
 ; SYPHON
 [WPN_FireModule_Syphon]
+Name						= Syphon;
 BaseMagazineCapacity		= 500;
 BaseAmmoRestoreCounter		= 0.1;
 BaseDamage					= 1.0;
@@ -51,6 +54,7 @@ AllowedSlots				= 1;
 
 ; SHOTGUN
 [WPN_FireModule_Shotgun]
+Name						= Shotgun;
 BaseMagazineCapacity		= 5;
 BaseBucketSize				= 9;
 BaseCamDeviation			= 2.7;
@@ -68,6 +72,7 @@ AllowedSlots				= 1, 2;
 
 ; GRANADE LAUNCHER
 [WPN_FireModule_GranadeLauncher]
+Name						= G Launcher;
 BaseMagazineCapacity		= 50;
 BaseLaunchForce				= 150;
 BaseCamDeviation			= 1.5;
@@ -84,6 +89,7 @@ AllowedSlots				= 1;
 
 ; SNIPER BARREL
 [WPN_FireModule_SniperBarrel]
+Name						= Sniper Barrel;
 BaseMagazineCapacity		= 9;
 BaseDamage					= 15.0;
 BaseCamDeviation			= 0.3;

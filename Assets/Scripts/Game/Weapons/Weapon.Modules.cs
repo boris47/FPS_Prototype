@@ -235,6 +235,7 @@ public class WeaponModuleSlot {
 
 		if ( m_WeaponModule != null )
 		{
+			GameManager.UpdateEvents.OnFrame -= m_WeaponModule.InternalUpdate;
 			Object.Destroy( m_WeaponModule );
 		}
 
@@ -245,6 +246,7 @@ public class WeaponModuleSlot {
 		if ( bSetupSuccess == true )
 		{
 			m_WeaponModule = wpnModule;
+			GameManager.UpdateEvents.OnFrame += m_WeaponModule.InternalUpdate;
 		}
 		// On Fail add empty module
 		else

@@ -172,6 +172,20 @@ public	struct ZoomWeaponData {
 		}
 	}
 
+
+	private void OnDestroy()
+	{
+		if ( m_ZoomFrame )
+		{
+			Destroy( m_ZoomFrame.gameObject );
+		}
+
+		if ( m_Scope )
+		{
+			Destroy( m_Scope.gameObject );
+		}
+	}
+
 }
 
 

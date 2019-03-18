@@ -127,6 +127,11 @@ public partial class GameManager : MonoBehaviour {
 		if ( m_InGame == false )
 			return;
 
+		if ( Input.GetKeyDown( KeyCode.Return ) && WeaponManager.Instance.IsZoomed == false )
+		{
+			UI.Instance.GoToMenu( UI.Instance.WeaponCustomization.transform );
+		}
+
 		// This prevent the ui interaction can trigger actions in-game
 		if ( m_SkipOneFrame == true )
 		{

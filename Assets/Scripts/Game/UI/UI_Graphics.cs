@@ -65,7 +65,7 @@ public class UI_Graphics : MonoBehaviour, IUIOptions {
 
 		// Get Components
 		m_AviableResolutions = Screen.resolutions;
-		m_ResolutionDropDown = transform.Find( "ResolutionsDropDown" ).GetComponent<Dropdown>();
+		transform.SearchComponentInChild( "ResolutionsDropDown", ref m_ResolutionDropDown );
 		{
 			m_ResolutionDropDown.onValueChanged.AddListener( OnResolutionChosen );
 			m_ResolutionDropDown.AddOptions( 
@@ -75,17 +75,17 @@ public class UI_Graphics : MonoBehaviour, IUIOptions {
 			);
 		}
 
-		m_FullScreenToogle = transform.Find( "FullScreenToggle" ).GetComponent<Toggle>();
+		transform.SearchComponentInChild( "FullScreenToggle", ref m_FullScreenToogle );
 		{
 			m_FullScreenToogle.onValueChanged.AddListener( OnFullScreenSet );
 		}
 
-		m_AnisotropicFilterToogle = transform.Find( "AnisotropicFilterToogle" ).GetComponent<Toggle>();
+		transform.SearchComponentInChild( "AnisotropicFilterToogle", ref m_AnisotropicFilterToogle );
 		{
 			m_AnisotropicFilterToogle.onValueChanged.AddListener( OnAnisotropicFilterSet );
 		}
 
-		m_AntialiasingDropDown = transform.Find( "AntialiasingDropDown" ).GetComponent<Dropdown>();
+		transform.SearchComponentInChild( "AntialiasingDropDown", ref m_AntialiasingDropDown );
 		{
 			m_AntialiasingDropDown.onValueChanged.AddListener( OnAntialiasingSet );
 			m_AntialiasingDropDown.AddOptions(
@@ -94,19 +94,13 @@ public class UI_Graphics : MonoBehaviour, IUIOptions {
 		}
 
 		m_QualityLevelNames = QualitySettings.names;
-		m_QualityLevelDropDown = transform.Find( "QualityLevelDropDown" ).GetComponent<Dropdown>();
+		transform.SearchComponentInChild( "QualityLevelDropDown", ref m_QualityLevelDropDown );
 		{
 			m_QualityLevelDropDown.onValueChanged.AddListener( OnQualityLevelSet );
 			m_QualityLevelDropDown.AddOptions( new List<string>( m_QualityLevelNames ) );
 		}
 
-		m_ApplyButton = transform.Find( "ApplyButton" ).GetComponent<Button>();
-		{
-			m_ApplyButton.onClick.AddListener( OnApplyChanges );
-			m_ApplyButton.interactable = false;
-		}
-
-		m_ApplyButton = transform.Find( "ApplyButton" ).GetComponent<Button>();
+		transform.SearchComponentInChild( "ApplyButton", ref m_ApplyButton );
 		{
 			m_ApplyButton.onClick.AddListener
 			(	
@@ -118,7 +112,7 @@ public class UI_Graphics : MonoBehaviour, IUIOptions {
 			m_ApplyButton.interactable = false;
 		}
 
-		m_ResetButton = transform.Find( "ResetButton" ).GetComponent<Button>();
+		transform.SearchComponentInChild( "ResetButton", ref m_ResetButton );
 		{
 			m_ResetButton.onClick.AddListener
 			(
