@@ -129,6 +129,24 @@ public static class Extensions {
 
 		Component = child.GetComponent<T>();
 		return Component != null;
+	}
+
+
+	/// <summary> Search for a specific component at specific child, if found, return operation result </summary>
+	public	static	bool			SearchComponentInChild<T>( this Transform t, int childIndex, ref T Component) where T : Component
+	{
+		if ( t.childCount == 0 )
+			return false;
+
+		if ( t.childCount < childIndex )
+			return false;
+
+		Transform child = t.GetChild( childIndex );
+		if ( child == null )
+			return false;
+
+		Component = child.GetComponent<T>();
+		return Component != null;
 	} 
 
 	/// <summary> Create and fills up given array with components found paired in childrens to the given enum type </summary>
@@ -157,7 +175,7 @@ public static class Extensions {
 	}
 
 	/// <summary> Search for the given component only in children of given transform </summary>
-	public	static	T[]				GetComponentOnlyInChildren<T>( this Transform transform, bool deepSearch = false ) where T : Component
+	public	static	T[]				GetComponentOnlyInChildren<T>( this Transform transform, bool deepSearch = false, bool includeInactive = false  )
 	{
 		List<T> list = new List<T>();
 		{
@@ -167,7 +185,7 @@ public static class Extensions {
 
 				if ( deepSearch == true )
 				{
-					T[] childComponents = child.GetComponentsInChildren<T>( child );
+					T[] childComponents = child.GetComponentsInChildren<T>( includeInactive: includeInactive );
 					list.AddRange( childComponents );
 				}
 				else

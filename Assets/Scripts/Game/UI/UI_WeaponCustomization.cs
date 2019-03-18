@@ -3,22 +3,46 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UI_WeaponCustomization : MonoBehaviour {
+public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 
 	private	Dropdown		m_PrimaryDropDown		= null;
 	private	Dropdown		m_SecondaryDropDown		= null;
 	private	Dropdown		m_TertiaryDropDown		= null;
 
 
+	private	bool			m_bIsInitialized			= false;
+	bool IStateDefiner.IsInitialized
+	{
+		get { return m_bIsInitialized; }
+	} 
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
-	public	 void Initialize()
+	bool IStateDefiner.Initialize()
 	{
+		if ( m_bIsInitialized == true )
+		{
+			return true;
+		}
+
 		Transform child = transform.Find("CustomizationPanel");
-		child.SearchComponentInChild( "ModulePrimaryDropdown", ref m_PrimaryDropDown );
-		child.SearchComponentInChild( "ModuleSecondaryDropdown", ref m_SecondaryDropDown );
-		child.SearchComponentInChild( "ModuleTertiaryDropdown", ref m_TertiaryDropDown );
+		if ( m_bIsInitialized = ( child != null ) )
+		{
+			m_bIsInitialized &= child.SearchComponentInChild( "ModulePrimaryDropdown", ref m_PrimaryDropDown );
+			m_bIsInitialized &= child.SearchComponentInChild( "ModuleSecondaryDropdown", ref m_SecondaryDropDown );
+			m_bIsInitialized &= child.SearchComponentInChild( "ModuleTertiaryDropdown", ref m_TertiaryDropDown );
+		}
+
+		return m_bIsInitialized;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Finalize
+	bool	 IStateDefiner.Finalize()
+	{
+		return m_bIsInitialized;
 	}
 
 
@@ -26,6 +50,11 @@ public class UI_WeaponCustomization : MonoBehaviour {
 	// OnEnable
 	private void OnEnable()
 	{
+		if ( m_bIsInitialized == false )
+		{
+			return;
+		}
+
 		string[] currentModuleNames = WeaponManager.Instance.CurrentWeapon.OtherInfo.Split( ',' );
 
 		Database.Section[] fireModules		= GameManager.Configs.GetSectionsByContext( "WeaponFireModules" );
@@ -105,6 +134,11 @@ public class UI_WeaponCustomization : MonoBehaviour {
 	// OnDisable
 	private void OnDisable()
 	{
+		if ( m_bIsInitialized == false )
+		{
+			return;
+		}
+
 		CameraControl.Instance.CanParseInput	= true;
 		InputManager.IsEnabled					= true;
 

@@ -3,25 +3,45 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UI_Confirmation : MonoBehaviour {
+public class UI_Confirmation : MonoBehaviour, IStateDefiner {
 
-	private	System.Action		m_OnConfirmAction	= null;
-	private	System.Action		m_OnCancelAction	= null;
+	private	System.Action	m_OnConfirmAction	= null;
+	private	System.Action	m_OnCancelAction	= null;
 
-	private	Text				m_LabelText			= null;
+	private	Text			m_LabelText			= null;
 
-	// Initial setup
-	public void Initialize()
+	private	bool			m_bIsInitialized	= false;
+	bool IStateDefiner.IsInitialized
 	{
-		Transform panel = transform.GetChild( 0 );
+		get { return m_bIsInitialized; }
+	} 
 
-		// Label
-		m_LabelText = panel.GetChild( 0 ).GetComponent<Text>();
+
+	//////////////////////////////////////////////////////////////////////////
+	// Initialize
+	bool IStateDefiner.Initialize()
+	{
+		if ( m_bIsInitialized == true )
+		{
+			return true;
+		}
 
 		Navigation noNavigationMode = new Navigation() { mode = Navigation.Mode.None };
 
+		Transform panel = transform.GetChild( 0 );
+
+		m_bIsInitialized = panel != null;
+		if ( m_bIsInitialized == false )
+			return false;
+
+		// Label
+		m_bIsInitialized &= panel.SearchComponentInChild( 0, ref m_LabelText );
+
+
+
 		// Confirm button
-		Button onConfirmButton = panel.GetChild( 1 ).GetComponent<Button>();
+		Button onConfirmButton = null;
+		if ( m_bIsInitialized && ( m_bIsInitialized &= panel.SearchComponentInChild( 1, ref onConfirmButton ) ) )
 		{
 			onConfirmButton.navigation = noNavigationMode;
 			onConfirmButton.onClick.AddListener( 
@@ -33,7 +53,8 @@ public class UI_Confirmation : MonoBehaviour {
 		}
 
 		// Cancel button
-		Button onCancelButton = panel.GetChild( 2 ).GetComponent<Button>();
+		Button onCancelButton = null;
+		if ( m_bIsInitialized && ( m_bIsInitialized &= panel.SearchComponentInChild( 2, ref onCancelButton ) ) )
 		{
 			onCancelButton.navigation = noNavigationMode;
 			onCancelButton.onClick.AddListener( 
@@ -45,10 +66,25 @@ public class UI_Confirmation : MonoBehaviour {
 		}
 
 		gameObject.SetActive( false );
+		return m_bIsInitialized;
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// Finalize
+	bool IStateDefiner.Finalize()
+	{
+		return m_bIsInitialized;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Show
 	public	void	Show( string LabelMsg, System.Action OnConfirm , System.Action OnCancel = null )
 	{
+		if ( m_bIsInitialized == false )
+			return;
+
 		m_LabelText.text	= LabelMsg;
 		m_OnConfirmAction	= OnConfirm != null ? OnConfirm : () => { };
 		m_OnCancelAction	= OnCancel  != null ? OnCancel  : () => { };

@@ -27,15 +27,26 @@ public class UI_Audio : MonoBehaviour, IUIOptions {
 	private	Button			m_ApplyButton				= null;
 	private	Button			m_ResetButton				= null;
 
+	private	bool			m_bIsInitialized			= false;
+	bool IStateDefiner.IsInitialized
+	{
+		get { return m_bIsInitialized; }
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
-	public	 void Initialize()
+	bool IStateDefiner.Initialize()
 	{
-		transform.SearchComponentInChild( "Slider_MusicVolume", ref m_MusicSlider );
-		transform.SearchComponentInChild( "Slider_SoundVolume", ref m_SoundSlider );
+		if ( m_bIsInitialized == true )
+		{
+			return true;
+		}
 
-		transform.SearchComponentInChild( "ApplyButton", ref m_ApplyButton );
+		m_bIsInitialized = transform.SearchComponentInChild( "Slider_MusicVolume", ref m_MusicSlider );
+		m_bIsInitialized &= transform.SearchComponentInChild( "Slider_SoundVolume", ref m_SoundSlider );
+
+		if ( m_bIsInitialized &= transform.SearchComponentInChild( "ApplyButton", ref m_ApplyButton ) )
 		{
 			m_ApplyButton.onClick.AddListener
 			(	
@@ -47,7 +58,7 @@ public class UI_Audio : MonoBehaviour, IUIOptions {
 			m_ApplyButton.interactable = false;
 		}
 
-		transform.SearchComponentInChild( "ResetButton", ref m_ResetButton );
+		if ( m_bIsInitialized &= transform.SearchComponentInChild( "ResetButton", ref m_ResetButton ) )
 		{
 			m_ResetButton.onClick.AddListener
 			(
@@ -58,8 +69,21 @@ public class UI_Audio : MonoBehaviour, IUIOptions {
 			);
 		}
 
-		OnEnable();
-		OnApplyChanges();
+		if ( m_bIsInitialized )
+		{
+			OnEnable();
+			OnApplyChanges();
+		}
+
+		return m_bIsInitialized;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Finalize
+	bool	 IStateDefiner.Finalize()
+	{
+		return m_bIsInitialized;
 	}
 
 
@@ -67,6 +91,11 @@ public class UI_Audio : MonoBehaviour, IUIOptions {
 	// OnEnable
 	public void OnEnable()
 	{
+		if ( m_bIsInitialized == false )
+		{
+			return;
+		}
+
 		if ( PlayerPrefs.HasKey( FLAG_SAVED_AUDIO_SETTINGS ) == true )
 		{
 			ReadFromRegistry();
@@ -86,6 +115,11 @@ public class UI_Audio : MonoBehaviour, IUIOptions {
 	// OnMusicVolumeSet
 	public	void	OnMusicVolumeSet( float value )
 	{
+		if ( m_bIsInitialized == false )
+		{
+			return;
+		}
+
 		SoundManager.Instance.MusicVolume = value;
 		m_VolumeData.MusicVolume = value;
 		m_VolumeData.isDirty = true;
@@ -97,6 +131,11 @@ public class UI_Audio : MonoBehaviour, IUIOptions {
 	// OnSoundsVolumeSet
 	public	void	OnSoundsVolumeSet( float value )
 	{
+		if ( m_bIsInitialized == false )
+		{
+			return;
+		}
+
 		SoundManager.Instance.SoundVolume = value;
 		m_VolumeData.SoundVolume = value;
 		m_VolumeData.isDirty = true;
@@ -108,6 +147,11 @@ public class UI_Audio : MonoBehaviour, IUIOptions {
 	// ApplyDefaults
 	public	void	ApplyDefaults()
 	{
+		if ( m_bIsInitialized == false )
+		{
+			return;
+		}
+
 		// Remove keys from registry
 		Reset();
 		{
@@ -134,6 +178,11 @@ public class UI_Audio : MonoBehaviour, IUIOptions {
 	/// <summary> Read value from Registry </summary>
 	public	void	ReadFromRegistry()
 	{
+		if ( m_bIsInitialized == false )
+		{
+			return;
+		}
+
 		m_VolumeData.MusicVolume = PlayerPrefs.GetFloat( VAR_MUSIC_VOLUME );
 		m_VolumeData.SoundVolume = PlayerPrefs.GetFloat( VAR_SOUND_VOLUME );
 		m_VolumeData.isDirty = true;
@@ -145,6 +194,11 @@ public class UI_Audio : MonoBehaviour, IUIOptions {
 	/// <summary> Updates UI Components </summary>
 	public	void	UpdateUI()
 	{
+		if ( m_bIsInitialized == false )
+		{
+			return;
+		}
+
 		m_MusicSlider.value = m_VolumeData.MusicVolume;
 		m_SoundSlider.value = m_VolumeData.SoundVolume;
 	}
@@ -155,6 +209,11 @@ public class UI_Audio : MonoBehaviour, IUIOptions {
 	/// <summary> Save settings </summary>
 	public	void	SaveToRegistry()
 	{
+		if ( m_bIsInitialized == false )
+		{
+			return;
+		}
+
 		// Save settings
 		{
 			PlayerPrefs.SetFloat( VAR_MUSIC_VOLUME, m_VolumeData.MusicVolume );
@@ -168,6 +227,11 @@ public class UI_Audio : MonoBehaviour, IUIOptions {
 	/// <summary> Apply changes </summary>
 	public	void	OnApplyChanges()
 	{
+		if ( m_bIsInitialized == false )
+		{
+			return;
+		}
+
 		if ( m_VolumeData.isDirty )
 		{
 			m_VolumeData.isDirty = false;
@@ -186,6 +250,11 @@ public class UI_Audio : MonoBehaviour, IUIOptions {
 	/// <summary> Remove key from registry </summary>
 	public	void	Reset()
 	{
+		if ( m_bIsInitialized == false )
+		{
+			return;
+		}
+
 		PlayerPrefs.DeleteKey( FLAG_SAVED_AUDIO_SETTINGS );
 		{
 			PlayerPrefs.DeleteKey( VAR_MUSIC_VOLUME );

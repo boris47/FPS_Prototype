@@ -56,16 +56,27 @@ public class UI_Graphics : MonoBehaviour, IUIOptions {
 	private	Button			m_ApplyButton				= null;
 	private	Button			m_ResetButton				= null;
 
+	private	bool			m_bIsInitialized			= false;
+	bool IStateDefiner.IsInitialized
+	{
+		get { return m_bIsInitialized; }
+	} 
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
-	public	 void Initialize()
+	bool IStateDefiner.Initialize()
 	{
+		if ( m_bIsInitialized == true )
+		{
+			return true;
+		}
+
 		Navigation noNavigationMode = new Navigation() { mode = Navigation.Mode.None };
 
 		// Get Components
 		m_AviableResolutions = Screen.resolutions;
-		transform.SearchComponentInChild( "ResolutionsDropDown", ref m_ResolutionDropDown );
+		if ( m_bIsInitialized = transform.SearchComponentInChild( "ResolutionsDropDown", ref m_ResolutionDropDown ) )
 		{
 			m_ResolutionDropDown.onValueChanged.AddListener( OnResolutionChosen );
 			m_ResolutionDropDown.AddOptions( 
@@ -75,17 +86,17 @@ public class UI_Graphics : MonoBehaviour, IUIOptions {
 			);
 		}
 
-		transform.SearchComponentInChild( "FullScreenToggle", ref m_FullScreenToogle );
+		if ( m_bIsInitialized &= transform.SearchComponentInChild( "FullScreenToggle", ref m_FullScreenToogle ) )
 		{
 			m_FullScreenToogle.onValueChanged.AddListener( OnFullScreenSet );
 		}
 
-		transform.SearchComponentInChild( "AnisotropicFilterToogle", ref m_AnisotropicFilterToogle );
+		if ( m_bIsInitialized &= transform.SearchComponentInChild( "AnisotropicFilterToogle", ref m_AnisotropicFilterToogle ) )
 		{
 			m_AnisotropicFilterToogle.onValueChanged.AddListener( OnAnisotropicFilterSet );
 		}
 
-		transform.SearchComponentInChild( "AntialiasingDropDown", ref m_AntialiasingDropDown );
+		if ( m_bIsInitialized &= transform.SearchComponentInChild( "AntialiasingDropDown", ref m_AntialiasingDropDown ) ) 
 		{
 			m_AntialiasingDropDown.onValueChanged.AddListener( OnAntialiasingSet );
 			m_AntialiasingDropDown.AddOptions(
@@ -94,13 +105,13 @@ public class UI_Graphics : MonoBehaviour, IUIOptions {
 		}
 
 		m_QualityLevelNames = QualitySettings.names;
-		transform.SearchComponentInChild( "QualityLevelDropDown", ref m_QualityLevelDropDown );
+		if ( m_bIsInitialized &= transform.SearchComponentInChild( "QualityLevelDropDown", ref m_QualityLevelDropDown ) )
 		{
 			m_QualityLevelDropDown.onValueChanged.AddListener( OnQualityLevelSet );
 			m_QualityLevelDropDown.AddOptions( new List<string>( m_QualityLevelNames ) );
 		}
 
-		transform.SearchComponentInChild( "ApplyButton", ref m_ApplyButton );
+		if ( m_bIsInitialized &= transform.SearchComponentInChild( "ApplyButton", ref m_ApplyButton ) )
 		{
 			m_ApplyButton.onClick.AddListener
 			(	
@@ -112,7 +123,7 @@ public class UI_Graphics : MonoBehaviour, IUIOptions {
 			m_ApplyButton.interactable = false;
 		}
 
-		transform.SearchComponentInChild( "ResetButton", ref m_ResetButton );
+		if ( m_bIsInitialized &= transform.SearchComponentInChild( "ResetButton", ref m_ResetButton ) )
 		{
 			m_ResetButton.onClick.AddListener
 			(
@@ -128,6 +139,16 @@ public class UI_Graphics : MonoBehaviour, IUIOptions {
 		{
 			s.navigation = noNavigationMode;
 		}
+
+		return m_bIsInitialized;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Finalize
+	bool	 IStateDefiner.Finalize()
+	{
+		return m_bIsInitialized;
 	}
 
 
@@ -147,6 +168,11 @@ public class UI_Graphics : MonoBehaviour, IUIOptions {
 	// OnEnable
 	public void OnEnable()
 	{
+		if ( m_bIsInitialized == false )
+		{
+			return;
+		}
+
 		if ( PlayerPrefs.HasKey( FLAG_SAVED_GRAPHIC_SETTINGS ) == true )
 		{
 			ReadFromRegistry();
@@ -219,6 +245,11 @@ public class UI_Graphics : MonoBehaviour, IUIOptions {
 	// ApplyDefaults
 	public	void	ApplyDefaults()
 	{
+		if ( m_bIsInitialized == false )
+		{
+			return;
+		}
+
 		// Remove keys from registry
 		Reset();
 		{
@@ -256,6 +287,11 @@ public class UI_Graphics : MonoBehaviour, IUIOptions {
 	/// <summary> Read value from Registry </summary>
 	public	void	ReadFromRegistry()
 	{
+		if ( m_bIsInitialized == false )
+		{
+			return;
+		}
+
 		// Screen
 		m_ScreenData.resolutionIndex	= PlayerPrefs.GetInt( VAR_RESOLUTION_INDEX );
 		m_ScreenData.resolution			= m_AviableResolutions[m_ScreenData.resolutionIndex];
@@ -275,6 +311,11 @@ public class UI_Graphics : MonoBehaviour, IUIOptions {
 	/// <summary> Updates UI Components </summary>
 	public	void	UpdateUI()
 	{
+		if ( m_bIsInitialized == false )
+		{
+			return;
+		}
+
 		m_ResolutionDropDown.value		= m_ScreenData.resolutionIndex;
 		m_FullScreenToogle.isOn			= m_ScreenData.fullScreen;;
 		m_AnisotropicFilterToogle.isOn	= m_FilterData.anisotropicFilter;
@@ -288,6 +329,11 @@ public class UI_Graphics : MonoBehaviour, IUIOptions {
 	/// <summary> Save settings </summary>
 	public	void	SaveToRegistry()
 	{
+		if ( m_bIsInitialized == false )
+		{
+			return;
+		}
+
 		// Save settings
 		{
 			PlayerPrefs.SetInt( VAR_RESOLUTION_INDEX, m_ScreenData.resolutionIndex );
@@ -306,6 +352,11 @@ public class UI_Graphics : MonoBehaviour, IUIOptions {
 	/// <summary> Apply changes </summary>
 	public	void	OnApplyChanges()
 	{
+		if ( m_bIsInitialized == false )
+		{
+			return;
+		}
+
 		// Screen
 		if ( m_ScreenData.isDirty )
 		{
@@ -353,6 +404,11 @@ public class UI_Graphics : MonoBehaviour, IUIOptions {
 	/// <summary> Remove key from registry </summary>
 	public	void	Reset()
 	{
+		if ( m_bIsInitialized == false )
+		{
+			return;
+		}
+
 		PlayerPrefs.DeleteKey( FLAG_SAVED_GRAPHIC_SETTINGS );
 		{
 			PlayerPrefs.DeleteKey( VAR_RESOLUTION_INDEX );
