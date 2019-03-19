@@ -9,7 +9,7 @@ BaseDamage					= 15.0;
 BaseCamDeviation			= 0.3;
 BaseFireDispersion			= 0.9;
 BaseRecoil					= 0.01;
-BaseShotDelay				= 0.08;
+BaseShotDelay				= 0.1;
 FireMode					= Auto;
 Bullet						= BulletRifle;
 FireSound					= Shot;
@@ -31,7 +31,7 @@ FireMode					= Auto_Incremental;
 Bullet						= BulletBlaster
 FireSound					= BlasterShot;
 MaxModuleCount				= 2;
-AllowedSlots				= 1, 2;
+AllowedSlots				= 1, 2, 3;
 
 
 ; SYPHON

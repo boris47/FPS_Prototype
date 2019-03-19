@@ -220,12 +220,13 @@ public partial class Player {
 		// Check for usage
 #region		INTERACTIONS
 		{
-			Vector3 startLine = CameraControl.Instance.Transform.position;
-			Vector3 endLine   = CameraControl.Instance.Transform.position + CameraControl.Instance.Transform.forward * MAX_INTERACTION_DISTANCE;
+			Vector3 position  = CameraControl.Instance.Transform.position;
+			Vector3 direction = CameraControl.Instance.Transform.forward;
+			bool lineCastResult = Physics.Raycast( position, direction, out m_RaycastHit, MAX_INTERACTION_DISTANCE, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore );
 
-			bool lineCastResult = Physics.Raycast( startLine, endLine - startLine, out m_RaycastHit, MAX_INTERACTION_DISTANCE, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore );
-
-			Debug.DrawLine( startLine, endLine );
+//			Vector3 startLine = CameraControl.Instance.Transform.position;
+//			Vector3 endLine   = CameraControl.Instance.Transform.position + CameraControl.Instance.Transform.forward * MAX_INTERACTION_DISTANCE;
+//			Debug.DrawLine( startLine, endLine );
 
 			CheckForDodge ( lineCastResult );
 			CheckForInteraction( lineCastResult );

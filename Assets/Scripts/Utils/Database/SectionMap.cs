@@ -2,14 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 using Database;
+using System;
+using System.IO;
 
 
-	using System;
-	using System.IO;
-
-
-public class SectionMap : IEnumerable {
+public class SectionMap : IEnumerable/*Foreach feature*/ {
 
 	// READING PHASES
 	private	static int							READING_NOTHING		= 0;
@@ -364,5 +363,36 @@ public class SectionMap : IEnumerable {
 			}
 			Debug.Log( "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||" );
 		}
+	}
+
+
+	public	void	SaveToBuffer( ref string buffer )
+	{
+		string internalBuffer = "";
+		foreach( Section section in this )
+		{
+			section.SaveToBuffer( ref internalBuffer );
+			internalBuffer += "\n";
+		}
+
+		System.IO.File.WriteAllText( "AllSections.ini", internalBuffer );
+	}
+
+
+	public	void	SaveContextSections( string Context )
+	{
+		Section[] sections = GetSectionsByContext( Context );
+
+		if ( sections.Length == 0 )
+			return;
+
+		string internalBuffer = "";
+		foreach( Section section in sections )
+		{
+			section.SaveToBuffer( ref internalBuffer );
+			internalBuffer += "\n";
+		}
+
+		System.IO.File.WriteAllText( Context + ".ini", internalBuffer );
 	}
 }

@@ -210,10 +210,18 @@ public class WeaponModuleSlot {
 			int counter = 0;
 			System.Array.ForEach( alreadyAssignedModules, m => { if (m == moduleSection.Name()) counter++; } );
 
-			result &= counter < maxCount;
+			result &= !( counter > maxCount );
 		}
 		
 		return result;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public	bool	TrySetModule( IWeapon wpn, Database.Section moduleSection )
+	{
+		System.Type type = System.Type.GetType( moduleSection.Name() );
+		return TrySetModule( wpn, type );
 	}
 
 

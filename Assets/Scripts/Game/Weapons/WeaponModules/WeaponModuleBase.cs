@@ -181,15 +181,16 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 		m_FirePoint					= m_WeaponRef.Transform.Find( "FirePoint" );
 
 		// MODULE CONTAINER
-		string containerID = moduleSectionName + Weapon.GetModuleSlotName( slot );
+		string containerID = Weapon.GetModuleSlotName( slot );
 		m_Container = transform.Find(containerID) != null ? transform.Find(containerID).gameObject : null;
-		if ( m_Container == null )
+		if ( m_Container != null )
 		{
-			m_Container = new GameObject( containerID );
-			m_Container.transform.SetParent( transform );
-			m_Container.transform.localPosition = Vector3.zero;
-			m_Container.transform.localRotation = Quaternion.identity;
+			Destroy( m_Container );
 		}
+		m_Container = new GameObject( containerID );
+		m_Container.transform.SetParent( transform );
+		m_Container.transform.localPosition = Vector3.zero;
+		m_Container.transform.localRotation = Quaternion.identity;
 		
 
 		// TRY RECOVER MODULE SECTION

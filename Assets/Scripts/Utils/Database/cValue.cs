@@ -54,12 +54,28 @@ namespace Database {
 			return m_Type;
 		}
 
+
+		private	string InternalToString()
+		{
+			string result = null;
+			if ( m_Type == typeof(float) )
+			{
+				result = ((float)m_Value).ToString("0.0000000");
+			}
+			else
+			{
+				result = m_Value.ToString();
+			}
+
+			return result;
+		}
+
 		///////////////////////////////////////////////////////////////////////////////
 
 		public	bool			ToBool()			{	return As<bool>();			}
 		public	int				ToInteger()			{	return As<int>();			}
 		public	float			ToFloat()			{	return As<float>();			}
-		public override string	ToString()			{	return m_Value.ToString();	}
+		public override string	ToString()			{	return InternalToString();	}
 		public	object			ToSystemObject()	{	return m_Value;				}
 
 

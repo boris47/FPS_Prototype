@@ -132,6 +132,11 @@ public partial class GameManager : MonoBehaviour {
 			UI.Instance.GoToMenu( UI.Instance.WeaponCustomization.transform );
 		}
 
+		if ( Input.GetKeyDown (KeyCode.O) )
+		{
+			UI.Instance.GoToMenu( UI.Instance.InGame.transform );
+		}
+
 		// This prevent the ui interaction can trigger actions in-game
 		if ( m_SkipOneFrame == true )
 		{
@@ -146,6 +151,13 @@ public partial class GameManager : MonoBehaviour {
 //			m_CurrentInputDelay = m_InputUpdateDelay;
 			// Update inputs
 			InputMgr.Update();
+		}
+
+
+		if ( Input.GetKeyDown( KeyCode.T ) )
+		{
+			Configs.SaveContextSections( "Camera" );
+			print("Saving Camera Section");
 		}
 
 		

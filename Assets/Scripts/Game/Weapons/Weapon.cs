@@ -129,6 +129,8 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon, IModifiable {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual	void				Awake()
 	{
+		System.Diagnostics.Stopwatch m_StopWatch = new System.Diagnostics.Stopwatch();
+		m_StopWatch.Start();
 		m_WpnBaseSectionName = this.GetType().FullName;
 
 		bool weaponAwakeSuccess = true;
@@ -162,6 +164,8 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon, IModifiable {
 		{
 			WeaponManager.Instance.RegisterWeapon( this );
 		}
+		m_StopWatch.Stop();
+		print( "Weapon: " + m_WpnBaseSectionName + " loaded in " + m_StopWatch.Elapsed.Milliseconds + "ms" );
 	}
 
 
@@ -321,9 +325,9 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon, IModifiable {
 	protected	virtual		void			OnEnable()
 	{
 		// Update events registration
-		GameManager.UpdateEvents.OnFrame += m_PrimaryWeaponModuleSlot.WeaponModule.InternalUpdate;
-		GameManager.UpdateEvents.OnFrame += m_SecondaryWeaponModuleSlot.WeaponModule.InternalUpdate;
-		GameManager.UpdateEvents.OnFrame += m_TertiaryWeaponModuleSlot.WeaponModule.InternalUpdate;
+//		GameManager.UpdateEvents.OnFrame += m_PrimaryWeaponModuleSlot.WeaponModule.InternalUpdate;
+//		GameManager.UpdateEvents.OnFrame += m_SecondaryWeaponModuleSlot.WeaponModule.InternalUpdate;
+//		GameManager.UpdateEvents.OnFrame += m_TertiaryWeaponModuleSlot.WeaponModule.InternalUpdate;
 
 		//										COMMAND								COMMAND ID						ACTION							PREDICATE
 		GameManager.InputMgr.BindCall( eInputCommands.PRIMARY_FIRE_PRESS,		"Wpn_Primary_Fire_Start",		PrimaryFire_Start,		Predicate_PrimaryFire_Start		);
@@ -351,9 +355,9 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon, IModifiable {
 	protected	virtual		void			OnDisable()
 	{
 		// Update events un-registration
-		GameManager.UpdateEvents.OnFrame -= m_PrimaryWeaponModuleSlot.WeaponModule.InternalUpdate;
-		GameManager.UpdateEvents.OnFrame -= m_SecondaryWeaponModuleSlot.WeaponModule.InternalUpdate;
-		GameManager.UpdateEvents.OnFrame -= m_TertiaryWeaponModuleSlot.WeaponModule.InternalUpdate;
+//		GameManager.UpdateEvents.OnFrame -= m_PrimaryWeaponModuleSlot.WeaponModule.InternalUpdate;
+//		GameManager.UpdateEvents.OnFrame -= m_SecondaryWeaponModuleSlot.WeaponModule.InternalUpdate;
+//		GameManager.UpdateEvents.OnFrame -= m_TertiaryWeaponModuleSlot.WeaponModule.InternalUpdate;
 
 		GameManager.InputMgr.UnbindCall( eInputCommands.PRIMARY_FIRE_PRESS,		"Wpn_Primary_Fire_Start"	);
 		GameManager.InputMgr.UnbindCall( eInputCommands.PRIMARY_FIRE_HOLD,		"Wpn_Primary_Fire_Update"	);

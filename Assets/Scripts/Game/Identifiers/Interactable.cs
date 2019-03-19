@@ -8,12 +8,15 @@ public interface IInteractable {
 
 	bool		CanInteract			{ get; set; }
 
-	void		OnInteraction		();
+	void		OnInteraction();
 
 }
 
 [RequireComponent( typeof(Rigidbody), typeof(Collider) )]
-public abstract class Interactable : MonoBehaviour, IInteractable {
+public class Interactable : MonoBehaviour, IInteractable {
+
+	[SerializeField]
+	protected	GameEvent	m_OnInteraction	= null;
 
 	[SerializeField]
 	protected	bool		m_CanInteract	= true;
@@ -38,7 +41,20 @@ public abstract class Interactable : MonoBehaviour, IInteractable {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnInteraction ( Abstract )
-	public abstract void		OnInteraction();
+	// TriggerOnInteraction
+	public	void TriggerOnInteraction()
+	{
+		this.OnInteraction();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnInteraction
+	public	virtual	void		OnInteraction()
+	{
+		if ( m_OnInteraction != null )
+			m_OnInteraction.Invoke();
+
+	}
 
 }

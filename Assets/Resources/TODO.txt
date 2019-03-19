@@ -94,3 +94,5 @@ AI Behiaviours
 
 		- The weapon cna have other attachments that can be Activated and Deactivated / Attached and Removed ( Flashlight, Laser, Optic )
 	}
+
+	TODO Save database using context

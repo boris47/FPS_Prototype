@@ -133,9 +133,9 @@ public class CustomSceneManager : MonoBehaviour {
 			yield return null;
 		}
 
-		asyncOperation.allowSceneActivation = true;
-
 		print("before isdone");
+
+		asyncOperation.allowSceneActivation = true;
 
 		// Wait for start completion
 		while ( asyncOperation.isDone == false )

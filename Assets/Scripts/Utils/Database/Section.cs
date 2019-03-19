@@ -216,6 +216,58 @@ namespace Database {
 		}
 
 
+
+
+
+		public	void	SaveToBuffer( ref string buffer )
+		{
+			List<string> lines = new List<string>();
+
+			// SECTION DEFINITION
+			string sectionDefinition = "[" + sName + "]";
+			{
+				// Concatenate mothers names
+				if ( vMothers.Count > 0 )
+				{
+					sectionDefinition += ":" + vMothers[0];
+					for ( int i = 1; i < vMothers.Count; i++, sectionDefinition += ',' )
+					{
+						string motherName = vMothers[i];
+						sectionDefinition += motherName;
+					}
+				}
+			}
+			lines.Add( sectionDefinition );
+
+			// Write key value pairs
+			foreach ( cLineValue LineValue in vSection )
+			{
+				string key = LineValue.Key;
+				string value = "";
+				if ( LineValue.Type == LineValueType.MULTI )
+				{
+					cMultiValue multi = LineValue.MultiValue;
+					value += multi[ 0 ];
+					for ( int i = 1; i < multi.Size; i++, value += "," )
+					{
+						string subValue = multi[ i ];
+						value += subValue;
+					}
+				}
+				else
+				{
+					cValue multi = LineValue.Value;
+					value += multi.ToString();
+				}
+				string keyValuePair = key + "=" + value;
+				lines.Add( keyValuePair );
+			}
+
+			string internalBuffer = string.Join( "\n", lines.ToArray() );
+			buffer += internalBuffer;
+		}
+
+
 	};
 
 }

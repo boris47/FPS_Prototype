@@ -55,7 +55,6 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 			return;
 		}
 
-		string[] currentModuleNames = WeaponManager.Instance.CurrentWeapon.OtherInfo.Split( ',' );
 
 		Database.Section[] fireModules		= GameManager.Configs.GetSectionsByContext( "WeaponFireModules" );
 		Database.Section[] utiliyModules	= GameManager.Configs.GetSectionsByContext( "WeaponUtilityModules" );
@@ -66,49 +65,15 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 			allModules.AddRange( utiliyModules );
 		}
 
-		List<string> allNames = allModules.ConvertAll( 
-			new System.Converter<Database.Section, string>( ( Database.Section res ) => { return res.AsString("Name"); } )
-		);
-
-		List<string>moduleNames = allModules.ConvertAll( 
-			new System.Converter<Database.Section, string>( ( Database.Section res ) => { return res.Name(); } )
-		);
-
 		// PRIMARY
-		{
-			UnityEngine.Events.UnityAction<int> onPrimaryAction = delegate( int index )
-			{
-				OnModuleChanged( WeaponSlots.PRIMARY, moduleNames[index] );
-			};
-			m_PrimaryDropDown.ClearOptions();
-			m_PrimaryDropDown.AddOptions( allNames );
-			m_PrimaryDropDown.value = moduleNames.FindIndex( s => s == currentModuleNames[(int)WeaponSlots.PRIMARY] );
-			m_PrimaryDropDown.onValueChanged.AddListener( onPrimaryAction );
-		}
+		FillDropdown( m_PrimaryDropDown,	allModules, WeaponSlots.PRIMARY );
 
 		// SECONDARY
-		{
-			UnityEngine.Events.UnityAction<int> onSecondaryAction = delegate( int index )
-			{
-				OnModuleChanged( WeaponSlots.SECONDARY, moduleNames[index] );
-			};
-			m_SecondaryDropDown.ClearOptions();
-			m_SecondaryDropDown.AddOptions( allNames );
-			m_SecondaryDropDown.value = moduleNames.FindIndex( s => s == currentModuleNames[(int)WeaponSlots.SECONDARY] );
-			m_SecondaryDropDown.onValueChanged.AddListener( onSecondaryAction );
-		}
+		FillDropdown( m_SecondaryDropDown,	allModules, WeaponSlots.SECONDARY );
 
 		// TERTIARY
-		{
-			UnityEngine.Events.UnityAction<int> onTertiaryAction = delegate( int index )
-			{
-				OnModuleChanged( WeaponSlots.TERTIARY, moduleNames[index] );
-			};
-			m_TertiaryDropDown.ClearOptions();
-			m_TertiaryDropDown.AddOptions( allNames );
-			m_TertiaryDropDown.value = moduleNames.FindIndex( s => s == currentModuleNames[(int)WeaponSlots.TERTIARY] );
-			m_TertiaryDropDown.onValueChanged.AddListener( onTertiaryAction );
-		}
+		FillDropdown( m_TertiaryDropDown,	allModules, WeaponSlots.TERTIARY );
+
 
 		CameraControl.Instance.CanParseInput	= false;
 		InputManager.IsEnabled					= false;
@@ -119,14 +84,54 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	// FillDropdown
+	private	void	FillDropdown( Dropdown thisDropdown, List<Database.Section> allModules, WeaponSlots slot )
+	{
+		thisDropdown.ClearOptions();
+
+		string[] alreadyAssignedModules = WeaponManager.Instance.CurrentWeapon.OtherInfo.Split( ',' );
+
+		// Get weapon module slot
+		WeaponModuleSlot slotModule = null;
+		WeaponManager.Instance.CurrentWeapon.bGetModuleSlot( slot, ref slotModule);
+
+		// Ask slot if module can be assigned
+		List<Database.Section> filtered = new List<Database.Section>();
+		foreach( Database.Section current in allModules )
+		{
+			if ( slotModule.CanAssignModule( current, alreadyAssignedModules: alreadyAssignedModules ) )
+			{
+				filtered.Add( current );
+			}
+		}
+
+		// Assign readble names to dropdown options
+		List<string> ui_Names = filtered.ConvertAll
+		(
+			new System.Converter<Database.Section, string>( s => { return s.AsString("Name"); } )
+		);
+		thisDropdown.AddOptions( ui_Names );
+
+		// Search current Value
+		thisDropdown.value = filtered.FindIndex( s => s.Name() == alreadyAssignedModules[(int)slot] );
+
+		// On selection Event
+		UnityEngine.Events.UnityAction<int> onSelection = delegate( int index )
+		{
+			OnModuleChanged( slot, filtered[index] );
+		};
+		thisDropdown.onValueChanged.AddListener( onSelection );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	// OnModuleChanged
-	private	void	OnModuleChanged( WeaponSlots slot, string choosenModuleName )
+	private	void	OnModuleChanged( WeaponSlots slot, Database.Section choosenModuleSection )
 	{
 		WeaponModuleSlot slotModule = null;
 		WeaponManager.Instance.CurrentWeapon.bGetModuleSlot( slot, ref slotModule);
 
-		System.Type type = System.Type.GetType( choosenModuleName );
-		slotModule.TrySetModule( WeaponManager.Instance.CurrentWeapon, type );
+		slotModule.TrySetModule( WeaponManager.Instance.CurrentWeapon, choosenModuleSection );
 	}
 
 
@@ -139,7 +144,11 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 			return;
 		}
 
-		CameraControl.Instance.CanParseInput	= true;
+		if ( CameraControl.Instance != null )
+		{
+			CameraControl.Instance.CanParseInput	= true;
+		}
+
 		InputManager.IsEnabled					= true;
 
 		Cursor.visible = false;

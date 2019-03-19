@@ -6,6 +6,7 @@ public interface IGrabbable : IInteractable {
 	Transform		Transform		{ get; }
 	IInteractable	Interactable	{ get; }
 
+	void			OnGrab			();
 }
 
 
@@ -29,9 +30,8 @@ public class Grabbable : Interactable, IGrabbable {
 	}
 	
 
-	//////////////////////////////////////////////////////////////////////////
-	// OnInteraction ( Override )
-	public override void OnInteraction()
-	{ }
+	public	void			OnGrab			()
+	{
 
+	}
 }

@@ -9,9 +9,9 @@ public partial class Player : Human {
 
 	public LayerMask mask;
 
-	private	const	float			MAX_INTERACTION_DISTANCE		= 20f;
+	private	const	float			MAX_INTERACTION_DISTANCE		= 2.1f;
 
-	private	const	float			BODY_DRAG = 8f;
+	private	const	float			BODY_DRAG						= 8f;
 
 	public	static	Player			Instance						= null;
 	public	static	IEntity			Entity							= null;
@@ -134,12 +134,6 @@ public partial class Player : Human {
 		m_IsActive			= true;
 
 		SetMotionType( eMotionType.Walking );
-
-		m_GrabPoint = new GameObject( "GrabPoint" );
-		m_GrabPoint.transform.SetParent( m_HeadTransform/* CameraControl.Instance.Transform */);
-		m_GrabPoint.transform.localPosition = Vector3.zero;
-		m_GrabPoint.transform.localRotation = Quaternion.identity;
-		m_GrabPoint.transform.Translate( 0f, 0f, m_UseDistance );
 	}
 
 
@@ -154,6 +148,13 @@ public partial class Player : Human {
 
 		IsGrounded = false;
 		StartCoroutine( DamageEffectCO() );
+
+
+		m_GrabPoint = new GameObject( "GrabPoint" );
+		m_GrabPoint.transform.SetParent( CameraControl.Instance.Transform /* CameraControl.Instance.Transform */);
+		m_GrabPoint.transform.localPosition = Vector3.zero;
+		m_GrabPoint.transform.localRotation = Quaternion.identity;
+		m_GrabPoint.transform.Translate( 0f, 0f, m_UseDistance );
 	}
 
 
@@ -190,7 +191,7 @@ public partial class Player : Human {
 		if ( m_GrabbedObject == null )
 			return;
 
-		m_GrabPoint.transform.Translate( 0f, 0f, m_UseDistance );
+		m_GrabPoint.transform.localPosition = Vector3.forward * m_UseDistance;
 
 		Rigidbody rb		= m_GrabbedObject.Interactable.RigidBody;
 		rb.useGravity		= m_GrabbedObjectUseGravity;
@@ -245,16 +246,17 @@ public partial class Player : Human {
 		if ( m_IsDodging == true )
 			return;
 
+		bool m_bHasComponent = false;
 		// Distance check
 		if ( m_RaycastHit.distance <= m_UseDistance )
 		{
-			m_Interactable = m_RaycastHit.transform.GetComponent<IInteractable>();
+			m_bHasComponent = Utils.Base.SearchComponent( m_RaycastHit.transform.gameObject,ref m_Interactable, SearchContext.LOCAL );
 		}
 
 		// ACTION INTERACT
 		if ( InputManager.Inputs.Use )
 		{
-			if ( m_Interactable != null && m_Interactable.CanInteract )
+			if ( m_bHasComponent && m_Interactable.CanInteract )
 			{
 				m_Interactable.OnInteraction();
 			}
@@ -288,19 +290,20 @@ public partial class Player : Human {
 			return;
 
 		// GRAB ACTION
-		Grabbable grabbable = m_RaycastHit.transform.GetComponent<Grabbable>();
-		if ( InputManager.Inputs.Use && grabbable != null && m_Interactable.CanInteract )
+		Grabbable grabbable = null;
+		bool m_bHasComponent = Utils.Base.SearchComponent( m_RaycastHit.transform.gameObject,ref grabbable, SearchContext.LOCAL );
+		if ( InputManager.Inputs.Use && m_bHasComponent && grabbable.CanInteract )
 		{
 			m_GrabbedObject = grabbable;
 			m_GrabPoint.transform.localPosition = Vector3.forward * Vector3.Distance( transform.position, grabbable.transform.position );
 
-			Rigidbody rb				= grabbable.Interactable.RigidBody;
+			Rigidbody rb				= grabbable.RigidBody;
 			m_GrabbedObjectMass			= rb.mass;			rb.mass				= 1f;
 			m_GrabbedObjectUseGravity	= rb.useGravity;	rb.useGravity		= false;
 			rb.velocity					= Vector3.zero;		rb.interpolation	= RigidbodyInterpolation.Interpolate;
 			m_CanGrabObjects			= false;
 
-			Physics.IgnoreCollision( m_PhysicCollider, grabbable.Interactable.Collider, ignore: true );
+			Physics.IgnoreCollision( m_PhysicCollider, grabbable.Collider, ignore: true );
 		}
 	}
 
