@@ -38,7 +38,7 @@ public partial class GameManager : MonoBehaviour {
 	private					bool			m_HideCursor			= true;
 
 
-	private					bool			m_SkipOneFrame			= false;
+	private					bool			m_SkipOneFrame			= true;
 	private					float			m_ThinkTimer			= 0f;
 
 	//////////////////////////////////////////////////////////////////////////
@@ -124,6 +124,11 @@ public partial class GameManager : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private			void		Update()
 	{
+		if ( Time.frameCount % 30 == 0 )
+		{
+		   System.GC.Collect();
+		}
+
 		if ( m_InGame == false )
 			return;
 
