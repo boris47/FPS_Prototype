@@ -248,7 +248,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ZoomIn
+	// ZoomOut
 	public				Coroutine	ZoomOut()
 	{
 		if ( m_ZoomedIn == true && m_IsChangingZoom == false )

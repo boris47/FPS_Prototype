@@ -4,10 +4,12 @@ using UnityEngine.UI;
 
 public class UI_InGame : MonoBehaviour {
 
+	private			Transform		m_Panel1					= null;
 	private			Text			m_TimeText					= null;
 	private			Text			m_CycleNameText				= null;
 	private			Text			m_HealthText				= null;
 
+	private			Transform		m_Panel2					= null;
 	private			Text			m_WpnNameText				= null;
 	private			Text			m_WpnOtherInfoText			= null;
 
@@ -30,19 +32,36 @@ public class UI_InGame : MonoBehaviour {
 
 	private void Start()
 	{
-		m_CycleNameText			= transform.GetChild(0).GetChild(0).GetComponent<Text>();
-		m_TimeText				= transform.GetChild(0).GetChild(1).GetComponent<Text>();
-		m_HealthText			= transform.GetChild(0).GetChild(2).GetComponent<Text>();
+		bool result = true;
 
-		m_WpnNameText			= transform.GetChild(1).GetChild(0).GetComponent<Text>();
-		m_WpnOtherInfoText		= transform.GetChild(1).GetChild(2).GetComponent<Text>();
-		m_StaminaBarImage		= transform.GetChild(1).GetChild(3).GetChild(1).GetComponent<Image>();
-		m_ZoomFrameImage		= transform.Find("UI_Frame").GetComponent<Image>();
-		m_ZoomFrameImage.raycastTarget = false;
+		m_Panel1				= transform.GetChild( 0 );
+		{
+			result &=	m_Panel1.SearchComponentInChild( 0, ref m_CycleNameText );
+			result &=	m_Panel1.SearchComponentInChild( 1, ref m_TimeText);
+			result &=	m_Panel1.SearchComponentInChild( 2, ref m_HealthText );
+		}
 
-		m_CrosshairTransform	= transform.Find( "Crosshair" );
 
-		InvokeRepeating( "PrintTime", 1.0f, 1.0f );	
+		m_Panel2				= transform.GetChild( 1 );
+		{
+			result &=	m_Panel2.SearchComponentInChild( 0, ref m_WpnNameText );
+			result &=	m_Panel2.SearchComponentInChild( 2, ref m_WpnOtherInfoText );
+//			result &=	m_Panel2.SearchComponentInChild( 3, ref m_StaminaBarImage );
+		}
+
+		result &= transform.SearchComponentInChild( "UI_Frame", ref m_ZoomFrameImage );
+
+		if ( result )
+		{
+			m_ZoomFrameImage.raycastTarget = false;
+			m_CrosshairTransform	= transform.Find( "Crosshair" );
+
+			InvokeRepeating( "PrintTime", 1.0f, 1.0f );	
+		}
+		else
+		{
+			Debug.Log( "UI_InGame: Bad initialization!!!" );
+		}
 	}
 
 
@@ -89,10 +108,8 @@ public class UI_InGame : MonoBehaviour {
 	// Show
 	public	void	Show()
 	{
-		foreach( Transform t in transform )
-		{
-			t.gameObject.SetActive( true );
-		}
+		m_Panel1.gameObject.SetActive( true );
+		m_Panel2.gameObject.SetActive( true );
 	}
 
 
@@ -100,10 +117,8 @@ public class UI_InGame : MonoBehaviour {
 	// Hide
 	public	void	Hide()
 	{
-		foreach( Transform t in transform )
-		{
-			t.gameObject.SetActive( false );
-		}
+		m_Panel1.gameObject.SetActive( false );
+		m_Panel2.gameObject.SetActive( false );
 	}
 
 
@@ -114,11 +129,11 @@ public class UI_InGame : MonoBehaviour {
 		if ( m_IsActive == false )
 			return;
 
-		IEntity player		= Player.Instance as IEntity;
+		IEntity player				= Player.Instance as IEntity;
 
-		m_HealthText.text		= Mathf.CeilToInt( player.Health ).ToString();
+		m_HealthText.text			= Mathf.CeilToInt( player.Health ).ToString();
 
-		m_WpnNameText.text		= WeaponManager.Instance.CurrentWeapon.Transform.name;
+		m_WpnNameText.text			= WeaponManager.Instance.CurrentWeapon.Transform.name;
 		m_WpnOtherInfoText.text		= WeaponManager.Instance.CurrentWeapon.OtherInfo;
 	}
 
@@ -136,7 +151,6 @@ public class UI_InGame : MonoBehaviour {
 	public	void	HideCrosshair()
 	{
 		m_CrosshairTransform.gameObject.SetActive( false );
-
 	}
 
 
@@ -150,11 +164,12 @@ public class UI_InGame : MonoBehaviour {
 			m_ZoomFrameImage.rectTransform.SetSizeWithCurrentAnchors( RectTransform.Axis.Horizontal, m_FrameOrigWidth = frame.rectTransform.rect.width );
 			m_ZoomFrameImage.rectTransform.SetSizeWithCurrentAnchors( RectTransform.Axis.Vertical, m_FrameOrigHeight = frame.rectTransform.rect.height );
 
-			m_ZoomFrameImage.sprite	= frame.sprite;
+			m_ZoomFrameImage.sprite		= frame.sprite;
 			m_ZoomFrameImage.color		= frame.color;
 			m_ZoomFrameImage.material	= frame.material;
 			m_ZoomFrameImage.enabled	= true;
 			HideCrosshair();
+			Hide();
 		}
 		else
 		{
@@ -163,6 +178,7 @@ public class UI_InGame : MonoBehaviour {
 			m_ZoomFrameImage.color		= Color.clear;
 			m_ZoomFrameImage.material	= null;
 			ShowCrosshair();
+			Show();
 		}
 	}
 
