@@ -4,12 +4,6 @@ using UnityEngine;
 
 public partial class GameManager : MonoBehaviour {
 
-	/// <summary> Use this to identify if is executing in editor or in build </summary>
-#if UNITY_EDITOR
-	public	const	bool InEditor = true;
-#else
-	public	const	bool InEditor = false;
-#endif
 	private	static			GameManager		m_Instance				= null;
 	public	static			GameManager		Instance
 	{
@@ -65,8 +59,8 @@ public partial class GameManager : MonoBehaviour {
 		Configs		= new SectionMap();
 
 		// Load Settings and Configs
-		string settingspath		= InEditor ? "Assets/Resources/Settings.txt" : "Settings";
-		string configsPath		= InEditor ? "Assets/Resources/Configs/All.txt" : "Configs\\All";
+		const string settingspath		= "Settings";
+		const string configsPath		= "Configs\\All";
 
 		Settings.LoadFile( settingspath );
 		Configs.LoadFile( configsPath );
@@ -110,6 +104,7 @@ public partial class GameManager : MonoBehaviour {
 	public	static	void		QuitRequest()
 	{
 		m_QuitRequest = true;
+		Debug.Log("GameManager: Requesting exit");
 	}
 
 
@@ -219,7 +214,8 @@ public partial class GameManager : MonoBehaviour {
 
 		// Exit request
 		if ( m_QuitRequest == true )
-		{			
+		{
+			Debug.Log("GameManager: Processing exit request");
 			if ( m_SaveLoadState != StreamingState.SAVING )
 			{
 				QuitInstanly();
@@ -277,8 +273,9 @@ public partial class GameManager : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	public	static	void		QuitInstanly()
 	{
+		Debug.Log("GameManager: Exiting");
 #if UNITY_EDITOR
-			UnityEditor.EditorApplication.isPlaying = false;		
+		UnityEditor.EditorApplication.isPlaying = false;		
 #else
 		Application.Quit();
 #endif

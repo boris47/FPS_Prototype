@@ -85,7 +85,7 @@ public class TriggerEvents : MonoBehaviour {
 		if ( m_TriggerOnce == true && m_HasTriggered == true )
 			return;
 
-		if ( other.gameObject.GetInstanceID() != m_Target.GetInstanceID() )
+		if ( m_Target && other.gameObject.GetInstanceID() != m_Target.GetInstanceID() )
 			return;
 
 		Entity entity = null;
@@ -111,7 +111,7 @@ public class TriggerEvents : MonoBehaviour {
 		if ( m_TriggerOnce == true && m_HasTriggered == true )
 			return;
 
-		if ( other.gameObject.GetInstanceID() != m_Target.GetInstanceID() )
+		if ( m_Target && other.gameObject.GetInstanceID() != m_Target.GetInstanceID() )
 			return;
 
 		if ( m_OnExit != null && m_OnExit.GetPersistentEventCount() > 0 )

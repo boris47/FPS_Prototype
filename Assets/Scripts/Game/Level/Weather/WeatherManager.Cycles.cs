@@ -146,6 +146,9 @@ namespace WeatherSystem {
 			if ( UnityEditor.EditorApplication.isPlaying == false )
 				yield break;
 #endif
+			if ( m_ShowDebugInfo )
+				Debug.Log( "WeatherManager: Loading Cycles" );
+
 			if ( Editor.INTERNAL_EditorLinked == false )
 			{
 				m_AreResLoaded_Cylces	= false;
@@ -159,8 +162,10 @@ namespace WeatherSystem {
 				);
 				m_Cycles = cycles.Asset;
 				m_AreResLoaded_Cylces	= m_Cycles != null;
-
 			}
+
+			if ( m_ShowDebugInfo )
+				Debug.Log( "WeatherManager: Loading cycles " + ( m_AreResLoaded_Cylces ? "done" : "failed") );
 
 			if ( m_AreResLoaded_Cylces )
 				Setup_Cycles();
@@ -253,6 +258,9 @@ namespace WeatherSystem {
 			m_Sun.type				= LightType.Directional;
 			m_Sun.shadows			= LightShadows.Soft;
 
+			if ( m_ShowDebugInfo )
+				Debug.Log( "WeatherManager: Sun configured" );
+
 			// Setup for Environment
 			RenderSettings.sun		= m_Sun;
 			RenderSettings.skybox	= m_SkyMaterial;
@@ -263,7 +271,7 @@ namespace WeatherSystem {
 
 			// Get info from settings file
 			Database.Section pSection = null;
-			if ( GameManager.Configs != null && GameManager.Configs.bGetSection( "Time", ref pSection) == true )
+			if ( GameManager.Configs.bGetSection( "Time", ref pSection) == true )
 			{
 				pSection.bAsString( "StartTime",	ref startTime );
 				pSection.bAsString( "StartWeather", ref startWeather );
@@ -276,6 +284,9 @@ namespace WeatherSystem {
 
 			startWeather = startWeather.Replace( "\"", "" );
 			m_CurrentCycleName = "Invalid";
+
+			if ( m_ShowDebugInfo )
+				Debug.Log( "WeatherManager: Applying time " + startWeather + ", " + startTime );
 
 			// Set current cycle
 			int index = m_Cycles.LoadedCycles.FindIndex( c => c.name == startWeather );
@@ -401,6 +412,9 @@ namespace WeatherSystem {
 				m_EnvDescriptorCurrent = descriptor;
 				m_EnvDescriptorNext = GetNextDescriptor( descriptor );
 			}
+
+			if ( m_ShowDebugInfo )
+				Debug.Log( "WeatherManager: Descriptors selected: " + m_EnvDescriptorCurrent.Identifier + "," + m_EnvDescriptorNext.Identifier );
 			SetCubemaps();
 		}
 
@@ -413,6 +427,9 @@ namespace WeatherSystem {
 			EnvDescriptor correspondingDescriptor = newCycle.LoadedDescriptors.Find( d => d.ExecTime == m_EnvDescriptorNext.ExecTime );
 			if ( correspondingDescriptor == null )
 				return;
+
+			if ( m_ShowDebugInfo )
+				Debug.Log( "WeatherManager: Changing weather, requested: " + newCycle.name );
 
 			// set as current
 			m_CurrentCycle = newCycle;
@@ -438,6 +455,10 @@ namespace WeatherSystem {
 			// Choose a new cycle
 			int newIdx = Random.Range( 0, m_Cycles.CyclesPaths.Count );
 			WeatherCycle cycle = m_Cycles.LoadedCycles[ newIdx ];
+
+			if ( m_ShowDebugInfo )
+				Debug.Log( "WeatherManager: Setting random Weather: " + cycle.name );
+
 			ChangeWeather( cycle );
 		}
 
@@ -447,7 +468,6 @@ namespace WeatherSystem {
 		private	void			SelectDescriptors( float DayTime )
 		{
 			bool bSelect = false;
-		//	if ( DayTime > m_EnvDescriptorCurrent.ExecTime && DayTime > m_EnvDescriptorNext.ExecTime )
 
 			if ( m_EnvDescriptorCurrent.ExecTime > m_EnvDescriptorNext.ExecTime )
 			{

@@ -120,6 +120,7 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 		m_ReadingPhase = READING_NOTHING;
 	}
 
+	private static	char[]	EscapeCharToRemove = new char[] { '\n','\b','\t','\r' };
 
 	//////////////////////////////////////////////////////////////////////////
 	// LoadFile
@@ -131,52 +132,26 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 
 		IsOK = false;
 
-#if UNITY_EDITOR
-		// Editor Mode
-		FileStream fs = null;
-		try
-		{
-			fs = File.Open( sFilePath, FileMode.Open );
-		}
-		catch( Exception e )
-		{
-			Debug.LogError( "SectionMap::LoadFile:Error opening file: |" + sFilePath + "| !!!\nMessage: " + e.Message );
-			UnityEditor.EditorApplication.isPlaying = false;
-			return false;
-		}
-
-		if ( fs.Length < 1 )
-		{
-			fs.Close();
-			Debug.LogError( "SectionMap::LoadFile:File |" + sFilePath + "| is empty!!!" );
-			UnityEditor.EditorApplication.isPlaying = false;
-			return false;
-		}
-
-		StreamReader sr = new StreamReader( fs );
-
-		int iLine = 0;
-		while( sr.EndOfStream == false )
-		{
-			iLine++;
-			string sLine = sr.ReadLine();
-
-#else
 		// release mode
 		TextAsset pTextAsset = Resources.Load( sFilePath ) as TextAsset;
 		if ( pTextAsset == null )
 		{
-//				Debug.LogError( "Reader::LoadFile:Error opening file: " + sFilePath );
+			Debug.LogError( "Reader::LoadFile:Error opening file: " + sFilePath );
 			Application.Quit();
 			return false;
 		}
 
-		string[] vLines = pTextAsset.text.Split( "\n" [0] );
-		for ( int iLine = 1; iLine < vLines.Length; iLine++ )
+		// Remove escape chars ti avoid the presence inside strings
+		string[] vLines = pTextAsset.text.Split( '\n' );
+		for ( int i = 0; i < vLines.Length; i++ )
 		{
-			string sLine = vLines[ iLine - 1 ];
+			vLines[i] = vLines[i].TrimInside( EscapeCharToRemove );
+		}
 
-#endif
+		// Parse each line
+		for ( int iLine = 1; iLine < vLines.Length+1; iLine++ )
+		{
+			string sLine = vLines[ iLine-1 ];
 
 			if ( Utils.String.IsValid( ref sLine ) == false )
 				continue;
@@ -187,16 +162,11 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 			{
 				string sPath = System.IO.Path.GetDirectoryName( sFilePath );
 				string sFileName = sLine.Trim().Substring( "#include".Length + 1 ).TrimInside();
-#if UNITY_EDITOR
-				if ( LoadFile( System.IO.Path.Combine( sPath, sFileName ) ) == false )
-				{
-					fs.Close();
+				string sSubPath = System.IO.Path.GetDirectoryName( sFileName );
+				string combinedPath = Path.Combine( sPath, Path.Combine( sSubPath, System.IO.Path.GetFileNameWithoutExtension( sFileName ) ) );
+				if ( LoadFile( combinedPath ) == false )
 					return false;
-				}
-#else
-				if ( LoadFile( System.IO.Path.GetFileNameWithoutExtension( Path.Combine( sPath, sFileName ) ) ) == false )
-					return false;
-#endif
+
 				continue;
 			}
 
@@ -205,19 +175,13 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 			{	
 				if ( sLine.IndexOf( ']' ) == -1 )
 				{
-#if UNITY_EDITOR
 					Debug.LogError( " SectionMap::LoadFile:Invalid Section definition at line |" + iLine + "| in file |" + sFilePath + "| " );
-					fs.Close();
-#endif
 					return false;
 				}
 
 				// Create a new section
 				if ( Section_Create( sLine.TrimInside(), sFilePath, iLine ) == false )
 				{
-#if UNITY_EDITOR
-					fs.Close();
-#endif
 					return false;
 				}
 				continue;
@@ -229,26 +193,18 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 			{
 				if ( m_CurrentSection == null )
 				{
-#if UNITY_EDITOR
 					Debug.LogError( " SectionMap::LoadFile:No section created to insert KeyValue at line |" + iLine + "| in file |" + sFilePath + "| " );
-					fs.Close();
-#endif
 					return false;
 				}
 
 				if ( m_ReadingPhase != READING_SECTION )
 				{
-#if UNITY_EDITOR
 					Debug.LogError( " SectionMap::LoadFile:Trying to insert a KeyValue into a non section type FileElement, line \"" + sLine + "\" of file " + sFilePath + "!" );
-#endif
 					continue;
 				}
 
 				if ( Section_Add( pKeyValue, sFilePath, iLine ) == false )
 				{
-#if UNITY_EDITOR
-					fs.Close();
-#endif
 					return false;
 				}
 				continue;
@@ -258,9 +214,7 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 			Debug.LogError( "SectionMap::LoadFile:Incorrect line " + iLine + " in file " + sFilePath );
 			return false;
 		}
-#if UNITY_EDITOR
-		fs.Close();
-#endif
+
 		Section_Close();
 		m_FilePaths.Add( sFilePath );
 		IsOK = true;

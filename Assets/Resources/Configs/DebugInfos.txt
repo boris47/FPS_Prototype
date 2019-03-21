@@ -1,4 +1,5 @@
 
-[DebugInfos]
 
+[DebugInfos]
 ResourceManager			= false;
+WeatherManager			= true;

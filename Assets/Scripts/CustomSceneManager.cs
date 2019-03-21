@@ -115,9 +115,7 @@ public class CustomSceneManager : MonoBehaviour {
 	/// <summary> Internla coroutine that load a scene asynchronously </summary>
 	private	IEnumerator	LoadSceneAsyncCO( LoadSceneData loadSceneData )
 	{
-		WaitForEndOfFrame endFrameWaiter = new WaitForEndOfFrame();
-
-		yield return endFrameWaiter;
+		yield return new WaitForEndOfFrame();
 
 		// Set global state as ChangingScene state
 		GameManager.IsChangingScene = true;
@@ -153,7 +151,7 @@ public class CustomSceneManager : MonoBehaviour {
 		{
 			loadSceneData.pOnPreLoadCompleted();
 		}
-		yield return endFrameWaiter;
+		yield return new WaitForEndOfFrame();
 
 		// LOAD DATA
 		{
@@ -163,7 +161,7 @@ public class CustomSceneManager : MonoBehaviour {
 				GameManager.StreamEvents.Load( loadSceneData.sSaveToLoad );
 			}
 		}
-		yield return endFrameWaiter;
+		yield return new WaitForEndOfFrame();
 
 		// Post load callback
 		if ( loadSceneData.pOnLoadCompleted != null )
@@ -188,7 +186,7 @@ public class CustomSceneManager : MonoBehaviour {
 
 
 	//
-	public	static	void	UnegisterOnLoad( System.Action activeSceneChanged )
+	public	static	void	UnregisterOnLoad( System.Action activeSceneChanged )
 	{
 		string id = activeSceneChanged.Method.Name;
 

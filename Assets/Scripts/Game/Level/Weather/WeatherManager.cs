@@ -50,6 +50,7 @@ namespace WeatherSystem {
 		// PRIVATE VARS
 		private	Light							m_Sun						= null;
 		private	static float					m_DayTimeNow				= -1.0f;
+		private	static bool						m_ShowDebugInfo				= false;
 
 	#region INTERFACE
 
@@ -135,6 +136,14 @@ namespace WeatherSystem {
 #endif
 				return;
 			}
+
+			Database.Section debugInfosSection = null;
+			if ( m_ShowDebugInfo == false && GameManager.Configs.bGetSection( "DebugInfos", ref debugInfosSection ) )
+			{
+				m_ShowDebugInfo = debugInfosSection.AsBool( "WeatherManager", false);
+				if ( m_ShowDebugInfo )
+					Debug.Log( "WeatherManager: Log Enabled" );
+			}
 			
 #if UNITY_EDITOR
 			if ( UnityEditor.EditorApplication.isPlaying == true )
@@ -153,6 +162,12 @@ namespace WeatherSystem {
 		// OnLevelWasLoaded
 		private void OnLevelWasLoaded( int level )
 		{
+			if ( m_ShowDebugInfo )
+				Debug.Log( "WeatherManager: On Level " + level + " loaded" );
+
+			// Load Sky Material
+			m_SkyMaterial = Resources.Load<Material>( SKYMIXER_MATERIAL );
+
 			// Setup for Environment
 			RenderSettings.sun		= m_Sun;
 			RenderSettings.skybox	= m_SkyMaterial;
@@ -172,6 +187,9 @@ namespace WeatherSystem {
 			
 			// Load Sky Material
 			m_SkyMaterial = Resources.Load<Material>( SKYMIXER_MATERIAL );
+
+			if ( m_ShowDebugInfo )
+				Debug.Log( "WeatherManager: Loaded Material " + SKYMIXER_MATERIAL + ": " + ( ( m_SkyMaterial != null ) ? "done":"failed" ) );
 
 			OnEnable_Cycles();
 			OnEnable_Editor();
@@ -207,7 +225,7 @@ namespace WeatherSystem {
 
 			if ( m_IsOK == false )
 			{
-				Debug.Log( "Something goes wrong" );
+				Debug.Log( "WeatherManager: Something goes wrong" );
 				yield break;
 			}
 
@@ -252,7 +270,8 @@ namespace WeatherSystem {
 		// OnDestroy
 		private void			OnDestroy()
 		{
-
+			if ( m_ShowDebugInfo )
+				Debug.Log( "WeatherManager: Disabled" );
 		}
 
 

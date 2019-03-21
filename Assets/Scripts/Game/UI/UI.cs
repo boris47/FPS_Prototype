@@ -269,14 +269,6 @@ public class UI : MonoBehaviour, IUI {
 	// OnQuit
 	public	void	OnQuit()
 	{
-		// This mean that a game is currently active
-		if ( GameManager.Instance != null )
-		{
-			DisableInteraction( m_CurrentActiveTrasform );
-			GameManager.QuitRequest();
-			return;
-		}
-
 		GameManager.QuitInstanly();
 	}
 
