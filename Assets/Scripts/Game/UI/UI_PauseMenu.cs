@@ -2,69 +2,114 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UI_PauseMenu : MonoBehaviour {
+public class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 
-/*
+
 	private		Button	m_ResumeButton			= null;
-	private		Button	m_SaveButton			= null;
+/*	private		Button	m_SaveButton			= null;
 	private		Button	m_SettingsButton		= null;
 	private		Button	m_MainMenuButton		= null;
 	private		Button	m_QuitButton			= null;
 */
-	private void Awake()
+
+
+
+	private	bool			m_bIsInitialized			= false;
+	bool IStateDefiner.IsInitialized
 	{
-		/*
-		// RESUME BUTTON
-		if ( transform.SearchComponentInChild( "Button_Resume", ref m_ResumeButton ) )
-		{
-			m_ResumeButton.onClick.AddListener( delegate()
-			{
-				UI.Instance.SetPauseMenuState( false );
-			} );
-		}
-
-		// SAVE BUTTON
-		if ( transform.SearchComponentInChild( "Button_Save", ref m_SaveButton ) )
-		{
-			m_SaveButton.onClick.AddListener( Save );
-		}
-
-		// SETTINGS BUTTON
-		if ( transform.SearchComponentInChild( "Button_Settings", ref m_SettingsButton ) )
-		{
-			m_SettingsButton.onClick.AddListener( delegate()
-			{
-				UI.Instance.GoToSubMenu( UI.Instance.InGame_Settings.transform );
-			});
-		}
-
-		// SETTINGS BUTTON
-		if ( transform.SearchComponentInChild( "Button_MainMenu", ref m_MainMenuButton ) )
-		{
-			m_MainMenuButton.onClick.AddListener( delegate()
-			{
-				ReturnToMenu();
-			});
-		}
-
-		// SETTINGS BUTTON
-		if ( transform.SearchComponentInChild( "Button_Quit", ref m_QuitButton ) )
-		{
-			m_QuitButton.onClick.AddListener( delegate()
-			{
-				GameManager.QuitInstanly();
-			});
-		}
-		*/
+		get { return m_bIsInitialized; }
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
+	// Initialize
+	bool IStateDefiner.Initialize()
+	{
+		m_bIsInitialized = true;
+		{
+			// RESUME BUTTON
+			if ( m_bIsInitialized &= transform.SearchComponentInChild( "Button_Resume", ref m_ResumeButton ) )
+			{
+				m_ResumeButton.onClick.AddListener( delegate()
+				{
+					//UI.Instance.SetPauseMenuState( false );
+					Resume();
+				} );
+			}
+		/*
+			// SAVE BUTTON
+			if ( m_bIsInitialized &= transform.SearchComponentInChild( "Button_Save", ref m_SaveButton ) )
+			{
+				m_SaveButton.onClick.AddListener( Save );
+			}
+
+			// SETTINGS BUTTON
+			if ( m_bIsInitialized &= transform.SearchComponentInChild( "Button_Settings", ref m_SettingsButton ) )
+			{
+				m_SettingsButton.onClick.AddListener( delegate()
+				{
+					UI.Instance.GoToSubMenu( UI.Instance.Settings.transform );
+				});
+			}
+
+			// SETTINGS BUTTON
+			if ( m_bIsInitialized &= transform.SearchComponentInChild( "Button_MainMenu", ref m_MainMenuButton ) )
+			{
+				m_MainMenuButton.onClick.AddListener( delegate()
+				{
+					ReturnToMenu();
+				});
+			}
+
+			// SETTINGS BUTTON
+			if ( m_bIsInitialized &= transform.SearchComponentInChild( "Button_Quit", ref m_QuitButton ) )
+			{
+				m_QuitButton.onClick.AddListener( delegate()
+				{
+					GameManager.QuitInstanly();
+				});
+			}
+			*/
+		}
+
+		if ( m_bIsInitialized )
+		{
+				
+		}
+		else
+		{
+			Debug.LogError( "UI_PauseMenu: Bad initialization!!!" );
+		}
+		return m_bIsInitialized;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ReInit
+	bool IStateDefiner.ReInit()
+	{
+		return m_bIsInitialized;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Finalize
+	bool	 IStateDefiner.Finalize()
+	{
+		return m_bIsInitialized;
+	}
+	
+
+	//////////////////////////////////////////////////////////////////////////
+	// Resume
 	public	void	Resume()
 	{
 		GameManager.Instance.ResumeFromPause();
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
+	// ReturnToMenu
 	public	void	ReturnToMenu()
 	{
 		// Only if paused can return to main menu
@@ -98,14 +143,16 @@ public class UI_PauseMenu : MonoBehaviour {
 	}
 
 
-	// 
+	//////////////////////////////////////////////////////////////////////////
+	// Save
 	public	void	Save()
 	{
 		GameManager.StreamEvents.Save();
 	}
 
 
-	//
+	//////////////////////////////////////////////////////////////////////////
+	// Quit
 	public	void	Quit()
 	{
 		GameManager.QuitInstanly();

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
 
-public class UI_Bindings : MonoBehaviour {
+public class UI_Bindings : MonoBehaviour, IStateDefiner {
 
 	static		List<Dropdown.OptionData> keyStateDropDownList = null;
 
@@ -17,11 +17,73 @@ public class UI_Bindings : MonoBehaviour {
 	private		Transform			m_BlockPanel		= null;
 
 
+	private	bool			m_bIsInitialized			= false;
+	bool IStateDefiner.IsInitialized
+	{
+		get { return m_bIsInitialized; }
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// Initialize
+	bool IStateDefiner.Initialize()
+	{
+		m_bIsInitialized = true;
+		{
+			m_ThisRect = transform as RectTransform;
+			m_bIsInitialized &= m_ThisRect != null;
+
+			keyStateDropDownList = new List<Dropdown.OptionData>();
+			{
+				keyStateDropDownList.AddRange
+				(
+					System.Enum.GetValues( typeof( eKeyState ) ).
+					Cast<eKeyState>().
+					Select( (eKeyState k ) => new Dropdown.OptionData( k.ToString() ) )
+				);
+			}
+
+
+			m_UI_CommandRow = Resources.Load<GameObject>( "Prefabs/UI/UI_CommandRow" );
+			m_bIsInitialized &= m_UI_CommandRow != null;
+
+			m_ScrollContent = transform.GetComponentInChildren<VerticalLayoutGroup>().transform;
+			m_bIsInitialized &= m_ScrollContent != null;
+
+			m_BlockPanel = transform.Find("BlockPanel" );
+			m_bIsInitialized &= m_BlockPanel != null;
+
+			if ( m_bIsInitialized )
+			{
+				m_BlockPanel.gameObject.SetActive( false );
+			}
+			else
+			{
+				Debug.LogError( "UI_Bindings: Bad initialization!!!" );
+			}
+		}
+		return m_bIsInitialized;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ReInit
+	bool IStateDefiner.ReInit()
+	{
+		return m_bIsInitialized;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Finalize
+	bool	 IStateDefiner.Finalize()
+	{
+		return m_bIsInitialized;
+	}
+
+
 	//////////////////////////////////////////////////////////////////////////
 	private void OnEnable()
 	{
-		m_ThisRect = transform as RectTransform;
-
 		if ( GameManager.InputMgr != null )
 		{
 			m_InputMgr = GameManager.InputMgr;
@@ -30,26 +92,6 @@ public class UI_Bindings : MonoBehaviour {
 		{
 			m_InputMgr	= new InputManager();
 		}
-
-
-		if ( keyStateDropDownList == null )
-		{
-			keyStateDropDownList = new List<Dropdown.OptionData>();
-			{
-				keyStateDropDownList.AddRange(
-					System.Enum.GetValues( typeof( eKeyState ) ).
-					Cast<eKeyState>().
-					Select( (eKeyState k ) => new Dropdown.OptionData( k.ToString() ) )
-				);
-			}
-		}
-
-		m_UI_CommandRow = Resources.Load<GameObject>( "Prefabs/UI/UI_CommandRow" );
-
-		m_ScrollContent = transform.GetComponentInChildren<VerticalLayoutGroup>().transform;
-
-		m_BlockPanel = transform.Find("BlockPanel" );
-		m_BlockPanel.gameObject.SetActive( false );
 
 		FillGrid();
 	}

@@ -550,6 +550,9 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon, IModifiable {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void			OnDestroy()
 	{
+		m_PrimaryWeaponModuleSlot.WeaponModule.enabled = false;
+		m_SecondaryWeaponModuleSlot.WeaponModule.enabled = false;
+		m_TertiaryWeaponModuleSlot.WeaponModule.enabled = false;
 		GameManager.StreamEvents.OnSave -= OnSave;
 		GameManager.StreamEvents.OnLoad -= OnLoad;
 	}

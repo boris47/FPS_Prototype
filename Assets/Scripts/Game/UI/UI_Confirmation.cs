@@ -26,46 +26,60 @@ public class UI_Confirmation : MonoBehaviour, IStateDefiner {
 			return true;
 		}
 
-		Navigation noNavigationMode = new Navigation() { mode = Navigation.Mode.None };
-
-		Transform panel = transform.GetChild( 0 );
-
-		m_bIsInitialized = panel != null;
-		if ( m_bIsInitialized == false )
-			return false;
-
-		// Label
-		m_bIsInitialized &= panel.SearchComponentInChild( 0, ref m_LabelText );
-
-
-
-		// Confirm button
-		Button onConfirmButton = null;
-		if ( m_bIsInitialized && ( m_bIsInitialized &= panel.SearchComponentInChild( 1, ref onConfirmButton ) ) )
+		m_bIsInitialized = true;
 		{
-			onConfirmButton.navigation = noNavigationMode;
-			onConfirmButton.onClick.AddListener( 
-				() => {
-					m_OnConfirmAction();
-					gameObject.SetActive( false );
-				}
-			);
-		}
+			Navigation noNavigationMode = new Navigation() { mode = Navigation.Mode.None };
 
-		// Cancel button
-		Button onCancelButton = null;
-		if ( m_bIsInitialized && ( m_bIsInitialized &= panel.SearchComponentInChild( 2, ref onCancelButton ) ) )
-		{
-			onCancelButton.navigation = noNavigationMode;
-			onCancelButton.onClick.AddListener( 
-				() => {
-					m_OnCancelAction();
-					gameObject.SetActive( false );
-				}
-			);
-		}
+			m_bIsInitialized &= transform.childCount > 0;
 
-		gameObject.SetActive( false );
+			Transform panel = null;
+			if ( m_bIsInitialized )
+			{
+				panel = transform.GetChild( 0 );
+			}
+				
+			// Label
+			if ( m_bIsInitialized )
+			{
+				m_bIsInitialized &= panel.SearchComponentInChild( 0, ref m_LabelText );
+			}
+
+			// Confirm button
+			Button onConfirmButton = null;
+			if ( m_bIsInitialized && ( m_bIsInitialized &= panel.SearchComponentInChild( 1, ref onConfirmButton ) ) )
+			{
+				onConfirmButton.navigation = noNavigationMode;
+				onConfirmButton.onClick.AddListener( 
+					() => {
+						m_OnConfirmAction();
+						gameObject.SetActive( false );
+					}
+				);
+			}
+
+			// Cancel button
+			Button onCancelButton = null;
+			if ( m_bIsInitialized && ( m_bIsInitialized &= panel.SearchComponentInChild( 2, ref onCancelButton ) ) )
+			{
+				onCancelButton.navigation = noNavigationMode;
+				onCancelButton.onClick.AddListener( 
+					() => {
+						m_OnCancelAction();
+						gameObject.SetActive( false );
+					}
+				);
+			}
+
+			gameObject.SetActive( false );
+		}
+		return m_bIsInitialized;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ReInit
+	bool IStateDefiner.ReInit()
+	{
 		return m_bIsInitialized;
 	}
 

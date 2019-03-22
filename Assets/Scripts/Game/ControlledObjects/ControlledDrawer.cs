@@ -101,14 +101,16 @@ public class ControlledDrawer : ControlledObject {
 		Vector3 startPosition	= transform.position;
 		Vector3 endPosition		= Vector3.zero;
 
+		// When is opening
+		if ( m_Opened == false )
+		{
+
+		}
+
 		// When is closing
 		if ( m_Opened == true )
 		{
-			OnClose();
-			if (m_OnClose != null && m_OnClose.GetPersistentEventCount() > 0)
-			{
-				m_OnClose.Invoke();
-			}
+			OnClose(); // Disable interactions
 		}
 
 		switch( m_OperatingAxis )
@@ -129,13 +131,22 @@ public class ControlledDrawer : ControlledObject {
 			yield return null;
 		}
 
-		// When is opening
+		// When is opened
 		if ( m_Opened == false )
 		{
 			OnOpen();
 			if ( m_OnOpen != null && m_OnOpen.GetPersistentEventCount() > 0 )
 			{
 				m_OnOpen.Invoke();
+			}
+		}
+
+		// When is closed
+		if ( m_Opened == true )
+		{
+			if (m_OnClose != null && m_OnClose.GetPersistentEventCount() > 0)
+			{
+				m_OnClose.Invoke();
 			}
 		}
 

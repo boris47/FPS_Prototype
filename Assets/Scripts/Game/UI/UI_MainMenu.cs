@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UI_MainMenu : MonoBehaviour {
+public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 
 	private	const string shaderPath = "VR/SpatialMapping/Wireframe";
 	
@@ -13,36 +13,73 @@ public class UI_MainMenu : MonoBehaviour {
 //	private		Button	m_SettingsButton		= null;
 	
 
-	//////////////////////////////////////////////////////////////////////////
-	// Awake
-	private void Awake()
+
+	private	bool			m_bIsInitialized			= false;
+	bool IStateDefiner.IsInitialized
 	{
-		/*
-		// NEW GAME BUTTON
-		if ( transform.SearchComponentInChild( "Button_NewGame", ref m_NewGameButton ) )
+		get { return m_bIsInitialized; }
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// Initialize
+	bool IStateDefiner.Initialize()
+	{
+		m_bIsInitialized = true;
 		{
-			m_NewGameButton.onClick.AddListener( OnNewGame );
-		}
-		*/
-		// RESUME BUTTON
-		if ( transform.SearchComponentInChild( "Button_Resume", ref m_ResumeButton ) )
-		{
-//			m_ResumeButton.onClick.AddListener( OnResume );
-		}
-		/*
-		// SETTINGS BUTTON
-		if ( transform.SearchComponentInChild( "Button_Settings", ref m_SettingsButton ) )
-		{
-			m_SettingsButton.onClick.AddListener( delegate()
+			/*
+			// NEW GAME BUTTON
+			if ( transform.SearchComponentInChild( "Button_NewGame", ref m_NewGameButton ) )
 			{
-				UI.Instance.GoToSubMenu( UI.Instance.Settings.transform );
-			});
+				m_NewGameButton.onClick.AddListener( OnNewGame );
+			}
+			*/
+			// RESUME BUTTON
+			if ( m_bIsInitialized &= transform.SearchComponentInChild( "Button_Resume", ref m_ResumeButton ) )
+			{
+//				m_ResumeButton.onClick.AddListener( OnResume );
+			}
+			/*
+			// SETTINGS BUTTON
+			if ( transform.SearchComponentInChild( "Button_Settings", ref m_SettingsButton ) )
+			{
+				m_SettingsButton.onClick.AddListener( delegate()
+				{
+					UI.Instance.GoToSubMenu( UI.Instance.Settings.transform );
+				});
+			}
+			*/
 		}
-		*/
-		RenderSettings.skybox	= new Material( Shader.Find( shaderPath ) );
+
+		if ( m_bIsInitialized )
+		{
+			RenderSettings.skybox	= new Material( Shader.Find( shaderPath ) );
+		}
+		else
+		{
+			Debug.LogError( "UI_PauseMenu: Bad initialization!!!" );
+		}
+		return m_bIsInitialized;
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
+	// ReInit
+	bool IStateDefiner.ReInit()
+	{
+		return m_bIsInitialized;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Finalize
+	bool	 IStateDefiner.Finalize()
+	{
+		return m_bIsInitialized;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnEnable
 	private void OnEnable()
 	{
 		if ( CameraControl.Instance != null )
@@ -57,13 +94,20 @@ public class UI_MainMenu : MonoBehaviour {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnEnable
+	// Start
 	private IEnumerator Start()
 	{
 		if ( Player.Instance != null )
 			Destroy( Player.Instance.gameObject );
 
 		yield return null;
+
+		// Cursor
+		Cursor.visible		= false;
+		Cursor.lockState	= CursorLockMode.None;
+
+		// Game Manager
+		GameManager.InGame	= false;
 
 		// UI interaction
 		UI.Instance.DisableInteraction( this.transform );
@@ -79,9 +123,6 @@ public class UI_MainMenu : MonoBehaviour {
 		// Cursor
 		Cursor.visible		= true;
 		Cursor.lockState	= CursorLockMode.None;
-
-		// Game Manager
-		GameManager.InGame	= false;
 
 		// Destroying singleton
 		if ( CameraControl.Instance != null )

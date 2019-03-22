@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UI_Graphics : MonoBehaviour, IUIOptions {
+public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 
 	// Registry Keys
 	private	const	string	FLAG_SAVED_GRAPHIC_SETTINGS	= "bSavedVideoSettings";
@@ -72,74 +72,84 @@ public class UI_Graphics : MonoBehaviour, IUIOptions {
 			return true;
 		}
 
-		Navigation noNavigationMode = new Navigation() { mode = Navigation.Mode.None };
-
-		// Get Components
-		m_AviableResolutions = Screen.resolutions;
-		if ( m_bIsInitialized = transform.SearchComponentInChild( "ResolutionsDropDown", ref m_ResolutionDropDown ) )
+		m_bIsInitialized = true;
 		{
-			m_ResolutionDropDown.onValueChanged.AddListener( OnResolutionChosen );
-			m_ResolutionDropDown.AddOptions( 
-				new List<Resolution>( m_AviableResolutions ).ConvertAll( 
-					new System.Converter<Resolution, string>( ( Resolution res ) => { return res.ToString(); } )
-				)
-			);
-		}
+			Navigation noNavigationMode = new Navigation() { mode = Navigation.Mode.None };
 
-		if ( m_bIsInitialized &= transform.SearchComponentInChild( "FullScreenToggle", ref m_FullScreenToogle ) )
-		{
-			m_FullScreenToogle.onValueChanged.AddListener( OnFullScreenSet );
-		}
+			// Get Components
+			m_AviableResolutions = Screen.resolutions;
+			if ( m_bIsInitialized &= transform.SearchComponentInChild( "ResolutionsDropDown", ref m_ResolutionDropDown ) )
+			{
+				m_ResolutionDropDown.onValueChanged.AddListener( OnResolutionChosen );
+				m_ResolutionDropDown.AddOptions( 
+					new List<Resolution>( m_AviableResolutions ).ConvertAll( 
+						new System.Converter<Resolution, string>( ( Resolution res ) => { return res.ToString(); } )
+					)
+				);
+			}
 
-		if ( m_bIsInitialized &= transform.SearchComponentInChild( "AnisotropicFilterToogle", ref m_AnisotropicFilterToogle ) )
-		{
-			m_AnisotropicFilterToogle.onValueChanged.AddListener( OnAnisotropicFilterSet );
-		}
+			if ( m_bIsInitialized &= transform.SearchComponentInChild( "FullScreenToggle", ref m_FullScreenToogle ) )
+			{
+				m_FullScreenToogle.onValueChanged.AddListener( OnFullScreenSet );
+			}
 
-		if ( m_bIsInitialized &= transform.SearchComponentInChild( "AntialiasingDropDown", ref m_AntialiasingDropDown ) ) 
-		{
-			m_AntialiasingDropDown.onValueChanged.AddListener( OnAntialiasingSet );
-			m_AntialiasingDropDown.AddOptions(
-				new List<string>( new string[4] { "None", "2x","4x", "8x" } )
-			);
-		}
+			if ( m_bIsInitialized &= transform.SearchComponentInChild( "AnisotropicFilterToogle", ref m_AnisotropicFilterToogle ) )
+			{
+				m_AnisotropicFilterToogle.onValueChanged.AddListener( OnAnisotropicFilterSet );
+			}
 
-		m_QualityLevelNames = QualitySettings.names;
-		if ( m_bIsInitialized &= transform.SearchComponentInChild( "QualityLevelDropDown", ref m_QualityLevelDropDown ) )
-		{
-			m_QualityLevelDropDown.onValueChanged.AddListener( OnQualityLevelSet );
-			m_QualityLevelDropDown.AddOptions( new List<string>( m_QualityLevelNames ) );
-		}
+			if ( m_bIsInitialized &= transform.SearchComponentInChild( "AntialiasingDropDown", ref m_AntialiasingDropDown ) ) 
+			{
+				m_AntialiasingDropDown.onValueChanged.AddListener( OnAntialiasingSet );
+				m_AntialiasingDropDown.AddOptions(
+					new List<string>( new string[4] { "None", "2x","4x", "8x" } )
+				);
+			}
 
-		if ( m_bIsInitialized &= transform.SearchComponentInChild( "ApplyButton", ref m_ApplyButton ) )
-		{
-			m_ApplyButton.onClick.AddListener
-			(	
-				delegate()
-				{
-					UI.Instance.Confirmation.Show( "Apply Changes?", OnApplyChanges, delegate { ReadFromRegistry(); UpdateUI(); } );
-				}
-			);
-			m_ApplyButton.interactable = false;
-		}
+			m_QualityLevelNames = QualitySettings.names;
+			if ( m_bIsInitialized &= transform.SearchComponentInChild( "QualityLevelDropDown", ref m_QualityLevelDropDown ) )
+			{
+				m_QualityLevelDropDown.onValueChanged.AddListener( OnQualityLevelSet );
+				m_QualityLevelDropDown.AddOptions( new List<string>( m_QualityLevelNames ) );
+			}
 
-		if ( m_bIsInitialized &= transform.SearchComponentInChild( "ResetButton", ref m_ResetButton ) )
-		{
-			m_ResetButton.onClick.AddListener
-			(
-				delegate()
-				{
-					UI.Instance.Confirmation.Show( "Reset?", ApplyDefaults );
-				}	
-			);
-		}
+			if ( m_bIsInitialized &= transform.SearchComponentInChild( "ApplyButton", ref m_ApplyButton ) )
+			{
+				m_ApplyButton.onClick.AddListener
+				(	
+					delegate()
+					{
+						UI.Instance.Confirmation.Show( "Apply Changes?", OnApplyChanges, delegate { ReadFromRegistry(); UpdateUI(); } );
+					}
+				);
+				m_ApplyButton.interactable = false;
+			}
 
-		// disable navigation for everything
-		foreach( Selectable s in GetComponentsInChildren<Selectable>() )
-		{
-			s.navigation = noNavigationMode;
-		}
+			if ( m_bIsInitialized &= transform.SearchComponentInChild( "ResetButton", ref m_ResetButton ) )
+			{
+				m_ResetButton.onClick.AddListener
+				(
+					delegate()
+					{
+						UI.Instance.Confirmation.Show( "Reset?", ApplyDefaults );
+					}	
+				);
+			}
 
+			// disable navigation for everything
+			foreach( Selectable s in GetComponentsInChildren<Selectable>() )
+			{
+				s.navigation = noNavigationMode;
+			}
+		}
+		return m_bIsInitialized;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ReInit
+	bool IStateDefiner.ReInit()
+	{
 		return m_bIsInitialized;
 	}
 

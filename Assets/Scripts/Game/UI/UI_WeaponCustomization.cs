@@ -19,7 +19,7 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
-	bool IStateDefiner.Initialize()
+	bool	IStateDefiner.Initialize()
 	{
 		if ( m_bIsInitialized == true )
 		{
@@ -34,6 +34,14 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 			m_bIsInitialized &= child.SearchComponentInChild( "ModuleTertiaryDropdown", ref m_TertiaryDropDown );
 		}
 
+		return m_bIsInitialized;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ReInit
+	bool	IStateDefiner.ReInit()
+	{
 		return m_bIsInitialized;
 	}
 

@@ -1,9 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine.SceneManagement;
 
 public interface IStateDefiner {
 
@@ -13,12 +11,14 @@ public interface IStateDefiner {
 	/// <summary> Initialize the component </summary>
 	bool Initialize			();
 
+	bool ReInit				();
+
 	/// <summary> Finalize the component </summary>
 	bool Finalize			();
 
 }
 
-public interface IUIOptions : IStateDefiner{
+public interface IUIOptions {
 
 	/// <summary> Apply static default values, save into registry, update UI, apply </summary>
 	void	ApplyDefaults();
@@ -40,7 +40,7 @@ public interface IUIOptions : IStateDefiner{
 }
 
 
-public interface IUI : IStateDefiner {
+public interface IUI {
 
 	UI_MainMenu				MainMenu					{ get; }
 	UI_InGame				InGame						{ get; }
@@ -67,7 +67,7 @@ public interface IUI : IStateDefiner {
 
 
 
-public class UI : MonoBehaviour, IUI {
+public class UI : MonoBehaviour, IUI, IStateDefiner {
 
 	public	static	IUI						Instance						= null;
 
@@ -104,7 +104,7 @@ public class UI : MonoBehaviour, IUI {
 	private			List<Transform>			m_TransformList					= new List<Transform>();
 
 
-	private	bool			m_bIsInitialized			= true;
+	private	bool			m_bIsInitialized			= false;
 	bool IStateDefiner.IsInitialized
 	{
 		get { return m_bIsInitialized; }
@@ -124,46 +124,61 @@ public class UI : MonoBehaviour, IUI {
 		Instance = this;
 		DontDestroyOnLoad( this );
 
-		m_bIsInitialized = Instance.Initialize();
+		m_bIsInitialized = ( this as IStateDefiner ).Initialize();
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// Initialize
 	bool IStateDefiner.Initialize()
 	{
-		bool bResult = true;
+		if ( m_bIsInitialized == true )
+			return false;
+
+		m_bIsInitialized = true;
 
 		// Get Menu
-		bResult = transform.SearchComponentInChild( "UI_MainMenu",				ref m_MainMenu );
-		bResult &= transform.SearchComponentInChild( "UI_InGame",				ref m_InGame );
-		bResult &= transform.SearchComponentInChild( "UI_WeaponCustomization",	ref m_WeaponCustomization );
-		bResult &= transform.SearchComponentInChild( "UI_Settings",				ref m_Settings );
-		bResult &= transform.SearchComponentInChild( "UI_PauseMenu",			ref m_PauseMenu );
-		bResult &= transform.SearchComponentInChild( "UI_Bindings",				ref m_Bindings );
-		bResult &= transform.SearchComponentInChild( "UI_Graphics",				ref m_Graphics );
-		bResult &= transform.SearchComponentInChild( "UI_Audio",				ref m_Audio );
-		bResult &= transform.SearchComponentInChild( "UI_Confirmation",			ref m_Confirmation );
+		m_bIsInitialized &= transform.SearchComponentInChild( "UI_MainMenu",				ref m_MainMenu );
+		m_bIsInitialized &= transform.SearchComponentInChild( "UI_InGame",					ref m_InGame );
+		m_bIsInitialized &= transform.SearchComponentInChild( "UI_WeaponCustomization",		ref m_WeaponCustomization );
+		m_bIsInitialized &= transform.SearchComponentInChild( "UI_Settings",				ref m_Settings );
+		m_bIsInitialized &= transform.SearchComponentInChild( "UI_PauseMenu",				ref m_PauseMenu );
+		m_bIsInitialized &= transform.SearchComponentInChild( "UI_Bindings",				ref m_Bindings );
+		m_bIsInitialized &= transform.SearchComponentInChild( "UI_Graphics",				ref m_Graphics );
+		m_bIsInitialized &= transform.SearchComponentInChild( "UI_Audio",					ref m_Audio );
+		m_bIsInitialized &= transform.SearchComponentInChild( "UI_Confirmation",			ref m_Confirmation );
 		
-		// Menu initialization
-		foreach( IStateDefiner state in transform.GetComponentOnlyInChildren<IStateDefiner>( deepSearch: true,includeInactive: true ) )
+		// Other Menus initialization
+		foreach( IStateDefiner state in transform.GetComponentOnlyInChildren<IStateDefiner>( deepSearch: true, includeInactive: true ) )
 		{
-			bResult &= state.Initialize();
+			m_bIsInitialized &= state.Initialize();
 		}
 		
-		bResult &= transform.SearchComponentInChild( "EffectFrame", ref m_EffectFrame );
+		// Effect Frame
+		m_bIsInitialized &= transform.SearchComponentInChild( "EffectFrame", ref m_EffectFrame );
 
+		// Ray cast interceptor
 		m_RayCastInterceptor			= transform.Find( "RayCastInterceptor" );
+		m_bIsInitialized &= m_RayCastInterceptor != null;
 
-		bResult &= m_RayCastInterceptor != null;
-
-		if ( bResult )
+		if ( m_bIsInitialized )
 		{
 			m_RayCastInterceptor.gameObject.SetActive( false );
 			m_CurrentActiveTrasform = m_InGame.gameObject.activeSelf ? m_InGame.transform : m_MainMenu.transform;
 		}
 		else
 		{
-			Debug.Log( "UI initialization failed" );
+			Debug.LogError( "UI: Bad initialization!!!" );
 		}
-		return bResult;
+		return m_bIsInitialized;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ReInit
+	bool IStateDefiner.ReInit()
+	{
+		return m_bIsInitialized;
 	}
 
 

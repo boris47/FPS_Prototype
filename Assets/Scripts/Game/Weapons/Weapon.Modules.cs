@@ -243,7 +243,7 @@ public class WeaponModuleSlot {
 
 		if ( m_WeaponModule != null )
 		{
-			GameManager.UpdateEvents.OnFrame -= m_WeaponModule.InternalUpdate;
+//			GameManager.UpdateEvents.OnFrame -= m_WeaponModule.InternalUpdate;
 			Object.Destroy( m_WeaponModule );
 		}
 
@@ -254,7 +254,6 @@ public class WeaponModuleSlot {
 		if ( bSetupSuccess == true )
 		{
 			m_WeaponModule = wpnModule;
-			GameManager.UpdateEvents.OnFrame += m_WeaponModule.InternalUpdate;
 		}
 		// On Fail add empty module
 		else
@@ -264,7 +263,14 @@ public class WeaponModuleSlot {
 			Debug.Log( "WeaponModuleSlot::TrySetModule: " + wpn.Section.Name() + ": Class Requested is not a supported weapon module, \"" + type.ToString() + "\"" );
 		}
 
+//		GameManager.UpdateEvents.OnFrame += m_WeaponModule.InternalUpdate;
+
 		return bSetupSuccess;
+	}
+
+	public	void	OnDestroy()
+	{
+//		GameManager.UpdateEvents.OnFrame -= m_WeaponModule.InternalUpdate;
 	}
 
 }

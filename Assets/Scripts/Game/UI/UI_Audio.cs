@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UI_Audio : MonoBehaviour, IUIOptions {
+public class UI_Audio : MonoBehaviour, IUIOptions, IStateDefiner {
 
 	// Registry Keys
 	private	const	string	FLAG_SAVED_AUDIO_SETTINGS	= "bSavedAudioSettings";
@@ -42,39 +42,49 @@ public class UI_Audio : MonoBehaviour, IUIOptions {
 		{
 			return true;
 		}
-
-		m_bIsInitialized = transform.SearchComponentInChild( "Slider_MusicVolume", ref m_MusicSlider );
-		m_bIsInitialized &= transform.SearchComponentInChild( "Slider_SoundVolume", ref m_SoundSlider );
-
-		if ( m_bIsInitialized &= transform.SearchComponentInChild( "ApplyButton", ref m_ApplyButton ) )
+		
+		m_bIsInitialized = true;
 		{
-			m_ApplyButton.onClick.AddListener
-			(	
-				delegate()
-				{
-					UI.Instance.Confirmation.Show( "Apply Changes?", OnApplyChanges, delegate { ReadFromRegistry(); UpdateUI(); } );
-				}
-			);
-			m_ApplyButton.interactable = false;
-		}
+			m_bIsInitialized &= transform.SearchComponentInChild( "Slider_MusicVolume", ref m_MusicSlider );
+			m_bIsInitialized &= transform.SearchComponentInChild( "Slider_SoundVolume", ref m_SoundSlider );
 
-		if ( m_bIsInitialized &= transform.SearchComponentInChild( "ResetButton", ref m_ResetButton ) )
-		{
-			m_ResetButton.onClick.AddListener
-			(
-				delegate()
-				{
-					UI.Instance.Confirmation.Show( "Reset?", ApplyDefaults, delegate { ReadFromRegistry(); UpdateUI(); } );
-				}	
-			);
-		}
+			if ( m_bIsInitialized &= transform.SearchComponentInChild( "ApplyButton", ref m_ApplyButton ) )
+			{
+				m_ApplyButton.onClick.AddListener
+				(	
+					delegate()
+					{
+						UI.Instance.Confirmation.Show( "Apply Changes?", OnApplyChanges, delegate { ReadFromRegistry(); UpdateUI(); } );
+					}
+				);
+				m_ApplyButton.interactable = false;
+			}
 
-		if ( m_bIsInitialized )
-		{
-			OnEnable();
-			OnApplyChanges();
-		}
+			if ( m_bIsInitialized &= transform.SearchComponentInChild( "ResetButton", ref m_ResetButton ) )
+			{
+				m_ResetButton.onClick.AddListener
+				(
+					delegate()
+					{
+						UI.Instance.Confirmation.Show( "Reset?", ApplyDefaults, delegate { ReadFromRegistry(); UpdateUI(); } );
+					}	
+				);
+			}
 
+			if ( m_bIsInitialized )
+			{
+				OnEnable();
+				OnApplyChanges();
+			}
+		}
+		return m_bIsInitialized;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ReInit
+	bool IStateDefiner.ReInit()
+	{
 		return m_bIsInitialized;
 	}
 

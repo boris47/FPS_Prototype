@@ -2,18 +2,18 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UI_InGame : MonoBehaviour {
+public class UI_InGame : MonoBehaviour, IStateDefiner {
 
-	private			Transform		m_Panel1					= null;
+	private			Transform		m_GenericInfosPanel			= null;
 	private			Text			m_TimeText					= null;
 	private			Text			m_CycleNameText				= null;
 	private			Text			m_HealthText				= null;
 
-	private			Transform		m_Panel2					= null;
+	private			Transform		m_WeaponInfosPanel				= null;
 	private			Text			m_WpnNameText				= null;
 	private			Text			m_WpnOtherInfoText			= null;
 
-	private			Image			m_StaminaBarImage			= null;
+//	private			Image			m_StaminaBarImage			= null;
 	private			Transform		m_CrosshairTransform		= null;
 
 	private			Image			m_ZoomFrameImage			= null;
@@ -23,45 +23,75 @@ public class UI_InGame : MonoBehaviour {
 	private			bool			m_IsActive					= false;
 
 
-	//////////////////////////////////////////////////////////////////////////
-	// Awake
-	private void	Awake()
+	private	bool			m_bIsInitialized			= false;
+	bool IStateDefiner.IsInitialized
 	{
-
+		get { return m_bIsInitialized; }
 	}
 
-	private void Start()
+
+	//////////////////////////////////////////////////////////////////////////
+	// Initialize
+	bool IStateDefiner.Initialize()
 	{
-		bool result = true;
+		if ( m_bIsInitialized )
+			return true;
 
-		m_Panel1				= transform.GetChild( 0 );
+		m_bIsInitialized = true;
 		{
-			result &=	m_Panel1.SearchComponentInChild( 0, ref m_CycleNameText );
-			result &=	m_Panel1.SearchComponentInChild( 1, ref m_TimeText);
-			result &=	m_Panel1.SearchComponentInChild( 2, ref m_HealthText );
+			m_bIsInitialized &= transform.childCount > 1;
+
+			if ( m_bIsInitialized )
+			{
+				m_GenericInfosPanel = transform.Find( "GenericInfosPanel" );
+				{
+					m_bIsInitialized &=	m_GenericInfosPanel.SearchComponentInChild( 0, ref m_CycleNameText );
+					m_bIsInitialized &=	m_GenericInfosPanel.SearchComponentInChild( 1, ref m_TimeText);
+					m_bIsInitialized &=	m_GenericInfosPanel.SearchComponentInChild( 2, ref m_HealthText );
+				}
+			}
+
+			if ( m_bIsInitialized )
+			{
+				m_WeaponInfosPanel = transform.Find( "WeaponInfosPanel" );
+				{
+					m_bIsInitialized &=	m_WeaponInfosPanel.SearchComponentInChild( 0, ref m_WpnNameText );
+					m_bIsInitialized &=	m_WeaponInfosPanel.SearchComponentInChild( 2, ref m_WpnOtherInfoText );
+	//				m_bIsInitialized &=	m_Panel2.SearchComponentInChild( 3, ref m_StaminaBarImage );
+				}
+			}
+
+			m_bIsInitialized &= transform.SearchComponentInChild( "UI_Frame", ref m_ZoomFrameImage );
+
+			m_bIsInitialized &= ( m_CrosshairTransform = transform.Find( "Crosshair" )) != null;
+			if ( m_bIsInitialized )
+			{
+				m_ZoomFrameImage.raycastTarget = false;
+
+				InvokeRepeating( "PrintTime", 1.0f, 1.0f );	
+			}
+			else
+			{
+				Debug.LogError( "UI_InGame: Bad initialization!!!" );
+			}
 		}
+		return m_bIsInitialized;
+	}
 
 
-		m_Panel2				= transform.GetChild( 1 );
-		{
-			result &=	m_Panel2.SearchComponentInChild( 0, ref m_WpnNameText );
-			result &=	m_Panel2.SearchComponentInChild( 2, ref m_WpnOtherInfoText );
-//			result &=	m_Panel2.SearchComponentInChild( 3, ref m_StaminaBarImage );
-		}
+	//////////////////////////////////////////////////////////////////////////
+	// ReInit
+	bool IStateDefiner.ReInit()
+	{
+		return m_bIsInitialized;
+	}
 
-		result &= transform.SearchComponentInChild( "UI_Frame", ref m_ZoomFrameImage );
 
-		if ( result )
-		{
-			m_ZoomFrameImage.raycastTarget = false;
-			m_CrosshairTransform	= transform.Find( "Crosshair" );
-
-			InvokeRepeating( "PrintTime", 1.0f, 1.0f );	
-		}
-		else
-		{
-			Debug.Log( "UI_InGame: Bad initialization!!!" );
-		}
+	//////////////////////////////////////////////////////////////////////////
+	// Finalize
+	bool	 IStateDefiner.Finalize()
+	{
+		return m_bIsInitialized;
 	}
 
 
@@ -69,13 +99,27 @@ public class UI_InGame : MonoBehaviour {
 	// OnEnable
 	private void OnEnable()
 	{
-#if UNITY_EDITOR
-		if ( UnityEditor.EditorApplication.isPlaying && GameManager.IsChangingScene == false )
-			m_IsActive = true;
-#endif
+		m_IsActive = true;
+	
 		UI.Instance.EffectFrame.color = Color.clear;
 
 		SoundManager.Instance.OnSceneLoaded();
+
+		// Reset Ingame UI
+		InternalReset();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Reset
+	private void InternalReset()
+	{
+		m_ZoomFrameImage.enabled	= false;
+		m_ZoomFrameImage.sprite		= null;
+		m_ZoomFrameImage.color		= Color.clear;
+		m_ZoomFrameImage.material	= null;
+		ShowCrosshair();
+		Show();
 	}
 
 
@@ -99,8 +143,6 @@ public class UI_InGame : MonoBehaviour {
 
 		// if level is greater than 0 we suppose being in a level where ingame UI must be shown
 		m_IsActive = true;
-
-		Show();
 	}
 
 
@@ -108,8 +150,8 @@ public class UI_InGame : MonoBehaviour {
 	// Show
 	public	void	Show()
 	{
-		m_Panel1.gameObject.SetActive( true );
-		m_Panel2.gameObject.SetActive( true );
+		m_GenericInfosPanel.gameObject.SetActive( true );
+		m_WeaponInfosPanel.gameObject.SetActive( true );
 	}
 
 
@@ -117,8 +159,8 @@ public class UI_InGame : MonoBehaviour {
 	// Hide
 	public	void	Hide()
 	{
-		m_Panel1.gameObject.SetActive( false );
-		m_Panel2.gameObject.SetActive( false );
+		m_GenericInfosPanel.gameObject.SetActive( false );
+		m_WeaponInfosPanel.gameObject.SetActive( false );
 	}
 
 
@@ -209,12 +251,12 @@ public class UI_InGame : MonoBehaviour {
 		}
 	}
 
-	
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	// Update
 	private void	Update()
 	{
-		/*
+		
 		if ( m_IsActive == false )
 			return;
 
@@ -223,7 +265,7 @@ public class UI_InGame : MonoBehaviour {
 			return;
 
 		staminaBar.fillAmount = Player.Instance.Stamina;
-		*/
+		
 	}
-	
+	*/
 }

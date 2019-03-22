@@ -34,6 +34,7 @@ public partial class GameManager : MonoBehaviour {
 
 	private					bool			m_SkipOneFrame			= true;
 	private					float			m_ThinkTimer			= 0f;
+	
 
 	//////////////////////////////////////////////////////////////////////////
 	private			void		Awake ()
