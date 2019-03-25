@@ -81,7 +81,7 @@ AI Behiaviours
 						WPN_FireModule_GranadeLauncher,
 						WPN_FireModule_SniperBarrel
 
-		- utility modules
+		- Utility modules
 						WPN_WeaponModule_Zoom,
 						WPN_WeaponModule_OpticZoom,
 						WPN_WeaponModule_Shield
@@ -92,7 +92,7 @@ AI Behiaviours
 
 		- Each module has some callable events ( ApplyModifier, RemoveModifier, ResetBaseConfiguration, Start, Update, End )
 
-		- The weapon cna have other attachments that can be Activated and Deactivated / Attached and Removed ( Flashlight, Laser, Optic )
+		- The weapon can have other attachments that can be Activated and Deactivated / Attached and Removed ( Flashlight, Laser, Optic )
 	}
 
-	TODO Save database using context
+***	TODO Save database using context

@@ -115,6 +115,8 @@ public class UI : MonoBehaviour, IUI, IStateDefiner {
 	// Awake
 	private void Awake()
 	{
+		int sceneIdx = gameObject.scene.buildIndex;
+
 		// SINGLETON
 		if ( Instance != null )
 		{
@@ -125,6 +127,12 @@ public class UI : MonoBehaviour, IUI, IStateDefiner {
 		DontDestroyOnLoad( this );
 
 		m_bIsInitialized = ( this as IStateDefiner ).Initialize();
+
+		if ( sceneIdx > 0 )
+		{
+			SwitchTo( m_InGame.transform );
+		}
+
 	}
 
 
