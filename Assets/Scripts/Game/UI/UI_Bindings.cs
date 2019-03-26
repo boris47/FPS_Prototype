@@ -135,70 +135,87 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 
 		// Command Label
 		{
-			Text commandLabel = commandRow.transform.GetChild( 0 ).GetComponent<Text>();
-			commandLabel.text = info.Command.ToString();
+			Text commandLabel = null;
+			if ( commandRow.transform.SearchComponentInChild( 0, ref commandLabel ) )
+				commandLabel.text = info.Command.ToString();
 		}
 
 		// Primary KeyState Dropdown
 		{
-			Dropdown primaryKeyStateDropdown = commandRow.transform.GetChild( 1 ).GetComponent<Dropdown>();
-			primaryKeyStateDropdown.AddOptions( keyStateDropDownList );
-			primaryKeyStateDropdown.value = (int)info.PrimaryKeyState;
-			primaryKeyStateDropdown.onValueChanged.AddListener( 
-				delegate( int i )
-				{
-					OnKeyStateChanged( info, eKeys.PRIMARY, i );
-				}
-			);
+			Dropdown primaryKeyStateDropdown = null;
+			if ( commandRow.transform.SearchComponentInChild( 1, ref primaryKeyStateDropdown ) )
+			{
+				primaryKeyStateDropdown.AddOptions( keyStateDropDownList );
+				primaryKeyStateDropdown.value = (int)info.PrimaryKeyState;
+				primaryKeyStateDropdown.onValueChanged.AddListener( 
+					delegate( int i )
+					{
+						OnKeyStateChanged( info, eKeys.PRIMARY, i );
+					}
+				);
+			}
 
-			Text label = primaryKeyStateDropdown.transform.GetChild(0).GetComponent<Text>();
-			label.text = info.PrimaryKeyState.ToString();
+			Text label = null;
+			if ( primaryKeyStateDropdown.transform.SearchComponentInChild( 0, ref label ) )
+				label.text = info.PrimaryKeyState.ToString();
 		}
 
 		// Primary Key Choice Button
 		{
-			Button primaryKeyChoiceButton = commandRow.transform.GetChild( 2 ).GetComponent<Button>();
-			primaryKeyChoiceButton.navigation = noNavigationMode;
-			primaryKeyChoiceButton.onClick.AddListener( 
-				delegate() 
-				{
-					OnKeyChoiceButtonClicked( info, eKeys.PRIMARY );
-				}
-			);
+			Button primaryKeyChoiceButton = null;
+			if (commandRow.transform.SearchComponentInChild( 2, ref primaryKeyChoiceButton ) )
+			{
+				primaryKeyChoiceButton.navigation = noNavigationMode;
+				primaryKeyChoiceButton.onClick.AddListener( 
+					delegate() 
+					{
+						OnKeyChoiceButtonClicked( info, eKeys.PRIMARY );
+					}
+				);
+			}
 
-			Text label = primaryKeyChoiceButton.transform.GetChild(0).GetComponent<Text>();
-			label.text = info.GetKeyCode( eKeys.PRIMARY ).ToString();
+			Text label = null;
+			if ( primaryKeyChoiceButton.transform.SearchComponentInChild( 0, ref label ) )
+				label.text = info.GetKeyCode( eKeys.PRIMARY ).ToString();
 		}
 
 		// Secondary KeyState Dropdown
 		{
-			Dropdown secondaryKeyStateDropdown = commandRow.transform.GetChild( 3 ).GetComponent<Dropdown>();
-			secondaryKeyStateDropdown.AddOptions( keyStateDropDownList );
-			secondaryKeyStateDropdown.value = (int)info.SecondaryKeyState;
-			secondaryKeyStateDropdown.onValueChanged.AddListener( 
-				delegate( int i )
-				{
-					OnKeyStateChanged( info, eKeys.SECONDARY, i );
-				}
-			);
+			Dropdown secondaryKeyStateDropdown = null;
+			if ( commandRow.transform.SearchComponentInChild( 3, ref secondaryKeyStateDropdown ) )
+			{
+				secondaryKeyStateDropdown.AddOptions( keyStateDropDownList );
+				secondaryKeyStateDropdown.value = (int)info.SecondaryKeyState;
+				secondaryKeyStateDropdown.onValueChanged.AddListener( 
+					delegate( int i )
+					{
+						OnKeyStateChanged( info, eKeys.SECONDARY, i );
+					}
+				);
+			}
 
-			Text label = secondaryKeyStateDropdown.transform.GetChild(0).GetComponent<Text>();
-			label.text = info.SecondaryKeyState.ToString();
+			Text label = null;
+			if ( secondaryKeyStateDropdown.transform.SearchComponentInChild( 0, ref label ) )
+				label.text = info.SecondaryKeyState.ToString();
 		}
 
 		// Secondary Key Choice Button
 		{
-			Button secondaryKeyChoiceButton = commandRow.transform.GetChild( 4 ).GetComponent<Button>();
-			secondaryKeyChoiceButton.navigation = noNavigationMode;
-			secondaryKeyChoiceButton.onClick.AddListener( 
-				delegate()
-				{
-					OnKeyChoiceButtonClicked( info, eKeys.SECONDARY );
-				}
-			);
+			Button secondaryKeyChoiceButton = null;
+			if ( commandRow.transform.SearchComponentInChild( 4, ref secondaryKeyChoiceButton ) )
+			{
+				secondaryKeyChoiceButton.navigation = noNavigationMode;
+				secondaryKeyChoiceButton.onClick.AddListener( 
+					delegate()
+					{
+						OnKeyChoiceButtonClicked( info, eKeys.SECONDARY );
+					}
+				);
+			}
 
-			Text label = secondaryKeyChoiceButton.transform.GetChild(0).GetComponent<Text>();
-			label.text = info.GetKeyCode( eKeys.SECONDARY ).ToString();
+			Text label = null;
+			if ( secondaryKeyChoiceButton.transform.SearchComponentInChild( 0, ref label ) )
+				label.text = info.GetKeyCode( eKeys.SECONDARY ).ToString();
 		}
 	}
 
