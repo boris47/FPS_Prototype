@@ -120,10 +120,10 @@ public partial class GameManager : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private			void		Update()
 	{
-		if ( Time.frameCount % 30 == 0 )
-		{
-		   System.GC.Collect();
-		}
+//		if ( Time.frameCount % 90 == 0 )
+//		{
+//			System.GC.Collect( 1, System.GCCollectionMode.Optimized );
+//		}
 
 		if ( m_InGame == false )
 			return;
