@@ -18,21 +18,26 @@ public interface IModifiable {
 	void					RemoveModifier			( Database.Section modifier );
 }
 
-public interface IWeapon :  IWeaponZoom, IModifiable {
+public interface IAttachments {
+
+	// Weapon Attachments
+	IFlashLight				Flashlight						{ get; }
+	bool					HasFlashlight					{ get; }
+	ILaser					Laser							{ get; }
+	bool					HasLaser						{ get; }
+	IGranadeLauncher		GranadeLauncher					{ get; }
+	bool					HasGranadeLauncher				{ get; }
+
+}
+
+public interface IWeapon :  IAttachments, IWeaponZoom, IModifiable {
 	
 	Transform				Transform						{ get; }
 	bool					Enabled							{ get; set; }
 	WeaponState				WeaponState						{ get; }
 
 	bool					bGetModuleBySlot				( WeaponSlots slot, ref WPN_BaseModule weaponModule );
-	bool					bGetModuleSlot					( WeaponSlots slot, ref WeaponModuleSlot moduleSlot );
-
-
-
-	// Weapon Attachments
-	IFlashLight				Flashlight						{ get; }
-	Laser					Laser							{ get; }
-	GranadeLauncher			GranadeLauncher					{ get; }
+	bool					bGetModuleSlot					( WeaponSlots slot, ref WeaponModuleSlot moduleSlot );	
 
 	Database.Section		Section							{ get; }
 	string					OtherInfo						{ get; }
@@ -49,7 +54,7 @@ public interface IWeapon :  IWeaponZoom, IModifiable {
 
 
 [System.Serializable]
-public abstract partial class Weapon : MonoBehaviour, IWeapon, IModifiable {
+public abstract partial class Weapon : MonoBehaviour, IWeapon {
 
 	[Header("Weapon Properties")]
 
@@ -61,8 +66,12 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon, IModifiable {
 
 	// ATTACHMENTS
 	protected		IFlashLight								m_FlashLight				= null;
-	protected		Laser									m_Laser						= null;
-	protected		GranadeLauncher							m_GranadeLauncher			= null;
+	protected		bool									m_bHasFlashlight			= false;
+	protected		ILaser									m_Laser						= null;
+	protected		bool									m_bHasLaser					= false;
+	protected		IGranadeLauncher						m_GranadeLauncher			= null;
+	protected		bool									m_bHasGranadeLauncher		= false;
+
 
 	// WEAPON STATE
 	protected		WeaponState								m_WeaponState				= WeaponState.STASHED;
@@ -76,11 +85,17 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon, IModifiable {
 	protected		List<Database.Section>					m_Modifiers					= new List<Database.Section>();
 
 	// INTERFACE START
+					IFlashLight								IAttachments.Flashlight			{ get { return m_FlashLight; } }
+					bool									IAttachments.HasFlashlight		{ get { return m_bHasFlashlight; } }
+					ILaser									IAttachments.Laser				{ get { return m_Laser; } }
+					bool									IAttachments.HasLaser			{ get { return m_bHasLaser; } }
+					IGranadeLauncher						IAttachments.GranadeLauncher	{ get { return m_GranadeLauncher; } }
+					bool									IAttachments.HasGranadeLauncher	{ get { return m_bHasGranadeLauncher; } }
+
+
+
 					Transform								IWeapon.Transform			{ get { return transform; } }
 					bool									IWeapon.Enabled				{ get { return enabled; } set { enabled = value; } }
-					IFlashLight								IWeapon.Flashlight			{ get { return m_FlashLight; } }
-					Laser									IWeapon.Laser				{ get { return m_Laser; } }
-					GranadeLauncher							IWeapon.GranadeLauncher		{ get { return m_GranadeLauncher; } }
 					WeaponState								IWeapon.WeaponState			{ get { return m_WeaponState; } }
 					Database.Section						IWeapon.Section				{ get { return m_WpnSection; } }
 					string									IWeapon.OtherInfo			{ get { return OtherInfo; } }
@@ -127,6 +142,20 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon, IModifiable {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	protected	void	UpdateAttachments()
+	{
+		// Flashlight
+		m_bHasFlashlight		= Utils.Base.SearchComponent( gameObject, ref m_FlashLight, SearchContext.CHILDREN );
+
+		// Laser
+		m_bHasLaser				= Utils.Base.SearchComponent( gameObject, ref m_Laser, SearchContext.CHILDREN );
+
+		// Granade Launcher
+		m_bHasGranadeLauncher	= Utils.Base.SearchComponent( gameObject, ref m_GranadeLauncher, SearchContext.CHILDREN );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	protected	virtual	void				Awake()
 	{
 		System.Diagnostics.Stopwatch m_StopWatch = new System.Diagnostics.Stopwatch();
@@ -144,14 +173,10 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon, IModifiable {
 			Debug.Log( "Animations for weapon " + m_WpnBaseSectionName + " are " + ( ( weaponAwakeSuccess ) ? "correctly loaded" : "invalid!!!" ) );
 		}
 
-		// Laser
-		m_Laser = GetComponentInChildren<Laser>();
 
-		// Granade Launcher
-		m_GranadeLauncher = GetComponentInChildren<GranadeLauncher>();
+		// ATTACHMENTS
+		UpdateAttachments();
 
-		// Flashlight
-		m_FlashLight = GetComponentInChildren<Flashlight>() as IFlashLight;
 
 		// Registering game events
 		GameManager.StreamEvents.OnSave += OnSave;

@@ -1,8 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+public interface ILaser {
+
+}
+
 [System.Serializable]
-public class Laser : WeaponAttachment {
+public class Laser : WeaponAttachment, ILaser {
 
 	[SerializeField]
 	protected		float				m_ScaleFactor		= 0.03f;

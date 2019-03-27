@@ -1,6 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class GranadeLauncher : WeaponAttachment {
+public interface IGranadeLauncher {
+
+}
+
+public class GranadeLauncher : WeaponAttachment, IGranadeLauncher {
 	
 }

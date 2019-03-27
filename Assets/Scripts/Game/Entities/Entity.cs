@@ -93,6 +93,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	[SerializeField]
 	protected	float						m_Health						= 1f;
 	protected	IShield						m_Shield						= null;
+	protected	bool						m_bHasShield					= false;
 	protected	bool						m_IsActive						= true;
 	protected 	uint						m_ID							= 0;
 	protected	Section						m_SectionRef					= null;
@@ -201,22 +202,22 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		}
 
 		// SHIELD
-		if ( Utils.Base.SearchComponent( gameObject, ref m_Shield, SearchContext.CHILDREN ) )
+		if ( m_bHasShield = Utils.Base.SearchComponent( gameObject, ref m_Shield, SearchContext.CHILDREN ) )
 		{
 			m_Shield.OnHit += OnShieldHit;
 		}
 
 
 		// CUTSCENE MANAGER
-		Utils.Base.SearchComponent( gameObject, ref m_CutsceneManager, SearchContext.CHILDREN );
+		m_bHasCutsceneManager = Utils.Base.SearchComponent( gameObject, ref m_CutsceneManager, SearchContext.CHILDREN );
 
 		// AI
 		{
 			// NAV AGENT
-			Utils.Base.SearchComponent( gameObject, ref m_NavAgent, SearchContext.LOCAL	);
+			m_bHasNavAgent = Utils.Base.SearchComponent( gameObject, ref m_NavAgent, SearchContext.LOCAL	);
 
 			// FIELD OF VIEW
-			Utils.Base.SearchComponent( gameObject, ref m_FieldOfView, SearchContext.CHILDREN );
+			m_bHasFieldOfView = Utils.Base.SearchComponent( gameObject, ref m_FieldOfView, SearchContext.CHILDREN );
 
 			// BLACKBOARD
 			if ( Blackboard.IsEntityRegistered( m_ID ) == false )
@@ -236,7 +237,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 			m_CurrentBrainState = BrainState.COUNT;
 		}
 
-		if ( m_IsOK && m_NavAgent != null && ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
+		if ( m_IsOK && m_bHasNavAgent && ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
 		{
 			m_IsOK	&= m_NavAgent.isOnNavMesh;
 		}
@@ -363,7 +364,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 			// point on the entity 'Horizontal' plane
 			Vector3 pointOnEntityPlane	= Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, transform.position, pointToLookAt );
 
-			// Direction from head to  point
+			// Direction from head to point
 			Vector3 dirHeadToPosition	= ( pointOnHeadPlane - m_HeadTransform.position );
 
 			// Direction from entity to point

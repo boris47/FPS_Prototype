@@ -32,6 +32,8 @@ public abstract partial class Entity : IEntity {
 
 
 	protected	NavMeshAgent			m_NavAgent						= null;
+	protected	bool					m_bHasNavAgent					= false;
+
 	protected	bool					m_NavCanMoveAlongPath			= true;
 
 	private		bool					m_HasPendingRequest				= false;

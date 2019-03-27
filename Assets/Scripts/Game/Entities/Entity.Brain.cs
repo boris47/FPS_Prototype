@@ -37,6 +37,7 @@ public abstract partial class Entity : IBrain {
 	protected			List<AIBehaviour>			m_Behaviours					= new List<AIBehaviour>( new AIBehaviour[5] );
 
 	protected			FieldOfView					m_FieldOfView					= null;
+	protected			bool						m_bHasFieldOfView				= false;
 	protected			bool						m_IsBrainActive					= true;
 
 

@@ -30,6 +30,7 @@ public abstract partial class Entity : IEntitySimulation {
 
 	// CUTSCENE MANAGER
 	protected	CutsceneEntityManager		m_CutsceneManager				= null;
+	protected	bool						m_bHasCutsceneManager			= false;
 
 	protected	bool						m_MovementOverrideEnabled		= false;
 	protected	Vector3						m_SimulationStartPosition		= Vector3.zero;
