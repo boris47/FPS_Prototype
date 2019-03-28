@@ -189,13 +189,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		m_IsOK = true;
 		{
 			// PHYSIC COLLIDER
-			m_IsOK   =	Utils.Base.SearchComponent( gameObject, ref m_PhysicCollider, SearchContext.LOCAL, (p) => { return p && p.isTrigger == false; } );
-
-			// TRIGGER COLLIDER ( PLAYER ONLY )
-//			if ( m_EntityType == ENTITY_TYPE.ACTOR )
-//			{
-//				m_IsOK	&= Utils.Base.SearchComponent( gameObject, ref m_TriggerCollider, SearchContext.LOCAL, (p) => { return p && p.isTrigger == true;  } );
-//			}
+			m_IsOK   =	Utils.Base.SearchComponent( gameObject, ref m_PhysicCollider, SearchContext.LOCAL, (p) => { return p is CapsuleCollider; } );
 
 			// RIGIDBODY
 			m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_RigidBody, SearchContext.LOCAL );

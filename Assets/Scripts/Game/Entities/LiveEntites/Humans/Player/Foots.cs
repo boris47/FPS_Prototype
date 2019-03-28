@@ -11,26 +11,18 @@ public interface IFoots {
 
 }
 
-// TODO prevent actor not stepping on box borders
-
 public class Foots : MonoBehaviour, IFoots {
 
 	private		LiveEntity			m_LiveEntity		= null;
-	public		LiveEntity			Onwer
-	{
-		get { return m_LiveEntity; }
-	}
 
+	private		Collider			m_Collider			= null;
 	public		Collider			Collider
 	{
-		get { return GetComponent<Collider>(); }
+		get { return m_Collider == null ? m_Collider = GetComponent<Collider>() : m_Collider; }
 	}
 
 	private		Collider			m_CurrentCollider	= null;
-//	private		RaycastHit			m_RaycastHit		= default( RaycastHit );
 	private		ICustomAudioSource	m_AudioSource		= null;
-//	private		MeshCollider		m_Collider			= null;
-//	private		bool				m_IsColliding		= false;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -52,7 +44,7 @@ public class Foots : MonoBehaviour, IFoots {
 		if ( SurfaceManager.Instance == null )
 			return;
 
-		AudioClip footstepClip = SurfaceManager.Instance.GetFootstep( ref m_CurrentCollider, transform.position );
+		AudioClip footstepClip = SurfaceManager.Instance.GetFootstep( m_CurrentCollider, transform.position );
 		if ( footstepClip == null )
 			return;
 
@@ -60,22 +52,19 @@ public class Foots : MonoBehaviour, IFoots {
 		m_AudioSource.Play();
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnTriggerEnter
 	private void OnTriggerEnter( Collider other )
 	{
-		if ( other.isTrigger == true )
-			return;
-
 		m_CurrentCollider = other;
-
-//		print( other.name );
 		m_LiveEntity.IsGrounded = true;
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	// OnTriggerExit
 	private void OnTriggerExit( Collider other )
 	{
-		if ( other.isTrigger == true )
-			return;
-
 		m_LiveEntity.IsGrounded = false;
 	}
 }

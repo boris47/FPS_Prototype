@@ -1,1 +1,360 @@
-{"m_Data":[{"InstanceID":-4040,"Name":"Camera","Position":{"x":0.0,"y":0.0,"z":0.0},"Rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"Internals":[{"Key":"CurrentDirection","Value":"0.2840851, 0.06234022, 0"},{"Key":"CanParseInput","Value":"True"},{"Key":"HeadbobActive","Value":"True"},{"Key":"HeadmoveActive","Value":"True"}]},{"InstanceID":15256,"Name":"Player","Position":{"x":9.930000305175782,"y":5.525000095367432,"z":-37.380001068115237},"Rotation":{"x":0.0,"y":-0.2596752941608429,"z":0.0,"w":0.9656959772109985},"Internals":[{"Key":"Health","Value":"10000"},{"Key":"Stamina","Value":"1"},{"Key":"IsCrouched","Value":"False"},{"Key":"MotionType","Value":"Walking"}]},{"InstanceID":-6162,"Name":"WeaponManager","Position":{"x":0.0,"y":0.0,"z":0.0},"Rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"Internals":[{"Key":"CurrentWeaponIndex","Value":"0"},{"Key":"ZoomedIn","Value":"False"},{"Key":"StartOffset","Value":"0, 0, 0"},{"Key":"FinalOffset","Value":"0, 0, 0"},{"Key":"ZoomFactor","Value":"0"},{"Key":"ZoomingTime","Value":"0"},{"Key":"ZoomSensitivity","Value":"1"},{"Key":"StartCameraFOV","Value":"60"}]},{"InstanceID":-8094,"Name":"DroneStandard","Position":{"x":-8.41522216796875,"y":8.082763671875,"z":4.673984527587891},"Rotation":{"x":0.0,"y":0.8418534398078919,"z":0.0,"w":0.539706289768219},"Internals":[{"Key":"SEEKER_CurrentInvestigationDirection","Value":"RIGHT"},{"Key":"Health","Value":"100"},{"Key":"IsMoving","Value":"True"},{"Key":"IsAllignedBodyToDestination","Value":"False"},{"Key":"IsAllignedGunToPoint","Value":"False"},{"Key":"BodyRotation","Value":"0, 0, 0, 1"},{"Key":"GunRotation","Value":"0, 0, 0, 1"}]},{"InstanceID":-6992,"Name":"CommandPanel","Position":{"x":0.0,"y":0.0,"z":0.0},"Rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"Internals":[{"Key":"IsTriggered","Value":"False"}]},{"InstanceID":-3980,"Name":"Blackjack","Position":{"x":0.0,"y":0.0,"z":0.0},"Rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"Internals":[{"Key":"Blackjack","Value":"50"}]},{"InstanceID":15192,"Name":"CutsceneTrigger","Position":{"x":0.0,"y":0.0,"z":0.0},"Rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"Internals":[{"Key":"HasTriggered","Value":"False"}]}]}
+{
+    "m_Data": [
+        {
+            "InstanceID": -605778,
+            "Name": "Camera",
+            "Position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "Internals": [
+                {
+                    "Key": "CurrentDirection",
+                    "Value": "-0.001304939, 0.0002609969, 0"
+                },
+                {
+                    "Key": "CanParseInput",
+                    "Value": "True"
+                },
+                {
+                    "Key": "HeadbobActive",
+                    "Value": "True"
+                },
+                {
+                    "Key": "HeadmoveActive",
+                    "Value": "True"
+                }
+            ]
+        },
+        {
+            "InstanceID": 156442,
+            "Name": "Player",
+            "Position": {
+                "x": 9.930000305175782,
+                "y": 5.525000095367432,
+                "z": -37.380001068115237
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": -0.2596752941608429,
+                "z": 0.0,
+                "w": 0.9656959772109985
+            },
+            "Internals": [
+                {
+                    "Key": "Health",
+                    "Value": "10000"
+                },
+                {
+                    "Key": "Stamina",
+                    "Value": "1"
+                },
+                {
+                    "Key": "IsCrouched",
+                    "Value": "False"
+                },
+                {
+                    "Key": "MotionType",
+                    "Value": "Walking"
+                }
+            ]
+        },
+        {
+            "InstanceID": -605070,
+            "Name": "WeaponManager",
+            "Position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "Internals": [
+                {
+                    "Key": "CurrentWeaponIndex",
+                    "Value": "0"
+                },
+                {
+                    "Key": "ZoomedIn",
+                    "Value": "False"
+                },
+                {
+                    "Key": "StartOffset",
+                    "Value": "0, 0, 0"
+                },
+                {
+                    "Key": "FinalOffset",
+                    "Value": "0, 0, 0"
+                },
+                {
+                    "Key": "ZoomFactor",
+                    "Value": "0"
+                },
+                {
+                    "Key": "ZoomingTime",
+                    "Value": "0"
+                },
+                {
+                    "Key": "ZoomSensitivity",
+                    "Value": "1"
+                },
+                {
+                    "Key": "StartCameraFOV",
+                    "Value": "60"
+                }
+            ]
+        },
+        {
+            "InstanceID": -608546,
+            "Name": "DroneStandard",
+            "Position": {
+                "x": -8.41522216796875,
+                "y": 8.082763671875,
+                "z": 4.673984527587891
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": 0.8418534398078919,
+                "z": 0.0,
+                "w": 0.539706289768219
+            },
+            "Internals": [
+                {
+                    "Key": "SEEKER_CurrentInvestigationDirection",
+                    "Value": "RIGHT"
+                },
+                {
+                    "Key": "Health",
+                    "Value": "100"
+                },
+                {
+                    "Key": "IsMoving",
+                    "Value": "True"
+                },
+                {
+                    "Key": "IsAllignedBodyToDestination",
+                    "Value": "False"
+                },
+                {
+                    "Key": "IsAllignedGunToPoint",
+                    "Value": "False"
+                },
+                {
+                    "Key": "BodyRotation",
+                    "Value": "0, 0, 0, 1"
+                },
+                {
+                    "Key": "GunRotation",
+                    "Value": "0, 0, 0, 1"
+                }
+            ]
+        },
+        {
+            "InstanceID": -607376,
+            "Name": "CommandPanel",
+            "Position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "Internals": [
+                {
+                    "Key": "IsTriggered",
+                    "Value": "False"
+                }
+            ]
+        },
+        {
+            "InstanceID": -605914,
+            "Name": "Breaker",
+            "Position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "Internals": [
+                {
+                    "Key": "Breaker",
+                    "Value": "50"
+                },
+                {
+                    "Key": "TimeToWaitBeforeRestore",
+                    "Value": "0"
+                },
+                {
+                    "Key": "RestorationSpeed",
+                    "Value": "5"
+                }
+            ]
+        },
+        {
+            "InstanceID": -605854,
+            "Name": "Razor",
+            "Position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "Internals": [
+                {
+                    "Key": "Razor",
+                    "Value": "500"
+                },
+                {
+                    "Key": "FlashLightActive",
+                    "Value": "False"
+                }
+            ]
+        },
+        {
+            "InstanceID": -605820,
+            "Name": "Hammer",
+            "Position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "Internals": [
+                {
+                    "Key": "Hammer",
+                    "Value": "5"
+                }
+            ]
+        },
+        {
+            "InstanceID": -605836,
+            "Name": "Arrow",
+            "Position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "Internals": [
+                {
+                    "Key": "Arrow",
+                    "Value": "9"
+                }
+            ]
+        },
+        {
+            "InstanceID": -605870,
+            "Name": "Blaster",
+            "Position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "Internals": [
+                {
+                    "Key": "Blaster",
+                    "Value": "500"
+                },
+                {
+                    "Key": "FlashLightActive",
+                    "Value": "False"
+                }
+            ]
+        },
+        {
+            "InstanceID": -605888,
+            "Name": "Blackjack",
+            "Position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "Internals": [
+                {
+                    "Key": "Blackjack",
+                    "Value": "50"
+                },
+                {
+                    "Key": "TimeToWaitBeforeRestore",
+                    "Value": "0"
+                },
+                {
+                    "Key": "RestorationSpeed",
+                    "Value": "5"
+                },
+                {
+                    "Key": "FlashLightActive",
+                    "Value": "False"
+                }
+            ]
+        },
+        {
+            "InstanceID": 156378,
+            "Name": "CutsceneTrigger",
+            "Position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "Internals": [
+                {
+                    "Key": "HasTriggered",
+                    "Value": "False"
+                }
+            ]
+        }
+    ]
+}

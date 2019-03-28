@@ -8,7 +8,7 @@ public partial class Player : Human {
 
 	public LayerMask mask;
 
-	private	const	float			MAX_INTERACTION_DISTANCE		= 2.1f;
+	private	const	float			MAX_INTERACTION_DISTANCE		= 40.1f; // TODO set to 2.1
 
 	private	const	float			BODY_DRAG						= 8f;
 
@@ -63,23 +63,19 @@ public partial class Player : Human {
 		Entity = this as IEntity;
 		DontDestroyOnLoad( this );
 
-
 		m_EntityType = ENTITY_TYPE.ACTOR;
-
 		m_SectionName = this.GetType().FullName;
 
 		base.Awake();
 
-		m_PlayerNearAreaTrigger	= transform.Find( "PNAT" ).GetComponent<Collider>(); // Player Near Area Trigger
-		m_PlayerFarAreaTrigger	= transform.Find( "PFAT" ).GetComponent<Collider>(); // Player Far  Area Trigger
+		transform.SearchComponentInChild( "PNAT", ref m_PlayerNearAreaTrigger ); // Player Near Area Trigger
+		transform.SearchComponentInChild( "PFAT", ref m_PlayerFarAreaTrigger ); // Player Far  Area Trigger
 
 		// Player Components
 		{
 			// Foots
-			Transform foots		= transform.Find( "FootSpace" );
-			m_Foots				= foots.GetComponent<IFoots>();
-			Collider footsCollider = foots.GetComponent<Collider>();
-			this.DisableCollisionsWith( footsCollider );
+			Utils.Base.SearchComponent( gameObject, ref m_Foots, SearchContext.CHILDREN );
+			this.DisableCollisionsWith( m_Foots.Collider );
 
 			m_DodgeAbilityTarget = transform.Find( "DodgeAbilityTarget" );
 			m_DodgeAbilityTarget.SetParent( null );
@@ -147,7 +143,6 @@ public partial class Player : Human {
 
 		IsGrounded = false;
 		StartCoroutine( DamageEffectCO() );
-
 
 		m_GrabPoint = new GameObject( "GrabPoint" );
 		m_GrabPoint.transform.SetParent( CameraControl.Instance.Transform /* CameraControl.Instance.Transform */);

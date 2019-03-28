@@ -24,7 +24,7 @@ public partial class Player {
 		streamUnit.SetInternal( "IsCrouched", IsCrouched );
 
 		// Motion Type
-		streamUnit.SetInternal( "MotionType", MotionType );
+		streamUnit.SetInternal( "MotionType", m_CurrentMotionType );
 
 		return streamUnit;
 	}
@@ -82,8 +82,8 @@ public partial class Player {
 		m_States.IsCrouched = streamUnit.GetAsBool( "IsCrouched" );
 
 		// Motion Type
-		MotionType			= streamUnit.GetAsEnum<eMotionType>( "MotionType");
-		SetMotionType( MotionType );
+		m_CurrentMotionType	= streamUnit.GetAsEnum<eMotionType>( "MotionType");
+		SetMotionType( m_CurrentMotionType );
 
 		m_RigidBody.useGravity = false;
 
@@ -111,20 +111,6 @@ public partial class Player {
 
 	}
 
-	/*
-	//////////////////////////////////////////////////////////////////////////
-	public		override	void		OnHit( IBullet bullet )
-	{
-		float damage = Random.Range( bullet.DamageMin, bullet.DamageMax );
-		m_Health -= damage;
-		UI.Instance.InGame.UpdateUI();
-
-		m_DamageEffect = 0.2f;
-
-		if ( m_Health < 0f )
-			OnKill();
-	}
-	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	public		override	void		OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
@@ -180,9 +166,12 @@ public partial class Player {
 			if ( m_RightSmooth != 0.0f )
 				m_RigidBody.AddForce( right		* m_RightSmooth		* GroundSpeedModifier,	m_UpSmooth > 0.0f ? ForceMode.Impulse : ForceMode.Acceleration );
 				
-//			if ( m_UpSmooth > 0.0f )
-//				m_RigidBody.AddForce( up		* m_UpSmooth		* GroundSpeedModifier,	ForceMode.VelocityChange );
+			if ( m_UpSmooth > 0.0f )
+				m_RigidBody.AddForce( up		* m_UpSmooth		* 1.0f,	ForceMode.VelocityChange );
 		}
+
+		float drag = IsGrounded ? 5f : 0.0f;
+		m_RigidBody.drag = drag;
 
 		// Apply gravity
 		{
@@ -291,7 +280,7 @@ public partial class Player {
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Movement Update
 		{
-			switch ( MotionType )
+			switch ( m_CurrentMotionType )
 			{
 				case eMotionType.Walking:	{ this.Update_Walk();		break; }
 				case eMotionType.Flying:	{ this.Update_Fly();		break; }

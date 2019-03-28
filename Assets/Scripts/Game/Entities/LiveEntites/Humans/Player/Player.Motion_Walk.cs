@@ -116,8 +116,16 @@ public partial class Player {
 		{
 
 			float verticalSpeed = transform.InverseTransformDirection( m_RigidBody.velocity ).y;
-			if ( verticalSpeed >  0.01f )		m_States.IsHanging = true;
-			if ( verticalSpeed < -0.01f )		m_States.IsFalling = true;
+			if ( verticalSpeed >  0.01f )
+			{
+				m_States.IsHanging = true;
+				m_Foots.Collider.enabled = false;
+			}
+			if ( verticalSpeed < -0.01f )
+			{
+				m_States.IsFalling = true;
+				m_Foots.Collider.enabled = true;
+			}
 
 
 			/*
