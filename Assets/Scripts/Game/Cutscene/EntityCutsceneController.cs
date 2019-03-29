@@ -2,7 +2,7 @@
 using UnityEngine;
 
 namespace CutScene {
-
+	[System.Serializable]
 	public	class EntityCutsceneController {
 
 
@@ -82,6 +82,11 @@ namespace CutScene {
 		/// <returns></returns>
 		public	bool	Update()
 		{
+			// Continue simulation until need updates
+			bool isBusy = m_EntitySimulation.SimulateMovement( m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
+			if ( isBusy == true ) // if true is currently simulating and here we have to wait simulation to be completed
+				return false;
+
 			if ( m_Waiter != null && m_Waiter.HasToWait == true )
 			{
 				Vector3 tempDestination = Utils.Math.ProjectPointOnPlane( m_EntityParent.transform.up, m_Destination, m_EntityParent.transform.position );
@@ -90,10 +95,7 @@ namespace CutScene {
 				return false;
 			}
 
-				// Continue simulation until need updates
-			bool isBusy = m_EntitySimulation.SimulateMovement( m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
-			if ( isBusy == true ) // if true is currently simulating and here we have to wait simulation to be completed
-				return false;
+			m_Waiter = null;
 
 			// call callback when each waypoint is reached
 			GameEvent onWayPointReached = m_PointsCollection[ m_CurrentIdx ].OnWayPointReached;

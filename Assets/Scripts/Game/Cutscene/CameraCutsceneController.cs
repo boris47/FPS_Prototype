@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace CutScene {
 
+	[System.Serializable]
 	public	class CameraCutsceneController {
 
 		private		PathBase		m_CameraPath		= null;

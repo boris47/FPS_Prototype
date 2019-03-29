@@ -57,6 +57,9 @@ public class Foots : MonoBehaviour, IFoots {
 	// OnTriggerEnter
 	private void OnTriggerEnter( Collider other )
 	{
+		if ( other.isTrigger )
+			return;
+
 		m_CurrentCollider = other;
 		m_LiveEntity.IsGrounded = true;
 	}
@@ -65,6 +68,9 @@ public class Foots : MonoBehaviour, IFoots {
 	// OnTriggerExit
 	private void OnTriggerExit( Collider other )
 	{
+		if ( other.isTrigger )
+			return;
+
 		m_LiveEntity.IsGrounded = false;
 	}
 }

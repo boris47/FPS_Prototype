@@ -149,6 +149,25 @@ public partial class Player : Human {
 		m_GrabPoint.transform.localPosition = Vector3.zero;
 		m_GrabPoint.transform.localRotation = Quaternion.identity;
 		m_GrabPoint.transform.Translate( 0f, 0f, m_UseDistance );
+
+		GameManager.InputMgr.BindCall( eInputCommands.MOVE_FORWARD, "ForwardEvent", GoForwardAction, GoForwardPredicate );
+		GameManager.InputMgr.BindCall( eInputCommands.MOVE_BACKWARD, "BackwardEvent", GoBackwardAction, GoBackwardPredicate );
+
+		GameManager.InputMgr.BindCall( eInputCommands.MOVE_LEFT, "LeftEvent", StrafeLeftAction, StrafeLeftPredicate );
+		GameManager.InputMgr.BindCall( eInputCommands.MOVE_RIGHT, "RightEvent", StrafeRightAction, StrafeRightPredicate );
+
+		GameManager.InputMgr.BindCall( eInputCommands.STATE_RUN, "RunEvent", RunAction, RunPredicate );
+
+		GameManager.InputMgr.BindCall( eInputCommands.STATE_JUMP, "JumpEvent", JumpAction, JumpPredicate );
+
+		GameManager.InputMgr.BindCall( eInputCommands.USAGE, "Interaction", InteractionAction, InteractionPredicate );
+		GameManager.InputMgr.BindCall( eInputCommands.USAGE, "Grab", GrabAction, GrabPredicate );
+
+		GameManager.InputMgr.BindCall( eInputCommands.GADGET3, "Flashlight", FlashlightUsageAction, FlashlightUsagePredicate );
+
+		GameManager.InputMgr.BindCall( eInputCommands.ABILITY_PRESS, "DodgeStart", DodgeAbilityEnableAction, DodgeAbilityPredcate );
+		GameManager.InputMgr.BindCall( eInputCommands.ABILITY_HOLD, "DodgeContinue", DodgeAbilityContinueAction, DodgeAbilityPredcate );
+		GameManager.InputMgr.BindCall( eInputCommands.ABILITY_RELEASE, "DodgeEnd", DodgeAbilityEndAction, DodgeAbilityPredcate );
 	}
 
 
@@ -225,34 +244,83 @@ public partial class Player : Human {
 	//////////////////////////////////////////////////////////////////////////
 	private					void	CheckForInteraction( bool hasHit )
 	{
-		// skip if no target
-		if ( hasHit == false )
-		{
-			m_Interactable = null;
-			return;
-		}
+		//// skip if no target
+		//if ( hasHit == false )
+		//{
+		//	m_Interactable = null;
+		//	return;
+		//}
 
-		// skip if currently grabbing an object
+		//// skip if currently grabbing an object
+		//if ( m_GrabbedObject != null )
+		//	return;
+
+		//// skip if currently dask is active
+		//if ( m_IsDodging == true )
+		//	return;
+
+		//bool m_bHasComponent = false;
+		//// Distance check
+		//if ( m_RaycastHit.distance <= m_UseDistance )
+		//{
+		//	m_bHasComponent = Utils.Base.SearchComponent( m_RaycastHit.transform.gameObject,ref m_Interactable, SearchContext.LOCAL );
+		//}
+		
+		//// ACTION INTERACT
+		//if ( InputManager.Inputs.Use )
+		//{
+		//	if ( m_bHasComponent && m_Interactable.CanInteract )
+		//	{
+		//		m_Interactable.OnInteraction();
+		//	}
+		//}
+		
+	}
+
+
+	private	bool	InteractionPredicate()
+	{
+		return ( m_IsDodging == false && m_GrabbedObject == null && m_Interactable != null && m_Interactable.CanInteract );
+	}
+
+
+	private	void	InteractionAction()
+	{
+		m_Interactable.OnInteraction();
+	}
+
+
+
+	private	bool	GrabPredicate()
+	{
+		return true;// m_CanGrabObjects == true;
+	}
+
+	private	void	GrabAction()
+	{
 		if ( m_GrabbedObject != null )
-			return;
-
-		// skip if currently dask is active
-		if ( m_IsDodging == true )
-			return;
-
-		bool m_bHasComponent = false;
-		// Distance check
-		if ( m_RaycastHit.distance <= m_UseDistance )
 		{
-			m_bHasComponent = Utils.Base.SearchComponent( m_RaycastHit.transform.gameObject,ref m_Interactable, SearchContext.LOCAL );
+			DropEntityDragged();
 		}
-
-		// ACTION INTERACT
-		if ( InputManager.Inputs.Use )
+		else
 		{
-			if ( m_bHasComponent && m_Interactable.CanInteract )
+			// GRAB ACTION
+			Grabbable grabbable = null;
+			bool m_bHasComponent = Utils.Base.SearchComponent( m_RaycastHit.transform.gameObject, ref grabbable, SearchContext.LOCAL );
+			if ( m_bHasComponent && grabbable.CanInteract )
 			{
-				m_Interactable.OnInteraction();
+				m_GrabbedObject = grabbable;
+				m_GrabPoint.transform.localPosition = Vector3.forward * Vector3.Distance( transform.position, grabbable.transform.position );
+
+				Rigidbody rb				= grabbable.RigidBody;
+				m_GrabbedObjectMass			= rb.mass;			rb.mass				= 1f;
+				m_GrabbedObjectUseGravity	= rb.useGravity;	rb.useGravity		= false;
+				rb.velocity					= Vector3.zero;		rb.interpolation	= RigidbodyInterpolation.Interpolate;
+				m_CanGrabObjects			= false;
+
+				Physics.IgnoreCollision( m_PhysicCollider, grabbable.Collider, ignore: true );
+
+				grabbable.gameObject.AddComponent<OnHitEventGrabbedHandler>();
 			}
 		}
 	}
@@ -261,44 +329,44 @@ public partial class Player : Human {
 	//////////////////////////////////////////////////////////////////////////
 	private					void	CheckForGrab( bool hasHit )
 	{
-		// skip grab evaluation if dodging
-		if ( m_IsDodging == true )
-			return;
+		//// skip grab evaluation if dodging
+		//if ( m_IsDodging == true )
+		//	return;
 
-		// ACTION RELEASE
-		if ( InputManager.Inputs.Use )
-		{
-			if ( m_GrabbedObject != null )
-			{
-				DropEntityDragged();
-				return;
-			}
-		}
+		//// ACTION RELEASE
+		//if ( InputManager.Inputs.Use )
+		//{
+		//	if ( m_GrabbedObject != null )
+		//	{
+		//		DropEntityDragged();
+		//		return;
+		//	}
+		//}
 
-		// Skip if cannot grab objects
-		if ( m_CanGrabObjects == false )
-			return;
+		//// Skip if cannot grab objects
+		//if ( m_CanGrabObjects == false )
+		//	return;
 
-		// skip if no target
-		if ( hasHit == false )
-			return;
+		//// skip if no target
+		//if ( hasHit == false )
+		//	return;
 
-		// GRAB ACTION
-		Grabbable grabbable = null;
-		bool m_bHasComponent = Utils.Base.SearchComponent( m_RaycastHit.transform.gameObject,ref grabbable, SearchContext.LOCAL );
-		if ( InputManager.Inputs.Use && m_bHasComponent && grabbable.CanInteract )
-		{
-			m_GrabbedObject = grabbable;
-			m_GrabPoint.transform.localPosition = Vector3.forward * Vector3.Distance( transform.position, grabbable.transform.position );
+		//	// GRAB ACTION
+		//	Grabbable grabbable = null;
+		//	bool m_bHasComponent = Utils.Base.SearchComponent( m_RaycastHit.transform.gameObject, ref grabbable, SearchContext.LOCAL );
+		//	if ( InputManager.Inputs.Use && m_bHasComponent && grabbable.CanInteract )
+		//	{
+		//		m_GrabbedObject = grabbable;
+		//		m_GrabPoint.transform.localPosition = Vector3.forward * Vector3.Distance( transform.position, grabbable.transform.position );
 
-			Rigidbody rb				= grabbable.RigidBody;
-			m_GrabbedObjectMass			= rb.mass;			rb.mass				= 1f;
-			m_GrabbedObjectUseGravity	= rb.useGravity;	rb.useGravity		= false;
-			rb.velocity					= Vector3.zero;		rb.interpolation	= RigidbodyInterpolation.Interpolate;
-			m_CanGrabObjects			= false;
+		//		Rigidbody rb				= grabbable.RigidBody;
+		//		m_GrabbedObjectMass			= rb.mass;			rb.mass				= 1f;
+		//		m_GrabbedObjectUseGravity	= rb.useGravity;	rb.useGravity		= false;
+		//		rb.velocity					= Vector3.zero;		rb.interpolation	= RigidbodyInterpolation.Interpolate;
+		//		m_CanGrabObjects			= false;
 
-			Physics.IgnoreCollision( m_PhysicCollider, grabbable.Collider, ignore: true );
-		}
+		//		Physics.IgnoreCollision( m_PhysicCollider, grabbable.Collider, ignore: true );
+		//	}
 	}
 
 

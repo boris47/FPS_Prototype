@@ -170,7 +170,7 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 //			weaponAwakeSuccess &= m_Animator.GetClipFromAnimator( "fire",		ref m_FireAnim );
 			weaponAwakeSuccess &= m_Animator.GetClipFromAnimator( "reload",		ref m_ReloadAnim );
 			weaponAwakeSuccess &= m_Animator.GetClipFromAnimator( "draw",		ref m_DrawAnim );
-			Debug.Log( "Animations for weapon " + m_WpnBaseSectionName + " are " + ( ( weaponAwakeSuccess ) ? "correctly loaded" : "invalid!!!" ) );
+//			Debug.Log( "Animations for weapon " + m_WpnBaseSectionName + " are " + ( ( weaponAwakeSuccess ) ? "correctly loaded" : "invalid!!!" ) );
 		}
 
 
@@ -190,7 +190,7 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 			WeaponManager.Instance.RegisterWeapon( this );
 		}
 		m_StopWatch.Stop();
-		print( "Weapon: " + m_WpnBaseSectionName + " loaded in " + m_StopWatch.Elapsed.Milliseconds + "ms" );
+//		print( "Weapon: " + m_WpnBaseSectionName + " loaded in " + m_StopWatch.Elapsed.Milliseconds + "ms" );
 	}
 
 

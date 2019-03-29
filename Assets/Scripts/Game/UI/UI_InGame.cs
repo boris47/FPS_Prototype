@@ -8,6 +8,7 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 	private			Text			m_TimeText					= null;
 	private			Text			m_CycleNameText				= null;
 	private			Text			m_HealthText				= null;
+	private			Text			m_Timetime					= null;
 
 	private			Transform		m_WeaponInfosPanel				= null;
 	private			Text			m_WpnNameText				= null;
@@ -48,6 +49,7 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 					m_bIsInitialized &=	m_GenericInfosPanel.SearchComponentInChild( 0, ref m_CycleNameText );
 					m_bIsInitialized &=	m_GenericInfosPanel.SearchComponentInChild( 1, ref m_TimeText);
 					m_bIsInitialized &=	m_GenericInfosPanel.SearchComponentInChild( 2, ref m_HealthText );
+					m_bIsInitialized &= m_GenericInfosPanel.SearchComponentInChild( 3, ref m_Timetime );
 				}
 			}
 
@@ -251,7 +253,7 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 		}
 	}
 
-	/*
+	
 	//////////////////////////////////////////////////////////////////////////
 	// Update
 	private void	Update()
@@ -264,8 +266,9 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 		if ( Time.frameCount % 10 == 0 )
 			return;
 
-		staminaBar.fillAmount = Player.Instance.Stamina;
+		m_Timetime.text = Time.timeScale.ToString();
+//		staminaBar.fillAmount = Player.Instance.Stamina;
 		
 	}
-	*/
+	
 }

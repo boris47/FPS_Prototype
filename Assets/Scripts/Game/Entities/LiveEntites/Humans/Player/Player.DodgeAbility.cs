@@ -37,6 +37,26 @@ public partial class Player {
 	private	Vector3			m_DodgeRaycastNormal	= Vector3.zero;
 	private	float			m_DodgeInterpolant		= 0f;
 
+	private	bool	DodgeAbilityPredcate()
+	{
+		return m_GrabbedObject == null;
+	}
+
+	private	void	DodgeAbilityEnableAction()
+	{
+		OnDodgeAbilityEnable();
+	}
+
+	private	void	DodgeAbilityContinueAction()
+	{
+		OnDodgeAbilitySelection();
+	}
+
+	private	void	DodgeAbilityEndAction()
+	{
+		OnDodgeAbilityAction();
+	}
+
 	
 	//////////////////////////////////////////////////////////////////////////
 	// CheckForDash
@@ -46,29 +66,8 @@ public partial class Player {
 		if ( m_GrabbedObject != null )
 			return;
 
-		// hitting somewhere else
-		if ( hasInteractiveRayCastHit == true )
-		{
-			// When user just press dodge ability button
-			if ( InputManager.Inputs.Ability1 )					// GetKeyDown Q one frame
-			{
-				OnDodgeAbilityEnable();
-			}
-
-			// When user keep pressed dodge ability button
-			if ( InputManager.Inputs.Ability1Loop )				// GetKey Q more frames
-			{
-				OnDodgeAbilitySelection();
-			}
-
-			// When user just release dodge ability button
-			if ( InputManager.Inputs.Ability1Released )			// GetKeyUp Q one frame
-			{
-				OnDodgeAbilityAction();
-			}
-		}
 		// if actually has no hit so reset dodge target
-		else
+		if ( hasInteractiveRayCastHit == false )
 		{
 			if ( m_DodgeAbilityTarget.gameObject.activeSelf == true )
 			{
@@ -85,7 +84,7 @@ public partial class Player {
 	// CheckForFallOrUserBreck
 	private	bool	CheckForFallOrUserBreck()
 	{
-		bool condition = ( m_IsDodging == false && transform.up != Vector3.up && m_DodgeCoroutine == null ) && ( InputManager.Inputs.Jump || IsGrounded == false );
+		bool condition = ( m_IsDodging == false && transform.up != Vector3.up && m_DodgeCoroutine == null ) && ( m_States.IsJumping || IsGrounded == false );
 		if ( condition )
 		{
 			RaycastHit hit;

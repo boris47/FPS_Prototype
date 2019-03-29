@@ -70,7 +70,7 @@ public partial class Player {
 
 		DropEntityDragged();
 
-		m_ForwardSmooth = m_RightSmooth = 0f;
+		m_ForwardSmooth = m_RightSmooth = m_UpSmooth = 0f;
 
 		// Health
 		m_Health			= streamUnit.GetAsFloat( "Health" );
@@ -151,9 +151,9 @@ public partial class Player {
 			m_RigidBody.AddForce( m_Move, ForceMode.Acceleration );
 			return;
 		}
-
+		
 		// User inputs
-		if ( IsGrounded )
+//		if ( IsGrounded )
 		{
 			// Controlled in Player.Motion_Walk::Update_Walk
 			Vector3 forward	= Vector3.Cross( CameraControl.Instance.Transform.right, transform.up );
@@ -168,8 +168,15 @@ public partial class Player {
 				
 			if ( m_UpSmooth > 0.0f )
 				m_RigidBody.AddForce( up		* m_UpSmooth		* 1.0f,	ForceMode.VelocityChange );
-		}
 
+			m_ForwardSmooth = m_RightSmooth = m_UpSmooth = 0.0f;
+	//		m_States.IsMoving = false;
+
+			// Reset "local" states
+			m_States.Reset();
+
+		}
+		
 		float drag = IsGrounded ? 5f : 0.0f;
 		m_RigidBody.drag = drag;
 
@@ -182,20 +189,159 @@ public partial class Player {
 	}
 
 
+	private	bool	GoForwardPredicate()
+	{
+		return IsGrounded;
+	}
+
+	private	void	GoForwardAction()
+	{
+		float force = 1.0f;
+		if ( m_States.IsRunning )
+		{
+			force	*=	m_RunSpeed;
+		}
+		else if ( m_States.IsCrouched )
+		{
+			force	*= m_CrouchSpeed;
+		}
+		else
+		{
+			force	*= m_WalkSpeed;
+			m_States.IsWalking = true;
+		}
+
+		m_States.IsMoving = true;
+		m_ForwardSmooth = force;
+	}
+
+
+	private	bool	GoBackwardPredicate()
+	{
+		return IsGrounded;
+	}
+
+	private	void	GoBackwardAction()
+	{
+		float force = 1.0f;
+		if ( m_States.IsRunning )
+		{
+			force	*=	m_RunSpeed;
+		}
+		else if ( m_States.IsCrouched )
+		{
+			force	*= m_CrouchSpeed;
+		}
+		else
+		{
+			force	*= m_WalkSpeed;
+			m_States.IsWalking = true;
+		}
+
+		force *= 0.8f;
+
+		m_States.IsMoving = true;
+		m_ForwardSmooth = -force;
+	}
+
+
+
+
+	private	bool	StrafeRightPredicate()
+	{
+		return IsGrounded;
+	}
+
+	private	void	StrafeRightAction()
+	{
+		float force = 1.0f;
+		if ( m_States.IsRunning )
+		{
+			force	*=	m_RunSpeed * 0.8f;
+		}
+		else if ( m_States.IsCrouched )
+		{
+			force	*= m_CrouchSpeed * 0.8f;
+		}
+		else
+		{
+			force	*= m_WalkSpeed *  0.8f;
+			m_States.IsWalking = true;
+		}
+		m_States.IsMoving = true;
+		m_RightSmooth = force;
+	}
+
+
+	private	bool	StrafeLeftPredicate()
+	{
+		return IsGrounded;
+	}
+
+	private	void	StrafeLeftAction()
+	{
+		float force = 1.0f;
+		if ( m_States.IsRunning )
+		{
+			force	*=	m_RunSpeed * 0.8f;
+		}
+		else if ( m_States.IsCrouched )
+		{
+			force	*= m_CrouchSpeed * 0.8f;
+		}
+		else
+		{
+			force	*= m_WalkSpeed *  0.8f;
+			m_States.IsWalking = true;
+		}
+
+		m_States.IsMoving = true;
+		m_RightSmooth = -force;
+	}
+
+
+	private	bool	RunPredicate()
+	{
+		return true;//( ( m_States.IsCrouched && !m_IsUnderSomething ) || !m_States.IsCrouched );
+	}
+
+	private	void	RunAction()
+	{
+		m_States.IsCrouched = false;
+		m_States.IsRunning = true;
+	}
+
+
+	private	bool	JumpPredicate()
+	{
+		return IsGrounded && m_States.IsJumping == false && m_States.IsHanging == false && m_States.IsFalling == false && m_GrabbedObject == null;
+	}
+
+	private	void	JumpAction()
+	{
+		m_UpSmooth = m_JumpForce / ( m_States.IsCrouched ? 1.5f : 1.0f );
+		m_States.IsJumping = true;
+	}
+
+
+	private	bool FlashlightUsagePredicate()
+	{
+		return WeaponManager.Instance.CurrentWeapon.Flashlight != null;
+	}
+
+
+	private	void FlashlightUsageAction()
+	{
+		WeaponManager.Instance.CurrentWeapon.Flashlight.Toggle();
+	}
+
+
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		OnFrame( float deltaTime )
 	{
 		if ( m_IsActive == false )
 			return;
-
-		// Reset "local" states
-		m_States.Reset();
-
-		if ( InputManager.Inputs.Gadget3 && WeaponManager.Instance.CurrentWeapon.Flashlight != null )
-		{
-			WeaponManager.Instance.CurrentWeapon.Flashlight.Toggle();
-		}
-
+		
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Pick eventual collision info from camera to up
 		{
@@ -280,14 +426,14 @@ public partial class Player {
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Movement Update
 		{
-			switch ( m_CurrentMotionType )
-			{
-				case eMotionType.Walking:	{ this.Update_Walk();		break; }
-				case eMotionType.Flying:	{ this.Update_Fly();		break; }
-				case eMotionType.Swimming:	{ this.Update_Swim();		break; }
+//			switch ( m_CurrentMotionType )
+//			{
+//				case eMotionType.Walking:	{ this.Update_Walk();		break; }
+//				case eMotionType.Flying:	{ this.Update_Fly();		break; }
+//				case eMotionType.Swimming:	{ this.Update_Swim();		break; }
 //				case eMotionType.Swimming:	{ this->Update_Swim( bIsEntityInWater, bIsCameraUnderWater, bIsCameraReallyUnderWater );	break; }
-				case eMotionType.P1ToP2:	{ this.Update_P1ToP2();		break; }
-			}
+//				case eMotionType.P1ToP2:	{ this.Update_P1ToP2();		break; }
+//			}
 		}
 
 		// trace previuos states

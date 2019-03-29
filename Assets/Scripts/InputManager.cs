@@ -34,7 +34,7 @@ public enum InputFlags {
 
 
 
-
+/*
 public struct inputs_t {
 
 	public	bool	Forward, Backward, StrafeLeft, StrafeRight;
@@ -69,7 +69,7 @@ public struct inputs_t {
 		Reload = false;
 	}
 };
-
+*/
 public	delegate	void	InputDelegateHandler();
 
 public class InputManager {
@@ -78,7 +78,7 @@ public class InputManager {
 	public	static	bool					HoldJump		{ get; set; }
 	public	static	bool					HoldRun			{ get; set; }
 
-	public  static	inputs_t				Inputs;
+//	public  static	inputs_t				Inputs;
 	public	static	bool					IsEnabled		= true;
 
 	private	InputFlags						m_Flags			= InputFlags.ALL;
@@ -281,15 +281,15 @@ public class InputManager {
 		m_Bindings.Pairs.ForEach( m_CommandPairCheck );
 
 		#region old
-		
+		/*
 		Inputs.Reset();
 
 		if ( ( m_Flags & InputFlags.MOVE ) != 0 )
 		{
-			Inputs.Forward				= Input.GetKey ( KeyCode.W ) || Input.GetKey ( KeyCode.UpArrow );
-			Inputs.Backward				= Input.GetKey ( KeyCode.S ) || Input.GetKey ( KeyCode.DownArrow );
-			Inputs.StrafeLeft			= Input.GetKey ( KeyCode.A ) || Input.GetKey ( KeyCode.LeftArrow );
-			Inputs.StrafeRight			= Input.GetKey ( KeyCode.D ) || Input.GetKey ( KeyCode.RightArrow );
+///			Inputs.Forward				= Input.GetKey ( KeyCode.W ) || Input.GetKey ( KeyCode.UpArrow );
+///			Inputs.Backward				= Input.GetKey ( KeyCode.S ) || Input.GetKey ( KeyCode.DownArrow );
+///			Inputs.StrafeLeft			= Input.GetKey ( KeyCode.A ) || Input.GetKey ( KeyCode.LeftArrow );
+///			Inputs.StrafeRight			= Input.GetKey ( KeyCode.D ) || Input.GetKey ( KeyCode.RightArrow );
 		}
 
 		if ( ( m_Flags & InputFlags.STATE ) != 0 )
@@ -299,12 +299,12 @@ public class InputManager {
 										:
 										( Input.GetKeyDown ( KeyCode.LeftControl ) || Input.GetKeyDown ( KeyCode.RightControl ) );
 
-			Inputs.Jump					= HoldJump ?
+///			Inputs.Jump					= HoldJump ?
 										( Input.GetKey ( KeyCode.Space ) || Input.GetKey ( KeyCode.Keypad0 ) )
 										:
 										( Input.GetKeyDown ( KeyCode.Space ) || Input.GetKeyDown ( KeyCode.Keypad0 ) );
 
-			Inputs.Run					= HoldRun ?
+///			Inputs.Run					= HoldRun ?
 										( Input.GetKey ( KeyCode.LeftShift ) || Input.GetKey ( KeyCode.RightShift ) )
 										:
 										( Input.GetKeyDown ( KeyCode.LeftShift ) || Input.GetKeyDown ( KeyCode.RightShift ) );
@@ -384,7 +384,7 @@ public class InputManager {
 		{
 			Inputs.Reload				= Input.GetKeyDown( KeyCode.R );
 		}
-		
+		*/
 		#endregion
 	}
 
@@ -647,8 +647,8 @@ public	enum eKeys { PRIMARY, SECONDARY }
 /// <summary> enum of commands to link keys at </summary>
 public	enum eInputCommands {
 	NONE,
-	MOVE_FORWARD, MOVE_BACKWARD, MOVE_LEFT, MOVE_RIGHT,
 	STATE_CROUCH, STATE_JUMP, STATE_RUN,
+	MOVE_FORWARD, MOVE_BACKWARD, MOVE_LEFT, MOVE_RIGHT,
 	ABILITY_PRESS, ABILITY_HOLD, ABILITY_RELEASE,
 	USAGE,
 	SWITCH_PREVIOUS, SWITCH_NEXT,
