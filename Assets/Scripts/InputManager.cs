@@ -107,7 +107,7 @@ public class InputManager {
 		{
 			m_ActionMap.Add( command, new InputEventCollection() );
 		}
-
+		
 		// C:/Users/Drako/AppData/LocalLow/BeWide&Co/Project Orion
 		string bindingsPath = Application.persistentDataPath + "/KeyBindings.json";
 		if ( System.IO.File.Exists( bindingsPath ) )
@@ -122,26 +122,6 @@ public class InputManager {
 		// Create lambda to use in updae
 		m_CommandPairCheck = ( KeyCommandPair commandPair ) =>
 		{
-			// Choose the check function based on the requested key state 
-			System.Func<KeyCode, bool> primaryKeyCheck		= null;
-			System.Func<KeyCode, bool> secondaryKeyCheck	= null;
-			switch ( commandPair.PrimaryKeyState )
-			{
-				case eKeyState.PRESS:		primaryKeyCheck	= Input.GetKeyDown;		break;
-				case eKeyState.HOLD:		primaryKeyCheck	= Input.GetKey;			break;
-				case eKeyState.RELEASE:		primaryKeyCheck	= Input.GetKeyUp;		break;
-				case eKeyState.SCROLL_UP:	primaryKeyCheck	= ScrollUpCheck;		break;
-				case eKeyState.SCROLL_DOWN:	primaryKeyCheck	= ScrollDownCheck;		break;
-			}
-			switch ( commandPair.SecondaryKeyState )
-			{
-				case eKeyState.PRESS:		secondaryKeyCheck	= Input.GetKeyDown;		break;
-				case eKeyState.HOLD:		secondaryKeyCheck	= Input.GetKey;			break;
-				case eKeyState.RELEASE:		secondaryKeyCheck	= Input.GetKeyUp;		break;
-				case eKeyState.SCROLL_UP:	secondaryKeyCheck	= ScrollUpCheck;		break;
-				case eKeyState.SCROLL_DOWN:	secondaryKeyCheck	= ScrollDownCheck;		break;
-			}
-
 			// Check Primary and secondary button
 			InputEventCollection inputEventCollection = null;
 
@@ -149,7 +129,7 @@ public class InputManager {
 			KeyCode primary		= commandPair.GetKeyCode( eKeys.PRIMARY );
 			KeyCode secondary	= commandPair.GetKeyCode( eKeys.SECONDARY );
 
-			if ( ( primaryKeyCheck( primary ) || secondaryKeyCheck( secondary ) ) && m_ActionMap.TryGetValue( commandPair.Command, out inputEventCollection ) )
+			if ( ( commandPair.PrimaryKeyCheck( primary ) || commandPair.SecondaryKeyCheck( secondary ) ) && m_ActionMap.TryGetValue( commandPair.Command, out inputEventCollection ) )
 			{
 				// call binded delegate
 				inputEventCollection.Call();
@@ -186,11 +166,13 @@ public class InputManager {
 		m_Bindings = JsonUtility.FromJson<KeyBindings>( data );
 
 		bool bHasBeenLoaded = m_Bindings != null;
-		if ( bHasBeenLoaded == false )
+		if ( bHasBeenLoaded == true )
 		{
-			Debug.Log( "InputManager::LoadingBindigns:loading bings fail, using default bindings" );
-			GenerateDefaultBindings( MustSave: true );
+		//	Debug.Log( "InputManager::LoadingBindigns:loading bings fail, using default bindings" );
+		//	GenerateDefaultBindings( MustSave: true );
+			m_Bindings.Pairs.ForEach( p => p.AssignKeyChecks() );
 		}
+
 		return bHasBeenLoaded;
 	}
 
@@ -268,8 +250,6 @@ public class InputManager {
 	}
 
 
-	System.Func<KeyCode, bool> ScrollUpCheck   = ( KeyCode k ) => { return Input.mouseScrollDelta.y > 0f; };
-	System.Func<KeyCode, bool> ScrollDownCheck = ( KeyCode k ) => { return Input.mouseScrollDelta.y < 0f; };
 	//////////////////////////////////////////////////////////////////////////
 	// Update
 	/// <summary> Update everything about inputs </summary>
@@ -279,113 +259,6 @@ public class InputManager {
 			return;
 
 		m_Bindings.Pairs.ForEach( m_CommandPairCheck );
-
-		#region old
-		/*
-		Inputs.Reset();
-
-		if ( ( m_Flags & InputFlags.MOVE ) != 0 )
-		{
-///			Inputs.Forward				= Input.GetKey ( KeyCode.W ) || Input.GetKey ( KeyCode.UpArrow );
-///			Inputs.Backward				= Input.GetKey ( KeyCode.S ) || Input.GetKey ( KeyCode.DownArrow );
-///			Inputs.StrafeLeft			= Input.GetKey ( KeyCode.A ) || Input.GetKey ( KeyCode.LeftArrow );
-///			Inputs.StrafeRight			= Input.GetKey ( KeyCode.D ) || Input.GetKey ( KeyCode.RightArrow );
-		}
-
-		if ( ( m_Flags & InputFlags.STATE ) != 0 )
-		{
-			Inputs.Crouch				= HoldCrouch ?
-										( Input.GetKey ( KeyCode.LeftControl ) || Input.GetKey ( KeyCode.RightControl ) )
-										:
-										( Input.GetKeyDown ( KeyCode.LeftControl ) || Input.GetKeyDown ( KeyCode.RightControl ) );
-
-///			Inputs.Jump					= HoldJump ?
-										( Input.GetKey ( KeyCode.Space ) || Input.GetKey ( KeyCode.Keypad0 ) )
-										:
-										( Input.GetKeyDown ( KeyCode.Space ) || Input.GetKeyDown ( KeyCode.Keypad0 ) );
-
-///			Inputs.Run					= HoldRun ?
-										( Input.GetKey ( KeyCode.LeftShift ) || Input.GetKey ( KeyCode.RightShift ) )
-										:
-										( Input.GetKeyDown ( KeyCode.LeftShift ) || Input.GetKeyDown ( KeyCode.RightShift ) );
-		}
-
-		if ( ( m_Flags & InputFlags.ABILITY ) != 0 )
-		{
-			Inputs.Ability1				= Input.GetKeyDown ( KeyCode.Q );
-			Inputs.Ability1Loop			= Input.GetKey ( KeyCode.Q );
-			Inputs.Ability1Released		= Input.GetKeyUp ( KeyCode.Q );
-		}
-
-		if ( ( m_Flags & InputFlags.USE ) != 0 )
-		{
-			Inputs.Use					= Input.GetKeyDown ( KeyCode.F ) || Input.GetKeyDown ( KeyCode.Return );
-		}
-
-
-
-		if ( ( m_Flags & InputFlags.SWITCH ) != 0 )
-		{
-			Inputs.SwitchPrev			= Input.mouseScrollDelta.y > 0;
-			Inputs.SwitchNext			= Input.mouseScrollDelta.y < 0;
-		}
-
-		if ( ( m_Flags & InputFlags.SELECTION ) != 0 )
-		{
-			Inputs.Selection1			= Input.GetKeyDown( KeyCode.Alpha1 );
-			Inputs.Selection2			= Input.GetKeyDown( KeyCode.Alpha2 );
-			Inputs.Selection3			= Input.GetKeyDown( KeyCode.Alpha3 );
-			Inputs.Selection4			= Input.GetKeyDown( KeyCode.Alpha4 );
-			Inputs.Selection5			= Input.GetKeyDown( KeyCode.Alpha5 );
-			Inputs.Selection6			= Input.GetKeyDown( KeyCode.Alpha6 );
-			Inputs.Selection7			= Input.GetKeyDown( KeyCode.Alpha7 );
-			Inputs.Selection8			= Input.GetKeyDown( KeyCode.Alpha8 );
-			Inputs.Selection9			= Input.GetKeyDown( KeyCode.Alpha9 );
-		}
-
-		if ( ( m_Flags & InputFlags.ITEM ) != 0 )
-		{
-			Inputs.Item1				= Input.GetKeyDown ( KeyCode.F1 ) || Input.GetKeyDown ( KeyCode.Keypad1 );
-			Inputs.Item2				= Input.GetKeyDown ( KeyCode.F2 ) || Input.GetKeyDown ( KeyCode.Keypad2 );
-			Inputs.Item3				= Input.GetKeyDown ( KeyCode.F3 ) || Input.GetKeyDown ( KeyCode.Keypad3 );
-			Inputs.Item4				= Input.GetKeyDown ( KeyCode.F4 ) || Input.GetKeyDown ( KeyCode.Keypad4 );
-		}
-
-		if ( ( m_Flags & InputFlags.GADGET ) != 0 )
-		{
-			Inputs.Gadget1				= Input.GetKeyDown( KeyCode.G );
-			Inputs.Gadget2				= Input.GetKeyDown( KeyCode.H );
-			Inputs.Gadget3				= Input.GetKeyDown( KeyCode.J);
-		}
-
-		if ( ( m_Flags & InputFlags.FIRE1 ) != 0 )
-		{
-			Inputs.Fire1				= Input.GetKeyDown( KeyCode.Mouse0 );
-			Inputs.Fire1Loop			= Input.GetKey( KeyCode.Mouse0 );
-			Inputs.Fire1Released		= Input.GetKeyUp( KeyCode.Mouse0 );
-		}
-
-		if ( ( m_Flags & InputFlags.FIRE2 ) != 0 )
-		{
-			Inputs.Fire2				= Input.GetKeyDown( KeyCode.Mouse1 );
-			Inputs.Fire2Loop			= Input.GetKey( KeyCode.Mouse1 );
-			Inputs.Fire2Released		= Input.GetKeyUp( KeyCode.Mouse1 );
-		}
-
-		if ( ( m_Flags & InputFlags.FIRE3 ) != 0 )
-		{
-			Inputs.Fire3				= Input.GetKeyDown( KeyCode.Mouse2 );
-			Inputs.Fire3Loop			= Input.GetKey( KeyCode.Mouse2 );
-			Inputs.Fire3Released		= Input.GetKeyUp( KeyCode.Mouse2 );
-		}
-
-
-		if ( ( m_Flags & InputFlags.RELOAD ) != 0 )
-		{
-			Inputs.Reload				= Input.GetKeyDown( KeyCode.R );
-		}
-		*/
-		#endregion
 	}
 
 
@@ -514,8 +387,10 @@ public class InputManager {
 
 		// Find out if already in use
 		{
-			int alreadyUsingPairIndex = m_Bindings.Pairs.FindIndex( ( KeyCommandPair p ) => {
-				return p.GetKeyCode( eKeys.PRIMARY ) == NewKeyCode && p.GetKeyState( eKeys.PRIMARY ) == currentPair.PrimaryKeyState; } );
+			int alreadyUsingPairIndex = m_Bindings.Pairs.FindIndex( ( KeyCommandPair p ) => 
+			{
+				return p.GetKeyCode( eKeys.PRIMARY ) == NewKeyCode && p.GetKeyState( eKeys.PRIMARY ) == currentPair.PrimaryKeyState;
+			} );
 			// Search for primary keyCode already used
 			if ( alreadyUsingPairIndex  != -1 )
 			{
@@ -528,8 +403,10 @@ public class InputManager {
 			// Search for secondary keyCode already used
 			if ( bIsAlreadyInUse == false )
 			{
-				alreadyUsingPairIndex = m_Bindings.Pairs.FindIndex( ( KeyCommandPair p ) => {
-					return p.GetKeyCode( eKeys.SECONDARY ) == NewKeyCode && p.GetKeyState( eKeys.SECONDARY ) == currentPair.PrimaryKeyState; } );
+				alreadyUsingPairIndex = m_Bindings.Pairs.FindIndex( ( KeyCommandPair p ) => 
+				{
+					return p.GetKeyCode( eKeys.SECONDARY ) == NewKeyCode && p.GetKeyState( eKeys.SECONDARY ) == currentPair.PrimaryKeyState;
+				} );
 				if ( alreadyUsingPairIndex  != -1 )
 				{
 					alreadyInUsePair		= m_Bindings.Pairs[ alreadyUsingPairIndex ];
@@ -600,16 +477,20 @@ public class InputManager {
 		// Find out if already in use
 		{
 			// Search for primary keyCode already used
-			int alreadyUsingPairIndex = m_Bindings.Pairs.FindIndex( ( KeyCommandPair p ) => {
-				return p.GetKeyCode( eKeys.PRIMARY ) == NewKeyCode && p.GetKeyState( eKeys.PRIMARY ) == currentPair.PrimaryKeyState; } );
+			int alreadyUsingPairIndex = m_Bindings.Pairs.FindIndex( ( KeyCommandPair p ) => 
+			{
+				return p.GetKeyCode( eKeys.PRIMARY ) == NewKeyCode && p.GetKeyState( eKeys.PRIMARY ) == currentPair.PrimaryKeyState;
+			} );
 
 			bIsAlreadyInUse = alreadyUsingPairIndex != -1;
 
 			// Search for secondary keyCode already used
 			if ( bIsAlreadyInUse == false )
 			{
-				alreadyUsingPairIndex = m_Bindings.Pairs.FindIndex( ( KeyCommandPair p ) => {
-					return p.GetKeyCode( eKeys.SECONDARY ) == NewKeyCode && p.GetKeyState( eKeys.SECONDARY ) == currentPair.PrimaryKeyState; } );
+				alreadyUsingPairIndex = m_Bindings.Pairs.FindIndex( ( KeyCommandPair p ) => 
+				{
+					return p.GetKeyCode( eKeys.SECONDARY ) == NewKeyCode && p.GetKeyState( eKeys.SECONDARY ) == currentPair.PrimaryKeyState;
+				} );
 			}
 			bIsAlreadyInUse = alreadyUsingPairIndex != -1;
 		}
@@ -667,9 +548,6 @@ public	enum eInputCommands {
 public	class KeyCommandPair {
 
 	[SerializeField]
-	public	eInputCommands		Command				= eInputCommands.NONE;
-
-	[SerializeField]
 	public	eKeyState			PrimaryKeyState		= eKeyState.PRESS;
 
 	[SerializeField]
@@ -681,6 +559,18 @@ public	class KeyCommandPair {
 	[SerializeField]
 	private	KeyCode				SecondaryKey		= KeyCode.None;
 
+	[SerializeField]
+	public	eInputCommands		Command				= eInputCommands.NONE;
+
+	[SerializeField]
+	public	int					PrimaryCheck		= 0;
+
+	[SerializeField]
+	public	int					SecondaryCheck		= 0;
+
+	public	System.Func<KeyCode, bool> PrimaryKeyCheck		= null;
+	public	System.Func<KeyCode, bool> SecondaryKeyCheck	= null;
+
 	//
 	public	void	Setup( eInputCommands Command, eKeyState PrimaryKeyState, KeyCode PrimaryKey, eKeyState SecondaryKeyState, KeyCode SecondaryKey )
 	{
@@ -689,6 +579,49 @@ public	class KeyCommandPair {
 		this.PrimaryKey				= PrimaryKey;
 		this.SecondaryKeyState		= SecondaryKeyState;
 		this.SecondaryKey			= SecondaryKey;
+
+		PrimaryCheck = (int)PrimaryKeyState;
+		SecondaryCheck = (int)SecondaryKeyState;
+
+		AssignKeyChecks();
+	}
+
+
+	public	void	AssignKeyChecks()
+	{
+		eKeyState primaryKeyState	= ( eKeyState )PrimaryCheck;
+		eKeyState secondaryKeyState = ( eKeyState )SecondaryCheck;
+
+		System.Func<KeyCode, bool> ScrollUpCheck   = ( KeyCode k ) => { return Input.mouseScrollDelta.y > 0f; };
+		System.Func<KeyCode, bool> ScrollDownCheck = ( KeyCode k ) => { return Input.mouseScrollDelta.y < 0f; };
+		switch ( primaryKeyState )
+		{
+			case eKeyState.PRESS:		PrimaryKeyCheck	= Input.GetKeyDown;		break;
+			case eKeyState.HOLD:		PrimaryKeyCheck	= Input.GetKey;			break;
+			case eKeyState.RELEASE:		PrimaryKeyCheck	= Input.GetKeyUp;		break;
+			case eKeyState.SCROLL_UP:	PrimaryKeyCheck	= ScrollUpCheck;		break;
+			case eKeyState.SCROLL_DOWN:	PrimaryKeyCheck	= ScrollDownCheck;		break;
+			default:
+				{
+					Debug.Log( "WARNING: Command " + Command.ToString() + " has invalid \"PrimaryKeyCheck\" assigned" );
+					PrimaryKeyCheck = Input.GetKeyDown;
+					break;
+				}
+		}
+		switch ( secondaryKeyState )
+		{
+			case eKeyState.PRESS:		SecondaryKeyCheck	= Input.GetKeyDown;		break;
+			case eKeyState.HOLD:		SecondaryKeyCheck	= Input.GetKey;			break;
+			case eKeyState.RELEASE:		SecondaryKeyCheck	= Input.GetKeyUp;		break;
+			case eKeyState.SCROLL_UP:	SecondaryKeyCheck	= ScrollUpCheck;		break;
+			case eKeyState.SCROLL_DOWN:	SecondaryKeyCheck	= ScrollDownCheck;		break;
+			default:
+				{
+					Debug.Log( "WARNING: Command " + Command.ToString() + " has invalid \"SecondaryKeyCheck\" assigned" );
+					SecondaryKeyCheck = Input.GetKeyDown;
+					break;
+				}
+		}
 	}
 
 	//
@@ -712,8 +645,9 @@ public	class KeyCommandPair {
 				case eKeys.SECONDARY:	SecondaryKeyState	= keyState.Value;		break;
 				default:				break;
 			}
+
+			AssignKeyChecks();
 		}
-		
 	}
 
 	//

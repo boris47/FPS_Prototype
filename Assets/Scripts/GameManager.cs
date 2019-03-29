@@ -12,7 +12,7 @@ public partial class GameManager : MonoBehaviour {
 
 	public	static			SectionMap		Settings				= null;
 	public	static			SectionMap		Configs					= null;
-	public	static			InputManager	InputMgr				= null;
+	public					InputManager	InputMgr				= null;
 
 	public	static			bool			IsChangingScene			= false;
 	public	static			bool			IsLoadingScene			= false;

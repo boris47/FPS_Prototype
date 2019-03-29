@@ -121,18 +121,18 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 		// Make sure that ui show data of currnt active weapon
 		UI.Instance.InGame.UpdateUI();
 
-		GameManager.InputMgr.BindCall( eInputCommands.SELECTION1, 		"WeaponChange_0",	() => ChangeWeapon( 0, 0 ) );
-		GameManager.InputMgr.BindCall( eInputCommands.SELECTION2, 		"WeaponChange_1",	() => ChangeWeapon( 1, 0 ) );
-		GameManager.InputMgr.BindCall( eInputCommands.SELECTION3, 		"WeaponChange_2",	() => ChangeWeapon( 2, 0 ) );
-		GameManager.InputMgr.BindCall( eInputCommands.SELECTION4, 		"WeaponChange_3",	() => ChangeWeapon( 3, 0 ) );
-		GameManager.InputMgr.BindCall( eInputCommands.SELECTION5, 		"WeaponChange_4",	() => ChangeWeapon( 4, 0 ) );
-		GameManager.InputMgr.BindCall( eInputCommands.SELECTION6, 		"WeaponChange_5",	() => ChangeWeapon( 5, 0 ) );
-		GameManager.InputMgr.BindCall( eInputCommands.SELECTION7,		"WeaponChange_6",	() => ChangeWeapon( 6, 0 ) );
-		GameManager.InputMgr.BindCall( eInputCommands.SELECTION8,		"WeaponChange_7",	() => ChangeWeapon( 7, 0 ) );
-		GameManager.InputMgr.BindCall( eInputCommands.SELECTION9,		"WeaponChange_8",	() => ChangeWeapon( 8, 0 ) );
+		GameManager.Instance.InputMgr.BindCall( eInputCommands.SELECTION1, 		"WeaponChange_0",	() => ChangeWeapon( 0, 0 ) );
+		GameManager.Instance.InputMgr.BindCall( eInputCommands.SELECTION2, 		"WeaponChange_1",	() => ChangeWeapon( 1, 0 ) );
+		GameManager.Instance.InputMgr.BindCall( eInputCommands.SELECTION3, 		"WeaponChange_2",	() => ChangeWeapon( 2, 0 ) );
+		GameManager.Instance.InputMgr.BindCall( eInputCommands.SELECTION4, 		"WeaponChange_3",	() => ChangeWeapon( 3, 0 ) );
+		GameManager.Instance.InputMgr.BindCall( eInputCommands.SELECTION5, 		"WeaponChange_4",	() => ChangeWeapon( 4, 0 ) );
+		GameManager.Instance.InputMgr.BindCall( eInputCommands.SELECTION6, 		"WeaponChange_5",	() => ChangeWeapon( 5, 0 ) );
+		GameManager.Instance.InputMgr.BindCall( eInputCommands.SELECTION7,		"WeaponChange_6",	() => ChangeWeapon( 6, 0 ) );
+		GameManager.Instance.InputMgr.BindCall( eInputCommands.SELECTION8,		"WeaponChange_7",	() => ChangeWeapon( 7, 0 ) );
+		GameManager.Instance.InputMgr.BindCall( eInputCommands.SELECTION9,		"WeaponChange_8",	() => ChangeWeapon( 8, 0 ) );
 
-		GameManager.InputMgr.BindCall( eInputCommands.SWITCH_NEXT,		"WeaponChange_Next",	() => ChangeWeapon( -1,  1 ) );
-		GameManager.InputMgr.BindCall( eInputCommands.SWITCH_PREVIOUS,	"WeaponChange_Prev",	() => ChangeWeapon( -1, -1 ) );
+		GameManager.Instance.InputMgr.BindCall( eInputCommands.SWITCH_NEXT,		"WeaponChange_Next",	() => ChangeWeapon( -1,  1 ) );
+		GameManager.Instance.InputMgr.BindCall( eInputCommands.SWITCH_PREVIOUS,	"WeaponChange_Prev",	() => ChangeWeapon( -1, -1 ) );
 	}
 
 

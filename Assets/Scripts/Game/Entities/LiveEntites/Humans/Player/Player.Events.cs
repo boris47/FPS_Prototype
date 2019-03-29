@@ -324,13 +324,13 @@ public partial class Player {
 	}
 
 
-	private	bool FlashlightUsagePredicate()
+	private	bool FlashlightPredicate()
 	{
 		return WeaponManager.Instance.CurrentWeapon.Flashlight != null;
 	}
 
 
-	private	void FlashlightUsageAction()
+	private	void FlashlightAction()
 	{
 		WeaponManager.Instance.CurrentWeapon.Flashlight.Toggle();
 	}

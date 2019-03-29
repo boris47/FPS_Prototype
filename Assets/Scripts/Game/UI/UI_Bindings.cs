@@ -84,9 +84,9 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnEnable()
 	{
-		if ( GameManager.InputMgr != null )
+		if ( GameManager.Instance.InputMgr != null )
 		{
-			m_InputMgr = GameManager.InputMgr;
+			m_InputMgr = GameManager.Instance.InputMgr;
 		}
 		else
 		{
@@ -294,8 +294,26 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 	//////////////////////////////////////////////////////////////////////////
 	public	void	Apply()
 	{
-		m_InputMgr.SaveBindings();
-		FillGrid();
+		System.Action onConfirm = delegate()
+		{
+			m_InputMgr.SaveBindings();
+			FillGrid();
+		};
+
+		UI.Instance.Confirmation.Show( "Confirm bindings?", OnConfirm: onConfirm, OnCancel: null );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public void ResetBindinggs()
+	{
+		System.Action onConfirm = delegate()
+		{
+			m_InputMgr.ResetBindings();
+			FillGrid();
+		};
+
+		UI.Instance.Confirmation.Show( "Do you really want to reset bindings?", OnConfirm: onConfirm, OnCancel: null );
 	}
 
 

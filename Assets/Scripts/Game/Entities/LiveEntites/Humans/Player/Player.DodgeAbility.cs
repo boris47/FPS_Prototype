@@ -37,22 +37,22 @@ public partial class Player {
 	private	Vector3			m_DodgeRaycastNormal	= Vector3.zero;
 	private	float			m_DodgeInterpolant		= 0f;
 
-	private	bool	DodgeAbilityPredcate()
+	private	bool	AbilityPredcate()
 	{
 		return m_GrabbedObject == null;
 	}
 
-	private	void	DodgeAbilityEnableAction()
+	private	void	AbilityEnableAction()
 	{
 		OnDodgeAbilityEnable();
 	}
 
-	private	void	DodgeAbilityContinueAction()
+	private	void	AbilityContinueAction()
 	{
 		OnDodgeAbilitySelection();
 	}
 
-	private	void	DodgeAbilityEndAction()
+	private	void	AbilityEndAction()
 	{
 		OnDodgeAbilityAction();
 	}
