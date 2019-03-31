@@ -12,6 +12,7 @@ public partial class GameManager : MonoBehaviour {
 
 	public	static			SectionMap		Settings				= null;
 	public	static			SectionMap		Configs					= null;
+	[SerializeField]
 	public					InputManager	InputMgr				= null;
 
 	public	static			bool			IsChangingScene			= false;
@@ -56,6 +57,7 @@ public partial class GameManager : MonoBehaviour {
 
 		// Internal classes
 		InputMgr	= new InputManager();
+		InputMgr.Setup();
 		Settings	= new SectionMap();
 		Configs		= new SectionMap();
 
@@ -154,6 +156,12 @@ public partial class GameManager : MonoBehaviour {
 			InputMgr.Update();
 		}
 
+		if ( Input.GetKeyDown( KeyCode.I) )
+		{
+			InputMgr.ToggleCategory( InputCategory.MOVE );
+			print("removing movement");
+		}
+
 
 		if ( Input.GetKeyDown( KeyCode.T ) )
 		{
@@ -208,7 +216,7 @@ public partial class GameManager : MonoBehaviour {
 		}
 
 		// Pause Event
-		if ( Input.GetKeyDown( KeyCode.Escape ) )
+		if ( Input.GetKeyDown( KeyCode.Escape ) && m_IsPaused == false )
 		{
 			m_PauseEvents.SetPauseState( !m_IsPaused );
 		}

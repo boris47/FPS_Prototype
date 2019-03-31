@@ -258,7 +258,6 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 	// Update
 	private void	Update()
 	{
-		
 		if ( m_IsActive == false )
 			return;
 

@@ -91,6 +91,7 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 		else
 		{
 			m_InputMgr	= new InputManager();
+			m_InputMgr.Setup();
 		}
 
 		FillGrid();

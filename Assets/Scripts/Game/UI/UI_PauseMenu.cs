@@ -151,6 +151,16 @@ public class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 	}
 
 
+	private void Update()
+	{
+		// Pause Event
+		if ( Input.GetKeyDown( KeyCode.Escape ) && GameManager.IsPaused == true )
+		{
+			Resume();
+		}
+	}
+
+
 	//////////////////////////////////////////////////////////////////////////
 	// Quit
 	public	void	Quit()
