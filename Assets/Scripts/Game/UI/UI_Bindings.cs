@@ -271,6 +271,7 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 				{
 					m_InputMgr.SaveBindings();
 				}
+				FillGrid();
 			}
 			else
 			{

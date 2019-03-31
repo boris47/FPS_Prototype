@@ -107,22 +107,22 @@ public abstract partial class Entity : IEntity {
 
 		m_OnMotionStateChangedEvent( m_CurrentMotionType, NewState );
 
-		System.Action<eMotionType, bool, bool, bool> SetMotionTypeInternal = delegate( eMotionType type, bool HoldCrouch, bool HoldJump, bool HoldRun )
+/*		System.Action<eMotionType, bool, bool, bool> SetMotionTypeInternal = delegate( eMotionType type, bool HoldCrouch, bool HoldJump, bool HoldRun )
 		{
 			InputManager.HoldCrouch	= HoldCrouch;
 			InputManager.HoldJump	= HoldJump;
 			InputManager.HoldRun	= HoldRun;
 		};
-
+*/
 		m_PreviousMotionType = m_CurrentMotionType;
 		m_CurrentMotionType = NewState;
-		switch( NewState )
-		{	//																HoldCrouch, HoldJump, HoldRun
-			case eMotionType.Walking:	{ SetMotionTypeInternal( NewState, false,	false,	true ); break; }
-			case eMotionType.Flying:	{ SetMotionTypeInternal( NewState, true,	true,	true ); break; }
-			case eMotionType.Swimming:	{ SetMotionTypeInternal( NewState, true,	true,	true ); break; }
-			case eMotionType.P1ToP2:	{ SetMotionTypeInternal( NewState, false,	false,	true ); break; }
-		}
+//		switch( NewState )
+//		{	//																HoldCrouch, HoldJump, HoldRun
+//			case eMotionType.Walking:	{ SetMotionTypeInternal( NewState, false,	false,	true ); break; }
+//			case eMotionType.Flying:	{ SetMotionTypeInternal( NewState, true,	true,	true ); break; }
+//			case eMotionType.Swimming:	{ SetMotionTypeInternal( NewState, true,	true,	true ); break; }
+//			case eMotionType.P1ToP2:	{ SetMotionTypeInternal( NewState, false,	false,	true ); break; }
+//		}
 
 		// Reset states
 		m_States.Reset();

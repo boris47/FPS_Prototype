@@ -36,29 +36,22 @@ public enum InputCategory : uint {
 
 public	delegate	void	InputDelegateHandler();
 
-[System.Serializable]
+//[System.Serializable]
 public class InputManager {
 
-	public	static	bool					HoldCrouch				{ get; set; }
-	public	static	bool					HoldJump				{ get; set; }
-	public	static	bool					HoldRun					{ get; set; }
+//	public	static	bool					HoldCrouch				{ get; set; }
+//	public	static	bool					HoldJump				{ get; set; }
+//	public	static	bool					HoldRun					{ get; set; }
 
-//	public  static	inputs_t				Inputs;
 	public	static	bool					IsEnabled				= true;
-
-	[SerializeField]
-	private	InputCategory					m_InputCategories		= InputCategory.ALL;
-	public	InputCategory	InputCategories
-	{
-		get { return m_InputCategories; }
-	}
 
 	[SerializeField]
 	private	KeyBindings						m_Bindings		= null;
 
-	private	bool							m_IsDirty		= false;
+//	[SerializeField]
+	private	InputCategory					m_InputCategories		= InputCategory.ALL;
 
-	private	System.Action<KeyCommandPair>	m_CommandPairCheck = null;
+	private	bool							m_IsDirty		= false;
 
 	private	Dictionary<eInputCommands, InputEventCollection> m_ActionMap = new Dictionary<eInputCommands, InputEventCollection>();
 	
@@ -89,26 +82,6 @@ public class InputManager {
 		{
 			GenerateDefaultBindings( MustSave: true );
 		}
-
-		// Create lambda to use in updae
-		m_CommandPairCheck = ( KeyCommandPair commandPair ) =>
-		{
-			InputCategory inputFlag	= commandPair.Category;
-			bool bIsAvailable = Utils.FlagsHelper.IsSet( m_InputCategories, inputFlag );
-			if ( bIsAvailable )																				// Firstly we check if category is enabled
-			{
-				KeyCode primary			= commandPair.GetKeyCode( eKeys.PRIMARY );
-				KeyCode secondary		= commandPair.GetKeyCode( eKeys.SECONDARY );
-				if ( commandPair.PrimaryKeyCheck( primary ) || commandPair.SecondaryKeyCheck( secondary ) ) // If a command key ceck is satisfied
-				{
-					InputEventCollection inputEventCollection = null;
-					if ( m_ActionMap.TryGetValue( commandPair.Command, out inputEventCollection ) )			// if command event collection is found
-					{
-						inputEventCollection.Call();														// call binded delegate
-					}
-				}
-			}
-		};
 	}
 
 
@@ -226,6 +199,23 @@ public class InputManager {
 	}
 
 
+	private		void	CommandPairCheck( KeyCommandPair commandPair )
+	{
+		InputCategory inputFlag	= commandPair.Category;
+		bool bIsAvailable = Utils.FlagsHelper.IsSet( m_InputCategories, inputFlag );
+		if ( bIsAvailable )																				// Firstly we check if category is enabled
+		{
+			if ( commandPair.IsPrimaryKeyUsed() || commandPair.IsSecondaryKeyUsed() ) // If a command key ceck is satisfied
+			{
+				InputEventCollection inputEventCollection = null;
+				if ( m_ActionMap.TryGetValue( commandPair.Command, out inputEventCollection ) )			// if command event collection is found
+				{
+					inputEventCollection.Call();														// call binded delegate
+				}
+			}
+		}
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// Update
@@ -235,7 +225,7 @@ public class InputManager {
 		if ( IsEnabled == false )
 			return;
 
-		m_Bindings.Pairs.ForEach( m_CommandPairCheck );
+		m_Bindings.Pairs.ForEach( CommandPairCheck );
 	}
 
 
@@ -525,44 +515,81 @@ public	enum eInputCommands {
 public	class KeyCommandPair {
 
 	[SerializeField]
-	public	eKeyState			PrimaryKeyState		= eKeyState.PRESS;
+	private	eKeyState			m_PrimaryKeyState			= eKeyState.PRESS;
+	public	eKeyState			PrimaryKeyState
+	{
+		get { return m_PrimaryKeyState; }
+	}
 
 	[SerializeField]
-	public	eKeyState			SecondaryKeyState	= eKeyState.PRESS;
+	private	eKeyState			m_SecondaryKeyState			= eKeyState.PRESS;
+	public	eKeyState			SecondaryKeyState
+	{
+		get { return m_SecondaryKeyState; }
+	}
 
 	[SerializeField]
-	private	KeyCode				PrimaryKey			= KeyCode.None;
+	private	KeyCode				m_PrimaryKey				= KeyCode.None;
+	public	KeyCode				PrimaryKey
+	{
+		get { return m_PrimaryKey; }
+	}
 
 	[SerializeField]
-	private	KeyCode				SecondaryKey		= KeyCode.None;
+	private	KeyCode				m_SecondaryKey				= KeyCode.None;
+	public	KeyCode				SecondaryKey
+	{
+		get { return m_SecondaryKey; }
+	}
+
 
 	[SerializeField]
-	public	eInputCommands		Command				= eInputCommands.NONE;
+	private	eInputCommands		m_Command					= eInputCommands.NONE;
+	public	eInputCommands		Command
+	{
+		get { return m_Command; }
+	}
 
 	[SerializeField]
-	public	InputCategory		Category			= InputCategory.NONE;
+	private	InputCategory		m_Category					= InputCategory.NONE;
+	public	InputCategory		Category
+	{
+		get { return m_Category; }
+	}
 
 	[SerializeField]
-	public	int					PrimaryCheck		= 0;
+	private	int					m_PrimaryCheck				= 0;
 
 	[SerializeField]
-	public	int					SecondaryCheck		= 0;
+	private	int					m_SecondaryCheck			= 0;
 
-	public	System.Func<KeyCode, bool> PrimaryKeyCheck		= null;
-	public	System.Func<KeyCode, bool> SecondaryKeyCheck	= null;
+	private	System.Func<KeyCode, bool> PrimaryKeyCheck		= null;
+	private	System.Func<KeyCode, bool> SecondaryKeyCheck	= null;
+
+	//
+	public	bool	IsPrimaryKeyUsed()
+	{
+		return PrimaryKeyCheck( m_PrimaryKey );
+	}
+
+	//
+	public	bool	IsSecondaryKeyUsed()
+	{
+		return SecondaryKeyCheck( m_SecondaryKey );
+	}
 
 	//
 	public	void	Setup( eInputCommands Command, InputCategory Category, eKeyState PrimaryKeyState, KeyCode PrimaryKey, eKeyState SecondaryKeyState, KeyCode SecondaryKey )
 	{
-		this.Command				= Command;
-		this.PrimaryKeyState		= PrimaryKeyState;
-		this.PrimaryKey				= PrimaryKey;
-		this.SecondaryKeyState		= SecondaryKeyState;
-		this.SecondaryKey			= SecondaryKey;
-		this.Category				= Category;
+		m_Command				= Command;
+		this.m_PrimaryKeyState		= PrimaryKeyState;
+		this.m_PrimaryKey				= PrimaryKey;
+		this.m_SecondaryKeyState		= SecondaryKeyState;
+		this.m_SecondaryKey			= SecondaryKey;
+		m_Category				= Category;
 
-		PrimaryCheck = (int)PrimaryKeyState;
-		SecondaryCheck = (int)SecondaryKeyState;
+		this.m_PrimaryCheck			= (int)PrimaryKeyState;
+		this.m_SecondaryCheck			= (int)SecondaryKeyState;
 
 		AssignKeyChecks();
 	}
@@ -570,8 +597,8 @@ public	class KeyCommandPair {
 
 	public	void	AssignKeyChecks()
 	{
-		eKeyState primaryKeyState	= ( eKeyState )PrimaryCheck;
-		eKeyState secondaryKeyState = ( eKeyState )SecondaryCheck;
+		eKeyState primaryKeyState	= ( eKeyState )m_PrimaryCheck;
+		eKeyState secondaryKeyState = ( eKeyState )m_SecondaryCheck;
 
 		System.Func<KeyCode, bool> ScrollUpCheck   = ( KeyCode k ) => { return Input.mouseScrollDelta.y > 0f; };
 		System.Func<KeyCode, bool> ScrollDownCheck = ( KeyCode k ) => { return Input.mouseScrollDelta.y < 0f; };
@@ -612,8 +639,8 @@ public	class KeyCommandPair {
 		{
 			switch ( key )
 			{
-				case eKeys.PRIMARY:		PrimaryKey		= keyCode.Value;	break;
-				case eKeys.SECONDARY:	SecondaryKey	= keyCode.Value;	break;
+				case eKeys.PRIMARY:		m_PrimaryKey		= keyCode.Value;	break;
+				case eKeys.SECONDARY:	m_SecondaryKey	= keyCode.Value;	break;
 				default:				break;
 			}
 		}
@@ -622,8 +649,8 @@ public	class KeyCommandPair {
 		{
 			switch ( key )
 			{
-				case eKeys.PRIMARY:		PrimaryKeyState		= keyState.Value;		break;
-				case eKeys.SECONDARY:	SecondaryKeyState	= keyState.Value;		break;
+				case eKeys.PRIMARY:		m_PrimaryKeyState		= keyState.Value;		break;
+				case eKeys.SECONDARY:	m_SecondaryKeyState	= keyState.Value;		break;
 				default:				break;
 			}
 
@@ -637,8 +664,8 @@ public	class KeyCommandPair {
 		KeyCode code = KeyCode.None;
 		switch ( key )
 		{
-			case eKeys.PRIMARY:		code	= PrimaryKey;				break;
-			case eKeys.SECONDARY:	code	= SecondaryKey;				break;
+			case eKeys.PRIMARY:		code	= m_PrimaryKey;				break;
+			case eKeys.SECONDARY:	code	= m_SecondaryKey;				break;
 			default:				break;
 		}
 
@@ -651,8 +678,8 @@ public	class KeyCommandPair {
 		eKeyState keyState = eKeyState.PRESS;
 		switch ( key )
 		{
-			case eKeys.PRIMARY:		keyState	= PrimaryKeyState;			break;
-			case eKeys.SECONDARY:	keyState	= SecondaryKeyState;		break;
+			case eKeys.PRIMARY:		keyState	= m_PrimaryKeyState;			break;
+			case eKeys.SECONDARY:	keyState	= m_SecondaryKeyState;		break;
 			default:				break;
 		}
 
@@ -664,8 +691,8 @@ public	class KeyCommandPair {
 	{
 		switch ( key )
 		{
-			case eKeys.PRIMARY:		keyCode	= PrimaryKey;		keyState = PrimaryKeyState;		break;
-			case eKeys.SECONDARY:	keyCode	= SecondaryKey;		keyState = SecondaryKeyState;	break;
+			case eKeys.PRIMARY:		keyCode	= m_PrimaryKey;		keyState = m_PrimaryKeyState;		break;
+			case eKeys.SECONDARY:	keyCode	= m_SecondaryKey;		keyState = m_SecondaryKeyState;	break;
 			default:				break;
 		}
 	}

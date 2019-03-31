@@ -10,10 +10,25 @@ public partial class GameManager : MonoBehaviour {
 		get { return m_Instance; }
 	}
 
-	public	static			SectionMap		Settings				= null;
-	public	static			SectionMap		Configs					= null;
-	[SerializeField]
-	public					InputManager	InputMgr				= null;
+	private	static			SectionMap		m_Settings				= null;
+	public	static			SectionMap		Settings
+	{
+		get { return m_Settings; }
+	}
+
+
+	private	static			SectionMap		m_Configs				= null;
+	public	static			SectionMap		Configs
+	{
+		get { return m_Configs; }
+	}
+
+//	[SerializeField]
+	private					InputManager	m_InputMgr				= null;
+	public					InputManager	InputMgr
+	{
+		get { return m_InputMgr; }
+	}
 
 	public	static			bool			IsChangingScene			= false;
 	public	static			bool			IsLoadingScene			= false;
@@ -56,10 +71,11 @@ public partial class GameManager : MonoBehaviour {
 		m_UpdateEvents	= this as UpdateEvents;
 
 		// Internal classes
-		InputMgr	= new InputManager();
+		m_InputMgr	= new InputManager();
 		InputMgr.Setup();
-		Settings	= new SectionMap();
-		Configs		= new SectionMap();
+
+		m_Settings	= new SectionMap();
+		m_Configs	= new SectionMap();
 
 		// Load Settings and Configs
 		const string settingspath		= "Settings";
