@@ -1,5 +1,6 @@
 ﻿
 using System.Reflection;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -266,6 +267,39 @@ namespace Utils {
 
 			bool bHasValidResult = ( Components != null && Components.Length > 0 );
 			return bHasValidResult;
+		}
+
+
+		////////////////////////////////////////////////
+		public	static IEnumerator DestroyChildren( Transform t, int StartIndex = 0, int EndIndex = int.MaxValue )
+		{
+			int childCount = t.childCount;
+
+			if ( StartIndex > childCount )
+				yield break;
+
+			if ( EndIndex > childCount )
+				EndIndex = childCount;
+
+			GameObject bin = new GameObject();
+			bin.hideFlags = HideFlags.DontSave;
+			Transform binTransform = bin.transform;
+
+			// Move children into bin
+			for ( int i = EndIndex - 1; i >= StartIndex; i-- )
+			{
+				Transform child = t.GetChild( i );
+				child.SetParent( binTransform );
+			}
+
+			// Destroy one gameobject every frame
+			foreach( Transform child in binTransform )
+			{
+				Object.Destroy( child.gameObject );
+				yield return null;
+			}
+
+			Object.Destroy( bin );
 		}
 	}
 
