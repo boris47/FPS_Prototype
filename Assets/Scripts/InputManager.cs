@@ -4,34 +4,35 @@ using UnityEngine;
 
 [System.FlagsAttribute] 
 public enum InputCategory : uint {
-/*00*/	NONE		= 0,
+	NONE		= 0,
 	/// <summary> Cotnrols State </summary>
-/*01*/	STATE		= 01,
+	STATE		= 01,
 	/// <summary> Controls movements </summary>
-/*02*/	MOVE		= 02,
+	MOVE		= 02,
 	/// <summary> Ability input </summary>
-/*03*/	ABILITY		= 03,
+	ABILITY		= 03,
 	/// <summary> Usage input </summary>
-/*04*/	USE			= 04,
+	USE			= 04,
 	/// <summary> Weapons switch </summary>
-/*05*/	SWITCH		= 05,
+	SWITCH		= 05,
 	/// <summary> Selection input </summary>
-/*06*/	SELECTION	= 06,
+	SELECTION	= 06,
 	/// <summary> Item usage </summary>
-/*07*/	ITEM		= 07,
+	ITEM		= 07,
 	/// <summary> Accessory usage </summary>
-/*08*/	GADGET		= 08,
+	GADGET		= 08,
 	/// <summary> Primary fire </summary>
-/*09*/	FIRE1		= 09,
+	FIRE1		= 09,
 	/// <summary> Secondary fire </summary>
-/*10*/	FIRE2		= 10,
+	FIRE2		= 10,
 	/// <summary> Secondary fire </summary>
-/*11*/	FIRE3		= 11,
-	/// <summary> Reload ( default: R ) </summary>
-/*12*/	RELOAD		= 12,
-	/// <summary> All </summary>
+	FIRE3		= 11,
+	/// <summary> Reload </summary>
+	RELOAD		= 12,
+	/// <summary> Categories Count </summary>
+	COUNT,
+	/// <summary> All categories </summary>
 	ALL			= STATE | MOVE | ABILITY | USE | SWITCH | SELECTION | ITEM | GADGET | FIRE1 | FIRE2 | FIRE3 | RELOAD,
-	SOME = STATE & MOVE & ABILITY
 }
 
 public	delegate	void	InputDelegateHandler();
@@ -80,7 +81,7 @@ public class InputManager {
 		}
 		else
 		{
-			GenerateDefaultBindings( MustSave: true );
+			GenerateDefaultBindings( bMustSave: true );
 		}
 	}
 
@@ -129,7 +130,7 @@ public class InputManager {
 	/// <summary> Reset bindings and save </summary>
 	public		void	ResetBindings()
 	{
-		GenerateDefaultBindings( MustSave: false );
+		GenerateDefaultBindings( bMustSave: false );
 	}
 
 
@@ -232,77 +233,77 @@ public class InputManager {
 	//////////////////////////////////////////////////////////////////////////
 	// GenerateDefaultBindings
 	/// <summary> Generates default bindings, optionally can save </summary>
-	private		void	GenerateDefaultBindings( bool MustSave )
+	private		void	GenerateDefaultBindings( bool bMustSave )
 	{
 		m_Bindings = new KeyBindings();
-		{
+		{	// DEFAULT BINDINGS			CATEGORY				INPUT COMMAND							PRIMARY KEY STATE			PRIMARY KEY			SECONDARY KEY	SECONDARY KEY STATE
 			// Movements
-			GenerateDefaultBinding( m_Bindings, InputCategory.MOVE,			eInputCommands.MOVE_FORWARD,			eKeyState.HOLD,				KeyCode.W,			null,	KeyCode.UpArrow			);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.MOVE,			eInputCommands.MOVE_BACKWARD,			eKeyState.HOLD,				KeyCode.S,			null,	KeyCode.PageDown		);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.MOVE,			eInputCommands.MOVE_LEFT,				eKeyState.HOLD,				KeyCode.A,			null,	KeyCode.LeftArrow		);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.MOVE,			eInputCommands.MOVE_RIGHT,				eKeyState.HOLD,				KeyCode.D,			null,	KeyCode.RightArrow		);
+			GenerateDefaultBinding( InputCategory.MOVE,			eInputCommands.MOVE_FORWARD,			eKeyState.HOLD,				KeyCode.W,			null,			KeyCode.UpArrow			);
+			GenerateDefaultBinding( InputCategory.MOVE,			eInputCommands.MOVE_BACKWARD,			eKeyState.HOLD,				KeyCode.S,			null,			KeyCode.PageDown		);
+			GenerateDefaultBinding( InputCategory.MOVE,			eInputCommands.MOVE_LEFT,				eKeyState.HOLD,				KeyCode.A,			null,			KeyCode.LeftArrow		);
+			GenerateDefaultBinding( InputCategory.MOVE,			eInputCommands.MOVE_RIGHT,				eKeyState.HOLD,				KeyCode.D,			null,			KeyCode.RightArrow		);
 
 			// States
-			GenerateDefaultBinding( m_Bindings, InputCategory.STATE,		eInputCommands.STATE_CROUCH,			eKeyState.HOLD,				KeyCode.LeftControl,null,	KeyCode.RightControl	);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.STATE,		eInputCommands.STATE_JUMP,				eKeyState.PRESS,			KeyCode.Space,		null,	KeyCode.Keypad0			);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.STATE,		eInputCommands.STATE_RUN,				eKeyState.HOLD,				KeyCode.LeftShift,	null,	KeyCode.RightShift		);
+			GenerateDefaultBinding( InputCategory.STATE,		eInputCommands.STATE_CROUCH,			eKeyState.HOLD,				KeyCode.LeftControl,null,			KeyCode.RightControl	);
+			GenerateDefaultBinding( InputCategory.STATE,		eInputCommands.STATE_JUMP,				eKeyState.PRESS,			KeyCode.Space,		null,			KeyCode.Keypad0			);
+			GenerateDefaultBinding( InputCategory.STATE,		eInputCommands.STATE_RUN,				eKeyState.HOLD,				KeyCode.LeftShift,	null,			KeyCode.RightShift		);
 
 			// Ability
-			GenerateDefaultBinding( m_Bindings, InputCategory.ABILITY,		eInputCommands.ABILITY_PRESS,			eKeyState.PRESS,			KeyCode.Q,			null,	KeyCode.None			);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.ABILITY,		eInputCommands.ABILITY_HOLD,			eKeyState.HOLD,				KeyCode.Q,			null,	KeyCode.None			);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.ABILITY,		eInputCommands.ABILITY_RELEASE,			eKeyState.RELEASE,			KeyCode.Q,			null,	KeyCode.None			);
+			GenerateDefaultBinding( InputCategory.ABILITY,		eInputCommands.ABILITY_PRESS,			eKeyState.PRESS,			KeyCode.Q,			null,			KeyCode.None			);
+			GenerateDefaultBinding( InputCategory.ABILITY,		eInputCommands.ABILITY_HOLD,			eKeyState.HOLD,				KeyCode.Q,			null,			KeyCode.None			);
+			GenerateDefaultBinding( InputCategory.ABILITY,		eInputCommands.ABILITY_RELEASE,			eKeyState.RELEASE,			KeyCode.Q,			null,			KeyCode.None			);
 
 			// Usage
-			GenerateDefaultBinding( m_Bindings, InputCategory.USE,			eInputCommands.USAGE,					eKeyState.PRESS,			KeyCode.F,			null,	KeyCode.Return			);
+			GenerateDefaultBinding( InputCategory.USE,			eInputCommands.USAGE,					eKeyState.PRESS,			KeyCode.F,			null,			KeyCode.Return			);
 
 			// Weapons Switch
-			GenerateDefaultBinding( m_Bindings, InputCategory.SWITCH,		eInputCommands.SWITCH_PREVIOUS,			eKeyState.SCROLL_UP,		KeyCode.None,		null,	KeyCode.None			);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.SWITCH,		eInputCommands.SWITCH_NEXT,				eKeyState.SCROLL_DOWN,		KeyCode.None,		null,	KeyCode.None			);
+			GenerateDefaultBinding( InputCategory.SWITCH,		eInputCommands.SWITCH_PREVIOUS,			eKeyState.SCROLL_UP,		KeyCode.None,		null,			KeyCode.None			);
+			GenerateDefaultBinding( InputCategory.SWITCH,		eInputCommands.SWITCH_NEXT,				eKeyState.SCROLL_DOWN,		KeyCode.None,		null,			KeyCode.None			);
 
 			// Selection
-			GenerateDefaultBinding( m_Bindings, InputCategory.SELECTION,	eInputCommands.SELECTION1,				eKeyState.PRESS,			KeyCode.Alpha1,		null,	KeyCode.None			);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.SELECTION,	eInputCommands.SELECTION2,				eKeyState.PRESS,			KeyCode.Alpha2,		null,	KeyCode.None			);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.SELECTION,	eInputCommands.SELECTION3,				eKeyState.PRESS,			KeyCode.Alpha3,		null,	KeyCode.None			);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.SELECTION,	eInputCommands.SELECTION4,				eKeyState.PRESS,			KeyCode.Alpha4,		null,	KeyCode.None			);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.SELECTION,	eInputCommands.SELECTION5,				eKeyState.PRESS,			KeyCode.Alpha5,		null,	KeyCode.None			);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.SELECTION,	eInputCommands.SELECTION6,				eKeyState.PRESS,			KeyCode.Alpha6,		null,	KeyCode.None			);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.SELECTION,	eInputCommands.SELECTION7,				eKeyState.PRESS,			KeyCode.Alpha7,		null,	KeyCode.None			);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.SELECTION,	eInputCommands.SELECTION8,				eKeyState.PRESS,			KeyCode.Alpha8,		null,	KeyCode.None			);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.SELECTION,	eInputCommands.SELECTION9,				eKeyState.PRESS,			KeyCode.Alpha9,		null,	KeyCode.None			);
+			GenerateDefaultBinding( InputCategory.SELECTION,	eInputCommands.SELECTION1,				eKeyState.PRESS,			KeyCode.Alpha1,		null,			KeyCode.None			);
+			GenerateDefaultBinding( InputCategory.SELECTION,	eInputCommands.SELECTION2,				eKeyState.PRESS,			KeyCode.Alpha2,		null,			KeyCode.None			);
+			GenerateDefaultBinding( InputCategory.SELECTION,	eInputCommands.SELECTION3,				eKeyState.PRESS,			KeyCode.Alpha3,		null,			KeyCode.None			);
+			GenerateDefaultBinding( InputCategory.SELECTION,	eInputCommands.SELECTION4,				eKeyState.PRESS,			KeyCode.Alpha4,		null,			KeyCode.None			);
+			GenerateDefaultBinding( InputCategory.SELECTION,	eInputCommands.SELECTION5,				eKeyState.PRESS,			KeyCode.Alpha5,		null,			KeyCode.None			);
+			GenerateDefaultBinding( InputCategory.SELECTION,	eInputCommands.SELECTION6,				eKeyState.PRESS,			KeyCode.Alpha6,		null,			KeyCode.None			);
+			GenerateDefaultBinding( InputCategory.SELECTION,	eInputCommands.SELECTION7,				eKeyState.PRESS,			KeyCode.Alpha7,		null,			KeyCode.None			);
+			GenerateDefaultBinding( InputCategory.SELECTION,	eInputCommands.SELECTION8,				eKeyState.PRESS,			KeyCode.Alpha8,		null,			KeyCode.None			);
+			GenerateDefaultBinding( InputCategory.SELECTION,	eInputCommands.SELECTION9,				eKeyState.PRESS,			KeyCode.Alpha9,		null,			KeyCode.None			);
 
 			// Item 
-			GenerateDefaultBinding( m_Bindings, InputCategory.ITEM,			eInputCommands.ITEM1,					eKeyState.PRESS,			KeyCode.F1,			null,	KeyCode.Keypad1			);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.ITEM,			eInputCommands.ITEM2,					eKeyState.PRESS,			KeyCode.F2,			null,	KeyCode.Keypad2			);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.ITEM,			eInputCommands.ITEM3,					eKeyState.PRESS,			KeyCode.F3,			null,	KeyCode.Keypad3			);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.ITEM,			eInputCommands.ITEM4,					eKeyState.PRESS,			KeyCode.F4,			null,	KeyCode.Keypad4			);
+			GenerateDefaultBinding( InputCategory.ITEM,			eInputCommands.ITEM1,					eKeyState.PRESS,			KeyCode.F1,			null,			KeyCode.Keypad1			);
+			GenerateDefaultBinding( InputCategory.ITEM,			eInputCommands.ITEM2,					eKeyState.PRESS,			KeyCode.F2,			null,			KeyCode.Keypad2			);
+			GenerateDefaultBinding( InputCategory.ITEM,			eInputCommands.ITEM3,					eKeyState.PRESS,			KeyCode.F3,			null,			KeyCode.Keypad3			);
+			GenerateDefaultBinding( InputCategory.ITEM,			eInputCommands.ITEM4,					eKeyState.PRESS,			KeyCode.F4,			null,			KeyCode.Keypad4			);
 
 			// Gadget
-			GenerateDefaultBinding( m_Bindings, InputCategory.GADGET,		eInputCommands.GADGET1,					eKeyState.PRESS,			KeyCode.G,			null,	KeyCode.None			);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.GADGET,		eInputCommands.GADGET2,					eKeyState.PRESS,			KeyCode.H,			null,	KeyCode.None			);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.GADGET,		eInputCommands.GADGET3,					eKeyState.PRESS,			KeyCode.J,			null,	KeyCode.None			);
+			GenerateDefaultBinding( InputCategory.GADGET,		eInputCommands.GADGET1,					eKeyState.PRESS,			KeyCode.G,			null,			KeyCode.None			);
+			GenerateDefaultBinding( InputCategory.GADGET,		eInputCommands.GADGET2,					eKeyState.PRESS,			KeyCode.H,			null,			KeyCode.None			);
+			GenerateDefaultBinding( InputCategory.GADGET,		eInputCommands.GADGET3,					eKeyState.PRESS,			KeyCode.J,			null,			KeyCode.None			);
 
 			// Primary Fire
-			GenerateDefaultBinding( m_Bindings, InputCategory.FIRE1,		eInputCommands.PRIMARY_FIRE_PRESS,		eKeyState.PRESS,			KeyCode.Mouse0,		null,	KeyCode.None			);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.FIRE1,		eInputCommands.PRIMARY_FIRE_HOLD,		eKeyState.HOLD,				KeyCode.Mouse0,		null,	KeyCode.None			);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.FIRE1,		eInputCommands.PRIMARY_FIRE_RELEASE,	eKeyState.RELEASE,			KeyCode.Mouse0,		null,	KeyCode.None			);
+			GenerateDefaultBinding( InputCategory.FIRE1,		eInputCommands.PRIMARY_FIRE_PRESS,		eKeyState.PRESS,			KeyCode.Mouse0,		null,			KeyCode.None			);
+			GenerateDefaultBinding( InputCategory.FIRE1,		eInputCommands.PRIMARY_FIRE_HOLD,		eKeyState.HOLD,				KeyCode.Mouse0,		null,			KeyCode.None			);
+			GenerateDefaultBinding( InputCategory.FIRE1,		eInputCommands.PRIMARY_FIRE_RELEASE,	eKeyState.RELEASE,			KeyCode.Mouse0,		null,			KeyCode.None			);
 
 			// Secondary Fire
-			GenerateDefaultBinding( m_Bindings,	InputCategory.FIRE2,		eInputCommands.SECONDARY_FIRE_PRESS,	eKeyState.PRESS,			KeyCode.Mouse1,		null,	KeyCode.None			);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.FIRE2,		eInputCommands.SECONDARY_FIRE_HOLD,		eKeyState.HOLD,				KeyCode.Mouse1,		null,	KeyCode.None			);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.FIRE2,		eInputCommands.SECONDARY_FIRE_RELEASE,	eKeyState.RELEASE,			KeyCode.Mouse1,		null,	KeyCode.None			);
+			GenerateDefaultBinding( InputCategory.FIRE2,		eInputCommands.SECONDARY_FIRE_PRESS,	eKeyState.PRESS,			KeyCode.Mouse1,		null,			KeyCode.None			);
+			GenerateDefaultBinding( InputCategory.FIRE2,		eInputCommands.SECONDARY_FIRE_HOLD,		eKeyState.HOLD,				KeyCode.Mouse1,		null,			KeyCode.None			);
+			GenerateDefaultBinding( InputCategory.FIRE2,		eInputCommands.SECONDARY_FIRE_RELEASE,	eKeyState.RELEASE,			KeyCode.Mouse1,		null,			KeyCode.None			);
 
 			// Tertiary Fire
-			GenerateDefaultBinding( m_Bindings, InputCategory.FIRE3,		eInputCommands.TERTIARY_FIRE_PRESS,		eKeyState.PRESS,			KeyCode.Mouse2,		null,	KeyCode.None			);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.FIRE3,		eInputCommands.TERTIARY_FIRE_HOLD,		eKeyState.HOLD,				KeyCode.Mouse2,		null,	KeyCode.None			);
-			GenerateDefaultBinding( m_Bindings,	InputCategory.FIRE3,		eInputCommands.TERTIARY_FIRE_RELEASE,	eKeyState.RELEASE,			KeyCode.Mouse2,		null,	KeyCode.None			);
+			GenerateDefaultBinding( InputCategory.FIRE3,		eInputCommands.TERTIARY_FIRE_PRESS,		eKeyState.PRESS,			KeyCode.Mouse2,		null,			KeyCode.None			);
+			GenerateDefaultBinding( InputCategory.FIRE3,		eInputCommands.TERTIARY_FIRE_HOLD,		eKeyState.HOLD,				KeyCode.Mouse2,		null,			KeyCode.None			);
+			GenerateDefaultBinding( InputCategory.FIRE3,		eInputCommands.TERTIARY_FIRE_RELEASE,	eKeyState.RELEASE,			KeyCode.Mouse2,		null,			KeyCode.None			);
 
 			// Reload
-			GenerateDefaultBinding( m_Bindings, InputCategory.RELOAD,		eInputCommands.RELOAD_WPN,				eKeyState.PRESS,			KeyCode.R,			null,	KeyCode.End				);
+			GenerateDefaultBinding( InputCategory.RELOAD,		eInputCommands.RELOAD_WPN,				eKeyState.PRESS,			KeyCode.R,			null,			KeyCode.End				);
 		}
 
 		m_IsDirty = true;
 
-		if ( MustSave )
+		if ( bMustSave )
 		{
 			SaveBindings();
 		}
@@ -312,7 +313,7 @@ public class InputManager {
 	//////////////////////////////////////////////////////////////////////////
 	// GenerateBinding
 	/// <summary> Generate default bindings </summary>
-	private		void	GenerateDefaultBinding( KeyBindings bindings, InputCategory category, eInputCommands command, eKeyState primaryKeyState, KeyCode primaryKey, eKeyState? secondaryKeyState, KeyCode secondaryKey )
+	private		void	GenerateDefaultBinding( InputCategory category, eInputCommands command, eKeyState primaryKeyState, KeyCode primaryKey, eKeyState? secondaryKeyState, KeyCode secondaryKey )
 	{
 		eKeyState _secondaryKeyState = primaryKeyState;
 		if ( secondaryKeyState.HasValue == true )
@@ -322,7 +323,7 @@ public class InputManager {
 
 		KeyCommandPair commandPair = new KeyCommandPair();
 		commandPair.Setup( command, category, primaryKeyState, primaryKey, _secondaryKeyState, secondaryKey );
-		bindings.Pairs.Add( commandPair );
+		m_Bindings.Pairs.Add( commandPair );
 	}
 
 
@@ -475,7 +476,7 @@ public class InputManager {
 		{
 			string bindingsPath = Application.persistentDataPath + "/KeyBindings.json";
 			Debug.Log( "Unable to load key bindings at path " + bindingsPath );
-			GenerateDefaultBindings( MustSave: false );
+			GenerateDefaultBindings( bMustSave: false );
 		}
 	}
 
@@ -582,14 +583,14 @@ public	class KeyCommandPair {
 	public	void	Setup( eInputCommands Command, InputCategory Category, eKeyState PrimaryKeyState, KeyCode PrimaryKey, eKeyState SecondaryKeyState, KeyCode SecondaryKey )
 	{
 		m_Command				= Command;
-		this.m_PrimaryKeyState		= PrimaryKeyState;
-		this.m_PrimaryKey				= PrimaryKey;
-		this.m_SecondaryKeyState		= SecondaryKeyState;
-		this.m_SecondaryKey			= SecondaryKey;
+		m_PrimaryKeyState		= PrimaryKeyState;
+		m_PrimaryKey			= PrimaryKey;
+		m_SecondaryKeyState		= SecondaryKeyState;
+		m_SecondaryKey			= SecondaryKey;
 		m_Category				= Category;
 
-		this.m_PrimaryCheck			= (int)PrimaryKeyState;
-		this.m_SecondaryCheck			= (int)SecondaryKeyState;
+		m_PrimaryCheck			= (int)PrimaryKeyState;
+		m_SecondaryCheck		= (int)SecondaryKeyState;
 
 		AssignKeyChecks();
 	}
@@ -678,7 +679,7 @@ public	class KeyCommandPair {
 		eKeyState keyState = eKeyState.PRESS;
 		switch ( key )
 		{
-			case eKeys.PRIMARY:		keyState	= m_PrimaryKeyState;			break;
+			case eKeys.PRIMARY:		keyState	= m_PrimaryKeyState;		break;
 			case eKeys.SECONDARY:	keyState	= m_SecondaryKeyState;		break;
 			default:				break;
 		}
@@ -691,8 +692,8 @@ public	class KeyCommandPair {
 	{
 		switch ( key )
 		{
-			case eKeys.PRIMARY:		keyCode	= m_PrimaryKey;		keyState = m_PrimaryKeyState;		break;
-			case eKeys.SECONDARY:	keyCode	= m_SecondaryKey;		keyState = m_SecondaryKeyState;	break;
+			case eKeys.PRIMARY:		keyCode	= m_PrimaryKey;			keyState = m_PrimaryKeyState;		break;
+			case eKeys.SECONDARY:	keyCode	= m_SecondaryKey;		keyState = m_SecondaryKeyState;		break;
 			default:				break;
 		}
 	}
