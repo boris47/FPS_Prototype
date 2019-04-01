@@ -71,14 +71,17 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 			}
 
 			int size = m_ObjectsPool.Count;
-			m_ObjectsPool.Clear();
-
-			// Clear previous childs
-			for ( int i = m_Container.transform.childCount - 1; i >= 0; i-- )
 			{
-				Object.Destroy( m_Container.transform.GetChild(i).gameObject );
+				m_Container.transform.DetachChildren();
+				for ( int i = m_ObjectsPool.Count - 1; i >= 0; i-- )
+				{
+					Component comp = m_ObjectsPool[i];
+					Object.Destroy( comp.gameObject );
+					m_ObjectsPool.RemoveAt(i);
+				}
 			}
-
+			m_ObjectsPool.Clear();
+			
 			// Create the internal pool
 			m_ObjectsPool = new List<T>( size );
 			{
@@ -126,14 +129,16 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 		}
 
 		// Return true if the requested size is the currently set
-		if ( m_Container.transform.childCount == newSize )
+		if ( m_ObjectsPool.Count == newSize )
 			return true;
 
 		// Calculate the delta
-		int delta = Mathf.Abs( m_Container.transform.childCount - (int)newSize );
+		int delta = Mathf.Abs( m_ObjectsPool.Count - (int)newSize );
+
+		int childCount = m_ObjectsPool.Count;
 
 		// Enlarge
-		if ( m_Container.transform.childCount < newSize )
+		if ( childCount < newSize )
 		{
 			for ( int i = 0; i < delta; i++ )
 			{
@@ -142,13 +147,15 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 				m_ObjectsPool.Add( comp );
 			}
 		}
-
+		
 		// Reduction
-		if ( m_Container.transform.childCount > newSize )
+		if ( childCount > newSize )
 		{
 			for ( int i = delta - 1; i >= 0; i-- )
 			{
-				Object.Destroy( m_Container.transform.GetChild(i).gameObject );
+				Component comp = m_ObjectsPool[i];
+				m_ObjectsPool.RemoveAt(i);
+				Object.Destroy( comp.gameObject );
 			}
 		}
 
@@ -238,10 +245,6 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 			return;
 
 		Counter --;
-		for ( int i = m_Container.transform.childCount - 1; i >= 0; i-- )
-		{
-			Object.Destroy( m_Container.transform.GetChild( i ).gameObject );
-		}
 
 		Object.Destroy( m_Container );
 	}

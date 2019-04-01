@@ -51,7 +51,7 @@ public class EffectManager : MonoBehaviour {
 
 	//////////////////////////////////////////////////////////////////////////
 	// PlayEntityOnHit
-	public	void	PlayEffect( EffectType effectType,  Vector3 position, Vector3 direction, int count = 0 )
+	public	void	PlayEffect( EffectType effectType,  Vector3 position, Vector3 direction, int count = 0, float gameObjectLife = 5f )
 	{
 		if ( m_IsOK == false )
 			return;
@@ -74,7 +74,7 @@ public class EffectManager : MonoBehaviour {
 				p.transform.forward = direction;
 				p.Play( withChildren : true );
 			}
-			Destroy( p.gameObject, 5.0f );
+			Destroy( p.gameObject, gameObjectLife );
 		}
 	}
 	

@@ -31,8 +31,6 @@ public abstract class GranadeBase : Bullet, IGranade {
 	{
 		base.Awake();
 
-		m_RigidBody.mass = float.Epsilon;
-
 		SetActive( false );
 	}
 
@@ -61,7 +59,7 @@ public abstract class GranadeBase : Bullet, IGranade {
 		{
 			m_Emission					= 0f;
 		}
-
+		m_RigidBody.mass				= float.Epsilon;
 		m_RigidBody.useGravity			= state;
 		m_RigidBody.detectCollisions	= state;
 		m_Collider.enabled				= state;

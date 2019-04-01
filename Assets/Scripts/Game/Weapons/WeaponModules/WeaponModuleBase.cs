@@ -394,7 +394,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 			return;
 		}
 		
-		m_Modifiers.Remove( modifier );
+		m_Modifiers.RemoveAt( indexOfModifier );
 		
 		Database.Section Configuration = GetCurrentConfiguration( m_ModuleSection, m_Modifiers );
 
@@ -433,7 +433,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 		GameObject bulletGO = null;
 		if ( ( bulletGO = Resources.Load<GameObject>( "Prefabs/Bullets/" + bulletObjectName ) ) != null )
 		{
-			m_PoolBullets.Convert( bulletGO, ActionOnBullet );
+//			m_PoolBullets.Convert( bulletGO, ActionOnBullet );
 		}
 	}
 

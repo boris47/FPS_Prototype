@@ -132,7 +132,10 @@ public class UI : MonoBehaviour, IUI, IStateDefiner {
 		{
 			SwitchTo( m_InGame.transform );
 		}
-
+		else
+		{
+			SwitchTo( m_MainMenu.transform );
+		}
 	}
 
 

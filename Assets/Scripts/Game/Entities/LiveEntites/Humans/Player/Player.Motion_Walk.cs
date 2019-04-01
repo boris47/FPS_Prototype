@@ -41,7 +41,7 @@ public partial class Player {
 
 		// TIME SCALE
 		float timeScale = Mathf.Lerp( Time.timeScale, timeScaleTarget, interpolant );
-		Time.timeScale = timeScale;
+		Time.timeScale = Mathf.Clamp01( timeScale );
 		SoundManager.Instance.Pitch = timeScale;
 		
 		//	POSITION BY DISTANCE

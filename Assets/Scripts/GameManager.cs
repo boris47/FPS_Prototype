@@ -185,18 +185,17 @@ public partial class GameManager : MonoBehaviour {
 			print("Saving Camera Section");
 		}
 		*/
-		
+		/*
 		if ( Input.GetKeyDown( KeyCode.K ) )
 		{
 			WeaponManager.Instance.ApplyModifierToWeaponSlot( WeaponManager.Instance.CurrentWeapon, WeaponSlots.PRIMARY, "WPN_Module_Prop_BiggerMag" );
 		}
 		
-		
 		if ( Input.GetKeyDown( KeyCode.L ) )
 		{
 			WeaponManager.Instance.RemoveModifierToWeaponSlot( WeaponManager.Instance.CurrentWeapon, WeaponSlots.PRIMARY, "WPN_Module_Prop_BiggerMag" );
 		}
-		
+		*/
 		/*
 		if ( Input.GetKeyDown( KeyCode.L ) )
 		{

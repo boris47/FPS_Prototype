@@ -170,8 +170,8 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 	// UpdateUI
 	public	void	UpdateUI()
 	{
-		if ( m_IsActive == false )
-			return;
+//		if ( m_IsActive == false )
+//			return;
 
 		IEntity player				= Player.Instance as IEntity;
 

@@ -14,9 +14,7 @@ public class GenericBullet : Bullet {
 	protected override void Awake()
 	{
 		base.Awake();
-
-		m_RigidBody.useGravity					= false;
-			
+		
 		bool bHasLight = transform.SearchComponent( ref m_PointLight, SearchContext.LOCAL, null );
 		bool bHasFlare = transform.SearchComponent( ref m_LensFlare,  SearchContext.LOCAL, null );
 
@@ -30,7 +28,6 @@ public class GenericBullet : Bullet {
 				m_LensFlare.color = m_PointLight.color;
 			}
 		}
-
 
 		SetActive( false );
 	}
@@ -100,7 +97,7 @@ public class GenericBullet : Bullet {
 	protected	virtual		void	ShootInstant( Vector3 position, Vector3 direction, float maxDistance = Mathf.Infinity )
 	{
 		RaycastHit hit = default( RaycastHit );
-		bool bHasHit = Physics.Raycast( position, direction, out hit, Mathf.Infinity );
+		bool bHasHit = Physics.Raycast( position, direction, out hit, Mathf.Infinity, Utils.Base.LayersAllButOne( "Bullets" ) );
 		if ( bHasHit )
 		{
 			Bullet bullet = hit.transform.gameObject.GetComponent<Bullet>();
@@ -111,7 +108,6 @@ public class GenericBullet : Bullet {
 			bool bIsAnEntity = Utils.Base.SearchComponent( hit.transform.gameObject, ref entity, SearchContext.LOCAL );
 			IShield shield = null;
 			bool bIsShield = Utils.Base.SearchComponent( hit.transform.gameObject, ref shield, SearchContext.CHILDREN );
-
 
 			if ( bIsAnEntity )
 			{
@@ -141,8 +137,9 @@ public class GenericBullet : Bullet {
 				effectToPlay = EffectType.AMBIENT_ON_HIT;
 			}
 
-			EffectManager.Instance.PlayEffect( effectToPlay, hit.point, hit.normal, 3 );;
+			EffectManager.Instance.PlayEffect( effectToPlay, hit.point, hit.normal, 3 );
 		}
+		EffectManager.Instance.PlayEffect( EffectType.MUZZLE, position, direction, 0, 0.1f );
 	}
 
 
@@ -163,10 +160,10 @@ public class GenericBullet : Bullet {
 	// ShootParabolic ( Virtual )
 	protected	virtual		void	ShootParabolic( Vector3 position, Vector3 direction, float velocity )
 	{
-		transform.up			= direction;
+//		transform.up			= direction;
 		transform.position		= position;
-		m_StartPosition			= position;
 		m_RigidBody.velocity	= m_RigidBodyVelocity = direction * ( ( velocity > 0f ) ? velocity : m_Velocity );
+		m_StartPosition			= position;
 		m_RigidBody.useGravity	= true;
 		SetActive( true );
 	}
