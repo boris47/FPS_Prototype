@@ -171,31 +171,40 @@ public partial class GameManager : MonoBehaviour {
 			// Update inputs
 			InputMgr.Update();
 		}
-
-		if ( Input.GetKeyDown( KeyCode.I) )
+		/*
+		if ( Input.GetKeyDown( KeyCode.L) )
 		{
 			InputMgr.ToggleCategory( InputCategory.MOVE );
 			print("removing movement");
 		}
-
-
-		if ( Input.GetKeyDown( KeyCode.T ) )
+		*/
+		/*
+		if ( Input.GetKeyDown( KeyCode.L ) )
 		{
 			Configs.SaveContextSections( "Camera" );
 			print("Saving Camera Section");
 		}
-
+		*/
 		
 		if ( Input.GetKeyDown( KeyCode.K ) )
 		{
 			WeaponManager.Instance.ApplyModifierToWeaponSlot( WeaponManager.Instance.CurrentWeapon, WeaponSlots.PRIMARY, "WPN_Module_Prop_BiggerMag" );
 		}
+		
+		
+		if ( Input.GetKeyDown( KeyCode.L ) )
+		{
+			WeaponManager.Instance.RemoveModifierToWeaponSlot( WeaponManager.Instance.CurrentWeapon, WeaponSlots.PRIMARY, "WPN_Module_Prop_BiggerMag" );
+		}
+		
+		/*
 		if ( Input.GetKeyDown( KeyCode.L ) )
 		{
 			WeaponModuleSlot slot = null;
 			WeaponManager.Instance.CurrentWeapon.bGetModuleSlot( WeaponSlots.PRIMARY, ref slot );
 			slot.WeaponModule.ResetBaseConfiguration();
 		}
+		*/
 		
 
 		// Thinking Update
