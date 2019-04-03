@@ -95,11 +95,11 @@ public class PathSpline : PathBase {
 		m_Interpolant += ( Time.deltaTime ) * ( speed.HasValue ? speed.Value : m_Speed );
 
 		// End event
-		if ( m_IsEndEventCalled == false && m_Interpolant >= 1.0f )
+		if ( m_Interpolant >= 1.0f && m_IsCompleted == false )
 		{
 			m_IsCompleted = true;
 
-			if ( m_OnPathCompleted != null && m_OnPathCompleted.GetPersistentEventCount() > 0 )
+			if ( m_IsEndEventCalled == false && m_OnPathCompleted != null && m_OnPathCompleted.GetPersistentEventCount() > 0 )
 			{
 				m_OnPathCompleted.Invoke();
 			}
@@ -129,7 +129,7 @@ public class PathSpline : PathBase {
 		OnDrawGizmosSelected();
 	}
 		
-
+	public bool reversed;
 	private void	OnDrawGizmosSelected()
 	{
 		const float Steps = 500f;
@@ -150,14 +150,14 @@ public class PathSpline : PathBase {
 
 			prevPosition = currPosition;
 		}
-
+		
 		// Mid points
 		float currentStep = 0.001f;
 		while ( currentStep < Steps )
 		{
 			float interpolant = currentStep / Steps;
 
-			Utils.Math.GetInterpolatedWaypoint( m_Waypoints, interpolant, ref currPosition, ref rotation );
+			Utils.Math.GetInterpolatedWaypoint( m_Waypoints, reversed ? -interpolant : interpolant, ref currPosition, ref rotation );
 
 			Gizmos.DrawLine( prevPosition, currPosition );
 			Gizmos.DrawRay( currPosition, rotation * ( Vector3.forward * 3f ) );
@@ -168,7 +168,7 @@ public class PathSpline : PathBase {
 		
 		// End point
 		{
-			Utils.Math.GetInterpolatedWaypoint( m_Waypoints, 1.0f, ref currPosition, ref rotation );
+			Utils.Math.GetInterpolatedWaypoint( m_Waypoints, reversed ? -1.0f:1.0f, ref currPosition, ref rotation );
 
 			Gizmos.DrawLine( prevPosition, currPosition );
 			Gizmos.DrawRay( currPosition, rotation * ( Vector3.forward * 3f ) );
