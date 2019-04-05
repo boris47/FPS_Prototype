@@ -155,7 +155,7 @@ public class PathSpline : PathBase {
 		float currentStep = 0.001f;
 		while ( currentStep < Steps )
 		{
-			float interpolant = currentStep / Steps;
+			float interpolant = Mathf.Clamp01( currentStep / Steps );
 
 			Utils.Math.GetInterpolatedWaypoint( m_Waypoints, reversed ? -interpolant : interpolant, ref currPosition, ref rotation );
 
