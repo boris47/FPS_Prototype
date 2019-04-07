@@ -95,7 +95,7 @@ public class PathSpline : PathBase {
 		m_Interpolant += ( Time.deltaTime ) * ( speed.HasValue ? speed.Value : m_Speed );
 
 		// End event
-		if ( m_Interpolant >= 1.0f && m_IsCompleted == false )
+		if ( Mathf.Abs(m_Interpolant) >= 1.0f && m_IsCompleted == false )
 		{
 			m_IsCompleted = true;
 
@@ -104,6 +104,11 @@ public class PathSpline : PathBase {
 				m_OnPathCompleted.Invoke();
 			}
 			m_IsEndEventCalled = true;
+		}
+
+		if ( Mathf.Abs(m_Interpolant) >= 1.0f )
+		{
+			m_Interpolant = 0.0f;
 		}
 
 		// Interpolation
@@ -132,7 +137,7 @@ public class PathSpline : PathBase {
 	public bool reversed;
 	private void	OnDrawGizmosSelected()
 	{
-		const float Steps = 500f;
+		const float Steps = 50f;
 		const float StepLength = 1.0f;
 
 		ElaboratePath( Steps: Steps );

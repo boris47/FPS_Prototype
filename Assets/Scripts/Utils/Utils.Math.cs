@@ -436,15 +436,31 @@ namespace Utils {
 		/// </summary>
 		public	static		Vector3		GetPoint( Vector3[] points, float t )
 		{
-			if ( points == null || points.Length < 4 )
+			int length = points.Length;
+			if ( points == null || length < 4 )
 			{
 				UnityEngine.Debug.Log( "GetPoint Called with points invalid array" );
 				UnityEngine.Debug.DebugBreak();
 			}
 
-			int numSections = points.Length - 3;
+			bool bIsReversed = t < 0.0f;
+			t = Mathf.Abs( t );
+			
+			int numSections = length - 3;
 			int currPt = Mathf.Min( Mathf.FloorToInt( t * ( float ) numSections ), numSections - 1 );
-			float u = t * ( float ) numSections - ( float ) currPt;
+			if ( bIsReversed )
+			{
+				currPt = length - 1 - currPt;
+			}
+
+			float u = ( t * ( float ) numSections ) - (
+				bIsReversed ?
+					( (float) length - 1f - (float)currPt )
+					:
+					( float ) currPt
+				)
+			;
+			u = Mathf.Clamp01(u);
 
 			Vector3 a = points[ currPt + 0 ];
 			Vector3 b = points[ currPt + 1 ];
@@ -465,66 +481,7 @@ namespace Utils {
 		/// <summary>
 		/// Compute spline's waypoints interpolation, assigning position and rotation, return true if everything fine otherwise false
 		/// </summary>
-		public	static		bool		GetInterpolatedWaypoint2( PathWayPointOnline[] ws, float t, ref Vector3 position, ref Quaternion rotation )
-		{
-			if ( ws == null || ws.Length < 4 )
-			{
-				UnityEngine.Debug.Log( "GetPoint Called with points invalid array" );
-				UnityEngine.Debug.DebugBreak();
-				return false;
-			}
-
-			bool bIsReversed = t < 0.0f;
-			if ( bIsReversed )
-			{
-				ws = new global::System.Collections.Generic.List<PathWayPointOnline>( ws ).ToArray();
-				global::System.Array.Reverse( ws );
-			}
-			t = Mathf.Abs( t );
-
-			int numSections = ws.Length - 3;
-			int currPt = Mathf.Min( Mathf.FloorToInt( t * ( float ) numSections ), numSections - 1 );
-			float u = t * ( float ) numSections - ( float ) currPt;
-
-//			float rotationInterpolant = 0.0f;
-
-			#region Position
-			{
-				Vector3 p_a = ws[ currPt + 0 ];
-				Vector3 p_b = ws[ currPt + 1 ];
-				Vector3 p_c = ws[ currPt + 2 ];
-				Vector3 p_d = ws[ currPt + 3 ];
-
-//				rotationInterpolant = ( p_b - position ).magnitude / ( p_c - p_b ).magnitude;
-
-				position = .5f * 
-				(
-					( -p_a + 3f * p_b - 3f * p_c + p_d )		* ( u * u * u ) +
-					( 2f * p_a - 5f * p_b + 4f * p_c - p_d )	* ( u * u ) +
-					( -p_a + p_c )								* u +
-					2f * p_b
-				);
-				
-			}
-			#endregion
-
-			#region Rotation
-			{
-				Quaternion r_a = ws[ currPt + 0 ];
-				Quaternion r_b = ws[ currPt + 1 ];
-				Quaternion r_c = ws[ currPt + 2 ];
-				Quaternion r_d = ws[ currPt + 3 ];
-
-				rotation = Quaternion.Slerp( r_b, r_c, u ) ;
-
-//				rotation = Utils.Math.GetRotation( r_a, r_b, r_c, r_d, u );
-			}
-			#endregion
-
-			return true;
-		}
-
-		public	static		bool		GetInterpolatedWaypoint( PathWayPointOnline[] ws, float t, ref Vector3 position, ref Quaternion rotation )
+		public		static		bool		GetInterpolatedWaypoint( PathWayPointOnline[] ws, float t, ref Vector3 position, ref Quaternion rotation )
 		{
 			int length = ws.Length;
 			if ( ws == null || ws.Length < 4 )
@@ -535,30 +492,28 @@ namespace Utils {
 			}
 
 			bool bIsReversed = t < 0.0f;
-			
 			t = Mathf.Abs( t );
+			
+			int numSections = length - 3;
+			int currPt = Mathf.Min( Mathf.FloorToInt( t * ( float ) numSections ), numSections - 1 );
+			if ( bIsReversed )
+			{
+				currPt = length - 1 - currPt;
+			}
 
-///			t = t / ( ( ws.Length - 1 ) );
-			
-			int numSections		= length - 3;
-			int numSectionsInv	= length - 1;
-			
-			int currPt = bIsReversed ?
-				Mathf.Min( Mathf.CeilToInt( (1.0f - t)  * ( float ) numSectionsInv ), numSectionsInv )	// [length-4, 0]
-				:
-				Mathf.Min( Mathf.FloorToInt( t * ( float ) numSections ), numSections - 1 )	// [0, length-4]
+			float u = ( t * ( float ) numSections ) - (
+				bIsReversed ?
+					( (float) length - 1f - (float)currPt )
+					:
+					( float ) currPt
+				)
 			;
-			
-			float u = bIsReversed ?
-				( ( (1.0f - t) * ( float )( numSectionsInv-2 ) ) - ( float )currPt + ( (1.0f - t) * 2.0f ) ) * -1.0f
-				:
-				( t * ( float ) numSections ) - ( float ) currPt
-			;
-			float rotationInterpolant = 0.0f;
+			u = Mathf.Clamp01(u);
+//			float rotationInterpolant = 0.0f;
 
 			#region Position
 			{
-				Vector3 p_a = bIsReversed ? ws[ currPt - 0 ] : ws[ currPt + 0 ];
+				Vector3 p_a = ws[ currPt ];
 				Vector3 p_b = bIsReversed ? ws[ currPt - 1 ] : ws[ currPt + 1 ];
 				Vector3 p_c = bIsReversed ? ws[ currPt - 2 ] : ws[ currPt + 2 ];
 				Vector3 p_d = bIsReversed ? ws[ currPt - 3 ] : ws[ currPt + 3 ];
@@ -575,41 +530,48 @@ namespace Utils {
 				
 			}
 			#endregion
-
+			
 			#region Rotation
 			{
-				Quaternion r_a = bIsReversed ? ws[ currPt - 0 ] : ws[ currPt + 0 ];
+//				Quaternion r_a = bIsReversed ? ws[ currPt - 0 ] : ws[ currPt + 0 ];
 				Quaternion r_b = bIsReversed ? ws[ currPt - 1 ] : ws[ currPt + 1 ];
 				Quaternion r_c = bIsReversed ? ws[ currPt - 2 ] : ws[ currPt + 2 ];
-				Quaternion r_d = bIsReversed ? ws[ currPt - 3 ] : ws[ currPt + 3 ];
+//				Quaternion r_d = bIsReversed ? ws[ currPt - 3 ] : ws[ currPt + 3 ];
 
 				rotation = Quaternion.Slerp( r_b, r_c, u ) ;
-			
 //				rotation = Utils.Math.GetRotation( r_a, r_b, r_c, r_d, u );
 			}
 			#endregion
-
+			
 			return true;
 		}
 
 
 		// 
-		public    static        bool        GetSegment<T>( global::System.Collections.Generic.IList<T> collection, float t, ref T a, ref T b, ref T c, ref T d )
+		public		static        bool        GetSegment<T>( global::System.Collections.Generic.IList<T> collection, float t, ref T a, ref T b, ref T c, ref T d )
 		{
-			if ( collection == null || collection.Count < 4 )
+			int length = collection.Count;
+			if ( collection == null || length < 4 )
 			{
 				UnityEngine.Debug.Log( "GetSegment Called with points invalid list" );
 				UnityEngine.Debug.DebugBreak();
 				return false;
 			}
-			
-			int numSections = collection.Count - 3;
-			int currPt = Mathf.Min( Mathf.FloorToInt( t * ( float ) numSections ), numSections - 1 );
 
-			a = collection[ currPt + 0 ];
-			b = collection[ currPt + 1 ];
-			c = collection[ currPt + 2 ];
-			d = collection[ currPt + 2 ];
+			bool bIsReversed = t < 0.0f;
+			t = Mathf.Abs( t );
+			
+			int numSections		= length - 3;
+			int currPt = Mathf.Min( Mathf.FloorToInt( t * ( float ) numSections ), numSections - 1 );
+			if ( bIsReversed )
+			{
+				currPt = length - 1 - currPt;
+			}
+
+			a = bIsReversed ? collection[ currPt + 0 ] : collection[ currPt + 0 ];
+			b = bIsReversed ? collection[ currPt - 1 ] : collection[ currPt + 1 ];
+			c = bIsReversed ? collection[ currPt - 2 ] : collection[ currPt + 2 ];
+			d = bIsReversed ? collection[ currPt - 2 ] : collection[ currPt + 2 ];
 
 			return true;
 		}
