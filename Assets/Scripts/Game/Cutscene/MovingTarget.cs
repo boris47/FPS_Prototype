@@ -22,7 +22,7 @@ namespace CutScene {
 			thisTransform = transform;
 		}
 
-		private void Update()
+		private void FixedUpdate()
 		{
 			Vector3	position	= transform.position;
 			Quaternion rotation = transform.rotation;

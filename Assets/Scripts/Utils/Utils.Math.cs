@@ -533,12 +533,12 @@ namespace Utils {
 			
 			#region Rotation
 			{
-//				Quaternion r_a = bIsReversed ? ws[ currPt - 0 ] : ws[ currPt + 0 ];
+//				Quaternion r_a = ws[ currPt ];
 				Quaternion r_b = bIsReversed ? ws[ currPt - 1 ] : ws[ currPt + 1 ];
 				Quaternion r_c = bIsReversed ? ws[ currPt - 2 ] : ws[ currPt + 2 ];
 //				Quaternion r_d = bIsReversed ? ws[ currPt - 3 ] : ws[ currPt + 3 ];
 
-				rotation = Quaternion.Slerp( r_b, r_c, u ) ;
+				rotation = Quaternion.Slerp( r_b, r_c, u );
 //				rotation = Utils.Math.GetRotation( r_a, r_b, r_c, r_d, u );
 			}
 			#endregion
