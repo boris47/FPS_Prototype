@@ -313,5 +313,167 @@ public partial class Player {
 //		m_LastLandTime = Time.time;
 
 //	}
+// /
+	
+		
+	/* MOTION TYPE GROUNDED */
+
+	private	void	RegisterGroundedMotion()
+	{
+		GameManager.Instance.InputMgr.BindCall( eInputCommands.MOVE_FORWARD,	"ForwardEvent",		GoForwardAction,		Motion_Walk_Predicate );
+		GameManager.Instance.InputMgr.BindCall( eInputCommands.MOVE_BACKWARD,	"BackwardEvent",	GoBackwardAction,		Motion_Walk_Predicate );
+
+		GameManager.Instance.InputMgr.BindCall( eInputCommands.MOVE_LEFT,		"LeftEvent",		StrafeLeftAction,		Motion_Walk_Predicate );
+		GameManager.Instance.InputMgr.BindCall( eInputCommands.MOVE_RIGHT,		"RightEvent",		StrafeRightAction,		Motion_Walk_Predicate );
+
+		GameManager.Instance.InputMgr.BindCall( eInputCommands.STATE_RUN,		"RunEvent",			RunAction,				RunPredicate );
+
+		GameManager.Instance.InputMgr.BindCall( eInputCommands.STATE_JUMP,		"JumpEvent",		JumpAction,				JumpPredicate );
+
+		GameManager.Instance.InputMgr.BindCall( eInputCommands.USAGE,			"Interaction",		InteractionAction,		InteractionPredicate );
+		GameManager.Instance.InputMgr.BindCall( eInputCommands.USAGE,			"Grab",				GrabAction,				GrabPredicate );
+
+		GameManager.Instance.InputMgr.BindCall( eInputCommands.GADGET3,			"Flashlight",		FlashlightAction,		FlashlightPredicate );
+
+		GameManager.Instance.InputMgr.BindCall( eInputCommands.ABILITY_PRESS,	"DodgeStart",		AbilityEnableAction,	AbilityPredcate );
+		GameManager.Instance.InputMgr.BindCall( eInputCommands.ABILITY_HOLD,	"DodgeContinue",	AbilityContinueAction,	AbilityPredcate );
+		GameManager.Instance.InputMgr.BindCall( eInputCommands.ABILITY_RELEASE,	"DodgeEnd",			AbilityEndAction,		AbilityPredcate );
+	}
+
+
+	private	void	UnRegisterGroundedMotion()
+	{
+		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.MOVE_FORWARD,	"ForwardEvent" );
+		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.MOVE_BACKWARD,	"BackwardEvent" );
+
+		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.MOVE_LEFT,		"LeftEvent" );
+		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.MOVE_RIGHT,	"RightEvent" );
+ 
+		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.STATE_RUN,		"RunEvent" );
+
+		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.STATE_JUMP,	"JumpEvent" );
+
+		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.USAGE,			"Interaction" );
+		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.USAGE,			"Grab" );
+		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.GADGET3,		"Flashlight" );
+
+		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.ABILITY_PRESS,	"DodgeStart" );
+		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.ABILITY_HOLD,	"DodgeContinue" );
+		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.ABILITY_RELEASE,"DodgeEnd" );
+	}
+
+	private	bool	Motion_Walk_Predicate()
+	{
+		return IsGrounded;
+	}
+
+
+	private	void	GoForwardAction()
+	{
+		m_States.IsMoving = true;
+
+		float force = 1.0f;
+
+		bool bIsWalking = m_States.IsRunning == false && m_States.IsCrouched == false;
+		
+		// Walking
+		force *= ( bIsWalking ) ? m_WalkSpeed : 1.0f;
+		
+		// Crouch
+		force *= ( m_States.IsCrouched )	? m_CrouchSpeed : 1.0f;
+
+		// Running
+		force *= ( m_States.IsRunning )		? m_RunSpeed : 1.0f;
+		
+		m_ForwardSmooth = force;
+	}
+
+	private	void	GoBackwardAction()
+	{
+		m_States.IsMoving = true;
+
+		float force = 1.0f;
+
+		bool bIsWalking = m_States.IsRunning == false && m_States.IsCrouched == false;
+		
+		// Walking
+		force *= ( bIsWalking ) ? m_WalkSpeed : 1.0f;
+		
+		// Crouch
+		force *= ( m_States.IsCrouched )	? m_CrouchSpeed : 1.0f;
+
+		// Running
+		force *= ( m_States.IsRunning )		? m_RunSpeed : 1.0f;
+		
+		m_ForwardSmooth = -force;
+	}
+
+
+	private	void	StrafeRightAction()
+	{
+		m_States.IsMoving = true;
+
+		const float strafeFactor = 0.8f;
+		float force = 1.0f;
+
+		bool bIsWalking = m_States.IsRunning == false && m_States.IsCrouched == false;
+		
+		// Walking
+		force *= ( bIsWalking ) ? m_WalkSpeed : 1.0f;
+		
+		// Crouch
+		force *= ( m_States.IsCrouched )	? m_CrouchSpeed : 1.0f;
+
+		// Running
+		force *= ( m_States.IsRunning )		? m_RunSpeed : 1.0f;
+		
+		m_RightSmooth = force * strafeFactor;
+	}
+
+
+	private	void	StrafeLeftAction()
+	{
+		m_States.IsMoving = true;
+
+		const float strafeFactor = 0.8f;
+		float force = 1.0f;
+
+		bool bIsWalking = m_States.IsRunning == false && m_States.IsCrouched == false;
+		
+		// Walking
+		force *= ( bIsWalking ) ? m_WalkSpeed : 1.0f;
+		
+		// Crouch
+		force *= ( m_States.IsCrouched )	? m_CrouchSpeed : 1.0f;
+
+		// Running
+		force *= ( m_States.IsRunning )		? m_RunSpeed : 1.0f;
+		
+		m_RightSmooth = -force * strafeFactor;
+	}
+
+
+	private	bool	RunPredicate()
+	{
+		return true;//( ( m_States.IsCrouched && !m_IsUnderSomething ) || !m_States.IsCrouched );
+	}
+
+	private	void	RunAction()
+	{
+		m_States.IsCrouched = false;
+		m_States.IsRunning = true;
+	}
+
+
+	private	bool	JumpPredicate()
+	{
+		return IsGrounded && m_States.IsJumping == false && m_States.IsHanging == false && m_States.IsFalling == false && m_GrabbedObject == null;
+	}
+
+	private	void	JumpAction()
+	{
+		m_UpSmooth = m_JumpForce / ( m_States.IsCrouched ? 1.5f : 1.0f );
+		m_States.IsJumping = true;
+	}
 
 }

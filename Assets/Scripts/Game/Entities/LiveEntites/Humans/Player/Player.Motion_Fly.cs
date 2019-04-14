@@ -5,8 +5,15 @@ using UnityEngine;
 
 public partial class Player {
 	
-	private	void	Update_Fly() {
-		
+	private	void	RegisterFlyMotion()
+	{
+
+	}
+
+
+	private	void	UnRegisterFlyMotion()
+	{
+
 	}
 
 }

@@ -139,6 +139,8 @@ public partial class Player {
 			return;
 
 		MoveGrabbedObject();
+		CheckIfUnderSomething();
+		CheckForFallOrUserBreck();
 
 		m_RigidBody.angularVelocity = Vector3.zero;
 //		m_RigidBody.drag = IsGrounded ? BODY_DRAG : 0.0f;
@@ -189,139 +191,6 @@ public partial class Player {
 	}
 
 
-	private	bool	GoForwardPredicate()
-	{
-		return IsGrounded;
-	}
-
-	private	void	GoForwardAction()
-	{
-		float force = 1.0f;
-		if ( m_States.IsRunning )
-		{
-			force	*=	m_RunSpeed;
-		}
-		else if ( m_States.IsCrouched )
-		{
-			force	*= m_CrouchSpeed;
-		}
-		else
-		{
-			force	*= m_WalkSpeed;
-			m_States.IsWalking = true;
-		}
-
-		m_States.IsMoving = true;
-		m_ForwardSmooth = force;
-	}
-
-
-	private	bool	GoBackwardPredicate()
-	{
-		return IsGrounded;
-	}
-
-	private	void	GoBackwardAction()
-	{
-		float force = 1.0f;
-		if ( m_States.IsRunning )
-		{
-			force	*=	m_RunSpeed;
-		}
-		else if ( m_States.IsCrouched )
-		{
-			force	*= m_CrouchSpeed;
-		}
-		else
-		{
-			force	*= m_WalkSpeed;
-			m_States.IsWalking = true;
-		}
-
-		force *= 0.8f;
-
-		m_States.IsMoving = true;
-		m_ForwardSmooth = -force;
-	}
-
-
-
-
-	private	bool	StrafeRightPredicate()
-	{
-		return IsGrounded;
-	}
-
-	private	void	StrafeRightAction()
-	{
-		float force = 1.0f;
-		if ( m_States.IsRunning )
-		{
-			force	*=	m_RunSpeed * 0.8f;
-		}
-		else if ( m_States.IsCrouched )
-		{
-			force	*= m_CrouchSpeed * 0.8f;
-		}
-		else
-		{
-			force	*= m_WalkSpeed *  0.8f;
-			m_States.IsWalking = true;
-		}
-		m_States.IsMoving = true;
-		m_RightSmooth = force;
-	}
-
-
-	private	bool	StrafeLeftPredicate()
-	{
-		return IsGrounded;
-	}
-
-	private	void	StrafeLeftAction()
-	{
-		float force = 1.0f;
-		if ( m_States.IsRunning )
-		{
-			force	*=	m_RunSpeed * 0.8f;
-		}
-		else if ( m_States.IsCrouched )
-		{
-			force	*= m_CrouchSpeed * 0.8f;
-		}
-		else
-		{
-			force	*= m_WalkSpeed *  0.8f;
-			m_States.IsWalking = true;
-		}
-
-		m_States.IsMoving = true;
-		m_RightSmooth = -force;
-	}
-
-
-	private	bool	RunPredicate()
-	{
-		return true;//( ( m_States.IsCrouched && !m_IsUnderSomething ) || !m_States.IsCrouched );
-	}
-
-	private	void	RunAction()
-	{
-		m_States.IsCrouched = false;
-		m_States.IsRunning = true;
-	}
-
-
-	private	bool	JumpPredicate()
-	{
-		return IsGrounded && m_States.IsJumping == false && m_States.IsHanging == false && m_States.IsFalling == false && m_GrabbedObject == null;
-	}
-
-	private	void	JumpAction()
-	{
-		m_UpSmooth = m_JumpForce / ( m_States.IsCrouched ? 1.5f : 1.0f );
-		m_States.IsJumping = true;
-	}
 
 
 	private	bool FlashlightPredicate()
@@ -334,6 +203,16 @@ public partial class Player {
 	{
 		WeaponManager.Instance.CurrentWeapon.Flashlight.Toggle();
 	}
+	
+
+	// Pick eventual collision info from camera to up
+	private	void	CheckIfUnderSomething()
+	{
+		Vector3 position = CameraControl.Instance.Transform.position;
+		Vector3 upwards = CameraControl.Instance.Transform.up;
+		Vector3 cameraUpPosition = position + ( upwards * 0.3f );
+		m_IsUnderSomething = Physics.Linecast( start: position, end: cameraUpPosition, layerMask: Physics.DefaultRaycastLayers, queryTriggerInteraction: QueryTriggerInteraction.Ignore );
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -342,14 +221,6 @@ public partial class Player {
 		if ( m_IsActive == false )
 			return;
 		
-		////////////////////////////////////////////////////////////////////////////////////////
-		// Pick eventual collision info from camera to up
-		{
-			// my check hight formula
-///			Leadwerks::Vec3 vCheckHeigth = { 0.0f, ( CamManager()->GetStdHeight() / 2 ) * ( fJumpForce / 10 ), 0.0f };
-///			vCheckHeigth *= IsCrouched() ? 0.5f : 1.0f;
-///			bIsUnderSomething = World()->GetWorld()->Pick( vCamPos, vCamPos + vCheckHeigth, Leadwerks::PickInfo(), 0.36 );
-		}
 
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Check for usage
@@ -357,15 +228,7 @@ public partial class Player {
 		{
 			Vector3 position  = CameraControl.Instance.Transform.position;
 			Vector3 direction = CameraControl.Instance.Transform.forward;
-			bool lineCastResult = Physics.Raycast( position, direction, out m_RaycastHit, MAX_INTERACTION_DISTANCE, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore );
-
-//			Vector3 startLine = CameraControl.Instance.Transform.position;
-//			Vector3 endLine   = CameraControl.Instance.Transform.position + CameraControl.Instance.Transform.forward * MAX_INTERACTION_DISTANCE;
-//			Debug.DrawLine( startLine, endLine );
-
-			CheckForDodge ( lineCastResult );
-			CheckForInteraction( lineCastResult );
-			CheckForGrab ( lineCastResult );
+			Physics.Raycast( position, direction, out m_RaycastHit, MAX_INTERACTION_DISTANCE, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore );
 		}
 
 #endregion

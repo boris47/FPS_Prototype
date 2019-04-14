@@ -29,7 +29,7 @@ public abstract partial class Entity : IEntity {
 	public	delegate	void		OnMotionStateChangedEvent( eMotionType prevState, eMotionType newState );
 
 	// STORE VARIABLE
-	private	event	OnMotionStateChangedEvent					m_OnMotionStateChangedEvent			= delegate { };
+	protected	event	OnMotionStateChangedEvent					m_OnMotionStateChangedEvent			= delegate { };
 
 
 	eMotionType		IEntity.MotionType							{ get { return m_CurrentMotionType; } }

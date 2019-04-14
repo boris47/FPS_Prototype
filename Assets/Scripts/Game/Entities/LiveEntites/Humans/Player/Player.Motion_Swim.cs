@@ -4,8 +4,16 @@ using UnityEngine;
 
 public partial class Player {
 	
-	private	void	Update_Swim() {
-		
+
+	private	void	RegisterSwimMotion()
+	{
+
+	}
+
+
+	private	void	UnRegisterSwimMotion()
+	{
+
 	}
 
 }

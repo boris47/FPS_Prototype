@@ -4,9 +4,14 @@ using UnityEngine;
 
 public partial class Player {
 	
-	private	void	Update_P1ToP2() {
-		
+	private	void	RegisterP1ToP2Motion()
+	{
 
+	}
+
+
+	private	void	UnRegisterP1ToP2Motion()
+	{
 
 	}
 

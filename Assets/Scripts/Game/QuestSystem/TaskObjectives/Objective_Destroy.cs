@@ -12,6 +12,7 @@ namespace QuestSystem {
 
 		private	Entity				m_Target						= null;
 
+		private	Transform			m_Signal						= null;
 
 		//////////////////////////////////////////////////////////////////////////
 		// AWAKE
@@ -19,6 +20,11 @@ namespace QuestSystem {
 		{
 			m_Target	= GetComponent<Entity>();
 			m_Target.OnKilled += OnKill;
+
+			GameObject a = Resources.Load("Prefabs/UI/Task_Objectives/Task_KillTarget") as GameObject;
+			m_Signal = Instantiate( a ).transform;
+
+			m_Signal.SetParent( UI.Instance.InGame.transform );
 		}
 
 
@@ -29,12 +35,24 @@ namespace QuestSystem {
 			
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
+		// Update
+		private void Update()
+		{
+			DrawUIElementOnObjectives( m_Target.transform, m_Signal );
+		}
+
+
 		//////////////////////////////////////////////////////////////////////////
 		// OnDestroy
 		private void OnKill()
 		{
 			if ( m_OnDestroy != null && m_OnDestroy.GetPersistentEventCount() > 0 )
 				m_OnDestroy.Invoke();
+
+			m_Signal.SetParent( null );
+			Destroy( m_Signal.gameObject );
 
 			Completed = true;
 

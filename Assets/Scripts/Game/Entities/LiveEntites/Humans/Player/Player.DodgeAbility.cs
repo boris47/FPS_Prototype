@@ -57,7 +57,7 @@ public partial class Player {
 		OnDodgeAbilityAction();
 	}
 
-	
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	// CheckForDash
 	private	void	CheckForDodge( bool hasInteractiveRayCastHit )
@@ -78,13 +78,14 @@ public partial class Player {
 			m_ChosingDodgeRotation = false;
 		}
 	}
-
+	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	// CheckForFallOrUserBreck
-	private	bool	CheckForFallOrUserBreck()
+	public bool	CheckForFallOrUserBreck()
 	{
-		bool condition = ( m_IsDodging == false && transform.up != Vector3.up && m_DodgeCoroutine == null ) && ( m_States.IsJumping || IsGrounded == false );
+		bool condition = ( m_IsDodging == false && transform.up != Vector3.up ) &&
+			m_States.IsJumping == false && m_States.IsHanging == false && IsGrounded == false; //		( m_States.IsJumping || IsGrounded == false );
 		if ( condition )
 		{
 			RaycastHit hit;

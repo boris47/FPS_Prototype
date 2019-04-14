@@ -71,7 +71,7 @@ public partial class Player : Human {
 		base.Awake();
 
 		transform.SearchComponentInChild( "PNAT", ref m_PlayerNearAreaTrigger ); // Player Near Area Trigger
-		transform.SearchComponentInChild( "PFAT", ref m_PlayerFarAreaTrigger ); // Player Far  Area Trigger
+		transform.SearchComponentInChild( "PFAT", ref m_PlayerFarAreaTrigger  ); // Player Far  Area Trigger
 
 		// Player Components
 		{
@@ -95,7 +95,7 @@ public partial class Player : Human {
 			// Crouched
 			m_SectionRef.AsMultiValue( "Crouch",	1, 2, 3, ref m_CrouchSpeed,	ref m_CrouchJumpCoef,	ref m_CrouchStamina );
 
-			m_FallDistanceThreshold = m_SectionRef.AsFloat( "FallDistanceThreshold" );
+			m_FallDistanceThreshold		= m_SectionRef.AsFloat( "FallDistanceThreshold" );
 
 			// Climbing
 ///			bool result = m_SectionRef.bAsFloat( "Climb", ref m_ClimbSpeed );
@@ -104,12 +104,14 @@ public partial class Player : Human {
 
 			// Jumping
 			{
-//				cMultiValue JumpInfos	= m_SectionRef[ "Jump" ].MultiValue;
-//				m_JumpForce				= JumpInfos[ 0 ].As<float>();
-//				m_JumpForce				= JumpInfos[ 0 ].ToFloat();
-//				m_JumpForce				= JumpInfos[ 0 ];
+//				Database.cMultiValue JumpInfos	= m_SectionRef[ "Jump" ].MultiValue;
+//	/*float*/	m_JumpForce				= JumpInfos[ 0 ].As<float>();				// Using System.Convert.ChangeType
+//	/*float*/	m_JumpForce				= JumpInfos[ 0 ].ToFloat();					// Same as before
+//	/*float*/	m_JumpForce				= JumpInfos[ 0 ];							// Implicit conversion
 
 				m_SectionRef.AsMultiValue( "Jump", 1, 2,	ref m_JumpForce,	ref m_JumpStamina );
+
+//				print( m_SectionRef[ "Jump" ].MultiValue[0].ToInteger() );
 			}
 
 			// Stamina
@@ -130,7 +132,40 @@ public partial class Player : Human {
 		IsGrounded			= false;
 		m_IsActive			= true;
 
+
+		m_OnMotionStateChangedEvent += OnMotionTypeChanged;
 		SetMotionType( eMotionType.Walking );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private	void	OnMotionTypeChanged( eMotionType prevState, eMotionType newState )
+	{
+		switch ( prevState )
+		{
+			case eMotionType.Walking:	UnRegisterGroundedMotion();
+				break;
+			case eMotionType.Flying:	UnRegisterFlyMotion();
+				break;
+			case eMotionType.Swimming:	UnRegisterSwimMotion();
+				break;
+			case eMotionType.P1ToP2:	UnRegisterP1ToP2Motion();
+				break;
+			default:
+				break;
+		}
+
+		switch ( newState )
+		{
+			case eMotionType.Walking:	RegisterGroundedMotion();
+				break;
+			case eMotionType.Flying:	RegisterFlyMotion();
+				break;
+			case eMotionType.Swimming:	RegisterSwimMotion();
+				break;
+			case eMotionType.P1ToP2:	RegisterP1ToP2Motion();
+				break;
+		}
 	}
 
 
@@ -158,25 +193,6 @@ public partial class Player : Human {
 	protected override void OnEnable()
 	{
 		base.OnEnable();
-
-		GameManager.Instance.InputMgr.BindCall( eInputCommands.MOVE_FORWARD,		"ForwardEvent",		GoForwardAction,		GoForwardPredicate );
-		GameManager.Instance.InputMgr.BindCall( eInputCommands.MOVE_BACKWARD,	"BackwardEvent",	GoBackwardAction,		GoBackwardPredicate );
-
-		GameManager.Instance.InputMgr.BindCall( eInputCommands.MOVE_LEFT,		"LeftEvent",		StrafeLeftAction,		StrafeLeftPredicate );
-		GameManager.Instance.InputMgr.BindCall( eInputCommands.MOVE_RIGHT,		"RightEvent",		StrafeRightAction,		StrafeRightPredicate );
-
-		GameManager.Instance.InputMgr.BindCall( eInputCommands.STATE_RUN,		"RunEvent",			RunAction,				RunPredicate );
-
-		GameManager.Instance.InputMgr.BindCall( eInputCommands.STATE_JUMP,		"JumpEvent",		JumpAction,				JumpPredicate );
-
-		GameManager.Instance.InputMgr.BindCall( eInputCommands.USAGE,			"Interaction",		InteractionAction,		InteractionPredicate );
-		GameManager.Instance.InputMgr.BindCall( eInputCommands.USAGE,			"Grab",				GrabAction,				GrabPredicate );
-
-		GameManager.Instance.InputMgr.BindCall( eInputCommands.GADGET3,			"Flashlight",		FlashlightAction,		FlashlightPredicate );
-
-		GameManager.Instance.InputMgr.BindCall( eInputCommands.ABILITY_PRESS,	"DodgeStart",		AbilityEnableAction,	AbilityPredcate );
-		GameManager.Instance.InputMgr.BindCall( eInputCommands.ABILITY_HOLD,		"DodgeContinue",	AbilityContinueAction,	AbilityPredcate );
-		GameManager.Instance.InputMgr.BindCall( eInputCommands.ABILITY_RELEASE,	"DodgeEnd",			AbilityEndAction,		AbilityPredcate );
 	}
 
 
@@ -189,11 +205,11 @@ public partial class Player : Human {
 		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.MOVE_BACKWARD,	"BackwardEvent" );
 
 		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.MOVE_LEFT,		"LeftEvent" );
-		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.MOVE_RIGHT,		"RightEvent" );
+		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.MOVE_RIGHT,	"RightEvent" );
  
 		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.STATE_RUN,		"RunEvent" );
 
-		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.STATE_JUMP,		"JumpEvent" );
+		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.STATE_JUMP,	"JumpEvent" );
 
 		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.USAGE,			"Interaction" );
 		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.USAGE,			"Grab" );
@@ -314,7 +330,7 @@ public partial class Player : Human {
 
 	private	bool	InteractionPredicate()
 	{
-		return ( m_IsDodging == false && m_GrabbedObject == null && m_Interactable != null && m_Interactable.CanInteract );
+		return ( m_IsDodging == false && m_GrabbedObject == null && m_RaycastHit.distance <= m_UseDistance && m_Interactable != null && m_Interactable.CanInteract );
 	}
 
 
@@ -327,7 +343,7 @@ public partial class Player : Human {
 
 	private	bool	GrabPredicate()
 	{
-		return true;// m_CanGrabObjects == true;
+		return m_RaycastHit.distance <= m_UseDistance;// m_CanGrabObjects == true;
 	}
 
 	private	void	GrabAction()
