@@ -15,11 +15,28 @@ public interface IInteractable {
 [RequireComponent( typeof(Rigidbody), typeof(Collider) )]
 public class Interactable : MonoBehaviour, IInteractable {
 
+	public	delegate	void OnInteractionDel();
+
+
 	[SerializeField]
 	protected	GameEvent	m_OnInteraction	= null;
 
 	[SerializeField]
 	protected	bool		m_CanInteract	= true;
+
+
+	protected	event OnInteractionDel	m_OnInteractionCallback = delegate { };
+	public	event OnInteractionDel OnInteractionCallback
+	{
+		add		{	if ( value != null )	m_OnInteractionCallback += value; }
+		remove	{	if ( value != null )	m_OnInteractionCallback -= value; }
+	}
+
+
+
+
+
+
 	public		bool		CanInteract		{ get { return m_CanInteract; } set { m_CanInteract = value; } }
 
 
@@ -55,6 +72,7 @@ public class Interactable : MonoBehaviour, IInteractable {
 		if ( m_OnInteraction != null )
 			m_OnInteraction.Invoke();
 
+		m_OnInteractionCallback();
 	}
 
 }

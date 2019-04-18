@@ -359,6 +359,7 @@ public partial class Player : Human {
 			bool m_bHasComponent = Utils.Base.SearchComponent( m_RaycastHit.transform.gameObject, ref grabbable, SearchContext.LOCAL );
 			if ( m_bHasComponent && grabbable.CanInteract )
 			{
+				grabbable.OnInteraction();
 				m_GrabbedObject = grabbable;
 				m_GrabPoint.transform.localPosition = Vector3.forward * Vector3.Distance( transform.position, grabbable.transform.position );
 

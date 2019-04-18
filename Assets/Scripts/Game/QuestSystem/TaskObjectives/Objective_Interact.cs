@@ -3,35 +3,31 @@ using UnityEngine;
 
 namespace QuestSystem {
 
-	public class Objective_Interact : Objective_Base, IInteractable {
-
-		private	Rigidbody	m_RigidBody		= null;
-		public	Rigidbody	RigidBody		{ get { return m_RigidBody; } }
-
-		private	Collider	m_Collider		= null;
-		public	Collider	Collider		{ get { return m_Collider; } }
-
+	public class Objective_Interact : Objective_Base {
+		
 		[SerializeField]
-		private GameEvent			m_OnInteraction					= null;
+		protected	GameEvent	m_OnInteraction	= null;
 
-		[SerializeField]
-		private bool				m_Interactable				  = false;
-		bool						IInteractable.CanInteract		{ get { return m_Interactable; } set { m_Interactable = value; } }
+		private	Interactable	m_Interactable = null;
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// Awake
-		private void Awake()
-		{
-			m_RigidBody = GetComponent<Rigidbody>();
-			m_Collider	= GetComponent<Collider>();
-		}
+	//	private void Awake()
+	//	{
+	//
+	//	}
 
 		//////////////////////////////////////////////////////////////////////////
 		// Enable ( Override )
 		public override void Enable()
 		{
-			m_Interactable = true;
+			m_Interactable = GetComponent<Interactable>();
+			m_Interactable.CanInteract = true;
+			m_Interactable.OnInteractionCallback += OnInteraction;
+
+			m_IsCurrentlyActive = true;
+			m_Signal.gameObject.SetActive( m_IsCurrentlyActive );
 		}
 
 
@@ -39,16 +35,16 @@ namespace QuestSystem {
 		// OnInteraction
 		public void	OnInteraction()
 		{
-			if ( Completed == true )
+			if ( m_IsCompleted == true )
 				return;
+
+			m_IsCurrentlyActive = false;
+			m_Signal.gameObject.SetActive( m_IsCurrentlyActive );
 
 			if ( m_OnInteraction != null && m_OnInteraction.GetPersistentEventCount() > 0 )
 				m_OnInteraction.Invoke();
 			
-///			print( "Task Objective completed: " + name );
-
-			Completed = true;
-			RelatedTask.UpdateStatus();
+			OnObjectiveCompleted();
 		}
 
 	}

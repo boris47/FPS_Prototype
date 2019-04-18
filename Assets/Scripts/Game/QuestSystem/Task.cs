@@ -2,63 +2,116 @@
 using UnityEngine;
 
 namespace QuestSystem {
+	
+	using System.Collections.Generic;
 
-	public class Task : MonoBehaviour {
+	public interface ITask {
 
-		public bool							Completed				{ get; private set; }
+		bool	IsCompleted			{ get; }
+
+		void	AddToQuest			( IQuest quest );
+
+		void	RegisterOnCompletion( System.Action<ITask>	onCompletionCallback );
+
+//		void	OnObjectiveCompleted( IObjective objective );
+
+		bool	AddObjective		( IObjective newObjective );
+
+	}
+
+	public class Task : MonoBehaviour, ITask {
+
+		[SerializeField]
+		private	List<Objective_Base>		m_Objectives			= new List<Objective_Base>();
 
 		[SerializeField]
 		private GameEvent					m_OnCompletion			= null;
 
-		[SerializeField]
-		private	Objective_Base[]			m_TaskObjectives		= null;
+		private	System.Action<ITask>		m_OnCompletionCallback	= delegate { };
+		private	bool						m_IsCompleted			= false;
+		private	bool						m_IsCurrentlyActive		= false;
 
-		private Quest						RelatedQuest			{ get; set; }
-		
+		//--
+		bool		ITask.IsCompleted
+		{
+			get { return m_IsCompleted; }
+		}
+
+
+
 
 		//////////////////////////////////////////////////////////////////////////
 		// AWAKE
 		private void Awake()
 		{
-			RelatedQuest = transform.parent.GetComponent<Quest>();
-
-			foreach ( Objective_Base o in m_TaskObjectives )
+			// Already assigned
+			foreach( IObjective o in m_Objectives )
 			{
-				if ( o == null )
+				o.RegisterOnCompletion( OnObjectiveCompleted );
+				o.Init();
+			}
+//			m_Objectives[0].Enable();
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// AddToQuest ( Interface )
+		void	ITask.AddToQuest( IQuest quest )
+		{
+			quest.AddTask( this );
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		// RegisterOnCompletion ( Interface )
+		void	ITask.RegisterOnCompletion( System.Action<ITask>	onCompletionCallback )
+		{
+			m_OnCompletionCallback = onCompletionCallback;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// OnObjectiveCompleted ( Interface )
+		private	void	OnObjectiveCompleted( IObjective objective )
+		{
+			bool bIsTaskCompleted = true;
+			foreach( IObjective o in m_Objectives )
+			{
+				bIsTaskCompleted &= o.IsCompleted;
+			}
+
+			if ( bIsTaskCompleted )
+			{
+				// Internal Flag
+				m_IsCompleted = true;
+
+				// Unity Events
+				if ( m_OnCompletion != null && m_OnCompletion.GetPersistentEventCount() > 0 )
+					m_OnCompletion.Invoke();
+
+				// Internal Delegates
+				m_OnCompletionCallback( this );
+			}
+			else
+			{
+				int index = m_Objectives.IndexOf( objective as Objective_Base );
+				int nextIndex = ++index;
+				if ( nextIndex < m_Objectives.Count )
 				{
-					Debug.Log( "task " + name + ", related to quest " + RelatedQuest.name + " has invalid objective" );
-				}
-				else
-				{
-					o.RelatedTask = this;
+					m_Objectives[ nextIndex ].Enable();
 				}
 			}
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// UpdateStatus
-		public void	UpdateStatus()
+		// AddObjective ( Interface )
+		bool	 ITask.AddObjective( IObjective newObjective )
 		{
-			this.Completed = true;
-			foreach( Objective_Base objective in m_TaskObjectives )
-			{	
-				if ( objective.Completed == false )
-				{
-					objective.Enable();
-///					print( "-- -- Next TaskObjective is " + objective.name );
-					this.Completed = false;
-					return;
-				}
-			}
+			if ( newObjective == null )
+				return false;
 
-			if ( this.Completed == true )
-			{
-///				print( "Completed task " + name );
-				if ( m_OnCompletion != null && m_OnCompletion.GetPersistentEventCount() > 0 )
-					m_OnCompletion.Invoke();
-				RelatedQuest.UpdateStatus();
-			}
+			m_Objectives.Add( newObjective as Objective_Base );
+			return true;
 		}
 
 
@@ -66,17 +119,20 @@ namespace QuestSystem {
 		// Activate
 		public	bool	Activate()
 		{
-			if ( m_TaskObjectives == null || m_TaskObjectives.Length == 0 )
+			if ( m_Objectives.Count == 0 )
 			{
 				return false;
 			}
+
+			m_IsCurrentlyActive = true;
+
 ///			print( name + " task activated" );
 			// Activate first objective
-			m_TaskObjectives[ 0 ].Enable();
+			m_Objectives[ 0 ].Enable();
 			return true;
 		}
 
-
+		
 	}
 
 }

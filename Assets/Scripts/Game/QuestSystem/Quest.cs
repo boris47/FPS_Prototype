@@ -3,53 +3,162 @@ using UnityEngine;
 
 namespace QuestSystem {
 
-	public class Quest : MonoBehaviour {
+	using System.Collections.Generic;
+
+	public	enum QuestStatus {
+		NONE,
+		ASSIGNED,
+		ACTIVE,
+		COMPLETED
+	};
+
+	public	enum QuestScope {
+		NONE,
+		LOCAL,
+		GLOBAL
+	}
+
+	public interface IQuest {
+
+//		void			OnTaskCompleted( ITask task );
+
+		bool			IsCompleted		{ get; }
+		QuestStatus		Status			{ get; }
+		QuestScope		Scope			{ get; }
+
+		bool			AddTask			( ITask newTask );
+
+		void			RegisterOnCompletion( System.Action<IQuest>	onCompletionCallback );
+
+		int				GetTasksCount	();
+
+	}
+
+	public class Quest : MonoBehaviour, IQuest {
 		
-		public	bool				Completed				{ get; private set;	}
+		[SerializeField]
+		private	List<Task>					m_Tasks						= new List<Task>();
 
 		[SerializeField]
-		private	GameEvent			m_OnCompletion			= null;
+		private	GameEvent					m_OnCompletion				= null;
 
-//		[SerializeField]
-		public	Task[]				Tasks
+
+		private	System.Action<IQuest>		m_OnCompletionCallback		= delegate { };
+		private	bool						m_IsCompleted				= false;
+		private	QuestStatus					m_Status					= QuestStatus.ASSIGNED;
+		private	QuestScope					m_Scope						= QuestScope.LOCAL;
+
+
+		//--
+		bool		IQuest.IsCompleted
 		{
-			get; private set;
+			get { return m_IsCompleted; }
+		}
+		//--
+		QuestStatus		IQuest.Status
+		{
+			get { return m_Status; }
+		}
+		//--
+		QuestScope		IQuest.Scope
+		{
+			get { return m_Scope; }
 		}
 		
-
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// AWAKE
 		private void Awake()
 		{
-			Tasks = GetComponentsInChildren<Task>();
+			
+			// Already assigned
+			foreach( ITask t in m_Tasks )
+			{
+//				t.AddToQuest( this );
+				t.RegisterOnCompletion( OnTaskCompleted );
+			}
+			m_Tasks[0].Activate();
+			LocalQuestManager.Instance.AddQuest( this );
+
+			/*
+			// Child Task
+			Task[] childTasks = GetComponentsInChildren<Task>();
+			if ( childTasks.Length > 0 )
+			{
+				foreach( ITask t in childTasks )
+				{
+					t.AddToQuest( this );
+					t.RegisterOnCompletion( OnTaskCompleted );
+				}
+
+				m_Tasks.AddRange( childTasks );
+				m_Tasks[0].Activate();
+			}
+			*/
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// CheckQuestStatus
-		public void	UpdateStatus()
+		// AddTask ( Interface )
+		bool			IQuest.AddTask( ITask newTask )
 		{
-			this.Completed = true;
-			foreach( Task task in Tasks )
+			if ( newTask == null )
+				return false;
+
+			m_Tasks.Add( newTask as Task );
+			return true;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// RegisterOnCompletion ( Interface )
+		void			IQuest.RegisterOnCompletion( System.Action<IQuest>	onCompletionCallback )
+		{
+			m_OnCompletionCallback = onCompletionCallback;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// GetTasksCount ( Interface )
+		int				IQuest.GetTasksCount()
+		{
+			return m_Tasks.Count;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// OnTaskCompleted
+		private	void	OnTaskCompleted( ITask task )
+		{
+			bool bIsQuestCompleted = true;
+			foreach( ITask t in m_Tasks )
 			{
-				if ( task.Completed == false )
-				{
-					task.Activate();
-///					print( "-- Next Task is " + task.name );
-					this.Completed = false;
-					return;
-				}
+				bIsQuestCompleted &= t.IsCompleted;
 			}
 
-			if ( this.Completed )
+			if ( bIsQuestCompleted )
 			{
+				// Internal Flag
+				m_Status = QuestStatus.COMPLETED;
+
 				print( "Completed quest " + name );
+
+				// Unity Events
 				if ( m_OnCompletion != null && m_OnCompletion.GetPersistentEventCount() > 0 )
 					m_OnCompletion.Invoke();
-				GlobalQuestManager.Instance.CurrentLocalQuestManager.UpdateStatus();
 
+				// Internal Delegates
+				m_OnCompletionCallback(this);
+			}
+			else
+			{
+				int index = m_Tasks.IndexOf( task as Task );
+				int nextIndex = ++index;
+				if ( nextIndex < m_Tasks.Count )
+				{
+					m_Tasks[ nextIndex ].Activate();
+				}
 			}
 		}
 
@@ -58,12 +167,14 @@ namespace QuestSystem {
 		// Activate
 		public	bool	Activate()
 		{
-			if ( Tasks == null || Tasks.Length == 0 )
+			if ( m_Tasks.Count == 0 )
 			{
 				return false;
 			}
-///			print( name + " quest activated" );
-			Tasks[ 0 ].Activate();
+
+			print( name + " quest activated" );
+
+			m_Tasks[ 0 ].Activate();
 			return true;
 		}
 		

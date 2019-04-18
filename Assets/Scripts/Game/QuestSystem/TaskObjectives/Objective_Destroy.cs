@@ -12,7 +12,6 @@ namespace QuestSystem {
 
 		private	Entity				m_Target						= null;
 
-		private	Transform			m_Signal						= null;
 
 		//////////////////////////////////////////////////////////////////////////
 		// AWAKE
@@ -20,11 +19,6 @@ namespace QuestSystem {
 		{
 			m_Target	= GetComponent<Entity>();
 			m_Target.OnKilled += OnKill;
-
-			GameObject a = Resources.Load("Prefabs/UI/Task_Objectives/Task_KillTarget") as GameObject;
-			m_Signal = Instantiate( a ).transform;
-
-			m_Signal.SetParent( UI.Instance.InGame.transform );
 		}
 
 
@@ -32,15 +26,8 @@ namespace QuestSystem {
 		// Enable ( Override )
 		public override void Enable()
 		{
-			
-		}
-
-
-		//////////////////////////////////////////////////////////////////////////
-		// Update
-		private void Update()
-		{
-			DrawUIElementOnObjectives( m_Target.transform, m_Signal );
+			m_IsCurrentlyActive = true;
+			m_Signal.gameObject.SetActive( m_IsCurrentlyActive );
 		}
 
 
@@ -54,16 +41,10 @@ namespace QuestSystem {
 			m_Signal.SetParent( null );
 			Destroy( m_Signal.gameObject );
 
-			Completed = true;
+			m_IsCurrentlyActive = false;
+			m_Signal.gameObject.SetActive( m_IsCurrentlyActive );
 
-			if ( RelatedTask != null )
-			{
-				RelatedTask.UpdateStatus();
-			}
-			else
-			{
-				print( "Entity " + name + "  has Objective_Destroy attached but not belongs any task" );
-			}
+			OnObjectiveCompleted();
 		}
 
 	}

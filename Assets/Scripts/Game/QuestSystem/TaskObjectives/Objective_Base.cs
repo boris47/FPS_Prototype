@@ -4,14 +4,98 @@ using UnityEngine;
 
 namespace QuestSystem {
 
-	public abstract class Objective_Base : MonoBehaviour {
+	public interface IObjective {
 
-	
-		public	Task					RelatedTask			{ protected get; set; }
-		public	bool					Completed			{ get; protected set; }
+		void			Init					();
 
+		bool			IsCompleted				{get; }
+
+		void			AddToTask				( ITask task );
+
+		void			RegisterOnCompletion	( System.Action<Objective_Base>	onCompletionCallback );
+
+		void			OnObjectiveCompleted	();
+	}
+
+
+	public abstract class Objective_Base : MonoBehaviour, IObjective {
+
+		[SerializeField]
+		private GameEvent							m_OnCompletion				= null;
+
+		protected	System.Action<Objective_Base>	m_OnCompletionCallback		= delegate { };
+		protected	bool							m_IsCompleted				= false;
+		protected	bool							m_IsCurrentlyActive			= false;
+
+		protected	Transform						m_Signal					= null;
+
+
+		public	void	Init()
+		{
+			GameObject o = Resources.Load("Prefabs/UI/Task_Objectives/Task_KillTarget") as GameObject;
+			m_Signal = Instantiate( o ).transform;
+
+			m_Signal.SetParent( UI.Instance.InGame.transform );
+			m_Signal.gameObject.SetActive( false );
+		}
+
+		
+		//////////////////////////////////////////////////////////////////////////
+		// Update
+		private void Update()
+		{
+			if ( m_IsCurrentlyActive )
+			{
+				DrawUIElementOnObjectives( transform, m_Signal );
+			}
+		}
+
+		//--
+		bool			IObjective.IsCompleted
+		{
+			get { return m_IsCompleted; }
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// SetTaskOwner ( Interface )
+		void			IObjective.AddToTask( ITask task )
+		{
+			task.AddObjective( this );
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// RegisterOnCompletion ( Interface )
+		void		IObjective.RegisterOnCompletion( System.Action<Objective_Base>	onCompletionCallback )
+		{
+			m_OnCompletionCallback = onCompletionCallback;
+		}
+
+
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// OnObjectiveCompleted ( Interface )
+		public	void			OnObjectiveCompleted()
+		{
+			// Internal Flag
+			m_IsCompleted = true;
+
+			// Unity Events
+			if ( m_OnCompletion != null && m_OnCompletion.GetPersistentEventCount() > 0 )
+				m_OnCompletion.Invoke();
+
+			// Internal Delegates
+			m_OnCompletionCallback( this );
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
 		public	abstract	void		Enable();
 
+
+		//////////////////////////////////////////////////////////////////////////
 		protected	static void	DrawUIElementOnObjectives( Transform targetTransform, Transform Signal )
 		{
 			Camera camera = CameraControl.Instance.MainCamera;
@@ -81,7 +165,6 @@ namespace QuestSystem {
 				Signal.position = ScreenPoint;
 			}
 		}
-
 	}
 
 }
