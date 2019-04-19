@@ -38,11 +38,10 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Enable ( Override )
-		public override void Enable()
+		public override void Activate()
 		{
 			m_Collider.enabled = true;
 			m_IsCurrentlyActive = true;
-			m_Signal.gameObject.SetActive( m_IsCurrentlyActive );
 		}
 
 
@@ -61,7 +60,6 @@ namespace QuestSystem {
 				m_OnTriggerEnter.Invoke();
 
 			m_IsCurrentlyActive = false;
-			m_Signal.gameObject.SetActive( m_IsCurrentlyActive );
 
 			OnObjectiveCompleted();
 		}

@@ -1,21 +1,26 @@
 ﻿
 using UnityEngine;
 
+public enum ShieldContext {
+	NONE,
+	ENTITY, WEAPON, MESH
+}
 
 public interface IShield : IStreamableByEvents {
 
 	/// <summary> Event called when shield is hitted </summary>
-	event		Shield.ShieldHitEvent		OnHit;
+	event			Shield.ShieldHitEvent		OnHit;
+	
+	ShieldContext	Context						{ get; }
 
-	void		CollisionHit				( GameObject collidingObject );
+	void			CollisionHit				( GameObject collidingObject );
 
-	float		StartStatus					{ get; }
-	float		Status						{ get; set; }
-	bool		IsUnbreakable				{ get; }
+	float			StartStatus					{ get; }
+	float			Status						{ get; set; }
+	bool			IsUnbreakable				{ get; }
 
-
-	void		Setup						( float StartStatus, bool IsUnbreakable = false );
-	void		OnReset						();
+	void			Setup						( float StartStatus, ShieldContext Context, bool IsUnbreakable = false );
+	void			OnReset						();
 }
 
 [RequireComponent( typeof ( Collider ) )]
@@ -38,17 +43,20 @@ public class Shield : MonoBehaviour, IShield {
 		remove	{ if ( value != null )	m_ShielHitEvent -= value; }
 	}
 
-	float		IShield.StartStatus					{	get { return m_StartStatus; } }
-	float		IShield.Status						{	get { return m_CurrentStatus;	} set { m_CurrentStatus = value; }  }
-	bool		IShield.IsUnbreakable				{	get { return m_IsUnbreakable;	}	}
+	ShieldContext	IShield.Context						{	get { return m_Context; } }
+	float			IShield.StartStatus					{	get { return m_StartStatus; } }
+	float			IShield.Status						{	get { return m_CurrentStatus;	} set { m_CurrentStatus = value; }  }
+	bool			IShield.IsUnbreakable				{	get { return m_IsUnbreakable;	}	}
+	
 
 	/// INTERFACE END
 	/// 
 	
-	private		Collider	m_Collider			= null;
-	private		Renderer	m_Renderer			= null;
-	private		float		m_CurrentStatus		= 100f;
-	private		float		m_StartStatus		= 100f;
+	private		ShieldContext	m_Context			= ShieldContext.NONE;
+	private		Collider		m_Collider			= null;
+	private		Renderer		m_Renderer			= null;
+	private		float			m_CurrentStatus		= 100f;
+	private		float			m_StartStatus		= 100f;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -163,9 +171,10 @@ public class Shield : MonoBehaviour, IShield {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Setup
-	void		IShield.Setup( float StartStatus, bool IsUnbreakable )
+	void		IShield.Setup( float StartStatus, ShieldContext Context, bool IsUnbreakable )
 	{
 		m_StartStatus	= StartStatus;
+		m_Context		= Context;
 		m_IsUnbreakable	= IsUnbreakable;
 	}
 

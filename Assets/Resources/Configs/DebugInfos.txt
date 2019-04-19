@@ -3,3 +3,4 @@
 [DebugInfos]
 ResourceManager			= false;
 WeatherManager			= false;
+Quests					= false;

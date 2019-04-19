@@ -111,7 +111,7 @@ public class GenericBullet : Bullet {
 
 			if ( bIsAnEntity )
 			{
-				entity.CheckBulletHit( gameObject );
+				entity.CheckBulletHit( this );
 			}
 			else
 			if ( bIsShield )
@@ -205,12 +205,12 @@ public class GenericBullet : Bullet {
 
 		IEntity entity = null;
 		IShield shield = null;
-		bool bIsAnEntity = Utils.Base.SearchComponent( collision.gameObject, ref entity, SearchContext.LOCAL    );
-		bool bIsShield   = Utils.Base.SearchComponent( collision.gameObject, ref shield, SearchContext.CHILDREN );
+		bool bIsAnEntity = Utils.Base.SearchComponent( collision.gameObject, ref entity, SearchContext.LOCAL );
+		bool bIsShield   = Utils.Base.SearchComponent( collision.gameObject, ref shield, SearchContext.CHILDREN, s => s.Context == ShieldContext.ENTITY );
 
 		Vector3 position  = collision.contacts[0].point;
 		Vector3 direction = collision.contacts[0].normal;
-
+		
 		EffectType effectToPlay;
 		if ( bIsShield )
 		{
@@ -222,6 +222,7 @@ public class GenericBullet : Bullet {
 		{
 			effectToPlay = EffectType.ENTITY_ON_HIT;
 			entity.RigidBody.angularVelocity = entity.RigidBody.velocity = Vector3.zero;
+			entity.CheckBulletHit( this );
 		}
 		else
 		{

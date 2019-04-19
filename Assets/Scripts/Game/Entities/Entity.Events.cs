@@ -3,7 +3,7 @@ using UnityEngine;
 
 public partial interface IEntity {
 	// Evaluate bullet damage
-	void					CheckBulletHit					( GameObject collidingObject );
+	void					CheckBulletHit					( Bullet hittingBullet );
 
 	// Directly damage
 	void					OnHit							( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false );
@@ -12,7 +12,40 @@ public partial interface IEntity {
 
 public abstract partial class Entity : MonoBehaviour, IEntity {
 	
-	public			EntityEvents.KilledEvent		OnKilled							= null;
+
+	protected	event	EntityEvents.KilledEvent			m_OnKilled			= delegate { };
+	protected	event	EntityEvents.HitDetailsEvent		m_OnHittedDetails	= delegate { };
+	protected	event	EntityEvents.HitWithBullet			m_OnHittedBullet	= delegate { };
+	protected	event	EntityEvents.TargetEvent			m_OnTarget			= delegate { };
+	protected	event	EntityEvents.NavigationEvent		m_OnNavigation		= delegate { };
+
+	public		event	EntityEvents.KilledEvent			OnKilled
+	{
+		add		{ if ( value != null ) m_OnKilled += value; }
+		remove	{ if ( value != null ) m_OnKilled -= value; }
+	}
+	public		event	EntityEvents.HitDetailsEvent		OnHittedDetails
+	{
+		add		{ if ( value != null ) m_OnHittedDetails += value; }
+		remove	{ if ( value != null ) m_OnHittedDetails -= value; }
+	}
+	public		event	EntityEvents.HitWithBullet			OnHittedBullet
+	{
+		add		{ if ( value != null ) m_OnHittedBullet += value; }
+		remove	{ if ( value != null ) m_OnHittedBullet -= value; }
+	}
+	public		event	EntityEvents.TargetEvent			OnTarget
+	{
+		add		{ if ( value != null ) m_OnTarget += value; }
+		remove	{ if ( value != null ) m_OnTarget -= value; }
+	}
+	public		event	EntityEvents.NavigationEvent		OnNavigation
+	{
+		add		{ if ( value != null ) m_OnNavigation += value; }
+		remove	{ if ( value != null ) m_OnNavigation -= value; }
+	}
+
+
 
 
 	// Questa funzione viene chiamata durante il caricamento dello script o quando si modifica un valore nell'inspector (chiamata solo nell'editor)
@@ -134,6 +167,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		return streamUnit;
 	}
 
+
 	//////////////////////////////////////////////////////////////////////////
 	public		virtual		void		OnDestinationReached( Vector3 Destination )
 	{
@@ -157,12 +191,12 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public	void			CheckBulletHit					( GameObject collidingObject )
+	public	void			CheckBulletHit( Bullet hittingBullet )
 	{
-		IBullet bullet = null;
-		bool bIsBullet = Utils.Base.SearchComponent( collidingObject, ref bullet, SearchContext.CHILDREN );
+		bool bIsBullet = hittingBullet is IBullet;
 		if ( bIsBullet )
 		{
+			IBullet bullet = hittingBullet as IBullet;
 			float dmgMultiplier = ( m_Shield != null && m_Shield.Status > 0.0f ) ? 
 				( bullet.CanPenetrate ) ? 0.5f : 0.0f
 				: 
@@ -172,7 +206,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		}
 	}
 
-	
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void OnCollisionEnter( Collision collision )
 	{
@@ -188,12 +222,14 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 			OnHit( bullet.StartPosition, bullet.WhoRef, bullet.DamageRandom * dmgMultiplier, bullet.CanPenetrate );
 		}
 	}
-
+	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void		NotifyHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
 		m_CurrentBehaviour.OnHit( startPosition, whoRef, damage, canPenetrate );
+
+		m_OnHittedDetails( startPosition, whoRef, damage, canPenetrate );
 	}
 
 
@@ -204,6 +240,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		NotifyHit( startPosition, whoRef, damage, canPenetrate );
 		
 		this.OnTakeDamage( damage );
+		print( name + ":Taking damage " + damage );
 	}
 
 
@@ -239,6 +276,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	{
 		m_CurrentBehaviour.OnTargetAcquired();
 //		Memory.Add( targetInfo.CurrentTarget as Entity );
+
+		m_OnTarget( targetInfo );
 	}
 	
 
@@ -246,6 +285,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	protected	virtual		void		OnTargetChanged( TargetInfo targetInfo )
 	{
 		m_CurrentBehaviour.OnTargetChange();
+
+		m_OnTarget( targetInfo );
 	}
 
 	
@@ -254,6 +295,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	{
 		m_CurrentBehaviour.OnTargetLost();
 
+		m_OnTarget( targetInfo );
 //		Memory.Remove( targetInfo.CurrentTarget as Entity );
 	}
 
@@ -288,8 +330,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 		m_CurrentBehaviour.OnKilled();
 
-		if ( OnKilled != null )
-			OnKilled();
+		m_OnKilled();
 
 		Blackboard.UnRegister( this );
 	}

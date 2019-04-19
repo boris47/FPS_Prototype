@@ -27,33 +27,32 @@ namespace QuestSystem {
 		protected	bool							m_IsCompleted				= false;
 		protected	bool							m_IsCurrentlyActive			= false;
 
-		protected	Transform						m_Signal					= null;
+		protected	Texture							m_Texture					= null;
+		protected	Rect							m_DrawRect					= new Rect();
+		protected	bool							m_IsTextureLoaded			= false;
 
-
-		public	void	Init()
-		{
-			GameObject o = Resources.Load("Prefabs/UI/Task_Objectives/Task_KillTarget") as GameObject;
-			m_Signal = Instantiate( o ).transform;
-
-			m_Signal.SetParent( UI.Instance.InGame.transform );
-			m_Signal.gameObject.SetActive( false );
-		}
-
-		
-		//////////////////////////////////////////////////////////////////////////
-		// Update
-		private void Update()
-		{
-			if ( m_IsCurrentlyActive )
-			{
-				DrawUIElementOnObjectives( transform, m_Signal );
-			}
-		}
 
 		//--
 		bool			IObjective.IsCompleted
 		{
 			get { return m_IsCompleted; }
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// Init ( Interface )
+		void IObjective.Init()
+		{			
+			ResourceManager.LoadData<Texture2D> loadData = new ResourceManager.LoadData<Texture2D>();
+			System.Action<Texture2D> onTextureLoaded = delegate( Texture2D t )
+			{
+				m_Texture = t;
+				m_IsTextureLoaded = true;
+
+				m_DrawRect.width  = m_Texture.width;
+				m_DrawRect.height = m_Texture.height;
+			};
+			ResourceManager.LoadResourceAsync( "Textures/Task_Objectives/BadSmile", loadData, onTextureLoaded );
 		}
 
 
@@ -73,8 +72,6 @@ namespace QuestSystem {
 		}
 
 
-
-
 		//////////////////////////////////////////////////////////////////////////
 		// OnObjectiveCompleted ( Interface )
 		public	void			OnObjectiveCompleted()
@@ -88,15 +85,27 @@ namespace QuestSystem {
 
 			// Internal Delegates
 			m_OnCompletionCallback( this );
+
+			print( "Completed Objective " + name );
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		public	abstract	void		Enable();
+		public	abstract	void		Activate();
 
 
 		//////////////////////////////////////////////////////////////////////////
-		protected	static void	DrawUIElementOnObjectives( Transform targetTransform, Transform Signal )
+		private void OnGUI()
+		{
+			if ( m_IsTextureLoaded && m_IsCurrentlyActive )
+			{
+				DrawUIElementOnObjectives( transform, ref m_DrawRect );
+				GUI.DrawTexture( m_DrawRect, m_Texture );
+			}
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		protected	static void	DrawUIElementOnObjectives( Transform targetTransform, ref Rect DrawRect )
 		{
 			Camera camera = CameraControl.Instance.MainCamera;
 
@@ -106,12 +115,13 @@ namespace QuestSystem {
 		//	Vector3 ViewportPoint = camera.WorldToViewportPoint( taretTransform.position );
 			Vector3 ScreenPoint = camera.WorldToScreenPoint( targetTransform.position );
 
+			
+
 			// Normal projection because inside screen
 			if ( ScreenPoint.z > 0f && ScreenPoint.x > 0f && ScreenPoint.x < Screen.width && ScreenPoint.y > 0f && ScreenPoint.y < Screen.height )
 			{
-//				GUI.DrawTexture( new Rect( ScreenPoint, BadSmile.texelSize ), BadSmile );
-//				m_CrosshairTransform.position = ScreenPoint;
-				Signal.position = ScreenPoint;
+				DrawRect.x = ScreenPoint.x - DrawRect.width*0.5f;
+				DrawRect.y = Screen.height - ( ScreenPoint.y + DrawRect.height*0.5f );
 			}
 			else // Off screen
 			{
@@ -121,48 +131,51 @@ namespace QuestSystem {
 					ScreenPoint *= -1.0f;
 				}
 
-				Vector3 screenCenter = new Vector3( Screen.width, Screen.height, 0.0f ) * 0.5f;
+				Vector2 ScreenPoint2D = ScreenPoint;
+				Vector2 screenCenter2D = new Vector2( Screen.width, Screen.height ) * 0.5f;
 
 				// NOTE COORDINATE TRASLATED
 				// make 0, 0 the center of screen inteead of bottom left
-				ScreenPoint -= screenCenter;
+				ScreenPoint2D -= screenCenter2D;
 
 				// Find angle from center of screen to mouse position
-				float angle = Mathf.Atan2( ScreenPoint.y, ScreenPoint.x ) - 90f * Mathf.Deg2Rad;
+				float angle = Mathf.Atan2( ScreenPoint2D.y, ScreenPoint2D.x ) - 90f * Mathf.Deg2Rad;
 				float cos = Mathf.Cos( angle );
 				float sin = -Mathf.Sin( angle );
 
-				ScreenPoint = screenCenter + new Vector3( sin * 150f, cos * 150f, 0.0f );
+				const float amplify = 150f;
+				ScreenPoint2D.Set( screenCenter2D.x + sin * amplify, screenCenter2D.y + cos * amplify );
 
 				// y = mx + b format
 				float m = cos / sin;
 
-				Vector3 screenBounds = screenCenter * 0.9f;
+				Vector2 screenBounds = screenCenter2D * 0.9f;
 
 				// Check up and down first
 				if ( cos > 0.0f )
 				{
-					ScreenPoint = new Vector3( screenBounds.y/m, screenBounds.y, 0f );
+					ScreenPoint2D.Set( screenBounds.y/m, screenBounds.y );
 				}
 				else // down
 				{
-					ScreenPoint = new Vector3( -screenBounds.y/m, -screenBounds.y, 0f );
+					ScreenPoint2D.Set( -screenBounds.y/m, -screenBounds.y );
 				}
 
 				// If out of bounds, get point on appropriate side
-				if ( ScreenPoint.x > screenBounds.x ) // out of bounds, must be on right
+				if ( ScreenPoint2D.x > screenBounds.x ) // out of bounds, must be on right
 				{
-					ScreenPoint = new Vector3( screenBounds.x, screenBounds.x*m, 0f );
+					ScreenPoint2D.Set( screenBounds.x, screenBounds.x*m );
 				}
-				else if ( ScreenPoint.x < -screenBounds.x ) // out of bounds left
+				else if ( ScreenPoint2D.x < -screenBounds.x ) // out of bounds left
 				{
-					ScreenPoint = new Vector3( -screenBounds.x, -screenBounds.x*m, 0f );
+					ScreenPoint2D.Set( -screenBounds.x, -screenBounds.x*m );
 				}
 
 				// Remove cooridnate traslation
-				ScreenPoint += screenCenter;
+				ScreenPoint2D += screenCenter2D;
 
-				Signal.position = ScreenPoint;
+				DrawRect.x = ScreenPoint2D.x - DrawRect.width*0.5f;
+				DrawRect.y = Screen.height - ( ScreenPoint2D.y + DrawRect.height*0.5f );
 			}
 		}
 	}

@@ -36,12 +36,12 @@ public class WPN_WeaponModule_Shield : WPN_BaseModule, IWPN_UtilityModule {
 				m_ShieldGO.transform.localRotation = Quaternion.identity;
 
 				m_RigidBody	= m_ShieldGO.GetComponentInChildren<Rigidbody>();
-
 				m_Shield	= m_ShieldGO.GetComponentInChildren<Shield>();
+				
 				m_Shield.enabled = false;
 				m_ShieldInterface = m_Shield as IShield;
 
-				m_ShieldInterface.Setup( m_ShieldLife );
+				m_ShieldInterface.Setup( m_ShieldLife, ShieldContext.WEAPON );
 				m_ShieldInterface.OnHit += OnShieldHit;
 			}
 		}

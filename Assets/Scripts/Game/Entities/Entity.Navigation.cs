@@ -80,7 +80,8 @@ public abstract partial class Entity : IEntity {
 		m_NavCanMoveAlongPath			= true;
 		m_HasDestination				= true;
 		m_DestinationToReachPosition	= Destination;
-		m_HasPendingPathRequest				= false;
+		m_HasPendingPathRequest			= false;
+		m_OnNavigation( Destination );
 	}
 
 
@@ -113,12 +114,12 @@ public abstract partial class Entity : IEntity {
 	{
 		if ( m_TargetInfo.HasTarget == true )
 		{
-			// Path search event if not already near enough
+			// Path search event if not already close enough
 			if ( ( TargetPosition - m_DestinationToReachPosition ).sqrMagnitude > 180.0f )
 			{
 				if ( ( transform.position - TargetPosition ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
 				{
-					print( "CheckForNewReachPoint" );
+///					print( "CheckForNewReachPoint" );
 					RequestMovement ( TargetPosition );
 				}
 			}

@@ -36,7 +36,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 			if ( m_Shield != null )
 			{
 				float shieldStatus	= m_SectionRef.AsFloat( "Shield",				60.0f );
-				m_Shield.Setup( shieldStatus );
+				m_Shield.Setup( shieldStatus, ShieldContext.ENTITY );
 			}
 
 			m_MoveMaxSpeed			= m_SectionRef.AsFloat( "MoveMaxSpeed",			1.0f );

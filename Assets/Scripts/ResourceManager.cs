@@ -1,7 +1,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
+
 using UnityEngine;
 
 
@@ -15,11 +15,19 @@ public interface IResourceComposite {
 
 public class ResourceManager : MonoBehaviour {
 
-	private	static	ResourceManager		m_Instance			= null;
+	public class LoadData<T> {
+		public	T Asset;
+	}
 
-	private	static	bool				m_IsInitialized		= false;
+	private	static	ResourceManager				m_Instance			= null;
 
-	private	static	bool				m_ShowDebugInfo		= false;
+	private	static	bool						m_IsInitialized		= false;
+
+	private	static	bool						m_ShowDebugInfo		= false;
+
+	private	static	List<string>				m_CurrentLoading	= new List<string>();
+
+	private	static	Dictionary<string, Texture>	m_Textures			= new Dictionary<string, Texture>();
 
 	// 
 	private void Awake()
@@ -40,20 +48,53 @@ public class ResourceManager : MonoBehaviour {
 		}
 	}
 
-	public class LoadData<T> {
-		public	T Asset;
+	
+	public	static	void	LoadTextureAsync( string resourcePath )
+	{
+		Texture tex = null;
+		if ( m_Textures.TryGetValue( resourcePath, out tex ) == true )
+		{
+			Debug.LogError( "ResourceManager: Trying to load and already loaded texture:!!" + resourcePath );
+			return; // Already loaded
+		}
+
+		if ( m_CurrentLoading.Contains( resourcePath ) == true )
+		{
+			return; // already loading, skip
+		}
+
+		m_CurrentLoading.Add( resourcePath );
+
+		LoadData<Texture> loadData = new LoadData<Texture>();
+		System.Action<Texture> onTextureLoaded = delegate( Texture t )
+		{
+			m_Textures.Add( resourcePath, t );
+			m_CurrentLoading.Remove( resourcePath );
+		};
+		LoadResourceAsync( resourcePath, loadData, onTextureLoaded );
+	}
+
+	public	static	Texture	LoadTextureSync( string resourcePath )
+	{
+		Object asd = Resources.Load( resourcePath );
+		return asd as Texture;
+	}
+
+	public	static	bool	RequireTexture( string resourcePath, Texture tex )
+	{
+		return m_Textures.TryGetValue( resourcePath, out tex );
 	}
 
 	///////////////////////////////////////////////////
 
-	
+	/*
 	private	static	string RESOURCES_PATH = "Assets/Resources/";
 	/// <summary> Concatenate ResourcesPath, resourcePath and extension </summary>
 	private static string GetFullPath( string ResourcePath )
 	{
 		return RESOURCES_PATH + ResourcePath + ".asset";
 	}
-
+	*/
 	// 
 	private	static	void	Initialize()
 	{
@@ -93,13 +134,13 @@ public class ResourceManager : MonoBehaviour {
 
 
 	/////////////////////////////////////////////////////////////////
-	private	static  bool InternalLoadResourceSync<T>( string ResourcePath, LoadData<T> loadData, ref bool bResult ) where T : Object
+	private	static  bool	InternalLoadResourceSync<T>( string ResourcePath, LoadData<T> loadData, ref bool bResult ) where T : Object
 	{
 		if ( bResult == true )
 		{
 			if ( m_ShowDebugInfo )				print( "INTERNAL SYNC Loading: " + ResourcePath );
 			{
-				Stopwatch m_StopWatch = new Stopwatch();
+				System.Diagnostics.Stopwatch m_StopWatch = new System.Diagnostics.Stopwatch();
 				m_StopWatch.Start();
 				{
 					loadData.Asset = Resources.Load<T>( ResourcePath );
@@ -128,7 +169,7 @@ public class ResourceManager : MonoBehaviour {
 					}
 				}
 			}
-			if ( m_ShowDebugInfo && bResult )	print( "INTERNAL SYNC Loaded: " + RESOURCES_PATH + ResourcePath );
+//			if ( m_ShowDebugInfo && bResult )	print( "INTERNAL SYNC Loaded: " + RESOURCES_PATH + ResourcePath );
 		}
 
 		return bResult;
@@ -165,7 +206,12 @@ public class ResourceManager : MonoBehaviour {
 		}
 //		if ( m_ShowDebugInfo )				print( "COROUTINE ASYNC Loaded: " + ResourcePath );
 
-		if ( OnResourceLoaded.IsNotNull() )
+		if ( loadData.Asset == null )
+		{
+			Debug.LogError( "ResourceManager:Cannot load resource " + ResourcePath );
+		}
+
+		if ( OnResourceLoaded.IsNotNull() && loadData.Asset != null )
 		{
 			OnResourceLoaded( loadData.Asset as T );
 		}
@@ -177,7 +223,7 @@ public class ResourceManager : MonoBehaviour {
 	{
 		if ( m_ShowDebugInfo )			print( "INTERNAL ASYNC Loading: " + ResourcePath );
 		{
-			Stopwatch m_StopWatch = new Stopwatch();
+			System.Diagnostics.Stopwatch m_StopWatch = new System.Diagnostics.Stopwatch();
 			m_StopWatch.Start();
 			{
 				ResourceRequest request = Resources.LoadAsync( ResourcePath );

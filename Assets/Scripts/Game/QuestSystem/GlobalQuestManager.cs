@@ -20,7 +20,9 @@ namespace QuestSystem {
 
 	public class GlobalQuestManager : MonoBehaviour, IQuestManager {
 
-		public static GlobalQuestManager	Instance						= null;
+		public	static	bool				ShowDebugInfo					= false;
+
+		public	static GlobalQuestManager	Instance						= null;
 
 		private	LocalQuestManager			m_currentLocalQuestMnanager		= null;
 		public	LocalQuestManager			CurrentLocalQuestManager
@@ -30,6 +32,15 @@ namespace QuestSystem {
 
 
 		private	List<Quest>		m_GlobalQuests			= new List<Quest>();
+
+		private void Awake()
+		{
+			Database.Section debugInfosSection = null;
+			if ( GameManager.Configs.bGetSection( "DebugInfos", ref debugInfosSection ) )
+			{
+				ShowDebugInfo = debugInfosSection.AsBool( "Quests", false );
+			}
+		}
 
 
 		//////////////////////////////////////////////////////////////////////////
@@ -47,10 +58,16 @@ namespace QuestSystem {
 
 			if ( bAreQuestsCompleted )
 			{
-				print( "Completed All quests" );
+				if ( ShowDebugInfo )
+					Debug.Log( "Completed All quests" );
 			}
 		}
 
+
+		void OnGUI ()
+		{
+			
+		}
 
 		//////////////////////////////////////////////////////////////////////////
 		// GetQuestStatus ( Interface )
@@ -78,6 +95,7 @@ namespace QuestSystem {
 				return false;
 
 			m_GlobalQuests.Add( newQuest as Quest );
+			newQuest.Activate();
 			return true;
 		}
 

@@ -24,10 +24,9 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Enable ( Override )
-		public override void Enable()
+		public override void Activate()
 		{
 			m_IsCurrentlyActive = true;
-			m_Signal.gameObject.SetActive( m_IsCurrentlyActive );
 		}
 
 
@@ -38,11 +37,7 @@ namespace QuestSystem {
 			if ( m_OnDestroy != null && m_OnDestroy.GetPersistentEventCount() > 0 )
 				m_OnDestroy.Invoke();
 
-			m_Signal.SetParent( null );
-			Destroy( m_Signal.gameObject );
-
 			m_IsCurrentlyActive = false;
-			m_Signal.gameObject.SetActive( m_IsCurrentlyActive );
 
 			OnObjectiveCompleted();
 		}

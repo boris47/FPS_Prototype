@@ -20,14 +20,13 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Enable ( Override )
-		public override void Enable()
+		public override void Activate()
 		{
 			m_Interactable = GetComponent<Interactable>();
 			m_Interactable.CanInteract = true;
 			m_Interactable.OnInteractionCallback += OnInteraction;
 
 			m_IsCurrentlyActive = true;
-			m_Signal.gameObject.SetActive( m_IsCurrentlyActive );
 		}
 
 
@@ -39,7 +38,6 @@ namespace QuestSystem {
 				return;
 
 			m_IsCurrentlyActive = false;
-			m_Signal.gameObject.SetActive( m_IsCurrentlyActive );
 
 			if ( m_OnInteraction != null && m_OnInteraction.GetPersistentEventCount() > 0 )
 				m_OnInteraction.Invoke();

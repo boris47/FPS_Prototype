@@ -84,6 +84,9 @@ namespace QuestSystem {
 				// Internal Flag
 				m_IsCompleted = true;
 
+				if ( GlobalQuestManager.ShowDebugInfo )
+					print( "Completed Task " + name );
+
 				// Unity Events
 				if ( m_OnCompletion != null && m_OnCompletion.GetPersistentEventCount() > 0 )
 					m_OnCompletion.Invoke();
@@ -97,7 +100,7 @@ namespace QuestSystem {
 				int nextIndex = ++index;
 				if ( nextIndex < m_Objectives.Count )
 				{
-					m_Objectives[ nextIndex ].Enable();
+					m_Objectives[ nextIndex ].Activate();
 				}
 			}
 		}
@@ -128,7 +131,7 @@ namespace QuestSystem {
 
 ///			print( name + " task activated" );
 			// Activate first objective
-			m_Objectives[ 0 ].Enable();
+			m_Objectives[ 0 ].Activate();
 			return true;
 		}
 

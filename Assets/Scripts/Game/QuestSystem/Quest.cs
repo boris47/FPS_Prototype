@@ -20,7 +20,7 @@ namespace QuestSystem {
 
 	public interface IQuest {
 
-//		void			OnTaskCompleted( ITask task );
+		bool			Activate();
 
 		bool			IsCompleted		{ get; }
 		QuestStatus		Status			{ get; }
@@ -71,14 +71,12 @@ namespace QuestSystem {
 		// AWAKE
 		private void Awake()
 		{
-			
 			// Already assigned
 			foreach( ITask t in m_Tasks )
 			{
 //				t.AddToQuest( this );
 				t.RegisterOnCompletion( OnTaskCompleted );
 			}
-			m_Tasks[0].Activate();
 			LocalQuestManager.Instance.AddQuest( this );
 
 			/*
@@ -142,7 +140,10 @@ namespace QuestSystem {
 				// Internal Flag
 				m_Status = QuestStatus.COMPLETED;
 
-				print( "Completed quest " + name );
+				m_IsCompleted = true;
+
+				if ( GlobalQuestManager.ShowDebugInfo )
+					print( "Completed quest " + name );
 
 				// Unity Events
 				if ( m_OnCompletion != null && m_OnCompletion.GetPersistentEventCount() > 0 )
@@ -165,14 +166,15 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Activate
-		public	bool	Activate()
+		bool	IQuest.Activate()
 		{
 			if ( m_Tasks.Count == 0 )
 			{
 				return false;
 			}
 
-			print( name + " quest activated" );
+			if ( GlobalQuestManager.ShowDebugInfo )
+				print( name + " quest activated" );
 
 			m_Tasks[ 0 ].Activate();
 			return true;

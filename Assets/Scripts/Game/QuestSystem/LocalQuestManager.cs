@@ -15,7 +15,7 @@ namespace QuestSystem {
 			get { return m_Instance; }
 		}
 
-//		[SerializeField]
+		[SerializeField]
 		private	List<Quest>		m_LocalQuests			= new List<Quest>();
 		
 
@@ -66,7 +66,18 @@ namespace QuestSystem {
 
 			if ( bAreQuestsCompleted )
 			{
-				print( "Completed All quests" );
+				if ( GlobalQuestManager.ShowDebugInfo )
+					print( "Completed All quests" );
+			}
+			else
+			{
+				int index = m_LocalQuests.IndexOf( completedQuest as Quest );
+				int nextIndex = ++index;
+				if ( nextIndex < m_LocalQuests.Count )
+				{
+					IQuest nextQuest = m_LocalQuests[ nextIndex ];
+					nextQuest.Activate();
+				}
 			}
 		}
 
@@ -93,11 +104,12 @@ namespace QuestSystem {
 			if ( newQuest.Status == QuestStatus.NONE )
 				return false;
 
-			if ( m_LocalQuests.Contains( newQuest as Quest ) == true )
+			if ( m_LocalQuests.Contains( newQuest as Quest ) == false )
 				return false;
 
-			m_LocalQuests.Add( newQuest as Quest );
+//			m_LocalQuests.Add( newQuest as Quest );
 			newQuest.RegisterOnCompletion( OnQuestCompleted );
+			newQuest.Activate();
 			return true;
 		}
 

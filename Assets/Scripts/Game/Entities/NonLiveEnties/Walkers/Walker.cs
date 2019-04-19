@@ -37,7 +37,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 			if ( m_Shield != null )
 			{
 				float shieldStatus	= m_SectionRef.AsFloat( "Shield", 0.0f );
-				m_Shield.Setup( shieldStatus );
+				m_Shield.Setup( shieldStatus, ShieldContext.ENTITY );
 			}
 
 			m_DamageMax				= m_SectionRef.AsFloat( "DamageMax", 2.0f );
