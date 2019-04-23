@@ -63,12 +63,6 @@ namespace QuestSystem {
 			}
 		}
 
-
-		void OnGUI ()
-		{
-			
-		}
-
 		//////////////////////////////////////////////////////////////////////////
 		// GetQuestStatus ( Interface )
 		QuestStatus IQuestManager.GetQuestStatus( uint questIndex )

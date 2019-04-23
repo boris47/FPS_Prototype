@@ -160,7 +160,7 @@ public class DodgeTarget : MonoBehaviour {
 	{
 		if ( m_IsActive == true )
 		{
-			Vector3 lookPoint = Camera.main.transform.position;
+			Vector3 lookPoint = CameraControl.Instance.MainCamera.transform.position;
 			lookPoint.y = m_TextWorldSpace.position.y;
 			m_TextWorldSpace.LookAt( lookPoint );
 		}

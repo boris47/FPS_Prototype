@@ -61,7 +61,7 @@ namespace QuestSystem {
 
 				go.SetActive( m_IsCurrentlyActive );
 			};
-			ResourceManager.LoadResourceAsync( "Textures/Task_Objectives/Task_KillTarget", null, onTextureLoaded );
+			ResourceManager.LoadResourceAsync( "Prefabs/UI/Task_Objectives/Task_KillTarget", null, onTextureLoaded );
 		}
 
 
@@ -108,9 +108,9 @@ namespace QuestSystem {
 				m_IconTransform.gameObject.SetActive( true );
 		}
 
-
+		
 		//////////////////////////////////////////////////////////////////////////
-		private void Update()
+		private void FixedUpdate()
 		{
 			if ( m_IsTextureLoaded && m_IsCurrentlyActive && GameManager.IsPaused == false )
 			{
@@ -119,7 +119,12 @@ namespace QuestSystem {
 				m_IconTransform.position = m_DrawRect;
 			}
 		}
-
+		/*
+		private void OnGUI()
+		{
+			
+		}
+		*/
 		//////////////////////////////////////////////////////////////////////////
 		private void OnGUIo()
 		{

@@ -264,7 +264,7 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 		Reset();
 		{
 			// Screen
-			m_ScreenData.resolution			= new Resolution() { width = 1024, height = 768, refreshRate = 60 };
+			m_ScreenData.resolution			= new Resolution() { width = 640, height = 480, refreshRate = 60 };
 			m_ScreenData.resolutionIndex	= GetResolutionIndex( m_ScreenData.resolution );
 			m_ScreenData.fullScreen			= true;
 			m_ScreenData.isDirty			= true;
@@ -304,7 +304,12 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 
 		// Screen
 		m_ScreenData.resolutionIndex	= PlayerPrefs.GetInt( VAR_RESOLUTION_INDEX );
-		m_ScreenData.resolution			= m_AviableResolutions[m_ScreenData.resolutionIndex];
+		if ( m_ScreenData.resolutionIndex > -1 )
+		{
+			m_ScreenData.resolution			= m_AviableResolutions[m_ScreenData.resolutionIndex];
+		}
+
+//		m_ScreenData.resolution			= m_AviableResolutions[m_ScreenData.resolutionIndex];
 		m_ScreenData.fullScreen			= PlayerPrefs.GetInt( VAR_IS_FULLSCREEN ) != 0;
 
 		// Filters

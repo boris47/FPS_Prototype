@@ -371,13 +371,13 @@ namespace WeatherSystem {
 				if ( UnityEditor.SceneView.lastActiveSceneView != null )
 					m_Camera = UnityEditor.SceneView.lastActiveSceneView.camera;
 #endif
-			if ( m_Camera == null )
+//			if ( m_Camera == null )
 			{
-				m_Camera = Camera.current;
-				if ( m_Camera == null )
-					m_Camera = Camera.main;
-				if ( m_Camera == null )
-					m_Camera = CameraControl.Instance.MainCamera;
+//				m_Camera = Camera.current;
+//				if ( m_Camera == null )
+//					m_Camera = Camera.main;
+//				if ( m_Camera == null )
+					m_Camera = CameraControl.Instance != null ? CameraControl.Instance.MainCamera : null;
 				if ( m_Camera == null )
 					return;
 			}

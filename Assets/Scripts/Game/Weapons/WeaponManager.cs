@@ -116,7 +116,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 
 //		m_ZoomSensitivity = CurrentWeapon.ZoomSensitivity;
 
-		m_StartCameraFOV = Camera.main.fieldOfView;
+		m_StartCameraFOV = CameraControl.Instance.MainCamera.fieldOfView;
 
 		// Make sure that ui show data of currnt active weapon
 		UI.Instance.InGame.UpdateUI();
@@ -189,7 +189,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 			CameraControl.Instance.WeaponPivot.localPosition = ( m_ZoomedIn == true ) ? m_FinalOffset : m_StartOffset;
 
 			float cameraFinalFov = m_StartCameraFOV / m_ZoomFactor;
-			Camera.main.fieldOfView = ( m_ZoomedIn == true ) ? cameraFinalFov : m_StartCameraFOV;
+			CameraControl.Instance.MainCamera.fieldOfView = ( m_ZoomedIn == true ) ? cameraFinalFov : m_StartCameraFOV;
 		}
 
 		return streamUnit;
@@ -412,7 +412,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 	// ZoomOut ( Coroutine )
 	private				IEnumerator	Internal_ZoomOutCO()
 	{
-		float	cameraCurrentFov = Camera.main.fieldOfView;
+		float	cameraCurrentFov = CameraControl.Instance.MainCamera.fieldOfView;
 //		CurrentWeapon.Enabled = false;
 
 		float	interpolant = 0f;
