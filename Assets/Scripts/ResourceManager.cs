@@ -200,21 +200,28 @@ public class ResourceManager : MonoBehaviour {
 	{
 		Initialize();
 
+		if ( loadData == null )
+		{
+			loadData = new LoadData<T>();
+		}
+
 //		if ( m_ShowDebugInfo )				print( "COROUTINE ASYNC Loading: " + ResourcePath );
 		{
 			yield return m_Instance.StartCoroutine( InternalLoadResourceAsync( ResourcePath, loadData ) );
 		}
 //		if ( m_ShowDebugInfo )				print( "COROUTINE ASYNC Loaded: " + ResourcePath );
 
-		if ( loadData.Asset == null )
+		bool bHasValidAsset = loadData.Asset != null;
+		if ( bHasValidAsset == false )
 		{
 			Debug.LogError( "ResourceManager:Cannot load resource " + ResourcePath );
 		}
 
-		if ( OnResourceLoaded.IsNotNull() && loadData.Asset != null )
+		if ( OnResourceLoaded.IsNotNull() && bHasValidAsset == true )
 		{
 			OnResourceLoaded( loadData.Asset as T );
 		}
+	
 	}
 
 	

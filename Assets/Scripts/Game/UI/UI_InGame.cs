@@ -22,7 +22,7 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 	private			float			m_FrameOrigHeight			= 0.0f;
 
 	private			bool			m_IsActive					= false;
-
+	private			Transform		m_IndicatorsContainer		= null;
 
 	private	bool			m_bIsInitialized			= false;
 	bool IStateDefiner.IsInitialized
@@ -30,6 +30,10 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 		get { return m_bIsInitialized; }
 	}
 
+	public	Transform IndicatorsContainer
+	{
+		get { return m_IndicatorsContainer; }
+	}
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
@@ -37,6 +41,8 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 	{
 		if ( m_bIsInitialized )
 			return true;
+
+		m_IndicatorsContainer = transform.Find("IndicatorsContainer");
 
 		m_bIsInitialized = true;
 		{

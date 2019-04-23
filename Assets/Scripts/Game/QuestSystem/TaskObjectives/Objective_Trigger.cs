@@ -40,6 +40,8 @@ namespace QuestSystem {
 		// Enable ( Override )
 		public override void Activate()
 		{
+			base.Activate();
+
 			m_Collider.enabled = true;
 			m_IsCurrentlyActive = true;
 		}

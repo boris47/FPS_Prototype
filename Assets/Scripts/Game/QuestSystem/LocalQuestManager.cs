@@ -27,6 +27,15 @@ namespace QuestSystem {
 		{
 			m_Instance = this;
 
+			// Already assigned
+			foreach( IQuest q in m_LocalQuests )
+			{
+//				t.AddToQuest( this );
+				q.RegisterOnCompletion( OnQuestCompleted );
+			}
+			m_LocalQuests[0].Activate();
+//			LocalQuestManager.Instance.AddQuest( this );
+
 			/*
 			Quest[] alreadyAssignedQuests = GetComponentsInChildren<Quest>();
 			if ( alreadyAssignedQuests.Length > 0 )

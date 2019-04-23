@@ -22,6 +22,8 @@ namespace QuestSystem {
 		// Enable ( Override )
 		public override void Activate()
 		{
+			base.Activate();
+
 			m_Interactable = GetComponent<Interactable>();
 			m_Interactable.CanInteract = true;
 			m_Interactable.OnInteractionCallback += OnInteraction;

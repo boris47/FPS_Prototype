@@ -26,6 +26,8 @@ namespace QuestSystem {
 		// Enable ( Override )
 		public override void Activate()
 		{
+			base.Activate();
+
 			m_IsCurrentlyActive = true;
 		}
 

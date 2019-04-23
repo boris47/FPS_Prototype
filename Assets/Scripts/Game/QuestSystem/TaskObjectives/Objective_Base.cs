@@ -4,6 +4,8 @@ using UnityEngine;
 
 namespace QuestSystem {
 
+	using UnityEngine.UI;
+
 	public interface IObjective {
 
 		void			Init					();
@@ -27,9 +29,11 @@ namespace QuestSystem {
 		protected	bool							m_IsCompleted				= false;
 		protected	bool							m_IsCurrentlyActive			= false;
 
-		protected	Texture							m_Texture					= null;
-		protected	Rect							m_DrawRect					= new Rect();
+		protected	Sprite							m_Texture					= null;
+		protected	Vector2							m_DrawRect					= Vector2.zero;
 		protected	bool							m_IsTextureLoaded			= false;
+
+		protected	Transform						m_IconTransform				= null;
 
 
 		//--
@@ -43,16 +47,21 @@ namespace QuestSystem {
 		// Init ( Interface )
 		void IObjective.Init()
 		{			
-			ResourceManager.LoadData<Texture2D> loadData = new ResourceManager.LoadData<Texture2D>();
-			System.Action<Texture2D> onTextureLoaded = delegate( Texture2D t )
+//			ResourceManager.LoadData<Image> loadData = new ResourceManager.LoadData<Image>();
+			System.Action<GameObject> onTextureLoaded = delegate( GameObject go )
 			{
-				m_Texture = t;
 				m_IsTextureLoaded = true;
 
-				m_DrawRect.width  = m_Texture.width;
-				m_DrawRect.height = m_Texture.height;
+				go			= Instantiate(go);
+				m_Texture	= go.GetComponent<Image>().sprite;
+				
+				go.transform.SetParent( UI.Instance.InGame.IndicatorsContainer );
+
+				m_IconTransform = go.transform;
+
+				go.SetActive( m_IsCurrentlyActive );
 			};
-			ResourceManager.LoadResourceAsync( "Textures/Task_Objectives/BadSmile", loadData, onTextureLoaded );
+			ResourceManager.LoadResourceAsync( "Textures/Task_Objectives/Task_KillTarget", null, onTextureLoaded );
 		}
 
 
@@ -86,26 +95,46 @@ namespace QuestSystem {
 			// Internal Delegates
 			m_OnCompletionCallback( this );
 
+			m_IconTransform.gameObject.SetActive( false );
+
 			print( "Completed Objective " + name );
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		public	abstract	void		Activate();
+		public	virtual	void		Activate()
+		{
+			if ( m_IsTextureLoaded )
+				m_IconTransform.gameObject.SetActive( true );
+		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		private void OnGUI()
+		private void Update()
 		{
-			if ( m_IsTextureLoaded && m_IsCurrentlyActive )
+			if ( m_IsTextureLoaded && m_IsCurrentlyActive && GameManager.IsPaused == false )
 			{
-				DrawUIElementOnObjectives( transform, ref m_DrawRect );
-				GUI.DrawTexture( m_DrawRect, m_Texture );
+				DrawUIElementOnObjectives( transform, m_Texture.texture, ref m_DrawRect );
+
+				m_IconTransform.position = m_DrawRect;
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected	static void	DrawUIElementOnObjectives( Transform targetTransform, ref Rect DrawRect )
+		private void OnGUIo()
+		{
+			if ( m_IsTextureLoaded && m_IsCurrentlyActive && GameManager.IsPaused == false )
+			{
+				DrawUIElementOnObjectives( transform, m_Texture.texture, ref m_DrawRect );
+
+				m_IconTransform.position = m_DrawRect;
+
+//				GUI.DrawTexture( m_DrawRect, m_Texture );
+			}
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		protected	static void	DrawUIElementOnObjectives( Transform targetTransform, Texture texture, ref Vector2 DrawPosition )
 		{
 			Camera camera = CameraControl.Instance.MainCamera;
 
@@ -120,8 +149,8 @@ namespace QuestSystem {
 			// Normal projection because inside screen
 			if ( ScreenPoint.z > 0f && ScreenPoint.x > 0f && ScreenPoint.x < Screen.width && ScreenPoint.y > 0f && ScreenPoint.y < Screen.height )
 			{
-				DrawRect.x = ScreenPoint.x - DrawRect.width*0.5f;
-				DrawRect.y = Screen.height - ( ScreenPoint.y + DrawRect.height*0.5f );
+				DrawPosition.x = ScreenPoint.x; // ScreenPoint.x - texture.width*0.5f;
+				DrawPosition.y = ScreenPoint.y; // Screen.height - ( ScreenPoint.y + texture.height*0.5f );
 			}
 			else // Off screen
 			{
@@ -174,8 +203,8 @@ namespace QuestSystem {
 				// Remove cooridnate traslation
 				ScreenPoint2D += screenCenter2D;
 
-				DrawRect.x = ScreenPoint2D.x - DrawRect.width*0.5f;
-				DrawRect.y = Screen.height - ( ScreenPoint2D.y + DrawRect.height*0.5f );
+				DrawPosition.x = ScreenPoint2D.x; // ScreenPoint2D.x - texture.width*0.5f;
+				DrawPosition.y = ScreenPoint2D.y; // Screen.height - ( ScreenPoint2D.y + texture.height*0.5f );
 			}
 		}
 	}

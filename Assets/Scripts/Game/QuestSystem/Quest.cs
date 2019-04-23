@@ -77,7 +77,7 @@ namespace QuestSystem {
 //				t.AddToQuest( this );
 				t.RegisterOnCompletion( OnTaskCompleted );
 			}
-			LocalQuestManager.Instance.AddQuest( this );
+//			LocalQuestManager.Instance.AddQuest( this );
 
 			/*
 			// Child Task
@@ -166,7 +166,7 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Activate
-		bool	IQuest.Activate()
+		public	bool	Activate()
 		{
 			if ( m_Tasks.Count == 0 )
 			{
