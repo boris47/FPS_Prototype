@@ -112,19 +112,6 @@ namespace QuestSystem {
 			IQuest quest = m_GlobalQuests[ (int)questIndex ];
 			return quest.Scope;
 		}
-
-		/*
-		//////////////////////////////////////////////////////////////////////////
-		// Update ( Interface )
-		void IQuestManager.Update()
-		{
-			for ( int i = 0; i < m_GlobalQuests.Count; i++ )
-			{
-				IQuest quest = m_GlobalQuests[i];
-				quest.Update();
-			}
-		}
-		*/
 	}
 
 }

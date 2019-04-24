@@ -240,7 +240,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		NotifyHit( startPosition, whoRef, damage, canPenetrate );
 		
 		this.OnTakeDamage( damage );
-		print( name + ":Taking damage " + damage );
+//		print( name + ":Taking damage " + damage );
 	}
 
 

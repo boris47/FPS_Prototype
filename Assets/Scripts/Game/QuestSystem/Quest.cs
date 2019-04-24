@@ -74,10 +74,8 @@ namespace QuestSystem {
 			// Already assigned
 			foreach( ITask t in m_Tasks )
 			{
-//				t.AddToQuest( this );
 				t.RegisterOnCompletion( OnTaskCompleted );
 			}
-//			LocalQuestManager.Instance.AddQuest( this );
 
 			/*
 			// Child Task
@@ -86,11 +84,8 @@ namespace QuestSystem {
 			{
 				foreach( ITask t in childTasks )
 				{
-					t.AddToQuest( this );
 					t.RegisterOnCompletion( OnTaskCompleted );
 				}
-
-				m_Tasks.AddRange( childTasks );
 				m_Tasks[0].Activate();
 			}
 			*/

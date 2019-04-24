@@ -11,7 +11,7 @@ namespace QuestSystem {
 		private	Collider			m_ObjectThatTrigger				= null;
 
 		[SerializeField]
-		private GameEvent			m_OnTriggerEnter				= null;
+		private GameEvent			m_OnTriggerEnter				= new GameEvent();
 
 		[SerializeField]
 		private	bool				m_OneTimeTrigger				= false;
@@ -51,6 +51,9 @@ namespace QuestSystem {
 		// OnTriggerEnter
 		private void OnTriggerEnter( Collider other )
 		{
+			if ( m_IsCurrentlyActive == false )
+				return;
+
 			if ( other.GetInstanceID() != m_ObjectThatTrigger.GetInstanceID() )
 				return;
 

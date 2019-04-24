@@ -30,11 +30,9 @@ namespace QuestSystem {
 			// Already assigned
 			foreach( IQuest q in m_LocalQuests )
 			{
-//				t.AddToQuest( this );
 				q.RegisterOnCompletion( OnQuestCompleted );
 			}
 			m_LocalQuests[0].Activate();
-//			LocalQuestManager.Instance.AddQuest( this );
 
 			/*
 			Quest[] alreadyAssignedQuests = GetComponentsInChildren<Quest>();
@@ -42,10 +40,8 @@ namespace QuestSystem {
 			{
 				foreach( IQuest q in alreadyAssignedQuests )
 				{
-					
+					q.RegisterOnCompletion( OnQuestCompleted );
 				}
-
-				m_LocalQuests.AddRange( alreadyAssignedQuests );
 				m_LocalQuests[0].Activate();
 			}
 			*/
@@ -141,19 +137,6 @@ namespace QuestSystem {
 			IQuest nextQuest = m_LocalQuests[ (int)questIndex ];
 			return nextQuest.Scope;
 		}
-
-		/*
-		//////////////////////////////////////////////////////////////////////////
-		// Update ( Interface )
-		void IQuestManager.Update()
-		{
-			for ( int i = 0; i < m_LocalQuests.Count; i++ )
-			{
-				IQuest quest = m_LocalQuests[i];
-				quest.Update();
-			}
-		}
-		*/
 	}
 
 }

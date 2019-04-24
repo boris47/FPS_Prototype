@@ -13,8 +13,6 @@ namespace QuestSystem {
 
 		void	RegisterOnCompletion( System.Action<ITask>	onCompletionCallback );
 
-//		void	OnObjectiveCompleted( IObjective objective );
-
 		bool	AddObjective		( IObjective newObjective );
 
 	}
@@ -48,7 +46,7 @@ namespace QuestSystem {
 			foreach( IObjective o in m_Objectives )
 			{
 				o.RegisterOnCompletion( OnObjectiveCompleted );
-				o.Init();
+				o.Init(); // Init every Objective
 			}
 //			m_Objectives[0].Enable();
 		}
