@@ -30,6 +30,7 @@ namespace QuestSystem {
 			// Already assigned
 			foreach( IQuest q in m_LocalQuests )
 			{
+				q.Initialize();
 				q.RegisterOnCompletion( OnQuestCompleted );
 			}
 			m_LocalQuests[0].Activate();

@@ -260,6 +260,12 @@ public partial class Player : Human {
 		rb.useGravity		= m_GrabbedObjectUseGravity;
 		rb.mass				= m_GrabbedObjectMass;
 
+		OnHitEventGrabbedHandler eventHandler = m_GrabbedObject.Transform.GetComponent<OnHitEventGrabbedHandler>();
+		if ( eventHandler )
+		{
+			Destroy( eventHandler );
+		}
+
 		Physics.IgnoreCollision( m_PhysicCollider, m_GrabbedObject.Interactable.Collider, ignore: false );
 
 		m_GrabbedObject		= null;

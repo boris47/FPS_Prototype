@@ -5,7 +5,7 @@ namespace QuestSystem {
 	
 	using System.Collections.Generic;
 
-	public interface ITask {
+	public interface ITask : IStateDefiner {
 
 		bool	IsCompleted			{ get; }
 
@@ -28,6 +28,7 @@ namespace QuestSystem {
 		private	System.Action<ITask>		m_OnCompletionCallback	= delegate { };
 		private	bool						m_IsCompleted			= false;
 		private	bool						m_IsCurrentlyActive		= false;
+		private	bool						m_IsInitialized			= false;
 
 		//--
 		bool		ITask.IsCompleted
@@ -35,20 +36,43 @@ namespace QuestSystem {
 			get { return m_IsCompleted; }
 		}
 
-
+		//--
+		public bool IsInitialized	// IStateDefiner
+		{
+			get { return m_IsInitialized; }
+		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// AWAKE
-		private void Awake()
+		// Initialize ( IStateDefiner )
+		public			bool		Initialize()
 		{
+			bool result = false;
+
 			// Already assigned
 			foreach( IObjective o in m_Objectives )
 			{
 				o.RegisterOnCompletion( OnObjectiveCompleted );
-				o.Init(); // Init every Objective
+				result &= o.Initialize(); // Init every Objective
 			}
-//			m_Objectives[0].Enable();
+
+			return result;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// ReInit ( IStateDefiner )
+		public			bool		ReInit()
+		{
+			return true;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// Finalize ( IStateDefiner )
+		public			bool		Finalize()
+		{
+			return true;
 		}
 
 
@@ -82,6 +106,8 @@ namespace QuestSystem {
 				// Internal Flag
 				m_IsCompleted = true;
 
+				m_IsCurrentlyActive = false;
+
 				if ( GlobalQuestManager.ShowDebugInfo )
 					print( "Completed Task " + name );
 
@@ -93,7 +119,7 @@ namespace QuestSystem {
 				m_OnCompletionCallback( this );
 			}
 			else
-			{
+			{	
 				int index = m_Objectives.IndexOf( objective as Objective_Base );
 				int nextIndex = ++index;
 				if ( nextIndex < m_Objectives.Count )

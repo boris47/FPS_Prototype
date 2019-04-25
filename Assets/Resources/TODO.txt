@@ -99,4 +99,5 @@ AI Behiaviours
 ***	TODO Player Foots need to be redone, single raycast is bad solution, mesh collider is not as good as could be
 ***	TODO Player gravity must return to be as real as cen be possible
 	TODO Rotate weapon, used when standby state or in front a surface where there is no enough space for the wpn to stay drawn
-	TODO Current Task Target UI Overlay Object
+***	TODO Current Task Target UI Overlay Object
+	TODO UI Indicators pool

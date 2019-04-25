@@ -18,7 +18,7 @@ namespace QuestSystem {
 		GLOBAL
 	}
 
-	public interface IQuest {
+	public interface IQuest : IStateDefiner {
 
 		bool			Activate();
 
@@ -47,6 +47,7 @@ namespace QuestSystem {
 		private	bool						m_IsCompleted				= false;
 		private	QuestStatus					m_Status					= QuestStatus.ASSIGNED;
 		private	QuestScope					m_Scope						= QuestScope.LOCAL;
+		private	bool						m_IsInitialized			= false;
 
 
 		//--
@@ -65,32 +66,46 @@ namespace QuestSystem {
 			get { return m_Scope; }
 		}
 		
+		//--
+		public bool IsInitialized	// IStateDefiner
+		{
+			get { return m_IsInitialized; }
+		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// AWAKE
-		private void Awake()
+		// Initialize ( IStateDefiner )
+		public			bool		Initialize()
 		{
+			bool result = false;
+
 			// Already assigned
 			foreach( ITask t in m_Tasks )
 			{
 				t.RegisterOnCompletion( OnTaskCompleted );
+				result &= t.Initialize();
 			}
 
-			/*
-			// Child Task
-			Task[] childTasks = GetComponentsInChildren<Task>();
-			if ( childTasks.Length > 0 )
-			{
-				foreach( ITask t in childTasks )
-				{
-					t.RegisterOnCompletion( OnTaskCompleted );
-				}
-				m_Tasks[0].Activate();
-			}
-			*/
+			return result;
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
+		// ReInit ( IStateDefiner )
+		public			bool		ReInit()
+		{
+			return true;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// Finalize ( IStateDefiner )
+		public			bool		Finalize()
+		{
+			return true;
+		}
+
+		
 
 		//////////////////////////////////////////////////////////////////////////
 		// AddTask ( Interface )

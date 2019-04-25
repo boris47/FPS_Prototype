@@ -5,7 +5,7 @@ using UnityEngine;
 
 
 /// <summary> Object pooler with a specified component added on every object </summary>
-public	class GameObjectsPool<T> where T : UnityEngine.Component  {
+public	class GameObjectsPool<T> : IEnumerable where T : UnityEngine.Component  {
 	
 	private	static	int			Counter				= 0;
 	private	GameObject			m_Container			= null;
@@ -13,6 +13,18 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	private	int					m_InternalIndex		= 0;
 	private	System.Action<T>	m_ActionOnObject	= delegate( T component ) { };
 	private	GameObject			m_ModelGO			= null;
+
+	// Iterations
+	IEnumerator IEnumerable.GetEnumerator()
+	{
+		return (IEnumerator) GetEnumerator();
+	}
+	
+	// Iterations
+	public List<T>.Enumerator  GetEnumerator()
+	{
+		return m_ObjectsPool.GetEnumerator();
+	}
 
 	public	bool				IsValid
 	{

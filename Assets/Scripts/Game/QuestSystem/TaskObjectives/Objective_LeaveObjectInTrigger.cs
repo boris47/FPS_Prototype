@@ -5,9 +5,13 @@ using UnityEngine;
 namespace QuestSystem {
 
 	[RequireComponent(typeof(Collider))]
-	public class Objective_Trigger : Objective_Base {
+	public class Objective_LeaveObjectInTrigger : Objective_Base {
+
+		[SerializeField]
+		private	Collider			m_ObjectThatTrigger				= null;
 
 		private	Collider			m_Collider						= null;
+
 
 
 		//////////////////////////////////////////////////////////////////////////
@@ -53,11 +57,14 @@ namespace QuestSystem {
 		// Activate ( IObjective )
 		public		override	void		Activate()
 		{
-			m_Collider.enabled = true;
+			if ( m_ObjectThatTrigger.IsNotNull() )
+			{
+				m_Collider.enabled = true;
 
-			m_IsCurrentlyActive = true;
-
-			UI.Instance.Indicators.EnableIndicator( m_Collider.gameObject, IndicatorType.AREA_TO_REACH );
+				UI.Instance.Indicators.EnableIndicator( m_Collider.gameObject, IndicatorType.AREA_WHERE_PLACE_OBJECT );
+			
+				m_IsCurrentlyActive = true;
+			}
 		}
 
 
@@ -65,11 +72,25 @@ namespace QuestSystem {
 		// Deactivate ( IObjective )
 		public		override	void		Deactivate()
 		{
-			m_Collider.enabled = false;
+			if ( m_ObjectThatTrigger.IsNotNull() )
+			{
+				m_Collider.enabled = false;
 
-			m_IsCurrentlyActive = false;
+				UI.Instance.Indicators.DisableIndicator( gameObject );
+			
+				m_IsCurrentlyActive = false;
+			}
+		}
 
-			UI.Instance.Indicators.DisableIndicator( gameObject );
+
+		//////////////////////////////////////////////////////////////////////////
+		// SetObjectToTrigger
+		public	void	SetObjectToTrigger( Collider objCollider )
+		{
+			if ( objCollider && objCollider.isTrigger == false )
+			{
+				m_ObjectThatTrigger = objCollider;
+			}
 		}
 
 
@@ -80,7 +101,7 @@ namespace QuestSystem {
 			if ( m_IsCurrentlyActive == false )
 				return;
 
-			if ( other != Player.Entity.PhysicCollider )
+			if ( other.GetInstanceID() != m_ObjectThatTrigger.GetInstanceID() )
 				return;
 
 			Deactivate();

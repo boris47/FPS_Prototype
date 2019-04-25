@@ -50,6 +50,7 @@ public interface IUI {
 	UI_Graphics				Graphics					{ get; }
 	UI_Audio				Audio						{ get; }
 	UI_Confirmation			Confirmation				{ get; }
+	UI_Indicators			Indicators					{ get; }
 
 	Image					EffectFrame					{ get; }
 
@@ -82,6 +83,7 @@ public class UI : MonoBehaviour, IUI, IStateDefiner {
 	private			UI_Confirmation			m_Confirmation					= null;
 	private			Image					m_EffectFrame					= null;
 	private			Transform				m_RayCastInterceptor			= null;
+	private			UI_Indicators			m_Indicators					= null;
 
 	// INTERFACE START
 					UI_MainMenu				IUI.MainMenu					{ get { return m_MainMenu; } }
@@ -93,6 +95,7 @@ public class UI : MonoBehaviour, IUI, IStateDefiner {
 					UI_Audio				IUI.Audio						{ get { return m_Audio; } }
 					Image					IUI.EffectFrame					{ get { return m_EffectFrame; } }
 					UI_Confirmation			IUI.Confirmation				{ get { return m_Confirmation; } }
+					UI_Indicators			IUI.Indicators					{ get { return m_Indicators; } }
 	// INTERFACE END
 
 
@@ -158,6 +161,9 @@ public class UI : MonoBehaviour, IUI, IStateDefiner {
 		m_bIsInitialized &= transform.SearchComponentInChild( "UI_Graphics",				ref m_Graphics );
 		m_bIsInitialized &= transform.SearchComponentInChild( "UI_Audio",					ref m_Audio );
 		m_bIsInitialized &= transform.SearchComponentInChild( "UI_Confirmation",			ref m_Confirmation );
+
+		// Indicators
+		m_bIsInitialized &= m_InGame.transform.SearchComponent( ref m_Indicators, SearchContext.CHILDREN );
 		
 		// Other Menus initialization
 		foreach( IStateDefiner state in transform.GetComponentOnlyInChildren<IStateDefiner>( deepSearch: true, includeInactive: true ) )

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using WeatherSystem;
-
+/*
 public class ResourceLoadTest : MonoBehaviour {
 
 	[SerializeField]
@@ -31,3 +31,4 @@ public class ResourceLoadTest : MonoBehaviour {
 	}
 
 }
+*/
