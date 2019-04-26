@@ -38,6 +38,9 @@ public partial interface IEntity {
 	// Transform where to play effects at
 	Transform				EffectsPivot					{ get; }
 
+	// Group all entity class events and functions
+	IEntityEvents			Events							{ get; }
+
 	// Entity brain
 	IBrain					Brain							{ get; }
 }
@@ -64,6 +67,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 //				Collider				IEntity.TriggerCollider				{	get { return m_TriggerCollider;	}	}
 				Transform				IEntity.EffectsPivot				{	get { return m_EffectsPivot;	}	}
 				IBrain					IEntity.Brain						{	get { return this;				}	}
+				IEntityEvents			IEntity.Events						{	get { return m_EventsInterface; }	}
 				ENTITY_TYPE				IEntity.EntityType					{	get { return m_EntityType;		}	}
 	// INTERFACE END
 
@@ -163,6 +167,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	{
 		m_ID				= NewID();
 		m_Interface			= this as IEntity;
+		m_EventsInterface	= this as IEntityEvents;
+		EnableEvents();
 
 		// config file
 		if ( GameManager.Configs.bGetSection( m_SectionName, ref m_SectionRef ) == false )

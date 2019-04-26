@@ -4,11 +4,17 @@ using UnityEngine;
 
 namespace QuestSystem {
 
+	using System.Collections.Generic;
+
 	public interface IObjective : IStateDefiner {
 
-		bool			IsCompleted				{get; }
+		bool			IsCompleted				{ get; }
+
+		bool			IsCurrentlyActive		{ get; }
 
 		void			AddToTask				( ITask task );
+
+		void			AddDependency			( Objective_Base other );
 
 		void			Activate();
 
@@ -23,7 +29,10 @@ namespace QuestSystem {
 	public abstract class Objective_Base : MonoBehaviour, IObjective {
 
 		[SerializeField]
-		private GameEvent							m_OnCompletion				= null;
+		private GameEvent							m_OnCompletion				= new GameEvent();
+
+		[SerializeField]
+		protected	List<Objective_Base>			m_Dependencies				= new List<Objective_Base>();
 
 		protected	System.Action<Objective_Base>	m_OnCompletionCallback		= delegate { };
 		protected	bool							m_IsCompleted				= false;
@@ -32,9 +41,15 @@ namespace QuestSystem {
 		protected	bool							m_IsInitialized				= false;
 
 		//--
-		bool			IObjective.IsCompleted
+		public	bool			IsCompleted
 		{
 			get { return m_IsCompleted; }
+		}
+
+		//--
+		public	bool			IsCurrentlyActive
+		{
+			get { return m_IsCurrentlyActive; }
 		}
 
 		//--
@@ -70,6 +85,17 @@ namespace QuestSystem {
 
 
 		//////////////////////////////////////////////////////////////////////////
+		// AddDependency ( Interface )
+		void			IObjective.AddDependency(Objective_Base other)
+		{
+			if ( other.IsCompleted == false && m_Dependencies.Contains( other ) == false )
+			{
+				m_Dependencies.Add( other );
+			}
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
 		// RegisterOnCompletion ( Interface )
 		void		IObjective.RegisterOnCompletion( System.Action<Objective_Base>	onCompletionCallback )
 		{
@@ -85,8 +111,10 @@ namespace QuestSystem {
 			m_IsCompleted = true;
 
 			// Unity Events
-			if ( m_OnCompletion != null && m_OnCompletion.GetPersistentEventCount() > 0 )
+			if ( m_OnCompletion.GetPersistentEventCount() > 0 )
+			{
 				m_OnCompletion.Invoke();
+			}
 
 			// Internal Delegates
 			m_OnCompletionCallback( this );

@@ -104,6 +104,10 @@ namespace QuestSystem {
 			if ( other.GetInstanceID() != m_ObjectThatTrigger.GetInstanceID() )
 				return;
 
+			// Require dependencies to be completed
+			if ( m_Dependencies.Count > 0 && m_Dependencies.FindIndex( o => o.IsCompleted == false ) > -1 )
+				return;
+
 			Deactivate();
 
 			OnObjectiveCompleted();

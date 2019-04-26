@@ -13,7 +13,7 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 	// READING PHASES
 	private	static int							READING_NOTHING		= 0;
 	private	static int							READING_SECTION		= 1;
-	private static int							READING_LIST		= 2;	// TODO Implement this
+///	private static int							READING_LIST		= 2;	// TODO Implement this
 
 	// CONTAINERS
 	private	Dictionary < string, Section >		m_SectionMap		= new Dictionary < string, Section > ();

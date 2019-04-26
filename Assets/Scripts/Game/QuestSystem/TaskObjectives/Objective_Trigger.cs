@@ -19,17 +19,11 @@ namespace QuestSystem {
 
 			m_IsInitialized = true;
 
-			bool result = false;
-
 			m_Collider = GetComponent<Collider>();
-			if ( m_Collider )
-			{
-				m_Collider.isTrigger = true;
-				m_Collider.enabled = false;
-				result = true;
-			}
+			m_Collider.isTrigger = true;
+			m_Collider.enabled = false;
 
-			return result;
+			return m_IsInitialized;
 		}
 
 
@@ -80,7 +74,11 @@ namespace QuestSystem {
 			if ( m_IsCurrentlyActive == false )
 				return;
 
-			if ( other != Player.Entity.PhysicCollider )
+			if ( other.GetInstanceID() != Player.Entity.PhysicCollider.GetInstanceID() )
+				return;
+
+			// Require dependencies to be completed
+			if ( m_Dependencies.Count > 0 && m_Dependencies.FindIndex( o => o.IsCompleted == false ) > -1 )
 				return;
 
 			Deactivate();

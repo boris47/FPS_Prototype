@@ -112,7 +112,7 @@ public class FragGranade : GranadeBase {
 //				}
 //				else
 				{
-					entity.OnHit( m_StartPosition, m_WhoRef, damage, m_CanPenetrate );
+					entity.Events.OnHittedDetails( m_StartPosition, m_WhoRef, damage, m_CanPenetrate );
 				}
 			}
 

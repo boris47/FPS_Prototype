@@ -1,17 +1,41 @@
 ﻿
 using UnityEngine;
 
-public partial interface IEntity {
-	// Evaluate bullet damage
-	void					CheckBulletHit					( Bullet hittingBullet );
+public struct EntityEvents {
+	public	delegate	void		HitWithBullet( IBullet bullet );
+	public	delegate	void		HitDetailsEvent( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false );
+	public	delegate	void		TargetEvent( TargetInfo targetInfo );
+	public	delegate	void		NavigationEvent( Vector3 Destination );
+	public	delegate	void		KilledEvent();
+}
 
+public interface IEntityEvents {
+
+
+	event				EntityEvents.KilledEvent			OnEvent_Killed;
 	// Directly damage
-	void					OnHit							( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false );
+	event				EntityEvents.HitDetailsEvent		OnEvent_HittedDetails;
+	// Evaluate bullet damage
+	event				EntityEvents.HitWithBullet			OnEvent_HittedBullet;
+	event				EntityEvents.TargetEvent			OnEvent_Target;
+	event				EntityEvents.NavigationEvent		OnEvent_Navigation;
+
+	void				EnableEvents						();
+	void				DisableEvents						();
+	bool				HasEventsEnabled					{ get; }
+
+	void				OnDestinationReached				( Vector3 Destination );
+	void				OnLookRotationReached				( Vector3 Direction );
+	
+	void				OnHittedBullet						( Bullet hittingBullet );
+	void				OnHittedDetails						( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false );
 }
 
 
-public abstract partial class Entity : MonoBehaviour, IEntity {
+public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	
+	private				IEntityEvents				m_EventsInterface				= null;
+	public				IEntityEvents				EventsInterface					{ get { return m_EventsInterface; } }
 
 	protected	event	EntityEvents.KilledEvent			m_OnKilled			= delegate { };
 	protected	event	EntityEvents.HitDetailsEvent		m_OnHittedDetails	= delegate { };
@@ -19,33 +43,55 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	protected	event	EntityEvents.TargetEvent			m_OnTarget			= delegate { };
 	protected	event	EntityEvents.NavigationEvent		m_OnNavigation		= delegate { };
 
-	public		event	EntityEvents.KilledEvent			OnKilled
+	public		event	EntityEvents.KilledEvent			OnEvent_Killed
 	{
 		add		{ if ( value != null ) m_OnKilled += value; }
 		remove	{ if ( value != null ) m_OnKilled -= value; }
 	}
-	public		event	EntityEvents.HitDetailsEvent		OnHittedDetails
+	public		event	EntityEvents.HitDetailsEvent		OnEvent_HittedDetails
 	{
 		add		{ if ( value != null ) m_OnHittedDetails += value; }
 		remove	{ if ( value != null ) m_OnHittedDetails -= value; }
 	}
-	public		event	EntityEvents.HitWithBullet			OnHittedBullet
+	public		event	EntityEvents.HitWithBullet			OnEvent_HittedBullet
 	{
 		add		{ if ( value != null ) m_OnHittedBullet += value; }
 		remove	{ if ( value != null ) m_OnHittedBullet -= value; }
 	}
-	public		event	EntityEvents.TargetEvent			OnTarget
+	public		event	EntityEvents.TargetEvent			OnEvent_Target
 	{
 		add		{ if ( value != null ) m_OnTarget += value; }
 		remove	{ if ( value != null ) m_OnTarget -= value; }
 	}
-	public		event	EntityEvents.NavigationEvent		OnNavigation
+	public		event	EntityEvents.NavigationEvent		OnEvent_Navigation
 	{
 		add		{ if ( value != null ) m_OnNavigation += value; }
 		remove	{ if ( value != null ) m_OnNavigation -= value; }
 	}
 
+	private		bool			m_HasEventsEnabled			= false;
 
+	//-
+	bool IEntityEvents.HasEventsEnabled
+	{
+		get { return m_HasEventsEnabled; }
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// EnableEvents
+	public		virtual		void		EnableEvents()
+	{
+		m_HasEventsEnabled = true;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// DisableEvents
+	public		virtual		void		DisableEvents()
+	{
+		m_HasEventsEnabled = false;
+	}
 
 
 	// Questa funzione viene chiamata durante il caricamento dello script o quando si modifica un valore nell'inspector (chiamata solo nell'editor)
@@ -191,7 +237,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public	void			CheckBulletHit( Bullet hittingBullet )
+	public	void			OnHittedBullet( Bullet hittingBullet )
 	{
 		bool bIsBullet = hittingBullet is IBullet;
 		if ( bIsBullet )
@@ -202,27 +248,10 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 				: 
 				1.0f;
 			
-			OnHit( bullet.StartPosition, bullet.WhoRef, bullet.DamageRandom * dmgMultiplier, bullet.CanPenetrate );
+			OnHittedDetails( bullet.StartPosition, bullet.WhoRef, bullet.DamageRandom * dmgMultiplier, bullet.CanPenetrate );
 		}
 	}
 
-	/*
-	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		void OnCollisionEnter( Collision collision )
-	{
-		IBullet bullet = null;
-		bool bIsBullet = Utils.Base.SearchComponent( collision.gameObject, ref bullet, SearchContext.CHILDREN );
-		if ( bIsBullet )
-		{
-			float dmgMultiplier = ( m_Shield != null && m_Shield.Status > 0.0f ) ? 
-				( bullet.CanPenetrate ) ? 0.5f : 0.0f
-				: 
-				1.0f;
-			
-			OnHit( bullet.StartPosition, bullet.WhoRef, bullet.DamageRandom * dmgMultiplier, bullet.CanPenetrate );
-		}
-	}
-	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void		NotifyHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
@@ -234,7 +263,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		virtual		void		OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
+	public		virtual		void		OnHittedDetails( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
 		// Notify behaviur
 		NotifyHit( startPosition, whoRef, damage, canPenetrate );
@@ -342,13 +371,4 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		Blackboard.UnRegister( this );
 	}
 
-}
-
-
-public struct EntityEvents {
-	public	delegate	void		HitWithBullet( IBullet bullet );
-	public	delegate	void		HitDetailsEvent( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false );
-	public	delegate	void		TargetEvent( TargetInfo targetInfo );
-	public	delegate	void		NavigationEvent( Vector3 Destination );
-	public	delegate	void		KilledEvent();
 }

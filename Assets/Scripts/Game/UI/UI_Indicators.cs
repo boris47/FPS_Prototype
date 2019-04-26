@@ -14,7 +14,9 @@ public enum IndicatorType {
 
 public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
-	private	const	int	MAX_ELEMENTS = 30;
+	private	const	float		MAX_DISTANCE_TO_RESIZE = 25f;
+	private	const	float		MIN_DISTANCE_TO_RESIZE = 2f;
+	private	const	int			MAX_ELEMENTS = 30;
 
 	private		SpriteCollection					m_SpriteCollection			= null;
 
@@ -168,87 +170,92 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 	}
 
 
-
-
-
-
-
-
 	//////////////////////////////////////////////////////////////////////////
 	// DrawUIElementOnObjectives
 	protected	static void	DrawUIElementOnObjectives( Transform targetTransform, Transform m_IconTransform )
+	{
+		Camera camera = CameraControl.Instance.MainCamera;
+
+		// Icon Scale Factor
+		float scaleFactor = 1.0f;
+		float distance = Vector3.Distance( camera.transform.position,targetTransform.position );
+		if ( distance > MIN_DISTANCE_TO_RESIZE )
 		{
-			Camera camera = CameraControl.Instance.MainCamera;
-
-		//  Ref: https://www.youtube.com/watch?v=gAQpR1GN0Os
-		//  Viewport space is normalized and relative to the camera. The bottom-left of the camera is (0,0); the top-right is (1,1). The z position is in world units from the camera.
-		//  Screenspace is defined in pixels. The bottom-left of the screen is (0,0); the right-top is (pixelWidth,pixelHeight). The z position is in world units from the camera.
-		//	Vector3 ViewportPoint = camera.WorldToViewportPoint( taretTransform.position );
-			Vector3 ScreenPoint = camera.WorldToScreenPoint( targetTransform.position );	
-			Vector3 DrawPosition = Vector3.zero;
-
-			// Normal projection because inside screen
-			if ( ScreenPoint.z > 0f && ScreenPoint.x > 0f && ScreenPoint.x < Screen.width && ScreenPoint.y > 0f && ScreenPoint.y < Screen.height )
-			{
-				DrawPosition.x = ScreenPoint.x; // ScreenPoint.x - texture.width*0.5f;
-				DrawPosition.y = ScreenPoint.y; // Screen.height - ( ScreenPoint.y + texture.height*0.5f );
-			}
-			else // Off screen
-			{
-				bool bIsBehind = ScreenPoint.z < 0.0f;
-				if ( bIsBehind )
-				{
-					ScreenPoint *= -1.0f;
-				}
-
-				Vector2 ScreenPoint2D = ScreenPoint;
-				Vector2 screenCenter2D = new Vector2( Screen.width, Screen.height ) * 0.5f;
-
-				// NOTE COORDINATE TRASLATED
-				// make 0, 0 the center of screen inteead of bottom left
-				ScreenPoint2D -= screenCenter2D;
-
-				// Find angle from center of screen to mouse position
-				float angle = Mathf.Atan2( ScreenPoint2D.y, ScreenPoint2D.x ) - 90f * Mathf.Deg2Rad;
-				float cos = Mathf.Cos( angle );
-				float sin = -Mathf.Sin( angle );
-
-				const float amplify = 150f;
-				ScreenPoint2D.Set( screenCenter2D.x + sin * amplify, screenCenter2D.y + cos * amplify );
-
-				// y = mx + b format
-				float m = cos / sin;
-
-				Vector2 screenBounds = screenCenter2D * 0.9f;
-
-				// Check up and down first
-				if ( cos > 0.0f )
-				{
-					ScreenPoint2D.Set( screenBounds.y/m, screenBounds.y );
-				}
-				else // down
-				{
-					ScreenPoint2D.Set( -screenBounds.y/m, -screenBounds.y );
-				}
-
-				// If out of bounds, get point on appropriate side
-				if ( ScreenPoint2D.x > screenBounds.x ) // out of bounds, must be on right
-				{
-					ScreenPoint2D.Set( screenBounds.x, screenBounds.x*m );
-				}
-				else if ( ScreenPoint2D.x < -screenBounds.x ) // out of bounds left
-				{
-					ScreenPoint2D.Set( -screenBounds.x, -screenBounds.x*m );
-				}
-
-				// Remove cooridnate traslation
-				ScreenPoint2D += screenCenter2D;
-
-				DrawPosition.x = ScreenPoint2D.x; // ScreenPoint2D.x - texture.width*0.5f;
-				DrawPosition.y = ScreenPoint2D.y; // Screen.height - ( ScreenPoint2D.y + texture.height*0.5f );
-			}
-
-			m_IconTransform.position = DrawPosition;
+			float interpolant = 1.0f - Utils.Math.ScaleBetween( distance, MAX_DISTANCE_TO_RESIZE, MIN_DISTANCE_TO_RESIZE );
+			scaleFactor = Mathf.Clamp( interpolant, 0.5f, 1.0f );
+			m_IconTransform.localScale = Vector3.one * scaleFactor;
 		}
+
+
+	//  Ref: https://www.youtube.com/watch?v=gAQpR1GN0Os
+	//  Viewport space is normalized and relative to the camera. The bottom-left of the camera is (0,0); the top-right is (1,1). The z position is in world units from the camera.
+	//  Screenspace is defined in pixels. The bottom-left of the screen is (0,0); the right-top is (pixelWidth,pixelHeight). The z position is in world units from the camera.
+	//	Vector3 ViewportPoint = camera.WorldToViewportPoint( taretTransform.position );
+		Vector3 ScreenPoint = camera.WorldToScreenPoint( targetTransform.position );	
+		Vector3 DrawPosition = Vector3.zero;
+
+		// Normal projection because inside screen
+		if ( ScreenPoint.z > 0f && ScreenPoint.x > 0f && ScreenPoint.x < Screen.width && ScreenPoint.y > 0f && ScreenPoint.y < Screen.height )
+		{
+			DrawPosition.x = ScreenPoint.x; // ScreenPoint.x - texture.width*0.5f;
+			DrawPosition.y = ScreenPoint.y; // Screen.height - ( ScreenPoint.y + texture.height*0.5f );
+		}
+		else // Off screen
+		{
+			bool bIsBehind = ScreenPoint.z < 0.0f;
+			if ( bIsBehind )
+			{
+				ScreenPoint *= -1.0f;
+			}
+
+			Vector2 ScreenPoint2D = ScreenPoint;
+			Vector2 screenCenter2D = new Vector2( Screen.width, Screen.height ) * 0.5f;
+
+			// NOTE COORDINATE TRASLATED
+			// make 0, 0 the center of screen inteead of bottom left
+			ScreenPoint2D -= screenCenter2D;
+
+			// Find angle from center of screen to mouse position
+			float angle = Mathf.Atan2( ScreenPoint2D.y, ScreenPoint2D.x ) - 90f * Mathf.Deg2Rad;
+			float cos = Mathf.Cos( angle );
+			float sin = -Mathf.Sin( angle );
+
+			const float amplify = 150f;
+			ScreenPoint2D.Set( screenCenter2D.x + sin * amplify, screenCenter2D.y + cos * amplify );
+
+			// y = mx + b format
+			float m = cos / sin;
+
+			Vector2 screenBounds = screenCenter2D * 0.9f;
+
+			// Check up and down first
+			if ( cos > 0.0f )
+			{
+				ScreenPoint2D.Set( screenBounds.y/m, screenBounds.y );
+			}
+			else // down
+			{
+				ScreenPoint2D.Set( -screenBounds.y/m, -screenBounds.y );
+			}
+
+			// If out of bounds, get point on appropriate side
+			if ( ScreenPoint2D.x > screenBounds.x ) // out of bounds, must be on right
+			{
+				ScreenPoint2D.Set( screenBounds.x, screenBounds.x*m );
+			}
+			else if ( ScreenPoint2D.x < -screenBounds.x ) // out of bounds left
+			{
+				ScreenPoint2D.Set( -screenBounds.x, -screenBounds.x*m );
+			}
+
+			// Remove cooridnate traslation
+			ScreenPoint2D += screenCenter2D;
+
+			DrawPosition.x = ScreenPoint2D.x; // ScreenPoint2D.x - texture.width*0.5f;
+			DrawPosition.y = ScreenPoint2D.y; // Screen.height - ( ScreenPoint2D.y + texture.height*0.5f );
+		}
+
+		m_IconTransform.position = DrawPosition;
+	}
 	
 }

@@ -137,40 +137,57 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// OnTaskCompleted
+		private void OnQuestCompleted()
+		{
+			// Internal Flag
+			m_Status = QuestStatus.COMPLETED;
+
+			m_IsCompleted = true;
+
+			if ( GlobalQuestManager.ShowDebugInfo )
+				print( "Completed quest " + name );
+
+			// Unity Events
+			if ( m_OnCompletion != null && m_OnCompletion.GetPersistentEventCount() > 0 )
+				m_OnCompletion.Invoke();
+
+			// Internal Delegates
+			m_OnCompletionCallback(this);
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// OnTaskCompleted
 		private	void	OnTaskCompleted( ITask task )
 		{
+
 			bool bIsQuestCompleted = true;
 			foreach( ITask t in m_Tasks )
 			{
 				bIsQuestCompleted &= t.IsCompleted;
 			}
 
-			if ( bIsQuestCompleted )
+			if ( bIsQuestCompleted == false )
 			{
-				// Internal Flag
-				m_Status = QuestStatus.COMPLETED;
-
-				m_IsCompleted = true;
-
-				if ( GlobalQuestManager.ShowDebugInfo )
-					print( "Completed quest " + name );
-
-				// Unity Events
-				if ( m_OnCompletion != null && m_OnCompletion.GetPersistentEventCount() > 0 )
-					m_OnCompletion.Invoke();
-
-				// Internal Delegates
-				m_OnCompletionCallback(this);
-			}
-			else
-			{
-				int index = m_Tasks.IndexOf( task as Task );
-				int nextIndex = ++index;
+				ITask nextTask = null;
+				int nextIndex = ( m_Tasks.IndexOf( task as Task ) + 1 );
 				if ( nextIndex < m_Tasks.Count )
 				{
-					m_Tasks[ nextIndex ].Activate();
+					nextTask = m_Tasks[nextIndex];
 				}
+				// Some tasks are completed and sequence is broken, search for a valid target randomly among availables
+				else
+				{
+					nextTask = m_Tasks.Find( t => t.IsCompleted == false ) as ITask;
+				}
+
+				nextTask.Activate();
+				return;
 			}
+
+			// Only Called if trurly completed
+			OnQuestCompleted();
+
 		}
 
 

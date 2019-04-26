@@ -42,8 +42,8 @@ namespace WeatherSystem {
 		[SerializeField, Tooltip("The height above the camera that the rain will start falling from")]
 		private		float					m_RainHeight					= 25.0f;
 
-		[SerializeField, Tooltip("How far the rain particle system is ahead of the player")]
-		private		float					m_RainForwardOffset				= -1.5f;
+//		[SerializeField, Tooltip("How far the rain particle system is ahead of the player")]
+//		private		float					m_RainForwardOffset				= -1.5f;
 
 
 		// PRIVATE PROPERTIES

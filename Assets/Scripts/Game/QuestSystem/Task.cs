@@ -7,6 +7,10 @@ namespace QuestSystem {
 
 	public interface ITask : IStateDefiner {
 
+		bool	Activate			();
+
+		bool	Deactivate			();
+
 		bool	IsCompleted			{ get; }
 
 		void	AddToQuest			( IQuest quest );
@@ -31,7 +35,7 @@ namespace QuestSystem {
 		private	bool						m_IsInitialized			= false;
 
 		//--
-		bool		ITask.IsCompleted
+		public bool		IsCompleted
 		{
 			get { return m_IsCompleted; }
 		}
@@ -92,41 +96,63 @@ namespace QuestSystem {
 
 
 		//////////////////////////////////////////////////////////////////////////
+		// OnTaskCompleted
+		private void OnTaskCompleted()
+		{
+			// Internal Flag
+			m_IsCompleted = true;
+
+			m_IsCurrentlyActive = false;
+
+			if ( GlobalQuestManager.ShowDebugInfo )
+				print( "Completed Task " + name );
+
+			// Unity Events
+			if ( m_OnCompletion != null && m_OnCompletion.GetPersistentEventCount() > 0 )
+				m_OnCompletion.Invoke();
+
+			// Internal Delegates
+			m_OnCompletionCallback( this );
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
 		// OnObjectiveCompleted ( Interface )
 		private	void	OnObjectiveCompleted( IObjective objective )
 		{
+			objective.Deactivate();
+
 			bool bIsTaskCompleted = true;
 			foreach( IObjective o in m_Objectives )
 			{
 				bIsTaskCompleted &= o.IsCompleted;
 			}
 
-			if ( bIsTaskCompleted )
+			if ( bIsTaskCompleted == false )
 			{
-				// Internal Flag
-				m_IsCompleted = true;
-
-				m_IsCurrentlyActive = false;
-
-				if ( GlobalQuestManager.ShowDebugInfo )
-					print( "Completed Task " + name );
-
-				// Unity Events
-				if ( m_OnCompletion != null && m_OnCompletion.GetPersistentEventCount() > 0 )
-					m_OnCompletion.Invoke();
-
-				// Internal Delegates
-				m_OnCompletionCallback( this );
-			}
-			else
-			{	
-				int index = m_Objectives.IndexOf( objective as Objective_Base );
-				int nextIndex = ++index;
-				if ( nextIndex < m_Objectives.Count )
+				if ( m_IsCurrentlyActive )
 				{
-					m_Objectives[ nextIndex ].Activate();
+					IObjective nextObjective = null;
+					int nextIndex = ( m_Objectives.IndexOf( objective as Objective_Base ) + 1 );
+					if ( nextIndex < m_Objectives.Count )
+					{
+						nextObjective = m_Objectives[ nextIndex ];
+					}
+					// Some objectives are completed and sequence is broken, search for a valid target randomly among availables
+					else
+					{
+						nextObjective = m_Objectives.Find( o => o.IsCompleted == false ) as IObjective;
+					}
+					if ( nextObjective.IsCurrentlyActive == false && nextObjective.IsCompleted == false )
+					{
+						nextObjective.Activate();
+					}
 				}
+				return;
 			}
+			
+			// Only Called if trurly completed
+			OnTaskCompleted();
 		}
 
 
@@ -153,9 +179,29 @@ namespace QuestSystem {
 
 			m_IsCurrentlyActive = true;
 
-///			print( name + " task activated" );
-			// Activate first objective
-			m_Objectives[ 0 ].Activate();
+			if ( GlobalQuestManager.ShowDebugInfo )
+				print( name + " task activation" );
+			
+			int index = m_Objectives.FindIndex( o => o.IsCompleted == false );
+
+			// If task is completed on it's activation call for completion
+			if ( index == -1 )
+			{
+				OnTaskCompleted();
+			}
+			else // Otherwise active the first available objective
+			{
+				m_Objectives[index].Activate();
+			}
+
+			return true;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// Deactivate
+		public	bool	Deactivate()
+		{
 			return true;
 		}
 

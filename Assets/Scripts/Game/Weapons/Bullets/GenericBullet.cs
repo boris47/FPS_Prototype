@@ -111,7 +111,7 @@ public class GenericBullet : Bullet {
 
 			if ( bIsAnEntity )
 			{
-				entity.CheckBulletHit( this );
+				entity.Events.OnHittedBullet( this );
 			}
 			else
 			if ( bIsShield )
@@ -222,7 +222,7 @@ public class GenericBullet : Bullet {
 		{
 			effectToPlay = EffectType.ENTITY_ON_HIT;
 			entity.RigidBody.angularVelocity = entity.RigidBody.velocity = Vector3.zero;
-			entity.CheckBulletHit( this );
+			entity.Events.OnHittedBullet( this );
 		}
 		else
 		{

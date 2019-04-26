@@ -5,7 +5,7 @@ namespace QuestSystem {
 
 	public class Objective_Interact : Objective_Base {
 		
-		private	Interactable	m_Interactable = null;
+		private	IInteractable	m_Interactable = null;
 
 
 		//////////////////////////////////////////////////////////////////////////
@@ -17,17 +17,12 @@ namespace QuestSystem {
 
 			m_IsInitialized = true;
 
-			bool result = false;
+			m_Interactable = GetComponent<IInteractable>();
+			m_Interactable.CanInteract = true;
+			m_Interactable.OnInteractionCallback += OnInteraction;
+			m_Interactable.OnRetroInteractionCallback += OnRetroInteraction;
 
-			m_Interactable = GetComponent<Interactable>();
-			if ( m_Interactable )
-			{
-				m_Interactable.CanInteract = true;
-				m_Interactable.OnInteractionCallback += OnInteraction;
-				result = true;
-			}
-
-			return result;
+			return m_IsInitialized;
 		}
 
 
@@ -50,8 +45,8 @@ namespace QuestSystem {
 		//////////////////////////////////////////////////////////////////////////
 		// Activate ( IObjective )
 		public		override	void		Activate()
-		{
-			UI.Instance.Indicators.EnableIndicator( m_Interactable.gameObject, IndicatorType.OBJECT_TO_INTERACT );
+		{	
+			UI.Instance.Indicators.EnableIndicator( m_Interactable.Collider.gameObject, IndicatorType.OBJECT_TO_INTERACT );
 
 			m_IsCurrentlyActive = true;
 		}
@@ -71,12 +66,23 @@ namespace QuestSystem {
 		// OnInteraction
 		private void	OnInteraction()
 		{
-			if ( m_IsCompleted == true )
-				return;
-
 			Deactivate();
 			
 			OnObjectiveCompleted();
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// OnRetroInteraction
+		private	void	OnRetroInteraction()
+		{
+			// Require dependencies to be completed
+			if ( m_Dependencies.Count > 0 && m_Dependencies.FindIndex( o => o.IsCompleted == false ) > -1 )
+			{
+				Activate();
+
+				m_IsCompleted = false;
+			}
 		}
 
 	}

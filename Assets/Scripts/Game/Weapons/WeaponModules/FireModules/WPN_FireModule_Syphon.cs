@@ -189,7 +189,7 @@ public class WPN_FireModule_Syphon : WPN_FireModule {
 				if ( entity != null )
 				{
 					// Do damage scaled with time scale
-					entity.OnHit( transform.position, Player.Instance, m_Damage * Time.timeScale, false );
+					entity.Events.OnHittedDetails( transform.position, Player.Instance, m_Damage * Time.timeScale, false );
 
 					EffectManager.Instance.PlayEffect( EffectType.PLASMA, m_Laser.RayCastHit.point, m_Laser.RayCastHit.normal, 1 );
 				}

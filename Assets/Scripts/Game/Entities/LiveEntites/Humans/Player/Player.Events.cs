@@ -113,7 +113,7 @@ public partial class Player {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		override	void		OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
+	public		override	void		OnHittedDetails( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
 		m_Health -= damage;
 		UI.Instance.InGame.UpdateUI();

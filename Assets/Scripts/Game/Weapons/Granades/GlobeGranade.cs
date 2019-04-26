@@ -125,7 +125,7 @@ public class GlobeGranade : GranadeBase {
 	{
 		m_Entites.ForEach( ( Entity entity ) =>
 		{
-			entity.OnHit( m_StartPosition, m_WhoRef, m_DamageMax * m_DamageMult, m_CanPenetrate );
+			entity.OnHittedDetails( m_StartPosition, m_WhoRef, m_DamageMax * m_DamageMult, m_CanPenetrate );
 		} );
 	}
 

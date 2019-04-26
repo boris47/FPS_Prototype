@@ -20,16 +20,10 @@ namespace QuestSystem {
 
 			m_IsInitialized = true;
 
-			bool result = false;
+			m_Target = GetComponent<Entity>();
+			m_Target.OnEvent_Killed += OnKill;
 
-			m_Target	= GetComponent<Entity>();
-			if ( m_Target )
-			{
-				m_Target.OnKilled += OnKill;
-				result = true;
-			}
-
-			return result;
+			return m_IsInitialized;
 		}
 
 

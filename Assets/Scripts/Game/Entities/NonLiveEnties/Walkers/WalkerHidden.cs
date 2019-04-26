@@ -5,8 +5,8 @@ using UnityEngine;
 public class WalkerHidden : Walker {
 	
 
-	private		bool		m_InTransition	= false;
-	private		bool		m_IsEnabled		= false;
+///	private		bool		m_InTransition	= false;
+///	private		bool		m_IsEnabled		= false;
 	private		Animator	m_Animator		= null;
 
 	private		Vector3		m_BulletStartPositon = Vector3.zero;
@@ -148,8 +148,8 @@ public class WalkerHidden : Walker {
 	// Activate
 	private		void	Activate()
 	{
-		m_IsEnabled = true;
-		m_InTransition = true;
+///		m_IsEnabled = true;
+///		m_InTransition = true;
 		m_Animator.Play( "Enable", -1, 0.0f );
 	}
 
@@ -158,8 +158,8 @@ public class WalkerHidden : Walker {
 	// Deactivate
 	private		void	Deactivate()
 	{
-		m_IsEnabled = false;
-		m_InTransition = true;
+///		m_IsEnabled = false;
+///		m_InTransition = true;
 		m_Animator.Play( "Disable", -1, 0.0f );
 	}
 
@@ -171,7 +171,7 @@ public class WalkerHidden : Walker {
 //		if ( m_IsEnabled == true )
 //			m_PointToFace = m_BulletStartPositon;
 
-		m_InTransition = false;
+///		m_InTransition = false;
 	}
 	
 }

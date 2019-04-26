@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class TurretHidden : Turret {
 
-	private		bool		m_InTransition	= false;
-	private		bool		m_IsEnabled		= false;
+///	private		bool		m_InTransition	= false;
+///	private		bool		m_IsEnabled		= false;
 	private		Animator	m_Animator		= null;
 
 	private		Vector3		m_BulletStartPositon = Vector3.zero;

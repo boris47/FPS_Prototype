@@ -266,6 +266,8 @@ public partial class Player : Human {
 			Destroy( eventHandler );
 		}
 
+		m_GrabbedObject.Interactable.OnRetroInteraction();
+
 		Physics.IgnoreCollision( m_PhysicCollider, m_GrabbedObject.Interactable.Collider, ignore: false );
 
 		m_GrabbedObject		= null;
@@ -343,6 +345,16 @@ public partial class Player : Human {
 	private	void	InteractionAction()
 	{
 		m_Interactable.OnInteraction();
+/*
+		if ( m_Interactable.HasRetroInteraction && m_Interactable.HasInteracted )
+		{
+			m_Interactable.OnRetroInteraction();
+		}
+		else
+		{
+			m_Interactable.OnInteraction();
+		}
+*/
 	}
 
 

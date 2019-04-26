@@ -27,12 +27,27 @@ namespace Utils {
 		/// <param name="Val1"></param>
 		/// <param name="Val2"></param>
 		/// <returns></returns>
-		public	static		bool		BetweenValues( float Value, float Val1, float Val2 )
+		public	static		bool		IsBetweenValues( float Value, float Val1, float Val2 )
 		{
 			float minBound = Mathf.Min( Val1, Val2 );
 			float maxBound = Mathf.Max( Val1, Val2 );
 
 			return Value > minBound && Val1 < maxBound;
+		}
+
+
+		/// Ref: https://stackoverflow.com/a/28957910
+		/// <summary>
+		/// Return the scaled factor between given limits
+		/// Ex: CurrentDistance, MAX_DISTANCE, MIN_DISTANCE ( 0 -> 1 [ MinLimit -> CurrentValue -> MaxLimit ] )
+		/// </summary>
+		/// <param name="CurrentValue"></param>
+		/// <param name="MinLimit"></param>
+		/// <param name="MaxLimit"></param>
+		/// <returns></returns>
+		public static float ScaleBetween( float CurrentValue, float MinLimit, float MaxLimit )
+		{
+			return ( (CurrentValue - MinLimit) / ( MaxLimit - MinLimit ) );
 		}
 
 
