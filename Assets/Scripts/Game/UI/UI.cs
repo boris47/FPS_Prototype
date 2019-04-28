@@ -15,7 +15,20 @@ public interface IStateDefiner {
 
 	/// <summary> Finalize the component </summary>
 	bool Finalize			();
+}
 
+public interface IStateDefiner<T> {
+
+	/// <summary> Return the current initialized state </summary>
+	bool IsInitialized		{ get; }
+
+	/// <summary> Initialize the component </summary>
+	bool Initialize			( T Initializer );
+
+	bool ReInit				();
+
+	/// <summary> Finalize the component </summary>
+	bool Finalize			();
 }
 
 public interface IUIOptions {
@@ -68,7 +81,7 @@ public interface IUI {
 
 
 
-public class UI : MonoBehaviour, IUI, IStateDefiner {
+public class UI : MonoBehaviour, IUI, IStateDefiner{
 
 	public	static	IUI						Instance						= null;
 

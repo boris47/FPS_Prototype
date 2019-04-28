@@ -1,5 +1,4 @@
 ﻿
-using System;
 using UnityEngine;
 
 
@@ -13,15 +12,20 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Initialize ( IStateDefiner )
-		public		override	bool		Initialize()
+		public		override	bool		Initialize( ITask motherTask )
 		{
 			if ( m_IsInitialized == true )
 				return true;
 
 			m_IsInitialized = true;
 
-			m_Target = GetComponent<Entity>();
-			m_Target.OnEvent_Killed += OnKill;
+			bool bIsGoodResult = Utils.Base.SearchComponent( gameObject, ref m_Target, SearchContext.LOCAL );
+			if ( bIsGoodResult )
+			{
+				m_Target.OnEvent_Killed += OnKill;
+
+				motherTask.AddObjective( this );
+			}
 
 			return m_IsInitialized;
 		}
@@ -40,6 +44,22 @@ namespace QuestSystem {
 		public		override	bool		Finalize()
 		{
 			return true;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// OnSave
+		public override void OnSave( StreamUnit streamUnit )
+		{
+			
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// OnLoad
+		public override void OnLoad( StreamUnit streamUnit )
+		{
+			
 		}
 
 

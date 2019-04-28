@@ -26,7 +26,7 @@ namespace QuestSystem {
 		QuestStatus		Status			{ get; }
 		QuestScope		Scope			{ get; }
 
-		bool			AddTask			( ITask newTask );
+		bool			AddTask			( Task newTask );
 
 		void			RegisterOnCompletion( System.Action<IQuest>	onCompletionCallback );
 
@@ -47,19 +47,16 @@ namespace QuestSystem {
 		private	bool						m_IsCompleted				= false;
 		private	QuestStatus					m_Status					= QuestStatus.ASSIGNED;
 		private	QuestScope					m_Scope						= QuestScope.LOCAL;
-		private	bool						m_IsInitialized			= false;
+		private	bool						m_IsInitialized				= false;
 
 
-		//--
-		bool		IQuest.IsCompleted
-		{
-			get { return m_IsCompleted; }
-		}
+
 		//--
 		QuestStatus		IQuest.Status
 		{
 			get { return m_Status; }
 		}
+
 		//--
 		QuestScope		IQuest.Scope
 		{
@@ -67,7 +64,13 @@ namespace QuestSystem {
 		}
 		
 		//--
-		public bool IsInitialized	// IStateDefiner
+		public	bool		IsCompleted	// IQuest
+		{
+			get { return m_IsCompleted; }
+		}
+
+		//--
+		public bool		IsInitialized	// IStateDefiner
 		{
 			get { return m_IsInitialized; }
 		}
@@ -83,8 +86,12 @@ namespace QuestSystem {
 			foreach( ITask t in m_Tasks )
 			{
 				t.RegisterOnCompletion( OnTaskCompleted );
-				result &= t.Initialize();
+				result &= t.Initialize(this);
 			}
+
+			// Registering game events
+			GameManager.StreamEvents.OnSave += OnSave;
+			GameManager.StreamEvents.OnLoad += OnLoad;
 
 			return result;
 		}
@@ -102,25 +109,56 @@ namespace QuestSystem {
 		// Finalize ( IStateDefiner )
 		public			bool		Finalize()
 		{
+			// UnRegistering game events
+			GameManager.StreamEvents.OnSave -= OnSave;
+			GameManager.StreamEvents.OnLoad -= OnLoad;
 			return true;
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
+		// OnSave
+		protected	virtual		StreamUnit		OnSave( StreamData streamData )
+		{
+			StreamUnit streamUnit	= streamData.NewUnit( gameObject );
+			{
+				m_Tasks.ForEach( t => t.OnSave( streamUnit ) );
+			}
+			return streamUnit;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// OnLoad
+		protected	virtual		StreamUnit		OnLoad( StreamData streamData )
+		{
+			StreamUnit streamUnit = null;
+			if ( streamData.GetUnit( gameObject, ref streamUnit ) )
+			{
+				m_Tasks.ForEach( t => t.OnLoad( streamUnit ) );
+			}
+			return streamUnit;
+		}
 		
 
 		//////////////////////////////////////////////////////////////////////////
-		// AddTask ( Interface )
-		bool			IQuest.AddTask( ITask newTask )
+		// AddTask ( IQuest )
+		bool			IQuest.AddTask( Task newTask )
 		{
 			if ( newTask == null )
 				return false;
 
-			m_Tasks.Add( newTask as Task );
+			if ( m_Tasks.Contains( newTask ) == true )
+				return true;
+
+			newTask.Initialize(this);
+			m_Tasks.Add( newTask );
 			return true;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// RegisterOnCompletion ( Interface )
+		// RegisterOnCompletion ( IQuest )
 		void			IQuest.RegisterOnCompletion( System.Action<IQuest>	onCompletionCallback )
 		{
 			m_OnCompletionCallback = onCompletionCallback;
@@ -153,6 +191,8 @@ namespace QuestSystem {
 
 			// Internal Delegates
 			m_OnCompletionCallback(this);
+
+			Finalize();
 		}
 
 

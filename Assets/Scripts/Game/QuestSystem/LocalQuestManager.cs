@@ -9,8 +9,8 @@ namespace QuestSystem {
 
 	public class LocalQuestManager : MonoBehaviour, IQuestManager {
 
-		private	static	IQuestManager m_Instance = null;
-		public	static	IQuestManager Instance
+		private		static IQuestManager		m_Instance						= null;
+		public		static	IQuestManager		Instance
 		{
 			get { return m_Instance; }
 		}
@@ -33,19 +33,10 @@ namespace QuestSystem {
 				q.Initialize();
 				q.RegisterOnCompletion( OnQuestCompleted );
 			}
-			m_LocalQuests[0].Activate();
-
-			/*
-			Quest[] alreadyAssignedQuests = GetComponentsInChildren<Quest>();
-			if ( alreadyAssignedQuests.Length > 0 )
+			if ( m_LocalQuests.Count > 0 )
 			{
-				foreach( IQuest q in alreadyAssignedQuests )
-				{
-					q.RegisterOnCompletion( OnQuestCompleted );
-				}
 				m_LocalQuests[0].Activate();
 			}
-			*/
 		}
 
 
@@ -64,12 +55,7 @@ namespace QuestSystem {
 			if ( completedQuest.Scope != QuestScope.LOCAL )
 				return;
 
-			bool bAreQuestsCompleted = true;
-			foreach( IQuest q in m_LocalQuests )
-			{
-				bAreQuestsCompleted &= q.IsCompleted;
-			}
-
+			bool bAreQuestsCompleted = m_LocalQuests.TrueForAll( ( Quest q ) => { return q.IsCompleted == true; } );
 			if ( bAreQuestsCompleted )
 			{
 				if ( GlobalQuestManager.ShowDebugInfo )
@@ -77,8 +63,7 @@ namespace QuestSystem {
 			}
 			else
 			{
-				int index = m_LocalQuests.IndexOf( completedQuest as Quest );
-				int nextIndex = ++index;
+				int nextIndex = ( m_LocalQuests.IndexOf( completedQuest as Quest ) + 1 );
 				if ( nextIndex < m_LocalQuests.Count )
 				{
 					IQuest nextQuest = m_LocalQuests[ nextIndex ];
@@ -110,10 +95,11 @@ namespace QuestSystem {
 			if ( newQuest.Status == QuestStatus.NONE )
 				return false;
 
-			if ( m_LocalQuests.Contains( newQuest as Quest ) == false )
+			Quest quest = newQuest as Quest;
+			if ( m_LocalQuests.Contains( quest ) == false )
 				return false;
 
-//			m_LocalQuests.Add( newQuest as Quest );
+			m_LocalQuests.Add( quest );
 			newQuest.RegisterOnCompletion( OnQuestCompleted );
 			newQuest.Activate();
 			return true;

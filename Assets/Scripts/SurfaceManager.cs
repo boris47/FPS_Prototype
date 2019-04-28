@@ -16,7 +16,11 @@ public struct RegisteredMaterial {
 
 public class SurfaceManager : MonoBehaviour {
 
-	public		static		SurfaceManager	Instance				= null;
+	private		static		SurfaceManager	m_Instance				= null;
+	public		static		SurfaceManager Instance
+	{
+		get { return m_Instance; }
+	}
 
 	[SerializeField]
 	private		RegisteredMaterial[]		m_RegisteredTextures	= null;
@@ -27,7 +31,7 @@ public class SurfaceManager : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private		void		Start()
 	{
-		Instance = this;
+		m_Instance = this;
 	}
 
 
@@ -60,7 +64,7 @@ public class SurfaceManager : MonoBehaviour {
 	// This is for bullet hit particles
 	private		int			GetSurfaceIndex( Ray ray, Collider col, Vector3 worldPos )
 	{
-		string textureName = "";
+		int textureInstanceID = -1;
 
 		// Case when the ground is a terrain.
 		if ( col.GetType() == typeof( TerrainCollider ) )
@@ -69,21 +73,18 @@ public class SurfaceManager : MonoBehaviour {
 			TerrainData terrainData = terrain.terrainData;
 			float[] textureMix = GetTerrainTextureMix( worldPos, terrainData, terrain.GetPosition() );
 			int textureIndex = GetTextureIndex( textureMix );
-			textureName = terrainData.splatPrototypes[ textureIndex ].texture.name;
+			textureInstanceID = terrainData.splatPrototypes[ textureIndex ].texture.GetInstanceID();
 
 		}
 		// Case when the ground is a normal mesh.
 		else
 		{
-			textureName = GetMeshMaterialAtPoint( worldPos, ray );
+			textureInstanceID = GetMeshMaterialAtPoint( worldPos, ray );
 		}
 
 		// Searching for the found texture / material name in registered materials.
-		foreach( RegisteredMaterial pMaterial in m_RegisteredTextures )
-			if( pMaterial.texture.name == textureName )
-				return pMaterial.surfaceIndex;
-
-		return -1;
+		int regTextureIndex = System.Array.FindIndex( m_RegisteredTextures, m => m.texture.GetInstanceID() == textureInstanceID );
+		return m_RegisteredTextures[regTextureIndex].surfaceIndex;
 	}
 
 
@@ -91,7 +92,7 @@ public class SurfaceManager : MonoBehaviour {
 	// This is for footsteps
 	private		int			GetSurfaceIndex( Collider col, Vector3 worldPos )
 	{
-		string textureName = "";
+		int textureInstanceID = -1;
 
 		// Case when the ground is a terrain.
 		if ( col.GetType() == typeof( TerrainCollider ) )
@@ -100,44 +101,43 @@ public class SurfaceManager : MonoBehaviour {
 			TerrainData terrainData = terrain.terrainData;
 			float[] textureMix = GetTerrainTextureMix( worldPos, terrainData, terrain.GetPosition() );
 			int textureIndex = GetTextureIndex( textureMix );
-			textureName = terrainData.splatPrototypes[ textureIndex ].texture.name;
+			textureInstanceID = terrainData.splatPrototypes[ textureIndex ].texture.GetInstanceID();
 
 		}
 		// Case when the ground is a normal mesh.
 		else
 		{
-			textureName = GetMeshMaterialAtPoint( worldPos, new Ray( Vector3.zero, Vector3.zero ) );
+			textureInstanceID = GetMeshMaterialAtPoint( worldPos, null );
 		}
 
 		// Searching for the found texture / material name in registered materials.
-		foreach( RegisteredMaterial pMaterial in m_RegisteredTextures )
-			if( pMaterial.texture != null && pMaterial.texture.name == textureName )
-				return pMaterial.surfaceIndex;
-
-		return -1;
+		int regTextureIndex = System.Array.FindIndex( m_RegisteredTextures, m => m.texture.GetInstanceID() == textureInstanceID );
+		return m_RegisteredTextures[regTextureIndex].surfaceIndex;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private		string		GetMeshMaterialAtPoint( Vector3 worldPosition, Ray ray )
+	private		int		GetMeshMaterialAtPoint( Vector3 worldPosition, Ray? ray )
 	{
-		if( ray.direction == Vector3.zero )
+		if( ray.HasValue == false )
 		{
 			// direction down
 			ray = new Ray( worldPosition + Vector3.up * 0.01f, Vector3.down );
 		}
 
 		RaycastHit hit;
-		if ( Physics.Raycast( ray, out hit ) == false )
-			return "";
+		if ( Physics.Raycast( ray.Value, out hit ) == false )
+			return -1;
 
-		Renderer r = hit.collider.GetComponent<Renderer>();
-		if ( r == null || r.sharedMaterial == null || r.sharedMaterial.mainTexture == null || r == null )
-			return "";
+		Renderer r = null;
+		bool bHasRender = Utils.Base.SearchComponent( hit.collider.gameObject, ref r, SearchContext.LOCAL );
+		if ( bHasRender == false || r.sharedMaterial == null || r.sharedMaterial.mainTexture == null )
+			return -1;
 
+		bool bIsMeshCollider = hit.collider.GetType() == typeof( MeshCollider );
 		MeshCollider mc = hit.collider as MeshCollider;
-		if ( mc == null || mc.convex )
-			return r.material.mainTexture.name;
+		if ( bIsMeshCollider == false || mc.convex )
+			return r.material.mainTexture.GetInstanceID();
 
 		Mesh m = mc.sharedMesh;
 		int materialIndex = -1;
@@ -159,7 +159,7 @@ public class SurfaceManager : MonoBehaviour {
 			}
 		}
 
-		return r.materials[materialIndex].mainTexture.name;
+		return r.materials[materialIndex].mainTexture.GetInstanceID();
 	}
 
 

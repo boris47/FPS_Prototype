@@ -62,6 +62,7 @@ public partial class GameManager : MonoBehaviour {
 //			gameObject.SetActive( false );
 			return;
 		}
+
 		DontDestroyOnLoad( this );
 
 		// Instance

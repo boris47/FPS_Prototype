@@ -20,25 +20,43 @@ namespace QuestSystem {
 
 	public class GlobalQuestManager : MonoBehaviour, IQuestManager {
 
-		public	static	bool				ShowDebugInfo					= false;
-
-		public	static GlobalQuestManager	Instance						= null;
-
-		private	LocalQuestManager			m_currentLocalQuestMnanager		= null;
-		public	LocalQuestManager			CurrentLocalQuestManager
+		private		static	bool				m_ShowDebugInfo					= false;
+		public		static	bool				ShowDebugInfo
 		{
-			get { return m_currentLocalQuestMnanager; }
+			get { return m_ShowDebugInfo; }
 		}
+		
+		private		static IQuestManager		m_Instance						= null;
+		public		static	IQuestManager		Instance
+		{
+			get { return m_Instance; }
+		}
+		
+		private	List<Quest>					m_GlobalQuests					= new List<Quest>();
 
 
-		private	List<Quest>		m_GlobalQuests			= new List<Quest>();
 
+		//////////////////////////////////////////////////////////////////////////
+		// Awake
 		private void Awake()
 		{
+			m_Instance = this;
 			Database.Section debugInfosSection = null;
 			if ( GameManager.Configs.bGetSection( "DebugInfos", ref debugInfosSection ) )
 			{
-				ShowDebugInfo = debugInfosSection.AsBool( "Quests", false );
+				m_ShowDebugInfo = debugInfosSection.AsBool( "Quests", false );
+			}
+
+			// Already assigned
+			foreach( IQuest q in m_GlobalQuests )
+			{
+				q.Initialize();
+				q.RegisterOnCompletion( OnQuestCompleted );
+			}
+
+			if ( m_GlobalQuests.Count > 0 )
+			{
+				m_GlobalQuests[0].Activate();
 			}
 		}
 

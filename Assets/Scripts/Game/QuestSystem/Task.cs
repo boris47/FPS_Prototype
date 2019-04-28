@@ -5,7 +5,7 @@ namespace QuestSystem {
 	
 	using System.Collections.Generic;
 
-	public interface ITask : IStateDefiner {
+	public interface ITask : IStateDefiner<IQuest> {
 
 		bool	Activate			();
 
@@ -13,11 +13,9 @@ namespace QuestSystem {
 
 		bool	IsCompleted			{ get; }
 
-		void	AddToQuest			( IQuest quest );
-
 		void	RegisterOnCompletion( System.Action<ITask>	onCompletionCallback );
 
-		bool	AddObjective		( IObjective newObjective );
+		bool	AddObjective		( Objective_Base newObjective );
 
 	}
 
@@ -49,16 +47,23 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Initialize ( IStateDefiner )
-		public			bool		Initialize()
+		public				bool		Initialize( IQuest motherQuest )
 		{
+			if ( m_IsInitialized == true )
+				return true;
+
+			m_IsInitialized = true;
+
 			bool result = false;
 
 			// Already assigned
 			foreach( IObjective o in m_Objectives )
 			{
 				o.RegisterOnCompletion( OnObjectiveCompleted );
-				result &= o.Initialize(); // Init every Objective
+				result &= o.Initialize(this); // Init every Objective
 			}
+
+			motherQuest.AddTask( this );
 
 			return result;
 		}
@@ -66,7 +71,7 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// ReInit ( IStateDefiner )
-		public			bool		ReInit()
+		public				bool		ReInit()
 		{
 			return true;
 		}
@@ -74,18 +79,27 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Finalize ( IStateDefiner )
-		public			bool		Finalize()
+		public				bool		Finalize()
 		{
 			return true;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// AddToQuest ( Interface )
-		void	ITask.AddToQuest( IQuest quest )
+		// OnSave
+		public	virtual		void		OnSave( StreamUnit streamUnit )
 		{
-			quest.AddTask( this );
+			m_Objectives.ForEach( o => o.OnSave( streamUnit ) );
 		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// OnLoad
+		public	virtual		void		OnLoad( StreamUnit streamUnit )
+		{
+			m_Objectives.ForEach( o => o.OnLoad( streamUnit ) );
+		}
+
 
 		//////////////////////////////////////////////////////////////////////////
 		// RegisterOnCompletion ( Interface )
@@ -97,7 +111,7 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// OnTaskCompleted
-		private void OnTaskCompleted()
+		private void	OnTaskCompleted()
 		{
 			// Internal Flag
 			m_IsCompleted = true;
@@ -113,11 +127,13 @@ namespace QuestSystem {
 
 			// Internal Delegates
 			m_OnCompletionCallback( this );
+
+			Finalize();
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// OnObjectiveCompleted ( Interface )
+		// OnObjectiveCompleted
 		private	void	OnObjectiveCompleted( IObjective objective )
 		{
 			objective.Deactivate();
@@ -157,13 +173,17 @@ namespace QuestSystem {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// AddObjective ( Interface )
-		bool	 ITask.AddObjective( IObjective newObjective )
+		// AddObjective ( ITask )
+		bool	 ITask.AddObjective( Objective_Base newObjective )
 		{
 			if ( newObjective == null )
 				return false;
 
-			m_Objectives.Add( newObjective as Objective_Base );
+			if ( m_Objectives.Contains( newObjective ) == true )
+				return true;
+
+			newObjective.Initialize( this );
+			m_Objectives.Add( newObjective );
 			return true;
 		}
 

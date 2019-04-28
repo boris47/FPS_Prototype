@@ -12,18 +12,23 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Initialize ( IStateDefiner )
-		public		override	bool		Initialize()
+		public		override	bool		Initialize( ITask motherTask )
 		{
 			if ( m_IsInitialized == true )
 				return true;
 
 			m_IsInitialized = true;
 
-			m_Collider = GetComponent<Collider>();
-			m_Collider.isTrigger = true;
-			m_Collider.enabled = false;
-
-			return m_IsInitialized;
+			bool bIsGoodResult = Utils.Base.SearchComponent( gameObject, ref m_Collider, SearchContext.LOCAL );
+			if ( bIsGoodResult )
+			{
+				m_Collider.isTrigger = true;
+				m_Collider.enabled = false;
+				
+				motherTask.AddObjective( this );
+			}
+			
+			return bIsGoodResult;
 		}
 
 
@@ -40,6 +45,22 @@ namespace QuestSystem {
 		public		override	bool		Finalize()
 		{
 			return true;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// OnSave
+		public override void OnSave( StreamUnit streamUnit )
+		{
+			
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// OnLoad
+		public override void OnLoad( StreamUnit streamUnit )
+		{
+			
 		}
 
 

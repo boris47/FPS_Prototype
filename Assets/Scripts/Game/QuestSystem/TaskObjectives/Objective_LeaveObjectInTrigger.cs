@@ -16,24 +16,23 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Initialize ( IStateDefiner )
-		public		override	bool		Initialize()
+		public		override	bool		Initialize( ITask motherTask )
 		{
 			if ( m_IsInitialized == true )
 				return true;
 
 			m_IsInitialized = true;
 
-			bool result = false;
-
-			m_Collider = GetComponent<Collider>();
-			if ( m_Collider )
+			bool bIsGoodResult = Utils.Base.SearchComponent( gameObject, ref m_Collider, SearchContext.LOCAL );
+			if ( bIsGoodResult )
 			{
 				m_Collider.isTrigger = true;
 				m_Collider.enabled = false;
-				result = true;
+				
+				motherTask.AddObjective( this );
 			}
 
-			return result;
+			return bIsGoodResult;
 		}
 
 
@@ -50,6 +49,22 @@ namespace QuestSystem {
 		public		override	bool		Finalize()
 		{
 			return true;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// OnSave
+		public override void OnSave( StreamUnit streamUnit )
+		{
+			
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// OnLoad
+		public override void OnLoad( StreamUnit streamUnit )
+		{
+			
 		}
 
 
@@ -104,11 +119,15 @@ namespace QuestSystem {
 			if ( other.GetInstanceID() != m_ObjectThatTrigger.GetInstanceID() )
 				return;
 
-			// Require dependencies to be completed
-			if ( m_Dependencies.Count > 0 && m_Dependencies.FindIndex( o => o.IsCompleted == false ) > -1 )
-				return;
-
 			Deactivate();
+
+			// Require dependencies to be completed
+			int dependencyIndex = m_Dependencies.Count > 0 ? m_Dependencies.FindLastIndex( o => o.IsCompleted == false ) : -1;
+			if ( dependencyIndex > -1 )
+			{
+				m_Dependencies[dependencyIndex].Activate();
+				return;
+			}
 
 			OnObjectiveCompleted();
 		}

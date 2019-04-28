@@ -293,8 +293,10 @@ namespace Utils {
 			}
 
 			// Destroy one gameobject every frame
-			foreach( Transform child in binTransform )
+			for ( int i = 0; i < binTransform.childCount; i++ )
 			{
+				Transform child = binTransform.GetChild( i );
+
 				Object.Destroy( child.gameObject );
 				yield return null;
 			}

@@ -10,17 +10,22 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Initialize ( IStateDefiner )
-		public		override	bool		Initialize()
+		public		override	bool		Initialize( ITask motherTask )
 		{
 			if ( m_IsInitialized == true )
 				return true;
 
 			m_IsInitialized = true;
 
-			m_Interactable = GetComponent<IInteractable>();
-			m_Interactable.CanInteract = true;
-			m_Interactable.OnInteractionCallback += OnInteraction;
-			m_Interactable.OnRetroInteractionCallback += OnRetroInteraction;
+			bool bIsGoodResult = Utils.Base.SearchComponent( gameObject, ref m_Interactable, SearchContext.LOCAL );
+			if ( bIsGoodResult )
+			{
+				m_Interactable.CanInteract = true;
+				m_Interactable.OnInteractionCallback += OnInteraction;
+				m_Interactable.OnRetroInteractionCallback += OnRetroInteraction;
+
+				motherTask.AddObjective( this );
+			}
 
 			return m_IsInitialized;
 		}
@@ -39,6 +44,22 @@ namespace QuestSystem {
 		public		override	bool		Finalize()
 		{
 			return true;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// OnSave
+		public override void OnSave( StreamUnit streamUnit )
+		{
+			
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// OnLoad
+		public override void OnLoad( StreamUnit streamUnit )
+		{
+			
 		}
 
 		
@@ -79,6 +100,10 @@ namespace QuestSystem {
 			// Require dependencies to be completed
 			if ( m_Dependencies.Count > 0 && m_Dependencies.FindIndex( o => o.IsCompleted == false ) > -1 )
 			{
+				// Our depenencies ask for this objective to be completed, so we are goint to deaticate them
+				m_Dependencies.ForEach( d => d.Deactivate() );
+
+				// and activate again this
 				Activate();
 
 				m_IsCompleted = false;
