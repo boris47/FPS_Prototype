@@ -5,15 +5,13 @@ namespace QuestSystem {
 	
 	using System.Collections.Generic;
 
-	public interface ITask : IStateDefiner<IQuest> {
+	public interface ITask : IStateDefiner<IQuest, ITask> {
 
 		bool	Activate			();
 
 		bool	Deactivate			();
 
 		bool	IsCompleted			{ get; }
-
-		void	RegisterOnCompletion( System.Action<ITask>	onCompletionCallback );
 
 		bool	AddObjective		( Objective_Base newObjective );
 
@@ -22,15 +20,15 @@ namespace QuestSystem {
 	public class Task : MonoBehaviour, ITask {
 
 		[SerializeField]
-		private	List<Objective_Base>		m_Objectives			= new List<Objective_Base>();
+		private	List<Objective_Base>		m_Objectives				= new List<Objective_Base>();
 
 		[SerializeField]
-		private GameEvent					m_OnCompletion			= null;
+		private GameEvent					m_OnCompletion				= null;
 
-		private	System.Action<ITask>		m_OnCompletionCallback	= delegate { };
-		private	bool						m_IsCompleted			= false;
-		private	bool						m_IsCurrentlyActive		= false;
-		private	bool						m_IsInitialized			= false;
+		private	System.Action<ITask>		m_OnCompletionCallback		= delegate { };
+		private	bool						m_IsCompleted				= false;
+		private	bool						m_IsCurrentlyActive			= false;
+		private	bool						m_IsInitialized				= false;
 
 		//--
 		public bool		IsCompleted
@@ -47,7 +45,7 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Initialize ( IStateDefiner )
-		public				bool		Initialize( IQuest motherQuest )
+		public				bool		Initialize( IQuest motherQuest, System.Action<ITask> onCompletionCallback )
 		{
 			if ( m_IsInitialized == true )
 				return true;
@@ -59,11 +57,12 @@ namespace QuestSystem {
 			// Already assigned
 			foreach( IObjective o in m_Objectives )
 			{
-				o.RegisterOnCompletion( OnObjectiveCompleted );
-				result &= o.Initialize(this); // Init every Objective
+				result &= o.Initialize( this, OnObjectiveCompleted ); // Init every Objective
 			}
 
-			motherQuest.AddTask( this );
+//			motherQuest.AddTask( this );
+
+			m_OnCompletionCallback = onCompletionCallback;
 
 			return result;
 		}
@@ -98,14 +97,6 @@ namespace QuestSystem {
 		public	virtual		void		OnLoad( StreamUnit streamUnit )
 		{
 			m_Objectives.ForEach( o => o.OnLoad( streamUnit ) );
-		}
-
-
-		//////////////////////////////////////////////////////////////////////////
-		// RegisterOnCompletion ( Interface )
-		void	ITask.RegisterOnCompletion( System.Action<ITask>	onCompletionCallback )
-		{
-			m_OnCompletionCallback = onCompletionCallback;
 		}
 
 
@@ -182,7 +173,7 @@ namespace QuestSystem {
 			if ( m_Objectives.Contains( newObjective ) == true )
 				return true;
 
-			newObjective.Initialize( this );
+			newObjective.Initialize( this, OnObjectiveCompleted );
 			m_Objectives.Add( newObjective );
 			return true;
 		}

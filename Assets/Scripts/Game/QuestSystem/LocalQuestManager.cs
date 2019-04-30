@@ -30,8 +30,7 @@ namespace QuestSystem {
 			// Already assigned
 			foreach( IQuest q in m_LocalQuests )
 			{
-				q.Initialize();
-				q.RegisterOnCompletion( OnQuestCompleted );
+				q.Initialize( this, OnQuestCompleted );
 			}
 			if ( m_LocalQuests.Count > 0 )
 			{
@@ -87,7 +86,7 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// AddQuest ( Interface )
-		bool IQuestManager.AddQuest( IQuest newQuest )
+		bool IQuestManager.AddQuest( IQuest newQuest, bool activateNow )
 		{
 			if ( newQuest == null )
 				return false;
@@ -100,8 +99,11 @@ namespace QuestSystem {
 				return false;
 
 			m_LocalQuests.Add( quest );
-			newQuest.RegisterOnCompletion( OnQuestCompleted );
-			newQuest.Activate();
+			newQuest.Initialize( this, OnQuestCompleted );
+			if ( activateNow )
+			{
+				newQuest.Activate();
+			}
 			return true;
 		}
 

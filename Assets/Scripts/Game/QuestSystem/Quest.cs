@@ -18,7 +18,7 @@ namespace QuestSystem {
 		GLOBAL
 	}
 
-	public interface IQuest : IStateDefiner {
+	public interface IQuest : IStateDefiner<IQuestManager, IQuest> {
 
 		bool			Activate();
 
@@ -27,8 +27,6 @@ namespace QuestSystem {
 		QuestScope		Scope			{ get; }
 
 		bool			AddTask			( Task newTask );
-
-		void			RegisterOnCompletion( System.Action<IQuest>	onCompletionCallback );
 
 		int				GetTasksCount	();
 
@@ -42,14 +40,26 @@ namespace QuestSystem {
 		[SerializeField]
 		private	GameEvent					m_OnCompletion				= null;
 
-
 		private	System.Action<IQuest>		m_OnCompletionCallback		= delegate { };
 		private	bool						m_IsCompleted				= false;
-		private	QuestStatus					m_Status					= QuestStatus.ASSIGNED;
-		private	QuestScope					m_Scope						= QuestScope.LOCAL;
+		private	bool						m_IsCurrentlyActive			= false;
 		private	bool						m_IsInitialized				= false;
 
 
+		private	QuestStatus					m_Status					= QuestStatus.ASSIGNED;
+		private	QuestScope					m_Scope						= QuestScope.LOCAL;
+
+		//--
+		public	bool		IsCompleted	// IQuest
+		{
+			get { return m_IsCompleted; }
+		}
+
+		//--
+		public bool		IsInitialized	// IStateDefiner
+		{
+			get { return m_IsInitialized; }
+		}
 
 		//--
 		QuestStatus		IQuest.Status
@@ -63,31 +73,25 @@ namespace QuestSystem {
 			get { return m_Scope; }
 		}
 		
-		//--
-		public	bool		IsCompleted	// IQuest
-		{
-			get { return m_IsCompleted; }
-		}
-
-		//--
-		public bool		IsInitialized	// IStateDefiner
-		{
-			get { return m_IsInitialized; }
-		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// Initialize ( IStateDefiner )
-		public			bool		Initialize()
+		public			bool		Initialize( IQuestManager manager, System.Action<IQuest> onCompletionCallback )
 		{
+			if ( m_IsInitialized == true )
+				return true;
+
+			m_IsInitialized = true;
+
 			bool result = false;
 
 			// Already assigned
 			foreach( ITask t in m_Tasks )
 			{
-				t.RegisterOnCompletion( OnTaskCompleted );
-				result &= t.Initialize(this);
+				result &= t.Initialize( this, OnTaskCompleted );
 			}
+			m_OnCompletionCallback = onCompletionCallback;
 
 			// Registering game events
 			GameManager.StreamEvents.OnSave += OnSave;
@@ -151,17 +155,9 @@ namespace QuestSystem {
 			if ( m_Tasks.Contains( newTask ) == true )
 				return true;
 
-			newTask.Initialize(this);
+			newTask.Initialize( this, OnTaskCompleted );
 			m_Tasks.Add( newTask );
 			return true;
-		}
-
-
-		//////////////////////////////////////////////////////////////////////////
-		// RegisterOnCompletion ( IQuest )
-		void			IQuest.RegisterOnCompletion( System.Action<IQuest>	onCompletionCallback )
-		{
-			m_OnCompletionCallback = onCompletionCallback;
 		}
 
 

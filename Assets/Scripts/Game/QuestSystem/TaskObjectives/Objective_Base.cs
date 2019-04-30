@@ -6,7 +6,7 @@ namespace QuestSystem {
 
 	using System.Collections.Generic;
 
-	public interface IObjective : IStateDefiner<ITask> {
+	public interface IObjective : IStateDefiner<ITask, IObjective> {
 
 		bool			IsCompleted				{ get; }
 
@@ -20,8 +20,6 @@ namespace QuestSystem {
 
 		void			Deactivate();
 
-		void			RegisterOnCompletion	( System.Action<Objective_Base>	onCompletionCallback );
-
 		void			OnObjectiveCompleted	();
 	}
 
@@ -34,7 +32,7 @@ namespace QuestSystem {
 		[SerializeField]
 		protected	List<Objective_Base>			m_Dependencies				= new List<Objective_Base>();
 
-		protected	System.Action<Objective_Base>	m_OnCompletionCallback		= delegate { };
+		protected	System.Action<IObjective>		m_OnCompletionCallback		= delegate { };
 		protected	bool							m_IsCompleted				= false;
 		protected	bool							m_IsCurrentlyActive			= false;
 
@@ -60,7 +58,7 @@ namespace QuestSystem {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		public	abstract	bool		Initialize( ITask motherTask );
+		public	abstract	bool		Initialize( ITask motherTask, System.Action<IObjective> onCompletionCallback );
 
 		//////////////////////////////////////////////////////////////////////////
 		public	abstract	bool		ReInit();
@@ -97,14 +95,6 @@ namespace QuestSystem {
 			{
 				m_Dependencies.Add( other );
 			}
-		}
-
-
-		//////////////////////////////////////////////////////////////////////////
-		// RegisterOnCompletion ( Interface )
-		void		IObjective.RegisterOnCompletion( System.Action<Objective_Base>	onCompletionCallback )
-		{
-			m_OnCompletionCallback = onCompletionCallback;
 		}
 
 

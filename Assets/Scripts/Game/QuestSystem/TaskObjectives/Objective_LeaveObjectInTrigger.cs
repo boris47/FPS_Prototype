@@ -16,7 +16,7 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Initialize ( IStateDefiner )
-		public		override	bool		Initialize( ITask motherTask )
+		public		override	bool		Initialize( ITask motherTask, System.Action<IObjective> onCompletionCallback )
 		{
 			if ( m_IsInitialized == true )
 				return true;
@@ -29,6 +29,7 @@ namespace QuestSystem {
 				m_Collider.isTrigger = true;
 				m_Collider.enabled = false;
 				
+				m_OnCompletionCallback = onCompletionCallback;
 				motherTask.AddObjective( this );
 			}
 

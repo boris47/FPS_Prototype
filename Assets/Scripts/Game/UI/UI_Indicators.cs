@@ -150,8 +150,22 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 			}
 		}
 	}
-	
-	
+
+	private void OnGUI2()
+	{
+		for ( int i = m_CurrentlyActive.Count - 1; i >= 0; i-- )
+		{
+			CurrentActivePair pair = m_CurrentlyActive[i];
+			GameObject go = pair.GO;
+			Image img = pair.IMG;
+			if ( go ) // The gameobject could been destroyed in meanwhile 
+			{
+				DrawUIElementOnObjectives( go.transform, img.transform );
+			}
+		}
+	}
+
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// FixedUpdate

@@ -17,13 +17,13 @@ public interface IStateDefiner {
 	bool Finalize			();
 }
 
-public interface IStateDefiner<T> {
+public interface IStateDefiner<T1, T2> {
 
 	/// <summary> Return the current initialized state </summary>
 	bool IsInitialized		{ get; }
 
 	/// <summary> Initialize the component </summary>
-	bool Initialize			( T Initializer );
+	bool Initialize			( T1 Initializer, System.Action<T2> Callback = null );
 
 	bool ReInit				();
 

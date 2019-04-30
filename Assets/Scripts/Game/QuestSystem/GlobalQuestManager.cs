@@ -10,7 +10,7 @@ namespace QuestSystem {
 
 		QuestStatus		GetQuestStatus	( uint questIndex );
 
-		bool			AddQuest		( IQuest newQuest );
+		bool			AddQuest		( IQuest newQuest, bool activateNow );
 
 		int				GetQuestCount	();
 
@@ -50,8 +50,7 @@ namespace QuestSystem {
 			// Already assigned
 			foreach( IQuest q in m_GlobalQuests )
 			{
-				q.Initialize();
-				q.RegisterOnCompletion( OnQuestCompleted );
+				q.Initialize(this, OnQuestCompleted );
 			}
 
 			if ( m_GlobalQuests.Count > 0 )
@@ -95,7 +94,7 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// AddQuest ( Interface )
-		bool IQuestManager.AddQuest( IQuest newQuest )
+		bool IQuestManager.AddQuest( IQuest newQuest, bool activateNow )
 		{
 			if ( newQuest == null )
 				return false;
@@ -107,7 +106,11 @@ namespace QuestSystem {
 				return false;
 
 			m_GlobalQuests.Add( newQuest as Quest );
-			newQuest.Activate();
+			newQuest.Initialize( this, OnQuestCompleted );
+			if ( activateNow )
+			{
+				newQuest.Activate();
+			}
 			return true;
 		}
 
