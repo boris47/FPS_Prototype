@@ -28,12 +28,13 @@ namespace QuestSystem {
 			m_Instance = this;
 
 			// Already assigned
-			foreach( IQuest q in m_LocalQuests )
-			{
-				q.Initialize( this, OnQuestCompleted );
-			}
 			if ( m_LocalQuests.Count > 0 )
 			{
+				foreach( IQuest q in m_LocalQuests )
+				{
+					q.Initialize( this, OnQuestCompleted );
+				}
+			
 				m_LocalQuests[0].Activate();
 			}
 		}

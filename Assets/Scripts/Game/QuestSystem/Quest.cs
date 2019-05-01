@@ -22,14 +22,15 @@ namespace QuestSystem {
 
 		bool			Activate();
 
+		int				TaskCount		{ get; }
+
 		bool			IsCompleted		{ get; }
 		QuestStatus		Status			{ get; }
 		QuestScope		Scope			{ get; }
 
 		bool			AddTask			( Task newTask );
 
-		int				GetTasksCount	();
-
+		bool			RemoveTask		( Task task );
 	}
 
 	public class Quest : MonoBehaviour, IQuest {
@@ -48,6 +49,12 @@ namespace QuestSystem {
 
 		private	QuestStatus					m_Status					= QuestStatus.ASSIGNED;
 		private	QuestScope					m_Scope						= QuestScope.LOCAL;
+
+		//--
+		int				IQuest.TaskCount
+		{
+			get { return m_Tasks.Count; }
+		}
 
 		//--
 		public	bool		IsCompleted	// IQuest
@@ -162,10 +169,17 @@ namespace QuestSystem {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// GetTasksCount ( Interface )
-		int				IQuest.GetTasksCount()
+		// RemoveTask ( IQuest )
+		bool			IQuest.RemoveTask( Task task )
 		{
-			return m_Tasks.Count;
+			if ( task == null )
+				return false;
+
+			if ( m_Tasks.Contains( task ) == false )
+				return true;
+
+			m_Tasks.Remove( task );
+			return true;
 		}
 
 
@@ -189,6 +203,8 @@ namespace QuestSystem {
 			m_OnCompletionCallback(this);
 
 			Finalize();
+
+			m_IsCurrentlyActive = false;
 		}
 
 
@@ -196,14 +212,8 @@ namespace QuestSystem {
 		// OnTaskCompleted
 		private	void	OnTaskCompleted( ITask task )
 		{
-
-			bool bIsQuestCompleted = true;
-			foreach( ITask t in m_Tasks )
-			{
-				bIsQuestCompleted &= t.IsCompleted;
-			}
-
-			if ( bIsQuestCompleted == false )
+			bool bAreTasksCompleted = m_Tasks.TrueForAll( ( Task t ) => { return t.IsCompleted == true; } );
+			if ( bAreTasksCompleted == false )
 			{
 				ITask nextTask = null;
 				int nextIndex = ( m_Tasks.IndexOf( task as Task ) + 1 );
@@ -239,6 +249,7 @@ namespace QuestSystem {
 			if ( GlobalQuestManager.ShowDebugInfo )
 				print( name + " quest activated" );
 
+			m_IsCurrentlyActive = true;
 			m_Tasks[ 0 ].Activate();
 			return true;
 		}

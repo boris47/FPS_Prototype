@@ -66,6 +66,7 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Activate ( IObjective )
+		/// <summary> Set as current active to true and add indicator </summary>
 		public		override	void		Activate()
 		{
 			UI.Instance.Indicators.EnableIndicator( m_Target.gameObject, IndicatorType.TARGET_TO_KILL );
@@ -76,6 +77,7 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Deactivate ( IObjective )
+		/// <summary> Set as current active to false and remove indicator </summary>
 		public		override	void		Deactivate()
 		{
 			m_IsCurrentlyActive = false;

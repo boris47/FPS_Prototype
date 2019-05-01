@@ -15,6 +15,7 @@ namespace QuestSystem {
 
 		bool	AddObjective		( Objective_Base newObjective );
 
+		bool	RemoveObjective		( Objective_Base objective );
 	}
 
 	public class Task : MonoBehaviour, ITask {
@@ -54,13 +55,21 @@ namespace QuestSystem {
 
 			bool result = false;
 
-			// Already assigned
-			foreach( IObjective o in m_Objectives )
-			{
-				result &= o.Initialize( this, OnObjectiveCompleted ); // Init every Objective
-			}
 
-//			motherQuest.AddTask( this );
+			// Already assigned
+			if ( m_Objectives.Count > 0 )
+			{
+				foreach( IObjective o in m_Objectives )
+				{
+					result &= o.Initialize( this, OnObjectiveCompleted ); // Init every Objective
+				}
+
+				if ( m_Objectives[ m_Objectives.Count - 1 ].IsOptional )
+				{
+					Debug.Log( "WARNIGN: Task " + name + " has last objective set as optional" );
+				}
+			}
+			
 
 			m_OnCompletionCallback = onCompletionCallback;
 
@@ -129,33 +138,18 @@ namespace QuestSystem {
 		{
 			objective.Deactivate();
 
-			bool bIsTaskCompleted = true;
-			foreach( IObjective o in m_Objectives )
+			bool bAreObjectivesCompleted = m_Objectives.TrueForAll( ( Objective_Base o ) => { return o.IsOptional == false && o.IsCompleted == true; } );
+			if ( bAreObjectivesCompleted == false )
 			{
-				bIsTaskCompleted &= o.IsCompleted;
-			}
-
-			if ( bIsTaskCompleted == false )
-			{
-				if ( m_IsCurrentlyActive )
+				IObjective nextObjective = m_Objectives.Find( o => o.IsOptional == false && o.IsCompleted == false );
+				if ( m_IsCurrentlyActive && nextObjective != null )
 				{
-					IObjective nextObjective = null;
-					int nextIndex = ( m_Objectives.IndexOf( objective as Objective_Base ) + 1 );
-					if ( nextIndex < m_Objectives.Count )
-					{
-						nextObjective = m_Objectives[ nextIndex ];
-					}
-					// Some objectives are completed and sequence is broken, search for a valid target randomly among availables
-					else
-					{
-						nextObjective = m_Objectives.Find( o => o.IsCompleted == false ) as IObjective;
-					}
 					if ( nextObjective.IsCurrentlyActive == false && nextObjective.IsCompleted == false )
 					{
 						nextObjective.Activate();
 					}
+					return;
 				}
-				return;
 			}
 			
 			// Only Called if trurly completed
@@ -180,6 +174,21 @@ namespace QuestSystem {
 
 
 		//////////////////////////////////////////////////////////////////////////
+		// RemoveObjective ( ITask )
+		bool	ITask.RemoveObjective( Objective_Base objective )
+		{
+			if ( objective == null )
+				return false;
+
+			if ( m_Objectives.Contains( objective ) == false )
+				return false;
+
+			m_Objectives.Remove( objective );
+			return true;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
 		// Activate
 		public	bool	Activate()
 		{
@@ -192,17 +201,32 @@ namespace QuestSystem {
 
 			if ( GlobalQuestManager.ShowDebugInfo )
 				print( name + " task activation" );
-			
-			int index = m_Objectives.FindIndex( o => o.IsCompleted == false );
 
-			// If task is completed on it's activation call for completion
-			if ( index == -1 )
 			{
-				OnTaskCompleted();
+				int index = m_Objectives.FindIndex( o => o.IsCompleted == false );
+
+				// If task is completed on it's activation call for completion
+				if ( index == -1 )
+				{
+					OnTaskCompleted();
+				}
+				else // Otherwise active the first available objective
+				{
+					m_Objectives[index].Activate();
+				}
 			}
-			else // Otherwise active the first available objective
 			{
-				m_Objectives[index].Activate();
+				int index = m_Objectives.FindIndex( o => o.IsOptional == false && o.IsCompleted == false );
+
+				// If task is completed on it's activation call for completion
+				if ( index == -1 )
+				{
+					OnTaskCompleted();
+				}
+				else // Otherwise active the first available objective
+				{
+					m_Objectives[index].Activate();
+				}
 			}
 
 			return true;
