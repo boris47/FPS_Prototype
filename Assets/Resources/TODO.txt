@@ -100,4 +100,6 @@ AI Behiaviours
 ***	TODO Player gravity must return to be as real as cen be possible
 	TODO Rotate weapon, used when standby state or in front a surface where there is no enough space for the wpn to stay drawn
 ***	TODO Current Task Target UI Overlay Object
-	TODO UI Indicators pool
+***	TODO UI Indicators pool
+
+	TODO Prevent entities to change state behaviour while in cutscene

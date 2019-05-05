@@ -100,9 +100,20 @@ public abstract partial class LiveEntity : Entity {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		ExitSimulationState()
+	protected	override	void		BeforeSimulationStage( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
-		
+		// Movement
+		RequestMovement( destination );
+
+		// Look At
+		if ( target )
+		{
+			SetTrasformToLookAt( target, LookTargetMode.HEAD_ONLY );
+		}
+		else
+		{
+			StopLooking();
+		}
 	}
 
 
@@ -110,6 +121,22 @@ public abstract partial class LiveEntity : Entity {
 	protected	override	bool		SimulateMovement( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1 )
 	{
 		return false;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	override	void		AfterSimulationStage( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
+	{
+		NavStop();
+
+		StopLooking();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	override	void		ExitSimulationState()
+	{
+		
 	}
 
 }

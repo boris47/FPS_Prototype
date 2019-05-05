@@ -49,7 +49,7 @@ namespace CutScene {
 
 			IsPlaying = true;
 
-			( entityParent as IEntitySimulation ).EnterSimulationState();
+//			( entityParent as IEntitySimulation ).EnterSimulationState();
 
 			// On start event called
 			if ( pointsCollection.OnStart != null && pointsCollection.OnStart.GetPersistentEventCount() > 0 )

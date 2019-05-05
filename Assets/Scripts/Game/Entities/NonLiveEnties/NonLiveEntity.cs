@@ -32,10 +32,53 @@ public abstract partial class NonLiveEntity : Entity {
 		m_FirePoint			= m_GunTransform.Find( "FirePoint" );
 	}
 	
+
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		EnterSimulationState()
 	{
-		
+		NavStop();
+
+		StopLooking();
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	override	void		BeforeSimulationStage( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
+	{
+		// Movement
+		RequestMovement( destination );
+//		Debug.Log("BeforeSimulationStage " + destination.ToString() );
+
+		// Look At
+		if ( target )
+		{
+			SetTrasformToLookAt( target, LookTargetMode.HEAD_ONLY );
+		}
+		else
+		{
+			StopLooking();
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	override	bool		SimulateMovement( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1 )
+	{
+		bool isBusy = true;
+
+		isBusy &= m_HasDestination || m_HasPendingPathRequest;
+
+//		isBusy |= HasLookAtObject;
+
+		return isBusy;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	override	void		AfterSimulationStage( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
+	{
+		NavStop();
+
+		StopLooking();
 	}
 
 
@@ -43,13 +86,6 @@ public abstract partial class NonLiveEntity : Entity {
 	protected	override	void		ExitSimulationState()
 	{
 		
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	protected	override	bool		SimulateMovement( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1 )
-	{
-		return false;
 	}
 
 

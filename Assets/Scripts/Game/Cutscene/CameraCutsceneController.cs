@@ -53,10 +53,9 @@ namespace CutScene {
 			CameraControl.Instance.Transform.localPosition = Vector3.zero;
 			CameraControl.Instance.Transform.localRotation = Quaternion.identity;
 
-			if ( m_PrevWeaponState == WeaponState.STASHED )
+			if ( m_PrevWeaponState == WeaponState.DRAWED )
 				WeaponManager.Instance.CurrentWeapon.Draw();
 
-			m_PrevWeaponState	= WeaponState.DRAWED;
 			m_TimeToWait		= 0.0f;
 			m_CameraPath		= null;
 			m_OldParent			= null;

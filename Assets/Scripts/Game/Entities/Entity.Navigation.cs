@@ -37,7 +37,9 @@ public abstract partial class Entity : IEntity {
 	[System.NonSerialized]
 	protected	bool					m_NavCanMoveAlongPath			= true;
 
-	private		bool					m_HasPendingPathRequest			= false;
+	protected	bool					m_HasPendingPathRequest			= false;
+
+	protected	Coroutine				m_PendingPathRequestCO			= null;
 
 
 
@@ -77,10 +79,12 @@ public abstract partial class Entity : IEntity {
 			yield return null;
 		}
 		m_NavAgent.isStopped			= false;
-		m_NavCanMoveAlongPath			= true;
+		m_HasPendingPathRequest			= false;
+		m_PendingPathRequestCO			= null;
 		m_HasDestination				= true;
 		m_DestinationToReachPosition	= Destination;
-		m_HasPendingPathRequest			= false;
+		m_NavCanMoveAlongPath			= true;
+
 		m_OnNavigation( Destination );
 	}
 
@@ -91,7 +95,7 @@ public abstract partial class Entity : IEntity {
 	{
 		if ( m_HasPendingPathRequest == false )
 		{
-			StartCoroutine( RequestMovementCO( Destination ) );
+			m_PendingPathRequestCO = StartCoroutine( RequestMovementCO( Destination ) );
 			m_HasPendingPathRequest = true;
 		}
 	}
@@ -134,6 +138,14 @@ public abstract partial class Entity : IEntity {
 		m_HasDestination				= false;
 		m_DestinationToReachPosition	= Vector3.zero;
 		m_NavCanMoveAlongPath			= false;
+
+		if ( m_HasPendingPathRequest )
+		{
+			if ( m_PendingPathRequestCO != null )
+				StopCoroutine( m_PendingPathRequestCO );
+			m_PendingPathRequestCO = null;
+			m_HasPendingPathRequest = false;
+		}
 	}
 
 }

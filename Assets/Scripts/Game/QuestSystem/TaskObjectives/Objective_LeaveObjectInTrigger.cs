@@ -16,7 +16,7 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Initialize ( IStateDefiner )
-		public		override	bool		Initialize( ITask motherTask, System.Action<IObjective> onCompletionCallback )
+		protected		override	bool		InitializeInternal( ITask motherTask, System.Action<IObjective> onCompletionCallback, System.Action<IObjective> onFailureCallback )
 		{
 			if ( m_IsInitialized == true )
 				return true;
@@ -30,6 +30,7 @@ namespace QuestSystem {
 				m_Collider.enabled = false;
 				
 				m_OnCompletionCallback = onCompletionCallback;
+				m_OnFailureCallback = onFailureCallback;
 				motherTask.AddObjective( this );
 			}
 
@@ -71,37 +72,33 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Activate ( IObjective )
-		public		override	void		Activate()
+		protected		override	void		ActivateInternal()
 		{
 			if ( m_ObjectThatTrigger.IsNotNull() )
 			{
 				m_Collider.enabled = true;
 
 				UI.Instance.Indicators.EnableIndicator( m_Collider.gameObject, IndicatorType.AREA_WHERE_PLACE_OBJECT );
-			
-				m_IsCurrentlyActive = true;
 			}
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// Deactivate ( IObjective )
-		public		override	void		Deactivate()
+		protected		override	void		DeactivateInternal()
 		{
 			if ( m_ObjectThatTrigger.IsNotNull() )
 			{
 				m_Collider.enabled = false;
 
 				UI.Instance.Indicators.DisableIndicator( gameObject );
-			
-				m_IsCurrentlyActive = false;
 			}
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// SetObjectToTrigger
-		public	void	SetObjectToTrigger( Collider objCollider )
+		public	void	SetObjectToTriggerWith( Collider objCollider )
 		{
 			if ( objCollider && objCollider.isTrigger == false )
 			{
@@ -114,7 +111,7 @@ namespace QuestSystem {
 		// OnTriggerEnter
 		private void OnTriggerEnter( Collider other )
 		{
-			if ( m_IsCurrentlyActive == false )
+			if ( m_ObjectiveState != ObjectiveState.ACTIVATED )
 				return;
 
 			if ( other.GetInstanceID() != m_ObjectThatTrigger.GetInstanceID() )

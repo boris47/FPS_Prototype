@@ -286,7 +286,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Set the trasform to Look At </summary>
-	public	virtual		void	SetTrasformTolookAt( Transform t, LookTargetMode LookMode = LookTargetMode.HEAD_ONLY )
+	public	virtual		void	SetTrasformToLookAt( Transform t, LookTargetMode LookMode = LookTargetMode.HEAD_ONLY )
 	{
 		m_LookData.HasLookAtObject		= true;
 		m_LookData.TrasformToLookAt		= t;

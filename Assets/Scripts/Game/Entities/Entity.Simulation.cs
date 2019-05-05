@@ -12,9 +12,20 @@ public partial interface IEntity {
 public interface IEntitySimulation {
 	Vector3		StartPosition			{ get; set; }
 
+	/// <summary> Enter Simulation State </summary>
 	void		EnterSimulationState	();
-	void		ExitSimulationState		();
+
+	/// <summary> Before Simulation Stage </summary>
+	void		BeforeSimulationStage	( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget );
+
+	/// <summary> Simulate Movement, Return true if is Busy otherwise false </summary>
 	bool		SimulateMovement		( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1f );
+
+	/// <summary> After Simulation Stage </summary>
+	void		AfterSimulationStage	( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget );
+
+	/// <summary> Exit Simulation State </summary>
+	void		ExitSimulationState		();
 
 }
 
@@ -37,39 +48,56 @@ public abstract partial class Entity : IEntitySimulation {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	/// <summary> Set the Collision state with another collider </summary>
+	/// <summary> Enter Simulation State </summary>
 	void	IEntitySimulation.EnterSimulationState()
 	{
 		this.EnterSimulationState();
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> Before Simulation Stage </summary>
+	void	IEntitySimulation.BeforeSimulationStage( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
+	{
+		this.BeforeSimulationStage( movementType, destination, target, timeScaleTarget );
+	}
 
 	//////////////////////////////////////////////////////////////////////////
-	/// <summary> Set the Collision state with another collider </summary>
+	/// <summary> Simulate Movement, Return true if is Busy otherwise false </summary>
+	bool	IEntitySimulation.SimulateMovement( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
+	{
+		return this.SimulateMovement( movementType, destination, target, timeScaleTarget );
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> After Simulation Stage </summary>
+	void	IEntitySimulation.AfterSimulationStage( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
+	{
+		this.AfterSimulationStage( movementType, destination, target, timeScaleTarget );
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> Exit Simulation State </summary>
 	void	IEntitySimulation.ExitSimulationState()
 	{
 		this.ExitSimulationState();
 	}
 
 
-	//////////////////////////////////////////////////////////////////////////
-	bool	IEntitySimulation.SimulateMovement( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
-	{
-		return this.SimulateMovement( movementType, destination, target, timeScaleTarget );
-	}
-
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	abstract	void	EnterSimulationState();
 
-
 	//////////////////////////////////////////////////////////////////////////
 	protected	abstract	void	ExitSimulationState();
 
+	//////////////////////////////////////////////////////////////////////////
+	protected	abstract	void	BeforeSimulationStage( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget );
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	abstract	bool	SimulateMovement( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1f );
 
+	//////////////////////////////////////////////////////////////////////////
+	protected	abstract	void	AfterSimulationStage( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget );
 
 }
 

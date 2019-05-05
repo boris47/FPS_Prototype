@@ -12,7 +12,7 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Initialize ( IStateDefiner )
-		public		override	bool		Initialize( ITask motherTask, System.Action<IObjective> onCompletionCallback )
+		protected		override	bool		InitializeInternal( ITask motherTask, System.Action<IObjective> onCompletionCallback, System.Action<IObjective> onFailureCallback )
 		{
 			if ( m_IsInitialized == true )
 				return true;
@@ -25,6 +25,7 @@ namespace QuestSystem {
 				m_Target.OnEvent_Killed += OnKill;
 
 				m_OnCompletionCallback = onCompletionCallback;
+				m_OnFailureCallback = onFailureCallback;
 				motherTask.AddObjective( this );
 			}
 
@@ -67,21 +68,17 @@ namespace QuestSystem {
 		//////////////////////////////////////////////////////////////////////////
 		// Activate ( IObjective )
 		/// <summary> Set as current active to true and add indicator </summary>
-		public		override	void		Activate()
+		protected		override	void		ActivateInternal()
 		{
-			UI.Instance.Indicators.EnableIndicator( m_Target.gameObject, IndicatorType.TARGET_TO_KILL );
-
-			m_IsCurrentlyActive = true;
+			UI.Instance.Indicators.EnableIndicator( gameObject, IndicatorType.TARGET_TO_KILL );
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// Deactivate ( IObjective )
 		/// <summary> Set as current active to false and remove indicator </summary>
-		public		override	void		Deactivate()
+		protected		override	void		DeactivateInternal()
 		{
-			m_IsCurrentlyActive = false;
-
 			UI.Instance.Indicators.DisableIndicator( gameObject );
 		}
 

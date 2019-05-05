@@ -26,7 +26,7 @@ public interface IStateDefiner<T1, T2> {
 	/// <param name="Initializer"> The object initializer </param>
 	/// <param name="Callback"> The type used for a goal callback </param>
 	/// <returns> A boolean Value for initialization success</returns>
-	bool Initialize			( T1 Initializer, System.Action<T2> Callback = null );
+	bool Initialize			( T1 Initializer, System.Action<T2> PositiveCallback = null, System.Action<T2> NegativeCallback = null );
 
 	bool ReInit				();
 

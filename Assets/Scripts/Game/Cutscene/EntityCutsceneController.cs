@@ -20,10 +20,12 @@ namespace CutScene {
 
 		public	void	Setup( Entity entityParent, PointsCollectionOnline pointCollection )
 		{
-			m_EntityParent = entityParent;
-			m_EntitySimulation = m_EntityParent as IEntitySimulation;
-			m_PointsCollection = pointCollection;
-			m_CurrentIdx = 0;
+			m_EntityParent		= entityParent;
+			m_EntitySimulation	= m_EntityParent;
+			m_PointsCollection	= pointCollection;
+			m_CurrentIdx		= 0;
+
+			m_EntitySimulation.EnterSimulationState();
 
 			CutsceneWaypointData data = m_PointsCollection[ m_CurrentIdx ];
 			SetupForNextWaypoint( data );
@@ -38,7 +40,7 @@ namespace CutScene {
 			m_TimeScaleTarget			= Mathf.Clamp01( data.timeScaleTraget );		// time scale for this trip
 
 			// ORIENTATION
-			CameraControl.Instance.Target = m_Target;
+//			CameraControl.Instance.Target = m_Target;
 
 			// WEAPON ZOOM
 			if ( WeaponManager.Instance.CurrentWeapon.WeaponState == WeaponState.DRAWED )
@@ -70,9 +72,13 @@ namespace CutScene {
 				}
 				else
 				{
-					Terminate(); 
+					Terminate();
+					return;
 				}
 			}
+
+			// BEFORE A SIMULATION STAGE
+			m_EntitySimulation.BeforeSimulationStage( m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
 		}
 
 
@@ -87,6 +93,7 @@ namespace CutScene {
 			if ( isBusy == true ) // if true is currently simulating and here we have to wait simulation to be completed
 				return false;
 
+			// If a waiter is defined, we have to wait for its completion
 			if ( m_Waiter != null && m_Waiter.HasToWait == true )
 			{
 				Vector3 tempDestination = Utils.Math.ProjectPointOnPlane( m_EntityParent.transform.up, m_Destination, m_EntityParent.transform.position );
@@ -104,6 +111,9 @@ namespace CutScene {
 				onWayPointReached.Invoke();
 			}
 
+			// AFTER A SIMULATION STAGE
+			m_EntitySimulation.AfterSimulationStage( m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
+
 			// Next waypoint index
 			m_CurrentIdx ++;
 
@@ -117,6 +127,7 @@ namespace CutScene {
 				CutsceneWaypointData data	= m_PointsCollection[ m_CurrentIdx ];
 
 				SetupForNextWaypoint( data );
+
 				return false;
 			}
 

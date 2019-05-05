@@ -7,7 +7,6 @@ namespace QuestSystem {
 
 	public	enum QuestStatus {
 		NONE,
-		ASSIGNED,
 		ACTIVE,
 		COMPLETED
 	};
@@ -43,11 +42,10 @@ namespace QuestSystem {
 
 		private	System.Action<IQuest>		m_OnCompletionCallback		= delegate { };
 		private	bool						m_IsCompleted				= false;
-		private	bool						m_IsCurrentlyActive			= false;
 		private	bool						m_IsInitialized				= false;
 
 
-		private	QuestStatus					m_Status					= QuestStatus.ASSIGNED;
+		private	QuestStatus					m_Status					= QuestStatus.NONE;
 		private	QuestScope					m_Scope						= QuestScope.LOCAL;
 
 		//--
@@ -84,7 +82,7 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Initialize ( IStateDefiner )
-		public			bool		Initialize( IQuestManager manager, System.Action<IQuest> onCompletionCallback )
+		public			bool		Initialize( IQuestManager manager, System.Action<IQuest> onCompletionCallback, System.Action<IQuest> dump  )
 		{
 			if ( m_IsInitialized == true )
 				return true;
@@ -162,7 +160,7 @@ namespace QuestSystem {
 			if ( m_Tasks.Contains( newTask ) == true )
 				return true;
 
-			newTask.Initialize( this, OnTaskCompleted );
+			newTask.Initialize( this, OnTaskCompleted, null );
 			m_Tasks.Add( newTask );
 			return true;
 		}
@@ -204,7 +202,7 @@ namespace QuestSystem {
 
 			Finalize();
 
-			m_IsCurrentlyActive = false;
+			m_Status = QuestStatus.COMPLETED;
 		}
 
 
@@ -233,7 +231,6 @@ namespace QuestSystem {
 
 			// Only Called if trurly completed
 			OnQuestCompleted();
-
 		}
 
 
@@ -249,7 +246,7 @@ namespace QuestSystem {
 			if ( GlobalQuestManager.ShowDebugInfo )
 				print( name + " quest activated" );
 
-			m_IsCurrentlyActive = true;
+			m_Status = QuestStatus.ACTIVE;
 			m_Tasks[ 0 ].Activate();
 			return true;
 		}

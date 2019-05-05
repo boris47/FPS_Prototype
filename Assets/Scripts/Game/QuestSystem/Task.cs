@@ -7,6 +7,8 @@ namespace QuestSystem {
 
 	public interface ITask : IStateDefiner<IQuest, ITask> {
 
+		string ID { get; }
+
 		bool	Activate			();
 
 		bool	Deactivate			();
@@ -31,6 +33,11 @@ namespace QuestSystem {
 		private	bool						m_IsCurrentlyActive			= false;
 		private	bool						m_IsInitialized				= false;
 
+		public string			ID
+		{
+			get { return name; }
+		}
+
 		//--
 		public bool		IsCompleted
 		{
@@ -46,7 +53,7 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Initialize ( IStateDefiner )
-		public				bool		Initialize( IQuest motherQuest, System.Action<ITask> onCompletionCallback )
+		public				bool		Initialize( IQuest motherQuest, System.Action<ITask> onCompletionCallback, System.Action<ITask> dump )
 		{
 			if ( m_IsInitialized == true )
 				return true;
@@ -61,7 +68,7 @@ namespace QuestSystem {
 			{
 				foreach( IObjective o in m_Objectives )
 				{
-					result &= o.Initialize( this, OnObjectiveCompleted ); // Init every Objective
+					result &= o.Initialize( this, OnObjectiveCompleted, OnObjectiveFailed ); // Init every Objective
 				}
 
 				if ( m_Objectives[ m_Objectives.Count - 1 ].IsOptional )
@@ -158,6 +165,34 @@ namespace QuestSystem {
 
 
 		//////////////////////////////////////////////////////////////////////////
+		// OnObjectiveCompleted
+		private	void	OnObjectiveFailed( IObjective objective )
+		{
+			objective.Deactivate();
+
+			bool bAreObjectivesCompleted = m_Objectives.TrueForAll( ( Objective_Base o ) => { return o.IsOptional == false && o.IsCompleted == true; } );
+			if ( bAreObjectivesCompleted == false )
+			{
+				IObjective nextObjective = m_Objectives.Find( o => o.IsOptional == false && o.IsCompleted == false );
+				if ( m_IsCurrentlyActive && nextObjective != null )
+				{
+					if ( nextObjective.IsCurrentlyActive == false && nextObjective.IsCompleted == false )
+					{
+						nextObjective.Activate();
+					}
+					return;
+				}
+			}
+			
+			// Only Called if trurly completed
+			OnTaskCompleted();
+		}
+
+
+		
+
+
+		//////////////////////////////////////////////////////////////////////////
 		// AddObjective ( ITask )
 		bool	 ITask.AddObjective( Objective_Base newObjective )
 		{
@@ -167,7 +202,7 @@ namespace QuestSystem {
 			if ( m_Objectives.Contains( newObjective ) == true )
 				return true;
 
-			newObjective.Initialize( this, OnObjectiveCompleted );
+			newObjective.Initialize( this, OnObjectiveCompleted, OnObjectiveFailed );
 			m_Objectives.Add( newObjective );
 			return true;
 		}

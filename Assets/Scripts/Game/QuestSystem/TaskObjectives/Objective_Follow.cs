@@ -1,12 +1,13 @@
-﻿
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace QuestSystem {
 
-	public class Objective_Interact : Objective_Base {
+	public class Objective_Follow : Objective_Base {
 		
-		private	IInteractable	m_Interactable = null;
-
+		[SerializeField]
+		private		GameObject	m_ObjectToFollow = null;
 
 		//////////////////////////////////////////////////////////////////////////
 		// Initialize ( IStateDefiner )
@@ -17,19 +18,25 @@ namespace QuestSystem {
 
 			m_IsInitialized = true;
 
-			bool bIsGoodResult = Utils.Base.SearchComponent( gameObject, ref m_Interactable, SearchContext.LOCAL );
-			if ( bIsGoodResult )
+			m_OnCompletionCallback = onCompletionCallback;
+			m_OnFailureCallback = onFailureCallback;
+			motherTask.AddObjective( this );
+			
+			Entity entity = null;
+			bool bIsEntity = Utils.Base.SearchComponent( gameObject, ref entity, SearchContext.LOCAL );
+			if ( bIsEntity )
 			{
-				m_Interactable.CanInteract = true;
-				m_Interactable.OnInteractionCallback += OnInteraction;
-				m_Interactable.OnRetroInteractionCallback += OnRetroInteraction;
-
-				m_OnCompletionCallback = onCompletionCallback;
-				m_OnFailureCallback = onFailureCallback;
-				motherTask.AddObjective( this );
+				entity.OnEvent_Killed += OnKill;
 			}
 
-			return m_IsInitialized;
+			bool bIsGoodResult = true;
+			{
+				if ( m_ObjectToFollow == null )
+				{
+					m_ObjectToFollow = gameObject;
+				}
+			}
+			return bIsGoodResult;
 		}
 
 
@@ -64,12 +71,12 @@ namespace QuestSystem {
 			
 		}
 
-		
+
 		//////////////////////////////////////////////////////////////////////////
 		// Activate ( IObjective )
 		protected		override	void		ActivateInternal()
-		{	
-			UI.Instance.Indicators.EnableIndicator( m_Interactable.Collider.gameObject, IndicatorType.OBJECT_TO_INTERACT );
+		{
+			UI.Instance.Indicators.EnableIndicator( m_ObjectToFollow, IndicatorType.OBJECT_TO_FOLLOW );
 		}
 
 
@@ -77,35 +84,30 @@ namespace QuestSystem {
 		// Deactivate ( IObjective )
 		protected		override	void		DeactivateInternal()
 		{
-			UI.Instance.Indicators.DisableIndicator( gameObject );
+			UI.Instance.Indicators.DisableIndicator( m_ObjectToFollow );
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// OnInteraction
-		private void	OnInteraction()
+		// OnFollowDoneCompleted
+		public	void	OnFollowDoneCompleted()
 		{
 			Deactivate();
-			
+
 			OnObjectiveCompleted();
 		}
 
 
+
+
 		//////////////////////////////////////////////////////////////////////////
-		// OnRetroInteraction
-		private	void	OnRetroInteraction()
+		// OnKill
+		private void OnKill()
 		{
-			// Require dependencies to be completed
-			if ( m_Dependencies.Count > 0 && m_Dependencies.FindIndex( o => o.IsCompleted == false ) > -1 )
-			{
-				// Our depenencies ask for this objective to be completed, so we are goint to deaticate them
-				m_Dependencies.ForEach( d => d.Deactivate() );
+			Deactivate();
 
-				// and activate again this
-				Activate();
-
-				m_IsCompleted = false;
-			}
+			OnObjectiveFailed();
+			//OnObjectiveCompleted();
 		}
 
 	}

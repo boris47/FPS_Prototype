@@ -12,7 +12,7 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Initialize ( IStateDefiner )
-		public		override	bool		Initialize( ITask motherTask, System.Action<IObjective> onCompletionCallback )
+		protected		override	bool		InitializeInternal( ITask motherTask, System.Action<IObjective> onCompletionCallback, System.Action<IObjective> onFailureCallback )
 		{
 			if ( m_IsInitialized == true )
 				return true;
@@ -26,6 +26,7 @@ namespace QuestSystem {
 				m_Collider.enabled = false;
 				
 				m_OnCompletionCallback = onCompletionCallback;
+				m_OnFailureCallback = onFailureCallback;
 				motherTask.AddObjective( this );
 			}
 			
@@ -67,23 +68,19 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Activate ( IObjective )
-		public		override	void		Activate()
+		protected		override	void		ActivateInternal()
 		{
 			m_Collider.enabled = true;
 
-			m_IsCurrentlyActive = true;
-
-			UI.Instance.Indicators.EnableIndicator( m_Collider.gameObject, IndicatorType.AREA_TO_REACH );
+			UI.Instance.Indicators.EnableIndicator( gameObject, IndicatorType.AREA_TO_REACH );
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// Deactivate ( IObjective )
-		public		override	void		Deactivate()
+		protected		override	void		DeactivateInternal()
 		{
 			m_Collider.enabled = false;
-
-			m_IsCurrentlyActive = false;
 
 			UI.Instance.Indicators.DisableIndicator( gameObject );
 		}
@@ -93,7 +90,7 @@ namespace QuestSystem {
 		// OnTriggerEnter
 		private void OnTriggerEnter( Collider other )
 		{
-			if ( m_IsCurrentlyActive == false )
+			if ( m_ObjectiveState != ObjectiveState.ACTIVATED )
 				return;
 
 			if ( other.GetInstanceID() != Player.Entity.PhysicCollider.GetInstanceID() )

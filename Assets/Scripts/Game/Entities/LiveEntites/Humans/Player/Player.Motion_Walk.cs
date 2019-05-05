@@ -9,20 +9,28 @@ public partial class Player {
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		EnterSimulationState()
 	{
-		m_MovementOverrideEnabled = true;
-		m_SimulationStartPosition = transform.position;
+		m_MovementOverrideEnabled				= true;
+		m_SimulationStartPosition				= transform.position;
 
-		CameraControl.Instance.CanParseInput = false;
-		InputManager.IsEnabled = false;
+		CameraControl.Instance.CanParseInput	= false;
+		InputManager.IsEnabled					= false;
 
-		prevInterpolation = m_RigidBody.interpolation;
-		m_RigidBody.interpolation = RigidbodyInterpolation.Interpolate;
+		prevInterpolation						= m_RigidBody.interpolation;
+		m_RigidBody.interpolation				= RigidbodyInterpolation.Interpolate;
 
-	//	WeaponManager.Instance.CurrentWeapon.Enabled = false;
 		DropEntityDragged();
 	}
 
-	
+
+	//////////////////////////////////////////////////////////////////////////
+	protected override		void		BeforeSimulationStage( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
+	{
+		CameraControl.Instance.Target = target;
+
+		base.BeforeSimulationStage( movementType, destination, target, timeScaleTarget );
+	}
+
+
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	bool		SimulateMovement( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
@@ -64,6 +72,13 @@ public partial class Player {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	protected override		void		AfterSimulationStage( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
+	{
+		base.AfterSimulationStage( movementType, destination, target, timeScaleTarget );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		ExitSimulationState()
 	{
 		m_MovementOverrideEnabled = false;
@@ -78,7 +93,6 @@ public partial class Player {
 			transform.rotation = rotation;
 		}
 
-//		m_RigidBody.velocity	= Vector3.zero;
 		m_Move					= Vector3.zero;
 		m_ForwardSmooth			= 0f;
 		m_States.IsWalking		= false;
