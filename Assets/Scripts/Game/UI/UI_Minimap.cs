@@ -28,7 +28,7 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 
 		m_bIsInitialized = true;
 		{
-			m_bIsInitialized &= transform.SearchComponentInChild( "RawImage", ref m_RawImage );
+			m_bIsInitialized &= transform.SearchComponent( ref m_RawImage, SearchContext.CHILDREN );
 
 
 			ResourceManager.LoadData<RenderTexture> data = new ResourceManager.LoadData<RenderTexture>();
@@ -85,7 +85,14 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 	private void Update()
 	{
 		m_TopViewCamera.transform.position = Player.Instance.transform.position + ( Vector3.up * 10f );
-		m_TopViewCamera.transform.rotation = Quaternion.LookRotation( Vector3.down, Vector3.forward );
+		
+		Vector3 planePoint		= CameraControl.Instance.Transform.position;
+		Vector3 planeNormal		= Vector3.up;
+		Vector3 point			= CameraControl.Instance.Transform.position + Player.Instance.transform.forward * 100f;
+		Vector3 projectedPoint	= Utils.Math.ProjectPointOnPlane( planeNormal, planePoint, point );
+		Vector3 upwards			= ( projectedPoint - planePoint ).normalized;
+		
+		m_TopViewCamera.transform.rotation = Quaternion.LookRotation( Vector3.down, upwards );
 	}
 
 
