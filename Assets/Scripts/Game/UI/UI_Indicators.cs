@@ -151,7 +151,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 			}
 		}
 	}
-
+	/*
 	private void OnGUI2()
 	{
 		for ( int i = m_CurrentlyActive.Count - 1; i >= 0; i-- )
@@ -165,7 +165,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 			}
 		}
 	}
-
+	*/
 
 
 	//////////////////////////////////////////////////////////////////////////

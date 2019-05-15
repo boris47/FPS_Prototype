@@ -5,7 +5,6 @@ using UnityEngine.UI;
 public class UI_Minimap : MonoBehaviour, IStateDefiner {
 
 	private			Camera			m_TopViewCamera				= null;
-	private			Canvas			m_Canvas					= null;
 	private			bool			m_bIsVisible				= true;
 	private			RawImage		m_RawImage					= null;
 
@@ -30,11 +29,15 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 		{
 			m_bIsInitialized &= transform.SearchComponent( ref m_RawImage, SearchContext.CHILDREN );
 
-
 			ResourceManager.LoadData<RenderTexture> data = new ResourceManager.LoadData<RenderTexture>();
-			if ( ResourceManager.LoadResourceSync( "Textures/MinimapRenderTexture", data ) )
+			if ( m_bIsInitialized && ( m_bIsInitialized &= ResourceManager.LoadResourceSync( "Textures/MinimapRenderTexture", data ) ) )
 			{
 				RenderTexture minimapRenderTexture = data.Asset;
+
+				if ( m_CameraContainer != null )
+				{
+					Object.Destroy( m_CameraContainer );
+				}
 
 				m_CameraContainer = new GameObject();
 
@@ -47,9 +50,7 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 				m_TopViewCamera.orthographicSize = 32;
 
 				m_TopViewCamera.targetTexture = m_RawImage.texture as RenderTexture;
-
 			}
-
 
 
 			if ( m_bIsInitialized )
@@ -82,13 +83,13 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private void Update()
+	private void FixedUpdate()
 	{
 		m_TopViewCamera.transform.position = Player.Instance.transform.position + ( Vector3.up * 10f );
 		
 		Vector3 planePoint		= CameraControl.Instance.Transform.position;
 		Vector3 planeNormal		= Vector3.up;
-		Vector3 point			= CameraControl.Instance.Transform.position + Player.Instance.transform.forward * 100f;
+		Vector3 point			= CameraControl.Instance.Transform.position + CameraControl.Instance.Transform.forward * 100f;
 		Vector3 projectedPoint	= Utils.Math.ProjectPointOnPlane( planeNormal, planePoint, point );
 		Vector3 upwards			= ( projectedPoint - planePoint ).normalized;
 		
@@ -99,15 +100,30 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 	//////////////////////////////////////////////////////////////////////////
 	public	void	Show()
 	{
+		m_bIsVisible = true;
 
+		const float alphaValue = 0.7333333333333333f;
+		Color colorToAssign = Color.white;
+		colorToAssign.a = alphaValue;
+		m_RawImage.material.color = colorToAssign;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public	void	Hide()
 	{
-
+		m_bIsVisible = false;
+		m_RawImage.material.color = Color.clear;
 	}
 
-	
+
+	//////////////////////////////////////////////////////////////////////////
+	private void OnDestroy()
+	{
+		const float alphaValue = 0.7333333333333333f;
+		Color colorToAssign = Color.white;
+		colorToAssign.a = alphaValue;
+		m_RawImage.material.color = colorToAssign;
+	}
+
 }

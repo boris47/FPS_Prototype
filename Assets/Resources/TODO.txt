@@ -103,3 +103,4 @@ AI Behiaviours
 ***	TODO UI Indicators pool
 
 	TODO Prevent entities to change state behaviour while in cutscene
+	TODO MiniMap indicators
