@@ -39,19 +39,24 @@ namespace CutScene {
 			m_MovementType				= data.movementType;							// movement type
 			m_TimeScaleTarget			= Mathf.Clamp01( data.timeScaleTraget );		// time scale for this trip
 
+
+
 			// ORIENTATION
 //			CameraControl.Instance.Target = m_Target;
 
 			// WEAPON ZOOM
-			if ( WeaponManager.Instance.CurrentWeapon.WeaponState == WeaponState.DRAWED )
+			if ( m_EntityParent is Player )
 			{
-				if ( data.zoomEnabled == true )
+				if ( WeaponManager.Instance.CurrentWeapon.WeaponState == WeaponState.DRAWED )
 				{
-					if ( WeaponManager.Instance.IsZoomed == false ) WeaponManager.Instance.ZoomIn();
-				}
-				else
-				{
-					if ( WeaponManager.Instance.IsZoomed == true ) WeaponManager.Instance.ZoomOut();
+					if ( data.zoomEnabled == true )
+					{
+						if ( WeaponManager.Instance.IsZoomed == false ) WeaponManager.Instance.ZoomIn();
+					}
+					else
+					{
+						if ( WeaponManager.Instance.IsZoomed == true ) WeaponManager.Instance.ZoomOut();
+					}
 				}
 			}
 
