@@ -21,14 +21,15 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 	private		SpriteCollection					m_SpriteCollection			= null;
 
-	private		GameObjectsPool<Image>				m_Pool						= null;
+	private		GameObjectsPool<Transform>			m_Pool						= null;
 
-	private	struct CurrentActivePair {
+	private	struct ActiveIndicatorData {
 		public	GameObject	GO;
-		public	Image		IMG;
+		public	Image		MainIndicatorImage;
+		public	Image		MinimapIndicatorImage;
 	};
 
-	private		List<CurrentActivePair>				m_CurrentlyActive			= new List<CurrentActivePair>(MAX_ELEMENTS);
+	private		List<ActiveIndicatorData>				m_CurrentlyActive			= new List<ActiveIndicatorData>(MAX_ELEMENTS);
 
 	private		bool								m_bIsInitialized			= false;
 	bool IStateDefiner.IsInitialized
@@ -50,23 +51,19 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 		if ( ResourceManager.LoadResourceSync( "Scriptables/UI_Indicators", indicatorsSpritesCollection ) &&
 			 ResourceManager.LoadResourceSync( "Prefabs/UI/Task_Objective", indicatorPrefab ) )
 		{
-			GameObject model	= indicatorPrefab.Asset;
 			m_SpriteCollection	= indicatorsSpritesCollection.Asset;
 
 			// Pool Creation
-			m_Pool = new GameObjectsPool<Image>
+			GameObject model	= indicatorPrefab.Asset;
+			m_Pool = new GameObjectsPool<Transform>
 			(
 				model:				model,
 				size:				MAX_ELEMENTS,
 				containerName:		"UI_IndicatorsPool",
 				parent:				transform,
-				actionOnObject:		delegate( Image i ) { i.gameObject.SetActive(false); }
+				actionOnObject:		delegate( Transform t ) { t.gameObject.SetActive(false); }
 			);
-
-			foreach( Image i in m_Pool )
-			{
-
-			}
+			
 		}
 		
 		return m_Pool != null ? m_Pool.IsValid : false;
@@ -93,8 +90,8 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 	// EnableIndicator
 	public	bool	EnableIndicator( GameObject target, IndicatorType IndicatorType )
 	{
-		int index = m_CurrentlyActive.FindIndex( ( CurrentActivePair p ) => { return p.GO == target; } );
-		if ( index > -0 )
+		int index = m_CurrentlyActive.FindIndex( ( ActiveIndicatorData p ) => { return p.GO == target; } );
+		if ( index > -1 )
 		{
 			return false;
 		}
@@ -103,18 +100,25 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 		Sprite indicator = m_SpriteCollection.Sprites[(int)IndicatorType];
 
-		Image availableImage = m_Pool.GetComponent();
-		availableImage.sprite = indicator;
+		Transform indicatorTransform = m_Pool.GetComponent();
 
-		CurrentActivePair pair = new CurrentActivePair()
+		Image mainIndicatorImage = null;
+		Image MinimapIndicatorImage = null;
+		indicatorTransform.SearchComponentInChild( "MainIndicator",		ref mainIndicatorImage );
+		indicatorTransform.SearchComponentInChild( "MinimapIndicator",	ref MinimapIndicatorImage );
+
+		MinimapIndicatorImage.sprite = mainIndicatorImage.sprite = indicator;
+
+		ActiveIndicatorData pair = new ActiveIndicatorData()
 		{
 			GO = target,
-			IMG = availableImage
+			MainIndicatorImage = mainIndicatorImage,
+			MinimapIndicatorImage = MinimapIndicatorImage
 		};
 
 		m_CurrentlyActive.Add( pair );
 
-		availableImage.gameObject.SetActive( true );
+		indicatorTransform.gameObject.SetActive( true );
 		return true;
 	}
 
@@ -123,11 +127,12 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 	// DisableIndicator
 	public	bool	DisableIndicator( GameObject target )
 	{
-		int index = m_CurrentlyActive.FindIndex( ( CurrentActivePair p ) => { return p.GO == target; } );
+		int index = m_CurrentlyActive.FindIndex( ( ActiveIndicatorData p ) => { return p.GO == target; } );
 		bool bIsFound = index > -1;
 		if ( bIsFound )
 		{
-			m_CurrentlyActive[index].IMG.gameObject.SetActive( false );
+			m_CurrentlyActive[index].MainIndicatorImage.gameObject.SetActive( false );
+			m_CurrentlyActive[index].MinimapIndicatorImage.gameObject.SetActive( false );
 			m_CurrentlyActive.RemoveAt( index );
 		}
 
@@ -143,10 +148,11 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 	{
 		for ( int i = m_CurrentlyActive.Count - 1; i >= 0; i-- )
 		{
-			CurrentActivePair p = m_CurrentlyActive[i];
+			ActiveIndicatorData p = m_CurrentlyActive[i];
 			if ( p.GO == null )
 			{
-				m_CurrentlyActive[i].IMG.gameObject.SetActive( false );
+				m_CurrentlyActive[i].MainIndicatorImage.gameObject.SetActive( false );
+				m_CurrentlyActive[i].MinimapIndicatorImage.gameObject.SetActive( false );
 				m_CurrentlyActive.RemoveAt( i );
 			}
 		}
@@ -174,12 +180,15 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 	{
 		for ( int i = m_CurrentlyActive.Count - 1; i >= 0; i-- )
 		{
-			CurrentActivePair pair = m_CurrentlyActive[i];
+			ActiveIndicatorData pair = m_CurrentlyActive[i];
 			GameObject go = pair.GO;
-			Image img = pair.IMG;
+			Image mainIndicatorImage = pair.MainIndicatorImage;
+			Image minimapIndicatorImage = pair.MinimapIndicatorImage;
+
 			if ( go ) // The gameobject could been destroyed in meanwhile 
 			{
-				DrawUIElementOnObjectives( go.transform, img.transform );
+				DrawUIElementObjectivesOnScreen( go.transform, mainIndicatorImage.transform );
+				DrawUIElementObjectivesOnMinimap( go.transform, minimapIndicatorImage.transform );
 			}
 		}
 	}
@@ -187,7 +196,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 	//////////////////////////////////////////////////////////////////////////
 	// DrawUIElementOnObjectives
-	protected	static void	DrawUIElementOnObjectives( Transform targetTransform, Transform m_IconTransform )
+	protected	static void	DrawUIElementObjectivesOnScreen( Transform targetTransform, Transform m_IconTransform )
 	{
 		Camera camera = CameraControl.Instance.MainCamera;
 
@@ -246,21 +255,21 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 			// Check up and down first
 			if ( cos > 0.0f )
 			{
-				ScreenPoint2D.Set( screenBounds.y/m, screenBounds.y );
+				ScreenPoint2D.Set( screenBounds.y / m, screenBounds.y );
 			}
 			else // down
 			{
-				ScreenPoint2D.Set( -screenBounds.y/m, -screenBounds.y );
+				ScreenPoint2D.Set( -screenBounds.y / m, -screenBounds.y );
 			}
 
 			// If out of bounds, get point on appropriate side
 			if ( ScreenPoint2D.x > screenBounds.x ) // out of bounds, must be on right
 			{
-				ScreenPoint2D.Set( screenBounds.x, screenBounds.x*m );
+				ScreenPoint2D.Set( screenBounds.x, screenBounds.x * m );
 			}
 			else if ( ScreenPoint2D.x < -screenBounds.x ) // out of bounds left
 			{
-				ScreenPoint2D.Set( -screenBounds.x, -screenBounds.x*m );
+				ScreenPoint2D.Set( -screenBounds.x, -screenBounds.x * m );
 			}
 
 			// Remove cooridnate traslation
@@ -271,6 +280,30 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 		}
 
 		m_IconTransform.position = DrawPosition;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// DrawUIElementOnObjectivesOnMinimap
+	protected	static void	DrawUIElementObjectivesOnMinimap( Transform targetTransform, Transform m_IconTransform )
+	{
+		Camera camera					= UI.Instance.InGame.UI_Minimap.GetTopViewCamera();
+
+		Vector2 minimapImagePosition	= UI.Instance.InGame.UI_Minimap.GetRawImagePosition();
+		Rect minimapRect				= UI.Instance.InGame.UI_Minimap.GetRawImageRect();
+
+		float orthoWidth				= camera.orthographicSize;
+
+		// Project to target point on the same plane of camera
+		Vector3 ScreenPoint = Utils.Math.ProjectPointOnPlane( Vector3.down, camera.transform.position, targetTransform.position );	
+
+		// Transform the point in camera space
+		Vector2 ScreenPointInCameraSpace = camera.transform.InverseTransformPoint( ScreenPoint );
+
+		// Clamp it's position to minimap size
+		ScreenPointInCameraSpace = ScreenPointInCameraSpace.ClampComponents( -orthoWidth, orthoWidth );
+
+		m_IconTransform.position = minimapImagePosition + ScreenPointInCameraSpace;
 	}
 	
 }

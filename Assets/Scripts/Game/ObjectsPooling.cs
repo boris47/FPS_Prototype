@@ -46,6 +46,8 @@ public	class GameObjectsPool<T> : IEnumerable where T : UnityEngine.Component  {
 			if ( parent != null )
 			{
 				m_Container.transform.SetParent( parent );
+				m_Container.transform.position = parent.position;
+				m_Container.transform.rotation = parent.rotation;
 			}
 
 			// Assign action for every object

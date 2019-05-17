@@ -17,6 +17,8 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 //	private			Image			m_StaminaBarImage			= null;
 	private			Transform		m_CrosshairTransform		= null;
 
+	private			UI_Minimap		m_UI_Minimap				= null;
+
 	private			Image			m_ZoomFrameImage			= null;
 	private			float			m_FrameOrigWidth			= 0.0f;
 	private			float			m_FrameOrigHeight			= 0.0f;
@@ -27,6 +29,11 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 	bool IStateDefiner.IsInitialized
 	{
 		get { return m_bIsInitialized; }
+	}
+
+	public	UI_Minimap	UI_Minimap
+	{
+		get { return m_UI_Minimap; }
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -100,6 +107,8 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 	private void OnEnable()
 	{
 		m_IsActive = true;
+
+		bool result = transform.SearchComponentInChild( "Minimap", ref m_UI_Minimap );
 
 		UI.Instance.EffectFrame.color = Color.clear;
 
