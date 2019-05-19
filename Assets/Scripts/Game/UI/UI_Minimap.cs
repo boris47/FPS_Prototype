@@ -24,7 +24,7 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 
 	public	Vector2 GetRawImagePosition()
 	{
-		return m_RawImage.transform.position;
+		return ( m_RawImage.transform as RectTransform ).position;
 	}
 
 
@@ -62,6 +62,7 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 				m_TopViewCamera = m_CameraContainer.AddComponent<Camera>();
 				m_TopViewCamera.orthographic		= true;
 				m_TopViewCamera.orthographicSize	= 32f;
+				m_TopViewCamera.clearFlags			= CameraClearFlags.Depth;
 
 				m_TopViewCamera.allowMSAA			= false;
 				m_TopViewCamera.useOcclusionCulling	= false;
