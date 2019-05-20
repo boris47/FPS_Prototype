@@ -55,7 +55,6 @@ public interface IUIOptions {
 	void	Reset();
 }
 
-
 public interface IUI {
 
 	UI_MainMenu				MainMenu					{ get; }
@@ -90,7 +89,7 @@ public class UI : MonoBehaviour, IUI, IStateDefiner{
 
 	private			UI_MainMenu				m_MainMenu						= null;
 	private			UI_InGame				m_InGame						= null;
-	private			UI_WeaponCustomization	m_WeaponCustomization		= null;
+	private			UI_WeaponCustomization	m_WeaponCustomization			= null;
 	private			UI_Settings				m_Settings						= null;
 	private			UI_PauseMenu			m_PauseMenu						= null;
 	private			UI_Bindings				m_Bindings						= null;

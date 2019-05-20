@@ -109,6 +109,10 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 		MinimapIndicatorImage.sprite = mainIndicatorImage.sprite = indicator;
 
+//		MinimapIndicatorImage.transform.SetParent( UI.Instance.InGame.UI_Minimap.transform.GetChild(0) );
+//		MinimapIndicatorImage.transform.localPosition = Vector3.zero;
+//		MinimapIndicatorImage.transform.localRotation = Quaternion.identity;
+
 		ActiveIndicatorData pair = new ActiveIndicatorData()
 		{
 			GO = target,
@@ -283,27 +287,40 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// DrawUIElementOnObjectivesOnMinimap
 	protected	static void	DrawUIElementObjectivesOnMinimap( Transform targetTransform, Transform m_IconTransform )
 	{
 		Camera camera					= UI.Instance.InGame.UI_Minimap.GetTopViewCamera();
-
 		Vector2 minimapImagePosition	= UI.Instance.InGame.UI_Minimap.GetRawImagePosition();
 		Rect minimapRect				= UI.Instance.InGame.UI_Minimap.GetRawImageRect();
 
 		float orthoWidth				= camera.orthographicSize;
+		
+		float scaleFactor = UI.Instance.InGame.ScaleFactor;
 
 		// Project to target point on the same plane of camera
-		Vector3 ScreenPoint = Utils.Math.ProjectPointOnPlane( Vector3.down, camera.transform.position, targetTransform.position );	
+		Vector3 ScreenPoint = camera.WorldToScreenPoint( targetTransform.position );
+		
+		Vector2 screenPointScaled = new Vector3( ScreenPoint.x * scaleFactor, ScreenPoint.y * scaleFactor );
 
-		// Transform the point in camera space
-		Vector2 ScreenPointInCameraSpace = camera.transform.InverseTransformPoint( ScreenPoint );
+		screenPointScaled -= minimapRect.size * 0.5f;
 
-		// Clamp it's position to minimap size
-		ScreenPointInCameraSpace = ScreenPointInCameraSpace.ClampComponents( -orthoWidth, orthoWidth );
+		screenPointScaled = UI.Instance.InGame.UI_Minimap.transform.InverseTransformPoint( screenPointScaled );
+		{
+			screenPointScaled = Vector2.ClampMagnitude( screenPointScaled, orthoWidth * scaleFactor );
+			
+			screenPointScaled = screenPointScaled.ClampComponents( minimapRect.size * 0.5f );
 
-		m_IconTransform.position = minimapImagePosition + ScreenPointInCameraSpace;
+//			screenPointScaled.x = Mathf.Clamp( screenPointScaled.x, -minimapRect.width, minimapRect.width );
+//			screenPointScaled.y = Mathf.Clamp( screenPointScaled.y, -minimapRect.height, minimapRect.height );
+
+		}
+		screenPointScaled = UI.Instance.InGame.UI_Minimap.transform.TransformPoint( screenPointScaled );
+		
+		m_IconTransform.position = screenPointScaled;
+	
 	}
 	
 }

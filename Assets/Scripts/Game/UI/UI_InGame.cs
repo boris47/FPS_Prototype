@@ -23,6 +23,9 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 	private			float			m_FrameOrigWidth			= 0.0f;
 	private			float			m_FrameOrigHeight			= 0.0f;
 
+	private			Canvas			m_Canvas					= null;
+
+
 	private			bool			m_IsActive					= false;
 
 	private			bool			m_bIsInitialized			= false;
@@ -36,6 +39,12 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 		get { return m_UI_Minimap; }
 	}
 
+
+	public	float	ScaleFactor
+	{
+		get { return m_Canvas.scaleFactor; }
+	}
+
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
 	bool IStateDefiner.Initialize()
@@ -46,6 +55,8 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 		m_bIsInitialized = true;
 		{
 			m_bIsInitialized &= transform.childCount > 1;
+
+			m_bIsInitialized &= transform.SearchComponent( ref m_Canvas, SearchContext.LOCAL );
 
 			if ( m_bIsInitialized )
 			{

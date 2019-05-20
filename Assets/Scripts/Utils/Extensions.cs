@@ -227,6 +227,13 @@ public static class Extensions {
 		return v;
 	}
 
+	public	static	Vector2			ClampComponents( this Vector2 v, Vector2 clamping )
+	{
+		v.x = Mathf.Clamp( v.x, -clamping.x, clamping.x );
+		v.y = Mathf.Clamp( v.y, -clamping.y, clamping.x );
+		return v;
+	}
+
 
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -237,6 +244,14 @@ public static class Extensions {
 		v.x = Mathf.Clamp( v.x, min, max );
 		v.y = Mathf.Clamp( v.y, min, max );
 		v.z = Mathf.Clamp( v.z, min, max );
+		return v;
+	}
+
+	public	static	Vector3			ClampComponents( this Vector3 v, Vector3 clamping )
+	{
+		v.x = Mathf.Clamp( v.x, -clamping.x, clamping.x );
+		v.y = Mathf.Clamp( v.y, -clamping.y, clamping.x );
+		v.z = Mathf.Clamp( v.y, -clamping.z, clamping.z );
 		return v;
 	}
 	
