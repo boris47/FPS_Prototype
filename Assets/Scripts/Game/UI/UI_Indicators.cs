@@ -24,7 +24,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 	private		GameObjectsPool<Transform>			m_Pool						= null;
 
 	private	struct ActiveIndicatorData {
-		public	GameObject	GO;
+		public	GameObject	Target;
 		public	Image		MainIndicatorImage;
 		public	Image		MinimapIndicatorImage;
 	};
@@ -90,7 +90,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 	// EnableIndicator
 	public	bool	EnableIndicator( GameObject target, IndicatorType IndicatorType )
 	{
-		int index = m_CurrentlyActive.FindIndex( ( ActiveIndicatorData p ) => { return p.GO == target; } );
+		int index = m_CurrentlyActive.FindIndex( ( ActiveIndicatorData p ) => { return p.Target == target; } );
 		if ( index > -1 )
 		{
 			return false;
@@ -115,7 +115,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 		ActiveIndicatorData pair = new ActiveIndicatorData()
 		{
-			GO = target,
+			Target = target,
 			MainIndicatorImage = mainIndicatorImage,
 			MinimapIndicatorImage = MinimapIndicatorImage
 		};
@@ -131,7 +131,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 	// DisableIndicator
 	public	bool	DisableIndicator( GameObject target )
 	{
-		int index = m_CurrentlyActive.FindIndex( ( ActiveIndicatorData p ) => { return p.GO == target; } );
+		int index = m_CurrentlyActive.FindIndex( ( ActiveIndicatorData p ) => { return p.Target == target; } );
 		bool bIsFound = index > -1;
 		if ( bIsFound )
 		{
@@ -153,7 +153,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 		for ( int i = m_CurrentlyActive.Count - 1; i >= 0; i-- )
 		{
 			ActiveIndicatorData p = m_CurrentlyActive[i];
-			if ( p.GO == null )
+			if ( p.Target == null )
 			{
 				m_CurrentlyActive[i].MainIndicatorImage.gameObject.SetActive( false );
 				m_CurrentlyActive[i].MinimapIndicatorImage.gameObject.SetActive( false );
@@ -185,14 +185,14 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 		for ( int i = m_CurrentlyActive.Count - 1; i >= 0; i-- )
 		{
 			ActiveIndicatorData pair = m_CurrentlyActive[i];
-			GameObject go = pair.GO;
+			GameObject target = pair.Target;
 			Image mainIndicatorImage = pair.MainIndicatorImage;
 			Image minimapIndicatorImage = pair.MinimapIndicatorImage;
 
-			if ( go ) // The gameobject could been destroyed in meanwhile 
+			if ( target ) // The gameobject could been destroyed in meanwhile 
 			{
-				DrawUIElementObjectivesOnScreen( go.transform, mainIndicatorImage.transform );
-				DrawUIElementObjectivesOnMinimap( go.transform, minimapIndicatorImage.transform );
+				DrawUIElementObjectivesOnScreen( target.transform, mainIndicatorImage.transform );
+				DrawUIElementObjectivesOnMinimap( target.transform, minimapIndicatorImage.transform );
 			}
 		}
 	}
@@ -295,31 +295,79 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 		Camera camera					= UI.Instance.InGame.UI_Minimap.GetTopViewCamera();
 		Vector2 minimapImagePosition	= UI.Instance.InGame.UI_Minimap.GetRawImagePosition();
 		Rect minimapRect				= UI.Instance.InGame.UI_Minimap.GetRawImageRect();
+		RectTransform minimapRectTrans	= UI.Instance.InGame.UI_Minimap.GetComponent<RectTransform>();
+		
+		float distance = Utils.Math.PlanarDistance( camera.transform.position, targetTransform.position, Vector3.up );
 
-		float orthoWidth				= camera.orthographicSize;
+		float orthoWidth = camera.orthographicSize;
 		
 		float scaleFactor = UI.Instance.InGame.ScaleFactor;
 
 		// Project to target point on the same plane of camera
 		Vector3 ScreenPoint = camera.WorldToScreenPoint( targetTransform.position );
-		
-		Vector2 screenPointScaled = new Vector3( ScreenPoint.x * scaleFactor, ScreenPoint.y * scaleFactor );
 
-		screenPointScaled -= minimapRect.size * 0.5f;
+		ScreenPoint *= scaleFactor;
 
-		screenPointScaled = UI.Instance.InGame.UI_Minimap.transform.InverseTransformPoint( screenPointScaled );
+		Vector2 screenPointScaled = UI.Instance.InGame.UI_Minimap.transform.InverseTransformPoint( ScreenPoint );
+
+		screenPointScaled.x -= minimapRect.width * 0.5f;
+		screenPointScaled.y -= minimapRect.height * 0.5f;
+
+		// Find angle from center of screen to mouse position
+		float angle = Mathf.Atan2( screenPointScaled.y, screenPointScaled.x ) - 90f * Mathf.Deg2Rad;
+		float cos = Mathf.Cos( angle );
+		float sin = -Mathf.Sin( angle );
+
+		float amplify = 150f;
+		screenPointScaled.Set( screenPointScaled.x + sin * amplify, screenPointScaled.y + cos * amplify );
+
+		// y = mx + b format
+		float m = cos / sin;
+
+		Vector2 minimapBounds = minimapRect.size * 0.5f;
+
+		// Check up and down first
+		if ( cos > 0.0f )
 		{
-			screenPointScaled = Vector2.ClampMagnitude( screenPointScaled, orthoWidth * scaleFactor );
+			screenPointScaled.Set( minimapBounds.y / m, minimapBounds.y );
+		}
+		else // down
+		{
+			screenPointScaled.Set( -minimapBounds.y / m, -minimapBounds.y );
+		}
+
+		// If out of bounds, get point on appropriate side
+		if ( screenPointScaled.x > minimapBounds.x ) // out of bounds, must be on right
+		{
+			screenPointScaled.Set( minimapBounds.x, minimapBounds.x * m );
+		}
+		else if ( screenPointScaled.x < -minimapBounds.x ) // out of bounds left
+		{
+			screenPointScaled.Set( -minimapBounds.x, -minimapBounds.x * m );
+		}
+
+
+		ScreenPoint = UI.Instance.InGame.UI_Minimap.transform.TransformPoint( screenPointScaled );
+
+
+
+//		ScreenPoint = new Vector3( ScreenPoint.x / scaleFactor, ScreenPoint.y / scaleFactor );
+
+//		screenPointScaled -= minimapRect.size * 0.5f;
+
+//		screenPointScaled = UI.Instance.InGame.UI_Minimap.transform.InverseTransformPoint( screenPointScaled );
+		{
+//			screenPointScaled = Vector2.ClampMagnitude( screenPointScaled, orthoWidth * scaleFactor );
 			
-			screenPointScaled = screenPointScaled.ClampComponents( minimapRect.size * 0.5f );
+//			screenPointScaled = screenPointScaled.ClampComponents( minimapRect.size * 0.5f );
 
 //			screenPointScaled.x = Mathf.Clamp( screenPointScaled.x, -minimapRect.width, minimapRect.width );
 //			screenPointScaled.y = Mathf.Clamp( screenPointScaled.y, -minimapRect.height, minimapRect.height );
 
 		}
-		screenPointScaled = UI.Instance.InGame.UI_Minimap.transform.TransformPoint( screenPointScaled );
+//		screenPointScaled = UI.Instance.InGame.UI_Minimap.transform.TransformPoint( screenPointScaled );
 		
-		m_IconTransform.position = screenPointScaled;
+		m_IconTransform.position = ScreenPoint;
 	
 	}
 	

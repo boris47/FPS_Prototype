@@ -112,6 +112,11 @@ public class SurfaceManager : MonoBehaviour {
 
 		// Searching for the found texture / material name in registered materials.
 		int regTextureIndex = System.Array.FindIndex( m_RegisteredTextures, m => m.texture.GetInstanceID() == textureInstanceID );
+		if ( regTextureIndex == -1 || regTextureIndex >= m_RegisteredTextures.Length )
+		{
+			Debug.DebugBreak();
+		}
+
 		return m_RegisteredTextures[regTextureIndex].surfaceIndex;
 	}
 
