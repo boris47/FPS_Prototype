@@ -27,6 +27,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 		public	GameObject	Target;
 		public	Image		MainIndicatorImage;
 		public	Image		MinimapIndicatorImage;
+		public	bool		bMustBeClamped;
 	};
 
 	private		List<ActiveIndicatorData>				m_CurrentlyActive			= new List<ActiveIndicatorData>(MAX_ELEMENTS);
@@ -36,6 +37,8 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 	{
 		get { return m_bIsInitialized; }
 	}
+
+	private		static PositionObjectOnWorldImage m_PositionObjectOnWorldImage = null;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -88,7 +91,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 	//////////////////////////////////////////////////////////////////////////
 	// EnableIndicator
-	public	bool	EnableIndicator( GameObject target, IndicatorType IndicatorType )
+	public	bool	EnableIndicator( GameObject target, IndicatorType IndicatorType, bool bMustBeClamped )
 	{
 		int index = m_CurrentlyActive.FindIndex( ( ActiveIndicatorData p ) => { return p.Target == target; } );
 		if ( index > -1 )
@@ -117,7 +120,8 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 		{
 			Target = target,
 			MainIndicatorImage = mainIndicatorImage,
-			MinimapIndicatorImage = MinimapIndicatorImage
+			MinimapIndicatorImage = MinimapIndicatorImage,
+			bMustBeClamped = bMustBeClamped
 		};
 
 		m_CurrentlyActive.Add( pair );
@@ -161,21 +165,6 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 			}
 		}
 	}
-	/*
-	private void OnGUI2()
-	{
-		for ( int i = m_CurrentlyActive.Count - 1; i >= 0; i-- )
-		{
-			CurrentActivePair pair = m_CurrentlyActive[i];
-			GameObject go = pair.GO;
-			Image img = pair.IMG;
-			if ( go ) // The gameobject could been destroyed in meanwhile 
-			{
-				DrawUIElementOnObjectives( go.transform, img.transform );
-			}
-		}
-	}
-	*/
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -185,14 +174,15 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 		for ( int i = m_CurrentlyActive.Count - 1; i >= 0; i-- )
 		{
 			ActiveIndicatorData pair = m_CurrentlyActive[i];
-			GameObject target = pair.Target;
-			Image mainIndicatorImage = pair.MainIndicatorImage;
+			GameObject target			= pair.Target;
+			Image mainIndicatorImage	= pair.MainIndicatorImage;
 			Image minimapIndicatorImage = pair.MinimapIndicatorImage;
+			bool bMustBeClamped			= pair.bMustBeClamped;
 
 			if ( target ) // The gameobject could been destroyed in meanwhile 
 			{
 				DrawUIElementObjectivesOnScreen( target.transform, mainIndicatorImage.transform );
-				DrawUIElementObjectivesOnMinimap( target.transform, minimapIndicatorImage.transform );
+				DrawUIElementObjectivesOnMinimap( target.transform, minimapIndicatorImage.transform, bMustBeClamped );
 			}
 		}
 	}
@@ -290,85 +280,106 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 	//////////////////////////////////////////////////////////////////////////
 	// DrawUIElementOnObjectivesOnMinimap
-	protected	static void	DrawUIElementObjectivesOnMinimap( Transform targetTransform, Transform m_IconTransform )
+	protected	static void	DrawUIElementObjectivesOnMinimap( Transform targetTransform, Transform m_IconTransform, bool bMustBeClamped )
 	{
-		Camera camera					= UI.Instance.InGame.UI_Minimap.GetTopViewCamera();
-		Vector2 minimapImagePosition	= UI.Instance.InGame.UI_Minimap.GetRawImagePosition();
-		Rect minimapRect				= UI.Instance.InGame.UI_Minimap.GetRawImageRect();
-		RectTransform minimapRectTrans	= UI.Instance.InGame.UI_Minimap.GetComponent<RectTransform>();
-		
-		float distance = Utils.Math.PlanarDistance( camera.transform.position, targetTransform.position, Vector3.up );
+		RectTransform minimapRect		= UI.Instance.InGame.UI_Minimap.GetRawImageRect();
 
-		float orthoWidth = camera.orthographicSize;
-		
-		float scaleFactor = UI.Instance.InGame.ScaleFactor;
-
-		// Project to target point on the same plane of camera
-		Vector3 ScreenPoint = camera.WorldToScreenPoint( targetTransform.position );
-
-		ScreenPoint *= scaleFactor;
-
-		Vector2 screenPointScaled = UI.Instance.InGame.UI_Minimap.transform.InverseTransformPoint( ScreenPoint );
-
-		screenPointScaled.x -= minimapRect.width * 0.5f;
-		screenPointScaled.y -= minimapRect.height * 0.5f;
-
-		// Find angle from center of screen to mouse position
-		float angle = Mathf.Atan2( screenPointScaled.y, screenPointScaled.x ) - 90f * Mathf.Deg2Rad;
-		float cos = Mathf.Cos( angle );
-		float sin = -Mathf.Sin( angle );
-
-		float amplify = 150f;
-		screenPointScaled.Set( screenPointScaled.x + sin * amplify, screenPointScaled.y + cos * amplify );
-
-		// y = mx + b format
-		float m = cos / sin;
-
-		Vector2 minimapBounds = minimapRect.size * 0.5f;
-
-		// Check up and down first
-		if ( cos > 0.0f )
+		if ( m_IconTransform.gameObject.activeSelf == false )
 		{
-			screenPointScaled.Set( minimapBounds.y / m, minimapBounds.y );
-		}
-		else // down
-		{
-			screenPointScaled.Set( -minimapBounds.y / m, -minimapBounds.y );
+			m_IconTransform.gameObject.SetActive( true );
 		}
 
-		// If out of bounds, get point on appropriate side
-		if ( screenPointScaled.x > minimapBounds.x ) // out of bounds, must be on right
+		//
+		Vector2 WorldPosition2D;
+		bool bIsInside = UI.Instance.InGame.UI_Minimap.GetPositionOnUI(targetTransform.position, out WorldPosition2D );
+		if ( bIsInside == false && bMustBeClamped == false )
 		{
-			screenPointScaled.Set( minimapBounds.x, minimapBounds.x * m );
+			m_IconTransform.gameObject.SetActive( false );
 		}
-		else if ( screenPointScaled.x < -minimapBounds.x ) // out of bounds left
+		else
+		if ( bIsInside == false && bMustBeClamped == true )
 		{
-			screenPointScaled.Set( -minimapBounds.x, -minimapBounds.x * m );
+			Vector2 screenPointScaled = UI.Instance.InGame.UI_Minimap.transform.InverseTransformPoint( WorldPosition2D );
+			// Find angle from center of screen to mouse position
+			float angle = Mathf.Atan2( screenPointScaled.y, screenPointScaled.x ) - 90f * Mathf.Deg2Rad;
+			float cos = Mathf.Cos( angle );
+			float sin = -Mathf.Sin( angle );
+
+			float amplify = 150f;
+			screenPointScaled.Set( screenPointScaled.x + sin * amplify, screenPointScaled.y + cos * amplify );
+
+			// y = mx + b format
+			float m = cos / sin;
+
+			Vector2 minimapBounds = minimapRect.rect.size * 0.5f;
+
+			// Check up and down first
+			if ( cos > 0.0f )
+			{
+				screenPointScaled.Set( minimapBounds.y / m, minimapBounds.y );
+			}
+			else // down
+			{
+				screenPointScaled.Set( -minimapBounds.y / m, -minimapBounds.y );
+			}
+
+			// If out of bounds, get point on appropriate side
+			if ( screenPointScaled.x > minimapBounds.x ) // out of bounds, must be on right
+			{
+				screenPointScaled.Set( minimapBounds.x, minimapBounds.x * m );
+			}
+			else if ( screenPointScaled.x < -minimapBounds.x ) // out of bounds left
+			{
+				screenPointScaled.Set( -minimapBounds.x, -minimapBounds.x * m );
+			}
+			WorldPosition2D = UI.Instance.InGame.UI_Minimap.transform.TransformPoint( screenPointScaled );
 		}
 
-
-		ScreenPoint = UI.Instance.InGame.UI_Minimap.transform.TransformPoint( screenPointScaled );
-
-
-
-//		ScreenPoint = new Vector3( ScreenPoint.x / scaleFactor, ScreenPoint.y / scaleFactor );
-
-//		screenPointScaled -= minimapRect.size * 0.5f;
-
-//		screenPointScaled = UI.Instance.InGame.UI_Minimap.transform.InverseTransformPoint( screenPointScaled );
-		{
-//			screenPointScaled = Vector2.ClampMagnitude( screenPointScaled, orthoWidth * scaleFactor );
-			
-//			screenPointScaled = screenPointScaled.ClampComponents( minimapRect.size * 0.5f );
-
-//			screenPointScaled.x = Mathf.Clamp( screenPointScaled.x, -minimapRect.width, minimapRect.width );
-//			screenPointScaled.y = Mathf.Clamp( screenPointScaled.y, -minimapRect.height, minimapRect.height );
-
-		}
-//		screenPointScaled = UI.Instance.InGame.UI_Minimap.transform.TransformPoint( screenPointScaled );
-		
-		m_IconTransform.position = ScreenPoint;
-	
+		m_IconTransform.position = WorldPosition2D;
 	}
 	
+}
+
+
+
+
+
+public class PositionObjectOnWorldImage 
+{
+	// Ref: http://answers.unity.com/answers/1461171/view.html
+	public		Camera				m_TopViewCamera				= null;
+	public		RectTransform		m_MiniMapRectTransform		= null;
+
+	private		RectTransform		m_HelperRectTransform		= null;
+
+	private		Vector2				m_RatioVector				= Vector2.zero;
+
+	public PositionObjectOnWorldImage( Camera worldCamera, RectTransform worldImage )
+	{
+		this.m_TopViewCamera = worldCamera;
+		this.m_MiniMapRectTransform = worldImage;
+		m_HelperRectTransform = new GameObject ("helper").AddComponent<RectTransform>();
+		m_HelperRectTransform.SetParent (worldImage, false);
+		m_HelperRectTransform.anchorMin = Vector2.zero;
+		m_HelperRectTransform.anchorMax = Vector2.zero;
+
+		m_RatioVector = new Vector2( worldImage.rect.width / worldCamera.pixelWidth, worldImage.rect.height / worldCamera.pixelHeight );
+	}
+ 
+	public bool GetPositionOnUI( Vector3 worldPosition, out Vector2 WorldPosition2D )
+	{
+		//first we get screnPoint in camera viewport space
+		Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint (m_TopViewCamera, worldPosition);
+		
+		//then transform it to position in worldImage using its rect
+		screenPoint.x *= m_RatioVector.x;
+		screenPoint.y *= m_RatioVector.y;
+
+		//after positioning helper to that spot
+		m_HelperRectTransform.anchoredPosition = screenPoint;
+		
+		WorldPosition2D = m_HelperRectTransform.position;
+
+		return RectTransformUtility.RectangleContainsScreenPoint( m_MiniMapRectTransform, WorldPosition2D );
+	}
 }

@@ -10,21 +10,13 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 
 	private			GameObject		m_CameraContainer			= null;
 
-	
-	public	Camera	GetTopViewCamera()
-	{
-		return m_TopViewCamera;
-	}
+	private			RectTransform	m_MiniMapRectTransform		= null;
+	private			RectTransform	m_HelperRectTransform		= null;
+	private			Vector2			m_RatioVector				= Vector2.zero;
 
-	public	Rect	GetRawImageRect()
+	public			RectTransform	GetRawImageRect()
 	{
-		RectTransform rectTransform = m_RawImage.transform.transform as RectTransform;
-		return rectTransform.rect;
-	}
-
-	public	Vector2 GetRawImagePosition()
-	{
-		return ( m_RawImage.transform as RectTransform ).position;
+		return m_MiniMapRectTransform;
 	}
 
 
@@ -69,6 +61,17 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 				m_TopViewCamera.allowHDR			= false;
 				m_TopViewCamera.farClipPlane		= m_CameraContainer.transform.position.y * 2f;
 				m_TopViewCamera.targetTexture		= m_RawImage.texture as RenderTexture;
+
+
+				m_MiniMapRectTransform = m_RawImage.transform as RectTransform;
+
+				m_HelperRectTransform = new GameObject("MinimapHelper").AddComponent<RectTransform>();
+				m_HelperRectTransform.SetParent( m_MiniMapRectTransform, worldPositionStays: false );
+				m_HelperRectTransform.anchorMin = Vector2.zero;
+				m_HelperRectTransform.anchorMax = Vector2.zero;
+				m_HelperRectTransform.hideFlags = HideFlags.HideAndDontSave;
+
+				m_RatioVector = new Vector2( m_MiniMapRectTransform.rect.width / m_TopViewCamera.pixelWidth, m_MiniMapRectTransform.rect.height / m_TopViewCamera.pixelHeight );
 			}
 
 			if ( m_bIsInitialized )
@@ -97,6 +100,24 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 	bool	 IStateDefiner.Finalize()
 	{
 		return m_bIsInitialized;
+	}
+
+
+	public bool GetPositionOnUI( Vector3 worldPosition, out Vector2 WorldPosition2D )
+	{
+		//first we get screnPoint in camera viewport space
+		Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint (m_TopViewCamera, worldPosition);
+		
+		//then transform it to position in worldImage using its rect
+		screenPoint.x *= m_RatioVector.x;
+		screenPoint.y *= m_RatioVector.y;
+
+		//after positioning helper to that spot
+		m_HelperRectTransform.anchoredPosition = screenPoint;
+		
+		WorldPosition2D = m_HelperRectTransform.position;
+
+		return RectTransformUtility.RectangleContainsScreenPoint( m_MiniMapRectTransform, WorldPosition2D );
 	}
 
 

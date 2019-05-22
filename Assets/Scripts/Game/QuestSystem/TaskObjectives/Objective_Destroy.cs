@@ -70,7 +70,7 @@ namespace QuestSystem {
 		/// <summary> Set as current active to true and add indicator </summary>
 		protected		override	void		ActivateInternal()
 		{
-			UI.Instance.Indicators.EnableIndicator( gameObject, IndicatorType.TARGET_TO_KILL );
+			UI.Instance.Indicators.EnableIndicator( gameObject, IndicatorType.TARGET_TO_KILL, bMustBeClamped: false );
 		}
 
 
