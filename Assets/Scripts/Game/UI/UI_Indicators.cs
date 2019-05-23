@@ -38,8 +38,6 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 		get { return m_bIsInitialized; }
 	}
 
-	private		static PositionObjectOnWorldImage m_PositionObjectOnWorldImage = null;
-
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
@@ -296,7 +294,6 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 		{
 			m_IconTransform.gameObject.SetActive( false );
 		}
-		else
 		if ( bIsInside == false && bMustBeClamped == true )
 		{
 			Vector2 screenPointScaled = UI.Instance.InGame.UI_Minimap.transform.InverseTransformPoint( WorldPosition2D );
@@ -332,6 +329,11 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 			{
 				screenPointScaled.Set( -minimapBounds.x, -minimapBounds.x * m );
 			}
+
+			// Because of the different scale applied to rawImage rectTransform, this must be token in account fo computations
+			screenPointScaled.x *= minimapRect.localScale.x;
+			screenPointScaled.y *= minimapRect.localScale.y;
+
 			WorldPosition2D = UI.Instance.InGame.UI_Minimap.transform.TransformPoint( screenPointScaled );
 		}
 
@@ -340,46 +342,3 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 	
 }
 
-
-
-
-
-public class PositionObjectOnWorldImage 
-{
-	// Ref: http://answers.unity.com/answers/1461171/view.html
-	public		Camera				m_TopViewCamera				= null;
-	public		RectTransform		m_MiniMapRectTransform		= null;
-
-	private		RectTransform		m_HelperRectTransform		= null;
-
-	private		Vector2				m_RatioVector				= Vector2.zero;
-
-	public PositionObjectOnWorldImage( Camera worldCamera, RectTransform worldImage )
-	{
-		this.m_TopViewCamera = worldCamera;
-		this.m_MiniMapRectTransform = worldImage;
-		m_HelperRectTransform = new GameObject ("helper").AddComponent<RectTransform>();
-		m_HelperRectTransform.SetParent (worldImage, false);
-		m_HelperRectTransform.anchorMin = Vector2.zero;
-		m_HelperRectTransform.anchorMax = Vector2.zero;
-
-		m_RatioVector = new Vector2( worldImage.rect.width / worldCamera.pixelWidth, worldImage.rect.height / worldCamera.pixelHeight );
-	}
- 
-	public bool GetPositionOnUI( Vector3 worldPosition, out Vector2 WorldPosition2D )
-	{
-		//first we get screnPoint in camera viewport space
-		Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint (m_TopViewCamera, worldPosition);
-		
-		//then transform it to position in worldImage using its rect
-		screenPoint.x *= m_RatioVector.x;
-		screenPoint.y *= m_RatioVector.y;
-
-		//after positioning helper to that spot
-		m_HelperRectTransform.anchoredPosition = screenPoint;
-		
-		WorldPosition2D = m_HelperRectTransform.position;
-
-		return RectTransformUtility.RectangleContainsScreenPoint( m_MiniMapRectTransform, WorldPosition2D );
-	}
-}

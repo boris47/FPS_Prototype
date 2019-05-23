@@ -103,14 +103,15 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 	}
 
 
+	// Ref: http://answers.unity.com/answers/1461171/view.html
 	public bool GetPositionOnUI( Vector3 worldPosition, out Vector2 WorldPosition2D )
 	{
 		//first we get screnPoint in camera viewport space
 		Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint (m_TopViewCamera, worldPosition);
 		
 		//then transform it to position in worldImage using its rect
-		screenPoint.x *= m_RatioVector.x;
-		screenPoint.y *= m_RatioVector.y;
+//		screenPoint.x *= m_RatioVector.x;
+//		screenPoint.y *= m_RatioVector.y;
 
 		//after positioning helper to that spot
 		m_HelperRectTransform.anchoredPosition = screenPoint;
