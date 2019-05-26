@@ -121,7 +121,7 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 		thisDropdown.AddOptions( ui_Names );
 
 		// Search current Value
-		thisDropdown.value = filtered.FindIndex( s => s.Name() == alreadyAssignedModules[(int)slot] );
+		thisDropdown.value = filtered.FindIndex( s => s.GetName() == alreadyAssignedModules[(int)slot] );
 
 		// On selection Event
 		UnityEngine.Events.UnityAction<int> onSelection = delegate( int index )

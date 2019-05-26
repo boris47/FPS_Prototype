@@ -168,22 +168,12 @@ public class WeaponModuleSlot {
 		int[] localAllowedSlots = null;
 		if ( result &= moduleSection.bGetMultiAsArray<int>( "AllowedSlots", ref localAllowedSlots ) )
 		{
-			allowedSlots = new Dictionary<WeaponSlots, bool>();
-			allowedSlots.Add( WeaponSlots.PRIMARY,		false );
-			allowedSlots.Add( WeaponSlots.SECONDARY,	false );
-			allowedSlots.Add( WeaponSlots.TERTIARY,		false );
-
-		
-			foreach( int slot in localAllowedSlots )
+			allowedSlots = new Dictionary<WeaponSlots, bool>()
 			{
-				switch ( slot )
-				{
-					case 1:	allowedSlots[ WeaponSlots.PRIMARY ]		= true;	break;
-					case 2:	allowedSlots[ WeaponSlots.SECONDARY ]	= true;	break;
-					case 3:	allowedSlots[ WeaponSlots.TERTIARY ]	= true;	break;
-					default: break;
-				}
-			}
+				{ WeaponSlots.PRIMARY,		System.Array.Exists( localAllowedSlots, slot => slot-1 == (int)WeaponSlots.PRIMARY ) },
+				{ WeaponSlots.SECONDARY,	System.Array.Exists( localAllowedSlots, slot => slot-1 == (int)WeaponSlots.SECONDARY ) },
+				{ WeaponSlots.TERTIARY,		System.Array.Exists( localAllowedSlots, slot => slot-1 == (int)WeaponSlots.TERTIARY ) }
+			};
 		}
 		return result;
 	}
@@ -208,7 +198,7 @@ public class WeaponModuleSlot {
 		if ( alreadyAssignedModules != null )
 		{
 			int counter = 0;
-			System.Array.ForEach( alreadyAssignedModules, m => { if (m == moduleSection.Name()) counter++; } );
+			System.Array.ForEach( alreadyAssignedModules, m => { if (m == moduleSection.GetName()) counter++; } );
 
 			result &= !( counter > maxCount );
 		}
@@ -220,7 +210,7 @@ public class WeaponModuleSlot {
 	//////////////////////////////////////////////////////////////////////////
 	public	bool	TrySetModule( IWeapon wpn, Database.Section moduleSection )
 	{
-		System.Type type = System.Type.GetType( moduleSection.Name() );
+		System.Type type = System.Type.GetType( moduleSection.GetName() );
 		return TrySetModule( wpn, type );
 	}
 
@@ -230,14 +220,14 @@ public class WeaponModuleSlot {
 	{
 		if ( type == null )
 		{
-			Debug.Log( "WeaponModuleSlot::TrySetModule: " + wpn.Section.Name() + ", Slot:" + Weapon.GetModuleSlotName(m_ThisSlot) + ", Setting invalid weapon module \"" + type.ToString() + "\"" );
+			Debug.Log( "WeaponModuleSlot::TrySetModule: " + wpn.Section.GetName() + ", Slot:" + Weapon.GetModuleSlotName(m_ThisSlot) + ", Setting invalid weapon module \"" + type.ToString() + "\"" );
 			return false;
 		}
 			
 		// Check module type as child of WPN_BaseModule
 		if ( type.IsSubclassOf( typeof( WPN_BaseModule ) ) == false )
 		{
-			Debug.Log( "WeaponModuleSlot::TrySetModule: " + wpn.Section.Name() + ", Slot:" + Weapon.GetModuleSlotName(m_ThisSlot) + ", Class Requested is not a supported weapon module, \"" + type.ToString() + "\"" );
+			Debug.Log( "WeaponModuleSlot::TrySetModule: " + wpn.Section.GetName() + ", Slot:" + Weapon.GetModuleSlotName(m_ThisSlot) + ", Class Requested is not a supported weapon module, \"" + type.ToString() + "\"" );
 			return false;
 		}
 
@@ -260,7 +250,7 @@ public class WeaponModuleSlot {
 		{
 			Object.Destroy( wpnModule );
 			m_WeaponModule = wpn.Transform.gameObject.AddComponent<WPN_BaseModuleEmpty>();
-			Debug.Log( "WeaponModuleSlot::TrySetModule: " + wpn.Section.Name() + ": Class Requested is not a supported weapon module, \"" + type.ToString() + "\"" );
+			Debug.Log( "WeaponModuleSlot::TrySetModule: " + wpn.Section.GetName() + ": Class Requested is not a supported weapon module, \"" + type.ToString() + "\"" );
 		}
 
 //		GameManager.UpdateEvents.OnFrame += m_WeaponModule.InternalUpdate;

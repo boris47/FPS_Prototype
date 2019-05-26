@@ -57,6 +57,34 @@ public static class Extensions {
 	}
 
 
+	/// <summary> Search along a bidimensional array for item using predicate </summary>
+	public	static	bool			FindByPredicate<T>( this T[,] array, System.Predicate<T> predicate, ref T value, out Vector2 location )
+	{
+		// Gets the rank (number of dimensions) of the Array
+		int dimensions = array.Rank;
+		bool bIsFound = false;
+		location = Vector2.zero;
+		for ( int dimension = 0; dimension < dimensions && bIsFound == false; dimension++ )
+		{
+			int upper = array.GetUpperBound(dimension);
+			int lower = array.GetLowerBound(dimension);
+
+			for ( int index = lower; index <= upper && bIsFound == false; index++ )
+			{
+				T currentValue = array[ dimension, index ];
+				if ( predicate( currentValue ) )
+				{
+					value = currentValue;
+					location.Set( dimension, index );
+					bIsFound = true;
+				}
+			}
+		}
+
+		return bIsFound;
+	}
+	
+
 	/////////////////////////////////////////////////////////////////////////////
 	///////////////	UNITY ///////////////
 

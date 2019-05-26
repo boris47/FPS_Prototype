@@ -129,6 +129,13 @@ public partial class GameManager : MonoBehaviour {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	public	void	RequireFrameSkip()
+	{
+		m_SkipOneFrame = true;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	private			void		FixedUpdate()
 	{
 		m_OnPhysicFrame( Time.fixedDeltaTime );
@@ -149,7 +156,7 @@ public partial class GameManager : MonoBehaviour {
 
 		if ( Input.GetKeyDown( KeyCode.Return ) && WeaponManager.Instance.IsZoomed == false )
 		{
-			UI.Instance.GoToMenu( UI.Instance.WeaponCustomization.transform );
+			UI.Instance.GoToMenu( UI.Instance.Inventory.transform );
 		}
 
 		if ( Input.GetKeyDown (KeyCode.O) )

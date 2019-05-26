@@ -133,9 +133,9 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 	protected	virtual	string				OtherInfo
 	{
 		get {
-			string primaryModule	= m_PrimaryWeaponModuleSlot.WeaponModule.ModuleSection ? m_PrimaryWeaponModuleSlot.WeaponModule.ModuleSection.Name() : "None";
-			string secondaryModule	= m_SecondaryWeaponModuleSlot.WeaponModule.ModuleSection ? m_SecondaryWeaponModuleSlot.WeaponModule.ModuleSection.Name() : "None";
-			string tertiaryModule	= m_TertiaryWeaponModuleSlot.WeaponModule.ModuleSection ? m_TertiaryWeaponModuleSlot.WeaponModule.ModuleSection.Name() : "None";
+			string primaryModule	= m_PrimaryWeaponModuleSlot.WeaponModule.ModuleSection ? m_PrimaryWeaponModuleSlot.WeaponModule.ModuleSection.GetName() : "None";
+			string secondaryModule	= m_SecondaryWeaponModuleSlot.WeaponModule.ModuleSection ? m_SecondaryWeaponModuleSlot.WeaponModule.ModuleSection.GetName() : "None";
+			string tertiaryModule	= m_TertiaryWeaponModuleSlot.WeaponModule.ModuleSection ? m_TertiaryWeaponModuleSlot.WeaponModule.ModuleSection.GetName() : "None";
 			return primaryModule + "," + secondaryModule + "," + tertiaryModule;
 		}
 	}
@@ -414,6 +414,8 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 	{
 		StreamUnit streamUnit	= streamData.NewUnit( gameObject );
 		
+		streamUnit.SetInternal( "PrimaryModule", m_PrimaryWeaponModuleSlot.WeaponModule.ModuleSection.GetName() );
+
 		m_PrimaryWeaponModuleSlot.WeaponModule.OnSave( streamUnit );
 		m_SecondaryWeaponModuleSlot.WeaponModule.OnSave( streamUnit );
 		m_TertiaryWeaponModuleSlot.WeaponModule.OnSave( streamUnit );

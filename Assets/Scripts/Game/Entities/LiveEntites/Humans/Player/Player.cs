@@ -370,7 +370,7 @@ public partial class Player : Human {
 		{
 			DropEntityDragged();
 		}
-		else
+		else if ( m_RaycastHit.transform != null )
 		{
 			// GRAB ACTION
 			Grabbable grabbable = null;

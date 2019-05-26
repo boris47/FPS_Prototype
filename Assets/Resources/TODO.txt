@@ -68,9 +68,7 @@ AI Behiaviours
 	Modular weapons
 	{
 		- Fire Modes ( Single, Burst, BurstAuto, Auto, Auto_Incremental )
-
 		- Three modules ( Primary, Secondary, Tertiary )
-
 		- Default Module: WPN_BaseModuleEmpty
 
 		- Fire Modules	
@@ -87,11 +85,8 @@ AI Behiaviours
 						WPN_WeaponModule_Shield
 
 		- Almost each module loads a different prefab for the weapon composition
-
 		- All module can have some modifiers applied
-
 		- Each module has some callable events ( ApplyModifier, RemoveModifier, ResetBaseConfiguration, Start, Update, End )
-
 		- The weapon can have other attachments that can be Activated and Deactivated / Attached and Removed ( Flashlight, Laser, Optic )
 	}
 
@@ -103,4 +98,13 @@ AI Behiaviours
 ***	TODO UI Indicators pool
 
 	TODO Prevent entities to change state behaviour while in cutscene
-	TODO MiniMap indicators
+***	TODO MiniMap indicators
+	TODO Save of weapons and module, with modifiers both
+	{
+		The weapon load first modules data, 
+		load modules modifiers, 
+		apply last configuration
+	}
+	TODO Inventory
+	TODO Screen notifies
+

@@ -2,6 +2,8 @@
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
+
 
 public interface IStateDefiner {
 
@@ -60,6 +62,7 @@ public interface IUI {
 	UI_MainMenu				MainMenu					{ get; }
 	UI_InGame				InGame						{ get; }
 	UI_WeaponCustomization	WeaponCustomization			{ get; }
+	UI_Inventory			Inventory					{ get; }
 	UI_Settings				Settings					{ get; }
 	UI_Bindings				Bindings					{ get; }
 	UI_Graphics				Graphics					{ get; }
@@ -85,11 +88,41 @@ public interface IUI {
 
 public class UI : MonoBehaviour, IUI, IStateDefiner{
 
+		[DllImport("User32.Dll")]
+		public static extern long SetCursorPos(int x, int y);
+ 
+		[DllImport("user32.dll")]
+		[return: MarshalAs(UnmanagedType.Bool)]
+		public static extern bool GetCursorPos(out POINT lpPoint);
+ 
+		[StructLayout(LayoutKind.Sequential)]
+		public struct POINT
+		{
+			public int X;
+			public int Y;
+ 
+			public POINT(int x, int y)
+			{
+				this.X = x;
+				this.Y = y;
+			}
+
+			public	Vector2 ToVector2()
+			{
+				Vector2 vec = Vector2.zero;
+				vec.x = X;
+				vec.y = Y;
+				return vec;
+			}
+		}
+
+
 	public	static	IUI						Instance						= null;
 
 	private			UI_MainMenu				m_MainMenu						= null;
 	private			UI_InGame				m_InGame						= null;
 	private			UI_WeaponCustomization	m_WeaponCustomization			= null;
+	private			UI_Inventory			m_Inventory						= null;
 	private			UI_Settings				m_Settings						= null;
 	private			UI_PauseMenu			m_PauseMenu						= null;
 	private			UI_Bindings				m_Bindings						= null;
@@ -104,6 +137,7 @@ public class UI : MonoBehaviour, IUI, IStateDefiner{
 					UI_MainMenu				IUI.MainMenu					{ get { return m_MainMenu; } }
 					UI_InGame				IUI.InGame						{ get { return m_InGame; } }
 					UI_WeaponCustomization	IUI.WeaponCustomization			{ get { return m_WeaponCustomization; } }
+					UI_Inventory			IUI.Inventory					{ get { return m_Inventory; } }
 					UI_Settings				IUI.Settings					{ get { return m_Settings; } }
 					UI_Bindings				IUI.Bindings					{ get { return m_Bindings; } }
 					UI_Graphics				IUI.Graphics					{ get { return m_Graphics; } }
@@ -120,6 +154,12 @@ public class UI : MonoBehaviour, IUI, IStateDefiner{
 
 	[SerializeField]
 	private			List<Transform>			m_TransformList					= new List<Transform>();
+
+	private			POINT					m_LastCursorPosition = new POINT();
+	public			Vector2					LastCursorPosition
+	{
+		get { return m_LastCursorPosition.ToVector2(); }
+	}
 
 
 	private	bool			m_bIsInitialized			= false;
@@ -170,6 +210,7 @@ public class UI : MonoBehaviour, IUI, IStateDefiner{
 		m_bIsInitialized &= transform.SearchComponentInChild( "UI_MainMenu",				ref m_MainMenu );
 		m_bIsInitialized &= transform.SearchComponentInChild( "UI_InGame",					ref m_InGame );
 		m_bIsInitialized &= transform.SearchComponentInChild( "UI_WeaponCustomization",		ref m_WeaponCustomization );
+		m_bIsInitialized &= transform.SearchComponentInChild( "UI_Inventory",				ref m_Inventory );
 		m_bIsInitialized &= transform.SearchComponentInChild( "UI_Settings",				ref m_Settings );
 		m_bIsInitialized &= transform.SearchComponentInChild( "UI_PauseMenu",				ref m_PauseMenu );
 		m_bIsInitialized &= transform.SearchComponentInChild( "UI_Bindings",				ref m_Bindings );
@@ -226,12 +267,13 @@ public class UI : MonoBehaviour, IUI, IStateDefiner{
 	// SwitchTo
 	private	void	SwitchTo( Transform trasformToShow )
 	{
+		GetCursorPos( out m_LastCursorPosition );
 		string previousName = m_CurrentActiveTrasform.name;
 			m_CurrentActiveTrasform.gameObject.SetActive( false );
 			m_CurrentActiveTrasform	= trasformToShow;
 			m_CurrentActiveTrasform.gameObject.SetActive( true );
 		string currentName = m_CurrentActiveTrasform.name;
-
+		SetCursorPos(m_LastCursorPosition.X, m_LastCursorPosition.Y );
 		print( "Switched from " + previousName + " to " + currentName );
 	}
 

@@ -6,18 +6,14 @@ using System.Linq;
 
 public class UI_Bindings : MonoBehaviour, IStateDefiner {
 
-	static		List<Dropdown.OptionData> keyStateDropDownList = null;
-
-	private		InputManager		m_InputMgr			= null;
-	private		RectTransform		m_ThisRect			= null;
-	private		GameObject			m_UI_CommandRow		= null;
-
-	private		Transform			m_ScrollContent		= null;
-
-	private		Transform			m_BlockPanel		= null;
+	static		List<Dropdown.OptionData> keyStateDropDownList		= null;
+	private		InputManager		m_InputMgr						= null;
+	private		GameObject			m_UI_CommandRow					= null;
+	private		Transform			m_ScrollContentTransform		= null;
+	private		Transform			m_BlockPanel					= null;
 
 
-	private	bool			m_bIsInitialized			= false;
+	private	bool			m_bIsInitialized					= false;
 	bool IStateDefiner.IsInitialized
 	{
 		get { return m_bIsInitialized; }
@@ -29,25 +25,23 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 	{
 		m_bIsInitialized = true;
 		{
-			m_ThisRect = transform as RectTransform;
-			m_bIsInitialized &= m_ThisRect != null;
+			keyStateDropDownList = new List<Dropdown.OptionData>
+			(
+				System.Enum.GetValues( typeof( eKeyState ) ).
+				Cast<eKeyState>().
+				Select( ( eKeyState k ) => new Dropdown.OptionData( k.ToString() ) )
+			);
 
-			keyStateDropDownList = new List<Dropdown.OptionData>();
+
+			// UI Command Row Prefab
+			ResourceManager.LoadData<GameObject> loadData = new ResourceManager.LoadData<GameObject>();
+			if ( m_bIsInitialized &= ResourceManager.LoadResourceSync( "Prefabs/UI/UI_CommandRow", loadData ) )
 			{
-				keyStateDropDownList.AddRange
-				(
-					System.Enum.GetValues( typeof( eKeyState ) ).
-					Cast<eKeyState>().
-					Select( (eKeyState k ) => new Dropdown.OptionData( k.ToString() ) )
-				);
+				m_UI_CommandRow = loadData.Asset;
 			}
 
-
-			m_UI_CommandRow = Resources.Load<GameObject>( "Prefabs/UI/UI_CommandRow" );
-			m_bIsInitialized &= m_UI_CommandRow != null;
-
-			m_ScrollContent = transform.GetComponentInChildren<VerticalLayoutGroup>().transform;
-			m_bIsInitialized &= m_ScrollContent != null;
+			// Scroll content conmponent
+			m_bIsInitialized &= transform.SearchComponent( ref m_ScrollContentTransform, SearchContext.CHILDREN, c => c.HasComponent<VerticalLayoutGroup>() );
 
 			m_BlockPanel = transform.Find("BlockPanel" );
 			m_bIsInitialized &= m_BlockPanel != null;
@@ -129,7 +123,7 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 	{
 		GameObject commandRow = Instantiate<GameObject>( m_UI_CommandRow );
 		{
-			commandRow.transform.SetParent( m_ScrollContent );
+			commandRow.transform.SetParent( m_ScrollContentTransform );
 			commandRow.transform.localScale  = Vector3.one;
 			commandRow.name = info.Command.ToString();
 		}
@@ -225,7 +219,7 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 	private	void	FillGrid()
 	{
 		// Clear the content of scroll view
-		foreach( Transform t in m_ScrollContent )
+		foreach( Transform t in m_ScrollContentTransform )
 		{
 			Destroy( t.gameObject );
 		}

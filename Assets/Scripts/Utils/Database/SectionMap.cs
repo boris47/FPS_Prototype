@@ -100,7 +100,7 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 		cLineValue pLineValue = new cLineValue( Pair.Key , Pair.Value );
 		if ( pLineValue.IsOK == false )
 		{
-			Debug.LogError( " SectionMap::Section_Add:LineValue invalid for key |" + Pair.Key + "| in Section |" + m_CurrentSection.Name() + "| in file |" + sFilePath + "|" );
+			Debug.LogError( " SectionMap::Section_Add:LineValue invalid for key |" + Pair.Key + "| in Section |" + m_CurrentSection.GetName() + "| in file |" + sFilePath + "|" );
 			return false;
 		}
 		m_CurrentSection.Add( pLineValue );
@@ -114,7 +114,7 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 	private void Section_Close()
 	{
 		if ( m_CurrentSection != null )
-			m_SectionMap.Add( m_CurrentSection.Name(), m_CurrentSection );
+			m_SectionMap.Add( m_CurrentSection.GetName(), m_CurrentSection );
 
 		m_CurrentSection = null;
 		m_ReadingPhase = READING_NOTHING;
@@ -292,7 +292,7 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 	{
 		foreach( Section section in this )
 		{
-			Debug.Log( "Section: " + section.Name() );
+			Debug.Log( "Section: " + section.GetName() );
 
 			foreach( cLineValue lineValue in section )
 			{

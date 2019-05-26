@@ -12,7 +12,7 @@ namespace Database {
 
 		void					Destroy							();
 		int						Lines							();
-		string					Name							();
+		string					GetName							();
 		void					Add								( cLineValue LineValue );
 		bool					HasKey							( string Key );
 		bool					IsChildOf						( Section MotherSection );
@@ -128,7 +128,7 @@ namespace Database {
 
 		public	bool					IsChildOf						( Section MotherSection )
 		{
-			string motherName = MotherSection.Name();
+			string motherName = MotherSection.GetName();
 			return ( vMothers.FindIndex( m => m == motherName ) != -1 );
 		}
 
@@ -145,7 +145,7 @@ namespace Database {
 		}
 
 		public	int						Lines()				{ return vSection.Count; }
-		public	string					Name()				{ return ( string ) sName.Clone(); }
+		public	string					GetName()				{ return ( string ) sName.Clone(); }
 	
 
 		public	void					Add( cLineValue LineValue )

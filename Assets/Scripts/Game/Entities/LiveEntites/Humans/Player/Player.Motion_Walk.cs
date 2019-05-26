@@ -353,8 +353,7 @@ public partial class Player {
 		GameManager.Instance.InputMgr.BindCall( eInputCommands.ABILITY_HOLD,	"DodgeContinue",	AbilityContinueAction,	AbilityPredcate );
 		GameManager.Instance.InputMgr.BindCall( eInputCommands.ABILITY_RELEASE,	"DodgeEnd",			AbilityEndAction,		AbilityPredcate );
 	}
-
-
+	
 	private	void	UnRegisterGroundedMotion()
 	{
 		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.MOVE_FORWARD,	"ForwardEvent" );
@@ -375,6 +374,7 @@ public partial class Player {
 		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.ABILITY_HOLD,	"DodgeContinue" );
 		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.ABILITY_RELEASE,"DodgeEnd" );
 	}
+
 
 	private	bool	Motion_Walk_Predicate()
 	{
@@ -422,7 +422,6 @@ public partial class Player {
 		m_ForwardSmooth = -force;
 	}
 
-
 	private	void	StrafeRightAction()
 	{
 		m_States.IsMoving = true;
@@ -443,8 +442,7 @@ public partial class Player {
 		
 		m_RightSmooth = force * strafeFactor;
 	}
-
-
+	
 	private	void	StrafeLeftAction()
 	{
 		m_States.IsMoving = true;
@@ -474,8 +472,11 @@ public partial class Player {
 
 	private	void	RunAction()
 	{
-		m_States.IsCrouched = false;
-		m_States.IsRunning = true;
+		if ( m_ForwardSmooth != 0.0f || m_RightSmooth != 0.0f )
+		{
+			m_States.IsCrouched = false;
+			m_States.IsRunning = true;
+		}
 	}
 
 

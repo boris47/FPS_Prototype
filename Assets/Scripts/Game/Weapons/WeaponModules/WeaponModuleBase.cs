@@ -30,7 +30,7 @@ public interface IWPN_UtilityModule {
 [System.Serializable]
 public abstract class WPN_BaseModule : MonoBehaviour, IModifiable {
 
-	protected		Database.Section			m_ModuleSection				= null;
+	protected		Database.Section			m_ModuleSection				= new Database.Section( "Empty", "Unassigned" );
 	protected		IWeapon						m_WeaponRef					= null;
 	protected		WeaponSlots					m_ModuleSlot				= WeaponSlots.NONE;
 	protected		List<Database.Section>		m_Modifiers					= new List<Database.Section>();
@@ -350,8 +350,8 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 			CanPenetrate			= mod.AsInt( "bCanPenetrate", 0u ) > 0 ? true : false;
 		}
 
-		// return new configuration
-		Database.Section config = new Database.Section( "LastConfigSection", ModuleSection.Name() );
+		// return the current configuration
+		Database.Section config = new Database.Section( "LastConfigSection", ModuleSection.GetName() );
 		config.Set( "MagazineCapacity",				MagazineCapacity	);
 		config.Set( "Damage",						Damage				);
 		config.Set( "CamDeviation",					CamDeviation		);
@@ -380,8 +380,8 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 	public		override	void	ResetBaseConfiguration()
 	{
 		// Reset everything of this module
-		Setup( m_WeaponRef, m_ModuleSlot );
 		m_Modifiers.Clear();
+		Setup( m_WeaponRef, m_ModuleSlot );
 	}
 	
 

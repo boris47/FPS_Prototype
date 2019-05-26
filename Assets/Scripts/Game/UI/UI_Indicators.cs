@@ -167,7 +167,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 	//////////////////////////////////////////////////////////////////////////
 	// FixedUpdate
-	private void FixedUpdate()
+	private void Update()
 	{
 		for ( int i = m_CurrentlyActive.Count - 1; i >= 0; i-- )
 		{
@@ -289,7 +289,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 		//
 		Vector2 WorldPosition2D;
-		bool bIsInside = UI.Instance.InGame.UI_Minimap.GetPositionOnUI(targetTransform.position, out WorldPosition2D );
+		bool bIsInside = UI.Instance.InGame.UI_Minimap.GetPositionOnUI( targetTransform.position, out WorldPosition2D );
 		if ( bIsInside == false && bMustBeClamped == false )
 		{
 			m_IconTransform.gameObject.SetActive( false );

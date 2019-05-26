@@ -9,7 +9,10 @@ public class PickupableItem : MonoBehaviour {
 	[SerializeField]
 	protected	string		m_PickUpSectionName		= string.Empty;
 
-	private		bool		m_Initialized			= false;
+	[SerializeField]
+	protected	Texture2D	m_Texture				= null;
+
+	private		bool		m_Initialized			= true;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -28,9 +31,14 @@ public class PickupableItem : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnTriggerEnter( Collider other )
 	{
-		if ( m_Initialized && other.isTrigger && other.name == "Player" )
+		if ( m_Initialized && other.name == "Player" )
 		{
 			WeaponManager.Instance.ApplyModifierToWeaponSlot( WeaponManager.Instance.CurrentWeapon, WeaponSlots.PRIMARY, m_PickUpSectionName );
+
+			Database.Section section = null;
+			GameManager.Configs.bGetSection( m_PickUpSectionName, ref section );
+
+			UI.Instance.Inventory.AddItem( m_Texture, section );
 			enabled = false;
 			Destroy( gameObject );
 		}
