@@ -15,7 +15,7 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 
 
 	// Resolution
-	private	Resolution[]			m_AviableResolutions	= null;
+	private	Resolution[]			m_AvailableResolutions	= null;
 
 	// Quality
 	private	string[]				m_QualityLevelNames		= null;
@@ -76,13 +76,24 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 		{
 			Navigation noNavigationMode = new Navigation() { mode = Navigation.Mode.None };
 
-			// Get Components
-			m_AviableResolutions = Screen.resolutions;
+			// Sort Resolutions
+			System.Comparison<Resolution> comparer = delegate( Resolution a, Resolution b )
+			{
+				int mulA = a.width*a.height;
+				int mulB = b.width*b.height;
+				return  mulA < mulB ? -1 : mulA > mulB ? 1 : 0; // a.width < b.width ? -1 : a.width > b.width ? 1 : 0;
+			};
+
+			List<Resolution> sortedResolutions = new List<Resolution>( Screen.resolutions );
+			sortedResolutions.Sort ( comparer );
+			
+			m_AvailableResolutions = sortedResolutions.ToArray();
+
 			if ( m_bIsInitialized &= transform.SearchComponentInChild( "ResolutionsDropDown", ref m_ResolutionDropDown ) )
 			{
 				m_ResolutionDropDown.onValueChanged.AddListener( OnResolutionChosen );
 				m_ResolutionDropDown.AddOptions( 
-					new List<Resolution>( m_AviableResolutions ).ConvertAll( 
+					new List<Resolution>( m_AvailableResolutions ).ConvertAll( 
 						new System.Converter<Resolution, string>( ( Resolution res ) => { return res.ToString(); } )
 					)
 				);
@@ -166,11 +177,26 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 	// GetResolutionIndex
 	private	int GetResolutionIndex( Resolution res )
 	{
-		System.Predicate<Resolution> pred = delegate( Resolution r )
+		int bestWidthtDelta = int.MaxValue;
+		int bestHeightDelta = int.MaxValue;
+		int currentIndex = 0;
+		for ( int i = 0; i < m_AvailableResolutions.Length; i++ )
 		{
-			return r.height == res.height && res.width == r.width && res.refreshRate == r.refreshRate;
-		};
-		return System.Array.FindIndex( m_AviableResolutions, pred );
+			Resolution r = m_AvailableResolutions[ i ];
+			int deltaWidth = Mathf.Abs( res.width - r.width );
+			if ( deltaWidth < bestWidthtDelta )
+			{
+				int deltaHeight = Mathf.Abs( res.height - r.height );
+				if ( deltaHeight < bestHeightDelta )
+				{
+					currentIndex = i;
+					bestHeightDelta = deltaHeight;
+				}
+				bestWidthtDelta = deltaWidth;
+			}
+		}
+
+		return currentIndex;
 	}
 
 
@@ -204,10 +230,11 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 	// OnResolutionChosen
 	private	void	OnResolutionChosen( int index )
 	{
-		Resolution chosen = m_AviableResolutions[ index ];
-		m_ScreenData.resolution = chosen;
-		m_ScreenData.isDirty = true;
-		m_ApplyButton.interactable = true;
+		Resolution chosen = m_AvailableResolutions[ index ];
+		m_ScreenData.resolution			= chosen;
+		m_ScreenData.isDirty			= true;
+		m_ScreenData.resolutionIndex	= index;
+		m_ApplyButton.interactable		= true;
 	}
 
 
@@ -215,9 +242,9 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 	// OnFullScreenSet
 	private	void	OnFullScreenSet( bool newValue )
 	{
-		m_ScreenData.fullScreen = newValue;
-		m_ScreenData.isDirty = true;
-		m_ApplyButton.interactable = true;
+		m_ScreenData.fullScreen			= newValue;
+		m_ScreenData.isDirty			= true;
+		m_ApplyButton.interactable		= true;
 	}
 
 
@@ -225,9 +252,9 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 	// OnAnisotropicFilterSet
 	private	void	OnAnisotropicFilterSet( bool newValue )
 	{
-		m_FilterData.anisotropicFilter = newValue;
-		m_FilterData.isDirty = true;
-		m_ApplyButton.interactable = true;
+		m_FilterData.anisotropicFilter	= newValue;
+		m_FilterData.isDirty			= true;
+		m_ApplyButton.interactable		= true;
 	}
 
 
@@ -235,9 +262,9 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 	// OnAntialiasingSet
 	private	void	OnAntialiasingSet( int newiIndex )
 	{
-		m_FilterData.antialiasing = newiIndex;
-		m_FilterData.isDirty = true;
-		m_ApplyButton.interactable = true;
+		m_FilterData.antialiasing		= newiIndex;
+		m_FilterData.isDirty			= true;
+		m_ApplyButton.interactable		= true;
 	}
 
 
@@ -245,9 +272,9 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 	// OnQualityLevelSet
 	private	void	OnQualityLevelSet( int newiIndex )
 	{
-		m_QualityData.qualityLevel = newiIndex;
-		m_QualityData.isDirty = true;
-		m_ApplyButton.interactable = true;
+		m_QualityData.qualityLevel		= newiIndex;
+		m_QualityData.isDirty			= true;
+		m_ApplyButton.interactable		= true;
 	}
 
 
@@ -264,7 +291,7 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 		Reset();
 		{
 			// Screen
-			m_ScreenData.resolution			= new Resolution() { width = 640, height = 480, refreshRate = 60 };
+			m_ScreenData.resolution			= new Resolution() { width = 800, height = 600, refreshRate = 60 };
 			m_ScreenData.resolutionIndex	= GetResolutionIndex( m_ScreenData.resolution );
 			m_ScreenData.fullScreen			= true;
 			m_ScreenData.isDirty			= true;
@@ -306,10 +333,9 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 		m_ScreenData.resolutionIndex	= PlayerPrefs.GetInt( VAR_RESOLUTION_INDEX );
 		if ( m_ScreenData.resolutionIndex > -1 )
 		{
-			m_ScreenData.resolution			= m_AviableResolutions[m_ScreenData.resolutionIndex];
+			m_ScreenData.resolution			= m_AvailableResolutions[m_ScreenData.resolutionIndex];
 		}
 
-//		m_ScreenData.resolution			= m_AviableResolutions[m_ScreenData.resolutionIndex];
 		m_ScreenData.fullScreen			= PlayerPrefs.GetInt( VAR_IS_FULLSCREEN ) != 0;
 
 		// Filters
@@ -392,7 +418,7 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 			m_FilterData.isDirty = false;
 
 			QualitySettings.anisotropicFiltering	= m_FilterData.anisotropicFilter ? AnisotropicFiltering.Enable : AnisotropicFiltering.Disable;
-			QualitySettings.antiAliasing			= m_FilterData.antialiasing;
+			QualitySettings.antiAliasing			= m_FilterData.antialiasing * 2;
 
 			print( "Applying filter settings" );
 		}

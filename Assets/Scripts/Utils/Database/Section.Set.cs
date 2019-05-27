@@ -12,10 +12,10 @@ namespace Database {
 		// SetValue
 		public	void					SetValue( string Key, cValue Value )
 		{
-			cLineValue pLineValue = this[ Key ];
+			cLineValue pLineValue = null;
 
 			// if not exists create one
-			if ( pLineValue == null )
+			if ( bGetLineValue( Key, ref pLineValue ) == false )
 				pLineValue = new cLineValue( Key, ( byte ) LineValueType.SINGLE );
 
 			pLineValue.Clear();
@@ -28,10 +28,10 @@ namespace Database {
 		// SetMultiValue
 		public	void					SetMultiValue( string Key, cValue[] vValues )
 		{
-			cLineValue pLineValue = this[ Key ];
+			cLineValue pLineValue = null;
 
 			// if not exists create one
-			if ( pLineValue == null )
+			if ( bGetLineValue( Key, ref pLineValue ) == false )
 				pLineValue = new cLineValue( Key, LineValueType.MULTI );
 
 			pLineValue.Clear();
@@ -53,10 +53,10 @@ namespace Database {
 		// SetVec2
 		public	void			SetVec2( string Key, Vector2 Vec )
 		{
-			cLineValue pLineValue = this[ Key ];
+			cLineValue pLineValue = null;
 
 			// if not exists create one
-			if ( pLineValue == null )
+			if ( bGetLineValue( Key, ref pLineValue ) == false )
 				pLineValue = new cLineValue( Key, LineValueType.MULTI );
 
 			pLineValue.Clear();
@@ -71,10 +71,10 @@ namespace Database {
 		// SetVec3
 		public	void			SetVec3( string Key, Vector3 Vec ) {
 
-			cLineValue pLineValue = this[ Key ];
+			cLineValue pLineValue = null;
 
 			// if not exists create one
-			if ( pLineValue == null )
+			if ( bGetLineValue( Key, ref pLineValue ) == false )
 				pLineValue = new cLineValue( Key, LineValueType.MULTI );
 
 			pLineValue.Clear();
@@ -89,14 +89,32 @@ namespace Database {
 		// SetVec4
 		public	void			SetVec4( string Key, Vector4 Vec ) {
 
-			cLineValue pLineValue = this[ Key ];
+			cLineValue pLineValue = null;
 
 			// if not exists create one
-			if ( pLineValue == null )
+			if ( bGetLineValue( Key, ref pLineValue ) == false )
 				pLineValue = new cLineValue( Key, LineValueType.MULTI );
 
 			pLineValue.Clear();
 			cValue[] vValues = new cValue[] { new cValue( Vec.x ), new cValue( Vec.y ), new cValue( Vec.z ), new cValue( Vec.w ) };
+			cMultiValue multivalue = new cMultiValue( vValues );
+			pLineValue.Set( ref multivalue );
+			vSection.Add( pLineValue );
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// SetVec4
+		public	void			SetColor( string Key, Color color ) {
+
+			cLineValue pLineValue = null;
+
+			// if not exists create one
+			if ( bGetLineValue( Key, ref pLineValue ) == false )
+				pLineValue = new cLineValue( Key, LineValueType.MULTI );
+
+			pLineValue.Clear();
+			cValue[] vValues = new cValue[] { new cValue( color.r ), new cValue( color.g ), new cValue( color.b ), new cValue( color.a ) };
 			cMultiValue multivalue = new cMultiValue( vValues );
 			pLineValue.Set( ref multivalue );
 			vSection.Add( pLineValue );

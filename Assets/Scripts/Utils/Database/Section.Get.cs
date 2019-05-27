@@ -11,7 +11,7 @@ namespace Database {
 		public	global::System.Type		ValueType( string Key )
 		{
 			cLineValue pLineValue = null;
-			if ( ( pLineValue = this[ Key ] ) != null )
+			if ( bGetLineValue( Key, ref pLineValue ) )
 			{
 				if ( pLineValue.Type == LineValueType.SINGLE )
 				{
@@ -27,7 +27,7 @@ namespace Database {
 		public	string					GetRawValue( string Key, string Default = "" )
 		{
 			cLineValue pLineValue = null;
-			return ( ( pLineValue = this[ Key ] ) != null ) ? pLineValue.RawValue : Default;
+			return ( bGetLineValue( Key, ref pLineValue ) ) ? pLineValue.RawValue : Default;
 		}
 
 
@@ -35,8 +35,8 @@ namespace Database {
 		// As<T>
 		public	T						As<T>( string Key )
 		{
-			cLineValue pLineValue = this[ Key ];
-			if ( pLineValue != null && pLineValue.Type == LineValueType.SINGLE )
+			cLineValue pLineValue = null;
+			if ( bGetLineValue( Key, ref pLineValue ) && pLineValue.Type == LineValueType.SINGLE )
 			{
 				return pLineValue.Value.As<T>();
 			}
@@ -48,8 +48,8 @@ namespace Database {
 		// AsBool
 		public	bool					AsBool( string Key, bool Default = false )
 		{
-			cLineValue pLineValue = this[ Key ];
-			if ( pLineValue != null && pLineValue.Type == LineValueType.SINGLE )
+			cLineValue pLineValue = null;
+			if ( bGetLineValue( Key, ref pLineValue ) && pLineValue.Type == LineValueType.SINGLE )
 			{
 				return pLineValue.Value.As<bool>();
 			}
@@ -61,8 +61,8 @@ namespace Database {
 		// AsInt
 		public	int						AsInt( string Key, int Default = 0 )
 		{
-			cLineValue pLineValue = this[ Key ];
-			if ( pLineValue != null && pLineValue.Type == LineValueType.SINGLE )
+			cLineValue pLineValue = null;
+			if ( bGetLineValue( Key, ref pLineValue ) && pLineValue.Type == LineValueType.SINGLE )
 			{
 				return pLineValue.Value.As<int>();
 			}
@@ -82,8 +82,8 @@ namespace Database {
 		public	float					AsFloat( string Key, float Default = 0.0f )
 		{
 			
-			cLineValue pLineValue = this[ Key ];
-			if ( pLineValue != null && pLineValue.Type == LineValueType.SINGLE )
+			cLineValue pLineValue = null;
+			if ( bGetLineValue( Key, ref pLineValue ) && pLineValue.Type == LineValueType.SINGLE )
 			{
 				float value = pLineValue.Value;
 				return value;
@@ -96,8 +96,8 @@ namespace Database {
 		// AsString
 		public	string					AsString( string Key, string Default = "" )
 		{
-			cLineValue pLineValue = this[ Key ];
-			if ( pLineValue != null )
+			cLineValue pLineValue = null;
+			if ( bGetLineValue( Key, ref pLineValue ) )
 			{
 				return pLineValue.Value.As<string>();
 			}
@@ -109,11 +109,11 @@ namespace Database {
 		// AsMultiValue
 		public	cValue					AsMultiValue( string Key, int Index )
 		{
-			cLineValue pLineValue		= this[ Key ];
-			if ( pLineValue != null )
+			cLineValue pLineValue = null;
+			if ( bGetLineValue( Key, ref pLineValue ) )
 			{
-				cMultiValue pMultiValue = pLineValue.MultiValue;
-				if ( pMultiValue != null )
+				cMultiValue pMultiValue = null;
+				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
 				{
 					return pMultiValue [Index - 1 ];
 				}
@@ -126,11 +126,11 @@ namespace Database {
 		// AsMultiValue<T1,T2>
 		public	void					AsMultiValue<T1,T2>( string Key, int Idx1, int Idx2, ref T1 t1, ref T2 t2 )
 		{
-			cLineValue pLineValue		= this[ Key ];
-			if ( pLineValue != null )
+			cLineValue pLineValue		= null;
+			if ( bGetLineValue( Key, ref pLineValue ) )
 			{
-				cMultiValue pMultiValue = pLineValue.MultiValue;
-				if ( pMultiValue != null )
+				cMultiValue pMultiValue = null;
+				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
 				{
 					t1 = pMultiValue [Idx1 - 1].As<T1>();
 					t2 = pMultiValue [Idx2 - 1].As<T2>();
@@ -143,11 +143,11 @@ namespace Database {
 		// AsMultiValue<T1,T2,T3>
 		public	void					AsMultiValue<T1,T2,T3>( string Key, int Idx1, int Idx2, int Idx3, ref T1 t1, ref T2 t2, ref T3 t3 )
 		{
-			cLineValue pLineValue		= this[ Key ];
-			if ( pLineValue != null )
+			cLineValue pLineValue		= null;
+			if ( bGetLineValue( Key, ref pLineValue ) )
 			{
-				cMultiValue pMultiValue = pLineValue.MultiValue;
-				if ( pMultiValue != null )
+				cMultiValue pMultiValue = null;
+				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
 				{
 					t1 = pMultiValue [Idx1 - 1].As<T1>();
 					t2 = pMultiValue [Idx2 - 1].As<T2>();
@@ -161,11 +161,11 @@ namespace Database {
 		// AsMultiValue<T1,T2,T3,T4>
 		public	void					AsMultiValue<T1,T2,T3,T4>( string Key, int Idx1, int Idx2, int Idx3, int Idx4, ref T1 t1, ref T2 t2, ref T3 t3, ref T4 t4 )
 		{
-			cLineValue pLineValue		= this[ Key ];
-			if ( pLineValue != null )
+			cLineValue pLineValue		= null;
+			if ( bGetLineValue( Key, ref pLineValue ) )
 			{
-				cMultiValue pMultiValue = pLineValue.MultiValue;
-				if ( pMultiValue != null )
+				cMultiValue pMultiValue = null;
+				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
 				{
 					t1 = pMultiValue [Idx1 - 1].As<T1>();
 					t2 = pMultiValue [Idx2 - 1].As<T2>();
@@ -181,44 +181,48 @@ namespace Database {
 		public	int						GetMultiSize( string Key )
 		{
 			cLineValue pLineValue = null; cMultiValue pMultiValue = null;
-			return ( ( pLineValue = this[ Key ] ) != null ) && ( ( pMultiValue = pLineValue.MultiValue ) != null ) ? pMultiValue.Size : 0;
+			return
+				( 
+					bGetLineValue( Key, ref pLineValue ) && 
+					pLineValue.GetAsMulti( ref pMultiValue ) 
+				) ? pMultiValue.Size : 0;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// GetMultiAsArray
-		public	T[]						GetMultiAsArray<T>( string Key )
-		{
-			T[] array = null;
-
-			cLineValue pLineValue = null;
-			if ( ( pLineValue = this[ Key ] ) != null )
-			{
-				cValue value = null;
-				if ( pLineValue.Type == LineValueType.SINGLE && ( ( value = pLineValue.Value ) != null ) )
-				{
-					array = new T[1] { value.As<T>() };
-				}
-
-				 cMultiValue pMultiValue = null;
-				if ( pLineValue.Type == LineValueType.MULTI && ( ( pMultiValue = pLineValue.MultiValue ) != null ) )
-				{
-					array = new T[ pMultiValue.Size ];
-					for ( int i = 0; i < pMultiValue.ValueArray.Count; i++ )
-					{
-						array[i] = pMultiValue.ValueArray[ i ].As<T>();
-					}
-				}
-			}
-			return array;
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		// GetMultiAsArray
+		// bGetMultiAsArray
 		public	bool						bGetMultiAsArray<T>( string Key, ref T[] array )
 		{
-			array = GetMultiAsArray<T>( Key );
-			return array != null;
+			bool bResult = false;
+
+			cLineValue pLineValue = null;
+			if ( bGetLineValue( Key, ref pLineValue ) )
+			{
+				// If is single value
+				cValue value = null;
+				if ( pLineValue.GetAsSingle( ref value ) )
+				{
+					array = new T[1] { value.As<T>() };
+					bResult = true;
+				}
+
+
+				// If is multi value
+				cMultiValue multiValue = null;
+				if ( pLineValue.GetAsMulti( ref multiValue ) )
+				{
+					array = multiValue.ValueList
+					.ConvertAll	// Get a list of converted cvalues to requested type
+					(
+						new System.Converter<cValue, T> ( ( cValue v ) => { return v.As<T>(); } )
+					)
+					.ToArray(); // return as array
+
+					bResult = true;
+				}	
+			}
+			
+			return bResult;
 		}
 
 	};

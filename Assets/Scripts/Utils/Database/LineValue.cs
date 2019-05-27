@@ -6,10 +6,11 @@ namespace Database {
 
 	//* TYPES */
 	[System.Serializable]
-	public enum LineValueType		{ SINGLE, MULTI };
+	public enum LineValueType : byte	{ SINGLE, MULTI };
 
 	[System.Serializable]
 	public class cLineValue {
+
 		[SerializeField]
 		private	string						sKey				= string.Empty;
 		[SerializeField]
@@ -39,14 +40,22 @@ namespace Database {
 
 
 		// Type can be Single or Multi
+		/////////////////////////////////////////////////////////////////////////////////
+		// CONSTRUCTOR
 		public cLineValue( string Key, LineValueType Type )
 		{
 			iType = Type; sKey = Key; sRawValue = Key;
 		}
 
+
+		/////////////////////////////////////////////////////////////////////////////////
+		// CONSTRUCTOR
 		public cLineValue( cLineValue clone ) : this( clone.sKey, clone.sRawValue )
 		{}
 
+
+		/////////////////////////////////////////////////////////////////////////////////
+		// CONSTRUCTOR
 		public cLineValue ( string Key, string sLine )
 		{
 			sKey = Key;
@@ -76,6 +85,30 @@ namespace Database {
 		}
 
 
+
+		/////////////////////////////////////////////////////////////////////////////////
+		public bool	GetAsSingle( ref cValue value )
+		{
+			bool bResult = iType == LineValueType.SINGLE;
+			if ( bResult )
+			{
+				value = pValue;
+			}
+			return bResult;
+		}
+
+
+		/////////////////////////////////////////////////////////////////////////////////
+		public bool	GetAsMulti( ref cMultiValue multiValue )
+		{
+			bool bResult = iType == LineValueType.MULTI;
+			if ( bResult )
+			{
+				multiValue = pMultiValue;
+			}
+			return bResult;
+		}
+
 		public void Destroy()
 		{
 			pValue = null;
@@ -85,14 +118,38 @@ namespace Database {
 
 
 		/////////////////////////////////////////////////////////////////////////////////
+		public 	bool IsKey( string Key )
+		{
+			return ( sKey == Key );
+		}
 
 
-		public 	bool IsKey( string Key )						{ return ( sKey == Key ); }
-
-		public 	void Clear()									{ pValue = null; pMultiValue = null; }
+		/////////////////////////////////////////////////////////////////////////////////
+		public 	void Clear()
+		{
+			pValue		= null;
+			pMultiValue = null;
+		}
 		
-		public 	cLineValue Set( ref cValue _Value )				{ pValue = _Value;				return this; }
-		public 	cLineValue Set( ref cMultiValue _MultiValue )	{ pMultiValue = _MultiValue;	return this;	}
+
+		/////////////////////////////////////////////////////////////////////////////////
+		public 	cLineValue Set( ref cValue _Value )
+		{
+			pValue		= _Value;
+			pMultiValue = null;
+			iType		= LineValueType.SINGLE;
+			return this;
+		}
+
+
+		/////////////////////////////////////////////////////////////////////////////////
+		public 	cLineValue Set( ref cMultiValue _MultiValue )
+		{
+			pMultiValue	= _MultiValue;
+			pValue		= null;
+			iType		= LineValueType.MULTI;
+			return this;
+		}
 		
 	
 

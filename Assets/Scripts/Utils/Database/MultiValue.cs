@@ -7,7 +7,7 @@ namespace Database {
 	public class cMultiValue : IEnumerable {
 
 		private List<cValue>		m_ValuesList			= new List<cValue>();
-		public	List<cValue>		ValueArray
+		public	List<cValue>		ValueList
 		{
 			get { return m_ValuesList; }
 		}

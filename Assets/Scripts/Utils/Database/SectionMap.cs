@@ -307,7 +307,7 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 				}
 				if ( lineValue.Type == LineValueType.MULTI )
 				{
-					foreach( cValue value in lineValue.MultiValue.ValueArray )
+					foreach( cValue value in lineValue.MultiValue.ValueList )
 					{
 						sValue += value.ToSystemObject().ToString() + ", ";
 					}

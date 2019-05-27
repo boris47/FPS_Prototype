@@ -159,23 +159,21 @@ public class WeaponModuleSlot {
 	//////////////////////////////////////////////////////////////////////////
 	private static bool	GetModuleRules( Database.Section moduleSection, ref Dictionary<WeaponSlots, bool> allowedSlots, ref int maxCount )
 	{
-		bool result = true;
-		if ( result &= moduleSection.bAsInt( "MaxModuleCount", ref maxCount ) )
-		{
+		maxCount = moduleSection.AsInt( "MaxModuleCount", 1 );
 
-		}
 
-		int[] localAllowedSlots = null;
-		if ( result &= moduleSection.bGetMultiAsArray<int>( "AllowedSlots", ref localAllowedSlots ) )
+		// By default, if not present th key "AllowedSlots", all slot are allowed
+		int[] localAllowedSlots = new int[ 3 ] { 1, 2, 3 };
+		if ( moduleSection.bGetMultiAsArray<int>( "AllowedSlots", ref localAllowedSlots ) )
 		{
 			allowedSlots = new Dictionary<WeaponSlots, bool>()
-			{
-				{ WeaponSlots.PRIMARY,		System.Array.Exists( localAllowedSlots, slot => slot-1 == (int)WeaponSlots.PRIMARY ) },
-				{ WeaponSlots.SECONDARY,	System.Array.Exists( localAllowedSlots, slot => slot-1 == (int)WeaponSlots.SECONDARY ) },
-				{ WeaponSlots.TERTIARY,		System.Array.Exists( localAllowedSlots, slot => slot-1 == (int)WeaponSlots.TERTIARY ) }
+			{ // slot - 1 because in config file user use nuber 1, 2 and 3 but array starts from Zero
+				{ WeaponSlots.PRIMARY,		System.Array.Exists( localAllowedSlots, slot => slot - 1 == (int)WeaponSlots.PRIMARY ) },
+				{ WeaponSlots.SECONDARY,	System.Array.Exists( localAllowedSlots, slot => slot - 1 == (int)WeaponSlots.SECONDARY ) },
+				{ WeaponSlots.TERTIARY,		System.Array.Exists( localAllowedSlots, slot => slot - 1 == (int)WeaponSlots.TERTIARY ) }
 			};
 		}
-		return result;
+		return true;
 	}
 
 
@@ -183,12 +181,11 @@ public class WeaponModuleSlot {
 	//////////////////////////////////////////////////////////////////////////
 	public	bool	CanAssignModule( Database.Section moduleSection, string[] alreadyAssignedModules = null )
 	{
-		Dictionary<WeaponSlots, bool> allowedSlots = null;
-		int maxCount = 0;
-
 		bool result = true;
 
 		// Is this slot allowed for module
+		int maxCount = 0;
+		Dictionary<WeaponSlots, bool> allowedSlots = null;
 		if ( GetModuleRules( moduleSection, ref allowedSlots, ref maxCount ) )
 		{
 			result &= allowedSlots[ m_ThisSlot ];

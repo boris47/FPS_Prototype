@@ -13,7 +13,7 @@ namespace Database {
 		public	bool					bAs<T>( string Key, ref T Out )
 		{
 			cLineValue pLineValue = null;
-			if ( ( pLineValue = this[ Key ] ) != null )
+			if ( bGetLineValue( Key, ref pLineValue ) )
 			{
 				if ( pLineValue.Type == LineValueType.SINGLE )
 				{
@@ -30,11 +30,11 @@ namespace Database {
 		public	bool					bAs<T>( string Key, ref T[] Out )
 		{
 			cLineValue pLineValue = null;
-			if ( ( pLineValue = this[ Key ] ) != null )
+			if ( bGetLineValue( Key, ref pLineValue ) )
 			{
 				if ( pLineValue.Type == LineValueType.MULTI )
 				{
-					List<cValue> values = pLineValue.MultiValue.ValueArray;
+					List<cValue> values = pLineValue.MultiValue.ValueList;
 					bool bAreValidValues = true;
 					values.ForEach( ( cValue value ) => bAreValidValues &= typeof(T) == value.GetType() );
 					if ( bAreValidValues )
@@ -54,7 +54,7 @@ namespace Database {
 		public	bool					bAsBool( string Key, ref bool Out, bool Default = false )
 		{
 			cLineValue pLineValue = null;
-			if ( ( pLineValue = this[ Key ] ) != null )
+			if ( bGetLineValue( Key, ref pLineValue ) )
 			{
 				if ( pLineValue.Type == LineValueType.SINGLE )
 				{
@@ -71,8 +71,8 @@ namespace Database {
 		// bAsInt
 		public	bool					bAsInt( string Key, ref int Out, int Default = 0 )
 		{
-			cLineValue pLineValue = this[ Key ];
-			if ( pLineValue != null )
+			cLineValue pLineValue = null;
+			if ( bGetLineValue( Key, ref pLineValue ) )
 			{
 				if ( pLineValue.Type == LineValueType.SINGLE )
 				{
@@ -89,8 +89,8 @@ namespace Database {
 		// bAsFloat
 		public	bool					bAsFloat( string Key, ref float Out, float Default = 0.0f )
 		{
-			cLineValue pLineValue = this[ Key ];
-			if ( pLineValue != null )
+			cLineValue pLineValue = null;
+			if ( bGetLineValue( Key, ref pLineValue ) )
 			{
 				if ( pLineValue.Type == LineValueType.SINGLE )
 				{
@@ -107,8 +107,8 @@ namespace Database {
 		// bAsString
 		public	bool					bAsString( string Key, ref string Out, string Default = "" )
 		{
-			cLineValue pLineValue = this[ Key ];
-			if ( pLineValue != null )
+			cLineValue pLineValue = null;
+			if ( bGetLineValue( Key, ref pLineValue ) )
 			{
 				if ( pLineValue.Type == LineValueType.SINGLE )
 				{
@@ -125,11 +125,11 @@ namespace Database {
 		// bAsMultiValue
 		public	bool					bAsMultiValue( string Key, int Index, out cValue Out )
 		{
-			cLineValue pLineValue = this[ Key ];
-			if ( pLineValue != null )
+			cLineValue pLineValue = null;
+			if ( bGetLineValue( Key, ref pLineValue ) )
 			{
-				cMultiValue pMultiValue = pLineValue.MultiValue;
-				if ( pMultiValue != null )
+				cMultiValue pMultiValue	= null;
+				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
 				{
 					Out = pMultiValue[ Index - 1 ];
 					return true;
@@ -144,11 +144,11 @@ namespace Database {
 		// bAsVec2
 		public	bool					bAsVec2( string Key, ref Vector2 Out, Vector2? Default )
 		{
-			cLineValue pLineValue		= this[ Key ];
-			if ( pLineValue != null )
+			cLineValue pLineValue = null;
+			if ( bGetLineValue( Key, ref pLineValue ) )
 			{
-				cMultiValue pMultiValue		= pLineValue.MultiValue;
-				if ( pMultiValue != null )
+				cMultiValue pMultiValue	= null;
+				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
 				{
 					cValue pValue1				= pMultiValue[ 0 ];
 					cValue pValue2				= pMultiValue[ 1 ];
@@ -169,11 +169,11 @@ namespace Database {
 		// bAsVec3
 		public	bool					bAsVec3( string Key, ref Vector3 Out, Vector3? Default )
 		{
-			cLineValue pLineValue		= this[ Key ];
-			if ( pLineValue != null )
+			cLineValue pLineValue		= null;
+			if ( bGetLineValue( Key, ref pLineValue ) )
 			{
-				cMultiValue pMultiValue		= pLineValue.MultiValue;
-				if ( pMultiValue != null )
+				cMultiValue pMultiValue	= null;
+				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
 				{
 					float x = pMultiValue[ 0 ];
 					float y = pMultiValue[ 1 ];
@@ -192,11 +192,11 @@ namespace Database {
 		// bAsVec4
 		public	bool					bAsVec4( string Key, ref Vector4 Out, Vector4? Default )
 		{
-			cLineValue pLineValue		= this[ Key ];
-			if ( pLineValue != null )
+			cLineValue pLineValue		= null;
+			if ( bGetLineValue( Key, ref pLineValue ) )
 			{
-				cMultiValue pMultiValue		= pLineValue.MultiValue;
-				if ( pMultiValue != null )
+				cMultiValue pMultiValue	= null;
+				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
 				{
 					float x = pMultiValue[ 0 ];
 					float y = pMultiValue[ 1 ];

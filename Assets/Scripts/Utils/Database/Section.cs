@@ -163,7 +163,7 @@ namespace Database {
 			}
 		}
 
-
+		/*
 		// Indexer behaviour
 		public cLineValue this[ string Key ]
 		{
@@ -177,10 +177,24 @@ namespace Database {
 				return vSection.Find( ( cLineValue lineValue ) => lineValue.IsKey( Key ) == true );
 			}
 		}
+		*/
+
+		public	bool					bGetLineValue( string key, ref cLineValue lineValue )
+		{
+			int index = vSection.FindIndex( ( cLineValue lv ) => lv.IsKey( key ) == true );
+			bool bHasBeenFound = index > -1;
+			if ( bHasBeenFound )
+			{
+				lineValue = vSection[ index ];
+			}
+			return bHasBeenFound;
+		}
+
 
 		public	bool					HasKey( string Key )
 		{	
-			return ( this[ Key ] != null );
+			cLineValue bump = null;
+			return bGetLineValue( Key, ref bump );
 		}
 
 
