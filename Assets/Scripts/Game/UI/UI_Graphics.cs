@@ -25,23 +25,23 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 	// ---------------------------
 	private struct ScreenData {
 		public	Resolution resolution;
-		public	bool fullScreen;
-		public	int	resolutionIndex;
+		public	bool bIsFullScreen;
+		public	int	iResolutionIndex;
 		public	bool isDirty;
 	}
 	private	ScreenData m_ScreenData;
 
 	// ---------------------------
 	private struct FiltersData {
-		public	bool anisotropicFilter;
-		public	int antialiasing;
+		public	bool bHasAnisotropicFilter;
+		public	int iAntialiasing;
 		public	bool isDirty;
 	}
 	private	FiltersData m_FilterData;
 
 	// ---------------------------
 	private struct QualityData {
-		public	int	qualityLevel;
+		public	int	iQualityLevel;
 		public	bool isDirty;
 	}
 	private	QualityData m_QualityData;
@@ -152,6 +152,16 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 			{
 				s.navigation = noNavigationMode;
 			}
+
+			ReadFromRegistry();
+
+			UpdateUI();
+
+			m_ScreenData.isDirty		= true;
+			m_FilterData.isDirty		= true;
+			m_QualityData.isDirty		= true;
+
+			OnApplyChanges();
 		}
 		return m_bIsInitialized;
 	}
@@ -175,6 +185,7 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 
 	//////////////////////////////////////////////////////////////////////////
 	// GetResolutionIndex
+	/// <summary> Search into available resolution the closer to the given one </summary>
 	private	int GetResolutionIndex( Resolution res )
 	{
 		int bestWidthtDelta = int.MaxValue;
@@ -233,7 +244,7 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 		Resolution chosen = m_AvailableResolutions[ index ];
 		m_ScreenData.resolution			= chosen;
 		m_ScreenData.isDirty			= true;
-		m_ScreenData.resolutionIndex	= index;
+		m_ScreenData.iResolutionIndex	= index;
 		m_ApplyButton.interactable		= true;
 	}
 
@@ -242,7 +253,7 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 	// OnFullScreenSet
 	private	void	OnFullScreenSet( bool newValue )
 	{
-		m_ScreenData.fullScreen			= newValue;
+		m_ScreenData.bIsFullScreen			= newValue;
 		m_ScreenData.isDirty			= true;
 		m_ApplyButton.interactable		= true;
 	}
@@ -252,7 +263,7 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 	// OnAnisotropicFilterSet
 	private	void	OnAnisotropicFilterSet( bool newValue )
 	{
-		m_FilterData.anisotropicFilter	= newValue;
+		m_FilterData.bHasAnisotropicFilter	= newValue;
 		m_FilterData.isDirty			= true;
 		m_ApplyButton.interactable		= true;
 	}
@@ -262,7 +273,7 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 	// OnAntialiasingSet
 	private	void	OnAntialiasingSet( int newiIndex )
 	{
-		m_FilterData.antialiasing		= newiIndex;
+		m_FilterData.iAntialiasing		= newiIndex;
 		m_FilterData.isDirty			= true;
 		m_ApplyButton.interactable		= true;
 	}
@@ -272,7 +283,7 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 	// OnQualityLevelSet
 	private	void	OnQualityLevelSet( int newiIndex )
 	{
-		m_QualityData.qualityLevel		= newiIndex;
+		m_QualityData.iQualityLevel		= newiIndex;
 		m_QualityData.isDirty			= true;
 		m_ApplyButton.interactable		= true;
 	}
@@ -292,17 +303,17 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 		{
 			// Screen
 			m_ScreenData.resolution			= new Resolution() { width = 800, height = 600, refreshRate = 60 };
-			m_ScreenData.resolutionIndex	= GetResolutionIndex( m_ScreenData.resolution );
-			m_ScreenData.fullScreen			= true;
+			m_ScreenData.iResolutionIndex	= GetResolutionIndex( m_ScreenData.resolution );
+			m_ScreenData.bIsFullScreen		= true;
 			m_ScreenData.isDirty			= true;
 
 			// Filters
-			m_FilterData.anisotropicFilter	= false;
-			m_FilterData.antialiasing		= 0;
+			m_FilterData.bHasAnisotropicFilter	= false;
+			m_FilterData.iAntialiasing		= 0;
 			m_FilterData.isDirty			= true;
 		
 			// Quality
-			m_QualityData.qualityLevel		= 0;
+			m_QualityData.iQualityLevel		= 0;
 			m_QualityData.isDirty			= true;
 		}
 		// Save new keys into registry
@@ -330,20 +341,20 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 		}
 
 		// Screen
-		m_ScreenData.resolutionIndex	= PlayerPrefs.GetInt( VAR_RESOLUTION_INDEX );
-		if ( m_ScreenData.resolutionIndex > -1 )
+		m_ScreenData.iResolutionIndex		= PlayerPrefs.GetInt( VAR_RESOLUTION_INDEX );
+		if ( m_ScreenData.iResolutionIndex > -1 )
 		{
-			m_ScreenData.resolution			= m_AvailableResolutions[m_ScreenData.resolutionIndex];
+			m_ScreenData.resolution			= m_AvailableResolutions[m_ScreenData.iResolutionIndex];
 		}
 
-		m_ScreenData.fullScreen			= PlayerPrefs.GetInt( VAR_IS_FULLSCREEN ) != 0;
+		m_ScreenData.bIsFullScreen			= PlayerPrefs.GetInt( VAR_IS_FULLSCREEN ) != 0;
 
 		// Filters
-		m_FilterData.anisotropicFilter	= PlayerPrefs.GetInt( VAR_ANISOTROPIC_FILTERING ) != 0;
-		m_FilterData.antialiasing		= PlayerPrefs.GetInt( VAR_ANTIALIASING_LEVEL );
+		m_FilterData.bHasAnisotropicFilter	= PlayerPrefs.GetInt( VAR_ANISOTROPIC_FILTERING ) != 0;
+		m_FilterData.iAntialiasing			= PlayerPrefs.GetInt( VAR_ANTIALIASING_LEVEL );
 		
 		// Quality
-		m_QualityData.qualityLevel		= PlayerPrefs.GetInt( VAR_QUALITY_LEVEL );
+		m_QualityData.iQualityLevel			= PlayerPrefs.GetInt( VAR_QUALITY_LEVEL );
 	}
 
 
@@ -357,11 +368,11 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 			return;
 		}
 
-		m_ResolutionDropDown.value		= m_ScreenData.resolutionIndex;
-		m_FullScreenToogle.isOn			= m_ScreenData.fullScreen;;
-		m_AnisotropicFilterToogle.isOn	= m_FilterData.anisotropicFilter;
-		m_AntialiasingDropDown.value	= m_FilterData.antialiasing;
-		m_QualityLevelDropDown.value	= m_QualityData.qualityLevel;
+		m_ResolutionDropDown.value		= m_ScreenData.iResolutionIndex;
+		m_FullScreenToogle.isOn			= m_ScreenData.bIsFullScreen;
+		m_AnisotropicFilterToogle.isOn	= m_FilterData.bHasAnisotropicFilter;
+		m_AntialiasingDropDown.value	= m_FilterData.iAntialiasing;
+		m_QualityLevelDropDown.value	= m_QualityData.iQualityLevel;
 	}
 
 
@@ -377,13 +388,13 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 
 		// Save settings
 		{
-			PlayerPrefs.SetInt( VAR_RESOLUTION_INDEX, m_ScreenData.resolutionIndex );
-			PlayerPrefs.SetInt( VAR_IS_FULLSCREEN, m_ScreenData.fullScreen ? 1 : 0 );
+			PlayerPrefs.SetInt( VAR_RESOLUTION_INDEX,		m_ScreenData.iResolutionIndex );
+			PlayerPrefs.SetInt( VAR_IS_FULLSCREEN,			m_ScreenData.bIsFullScreen ? 1 : 0 );
 
-			PlayerPrefs.SetInt( VAR_ANISOTROPIC_FILTERING,m_FilterData.anisotropicFilter == true ? 1 : 0 );
-			PlayerPrefs.SetInt( VAR_ANTIALIASING_LEVEL, m_FilterData.antialiasing );
+			PlayerPrefs.SetInt( VAR_ANISOTROPIC_FILTERING,	m_FilterData.bHasAnisotropicFilter ? 1 : 0 );
+			PlayerPrefs.SetInt( VAR_ANTIALIASING_LEVEL,		m_FilterData.iAntialiasing );
 
-			PlayerPrefs.SetInt( VAR_QUALITY_LEVEL, m_QualityData.qualityLevel );
+			PlayerPrefs.SetInt( VAR_QUALITY_LEVEL,			m_QualityData.iQualityLevel );
 		}
 	}
 
@@ -403,24 +414,25 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 		{
 			m_ScreenData.isDirty = false;
 
-			Screen.SetResolution(
+			Screen.SetResolution
+			(
 				width:			m_ScreenData.resolution.width,
 				height:			m_ScreenData.resolution.height,
-				fullscreen:		m_ScreenData.fullScreen
+				fullscreen:		m_ScreenData.bIsFullScreen
 			);
 
-			print( "Applying screen settings" );
+			print( "Applying SCREEN settings" );
 		}
 
 		// Filter
 		if ( m_FilterData.isDirty )
-		{
+		{ 
 			m_FilterData.isDirty = false;
 
-			QualitySettings.anisotropicFiltering	= m_FilterData.anisotropicFilter ? AnisotropicFiltering.Enable : AnisotropicFiltering.Disable;
-			QualitySettings.antiAliasing			= m_FilterData.antialiasing * 2;
+			QualitySettings.anisotropicFiltering	= m_FilterData.bHasAnisotropicFilter ? AnisotropicFiltering.Enable : AnisotropicFiltering.Disable;
+			QualitySettings.antiAliasing			= m_FilterData.iAntialiasing * 2;
 
-			print( "Applying filter settings" );
+			print( "Applying FILTER settings" );
 		}
 
 		// Quality
@@ -428,9 +440,9 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 		{
 			m_QualityData.isDirty = false;
 			
-			QualitySettings.SetQualityLevel( m_QualityData.qualityLevel, applyExpensiveChanges: true );
+			QualitySettings.SetQualityLevel( m_QualityData.iQualityLevel, applyExpensiveChanges: true );
 
-			print( "Applying qaulity settings" );
+			print( "Applying QUALITY settings" );
 		}
 
 		// Save settings

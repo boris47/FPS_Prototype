@@ -7,6 +7,7 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 	private			Camera			m_TopViewCamera				= null;
 	private			bool			m_bIsVisible				= true;
 	private			RawImage		m_RawImage					= null;
+	private			RenderTexture	m_MinimapRenderTexture		= null;
 
 	private			GameObject		m_CameraContainer			= null;
 
@@ -19,6 +20,10 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 		return m_MiniMapRectTransform;
 	}
 
+	public			bool			IsVisible()
+	{
+		return m_bIsVisible;
+	}
 
 	private			bool			m_bIsInitialized			= false;
 	bool IStateDefiner.IsInitialized
@@ -41,7 +46,7 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 			ResourceManager.LoadData<RenderTexture> data = new ResourceManager.LoadData<RenderTexture>();
 			if ( m_bIsInitialized && ( m_bIsInitialized &= ResourceManager.LoadResourceSync( "Textures/MinimapRenderTexture", data ) ) )
 			{
-				RenderTexture minimapRenderTexture = data.Asset;
+				m_MinimapRenderTexture = data.Asset;
 
 				if ( m_CameraContainer != null )
 				{
@@ -109,9 +114,13 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 		//first we get screnPoint in camera viewport space
 		Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint (m_TopViewCamera, worldPosition);
 		
-		//then transform it to position in worldImage using its rect
-//		screenPoint.x *= m_RatioVector.x;
-//		screenPoint.y *= m_RatioVector.y;
+		// if render texture has different size of map rect size then we multiply by factor the scrrenPoint
+		if ( m_MinimapRenderTexture.width != m_MiniMapRectTransform.rect.width || m_MinimapRenderTexture.height != m_MiniMapRectTransform.rect.height )
+		{
+			// then transform it to position in worldImage using its rect
+			screenPoint.x *= m_RatioVector.x;
+			screenPoint.y *= m_RatioVector.y;
+		}
 
 		//after positioning helper to that spot
 		m_HelperRectTransform.anchoredPosition = screenPoint;

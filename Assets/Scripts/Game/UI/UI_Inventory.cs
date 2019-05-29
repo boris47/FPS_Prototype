@@ -137,6 +137,27 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 	// Initialize
 	bool IStateDefiner.Initialize()
 	{
+		int [,,] a = new int[2,2,2]
+		{
+			{ { 1, 2 }, { 3, 4 }  },
+			{ { 5, 6 }, { 7, 8 } }
+		};
+
+		int b = a.Rank; // 3
+		for ( int i = 0; i < b; i++ )
+		{
+			int upper = a.GetUpperBound(i);
+			int lower = a.GetLowerBound(i);
+			for ( int index = lower; index <= upper == false; index++ )
+			{
+				Debug.Log( "Index: " + index );
+				Debug.Log( "Value: " + a.GetValue( new int[2] { i, index }) );
+			}
+
+//			Debug.Log( "Upper: " + upper );
+//			Debug.Log( "Lower: " + lower );
+		}
+
 		m_bIsInitialized = true;
 		{
 			m_MainPanel = transform.Find( "MainPanel" );
@@ -184,14 +205,14 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 	
 
 	//////////////////////////////////////////////////////////////////////////
-	public	bool	AddItem( Texture2D texture, Database.Section section )
+	public	bool	AddItem( Database.Section itemSection, Texture2D itemIcon )
 	{
-		Vector2 position;
+		Vector2 position = Vector2.zero;
 		UI_MatrixItem matrixItem = null;
-		bool bAllAttempDone = m_UI_MatrixItems.FindByPredicate( ( UI_MatrixItem i ) => i.IsSet == false, ref matrixItem, out position );
+		bool bAllAttempDone = m_UI_MatrixItems.FindByPredicate( ( UI_MatrixItem i ) => i.IsSet == false, ref matrixItem, ref position );
 		if ( bAllAttempDone )
 		{
-			bAllAttempDone &= matrixItem.TrySet( texture, section );
+			bAllAttempDone &= matrixItem.TrySet( itemIcon, itemSection );
 		}
 		
 		return bAllAttempDone;
@@ -203,9 +224,9 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 	//////////////////////////////////////////////////////////////////////////
 	public	bool	RemoveItem( string itemName )
 	{
-		Vector2 position;
+		Vector2 position = Vector2.zero;
 		UI_MatrixItem matrixItem = null;
-		bool bHasBeenFound = m_UI_MatrixItems.FindByPredicate( ( UI_MatrixItem i ) => i.Section.GetName() == itemName, ref matrixItem, out position );
+		bool bHasBeenFound = m_UI_MatrixItems.FindByPredicate( ( UI_MatrixItem i ) => i.Section.GetName() == itemName, ref matrixItem, ref position );
 		if ( bHasBeenFound )
 		{
 			matrixItem.Reset();

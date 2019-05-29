@@ -180,7 +180,11 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 			if ( target ) // The gameobject could been destroyed in meanwhile 
 			{
 				DrawUIElementObjectivesOnScreen( target.transform, mainIndicatorImage.transform );
-				DrawUIElementObjectivesOnMinimap( target.transform, minimapIndicatorImage.transform, bMustBeClamped );
+
+				if ( UI.Instance.InGame.UI_Minimap.IsVisible() )
+				{
+					DrawUIElementObjectivesOnMinimap( target.transform, minimapIndicatorImage.transform, bMustBeClamped );
+				}
 			}
 		}
 	}

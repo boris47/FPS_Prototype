@@ -58,12 +58,12 @@ public static class Extensions {
 
 
 	/// <summary> Search along a bidimensional array for item using predicate </summary>
-	public	static	bool			FindByPredicate<T>( this T[,] array, System.Predicate<T> predicate, ref T value, out Vector2 location )
+	public	static	bool			FindByPredicate<T>( this T[,] array, System.Predicate<T> predicate, ref T value, ref Vector2 location )
 	{
 		// Gets the rank (number of dimensions) of the Array
 		int dimensions = array.Rank;
 		bool bIsFound = false;
-		location = Vector2.zero;
+		location.Set( 0, 0 );
 		for ( int dimension = 0; dimension < dimensions && bIsFound == false; dimension++ )
 		{
 			int upper = array.GetUpperBound(dimension);
@@ -78,6 +78,47 @@ public static class Extensions {
 					location.Set( dimension, index );
 					bIsFound = true;
 				}
+			}
+		}
+
+		return bIsFound;
+	}
+
+
+	public	static	bool		FindByPredicate<T>( this global::System.Array array, System.Predicate<T> predicate, ref T value, ref int[] location, int locationLevel )
+	{
+		bool bIsFound = false;
+
+		int dimensions = array.Rank;
+
+		// Mono-dimensional array
+		if ( dimensions == 1 )
+		{
+			int upper = array.GetUpperBound(1);
+			int lower = array.GetLowerBound(1);
+
+			for ( int index = lower; index <= upper && bIsFound == false; index++ )
+			{
+				T currentValue = (T)array.GetValue( index );
+				if ( predicate( currentValue ) )
+				{
+					value = currentValue;
+					location = new int[2] { 1, index };
+					bIsFound = true;
+				}
+			}
+			return bIsFound;
+		}
+
+		// Multi dimensional array
+		for ( int dimension = 1; dimension < dimensions && bIsFound == false; dimension++ )
+		{
+			int upper = array.GetUpperBound(dimension);
+			int lower = array.GetLowerBound(dimension);
+
+			for ( int index = lower; index <= upper && bIsFound == false; index++ )
+			{
+
 			}
 		}
 
