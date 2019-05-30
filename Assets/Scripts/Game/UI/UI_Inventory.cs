@@ -8,7 +8,7 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 	private		RectTransform		m_MainPanel				= null;
 	private		RectTransform		m_InventorySlots		= null;
 
-	private		UI_InventorySlot[,]	m_UI_MatrixItems		= null;
+	private		UI_InventorySlot[,]	m_UI_MatrixSlots		= null;
 
 	private		int					m_CellCountHorizontal	= 3;
 	private		int					m_CellCountVertical		= 3;
@@ -39,7 +39,7 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 				m_bIsInitialized &= m_InventorySlots != null;
 			}
 
-
+			// LOAD SECTION
 			Database.Section uiSection = null;
 			if ( m_bIsInitialized &= GameManager.Configs.bGetSection( "UI_Inventory", ref uiSection ) )
 			{
@@ -51,50 +51,97 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 				m_VSpaceBetweenSlots	= Mathf.Max( uiSection.AsFloat( "VSpaceBetweenSlots",	m_VSpaceBetweenSlots	), m_VSpaceBetweenSlots		);
 			}
 			/*
+			// LOAD PREFAB
 			ResourceManager.LoadData<GameObject> loadData = new ResourceManager.LoadData<GameObject>();
 			if ( m_bIsInitialized &= ResourceManager.LoadResourceSync( "Prefabs/UI/UI_InventorySlot", loadData ) )
 			{
-
-				RectTransform m_HelperRectTransform = new GameObject("MinimapHelper").AddComponent<RectTransform>();
-				m_HelperRectTransform.SetParent( m_InventorySlots, worldPositionStays: true );
-				m_HelperRectTransform.anchorMin = Vector2.zero;
-				m_HelperRectTransform.anchorMax = Vector2.zero;
-//				m_HelperRectTransform.hideFlags = HideFlags.HideAndDontSave;
-
-
-				m_UI_MatrixItems = new UI_InventorySlot[ m_CellCountHorizontal, m_CellCountVertical ];
+				m_UI_MatrixSlots = new UI_InventorySlot[ m_CellCountHorizontal, m_CellCountVertical ];
 
 				GameObject inventorySlotGO = loadData.Asset;
 				RectTransform inventorySlotRectTransform = ( inventorySlotGO.transform as RectTransform );
+				Canvas canvas = GetComponent<Canvas>();
+		//		float ratio = Screen.width / Screen.height;
+		//		print( ratio );
+				print( canvas.scaleFactor );
 
-				float currentPositionX = 0;
-				float currentPositionY = 0;
+				Vector2 leftTopCorner		= Vector2.zero,	rightTopCorner		= Vector2.zero,
+						leftBottomCorner	= Vector2.zero,	rightBottomCorner	= Vector2.zero;
 
-				var canvas = GetComponent<Canvas>();
 
+				// Define he starting point
+				Vector2 startPoint = Vector2.zero;
+				{
+					RectTransform m_HelperRectTransform = new GameObject( "RectTransformHelper" ).AddComponent<RectTransform>();
+					m_HelperRectTransform.SetParent( m_InventorySlots, worldPositionStays: false );
+
+					// LEFT BOTTOM
+					m_HelperRectTransform.anchorMin = Vector2.zero;
+					m_HelperRectTransform.anchorMax = Vector2.zero;
+					leftBottomCorner = m_HelperRectTransform.position;
+					new GameObject( "leftBottomCorner" ).transform.position = leftBottomCorner;
+
+					// LEFT TOP
+					m_HelperRectTransform.anchorMin = Vector2.zero;
+					m_HelperRectTransform.anchorMax = Vector2.up;
+					m_HelperRectTransform.anchoredPosition = Vector2.zero;
+					leftTopCorner = m_HelperRectTransform.position;
+					new GameObject( "leftTopCorner" ).transform.position = leftTopCorner;
+
+					// RIGHT TOP
+					m_HelperRectTransform.anchorMin = Vector2.one;
+					m_HelperRectTransform.anchorMax = Vector2.one;
+					m_HelperRectTransform.anchoredPosition = Vector2.zero;
+					rightTopCorner = m_HelperRectTransform.position;
+					new GameObject( "rightTopCorner" ).transform.position = rightTopCorner;
+
+					// RIGHT BOTTOM
+					m_HelperRectTransform.anchorMin = Vector2.one;
+					m_HelperRectTransform.anchorMax = Vector2.right;
+					m_HelperRectTransform.anchoredPosition = Vector2.zero;
+					rightBottomCorner = m_HelperRectTransform.position;
+					new GameObject( "rightBottomCorner" ).transform.position = rightBottomCorner;
+
+					Destroy( m_HelperRectTransform.gameObject );
+				}
+			
+				float step_X = ( inventorySlotRectTransform.rect.width  + m_HSpaceBetweenSlots ) / canvas.scaleFactor;
+				float step_Y = ( inventorySlotRectTransform.rect.height + m_VSpaceBetweenSlots ) / canvas.scaleFactor;
+
+				float currentPositionX = leftBottomCorner.x;
+				float currentPositionY = leftBottomCorner.y;
+
+				Vector2 instancedInventorySlotAnchoredPosition = Vector2.zero;
 				for ( int i = 0; i < m_CellCountVertical; i++ )
 				{
-				//	currentPositionY -= m_InventorySlots.rect.size.y * 0.5f;
-
 					for ( int j = 0; j < m_CellCountHorizontal; j++ )
 					{
-				//		currentPositionX -= m_InventorySlots.rect.size.x * 0.5f;
+						RectTransform instancedInventorySlotRectTransform = Instantiate<RectTransform>( inventorySlotRectTransform );
+						instancedInventorySlotRectTransform.SetParent( m_InventorySlots, worldPositionStays: false );
+						instancedInventorySlotRectTransform.anchorMin = Vector2.zero;;
+						instancedInventorySlotRectTransform.anchorMax = Vector2.zero;
 
-						GameObject instancedInventoryItem = Instantiate( inventorySlotGO, m_InventorySlots );
-						Vector2 localPosition = new Vector2 ( currentPositionX, currentPositionY ) ;
-						m_HelperRectTransform.anchoredPosition = localPosition;
-						instancedInventoryItem.transform.position = m_HelperRectTransform.position;
+						// Size of the intanced inventory slot
+						Vector3 instancedInventorySlotSize = instancedInventorySlotRectTransform.rect.size;
+							instancedInventorySlotRectTransform.SetSizeWithCurrentAnchors( RectTransform.Axis.Horizontal, instancedInventorySlotSize.x / canvas.scaleFactor );
+							instancedInventorySlotRectTransform.SetSizeWithCurrentAnchors( RectTransform.Axis.Vertical,   instancedInventorySlotSize.y / canvas.scaleFactor );
+						instancedInventorySlotSize = instancedInventorySlotRectTransform.rect.size;
 
-						currentPositionX += ( inventorySlotRectTransform.rect.width + m_HSpaceBetweenSlots );
-						IStateDefiner item = m_UI_MatrixItems[i, j] = inventorySlotGO.GetComponent<UI_InventorySlot>();
-						item.Initialize();
+						instancedInventorySlotAnchoredPosition.Set
+						(
+							currentPositionX + instancedInventorySlotSize.x * 0.5f,
+							currentPositionY + instancedInventorySlotSize.y * 0.5f
+						);
+						instancedInventorySlotRectTransform.anchoredPosition = instancedInventorySlotAnchoredPosition;
+
+						IStateDefiner slot = m_UI_MatrixSlots[i, j] = instancedInventorySlotRectTransform.GetComponent<UI_InventorySlot>();
+						slot.Initialize();
+					
+						currentPositionX += step_X;
 					}
 
-					currentPositionY += ( inventorySlotRectTransform.rect.height + m_VSpaceBetweenSlots );
-					currentPositionX = 0;
+					currentPositionX = startPoint.x;
+					currentPositionY += step_Y;
 				}
-
-//				Destroy( m_HelperRectTransform.gameObject );
 			}
 			*/
 		}
@@ -133,62 +180,98 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 		ResourceManager.LoadData<GameObject> loadData = new ResourceManager.LoadData<GameObject>();
 		if ( m_bIsInitialized &= ResourceManager.LoadResourceSync( "Prefabs/UI/UI_InventorySlot", loadData ) )
 		{
-
-			var canvas = GetComponent<Canvas>();
-
-			RectTransform m_HelperRectTransform = new GameObject("MinimapHelper").AddComponent<RectTransform>();
-			m_HelperRectTransform.SetParent( m_InventorySlots, worldPositionStays: true );
-			m_HelperRectTransform.anchorMin = Vector2.one * 0.5f;
-			m_HelperRectTransform.anchorMax = Vector2.one * 0.5f;
-//				m_HelperRectTransform.hideFlags = HideFlags.HideAndDontSave;
-
-
-			m_UI_MatrixItems = new UI_InventorySlot[ m_CellCountHorizontal, m_CellCountVertical ];
+			m_UI_MatrixSlots = new UI_InventorySlot[ m_CellCountHorizontal, m_CellCountVertical ];
 
 			GameObject inventorySlotGO = loadData.Asset;
 			RectTransform inventorySlotRectTransform = ( inventorySlotGO.transform as RectTransform );
-
+			Canvas canvas = GetComponent<Canvas>();
 	//		float ratio = Screen.width / Screen.height;
 	//		print( ratio );
-	//		print( canvas.scaleFactor );
-			
-			float currentPositionX = 0;
-			float currentPositionY = 0;
-			float step_X = ( inventorySlotRectTransform.rect.width / canvas.scaleFactor + m_HSpaceBetweenSlots / canvas.scaleFactor );
-			float step_Y = ( inventorySlotRectTransform.rect.height / canvas.scaleFactor + m_VSpaceBetweenSlots / canvas.scaleFactor );
+			print( canvas.scaleFactor );
 
-			for ( int i = 0; i < m_CellCountVertical; i++, currentPositionX = 0, currentPositionY +=step_Y )
+			Vector2 leftTopCorner		= Vector2.zero,	rightTopCorner		= Vector2.zero,
+					leftBottomCorner	= Vector2.zero,	rightBottomCorner	= Vector2.zero;
+
+			// Define he starting point
+			Vector2 startPoint = Vector2.zero;
 			{
-				for ( int j = 0; j < m_CellCountHorizontal; j++, currentPositionX += step_X )
-				{
-					GameObject instancedInventoryItem = Instantiate( inventorySlotGO, m_InventorySlots );
-					RectTransform trasnf = instancedInventoryItem.transform as RectTransform;
-					trasnf.SetSizeWithCurrentAnchors( RectTransform.Axis.Horizontal, trasnf.rect.width / canvas.scaleFactor );
-					trasnf.SetSizeWithCurrentAnchors( RectTransform.Axis.Vertical, trasnf.rect.height / canvas.scaleFactor );
-
-					Vector2 localPosition = new Vector2 ( currentPositionX, currentPositionY ) ;
-					instancedInventoryItem.transform.localPosition = localPosition;
-					/*
-					Vector2 localPosition = new Vector2 ( currentPositionX, currentPositionY ) ;
-
-					m_HelperRectTransform.anchoredPosition = Vector2.zero;
-
-					Vector2 delta = m_InventorySlots.position - m_HelperRectTransform.position;
-					localPosition.x -= delta.x;
-					localPosition.y -= delta.y;
-					yield return null;
-					m_HelperRectTransform.anchoredPosition = localPosition;
-					instancedInventoryItem.transform.position = m_HelperRectTransform.position;
-
-					IStateDefiner item = m_UI_MatrixItems[i, j] = inventorySlotGO.GetComponent<UI_InventorySlot>();
-					item.Initialize();
-					*/
-					yield return null;
-				}
+				RectTransform m_HelperRectTransform = new GameObject("RectTransformHelper").AddComponent<RectTransform>();
+				m_HelperRectTransform.SetParent( m_InventorySlots, worldPositionStays: false );
+				m_HelperRectTransform.anchorMin = Vector2.zero;
+				m_HelperRectTransform.anchorMax = Vector2.zero;
+				startPoint = m_HelperRectTransform.anchoredPosition;
+				Destroy( m_HelperRectTransform.gameObject );
 			}
-			yield return null;
+			
+			// Define he starting point
+			{
+				RectTransform m_HelperRectTransform = new GameObject( "RectTransformHelper" ).AddComponent<RectTransform>();
+				m_HelperRectTransform.SetParent( m_InventorySlots, worldPositionStays: false );
+				yield return null;
+				// LEFT BOTTOM
+				m_HelperRectTransform.anchorMin = Vector2.zero;				m_HelperRectTransform.anchorMax = Vector2.zero;
+										leftBottomCorner = m_HelperRectTransform.position;
+				new GameObject( "leftBottomCorner" ).transform.position = leftBottomCorner;
+				yield return null;
+				// LEFT TOP
+				m_HelperRectTransform.anchorMin = Vector2.up;				m_HelperRectTransform.anchorMax = Vector2.up;
+				m_HelperRectTransform.anchoredPosition = Vector2.zero;
+										leftTopCorner = m_HelperRectTransform.position;
+				new GameObject( "leftTopCorner" ).transform.position = leftTopCorner;
+				yield return null;
+				// RIGHT TOP
+				m_HelperRectTransform.anchorMin = Vector2.one;				m_HelperRectTransform.anchorMax = Vector2.one;
+				m_HelperRectTransform.anchoredPosition = Vector2.zero;
+										rightTopCorner = m_HelperRectTransform.position;
+				new GameObject( "rightTopCorner" ).transform.position = rightTopCorner;
+				yield return null;
+				// RIGHT BOTTOM
+				m_HelperRectTransform.anchorMin = Vector2.right;			m_HelperRectTransform.anchorMax = Vector2.right;
+				m_HelperRectTransform.anchoredPosition = Vector2.zero;
+										rightBottomCorner = m_HelperRectTransform.position;
+				new GameObject( "rightBottomCorner" ).transform.position = rightBottomCorner;
+				yield return null;
+				Destroy( m_HelperRectTransform.gameObject );
+			}
+			
+			float step_X = ( inventorySlotRectTransform.rect.width  + m_HSpaceBetweenSlots ) / canvas.scaleFactor;
+			float step_Y = ( inventorySlotRectTransform.rect.height + m_VSpaceBetweenSlots ) / canvas.scaleFactor;
 
-//				Destroy( m_HelperRectTransform.gameObject );
+			float currentPositionX = startPoint.x;
+			float currentPositionY = startPoint.y;
+
+			Vector2 instancedInventorySlotAnchoredPosition = Vector2.zero;
+			for ( int i = 0; i < m_CellCountVertical; i++ )
+			{
+				for ( int j = 0; j < m_CellCountHorizontal; j++ )
+				{
+					RectTransform instancedInventorySlotRectTransform = Instantiate<RectTransform>( inventorySlotRectTransform );
+					instancedInventorySlotRectTransform.SetParent( m_InventorySlots, worldPositionStays: false );
+					instancedInventorySlotRectTransform.anchorMin = Vector2.zero;;
+					instancedInventorySlotRectTransform.anchorMax = Vector2.zero;
+
+					// Size of the intanced inventory slot
+					Vector3 instancedInventorySlotSize = instancedInventorySlotRectTransform.rect.size;
+						instancedInventorySlotRectTransform.SetSizeWithCurrentAnchors( RectTransform.Axis.Horizontal, instancedInventorySlotSize.x / canvas.scaleFactor );
+						instancedInventorySlotRectTransform.SetSizeWithCurrentAnchors( RectTransform.Axis.Vertical,   instancedInventorySlotSize.y / canvas.scaleFactor );
+					instancedInventorySlotSize = instancedInventorySlotRectTransform.rect.size;
+
+					instancedInventorySlotAnchoredPosition.Set
+					(
+						currentPositionX + instancedInventorySlotSize.x * 0.5f,
+						currentPositionY + instancedInventorySlotSize.y * 0.5f
+					);
+					instancedInventorySlotRectTransform.anchoredPosition = instancedInventorySlotAnchoredPosition;
+
+					IStateDefiner slot = m_UI_MatrixSlots[i, j] = instancedInventorySlotRectTransform.GetComponent<UI_InventorySlot>();
+					slot.Initialize();
+					
+					currentPositionX += step_X;
+				}
+
+				currentPositionX = startPoint.x;
+				currentPositionY += step_Y;
+			}
 		}
 	}
 
@@ -213,11 +296,11 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 	public	bool	AddItem( Database.Section itemSection, Texture2D itemIcon )
 	{
 		Vector2 position = Vector2.zero;
-		UI_InventorySlot matrixItem = null;
-		bool bAllAttempDone = m_UI_MatrixItems.FindByPredicate( ( UI_InventorySlot i ) => i.IsSet == false, ref matrixItem, ref position );
+		UI_InventorySlot matrixSlot = null;
+		bool bAllAttempDone = m_UI_MatrixSlots.FindByPredicate( ( UI_InventorySlot i ) => i.IsSet == false, ref matrixSlot, ref position );
 		if ( bAllAttempDone )
 		{
-			bAllAttempDone &= matrixItem.TrySet( itemIcon, itemSection );
+			bAllAttempDone &= matrixSlot.TrySet( itemIcon, itemSection );
 		}
 		
 		return bAllAttempDone;
@@ -230,11 +313,11 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 	public	bool	RemoveItem( string itemName )
 	{
 		Vector2 position = Vector2.zero;
-		UI_InventorySlot matrixItem = null;
-		bool bHasBeenFound = m_UI_MatrixItems.FindByPredicate( ( UI_InventorySlot i ) => i.Section.GetName() == itemName, ref matrixItem, ref position );
+		UI_InventorySlot matrixSlot = null;
+		bool bHasBeenFound = m_UI_MatrixSlots.FindByPredicate( ( UI_InventorySlot i ) => i.Section.GetName() == itemName, ref matrixSlot, ref position );
 		if ( bHasBeenFound )
 		{
-			matrixItem.Reset();
+			matrixSlot.Reset();
 		}
 		return bHasBeenFound;
 	}
