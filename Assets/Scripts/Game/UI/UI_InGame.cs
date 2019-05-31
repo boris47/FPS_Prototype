@@ -40,11 +40,6 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 	}
 
 
-	public	float	ScaleFactor
-	{
-		get { return m_Canvas.scaleFactor; }
-	}
-
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
 	bool IStateDefiner.Initialize()

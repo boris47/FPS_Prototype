@@ -1,12 +1,12 @@
 [UI_Inventory]
-CellSizeX			= 75;
-CellSizeY			= 75;
+CellSizeX			= 150;
+CellSizeY			= 150;
 
 CellCountHorizontal	= 5;
 CellCountVertical	= 5;
 
-HorizzontalPadding	= 100.0;
-VerticalPadding		= 100.0;
+HorizzontalPadding	= 100;
+VerticalPadding		= 100;
 
 HSpaceBetweenSlots	= 20.0;
 VSpaceBetweenSlots	= 20.0;
