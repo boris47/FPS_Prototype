@@ -1,4 +1,6 @@
 ﻿
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,8 +19,6 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 //	private			Image			m_StaminaBarImage			= null;
 	private			Transform		m_CrosshairTransform		= null;
 
-	private			UI_Minimap		m_UI_Minimap				= null;
-
 	private			Image			m_ZoomFrameImage			= null;
 	private			float			m_FrameOrigWidth			= 0.0f;
 	private			float			m_FrameOrigHeight			= 0.0f;
@@ -34,18 +34,13 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 		get { return m_bIsInitialized; }
 	}
 
-	public	UI_Minimap	UI_Minimap
-	{
-		get { return m_UI_Minimap; }
-	}
-
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
-	bool IStateDefiner.Initialize()
+	IEnumerator IStateDefiner.Initialize()
 	{
-		if ( m_bIsInitialized )
-			return true;
+		if ( m_bIsInitialized == true )
+			yield break;
 
 		m_bIsInitialized = true;
 		{
@@ -88,15 +83,14 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 				Debug.LogError( "UI_InGame: Bad initialization!!!" );
 			}
 		}
-		return m_bIsInitialized;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// ReInit
-	bool IStateDefiner.ReInit()
+	IEnumerator	IStateDefiner.ReInit()
 	{
-		return m_bIsInitialized;
+		yield return null;
 	}
 
 
@@ -114,14 +108,12 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 	{
 		m_IsActive = true;
 
-		bool result = transform.SearchComponentInChild( "Minimap", ref m_UI_Minimap );
-
-		UI.Instance.EffectFrame.color = Color.clear;
+//		UI.Instance.EffectFrame.color = Color.clear;
 
 		SoundManager.Instance.OnSceneLoaded();
 
 		// Reset Ingame UI
-		InternalReset();
+//		InternalReset();
 	}
 
 
@@ -183,8 +175,8 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 	// UpdateUI
 	public	void	UpdateUI()
 	{
-//		if ( m_IsActive == false )
-//			return;
+		if ( m_IsActive == false || m_bIsInitialized == false )
+			return;
 
 		IEntity player				= Player.Instance as IEntity;
 
@@ -396,7 +388,7 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 	// Update
 	private void	Update()
 	{
-		if ( m_IsActive == false )
+		if ( m_IsActive == false || m_bIsInitialized == false )
 			return;
 
 		// Only every 10 frames

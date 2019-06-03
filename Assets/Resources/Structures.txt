@@ -1,0 +1,14 @@
+UI STRUCTURE
+-> UI.cs
+-> MainMenu.cs
+-> UI_InGame
+	-> UI_Minimap
+	-> UI_Indicators
+-> UI_WeaponCustomization
+-> UI_Inventory
+-> UI_PauseMenu
+-> UI_Settings
+-> UI_Bindings
+-> UI_Graphics
+-> UI_Audio
+-> UI_Confirmation

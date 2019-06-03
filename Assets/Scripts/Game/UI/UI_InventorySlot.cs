@@ -22,7 +22,7 @@ public class UI_InventorySlot : MonoBehaviour, IPointerClickHandler, IStateDefin
 		get { return m_ItemSection; }
 	}
 
-	private	bool			m_bIsInitialized			= true;
+	private	bool			m_bIsInitialized			= false;
 	bool IStateDefiner.IsInitialized
 	{
 		get { return m_bIsInitialized; }
@@ -31,8 +31,11 @@ public class UI_InventorySlot : MonoBehaviour, IPointerClickHandler, IStateDefin
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
-	bool IStateDefiner.Initialize()
+	IEnumerator IStateDefiner.Initialize()
 	{
+		if ( m_bIsInitialized == true )
+			yield break;
+
 		m_bIsInitialized = true;
 		{
 			m_bIsInitialized &= transform.SearchComponent<Image>( ref m_Image, SearchContext.LOCAL );
@@ -46,14 +49,13 @@ public class UI_InventorySlot : MonoBehaviour, IPointerClickHandler, IStateDefin
 		{
 			Debug.LogError( "UI_MatrixItem: Bad initialization!!!" );
 		}
-		return m_bIsInitialized;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	// ReInit
-	bool IStateDefiner.ReInit()
+	IEnumerator	IStateDefiner.ReInit()
 	{
-		return m_bIsInitialized;
+		yield return null;
 	}
 
 

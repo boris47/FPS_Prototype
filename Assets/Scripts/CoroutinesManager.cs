@@ -4,6 +4,49 @@ using UnityEngine;
 
 public class CoroutinesManager : MonoBehaviour {
 
+	public	class RoutinesSequence {
+		private		int						m_CurrentIndex				= 0;
+		private		List<IEnumerator>		m_Routines					= new List<IEnumerator>();
+		private		MonoBehaviour			m_MonoBehaviour				= null;
+		private		IEnumerator				m_CurrentEnumerator			= null;
+
+		public RoutinesSequence( MonoBehaviour monoBehaviour, IEnumerator Routine )
+		{
+			if ( Routine == null )
+				return;
+
+			m_CurrentEnumerator = Routine;
+			m_MonoBehaviour = monoBehaviour;
+			m_Routines.Add( Routine );
+		}
+
+		public RoutinesSequence AddStep( IEnumerator Routine )
+		{
+			if ( Routine != null )
+			{
+				m_Routines.Add( Routine );
+			}
+			return this;
+		}
+
+		private	IEnumerator StartCO()
+		{
+			while ( m_CurrentIndex < m_Routines.Count )
+			{
+				IEnumerator CurrentEnumerator = m_Routines[ m_CurrentIndex ];
+				yield return m_MonoBehaviour.StartCoroutine( CurrentEnumerator );
+				m_CurrentIndex ++;
+			}
+
+		}
+
+		public	void	Start()
+		{
+			m_MonoBehaviour.StartCoroutine( StartCO() );
+		}
+
+	}
+
 	private	static	CoroutinesManager	m_Instance			= null;
 
 	private	static	bool				m_IsInitialized		= false;
@@ -71,4 +114,12 @@ public class CoroutinesManager : MonoBehaviour {
 		m_Instance.StopAllCoroutines();
 	}
 
+	/////////////////////////////////////////////////////////////////
+	// Create a sequence object, where to add routine and finally start
+	public	static	RoutinesSequence	CreateSequence( IEnumerator MainRoutine )
+	{
+		Initialize();
+
+		return new RoutinesSequence( m_Instance, MainRoutine );
+	}
 }

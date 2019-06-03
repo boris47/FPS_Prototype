@@ -19,12 +19,10 @@ public class UI_Confirmation : MonoBehaviour, IStateDefiner {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
-	bool IStateDefiner.Initialize()
+	IEnumerator IStateDefiner.Initialize()
 	{
 		if ( m_bIsInitialized == true )
-		{
-			return true;
-		}
+			yield break;
 
 		m_bIsInitialized = true;
 		{
@@ -71,16 +69,24 @@ public class UI_Confirmation : MonoBehaviour, IStateDefiner {
 			}
 
 			gameObject.SetActive( false );
+
+			if ( m_bIsInitialized )
+			{
+
+			}
+			else
+			{
+				Debug.LogError( "UI_Confirmation: Bad initialization!!!" );
+			}
 		}
-		return m_bIsInitialized;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// ReInit
-	bool IStateDefiner.ReInit()
+	IEnumerator IStateDefiner.ReInit()
 	{
-		return m_bIsInitialized;
+		yield return null;
 	}
 
 

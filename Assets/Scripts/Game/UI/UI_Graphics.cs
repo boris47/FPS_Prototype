@@ -65,12 +65,10 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
-	bool IStateDefiner.Initialize()
+	IEnumerator IStateDefiner.Initialize()
 	{
 		if ( m_bIsInitialized == true )
-		{
-			return true;
-		}
+			yield break;
 
 		m_bIsInitialized = true;
 		{
@@ -153,25 +151,31 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 				s.navigation = noNavigationMode;
 			}
 
-			ReadFromRegistry();
+			if ( m_bIsInitialized )
+			{
+				ReadFromRegistry();
 
-			UpdateUI();
+				UpdateUI();
 
-			m_ScreenData.isDirty		= true;
-			m_FilterData.isDirty		= true;
-			m_QualityData.isDirty		= true;
+				m_ScreenData.isDirty		= true;
+				m_FilterData.isDirty		= true;
+				m_QualityData.isDirty		= true;
 
-			OnApplyChanges();
+				OnApplyChanges();
+			}
+			else
+			{
+				Debug.LogError( "UI_Graphics: Bad initialization!!!" );
+			}
 		}
-		return m_bIsInitialized;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// ReInit
-	bool IStateDefiner.ReInit()
+	IEnumerator	IStateDefiner.ReInit()
 	{
-		return m_bIsInitialized;
+		yield return null;
 	}
 
 

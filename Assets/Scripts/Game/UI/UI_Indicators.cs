@@ -24,13 +24,19 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 	private		GameObjectsPool<Transform>			m_Pool						= null;
 
 	private	struct ActiveIndicatorData {
-		public	GameObject	Target;
-		public	Image		MainIndicatorImage;
-		public	Image		MinimapIndicatorImage;
-		public	bool		bMustBeClamped;
+		public	GameObject		Target;
+		public	Image			MainIndicatorImage;
+		public	Image			MinimapIndicatorImage;
+		public	bool			bMustBeClamped;
 	};
+	private		List<ActiveIndicatorData>			m_CurrentlyActive			= new List<ActiveIndicatorData>(MAX_ELEMENTS);
 
-	private		List<ActiveIndicatorData>				m_CurrentlyActive			= new List<ActiveIndicatorData>(MAX_ELEMENTS);
+	private	struct IndicatorRequest {
+		public	GameObject			target;
+		public	IndicatorType		IndicatorType;
+		public	bool				bMustBeClamped;
+	}
+	private	List<IndicatorRequest>					m_Requests					= new List<IndicatorRequest>();
 
 	private		bool								m_bIsInitialized			= false;
 	bool IStateDefiner.IsInitialized
@@ -41,16 +47,24 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
-	bool IStateDefiner.Initialize()
+	IEnumerator IStateDefiner.Initialize()
 	{
+		if ( m_bIsInitialized )
+			yield break;
+
+		m_bIsInitialized = false;
+
 		// Sprites for TargetToKill, LocationToReach or ObjectToInteractWith
 		ResourceManager.LoadData<SpriteCollection> indicatorsSpritesCollection = new ResourceManager.LoadData<SpriteCollection>();
 
 		// A prefab where the sprites will be set
 		ResourceManager.LoadData<GameObject> indicatorPrefab = new ResourceManager.LoadData<GameObject>();
 		
-		if ( ResourceManager.LoadResourceSync( "Scriptables/UI_Indicators", indicatorsSpritesCollection ) &&
-			 ResourceManager.LoadResourceSync( "Prefabs/UI/Task_Objective", indicatorPrefab ) )
+		yield return ResourceManager.LoadResourceAsyncCoroutine( "Scriptables/UI_Indicators", indicatorsSpritesCollection, null );
+		yield return ResourceManager.LoadResourceAsyncCoroutine( "Prefabs/UI/Task_Objective", indicatorPrefab, null );
+		m_bIsInitialized |= indicatorsSpritesCollection.Asset != null && indicatorPrefab.Asset != null;
+
+		if ( m_bIsInitialized )
 		{
 			m_SpriteCollection	= indicatorsSpritesCollection.Asset;
 
@@ -66,16 +80,14 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 			);
 			
 		}
-		
-		return m_Pool != null ? m_Pool.IsValid : false;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// ReInit
-	bool IStateDefiner.ReInit()
+	IEnumerator IStateDefiner.ReInit()
 	{
-		return true;
+		yield return null;
 	}
 
 
@@ -86,12 +98,12 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 		return true;
 	}
 
-
+	
 	//////////////////////////////////////////////////////////////////////////
 	// EnableIndicator
-	public	bool	EnableIndicator( GameObject target, IndicatorType IndicatorType, bool bMustBeClamped )
+	private	bool	EnableIndicatorInternal( IndicatorRequest request )
 	{
-		int index = m_CurrentlyActive.FindIndex( ( ActiveIndicatorData p ) => { return p.Target == target; } );
+		int index = m_CurrentlyActive.FindIndex( ( ActiveIndicatorData p ) => { return p.Target == request.target; } );
 		if ( index > -1 )
 		{
 			return false;
@@ -99,7 +111,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 		InternalCheck();
 
-		Sprite indicator = m_SpriteCollection.Sprites[(int)IndicatorType];
+		Sprite indicator = m_SpriteCollection.Sprites[(int)request.IndicatorType];
 
 		Transform indicatorTransform = m_Pool.GetComponent();
 
@@ -110,22 +122,31 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 		MinimapIndicatorImage.sprite = mainIndicatorImage.sprite = indicator;
 
-//		MinimapIndicatorImage.transform.SetParent( UI.Instance.InGame.UI_Minimap.transform.GetChild(0) );
-//		MinimapIndicatorImage.transform.localPosition = Vector3.zero;
-//		MinimapIndicatorImage.transform.localRotation = Quaternion.identity;
-
 		ActiveIndicatorData pair = new ActiveIndicatorData()
 		{
-			Target = target,
+			Target = request.target,
 			MainIndicatorImage = mainIndicatorImage,
 			MinimapIndicatorImage = MinimapIndicatorImage,
-			bMustBeClamped = bMustBeClamped
+			bMustBeClamped = request.bMustBeClamped
 		};
 
 		m_CurrentlyActive.Add( pair );
 
 		indicatorTransform.gameObject.SetActive( true );
 		return true;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// EnableIndicator
+	public	void	EnableIndicator( GameObject target, IndicatorType IndicatorType, bool bMustBeClamped )
+	{
+		IndicatorRequest indicatorRequest = new IndicatorRequest()
+		{
+			target = target,
+			IndicatorType  = IndicatorType,
+			bMustBeClamped = bMustBeClamped
+		};
+		m_Requests.Add( indicatorRequest );
 	}
 
 
@@ -169,6 +190,15 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 	// FixedUpdate
 	private void Update()
 	{
+		if ( m_bIsInitialized == false )
+			return;
+
+		for ( int i = 0; i < m_Requests.Count; i++ )
+		{
+			IndicatorRequest request = m_Requests[i];
+			EnableIndicatorInternal( request ); 
+		}
+
 		for ( int i = m_CurrentlyActive.Count - 1; i >= 0; i-- )
 		{
 			ActiveIndicatorData pair = m_CurrentlyActive[i];
@@ -181,7 +211,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 			{
 				DrawUIElementObjectivesOnScreen( target.transform, mainIndicatorImage.transform );
 
-				if ( UI.Instance.InGame.UI_Minimap.IsVisible() )
+				if ( UI.Instance.Minimap.IsVisible() )
 				{
 					DrawUIElementObjectivesOnMinimap( target.transform, minimapIndicatorImage.transform, bMustBeClamped );
 				}
@@ -284,7 +314,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 	// DrawUIElementOnObjectivesOnMinimap
 	protected	static void	DrawUIElementObjectivesOnMinimap( Transform targetTransform, Transform m_IconTransform, bool bMustBeClamped )
 	{
-		RectTransform minimapRect		= UI.Instance.InGame.UI_Minimap.GetRawImageRect();
+		RectTransform minimapRect		= UI.Instance.Minimap.GetRawImageRect();
 
 		if ( m_IconTransform.gameObject.activeSelf == false )
 		{
@@ -293,14 +323,14 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 		//
 		Vector2 WorldPosition2D;
-		bool bIsInside = UI.Instance.InGame.UI_Minimap.GetPositionOnUI( targetTransform.position, out WorldPosition2D );
+		bool bIsInside = UI.Instance.Minimap.GetPositionOnUI( targetTransform.position, out WorldPosition2D );
 		if ( bIsInside == false && bMustBeClamped == false )
 		{
 			m_IconTransform.gameObject.SetActive( false );
 		}
 		if ( bIsInside == false && bMustBeClamped == true )
 		{
-			Vector2 screenPointScaled = UI.Instance.InGame.UI_Minimap.transform.InverseTransformPoint( WorldPosition2D );
+			Vector2 screenPointScaled = UI.Instance.Minimap.transform.InverseTransformPoint( WorldPosition2D );
 			// Find angle from center of screen to mouse position
 			float angle = Mathf.Atan2( screenPointScaled.y, screenPointScaled.x ) - 90f * Mathf.Deg2Rad;
 			float cos = Mathf.Cos( angle );
@@ -338,7 +368,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 			screenPointScaled.x *= minimapRect.localScale.x;
 			screenPointScaled.y *= minimapRect.localScale.y;
 
-			WorldPosition2D = UI.Instance.InGame.UI_Minimap.transform.TransformPoint( screenPointScaled );
+			WorldPosition2D = UI.Instance.Minimap.transform.TransformPoint( screenPointScaled );
 		}
 
 		m_IconTransform.position = WorldPosition2D;

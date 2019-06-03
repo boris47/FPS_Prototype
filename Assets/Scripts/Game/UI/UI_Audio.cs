@@ -36,12 +36,10 @@ public class UI_Audio : MonoBehaviour, IUIOptions, IStateDefiner {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
-	bool IStateDefiner.Initialize()
+	IEnumerator IStateDefiner.Initialize()
 	{
 		if ( m_bIsInitialized == true )
-		{
-			return true;
-		}
+			yield break;
 		
 		m_bIsInitialized = true;
 		{
@@ -76,16 +74,19 @@ public class UI_Audio : MonoBehaviour, IUIOptions, IStateDefiner {
 				OnEnable();
 				OnApplyChanges();
 			}
+			else
+			{
+				Debug.LogError( "UI_Audio: Bad initialization!!!" );
+			}
 		}
-		return m_bIsInitialized;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// ReInit
-	bool IStateDefiner.ReInit()
+	IEnumerator IStateDefiner.ReInit()
 	{
-		return m_bIsInitialized;
+		yield return null;
 	}
 
 

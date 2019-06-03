@@ -1,4 +1,6 @@
 ﻿
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -34,19 +36,21 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
-	bool IStateDefiner.Initialize()
+	IEnumerator IStateDefiner.Initialize()
 	{
-		if ( m_bIsInitialized )
-			return true;
+		if ( m_bIsInitialized == true )
+			yield break;
 
 		m_bIsInitialized = true;
 		{
 			m_bIsInitialized &= transform.SearchComponent( ref m_RawImage, SearchContext.CHILDREN );
 
-			ResourceManager.LoadData<RenderTexture> data = new ResourceManager.LoadData<RenderTexture>();
-			if ( m_bIsInitialized && ( m_bIsInitialized &= ResourceManager.LoadResourceSync( "Textures/MinimapRenderTexture", data ) ) )
+			ResourceManager.LoadData<RenderTexture> loadData = new ResourceManager.LoadData<RenderTexture>();
+			yield return ResourceManager.LoadResourceAsyncCoroutine( "Textures/MinimapRenderTexture", loadData, null );
+
+			if ( m_bIsInitialized &= loadData.Asset != null )
 			{
-				m_MinimapRenderTexture = data.Asset;
+				m_MinimapRenderTexture = loadData.Asset;
 
 				if ( m_CameraContainer != null )
 				{
@@ -88,15 +92,14 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 				Debug.LogError( "UI_Minimap: Bad initialization!!!" );
 			}
 		}
-		return m_bIsInitialized;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// ReInit
-	bool IStateDefiner.ReInit()
+	IEnumerator	IStateDefiner.ReInit()
 	{
-		return m_bIsInitialized;
+		yield return null;
 	}
 
 
@@ -134,6 +137,9 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 	//////////////////////////////////////////////////////////////////////////
 	private void FixedUpdate()
 	{
+		if ( m_bIsInitialized == false )
+			return;
+
 		Vector3 prevPosition = m_TopViewCamera.transform.position;
 		prevPosition.x = Player.Instance.transform.position.x;
 		prevPosition.z = Player.Instance.transform.position.z;

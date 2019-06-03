@@ -1,4 +1,6 @@
 ﻿
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -23,8 +25,11 @@ public class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
-	bool IStateDefiner.Initialize()
+	IEnumerator IStateDefiner.Initialize()
 	{
+		if ( m_bIsInitialized == true )
+			yield break;
+
 		m_bIsInitialized = true;
 		{
 			// RESUME BUTTON
@@ -80,15 +85,14 @@ public class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 		{
 			Debug.LogError( "UI_PauseMenu: Bad initialization!!!" );
 		}
-		return m_bIsInitialized;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// ReInit
-	bool IStateDefiner.ReInit()
+	IEnumerator	IStateDefiner.ReInit()
 	{
-		return m_bIsInitialized;
+		yield return null;
 	}
 
 

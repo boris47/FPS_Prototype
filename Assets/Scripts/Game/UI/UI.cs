@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+//using System.Linq;
 using System.Runtime.InteropServices;
 
 
@@ -11,9 +12,9 @@ public interface IStateDefiner {
 	bool IsInitialized		{ get; }
 
 	/// <summary> Initialize the component </summary>
-	bool Initialize			();
+	IEnumerator Initialize	();
 
-	bool ReInit				();
+	IEnumerator ReInit		();
 
 	/// <summary> Finalize the component </summary>
 	bool Finalize			();
@@ -28,9 +29,9 @@ public interface IStateDefiner<T1, T2> {
 	/// <param name="Initializer"> The object initializer </param>
 	/// <param name="Callback"> The type used for a goal callback </param>
 	/// <returns> A boolean Value for initialization success</returns>
-	bool Initialize			( T1 Initializer, System.Action<T2> PositiveCallback = null, System.Action<T2> NegativeCallback = null );
+	bool Initialize	( T1 Initializer, System.Action<T2> PositiveCallback = null, System.Action<T2> NegativeCallback = null );
 
-	bool ReInit				();
+	bool ReInit		();
 
 	/// <summary> Finalize the component </summary>
 	bool Finalize			();
@@ -69,6 +70,7 @@ public interface IUI {
 	UI_Audio				Audio						{ get; }
 	UI_Confirmation			Confirmation				{ get; }
 	UI_Indicators			Indicators					{ get; }
+	UI_Minimap				Minimap						{ get; }
 
 	Image					EffectFrame					{ get; }
 
@@ -86,7 +88,7 @@ public interface IUI {
 
 
 
-public class UI : MonoBehaviour, IUI, IStateDefiner{
+public class UI : MonoBehaviour, IUI {
 
 		[DllImport("User32.Dll")]
 		public static extern long SetCursorPos(int x, int y);
@@ -100,20 +102,6 @@ public class UI : MonoBehaviour, IUI, IStateDefiner{
 		{
 			public int X;
 			public int Y;
- 
-			public POINT(int x, int y)
-			{
-				this.X = x;
-				this.Y = y;
-			}
-
-			public	Vector2 ToVector2()
-			{
-				Vector2 vec = Vector2.zero;
-				vec.x = X;
-				vec.y = Y;
-				return vec;
-			}
 		}
 
 
@@ -132,6 +120,7 @@ public class UI : MonoBehaviour, IUI, IStateDefiner{
 	private			Image					m_EffectFrame					= null;
 	private			Transform				m_RayCastInterceptor			= null;
 	private			UI_Indicators			m_Indicators					= null;
+	private			UI_Minimap				m_UI_Minimap					= null;
 
 	// INTERFACE START
 					UI_MainMenu				IUI.MainMenu					{ get { return m_MainMenu; } }
@@ -145,6 +134,8 @@ public class UI : MonoBehaviour, IUI, IStateDefiner{
 					Image					IUI.EffectFrame					{ get { return m_EffectFrame; } }
 					UI_Confirmation			IUI.Confirmation				{ get { return m_Confirmation; } }
 					UI_Indicators			IUI.Indicators					{ get { return m_Indicators; } }
+					UI_Minimap				IUI.Minimap						{ get { return m_UI_Minimap; } }
+
 	// INTERFACE END
 
 
@@ -153,28 +144,18 @@ public class UI : MonoBehaviour, IUI, IStateDefiner{
 	private			Transform				m_PrevActiveTransform			= null;
 
 	[SerializeField]
-	private			List<Transform>			m_TransformList					= new List<Transform>();
+	private			Queue<Transform>		m_TransformList					= new Queue<Transform>();
 
-	private			POINT					m_LastCursorPosition = new POINT();
-	public			Vector2					LastCursorPosition
-	{
-		get { return m_LastCursorPosition.ToVector2(); }
-	}
-
-
-	private	bool			m_bIsInitialized			= false;
-	bool IStateDefiner.IsInitialized
+	private	bool							m_bIsInitialized				= false;
+	public	bool		IsInitialized
 	{
 		get { return m_bIsInitialized; }
 	}
 
-
-	//////////////////////////////////////////////////////////////////////////
-	// Awake
+	private int sceneIdx;
 	private void Awake()
 	{
-		int sceneIdx = gameObject.scene.buildIndex;
-
+		sceneIdx = gameObject.scene.buildIndex;
 		// SINGLETON
 		if ( Instance != null )
 		{
@@ -184,25 +165,6 @@ public class UI : MonoBehaviour, IUI, IStateDefiner{
 		Instance = this;
 		DontDestroyOnLoad( this );
 
-		m_bIsInitialized = ( this as IStateDefiner ).Initialize();
-
-		if ( sceneIdx > 0 )
-		{
-			SwitchTo( m_InGame.transform );
-		}
-		else
-		{
-			SwitchTo( m_MainMenu.transform );
-		}
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// Initialize
-	bool IStateDefiner.Initialize()
-	{
-		if ( m_bIsInitialized == true )
-			return false;
 
 		m_bIsInitialized = true;
 
@@ -218,13 +180,41 @@ public class UI : MonoBehaviour, IUI, IStateDefiner{
 		m_bIsInitialized &= transform.SearchComponentInChild( "UI_Audio",					ref m_Audio );
 		m_bIsInitialized &= transform.SearchComponentInChild( "UI_Confirmation",			ref m_Confirmation );
 
-		// Indicators
-		m_bIsInitialized &= m_InGame.transform.SearchComponent( ref m_Indicators, SearchContext.CHILDREN );
-		
+		if ( m_bIsInitialized )
+		{
+			// Indicators
+			m_bIsInitialized &= m_InGame.transform.SearchComponent( ref m_Indicators, SearchContext.CHILDREN );
+			// Mini map
+			m_bIsInitialized &= m_InGame.transform.SearchComponent( ref m_UI_Minimap, SearchContext.CHILDREN );
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Awake
+	private IEnumerator Start()
+	{
+		yield return StartCoroutine( Initialize() );
+
+		if ( sceneIdx > 0 )
+		{
+			SwitchTo( m_InGame.transform );
+		}
+		else
+		{
+			SwitchTo( m_MainMenu.transform );
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Initialize
+	IEnumerator Initialize()
+	{
 		// Other Menus initialization
 		foreach( IStateDefiner state in transform.GetComponentOnlyInChildren<IStateDefiner>( deepSearch: true, includeInactive: true ) )
 		{
-			m_bIsInitialized &= state.Initialize();
+			yield return StartCoroutine( state.Initialize() );
 		}
 		
 		// Effect Frame
@@ -243,23 +233,6 @@ public class UI : MonoBehaviour, IUI, IStateDefiner{
 		{
 			Debug.LogError( "UI: Bad initialization!!!" );
 		}
-		return m_bIsInitialized;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// ReInit
-	bool IStateDefiner.ReInit()
-	{
-		return m_bIsInitialized;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// Finalize
-	bool	 IStateDefiner.Finalize()
-	{
-		return m_bIsInitialized;
 	}
 
 
@@ -267,13 +240,14 @@ public class UI : MonoBehaviour, IUI, IStateDefiner{
 	// SwitchTo
 	private	void	SwitchTo( Transform trasformToShow )
 	{
-		GetCursorPos( out m_LastCursorPosition );
+		POINT lastCursorPosition = new POINT();
+		GetCursorPos( out lastCursorPosition );
 		string previousName = m_CurrentActiveTrasform.name;
 			m_CurrentActiveTrasform.gameObject.SetActive( false );
 			m_CurrentActiveTrasform	= trasformToShow;
 			m_CurrentActiveTrasform.gameObject.SetActive( true );
 		string currentName = m_CurrentActiveTrasform.name;
-		SetCursorPos(m_LastCursorPosition.X, m_LastCursorPosition.Y );
+		SetCursorPos( lastCursorPosition.X, lastCursorPosition.Y );
 		print( "Switched from " + previousName + " to " + currentName );
 	}
 
@@ -290,6 +264,7 @@ public class UI : MonoBehaviour, IUI, IStateDefiner{
 		SwitchTo( MenuToShow );
 	}
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// GoToSubMenu
 	public	void	GoToSubMenu( Transform MenuToShow )
@@ -297,7 +272,7 @@ public class UI : MonoBehaviour, IUI, IStateDefiner{
 		if ( MenuToShow == null )
 			return;
 
-		m_TransformList.Add( m_CurrentActiveTrasform );
+		m_TransformList.Enqueue( m_CurrentActiveTrasform );
 
 		SwitchTo( MenuToShow );
 	}
@@ -309,8 +284,7 @@ public class UI : MonoBehaviour, IUI, IStateDefiner{
 	{
 		if ( m_TransformList.Count > 0 )
 		{
-			Transform t = m_TransformList.Last();
-			m_TransformList.Remove( t );
+			Transform t = m_TransformList.Dequeue();
 			SwitchTo( t );
 		}
 	}

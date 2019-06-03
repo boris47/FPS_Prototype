@@ -14,8 +14,11 @@ public class UI_Settings : MonoBehaviour, IStateDefiner {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
-	bool IStateDefiner.Initialize()
+	IEnumerator IStateDefiner.Initialize()
 	{
+		if ( m_bIsInitialized == true )
+			yield break;
+
 		m_bIsInitialized = true;
 		{
 
@@ -29,15 +32,14 @@ public class UI_Settings : MonoBehaviour, IStateDefiner {
 		{
 			Debug.LogError( "UI_Settings: Bad initialization!!!" );
 		}
-		return m_bIsInitialized;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// ReInit
-	bool IStateDefiner.ReInit()
+	IEnumerator	IStateDefiner.ReInit()
 	{
-		return m_bIsInitialized;
+		yield return null;
 	}
 
 

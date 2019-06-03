@@ -19,12 +19,10 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
-	bool	IStateDefiner.Initialize()
+	IEnumerator	IStateDefiner.Initialize()
 	{
 		if ( m_bIsInitialized == true )
-		{
-			return true;
-		}
+			yield break;
 
 		Transform child = transform.Find("CustomizationPanel");
 		if ( m_bIsInitialized = ( child != null ) )
@@ -33,16 +31,14 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 			m_bIsInitialized &= child.SearchComponentInChild( "ModuleSecondaryDropdown", ref m_SecondaryDropDown );
 			m_bIsInitialized &= child.SearchComponentInChild( "ModuleTertiaryDropdown", ref m_TertiaryDropDown );
 		}
-
-		return m_bIsInitialized;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// ReInit
-	bool	IStateDefiner.ReInit()
+	IEnumerator	IStateDefiner.ReInit()
 	{
-		return m_bIsInitialized;
+		yield return null;
 	}
 
 

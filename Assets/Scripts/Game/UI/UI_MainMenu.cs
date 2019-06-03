@@ -22,8 +22,11 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
-	bool IStateDefiner.Initialize()
+	IEnumerator IStateDefiner.Initialize()
 	{
+		if ( m_bIsInitialized == true )
+			yield break;
+
 		m_bIsInitialized = true;
 		{
 			/*
@@ -52,21 +55,20 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 
 		if ( m_bIsInitialized )
 		{
-			RenderSettings.skybox	= new Material( Shader.Find( shaderPath ) );
+			RenderSettings.skybox = new Material( Shader.Find( shaderPath ) );
 		}
 		else
 		{
-			Debug.LogError( "UI_PauseMenu: Bad initialization!!!" );
+			Debug.LogError( "UI_MainMenu: Bad initialization!!!" );
 		}
-		return m_bIsInitialized;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// ReInit
-	bool IStateDefiner.ReInit()
+	IEnumerator	IStateDefiner.ReInit()
 	{
-		return m_bIsInitialized;
+		yield return null;
 	}
 
 
@@ -173,17 +175,28 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 	// OnNewGame
 	public	void	OnResume()
 	{
-		int saveSceneIdx	= PlayerPrefs.GetInt( "SaveSceneIdx" );
-		string saveFilePath	= PlayerPrefs.GetString( "SaveFilePath" );
+		bool bHasSavedSceneIndex	= PlayerPrefs.HasKey( "SaveSceneIdx" );
+		bool bHasSaveFilePath		= PlayerPrefs.HasKey( "SaveFilePath" );
+		bool bSaveFileExists		= bHasSaveFilePath && System.IO.File.Exists( PlayerPrefs.GetString( "SaveFilePath" ) );
 
-		CustomSceneManager.LoadSceneData loadData = new CustomSceneManager.LoadSceneData()
+		int saveSceneIdx			= PlayerPrefs.GetInt( "SaveSceneIdx" );
+		string saveFilePath			= PlayerPrefs.GetString( "SaveFilePath" );
+
+		if ( bHasSavedSceneIndex && bHasSaveFilePath && bSaveFileExists )
 		{
-			iSceneIdx			= saveSceneIdx,
-			sSaveToLoad			= saveFilePath,
-			bMustLoadSave		= true,
-			pOnLoadCompleted	= delegate { UI.Instance.GoToMenu( UI.Instance.InGame.transform ); }
-		};
-		CustomSceneManager.LoadSceneAsync( loadData );
+			CustomSceneManager.LoadSceneData loadData = new CustomSceneManager.LoadSceneData()
+			{
+				iSceneIdx			= saveSceneIdx,
+				sSaveToLoad			= saveFilePath,
+				bMustLoadSave		= true,
+				pOnLoadCompleted	= delegate { UI.Instance.GoToMenu( UI.Instance.InGame.transform ); }
+			};
+			CustomSceneManager.LoadSceneAsync( loadData );
+		}
+		else
+		{
+			Debug.LogError( "Cannot load last save" );
+		}
 	}
 
 

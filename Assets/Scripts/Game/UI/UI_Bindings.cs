@@ -21,8 +21,11 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
-	bool IStateDefiner.Initialize()
+	IEnumerator IStateDefiner.Initialize()
 	{
+		if ( m_bIsInitialized == true )
+			yield break;
+
 		m_bIsInitialized = true;
 		{
 			keyStateDropDownList = new List<Dropdown.OptionData>
@@ -31,14 +34,14 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 				Cast<eKeyState>().
 				Select( ( eKeyState k ) => new Dropdown.OptionData( k.ToString() ) )
 			);
-
-
+			
 			// UI Command Row Prefab
 			ResourceManager.LoadData<GameObject> loadData = new ResourceManager.LoadData<GameObject>();
-			if ( m_bIsInitialized &= ResourceManager.LoadResourceSync( "Prefabs/UI/UI_CommandRow", loadData ) )
-			{
-				m_UI_CommandRow = loadData.Asset;
-			}
+			yield return ResourceManager.LoadResourceAsyncCoroutine( "Prefabs/UI/UI_CommandRow", loadData, null );
+
+			m_bIsInitialized &= loadData.Asset != null;
+
+			m_UI_CommandRow = loadData.Asset;
 
 			// Scroll content conmponent
 			m_bIsInitialized &= transform.SearchComponent( ref m_ScrollContentTransform, SearchContext.CHILDREN, c => c.HasComponent<VerticalLayoutGroup>() );
@@ -55,15 +58,14 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 				Debug.LogError( "UI_Bindings: Bad initialization!!!" );
 			}
 		}
-		return m_bIsInitialized;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// ReInit
-	bool IStateDefiner.ReInit()
+	IEnumerator IStateDefiner.ReInit()
 	{
-		return m_bIsInitialized;
+		yield return null;
 	}
 
 
