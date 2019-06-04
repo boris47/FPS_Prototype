@@ -52,7 +52,7 @@ public partial class Player {
 		m_RigidBody.constraints						= RigidbodyConstraints.FreezeRotation;
 		m_RigidBody.velocity						= Vector3.zero;
 
-		GameManager.SetTimeScale( 1.0f );
+		GlobalManager.SetTimeScale( 1.0f );
 
 		m_DodgeRaycastNormal						= Vector3.zero;
 		m_DodgeAbilityTarget.gameObject.SetActive( false );

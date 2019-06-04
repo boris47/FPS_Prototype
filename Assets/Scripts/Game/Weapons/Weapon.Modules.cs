@@ -41,7 +41,7 @@ public abstract partial class Weapon {
 		}
 
 		// Get Module Section
-		if ( GameManager.Configs.bGetSection( wpnModuleSect, ref moduleSection ) == false )
+		if ( GlobalManager.Configs.bGetSection( wpnModuleSect, ref moduleSection ) == false )
 		{
 			Debug.Log( "Error: Weapon " + wpn.Transform.name + ": Unable to retrieve module section data " + wpnModuleSectName );
 			return false;
@@ -77,7 +77,7 @@ public abstract partial class Weapon {
 			Database.Section modifierSection = null;
 			foreach( string modifierSectionName in mods )
 			{
-				if ( GameManager.Configs.bGetSection( modifierSectionName, ref modifierSection ) )
+				if ( GlobalManager.Configs.bGetSection( modifierSectionName, ref modifierSection ) )
 				{
 					weaponModule.WeaponModule.ApplyModifier( modifierSection );
 				}

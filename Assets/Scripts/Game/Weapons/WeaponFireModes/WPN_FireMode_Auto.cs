@@ -113,7 +113,7 @@ public class WPN_FireMode_Auto_Incremental : WPN_FireMode_Auto {
 
 		string moduleSectionName = this.GetType().Name;
 		Database.Section section = null;
-		if ( GameManager.Configs.bGetSection( moduleSectionName, ref section ) )
+		if ( GlobalManager.Configs.bGetSection( moduleSectionName, ref section ) )
 		{
 			m_IncremetalSpeed	= section.AsFloat( "IncremetalSpeed", m_IncremetalSpeed );
 			m_MaxIncrement		= section.AsFloat( "MaxIncrement", m_MaxIncrement );

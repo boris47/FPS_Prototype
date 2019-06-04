@@ -10,29 +10,11 @@ public partial class GameManager : MonoBehaviour {
 		get { return m_Instance; }
 	}
 
-	private	static			SectionMap		m_Settings				= null;
-	public	static			SectionMap		Settings
-	{
-		get { return m_Settings; }
-	}
-
-
-	private	static			SectionMap		m_Configs				= null;
-	public	static			SectionMap		Configs
-	{
-		get { return m_Configs; }
-	}
-
-//	[SerializeField]
 	private					InputManager	m_InputMgr				= null;
 	public					InputManager	InputMgr
 	{
 		get { return m_InputMgr; }
 	}
-
-	public	static			bool			IsChangingScene			= false;
-	public	static			bool			IsLoadingScene			= false;
-	public	static			bool			CanSave					= true;
 
 	private	static			bool			m_InGame				= true;
 	public static			bool			InGame
@@ -42,10 +24,6 @@ public partial class GameManager : MonoBehaviour {
 	}
 
 	private	static			bool			m_QuitRequest			= false;
-
-
-	[SerializeField]
-	private					bool			m_HideCursor			= true;
 
 
 	private					bool			m_SkipOneFrame			= true;
@@ -75,16 +53,6 @@ public partial class GameManager : MonoBehaviour {
 		m_InputMgr	= new InputManager();
 		InputMgr.Setup();
 
-		m_Settings	= new SectionMap();
-		m_Configs	= new SectionMap();
-
-		// Load Settings and Configs
-		const string settingspath		= "Settings";
-		const string configsPath		= "Configs\\All";
-
-		Settings.LoadFile( settingspath );
-		Configs.LoadFile( configsPath );
-
 		Physics.queriesHitBackfaces = false;
 	}
 
@@ -101,23 +69,9 @@ public partial class GameManager : MonoBehaviour {
 	private			void		OnLevelWasLoaded( int level )
 	{
 		m_InGame = level != 0;
-		if ( m_InGame )
-		{
-			if ( m_HideCursor )
-			{
-				Cursor.visible = false;
-				Cursor.lockState = CursorLockMode.Locked;
-			}
-		}
+
+		GlobalManager.SetCursorVisible( m_InGame ? false : true );
 	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	public	static	void		SetTimeScale( float value )
-	{
-		SoundManager.Instance.Pitch = Time.timeScale = value;
-	}
-
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -229,7 +183,7 @@ public partial class GameManager : MonoBehaviour {
 		}
 
 		// Save Event
-		if ( Input.GetKeyDown( KeyCode.F5 ) && CanSave == true )
+		if ( Input.GetKeyDown( KeyCode.F5 ) && GlobalManager.bCanSave == true )
 		{
 			m_StreamEvents.Save();
 		}

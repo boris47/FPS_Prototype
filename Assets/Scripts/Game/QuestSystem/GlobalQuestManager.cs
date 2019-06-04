@@ -42,7 +42,7 @@ namespace QuestSystem {
 		{
 			m_Instance = this;
 			Database.Section debugInfosSection = null;
-			if ( GameManager.Configs.bGetSection( "DebugInfos", ref debugInfosSection ) )
+			if ( GlobalManager.Configs.bGetSection( "DebugInfos", ref debugInfosSection ) )
 			{
 				m_ShowDebugInfo = debugInfosSection.AsBool( "Quests", false );
 			}

@@ -204,7 +204,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 		
 
 		// TRY RECOVER MODULE SECTION
-		if ( GameManager.Configs.bGetSection( moduleSectionName, ref m_ModuleSection ) == false )			// Get Module Section
+		if ( GlobalManager.Configs.bGetSection( moduleSectionName, ref m_ModuleSection ) == false )			// Get Module Section
 			return false;
 
 		// GET FIRE MODE SECTION NAME
@@ -484,7 +484,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 		}
 
 		Database.Section section = null;
-		if ( GameManager.Configs.bGetSection( weaponFireModeSectionName, ref section ) == false )
+		if ( GlobalManager.Configs.bGetSection( weaponFireModeSectionName, ref section ) == false )
 		{
 			Debug.Log( "WPN_FireModule: CAnnot find section for fire mode \"" + weaponFireModeSectionName + "\"" );
 			return false;

@@ -271,7 +271,7 @@ namespace WeatherSystem {
 
 			// Get info from settings file
 			Database.Section pSection = null;
-			if ( GameManager.Configs.bGetSection( "Time", ref pSection) == true )
+			if ( GlobalManager.Configs.bGetSection( "Time", ref pSection) == true )
 			{
 				pSection.bAsString( "StartTime",	ref startTime );
 				pSection.bAsString( "StartWeather", ref startWeather );

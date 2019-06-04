@@ -43,7 +43,7 @@ public partial class WeaponManager : IWeaponManager {
 	bool			IWeaponManager.ApplyModifierToWeapon( IWeapon wpn, string modifierSectionName )
 	{
 		Database.Section modifierSection = null;
-		if ( GameManager.Configs.bGetSection( modifierSectionName, ref modifierSection ) )
+		if ( GlobalManager.Configs.bGetSection( modifierSectionName, ref modifierSection ) )
 		{
 			( wpn as IModifiable ).ApplyModifier( modifierSection );
 			return true;
@@ -54,7 +54,7 @@ public partial class WeaponManager : IWeaponManager {
 	bool			IWeaponManager.RemoveModifierFromWeapon( IWeapon wpn, string modifierSectionName )
 	{
 		Database.Section modifierSection = null;
-		if ( GameManager.Configs.bGetSection( modifierSectionName, ref modifierSection ) )
+		if ( GlobalManager.Configs.bGetSection( modifierSectionName, ref modifierSection ) )
 		{
 			( wpn as IModifiable ).RemoveModifier( modifierSection );
 			return true;
@@ -67,7 +67,7 @@ public partial class WeaponManager : IWeaponManager {
 	{
 		WPN_BaseModule weaponModule = null;
 		Database.Section modifierSection = null;
-		if ( wpn.bGetModuleBySlot( slot, ref weaponModule ) && GameManager.Configs.bGetSection( modifier, ref modifierSection ) )
+		if ( wpn.bGetModuleBySlot( slot, ref weaponModule ) && GlobalManager.Configs.bGetSection( modifier, ref modifierSection ) )
 		{
 			weaponModule.ApplyModifier( modifierSection );
 			return true;
@@ -81,7 +81,7 @@ public partial class WeaponManager : IWeaponManager {
 	{
 		WPN_BaseModule weaponModule = null;
 		Database.Section modifierSection = null;
-		if ( wpn.bGetModuleBySlot( slot, ref weaponModule ) && GameManager.Configs.bGetSection( modifier, ref modifierSection ) )
+		if ( wpn.bGetModuleBySlot( slot, ref weaponModule ) && GlobalManager.Configs.bGetSection( modifier, ref modifierSection ) )
 		{
 			weaponModule.RemoveModifier( modifierSection );
 			return true;
@@ -98,7 +98,7 @@ public partial class WeaponManager : IWeaponManager {
 		WeaponModuleSlot moduleSlot = null;
 		if ( wpn.bGetModuleSlot( slot, ref moduleSlot ) )
 		{
-			foreach( Database.Section section in GameManager.Configs.GetSectionsByContext( "WeaponModulesModifiers" ) )
+			foreach( Database.Section section in GlobalManager.Configs.GetSectionsByContext( "WeaponModulesModifiers" ) )
 			{
 				if ( moduleSlot.CanAssignModule( section, null ) )
 				{

@@ -60,8 +60,8 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 		}
 
 
-		Database.Section[] fireModules		= GameManager.Configs.GetSectionsByContext( "WeaponFireModules" );
-		Database.Section[] utiliyModules	= GameManager.Configs.GetSectionsByContext( "WeaponUtilityModules" );
+		Database.Section[] fireModules		= GlobalManager.Configs.GetSectionsByContext( "WeaponFireModules" );
+		Database.Section[] utiliyModules	= GlobalManager.Configs.GetSectionsByContext( "WeaponUtilityModules" );
 
 		List<Database.Section> allModules = new List<Database.Section>();
 		{

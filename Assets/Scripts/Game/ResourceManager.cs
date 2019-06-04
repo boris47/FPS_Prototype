@@ -42,7 +42,7 @@ public class ResourceManager : MonoBehaviour {
 		m_IsInitialized = true;
 
 		Database.Section debugInfosSection = null;
-		if ( GameManager.Configs.bGetSection( "DebugInfos", ref debugInfosSection ) )
+		if ( GlobalManager.Configs.bGetSection( "DebugInfos", ref debugInfosSection ) )
 		{
 			m_ShowDebugInfo = debugInfosSection.AsBool( "ResourceManager", false);
 		}

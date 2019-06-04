@@ -20,7 +20,7 @@ public class PickupableItem : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnEnable()
 	{
-		if ( GameManager.Configs.bGetSection( m_PickUpSectionName, ref m_ItemSection ) )
+		if ( GlobalManager.Configs.bGetSection( m_PickUpSectionName, ref m_ItemSection ) )
 		{
 			m_Initialized = true;
 		}
@@ -31,7 +31,7 @@ public class PickupableItem : MonoBehaviour {
 	public	bool	SetPickupSectionName( string PickupSectionName )
 	{
 		Database.Section m_PickupableSection	= null;
-		bool bIsSectionFound = GameManager.Configs.bGetSection( m_PickUpSectionName, ref m_PickupableSection );
+		bool bIsSectionFound = GlobalManager.Configs.bGetSection( m_PickUpSectionName, ref m_PickupableSection );
 		if ( bIsSectionFound )
 		{
 			m_PickUpSectionName = PickupSectionName;

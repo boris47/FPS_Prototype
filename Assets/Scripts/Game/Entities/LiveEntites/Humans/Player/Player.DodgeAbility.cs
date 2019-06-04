@@ -122,7 +122,7 @@ public partial class Player {
 			m_DodgeAbilityTarget.position	= m_RaycastHit.point;
 			m_DodgeAbilityTarget.up			= m_RaycastHit.normal;
 			m_DodgeRaycastNormal			= m_RaycastHit.normal;
-			GameManager.SetTimeScale( SELECTION_TIME_SCALE );
+			GlobalManager.SetTimeScale( SELECTION_TIME_SCALE );
 		}
 	}
 
@@ -174,7 +174,7 @@ public partial class Player {
 			m_ChosingDodgeRotation = false;
 
 			// restore time scale
-			GameManager.SetTimeScale( 1.0f );
+			GlobalManager.SetTimeScale( 1.0f );
 
 			// destination is on dodge target position
 			Vector3 destination = m_DodgeAbilityTarget.position + m_DodgeAbilityTarget.up;

@@ -29,7 +29,7 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 	{
 		string moduleSectionName = this.GetType().FullName;
 		m_WeaponRef = w;
-		if ( GameManager.Configs.bGetSection( moduleSectionName, ref m_ModuleSection ) == false )			// Get Module Section
+		if ( GlobalManager.Configs.bGetSection( moduleSectionName, ref m_ModuleSection ) == false )			// Get Module Section
 			return false;
 
 		if ( InternalSetup( m_ModuleSection ) == false )

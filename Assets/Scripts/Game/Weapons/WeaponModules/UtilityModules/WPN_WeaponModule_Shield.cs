@@ -20,7 +20,7 @@ public class WPN_WeaponModule_Shield : WPN_BaseModule, IWPN_UtilityModule {
 	{
 		string moduleSectionName = this.GetType().FullName;
 		m_WeaponRef = w;
-		if ( GameManager.Configs.bGetSection( moduleSectionName, ref m_ModuleSection ) == false )			// Get Module Section
+		if ( GlobalManager.Configs.bGetSection( moduleSectionName, ref m_ModuleSection ) == false )			// Get Module Section
 			return false;
 
 		m_ShieldLife = m_ModuleSection.AsFloat( "BaseShieldLife", 50f );

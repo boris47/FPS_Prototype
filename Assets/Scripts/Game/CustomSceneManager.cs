@@ -58,12 +58,12 @@ public class CustomSceneManager : MonoBehaviour {
 	private	static void InternalLoadSceneSync( LoadSceneData loadSceneData )
 	{
 		// Set global state as ChangingScene state
-		GameManager.IsChangingScene = true;
+		GlobalManager.bIsChangingScene = true;
 
 		SceneManager.LoadScene( loadSceneData.iSceneIdx, loadSceneData.eLoadMode );
 
 		// Remove global state as ChangingScene state
-		GameManager.IsChangingScene = false;
+		GlobalManager.bIsChangingScene = false;
 
 		// Pre load callback
 		if ( loadSceneData.pOnPreLoadCompleted != null )
@@ -118,7 +118,7 @@ public class CustomSceneManager : MonoBehaviour {
 		yield return new WaitForEndOfFrame();
 
 		// Set global state as ChangingScene state
-		GameManager.IsChangingScene = true;
+		GlobalManager.bIsChangingScene = true;
 		
 		// Start async load of scene
 		AsyncOperation asyncOperation = SceneManager.LoadSceneAsync( loadSceneData.iSceneIdx, loadSceneData.eLoadMode );
@@ -144,7 +144,7 @@ public class CustomSceneManager : MonoBehaviour {
 		print("after isdone");
 		
 		// Remove global state as ChangingScene state
-		GameManager.IsChangingScene = false;
+		GlobalManager.bIsChangingScene = false;
 		
 		// Pre load callback
 		if ( loadSceneData.pOnPreLoadCompleted != null )

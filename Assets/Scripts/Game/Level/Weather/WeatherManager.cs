@@ -138,7 +138,7 @@ namespace WeatherSystem {
 			}
 
 			Database.Section debugInfosSection = null;
-			if ( m_ShowDebugInfo == false && GameManager.Configs.bGetSection( "DebugInfos", ref debugInfosSection ) )
+			if ( m_ShowDebugInfo == false && GlobalManager.Configs.bGetSection( "DebugInfos", ref debugInfosSection ) )
 			{
 				m_ShowDebugInfo = debugInfosSection.AsBool( "WeatherManager", false);
 				if ( m_ShowDebugInfo )

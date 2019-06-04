@@ -13,7 +13,7 @@ public class LevelSwitcher : MonoBehaviour {
 	// OnTriggerEnter
 	private void OnTriggerEnter( Collider other )
 	{
-		if ( GameManager.IsChangingScene == true )
+		if ( GlobalManager.bIsChangingScene == true )
 			return;
 
 		Player player = other.GetComponent<Player>();

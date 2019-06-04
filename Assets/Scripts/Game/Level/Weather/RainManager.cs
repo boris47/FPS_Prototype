@@ -148,10 +148,10 @@ namespace WeatherSystem {
 			}
 
 			// Get info from settings file
-			if ( GameManager.Configs != null )
+			if ( GlobalManager.Configs != null )
 			{
 				Database.Section pSection = null;
-				if ( GameManager.Configs.bGetSection( "Thunderbolts", ref pSection ) )
+				if ( GlobalManager.Configs.bGetSection( "Thunderbolts", ref pSection ) )
 				{
 					pSection.bAsFloat( "ThunderTimerMin",		ref m_ThunderTimerMin );
 					pSection.bAsFloat( "ThunderTimerMax",		ref m_ThunderTimerMax );

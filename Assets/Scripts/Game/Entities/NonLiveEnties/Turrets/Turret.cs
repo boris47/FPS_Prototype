@@ -33,7 +33,7 @@ public abstract class Turret : NonLiveEntity {
 
 		// LOAD CONFIGURATION
 		{
-			GameManager.Configs.bGetSection( m_SectionName, ref m_SectionRef );
+			GlobalManager.Configs.bGetSection( m_SectionName, ref m_SectionRef );
 			if ( m_SectionRef == null )
 			{
 				print( "Cannot find cfg section for entity " + name );

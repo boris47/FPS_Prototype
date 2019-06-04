@@ -49,7 +49,7 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 			
 			// LOAD SECTION
 			Database.Section uiSection = null;
-			if ( m_bIsInitialized &= GameManager.Configs.bGetSection( "UI_Inventory", ref uiSection ) )
+			if ( m_bIsInitialized &= GlobalManager.Configs.bGetSection( "UI_Inventory", ref uiSection ) )
 			{
 				m_CellSizeX				= Mathf.Max( uiSection.AsFloat( "CellSizeX",			m_CellSizeX				), m_CellSizeX				);
 				m_CellSizeY				= Mathf.Max( uiSection.AsFloat( "CellSizeY",			m_CellSizeY				), m_CellSizeY				);

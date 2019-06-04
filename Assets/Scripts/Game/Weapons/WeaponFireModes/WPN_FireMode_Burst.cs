@@ -37,7 +37,7 @@ public class WPN_FireMode_Burst : WPN_FireMode_Base {
 
 		string moduleSectionName = this.GetType().Name;
 		Database.Section section = null;
-		if ( GameManager.Configs.bGetSection( moduleSectionName, ref section ) )
+		if ( GlobalManager.Configs.bGetSection( moduleSectionName, ref section ) )
 		{
 			m_BurstSize			= section.AsInt( "BurstSize", m_BurstSize );
 			m_ApplyDeviation	= section.AsBool( "ApplyDeviationOnLastShot", m_ApplyDeviation );

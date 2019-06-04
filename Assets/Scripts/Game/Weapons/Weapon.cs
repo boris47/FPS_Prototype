@@ -205,7 +205,7 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 		m_Modifiers.Clear();
 
 		// LOAD BASE CONFIGURATION
-		if ( result &= GameManager.Configs.bGetSection( m_WpnBaseSectionName, ref m_WpnSection ) )
+		if ( result &= GlobalManager.Configs.bGetSection( m_WpnBaseSectionName, ref m_WpnSection ) )
 		{
 			m_WpnSection.bAsVec3( "ZoomOffset", ref m_ZoomOffset, null );
 
