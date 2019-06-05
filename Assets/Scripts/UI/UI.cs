@@ -144,7 +144,7 @@ public class UI : MonoBehaviour, IUI {
 	private			Transform				m_PrevActiveTransform			= null;
 
 	[SerializeField]
-	private			Queue<Transform>		m_TransformList					= new Queue<Transform>();
+	private			Stack<Transform>		m_TransformStack					= new Stack<Transform>();
 
 	private	bool							m_bIsInitialized				= false;
 	public	bool		IsInitialized
@@ -210,7 +210,7 @@ public class UI : MonoBehaviour, IUI {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
-	IEnumerator Initialize()
+	private	IEnumerator Initialize()
 	{
 		// Other Menus initialization
 		foreach( IStateDefiner state in transform.GetComponentOnlyInChildren<IStateDefiner>( deepSearch: true, includeInactive: true ) )
@@ -260,7 +260,7 @@ public class UI : MonoBehaviour, IUI {
 		if ( MenuToShow == null )
 			return;
 
-		m_TransformList.Clear();
+		m_TransformStack.Clear();
 
 		SwitchTo( MenuToShow );
 	}
@@ -273,7 +273,7 @@ public class UI : MonoBehaviour, IUI {
 		if ( MenuToShow == null )
 			return;
 
-		m_TransformList.Enqueue( m_CurrentActiveTrasform );
+		m_TransformStack.Push( m_CurrentActiveTrasform );
 
 		SwitchTo( MenuToShow );
 	}
@@ -283,9 +283,9 @@ public class UI : MonoBehaviour, IUI {
 	// GoBack
 	public	void GoBack()
 	{
-		if ( m_TransformList.Count > 0 )
+		if ( m_TransformStack.Count > 0 )
 		{
-			Transform t = m_TransformList.Dequeue();
+			Transform t = m_TransformStack.Pop();
 			SwitchTo( t );
 		}
 	}

@@ -142,6 +142,7 @@ namespace WeatherSystem {
 		/////////////////////////////////////////////////////////////////////////////
 		private IEnumerator		Start_Cycles()
 		{
+			yield return null;
 #if UNITY_EDITOR
 			if ( UnityEditor.EditorApplication.isPlaying == false )
 				yield break;

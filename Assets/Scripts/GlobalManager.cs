@@ -34,10 +34,22 @@ public class GlobalManager : MonoBehaviour {
 		get { return m_Configs; }
 	}
 
+	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
+	static void OnBeforeSceneLoad ()
+	{
+		print( "GlobalManager::OnBeforeSceneLoad" );
+	}
+
+	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.AfterSceneLoad)]
+	static void AfterSceneLoad ()
+	{
+		print( "GlobalManager::AfterSceneLoad" );
+	}
 
 	//////////////////////////////////////////////////////////////////////////
 	private void Awake()
 	{
+		print("Globalmanager:Awake");
 		// SINGLETON
 		if ( m_Instance != null )
 		{

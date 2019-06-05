@@ -11,6 +11,19 @@ public class CustomSceneManager : MonoBehaviour {
 
 	private	static	CustomSceneManager		m_Instance = null;
 
+	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
+	static void OnBeforeSceneLoad ()
+	{
+		print( "CustomSceneManager::OnBeforeSceneLoad" );
+
+	}
+
+	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.AfterSceneLoad)]
+	static void AfterSceneLoad ()
+	{
+		print( "CustomSceneManager::AfterSceneLoad" );
+	}
+
 	private void Awake()
 	{
 		// Singleton

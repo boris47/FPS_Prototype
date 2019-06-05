@@ -41,6 +41,9 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 		if ( m_bIsInitialized == true )
 			yield break;
 
+		// Trick where panel is set very on the bottom of ui and allowed to do onFrame stuf in coroutine, then gameobject is deactivated
+		Vector3 previousCanvasPosition = transform.position;
+
 		m_bIsInitialized = true;
 		{
 			m_bIsInitialized &= transform.SearchComponent( ref m_RawImage, SearchContext.CHILDREN );
@@ -64,6 +67,7 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 				m_TopViewCamera.orthographic		= true;
 				m_TopViewCamera.orthographicSize	= 32f;
 				m_TopViewCamera.clearFlags			= CameraClearFlags.Depth;
+				DontDestroyOnLoad( m_CameraContainer );
 
 				m_TopViewCamera.allowMSAA			= false;
 				m_TopViewCamera.useOcclusionCulling	= false;
@@ -158,6 +162,9 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 	//////////////////////////////////////////////////////////////////////////
 	public	void	Show()
 	{
+		if ( m_bIsInitialized == false )
+			return;
+
 		m_bIsVisible = true;
 
 		const float alphaValue = 0.7333333333333333f;
@@ -170,6 +177,9 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 	//////////////////////////////////////////////////////////////////////////
 	public	void	Hide()
 	{
+		if ( m_bIsInitialized == false )
+			return;
+
 		m_bIsVisible = false;
 		m_RawImage.material.color = Color.clear;
 	}
