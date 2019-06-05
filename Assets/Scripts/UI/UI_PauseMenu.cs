@@ -123,10 +123,9 @@ public class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 		// Exit pause state
 		GameManager.PauseEvents.SetPauseState( false );
 
-		// Force curso to be visible
-		Cursor.visible = true;
-		Cursor.lockState = CursorLockMode.None;
-
+		// Force cursor to be visible
+		GlobalManager.SetCursorVisibility( true );
+		
 		// Effect frame reset
 		UI.Instance.EffectFrame.color = Color.black;
 

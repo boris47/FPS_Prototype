@@ -145,6 +145,7 @@ public class CustomSceneManager : MonoBehaviour {
 		
 		// Remove global state as ChangingScene state
 		GlobalManager.bIsChangingScene = false;
+		GlobalManager.bIsLoadingScene = true;
 		
 		// Pre load callback
 		if ( loadSceneData.pOnPreLoadCompleted != null )
@@ -161,13 +162,18 @@ public class CustomSceneManager : MonoBehaviour {
 				GameManager.StreamEvents.Load( loadSceneData.sSaveToLoad );
 			}
 		}
-		yield return new WaitForEndOfFrame();
+
+		// Wait for every launched coroutine in awake of scripts
+		yield return CoroutinesManager.WaitPendingCoroutines();
 
 		// Post load callback
 		if ( loadSceneData.pOnLoadCompleted != null )
 		{
 			loadSceneData.pOnLoadCompleted();
 		}
+		yield return new WaitForEndOfFrame();
+
+		GlobalManager.bIsLoadingScene = false;
 	}
 
 

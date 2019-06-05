@@ -82,8 +82,7 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 		CameraControl.Instance.CanParseInput	= false;
 		InputManager.IsEnabled					= false;
 
-		Cursor.visible = true;
-		Cursor.lockState = CursorLockMode.None;
+		GlobalManager.SetCursorVisibility( true );
 	}
 
 
@@ -155,8 +154,7 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 
 		InputManager.IsEnabled					= true;
 
-		Cursor.visible = false;
-		Cursor.lockState = CursorLockMode.Locked;
+		GlobalManager.SetCursorVisibility( false );
 	}
 
 }

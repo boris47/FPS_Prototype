@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
 public class GlobalManager : MonoBehaviour {
 
 	private	static			GlobalManager	m_Instance				= null;
@@ -56,10 +58,10 @@ public class GlobalManager : MonoBehaviour {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		static		void		SetCursorVisible( bool newState )
+	public		static		void		SetCursorVisibility( bool newState )
 	{
 		Cursor.visible = newState;
-		Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;		
+		Cursor.lockState = newState ? CursorLockMode.None : CursorLockMode.Locked;
 	}
 
 

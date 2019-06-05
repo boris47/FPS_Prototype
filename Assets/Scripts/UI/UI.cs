@@ -165,7 +165,7 @@ public class UI : MonoBehaviour, IUI {
 		Instance = this;
 		DontDestroyOnLoad( this );
 
-		GlobalManager.SetCursorVisible( false );
+		GlobalManager.SetCursorVisibility( false );
 
 		m_bIsInitialized = true;
 

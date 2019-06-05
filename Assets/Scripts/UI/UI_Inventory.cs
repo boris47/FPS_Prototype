@@ -182,22 +182,27 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 			CameraControl.Instance.CanParseInput	= false;
 		}
 
-		InputManager.IsEnabled					= false;
+		InputManager.IsEnabled						= false;
 
-		Cursor.visible = true;
-		Cursor.lockState = CursorLockMode.None;
+		GlobalManager.SetCursorVisibility( true );
 	}
 
 	private void OnDisable()
 	{
-		if ( CameraControl.Instance != null )
+		if ( m_bIsInitialized == false )
+		{
+			return;
+
+		}
+
+		if ( CameraControl.Instance.IsNotNull() )
 		{
 			CameraControl.Instance.CanParseInput	= true;
 		}
-		InputManager.IsEnabled					= true;
 
-		Cursor.visible = false;
-		Cursor.lockState = CursorLockMode.Locked;
+		InputManager.IsEnabled						= true;
+
+		GlobalManager.SetCursorVisibility( false );
 	}
 
 }

@@ -219,8 +219,14 @@ namespace WeatherSystem {
 		{
 			// Start Modules
 			{
-				yield return StartCoroutine( Start_Cycles() );
-				yield return StartCoroutine( Start_Editor() );
+				Coroutine Start_CyclesCO = StartCoroutine( Start_Cycles() );
+				Coroutine Start_EditorCO = StartCoroutine( Start_Editor() );
+
+				CoroutinesManager.AddCoroutineToPendingList( Start_CyclesCO );
+				CoroutinesManager.AddCoroutineToPendingList( Start_EditorCO );
+
+				yield return Start_CyclesCO;
+				yield return Start_EditorCO;
 			}
 
 			if ( m_IsOK == false )

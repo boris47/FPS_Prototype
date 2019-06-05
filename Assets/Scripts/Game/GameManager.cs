@@ -70,7 +70,10 @@ public partial class GameManager : MonoBehaviour {
 	{
 		m_InGame = level != 0;
 
-		GlobalManager.SetCursorVisible( m_InGame ? false : true );
+		if ( m_InGame )
+		{
+			GlobalManager.SetCursorVisibility( false );
+		}
 	}
 
 
@@ -239,11 +242,6 @@ public partial class GameManager : MonoBehaviour {
 		InputMgr				= null;
 		Settings				= null;
 		Configs					= null;
-
-		// Internal Vars
-		IsChangingScene			= false;
-		IsLoadingScene			= false;
-		CanSave					= true;
 
 		// Reset Events
 		m_OnSave				= null;

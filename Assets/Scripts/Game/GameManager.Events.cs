@@ -567,8 +567,7 @@ public partial class GameManager : PauseEvents {
 		UI.Instance.GoToMenu( UI.Instance.InGame.transform );
 		UI.Instance.SetPauseMenuState( bPauseState );
 
-		Cursor.visible = bPauseState == true;
-		Cursor.lockState = bPauseState == true ? CursorLockMode.None : CursorLockMode.Locked;
+		GlobalManager.SetCursorVisibility( bPauseState == true );
 		
 		if ( bPauseState == true )
 		{

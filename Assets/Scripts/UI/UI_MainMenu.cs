@@ -92,6 +92,9 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 
 		if ( WeaponManager.Instance != null )
 			Destroy( WeaponManager.Instance.GameObject );
+
+		// Game Manager
+		GameManager.InGame	= false;
 	}
 
 
@@ -102,29 +105,27 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 		if ( Player.Instance != null )
 			Destroy( Player.Instance.gameObject );
 
-		yield return null;
-
 		// Cursor
-		Cursor.visible		= false;
-		Cursor.lockState	= CursorLockMode.None;
+		GlobalManager.SetCursorVisibility( false );
 
-		// Game Manager
-		GameManager.InGame	= false;
+		yield return null;
 
 		// UI interaction
 		UI.Instance.DisableInteraction( this.transform );
 		{
-			System.Func<bool> weatherIsReady = delegate()
-			{
-				return WeatherSystem.WeatherManager.Cycles != null && WeatherSystem.WeatherManager.Cycles.AreResLoaded == true;
-			};
-			yield return new WaitUntil( weatherIsReady );
+//			System.Func<bool> weatherIsReady = delegate()
+//			{
+//				return WeatherSystem.WeatherManager.Cycles != null && WeatherSystem.WeatherManager.Cycles.AreResLoaded == true;
+//			};
+
+			yield return CoroutinesManager.WaitPendingCoroutines();
+
+//			yield return new WaitUntil( weatherIsReady );
 		}
 		UI.Instance.EnableInteraction( this.transform );
 
 		// Cursor
-		Cursor.visible		= true;
-		Cursor.lockState	= CursorLockMode.None;
+		GlobalManager.SetCursorVisibility( true );
 
 		// Destroying singleton
 		if ( CameraControl.Instance != null )

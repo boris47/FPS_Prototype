@@ -53,6 +53,8 @@ public class CoroutinesManager : MonoBehaviour {
 
 	private	static	bool				m_ShowDebugInfo		= false;
 
+	private	static	List<Coroutine>		m_PendingRoutines	= new List<Coroutine>();
+
 	// 
 	private	static	void	Initialize()
 	{
@@ -66,6 +68,22 @@ public class CoroutinesManager : MonoBehaviour {
 		}
 	}
 
+	public static  bool	AddCoroutineToPendingList( Coroutine routine )
+	{
+		if ( m_PendingRoutines.Contains( routine ) )
+			return false;
+
+		m_PendingRoutines.Add( routine );
+		return true;
+	}
+
+	public static IEnumerator	WaitPendingCoroutines()
+	{
+		foreach( Coroutine routine in m_PendingRoutines )
+		{
+			yield return routine;
+		}
+	}
 
 
 	/////////////////////////////////////////////////////////////////

@@ -137,8 +137,7 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 	// Start
 	private	void	Start()
 	{
-		Cursor.visible = false;
-		Cursor.lockState = CursorLockMode.Locked;
+		GlobalManager.SetCursorVisibility( false );
 	}
 
 
