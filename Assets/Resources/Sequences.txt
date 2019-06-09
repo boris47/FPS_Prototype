@@ -7,27 +7,27 @@ GAME STARTUP - MENU SHOWING UP
 	GameManager					Awake	OnEnable	OnLevelWasLoaded
 	ResourceManager				Awake	
 	SoundManager				Awake	
-	CustomAudioSource			Awake	OnEnable	OnDisable
-	CameraControl				Awake	OnEnable	Start	OnDisable	OnDestroy
-	WeatherManager				Awake	OnEnable	OnLevelWasLoaded	Start(CO)	OnDisable	OnDestroy
-	RainManager							OnEnable	Start	OnDisable
-	UI							Awake				Start(CO)
-	UI_InGame							OnEnable	OnLevelWasLoaded	OnDisable
+	CustomAudioSource			Awake	OnEnable									OnDisable
+	CameraControl				Awake	OnEnable						Start		OnDisable		OnDestroy
+	WeatherManager				Awake	OnEnable	OnLevelWasLoaded	Start(CO)	OnDisable		OnDestroy
+	RainManager							OnEnable						Start		OnDisable
+	UI							Awake									Start(CO)
+	UI_InGame							OnEnable	OnLevelWasLoaded				OnDisable
 	GlobalQuestManager			Awake	
-	LocalQuestManager			Awake	OnDestroy
+	LocalQuestManager			Awake												OnDestroy
 	Task
-	Player						Awake	Start	OnEnable	OnDisable
-	Shield						Awake	OnEnable	OnDisable
+	Player						Awake	OnEnable						Start		OnDisable
+	Shield						Awake	OnEnable									OnDisable
 	FieldOfView					Awake	
-	Entity						Awake	OnEnable	Start	OnDisable	OnDestroy
+	Entity						Awake	OnEnable						Start		OnDisable		OnDestroy
 	LiveEntity					Awake	
 	NonLiveEntity				Awake	
-	Turret						Awake	OnEnable
+	Turret						Awake	OnEnable														
 	Drone						Awake	
 	Walker						Awake	
-	WeaponManager				Awake	OnEnable	Start	OnDisable	OnDestroy
+	WeaponManager				Awake	OnEnable						Start		OnDisable		OnDestroy
 
 	DEFAULT
 
-	SurfaceManager									Start
+	SurfaceManager														Start
 	Foots						Awake	

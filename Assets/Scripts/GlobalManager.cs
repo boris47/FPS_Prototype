@@ -35,13 +35,13 @@ public class GlobalManager : MonoBehaviour {
 	}
 
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
-	static void OnBeforeSceneLoad ()
+	private static void OnBeforeSceneLoad ()
 	{
 		print( "GlobalManager::OnBeforeSceneLoad" );
 	}
 
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.AfterSceneLoad)]
-	static void AfterSceneLoad ()
+	private static void AfterSceneLoad ()
 	{
 		print( "GlobalManager::AfterSceneLoad" );
 	}
@@ -49,7 +49,6 @@ public class GlobalManager : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private void Awake()
 	{
-		print("Globalmanager:Awake");
 		// SINGLETON
 		if ( m_Instance != null )
 		{
@@ -74,6 +73,7 @@ public class GlobalManager : MonoBehaviour {
 	{
 		Cursor.visible = newState;
 		Cursor.lockState = newState ? CursorLockMode.None : CursorLockMode.Locked;
+//		Debug.Log( "SetCursorVisibility: " + newState );
 	}
 
 

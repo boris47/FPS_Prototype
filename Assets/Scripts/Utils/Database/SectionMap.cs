@@ -6,6 +6,7 @@ using UnityEngine;
 using Database;
 using System;
 using System.IO;
+using System.Reflection;
 
 
 public class SectionMap : IEnumerable/*Foreach feature*/ {
@@ -259,13 +260,42 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 		return pSec;
 	}
 
-
 	//////////////////////////////////////////////////////////////////////////
-	// GetSection
+	// bGetSection
 	/// <summary> Retrieve a section, return true if section exists otherwise false </summary>
 	public bool bGetSection( string SectionName, ref Section section )
 	{
 		return m_SectionMap.TryGetValue( SectionName, out section );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// bGetSection
+	public	bool	bGetSection<T>( string SectionName, T outer ) where T : class
+	{
+		Section section = null;
+		bool bHadGoodResult = bGetSection( SectionName, ref section );
+		if ( bHadGoodResult )
+		{
+			Type classType = typeof(T);
+			FieldInfo[] fieldInfos = classType.GetFields( BindingFlags.NonPublic | BindingFlags.Instance );
+
+			bHadGoodResult &= fieldInfos.Length > 0;
+
+			string[] sectionKeys = section.GetKeys();
+			foreach ( FieldInfo fieldInfo in fieldInfos )
+			{
+				Database.cLineValue lineValue = null;
+				int index = System.Array.FindIndex( sectionKeys, key => fieldInfo.Name.Contains( key ) );
+				if ( index > -1 && ( bHadGoodResult &= section.bGetLineValue( sectionKeys[index], ref lineValue ) )	)
+				{
+					section.bGetLineValue( fieldInfo.Name, ref lineValue );
+					fieldInfo.SetValue( outer, System.Convert.ChangeType( lineValue.Value.ToSystemObject(), fieldInfo.FieldType ) );
+					Debug.Log( "Set of " + fieldInfo.Name + " of " + classType.Name + " To: " + lineValue.Value.ToString() );
+				}
+			}
+		}
+		return bHadGoodResult;
 	}
 
 

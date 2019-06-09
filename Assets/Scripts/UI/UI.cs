@@ -152,10 +152,10 @@ public class UI : MonoBehaviour, IUI {
 		get { return m_bIsInitialized; }
 	}
 
-	private int sceneIdx;
+
 	private void Awake()
 	{
-		sceneIdx = gameObject.scene.buildIndex;
+		int sceneIdx = gameObject.scene.buildIndex;
 		// SINGLETON
 		if ( Instance != null )
 		{
@@ -188,14 +188,10 @@ public class UI : MonoBehaviour, IUI {
 			// Mini map
 			m_bIsInitialized &= m_InGame.transform.SearchComponent( ref m_UI_Minimap, SearchContext.CHILDREN );
 		}
-	}
 
 
-	//////////////////////////////////////////////////////////////////////////
-	// Awake
-	private IEnumerator Start()
-	{
-		yield return StartCoroutine( Initialize() );
+		Initialize();
+//		yield return StartCoroutine(  );
 
 		if ( sceneIdx > 0 )
 		{
@@ -210,12 +206,12 @@ public class UI : MonoBehaviour, IUI {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
-	private	IEnumerator Initialize()
+	private	void Initialize()
 	{
 		// Other Menus initialization
-		foreach( IStateDefiner state in transform.GetComponentOnlyInChildren<IStateDefiner>( deepSearch: true, includeInactive: true ) )
+		foreach( IStateDefiner state in transform.GetComponentsInChildren<IStateDefiner>( includeInactive: true ) )
 		{
-			yield return StartCoroutine( state.Initialize() );
+			CoroutinesManager.Start( state.Initialize() );
 		}
 		
 		// Effect Frame
@@ -234,6 +230,7 @@ public class UI : MonoBehaviour, IUI {
 		{
 			Debug.LogError( "UI: Bad initialization!!!" );
 		}
+		
 	}
 
 
@@ -249,7 +246,7 @@ public class UI : MonoBehaviour, IUI {
 			m_CurrentActiveTrasform.gameObject.SetActive( true );
 		string currentName = m_CurrentActiveTrasform.name;
 		SetCursorPos( lastCursorPosition.X, lastCursorPosition.Y );
-		print( "Switched from " + previousName + " to " + currentName );
+//		print( "Switched from " + previousName + " to " + currentName );
 	}
 
 

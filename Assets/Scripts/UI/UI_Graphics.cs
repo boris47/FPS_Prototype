@@ -425,7 +425,7 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 				fullscreen:		m_ScreenData.bIsFullScreen
 			);
 
-			print( "Applying SCREEN settings" );
+//			print( "Applying SCREEN settings" );
 		}
 
 		// Filter
@@ -436,7 +436,7 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 			QualitySettings.anisotropicFiltering	= m_FilterData.bHasAnisotropicFilter ? AnisotropicFiltering.Enable : AnisotropicFiltering.Disable;
 			QualitySettings.antiAliasing			= m_FilterData.iAntialiasing * 2;
 
-			print( "Applying FILTER settings" );
+//			print( "Applying FILTER settings" );
 		}
 
 		// Quality
@@ -446,7 +446,7 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 			
 			QualitySettings.SetQualityLevel( m_QualityData.iQualityLevel, applyExpensiveChanges: true );
 
-			print( "Applying QUALITY settings" );
+//			print( "Applying QUALITY settings" );
 		}
 
 		// Save settings

@@ -13,15 +13,15 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 
 	private		GridLayoutGroup		m_GridLayoutGroup		= null;
 
-	private		float				m_CellSizeX				= 75f;
-	private		float				m_CellSizeY				= 75f;
-	private		int					m_CellCountHorizontal	= 3;
-	private		int					m_CellCountVertical		= 3;
-	private		int					m_HorizzontalPadding	= 100;
-	private		int					m_VerticalPadding		= 100;
+	private		float				m_CellSizeX				= 0;
+	private		float				m_CellSizeY				= 0;
+	private		int					m_CellCountHorizontal	= 0;
+	private		int					m_CellCountVertical		= 0;
+	private		int					m_HorizzontalPadding	= 0;
+	private		int					m_VerticalPadding		= 0;
 
-	private		float				m_HSpaceBetweenSlots	= 20f;
-	private		float				m_VSpaceBetweenSlots	= 20f;
+	private		float				m_HSpaceBetweenSlots	= 0;
+	private		float				m_VSpaceBetweenSlots	= 0;
 
 	private	bool			m_bIsInitialized				= false;
 	bool IStateDefiner.IsInitialized
@@ -46,8 +46,11 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 				m_InventorySlots = ( m_MainPanel.Find("InventorySlots") as RectTransform );
 				m_bIsInitialized &= m_InventorySlots != null;
 			}
-			
+
+
 			// LOAD SECTION
+			GlobalManager.Configs.bGetSection( "UI_Inventory", this );
+			/*
 			Database.Section uiSection = null;
 			if ( m_bIsInitialized &= GlobalManager.Configs.bGetSection( "UI_Inventory", ref uiSection ) )
 			{
@@ -60,13 +63,8 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 				m_HSpaceBetweenSlots	= Mathf.Max( uiSection.AsFloat( "HSpaceBetweenSlots",	m_HSpaceBetweenSlots	), m_HSpaceBetweenSlots		);
 				m_VSpaceBetweenSlots	= Mathf.Max( uiSection.AsFloat( "VSpaceBetweenSlots",	m_VSpaceBetweenSlots	), m_VSpaceBetweenSlots		);
 			}
+			*/
 			m_bIsInitialized &= m_InventorySlots.SearchComponent( ref m_GridLayoutGroup, SearchContext.LOCAL );
-			
-			// Trick where panel is set very on the bottom of ui and allowed to do onFrame stuf in coroutine, then gameobject is deactivated
-			Vector3 previousCanvasPosition = transform.position;
-			gameObject.SetActive(true);
-			transform.position = Vector3.down * 2000f;
-
 			
 			// LOAD PREFAB
 			ResourceManager.LoadData<GameObject> loadData = new ResourceManager.LoadData<GameObject>();
@@ -76,8 +74,7 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 			{
 				m_UI_MatrixSlots = new UI_InventorySlot[ m_CellCountHorizontal, m_CellCountVertical ];
 
-				Canvas canvas = GetComponent<Canvas>();
-//				print( "canvas.scaleFactor: " + canvas.scaleFactor );
+				Canvas canvas = transform.parent.GetComponent<Canvas>();
 
 				float scaleFactor = ( canvas.scaleFactor < 1.0f ) ? canvas.scaleFactor : 1f / canvas.scaleFactor;
 //				print( "My scale factor: " + scaleFactor );			
@@ -104,13 +101,10 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 						( instancedInventorySlot.transform as RectTransform ).anchorMax = Vector2.one;
 
 						IStateDefiner slot = m_UI_MatrixSlots[i, j] = instancedInventorySlot.GetComponent<UI_InventorySlot>();
-						yield return StartCoroutine( slot.Initialize() );
+						CoroutinesManager.Start( slot.Initialize() );
 					}
 				}
 			}
-
-			gameObject.SetActive(false);
-			transform.position = previousCanvasPosition;
 		}
 
 		if ( m_bIsInitialized )
@@ -144,7 +138,7 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 	{
 		Vector2 position = Vector2.zero;
 		UI_InventorySlot matrixSlot = null;
-		bool bAllAttempDone = m_UI_MatrixSlots.FindByPredicate( ( UI_InventorySlot i ) => i.IsSet == false, ref matrixSlot, ref position );
+		bool bAllAttempDone = m_UI_MatrixSlots.FindByPredicate( ref matrixSlot, ref position, ( UI_InventorySlot i ) => i.IsSet == false );
 		if ( bAllAttempDone )
 		{
 			bAllAttempDone &= matrixSlot.TrySet( itemIcon, itemSection );
@@ -153,15 +147,13 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 		return bAllAttempDone;
 	}
 
-	
-
 
 	//////////////////////////////////////////////////////////////////////////
 	public	bool	RemoveItem( string itemName )
 	{
 		Vector2 position = Vector2.zero;
 		UI_InventorySlot matrixSlot = null;
-		bool bHasBeenFound = m_UI_MatrixSlots.FindByPredicate( ( UI_InventorySlot i ) => i.Section.GetName() == itemName, ref matrixSlot, ref position );
+		bool bHasBeenFound = m_UI_MatrixSlots.FindByPredicate( ref matrixSlot, ref position, ( UI_InventorySlot i ) => i.Section.GetName() == itemName );
 		if ( bHasBeenFound )
 		{
 			matrixSlot.Reset();
@@ -170,6 +162,7 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 	}
 
 	
+	//////////////////////////////////////////////////////////////////////////
 	private void OnEnable()
 	{
 		if ( m_bIsInitialized == false )
@@ -187,12 +180,13 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 		GlobalManager.SetCursorVisibility( true );
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
 	private void OnDisable()
 	{
 		if ( m_bIsInitialized == false )
 		{
 			return;
-
 		}
 
 		if ( CameraControl.Instance.IsNotNull() )

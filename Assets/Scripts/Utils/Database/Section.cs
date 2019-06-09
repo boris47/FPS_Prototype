@@ -13,7 +13,8 @@ namespace Database {
 		void					Destroy							();
 		int						Lines							();
 		string					GetName							();
-		void					Add								( cLineValue LineValue );
+		bool					Add								( cLineValue LineValue );
+		bool					Remove							( string LineValueID );
 		bool					HasKey							( string Key );
 		bool					IsChildOf						( Section MotherSection );
 		bool					IsChildOf						( string MotherName );
@@ -129,12 +130,12 @@ namespace Database {
 		public	bool					IsChildOf						( Section MotherSection )
 		{
 			string motherName = MotherSection.GetName();
-			return ( vMothers.FindIndex( m => m == motherName ) != -1 );
+			return ( vMothers.FindIndex( m => m == motherName ) > -1 );
 		}
 
 		public	bool					IsChildOf						( string MotherName )
 		{
-			return ( vMothers.FindIndex( m => m == MotherName ) != -1 );
+			return ( vMothers.FindIndex( m => m == MotherName ) > -1 );
 		}
 		
 		
@@ -144,11 +145,30 @@ namespace Database {
 			vSection.ForEach( ( cLineValue lv ) => lv.Destroy() );
 		}
 
-		public	int						Lines()				{ return vSection.Count; }
+		public	int						Lines()
+		{
+			return vSection.Count;
+		}
+
+
 		public	string					GetName()				{ return ( string ) sName.Clone(); }
 	
 
-		public	void					Add( cLineValue LineValue )
+		//////////////////////////////////////////////////////////////////////////
+		// GetKeys
+		public	string[]				GetKeys()
+		{
+			string[] arrayToReturn = new string[ vSection.Count ];
+			for ( int i = 0; i < vSection.Count; i++ )
+			{
+				arrayToReturn[i] = vSection[i].Key;
+			}
+			return arrayToReturn;
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		// Add
+		public	bool				Add( cLineValue LineValue )
 		{
 			int index = vSection.FindIndex( ( s ) => s.Key == LineValue.Key );
 			// Confirmed new linevalue
@@ -161,24 +181,26 @@ namespace Database {
 			{
 				vSection[ index ] = new cLineValue( LineValue );
 			}
+			return index > -1;
 		}
 
-		/*
-		// Indexer behaviour
-		public cLineValue this[ string Key ]
+
+		//////////////////////////////////////////////////////////////////////////
+		// Remove
+		public	bool					Remove( string lineValueID )
 		{
-			get
+			int index = vSection.FindIndex( ( s ) => s.Key == lineValueID );
+			if ( index > -1 )
 			{
-				if ( vSection.Count < 1 )
-				{
-					return null;
-				}
-
-				return vSection.Find( ( cLineValue lineValue ) => lineValue.IsKey( Key ) == true );
+				vSection[index].Destroy();
+				vSection.RemoveAt( index );
 			}
+			return index > -1;
 		}
-		*/
+		
 
+		//////////////////////////////////////////////////////////////////////////
+		// bGetLineValue
 		public	bool					bGetLineValue( string key, ref cLineValue lineValue )
 		{
 			int index = vSection.FindIndex( ( cLineValue lv ) => lv.IsKey( key ) == true );
@@ -191,6 +213,8 @@ namespace Database {
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
+		// HasKey
 		public	bool					HasKey( string Key )
 		{	
 			cLineValue bump = null;
@@ -198,9 +222,8 @@ namespace Database {
 		}
 
 
-
-
-
+		//////////////////////////////////////////////////////////////////////////
+		// PrintSection
 		public void PrintSection()
 		{
 			Debug.Log( "---|Section START" + sName );
@@ -230,9 +253,8 @@ namespace Database {
 		}
 
 
-
-
-
+		//////////////////////////////////////////////////////////////////////////
+		// SaveToBuffer
 		public	void	SaveToBuffer( ref string buffer )
 		{
 			List<string> lines = new List<string>();

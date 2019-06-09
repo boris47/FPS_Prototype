@@ -53,9 +53,10 @@ public class CoroutinesManager : MonoBehaviour {
 
 	private	static	bool				m_ShowDebugInfo		= false;
 
-	private	static	List<IEnumerator>	m_PendingRoutines	= new List<IEnumerator>();
+	private	static	uint				m_PendingRoutines	= 0;
 
-	// 
+
+	/////////////////////////////////////////////////////////////////
 	private	static	void	Initialize()
 	{
 		if ( m_IsInitialized == false )
@@ -68,22 +69,38 @@ public class CoroutinesManager : MonoBehaviour {
 		}
 	}
 
-	public static  bool	AddCoroutineToPendingList( IEnumerator routine )
-	{
-		if ( m_PendingRoutines.Contains( routine ) )
-			return false;
 
-		m_PendingRoutines.Add( routine );
-		return true;
+	/////////////////////////////////////////////////////////////////
+	public static  void	AddCoroutineToPendingCount( uint howMany )
+	{
+		m_PendingRoutines += howMany;
 	}
 
+
+	/////////////////////////////////////////////////////////////////
+	public static  void	RemoveCoroutineToPendingCount( uint howMany )
+	{
+		if ( howMany > m_PendingRoutines )
+		{
+			Debug.Log( "CoroutinesManager::RemoveCoroutineToPendingCount:Trying to remove more than available pending routines" );
+			Debug.Log( "Current Pending Routines are : " + m_PendingRoutines + ", tried to remove: " + howMany );
+			return;
+		}
+
+		m_PendingRoutines -= howMany;
+	}
+
+
+	/////////////////////////////////////////////////////////////////
 	public static IEnumerator	WaitPendingCoroutines()
 	{
-		foreach( IEnumerator routine in m_PendingRoutines )
+		while( m_PendingRoutines > 0 )
 		{
-			yield return routine;
+			yield return null;
 		}
 	}
+
+
 
 
 	/////////////////////////////////////////////////////////////////
