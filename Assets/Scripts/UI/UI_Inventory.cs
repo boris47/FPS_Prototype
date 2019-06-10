@@ -13,21 +13,25 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 
 	private		GridLayoutGroup		m_GridLayoutGroup		= null;
 
-	private		float				m_CellSizeX				= 0;
-	private		float				m_CellSizeY				= 0;
-	private		int					m_CellCountHorizontal	= 0;
-	private		int					m_CellCountVertical		= 0;
-	private		int					m_HorizzontalPadding	= 0;
-	private		int					m_VerticalPadding		= 0;
-
-	private		float				m_HSpaceBetweenSlots	= 0;
-	private		float				m_VSpaceBetweenSlots	= 0;
-
 	private	bool			m_bIsInitialized				= false;
 	bool IStateDefiner.IsInitialized
 	{
 		get { return m_bIsInitialized; }
 	}
+
+	[System.Serializable]
+	private class InventorySectionData {
+		public		float				CellSizeX			= 0;
+		public		float				CellSizeY			= 0;
+		public		int					CellCountHorizontal	= 0;
+		public		int					CellCountVertical	= 0;
+		public		int					HorizzontalPadding	= 0;
+		public		int					VerticalPadding		= 0;
+		public		float				HSpaceBetweenSlots	= 0;
+		public		float				VSpaceBetweenSlots	= 0;
+	}
+	[SerializeField, ReadOnly]
+	private InventorySectionData	m_InventorySectionData	= new InventorySectionData();
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
@@ -49,21 +53,9 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 
 
 			// LOAD SECTION
-			GlobalManager.Configs.bGetSection( "UI_Inventory", this );
-			/*
-			Database.Section uiSection = null;
-			if ( m_bIsInitialized &= GlobalManager.Configs.bGetSection( "UI_Inventory", ref uiSection ) )
-			{
-				m_CellSizeX				= Mathf.Max( uiSection.AsFloat( "CellSizeX",			m_CellSizeX				), m_CellSizeX				);
-				m_CellSizeY				= Mathf.Max( uiSection.AsFloat( "CellSizeY",			m_CellSizeY				), m_CellSizeY				);
-				m_CellCountHorizontal	= Mathf.Max( uiSection.AsInt(   "CellCountHorizontal",	m_CellCountHorizontal	), m_CellCountHorizontal	);
-				m_CellCountVertical		= Mathf.Max( uiSection.AsInt(   "CellCountVertical",	m_CellCountVertical		), m_CellCountVertical		);
-				m_HorizzontalPadding	= Mathf.Max( uiSection.AsInt(	"HorizzontalPadding",	m_HorizzontalPadding	), m_HorizzontalPadding		);
-				m_VerticalPadding		= Mathf.Max( uiSection.AsInt(	"VerticalPadding",		m_VerticalPadding		), m_VerticalPadding		);
-				m_HSpaceBetweenSlots	= Mathf.Max( uiSection.AsFloat( "HSpaceBetweenSlots",	m_HSpaceBetweenSlots	), m_HSpaceBetweenSlots		);
-				m_VSpaceBetweenSlots	= Mathf.Max( uiSection.AsFloat( "VSpaceBetweenSlots",	m_VSpaceBetweenSlots	), m_VSpaceBetweenSlots		);
-			}
-			*/
+			m_bIsInitialized &= GlobalManager.Configs.bGetSection( "UI_Inventory", m_InventorySectionData );
+
+			// Search grid component
 			m_bIsInitialized &= m_InventorySlots.SearchComponent( ref m_GridLayoutGroup, SearchContext.LOCAL );
 			
 			// LOAD PREFAB
@@ -72,7 +64,7 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 
 			if ( m_bIsInitialized &= loadData.Asset != null )
 			{
-				m_UI_MatrixSlots = new UI_InventorySlot[ m_CellCountHorizontal, m_CellCountVertical ];
+				m_UI_MatrixSlots = new UI_InventorySlot[ m_InventorySectionData.CellCountHorizontal, m_InventorySectionData.CellCountVertical ];
 
 				Canvas canvas = transform.parent.GetComponent<Canvas>();
 
@@ -81,19 +73,26 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 
 				float ratio = (float)Screen.width / (float)Screen.height;
 //				print(ratio);
-				m_GridLayoutGroup.padding			= new RectOffset( left: m_HorizzontalPadding/2, right: m_HorizzontalPadding/2, top: m_VerticalPadding/2, bottom: m_VerticalPadding/2 );
-				m_GridLayoutGroup.cellSize			= new Vector2( m_CellSizeX, m_CellSizeY ) * scaleFactor;
-				m_GridLayoutGroup.spacing			= new Vector2( m_HSpaceBetweenSlots, m_VSpaceBetweenSlots ) * scaleFactor / ratio;
+				
+				int halfHorizontalPadding = m_InventorySectionData.HorizzontalPadding / 2;
+				int halfVerticalPadding   = m_InventorySectionData.VerticalPadding    / 2;
+				RectOffset padding = new RectOffset
+				( 
+					left: halfHorizontalPadding,	right: halfHorizontalPadding, 
+					top: halfVerticalPadding,		bottom: halfVerticalPadding 
+				);
+				m_GridLayoutGroup.padding			= padding;
+				m_GridLayoutGroup.cellSize			= new Vector2( m_InventorySectionData.CellSizeX, m_InventorySectionData.CellSizeY ) * scaleFactor;
+				m_GridLayoutGroup.spacing			= new Vector2( m_InventorySectionData.HSpaceBetweenSlots, m_InventorySectionData.VSpaceBetweenSlots ) * scaleFactor / ratio;
 				m_GridLayoutGroup.childAlignment	= TextAnchor.MiddleCenter;
 				m_GridLayoutGroup.constraint		= GridLayoutGroup.Constraint.FixedColumnCount;
-				m_GridLayoutGroup.constraintCount	= m_CellCountHorizontal;
+				m_GridLayoutGroup.constraintCount	= m_InventorySectionData.CellCountHorizontal;
 
 				GameObject inventorySlotPrefab = loadData.Asset;
 				
-				Vector2 instancedInventorySlotAnchoredPosition = Vector2.zero;
-				for ( int i = 0; i < m_CellCountVertical; i++ )
+				for ( int i = 0; i < m_InventorySectionData.CellCountVertical; i++ )
 				{
-					for ( int j = 0; j < m_CellCountHorizontal; j++ )
+					for ( int j = 0; j < m_InventorySectionData.CellCountHorizontal; j++ )
 					{
 						GameObject instancedInventorySlot = Instantiate( inventorySlotPrefab );
 						instancedInventorySlot.transform.SetParent( m_InventorySlots, worldPositionStays: false );

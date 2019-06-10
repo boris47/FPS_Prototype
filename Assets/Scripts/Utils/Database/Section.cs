@@ -47,6 +47,11 @@ namespace Database {
 		bool					bAsVec3							( string Key, ref Vector3 Out, Vector3? Default );
 		bool					bAsVec4							( string Key, ref Vector4 Out, Vector4? Default );
 
+		Vector2					AsVec2							( string Key, Vector2? Default );
+		Vector3					AsVec3							( string Key, Vector3? Default );
+		Vector4					AsVec4							( string Key, Vector4? Default );
+		Color					AsColor							( string Key, Color? Default );
+
 		void					SetValue						( string Key, cValue Value );
 		void					SetMultiValue					( string Key, cValue[] vValues );
 		void					Set				<T>				( string Key, T Value );

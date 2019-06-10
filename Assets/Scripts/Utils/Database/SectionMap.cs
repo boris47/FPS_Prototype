@@ -278,7 +278,7 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 		if ( bHadGoodResult )
 		{
 			Type classType = typeof(T);
-			FieldInfo[] fieldInfos = classType.GetFields( BindingFlags.NonPublic | BindingFlags.Instance );
+			FieldInfo[] fieldInfos = classType.GetFields( BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
 
 			bHadGoodResult &= fieldInfos.Length > 0;
 
@@ -289,9 +289,56 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 				int index = System.Array.FindIndex( sectionKeys, key => fieldInfo.Name.Contains( key ) );
 				if ( index > -1 && ( bHadGoodResult &= section.bGetLineValue( sectionKeys[index], ref lineValue ) )	)
 				{
-					section.bGetLineValue( fieldInfo.Name, ref lineValue );
-					fieldInfo.SetValue( outer, System.Convert.ChangeType( lineValue.Value.ToSystemObject(), fieldInfo.FieldType ) );
-					Debug.Log( "Set of " + fieldInfo.Name + " of " + classType.Name + " To: " + lineValue.Value.ToString() );
+					if ( lineValue.Type == LineValueType.SINGLE )
+					{
+						fieldInfo.SetValue( outer, System.Convert.ChangeType( lineValue.Value.ToSystemObject(), fieldInfo.FieldType ) );
+						Debug.Log( "Set of " + fieldInfo.Name + " of " + classType.Name + " To: " + lineValue.Value.ToString() );
+					}
+					else // Multi
+					{
+						System.Type elementType = null;
+						if ( lineValue.MultiValue.DeductType( ref elementType ) )
+						{
+							if ( elementType == typeof( Vector2 ) )
+							{
+								fieldInfo.SetValue( outer, section.AsVec2( fieldInfo.Name, Vector2.zero ) );
+								continue;
+							}
+
+							if ( elementType == typeof( Vector3 ) )
+							{
+								fieldInfo.SetValue( outer, section.AsVec3( fieldInfo.Name, Vector3.zero ) );
+								continue;
+							}
+
+							if ( elementType == typeof( Vector4 ) )
+							{
+								if ( fieldInfo.FieldType == typeof( Vector4 ) )
+								{
+									fieldInfo.SetValue( outer, section.AsVec4( fieldInfo.Name, Vector4.zero ) );
+								}
+
+								if ( fieldInfo.FieldType == typeof( Color ) )
+								{
+									fieldInfo.SetValue( outer, section.AsColor( fieldInfo.Name, Color.clear ) );
+								}
+								continue;
+							}							
+
+							if ( fieldInfo.FieldType.IsArray == true )
+							{
+								object[] result = lineValue.MultiValue.ValueList.ConvertAll	// Get a list of converted cvalues to requested type
+								(
+									new System.Converter<cValue, object> ( ( cValue v ) => { return v.ToSystemObject(); } )
+								)
+								.ToArray(); 
+								fieldInfo.SetValue( outer, result /*lineValue.MultiValue.ValueList.ToArray()*/ );
+								continue;
+							}
+
+							Debug.Log( "Set of " + fieldInfo.Name + " of " + classType.Name + " is impossible!! " );
+						}
+					}
 				}
 			}
 		}

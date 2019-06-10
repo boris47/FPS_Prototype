@@ -66,12 +66,19 @@ namespace WeatherSystem {
 		private		Light					m_ThunderLight					= null;
 		private		Transform				m_ThunderAudioContainer			= null;
 
-		private		float					m_ThunderTimerMin				= 6f;
-		private		float					m_ThunderTimerMax				= 25f;
-		private		float					m_ThunderLifeTimeMin			= 0.08f;
-		private		float					m_ThunderLifeTimeMax			= 0.5f;
-		private		float					m_ThunderStepsMin				= 3f;
-		private		float					m_ThunderStepsMax				= 9f;
+		[System.Serializable]
+		private class ThunderboltsSectionData {
+			public	float					ThunderTimerMin				= 6f;
+			public	float					ThunderTimerMax				= 25f;
+			public	float					ThunderLifeTimeMin			= 0.08f;
+			public	float					ThunderLifeTimeMax			= 0.5f;
+			public	float					ThunderStepsMin				= 3f;
+			public	float					ThunderStepsMax				= 9f;
+		}
+		[SerializeField, ReadOnly]
+		private ThunderboltsSectionData m_ThunderboltsSectionData = new ThunderboltsSectionData();
+
+
 		private		CustomAudioSource[]		m_ThunderAudioSources			= null;
 		
 		private		Camera					m_Camera						= null;
@@ -150,18 +157,7 @@ namespace WeatherSystem {
 			// Get info from settings file
 			if ( GlobalManager.Configs != null )
 			{
-				Database.Section pSection = null;
-				if ( GlobalManager.Configs.bGetSection( "Thunderbolts", ref pSection ) )
-				{
-					pSection.bAsFloat( "ThunderTimerMin",		ref m_ThunderTimerMin );
-					pSection.bAsFloat( "ThunderTimerMax",		ref m_ThunderTimerMax );
-
-					pSection.bAsFloat( "ThunderLifeTimeMin",	ref m_ThunderLifeTimeMin );
-					pSection.bAsFloat( "ThunderLifeTimeMax",	ref m_ThunderLifeTimeMax );
-
-					pSection.bAsFloat( "ThunderStepsMin",		ref m_ThunderStepsMin );
-					pSection.bAsFloat( "ThunderStepsMax",		ref m_ThunderStepsMax );
-				}
+				GlobalManager.Configs.bGetSection( "Thunderbolts", m_ThunderboltsSectionData );
 			}
 
 			AudioCollection thundersDistantCollection = Resources.Load<AudioCollection>( THUNDERS_DISTANT );
@@ -184,7 +180,7 @@ namespace WeatherSystem {
 				return;
 			}
 			
-			m_NextThunderTimer = Random.Range( m_ThunderTimerMin, m_ThunderTimerMax );
+			m_NextThunderTimer = Random.Range( m_ThunderboltsSectionData.ThunderTimerMin, m_ThunderboltsSectionData.ThunderTimerMax );
 
 #if UNITY_EDITOR
 			if ( UnityEditor.EditorApplication.isPlaying == false )
@@ -277,8 +273,8 @@ namespace WeatherSystem {
 			if ( thunderAudioSource == null )
 				yield break;
 
-			float	thunderLifeTime = Random.Range( m_ThunderLifeTimeMin, m_ThunderLifeTimeMax );
-			float	thunderSteps	= Random.Range( m_ThunderStepsMin, m_ThunderStepsMax );
+			float	thunderLifeTime = Random.Range( m_ThunderboltsSectionData.ThunderLifeTimeMin, m_ThunderboltsSectionData.ThunderLifeTimeMax );
+			float	thunderSteps	= Random.Range( m_ThunderboltsSectionData.ThunderStepsMin, m_ThunderboltsSectionData.ThunderStepsMax );
 			float	thunderLifeStep	= thunderLifeTime / thunderSteps;
 			float	currentLifeTime	= 0f;
 			bool	lightON			= false;
@@ -345,8 +341,8 @@ namespace WeatherSystem {
 
 					m_NextThunderTimer = Random.Range
 					(
-						( m_ThunderTimerMin * 0.5f ) + ( m_ThunderTimerMin * ( 1f - m_RainIntensity ) ),
-						( m_ThunderTimerMax * 0.5f ) + ( m_ThunderTimerMax * ( 1f - m_RainIntensity ) )
+						( m_ThunderboltsSectionData.ThunderTimerMin * 0.5f ) + ( m_ThunderboltsSectionData.ThunderTimerMin * ( 1f - m_RainIntensity ) ),
+						( m_ThunderboltsSectionData.ThunderTimerMax * 0.5f ) + ( m_ThunderboltsSectionData.ThunderTimerMax * ( 1f - m_RainIntensity ) )
 					);
 				}
 			}

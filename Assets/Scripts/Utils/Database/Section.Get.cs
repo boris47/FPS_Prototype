@@ -225,6 +225,109 @@ namespace Database {
 			return bResult;
 		}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// bAsVec2
+		public	UnityEngine.Vector2				AsVec2( string Key, UnityEngine.Vector2? Default )
+		{
+			UnityEngine.Vector2 Out = Default.GetValueOrDefault();
+			cLineValue pLineValue = null;
+			if ( bGetLineValue( Key, ref pLineValue ) )
+			{
+				cMultiValue pMultiValue	= null;
+				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
+				{
+					cValue pValue1				= pMultiValue[ 0 ];
+					cValue pValue2				= pMultiValue[ 1 ];
+
+					if ( ( pValue1 != null ) && ( pValue2 != null ) )
+					{
+						Out = new UnityEngine.Vector2( pValue1.ToFloat(), pValue2.ToFloat() );
+					}
+				}
+			}
+			return Out;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// bAsVec3
+		public	UnityEngine.Vector3					AsVec3( string Key, UnityEngine.Vector3? Default )
+		{
+			UnityEngine.Vector3 Out = Default.GetValueOrDefault();
+			cLineValue pLineValue		= null;
+			if ( bGetLineValue( Key, ref pLineValue ) )
+			{
+				cMultiValue pMultiValue	= null;
+				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
+				{
+					float x = pMultiValue[ 0 ];
+					float y = pMultiValue[ 1 ];
+					float z = pMultiValue[ 2 ];
+
+					Out = new UnityEngine.Vector3( x, y, z );
+				}
+			}
+			return Out;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// bAsVec4
+		public	UnityEngine.Vector4					AsVec4( string Key, UnityEngine.Vector4? Default )
+		{
+			UnityEngine.Vector4 Out = Default.GetValueOrDefault();
+			cLineValue pLineValue		= null;
+			if ( bGetLineValue( Key, ref pLineValue ) )
+			{
+				cMultiValue pMultiValue	= null;
+				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
+				{
+					float x = pMultiValue[ 0 ];
+					float y = pMultiValue[ 1 ];
+					float z = pMultiValue[ 2 ];
+					float w = pMultiValue[ 3 ];
+
+					Out = new UnityEngine.Vector4( x, y, z, w );
+				}
+			}
+			return Out;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		// bAsColor
+		public	UnityEngine.Color					AsColor( string Key, UnityEngine.Color? Default )
+		{
+			UnityEngine.Color Out = Default.GetValueOrDefault();
+			UnityEngine.Vector4 refVec = UnityEngine.Vector4.zero;
+			if ( bAsVec4( Key, ref refVec, UnityEngine.Vector4.zero ) == true )
+			{
+				Out = ( UnityEngine.Color )refVec;
+			}
+			return Out;
+		}
+
 	};
 
 }

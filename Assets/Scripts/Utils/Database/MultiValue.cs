@@ -53,6 +53,46 @@ namespace Database {
 		{
 			m_ValuesList.Add( pValue );
 		}
+
+
+		public	bool	DeductType( ref System.Type typeFound )
+		{
+			bool result = true;
+			{
+				System.Type elementType = m_ValuesList[0].GetType();
+				bool bIsSameType = m_ValuesList.TrueForAll( v => v.GetType() == elementType );
+				if ( bIsSameType )
+				{
+					if ( elementType == typeof( int ) || elementType == typeof( float ) )
+					{
+						if ( m_ValuesList.Count == 2 )
+						{
+							typeFound = typeof( UnityEngine.Vector2 );
+						}
+
+						if ( m_ValuesList.Count == 3 )
+						{
+							typeFound = typeof( UnityEngine.Vector3 );
+						}
+
+						if ( m_ValuesList.Count == 4 )
+						{
+							typeFound = typeof( UnityEngine.Vector4 );
+						}
+					}
+					else
+					{
+						typeFound = elementType;
+					}
+				}
+				else
+				{
+					UnityEngine.Debug.Log( "Multivalue of not of same type requeste in DeductType" );
+					result = false;
+				}
+			}
+			return result;
+		}
 	
 	}
 

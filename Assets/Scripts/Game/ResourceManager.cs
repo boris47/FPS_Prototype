@@ -76,8 +76,8 @@ public class ResourceManager : MonoBehaviour {
 
 	public	static	Texture	LoadTextureSync( string resourcePath )
 	{
-		Object asd = Resources.Load( resourcePath );
-		return asd as Texture;
+		Object obj = Resources.Load( resourcePath );
+		return obj as Texture;
 	}
 
 	public	static	bool	RequireTexture( string resourcePath, Texture tex )
@@ -87,22 +87,13 @@ public class ResourceManager : MonoBehaviour {
 
 	///////////////////////////////////////////////////
 
-	/*
-	private	static	string RESOURCES_PATH = "Assets/Resources/";
-	/// <summary> Concatenate ResourcesPath, resourcePath and extension </summary>
-	private static string GetFullPath( string ResourcePath )
-	{
-		return RESOURCES_PATH + ResourcePath + ".asset";
-	}
-	*/
-	// 
 	private	static	void	Initialize()
 	{
 		if ( m_IsInitialized == false )
 		{
-			GameObject go = new GameObject();
-			go.hideFlags = HideFlags.HideAndDontSave;
-			m_Instance = go.AddComponent<ResourceManager>();
+			GameObject resourceManagerGO = new GameObject();
+			resourceManagerGO.hideFlags = HideFlags.HideAndDontSave;
+			resourceManagerGO.AddComponent<ResourceManager>();
 
 			m_IsInitialized = true;
 		}
@@ -123,11 +114,11 @@ public class ResourceManager : MonoBehaviour {
 
 		bool result = true;
 
-//		if ( m_ShowDebugInfo )				print( "SYNC Loading: " + ResourcePath );
+		if ( m_ShowDebugInfo )				print( "SYNC Loading: " + ResourcePath );
 		{
 			result &= InternalLoadResourceSync( ResourcePath, loadData, ref result );
 		}
-//		if ( m_ShowDebugInfo && result )	print( "SYNC Loaded: " + ResourcePath );
+		if ( m_ShowDebugInfo && result )	print( "SYNC Loaded: " + ResourcePath );
 
 		return result;
 	}
@@ -169,7 +160,7 @@ public class ResourceManager : MonoBehaviour {
 					}
 				}
 			}
-//			if ( m_ShowDebugInfo && bResult )	print( "INTERNAL SYNC Loaded: " + RESOURCES_PATH + ResourcePath );
+			if ( m_ShowDebugInfo && bResult )	print( "INTERNAL SYNC Loaded: " + ResourcePath );
 		}
 
 		return bResult;
@@ -196,7 +187,7 @@ public class ResourceManager : MonoBehaviour {
 	/// <summary> Asynchronously load resource with given path, load recursively if composite type. Onload completed with success callbeck is called
 	/// return iterator of the MAIN load coroutine </summary>
 
-	public	static  	IEnumerator LoadResourceAsyncCoroutine<T>( string ResourcePath, LoadData<T> loadData, System.Action<T> OnResourceLoaded ) where T : Object
+	public	static  	IEnumerator LoadResourceAsyncCoroutine<T>( string ResourcePath, LoadData<T> loadData, System.Action<T> OnResourceLoaded, System.Action<string> OnFailure = null) where T : Object
 	{
 		Initialize();
 
@@ -205,16 +196,20 @@ public class ResourceManager : MonoBehaviour {
 			loadData = new LoadData<T>();
 		}
 
-//		if ( m_ShowDebugInfo )				print( "COROUTINE ASYNC Loading: " + ResourcePath );
+		if ( m_ShowDebugInfo )				print( "COROUTINE ASYNC Loading: " + ResourcePath );
 		{
 			yield return m_Instance.StartCoroutine( InternalLoadResourceAsync( ResourcePath, loadData ) );
 		}
-//		if ( m_ShowDebugInfo )				print( "COROUTINE ASYNC Loaded: " + ResourcePath );
+		if ( m_ShowDebugInfo )				print( "COROUTINE ASYNC Loaded: " + ResourcePath );
 
 		bool bHasValidAsset = loadData.Asset != null;
 		if ( bHasValidAsset == false )
 		{
 			Debug.LogError( "ResourceManager:Cannot load resource " + ResourcePath );
+			if ( OnFailure.IsNotNull() )
+			{
+				OnFailure( ResourcePath );
+			}
 		}
 
 		if ( OnResourceLoaded.IsNotNull() && bHasValidAsset == true )
@@ -257,7 +252,7 @@ public class ResourceManager : MonoBehaviour {
 				}
 			}
 		}
-//		if ( m_ShowDebugInfo )			print( "INTERNAL ASYNC Loaded: " + RESOURCES_PATH + ResourcePath );
+		if ( m_ShowDebugInfo )			print( "INTERNAL ASYNC Loaded: " + ResourcePath );
 	}
 
 
