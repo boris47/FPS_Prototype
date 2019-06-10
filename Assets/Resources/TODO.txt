@@ -107,4 +107,5 @@ AI Behiaviours
 	}
 	TODO Inventory
 	TODO Screen notifies
+	TODO Surface manager should get configuration by dedicated file
 

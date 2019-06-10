@@ -219,12 +219,13 @@ namespace WeatherSystem {
 		{
 			// Start Modules
 			{
-				CoroutinesManager.AddCoroutineToPendingCount(2);
+				const int processCount = 2;
+				CoroutinesManager.AddCoroutineToPendingCount(processCount);
 				{
 					yield return StartCoroutine( Start_Cycles() );
 					yield return StartCoroutine( Start_Editor() );
 				}
-				CoroutinesManager.RemoveCoroutineToPendingCount(2);
+				CoroutinesManager.RemoveCoroutineToPendingCount(processCount);
 			}
 
 			if ( m_IsOK == false )
