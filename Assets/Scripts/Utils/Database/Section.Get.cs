@@ -206,7 +206,6 @@ namespace Database {
 					bResult = true;
 				}
 
-
 				// If is multi value
 				cMultiValue multiValue = null;
 				if ( pLineValue.GetAsMulti( ref multiValue ) )
@@ -323,7 +322,7 @@ namespace Database {
 			UnityEngine.Vector4 refVec = UnityEngine.Vector4.zero;
 			if ( bAsVec4( Key, ref refVec, UnityEngine.Vector4.zero ) == true )
 			{
-				Out = ( UnityEngine.Color )refVec;
+				Out = refVec;
 			}
 			return Out;
 		}

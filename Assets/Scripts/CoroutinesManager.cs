@@ -101,8 +101,6 @@ public class CoroutinesManager : MonoBehaviour {
 	}
 
 
-
-
 	/////////////////////////////////////////////////////////////////
 	private void Awake()
 	{	// Singleton

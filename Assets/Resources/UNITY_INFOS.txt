@@ -10,3 +10,7 @@ Debug.Log( Application.dataPath );					// C:/SourceTree/FPS_Prototype/Assets
 Debug.Log( Application.persistentDataPath );		// C:/Users/Drako/AppData/LocalLow/BeWide&Co/Project Orion
 Debug.Log( Application.streamingAssetsPath );		// C:/SourceTree/FPS_Prototype/Assets/StreamingAssets
 Debug.Log( Application.temporaryCachePath );		// C:/Users/Drako/AppData/Local/Temp/BeWide&Co/Project Orion
+
+
+var v = new { Amount = 108, Message = "Hello" };
+m_bIsInitialized &= GlobalManager.Configs.bGetSection( SectionName, v );

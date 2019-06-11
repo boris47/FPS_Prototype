@@ -1,8 +1,8 @@
 ﻿
 [FragGranade]
-Damage			= 100.0;
-Radius			= 9.0;
-ThrowForce		= 32.0;
+DamageMax		= 100.0;
+Range			= 9.0;
+Velocity		= 32.0;
 ExplosionDelay	= 3.0;
 BlowOnHit		= true;
 

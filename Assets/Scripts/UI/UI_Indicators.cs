@@ -196,8 +196,9 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 		for ( int i = 0; i < m_Requests.Count; i++ )
 		{
 			IndicatorRequest request = m_Requests[i];
-			EnableIndicatorInternal( request ); 
+			EnableIndicatorInternal( request );
 		}
+		m_Requests.Clear();
 
 		for ( int i = m_CurrentlyActive.Count - 1; i >= 0; i-- )
 		{
