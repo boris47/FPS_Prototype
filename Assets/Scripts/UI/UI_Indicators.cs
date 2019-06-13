@@ -202,11 +202,11 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 		for ( int i = m_CurrentlyActive.Count - 1; i >= 0; i-- )
 		{
-			ActiveIndicatorData pair = m_CurrentlyActive[i];
-			GameObject target			= pair.Target;
-			Image mainIndicatorImage	= pair.MainIndicatorImage;
-			Image minimapIndicatorImage = pair.MinimapIndicatorImage;
-			bool bMustBeClamped			= pair.bMustBeClamped;
+			ActiveIndicatorData indicatorData = m_CurrentlyActive[i];
+			GameObject target			= indicatorData.Target;
+			Image mainIndicatorImage	= indicatorData.MainIndicatorImage;
+			Image minimapIndicatorImage = indicatorData.MinimapIndicatorImage;
+			bool bMustBeClamped			= indicatorData.bMustBeClamped;
 
 			if ( target ) // The gameobject could been destroyed in meanwhile 
 			{

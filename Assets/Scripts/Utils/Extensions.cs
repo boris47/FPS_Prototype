@@ -288,6 +288,22 @@ public static class Extensions {
 
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
+	//		GAMEOBJECT
+
+	/// <summary> Look for given component, if not found add it, return component reference  </summary>
+	public	static	T				GetOrAddIfNotFound<T>( this GameObject go ) where T : Component
+	{
+		T result = null;
+		if ( ( result = go.GetComponent<T>() ) == null )
+		{
+			result = go.AddComponent<T>();
+		}
+		return result;
+	}
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
 	//		VECTOR2
 	public	static	Vector2			ClampComponents( this Vector2 v, float min, float max )
 	{
