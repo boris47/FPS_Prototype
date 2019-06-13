@@ -275,10 +275,24 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 			}
 
 			// Create new pool
-			string bulletObjectName = m_ModuleSection.AsString( "Bullet", "InvalidBulletResource");
-			GameObject bulletGO = null;
-			if ( ( bulletGO = Resources.Load<GameObject>( "Prefabs/Bullets/" + bulletObjectName ) ) != null ) 
-			{
+			string bulletObjectName = m_ModuleSection.AsString( "Bullet", "InvalidBulletResource" );
+			GameObject bulletGO = Resources.Load<GameObject>( "Prefabs/Bullets/" + bulletObjectName );
+			if ( bulletGO ) 
+			{/*
+				m_PoolBullets = new GameObjectsPool<Bullet>
+				(
+					new GameObjectsPoolConstructorData<Bullet>()
+					{
+						model	= bulletGO,
+						size	= m_MagazineCapacity,
+						containerName	= moduleSectionName + "_BulletsPool_" + wpn.Transform.name,
+						actionOnObject	= ActionOnBullet,
+						parent			= null,
+						bAsyncBuild		= true,
+					}
+				);
+				*/
+				
 				m_PoolBullets = new GameObjectsPool<Bullet>
 				(
 					model			: bulletGO,
@@ -286,6 +300,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 					containerName	: moduleSectionName + "_BulletsPool_" + wpn.Transform.name,
 					actionOnObject	: ActionOnBullet
 				);
+				
 			}
 		}
 

@@ -4,6 +4,17 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
+public	class GameObjectsPoolConstructorData<T> {
+	public GameObject model;
+	public uint size;
+	public string containerName = "GameObjectsContainer_";
+	public Transform parent = null;
+	public System.Action<T> actionOnObject = null;
+	public bool bAsyncBuild = false;
+	public IEnumerator coroutineEnumerator = null;
+}
+
+
 /// <summary> Object pooler with a specified component added on every object </summary>
 public	class GameObjectsPool<T> : IEnumerable where T : UnityEngine.Component  {
 	
@@ -65,6 +76,65 @@ public	class GameObjectsPool<T> : IEnumerable where T : UnityEngine.Component  {
 					m_ActionOnObject( comp );
 					m_ObjectsPool.Add( comp );
 				}
+			}
+		}
+	}
+
+
+	public	GameObjectsPool( GameObjectsPoolConstructorData<T> constructorData )
+	{
+		if ( constructorData.model != null && constructorData.size > 0 )
+		{
+			m_ModelGO = constructorData.model;
+
+			m_Container = new GameObject( constructorData.containerName + Counter.ToString() );
+			Counter ++;
+
+			if ( constructorData.parent != null )
+			{
+				m_Container.transform.SetParent( constructorData.parent );
+				m_Container.transform.position = constructorData.parent.position;
+				m_Container.transform.rotation = constructorData.parent.rotation;
+			}
+
+			// Assign action for every object
+			if ( constructorData.actionOnObject != null )
+			{
+				m_ActionOnObject = constructorData.actionOnObject;
+			}
+
+			if ( constructorData.bAsyncBuild )
+			{
+				constructorData.coroutineEnumerator = CreateItemsCo( constructorData.model, constructorData.size );
+				CoroutinesManager.Start( constructorData.coroutineEnumerator );
+			}
+			else
+			{
+				// Create the internal pool
+				m_ObjectsPool = new List<T>( (int)(constructorData.size ) );
+				{
+					for ( uint i = 0; i < constructorData.size; i++ )
+					{
+						T comp = Createitem( constructorData.model );
+						m_ActionOnObject( comp );
+						m_ObjectsPool.Add( comp );
+					}
+				}
+			}
+		}
+	}
+
+	private	IEnumerator CreateItemsCo( GameObject model, uint size )
+	{
+		yield return null;
+		m_ObjectsPool = new List<T>( (int)(size ) );
+		{
+			for ( uint i = 0; i < size; i++ )
+			{
+				T comp = Createitem( model );
+				m_ActionOnObject( comp );
+				m_ObjectsPool.Add( comp );
+				yield return null;
 			}
 		}
 	}
