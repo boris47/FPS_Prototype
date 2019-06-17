@@ -34,9 +34,32 @@ public class GlobalManager : MonoBehaviour {
 		get { return m_Configs; }
 	}
 
+
+	public	static void		Assert( bool condition, string message )
+	{
+		if ( condition == false )
+		{
+			Debug.LogError( message );
+			ForcedQuit();
+		}
+	}
+
+
+
+	public	static	void	ForcedQuit()
+	{
+#if UNITY_EDITOR
+		UnityEditor.EditorApplication.isPlaying = false;
+#else
+		Application.Quit();
+#endif
+	}
+
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
 	private static void OnBeforeSceneLoad ()
 	{
+		UnityEngine.Assertions.Assert.raiseExceptions = true;
+		Debug.developerConsoleVisible = true;
 		print( "GlobalManager::OnBeforeSceneLoad" );
 	}
 
@@ -81,6 +104,14 @@ public class GlobalManager : MonoBehaviour {
 	public		static		void		SetTimeScale( float value )
 	{
 		SoundManager.Instance.Pitch = Time.timeScale = value;
+	}
+
+	private void Update()
+	{
+		if ( Input.GetKeyDown( KeyCode.V ) )
+		{
+			new GameObjectsPool<Transform>( new GameObjectsPoolConstructorData<Transform>() );
+		}
 	}
 
 

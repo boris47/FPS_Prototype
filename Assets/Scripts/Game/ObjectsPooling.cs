@@ -1,6 +1,7 @@
 ﻿
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Assertions;
 using UnityEngine;
 
 
@@ -25,6 +26,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	private	System.Action<T>	m_ActionOnObject	= delegate( T component ) { };
 	private	GameObject			m_ModelGO			= null;
 	private	Coroutine			m_Coroutine			= null;
+	private bool				m_bIsBuilding		= false;
 
 	
 	// Iterations
@@ -43,45 +45,63 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	// CONSTRUCTOR
 	public	GameObjectsPool( GameObjectsPoolConstructorData<T> constructorData )
 	{
-		if ( constructorData.Model != null && constructorData.Size > 0 )
+		GlobalManager.Assert
+		(
+			constructorData.Model != null,
+			"GameObjectsPool trying to create a pool with null Model for component " + typeof(T).Name
+		);
+
+		GlobalManager.Assert
+		(
+			constructorData.Size > 0,
+			"GameObjectsPool trying to create a pool with null Model for component " + typeof(T).Name
+		);
+
+		GlobalManager.Assert
+		(
+			constructorData.Model.transform.HasComponent<T>() == true,
+			"GameObjectsPool trying to create a pool with Model with no component " + typeof(T).Name + ", Model is " + constructorData.Model.name
+		);
+		
+
+		// Get data from GameObjectsPoolConstructorData
+		m_ModelGO				= constructorData.Model;
+		string containerName	= constructorData.ContainerName + Counter.ToString();
+		uint poolSize			= constructorData.Size;
+
+
+		// Assign action for every object
+		m_ActionOnObject = constructorData.ActionOnObject ?? m_ActionOnObject;
+
+
+		// Create game object container
+		m_Container = new GameObject( containerName );
+		m_Container.transform.SetPositionAndRotation( Vector3.up * 80000f, Quaternion.identity ); 
+		Object.DontDestroyOnLoad(m_Container);
+		Counter ++;
+		
+
+		// Create the internal pool
+		if ( constructorData.IsAsyncBuild ) // Asyncronously
 		{
-			m_ModelGO = constructorData.Model;
-
-			m_Container = new GameObject( constructorData.ContainerName + Counter.ToString() );
-			Counter ++;
-			
-			m_Container.transform.position = Vector3.up * 80000f;;
-			m_Container.transform.rotation = Quaternion.identity;
-
-/*			if ( constructorData.Parent != null )
+			constructorData.CoroutineEnumerator = CreateItemsCO( m_ModelGO, poolSize );
+			m_bIsBuilding = true;
+			m_Coroutine = CoroutinesManager.Start( constructorData.CoroutineEnumerator );
+		}
+		else
+		// Instantly
+		{
+			m_ObjectsPool = new List<T>( (int)( poolSize ) );
 			{
-				m_Container.transform.SetParent( constructorData.Parent );
-				m_Container.transform.position = constructorData.Parent.position;
-				m_Container.transform.rotation = constructorData.Parent.rotation;
-			}
-*/
-			// Assign action for every object
-			m_ActionOnObject = constructorData.ActionOnObject ?? m_ActionOnObject;
-
-			if ( constructorData.IsAsyncBuild )
-			{
-				constructorData.CoroutineEnumerator = CreateItemsCO( constructorData.Model, constructorData.Size );
-				m_Coroutine = CoroutinesManager.Start( constructorData.CoroutineEnumerator );
-			}
-			else
-			{
-				// Create the internal pool
-				m_ObjectsPool = new List<T>( (int)(constructorData.Size ) );
+				for ( uint i = 0; i < poolSize; i++ )
 				{
-					for ( uint i = 0; i < constructorData.Size; i++ )
-					{
-						T comp = Createitem( constructorData.Model );
-						m_ActionOnObject( comp );
-						m_ObjectsPool.Add( comp );
-					}
+					T comp = Createitem( m_ModelGO );
+					m_ActionOnObject( comp );
+					m_ObjectsPool.Add( comp );
 				}
 			}
 		}
+		
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -100,6 +120,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 				yield return null;
 			}
 		}
+		m_bIsBuilding = false;
 		m_Coroutine = null;
 	}
 
@@ -108,37 +129,40 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	// Convert
 	public		bool		Convert( GameObject model, System.Action<T> actionOnObject = null )
 	{
-		bool bIsValid = model != null;
-		if ( bIsValid )
-		{
-			m_ModelGO = model;
+		Debug.AssertFormat
+		(
+			model != null,
+			"Trying to covert a GameObjectsPool using null model"
+		);
+		
+		m_ModelGO = model;
 			
-			m_ActionOnObject = actionOnObject ?? m_ActionOnObject;
+		m_ActionOnObject = actionOnObject ?? m_ActionOnObject;
 
-			int size = m_ObjectsPool.Count;
+		int size = m_ObjectsPool.Count;
+		{
+			m_Container.transform.DetachChildren();
+			for ( int i = m_ObjectsPool.Count - 1; i >= 0; i-- )
 			{
-				m_Container.transform.DetachChildren();
-				for ( int i = m_ObjectsPool.Count - 1; i >= 0; i-- )
-				{
-					Component comp = m_ObjectsPool[i];
-					Object.Destroy( comp.gameObject );
-					m_ObjectsPool.RemoveAt(i);
-				}
-			}
-			m_ObjectsPool.Clear();
-			
-			// Create the internal pool
-			m_ObjectsPool = new List<T>( size );
-			{
-				for ( uint i = 0; i < size; i++ )
-				{
-					T comp = Createitem( model );
-					m_ActionOnObject( comp );
-					m_ObjectsPool.Add( comp );
-				}
+				Component comp = m_ObjectsPool[i];
+				Object.Destroy( comp.gameObject );
+				m_ObjectsPool.RemoveAt(i);
 			}
 		}
-		return bIsValid;
+		m_ObjectsPool.Clear();
+			
+		// Create the internal pool
+		m_ObjectsPool = new List<T>( size );
+		{
+			for ( uint i = 0; i < size; i++ )
+			{
+				T comp = Createitem( model );
+				m_ActionOnObject( comp );
+				m_ObjectsPool.Add( comp );
+			}
+		}
+		
+		return true;
 	}
 
 
@@ -235,7 +259,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// GetComponent
+	// GetNextComponent
 	public		T			GetNextComponent()
 	{
 		if ( IsValid == false )
@@ -282,7 +306,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 
 		Counter --;
 
-		if ( m_Coroutine.IsNotNull() )
+		if ( m_bIsBuilding == true )
 		{
 			CoroutinesManager.Stop( m_Coroutine );
 		}

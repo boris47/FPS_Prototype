@@ -31,11 +31,13 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 	};
 	private		List<ActiveIndicatorData>			m_CurrentlyActive			= new List<ActiveIndicatorData>(MAX_ELEMENTS);
 
+	[System.Serializable]
 	private	struct IndicatorRequest {
 		public	GameObject			target;
 		public	IndicatorType		IndicatorType;
 		public	bool				bMustBeClamped;
 	}
+	[SerializeField]
 	private	List<IndicatorRequest>					m_Requests					= new List<IndicatorRequest>();
 
 	private		bool								m_bIsInitialized			= false;
@@ -197,6 +199,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 		for ( int i = 0; i < m_Requests.Count; i++ )
 		{
 			IndicatorRequest request = m_Requests[i];
+			m_Requests.RemoveAt(i);
 			EnableIndicatorInternal( request );
 		}
 		m_Requests.Clear();
@@ -344,7 +347,9 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 			// y = mx + b format
 			float m = cos / sin;
 
-			Vector2 minimapBounds = minimapRect.rect.size * 0.5f;
+
+			const float rectBorderFactor = 0.75f;
+			Vector2 minimapBounds = minimapRect.rect.size * rectBorderFactor;
 
 			// Check up and down first
 			if ( cos > 0.0f )
@@ -367,8 +372,8 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 			}
 
 			// Because of the different scale applied to rawImage rectTransform, this must be token in account fo computations
-			screenPointScaled.x *= minimapRect.localScale.x;
-			screenPointScaled.y *= minimapRect.localScale.y;
+			Vector3 scaleToApply = minimapRect.localScale * rectBorderFactor * 0.5f;
+			screenPointScaled.Scale( scaleToApply );
 
 			WorldPosition2D = UI.Instance.Minimap.transform.TransformPoint( screenPointScaled );
 		}

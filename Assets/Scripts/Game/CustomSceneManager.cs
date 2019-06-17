@@ -140,11 +140,11 @@ public class CustomSceneManager : MonoBehaviour {
 		// Wait for load completion
 		while ( asyncOperation.progress < 0.9f )
 		{
-			print( "Process: " + asyncOperation.progress );
+//			print( "Process: " + asyncOperation.progress );
 			yield return null;
 		}
 
-		print("before isdone");
+//		print("before isdone");
 
 		asyncOperation.allowSceneActivation = true;
 
@@ -154,7 +154,7 @@ public class CustomSceneManager : MonoBehaviour {
 			yield return null;
 		}
 
-		print("after isdone");
+//		print("after isdone");
 		
 		// Remove global state as ChangingScene state
 		GlobalManager.bIsChangingScene = false;
