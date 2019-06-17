@@ -1,6 +1,7 @@
 ﻿
 using System.Collections;
 using System.Collections.Generic;
+using Database;
 using UnityEngine;
 
 public interface IWPN_FireModule {
@@ -37,7 +38,7 @@ public abstract class WPN_BaseModule : MonoBehaviour, IModifiable {
 	protected		GameObject					m_FireModeContainer					= null;
 
 
-	public		Database.Section			ModuleSection
+	public virtual		Database.Section			ModuleSection
 	{
 		get { return m_ModuleSection; }
 	}
@@ -122,6 +123,12 @@ public abstract class WPN_BaseModule : MonoBehaviour, IModifiable {
 [System.Serializable]
 public class WPN_BaseModuleEmpty : WPN_BaseModule {
 
+	public override Section ModuleSection
+	{
+		get {
+			return new Database.Section( "WPN_BaseModuleEmpty", "Unassigned" );
+		}
+	}
 	public		override	bool	Setup				( IWeapon w, WeaponSlots slot ) { return true; }
 	protected	override	bool	InternalSetup		( Database.Section moduleSection ) { return true; }
 
@@ -292,13 +299,18 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 					}
 				);
 				*/
+
+				GameObjectsPoolConstructorData<Bullet> data = new GameObjectsPoolConstructorData<Bullet>()
+				{
+					Model = bulletGO,
+					Size	= m_MagazineCapacity,
+					ContainerName = moduleSectionName + "_BulletsPool_" + wpn.Transform.name,
+					ActionOnObject = ActionOnBullet
+				};
 				
 				m_PoolBullets = new GameObjectsPool<Bullet>
 				(
-					model			: bulletGO,
-					size			: m_MagazineCapacity,
-					containerName	: moduleSectionName + "_BulletsPool_" + wpn.Transform.name,
-					actionOnObject	: ActionOnBullet
+					data
 				);
 				
 			}

@@ -80,8 +80,8 @@ PrimaryWeaponModule			= WPN_FireModule_Syphon;
 HasSecondaryWeaponModule	= true;
 SecondaryWeaponModule		= WPN_WeaponModule_Zoom;
 
-HasTertiaryWeaponModule		= false;
-TertiaryWeaponModule		= WPN_FireModule_Auto;
+HasTertiaryWeaponModule		= true;
+TertiaryWeaponModule		= WPN_FireModule_Blaster;
 
 
 

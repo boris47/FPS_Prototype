@@ -102,7 +102,7 @@ public class WPN_FireModule_GranadeLauncher : WPN_FireModule {
 //		EffectManager.Instance.PlayEffect( EffectType.SMOKE, m_FirePoint.position, m_FirePoint.forward, 1 );
 
 		// BULLET
-		IBullet bullet = m_PoolBullets.GetComponent();
+		IBullet bullet = m_PoolBullets.GetNextComponent();
 
 		moduleFireDispersion	*= Player.Instance.IsCrouched			? 0.50f : 1.00f;
 		moduleFireDispersion	*= Player.Instance.IsMoving				? 1.50f : 1.00f;

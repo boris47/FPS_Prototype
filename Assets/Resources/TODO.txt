@@ -108,7 +108,8 @@ AI Behiaviours
 ***	TODO Inventory
 	TODO Screen notifies
 	TODO Surface manager should get configuration by dedicated file ( Denied )
-	TODo Usare i System.Guid
+	TODO Usare i System.Guid
+	TODO GameObjectsPool support async creation
 
 	// Ref: https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/anonymous-types
 	// var v = new { Amount = 108, Message = "Hello" 

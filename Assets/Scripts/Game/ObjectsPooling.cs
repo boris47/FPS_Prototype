@@ -5,18 +5,18 @@ using UnityEngine;
 
 
 public	class GameObjectsPoolConstructorData<T> {
-	public GameObject model;
-	public uint size;
-	public string containerName = "GameObjectsContainer_";
-	public Transform parent = null;
-	public System.Action<T> actionOnObject = null;
-	public bool bAsyncBuild = false;
-	public IEnumerator coroutineEnumerator = null;
+	public GameObject				Model						= null;
+	public uint						Size						= 0;
+	public string					ContainerName				= "GameObjectsContainer_";
+//	public Transform				Parent						= null;
+	public System.Action<T>			ActionOnObject				= null;
+	public IEnumerator				CoroutineEnumerator			= null;
+	public bool						IsAsyncBuild				= false;
 }
 
 
 /// <summary> Object pooler with a specified component added on every object </summary>
-public	class GameObjectsPool<T> : IEnumerable where T : UnityEngine.Component  {
+public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	
 	private	static	int			Counter				= 0;
 	private	GameObject			m_Container			= null;
@@ -24,12 +24,8 @@ public	class GameObjectsPool<T> : IEnumerable where T : UnityEngine.Component  {
 	private	int					m_InternalIndex		= 0;
 	private	System.Action<T>	m_ActionOnObject	= delegate( T component ) { };
 	private	GameObject			m_ModelGO			= null;
+	private	Coroutine			m_Coroutine			= null;
 
-	// Iterations
-	IEnumerator IEnumerable.GetEnumerator()
-	{
-		return (IEnumerator) GetEnumerator();
-	}
 	
 	// Iterations
 	public List<T>.Enumerator  GetEnumerator()
@@ -45,77 +41,41 @@ public	class GameObjectsPool<T> : IEnumerable where T : UnityEngine.Component  {
 
 	//////////////////////////////////////////////////////////////////////////
 	// CONSTRUCTOR
-	public	GameObjectsPool( GameObject model, uint size, string containerName = "GameObjectsContainer_", Transform parent = null, System.Action<T> actionOnObject = null )
-	{
-		if ( model != null && size > 0 )
-		{
-			m_ModelGO = model;
-
-			m_Container = new GameObject( containerName + Counter.ToString() );
-			Counter ++;
-
-			if ( parent != null )
-			{
-				m_Container.transform.SetParent( parent );
-				m_Container.transform.position = parent.position;
-				m_Container.transform.rotation = parent.rotation;
-			}
-
-			// Assign action for every object
-			if ( actionOnObject != null )
-			{
-				m_ActionOnObject = actionOnObject;
-			}
-
-			// Create the internal pool
-			m_ObjectsPool = new List<T>( (int)size );
-			{
-				for ( uint i = 0; i < size; i++ )
-				{
-					T comp = Createitem( model );
-					m_ActionOnObject( comp );
-					m_ObjectsPool.Add( comp );
-				}
-			}
-		}
-	}
-
-
 	public	GameObjectsPool( GameObjectsPoolConstructorData<T> constructorData )
 	{
-		if ( constructorData.model != null && constructorData.size > 0 )
+		if ( constructorData.Model != null && constructorData.Size > 0 )
 		{
-			m_ModelGO = constructorData.model;
+			m_ModelGO = constructorData.Model;
 
-			m_Container = new GameObject( constructorData.containerName + Counter.ToString() );
+			m_Container = new GameObject( constructorData.ContainerName + Counter.ToString() );
 			Counter ++;
+			
+			m_Container.transform.position = Vector3.up * 80000f;;
+			m_Container.transform.rotation = Quaternion.identity;
 
-			if ( constructorData.parent != null )
+/*			if ( constructorData.Parent != null )
 			{
-				m_Container.transform.SetParent( constructorData.parent );
-				m_Container.transform.position = constructorData.parent.position;
-				m_Container.transform.rotation = constructorData.parent.rotation;
+				m_Container.transform.SetParent( constructorData.Parent );
+				m_Container.transform.position = constructorData.Parent.position;
+				m_Container.transform.rotation = constructorData.Parent.rotation;
 			}
-
+*/
 			// Assign action for every object
-			if ( constructorData.actionOnObject != null )
-			{
-				m_ActionOnObject = constructorData.actionOnObject;
-			}
+			m_ActionOnObject = constructorData.ActionOnObject ?? m_ActionOnObject;
 
-			if ( constructorData.bAsyncBuild )
+			if ( constructorData.IsAsyncBuild )
 			{
-				constructorData.coroutineEnumerator = CreateItemsCo( constructorData.model, constructorData.size );
-				CoroutinesManager.Start( constructorData.coroutineEnumerator );
+				constructorData.CoroutineEnumerator = CreateItemsCO( constructorData.Model, constructorData.Size );
+				m_Coroutine = CoroutinesManager.Start( constructorData.CoroutineEnumerator );
 			}
 			else
 			{
 				// Create the internal pool
-				m_ObjectsPool = new List<T>( (int)(constructorData.size ) );
+				m_ObjectsPool = new List<T>( (int)(constructorData.Size ) );
 				{
-					for ( uint i = 0; i < constructorData.size; i++ )
+					for ( uint i = 0; i < constructorData.Size; i++ )
 					{
-						T comp = Createitem( constructorData.model );
+						T comp = Createitem( constructorData.Model );
 						m_ActionOnObject( comp );
 						m_ObjectsPool.Add( comp );
 					}
@@ -124,19 +84,23 @@ public	class GameObjectsPool<T> : IEnumerable where T : UnityEngine.Component  {
 		}
 	}
 
-	private	IEnumerator CreateItemsCo( GameObject model, uint size )
+	//////////////////////////////////////////////////////////////////////////
+	// CreateItemsCO
+	private	IEnumerator CreateItemsCO( GameObject model, uint size )
 	{
 		yield return null;
 		m_ObjectsPool = new List<T>( (int)(size ) );
 		{
 			for ( uint i = 0; i < size; i++ )
 			{
+//				Debug.Log( "Creating " + model );
 				T comp = Createitem( model );
 				m_ActionOnObject( comp );
 				m_ObjectsPool.Add( comp );
 				yield return null;
 			}
 		}
+		m_Coroutine = null;
 	}
 
 
@@ -148,11 +112,8 @@ public	class GameObjectsPool<T> : IEnumerable where T : UnityEngine.Component  {
 		if ( bIsValid )
 		{
 			m_ModelGO = model;
-
-			if ( actionOnObject != null )
-			{
-				m_ActionOnObject = actionOnObject;
-			}
+			
+			m_ActionOnObject = actionOnObject ?? m_ActionOnObject;
 
 			int size = m_ObjectsPool.Count;
 			{
@@ -275,7 +236,7 @@ public	class GameObjectsPool<T> : IEnumerable where T : UnityEngine.Component  {
 
 	//////////////////////////////////////////////////////////////////////////
 	// GetComponent
-	public		T			GetComponent()
+	public		T			GetNextComponent()
 	{
 		if ( IsValid == false )
 			return null;
@@ -291,17 +252,8 @@ public	class GameObjectsPool<T> : IEnumerable where T : UnityEngine.Component  {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// GetComponent
-	public		bool		GetComponent( ref T comp )
-	{
-		comp = GetComponent();
-		return comp != null;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
 	// GetAsModel
-	public		T			GetAsModel()
+	public		T			PeekComponent()
 	{
 		if ( IsValid == false )
 			return null;
@@ -330,8 +282,17 @@ public	class GameObjectsPool<T> : IEnumerable where T : UnityEngine.Component  {
 
 		Counter --;
 
+		if ( m_Coroutine.IsNotNull() )
+		{
+			CoroutinesManager.Stop( m_Coroutine );
+		}
+		
+		m_ObjectsPool.Clear();
+
 		Object.Destroy( m_Container );
 	}
+
+	
 
 }
 

@@ -292,7 +292,7 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 					if ( lineValue.Type == LineValueType.SINGLE )
 					{
 						fieldInfo.SetValue( outer, System.Convert.ChangeType( lineValue.Value.ToSystemObject(), fieldInfo.FieldType ) );
-						Debug.Log( "Set of " + fieldInfo.Name + " of " + classType.Name + " To: " + lineValue.Value.ToString() );
+//						Debug.Log( "Set of " + fieldInfo.Name + " of " + classType.Name + " To: " + lineValue.Value.ToString() );
 					}
 					else // Multi
 					{

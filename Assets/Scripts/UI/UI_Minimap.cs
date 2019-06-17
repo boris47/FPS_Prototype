@@ -82,7 +82,7 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 				m_HelperRectTransform.SetParent( m_MiniMapRectTransform, worldPositionStays: false );
 				m_HelperRectTransform.anchorMin = Vector2.zero;
 				m_HelperRectTransform.anchorMax = Vector2.zero;
-				m_HelperRectTransform.hideFlags = HideFlags.HideAndDontSave;
+				m_HelperRectTransform.gameObject.hideFlags = HideFlags.HideAndDontSave;
 
 				m_RatioVector = new Vector2( m_MiniMapRectTransform.rect.width / m_TopViewCamera.pixelWidth, m_MiniMapRectTransform.rect.height / m_TopViewCamera.pixelHeight );
 			}

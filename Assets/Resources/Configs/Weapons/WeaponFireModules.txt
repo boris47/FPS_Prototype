@@ -2,6 +2,22 @@
 ;********************************
 
 ; COMMON BARREL
+[WPN_BaseModuleEmpty]
+Name						= Empty Module;
+BaseMagazineCapacity		= 0;
+BaseDamage					= 0.0;
+BaseCamDeviation			= 0.0;
+BaseFireDispersion			= 0.0;
+BaseRecoil					= 0.0;
+BaseShotDelay				= 0.0;
+FireMode					= Single;
+Bullet						= BulletRifle;
+FireSound					= Shot;
+MaxModuleCount				= 3;
+AllowedSlots				= 1, 2, 3;
+
+
+; COMMON BARREL
 [WPN_FireModule_Barrel]
 Name						= Barrel;
 BaseMagazineCapacity		= 50;

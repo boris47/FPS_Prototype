@@ -53,7 +53,7 @@ public class TurretHard : Turret {
 
 		m_ShotTimer = m_ShotDelay;
 
-		IBullet bullet = m_Pool.GetComponent();
+		IBullet bullet = m_Pool.GetNextComponent();
 		bullet.Shoot( m_FirePoint.position, m_FirePoint.forward );
 		
 		m_FireAudioSource.Play();

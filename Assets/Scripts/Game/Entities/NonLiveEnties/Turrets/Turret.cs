@@ -57,14 +57,17 @@ public abstract class Turret : NonLiveEntity {
 		}
 
 		// BULLETS POOL CREATION
+		if ( m_Pool == null )		// check for respawn
 		{
 			GameObject	bulletGO		= m_Bullet.gameObject;
-			m_Pool = new GameObjectsPool<Bullet>
-			(
-				model			: bulletGO,
-				size			: ( uint ) m_PoolSize,
-				containerName	: name + "BulletPool",
-				actionOnObject	: ( Bullet o ) =>
+			GameObjectsPoolConstructorData<Bullet> data = new GameObjectsPoolConstructorData<Bullet>()
+			{
+				Model					= bulletGO,
+				Size					= ( uint ) m_PoolSize,
+				ContainerName			= name + "BulletPool",
+				CoroutineEnumerator		= null,
+				IsAsyncBuild			= true,
+				ActionOnObject			= ( Bullet o ) =>
 				{
 					o.SetActive( false );
 					o.Setup
@@ -75,14 +78,14 @@ public abstract class Turret : NonLiveEntity {
 						damageMin: m_DamageMin,
 						damageMax: m_DamageMin
 					);
-					this.SetCollisionStateWith( o.Collider, false );
+					this.SetCollisionStateWith( o.Collider, state: false );
 
 					// this allow to receive only trigger enter callback
 					Player.Instance.DisableCollisionsWith( o.Collider, bAlsoTriggerCollider: false );
 				}
-			);
+			};
+			m_Pool = new GameObjectsPool<Bullet>( data );
 		}
-
 		m_Pool.SetActive( true );
 		m_ShotTimer = 0f;
 
@@ -141,7 +144,7 @@ public abstract class Turret : NonLiveEntity {
 				(
 					shooterPosition:	m_GunTransform.position,
 					shooterVelocity:	Vector3.zero,
-					shotSpeed:			m_Pool.GetAsModel().Velocity,
+					shotSpeed:			m_Pool.PeekComponent().Velocity,
 					targetPosition:		m_TargetInfo.CurrentTarget.Transform.position,
 					targetVelocity:		m_TargetInfo.CurrentTarget.RigidBody.velocity
 				);
@@ -167,7 +170,7 @@ public abstract class Turret : NonLiveEntity {
 
 		m_ShotTimer = m_ShotDelay;
 		
-		IBullet bullet = m_Pool.GetComponent();
+		IBullet bullet = m_Pool.GetNextComponent();
 		bullet.Shoot( position: m_FirePoint.position, direction: m_FirePoint.forward );
 		
 		m_FireAudioSource.Play();

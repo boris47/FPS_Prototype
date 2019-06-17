@@ -122,7 +122,7 @@ public class WPN_FireModule_Shotgun : WPN_FireModule {
 	protected	void	InternalShoot( float moduleFireDispersion, float moduleCamDeviation )
 	{
 		// BULLET
-		IBullet bullet = m_PoolBullets.GetComponent();
+		IBullet bullet = m_PoolBullets.GetNextComponent();
 
 		// POSITION
 		Vector3 position = m_FirePoint.position;

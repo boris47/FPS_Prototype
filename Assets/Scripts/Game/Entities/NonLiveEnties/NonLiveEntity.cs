@@ -19,8 +19,6 @@ public abstract partial class NonLiveEntity : Entity {
 	protected		float				m_ShotTimer					= 0.0f;
 	protected		ICustomAudioSource	m_FireAudioSource			= null;
 
-
-
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		Awake()
 	{

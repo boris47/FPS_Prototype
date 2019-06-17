@@ -72,7 +72,7 @@ public class TurretGatling : Turret {
 
 		m_ShotTimer = m_ShotDelay;
 		
-		IBullet bullet = m_Pool.GetComponent();
+		IBullet bullet = m_Pool.GetNextComponent();
 
 		// Add some dispersion
 		m_DispersionVector.Set

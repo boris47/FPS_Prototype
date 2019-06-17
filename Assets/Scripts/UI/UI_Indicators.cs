@@ -52,8 +52,6 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 		if ( m_bIsInitialized )
 			yield break;
 
-		m_bIsInitialized = false;
-
 		// Sprites for TargetToKill, LocationToReach or ObjectToInteractWith
 		ResourceManager.LoadData<SpriteCollection> indicatorsSpritesCollection = new ResourceManager.LoadData<SpriteCollection>();
 
@@ -62,23 +60,26 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 		
 		yield return ResourceManager.LoadResourceAsyncCoroutine( "Scriptables/UI_Indicators", indicatorsSpritesCollection, null );
 		yield return ResourceManager.LoadResourceAsyncCoroutine( "Prefabs/UI/Task_Objective", indicatorPrefab, null );
-		m_bIsInitialized |= indicatorsSpritesCollection.Asset != null && indicatorPrefab.Asset != null;
 
-		if ( m_bIsInitialized )
+		bool resourcesLoaded = indicatorsSpritesCollection.Asset != null && indicatorPrefab.Asset != null;
+		if ( resourcesLoaded )
 		{
 			m_SpriteCollection	= indicatorsSpritesCollection.Asset;
 
 			// Pool Creation
-			GameObject model	= indicatorPrefab.Asset;
-			m_Pool = new GameObjectsPool<Transform>
-			(
-				model:				model,
-				size:				MAX_ELEMENTS,
-				containerName:		"UI_IndicatorsPool",
-				parent:				transform,
-				actionOnObject:		delegate( Transform t ) { t.gameObject.SetActive(false); }
-			);
-			
+			GameObjectsPoolConstructorData<Transform> data = new GameObjectsPoolConstructorData<Transform>()
+			{
+				Model			= indicatorPrefab.Asset,
+				Size			= MAX_ELEMENTS,
+				ContainerName	= "UI_IndicatorsPool",
+//				Parent			= transform,
+				ActionOnObject	= delegate( Transform t ) { t.gameObject.SetActive(false); t.SetParent(transform); },
+				IsAsyncBuild	= true
+			};
+			m_Pool = new GameObjectsPool<Transform>( data );
+
+			yield return data.CoroutineEnumerator;
+			m_bIsInitialized = true;
 		}
 	}
 
@@ -113,7 +114,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 		Sprite indicator = m_SpriteCollection.Sprites[(int)request.IndicatorType];
 
-		Transform indicatorTransform = m_Pool.GetComponent();
+		Transform indicatorTransform = m_Pool.GetNextComponent();
 
 		Image mainIndicatorImage = null;
 		Image MinimapIndicatorImage = null;

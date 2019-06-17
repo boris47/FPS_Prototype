@@ -160,7 +160,7 @@ public class GenericBullet : Bullet {
 	// ShootParabolic ( Virtual )
 	protected	virtual		void	ShootParabolic( Vector3 position, Vector3 direction, float velocity )
 	{
-//		transform.up			= direction;
+		transform.up			= direction;
 		transform.position		= position;
 		m_RigidBody.velocity	= m_RigidBodyVelocity = direction * ( ( velocity > 0f ) ? velocity : m_Velocity );
 		m_StartPosition			= position;
@@ -182,10 +182,10 @@ public class GenericBullet : Bullet {
 		
 		m_RigidBody.angularVelocity = Vector3.zero;
 		m_RigidBody.detectCollisions = state;
-		m_Collider.enabled = state;
-		m_Renderer.enabled = state;
+	//	m_Collider.enabled = state;
+	//	m_Renderer.enabled = state;
 		gameObject.SetActive( state );
-		this.enabled = state;
+	//	this.enabled = state;
 	}
 
 

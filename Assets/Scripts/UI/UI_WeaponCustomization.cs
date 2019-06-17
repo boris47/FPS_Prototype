@@ -16,6 +16,12 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 		get { return m_bIsInitialized; }
 	} 
 
+	Dictionary<WeaponSlots, Database.Section> m_CurrentAssignedModuleSections = new Dictionary<WeaponSlots, Database.Section>()
+	{
+		{ WeaponSlots.PRIMARY,		new Database.Section( "WPN_BaseModuleEmpty", "Unassigned" ) },
+		{ WeaponSlots.SECONDARY,	new Database.Section( "WPN_BaseModuleEmpty", "Unassigned" ) },
+		{ WeaponSlots.TERTIARY,		new Database.Section( "WPN_BaseModuleEmpty", "Unassigned" ) }
+	};
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
@@ -58,6 +64,7 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 		{
 			return;
 		}
+
 
 
 		Database.Section[] fireModules		= GlobalManager.Configs.GetSectionsByContext( "WeaponFireModules" );
@@ -115,6 +122,8 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 		);
 		thisDropdown.AddOptions( ui_Names );
 
+		m_CurrentAssignedModuleSections[slot] = new Database.Section( alreadyAssignedModules[(int)slot], "" );
+
 		// Search current Value
 		thisDropdown.value = filtered.FindIndex( s => s.GetName() == alreadyAssignedModules[(int)slot] );
 
@@ -126,17 +135,33 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 		thisDropdown.onValueChanged.AddListener( onSelection );
 	}
 
+	
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnModuleChanged
 	private	void	OnModuleChanged( WeaponSlots slot, Database.Section choosenModuleSection )
 	{
+		m_CurrentAssignedModuleSections[slot] = choosenModuleSection;
+		/*
 		WeaponModuleSlot slotModule = null;
 		WeaponManager.Instance.CurrentWeapon.bGetModuleSlot( slot, ref slotModule);
 
 		slotModule.TrySetModule( WeaponManager.Instance.CurrentWeapon, choosenModuleSection );
+		*/
 	}
 
+
+	public void	OnApply()
+	{
+		foreach( KeyValuePair<WeaponSlots, Database.Section> pair in m_CurrentAssignedModuleSections )
+		{
+			WeaponModuleSlot slotModule = null;
+			WeaponManager.Instance.CurrentWeapon.bGetModuleSlot( pair.Key, ref slotModule );
+
+			slotModule.TrySetModule( WeaponManager.Instance.CurrentWeapon, pair.Value );
+		} 
+	} 
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnDisable

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class WPN_FireModule_Syphon : WPN_FireModule {
 
@@ -18,6 +19,8 @@ public class WPN_FireModule_Syphon : WPN_FireModule {
 	protected		float							m_BaseAmmoRestoreCounter	= 0f;
 
 	protected		Laser							m_Laser						= null;
+
+	protected		Slider							m_Slider					= null;
 
 
 	public override FireModes FireMode
@@ -37,22 +40,23 @@ public class WPN_FireModule_Syphon : WPN_FireModule {
 			GameObject modulePrefab = Resources.Load( modulePrefabPath ) as GameObject;
 			if ( modulePrefab )
 			{	
-				modulePrefab = Instantiate<GameObject>( modulePrefab, m_FirePoint );
-				modulePrefab.transform.localPosition = Vector3.zero;
-				modulePrefab.transform.localRotation = Quaternion.identity;
-			}
+				GameObject modulePrefabInstance = Instantiate<GameObject>( modulePrefab, m_FirePoint );
+				modulePrefabInstance.transform.localPosition = Vector3.zero;
+				modulePrefabInstance.transform.localRotation = Quaternion.identity;
+			
+				if ( modulePrefabInstance.transform.SearchComponent( ref m_Laser, SearchContext.LOCAL ) )
+				{
+					m_Laser.LaserLength = m_BeamLength;
+					m_Laser.enabled = false;
+				}
 
-			if ( modulePrefab.transform.SearchComponent( ref m_Laser, SearchContext.LOCAL ) )
-			{
-				m_Laser.LaserLength = m_BeamLength;
-				m_Laser.enabled = false;
-			}
+				if ( m_WeaponRef.Transform.SearchComponent( ref m_Renderer, SearchContext.CHILDREN, s => s.name == "Graphics" ) )
+				{
+					m_StartEmissiveColor = m_Renderer.material.GetColor( "_EmissionColor" );
+				}
 
-			if ( m_WeaponRef.Transform.SearchComponent( ref m_Renderer, SearchContext.CHILDREN, s => s.name == "Graphics" ) )
-			{
-				m_StartEmissiveColor = m_Renderer.material.GetColor( "_EmissionColor" );
+				m_WeaponRef.Transform.SearchComponent( ref m_Slider, SearchContext.CHILDREN );
 			}
-
 		}
 
 		return true;
@@ -167,10 +171,12 @@ public class WPN_FireModule_Syphon : WPN_FireModule {
 		UI.Instance.InGame.UpdateUI();
 	}
 
+
 	public override bool CanChangeWeapon()
 	{
 		return true;
 	}
+
 
 	public override void OnWeaponChange()
 	{
@@ -181,23 +187,21 @@ public class WPN_FireModule_Syphon : WPN_FireModule {
 	protected void FixedUpdate()
 	{
 		// Hit target(s)
-		if ( m_Laser.enabled == true )
+		if ( m_Laser.enabled == true && m_Laser.HasHit == true )
 		{
-			if ( m_Laser.HasHit == true )
+			IEntity entity = m_Laser.RayCastHit.transform.GetComponent<IEntity>();
+			if ( entity != null )
 			{
-				IEntity entity = m_Laser.RayCastHit.transform.GetComponent<IEntity>();
-				if ( entity != null )
-				{
-					// Do damage scaled with time scale
-					entity.Events.OnHittedDetails( transform.position, Player.Instance, m_Damage * Time.timeScale, false );
+				// Do damage scaled with time scale
+				entity.Events.OnHittedDetails( transform.position, Player.Instance, m_Damage * Time.timeScale, false );
 
-					EffectManager.Instance.PlayEffect( EffectType.PLASMA, m_Laser.RayCastHit.point, m_Laser.RayCastHit.normal, 1 );
-				}
-				EffectManager.Instance.PlayEffect( EffectType.ENTITY_ON_HIT, m_Laser.RayCastHit.point, m_Laser.RayCastHit.normal, 1 );
+				EffectManager.Instance.PlayEffect( EffectType.PLASMA, m_Laser.RayCastHit.point, m_Laser.RayCastHit.normal, 1 );
 			}
+			EffectManager.Instance.PlayEffect( EffectType.ENTITY_ON_HIT, m_Laser.RayCastHit.point, m_Laser.RayCastHit.normal, 1 );
 		}
 	}
 
+	// INTERNAL UPDATE
 	public override void InternalUpdate( float DeltaTime )
 	{
 		m_WpnFireMode.InternalUpdate( DeltaTime, m_Magazine );
@@ -209,11 +213,14 @@ public class WPN_FireModule_Syphon : WPN_FireModule {
 			{
 				m_Magazine ++;
 				m_BaseAmmoRestoreCounter = m_AmmoUnitRechargeDelay;
-				float value = ( ( float )m_Magazine / ( float )m_MagazineCapacity );
-				Color current = Color.Lerp( Color.blue, m_StartEmissiveColor, value );
-				m_Renderer.material.SetColor( "_EmissionColor", current );
 			}
 		}
+
+		float value = ( ( float )m_Magazine / ( float )m_MagazineCapacity );
+		Color current = Color.Lerp( Color.black, m_StartEmissiveColor, value );
+		m_Renderer.material.SetColor( "_EmissionColor", current );
+
+		m_Slider.value = value;
 	}
 
 	//    START

@@ -43,7 +43,7 @@ public abstract partial class Weapon {
 		// Get Module Section
 		if ( GlobalManager.Configs.bGetSection( wpnModuleSect, ref moduleSection ) == false )
 		{
-			Debug.Log( "Error: Weapon " + wpn.Transform.name + ": Unable to retrieve module section data " + wpnModuleSectName );
+			Debug.Log( "Error: Weapon " + wpn.Transform.name + ": Unable to retrieve " + wpnModuleSect + " for module " + wpnModuleSectName );
 			return false;
 		}
 
@@ -217,7 +217,7 @@ public class WeaponModuleSlot {
 	{
 		if ( type == null )
 		{
-			Debug.Log( "WeaponModuleSlot::TrySetModule: " + wpn.Section.GetName() + ", Slot:" + Weapon.GetModuleSlotName(m_ThisSlot) + ", Setting invalid weapon module \"" + type.ToString() + "\"" );
+			Debug.Log( "WeaponModuleSlot::TrySetModule: " + wpn.Section.GetName() + ", Slot:" + Weapon.GetModuleSlotName(m_ThisSlot) + ", Setting invalid weapon module" );
 			return false;
 		}
 			

@@ -63,7 +63,7 @@ namespace Database {
 
 		// INTERNAL VARS
 		[SerializeField]
-		private		string				sName			= null;
+		private		string				name			= null;
 		[SerializeField]
 		private		string				sContext		= null;
 		[SerializeField]
@@ -95,7 +95,7 @@ namespace Database {
 
 		public Section( string SecName, string context )
 		{
-			sName = SecName;
+			name = SecName;
 			sContext = context;
 			IsOK = true;
 		}
@@ -127,7 +127,7 @@ namespace Database {
 						SecA.Add( lineValue );
 					}
 				}
-				SecA.vMothers.Add( SecB.sName );
+				SecA.vMothers.Add( SecB.name );
 			}
 			return SecA;
 		}
@@ -156,7 +156,7 @@ namespace Database {
 		}
 
 
-		public	string					GetName()				{ return ( string ) sName.Clone(); }
+		public	string					GetName()				{ return ( string ) name.Clone(); }
 	
 
 		//////////////////////////////////////////////////////////////////////////
@@ -231,7 +231,7 @@ namespace Database {
 		// PrintSection
 		public void PrintSection()
 		{
-			Debug.Log( "---|Section START" + sName );
+			Debug.Log( "---|Section START" + name );
 			foreach ( cLineValue LineValue in vSection )
 			{
 				string result = LineValue.Key;
@@ -265,7 +265,7 @@ namespace Database {
 			List<string> lines = new List<string>();
 
 			// SECTION DEFINITION
-			string sectionDefinition = "[" + sName + "]";
+			string sectionDefinition = "[" + name + "]";
 			{
 				// Concatenate mothers names
 				if ( vMothers.Count > 0 )
