@@ -93,8 +93,7 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 		if ( WeaponManager.Instance != null )
 			Destroy( WeaponManager.Instance.GameObject );
 
-		// Game Manager
-		GameManager.InGame	= false;
+		UI.Instance.EffectFrame.color = Color.clear;
 	}
 
 
@@ -113,14 +112,7 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 		// UI interaction
 		UI.Instance.DisableInteraction( this.transform );
 		{
-//			System.Func<bool> weatherIsReady = delegate()
-//			{
-//				return WeatherSystem.WeatherManager.Cycles != null && WeatherSystem.WeatherManager.Cycles.AreResLoaded == true;
-//			};
-
 			yield return CoroutinesManager.WaitPendingCoroutines();
-
-//			yield return new WaitUntil( weatherIsReady );
 		}
 		UI.Instance.EnableInteraction( this.transform );
 
@@ -200,12 +192,12 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 		}
 	}
 
-
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	// OnLevelWasLoaded
 	private void OnLevelWasLoaded( int level )
 	{
 		UI.Instance.EffectFrame.color = Color.clear;
 	}
-
+	*/
 }

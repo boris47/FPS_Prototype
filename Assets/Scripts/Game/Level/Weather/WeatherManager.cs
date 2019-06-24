@@ -155,12 +155,14 @@ namespace WeatherSystem {
 			m_Instance			= this as IWeatherManager;
 			Awake_Cycles();
 			Awake_Editor();
+
+			CustomSceneManager.RegisterOnLoad( OnLevelLoaded );
 		}
 
 
 		/////////////////////////////////////////////////////////////////////////////
 		// OnLevelWasLoaded
-		private void OnLevelWasLoaded( int level )
+		private void OnLevelLoaded( int level )
 		{
 			if ( m_ShowDebugInfo )
 				Debug.Log( "WeatherManager: On Level " + level + " loaded" );

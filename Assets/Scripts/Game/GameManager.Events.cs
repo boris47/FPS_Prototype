@@ -11,12 +11,6 @@ using System.Threading;
 [System.Serializable]
 public class GameEvent	  : UnityEngine.Events.UnityEvent { }
 
-public interface IStreamableByEvents {
-
-	StreamUnit	OnSave( StreamData streamData );
-
-	StreamUnit	OnLoad( StreamData streamData );
-}
 
 //	DELEGATES FOR EVENTS
 public struct GameEvents {
@@ -36,7 +30,6 @@ public struct GameEvents {
 }
 
 
-
 //////////////////////////////////////////////////////////////////
 //						SAVE & LOAD								//
 //////////////////////////////////////////////////////////////////
@@ -45,8 +38,15 @@ public enum StreamingState {
 	NONE, SAVING, SAVE_COMPLETE, LOADING, LOAD_COMPLETE
 }
 
+public interface IStreamableByEvents {
+
+	StreamUnit	OnSave( StreamData streamData );
+
+	StreamUnit	OnLoad( StreamData streamData );
+}
+
 /// <summary> Clean interface of only GameManager Save&load Section </summary>
-public interface StreamEvents {
+public interface IStreamEvents {
 
 	/// <summary> Events called when game is saving </summary>
 		event		GameEvents.StreamingEvent		OnSave;
@@ -71,7 +71,7 @@ public interface StreamEvents {
 }
 
 // SAVE & LOAD IMPLEMENTATION
-public partial class GameManager : StreamEvents {
+public partial class GameManager : IStreamEvents {
 
 	// Save slot infos
 	public class SaveFileinfo {
@@ -84,7 +84,7 @@ public partial class GameManager : StreamEvents {
 	}
 
 	private const	string				ENCRIPTION_KEY	= "Boris474Ever";
-	private	static	StreamEvents		m_StreamEvents	= null;
+	private	static	IStreamEvents		m_StreamEvents	= null;
 
 	// Events
 	private	event	GameEvents.StreamingEvent		m_OnSave			= delegate ( StreamData streamData ) { return null; };
@@ -96,40 +96,40 @@ public partial class GameManager : StreamEvents {
 #region INTERFACE
 	// INTERFACE START
 	/// <summary> Streaming events interface </summary>
-	public static	StreamEvents		StreamEvents
+	public static	IStreamEvents		StreamEvents
 	{
 		get { return m_StreamEvents; }
 	}
 
 	/// <summary> Return the current stream State </summary>
-	StreamingState	StreamEvents.State
+	StreamingState	IStreamEvents.State
 	{
 		get { return m_SaveLoadState; }
 	}
 
 	/// <summary> Events called when game is saving </summary>
-	event GameEvents.StreamingEvent StreamEvents.OnSave
+	event GameEvents.StreamingEvent IStreamEvents.OnSave
 	{
 		add		{ if ( value != null )	m_OnSave += value; }
 		remove	{ if ( value != null )	m_OnSave -= value; }
 	}
 
 	/// <summary> Events called when game is saving </summary>
-	event GameEvents.StreamingEvent StreamEvents.OnSaveComplete
+	event GameEvents.StreamingEvent IStreamEvents.OnSaveComplete
 	{
 		add		{ if ( value != null )	m_OnSaveComplete += value; }
 		remove	{ if ( value != null )	m_OnSaveComplete -= value; }
 	}
 
 	/// <summary> Events called when game is loading </summary>
-	event GameEvents.StreamingEvent StreamEvents.OnLoad
+	event GameEvents.StreamingEvent IStreamEvents.OnLoad
 	{
 		add		{ if ( value != null )	m_OnLoad += value; }
 		remove	{ if ( value != null )	m_OnLoad -= value; }
 	}
 
 	/// <summary> Events called when game is loading </summary>
-	event GameEvents.StreamingEvent StreamEvents.OnLoadComplete
+	event GameEvents.StreamingEvent IStreamEvents.OnLoadComplete
 	{
 		add		{ if ( value != null )	m_OnLoadComplete += value; }
 		remove	{ if ( value != null )	m_OnLoadComplete -= value; }
@@ -148,7 +148,7 @@ public partial class GameManager : StreamEvents {
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Used to save data of all registered objects </summary>
-	void						StreamEvents.Save( string filePath, bool isAutomaic )
+	void						IStreamEvents.Save( string filePath, bool isAutomaic )
 	{
 		// TODO: CHECK FOR AUTOMAIC SAVE
 
@@ -192,7 +192,7 @@ public partial class GameManager : StreamEvents {
 	
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Used to load data for all registered objects </summary>
-	void						StreamEvents.Load( string fileName )
+	void						IStreamEvents.Load( string fileName )
 	{
 		// Conditions
 		if ( m_SaveLoadState == StreamingState.SAVING || m_SaveLoadState == StreamingState.LOADING )
@@ -296,7 +296,6 @@ public partial class GameManager : StreamEvents {
 #pragma warning restore CS0162 // È stato rilevato codice non raggiungibile
 	}
 }
-
 
 [System.Serializable]
 public class StreamUnit {
@@ -510,24 +509,37 @@ public class StreamData {
 
 }
 
+[System.Serializable]
+public class MyKeyValuePair {
+	[SerializeField]
+	public	string	Key;
+	[SerializeField]
+	public	string	Value;
+
+	public	MyKeyValuePair( string Key, string Value )
+	{
+		this.Key	= Key;
+		this.Value	= Value;
+	}
+}
 
 
 //////////////////////////////////////////////////////////////////
 //							PAUSE								//
 //////////////////////////////////////////////////////////////////
 
-public interface PauseEvents {
+public interface IPauseEvents {
 	/// <summary> Events called when game is setting on pause </summary>
 		event		GameEvents.OnPauseSetEvent		OnPauseSet;
 
-					void							SetPauseState( bool bPauseState );
+		void							SetPauseState( bool bPauseState );
 }
 
 // PAUSE IMPLEMENTATION
-public partial class GameManager : PauseEvents {
+public partial class GameManager : IPauseEvents {
 
-	private	static	PauseEvents	m_PauseEvents = null;
-	public	static	PauseEvents	PauseEvents
+	private	static	IPauseEvents	m_PauseEvents = null;
+	public	static	IPauseEvents	PauseEvents
 	{
 		get { return m_PauseEvents; }
 	}
@@ -536,7 +548,7 @@ public partial class GameManager : PauseEvents {
 	private static event	GameEvents.OnPauseSetEvent	m_OnPauseSet			= delegate { };
 
 	/// <summary> Events called when game is setting on pause </summary>
-	event GameEvents.OnPauseSetEvent PauseEvents.OnPauseSet
+	event GameEvents.OnPauseSetEvent IPauseEvents.OnPauseSet
 	{
 		add		{ if ( value != null )	m_OnPauseSet += value; }
 		remove	{ if ( value != null )	m_OnPauseSet -= value; }
@@ -556,7 +568,7 @@ public partial class GameManager : PauseEvents {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	void	PauseEvents.SetPauseState( bool bPauseState )
+	void	IPauseEvents.SetPauseState( bool bPauseState )
 	{
 		if ( bPauseState == m_IsPaused )
 			return;
@@ -595,7 +607,7 @@ public partial class GameManager : PauseEvents {
 //							UPDATES								//
 //////////////////////////////////////////////////////////////////
 
-public interface UpdateEvents {
+public interface IUpdateEvents {
 	/// <summary> TODO </summary>
 		event		GameEvents.OnThinkEvent			OnThink;
 
@@ -609,10 +621,10 @@ public interface UpdateEvents {
 }
 
 // UPDATES IMPLEMENTATION
-public partial class GameManager : UpdateEvents {
+public partial class GameManager : IUpdateEvents {
 
-	private	static	UpdateEvents		m_UpdateEvents	= null;
-	public	static	UpdateEvents		UpdateEvents
+	private	static	IUpdateEvents		m_UpdateEvents	= null;
+	public	static	IUpdateEvents		UpdateEvents
 	{
 		get { return m_UpdateEvents; }
 	}
@@ -623,42 +635,28 @@ public partial class GameManager : UpdateEvents {
 	private static event	GameEvents.OnFrameEvent			m_OnLateFrame			= delegate { };
 
 
-	event		GameEvents.OnThinkEvent			UpdateEvents.OnThink
+	event		GameEvents.OnThinkEvent			IUpdateEvents.OnThink
 	{
 		add		{	if ( value != null )	m_OnThink += value;	}
 		remove	{	if ( value != null )	m_OnThink -= value;	}
 	}
 
-	event		GameEvents.OnPhysicFrameEvent	UpdateEvents.OnPhysicFrame
+	event		GameEvents.OnPhysicFrameEvent	IUpdateEvents.OnPhysicFrame
 	{
 		add		{	if ( value != null )	m_OnPhysicFrame += value; }
 		remove	{	if ( value != null )	m_OnPhysicFrame -= value; }
 	}
 
-	event		GameEvents.OnFrameEvent			UpdateEvents.OnFrame
+	event		GameEvents.OnFrameEvent			IUpdateEvents.OnFrame
 	{
 		add		{	if ( value != null )	m_OnFrame += value;	}
 		remove	{	if ( value != null )	m_OnFrame -= value; }
 	}
 
-	event		GameEvents.OnFrameEvent			UpdateEvents.OnLateFrame
+	event		GameEvents.OnFrameEvent			IUpdateEvents.OnLateFrame
 	{
 		add		{	if ( value != null )	m_OnLateFrame += value;	}
 		remove	{	if ( value != null )	m_OnLateFrame -= value; }
 	}
 }
 
-
-[System.Serializable]
-public class MyKeyValuePair {
-	[SerializeField]
-	public	string	Key;
-	[SerializeField]
-	public	string	Value;
-
-	public	MyKeyValuePair( string Key, string Value )
-	{
-		this.Key	= Key;
-		this.Value	= Value;
-	}
-}

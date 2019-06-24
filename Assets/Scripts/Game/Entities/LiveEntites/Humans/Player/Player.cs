@@ -7,8 +7,6 @@ public partial class Player : Human {
 
 	[Header("Player Properties")]
 
-	public LayerMask mask;
-
 	private	const	float			MAX_INTERACTION_DISTANCE		= 40.1f; // TODO set to 2.1
 
 	private	const	float			BODY_DRAG						= 8f;

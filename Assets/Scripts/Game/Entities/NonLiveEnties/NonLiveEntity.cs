@@ -91,4 +91,11 @@ public abstract partial class NonLiveEntity : Entity {
 	{
 		return m_IsAllignedGunToPoint;
 	}
+
+	protected override void OnDestroy()
+	{
+		base.OnDestroy();
+
+		m_Pool.Destroy();
+	}
 }

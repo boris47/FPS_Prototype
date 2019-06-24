@@ -20,7 +20,6 @@ public partial class GameManager : MonoBehaviour {
 	public static			bool			InGame
 	{
 		get { return m_InGame; }
-		set { m_InGame = value; }
 	}
 
 	private	static			bool			m_QuitRequest			= false;
@@ -45,9 +44,9 @@ public partial class GameManager : MonoBehaviour {
 
 		// Instance
 		m_Instance		= this as GameManager;
-		m_StreamEvents	= this as StreamEvents;
-		m_PauseEvents	= this as PauseEvents;
-		m_UpdateEvents	= this as UpdateEvents;
+		m_StreamEvents	= this as IStreamEvents;
+		m_PauseEvents	= this as IPauseEvents;
+		m_UpdateEvents	= this as IUpdateEvents;
 
 		// Internal classes
 		m_InputMgr	= new InputManager();
@@ -58,27 +57,43 @@ public partial class GameManager : MonoBehaviour {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	private	void	RestoreDelegates()
+	{
+		// StreamEvents
+		m_OnSave			= delegate ( StreamData streamData ) { return null; };
+		m_OnSaveComplete	= delegate ( StreamData streamData ) { return null; };
+		m_OnLoad			= delegate ( StreamData streamData ) { return null; };
+		m_OnLoadComplete	= delegate ( StreamData streamData ) { return null; };
+		m_SaveLoadState		= StreamingState.NONE;
+
+		// PauseEvents
+		m_OnPauseSet		= delegate { };
+
+		// UpdateEvents
+		m_OnThink			= delegate { };
+		m_OnPhysicFrame		= delegate { };
+		m_OnFrame			= delegate { };
+		m_OnLateFrame		= delegate { };
+	}
+
+	//////////////////////////////////////////////////////////////////////////
 	private			void		OnEnable()
 	{
-//		Cursor.visible = false;
-//		Cursor.lockState = CursorLockMode.Locked;
+		m_InGame = true;
+		RestoreDelegates();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private			void		OnLevelWasLoaded( int level )
+	private			void		OnDisable()
 	{
-		m_InGame = level != 0;
-
-		if ( m_InGame )
-		{
-			GlobalManager.SetCursorVisibility( false );
-		}
+		RestoreDelegates();
+		m_InGame = false;
 	}
-
+	
 
 	//////////////////////////////////////////////////////////////////////////
-	public	static	void		QuitRequest()
+	public	void		QuitRequest()
 	{
 		m_QuitRequest = true;
 		Debug.Log("GameManager: Requesting exit");
@@ -227,33 +242,6 @@ public partial class GameManager : MonoBehaviour {
 	{
 		m_PauseEvents.SetPauseState( false );
 	}
-
-	/*
-	//////////////////////////////////////////////////////////////////////////
-	private			void		OnDestroy()
-	{
-		// Clear instances refs
-		m_Instance				= null;
-		m_StreamEvents			= null;
-		m_PauseEvents			= null;
-		m_UpdateEvents			= null;
-
-		// Clear Internal classes
-		InputMgr				= null;
-		Settings				= null;
-		Configs					= null;
-
-		// Reset Events
-		m_OnSave				= null;
-		m_OnLoad				= null;
-		m_OnPauseSet			= null;
-		m_OnThink				= null;
-		m_OnFrame				= null;
-		m_OnPhysicFrame			= null;
-
-		m_IsPaused				= false;
-	}
-	*/
 
 	
 	//////////////////////////////////////////////////////////////////////////

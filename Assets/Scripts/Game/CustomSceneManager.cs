@@ -191,11 +191,11 @@ public class CustomSceneManager : MonoBehaviour {
 
 
 	// 
-	public	static	void	RegisterOnLoad( System.Action activeSceneChanged )
+	public	static	void	RegisterOnLoad( System.Action<int> activeSceneChanged )
 	{
 		UnityAction<Scene, LoadSceneMode> OnLoad = delegate( Scene scene, LoadSceneMode mode )
 		{
-			activeSceneChanged();
+			activeSceneChanged( scene.buildIndex );
 		};
 
 		string id = activeSceneChanged.Method.Name;

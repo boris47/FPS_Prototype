@@ -103,6 +103,7 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 			return;
 		}
 		Instance = this  as ICameraControl;
+		if ( transform.root == null )
 		DontDestroyOnLoad( this );
 
 		m_WeaponPivot = transform.Find( "WeaponPivot" );

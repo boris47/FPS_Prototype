@@ -110,7 +110,7 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 
 //		UI.Instance.EffectFrame.color = Color.clear;
 
-		SoundManager.Instance.OnSceneLoaded();
+//		SoundManager.Instance.OnSceneLoaded();
 
 		// Reset Ingame UI
 //		InternalReset();
@@ -137,7 +137,7 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 		m_IsActive = false;
 	}
 
-
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	// OnLevelWasLoaded
 	private	void	OnLevelWasLoaded( int level )
@@ -151,7 +151,7 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 		// if level is greater than 0 we suppose being in a level where ingame UI must be shown
 		m_IsActive = true;
 	}
-
+	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	// Show
