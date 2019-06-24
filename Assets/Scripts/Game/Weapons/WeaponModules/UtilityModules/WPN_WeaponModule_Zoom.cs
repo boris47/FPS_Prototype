@@ -63,7 +63,7 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 			{
 				if ( t && t.transform.HasComponent<Image>() )
 				{
-					m_ZoomFrame = Instantiate( t, UI.Instance.InGame.transform ).GetComponent<Image>();
+					m_ZoomFrame = Instantiate( t, UIManager.Instance.InGame.transform ).GetComponent<Image>();
 				}
 			};
 			ResourceManager.LoadResourceAsync( FramePath, imageData, onLoadSuccess );

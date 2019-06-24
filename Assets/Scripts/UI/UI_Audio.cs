@@ -52,7 +52,7 @@ public class UI_Audio : MonoBehaviour, IUIOptions, IStateDefiner {
 				(	
 					delegate()
 					{
-						UI.Instance.Confirmation.Show( "Apply Changes?", OnApplyChanges, delegate { ReadFromRegistry(); UpdateUI(); } );
+						UIManager.Instance.Confirmation.Show( "Apply Changes?", OnApplyChanges, delegate { ReadFromRegistry(); UpdateUI(); } );
 					}
 				);
 				m_ApplyButton.interactable = false;
@@ -64,7 +64,7 @@ public class UI_Audio : MonoBehaviour, IUIOptions, IStateDefiner {
 				(
 					delegate()
 					{
-						UI.Instance.Confirmation.Show( "Reset?", ApplyDefaults, delegate { ReadFromRegistry(); UpdateUI(); } );
+						UIManager.Instance.Confirmation.Show( "Reset?", ApplyDefaults, delegate { ReadFromRegistry(); UpdateUI(); } );
 					}	
 				);
 			}

@@ -576,8 +576,8 @@ public partial class GameManager : IPauseEvents {
 		m_OnPauseSet( bPauseState );
 
 		m_IsPaused = bPauseState;
-		UI.Instance.GoToMenu( UI.Instance.InGame.transform );
-		UI.Instance.SetPauseMenuState( bPauseState );
+		UIManager.Instance.GoToMenu( UIManager.Instance.InGame.transform );
+		UIManager.Instance.SetPauseMenuState( bPauseState );
 
 		GlobalManager.SetCursorVisibility( bPauseState == true );
 		

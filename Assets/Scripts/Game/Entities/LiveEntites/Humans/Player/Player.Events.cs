@@ -42,7 +42,7 @@ public partial class Player {
 			m_CutsceneManager.Terminate();
 
 		// UI effect reset
-		UI.Instance.EffectFrame.color = Color.clear;
+		UIManager.Instance.EffectFrame.color = Color.clear;
 
 		// Dodging reset
 		if ( m_DodgeCoroutine != null )
@@ -116,7 +116,7 @@ public partial class Player {
 	public		override	void		OnHittedDetails( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
 		m_Health -= damage;
-		UI.Instance.InGame.UpdateUI();
+		UIManager.Instance.InGame.UpdateUI();
 
 		m_DamageEffect = 0.2f;
 
@@ -326,7 +326,7 @@ public partial class Player {
 		CameraControl.Instance.Enabled = false;
 
 		// Update UI elements
-		UI.Instance.InGame.UpdateUI();
+		UIManager.Instance.InGame.UpdateUI();
 
 		// Turn off player object
 		gameObject.SetActive( false );

@@ -128,12 +128,12 @@ public partial class GameManager : MonoBehaviour {
 
 		if ( Input.GetKeyDown( KeyCode.Return ) && WeaponManager.Instance.IsZoomed == false )
 		{
-			UI.Instance.GoToMenu( UI.Instance.Inventory.transform );
+			UIManager.Instance.GoToMenu( UIManager.Instance.Inventory.transform );
 		}
 
 		if ( Input.GetKeyDown (KeyCode.O) )
 		{
-			UI.Instance.GoToMenu( UI.Instance.InGame.transform );
+			UIManager.Instance.GoToMenu( UIManager.Instance.InGame.transform );
 		}
 
 		// This prevent the ui interaction can trigger actions in-game

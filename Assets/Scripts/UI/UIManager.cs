@@ -88,7 +88,7 @@ public interface IUI {
 
 
 
-public class UI : MonoBehaviour, IUI {
+public class UIManager : MonoBehaviour, IUI {
 
 		[DllImport("User32.Dll")]
 		public static extern long SetCursorPos(int x, int y);

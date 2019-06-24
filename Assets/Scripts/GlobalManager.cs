@@ -35,26 +35,6 @@ public class GlobalManager : MonoBehaviour {
 	}
 
 
-	public	static void		Assert( bool condition, string message )
-	{
-		if ( condition == false )
-		{
-			Debug.LogError( message );
-			ForcedQuit();
-		}
-	}
-
-
-
-	public	static	void	ForcedQuit()
-	{
-#if UNITY_EDITOR
-		UnityEditor.EditorApplication.isPlaying = false;
-#else
-		Application.Quit();
-#endif
-	}
-
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
 	private static void OnBeforeSceneLoad ()
 	{
@@ -121,6 +101,28 @@ public class GlobalManager : MonoBehaviour {
 		Debug.Log( "GlobalManager: Exiting" );
 #if UNITY_EDITOR
 		UnityEditor.EditorApplication.isPlaying = false;		
+#else
+		Application.Quit();
+#endif
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public	static void		Assert( bool condition, string message )
+	{
+		if ( condition == false )
+		{
+			Debug.LogError( message );
+			ForcedQuit();
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public	static	void	ForcedQuit()
+	{
+#if UNITY_EDITOR
+		UnityEditor.EditorApplication.isPlaying = false;
 #else
 		Application.Quit();
 #endif

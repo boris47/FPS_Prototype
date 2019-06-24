@@ -43,7 +43,7 @@ public class BulletElettro : GenericBullet {
 			effectToPlay = EffectType.ELETTRO;
 		}
 
-		EffectManager.Instance.PlayEffect( effectToPlay, position, direction, nParticle );
+		EffectsManager.Instance.PlayEffect( effectToPlay, position, direction, nParticle );
 
 		this.SetActive( false );
 	}

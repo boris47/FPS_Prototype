@@ -452,7 +452,7 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 
 			// Load Weapon Modules Data
 
-			UI.Instance.InGame.UpdateUI();
+			UIManager.Instance.InGame.UpdateUI();
 		}
 		return streamUnit;
 	}
@@ -491,7 +491,7 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 		m_TertiaryWeaponModuleSlot.WeaponModule.OnAfterReload();
 
 		// Update UI
-		UI.Instance.InGame.UpdateUI();
+		UIManager.Instance.InGame.UpdateUI();
 	}
 
 

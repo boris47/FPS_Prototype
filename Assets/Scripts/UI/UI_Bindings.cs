@@ -281,7 +281,7 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 					FillGrid();
 				};
 
-				UI.Instance.Confirmation.Show( "Confirm key substitution?", OnConfirm: onConfirm, OnCancel: null );
+				UIManager.Instance.Confirmation.Show( "Confirm key substitution?", OnConfirm: onConfirm, OnCancel: null );
 			}
 		};
 
@@ -298,7 +298,7 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 			FillGrid();
 		};
 
-		UI.Instance.Confirmation.Show( "Confirm bindings?", OnConfirm: onConfirm, OnCancel: null );
+		UIManager.Instance.Confirmation.Show( "Confirm bindings?", OnConfirm: onConfirm, OnCancel: null );
 	}
 
 
@@ -311,7 +311,7 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 			FillGrid();
 		};
 
-		UI.Instance.Confirmation.Show( "Do you really want to reset bindings?", OnConfirm: onConfirm, OnCancel: null );
+		UIManager.Instance.Confirmation.Show( "Do you really want to reset bindings?", OnConfirm: onConfirm, OnCancel: null );
 	}
 
 

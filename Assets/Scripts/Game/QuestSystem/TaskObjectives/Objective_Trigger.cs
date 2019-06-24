@@ -72,7 +72,7 @@ namespace QuestSystem {
 		{
 			m_Collider.enabled = true;
 
-			UI.Instance.Indicators.EnableIndicator( gameObject, IndicatorType.AREA_TO_REACH, bMustBeClamped: true );
+			UIManager.Instance.Indicators.EnableIndicator( gameObject, IndicatorType.AREA_TO_REACH, bMustBeClamped: true );
 		}
 
 
@@ -82,7 +82,7 @@ namespace QuestSystem {
 		{
 			m_Collider.enabled = false;
 
-			UI.Instance.Indicators.DisableIndicator( gameObject );
+			UIManager.Instance.Indicators.DisableIndicator( gameObject );
 		}
 
 

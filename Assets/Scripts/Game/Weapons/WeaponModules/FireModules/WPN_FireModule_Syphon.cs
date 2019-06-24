@@ -168,7 +168,7 @@ public class WPN_FireModule_Syphon : WPN_FireModule {
 		CameraControl.Instance.ApplyDispersion( moduleFireDispersion );
 
 		// UI ELEMENTS
-		UI.Instance.InGame.UpdateUI();
+		UIManager.Instance.InGame.UpdateUI();
 	}
 
 
@@ -195,9 +195,9 @@ public class WPN_FireModule_Syphon : WPN_FireModule {
 				// Do damage scaled with time scale
 				entity.Events.OnHittedDetails( transform.position, Player.Instance, m_Damage * Time.timeScale, false );
 
-				EffectManager.Instance.PlayEffect( EffectType.PLASMA, m_Laser.RayCastHit.point, m_Laser.RayCastHit.normal, 1 );
+				EffectsManager.Instance.PlayEffect( EffectType.PLASMA, m_Laser.RayCastHit.point, m_Laser.RayCastHit.normal, 1 );
 			}
-			EffectManager.Instance.PlayEffect( EffectType.ENTITY_ON_HIT, m_Laser.RayCastHit.point, m_Laser.RayCastHit.normal, 1 );
+			EffectsManager.Instance.PlayEffect( EffectType.ENTITY_ON_HIT, m_Laser.RayCastHit.point, m_Laser.RayCastHit.normal, 1 );
 		}
 	}
 

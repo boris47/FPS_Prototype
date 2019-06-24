@@ -115,6 +115,7 @@ public class SurfaceManager : MonoBehaviour {
 		if ( regTextureIndex == -1 || regTextureIndex >= m_RegisteredTextures.Length )
 		{
 			Debug.DebugBreak();
+			return 0;
 		}
 
 		return m_RegisteredTextures[regTextureIndex].surfaceIndex;

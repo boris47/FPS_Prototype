@@ -137,9 +137,9 @@ public class GenericBullet : Bullet {
 				effectToPlay = EffectType.AMBIENT_ON_HIT;
 			}
 
-			EffectManager.Instance.PlayEffect( effectToPlay, hit.point, hit.normal, 3 );
+			EffectsManager.Instance.PlayEffect( effectToPlay, hit.point, hit.normal, 3 );
 		}
-		EffectManager.Instance.PlayEffect( EffectType.MUZZLE, position, direction, 0, 0.1f );
+		EffectsManager.Instance.PlayEffect( EffectType.MUZZLE, position, direction, 0, 0.1f );
 	}
 
 
@@ -229,7 +229,7 @@ public class GenericBullet : Bullet {
 			effectToPlay = EffectType.AMBIENT_ON_HIT;
 		}
 
-		EffectManager.Instance.PlayEffect( effectToPlay, position, direction, 3 );
+		EffectsManager.Instance.PlayEffect( effectToPlay, position, direction, 3 );
 
 		this.SetActive( false );
 	}

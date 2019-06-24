@@ -354,8 +354,8 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 		m_RigidBody.velocity			= Vector3.zero;
 		m_RigidBody.angularVelocity		= Vector3.zero;
 
-		EffectManager.Instance.PlayEffect( EffectType.EXPLOSION, transform.position, transform.up, 0 );
-		EffectManager.Instance.PlayExplosionSound( transform.position );
+		EffectsManager.Instance.PlayEffect( EffectType.EXPLOSION, transform.position, transform.up, 0 );
+		EffectsManager.Instance.PlayExplosionSound( transform.position );
 
 		m_CurrentBehaviour.OnKilled();
 

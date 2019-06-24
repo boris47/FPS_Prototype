@@ -15,9 +15,9 @@ public enum EffectType {
 };
 
 
-public class EffectManager : MonoBehaviour {
+public class EffectsManager : MonoBehaviour {
 
-	public	static	EffectManager			Instance								= null;
+	public	static	EffectsManager			Instance								= null;
 
 	[ SerializeField ]
 	private		CustomAudioSource			m_ExplosionSource						= null;

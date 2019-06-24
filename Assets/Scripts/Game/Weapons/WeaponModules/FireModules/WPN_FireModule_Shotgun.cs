@@ -115,7 +115,7 @@ public class WPN_FireModule_Shotgun : WPN_FireModule {
 		CameraControl.Instance.AddRecoil( m_Recoil );
 
 		// UI ELEMENTS
-		UI.Instance.InGame.UpdateUI();
+		UIManager.Instance.InGame.UpdateUI();
 	}
 
 	//

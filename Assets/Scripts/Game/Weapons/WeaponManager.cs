@@ -119,7 +119,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 		m_StartCameraFOV = CameraControl.Instance.MainCamera.fieldOfView;
 
 		// Make sure that ui show data of currnt active weapon
-		UI.Instance.InGame.UpdateUI();
+		UIManager.Instance.InGame.UpdateUI();
 
 		GameManager.Instance.InputMgr.BindCall( eInputCommands.SELECTION1, 		"WeaponChange_0",	() => ChangeWeapon( 0, 0 ) );
 		GameManager.Instance.InputMgr.BindCall( eInputCommands.SELECTION2, 		"WeaponChange_1",	() => ChangeWeapon( 1, 0 ) );
@@ -362,7 +362,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 		yield return new WaitForSeconds( drawTime * 0.8f );
 
 		// Update UI
-		UI.Instance.InGame.UpdateUI();
+		UIManager.Instance.InGame.UpdateUI();
 
 		// weapon return active
 		CurrentWeapon.Enabled	= true;
@@ -397,10 +397,10 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 
 		if ( m_ZoomFrame != null )
 		{
-			UI.Instance.InGame.SetFrame( m_ZoomFrame );
+			UIManager.Instance.InGame.SetFrame( m_ZoomFrame );
 			CurrentWeapon.Hide();
 		}
-		UI.Instance.InGame.HideCrosshair();
+		UIManager.Instance.InGame.HideCrosshair();
 
 //		CurrentWeapon.Enabled = true;
 		m_ZoomedIn = true;
@@ -423,10 +423,10 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 
 		if ( m_ZoomFrame != null )
 		{
-			UI.Instance.InGame.SetFrame( null );
+			UIManager.Instance.InGame.SetFrame( null );
 			CurrentWeapon.Show();
 		}
-		UI.Instance.InGame.ShowCrosshair();
+		UIManager.Instance.InGame.ShowCrosshair();
 
 		// Transition
 		while( interpolant < 1f )

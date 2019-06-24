@@ -127,19 +127,19 @@ public class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 		GlobalManager.SetCursorVisibility( true );
 		
 		// Effect frame reset
-		UI.Instance.EffectFrame.color = Color.black;
+		UIManager.Instance.EffectFrame.color = Color.black;
 
 		// Hide Pause menu UI
 		gameObject.SetActive( false );
 
 		// Hide In-Game UI
-		UI.Instance.InGame.gameObject.SetActive( false );
+		UIManager.Instance.InGame.gameObject.SetActive( false );
 
 		// Show MainMenu object
-		UI.Instance.MainMenu.gameObject.SetActive( true );
+		UIManager.Instance.MainMenu.gameObject.SetActive( true );
 
 		// update current active transform
-		UI.Instance.GoToMenu( UI.Instance.MainMenu.transform );
+		UIManager.Instance.GoToMenu( UIManager.Instance.MainMenu.transform );
 
 		// Load menu
 		UnityEngine.SceneManagement.SceneManager.LoadScene( 0 );

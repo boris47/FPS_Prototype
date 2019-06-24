@@ -216,7 +216,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 			{
 				DrawUIElementObjectivesOnScreen( target.transform, mainIndicatorImage.transform );
 
-				if ( UI.Instance.Minimap.IsVisible() )
+				if ( UIManager.Instance.Minimap.IsVisible() )
 				{
 					DrawUIElementObjectivesOnMinimap( target.transform, minimapIndicatorImage.transform, bMustBeClamped );
 				}
@@ -319,7 +319,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 	// DrawUIElementOnObjectivesOnMinimap
 	protected	static void	DrawUIElementObjectivesOnMinimap( Transform targetTransform, Transform m_IconTransform, bool bMustBeClamped )
 	{
-		RectTransform minimapRect		= UI.Instance.Minimap.GetRawImageRect();
+		RectTransform minimapRect		= UIManager.Instance.Minimap.GetRawImageRect();
 
 		if ( m_IconTransform.gameObject.activeSelf == false )
 		{
@@ -328,14 +328,14 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 		//
 		Vector2 WorldPosition2D;
-		bool bIsInside = UI.Instance.Minimap.GetPositionOnUI( targetTransform.position, out WorldPosition2D );
+		bool bIsInside = UIManager.Instance.Minimap.GetPositionOnUI( targetTransform.position, out WorldPosition2D );
 		if ( bIsInside == false && bMustBeClamped == false )
 		{
 			m_IconTransform.gameObject.SetActive( false );
 		}
 		if ( bIsInside == false && bMustBeClamped == true )
 		{
-			Vector2 screenPointScaled = UI.Instance.Minimap.transform.InverseTransformPoint( WorldPosition2D );
+			Vector2 screenPointScaled = UIManager.Instance.Minimap.transform.InverseTransformPoint( WorldPosition2D );
 			// Find angle from center of screen to mouse position
 			float angle = Mathf.Atan2( screenPointScaled.y, screenPointScaled.x ) - 90f * Mathf.Deg2Rad;
 			float cos = Mathf.Cos( angle );
@@ -375,7 +375,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 			Vector3 scaleToApply = minimapRect.localScale * rectBorderFactor * 0.5f;
 			screenPointScaled.Scale( scaleToApply );
 
-			WorldPosition2D = UI.Instance.Minimap.transform.TransformPoint( screenPointScaled );
+			WorldPosition2D = UIManager.Instance.Minimap.transform.TransformPoint( screenPointScaled );
 		}
 
 		m_IconTransform.position = WorldPosition2D;

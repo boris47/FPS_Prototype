@@ -93,7 +93,7 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 		if ( WeaponManager.Instance != null )
 			Destroy( WeaponManager.Instance.GameObject );
 
-		UI.Instance.EffectFrame.color = Color.clear;
+		UIManager.Instance.EffectFrame.color = Color.clear;
 	}
 
 
@@ -110,11 +110,11 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 		yield return null;
 
 		// UI interaction
-		UI.Instance.DisableInteraction( this.transform );
+		UIManager.Instance.DisableInteraction( this.transform );
 		{
 			yield return CoroutinesManager.WaitPendingCoroutines();
 		}
-		UI.Instance.EnableInteraction( this.transform );
+		UIManager.Instance.EnableInteraction( this.transform );
 
 		// Cursor
 		GlobalManager.SetCursorVisibility( true );
@@ -148,14 +148,14 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 				iSceneIdx			= 1,
 				sSaveToLoad			= "",
 				bMustLoadSave		= false,
-				pOnLoadCompleted	= delegate { UI.Instance.GoToMenu( UI.Instance.InGame.transform ); }
+				pOnLoadCompleted	= delegate { UIManager.Instance.GoToMenu( UIManager.Instance.InGame.transform ); }
 			};
 			CustomSceneManager.LoadSceneAsync( loadData );
 		};
 
 		if ( PlayerPrefs.HasKey( "SaveSceneIdx" ) )
 		{
-			UI.Instance.Confirmation.Show( "Do you want to start another game?", onNewGame );
+			UIManager.Instance.Confirmation.Show( "Do you want to start another game?", onNewGame );
 		}
 		else
 		{
@@ -182,7 +182,7 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 				iSceneIdx			= saveSceneIdx,
 				sSaveToLoad			= saveFilePath,
 				bMustLoadSave		= true,
-				pOnLoadCompleted	= delegate { UI.Instance.GoToMenu( UI.Instance.InGame.transform ); }
+				pOnLoadCompleted	= delegate { UIManager.Instance.GoToMenu( UIManager.Instance.InGame.transform ); }
 			};
 			CustomSceneManager.LoadSceneAsync( loadData );
 		}

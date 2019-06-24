@@ -198,7 +198,8 @@ namespace WeatherSystem {
 		// OnDisable
 		private void			OnDisable()
 		{
-			m_RainFallParticleSystem.Stop( withChildren:true, stopBehavior: ParticleSystemStopBehavior.StopEmittingAndClear );
+			if ( m_RainFallParticleSystem )
+				m_RainFallParticleSystem.Stop( withChildren:true, stopBehavior: ParticleSystemStopBehavior.StopEmittingAndClear );
 
 			m_Instance				= null;
 			m_RainExplosionMaterial	= null;
