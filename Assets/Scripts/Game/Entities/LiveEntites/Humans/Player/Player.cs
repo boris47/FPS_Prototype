@@ -204,23 +204,23 @@ public partial class Player : Human {
 	{
 		base.OnDisable();
 
-		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.MOVE_FORWARD,	"ForwardEvent" );
-		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.MOVE_BACKWARD,	"BackwardEvent" );
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.MOVE_FORWARD,	"ForwardEvent" );
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.MOVE_BACKWARD,	"BackwardEvent" );
 
-		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.MOVE_LEFT,		"LeftEvent" );
-		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.MOVE_RIGHT,	"RightEvent" );
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.MOVE_LEFT,		"LeftEvent" );
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.MOVE_RIGHT,	"RightEvent" );
  
-		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.STATE_RUN,		"RunEvent" );
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.STATE_RUN,		"RunEvent" );
 
-		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.STATE_JUMP,	"JumpEvent" );
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.STATE_JUMP,	"JumpEvent" );
 
-		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.USAGE,			"Interaction" );
-		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.USAGE,			"Grab" );
-		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.GADGET3,		"Flashlight" );
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.USAGE,			"Interaction" );
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.USAGE,			"Grab" );
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.GADGET3,		"Flashlight" );
 
-		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.ABILITY_PRESS,	"DodgeStart" );
-		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.ABILITY_HOLD,	"DodgeContinue" );
-		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.ABILITY_RELEASE,"DodgeEnd" );
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.ABILITY_PRESS,	"DodgeStart" );
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.ABILITY_HOLD,	"DodgeContinue" );
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.ABILITY_RELEASE,"DodgeEnd" );
 	}
 
 

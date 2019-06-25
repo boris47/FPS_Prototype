@@ -11,6 +11,7 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 	private		GameObject			m_UI_CommandRow					= null;
 	private		Transform			m_ScrollContentTransform		= null;
 	private		Transform			m_BlockPanel					= null;
+	private		Button				m_ApplyButton					= null;
 
 
 	private	bool			m_bIsInitialized					= false;
@@ -34,6 +35,11 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 				Cast<eKeyState>().
 				Select( ( eKeyState k ) => new Dropdown.OptionData( k.ToString() ) )
 			);
+
+			if ( m_bIsInitialized &= transform.SearchComponentInChild( "Button_Apply", ref m_ApplyButton ) )
+			{
+				m_ApplyButton.interactable = false;
+			}
 			
 			// UI Command Row Prefab
 			ResourceManager.LoadData<GameObject> loadData = new ResourceManager.LoadData<GameObject>();
@@ -80,9 +86,9 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnEnable()
 	{
-		if ( GameManager.Instance.InputMgr != null )
+		if ( GlobalManager.Instance.InputMgr != null )
 		{
-			m_InputMgr = GameManager.Instance.InputMgr;
+			m_InputMgr = GlobalManager.Instance.InputMgr;
 		}
 		else
 		{
@@ -107,14 +113,17 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 			for ( KeyCode key = 0; key < KeyCode.JoystickButton0 && bIsWaiting == true; key++ )
 			{
 				bIsWaiting &= !Input.GetKeyDown( key );
-				keyChosen = key;
+				if ( bIsWaiting == false && key != KeyCode.Backspace )
+				{
+					keyChosen = key;
+				}
 			}
 			yield return null;
 		}
 
 		m_BlockPanel.gameObject.SetActive( false );
 
-		if ( OnKeyPressed != null )
+		if ( OnKeyPressed != null && keyChosen != KeyCode.None )
 		{
 			OnKeyPressed(keyChosen);
 		}
@@ -248,7 +257,9 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 				info.Assign( Key, null, KeyCode.None );
 			}
 		}
+
 		FillGrid();
+		m_ApplyButton.interactable = true;
 	}
 	
 	//////////////////////////////////////////////////////////////////////////
@@ -265,9 +276,11 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 			{
 				if ( m_InputMgr.AssignNewKeyCode( Key, keyCode, info.Command, false ) )
 				{
-					m_InputMgr.SaveBindings();
+//					m_InputMgr.SaveBindings();
 				}
+
 				FillGrid();
+				m_ApplyButton.interactable = true;
 			}
 			else
 			{
@@ -275,10 +288,11 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 				{
 					if ( m_InputMgr.AssignNewKeyCode( Key, keyCode, info.Command, true ) )
 					{
-						m_InputMgr.SaveBindings();
+//						m_InputMgr.SaveBindings();
 					}
 
 					FillGrid();
+					m_ApplyButton.interactable = true;
 				};
 
 				UIManager.Instance.Confirmation.Show( "Confirm key substitution?", OnConfirm: onConfirm, OnCancel: null );
@@ -295,7 +309,9 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 		System.Action onConfirm = delegate()
 		{
 			m_InputMgr.SaveBindings();
+
 			FillGrid();
+			m_ApplyButton.interactable = false;
 		};
 
 		UIManager.Instance.Confirmation.Show( "Confirm bindings?", OnConfirm: onConfirm, OnCancel: null );
@@ -308,7 +324,9 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 		System.Action onConfirm = delegate()
 		{
 			m_InputMgr.ResetBindings();
+
 			FillGrid();
+			m_ApplyButton.interactable = false;
 		};
 
 		UIManager.Instance.Confirmation.Show( "Do you really want to reset bindings?", OnConfirm: onConfirm, OnCancel: null );

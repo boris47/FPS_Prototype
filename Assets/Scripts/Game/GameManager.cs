@@ -10,12 +10,6 @@ public partial class GameManager : MonoBehaviour {
 		get { return m_Instance; }
 	}
 
-	private					InputManager	m_InputMgr				= null;
-	public					InputManager	InputMgr
-	{
-		get { return m_InputMgr; }
-	}
-
 	private	static			bool			m_InGame				= true;
 	public static			bool			InGame
 	{
@@ -55,12 +49,6 @@ public partial class GameManager : MonoBehaviour {
 		m_StreamEvents	= this as IStreamEvents;
 		m_PauseEvents	= this as IPauseEvents;
 		m_UpdateEvents	= this as IUpdateEvents;
-
-		// Internal classes
-		m_InputMgr	= new InputManager();
-		InputMgr.Setup();
-
-		Physics.queriesHitBackfaces = false;
 	}
 
 
@@ -120,7 +108,7 @@ public partial class GameManager : MonoBehaviour {
 	public	void		QuitRequest()
 	{
 		m_QuitRequest = true;
-		m_InputMgr.DisableCategory( InputCategory.ALL );
+		GlobalManager.Instance.InputMgr.DisableCategory( InputCategory.ALL );
 		Debug.Log("GameManager: Requesting exit");
 	}
 
@@ -175,7 +163,7 @@ public partial class GameManager : MonoBehaviour {
 		{
 //			m_CurrentInputDelay = m_InputUpdateDelay;
 			// Update inputs
-			InputMgr.Update();
+			GlobalManager.Instance.InputMgr.Update();
 		}
 		/*
 		if ( Input.GetKeyDown( KeyCode.L) )

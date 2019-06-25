@@ -34,12 +34,20 @@ public class GlobalManager : MonoBehaviour {
 		get { return m_Configs; }
 	}
 
+	private					InputManager	m_InputMgr				= null;
+	public					InputManager	InputMgr
+	{
+		get { return m_InputMgr; }
+	}
+
 
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
 	private static void OnBeforeSceneLoad ()
 	{
 		UnityEngine.Assertions.Assert.raiseExceptions = true;
 		Debug.developerConsoleVisible = true;
+
+		Physics.queriesHitBackfaces = false;
 		print( "GlobalManager::OnBeforeSceneLoad" );
 	}
 
@@ -67,6 +75,8 @@ public class GlobalManager : MonoBehaviour {
 		Settings.LoadFile( settingspath );
 		Configs.LoadFile( configsPath );
 
+		m_InputMgr	= new InputManager();
+		m_InputMgr.Setup();
 	}
 
 

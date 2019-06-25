@@ -334,45 +334,45 @@ public partial class Player {
 
 	private	void	RegisterGroundedMotion()
 	{
-		GameManager.Instance.InputMgr.BindCall( eInputCommands.MOVE_FORWARD,	"ForwardEvent",		GoForwardAction,		Motion_Walk_Predicate );
-		GameManager.Instance.InputMgr.BindCall( eInputCommands.MOVE_BACKWARD,	"BackwardEvent",	GoBackwardAction,		Motion_Walk_Predicate );
+		GlobalManager.Instance.InputMgr.BindCall( eInputCommands.MOVE_FORWARD,	"ForwardEvent",		GoForwardAction,		Motion_Walk_Predicate );
+		GlobalManager.Instance.InputMgr.BindCall( eInputCommands.MOVE_BACKWARD,	"BackwardEvent",	GoBackwardAction,		Motion_Walk_Predicate );
 
-		GameManager.Instance.InputMgr.BindCall( eInputCommands.MOVE_LEFT,		"LeftEvent",		StrafeLeftAction,		Motion_Walk_Predicate );
-		GameManager.Instance.InputMgr.BindCall( eInputCommands.MOVE_RIGHT,		"RightEvent",		StrafeRightAction,		Motion_Walk_Predicate );
+		GlobalManager.Instance.InputMgr.BindCall( eInputCommands.MOVE_LEFT,		"LeftEvent",		StrafeLeftAction,		Motion_Walk_Predicate );
+		GlobalManager.Instance.InputMgr.BindCall( eInputCommands.MOVE_RIGHT,		"RightEvent",		StrafeRightAction,		Motion_Walk_Predicate );
 
-		GameManager.Instance.InputMgr.BindCall( eInputCommands.STATE_RUN,		"RunEvent",			RunAction,				RunPredicate );
+		GlobalManager.Instance.InputMgr.BindCall( eInputCommands.STATE_RUN,		"RunEvent",			RunAction,				RunPredicate );
 
-		GameManager.Instance.InputMgr.BindCall( eInputCommands.STATE_JUMP,		"JumpEvent",		JumpAction,				JumpPredicate );
+		GlobalManager.Instance.InputMgr.BindCall( eInputCommands.STATE_JUMP,		"JumpEvent",		JumpAction,				JumpPredicate );
 
-		GameManager.Instance.InputMgr.BindCall( eInputCommands.USAGE,			"Interaction",		InteractionAction,		InteractionPredicate );
-		GameManager.Instance.InputMgr.BindCall( eInputCommands.USAGE,			"Grab",				GrabAction,				GrabPredicate );
+		GlobalManager.Instance.InputMgr.BindCall( eInputCommands.USAGE,			"Interaction",		InteractionAction,		InteractionPredicate );
+		GlobalManager.Instance.InputMgr.BindCall( eInputCommands.USAGE,			"Grab",				GrabAction,				GrabPredicate );
 
-		GameManager.Instance.InputMgr.BindCall( eInputCommands.GADGET3,			"Flashlight",		FlashlightAction,		FlashlightPredicate );
+		GlobalManager.Instance.InputMgr.BindCall( eInputCommands.GADGET3,			"Flashlight",		FlashlightAction,		FlashlightPredicate );
 
-		GameManager.Instance.InputMgr.BindCall( eInputCommands.ABILITY_PRESS,	"DodgeStart",		AbilityEnableAction,	AbilityPredcate );
-		GameManager.Instance.InputMgr.BindCall( eInputCommands.ABILITY_HOLD,	"DodgeContinue",	AbilityContinueAction,	AbilityPredcate );
-		GameManager.Instance.InputMgr.BindCall( eInputCommands.ABILITY_RELEASE,	"DodgeEnd",			AbilityEndAction,		AbilityPredcate );
+		GlobalManager.Instance.InputMgr.BindCall( eInputCommands.ABILITY_PRESS,	"DodgeStart",		AbilityEnableAction,	AbilityPredcate );
+		GlobalManager.Instance.InputMgr.BindCall( eInputCommands.ABILITY_HOLD,	"DodgeContinue",	AbilityContinueAction,	AbilityPredcate );
+		GlobalManager.Instance.InputMgr.BindCall( eInputCommands.ABILITY_RELEASE,	"DodgeEnd",			AbilityEndAction,		AbilityPredcate );
 	}
 	
 	private	void	UnRegisterGroundedMotion()
 	{
-		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.MOVE_FORWARD,	"ForwardEvent" );
-		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.MOVE_BACKWARD,	"BackwardEvent" );
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.MOVE_FORWARD,	"ForwardEvent" );
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.MOVE_BACKWARD,	"BackwardEvent" );
 
-		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.MOVE_LEFT,		"LeftEvent" );
-		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.MOVE_RIGHT,	"RightEvent" );
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.MOVE_LEFT,		"LeftEvent" );
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.MOVE_RIGHT,	"RightEvent" );
  
-		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.STATE_RUN,		"RunEvent" );
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.STATE_RUN,		"RunEvent" );
 
-		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.STATE_JUMP,	"JumpEvent" );
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.STATE_JUMP,	"JumpEvent" );
 
-		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.USAGE,			"Interaction" );
-		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.USAGE,			"Grab" );
-		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.GADGET3,		"Flashlight" );
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.USAGE,			"Interaction" );
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.USAGE,			"Grab" );
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.GADGET3,		"Flashlight" );
 
-		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.ABILITY_PRESS,	"DodgeStart" );
-		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.ABILITY_HOLD,	"DodgeContinue" );
-		GameManager.Instance.InputMgr.UnbindCall( eInputCommands.ABILITY_RELEASE,"DodgeEnd" );
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.ABILITY_PRESS,	"DodgeStart" );
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.ABILITY_HOLD,	"DodgeContinue" );
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.ABILITY_RELEASE,"DodgeEnd" );
 	}
 
 
