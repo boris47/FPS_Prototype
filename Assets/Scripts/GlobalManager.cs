@@ -56,10 +56,10 @@ public class GlobalManager : MonoBehaviour {
 		if ( m_Instance != null )
 		{
 			Destroy( gameObject );
-//			gameObject.SetActive( false );
 			return;
 		}
 		DontDestroyOnLoad( this );
+		m_Instance		= this;
 
 		m_Settings	= new SectionMap();
 		m_Configs	= new SectionMap();
@@ -67,7 +67,6 @@ public class GlobalManager : MonoBehaviour {
 		Settings.LoadFile( settingspath );
 		Configs.LoadFile( configsPath );
 
-		m_Instance		= this;
 	}
 
 

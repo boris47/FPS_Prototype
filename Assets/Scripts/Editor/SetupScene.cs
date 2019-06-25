@@ -31,7 +31,7 @@ public class SetupScene : EditorWindow  {
 
 		LoadPrefab<EffectsManager>		( prefabPath:"Prefabs/Essentials/EffectsManager"			);
 
-		LoadPrefab<CustomSceneManager>	( prefabPath:"Prefabs/Essentials/CustomSceneManager"		);
+//		LoadPrefab<CustomSceneManager>	( prefabPath:"Prefabs/Essentials/CustomSceneManager"		);
 		
 		LoadPrefab<UIManager>			( prefabPath: "Prefabs/Essentials/UIManager"				);
 

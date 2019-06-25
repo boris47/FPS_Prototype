@@ -24,7 +24,11 @@ public partial interface IWeaponManager {
 [System.Serializable]
 public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 	
-	public static	IWeaponManager	Instance						= null;
+	private static	IWeaponManager	m_Instance						= null;
+	public static	IWeaponManager	Instance
+	{
+		get { return m_Instance; }
+	}
 
 	private			List<Weapon>	WeaponsList						= new List<Weapon>();
 
@@ -58,14 +62,14 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 	// Awake
 	private				void		Awake()
 	{
-		if ( Instance != null )
+		// Singleton
+		if ( m_Instance != null )
 		{
-			print( "WeaponManager: Object set inactive" );
-			gameObject.SetActive( false );
+			Destroy( gameObject );
 			return;
 		}
-		Instance = this as IWeaponManager;
 		DontDestroyOnLoad( this );
+		m_Instance = this;
 	}
 
 
@@ -451,7 +455,10 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 	// OnDestroy
 	private void OnDestroy()
 	{
-		Instance = null;
-	}
+		if ( (Object)m_Instance != this )
+			return;
 
+		m_Instance = null;
+	}
+	
 }

@@ -319,7 +319,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 	// DrawUIElementOnObjectivesOnMinimap
 	protected	static void	DrawUIElementObjectivesOnMinimap( Transform targetTransform, Transform m_IconTransform, bool bMustBeClamped )
 	{
-		RectTransform minimapRect		= UIManager.Instance.Minimap.GetRawImageRect();
+		RectTransform minimapRectTransform		= UIManager.Instance.Minimap.GetRawImageRect();
 
 		if ( m_IconTransform.gameObject.activeSelf == false )
 		{
@@ -349,7 +349,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 
 			const float rectBorderFactor = 0.75f;
-			Vector2 minimapBounds = minimapRect.rect.size * rectBorderFactor;
+			Vector2 minimapBounds = minimapRectTransform.rect.size * rectBorderFactor;
 
 			// Check up and down first
 			if ( cos > 0.0f )
@@ -372,7 +372,8 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 			}
 
 			// Because of the different scale applied to rawImage rectTransform, this must be token in account fo computations
-			Vector3 scaleToApply = minimapRect.localScale * rectBorderFactor * 0.5f;
+			Vector3 scaleToApply = minimapRectTransform.lossyScale * rectBorderFactor * 0.5f;
+//			print(minimapRectTransform.lossyScale );
 			screenPointScaled.Scale( scaleToApply );
 
 			WorldPosition2D = UIManager.Instance.Minimap.transform.TransformPoint( screenPointScaled );

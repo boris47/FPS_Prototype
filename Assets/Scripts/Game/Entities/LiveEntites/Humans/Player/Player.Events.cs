@@ -335,14 +335,15 @@ public partial class Player {
 		print( "U r dead" );
 	}
 
-
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		OnDestroy()
 	{
 		if ( m_DodgeAbilityTarget != null )
 			Destroy( m_DodgeAbilityTarget.gameObject );
 
-		Instance = null;
+		m_Instance = null;
 		Entity = null;
 	}
+	*/
 }

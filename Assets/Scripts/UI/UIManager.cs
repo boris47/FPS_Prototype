@@ -105,7 +105,11 @@ public class UIManager : MonoBehaviour, IUI {
 		}
 
 
-	public	static	IUI						Instance						= null;
+	private	static	IUI						m_Instance						= null;
+	public	static	IUI						Instance
+	{
+		get { return m_Instance; }
+	}
 
 	private			UI_MainMenu				m_MainMenu						= null;
 	private			UI_InGame				m_InGame						= null;
@@ -156,14 +160,15 @@ public class UIManager : MonoBehaviour, IUI {
 	private void Awake()
 	{
 		int sceneIdx = gameObject.scene.buildIndex;
-		// SINGLETON
-		if ( Instance != null )
+		
+		// Singleton
+		if ( m_Instance != null )
 		{
 			Destroy( gameObject );
 			return;
 		}
-		Instance = this;
 		DontDestroyOnLoad( this );
+		m_Instance = this;
 
 		GlobalManager.SetCursorVisibility( false );
 

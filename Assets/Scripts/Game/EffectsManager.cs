@@ -17,7 +17,11 @@ public enum EffectType {
 
 public class EffectsManager : MonoBehaviour {
 
-	public	static	EffectsManager			Instance								= null;
+	private	static	EffectsManager			m_Instance								= null;
+	public static EffectsManager			Instance
+	{
+		get { return m_Instance; }
+	}
 
 	[ SerializeField ]
 	private		CustomAudioSource			m_ExplosionSource						= null;
@@ -34,14 +38,14 @@ public class EffectsManager : MonoBehaviour {
 	// Awake
 	private void	Awake()
 	{
-		// SINGLETON
-		if ( Instance != null )
+		// Singleton
+		if ( m_Instance != null )
 		{
 			Destroy( gameObject );
 			return;
 		}
-		Instance = this;
 		DontDestroyOnLoad( this );
+		m_Instance = this;
 		
 		m_ParticleEffects = transform.Find("ParticleEffects");
 

@@ -33,7 +33,12 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 	public		const		float				CLAMP_MAX_X_AXIS						=  70.0f;
 	public		const		float				CLAMP_MIN_X_AXIS						= -70.0f;
 
-	public		static		ICameraControl		Instance								= null;
+	public		static		ICameraControl		m_Instance								= null;
+	public		static		ICameraControl		Instance
+	{
+		get { return m_Instance; }
+	}
+	
 
 	// INTERFACE START
 				Transform						ICameraControl.Transform				{ get { return transform; } }
@@ -102,9 +107,10 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 			gameObject.SetActive( false );
 			return;
 		}
-		Instance = this  as ICameraControl;
+		m_Instance = this;
+
 		if ( transform.root == null )
-		DontDestroyOnLoad( this );
+			DontDestroyOnLoad( gameObject );
 
 		m_WeaponPivot = transform.Find( "WeaponPivot" );
 
@@ -420,10 +426,13 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 	// OnDestroy
 	private void OnDestroy()
 	{
-		var settings = m_PP_Profile.vignette.settings;
-		settings.intensity = 0f;
-		m_PP_Profile.vignette.settings = settings;
+		if ( (Object)m_Instance != this )
+			return;
 
-		Instance = null;
+//		var settings = m_PP_Profile.vignette.settings;
+//		settings.intensity = 0f;
+//		m_PP_Profile.vignette.settings = settings;
+
+		m_Instance = null;
 	}
 }

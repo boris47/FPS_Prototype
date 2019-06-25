@@ -28,9 +28,17 @@ public class SurfaceManager : MonoBehaviour {
 	private		SurfaceDefinition[]			m_DefinedSurfaces		= null;
 
 
+
 	//////////////////////////////////////////////////////////////////////////
-	private		void		Start()
+	private		void		Awake()
 	{
+		// Singleton
+		if ( m_Instance != null )
+		{
+			Destroy( gameObject );
+			return;
+		}
+		DontDestroyOnLoad( this );
 		m_Instance = this;
 	}
 

@@ -143,6 +143,7 @@ public class InputManager {
 		if ( m_ActionMap.TryGetValue( command, out inputEventCollection ) == false )
 		{
 			inputEventCollection = new InputEventCollection();
+			m_ActionMap[command] = inputEventCollection;
 		}
 
 		inputEventCollection.Bind( inputEventID, method, condition );

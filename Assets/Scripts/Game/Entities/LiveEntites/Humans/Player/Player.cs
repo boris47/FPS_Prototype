@@ -11,7 +11,11 @@ public partial class Player : Human {
 
 	private	const	float			BODY_DRAG						= 8f;
 
-	public	static	Player			Instance						= null;
+	public	static	Player			m_Instance						= null;
+	public	static	Player			Instance
+	{
+		get { return m_Instance; }
+	}
 	public	static	IEntity			Entity							= null;
 
 	private		IInteractable		m_Interactable					= null;
@@ -53,17 +57,18 @@ public partial class Player : Human {
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void	Awake()
 	{
-		if ( Instance != null )
+		m_EntityType = ENTITY_TYPE.ACTOR;
+
+		if ( m_Instance != null )
 		{
 			Destroy( gameObject );
 			return;
 		}
 
-		Instance = this;
+		m_Instance = this;
 		Entity = this as IEntity;
 		DontDestroyOnLoad( this );
 
-		m_EntityType = ENTITY_TYPE.ACTOR;
 		m_SectionName = this.GetType().FullName;
 
 		base.Awake();

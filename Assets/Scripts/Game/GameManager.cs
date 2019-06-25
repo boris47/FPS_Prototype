@@ -27,7 +27,17 @@ public partial class GameManager : MonoBehaviour {
 
 	private					bool			m_SkipOneFrame			= true;
 	private					float			m_ThinkTimer			= 0f;
+
+	private bool EDITOR_InGame = false;
 	
+
+	private	void OnLevelLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
+	{
+		if ( scene.buildIndex == 0 )
+			{
+				Destroy(gameObject);
+			}
+	}
 
 	//////////////////////////////////////////////////////////////////////////
 	private			void		Awake ()
@@ -36,10 +46,8 @@ public partial class GameManager : MonoBehaviour {
 		if ( m_Instance != null )
 		{
 			Destroy( gameObject );
-//			gameObject.SetActive( false );
 			return;
 		}
-
 		DontDestroyOnLoad( this );
 
 		// Instance
@@ -79,16 +87,32 @@ public partial class GameManager : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private			void		OnEnable()
 	{
+		if ( m_Instance != this )
+			return;
+
+		UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnLevelLoaded;
+
 		m_InGame = true;
+
 		RestoreDelegates();
+
+//		Debug.Log( "GameManager::OnEnable: m_InGame = true" );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private			void		OnDisable()
 	{
+		if ( m_Instance != this )
+			return;
+
+		UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnLevelLoaded;
+
 		RestoreDelegates();
+
 		m_InGame = false;
+
+//		Debug.Log( "GameManager::OnDisable: m_InGame = false" );
 	}
 	
 
@@ -96,6 +120,7 @@ public partial class GameManager : MonoBehaviour {
 	public	void		QuitRequest()
 	{
 		m_QuitRequest = true;
+		m_InputMgr.DisableCategory( InputCategory.ALL );
 		Debug.Log("GameManager: Requesting exit");
 	}
 
@@ -122,7 +147,8 @@ public partial class GameManager : MonoBehaviour {
 //		{
 //			System.GC.Collect( 1, System.GCCollectionMode.Optimized );
 //		}
-
+	
+		EDITOR_InGame = m_InGame;
 		if ( m_InGame == false )
 			return;
 
@@ -223,6 +249,16 @@ public partial class GameManager : MonoBehaviour {
 		if ( Input.GetKeyDown( KeyCode.Escape ) && m_IsPaused == false )
 		{
 			m_PauseEvents.SetPauseState( !m_IsPaused );
+		}
+
+		if ( Input.GetKeyDown( KeyCode.PageDown ) )
+		{
+			CustomSceneManager.LoadSceneData data = new CustomSceneManager.LoadSceneData()
+			{
+				iSceneIdx = UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex +1,
+				eLoadMode = UnityEngine.SceneManagement.LoadSceneMode.Single
+			};
+			CustomSceneManager.LoadSceneAsync( data );
 		}
 
 		// Exit request

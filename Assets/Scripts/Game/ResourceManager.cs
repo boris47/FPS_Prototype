@@ -31,7 +31,8 @@ public class ResourceManager : MonoBehaviour {
 
 	// 
 	private void Awake()
-	{	// Singleton
+	{	
+		// Singleton
 		if ( m_Instance != null )
 		{
 			Destroy( gameObject );
