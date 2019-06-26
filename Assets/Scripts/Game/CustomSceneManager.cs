@@ -6,24 +6,23 @@ using UnityEngine.SceneManagement;
 
 public class CustomSceneManager : MonoBehaviour {
 
-	private	static Dictionary<string, UnityAction<Scene, LoadSceneMode> > map
-		= new Dictionary<string, UnityAction<Scene, LoadSceneMode>>();
+	public class LoadSceneData {
+		public	int				iSceneIdx				= -1;
+		public	LoadSceneMode	eLoadMode				= LoadSceneMode.Single;
+		public	bool			bMustLoadSave			= false;
+		public	string			sSaveToLoad				= "";
+		public	System.Action	pOnPreLoadCompleted		= null;
+		public	System.Action	pOnLoadCompleted		= null;
+	}
+
+
+
+	private	static	Dictionary<string, UnityAction<Scene, LoadSceneMode> > m_RegisteredDelegates = new Dictionary<string, UnityAction<Scene, LoadSceneMode>>();
 
 	private	static	CustomSceneManager		m_Instance = null;
+	
 
-	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
-	static void OnBeforeSceneLoad ()
-	{
-		print( "CustomSceneManager::OnBeforeSceneLoad" );
-
-	}
-
-	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.AfterSceneLoad)]
-	static void AfterSceneLoad ()
-	{
-		print( "CustomSceneManager::AfterSceneLoad" );
-	}
-
+	/////////////////////////////////////////////////////////////////
 	private void Awake()
 	{
 		// Singleton
@@ -36,14 +35,6 @@ public class CustomSceneManager : MonoBehaviour {
 		m_Instance = this;
 	}
 
-	public class LoadSceneData {
-		public	int				iSceneIdx				= -1;
-		public	LoadSceneMode	eLoadMode				= LoadSceneMode.Single;
-		public	bool			bMustLoadSave			= false;
-		public	string			sSaveToLoad				= "";
-		public	System.Action	pOnPreLoadCompleted		= null;
-		public	System.Action	pOnLoadCompleted		= null;
-	}
 
 
 	/////////////////////////////////////////////////////////////////
@@ -109,8 +100,13 @@ public class CustomSceneManager : MonoBehaviour {
 	/////////////////////////////////////////////////////////////////
 
 
+	public class LoadConditionVerified {
+		public	bool	bHasToWait = false;
+	}
+
+
 	/// <summary> Launch load of a scene asynchronously </summary>
-	public	static void	LoadSceneAsync( LoadSceneData loadSceneData )
+	public	static void	LoadSceneAsync( LoadSceneData loadSceneData, LoadConditionVerified loadCondition = null )
 	{
 		if ( loadSceneData == null )
 			return;
@@ -121,12 +117,13 @@ public class CustomSceneManager : MonoBehaviour {
 		if ( loadSceneData.iSceneIdx == SceneManager.GetActiveScene().buildIndex )
 			return;
 
-		m_Instance.StartCoroutine( m_Instance.LoadSceneAsyncCO( loadSceneData ) );
+		m_Instance.StartCoroutine( m_Instance.LoadSceneAsyncCO( loadSceneData, loadCondition ) );
 	}
 
 
+
 	/// <summary> Internla coroutine that load a scene asynchronously </summary>
-	private	IEnumerator	LoadSceneAsyncCO( LoadSceneData loadSceneData )
+	private	IEnumerator	LoadSceneAsyncCO( LoadSceneData loadSceneData, LoadConditionVerified loadCondition = null )
 	{
 		yield return new WaitForEndOfFrame();
 
@@ -145,6 +142,8 @@ public class CustomSceneManager : MonoBehaviour {
 		}
 
 //		print("before isdone");
+
+		yield return new WaitUntil( () => loadCondition != null ? (loadCondition.bHasToWait == false) : true );
 
 		asyncOperation.allowSceneActivation = true;
 
@@ -199,7 +198,7 @@ public class CustomSceneManager : MonoBehaviour {
 		};
 
 		string id = activeSceneChanged.Method.Name;
-		map.Add( id, OnLoad );
+		m_RegisteredDelegates.Add( id, OnLoad );
 		SceneManager.sceneLoaded += OnLoad;
 	}
 
@@ -210,7 +209,7 @@ public class CustomSceneManager : MonoBehaviour {
 		string id = activeSceneChanged.Method.Name;
 
 		UnityAction<Scene, LoadSceneMode> OnLoad = null;
-		if ( map.TryGetValue( id, out OnLoad ) )
+		if ( m_RegisteredDelegates.TryGetValue( id, out OnLoad ) )
 		{
 			SceneManager.sceneLoaded -= OnLoad;
 		}

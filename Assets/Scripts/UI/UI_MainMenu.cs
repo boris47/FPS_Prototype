@@ -145,7 +145,7 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 
 			CustomSceneManager.LoadSceneData loadData = new CustomSceneManager.LoadSceneData()
 			{
-				iSceneIdx			= 1,
+				iSceneIdx			= 2,
 				sSaveToLoad			= "",
 				bMustLoadSave		= false,
 				pOnLoadCompleted	= delegate { UIManager.Instance.GoToMenu( UIManager.Instance.InGame.transform ); }

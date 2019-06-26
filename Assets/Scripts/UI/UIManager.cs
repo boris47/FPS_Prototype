@@ -198,7 +198,7 @@ public class UIManager : MonoBehaviour, IUI {
 		Initialize();
 //		yield return StartCoroutine(  );
 
-		if ( sceneIdx > 0 )
+		if ( sceneIdx > 1 )
 		{
 			SwitchTo( m_InGame.transform );
 		}

@@ -44,18 +44,16 @@ public class GlobalManager : MonoBehaviour {
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
 	private static void OnBeforeSceneLoad ()
 	{
-		UnityEngine.Assertions.Assert.raiseExceptions = true;
-		Debug.developerConsoleVisible = true;
-
-		Physics.queriesHitBackfaces = false;
-		print( "GlobalManager::OnBeforeSceneLoad" );
+		Application.logMessageReceived += HandleException;
 	}
 
-	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.AfterSceneLoad)]
-	private static void AfterSceneLoad ()
-	{
-		print( "GlobalManager::AfterSceneLoad" );
-	}
+	static void HandleException( string condition, string stackTrace, LogType type )
+    {
+		if ( type == LogType.Exception || type == LogType.Assert || type == LogType.Error )
+		{
+			QuitInstanly();
+		}
+    }
 
 	//////////////////////////////////////////////////////////////////////////
 	private void Awake()
@@ -107,25 +105,24 @@ public class GlobalManager : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	public		static		void		QuitInstanly()
 	{
-		Debug.Log( "GlobalManager: Exiting" );
 #if UNITY_EDITOR
-		UnityEditor.EditorApplication.isPlaying = false;		
+		UnityEditor.EditorApplication.isPlaying = false;
 #else
 		Application.Quit();
+		Debug.Log("Merda");
 #endif
 	}
 
 
-	//////////////////////////////////////////////////////////////////////////
+	/*//////////////////////////////////////////////////////////////////////////
 	public	static void		Assert( bool condition, string message )
 	{
 		if ( condition == false )
 		{
-			Debug.LogError( message );
-			ForcedQuit();
+			throw new System.Exception( message );
 		}
 	}
-
+	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	public	static	void	ForcedQuit()
@@ -135,6 +132,8 @@ public class GlobalManager : MonoBehaviour {
 #else
 		Application.Quit();
 #endif
+
+		
 	}
 
 }
