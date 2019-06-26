@@ -1,0 +1,4 @@
+[BuildSettings]
+
+FolderName=Build;
+ExecutableFilename=TestBuild;

@@ -70,8 +70,8 @@ public class GlobalManager : MonoBehaviour {
 		m_Settings	= new SectionMap();
 		m_Configs	= new SectionMap();
 
-		Settings.LoadFile( settingspath );
-		Configs.LoadFile( configsPath );
+		m_Settings.LoadFile( settingspath );
+		m_Configs.LoadFile( configsPath );
 
 		m_InputMgr	= new InputManager();
 		m_InputMgr.Setup();
