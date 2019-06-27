@@ -8,7 +8,7 @@ namespace Database {
 	// PUBLIC INTERFACE
 	public interface ISection {
 
-		bool					IsOK							{ get; }
+		bool					m_bIsOK							{ get; }
 
 		void					Destroy							();
 		int						Lines							();
@@ -28,7 +28,7 @@ namespace Database {
 		float					AsFloat							( string Key, float Default = 0.0f );
 		string					AsString						( string Key, string Default = "" );
 
-		cValue					AsMultiValue					( string Key, int Index );
+		cValue					OfMultiValue					( string Key, int Index );
 		void					AsMultiValue	<T1,T2>			( string Key, int Idx1, int Idx2, ref T1 t1, ref T2 t2 );
 		void					AsMultiValue	<T1,T2,T3>		( string Key, int Idx1, int Idx2, int Idx3, ref T1 t1, ref T2 t2, ref T3 t3 );
 		void					AsMultiValue	<T1,T2,T3,T4>	( string Key, int Idx1, int Idx2, int Idx3, int Idx4, ref T1 t1, ref T2 t2, ref T3 t3, ref T4 t4 );
@@ -64,21 +64,25 @@ namespace Database {
 		// INTERNAL VARS
 		[SerializeField]
 		private		string				name			= null;
+
 		[SerializeField]
-		private		string				sContext		= null;
+		private		string				m_Context		= "";
+
 		[SerializeField]
-		private		List<cLineValue>	vSection		= new List<cLineValue>();
+		private		List<cLineValue>	m_Sections		= new List<cLineValue>();
+
 		[SerializeField]
-		private		List<string>		vMothers		= new List<string>();
+		private		List<string>		m_Mothers		= new List<string>();
+
 		[SerializeField]
-		public		bool				IsOK
+		public		bool				m_bIsOK
 		{
 			get; private set;
 		}
 
 		public	string	Context
 		{
-			get { return ( sContext.IsNotNull() ) ? (string)sContext.Clone() :""; }
+			get { return ( m_Context.Length > 0 ) ? (string)m_Context.Clone() :""; }
 		}
 
 
@@ -89,36 +93,36 @@ namespace Database {
 	
 		public List<cLineValue>.Enumerator  GetEnumerator()
 		{
-			return vSection.GetEnumerator();
+			return m_Sections.GetEnumerator();
 		}
 
 
-		public Section( string SecName, string context )
+		public Section( string sectionName, string context )
 		{
-			name = SecName;
-			sContext = context;
-			IsOK = true;
+			name = sectionName;
+			m_Context = context;
+			m_bIsOK = true;
 		}
 
 
-		public static bool operator !( Section Sec )
+		public static bool operator !( Section obj )
 		{
-			return Sec == null;
+			return obj == null;
 		}
 
-		public static bool operator false( Section Sec )
+		public static bool operator false( Section obj )
 		{
-			return Sec == null;
+			return obj == null;
 		}
 
-		public static bool operator true( Section Sec )
+		public static bool operator true( Section obj )
 		{
-			return Sec != null;
+			return obj != null;
 		}
 
 		public static Section operator +( Section SecA, Section SecB )
 		{
-			if ( SecB.IsOK == true )
+			if ( SecB.m_bIsOK == true )
 			{
 				foreach( cLineValue lineValue in SecB )
 				{
@@ -127,32 +131,32 @@ namespace Database {
 						SecA.Add( lineValue );
 					}
 				}
-				SecA.vMothers.Add( SecB.name );
+				SecA.m_Mothers.Add( SecB.name );
 			}
 			return SecA;
 		}
 
-		public	bool					IsChildOf						( Section MotherSection )
+		public	bool					IsChildOf						( Section mother )
 		{
-			string motherName = MotherSection.GetName();
-			return ( vMothers.FindIndex( m => m == motherName ) > -1 );
+			string motherName = mother.GetName();
+			return ( m_Mothers.FindIndex( m => m == motherName ) > -1 );
 		}
 
 		public	bool					IsChildOf						( string MotherName )
 		{
-			return ( vMothers.FindIndex( m => m == MotherName ) > -1 );
+			return ( m_Mothers.FindIndex( m => m == MotherName ) > -1 );
 		}
 		
 		
 
 		public void Destroy()
 		{
-			vSection.ForEach( ( cLineValue lv ) => lv.Destroy() );
+			m_Sections.ForEach( ( cLineValue lv ) => lv.Destroy() );
 		}
 
 		public	int						Lines()
 		{
-			return vSection.Count;
+			return m_Sections.Count;
 		}
 
 
@@ -163,10 +167,10 @@ namespace Database {
 		// GetKeys
 		public	string[]				GetKeys()
 		{
-			string[] arrayToReturn = new string[ vSection.Count ];
-			for ( int i = 0; i < vSection.Count; i++ )
+			string[] arrayToReturn = new string[ m_Sections.Count ];
+			for ( int i = 0; i < m_Sections.Count; i++ )
 			{
-				arrayToReturn[i] = vSection[i].Key;
+				arrayToReturn[i] = m_Sections[i].Key;
 			}
 			return arrayToReturn;
 		}
@@ -175,16 +179,16 @@ namespace Database {
 		// Add
 		public	bool				Add( cLineValue LineValue )
 		{
-			int index = vSection.FindIndex( ( s ) => s.Key == LineValue.Key );
+			int index = m_Sections.FindIndex( ( s ) => s.Key == LineValue.Key );
 			// Confirmed new linevalue
 			if ( index == -1 )
 			{
-				vSection.Add( LineValue );
+				m_Sections.Add( LineValue );
 			}
 			// overwrite of existing linevalue
 			else
 			{
-				vSection[ index ] = new cLineValue( LineValue );
+				m_Sections[ index ] = new cLineValue( LineValue );
 			}
 			return index > -1;
 		}
@@ -194,11 +198,11 @@ namespace Database {
 		// Remove
 		public	bool					Remove( string lineValueID )
 		{
-			int index = vSection.FindIndex( ( s ) => s.Key == lineValueID );
+			int index = m_Sections.FindIndex( ( s ) => s.Key == lineValueID );
 			if ( index > -1 )
 			{
-				vSection[index].Destroy();
-				vSection.RemoveAt( index );
+				m_Sections[index].Destroy();
+				m_Sections.RemoveAt( index );
 			}
 			return index > -1;
 		}
@@ -208,11 +212,11 @@ namespace Database {
 		// bGetLineValue
 		public	bool					bGetLineValue( string key, ref cLineValue lineValue )
 		{
-			int index = vSection.FindIndex( ( cLineValue lv ) => lv.IsKey( key ) == true );
+			int index = m_Sections.FindIndex( ( cLineValue lv ) => lv.IsKey( key ) == true );
 			bool bHasBeenFound = index > -1;
 			if ( bHasBeenFound )
 			{
-				lineValue = vSection[ index ];
+				lineValue = m_Sections[ index ];
 			}
 			return bHasBeenFound;
 		}
@@ -232,7 +236,7 @@ namespace Database {
 		public void PrintSection()
 		{
 			Debug.Log( "---|Section START" + name );
-			foreach ( cLineValue LineValue in vSection )
+			foreach ( cLineValue LineValue in m_Sections )
 			{
 				string result = LineValue.Key;
 				if ( LineValue.Type == LineValueType.MULTI )
@@ -268,12 +272,12 @@ namespace Database {
 			string sectionDefinition = "[" + name + "]";
 			{
 				// Concatenate mothers names
-				if ( vMothers.Count > 0 )
+				if ( m_Mothers.Count > 0 )
 				{
-					sectionDefinition += ":" + vMothers[0];
-					for ( int i = 1; i < vMothers.Count; i++, sectionDefinition += ',' )
+					sectionDefinition += ":" + m_Mothers[0];
+					for ( int i = 1; i < m_Mothers.Count; i++, sectionDefinition += ',' )
 					{
-						string motherName = vMothers[i];
+						string motherName = m_Mothers[i];
 						sectionDefinition += motherName;
 					}
 				}
@@ -281,7 +285,7 @@ namespace Database {
 			lines.Add( sectionDefinition );
 
 			// Write key value pairs
-			foreach ( cLineValue LineValue in vSection )
+			foreach ( cLineValue LineValue in m_Sections )
 			{
 				string key = LineValue.Key;
 				string value = "";

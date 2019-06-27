@@ -107,10 +107,10 @@ namespace Database {
 
 		//////////////////////////////////////////////////////////////////////////
 		// AsMultiValue
-		public	cValue					AsMultiValue( string Key, int Index )
+		public	cValue					OfMultiValue( string Key, int Index )
 		{
 			cLineValue pLineValue = null;
-			if ( bGetLineValue( Key, ref pLineValue ) )
+			if ( bGetLineValue( Key, ref pLineValue ) && Index > 0 )
 			{
 				cMultiValue pMultiValue = null;
 				if ( pLineValue.GetAsMulti( ref pMultiValue ) )

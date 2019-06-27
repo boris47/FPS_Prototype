@@ -9,37 +9,31 @@ using System.IO;
 using System.Reflection;
 
 
-public class SectionMap : IEnumerable/*Foreach feature*/ {
+public class SectionMap {
 
 	// READING PHASES
-	private	static int							READING_NOTHING		= 0;
-	private	static int							READING_SECTION		= 1;
-///	private static int							READING_LIST		= 2;	// TODO Implement this
+	private enum eREADING_PHASES {
+		NONE				= 0,
+		READING_SECTION		= 1,
+		READING_ARRAYDATA	= 2
+	}
+
 
 	// CONTAINERS
 	private	Dictionary < string, Section >		m_SectionMap		= new Dictionary < string, Section > ();
+	private	Dictionary < string, ArrayData >	m_ArrayDataMap		= new Dictionary< string, ArrayData > ();
 	private	List < string >						m_FilePaths			= new List < string >();
 
 	// INTERNAL VARS
-	private	int									m_ReadingPhase		= READING_NOTHING;
+	private	eREADING_PHASES						m_ReadingPhase		= eREADING_PHASES.NONE;
 	private	Section								m_CurrentSection	= null;
+	private	ArrayData							m_CurrentArrayData	= null;
 
 	public	bool								IsOK
 	{
 		get; private set;
 	}
-
-
-	IEnumerator IEnumerable.GetEnumerator()
-	{
-		return (IEnumerator) GetEnumerator();
-	}
 	
-	public Dictionary<string, Section>.ValueCollection.Enumerator  GetEnumerator()
-    {
-        return m_SectionMap.Values.GetEnumerator();
-    }
-
 
 	//////////////////////////////////////////////////////////////////////////
 	// Section_Create
@@ -51,22 +45,23 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 			Section_Close();
 		}
 
+		int sectionNameCloseChar = sLine.IndexOf( "]", 0 );
+		string sSectionName = sLine.Substring( 1, sectionNameCloseChar - 1 );
+
 		Section bump = null;
-		int squareBracketIndex = sLine.IndexOf( "]", 0 );
-		string sSectionName = sLine.Substring( 1, squareBracketIndex - 1 );
 		if ( HasFileElement( sSectionName, ref bump ) )
 		{
 			Debug.LogError( "SectionMap::Section_Create:" + sFilePath + ":[" + iLine + "]: Section \"" + sSectionName + "\" already exists!" );
 			return false;
 		}
 
-		m_ReadingPhase = READING_SECTION;
+		m_ReadingPhase = eREADING_PHASES.READING_SECTION;
 
 		string context = System.IO.Path.GetFileNameWithoutExtension( sFilePath );
 		m_CurrentSection = new Section( sSectionName, context: context );
 
 		// Get the name of mother section, if present
-		int iIndex = sLine.IndexOf( ":", squareBracketIndex );
+		int iIndex = sLine.IndexOf( ":", sectionNameCloseChar );
 		if ( iIndex > 0 )
 		{
 			string[] mothers = sLine.Substring( iIndex + 1 ).Split( ',' );
@@ -118,8 +113,105 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 			m_SectionMap.Add( m_CurrentSection.GetName(), m_CurrentSection );
 
 		m_CurrentSection = null;
-		m_ReadingPhase = READING_NOTHING;
+		m_ReadingPhase = eREADING_PHASES.NONE;
 	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ArrayData_Create
+	// CREATE A NEW ARRAY DATA LIST WHILE READING FILE
+	private bool ArrayData_Create( string sLine, string sFilePath, int iLine )
+	{
+		if ( m_CurrentArrayData != null )
+		{
+			ArrayData_Close();
+		}
+
+		int ArrayDataNameCloseChar = sLine.IndexOf( "\'", 1 );
+		string sArrayDataName = sLine.Substring( 1, ArrayDataNameCloseChar - 1 );
+
+		ArrayData bump = null;
+		if ( HasFileElement( sArrayDataName, ref bump ) )
+		{
+			Debug.LogError( "SectionMap::ArrayData_Create:" + sFilePath + ":[" + iLine + "]: ArrayData \"" + sArrayDataName + "\" already exists!" );
+			return false;
+		}
+
+		m_ReadingPhase = eREADING_PHASES.READING_ARRAYDATA;
+
+		string context = System.IO.Path.GetFileNameWithoutExtension( sFilePath );
+		m_CurrentArrayData = new ArrayData( sArrayDataName, context: context );
+
+		// Get the name of mother , if present
+		int iIndex = sLine.IndexOf( ":", ArrayDataNameCloseChar );
+		if ( iIndex > 0 )
+		{
+			string[] mothers = sLine.Substring( iIndex + 1 ).Split( ',' );
+			if ( mothers.Length == 0 )
+			{
+				Debug.LogError( "SectionMap::ArrayData_Create:" + sFilePath + ":[" + iLine + "]: ArrayData Mothers bad definition!" );
+				return false;
+			}
+
+			foreach ( string motherName in mothers )
+			{
+				ArrayData mother = null;
+				if ( bGetArrayData( motherName, ref mother ) )
+				{
+					m_CurrentArrayData += mother;
+				} else
+				{
+					Debug.LogError( "SectionMap::ArrayData_Create:" + sFilePath + ":[" + iLine + "]: ArrayData requested for inheritance \"" + motherName + "\" doesn't exist!" );
+				}
+			}
+		}
+			
+		return true;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ArrayData_Add
+	// INSERT VALUE INSIDE THE ACTUAL PARSING ARRAY DATA LIST
+	private	bool	ArrayData_Add( string sLine, string sFilePath, int iLine )
+	{
+		cLineValue pLineValue = new cLineValue( sFilePath + "_"+ iLine , sLine );
+		if ( pLineValue.IsOK == false )
+		{
+			Debug.LogError( " SectionMap::ArrayData_Add: LineValue invalid at line |" + iLine + "| in Section |" + m_CurrentArrayData.GetName() + "| in file |" + sFilePath + "|" );
+			return false;
+		}
+		m_CurrentArrayData.Add( pLineValue );
+		return true;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Section_Close
+	// DEFINITELY SAVE THE PARSING SECTION
+	private void ArrayData_Close()
+	{
+		if ( m_CurrentArrayData != null )
+			m_ArrayDataMap.Add( m_CurrentArrayData.GetName(), m_CurrentArrayData );
+
+		m_CurrentArrayData = null;
+		m_ReadingPhase = eREADING_PHASES.NONE;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	private static	char[]	EscapeCharToRemove = new char[] { '\n','\b','\t','\r' };
 
@@ -161,6 +253,12 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 			/// Able to include file in same dir of root file
 			if ( ( sLine[ 0 ] == '#' ) && sLine.Contains( "#include" ) )
 			{
+				if  ( m_ReadingPhase != eREADING_PHASES.NONE )
+				{
+					Debug.LogError( " SectionMap::LoadFile:trying to load another file while " + m_ReadingPhase + " at line |" + iLine + "| in file |" + sFilePath + "| " );
+					return false;
+				}
+
 				string sPath = System.IO.Path.GetDirectoryName( sFilePath );
 				string sFileName = sLine.Trim().Substring( "#include".Length + 1 ).TrimInside();
 				string sSubPath = System.IO.Path.GetDirectoryName( sFileName );
@@ -172,7 +270,7 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 			}
 
 			// SECTION CREATION
-			if ( ( sLine[ 0 ] == '[' ) )
+			if ( sLine[ 0 ] == '[' )
 			{	
 				if ( sLine.IndexOf( ']' ) == -1 )
 				{
@@ -188,23 +286,52 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 				continue;
 			}
 
-			// INSERTION
-			KeyValue pKeyValue = Utils.String.GetKeyValue( sLine );
-			if ( pKeyValue.IsOK )
+			// ARRAY DATA LIST
+			if ( sLine[ 0 ] == '\'' )
 			{
-				if ( m_CurrentSection == null )
+				if ( sLine.IndexOf( '\'', 1 ) == -1 )
 				{
-					Debug.LogError( " SectionMap::LoadFile:No section created to insert KeyValue at line |" + iLine + "| in file |" + sFilePath + "| " );
+					Debug.LogError( " SectionMap::LoadFile:Invalid ArrayData definition at line |" + iLine + "| in file |" + sFilePath + "| " );
 					return false;
 				}
 
-				if ( m_ReadingPhase != READING_SECTION )
+				// Create a new arrayData
+				if ( ArrayData_Create( sLine.TrimInside(), sFilePath, iLine ) == false )
 				{
-					Debug.LogError( " SectionMap::LoadFile:Trying to insert a KeyValue into a non section type FileElement, line \"" + sLine + "\" of file " + sFilePath + "!" );
+					return false;
+				}
+				continue;
+			}
+
+			if ( m_ReadingPhase == eREADING_PHASES.READING_SECTION )
+			{
+				// INSERTION
+				KeyValue pKeyValue = Utils.String.GetKeyValue( sLine );
+				if ( pKeyValue.IsOK )
+				{
+					if ( m_CurrentSection == null )
+					{
+						Debug.LogError( " SectionMap::LoadFile:No section created to insert KeyValue at line |" + iLine + "| in file |" + sFilePath + "| " );
+						return false;
+					}
+
+					if ( m_ReadingPhase != eREADING_PHASES.READING_SECTION )
+					{
+						Debug.LogError( " SectionMap::LoadFile:Trying to insert a KeyValue into a non section type FileElement, line \"" + sLine + "\" of file " + sFilePath + "!" );
+						continue;
+					}
+
+					if ( Section_Add( pKeyValue, sFilePath, iLine ) == false )
+					{
+						return false;
+					}
 					continue;
 				}
+			}
 
-				if ( Section_Add( pKeyValue, sFilePath, iLine ) == false )
+			if ( m_ReadingPhase == eREADING_PHASES.READING_ARRAYDATA )
+			{
+				if ( ArrayData_Add( sLine, sFilePath, iLine ) == false )
 				{
 					return false;
 				}
@@ -217,6 +344,7 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 		}
 
 		Section_Close();
+		ArrayData_Close();
 		m_FilePaths.Add( sFilePath );
 		IsOK = true;
 		return true;
@@ -238,9 +366,17 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 	//////////////////////////////////////////////////////////////////////////
 	// HasFileElement
 	// CHECK AND RETURN IN CASE IF SECTION ALREADY EXISTS
-	public bool HasFileElement( string SecName, ref Section pSec )
+	public bool HasFileElement( string identifier, ref Section result )
 	{
-		return m_SectionMap.TryGetValue( SecName, out pSec );
+		return m_SectionMap.TryGetValue( identifier, out result );
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// HasFileElement
+	// CHECK AND RETURN IN CASE IF SECTION ALREADY EXISTS
+	public bool HasFileElement( string identifier, ref ArrayData result )
+	{
+		return m_ArrayDataMap.TryGetValue( identifier, out result );
 	}
 
 
@@ -271,10 +407,10 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 
 	//////////////////////////////////////////////////////////////////////////
 	// bGetSection
-	public	bool	bGetSection<T>( string SectionName, T outer ) where T : class
+	public	bool	bGetSection<T>( string identifier, T outer ) where T : class
 	{
 		Section section = null;
-		bool bHadGoodResult = bGetSection( SectionName, ref section );
+		bool bHadGoodResult = bGetSection( identifier, ref section );
 		if ( bHadGoodResult )
 		{
 			Type classType = typeof(T);
@@ -347,6 +483,16 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	// bGetArrayData
+	/// <summary> Retrieve an array data, return true if section exists otherwise false </summary>
+	public bool bGetArrayData( string identifier, ref ArrayData result )
+	{
+		return m_ArrayDataMap.TryGetValue( identifier, out result );
+	}
+
+
+
+	//////////////////////////////////////////////////////////////////////////
 	// GetSectionsByContext
 	/// <summary> Return an array of sections that shares a context in this instance of sectionMap </summary>
 	public	Section[]	GetSectionsByContext( string context )
@@ -361,13 +507,13 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 		return results.ToArray();
 	}
 
-
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	// PrintMap
 	// PRINT IN A READABLE FORMAT THE MAP SECTION
 	public	void	PrintMap()
 	{
-		foreach( Section section in this )
+		foreach( Section section in m_SectionMap )
 		{
 			Debug.Log( "Section: " + section.GetName() );
 
@@ -395,8 +541,8 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 			Debug.Log( "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||" );
 		}
 	}
-
-
+	*/
+	/*
 	public	void	SaveToBuffer( ref string buffer )
 	{
 		string internalBuffer = "";
@@ -408,7 +554,7 @@ public class SectionMap : IEnumerable/*Foreach feature*/ {
 
 		System.IO.File.WriteAllText( "AllSections.ini", internalBuffer );
 	}
-
+	*/
 
 	public	void	SaveContextSections( string Context )
 	{

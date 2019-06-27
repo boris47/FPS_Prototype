@@ -1,4 +1,18 @@
-[BuildSettings]
 
-FolderName=Build;
-ExecutableFilename=TestBuild;
+[Development]
+FolderName=Development;
+ExecutableFilename=Development;
+
+[Release]
+FolderName=Release;
+ExecutableFilename=Release;
+
+
+;IMPORTANT: MIND THE ORDER
+'ScenesToBuild'
+	Assets/Scenes/Intro.unity
+	Assets/Scenes/MainMenu.unity
+	Assets/Scenes/OpenWorld.unity
+	Assets/Scenes/OpenWorld2.unity
+	Assets/Scenes/OpenWorld3.unity
+
