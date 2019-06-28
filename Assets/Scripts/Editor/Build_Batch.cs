@@ -27,7 +27,8 @@ public class Build_Batch
 		string[] scenesToBuild = null;
 
 		// Search for build settings in corresponding section
-		GetBuildInfo( buildSettingsSectionName, ref folderName, ref executableFilename, ref scenesToBuild );
+		if ( GetBuildInfo( buildSettingsSectionName, ref folderName, ref executableFilename, ref scenesToBuild ) == false )
+			return;
 
 		// Build Options
 		const BuildOptions			buildOptions	= BuildOptions.ForceEnableAssertions;
@@ -53,7 +54,8 @@ public class Build_Batch
 		string[] scenesToBuild = null;
 
 		// Search for build settings in corresponding section
-		GetBuildInfo( buildSettingsSectionName, ref folderName, ref executableFilename, ref scenesToBuild );
+		if ( GetBuildInfo( buildSettingsSectionName, ref folderName, ref executableFilename, ref scenesToBuild ) == false )
+			return;
 
 		// Build Options
 		const BuildOptions			buildOptions	= BuildOptions.Il2CPP | BuildOptions.StrictMode;
@@ -192,7 +194,7 @@ public class Build_Batch
 
 	///////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////////
-	private		static		void		GetBuildInfo( string buildSettingsSectionName, ref string folderName, ref string executableFilename, ref string[] scenesToBuild )
+	private		static		bool		GetBuildInfo( string buildSettingsSectionName, ref string folderName, ref string executableFilename, ref string[] scenesToBuild )
 	{
 		// Search for build settings in corresponding section
 		SectionMap buildSettings = new SectionMap();
@@ -203,21 +205,14 @@ public class Build_Batch
 			{
 				UnityEngine.Debug.LogError( "Cannot load build settings section for " + buildSettingsSectionName );
 				buildSettings = null;
-				return;
+				return false;
 			}
 
 			folderName			= buildSettingsSection.AsString( "FolderName", folderName );
 			executableFilename	= buildSettingsSection.AsString( "ExecutableFilename", executableFilename );
 
-			Database.ArrayData sceneToBuildArrayData = null;
-			if ( buildSettings.bGetArrayData( "ScenesToBuild", ref sceneToBuildArrayData ) == false )
-			{
-				UnityEngine.Debug.LogError( "Cannot load scene list to build from " + buildSettingsSectionName );
-				buildSettings = null;
-				return;
-			}
-
-			sceneToBuildArrayData.bGetMultiAsArray( ref scenesToBuild );
+			return buildSettingsSection.bGetMultiAsArray( "ScenesToBuild", ref scenesToBuild );
 		}
+		return false;
 	}
 }

@@ -30,10 +30,9 @@ namespace Database {
 			return m_ValuesList.GetEnumerator();
 		}
 
-
-		public cMultiValue( cValue[] vValues )
+		public cMultiValue( cValue[] vValues = null, int capacity = 1 )
 		{
-			m_ValuesList = new List<cValue>( vValues );
+			m_ValuesList = vValues == null ? new List<cValue>(capacity) : new List<cValue>( vValues );
 		}
 
 

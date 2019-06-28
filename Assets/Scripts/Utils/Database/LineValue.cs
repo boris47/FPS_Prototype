@@ -133,7 +133,7 @@ namespace Database {
 		
 
 		/////////////////////////////////////////////////////////////////////////////////
-		public 	cLineValue Set( ref cValue _Value )
+		public 	cLineValue Set( cValue _Value )
 		{
 			pValue		= _Value;
 			pMultiValue = null;
@@ -143,7 +143,7 @@ namespace Database {
 
 
 		/////////////////////////////////////////////////////////////////////////////////
-		public 	cLineValue Set( ref cMultiValue _MultiValue )
+		public 	cLineValue Set( cMultiValue _MultiValue )
 		{
 			pMultiValue	= _MultiValue;
 			pValue		= null;

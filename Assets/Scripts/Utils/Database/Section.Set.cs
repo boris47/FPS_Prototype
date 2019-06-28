@@ -19,7 +19,7 @@ namespace Database {
 				pLineValue = new cLineValue( Key, ( byte ) LineValueType.SINGLE );
 
 			pLineValue.Clear();
-			pLineValue.Set( ref Value );
+			pLineValue.Set( Value );
 			m_Sections.Add( pLineValue );
 		}
 
@@ -36,7 +36,7 @@ namespace Database {
 
 			pLineValue.Clear();
 			cMultiValue multivalue = new cMultiValue( vValues );
-			pLineValue.Set( ref multivalue );
+			pLineValue.Set( multivalue );
 			m_Sections.Add( pLineValue );
 		}
 
@@ -62,7 +62,7 @@ namespace Database {
 			pLineValue.Clear();
 			cValue[] vValues = new cValue[2] { new cValue( Vec.x ), new cValue( Vec.y ) };
 			cMultiValue multivalue = new cMultiValue( vValues );
-			pLineValue.Set( ref multivalue );
+			pLineValue.Set( multivalue );
 			m_Sections.Add( pLineValue );
 		}
 
@@ -80,7 +80,7 @@ namespace Database {
 			pLineValue.Clear();
 			cValue[] vValues = new cValue[] { new cValue( Vec.x ), new cValue( Vec.y ), new cValue( Vec.z ) };
 			cMultiValue multivalue = new cMultiValue( vValues );
-			pLineValue.Set( ref multivalue );
+			pLineValue.Set( multivalue );
 			m_Sections.Add( pLineValue );
 		}
 
@@ -98,7 +98,7 @@ namespace Database {
 			pLineValue.Clear();
 			cValue[] vValues = new cValue[] { new cValue( Vec.x ), new cValue( Vec.y ), new cValue( Vec.z ), new cValue( Vec.w ) };
 			cMultiValue multivalue = new cMultiValue( vValues );
-			pLineValue.Set( ref multivalue );
+			pLineValue.Set( multivalue );
 			m_Sections.Add( pLineValue );
 		}
 
@@ -116,7 +116,7 @@ namespace Database {
 			pLineValue.Clear();
 			cValue[] vValues = new cValue[] { new cValue( color.r ), new cValue( color.g ), new cValue( color.b ), new cValue( color.a ) };
 			cMultiValue multivalue = new cMultiValue( vValues );
-			pLineValue.Set( ref multivalue );
+			pLineValue.Set( multivalue );
 			m_Sections.Add( pLineValue );
 		}
 

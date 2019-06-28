@@ -78,12 +78,12 @@ namespace Utils {
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary>
-		/// Return true for non empty string, that non contains at last one number or one letter
+		/// Return true for non empty string, that non contains at last one number or one letter or a block closing char
 		/// </summary>
 		public	static		bool IsValid( ref string str )
 		{
 			CleanComments( ref str );
-			return ( ( str.Length > 0 )  && ( ( ContainsLetter( str ) == true || ContainsDigit( str ) == true ) ) );
+			return ( ( str.Length > 0 )  && ( ( ContainsLetter( str ) == true || ContainsDigit( str ) == true ) || str == "}" ) );
 		}
 
 

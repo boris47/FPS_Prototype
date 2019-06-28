@@ -13,9 +13,10 @@ public class SectionMap {
 
 	// READING PHASES
 	private enum eREADING_PHASES {
-		NONE				= 0,
-		READING_SECTION		= 1,
-		READING_ARRAYDATA	= 2
+		NONE					= 0,
+		READING_SECTION			= 1,
+		READING_SECTION_LIST	= 2,
+		READING_ARRAYDATA		= 3
 	}
 
 
@@ -28,6 +29,8 @@ public class SectionMap {
 	private	eREADING_PHASES						m_ReadingPhase		= eREADING_PHASES.NONE;
 	private	Section								m_CurrentSection	= null;
 	private	ArrayData							m_CurrentArrayData	= null;
+	private	cLineValue							m_CurrentLineValue	= null;
+	private	cMultiValue							m_CurrentMultiValue	= null;
 
 	public	bool								IsOK
 	{
@@ -269,7 +272,7 @@ public class SectionMap {
 				continue;
 			}
 
-			// SECTION CREATION
+			// NEW SECTION CREATION
 			if ( sLine[ 0 ] == '[' )
 			{	
 				if ( sLine.IndexOf( ']' ) == -1 )
@@ -286,7 +289,7 @@ public class SectionMap {
 				continue;
 			}
 
-			// ARRAY DATA LIST
+			// NEW ARRAY DATA LIST
 			if ( sLine[ 0 ] == '\'' )
 			{
 				if ( sLine.IndexOf( '\'', 1 ) == -1 )
@@ -303,9 +306,10 @@ public class SectionMap {
 				continue;
 			}
 
+			// READING SECTION
 			if ( m_ReadingPhase == eREADING_PHASES.READING_SECTION )
 			{
-				// INSERTION
+				// KEY = VALUE
 				KeyValue pKeyValue = Utils.String.GetKeyValue( sLine );
 				if ( pKeyValue.IsOK )
 				{
@@ -315,9 +319,12 @@ public class SectionMap {
 						return false;
 					}
 
-					if ( m_ReadingPhase != eREADING_PHASES.READING_SECTION )
+					// SECTION LIST
+					if ( pKeyValue.Value == "{" )
 					{
-						Debug.LogError( " SectionMap::LoadFile:Trying to insert a KeyValue into a non section type FileElement, line \"" + sLine + "\" of file " + sFilePath + "!" );
+						m_ReadingPhase = eREADING_PHASES.READING_SECTION_LIST;
+						m_CurrentLineValue = new cLineValue( pKeyValue.Key, LineValueType.MULTI );
+						m_CurrentMultiValue = new cMultiValue( null );
 						continue;
 					}
 
@@ -329,6 +336,23 @@ public class SectionMap {
 				}
 			}
 
+			// READING SECTION LIST
+			if ( m_ReadingPhase == eREADING_PHASES.READING_SECTION_LIST )
+			{
+				string trimmedLine = sLine.Trim( new char[] { ',', '.', ' ' } );
+				if ( trimmedLine == "}" )
+				{
+					m_CurrentLineValue.Set( m_CurrentMultiValue );
+					m_CurrentSection.Add( m_CurrentLineValue );
+					m_ReadingPhase = eREADING_PHASES.READING_SECTION;
+					continue;
+				}
+
+				m_CurrentMultiValue.Add( trimmedLine );
+				continue;
+			}
+
+			// READING ARRAY DATA LIST
 			if ( m_ReadingPhase == eREADING_PHASES.READING_ARRAYDATA )
 			{
 				if ( ArrayData_Add( sLine, sFilePath, iLine ) == false )

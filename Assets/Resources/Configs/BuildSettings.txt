@@ -3,16 +3,33 @@
 FolderName=Development;
 ExecutableFilename=Development;
 
+ScenesToBuild = { ;IMPORTANT: MIND THE ORDER
+	Assets/Scenes/Intro.unity,
+	Assets/Scenes/MainMenu.unity,
+	Assets/Scenes/OpenWorld.unity,
+	Assets/Scenes/OpenWorld2.unity,
+	Assets/Scenes/OpenWorld3.unity
+}
+
+
 [Release]
 FolderName=Release;
 ExecutableFilename=Release;
 
-
-;IMPORTANT: MIND THE ORDER
-'ScenesToBuild'
-	Assets/Scenes/Intro.unity
-	Assets/Scenes/MainMenu.unity
-	Assets/Scenes/OpenWorld.unity
-	Assets/Scenes/OpenWorld2.unity
+ScenesToBuild = { ;IMPORTANT: MIND THE ORDER
+	Assets/Scenes/Intro.unity,
+	Assets/Scenes/MainMenu.unity,
+	Assets/Scenes/OpenWorld.unity,
+	Assets/Scenes/OpenWorld2.unity,
 	Assets/Scenes/OpenWorld3.unity
+}
 
+
+'RickGuardaQuestaDataArrayList'
+    Assets/Scenes/Intro.unity
+    Assets/Scenes/MainMenu.unity
+    Assets/Scenes/OpenWorld.unity
+    Assets/Scenes/OpenWorld2.unity
+	
+[aNewSection]
+Saluto=Ciao
