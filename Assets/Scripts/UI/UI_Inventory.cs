@@ -213,7 +213,7 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private void	OnSwitchToWeaponCustomizationOnSwitchToWeaponCustomization()
+	private void	OnSwitchToWeaponCustomization()
 	{
 		UIManager.Instance.GoToMenu( UIManager.WeaponCustomization );
 		GameManager.Instance.RequireFrameSkip();
