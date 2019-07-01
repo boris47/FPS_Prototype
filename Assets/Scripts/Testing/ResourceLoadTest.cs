@@ -6,7 +6,7 @@ using WeatherSystem;
 public class ResourceLoadTest : MonoBehaviour {
 
 	[SerializeField]
-	ResourceManager.LoadData<Weathers> weathers = new ResourceManager.LoadData<Weathers>();
+	ResourceManager.loadedResource<Weathers> weathers = new ResourceManager.loadedResource<Weathers>();
 
 	private IEnumerator Start()
 	{

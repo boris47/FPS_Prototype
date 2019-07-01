@@ -42,12 +42,14 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 			}
 			
 			// UI Command Row Prefab
-			ResourceManager.LoadData<GameObject> loadData = new ResourceManager.LoadData<GameObject>();
-			yield return ResourceManager.LoadResourceAsyncCoroutine( "Prefabs/UI/UI_CommandRow", loadData, null );
-
-			m_bIsInitialized &= loadData.Asset != null;
-
-			m_UI_CommandRow = loadData.Asset;
+			ResourceManager.LoadedData<GameObject> loadedResource = new ResourceManager.LoadedData<GameObject>();
+			yield return ResourceManager.LoadResourceAsyncCoroutine
+			(
+				ResourcePath:			"Prefabs/UI/UI_CommandRow",
+				loadedData:				loadedResource,
+				OnResourceLoaded:		(a) => { m_bIsInitialized &= true; m_UI_CommandRow = a; },
+				OnFailure:				(p) => m_bIsInitialized &= false
+			);
 
 			// Scroll content conmponent
 			m_bIsInitialized &= transform.SearchComponent( ref m_ScrollContentTransform, SearchContext.CHILDREN, c => c.HasComponent<VerticalLayoutGroup>() );

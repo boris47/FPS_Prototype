@@ -58,7 +58,7 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 		// Image frame
 		if ( FramePath.IsNotNull() )
 		{
-			ResourceManager.LoadData<GameObject> imageData = new ResourceManager.LoadData<GameObject>();
+			ResourceManager.LoadedData<GameObject> imageData = new ResourceManager.LoadedData<GameObject>();
 			System.Action<GameObject> onLoadSuccess = delegate( GameObject t )
 			{
 				if ( t && t.transform.HasComponent<Image>() )
@@ -77,7 +77,7 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 			bool bHasSpot = transform.SearchChildWithName( "OpticSpot", ref opticSpot );
 			if ( bHasSpot )
 			{
-				ResourceManager.LoadData<GameObject> ScopeObject = new ResourceManager.LoadData<GameObject>();
+				ResourceManager.LoadedData<GameObject> ScopeObject = new ResourceManager.LoadedData<GameObject>();
 				System.Action<GameObject> onLoadSuccess = delegate( GameObject t )
 				{
 					if ( t.transform.HasComponent<Scope>() )

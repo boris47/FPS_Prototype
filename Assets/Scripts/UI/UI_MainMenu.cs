@@ -143,14 +143,14 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 		{
 			PlayerPrefs.DeleteKey( "SaveSceneIdx" );
 
-			CustomSceneManager.LoadSceneData loadData = new CustomSceneManager.LoadSceneData()
+			CustomSceneManager.LoadSceneData loadedResource = new CustomSceneManager.LoadSceneData()
 			{
 				iSceneIdx			= 2,
 				sSaveToLoad			= "",
 				bMustLoadSave		= false,
 				pOnLoadCompleted	= delegate { UIManager.Instance.GoToMenu( UIManager.Instance.InGame.transform ); }
 			};
-			CustomSceneManager.LoadSceneAsync( loadData );
+			CustomSceneManager.LoadSceneAsync( loadedResource );
 		};
 
 		if ( PlayerPrefs.HasKey( "SaveSceneIdx" ) )
@@ -177,27 +177,18 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 
 		if ( bHasSavedSceneIndex && bHasSaveFilePath && bSaveFileExists )
 		{
-			CustomSceneManager.LoadSceneData loadData = new CustomSceneManager.LoadSceneData()
+			CustomSceneManager.LoadSceneData loadedResource = new CustomSceneManager.LoadSceneData()
 			{
 				iSceneIdx			= saveSceneIdx,
 				sSaveToLoad			= saveFilePath,
 				bMustLoadSave		= true,
 				pOnLoadCompleted	= delegate { UIManager.Instance.GoToMenu( UIManager.Instance.InGame.transform ); }
 			};
-			CustomSceneManager.LoadSceneAsync( loadData );
+			CustomSceneManager.LoadSceneAsync( loadedResource );
 		}
 		else
 		{
 			Debug.LogError( "Cannot load last save" );
 		}
 	}
-
-	/*
-	//////////////////////////////////////////////////////////////////////////
-	// OnLevelWasLoaded
-	private void OnLevelWasLoaded( int level )
-	{
-		UI.Instance.EffectFrame.color = Color.clear;
-	}
-	*/
 }

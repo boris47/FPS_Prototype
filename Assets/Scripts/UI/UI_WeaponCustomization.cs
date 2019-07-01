@@ -90,6 +90,8 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 		InputManager.IsEnabled					= false;
 
 		GlobalManager.SetCursorVisibility( true );
+
+		WeaponManager.Instance.CurrentWeapon.Stash();
 	}
 
 
@@ -180,6 +182,8 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 		InputManager.IsEnabled					= true;
 
 		GlobalManager.SetCursorVisibility( false );
+
+		WeaponManager.Instance.CurrentWeapon.Draw();
 	}
 
 }

@@ -55,23 +55,36 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 			yield break;
 
 		// Sprites for TargetToKill, LocationToReach or ObjectToInteractWith
-		ResourceManager.LoadData<SpriteCollection> indicatorsSpritesCollection = new ResourceManager.LoadData<SpriteCollection>();
+		ResourceManager.LoadedData<SpriteCollection> indicatorsSpritesCollection = new ResourceManager.LoadedData<SpriteCollection>();
 
 		// A prefab where the sprites will be set
-		ResourceManager.LoadData<GameObject> indicatorPrefab = new ResourceManager.LoadData<GameObject>();
+		ResourceManager.LoadedData<GameObject> indicatorPrefab = new ResourceManager.LoadedData<GameObject>();
 		
-		yield return ResourceManager.LoadResourceAsyncCoroutine( "Scriptables/UI_Indicators", indicatorsSpritesCollection, null );
-		yield return ResourceManager.LoadResourceAsyncCoroutine( "Prefabs/UI/Task_Objective", indicatorPrefab, null );
+		bool resourcesLoaded = true;
 
-		bool resourcesLoaded = indicatorsSpritesCollection.Asset != null && indicatorPrefab.Asset != null;
+		yield return ResourceManager.LoadResourceAsyncCoroutine
+		(
+			ResourcePath:			"Scriptables/UI_Indicators",
+			loadedData:				indicatorsSpritesCollection,
+			OnResourceLoaded :		(a) => { resourcesLoaded &= true; m_SpriteCollection = a; },
+			OnFailure:				(p) => resourcesLoaded &= false
+		);
+
+		GameObject model = null;
+		yield return ResourceManager.LoadResourceAsyncCoroutine
+		(
+			ResourcePath:			"Prefabs/UI/Task_Objective",
+			loadedData:				indicatorPrefab,
+			OnResourceLoaded :		(a) => { resourcesLoaded &= true; model = a; },
+			OnFailure:				(p) => resourcesLoaded &= false
+		);
+
 		if ( resourcesLoaded )
 		{
-			m_SpriteCollection	= indicatorsSpritesCollection.Asset;
-
 			// Pool Creation
 			GameObjectsPoolConstructorData<Transform> data = new GameObjectsPoolConstructorData<Transform>()
 			{
-				Model			= indicatorPrefab.Asset,
+				Model			= model,
 				Size			= MAX_ELEMENTS,
 				ContainerName	= "UI_IndicatorsPool",
 //				Parent			= transform,
@@ -346,7 +359,6 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 			// y = mx + b format
 			float m = cos / sin;
-
 
 			const float rectBorderFactor = 0.75f;
 			Vector2 minimapBounds = minimapRectTransform.rect.size * rectBorderFactor;

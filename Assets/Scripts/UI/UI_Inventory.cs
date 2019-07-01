@@ -59,10 +59,10 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 			m_bIsInitialized &= m_InventorySlots.SearchComponent( ref m_GridLayoutGroup, SearchContext.LOCAL );
 			
 			// LOAD PREFAB
-			ResourceManager.LoadData<GameObject> loadData = new ResourceManager.LoadData<GameObject>();
-			yield return ResourceManager.LoadResourceAsyncCoroutine( "Prefabs/UI/UI_InventorySlot", loadData, null );
+			ResourceManager.LoadedData<GameObject> loadedResource = new ResourceManager.LoadedData<GameObject>();
+			yield return ResourceManager.LoadResourceAsyncCoroutine( "Prefabs/UI/UI_InventorySlot", loadedResource, null );
 
-			if ( m_bIsInitialized &= loadData.Asset != null )
+			if ( m_bIsInitialized &= loadedResource.Asset != null )
 			{
 				m_UI_MatrixSlots = new UI_InventorySlot[ m_InventorySectionData.CellCountHorizontal, m_InventorySectionData.CellCountVertical ];
 
@@ -82,13 +82,21 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 					top: halfVerticalPadding,		bottom: halfVerticalPadding 
 				);
 				m_GridLayoutGroup.padding			= padding;
-				m_GridLayoutGroup.cellSize			= new Vector2( m_InventorySectionData.CellSizeX, m_InventorySectionData.CellSizeY ) * scaleFactor;
+
+			//	m_GridLayoutGroup.cellSize			= new Vector2( m_InventorySectionData.CellSizeX, m_InventorySectionData.CellSizeY ) * scaleFactor;
+				m_GridLayoutGroup.cellSize = new Vector2
+				(
+					( m_InventorySlots.rect.width - m_GridLayoutGroup.spacing.x )/ m_InventorySectionData.CellCountVertical, 
+					( m_InventorySlots.rect.height - m_GridLayoutGroup.spacing.y ) / m_InventorySectionData.CellCountHorizontal
+				);
 				m_GridLayoutGroup.spacing			= new Vector2( m_InventorySectionData.HSpaceBetweenSlots, m_InventorySectionData.VSpaceBetweenSlots ) * scaleFactor / ratio;
 				m_GridLayoutGroup.childAlignment	= TextAnchor.MiddleCenter;
 				m_GridLayoutGroup.constraint		= GridLayoutGroup.Constraint.FixedColumnCount;
 				m_GridLayoutGroup.constraintCount	= m_InventorySectionData.CellCountHorizontal;
 
-				GameObject inventorySlotPrefab = loadData.Asset;
+				UI_Graphics.OnResolutionChanged += OnResolutionChange;
+
+				GameObject inventorySlotPrefab = loadedResource.Asset;
 				
 				for ( int i = 0; i < m_InventorySectionData.CellCountVertical; i++ )
 				{
@@ -198,4 +206,15 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 		GlobalManager.SetCursorVisibility( false );
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	private void OnResolutionChange( float newWidth, float newHeight )
+	{
+		m_GridLayoutGroup.cellSize = new Vector2
+		(
+			( m_InventorySlots.rect.width - m_GridLayoutGroup.spacing.x )/ m_InventorySectionData.CellCountVertical, 
+			( m_InventorySlots.rect.height - m_GridLayoutGroup.spacing.y ) / m_InventorySectionData.CellCountHorizontal
+		);
+	}
+	
 }

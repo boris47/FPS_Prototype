@@ -93,12 +93,25 @@ public class GlobalManager : MonoBehaviour {
 		SoundManager.Instance.Pitch = Time.timeScale = value;
 	}
 
+//	float maximum = 1;
 	private void Update()
 	{
+		/*
 		if ( Input.GetKeyDown( KeyCode.V ) )
 		{
-			new GameObjectsPool<Transform>( new GameObjectsPoolConstructorData<Transform>() );
+			System.Diagnostics.Stopwatch m_StopWatch = new System.Diagnostics.Stopwatch();
+			m_StopWatch.Start();
+			for ( int i = 0; i < maximum; i++ )
+			{
+				SectionMap sectionMap = new SectionMap();
+				sectionMap.LoadFile( configsPath ); 
+			}
+			m_StopWatch.Stop();
+
+			print( "Performance test: operaztions done in " + m_StopWatch.Elapsed.Milliseconds + "ms, maximium iterations " + maximum );
+			maximum *= 2f;
 		}
+		*/
 	}
 
 
@@ -109,7 +122,6 @@ public class GlobalManager : MonoBehaviour {
 		UnityEditor.EditorApplication.isPlaying = false;
 #else
 		Application.Quit();
-		Debug.Log("Merda");
 #endif
 	}
 

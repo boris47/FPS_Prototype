@@ -16,6 +16,14 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 
 	// Resolution
 	private	Resolution[]			m_AvailableResolutions	= null;
+	public	delegate	void	OnResolutionChangedDelegate( float newWidth, float newHeight );
+
+	private static	event	OnResolutionChangedDelegate	m_OnResolutionChanged = delegate { };
+	public static event OnResolutionChangedDelegate OnResolutionChanged
+	{
+		add		{ if ( value != null )	m_OnResolutionChanged += value; }
+		remove	{ if ( value != null )	m_OnResolutionChanged -= value; }
+	}
 
 	// Quality
 	private	string[]				m_QualityLevelNames		= null;
@@ -425,6 +433,7 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 				fullscreen:		m_ScreenData.bIsFullScreen
 			);
 
+			m_OnResolutionChanged( m_ScreenData.resolution.width, m_ScreenData.resolution.height );
 //			print( "Applying SCREEN settings" );
 		}
 

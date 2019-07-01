@@ -142,7 +142,7 @@ namespace WeatherSystem {
 			{
 				m_ShowDebugInfo = debugInfosSection.AsBool( "WeatherManager", false);
 				if ( m_ShowDebugInfo )
-					Debug.Log( "WeatherManager: Log Enabled" );
+					Debug.Log( "WeatherManager::Awake: : Log Enabled" );
 			}
 			
 #if UNITY_EDITOR
@@ -161,11 +161,11 @@ namespace WeatherSystem {
 
 
 		/////////////////////////////////////////////////////////////////////////////
-		// OnLevelWasLoaded
+		// OnLevelLoaded
 		private void OnLevelLoaded( int level )
 		{
 			if ( m_ShowDebugInfo )
-				Debug.Log( "WeatherManager: On Level " + level + " loaded" );
+				Debug.Log( "WeatherManager::OnLevelLoaded: : On Level " + level + " loaded" );
 
 			// Load Sky Material
 			m_SkyMaterial = Resources.Load<Material>( SKYMIXER_MATERIAL );
@@ -191,7 +191,7 @@ namespace WeatherSystem {
 			m_SkyMaterial = Resources.Load<Material>( SKYMIXER_MATERIAL );
 
 			if ( m_ShowDebugInfo )
-				Debug.Log( "WeatherManager: Loaded Material " + SKYMIXER_MATERIAL + ": " + ( ( m_SkyMaterial != null ) ? "done":"failed" ) );
+				Debug.Log( "WeatherManager::OnEnabled: Loaded Material " + SKYMIXER_MATERIAL + ": " + ( ( m_SkyMaterial != null ) ? "done":"failed" ) );
 
 			OnEnable_Cycles();
 			OnEnable_Editor();
@@ -278,7 +278,7 @@ namespace WeatherSystem {
 		private void			OnDestroy()
 		{
 			if ( m_ShowDebugInfo )
-				Debug.Log( "WeatherManager: Disabled" );
+				Debug.Log( "WeatherManager::OnEnabled: OnDestroy" );
 		}
 
 

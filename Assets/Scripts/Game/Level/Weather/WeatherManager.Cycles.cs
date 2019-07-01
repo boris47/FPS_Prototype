@@ -154,8 +154,8 @@ namespace WeatherSystem {
 			{
 				m_AreResLoaded_Cylces	= false;
 
-				ResourceManager.LoadData<Weathers> cycles = new ResourceManager.LoadData<Weathers>();
-				System.Action<Weathers> onLoaded = delegate( Weathers weathers )
+				ResourceManager.LoadedData<Weathers> loadedWeathers = new ResourceManager.LoadedData<Weathers>();
+				System.Action<Weathers> onResourceLoaded = delegate( Weathers weathers )
 				{
 					m_Cycles = weathers;
 					m_AreResLoaded_Cylces = true;
@@ -163,8 +163,8 @@ namespace WeatherSystem {
 				yield return ResourceManager.LoadResourceAsyncCoroutine
 				(
 					ResourcePath: WEATHERS_COLLECTION,
-					loadData: cycles,
-				 	OnResourceLoaded: onLoaded
+					loadedData: loadedWeathers,
+				 	OnResourceLoaded: onResourceLoaded
 				);
 			}
 

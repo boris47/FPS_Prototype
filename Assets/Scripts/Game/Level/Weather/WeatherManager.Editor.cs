@@ -167,7 +167,7 @@ namespace WeatherSystem {
 		{
 			m_AreResLoaded_Cylces = false;
 
-			ResourceManager.LoadData<Weathers> weathersData = new ResourceManager.LoadData<Weathers>();
+			ResourceManager.LoadedData<Weathers> weathersData = new ResourceManager.LoadedData<Weathers>();
 			if ( ResourceManager.LoadResourceSync( WEATHERS_COLLECTION, weathersData ) )
 			{
 				m_Cycles = weathersData.Asset;

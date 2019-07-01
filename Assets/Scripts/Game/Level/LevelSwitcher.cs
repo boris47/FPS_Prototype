@@ -20,13 +20,13 @@ public class LevelSwitcher : MonoBehaviour {
 		if ( player == null )
 			return;
 
-		CustomSceneManager.LoadSceneData loadData = new CustomSceneManager.LoadSceneData()
+		CustomSceneManager.LoadSceneData loadedResource = new CustomSceneManager.LoadSceneData()
 		{
-			iSceneIdx = m_NextSceneIdx,
-			sSaveToLoad = "",
-			bMustLoadSave = false
+			iSceneIdx		= m_NextSceneIdx,
+			sSaveToLoad		= "",
+			bMustLoadSave	= false
 		};
-		CustomSceneManager.LoadSceneSync( loadData );
+		CustomSceneManager.LoadSceneSync( loadedResource );
 	}
 
 }

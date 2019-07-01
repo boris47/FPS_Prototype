@@ -137,22 +137,6 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 		m_IsActive = false;
 	}
 
-	/*
-	//////////////////////////////////////////////////////////////////////////
-	// OnLevelWasLoaded
-	private	void	OnLevelWasLoaded( int level )
-	{
-		if ( level == 0 ) // if returned at main menu using trigger ensure the switch to the main menu
-		{
-			UI.Instance.GoToMenu( UI.Instance.MainMenu.transform );
-			return;
-		}
-
-		// if level is greater than 0 we suppose being in a level where ingame UI must be shown
-		m_IsActive = true;
-	}
-	*/
-
 	//////////////////////////////////////////////////////////////////////////
 	// Show
 	public	void	Show()

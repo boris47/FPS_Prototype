@@ -48,12 +48,18 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 		{
 			m_bIsInitialized &= transform.SearchComponent( ref m_RawImage, SearchContext.CHILDREN );
 
-			ResourceManager.LoadData<RenderTexture> loadData = new ResourceManager.LoadData<RenderTexture>();
-			yield return ResourceManager.LoadResourceAsyncCoroutine( "Textures/MinimapRenderTexture", loadData, null );
+			ResourceManager.LoadedData<RenderTexture> loadedResource = new ResourceManager.LoadedData<RenderTexture>();
+			yield return ResourceManager.LoadResourceAsyncCoroutine
+			(
+				ResourcePath:			"Textures/MinimapRenderTexture",
+				loadedData:				loadedResource,
+				OnResourceLoaded :		(a) => { m_bIsInitialized &= true; m_MinimapRenderTexture = a; },
+				OnFailure:				(p) => m_bIsInitialized &= false
+			);
 
-			if ( m_bIsInitialized &= loadData.Asset != null )
+			if ( m_bIsInitialized )
 			{
-				m_MinimapRenderTexture = loadData.Asset;
+				m_MinimapRenderTexture = loadedResource.Asset;
 
 				if ( m_CameraContainer != null )
 				{
@@ -115,6 +121,7 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
 	// Ref: http://answers.unity.com/answers/1461171/view.html
 	public bool GetPositionOnUI( Vector3 worldPosition, out Vector2 WorldPosition2D )
 	{
