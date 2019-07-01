@@ -96,6 +96,7 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 		{
 			m_InputMgr	= new InputManager();
 			m_InputMgr.Setup();
+			Debug.Log( "UI_Bindings::OnEnable: Cannot fin input manager in global manager" );
 		}
 
 		FillGrid();
@@ -297,7 +298,7 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 					m_ApplyButton.interactable = true;
 				};
 
-				UIManager.Instance.Confirmation.Show( "Confirm key substitution?", OnConfirm: onConfirm, OnCancel: null );
+				UIManager.Confirmation.Show( "Confirm key substitution?", OnConfirm: onConfirm, OnCancel: null );
 			}
 		};
 
@@ -316,7 +317,7 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 			m_ApplyButton.interactable = false;
 		};
 
-		UIManager.Instance.Confirmation.Show( "Confirm bindings?", OnConfirm: onConfirm, OnCancel: null );
+		UIManager.Confirmation.Show( "Confirm bindings?", OnConfirm: onConfirm, OnCancel: null );
 	}
 
 
@@ -331,7 +332,7 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 			m_ApplyButton.interactable = false;
 		};
 
-		UIManager.Instance.Confirmation.Show( "Do you really want to reset bindings?", OnConfirm: onConfirm, OnCancel: null );
+		UIManager.Confirmation.Show( "Do you really want to reset bindings?", OnConfirm: onConfirm, OnCancel: null );
 	}
 
 

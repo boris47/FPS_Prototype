@@ -76,7 +76,7 @@ namespace QuestSystem {
 		// Activate ( IObjective )
 		protected		override	void		ActivateInternal()
 		{
-			UIManager.Instance.Indicators.EnableIndicator( m_ObjectToFollow, IndicatorType.OBJECT_TO_FOLLOW, bMustBeClamped: true );
+			UIManager.Indicators.EnableIndicator( m_ObjectToFollow, IndicatorType.OBJECT_TO_FOLLOW, bMustBeClamped: true );
 		}
 
 
@@ -84,7 +84,7 @@ namespace QuestSystem {
 		// Deactivate ( IObjective )
 		protected		override	void		DeactivateInternal()
 		{
-			UIManager.Instance.Indicators.DisableIndicator( m_ObjectToFollow );
+			UIManager.Indicators.DisableIndicator( m_ObjectToFollow );
 		}
 
 

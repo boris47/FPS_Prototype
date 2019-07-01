@@ -13,7 +13,13 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 
 	private		GridLayoutGroup		m_GridLayoutGroup		= null;
 
-	private	bool			m_bIsInitialized				= false;
+
+	private		Button				m_ReturnToGame			= null;
+	private		Button				m_SwitchToWeaponCustomization		= null;
+
+	private		bool				m_bIsInitialized		= false;
+
+
 	bool IStateDefiner.IsInitialized
 	{
 		get { return m_bIsInitialized; }
@@ -112,6 +118,24 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 					}
 				}
 			}
+
+			// SWITCH TO INVENTORY
+			if ( m_bIsInitialized &= transform.SearchComponentInChild( "SwitchToWeaponCustomization", ref m_SwitchToWeaponCustomization ) )
+			{
+				m_SwitchToWeaponCustomization.onClick.AddListener
+				(	
+					OnSwitchToWeaponCustomization
+				);
+			}
+
+			// RETURN TO GAME
+			if ( m_bIsInitialized &= transform.SearchComponentInChild( "ReturnToGame", ref m_ReturnToGame ) )
+			{
+				m_ReturnToGame.onClick.AddListener
+				(
+					OnReturnToGame
+				);
+			}
 		}
 
 		if ( m_bIsInitialized )
@@ -185,6 +209,23 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 		InputManager.IsEnabled						= false;
 
 		GlobalManager.SetCursorVisibility( true );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void	OnSwitchToWeaponCustomizationOnSwitchToWeaponCustomization()
+	{
+		UIManager.Instance.GoToMenu( UIManager.WeaponCustomization );
+		GameManager.Instance.RequireFrameSkip();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private	void	OnReturnToGame()
+	{
+		GameManager.Instance.RequireFrameSkip();
+		UIManager.Instance.GoToMenu( UIManager.InGame );
+		UIManager.InGame.UpdateUI();
 	}
 
 

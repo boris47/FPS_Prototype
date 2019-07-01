@@ -5,12 +5,18 @@ using UnityEngine.UI;
 
 public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 
-	private	Dropdown		m_PrimaryDropDown		= null;
-	private	Dropdown		m_SecondaryDropDown		= null;
-	private	Dropdown		m_TertiaryDropDown		= null;
+	private		Dropdown		m_PrimaryDropDown		= null;
+	private		Dropdown		m_SecondaryDropDown		= null;
+	private		Dropdown		m_TertiaryDropDown		= null;
+
+	private		Button			m_ReturnToGame			= null;
+	private		Button			m_SwitchToInventory		= null;
+	private		Button			m_ApplyButton			= null;
+
+	private		bool			m_bIsInitialized		= false;
 
 
-	private	bool			m_bIsInitialized			= false;
+
 	bool IStateDefiner.IsInitialized
 	{
 		get { return m_bIsInitialized; }
@@ -36,7 +42,39 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 			m_bIsInitialized &= child.SearchComponentInChild( "ModulePrimaryDropdown", ref m_PrimaryDropDown );
 			m_bIsInitialized &= child.SearchComponentInChild( "ModuleSecondaryDropdown", ref m_SecondaryDropDown );
 			m_bIsInitialized &= child.SearchComponentInChild( "ModuleTertiaryDropdown", ref m_TertiaryDropDown );
+
+			// APPLY BUTTON
+			if ( m_bIsInitialized &= transform.SearchComponentInChild( "ApplyButton", ref m_ApplyButton ) )
+			{
+				m_ApplyButton.interactable = false;
+				m_ApplyButton.onClick.AddListener
+				(	
+					delegate()
+					{
+						UIManager.Confirmation.Show( "Apply Changes?", OnApply, delegate { OnEnable(); } );
+					}
+				);
+			}
+
+			// SWITCH TO INVENTORY
+			if ( m_bIsInitialized &= transform.SearchComponentInChild( "SwitchToInventory", ref m_SwitchToInventory ) )
+			{
+				m_SwitchToInventory.onClick.AddListener
+				(	
+					OnSwitchToInventory
+				);
+			}
+
+			// RETURN TO GAME
+			if ( m_bIsInitialized &= transform.SearchComponentInChild( "ReturnToGame", ref m_ReturnToGame ) )
+			{
+				m_ReturnToGame.onClick.AddListener
+				(
+					OnReturnToGame
+				);
+			}
 		}
+
 	}
 
 
@@ -64,8 +102,6 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 		{
 			return;
 		}
-
-
 
 		Database.Section[] fireModules		= GlobalManager.Configs.GetSectionsByContext( "WeaponFireModules" );
 		Database.Section[] utiliyModules	= GlobalManager.Configs.GetSectionsByContext( "WeaponUtilityModules" );
@@ -129,12 +165,7 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 		// Search current Value
 		thisDropdown.value = filtered.FindIndex( s => s.GetName() == alreadyAssignedModules[(int)slot] );
 
-		// On selection Event
-		UnityEngine.Events.UnityAction<int> onSelection = delegate( int index )
-		{
-			OnModuleChanged( slot, filtered[index] );
-		};
-		thisDropdown.onValueChanged.AddListener( onSelection );
+		
 	}
 
 	
@@ -145,6 +176,9 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 	private	void	OnModuleChanged( WeaponSlots slot, Database.Section choosenModuleSection )
 	{
 		m_CurrentAssignedModuleSections[slot] = choosenModuleSection;
+
+		m_ApplyButton.interactable = true;
+
 		/*
 		WeaponModuleSlot slotModule = null;
 		WeaponManager.Instance.CurrentWeapon.bGetModuleSlot( slot, ref slotModule);
@@ -154,7 +188,8 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 	}
 
 
-	public void	OnApply()
+	//////////////////////////////////////////////////////////////////////////
+	private void	OnApply()
 	{
 		foreach( KeyValuePair<WeaponSlots, Database.Section> pair in m_CurrentAssignedModuleSections )
 		{
@@ -164,6 +199,24 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 			slotModule.TrySetModule( WeaponManager.Instance.CurrentWeapon, pair.Value );
 		} 
 	} 
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void	OnSwitchToInventory()
+	{
+		UIManager.Instance.GoToMenu( UIManager.Inventory );
+		GameManager.Instance.RequireFrameSkip();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private	void	OnReturnToGame()
+	{
+		GameManager.Instance.RequireFrameSkip();
+		UIManager.Instance.GoToMenu( UIManager.InGame );
+		UIManager.InGame.UpdateUI();
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnDisable

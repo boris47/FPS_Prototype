@@ -133,13 +133,13 @@ public class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 		gameObject.SetActive( false );
 
 		// Hide In-Game UI
-		UIManager.Instance.InGame.gameObject.SetActive( false );
+		UIManager.InGame.gameObject.SetActive( false );
 
 		// Show MainMenu object
-		UIManager.Instance.MainMenu.gameObject.SetActive( true );
+		UIManager.MainMenu.gameObject.SetActive( true );
 
 		// update current active transform
-		UIManager.Instance.GoToMenu( UIManager.Instance.MainMenu.transform );
+		UIManager.Instance.GoToMenu( UIManager.MainMenu );
 
 		// Load menu
 		UnityEngine.SceneManagement.SceneManager.LoadScene( 0 );

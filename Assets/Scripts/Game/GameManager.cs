@@ -84,6 +84,15 @@ public partial class GameManager : MonoBehaviour {
 
 		RestoreDelegates();
 
+//		System.Action toggleInventory = delegate()
+//		{
+//			if ( UIManager.Instance.cu )
+//
+//		}
+
+		GlobalManager.Instance.InputMgr.BindCall( eInputCommands.INVENTORY,	"Inventory", () => UIManager.Instance.GoToMenu ( UIManager.Inventory ) );
+		GlobalManager.Instance.InputMgr.BindCall( eInputCommands.WPN_CUSTOMIZATION, "WeaponCustomization", () => UIManager.Instance.GoToMenu( UIManager.WeaponCustomization ) );
+
 //		Debug.Log( "GameManager::OnEnable: m_InGame = true" );
 	}
 
@@ -93,6 +102,9 @@ public partial class GameManager : MonoBehaviour {
 	{
 		if ( m_Instance != this )
 			return;
+
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.WPN_CUSTOMIZATION, "WeaponCustomization" );
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.INVENTORY, "Inventory" );
 
 		UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnLevelLoaded;
 
@@ -142,12 +154,12 @@ public partial class GameManager : MonoBehaviour {
 
 		if ( Input.GetKeyDown( KeyCode.Return ) && WeaponManager.Instance.IsZoomed == false )
 		{
-			UIManager.Instance.GoToMenu( UIManager.Instance.Inventory.transform );
+			UIManager.Instance.GoToMenu( UIManager.Inventory );
 		}
 
 		if ( Input.GetKeyDown (KeyCode.O) )
 		{
-			UIManager.Instance.GoToMenu( UIManager.Instance.InGame.transform );
+			UIManager.Instance.GoToMenu( UIManager.InGame );
 		}
 
 		// This prevent the ui interaction can trigger actions in-game

@@ -168,7 +168,7 @@ public class WPN_FireModule_Syphon : WPN_FireModule {
 		CameraControl.Instance.ApplyDispersion( moduleFireDispersion );
 
 		// UI ELEMENTS
-		UIManager.Instance.InGame.UpdateUI();
+		UIManager.InGame.UpdateUI();
 	}
 
 

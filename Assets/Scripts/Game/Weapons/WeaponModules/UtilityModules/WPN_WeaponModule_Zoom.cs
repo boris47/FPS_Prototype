@@ -61,9 +61,10 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 			ResourceManager.LoadedData<GameObject> imageData = new ResourceManager.LoadedData<GameObject>();
 			System.Action<GameObject> onLoadSuccess = delegate( GameObject t )
 			{
+				Transform parent = UIManager.InGame.transform;
 				if ( t && t.transform.HasComponent<Image>() )
 				{
-					m_ZoomFrame = Instantiate( t, UIManager.Instance.InGame.transform ).GetComponent<Image>();
+					m_ZoomFrame = Instantiate( t, parent: parent ).GetComponent<Image>();
 				}
 			};
 			ResourceManager.LoadResourceAsync( FramePath, imageData, onLoadSuccess );

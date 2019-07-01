@@ -69,7 +69,7 @@ namespace QuestSystem {
 		// Activate ( IObjective )
 		protected		override	void		ActivateInternal()
 		{	
-			UIManager.Instance.Indicators.EnableIndicator( m_Interactable.Collider.gameObject, IndicatorType.OBJECT_TO_INTERACT, bMustBeClamped: true );
+			UIManager.Indicators.EnableIndicator( m_Interactable.Collider.gameObject, IndicatorType.OBJECT_TO_INTERACT, bMustBeClamped: true );
 		}
 
 
@@ -77,7 +77,7 @@ namespace QuestSystem {
 		// Deactivate ( IObjective )
 		protected		override	void		DeactivateInternal()
 		{
-			UIManager.Instance.Indicators.DisableIndicator( gameObject );
+			UIManager.Indicators.DisableIndicator( gameObject );
 		}
 
 

@@ -71,7 +71,7 @@ public abstract partial class Entity : MonoBehaviour, IEntityInventary {
 
 			if ( m_EntityType == ENTITY_TYPE.ACTOR )
 			{
-				result &= UIManager.Instance.Inventory.AddItem( itemSection, itemIcon );
+				result &= UIManager.Inventory.AddItem( itemSection, itemIcon );
 			}
 		}
 
@@ -96,7 +96,7 @@ public abstract partial class Entity : MonoBehaviour, IEntityInventary {
 		{
 			if ( m_EntityType == ENTITY_TYPE.ACTOR )
 			{
-				result &= UIManager.Instance.Inventory.RemoveItem( sectionName );
+				result &= UIManager.Inventory.RemoveItem( sectionName );
 			}
 
 			m_InventoryItems.RemoveAt( index );

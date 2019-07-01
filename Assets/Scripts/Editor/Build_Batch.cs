@@ -31,7 +31,11 @@ public class Build_Batch
 			return;
 
 		// Build Options
-		const BuildOptions			buildOptions	= BuildOptions.ForceEnableAssertions;
+		const BuildOptions buildOptions =	BuildOptions.Development |						// Build a development version of the player.
+											BuildOptions.ForceEnableAssertions |			// Include assertions in the build. By default, the assertions are only included in development builds.
+										//	BuildOptions.ForceOptimizeScriptCompilation |	// Force full optimizations for script complilation in Development builds.
+											BuildOptions.AllowDebugging |					// Allow script debuggers to attach to the player remotely.
+											BuildOptions.UncompressedAssetBundle ;			// Don't compress the data when creating the asset bundle.
 		
 		ExecuteBuild( folderName, buildSettingsSectionName, executableFilename, buildOptions, scenesToBuild );
 	}
@@ -58,8 +62,9 @@ public class Build_Batch
 			return;
 
 		// Build Options
-		const BuildOptions			buildOptions	= BuildOptions.Il2CPP | BuildOptions.StrictMode;
-		
+		const BuildOptions buildOptions =	BuildOptions.Il2CPP |							// 
+											BuildOptions.StrictMode |						// Do not allow the build to succeed if any errors are reporting during it.
+											BuildOptions.AutoRunPlayer;						// Run the built player.
 
 		ExecuteBuild( buildSettingsSectionName, folderName, executableFilename, buildOptions, scenesToBuild );
 	}

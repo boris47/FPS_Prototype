@@ -136,7 +136,7 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 				(	
 					delegate()
 					{
-						UIManager.Instance.Confirmation.Show( "Apply Changes?", OnApplyChanges, delegate { ReadFromRegistry(); UpdateUI(); } );
+						UIManager.Confirmation.Show( "Apply Changes?", OnApplyChanges, delegate { ReadFromRegistry(); UpdateUI(); } );
 					}
 				);
 				m_ApplyButton.interactable = false;
@@ -148,7 +148,7 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 				(
 					delegate()
 					{
-						UIManager.Instance.Confirmation.Show( "Reset?", ApplyDefaults );
+						UIManager.Confirmation.Show( "Reset?", ApplyDefaults );
 					}	
 				);
 			}

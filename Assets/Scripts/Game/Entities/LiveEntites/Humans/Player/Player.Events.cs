@@ -116,7 +116,7 @@ public partial class Player {
 	public		override	void		OnHittedDetails( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
 		m_Health -= damage;
-		UIManager.Instance.InGame.UpdateUI();
+		UIManager.InGame.UpdateUI();
 
 		m_DamageEffect = 0.2f;
 
@@ -326,7 +326,7 @@ public partial class Player {
 		CameraControl.Instance.Enabled = false;
 
 		// Update UI elements
-		UIManager.Instance.InGame.UpdateUI();
+		UIManager.InGame.UpdateUI();
 
 		// Turn off player object
 		gameObject.SetActive( false );

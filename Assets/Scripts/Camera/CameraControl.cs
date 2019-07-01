@@ -341,7 +341,7 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 				}
 
 				float frameFeedBack = m_Recoil * 10.0f;
-				UIManager.Instance.InGame.FrameFeedBack( 1.0f + frameFeedBack, delta ); // 1.0f + Because is scale factor
+				UIManager.InGame.FrameFeedBack( 1.0f + frameFeedBack, delta ); // 1.0f + Because is scale factor
 			}
 		}
 

@@ -148,14 +148,14 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 				iSceneIdx			= 2,
 				sSaveToLoad			= "",
 				bMustLoadSave		= false,
-				pOnLoadCompleted	= delegate { UIManager.Instance.GoToMenu( UIManager.Instance.InGame.transform ); }
+				pOnLoadCompleted	= delegate { UIManager.Instance.GoToMenu( UIManager.InGame ); }
 			};
 			CustomSceneManager.LoadSceneAsync( loadedResource );
 		};
 
 		if ( PlayerPrefs.HasKey( "SaveSceneIdx" ) )
 		{
-			UIManager.Instance.Confirmation.Show( "Do you want to start another game?", onNewGame );
+			UIManager.Confirmation.Show( "Do you want to start another game?", onNewGame );
 		}
 		else
 		{
@@ -182,7 +182,7 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 				iSceneIdx			= saveSceneIdx,
 				sSaveToLoad			= saveFilePath,
 				bMustLoadSave		= true,
-				pOnLoadCompleted	= delegate { UIManager.Instance.GoToMenu( UIManager.Instance.InGame.transform ); }
+				pOnLoadCompleted	= delegate { UIManager.Instance.GoToMenu( UIManager.InGame ); }
 			};
 			CustomSceneManager.LoadSceneAsync( loadedResource );
 		}

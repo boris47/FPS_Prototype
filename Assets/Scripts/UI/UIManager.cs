@@ -60,21 +60,8 @@ public interface IUIOptions {
 
 public interface IUI {
 
-	UI_MainMenu				MainMenu					{ get; }
-	UI_InGame				InGame						{ get; }
-	UI_WeaponCustomization	WeaponCustomization			{ get; }
-	UI_Inventory			Inventory					{ get; }
-	UI_Settings				Settings					{ get; }
-	UI_Bindings				Bindings					{ get; }
-	UI_Graphics				Graphics					{ get; }
-	UI_Audio				Audio						{ get; }
-	UI_Confirmation			Confirmation				{ get; }
-	UI_Indicators			Indicators					{ get; }
-	UI_Minimap				Minimap						{ get; }
-
-	Image					EffectFrame					{ get; }
-
 	void					GoToMenu					( Transform MenuToShow );
+	void					GoToMenu					( MonoBehaviour MenuToShow );
 	void					GoToSubMenu					( Transform MenuToShow );
 	void					GoBack						();
 
@@ -88,7 +75,7 @@ public interface IUI {
 
 
 
-public class UIManager : MonoBehaviour, IUI {
+public class UIManager : MonoBehaviour {
 
 	[DllImport("User32.Dll")]
 	public static extern long SetCursorPos(int x, int y);
@@ -105,40 +92,40 @@ public class UIManager : MonoBehaviour, IUI {
 	}
 
 
-	private	static	IUI						m_Instance						= null;
-	public	static	IUI						Instance
+	private	static	UIManager						m_Instance						= null;
+	public	static	UIManager						Instance
 	{
 		get { return m_Instance; }
 	}
 
-	private			UI_MainMenu				m_MainMenu						= null;
-	private			UI_InGame				m_InGame						= null;
-	private			UI_WeaponCustomization	m_WeaponCustomization			= null;
-	private			UI_Inventory			m_Inventory						= null;
-	private			UI_Settings				m_Settings						= null;
-	private			UI_PauseMenu			m_PauseMenu						= null;
-	private			UI_Bindings				m_Bindings						= null;
-	private			UI_Graphics				m_Graphics						= null;
-	private			UI_Audio				m_Audio							= null;
-	private			UI_Confirmation			m_Confirmation					= null;
+	private	static	UI_MainMenu				m_MainMenu						= null;
+	private	static	UI_InGame				m_InGame						= null;
+	private	static	UI_WeaponCustomization	m_WeaponCustomization			= null;
+	private	static	UI_Inventory			m_Inventory						= null;
+	private	static	UI_Settings				m_Settings						= null;
+	private	static	UI_PauseMenu			m_PauseMenu						= null;
+	private	static	UI_Bindings				m_Bindings						= null;
+	private	static	UI_Graphics				m_Graphics						= null;
+	private	static	UI_Audio				m_Audio							= null;
+	private	static	UI_Confirmation			m_Confirmation					= null;
+	private	static	UI_Indicators			m_Indicators					= null;
+	private	static	UI_Minimap				m_UI_Minimap					= null;
 	private			Image					m_EffectFrame					= null;
 	private			Transform				m_RayCastInterceptor			= null;
-	private			UI_Indicators			m_Indicators					= null;
-	private			UI_Minimap				m_UI_Minimap					= null;
 
 	// INTERFACE START
-					UI_MainMenu				IUI.MainMenu					{ get { return m_MainMenu; } }
-					UI_InGame				IUI.InGame						{ get { return m_InGame; } }
-					UI_WeaponCustomization	IUI.WeaponCustomization			{ get { return m_WeaponCustomization; } }
-					UI_Inventory			IUI.Inventory					{ get { return m_Inventory; } }
-					UI_Settings				IUI.Settings					{ get { return m_Settings; } }
-					UI_Bindings				IUI.Bindings					{ get { return m_Bindings; } }
-					UI_Graphics				IUI.Graphics					{ get { return m_Graphics; } }
-					UI_Audio				IUI.Audio						{ get { return m_Audio; } }
-					Image					IUI.EffectFrame					{ get { return m_EffectFrame; } }
-					UI_Confirmation			IUI.Confirmation				{ get { return m_Confirmation; } }
-					UI_Indicators			IUI.Indicators					{ get { return m_Indicators; } }
-					UI_Minimap				IUI.Minimap						{ get { return m_UI_Minimap; } }
+	public	static	UI_MainMenu				MainMenu					{ get { return m_MainMenu; } }
+	public	static	UI_InGame				InGame						{ get { return m_InGame; } }
+	public	static	UI_WeaponCustomization	WeaponCustomization			{ get { return m_WeaponCustomization; } }
+	public	static	UI_Inventory			Inventory					{ get { return m_Inventory; } }
+	public	static	UI_Settings				Settings					{ get { return m_Settings; } }
+	public	static	UI_Bindings				Bindings					{ get { return m_Bindings; } }
+	public	static	UI_Graphics				Graphics					{ get { return m_Graphics; } }
+	public	static	UI_Audio				Audio						{ get { return m_Audio; } }
+	public	static	UI_Confirmation			Confirmation				{ get { return m_Confirmation; } }
+	public	static	UI_Indicators			Indicators					{ get { return m_Indicators; } }
+	public	static	UI_Minimap				Minimap						{ get { return m_UI_Minimap; } }
+	public			Image					EffectFrame					{ get { return m_EffectFrame; } }
 
 	// INTERFACE END
 
@@ -269,6 +256,19 @@ public class UIManager : MonoBehaviour, IUI {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	// GoToMenu
+	public	void	GoToMenu( MonoBehaviour MenuToShow )
+	{
+		if ( MenuToShow == null )
+			return;
+
+		m_TransformStack.Clear();
+
+		SwitchTo( MenuToShow.transform );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	// GoToSubMenu
 	public	void	GoToSubMenu( Transform MenuToShow )
 	{
@@ -295,7 +295,7 @@ public class UIManager : MonoBehaviour, IUI {
 
 	//////////////////////////////////////////////////////////////////////////
 	// ShowPauseMenu ( Interface )
-	void	IUI.SetPauseMenuState	( bool IsVisible )
+	public void	SetPauseMenuState	( bool IsVisible )
 	{
 		// Pausing
 		if ( IsVisible == true )

@@ -117,7 +117,7 @@ public class WPN_FireModule_Barrel : WPN_FireModule {
 		CameraControl.Instance.AddRecoil( m_Recoil );
 
 		// UI ELEMENTS
-		UIManager.Instance.InGame.UpdateUI();
+		UIManager.InGame.UpdateUI();
 	}
 
 	public override bool CanChangeWeapon()
