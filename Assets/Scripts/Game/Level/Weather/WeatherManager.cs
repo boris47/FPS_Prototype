@@ -155,17 +155,15 @@ namespace WeatherSystem {
 			m_Instance			= this as IWeatherManager;
 			Awake_Cycles();
 			Awake_Editor();
-
-			CustomSceneManager.RegisterOnLoad( OnLevelLoaded );
 		}
 
 
 		/////////////////////////////////////////////////////////////////////////////
 		// OnLevelLoaded
-		private void OnLevelLoaded( int level )
+		private void OnLevelLoaded( UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode loadMode )
 		{
 			if ( m_ShowDebugInfo )
-				Debug.Log( "WeatherManager::OnLevelLoaded: : On Level " + level + " loaded" );
+				Debug.Log( "WeatherManager::OnLevelLoaded: : On Level " + scene.buildIndex + " loaded" );
 
 			// Load Sky Material
 			m_SkyMaterial = Resources.Load<Material>( SKYMIXER_MATERIAL );
@@ -180,6 +178,8 @@ namespace WeatherSystem {
 		// OnEnable
 		private void			OnEnable()
 		{
+			CustomSceneManager.RegisterOnLoad( OnLevelLoaded );
+
 #if UNITY_EDITOR
 			if ( UnityEditor.EditorApplication.isPlaying == false )
 			{
@@ -202,6 +202,8 @@ namespace WeatherSystem {
 		// OnDisable
 		private void			OnDisable()
 		{
+			CustomSceneManager.UnregisterOnLoad( OnLevelLoaded );
+
 #if UNITY_EDITOR
 			if ( UnityEditor.EditorApplication.isPlaying == false && Editor.INTERNAL_EditorLinked == false )
 			{

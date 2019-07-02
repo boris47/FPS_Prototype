@@ -20,6 +20,8 @@ public class CustomSceneManager : MonoBehaviour {
 	private	static	Dictionary<string, UnityAction<Scene, LoadSceneMode> > m_RegisteredDelegates = new Dictionary<string, UnityAction<Scene, LoadSceneMode>>();
 
 	private	static	CustomSceneManager		m_Instance = null;
+
+	private	static	List< UnityAction<Scene, LoadSceneMode> > Delegates = new List<UnityAction<Scene, LoadSceneMode>>();
 	
 
 	/////////////////////////////////////////////////////////////////
@@ -33,6 +35,8 @@ public class CustomSceneManager : MonoBehaviour {
 		}
 		DontDestroyOnLoad( this );
 		m_Instance = this;
+
+		Delegates.ForEach( d => SceneManager.sceneLoaded -= d );
 	}
 
 
@@ -190,29 +194,20 @@ public class CustomSceneManager : MonoBehaviour {
 
 
 	// 
-	public	static	void	RegisterOnLoad( System.Action<int> activeSceneChanged )
+	public	static	void	RegisterOnLoad( UnityAction<Scene, LoadSceneMode> activeSceneChanged )
 	{
-		UnityAction<Scene, LoadSceneMode> OnLoad = delegate( Scene scene, LoadSceneMode mode )
-		{
-			activeSceneChanged( scene.buildIndex );
-		};
+		SceneManager.sceneLoaded += activeSceneChanged;
 
-		string id = activeSceneChanged.Method.Name;
-		m_RegisteredDelegates.Add( id, OnLoad );
-		SceneManager.sceneLoaded += OnLoad;
+		Delegates.Add( activeSceneChanged );
 	}
 
 
 	//
-	public	static	void	UnregisterOnLoad( System.Action activeSceneChanged )
+	public	static	void	UnregisterOnLoad( UnityAction<Scene, LoadSceneMode> activeSceneChanged )
 	{
-		string id = activeSceneChanged.Method.Name;
+		SceneManager.sceneLoaded -= activeSceneChanged;
 
-		UnityAction<Scene, LoadSceneMode> OnLoad = null;
-		if ( m_RegisteredDelegates.TryGetValue( id, out OnLoad ) )
-		{
-			SceneManager.sceneLoaded -= OnLoad;
-		}
+		Delegates.Remove( activeSceneChanged );
 	}
 
 	

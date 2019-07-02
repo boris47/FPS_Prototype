@@ -25,12 +25,14 @@ public partial class GameManager : MonoBehaviour {
 	private bool EDITOR_InGame = false;
 	
 
-	private	void OnLevelLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
+	//////////////////////////////////////////////////////////////////////////
+	private	void OnLevelLoaded(  UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode loadMode  )
 	{
 		if ( scene.buildIndex == 0 )
-			{
-				Destroy(gameObject);
-			}
+		{
+			Debug.Log( "GameManager::OnLevelLoaded: : On Level " + scene.buildIndex + " loaded" );
+			Destroy(gameObject);
+		}
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -78,17 +80,11 @@ public partial class GameManager : MonoBehaviour {
 		if ( m_Instance != this )
 			return;
 
-		UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnLevelLoaded;
+		CustomSceneManager.RegisterOnLoad( OnLevelLoaded );
 
 		m_InGame = true;
 
 		RestoreDelegates();
-
-//		System.Action toggleInventory = delegate()
-//		{
-//			if ( UIManager.Instance.cu )
-//
-//		}
 
 		GlobalManager.Instance.InputMgr.BindCall
 		(
@@ -140,9 +136,11 @@ public partial class GameManager : MonoBehaviour {
 			return;
 
 		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.WPN_CUSTOMIZATION,	"WeaponCustomization"	);
+
 		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.INVENTORY,			"Inventory"				);
 
-		UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnLevelLoaded;
+
+		CustomSceneManager.UnregisterOnLoad( OnLevelLoaded );
 
 		RestoreDelegates();
 
