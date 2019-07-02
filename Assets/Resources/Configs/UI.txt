@@ -10,3 +10,10 @@ VerticalPadding		= 100;
 
 HSpaceBetweenSlots	= 20.0;
 VSpaceBetweenSlots	= 20.0;
+
+
+
+[UI_Indicators]
+InScreenMarkerFactor	= 0.8;
+
+MinimapClampFactor		= 0.72;

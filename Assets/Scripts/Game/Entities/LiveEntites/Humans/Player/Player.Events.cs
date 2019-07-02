@@ -42,7 +42,7 @@ public partial class Player {
 			m_CutsceneManager.Terminate();
 
 		// UI effect reset
-		UIManager.Instance.EffectFrame.color = Color.clear;
+		UIManager.EffectFrame.color = Color.clear;
 
 		// Dodging reset
 		if ( m_DodgeCoroutine != null )

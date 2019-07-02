@@ -123,7 +123,7 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Ref: http://answers.unity.com/answers/1461171/view.html
-	public bool GetPositionOnUI( Vector3 worldPosition, out Vector2 WorldPosition2D )
+	public bool GetPositionOnUI( Vector3 worldPosition, out Vector2 screenPointInWorldSpace )
 	{
 		//first we get screnPoint in camera viewport space
 		Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint (m_TopViewCamera, worldPosition);
@@ -139,9 +139,9 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 		//after positioning helper to that spot
 		m_HelperRectTransform.anchoredPosition = screenPoint;
 		
-		WorldPosition2D = m_HelperRectTransform.position;
+		screenPointInWorldSpace = m_HelperRectTransform.position;
 
-		return RectTransformUtility.RectangleContainsScreenPoint( m_MiniMapRectTransform, WorldPosition2D );
+		return RectTransformUtility.RectangleContainsScreenPoint( m_MiniMapRectTransform, screenPointInWorldSpace );
 	}
 
 

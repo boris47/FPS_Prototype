@@ -123,7 +123,10 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 
 
 		CameraControl.Instance.CanParseInput	= false;
-		InputManager.IsEnabled					= false;
+//		InputManager.IsEnabled					= false;
+
+		// All categories but not interface
+		GlobalManager.Instance.InputMgr.DisableCategory( InputCategory.ALL | InputCategory.INTERFACE );
 
 		GlobalManager.SetCursorVisibility( true );
 
@@ -232,7 +235,8 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 			CameraControl.Instance.CanParseInput	= true;
 		}
 
-		InputManager.IsEnabled					= true;
+//		InputManager.IsEnabled					= true;
+		GlobalManager.Instance.InputMgr.EnableCategory( InputCategory.ALL );
 
 		GlobalManager.SetCursorVisibility( false );
 

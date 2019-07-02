@@ -222,7 +222,7 @@ public partial class Player {
 		m_IsDodging									= true;
 
 		// Setup
-		UnityEngine.UI.Image effectFrame			= UIManager.Instance.EffectFrame;
+		UnityEngine.UI.Image effectFrame			= UIManager.EffectFrame;
 		CameraControl.Instance.HeadBob.IsActive		= false;
 		CameraControl.Instance.HeadMove.IsActive	= false;
 		m_RigidBody.velocity						= Vector3.zero;

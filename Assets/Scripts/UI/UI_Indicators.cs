@@ -45,6 +45,15 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 	{
 		get { return m_bIsInitialized; }
 	}
+	[System.Serializable]
+	private class UI_IndicatorsSectionData {
+		public	float	InScreenMarkerFactor		= 0.8f;
+
+		public	float	MinimapClampFactor			= 0.72f;
+	}
+
+	[SerializeField]
+	private		UI_IndicatorsSectionData			m_IndicatorsSectionData = new UI_IndicatorsSectionData();
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -54,14 +63,16 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 		if ( m_bIsInitialized )
 			yield break;
 
-		// Sprites for TargetToKill, LocationToReach or ObjectToInteractWith
-		ResourceManager.LoadedData<SpriteCollection> indicatorsSpritesCollection = new ResourceManager.LoadedData<SpriteCollection>();
-
-		// A prefab where the sprites will be set
-		ResourceManager.LoadedData<GameObject> indicatorPrefab = new ResourceManager.LoadedData<GameObject>();
-		
 		bool resourcesLoaded = true;
 
+
+		if ( GlobalManager.Configs.bGetSection( "UI_Indicators", m_IndicatorsSectionData ) == false )
+		{
+			Debug.Log( "UI_Indicators::Initialize:Cannot load UI_IndicatorsSectionData" );
+		}
+
+		// Sprites for TargetToKill, LocationToReach or ObjectToInteractWith
+		ResourceManager.LoadedData<SpriteCollection> indicatorsSpritesCollection = new ResourceManager.LoadedData<SpriteCollection>();
 		yield return ResourceManager.LoadResourceAsyncCoroutine
 		(
 			ResourcePath:			"Scriptables/UI_Indicators",
@@ -70,12 +81,13 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 			OnFailure:				(p) => resourcesLoaded &= false
 		);
 
-		GameObject model = null;
+		// A prefab where the sprites will be set
+		ResourceManager.LoadedData<GameObject> indicatorPrefab = new ResourceManager.LoadedData<GameObject>();
 		yield return ResourceManager.LoadResourceAsyncCoroutine
 		(
 			ResourcePath:			"Prefabs/UI/Task_Objective",
 			loadedData:				indicatorPrefab,
-			OnResourceLoaded :		(a) => { resourcesLoaded &= true; model = a; },
+			OnResourceLoaded :		(a) => { resourcesLoaded &= true; },
 			OnFailure:				(p) => resourcesLoaded &= false
 		);
 
@@ -84,7 +96,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 			// Pool Creation
 			GameObjectsPoolConstructorData<Transform> data = new GameObjectsPoolConstructorData<Transform>()
 			{
-				Model			= model,
+				Model			= indicatorPrefab.Asset,
 				Size			= MAX_ELEMENTS,
 				ContainerName	= "UI_IndicatorsPool",
 //				Parent			= transform,
@@ -204,7 +216,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 	//////////////////////////////////////////////////////////////////////////
 	// FixedUpdate
-	private void Update()
+	private void LateUpdate()
 	{
 		if ( m_bIsInitialized == false )
 			return;
@@ -240,7 +252,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 	//////////////////////////////////////////////////////////////////////////
 	// DrawUIElementOnObjectives
-	protected	static void	DrawUIElementObjectivesOnScreen( Transform targetTransform, Transform m_IconTransform )
+	protected	void	DrawUIElementObjectivesOnScreen( Transform targetTransform, Transform m_IconTransform )
 	{
 		Camera camera = CameraControl.Instance.MainCamera;
 
@@ -262,8 +274,15 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 		Vector3 ScreenPoint = camera.WorldToScreenPoint( targetTransform.position );	
 		Vector3 DrawPosition = Vector3.zero;
 
+
+		float scaledWidth  = (float)Screen.width  * m_IndicatorsSectionData.InScreenMarkerFactor;
+		float scaledHeight = (float)Screen.height * m_IndicatorsSectionData.InScreenMarkerFactor;
+
 		// Normal projection because inside screen
-		if ( ScreenPoint.z > 0f && ScreenPoint.x > 0f && ScreenPoint.x < Screen.width && ScreenPoint.y > 0f && ScreenPoint.y < Screen.height )
+		if ( ScreenPoint.z > 0f 
+			&& ScreenPoint.x > ( (float)Screen.width  - scaledWidth  ) && ScreenPoint.x < scaledWidth
+			&& ScreenPoint.y > ( (float)Screen.height - scaledHeight ) && ScreenPoint.y < scaledHeight
+		)
 		{
 			DrawPosition.x = ScreenPoint.x; // ScreenPoint.x - texture.width*0.5f;
 			DrawPosition.y = ScreenPoint.y; // Screen.height - ( ScreenPoint.y + texture.height*0.5f );
@@ -294,7 +313,8 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 			// y = mx + b format
 			float m = cos / sin;
 
-			Vector2 screenBounds = screenCenter2D * 0.9f;
+			float rectBorderFactor = m_IndicatorsSectionData.InScreenMarkerFactor;
+			Vector2 screenBounds = screenCenter2D * rectBorderFactor;
 
 			// Check up and down first
 			if ( cos > 0.0f )
@@ -307,11 +327,11 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 			}
 
 			// If out of bounds, get point on appropriate side
-			if ( ScreenPoint2D.x > screenBounds.x ) // out of bounds, must be on right
+			if ( ScreenPoint2D.x > screenBounds.x )			// out of bounds right
 			{
 				ScreenPoint2D.Set( screenBounds.x, screenBounds.x * m );
 			}
-			else if ( ScreenPoint2D.x < -screenBounds.x ) // out of bounds left
+			else if ( ScreenPoint2D.x < -screenBounds.x )	// out of bounds left
 			{
 				ScreenPoint2D.Set( -screenBounds.x, -screenBounds.x * m );
 			}
@@ -319,8 +339,10 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 			// Remove cooridnate traslation
 			ScreenPoint2D += screenCenter2D;
 
-			DrawPosition.x = ScreenPoint2D.x; // ScreenPoint2D.x - texture.width*0.5f;
-			DrawPosition.y = ScreenPoint2D.y; // Screen.height - ( ScreenPoint2D.y + texture.height*0.5f );
+			DrawPosition.Set( ScreenPoint2D.x, ScreenPoint2D.y, 0.0f );
+
+//			DrawPosition.x = ScreenPoint2D.x; // ScreenPoint2D.x - texture.width*0.5f;
+//			DrawPosition.y = ScreenPoint2D.y; // Screen.height - ( ScreenPoint2D.y + texture.height*0.5f );
 		}
 
 		m_IconTransform.position = DrawPosition;
@@ -330,7 +352,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 	//////////////////////////////////////////////////////////////////////////
 	// DrawUIElementOnObjectivesOnMinimap
-	protected	static void	DrawUIElementObjectivesOnMinimap( Transform targetTransform, Transform m_IconTransform, bool bMustBeClamped )
+	protected	void	DrawUIElementObjectivesOnMinimap( Transform targetTransform, Transform m_IconTransform, bool bMustBeClamped )
 	{
 		RectTransform minimapRectTransform		= UIManager.Minimap.GetRawImageRect();
 
@@ -340,58 +362,62 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 		}
 
 		//
-		Vector2 WorldPosition2D;
-		bool bIsInside = UIManager.Minimap.GetPositionOnUI( targetTransform.position, out WorldPosition2D );
-		if ( bIsInside == false && bMustBeClamped == false )
+		Vector2 screenPointInWorldSpace;
+		bool bIsInside = UIManager.Minimap.GetPositionOnUI( targetTransform.position, out screenPointInWorldSpace );
+
+		// If is no more inside minimap image rect and IS NOT required to be clamped the object will be deactivated
+		if ( bIsInside == false && bMustBeClamped == false && m_IconTransform.gameObject.activeSelf == true )
 		{
 			m_IconTransform.gameObject.SetActive( false );
 		}
+
+		// If is no more inside minimap image rect and IS required to be clamped the object will be drawn clamped inside minimap rect
 		if ( bIsInside == false && bMustBeClamped == true )
 		{
-			Vector2 screenPointScaled = UIManager.Minimap.transform.InverseTransformPoint( WorldPosition2D );
+			Vector2 screenPointInLocalSpace = UIManager.Minimap.transform.InverseTransformPoint( screenPointInWorldSpace );
+
 			// Find angle from center of screen to mouse position
-			float angle = Mathf.Atan2( screenPointScaled.y, screenPointScaled.x ) - 90f * Mathf.Deg2Rad;
+			float angle = Mathf.Atan2( screenPointInLocalSpace.y, screenPointInLocalSpace.x ) - 90f * Mathf.Deg2Rad;
 			float cos = Mathf.Cos( angle );
 			float sin = -Mathf.Sin( angle );
 
 			float amplify = 150f;
-			screenPointScaled.Set( screenPointScaled.x + sin * amplify, screenPointScaled.y + cos * amplify );
+			screenPointInLocalSpace.Set( screenPointInLocalSpace.x + sin * amplify, screenPointInLocalSpace.y + cos * amplify );
 
 			// y = mx + b format
 			float m = cos / sin;
 
-			const float rectBorderFactor = 0.75f;
+			float rectBorderFactor = m_IndicatorsSectionData.MinimapClampFactor;
 			Vector2 minimapBounds = minimapRectTransform.rect.size * rectBorderFactor;
 
 			// Check up and down first
 			if ( cos > 0.0f )
 			{
-				screenPointScaled.Set( minimapBounds.y / m, minimapBounds.y );
+				screenPointInLocalSpace.Set( minimapBounds.y / m, minimapBounds.y );
 			}
 			else // down
 			{
-				screenPointScaled.Set( -minimapBounds.y / m, -minimapBounds.y );
+				screenPointInLocalSpace.Set( -minimapBounds.y / m, -minimapBounds.y );
 			}
 
 			// If out of bounds, get point on appropriate side
-			if ( screenPointScaled.x > minimapBounds.x ) // out of bounds, must be on right
+			if ( screenPointInLocalSpace.x > minimapBounds.x ) // out of bounds, must be on right
 			{
-				screenPointScaled.Set( minimapBounds.x, minimapBounds.x * m );
+				screenPointInLocalSpace.Set( minimapBounds.x, minimapBounds.x * m );
 			}
-			else if ( screenPointScaled.x < -minimapBounds.x ) // out of bounds left
+			else if ( screenPointInLocalSpace.x < -minimapBounds.x ) // out of bounds left
 			{
-				screenPointScaled.Set( -minimapBounds.x, -minimapBounds.x * m );
+				screenPointInLocalSpace.Set( -minimapBounds.x, -minimapBounds.x * m );
 			}
 
 			// Because of the different scale applied to rawImage rectTransform, this must be token in account fo computations
-			Vector3 scaleToApply = minimapRectTransform.lossyScale * rectBorderFactor * 0.5f;
-//			print(minimapRectTransform.lossyScale );
-			screenPointScaled.Scale( scaleToApply );
+			Vector3 scaleToApply = minimapRectTransform.localScale * ( rectBorderFactor * 0.5f );
+			screenPointInLocalSpace.Scale( scaleToApply );
 
-			WorldPosition2D = UIManager.Minimap.transform.TransformPoint( screenPointScaled );
+			screenPointInWorldSpace = UIManager.Minimap.transform.TransformPoint( screenPointInLocalSpace );
 		}
 
-		m_IconTransform.position = WorldPosition2D;
+		m_IconTransform.position = screenPointInWorldSpace;
 	}
 	
 }

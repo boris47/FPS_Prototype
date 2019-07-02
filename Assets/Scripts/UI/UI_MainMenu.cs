@@ -93,7 +93,7 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 		if ( WeaponManager.Instance != null )
 			Destroy( WeaponManager.Instance.GameObject );
 
-		UIManager.Instance.EffectFrame.color = Color.clear;
+		UIManager.EffectFrame.color = Color.clear;
 	}
 
 

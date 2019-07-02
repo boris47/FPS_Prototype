@@ -90,8 +90,44 @@ public partial class GameManager : MonoBehaviour {
 //
 //		}
 
-		GlobalManager.Instance.InputMgr.BindCall( eInputCommands.INVENTORY,	"Inventory", () => UIManager.Instance.GoToMenu ( UIManager.Inventory ) );
-		GlobalManager.Instance.InputMgr.BindCall( eInputCommands.WPN_CUSTOMIZATION, "WeaponCustomization", () => UIManager.Instance.GoToMenu( UIManager.WeaponCustomization ) );
+		GlobalManager.Instance.InputMgr.BindCall
+		(
+			command:		eInputCommands.INVENTORY,
+			inputEventID:	"Inventory",
+			action:			() =>
+				{
+					if ( UIManager.Instance.IsCurrentActive( UIManager.Inventory ) )
+					{
+						UIManager.Instance.GoToMenu( UIManager.InGame );
+					}
+					else
+					{
+						UIManager.Instance.GoToMenu( UIManager.Inventory );
+					}
+				}
+			,
+			predicate:		() => WeaponManager.Instance.IsZoomed == false
+		);
+
+
+		GlobalManager.Instance.InputMgr.BindCall
+		(
+			command:		eInputCommands.WPN_CUSTOMIZATION,
+			inputEventID:	"WeaponCustomization",
+			action:			() =>
+				{
+					if ( UIManager.Instance.IsCurrentActive( UIManager.WeaponCustomization ) )
+					{
+						UIManager.Instance.GoToMenu( UIManager.InGame );
+					}
+					else
+					{
+						UIManager.Instance.GoToMenu( UIManager.WeaponCustomization );
+					}
+				}
+			,
+			predicate:		() => WeaponManager.Instance.IsZoomed == false
+		);
 
 //		Debug.Log( "GameManager::OnEnable: m_InGame = true" );
 	}
@@ -103,8 +139,8 @@ public partial class GameManager : MonoBehaviour {
 		if ( m_Instance != this )
 			return;
 
-		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.WPN_CUSTOMIZATION, "WeaponCustomization" );
-		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.INVENTORY, "Inventory" );
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.WPN_CUSTOMIZATION,	"WeaponCustomization"	);
+		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.INVENTORY,			"Inventory"				);
 
 		UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnLevelLoaded;
 
@@ -151,17 +187,7 @@ public partial class GameManager : MonoBehaviour {
 		EDITOR_InGame = m_InGame;
 		if ( m_InGame == false )
 			return;
-
-		if ( Input.GetKeyDown( KeyCode.Return ) && WeaponManager.Instance.IsZoomed == false )
-		{
-			UIManager.Instance.GoToMenu( UIManager.Inventory );
-		}
-
-		if ( Input.GetKeyDown (KeyCode.O) )
-		{
-			UIManager.Instance.GoToMenu( UIManager.InGame );
-		}
-
+		
 		// This prevent the ui interaction can trigger actions in-game
 		if ( m_SkipOneFrame == true )
 		{

@@ -90,12 +90,12 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 				m_GridLayoutGroup.padding			= padding;
 
 			//	m_GridLayoutGroup.cellSize			= new Vector2( m_InventorySectionData.CellSizeX, m_InventorySectionData.CellSizeY ) * scaleFactor;
+				m_GridLayoutGroup.spacing			= new Vector2( m_InventorySectionData.HSpaceBetweenSlots, m_InventorySectionData.VSpaceBetweenSlots ) * scaleFactor / ratio;
 				m_GridLayoutGroup.cellSize = new Vector2
 				(
-					( m_InventorySlots.rect.width - m_GridLayoutGroup.spacing.x )/ m_InventorySectionData.CellCountVertical, 
+					( m_InventorySlots.rect.width - m_GridLayoutGroup.spacing.x ) / m_InventorySectionData.CellCountVertical, 
 					( m_InventorySlots.rect.height - m_GridLayoutGroup.spacing.y ) / m_InventorySectionData.CellCountHorizontal
 				);
-				m_GridLayoutGroup.spacing			= new Vector2( m_InventorySectionData.HSpaceBetweenSlots, m_InventorySectionData.VSpaceBetweenSlots ) * scaleFactor / ratio;
 				m_GridLayoutGroup.childAlignment	= TextAnchor.MiddleCenter;
 				m_GridLayoutGroup.constraint		= GridLayoutGroup.Constraint.FixedColumnCount;
 				m_GridLayoutGroup.constraintCount	= m_InventorySectionData.CellCountHorizontal;

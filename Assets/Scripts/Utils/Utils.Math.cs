@@ -47,7 +47,7 @@ namespace Utils {
 		/// <returns></returns>
 		public static float ScaleBetween( float CurrentValue, float MinLimit, float MaxLimit )
 		{
-			return ( (CurrentValue - MinLimit) / ( MaxLimit - MinLimit ) );
+			return Mathf.Clamp01( ( ( CurrentValue - MinLimit ) / ( MaxLimit - MinLimit ) ) );
 		}
 
 

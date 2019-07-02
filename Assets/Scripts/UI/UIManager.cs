@@ -58,10 +58,13 @@ public interface IUIOptions {
 	void	Reset();
 }
 
+
+
 public interface IUI {
 
 	void					GoToMenu					( Transform MenuToShow );
 	void					GoToMenu					( MonoBehaviour MenuToShow );
+	bool					IsCurrentActive				( MonoBehaviour menu );
 	void					GoToSubMenu					( Transform MenuToShow );
 	void					GoBack						();
 
@@ -75,7 +78,7 @@ public interface IUI {
 
 
 
-public class UIManager : MonoBehaviour {
+public class UIManager : MonoBehaviour, IUI {
 
 	[DllImport("User32.Dll")]
 	public static extern long SetCursorPos(int x, int y);
@@ -92,8 +95,8 @@ public class UIManager : MonoBehaviour {
 	}
 
 
-	private	static	UIManager						m_Instance						= null;
-	public	static	UIManager						Instance
+	private	static	IUI						m_Instance						= null;
+	public	static	IUI						Instance
 	{
 		get { return m_Instance; }
 	}
@@ -110,7 +113,7 @@ public class UIManager : MonoBehaviour {
 	private	static	UI_Confirmation			m_Confirmation					= null;
 	private	static	UI_Indicators			m_Indicators					= null;
 	private	static	UI_Minimap				m_UI_Minimap					= null;
-	private			Image					m_EffectFrame					= null;
+	private	static	Image					m_EffectFrame					= null;
 	private			Transform				m_RayCastInterceptor			= null;
 
 	// INTERFACE START
@@ -125,7 +128,7 @@ public class UIManager : MonoBehaviour {
 	public	static	UI_Confirmation			Confirmation				{ get { return m_Confirmation; } }
 	public	static	UI_Indicators			Indicators					{ get { return m_Indicators; } }
 	public	static	UI_Minimap				Minimap						{ get { return m_UI_Minimap; } }
-	public			Image					EffectFrame					{ get { return m_EffectFrame; } }
+	public	static	Image					EffectFrame					{ get { return m_EffectFrame; } }
 
 	// INTERFACE END
 
@@ -222,7 +225,12 @@ public class UIManager : MonoBehaviour {
 		{
 			Debug.LogError( "UI: Bad initialization!!!" );
 		}
-		
+	}
+
+
+	public	bool		IsCurrentActive( MonoBehaviour menu )
+	{
+		return m_CurrentActiveTrasform == menu.transform;
 	}
 
 
@@ -231,12 +239,24 @@ public class UIManager : MonoBehaviour {
 	private	void	SwitchTo( Transform trasformToShow )
 	{
 		POINT lastCursorPosition = new POINT();
+
+		// SAve the current cursor position on the screen
 		GetCursorPos( out lastCursorPosition );
-		string previousName = m_CurrentActiveTrasform.name;
-			m_CurrentActiveTrasform.gameObject.SetActive( false );
-			m_CurrentActiveTrasform	= trasformToShow;
-			m_CurrentActiveTrasform.gameObject.SetActive( true );
-		string currentName = m_CurrentActiveTrasform.name;
+
+//		string previousName = m_CurrentActiveTrasform.name;
+
+		// Disable current active menu gameobject
+		m_CurrentActiveTrasform.gameObject.SetActive( false );
+
+		// Swicth to new menu
+		m_CurrentActiveTrasform	= trasformToShow;
+
+		// Enable current active menu gameobject
+		m_CurrentActiveTrasform.gameObject.SetActive( true );
+
+//		string currentName = m_CurrentActiveTrasform.name;
+
+		// Re-set the cursor position
 		SetCursorPos( lastCursorPosition.X, lastCursorPosition.Y );
 //		print( "Switched from " + previousName + " to " + currentName );
 	}

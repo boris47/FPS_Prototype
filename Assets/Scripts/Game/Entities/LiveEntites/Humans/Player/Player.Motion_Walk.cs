@@ -13,7 +13,8 @@ public partial class Player {
 		m_SimulationStartPosition				= transform.position;
 
 		CameraControl.Instance.CanParseInput	= false;
-		InputManager.IsEnabled					= false;
+//		InputManager.IsEnabled					= false;
+		GlobalManager.Instance.InputMgr.DisableCategory( InputCategory.ALL );
 
 		prevInterpolation						= m_RigidBody.interpolation;
 		m_RigidBody.interpolation				= RigidbodyInterpolation.Interpolate;
@@ -101,7 +102,8 @@ public partial class Player {
 		Time.timeScale			= 1f;
 
 		CameraControl.Instance.CanParseInput = true;
-		InputManager.IsEnabled = true;
+//		InputManager.IsEnabled = true;
+		GlobalManager.Instance.InputMgr.EnableCategory( InputCategory.ALL );
 	}
 
 

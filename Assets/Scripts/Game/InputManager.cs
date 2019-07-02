@@ -159,7 +159,7 @@ public class InputManager {
 	//////////////////////////////////////////////////////////////////////////
 	// BindCall
 	/// <summary> Allow to bind a method to specified command </summary>
-	public		void	BindCall( eInputCommands command, string inputEventID, InputDelegateHandler method, System.Func<bool> condition = null )
+	public		void	BindCall( eInputCommands command, string inputEventID, InputDelegateHandler action, System.Func<bool> predicate = null )
 	{
 		InputEventCollection inputEventCollection = null;
 		if ( m_ActionMap.TryGetValue( command, out inputEventCollection ) == false )
@@ -168,7 +168,7 @@ public class InputManager {
 			m_ActionMap[command] = inputEventCollection;
 		}
 
-		inputEventCollection.Bind( inputEventID, method, condition );
+		inputEventCollection.Bind( inputEventID, action, predicate );
 	}
 
 

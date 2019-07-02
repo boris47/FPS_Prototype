@@ -108,16 +108,18 @@ namespace Utils {
 		{
 			CleanComments( ref sLine );
 
-			bool b_IsString = false;
-			bool b_IsNumber = false;
-			bool b_DotFound = false;
-			for ( int i = 0; i < sLine.Length ; i++ )
+			bool b_IsString			= false;
+			bool b_IsNumber			= false;
+			bool b_DotFound			= false;
+			bool b_Determinated		= false;
+			for ( int i = 0; i < sLine.Length && b_Determinated == false; i++ )
 			{
 				char Char = sLine[ i ];
 				if ( Char == 32 ) continue;								// skip parsing spaces
 				if ( Char == 46 )										// (Dot) Useful for number determination
 				{
 					b_DotFound = true;
+					b_Determinated = true;
 					continue;
 				}
 				if ( Char > 47 && Char < 58 && b_IsString == false )	// is number and not a str
@@ -129,6 +131,7 @@ namespace Utils {
 				{
 					b_IsString = true;
 					b_IsNumber = false;									// if was a number now is a string, never more a number
+					b_Determinated = true;
 					break;
 				}
 			}

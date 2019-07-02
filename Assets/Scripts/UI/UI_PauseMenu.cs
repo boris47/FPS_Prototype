@@ -127,7 +127,7 @@ public class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 		GlobalManager.SetCursorVisibility( true );
 		
 		// Effect frame reset
-		UIManager.Instance.EffectFrame.color = Color.black;
+		UIManager.EffectFrame.color = Color.black;
 
 		// Hide Pause menu UI
 		gameObject.SetActive( false );
