@@ -184,7 +184,10 @@ public partial class GameManager : MonoBehaviour {
 	
 		EDITOR_InGame = m_InGame;
 		if ( m_InGame == false )
+		{
+			Debug.Log( "Game manager not ingame");
 			return;
+		}
 		
 		// This prevent the ui interaction can trigger actions in-game
 		if ( m_SkipOneFrame == true )
@@ -279,7 +282,7 @@ public partial class GameManager : MonoBehaviour {
 		{
 			CustomSceneManager.LoadSceneData data = new CustomSceneManager.LoadSceneData()
 			{
-				iSceneIdx = UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex +1,
+				iSceneIdx = SceneEnumeration.NEXT,
 				eLoadMode = UnityEngine.SceneManagement.LoadSceneMode.Single
 			};
 			CustomSceneManager.LoadSceneAsync( data );

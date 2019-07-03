@@ -163,7 +163,7 @@ namespace WeatherSystem {
 		private void OnLevelLoaded( UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode loadMode )
 		{
 			if ( m_ShowDebugInfo )
-				Debug.Log( "WeatherManager::OnLevelLoaded: : On Level " + scene.buildIndex + " loaded" );
+				Debug.Log( "WeatherManager::OnLevelLoaded: : On Level " + (SceneEnumeration)scene.buildIndex + " loaded" );
 
 			// Load Sky Material
 			m_SkyMaterial = Resources.Load<Material>( SKYMIXER_MATERIAL );

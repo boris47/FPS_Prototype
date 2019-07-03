@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 public class LevelSwitcher : MonoBehaviour {
 
 	[SerializeField]
-	private		int					m_NextSceneIdx				= 0;
+	private		SceneEnumeration				m_NextSceneIdx				= SceneEnumeration.NONE;
 
 
 	//////////////////////////////////////////////////////////////////////////

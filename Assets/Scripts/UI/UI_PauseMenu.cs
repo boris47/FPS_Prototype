@@ -142,7 +142,15 @@ public class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 		UIManager.Instance.GoToMenu( UIManager.MainMenu );
 
 		// Load menu
-		UnityEngine.SceneManagement.SceneManager.LoadScene( 0 );
+		CustomSceneManager.LoadSceneSync
+		(
+			new CustomSceneManager.LoadSceneData()
+			{
+				iSceneIdx = SceneEnumeration.MAIN_MENU,
+				eLoadMode = UnityEngine.SceneManagement.LoadSceneMode.Single
+			}
+		);
+//		UnityEngine.SceneManagement.SceneManager.LoadScene(  );
 	}
 
 

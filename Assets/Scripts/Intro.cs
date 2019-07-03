@@ -40,7 +40,7 @@ public class Intro : MonoBehaviour {
 
 		CustomSceneManager.LoadSceneData data = new CustomSceneManager.LoadSceneData()
 		{
-			iSceneIdx = 1,
+			iSceneIdx = SceneEnumeration.MAIN_MENU,
 			eLoadMode = LoadSceneMode.Single
 		};
 

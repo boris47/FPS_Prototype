@@ -4,15 +4,30 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
+[System.Serializable]
+public	enum SceneEnumeration {
+	NEXT		= -256,
+	PREVIOUS	= -255,
+	NONE		= -1,
+	INTRO		= 0,
+//	LOADING		= 1,
+	MAIN_MENU	= 1,
+	OPENWORLD1	= 2,
+	OPENWORLD2	= 3,
+	OPENWORLD3	= 4,
+	ENDING		= 5,
+	COUNT
+}
+
 public class CustomSceneManager : MonoBehaviour {
 
 	public class LoadSceneData {
-		public	int				iSceneIdx				= -1;
-		public	LoadSceneMode	eLoadMode				= LoadSceneMode.Single;
-		public	bool			bMustLoadSave			= false;
-		public	string			sSaveToLoad				= "";
-		public	System.Action	pOnPreLoadCompleted		= null;
-		public	System.Action	pOnLoadCompleted		= null;
+		public	SceneEnumeration	iSceneIdx				= SceneEnumeration.NONE;
+		public	LoadSceneMode		eLoadMode				= LoadSceneMode.Single;
+		public	bool				bMustLoadSave			= false;
+		public	string				sSaveToLoad				= "";
+		public	System.Action		pOnPreLoadCompleted		= null;
+		public	System.Action		pOnLoadCompleted		= null;
 	}
 
 
@@ -40,6 +55,33 @@ public class CustomSceneManager : MonoBehaviour {
 	}
 
 
+	private	static	bool	HasGotValidLoadScenData( LoadSceneData loadSceneData )
+	{
+		if ( loadSceneData == null )
+			return false;
+
+		if ( loadSceneData.iSceneIdx == SceneEnumeration.NONE )
+			return false;
+
+		if ( loadSceneData.iSceneIdx == SceneEnumeration.NEXT )
+		{
+			loadSceneData.iSceneIdx = (SceneEnumeration)SceneManager.GetActiveScene().buildIndex + 1;
+		}
+
+		if ( loadSceneData.iSceneIdx == SceneEnumeration.PREVIOUS )
+		{
+			loadSceneData.iSceneIdx = (SceneEnumeration)SceneManager.GetActiveScene().buildIndex - 1;
+		}
+
+		if ( (int)loadSceneData.iSceneIdx == SceneManager.GetActiveScene().buildIndex )
+			return false;
+
+		if ( loadSceneData.iSceneIdx < 0 || (int)loadSceneData.iSceneIdx >= SceneManager.sceneCountInBuildSettings )
+			return false;
+
+		return true;
+	}
+
 
 	/////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////
@@ -50,13 +92,7 @@ public class CustomSceneManager : MonoBehaviour {
 	/// <summary> Parse the load request synchronously </summary>
 	public	static void	LoadSceneSync( LoadSceneData loadSceneData )
 	{
-		if ( loadSceneData == null )
-			return;
-
-		if ( loadSceneData.iSceneIdx == -1 )
-			return;
-
-		if ( loadSceneData.iSceneIdx == SceneManager.GetActiveScene().buildIndex )
+		if ( HasGotValidLoadScenData( loadSceneData ) == false )
 			return;
 
 		InternalLoadSceneSync( loadSceneData );
@@ -68,7 +104,7 @@ public class CustomSceneManager : MonoBehaviour {
 		// Set global state as ChangingScene state
 		GlobalManager.bIsChangingScene = true;
 
-		SceneManager.LoadScene( loadSceneData.iSceneIdx, loadSceneData.eLoadMode );
+		SceneManager.LoadScene( (int)loadSceneData.iSceneIdx, loadSceneData.eLoadMode );
 
 		// Remove global state as ChangingScene state
 		GlobalManager.bIsChangingScene = false;
@@ -112,13 +148,7 @@ public class CustomSceneManager : MonoBehaviour {
 	/// <summary> Launch load of a scene asynchronously </summary>
 	public	static void	LoadSceneAsync( LoadSceneData loadSceneData, LoadConditionVerified loadCondition = null )
 	{
-		if ( loadSceneData == null )
-			return;
-
-		if ( loadSceneData.iSceneIdx == 0 )
-			return;
-
-		if ( loadSceneData.iSceneIdx == SceneManager.GetActiveScene().buildIndex )
+		if ( HasGotValidLoadScenData( loadSceneData ) == false )
 			return;
 
 		m_Instance.StartCoroutine( m_Instance.LoadSceneAsyncCO( loadSceneData, loadCondition ) );
@@ -135,7 +165,7 @@ public class CustomSceneManager : MonoBehaviour {
 		GlobalManager.bIsChangingScene = true;
 		
 		// Start async load of scene
-		AsyncOperation asyncOperation = SceneManager.LoadSceneAsync( loadSceneData.iSceneIdx, loadSceneData.eLoadMode );
+		AsyncOperation asyncOperation = SceneManager.LoadSceneAsync( (int)loadSceneData.iSceneIdx, loadSceneData.eLoadMode );
 		asyncOperation.allowSceneActivation = false;
 
 		// Wait for load completion
