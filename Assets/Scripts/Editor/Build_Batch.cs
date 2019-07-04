@@ -34,6 +34,7 @@ public class Build_Batch
 		const BuildOptions buildOptions =	BuildOptions.Development |						// Build a development version of the player.
 											BuildOptions.ForceEnableAssertions |			// Include assertions in the build. By default, the assertions are only included in development builds.
 										//	BuildOptions.ForceOptimizeScriptCompilation |	// Force full optimizations for script complilation in Development builds.
+											BuildOptions.ShowBuiltPlayer |					// Show the built player.
 											BuildOptions.AllowDebugging |					// Allow script debuggers to attach to the player remotely.
 											BuildOptions.UncompressedAssetBundle ;			// Don't compress the data when creating the asset bundle.
 		

@@ -2,5 +2,5 @@
 
 [DebugInfos]
 ResourceManager			= false;
-WeatherManager			= true;
-Quests					= true;
+WeatherManager			= false;
+Quests					= false;

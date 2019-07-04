@@ -12,7 +12,7 @@ FlyBoost				= 2.0;
 HeadBob_Amplitude		= 0.30;
 HeadBob_Speed			= 2.05;
 HeadBob_Step			= 0.80;
-HeadBob_Theta_Update	= 2.20;
+HeadBob_Theta_Update	= 1.20;
 
 HeadLean_Max_Deegree	= 15.0;
 

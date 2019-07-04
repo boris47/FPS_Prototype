@@ -28,12 +28,16 @@ public class HeadMove : CameraEffectBase {
 
 
 
-	public void Update( float weight )
+
+	public void Update()
 	{
+		if ( m_Interpolant > 0.0f )
+		{
+			m_InternalWeight = Mathf.Lerp( m_CurrentWeight, m_TargetWeight, Time.deltaTime * 5f );
+		}
+
 		if ( m_IsActive == false )
 			return;
-
-		m_InternalWeight = Mathf.Lerp( m_InternalWeight, weight, Time.deltaTime * 5f );
 
 		float	fStamina	= Player.Instance.Stamina;
 		bool	bCrouched	= Player.Instance.IsCrouched;
@@ -44,13 +48,11 @@ public class HeadMove : CameraEffectBase {
 //		fSpeed		*= ( bIsUnderwater )?	0.50f : 1.00f;
 //		fSpeed		*= ( bZoomed )		?	0.85f : 1.00f;
 		fSpeed		*= ( 4.0f - ( fStamina * 2.0f ) );
-		
 
 		float fAmplitude = m_Amplitude * m_AmplitudeMult;
 		fAmplitude		*= ( ( bCrouched )	? 0.80f : 1.00f );
 //		fAmplitude		*= ( ( bZoomed )	? 0.85f : 1.00f );
 		fAmplitude		*= ( 5.0f - ( fStamina * 4.0f ) );
-
 
 		m_ThetaX +=   THETA_UPDATE_X * fSpeed * m_InternalWeight;
 		m_ThetaY += ( THETA_UPDATE_Y + Random.Range( 0.0f, 0.03f ) ) * fSpeed * m_InternalWeight;
@@ -58,15 +60,13 @@ public class HeadMove : CameraEffectBase {
 
 		float deltaX = -Mathf.Cos( m_ThetaX ) * fAmplitude;
 		float deltaY =  Mathf.Cos( m_ThetaY ) * fAmplitude * 0.2f;
-		m_Direction.Set ( deltaX, deltaY, 0.0f );
-		m_Direction *= m_InternalWeight;
+		m_Direction.Set ( deltaX * m_InternalWeight, deltaY * m_InternalWeight, 0.0f );
 
-		m_WeaponPositionDelta.x = deltaY;
-		m_WeaponPositionDelta.y = deltaX;
-		m_WeaponRotationDelta.x = deltaY;
-		m_WeaponRotationDelta.y = deltaX;
-		m_WeaponPositionDelta *= m_WpnInfluence * m_InternalWeight;
-		m_WeaponRotationDelta *= m_WpnInfluence * m_InternalWeight;
+		m_WeaponPositionDelta.x = deltaY * m_WpnInfluence * m_InternalWeight;
+		m_WeaponPositionDelta.y = deltaX * m_WpnInfluence * m_InternalWeight;
+
+		m_WeaponRotationDelta.x = deltaY * m_WpnInfluence * m_InternalWeight;
+		m_WeaponRotationDelta.y = deltaX * m_WpnInfluence * m_InternalWeight;
 
 	}
 

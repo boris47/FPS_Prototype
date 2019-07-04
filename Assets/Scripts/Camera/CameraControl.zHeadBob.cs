@@ -29,15 +29,17 @@ public class HeadBob : CameraEffectBase {
 
 
 	private	bool						m_StepDone					= false;
+	
 
-
-
-	public void Update( float weight )
+	public void Update()
 	{
+		if ( m_Interpolant > 0.0f )
+		{
+			m_InternalWeight = Mathf.Lerp( m_CurrentWeight, m_TargetWeight, Time.deltaTime * 5f );
+		}
+
 		if ( m_IsActive == false )
 			return;
-
-		m_InternalWeight = Mathf.Lerp( m_InternalWeight, weight, Time.deltaTime * 5f );
 
 		float	fStamina	= Player.Instance.Stamina;
 		bool	bRunning	= Player.Instance.IsRunning;
@@ -61,15 +63,13 @@ public class HeadBob : CameraEffectBase {
 
 		float	deltaX = -Mathf.Cos( m_ThetaX ) * fAmplitude;
 		float	deltaY =  Mathf.Cos( m_ThetaY ) * fAmplitude;
-		m_Direction.Set ( deltaX, deltaY, 0.0f );
-		m_Direction *= m_InternalWeight;
+		m_Direction.Set ( deltaX * m_InternalWeight, deltaY * m_InternalWeight, 0.0f );
 
-		m_WeaponPositionDelta.x = deltaY;
-		m_WeaponPositionDelta.y = deltaX;
-		m_WeaponRotationDelta.x = deltaY;
-		m_WeaponRotationDelta.y = deltaX;
-		m_WeaponPositionDelta *= m_WpnInfluence * m_InternalWeight;
-		m_WeaponRotationDelta *= m_WpnInfluence * m_InternalWeight;
+		m_WeaponPositionDelta.x = deltaY * m_WpnInfluence * m_InternalWeight;
+		m_WeaponPositionDelta.y = deltaX * m_WpnInfluence * m_InternalWeight;
+
+		m_WeaponRotationDelta.x = deltaY * m_WpnInfluence * m_InternalWeight;
+		m_WeaponRotationDelta.y = deltaX * m_WpnInfluence * m_InternalWeight;
 
 		// Steps
 		if ( Mathf.Abs( Mathf.Cos( m_ThetaY ) ) > STEP_VALUE )

@@ -3,10 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class CameraEffectBase {
+public abstract class CameraEffectBase {
 	
 	[SerializeField]
 	protected	float		m_WpnInfluence				= 0.01f;
+
+
+	protected	float		m_CurrentWeight				= 1.0f;
+	protected	float		m_TargetWeight				= 1.0f;
+	protected	float		m_InternalWeight			= 1.0f;
+	protected	float		m_Interpolant				= 0.0f;
+
 
 	protected	Vector3		m_Direction					= Vector3.zero;
 	public		Vector3		Direction					{ get { return m_Direction; } }
@@ -20,7 +27,12 @@ public class CameraEffectBase {
 	protected	float		m_AmplitudeMult				= 1.0f;
 	public		float		AmplitudeMult				{ get { return m_AmplitudeMult; } set { m_AmplitudeMult = value; } }
 
-	protected	float		m_InternalWeight			= 0f;
 	protected	bool		m_IsActive					= true;
 	public		bool		IsActive					{ get { return m_IsActive; } set { m_IsActive = value; } }
+
+	public		void SetWeight( float newWeight )
+	{
+		m_TargetWeight = newWeight;
+		m_Interpolant = 1.0f;
+	}
 }

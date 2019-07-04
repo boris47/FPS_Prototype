@@ -114,6 +114,8 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 
 		// Reset Ingame UI
 //		InternalReset();
+
+		GlobalManager.SetCursorVisibility( false );
 	}
 
 

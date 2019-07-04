@@ -132,19 +132,8 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 	// OnEnable
 	private void OnDisable()
 	{
-		if ( GameManager.Instance != null )
-		{
-			GameManager.StreamEvents.OnSave -= OnSave;
-			GameManager.StreamEvents.OnLoad -= OnLoad;
-		}
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// Start
-	private	void	Start()
-	{
-		GlobalManager.SetCursorVisibility( false );
+		GameManager.StreamEvents.OnSave -= OnSave;
+		GameManager.StreamEvents.OnLoad -= OnLoad;
 	}
 
 
@@ -291,8 +280,11 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 		// CAMERA EFFECTS
 		if ( Player.Instance.IsGrounded )
 		{
-			m_HeadBob.Update ( weight : Player.Instance.IsMoving == true ? 1f : 0f );
-			m_HeadMove.Update( weight : Player.Instance.IsMoving == true ? 0f : 1f );
+			m_HeadBob.SetWeight( newWeight: Player.Instance.IsMoving == true ? 1f : 0f  );
+			m_HeadMove.SetWeight( newWeight: Player.Instance.IsMoving == true ? 1f : 0f  );
+
+			m_HeadBob.Update();
+			m_HeadMove.Update();
 		}
 		else
 		{
@@ -401,8 +393,11 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 				m_CurrentDirection += m_HeadBob.Direction + m_HeadMove.Direction;
 			}
 
-			// Horizonatal rotatation
-			transform.parent.localRotation = Quaternion.Euler( Vector3.up * m_CurrentDirection.y );
+			if ( ( m_CurrentRotation_X_Delta != 0.0f || m_CurrentRotation_Y_Delta != 0.0f ) )
+			{
+				// Horizonatal rotatation
+				transform.parent.localRotation = Quaternion.Euler( Vector3.up * m_CurrentDirection.y );
+			}
 
 			// Vertical rotation
 			transform.localRotation = Quaternion.Euler( Vector3.right * m_CurrentDirection.x );
