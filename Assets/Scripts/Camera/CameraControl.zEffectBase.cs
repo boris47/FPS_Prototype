@@ -8,11 +8,21 @@ public abstract class CameraEffectBase {
 	[SerializeField]
 	protected	float		m_WpnInfluence				= 0.01f;
 
+	[SerializeField]
+	protected float			m_Amplitude					= 3.0f;
 
-	protected	float		m_CurrentWeight				= 1.0f;
-	protected	float		m_TargetWeight				= 1.0f;
+	[SerializeField]
+	protected float			m_Speed						= 1.0f;
+
+	[SerializeField]
+	protected	float		m_Theta_Upd_Vert			= 5.0f;
+
+	[SerializeField]
+	protected	float		m_Theta_Upd_Oriz			= 2.5f;
+
+	[SerializeField]
 	protected	float		m_InternalWeight			= 1.0f;
-	protected	float		m_Interpolant				= 0.0f;
+
 
 
 	protected	Vector3		m_Direction					= Vector3.zero;
@@ -27,12 +37,8 @@ public abstract class CameraEffectBase {
 	protected	float		m_AmplitudeMult				= 1.0f;
 	public		float		AmplitudeMult				{ get { return m_AmplitudeMult; } set { m_AmplitudeMult = value; } }
 
+	[SerializeField]
 	protected	bool		m_IsActive					= true;
 	public		bool		IsActive					{ get { return m_IsActive; } set { m_IsActive = value; } }
 
-	public		void SetWeight( float newWeight )
-	{
-		m_TargetWeight = newWeight;
-		m_Interpolant = 1.0f;
-	}
 }

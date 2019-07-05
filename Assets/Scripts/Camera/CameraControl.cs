@@ -70,10 +70,10 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 	private		float							m_SmoothFactor							= 1.0f;
 
 	[SerializeField]
-	private		HeadMove						m_HeadMove								= null;
+	private		HeadMove						m_HeadMove								= new HeadMove();
 
 	[SerializeField]
-	private		HeadBob							m_HeadBob								= null;
+	private		HeadBob							m_HeadBob								= new HeadBob();
 
 	[SerializeField]
 	private		Transform						m_WeaponPivot							= null;
@@ -93,6 +93,15 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 	private		Vector3							m_WpnRotationFeedback					= Vector3.zero;
 	private		Vector3							m_WpnFallFeedback						= Vector3.zero;
 	private		float							m_Recoil								= 0.0f;
+
+
+	[System.Serializable]
+	private class CameraSectionData {
+		public	float	ViewDistance					= 500f;
+	}
+
+	[SerializeField]
+	private		CameraSectionData			m_CameraSectionData = new CameraSectionData();
 
 
 
@@ -116,6 +125,17 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 
 		m_CameraRef = GetComponent<Camera>();
 		m_PP_Profile = GetComponent<PostProcessingBehaviour>().profile;
+
+
+		if ( GlobalManager.Configs.bGetSection( "Camera", m_CameraSectionData ) == false )
+		{
+			Debug.Log( "UI_Indicators::Initialize:Cannot load m_CameraSectionData" );
+		}
+		else
+		{
+			m_HeadMove.Setup();
+			m_HeadBob.Setup();
+		}
 	}
 
 
@@ -262,11 +282,13 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 //		m_WpnFallFeedback = Vector3.ClampMagnitude( m_WpnCurrentDeviation, WPN_FALL_FEEDBACK_CLAMP_VALUE );
 	}
 
-	void	ICameraControl.AddRecoil							( float recoil )
+
+	//////////////////////////////////////////////////////////////////////////
+	// AddRecoil
+	void	ICameraControl.AddRecoil( float recoil )
 	{
 		m_Recoil += recoil;
 	}
-
 
 	//////////////////////////////////////////////////////////////////////////
 	// LateUpdate
@@ -280,11 +302,8 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 		// CAMERA EFFECTS
 		if ( Player.Instance.IsGrounded )
 		{
-			m_HeadBob.SetWeight( newWeight: Player.Instance.IsMoving == true ? 1f : 0f  );
-			m_HeadMove.SetWeight( newWeight: Player.Instance.IsMoving == true ? 1f : 0f  );
-
-			m_HeadBob.Update();
-			m_HeadMove.Update();
+			m_HeadMove.Update( Player.Instance.IsMoving == true ? 0f : 1f  );
+			m_HeadBob.Update( Player.Instance.IsMoving == true ? 1f : 0f  );
 		}
 		else
 		{

@@ -109,11 +109,12 @@ AI Behiaviours
 	TODO Screen notifies
 ---	TODO Surface manager should get configuration by dedicated file ( Denied )
 	TODO Usare i System.Guid
-	TODO GameObjectsPool support async creation
+***	TODO GameObjectsPool support async creation
 
 	// Ref: https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/anonymous-types
 	// var v = new { Amount = 108, Message = "Hello" 
 	// Can be used in bGetSection !!!
 
 	TODO Fix player raycast
-	TODO*** ArrayList inside Sections
+***	TODO ArrayList inside Sections
+***	TODO Add suport for multiline list in sections

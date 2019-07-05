@@ -1,5 +1,6 @@
 
-GAME STARTUP - MENU SHOWING UP
+GAME STARTUP
+
 	GlobalManager				Awake
 	CustomSceneManager			Awake
 	GameManager					Awake	OnEnable

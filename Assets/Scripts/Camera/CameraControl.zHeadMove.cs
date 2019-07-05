@@ -5,15 +5,6 @@ using UnityEngine;
 [System.Serializable]
 public class HeadMove : CameraEffectBase {
 
-	private	const	float				THETA_UPDATE_X				= 0.8f;
-	private	const	float				THETA_UPDATE_Y				= 0.4f;
-
-	[SerializeField]
-	private float						m_Amplitude					= 0.2f;
-
-	[SerializeField]
-	private float						m_Speed						= 5.0f;
-
 	private	static	Vector3				m_WeaponPositionDelta		= Vector3.zero;
 	public	static	Vector3				WeaponPositionDelta
 	{
@@ -27,14 +18,38 @@ public class HeadMove : CameraEffectBase {
 	}
 
 
+	// SECTION DATA
+	[System.Serializable]
+	private class HeadMoveSectionData {
+		public	float	Amplitude				= 0.80f;
+		public	float	Speed					= 1.25f;
+		public	float	Theta_Upd_Vert			= 0.80f;
+		public	float	Theta_Upd_Oriz			= 0.40f;
+	}
+
+	[SerializeField]
+	private		HeadMoveSectionData			m_HeadMoveSectionData = new HeadMoveSectionData();
 
 
-	public void Update()
+	public	void Setup()
 	{
-		if ( m_Interpolant > 0.0f )
+		if ( GlobalManager.Configs.bGetSection( "HeadMove", m_HeadMoveSectionData ) == false )
 		{
-			m_InternalWeight = Mathf.Lerp( m_CurrentWeight, m_TargetWeight, Time.deltaTime * 5f );
+			Debug.Log( "HeadMove::Setup:Cannot load m_HeadMoveSectionData" );
 		}
+		else
+		{
+			m_Amplitude			= m_HeadMoveSectionData.Amplitude;
+			m_Speed				= m_HeadMoveSectionData.Speed;
+			m_Theta_Upd_Vert	= m_HeadMoveSectionData.Theta_Upd_Vert;
+			m_Theta_Upd_Oriz	= m_HeadMoveSectionData.Theta_Upd_Oriz;
+		}
+	}
+
+
+	public void Update( float weight )
+	{
+		m_InternalWeight = Mathf.Lerp( m_InternalWeight, weight, Time.deltaTime * 5f );
 
 		if ( m_IsActive == false )
 			return;
@@ -54,22 +69,24 @@ public class HeadMove : CameraEffectBase {
 //		fAmplitude		*= ( ( bZoomed )	? 0.85f : 1.00f );
 		fAmplitude		*= ( 5.0f - ( fStamina * 4.0f ) );
 
-		m_ThetaX +=   THETA_UPDATE_X * fSpeed * m_InternalWeight;
-		m_ThetaY += ( THETA_UPDATE_Y + Random.Range( 0.0f, 0.03f ) ) * fSpeed * m_InternalWeight;
+		m_ThetaX +=   m_Theta_Upd_Vert * fSpeed * m_InternalWeight;
+		m_ThetaY += ( m_Theta_Upd_Oriz + Random.Range( 0.0f, 0.03f ) ) * fSpeed * m_InternalWeight;
 
 
 		float deltaX = -Mathf.Cos( m_ThetaX ) * fAmplitude;
 		float deltaY =  Mathf.Cos( m_ThetaY ) * fAmplitude * 0.2f;
-		m_Direction.Set ( deltaX * m_InternalWeight, deltaY * m_InternalWeight, 0.0f );
+		m_Direction.Set ( deltaX, deltaY, 0.0f );
+		m_Direction *= m_InternalWeight;
 
-		m_WeaponPositionDelta.x = deltaY * m_WpnInfluence * m_InternalWeight;
-		m_WeaponPositionDelta.y = deltaX * m_WpnInfluence * m_InternalWeight;
+		m_WeaponPositionDelta.x = deltaY;
+		m_WeaponPositionDelta.y = deltaX;
+		m_WeaponRotationDelta.x = deltaY;
+		m_WeaponRotationDelta.y = deltaX;
+		m_WeaponPositionDelta *= m_WpnInfluence * m_InternalWeight;
+		m_WeaponRotationDelta *= m_WpnInfluence * m_InternalWeight;
 
-		m_WeaponRotationDelta.x = deltaY * m_WpnInfluence * m_InternalWeight;
-		m_WeaponRotationDelta.y = deltaX * m_WpnInfluence * m_InternalWeight;
 
 	}
-
 
 
 	public void Reset( bool bInstantly = false )

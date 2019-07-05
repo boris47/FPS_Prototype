@@ -5,15 +5,10 @@ using UnityEngine;
 [System.Serializable]
 public class HeadBob : CameraEffectBase {
 
-	private	const	float				STEP_VALUE					= 0.8f;
-	private	const	float				THETA_UPDATE_X				= 5.0f;
-	private	const	float				THETA_UPDATE_Y				= 2.5f;
-
 	[SerializeField]
-	private float						m_Amplitude					= 3.0f;
+	private	float						m_StepValue					= 0.8f;
 
-	[SerializeField]
-	private float						m_Speed						= 1.0f;
+	private	bool						m_StepDone					= false;
 
 	private	static	Vector3				m_WeaponPositionDelta		= Vector3.zero;
 	public	static	Vector3				WeaponPositionDelta
@@ -28,15 +23,40 @@ public class HeadBob : CameraEffectBase {
 	}
 
 
-	private	bool						m_StepDone					= false;
-	
+	// SECTION DATA
+	[System.Serializable]
+	private class HeadBobSectionData {
+		public	float	Amplitude				= 0.002f;
+		public	float	Speed					= 0.5f;
+		public	float	Step					= 0.80f;
+		public	float	Theta_Upd_Vert			= 0.80f;
+		public	float	Theta_Upd_Oriz			= 0.40f;
+	}
 
-	public void Update()
+	[SerializeField]
+	private		HeadBobSectionData			m_HeadBobSectionData = new HeadBobSectionData();
+
+
+	public	void Setup()
 	{
-		if ( m_Interpolant > 0.0f )
+		if ( GlobalManager.Configs.bGetSection( "HeadBob", m_HeadBobSectionData ) == false )
 		{
-			m_InternalWeight = Mathf.Lerp( m_CurrentWeight, m_TargetWeight, Time.deltaTime * 5f );
+			Debug.Log( "HeadBob::Setup:Cannot load m_HeadBobSectionData" );
 		}
+		else
+		{
+			m_Amplitude			= m_HeadBobSectionData.Amplitude;
+			m_Speed				= m_HeadBobSectionData.Speed;
+			m_StepValue			= m_HeadBobSectionData.Step;
+			m_Theta_Upd_Vert	= m_HeadBobSectionData.Theta_Upd_Vert;
+			m_Theta_Upd_Oriz	= m_HeadBobSectionData.Theta_Upd_Oriz;
+		}
+	}
+
+
+	public void Update( float weight )
+	{
+		m_InternalWeight = Mathf.Lerp( m_InternalWeight, weight, Time.deltaTime * 5f );
 
 		if ( m_IsActive == false )
 			return;
@@ -57,8 +77,8 @@ public class HeadBob : CameraEffectBase {
 //		fAmplitude		*= ( 3.0f - fStamina * 2.0f );
 
 
-		m_ThetaX +=   THETA_UPDATE_X * fSpeed * m_InternalWeight;
-		m_ThetaY += ( THETA_UPDATE_Y + Random.Range( 0.0f, 0.03f ) ) * fSpeed * m_InternalWeight;
+		m_ThetaX +=   m_Theta_Upd_Vert * fSpeed * m_InternalWeight;
+		m_ThetaY += ( m_Theta_Upd_Oriz + Random.Range( 0.0f, 0.03f ) ) * fSpeed * m_InternalWeight;
 
 
 		float	deltaX = -Mathf.Cos( m_ThetaX ) * fAmplitude;
@@ -72,7 +92,7 @@ public class HeadBob : CameraEffectBase {
 		m_WeaponRotationDelta.y = deltaX * m_WpnInfluence * m_InternalWeight;
 
 		// Steps
-		if ( Mathf.Abs( Mathf.Cos( m_ThetaY ) ) > STEP_VALUE )
+		if ( Mathf.Abs( Mathf.Cos( m_ThetaY ) ) > m_StepValue )
 		{
 			if ( m_StepDone == false )
 			{
@@ -85,7 +105,6 @@ public class HeadBob : CameraEffectBase {
 			m_StepDone = false;
 		}
 	}
-
 
 
 	public void Reset( bool bInstantly = false )
