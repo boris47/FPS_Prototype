@@ -24,12 +24,12 @@ public abstract class CameraEffectBase {
 	protected	float		m_InternalWeight			= 1.0f;
 
 
-
+	[SerializeField]
 	protected	Vector3		m_Direction					= Vector3.zero;
 	public		Vector3		Direction					{ get { return m_Direction; } }
 
 	protected	float		m_ThetaX					= 0f;
-	protected	float		m_ThetaY					= 0f;
+	protected	float		m_ThetaY					= 90f;
 
 	protected	float		m_SpeedMul					= 1.0f;
 	public		float		SpeedMul					{ get { return m_SpeedMul; } set { m_SpeedMul = value; } }

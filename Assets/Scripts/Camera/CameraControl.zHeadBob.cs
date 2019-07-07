@@ -25,7 +25,8 @@ public class HeadBob : CameraEffectBase {
 
 	// SECTION DATA
 	[System.Serializable]
-	private class HeadBobSectionData {
+	private class EffectSectionData {
+		public	float	WpnInfluence			= 0.1f;
 		public	float	Amplitude				= 0.002f;
 		public	float	Speed					= 0.5f;
 		public	float	Step					= 0.80f;
@@ -34,26 +35,29 @@ public class HeadBob : CameraEffectBase {
 	}
 
 	[SerializeField]
-	private		HeadBobSectionData			m_HeadBobSectionData = new HeadBobSectionData();
+	private		EffectSectionData			m_EffectSectionData = new EffectSectionData();
 
 
+	//////////////////////////////////////////////////////////////////////////
 	public	void Setup()
 	{
-		if ( GlobalManager.Configs.bGetSection( "HeadBob", m_HeadBobSectionData ) == false )
+		if ( GlobalManager.Configs.bGetSection( "HeadBob", m_EffectSectionData ) == false )
 		{
 			Debug.Log( "HeadBob::Setup:Cannot load m_HeadBobSectionData" );
 		}
 		else
 		{
-			m_Amplitude			= m_HeadBobSectionData.Amplitude;
-			m_Speed				= m_HeadBobSectionData.Speed;
-			m_StepValue			= m_HeadBobSectionData.Step;
-			m_Theta_Upd_Vert	= m_HeadBobSectionData.Theta_Upd_Vert;
-			m_Theta_Upd_Oriz	= m_HeadBobSectionData.Theta_Upd_Oriz;
+			m_WpnInfluence		= m_EffectSectionData.WpnInfluence;
+			m_Amplitude			= m_EffectSectionData.Amplitude;
+			m_Speed				= m_EffectSectionData.Speed;
+			m_StepValue			= m_EffectSectionData.Step;
+			m_Theta_Upd_Vert	= m_EffectSectionData.Theta_Upd_Vert;
+			m_Theta_Upd_Oriz	= m_EffectSectionData.Theta_Upd_Oriz;
 		}
 	}
 
-
+	
+	//////////////////////////////////////////////////////////////////////////
 	public void Update( float weight )
 	{
 		m_InternalWeight = Mathf.Lerp( m_InternalWeight, weight, Time.deltaTime * 5f );
@@ -64,6 +68,7 @@ public class HeadBob : CameraEffectBase {
 		float	fStamina	= Player.Instance.Stamina;
 		bool	bRunning	= Player.Instance.IsRunning;
 		bool	bCrouched	= Player.Instance.IsCrouched;
+//		bool	bZoomed		= WeaponManager.Instance.IsZoomed;
 
 		float fSpeed = m_Speed * m_SpeedMul * Time.deltaTime;
 		fSpeed		*= ( ( bRunning )	?	1.70f : 1.00f );
@@ -76,20 +81,17 @@ public class HeadBob : CameraEffectBase {
 	//	fAmplitude		*= ( ( bZoomed )	?	0.80f : 1.00f );
 //		fAmplitude		*= ( 3.0f - fStamina * 2.0f );
 
+		m_ThetaX += fSpeed;
+		m_ThetaY += fSpeed * 2.0f;
 
-		m_ThetaX +=   m_Theta_Upd_Vert * fSpeed * m_InternalWeight;
-		m_ThetaY += ( m_Theta_Upd_Oriz + Random.Range( 0.0f, 0.03f ) ) * fSpeed * m_InternalWeight;
+		float deltaX = Mathf.Sin( m_ThetaX ) * m_Theta_Upd_Oriz * fAmplitude * m_InternalWeight;
+		float deltaY = Mathf.Cos( m_ThetaY ) * m_Theta_Upd_Vert * fAmplitude * m_InternalWeight;
+		m_Direction.Set ( deltaX, deltaY, 0.0f );
 
-
-		float	deltaX = -Mathf.Cos( m_ThetaX ) * fAmplitude;
-		float	deltaY =  Mathf.Cos( m_ThetaY ) * fAmplitude;
-		m_Direction.Set ( deltaX * m_InternalWeight, deltaY * m_InternalWeight, 0.0f );
-
-		m_WeaponPositionDelta.x = deltaY * m_WpnInfluence * m_InternalWeight;
-		m_WeaponPositionDelta.y = deltaX * m_WpnInfluence * m_InternalWeight;
-
-		m_WeaponRotationDelta.x = deltaY * m_WpnInfluence * m_InternalWeight;
-		m_WeaponRotationDelta.y = deltaX * m_WpnInfluence * m_InternalWeight;
+		m_WeaponPositionDelta.z = deltaX * m_WpnInfluence;
+		m_WeaponPositionDelta.y = deltaY * m_WpnInfluence;
+		m_WeaponRotationDelta.x = deltaX * m_WpnInfluence;
+		m_WeaponRotationDelta.y = deltaY * m_WpnInfluence;
 
 		// Steps
 		if ( Mathf.Abs( Mathf.Cos( m_ThetaY ) ) > m_StepValue )
@@ -107,6 +109,7 @@ public class HeadBob : CameraEffectBase {
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
 	public void Reset( bool bInstantly = false )
 	{
 		if ( bInstantly )

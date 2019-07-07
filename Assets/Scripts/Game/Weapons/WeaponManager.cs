@@ -397,7 +397,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 			yield return null;
 		}
 
-		CameraControl.Instance.HeadMove.AmplitudeMult /= m_ZoomFactor;
+///		CameraControl.Instance.HeadMove.AmplitudeMult /= m_ZoomFactor;
 
 		if ( m_ZoomFrame != null )
 		{
@@ -442,7 +442,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 			yield return null;
 		}
 
-		CameraControl.Instance.HeadMove.AmplitudeMult *= m_ZoomFactor;
+///		CameraControl.Instance.HeadMove.AmplitudeMult *= m_ZoomFactor;
 		
 
 //		CurrentWeapon.Enabled = true;

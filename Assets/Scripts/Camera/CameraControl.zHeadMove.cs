@@ -20,7 +20,8 @@ public class HeadMove : CameraEffectBase {
 
 	// SECTION DATA
 	[System.Serializable]
-	private class HeadMoveSectionData {
+	private class EffectSectionData {
+		public	float	WpnInfluence			= 0.1f;
 		public	float	Amplitude				= 0.80f;
 		public	float	Speed					= 1.25f;
 		public	float	Theta_Upd_Vert			= 0.80f;
@@ -28,25 +29,28 @@ public class HeadMove : CameraEffectBase {
 	}
 
 	[SerializeField]
-	private		HeadMoveSectionData			m_HeadMoveSectionData = new HeadMoveSectionData();
+	private		EffectSectionData			m_EffectSectionData = new EffectSectionData();
 
 
+	//////////////////////////////////////////////////////////////////////////
 	public	void Setup()
 	{
-		if ( GlobalManager.Configs.bGetSection( "HeadMove", m_HeadMoveSectionData ) == false )
+		if ( GlobalManager.Configs.bGetSection( "HeadMove", m_EffectSectionData ) == false )
 		{
 			Debug.Log( "HeadMove::Setup:Cannot load m_HeadMoveSectionData" );
 		}
 		else
 		{
-			m_Amplitude			= m_HeadMoveSectionData.Amplitude;
-			m_Speed				= m_HeadMoveSectionData.Speed;
-			m_Theta_Upd_Vert	= m_HeadMoveSectionData.Theta_Upd_Vert;
-			m_Theta_Upd_Oriz	= m_HeadMoveSectionData.Theta_Upd_Oriz;
+			m_WpnInfluence		= m_EffectSectionData.WpnInfluence;
+			m_Amplitude			= m_EffectSectionData.Amplitude;
+			m_Speed				= m_EffectSectionData.Speed;
+			m_Theta_Upd_Vert	= m_EffectSectionData.Theta_Upd_Vert;
+			m_Theta_Upd_Oriz	= m_EffectSectionData.Theta_Upd_Oriz;
 		}
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
 	public void Update( float weight )
 	{
 		m_InternalWeight = Mathf.Lerp( m_InternalWeight, weight, Time.deltaTime * 5f );
@@ -69,26 +73,22 @@ public class HeadMove : CameraEffectBase {
 //		fAmplitude		*= ( ( bZoomed )	? 0.85f : 1.00f );
 		fAmplitude		*= ( 5.0f - ( fStamina * 4.0f ) );
 
-		m_ThetaX +=   m_Theta_Upd_Vert * fSpeed * m_InternalWeight;
-		m_ThetaY += ( m_Theta_Upd_Oriz + Random.Range( 0.0f, 0.03f ) ) * fSpeed * m_InternalWeight;
+		m_ThetaX += fSpeed * Random.Range( 0.0f, 6f );
+		m_ThetaY += fSpeed * Random.Range( 0.0f, 6f );
 
-
-		float deltaX = -Mathf.Cos( m_ThetaX ) * fAmplitude;
-		float deltaY =  Mathf.Cos( m_ThetaY ) * fAmplitude * 0.2f;
+		float deltaX = Mathf.Sin( m_ThetaX ) * m_Theta_Upd_Vert * fAmplitude * m_InternalWeight;
+		float deltaY = Mathf.Cos( m_ThetaY ) * m_Theta_Upd_Oriz * fAmplitude * m_InternalWeight;
 		m_Direction.Set ( deltaX, deltaY, 0.0f );
-		m_Direction *= m_InternalWeight;
+//		m_Direction *= m_InternalWeight;
 
-		m_WeaponPositionDelta.x = deltaY;
-		m_WeaponPositionDelta.y = deltaX;
-		m_WeaponRotationDelta.x = deltaY;
-		m_WeaponRotationDelta.y = deltaX;
-		m_WeaponPositionDelta *= m_WpnInfluence * m_InternalWeight;
-		m_WeaponRotationDelta *= m_WpnInfluence * m_InternalWeight;
-
-
+//		m_WeaponPositionDelta.x = deltaX * m_WpnInfluence;
+		m_WeaponPositionDelta.y = -deltaY * m_WpnInfluence;
+		m_WeaponRotationDelta.x = deltaX * m_WpnInfluence;
+		m_WeaponRotationDelta.y = deltaY * m_WpnInfluence;
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
 	public void Reset( bool bInstantly = false )
 	{
 		if ( bInstantly )

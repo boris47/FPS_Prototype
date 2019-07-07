@@ -135,6 +135,7 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 		{
 			m_HeadMove.Setup();
 			m_HeadBob.Setup();
+			m_CameraRef.farClipPlane = m_CameraSectionData.ViewDistance;
 		}
 	}
 
@@ -328,11 +329,11 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 				// Position
 				Vector3 localPosition		= HeadBob.WeaponPositionDelta + HeadMove.WeaponPositionDelta + ( Vector3.left * m_Recoil );
 
-				WeaponManager.Instance.CurrentWeapon.Transform.localPosition	 = localPosition;
+				WeaponManager.Instance.CurrentWeapon.Transform.localPosition = localPosition;
 
 				// Rotation
 				Vector3 localEulerAngles	= HeadBob.WeaponRotationDelta + HeadMove.WeaponRotationDelta + m_WpnCurrentDispersion + m_WpnRotationFeedback + m_WpnFallFeedback;
-				WeaponManager.Instance.CurrentWeapon.Transform.localEulerAngles	 = localEulerAngles;
+				WeaponManager.Instance.CurrentWeapon.Transform.localEulerAngles	= localEulerAngles;
 
 				Vector3 basePivotRotation = Vector3.up * -90f;
 				m_WeaponPivot.localEulerAngles = m_HeadBob.Direction*10f + basePivotRotation;
@@ -412,7 +413,7 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 				m_CurrentDirection += m_HeadBob.Direction + m_HeadMove.Direction;
 			}
 
-			if ( ( m_CurrentRotation_X_Delta != 0.0f || m_CurrentRotation_Y_Delta != 0.0f ) )
+//			if ( ( m_CurrentRotation_X_Delta != 0.0f || m_CurrentRotation_Y_Delta != 0.0f ) )
 			{
 				// Horizonatal rotatation
 				transform.parent.localRotation = Quaternion.Euler( Vector3.up * m_CurrentDirection.y );

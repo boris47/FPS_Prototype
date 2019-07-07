@@ -1,8 +1,8 @@
 {
     "m_Data": [
         {
-            "InstanceID": -6422,
-            "Name": "Camera",
+            "InstanceID": -11766,
+            "Name": "Camera_InGame",
             "Position": {
                 "x": 0.0,
                 "y": 0.0,
@@ -17,7 +17,7 @@
             "Internals": [
                 {
                     "Key": "CurrentDirection",
-                    "Value": "1.880703, 9.274901, 0"
+                    "Value": "0.2869553, -0.2454478, 0"
                 },
                 {
                     "Key": "CanParseInput",
@@ -34,12 +34,60 @@
             ]
         },
         {
-            "InstanceID": 15502,
+            "InstanceID": -9076,
+            "Name": "Tutorial_ReachLocation",
+            "Position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "Internals": []
+        },
+        {
+            "InstanceID": -9080,
+            "Name": "Tutorial_Interaction",
+            "Position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "Internals": []
+        },
+        {
+            "InstanceID": -9086,
+            "Name": "KellEmAll",
+            "Position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "Internals": []
+        },
+        {
+            "InstanceID": -10548,
             "Name": "Player",
             "Position": {
-                "x": 17.887908935546876,
+                "x": 19.18000030517578,
                 "y": 5.525000095367432,
-                "z": -33.214500427246097
+                "z": -36.099998474121097
             },
             "Rotation": {
                 "x": 0.0,
@@ -67,7 +115,7 @@
             ]
         },
         {
-            "InstanceID": -5540,
+            "InstanceID": -13294,
             "Name": "WeaponManager",
             "Position": {
                 "x": 0.0,
@@ -116,7 +164,7 @@
             ]
         },
         {
-            "InstanceID": 15436,
+            "InstanceID": 18494,
             "Name": "DroneStandard",
             "Position": {
                 "x": -8.41522216796875,
@@ -161,7 +209,44 @@
             ]
         },
         {
-            "InstanceID": -8018,
+            "InstanceID": -11892,
+            "Name": "Blackjack",
+            "Position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "Rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            "Internals": [
+                {
+                    "Key": "PrimaryModule",
+                    "Value": "WPN_FireModule_Barrel"
+                },
+                {
+                    "Key": "Blackjack",
+                    "Value": "50"
+                },
+                {
+                    "Key": "TimeToWaitBeforeRestore",
+                    "Value": "0"
+                },
+                {
+                    "Key": "RestorationSpeed",
+                    "Value": "5"
+                },
+                {
+                    "Key": "FlashLightActive",
+                    "Value": "False"
+                }
+            ]
+        },
+        {
+            "InstanceID": -11514,
             "Name": "CommandPanel",
             "Position": {
                 "x": 0.0,
@@ -182,161 +267,7 @@
             ]
         },
         {
-            "InstanceID": -6558,
-            "Name": "Breaker",
-            "Position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "Rotation": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0,
-                "w": 1.0
-            },
-            "Internals": [
-                {
-                    "Key": "Breaker",
-                    "Value": "50"
-                },
-                {
-                    "Key": "TimeToWaitBeforeRestore",
-                    "Value": "0"
-                },
-                {
-                    "Key": "RestorationSpeed",
-                    "Value": "5"
-                }
-            ]
-        },
-        {
-            "InstanceID": -6498,
-            "Name": "Razor",
-            "Position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "Rotation": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0,
-                "w": 1.0
-            },
-            "Internals": [
-                {
-                    "Key": "Razor",
-                    "Value": "500"
-                },
-                {
-                    "Key": "FlashLightActive",
-                    "Value": "False"
-                }
-            ]
-        },
-        {
-            "InstanceID": -6464,
-            "Name": "Hammer",
-            "Position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "Rotation": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0,
-                "w": 1.0
-            },
-            "Internals": [
-                {
-                    "Key": "Hammer",
-                    "Value": "5"
-                }
-            ]
-        },
-        {
-            "InstanceID": -6480,
-            "Name": "Arrow",
-            "Position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "Rotation": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0,
-                "w": 1.0
-            },
-            "Internals": [
-                {
-                    "Key": "Arrow",
-                    "Value": "9"
-                }
-            ]
-        },
-        {
-            "InstanceID": -6514,
-            "Name": "Blaster",
-            "Position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "Rotation": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0,
-                "w": 1.0
-            },
-            "Internals": [
-                {
-                    "Key": "Blaster",
-                    "Value": "500"
-                },
-                {
-                    "Key": "FlashLightActive",
-                    "Value": "False"
-                }
-            ]
-        },
-        {
-            "InstanceID": -6532,
-            "Name": "Blackjack",
-            "Position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "Rotation": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0,
-                "w": 1.0
-            },
-            "Internals": [
-                {
-                    "Key": "Blackjack",
-                    "Value": "50"
-                },
-                {
-                    "Key": "TimeToWaitBeforeRestore",
-                    "Value": "0"
-                },
-                {
-                    "Key": "RestorationSpeed",
-                    "Value": "5"
-                },
-                {
-                    "Key": "FlashLightActive",
-                    "Value": "False"
-                }
-            ]
-        },
-        {
-            "InstanceID": 15492,
+            "InstanceID": 18562,
             "Name": "DroneStandard (24)",
             "Position": {
                 "x": -15.875221252441407,
@@ -381,18 +312,18 @@
             ]
         },
         {
-            "InstanceID": 15402,
+            "InstanceID": -10622,
             "Name": "DroneStandard (22)",
             "Position": {
-                "x": -14.525222778320313,
+                "x": -4.420000076293945,
                 "y": 8.082763671875,
-                "z": -0.09601593017578125
+                "z": -35.29999923706055
             },
             "Rotation": {
                 "x": 0.0,
-                "y": 0.8418534398078919,
+                "y": 0.7028665542602539,
                 "z": 0.0,
-                "w": 0.539706289768219
+                "w": -0.7113218307495117
             },
             "Internals": [
                 {
@@ -426,7 +357,7 @@
             ]
         },
         {
-            "InstanceID": 15338,
+            "InstanceID": 18394,
             "Name": "DroneStandard (21)",
             "Position": {
                 "x": -12.155221939086914,
@@ -471,7 +402,7 @@
             ]
         },
         {
-            "InstanceID": -4662,
+            "InstanceID": -9264,
             "Name": "TurretGatling",
             "Position": {
                 "x": 29.020000457763673,
@@ -512,7 +443,7 @@
             ]
         },
         {
-            "InstanceID": 15232,
+            "InstanceID": 18272,
             "Name": "DroneStandard (23)",
             "Position": {
                 "x": -18.625221252441408,
@@ -557,7 +488,7 @@
             ]
         },
         {
-            "InstanceID": 15106,
+            "InstanceID": 18130,
             "Name": "CutsceneTrigger (1)",
             "Position": {
                 "x": 0.0,
@@ -578,7 +509,7 @@
             ]
         },
         {
-            "InstanceID": 15424,
+            "InstanceID": 18482,
             "Name": "CutsceneTrigger",
             "Position": {
                 "x": 0.0,
