@@ -5,12 +5,16 @@ ViewDistance			= 100.0;
 FlySpeed				= 3.7;
 FlyBoost				= 2.0;
 
-
-
 HeadLean_Max_Deegree	= 15.0;
 
-
 ;Effects
+
+[HeadMove]
+WpnInfluence			= 1.0;
+Amplitude				= 0.003;
+Speed					= 0.4;
+Theta_Upd_Vert			= 0.80;
+Theta_Upd_Oriz			= 0.40;
 
 [HeadBob]
 WpnInfluence			= 1.00;
@@ -19,11 +23,3 @@ Speed					= 5.40;
 Step					= 0.80;
 Theta_Upd_Oriz			= 1.00;
 Theta_Upd_Vert			= 0.50;
-
-
-[HeadMove]
-WpnInfluence			= 1.0;
-Amplitude				= 0.003;
-Speed					= 0.4;
-Theta_Upd_Vert			= 0.80;
-Theta_Upd_Oriz			= 0.40;

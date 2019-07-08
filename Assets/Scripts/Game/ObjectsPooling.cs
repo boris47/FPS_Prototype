@@ -1,7 +1,6 @@
 ﻿
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.Assertions;
 using UnityEngine;
 
 
@@ -45,19 +44,19 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	// CONSTRUCTOR
 	public	GameObjectsPool( GameObjectsPoolConstructorData<T> constructorData )
 	{
-		Assert.IsTrue
+		UnityEngine.Assertions.Assert.IsTrue
 		(
 			constructorData.Model != null,
 			"GameObjectsPool trying to create a pool with null Model for component " + typeof(T).Name
 		);
 
-		Assert.IsTrue
+		UnityEngine.Assertions.Assert.IsTrue
 		(
 			constructorData.Size > 0,
 			"GameObjectsPool trying to create a pool with null Model for component " + typeof(T).Name
 		);
 
-		Assert.IsTrue
+		UnityEngine.Assertions.Assert.IsTrue
 		(
 			constructorData.Model.transform.HasComponent<T>() == true,
 			"GameObjectsPool trying to create a pool with Model with no component " + typeof(T).Name + ", Model is " + constructorData.Model.name

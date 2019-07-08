@@ -108,7 +108,7 @@ public class GlobeGranade : GranadeBase {
 		}
 
 		m_InternalCounter -= Time.deltaTime;
-		if ( m_InternalCounter < 0 )
+		if ( m_InternalCounter < 0f )
 		{
 			OnExplosion();
 			return;

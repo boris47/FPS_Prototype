@@ -113,6 +113,7 @@ public class UIManager : MonoBehaviour, IUI {
 	private	static	UI_Confirmation			m_Confirmation					= null;
 	private	static	UI_Indicators			m_Indicators					= null;
 	private	static	UI_Minimap				m_UI_Minimap					= null;
+	private	static	UI_ComInterface			m_UI_ComInterface				= null;
 	private	static	Image					m_EffectFrame					= null;
 	private			Transform				m_RayCastInterceptor			= null;
 
@@ -128,6 +129,7 @@ public class UIManager : MonoBehaviour, IUI {
 	public	static	UI_Confirmation			Confirmation				{ get { return m_Confirmation; } }
 	public	static	UI_Indicators			Indicators					{ get { return m_Indicators; } }
 	public	static	UI_Minimap				Minimap						{ get { return m_UI_Minimap; } }
+	public	static	UI_ComInterface			ComInterface				{ get { return m_UI_ComInterface; } }
 	public	static	Image					EffectFrame					{ get { return m_EffectFrame; } }
 
 	// INTERFACE END
@@ -182,6 +184,8 @@ public class UIManager : MonoBehaviour, IUI {
 			m_bIsInitialized &= m_InGame.transform.SearchComponent( ref m_Indicators, SearchContext.CHILDREN );
 			// Mini map
 			m_bIsInitialized &= m_InGame.transform.SearchComponent( ref m_UI_Minimap, SearchContext.CHILDREN );
+
+			m_bIsInitialized &= m_InGame.transform.SearchComponent( ref m_UI_ComInterface, SearchContext.CHILDREN );
 		}
 
 

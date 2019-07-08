@@ -21,9 +21,9 @@ public class HeadMove : CameraEffectBase {
 	// SECTION DATA
 	[System.Serializable]
 	private class EffectSectionData {
-		public	float	WpnInfluence			= 0.1f;
-		public	float	Amplitude				= 0.80f;
-		public	float	Speed					= 1.25f;
+		public	float	WpnInfluence			= 1.0f;
+		public	float	Amplitude				= 0.003f;
+		public	float	Speed					= 0.4f;
 		public	float	Theta_Upd_Vert			= 0.80f;
 		public	float	Theta_Upd_Oriz			= 0.40f;
 	}

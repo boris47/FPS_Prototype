@@ -26,12 +26,12 @@ public class HeadBob : CameraEffectBase {
 	// SECTION DATA
 	[System.Serializable]
 	private class EffectSectionData {
-		public	float	WpnInfluence			= 0.1f;
-		public	float	Amplitude				= 0.002f;
-		public	float	Speed					= 0.5f;
+		public	float	WpnInfluence			= 1.00f;
+		public	float	Amplitude				= 0.005f;
+		public	float	Speed					= 5.40f;
 		public	float	Step					= 0.80f;
-		public	float	Theta_Upd_Vert			= 0.80f;
-		public	float	Theta_Upd_Oriz			= 0.40f;
+		public	float	Theta_Upd_Vert			= 1.00f;
+		public	float	Theta_Upd_Oriz			= 0.50f;
 	}
 
 	[SerializeField]

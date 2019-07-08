@@ -23,6 +23,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 	private		GameObjectsPool<Transform>			m_Pool						= null;
 
+	// STORE DATA
 	private	struct ActiveIndicatorData {
 		public	GameObject		Target;
 		public	Image			MainIndicatorImage;
@@ -31,6 +32,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 	};
 	private		List<ActiveIndicatorData>			m_CurrentlyActive			= new List<ActiveIndicatorData>(MAX_ELEMENTS);
 
+	// REQUESTS
 	[System.Serializable]
 	private	struct IndicatorRequest {
 		public	GameObject			target;
@@ -40,21 +42,22 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 	[SerializeField]
 	private	List<IndicatorRequest>					m_Requests					= new List<IndicatorRequest>();
 
-	private		bool								m_bIsInitialized			= false;
-	bool IStateDefiner.IsInitialized
-	{
-		get { return m_bIsInitialized; }
-	}
+	// SECTION DATA
 	[System.Serializable]
 	private class UI_IndicatorsSectionData {
 		public	float	InScreenMarkerFactor		= 0.8f;
 
 		public	float	MinimapClampFactor			= 0.72f;
 	}
-
 	[SerializeField]
 	private		UI_IndicatorsSectionData			m_IndicatorsSectionData = new UI_IndicatorsSectionData();
 
+	// INITIALIZATION
+	private		bool								m_bIsInitialized			= false;
+	bool IStateDefiner.IsInitialized
+	{
+		get { return m_bIsInitialized; }
+	}
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
@@ -65,11 +68,12 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 		bool resourcesLoaded = true;
 
-
-		if ( GlobalManager.Configs.bGetSection( "UI_Indicators", m_IndicatorsSectionData ) == false )
-		{
-			Debug.Log( "UI_Indicators::Initialize:Cannot load UI_IndicatorsSectionData" );
-		}
+		// Section Data
+		UnityEngine.Assertions.Assert.IsTrue
+		(
+			GlobalManager.Configs.bGetSection( "UI_Indicators", m_IndicatorsSectionData ),
+			"UI_Indicators::Initialize:Cannot load UI_IndicatorsSectionData"
+		);
 
 		// Sprites for TargetToKill, LocationToReach or ObjectToInteractWith
 		ResourceManager.LoadedData<SpriteCollection> indicatorsSpritesCollection = new ResourceManager.LoadedData<SpriteCollection>();
@@ -99,7 +103,6 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 				Model			= indicatorPrefab.Asset,
 				Size			= MAX_ELEMENTS,
 				ContainerName	= "UI_IndicatorsPool",
-//				Parent			= transform,
 				ActionOnObject	= delegate( Transform t ) { t.gameObject.SetActive(false); t.SetParent(transform); },
 				IsAsyncBuild	= true
 			};
@@ -197,7 +200,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// DisableIndicator
+	// InternalCheck
 	/// <summary> Check whetever some data has been invalidated </summary>
 	private	void InternalCheck()
 	{

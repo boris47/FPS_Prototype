@@ -237,6 +237,11 @@ public partial class GameManager : MonoBehaviour {
 			slot.WeaponModule.ResetBaseConfiguration();
 		}
 		*/
+
+		if ( Input.GetKeyDown( KeyCode.N ) )
+		{
+			UIManager.ComInterface.SendNotification( "Ciao Mamma", 5f, Color.yellow );
+		}
 		
 
 		// Thinking Update

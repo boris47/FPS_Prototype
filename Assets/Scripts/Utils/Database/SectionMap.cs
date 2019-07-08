@@ -440,12 +440,12 @@ public class SectionMap {
 			Type classType = typeof(T);
 			FieldInfo[] fieldInfos = classType.GetFields( BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
 
-			bHadGoodResult &= fieldInfos.Length > 0;
+//			bHadGoodResult &= fieldInfos.Length > 0;
 
 			string[] sectionKeys = section.GetKeys();
 			foreach ( FieldInfo fieldInfo in fieldInfos )
 			{
-				Database.cLineValue lineValue = null;
+				cLineValue lineValue = null;
 				int index = System.Array.FindIndex( sectionKeys, key => fieldInfo.Name.Contains( key ) );
 				if ( index > -1 && ( bHadGoodResult &= section.bGetLineValue( sectionKeys[index], ref lineValue ) )	)
 				{

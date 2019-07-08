@@ -365,7 +365,7 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 
 			// Camera Rotation
 			Quaternion rotation		= Quaternion.LookRotation( m_Target.position - transform.position, transform.parent.up );
-			transform.rotation		= Quaternion.Slerp( transform.rotation, rotation, Time.unscaledDeltaTime * 8f ) * Quaternion.Euler( m_HeadBob.Direction + m_HeadMove.Direction );
+			transform.rotation		= Quaternion.Slerp( transform.rotation, rotation, Time.unscaledDeltaTime * 8f ) * Quaternion.Euler( m_HeadBob.Direction /*+ m_HeadMove.Direction*/ );
 			
 			// Head Rotation
 			Vector3 projectedPoint	= Utils.Math.ProjectPointOnPlane( transform.parent.up, transform.parent.position, m_Target.position );
@@ -407,10 +407,9 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 				m_CurrentDirection.y = m_CurrentDirection.y + m_CurrentRotation_X_Delta;
 			}
 
-			// Apply effects only if not chosing dodge rotation
-//			if ( Player.Instance.ChosingDodgeRotation == false )
+			// Apply effects
 			{
-				m_CurrentDirection += m_HeadBob.Direction + m_HeadMove.Direction;
+				m_CurrentDirection += m_HeadBob.Direction + ( ( WeaponManager.Instance.IsZoomed == true ) ? m_HeadMove.Direction : Vector3.zero );
 			}
 
 //			if ( ( m_CurrentRotation_X_Delta != 0.0f || m_CurrentRotation_Y_Delta != 0.0f ) )

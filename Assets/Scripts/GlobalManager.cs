@@ -94,8 +94,8 @@ public class GlobalManager : MonoBehaviour {
 	}
 
 //	float maximum = 1;
-	private void Update()
-	{
+///	private void Update()
+///	{
 		/*
 		if ( Input.GetKeyDown( KeyCode.V ) )
 		{
@@ -112,7 +112,7 @@ public class GlobalManager : MonoBehaviour {
 			maximum *= 2f;
 		}
 		*/
-	}
+///	}
 
 
 	//////////////////////////////////////////////////////////////////////////
