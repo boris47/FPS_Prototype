@@ -40,7 +40,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 		public	bool				bMustBeClamped;
 	}
 	[SerializeField]
-	private	List<IndicatorRequest>					m_Requests					= new List<IndicatorRequest>();
+	private	Queue<IndicatorRequest>					m_Requests					= new Queue<IndicatorRequest>();
 
 	// SECTION DATA
 	[System.Serializable]
@@ -129,6 +129,22 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 		return true;
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// ShowLabel
+	private void OnEnable()
+	{
+		GameManager.UpdateEvents.OnThink += UpdateRequestQueue;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ShowLabel
+	private void OnDisable()
+	{
+		GameManager.UpdateEvents.OnThink -= UpdateRequestQueue;
+	}
+
 	
 	//////////////////////////////////////////////////////////////////////////
 	// EnableIndicator
@@ -177,7 +193,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 			IndicatorType  = IndicatorType,
 			bMustBeClamped = bMustBeClamped
 		};
-		m_Requests.Add( indicatorRequest );
+		m_Requests.Enqueue( indicatorRequest );
 	}
 
 
@@ -218,19 +234,25 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	// UpdateNotifications
+	private	void	UpdateRequestQueue()
+	{
+		if ( m_bIsInitialized == false )
+			return;
+
+		if ( m_Requests.Count > 0 )
+		{
+			IndicatorRequest request = m_Requests.Dequeue();
+			EnableIndicatorInternal( request );
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
 	// FixedUpdate
 	private void LateUpdate()
 	{
 		if ( m_bIsInitialized == false )
 			return;
-
-		for ( int i = 0; i < m_Requests.Count; i++ )
-		{
-			IndicatorRequest request = m_Requests[i];
-			m_Requests.RemoveAt(i);
-			EnableIndicatorInternal( request );
-		}
-		m_Requests.Clear();
 
 		for ( int i = m_CurrentlyActive.Count - 1; i >= 0; i-- )
 		{

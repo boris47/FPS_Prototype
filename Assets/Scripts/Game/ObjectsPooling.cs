@@ -418,3 +418,234 @@ public	class ObjectsPool<T> where T : UnityEngine.Component {
 	}
 
 }
+
+
+
+public	class ClassPool<T> where T : class, new() {
+
+	private	List<T>		m_Storage			= null;
+	private	int			m_InternalIndex		= 0;
+	public	int			Count
+	{
+		get { return m_Storage.Count; }
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Costructor
+	public	ClassPool( uint size = 0 )
+	{
+		m_Storage = new List<T>( (int)size );
+		Resize( size );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Add
+	public	void	Add( T newItem )
+	{
+		if ( newItem != null )
+		{
+			m_Storage.Add( newItem );
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// Set
+	public	void	Set( T[] array )
+	{
+		m_Storage = new List<T>( array );
+		m_InternalIndex = 0;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Resize
+	public bool	Resize( uint newSize )
+	{
+		// Skip for invalid new size
+		if ( newSize == 0 )
+		{
+			return false;
+		}
+
+		// Return true if the requested size is the currently set
+		if ( m_Storage.Count == newSize )
+			return false;
+
+		// Calculate the delta
+		int delta = Mathf.Abs( m_Storage.Count - (int)newSize );
+
+
+		// Enlarge
+		if ( m_Storage.Count < newSize )
+		{
+			for ( int i = 0; i < delta; i++ )
+			{
+				m_Storage.Add( new T() );
+			}
+		}
+
+		// Reduction
+		if ( m_Storage.Count > newSize )
+		{
+			for ( int i = delta - 1; i >= 0; i-- )
+			{
+				m_Storage.RemoveAt(i);
+			}
+		}
+
+		m_InternalIndex = 0;
+		return true;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Get
+	public	T	Get()
+	{
+		m_InternalIndex ++;
+		if ( m_InternalIndex >= m_Storage.Count )
+			m_InternalIndex = 0;
+
+		return m_Storage[ m_InternalIndex ];
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// At
+	public	T	At( int index )
+	{
+		if ( index >= m_Storage.Count )
+			return default(T);
+
+		return m_Storage[ index ];
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Destroy
+	internal	void	Destroy()
+	{
+		m_Storage.Clear();
+		m_Storage= null;
+	}
+
+}
+
+
+
+public	class ClassPoolStack<T> where T : class, new() {
+
+	private	Stack<T>	m_Storage			= null;
+	private	IEnumerator	m_Enumerator		= null;
+	public	int			Count
+	{
+		get { return m_Storage.Count; }
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Costructor
+	public	ClassPoolStack( uint size = 0 )
+	{
+		m_Storage = new Stack<T>( (int)size );
+		Resize( size );
+
+		m_Enumerator = m_Storage.GetEnumerator();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Add
+	public	void	Add( T newItem )
+	{
+		if ( newItem != null )
+		{
+			m_Storage.Push( newItem );
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// Set
+	public	void	Set( T[] array )
+	{
+		m_Storage = new Stack<T>( array );
+		m_Enumerator = m_Storage.GetEnumerator();
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// Peek
+	public	T	Peek()
+	{
+		return m_Enumerator.Current as T;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Resize
+	public bool	Resize( uint newSize )
+	{
+		// Skip for invalid new size
+		if ( newSize == 0 )
+		{
+			return false;
+		}
+
+		// Return true if the requested size is the currently set
+		if ( m_Storage.Count == newSize )
+			return false;
+
+		// Calculate the delta
+		int delta = Mathf.Abs( m_Storage.Count - (int)newSize );
+
+
+		// Enlarge
+		if ( m_Storage.Count < newSize )
+		{
+			for ( int i = 0; i < delta; i++ )
+			{
+				m_Storage.Push( new T() );
+			}
+		}
+
+		// Reduction
+		if ( m_Storage.Count > newSize )
+		{
+			for ( int i = delta - 1; i >= 0; i-- )
+			{
+				m_Storage.Pop();
+			}
+		}
+
+		m_Enumerator.Reset();
+		return true;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Get
+	public	T	Get()
+	{
+		bool bHasNext = m_Enumerator.MoveNext();
+
+		T result = m_Enumerator.Current as T;
+
+		if ( bHasNext == false )
+		{
+			m_Enumerator.Reset();
+		}
+
+		return result;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Destroy
+	internal	void	Destroy()
+	{
+		m_Storage.Clear();
+		m_Storage= null;
+	}
+
+}

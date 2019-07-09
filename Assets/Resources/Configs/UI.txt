@@ -19,3 +19,5 @@ InScreenMarkerFactor	= 0.983;
 MinimapClampFactor		= 0.72;
 
 [Notifications]
+
+NotificationsDuration	= 5.0;

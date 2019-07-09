@@ -11,10 +11,11 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 
 	private		RectTransform						m_NotificationsPanel					= null;
 
+	private		float								m_NotificationsDuration					= 5f;
+
 	// STORE DATA
 	[System.Serializable]
 	private class ComInterfaceNotification {
-		public	float	Duration;
 		public	float	CurrentTime;
 		public	Text	TextComponent;
 		public	Color	Color;
@@ -24,17 +25,16 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 	// REQUESTS
 	[System.Serializable]
 	private	struct NotificationRequest {
-		public	float	Duration;
 		public	string	Text;
 		public	Color	Color;
 	}
 	[SerializeField]
-	private	List<NotificationRequest>					m_Requests					= new List<NotificationRequest>();
+	private	Queue<NotificationRequest>					m_Requests					= new Queue<NotificationRequest>();
 
 	// SECTION DATA
 	[System.Serializable]
 	private class UI_NotificationsSectionData {
-		
+		public	float	NotificationsDuration = 5f;
 	}
 	[SerializeField]
 	private		UI_NotificationsSectionData			m_NotificationsSectionData = new UI_NotificationsSectionData();
@@ -66,6 +66,8 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 			GlobalManager.Configs.bGetSection( "Notifications", m_NotificationsSectionData ),
 			"UI_ComInterface::Initialize:Cannot load m_NotificationsSectionData"
 		);
+
+		m_NotificationsDuration = m_NotificationsSectionData.NotificationsDuration;
 
 		// A prefab where the sprites will be set
 		ResourceManager.LoadedData<GameObject> notificationPrefab = new ResourceManager.LoadedData<GameObject>();
@@ -133,7 +135,7 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 	// ShowLabel
 	private void OnEnable()
 	{
-//		GameManager.UpdateEvents.OnThink += UpdateNotifications;
+		GameManager.UpdateEvents.OnThink += UpdateRequestQueue;
 	}
 
 
@@ -141,67 +143,71 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 	// ShowLabel
 	private void OnDisable()
 	{
-//		GameManager.UpdateEvents.OnThink -= UpdateNotifications;
+		GameManager.UpdateEvents.OnThink -= UpdateRequestQueue;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// SendNotification
-	public	void	SendNotification( string text, float duration, Color textColor )
+	public	void	SendNotification( string text, Color textColor )
 	{
 		NotificationRequest request = new NotificationRequest()
 		{
 			Text = text,
-			Duration = duration,
 			Color = textColor
 		};
-		m_Requests.Add( request );
-	} 
-
-	
-	//////////////////////////////////////////////////////////////////////////
-	// ShowLabel
-	public	void	ShowLabel( string text )
-	{
-
-	}
-	
+		m_Requests.Enqueue( request );
+	}	
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// UpdateNotifications
-	private	void	Update()
+	private	void	UpdateRequestQueue()
 	{
 		if ( m_bIsInitialized == false )
 			return;
 
-		for ( int i = 0; i < m_Requests.Count; i++ )
+		if ( m_Requests.Count > 0 )
 		{
-			NotificationRequest request = m_Requests[i];
-			m_Requests.RemoveAt(i);
+			NotificationRequest request = m_Requests.Dequeue();
 			EnableNotificationInternal( request );
 		}
-		m_Requests.Clear();
-
-		InternalCheck();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// InternalCheck
-	/// <summary> Check whetever some data has been invalidated </summary>
-	private	void InternalCheck()
+	// Update
+	private void Update()
 	{
+		if ( m_bIsInitialized == false )
+			return;
+
 		for ( int i = m_Notifications.Count - 1; i >= 0; i-- )
 		{
-			ComInterfaceNotification n = m_Notifications[i];
-			if ( n.CurrentTime < 0.0f )
+			ComInterfaceNotification notification = m_Notifications[i];
+
+			// Update time and color
+			notification.CurrentTime -= Time.deltaTime;
+			notification.TextComponent.color = Color.Lerp( notification.Color, Color.clear, 1.0f - Mathf.Pow( notification.CurrentTime, 2f ) / m_NotificationsDuration );
+
+			notification.TextComponent.rectTransform.localPosition = 
+				Vector2.up * 
+				( m_Notifications.Count - (float)i )* 
+				notification.TextComponent.rectTransform.rect.height;
+
+			// >Remove if out of date
+			if ( notification.CurrentTime < 0.0f )
 			{
-				m_Notifications[i].TextComponent.gameObject.SetActive( false );
-				m_Notifications.RemoveAt( i );
+				notification.TextComponent.gameObject.SetActive( false );
+				
+				if ( m_Notifications.Count >= MAX_ELEMENTS )
+				{
+					m_Notifications.RemoveAt( i );
+					--i;
+				}
 			}
-			n.CurrentTime -= Time.deltaTime;
 		}
+
 	}
 
 
@@ -209,23 +215,20 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 	// EnableIndicator
 	private	bool	EnableNotificationInternal( NotificationRequest request )
 	{
-		InternalCheck();
-
+		// Set components properties
 		Text textComponent = m_NotificationsPool.GetNextComponent();
-
 		textComponent.text = request.Text;
 		textComponent.color = request.Color;
+		textComponent.gameObject.SetActive( true );
 
+		// notification to active list
 		ComInterfaceNotification activeNotification = new ComInterfaceNotification()
 		{
-			Color = request.Color,
-			Duration = request.Duration,
-			CurrentTime = request.Duration,
-			TextComponent = textComponent
+			Color			= request.Color,
+			CurrentTime		= m_NotificationsDuration,
+			TextComponent	= textComponent
 		};
 		m_Notifications.Add( activeNotification );
-
-		textComponent.gameObject.SetActive( true );
 		return true;
 	}
 

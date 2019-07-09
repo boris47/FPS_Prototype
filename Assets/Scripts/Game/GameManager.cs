@@ -171,7 +171,7 @@ public partial class GameManager : MonoBehaviour {
 	{
 		m_OnPhysicFrame( Time.fixedDeltaTime );
 	}
-
+	int counter=0;
 //	private const float	m_InputUpdateDelay = 0.020f;
 //	private	float	m_CurrentInputDelay = 0.0f;
 	//////////////////////////////////////////////////////////////////////////
@@ -240,7 +240,7 @@ public partial class GameManager : MonoBehaviour {
 
 		if ( Input.GetKeyDown( KeyCode.N ) )
 		{
-			UIManager.ComInterface.SendNotification( "Ciao Mamma", 5f, Color.yellow );
+			UIManager.ComInterface.SendNotification( "Ciao Mamma"+counter++, Color.red );
 		}
 		
 
