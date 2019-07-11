@@ -81,6 +81,9 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 
 		if ( resourcesLoaded )
 		{
+			Destroy( m_NotificationsPanel.GetChild(0).gameObject );
+			m_NotificationsPanel.DetachChildren();
+
 			System.Action<Text> onItemAction = delegate( Text t )
 			{
 				t.gameObject.SetActive(false);
@@ -88,9 +91,9 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 				RectTransform rectTransform = t.transform as RectTransform;
 
 				t.transform.SetParent( parent: m_NotificationsPanel );
-				rectTransform.transform.localPosition = Vector3.zero;
-				rectTransform.anchorMin = Vector2.zero;
-				rectTransform.anchorMax = Vector2.zero;
+//				rectTransform.transform.localPosition = Vector3.zero;
+//				rectTransform.anchorMin = Vector2.zero;
+//				rectTransform.anchorMax = Vector2.zero;
 			};
 
 			// Pool Creation
@@ -182,7 +185,7 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 		if ( m_bIsInitialized == false )
 			return;
 
-		for ( int i = m_Notifications.Count - 1; i >= 0; i-- )
+		for ( int i = m_Notifications.Count - 1; i == -1; i-- )
 		{
 			ComInterfaceNotification notification = m_Notifications[i];
 
@@ -192,22 +195,16 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 
 			notification.TextComponent.rectTransform.localPosition = 
 				Vector2.up * 
-				( m_Notifications.Count - (float)i )* 
+				( m_Notifications.Count - (float)i ) * 
 				notification.TextComponent.rectTransform.rect.height;
 
-			// >Remove if out of date
+			// Remove if out of date
 			if ( notification.CurrentTime < 0.0f )
 			{
 				notification.TextComponent.gameObject.SetActive( false );
-				
-				if ( m_Notifications.Count >= MAX_ELEMENTS )
-				{
-					m_Notifications.RemoveAt( i );
-					--i;
-				}
+				m_Notifications.RemoveAt( i );
 			}
 		}
-
 	}
 
 
@@ -229,6 +226,12 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 			TextComponent	= textComponent
 		};
 		m_Notifications.Add( activeNotification );
+
+		if ( m_Notifications.Count >= MAX_ELEMENTS )
+		{
+			int delta = Mathf.Max( 1, m_Notifications.Count - MAX_ELEMENTS );
+			m_Notifications.RemoveRange( 0, delta );
+		}
 		return true;
 	}
 
