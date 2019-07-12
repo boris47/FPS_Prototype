@@ -94,7 +94,7 @@ public class HeadBob : CameraEffectBase {
 		m_WeaponRotationDelta.y = deltaY * m_WpnInfluence;
 
 		// Steps
-		if ( Mathf.Abs( Mathf.Cos( m_ThetaY ) ) > m_StepValue )
+		if ( Mathf.Abs( Mathf.Cos( m_ThetaX ) * m_InternalWeight ) > m_StepValue )
 		{
 			if ( m_StepDone == false )
 			{

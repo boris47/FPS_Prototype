@@ -184,8 +184,22 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 	{
 		if ( m_bIsInitialized == false )
 			return;
+		
+		// Disable ranged overflow
+		if ( m_Notifications.Count >= MAX_ELEMENTS )
+		{
+			int delta = Mathf.Max( 1, m_Notifications.Count - MAX_ELEMENTS );
+			for ( int i = 0; i < delta && i < m_Notifications.Count; i++ )
+			{
+				ComInterfaceNotification notification = m_Notifications[i];
+				notification.TextComponent.gameObject.SetActive( false );
 
-		for ( int i = m_Notifications.Count - 1; i == -1; i-- )
+			}
+			m_Notifications.RemoveRange( 0, delta );
+		}
+		
+
+		for ( int i = m_Notifications.Count - 1; i > -1; i-- )
 		{
 			ComInterfaceNotification notification = m_Notifications[i];
 
@@ -193,17 +207,32 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 			notification.CurrentTime -= Time.deltaTime;
 			notification.TextComponent.color = Color.Lerp( notification.Color, Color.clear, 1.0f - Mathf.Pow( notification.CurrentTime, 2f ) / m_NotificationsDuration );
 
-			notification.TextComponent.rectTransform.localPosition = 
-				Vector2.up * 
-				( m_Notifications.Count - (float)i ) * 
-				notification.TextComponent.rectTransform.rect.height;
-
 			// Remove if out of date
 			if ( notification.CurrentTime < 0.0f )
 			{
 				notification.TextComponent.gameObject.SetActive( false );
 				m_Notifications.RemoveAt( i );
 			}
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// UpdatePositions
+	private	void	UpdatePositions()
+	{
+		Canvas canvas = transform.parent.parent.GetComponent<Canvas>();
+		float scaleFactor = ( canvas.scaleFactor < 1.0f ) ? canvas.scaleFactor : 1f / canvas.scaleFactor;
+
+		int count = m_Notifications.Count - 1;
+		for ( int i = count; i > -1; i-- )
+		{
+			ComInterfaceNotification notification = m_Notifications[i];
+
+			notification.TextComponent.rectTransform.localPosition = 
+				Vector2.up * 
+				notification.TextComponent.rectTransform.rect.height * scaleFactor *
+				( count - i );
 		}
 	}
 
@@ -227,11 +256,7 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 		};
 		m_Notifications.Add( activeNotification );
 
-		if ( m_Notifications.Count >= MAX_ELEMENTS )
-		{
-			int delta = Mathf.Max( 1, m_Notifications.Count - MAX_ELEMENTS );
-			m_Notifications.RemoveRange( 0, delta );
-		}
+		UpdatePositions();
 		return true;
 	}
 
