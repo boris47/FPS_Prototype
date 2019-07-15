@@ -253,7 +253,7 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 	{
 		m_GridLayoutGroup.cellSize = new Vector2
 		(
-			( m_InventorySlots.rect.width - m_GridLayoutGroup.spacing.x )/ m_InventorySectionData.CellCountVertical, 
+			( m_InventorySlots.rect.width - m_GridLayoutGroup.spacing.x ) / m_InventorySectionData.CellCountVertical, 
 			( m_InventorySlots.rect.height - m_GridLayoutGroup.spacing.y ) / m_InventorySectionData.CellCountHorizontal
 		);
 	}

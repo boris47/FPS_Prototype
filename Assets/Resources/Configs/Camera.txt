@@ -19,7 +19,7 @@ Theta_Upd_Oriz			= 0.40;
 [HeadBob]
 WpnInfluence			= 1.00;
 Amplitude				= 0.005;
-Speed					= 5.40;
+Speed					= 5.00;
 Step					= 0.80;
 Theta_Upd_Oriz			= 1.00;
 Theta_Upd_Vert			= 0.50;

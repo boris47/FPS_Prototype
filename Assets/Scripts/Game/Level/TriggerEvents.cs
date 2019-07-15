@@ -22,22 +22,32 @@ public class TriggerEvents : MonoBehaviour {
 
 	private		bool			m_HasTriggered			= false;
 
+	private		Collider		m_Collider				= null;
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake
 	private void Awake()
 	{
-		Collider collider = GetComponent<Collider>();
-		if ( collider == null )
+		bool bHasCollider = transform.SearchComponent( ref m_Collider, SearchContext.LOCAL );
+
+		if ( bHasCollider )
 		{
 			Destroy(this);
 			return;
 		}
 
-		collider.isTrigger = true; // ensure is used as trigger
+		m_Collider.isTrigger = true; // ensure is used as trigger
+		m_Collider.enabled = false;
 
 		GameManager.StreamEvents.OnSave += OnSave;
 		GameManager.StreamEvents.OnLoad += OnLoad;
+	}
+
+	private void OnEnable()
+	{
+		if ( m_Target )
+			m_Collider.enabled = false;
 	}
 
 
