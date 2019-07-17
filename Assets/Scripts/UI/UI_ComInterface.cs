@@ -221,7 +221,7 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 	// UpdatePositions
 	private	void	UpdatePositions()
 	{
-		Canvas canvas = transform.parent.parent.GetComponent<Canvas>();
+		Canvas canvas = transform.root.GetComponent<Canvas>();
 		float scaleFactor = ( canvas.scaleFactor < 1.0f ) ? 1.0f : 1f / canvas.scaleFactor;
 
 		int count = m_Notifications.Count - 1;
