@@ -409,7 +409,7 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 
 			// Apply effects
 			{
-				m_CurrentDirection += m_HeadBob.Direction + ( ( WeaponManager.Instance.IsZoomed == true ) ? m_HeadMove.Direction : Vector3.zero );
+				m_CurrentDirection += m_HeadBob.Direction + ( /*( WeaponManager.Instance.IsZoomed == true ) ?*/ m_HeadMove.Direction/* : Vector3.zero*/ );
 			}
 
 //			if ( ( m_CurrentRotation_X_Delta != 0.0f || m_CurrentRotation_Y_Delta != 0.0f ) )

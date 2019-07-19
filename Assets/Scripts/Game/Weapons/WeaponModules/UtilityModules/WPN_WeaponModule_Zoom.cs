@@ -47,8 +47,8 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 		float zoomFactor		= moduleSection.AsFloat( "ZoomFactor",		m_ZoomFactor );
 		float zoomingTime		= moduleSection.AsFloat( "ZoomingTime",		m_ZoomFactor );
 		float zoomSensitivity	= moduleSection.AsFloat( "ZoomSensitivity",	m_ZoomFactor );
-		string FramePath		= moduleSection.AsString( "FramePath", null );
-		string ScopePath		= moduleSection.AsString( "ScopePath", null );
+		string FramePath		= moduleSection.AsString( "FramePath", "" );
+		string ScopePath		= moduleSection.AsString( "ScopePath", "" );
 
 		m_ZoomOffset			= zoomOffset;
 		m_ZoomFactor			= zoomFactor;
@@ -56,7 +56,7 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 		m_ZoomSensitivity		= zoomSensitivity;
 		
 		// Image frame
-		if ( FramePath.IsNotNull() )
+		if ( FramePath.Length > 0 )
 		{
 			ResourceManager.LoadedData<GameObject> imageData = new ResourceManager.LoadedData<GameObject>();
 			System.Action<GameObject> onLoadSuccess = delegate( GameObject t )
@@ -65,6 +65,7 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 				if ( t && t.transform.HasComponent<Image>() )
 				{
 					m_ZoomFrame = Instantiate( t, parent: parent ).GetComponent<Image>();
+
 				}
 			};
 			ResourceManager.LoadResourceAsync( FramePath, imageData, onLoadSuccess );
@@ -72,7 +73,7 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 		}
 
 		// Scope Prefab
-		if ( ScopePath.IsNotNull() )
+		if ( ScopePath.Length > 0 )
 		{
 			Transform opticSpot = null;
 			bool bHasSpot = transform.SearchChildWithName( "OpticSpot", ref opticSpot );

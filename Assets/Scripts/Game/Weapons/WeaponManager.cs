@@ -12,6 +12,7 @@ public partial interface IWeaponManager {
 	IWeapon				CurrentWeapon					{ get; set; }
 	int					CurrentWeaponIndex				{ get; set; }
 	float				ZoomSensitivity					{ get; }
+	float				ZoomFactor						{ get; }
 	bool				IsChangingWeapon				{ get; }
 
 	void				RegisterWeapon					( Weapon wpn );
@@ -41,6 +42,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 	public			int				CurrentWeaponIndex				{ get; set; }
 	public			bool			IsChangingWeapon				{ get { return m_IsChangingWpn != false; } }
 	public			float			ZoomSensitivity					{ get { return m_ZoomSensitivity; } }
+	public			float			ZoomFactor						{ get { return m_ZoomFactor; } }
 	// INTERFACE END
 
 	// ZOOM

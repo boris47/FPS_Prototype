@@ -20,8 +20,6 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 	private			Transform		m_CrosshairTransform		= null;
 
 	private			Image			m_ZoomFrameImage			= null;
-	private			float			m_FrameOrigWidth			= 0.0f;
-	private			float			m_FrameOrigHeight			= 0.0f;
 
 	private			Canvas			m_Canvas					= null;
 
@@ -76,6 +74,8 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 			{
 				m_ZoomFrameImage.raycastTarget = false;
 
+				UI_Graphics.OnResolutionChanged += UI_Graphics_OnResolutionChanged;
+
 				InvokeRepeating( "PrintTime", 1.0f, 1.0f );	
 			}
 			else
@@ -83,6 +83,14 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 				Debug.LogError( "UI_InGame: Bad initialization!!!" );
 			}
 		}
+	}
+
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void UI_Graphics_OnResolutionChanged( float newWidth, float newHeight )
+	{
+		
 	}
 
 
@@ -196,8 +204,8 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 		if ( frame != null )
 		{
 			// Size
-			m_ZoomFrameImage.rectTransform.SetSizeWithCurrentAnchors( RectTransform.Axis.Horizontal, m_FrameOrigWidth = frame.rectTransform.rect.width );
-			m_ZoomFrameImage.rectTransform.SetSizeWithCurrentAnchors( RectTransform.Axis.Vertical, m_FrameOrigHeight = frame.rectTransform.rect.height );
+			m_ZoomFrameImage.rectTransform.SetSizeWithCurrentAnchors( RectTransform.Axis.Horizontal, frame.rectTransform.rect.width  );
+			m_ZoomFrameImage.rectTransform.SetSizeWithCurrentAnchors( RectTransform.Axis.Vertical,   frame.rectTransform.rect.height );
 
 			m_ZoomFrameImage.sprite		= frame.sprite;
 			m_ZoomFrameImage.color		= frame.color;
@@ -209,7 +217,7 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 		else
 		{
 			m_ZoomFrameImage.enabled	= false;
-			m_ZoomFrameImage.sprite	= null;
+			m_ZoomFrameImage.sprite		= null;
 			m_ZoomFrameImage.color		= Color.clear;
 			m_ZoomFrameImage.material	= null;
 			ShowCrosshair();

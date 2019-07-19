@@ -68,7 +68,6 @@ public class HeadBob : CameraEffectBase {
 		float	fStamina	= Player.Instance.Stamina;
 		bool	bRunning	= Player.Instance.IsRunning;
 		bool	bCrouched	= Player.Instance.IsCrouched;
-//		bool	bZoomed		= WeaponManager.Instance.IsZoomed;
 
 		float fSpeed = m_Speed * m_SpeedMul * Time.deltaTime;
 		fSpeed		*= ( ( bRunning )	?	1.70f : 1.00f );

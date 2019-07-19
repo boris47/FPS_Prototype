@@ -60,17 +60,17 @@ public class HeadMove : CameraEffectBase {
 
 		float	fStamina	= Player.Instance.Stamina;
 		bool	bCrouched	= Player.Instance.IsCrouched;
-//		bool	bZoomed		= WeaponManager.Instance.IsZoomed;
+		bool	bZoomed		= WeaponManager.Instance.IsZoomed;
 
 		float fSpeed = m_Speed * m_SpeedMul * Time.deltaTime;
 		fSpeed		*= ( bCrouched )	?	0.80f : 1.00f;
 //		fSpeed		*= ( bIsUnderwater )?	0.50f : 1.00f;
-//		fSpeed		*= ( bZoomed )		?	0.85f : 1.00f;
+		fSpeed		*= ( bZoomed )		?	0.85f : 1.00f;
 		fSpeed		*= ( 4.0f - ( fStamina * 2.0f ) );
 
 		float fAmplitude = m_Amplitude * m_AmplitudeMult;
 		fAmplitude		*= ( ( bCrouched )	? 0.80f : 1.00f );
-//		fAmplitude		*= ( ( bZoomed )	? 0.85f : 1.00f );
+		fAmplitude		*= ( ( bZoomed )	? 0.85f : 1.00f );
 		fAmplitude		*= ( 5.0f - ( fStamina * 4.0f ) );
 
 		m_ThetaX += fSpeed * Random.Range( 0.0f, 6f );
