@@ -69,7 +69,38 @@ public class Build_Batch
 
 		ExecuteBuild( buildSettingsSectionName, folderName, executableFilename, buildOptions, scenesToBuild );
 	}
+	
 
+	///////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////
+	public		static		bool		BuildLightmaps()
+	{
+		// BUILD SETTINGS CONFIG SECTION NAME
+		const	string	buildSettingsSectionName = "Development";
+
+		// EXECUTABLE FILE NAME
+		string folderName = "Development";
+
+		// BUILD FOLDER NAME
+		string executableFilename = buildSettingsSectionName;
+
+		string[] scenesToBuild = null;
+
+		// Search for build settings in corresponding section
+		if ( GetBuildInfo( buildSettingsSectionName, ref folderName, ref executableFilename, ref scenesToBuild ) == false )
+			return false;
+
+//		try
+		{
+			Lightmapping.BakeMultipleScenes( scenesToBuild );
+		}
+//		catch ( System.Exception e )
+		{
+//			EditorUtility.DisplayDialog( "Exception", e.Message, "ok" );
+		}
+
+		return true;
+	}
 
 	///////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////////
@@ -221,4 +252,8 @@ public class Build_Batch
 		}
 		return false;
 	}
+
+
+
+
 }
