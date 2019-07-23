@@ -22,7 +22,9 @@ public class HeadMove : CameraEffectBase {
 	[System.Serializable]
 	private class EffectSectionData {
 		public	float	WpnInfluence			= 1.0f;
-		public	float	Amplitude				= 0.003f;
+		public	float	AmplitudeOverall		= 0.003f;
+		public	float	AmplitudeHoriz			= 0.003f;
+		public	float	AmplitudeVert			= 0.003f;
 		public	float	Speed					= 0.4f;
 		public	float	Theta_Upd_Vert			= 0.80f;
 		public	float	Theta_Upd_Oriz			= 0.40f;
@@ -30,6 +32,7 @@ public class HeadMove : CameraEffectBase {
 
 	[SerializeField]
 	private		EffectSectionData			m_EffectSectionData = new EffectSectionData();
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -42,10 +45,14 @@ public class HeadMove : CameraEffectBase {
 		else
 		{
 			m_WpnInfluence		= m_EffectSectionData.WpnInfluence;
-			m_Amplitude			= m_EffectSectionData.Amplitude;
+			m_AmplitudeOverall	= m_EffectSectionData.AmplitudeOverall;
+			m_AmplitudeHoriz	= m_EffectSectionData.AmplitudeHoriz;
+			m_AmplitudeVert		= m_EffectSectionData.AmplitudeVert;
 			m_Speed				= m_EffectSectionData.Speed;
 			m_Theta_Upd_Vert	= m_EffectSectionData.Theta_Upd_Vert;
 			m_Theta_Upd_Oriz	= m_EffectSectionData.Theta_Upd_Oriz;
+			m_ThetaX			= Random.Range( 0f, 360f );
+			m_ThetaY			= Random.Range( 0f, 360f );
 		}
 	}
 
@@ -53,7 +60,8 @@ public class HeadMove : CameraEffectBase {
 	//////////////////////////////////////////////////////////////////////////
 	public void Update( float weight )
 	{
-		m_InternalWeight = Mathf.Lerp( m_InternalWeight, weight, Time.deltaTime * 5f );
+		float dt = Time.deltaTime;
+		m_InternalWeight = Mathf.Lerp( m_InternalWeight, weight, dt * 5f );
 
 		if ( m_IsActive == false )
 			return;
@@ -62,22 +70,22 @@ public class HeadMove : CameraEffectBase {
 		bool	bCrouched	= Player.Instance.IsCrouched;
 		bool	bZoomed		= WeaponManager.Instance.IsZoomed;
 
-		float fSpeed = m_Speed * m_SpeedMul * Time.deltaTime;
+		float fSpeed = m_Speed * m_SpeedMul * dt;
 		fSpeed		*= ( bCrouched )	?	0.80f : 1.00f;
 //		fSpeed		*= ( bIsUnderwater )?	0.50f : 1.00f;
 		fSpeed		*= ( bZoomed )		?	0.85f : 1.00f;
 		fSpeed		*= ( 4.0f - ( fStamina * 2.0f ) );
 
-		float fAmplitude = m_Amplitude * m_AmplitudeMult;
+		float fAmplitude = m_AmplitudeOverall * m_AmplitudeMult * dt;
 		fAmplitude		*= ( ( bCrouched )	? 0.80f : 1.00f );
-		fAmplitude		*= ( ( bZoomed )	? 0.85f : 1.00f );
+		fAmplitude		*= ( ( bZoomed )	? 0.55f : 1.00f );
 		fAmplitude		*= ( 5.0f - ( fStamina * 4.0f ) );
 
-		m_ThetaX += fSpeed * Random.Range( 0.0f, 6f );
-		m_ThetaY += fSpeed * Random.Range( 0.0f, 6f );
+		m_ThetaX += fSpeed;
+		m_ThetaY += fSpeed;
 
-		float deltaX = Mathf.Sin( m_ThetaX ) * m_Theta_Upd_Vert * fAmplitude * m_InternalWeight;
-		float deltaY = Mathf.Cos( m_ThetaY ) * m_Theta_Upd_Oriz * fAmplitude * m_InternalWeight;
+		float deltaX = Mathf.Sin( m_ThetaX ) * m_Theta_Upd_Vert * fAmplitude * m_AmplitudeVert  * m_InternalWeight;
+		float deltaY = Mathf.Cos( m_ThetaY ) * m_Theta_Upd_Oriz * fAmplitude * m_AmplitudeHoriz * m_InternalWeight;
 		m_Direction.Set ( deltaX, deltaY, 0.0f );
 //		m_Direction *= m_InternalWeight;
 
