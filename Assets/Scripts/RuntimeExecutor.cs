@@ -18,7 +18,7 @@ public class RuntimeExecutor {
 		}
 	};
 
-	private	CompilerParameters	m_CompilerParams		= new CompilerParameters { GenerateInMemory = true, GenerateExecutable = false };
+	private	CompilerParameters	m_CompilerParams		= new CompilerParameters { GenerateInMemory = true, GenerateExecutable = false, TreatWarningsAsErrors = false };
 
 	private	CSharpCodeProvider	m_CSharpCodeProvider	= null;
 
@@ -29,31 +29,36 @@ public class RuntimeExecutor {
 	{
 		m_CSharpCodeProvider = new CSharpCodeProvider( m_ProviderOptions );
 
+		m_CompilerParams.IncludeDebugInformation = true;
+
 		m_IsInitialized = true;
 	}
 
 
-	private bool Execute()
+	private bool Execute( string expression )
 	{
 		if ( m_IsInitialized == false )
 			return false;
 
-		var assembly = @"
-        using UnityEngine;
+		StringBuilder sourceToCompile = new StringBuilder();
+		sourceToCompile.Append(
+			@"
+			using UnityEngine;
 		
-		namespace CompiledNameSpace {
+			namespace CompiledNameSpace {
  
-			public class CompiledAssembly
-			{
-				public static void CompiledAssembly_Method()
+				public class CompiledAssembly
 				{
-					Debug.Log(""Hello, World!"");
+					public static void CompiledAssembly_Method()
+					{"
+						); sourceToCompile.Append( expression ); sourceToCompile.Append( @"
+					}
 				}
-			}
-		}";
+			}"
+		);
 
 
-		CompilerResults results = m_CSharpCodeProvider.CompileAssemblyFromSource( m_CompilerParams, assembly );
+		CompilerResults results = m_CSharpCodeProvider.CompileAssemblyFromSource( m_CompilerParams, sourceToCompile.ToString() );
 
 		if ( results.Errors.Count != 0 )
 		{
