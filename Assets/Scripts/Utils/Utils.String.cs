@@ -176,7 +176,7 @@ namespace Utils {
 
 			if ( type == typeof( float ) )
 			{
-				return float.Parse( line );
+				return float.Parse( line.TrimEnd( 'f', ' ' ) );
 			}
 
 			if ( type == typeof( string ) )

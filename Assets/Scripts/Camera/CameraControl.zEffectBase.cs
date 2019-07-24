@@ -9,7 +9,13 @@ public abstract class CameraEffectBase {
 	protected	float		m_WpnInfluence				= 0.01f;
 
 	[SerializeField]
-	protected float			m_Amplitude					= 3.0f;
+	protected float			m_AmplitudeOverall			= 3.0f;
+
+	[SerializeField]
+	protected	float		m_AmplitudeHoriz			= 1.00f;
+
+	[SerializeField]
+	protected	float		m_AmplitudeVert				= 1.00f;
 
 	[SerializeField]
 	protected float			m_Speed						= 1.0f;

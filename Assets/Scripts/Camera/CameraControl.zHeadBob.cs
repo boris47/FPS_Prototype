@@ -48,7 +48,7 @@ public class HeadBob : CameraEffectBase {
 		else
 		{
 			m_WpnInfluence		= m_EffectSectionData.WpnInfluence;
-			m_Amplitude			= m_EffectSectionData.Amplitude;
+			m_AmplitudeOverall			= m_EffectSectionData.Amplitude;
 			m_Speed				= m_EffectSectionData.Speed;
 			m_StepValue			= m_EffectSectionData.Step;
 			m_Theta_Upd_Vert	= m_EffectSectionData.Theta_Upd_Vert;
@@ -74,7 +74,7 @@ public class HeadBob : CameraEffectBase {
 		fSpeed		*= ( ( bCrouched )	?	0.80f : 1.00f );
 	//	fSpeed		*= ( ( bZoomed )	?	0.50f : 1.00f );
 
-		float fAmplitude = m_Amplitude * m_AmplitudeMult;
+		float fAmplitude = m_AmplitudeOverall * m_AmplitudeMult;
 		fAmplitude		*= ( ( bRunning )	?	2.00f : 1.00f );
 		fAmplitude		*= ( ( bCrouched )	?	0.70f : 1.00f );
 	//	fAmplitude		*= ( ( bZoomed )	?	0.80f : 1.00f );

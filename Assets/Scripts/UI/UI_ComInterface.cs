@@ -108,6 +108,9 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 			m_NotificationsPool = new GameObjectsPool<Text>( data );
 
 			yield return data.CoroutineEnumerator;
+
+			UI_Graphics.OnResolutionChanged += UI_Graphics_OnResolutionChanged;
+
 			m_bIsInitialized = true;
 		}
 		else
@@ -117,7 +120,17 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 	}
 
 
-	
+	//////////////////////////////////////////////////////////////////////////
+	private void UI_Graphics_OnResolutionChanged( float newWidth, float newHeight )
+	{
+		foreach( Text textComponent in m_NotificationsPool )
+		{
+
+		}
+	}
+
+
+
 	//////////////////////////////////////////////////////////////////////////
 	// ReInit
 	IEnumerator IStateDefiner.ReInit()
