@@ -9,7 +9,7 @@ public abstract class CameraEffectBase {
 	protected	float		m_WpnInfluence				= 0.01f;
 
 	[SerializeField]
-	protected float			m_AmplitudeOverall			= 3.0f;
+	protected	float		m_AmplitudeBase				= 1.00f;
 
 	[SerializeField]
 	protected	float		m_AmplitudeHoriz			= 1.00f;
@@ -18,7 +18,7 @@ public abstract class CameraEffectBase {
 	protected	float		m_AmplitudeVert				= 1.00f;
 
 	[SerializeField]
-	protected float			m_Speed						= 1.0f;
+	protected float			m_SpeedBase						= 1.0f;
 
 	[SerializeField]
 	protected	float		m_Theta_Upd_Vert			= 5.0f;
@@ -40,6 +40,7 @@ public abstract class CameraEffectBase {
 	protected	float		m_SpeedMul					= 1.0f;
 	public		float		SpeedMul					{ get { return m_SpeedMul; } set { m_SpeedMul = value; } }
 
+	[SerializeField]
 	protected	float		m_AmplitudeMult				= 1.0f;
 	public		float		AmplitudeMult				{ get { return m_AmplitudeMult; } set { m_AmplitudeMult = value; } }
 

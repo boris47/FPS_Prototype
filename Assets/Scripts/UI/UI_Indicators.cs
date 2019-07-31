@@ -286,7 +286,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 		float distance = Vector3.Distance( camera.transform.position,targetTransform.position );
 		if ( distance > MIN_DISTANCE_TO_RESIZE )
 		{
-			float interpolant = 1.0f - Utils.Math.ScaleBetween( distance, MAX_DISTANCE_TO_RESIZE, MIN_DISTANCE_TO_RESIZE );
+			float interpolant = 1.0f - Utils.Math.ScaleBetweenClamped01( distance, MIN_DISTANCE_TO_RESIZE, MAX_DISTANCE_TO_RESIZE );
 			scaleFactor = Mathf.Clamp( interpolant, 0.5f, 1.0f );
 			m_IconTransform.localScale = Vector3.one * scaleFactor;
 		}

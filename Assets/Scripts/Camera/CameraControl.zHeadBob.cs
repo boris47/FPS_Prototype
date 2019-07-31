@@ -27,8 +27,8 @@ public class HeadBob : CameraEffectBase {
 	[System.Serializable]
 	private class EffectSectionData {
 		public	float	WpnInfluence			= 1.00f;
-		public	float	Amplitude				= 0.005f;
-		public	float	Speed					= 5.40f;
+		public	float	AmplitudeBase			= 0.005f;
+		public	float	SpeedBase				= 5.40f;
 		public	float	Step					= 0.80f;
 		public	float	Theta_Upd_Vert			= 1.00f;
 		public	float	Theta_Upd_Oriz			= 0.50f;
@@ -48,8 +48,8 @@ public class HeadBob : CameraEffectBase {
 		else
 		{
 			m_WpnInfluence		= m_EffectSectionData.WpnInfluence;
-			m_AmplitudeOverall			= m_EffectSectionData.Amplitude;
-			m_Speed				= m_EffectSectionData.Speed;
+			m_AmplitudeBase		= m_EffectSectionData.AmplitudeBase;
+			m_SpeedBase			= m_EffectSectionData.SpeedBase;
 			m_StepValue			= m_EffectSectionData.Step;
 			m_Theta_Upd_Vert	= m_EffectSectionData.Theta_Upd_Vert;
 			m_Theta_Upd_Oriz	= m_EffectSectionData.Theta_Upd_Oriz;
@@ -69,12 +69,12 @@ public class HeadBob : CameraEffectBase {
 		bool	bRunning	= Player.Instance.IsRunning;
 		bool	bCrouched	= Player.Instance.IsCrouched;
 
-		float fSpeed = m_Speed * m_SpeedMul * Time.deltaTime;
+		float fSpeed = m_SpeedBase * m_SpeedMul * Time.deltaTime;
 		fSpeed		*= ( ( bRunning )	?	1.70f : 1.00f );
 		fSpeed		*= ( ( bCrouched )	?	0.80f : 1.00f );
 	//	fSpeed		*= ( ( bZoomed )	?	0.50f : 1.00f );
 
-		float fAmplitude = m_AmplitudeOverall * m_AmplitudeMult;
+		float fAmplitude = m_AmplitudeBase * m_AmplitudeMult;
 		fAmplitude		*= ( ( bRunning )	?	2.00f : 1.00f );
 		fAmplitude		*= ( ( bCrouched )	?	0.70f : 1.00f );
 	//	fAmplitude		*= ( ( bZoomed )	?	0.80f : 1.00f );

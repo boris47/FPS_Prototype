@@ -38,16 +38,32 @@ namespace Utils {
 
 		/// Ref: https://stackoverflow.com/a/28957910
 		/// <summary>
-		/// Return the scaled factor between given limits
-		/// Ex: CurrentDistance, MAX_DISTANCE, MIN_DISTANCE ( 0 -> 1 [ MinLimit -> CurrentValue -> MaxLimit ] )
+		/// Return the scaled value between given limits clamped to range [0, 1]
+		/// Ex: CurrentDistance, MAX_DISTANCE, MIN_DISTANCE ( 0 -> 1 [ MinLimit -> CurrentDistance -> MaxLimit ] )
 		/// </summary>
 		/// <param name="CurrentValue"></param>
 		/// <param name="MinLimit"></param>
 		/// <param name="MaxLimit"></param>
 		/// <returns></returns>
-		public static float ScaleBetween( float CurrentValue, float MinLimit, float MaxLimit )
+		public static float ScaleBetweenClamped01( float CurrentValue, float MinLimit, float MaxLimit )
 		{
 			return Mathf.Clamp01( ( ( CurrentValue - MinLimit ) / ( MaxLimit - MinLimit ) ) );
+		}
+
+		/// Ref: https://en.wikipedia.org/wiki/Feature_scaling
+		/// <summary>
+		/// Return the value that lies between MinValue and MaxValue scaled in the given limits
+		/// Ex: CurrentValue, 0, 5000, 0, 1 ( 0 -> 1 [ MinScale -> CurrentValue -> MaxScale ] )
+		/// </summary>
+		/// <param name="CurrentValue"></param>
+		/// <param name="MinValue"></param>
+		/// <param name="MaxValue"></param>
+		/// <param name="MinScale"></param>
+		/// <param name="MaxScale"></param>
+		/// <returns></returns>
+		public static float ScaleBetween( float CurrentValue, float MinValue, float MaxValue, float MinScale, float MaxScale )
+		{
+			return MinScale + ( CurrentValue - MinValue ) /( MaxValue - MinValue ) * ( MaxScale - MinScale );
 		}
 
 

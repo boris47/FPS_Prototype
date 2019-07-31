@@ -10,18 +10,18 @@ HeadLean_Max_Deegree	= 15.0;
 ;Effects
 
 [HeadMove]
-WpnInfluence			= 1.00;
-AmplitudeOverall		= 0.80;
-AmplitudeHoriz			= 0.50;
-AmplitudeVert			= 0.80;
-Speed					= 1.20;
-Theta_Upd_Vert			= 1.00;
+WpnInfluence			= 0.50;
+AmplitudeBase			= 0.005;
+AmplitudeHoriz			= 0.20;
+AmplitudeVert			= 1.00;
+SpeedBase				= 1.20;
 Theta_Upd_Oriz			= 0.20f;
+Theta_Upd_Vert			= 1.00;
 
 [HeadBob]
 WpnInfluence			= 1.00;
-Amplitude				= 0.005;
-Speed					= 5.00;
+AmplitudeMult			= 0.005;
+SpeedBase				= 5.00;
 Step					= 0.80;
 Theta_Upd_Oriz			= 1.00;
 Theta_Upd_Vert			= 0.50;
