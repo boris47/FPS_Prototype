@@ -133,8 +133,13 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 		}
 		else
 		{
-			m_HeadMove.Setup();
-			m_HeadBob.Setup();
+			CameraEffectBase.EffectActiveCondition condition = delegate()
+			{
+				return Player.Instance.IsGrounded;
+			};
+
+			m_HeadMove.Setup( condition + delegate() { return Player.Instance.IsMoving == false; } );
+			m_HeadBob.Setup( condition + delegate() { return Player.Instance.IsMoving == true; } );
 			m_CameraRef.farClipPlane = m_CameraSectionData.ViewDistance;
 		}
 	}
@@ -301,16 +306,8 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 		float dt = Time.deltaTime;
 
 		// CAMERA EFFECTS
-		if ( Player.Instance.IsGrounded )
-		{
-			m_HeadMove.Update( Player.Instance.IsMoving == true ? 0f : 1f  );
-			m_HeadBob.Update( Player.Instance.IsMoving == true ? 1f : 0f  );
-		}
-		else
-		{
-			m_HeadBob.Reset ( bInstantly : true );
-			m_HeadMove.Reset( bInstantly : false );
-		}
+		m_HeadMove.Update();
+		m_HeadBob.Update();
 
 		// Used for view smoothness
 		m_SmoothFactor = Mathf.Clamp( m_SmoothFactor, 1.0f, 10.0f );
@@ -335,8 +332,8 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 				Vector3 localEulerAngles	= HeadBob.WeaponRotationDelta + HeadMove.WeaponRotationDelta + m_WpnCurrentDispersion + m_WpnRotationFeedback + m_WpnFallFeedback;
 				WeaponManager.Instance.CurrentWeapon.Transform.localEulerAngles	= localEulerAngles;
 
-				Vector3 basePivotRotation = Vector3.up * -90f;
-				m_WeaponPivot.localEulerAngles = m_HeadBob.Direction*10f + basePivotRotation;
+//				Vector3 basePivotRotation = Vector3.up * -90f;
+//				m_WeaponPivot.localEulerAngles = m_HeadBob.Direction*10f + basePivotRotation;
 			}
 
 			// Optic sight allignment
@@ -409,17 +406,18 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 
 			// Apply effects
 			{
-				m_CurrentDirection += m_HeadBob.Direction + ( /*( WeaponManager.Instance.IsZoomed == true ) ?*/ m_HeadMove.Direction/* : Vector3.zero*/ );
+//				m_CurrentDirection += m_HeadBob.Direction + m_HeadMove.Direction;
 			}
 
+			Vector3 effects = ( m_CurrentDirection + m_HeadBob.Direction + m_HeadMove.Direction );
 //			if ( ( m_CurrentRotation_X_Delta != 0.0f || m_CurrentRotation_Y_Delta != 0.0f ) )
 			{
-				// Horizonatal rotatation
-				transform.parent.localRotation = Quaternion.Euler( Vector3.up * m_CurrentDirection.y );
+				// Horizonatal rotation
+				transform.parent.localRotation = Quaternion.Euler( Vector3.up * effects.y );
 			}
 
 			// Vertical rotation
-			transform.localRotation = Quaternion.Euler( Vector3.right * m_CurrentDirection.x );
+			transform.localRotation = Quaternion.Euler( Vector3.right * effects.x );
 
 			// rotation with effect added
 			{

@@ -4,6 +4,10 @@ using UnityEngine;
 
 
 public abstract class CameraEffectBase {
+
+	public	delegate bool EffectActiveCondition();
+
+	protected	EffectActiveCondition	m_EffectActiveCondition = delegate() { return true; };
 	
 	[SerializeField]
 	protected	float		m_WpnInfluence				= 0.01f;
@@ -27,10 +31,6 @@ public abstract class CameraEffectBase {
 	protected	float		m_Theta_Upd_Oriz			= 2.5f;
 
 	[SerializeField]
-	protected	float		m_InternalWeight			= 1.0f;
-
-
-	[SerializeField]
 	protected	Vector3		m_Direction					= Vector3.zero;
 	public		Vector3		Direction					{ get { return m_Direction; } }
 
@@ -47,5 +47,7 @@ public abstract class CameraEffectBase {
 	[SerializeField]
 	protected	bool		m_IsActive					= true;
 	public		bool		IsActive					{ get { return m_IsActive; } set { m_IsActive = value; } }
+
+	public abstract	void Setup( EffectActiveCondition condition );
 
 }
