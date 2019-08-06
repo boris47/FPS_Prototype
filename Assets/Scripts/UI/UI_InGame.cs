@@ -16,7 +16,7 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 	private			Text			m_WpnNameText				= null;
 	private			Text			m_WpnOtherInfoText			= null;
 
-//	private			Image			m_StaminaBarImage			= null;
+	private			Image			m_StaminaBarImage			= null;
 	private			Transform		m_CrosshairTransform		= null;
 
 	private			Image			m_ZoomFrameImage			= null;
@@ -63,7 +63,7 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 				{
 					m_bIsInitialized &=	m_WeaponInfosPanel.SearchComponentInChild( 0, ref m_WpnNameText );
 					m_bIsInitialized &=	m_WeaponInfosPanel.SearchComponentInChild( 2, ref m_WpnOtherInfoText );
-	//				m_bIsInitialized &=	m_Panel2.SearchComponentInChild( 3, ref m_StaminaBarImage );
+					m_bIsInitialized &=	m_WeaponInfosPanel.SearchComponentInChild( 3, ref m_StaminaBarImage );
 				}
 			}
 
@@ -177,7 +177,7 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 		m_HealthText.text			= Mathf.CeilToInt( player.Health ).ToString();
 
 		m_WpnNameText.text			= WeaponManager.Instance.CurrentWeapon.Transform.name;
-		m_WpnOtherInfoText.text		= WeaponManager.Instance.CurrentWeapon.OtherInfo;
+//		m_WpnOtherInfoText.text		= WeaponManager.Instance.CurrentWeapon.OtherInfo;
 	}
 
 
@@ -265,8 +265,14 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 			return;
 
 		m_Timetime.text = Time.timeScale.ToString();
-//		staminaBar.fillAmount = Player.Instance.Stamina;
+
+		m_StaminaBarImage.fillAmount = Player.Instance.OxygenCurrentLevel / 100f;
 		
+		if ( Input.GetKeyDown( KeyCode.Alpha6 ) )
+		{
+			Player.Instance.AddOxygenAmmount( 50f );
+		}
+
 	}
 	
 }

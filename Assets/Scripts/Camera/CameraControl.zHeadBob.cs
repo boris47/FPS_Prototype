@@ -71,15 +71,16 @@ public class HeadBob : CameraEffectBase {
 		if ( m_IsActive == false )
 			return;
 
+		float dt = Time.deltaTime;
+
 		if ( m_EffectActiveCondition() == false )
 		{
-			m_Direction = Vector3.Lerp( m_Direction, Vector3.zero, Time.deltaTime );
-			m_WeaponPositionDelta = Vector3.Lerp( m_WeaponPositionDelta, Vector3.zero, Time.deltaTime );
-			m_WeaponRotationDelta = Vector3.Lerp( m_WeaponRotationDelta, Vector3.zero, Time.deltaTime );
+			m_Direction = Vector3.Lerp( m_Direction, Vector3.zero, dt * 0.05f );
+			m_WeaponPositionDelta = Vector3.Lerp( m_WeaponPositionDelta, Vector3.zero, dt * 0.05f );
+			m_WeaponRotationDelta = Vector3.Lerp( m_WeaponRotationDelta, Vector3.zero, dt * 0.05f );
 			return;
 		}
 
-		float dt = Time.deltaTime;
 		float	fStamina	= Player.Instance.Stamina;
 		bool	bRunning	= Player.Instance.IsRunning;
 		bool	bCrouched	= Player.Instance.IsCrouched;
@@ -106,13 +107,14 @@ public class HeadBob : CameraEffectBase {
 		float deltaY = deltaYBase;
 		m_Direction.Set ( deltaX, deltaY, 0.0f );
 
-		m_WeaponPositionDelta.z = deltaX * m_WpnInfluence;
-		m_WeaponPositionDelta.y = deltaY * m_WpnInfluence;
+		m_WeaponPositionDelta.z = deltaY * m_WpnInfluence;
+		m_WeaponPositionDelta.y = deltaX * m_WpnInfluence;
+
 		m_WeaponRotationDelta.x = deltaX * m_WpnInfluence;
 		m_WeaponRotationDelta.y = deltaY * m_WpnInfluence;
 
 		// Steps
-		if ( Mathf.Abs( Mathf.Cos( m_ThetaX ) ) > m_StepValue )
+		if ( Mathf.Abs( Mathf.Sin( m_ThetaY ) ) > m_StepValue )
 		{
 			if ( m_StepDone == false )
 			{

@@ -64,15 +64,15 @@ public class HeadMove : CameraEffectBase {
 		if ( m_IsActive == false )
 			return;
 
+		float dt = Time.deltaTime;
 		if ( m_EffectActiveCondition() == false )
 		{
-			m_Direction = Vector3.MoveTowards( m_Direction, Vector3.zero, Time.deltaTime );
-			m_WeaponPositionDelta = Vector3.MoveTowards( m_WeaponPositionDelta, Vector3.zero, Time.deltaTime );
-			m_WeaponRotationDelta = Vector3.MoveTowards( m_WeaponRotationDelta, Vector3.zero, Time.deltaTime );
+			m_Direction = Vector3.Lerp( m_Direction, Vector3.zero, dt * 0.05f );
+			m_WeaponPositionDelta = Vector3.Lerp( m_WeaponPositionDelta, Vector3.zero, dt * 0.05f );
+			m_WeaponRotationDelta = Vector3.Lerp( m_WeaponRotationDelta, Vector3.zero, dt * 0.05f );
 			return;
 		}
 
-		float dt = Time.deltaTime;
 		float	fStamina	= Player.Instance.Stamina;
 		bool	bCrouched	= Player.Instance.IsCrouched;
 		bool	bZoomed		= WeaponManager.Instance.IsZoomed;

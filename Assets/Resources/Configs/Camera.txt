@@ -19,11 +19,11 @@ Theta_Upd_Oriz			= 0.20f;
 Theta_Upd_Vert			= 1.00;
 
 [HeadBob]
-WpnInfluence			= 0.01;
+WpnInfluence			= 0.007;
 AmplitudeBase			= 0.50;
-AmplitudeHoriz			= 0.60;
-AmplitudeVert			= 1.00;
-SpeedBase				= 9.00;
-Step					= 0.80;
-Theta_Upd_Vert			= 0.50;
-Theta_Upd_Oriz			= 1.00;
+AmplitudeHoriz			= 1.20;
+AmplitudeVert			= 0.70;
+SpeedBase				= 10.00;
+Step					= 0.90;
+Theta_Upd_Vert			= 1.00;
+Theta_Upd_Oriz			= 0.50;

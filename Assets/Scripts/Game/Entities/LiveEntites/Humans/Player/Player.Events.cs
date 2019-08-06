@@ -218,6 +218,7 @@ public partial class Player {
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		OnFrame( float deltaTime )
 	{
+		base.OnFrame( deltaTime );
 		if ( m_IsActive == false )
 			return;
 		

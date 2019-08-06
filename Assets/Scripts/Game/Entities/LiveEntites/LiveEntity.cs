@@ -11,6 +11,26 @@ public abstract partial class LiveEntity : Entity {
 		get { return m_Foots; }
 	}
 	[Header("Live Entity Properties")]
+
+	[SerializeField]
+	protected	float				m_OxygenBaseLevel			= 100f;
+	public		float				OxygenBaseLevel
+	{
+		get { return m_OxygenBaseLevel; }
+	}
+
+
+	[SerializeField]
+	protected	float				m_OxygenCurrentLevel		= 100f;
+	public		float				OxygenCurrentLevel
+	{
+		get { return m_OxygenCurrentLevel; }
+	}
+
+
+
+
+
 	[SerializeField]
 	protected	float				m_UseDistance				= 1f;
 
@@ -75,14 +95,16 @@ public abstract partial class LiveEntity : Entity {
 	protected	float				m_UpSmooth					= 0f;
 //	[System.NonSerialized]
 	protected	bool				m_IsUnderSomething			= false;
+	
+	/// <summary> If currently is tired ( stanco ) </summary>
 	[System.NonSerialized]
 	protected	bool				m_Tiredness					= false;
+	/// <summary> In current frame the player has completed a heavy fall </summary>
 	[System.NonSerialized]
 	protected	bool				m_HeavyFall					= false;
+	/// <summary> In current frame the player has reached the ground </summary>
 	[System.NonSerialized]
 	protected	bool				m_Landed					= false;
-	[System.NonSerialized]
-	protected	float				m_LastLandTime				= 0f;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -96,6 +118,23 @@ public abstract partial class LiveEntity : Entity {
 	protected	override	void		EnterSimulationState()
 	{
 		
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> The range is [0, 100] by default </summary>
+	public	virtual void	AddOxygenAmmount( float Ammount )
+	{
+		m_OxygenCurrentLevel = Mathf.Min( m_OxygenCurrentLevel + Ammount, m_OxygenBaseLevel );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected override void OnFrame( float DeltaTime )
+	{
+//		base.OnFrame( DeltaTime );
+
+		m_OxygenCurrentLevel -= DeltaTime;
 	}
 
 
