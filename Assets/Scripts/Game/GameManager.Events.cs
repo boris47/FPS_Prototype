@@ -11,6 +11,9 @@ using System.Threading;
 [System.Serializable]
 public class GameEvent	  : UnityEngine.Events.UnityEvent { }
 
+[System.Serializable]
+public class GameEvent<T>	  : UnityEngine.Events.UnityEvent<T> { }
+
 
 //	DELEGATES FOR EVENTS
 public struct GameEvents {

@@ -67,9 +67,9 @@ public class HeadMove : CameraEffectBase {
 		float dt = Time.deltaTime;
 		if ( m_EffectActiveCondition() == false )
 		{
-			m_Direction = Vector3.Lerp( m_Direction, Vector3.zero, dt * 0.05f );
-			m_WeaponPositionDelta = Vector3.Lerp( m_WeaponPositionDelta, Vector3.zero, dt * 0.05f );
-			m_WeaponRotationDelta = Vector3.Lerp( m_WeaponRotationDelta, Vector3.zero, dt * 0.05f );
+			m_Direction = Vector3.Lerp( m_Direction, Vector3.zero, dt * RETURN_FACTOR );
+			m_WeaponPositionDelta = Vector3.Lerp( m_WeaponPositionDelta, Vector3.zero, dt * RETURN_FACTOR );
+			m_WeaponRotationDelta = Vector3.Lerp( m_WeaponRotationDelta, Vector3.zero, dt * RETURN_FACTOR );
 			return;
 		}
 

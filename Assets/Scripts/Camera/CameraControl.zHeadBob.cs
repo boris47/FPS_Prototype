@@ -75,9 +75,9 @@ public class HeadBob : CameraEffectBase {
 
 		if ( m_EffectActiveCondition() == false )
 		{
-			m_Direction = Vector3.Lerp( m_Direction, Vector3.zero, dt * 0.05f );
-			m_WeaponPositionDelta = Vector3.Lerp( m_WeaponPositionDelta, Vector3.zero, dt * 0.05f );
-			m_WeaponRotationDelta = Vector3.Lerp( m_WeaponRotationDelta, Vector3.zero, dt * 0.05f );
+			m_Direction = Vector3.Lerp( m_Direction, Vector3.zero, dt * RETURN_FACTOR );
+			m_WeaponPositionDelta = Vector3.Lerp( m_WeaponPositionDelta, Vector3.zero, dt * RETURN_FACTOR );
+			m_WeaponRotationDelta = Vector3.Lerp( m_WeaponRotationDelta, Vector3.zero, dt * RETURN_FACTOR );
 			return;
 		}
 
@@ -107,11 +107,11 @@ public class HeadBob : CameraEffectBase {
 		float deltaY = deltaYBase;
 		m_Direction.Set ( deltaX, deltaY, 0.0f );
 
-		m_WeaponPositionDelta.z = deltaY * m_WpnInfluence;
-		m_WeaponPositionDelta.y = deltaX * m_WpnInfluence;
+//		m_WeaponPositionDelta.z = deltaY * m_WpnInfluence;
+//		m_WeaponPositionDelta.y = deltaX * m_WpnInfluence;
 
-		m_WeaponRotationDelta.x = deltaX * m_WpnInfluence;
-		m_WeaponRotationDelta.y = deltaY * m_WpnInfluence;
+//		m_WeaponRotationDelta.x = deltaX * m_WpnInfluence;
+//		m_WeaponRotationDelta.y = deltaY * m_WpnInfluence;
 
 		// Steps
 		if ( Mathf.Abs( Mathf.Sin( m_ThetaY ) ) > m_StepValue )

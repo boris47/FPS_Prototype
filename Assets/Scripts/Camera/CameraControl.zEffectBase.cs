@@ -5,9 +5,11 @@ using UnityEngine;
 
 public abstract class CameraEffectBase {
 
-	public	delegate bool EffectActiveCondition();
+	protected	const	float	RETURN_FACTOR = 0.005f;
 
-	protected	EffectActiveCondition	m_EffectActiveCondition = delegate() { return true; };
+	public	delegate	bool	EffectActiveCondition();
+
+	protected	EffectActiveCondition	m_EffectActiveCondition		= delegate() { return true; };
 	
 	[SerializeField]
 	protected	float		m_WpnInfluence				= 0.01f;
@@ -22,20 +24,20 @@ public abstract class CameraEffectBase {
 	protected	float		m_AmplitudeVert				= 1.00f;
 
 	[SerializeField]
-	protected float			m_SpeedBase						= 1.0f;
+	protected float			m_SpeedBase					= 1.00f;
 
 	[SerializeField]
-	protected	float		m_Theta_Upd_Vert			= 5.0f;
+	protected	float		m_Theta_Upd_Vert			= 5.00f;
 
 	[SerializeField]
-	protected	float		m_Theta_Upd_Oriz			= 2.5f;
+	protected	float		m_Theta_Upd_Oriz			= 2.50f;
 
 	[SerializeField]
 	protected	Vector3		m_Direction					= Vector3.zero;
 	public		Vector3		Direction					{ get { return m_Direction; } }
 
-	protected	float		m_ThetaX					= 0f;
-	protected	float		m_ThetaY					= 90f;
+	protected	static float		m_ThetaX					= 0f;
+	protected	static float		m_ThetaY					= 90f;
 
 	protected	float		m_SpeedMul					= 1.0f;
 	public		float		SpeedMul					{ get { return m_SpeedMul; } set { m_SpeedMul = value; } }

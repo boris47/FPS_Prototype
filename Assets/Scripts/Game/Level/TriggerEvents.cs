@@ -4,21 +4,37 @@ using UnityEngine;
 
 public class TriggerEvents : MonoBehaviour {
 	
-	[SerializeField]
-	private		GameEvent		m_OnEnter				= null;
+	public	delegate	void		TargetTriggerDelegate( GameObject go );
 
 	[SerializeField]
-	private		GameEvent		m_OnExit				= null;
+	private		GameEvent<GameObject>	m_OnEnter				= null;
 
 	[SerializeField]
-	private		GameObject		m_Target				= null;
+	private		GameEvent<GameObject>	m_OnExit				= null;
 
 	[SerializeField]
-	private		bool			m_TriggerOnce			= false;
+	private		GameObject				m_Target				= null;
 
 	[SerializeField]
-	private		bool			m_BypassEntityCheck		= false;
+	private		bool					m_TriggerOnce			= false;
 
+	[SerializeField]
+	private		bool					m_BypassEntityCheck		= false;
+
+	private		event TargetTriggerDelegate	m_OnEnterEvent	= delegate( GameObject go ) { };
+	public event	TargetTriggerDelegate	OnEnterEvent
+	{
+		add		{ if ( value.IsNotNull() ) m_OnEnterEvent += value; }
+		remove	{ if ( value.IsNotNull() ) m_OnEnterEvent += value; }
+	}
+
+
+	private		event TargetTriggerDelegate	m_OnExitEvent	= delegate( GameObject go ) { };
+	public event	TargetTriggerDelegate	OnExitEvent
+	{
+		add		{ if ( value.IsNotNull() ) m_OnExitEvent += value; }
+		remove	{ if ( value.IsNotNull() ) m_OnExitEvent += value; }
+	}
 
 	private		bool			m_HasTriggered			= false;
 
@@ -40,10 +56,15 @@ public class TriggerEvents : MonoBehaviour {
 		m_Collider.isTrigger = true; // ensure is used as trigger
 		m_Collider.enabled = false;
 
+		m_OnEnter.AddListener( ( GameObject go ) => { m_OnEnterEvent( go ); } ); 
+		m_OnExit.AddListener ( ( GameObject go ) => { m_OnExitEvent( go ); } ); 
+
 		GameManager.StreamEvents.OnSave += OnSave;
 		GameManager.StreamEvents.OnLoad += OnLoad;
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
 	private void OnEnable()
 	{
 		if ( m_Target )
@@ -107,9 +128,9 @@ public class TriggerEvents : MonoBehaviour {
 
 		m_HasTriggered = true;
 
-		if ( m_OnEnter != null && m_OnEnter.GetPersistentEventCount() > 0 )
+		if ( m_OnEnter.IsNotNull() )
 		{
-			m_OnEnter.Invoke();
+			m_OnEnter.Invoke( other.gameObject );
 		}
 	}
 
@@ -124,9 +145,9 @@ public class TriggerEvents : MonoBehaviour {
 		if ( m_Target && other.gameObject.GetInstanceID() != m_Target.GetInstanceID() )
 			return;
 
-		if ( m_OnExit != null && m_OnExit.GetPersistentEventCount() > 0 )
+		if ( m_OnExit.IsNotNull() )
 		{
-			m_OnExit.Invoke();
+			m_OnExit.Invoke( other.gameObject );
 		}
 	}
 
