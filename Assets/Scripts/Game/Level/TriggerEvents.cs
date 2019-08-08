@@ -7,10 +7,10 @@ public class TriggerEvents : MonoBehaviour {
 	public	delegate	void		TargetTriggerDelegate( GameObject go );
 
 	[SerializeField]
-	private		GameEvent<GameObject>	m_OnEnter				= null;
+	private		GameEventArg1			m_OnEnter				= null;
 
 	[SerializeField]
-	private		GameEvent<GameObject>	m_OnExit				= null;
+	private		GameEventArg1			m_OnExit				= null;
 
 	[SerializeField]
 	private		GameObject				m_Target				= null;

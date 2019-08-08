@@ -9,10 +9,17 @@ using System.Threading;
 
 
 [System.Serializable]
-public class GameEvent	  : UnityEngine.Events.UnityEvent { }
-
+public class GameEvent      : UnityEngine.Events.UnityEvent { }
 [System.Serializable]
-public class GameEvent<T>	  : UnityEngine.Events.UnityEvent<T> { }
+public class GameEventArg1	: UnityEngine.Events.UnityEvent< UnityEngine.GameObject > { }
+[System.Serializable]
+public class GameEventArg2	: UnityEngine.Events.UnityEvent< UnityEngine.GameObject, UnityEngine.GameObject > { }
+[System.Serializable]
+public class GameEventArg3	: UnityEngine.Events.UnityEvent< UnityEngine.GameObject, UnityEngine.GameObject, UnityEngine.GameObject > { }
+[System.Serializable]
+public class GameEventArg4	: UnityEngine.Events.UnityEvent< UnityEngine.GameObject, UnityEngine.GameObject, UnityEngine.GameObject, UnityEngine.GameObject > { }
+
+
 
 
 //	DELEGATES FOR EVENTS
