@@ -107,11 +107,11 @@ public class HeadBob : CameraEffectBase {
 		float deltaY = deltaYBase;
 		m_Direction.Set ( deltaX, deltaY, 0.0f );
 
-//		m_WeaponPositionDelta.z = deltaY * m_WpnInfluence;
-//		m_WeaponPositionDelta.y = deltaX * m_WpnInfluence;
+		m_WeaponPositionDelta.z = deltaY * m_WpnInfluence;
+		m_WeaponPositionDelta.y = deltaX * m_WpnInfluence;
 
-//		m_WeaponRotationDelta.x = deltaX * m_WpnInfluence;
-//		m_WeaponRotationDelta.y = deltaY * m_WpnInfluence;
+		m_WeaponRotationDelta.x = deltaX * m_WpnInfluence;
+		m_WeaponRotationDelta.y = deltaY * m_WpnInfluence;
 
 		// Steps
 		if ( Mathf.Abs( Mathf.Sin( m_ThetaY ) ) > m_StepValue )
