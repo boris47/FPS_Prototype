@@ -47,7 +47,7 @@ public class TriggerEvents : MonoBehaviour {
 	{
 		bool bHasCollider = transform.SearchComponent( ref m_Collider, SearchContext.LOCAL );
 
-		if ( bHasCollider )
+		if ( bHasCollider == false )
 		{
 			Destroy(this);
 			return;
@@ -67,8 +67,12 @@ public class TriggerEvents : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnEnable()
 	{
-		if ( m_Target )
-			m_Collider.enabled = false;
+		m_Collider.enabled = true;
+	}
+
+	private void OnDisable()
+	{
+		m_Collider.enabled = false;
 	}
 
 
