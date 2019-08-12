@@ -13,25 +13,28 @@ public class TixicTriggerArea : MonoBehaviour {
 		public	int					ObjectID				= -1;
 	}
 
-	private			TriggerEvents		m_TriggerEvents	 = null;
+	private			TriggerEvents		m_TriggerEvents			= null;
+
+	private			Collider			m_Collider				= null;
 
 	[SerializeField, ReadOnly]
-	private			bool				m_bIsActiveArea	= false;
+	private			bool				m_bIsActiveArea			= false;
 
 	[SerializeField, ReadOnly]
-	private			bool				m_bHasOmogeneousDmg = false;
+	private			bool				m_bHasOmogeneousDmg		= false;
 
 	[SerializeField, ReadOnly]
 	private			List<EnteredGameObjectData> m_EnteredGameObjects = new List<EnteredGameObjectData>();
 
 	[SerializeField, Range( 0, 150f )]
-	private			float				m_AppliedDamage = 10f;
+	private			float				m_EveryFrameAppliedDamage = 10f;
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private void Awake()
 	{
-		m_bIsActiveArea = transform.SearchComponent( ref m_TriggerEvents, SearchContext.LOCAL );
+		m_bIsActiveArea = transform.SearchComponent( ref m_TriggerEvents, SearchContext.LOCAL ) && 
+			transform.SearchComponent( ref m_Collider, SearchContext.LOCAL );
 
 		if ( m_bIsActiveArea )
 		{
@@ -44,8 +47,66 @@ public class TixicTriggerArea : MonoBehaviour {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	private void OnEnable()
+	{
+		m_bIsActiveArea = true;
+
+		m_EnteredGameObjects.Clear();
+
+		Collider[] colliders = null;
+		bool bHasColliders = false;
+
+		if ( m_Collider is BoxCollider )
+		{
+			BoxCollider thisCollider = m_Collider as BoxCollider;
+			colliders = Physics.OverlapBox( thisCollider.transform.position, thisCollider.size, thisCollider.transform.rotation );
+			bHasColliders = colliders.Length > 0;
+		}
+
+		if ( m_Collider is CapsuleCollider )
+		{
+			CapsuleCollider thisCollider = m_Collider as CapsuleCollider;
+			float radius = thisCollider.radius;
+			float height = thisCollider.height;
+			float distanceToPoints = height * 0.5f * radius;
+			Vector3 center = thisCollider.transform.position;
+			Vector3 point0 = center + Vector3.up * distanceToPoints;
+			Vector3 point1 = center - Vector3.up * distanceToPoints;
+			colliders = Physics.OverlapCapsule( point0, point1, radius );
+			bHasColliders = colliders.Length > 0;
+		}
+
+		if ( m_Collider is SphereCollider )
+		{
+			SphereCollider thisCollider = m_Collider as SphereCollider;
+			colliders = Physics.OverlapSphere( thisCollider.transform.position, thisCollider.radius );
+			bHasColliders = colliders.Length > 0;
+		}
+
+		if ( bHasColliders )
+		{
+			for ( int i = 0; i < colliders.Length; i++ )
+			{
+				Collider collider = colliders[i];
+				OnEnter( collider.gameObject );
+			}
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void OnDisable()
+	{
+		m_bIsActiveArea = false;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	private void UpdateEvents_OnFrame( float DeltaTime )
 	{
+		if ( m_bIsActiveArea == false )
+			return;
+
 		for ( int i = m_EnteredGameObjects.Count - 1; i >= 0; i-- )
 		{
 			EnteredGameObjectData data = m_EnteredGameObjects[i];
@@ -61,7 +122,7 @@ public class TixicTriggerArea : MonoBehaviour {
 
 			if ( data.bIsEntity )
 			{
-				data.EnteredEntity.OnHittedDetails( Vector3.zero, null, m_AppliedDamage * DeltaTime, false );
+				data.EnteredEntity.OnHittedDetails( Vector3.zero, null, m_EveryFrameAppliedDamage * DeltaTime, false );
 			}
 		}
 	}
@@ -71,6 +132,9 @@ public class TixicTriggerArea : MonoBehaviour {
 	private	void	OnEnter( GameObject go )
 	{
 		print( "TixicTriggerArea::OnEnter: entered " + go.name );
+
+		if ( m_EnteredGameObjects.FindIndex( (o) => go.GetInstanceID() == o.ObjectID ) > -1 )
+			return;
 
 		Entity enteredEntity = null;
 		bool bIsEntity = go.transform.SearchComponent( ref enteredEntity, SearchContext.LOCAL );
