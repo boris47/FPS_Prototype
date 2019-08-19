@@ -2,6 +2,44 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public class MyFileLogHandler : ILogHandler
+{
+    private System.IO.FileStream m_FileStream;
+    private System.IO.StreamWriter m_StreamWriter;
+    private ILogHandler m_DefaultLogHandler = Debug.logger.logHandler;
+
+
+	//////////////////////////////////////////////////////////////////////////
+    public MyFileLogHandler()
+    {
+		// Application.persistentDataPath: C:/Users/Drako/AppData/LocalLow/BeWide&Co/Project Orion
+		
+        string filePath = Application.streamingAssetsPath + "/MyLogs.txt";
+
+        m_FileStream = new System.IO.FileStream( filePath, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.ReadWrite );
+        m_StreamWriter = new System.IO.StreamWriter( m_FileStream );
+
+        // Replace the default debug log handler
+        Debug.logger.logHandler = this;
+    }
+
+
+	//////////////////////////////////////////////////////////////////////////
+    public void LogFormat( LogType logType, UnityEngine.Object context, string format, params object[] args )
+    {
+        m_StreamWriter.WriteLine( System.String.Format( format, args ) );
+        m_StreamWriter.Flush();
+        m_DefaultLogHandler.LogFormat( logType, context, format, args );
+    }
+
+
+	//////////////////////////////////////////////////////////////////////////
+    public void LogException( System.Exception exception, UnityEngine.Object context )
+    {
+        m_DefaultLogHandler.LogException( exception, context );
+    }
+}
+
 
 
 public class GlobalManager : MonoBehaviour {
@@ -45,6 +83,7 @@ public class GlobalManager : MonoBehaviour {
 	private static void OnBeforeSceneLoad ()
 	{
 		Application.logMessageReceived += HandleException;
+		new MyFileLogHandler();
 	}
 
 	static void HandleException( string condition, string stackTrace, LogType type )

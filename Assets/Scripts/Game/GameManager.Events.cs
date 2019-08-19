@@ -64,10 +64,10 @@ public interface IStreamEvents {
 	/// <summary> Events called when game has saved </summary>
 		event		GameEvents.StreamingEvent		OnSaveComplete;
 
-	/// <summary> Events called when game is loading </summary>
+	/// <summary> Events called when game is loading ( Events are called along more frames !! ) </summary>
 		event		GameEvents.StreamingEvent		OnLoad;
 
-	/// <summary> Events called when game has loaded </summary>
+	/// <summary> Events called when game has been loaded ( Events are called along more frames !! ) </summary>
 		event		GameEvents.StreamingEvent		OnLoadComplete;
 
 	/// <summary> Save current play </summary>
@@ -99,8 +99,11 @@ public partial class GameManager : IStreamEvents {
 	// Events
 	private	event	GameEvents.StreamingEvent		m_OnSave			= delegate ( StreamData streamData ) { return null; };
 	private	event	GameEvents.StreamingEvent		m_OnSaveComplete	= delegate ( StreamData streamData ) { return null; };
-	private	event	GameEvents.StreamingEvent		m_OnLoad			= delegate ( StreamData streamData ) { return null; };
-	private	event	GameEvents.StreamingEvent		m_OnLoadComplete	= delegate ( StreamData streamData ) { return null; };
+
+//	private	event	GameEvents.StreamingEvent		m_OnLoad			= delegate ( StreamData streamData ) { return null; };
+	private			List<GameEvents.StreamingEvent>	m_OnLoad = new List<GameEvents.StreamingEvent>();
+//	private	event	GameEvents.StreamingEvent		m_OnLoadComplete	= delegate ( StreamData streamData ) { return null; };
+	private			List<GameEvents.StreamingEvent>	m_OnLoadComplete = new List<GameEvents.StreamingEvent>();
 	private			StreamingState					m_SaveLoadState		= StreamingState.NONE;
 
 #region INTERFACE
@@ -131,18 +134,20 @@ public partial class GameManager : IStreamEvents {
 		remove	{ if ( value != null )	m_OnSaveComplete -= value; }
 	}
 
-	/// <summary> Events called when game is loading </summary>
+	/// <summary> Events called when game is loading ( Events are called along more frames !! ) </summary>
 	event GameEvents.StreamingEvent IStreamEvents.OnLoad
 	{
-		add		{ if ( value != null )	m_OnLoad += value; }
-		remove	{ if ( value != null )	m_OnLoad -= value; }
+		add		{ if ( value != null )	m_OnLoad.Add(value); }// m_OnLoad += value; }
+		remove	{ if ( value != null )	m_OnLoad.Remove(value); }// m_OnLoad -= value; }
 	}
 
-	/// <summary> Events called when game is loading </summary>
+	/// <summary> Events called when game has been loaded ( Events are called along more frames !! ) </summary>
 	event GameEvents.StreamingEvent IStreamEvents.OnLoadComplete
 	{
-		add		{ if ( value != null )	m_OnLoadComplete += value; }
-		remove	{ if ( value != null )	m_OnLoadComplete -= value; }
+//		add		{ if ( value != null )	m_OnLoadComplete += value; }
+//		remove	{ if ( value != null )	m_OnLoadComplete -= value; }
+		add		{ if ( value != null )	m_OnLoadComplete.Add(value); }// m_OnLoadComplete += value; }
+		remove	{ if ( value != null )	m_OnLoadComplete.Remove(value); }// m_OnLoadComplete -= value; }
 	}
 
 	// INTERFACE END
@@ -244,12 +249,24 @@ public partial class GameManager : IStreamEvents {
 	{
 		yield return null;
 
+		for ( int i = 0; i < m_OnLoad.Count; i++ )
+		{
+			GameEvents.StreamingEvent _delegate = m_OnLoad[i];
+			_delegate( streamData );
+			yield return null;
+		}
+
 		// call all load callbacks
-		m_OnLoad( streamData );
+//		m_OnLoad( streamData );
 
 		yield return null;
 
-		m_OnLoadComplete( streamData );
+		foreach ( GameEvents.StreamingEvent _delegate in m_OnLoadComplete )
+		{
+			_delegate( streamData );
+			yield return null;
+		}
+
 		print( "Loaded!" );
 
 		m_SaveLoadState = StreamingState.LOAD_COMPLETE;

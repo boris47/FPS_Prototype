@@ -72,19 +72,6 @@ public class DamageTriggerArea : MonoBehaviour {
 			bHasColliders = colliders.Length > 0;
 		}
 
-		if ( m_Collider is CapsuleCollider )
-		{
-			CapsuleCollider thisCollider = m_Collider as CapsuleCollider;
-			float radius = thisCollider.radius;
-			float height = thisCollider.height;
-			float distanceToPoints = height * 0.5f * radius;
-			Vector3 center = thisCollider.transform.position;
-			Vector3 point0 = center + Vector3.up * distanceToPoints;
-			Vector3 point1 = center - Vector3.up * distanceToPoints;
-			colliders = Physics.OverlapCapsule( point0, point1, radius );
-			bHasColliders = colliders.Length > 0;
-		}
-
 		if ( m_Collider is SphereCollider )
 		{
 			SphereCollider thisCollider = m_Collider as SphereCollider;
@@ -175,5 +162,27 @@ public class DamageTriggerArea : MonoBehaviour {
 		{
 			Debug.Log( "Strange, object "+ go.name + "Leavaing, but never entered!!!" );
 		}
+	}
+
+	private void OnDrawGizmos()
+	{
+		transform.SearchComponent( ref m_Collider, SearchContext.LOCAL );
+
+		Matrix4x4 mat = Gizmos.matrix;
+		Gizmos.matrix = transform.localToWorldMatrix;
+
+		if ( m_Collider is BoxCollider )
+		{
+			BoxCollider thisCollider = m_Collider as BoxCollider;
+			Gizmos.DrawCube( Vector3.zero, thisCollider.size );
+		}
+		
+		if ( m_Collider is SphereCollider )
+		{
+			SphereCollider thisCollider = m_Collider as SphereCollider;
+			Gizmos.DrawSphere( Vector3.zero, thisCollider.radius );
+		}
+
+		Gizmos.matrix = mat;
 	}
 }

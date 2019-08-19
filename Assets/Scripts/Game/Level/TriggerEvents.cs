@@ -59,32 +59,19 @@ public class TriggerEvents : MonoBehaviour {
 		m_OnEnter.AddListener( ( GameObject go ) => { m_OnEnterEvent( go ); } ); 
 		m_OnExit.AddListener ( ( GameObject go ) => { m_OnExitEvent( go ); } ); 
 
-		GameManager.StreamEvents.OnSave += OnSave;
-		GameManager.StreamEvents.OnLoad += OnLoad;
+		GameManager.StreamEvents.OnSave += StreamEvents_OnSave;
+		GameManager.StreamEvents.OnLoad += StreamEvents_OnLoad;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private void OnEnable()
-	{
-		m_Collider.enabled = true;
-	}
-
-	private void OnDisable()
-	{
-		m_Collider.enabled = false;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnSave ( override )
-	private StreamUnit OnSave( StreamData streamData )
+	private StreamUnit StreamEvents_OnSave( StreamData streamData )
 	{
 		// Skip if no required
 		if ( m_TriggerOnce == false )
 			return null;
 
-		StreamUnit streamUnit		= streamData.NewUnit( gameObject );
+		StreamUnit streamUnit = streamData.NewUnit( gameObject );
 		streamUnit.SetInternal( "HasTriggered", m_HasTriggered );
 
 		return streamUnit;
@@ -92,8 +79,7 @@ public class TriggerEvents : MonoBehaviour {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnLoad ( override )
-	private StreamUnit OnLoad( StreamData streamData )
+	private StreamUnit StreamEvents_OnLoad( StreamData streamData )
 	{
 		// Skip if no required
 		if ( m_TriggerOnce == false )
@@ -110,6 +96,32 @@ public class TriggerEvents : MonoBehaviour {
 		m_HasTriggered = streamUnit.GetAsBool( "HasTriggered" );
 		
 		return streamUnit;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void OnEnable()
+	{
+		UnityEngine.Assertions.Assert.IsNotNull
+		(
+			m_Collider,
+			"TriggerEvents::OnEnable: m_Collider is a null reference"
+		);
+
+		m_Collider.enabled = true;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void OnDisable()
+	{
+		UnityEngine.Assertions.Assert.IsNotNull
+		(
+			m_Collider,
+			"TriggerEvents::OnDisable: m_Collider is a null reference"
+		);
+
+		m_Collider.enabled = false;
 	}
 
 
