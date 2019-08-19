@@ -2,7 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TixicTriggerArea : MonoBehaviour {
+public enum DamageType {
+	BALLISTIC,
+	ENERGY,
+	EXPLOSIVE
+}
+
+public class DamageTriggerArea : MonoBehaviour {
 
 	[System.Serializable]
 	private class EnteredGameObjectData {
@@ -13,21 +19,24 @@ public class TixicTriggerArea : MonoBehaviour {
 		public	int					ObjectID				= -1;
 	}
 
-	private			TriggerEvents		m_TriggerEvents			= null;
+	private			TriggerEvents		m_TriggerEvents					= null;
 
-	private			Collider			m_Collider				= null;
-
-	[SerializeField, ReadOnly]
-	private			bool				m_bIsActiveArea			= false;
+	private			Collider			m_Collider						= null;
 
 	[SerializeField, ReadOnly]
-	private			bool				m_bHasOmogeneousDmg		= false;
+	private			bool				m_bIsActiveArea					= false;
 
 	[SerializeField, ReadOnly]
-	private			List<EnteredGameObjectData> m_EnteredGameObjects = new List<EnteredGameObjectData>();
+	private			bool				m_bHasOmogeneousDmg				= false;
+
+	[SerializeField, ReadOnly]
+	private			List<EnteredGameObjectData> m_EnteredGameObjects	= new List<EnteredGameObjectData>();
 
 	[SerializeField, Range( 0, 150f )]
-	private			float				m_EveryFrameAppliedDamage = 10f;
+	private			float				m_EveryFrameAppliedDamage		= 10f;
+
+	[SerializeField]
+	private			DamageType			m_DamageType					= DamageType.BALLISTIC;
 
 
 	//////////////////////////////////////////////////////////////////////////
