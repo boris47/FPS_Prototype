@@ -6,8 +6,12 @@ public class MyFileLogHandler : ILogHandler
 {
     private System.IO.FileStream m_FileStream = null;
     private System.IO.StreamWriter m_StreamWriter = null;
-    private ILogHandler m_DefaultLogHandler = Debug.unityLogger.logHandler;
 
+#if UNITY_5_6_7
+	private ILogHandler m_DefaultLogHandler = Debug.logger.logHandler;
+#elif UNITY_2017
+	private ILogHandler m_DefaultLogHandler = Debug.unityLogger.logHandler;
+#endif
 
 	//////////////////////////////////////////////////////////////////////////
     public MyFileLogHandler()
@@ -19,8 +23,12 @@ public class MyFileLogHandler : ILogHandler
         m_FileStream = new System.IO.FileStream( filePath, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.ReadWrite );
         m_StreamWriter = new System.IO.StreamWriter( m_FileStream );
 
-        // Replace the default debug log handler
-        Debug.unityLogger.logHandler = this;
+		// Replace the default debug log handler
+#if UNITY_5_6_7
+        Debug.logger.logHandler = this;
+#elif UNITY_2017
+		Debug.unityLogger.logHandler = this;
+#endif
     }
 
 
