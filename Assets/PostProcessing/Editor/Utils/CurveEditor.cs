@@ -376,8 +376,12 @@ namespace UnityEditor.PostProcessing
                 // Draw
                 if (state.showNonEditableHandles)
                 {
+#if UNITY_5_6_7
                     if (e.type == EventType.repaint)
-                    {
+#elif UNITY_2017
+					if (e.type == EventType.Repaint)
+#endif
+					{
                         var selectedColor = (isCurrentlySelectedCurve && isCurrentlySelectedKeyframe)
                             ? settings.selectionColor
                             : state.color;
@@ -421,9 +425,13 @@ namespace UnityEditor.PostProcessing
                         EditMoveTangent(animCurve, keys, k, m_TangentEditMode, e.shift || !(alreadyBroken || e.control));
                     }
 
-                    // Keyframe selection & context menu
-                    if (e.type == EventType.mouseDown && rect.Contains(e.mousePosition))
-                    {
+					// Keyframe selection & context menu
+#if UNITY_5_6_7
+					if (e.type == EventType.mouseDown && rect.Contains(e.mousePosition))
+#elif UNITY_2017
+					if (e.type == EventType.MouseDown && rect.Contains(e.mousePosition))
+#endif
+					{
                         if (hitRect.Contains(e.mousePosition))
                         {
                             if (e.button == 0)
@@ -453,8 +461,12 @@ namespace UnityEditor.PostProcessing
                     }
 
                     // Tangent selection & edit mode
-                    if (e.type == EventType.mouseDown && rect.Contains(e.mousePosition))
-                    {
+#if UNITY_5_6_7
+					if (e.type == EventType.mouseDown && rect.Contains(e.mousePosition))
+#elif UNITY_2017
+                    if (e.type == EventType.MouseDown && rect.Contains(e.mousePosition))
+#endif
+					{
                         if (inTangentHitRect.Contains(e.mousePosition) && (k > 0 || state.loopInBounds))
                         {
                             SelectKeyframe(curve, k);
@@ -499,8 +511,12 @@ namespace UnityEditor.PostProcessing
             var e = Event.current;
 
             // Selection
-            if (e.type == EventType.mouseDown)
-            {
+#if UNITY_5_6_7
+			if (e.type == EventType.mouseDown)
+#elif UNITY_2017
+            if (e.type == EventType.MouseDown)
+#endif
+			{
                 GUI.FocusControl(null);
                 m_SelectedCurve = null;
                 m_SelectedKeyframeIndex = -1;
@@ -582,8 +598,12 @@ namespace UnityEditor.PostProcessing
             }
 
             // Delete selected key(s)
-            if (e.type == EventType.keyDown && (e.keyCode == KeyCode.Delete || e.keyCode == KeyCode.Backspace))
-            {
+#if UNITY_5_6_7
+			if (e.type == EventType.keyDown && (e.keyCode == KeyCode.Delete || e.keyCode == KeyCode.Backspace))
+#elif UNITY_2017
+            if (e.type == EventType.KeyDown && (e.keyCode == KeyCode.Delete || e.keyCode == KeyCode.Backspace))
+#endif
+			{
                 if (m_SelectedKeyframeIndex != -1 && m_SelectedCurve != null)
                 {
                     var animCurve = m_SelectedCurve.animationCurveValue;
