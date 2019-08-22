@@ -1,4 +1,0 @@
-TixicTriggerArea::OnEnter: entered Plane
-Camera not parented with player head. Setting player's head as parent of camera
-
-TixicTriggerArea::OnExit: Exit Player

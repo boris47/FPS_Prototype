@@ -62,7 +62,7 @@ public class Intro : MonoBehaviour {
 
 	private void OnDestroy()
 	{
-		print("Intro object Destroyied");
+		print("Intro::OnDestroy: Intro object Destroyied");
 	}
 
 }

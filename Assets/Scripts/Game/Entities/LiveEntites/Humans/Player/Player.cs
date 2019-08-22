@@ -177,7 +177,7 @@ public partial class Player : Human {
 	{
 		if ( CameraControl.Instance.Transform.IsChildOf( m_HeadTransform ) == false )
 		{
-			Debug.Log( "Camera not parented with player head. Setting player's head as parent of camera" );
+			Debug.Log( "Player::Start: Camera not parented with player head. Setting player's head as parent of camera" );
 			CameraControl.Instance.SetViewPoint( m_HeadTransform );
 		}
 

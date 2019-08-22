@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class MyFileLogHandler : ILogHandler
 {
-    private System.IO.FileStream m_FileStream;
-    private System.IO.StreamWriter m_StreamWriter;
-    private ILogHandler m_DefaultLogHandler = Debug.logger.logHandler;
+    private System.IO.FileStream m_FileStream = null;
+    private System.IO.StreamWriter m_StreamWriter = null;
+    private ILogHandler m_DefaultLogHandler = Debug.unityLogger.logHandler;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -14,13 +14,13 @@ public class MyFileLogHandler : ILogHandler
     {
 		// Application.persistentDataPath: C:/Users/Drako/AppData/LocalLow/BeWide&Co/Project Orion
 		
-        string filePath = Application.streamingAssetsPath + "/MyLogs.txt";
+        string filePath = Application.dataPath + "/MyLogs.txt";
 
         m_FileStream = new System.IO.FileStream( filePath, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.ReadWrite );
         m_StreamWriter = new System.IO.StreamWriter( m_FileStream );
 
         // Replace the default debug log handler
-        Debug.logger.logHandler = this;
+        Debug.unityLogger.logHandler = this;
     }
 
 
@@ -83,7 +83,8 @@ public class GlobalManager : MonoBehaviour {
 	private static void OnBeforeSceneLoad ()
 	{
 		Application.logMessageReceived += HandleException;
-		new MyFileLogHandler();
+		if ( Application.isEditor == false )
+			new MyFileLogHandler();
 	}
 
 	static void HandleException( string condition, string stackTrace, LogType type )

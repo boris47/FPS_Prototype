@@ -322,7 +322,7 @@ public partial class GameManager : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	public	static	void		QuitInstanly()
 	{
-		Debug.Log("GameManager: Exiting");
+		Debug.Log("GameManager::QuitInstanly: Exiting");
 #if UNITY_EDITOR
 		UnityEditor.EditorApplication.isPlaying = false;		
 #else

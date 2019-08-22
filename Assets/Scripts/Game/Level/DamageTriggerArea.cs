@@ -127,10 +127,10 @@ public class DamageTriggerArea : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private	void	OnEnter( GameObject go )
 	{
-		print( "TixicTriggerArea::OnEnter: entered " + go.name );
-
 		if ( m_EnteredGameObjects.FindIndex( (o) => go.GetInstanceID() == o.ObjectID ) > -1 )
 			return;
+
+		print( "TixicTriggerArea::OnEnter: Enter " + go.name );
 
 		Entity enteredEntity = null;
 		bool bIsEntity = go.transform.SearchComponent( ref enteredEntity, SearchContext.LOCAL );
