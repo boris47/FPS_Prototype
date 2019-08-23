@@ -164,25 +164,28 @@ public class DamageTriggerArea : MonoBehaviour {
 		}
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
 	private void OnDrawGizmos()
 	{
-		transform.SearchComponent( ref m_Collider, SearchContext.LOCAL );
-
-		Matrix4x4 mat = Gizmos.matrix;
-		Gizmos.matrix = transform.localToWorldMatrix;
-
-		if ( m_Collider is BoxCollider )
+		if ( transform.SearchComponent( ref m_Collider, SearchContext.LOCAL ) )
 		{
-			BoxCollider thisCollider = m_Collider as BoxCollider;
-			Gizmos.DrawCube( Vector3.zero, thisCollider.size );
-		}
+			Matrix4x4 mat = Gizmos.matrix;
+			Gizmos.matrix = transform.localToWorldMatrix;
+
+			if ( m_Collider is BoxCollider )
+			{
+				BoxCollider thisCollider = m_Collider as BoxCollider;
+				Gizmos.DrawCube( Vector3.zero, thisCollider.size );
+			}
 		
-		if ( m_Collider is SphereCollider )
-		{
-			SphereCollider thisCollider = m_Collider as SphereCollider;
-			Gizmos.DrawSphere( Vector3.zero, thisCollider.radius );
-		}
+			if ( m_Collider is SphereCollider )
+			{
+				SphereCollider thisCollider = m_Collider as SphereCollider;
+				Gizmos.DrawSphere( Vector3.zero, thisCollider.radius );
+			}
 
-		Gizmos.matrix = mat;
+			Gizmos.matrix = mat;
+		}
 	}
 }
