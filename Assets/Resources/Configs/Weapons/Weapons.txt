@@ -1,4 +1,9 @@
 ﻿
+
+#include Granades.txt
+#include Rockets.txt
+#include Bullets.txt
+
 ;********************************
 
 ; BASE VARS FOR WEAPONS

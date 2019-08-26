@@ -2,14 +2,14 @@
 using System.Collections;
 
 
-public class FragGranade : GranadeBase {
+public class GranadeFrammentation : GranadeBase {
 
 	private		Collider[]		m_SphereResults		= new Collider[ 100 ];
 
 	private		bool			m_BlowOnHit			= false;
 
 	[SerializeField]
-	private class FragGranadeSectionData {
+	private class GranadeFrammentationSectionData {
 		public float DamageMax		=  0f;
 		public float Range			=  0f;
 		public float Velocity		=  0f;
@@ -17,7 +17,7 @@ public class FragGranade : GranadeBase {
 		public bool	 BlowOnHit		=  false;
 	}
 	[SerializeField, ReadOnly]
-	private FragGranadeSectionData m_FragGranadeSectionData = new FragGranadeSectionData();
+	private GranadeFrammentationSectionData m_GranadeFrammentationSectionData = new GranadeFrammentationSectionData();
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
@@ -27,13 +27,13 @@ public class FragGranade : GranadeBase {
 
 		// LOAD CONFIGURATION
 		{
-			if ( GlobalManager.Configs.bGetSection( "FragGranade", m_FragGranadeSectionData ) )
+			if ( GlobalManager.Configs.bGetSection( "GranadeFrammentation", m_GranadeFrammentationSectionData ) )
 			{
-				m_DamageMax					= m_FragGranadeSectionData.DamageMax;
-				m_Range						= m_FragGranadeSectionData.Range;
-				m_Velocity					= m_FragGranadeSectionData.Velocity;
-				m_ExplosionDelay			= m_FragGranadeSectionData.ExplosionDelay;
-				m_BlowOnHit					= m_FragGranadeSectionData.BlowOnHit;
+				m_DamageMax					= m_GranadeFrammentationSectionData.DamageMax;
+				m_Range						= m_GranadeFrammentationSectionData.Range;
+				m_Velocity					= m_GranadeFrammentationSectionData.Velocity;
+				m_ExplosionDelay			= m_GranadeFrammentationSectionData.ExplosionDelay;
+				m_BlowOnHit					= m_GranadeFrammentationSectionData.BlowOnHit;
 			}
 		}
 	}

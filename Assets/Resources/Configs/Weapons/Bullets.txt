@@ -1,0 +1,78 @@
+
+;
+; ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+;								BULLETS
+
+[BulletElectro]
+eMotionType				= DIRECT;
+iDamageMin				= 10.0;				Impact Damage Min
+iDamageMax				= 10.0;				Impact Damage Max
+eDamageType				= ELECTRO;			Impact Damage Type
+iOverTimeDamageDuration	= 5.0;
+iDamageOverTime			= 1.0;				Damage over time
+
+iVelocity				= 45.0;
+
+;
+
+[BulletGeneric]
+eMotionType				= INSTANT;
+iDamageMin				= 10.0;				Impact Damage Min
+iDamageMax				= 10.0;				Impact Damage Max
+eDamageType				= BALLISTIC;		Impact Damage Type
+
+iVelocity				= 0.0;
+;
+
+[BulletRocket]
+eMotionType				= DIRECT;
+iDamageMin				= 10.0;				Blast Damage
+iDamageMax				= 10.0;				Blast Damage
+eDamageType				= EXPLOSIVE;		Blast Damage Type
+iDamageOverTime			= 1.0;				Damage Over Time
+iOverTimeDamageDuration	= 5.0;
+iOverTimeDamageType		= FLAME;			Over Time Damage Type
+
+iVelocity				= 5.0;
+iMaxRange				= 150.0;
+bBlowOnHit				= true;
+iBlastRadius			= 9.0;
+iBlastDamage			= 1000.0;
+
+
+
+;
+; ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+;								GRANADES
+
+
+[GranadeElectroGlobe]
+eMotionType				= PARABOLIC;
+iDamageMin				= 10.0;				Blast Damage
+iDamageMax				= 10.0;				Blast Damage
+eDamageType				= ELECTRO;
+iDamageOverTime			= 1.0;				Damage Over Time
+iOverTimeDamageDuration	= 0.0;				Duration Is Definend By Granade Persisence in World
+iOverTimeDamageType		= ELECTRO;			Over Time Damage Type
+
+iVelocity				= 32.0;
+iBlastRadius			= 9.0;
+bBlowOnHit				= false;
+ExplosionDelay			= 3.0;
+bAttachOnHit			= false;
+
+;
+
+[GranadeFrammentation]
+eMotionType				= PARABOLIC;
+iDamageMin				= 100.0;			Blast damage
+iDamageMax				= 100.0;			Blast damage
+eDamageType				= EXPLOSIVE;
+iDamageOverTime			= 1.0;				Damage Over Time
+iOverTimeDamageType		= FLAME;			Over Time Damage Type
+
+iVelocity				= 32.0;
+iBlastRadius			= 9.0;
+bBlowOnHit				= true;
+ExplosionDelay			= 0.0;
+bAttachOnHit			= false;

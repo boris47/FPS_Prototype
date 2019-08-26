@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class GlobeGranade : GranadeBase {
+public class GranadeElectroGlobe : GranadeBase {
 	
 	[SerializeField]
 	private		float					m_Duration					= 3f;
@@ -15,6 +15,17 @@ public class GlobeGranade : GranadeBase {
 
 	private		WaitForSeconds			m_WaitInstruction			= null;
 
+
+	[SerializeField]
+	private class GranadeElectroGlobeSectionData {
+		public float Damage			=  0f;
+		public float Range			=  0f;
+		public float Velocity		=  0f;
+		public float ExplosionDelay	=  0f;
+	}
+	[SerializeField, ReadOnly]
+	private GranadeElectroGlobeSectionData m_GranadeElectroGlobeSectionData = new GranadeElectroGlobeSectionData();
+
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
 	protected override void	Awake()
@@ -23,13 +34,13 @@ public class GlobeGranade : GranadeBase {
 
 		// LOAD CONFIGURATION
 		{
-			Database.Section section = null;
-			GlobalManager.Configs.bGetSection( "GlobeGranade", ref section );
-
-			m_DamageMax					= section.AsFloat( "Damage",			m_DamageMax );
-			m_Range						= section.AsFloat( "Radius",			m_Range );
-			m_Velocity					= section.AsFloat( "ThrowForce",		m_Velocity );
-			m_ExplosionDelay			= section.AsFloat( "ExplosionDelay",	m_ExplosionDelay );
+			if ( GlobalManager.Configs.bGetSection( "GranadeElectroGlobe", m_GranadeElectroGlobeSectionData ) )
+			{
+				m_DamageMax					= m_GranadeElectroGlobeSectionData.Damage;
+				m_Range						= m_GranadeElectroGlobeSectionData.Range;
+				m_Velocity					= m_GranadeElectroGlobeSectionData.Velocity;
+				m_ExplosionDelay			= m_GranadeElectroGlobeSectionData.ExplosionDelay;
+			}
 		}
 
 		m_WaitInstruction	= new WaitForSeconds( m_Duration );

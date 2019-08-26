@@ -2,7 +2,7 @@
 using System.Collections;
 
 
-public class BulletElettro : GenericBullet {
+public class BulletElectro : BulletGeneric {
 
 
 	//////////////////////////////////////////////////////////////////////////

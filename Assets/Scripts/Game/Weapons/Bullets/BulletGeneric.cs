@@ -2,7 +2,7 @@
 using UnityEngine;
 
 
-public class GenericBullet : Bullet {
+public class BulletGeneric : Bullet {
 
 	private	Light		m_PointLight		= null;
 	private	LensFlare	m_LensFlare			= null;
@@ -100,37 +100,21 @@ public class GenericBullet : Bullet {
 		bool bHasHit = Physics.Raycast( position, direction, out hit, Mathf.Infinity, Utils.Base.LayersAllButOne( "Bullets" ) );
 		if ( bHasHit )
 		{
-			Bullet bullet = hit.transform.gameObject.GetComponent<Bullet>();
-			if ( bullet != null )
+			bool bIsBullet = hit.transform.HasComponent<Bullet>();
+			if ( bIsBullet == true )
 				return;
 
-			IEntity entity = null;
-			bool bIsAnEntity = Utils.Base.SearchComponent( hit.transform.gameObject, ref entity, SearchContext.LOCAL );
-			IShield shield = null;
-			bool bIsShield = Utils.Base.SearchComponent( hit.transform.gameObject, ref shield, SearchContext.CHILDREN );
+			EffectType effectToPlay = EffectType.ENTITY_ON_HIT;
 
-			if ( bIsAnEntity )
+			IEntity entity = null;
+			IShield shield = null;
+			if ( Utils.Base.SearchComponent( hit.transform.gameObject, ref entity, SearchContext.LOCAL ) )
 			{
 				entity.Events.OnHittedBullet( this );
 			}
-			else
-			if ( bIsShield )
+			else if ( Utils.Base.SearchComponent( hit.transform.gameObject, ref shield, SearchContext.CHILDREN ) )
 			{
 				shield.CollisionHit( gameObject );
-			}
-
-			EffectType effectToPlay;
-
-			if ( bIsShield )
-			{
-				effectToPlay = EffectType.ENTITY_ON_HIT;
-			}
-			else
-			// If is an entity and who and hitted entites are of different category
-			if ( bIsAnEntity == true && ( ( m_WhoRef is NonLiveEntity && entity is NonLiveEntity ) == false ) )
-			{
-				effectToPlay = EffectType.ENTITY_ON_HIT;
-				entity.RigidBody.angularVelocity = entity.RigidBody.velocity = Vector3.zero;
 			}
 			else
 			{
@@ -203,32 +187,25 @@ public class GenericBullet : Bullet {
 		if ( bIsBullet == true )
 			return;
 
+		EffectType effectToPlay = EffectType.ENTITY_ON_HIT;
+
 		IEntity entity = null;
 		IShield shield = null;
-		bool bIsAnEntity = Utils.Base.SearchComponent( collision.gameObject, ref entity, SearchContext.LOCAL );
-		bool bIsShield   = Utils.Base.SearchComponent( collision.gameObject, ref shield, SearchContext.CHILDREN, s => s.Context == ShieldContext.ENTITY );
-
-		Vector3 position  = collision.contacts[0].point;
-		Vector3 direction = collision.contacts[0].normal;
-		
-		EffectType effectToPlay;
-		if ( bIsShield )
+		if ( Utils.Base.SearchComponent( collision.gameObject, ref entity, SearchContext.LOCAL ) )
 		{
-			effectToPlay = EffectType.ENTITY_ON_HIT;
-		}
-		else
-		// If is an entity and who and hitted entites are of different category
-		if ( bIsAnEntity == true && ( ( m_WhoRef is NonLiveEntity && entity is NonLiveEntity ) == false ) )
-		{
-			effectToPlay = EffectType.ENTITY_ON_HIT;
-			entity.RigidBody.angularVelocity = entity.RigidBody.velocity = Vector3.zero;
 			entity.Events.OnHittedBullet( this );
+		}
+		else if ( Utils.Base.SearchComponent( collision.gameObject, ref shield, SearchContext.CHILDREN ) )
+		{
+			shield.CollisionHit( gameObject );
 		}
 		else
 		{
 			effectToPlay = EffectType.AMBIENT_ON_HIT;
 		}
 
+		Vector3 position  = collision.contacts[0].point;
+		Vector3 direction = collision.contacts[0].normal;
 		EffectsManager.Instance.PlayEffect( effectToPlay, position, direction, 3 );
 
 		this.SetActive( false );

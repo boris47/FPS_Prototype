@@ -5,7 +5,9 @@ using UnityEngine;
 public enum DamageType {
 	BALLISTIC,
 	ENERGY,
-	EXPLOSIVE
+	ELECTRO,
+	EXPLOSIVE,
+	FLAME
 }
 
 public class DamageTriggerArea : MonoBehaviour {

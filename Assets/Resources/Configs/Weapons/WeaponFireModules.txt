@@ -38,7 +38,6 @@ AllowedSlots				= 1, 2, 3;
 Name						= Blaster;
 BaseMagazineCapacity		= 500;
 BaseDamage					= 15.0;
-;;;BaseMaxDamage				= 45.0;
 BaseCamDeviation			= 0.3;
 BaseFireDispersion			= 0.9;
 BaseRecoil					= 0.1;
@@ -87,7 +86,7 @@ AllowedSlots				= 1, 2;
 
 
 ; GRANADE LAUNCHER
-[WPN_FireModule_GranadeLauncher]
+[WPN_FireModule_Launcher]
 Name						= G Launcher;
 BaseMagazineCapacity		= 50;
 BaseLaunchForce				= 150;
@@ -97,10 +96,30 @@ BaseRecoil					= 0.5;
 BaseDamage					= 60.0;
 BaseShotDelay				= 1.0;
 FireMode					= Single;
-Bullet						= GranadeFrammentation
+Bullet						= GranadeFrammentation, GranadeElectroGlobe, 
+SupportedBullets			= GranadeFrammentation, 
 FireSound					= Shotgun;
 MaxModuleCount				= 1;
 AllowedSlots				= 1;
+
+
+; ROCKET LAUNCHER
+;[WPN_FIreModule_RocketLaucher]
+;Name						= G Launcher;
+;BaseMagazineCapacity		= 50;
+;BaseLaunchForce				= 150;
+;BaseCamDeviation			= 1.5;
+;BaseFireDispersion			= 0.5;
+;BaseRecoil					= 0.5;
+;BaseDamage					= 600.0;
+;BaseShotDelay				= 1.0;
+;FireMode					= Single;
+;Bullet						= Rocket
+;FireSound					= Shotgun;
+;MaxModuleCount				= 1;
+;AllowedSlots				= 1;
+
+
 
 
 ; SNIPER BARREL

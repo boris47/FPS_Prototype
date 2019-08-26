@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WPN_FireModule_GranadeLauncher : WPN_FireModule {
+public class WPN_FireModule_Launcher : WPN_FireModule {
 
 	[SerializeField]
 	protected	float	m_BaseLaunchForce = 20f;
@@ -14,13 +14,17 @@ public class WPN_FireModule_GranadeLauncher : WPN_FireModule {
 		}
 	}
 
-	protected override	bool	InternalSetup( Database.Section moduleSection )
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	override	bool	InternalSetup( Database.Section moduleSection )
 	{
 		m_BaseLaunchForce			= moduleSection.AsFloat( "BaseLaunchForce", m_BaseLaunchForce );
 		return true;
 	}
 
-	public		override		void	ApplyModifier( Database.Section modifier )
+
+	//////////////////////////////////////////////////////////////////////////
+	public		override	void	ApplyModifier( Database.Section modifier )
 	{
 		// Do actions here
 
@@ -31,14 +35,17 @@ public class WPN_FireModule_GranadeLauncher : WPN_FireModule {
 	}
 
 
-	public	override	void	ResetBaseConfiguration()
+	//////////////////////////////////////////////////////////////////////////
+	public		override	void	ResetBaseConfiguration()
 	{
 		// Do actions here
 
 		base.ResetBaseConfiguration();
 	}
 
-	public	override	void	RemoveModifier( Database.Section modifier )
+
+	//////////////////////////////////////////////////////////////////////////
+	public		override	void	RemoveModifier( Database.Section modifier )
 	{
 		// Do Actions here
 
@@ -46,52 +53,52 @@ public class WPN_FireModule_GranadeLauncher : WPN_FireModule {
 	}
 
 
-	public	override	bool	OnSave			( StreamUnit streamUnit )
+	//////////////////////////////////////////////////////////////////////////
+	public		override	bool	OnSave			( StreamUnit streamUnit )
 	{
 		streamUnit.SetInternal( name, m_Magazine );
 		return true;
 	}
 
-	//
-	public	override	bool	OnLoad			( StreamUnit streamUnit )
+
+	//////////////////////////////////////////////////////////////////////////
+	public		override	bool	OnLoad			( StreamUnit streamUnit )
 	{
 		m_Magazine = (uint)streamUnit.GetAsInt( name );
 		return true;
 	}
 
 
-	//
-	public	override	bool	NeedReload()
+	//////////////////////////////////////////////////////////////////////////
+	public		override	bool	NeedReload()
 	{
 		return m_Magazine == 0 || m_Magazine < m_MagazineCapacity;
 	}
 
-	//
+	
+	//////////////////////////////////////////////////////////////////////////
 	public		override	void	OnAfterReload()
 	{
 		m_Magazine = m_MagazineCapacity;
 	}
 
-	// ON LOAD
+	
+	//////////////////////////////////////////////////////////////////////////
 	public		virtual		void	OnLoad( uint magazine )
 	{
 		m_Magazine = magazine;
 	}
 
-	// CAN SHOOT
-	public	override		bool	CanBeUsed()
+	
+	//////////////////////////////////////////////////////////////////////////
+	public		override	bool	CanBeUsed()
 	{
 		return m_Magazine > 0;
 	}
 
-	/*
-	//
-	protected	abstract	float	GetFireDispersion();
-	//
-	protected	abstract	float	GetCamDeviation();
-	*/
-	// SHOOT
-	protected	override		void	Shoot( float moduleFireDispersion, float moduleCamDeviation )
+	
+	//////////////////////////////////////////////////////////////////////////
+	protected	override	void	Shoot( float moduleFireDispersion, float moduleCamDeviation )
 	{
 //		m_FireDelay = m_BaseShotDelay;
 
@@ -108,7 +115,7 @@ public class WPN_FireModule_GranadeLauncher : WPN_FireModule {
 		moduleFireDispersion	*= Player.Instance.IsMoving				? 1.50f : 1.00f;
 		moduleFireDispersion	*= Player.Instance.IsRunning			? 2.00f : 1.00f;
 		moduleFireDispersion	*= WeaponManager.Instance.IsZoomed		? 0.80f : 1.00f;
-		moduleFireDispersion *= bullet.RecoilMult;
+		moduleFireDispersion	*= bullet.RecoilMult;
 
 		// SHOOT
 		bullet.Shoot( position: m_FirePoint.position, direction: m_FirePoint.forward, velocity: m_BaseLaunchForce );
@@ -128,23 +135,30 @@ public class WPN_FireModule_GranadeLauncher : WPN_FireModule {
 		UIManager.InGame.UpdateUI();
 	}
 
-	public override bool CanChangeWeapon()
+
+	//////////////////////////////////////////////////////////////////////////
+	public		override	bool	CanChangeWeapon()
 	{
 		return true;
 	}
 
-	public override void OnWeaponChange()
+
+	//////////////////////////////////////////////////////////////////////////
+	public		override	void OnWeaponChange()
 	{
 		
 	}
 
-	public override void InternalUpdate( float DeltaTime )
+
+	//////////////////////////////////////////////////////////////////////////
+	public		override	void InternalUpdate( float DeltaTime )
 	{
 		m_WpnFireMode.InternalUpdate( DeltaTime, m_Magazine );
 	}
 
-	//    START
-	public override        void    OnStart()
+	
+	//////////////////////////////////////////////////////////////////////////
+	public		 override	void	OnStart()
 	{
 		if ( CanBeUsed() )
 		{
@@ -152,8 +166,9 @@ public class WPN_FireModule_GranadeLauncher : WPN_FireModule {
 		}
 	}
 
-	//    INTERNAL UPDATE
-	public    override    void    OnUpdate()
+	
+	//////////////////////////////////////////////////////////////////////////
+	public		override	void	OnUpdate()
 	{
 		if ( CanBeUsed() )
 		{
@@ -161,8 +176,9 @@ public class WPN_FireModule_GranadeLauncher : WPN_FireModule {
 		}
 	}
 
-	//    END
-	public override        void    OnEnd()
+	
+	//////////////////////////////////////////////////////////////////////////
+	public		override	void	OnEnd()
 	{
 		if ( CanBeUsed() )
 		{

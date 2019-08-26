@@ -1,6 +1,14 @@
 ﻿
 using UnityEngine;
 
+
+public enum BulletMotionType {
+	INSTANT,
+	DIRECT,
+	PARABOLIC
+}
+
+
 public interface IBullet {
 
 	float				Velocity		{ get; }
@@ -126,9 +134,3 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 
 }
 
-
-public enum BulletMotionType {
-	INSTANT,
-	DIRECT,
-	PARABOLIC
-}

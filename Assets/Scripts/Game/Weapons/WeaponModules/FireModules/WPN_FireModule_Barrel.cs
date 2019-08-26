@@ -100,7 +100,7 @@ public class WPN_FireModule_Barrel : WPN_FireModule {
 		moduleFireDispersion	*= Player.Instance.IsMoving				? 1.50f : 1.00f;
 		moduleFireDispersion	*= Player.Instance.IsRunning			? 2.00f : 1.00f;
 		moduleFireDispersion	*= WeaponManager.Instance.IsZoomed		? 0.80f : 1.00f;
-		moduleFireDispersion *= bullet.RecoilMult;
+		moduleFireDispersion	*= bullet.RecoilMult;
 
 		// SHOOT
 		bullet.Shoot( position: m_FirePoint.position, direction: m_FirePoint.forward );
