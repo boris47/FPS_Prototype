@@ -433,6 +433,9 @@ public class SectionMap {
 	// bGetSection
 	public	bool	bGetSection<T>( string identifier, T outer ) where T : class
 	{
+		if ( outer == null )
+			return false;
+
 		Section section = null;
 		bool bHadGoodResult = bGetSection( identifier, ref section );
 		if ( bHadGoodResult )

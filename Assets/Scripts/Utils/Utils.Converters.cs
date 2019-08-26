@@ -8,7 +8,7 @@ namespace Utils {
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary>
-		/// Accept a ref Color and return read result
+		/// Accept a string and return the parsed result as enum value
 		/// </summary>
 		public	static	bool	StringToEnum<T>( string s, ref T e, bool ignoreCase = true )
 		{
@@ -102,7 +102,7 @@ namespace Utils {
 		/// <summary>
 		/// Return a stringified version of a quaternion ( Used in Save & Load )
 		/// </summary>
-		public	static	string	QauternionToString( Quaternion quaternion )
+		public	static	string	QuaternionToString( Quaternion quaternion )
 		{
 			return quaternion.x + ", " + quaternion.y + ", " + quaternion.z + ", " + quaternion.w;
 		}

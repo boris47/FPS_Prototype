@@ -65,14 +65,11 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 					(
 						canPenetrate: false,
 						whoRef: this,
-						weaponRef: null,
-						damageMin: m_DamageMin,
-						damageMax: m_DamageMin
+						weaponRef: null
 					);
-					this.SetCollisionStateWith( o.Collider, state: false );
 
 					// this allow to receive only trigger enter callback
-					Player.Instance.DisableCollisionsWith( o.Collider, bAlsoTriggerCollider: false );
+				//	Player.Instance.DisableCollisionsWith( o.Collider, bAlsoTriggerCollider: false );
 				}
 			};
 			m_Pool = new GameObjectsPool<Bullet>( data );
@@ -146,7 +143,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 			if ( m_TargetInfo.HasTarget == true )
 			{
 				Vector3 targetPosition = m_TargetInfo.CurrentTarget.Transform.position;
-				Bullet model = m_Pool.PeekComponent();
+				IBullet model = m_Pool.PeekComponent<IBullet>();
 				if ( model.MotionType == BulletMotionType.PARABOLIC )
 				{
 					// BALLISTIC TRAJECTORY
@@ -174,7 +171,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 				(
 					shooterPosition:	m_GunTransform.position,
 					shooterVelocity:	m_NavAgent.velocity,
-					shotSpeed:			m_Pool.PeekComponent().Velocity,
+					shotSpeed:			model.Velocity,
 					targetPosition:		targetPosition,
 					targetVelocity:		m_TargetInfo.CurrentTarget.RigidBody.velocity
 				);

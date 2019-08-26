@@ -30,7 +30,7 @@ public class Shield : MonoBehaviour, IShield {
 	public	delegate	void	ShieldHitEvent( Vector3 startPosition, Entity whoRef, Weapon weaponRef, float damage, bool canPenetrate = false );
 
 	// Internal Event
-	protected	ShieldHitEvent	m_ShielHitEvent			= null;
+	protected	ShieldHitEvent	m_ShielHitEvent			= delegate { };
 
 	[SerializeField]
 	protected		bool		m_IsUnbreakable			= false;

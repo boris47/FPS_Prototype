@@ -67,12 +67,9 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 					(
 						canPenetrate: false,
 						whoRef: this,
-						weaponRef: null,
-						damageMin: m_DamageLongRangeMax,
-						damageMax: m_DamageLongRangeMin
+						weaponRef: null
 					);
-					this.SetCollisionStateWith( o.Collider, state: false );
-
+					o.OverrideDamages( m_DamageLongRangeMin, m_DamageLongRangeMax );
 
 					// this allow to receive only trigger enter callback
 					//		Player.Instance.DisableCollisionsWith( o.Collider, bAlsoTriggerCollider: false );
@@ -134,7 +131,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 				(
 					shooterPosition:	m_GunTransform.position,
 					shooterVelocity:	m_NavAgent.velocity,
-					shotSpeed:			m_Pool.PeekComponent().Velocity,
+					shotSpeed:			m_Pool.PeekComponent<IBullet>().Velocity,
 					targetPosition:		m_TargetInfo.CurrentTarget.Transform.position,
 					targetVelocity:		m_TargetInfo.CurrentTarget.RigidBody.velocity
 				);

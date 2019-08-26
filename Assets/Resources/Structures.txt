@@ -1,6 +1,6 @@
 UI STRUCTURE
--> UI.cs
--> MainMenu.cs
+-> UI_Manager
+-> MainMenu
 -> UI_InGame
 	-> UI_Minimap
 	-> UI_Indicators
@@ -12,3 +12,15 @@ UI STRUCTURE
 -> UI_Graphics
 -> UI_Audio
 -> UI_Confirmation
+
+
+IBullet, IExplosive
+
+Bullet ( Abstract ) : IBullet
+	-> BulletGeneric ( Abstract ) : IBulletBallistic
+		-> BulletElectro
+		-> BulletBallistic
+	-> BulletExplosive ( Abstract ) : IExplosive
+		-> BulletRocket
+		-> GranadeElectroGlobe
+		-> GranadeFrammentation

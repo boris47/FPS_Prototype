@@ -337,7 +337,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Set the Collision state with another collider </summary>
-	protected				void	SetCollisionStateWith( Collider coll, bool state )
+	public				void	SetCollisionStateWith( Collider coll, bool state )
 	{
 		Collider[] thisColliders = GetComponentsInChildren<Collider>( includeInactive: true );
 		for ( int i = 0; i < thisColliders.Length; i++ )

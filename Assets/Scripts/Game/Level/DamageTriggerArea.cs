@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum DamageType {
+	NONE,
 	BALLISTIC,
 	ENERGY,
 	ELECTRO,
 	EXPLOSIVE,
-	FLAME
+	FLAME,
+	COUNT
 }
 
 public class DamageTriggerArea : MonoBehaviour {

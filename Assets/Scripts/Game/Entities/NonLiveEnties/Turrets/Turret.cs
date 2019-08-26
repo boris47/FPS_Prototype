@@ -74,14 +74,11 @@ public abstract class Turret : NonLiveEntity {
 					(
 						canPenetrate: false,
 						whoRef: this,
-						weaponRef: null,
-						damageMin: m_DamageMin,
-						damageMax: m_DamageMin
+						weaponRef: null
 					);
-					this.SetCollisionStateWith( o.Collider, state: false );
 
 					// this allow to receive only trigger enter callback
-					Player.Instance.DisableCollisionsWith( o.Collider, bAlsoTriggerCollider: false );
+//					Player.Instance.DisableCollisionsWith( o.Collider, bAlsoTriggerCollider: false );
 				}
 			};
 			m_Pool = new GameObjectsPool<Bullet>( data );
@@ -144,7 +141,7 @@ public abstract class Turret : NonLiveEntity {
 				(
 					shooterPosition:	m_GunTransform.position,
 					shooterVelocity:	Vector3.zero,
-					shotSpeed:			m_Pool.PeekComponent().Velocity,
+					shotSpeed:			m_Pool.PeekComponent<IBullet>().Velocity,
 					targetPosition:		m_TargetInfo.CurrentTarget.Transform.position,
 					targetVelocity:		m_TargetInfo.CurrentTarget.RigidBody.velocity
 				);

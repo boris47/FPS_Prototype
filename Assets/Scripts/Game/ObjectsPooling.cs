@@ -284,6 +284,16 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 		return m_ObjectsPool[ m_InternalIndex ];
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	// GetAsModel
+	public		T2			PeekComponent<T2>() where T2 : class
+	{
+		if ( IsValid == false )
+			return null;
+
+		return m_ObjectsPool[ m_InternalIndex ] as T2;
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// SetActive

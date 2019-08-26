@@ -1,24 +1,41 @@
-﻿
-using System;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-
-public interface IGranade {
-	float		Radius					{ get; }
-	float		ExplosionDelay			{ get; }
-
-	void		ForceExplosion();
-}
+public abstract class BulletExplosive : BulletGeneric, IExplosive {
 
 
-public abstract class GranadeBase : Bullet, IGranade {
-	
-	[ReadOnly]
+	[SerializeField, ReadOnly]
 	protected	float			m_ExplosionDelay			= 3f;
 
+	[SerializeField, ReadOnly]
+	protected	bool			m_AttachOnHit				= false;
+
 	// INTERFACE START
-				float			IGranade.Radius				{	get { return m_Range; }		}
-				float			IGranade.ExplosionDelay		{	get { return m_ExplosionDelay; }}
+
+		bool IExplosive.BlowOnHit
+		{
+			get {
+				return false;
+			}
+		}
+
+		float IExplosive.BlastRadius
+		{
+			get {
+				return 0f;
+			}
+		}
+
+		float IExplosive.BlastDamage
+		{
+			get {
+				return 0f;
+			}
+		}
+
+				float			IExplosive.ExplosionDelay		{	get { return m_ExplosionDelay; }}
+				bool			IExplosive.AttachOnHit			{	get { return m_AttachOnHit; }		}
 	// INTERFACE END
 	
 	protected	float			m_InternalCounter			= 0f;
@@ -32,16 +49,6 @@ public abstract class GranadeBase : Bullet, IGranade {
 		base.Awake();
 
 		SetActive( false );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// Setup ( Override )
-	public override void Setup( bool canPenetrate, Entity whoRef, Weapon weaponRef, float damageMin = -1f, float damageMax = -1f )
-	{
-		m_Weapon		= weaponRef;
-		m_WhoRef		= whoRef;
-		m_CanPenetrate	= canPenetrate;
 	}
 
 
@@ -97,5 +104,5 @@ public abstract class GranadeBase : Bullet, IGranade {
 	//////////////////////////////////////////////////////////////////////////
 	// OnExplosion ( Abstract )
 	protected	abstract	void	OnExplosion();
-
+	
 }

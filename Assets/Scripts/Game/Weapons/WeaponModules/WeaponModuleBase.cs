@@ -328,13 +328,11 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 		(
 			canPenetrate: m_CanPenetrate,
 			whoRef: Player.Instance,
-			weaponRef: m_WeaponRef as Weapon,
-			damageMin: -1.0f,
-			damageMax: Damage
+			weaponRef: m_WeaponRef as Weapon
 		);
 		bullet.gameObject.layer = LayerMask.NameToLayer("PlayerBullets");
-		Player.Instance.DisableCollisionsWith( bullet.Collider );
-		Physics.IgnoreCollision( Player.Entity.PhysicCollider, bullet.Collider, ignore: true );
+//		Player.Instance.DisableCollisionsWith( bullet.Collider );
+//		Physics.IgnoreCollision( Player.Entity.PhysicCollider, bullet.Collider, ignore: true );
 	}
 
 

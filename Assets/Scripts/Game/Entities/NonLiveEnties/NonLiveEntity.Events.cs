@@ -35,8 +35,8 @@ public abstract partial class NonLiveEntity : Entity {
 		
 		// Body and Gun
 		{
-			streamUnit.SetInternal( "BodyRotation",				Utils.Converters.QauternionToString( m_BodyTransform.localRotation ) );
-			streamUnit.SetInternal( "GunRotation",				Utils.Converters.QauternionToString( m_GunTransform.localRotation ) );
+			streamUnit.SetInternal( "BodyRotation",				Utils.Converters.QuaternionToString( m_BodyTransform.localRotation ) );
+			streamUnit.SetInternal( "GunRotation",				Utils.Converters.QuaternionToString( m_GunTransform.localRotation ) );
 		}
 
 		// Brain state

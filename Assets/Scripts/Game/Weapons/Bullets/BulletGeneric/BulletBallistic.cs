@@ -1,12 +1,9 @@
 ﻿
+
 using UnityEngine;
 
 
-public class BulletGeneric : Bullet {
-
-	private	Light		m_PointLight		= null;
-	private	LensFlare	m_LensFlare			= null;
-
+public class BulletBallistic : BulletGeneric {
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -34,24 +31,10 @@ public class BulletGeneric : Bullet {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Setup ( Override )
-	public	override		void	Setup( bool canPenetrate, Entity whoRef, Weapon weaponRef, float damageMin = -1f, float damageMax = -1f )
+	// ReadInternals ( Override )
+	protected override void ReadInternals( Database.Section section )
 	{
-		m_CanPenetrate	= canPenetrate;
-		m_WhoRef		= whoRef;
-		m_Weapon		= weaponRef;
-
-		if ( damageMin <= 0.0f )
-		{
-			float multDamage = damageMax * m_DamageMult;
-			m_DamageMin		= Mathf.Min( damageMax, multDamage );
-			m_DamageMax		= Mathf.Max( damageMax, multDamage );
-		}
-		else
-		{
-			m_DamageMin = damageMin;
-			m_DamageMax = damageMax;
-		}
+		
 	}
 
 
@@ -193,7 +176,7 @@ public class BulletGeneric : Bullet {
 		IShield shield = null;
 		if ( Utils.Base.SearchComponent( collision.gameObject, ref entity, SearchContext.LOCAL ) )
 		{
-			entity.Events.OnHittedBullet( this );
+			entity.Events.OnHittedDetails( m_StartPosition, m_WhoRef, 0, m_CanPenetrate );
 		}
 		else if ( Utils.Base.SearchComponent( collision.gameObject, ref shield, SearchContext.CHILDREN ) )
 		{

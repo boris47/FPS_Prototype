@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class GranadeElectroGlobe : GranadeBase {
+public class GranadeElectroGlobe : BulletExplosive {
 	
 	[SerializeField]
 	private		float					m_Duration					= 3f;
@@ -46,6 +46,14 @@ public class GranadeElectroGlobe : GranadeBase {
 		m_WaitInstruction	= new WaitForSeconds( m_Duration );
 		m_ExplosionGlobe	= transform.GetChild(0);
 		m_ExplosionGlobe.gameObject.SetActive( false );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ReadInternals ( Override )
+	protected override void ReadInternals( Database.Section section )
+	{
+		
 	}
 
 
@@ -136,7 +144,7 @@ public class GranadeElectroGlobe : GranadeBase {
 	{
 		m_Entites.ForEach( ( Entity entity ) =>
 		{
-			entity.OnHittedDetails( m_StartPosition, m_WhoRef, m_DamageMax * m_DamageMult, m_CanPenetrate );
+			entity.OnHittedDetails( m_StartPosition, m_WhoRef, m_DamageMax, canPenetrate: false );
 		} );
 	}
 

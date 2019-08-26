@@ -1,4 +1,5 @@
 ﻿
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -11,22 +12,45 @@ public enum BulletMotionType {
 
 public interface IBullet {
 
-	float				Velocity		{ get; }
-	Entity				WhoRef			{ get; }
-	Weapon				Weapon			{ get; }
-	Object				Effect			{ get; }
-	float				DamageMin		{ get; set; }
-	float				DamageMax		{ get; set; }
-	float				DamageRandom	{ get; }
-	float				DamageMult		{ get; }
-	float				RecoilMult		{ get; }
-	bool				CanPenetrate	{ get; set; }
-	Vector3				StartPosition	{ get; }
-	BulletMotionType	GetMotionType	{ get; }
+	BulletMotionType	MotionType					{ get; }
+	DamageType			DamageType					{ get; }
+	float				DamageMin					{ get; }
+	float				DamageMax					{ get; }
+	bool				HasDamageOverTime			{ get; }
+	float				OverTimeDamageDuration		{ get; }
+	DamageType			OverTimeDamageType			{ get; }
+	bool				CanPenetrate				{ get; }
+	float				Velocity					{ get; }
 
-	void				Setup			( bool canPenetrate, Entity whoRef, Weapon weaponRef, float damageMin = -1.0f, float damageMax = -1.0f );
-	void				SetActive		( bool state );
-	void				Shoot			( Vector3 position, Vector3 direction, float velocity = 0f );
+
+	Entity				WhoRef						{ get; }
+	Weapon				Weapon						{ get; }
+	Object				Effect						{ get; }
+	float				DamageRandom				{ get; }
+	float				RecoilMult					{ get; }
+	Vector3				StartPosition				{ get; }
+
+	void				Setup						( bool canPenetrate, Entity whoRef, Weapon weaponRef );
+	void				OverrideDamages				( float NewMinDamage, float NewMaxDamage );
+	void				SetActive					( bool state );
+	void				Shoot						( Vector3 position, Vector3 direction, float velocity = 0f ); // TODO Compute modifiers
+}
+
+
+
+public interface IBulletBallistic {
+}
+
+
+public interface IExplosive {
+	bool		BlowOnHit							{ get; }
+	float		BlastRadius							{ get; }
+	float		BlastDamage							{ get; }
+	bool		AttachOnHit							{ get; }
+	float		ExplosionDelay						{ get; }
+
+
+	void		ForceExplosion						();
 }
 
 
@@ -34,26 +58,43 @@ public interface IBullet {
 public abstract class Bullet : MonoBehaviour, IBullet {
 	
 	[SerializeField]
+	protected		BulletMotionType	m_MotionType			= BulletMotionType.DIRECT;
+
+	[SerializeField]
+	protected		DamageType			m_DamageType			= DamageType.BALLISTIC;
+
+	[SerializeField, ReadOnly]
+	protected		float				m_DamageMin				= 0f;
+
+	[SerializeField, ReadOnly]
+	protected		float				m_DamageMax				= 0f;
+
+	[SerializeField, ReadOnly]
+	protected		bool				m_HasDamageOverTime		= false;
+
+	[SerializeField, ReadOnly]
+	protected		float				m_OverTimeDamageDuration = 5.0f;
+
+	[SerializeField]
+	protected		DamageType			m_OverTimeDamageType	= DamageType.NONE;
+
+	[SerializeField]
 	protected		float				m_Velocity				= 15f;
+
+
+	[Space(), Header("Prefab Data")]
 
 	[SerializeField]
 	protected		float				m_Range					= 30f;
 
 	[SerializeField, Range( 0.5f, 3f )]
-	protected		float				m_DamageMult			= 1f;
-
-	[SerializeField, Range( 0.5f, 3f )]
 	protected		float				m_RecoilMult			= 1f;
 
-	[SerializeField]
-	protected		BulletMotionType	m_MotionType			= BulletMotionType.DIRECT;
+	[SerializeField, ReadOnly]
+	protected		bool				m_CanPenetrate			= false;
 
-	// TODO remove this getter
-	public			Rigidbody			RigidBody				{		get { return m_RigidBody; }		}
-	public			Collider			Collider				{		get { return m_Collider; }		}
-	public			float				Velocity				{		get { return m_Velocity; }		}
-	public			BulletMotionType	MotionType				{		get { return m_MotionType; }	}
-	
+
+
 
 	protected		Rigidbody			m_RigidBody				= null;
 	protected		Collider			m_Collider				= null;
@@ -61,23 +102,23 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 	protected		Weapon				m_Weapon				= null;
 	protected		Object				m_BulletEffect			= null;
 
-	protected		float				m_DamageMin				= 0f;
-	protected		float				m_DamageMax				= 0f;
-	protected		bool				m_CanPenetrate			= false;
-
 	// INTERFACE START
-					float				IBullet.Velocity		{	get { return m_Velocity; }		}
-					Entity				IBullet.WhoRef			{	get { return m_WhoRef; }		}
-					Weapon				IBullet.Weapon			{	get { return m_Weapon; }		}
-					Object				IBullet.Effect			{	get { return m_BulletEffect; }	}
-					float				IBullet.DamageMin		{	get { return m_DamageMin; }		set { m_DamageMax = value; } }
-					float				IBullet.DamageMax		{	get { return m_DamageMax;}		set { m_DamageMin = value; } }
-					float				IBullet.DamageRandom	{	get { return UnityEngine.Random.Range( m_DamageMin, m_DamageMax ); } }
-					float				IBullet.DamageMult		{	get { return m_DamageMult; }	}
-					float				IBullet.RecoilMult		{	get { return m_RecoilMult; }	}
-					bool				IBullet.CanPenetrate	{	get { return m_CanPenetrate; }	set { m_CanPenetrate = value; }	}
-					Vector3				IBullet.StartPosition	{	get { return m_StartPosition; }	}
-					BulletMotionType	IBullet.GetMotionType	{	get { return m_MotionType; } }
+					BulletMotionType	IBullet.MotionType				{	get { return m_MotionType; }	}
+					DamageType			IBullet.DamageType				{	get { return m_DamageType; }	}
+					float				IBullet.DamageMin				{	get { return m_DamageMin; }		}
+					float				IBullet.DamageMax				{	get { return m_DamageMax;}		}
+					bool				IBullet.HasDamageOverTime		{	get { return m_HasDamageOverTime; }	}
+					float				IBullet.OverTimeDamageDuration	{	get { return m_DamageMax;}		}
+					DamageType			IBullet.OverTimeDamageType		{	get { return m_OverTimeDamageType; }		}
+					bool				IBullet.CanPenetrate			{	get { return m_CanPenetrate; }	}
+					float				IBullet.Velocity				{	get { return m_Velocity; }		}
+
+					Entity				IBullet.WhoRef					{	get { return m_WhoRef; }		}
+					Weapon				IBullet.Weapon					{	get { return m_Weapon; }		}
+					Object				IBullet.Effect					{	get { return m_BulletEffect; }	}
+					float				IBullet.DamageRandom			{	get { return UnityEngine.Random.Range( m_DamageMin, m_DamageMax ); } }
+					float				IBullet.RecoilMult				{	get { return m_RecoilMult; }	}
+					Vector3				IBullet.StartPosition			{	get { return m_StartPosition; }	}
 	// INTERFACE END
 
 	protected		Renderer			m_Renderer				= null;
@@ -85,6 +126,8 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 
 	protected		Vector3				m_StartPosition			= Vector3.zero;
 	protected		Vector3				m_RigidBodyVelocity		= Vector3.zero;
+
+	private static Dictionary<string, Database.Section> m_BulletsSections = new Dictionary<string, Database.Section>();
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Virtual )
@@ -99,13 +142,59 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 		m_RigidBody.interpolation				= RigidbodyInterpolation.Interpolate;
 		m_RigidBody.collisionDetectionMode		= CollisionDetectionMode.ContinuousDynamic;
 		m_RigidBody.maxAngularVelocity			= 0f;
+
+		string sectionName = GetType().Name;
+		Database.Section bulletSection = null;
+		if ( m_BulletsSections.TryGetValue( sectionName, out bulletSection ) == false )
+		{
+			GlobalManager.Configs.bGetSection( sectionName, ref bulletSection );
+			m_BulletsSections[sectionName] = bulletSection;
+		}
+
+		// MotionType
+		Utils.Converters.StringToEnum( bulletSection.AsString("eMotionType"), ref m_MotionType );
+
+		// DamageType
+		Utils.Converters.StringToEnum( bulletSection.AsString("eDamageType"), ref m_DamageType );
+
+		// fDamageMin
+		m_DamageMin = bulletSection.AsFloat( "fDamageMin", m_DamageMin );
+
+		// fDamageMax
+		m_DamageMax = bulletSection.AsFloat( "fDamageMax", m_DamageMax );
+
+		// bHasDamageOverTime
+		m_HasDamageOverTime = bulletSection.AsBool( "bHasDamageOverTime", m_HasDamageOverTime );
+
+		// fOverTimeDamageDuration
+		m_OverTimeDamageDuration = bulletSection.AsFloat( "fOverTimeDamageDuration", m_OverTimeDamageDuration );
+
+		// eOverTimeDamageType
+		Utils.Converters.StringToEnum( bulletSection.AsString("eOverTimeDamageType"), ref m_OverTimeDamageType );
+
+		// bCanPenetrate
+		bulletSection.bAsBool( "bCanPenetrate", ref m_CanPenetrate );
+
+		// fVelocity
+		m_Velocity = bulletSection.AsFloat( "fVelocity", m_Velocity );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// Setup ( Abstract )
+	/// <summary> Allow concrete class to read specific data </summary>
+	protected	abstract	void	ReadInternals( Database.Section section );
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Setup ( Abstract )
 	/// <summary> For Bullet Setup </summary>
-	public		abstract	void	Setup( bool canPenetrate, Entity whoRef, Weapon weaponRef, float damageMin = -1.0f, float damageMax = -1.0f );
+	public		abstract	void	Setup( bool canPenetrate, Entity whoRef, Weapon weaponRef );
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// OverrideDamages ( Abstract )
+	public		/*abstract*/	void	OverrideDamages( float NewMinDamage, float NewMaxDamage ) { }
 
 
 	//////////////////////////////////////////////////////////////////////////

@@ -5,39 +5,46 @@
 
 [BulletElectro]
 eMotionType				= DIRECT;
-iDamageMin				= 10.0;				Impact Damage Min
-iDamageMax				= 10.0;				Impact Damage Max
 eDamageType				= ELECTRO;			Impact Damage Type
-iOverTimeDamageDuration	= 5.0;
-iDamageOverTime			= 1.0;				Damage over time
-
-iVelocity				= 45.0;
+fDamageMin				= 10.0;				Impact Damage Min
+fDamageMax				= 10.0;				Impact Damage Max
+bHasDamageOverTime		= true;				Has Over Time Damage
+fOverTimeDamageDuration	= 5.0;				Over Time Damage Duration
+eOverTimeDamageType		= ELECTRO;			Over Time Damage Type
+bCanPenetrate			= false;
+fVelocity				= 45.0;
 
 ;
 
-[BulletGeneric]
+[BulletBallistic]
 eMotionType				= INSTANT;
-iDamageMin				= 10.0;				Impact Damage Min
-iDamageMax				= 10.0;				Impact Damage Max
 eDamageType				= BALLISTIC;		Impact Damage Type
+fDamageMin				= 10.0;				Impact Damage Min
+fDamageMax				= 10.0;				Impact Damage Max
+bHasDamageOverTime		= false;			Has Over Time Damage
+fOverTimeDamageDuration	= 5.0;				Over Time Damage Duration
+eOverTimeDamageType		= FLAME;			Over Time Damage Type
+bCanPenetrate			= false;
+fVelocity				= 0.0;
 
-iVelocity				= 0.0;
 ;
 
 [BulletRocket]
 eMotionType				= DIRECT;
-iDamageMin				= 10.0;				Blast Damage
-iDamageMax				= 10.0;				Blast Damage
 eDamageType				= EXPLOSIVE;		Blast Damage Type
-iDamageOverTime			= 1.0;				Damage Over Time
-iOverTimeDamageDuration	= 5.0;
-iOverTimeDamageType		= FLAME;			Over Time Damage Type
+fiDamageMin				= 10.0;				Blast Damage
+fDamageMax				= 10.0;				Blast Damage
+bHasDamageOverTime		= true;				Has Over Time Damage
+fOverTimeDamageDuration	= 5.0;				Over Time Damage Duration
+eOverTimeDamageType		= FLAME;			Over Time Damage Type
+bCanPenetrate			= false;
+fVelocity				= 5.0;
 
-iVelocity				= 5.0;
-iMaxRange				= 150.0;
+fMaxRange				= 150.0;
 bBlowOnHit				= true;
-iBlastRadius			= 9.0;
-iBlastDamage			= 1000.0;
+fBlastRadius			= 9.0;
+fBlastDamage			= 1000.0;
+bAttachOnHit			= false;
 
 
 
@@ -48,31 +55,36 @@ iBlastDamage			= 1000.0;
 
 [GranadeElectroGlobe]
 eMotionType				= PARABOLIC;
-iDamageMin				= 10.0;				Blast Damage
-iDamageMax				= 10.0;				Blast Damage
 eDamageType				= ELECTRO;
-iDamageOverTime			= 1.0;				Damage Over Time
-iOverTimeDamageDuration	= 0.0;				Duration Is Definend By Granade Persisence in World
-iOverTimeDamageType		= ELECTRO;			Over Time Damage Type
+fDamageMin				= 10.0;				Blast Damage
+fDamageMax				= 10.0;				Blast Damage
+bHasDamageOverTime		= true;				Has Damage Over Time
+fOverTimeDamageDuration	= 5.0;				Duration Is Definend By Granade Persisence in World
+fOverTimeDamageType		= ELECTRO;			Over Time Damage Type
+bCanPenetrate			= false;
+fVelocity				= 32.0;
 
-iVelocity				= 32.0;
-iBlastRadius			= 9.0;
 bBlowOnHit				= false;
-ExplosionDelay			= 3.0;
+fBlastRadius			= 9.0;
+fBlastDamage			= 5.0;
 bAttachOnHit			= false;
+
+fExplosionDelay			= 3.0;
 
 ;
 
 [GranadeFrammentation]
 eMotionType				= PARABOLIC;
-iDamageMin				= 100.0;			Blast damage
-iDamageMax				= 100.0;			Blast damage
 eDamageType				= EXPLOSIVE;
-iDamageOverTime			= 1.0;				Damage Over Time
-iOverTimeDamageType		= FLAME;			Over Time Damage Type
+fDamageMin				= 100.0;			Blast damage
+fDamageMax				= 100.0;			Blast damage
+bHasDamageOverTime		= true;				Has Damage Over Time
+fOverTimeDamageDuration	= 5.0;				Over Time Damage Duration
+fOverTimeDamageType		= FLAME;			Over Time Damage Type
+bCanPenetrate			= false;
+fVelocity				= 32.0;
 
-iVelocity				= 32.0;
-iBlastRadius			= 9.0;
+fBlastRadius			= 9.0;
 bBlowOnHit				= true;
-ExplosionDelay			= 0.0;
+fExplosionDelay			= 0.0;
 bAttachOnHit			= false;

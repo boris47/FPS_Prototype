@@ -2,7 +2,7 @@
 using System.Collections;
 
 
-public class GranadeFrammentation : GranadeBase {
+public class GranadeFrammentation : BulletExplosive {
 
 	private		Collider[]		m_SphereResults		= new Collider[ 100 ];
 
@@ -36,6 +36,14 @@ public class GranadeFrammentation : GranadeBase {
 				m_BlowOnHit					= m_GranadeFrammentationSectionData.BlowOnHit;
 			}
 		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ReadInternals ( Override )
+	protected override void ReadInternals( Database.Section section )
+	{
+		
 	}
 
 
