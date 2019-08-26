@@ -6,13 +6,13 @@ public class Build_Batch
 	// BUILD SETTINGS CONFIG FILE PATH
 	private	const	string	BuildSettingsConfigFile = "Configs\\BuildSettings";
 
-	private	const	string	MenuLabel = "Build";
+	private	const	string	MENU_LABEL = "Build";
 
 
 
 	///////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////////
-	[MenuItem( MenuLabel + "/Development", priority = 1 )]
+	[MenuItem( MENU_LABEL + "/Development", priority = 1 )]
 	public		static		void		Build_Development()
 	{
 		// BUILD SETTINGS CONFIG SECTION NAME
@@ -44,7 +44,7 @@ public class Build_Batch
 
 	///////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////////
-	[MenuItem( MenuLabel + "/Release", priority = 2 )]
+	[MenuItem( MENU_LABEL + "/Release", priority = 2 )]
 	public		static		void		Build_Release()
 	{
 		// BUILD SETTINGS CONFIG SECTION NAME
