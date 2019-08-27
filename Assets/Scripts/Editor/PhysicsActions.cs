@@ -7,57 +7,6 @@ public class PhysicsActions
 {
 	const string MENU_LABEL = "Physics";
 
-#if UNITY_2017
-	[MenuItem( MENU_LABEL + "/SimulateOnlySelected" )]
-	private	static	void	PhysicsActions_SimulateOnlySelected()
-	{
-
-		// TODO
-		/// - Collect all objects that need of physic simulation ( Pheraps just the selected ones in editor?? )
-		/// - Add RigidBody if none is found
-		/// - Execute simulation
-		/// - Remove RigidBody if was added
-		/// 
-
-		
-		UnityEngine.Transform[] transforms = UnityEditor.Selection.GetTransforms(SelectionMode.ExcludePrefab | SelectionMode.Editable | SelectionMode.OnlyUserModifiable );
-
-		if ( transforms.Length == 0 ) return;
-
-		Dictionary<UnityEngine.Transform, UnityEngine.Rigidbody> preSimulationMap = new Dictionary<UnityEngine.Transform, UnityEngine.Rigidbody>();
-
-		System.Array.ForEach( transforms, t => {
-			bool bHasRigidBody = t.HasComponent<UnityEngine.Rigidbody>();
-			bool bHasCollider = t.HasComponent<UnityEngine.Collider>();
-			if ( bHasRigidBody == false && bHasCollider )
-			{
-				preSimulationMap.Add( t, t.gameObject.AddComponent<UnityEngine.Rigidbody>());
-			}
-		} );
-
-
-		UnityEngine.Physics.autoSimulation = false;
-
-		for ( int i = 0; i < 30; i++ )
-		{
-			UnityEngine.Physics.Simulate( UnityEngine.Time.fixedDeltaTime );
-		}
-
-//		UnityEngine.Physics.Simulate( UnityEngine.Time.fixedDeltaTime * 30f );
-
-		System.Array.ForEach( transforms, t => {
-			UnityEngine.Rigidbody rigidBody = null;
-			if ( preSimulationMap.TryGetValue( t, out rigidBody ) )
-			{
-				UnityEngine.Object.DestroyImmediate( rigidBody );
-			}
-		} );
-
-		UnityEngine.Physics.autoSimulation = true;
-	}
-#endif
-
-
 	[MenuItem( MENU_LABEL + "/SimulateOnlySelectedWithRaycasts" )]
 	private	static	void	PhysicsActions_SimulateOnlySelectedWithRaycasts()
 	{
