@@ -16,8 +16,8 @@ public class LevelSwitcher : MonoBehaviour {
 		if ( GlobalManager.bIsChangingScene == true )
 			return;
 
-		Player player = other.GetComponent<Player>();
-		if ( player == null )
+		bool bIsPlayer = other.transform.HasComponent<Player>();
+		if ( bIsPlayer == false )
 			return;
 
 		CustomSceneManager.LoadSceneData loadedResource = new CustomSceneManager.LoadSceneData()

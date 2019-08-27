@@ -15,7 +15,7 @@ public class Intro : MonoBehaviour {
 
 		Physics.queriesHitBackfaces = false;
 
-		Application.backgroundLoadingPriority = ThreadPriority.BelowNormal;
+		Application.backgroundLoadingPriority = ThreadPriority.Low;
 
 //		UnityEditor.EditorBuildSettingsScene
 //		UnityEditor.BuildOptions.ForceEnableAssertions

@@ -144,12 +144,26 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 		m_RigidBody.maxAngularVelocity			= 0f;
 
 		string sectionName = GetType().Name;
+		/*
+		UnityEngine.Assertions.Assert.IsFalse
+		(
+			GlobalManager.Configs.bGetSection<Bullet>( sectionName, this ),
+			"Bullet::Awake: Error deserealizing section data for bullet with section name " + sectionName
+		);
+		*/
+		
 		Database.Section bulletSection = null;
 		if ( m_BulletsSections.TryGetValue( sectionName, out bulletSection ) == false )
 		{
 			GlobalManager.Configs.bGetSection( sectionName, ref bulletSection );
 			m_BulletsSections[sectionName] = bulletSection;
 		}
+
+		UnityEngine.Assertions.Assert.IsNull
+		(
+			bulletSection,
+			"Bullet::Awake:Bullet with class name " + sectionName + " has not corresponding section where to get data"
+		);
 
 		// MotionType
 		Utils.Converters.StringToEnum( bulletSection.AsString("eMotionType"), ref m_MotionType );
@@ -177,6 +191,7 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 
 		// fVelocity
 		m_Velocity = bulletSection.AsFloat( "fVelocity", m_Velocity );
+		
 	}
 
 
