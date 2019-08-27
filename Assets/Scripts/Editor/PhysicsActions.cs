@@ -73,8 +73,9 @@ public class PhysicsActions
 		UnityEngine.Transform[] transforms = UnityEditor.Selection.GetTransforms(SelectionMode.ExcludePrefab | SelectionMode.Editable | SelectionMode.OnlyUserModifiable );
 
 		if ( transforms.Length == 0 ) return;
-
+#if UNITY_2017
 		UnityEngine.Physics.autoSimulation = false;
+#endif
 		{
 			for ( int i = 0; i < transforms.Length; i++ )
 			{
@@ -107,6 +108,8 @@ public class PhysicsActions
 
 
 		}
+#if UNITY_2017
 		UnityEngine.Physics.autoSimulation = true;
+#endif
 	}
 }
