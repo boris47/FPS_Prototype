@@ -58,7 +58,7 @@ public interface IExplosive {
 public abstract class Bullet : MonoBehaviour, IBullet {
 	
 	[SerializeField]
-	protected		BulletMotionType	m_MotionType			= BulletMotionType.DIRECT;
+	protected		BulletMotionType	m_BulletMotionType		= BulletMotionType.DIRECT;
 
 	[SerializeField]
 	protected		DamageType			m_DamageType			= DamageType.BALLISTIC;
@@ -103,7 +103,7 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 	protected		Object				m_BulletEffect			= null;
 
 	// INTERFACE START
-					BulletMotionType	IBullet.MotionType				{	get { return m_MotionType; }	}
+					BulletMotionType	IBullet.MotionType				{	get { return m_BulletMotionType; }	}
 					DamageType			IBullet.DamageType				{	get { return m_DamageType; }	}
 					float				IBullet.DamageMin				{	get { return m_DamageMin; }		}
 					float				IBullet.DamageMax				{	get { return m_DamageMax;}		}
@@ -144,61 +144,12 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 		m_RigidBody.maxAngularVelocity			= 0f;
 
 		string sectionName = GetType().Name;
-		/*
-		UnityEngine.Assertions.Assert.IsFalse
+		UnityEngine.Assertions.Assert.IsTrue
 		(
 			GlobalManager.Configs.bGetSection<Bullet>( sectionName, this ),
 			"Bullet::Awake: Error deserealizing section data for bullet with section name " + sectionName
 		);
-		*/
-		
-		Database.Section bulletSection = null;
-		if ( m_BulletsSections.TryGetValue( sectionName, out bulletSection ) == false )
-		{
-			GlobalManager.Configs.bGetSection( sectionName, ref bulletSection );
-			m_BulletsSections[sectionName] = bulletSection;
-		}
-
-		UnityEngine.Assertions.Assert.IsNull
-		(
-			bulletSection,
-			"Bullet::Awake:Bullet with class name " + sectionName + " has not corresponding section where to get data"
-		);
-
-		// MotionType
-		Utils.Converters.StringToEnum( bulletSection.AsString("eMotionType"), ref m_MotionType );
-
-		// DamageType
-		Utils.Converters.StringToEnum( bulletSection.AsString("eDamageType"), ref m_DamageType );
-
-		// fDamageMin
-		m_DamageMin = bulletSection.AsFloat( "fDamageMin", m_DamageMin );
-
-		// fDamageMax
-		m_DamageMax = bulletSection.AsFloat( "fDamageMax", m_DamageMax );
-
-		// bHasDamageOverTime
-		m_HasDamageOverTime = bulletSection.AsBool( "bHasDamageOverTime", m_HasDamageOverTime );
-
-		// fOverTimeDamageDuration
-		m_OverTimeDamageDuration = bulletSection.AsFloat( "fOverTimeDamageDuration", m_OverTimeDamageDuration );
-
-		// eOverTimeDamageType
-		Utils.Converters.StringToEnum( bulletSection.AsString("eOverTimeDamageType"), ref m_OverTimeDamageType );
-
-		// bCanPenetrate
-		bulletSection.bAsBool( "bCanPenetrate", ref m_CanPenetrate );
-
-		// fVelocity
-		m_Velocity = bulletSection.AsFloat( "fVelocity", m_Velocity );
-		
 	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// Setup ( Abstract )
-	/// <summary> Allow concrete class to read specific data </summary>
-	protected	abstract	void	ReadInternals( Database.Section section );
 
 
 	//////////////////////////////////////////////////////////////////////////

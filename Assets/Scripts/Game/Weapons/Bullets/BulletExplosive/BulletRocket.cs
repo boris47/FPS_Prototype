@@ -4,13 +4,6 @@ using System;
 
 public class BulletRocket : BulletExplosive {
 
-	//////////////////////////////////////////////////////////////////////////
-	// ReadInternals ( Override )
-	protected override void ReadInternals( Database.Section section )
-	{
-		
-	}
-
 	/*
 	protected override void OnCollisionEnter( Collision collision )
 	{

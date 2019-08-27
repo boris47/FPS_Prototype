@@ -6,14 +6,6 @@ public class BulletElectro : BulletGeneric {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ReadInternals ( Override )
-	protected override void ReadInternals( Database.Section section )
-	{
-		
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
 	// OnCollisionEnter ( Override )
 	protected override void OnCollisionEnter( Collision collision )
 	{

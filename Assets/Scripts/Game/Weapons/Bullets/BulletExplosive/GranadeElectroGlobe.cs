@@ -50,14 +50,6 @@ public class GranadeElectroGlobe : BulletExplosive {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ReadInternals ( Override )
-	protected override void ReadInternals( Database.Section section )
-	{
-		
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
 	// OnDisable
 	private void OnDisable()
 	{

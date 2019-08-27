@@ -4,7 +4,7 @@
 ;								BULLETS
 
 [BulletElectro]
-eMotionType				= DIRECT;
+eBulletMotionType				= DIRECT;
 eDamageType				= ELECTRO;			Impact Damage Type
 fDamageMin				= 10.0;				Impact Damage Min
 fDamageMax				= 10.0;				Impact Damage Max
@@ -17,7 +17,7 @@ fVelocity				= 45.0;
 ;
 
 [BulletBallistic]
-eMotionType				= INSTANT;
+eBulletMotionType		= PARABOLIC;
 eDamageType				= BALLISTIC;		Impact Damage Type
 fDamageMin				= 10.0;				Impact Damage Min
 fDamageMax				= 10.0;				Impact Damage Max
@@ -30,7 +30,7 @@ fVelocity				= 0.0;
 ;
 
 [BulletRocket]
-eMotionType				= DIRECT;
+eBulletMotionType		= DIRECT;
 eDamageType				= EXPLOSIVE;		Blast Damage Type
 fiDamageMin				= 10.0;				Blast Damage
 fDamageMax				= 10.0;				Blast Damage
@@ -54,7 +54,7 @@ bAttachOnHit			= false;
 
 
 [GranadeElectroGlobe]
-eMotionType				= PARABOLIC;
+eBulletMotionType				= PARABOLIC;
 eDamageType				= ELECTRO;
 fDamageMin				= 10.0;				Blast Damage
 fDamageMax				= 10.0;				Blast Damage
@@ -74,7 +74,7 @@ fExplosionDelay			= 3.0;
 ;
 
 [GranadeFrammentation]
-eMotionType				= PARABOLIC;
+eBulletMotionType				= PARABOLIC;
 eDamageType				= EXPLOSIVE;
 fDamageMin				= 100.0;			Blast damage
 fDamageMax				= 100.0;			Blast damage

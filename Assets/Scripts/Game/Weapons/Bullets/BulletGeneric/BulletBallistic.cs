@@ -31,14 +31,6 @@ public class BulletBallistic : BulletGeneric {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ReadInternals ( Override )
-	protected override void ReadInternals( Database.Section section )
-	{
-		
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
 	// Update ( Override )
 	protected	override	void	Update()
 	{
@@ -52,8 +44,28 @@ public class BulletBallistic : BulletGeneric {
 			SetActive( false );
 		}
 
-		m_RigidBody.velocity	= m_RigidBodyVelocity;
-		transform.up			= m_RigidBodyVelocity;
+		switch ( m_BulletMotionType )
+		{
+			case BulletMotionType.INSTANT:
+			{
+				break;
+			}
+			case BulletMotionType.DIRECT:
+			{
+				m_RigidBody.velocity	= m_RigidBodyVelocity;
+				transform.up			= m_RigidBodyVelocity;
+				break;
+			}
+			case BulletMotionType.PARABOLIC:
+			{
+				transform.up = m_RigidBody.velocity;
+				break;
+			}
+			default:
+			{
+				break;
+			}
+		}
 	}
 
 
@@ -61,7 +73,7 @@ public class BulletBallistic : BulletGeneric {
 	// Shoot ( Override )
 	public		override	void	Shoot( Vector3 position, Vector3 direction, float velocity )
 	{
-		switch ( m_MotionType )
+		switch ( m_BulletMotionType )
 		{
 			case BulletMotionType.INSTANT:		ShootInstant( position, direction, velocity );
 				break;

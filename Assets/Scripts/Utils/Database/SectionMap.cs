@@ -448,13 +448,34 @@ public class SectionMap {
 			string[] sectionKeys = section.GetKeys();
 			foreach ( FieldInfo fieldInfo in fieldInfos )
 			{
+				string fieldName = fieldInfo.Name;
+
+				// Remove module prefix if exists
+				if ( fieldName.StartsWith( "m_" ) ) fieldName = fieldName.Substring( 2 );
+
+				bool bIsEnum = fieldInfo.FieldType.IsEnum;
+				if ( bIsEnum )
+				{
+					fieldName = fieldName.Insert( 0, "e" );
+				}
+
 				cLineValue lineValue = null;
-				int index = System.Array.FindIndex( sectionKeys, key => fieldInfo.Name.Contains( key ) );
+				int index = System.Array.FindIndex( sectionKeys, key => fieldName == key );
 				if ( index > -1 && ( bHadGoodResult &= section.bGetLineValue( sectionKeys[index], ref lineValue ) )	)
 				{
 					if ( lineValue.Type == LineValueType.SINGLE )
 					{
-						fieldInfo.SetValue( outer, System.Convert.ChangeType( lineValue.Value.ToSystemObject(), fieldInfo.FieldType ) );
+						object valueToAssign = null;
+						if ( bIsEnum )
+						{
+							Utils.Converters.StringToEnum( lineValue.Value.ToString(), fieldInfo.FieldType, ref valueToAssign );
+						}
+						else
+						{
+							valueToAssign = lineValue.Value.ToSystemObject();
+						}
+
+						fieldInfo.SetValue( outer, System.Convert.ChangeType( valueToAssign, fieldInfo.FieldType ) );
 //						Debug.Log( "Set of " + fieldInfo.Name + " of " + classType.Name + " To: " + lineValue.Value.ToString() );
 					}
 					else // Multi
@@ -464,13 +485,13 @@ public class SectionMap {
 						{
 							if ( elementType == typeof( Vector2 ) )
 							{
-								fieldInfo.SetValue( outer, section.AsVec2( fieldInfo.Name, Vector2.zero ) );
+								fieldInfo.SetValue( outer, section.AsVec2( fieldName, Vector2.zero ) );
 								continue;
 							}
 
 							if ( elementType == typeof( Vector3 ) )
 							{
-								fieldInfo.SetValue( outer, section.AsVec3( fieldInfo.Name, Vector3.zero ) );
+								fieldInfo.SetValue( outer, section.AsVec3( fieldName, Vector3.zero ) );
 								continue;
 							}
 
@@ -478,12 +499,12 @@ public class SectionMap {
 							{
 								if ( fieldInfo.FieldType == typeof( Vector4 ) )
 								{
-									fieldInfo.SetValue( outer, section.AsVec4( fieldInfo.Name, Vector4.zero ) );
+									fieldInfo.SetValue( outer, section.AsVec4( fieldName, Vector4.zero ) );
 								}
 
 								if ( fieldInfo.FieldType == typeof( Color ) )
 								{
-									fieldInfo.SetValue( outer, section.AsColor( fieldInfo.Name, Color.clear ) );
+									fieldInfo.SetValue( outer, section.AsColor( fieldName, Color.clear ) );
 								}
 								continue;
 							}							

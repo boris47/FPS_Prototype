@@ -23,6 +23,23 @@ namespace Utils {
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// Accept a string and return the parsed result as enum value
+		/// </summary>
+		public	static	bool	StringToEnum( string s, global::System.Type t, ref object e, bool ignoreCase = true )
+		{
+			if ( s.Length == 0 )
+				return false;
+
+			if ( t.IsEnum == false )
+				return false;
+
+			e = global::System.Enum.Parse( t, s, ignoreCase: true );			
+			return true;
+		}
+
+
 
 
 		//////////////////////////////////////////////////////////////////////////

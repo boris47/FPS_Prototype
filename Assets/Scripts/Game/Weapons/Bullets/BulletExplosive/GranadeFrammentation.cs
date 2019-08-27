@@ -40,14 +40,6 @@ public class GranadeFrammentation : BulletExplosive {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ReadInternals ( Override )
-	protected override void ReadInternals( Database.Section section )
-	{
-		
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
 	// Shoot ( Override )
 	public override void Shoot( Vector3 position, Vector3 direction, float velocity )
 	{

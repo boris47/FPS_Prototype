@@ -72,7 +72,7 @@ public abstract class BulletGeneric : Bullet, IBulletBallistic {
 	// Shoot ( Override )
 	public		override	void	Shoot( Vector3 position, Vector3 direction, float velocity )
 	{
-		switch ( m_MotionType )
+		switch ( m_BulletMotionType )
 		{
 			case BulletMotionType.INSTANT:		ShootInstant( position, direction, velocity );
 				break;
