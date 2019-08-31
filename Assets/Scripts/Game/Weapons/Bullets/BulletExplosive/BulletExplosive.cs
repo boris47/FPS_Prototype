@@ -2,43 +2,52 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+public interface IExplosive {
+	bool		BlowOnHit							{ get; }
+	bool		AttachOnHit							{ get; }
+	float		BlastRadius							{ get; }
+	float		BlastDamage							{ get; }
+
+	void		ForceExplosion						();
+}
+
+public interface IFlyingExplosive {
+	float		GetMaxRange							();
+}
+
+public interface ITimedExplosive {
+	float		GetExplosionDelay					();
+	float		GetRemainingTime					();
+	float		GetRemainingTimeNormalized			();
+}
+
+/// <summary>
+/// Base class for rockets and granades
+/// </summary>
 public abstract class BulletExplosive : BulletGeneric, IExplosive {
 
-
 	[SerializeField, ReadOnly]
-	protected	float			m_ExplosionDelay			= 3f;
+	protected	bool			m_BlowOnHit					= true;
 
 	[SerializeField, ReadOnly]
 	protected	bool			m_AttachOnHit				= false;
 
+	[SerializeField, ReadOnly]
+	protected	float			m_BlastRadius				= 0.0f;
+
+	[SerializeField, ReadOnly]
+	protected	float			m_BlastDamage				= 0.0f;
+
 	// INTERFACE START
-
-		bool IExplosive.BlowOnHit
-		{
-			get {
-				return false;
-			}
-		}
-
-		float IExplosive.BlastRadius
-		{
-			get {
-				return 0f;
-			}
-		}
-
-		float IExplosive.BlastDamage
-		{
-			get {
-				return 0f;
-			}
-		}
-
-				float			IExplosive.ExplosionDelay		{	get { return m_ExplosionDelay; }}
-				bool			IExplosive.AttachOnHit			{	get { return m_AttachOnHit; }		}
+		bool	IExplosive.BlowOnHit			{	get { return m_BlowOnHit; } }
+		bool	IExplosive.AttachOnHit			{	get { return m_AttachOnHit; } }
+		float	IExplosive.BlastRadius			{	get { return m_BlastRadius; } }
+		float	IExplosive.BlastDamage			{	get { return m_BlastDamage;	} }
 	// INTERFACE END
 	
-	protected	float			m_InternalCounter			= 0f;
+
+	
 	protected	float			m_Emission					= 0f;
 
 
@@ -49,6 +58,17 @@ public abstract class BulletExplosive : BulletGeneric, IExplosive {
 		base.Awake();
 
 		SetActive( false );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ConfigureInternal ( Override )
+	protected	override	void	ConfigureInternal( Database.Section bulletSection )
+	{
+		m_BlowOnHit		= bulletSection.AsBool( "bBlowOnHit", m_BlowOnHit );
+		m_AttachOnHit	= bulletSection.AsBool( "bAttachOnHit", m_AttachOnHit );
+		m_BlastRadius	= bulletSection.AsFloat( "fBlastRadius", m_BlastRadius );
+		m_BlastDamage	= bulletSection.AsFloat( "fBlastDamage", m_BlastDamage );
 	}
 
 
@@ -72,24 +92,7 @@ public abstract class BulletExplosive : BulletGeneric, IExplosive {
 		m_Collider.enabled				= state;
 		m_Renderer.enabled				= state;
 		m_Renderer.material.SetColor( "_EmissionColor", Color.red );
-		m_InternalCounter				= m_ExplosionDelay;
 		this.enabled					= state;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// GetRemainingTime ( Virtual )
-	public		virtual		float	GetRemainingTime()
-	{
-		return Mathf.Clamp( m_InternalCounter, 0f, 10f );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// GetRemainingTimeNormalized ( Virtual )
-	public		virtual		float	GetRemainingTimeNormalized()
-	{
-		return 1f - (  m_InternalCounter / m_ExplosionDelay );
 	}
 
 

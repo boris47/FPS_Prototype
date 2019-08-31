@@ -1,8 +1,24 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿
+using UnityEngine;
 
 
-public class BulletElectro : BulletGeneric {
+public sealed class BulletElectro : BulletGeneric {
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Awake ( Override )
+	protected override void Awake()
+	{
+		base.Awake();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ConfigureInternal ( Override )
+	protected	override	void	ConfigureInternal( Database.Section bulletSection )
+	{
+
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////

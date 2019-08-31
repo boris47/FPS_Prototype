@@ -69,7 +69,7 @@ namespace Database {
 		private		string				m_Context		= "";
 
 		[SerializeField]
-		private		List<cLineValue>	m_Sections		= new List<cLineValue>();
+		private		List<cLineValue>	m_Linevalues		= new List<cLineValue>();
 
 		[SerializeField]
 		private		List<string>		m_Mothers		= new List<string>();
@@ -93,9 +93,14 @@ namespace Database {
 	
 		public List<cLineValue>.Enumerator  GetEnumerator()
 		{
-			return m_Sections.GetEnumerator();
+			return m_Linevalues.GetEnumerator();
 		}
 
+		// Indexer
+		public cLineValue this[int i]
+		{
+			get { return ( i > -1 && i < m_Linevalues.Count ) ? m_Linevalues[i] : null; }
+		}
 
 		public Section( string sectionName, string context )
 		{
@@ -151,12 +156,12 @@ namespace Database {
 
 		public void Destroy()
 		{
-			m_Sections.ForEach( ( cLineValue lv ) => lv.Destroy() );
+			m_Linevalues.ForEach( ( cLineValue lv ) => lv.Destroy() );
 		}
 
 		public	int						Lines()
 		{
-			return m_Sections.Count;
+			return m_Linevalues.Count;
 		}
 
 
@@ -167,10 +172,10 @@ namespace Database {
 		// GetKeys
 		public	string[]				GetKeys()
 		{
-			string[] arrayToReturn = new string[ m_Sections.Count ];
-			for ( int i = 0; i < m_Sections.Count; i++ )
+			string[] arrayToReturn = new string[ m_Linevalues.Count ];
+			for ( int i = 0; i < m_Linevalues.Count; i++ )
 			{
-				arrayToReturn[i] = m_Sections[i].Key;
+				arrayToReturn[i] = m_Linevalues[i].Key;
 			}
 			return arrayToReturn;
 		}
@@ -179,16 +184,16 @@ namespace Database {
 		// Add
 		public	bool				Add( cLineValue LineValue )
 		{
-			int index = m_Sections.FindIndex( ( s ) => s.Key == LineValue.Key );
+			int index = m_Linevalues.FindIndex( ( s ) => s.Key == LineValue.Key );
 			// Confirmed new linevalue
 			if ( index == -1 )
 			{
-				m_Sections.Add( LineValue );
+				m_Linevalues.Add( LineValue );
 			}
 			// overwrite of existing linevalue
 			else
 			{
-				m_Sections[ index ] = new cLineValue( LineValue );
+				m_Linevalues[ index ] = new cLineValue( LineValue );
 			}
 			return index > -1;
 		}
@@ -198,11 +203,11 @@ namespace Database {
 		// Remove
 		public	bool					Remove( string lineValueID )
 		{
-			int index = m_Sections.FindIndex( ( s ) => s.Key == lineValueID );
+			int index = m_Linevalues.FindIndex( ( s ) => s.Key == lineValueID );
 			if ( index > -1 )
 			{
-				m_Sections[index].Destroy();
-				m_Sections.RemoveAt( index );
+				m_Linevalues[index].Destroy();
+				m_Linevalues.RemoveAt( index );
 			}
 			return index > -1;
 		}
@@ -212,11 +217,11 @@ namespace Database {
 		// bGetLineValue
 		public	bool					bGetLineValue( string key, ref cLineValue lineValue )
 		{
-			int index = m_Sections.FindIndex( ( cLineValue lv ) => lv.IsKey( key ) == true );
+			int index = m_Linevalues.FindIndex( ( cLineValue lv ) => lv.IsKey( key ) == true );
 			bool bHasBeenFound = index > -1;
 			if ( bHasBeenFound )
 			{
-				lineValue = m_Sections[ index ];
+				lineValue = m_Linevalues[ index ];
 			}
 			return bHasBeenFound;
 		}
@@ -236,7 +241,7 @@ namespace Database {
 		public void PrintSection()
 		{
 			Debug.Log( "---|Section START" + name );
-			foreach ( cLineValue LineValue in m_Sections )
+			foreach ( cLineValue LineValue in m_Linevalues )
 			{
 				string result = LineValue.Key;
 				if ( LineValue.Type == LineValueType.MULTI )
@@ -285,7 +290,7 @@ namespace Database {
 			lines.Add( sectionDefinition );
 
 			// Write key value pairs
-			foreach ( cLineValue LineValue in m_Sections )
+			foreach ( cLineValue LineValue in m_Linevalues )
 			{
 				string key = LineValue.Key;
 				string value = "";

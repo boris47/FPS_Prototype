@@ -13,21 +13,32 @@ public interface IEntityEvents {
 
 
 	event				EntityEvents.KilledEvent			OnEvent_Killed;
-	// Directly damage
+	///<summary> Directly damage </summary>
 	event				EntityEvents.HitDetailsEvent		OnEvent_HittedDetails;
-	// Evaluate bullet damage
+	///<summary> Evaluate bullet damage </summary>
 	event				EntityEvents.HitWithBullet			OnEvent_HittedBullet;
 	event				EntityEvents.TargetEvent			OnEvent_Target;
 	event				EntityEvents.NavigationEvent		OnEvent_Navigation;
 
+	///<summary> Call to enable events on this entity </summary>
 	void				EnableEvents						();
+
+	///<summary> Call to disable events on this entity </summary>
 	void				DisableEvents						();
+
+	///<summary> Returns if event for this entity is are enabled </summary>
 	bool				HasEventsEnabled					{ get; }
 
+	///<summary> Call when destination is reached </summary>
 	void				OnDestinationReached				( Vector3 Destination );
+
+	///<summary> Call when head rotation has reached final rotation </summary>
 	void				OnLookRotationReached				( Vector3 Direction );
 	
+	///<summary> Call with hitting bullet reference </summary>
 	void				OnHittedBullet						( Bullet hittingBullet );
+
+	///<summary> Call with details about hit </summary>
 	void				OnHittedDetails						( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false );
 }
 

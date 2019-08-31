@@ -3,8 +3,28 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class GranadeElectroGlobe : BulletExplosive {
+public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 	
+	[SerializeField, ReadOnly]
+	private		float			m_ExplosionDelay	= 3.0f;
+
+	// INTERFACE START
+		float		ITimedExplosive.GetExplosionDelay					()
+		{
+			return m_ExplosionDelay;
+		}
+		float		ITimedExplosive.GetRemainingTime					()
+		{
+			return Mathf.Clamp( m_InternalCounter, 0f, 10f );
+		}
+		float		ITimedExplosive.GetRemainingTimeNormalized			()
+		{
+			return 1f - (  m_InternalCounter / m_ExplosionDelay );
+		}
+	// INTERFACE END
+
+	private		float			m_InternalCounter	= 0f;
+
 	[SerializeField]
 	private		float					m_Duration					= 3f;
 
@@ -15,37 +35,26 @@ public class GranadeElectroGlobe : BulletExplosive {
 
 	private		WaitForSeconds			m_WaitInstruction			= null;
 
-
-	[SerializeField]
-	private class GranadeElectroGlobeSectionData {
-		public float Damage			=  0f;
-		public float Range			=  0f;
-		public float Velocity		=  0f;
-		public float ExplosionDelay	=  0f;
-	}
-	[SerializeField, ReadOnly]
-	private GranadeElectroGlobeSectionData m_GranadeElectroGlobeSectionData = new GranadeElectroGlobeSectionData();
-
+	
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
 	protected override void	Awake()
 	{
 		base.Awake();
 
-		// LOAD CONFIGURATION
-		{
-			if ( GlobalManager.Configs.bGetSection( "GranadeElectroGlobe", m_GranadeElectroGlobeSectionData ) )
-			{
-				m_DamageMax					= m_GranadeElectroGlobeSectionData.Damage;
-				m_Range						= m_GranadeElectroGlobeSectionData.Range;
-				m_Velocity					= m_GranadeElectroGlobeSectionData.Velocity;
-				m_ExplosionDelay			= m_GranadeElectroGlobeSectionData.ExplosionDelay;
-			}
-		}
-
 		m_WaitInstruction	= new WaitForSeconds( m_Duration );
 		m_ExplosionGlobe	= transform.GetChild(0);
 		m_ExplosionGlobe.gameObject.SetActive( false );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ConfigureInternal ( Override )
+	protected	override	void	ConfigureInternal( Database.Section bulletSection )
+	{
+		base.ConfigureInternal( bulletSection );
+
+		m_ExplosionDelay = bulletSection.AsFloat( "fExplosionDelay", m_ExplosionDelay );
 	}
 
 
@@ -89,22 +98,6 @@ public class GranadeElectroGlobe : BulletExplosive {
 		m_ExplosionGlobe.gameObject.SetActive( false );
 
 		base.SetActive( state );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// GetRemainingTime ( Override )
-	public override float	GetRemainingTime()
-	{
-		return base.GetRemainingTime();
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// GetRemainingTimeNormalized ( Override )
-	public override float	GetRemainingTimeNormalized()
-	{
-		return base.GetRemainingTimeNormalized();
 	}
 
 

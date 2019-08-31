@@ -1,9 +1,8 @@
 ﻿
-
 using UnityEngine;
 
 
-public class BulletBallistic : BulletGeneric {
+public sealed class BulletBallistic : BulletGeneric {
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -27,6 +26,14 @@ public class BulletBallistic : BulletGeneric {
 		}
 
 		SetActive( false );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ConfigureInternal ( Override )
+	protected	override	void	ConfigureInternal( Database.Section bulletSection )
+	{
+
 	}
 
 
@@ -89,7 +96,7 @@ public class BulletBallistic : BulletGeneric {
 
 	//////////////////////////////////////////////////////////////////////////
 	// ShootInstant ( Virtual )
-	protected	virtual		void	ShootInstant( Vector3 position, Vector3 direction, float maxDistance = Mathf.Infinity )
+	protected	override		void	ShootInstant( Vector3 position, Vector3 direction, float maxDistance = Mathf.Infinity )
 	{
 		RaycastHit hit = default( RaycastHit );
 		bool bHasHit = Physics.Raycast( position, direction, out hit, Mathf.Infinity, Utils.Base.LayersAllButOne( "Bullets" ) );
@@ -124,7 +131,7 @@ public class BulletBallistic : BulletGeneric {
 
 	//////////////////////////////////////////////////////////////////////////
 	// ShootDirect ( Virtual )
-	protected	virtual		void	ShootDirect( Vector3 position, Vector3 direction, float velocity )
+	protected	override		void	ShootDirect( Vector3 position, Vector3 direction, float velocity )
 	{
 		transform.up			= direction;
 		transform.position		= position;
@@ -137,7 +144,7 @@ public class BulletBallistic : BulletGeneric {
 
 	//////////////////////////////////////////////////////////////////////////
 	// ShootParabolic ( Virtual )
-	protected	virtual		void	ShootParabolic( Vector3 position, Vector3 direction, float velocity )
+	protected	override		void	ShootParabolic( Vector3 position, Vector3 direction, float velocity )
 	{
 		transform.up			= direction;
 		transform.position		= position;

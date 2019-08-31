@@ -38,29 +38,14 @@ public interface IBullet {
 
 
 
-public interface IBulletBallistic {
-}
-
-
-public interface IExplosive {
-	bool		BlowOnHit							{ get; }
-	float		BlastRadius							{ get; }
-	float		BlastDamage							{ get; }
-	bool		AttachOnHit							{ get; }
-	float		ExplosionDelay						{ get; }
-
-
-	void		ForceExplosion						();
-}
-
 
 [RequireComponent( typeof( Rigidbody ), typeof( Collider ), typeof( Renderer ) )]
 public abstract class Bullet : MonoBehaviour, IBullet {
 	
-	[SerializeField]
+	[SerializeField, ReadOnly]
 	protected		BulletMotionType	m_BulletMotionType		= BulletMotionType.DIRECT;
 
-	[SerializeField]
+	[SerializeField, ReadOnly]
 	protected		DamageType			m_DamageType			= DamageType.BALLISTIC;
 
 	[SerializeField, ReadOnly]
@@ -75,10 +60,10 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 	[SerializeField, ReadOnly]
 	protected		float				m_OverTimeDamageDuration = 5.0f;
 
-	[SerializeField]
+	[SerializeField, ReadOnly]
 	protected		DamageType			m_OverTimeDamageType	= DamageType.NONE;
 
-	[SerializeField]
+	[SerializeField, ReadOnly]
 	protected		float				m_Velocity				= 15f;
 
 
@@ -90,7 +75,7 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 	[SerializeField, Range( 0.5f, 3f )]
 	protected		float				m_RecoilMult			= 1f;
 
-	[SerializeField, ReadOnly]
+	[SerializeField]
 	protected		bool				m_CanPenetrate			= false;
 
 
@@ -129,6 +114,9 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 
 	private static Dictionary<string, Database.Section> m_BulletsSections = new Dictionary<string, Database.Section>();
 
+
+
+
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Virtual )
 	protected	virtual		void	Awake()
@@ -143,13 +131,52 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 		m_RigidBody.collisionDetectionMode		= CollisionDetectionMode.ContinuousDynamic;
 		m_RigidBody.maxAngularVelocity			= 0f;
 
+		
 		string sectionName = GetType().Name;
-		UnityEngine.Assertions.Assert.IsTrue
-		(
-			GlobalManager.Configs.bGetSection<Bullet>( sectionName, this ),
-			"Bullet::Awake: Error deserealizing section data for bullet with section name " + sectionName
-		);
+		Database.Section bulletSection = null;
+		if ( m_BulletsSections.TryGetValue( sectionName, out bulletSection ) == false )
+		{
+			GlobalManager.Configs.bGetSection( sectionName, ref bulletSection );
+			m_BulletsSections[sectionName] = bulletSection;
+		}
+
+		// MotionType
+		Utils.Converters.StringToEnum( bulletSection.AsString("eBulletMotionType"), ref m_BulletMotionType );
+
+		// DamageType
+		Utils.Converters.StringToEnum( bulletSection.AsString("eDamageType"), ref m_DamageType );
+
+		// fDamageMin
+		m_DamageMin = bulletSection.AsFloat( "fDamageMin", m_DamageMin );
+
+		// fDamageMax
+		m_DamageMax = bulletSection.AsFloat( "fDamageMax", m_DamageMax );
+
+		// bHasDamageOverTime
+		m_HasDamageOverTime = bulletSection.AsBool( "bHasDamageOverTime", m_HasDamageOverTime );
+
+		// fOverTimeDamageDuration
+		m_OverTimeDamageDuration = bulletSection.AsFloat( "fOverTimeDamageDuration", m_OverTimeDamageDuration );
+
+		// eOverTimeDamageType
+		Utils.Converters.StringToEnum( bulletSection.AsString("eOverTimeDamageType"), ref m_OverTimeDamageType );
+
+		// bCanPenetrate
+		bulletSection.bAsBool( "bCanPenetrate", ref m_CanPenetrate );
+
+		// fVelocity
+		m_Velocity = bulletSection.AsFloat( "fVelocity", m_Velocity );
+
+		// fRange
+		m_Range = bulletSection.AsFloat( "fRange", m_Range );
+
 	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ConfigureInternal ( Abstract )
+	/// <summary> Bullet get deeply configured in the concrete version of this method </summary>
+	protected	abstract	void	ConfigureInternal( Database.Section bulletSection );
 
 
 	//////////////////////////////////////////////////////////////////////////

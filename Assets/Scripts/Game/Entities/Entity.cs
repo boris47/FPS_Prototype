@@ -5,43 +5,43 @@ using UnityEngine.AI;
 
 
 public partial interface IEntity {
-	// Entity Transform
+	/// <summary> Entity Transform </summary>
 	Transform				Transform						{ get; }
 
-	// Generic flag for entity state
+	/// <summary> Generic flag for entity state </summary>
 	bool					IsActive						{ get; }
 
-	// Entity unique ID
+	/// <summary> Entity unique ID </summary>
 	uint					ID								{ get; }
 
-	// Entity Health
+	/// <summary> Entity Health </summary>
 	float					Health							{ get; }
 
-	// Entity Type
+	/// <summary> Entity Type </summary>
 	ENTITY_TYPE				EntityType						{ get; }
 
-	// Entity Shield
+	/// <summary> Entity Shield </summary>
 	IShield					Shield							{ get; }
 
-	// Entity Section
+	/// <summary> Entity Section </summary>
 	string					Section							{ get; }
 
-	// RigidBody
+	/// <summary> RigidBody </summary>
 	Rigidbody				RigidBody						{ get; }
 
-	// Physic collider, only manage entity in space
+	/// <summary> Physic collider, only manage entity in space </summary>
 	Collider				PhysicCollider					{ get; }
 
-	// Trigger collider, used for interactions with incoming objects or trigger areas
+	/// <summary> Trigger collider, used for interactions with incoming objects or trigger areas
 //	Collider				TriggerCollider					{ get; }
 
-	// Transform where to play effects at
+	/// <summary> Transform where to play effects at </summary>
 	Transform				EffectsPivot					{ get; }
 
-	// Group all entity class events and functions
+	/// <summary> Group all entity class events and functions </summary>
 	IEntityEvents			Events							{ get; }
 
-	// Entity brain
+	/// <summary> Entity brain </summary>
 	IBrain					Brain							{ get; }
 }
 

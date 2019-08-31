@@ -3,7 +3,14 @@ using System;
 using UnityEngine;
 
 
-public abstract class BulletGeneric : Bullet, IBulletBallistic {
+public interface IBulletGeneric {
+}
+
+
+/// <summary>
+/// Base class for projectiles
+/// </summary>
+public abstract class BulletGeneric : Bullet, IBulletGeneric {
 
 	protected		Light				m_PointLight			= null;
 	protected		LensFlare			m_LensFlare				= null;
@@ -53,18 +60,18 @@ public abstract class BulletGeneric : Bullet, IBulletBallistic {
 	// Update ( Override )
 	protected	override	void	Update()
 	{
-		// Only every 10 frames
+		// Only every 25 frames
 		if ( Time.frameCount % 25 == 0 )
 			return;
+
+		m_RigidBody.velocity	= m_RigidBodyVelocity;
+		transform.up			= m_RigidBodyVelocity;
 
 		float traveledDistance = ( m_StartPosition - transform.position ).sqrMagnitude;
 		if ( traveledDistance > m_Range * m_Range )
 		{
 			SetActive( false );
 		}
-
-		m_RigidBody.velocity	= m_RigidBodyVelocity;
-		transform.up			= m_RigidBodyVelocity;
 	}
 
 

@@ -1,41 +1,49 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿
+using UnityEngine;
 
 
-public class GranadeFrammentation : BulletExplosive {
+
+public sealed class GranadeFrammentation : BulletExplosive, ITimedExplosive {
+
+	[SerializeField, ReadOnly]
+	private		float			m_ExplosionDelay	= 3.0f;
+
+	// INTERFACE START
+		float		ITimedExplosive.GetExplosionDelay					()
+		{
+			return m_ExplosionDelay;
+		}
+		float		ITimedExplosive.GetRemainingTime					()
+		{
+			return Mathf.Clamp( m_InternalCounter, 0f, 10f );
+		}
+		float		ITimedExplosive.GetRemainingTimeNormalized			()
+		{
+			return 1f - (  m_InternalCounter / m_ExplosionDelay );
+		}
+	// INTERFACE END
+
+	private		float			m_InternalCounter	= 0f;
 
 	private		Collider[]		m_SphereResults		= new Collider[ 100 ];
 
-	private		bool			m_BlowOnHit			= false;
 
-	[SerializeField]
-	private class GranadeFrammentationSectionData {
-		public float DamageMax		=  0f;
-		public float Range			=  0f;
-		public float Velocity		=  0f;
-		public float ExplosionDelay	=  0f;
-		public bool	 BlowOnHit		=  false;
-	}
-	[SerializeField, ReadOnly]
-	private GranadeFrammentationSectionData m_GranadeFrammentationSectionData = new GranadeFrammentationSectionData();
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
 	protected override void	Awake()
 	{
 		base.Awake();
+	}
 
-		// LOAD CONFIGURATION
-		{
-			if ( GlobalManager.Configs.bGetSection( "GranadeFrammentation", m_GranadeFrammentationSectionData ) )
-			{
-				m_DamageMax					= m_GranadeFrammentationSectionData.DamageMax;
-				m_Range						= m_GranadeFrammentationSectionData.Range;
-				m_Velocity					= m_GranadeFrammentationSectionData.Velocity;
-				m_ExplosionDelay			= m_GranadeFrammentationSectionData.ExplosionDelay;
-				m_BlowOnHit					= m_GranadeFrammentationSectionData.BlowOnHit;
-			}
-		}
+
+	//////////////////////////////////////////////////////////////////////////
+	// ConfigureInternal ( Override )
+	protected	override	void	ConfigureInternal( Database.Section bulletSection )
+	{
+		base.ConfigureInternal( bulletSection );
+
+		m_ExplosionDelay = bulletSection.AsFloat( "fExplosionDelay", m_ExplosionDelay );
 	}
 
 
@@ -49,6 +57,7 @@ public class GranadeFrammentation : BulletExplosive {
 		SetActive( true );
 	}
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// SetActive
 	public override void	SetActive( bool state )
@@ -56,21 +65,6 @@ public class GranadeFrammentation : BulletExplosive {
 		base.SetActive( state );
 	}
 
-
-	//////////////////////////////////////////////////////////////////////////
-	// GetRemainingTime
-	public override float	GetRemainingTime()
-	{
-		return base.GetRemainingTime();
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// GetRemainingTimeNormalized
-	public override float	GetRemainingTimeNormalized()
-	{
-		return base.GetRemainingTimeNormalized();
-	}
 
 
 	//////////////////////////////////////////////////////////////////////////

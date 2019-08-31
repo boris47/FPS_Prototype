@@ -2,7 +2,53 @@ using UnityEngine;
 using System.Collections;
 using System;
 
-public class BulletRocket : BulletExplosive {
+public sealed class BulletRocket : BulletExplosive, IFlyingExplosive {
+
+	private	float		m_MaxRange = 80.0f;
+
+
+	// INTERFACE START
+		float		IFlyingExplosive.GetMaxRange							()
+		{
+			return m_MaxRange;
+		}
+	// INTERFACE END
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Awake ( Override )
+	protected override void Awake()
+	{
+		base.Awake();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// ConfigureInternal ( Override )
+	protected	override	void	ConfigureInternal( Database.Section bulletSection )
+	{
+		m_MaxRange = bulletSection.AsFloat( "fMaxRange", m_MaxRange );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Update ( Override )
+	protected	override	void	Update()
+	{
+		// Only every 25 frames
+		if ( Time.frameCount % 25 == 0 )
+			return;
+
+		m_RigidBody.velocity	= m_RigidBodyVelocity;
+		transform.up			= m_RigidBodyVelocity;
+
+		float traveledDistance = ( m_StartPosition - transform.position ).sqrMagnitude;
+		if ( traveledDistance > m_Range * m_Range )
+		{
+			OnExplosion();
+		}
+	}
+
 
 	/*
 	protected override void OnCollisionEnter( Collision collision )

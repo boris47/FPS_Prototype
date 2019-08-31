@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using Database;
-using System;
 using System.IO;
 using System.Reflection;
 
@@ -438,94 +437,99 @@ public class SectionMap {
 
 		Section section = null;
 		bool bHadGoodResult = bGetSection( identifier, ref section );
-		if ( bHadGoodResult )
+		if ( bHadGoodResult == false )
 		{
-			Type classType = typeof(T);
-			FieldInfo[] fieldInfos = classType.GetFields( BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
+			return false;
+		}
+		
+		System.Type classType = typeof(T);
+		FieldInfo[] fieldInfos = classType.GetFields( BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
 
-//			bHadGoodResult &= fieldInfos.Length > 0;
+		string[] sectionKeys = section.GetKeys();
+		foreach ( FieldInfo fieldInfo in fieldInfos )
+		{
+			string fieldName = fieldInfo.Name;
 
-			string[] sectionKeys = section.GetKeys();
-			foreach ( FieldInfo fieldInfo in fieldInfos )
+			// Remove module prefix if exists
+			if ( fieldName.StartsWith( "m_" ) ) fieldName = fieldName.Substring( 2 );
+
+			bool bIsEnum = fieldInfo.FieldType.IsEnum;
+			if ( bIsEnum )
 			{
-				string fieldName = fieldInfo.Name;
+				fieldName = fieldName.Insert( 0, "e" );
+			}
 
-				// Remove module prefix if exists
-				if ( fieldName.StartsWith( "m_" ) ) fieldName = fieldName.Substring( 2 );
+			// Check if outer field is found in section
+			int index = System.Array.FindIndex( sectionKeys, key => fieldName == key );
+			if ( index == -1 )
+			{
+				return false;
+			}
 
-				bool bIsEnum = fieldInfo.FieldType.IsEnum;
+			cLineValue lineValue = section[index];
+			if ( lineValue.Type == LineValueType.SINGLE )
+			{
+				object valueToAssign = null;
 				if ( bIsEnum )
 				{
-					fieldName = fieldName.Insert( 0, "e" );
+					Utils.Converters.StringToEnum( lineValue.Value.ToString(), fieldInfo.FieldType, ref valueToAssign );
+				}
+				else
+				{
+					valueToAssign = lineValue.Value.ToSystemObject();
 				}
 
-				cLineValue lineValue = null;
-				int index = System.Array.FindIndex( sectionKeys, key => fieldName == key );
-				if ( index > -1 && ( bHadGoodResult &= section.bGetLineValue( sectionKeys[index], ref lineValue ) )	)
+				fieldInfo.SetValue( outer, System.Convert.ChangeType( valueToAssign, fieldInfo.FieldType ) );
+//				Debug.Log( "Set of " + fieldInfo.Name + " of " + classType.Name + " To: " + lineValue.Value.ToString() );
+			}
+			else // Multi
+			{
+				System.Type elementType = null;
+				if ( lineValue.MultiValue.DeductType( ref elementType ) )
 				{
-					if ( lineValue.Type == LineValueType.SINGLE )
+					if ( elementType == typeof( Vector2 ) )
 					{
-						object valueToAssign = null;
-						if ( bIsEnum )
-						{
-							Utils.Converters.StringToEnum( lineValue.Value.ToString(), fieldInfo.FieldType, ref valueToAssign );
-						}
-						else
-						{
-							valueToAssign = lineValue.Value.ToSystemObject();
-						}
-
-						fieldInfo.SetValue( outer, System.Convert.ChangeType( valueToAssign, fieldInfo.FieldType ) );
-//						Debug.Log( "Set of " + fieldInfo.Name + " of " + classType.Name + " To: " + lineValue.Value.ToString() );
+						fieldInfo.SetValue( outer, section.AsVec2( fieldName, Vector2.zero ) );
+						continue;
 					}
-					else // Multi
+
+					if ( elementType == typeof( Vector3 ) )
 					{
-						System.Type elementType = null;
-						if ( lineValue.MultiValue.DeductType( ref elementType ) )
-						{
-							if ( elementType == typeof( Vector2 ) )
-							{
-								fieldInfo.SetValue( outer, section.AsVec2( fieldName, Vector2.zero ) );
-								continue;
-							}
-
-							if ( elementType == typeof( Vector3 ) )
-							{
-								fieldInfo.SetValue( outer, section.AsVec3( fieldName, Vector3.zero ) );
-								continue;
-							}
-
-							if ( elementType == typeof( Vector4 ) )
-							{
-								if ( fieldInfo.FieldType == typeof( Vector4 ) )
-								{
-									fieldInfo.SetValue( outer, section.AsVec4( fieldName, Vector4.zero ) );
-								}
-
-								if ( fieldInfo.FieldType == typeof( Color ) )
-								{
-									fieldInfo.SetValue( outer, section.AsColor( fieldName, Color.clear ) );
-								}
-								continue;
-							}							
-
-							if ( fieldInfo.FieldType.IsArray == true )
-							{
-								object[] result = lineValue.MultiValue.ValueList.ConvertAll	// Get a list of converted cvalues to requested type
-								(
-									new System.Converter<cValue, object> ( ( cValue v ) => { return v.ToSystemObject(); } )
-								)
-								.ToArray(); 
-								fieldInfo.SetValue( outer, result /*lineValue.MultiValue.ValueList.ToArray()*/ );
-								continue;
-							}
-
-							Debug.Log( "Set of " + fieldInfo.Name + " of " + classType.Name + " is impossible!! " );
-						}
+						fieldInfo.SetValue( outer, section.AsVec3( fieldName, Vector3.zero ) );
+						continue;
 					}
+
+					if ( elementType == typeof( Vector4 ) )
+					{
+						if ( fieldInfo.FieldType == typeof( Vector4 ) )
+						{
+							fieldInfo.SetValue( outer, section.AsVec4( fieldName, Vector4.zero ) );
+						}
+
+						if ( fieldInfo.FieldType == typeof( Color ) )
+						{
+							fieldInfo.SetValue( outer, section.AsColor( fieldName, Color.clear ) );
+						}
+						continue;
+					}							
+
+					if ( fieldInfo.FieldType.IsArray == true )
+					{
+						object[] result = lineValue.MultiValue.ValueList.ConvertAll	// Get a list of converted cvalues to requested type
+						(
+							new System.Converter<cValue, object> ( ( cValue v ) => { return v.ToSystemObject(); } )
+						)
+						.ToArray(); 
+						fieldInfo.SetValue( outer, result /*lineValue.MultiValue.ValueList.ToArray()*/ );
+						continue;
+					}
+
+					Debug.Log( "Set of " + fieldInfo.Name + " of " + classType.Name + " is impossible!! " );
 				}
 			}
 		}
+	
+		
 		return bHadGoodResult;
 	}
 
