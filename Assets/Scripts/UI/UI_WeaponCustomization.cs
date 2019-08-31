@@ -168,7 +168,12 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 		// Search current Value
 		thisDropdown.value = filtered.FindIndex( s => s.GetName() == alreadyAssignedModules[(int)slot] );
 
-		
+		thisDropdown.onValueChanged.RemoveAllListeners();
+		UnityEngine.Events.UnityAction<int> callback = delegate( int moduleIndex )
+		{
+			OnModuleChanged( slot, filtered[moduleIndex] );
+		};
+		thisDropdown.onValueChanged.AddListener( callback );
 	}
 
 	

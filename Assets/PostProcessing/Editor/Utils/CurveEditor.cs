@@ -376,11 +376,7 @@ namespace UnityEditor.PostProcessing
                 // Draw
                 if (state.showNonEditableHandles)
                 {
-#if UNITY_5_6_7
-                    if (e.type == EventType.repaint)
-#elif UNITY_2017
 					if (e.type == EventType.Repaint)
-#endif
 					{
                         var selectedColor = (isCurrentlySelectedCurve && isCurrentlySelectedKeyframe)
                             ? settings.selectionColor
@@ -426,11 +422,7 @@ namespace UnityEditor.PostProcessing
                     }
 
 					// Keyframe selection & context menu
-#if UNITY_5_6_7
-					if (e.type == EventType.mouseDown && rect.Contains(e.mousePosition))
-#elif UNITY_2017
 					if (e.type == EventType.MouseDown && rect.Contains(e.mousePosition))
-#endif
 					{
                         if (hitRect.Contains(e.mousePosition))
                         {
@@ -461,11 +453,7 @@ namespace UnityEditor.PostProcessing
                     }
 
                     // Tangent selection & edit mode
-#if UNITY_5_6_7
-					if (e.type == EventType.mouseDown && rect.Contains(e.mousePosition))
-#elif UNITY_2017
                     if (e.type == EventType.MouseDown && rect.Contains(e.mousePosition))
-#endif
 					{
                         if (inTangentHitRect.Contains(e.mousePosition) && (k > 0 || state.loopInBounds))
                         {
@@ -511,11 +499,7 @@ namespace UnityEditor.PostProcessing
             var e = Event.current;
 
             // Selection
-#if UNITY_5_6_7
-			if (e.type == EventType.mouseDown)
-#elif UNITY_2017
             if (e.type == EventType.MouseDown)
-#endif
 			{
                 GUI.FocusControl(null);
                 m_SelectedCurve = null;
@@ -598,11 +582,7 @@ namespace UnityEditor.PostProcessing
             }
 
             // Delete selected key(s)
-#if UNITY_5_6_7
-			if (e.type == EventType.keyDown && (e.keyCode == KeyCode.Delete || e.keyCode == KeyCode.Backspace))
-#elif UNITY_2017
             if (e.type == EventType.KeyDown && (e.keyCode == KeyCode.Delete || e.keyCode == KeyCode.Backspace))
-#endif
 			{
                 if (m_SelectedKeyframeIndex != -1 && m_SelectedCurve != null)
                 {

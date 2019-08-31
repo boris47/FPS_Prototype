@@ -99,6 +99,12 @@ namespace Database {
 			cLineValue pLineValue = null;
 			if ( bGetLineValue( Key, ref pLineValue ) )
 			{
+	//			UnityEngine.Assertions.Assert.IsTrue
+	//			(
+	//				pLineValue.Type == LineValueType.SINGLE,
+	//				"Database::Section::AsString: Line value for section " + GetName() + " at key " + Key + " is not of single type"
+	//			);
+
 				return pLineValue.Value.As<string>();
 			}
 			return Default;

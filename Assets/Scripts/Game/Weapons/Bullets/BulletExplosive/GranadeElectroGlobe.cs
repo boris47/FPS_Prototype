@@ -201,11 +201,11 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 
 		m_RigidBody.constraints = RigidbodyConstraints.FreezeAll;
 
-		bool hitEntity = collision.gameObject.GetComponent<Entity>() != null;
-		bool hitShield = collision.gameObject.GetComponent<Shield>() != null;
-		bool hitBullet = collision.gameObject.GetComponent<Bullet>() != null;
+		bool hitEntity = collision.transform.HasComponent<Entity>();
+		bool hitShield = collision.transform.HasComponent<Shield>();
+		bool hitBullet = collision.transform.HasComponent<Bullet>();
 
-		if ( ( hitEntity || hitShield || hitBullet ) && m_InExplosion == false )
+		if ( hitEntity || hitShield || hitBullet )
 		{
 			OnExplosion();
 		}
@@ -216,14 +216,14 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 	// OnTriggerEnter
 	protected	override void OnTriggerEnter( Collider other )
 	{
-		Entity entity = other.GetComponent<Entity>();
-		if ( entity == null )
-			return;
-		
-		if ( m_Entites.Contains( entity ) )
-			return;
+		Entity entity = null;
+		if ( other.transform.SearchComponent( ref entity, SearchContext.LOCAL ) )
+		{
+			if ( m_Entites.Contains( entity ) )
+				return;
 
-		m_Entites.Add( entity );
+			m_Entites.Add( entity );
+		}
 	}
 
 
@@ -231,14 +231,14 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 	// OnTriggerEnter
 	private void OnTriggerExit( Collider other )
 	{
-		Entity entity = other.GetComponent<Entity>();
-		if ( entity == null )
-			return;
+		Entity entity = null;
+		if ( other.transform.SearchComponent( ref entity, SearchContext.LOCAL ) )
+		{
+			if ( m_Entites.Contains( entity ) )
+				return;
 
-		if ( m_Entites.Contains( entity ) )
-			return;
-
-		m_Entites.Remove( entity );
+			m_Entites.Remove( entity );
+		}
 	}
 
 }
