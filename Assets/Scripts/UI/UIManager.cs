@@ -149,6 +149,7 @@ public class UIManager : MonoBehaviour, IUI {
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
 	private void Awake()
 	{
 		int sceneIdx = gameObject.scene.buildIndex;
@@ -190,9 +191,8 @@ public class UIManager : MonoBehaviour, IUI {
 
 
 		Initialize();
-//		yield return StartCoroutine(  );
 
-		if ( sceneIdx > 1 )
+		if ( sceneIdx > (int)SceneEnumeration.MAIN_MENU )
 		{
 			SwitchTo( m_InGame.transform );
 		}

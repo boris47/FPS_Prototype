@@ -6,10 +6,11 @@ using UnityEngine;
 
 public	class GameObjectsPoolConstructorData<T> {
 	public GameObject				Model						= null;
-	public uint						Size						= 0;
+	public uint						Size						= 1;
 	public string					ContainerName				= "GameObjectsContainer_";
 //	public Transform				Parent						= null;
-	public System.Action<T>			ActionOnObject				= null;
+	public System.Action<T>			ActionOnObject				= delegate { };
+	public System.Action			ActionOnLoadEnd				= delegate { };
 	public IEnumerator				CoroutineEnumerator			= null;
 	public bool						IsAsyncBuild				= false;
 }
@@ -83,7 +84,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 		// Create the internal pool
 		if ( constructorData.IsAsyncBuild ) // Asyncronously
 		{
-			constructorData.CoroutineEnumerator = CreateItemsCO( m_ModelGO, poolSize );
+			constructorData.CoroutineEnumerator = CreateItemsCO( constructorData );
 			m_bIsBuilding = true;
 			m_Coroutine = CoroutinesManager.Start( constructorData.CoroutineEnumerator );
 		}
@@ -105,20 +106,24 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 
 	//////////////////////////////////////////////////////////////////////////
 	// CreateItemsCO
-	private	IEnumerator CreateItemsCO( GameObject model, uint size )
+	private	IEnumerator CreateItemsCO( GameObjectsPoolConstructorData<T> constructorData )
 	{
 		yield return null;
-		m_ObjectsPool = new List<T>( (int)(size ) );
+
+		int size = (int) ( constructorData.Size );
+
+		m_ObjectsPool = new List<T>( size );
+
+		for ( uint i = 0; i < size; i++ )
 		{
-			for ( uint i = 0; i < size; i++ )
-			{
 //				Debug.Log( "Creating " + model );
-				T comp = Createitem( model );
-				m_ActionOnObject( comp );
-				m_ObjectsPool.Add( comp );
-				yield return null;
-			}
+			T comp = Createitem( m_ModelGO );
+			m_ActionOnObject( comp );
+			m_ObjectsPool.Add( comp );
+			yield return null;
 		}
+		
+		constructorData.ActionOnLoadEnd();
 		m_bIsBuilding = false;
 		m_Coroutine = null;
 	}

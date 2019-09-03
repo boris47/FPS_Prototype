@@ -287,8 +287,7 @@ public partial class GameManager : MonoBehaviour {
 		{
 			CustomSceneManager.LoadSceneData data = new CustomSceneManager.LoadSceneData()
 			{
-				iSceneIdx = SceneEnumeration.NEXT,
-				eLoadMode = UnityEngine.SceneManagement.LoadSceneMode.Single
+				iSceneIdx = SceneEnumeration.NEXT
 			};
 			CustomSceneManager.LoadSceneAsync( data );
 		}

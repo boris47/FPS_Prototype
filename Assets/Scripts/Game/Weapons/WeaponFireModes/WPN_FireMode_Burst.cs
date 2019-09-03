@@ -39,7 +39,7 @@ public class WPN_FireMode_Burst : WPN_FireMode_Base {
 		Database.Section section = null;
 		if ( GlobalManager.Configs.bGetSection( moduleSectionName, ref section ) )
 		{
-			m_BurstSize			= section.AsInt( "BurstSize", m_BurstSize );
+			m_BurstSize			= section.AsUInt( "BurstSize", m_BurstSize );
 			m_ApplyDeviation	= section.AsBool( "ApplyDeviationOnLastShot", m_ApplyDeviation );
 		}
 	}

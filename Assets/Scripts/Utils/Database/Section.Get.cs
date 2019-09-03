@@ -36,8 +36,14 @@ namespace Database {
 		public	T						As<T>( string Key )
 		{
 			cLineValue pLineValue = null;
-			if ( bGetLineValue( Key, ref pLineValue ) && pLineValue.Type == LineValueType.SINGLE )
+			if ( bGetLineValue( Key, ref pLineValue ) )
 			{
+				UnityEngine.Assertions.Assert.IsTrue
+				(
+					pLineValue.Type == LineValueType.SINGLE,
+					"Database::Section::As: Line value for section " + GetName() + " at key " + Key + " is not of single type"
+				);
+
 				return pLineValue.Value.As<T>();
 			}
 			return default( T );
@@ -49,8 +55,14 @@ namespace Database {
 		public	bool					AsBool( string Key, bool Default = false )
 		{
 			cLineValue pLineValue = null;
-			if ( bGetLineValue( Key, ref pLineValue ) && pLineValue.Type == LineValueType.SINGLE )
+			if ( bGetLineValue( Key, ref pLineValue ) )
 			{
+				UnityEngine.Assertions.Assert.IsTrue
+				(
+					pLineValue.Type == LineValueType.SINGLE,
+					"Database::Section::AsBool: Line value for section " + GetName() + " at key " + Key + " is not of single type"
+				);
+
 				return pLineValue.Value.As<bool>();
 			}
 			return Default;
@@ -62,8 +74,14 @@ namespace Database {
 		public	int						AsInt( string Key, int Default = 0 )
 		{
 			cLineValue pLineValue = null;
-			if ( bGetLineValue( Key, ref pLineValue ) && pLineValue.Type == LineValueType.SINGLE )
+			if ( bGetLineValue( Key, ref pLineValue ) )
 			{
+				UnityEngine.Assertions.Assert.IsTrue
+				(
+					pLineValue.Type == LineValueType.SINGLE,
+					"Database::Section::AsInt: Line value for section " + GetName() + " at key " + Key + " is not of single type"
+				);
+
 				return pLineValue.Value.As<int>();
 			}
 			return Default;
@@ -71,9 +89,20 @@ namespace Database {
 
 		//////////////////////////////////////////////////////////////////////////
 		// AsInt ( UInt )
-		public	uint					AsInt( string Key, uint Default = 0u )
+		public	uint					AsUInt( string Key, uint Default = 0u )
 		{
-			return (uint)AsInt( Key, (int)Default );
+			cLineValue pLineValue = null;
+			if ( bGetLineValue( Key, ref pLineValue ) )
+			{
+				UnityEngine.Assertions.Assert.IsTrue
+				(
+					pLineValue.Type == LineValueType.SINGLE,
+					"Database::Section::AsUInt: Line value for section " + GetName() + " at key " + Key + " is not of single type"
+				);
+
+				return pLineValue.Value.As<uint>();
+			}
+			return Default;
 		}
 
 
@@ -81,12 +110,16 @@ namespace Database {
 		// AsFloat
 		public	float					AsFloat( string Key, float Default = 0.0f )
 		{
-			
 			cLineValue pLineValue = null;
-			if ( bGetLineValue( Key, ref pLineValue ) && pLineValue.Type == LineValueType.SINGLE )
+			if ( bGetLineValue( Key, ref pLineValue ) )
 			{
-				float value = pLineValue.Value;
-				return value;
+				UnityEngine.Assertions.Assert.IsTrue
+				(
+					pLineValue.Type == LineValueType.SINGLE,
+					"Database::Section::AsUInt: Line value for section " + GetName() + " at key " + Key + " is not of single type"
+				);
+
+				return pLineValue.Value.ToFloat();
 			}
 			return Default;
 		}
@@ -99,11 +132,11 @@ namespace Database {
 			cLineValue pLineValue = null;
 			if ( bGetLineValue( Key, ref pLineValue ) )
 			{
-	//			UnityEngine.Assertions.Assert.IsTrue
-	//			(
-	//				pLineValue.Type == LineValueType.SINGLE,
-	//				"Database::Section::AsString: Line value for section " + GetName() + " at key " + Key + " is not of single type"
-	//			);
+				UnityEngine.Assertions.Assert.IsTrue
+				(
+					pLineValue.Type == LineValueType.SINGLE,
+					"Database::Section::AsString: Line value for section " + GetName() + " at key " + Key + " is not of single type"
+				);
 
 				return pLineValue.Value.As<string>();
 			}

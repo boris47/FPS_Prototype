@@ -228,7 +228,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 
 		// ASSIGN INTERNALS
 		m_ShotDelay				= m_ModuleSection.AsFloat( "BaseShotDelay", m_ShotDelay );
-		m_MagazineCapacity		= m_ModuleSection.AsInt( "BaseMagazineCapacity", m_MagazineCapacity );
+		m_MagazineCapacity		= m_ModuleSection.AsUInt( "BaseMagazineCapacity", m_MagazineCapacity );
 		m_Damage				= m_ModuleSection.AsFloat( "BaseDamage", m_Damage );
 		m_CanPenetrate			= m_ModuleSection.AsBool( "bCanPenetrate" );
 		m_CamDeviation			= m_ModuleSection.AsFloat( "BaseCamDeviation", m_CamDeviation );
@@ -283,37 +283,27 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 
 			// Create new pool
 			string bulletObjectName = m_ModuleSection.AsString( "Bullet", "InvalidBulletResource" );
-			GameObject bulletGO = Resources.Load<GameObject>( "Prefabs/Bullets/" + bulletObjectName );
-			if ( bulletGO ) 
-			{/*
-				m_PoolBullets = new GameObjectsPool<Bullet>
-				(
-					new GameObjectsPoolConstructorData<Bullet>()
-					{
-						model	= bulletGO,
-						size	= m_MagazineCapacity,
-						containerName	= moduleSectionName + "_BulletsPool_" + wpn.Transform.name,
-						actionOnObject	= ActionOnBullet,
-						parent			= null,
-						bAsyncBuild		= true,
-					}
-				);
-				*/
 
-				GameObjectsPoolConstructorData<Bullet> data = new GameObjectsPoolConstructorData<Bullet>()
-				{
-					Model = bulletGO,
-					Size	= m_MagazineCapacity,
-					ContainerName = moduleSectionName + "_BulletsPool_" + wpn.Transform.name,
-					ActionOnObject = ActionOnBullet
-				};
-				
-				m_PoolBullets = new GameObjectsPool<Bullet>
-				(
-					data
-				);
-				
+			ResourceManager.LoadedData<GameObject> loadedResource = new ResourceManager.LoadedData<GameObject>();
+			bool bIsBulletLoaded = ResourceManager.LoadResourceSync( "Prefabs/Bullets/" + bulletObjectName, loadedResource );
+			if ( bIsBulletLoaded == false )
+			{
+				Debug.Log( "WPN_FireModule::Setup: Cannot load bullet with name " + bulletObjectName + " for weapon " + wpn.Section.GetName() );
+				Debug.Assert(false);
 			}
+
+			const bool bIsAsyncLoaded = true;
+
+			GameObjectsPoolConstructorData<Bullet> data = new GameObjectsPoolConstructorData<Bullet>()
+			{
+				Model			= loadedResource.Asset,
+				Size			= m_MagazineCapacity,
+				ContainerName	= moduleSectionName + "_BulletsPool_" + wpn.Transform.name,
+				ActionOnObject	= ActionOnBullet,
+				IsAsyncBuild	= bIsAsyncLoaded,
+			};
+
+			m_PoolBullets = new GameObjectsPool<Bullet>( data );
 		}
 
 		return true;
@@ -341,7 +331,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 	protected	static	Database.Section GetCurrentConfiguration( Database.Section ModuleSection, List<Database.Section> Modifiers )
 	{
 		// Module Section values
-		uint	MagazineCapacity		= ModuleSection.AsInt( "BaseMagazineCapacity", 0u );
+		uint	MagazineCapacity		= ModuleSection.AsUInt( "BaseMagazineCapacity", 0u );
 		float	Damage					= ModuleSection.AsFloat( "BaseDamage" );
 		float	CamDeviation			= ModuleSection.AsFloat( "BaseCamDeviation" );
 		float	FireDispersion			= ModuleSection.AsFloat( "BaseFireDispersion" );
@@ -364,7 +354,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 
 			FireMode				= mod.AsString( "FireMode", FireMode );
 			Bullet					= mod.AsString( "Bullet", Bullet );
-			CanPenetrate			= mod.AsInt( "bCanPenetrate", 0u ) > 0 ? true : false;
+			CanPenetrate			= mod.AsUInt( "bCanPenetrate", 0u ) > 0 ? true : false;
 		}
 
 		// return the current configuration
@@ -423,7 +413,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 	private	void	ApplyConfiguration( Database.Section Configuration )
 	{
 		// MAGAZINE
-		m_MagazineCapacity					= Configuration.AsInt( "MagazineCapacity", m_MagazineCapacity );
+		m_MagazineCapacity					= Configuration.AsUInt( "MagazineCapacity", m_MagazineCapacity );
 		m_PoolBullets.Resize( m_Magazine = m_MagazineCapacity );
 
 		// DAMAGE

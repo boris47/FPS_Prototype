@@ -19,7 +19,7 @@ public class WPN_FireModule_Shotgun : WPN_FireModule {
 
 	protected	override		bool	InternalSetup( Database.Section moduleSection )
 	{
-		m_BuckshotSize				= moduleSection.AsInt( "BaseBucketSize", m_BuckshotSize );
+		m_BuckshotSize				= moduleSection.AsUInt( "BaseBucketSize", m_BuckshotSize );
 		m_BasePerShotFireDispersion = moduleSection.AsFloat( "BasePerShotFireDispersion", m_BasePerShotFireDispersion );
 		return true;
 	}

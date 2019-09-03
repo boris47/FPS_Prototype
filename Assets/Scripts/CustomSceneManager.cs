@@ -10,20 +10,21 @@ public	enum SceneEnumeration {
 	PREVIOUS	= -255,
 	NONE		= -1,
 	INTRO		= 0,
-//	LOADING		= 1,
-	MAIN_MENU	= 1,
-	OPENWORLD1	= 2,
-	OPENWORLD2	= 3,
-	OPENWORLD3	= 4,
-	ENDING		= 5,
+	LOADING		= INTRO + 1,
+	MAIN_MENU	= LOADING + 1,
+	OPENWORLD1	= MAIN_MENU + 1,
+	OPENWORLD2	= OPENWORLD1 + 1,
+	OPENWORLD3	= OPENWORLD2 + 1,
+	ENDING		= OPENWORLD3 + 1,
 	COUNT
 }
+
 
 public class CustomSceneManager : MonoBehaviour {
 
 	public class LoadSceneData {
 		public	SceneEnumeration	iSceneIdx				= SceneEnumeration.NONE;
-		public	LoadSceneMode		eLoadMode				= LoadSceneMode.Single;
+		public	SceneEnumeration	iPrevSceneIdx			= SceneEnumeration.PREVIOUS;
 		public	bool				bMustLoadSave			= false;
 		public	string				sSaveToLoad				= "";
 		public	System.Action		pOnPreLoadCompleted		= null;
@@ -55,6 +56,8 @@ public class CustomSceneManager : MonoBehaviour {
 	}
 
 
+
+	/////////////////////////////////////////////////////////////////
 	private	static	bool	HasGotValidLoadScenData( LoadSceneData loadSceneData )
 	{
 		if ( loadSceneData == null )
@@ -63,22 +66,28 @@ public class CustomSceneManager : MonoBehaviour {
 		if ( loadSceneData.iSceneIdx == SceneEnumeration.NONE )
 			return false;
 
+		int currentSceneIdx = SceneManager.GetActiveScene().buildIndex;
+
+		// Requesting to go to next scene
 		if ( loadSceneData.iSceneIdx == SceneEnumeration.NEXT )
 		{
-			loadSceneData.iSceneIdx = (SceneEnumeration)SceneManager.GetActiveScene().buildIndex + 1;
+			loadSceneData.iSceneIdx = (SceneEnumeration)( currentSceneIdx + 1 );
+			if ( (int)loadSceneData.iSceneIdx >= SceneManager.sceneCountInBuildSettings )
+				return false;
 		}
 
+		// Requesting to go to previous scene
 		if ( loadSceneData.iSceneIdx == SceneEnumeration.PREVIOUS )
 		{
-			loadSceneData.iSceneIdx = (SceneEnumeration)SceneManager.GetActiveScene().buildIndex - 1;
+			loadSceneData.iSceneIdx = (SceneEnumeration)( currentSceneIdx - 1);
+			if ( loadSceneData.iSceneIdx < 0 )
+				return false;
 		}
 
-		if ( (int)loadSceneData.iSceneIdx == SceneManager.GetActiveScene().buildIndex )
+		if ( (int)loadSceneData.iSceneIdx == currentSceneIdx )
 			return false;
 
-		if ( loadSceneData.iSceneIdx < 0 || (int)loadSceneData.iSceneIdx >= SceneManager.sceneCountInBuildSettings )
-			return false;
-
+		loadSceneData.iPrevSceneIdx = (SceneEnumeration)( currentSceneIdx );
 		return true;
 	}
 
@@ -98,13 +107,15 @@ public class CustomSceneManager : MonoBehaviour {
 		InternalLoadSceneSync( loadSceneData );
 	}
 
+
+
 	/// <summary> Internally load the scene synchronously </summary>
 	private	static void InternalLoadSceneSync( LoadSceneData loadSceneData )
 	{
 		// Set global state as ChangingScene state
 		GlobalManager.bIsChangingScene = true;
 
-		SceneManager.LoadScene( (int)loadSceneData.iSceneIdx, loadSceneData.eLoadMode );
+		SceneManager.LoadScene( (int)loadSceneData.iSceneIdx, LoadSceneMode.Single );
 
 		// Remove global state as ChangingScene state
 		GlobalManager.bIsChangingScene = false;
@@ -140,24 +151,128 @@ public class CustomSceneManager : MonoBehaviour {
 	/////////////////////////////////////////////////////////////////
 
 
-	public class LoadConditionVerified {
-		public	bool	bHasToWait = false;
+	public class LoadCondition {
+
+		public	bool			bHasToWait			= false;
+		public	IEnumerator		pCoroutineToWait	= null;
+
+		public IEnumerator WaitForPendingOperations()
+		{
+			while( bHasToWait )
+				yield return null;
+
+			if ( pCoroutineToWait.IsNotNull() )
+				yield return pCoroutineToWait;
+
+		}
 	}
 
+	public class PreloadSceneData {
+		public AsyncOperation		asyncOperation	= null;
+		public SceneEnumeration		sceneIdx		= SceneEnumeration.NONE;
+	}
+
+	/// <summary> EXPERIMENTAL: Preload a scene and return into the second argument the AsyncOperation that manage that load </summary>
+	public	static	IEnumerator Preload ( SceneEnumeration SceneIdx, PreloadSceneData preloadSceneData )
+	{
+		Debug.Log( "Preloading of scene " + SceneIdx );
+
+		IEnumerator enumerator = m_Instance.PreloadCO( SceneIdx, preloadSceneData );
+		m_Instance.StartCoroutine( enumerator );
+		return enumerator;
+	}
+
+	private	IEnumerator PreloadCO( SceneEnumeration SceneIdx, PreloadSceneData preloadSceneData )
+	{
+		AsyncOperation asyncOperation = SceneManager.LoadSceneAsync( (int)SceneIdx, LoadSceneMode.Additive );
+
+		asyncOperation.allowSceneActivation = false;
+
+		// We want this operation to impact performance less than possible
+		asyncOperation.priority = 0;
+
+		preloadSceneData.asyncOperation = asyncOperation;
+		preloadSceneData.sceneIdx = SceneIdx;
+
+		while ( asyncOperation.isDone == false )
+		{
+			yield return null;
+		}
+	}
+	
 
 	/// <summary> Launch load of a scene asynchronously </summary>
-	public	static void	LoadSceneAsync( LoadSceneData loadSceneData, LoadConditionVerified loadCondition = null )
+	public	static IEnumerator	LoadSceneAsync( LoadSceneData loadSceneData, LoadCondition loadCondition = null )
 	{
 		if ( HasGotValidLoadScenData( loadSceneData ) == false )
-			return;
+			return null;
 
-		m_Instance.StartCoroutine( m_Instance.LoadSceneAsyncCO( loadSceneData, loadCondition ) );
+		IEnumerator enumerator = m_Instance.LoadSceneAsyncCO( loadSceneData, loadCondition );
+		m_Instance.StartCoroutine( enumerator );
+		return enumerator;
+	}
+
+
+	/// <summary> Complete the load of a èrevious preloaded scene </summary>
+	public	static	IEnumerator	CompleteSceneAsyncLoad( PreloadSceneData preloadSceneData )
+	{
+		Debug.Log( "Completing load of " + preloadSceneData.sceneIdx );
+		IEnumerator enumerator = m_Instance.CompleteSceneAsyncLoadCO( preloadSceneData.asyncOperation );
+		m_Instance.StartCoroutine( enumerator );
+		return enumerator;
 	}
 
 
 
-	/// <summary> Internla coroutine that load a scene asynchronously </summary>
-	private	IEnumerator	LoadSceneAsyncCO( LoadSceneData loadSceneData, LoadConditionVerified loadCondition = null )
+	/// <summary> Start the unload of a scene, return the coroutine managing the async operation </summary>
+	public	static	IEnumerator	UnLoadSceneAsync( int SceneIdx )
+	{
+		Scene scene =  SceneManager.GetSceneByBuildIndex( SceneIdx );
+		if ( scene.isLoaded == false )
+			return null;
+
+		Debug.Log( "Unloading Scene " + scene.name );
+		IEnumerator enumerator = m_Instance.UnLoadSceneAsyncCO( scene );
+		m_Instance.StartCoroutine( enumerator );
+		return enumerator;
+	}
+
+
+
+	/////////////////////////////////////////////////////////////////
+	public IEnumerator UnLoadSceneAsyncCO( Scene scene )
+	{
+		yield return null;
+		AsyncOperation operation = SceneManager.UnloadSceneAsync( scene );
+		/*
+		// We want this operation to impact performance less than possible
+		operation.priority = 0;
+
+		yield return operation;
+		while ( operation.isDone == false )
+		{
+			yield return null;
+		}
+		*/
+	}
+
+
+	/// <summary> EXPERIMENTAL: Internal coroutine that complete the load a preloaded scene </summary>
+	private	IEnumerator	CompleteSceneAsyncLoadCO( AsyncOperation asyncOperation )
+	{
+		yield return new WaitForEndOfFrame();
+		asyncOperation.allowSceneActivation = true;
+
+		yield return new WaitForEndOfFrame();
+		SoundManager.Instance.OnSceneLoaded();
+
+		GlobalManager.bIsLoadingScene = false;
+	}
+
+
+
+	/// <summary> Internal coroutine that load a scene asynchronously </summary>
+	private	IEnumerator	LoadSceneAsyncCO( LoadSceneData loadSceneData, LoadCondition loadCondition = null )
 	{
 		yield return new WaitForEndOfFrame();
 
@@ -165,7 +280,11 @@ public class CustomSceneManager : MonoBehaviour {
 		GlobalManager.bIsChangingScene = true;
 		
 		// Start async load of scene
-		AsyncOperation asyncOperation = SceneManager.LoadSceneAsync( (int)loadSceneData.iSceneIdx, loadSceneData.eLoadMode );
+		AsyncOperation asyncOperation = SceneManager.LoadSceneAsync( (int)loadSceneData.iSceneIdx, LoadSceneMode.Single );
+
+		// We want this operation to impact performance less than possible
+		asyncOperation.priority = 0;
+
 		asyncOperation.allowSceneActivation = false;
 
 		// Wait for load completion
@@ -177,7 +296,10 @@ public class CustomSceneManager : MonoBehaviour {
 
 //		print("before isdone");
 
-		yield return new WaitUntil( () => loadCondition != null ? (loadCondition.bHasToWait == false) : true );
+		if ( loadCondition.IsNotNull() )
+		{
+			yield return loadCondition.WaitForPendingOperations();
+		}
 
 		asyncOperation.allowSceneActivation = true;
 
@@ -223,6 +345,7 @@ public class CustomSceneManager : MonoBehaviour {
 	}
 
 
+
 	// 
 	public	static	void	RegisterOnLoad( UnityAction<Scene, LoadSceneMode> activeSceneChanged )
 	{
@@ -230,6 +353,7 @@ public class CustomSceneManager : MonoBehaviour {
 
 		Delegates.Add( activeSceneChanged );
 	}
+
 
 
 	//

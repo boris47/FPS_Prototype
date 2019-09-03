@@ -146,8 +146,7 @@ public class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 		(
 			new CustomSceneManager.LoadSceneData()
 			{
-				iSceneIdx = SceneEnumeration.MAIN_MENU,
-				eLoadMode = UnityEngine.SceneManagement.LoadSceneMode.Single
+				iSceneIdx = SceneEnumeration.MAIN_MENU
 			}
 		);
 //		UnityEngine.SceneManagement.SceneManager.LoadScene(  );

@@ -59,6 +59,8 @@ public partial class Player : Human {
 	{
 		m_EntityType = ENTITY_TYPE.ACTOR;
 
+		print( "player::Awake" );
+
 		if ( m_Instance != null )
 		{
 			Destroy( gameObject );

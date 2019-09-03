@@ -89,7 +89,7 @@ Shader "Custom/RainShader"
  
             fixed4 LightForVertex(float4 vertex)
             {
-                float3 viewPos = mul(UNITY_MATRIX_MV, vertex).xyz;
+				float3 viewPos = UnityObjectToViewPos(vertex).xyz; // (mul(UNITY_MATRIX_MV, vertex).xyz;
                 fixed3 lightColor = UNITY_LIGHTMODEL_AMBIENT.rgb * _AmbientLightMultiplier;
 
 				lightColor = ApplyLight(0, lightColor, viewPos);

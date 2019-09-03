@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 
-	private	const string shaderPath = "VR/SpatialMapping/Wireframe";
+//	private	const string shaderPath = "VR/SpatialMapping/Wireframe";
 	
 //	private		Button	m_NewGameButton			= null;
 	private		Button	m_ResumeButton			= null;
@@ -19,6 +19,8 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 	{
 		get { return m_bIsInitialized; }
 	}
+
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
@@ -55,13 +57,14 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 
 		if ( m_bIsInitialized )
 		{
-			RenderSettings.skybox = new Material( Shader.Find( shaderPath ) );
+		//	RenderSettings.skybox = new Material( Shader.Find( shaderPath ) );
 		}
 		else
 		{
 			Debug.LogError( "UI_MainMenu: Bad initialization!!!" );
 		}
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -72,6 +75,7 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// Finalize
 	bool	 IStateDefiner.Finalize()
@@ -79,11 +83,19 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 		return m_bIsInitialized;
 	}
 
+	private void Awake()
+	{
+		print( "MainMenu::Awake" );
+	}
+
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnEnable
 	private void OnEnable()
 	{
+
+		print( "MainMenu::OnEnable" );
 		if ( CameraControl.Instance != null )
 			Destroy( CameraControl.Instance.Transform.gameObject );
 
@@ -97,10 +109,13 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// Start
 	private IEnumerator Start()
 	{
+		print( "MainMenu::Start" );
+
 		if ( Player.Instance != null )
 			Destroy( Player.Instance.gameObject );
 
@@ -119,7 +134,7 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 		// Cursor
 		GlobalManager.SetCursorVisibility( true );
 
-		// Destroying singleton
+		// Destroying singletons
 		if ( CameraControl.Instance != null )
 			Destroy( CameraControl.Instance.Transform.gameObject );
 
@@ -135,6 +150,7 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// OnNewGame
 	public	void	OnNewGame()
@@ -143,14 +159,15 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 		{
 			PlayerPrefs.DeleteKey( "SaveSceneIdx" );
 
-			CustomSceneManager.LoadSceneData loadedResource = new CustomSceneManager.LoadSceneData()
+			CustomSceneManager.LoadSceneData LoadSceneData = new CustomSceneManager.LoadSceneData()
 			{
 				iSceneIdx			= SceneEnumeration.OPENWORLD1,
 				sSaveToLoad			= "",
 				bMustLoadSave		= false,
 				pOnLoadCompleted	= delegate { UIManager.Instance.GoToMenu( UIManager.InGame ); }
 			};
-			CustomSceneManager.LoadSceneAsync( loadedResource );
+			Loading.SetLoadSceneData( LoadSceneData );
+			Loading.Switch();
 		};
 
 		if ( PlayerPrefs.HasKey( "SaveSceneIdx" ) )
@@ -162,6 +179,7 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 			onNewGame();
 		}
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -177,14 +195,15 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 
 		if ( bHasSavedSceneIndex && bHasSaveFilePath && bSaveFileExists )
 		{
-			CustomSceneManager.LoadSceneData loadedResource = new CustomSceneManager.LoadSceneData()
+			CustomSceneManager.LoadSceneData LoadSceneData = new CustomSceneManager.LoadSceneData()
 			{
 				iSceneIdx			= (SceneEnumeration)saveSceneIdx,
 				sSaveToLoad			= saveFilePath,
 				bMustLoadSave		= true,
 				pOnLoadCompleted	= delegate { UIManager.Instance.GoToMenu( UIManager.InGame ); }
 			};
-			CustomSceneManager.LoadSceneAsync( loadedResource );
+			Loading.SetLoadSceneData( LoadSceneData );
+			Loading.Switch();
 		}
 		else
 		{

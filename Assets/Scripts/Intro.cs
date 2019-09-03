@@ -5,9 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class Intro : MonoBehaviour {
 
-
-	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
-	private static void OnBeforeSceneLoad ()
+	private IEnumerator Start()
 	{
 		UnityEngine.Assertions.Assert.raiseExceptions = true;
 
@@ -17,46 +15,28 @@ public class Intro : MonoBehaviour {
 
 		Application.backgroundLoadingPriority = ThreadPriority.Low;
 
-//		UnityEditor.EditorBuildSettingsScene
-//		UnityEditor.BuildOptions.ForceEnableAssertions
-//		print( "EntryPoint::OnBeforeSceneLoad" );
-	}
+		// Preload MainMenu scene
+		CustomSceneManager.LoadSceneData loadSceneData = new CustomSceneManager.LoadSceneData()
+		{
+			iSceneIdx = SceneEnumeration.MAIN_MENU
+		};
+		CustomSceneManager.PreloadSceneData preloadData = new CustomSceneManager.PreloadSceneData();
 
+		CustomSceneManager.Preload( SceneEnumeration.MAIN_MENU, preloadData );
 
-	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.AfterSceneLoad)]
-	private static void AfterSceneLoad ()
-	{
-//		print( "EntryPoint::AfterSceneLoad" );
-	}
-
-
-	private IEnumerator Start()
-	{
 		yield return null;
 
 		// Add here your intro splash screens
 
+
+
 		yield return null;
-
-		CustomSceneManager.LoadSceneData data = new CustomSceneManager.LoadSceneData()
-		{
-			iSceneIdx = SceneEnumeration.MAIN_MENU,
-			eLoadMode = LoadSceneMode.Single
-		};
-
-		CustomSceneManager.LoadConditionVerified loadConditon = new CustomSceneManager.LoadConditionVerified()
-		{
-			bHasToWait = true
-		};
-		CustomSceneManager.LoadSceneAsync( data, loadConditon );
 
 		yield return new WaitUntil( () => Input.anyKeyDown == true );
 
+		yield return CustomSceneManager.CompleteSceneAsyncLoad( preloadData );
 
-		loadConditon.bHasToWait = false;
-		
-		// Unload this scene to save memory
-//		SceneManager.UnloadSceneAsync( gameObject.scene );
+		CustomSceneManager.UnLoadSceneAsync( (int)SceneEnumeration.INTRO );
 	}
 
 

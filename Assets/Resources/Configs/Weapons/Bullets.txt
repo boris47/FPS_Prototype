@@ -36,6 +36,13 @@ bCanPenetrate					= false;
 fVelocity						= 45.0;
 fRange							= 60.0f;
 
+
+[BulletBlaster] : BulletBallistic
+fDamageMin						= 3.0;				Impact Damage Min
+fDamageMax						= 6.0;				Impact Damage Max
+fVelocity						= 70.0;
+fRange							= 40.0f;
+
 ;
 
 [BulletRocket]

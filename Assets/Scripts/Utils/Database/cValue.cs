@@ -30,8 +30,18 @@ namespace Database {
 
 		public T As<T>()
 		{
+			T result = default( T );
+			try
+			{
+				result = (T) System.Convert.ChangeType( m_Value, typeof(T) );
+			}
+			catch( System.Exception e )
+			{
+				UnityEngine.Debug.LogException( e );
+			}
+
 			// Alternative: 
-			T result = (T) System.Convert.ChangeType( m_Value, typeof(T) );
+		//	T result = (T) System.Convert.ChangeType( m_Value, typeof(T) );
 			/*
 			T result;
 			try
