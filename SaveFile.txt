@@ -1,7 +1,7 @@
 {
     "m_Data": [
         {
-            "InstanceID": -7872,
+            "InstanceID": -1795118,
             "Name": "Camera_InGame",
             "Position": {
                 "x": 0.0,
@@ -17,11 +17,11 @@
             "Internals": [
                 {
                     "Key": "CurrentDirection",
-                    "Value": "-4.76, -55.57996, 0"
+                    "Value": "1.68, -4.619996, 0"
                 },
                 {
                     "Key": "CanParseInput",
-                    "Value": "True"
+                    "Value": "False"
                 },
                 {
                     "Key": "HeadbobActive",
@@ -34,7 +34,7 @@
             ]
         },
         {
-            "InstanceID": -3268,
+            "InstanceID": -1790472,
             "Name": "Tutorial_ReachLocation",
             "Position": {
                 "x": 0.0,
@@ -50,7 +50,7 @@
             "Internals": []
         },
         {
-            "InstanceID": -3272,
+            "InstanceID": -1790476,
             "Name": "Tutorial_Interaction",
             "Position": {
                 "x": 0.0,
@@ -66,7 +66,7 @@
             "Internals": []
         },
         {
-            "InstanceID": -3278,
+            "InstanceID": -1790482,
             "Name": "KellEmAll",
             "Position": {
                 "x": 0.0,
@@ -82,12 +82,12 @@
             "Internals": []
         },
         {
-            "InstanceID": -4740,
+            "InstanceID": -1791942,
             "Name": "Player",
             "Position": {
-                "x": 19.172889709472658,
+                "x": 19.18000030517578,
                 "y": 5.525000095367432,
-                "z": -36.19941329956055
+                "z": -36.099998474121097
             },
             "Rotation": {
                 "x": 0.0,
@@ -98,7 +98,7 @@
             "Internals": [
                 {
                     "Key": "Health",
-                    "Value": "9999.952"
+                    "Value": "10000"
                 },
                 {
                     "Key": "Stamina",
@@ -115,7 +115,7 @@
             ]
         },
         {
-            "InstanceID": -9400,
+            "InstanceID": -1796646,
             "Name": "WeaponManager",
             "Position": {
                 "x": 0.0,
@@ -164,7 +164,7 @@
             ]
         },
         {
-            "InstanceID": 15594,
+            "InstanceID": 258190,
             "Name": "DroneStandard",
             "Position": {
                 "x": -8.41522216796875,
@@ -209,7 +209,7 @@
             ]
         },
         {
-            "InstanceID": -7990,
+            "InstanceID": -1795236,
             "Name": "Blackjack",
             "Position": {
                 "x": 0.0,
@@ -246,7 +246,7 @@
             ]
         },
         {
-            "InstanceID": -7620,
+            "InstanceID": -1794866,
             "Name": "CommandPanel",
             "Position": {
                 "x": 0.0,
@@ -267,23 +267,7 @@
             ]
         },
         {
-            "InstanceID": -7472,
-            "Name": "ToxicAreaBox",
-            "Position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "Rotation": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0,
-                "w": 1.0
-            },
-            "Internals": []
-        },
-        {
-            "InstanceID": 15664,
+            "InstanceID": 258260,
             "Name": "DroneStandard (24)",
             "Position": {
                 "x": -15.875221252441407,
@@ -328,7 +312,7 @@
             ]
         },
         {
-            "InstanceID": -4814,
+            "InstanceID": -1792016,
             "Name": "DroneStandard (22)",
             "Position": {
                 "x": -4.420000076293945,
@@ -373,7 +357,7 @@
             ]
         },
         {
-            "InstanceID": 15494,
+            "InstanceID": 258090,
             "Name": "DroneStandard (21)",
             "Position": {
                 "x": -12.155221939086914,
@@ -418,7 +402,7 @@
             ]
         },
         {
-            "InstanceID": -3456,
+            "InstanceID": -1790660,
             "Name": "TurretGatling",
             "Position": {
                 "x": 29.020000457763673,
@@ -459,7 +443,7 @@
             ]
         },
         {
-            "InstanceID": 15374,
+            "InstanceID": 257966,
             "Name": "DroneStandard (23)",
             "Position": {
                 "x": -18.625221252441408,
@@ -504,7 +488,7 @@
             ]
         },
         {
-            "InstanceID": 15234,
+            "InstanceID": 257824,
             "Name": "CutsceneTrigger (1)",
             "Position": {
                 "x": 0.0,
@@ -520,12 +504,12 @@
             "Internals": [
                 {
                     "Key": "HasTriggered",
-                    "Value": "False"
+                    "Value": "True"
                 }
             ]
         },
         {
-            "InstanceID": 15582,
+            "InstanceID": 258178,
             "Name": "CutsceneTrigger",
             "Position": {
                 "x": 0.0,
@@ -541,7 +525,7 @@
             "Internals": [
                 {
                     "Key": "HasTriggered",
-                    "Value": "False"
+                    "Value": "True"
                 }
             ]
         }

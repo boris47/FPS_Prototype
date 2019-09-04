@@ -15,12 +15,15 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 
 	private		bool			m_bIsInitialized		= false;
 
-
-
 	bool IStateDefiner.IsInitialized
 	{
 		get { return m_bIsInitialized; }
-	} 
+	}
+
+	string IStateDefiner.StateName
+	{
+		get { return name; }
+	}
 
 	Dictionary<WeaponSlots, Database.Section> m_CurrentAssignedModuleSections = new Dictionary<WeaponSlots, Database.Section>()
 	{
@@ -36,12 +39,16 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 		if ( m_bIsInitialized == true )
 			yield break;
 
+		CoroutinesManager.AddCoroutineToPendingCount( 1 );
+
 		Transform child = transform.Find("CustomizationPanel");
 		if ( m_bIsInitialized = ( child != null ) )
 		{
 			m_bIsInitialized &= child.SearchComponentInChild( "ModulePrimaryDropdown", ref m_PrimaryDropDown );
 			m_bIsInitialized &= child.SearchComponentInChild( "ModuleSecondaryDropdown", ref m_SecondaryDropDown );
 			m_bIsInitialized &= child.SearchComponentInChild( "ModuleTertiaryDropdown", ref m_TertiaryDropDown );
+
+			yield return null;
 
 			// APPLY BUTTON
 			if ( m_bIsInitialized &= transform.SearchComponentInChild( "ApplyButton", ref m_ApplyButton ) )
@@ -56,6 +63,8 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 				);
 			}
 
+			yield return null;
+
 			// SWITCH TO INVENTORY
 			if ( m_bIsInitialized &= transform.SearchComponentInChild( "SwitchToInventory", ref m_SwitchToInventory ) )
 			{
@@ -65,6 +74,8 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 				);
 			}
 
+			yield return null;
+
 			// RETURN TO GAME
 			if ( m_bIsInitialized &= transform.SearchComponentInChild( "ReturnToGame", ref m_ReturnToGame ) )
 			{
@@ -73,8 +84,11 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 					OnReturnToGame
 				);
 			}
+
+			yield return null;
 		}
 
+		CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 	}
 
 

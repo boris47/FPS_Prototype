@@ -14,7 +14,12 @@ public class UI_Confirmation : MonoBehaviour, IStateDefiner {
 	bool IStateDefiner.IsInitialized
 	{
 		get { return m_bIsInitialized; }
-	} 
+	}
+
+	string IStateDefiner.StateName
+	{
+		get { return name; }
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -23,6 +28,8 @@ public class UI_Confirmation : MonoBehaviour, IStateDefiner {
 	{
 		if ( m_bIsInitialized == true )
 			yield break;
+
+		CoroutinesManager.AddCoroutineToPendingCount( 1 );
 
 		m_bIsInitialized = true;
 		{
@@ -42,6 +49,8 @@ public class UI_Confirmation : MonoBehaviour, IStateDefiner {
 				m_bIsInitialized &= panel.SearchComponentInChild( 0, ref m_LabelText );
 			}
 
+			yield return null;
+
 			// Confirm button
 			Button onConfirmButton = null;
 			if ( m_bIsInitialized && ( m_bIsInitialized &= panel.SearchComponentInChild( 1, ref onConfirmButton ) ) )
@@ -54,6 +63,8 @@ public class UI_Confirmation : MonoBehaviour, IStateDefiner {
 					}
 				);
 			}
+
+			yield return null;
 
 			// Cancel button
 			Button onCancelButton = null;
@@ -70,9 +81,11 @@ public class UI_Confirmation : MonoBehaviour, IStateDefiner {
 
 			gameObject.SetActive( false );
 
+			yield return null;
+
 			if ( m_bIsInitialized )
 			{
-
+				CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 			}
 			else
 			{

@@ -30,3 +30,38 @@ GAME STARTUP
 
 	SurfaceManager									Start
 	Foots						Awake	
+
+
+
+The engine has some many callback that the calling order is very very very important:
+
+
+///////////////////////////
+SYNC Load
+
+1) The very first function called after a scene is loaded is this, ONCE !!!
+[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
+
+2) Awake Method
+
+3) OnEnable Method
+
+3.1) SceneManager.SceneLoadded delegates are called
+
+4) After OnEnable the AfterSceneLoad marked methods are called, ONCE !!!
+[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.AfterSceneLoad)]
+
+5) Start Method
+
+
+
+///////////////////////////
+ASYNC Load ( User requested )
+
+1) Awake Method
+
+1) OnEnable Method
+
+2) SceneManager.SceneLoadded delegates are called
+
+3) Start Method

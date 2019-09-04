@@ -5,37 +5,21 @@ using UnityEngine.SceneManagement;
 
 public class Loading : MonoBehaviour {
 
-	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
-	private static void OnBeforeSceneLoad ()
-	{
-//		GlobalManager.bIsLoadingScene = true;
-
-//		UnityEditor.EditorBuildSettingsScene
-//		UnityEditor.BuildOptions.ForceEnableAssertions
-		print( "Loading::OnBeforeSceneLoad" );
-	}
+	private	static	CustomSceneManager.LoadSceneData m_DataForNextScene = null;
 
 
-
-	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.AfterSceneLoad)]
-	private static void AfterSceneLoad ()
-	{
-		print( "Loading::AfterSceneLoad" );
-	}
-	
-	public	static	CustomSceneManager.LoadSceneData m_DataForNextScene = new CustomSceneManager.LoadSceneData();
-
-
-
+	/// <summary>  </summary>
 	public static void SetLoadSceneData( CustomSceneManager.LoadSceneData loadSceneData )
 	{
 		if ( loadSceneData.IsNotNull() )
 		{
 			m_DataForNextScene = loadSceneData;
+			m_DataForNextScene.fProgress = 0f;
+			m_DataForNextScene.bIsCompleted = false;
 		}
 		else
 		{
-			m_DataForNextScene = default( CustomSceneManager.LoadSceneData );
+			m_DataForNextScene = null;
 		}
 	}
 
@@ -44,17 +28,19 @@ public class Loading : MonoBehaviour {
 	/// <summary> Start a coroutine that First load Loading Scene, than load asyncronously the required scene  </summary>
 	public static IEnumerator Switch()
 	{
-		IEnumerator enumerator = SwitchCO();
-		CoroutinesManager.Start( enumerator );
+		IEnumerator enumerator = LoadSceneAsync();
+		CoroutinesManager.Start( enumerator, "Loading::Swicth: Switching" );
 		return enumerator;
 	}
 
 
 
-	private	static	IEnumerator SwitchCO()
+	private	static	IEnumerator LoadSceneAsync()
 	{
-		int currentActiveScene = SceneManager.GetActiveScene().buildIndex;
-		
+		yield return null;
+
+		GlobalManager.Instance.InputMgr.DisableCategory( InputCategory.ALL );
+
 		// Load Loading Scene syncronously
 		{
 			CustomSceneManager.LoadSceneData loadSceneData = new CustomSceneManager.LoadSceneData()
@@ -64,12 +50,21 @@ public class Loading : MonoBehaviour {
 			CustomSceneManager.LoadSceneSync( loadSceneData );
 		}
 
-		// TODO: show an ui element, pheraps an image, that can prevent the player to see what is happening
+		// Show Loading screen
+		UIManager.Loading.Show();
 
 		// Load Desired Scene 
 		{
-			yield return CustomSceneManager.LoadSceneAsync( m_DataForNextScene );
+			CustomSceneManager.LoadSceneAsync( m_DataForNextScene );
+			while( m_DataForNextScene.bIsCompleted == false )
+			{
+				UIManager.Loading.SetProgress( m_DataForNextScene.fProgress );
+				yield return null;
+			}
 		}
+
+		UIManager.Loading.Hide();
+		GlobalManager.Instance.InputMgr.EnableCategory( InputCategory.ALL );
 	}
 
 
@@ -78,13 +73,17 @@ public class Loading : MonoBehaviour {
 	[SerializeField]
 	private	SceneEnumeration m_SceneToLoad = SceneEnumeration.NONE;
 
-	private void Start()
+	private IEnumerator Start()
 	{
-		if ( m_SceneToLoad != SceneEnumeration.NONE )
+		yield return null;
+		if ( m_SceneToLoad != SceneEnumeration.NONE && m_DataForNextScene == null )
 		{
-			m_DataForNextScene = new CustomSceneManager.LoadSceneData();
-			m_DataForNextScene.iSceneIdx = m_SceneToLoad;
-			CustomSceneManager.LoadSceneAsync( m_DataForNextScene );
+			DontDestroyOnLoad(gameObject);
+				m_DataForNextScene = new CustomSceneManager.LoadSceneData();
+				m_DataForNextScene.iSceneIdx = m_SceneToLoad;
+				yield return LoadSceneAsync();
+	//	yield return	CustomSceneManager.LoadSceneAsync( m_DataForNextScene );
+			Destroy( gameObject );
 		}
 	}
 }

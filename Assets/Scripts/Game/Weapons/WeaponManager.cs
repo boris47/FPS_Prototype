@@ -88,8 +88,11 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 	// OnDisable
 	private				void		OnDisable()
 	{
-		GameManager.StreamEvents.OnSave -= OnSave;
-		GameManager.StreamEvents.OnLoad -= OnLoad;
+		if ( GameManager.StreamEvents.IsNotNull() )
+		{
+			GameManager.StreamEvents.OnSave -= OnSave;
+			GameManager.StreamEvents.OnLoad -= OnLoad;
+		}
 	}
 
 
@@ -206,7 +209,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 	// DisableAllWeapons
 	private				void		DisableAllWeapons()
 	{
-		WeaponsList.ForEach( w => { w.enabled = false; w.transform.gameObject.SetActive( false ); } );
+		WeaponsList.ForEach( w => { w.enabled = false; w.gameObject.SetActive( false ); } );
 	}
 	
 
@@ -247,7 +250,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 
 
 			m_IsChangingZoom = true;
-			return StartCoroutine( Internal_ZoomInCO() );
+			return CoroutinesManager.Start( Internal_ZoomInCO(), "WeaponManger::ZoomIn: co" );
 		}
 		return null;
 	}
@@ -260,7 +263,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 		if ( m_ZoomedIn == true && m_IsChangingZoom == false )
 		{
 			m_IsChangingZoom = true;
-			return StartCoroutine( Internal_ZoomOutCO() );
+			return CoroutinesManager.Start( Internal_ZoomOutCO(), "WeaponManager::ZoomOut: co" );
 		}
 		return null;
 	}
@@ -276,7 +279,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 		if ( GetWeaponByIndex( CurrentWeaponIndex ).CanChangeWeapon() == false )
 			return;
 
-		StartCoroutine( ChangeWeaponCO( wpnIdx ) );
+		CoroutinesManager.Start( ChangeWeaponCO( wpnIdx ), "WeaponManager::ChangeWeaponRequest: Switching to weapon " + wpnIdx );
 	}
 	
 
@@ -307,7 +310,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 		if ( index > -1 && index < WeaponsList.Count )
 		{
 			// Start weapon change
-			StartCoroutine( ChangeWeaponCO( index ) );
+			CoroutinesManager.Start( ChangeWeaponCO( index ), "WeaponManager::ChangeWeapon: Changing weapon" );
 			return;
 		}
 
@@ -323,7 +326,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 			return;
 
 		// Start weapon change
-		StartCoroutine( ChangeWeaponCO( newWeaponIdx ) );
+		CoroutinesManager.Start( ChangeWeaponCO( newWeaponIdx ), "WeaponManager::ChangeWeapon: Changing weapon 2" );
 	}
 
 

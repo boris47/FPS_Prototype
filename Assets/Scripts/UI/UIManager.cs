@@ -11,6 +11,8 @@ public interface IStateDefiner {
 	/// <summary> Return the current initialized state </summary>
 	bool IsInitialized		{ get; }
 
+	string StateName		{ get; }
+
 	/// <summary> Initialize the component </summary>
 	IEnumerator Initialize	();
 
@@ -24,6 +26,8 @@ public interface IStateDefiner<T1, T2> {
 
 	/// <summary> Return the current initialized state </summary>
 	bool IsInitialized		{ get; }
+
+	string StateName		{ get; }
 
 	/// <summary> Initialize the component </summary>
 	/// <param name="Initializer"> The object initializer </param>
@@ -69,8 +73,6 @@ public interface IUI {
 	void					GoBack						();
 
 
-	void					SetPauseMenuState			( bool IsVisible );
-
 	void					DisableInteraction			( Transform menu );
 	void					EnableInteraction			( Transform menu );
 }
@@ -111,6 +113,7 @@ public class UIManager : MonoBehaviour, IUI {
 	private	static	UI_Graphics				m_Graphics						= null;
 	private	static	UI_Audio				m_Audio							= null;
 	private	static	UI_Confirmation			m_Confirmation					= null;
+	private	static	UI_Loading				m_Loading						= null;
 	private	static	UI_Indicators			m_Indicators					= null;
 	private	static	UI_Minimap				m_UI_Minimap					= null;
 	private	static	UI_ComInterface			m_UI_ComInterface				= null;
@@ -123,10 +126,12 @@ public class UIManager : MonoBehaviour, IUI {
 	public	static	UI_WeaponCustomization	WeaponCustomization			{ get { return m_WeaponCustomization; } }
 	public	static	UI_Inventory			Inventory					{ get { return m_Inventory; } }
 	public	static	UI_Settings				Settings					{ get { return m_Settings; } }
+	public	static	UI_PauseMenu			PauseMenu					{ get { return m_PauseMenu; } }
 	public	static	UI_Bindings				Bindings					{ get { return m_Bindings; } }
 	public	static	UI_Graphics				Graphics					{ get { return m_Graphics; } }
 	public	static	UI_Audio				Audio						{ get { return m_Audio; } }
 	public	static	UI_Confirmation			Confirmation				{ get { return m_Confirmation; } }
+	public	static	UI_Loading				Loading						{ get { return m_Loading; } }
 	public	static	UI_Indicators			Indicators					{ get { return m_Indicators; } }
 	public	static	UI_Minimap				Minimap						{ get { return m_UI_Minimap; } }
 	public	static	UI_ComInterface			ComInterface				{ get { return m_UI_ComInterface; } }
@@ -140,7 +145,7 @@ public class UIManager : MonoBehaviour, IUI {
 	private			Transform				m_PrevActiveTransform			= null;
 
 	[SerializeField]
-	private			Stack<Transform>		m_TransformStack					= new Stack<Transform>();
+	private			Stack<Transform>		m_TransformStack				= new Stack<Transform>();
 
 	private	bool							m_bIsInitialized				= false;
 	public	bool		IsInitialized
@@ -149,10 +154,12 @@ public class UIManager : MonoBehaviour, IUI {
 	}
 
 
+
+
 	//////////////////////////////////////////////////////////////////////////
 	private void Awake()
 	{
-		int sceneIdx = gameObject.scene.buildIndex;
+		print("UIManager::Awake");
 		
 		// Singleton
 		if ( m_Instance != null )
@@ -167,7 +174,7 @@ public class UIManager : MonoBehaviour, IUI {
 
 		m_bIsInitialized = true;
 
-		// Get Menu
+		// Get Menus
 		m_bIsInitialized &= transform.SearchComponentInChild( "UI_MainMenu",				ref m_MainMenu );
 		m_bIsInitialized &= transform.SearchComponentInChild( "UI_InGame",					ref m_InGame );
 		m_bIsInitialized &= transform.SearchComponentInChild( "UI_WeaponCustomization",		ref m_WeaponCustomization );
@@ -178,6 +185,7 @@ public class UIManager : MonoBehaviour, IUI {
 		m_bIsInitialized &= transform.SearchComponentInChild( "UI_Graphics",				ref m_Graphics );
 		m_bIsInitialized &= transform.SearchComponentInChild( "UI_Audio",					ref m_Audio );
 		m_bIsInitialized &= transform.SearchComponentInChild( "UI_Confirmation",			ref m_Confirmation );
+		m_bIsInitialized &= transform.SearchComponentInChild( "UI_Loading",					ref m_Loading );
 
 		if ( m_bIsInitialized )
 		{
@@ -189,10 +197,50 @@ public class UIManager : MonoBehaviour, IUI {
 			m_bIsInitialized &= m_InGame.transform.SearchComponent( ref m_UI_ComInterface, SearchContext.CHILDREN );
 		}
 
+		// Effect Frame
+		m_bIsInitialized &= transform.SearchComponentInChild( "EffectFrame", ref m_EffectFrame );
 
-		Initialize();
+		// Ray cast interceptor
+		m_RayCastInterceptor			= transform.Find( "RayCastInterceptor" );
+		m_bIsInitialized &= m_RayCastInterceptor != null;
 
-		if ( sceneIdx > (int)SceneEnumeration.MAIN_MENU )
+
+		m_RayCastInterceptor.gameObject.SetActive( false );
+		m_CurrentActiveTrasform = m_InGame.gameObject.activeSelf ? m_InGame.transform : m_MainMenu.transform;
+
+		if ( m_bIsInitialized == false )
+		{
+			Debug.LogError( "UI: Bad initialization!!!" );
+			return;
+		}
+
+		CoroutinesManager.Start( Initialize(), "UIMananger::Initialize() Initializing substates" );
+	}
+
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Initialize
+	private	IEnumerator Initialize()
+	{
+		yield return null;
+
+		// Other Menus initialization
+		foreach( IStateDefiner state in transform.GetComponentsInChildren<IStateDefiner>( includeInactive: true ) )
+		{
+			yield return CoroutinesManager.Start( state.Initialize(), "UIMananger::Initialize() Initializing substate " + state.StateName );
+		}
+
+		yield return null;
+		yield return null;
+
+		int sceneIdx = gameObject.scene.buildIndex;
+
+		if ( sceneIdx == (int)SceneEnumeration.LOADING )
+		{
+			SwitchTo( m_Loading.transform );
+		}
+		else if ( sceneIdx > (int)SceneEnumeration.MAIN_MENU )
 		{
 			SwitchTo( m_InGame.transform );
 		}
@@ -203,39 +251,14 @@ public class UIManager : MonoBehaviour, IUI {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
-	// Initialize
-	private	void Initialize()
-	{
-		// Other Menus initialization
-		foreach( IStateDefiner state in transform.GetComponentsInChildren<IStateDefiner>( includeInactive: true ) )
-		{
-			CoroutinesManager.Start( state.Initialize() );
-		}
-		
-		// Effect Frame
-		m_bIsInitialized &= transform.SearchComponentInChild( "EffectFrame", ref m_EffectFrame );
-
-		// Ray cast interceptor
-		m_RayCastInterceptor			= transform.Find( "RayCastInterceptor" );
-		m_bIsInitialized &= m_RayCastInterceptor != null;
-
-		if ( m_bIsInitialized )
-		{
-			m_RayCastInterceptor.gameObject.SetActive( false );
-			m_CurrentActiveTrasform = m_InGame.gameObject.activeSelf ? m_InGame.transform : m_MainMenu.transform;
-		}
-		else
-		{
-			Debug.LogError( "UI: Bad initialization!!!" );
-		}
-	}
-
-
+	// IsCurrentActive
 	public	bool		IsCurrentActive( MonoBehaviour menu )
 	{
 		return m_CurrentActiveTrasform == menu.transform;
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -246,8 +269,6 @@ public class UIManager : MonoBehaviour, IUI {
 
 		// SAve the current cursor position on the screen
 		GetCursorPos( out lastCursorPosition );
-
-//		string previousName = m_CurrentActiveTrasform.name;
 
 		// Disable current active menu gameobject
 		m_CurrentActiveTrasform.gameObject.SetActive( false );
@@ -266,6 +287,7 @@ public class UIManager : MonoBehaviour, IUI {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// GoToMenu
 	public	void	GoToMenu( Transform MenuToShow )
@@ -277,6 +299,7 @@ public class UIManager : MonoBehaviour, IUI {
 
 		SwitchTo( MenuToShow );
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -292,6 +315,7 @@ public class UIManager : MonoBehaviour, IUI {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// GoToSubMenu
 	public	void	GoToSubMenu( Transform MenuToShow )
@@ -303,6 +327,7 @@ public class UIManager : MonoBehaviour, IUI {
 
 		SwitchTo( MenuToShow );
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -317,25 +342,6 @@ public class UIManager : MonoBehaviour, IUI {
 	}
 
 
-	//////////////////////////////////////////////////////////////////////////
-	// ShowPauseMenu ( Interface )
-	public void	SetPauseMenuState	( bool IsVisible )
-	{
-		// Pausing
-		if ( IsVisible == true )
-		{
-			m_PrevActiveTransform = m_CurrentActiveTrasform;
-			m_CurrentActiveTrasform.gameObject.SetActive( false );
-			m_PauseMenu.gameObject.SetActive( true );
-			m_CurrentActiveTrasform = m_PauseMenu.transform;
-		}
-		else
-		{
-			m_CurrentActiveTrasform = m_PrevActiveTransform;
-			m_CurrentActiveTrasform.gameObject.SetActive( true );
-			m_PauseMenu.gameObject.SetActive( false );
-		}
-	}
 
 	//////////////////////////////////////////////////////////////////////////
 	// DisableInteraction
@@ -346,6 +352,7 @@ public class UIManager : MonoBehaviour, IUI {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// EnableInteraction
 	public	void	EnableInteraction( Transform menu )
@@ -353,6 +360,7 @@ public class UIManager : MonoBehaviour, IUI {
 		Selectable[] selectables = menu.GetComponentsInChildren<Selectable>( includeInactive: true );
 		System.Array.ForEach( selectables, ( s ) => s.interactable = true );
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////

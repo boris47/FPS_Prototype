@@ -62,7 +62,7 @@ public class TurretHard : Turret {
 		if ( m_FiredBullets >= m_Magazine )
 		{
 			m_IsRecharging = true;
-			StartCoroutine( ChargingCO() );
+			CoroutinesManager.Start( ChargingCO(), "TurretHard::FireLongRange: Start of charging" );
 		}
 	}
 	

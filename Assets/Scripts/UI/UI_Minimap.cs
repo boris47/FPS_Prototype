@@ -33,6 +33,11 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 		get { return m_bIsInitialized; }
 	}
 
+	string IStateDefiner.StateName
+	{
+		get { return name; }
+	}
+
 	private			bool			m_bInternalIsInitialized	= false;
 
 
@@ -42,6 +47,10 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 	{
 		if ( m_bIsInitialized == true )
 			yield break;
+
+		yield return null;
+
+		CoroutinesManager.AddCoroutineToPendingCount( 1 );
 
 		// Trick where panel is set very on the bottom of ui and allowed to do onFrame stuf in coroutine, then gameobject is deactivated
 		Vector3 previousCanvasPosition = transform.position;
@@ -83,6 +92,7 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 				m_TopViewCamera.farClipPlane		= m_CameraContainer.transform.position.y * 2f;
 				m_TopViewCamera.targetTexture		= m_RawImage.texture as RenderTexture;
 
+				yield return null;
 
 				m_MiniMapRectTransform = m_RawImage.transform as RectTransform;
 
@@ -98,7 +108,7 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 
 			if ( m_bIsInitialized )
 			{	
-				
+				CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 			}
 			else
 			{

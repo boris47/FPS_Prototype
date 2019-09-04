@@ -25,19 +25,11 @@ public partial class GameManager : MonoBehaviour {
 	private bool EDITOR_InGame = false;
 	
 
-	//////////////////////////////////////////////////////////////////////////
-	private	void OnLevelLoaded(  UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode loadMode  )
-	{
-		if ( scene.buildIndex == 0 )
-		{
-			Debug.Log( "GameManager::OnLevelLoaded: : On Level " + scene.buildIndex + " loaded" );
-			Destroy(gameObject);
-		}
-	}
 
 	//////////////////////////////////////////////////////////////////////////
 	private			void		Awake ()
 	{
+		print("GameManager::Awake");
 		// SINGLETON
 		if ( m_Instance != null )
 		{
@@ -54,8 +46,9 @@ public partial class GameManager : MonoBehaviour {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
-	private	void	RestoreDelegates()
+	private	void	ReseteDelegates()
 	{
 		// StreamEvents
 		m_OnSave			= delegate ( StreamData streamData ) { return null; };
@@ -74,17 +67,17 @@ public partial class GameManager : MonoBehaviour {
 		m_OnLateFrame		= delegate { };
 	}
 
+
+
 	//////////////////////////////////////////////////////////////////////////
 	private			void		OnEnable()
 	{
 		if ( m_Instance != this )
 			return;
 
-		CustomSceneManager.RegisterOnLoad( OnLevelLoaded );
-
 		m_InGame = true;
 
-		RestoreDelegates();
+		ReseteDelegates();
 
 		GlobalManager.Instance.InputMgr.BindCall
 		(
@@ -129,6 +122,7 @@ public partial class GameManager : MonoBehaviour {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	private			void		OnDisable()
 	{
@@ -136,19 +130,16 @@ public partial class GameManager : MonoBehaviour {
 			return;
 
 		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.WPN_CUSTOMIZATION,	"WeaponCustomization"	);
-
 		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.INVENTORY,			"Inventory"				);
 
-
-		CustomSceneManager.UnregisterOnLoad( OnLevelLoaded );
-
-		RestoreDelegates();
+		ReseteDelegates();
 
 		m_InGame = false;
 
 //		Debug.Log( "GameManager::OnDisable: m_InGame = false" );
 	}
 	
+
 
 	//////////////////////////////////////////////////////////////////////////
 	public	void		QuitRequest()
@@ -159,6 +150,7 @@ public partial class GameManager : MonoBehaviour {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	public	void	RequireFrameSkip()
 	{
@@ -166,11 +158,15 @@ public partial class GameManager : MonoBehaviour {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	private			void		FixedUpdate()
 	{
 		m_OnPhysicFrame( Time.fixedDeltaTime );
 	}
+
+
+
 	int counter=0;
 //	private const float	m_InputUpdateDelay = 0.020f;
 //	private	float	m_CurrentInputDelay = 0.0f;
@@ -280,7 +276,7 @@ public partial class GameManager : MonoBehaviour {
 		// Pause Event
 		if ( Input.GetKeyDown( KeyCode.Escape ) && m_IsPaused == false )
 		{
-			m_PauseEvents.SetPauseState( !m_IsPaused );
+			m_PauseEvents.SetPauseState( true );
 		}
 
 		if ( Input.GetKeyDown( KeyCode.PageDown ) )
@@ -304,6 +300,7 @@ public partial class GameManager : MonoBehaviour {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	public	void	ResumeFromPause()
 	{
@@ -311,11 +308,13 @@ public partial class GameManager : MonoBehaviour {
 	}
 
 	
+
 	//////////////////////////////////////////////////////////////////////////
 	private void LateUpdate()
 	{
 		m_OnLateFrame( Time.deltaTime );
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -327,6 +326,32 @@ public partial class GameManager : MonoBehaviour {
 #else
 		Application.Quit();
 #endif
+	}
+
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void OnDestroy()
+	{
+		if ( (Object)m_Instance != this )
+			return;
+
+		ReseteDelegates();
+
+		m_Instance		= null;
+		m_StreamEvents	= null;
+		m_PauseEvents	= null;
+		m_UpdateEvents	= null;
+
+		EDITOR_InGame = false;
+
+		m_InGame = false;
+		m_QuitRequest = false;
+		m_SkipOneFrame = false;
+
+		m_ThinkTimer = 0f;
+
+		m_IsPaused = false;
 	}
 
 }

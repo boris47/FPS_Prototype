@@ -50,6 +50,11 @@ namespace QuestSystem {
 			get { return m_IsInitialized; }
 		}
 
+		string IStateDefiner<IQuest, ITask>.StateName
+		{
+			get { return name; }
+		}
+
 
 		//////////////////////////////////////////////////////////////////////////
 		// Initialize ( IStateDefiner )

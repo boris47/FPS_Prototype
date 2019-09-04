@@ -59,12 +59,22 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 		get { return m_bIsInitialized; }
 	}
 
+	string IStateDefiner.StateName
+	{
+		get { return name; }
+	}
+
+
+
+
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
 	IEnumerator IStateDefiner.Initialize()
 	{
 		if ( m_bIsInitialized )
 			yield break;
+
+		CoroutinesManager.AddCoroutineToPendingCount( 1 );
 
 		bool resourcesLoaded = true;
 
@@ -109,6 +119,8 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 			m_Pool = new GameObjectsPool<Transform>( data );
 
 			yield return data.CoroutineEnumerator;
+
+			CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 			m_bIsInitialized = true;
 		}
 	}
@@ -134,6 +146,12 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 	// ShowLabel
 	private void OnEnable()
 	{
+		UnityEngine.Assertions.Assert.IsNotNull
+		(
+			GameManager.UpdateEvents,
+			"UI_Indicators::OnEnable : GameManager.UpdateEvents is null"
+		);
+
 		GameManager.UpdateEvents.OnThink += UpdateRequestQueue;
 	}
 
@@ -142,7 +160,10 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 	// ShowLabel
 	private void OnDisable()
 	{
-		GameManager.UpdateEvents.OnThink -= UpdateRequestQueue;
+		if ( GameManager.UpdateEvents.IsNotNull() )
+		{
+			GameManager.UpdateEvents.OnThink -= UpdateRequestQueue;
+		}
 	}
 
 	

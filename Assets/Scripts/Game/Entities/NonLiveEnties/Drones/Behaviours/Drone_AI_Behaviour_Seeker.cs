@@ -107,7 +107,7 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour {
 		if ( m_InvestigationCO == null )
 		{
 			m_CurrentInvestigationDirection = InvestigationDirection.RIGHT;
-			m_InvestigationCO = EntityData.EntityRef.StartCoroutine( InvestigateAroundCO() );
+			m_InvestigationCO = CoroutinesManager.Start( InvestigateAroundCO(), "Drone-Seeker::On DestinationReached: Start of search" );
 		}
 
 //		EntityData.EntityRef.StartCoroutine( InnvestigateAroundCO() );

@@ -86,7 +86,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 		{
 			constructorData.CoroutineEnumerator = CreateItemsCO( constructorData );
 			m_bIsBuilding = true;
-			m_Coroutine = CoroutinesManager.Start( constructorData.CoroutineEnumerator );
+			m_Coroutine = CoroutinesManager.Start( constructorData.CoroutineEnumerator, "GameObjectsPool::Constructor: Create items of " + m_ModelGO.name );
 		}
 		else
 		// Instantly

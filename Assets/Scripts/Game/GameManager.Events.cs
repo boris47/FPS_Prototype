@@ -234,7 +234,7 @@ public partial class GameManager : IStreamEvents {
 
 		if ( streamData != null )
 		{
-			StartCoroutine( LoadCO( streamData ) );
+			CoroutinesManager.Start( LoadCO( streamData ), "GameManager::Load: Start of loading" );
 		}
 		else
 		{
@@ -586,7 +586,6 @@ public partial class GameManager : IPauseEvents {
 	public	static			bool				IsPaused
 	{
 		get { return m_IsPaused; }
-		set { m_PauseEvents.SetPauseState( value ); }
 	}
 
 	private					float				m_PrevTimeScale			= 1f;
@@ -595,30 +594,30 @@ public partial class GameManager : IPauseEvents {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	void	IPauseEvents.SetPauseState( bool bPauseState )
+	void	IPauseEvents.SetPauseState( bool bIsPauseRequested )
 	{
-		if ( bPauseState == m_IsPaused )
+		if ( bIsPauseRequested == m_IsPaused )
 			return;
 
-		m_OnPauseSet( bPauseState );
+		m_IsPaused = bIsPauseRequested;
+		m_OnPauseSet( m_IsPaused );
 
-		m_IsPaused = bPauseState;
-		UIManager.Instance.GoToMenu( UIManager.InGame );
-		UIManager.Instance.SetPauseMenuState( bPauseState );
-
-		GlobalManager.SetCursorVisibility( bPauseState == true );
+		GlobalManager.SetCursorVisibility( bIsPauseRequested == true );
 		
-		if ( bPauseState == true )
+		if ( bIsPauseRequested == true )
 		{
+			UIManager.Instance.GoToMenu( UIManager.PauseMenu );
 			m_PrevTimeScale							= Time.timeScale;
 			m_PrevCanParseInput						= CameraControl.Instance.CanParseInput;
 			m_PrevInputEnabled						= InputManager.IsEnabled;
+
 			Time.timeScale							= 0f;
 			CameraControl.Instance.CanParseInput	= false;
 			InputManager.IsEnabled					= false;
 		}
 		else
 		{
+			UIManager.Instance.GoToMenu( UIManager.InGame );
 			Time.timeScale							= m_PrevTimeScale;
 			CameraControl.Instance.CanParseInput	= m_PrevCanParseInput;
 			InputManager.IsEnabled					= m_PrevInputEnabled;

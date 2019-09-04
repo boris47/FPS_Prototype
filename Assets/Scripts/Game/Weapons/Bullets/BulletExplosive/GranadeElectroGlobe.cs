@@ -151,7 +151,7 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 
 		m_InExplosion = true;
 
-		StartCoroutine( ExplosionCO() );
+		CoroutinesManager.Start( ExplosionCO(), "GranadeElectroGlobe::OnExplosion: Explosion CO" );
 	}
 
 

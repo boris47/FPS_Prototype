@@ -45,7 +45,12 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 	bool IStateDefiner.IsInitialized
 	{
 		get { return m_bIsInitialized; }
-	} 
+	}
+
+	string IStateDefiner.StateName
+	{
+		get { return name; }
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -55,8 +60,12 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 		if ( m_bIsInitialized == true )
 			yield break;
 
+		CoroutinesManager.AddCoroutineToPendingCount( 1 );
+
 		m_NotificationsPanel = transform.Find( "NotificationsPanel" ) as RectTransform;
 		UnityEngine.Assertions.Assert.IsTrue( m_NotificationsPanel != null );
+
+		yield return null;
 
 		bool resourcesLoaded = true;
 
@@ -66,6 +75,8 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 			GlobalManager.Configs.bGetSection( "Notifications", m_NotificationsSectionData ),
 			"UI_ComInterface::Initialize:Cannot load m_NotificationsSectionData"
 		);
+
+		yield return null;
 
 		m_NotificationsDuration = m_NotificationsSectionData.NotificationsDuration;
 
@@ -83,6 +94,8 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 		{
 			Destroy( m_NotificationsPanel.GetChild(0).gameObject );
 			m_NotificationsPanel.DetachChildren();
+
+			yield return null;
 
 			System.Action<Text> onItemAction = delegate( Text t )
 			{
@@ -112,6 +125,10 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 			UI_Graphics.OnResolutionChanged += UI_Graphics_OnResolutionChanged;
 
 			m_bIsInitialized = true;
+
+			yield return null;
+
+			CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 		}
 		else
 		{
@@ -151,6 +168,7 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 	// ShowLabel
 	private void OnEnable()
 	{
+		Debug.Log( name + " OnEnable " + Time.time);
 		GameManager.UpdateEvents.OnThink += UpdateRequestQueue;
 	}
 
@@ -159,6 +177,7 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 	// ShowLabel
 	private void OnDisable()
 	{
+		Debug.Log( name + " OnDisable " + Time.time);
 		GameManager.UpdateEvents.OnThink -= UpdateRequestQueue;
 	}
 

@@ -78,7 +78,7 @@ public class CoroutinesManager : MonoBehaviour {
 
 
 	/////////////////////////////////////////////////////////////////
-	public static  void	RemoveCoroutineToPendingCount( uint howMany )
+	public static  void	RemoveCoroutineFromPendingCount( uint howMany )
 	{
 		if ( howMany > m_PendingRoutines )
 		{
@@ -123,9 +123,10 @@ public class CoroutinesManager : MonoBehaviour {
 	
 	/////////////////////////////////////////////////////////////////
 	/// <summary> Start a new coroutine </summary>
-	public	static	Coroutine	Start( IEnumerator routine )
+	public	static	Coroutine	Start( IEnumerator routine, string debugKey )
 	{
 		Initialize();
+		Debug.Log( "Starting coroutine for " + debugKey );
 		return m_Instance.StartCoroutine( routine );
 	}
 

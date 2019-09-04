@@ -205,7 +205,8 @@ public class ResourceManager : MonoBehaviour {
 	{
 		Initialize();
 
-		m_Instance.StartCoroutine( LoadResourceAsyncCoroutine( ResourcePath, loadedResource, OnResourceLoaded ) );
+		CoroutinesManager.Start( LoadResourceAsyncCoroutine( ResourcePath, loadedResource, OnResourceLoaded ),
+			"ResourceManger::LoadResourceAsync: Loading " + ResourcePath );
 	}
 
 
@@ -224,7 +225,8 @@ public class ResourceManager : MonoBehaviour {
 
 		print( "COROUTINE ASYNC Loading: " + ResourcePath );
 		
-		yield return m_Instance.StartCoroutine( InternalLoadResourceAsync( ResourcePath, loadedData ) );
+		yield return CoroutinesManager.Start( InternalLoadResourceAsync( ResourcePath, loadedData ),
+			"ResourceManger::LoadResourceAsyncCoroutine: Loading " + ResourcePath );
 		
 		print( "COROUTINE ASYNC Loaded: " + ResourcePath );
 
@@ -278,7 +280,9 @@ public class ResourceManager : MonoBehaviour {
 				foreach( string childPath in composite.GetChildPaths() )
 				{
 					LoadedData<Object> childloadedResource = new LoadedData<Object>();
-					yield return m_Instance.StartCoroutine( InternalLoadResourceAsync( childPath, childloadedResource ) );
+					yield return CoroutinesManager.Start( InternalLoadResourceAsync( childPath, childloadedResource ), 
+						"ResourceManger::InternalLoadResourceAsync: Loading " + childPath
+					);
 					composite.AddChild( childloadedResource.Asset );
 				}
 			}

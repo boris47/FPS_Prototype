@@ -134,8 +134,8 @@ public class GlobalManager : MonoBehaviour {
 	}
 
 //	float maximum = 1;
-///	private void Update()
-///	{
+	private void Update()
+	{
 		/*
 		if ( Input.GetKeyDown( KeyCode.V ) )
 		{
@@ -152,7 +152,13 @@ public class GlobalManager : MonoBehaviour {
 			maximum *= 2f;
 		}
 		*/
-///	}
+
+		if ( Input.GetKeyDown( KeyCode.V ) )
+		{
+			Destroy( UIManager.InGame.transform.parent.gameObject );
+			CustomSceneManager.LoadSceneSync( new CustomSceneManager.LoadSceneData() { iSceneIdx = SceneEnumeration.MAIN_MENU } );
+		}
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////

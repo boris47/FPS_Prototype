@@ -77,6 +77,11 @@ namespace QuestSystem {
 		{
 			get { return m_Scope; }
 		}
+
+		string IStateDefiner<IQuestManager, IQuest>.StateName
+		{
+			get { return name; }
+		}
 		
 
 

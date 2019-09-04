@@ -22,6 +22,11 @@ public class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 		get { return m_bIsInitialized; }
 	}
 
+	string IStateDefiner.StateName
+	{
+		get { return name; }
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
@@ -29,6 +34,8 @@ public class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 	{
 		if ( m_bIsInitialized == true )
 			yield break;
+
+		CoroutinesManager.AddCoroutineToPendingCount( 1 );
 
 		m_bIsInitialized = true;
 		{
@@ -79,7 +86,7 @@ public class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 
 		if ( m_bIsInitialized )
 		{
-				
+			CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 		}
 		else
 		{
@@ -116,16 +123,17 @@ public class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 	// ReturnToMenu
 	public	void	ReturnToMenu()
 	{
-		// Only if paused can return to main menu
-		if ( GameManager.IsPaused == false )
-			return;
+		// Destroy singletons
+		{
+			Destroy( CameraControl.Instance.Transform.gameObject );
+			Destroy( Player.Instance.gameObject );
+			Destroy( WeaponManager.Instance.GameObject );
+			Destroy( GameManager.Instance.gameObject );
+		}
 
-		// Exit pause state
-		GameManager.PauseEvents.SetPauseState( false );
+		// Restore user input
+		InputManager.IsEnabled = true;
 
-		// Force cursor to be visible
-		GlobalManager.SetCursorVisibility( true );
-		
 		// Effect frame reset
 		UIManager.EffectFrame.color = Color.black;
 
@@ -141,15 +149,18 @@ public class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 		// update current active transform
 		UIManager.Instance.GoToMenu( UIManager.MainMenu );
 
+		// Stop all current running coroutines
+		CoroutinesManager.StopAll();
+
+		// Restore Time Scale
+		Time.timeScale = 1.0f;
+
 		// Load menu
-		CustomSceneManager.LoadSceneSync
-		(
-			new CustomSceneManager.LoadSceneData()
-			{
-				iSceneIdx = SceneEnumeration.MAIN_MENU
-			}
-		);
-//		UnityEngine.SceneManagement.SceneManager.LoadScene(  );
+		CustomSceneManager.LoadSceneData loadSceneData = new CustomSceneManager.LoadSceneData()
+		{
+			iSceneIdx = SceneEnumeration.MAIN_MENU
+		};
+		CustomSceneManager.LoadSceneSync( loadSceneData );
 	}
 
 

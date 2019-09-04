@@ -94,7 +94,8 @@ public abstract class WPN_BaseModule : MonoBehaviour, IModifiable {
 
 	protected	virtual void OnDisable()
 	{
-		GameManager.UpdateEvents.OnFrame -= InternalUpdate;
+		if ( GameManager.UpdateEvents.IsNotNull() )
+			GameManager.UpdateEvents.OnFrame -= InternalUpdate;
 	}
 
 	public		abstract	bool	OnSave			( StreamUnit streamUnit );

@@ -405,7 +405,7 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void			Reload()
 	{
-		StartCoroutine( ReloadCO( OnEndReload ) );
+		CoroutinesManager.Start( ReloadCO( OnEndReload ), "Weapon::Reload: Reloading co" );
 	}
 
 
@@ -580,8 +580,12 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 		m_PrimaryWeaponModuleSlot.WeaponModule.enabled = false;
 		m_SecondaryWeaponModuleSlot.WeaponModule.enabled = false;
 		m_TertiaryWeaponModuleSlot.WeaponModule.enabled = false;
-		GameManager.StreamEvents.OnSave -= OnSave;
-		GameManager.StreamEvents.OnLoad -= OnLoad;
+
+		if ( GameManager.StreamEvents.IsNotNull() )
+		{
+			GameManager.StreamEvents.OnSave -= OnSave;
+			GameManager.StreamEvents.OnLoad -= OnLoad;
+		}
 	}
 	
 }

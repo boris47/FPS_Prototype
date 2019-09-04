@@ -11,6 +11,11 @@ public class UI_Settings : MonoBehaviour, IStateDefiner {
 		get { return m_bIsInitialized; }
 	}
 
+	string IStateDefiner.StateName
+	{
+		get { return name; }
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize

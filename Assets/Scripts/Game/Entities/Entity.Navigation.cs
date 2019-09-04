@@ -95,7 +95,7 @@ public abstract partial class Entity : IEntity {
 	{
 		if ( m_HasPendingPathRequest == false )
 		{
-			m_PendingPathRequestCO = StartCoroutine( RequestMovementCO( Destination ) );
+			m_PendingPathRequestCO = CoroutinesManager.Start( RequestMovementCO( Destination ), "Entity::RequestMovement: Request of movement" );
 			m_HasPendingPathRequest = true;
 		}
 	}

@@ -33,6 +33,11 @@ public class UI_Audio : MonoBehaviour, IUIOptions, IStateDefiner {
 		get { return m_bIsInitialized; }
 	}
 
+	string IStateDefiner.StateName
+	{
+		get { return name; }
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
@@ -41,10 +46,14 @@ public class UI_Audio : MonoBehaviour, IUIOptions, IStateDefiner {
 		if ( m_bIsInitialized == true )
 			yield break;
 		
+		CoroutinesManager.AddCoroutineToPendingCount( 1 );
+
 		m_bIsInitialized = true;
 		{
 			m_bIsInitialized &= transform.SearchComponentInChild( "Slider_MusicVolume", ref m_MusicSlider );
 			m_bIsInitialized &= transform.SearchComponentInChild( "Slider_SoundVolume", ref m_SoundSlider );
+
+			yield return null;
 
 			if ( m_bIsInitialized &= transform.SearchComponentInChild( "ApplyButton", ref m_ApplyButton ) )
 			{
@@ -58,6 +67,8 @@ public class UI_Audio : MonoBehaviour, IUIOptions, IStateDefiner {
 				m_ApplyButton.interactable = false;
 			}
 
+			yield return null;
+
 			if ( m_bIsInitialized &= transform.SearchComponentInChild( "ResetButton", ref m_ResetButton ) )
 			{
 				m_ResetButton.onClick.AddListener
@@ -69,10 +80,19 @@ public class UI_Audio : MonoBehaviour, IUIOptions, IStateDefiner {
 				);
 			}
 
+			yield return null;
+
 			if ( m_bIsInitialized )
 			{
 				OnEnable();
+
+				yield return null;
+
 				OnApplyChanges();
+
+				CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
+
+				yield return null;
 			}
 			else
 			{

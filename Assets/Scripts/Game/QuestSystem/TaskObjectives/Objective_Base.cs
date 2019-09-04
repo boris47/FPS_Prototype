@@ -89,6 +89,11 @@ namespace QuestSystem {
 			get { return m_IsInitialized; }
 		}
 
+		string IStateDefiner<ITask, IObjective>.StateName
+		{
+			get { return name; }
+		}
+
 
 		//////////////////////////////////////////////////////////////////////////
 		// ( IStateDefiner )

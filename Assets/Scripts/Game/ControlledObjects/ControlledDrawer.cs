@@ -57,7 +57,7 @@ public class ControlledDrawer : ControlledObject {
 
 		m_InTransition = true;
 
-		StartCoroutine( Traslation() );
+		CoroutinesManager.Start( Traslation(), "ControlledDrawer::OnActivation: Activation of " + name );
 	}
 
 

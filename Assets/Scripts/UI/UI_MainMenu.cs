@@ -20,6 +20,11 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 		get { return m_bIsInitialized; }
 	}
 
+	string IStateDefiner.StateName
+	{
+		get { return name; }
+	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -28,6 +33,10 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 	{
 		if ( m_bIsInitialized == true )
 			yield break;
+
+		yield return null;
+
+		CoroutinesManager.AddCoroutineToPendingCount( 1 );
 
 		m_bIsInitialized = true;
 		{
@@ -58,6 +67,7 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 		if ( m_bIsInitialized )
 		{
 		//	RenderSettings.skybox = new Material( Shader.Find( shaderPath ) );
+			CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 		}
 		else
 		{
@@ -83,27 +93,13 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 		return m_bIsInitialized;
 	}
 
-	private void Awake()
-	{
-		print( "MainMenu::Awake" );
-	}
-
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnEnable
 	private void OnEnable()
 	{
-
 		print( "MainMenu::OnEnable" );
-		if ( CameraControl.Instance != null )
-			Destroy( CameraControl.Instance.Transform.gameObject );
-
-		if ( Player.Instance != null )
-			Destroy( Player.Instance.gameObject );
-
-		if ( WeaponManager.Instance != null )
-			Destroy( WeaponManager.Instance.GameObject );
 
 		UIManager.EffectFrame.color = Color.clear;
 	}
@@ -116,9 +112,6 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 	{
 		print( "MainMenu::Start" );
 
-		if ( Player.Instance != null )
-			Destroy( Player.Instance.gameObject );
-
 		// Cursor
 		GlobalManager.SetCursorVisibility( false );
 
@@ -129,17 +122,11 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 		{
 			yield return CoroutinesManager.WaitPendingCoroutines();
 		}
+
 		UIManager.Instance.EnableInteraction( this.transform );
 
 		// Cursor
 		GlobalManager.SetCursorVisibility( true );
-
-		// Destroying singletons
-		if ( CameraControl.Instance != null )
-			Destroy( CameraControl.Instance.Transform.gameObject );
-
-		if ( WeaponManager.Instance != null )
-			Destroy( WeaponManager.Instance.GameObject );
 
 		bool bHasSavedSceneIndex	= PlayerPrefs.HasKey( "SaveSceneIdx" );
 		bool bHasSaveFilePath		= PlayerPrefs.HasKey( "SaveFilePath" );
@@ -163,11 +150,9 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 			{
 				iSceneIdx			= SceneEnumeration.OPENWORLD1,
 				sSaveToLoad			= "",
-				bMustLoadSave		= false,
-				pOnLoadCompleted	= delegate { UIManager.Instance.GoToMenu( UIManager.InGame ); }
+				bMustLoadSave		= false
 			};
-			Loading.SetLoadSceneData( LoadSceneData );
-			Loading.Switch();
+			CustomSceneManager.LoadSceneAsync( LoadSceneData );
 		};
 
 		if ( PlayerPrefs.HasKey( "SaveSceneIdx" ) )
@@ -199,11 +184,9 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 			{
 				iSceneIdx			= (SceneEnumeration)saveSceneIdx,
 				sSaveToLoad			= saveFilePath,
-				bMustLoadSave		= true,
-				pOnLoadCompleted	= delegate { UIManager.Instance.GoToMenu( UIManager.InGame ); }
+				bMustLoadSave		= true
 			};
-			Loading.SetLoadSceneData( LoadSceneData );
-			Loading.Switch();
+			CustomSceneManager.LoadSceneAsync( LoadSceneData );
 		}
 		else
 		{

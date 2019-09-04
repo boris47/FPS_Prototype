@@ -16,7 +16,7 @@ public class RespawnPoint : MonoBehaviour {
 	// Respawn
 	public	void	Respawn( IRespawn entity, float time )
 	{
-		StartCoroutine( RespawnCO( entity, time ) );
+		CoroutinesManager.Start( RespawnCO( entity, time ), "RespawnPoint::Respawn" );
 	}
 
 

@@ -20,12 +20,19 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 		get { return m_bIsInitialized; }
 	}
 
+	string IStateDefiner.StateName
+	{
+		get { return name; }
+	}
+
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
 	IEnumerator IStateDefiner.Initialize()
 	{
 		if ( m_bIsInitialized == true )
 			yield break;
+
+		CoroutinesManager.AddCoroutineToPendingCount( 1 );
 
 		m_bIsInitialized = true;
 		{
@@ -36,10 +43,14 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 				Select( ( eKeyState k ) => new Dropdown.OptionData( k.ToString() ) )
 			);
 
+			yield return null;
+
 			if ( m_bIsInitialized &= transform.SearchComponentInChild( "Button_Apply", ref m_ApplyButton ) )
 			{
 				m_ApplyButton.interactable = false;
 			}
+
+			yield return null;
 			
 			// UI Command Row Prefab
 			ResourceManager.LoadedData<GameObject> loadedResource = new ResourceManager.LoadedData<GameObject>();
@@ -57,9 +68,12 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 			m_BlockPanel = transform.Find("BlockPanel" );
 			m_bIsInitialized &= m_BlockPanel != null;
 
+			yield return null;
+
 			if ( m_bIsInitialized )
 			{
 				m_BlockPanel.gameObject.SetActive( false );
+				CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 			}
 			else
 			{
@@ -302,7 +316,9 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 			}
 		};
 
-		StartCoroutine( WaitForKeyCO( onKeyPressed ));
+		CoroutinesManager.Start( WaitForKeyCO( onKeyPressed ),
+			"UI_Bindings::OnKeyChoiceButtonClicked: Waiting for button press"
+			);
 	}
 
 

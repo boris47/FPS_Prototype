@@ -252,7 +252,7 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 	public	virtual	void	FadeIn( float time )
 	{
 		m_IsFading = true;
-		StartCoroutine( FadeCO( time, fadeIn : true ) );
+		CoroutinesManager.Start( FadeCO( time, fadeIn : true ), "CustomAudioSource::FadeIn: Fade in of " + name );
 	}
 
 
@@ -261,7 +261,7 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 	public	virtual	void	FadeOut( float time )
 	{
 		m_IsFading = true;
-		StartCoroutine( FadeCO( time, fadeIn : false ) );
+		CoroutinesManager.Start( FadeCO( time, fadeIn : false ), "CustomAudioSource::FadeOut: Fade out of " + name );
 	}
 
 

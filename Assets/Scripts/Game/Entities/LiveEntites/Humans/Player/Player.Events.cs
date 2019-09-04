@@ -140,7 +140,7 @@ public partial class Player {
 
 		MoveGrabbedObject();
 		CheckIfUnderSomething();
-		CheckForFallOrUserBreck();
+		CheckForFallOrUserBreak();
 
 		m_RigidBody.angularVelocity = Vector3.zero;
 //		m_RigidBody.drag = IsGrounded ? BODY_DRAG : 0.0f;

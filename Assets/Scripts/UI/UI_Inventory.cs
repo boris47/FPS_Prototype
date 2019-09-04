@@ -25,6 +25,11 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 		get { return m_bIsInitialized; }
 	}
 
+	string IStateDefiner.StateName
+	{
+		get { return name; }
+	}
+
 	[System.Serializable]
 	private class InventorySectionData {
 		public		float				CellSizeX			= 0;
@@ -46,6 +51,8 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 		if ( m_bIsInitialized == true )
 			yield break;
 
+		CoroutinesManager.AddCoroutineToPendingCount( 1 );
+
 		m_bIsInitialized = true;
 		{
 			m_MainPanel = ( transform.Find( "MainPanel" ) as RectTransform );
@@ -56,6 +63,8 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 				m_InventorySlots = ( m_MainPanel.Find("InventorySlots") as RectTransform );
 				m_bIsInitialized &= m_InventorySlots != null;
 			}
+
+			yield return null;
 
 
 			// LOAD SECTION
@@ -100,6 +109,8 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 				m_GridLayoutGroup.constraint		= GridLayoutGroup.Constraint.FixedColumnCount;
 				m_GridLayoutGroup.constraintCount	= m_InventorySectionData.CellCountHorizontal;
 
+				yield return null;
+
 				UI_Graphics.OnResolutionChanged += OnResolutionChange;
 
 				GameObject inventorySlotPrefab = loadedResource.Asset;
@@ -114,8 +125,12 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 						( instancedInventorySlot.transform as RectTransform ).anchorMax = Vector2.one;
 
 						IStateDefiner slot = m_UI_MatrixSlots[i, j] = instancedInventorySlot.GetComponent<UI_InventorySlot>();
-						CoroutinesManager.Start( slot.Initialize() );
+						CoroutinesManager.Start( slot.Initialize(),
+							"UI_Inventory::Initialize: Loading grid "
+							);
 					}
+
+					yield return null;
 				}
 			}
 
@@ -128,6 +143,8 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 				);
 			}
 
+			yield return null;
+
 			// RETURN TO GAME
 			if ( m_bIsInitialized &= transform.SearchComponentInChild( "ReturnToGame", ref m_ReturnToGame ) )
 			{
@@ -136,11 +153,13 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 					OnReturnToGame
 				);
 			}
+
+			yield return null;
 		}
 
 		if ( m_bIsInitialized )
 		{
-
+			CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 		}
 		else
 		{

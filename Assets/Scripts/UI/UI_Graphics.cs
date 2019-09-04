@@ -68,7 +68,12 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 	bool IStateDefiner.IsInitialized
 	{
 		get { return m_bIsInitialized; }
-	} 
+	}
+
+	string IStateDefiner.StateName
+	{
+		get { return name; }
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -77,6 +82,8 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 	{
 		if ( m_bIsInitialized == true )
 			yield break;
+
+		CoroutinesManager.AddCoroutineToPendingCount( 1 );
 
 		m_bIsInitialized = true;
 		{
@@ -95,6 +102,8 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 			
 			m_AvailableResolutions = sortedResolutions.ToArray();
 
+			yield return null;
+
 			if ( m_bIsInitialized &= transform.SearchComponentInChild( "ResolutionsDropDown", ref m_ResolutionDropDown ) )
 			{
 				m_ResolutionDropDown.onValueChanged.AddListener( OnResolutionChosen );
@@ -104,6 +113,8 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 					)
 				);
 			}
+
+			yield return null;
 
 			if ( m_bIsInitialized &= transform.SearchComponentInChild( "FullScreenToggle", ref m_FullScreenToogle ) )
 			{
@@ -122,6 +133,8 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 					new List<string>( new string[4] { "None", "2x","4x", "8x" } )
 				);
 			}
+
+			yield return null;
 
 			m_QualityLevelNames = QualitySettings.names;
 			if ( m_bIsInitialized &= transform.SearchComponentInChild( "QualityLevelDropDown", ref m_QualityLevelDropDown ) )
@@ -142,6 +155,8 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 				m_ApplyButton.interactable = false;
 			}
 
+			yield return null;
+
 			if ( m_bIsInitialized &= transform.SearchComponentInChild( "ResetButton", ref m_ResetButton ) )
 			{
 				m_ResetButton.onClick.AddListener
@@ -159,6 +174,8 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 				s.navigation = noNavigationMode;
 			}
 
+			yield return null;
+
 			if ( m_bIsInitialized )
 			{
 				ReadFromRegistry();
@@ -170,6 +187,10 @@ public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 				m_QualityData.isDirty		= true;
 
 				OnApplyChanges();
+
+				CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
+
+				yield return null;
 			}
 			else
 			{

@@ -31,10 +31,12 @@ public enum InputCategory : uint {
 	RELOAD		= 12,
 	/// <summary> In Game Interface </summary>
 	INTERFACE	= 13,
+	/// <summary> Camera control </summary>
+	CAMERA		= 14,
 	/// <summary> Categories Count </summary>
 	COUNT,
 	/// <summary> All categories </summary>
-	ALL			= STATE | MOVE | ABILITY | USE | SWITCH | SELECTION | ITEM | GADGET | FIRE1 | FIRE2 | FIRE3 | RELOAD | INTERFACE,
+	ALL			= STATE | MOVE | ABILITY | USE | SWITCH | SELECTION | ITEM | GADGET | FIRE1 | FIRE2 | FIRE3 | RELOAD | INTERFACE | CAMERA,
 }
 
 public	delegate	void	InputDelegateHandler();
@@ -205,6 +207,14 @@ public class InputManager {
 		{
 			Utils.FlagsHelper.Unset( ref m_InputCategories, category );
 		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// HasCategoryEnabled
+	public		bool	HasCategoryEnabled( InputCategory category )
+	{
+		return Utils.FlagsHelper.IsSet( m_InputCategories, category );
 	}
 
 

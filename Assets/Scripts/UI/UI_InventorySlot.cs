@@ -28,6 +28,11 @@ public class UI_InventorySlot : MonoBehaviour, IPointerClickHandler, IStateDefin
 		get { return m_bIsInitialized; }
 	}
 
+	string IStateDefiner.StateName
+	{
+		get { return name; }
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
@@ -36,6 +41,8 @@ public class UI_InventorySlot : MonoBehaviour, IPointerClickHandler, IStateDefin
 		if ( m_bIsInitialized == true )
 			yield break;
 
+		CoroutinesManager.AddCoroutineToPendingCount( 1 );
+
 		m_bIsInitialized = true;
 		{
 			m_bIsInitialized &= transform.SearchComponent<Image>( ref m_Image, SearchContext.LOCAL );
@@ -43,7 +50,7 @@ public class UI_InventorySlot : MonoBehaviour, IPointerClickHandler, IStateDefin
 
 		if ( m_bIsInitialized )
 		{
-
+			CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 		}
 		else
 		{

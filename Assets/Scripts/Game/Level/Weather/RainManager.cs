@@ -83,6 +83,8 @@ namespace WeatherSystem {
 		
 		private		Camera					m_Camera						= null;
 
+		private		bool					m_bIsFullyLoaded				= false;
+
 #endregion
 
 #region INITIALIZATION
@@ -90,31 +92,40 @@ namespace WeatherSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// OnEnable
-		private void			OnEnable()
+//		private void			OnEnable()
+		private IEnumerator Start()
 		{
 			m_Instance = this;
 			m_Camera = Camera.current;
+
+			yield return null;
 
 			//	m_RainFallParticleSystem Child
 			if ( transform.SearchComponentInChild( "RainFallParticleSystem", ref m_RainFallParticleSystem ) == false ) 
 			{
 				enabled = false;
-				return;
+				yield break; //return;
 			}
+
+			yield return null;
 
 			//	m_RainExplosionParticleSystem Child
 			if ( transform.SearchComponentInChild( "RainExplosionParticleSystem", ref m_RainExplosionParticleSystem ) == false ) 
 			{
 				enabled = false;
-				return;
+				yield break; //return;
 			}
+
+			yield return null;
 
 			// ThunderLight
 			if ( transform.SearchComponentInChild( "ThunderLight", ref m_ThunderLight ) == false ) 
 			{
 				enabled = false;
-				return;
+				yield break; //return;
 			}
+
+			yield return null;
 
 			// Thunderbolts audio container
 			{
@@ -125,17 +136,22 @@ namespace WeatherSystem {
 				if ( m_ThunderAudioContainer == null )
 				{
 					enabled = false;
-					return;
+					yield break; //return;
 				}
+
+				yield return null;
 
 				m_ThunderAudioSources = m_ThunderAudioContainer.GetComponentsInChildren<CustomAudioSource>();
 			}
 
+			yield return null;
 
 			// m_RainFallParticleSystem Setup
 			{
-				Renderer rainRenderer = m_RainFallParticleSystem.GetComponent<Renderer>();
-				if ( rainRenderer != null && rainRenderer.sharedMaterial != null )
+//				Renderer rainRenderer = m_RainFallParticleSystem.GetComponent<Renderer>();
+				Renderer rainRenderer = null;
+				bool bHasRenderer = m_RainFallParticleSystem.transform.SearchComponent( ref rainRenderer, SearchContext.LOCAL );
+				if ( bHasRenderer && rainRenderer.sharedMaterial != null )
 				{
 					m_RainMaterial = Resources.Load<Material>( RAIN_MATERIAL );
 					m_RainMaterial.EnableKeyword( "SOFTPARTICLES_OFF" );
@@ -143,10 +159,13 @@ namespace WeatherSystem {
 				}
 			}
 
+			yield return null;
+
 			// m_RainExplosionParticleSystem Setup
 			{
-				Renderer rainRenderer = m_RainExplosionParticleSystem.GetComponent<Renderer>();
-				if ( rainRenderer != null && rainRenderer.sharedMaterial != null )
+				Renderer rainRenderer = null; //m_RainExplosionParticleSystem.GetComponent<Renderer>();
+				bool bHasRenderer = m_RainExplosionParticleSystem.transform.SearchComponent( ref rainRenderer, SearchContext.LOCAL );
+				if ( bHasRenderer && rainRenderer.sharedMaterial != null )
 				{
 					m_RainExplosionMaterial = Resources.Load<Material>( RAIN_EXPLOSION_MATERIAL );
 					m_RainExplosionMaterial.EnableKeyword( "SOFTPARTICLES_OFF" );
@@ -157,40 +176,72 @@ namespace WeatherSystem {
 			// Get info from settings file
 			if ( GlobalManager.Configs != null )
 			{
-				GlobalManager.Configs.bGetSection( "Thunderbolts", m_ThunderboltsSectionData );
+			//	GlobalManager.Configs.bGetSection( "Thunderbolts", m_ThunderboltsSectionData );
 			}
 
-			AudioCollection thundersDistantCollection = Resources.Load<AudioCollection>( THUNDERS_DISTANT );
-			if ( thundersDistantCollection != null )
-				m_ThundersDistantCollection = thundersDistantCollection.AudioClips;
-			else
 			{
-				print( "Cannot load scriptable " +  THUNDERS_DISTANT );
-				enabled = false;
-				return;
+				ResourceManager.LoadedData<AudioCollection> collection = new ResourceManager.LoadedData<AudioCollection>();
+
+				bool bIsLoadCompletedWithSuccess = false;
+				yield return ResourceManager.LoadResourceAsyncCoroutine
+				(
+					THUNDERS_DISTANT,
+					collection,
+					(a) => bIsLoadCompletedWithSuccess = true
+				);
+
+				if ( bIsLoadCompletedWithSuccess )
+				{
+					m_ThundersDistantCollection = collection.Asset.AudioClips;
+				}
+				else
+				{
+					print( "Cannot load scriptable " +  THUNDERS_DISTANT );
+					enabled = false;
+					yield break; //return;
+				}
 			}
 
-			AudioCollection thundersDurinRainCollection = Resources.Load<AudioCollection>( THUNDERS_DURING_RAIN );
-			if ( thundersDurinRainCollection != null )
-				m_ThundersDuringRainCollection = thundersDurinRainCollection.AudioClips;
-			else
 			{
-				print( "Cannot load scriptable " +  THUNDERS_DURING_RAIN );
-				enabled = false;
-				return;
+				ResourceManager.LoadedData<AudioCollection> collection = new ResourceManager.LoadedData<AudioCollection>();
+			//	if ( ResourceManager.LoadResourceSync ( THUNDERS_DURING_RAIN, collection ) == true )
+
+				bool bIsLoadCompletedWithSuccess = false;
+				yield return ResourceManager.LoadResourceAsyncCoroutine
+				(
+					THUNDERS_DURING_RAIN,
+					collection,
+					(a) => bIsLoadCompletedWithSuccess = true
+				);
+
+				if ( bIsLoadCompletedWithSuccess )
+				{
+					m_ThundersDuringRainCollection = collection.Asset.AudioClips;
+				}
+				else
+				{
+					print( "Cannot load scriptable " +  THUNDERS_DURING_RAIN );
+					enabled = false;
+					yield break; //return;
+				}
+
 			}
 			
 			m_NextThunderTimer = Random.Range( m_ThunderboltsSectionData.ThunderTimerMin, m_ThunderboltsSectionData.ThunderTimerMax );
 
 #if UNITY_EDITOR
 			if ( UnityEditor.EditorApplication.isPlaying == false )
-				return;
+				yield break; //return;
 #endif
 
 			m_AudioEmitter = GetComponent<StudioEventEmitter>();
 			m_AudioEmitter.EventInstance.getParameter( "RainIntensity", out m_RainIntensityEvent );
 
+			yield return null;
+
 			m_RainFallParticleSystem.Play( withChildren: true );
+
+			m_bIsFullyLoaded = true;
 		}
 
 
@@ -206,18 +257,6 @@ namespace WeatherSystem {
 			m_RainMaterial			= null;
 			m_RainIntensity			= 0f;
 			m_Camera				= null;
-		}
-
-
-		//////////////////////////////////////////////////////////////////////////
-		// START
-		private void			Start()
-		{
-
-#if UNITY_EDITOR
-			if ( UnityEditor.EditorApplication.isPlaying == false )
-				return;
-#endif
 		}
 
 #endregion
@@ -338,7 +377,7 @@ namespace WeatherSystem {
 				m_NextThunderTimer -= Time.deltaTime;
 				if ( m_NextThunderTimer < 0f )
 				{
-					StartCoroutine( ThunderCoroutine( m_RainIntensity > 0.2f ) );
+					CoroutinesManager.Start( ThunderCoroutine( m_RainIntensity > 0.2f ), "RainManager::UpdateThunderbolts: New thunderbolt" );
 
 					m_NextThunderTimer = Random.Range
 					(
@@ -363,6 +402,9 @@ namespace WeatherSystem {
 		// UNITY
 		private void			Update()
 		{
+			if ( m_bIsFullyLoaded == false )
+				return;
+
 #if UNITY_EDITOR
 			if ( UnityEditor.EditorApplication.isPlaying == false )
 				if ( UnityEditor.SceneView.lastActiveSceneView != null )

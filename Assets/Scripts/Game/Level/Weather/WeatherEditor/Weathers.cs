@@ -13,6 +13,14 @@ namespace WeatherSystem {
 		public	List<WeatherCycle>	LoadedCycles = new List<WeatherCycle>();
 
 
+		// Questa funzione viene chiamata all'avvio dello script
+		private void Awake()
+		{
+			LoadedCycles.Clear();
+		}
+
+
+
 		bool	IResourceComposite.NeedToBeLoaded()
 		{
 			if ( LoadedCycles.Count < CyclesPaths.Count )

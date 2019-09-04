@@ -54,12 +54,11 @@ public partial class Player : Human {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void	Awake()
 	{
 		m_EntityType = ENTITY_TYPE.ACTOR;
-
-		print( "player::Awake" );
 
 		if ( m_Instance != null )
 		{
@@ -184,7 +183,7 @@ public partial class Player : Human {
 		}
 
 		IsGrounded = false;
-		StartCoroutine( DamageEffectCO() );
+		CoroutinesManager.Start( DamageEffectCO(), "Player::Start: Start for Damage Effect Coroutine " );
 
 		m_GrabPoint = new GameObject( "GrabPoint" );
 		m_GrabPoint.transform.SetParent( CameraControl.Instance.Transform /* CameraControl.Instance.Transform */);

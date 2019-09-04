@@ -32,6 +32,11 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 		get { return m_bIsInitialized; }
 	}
 
+	string IStateDefiner.StateName
+	{
+		get { return name; }
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
@@ -40,11 +45,15 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 		if ( m_bIsInitialized == true )
 			yield break;
 
+		CoroutinesManager.AddCoroutineToPendingCount( 1 );
+
 		m_bIsInitialized = true;
 		{
 			m_bIsInitialized &= transform.childCount > 1;
 
 			m_bIsInitialized &= transform.SearchComponent( ref m_Canvas, SearchContext.LOCAL );
+
+			yield return null;
 
 			if ( m_bIsInitialized )
 			{
@@ -57,6 +66,8 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 				}
 			}
 
+			yield return null;
+
 			if ( m_bIsInitialized )
 			{
 				m_WeaponInfosPanel = transform.Find( "WeaponInfosPanel" );
@@ -66,6 +77,8 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 					m_bIsInitialized &=	m_WeaponInfosPanel.SearchComponentInChild( 3, ref m_StaminaBarImage );
 				}
 			}
+
+			yield return null;
 
 			m_bIsInitialized &= transform.SearchComponentInChild( "UI_Frame", ref m_ZoomFrameImage );
 
@@ -77,6 +90,10 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 				UI_Graphics.OnResolutionChanged += UI_Graphics_OnResolutionChanged;
 
 				InvokeRepeating( "PrintTime", 1.0f, 1.0f );	
+
+				CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
+
+				yield return null;
 			}
 			else
 			{

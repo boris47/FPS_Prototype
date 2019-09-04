@@ -82,7 +82,7 @@ public partial class Player {
 
 	//////////////////////////////////////////////////////////////////////////
 	// CheckForFallOrUserBreck
-	public bool	CheckForFallOrUserBreck()
+	public bool	CheckForFallOrUserBreak()
 	{
 		bool condition = ( m_IsDodging == false && transform.up != Vector3.up ) &&
 			m_States.IsJumping == false && m_States.IsHanging == false && IsGrounded == false; //		( m_States.IsJumping || IsGrounded == false );
@@ -96,7 +96,8 @@ public partial class Player {
 
 			Vector3 alignedForward = Vector3.Cross( transform.right, Vector3.up );
 			Quaternion finalRotation = Quaternion.LookRotation( alignedForward, Vector3.up );
-			m_DodgeCoroutine = StartCoroutine( Dodge( destination: hit.point, rotation: finalRotation, falling: true ) );
+			m_DodgeCoroutine = CoroutinesManager.Start( Dodge( destination: hit.point, rotation: finalRotation, falling: true ),
+				"Player::CheckForFallOrUserBreak: Start of dodge" );
 		}
 		return condition;
 	}
@@ -193,14 +194,15 @@ public partial class Player {
 			m_DodgeAbilityTarget.gameObject.SetActive( false );
 
 			// finally start dodge coroutine
-			m_DodgeCoroutine = StartCoroutine (
+			m_DodgeCoroutine = CoroutinesManager.Start (
 				Dodge (
 					destination:		destination,
 					rotation:			m_DodgeAbilityTarget.rotation,
 					falling :			false,
 					dodgeTarget :		null,
 					bInstantly :		false
-				)
+				),
+				"Player::OnDodgeAbilityAction: Start of dodge"
 			);
 		}
 	}

@@ -149,6 +149,12 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 	// OnEnable
 	private void OnEnable()
 	{
+		UnityEngine.Assertions.Assert.IsNotNull
+		(
+			GameManager.StreamEvents,
+			"CameraControl::OnEnable : GameManager.StreamEvents is null"
+		);
+
 		GameManager.StreamEvents.OnSave += OnSave;
 		GameManager.StreamEvents.OnLoad += OnLoad;
 	}
@@ -158,8 +164,11 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 	// OnEnable
 	private void OnDisable()
 	{
-		GameManager.StreamEvents.OnSave -= OnSave;
-		GameManager.StreamEvents.OnLoad -= OnLoad;
+		if ( GameManager.StreamEvents.IsNotNull() )
+		{
+			GameManager.StreamEvents.OnSave -= OnSave;
+			GameManager.StreamEvents.OnLoad -= OnLoad;
+		}
 	}
 
 
@@ -300,7 +309,8 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 	// LateUpdate
 	private	void	LateUpdate()
 	{
-		if ( transform.parent == null || GameManager.IsPaused )
+		if ( transform.parent == null || GameManager.IsPaused || 
+			GlobalManager.Instance.InputMgr.HasCategoryEnabled( InputCategory.CAMERA ) == false )
 			return;
 
 		float dt = Time.deltaTime;
