@@ -22,15 +22,18 @@ public	enum SceneEnumeration {
 
 public class CustomSceneManager : MonoBehaviour {
 
+	public	static int	CurrentSceneIndex
+	{
+		get { return SceneManager.GetActiveScene().buildIndex; }
+	}
+
 	public class LoadSceneData {
 		public	SceneEnumeration	iSceneIdx				= SceneEnumeration.NONE;
 		public	SceneEnumeration	iPrevSceneIdx			= SceneEnumeration.PREVIOUS;
 		public	bool				bMustLoadSave			= false;
 		public	string				sSaveToLoad				= "";
-		public	System.Action		pOnPreLoadCompleted		= null;
-		public	System.Action		pOnLoadCompleted		= null;
-		public	float				fProgress				= 0.0f;
-		public	bool				bIsCompleted			= false;
+		public	System.Action		pOnPreLoadCompleted		= delegate { };
+		public	System.Action		pOnLoadCompleted		= delegate { };
 	}
 
 
@@ -68,7 +71,13 @@ public class CustomSceneManager : MonoBehaviour {
 		if ( loadSceneData.iSceneIdx == SceneEnumeration.NONE )
 			return false;
 
-		int currentSceneIdx = SceneManager.GetActiveScene().buildIndex;
+		// Check for save existance
+		if ( loadSceneData.bMustLoadSave && System.IO.File.Exists( loadSceneData.sSaveToLoad ) == false )
+		{
+			return false;
+		}
+
+		int currentSceneIdx = CurrentSceneIndex;
 
 		// Requesting to go to next scene
 		if ( loadSceneData.iSceneIdx == SceneEnumeration.NEXT )
@@ -90,8 +99,10 @@ public class CustomSceneManager : MonoBehaviour {
 			return false;
 
 		loadSceneData.iPrevSceneIdx = (SceneEnumeration)( currentSceneIdx );
+
 		return true;
 	}
+
 
 
 	/////////////////////////////////////////////////////////////////
@@ -123,14 +134,12 @@ public class CustomSceneManager : MonoBehaviour {
 		GlobalManager.bIsChangingScene = false;
 
 		// Pre load callback
-		if ( loadSceneData.pOnPreLoadCompleted != null )
-		{
-			loadSceneData.pOnPreLoadCompleted();
-		}
+		loadSceneData.pOnPreLoadCompleted();
+
+		SoundManager.Instance.OnSceneLoaded();
 
 		// LOAD DATA
 		{
-			SoundManager.Instance.OnSceneLoaded();
 			if ( loadSceneData.bMustLoadSave == true )
 			{
 				GameManager.StreamEvents.Load( loadSceneData.sSaveToLoad );
@@ -138,10 +147,7 @@ public class CustomSceneManager : MonoBehaviour {
 		}
 
 		// Post load callback
-		if ( loadSceneData.pOnLoadCompleted != null )
-		{
-			loadSceneData.pOnLoadCompleted();
-		}
+		loadSceneData.pOnLoadCompleted();
 	}
 
 
@@ -152,7 +158,7 @@ public class CustomSceneManager : MonoBehaviour {
 	/////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////
 
-
+	
 	public class LoadCondition {
 
 		private	bool			bHasToWait			= false;
@@ -293,7 +299,13 @@ public class CustomSceneManager : MonoBehaviour {
 		// Wait for every launched coroutine in awake of scripts
 		yield return CoroutinesManager.WaitPendingCoroutines();
 
+		GlobalManager.bIsLoadingScene = true;
+
+		// Disable all input categories
 		GlobalManager.Instance.InputMgr.DisableCategory( InputCategory.ALL );
+
+		// Enable Loading Menu
+		UIManager.Instance.GoToMenu( UIManager.Loading );
 
 		// Load Loading Scene syncronously
 		{
@@ -304,10 +316,7 @@ public class CustomSceneManager : MonoBehaviour {
 			LoadSceneSync( loadingLoadSceneData );
 		}
 
-		UIManager.Instance.GoToMenu( UIManager.Loading );
-
-		loadSceneData.bIsCompleted = false;
-		loadSceneData.fProgress = 0.0f;
+		UIManager.Loading.SetProgress( 0.0f );
 
 		yield return new WaitForEndOfFrame();
 
@@ -325,11 +334,11 @@ public class CustomSceneManager : MonoBehaviour {
 		// Wait for load completion
 		while ( asyncOperation.progress < 0.9f )
 		{
-			loadSceneData.fProgress = asyncOperation.progress * 0.5f;
+			UIManager.Loading.SetProgress( asyncOperation.progress * 0.5f );
 			yield return null;
 		}
 
-		loadSceneData.fProgress = 0.60f;
+		UIManager.Loading.SetProgress( 0.60f );
 		if ( loadCondition.IsNotNull() )
 		{
 			yield return loadCondition.WaitForPendingOperations();
@@ -339,55 +348,55 @@ public class CustomSceneManager : MonoBehaviour {
 
 		asyncOperation.allowSceneActivation = true;
 
-		loadSceneData.fProgress = 0.70f;
+		UIManager.Loading.SetProgress( 0.70f );
+
 		// Wait for start completion
 		while ( asyncOperation.isDone == false )
 		{
 			yield return null;
 		}
 		
-		// Remove global state as ChangingScene state
-		GlobalManager.bIsChangingScene = false;
-		GlobalManager.bIsLoadingScene = true;
-		
 		// Pre load callback
-		if ( loadSceneData.pOnPreLoadCompleted != null )
-		{
-			loadSceneData.fProgress = 0.80f;
-			loadSceneData.pOnPreLoadCompleted();
-		}
-		yield return new WaitForEndOfFrame();
+		UIManager.Loading.SetProgress( 0.80f );
+		loadSceneData.pOnPreLoadCompleted();
 
+		// Wait for every launched coroutine in awake of scripts
+		yield return CoroutinesManager.WaitPendingCoroutines();
+
+		SoundManager.Instance.OnSceneLoaded();
+		
 		// LOAD DATA
+		if ( loadSceneData.bMustLoadSave == true )
 		{
-			SoundManager.Instance.OnSceneLoaded();
-			if ( loadSceneData.bMustLoadSave == true )
-			{
-				loadSceneData.fProgress = 0.90f;
-				GameManager.StreamEvents.Load( loadSceneData.sSaveToLoad );
-			}
+			UIManager.Loading.SetProgress( 0.95f );
+			GameManager.StreamEvents.Load( loadSceneData.sSaveToLoad );
 		}
 
 		// Wait for every launched coroutine in awake of scripts
 		yield return CoroutinesManager.WaitPendingCoroutines();
 
 		// Post load callback
-		if ( loadSceneData.pOnLoadCompleted != null )
-		{
-			loadSceneData.fProgress = 0.95f;
-			loadSceneData.pOnLoadCompleted();
-		}
+		UIManager.Loading.SetProgress( 0.95f );
+
+		loadSceneData.pOnLoadCompleted();
+
 		yield return new WaitForEndOfFrame();
 
 		GlobalManager.bIsLoadingScene = false;
 
-		loadSceneData.fProgress = 1.0f;
-		loadSceneData.bIsCompleted = true;
+		UIManager.Loading.SetProgress( 1.00f );
+
+		// Wait for every launched coroutine in awake of scripts
+		yield return CoroutinesManager.WaitPendingCoroutines();
+
+		yield return new WaitForSecondsRealtime( 3.00f );
 
 		UIManager.Instance.GoToMenu( UIManager.InGame );
 		UIManager.Indicators.enabled = true;
 		UIManager.Minimap.enabled = true;
 		GlobalManager.Instance.InputMgr.EnableCategory( InputCategory.ALL );
+		GameManager.Instance.SetInGameAs( true );
+		CameraControl.Instance.CanParseInput = true;
 
 		Time.timeScale = 1F;
 	}

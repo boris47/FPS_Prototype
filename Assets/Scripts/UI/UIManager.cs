@@ -141,7 +141,7 @@ public class UIManager : MonoBehaviour, IUI {
 
 
 	[SerializeField, ReadOnly]
-	private			Transform				m_CurrentActiveTrasform			= null;
+	private			Transform				m_CurrentActiveTransform			= null;
 	private			Transform				m_PrevActiveTransform			= null;
 
 	[SerializeField]
@@ -159,7 +159,6 @@ public class UIManager : MonoBehaviour, IUI {
 	//////////////////////////////////////////////////////////////////////////
 	private void Awake()
 	{
-		print("UIManager::Awake");
 		
 		// Singleton
 		if ( m_Instance != null )
@@ -167,6 +166,9 @@ public class UIManager : MonoBehaviour, IUI {
 			Destroy( gameObject );
 			return;
 		}
+
+		print("UIManager::Awake");
+
 		DontDestroyOnLoad( this );
 		m_Instance = this;
 
@@ -206,7 +208,6 @@ public class UIManager : MonoBehaviour, IUI {
 
 
 		m_RayCastInterceptor.gameObject.SetActive( false );
-		m_CurrentActiveTrasform = m_InGame.gameObject.activeSelf ? m_InGame.transform : m_MainMenu.transform;
 
 		if ( m_bIsInitialized == false )
 		{
@@ -223,31 +224,38 @@ public class UIManager : MonoBehaviour, IUI {
 	// Initialize
 	private	IEnumerator Initialize()
 	{
+		CoroutinesManager.AddCoroutineToPendingCount( 1 );
+
 		yield return null;
 
 		// Other Menus initialization
 		foreach( IStateDefiner state in transform.GetComponentsInChildren<IStateDefiner>( includeInactive: true ) )
 		{
+			CoroutinesManager.AddCoroutineToPendingCount( 1 );
 			yield return CoroutinesManager.Start( state.Initialize(), "UIMananger::Initialize() Initializing substate " + state.StateName );
+			CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 		}
 
 		yield return null;
 		yield return null;
 
-		int sceneIdx = gameObject.scene.buildIndex;
+		m_CurrentActiveTransform = m_InGame.gameObject.activeSelf ? m_InGame.transform : m_MainMenu.transform;
 
+		int sceneIdx = CustomSceneManager.CurrentSceneIndex; // gameObject.scene.buildIndex;
 		if ( sceneIdx == (int)SceneEnumeration.LOADING )
 		{
 			SwitchTo( m_Loading.transform );
 		}
-		else if ( sceneIdx > (int)SceneEnumeration.MAIN_MENU )
-		{
-			SwitchTo( m_InGame.transform );
-		}
-		else
+		else if ( sceneIdx == (int)SceneEnumeration.MAIN_MENU )
 		{
 			SwitchTo( m_MainMenu.transform );
 		}
+		else
+		{
+			SwitchTo( m_InGame.transform );
+		}
+
+		CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 	}
 
 
@@ -256,30 +264,33 @@ public class UIManager : MonoBehaviour, IUI {
 	// IsCurrentActive
 	public	bool		IsCurrentActive( MonoBehaviour menu )
 	{
-		return m_CurrentActiveTrasform == menu.transform;
+		return m_CurrentActiveTransform == menu.transform;
 	}
 
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// SwitchTo
-	private	void	SwitchTo( Transform trasformToShow )
+	private	void	SwitchTo( Transform TransformToShow )
 	{
+		if ( m_CurrentActiveTransform == TransformToShow )
+			return;
+
 		POINT lastCursorPosition = new POINT();
 
 		// SAve the current cursor position on the screen
 		GetCursorPos( out lastCursorPosition );
 
 		// Disable current active menu gameobject
-		m_CurrentActiveTrasform.gameObject.SetActive( false );
+		m_CurrentActiveTransform.gameObject.SetActive( false );
 
 		// Swicth to new menu
-		m_CurrentActiveTrasform	= trasformToShow;
+		m_CurrentActiveTransform	= TransformToShow;
 
 		// Enable current active menu gameobject
-		m_CurrentActiveTrasform.gameObject.SetActive( true );
+		m_CurrentActiveTransform.gameObject.SetActive( true );
 
-//		string currentName = m_CurrentActiveTrasform.name;
+//		string currentName = m_CurrentActiveTransform.name;
 
 		// Re-set the cursor position
 		SetCursorPos( lastCursorPosition.X, lastCursorPosition.Y );
@@ -323,7 +334,7 @@ public class UIManager : MonoBehaviour, IUI {
 		if ( MenuToShow == null )
 			return;
 
-		m_TransformStack.Push( m_CurrentActiveTrasform );
+		m_TransformStack.Push( m_CurrentActiveTransform );
 
 		SwitchTo( MenuToShow );
 	}

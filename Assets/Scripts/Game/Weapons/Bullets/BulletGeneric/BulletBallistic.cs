@@ -2,7 +2,7 @@
 using UnityEngine;
 
 
-public sealed class BulletBallistic : BulletGeneric {
+public class BulletBallistic : BulletGeneric {
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -10,30 +10,6 @@ public sealed class BulletBallistic : BulletGeneric {
 	protected override void Awake()
 	{
 		base.Awake();
-		
-		bool bHasLight = transform.SearchComponent( ref m_PointLight, SearchContext.LOCAL, null );
-		bool bHasFlare = transform.SearchComponent( ref m_LensFlare,  SearchContext.LOCAL, null );
-
-		if ( bHasLight )
-		{
-			m_PointLight.color = m_Renderer.material.GetColor( "_EmissionColor" );
-			m_BulletEffect = m_PointLight;
-
-			if ( bHasFlare  )
-			{
-				m_LensFlare.color = m_PointLight.color;
-			}
-		}
-
-		SetActive( false );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// ConfigureInternal ( Override )
-	protected	override	void	ConfigureInternal( Database.Section bulletSection )
-	{
-
 	}
 
 
@@ -41,7 +17,7 @@ public sealed class BulletBallistic : BulletGeneric {
 	// Update ( Override )
 	protected	override	void	Update()
 	{
-		// Only every 10 frames
+		// Only every 25 frames
 		if ( Time.frameCount % 25 == 0 )
 			return;
 
@@ -59,7 +35,7 @@ public sealed class BulletBallistic : BulletGeneric {
 			}
 			case BulletMotionType.DIRECT:
 			{
-				m_RigidBody.velocity	= m_RigidBodyVelocity;
+			//	m_RigidBody.velocity	= m_RigidBodyVelocity;
 				transform.up			= m_RigidBodyVelocity;
 				break;
 			}

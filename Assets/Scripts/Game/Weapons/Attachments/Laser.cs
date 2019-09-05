@@ -92,7 +92,10 @@ public class Laser : WeaponAttachment, ILaser {
 
 		m_LaserTransform.gameObject.SetActive( false );
 
-//		GameManager.UpdateEvents.OnFrame -= InternalUpdate;
+		if ( GameManager.UpdateEvents.IsNotNull() )
+		{
+			GameManager.UpdateEvents.OnFrame -= InternalUpdate;
+		}
 	}
 
 	

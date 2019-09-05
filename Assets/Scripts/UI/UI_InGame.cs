@@ -26,6 +26,7 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 
 	private			bool			m_IsActive					= false;
 
+	private			bool			m_bIsCompletedInitialization	= false;
 	private			bool			m_bIsInitialized			= false;
 	bool IStateDefiner.IsInitialized
 	{
@@ -94,6 +95,8 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 				CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 
 				yield return null;
+
+				m_bIsCompletedInitialization = true;
 			}
 			else
 			{
@@ -186,7 +189,7 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 	// UpdateUI
 	public	void	UpdateUI()
 	{
-		if ( m_IsActive == false || m_bIsInitialized == false )
+		if ( m_IsActive == false || m_bIsCompletedInitialization == false )
 			return;
 
 		IEntity player				= Player.Instance as IEntity;
@@ -259,7 +262,7 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 	// PrintTime
 	private	void	PrintTime()
 	{
-		if ( m_IsActive == false )
+		if ( m_IsActive == false || m_bIsCompletedInitialization == false )
 			return;
 
 		if ( WeatherSystem.WeatherManager.Instance != null )
@@ -274,7 +277,7 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 	// Update
 	private void	Update()
 	{
-		if ( m_IsActive == false || m_bIsInitialized == false )
+		if ( m_IsActive == false || m_bIsCompletedInitialization == false || Player.Instance.IsNotNull() == false )
 			return;
 
 		// Only every 10 frames
@@ -284,12 +287,6 @@ public class UI_InGame : MonoBehaviour, IStateDefiner {
 		m_Timetime.text = Time.timeScale.ToString();
 
 		m_StaminaBarImage.fillAmount = Player.Instance.OxygenCurrentLevel / 100f;
-		
-		if ( Input.GetKeyDown( KeyCode.Alpha6 ) )
-		{
-			Player.Instance.AddOxygenAmmount( 50f );
-		}
-
 	}
 	
 }

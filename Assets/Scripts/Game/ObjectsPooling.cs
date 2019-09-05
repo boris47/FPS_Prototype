@@ -16,14 +16,14 @@ public	class GameObjectsPoolConstructorData<T> {
 }
 
 
-/// <summary> Object pooler with a specified component added on every object </summary>
+/// <summary> Objects pool with a specified component added on every object </summary>
 public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	
 	private	static	int			Counter				= 0;
-	private	GameObject			m_Container			= null;
+	private	GameObject			m_ContainerGO		= null;
 	private	List<T>				m_ObjectsPool		= null;
 	private	int					m_InternalIndex		= 0;
-	private	System.Action<T>	m_ActionOnObject	= delegate( T component ) { };
+	private	System.Action<T>	m_ActionOnObject	= delegate { };
 	private	GameObject			m_ModelGO			= null;
 	private	Coroutine			m_Coroutine			= null;
 	private bool				m_bIsBuilding		= false;
@@ -37,8 +37,9 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 
 	public	bool				IsValid
 	{
-		get { return m_Container != null && m_ObjectsPool != null && m_ModelGO != null; }
+		get { return m_ContainerGO.IsNotNull() && m_ObjectsPool.IsNotNull() && m_ModelGO.IsNotNull(); }
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -75,9 +76,9 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 
 
 		// Create game object container
-		m_Container = new GameObject( containerName );
-		m_Container.transform.SetPositionAndRotation( Vector3.up * 80000f, Quaternion.identity ); 
-		Object.DontDestroyOnLoad(m_Container);
+		m_ContainerGO = new GameObject( containerName );
+		m_ContainerGO.transform.SetPositionAndRotation( Vector3.up * 80000f, Quaternion.identity ); 
+		Object.DontDestroyOnLoad(m_ContainerGO);
 		Counter ++;
 		
 
@@ -101,8 +102,9 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 				}
 			}
 		}
-		
 	}
+
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// CreateItemsCO
@@ -129,6 +131,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// Convert
 	public		bool		Convert( GameObject model, System.Action<T> actionOnObject = null )
@@ -140,12 +143,17 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 		);
 		
 		m_ModelGO = model;
+
+		if ( m_bIsBuilding == true )
+		{
+			CoroutinesManager.Stop( m_Coroutine );
+		}
 			
 		m_ActionOnObject = actionOnObject ?? m_ActionOnObject;
 
 		int size = m_ObjectsPool.Count;
 		{
-			m_Container.transform.DetachChildren();
+			m_ContainerGO.transform.DetachChildren();
 			for ( int i = m_ObjectsPool.Count - 1; i >= 0; i-- )
 			{
 				Component comp = m_ObjectsPool[i];
@@ -170,22 +178,25 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// Createitem
 	private		T			Createitem( GameObject model )
 	{	//											Model	Position,		Rotation			Parent
-		GameObject objectCopy = Object.Instantiate( model, Vector3.zero, Quaternion.identity, m_Container.transform );
+		GameObject objectCopy = Object.Instantiate( model, Vector3.zero, Quaternion.identity, m_ContainerGO.transform );
 		T comp = objectCopy.GetComponent<T>();
 		return comp;
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// ExecuteActionOnObject
-	public		void		ExecuteActionOnObjectr( System.Action<T> actionOnObject )
+	public		void		ExecuteActionOnObjects( System.Action<T> actionOnObject )
 	{
 		m_ObjectsPool.ForEach( actionOnObject );
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -209,6 +220,11 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 		int delta = Mathf.Abs( m_ObjectsPool.Count - (int)newSize );
 
 		int childCount = m_ObjectsPool.Count;
+
+		if ( m_bIsBuilding == true )
+		{
+			CoroutinesManager.Stop( m_Coroutine );
+		}
 
 		// Enlarge
 		if ( childCount < newSize )
@@ -237,6 +253,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// GetGameObject
 	public		GameObject	GetGameObject()
@@ -249,8 +266,9 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 			m_InternalIndex = 0;
 		}
 
-		return m_Container.transform.GetChild( m_InternalIndex ).gameObject;
+		return m_ContainerGO.transform.GetChild( m_InternalIndex ).gameObject;
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -260,6 +278,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 		go = GetGameObject();
 		return go != null;
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -279,6 +298,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// GetAsModel
 	public		T			PeekComponent()
@@ -288,6 +308,8 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 
 		return m_ObjectsPool[ m_InternalIndex ];
 	}
+
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// GetAsModel
@@ -300,6 +322,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// SetActive
 	public		void		SetActive( bool state )
@@ -307,8 +330,9 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 		if ( IsValid == false )
 			return;
 
-		m_Container.SetActive( state );
+		m_ContainerGO.SetActive( state );
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -327,7 +351,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 		
 		m_ObjectsPool.Clear();
 
-		Object.Destroy( m_Container );
+		Object.Destroy( m_ContainerGO );
 	}
 
 	

@@ -23,12 +23,16 @@ public sealed class BulletRocket : BulletExplosive, IFlyingExplosive {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
-	// ConfigureInternal ( Override )
-	protected	override	void	ConfigureInternal( Database.Section bulletSection )
+	// SetupBulletCO ( Override )
+	protected override IEnumerator SetupBulletCO()
 	{
-		m_MaxRange = bulletSection.AsFloat( "fMaxRange", m_MaxRange );
+		yield return base.SetupBulletCO();
+
+		m_MaxRange = m_BulletSection.AsFloat( "fMaxRange", m_MaxRange );
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -81,6 +85,7 @@ public sealed class BulletRocket : BulletExplosive, IFlyingExplosive {
 		this.SetActive( false );
 	}
 	*/
+
 
 	protected override void OnExplosion()
 	{

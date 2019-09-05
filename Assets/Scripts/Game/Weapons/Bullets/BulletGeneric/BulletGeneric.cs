@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections;
 using UnityEngine;
 
 
@@ -15,6 +16,9 @@ public abstract class BulletGeneric : Bullet, IBulletGeneric {
 	protected		Light				m_PointLight			= null;
 	protected		LensFlare			m_LensFlare				= null;
 
+	private			bool				m_bHasLight				= false;
+	private			bool				m_bHasFlare				= false;
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -22,24 +26,34 @@ public abstract class BulletGeneric : Bullet, IBulletGeneric {
 	protected override void Awake()
 	{
 		base.Awake();
-		
-		bool bHasLight = transform.SearchComponent( ref m_PointLight, SearchContext.LOCAL, null );
-		bool bHasFlare = transform.SearchComponent( ref m_LensFlare,  SearchContext.LOCAL, null );
 
-		if ( bHasLight )
+		m_bHasLight = transform.SearchComponent( ref m_PointLight, SearchContext.LOCAL, null );
+		m_bHasFlare = transform.SearchComponent( ref m_LensFlare,  SearchContext.LOCAL, null );
+	}
+
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// SetupBulletCO ( Override )
+	protected override IEnumerator SetupBulletCO()
+	{
+		yield return base.SetupBulletCO();
+
+		if ( m_bHasLight )
 		{
 			m_PointLight.color = m_Renderer.material.GetColor( "_EmissionColor" );
 			m_BulletEffect = m_PointLight;
 
-			if ( bHasFlare  )
+			if ( m_bHasFlare )
 			{
 				m_LensFlare.color = m_PointLight.color;
 			}
 		}
 
+		yield return null;
+
 		SetActive( false );
 	}
-
 
 	//////////////////////////////////////////////////////////////////////////
 	// Setup ( Override )
@@ -55,7 +69,7 @@ public abstract class BulletGeneric : Bullet, IBulletGeneric {
 		}
 	}
 
-
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	// Update ( Override )
 	protected	override	void	Update()
@@ -73,7 +87,7 @@ public abstract class BulletGeneric : Bullet, IBulletGeneric {
 			SetActive( false );
 		}
 	}
-
+	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	// Shoot ( Override )

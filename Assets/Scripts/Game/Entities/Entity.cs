@@ -285,11 +285,11 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 */
 
 	//////////////////////////////////////////////////////////////////////////
-	/// <summary> Set the trasform to Look At </summary>
-	public	virtual		void	SetTrasformToLookAt( Transform t, LookTargetMode LookMode = LookTargetMode.HEAD_ONLY )
+	/// <summary> Set the Transform to Look At </summary>
+	public	virtual		void	SetTransformToLookAt( Transform t, LookTargetMode LookMode = LookTargetMode.HEAD_ONLY )
 	{
 		m_LookData.HasLookAtObject		= true;
-		m_LookData.TrasformToLookAt		= t;
+		m_LookData.TransformToLookAt		= t;
 		m_LookData.PointToLookAt		= Vector3.zero;
 		m_LookData.LookTargetType		= LookTargetType.TRANSFORM;
 		m_LookData.LookTargetMode		= LookMode;
@@ -300,7 +300,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	public	virtual		void	SetPointToLookAt( Vector3 point, LookTargetMode LookMode = LookTargetMode.HEAD_ONLY )
 	{
 		m_LookData.HasLookAtObject		= true;
-		m_LookData.TrasformToLookAt		= null;
+		m_LookData.TransformToLookAt		= null;
 		m_LookData.PointToLookAt		= point;
 		m_LookData.LookTargetType		= LookTargetType.POSITION;
 		m_LookData.LookTargetMode		= LookMode;
@@ -312,7 +312,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	public	virtual		void	StopLooking()
 	{
 		m_LookData.HasLookAtObject		= false;
-		m_LookData.TrasformToLookAt		= null;
+		m_LookData.TransformToLookAt		= null;
 		m_LookData.PointToLookAt		= Vector3.zero;
 		m_LookData.LookTargetType		= LookTargetType.POSITION;
 		m_LookData.LookTargetMode		= LookTargetMode.HEAD_ONLY;
@@ -356,7 +356,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 
 		// HEAD
 		{
-			Vector3 pointToLookAt = m_LookData.LookTargetType == LookTargetType.TRANSFORM ? m_LookData.TrasformToLookAt.position : m_LookData.PointToLookAt;
+			Vector3 pointToLookAt = m_LookData.LookTargetType == LookTargetType.TRANSFORM ? m_LookData.TransformToLookAt.position : m_LookData.PointToLookAt;
 
 			// point on the head 'Horizontal'  plane
 			Vector3 pointOnHeadPlane	= Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_HeadTransform.position,		 pointToLookAt );
@@ -440,7 +440,7 @@ public	enum LookTargetMode : uint {
 public class LookData {
 	public	bool			HasLookAtObject		= false;
 	public	Vector3			PointToLookAt		= Vector3.zero;
-	public	Transform		TrasformToLookAt	= null;
+	public	Transform		TransformToLookAt	= null;
 	public	LookTargetType	LookTargetType		= LookTargetType.POSITION;
 	public	LookTargetMode	LookTargetMode		= LookTargetMode.HEAD_ONLY;
 };

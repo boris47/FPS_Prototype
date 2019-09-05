@@ -43,6 +43,15 @@ public partial class GameManager : MonoBehaviour {
 		m_StreamEvents	= this as IStreamEvents;
 		m_PauseEvents	= this as IPauseEvents;
 		m_UpdateEvents	= this as IUpdateEvents;
+		m_InGame		= false;
+	}
+
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public	void	SetInGameAs( bool value )
+	{
+		m_InGame = value;
 	}
 
 
@@ -74,8 +83,6 @@ public partial class GameManager : MonoBehaviour {
 	{
 		if ( m_Instance != this )
 			return;
-
-		m_InGame = true;
 
 		ReseteDelegates();
 
@@ -118,7 +125,12 @@ public partial class GameManager : MonoBehaviour {
 			predicate:		() => WeaponManager.Instance.IsZoomed == false
 		);
 
-//		Debug.Log( "GameManager::OnEnable: m_InGame = true" );
+		// Because we ha bypassed the menu and this flag is set true only after asyn load is completed,
+		// this is the only way to check if user used the main menu
+		if ( UI_MainMenu.FromMenu == false )
+		{
+			m_InGame = true;
+		}
 	}
 
 
@@ -135,8 +147,6 @@ public partial class GameManager : MonoBehaviour {
 		ReseteDelegates();
 
 		m_InGame = false;
-
-//		Debug.Log( "GameManager::OnDisable: m_InGame = false" );
 	}
 	
 
@@ -181,7 +191,6 @@ public partial class GameManager : MonoBehaviour {
 		EDITOR_InGame = m_InGame;
 		if ( m_InGame == false )
 		{
-			Debug.Log( "Game manager not ingame");
 			return;
 		}
 		
@@ -210,7 +219,7 @@ public partial class GameManager : MonoBehaviour {
 		/*
 		if ( Input.GetKeyDown( KeyCode.L ) )
 		{
-			Configs.SaveContextSections( "Camera" );
+			GlobalManager.Configs.SaveContextSections( "Camera" );
 			print("Saving Camera Section");
 		}
 		*/

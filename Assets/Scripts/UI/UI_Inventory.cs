@@ -125,9 +125,7 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 						( instancedInventorySlot.transform as RectTransform ).anchorMax = Vector2.one;
 
 						IStateDefiner slot = m_UI_MatrixSlots[i, j] = instancedInventorySlot.GetComponent<UI_InventorySlot>();
-						CoroutinesManager.Start( slot.Initialize(),
-							"UI_Inventory::Initialize: Loading grid "
-							);
+						CoroutinesManager.Start( slot.Initialize() );
 					}
 
 					yield return null;

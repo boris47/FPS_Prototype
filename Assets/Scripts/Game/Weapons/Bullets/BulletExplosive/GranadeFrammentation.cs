@@ -1,4 +1,5 @@
 ﻿
+using System.Collections;
 using UnityEngine;
 
 
@@ -37,14 +38,16 @@ public sealed class GranadeFrammentation : BulletExplosive, ITimedExplosive {
 	}
 
 
-	//////////////////////////////////////////////////////////////////////////
-	// ConfigureInternal ( Override )
-	protected	override	void	ConfigureInternal( Database.Section bulletSection )
-	{
-		base.ConfigureInternal( bulletSection );
 
-		m_ExplosionDelay = bulletSection.AsFloat( "fExplosionDelay", m_ExplosionDelay );
+	//////////////////////////////////////////////////////////////////////////
+	// SetupBulletCO ( Override )
+	protected override IEnumerator SetupBulletCO()
+	{
+		yield return base.SetupBulletCO();
+
+		m_ExplosionDelay = m_BulletSection.AsFloat( "fExplosionDelay", m_ExplosionDelay );
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -56,6 +59,7 @@ public sealed class GranadeFrammentation : BulletExplosive, ITimedExplosive {
 		m_StartPosition = position;
 		SetActive( true );
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -83,12 +87,14 @@ public sealed class GranadeFrammentation : BulletExplosive, ITimedExplosive {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// ForceExplosion
 	public override void ForceExplosion()
 	{
 		base.ForceExplosion();
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -133,10 +139,13 @@ public sealed class GranadeFrammentation : BulletExplosive, ITimedExplosive {
 		m_InternalCounter	= 0f;
 	}
 
+
+
 	protected override void OnTriggerEnter( Collider other )
 	{
 		
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////

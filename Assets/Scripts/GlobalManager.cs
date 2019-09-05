@@ -82,9 +82,17 @@ public class GlobalManager : MonoBehaviour {
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
 	private static void OnBeforeSceneLoad ()
 	{
-		Application.logMessageReceived += HandleException;
 		if ( Application.isEditor == false )
+		{
+			Application.logMessageReceived += HandleException;
 			new MyFileLogHandler();
+		}
+
+		m_Settings	= new SectionMap();
+		m_Configs	= new SectionMap();
+
+		m_Settings.LoadFile( settingspath );
+		m_Configs.LoadFile( configsPath );
 	}
 
 	static void HandleException( string condition, string stackTrace, LogType type )
@@ -106,12 +114,6 @@ public class GlobalManager : MonoBehaviour {
 		}
 		DontDestroyOnLoad( this );
 		m_Instance		= this;
-
-		m_Settings	= new SectionMap();
-		m_Configs	= new SectionMap();
-
-		m_Settings.LoadFile( settingspath );
-		m_Configs.LoadFile( configsPath );
 
 		m_InputMgr	= new InputManager();
 		m_InputMgr.Setup();

@@ -40,9 +40,9 @@ public class CoroutinesManager : MonoBehaviour {
 
 		}
 
-		public	void	Start()
+		public	Coroutine	ExecuteSequence()
 		{
-			m_MonoBehaviour.StartCoroutine( StartCO() );
+			return m_MonoBehaviour.StartCoroutine( StartCO() );
 		}
 
 	}
@@ -54,7 +54,6 @@ public class CoroutinesManager : MonoBehaviour {
 	private	static	bool				m_ShowDebugInfo		= false;
 
 	private	static	uint				m_PendingRoutines	= 0;
-
 
 	/////////////////////////////////////////////////////////////////
 	private	static	void	Initialize()
@@ -69,11 +68,12 @@ public class CoroutinesManager : MonoBehaviour {
 		}
 	}
 
-
+	
 	/////////////////////////////////////////////////////////////////
 	public static  void	AddCoroutineToPendingCount( uint howMany )
 	{
 		m_PendingRoutines += howMany;
+		print( "CoroutinesManager::AddCoroutineToPendingCount: Current Count " + m_PendingRoutines );
 	}
 
 
@@ -88,13 +88,17 @@ public class CoroutinesManager : MonoBehaviour {
 		}
 
 		m_PendingRoutines -= howMany;
+
+		print( "CoroutinesManager::RemoveCoroutineFromPendingCount: Current Count " + m_PendingRoutines );
 	}
 
 
 	/////////////////////////////////////////////////////////////////
 	public static IEnumerator	WaitPendingCoroutines()
 	{
-		while( m_PendingRoutines > 0 )
+		yield return null;
+
+		while ( m_PendingRoutines > 0 )
 		{
 			yield return null;
 		}
@@ -123,10 +127,13 @@ public class CoroutinesManager : MonoBehaviour {
 	
 	/////////////////////////////////////////////////////////////////
 	/// <summary> Start a new coroutine </summary>
-	public	static	Coroutine	Start( IEnumerator routine, string debugKey )
+	public	static	Coroutine	Start( IEnumerator routine, string debugKey = "" )
 	{
 		Initialize();
-		Debug.Log( "Starting coroutine for " + debugKey );
+		if ( debugKey.Length > 0 )
+		{
+//			Debug.Log( "Starting coroutine for " + debugKey );
+		}
 		return m_Instance.StartCoroutine( routine );
 	}
 

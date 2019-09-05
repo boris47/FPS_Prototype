@@ -14,3 +14,31 @@ Debug.Log( Application.temporaryCachePath );		// C:/Users/Drako/AppData/Local/Te
 
 var v = new { Amount = 108, Message = "Hello" };
 m_bIsInitialized &= GlobalManager.Configs.bGetSection( SectionName, v );
+
+
+
+///////////////////////////////////////////////////////
+- Coroutines Infos
+
+* The declaration can't have any in ref or out parameters !!
+
+private IEnumerator<string> MyIteratorMethod()
+{
+	List<string> books = new List<string>()
+	{
+		"The King Lion", "Titanic", "Pearl Harbour"
+	};
+	foreach( string bookTitle in books )
+	{
+		yield return bookTitle
+	}
+}
+
+MonoBehaviour.StartCoroutine( MyIteratorMethod() );
+
+The call to MyIteratorMethod doesn't execute the body of the method.
+Instead the call returns an IEnumerable<string> into the elements variable.
+
+On each subsequent iteration of the foreach loop, the execution of the iterator body continues
+from where it left off, again stopping when it reaches a yield return statement. 
+The foreach loop completes when the end of the iterator method or a yield break statement is reached.

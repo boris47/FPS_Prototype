@@ -80,7 +80,6 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 
 
 
-
 	protected		Rigidbody			m_RigidBody				= null;
 	protected		Collider			m_Collider				= null;
 	protected		Entity				m_WhoRef				= null;
@@ -107,10 +106,11 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 	// INTERFACE END
 
 	protected		Renderer			m_Renderer				= null;
-	protected		IBullet				m_Instance				= null;
 
 	protected		Vector3				m_StartPosition			= Vector3.zero;
 	protected		Vector3				m_RigidBodyVelocity		= Vector3.zero;
+	protected		Database.Section	m_BulletSection			= null;
+
 
 	private static Dictionary<string, Database.Section> m_BulletsSections = new Dictionary<string, Database.Section>();
 
@@ -121,62 +121,64 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 	// Awake ( Virtual )
 	protected	virtual		void	Awake()
 	{
-		m_Instance = this as IBullet;
+		string sectionName = GetType().Name;
+		if ( m_BulletsSections.TryGetValue( sectionName, out m_BulletSection ) == false )
+		{
+			GlobalManager.Configs.bGetSection( sectionName, ref m_BulletSection );
+			m_BulletsSections[sectionName] = m_BulletSection;
+		}
+
+		CoroutinesManager.Start( SetupBulletCO() );
 
 		m_RigidBody	= GetComponent<Rigidbody>();
 		m_Collider	= GetComponent<Collider>();
 		m_Renderer	= GetComponent<Renderer>();
+	}
+
+
+	
+	//////////////////////////////////////////////////////////////////////////
+	// SetupBulletCO ( Virtual )
+	protected virtual System.Collections.IEnumerator SetupBulletCO()
+	{
+		yield return null;
 
 		m_RigidBody.interpolation				= RigidbodyInterpolation.Interpolate;
 		m_RigidBody.collisionDetectionMode		= CollisionDetectionMode.ContinuousDynamic;
 		m_RigidBody.maxAngularVelocity			= 0f;
 
-		
-		string sectionName = GetType().Name;
-		Database.Section bulletSection = null;
-		if ( m_BulletsSections.TryGetValue( sectionName, out bulletSection ) == false )
-		{
-			GlobalManager.Configs.bGetSection( sectionName, ref bulletSection );
-			m_BulletsSections[sectionName] = bulletSection;
-		}
+		yield return null;
 
 		// MotionType
-		Utils.Converters.StringToEnum( bulletSection.AsString("eBulletMotionType"), ref m_BulletMotionType );
+		Utils.Converters.StringToEnum( m_BulletSection.AsString("eBulletMotionType"), ref m_BulletMotionType );
 
 		// DamageType
-		Utils.Converters.StringToEnum( bulletSection.AsString("eDamageType"), ref m_DamageType );
+		Utils.Converters.StringToEnum( m_BulletSection.AsString("eDamageType"), ref m_DamageType );
 
 		// fDamageMin
-		m_DamageMin = bulletSection.AsFloat( "fDamageMin", m_DamageMin );
+		m_DamageMin = m_BulletSection.AsFloat( "fDamageMin", m_DamageMin );
 
 		// fDamageMax
-		m_DamageMax = bulletSection.AsFloat( "fDamageMax", m_DamageMax );
+		m_DamageMax = m_BulletSection.AsFloat( "fDamageMax", m_DamageMax );
 
 		// bHasDamageOverTime
-		m_HasDamageOverTime = bulletSection.AsBool( "bHasDamageOverTime", m_HasDamageOverTime );
+		m_HasDamageOverTime = m_BulletSection.AsBool( "bHasDamageOverTime", m_HasDamageOverTime );
 
 		// fOverTimeDamageDuration
-		m_OverTimeDamageDuration = bulletSection.AsFloat( "fOverTimeDamageDuration", m_OverTimeDamageDuration );
+		m_OverTimeDamageDuration = m_BulletSection.AsFloat( "fOverTimeDamageDuration", m_OverTimeDamageDuration );
 
 		// eOverTimeDamageType
-		Utils.Converters.StringToEnum( bulletSection.AsString("eOverTimeDamageType"), ref m_OverTimeDamageType );
+		Utils.Converters.StringToEnum( m_BulletSection.AsString("eOverTimeDamageType"), ref m_OverTimeDamageType );
 
 		// bCanPenetrate
-		bulletSection.bAsBool( "bCanPenetrate", ref m_CanPenetrate );
+		m_BulletSection.bAsBool( "bCanPenetrate", ref m_CanPenetrate );
 
 		// fVelocity
-		m_Velocity = bulletSection.AsFloat( "fVelocity", m_Velocity );
+		m_Velocity = m_BulletSection.AsFloat( "fVelocity", m_Velocity );
 
 		// fRange
-		m_Range = bulletSection.AsFloat( "fRange", m_Range );
-
+		m_Range = m_BulletSection.AsFloat( "fRange", m_Range );
 	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// ConfigureInternal ( Abstract )
-	/// <summary> Bullet get deeply configured in the concrete version of this method </summary>
-	protected	abstract	void	ConfigureInternal( Database.Section bulletSection );
 
 
 	//////////////////////////////////////////////////////////////////////////

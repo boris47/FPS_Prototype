@@ -5,7 +5,9 @@ using UnityEngine.UI;
 
 public class UI_Loading : MonoBehaviour, IStateDefiner {
 
-	private		Slider		m_LoadingBar		= null;
+	private		Slider		m_LoadingBar			= null;
+	private		float		m_CurrentProgressValue	= 0.0f;
+
 
 	private		bool		m_IsInitialized = false;
 	bool IStateDefiner.IsInitialized
@@ -20,6 +22,7 @@ public class UI_Loading : MonoBehaviour, IStateDefiner {
 
 
 
+	//////////////////////////////////////////////////////////////////////////
 	IEnumerator IStateDefiner.Initialize()
 	{
 		yield return null;
@@ -29,6 +32,7 @@ public class UI_Loading : MonoBehaviour, IStateDefiner {
 
 
 
+	//////////////////////////////////////////////////////////////////////////
 	IEnumerator IStateDefiner.ReInit()
 	{
 		yield return null;
@@ -36,6 +40,7 @@ public class UI_Loading : MonoBehaviour, IStateDefiner {
 
 
 
+	//////////////////////////////////////////////////////////////////////////
 	bool IStateDefiner.Finalize()
 	{
 		return m_IsInitialized;
@@ -43,6 +48,7 @@ public class UI_Loading : MonoBehaviour, IStateDefiner {
 
 
 
+	//////////////////////////////////////////////////////////////////////////
 	public	void	Show()
 	{
 		gameObject.SetActive(true);
@@ -50,6 +56,7 @@ public class UI_Loading : MonoBehaviour, IStateDefiner {
 
 
 
+	//////////////////////////////////////////////////////////////////////////
 	public	void	Hide()
 	{
 		gameObject.SetActive( false );
@@ -57,15 +64,43 @@ public class UI_Loading : MonoBehaviour, IStateDefiner {
 
 
 
-	public void ResetBar()
+	//////////////////////////////////////////////////////////////////////////
+	private void OnEnable()
 	{
-		m_LoadingBar.value = 0f;
+		m_CurrentProgressValue = 0.0f;
 	}
 
 
 
+	//////////////////////////////////////////////////////////////////////////
+	private void OnDisable()
+	{
+		m_CurrentProgressValue = 0.0f;
+	}
+
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public void ResetBar()
+	{
+		m_CurrentProgressValue = 0.0f;
+		m_LoadingBar.value = 0.0f;
+	}
+
+
+
+	//////////////////////////////////////////////////////////////////////////
 	public	void	SetProgress( float CurrentProgress )
 	{
-		m_LoadingBar.value = CurrentProgress;
+//		m_LoadingBar.value = CurrentProgress;
+		m_CurrentProgressValue = CurrentProgress;
+	}
+
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void LateUpdate()
+	{
+		m_LoadingBar.value = Mathf.MoveTowards( m_LoadingBar.value, m_CurrentProgressValue, Time.unscaledDeltaTime );
 	}
 }

@@ -12,6 +12,11 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 	private		Button	m_ResumeButton			= null;
 //	private		Button	m_SettingsButton		= null;
 	
+	private	static		bool	m_bFromMenu				= false;
+	public	static		bool	FromMenu
+	{
+		get { return m_bFromMenu; }
+	}
 
 
 	private	bool			m_bIsInitialized			= false;
@@ -94,6 +99,14 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 	}
 
 
+	private void Awake()
+	{
+		if ( UIManager.MainMenu != this )
+			return;
+
+		CoroutinesManager.Start( OnStart() );
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnEnable
@@ -102,15 +115,19 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 		print( "MainMenu::OnEnable" );
 
 		UIManager.EffectFrame.color = Color.clear;
+
+		m_bFromMenu = true;
+
+		GlobalManager.SetCursorVisibility( true );
 	}
 
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// Start
-	private IEnumerator Start()
+	private IEnumerator OnStart()
 	{
-		print( "MainMenu::Start" );
+		print( "MainMenu::OnStart" );
 
 		// Cursor
 		GlobalManager.SetCursorVisibility( false );
@@ -118,12 +135,14 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 		yield return null;
 
 		// UI interaction
-		UIManager.Instance.DisableInteraction( this.transform );
+		UIManager.Instance.DisableInteraction( transform );
 		{
 			yield return CoroutinesManager.WaitPendingCoroutines();
 		}
 
-		UIManager.Instance.EnableInteraction( this.transform );
+		print( "MainMenu::OnStart await completed" );
+
+		UIManager.Instance.EnableInteraction( transform );
 
 		// Cursor
 		GlobalManager.SetCursorVisibility( true );

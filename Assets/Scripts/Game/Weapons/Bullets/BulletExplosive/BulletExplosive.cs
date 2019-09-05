@@ -61,17 +61,23 @@ public abstract class BulletExplosive : BulletGeneric, IExplosive {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
-	// ConfigureInternal ( Override )
-	protected	override	void	ConfigureInternal( Database.Section bulletSection )
+	// SetupBulletCO ( Override )
+	protected override IEnumerator SetupBulletCO()
 	{
-		m_BlowOnHit		= bulletSection.AsBool( "bBlowOnHit", m_BlowOnHit );
-		m_AttachOnHit	= bulletSection.AsBool( "bAttachOnHit", m_AttachOnHit );
-		m_BlastRadius	= bulletSection.AsFloat( "fBlastRadius", m_BlastRadius );
-		m_BlastDamage	= bulletSection.AsFloat( "fBlastDamage", m_BlastDamage );
+		yield return base.SetupBulletCO();
+
+		m_BlowOnHit		= m_BulletSection.AsBool( "bBlowOnHit", m_BlowOnHit );
+		m_AttachOnHit	= m_BulletSection.AsBool( "bAttachOnHit", m_AttachOnHit );
+		m_BlastRadius	= m_BulletSection.AsFloat( "fBlastRadius", m_BlastRadius );
+		m_BlastDamage	= m_BulletSection.AsFloat( "fBlastDamage", m_BlastDamage );
+
+		SetActive( false );
 	}
 
 
+	
 	//////////////////////////////////////////////////////////////////////////
 	// SetActive ( Override )
 	public		override	void	SetActive( bool state )

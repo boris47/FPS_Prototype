@@ -140,12 +140,6 @@ public class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 		// Hide Pause menu UI
 		gameObject.SetActive( false );
 
-		// Hide In-Game UI
-		UIManager.InGame.gameObject.SetActive( false );
-
-		// Show MainMenu object
-		UIManager.MainMenu.gameObject.SetActive( true );
-
 		// update current active transform
 		UIManager.Instance.GoToMenu( UIManager.MainMenu );
 

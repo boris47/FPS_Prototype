@@ -35,6 +35,7 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 
 	private		WaitForSeconds			m_WaitInstruction			= null;
 
+
 	
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
@@ -48,14 +49,16 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// ConfigureInternal ( Override )
-	protected	override	void	ConfigureInternal( Database.Section bulletSection )
+	protected override IEnumerator SetupBulletCO()
 	{
-		base.ConfigureInternal( bulletSection );
+		yield return base.SetupBulletCO();
 
-		m_ExplosionDelay = bulletSection.AsFloat( "fExplosionDelay", m_ExplosionDelay );
+		m_ExplosionDelay = m_BulletSection.AsFloat( "fExplosionDelay", m_ExplosionDelay );
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -80,6 +83,7 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// SetActive ( Override )
 	public override void	SetActive( bool state )
@@ -99,6 +103,7 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 
 		base.SetActive( state );
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -123,6 +128,7 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// MakeDamage
 	public	void	MakeDamage()
@@ -134,12 +140,14 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// ForceExplosion ( Override )
 	public		override	void		ForceExplosion()
 	{
 		base.ForceExplosion();
 	}
+
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -153,6 +161,7 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 
 		CoroutinesManager.Start( ExplosionCO(), "GranadeElectroGlobe::OnExplosion: Explosion CO" );
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -187,6 +196,7 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// OnCollisionEnter ( Override )
 	protected override void OnCollisionEnter( Collision collision )
@@ -212,6 +222,7 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// OnTriggerEnter
 	protected	override void OnTriggerEnter( Collider other )
@@ -227,6 +238,7 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// OnTriggerEnter
 	private void OnTriggerExit( Collider other )
@@ -240,5 +252,4 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 			m_Entites.Remove( entity );
 		}
 	}
-
 }

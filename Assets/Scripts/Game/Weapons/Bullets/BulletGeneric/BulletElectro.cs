@@ -2,7 +2,7 @@
 using UnityEngine;
 
 
-public sealed class BulletElectro : BulletGeneric {
+public sealed class BulletElectro : BulletBallistic {
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -12,13 +12,6 @@ public sealed class BulletElectro : BulletGeneric {
 		base.Awake();
 	}
 
-
-	//////////////////////////////////////////////////////////////////////////
-	// ConfigureInternal ( Override )
-	protected	override	void	ConfigureInternal( Database.Section bulletSection )
-	{
-
-	}
 
 
 	//////////////////////////////////////////////////////////////////////////

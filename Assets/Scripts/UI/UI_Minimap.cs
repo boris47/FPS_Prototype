@@ -38,7 +38,7 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 		get { return name; }
 	}
 
-	private			bool			m_bInternalIsInitialized	= false;
+	private			bool			m_bIsCompletedInitialization	= false;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -103,7 +103,7 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 				m_HelperRectTransform.gameObject.hideFlags = HideFlags.HideAndDontSave;
 
 				m_RatioVector = new Vector2( m_MiniMapRectTransform.rect.width / m_TopViewCamera.pixelWidth, m_MiniMapRectTransform.rect.height / m_TopViewCamera.pixelHeight );
-				m_bInternalIsInitialized = true;
+				m_bIsCompletedInitialization = true;
 			}
 
 			if ( m_bIsInitialized )
@@ -130,7 +130,7 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 	// Finalize
 	bool	 IStateDefiner.Finalize()
 	{
-		return m_bInternalIsInitialized;
+		return m_bIsCompletedInitialization;
 	}
 
 
@@ -161,7 +161,7 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 	//////////////////////////////////////////////////////////////////////////
 	private void FixedUpdate()
 	{
-		if ( m_bInternalIsInitialized == false )
+		if ( m_bIsCompletedInitialization == false || Player.Instance.IsNotNull() == false )
 			return;
 
 		Vector3 prevPosition = m_TopViewCamera.transform.position;
@@ -182,7 +182,7 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 	//////////////////////////////////////////////////////////////////////////
 	public	void	Show()
 	{
-		if ( m_bInternalIsInitialized == false )
+		if ( m_bIsCompletedInitialization == false )
 			return;
 
 		m_bIsVisible = true;
@@ -197,7 +197,7 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 	//////////////////////////////////////////////////////////////////////////
 	public	void	Hide()
 	{
-		if ( m_bInternalIsInitialized == false )
+		if ( m_bIsCompletedInitialization == false )
 			return;
 
 		m_bIsVisible = false;

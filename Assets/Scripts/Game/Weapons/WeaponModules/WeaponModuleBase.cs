@@ -420,7 +420,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 		// DAMAGE
 		int CanPenetrate					= Configuration.As<int>( "bCanPenetrate" );		// 0 no change, 1 disable, 2 enable
 		m_CanPenetrate						= CanPenetrate == 0 ? m_CanPenetrate : CanPenetrate == 0 ? false : true;
-		m_PoolBullets.ExecuteActionOnObjectr( ActionOnBullet );
+		m_PoolBullets.ExecuteActionOnObjects( ActionOnBullet );
 		m_Damage							= Configuration.AsFloat( "Damage" );
 
 

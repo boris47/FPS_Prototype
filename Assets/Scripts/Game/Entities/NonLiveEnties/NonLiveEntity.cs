@@ -49,7 +49,7 @@ public abstract partial class NonLiveEntity : Entity {
 		// Look At
 		if ( target )
 		{
-			SetTrasformToLookAt( target, LookTargetMode.HEAD_ONLY );
+			SetTransformToLookAt( target, LookTargetMode.HEAD_ONLY );
 		}
 		else
 		{
