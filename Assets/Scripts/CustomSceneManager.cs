@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
+
 [System.Serializable]
 public	enum SceneEnumeration {
 	NEXT		= -256,
@@ -18,6 +19,7 @@ public	enum SceneEnumeration {
 	ENDING		= OPENWORLD3 + 1,
 	COUNT
 }
+
 
 
 public class CustomSceneManager : MonoBehaviour {
@@ -37,11 +39,8 @@ public class CustomSceneManager : MonoBehaviour {
 	}
 
 
-
-	private	static	Dictionary<string, UnityAction<Scene, LoadSceneMode> > m_RegisteredDelegates = new Dictionary<string, UnityAction<Scene, LoadSceneMode>>();
-
 	private	static	CustomSceneManager		m_Instance = null;
-
+	private	static	Dictionary<string, UnityAction<Scene, LoadSceneMode> > m_RegisteredDelegates = new Dictionary<string, UnityAction<Scene, LoadSceneMode>>();
 	private	static	List< UnityAction<Scene, LoadSceneMode> > Delegates = new List<UnityAction<Scene, LoadSceneMode>>();
 	
 

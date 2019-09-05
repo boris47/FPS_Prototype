@@ -18,7 +18,7 @@ public class SetupScene : EditorWindow  {
 
 		foreach ( GameObject go in Object.FindObjectsOfType<GameObject>() )
 		{
-//			DestroyImmediate( go );
+			DestroyImmediate( go );
 		}
 		
 		LoadPrefab<GlobalManager>		( prefabPath:"Prefabs/Essentials/GlobalManager"			);
