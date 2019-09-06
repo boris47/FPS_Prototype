@@ -41,6 +41,7 @@ public abstract partial class Entity : IBrain {
 	protected			bool						m_IsBrainActive					= true;
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	protected	void	Brain_Setup()
 	{
@@ -52,6 +53,7 @@ public abstract partial class Entity : IBrain {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	protected	void	Destroy_Brain()
 	{
@@ -59,6 +61,7 @@ public abstract partial class Entity : IBrain {
 
 		DisableMemory();
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -101,11 +104,22 @@ public abstract partial class Entity : IBrain {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	public	virtual void	Brain_SetActive( bool State )
 	{
 		m_IsBrainActive = State;
+
+		if ( m_IsBrainActive )
+		{
+			GameManager.FieldsOfViewManager.RegisterAgent( m_FieldOfView, m_FieldOfView.UpdateFOV );
+		}
+		else
+		{
+			GameManager.FieldsOfViewManager.UnregisterAgent( m_FieldOfView );
+		}
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -114,10 +128,11 @@ public abstract partial class Entity : IBrain {
 		if ( m_IsBrainActive == false )
 			return;
 
-		m_FieldOfView.UpdateFOV();
+	//	m_FieldOfView.UpdateFOV();
 
-		m_MemoryInstance.ValidateMemories();
+		m_MemoryInstance.CleanInvalidMemories();
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -135,6 +150,7 @@ public abstract partial class Entity : IBrain {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	protected virtual void	Brain_OnReset( BrainState brainState = BrainState.NORMAL )
 	{
@@ -143,6 +159,7 @@ public abstract partial class Entity : IBrain {
 	}
 
 }
+
 
 
 [ System.Serializable ]

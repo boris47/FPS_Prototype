@@ -16,7 +16,7 @@ public	class	MemoryUnit {
 
 public partial interface IEntityMemory {
 
-	void			ValidateMemories								();
+	void			CleanInvalidMemories								();
 
 	bool			Add										( Entity entity );
 
@@ -71,7 +71,7 @@ public abstract partial class Entity : IEntityMemory {
 	/// <summary>
 	/// Validate all the memories checking data valid values
 	/// </summary>
-	void		IEntityMemory.ValidateMemories()
+	void		IEntityMemory.CleanInvalidMemories()
 	{
 		for ( int i = m_Memories.Count - 1; i >= 0; i-- )
 		{

@@ -19,7 +19,7 @@ public enum SearchContext {
 	/// <summary> On this object and parents </summary>
 	PARENT,
 	/// <summary> On all the object hierarchy </summary>
-	ALL = CHILDREN | LOCAL | PARENT
+	FROM_ROOT = CHILDREN | LOCAL | PARENT
 }
 
 namespace Utils {
@@ -208,7 +208,7 @@ namespace Utils {
 					break;
 				}
 
-				case SearchContext.ALL:
+				case SearchContext.FROM_ROOT:
 				{
 					results = GameObject.transform.root.GetComponentsInChildren<T>();
 					break;

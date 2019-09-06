@@ -132,7 +132,7 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 				Utils.Converters.StringToEnum( targetType, ref type );
 				m_BrainInstance.FieldOfView.TargetType = type;
 
-				m_FieldOfView.Setup( maxVisibleEntities : 10 );
+//				m_FieldOfView.Setup( maxVisibleEntities : 10 );
 				m_FieldOfView.OnTargetAquired			= OnTargetAquired;
 				m_FieldOfView.OnTargetChanged			= OnTargetChanged;
 				m_FieldOfView.OnTargetLost				= OnTargetLost;

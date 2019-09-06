@@ -43,6 +43,7 @@ public partial class GameManager : MonoBehaviour {
 		m_StreamEvents	= this as IStreamEvents;
 		m_PauseEvents	= this as IPauseEvents;
 		m_UpdateEvents	= this as IUpdateEvents;
+		m_FieldsOfViewManager = this as IFieldsOfViewManager;
 		m_InGame		= false;
 	}
 
@@ -254,6 +255,7 @@ public partial class GameManager : MonoBehaviour {
 		if ( m_ThinkTimer > Entity.THINK_TIMER )
 		{
 			m_OnThink();
+			UpdateCurrentFieldOfView();
 			m_ThinkTimer = 0f;
 		}
 
@@ -351,6 +353,7 @@ public partial class GameManager : MonoBehaviour {
 		m_StreamEvents	= null;
 		m_PauseEvents	= null;
 		m_UpdateEvents	= null;
+		m_FieldsOfViewManager = null;
 
 		EDITOR_InGame = false;
 

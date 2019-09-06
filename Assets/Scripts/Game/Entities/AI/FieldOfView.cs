@@ -17,7 +17,7 @@ public interface IFieldOfView {
 	ENTITY_TYPE			TargetType			{ get; set; }
 
 	void				Setup				( uint maxVisibleEntities );
-	bool				UpdateFOV			();
+	void				UpdateFOV			();
 	void				OnReset				();
 }
 
@@ -78,8 +78,6 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	private		Entity[]				m_ValidTargets			= null;
 	private		uint					m_MaxVisibleEntities	= 10;
 
-	private		bool					m_NeedSetup				= true;
-
 	private		TargetInfo				m_CurrentTargetInfo		= new TargetInfo();
 	private		Quaternion				m_LookRotation			= Quaternion.identity;
 
@@ -97,6 +95,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// OnValidate
 	private void OnValidate()
@@ -107,6 +106,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// Setup
 	public	void	Setup( uint maxVisibleEntities )
@@ -114,25 +114,13 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		m_MaxVisibleEntities = maxVisibleEntities;
 		m_ValidTargets = new Entity[ m_MaxVisibleEntities ];
 
-		m_NeedSetup = false;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// CheckTargets
-	private	void	CheckTargets()
-	{
-		for ( int i = m_AllTargets.Count - 1; i > 0; i-- )
+		Collider[] colliders = null;
+		if ( transform.parent && transform.parent.SearchComponents( ref colliders, SearchContext.CHILDREN ) )
 		{
-			Entity entity = m_AllTargets[ i ];
-			if ( entity == null 
-				|| entity.IsAlive == false
-				|| entity.transform.gameObject.activeSelf == false )
-			{
-				m_AllTargets.RemoveAt( i );
-			}
+			System.Array.ForEach( colliders, ( c ) => Physics.IgnoreCollision( m_ViewTriggerCollider, c ) );
 		}
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -146,22 +134,24 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 
 		m_AllTargets.Clear();
 
-		Collider[] colliders = Physics.OverlapSphere( transform.position, m_ViewTriggerCollider.radius );
+		Collider[] colliders = Physics.OverlapSphere( transform.position, m_ViewTriggerCollider.radius, 1, QueryTriggerInteraction.Ignore );
+
+		// This avoid to the current entity being added
+		List<Collider> list = new List<Collider>( colliders );
+		list.Remove( m_ViewTriggerCollider );
+		colliders = list.ToArray();
 
 		IEntity entityComponent = null;
 		System.Action<Collider> addToTargets = delegate( Collider c )
 		{
-			if ( Utils.Base.SearchComponent<IEntity>( c.gameObject, ref entityComponent, SearchContext.ALL, ( IEntity e ) => { return e.EntityType == newType; } ) )
+			if ( Utils.Base.SearchComponent<IEntity>( c.gameObject, ref entityComponent, SearchContext.CHILDREN, ( IEntity e ) => { return e.EntityType == newType; } ) )
 			{
-				// This avoid to the current entity being added
-				if ( transform.parent.GetInstanceID() != entityComponent.Transform.GetInstanceID() )
-				{
-					m_AllTargets.Add( entityComponent as Entity );
-				}
+				m_AllTargets.Add( entityComponent as Entity );
 			}
 		};
 		System.Array.ForEach( colliders, addToTargets );
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -173,6 +163,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 
 		return ( distanceA > distanceB ) ? 1 : ( distanceA < distanceB ) ? -1 : 0;
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -188,40 +179,23 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// UpdateFoV
-	public	bool	UpdateFOV()
+	public	void	UpdateFOV()
 	{
 		// Prepare results array
 		System.Array.Clear( m_ValidTargets, 0, m_ValidTargets.Length );
 
-#region Sanity Check
-		{   // SANITY CHECK
-			if ( m_NeedSetup == true )
-			{
-				( this as IFieldOfView ).Setup( maxVisibleEntities : 10 );
-				print( transform.parent.name + " need Field of view setup, default settings applyed" );
-				m_NeedSetup = false;
-			}
-
-			if ( m_AllTargets.Count == 0 )
-			{
-				ClearLastTarget();
-				return false;
-			}
-
-			CheckTargets();
-
-			if ( m_AllTargets.Count == 0 )
-			{
-				ClearLastTarget();
-				return false;
-			}
+		if ( m_AllTargets.Count == 0 )
+		{
+			ClearLastTarget();
+			return;
 		}
-#endregion
+
 
 		// Choose view point
-		Transform currentViewPoint	= ( m_ViewPoint == null ) ? transform : m_ViewPoint;
+		Transform currentViewPoint = m_ViewPoint ?? transform;
 
 		// Sort targets by distance
 		if ( m_AllTargets.Count > 1 )
@@ -266,7 +240,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		if ( currentCount == 0 )
 		{
 			ClearLastTarget();
-			return false;
+			return;
 		}
 
 		IEntity currentTarget  = m_ValidTargets[ 0 ];
@@ -283,21 +257,14 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		}
 		else
 		// CHANGING A TARGET
-//		if ( m_CurrentTargetInfo.HasTarget == true )
 		{
 			if ( previousTarget != null && previousTarget.ID != currentTarget.ID )
 			{
 				m_OnTargetChanged( m_CurrentTargetInfo );
 			}
 		}
-
-
-//		if ( m_OnTargetsAcquired != null )
-//		{
-//			m_OnTargetsAcquired( m_ValidTargets );
-//		}
-		return true;
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -310,23 +277,29 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	}
 
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// OnTriggerEnter
 	private void OnTriggerEnter( Collider other )
 	{
 		Entity entity = other.GetComponent<Entity>();
-		if ( entity != null && entity.IsAlive == true && entity.Interface.EntityType == m_EntityType )
+		if ( entity.IsNotNull() && entity.IsAlive == true && entity.Interface.EntityType == m_EntityType )
 		{
 			// This avoid to the current entity being added
-			if ( entity.transform.GetInstanceID() == transform.parent.GetInstanceID() )
-				return;
+		//	if ( entity.transform.GetInstanceID() == transform.parent.GetInstanceID() )
+		//		return;
 
 			if ( m_AllTargets.Contains( entity ) == true )
 				return;
 
+			entity.OnEvent_Killed += () => {
+				m_AllTargets.Remove( entity );
+			};
+
 			m_AllTargets.Add( entity );
 		}
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -334,9 +307,13 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	private void OnTriggerExit( Collider other )
 	{
 		Entity entity = other.GetComponent<Entity>();
-		if ( entity != null && m_AllTargets.Contains( entity ) == true )
+		if ( entity.IsNotNull() && m_AllTargets.Contains( entity ) == true )
 		{
 			m_AllTargets.Remove( entity );
+
+			entity.OnEvent_Killed -= () => {
+				m_AllTargets.Remove( entity );
+			};
 		}
 	}
 

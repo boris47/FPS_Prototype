@@ -136,7 +136,7 @@ public class TriggerEvents : MonoBehaviour {
 			return;
 
 		Entity entity = null;
-		bool bIsEntity = Utils.Base.SearchComponent( other.gameObject, ref entity, SearchContext.ALL );
+		bool bIsEntity = Utils.Base.SearchComponent( other.gameObject, ref entity, SearchContext.CHILDREN );
 		if ( bIsEntity && m_BypassEntityCheck == false && entity.CanTrigger() == false )
 		{
 			return;
