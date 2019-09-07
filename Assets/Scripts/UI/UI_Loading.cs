@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class UI_Loading : MonoBehaviour, IStateDefiner {
 
 	private		Slider		m_LoadingBar			= null;
+	private		Text		m_LoadingLevelNameText	= null;
 	private		float		m_CurrentProgressValue	= 0.0f;
 
 
@@ -28,6 +29,9 @@ public class UI_Loading : MonoBehaviour, IStateDefiner {
 		yield return null;
 
 		m_IsInitialized = transform.SearchComponent( ref m_LoadingBar, SearchContext.CHILDREN );
+
+		m_IsInitialized &= transform.SearchComponent( ref m_LoadingLevelNameText, SearchContext.CHILDREN,
+			c => c.name == "LoadingSceneNameText" );
 	}
 
 
@@ -67,7 +71,7 @@ public class UI_Loading : MonoBehaviour, IStateDefiner {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnEnable()
 	{
-		m_CurrentProgressValue = 0.0f;
+		ResetBar();
 	}
 
 
@@ -75,7 +79,7 @@ public class UI_Loading : MonoBehaviour, IStateDefiner {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnDisable()
 	{
-		m_CurrentProgressValue = 0.0f;
+		ResetBar();
 	}
 
 
@@ -85,6 +89,14 @@ public class UI_Loading : MonoBehaviour, IStateDefiner {
 	{
 		m_CurrentProgressValue = 0.0f;
 		m_LoadingBar.value = 0.0f;
+	}
+
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public	void	SetLoadingSceneName( SceneEnumeration scene )
+	{
+		m_LoadingLevelNameText.text = "Loading: " + scene.ToString();
 	}
 
 

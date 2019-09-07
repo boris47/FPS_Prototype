@@ -14,7 +14,8 @@ public static class Extensions {
 	//		OBJECT
 	public	static	bool	IsNotNull( this System.Object obj )
 	{
-		return obj != null;
+		bool bIsNotNull = obj != null;
+		return bIsNotNull;
 	}
 
 

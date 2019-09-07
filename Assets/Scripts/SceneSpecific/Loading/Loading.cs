@@ -16,18 +16,12 @@ public class Loading : MonoBehaviour {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private IEnumerator Start()
+	private void Start()
 	{
-		yield return null;
-
 		if ( m_SceneToLoad != SceneEnumeration.NONE && GlobalManager.bIsLoadingScene == false )
 		{
-			yield return CoroutinesManager.WaitPendingCoroutines();
-
-			DontDestroyOnLoad( gameObject );
-
 			CustomSceneManager.LoadSceneData m_DataForNextScene = new CustomSceneManager.LoadSceneData();
-			m_DataForNextScene.iSceneIdx = m_SceneToLoad;
+			m_DataForNextScene.eScene = m_SceneToLoad;
 
 			if ( m_SaveToLoad.Length > 0 )
 			{
@@ -35,9 +29,9 @@ public class Loading : MonoBehaviour {
 				m_DataForNextScene.sSaveToLoad = m_SaveToLoad;
 			}
 
-			yield return CustomSceneManager.LoadSceneAsync( m_DataForNextScene );
-
-			Destroy( gameObject );
+			CoroutinesManager.CreateSequence( CoroutinesManager.WaitPendingCoroutines() )
+				.AddStep( CustomSceneManager.LoadSceneAsync( m_DataForNextScene ) )
+				.ExecuteSequence();
 		}
 	}
 }

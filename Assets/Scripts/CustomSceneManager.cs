@@ -30,7 +30,7 @@ public class CustomSceneManager : MonoBehaviour {
 	}
 
 	public class LoadSceneData {
-		public	SceneEnumeration	iSceneIdx				= SceneEnumeration.NONE;
+		public	SceneEnumeration	eScene				= SceneEnumeration.NONE;
 		public	SceneEnumeration	iPrevSceneIdx			= SceneEnumeration.PREVIOUS;
 		public	bool				bMustLoadSave			= false;
 		public	string				sSaveToLoad				= "";
@@ -67,7 +67,7 @@ public class CustomSceneManager : MonoBehaviour {
 		if ( loadSceneData == null )
 			return false;
 
-		if ( loadSceneData.iSceneIdx == SceneEnumeration.NONE )
+		if ( loadSceneData.eScene == SceneEnumeration.NONE )
 			return false;
 
 		// Check for save existance
@@ -79,22 +79,22 @@ public class CustomSceneManager : MonoBehaviour {
 		int currentSceneIdx = CurrentSceneIndex;
 
 		// Requesting to go to next scene
-		if ( loadSceneData.iSceneIdx == SceneEnumeration.NEXT )
+		if ( loadSceneData.eScene == SceneEnumeration.NEXT )
 		{
-			loadSceneData.iSceneIdx = (SceneEnumeration)( currentSceneIdx + 1 );
-			if ( (int)loadSceneData.iSceneIdx >= SceneManager.sceneCountInBuildSettings )
+			loadSceneData.eScene = (SceneEnumeration)( currentSceneIdx + 1 );
+			if ( (int)loadSceneData.eScene >= SceneManager.sceneCountInBuildSettings )
 				return false;
 		}
 
 		// Requesting to go to previous scene
-		if ( loadSceneData.iSceneIdx == SceneEnumeration.PREVIOUS )
+		if ( loadSceneData.eScene == SceneEnumeration.PREVIOUS )
 		{
-			loadSceneData.iSceneIdx = (SceneEnumeration)( currentSceneIdx - 1);
-			if ( loadSceneData.iSceneIdx < 0 )
+			loadSceneData.eScene = (SceneEnumeration)( currentSceneIdx - 1);
+			if ( loadSceneData.eScene < 0 )
 				return false;
 		}
 
-		if ( (int)loadSceneData.iSceneIdx == currentSceneIdx )
+		if ( (int)loadSceneData.eScene == currentSceneIdx )
 			return false;
 
 		loadSceneData.iPrevSceneIdx = (SceneEnumeration)( currentSceneIdx );
@@ -127,7 +127,7 @@ public class CustomSceneManager : MonoBehaviour {
 		// Set global state as ChangingScene state
 		GlobalManager.bIsChangingScene = true;
 
-		SceneManager.LoadScene( (int)loadSceneData.iSceneIdx, LoadSceneMode.Single );
+		SceneManager.LoadScene( (int)loadSceneData.eScene, LoadSceneMode.Single );
 
 		// Remove global state as ChangingScene state
 		GlobalManager.bIsChangingScene = false;
@@ -187,8 +187,8 @@ public class CustomSceneManager : MonoBehaviour {
 
 
 	public class PreloadSceneData {
-		public AsyncOperation		asyncOperation	= null;
-		public SceneEnumeration		sceneIdx		= SceneEnumeration.NONE;
+		public	AsyncOperation		asyncOperation	= null;
+		public	SceneEnumeration	eScene			= SceneEnumeration.NONE;
 	}
 
 
@@ -209,8 +209,8 @@ public class CustomSceneManager : MonoBehaviour {
 	/// <summary> Complete the load of a èrevious preloaded scene </summary>
 	public	static	IEnumerator	CompleteSceneAsyncLoad( PreloadSceneData preloadSceneData )
 	{
-		IEnumerator enumerator = m_Instance.CompleteSceneAsyncLoadCO( preloadSceneData.asyncOperation );
-		CoroutinesManager.Start( enumerator, "CustomSceneManager::CompleteSceneAsyncLoad: Completing load of " + preloadSceneData.sceneIdx );
+		IEnumerator enumerator = m_Instance.CompleteSceneAsyncLoadCO( preloadSceneData );
+		CoroutinesManager.Start( enumerator, "CustomSceneManager::CompleteSceneAsyncLoad: Completing load of " + preloadSceneData.eScene );
 		return enumerator;
 	}
 
@@ -223,7 +223,7 @@ public class CustomSceneManager : MonoBehaviour {
 			return null;
 
 		IEnumerator enumerator = m_Instance.LoadSceneAsyncCO( loadSceneData, loadCondition );
-		CoroutinesManager.Start( enumerator, "CustomSceneManager::LoadSceneAsync: Loading " + loadSceneData.iSceneIdx );
+		CoroutinesManager.Start( enumerator, "CustomSceneManager::LoadSceneAsync: Loading " + loadSceneData.eScene );
 		return enumerator;
 	}
 
@@ -255,7 +255,7 @@ public class CustomSceneManager : MonoBehaviour {
 		asyncOperation.allowSceneActivation = false;
 
 		preloadSceneData.asyncOperation = asyncOperation;
-		preloadSceneData.sceneIdx = SceneIdx;
+		preloadSceneData.eScene = SceneIdx;
 
 		// Wait for load completion
 		while ( asyncOperation.progress < 0.9f )
@@ -263,31 +263,41 @@ public class CustomSceneManager : MonoBehaviour {
 			yield return null;
 		}
 
-//		while ( asyncOperation.isDone == false )
-		{
-			yield return null;
-		}
+		print("Preload comleted");
+
 	}
 
 
 
 	/// <summary> EXPERIMENTAL: Internal coroutine that complete the load a preloaded scene </summary>
-	private	IEnumerator	CompleteSceneAsyncLoadCO( AsyncOperation asyncOperation )
+	private	IEnumerator	CompleteSceneAsyncLoadCO( PreloadSceneData preloadSceneData )
 	{
 		yield return new WaitForEndOfFrame();
-		asyncOperation.allowSceneActivation = true;
+		preloadSceneData.asyncOperation.allowSceneActivation = true;
 
 		// Wait for start completion
-		while ( asyncOperation.isDone == false )
+		while ( preloadSceneData.asyncOperation.isDone == false )
 		{
 			yield return null;
 		}
 
-		yield return null;
-
 		SoundManager.Instance.OnSceneLoaded();
 
 		GlobalManager.bIsLoadingScene = false;
+
+		UIManager.Indicators.enabled = true;
+		UIManager.Minimap.enabled = true;
+
+		GlobalManager.Instance.InputMgr.EnableCategory( InputCategory.ALL );
+
+		if ( GameManager.Instance )
+			GameManager.SetInGameAs( true );
+
+		if ( CameraControl.Instance.IsNotNull() )
+			CameraControl.Instance.CanParseInput = true;
+
+		// Leave to UIManager the decision on which UI menu must be shown
+		UIManager.Instance.EnableMenuByScene( preloadSceneData.eScene );
 	}
 
 
@@ -297,6 +307,9 @@ public class CustomSceneManager : MonoBehaviour {
 	{
 		// Wait for every launched coroutine in awake of scripts
 		yield return CoroutinesManager.WaitPendingCoroutines();
+
+		UIManager.Loading.SetLoadingSceneName( loadSceneData.eScene );
+		UIManager.Loading.SetProgress( 0.0f );
 
 		GlobalManager.bIsLoadingScene = true;
 
@@ -310,20 +323,18 @@ public class CustomSceneManager : MonoBehaviour {
 		{
 			LoadSceneData loadingLoadSceneData = new LoadSceneData()
 			{
-				iSceneIdx			= SceneEnumeration.LOADING,
+				eScene			= SceneEnumeration.LOADING,
 			};
 			LoadSceneSync( loadingLoadSceneData );
 		}
 
-		UIManager.Loading.SetProgress( 0.0f );
-
-		yield return new WaitForEndOfFrame();
+		yield return null;
 
 		// Set global state as ChangingScene state
 		GlobalManager.bIsChangingScene = true;
 		
 		// Start async load of scene
-		AsyncOperation asyncOperation = SceneManager.LoadSceneAsync( (int)loadSceneData.iSceneIdx, LoadSceneMode.Single );
+		AsyncOperation asyncOperation = SceneManager.LoadSceneAsync( (int)loadSceneData.eScene, LoadSceneMode.Single );
 
 		// We want this operation to impact performance less than possible
 		asyncOperation.priority = 0;
@@ -331,7 +342,7 @@ public class CustomSceneManager : MonoBehaviour {
 		asyncOperation.allowSceneActivation = false;
 
 		// Wait for load completion
-		while ( asyncOperation.progress < 0.9f )
+		while ( asyncOperation.progress < 0.90f )
 		{
 			UIManager.Loading.SetProgress( asyncOperation.progress * 0.5f );
 			yield return null;
@@ -359,11 +370,15 @@ public class CustomSceneManager : MonoBehaviour {
 		UIManager.Loading.SetProgress( 0.80f );
 		loadSceneData.pOnPreLoadCompleted();
 
+		yield return null;
+
 		// Wait for every launched coroutine in awake of scripts
 		yield return CoroutinesManager.WaitPendingCoroutines();
 
 		SoundManager.Instance.OnSceneLoaded();
 		
+		yield return null;
+
 		// LOAD DATA
 		if ( loadSceneData.bMustLoadSave == true )
 		{
@@ -374,30 +389,42 @@ public class CustomSceneManager : MonoBehaviour {
 		// Wait for every launched coroutine in awake of scripts
 		yield return CoroutinesManager.WaitPendingCoroutines();
 
+
+//		yield return Resources.UnloadUnusedAssets();
+//		System.GC.Collect();
+
 		// Post load callback
 		UIManager.Loading.SetProgress( 0.95f );
-
 		loadSceneData.pOnLoadCompleted();
 
-		yield return new WaitForEndOfFrame();
+		yield return null;
 
 		GlobalManager.bIsLoadingScene = false;
-
 		UIManager.Loading.SetProgress( 1.00f );
+		UIManager.Indicators.enabled = true;
+		UIManager.Minimap.enabled = true;
+
+		yield return null;
+
+		GlobalManager.Instance.InputMgr.EnableCategory( InputCategory.ALL );
+
+		if ( GameManager.Instance )
+			GameManager.SetInGameAs( true );
+
+		if ( CameraControl.Instance.IsNotNull() )
+			CameraControl.Instance.CanParseInput = true;
 
 		// Wait for every launched coroutine in awake of scripts
 		yield return CoroutinesManager.WaitPendingCoroutines();
 
 		yield return new WaitForSecondsRealtime( 3.00f );
 
-		UIManager.Instance.GoToMenu( UIManager.InGame );
-		UIManager.Indicators.enabled = true;
-		UIManager.Minimap.enabled = true;
-		GlobalManager.Instance.InputMgr.EnableCategory( InputCategory.ALL );
-		GameManager.Instance.SetInGameAs( true );
-		CameraControl.Instance.CanParseInput = true;
+		// Leave to UIManager the decision on which UI menu must be shown
+		UIManager.Instance.EnableMenuByScene( loadSceneData.eScene );
 
-		Time.timeScale = 1F;
+		yield return null;
+
+		Time.timeScale = 1.0F;
 	}
 
 

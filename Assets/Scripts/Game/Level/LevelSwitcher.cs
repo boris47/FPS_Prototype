@@ -16,17 +16,17 @@ public class LevelSwitcher : MonoBehaviour {
 		if ( GlobalManager.bIsChangingScene == true )
 			return;
 
+		GlobalManager.bIsChangingScene = true;
+
 		bool bIsPlayer = other.transform.HasComponent<Player>();
 		if ( bIsPlayer == false )
 			return;
 
 		CustomSceneManager.LoadSceneData loadSceneData = new CustomSceneManager.LoadSceneData()
 		{
-			iSceneIdx		= m_NextSceneIdx,
-			sSaveToLoad		= "",
-			bMustLoadSave	= false
+			eScene		= m_NextSceneIdx
 		};
-		CustomSceneManager.LoadSceneSync( loadSceneData );
+		CustomSceneManager.LoadSceneAsync( loadSceneData );
 	}
 
 }

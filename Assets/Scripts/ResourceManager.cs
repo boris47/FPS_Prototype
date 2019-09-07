@@ -260,6 +260,7 @@ public class ResourceManager : MonoBehaviour {
 		}
 		
 		ResourceRequest request = Resources.LoadAsync( ResourcePath );
+		request.priority = 0;
 		yield return request;
 		loadedResource.Asset = request.asset as T;
 

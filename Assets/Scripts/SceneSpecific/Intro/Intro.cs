@@ -5,7 +5,12 @@ using UnityEngine.SceneManagement;
 
 public class Intro : MonoBehaviour {
 
-	private IEnumerator Start()
+	private void Start()
+	{
+		CoroutinesManager.Start( OnStart() );
+	}
+
+	private IEnumerator OnStart()
 	{
 		UnityEngine.Assertions.Assert.raiseExceptions = true;
 		Debug.developerConsoleVisible = true;
@@ -28,7 +33,28 @@ public class Intro : MonoBehaviour {
 
 		yield return CustomSceneManager.CompleteSceneAsyncLoad( preloadData );
 
+		CustomSceneManager.LoadSceneData loadSceneData = new CustomSceneManager.LoadSceneData()
+		{
+			eScene = SceneEnumeration.MAIN_MENU
+		};
+//		CustomSceneManager.LoadSceneSync( loadSceneData );
+
 		CustomSceneManager.UnLoadSceneAsync( (int)SceneEnumeration.INTRO );
 	}
+
+	/*
+	private void Update()
+	{
+		if ( Input.GetKeyUp( KeyCode.Return ) )
+		{
+			enabled = false;
+			CustomSceneManager.LoadSceneData loadSceneData = new CustomSceneManager.LoadSceneData()
+			{
+				eScene = SceneEnumeration.MAIN_MENU
+			};
+			CustomSceneManager.LoadSceneAsync( loadSceneData );
+		}
+	}
+	*/
 
 }

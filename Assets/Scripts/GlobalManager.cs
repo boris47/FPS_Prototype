@@ -36,6 +36,8 @@ public class MyFileLogHandler : ILogHandler
 	//////////////////////////////////////////////////////////////////////////
     public void LogException( System.Exception exception, UnityEngine.Object context )
     {
+		m_StreamWriter.WriteLine( exception.Message );
+        m_StreamWriter.Flush();
         m_DefaultLogHandler.LogException( exception, context );
     }
 }
@@ -158,7 +160,7 @@ public class GlobalManager : MonoBehaviour {
 		if ( Input.GetKeyDown( KeyCode.V ) )
 		{
 			Destroy( UIManager.InGame.transform.parent.gameObject );
-			CustomSceneManager.LoadSceneSync( new CustomSceneManager.LoadSceneData() { iSceneIdx = SceneEnumeration.MAIN_MENU } );
+			CustomSceneManager.LoadSceneSync( new CustomSceneManager.LoadSceneData() { eScene = SceneEnumeration.MAIN_MENU } );
 		}
 	}
 

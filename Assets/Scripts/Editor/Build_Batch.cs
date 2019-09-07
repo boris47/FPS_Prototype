@@ -9,6 +9,12 @@ public class Build_Batch
 	private	const	string	MENU_LABEL = "Build";
 
 
+	[MenuItem( MENU_LABEL + "/Clear Unused Assets", priority = 1 )]
+	public		static		void		ClearUnusedAssets()
+	{
+		UnityEngine.Resources.UnloadUnusedAssets();
+	}
+
 
 	///////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////////

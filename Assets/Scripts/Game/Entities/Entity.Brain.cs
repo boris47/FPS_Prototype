@@ -116,7 +116,10 @@ public abstract partial class Entity : IBrain {
 		}
 		else
 		{
-			GameManager.FieldsOfViewManager.UnregisterAgent( m_FieldOfView );
+			if ( GameManager.FieldsOfViewManager.IsNotNull() )
+			{
+				GameManager.FieldsOfViewManager.UnregisterAgent( m_FieldOfView );
+			}
 		}
 	}
 

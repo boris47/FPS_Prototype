@@ -167,7 +167,7 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 
 			CustomSceneManager.LoadSceneData LoadSceneData = new CustomSceneManager.LoadSceneData()
 			{
-				iSceneIdx			= SceneEnumeration.OPENWORLD1,
+				eScene				= SceneEnumeration.OPENWORLD1,
 				sSaveToLoad			= "",
 				bMustLoadSave		= false
 			};
@@ -201,7 +201,7 @@ public class UI_MainMenu : MonoBehaviour, IStateDefiner {
 		{
 			CustomSceneManager.LoadSceneData LoadSceneData = new CustomSceneManager.LoadSceneData()
 			{
-				iSceneIdx			= (SceneEnumeration)saveSceneIdx,
+				eScene			= (SceneEnumeration)saveSceneIdx,
 				sSaveToLoad			= saveFilePath,
 				bMustLoadSave		= true
 			};

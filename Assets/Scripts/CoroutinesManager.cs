@@ -12,7 +12,7 @@ public class CoroutinesManager : MonoBehaviour {
 
 		public RoutinesSequence( MonoBehaviour monoBehaviour, IEnumerator Routine )
 		{
-			if ( Routine == null )
+			if ( Routine.IsNotNull() )
 				return;
 
 			m_CurrentEnumerator = Routine;
@@ -22,7 +22,7 @@ public class CoroutinesManager : MonoBehaviour {
 
 		public RoutinesSequence AddStep( IEnumerator Routine )
 		{
-			if ( Routine != null )
+			if ( Routine.IsNotNull() )
 			{
 				m_Routines.Add( Routine );
 			}
@@ -73,7 +73,7 @@ public class CoroutinesManager : MonoBehaviour {
 	public static  void	AddCoroutineToPendingCount( uint howMany )
 	{
 		m_PendingRoutines += howMany;
-		print( "CoroutinesManager::AddCoroutineToPendingCount: Current Count " + m_PendingRoutines );
+	//	print( "CoroutinesManager::AddCoroutineToPendingCount: Current Count " + m_PendingRoutines );
 	}
 
 
@@ -89,7 +89,7 @@ public class CoroutinesManager : MonoBehaviour {
 
 		m_PendingRoutines -= howMany;
 
-		print( "CoroutinesManager::RemoveCoroutineFromPendingCount: Current Count " + m_PendingRoutines );
+	//	print( "CoroutinesManager::RemoveCoroutineFromPendingCount: Current Count " + m_PendingRoutines );
 	}
 
 

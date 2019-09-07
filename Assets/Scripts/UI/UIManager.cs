@@ -68,6 +68,7 @@ public interface IUI {
 
 	void					GoToMenu					( Transform MenuToShow );
 	void					GoToMenu					( MonoBehaviour MenuToShow );
+	void					EnableMenuByScene			( SceneEnumeration scene );
 	bool					IsCurrentActive				( MonoBehaviour menu );
 	void					GoToSubMenu					( Transform MenuToShow );
 	void					GoBack						();
@@ -136,12 +137,11 @@ public class UIManager : MonoBehaviour, IUI {
 	public	static	UI_Minimap				Minimap						{ get { return m_UI_Minimap; } }
 	public	static	UI_ComInterface			ComInterface				{ get { return m_UI_ComInterface; } }
 	public	static	Image					EffectFrame					{ get { return m_EffectFrame; } }
-
 	// INTERFACE END
 
 
-	[SerializeField, ReadOnly]
-	private			Transform				m_CurrentActiveTransform			= null;
+//	[SerializeField, ReadOnly]
+	private			Transform				m_CurrentActiveTransform		= null;
 	private			Transform				m_PrevActiveTransform			= null;
 
 	[SerializeField]
@@ -166,9 +166,6 @@ public class UIManager : MonoBehaviour, IUI {
 			Destroy( gameObject );
 			return;
 		}
-
-		print("UIManager::Awake");
-
 		DontDestroyOnLoad( this );
 		m_Instance = this;
 
@@ -228,6 +225,9 @@ public class UIManager : MonoBehaviour, IUI {
 
 		yield return null;
 
+		m_CurrentActiveTransform =	m_InGame.gameObject.activeSelf ? m_InGame.transform : 
+									m_MainMenu.gameObject.activeSelf ? m_MainMenu.transform : null;
+
 		// Other Menus initialization
 		foreach( IStateDefiner state in transform.GetComponentsInChildren<IStateDefiner>( includeInactive: true ) )
 		{
@@ -239,8 +239,6 @@ public class UIManager : MonoBehaviour, IUI {
 		yield return null;
 		yield return null;
 
-		m_CurrentActiveTransform = m_InGame.gameObject.activeSelf ? m_InGame.transform : m_MainMenu.transform;
-
 		int sceneIdx = CustomSceneManager.CurrentSceneIndex; // gameObject.scene.buildIndex;
 		if ( sceneIdx == (int)SceneEnumeration.LOADING )
 		{
@@ -250,12 +248,46 @@ public class UIManager : MonoBehaviour, IUI {
 		{
 			SwitchTo( m_MainMenu.transform );
 		}
+		else if ( sceneIdx == (int)SceneEnumeration.INTRO )
+		{
+
+		}
 		else
 		{
 			SwitchTo( m_InGame.transform );
 		}
 
 		CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
+	}
+
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// EnableMenuByScene
+	public void	EnableMenuByScene( SceneEnumeration scene )
+	{
+		switch ( scene )
+		{
+			case SceneEnumeration.NEXT:
+			case SceneEnumeration.PREVIOUS:
+			case SceneEnumeration.NONE:
+			case SceneEnumeration.COUNT:
+			case SceneEnumeration.INTRO:
+				break;
+			case SceneEnumeration.LOADING:
+				GoToMenu( Loading );
+				break;
+			case SceneEnumeration.MAIN_MENU:
+				GoToMenu( MainMenu );
+				break;
+			case SceneEnumeration.OPENWORLD1:
+			case SceneEnumeration.OPENWORLD2:
+			case SceneEnumeration.OPENWORLD3:
+				GoToMenu( InGame );
+				break;
+			case SceneEnumeration.ENDING:
+				break;
+		}
 	}
 
 
@@ -282,7 +314,8 @@ public class UIManager : MonoBehaviour, IUI {
 		GetCursorPos( out lastCursorPosition );
 
 		// Disable current active menu gameobject
-		m_CurrentActiveTransform.gameObject.SetActive( false );
+		if ( m_CurrentActiveTransform )
+			m_CurrentActiveTransform.gameObject.SetActive( false );
 
 		// Swicth to new menu
 		m_CurrentActiveTransform	= TransformToShow;

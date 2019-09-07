@@ -51,12 +51,12 @@ public class InputManager {
 	public	static	bool					IsEnabled				= true;
 
 	[SerializeField]
-	private	KeyBindings						m_Bindings		= null;
+	private	KeyBindings						m_Bindings				= null;
 
 //	[SerializeField]
 	private	InputCategory					m_InputCategories		= InputCategory.ALL;
 
-	private	bool							m_IsDirty		= false;
+	private	bool							m_IsDirty				= false;
 
 	private	Dictionary<eInputCommands, InputEventCollection> m_ActionMap = new Dictionary<eInputCommands, InputEventCollection>();
 	

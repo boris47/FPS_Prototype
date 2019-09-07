@@ -190,7 +190,14 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 			WeaponManager.Instance.RegisterWeapon( this );
 		}
 		m_StopWatch.Stop();
-//		print( "Weapon: " + m_WpnBaseSectionName + " loaded in " + m_StopWatch.Elapsed.Milliseconds + "ms" );
+		print( "Weapon: " + m_WpnBaseSectionName + " loaded in " + m_StopWatch.Elapsed.Milliseconds + "ms" );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	virtual	void				OnValidate()
+	{
+		m_BaseZoomingTime = Mathf.Max( m_BaseZoomingTime, 0.1f );
 	}
 
 
@@ -237,8 +244,8 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 			case WeaponSlots.TERTIARY:	weaponModule = m_TertiaryWeaponModuleSlot.WeaponModule;		break;
 			default:	break;
 		}
-
-		return weaponModule != null;
+	
+		return weaponModule.IsNotNull();
 	}
 
 
@@ -338,12 +345,6 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 		return zoomSensitivity;
 	}
 
-
-	//////////////////////////////////////////////////////////////////////////
-	protected	virtual	void				OnValidate()
-	{
-		m_BaseZoomingTime = Mathf.Max( m_BaseZoomingTime, 0.1f );
-	}
 
 
 	//////////////////////////////////////////////////////////////////////////

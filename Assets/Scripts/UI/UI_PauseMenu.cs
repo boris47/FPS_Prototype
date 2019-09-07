@@ -152,9 +152,9 @@ public class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 		// Load menu
 		CustomSceneManager.LoadSceneData loadSceneData = new CustomSceneManager.LoadSceneData()
 		{
-			iSceneIdx = SceneEnumeration.MAIN_MENU
+			eScene = SceneEnumeration.MAIN_MENU
 		};
-		CustomSceneManager.LoadSceneSync( loadSceneData );
+		CustomSceneManager.LoadSceneAsync( loadSceneData );
 	}
 
 

@@ -123,8 +123,22 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 
 		m_WeaponPivot = transform.Find( "WeaponPivot" );
 
+		// Sprites for TargetToKill, LocationToReach or ObjectToInteractWith
+		ResourceManager.LoadedData<PostProcessingProfile> cameraPostProcesses = new ResourceManager.LoadedData<PostProcessingProfile>();
+		bool bLoadResult = ResourceManager.LoadResourceSync
+		(
+			ResourcePath:			"Scriptables/CameraPostProcesses",
+			loadedResource:			cameraPostProcesses
+		);
+
+		UnityEngine.Assertions.Assert.IsTrue
+		(
+			bLoadResult,
+			"CameraControl::Awake: Failed the load of camera post processes profile"
+		);
+
 		m_CameraRef = GetComponent<Camera>();
-		m_PP_Profile = GetComponent<PostProcessingBehaviour>().profile;
+		m_PP_Profile = gameObject.GetOrAddIfNotFound<PostProcessingBehaviour>().profile = cameraPostProcesses.Asset;
 
 
 		if ( GlobalManager.Configs.bGetSection( "Camera", m_CameraSectionData ) == false )
@@ -133,13 +147,13 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 		}
 		else
 		{
-			CameraEffectBase.EffectActiveCondition condition = delegate()
+			CameraEffectBase.EffectActiveCondition mainCondition = delegate()
 			{
 				return Player.Instance.IsGrounded;
 			};
 
-			m_HeadMove.Setup( condition + delegate() { return Player.Instance.IsMoving == false; } );
-			m_HeadBob.Setup( condition + delegate() { return Player.Instance.IsMoving == true; } );
+			m_HeadMove.Setup( mainCondition + delegate() { return Player.Instance.IsMoving == false; } );
+			m_HeadBob.Setup( mainCondition + delegate() { return Player.Instance.IsMoving == true; } );
 			m_CameraRef.farClipPlane = m_CameraSectionData.ViewDistance;
 		}
 	}

@@ -27,6 +27,14 @@ public partial class GameManager : MonoBehaviour {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	public	static void	SetInGameAs( bool value )
+	{
+		m_InGame = value;
+	}
+
+
+
+	//////////////////////////////////////////////////////////////////////////
 	private			void		Awake ()
 	{
 		print("GameManager::Awake");
@@ -45,14 +53,6 @@ public partial class GameManager : MonoBehaviour {
 		m_UpdateEvents	= this as IUpdateEvents;
 		m_FieldsOfViewManager = this as IFieldsOfViewManager;
 		m_InGame		= false;
-	}
-
-
-
-	//////////////////////////////////////////////////////////////////////////
-	public	void	SetInGameAs( bool value )
-	{
-		m_InGame = value;
 	}
 
 
@@ -294,7 +294,7 @@ public partial class GameManager : MonoBehaviour {
 		{
 			CustomSceneManager.LoadSceneData data = new CustomSceneManager.LoadSceneData()
 			{
-				iSceneIdx = SceneEnumeration.NEXT
+				eScene = SceneEnumeration.NEXT
 			};
 			CustomSceneManager.LoadSceneAsync( data );
 		}
