@@ -5,6 +5,7 @@ ExecutableFilename=Development;
 
 ScenesToBuild = { ;IMPORTANT: MIND THE ORDER
 	Assets/Scenes/Intro.unity,
+	Assets/Scenes/Loading.unity,
 	Assets/Scenes/MainMenu.unity,
 	Assets/Scenes/OpenWorld.unity,
 	Assets/Scenes/OpenWorld2.unity,
@@ -18,6 +19,7 @@ ExecutableFilename=Release;
 
 ScenesToBuild = { ;IMPORTANT: MIND THE ORDER
 	Assets/Scenes/Intro.unity,
+	Assets/Scenes/Loading.unity,
 	Assets/Scenes/MainMenu.unity,
 	Assets/Scenes/OpenWorld.unity,
 	Assets/Scenes/OpenWorld2.unity,
