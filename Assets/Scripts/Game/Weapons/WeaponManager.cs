@@ -31,7 +31,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 		get { return m_Instance; }
 	}
 
-	private			List<Weapon>	WeaponsList						= new List<Weapon>();
+	private			List<Weapon>	m_WeaponsList					= new List<Weapon>();
 
 	// INTERFACE START
 	public			GameObject		GameObject						{ get { return gameObject; } }
@@ -109,11 +109,13 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Start
-	private				void		Start()
+	private				IEnumerator		Start()
 	{
+		yield return CoroutinesManager.WaitPendingCoroutines();
+
 		DisableAllWeapons();
 
-		WeaponsList.Sort( WeaponOrderComparer );
+		m_WeaponsList.Sort( WeaponOrderComparer );
 
 		// Set current weapon
 		CurrentWeapon = GetWeaponByIndex( CurrentWeaponIndex );
@@ -209,7 +211,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 	// DisableAllWeapons
 	private				void		DisableAllWeapons()
 	{
-		WeaponsList.ForEach( w => { w.enabled = false; w.gameObject.SetActive( false ); } );
+		m_WeaponsList.ForEach( w => { w.enabled = false; w.gameObject.SetActive( false ); } );
 	}
 	
 
@@ -217,7 +219,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 	// ZoomIGetWeaponByIndex
 	private				IWeapon		GetWeaponByIndex( int WpnIdx )
 	{
-		return ( WpnIdx > -1 && WpnIdx < WeaponsList.Count ) ? WeaponsList[WpnIdx] : null;
+		return ( WpnIdx > -1 && WpnIdx < m_WeaponsList.Count ) ? m_WeaponsList[WpnIdx] : null;
 	}
 	
 
@@ -225,7 +227,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 	// RegisterWeapon
 	public				void		RegisterWeapon( Weapon weapon )
 	{
-		WeaponsList.Add( weapon );
+		m_WeaponsList.Add( weapon );
 	}
 
 
@@ -307,7 +309,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 			return;
 
 		// For a valid index
-		if ( index > -1 && index < WeaponsList.Count )
+		if ( index > -1 && index < m_WeaponsList.Count )
 		{
 			// Start weapon change
 			CoroutinesManager.Start( ChangeWeaponCO( index ), "WeaponManager::ChangeWeapon: Changing weapon" );
@@ -315,7 +317,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 		}
 
 		// if a versus is definded, find out next weapon index
-		int lastWeapIdx = WeaponsList.Count - 1;
+		int lastWeapIdx = m_WeaponsList.Count - 1;
 		int newWeaponIdx = CurrentWeaponIndex + versus;
 
 		if ( newWeaponIdx == -1 )			newWeaponIdx = lastWeapIdx;

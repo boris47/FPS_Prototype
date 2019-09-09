@@ -158,18 +158,32 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual	void				Awake()
 	{
+		CoroutinesManager.Start( InitializeWeapon(), "Weapon initialization : " + name );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private	IEnumerator	InitializeWeapon()
+	{
+		CoroutinesManager.AddCoroutineToPendingCount( 1 );
+
 		System.Diagnostics.Stopwatch m_StopWatch = new System.Diagnostics.Stopwatch();
 		m_StopWatch.Start();
 		m_WpnBaseSectionName = this.GetType().FullName;
+
+		yield return null;
 
 		bool weaponAwakeSuccess = true;
 
 		// Animations
 		{
-			weaponAwakeSuccess &= Utils.Base.SearchComponent<Animator>( gameObject, ref m_Animator, SearchContext.LOCAL);
+			weaponAwakeSuccess &= Utils.Base.SearchComponent<Animator>( gameObject, ref m_Animator, SearchContext.LOCAL );
+			yield return null;
 //			weaponAwakeSuccess &= m_Animator.GetClipFromAnimator( "fire",		ref m_FireAnim );
 			weaponAwakeSuccess &= m_Animator.GetClipFromAnimator( "reload",		ref m_ReloadAnim );
+			yield return null;
 			weaponAwakeSuccess &= m_Animator.GetClipFromAnimator( "draw",		ref m_DrawAnim );
+			yield return null;
 //			Debug.Log( "Animations for weapon " + m_WpnBaseSectionName + " are " + ( ( weaponAwakeSuccess ) ? "correctly loaded" : "invalid!!!" ) );
 		}
 
@@ -177,12 +191,17 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 		// ATTACHMENTS
 		UpdateAttachments();
 
+		yield return null;
 
 		// Registering game events
 		GameManager.StreamEvents.OnSave += OnSave;
 		GameManager.StreamEvents.OnLoad += OnLoad;
 
+		yield return null;
+
 		weaponAwakeSuccess &= ReloadBaseConfiguration();
+
+		yield return null;
 
 		// Only if the construction complete successflly, the weapon get registered
 		if ( weaponAwakeSuccess )
@@ -191,6 +210,8 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 		}
 		m_StopWatch.Stop();
 		print( "Weapon: " + m_WpnBaseSectionName + " loaded in " + m_StopWatch.Elapsed.Milliseconds + "ms" );
+
+		CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 	}
 
 
