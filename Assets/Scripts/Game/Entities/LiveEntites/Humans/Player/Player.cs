@@ -183,7 +183,6 @@ public partial class Player : Human {
 		}
 
 		IsGrounded = false;
-		CoroutinesManager.Start( DamageEffectCO(), "Player::Start: Start for Damage Effect Coroutine " );
 
 		m_GrabPoint = new GameObject( "GrabPoint" );
 		m_GrabPoint.transform.SetParent( CameraControl.Instance.Transform /* CameraControl.Instance.Transform */);
@@ -442,17 +441,4 @@ public partial class Player : Human {
 		//	}
 	}
 
-
-	//////////////////////////////////////////////////////////////////////////
-	private					IEnumerator	DamageEffectCO()
-	{
-		var settings = CameraControl.Instance.GetPP_Profile.vignette.settings;
-		while( true )
-		{
-			m_DamageEffect = Mathf.Lerp( m_DamageEffect, 0f, Time.deltaTime * 2f );
-			settings.intensity = m_DamageEffect;
-			CameraControl.Instance.GetPP_Profile.vignette.settings = settings;
-			yield return null;
-		}
-	}
 }

@@ -115,10 +115,10 @@ public partial class Player {
 	//////////////////////////////////////////////////////////////////////////
 	public		override	void		OnHittedDetails( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
+		m_DamageEffect = 0.2f; // damage / m_Health;
+
 		m_Health -= damage;
 		UIManager.InGame.UpdateUI();
-
-		m_DamageEffect = 0.2f;
 
 		if ( m_Health < 0f )
 			OnKill();
@@ -221,6 +221,15 @@ public partial class Player {
 		base.OnFrame( deltaTime );
 		if ( m_IsActive == false )
 			return;
+
+		// Damage Effect
+		UnityEngine.PostProcessing.VignetteModel.Settings settings = CameraControl.Instance.GetPP_Profile.vignette.settings;
+		if ( m_DamageEffect > 0.0f )
+		{
+			m_DamageEffect = Mathf.Lerp( m_DamageEffect, 0f, Time.deltaTime * 2f );
+			settings.intensity = m_DamageEffect;
+			CameraControl.Instance.GetPP_Profile.vignette.settings = settings;
+		}
 		
 
 		////////////////////////////////////////////////////////////////////////////////////////
