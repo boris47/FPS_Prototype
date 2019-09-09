@@ -16,9 +16,9 @@ public abstract partial class Weapon {
 
 	[Header("WeaponModules")]
 
-	[SerializeField, ReadOnly]	protected		WeaponModuleSlot		m_PrimaryWeaponModuleSlot		= new WeaponModuleSlot( WeaponSlots.PRIMARY );
-	[SerializeField, ReadOnly]	protected		WeaponModuleSlot		m_SecondaryWeaponModuleSlot		= new WeaponModuleSlot( WeaponSlots.SECONDARY );
-	[SerializeField, ReadOnly]	protected		WeaponModuleSlot		m_TertiaryWeaponModuleSlot		= new WeaponModuleSlot( WeaponSlots.TERTIARY );
+	[SerializeField]	protected		WeaponModuleSlot		m_PrimaryWeaponModuleSlot		= new WeaponModuleSlot( WeaponSlots.PRIMARY );
+	[SerializeField]	protected		WeaponModuleSlot		m_SecondaryWeaponModuleSlot		= new WeaponModuleSlot( WeaponSlots.SECONDARY );
+	[SerializeField]	protected		WeaponModuleSlot		m_TertiaryWeaponModuleSlot		= new WeaponModuleSlot( WeaponSlots.TERTIARY );
 
 	//////////////////////////////////////////////////////////////////////////
 	private	static	bool					LoadAndConfigureModule( IWeapon wpn, Database.Section section, ref WeaponModuleSlot weaponModuleSlot )
@@ -228,8 +228,14 @@ public class WeaponModuleSlot {
 			return false;
 		}
 
-		if ( m_WeaponModule != null )
+		if ( m_WeaponModule.IsNotNull() )
 		{
+			if ( m_WeaponModule.GetType() == type )
+			{
+				Debug.Log( "WeaponModuleSlot::TrySetModule: " + GetType().Name + ", Slot:" + Weapon.GetModuleSlotName(m_ThisSlot) + ", the module \"" + type.ToString() + "\" is already mounted" );
+				return true;
+			}
+
 //			GameManager.UpdateEvents.OnFrame -= m_WeaponModule.InternalUpdate;
 			Object.Destroy( m_WeaponModule );
 		}

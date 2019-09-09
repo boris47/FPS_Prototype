@@ -175,33 +175,38 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 
 		bool weaponAwakeSuccess = true;
 
+		int ms = 0;
+
 		// Animations
 		{
 			weaponAwakeSuccess &= Utils.Base.SearchComponent<Animator>( gameObject, ref m_Animator, SearchContext.LOCAL );
-			yield return null;
+			ms += m_StopWatch.Elapsed.Milliseconds;
+
 //			weaponAwakeSuccess &= m_Animator.GetClipFromAnimator( "fire",		ref m_FireAnim );
 			weaponAwakeSuccess &= m_Animator.GetClipFromAnimator( "reload",		ref m_ReloadAnim );
-			yield return null;
+			ms += m_StopWatch.Elapsed.Milliseconds;
+
 			weaponAwakeSuccess &= m_Animator.GetClipFromAnimator( "draw",		ref m_DrawAnim );
-			yield return null;
+			ms += m_StopWatch.Elapsed.Milliseconds;
+
 //			Debug.Log( "Animations for weapon " + m_WpnBaseSectionName + " are " + ( ( weaponAwakeSuccess ) ? "correctly loaded" : "invalid!!!" ) );
 		}
 
 
+		print( "Components found in " + ms + "ms" ); // ~146 ms
+
 		// ATTACHMENTS
 		UpdateAttachments();
 
-		yield return null;
+		print( "Attachments in " + m_StopWatch.Elapsed.Milliseconds + "ms" );
 
 		// Registering game events
 		GameManager.StreamEvents.OnSave += OnSave;
 		GameManager.StreamEvents.OnLoad += OnLoad;
 
-		yield return null;
-
 		weaponAwakeSuccess &= ReloadBaseConfiguration();
 
-		yield return null;
+		print( "ReloadBaseConfiguration in " + m_StopWatch.Elapsed.Milliseconds + "ms" );
 
 		// Only if the construction complete successflly, the weapon get registered
 		if ( weaponAwakeSuccess )
