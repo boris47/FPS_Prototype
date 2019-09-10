@@ -104,7 +104,7 @@ public static class Extensions {
 				if ( predicate( currentValue ) )
 				{
 					value = currentValue;
-					location = new int[2] { 1, index };
+					location = new int[2] { dimensions, index };
 					bIsFound = true;
 				}
 			}
@@ -153,20 +153,17 @@ public static class Extensions {
 
 	public	static	bool			GetClipFromAnimator( this Animator animator, string name, ref AnimationClip result )
 	{
-		if ( animator.runtimeAnimatorController == null )
+		if ( animator.runtimeAnimatorController == null || animator.runtimeAnimatorController.animationClips.Length == 0 )
 		{
 			return false;
 		}
 
-		if ( animator.runtimeAnimatorController.animationClips == null || animator.runtimeAnimatorController.animationClips.Length == 0 )
-		{
-			return false;
-		}
-
+		AnimationClip[] animationClips = animator.runtimeAnimatorController.animationClips;
+		int arraySize = animationClips.Length;
 		bool bIsClipFound = false;
-		for ( int i = 0; i < animator.runtimeAnimatorController.animationClips.Length && bIsClipFound == false; i++ )
+		for ( int i = 0; i < arraySize && bIsClipFound == false; i++ )
 		{
-			AnimationClip clip = animator.runtimeAnimatorController.animationClips [i];
+			AnimationClip clip = animationClips[i];
 
 			if ( clip.name == name )
 			{

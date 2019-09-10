@@ -72,7 +72,6 @@ public abstract class Turret : NonLiveEntity {
 					o.SetActive( false );
 					o.Setup
 					(
-						canPenetrate: false,
 						whoRef: this,
 						weaponRef: null
 					);

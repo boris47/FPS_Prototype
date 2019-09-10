@@ -57,9 +57,8 @@ public abstract class BulletGeneric : Bullet, IBulletGeneric {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Setup ( Override )
-	public	override		void	Setup( bool canPenetrate, Entity whoRef, Weapon weaponRef )
+	public	override		void	Setup( Entity whoRef, Weapon weaponRef )
 	{
-		m_CanPenetrate	= canPenetrate;
 		m_WhoRef		= whoRef;
 		m_Weapon		= weaponRef;
 

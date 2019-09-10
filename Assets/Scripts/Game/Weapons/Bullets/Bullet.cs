@@ -30,7 +30,7 @@ public interface IBullet {
 	float				RecoilMult					{ get; }
 	Vector3				StartPosition				{ get; }
 
-	void				Setup						( bool canPenetrate, Entity whoRef, Weapon weaponRef );
+	void				Setup						( Entity whoRef, Weapon weaponRef );
 	void				OverrideDamages				( float NewMinDamage, float NewMaxDamage );
 	void				SetActive					( bool state );
 	void				Shoot						( Vector3 position, Vector3 direction, float velocity = 0f ); // TODO Compute modifiers
@@ -184,7 +184,7 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 	//////////////////////////////////////////////////////////////////////////
 	// Setup ( Abstract )
 	/// <summary> For Bullet Setup </summary>
-	public		abstract	void	Setup( bool canPenetrate, Entity whoRef, Weapon weaponRef );
+	public		abstract	void	Setup( Entity whoRef, Weapon weaponRef );
 
 
 	//////////////////////////////////////////////////////////////////////////

@@ -16,8 +16,6 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 	[SerializeField]	protected	Transform					m_FirePoint					= null;
 	[SerializeField]	protected	uint						m_Magazine					= 0;
 	[SerializeField]	protected	uint						m_MagazineCapacity			= 1;
-	[SerializeField]	protected	bool						m_CanPenetrate				= false;
-	[SerializeField]	protected	float						m_Damage					= 0.0f;
 	[SerializeField]	protected	float						m_ShotDelay					= 0.5f;
 	[SerializeField]	protected	float						m_CamDeviation				= 0.02f;
 	[SerializeField]	protected	float						m_FireDispersion			= 0.05f;
@@ -26,11 +24,11 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 
 	// INTERFACE START
 	public abstract	FireModes									FireMode					{ get; }
-	public			Vector3										FirePointPosition			{ get { return m_FirePoint.position; } } // TODO Assign m_FirePoint
+	public			Vector3										FirePointPosition			{ get { return m_FirePoint.position; } }
 	public			Quaternion									FirePointRotation			{ get { return m_FirePoint.rotation; } }
+
 	public			uint										Magazine					{ get { return m_Magazine; } }
 	public			uint										MagazineCapacity			{ get { return m_MagazineCapacity; } }
-	public			float										Damage						{ get { return m_Damage; } }
 
 	public			float										CamDeviation				{ get { return m_CamDeviation; } }
 	public			float										FireDispersion				{ get { return m_FireDispersion; } }
@@ -38,7 +36,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 
 	protected		GameObjectsPool<Bullet>						m_PoolBullets				= null;
 	protected		bool										m_Initialized				= false;
-	protected		CustomAudioSource							m_AudioSourceFire			= null; // TODO Create audio
+	protected		CustomAudioSource							m_AudioSourceFire			= null;
 
 
 	//		SETUP
@@ -50,7 +48,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 		m_WeaponRef = wpn;
 		m_ModuleSlot = slot;
 
-		m_FirePoint					= m_WeaponRef.Transform.Find( "FirePoint" );
+		m_FirePoint = m_WeaponRef.Transform.Find( "FirePoint" );
 
 		// MODULE CONTAINER
 		string containerID = Weapon.GetModuleSlotName( slot );
@@ -84,12 +82,9 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 		// ASSIGN INTERNALS
 		m_ShotDelay				= m_ModuleSection.AsFloat( "BaseShotDelay", m_ShotDelay );
 		m_MagazineCapacity		= m_ModuleSection.AsUInt( "BaseMagazineCapacity", m_MagazineCapacity );
-		m_Damage				= m_ModuleSection.AsFloat( "BaseDamage", m_Damage );
-		m_CanPenetrate			= m_ModuleSection.AsBool( "bCanPenetrate" );
 		m_CamDeviation			= m_ModuleSection.AsFloat( "BaseCamDeviation", m_CamDeviation );
 		m_FireDispersion		= m_ModuleSection.AsFloat( "BaseFireDispersion", m_FireDispersion );
 		m_Recoil				= m_ModuleSection.AsFloat( "BaseRecoil", m_Recoil);
-		m_CanPenetrate			= m_ModuleSection.AsBool( "bCanPenetrate" );
 		m_Magazine				= m_MagazineCapacity;
 
 		// CREATE FIRE MODE
@@ -141,11 +136,12 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 
 			ResourceManager.LoadedData<GameObject> loadedResource = new ResourceManager.LoadedData<GameObject>();
 			bool bIsBulletLoaded = ResourceManager.LoadResourceSync( "Prefabs/Bullets/" + bulletObjectName, loadedResource );
-			if ( bIsBulletLoaded == false )
-			{
-				Debug.Log( "WPN_FireModule::Setup: Cannot load bullet with name " + bulletObjectName + " for weapon " + wpn.Section.GetName() );
-				Debug.Assert(false);
-			}
+
+			UnityEngine.Assertions.Assert.IsTrue
+			(
+				bIsBulletLoaded,
+				"WPN_FireModule::Setup: Cannot load bullet with name " + bulletObjectName + " for weapon " + wpn.Section.GetName()
+			);
 
 			const bool bIsAsyncLoaded = true;
 
@@ -171,7 +167,6 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 		bullet.SetActive( false );
 		bullet.Setup
 		(
-			canPenetrate: m_CanPenetrate,
 			whoRef: Player.Instance,
 			weaponRef: m_WeaponRef as Weapon
 		);
@@ -272,10 +267,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 		m_PoolBullets.Resize( m_Magazine = m_MagazineCapacity );
 
 		// DAMAGE
-		int CanPenetrate					= Configuration.As<int>( "bCanPenetrate" );		// 0 no change, 1 disable, 2 enable
-		m_CanPenetrate						= CanPenetrate == 0 ? m_CanPenetrate : CanPenetrate == 0 ? false : true;
 		m_PoolBullets.ExecuteActionOnObjects( ActionOnBullet );
-		m_Damage							= Configuration.AsFloat( "Damage" );
 
 
 		// DEVIATION AND DISPERSION

@@ -9,7 +9,6 @@ public interface IWPN_FireModule {
 
 	FireModes				FireMode						{ get; }
 
-	float					Damage							{ get; }
 	uint					Magazine						{ get; }
 	uint					MagazineCapacity				{ get; }
 

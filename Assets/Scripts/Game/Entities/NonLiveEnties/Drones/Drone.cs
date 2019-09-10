@@ -65,7 +65,6 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 					o.SetActive( false );
 					o.Setup
 					(
-						canPenetrate: false,
 						whoRef: this,
 						weaponRef: null
 					);
