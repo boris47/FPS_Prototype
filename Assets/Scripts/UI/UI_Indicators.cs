@@ -90,7 +90,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 		yield return ResourceManager.LoadResourceAsyncCoroutine
 		(
 			ResourcePath:			"Scriptables/UI_Indicators",
-			loadedData:				indicatorsSpritesCollection,
+			loadedResource:			indicatorsSpritesCollection,
 			OnResourceLoaded :		(a) => { resourcesLoaded &= true; m_SpriteCollection = a; },
 			OnFailure:				(p) => resourcesLoaded &= false
 		);
@@ -100,7 +100,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 		yield return ResourceManager.LoadResourceAsyncCoroutine
 		(
 			ResourcePath:			"Prefabs/UI/Task_Objective",
-			loadedData:				indicatorPrefab,
+			loadedResource:			indicatorPrefab,
 			OnResourceLoaded :		(a) => { resourcesLoaded &= true; },
 			OnFailure:				(p) => resourcesLoaded &= false
 		);

@@ -163,7 +163,7 @@ namespace WeatherSystem {
 				yield return ResourceManager.LoadResourceAsyncCoroutine
 				(
 					ResourcePath: WEATHERS_COLLECTION,
-					loadedData: loadedWeathers,
+					loadedResource: loadedWeathers,
 				 	OnResourceLoaded: onResourceLoaded
 				);
 			}
@@ -180,9 +180,6 @@ namespace WeatherSystem {
 		private	void			Update_Cycles()
 		{
 			if ( m_IsOK == false )
-				return;
-
-			if ( m_AreResLoaded_Cylces == false )
 				return;
 
 			if ( m_EnvDescriptorCurrent.set == false || m_EnvDescriptorNext.set == false )

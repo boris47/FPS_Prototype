@@ -132,7 +132,7 @@ public class CoroutinesManager : MonoBehaviour {
 		Initialize();
 		if ( debugKey.Length > 0 )
 		{
-//			Debug.Log( "Starting coroutine for " + debugKey );
+			Debug.Log( "Starting coroutine for " + debugKey );
 		}
 		return m_Instance.StartCoroutine( routine );
 	}

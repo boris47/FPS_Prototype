@@ -7,32 +7,26 @@ namespace WeatherSystem {
 	public class Weathers : ScriptableObject, IResourceComposite {
 
 		[SerializeField]//[HideInInspector]
-		public List<string> CyclesPaths = new List<string>();
+		public List<string>				CyclesPaths		= new List<string>();
 
 		[SerializeField]
-		public	List<WeatherCycle>	LoadedCycles = new List<WeatherCycle>();
+		public	List<WeatherCycle>		LoadedCycles	= new List<WeatherCycle>();
 
 
 		// Questa funzione viene chiamata all'avvio dello script
+		// utile solo nell'editor
 		private void Awake()
 		{
 			LoadedCycles.Clear();
 		}
-
-
 
 		bool	IResourceComposite.NeedToBeLoaded()
 		{
 			if ( LoadedCycles.Count < CyclesPaths.Count )
 				return true;
 
-			bool bAreLoaded = true;
-			for ( int i = 0; i < CyclesPaths.Count; i++ )
-			{
-				bAreLoaded &= LoadedCycles[i] != null;
-			}
-
-			return !bAreLoaded;
+			bool bAreLoaded = !CyclesPaths.TrueForAll( c => c != null );
+			return bAreLoaded;
 		}
 
 

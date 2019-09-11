@@ -63,7 +63,7 @@ public class UI_Minimap : MonoBehaviour, IStateDefiner {
 			yield return ResourceManager.LoadResourceAsyncCoroutine
 			(
 				ResourcePath:			"Textures/MinimapRenderTexture",
-				loadedData:				loadedResource,
+				loadedResource:			loadedResource,
 				OnResourceLoaded :		(a) => { m_bIsInitialized &= true; m_MinimapRenderTexture = a; },
 				OnFailure:				(p) => m_bIsInitialized &= false
 			);

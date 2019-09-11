@@ -21,13 +21,8 @@ namespace WeatherSystem {
 			if ( LoadedDescriptors.Count < DescriptorsPaths.Length )
 				return true;
 
-			bool bAreLoaded = true;
-			for ( int i = 0; i < DescriptorsPaths.Length; i++ )
-			{
-				bAreLoaded &= LoadedDescriptors[i] != null;
-			}
-
-			return !bAreLoaded;
+			bool bAreLoaded = !LoadedDescriptors.TrueForAll( d => d != null );
+			return bAreLoaded;
 		}
 
 

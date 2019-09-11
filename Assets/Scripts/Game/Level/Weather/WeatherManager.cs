@@ -157,7 +157,7 @@ namespace WeatherSystem {
 			Awake_Editor();
 		}
 
-
+		/*
 		/////////////////////////////////////////////////////////////////////////////
 		// OnLevelLoaded
 		private void OnLevelLoaded( UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode loadMode )
@@ -172,13 +172,13 @@ namespace WeatherSystem {
 			RenderSettings.sun		= m_Sun;
 			RenderSettings.skybox	= m_SkyMaterial;
 		}
-
+		*/
 
 		/////////////////////////////////////////////////////////////////////////////
 		// OnEnable
 		private void			OnEnable()
 		{
-			CustomSceneManager.RegisterOnLoad( OnLevelLoaded );
+//			CustomSceneManager.RegisterOnLoad( OnLevelLoaded );
 
 #if UNITY_EDITOR
 			if ( UnityEditor.EditorApplication.isPlaying == false )
@@ -202,7 +202,7 @@ namespace WeatherSystem {
 		// OnDisable
 		private void			OnDisable()
 		{
-			CustomSceneManager.UnregisterOnLoad( OnLevelLoaded );
+//			CustomSceneManager.UnregisterOnLoad( OnLevelLoaded );
 
 #if UNITY_EDITOR
 			if ( UnityEditor.EditorApplication.isPlaying == false && Editor.INTERNAL_EditorLinked == false )
@@ -269,7 +269,6 @@ namespace WeatherSystem {
 		private void			Reset()
 		{
 			m_IsOK = true;
-			StopAllCoroutines();
 			Reset_Cycles();
 			Reset_Editor();
 #if UNITY_EDITOR

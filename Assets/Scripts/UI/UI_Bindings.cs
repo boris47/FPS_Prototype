@@ -57,7 +57,7 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 			yield return ResourceManager.LoadResourceAsyncCoroutine
 			(
 				ResourcePath:			"Prefabs/UI/UI_CommandRow",
-				loadedData:				loadedResource,
+				loadedResource:			loadedResource,
 				OnResourceLoaded:		(a) => { m_bIsInitialized &= true; m_UI_CommandRow = a; },
 				OnFailure:				(p) => m_bIsInitialized &= false
 			);

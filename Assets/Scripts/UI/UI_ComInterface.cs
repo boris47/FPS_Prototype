@@ -85,7 +85,7 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 		yield return ResourceManager.LoadResourceAsyncCoroutine
 		(
 			ResourcePath:			"Prefabs/UI/UI_Notification",
-			loadedData:				notificationPrefab,
+			loadedResource:			notificationPrefab,
 			OnResourceLoaded :		(a) => { resourcesLoaded &= true; },
 			OnFailure:				(p) => resourcesLoaded &= false
 		);
