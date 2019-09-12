@@ -15,12 +15,16 @@ public interface IResourceComposite {
 
 public class ResourceManager : MonoBehaviour {
 
-	/// <summary>
-	/// Class that contains the loaded asset, if load succeded
-	/// </summary>
-	/// <typeparam name="T">Asset type</typeparam>
+	public enum AsynLoadStrategy {
+		CONTINUOS,
+		PAUSED
+	};
+
+	/// <summary> Class that contains the loaded asset, if load succeded </summary>
 	public class LoadedData<T> {
-		public	T Asset;
+		public		T					Asset			= default(T);
+	//	public		AsynLoadStrategy	Strategy		= AsynLoadStrategy.CONTINUOS;
+	//	public		float				TimeToWait		= 1.0f;
 	}
 
 	private	static		ResourceManager				m_Instance			= null;
@@ -98,7 +102,6 @@ public class ResourceManager : MonoBehaviour {
 	{
 		return m_Textures.TryGetValue( resourcePath, out tex );
 	}
-
 
 
 	///////////////////////////////////////////////////

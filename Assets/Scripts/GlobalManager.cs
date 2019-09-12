@@ -64,14 +64,28 @@ public class GlobalManager : MonoBehaviour {
 	private	static			SectionMap		m_Settings				= null;
 	public	static			SectionMap		Settings
 	{
-		get { return m_Settings; }
+		get {
+			if ( m_Settings == null )
+			{
+				m_Settings	= new SectionMap();
+				m_Settings.LoadFile( settingspath );
+			}
+			return m_Settings;
+		}
 	}
 
 
 	private	static			SectionMap		m_Configs				= null;
 	public	static			SectionMap		Configs
 	{
-		get { return m_Configs; }
+		get {
+			if ( m_Configs == null )
+			{
+				m_Configs	= new SectionMap();
+				m_Configs.LoadFile( configsPath );
+			}
+			return m_Configs;
+		}
 	}
 
 	private					InputManager	m_InputMgr				= null;
@@ -89,12 +103,6 @@ public class GlobalManager : MonoBehaviour {
 			Application.logMessageReceived += HandleException;
 			new MyFileLogHandler();
 		}
-
-		m_Settings	= new SectionMap();
-		m_Configs	= new SectionMap();
-
-		m_Settings.LoadFile( settingspath );
-		m_Configs.LoadFile( configsPath );
 	}
 
 	static void HandleException( string condition, string stackTrace, LogType type )

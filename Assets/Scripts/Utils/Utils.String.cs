@@ -15,6 +15,38 @@ namespace Utils {
 		/// <summary>
 		/// Replace all '\\' with a dot each one
 		/// </summary>
+		public	static	bool	ConvertFromAssetPathToResourcePath( ref string resourcePath )
+		{
+			const string AssetPathPrefix = "Assets/Resources/";
+			const int AssetPathPrefixLength = 17;
+
+			if ( string.IsNullOrEmpty( resourcePath ) )
+				return false;
+
+			string result = resourcePath;
+
+			// START
+			// Assets/Resources/SkyCubeMaps/Clear/00-00.png
+			if ( global::System.IO.Path.HasExtension( resourcePath ) )
+			{
+				result = global::System.IO.Path.ChangeExtension( resourcePath, null );
+			}
+			// Assets/Resources/SkyCubeMaps/Clear/00-00
+
+			if ( result.StartsWith( AssetPathPrefix ) )
+			{
+				result = result.Remove( 0, AssetPathPrefixLength );
+			}
+			// Resources/SkyCubeMaps/Clear/00-00
+
+			resourcePath = result;
+			return true;
+		}
+
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary> Replace all '\\' with a dot each one </summary>
 		public	static		string ToDotStr( string FilePath )
 		{
 			return FilePath.Replace( '\\', '.' ).Replace( '/', '.' );
@@ -22,9 +54,7 @@ namespace Utils {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		/// Search for comment char and discard all presente on the right side of comment char, default char is ';'
-		/// </summary>
+		/// <summary> Search for comment char and discard all presente on the right side of comment char, default char is ';' </summary>
 		public	static		void CleanComments( ref string str, char commentChar = ';' )
 		{
 			if ( str.Length < 1 ) return;
@@ -41,9 +71,7 @@ namespace Utils {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		/// Return if string contains at last one letter
-		/// </summary>
+		/// <summary> Return if string contains at last one letter </summary>
 		public	static		bool ContainsLetter( string str )
 		{
 			bool found = false;
@@ -59,9 +87,7 @@ namespace Utils {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		/// Return if string contains at last one digit
-		/// </summary>
+		/// <summary> Return if string contains at last one digit </summary>
 		public	static		bool ContainsDigit( string str )
 		{
 			bool found = false;
@@ -77,9 +103,7 @@ namespace Utils {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		/// Return true for non empty string, that non contains at last one number or one letter or a block closing char
-		/// </summary>
+		/// <summary> Return true for non empty string, that non contains at last one number or one letter or a block closing char </summary>
 		public	static		bool IsValid( ref string str )
 		{
 			CleanComments( ref str );
@@ -88,9 +112,7 @@ namespace Utils {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		/// Return true for valid chars ( A - Z, ':' )
-		/// </summary>
+		/// <summary> Return true for valid chars ( A - Z, ':' ) </summary>
 		private	static		bool IsValidChar( char Char )
 		{
 			return ( ( Char > 64 && Char < 91  ) || // A - Z
@@ -101,9 +123,7 @@ namespace Utils {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		/// Return the System.Type of value reading the entire string ( bool, int, float, string )
-		/// </summary>
+		/// <summary> Return the System.Type of value reading the entire string ( bool, int, float, string ) </summary>
 		private	static		global::System.Type ReturnValueType( string sLine )
 		{
 			CleanComments( ref sLine );
@@ -158,9 +178,7 @@ namespace Utils {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		/// Return a cValue object if value is identified, otherwise null
-		/// </summary>
+		/// <summary> Return a cValue object if value is identified, otherwise null </summary>
 		public	static		cValue RecognizeValue( string line )
 		{
 			global::System.Type type = ReturnValueType( line );
@@ -188,9 +206,7 @@ namespace Utils {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		/// Parse a string and return a list of values
-		/// </summary>
+		/// <summary> Parse a string and return a list of values </summary>
 		public	static		cValue[] RecognizeValues( string line )
 		{
 			string[] values = line.Split( ',' );
@@ -208,9 +224,7 @@ namespace Utils {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		/// Return an array of KeyValue on the same line
-		/// </summary>
+		/// <summary> Return an array of KeyValue on the same line </summary>
 		public	static	KeyValue[]	GetKeyValues( string line )
 		{
 			string[] keyValues = line.Split( ',' );
@@ -235,9 +249,7 @@ namespace Utils {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		/// Return a KeyValue fìgiven a string the fourmat should be String = String
-		/// </summary>
+		/// <summary> Return a KeyValue fìgiven a string the fourmat should be String = String </summary>
 		public	static	KeyValue	GetKeyValue( string Line )
 		{
 			KeyValue Result = new KeyValue() { IsOK = false, Key = "", Value = "" };

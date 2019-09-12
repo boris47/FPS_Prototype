@@ -29,8 +29,7 @@ namespace WeatherSystem {
 			{
 				if ( (object)WeatherManager.Editor == null )
 				{
-					WeatherManager wmgr = null;
-					bool bResult = Utils.Base.GetTemplateSingle( ref wmgr );
+					WeatherManager wmgr = Object.FindObjectOfType<WeatherManager>();
 					m_WeatherManager = wmgr as IWeatherManager_Editor;
 				}
 				else
@@ -53,9 +52,12 @@ namespace WeatherSystem {
 //				m_Window = null;
 			}
 
-			Debug.Log("WindowWeatherEditor");
 
-			GetWMGR();
+			if ( GetWMGR() == null )
+			{
+				Debug.Log("Cannot find WeatherManager");
+				return;
+			}
 			
 			m_Window = EditorWindow.GetWindow<WindowWeatherEditor>( true, "Weather Manager" );
 			m_Window.minSize = new Vector2( 400f, 200f );
@@ -187,6 +189,11 @@ namespace WeatherSystem {
 					{
 						envDescriptor.SkyCubemap = AssetDatabase.LoadAssetAtPath<Cubemap>( skyCubeMapPath );
 						Debug.Log( "Cubemap assigned: " + skyCubeMapPath );
+						envDescriptor.SkyCubemapPath = skyCubeMapPath;
+						if ( Utils.String.ConvertFromAssetPathToResourcePath( ref skyCubeMapPath ) )
+						{
+							envDescriptor.SkyCubemapPath = skyCubeMapPath;
+						}
 					}
 				}
 			}

@@ -186,6 +186,9 @@ namespace WeatherSystem {
 				UnityEditor.EditorApplication.update = Update;
 			}
 #endif
+
+//			GameManager.StreamEvents.OnSave += StreamEvents_OnSave;
+//			GameManager.StreamEvents.OnLoad += StreamEvents_OnLoad;
 			
 			// Load Sky Material
 			m_SkyMaterial = Resources.Load<Material>( SKYMIXER_MATERIAL );
@@ -196,6 +199,7 @@ namespace WeatherSystem {
 			OnEnable_Cycles();
 			OnEnable_Editor();
 		}
+
 
 
 		/////////////////////////////////////////////////////////////////////////////
@@ -210,11 +214,52 @@ namespace WeatherSystem {
 				UnityEditor.EditorApplication.update = null;
 			}
 #endif
+
+//			GameManager.StreamEvents.OnSave -= StreamEvents_OnSave;
+//			GameManager.StreamEvents.OnLoad -= StreamEvents_OnLoad;
+
 			OnDisable_Editor();
 			OnDisable_Cycles();
 
 			m_WeatherChoiceFactor	= 1.0f;
 		}
+
+
+
+		/////////////////////////////////////////////////////////////////////////////
+		// OnEnable
+		private StreamUnit StreamEvents_OnSave( StreamData streamData )
+		{
+			StreamUnit streamUnit	= streamData.NewUnit( gameObject );
+			{
+				streamUnit.SetInternal( "DayTimeNow", m_DayTimeNow );
+				streamUnit.SetInternal( "CycleName", m_CurrentCycleName );
+			}
+			return streamUnit;
+		}
+
+
+
+		/////////////////////////////////////////////////////////////////////////////
+		// OnEnable
+		private StreamUnit StreamEvents_OnLoad( StreamData streamData )
+		{
+			StreamUnit streamUnit = null;
+			if ( streamData.GetUnit( gameObject, ref streamUnit ) == false )
+			{
+				m_DayTimeNow = streamUnit.GetAsFloat( "DayTimeNow" );
+				string cycleName = streamUnit.GetInternal( "CycleName" );
+
+				int index = m_Cycles.LoadedCycles.FindIndex( c => c.name == cycleName );
+				if ( index > -1 )
+				{
+					WeatherCycle cycle = m_Cycles.LoadedCycles[ index ];
+					ChangeWeather( cycle );
+				}
+			}
+			return streamUnit;
+		}
+
 
 
 		/////////////////////////////////////////////////////////////////////////////
@@ -259,6 +304,10 @@ namespace WeatherSystem {
 		// Update
 		private void			Update()
 		{
+			if ( m_AreResLoaded_Cylces == false )
+			{
+				return;
+			}
 			Update_Cycles();
 			Update_Editor();
 		}

@@ -20,7 +20,7 @@
 [Time]
 TimeFactor			= 1.0000;
 StartTime			= 09:30:00
-StartWeather		= "Clear"
+StartWeather		= Clear
 
 [Thunderbolts]
 ThunderTimerMin		= 10.0;		// Minimum time between two bolts scaled by rain intensity

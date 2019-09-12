@@ -309,8 +309,8 @@ namespace WeatherSystem {
 			m_EnvEffectTimer = Random.Range( 2f, 5f );
 
 			// Select descriptors
-			if ( m_Cycles.CyclesPaths.Count > 0 )
-				StartSelectDescriptors( m_DayTimeNow );
+//			if ( m_Cycles.CyclesPaths.Count > 0 )
+//				StartSelectDescriptors( m_DayTimeNow );
 		}
 
 
@@ -366,6 +366,10 @@ namespace WeatherSystem {
 		// SetCubemaps
 		private	void			SetCubemaps()
 		{   
+			m_EnvDescriptorCurrent.LoadCubeMap();
+			m_EnvDescriptorNext.LoadCubeMap();
+
+
 			m_SkyMaterial.SetTexture( "_Skybox1", m_EnvDescriptorCurrent.SkyCubemap );
 			m_SkyMaterial.SetTexture( "_Skybox2", m_EnvDescriptorNext.SkyCubemap );
 		}
@@ -416,6 +420,8 @@ namespace WeatherSystem {
 
 			if ( m_ShowDebugInfo )
 				Debug.Log( "WeatherManager: Descriptors selected: " + m_EnvDescriptorCurrent.Identifier + "," + m_EnvDescriptorNext.Identifier );
+
+
 			SetCubemaps();
 		}
 
@@ -425,7 +431,7 @@ namespace WeatherSystem {
 		private	void			ChangeWeather( WeatherCycle newCycle )
 		{
 			// find the corresponding of the current descriptor in the nex cycle
-			EnvDescriptor correspondingDescriptor = newCycle.LoadedDescriptors.Find( d => d.ExecTime == m_EnvDescriptorNext.ExecTime );
+			EnvDescriptor correspondingDescriptor = newCycle.LoadedDescriptors.Find( d => d.Identifier == m_EnvDescriptorNext.Identifier );
 			if ( correspondingDescriptor == null )
 				return;
 

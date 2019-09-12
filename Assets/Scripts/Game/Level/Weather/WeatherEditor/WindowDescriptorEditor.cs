@@ -82,10 +82,25 @@ namespace WeatherSystem {
 
 
 
-
-			// Sky Material
+			// Sky Cube Map
 			GUILayout.Label( "Sky Cube Map" );
 			m_CurrentDescriptor.SkyCubemap = EditorGUILayout.ObjectField( m_CurrentDescriptor.SkyCubemap, typeof( Cubemap ), false ) as Cubemap;
+
+
+
+			if ( m_CurrentDescriptor.SkyCubemap )
+			{
+				string path = AssetDatabase.GetAssetPath( m_CurrentDescriptor.SkyCubemap );
+				if ( Utils.String.ConvertFromAssetPathToResourcePath( ref path ) )
+				{
+					m_CurrentDescriptor.SkyCubemapPath = path;
+				}
+			}
+			else
+			{
+				m_CurrentDescriptor.SkyCubemapPath = string.Empty;
+			}
+
 
 
 
