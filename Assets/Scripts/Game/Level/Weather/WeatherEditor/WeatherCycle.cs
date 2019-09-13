@@ -16,6 +16,7 @@ namespace WeatherSystem {
 		public	List<EnvDescriptor>		LoadedDescriptors	= new List<EnvDescriptor>( 24 );
 
 
+		//////////////////////////////////////////////////////////////////////////
 		bool	IResourceComposite.NeedToBeLoaded()
 		{
 			if ( LoadedDescriptors.Count < DescriptorsPaths.Length )
@@ -26,20 +27,33 @@ namespace WeatherSystem {
 		}
 
 
+
+		//////////////////////////////////////////////////////////////////////////
 		void		IResourceComposite.Reinit()
 		{
-			LoadedDescriptors = new List<EnvDescriptor>(24);
+			LoadedDescriptors.Clear();
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
 		string[]	IResourceComposite.GetChildPaths()
 		{
 			return DescriptorsPaths;
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
 		void		IResourceComposite.AddChild( UnityEngine.Object child )
 		{
 			EnvDescriptor childConverted = child as EnvDescriptor;
 			LoadedDescriptors.Add( childConverted );
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		public	static	void	OnEndPlay( WeatherCycle cycle )
+		{
+			cycle.LoadedDescriptors.ForEach( d => EnvDescriptor.OnEndPlay(d) );
 		}
 	}
 

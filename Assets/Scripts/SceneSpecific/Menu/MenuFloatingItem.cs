@@ -11,9 +11,9 @@ public class MenuFloatingItem : MonoBehaviour {
 		m_Speed = Random.value * 3f + 0.1f;
 	}
 
-	private void Update()
+/*	private void Update()
 	{
 		transform.Rotate( Vector3.up, m_Speed * Time.deltaTime, Space.Self );
 	}
-
+*/
 }

@@ -15,11 +15,15 @@ namespace WeatherSystem {
 
 		// Questa funzione viene chiamata all'avvio dello script
 		// utile solo nell'editor
+
+		//////////////////////////////////////////////////////////////////////////
 		private void Awake()
 		{
 			LoadedCycles.Clear();
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
 		bool	IResourceComposite.NeedToBeLoaded()
 		{
 			if ( LoadedCycles.Count < CyclesPaths.Count )
@@ -30,20 +34,31 @@ namespace WeatherSystem {
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
 		void		IResourceComposite.Reinit()
 		{
 			LoadedCycles = new List<WeatherCycle>();
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
 		string[]	IResourceComposite.GetChildPaths()
 		{
 			return CyclesPaths.ToArray();
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
 		void		IResourceComposite.AddChild( UnityEngine.Object child )
 		{
 			WeatherCycle childConverted = child as WeatherCycle;
 			LoadedCycles.Add( childConverted );
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public	static	void	OnEndPlay( Weathers weather )
+		{
+			weather.LoadedCycles.ForEach( c => WeatherCycle.OnEndPlay(c) );
 		}
 
 	}
