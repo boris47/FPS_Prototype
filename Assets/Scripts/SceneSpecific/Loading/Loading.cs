@@ -1,37 +1,117 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class Loading : MonoBehaviour {
 
+	private		const	string		RESOURCE_PATH						= "Prefabs/Loading";
 
-	[SerializeField]
-	private	SceneEnumeration	m_SceneToLoad	= SceneEnumeration.NONE;
+	private		static	Loading		m_Instance							= null;
+	private		static	bool		m_IsInitialized						= false;
 
-	[SerializeField]
-	private	string				m_SaveToLoad	= string.Empty;
 
+	private		Slider				m_LoadingBar						= null;
+	private		Text				m_LoadingLevelNameText				= null;
+	private		float				m_CurrentProgressValue				= 0.0f;
+
+	private		bool				m_IsInitializedInternal				= false;
+
+
+
+	///////////////////////////////////////////////////
+	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
+	private	static	void	Initialize()
+	{
+		if ( m_IsInitialized == false )
+		{
+			
+			m_Instance = Resources.Load<Loading>( RESOURCE_PATH );
+
+			UnityEngine.Assertions.Assert.IsNotNull
+			(
+				m_Instance,
+				"Loading instance cannot be loaded"
+			);
+
+			m_Instance = Object.Instantiate( m_Instance );
+
+			DontDestroyOnLoad(m_Instance.gameObject);
+
+//			m_Instance.Awake();
+
+			m_Instance.transform.SearchComponent( ref m_Instance.m_LoadingBar, SearchContext.CHILDREN );
+			m_Instance.transform.SearchComponent( ref m_Instance.m_LoadingLevelNameText, SearchContext.CHILDREN, c => c.name == "LoadingSceneNameText" );
+
+			m_Instance.m_IsInitializedInternal = m_IsInitialized = true;
+		}
+	}
+
+
+	/*
+	//////////////////////////////////////////////////////////////////////////
+	private	void	Awake()
+	{
+		// Singleton
+		if ( m_Instance != null )
+		{
+			Destroy(gameObject);
+			return;
+		}
+
+		m_IsInitializedInternal = transform.SearchComponent( ref m_LoadingBar, SearchContext.CHILDREN );
+		m_IsInitializedInternal &= transform.SearchComponent( ref m_LoadingLevelNameText, SearchContext.CHILDREN, c => c.name == "LoadingSceneNameText" );
+	}
+	*/
+
+	//////////////////////////////////////////////////////////////////////////
+	public	static	void	Show()
+	{
+		ResetBar();
+
+		m_Instance.gameObject.SetActive(true);
+	}
 
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private void Start()
+	public	static	void	Hide()
 	{
-		if ( m_SceneToLoad != SceneEnumeration.NONE && GlobalManager.bIsLoadingScene == false )
-		{
-			CustomSceneManager.LoadSceneData m_DataForNextScene = new CustomSceneManager.LoadSceneData();
-			m_DataForNextScene.eScene = m_SceneToLoad;
+		ResetBar();
 
-			if ( m_SaveToLoad.Length > 0 )
-			{
-				m_DataForNextScene.bMustLoadSave = true;
-				m_DataForNextScene.sSaveToLoad = m_SaveToLoad;
-			}
+		m_Instance.gameObject.SetActive( false );
+	}
 
-			CoroutinesManager.CreateSequence( CoroutinesManager.WaitPendingCoroutines() )
-				.AddStep( CustomSceneManager.LoadSceneAsync( m_DataForNextScene ) )
-				.ExecuteSequence();
-		}
+
+	//////////////////////////////////////////////////////////////////////////
+	private static	void ResetBar()
+	{
+		m_Instance.m_CurrentProgressValue = 0.0f;
+		m_Instance.m_LoadingBar.value = 0.0f;
+	}
+
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public	static	void	SetLoadingSceneName( SceneEnumeration scene )
+	{
+		m_Instance.m_LoadingLevelNameText.text = "Loading: " + scene.ToString();
+	}
+
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public	static	void	SetProgress( float CurrentProgress )
+	{
+//		m_LoadingBar.value = CurrentProgress;
+		m_Instance.m_CurrentProgressValue = CurrentProgress;
+	}
+
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void LateUpdate()
+	{
+		m_Instance.m_LoadingBar.value = Mathf.MoveTowards( m_Instance.m_LoadingBar.value, m_Instance.m_CurrentProgressValue, Time.unscaledDeltaTime );
 	}
 }

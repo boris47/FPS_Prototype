@@ -55,12 +55,6 @@ namespace WeatherSystem {
 			LoadedCycles.Add( childConverted );
 		}
 
-		//////////////////////////////////////////////////////////////////////////
-		public	static	void	OnEndPlay( Weathers weather )
-		{
-			weather.LoadedCycles.ForEach( c => WeatherCycle.OnEndPlay(c) );
-		}
-
 	}
 
 }

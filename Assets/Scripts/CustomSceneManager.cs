@@ -308,8 +308,8 @@ public class CustomSceneManager : MonoBehaviour {
 		// Wait for every launched coroutine in awake of scripts
 		yield return CoroutinesManager.WaitPendingCoroutines();
 
-		UIManager.Loading.SetLoadingSceneName( loadSceneData.eScene );
-		UIManager.Loading.SetProgress( 0.0f );
+		Loading.SetLoadingSceneName( loadSceneData.eScene );
+		Loading.SetProgress( 0.0f );
 
 		GlobalManager.bIsLoadingScene = true;
 
@@ -317,7 +317,8 @@ public class CustomSceneManager : MonoBehaviour {
 		GlobalManager.Instance.InputMgr.DisableCategory( InputCategory.ALL );
 
 		// Enable Loading Menu
-		UIManager.Instance.GoToMenu( UIManager.Loading );
+//		UIManager.Instance.GoToMenu( Loading );
+		Loading.Show();
 
 		// Load Loading Scene syncronously
 		{
@@ -344,11 +345,11 @@ public class CustomSceneManager : MonoBehaviour {
 		// Wait for load completion
 		while ( asyncOperation.progress < 0.90f )
 		{
-			UIManager.Loading.SetProgress( asyncOperation.progress * 0.5f );
+			Loading.SetProgress( asyncOperation.progress * 0.5f );
 			yield return null;
 		}
 
-		UIManager.Loading.SetProgress( 0.60f );
+		Loading.SetProgress( 0.60f );
 		if ( loadCondition.IsNotNull() )
 		{
 			yield return loadCondition.WaitForPendingOperations();
@@ -358,7 +359,7 @@ public class CustomSceneManager : MonoBehaviour {
 
 		asyncOperation.allowSceneActivation = true;
 
-		UIManager.Loading.SetProgress( 0.70f );
+		Loading.SetProgress( 0.70f );
 
 		// Wait for start completion
 		while ( asyncOperation.isDone == false )
@@ -367,7 +368,7 @@ public class CustomSceneManager : MonoBehaviour {
 		}
 		
 		// Pre load callback
-		UIManager.Loading.SetProgress( 0.80f );
+		Loading.SetProgress( 0.80f );
 		loadSceneData.pOnPreLoadCompleted();
 
 		yield return null;
@@ -382,7 +383,7 @@ public class CustomSceneManager : MonoBehaviour {
 		// LOAD DATA
 		if ( loadSceneData.bMustLoadSave == true )
 		{
-			UIManager.Loading.SetProgress( 0.95f );
+			Loading.SetProgress( 0.95f );
 			GameManager.StreamEvents.Load( loadSceneData.sSaveToLoad );
 		}
 
@@ -394,13 +395,13 @@ public class CustomSceneManager : MonoBehaviour {
 //		System.GC.Collect();
 
 		// Post load callback
-		UIManager.Loading.SetProgress( 0.95f );
+		Loading.SetProgress( 0.95f );
 		loadSceneData.pOnLoadCompleted();
 
 		yield return null;
 
 		GlobalManager.bIsLoadingScene = false;
-		UIManager.Loading.SetProgress( 1.00f );
+		Loading.SetProgress( 1.00f );
 		UIManager.Indicators.enabled = true;
 		UIManager.Minimap.enabled = true;
 
@@ -418,6 +419,8 @@ public class CustomSceneManager : MonoBehaviour {
 		yield return CoroutinesManager.WaitPendingCoroutines();
 
 		yield return new WaitForSecondsRealtime( 3.00f );
+
+		Loading.Hide();
 
 		// Leave to UIManager the decision on which UI menu must be shown
 		UIManager.Instance.EnableMenuByScene( loadSceneData.eScene );

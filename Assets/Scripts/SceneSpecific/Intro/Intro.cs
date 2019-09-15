@@ -18,8 +18,8 @@ public class Intro : MonoBehaviour {
 		Application.backgroundLoadingPriority = ThreadPriority.Low;
 
 		// Preload MainMenu scene
-		CustomSceneManager.PreloadSceneData preloadData = new CustomSceneManager.PreloadSceneData();
-		CustomSceneManager.Preload( SceneEnumeration.MAIN_MENU, preloadData );
+//		CustomSceneManager.PreloadSceneData preloadData = new CustomSceneManager.PreloadSceneData();
+//		yield return CustomSceneManager.Preload( SceneEnumeration.MAIN_MENU, preloadData );
 
 		yield return null;
 
@@ -31,7 +31,7 @@ public class Intro : MonoBehaviour {
 
 		yield return new WaitUntil( () => Input.anyKeyDown == true );
 
-		yield return CustomSceneManager.CompleteSceneAsyncLoad( preloadData );
+//		yield return CustomSceneManager.CompleteSceneAsyncLoad( preloadData );
 
 		CustomSceneManager.LoadSceneData loadSceneData = new CustomSceneManager.LoadSceneData()
 		{
@@ -39,7 +39,9 @@ public class Intro : MonoBehaviour {
 		};
 //		CustomSceneManager.LoadSceneSync( loadSceneData );
 
-		CustomSceneManager.UnLoadSceneAsync( (int)SceneEnumeration.INTRO );
+		CustomSceneManager.LoadSceneAsync( loadSceneData );
+
+//		CustomSceneManager.UnLoadSceneAsync( (int)SceneEnumeration.INTRO );
 	}
 
 	/*

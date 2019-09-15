@@ -26,8 +26,6 @@ namespace WeatherSystem {
 
 		// Sky
 		[SerializeField]
-		public	string					SkyCubemapPath		= "";
-		[SerializeField]
 		public	Cubemap					SkyCubemap			= null;
 		[SerializeField]
 		public	Color					SkyColor			= Color.clear;
@@ -49,31 +47,6 @@ namespace WeatherSystem {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		public	void	LoadCubeMap()
-		{
-			if ( SkyCubemap == null )
-			{
-				ResourceManager.LoadedData<Cubemap> loadedResource = new ResourceManager.LoadedData<Cubemap>();
-				ResourceManager.LoadResourceAsync( 
-					ResourcePath:		SkyCubemapPath, 
-					loadedResource:		loadedResource,
-					OnResourceLoaded:	(c) => SkyCubemap = c
-				);
-				/*
-				if ( ResourceManager.LoadResourceSync( SkyCubemapPath, loadedResource ) )
-				{
-					SkyCubemap = loadedResource.Asset;
-				}
-				else
-				{
-					Debug.LogError( "Cannot load " + SkyCubemapPath );
-				}
-				*/
-			}
-		}
-
-
-		//////////////////////////////////////////////////////////////////////////
 		public	static	EnvDescriptor	Copy ( ref EnvDescriptor A, EnvDescriptor B, bool DeepCopy = false )
 		{
 			A.AmbientColor	= B.AmbientColor;
@@ -92,13 +65,8 @@ namespace WeatherSystem {
 			}
 			return A;
 		}
-		
+	
 
-		//////////////////////////////////////////////////////////////////////////
-		public	static	void	OnEndPlay( EnvDescriptor descriptor )
-		{
-			descriptor.SkyCubemap = null;
-		}
 
 	}
 

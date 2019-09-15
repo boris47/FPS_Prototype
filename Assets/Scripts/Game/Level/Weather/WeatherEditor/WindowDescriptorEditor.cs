@@ -88,23 +88,6 @@ namespace WeatherSystem {
 
 
 
-			if ( m_CurrentDescriptor.SkyCubemap )
-			{
-				string path = AssetDatabase.GetAssetPath( m_CurrentDescriptor.SkyCubemap );
-				if ( Utils.String.ConvertFromAssetPathToResourcePath( ref path ) )
-				{
-					m_CurrentDescriptor.SkyCubemapPath = path;
-				}
-			}
-			else
-			{
-				m_CurrentDescriptor.SkyCubemapPath = string.Empty;
-			}
-
-
-
-
-
 			// Sky Color
 			GUILayout.Label( "Sky Color" );
 			GUILayout.BeginHorizontal();
@@ -122,7 +105,6 @@ namespace WeatherSystem {
 
 
 
-
 			// Sun Color
 			GUILayout.Label( "Sun Color" );
 			GUILayout.BeginHorizontal();
@@ -137,7 +119,6 @@ namespace WeatherSystem {
 				}
 			}
 			GUILayout.EndHorizontal();
-
 
 
 

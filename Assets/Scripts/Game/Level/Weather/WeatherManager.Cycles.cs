@@ -366,10 +366,6 @@ namespace WeatherSystem {
 		// SetCubemaps
 		private	void			SetCubemaps()
 		{   
-			m_EnvDescriptorCurrent.LoadCubeMap();
-			m_EnvDescriptorNext.LoadCubeMap();
-
-
 			m_SkyMaterial.SetTexture( "_Skybox1", m_EnvDescriptorCurrent.SkyCubemap );
 			m_SkyMaterial.SetTexture( "_Skybox2", m_EnvDescriptorNext.SkyCubemap );
 		}

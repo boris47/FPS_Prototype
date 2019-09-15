@@ -340,11 +340,6 @@ namespace WeatherSystem {
 		private void			OnApplicationQuit()
 		{
 			m_DayTimeNow = -1f;
-
-			if ( m_INTERNAL_EditorLinked == false )
-			{
-				m_Cycles.LoadedCycles.ForEach( c => WeatherCycle.OnEndPlay(c) );
-			}
 		}
 
 	}

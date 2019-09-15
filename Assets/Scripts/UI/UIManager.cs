@@ -114,7 +114,6 @@ public class UIManager : MonoBehaviour, IUI {
 	private	static	UI_Graphics				m_Graphics						= null;
 	private	static	UI_Audio				m_Audio							= null;
 	private	static	UI_Confirmation			m_Confirmation					= null;
-	private	static	UI_Loading				m_Loading						= null;
 	private	static	UI_Indicators			m_Indicators					= null;
 	private	static	UI_Minimap				m_UI_Minimap					= null;
 	private	static	UI_ComInterface			m_UI_ComInterface				= null;
@@ -132,7 +131,6 @@ public class UIManager : MonoBehaviour, IUI {
 	public	static	UI_Graphics				Graphics					{ get { return m_Graphics; } }
 	public	static	UI_Audio				Audio						{ get { return m_Audio; } }
 	public	static	UI_Confirmation			Confirmation				{ get { return m_Confirmation; } }
-	public	static	UI_Loading				Loading						{ get { return m_Loading; } }
 	public	static	UI_Indicators			Indicators					{ get { return m_Indicators; } }
 	public	static	UI_Minimap				Minimap						{ get { return m_UI_Minimap; } }
 	public	static	UI_ComInterface			ComInterface				{ get { return m_UI_ComInterface; } }
@@ -184,7 +182,6 @@ public class UIManager : MonoBehaviour, IUI {
 		m_bIsInitialized &= transform.SearchComponentInChild( "UI_Graphics",				ref m_Graphics );
 		m_bIsInitialized &= transform.SearchComponentInChild( "UI_Audio",					ref m_Audio );
 		m_bIsInitialized &= transform.SearchComponentInChild( "UI_Confirmation",			ref m_Confirmation );
-		m_bIsInitialized &= transform.SearchComponentInChild( "UI_Loading",					ref m_Loading );
 
 		if ( m_bIsInitialized )
 		{
@@ -242,7 +239,7 @@ public class UIManager : MonoBehaviour, IUI {
 		int sceneIdx = CustomSceneManager.CurrentSceneIndex; // gameObject.scene.buildIndex;
 		if ( sceneIdx == (int)SceneEnumeration.LOADING )
 		{
-			SwitchTo( m_Loading.transform );
+	//		SwitchTo( m_Loading.transform );
 		}
 		else if ( sceneIdx == (int)SceneEnumeration.MAIN_MENU )
 		{
@@ -275,7 +272,7 @@ public class UIManager : MonoBehaviour, IUI {
 			case SceneEnumeration.INTRO:
 				break;
 			case SceneEnumeration.LOADING:
-				GoToMenu( Loading );
+//				GoToMenu( Loading );
 				break;
 			case SceneEnumeration.MAIN_MENU:
 				GoToMenu( MainMenu );

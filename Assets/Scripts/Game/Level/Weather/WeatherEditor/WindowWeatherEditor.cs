@@ -189,11 +189,6 @@ namespace WeatherSystem {
 					{
 						envDescriptor.SkyCubemap = AssetDatabase.LoadAssetAtPath<Cubemap>( skyCubeMapPath );
 						Debug.Log( "Cubemap assigned: " + skyCubeMapPath );
-						envDescriptor.SkyCubemapPath = skyCubeMapPath;
-						if ( Utils.String.ConvertFromAssetPathToResourcePath( ref skyCubeMapPath ) )
-						{
-							envDescriptor.SkyCubemapPath = skyCubeMapPath;
-						}
 					}
 				}
 			}

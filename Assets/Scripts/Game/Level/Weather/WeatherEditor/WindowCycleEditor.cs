@@ -56,14 +56,6 @@ namespace WeatherSystem {
 
 					loadedDescriptor = Resources.Load<EnvDescriptor>( descriptorPath );
 				}
-				if ( loadedDescriptor.SkyCubemap )
-				{
-					string path = AssetDatabase.GetAssetPath( loadedDescriptor.SkyCubemap );
-					if ( Utils.String.ConvertFromAssetPathToResourcePath( ref path ) )
-					{
-						loadedDescriptor.SkyCubemapPath = path;
-					}
-				}
 				m_Window.m_CurrentCycle.LoadedDescriptors[i] = loadedDescriptor;
 			}
 

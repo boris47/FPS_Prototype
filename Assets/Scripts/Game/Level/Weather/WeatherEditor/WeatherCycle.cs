@@ -49,12 +49,6 @@ namespace WeatherSystem {
 			LoadedDescriptors.Add( childConverted );
 		}
 
-
-		//////////////////////////////////////////////////////////////////////////
-		public	static	void	OnEndPlay( WeatherCycle cycle )
-		{
-			cycle.LoadedDescriptors.ForEach( d => EnvDescriptor.OnEndPlay(d) );
-		}
 	}
 
 }
