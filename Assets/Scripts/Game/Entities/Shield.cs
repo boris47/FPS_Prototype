@@ -27,7 +27,7 @@ public interface IShield : IStreamableByEvents {
 public class Shield : MonoBehaviour, IShield {
 
 	// Delegate definition
-	public	delegate	void	ShieldHitEvent( Vector3 startPosition, Entity whoRef, Weapon weaponRef, float damage, bool canPenetrate = false );
+	public	delegate	void	ShieldHitEvent( Vector3 startPosition, Entity whoRef, Weapon weaponRef, DamageType damageType, float damage, bool canPenetrate = false );
 
 	// Internal Event
 	protected	ShieldHitEvent	m_ShielHitEvent			= delegate { };
@@ -75,9 +75,9 @@ public class Shield : MonoBehaviour, IShield {
 	// ResetDelegate
 	private	void	ResetDelegate()
 	{
-		ShieldHitEvent onShiledHit = delegate( Vector3 startPosition, Entity whoRef, Weapon weaponRef, float damage, bool canPenetrate )
+		ShieldHitEvent onShiledHit = delegate( Vector3 startPosition, Entity whoRef, Weapon weaponRef, DamageType damageType, float damage, bool canPenetrate )
 		{
-			TakeDamage( startPosition, whoRef, weaponRef, damage, canPenetrate );
+			TakeDamage( startPosition, whoRef, weaponRef, damageType, damage, canPenetrate );
 		};
 		m_ShielHitEvent = onShiledHit;
 	}
@@ -91,7 +91,7 @@ public class Shield : MonoBehaviour, IShield {
 		bool bIsBullet = Utils.Base.SearchComponent( collidingObject, ref bullet, SearchContext.CHILDREN );
 		if ( bIsBullet == true )
 		{
-			m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageRandom, bullet.CanPenetrate );
+			m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageType, bullet.DamageRandom, bullet.CanPenetrate );
 		}
 	}
 	
@@ -104,7 +104,7 @@ public class Shield : MonoBehaviour, IShield {
 		bool bIsBullet = Utils.Base.SearchComponent( collision.gameObject, ref bullet, SearchContext.CHILDREN );
 		if ( bIsBullet == true )
 		{
-			m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageRandom, bullet.CanPenetrate );
+			m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageType, bullet.DamageRandom, bullet.CanPenetrate );
 		}
 	}
 
@@ -191,7 +191,7 @@ public class Shield : MonoBehaviour, IShield {
 
 	//////////////////////////////////////////////////////////////////////////
 	// TakeDamage
-	protected		void	TakeDamage( Vector3 startPosition, Entity whoRef, Weapon weaponRef, float damage, bool canPenetrate )
+	protected		void	TakeDamage( Vector3 startPosition, Entity whoRef, Weapon weaponRef, DamageType damageType, float damage, bool canPenetrate )
 	{
 		if ( m_IsUnbreakable == true )
 		{

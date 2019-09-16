@@ -135,7 +135,7 @@ public class WPN_WeaponModule_Shield : WPN_BaseModule, IWPN_UtilityModule {
 	
 
 	//////////////////////////////////////////////////////////////////////////
-	private	void		OnShieldHit( Vector3 startPosition, Entity whoRef, Weapon weaponRef, float damage, bool canPenetrate = false )
+	private	void		OnShieldHit( Vector3 startPosition, Entity whoRef, Weapon weaponRef, DamageType damageType, float damage, bool canPenetrate = false )
 	{
 		m_TimeToWaitBeforeRestore = 3.0f;
 		if ( m_ShieldInterface.Status <= 0.0f )

@@ -135,7 +135,7 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 	{
 		m_Entites.ForEach( ( Entity entity ) =>
 		{
-			entity.OnHittedDetails( m_StartPosition, m_WhoRef, m_DamageMax, canPenetrate: false );
+			entity.OnHittedDetails( m_StartPosition, m_WhoRef, m_DamageType, m_DamageMax, canPenetrate: false );
 		} );
 	}
 

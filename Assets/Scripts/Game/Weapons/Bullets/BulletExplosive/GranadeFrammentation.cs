@@ -123,7 +123,7 @@ public sealed class GranadeFrammentation : BulletExplosive, ITimedExplosive {
 //				}
 //				else
 				{
-					entity.Events.OnHittedDetails( m_StartPosition, m_WhoRef, damage, m_CanPenetrate );
+					entity.Events.OnHittedDetails( m_StartPosition, m_WhoRef, m_DamageType, damage, m_CanPenetrate );
 				}
 			}
 

@@ -195,7 +195,7 @@ public class WPN_FireModule_Syphon : WPN_FireModule {
 				IBullet bullet = m_PoolBullets.PeekComponent();
 
 				// Do damage scaled with time scale
-				entity.Events.OnHittedDetails( transform.position, Player.Instance, bullet.DamageRandom * Time.timeScale, false );
+				entity.Events.OnHittedDetails( transform.position, Player.Instance, bullet.DamageType, bullet.DamageRandom * Time.timeScale, false );
 
 				EffectsManager.Instance.PlayEffect( EffectType.PLASMA, m_Laser.RayCastHit.point, m_Laser.RayCastHit.normal, 1 );
 			}

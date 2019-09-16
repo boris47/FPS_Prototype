@@ -30,8 +30,8 @@ public class DamageTriggerArea : MonoBehaviour {
 	[SerializeField, ReadOnly]
 	private			bool				m_bIsActiveArea					= false;
 
-	[SerializeField, ReadOnly]
-	private			bool				m_bHasOmogeneousDmg				= false;
+//	[SerializeField, ReadOnly]
+//	private			bool				m_bHasOmogeneousDmg				= false;
 
 	[SerializeField, ReadOnly]
 	private			List<EnteredGameObjectData> m_EnteredGameObjects	= new List<EnteredGameObjectData>();
@@ -122,7 +122,7 @@ public class DamageTriggerArea : MonoBehaviour {
 
 			if ( data.bIsEntity )
 			{
-				data.EnteredEntity.OnHittedDetails( Vector3.zero, null, m_EveryFrameAppliedDamage * DeltaTime, false );
+				data.EnteredEntity.OnHittedDetails( Vector3.zero, null, m_DamageType, m_EveryFrameAppliedDamage * DeltaTime, false );
 			}
 		}
 	}

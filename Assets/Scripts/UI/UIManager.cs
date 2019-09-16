@@ -140,7 +140,7 @@ public class UIManager : MonoBehaviour, IUI {
 
 //	[SerializeField, ReadOnly]
 	private			Transform				m_CurrentActiveTransform		= null;
-	private			Transform				m_PrevActiveTransform			= null;
+//	private			Transform				m_PrevActiveTransform			= null;
 
 	[SerializeField]
 	private			Stack<Transform>		m_TransformStack				= new Stack<Transform>();

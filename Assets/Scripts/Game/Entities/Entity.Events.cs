@@ -3,7 +3,7 @@ using UnityEngine;
 
 public struct EntityEvents {
 	public	delegate	void		HitWithBullet( IBullet bullet );
-	public	delegate	void		HitDetailsEvent( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false );
+	public	delegate	void		HitDetailsEvent( Vector3 startPosition, Entity whoRef, DamageType damageType, float damage, bool canPenetrate = false );
 	public	delegate	void		TargetEvent( TargetInfo targetInfo );
 	public	delegate	void		NavigationEvent( Vector3 Destination );
 	public	delegate	void		KilledEvent();
@@ -39,7 +39,7 @@ public interface IEntityEvents {
 	void				OnHittedBullet						( Bullet hittingBullet );
 
 	///<summary> Call with details about hit </summary>
-	void				OnHittedDetails						( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false );
+	void				OnHittedDetails						( Vector3 startPosition, Entity whoRef, DamageType damageType, float damage, bool canPenetrate = false );
 }
 
 
@@ -240,10 +240,10 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		void		OnShieldHit( Vector3 startPosition, Entity whoRef, Weapon weaponRef, float damage, bool canPenetrate = false )
+	protected	virtual		void		OnShieldHit( Vector3 startPosition, Entity whoRef, Weapon weaponRef, DamageType damageType, float damage, bool canPenetrate = false )
 	{
 		// Notify this entity of the received hit
-		NotifyHit( startPosition, whoRef, damage, canPenetrate );
+		NotifyHit( startPosition, whoRef, damageType, damage, canPenetrate );
 	}
 
 
@@ -259,25 +259,25 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 				: 
 				1.0f;
 			
-			OnHittedDetails( bullet.StartPosition, bullet.WhoRef, bullet.DamageRandom * dmgMultiplier, bullet.CanPenetrate );
+			OnHittedDetails( bullet.StartPosition, bullet.WhoRef, bullet.DamageType, bullet.DamageRandom * dmgMultiplier, bullet.CanPenetrate );
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		void		NotifyHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
+	protected	virtual		void		NotifyHit( Vector3 startPosition, Entity whoRef, DamageType damageType, float damage, bool canPenetrate = false )
 	{
 		m_CurrentBehaviour.OnHit( startPosition, whoRef, damage, canPenetrate );
 
-		m_OnHittedDetails( startPosition, whoRef, damage, canPenetrate );
+		m_OnHittedDetails( startPosition, whoRef, damageType, damage, canPenetrate );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		virtual		void		OnHittedDetails( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
+	public		virtual		void		OnHittedDetails( Vector3 startPosition, Entity whoRef, DamageType damageType, float damage, bool canPenetrate = false )
 	{
 		// Notify behaviur
-		NotifyHit( startPosition, whoRef, damage, canPenetrate );
+		NotifyHit( startPosition, whoRef, damageType, damage, canPenetrate );
 		
 		this.OnTakeDamage( damage );
 //		print( name + ":Taking damage " + damage );

@@ -113,7 +113,7 @@ public partial class Player {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		override	void		OnHittedDetails( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
+	public		override	void		OnHittedDetails( Vector3 startPosition, Entity whoRef, DamageType damageType, float damage, bool canPenetrate = false )
 	{
 		m_DamageEffect = 0.2f; // damage / m_Health;
 
