@@ -15,7 +15,7 @@ public class Loading : MonoBehaviour {
 	private		Text				m_LoadingLevelNameText				= null;
 	private		float				m_CurrentProgressValue				= 0.0f;
 
-	private		bool				m_IsInitializedInternal				= false;
+	private		bool				m_IsInitializedInternal				= true;
 
 
 
@@ -25,26 +25,44 @@ public class Loading : MonoBehaviour {
 	{
 		if ( m_IsInitialized == false )
 		{
-			
-			m_Instance = Resources.Load<Loading>( RESOURCE_PATH );
-
+			Loading original = Resources.Load<Loading>( RESOURCE_PATH );
 			UnityEngine.Assertions.Assert.IsNotNull
 			(
-				m_Instance,
-				"Loading instance cannot be loaded"
+				original,
+				RESOURCE_PATH + " cannot be loaded !!!"
 			);
 
-			m_Instance = Object.Instantiate( m_Instance );
+			Object.Instantiate( original ).Awake();
 
-			DontDestroyOnLoad(m_Instance.gameObject);
-
-//			m_Instance.Awake();
-
-			m_Instance.transform.SearchComponent( ref m_Instance.m_LoadingBar, SearchContext.CHILDREN );
-			m_Instance.transform.SearchComponent( ref m_Instance.m_LoadingLevelNameText, SearchContext.CHILDREN, c => c.name == "LoadingSceneNameText" );
-
-			m_Instance.m_IsInitializedInternal = m_IsInitialized = true;
+			m_IsInitialized = true;
 		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void Awake()
+	{
+		// Singleton
+		if ( m_Instance != null && m_Instance != this )
+		{
+			Destroy( gameObject );
+			return;
+		}
+		m_Instance = this;
+		DontDestroyOnLoad(this);
+
+		m_IsInitializedInternal &= transform.SearchComponent( ref m_LoadingBar, SearchContext.CHILDREN );
+		m_IsInitializedInternal &= transform.SearchComponent( ref m_LoadingLevelNameText, SearchContext.CHILDREN, c => c.name == "LoadingSceneNameText" );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void OnDestroy()
+	{
+		if ( m_Instance != this )
+			return;
+
+		m_IsInitialized = false;
 	}
 
 

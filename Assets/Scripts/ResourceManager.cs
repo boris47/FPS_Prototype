@@ -15,7 +15,7 @@ public interface IResourceComposite {
 
 public class ResourceManager : MonoBehaviour {
 
-	public enum AsynLoadStrategy {
+	public enum AsyncLoadStrategy {
 		CONTINUOS,
 		PAUSED
 	};
@@ -23,7 +23,7 @@ public class ResourceManager : MonoBehaviour {
 	/// <summary> Class that contains the loaded asset, if load succeded </summary>
 	public class LoadedData<T> {
 		public		T					Asset			= default(T);
-	//	public		AsynLoadStrategy	Strategy		= AsynLoadStrategy.CONTINUOS;
+	//	public		AsynLoadStrategy	Strategy		= AsyncLoadStrategy.CONTINUOS;
 	//	public		float				TimeToWait		= 1.0f;
 	}
 
@@ -35,11 +35,24 @@ public class ResourceManager : MonoBehaviour {
 
 	private	static		bool						m_ShowDebugInfo		= false;
 
-	private	static		List<string>				m_CurrentLoading	= new List<string>();
 
-	private	static		Dictionary<string, Texture>	m_Textures			= new Dictionary<string, Texture>();
+	///////////////////////////////////////////////////
+	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
+	private	static	void	Initialize()
+	{
+		if ( m_IsInitialized == false )
+		{
+			GameObject resourceManagerGO = new GameObject("ResourceManager");
+//			resourceManagerGO.hideFlags = HideFlags.HideAndDontSave;
+			resourceManagerGO.AddComponent<ResourceManager>();
 
-	// 
+			m_IsInitialized = true;
+		}
+	}
+
+
+
+	///////////////////////////////////////////////////
 	private void Awake()
 	{	
 		// Singleton
@@ -50,7 +63,6 @@ public class ResourceManager : MonoBehaviour {
 		}
 		DontDestroyOnLoad( this );
 		m_Instance = this;
-		m_IsInitialized = true;
 
 		Database.Section debugInfosSection = null;
 		if ( GlobalManager.Configs.bGetSection( "DebugInfos", ref debugInfosSection ) )
@@ -61,62 +73,18 @@ public class ResourceManager : MonoBehaviour {
 				print = Debug.Log;
 			}
 		}
+		m_IsInitialized = true;
 	}
 
-	
-	///////////////////////////////////////////////////
-	public	static	void	LoadTextureAsync( string resourcePath )
+
+	//////////////////////////////////////////////////////////////////////////
+	private void OnDestroy()
 	{
-		Texture tex = null;
-		if ( m_Textures.TryGetValue( resourcePath, out tex ) == true )
-		{
-			Debug.LogError( "ResourceManager: Trying to load and already loaded texture:!!" + resourcePath );
-			return; // Already loaded
-		}
+		if ( m_Instance != this )
+			return;
 
-		if ( m_CurrentLoading.Contains( resourcePath ) == true )
-		{
-			return; // already loading, skip
-		}
-
-		m_CurrentLoading.Add( resourcePath );
-
-		LoadedData<Texture> loadedResource = new LoadedData<Texture>();
-		System.Action<Texture> onTextureLoaded = delegate( Texture t )
-		{
-			m_Textures.Add( resourcePath, t );
-			m_CurrentLoading.Remove( resourcePath );
-		};
-		LoadResourceAsync( resourcePath, loadedResource, onTextureLoaded );
+		m_IsInitialized = false;
 	}
-
-	///////////////////////////////////////////////////
-	public	static	Texture	LoadTextureSync( string resourcePath )
-	{
-		Object obj = Resources.Load( resourcePath );
-		return obj as Texture;
-	}
-
-	///////////////////////////////////////////////////
-	public	static	bool	RequireTexture( string resourcePath, Texture tex )
-	{
-		return m_Textures.TryGetValue( resourcePath, out tex );
-	}
-
-
-	///////////////////////////////////////////////////
-	private	static	void	Initialize()
-	{
-		if ( m_IsInitialized == false )
-		{
-			GameObject resourceManagerGO = new GameObject();
-			resourceManagerGO.hideFlags = HideFlags.HideAndDontSave;
-			resourceManagerGO.AddComponent<ResourceManager>();
-
-			m_IsInitialized = true;
-		}
-	}
-
 
 
 	/////////////////////////////////////////////////////////////////
@@ -128,8 +96,6 @@ public class ResourceManager : MonoBehaviour {
 	/// <summary> Synchronously load resource with given path, load recursively if composite type </summary>
 	public	static	bool	LoadResourceSync<T>( string ResourcePath, LoadedData<T> loadedResource ) where T : Object
 	{
-		Initialize();
-
 		bool result = true;
 
 		print( "SYNC Loading: " + ResourcePath );
@@ -206,8 +172,6 @@ public class ResourceManager : MonoBehaviour {
 	/// <summary> Asynchronously load resource with given path, load recursively if composite type. Onload completed with success callbeck is called </summary>
 	public static void LoadResourceAsync<T>( string ResourcePath, LoadedData<T> loadedResource, System.Action<T> OnResourceLoaded ) where T : Object
 	{
-		Initialize();
-
 		CoroutinesManager.Start( LoadResourceAsyncCoroutine( ResourcePath, loadedResource, OnResourceLoaded ),
 			"ResourceManger::LoadResourceAsync: Loading " + ResourcePath );
 	}
@@ -219,8 +183,6 @@ public class ResourceManager : MonoBehaviour {
 
 	public	static  	IEnumerator LoadResourceAsyncCoroutine<T>( string ResourcePath, LoadedData<T> loadedResource, System.Action<T> OnResourceLoaded, System.Action<string> OnFailure = null) where T : Object
 	{
-		Initialize();
-
 		if ( loadedResource == null )
 		{
 			loadedResource = new LoadedData<T>();
@@ -247,7 +209,6 @@ public class ResourceManager : MonoBehaviour {
 		{
 			OnResourceLoaded( loadedResource.Asset as T );
 		}
-	
 	}
 
 	
@@ -256,11 +217,6 @@ public class ResourceManager : MonoBehaviour {
 	{
 		System.Diagnostics.Stopwatch m_StopWatch = null;
 		print( "ResourceManger::InternalLoadResourceAsync: INTERNAL ASYNC Loading: " + ResourcePath );
-
-		if ( System.IO.File.Exists( ResourcePath ) == false )
-		{
-
-		}
 
 		if ( m_ShowDebugInfo )
 		{
@@ -300,11 +256,13 @@ public class ResourceManager : MonoBehaviour {
 				{
 					string compositeFilePath = compositeFilePaths[i];
 					LoadedData<Object> childloadedResource = new LoadedData<Object>();
-					yield return CoroutinesManager.Start
+					yield return InternalLoadResourceAsync( compositeFilePath, childloadedResource );
+/*					yield return CoroutinesManager.Start
 					(
-						InternalLoadResourceAsync( compositeFilePath, childloadedResource ), 
+						InternalLoadResourceAsync( compositeFilePath, childloadedResource ),
 						"ResourceManger::InternalLoadResourceAsync: Loading " + compositeFilePath
 					);
+*/
 					composite.AddChild( childloadedResource.Asset );
 				}
 			}

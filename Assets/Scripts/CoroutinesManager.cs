@@ -56,16 +56,27 @@ public class CoroutinesManager : MonoBehaviour {
 	private	static	uint				m_PendingRoutines	= 0;
 
 	/////////////////////////////////////////////////////////////////
+	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
 	private	static	void	Initialize()
 	{
 		if ( m_IsInitialized == false )
 		{
-			GameObject go = new GameObject();
-			go.hideFlags = HideFlags.HideAndDontSave;
-			m_Instance = go.AddComponent<CoroutinesManager>();
+			GameObject go = new GameObject("CoroutinesManager");
+//			go.hideFlags = HideFlags.HideAndDontSave;
+			go.hideFlags = HideFlags.DontSave;
+			go.AddComponent<CoroutinesManager>();
 
 			m_IsInitialized = true;
 		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	private void OnDestroy()
+	{
+		if ( m_Instance != this )
+			return;
+
+		m_IsInitialized = false;
 	}
 
 	
@@ -129,7 +140,6 @@ public class CoroutinesManager : MonoBehaviour {
 	/// <summary> Start a new coroutine </summary>
 	public	static	Coroutine	Start( IEnumerator routine, string debugKey = "" )
 	{
-		Initialize();
 		if ( debugKey.Length > 0 )
 		{
 			Debug.Log( "Starting coroutine for " + debugKey );
@@ -142,7 +152,6 @@ public class CoroutinesManager : MonoBehaviour {
 	/// <summary> Start given coroutine </summary>
 	public	static	void	Stop( Coroutine routine )
 	{
-		Initialize();
 		m_Instance.StopCoroutine( routine );
 	}
 
@@ -151,7 +160,6 @@ public class CoroutinesManager : MonoBehaviour {
 	/// <summary> Stop all running coroutines </summary>
 	public	static	void	StopAll()
 	{
-		Initialize();
 		m_Instance.StopAllCoroutines();
 	}
 
@@ -159,8 +167,6 @@ public class CoroutinesManager : MonoBehaviour {
 	// Create a sequence object, where to add routine and finally start
 	public	static	RoutinesSequence	CreateSequence( IEnumerator MainRoutine )
 	{
-		Initialize();
-
 		return new RoutinesSequence( m_Instance, MainRoutine );
 	}
 }

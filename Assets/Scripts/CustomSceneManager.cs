@@ -39,10 +39,30 @@ public class CustomSceneManager : MonoBehaviour {
 	}
 
 
-	private	static	CustomSceneManager		m_Instance = null;
+	private	static	CustomSceneManager	m_Instance			= null;
+	private	static	bool				m_IsInitialized		= false;
+
 	private	static	Dictionary<string, UnityAction<Scene, LoadSceneMode> > m_RegisteredDelegates = new Dictionary<string, UnityAction<Scene, LoadSceneMode>>();
 	private	static	List< UnityAction<Scene, LoadSceneMode> > Delegates = new List<UnityAction<Scene, LoadSceneMode>>();
 	
+
+
+	/////////////////////////////////////////////////////////////////
+	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
+	private	static	void	Initialize()
+	{
+		if ( m_IsInitialized == false )
+		{
+			GameObject go = new GameObject("CustomSceneManager");
+//			go.hideFlags = HideFlags.HideAndDontSave;
+			go.hideFlags = HideFlags.DontSave;
+			go.AddComponent<CustomSceneManager>();
+
+			m_IsInitialized = true;
+		}
+	}
+
+
 
 	/////////////////////////////////////////////////////////////////
 	private void Awake()
@@ -55,8 +75,19 @@ public class CustomSceneManager : MonoBehaviour {
 		}
 		DontDestroyOnLoad( this );
 		m_Instance = this;
+		m_IsInitialized = true;
 
 		Delegates.ForEach( d => SceneManager.sceneLoaded -= d );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void OnDestroy()
+	{
+		if ( m_Instance != this )
+			return;
+
+		m_IsInitialized = false;
 	}
 
 

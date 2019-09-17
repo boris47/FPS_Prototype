@@ -28,7 +28,6 @@ public class MyFileLogHandler : ILogHandler
     public void LogFormat( LogType logType, UnityEngine.Object context, string format, params object[] args )
     {
         m_StreamWriter.WriteLine( System.String.Format( format, args ) );
-        m_StreamWriter.Flush();
         m_DefaultLogHandler.LogFormat( logType, context, format, args );
     }
 
@@ -40,6 +39,11 @@ public class MyFileLogHandler : ILogHandler
         m_StreamWriter.Flush();
         m_DefaultLogHandler.LogException( exception, context );
     }
+
+	~MyFileLogHandler()
+	{
+		m_StreamWriter.Flush();
+	}
 }
 
 
@@ -52,13 +56,15 @@ public class GlobalManager : MonoBehaviour {
 		get { return m_Instance; }
 	}
 
+	private	static			bool			m_IsInitialized			= false;
+
 	// Load Settings and Configs
 	private	const string settingspath		= "Settings";
 	private	const string configsPath		= "Configs\\All";
 
-	public	static			bool			bIsChangingScene			= false;
-	public	static			bool			bIsLoadingScene				= false;
-	public	static			bool			bCanSave					= true;
+	public	static			bool			bIsChangingScene		= false;
+	public	static			bool			bIsLoadingScene			= false;
+	public	static			bool			bCanSave				= true;
 
 
 	private	static			SectionMap		m_Settings				= null;
@@ -95,24 +101,52 @@ public class GlobalManager : MonoBehaviour {
 	}
 
 
+	private		bool						m_IsInitializedInternal	= true;
+
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
 	private static void OnBeforeSceneLoad ()
 	{
 		if ( Application.isEditor == false )
 		{
 			Application.logMessageReceived += HandleException;
-			new MyFileLogHandler();
 		}
+
+		new MyFileLogHandler();
 	}
+
 
 	static void HandleException( string condition, string stackTrace, LogType type )
     {
-		if ( type == LogType.Exception || type == LogType.Assert || type == LogType.Error )
+		switch ( type )
 		{
-			QuitInstanly();
+			case LogType.Error:
+			case LogType.Assert:
+			case LogType.Exception:
+			{
+				QuitInstanly();
+				break;
+			}
 		}
     }
 
+
+
+	///////////////////////////////////////////////////
+	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
+	private	static	void	Initialize()
+	{
+		if ( m_IsInitialized == false )
+		{
+			GameObject go = new GameObject("GlobalManager");
+//			go.hideFlags = HideFlags.HideAndDontSave;
+			go.hideFlags = HideFlags.DontSave;
+			go.AddComponent<GlobalManager>();
+
+			m_IsInitialized = true;
+		}
+	}
+
+	
 	//////////////////////////////////////////////////////////////////////////
 	private void Awake()
 	{
@@ -128,6 +162,17 @@ public class GlobalManager : MonoBehaviour {
 		m_InputMgr	= new InputManager();
 		m_InputMgr.Setup();
 	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void OnDestroy()
+	{
+		if ( m_Instance != this )
+			return;
+
+		m_IsInitialized = false;
+	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////

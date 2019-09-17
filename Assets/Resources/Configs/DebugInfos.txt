@@ -1,6 +1,6 @@
 
 
 [DebugInfos]
-ResourceManager			= false;
+ResourceManager			= true;
 WeatherManager			= false;
 Quests					= false;
