@@ -157,22 +157,7 @@ namespace WeatherSystem {
 			Awake_Editor();
 		}
 
-		/*
-		/////////////////////////////////////////////////////////////////////////////
-		// OnLevelLoaded
-		private void OnLevelLoaded( UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode loadMode )
-		{
-			if ( m_ShowDebugInfo )
-				Debug.Log( "WeatherManager::OnLevelLoaded: : On Level " + (SceneEnumeration)scene.buildIndex + " loaded" );
 
-			// Load Sky Material
-			m_SkyMaterial = Resources.Load<Material>( SKYMIXER_MATERIAL );
-
-			// Setup for Environment
-			RenderSettings.sun		= m_Sun;
-			RenderSettings.skybox	= m_SkyMaterial;
-		}
-		*/
 
 		/////////////////////////////////////////////////////////////////////////////
 		// OnEnable

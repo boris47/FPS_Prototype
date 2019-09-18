@@ -87,7 +87,7 @@ public partial class GameManager : MonoBehaviour {
 
 		ReseteDelegates();
 
-		GlobalManager.Instance.InputMgr.BindCall
+		GlobalManager.InputMgr.BindCall
 		(
 			command:		eInputCommands.INVENTORY,
 			inputEventID:	"Inventory",
@@ -107,7 +107,7 @@ public partial class GameManager : MonoBehaviour {
 		);
 
 
-		GlobalManager.Instance.InputMgr.BindCall
+		GlobalManager.InputMgr.BindCall
 		(
 			command:		eInputCommands.WPN_CUSTOMIZATION,
 			inputEventID:	"WeaponCustomization",
@@ -142,8 +142,8 @@ public partial class GameManager : MonoBehaviour {
 		if ( m_Instance != this )
 			return;
 
-		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.WPN_CUSTOMIZATION,	"WeaponCustomization"	);
-		GlobalManager.Instance.InputMgr.UnbindCall( eInputCommands.INVENTORY,			"Inventory"				);
+		GlobalManager.InputMgr.UnbindCall( eInputCommands.WPN_CUSTOMIZATION,	"WeaponCustomization"	);
+		GlobalManager.InputMgr.UnbindCall( eInputCommands.INVENTORY,			"Inventory"				);
 
 		ReseteDelegates();
 
@@ -156,7 +156,7 @@ public partial class GameManager : MonoBehaviour {
 	public	void		QuitRequest()
 	{
 		m_QuitRequest = true;
-		GlobalManager.Instance.InputMgr.DisableCategory( InputCategory.ALL );
+		GlobalManager.InputMgr.DisableCategory( InputCategory.ALL );
 		Debug.Log("GameManager: Requesting exit");
 	}
 
@@ -208,7 +208,7 @@ public partial class GameManager : MonoBehaviour {
 		{
 //			m_CurrentInputDelay = m_InputUpdateDelay;
 			// Update inputs
-			GlobalManager.Instance.InputMgr.Update();
+			GlobalManager.InputMgr.Update();
 		}
 		/*
 		if ( Input.GetKeyDown( KeyCode.L) )

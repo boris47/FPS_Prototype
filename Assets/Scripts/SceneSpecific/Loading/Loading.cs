@@ -15,7 +15,7 @@ public class Loading : MonoBehaviour {
 	private		Text				m_LoadingLevelNameText				= null;
 	private		float				m_CurrentProgressValue				= 0.0f;
 
-	private		bool				m_IsInitializedInternal				= true;
+	private		bool				m_IsInitializedInternal				= false;
 
 
 
@@ -32,26 +32,28 @@ public class Loading : MonoBehaviour {
 				RESOURCE_PATH + " cannot be loaded !!!"
 			);
 
-			Object.Instantiate( original ).Awake();
+			m_Instance = Object.Instantiate( original );
 
-			m_IsInitialized = true;
+			DontDestroyOnLoad( m_Instance );
+
+			m_IsInitialized = false;
 		}
 	}
 
-
+	
 	//////////////////////////////////////////////////////////////////////////
-	private void Awake()
+	private	void	Awake()
 	{
 		// Singleton
-		if ( m_Instance != null && m_Instance != this )
+		if ( m_Instance != null )
 		{
-			Destroy( gameObject );
+			Destroy(gameObject);
 			return;
 		}
-		m_Instance = this;
-		DontDestroyOnLoad(this);
+		
+		gameObject.SetActive(false);
 
-		m_IsInitializedInternal &= transform.SearchComponent( ref m_LoadingBar, SearchContext.CHILDREN );
+		m_IsInitializedInternal = transform.SearchComponent( ref m_LoadingBar, SearchContext.CHILDREN );
 		m_IsInitializedInternal &= transform.SearchComponent( ref m_LoadingLevelNameText, SearchContext.CHILDREN, c => c.name == "LoadingSceneNameText" );
 	}
 
@@ -63,24 +65,9 @@ public class Loading : MonoBehaviour {
 			return;
 
 		m_IsInitialized = false;
+		m_Instance = null;
 	}
 
-
-	/*
-	//////////////////////////////////////////////////////////////////////////
-	private	void	Awake()
-	{
-		// Singleton
-		if ( m_Instance != null )
-		{
-			Destroy(gameObject);
-			return;
-		}
-
-		m_IsInitializedInternal = transform.SearchComponent( ref m_LoadingBar, SearchContext.CHILDREN );
-		m_IsInitializedInternal &= transform.SearchComponent( ref m_LoadingLevelNameText, SearchContext.CHILDREN, c => c.name == "LoadingSceneNameText" );
-	}
-	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	public	static	void	Show()

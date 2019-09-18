@@ -226,12 +226,14 @@ public class UIManager : MonoBehaviour, IUI {
 									m_MainMenu.gameObject.activeSelf ? m_MainMenu.transform : null;
 
 		// Other Menus initialization
-		foreach( IStateDefiner state in transform.GetComponentsInChildren<IStateDefiner>( includeInactive: true ) )
+		IStateDefiner[] states = transform.GetComponentsInChildren<IStateDefiner>( includeInactive: true );
+//		uint statesCount = (uint)states.Length;
+//		CoroutinesManager.AddCoroutineToPendingCount( statesCount );
+		foreach( IStateDefiner state in states )
 		{
-			CoroutinesManager.AddCoroutineToPendingCount( 1 );
 			yield return CoroutinesManager.Start( state.Initialize(), "UIMananger::Initialize() Initializing substate " + state.StateName );
-			CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 		}
+//		CoroutinesManager.RemoveCoroutineFromPendingCount( statesCount );
 
 		yield return null;
 		yield return null;

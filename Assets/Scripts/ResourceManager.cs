@@ -42,11 +42,15 @@ public class ResourceManager : MonoBehaviour {
 	{
 		if ( m_IsInitialized == false )
 		{
-			GameObject resourceManagerGO = new GameObject("ResourceManager");
-//			resourceManagerGO.hideFlags = HideFlags.HideAndDontSave;
-			resourceManagerGO.AddComponent<ResourceManager>();
-
+			m_Instance = FindObjectOfType<ResourceManager>();
+			if ( m_Instance == null )
+			{
+				m_Instance = new GameObject("ResourceManager").AddComponent<ResourceManager>();
+			}
+			m_Instance.hideFlags = HideFlags.DontSave;
 			m_IsInitialized = true;
+
+			DontDestroyOnLoad( m_Instance );
 		}
 	}
 
@@ -61,19 +65,14 @@ public class ResourceManager : MonoBehaviour {
 			Destroy( gameObject );
 			return;
 		}
-		DontDestroyOnLoad( this );
-		m_Instance = this;
 
 		Database.Section debugInfosSection = null;
 		if ( GlobalManager.Configs.bGetSection( "DebugInfos", ref debugInfosSection ) )
 		{
 			m_ShowDebugInfo = debugInfosSection.AsBool( "ResourceManager", false);
-			if ( m_ShowDebugInfo )
-			{
-				print = Debug.Log;
-			}
+
+			print = m_ShowDebugInfo ? Debug.Log : print;
 		}
-		m_IsInitialized = true;
 	}
 
 
@@ -84,6 +83,7 @@ public class ResourceManager : MonoBehaviour {
 			return;
 
 		m_IsInitialized = false;
+		m_Instance = null;
 	}
 
 
@@ -231,7 +231,6 @@ public class ResourceManager : MonoBehaviour {
 			yield return null;
 		}
 
-//		yield return request;
 		loadedResource.Asset = request.asset as T;
 
 		if ( m_ShowDebugInfo )
@@ -263,6 +262,7 @@ public class ResourceManager : MonoBehaviour {
 						"ResourceManger::InternalLoadResourceAsync: Loading " + compositeFilePath
 					);
 */
+					yield return null;
 					composite.AddChild( childloadedResource.Asset );
 				}
 			}

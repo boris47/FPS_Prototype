@@ -102,9 +102,9 @@ public class UI_Bindings : MonoBehaviour, IStateDefiner {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnEnable()
 	{
-		if ( GlobalManager.Instance.InputMgr != null )
+		if ( GlobalManager.InputMgr != null )
 		{
-			m_InputMgr = GlobalManager.Instance.InputMgr;
+			m_InputMgr = GlobalManager.InputMgr;
 		}
 		else
 		{

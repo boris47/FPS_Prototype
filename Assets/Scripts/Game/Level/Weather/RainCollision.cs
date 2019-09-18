@@ -14,7 +14,7 @@ namespace WeatherSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// START
-		private void Start()
+		private void Awake()
 		{
 			m_RainParticleSystem = GetComponent<ParticleSystem>();
 			if ( m_RainParticleSystem == null )
@@ -23,7 +23,7 @@ namespace WeatherSystem {
 				return;
 			}
 
-			m_CollisionEvents.Capacity = m_RainParticleSystem.main.maxParticles;
+			m_CollisionEvents.Capacity = m_RainParticleSystem.main.maxParticles / 3;
 		}
 
 
@@ -33,7 +33,7 @@ namespace WeatherSystem {
 		private void Emit( ref ParticleSystem particle, Vector3 position )
 		{
 			int count = Random.Range( 1, 4 );
-			while ( count != 0 )
+			while ( count > 0 )
 			{
 				float yVelocity = Random.Range(  0.5f, 1.0f );
 				float zVelocity = Random.Range( -0.5f, 1.0f );
@@ -47,7 +47,7 @@ namespace WeatherSystem {
 				param.startSize			= size;
 				param.startColor		= m_Color;
 
-				particle.Emit(param, 1);
+				particle.Emit( param, 1 );
 
 				count--;
 			}

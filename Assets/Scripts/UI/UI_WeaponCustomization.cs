@@ -140,7 +140,7 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 //		InputManager.IsEnabled					= false;
 
 		// All categories but not interface
-		GlobalManager.Instance.InputMgr.DisableCategory( InputCategory.ALL | InputCategory.INTERFACE );
+		GlobalManager.InputMgr.DisableCategory( InputCategory.ALL | InputCategory.INTERFACE );
 
 		GlobalManager.SetCursorVisibility( true );
 
@@ -255,7 +255,7 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 		}
 
 //		InputManager.IsEnabled					= true;
-		GlobalManager.Instance.InputMgr.EnableCategory( InputCategory.ALL );
+		GlobalManager.InputMgr.EnableCategory( InputCategory.ALL );
 
 		GlobalManager.SetCursorVisibility( false );
 

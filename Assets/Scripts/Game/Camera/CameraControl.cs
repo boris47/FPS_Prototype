@@ -324,7 +324,7 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 	private	void	LateUpdate()
 	{
 		if ( transform.parent == null || GameManager.IsPaused || 
-			GlobalManager.Instance.InputMgr.HasCategoryEnabled( InputCategory.CAMERA ) == false )
+			GlobalManager.InputMgr.HasCategoryEnabled( InputCategory.CAMERA ) == false )
 			return;
 
 		float dt = Time.deltaTime;

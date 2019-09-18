@@ -61,14 +61,36 @@ public class CoroutinesManager : MonoBehaviour {
 	{
 		if ( m_IsInitialized == false )
 		{
-			GameObject go = new GameObject("CoroutinesManager");
-//			go.hideFlags = HideFlags.HideAndDontSave;
-			go.hideFlags = HideFlags.DontSave;
-			go.AddComponent<CoroutinesManager>();
-
+			m_Instance = FindObjectOfType<CoroutinesManager>();
+			if ( m_Instance == null )
+			{
+				m_Instance = new GameObject("CoroutinesManager").AddComponent<CoroutinesManager>();
+			}
+			m_Instance.hideFlags = HideFlags.DontSave;
 			m_IsInitialized = true;
+
+			DontDestroyOnLoad( m_Instance );
 		}
 	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void Awake()
+	{
+		// Singleton
+		if ( m_Instance != null )
+		{
+			Destroy( gameObject );
+			return;
+		}
+
+		Database.Section debugInfosSection = null;
+		if ( GlobalManager.Configs.bGetSection( "DebugInfos", ref debugInfosSection ) )
+		{
+			m_ShowDebugInfo = debugInfosSection.AsBool( "CoroutinesManager", false);
+		}
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	private void OnDestroy()
@@ -77,6 +99,7 @@ public class CoroutinesManager : MonoBehaviour {
 			return;
 
 		m_IsInitialized = false;
+		m_Instance = null;
 	}
 
 	
@@ -115,32 +138,12 @@ public class CoroutinesManager : MonoBehaviour {
 		}
 	}
 
-
-	/////////////////////////////////////////////////////////////////
-	private void Awake()
-	{	// Singleton
-		if ( m_Instance != null )
-		{
-			Destroy( gameObject );
-			return;
-		}
-		DontDestroyOnLoad( this );
-		m_Instance = this;
-		m_IsInitialized = true;
-
-		Database.Section debugInfosSection = null;
-		if ( GlobalManager.Configs.bGetSection( "DebugInfos", ref debugInfosSection ) )
-		{
-			m_ShowDebugInfo = debugInfosSection.AsBool( "CoroutinesManager", false);
-		}
-	}
-
 	
 	/////////////////////////////////////////////////////////////////
 	/// <summary> Start a new coroutine </summary>
 	public	static	Coroutine	Start( IEnumerator routine, string debugKey = "" )
 	{
-		if ( debugKey.Length > 0 )
+		if ( m_ShowDebugInfo && debugKey.Length > 0 )
 		{
 			Debug.Log( "Starting coroutine for " + debugKey );
 		}

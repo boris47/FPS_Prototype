@@ -39,13 +39,12 @@ public class CustomSceneManager : MonoBehaviour {
 	}
 
 
-	private	static	CustomSceneManager	m_Instance			= null;
-	private	static	bool				m_IsInitialized		= false;
+	private	static	CustomSceneManager	m_Instance					= null;
+	private	static	bool				m_IsInitialized				= false;
 
-	private	static	Dictionary<string, UnityAction<Scene, LoadSceneMode> > m_RegisteredDelegates = new Dictionary<string, UnityAction<Scene, LoadSceneMode>>();
+
 	private	static	List< UnityAction<Scene, LoadSceneMode> > Delegates = new List<UnityAction<Scene, LoadSceneMode>>();
 	
-
 
 	/////////////////////////////////////////////////////////////////
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -53,10 +52,17 @@ public class CustomSceneManager : MonoBehaviour {
 	{
 		if ( m_IsInitialized == false )
 		{
-			GameObject go = new GameObject("CustomSceneManager");
-//			go.hideFlags = HideFlags.HideAndDontSave;
-			go.hideFlags = HideFlags.DontSave;
-			go.AddComponent<CustomSceneManager>();
+			m_Instance = FindObjectOfType<CustomSceneManager>();
+			if ( m_Instance == null )
+			{
+				m_Instance = new GameObject("CustomSceneManager").AddComponent<CustomSceneManager>();
+			}
+			m_Instance.hideFlags = HideFlags.DontSave;
+			m_IsInitialized = true;
+
+			DontDestroyOnLoad( m_Instance );
+
+			Delegates.ForEach( d => SceneManager.sceneLoaded -= d );
 
 			m_IsInitialized = true;
 		}
@@ -73,7 +79,6 @@ public class CustomSceneManager : MonoBehaviour {
 			Destroy( gameObject );
 			return;
 		}
-		DontDestroyOnLoad( this );
 		m_Instance = this;
 		m_IsInitialized = true;
 
@@ -319,7 +324,7 @@ public class CustomSceneManager : MonoBehaviour {
 		UIManager.Indicators.enabled = true;
 		UIManager.Minimap.enabled = true;
 
-		GlobalManager.Instance.InputMgr.EnableCategory( InputCategory.ALL );
+		GlobalManager.InputMgr.EnableCategory( InputCategory.ALL );
 
 		if ( GameManager.Instance )
 			GameManager.SetInGameAs( true );
@@ -345,7 +350,7 @@ public class CustomSceneManager : MonoBehaviour {
 		GlobalManager.bIsLoadingScene = true;
 
 		// Disable all input categories
-		GlobalManager.Instance.InputMgr.DisableCategory( InputCategory.ALL );
+		GlobalManager.InputMgr.DisableCategory( InputCategory.ALL );
 
 		// Enable Loading Menu
 //		UIManager.Instance.GoToMenu( Loading );
@@ -438,7 +443,7 @@ public class CustomSceneManager : MonoBehaviour {
 
 		yield return null;
 
-		GlobalManager.Instance.InputMgr.EnableCategory( InputCategory.ALL );
+		GlobalManager.InputMgr.EnableCategory( InputCategory.ALL );
 
 		if ( GameManager.Instance )
 			GameManager.SetInGameAs( true );
@@ -449,7 +454,7 @@ public class CustomSceneManager : MonoBehaviour {
 		// Wait for every launched coroutine in awake of scripts
 		yield return CoroutinesManager.WaitPendingCoroutines();
 
-		yield return new WaitForSecondsRealtime( 3.00f );
+//		yield return new WaitForSecondsRealtime( 3.00f );
 
 		Loading.Hide();
 

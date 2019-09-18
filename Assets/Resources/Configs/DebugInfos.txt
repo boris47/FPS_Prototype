@@ -4,3 +4,4 @@
 ResourceManager			= true;
 WeatherManager			= false;
 Quests					= false;
+CoroutinesManager		= true;

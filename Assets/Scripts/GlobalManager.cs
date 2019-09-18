@@ -94,8 +94,8 @@ public class GlobalManager : MonoBehaviour {
 		}
 	}
 
-	private					InputManager	m_InputMgr				= null;
-	public					InputManager	InputMgr
+	private	static				InputManager	m_InputMgr				= null;
+	public	static				InputManager	InputMgr
 	{
 		get { return m_InputMgr; }
 	}
@@ -110,6 +110,12 @@ public class GlobalManager : MonoBehaviour {
 		{
 			Application.logMessageReceived += HandleException;
 		}
+
+		UnityEngine.Assertions.Assert.raiseExceptions = true;
+		Debug.developerConsoleVisible = true;
+		Physics.queriesHitBackfaces = false;
+		Application.backgroundLoadingPriority = ThreadPriority.Low;
+		QualitySettings.asyncUploadBufferSize = 32; // MB
 
 		new MyFileLogHandler();
 	}
@@ -131,18 +137,21 @@ public class GlobalManager : MonoBehaviour {
 
 
 
-	///////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
 	private	static	void	Initialize()
 	{
 		if ( m_IsInitialized == false )
 		{
-			GameObject go = new GameObject("GlobalManager");
-//			go.hideFlags = HideFlags.HideAndDontSave;
-			go.hideFlags = HideFlags.DontSave;
-			go.AddComponent<GlobalManager>();
-
+			m_Instance = FindObjectOfType<GlobalManager>();
+			if ( m_Instance == null )
+			{
+				m_Instance = new GameObject("GlobalManager").AddComponent<GlobalManager>();
+			}
+			m_Instance.hideFlags = HideFlags.DontSave;
 			m_IsInitialized = true;
+
+			DontDestroyOnLoad( m_Instance );
 		}
 	}
 
@@ -150,14 +159,12 @@ public class GlobalManager : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private void Awake()
 	{
-		// SINGLETON
+		// Singleton
 		if ( m_Instance != null )
 		{
 			Destroy( gameObject );
 			return;
 		}
-		DontDestroyOnLoad( this );
-		m_Instance		= this;
 
 		m_InputMgr	= new InputManager();
 		m_InputMgr.Setup();
@@ -171,6 +178,7 @@ public class GlobalManager : MonoBehaviour {
 			return;
 
 		m_IsInitialized = false;
+		m_Instance = null;
 	}
 
 
