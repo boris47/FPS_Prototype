@@ -43,6 +43,35 @@ namespace Utils {
 			return true;
 		}
 
+		public	static	bool	ConvertFromResourcePathToAssetPath( ref string resourcePath )
+		{
+	//		const string AssetPathPrefix = "Assets/Resources/";
+			string AssetPathPrefix = Application.dataPath + "/Resources/";
+	//		const int AssetPathPrefixLength = 17;
+
+			if ( string.IsNullOrEmpty( resourcePath ) )
+				return false;
+
+			string result = resourcePath;
+
+			// START
+			// SkyCubeMaps/Clear/00-00.png
+			if ( global::System.IO.Path.HasExtension( resourcePath ) )
+			{
+				result = global::System.IO.Path.ChangeExtension( resourcePath, null );
+			}
+			// SkyCubeMaps/Clear/00-00
+
+			if ( result.StartsWith( AssetPathPrefix ) == false )
+			{
+				result = AssetPathPrefix + resourcePath;
+			}
+			//E:/SourceTree/8_FPS_Prototype2017/Assets/Resources/Configs/Assets/Resources/SkyCubeMaps/Clear/00-00
+
+			resourcePath = result;
+			return true;
+		}
+
 
 
 		//////////////////////////////////////////////////////////////////////////

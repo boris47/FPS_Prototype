@@ -11,8 +11,9 @@ Shader "Custom/SkyMixerShader" {
 
 	SubShader
 	{
-		Tags { "Queue" = "Background" }
+		Tags { "Queue"="Background" "RenderType"="Background" }
 		Cull Off
+		ZWrite Off
 		Fog { Mode Off }
 		Lighting Off
 		Color [_Tint]

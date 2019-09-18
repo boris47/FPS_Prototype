@@ -12,7 +12,7 @@ public class WindowValueStep : EditorWindow {
 
 	private	System.Action		OnOK					= null;
 	private System.Action       OnCancel				= null;
-	private	System.Type			RequesteType			= null;
+	private	System.Type			RequestedType			= null;
 
 	//
 	public static void Init<T>( System.Action callbackOK , System.Action callbackCancel = null )
@@ -35,8 +35,29 @@ public class WindowValueStep : EditorWindow {
 
 		m_Window.OnOK				= callbackOK;
 		m_Window.OnCancel			= callbackCancel;
-		m_Window.RequesteType		= requestedType;
+		m_Window.RequestedType		= requestedType;
+
+		if ( requestedType == typeof( bool ) )
+		{
+			Value = new cValue( false );
+		}
+
+		if ( requestedType == typeof( int ) )
+		{
+			Value = new cValue( 0 );
+		}
+
+		if ( requestedType == typeof( float ) )
+		{
+			Value = new cValue( 0.0f );
+		}
+		
+		if ( requestedType == typeof( string ) )
+		{
+			Value = new cValue( "None" );
+		}
 	}
+
 
 	//
 	private static	bool	HasValidValue( cValue Value )
@@ -60,16 +81,16 @@ public class WindowValueStep : EditorWindow {
 
 	//		if ( Value.ToSystemObject() != null )
 			{
-				if ( RequesteType == typeof( bool ) )
+				if ( RequestedType == typeof( bool ) )
 					Value = EditorGUILayout.Toggle( Value );
 
-				if ( RequesteType == typeof( int ) )
+				if ( RequestedType == typeof( int ) )
 					Value = EditorGUILayout.IntField( Value );
 
-				if ( RequesteType == typeof( float ) )
+				if ( RequestedType == typeof( float ) )
 					Value = EditorGUILayout.FloatField( Value );
 
-				if ( RequesteType == typeof( string ) )
+				if ( RequestedType == typeof( string ) )
 					Value = EditorGUILayout.TextField( Value );
 			}
 

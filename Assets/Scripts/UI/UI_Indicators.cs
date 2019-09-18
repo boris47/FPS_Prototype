@@ -17,7 +17,7 @@ public class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 	private	const	float		MAX_DISTANCE_TO_RESIZE = 25f;
 	private	const	float		MIN_DISTANCE_TO_RESIZE = 2f;
-	private	const	int			MAX_ELEMENTS = 30;
+	private	const	int			MAX_ELEMENTS = 4;
 
 	private		SpriteCollection					m_SpriteCollection			= null;
 

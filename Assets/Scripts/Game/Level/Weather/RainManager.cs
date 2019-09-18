@@ -180,6 +180,18 @@ namespace WeatherSystem {
 			}
 
 			{
+				
+				AudioCollection thunderCollection = Resources.Load<AudioCollection>( THUNDERS_DISTANT );
+				if ( thunderCollection != null )
+					m_ThundersDistantCollection = thunderCollection.AudioClips;
+				else
+				{
+					print( "Cannot load scriptable " +  THUNDERS_DISTANT );
+					enabled = false;
+					yield break;
+				}
+
+				/*
 				ResourceManager.LoadedData<AudioCollection> collection = new ResourceManager.LoadedData<AudioCollection>();
 
 				bool bIsLoadCompletedWithSuccess = false;
@@ -200,9 +212,20 @@ namespace WeatherSystem {
 					enabled = false;
 					yield break; //return;
 				}
+				*/
 			}
-
+			
 			{
+				AudioCollection thunderCollection = Resources.Load<AudioCollection>( THUNDERS_DURING_RAIN );
+				if ( thunderCollection != null )
+					m_ThundersDuringRainCollection = thunderCollection.AudioClips;
+				else
+				{
+					print( "Cannot load scriptable " +  THUNDERS_DISTANT );
+					enabled = false;
+					yield break;
+				}
+				/*
 				ResourceManager.LoadedData<AudioCollection> collection = new ResourceManager.LoadedData<AudioCollection>();
 			//	if ( ResourceManager.LoadResourceSync ( THUNDERS_DURING_RAIN, collection ) == true )
 
@@ -224,7 +247,7 @@ namespace WeatherSystem {
 					enabled = false;
 					yield break; //return;
 				}
-
+				*/
 			}
 			
 			m_NextThunderTimer = Random.Range( m_ThunderboltsSectionData.ThunderTimerMin, m_ThunderboltsSectionData.ThunderTimerMax );

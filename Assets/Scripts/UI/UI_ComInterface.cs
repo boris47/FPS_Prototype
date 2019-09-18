@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 
-	private	const	int			MAX_ELEMENTS = 30;
+	private	const	int			MAX_ELEMENTS = 05;
 
 	private		GameObjectsPool<Text>				m_NotificationsPool						= null;
 

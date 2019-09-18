@@ -60,7 +60,7 @@ public class GlobalManager : MonoBehaviour {
 
 	// Load Settings and Configs
 	private	const string settingspath		= "Settings";
-	private	const string configsPath		= "Configs\\All";
+	private	const string configsPath		= "Configs/All";
 
 	public	static			bool			bIsChangingScene		= false;
 	public	static			bool			bIsLoadingScene			= false;
@@ -115,7 +115,7 @@ public class GlobalManager : MonoBehaviour {
 		Debug.developerConsoleVisible = true;
 		Physics.queriesHitBackfaces = false;
 		Application.backgroundLoadingPriority = ThreadPriority.Low;
-		QualitySettings.asyncUploadBufferSize = 32; // MB
+		QualitySettings.asyncUploadBufferSize = 24; // MB
 
 		new MyFileLogHandler();
 	}

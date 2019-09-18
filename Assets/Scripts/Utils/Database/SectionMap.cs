@@ -227,7 +227,51 @@ public class SectionMap {
 
 		IsOK = false;
 
+
+#if UNITY_EDITOR
+		// Editor Mode
+		FileStream fs = null;
+		try
+		{
+			Utils.String.ConvertFromResourcePathToAssetPath( ref sFilePath );
+
+			string fullPath = Path.GetDirectoryName( sFilePath );
+
+			string[] allFiles = Directory.GetFiles( fullPath );
+
+			string fileToFindName = Path.GetFileName( sFilePath );
+
+			string fileName = System.Array.Find( allFiles, f => f.Contains( fileToFindName ) );
+
+			fs = File.Open( fileName, FileMode.Open );
+		}
+		catch( System.Exception e )
+		{
+			Debug.LogError( "SectionMap::LoadFile:Error opening file: |" + sFilePath + "| !!!\nMessage: " + e.Message );
+			UnityEditor.EditorApplication.isPlaying = false;
+			return false;
+		}
+
+		if ( fs.Length < 1 )
+		{
+			fs.Close();
+			Debug.LogError( "SectionMap::LoadFile:File |" + sFilePath + "| is empty!!!" );
+			UnityEditor.EditorApplication.isPlaying = false;
+			return false;
+		}
+
+		StreamReader sr = new StreamReader( fs );
+
+		int iLine = 0;
+		while( sr.EndOfStream == false )
+		{
+			iLine++;
+			string sLine = sr.ReadLine();
+
+#else
+
 		// release mode
+		Utils.String.ConvertFromAssetPathToResourcePath( ref sFilePath );
 		TextAsset pTextAsset = Resources.Load( sFilePath ) as TextAsset;
 		if ( pTextAsset == null )
 		{
@@ -247,7 +291,7 @@ public class SectionMap {
 		for ( int iLine = 1; iLine < vLines.Length+1; iLine++ )
 		{
 			string sLine = vLines[ iLine-1 ];
-
+#endif
 			if ( Utils.String.IsValid( ref sLine ) == false )
 				continue;
 
