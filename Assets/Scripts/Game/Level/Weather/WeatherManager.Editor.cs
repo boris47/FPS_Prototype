@@ -44,7 +44,12 @@ namespace WeatherSystem {
 		bool				IWeatherManager_Editor.INTERNAL_EditorLinked
 		{
 			get { return m_INTERNAL_EditorLinked; }
-			set {m_INTERNAL_EditorLinked = value; Debug.Log( "m_INTERNAL_EditorLinked: " + m_INTERNAL_EditorLinked ); }
+			set {
+				m_INTERNAL_EditorLinked = value;
+				OnEditorAttached( value );
+				Debug.Log( "m_INTERNAL_EditorLinked: " + m_INTERNAL_EditorLinked );
+
+		}
 		}
 		bool				IWeatherManager_Editor.INTERNAL_EditorCycleLinked					{ get; set; }
 		bool				IWeatherManager_Editor.INTERNAL_EditorDescriptorLinked				{ get; set; }
@@ -80,7 +85,7 @@ namespace WeatherSystem {
 		void	IWeatherManager_Editor.INTERNAL_Start( WeatherCycle cycle, float choiceFactor )
 		{
 			m_CurrentCycle			= cycle; 
-			m_Descriptors			= m_CurrentCycle.LoadedDescriptors;
+//			m_Descriptors			= m_CurrentCycle.LoadedDescriptors;
 			m_CurrentCycleName		= m_CurrentCycle.name;
 			m_WeatherChoiceFactor	= choiceFactor;
 		}
@@ -116,6 +121,30 @@ namespace WeatherSystem {
 		}
 #endregion
 
+
+		private	void		OnEditorAttached(bool bIsAttaching )
+		{
+#if UNITY_EDITOR
+			if ( bIsAttaching )
+			{
+				if ( UnityEditor.EditorApplication.isPlaying == false )
+				{
+					UnityEditor.EditorApplication.update -= Update;
+					UnityEditor.EditorApplication.update += Update;
+				}
+			}
+			else
+			{
+				if ( UnityEditor.EditorApplication.isPlaying == false )
+				{
+					UnityEditor.EditorApplication.update -= Update;
+					UnityEditor.EditorApplication.update -= Update;
+					UnityEditor.EditorApplication.update -= Update;
+				}
+			}
+#endif
+		}
+
 		/////////////////////////////////////////////////////////////////////////////
 		private	void		Awake_Editor()
 		{
@@ -135,8 +164,8 @@ namespace WeatherSystem {
 		{
 			if ( m_INTERNAL_EditorLinked == false && m_Cycles != null )
 			{
-				m_Cycles.LoadedCycles.ForEach( w => w.LoadedDescriptors = new List<EnvDescriptor>(24) );
-				m_Cycles.LoadedCycles = new List<WeatherCycle>();
+//				m_Cycles.LoadedCycles.ForEach( w => w.LoadedDescriptors = new List<EnvDescriptor>(24) );
+//				m_Cycles.LoadedCycles = new List<WeatherCycle>();
 			}
 		}
 
@@ -172,8 +201,11 @@ namespace WeatherSystem {
 			{
 				m_Cycles = weathersData.Asset;
 				m_AreResLoaded_Cylces = true;
+
 				Setup_Cycles();
 			}
+
+			
 		}
 	}
 

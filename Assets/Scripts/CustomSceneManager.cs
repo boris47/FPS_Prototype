@@ -355,15 +355,14 @@ public class CustomSceneManager : MonoBehaviour {
 		// Enable Loading Menu
 //		UIManager.Instance.GoToMenu( Loading );
 		Loading.Show();
-
+		/*
 		// Load Loading Scene syncronously
+		LoadSceneData loadingLoadSceneData = new LoadSceneData()
 		{
-			LoadSceneData loadingLoadSceneData = new LoadSceneData()
-			{
-				eScene			= SceneEnumeration.LOADING,
-			};
-			LoadSceneSync( loadingLoadSceneData );
-		}
+			eScene			= SceneEnumeration.LOADING,
+		};
+		LoadSceneSync( loadingLoadSceneData );
+		*/
 
 		yield return null;
 
@@ -374,7 +373,7 @@ public class CustomSceneManager : MonoBehaviour {
 		AsyncOperation asyncOperation = SceneManager.LoadSceneAsync( (int)loadSceneData.eScene, LoadSceneMode.Single );
 
 		// We want this operation to impact performance less than possible
-		asyncOperation.priority = 0;
+//		asyncOperation.priority = 0;
 
 		asyncOperation.allowSceneActivation = false;
 
@@ -391,7 +390,7 @@ public class CustomSceneManager : MonoBehaviour {
 			yield return loadCondition.WaitForPendingOperations();
 		}
 
-		Scene scene  = SceneManager.GetSceneByBuildIndex( (int)loadSceneData.eScene );
+//		Scene scene  = SceneManager.GetSceneByBuildIndex( (int)loadSceneData.eScene );
 
 //		GameObject[] roots = scene.GetRootGameObjects();
 

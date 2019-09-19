@@ -136,9 +136,9 @@ namespace WeatherSystem {
 				}
 			}
 
-			for ( int i = 0; i < m_CurrentCycle.DescriptorsPaths.Length; i++ )
+			for ( int i = 0; i < 24; i++ )
 			{
-				float bo = ( 360f / 24f * (float)i );
+				float bo = ( 360f / 12f * (float)i );
 				
 				EnvDescriptor thisDescriptor = m_CurrentCycle.LoadedDescriptors[ i ];
 
@@ -150,7 +150,8 @@ namespace WeatherSystem {
 				
 				GUI.backgroundColor = GetColor( thisDescriptor );
 				{
-					Rect btnRect = new Rect( Screen.width /2 + Mathf.Sin( bo * Mathf.Deg2Rad ) * 200f, Screen.height/2 - Mathf.Cos( bo * Mathf.Deg2Rad ) * 200f, 50f, 25f );
+					float twentyFourVis = 100f * ( ( i < 12 ) ? 1.4f : 2f );
+					Rect btnRect = new Rect( Screen.width/2 + Mathf.Sin( bo * Mathf.Deg2Rad ) * twentyFourVis, Screen.height/2 - Mathf.Cos( bo * Mathf.Deg2Rad ) * twentyFourVis, 50f, 25f );
 					if ( GUI.Button( btnRect, thisDescriptor.Identifier ) == true )
 					{
 						if ( i > 0 && m_CurrentCycle.LoadedDescriptors[ i - 1 ].set == true && thisDescriptor.set == false )

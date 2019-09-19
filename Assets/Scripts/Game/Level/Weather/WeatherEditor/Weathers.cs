@@ -4,14 +4,14 @@ using System.Collections.Generic;
 namespace WeatherSystem {
 
 	[System.Serializable]
-	public class Weathers : ScriptableObject, IResourceComposite {
+	public class Weathers : ScriptableObject/*, IResourceComposite*/ {
 
 		[SerializeField]//[HideInInspector]
 		public List<string>				CyclesPaths		= new List<string>();
 
 		[SerializeField]
 		public	List<WeatherCycle>		LoadedCycles	= new List<WeatherCycle>();
-
+		/*
 
 		// Questa funzione viene chiamata all'avvio dello script
 		// utile solo nell'editor
@@ -54,7 +54,7 @@ namespace WeatherSystem {
 			WeatherCycle childConverted = child as WeatherCycle;
 			LoadedCycles.Add( childConverted );
 		}
-
+		*/
 	}
 
 }

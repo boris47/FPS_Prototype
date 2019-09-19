@@ -51,6 +51,15 @@ public static class Extensions {
 	/////////////////////////////////////////////////////////////////////////////
 	//		ARRAY
 
+	/// <summary> For a valid array return a random contained element </summary>
+	public	static	T				Random<T>( this global::System.Array a )
+	{
+		if ( a == null || a.Length == 0 )
+			return default( T );
+
+		return a.GetByIndex<T>( UnityEngine.Random.Range( 0, a.Length ) ); 
+	}
+
 	/// <summary> Allow to easly get a value from an array checking given index, default value is supported </summary>
 	public	static	T				GetByIndex<T>( this global::System.Array a, int idx, T Default = default(T) )
 	{
@@ -131,6 +140,17 @@ public static class Extensions {
 	/////////////////////////////////////////////////////////////////////////////
 	//		LIST
 
+	/// <summary> For a valid list return a random contained element </summary>
+	public	static	T				Random<T>( this List<T> list )
+	{
+		if ( list == null || list.Count == 0 )
+			return default( T );
+
+		return list[ UnityEngine.Random.Range( 0, list.Count ) ]; 
+	}
+
+
+	/// <summary> Ensure the the inserting element is only present one tine in the list </summary>
 	public	static	bool		AddUnique<T>( this List<T> list, T element, System.Predicate<T> predicate = null )
 	{
 		System.Predicate<T> finalPredicate = predicate ?? delegate( T e ) { return e.Equals( element ); };

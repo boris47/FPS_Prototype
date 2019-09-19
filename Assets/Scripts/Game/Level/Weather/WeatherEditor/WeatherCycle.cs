@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace WeatherSystem {
 
 	[System.Serializable]
-	public class WeatherCycle : ScriptableObject, IResourceComposite {
+	public class WeatherCycle : ScriptableObject/*, IResourceComposite*/ {
 
 		[SerializeField][ReadOnly]//[HideInInspector]
 		public	string					AssetPath			= string.Empty;
@@ -13,9 +13,9 @@ namespace WeatherSystem {
 		public	string[]				DescriptorsPaths	= new string[ 24 ];
 
 		[SerializeField]
-		public	List<EnvDescriptor>		LoadedDescriptors	= new List<EnvDescriptor>( 24 );
+		public	EnvDescriptor[]			LoadedDescriptors	= new EnvDescriptor[24];
 
-
+		/*
 		//////////////////////////////////////////////////////////////////////////
 		bool	IResourceComposite.NeedToBeLoaded()
 		{
@@ -48,7 +48,7 @@ namespace WeatherSystem {
 			EnvDescriptor childConverted = child as EnvDescriptor;
 			LoadedDescriptors.Add( childConverted );
 		}
-
+		*/
 	}
 
 }

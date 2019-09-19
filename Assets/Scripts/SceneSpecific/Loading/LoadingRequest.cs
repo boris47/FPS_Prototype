@@ -14,7 +14,7 @@ public class LoadingRequest : MonoBehaviour {
 
 
 
-
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	private void Start()
 	{
@@ -34,4 +34,5 @@ public class LoadingRequest : MonoBehaviour {
 				.ExecuteSequence();
 		}
 	}
+	*/
 }

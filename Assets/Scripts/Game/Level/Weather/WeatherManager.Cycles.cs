@@ -34,6 +34,9 @@ namespace WeatherSystem {
 		[Header( "Cycles" )]
 
 		[SerializeField, ReadOnly]
+		private		Material					m_SkyMaterial				= null;
+
+		[SerializeField/*, ReadOnly*/]
 		private		Weathers					m_Cycles					= null;
 		[SerializeField, ReadOnly ]
 		private		WeatherCycle				m_CurrentCycle				= null;
@@ -44,7 +47,6 @@ namespace WeatherSystem {
 		private		EnvDescriptor				m_EnvDescriptorCurrent		= null;
 		private		EnvDescriptor				m_EnvDescriptorNext			= null;
 		private		EnvDescriptorMixer			m_EnvDescriptorMixer		= new EnvDescriptorMixer();
-		private		Material					m_SkyMaterial				= null;
 		private		float						m_EnvEffectTimer			= 0f;
 
 		private 	Quaternion					m_RotationOffset			= Quaternion.AngleAxis( 180f, Vector3.up );
@@ -127,16 +129,36 @@ namespace WeatherSystem {
 		private	void			OnEnable_Cycles()
 		{
 			m_CyclesInstance	= this as IWeatherManager_Cycles;
+
+			if ( m_Cycles.IsNotNull() )
+			{
+				m_AreResLoaded_Cylces = true;
+
+				// Select casual cycle
+//				m_CurrentCycle = m_Cycles.LoadedCycles.Random();
+//				m_CurrentCycleName = m_CurrentCycle.name;
+
+				Setup_Cycles();
+
+				// Select descriptors
+				StartSelectDescriptors( m_DayTimeNow = Random.value * WeatherManager.DAY_LENGTH );
+
+				// Make first env lerp
+				EnvironmentLerp();
+			}
 		}
 
 
 		/////////////////////////////////////////////////////////////////////////////
 		private	void			OnDisable_Cycles()
 		{
-			m_AreResLoaded_Cylces	= false;
+/*			if ( m_Cycles.IsNotNull() )
+			{
+				m_AreResLoaded_Cylces	= false;
 
-			Reset_Cycles();
-		}
+				Reset_Cycles();
+			}
+*/		}
 
 
 		/////////////////////////////////////////////////////////////////////////////
@@ -296,7 +318,7 @@ namespace WeatherSystem {
 				// set as current
 				m_CurrentCycle = cycle;
 				// update current descriptors
-				m_Descriptors = cycle.LoadedDescriptors;
+				m_Descriptors =  new List<EnvDescriptor>( cycle.LoadedDescriptors );
 				// update cycle name
 				m_CurrentCycleName = cycle.name;
 				// current updated
@@ -308,8 +330,8 @@ namespace WeatherSystem {
 			m_EnvEffectTimer = Random.Range( 2f, 5f );
 
 			// Select descriptors
-//			if ( m_Cycles.CyclesPaths.Count > 0 )
-//				StartSelectDescriptors( m_DayTimeNow );
+			if ( m_Cycles.CyclesPaths.Count > 0 )
+				StartSelectDescriptors( m_DayTimeNow );
 		}
 
 
@@ -394,7 +416,7 @@ namespace WeatherSystem {
 		{
 			if ( cycle != null )
 			{
-				m_Descriptors = cycle.LoadedDescriptors;
+				m_Descriptors = new List<EnvDescriptor>( cycle.LoadedDescriptors );
 			}
 
 			// get the last valid descriptor where its execTime is less than dayTime
@@ -426,9 +448,11 @@ namespace WeatherSystem {
 		private	void			ChangeWeather( WeatherCycle newCycle )
 		{
 			// find the corresponding of the current descriptor in the nex cycle
-			EnvDescriptor correspondingDescriptor = newCycle.LoadedDescriptors.Find( d => d.Identifier == m_EnvDescriptorNext.Identifier );
-			if ( correspondingDescriptor == null )
+			int correspondingDescriptorIndex = System.Array.FindIndex (newCycle.LoadedDescriptors, ( d => d.Identifier == m_EnvDescriptorNext.Identifier ) );
+			if ( correspondingDescriptorIndex == -1 )
 				return;
+
+			EnvDescriptor correspondingDescriptor = newCycle.LoadedDescriptors[correspondingDescriptorIndex];
 
 			if ( m_ShowDebugInfo )
 				Debug.Log( "WeatherManager: Changing weather, requested: " + newCycle.name );
@@ -437,7 +461,7 @@ namespace WeatherSystem {
 			m_CurrentCycle = newCycle;
 
 			// update current descriptors
-			m_Descriptors = m_CurrentCycle.LoadedDescriptors;
+			m_Descriptors = new List<EnvDescriptor>( m_CurrentCycle.LoadedDescriptors );
 					
 			// current updated
 			m_EnvDescriptorCurrent = m_EnvDescriptorNext;

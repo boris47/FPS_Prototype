@@ -66,26 +66,6 @@ namespace WeatherSystem {
 			Setup();
 		}
 
-
-		private	static Weathers GetCycles()
-		{
-			Weathers cycles = null;
-			const string assetPath = RESOURCE_PATH + "/" + COLLECTION_FILENAME + ".asset";
-			if ( System.IO.File.Exists( assetPath ) == false )
-			{
-				cycles = ScriptableObject.CreateInstance<Weathers>();
-				AssetDatabase.CreateAsset( cycles, assetPath );
-				AssetDatabase.SaveAssets();
-				AssetDatabase.Refresh();
-			}
-			else
-			{
-				cycles = AssetDatabase.LoadAssetAtPath<Weathers>( assetPath );
-			}
-
-			return cycles;
-		}
-
 		/////////////////////////////////////////////////////////////////////////////
 		// Setup
 		private static	void	Setup()
@@ -109,10 +89,32 @@ namespace WeatherSystem {
 			if ( cycles.CyclesPaths.Count > 0 )
 			{
 				GetWMGR().INTERNAL_ForceEnable();
-				GetWMGR().INTERNAL_ForceLoadResources();
+//				GetWMGR().INTERNAL_ForceLoadResources();
 			}
 
 			GetWMGR().INTERNAL_EditorLinked = true;
+		}
+
+
+		/////////////////////////////////////////////////////////////////////////////
+		// GetCycles
+		private	static Weathers GetCycles()
+		{
+			Weathers cycles = null;
+			const string assetPath = RESOURCE_PATH + "/" + COLLECTION_FILENAME + ".asset";
+			if ( System.IO.File.Exists( assetPath ) == false )
+			{
+				cycles = ScriptableObject.CreateInstance<Weathers>();
+				AssetDatabase.CreateAsset( cycles, assetPath );
+				AssetDatabase.SaveAssets();
+				AssetDatabase.Refresh();
+			}
+			else
+			{
+				cycles = AssetDatabase.LoadAssetAtPath<Weathers>( assetPath );
+			}
+
+			return cycles;
 		}
 
 
@@ -130,23 +132,23 @@ namespace WeatherSystem {
 			System.IO.Directory.CreateDirectory( descriptorsCyclePath );
 
 			// CREATE WEATHER CYCLE
-			WeatherCycle asset = ScriptableObject.CreateInstance<WeatherCycle>();
+			WeatherCycle weatherCycle = ScriptableObject.CreateInstance<WeatherCycle>();
 			{
-				asset.name = cycleName;
-				asset.AssetPath = assetPath;
+				weatherCycle.name = cycleName;
+				weatherCycle.AssetPath = assetPath;
 			}
-			AssetDatabase.CreateAsset( asset, assetPath );
-			EditorUtility.SetDirty( asset );
+			AssetDatabase.CreateAsset( weatherCycle, assetPath );
+			EditorUtility.SetDirty( weatherCycle );
 
 			// ADD DESCRIPTORS
 			for ( int i = 0; i < 24; i++ )
 			{
 				string onlineLoadPath = CreateDescriptor( cycleName, (float)i );
-				asset.DescriptorsPaths[i] = onlineLoadPath;
+				weatherCycle.DescriptorsPaths[i] = onlineLoadPath;
 
-				EnvDescriptor desc = AssetDatabase.LoadAssetAtPath<EnvDescriptor>( assetPath );
 				// Load created asset
-				asset.LoadedDescriptors.Add( desc );
+				EnvDescriptor desc = AssetDatabase.LoadAssetAtPath<EnvDescriptor>( assetPath );
+				weatherCycle.LoadedDescriptors[i] = desc;
 			}
 
 			return assetPath;
@@ -158,25 +160,28 @@ namespace WeatherSystem {
 		{
 			string cycleSkyiesPath		= CYCLESKIES_PATH + "/" + cycleName + "/";
 			string descriptorsCyclePath	= DESCRIPTORS_PATH + "/" + cycleName + "/";
+			float  execTime				= Hour * 3600f;
+
 
 			// IDENTIFIER
-			string identifier = "";
-			WeatherManager.TransformTime( Hour * 3600f, ref identifier, considerSeconds: false );
+			string identifier = string.Empty;
+			WeatherManager.TransformTime( execTime, ref identifier, considerSeconds: false );
 
 			Debug.Log( "Creating descrptor: " + cycleName + ", " + identifier );
 
-			string descriptorAssetPath = descriptorsCyclePath + identifier.Replace( ':', '-' ) + ".asset";
 
 			// CREATE DESCRIPTOR
+			string descriptorAssetPath = descriptorsCyclePath + identifier.Replace( ':', '-' ) + ".asset";
 			EnvDescriptor envDescriptor = ScriptableObject.CreateInstance<EnvDescriptor>();
 			{
 				envDescriptor.Identifier	= identifier;
 				envDescriptor.name			= identifier;
 				envDescriptor.AssetPath		= descriptorAssetPath;
-				envDescriptor.ExecTime		= Hour * 3600f;
+				envDescriptor.ExecTime		= execTime;
 			}
 			AssetDatabase.CreateAsset( envDescriptor, descriptorAssetPath );
 			EditorUtility.SetDirty( envDescriptor );
+
 
 			// LOAD SKY CUBE MAP IF PRESENT
 			{
@@ -193,7 +198,7 @@ namespace WeatherSystem {
 				}
 			}
 
-			Debug.Log( "Creatione done: " + cycleName + ", " + identifier  );
+			Debug.Log( "Creation done: " + cycleName + ", " + identifier  );
 			string onlineLoadPath = DESCRIPTORS_ONLINE_PATH + cycleName + "/" + identifier.Replace( ':', '-' );
 
 			// RETURN ONLINE LOAD PATH
@@ -332,7 +337,7 @@ namespace WeatherSystem {
 				WindowValueStep.m_Window.Close();
 
 			Weathers cycles = GetWMGR().INTERNAL_Cycles;
-
+			/*
 			if ( EditorApplication.isPlaying == false )
 			{
 				cycles.LoadedCycles.ForEach( delegate( WeatherCycle w )
@@ -342,7 +347,7 @@ namespace WeatherSystem {
 				});
 				cycles.LoadedCycles = new List<WeatherCycle>();
 			}
-
+			*/
 			EditorUtility.SetDirty( cycles );
 			AssetDatabase.SaveAssets();
 

@@ -15,6 +15,7 @@ namespace WeatherSystem {
 	}
 
 	// CLASS
+//	[ExecuteInEditMode]
 	public partial class WeatherManager : MonoBehaviour, IWeatherManager {
 
 #region VARS
@@ -164,14 +165,14 @@ namespace WeatherSystem {
 		private void			OnEnable()
 		{
 //			CustomSceneManager.RegisterOnLoad( OnLevelLoaded );
-
+/*
 #if UNITY_EDITOR
 			if ( UnityEditor.EditorApplication.isPlaying == false )
 			{
 				UnityEditor.EditorApplication.update = Update;
 			}
 #endif
-
+*/
 //			GameManager.StreamEvents.OnSave += StreamEvents_OnSave;
 //			GameManager.StreamEvents.OnLoad += StreamEvents_OnLoad;
 			
@@ -192,14 +193,14 @@ namespace WeatherSystem {
 		private void			OnDisable()
 		{
 //			CustomSceneManager.UnregisterOnLoad( OnLevelLoaded );
-
+/*
 #if UNITY_EDITOR
 			if ( UnityEditor.EditorApplication.isPlaying == false && Editor.INTERNAL_EditorLinked == false )
 			{
 				UnityEditor.EditorApplication.update = null;
 			}
 #endif
-
+*/
 //			GameManager.StreamEvents.OnSave -= StreamEvents_OnSave;
 //			GameManager.StreamEvents.OnLoad -= StreamEvents_OnLoad;
 
@@ -246,7 +247,7 @@ namespace WeatherSystem {
 		}
 
 
-
+		/*
 		/////////////////////////////////////////////////////////////////////////////
 		// START
 		private IEnumerator		Start()
@@ -283,7 +284,7 @@ namespace WeatherSystem {
 				EnvironmentLerp();
 			}
 		}
-
+		*/
 #endregion
 
 		/////////////////////////////////////////////////////////////////////////////
@@ -325,7 +326,7 @@ namespace WeatherSystem {
 		// OnApplicationQuit
 		private void			OnApplicationQuit()
 		{
-			m_DayTimeNow = -1f;
+			m_DayTimeNow = 0f;
 		}
 
 	}
