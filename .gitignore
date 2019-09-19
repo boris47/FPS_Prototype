@@ -36,3 +36,4 @@ sysinfo.txt
 *.unitypackage
 *.log
 Assets/FMODStudioCache.asset
+Assets/*.log
