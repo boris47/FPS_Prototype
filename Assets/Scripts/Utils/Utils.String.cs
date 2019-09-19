@@ -12,9 +12,7 @@ namespace Utils {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		/// Replace all '\\' with a dot each one
-		/// </summary>
+		/// <summary> </summary>
 		public	static	bool	ConvertFromAssetPathToResourcePath( ref string resourcePath )
 		{
 			const string AssetPathPrefix = "Assets/Resources/";
@@ -25,24 +23,28 @@ namespace Utils {
 
 			string result = resourcePath;
 
-			// START
 			// Assets/Resources/SkyCubeMaps/Clear/00-00.png
-			if ( global::System.IO.Path.HasExtension( resourcePath ) )
+			if ( global::System.IO.Path.HasExtension( resourcePath ) == false )
 			{
-				result = global::System.IO.Path.ChangeExtension( resourcePath, null );
+				return false;
 			}
+			result = global::System.IO.Path.ChangeExtension( resourcePath, null );
 			// Assets/Resources/SkyCubeMaps/Clear/00-00
 
-			if ( result.StartsWith( AssetPathPrefix ) )
+			if ( result.StartsWith( AssetPathPrefix ) == false )
 			{
-				result = result.Remove( 0, AssetPathPrefixLength );
+				return false;
 			}
+			result = result.Remove( 0, AssetPathPrefixLength );
 			// Resources/SkyCubeMaps/Clear/00-00
 
 			resourcePath = result;
 			return true;
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary> </summary>
 		public	static	bool	ConvertFromResourcePathToAssetPath( ref string resourcePath )
 		{
 	//		const string AssetPathPrefix = "Assets/Resources/";
@@ -54,18 +56,19 @@ namespace Utils {
 
 			string result = resourcePath;
 
-			// START
 			// SkyCubeMaps/Clear/00-00.png
-			if ( global::System.IO.Path.HasExtension( resourcePath ) )
+			if ( global::System.IO.Path.HasExtension( resourcePath ) == false )
 			{
-				result = global::System.IO.Path.ChangeExtension( resourcePath, null );
+				return false;
 			}
+			result = global::System.IO.Path.ChangeExtension( resourcePath, null );
 			// SkyCubeMaps/Clear/00-00
 
-			if ( result.StartsWith( AssetPathPrefix ) == false )
+			if ( result.StartsWith( AssetPathPrefix ) == true )
 			{
-				result = AssetPathPrefix + resourcePath;
+				return false;
 			}
+			result = AssetPathPrefix + resourcePath;
 			//E:/SourceTree/8_FPS_Prototype2017/Assets/Resources/Configs/Assets/Resources/SkyCubeMaps/Clear/00-00
 
 			resourcePath = result;

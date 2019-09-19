@@ -54,6 +54,10 @@ public class CoroutinesManager : MonoBehaviour {
 	private	static	bool				m_ShowDebugInfo		= false;
 
 	private	static	uint				m_PendingRoutines	= 0;
+	public	static	uint				PendingRoutines
+	{
+		get { return m_PendingRoutines; }
+	}
 
 	/////////////////////////////////////////////////////////////////
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]

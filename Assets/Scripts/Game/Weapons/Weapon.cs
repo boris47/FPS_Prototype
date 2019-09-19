@@ -355,13 +355,13 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 		//										COMMAND								COMMAND ID						ACTION							PREDICATE
 		GlobalManager.InputMgr.BindCall( eInputCommands.PRIMARY_FIRE_PRESS,		"Wpn_Primary_Fire_Start",		PrimaryFire_Start,		Predicate_PrimaryFire_Start		);
 		GlobalManager.InputMgr.BindCall( eInputCommands.PRIMARY_FIRE_HOLD,		"Wpn_Primary_Fire_Update",		PrimaryFire_Update,		Predicate_PrimaryFire_Update	);
-		GlobalManager.InputMgr.BindCall( eInputCommands.PRIMARY_FIRE_RELEASE,		"Wpn_Primary_Fire_End",			PrimaryFire_End,		Predicate_PrimaryFire_End		);
+		GlobalManager.InputMgr.BindCall( eInputCommands.PRIMARY_FIRE_RELEASE,	"Wpn_Primary_Fire_End",			PrimaryFire_End,		Predicate_PrimaryFire_End		);
 
-		GlobalManager.InputMgr.BindCall( eInputCommands.SECONDARY_FIRE_PRESS,		"Wpn_Secondary_Fire_Start",		SecondaryFire_Start,	Predicate_SecondaryFire_Start	);
-		GlobalManager.InputMgr.BindCall( eInputCommands.SECONDARY_FIRE_HOLD,		"Wpn_Secondary_Fire_Update",	SecondaryFire_Update,	Predicate_SecondaryFire_Update	);
+		GlobalManager.InputMgr.BindCall( eInputCommands.SECONDARY_FIRE_PRESS,	"Wpn_Secondary_Fire_Start",		SecondaryFire_Start,	Predicate_SecondaryFire_Start	);
+		GlobalManager.InputMgr.BindCall( eInputCommands.SECONDARY_FIRE_HOLD,	"Wpn_Secondary_Fire_Update",	SecondaryFire_Update,	Predicate_SecondaryFire_Update	);
 		GlobalManager.InputMgr.BindCall( eInputCommands.SECONDARY_FIRE_RELEASE,	"Wpn_Secondary_Fire_End",		SecondaryFire_End,		Predicate_SecondaryFire_End		);
 
-		GlobalManager.InputMgr.BindCall( eInputCommands.TERTIARY_FIRE_PRESS,		"Wpn_Tertiary_Fire_Start",		TertiaryFire_Start,		Predicate_TertiaryFire_Start	);
+		GlobalManager.InputMgr.BindCall( eInputCommands.TERTIARY_FIRE_PRESS,	"Wpn_Tertiary_Fire_Start",		TertiaryFire_Start,		Predicate_TertiaryFire_Start	);
 		GlobalManager.InputMgr.BindCall( eInputCommands.TERTIARY_FIRE_HOLD,		"Wpn_Tertiary_Fire_Update",		TertiaryFire_Update,	Predicate_TertiaryFire_Update	);
 		GlobalManager.InputMgr.BindCall( eInputCommands.TERTIARY_FIRE_RELEASE,	"Wpn_Tertiary_Fire_End",		TertiaryFire_End,		Predicate_TertiaryFire_End		);
 
@@ -384,13 +384,13 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 
 		GlobalManager.InputMgr.UnbindCall( eInputCommands.PRIMARY_FIRE_PRESS,		"Wpn_Primary_Fire_Start"	);
 		GlobalManager.InputMgr.UnbindCall( eInputCommands.PRIMARY_FIRE_HOLD,		"Wpn_Primary_Fire_Update"	);
-		GlobalManager.InputMgr.UnbindCall( eInputCommands.PRIMARY_FIRE_RELEASE,	"Wpn_Primary_Fire_End"		);
+		GlobalManager.InputMgr.UnbindCall( eInputCommands.PRIMARY_FIRE_RELEASE,		"Wpn_Primary_Fire_End"		);
 
-		GlobalManager.InputMgr.UnbindCall( eInputCommands.SECONDARY_FIRE_PRESS,	"Wpn_Secondary_Fire_Start"	);
-		GlobalManager.InputMgr.UnbindCall( eInputCommands.SECONDARY_FIRE_HOLD,	"Wpn_Secondary_Fire_Update"	);
+		GlobalManager.InputMgr.UnbindCall( eInputCommands.SECONDARY_FIRE_PRESS,		"Wpn_Secondary_Fire_Start"	);
+		GlobalManager.InputMgr.UnbindCall( eInputCommands.SECONDARY_FIRE_HOLD,		"Wpn_Secondary_Fire_Update"	);
 		GlobalManager.InputMgr.UnbindCall( eInputCommands.SECONDARY_FIRE_RELEASE,	"Wpn_Secondary_Fire_End"	);
 
-		GlobalManager.InputMgr.UnbindCall( eInputCommands.TERTIARY_FIRE_PRESS,	"Wpn_Tertiary_Fire_Start"	);
+		GlobalManager.InputMgr.UnbindCall( eInputCommands.TERTIARY_FIRE_PRESS,		"Wpn_Tertiary_Fire_Start"	);
 		GlobalManager.InputMgr.UnbindCall( eInputCommands.TERTIARY_FIRE_HOLD,		"Wpn_Tertiary_Fire_Update"	);
 		GlobalManager.InputMgr.UnbindCall( eInputCommands.TERTIARY_FIRE_RELEASE,	"Wpn_Tertiary_Fire_End"		);
 

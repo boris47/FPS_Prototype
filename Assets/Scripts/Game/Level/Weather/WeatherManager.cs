@@ -253,11 +253,12 @@ namespace WeatherSystem {
 		{
 			// Start Modules
 			{
-				const int processCount = 2;
+				const uint processCount = 2;
 
 				enabled = false; // prevent update method to be called before resources are loaded
 				CoroutinesManager.AddCoroutineToPendingCount(processCount);
 				{
+					yield return new WaitUntil( () => CoroutinesManager.PendingRoutines == processCount );
 					yield return CoroutinesManager.Start( Start_Cycles(), "WeatherManager::Start: Start of cycles" );
 					yield return CoroutinesManager.Start( Start_Editor(), "Wheathermanger::Start: Start of editor" );
 				}

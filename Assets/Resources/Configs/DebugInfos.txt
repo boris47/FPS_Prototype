@@ -1,7 +1,7 @@
 
 
 [DebugInfos]
-ResourceManager			= true;
+ResourceManager			= false;
 WeatherManager			= false;
 Quests					= false;
-CoroutinesManager		= true;
+CoroutinesManager		= false;

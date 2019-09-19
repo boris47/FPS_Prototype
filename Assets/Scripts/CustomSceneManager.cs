@@ -391,6 +391,18 @@ public class CustomSceneManager : MonoBehaviour {
 			yield return loadCondition.WaitForPendingOperations();
 		}
 
+		Scene scene  = SceneManager.GetSceneByBuildIndex( (int)loadSceneData.eScene );
+
+//		GameObject[] roots = scene.GetRootGameObjects();
+
+//		System.Array.ForEach( roots, ( GameObject go ) => {
+//			go.BroadcastMessage( "OnBeforeSceneActivation", SendMessageOptions.DontRequireReceiver );
+//		} );
+
+
+		// Wait for every launched coroutine in awake of scripts
+		yield return CoroutinesManager.WaitPendingCoroutines();
+
 		Time.timeScale = 0F;
 
 		asyncOperation.allowSceneActivation = true;

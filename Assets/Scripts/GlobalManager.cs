@@ -14,7 +14,7 @@ public class MyFileLogHandler : ILogHandler
     {
 		// Application.persistentDataPath: C:/Users/Drako/AppData/LocalLow/BeWide&Co/Project Orion
 		
-        string filePath = Application.dataPath + "/MyLogs.txt";
+        string filePath = Application.dataPath + "/MyLogs.log";
 
         m_FileStream = new System.IO.FileStream( filePath, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.ReadWrite );
         m_StreamWriter = new System.IO.StreamWriter( m_FileStream );
@@ -152,6 +152,9 @@ public class GlobalManager : MonoBehaviour {
 			m_IsInitialized = true;
 
 			DontDestroyOnLoad( m_Instance );
+
+			m_InputMgr	= new InputManager();
+			m_InputMgr.Setup();
 		}
 	}
 
@@ -165,9 +168,6 @@ public class GlobalManager : MonoBehaviour {
 			Destroy( gameObject );
 			return;
 		}
-
-		m_InputMgr	= new InputManager();
-		m_InputMgr.Setup();
 	}
 
 

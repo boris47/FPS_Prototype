@@ -228,22 +228,22 @@ public class SectionMap {
 		IsOK = false;
 
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR_REMOVED
 		// Editor Mode
 		FileStream fs = null;
 		try
 		{
-			Utils.String.ConvertFromResourcePathToAssetPath( ref sFilePath );
+			if ( Utils.String.ConvertFromResourcePathToAssetPath( ref sFilePath ) )
+			{
+				string fullPath = Path.GetDirectoryName( sFilePath );
 
-			string fullPath = Path.GetDirectoryName( sFilePath );
+				string fileToFindName = Path.GetFileName( sFilePath );
 
-			string[] allFiles = Directory.GetFiles( fullPath );
+				string[] allFiles = Directory.GetFiles( fullPath );
 
-			string fileToFindName = Path.GetFileName( sFilePath );
-
-			string fileName = System.Array.Find( allFiles, f => f.Contains( fileToFindName ) );
-
-			fs = File.Open( fileName, FileMode.Open );
+				sFilePath = System.Array.Find( allFiles, f => f.Contains( fileToFindName ) );
+			}
+			fs = File.Open( sFilePath, FileMode.Open );
 		}
 		catch( System.Exception e )
 		{
