@@ -2,6 +2,23 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+#if UNITY_EDITOR
+[UnityEditor.InitializeOnLoad]
+class EditorInitializer
+{
+    static EditorInitializer ()
+    {
+		const string assetPath = WeatherSystem.WindowWeatherEditor.RESOURCE_PATH + "/" + WeatherSystem.WindowWeatherEditor.COLLECTION_FILENAME + ".asset";
+		var a = UnityEditor.AssetDatabase.LoadAssetAtPath<WeatherSystem.Weathers>( assetPath );
+		UnityEngine.Assertions.Assert.IsNotNull
+		(
+			a,
+			"Cannot preload weather cycles"
+		);
+    }
+}
+#endif
+
 public class MyFileLogHandler : ILogHandler
 {
     private System.IO.FileStream m_FileStream = null;

@@ -85,7 +85,7 @@ namespace WeatherSystem {
 		// SetTime
 		void	IWeatherManager_Cycles.SetTime( string sTime )
 		{
-			TansformTime( sTime, ref m_DayTimeNow );
+			TransformTime( sTime, ref m_DayTimeNow );
 		}
 
 
@@ -302,7 +302,7 @@ namespace WeatherSystem {
 
 			// Set current time
 			if ( m_DayTimeNow == -1f )
-				TansformTime( startTime, ref m_DayTimeNow );
+				TransformTime( startTime, ref m_DayTimeNow );
 
 			startWeather = startWeather.Replace( "\"", "" );
 			m_CurrentCycleName = "Invalid";

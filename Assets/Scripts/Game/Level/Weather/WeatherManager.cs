@@ -81,7 +81,7 @@ namespace WeatherSystem {
 		/////////////////////////////////////////////////////////////////////////////
 		// Utility
 		/// <summary> Set the corrisponding float value for given time ( HH:MM:SS ), return boolean as result </summary>
-		public static	bool	TansformTime( string sTime, ref float Time )
+		public static	bool	TransformTime( string sTime, ref float Time )
 		{
 			int iH = 0, iM = 0, iS = 0;
 
