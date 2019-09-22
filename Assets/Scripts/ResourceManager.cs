@@ -13,7 +13,7 @@ public interface IResourceComposite {
 	void		AddChild( Object child );
 }
 
-public class ResourceManager : MonoBehaviour {
+public partial class ResourceManager : MonoBehaviour {
 
 	public enum AsyncLoadStrategy {
 		CONTINUOS,
@@ -271,5 +271,78 @@ public class ResourceManager : MonoBehaviour {
 		print( "ResourceManger::InternalLoadResourceAsync: INTERNAL ASYNC Loaded: " + ResourcePath );
 	}
 
+
+}
+
+
+
+public partial class ResourceManager {
+
+	[System.Serializable]
+	public	class WeakRefResource {
+
+		[SerializeField]
+		private		Object				m_Asset					= null;
+
+		[SerializeField]
+		private		string				m_AssetPath				= string.Empty;
+
+		private		bool				m_bIsAssetPathValid		= false;
+
+		/*
+		public		bool				FileExists
+		{
+			get { return System.IO.File.Exists( m_AssetPath ); }
+		}
+		*/
+
+		///////////////////////////////////////////////////
+		public WeakRefResource( string path )
+		{
+			if ( Utils.String.IsAssetsPath( path ) )
+			{
+				Utils.String.ConvertFromAssetPathToResourcePath( ref path );
+				m_AssetPath = path;
+			}
+
+			if ( Utils.String.IsResourcesPath( path ) )
+			{
+				m_AssetPath = path;
+			}
+
+			// TODO System.WeakReference
+		}
+
+
+		///////////////////////////////////////////////////
+		public	Object	TryLoad()
+		{
+			return Resources.Load( m_AssetPath );
+		}
+
+
+		///////////////////////////////////////////////////
+		public	bool	TryLoad( ref Object objRef )
+		{
+			objRef = Resources.Load( m_AssetPath );
+			return objRef != null;
+		}
+
+
+		///////////////////////////////////////////////////
+		public	void	Unload()
+		{
+			Resources.UnloadAsset( m_Asset );
+		}
+
+
+		///////////////////////////////////////////////////
+		public	void	Reset()
+		{
+			m_Asset		= null;
+			m_AssetPath	= string.Empty;
+		}
+
+	}
 
 }

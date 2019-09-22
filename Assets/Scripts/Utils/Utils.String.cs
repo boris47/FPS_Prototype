@@ -11,6 +11,18 @@ namespace Utils {
 	public static class String {
 
 
+		public	static	bool	IsAssetsPath( string path )
+		{
+			return path.StartsWith( "Assets/" );
+		}
+
+
+		public	static	bool	IsResourcesPath( string path )
+		{
+			return path.StartsWith( "Assets/" ) == false;
+		}
+
+
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary> </summary>
 		public	static	bool	ConvertFromAssetPathToResourcePath( ref string resourcePath )
