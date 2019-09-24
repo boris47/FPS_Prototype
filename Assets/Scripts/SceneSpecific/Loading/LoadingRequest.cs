@@ -5,13 +5,13 @@ using UnityEngine.SceneManagement;
 
 public class LoadingRequest : MonoBehaviour {
 
-
+	/*
 	[SerializeField]
 	private	SceneEnumeration	m_SceneToLoad	= SceneEnumeration.NONE;
 
 	[SerializeField]
 	private	string				m_SaveToLoad	= string.Empty;
-
+	*/
 
 
 	/*

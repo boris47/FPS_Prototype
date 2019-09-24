@@ -287,7 +287,7 @@ public partial class ResourceManager {
 		[SerializeField]
 		private		string				m_AssetPath				= string.Empty;
 
-		private		bool				m_bIsAssetPathValid		= false;
+//		private		bool				m_bIsAssetPathValid		= false;
 
 		/*
 		public		bool				FileExists

@@ -33,7 +33,7 @@ public class MyFileLogHandler : ILogHandler
 		
         string filePath = Application.dataPath + "/MyLogs.log";
 
-        m_FileStream = new System.IO.FileStream( filePath, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.ReadWrite );
+        m_FileStream = new System.IO.FileStream( filePath, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Write );
         m_StreamWriter = new System.IO.StreamWriter( m_FileStream );
 
 		// Replace the default debug log handler
@@ -42,7 +42,7 @@ public class MyFileLogHandler : ILogHandler
 
 
 	//////////////////////////////////////////////////////////////////////////
-    public void LogFormat( LogType logType, UnityEngine.Object context, string format, params object[] args )
+    public void LogFormat( LogType logType, Object context, string format, params object[] args )
     {
         m_StreamWriter.WriteLine( System.String.Format( format, args ) );
         m_DefaultLogHandler.LogFormat( logType, context, format, args );
@@ -50,7 +50,7 @@ public class MyFileLogHandler : ILogHandler
 
 
 	//////////////////////////////////////////////////////////////////////////
-    public void LogException( System.Exception exception, UnityEngine.Object context )
+    public void LogException( System.Exception exception, Object context )
     {
 		m_StreamWriter.WriteLine( exception.Message );
         m_StreamWriter.Flush();
@@ -117,8 +117,6 @@ public class GlobalManager : MonoBehaviour {
 		get { return m_InputMgr; }
 	}
 
-
-	private		bool						m_IsInitializedInternal	= true;
 
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
 	private static void OnBeforeSceneLoad ()

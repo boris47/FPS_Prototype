@@ -227,51 +227,12 @@ public class SectionMap {
 
 		IsOK = false;
 
-
-#if UNITY_EDITOR_REMOVED
-		// Editor Mode
-		FileStream fs = null;
-		try
+		
+		if ( Utils.String.IsAssetsPath( sFilePath ) )
 		{
-			if ( Utils.String.ConvertFromResourcePathToAssetPath( ref sFilePath ) )
-			{
-				string fullPath = Path.GetDirectoryName( sFilePath );
-
-				string fileToFindName = Path.GetFileName( sFilePath );
-
-				string[] allFiles = Directory.GetFiles( fullPath );
-
-				sFilePath = System.Array.Find( allFiles, f => f.Contains( fileToFindName ) );
-			}
-			fs = File.Open( sFilePath, FileMode.Open );
-		}
-		catch( System.Exception e )
-		{
-			Debug.LogError( "SectionMap::LoadFile:Error opening file: |" + sFilePath + "| !!!\nMessage: " + e.Message );
-			UnityEditor.EditorApplication.isPlaying = false;
-			return false;
+			Utils.String.ConvertFromAssetPathToResourcePath( ref sFilePath );
 		}
 
-		if ( fs.Length < 1 )
-		{
-			fs.Close();
-			Debug.LogError( "SectionMap::LoadFile:File |" + sFilePath + "| is empty!!!" );
-			UnityEditor.EditorApplication.isPlaying = false;
-			return false;
-		}
-
-		StreamReader sr = new StreamReader( fs );
-
-		int iLine = 0;
-		while( sr.EndOfStream == false )
-		{
-			iLine++;
-			string sLine = sr.ReadLine();
-
-#else
-
-		// release mode
-		Utils.String.ConvertFromAssetPathToResourcePath( ref sFilePath );
 		TextAsset pTextAsset = Resources.Load( sFilePath ) as TextAsset;
 		if ( pTextAsset == null )
 		{
@@ -280,7 +241,7 @@ public class SectionMap {
 			return false;
 		}
 
-		// Remove escape chars ti avoid the presence inside strings
+		// Remove escape chars to avoid the presence inside strings
 		string[] vLines = pTextAsset.text.Split( '\n' );
 		for ( int i = 0; i < vLines.Length; i++ )
 		{
@@ -288,10 +249,9 @@ public class SectionMap {
 		}
 
 		// Parse each line
-		for ( int iLine = 1; iLine < vLines.Length+1; iLine++ )
+		for ( int iLine = 1; iLine < vLines.Length + 1; iLine++ )
 		{
-			string sLine = vLines[ iLine-1 ];
-#endif
+			string sLine = vLines[ iLine - 1 ];
 			if ( Utils.String.IsValid( ref sLine ) == false )
 				continue;
 
@@ -438,6 +398,7 @@ public class SectionMap {
 		return m_SectionMap.TryGetValue( identifier, out result );
 	}
 
+
 	//////////////////////////////////////////////////////////////////////////
 	// HasFileElement
 	// CHECK AND RETURN IN CASE IF SECTION ALREADY EXISTS
@@ -462,6 +423,7 @@ public class SectionMap {
 		m_SectionMap[SecName] = pSec; // Adding in this way will overwrite section, if already exists
 		return pSec;
 	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// bGetSection
@@ -526,50 +488,48 @@ public class SectionMap {
 				fieldInfo.SetValue( outer, System.Convert.ChangeType( valueToAssign, fieldInfo.FieldType ) );
 //				Debug.Log( "Set of " + fieldInfo.Name + " of " + classType.Name + " To: " + lineValue.Value.ToString() );
 			}
-			else // Multi
+			
+			System.Type elementType = null;
+			if ( lineValue.Type == LineValueType.MULTI && lineValue.MultiValue.DeductType( ref elementType ) )
 			{
-				System.Type elementType = null;
-				if ( lineValue.MultiValue.DeductType( ref elementType ) )
+				if ( elementType == typeof( Vector2 ) )
 				{
-					if ( elementType == typeof( Vector2 ) )
-					{
-						fieldInfo.SetValue( outer, section.AsVec2( fieldName, Vector2.zero ) );
-						continue;
-					}
-
-					if ( elementType == typeof( Vector3 ) )
-					{
-						fieldInfo.SetValue( outer, section.AsVec3( fieldName, Vector3.zero ) );
-						continue;
-					}
-
-					if ( elementType == typeof( Vector4 ) )
-					{
-						if ( fieldInfo.FieldType == typeof( Vector4 ) )
-						{
-							fieldInfo.SetValue( outer, section.AsVec4( fieldName, Vector4.zero ) );
-						}
-
-						if ( fieldInfo.FieldType == typeof( Color ) )
-						{
-							fieldInfo.SetValue( outer, section.AsColor( fieldName, Color.clear ) );
-						}
-						continue;
-					}							
-
-					if ( fieldInfo.FieldType.IsArray == true )
-					{
-						object[] result = lineValue.MultiValue.ValueList.ConvertAll	// Get a list of converted cvalues to requested type
-						(
-							new System.Converter<cValue, object> ( ( cValue v ) => { return v.ToSystemObject(); } )
-						)
-						.ToArray(); 
-						fieldInfo.SetValue( outer, result /*lineValue.MultiValue.ValueList.ToArray()*/ );
-						continue;
-					}
-
-					Debug.Log( "Set of " + fieldInfo.Name + " of " + classType.Name + " is impossible!! " );
+					fieldInfo.SetValue( outer, section.AsVec2( fieldName, Vector2.zero ) );
+					continue;
 				}
+
+				if ( elementType == typeof( Vector3 ) )
+				{
+					fieldInfo.SetValue( outer, section.AsVec3( fieldName, Vector3.zero ) );
+					continue;
+				}
+
+				if ( elementType == typeof( Vector4 ) )
+				{
+					if ( fieldInfo.FieldType == typeof( Vector4 ) )
+					{
+						fieldInfo.SetValue( outer, section.AsVec4( fieldName, Vector4.zero ) );
+					}
+
+					if ( fieldInfo.FieldType == typeof( Color ) )
+					{
+						fieldInfo.SetValue( outer, section.AsColor( fieldName, Color.clear ) );
+					}
+					continue;
+				}							
+
+				if ( fieldInfo.FieldType.IsArray == true )
+				{
+					object[] result = lineValue.MultiValue.ValueList.ConvertAll	// Get a list of converted cvalues to requested type
+					(
+						new System.Converter<cValue, object> ( ( cValue v ) => { return v.ToSystemObject(); } )
+					)
+					.ToArray(); 
+					fieldInfo.SetValue( outer, result /*lineValue.MultiValue.ValueList.ToArray()*/ );
+					continue;
+				}
+
+				Debug.Log( "Set of " + fieldInfo.Name + " of " + classType.Name + " is impossible!! " );
 			}
 		}
 	
