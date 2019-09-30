@@ -13,7 +13,7 @@ public interface IResourceComposite {
 	void		AddChild( Object child );
 }
 
-public partial class ResourceManager : MonoBehaviour {
+public partial class ResourceManager : SingletonMonoBehaviour<ResourceManager> {
 
 	public enum AsyncLoadStrategy {
 		CONTINUOS,
@@ -27,15 +27,15 @@ public partial class ResourceManager : MonoBehaviour {
 	//	public		float				TimeToWait		= 1.0f;
 	}
 
-	private	static		ResourceManager				m_Instance			= null;
+//	private	static		ResourceManager				m_Instance			= null;
 
-	private	static		bool						m_IsInitialized		= false;
+//	private	static		bool						m_IsInitialized		= false;
 
 	private	static	new	System.Action<string>		print				= delegate { };
 
 	private	static		bool						m_ShowDebugInfo		= false;
 
-
+	/*
 	///////////////////////////////////////////////////
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
 	private	static	void	Initialize()
@@ -53,19 +53,14 @@ public partial class ResourceManager : MonoBehaviour {
 			DontDestroyOnLoad( m_Instance );
 		}
 	}
-
+	*/
 
 
 	///////////////////////////////////////////////////
-	private void Awake()
-	{	
-		// Singleton
-		if ( m_Instance != null )
-		{
-			Destroy( gameObject );
-			return;
-		}
-
+	protected override void Awake()
+	{
+		base.Awake();
+	
 		Database.Section debugInfosSection = null;
 		if ( GlobalManager.Configs.bGetSection( "DebugInfos", ref debugInfosSection ) )
 		{
@@ -73,17 +68,6 @@ public partial class ResourceManager : MonoBehaviour {
 
 			print = m_ShowDebugInfo ? Debug.Log : print;
 		}
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private void OnDestroy()
-	{
-		if ( m_Instance != this )
-			return;
-
-		m_IsInitialized = false;
-		m_Instance = null;
 	}
 
 
