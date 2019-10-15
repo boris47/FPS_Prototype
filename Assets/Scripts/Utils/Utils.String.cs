@@ -1,10 +1,9 @@
 ﻿
 using System;
-using System.Collections.Generic;
+using System.Globalization;
+
 using Database;
 using UnityEngine;
-
-
 
 namespace Utils {
 
@@ -238,7 +237,7 @@ namespace Utils {
 
 			if ( type == typeof( float ) )
 			{
-				return float.Parse( line.TrimEnd( 'f', ' ' ) );
+				return float.Parse( line.TrimEnd( 'f', ' ' ), CultureInfo.InvariantCulture );
 			}
 
 			if ( type == typeof( string ) )
