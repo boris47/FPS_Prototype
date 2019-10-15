@@ -368,8 +368,8 @@ namespace UnityEngine.AI
                 return false;
 
             // Prefab parent owns the asset reference
-            var prefabType = UnityEditor.PrefabUtility.GetPrefabType(this);
-            if (prefabType == UnityEditor.PrefabType.Prefab)
+            var prefabType = UnityEditor.PrefabUtility.GetPrefabAssetType(this);
+            if (prefabType == UnityEditor.PrefabAssetType.Regular)
                 return false;
 
             // Don't allow referencing an asset that's assigned to another surface

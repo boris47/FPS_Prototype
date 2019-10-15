@@ -1,5 +1,7 @@
 ﻿// C# example.
+using System.Text;
 using UnityEditor;
+using UnityEditor.Build.Reporting;
 
 public class Build_Batch 
 {
@@ -68,9 +70,11 @@ public class Build_Batch
 		if ( GetBuildInfo( buildSettingsSectionName, ref folderName, ref executableFilename, ref scenesToBuild ) == false )
 			return;
 
+		PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.IL2CPP);
+		PlayerSettings.SetIl2CppCompilerConfiguration(BuildTargetGroup.Standalone, Il2CppCompilerConfiguration.Debug);
+
 		// Build Options
-		const BuildOptions buildOptions =	BuildOptions.Il2CPP |							// 
-											BuildOptions.StrictMode |						// Do not allow the build to succeed if any errors are reporting during it.
+		const BuildOptions buildOptions =	BuildOptions.StrictMode |						// Do not allow the build to succeed if any errors are reporting during it.
 											BuildOptions.AutoRunPlayer;						// Run the built player.
 
 		ExecuteBuild( buildSettingsSectionName, folderName, executableFilename, buildOptions, scenesToBuild );
@@ -188,12 +192,35 @@ public class Build_Batch
 		};
 		
 		// Execute build
-		string errorMessage = BuildPipeline.BuildPlayer( options );
 
+
+
+		BuildReport report = BuildPipeline.BuildPlayer( options );
+
+		StringBuilder g_buffer = new StringBuilder();
+		StringBuilder msg_buffer = new StringBuilder();
+		foreach( BuildStep step in report.steps )
+		{
+			g_buffer.AppendLine();
+			g_buffer.AppendLine(step.name);
+
+			msg_buffer.Clear();
+			foreach( BuildStepMessage stepMsg in step.messages )
+			{
+				msg_buffer.AppendLine(stepMsg.content);
+			}
+
+			g_buffer.AppendLine( msg_buffer.ToString() );
+		}
+
+		System.IO.File.WriteAllText( relativeBuildFolder + "BuildResult.log", g_buffer.ToString() );
+
+		/*
 		if ( errorMessage.Length > 0 )
 		{
 			System.IO.File.WriteAllText( relativeBuildFolder + "BuildError.log", errorMessage );
 		}
+		*/
 	}
 
 
@@ -207,7 +234,7 @@ public class Build_Batch
 		// Ensure for empty folder
 		if ( System.IO.Directory.Exists( relativePath ) )
 		{
-			System.IO.DirectoryInfo di = new System.IO.DirectoryInfo( relativePath );
+		/*	System.IO.DirectoryInfo di = new System.IO.DirectoryInfo( relativePath );
 			foreach ( System.IO.FileInfo file in di.GetFiles() )
 			{
 				file.Delete(); 
@@ -216,6 +243,7 @@ public class Build_Batch
 			{
 				dir.Delete( true );
 			}
+		*/
 		}
 		else
 		{

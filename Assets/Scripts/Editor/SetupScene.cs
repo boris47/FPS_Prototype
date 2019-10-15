@@ -91,11 +91,13 @@ public class SetupScene : EditorWindow  {
 		Debug.Log( "Creating " + prefabPath );
 
 		GameObject loaded = Resources.Load<GameObject>( prefabPath );
-		GameObject go = Object.Instantiate( loaded ) as GameObject;
+
+		GameObject go = PrefabUtility.InstantiatePrefab(loaded) as GameObject;
+	//	GameObject go = Object.Instantiate( loaded ) as GameObject;
 
 		EditorSceneManager.MarkSceneDirty( go.scene );
 
-		PrefabUtility.ConnectGameObjectToPrefab( go, loaded );
+//		PrefabUtility.ConnectGameObjectToPrefab( go, loaded );
 	}
 	
 }

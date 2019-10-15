@@ -31,7 +31,7 @@ public class MyFileLogHandler : ILogHandler
     {
 		// Application.persistentDataPath: C:/Users/Drako/AppData/LocalLow/BeWide&Co/Project Orion
 		
-        string filePath = Application.dataPath + "/MyLogs.log";
+        string filePath = Application.dataPath + "/SessionLog.log";
 
         m_FileStream = new System.IO.FileStream( filePath, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Write );
         m_StreamWriter = new System.IO.StreamWriter( m_FileStream );
@@ -53,6 +53,7 @@ public class MyFileLogHandler : ILogHandler
     public void LogException( System.Exception exception, Object context )
     {
 		m_StreamWriter.WriteLine( exception.Message );
+		m_StreamWriter.WriteLine( exception.StackTrace );
         m_StreamWriter.Flush();
         m_DefaultLogHandler.LogException( exception, context );
     }
@@ -126,7 +127,6 @@ public class GlobalManager : MonoBehaviour {
 			Application.logMessageReceived += HandleException;
 		}
 
-		UnityEngine.Assertions.Assert.raiseExceptions = true;
 		Debug.developerConsoleVisible = true;
 		Physics.queriesHitBackfaces = false;
 		Application.backgroundLoadingPriority = ThreadPriority.Low;

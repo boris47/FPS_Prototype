@@ -18,7 +18,7 @@
 ; WEATHER SETTINGS
 
 [Time]
-TimeFactor			= 1.0000;
+TimeFactor			= 1.00f;
 StartTime			= 11:30:00
 StartWeather		= Clear
 

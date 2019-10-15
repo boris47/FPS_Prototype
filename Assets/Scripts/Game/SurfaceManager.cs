@@ -81,7 +81,8 @@ public class SurfaceManager : MonoBehaviour {
 			TerrainData terrainData = terrain.terrainData;
 			float[] textureMix = GetTerrainTextureMix( worldPos, terrainData, terrain.GetPosition() );
 			int textureIndex = GetTextureIndex( textureMix );
-			textureInstanceID = terrainData.splatPrototypes[ textureIndex ].texture.GetInstanceID();
+		//	textureInstanceID = terrainData.splatPrototypes[ textureIndex ].texture.GetInstanceID();
+			textureInstanceID = terrainData.terrainLayers[ textureIndex ].diffuseTexture.GetInstanceID();
 
 		}
 		// Case when the ground is a normal mesh.
@@ -109,7 +110,8 @@ public class SurfaceManager : MonoBehaviour {
 			TerrainData terrainData = terrain.terrainData;
 			float[] textureMix = GetTerrainTextureMix( worldPos, terrainData, terrain.GetPosition() );
 			int textureIndex = GetTextureIndex( textureMix );
-			textureInstanceID = terrainData.splatPrototypes[ textureIndex ].texture.GetInstanceID();
+			//	textureInstanceID = terrainData.splatPrototypes[ textureIndex ].texture.GetInstanceID();
+			textureInstanceID = terrainData.terrainLayers[textureIndex].diffuseTexture.GetInstanceID();
 
 		}
 		// Case when the ground is a normal mesh.

@@ -1,113 +1,324 @@
 fileFormatVersion: 2
 guid: 6123823d5c1c6dc4983936cecfb24db5
-timeCreated: 18446744011573954816
 ModelImporter:
-  serializedVersion: 21
-  fileIDToRecycleName:
-    100000: Bone01
-    100002: Bone02
-    100004: Bone04
-    100006: Bone06
-    100008: Bone07
-    100010: Bone08
-    100012: Bone10
-    100014: Bone11
-    100016: Bone12
-    100018: Bone14
-    100020: Bone15
-    100022: Bone16
-    100024: Bone18
-    100026: Bone19
-    100028: Bone20
-    100030: Bone22
-    100032: Bone23
-    100034: Bone24
-    100036: Bone26
-    100038: Bone27
-    100040: Bone29
-    100042: Bone30
-    100044: Bone31
-    100046: Bone33
-    100048: Bone34
-    100050: Bone35
-    100052: Bone37
-    100054: Bone38
-    100056: Bone41
-    100058: Bone42
-    100060: Bone43
-    100062: Bone45
-    100064: Bone46
-    100066: Bone47
-    100068: Bone49
-    100070: Bone50
-    100072: //RootNode
-    100074: Dummy01
-    100076: Dummy02
-    100078: HAMMER TIME
-    100080: Mag
-    100082: muzzy
-    100084: Object02
-    100086: SMDImport
-    100088: smdimport
-    100090: SphereGizmo01
-    100092: SphereGizmo02
-    100094: Trigger
-    400000: Bone01
-    400002: Bone02
-    400004: Bone04
-    400006: Bone06
-    400008: Bone07
-    400010: Bone08
-    400012: Bone10
-    400014: Bone11
-    400016: Bone12
-    400018: Bone14
-    400020: Bone15
-    400022: Bone16
-    400024: Bone18
-    400026: Bone19
-    400028: Bone20
-    400030: Bone22
-    400032: Bone23
-    400034: Bone24
-    400036: Bone26
-    400038: Bone27
-    400040: Bone29
-    400042: Bone30
-    400044: Bone31
-    400046: Bone33
-    400048: Bone34
-    400050: Bone35
-    400052: Bone37
-    400054: Bone38
-    400056: Bone41
-    400058: Bone42
-    400060: Bone43
-    400062: Bone45
-    400064: Bone46
-    400066: Bone47
-    400068: Bone49
-    400070: Bone50
-    400072: //RootNode
-    400074: Dummy01
-    400076: Dummy02
-    400078: HAMMER TIME
-    400080: Mag
-    400082: muzzy
-    400084: Object02
-    400086: SMDImport
-    400088: smdimport
-    400090: SphereGizmo01
-    400092: SphereGizmo02
-    400094: Trigger
-    4300000: SMDImport
-    9500000: //RootNode
-    11100000: //RootNode
-    13700000: SMDImport
+  serializedVersion: 26
+  internalIDToNameTable:
+  - first:
+      1: 100000
+    second: Bone01
+  - first:
+      1: 100002
+    second: Bone02
+  - first:
+      1: 100004
+    second: Bone04
+  - first:
+      1: 100006
+    second: Bone06
+  - first:
+      1: 100008
+    second: Bone07
+  - first:
+      1: 100010
+    second: Bone08
+  - first:
+      1: 100012
+    second: Bone10
+  - first:
+      1: 100014
+    second: Bone11
+  - first:
+      1: 100016
+    second: Bone12
+  - first:
+      1: 100018
+    second: Bone14
+  - first:
+      1: 100020
+    second: Bone15
+  - first:
+      1: 100022
+    second: Bone16
+  - first:
+      1: 100024
+    second: Bone18
+  - first:
+      1: 100026
+    second: Bone19
+  - first:
+      1: 100028
+    second: Bone20
+  - first:
+      1: 100030
+    second: Bone22
+  - first:
+      1: 100032
+    second: Bone23
+  - first:
+      1: 100034
+    second: Bone24
+  - first:
+      1: 100036
+    second: Bone26
+  - first:
+      1: 100038
+    second: Bone27
+  - first:
+      1: 100040
+    second: Bone29
+  - first:
+      1: 100042
+    second: Bone30
+  - first:
+      1: 100044
+    second: Bone31
+  - first:
+      1: 100046
+    second: Bone33
+  - first:
+      1: 100048
+    second: Bone34
+  - first:
+      1: 100050
+    second: Bone35
+  - first:
+      1: 100052
+    second: Bone37
+  - first:
+      1: 100054
+    second: Bone38
+  - first:
+      1: 100056
+    second: Bone41
+  - first:
+      1: 100058
+    second: Bone42
+  - first:
+      1: 100060
+    second: Bone43
+  - first:
+      1: 100062
+    second: Bone45
+  - first:
+      1: 100064
+    second: Bone46
+  - first:
+      1: 100066
+    second: Bone47
+  - first:
+      1: 100068
+    second: Bone49
+  - first:
+      1: 100070
+    second: Bone50
+  - first:
+      1: 100072
+    second: //RootNode
+  - first:
+      1: 100074
+    second: Dummy01
+  - first:
+      1: 100076
+    second: Dummy02
+  - first:
+      1: 100078
+    second: HAMMER TIME
+  - first:
+      1: 100080
+    second: Mag
+  - first:
+      1: 100082
+    second: muzzy
+  - first:
+      1: 100084
+    second: Object02
+  - first:
+      1: 100086
+    second: SMDImport
+  - first:
+      1: 100088
+    second: smdimport
+  - first:
+      1: 100090
+    second: SphereGizmo01
+  - first:
+      1: 100092
+    second: SphereGizmo02
+  - first:
+      1: 100094
+    second: Trigger
+  - first:
+      4: 400000
+    second: Bone01
+  - first:
+      4: 400002
+    second: Bone02
+  - first:
+      4: 400004
+    second: Bone04
+  - first:
+      4: 400006
+    second: Bone06
+  - first:
+      4: 400008
+    second: Bone07
+  - first:
+      4: 400010
+    second: Bone08
+  - first:
+      4: 400012
+    second: Bone10
+  - first:
+      4: 400014
+    second: Bone11
+  - first:
+      4: 400016
+    second: Bone12
+  - first:
+      4: 400018
+    second: Bone14
+  - first:
+      4: 400020
+    second: Bone15
+  - first:
+      4: 400022
+    second: Bone16
+  - first:
+      4: 400024
+    second: Bone18
+  - first:
+      4: 400026
+    second: Bone19
+  - first:
+      4: 400028
+    second: Bone20
+  - first:
+      4: 400030
+    second: Bone22
+  - first:
+      4: 400032
+    second: Bone23
+  - first:
+      4: 400034
+    second: Bone24
+  - first:
+      4: 400036
+    second: Bone26
+  - first:
+      4: 400038
+    second: Bone27
+  - first:
+      4: 400040
+    second: Bone29
+  - first:
+      4: 400042
+    second: Bone30
+  - first:
+      4: 400044
+    second: Bone31
+  - first:
+      4: 400046
+    second: Bone33
+  - first:
+      4: 400048
+    second: Bone34
+  - first:
+      4: 400050
+    second: Bone35
+  - first:
+      4: 400052
+    second: Bone37
+  - first:
+      4: 400054
+    second: Bone38
+  - first:
+      4: 400056
+    second: Bone41
+  - first:
+      4: 400058
+    second: Bone42
+  - first:
+      4: 400060
+    second: Bone43
+  - first:
+      4: 400062
+    second: Bone45
+  - first:
+      4: 400064
+    second: Bone46
+  - first:
+      4: 400066
+    second: Bone47
+  - first:
+      4: 400068
+    second: Bone49
+  - first:
+      4: 400070
+    second: Bone50
+  - first:
+      4: 400072
+    second: //RootNode
+  - first:
+      4: 400074
+    second: Dummy01
+  - first:
+      4: 400076
+    second: Dummy02
+  - first:
+      4: 400078
+    second: HAMMER TIME
+  - first:
+      4: 400080
+    second: Mag
+  - first:
+      4: 400082
+    second: muzzy
+  - first:
+      4: 400084
+    second: Object02
+  - first:
+      4: 400086
+    second: SMDImport
+  - first:
+      4: 400088
+    second: smdimport
+  - first:
+      4: 400090
+    second: SphereGizmo01
+  - first:
+      4: 400092
+    second: SphereGizmo02
+  - first:
+      4: 400094
+    second: Trigger
+  - first:
+      43: 4300000
+    second: SMDImport
+  - first:
+      95: 9500000
+    second: //RootNode
+  - first:
+      111: 11100000
+    second: //RootNode
+  - first:
+      137: 13700000
+    second: SMDImport
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 'Material #35'
+    second: {fileID: 2100000, guid: fd2bd90869cd78547bcd650b293f3d87, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: 'Material #36'
+    second: {fileID: 2100000, guid: 9ced3e77c28b9ad42985618c712ab72f, type: 2}
   materials:
     importMaterials: 1
     materialName: 0
     materialSearch: 1
+    materialLocation: 0
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
@@ -120,6 +331,8 @@ ModelImporter:
     animationImportWarnings: 
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
     animationCompression: 0
     animationRotationError: 0.5
     animationPositionError: 0.5
@@ -134,6 +347,8 @@ ModelImporter:
     globalScale: 0.01
     meshCompression: 0
     addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
     importVisibility: 0
     importBlendShapes: 1
     importCameras: 0
@@ -141,9 +356,14 @@ ModelImporter:
     swapUVChannels: 0
     generateSecondaryUV: 0
     useFileUnits: 1
-    optimizeMeshForGPU: 1
     keepQuads: 0
     weldVertices: 1
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    meshOptimizationFlags: -1
+    indexFormat: 1
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88
@@ -154,10 +374,18 @@ ModelImporter:
     normalImportMode: 0
     tangentImportMode: 4
     normalCalculationMode: 0
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 1
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips:
+  - ef5ea660512650b49b041e9d195e774f
+  - 27e3bd9557c87564a9bd11a85d51250f
+  - 188199773022f224dbcd43184866f8a0
+  - 3bf0c3c17da0c5a4799984347a7bb48b
   importAnimation: 1
   copyAvatar: 0
   humanDescription:
-    serializedVersion: 2
+    serializedVersion: 3
     human: []
     skeleton: []
     armTwist: 0.5
@@ -167,8 +395,8 @@ ModelImporter:
     armStretch: 0.05
     legStretch: 0.05
     feetSpacing: 0
+    globalScale: 0.01
     rootMotionBoneName: 
-    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
     hasTranslationDoF: 0
     hasExtraRoot: 0
     skeletonHasParents: 0

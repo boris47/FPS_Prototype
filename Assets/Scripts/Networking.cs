@@ -9,14 +9,15 @@ public class Networking : MonoBehaviour {
 	// Use this for initialization
 	void Start()
 	{
-		NetworkServer.Listen( 7070 );
+//		NetworkServer.Listen( 7070 );
 
-		Debug.Log("Registering server callbacks");
-		NetworkServer.RegisterHandler( MsgType.Connect,			OnConnect	);
-		NetworkServer.RegisterHandler( MsgType.ObjectSpawn,		OnSpawn		);
+//		Debug.Log("Registering server callbacks");
+//		NetworkServer.RegisterHandler( MsgType.Connect,			OnConnect	);
+//		NetworkServer.RegisterHandler( MsgType.ObjectSpawn,		OnSpawn		);
 	}
 
 
+	/*
 	private void OnConnect( NetworkMessage netMsg )
 	{
 		
@@ -27,6 +28,7 @@ public class Networking : MonoBehaviour {
 	{
 //		GameObject obj = netMsg.reader.ReadGameObject();
 	}
+	*/
 
 	/*
 	// Update is called once per frame

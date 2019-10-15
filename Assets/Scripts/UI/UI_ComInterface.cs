@@ -103,7 +103,7 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 
 				RectTransform rectTransform = t.transform as RectTransform;
 
-				t.transform.SetParent( parent: m_NotificationsPanel );
+				t.transform.SetParent( parent: m_NotificationsPanel, false );
 //				rectTransform.transform.localPosition = Vector3.zero;
 //				rectTransform.anchorMin = Vector2.zero;
 //				rectTransform.anchorMax = Vector2.zero;
