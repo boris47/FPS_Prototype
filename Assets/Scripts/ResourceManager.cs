@@ -55,7 +55,7 @@ public partial class ResourceManager : SingletonMonoBehaviour<ResourceManager> {
 
 
 	///////////////////////////////////////////////////
-	protected override void OnBeforeSceneLoad()
+	protected override void OnFirstGetCall()
 	{}
 
 

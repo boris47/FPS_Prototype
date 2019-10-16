@@ -53,8 +53,9 @@ public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
 		get { return m_PendingRoutines; }
 	}
 
+
 	//////////////////////////////////////////////////////////////////////////
-	protected override void OnBeforeSceneLoad()
+	protected override void OnFirstGetCall()
 	{ }
 
 	
@@ -102,7 +103,7 @@ public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
 		{
 			Debug.Log( "Starting coroutine for " + debugKey );
 		}
-		return m_Instance.StartCoroutine( routine );
+		return Instance.StartCoroutine( routine );
 	}
 
 
@@ -110,7 +111,7 @@ public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
 	/// <summary> Start given coroutine </summary>
 	public	static	void	Stop( Coroutine routine )
 	{
-		m_Instance.StopCoroutine( routine );
+		Instance.StopCoroutine( routine );
 	}
 
 
@@ -118,13 +119,13 @@ public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
 	/// <summary> Stop all running coroutines </summary>
 	public	static	void	StopAll()
 	{
-		m_Instance.StopAllCoroutines();
+		Instance.StopAllCoroutines();
 	}
 
 	/////////////////////////////////////////////////////////////////
 	// Create a sequence object, where to add routine and finally start
 	public	static	RoutinesSequence	CreateSequence( IEnumerator MainRoutine )
 	{
-		return new RoutinesSequence( m_Instance, MainRoutine );
+		return new RoutinesSequence( Instance, MainRoutine );
 	}
 }
