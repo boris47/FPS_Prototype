@@ -33,8 +33,6 @@ public partial class ResourceManager : SingletonMonoBehaviour<ResourceManager> {
 
 	private	static	new	System.Action<string>		print				= delegate { };
 
-	private	static		bool						m_ShowDebugInfo		= false;
-
 	/*
 	///////////////////////////////////////////////////
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -57,18 +55,8 @@ public partial class ResourceManager : SingletonMonoBehaviour<ResourceManager> {
 
 
 	///////////////////////////////////////////////////
-	protected override void Awake()
-	{
-		base.Awake();
-	
-		Database.Section debugInfosSection = null;
-		if ( GlobalManager.Configs.bGetSection( "DebugInfos", ref debugInfosSection ) )
-		{
-			m_ShowDebugInfo = debugInfosSection.AsBool( "ResourceManager", false);
-
-			print = m_ShowDebugInfo ? Debug.Log : print;
-		}
-	}
+	protected override void OnBeforeSceneLoad()
+	{}
 
 
 	/////////////////////////////////////////////////////////////////

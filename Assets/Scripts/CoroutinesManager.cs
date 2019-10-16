@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CoroutinesManager : MonoBehaviour {
+public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
 
 	public	class RoutinesSequence {
 		private		int						m_CurrentIndex				= 0;
@@ -47,64 +47,15 @@ public class CoroutinesManager : MonoBehaviour {
 
 	}
 
-	private	static	CoroutinesManager	m_Instance			= null;
-
-	private	static	bool				m_IsInitialized		= false;
-
-	private	static	bool				m_ShowDebugInfo		= false;
-
 	private	static	uint				m_PendingRoutines	= 0;
 	public	static	uint				PendingRoutines
 	{
 		get { return m_PendingRoutines; }
 	}
 
-	/////////////////////////////////////////////////////////////////
-	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
-	private	static	void	Initialize()
-	{
-		if ( m_IsInitialized == false )
-		{
-			m_Instance = FindObjectOfType<CoroutinesManager>();
-			if ( m_Instance == null )
-			{
-				m_Instance = new GameObject("CoroutinesManager").AddComponent<CoroutinesManager>();
-			}
-			m_Instance.hideFlags = HideFlags.DontSave;
-			m_IsInitialized = true;
-
-			DontDestroyOnLoad( m_Instance );
-		}
-	}
-
-
 	//////////////////////////////////////////////////////////////////////////
-	private void Awake()
-	{
-		// Singleton
-		if ( m_Instance != null )
-		{
-			Destroy( gameObject );
-			return;
-		}
-
-		Database.Section debugInfosSection = null;
-		if ( GlobalManager.Configs.bGetSection( "DebugInfos", ref debugInfosSection ) )
-		{
-			m_ShowDebugInfo = debugInfosSection.AsBool( "CoroutinesManager", false);
-		}
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private void OnDestroy()
-	{
-		if ( m_Instance != this )
-			return;
-
-		m_IsInitialized = false;
-		m_Instance = null;
-	}
+	protected override void OnBeforeSceneLoad()
+	{ }
 
 	
 	/////////////////////////////////////////////////////////////////
