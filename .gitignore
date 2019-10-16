@@ -35,5 +35,10 @@ sysinfo.txt
 *.apk
 *.unitypackage
 *.log
+
+
 Assets/FMODStudioCache.asset
 Assets/*.log
+Assets/*.log.meta
+
+Assets/Resources/Materials/SkyMixer.mat
