@@ -1,9 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 
-public abstract class SingletonMonoBehaviour<T> : MonoBehaviour where T : MonoBehaviour {
+public class SingletonInitializer : MonoBehaviour {
+
+	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
+	protected	static	void	Initialize()
+	{
+		SingletonMonoBehaviour<CoroutinesManager>[] singletons = FindObjectsOfType<SingletonMonoBehaviour<CoroutinesManager>>();
+		Debug.Log("" + singletons.Length);
+		System.Array.ForEach( singletons, s => s.Initialize() );
+	}
+
+}
+
+public class SingletonMonoBehaviour<T> : MonoBehaviour where T : MonoBehaviour {
 
 	private		static			SingletonMonoBehaviour<T>				m_Instance				= null;
 	public		static			T										Instance
@@ -11,7 +24,7 @@ public abstract class SingletonMonoBehaviour<T> : MonoBehaviour where T : MonoBe
 		get {
 		//	if ( m_Instance == null )
 			{
-				Initialize();
+		//		Initialize();
 				UnityEngine.Assertions.Assert.IsNotNull
 				(
 					m_Instance,
@@ -30,8 +43,7 @@ public abstract class SingletonMonoBehaviour<T> : MonoBehaviour where T : MonoBe
 
 	
 	//////////////////////////////////////////////////////////////////////////
-//	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
-	protected	static	void	Initialize()
+	public		void	Initialize()
 	{
 		if ( m_IsInitialized == false )
 		{
@@ -57,7 +69,8 @@ public abstract class SingletonMonoBehaviour<T> : MonoBehaviour where T : MonoBe
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected abstract void OnFirstGetCall();
+	protected virtual void OnFirstGetCall()
+	{ }
 
 
 	//////////////////////////////////////////////////////////////////////////
