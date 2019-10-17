@@ -4,19 +4,86 @@ using System.Reflection;
 using UnityEngine;
 
 
-public class SingletonInitializer : MonoBehaviour {
+internal class SingletonInitializer : MonoBehaviour {
 
-	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
-	protected	static	void	Initialize()
+	public interface ITopSingleton {}
+
+	// ref https://docs.microsoft.com/it-it/dotnet/api/system.reflection.bindingflags?view=netframework-4.7.1
+
+	/**
+	 * We use reflection to get all types including interface 'ITopSingleton' and initialize them on phase 'SubsystemRegistration'
+	 */
+	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.SubsystemRegistration)] // Callback used for registration of subsystems
+	protected	static	void	SubsystemRegistration()
 	{
-		SingletonMonoBehaviour<CoroutinesManager>[] singletons = FindObjectsOfType<SingletonMonoBehaviour<CoroutinesManager>>();
-		Debug.Log("" + singletons.Length);
-		System.Array.ForEach( singletons, s => s.Initialize() );
+		IList<System.Type> singletons = InterfaceHelper.FindInerithed<ITopSingleton>();
+		foreach( System.Type singleton in singletons )
+		{
+			MethodInfo initializeMethod = singleton.BaseType.GetMethod( "SubsystemRegistration", BindingFlags.NonPublic | BindingFlags.Static );
+			if ( initializeMethod != null )
+			{
+				initializeMethod.Invoke( null, null );
+			}
+		}
 	}
 
+	/**
+	 * We use reflection to get all types including interface 'ITopSingleton' and initialize them on phase 'AfterAssembliesLoaded'
+	 */
+	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.AfterAssembliesLoaded)] // Callback when all assemblies are loaded and preloaded assets are initialized.
+	protected	static	void	AfterAssembliesLoaded()
+	{
+		IList<System.Type> singletons = InterfaceHelper.FindInerithed<ITopSingleton>();
+		foreach( System.Type singleton in singletons )
+		{
+			MethodInfo initializeMethod = singleton.BaseType.GetMethod( "AfterAssembliesLoaded", BindingFlags.NonPublic | BindingFlags.Static );
+			if ( initializeMethod != null )
+			{
+				initializeMethod.Invoke( null, null );
+			}
+		}
+	}
+
+	/**
+	 * We use reflection to get all types including interface 'ITopSingleton' and initialize them on phase 'BeforeSplashScreen'
+	 * If the splash screen is turned off, functions using this load type are invoked when the splash screen would have been displayed
+	 */
+	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSplashScreen)] // Immediately before the splash screen is shown.
+	protected	static	void	BeforeSplashScreen()
+	{
+		IList<System.Type> singletons = InterfaceHelper.FindInerithed<ITopSingleton>();
+		foreach( System.Type singleton in singletons )
+		{
+			MethodInfo initializeMethod = singleton.BaseType.GetMethod( "BeforeSplashScreen", BindingFlags.NonPublic | BindingFlags.Static );
+			if ( initializeMethod != null )
+			{
+				initializeMethod.Invoke( null, null );
+			}
+		}
+	}
+
+
+	/**
+	 * We use reflection to get all types including interface 'ITopSingleton' and initialize them on phase 'BeforeSceneLoad'
+	 */
+	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)] // Before Scene is loaded.
+	protected	static	void	BeforeSceneLoad()
+	{
+		IList<System.Type> singletons = InterfaceHelper.FindInerithed<ITopSingleton>();
+		foreach( System.Type singleton in singletons )
+		{
+			MethodInfo initializeMethod = singleton.BaseType.GetMethod( "BeforeSceneLoad", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.ExactBinding );
+			if ( initializeMethod != null )
+			{
+				initializeMethod.Invoke( null, null );
+			}
+		}
+	}
 }
 
-public class SingletonMonoBehaviour<T> : MonoBehaviour where T : MonoBehaviour {
+
+
+public abstract class SingletonMonoBehaviour<T> : MonoBehaviour, SingletonInitializer.ITopSingleton where T : MonoBehaviour {
 
 	private		static			SingletonMonoBehaviour<T>				m_Instance				= null;
 	public		static			T										Instance
@@ -43,7 +110,7 @@ public class SingletonMonoBehaviour<T> : MonoBehaviour where T : MonoBehaviour {
 
 	
 	//////////////////////////////////////////////////////////////////////////
-	public		void	Initialize()
+	private static void BeforeSceneLoad()
 	{
 		if ( m_IsInitialized == false )
 		{
