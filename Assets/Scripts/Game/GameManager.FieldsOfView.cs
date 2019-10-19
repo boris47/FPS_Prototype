@@ -73,13 +73,15 @@ public partial class GameManager : IFieldsOfViewManager {
 		if ( m_FieldsOfViewList.Count == 0 )
 			return;
 
-		m_FieldsOfViewList[m_CurrentFieldOfViewIndex].Value();
-
 		m_CurrentFieldOfViewIndex++;
-		if ( m_CurrentFieldOfViewIndex >= m_FieldsOfViewList.Count )
+		if ( m_CurrentFieldOfViewIndex > m_FieldsOfViewList.Count - 1 )
 		{
 			m_CurrentFieldOfViewIndex = 0;
 		}
+
+		m_FieldsOfViewList[m_CurrentFieldOfViewIndex].Value();
+
+		
 	}
 
 }

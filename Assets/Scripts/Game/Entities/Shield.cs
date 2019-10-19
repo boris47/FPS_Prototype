@@ -91,7 +91,7 @@ public class Shield : MonoBehaviour, IShield {
 		bool bIsBullet = Utils.Base.SearchComponent( collidingObject, ref bullet, SearchContext.CHILDREN );
 		if ( bIsBullet == true )
 		{
-			m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageType, bullet.DamageRandom, bullet.CanPenetrate );
+			m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageType, bullet.Damage, bullet.CanPenetrate );
 		}
 	}
 	
@@ -104,7 +104,7 @@ public class Shield : MonoBehaviour, IShield {
 		bool bIsBullet = Utils.Base.SearchComponent( collision.gameObject, ref bullet, SearchContext.CHILDREN );
 		if ( bIsBullet == true )
 		{
-			m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageType, bullet.DamageRandom, bullet.CanPenetrate );
+			m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageType, bullet.Damage, bullet.CanPenetrate );
 		}
 	}
 

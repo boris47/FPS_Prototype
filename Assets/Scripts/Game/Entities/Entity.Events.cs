@@ -259,7 +259,7 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 				: 
 				1.0f;
 			
-			OnHittedDetails( bullet.StartPosition, bullet.WhoRef, bullet.DamageType, bullet.DamageRandom * dmgMultiplier, bullet.CanPenetrate );
+			OnHittedDetails( bullet.StartPosition, bullet.WhoRef, bullet.DamageType, bullet.Damage * dmgMultiplier, bullet.CanPenetrate );
 		}
 	}
 

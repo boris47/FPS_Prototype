@@ -32,8 +32,7 @@ public class Drone_AI_Behaviour_Attacker : AIBehaviour {
 
 	public override void OnHit( IBullet bullet )
 	{
-		float damage = UnityEngine.Random.Range( bullet.DamageMin, bullet.DamageMax );
-		this.OnHit( bullet.StartPosition, bullet.WhoRef, damage, bullet.CanPenetrate );
+		this.OnHit( bullet.StartPosition, bullet.WhoRef, bullet.Damage, bullet.CanPenetrate );
 	}
 
 	public override void OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )

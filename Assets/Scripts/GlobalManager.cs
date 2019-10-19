@@ -132,7 +132,7 @@ public class GlobalManager : MonoBehaviour {
 		Application.backgroundLoadingPriority = ThreadPriority.Low;
 		QualitySettings.asyncUploadBufferSize = 24; // MB
 
-		new MyFileLogHandler();
+	//	new MyFileLogHandler();
 	}
 
 

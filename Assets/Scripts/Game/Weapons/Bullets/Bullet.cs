@@ -1,4 +1,5 @@
 ﻿
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,8 +15,7 @@ public interface IBullet {
 
 	BulletMotionType	MotionType					{ get; }
 	DamageType			DamageType					{ get; }
-	float				DamageMin					{ get; }
-	float				DamageMax					{ get; }
+	float				Damage						{ get; }
 	bool				HasDamageOverTime			{ get; }
 	float				OverTimeDamageDuration		{ get; }
 	DamageType			OverTimeDamageType			{ get; }
@@ -26,7 +26,6 @@ public interface IBullet {
 	Entity				WhoRef						{ get; }
 	Weapon				Weapon						{ get; }
 	Object				Effect						{ get; }
-	float				DamageRandom				{ get; }
 	float				RecoilMult					{ get; }
 	Vector3				StartPosition				{ get; }
 
@@ -49,10 +48,7 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 	protected		DamageType			m_DamageType			= DamageType.BALLISTIC;
 
 	[SerializeField, ReadOnly]
-	protected		float				m_DamageMin				= 0f;
-
-	[SerializeField, ReadOnly]
-	protected		float				m_DamageMax				= 0f;
+	protected		float				m_Damage				= 0f;
 
 	[SerializeField, ReadOnly]
 	protected		bool				m_HasDamageOverTime		= false;
@@ -89,10 +85,9 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 	// INTERFACE START
 					BulletMotionType	IBullet.MotionType				{	get { return m_BulletMotionType; }	}
 					DamageType			IBullet.DamageType				{	get { return m_DamageType; }	}
-					float				IBullet.DamageMin				{	get { return m_DamageMin; }		}
-					float				IBullet.DamageMax				{	get { return m_DamageMax;}		}
+					float				IBullet.Damage					{	get { return m_Damage;}		}
 					bool				IBullet.HasDamageOverTime		{	get { return m_HasDamageOverTime; }	}
-					float				IBullet.OverTimeDamageDuration	{	get { return m_DamageMax;}		}
+					float				IBullet.OverTimeDamageDuration	{	get { return m_OverTimeDamageDuration; }		}
 					DamageType			IBullet.OverTimeDamageType		{	get { return m_OverTimeDamageType; }		}
 					bool				IBullet.CanPenetrate			{	get { return m_CanPenetrate; }	}
 					float				IBullet.Velocity				{	get { return m_Velocity; }		}
@@ -100,7 +95,6 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 					Entity				IBullet.WhoRef					{	get { return m_WhoRef; }		}
 					Weapon				IBullet.Weapon					{	get { return m_Weapon; }		}
 					Object				IBullet.Effect					{	get { return m_BulletEffect; }	}
-					float				IBullet.DamageRandom			{	get { return UnityEngine.Random.Range( m_DamageMin, m_DamageMax ); } }
 					float				IBullet.RecoilMult				{	get { return m_RecoilMult; }	}
 					Vector3				IBullet.StartPosition			{	get { return m_StartPosition; }	}
 	// INTERFACE END
@@ -139,7 +133,7 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 	
 	//////////////////////////////////////////////////////////////////////////
 	// SetupBulletCO ( Virtual )
-	protected virtual System.Collections.IEnumerator SetupBulletCO()
+	protected virtual IEnumerator SetupBulletCO()
 	{
 		yield return null;
 
@@ -155,11 +149,8 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 		// DamageType
 		Utils.Converters.StringToEnum( m_BulletSection.AsString("eDamageType"), ref m_DamageType );
 
-		// fDamageMin
-		m_DamageMin = m_BulletSection.AsFloat( "fDamageMin", m_DamageMin );
-
-		// fDamageMax
-		m_DamageMax = m_BulletSection.AsFloat( "fDamageMax", m_DamageMax );
+		// fDamage
+		m_Damage = m_BulletSection.AsFloat( "fDamage", m_Damage );
 
 		// bHasDamageOverTime
 		m_HasDamageOverTime = m_BulletSection.AsBool( "bHasDamageOverTime", m_HasDamageOverTime );

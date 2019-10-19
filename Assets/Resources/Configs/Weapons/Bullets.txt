@@ -13,8 +13,7 @@
 [BulletElectro]
 eBulletMotionType				= DIRECT;
 eDamageType						= ELECTRO;			Impact Damage Type
-fDamageMin						= 10.0;				Impact Damage Min
-fDamageMax						= 10.0;				Impact Damage Max
+fDamage							= 10.0;				Impact Damage Ammount
 bHasDamageOverTime				= true;				Has Over Time Damage
 fOverTimeDamageDuration			= 5.0;				Over Time Damage Duration
 eOverTimeDamageType				= ELECTRO;			Over Time Damage Type
@@ -27,8 +26,7 @@ fRange							= 60.0f;
 [BulletBallistic]
 eBulletMotionType				= DIRECT;
 eDamageType						= BALLISTIC;		Impact Damage Type
-fDamageMin						= 10.0;				Impact Damage Min
-fDamageMax						= 10.0;				Impact Damage Max
+fDamage							= 10.0;				Impact Damage Ammount
 bHasDamageOverTime				= false;			Has Over Time Damage
 fOverTimeDamageDuration			= 5.0;				Over Time Damage Duration
 eOverTimeDamageType				= FLAME;			Over Time Damage Type
@@ -38,8 +36,7 @@ fRange							= 60.0f;
 
 
 [BulletBlaster] : BulletBallistic
-fDamageMin						= 3.0;				Impact Damage Min
-fDamageMax						= 6.0;				Impact Damage Max
+fDamage							= 4.50;				Impact Damage Ammount
 fVelocity						= 70.0;
 fRange							= 40.0f;
 
@@ -48,8 +45,7 @@ fRange							= 40.0f;
 [BulletRocket]
 eBulletMotionType				= DIRECT;
 eDamageType						= EXPLOSIVE;		Blast Damage Type
-fiDamageMin						= 10.0;				Blast Damage
-fDamageMax						= 10.0;				Blast Damage
+fDamage							= 50.0;				Blast Damage Ammount
 bHasDamageOverTime				= true;				Has Over Time Damage
 fOverTimeDamageDuration			= 5.0;				Over Time Damage Duration
 eOverTimeDamageType				= FLAME;			Over Time Damage Type
@@ -73,8 +69,7 @@ fBlastDamage					= 1000.0;
 [GranadeElectroGlobe]
 eBulletMotionType				= PARABOLIC;
 eDamageType						= ELECTRO;
-fDamageMin						= 10.0;				Blast Damage
-fDamageMax						= 10.0;				Blast Damage
+fDamage							= 10.0;				Blast Damage Ammount
 bHasDamageOverTime				= true;				Has Damage Over Time
 fOverTimeDamageDuration			= 5.0;				Duration Is Definend By Granade Persisence in World
 fOverTimeDamageType				= ELECTRO;			Over Time Damage Type
@@ -93,8 +88,7 @@ fExplosionDelay					= 3.0;
 [GranadeFrammentation]
 eBulletMotionType				= PARABOLIC;
 eDamageType						= EXPLOSIVE;
-fDamageMin						= 100.0;			Blast damage
-fDamageMax						= 100.0;			Blast damage
+fDamage							= 10.0;				Blast Damage Ammount
 bHasDamageOverTime				= true;				Has Damage Over Time
 fOverTimeDamageDuration			= 5.0;				Over Time Damage Duration
 fOverTimeDamageType				= FLAME;			Over Time Damage Type
