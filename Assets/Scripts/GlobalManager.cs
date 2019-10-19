@@ -19,27 +19,26 @@ class EditorInitializer
 }
 #endif
 
-public class MyFileLogHandler : ILogHandler
+public class CustomFileLogHandler : ILogHandler
 {
     private System.IO.FileStream m_FileStream = null;
     private System.IO.StreamWriter m_StreamWriter = null;
 
-	private ILogHandler m_DefaultLogHandler = Debug.unityLogger.logHandler;
+	public static ILogHandler m_DefaultLogHandler { get; private set; }
+ 
 
 	//////////////////////////////////////////////////////////////////////////
-    public MyFileLogHandler()
+	public CustomFileLogHandler()
     {
-		// Application.persistentDataPath: C:/Users/Drako/AppData/LocalLow/BeWide&Co/Project Orion
-		
-        string filePath = Application.dataPath + "/SessionLog.log";
+        m_DefaultLogHandler = Debug.unityLogger.logHandler;
+        Debug.unityLogger.logHandler = this;
 
-        m_FileStream = new System.IO.FileStream( filePath, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Write );
-        m_StreamWriter = new System.IO.StreamWriter( m_FileStream );
-
-		// Replace the default debug log handler
-		Debug.unityLogger.logHandler = this;
+		string filePath = Application.dataPath + "/SessionLog.log";
+		{
+			m_FileStream = new System.IO.FileStream( filePath, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Write );
+			m_StreamWriter = new System.IO.StreamWriter( m_FileStream );
+		}
     }
-
 
 	//////////////////////////////////////////////////////////////////////////
     public void LogFormat( LogType logType, Object context, string format, params object[] args )
@@ -57,16 +56,25 @@ public class MyFileLogHandler : ILogHandler
         m_StreamWriter.Flush();
         m_DefaultLogHandler.LogException( exception, context );
     }
+	
 
-	~MyFileLogHandler()
+	//////////////////////////////////////////////////////////////////////////
+	public  void UnSetup()
 	{
 		m_StreamWriter.Flush();
+		m_StreamWriter.Close();
+		m_FileStream.Close();
+
+		Debug.unityLogger.logHandler = m_DefaultLogHandler;
 	}
+	
 }
 
 
 
 public class GlobalManager : MonoBehaviour {
+
+	private static			CustomFileLogHandler m_LoggerInstance	= null;
 
 	private	static			GlobalManager	m_Instance				= null;
 	public	static			GlobalManager	Instance
@@ -118,7 +126,7 @@ public class GlobalManager : MonoBehaviour {
 		get { return m_InputMgr; }
 	}
 
-
+	
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
 	private static void OnBeforeSceneLoad ()
 	{
@@ -132,7 +140,7 @@ public class GlobalManager : MonoBehaviour {
 		Application.backgroundLoadingPriority = ThreadPriority.Low;
 		QualitySettings.asyncUploadBufferSize = 24; // MB
 
-	//	new MyFileLogHandler();
+		m_LoggerInstance = new CustomFileLogHandler();
 	}
 
 
@@ -194,6 +202,8 @@ public class GlobalManager : MonoBehaviour {
 
 		m_IsInitialized = false;
 		m_Instance = null;
+
+		m_LoggerInstance.UnSetup();
 	}
 
 
