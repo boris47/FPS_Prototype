@@ -89,15 +89,11 @@ public abstract class SingletonMonoBehaviour<T> : MonoBehaviour, SingletonInitia
 	public		static			T										Instance
 	{
 		get {
-		//	if ( m_Instance == null )
-			{
-		//		Initialize();
-				UnityEngine.Assertions.Assert.IsNotNull
-				(
-					m_Instance,
-					typeof(T).Name + " has been not initialized correctly!!"
-				);
-			}
+			UnityEngine.Assertions.Assert.IsNotNull
+			(
+				m_Instance,
+				typeof(T).Name + " has been not initialized correctly!!"
+			);
 			return m_Instance as T;
 		}
 	}
