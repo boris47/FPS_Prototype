@@ -55,7 +55,7 @@ public partial class ResourceManager : SingletonMonoBehaviour<ResourceManager> {
 
 
 	///////////////////////////////////////////////////
-	protected override void OnFirstGetCall()
+	protected override void OnBeforeSceneLoad()
 	{}
 
 
@@ -90,7 +90,7 @@ public partial class ResourceManager : SingletonMonoBehaviour<ResourceManager> {
 
 		System.Diagnostics.Stopwatch m_StopWatch = null;
 		print( "INTERNAL SYNC Loading: " + ResourcePath );	
-		if ( m_ShowDebugInfo )
+		if ( ShowDebugInfo )
 		{
 			m_StopWatch = new System.Diagnostics.Stopwatch();
 			m_StopWatch.Start();
@@ -98,7 +98,7 @@ public partial class ResourceManager : SingletonMonoBehaviour<ResourceManager> {
 			
 		loadedResource.Asset = Resources.Load<T>( ResourcePath );
 
-		if ( m_ShowDebugInfo )
+		if ( ShowDebugInfo )
 		{
 			m_StopWatch.Stop();
 			print( "INTERNAL SYNC Loaded: " + ResourcePath + " in " + m_StopWatch.Elapsed.Milliseconds + "ms" );
@@ -190,7 +190,7 @@ public partial class ResourceManager : SingletonMonoBehaviour<ResourceManager> {
 		System.Diagnostics.Stopwatch m_StopWatch = null;
 		print( "ResourceManger::InternalLoadResourceAsync: INTERNAL ASYNC Loading: " + ResourcePath );
 
-		if ( m_ShowDebugInfo )
+		if ( ShowDebugInfo )
 		{
 			m_StopWatch = new System.Diagnostics.Stopwatch();
 			m_StopWatch.Start();
@@ -205,7 +205,7 @@ public partial class ResourceManager : SingletonMonoBehaviour<ResourceManager> {
 
 		loadedResource.Asset = request.asset as T;
 
-		if ( m_ShowDebugInfo )
+		if ( ShowDebugInfo )
 		{
 			m_StopWatch.Stop();
 			print( "ResourceManger::InternalLoadResourceAsync: INTERNAL ASYNC Loaded: " + ResourcePath + " in " + m_StopWatch.Elapsed.Milliseconds + "ms" );

@@ -98,11 +98,12 @@ public abstract class SingletonMonoBehaviour<T> : MonoBehaviour, SingletonInitia
 		}
 	}
 
-	protected	static			bool			m_IsInitialized			= false;
+	private		static			bool			m_IsInitialized			= false;
 
-	protected					bool			m_bIsMarkedForDelete	= false;
-
-	protected	static			bool			m_ShowDebugInfo			= false;
+	protected	static			bool			ShowDebugInfo
+	{
+		get; private set;
+	}
 
 	
 	//////////////////////////////////////////////////////////////////////////
@@ -123,16 +124,16 @@ public abstract class SingletonMonoBehaviour<T> : MonoBehaviour, SingletonInitia
 			Database.Section debugInfosSection = null;
 			if ( GlobalManager.Configs.bGetSection( "DebugInfos", ref debugInfosSection ) )
 			{
-				m_ShowDebugInfo = debugInfosSection.AsBool( typeof(T).Name, false );
+				ShowDebugInfo = debugInfosSection.AsBool( typeof(T).Name, false );
 			}
 
-			m_Instance.OnFirstGetCall();
+			m_Instance.OnBeforeSceneLoad();
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected virtual void OnFirstGetCall()
+	protected virtual void OnBeforeSceneLoad()
 	{ }
 
 

@@ -55,7 +55,7 @@ public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected override void OnFirstGetCall()
+	protected override void OnBeforeSceneLoad()
 	{ }
 
 	
@@ -99,7 +99,7 @@ public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
 	/// <summary> Start a new coroutine </summary>
 	public	static	Coroutine	Start( IEnumerator routine, string debugKey = "" )
 	{
-		if ( m_ShowDebugInfo && debugKey.Length > 0 )
+		if ( ShowDebugInfo && debugKey.Length > 0 )
 		{
 			Debug.Log( "Starting coroutine for " + debugKey );
 		}
