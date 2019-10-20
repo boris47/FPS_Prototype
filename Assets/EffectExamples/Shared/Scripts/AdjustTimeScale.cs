@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
-using TMPro;
+
 
 
 public class AdjustTimeScale : MonoBehaviour
-{
+{/*
     TextMeshProUGUI textMesh;
 
     private void Start()
@@ -50,4 +50,5 @@ public class AdjustTimeScale : MonoBehaviour
         Time.timeScale = 1.0F;
         Time.fixedDeltaTime = 0.02F;
     }
+	*/
 }
