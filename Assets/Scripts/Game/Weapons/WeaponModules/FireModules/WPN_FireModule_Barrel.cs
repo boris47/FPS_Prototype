@@ -90,7 +90,7 @@ public class WPN_FireModule_Barrel : WPN_FireModule {
 		m_Magazine --;
 
 		// TODO muzzle flash
-//		EffectManager.Instance.PlayEffect( EffectType.MUZZLE, m_FirePoint.position, m_FirePoint.forward, 1 );
+		EffectsManager.Instance.PlayEffect( EffectType.MUZZLE, m_FirePoint.position, m_FirePoint.forward, 1 );
 //		EffectManager.Instance.PlayEffect( EffectType.SMOKE, m_FirePoint.position, m_FirePoint.forward, 1 );
 
 		// BULLET
