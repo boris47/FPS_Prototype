@@ -16,7 +16,7 @@ internal class SingletonInitializer : MonoBehaviour {
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.SubsystemRegistration)] // Callback used for registration of subsystems
 	protected	static	void	SubsystemRegistration()
 	{
-		IList<System.Type> singletons = InterfaceHelper.FindInerithed<ITopSingleton>();
+		IList<System.Type> singletons = ReflectionHelper.FindInerithed<ITopSingleton>();
 		foreach( System.Type singleton in singletons )
 		{
 			MethodInfo initializeMethod = singleton.BaseType.GetMethod( "SubsystemRegistration", BindingFlags.NonPublic | BindingFlags.Static );
@@ -33,7 +33,7 @@ internal class SingletonInitializer : MonoBehaviour {
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.AfterAssembliesLoaded)] // Callback when all assemblies are loaded and preloaded assets are initialized.
 	protected	static	void	AfterAssembliesLoaded()
 	{
-		IList<System.Type> singletons = InterfaceHelper.FindInerithed<ITopSingleton>();
+		IList<System.Type> singletons = ReflectionHelper.FindInerithed<ITopSingleton>();
 		foreach( System.Type singleton in singletons )
 		{
 			MethodInfo initializeMethod = singleton.BaseType.GetMethod( "AfterAssembliesLoaded", BindingFlags.NonPublic | BindingFlags.Static );
@@ -51,7 +51,7 @@ internal class SingletonInitializer : MonoBehaviour {
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSplashScreen)] // Immediately before the splash screen is shown.
 	protected	static	void	BeforeSplashScreen()
 	{
-		IList<System.Type> singletons = InterfaceHelper.FindInerithed<ITopSingleton>();
+		IList<System.Type> singletons = ReflectionHelper.FindInerithed<ITopSingleton>();
 		foreach( System.Type singleton in singletons )
 		{
 			MethodInfo initializeMethod = singleton.BaseType.GetMethod( "BeforeSplashScreen", BindingFlags.NonPublic | BindingFlags.Static );
@@ -69,7 +69,7 @@ internal class SingletonInitializer : MonoBehaviour {
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)] // Before Scene is loaded.
 	protected	static	void	BeforeSceneLoad()
 	{
-		IList<System.Type> singletons = InterfaceHelper.FindInerithed<ITopSingleton>();
+		IList<System.Type> singletons = ReflectionHelper.FindInerithed<ITopSingleton>();
 		foreach( System.Type singleton in singletons )
 		{
 			MethodInfo initializeMethod = singleton.BaseType.GetMethod( "BeforeSceneLoad", BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.ExactBinding );
