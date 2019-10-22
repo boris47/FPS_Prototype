@@ -4,10 +4,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using Component = UnityEngine.Component;
 using Object = UnityEngine.Object;
+using System.Reflection;
+
+public interface IOnSceneLoadEvents {
+
+	void OnBeforeSceneActivation();
+
+	void OnAfterSceneActivation();
+
+	void OnAfterLoadedData();
+}
+
+
  
 public static class ReflectionHelper
 {
-	private static Dictionary<Type, List<Type>> _classToComponentMapping = new Dictionary<Type, List<Type>>();
+//	private static Dictionary<Type, List<Type>> _classToComponentMapping = new Dictionary<Type, List<Type>>();
 	private static Dictionary<Type, List<Type>> _interfaceToComponentMapping = new Dictionary<Type, List<Type>>();
 	private static Type[] _allTypes;
 
@@ -18,15 +30,22 @@ public static class ReflectionHelper
 	{
 		_allTypes = GetAllTypes();
 
-
-		// Classes
+#region TODO
 		/*
+		// Classes
+
+		// Assembly-CSharp.dll
+		// Assembly-CSharp-firstpass.dll
+		// Assembly-CSharp-Editor.dll
+		// Assembly-CSharp-Editor-firstpass.dll
+		
 		var result = _allTypes
-			.Where( t => t.IsClass )
-			.Where( curClass => {
-				string typeName = curClass.ToString().ToLower();
-				return 
-					!( typeName.Contains( "unity" ) || typeName.Contains( "system." )
+			.Where( t => {
+				string typeName = t.ToString().ToLower();
+				string typeModule = t.ToString().ToLower();
+				return t.IsClass 
+//				&& typeModule.StartsWith( "system" )
+				&&	!( typeName.Contains( "unity" ) || typeName.Contains( "system." )
 					 || typeName.Contains( "mono." ) || typeName.Contains( "icsharpcode." )
 					 || typeName.Contains( "nsubstitute" ) || typeName.Contains( "nunit." ) || typeName.Contains( "microsoft." )
 					 || typeName.Contains( "boo." ) || typeName.Contains( "serializ" ) || typeName.Contains( "json" )
@@ -36,6 +55,7 @@ public static class ReflectionHelper
 					&& !typeName.Contains( "object" ) 
 					&& !typeName.Contains( "anonymous" )
 					&& !typeName.StartsWith( "interop" )
+					&& !typeName.StartsWith( "assembly" )
 					&& !typeName.Contains( "assemblyref" )
 					&& !typeName.Contains( "consts" )
 					&& !typeName.Contains( "locale" )
@@ -46,9 +66,12 @@ public static class ReflectionHelper
 					&& !typeName.StartsWith( "jetbrains" )
 					&& !typeName.StartsWith( "ms" )
 					&& !typeName.StartsWith( "syntaxtree" )
+					&& !typeName.Contains( "excss" )
+					&& !typeName.StartsWith( "<" )
+					&& !typeName.StartsWith( "ProjectNull" )
 					;
 			})
-			.Select( t => t.ToString() );
+			.Select( t => t.Module.ToString() );
 		System.IO.File.WriteAllText( "AllClasses.txt", string.Join( Environment.NewLine, result ) );
 		*/
 		/*
@@ -102,9 +125,10 @@ public static class ReflectionHelper
 			}
 		);
 		*/
-		
+#endregion
+
 		// Interfaces
-		foreach (Type curInterface in _allTypes)
+		foreach ( Type curInterface in _allTypes)
 		{
 			//We're interested only in interfaces
 			if (!curInterface.IsInterface)
@@ -121,7 +145,7 @@ public static class ReflectionHelper
 				 || typeName.Contains( "editor" ) || typeName.Contains( "debug" ) )
 				continue;
 
-			IList<Type> typesInherited = GetTypesInherited( curInterface );
+			List<Type> typesInherited = GetTypesInherited( curInterface );
 
 			if ( typesInherited.Count <= 0 )
 				continue;
@@ -148,7 +172,7 @@ public static class ReflectionHelper
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public static IList<T> FindObjects<T>() where T : class
+	public static List<T> FindObjects<T>() where T : class
 	{
 		List<T> resList = new List<T>();
 
@@ -201,17 +225,46 @@ public static class ReflectionHelper
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public static IList<Type> FindInerithed<T>()
+	public static List<Type> FindInerithed<T>()
 	{
-		List<Type> types = _interfaceToComponentMapping[ typeof(T) ];
+		List<Type> types = new List<Type>();
 
-		// Remove abstract because usually is not needed
-		types.RemoveAll( t => t.IsAbstract ); 
+		if ( _interfaceToComponentMapping.TryGetValue( typeof(T), out types ) )
+		{
+			// Remove abstract because usually is not needed
+			types.RemoveAll( t => t.IsAbstract );
+		}
 
 		return types;
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary>
+	/// Given a types collection, search a method called as specified on it or its base class, then call it
+	/// </summary>
+	/// <param name="types"></param>
+	/// <param name="methodName"></param>
+	/// <param name="IsBaseMethod"> Specify if this method has to searched on base class or not</param>
+	public	static void CallMethodOnTypes( List<Type> types, string methodName, bool IsBaseMethod )
+	{
+		if ( types != null && types.Count > 0 )
+		{
+			foreach( Type type in types )
+			{
+				Type typeToUse = IsBaseMethod ? type.BaseType : type;
+				MethodInfo initializeMethod = typeToUse.GetMethod( methodName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance );
+				if ( initializeMethod != null )
+				{
+					initializeMethod.Invoke( null, null );
+				}
+			}
+		}
+	}
+
+
+
+	//////////////////////////////////////////////////////////////////////////
 	private static Type[] GetAllTypes()
 	{
 		List<Type> res = new List<Type>();
@@ -223,12 +276,10 @@ public static class ReflectionHelper
 		return res.ToArray();
 	}
 
-	private static IEnumerable<Type> GetTypesInheritedFromInterface<T>() where T : class
-	{
-		return GetTypesInherited( typeof(T) );
-	}
-	
-	private static IList<Type> GetTypesInherited( Type type )
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private static List<Type> GetTypesInherited( Type type )
 	{
 		//Caching
 		if ( null == _allTypes )

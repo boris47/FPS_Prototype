@@ -42,6 +42,9 @@ public class CustomSceneManager : MonoBehaviour {
 	private	static	CustomSceneManager	m_Instance					= null;
 	private	static	bool				m_IsInitialized				= false;
 
+	private	static	bool				m_IsCurrentlyPreloading		= false;
+	private	static	bool				m_HasPreloadedScene			= false;
+
 
 	private	static	List< UnityAction<Scene, LoadSceneMode> > Delegates = new List<UnityAction<Scene, LoadSceneMode>>();
 	
@@ -235,6 +238,8 @@ public class CustomSceneManager : MonoBehaviour {
 	{
 		Debug.Log( "Preloading of scene " + SceneIdx );
 
+		m_IsCurrentlyPreloading = true;
+
 		IEnumerator enumerator = m_Instance.PreloadCO( SceneIdx, preloadSceneData );
 		CoroutinesManager.Start( enumerator, "CustomSceneManager::Preload: Preloading scene " + SceneIdx );
 		return enumerator;
@@ -285,6 +290,13 @@ public class CustomSceneManager : MonoBehaviour {
 	{
 		AsyncOperation asyncOperation = SceneManager.LoadSceneAsync( (int)SceneIdx, LoadSceneMode.Additive );
 
+		if ( asyncOperation == null )
+		{
+			m_IsCurrentlyPreloading = false;
+			Debug.LogError( "Cannot preload " + preloadSceneData.eScene.ToString() );
+			yield break;
+		}
+
 		// We want this operation to impact performance less than possible
 		asyncOperation.priority = 0;
 
@@ -300,7 +312,8 @@ public class CustomSceneManager : MonoBehaviour {
 		}
 
 		print("Preload comleted");
-
+		m_IsCurrentlyPreloading = false;
+		m_HasPreloadedScene = true;
 	}
 
 
@@ -308,6 +321,14 @@ public class CustomSceneManager : MonoBehaviour {
 	/// <summary> EXPERIMENTAL: Internal coroutine that complete the load a preloaded scene </summary>
 	private	IEnumerator	CompleteSceneAsyncLoadCO( PreloadSceneData preloadSceneData )
 	{
+		if ( m_HasPreloadedScene == false )
+		{
+			Debug.LogError( "Cannot complete preload before preload start itself" );
+			yield break;
+		}
+
+		m_IsCurrentlyPreloading = false;
+
 		yield return new WaitForEndOfFrame();
 		preloadSceneData.asyncOperation.allowSceneActivation = true;
 
@@ -316,6 +337,8 @@ public class CustomSceneManager : MonoBehaviour {
 		{
 			yield return null;
 		}
+
+		m_HasPreloadedScene = false;
 
 		SoundManager.Instance.OnSceneLoaded();
 
@@ -384,6 +407,10 @@ public class CustomSceneManager : MonoBehaviour {
 			yield return null;
 		}
 
+		List<System.Type> types = ReflectionHelper.FindInerithed<IOnSceneLoadEvents>();
+
+		ReflectionHelper.CallMethodOnTypes( types, "OnBeforeSceneActivation", IsBaseMethod: false );
+
 		Loading.SetProgress( 0.60f );
 		if ( loadCondition.IsNotNull() )
 		{
@@ -398,13 +425,14 @@ public class CustomSceneManager : MonoBehaviour {
 //			go.BroadcastMessage( "OnBeforeSceneActivation", SendMessageOptions.DontRequireReceiver );
 //		} );
 
-
 		// Wait for every launched coroutine in awake of scripts
 		yield return CoroutinesManager.WaitPendingCoroutines();
 
 		Time.timeScale = 0F;
 
 		asyncOperation.allowSceneActivation = true;
+
+		ReflectionHelper.CallMethodOnTypes( types, "OnAfterSceneActivation", IsBaseMethod: false );
 
 		Loading.SetProgress( 0.70f );
 
@@ -434,12 +462,13 @@ public class CustomSceneManager : MonoBehaviour {
 			GameManager.StreamEvents.Load( loadSceneData.sSaveToLoad );
 		}
 
-		// Wait for every launched coroutine in awake of scripts
+		// Wait for every coroutines started from load
 		yield return CoroutinesManager.WaitPendingCoroutines();
 
+		ReflectionHelper.CallMethodOnTypes( types, "OnAfterLoadedData", IsBaseMethod: false );
 
-//		yield return Resources.UnloadUnusedAssets();
-//		System.GC.Collect();
+		yield return Resources.UnloadUnusedAssets();
+		System.GC.Collect();
 
 		// Post load callback
 		Loading.SetProgress( 0.95f );
@@ -510,6 +539,5 @@ public class CustomSceneManager : MonoBehaviour {
 
 		Delegates.Remove( activeSceneChanged );
 	}
-
 	
 }
