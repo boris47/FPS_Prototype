@@ -378,14 +378,14 @@ public class CustomSceneManager : MonoBehaviour {
 		// Enable Loading Menu
 //		UIManager.Instance.GoToMenu( Loading );
 		Loading.Show();
-		/*
+		
 		// Load Loading Scene syncronously
 		LoadSceneData loadingLoadSceneData = new LoadSceneData()
 		{
 			eScene			= SceneEnumeration.LOADING,
 		};
 		LoadSceneSync( loadingLoadSceneData );
-		*/
+		
 
 		yield return null;
 

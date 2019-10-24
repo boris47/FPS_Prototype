@@ -256,7 +256,19 @@ public static class ReflectionHelper
 				MethodInfo initializeMethod = typeToUse.GetMethod( methodName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance );
 				if ( initializeMethod != null )
 				{
-					initializeMethod.Invoke( null, null );
+					if ( initializeMethod.IsStatic )
+					{
+						initializeMethod.Invoke( null, null );
+						continue;
+					}
+
+					PropertyInfo propertyInfo = typeToUse.GetProperty( "Instance", BindingFlags.Public | BindingFlags.Static );
+					object instance = propertyInfo?.GetValue( null,null );
+					if ( propertyInfo != null && instance != null )
+					{
+						initializeMethod.Invoke( instance, null );
+
+					}
 				}
 			}
 		}

@@ -72,7 +72,7 @@ public class CustomFileLogHandler : ILogHandler
 
 
 
-public class GlobalManager : MonoBehaviour {
+public class GlobalManager : MonoBehaviour, IOnSceneLoadEvents {
 
 	private static			CustomFileLogHandler m_LoggerInstance	= null;
 
@@ -142,6 +142,24 @@ public class GlobalManager : MonoBehaviour {
 
 		m_LoggerInstance = new CustomFileLogHandler();
 	}
+
+
+	public void OnBeforeSceneActivation()
+	{
+		Debug.Log("GlobalManager::OnBeforeSceneActivation");
+	}
+
+	public void OnAfterSceneActivation()
+	{
+		Debug.Log("GlobalManager::OnAfterSceneActivation");
+	}
+
+	public void OnAfterLoadedData()
+	{
+		Debug.Log("GlobalManager::OnAfterLoadedData");
+	}
+
+
 
 
 	static void HandleException( string condition, string stackTrace, LogType type )
