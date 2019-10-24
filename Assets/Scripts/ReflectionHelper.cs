@@ -262,9 +262,9 @@ public static class ReflectionHelper
 						continue;
 					}
 
-					PropertyInfo propertyInfo = typeToUse.GetProperty( "Instance", BindingFlags.Public | BindingFlags.Static );
-					object instance = propertyInfo?.GetValue( null,null );
-					if ( propertyInfo != null && instance != null )
+					FieldInfo fieldInfo = typeToUse.GetField( "m_Instance", BindingFlags.NonPublic | BindingFlags.Static );
+					object instance = fieldInfo?.GetValue( null );
+					if ( fieldInfo != null && instance != null )
 					{
 						initializeMethod.Invoke( instance, null );
 
