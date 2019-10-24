@@ -20,9 +20,16 @@ public	enum SceneEnumeration {
 	COUNT
 }
 
+[System.Serializable]
+public	enum SceneLoadStep {
+	BEFORE_SCENE_ACTIOVATION,
+	AFTER_SCENE_ACTIVATION,
+	AFTER_SAVE_LOAD
+}
 
 
-public class CustomSceneManager : MonoBehaviour {
+
+public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 
 	public	static int	CurrentSceneIndex
 	{
@@ -39,63 +46,27 @@ public class CustomSceneManager : MonoBehaviour {
 	}
 
 
-	private	static	CustomSceneManager	m_Instance					= null;
-	private	static	bool				m_IsInitialized				= false;
-
 	private	static	bool				m_IsCurrentlyPreloading		= false;
 	private	static	bool				m_HasPreloadedScene			= false;
 
 
-	private	static	List< UnityAction<Scene, LoadSceneMode> > Delegates = new List<UnityAction<Scene, LoadSceneMode>>();
+	private	static	Dictionary< SceneLoadStep, List<System.Action<SceneEnumeration>> > Delegates = new Dictionary<SceneLoadStep, List<System.Action<SceneEnumeration>>>()
+	{
+		{ SceneLoadStep.BEFORE_SCENE_ACTIOVATION, new List<System.Action<SceneEnumeration>>() },
+		{ SceneLoadStep.AFTER_SCENE_ACTIVATION, new List<System.Action<SceneEnumeration>>() },
+		{ SceneLoadStep.AFTER_SAVE_LOAD, new List<System.Action<SceneEnumeration>>() }
+	};
+
+//	private	static	List< System.Action<KeyValuePair< SceneLoadStep, Scene>> > Delegates = new List<System.Action<KeyValuePair<SceneLoadStep, Scene>>>();
 	
 
 	/////////////////////////////////////////////////////////////////
-	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
-	private	static	void	Initialize()
+	protected override void OnBeforeSceneLoad()
 	{
-		if ( m_IsInitialized == false )
-		{
-			m_Instance = FindObjectOfType<CustomSceneManager>();
-			if ( m_Instance == null )
-			{
-				m_Instance = new GameObject("CustomSceneManager").AddComponent<CustomSceneManager>();
-			}
-			m_Instance.hideFlags = HideFlags.DontSave;
-			m_IsInitialized = true;
+		Delegates[SceneLoadStep.BEFORE_SCENE_ACTIOVATION].Clear();
+		Delegates[SceneLoadStep.AFTER_SCENE_ACTIVATION].Clear();
+		Delegates[SceneLoadStep.AFTER_SAVE_LOAD].Clear();
 
-			DontDestroyOnLoad( m_Instance );
-
-			Delegates.ForEach( d => SceneManager.sceneLoaded -= d );
-
-			m_IsInitialized = true;
-		}
-	}
-
-
-
-	/////////////////////////////////////////////////////////////////
-	private void Awake()
-	{
-		// Singleton
-		if ( m_Instance != null )
-		{
-			Destroy( gameObject );
-			return;
-		}
-		m_Instance = this;
-		m_IsInitialized = true;
-
-		Delegates.ForEach( d => SceneManager.sceneLoaded -= d );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private void OnDestroy()
-	{
-		if ( m_Instance != this )
-			return;
-
-		m_IsInitialized = false;
 	}
 
 
@@ -240,7 +211,7 @@ public class CustomSceneManager : MonoBehaviour {
 
 		m_IsCurrentlyPreloading = true;
 
-		IEnumerator enumerator = m_Instance.PreloadCO( SceneIdx, preloadSceneData );
+		IEnumerator enumerator = Instance.PreloadCO( SceneIdx, preloadSceneData );
 		CoroutinesManager.Start( enumerator, "CustomSceneManager::Preload: Preloading scene " + SceneIdx );
 		return enumerator;
 	}
@@ -250,7 +221,7 @@ public class CustomSceneManager : MonoBehaviour {
 	/// <summary> Complete the load of a èrevious preloaded scene </summary>
 	public	static	IEnumerator	CompleteSceneAsyncLoad( PreloadSceneData preloadSceneData )
 	{
-		IEnumerator enumerator = m_Instance.CompleteSceneAsyncLoadCO( preloadSceneData );
+		IEnumerator enumerator = Instance.CompleteSceneAsyncLoadCO( preloadSceneData );
 		CoroutinesManager.Start( enumerator, "CustomSceneManager::CompleteSceneAsyncLoad: Completing load of " + preloadSceneData.eScene );
 		return enumerator;
 	}
@@ -263,7 +234,7 @@ public class CustomSceneManager : MonoBehaviour {
 		if ( HasGotValidLoadScenData( loadSceneData ) == false )
 			return null;
 
-		IEnumerator enumerator = m_Instance.LoadSceneAsyncCO( loadSceneData, loadCondition );
+		IEnumerator enumerator = Instance.LoadSceneAsyncCO( loadSceneData, loadCondition );
 		CoroutinesManager.Start( enumerator, "CustomSceneManager::LoadSceneAsync: Loading " + loadSceneData.eScene );
 		return enumerator;
 	}
@@ -277,8 +248,7 @@ public class CustomSceneManager : MonoBehaviour {
 		if ( scene.isLoaded == false )
 			return null;
 
-	//	Debug.Log( "Unloading Scene " + scene.name );
-		IEnumerator enumerator = m_Instance.UnLoadSceneAsyncCO( scene );
+		IEnumerator enumerator = Instance.UnLoadSceneAsyncCO( scene );
 		CoroutinesManager.Start( enumerator, "CustomSceneManager::UnLoadSceneAsync:Async unload of " + scene.name );
 		return enumerator;
 	}
@@ -375,18 +345,16 @@ public class CustomSceneManager : MonoBehaviour {
 		// Disable all input categories
 		GlobalManager.InputMgr.DisableCategory( InputCategory.ALL );
 
-		// Enable Loading Menu
-//		UIManager.Instance.GoToMenu( Loading );
+		// Enable Loading UI
 		Loading.Show();
 		
-		// Load Loading Scene syncronously
+		// Load Synchronously Loading Scene syncronously
 		LoadSceneData loadingLoadSceneData = new LoadSceneData()
 		{
-			eScene			= SceneEnumeration.LOADING,
+			eScene = SceneEnumeration.LOADING,
 		};
 		LoadSceneSync( loadingLoadSceneData );
 		
-
 		yield return null;
 
 		// Set global state as ChangingScene state
@@ -407,40 +375,49 @@ public class CustomSceneManager : MonoBehaviour {
 			yield return null;
 		}
 
+		// Collect Static Receivers
 		List<System.Type> types = ReflectionHelper.FindInerithed<IOnSceneLoadEvents>();
 
-		ReflectionHelper.CallMethodOnTypes( types, "OnBeforeSceneActivation", IsBaseMethod: false );
+		// Send message "OnBeforeSceneActivation"
+		{
+			// Call all receivers
+			ReflectionHelper.CallMethodOnTypes( types, "OnBeforeSceneActivation", IsBaseMethod: false );
 
+			// Call on every registered
+//			Delegates[SceneLoadStep.BEFORE_SCENE_ACTIOVATION].ForEach( d => d(loadSceneData.eScene) );
+		}
+
+		// Wait for load condition if defined
 		Loading.SetProgress( 0.60f );
 		if ( loadCondition.IsNotNull() )
 		{
 			yield return loadCondition.WaitForPendingOperations();
 		}
 
-//		Scene scene  = SceneManager.GetSceneByBuildIndex( (int)loadSceneData.eScene );
-
-//		GameObject[] roots = scene.GetRootGameObjects();
-
-//		System.Array.ForEach( roots, ( GameObject go ) => {
-//			go.BroadcastMessage( "OnBeforeSceneActivation", SendMessageOptions.DontRequireReceiver );
-//		} );
-
-		// Wait for every launched coroutine in awake of scripts
+		// Wait for every launched coroutine
 		yield return CoroutinesManager.WaitPendingCoroutines();
 
+		// Setting the time scale to Zero because in order to freeze everything but continue to receive unity messages
 		Time.timeScale = 0F;
 
+		// Proceed with scene activation and Awake Calls
 		asyncOperation.allowSceneActivation = true;
 
+		// Call all receivers
 		ReflectionHelper.CallMethodOnTypes( types, "OnAfterSceneActivation", IsBaseMethod: false );
 
-		Loading.SetProgress( 0.70f );
+		// Call on every registered
+//		Delegates[SceneLoadStep.AFTER_SCENE_ACTIVATION].ForEach( d => d(loadSceneData.eScene) );
 
 		// Wait for start completion
+		Loading.SetProgress( 0.70f );
 		while ( asyncOperation.isDone == false )
 		{
 			yield return null;
 		}
+
+		// Wait for every launched coroutine
+		yield return CoroutinesManager.WaitPendingCoroutines();
 		
 		// Pre load callback
 		Loading.SetProgress( 0.80f );
@@ -465,9 +442,15 @@ public class CustomSceneManager : MonoBehaviour {
 		// Wait for every coroutines started from load
 		yield return CoroutinesManager.WaitPendingCoroutines();
 
+		// Call all receivers
 		ReflectionHelper.CallMethodOnTypes( types, "OnAfterLoadedData", IsBaseMethod: false );
 
+		// Call on every registered
+//		Delegates[SceneLoadStep.AFTER_SAVE_LOAD].ForEach( d => d(loadSceneData.eScene) );
+
+		// Unload unused asset in order to free same memory
 		yield return Resources.UnloadUnusedAssets();
+
 		System.GC.Collect();
 
 		// Post load callback
@@ -491,7 +474,7 @@ public class CustomSceneManager : MonoBehaviour {
 		if ( CameraControl.Instance.IsNotNull() )
 			CameraControl.Instance.CanParseInput = true;
 
-		// Wait for every launched coroutine in awake of scripts
+		// Wait for every launched coroutine
 		yield return CoroutinesManager.WaitPendingCoroutines();
 
 //		yield return new WaitForSecondsRealtime( 3.00f );
@@ -523,21 +506,17 @@ public class CustomSceneManager : MonoBehaviour {
 
 
 	// 
-	public	static	void	RegisterOnLoad( UnityAction<Scene, LoadSceneMode> activeSceneChanged )
+	public	static	void	RegisterOnLoad( System.Action<SceneEnumeration> onSceneLoad, SceneLoadStep step )
 	{
-		SceneManager.sceneLoaded += activeSceneChanged;
-
-		Delegates.Add( activeSceneChanged );
+		Delegates[step].Add( onSceneLoad );
 	}
 
 
 
 	//
-	public	static	void	UnregisterOnLoad( UnityAction<Scene, LoadSceneMode> activeSceneChanged )
+	public	static	void	UnregisterOnLoad( System.Action<SceneEnumeration> onSceneLoad, SceneLoadStep step )
 	{
-		SceneManager.sceneLoaded -= activeSceneChanged;
-
-		Delegates.Remove( activeSceneChanged );
+		Delegates[step].Remove( onSceneLoad );
 	}
 	
 }
