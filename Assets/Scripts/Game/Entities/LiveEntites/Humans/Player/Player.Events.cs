@@ -4,6 +4,9 @@ using UnityEngine;
 public partial class Player {
 
 	// The ammount of hit effect to show
+
+	[Header("Player Events")]
+	[SerializeField]
 	private		float				m_DamageEffect					= 0f;
 
 
@@ -238,7 +241,7 @@ public partial class Player {
 		{
 			Vector3 position  = CameraControl.Instance.Transform.position;
 			Vector3 direction = CameraControl.Instance.Transform.forward;
-			Physics.Raycast( position, direction, out m_RaycastHit, MAX_INTERACTION_DISTANCE, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore );
+			m_HasRaycasthit = Physics.Raycast( position, direction, out m_RaycastHit, MAX_INTERACTION_DISTANCE, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore );
 		}
 
 #endregion

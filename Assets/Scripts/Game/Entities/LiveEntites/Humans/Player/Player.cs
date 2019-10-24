@@ -40,6 +40,8 @@ public partial class Player : Human {
 	private		Vector3				m_Move							= Vector3.zero;
 
 	private		RaycastHit			m_RaycastHit;
+	[SerializeField]
+	private		bool				m_HasRaycasthit					= false;
 
 	private		Collider			m_PlayerNearAreaTrigger			= null;
 	public		Collider			PlayerNearAreaTrigger
@@ -341,7 +343,7 @@ public partial class Player : Human {
 
 	private	bool	InteractionPredicate()
 	{
-		return ( m_IsDodging == false && m_GrabbedObject == null && m_RaycastHit.distance <= m_UseDistance && m_Interactable != null && m_Interactable.CanInteract );
+		return ( m_IsDodging == false && m_GrabbedObject == null && m_HasRaycasthit && m_RaycastHit.distance <= m_UseDistance && m_Interactable != null && m_Interactable.CanInteract );
 	}
 
 
@@ -364,7 +366,7 @@ public partial class Player : Human {
 
 	private	bool	GrabPredicate()
 	{
-		return m_RaycastHit.distance <= m_UseDistance;// m_CanGrabObjects == true;
+		return m_HasRaycasthit && m_RaycastHit.distance <= m_UseDistance;// m_CanGrabObjects == true;
 	}
 
 	private	void	GrabAction()
@@ -372,29 +374,30 @@ public partial class Player : Human {
 		if ( m_GrabbedObject != null )
 		{
 			DropEntityDragged();
+			return;
 		}
-		else if ( m_RaycastHit.transform != null )
+		
+
+		// GRAB ACTION
+		Grabbable grabbable = null;
+		bool m_bHasComponent = Utils.Base.SearchComponent( m_RaycastHit.transform.gameObject, ref grabbable, SearchContext.LOCAL );
+		if ( m_bHasComponent && grabbable.CanInteract )
 		{
-			// GRAB ACTION
-			Grabbable grabbable = null;
-			bool m_bHasComponent = Utils.Base.SearchComponent( m_RaycastHit.transform.gameObject, ref grabbable, SearchContext.LOCAL );
-			if ( m_bHasComponent && grabbable.CanInteract )
-			{
-				grabbable.OnInteraction();
-				m_GrabbedObject = grabbable;
-				m_GrabPoint.transform.localPosition = Vector3.forward * Vector3.Distance( transform.position, grabbable.transform.position );
+			grabbable.OnInteraction();
+			m_GrabbedObject = grabbable;
+			m_GrabPoint.transform.localPosition = Vector3.forward * Vector3.Distance( transform.position, grabbable.transform.position );
 
-				Rigidbody rb				= grabbable.RigidBody;
-				m_GrabbedObjectMass			= rb.mass;			rb.mass				= 1f;
-				m_GrabbedObjectUseGravity	= rb.useGravity;	rb.useGravity		= false;
-				rb.velocity					= Vector3.zero;		rb.interpolation	= RigidbodyInterpolation.Interpolate;
-				m_CanGrabObjects			= false;
+			Rigidbody rb				= grabbable.RigidBody;
+			m_GrabbedObjectMass			= rb.mass;			rb.mass				= 1f;
+			m_GrabbedObjectUseGravity	= rb.useGravity;	rb.useGravity		= false;
+			rb.velocity					= Vector3.zero;		rb.interpolation	= RigidbodyInterpolation.Interpolate;
+			m_CanGrabObjects			= false;
 
-				Physics.IgnoreCollision( m_PhysicCollider, grabbable.Collider, ignore: true );
+			Physics.IgnoreCollision( m_PhysicCollider, grabbable.Collider, ignore: true );
 
-				grabbable.gameObject.AddComponent<OnHitEventGrabbedHandler>();
-			}
+			grabbable.gameObject.AddComponent<OnHitEventGrabbedHandler>();
 		}
+		
 	}
 
 
