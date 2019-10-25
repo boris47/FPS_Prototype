@@ -25,7 +25,8 @@ public class CustomFileLogHandler : ILogHandler
     private System.IO.StreamWriter m_StreamWriter = null;
 
 	public static ILogHandler m_DefaultLogHandler { get; private set; }
- 
+
+	private System.Globalization.CultureInfo cultureInfo = (System.Globalization.CultureInfo)System.Globalization.CultureInfo.InvariantCulture.Clone();
 
 	//////////////////////////////////////////////////////////////////////////
 	public CustomFileLogHandler()
@@ -38,12 +39,14 @@ public class CustomFileLogHandler : ILogHandler
 			m_FileStream = new System.IO.FileStream( filePath, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Write );
 			m_StreamWriter = new System.IO.StreamWriter( m_FileStream );
 		}
+
+		cultureInfo.NumberFormat.NumberDecimalSeparator = ".";
     }
 
 	//////////////////////////////////////////////////////////////////////////
     public void LogFormat( LogType logType, Object context, string format, params object[] args )
     {
-        m_StreamWriter.WriteLine( System.String.Format( format, args ) );
+        m_StreamWriter.WriteLine( "[" + Time.time.ToString("0.000", cultureInfo) + "]" +  System.String.Format( format, args ) );
         m_DefaultLogHandler.LogFormat( logType, context, format, args );
     }
 
@@ -51,7 +54,7 @@ public class CustomFileLogHandler : ILogHandler
 	//////////////////////////////////////////////////////////////////////////
     public void LogException( System.Exception exception, Object context )
     {
-		m_StreamWriter.WriteLine( exception.Message );
+		m_StreamWriter.WriteLine( "[" + Time.time.ToString("0.000", cultureInfo) + "]" + exception.Message );
 		m_StreamWriter.WriteLine( exception.StackTrace );
         m_StreamWriter.Flush();
         m_DefaultLogHandler.LogException( exception, context );

@@ -38,6 +38,14 @@ public class Build_Batch
 		if ( GetBuildInfo( buildSettingsSectionName, ref folderName, ref executableFilename, ref scenesToBuild ) == false )
 			return;
 
+		PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.IL2CPP);
+		PlayerSettings.SetIl2CppCompilerConfiguration(BuildTargetGroup.Standalone, Il2CppCompilerConfiguration.Debug);
+		PlayerSettings.gcIncremental = true;
+		PlayerSettings.graphicsJobs = true;
+		PlayerSettings.MTRendering = true;
+		PlayerSettings.usePlayerLog = true;
+		PlayerSettings.actionOnDotNetUnhandledException = ActionOnDotNetUnhandledException.Crash;
+
 		// Build Options
 		const BuildOptions buildOptions =	BuildOptions.Development |						// Build a development version of the player.
 											BuildOptions.ForceEnableAssertions |			// Include assertions in the build. By default, the assertions are only included in development builds.
@@ -71,7 +79,7 @@ public class Build_Batch
 			return;
 
 		PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.IL2CPP);
-		PlayerSettings.SetIl2CppCompilerConfiguration(BuildTargetGroup.Standalone, Il2CppCompilerConfiguration.Debug);
+		PlayerSettings.SetIl2CppCompilerConfiguration(BuildTargetGroup.Standalone, Il2CppCompilerConfiguration.Release);
 
 		// Build Options
 		const BuildOptions buildOptions =	BuildOptions.StrictMode |						// Do not allow the build to succeed if any errors are reporting during it.
