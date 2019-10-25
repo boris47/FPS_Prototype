@@ -13,6 +13,7 @@ public class Loading : MonoBehaviour {
 
 	private		Slider				m_LoadingBar						= null;
 	private		Text				m_LoadingLevelNameText				= null;
+	private		Text				m_LoadingSubTask					= null;
 	private		float				m_CurrentProgressValue				= 0.0f;
 
 	private		bool				m_IsInitializedInternal				= false;
@@ -55,6 +56,9 @@ public class Loading : MonoBehaviour {
 
 		m_IsInitializedInternal = transform.SearchComponent( ref m_LoadingBar, SearchContext.CHILDREN );
 		m_IsInitializedInternal &= transform.SearchComponent( ref m_LoadingLevelNameText, SearchContext.CHILDREN, c => c.name == "LoadingSceneNameText" );
+		m_IsInitializedInternal &= transform.SearchComponent( ref m_LoadingSubTask, SearchContext.CHILDREN, c => c.name == "LoadingSubTask" );
+
+		// LoadingSubTask
 	}
 
 
@@ -101,6 +105,14 @@ public class Loading : MonoBehaviour {
 	public	static	void	SetLoadingSceneName( SceneEnumeration scene )
 	{
 		m_Instance.m_LoadingLevelNameText.text = "Loading: " + scene.ToString();
+	}
+
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public	static	void	SetSubTask( string subTaskName )
+	{
+		m_Instance.m_LoadingSubTask.text = subTaskName;
 	}
 
 

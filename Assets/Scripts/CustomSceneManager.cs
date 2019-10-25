@@ -348,6 +348,8 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 		// Enable Loading UI
 		Loading.Show();
 		
+		Loading.SetSubTask( "Loading 'Loading' Level" );
+
 		// Load Synchronously Loading Scene syncronously
 		LoadSceneData loadingLoadSceneData = new LoadSceneData()
 		{
@@ -360,6 +362,8 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 		// Set global state as ChangingScene state
 		GlobalManager.bIsChangingScene = true;
 		
+		Loading.SetSubTask( "Start async Loading" );
+
 		// Start async load of scene
 		AsyncOperation asyncOperation = SceneManager.LoadSceneAsync( (int)loadSceneData.eScene, LoadSceneMode.Single );
 
@@ -380,12 +384,16 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 
 		// Send message "OnBeforeSceneActivation"
 		{
+			Loading.SetSubTask( "Calling 'OnBeforeSceneActivation' on receivers" );
+
 			// Call all receivers
 			ReflectionHelper.CallMethodOnTypes( types, "OnBeforeSceneActivation", IsBaseMethod: false );
 
 			// Call on every registered
 //			Delegates[SceneLoadStep.BEFORE_SCENE_ACTIOVATION].ForEach( d => d(loadSceneData.eScene) );
 		}
+
+		Loading.SetSubTask( "Waiting for loading condition" );
 
 		// Wait for load condition if defined
 		Loading.SetProgress( 0.60f );
@@ -394,14 +402,20 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 			yield return loadCondition.WaitForPendingOperations();
 		}
 
+		Loading.SetSubTask( "1. Waiting for pending coroutines" );
+
 		// Wait for every launched coroutine
 		yield return CoroutinesManager.WaitPendingCoroutines();
 
 		// Setting the time scale to Zero because in order to freeze everything but continue to receive unity messages
 		Time.timeScale = 0F;
 
+		Loading.SetSubTask( "Activation of the scene" );
+
 		// Proceed with scene activation and Awake Calls
 		asyncOperation.allowSceneActivation = true;
+
+		Loading.SetSubTask( "Calling 'OnAfterSceneActivation' on receivers" );
 
 		// Call all receivers
 		ReflectionHelper.CallMethodOnTypes( types, "OnAfterSceneActivation", IsBaseMethod: false );
@@ -416,17 +430,25 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 			yield return null;
 		}
 
+		Loading.SetSubTask( "2. Waiting for pending coroutines" );
+
 		// Wait for every launched coroutine
 		yield return CoroutinesManager.WaitPendingCoroutines();
 		
+		Loading.SetSubTask( "Calling 'pOnPreLoadCompleted' callback" );
+
 		// Pre load callback
 		Loading.SetProgress( 0.80f );
 		loadSceneData.pOnPreLoadCompleted();
 
 		yield return null;
 
+		Loading.SetSubTask( "3. Waiting for pending coroutines" );
+
 		// Wait for every launched coroutine in awake of scripts
 		yield return CoroutinesManager.WaitPendingCoroutines();
+
+		Loading.SetSubTask( "Calling 'SoundManager.OnSceneLoaded'" );
 
 		SoundManager.Instance.OnSceneLoaded();
 		
@@ -435,12 +457,18 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 		// LOAD DATA
 		if ( loadSceneData.bMustLoadSave == true )
 		{
+			Loading.SetSubTask( "Going to load save " + loadSceneData.sSaveToLoad );
 			Loading.SetProgress( 0.95f );
 			GameManager.StreamEvents.Load( loadSceneData.sSaveToLoad );
 		}
 
+		Loading.SetSubTask( "4. Waiting for pending coroutines" );
+
 		// Wait for every coroutines started from load
 		yield return CoroutinesManager.WaitPendingCoroutines();
+
+
+		Loading.SetSubTask( "Calling 'OnAfterLoadedData' on receivers" );
 
 		// Call all receivers
 		ReflectionHelper.CallMethodOnTypes( types, "OnAfterLoadedData", IsBaseMethod: false );
@@ -448,16 +476,24 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 		// Call on every registered
 //		Delegates[SceneLoadStep.AFTER_SAVE_LOAD].ForEach( d => d(loadSceneData.eScene) );
 
+		Loading.SetSubTask( "Waitning for the unload of unused assets" );
+
 		// Unload unused asset in order to free same memory
 		yield return Resources.UnloadUnusedAssets();
 
+		Loading.SetSubTask( "GC..." );
+
 		System.GC.Collect();
+
+		Loading.SetSubTask( "Calling 'pOnLoadCompleted' callback" );
 
 		// Post load callback
 		Loading.SetProgress( 0.95f );
 		loadSceneData.pOnLoadCompleted();
 
 		yield return null;
+
+		Loading.SetSubTask( "Enabling components" );
 
 		GlobalManager.bIsLoadingScene = false;
 		Loading.SetProgress( 1.00f );
@@ -485,6 +521,8 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 		UIManager.Instance.EnableMenuByScene( loadSceneData.eScene );
 
 		yield return null;
+
+		Loading.SetSubTask( "Completed" );
 
 		Time.timeScale = 1.0F;
 	}
