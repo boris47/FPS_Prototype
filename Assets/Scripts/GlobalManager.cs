@@ -75,7 +75,7 @@ public class CustomFileLogHandler : ILogHandler
 
 
 
-public class GlobalManager : MonoBehaviour, IOnSceneLoadEvents {
+public class GlobalManager : MonoBehaviour {
 
 	private static			CustomFileLogHandler m_LoggerInstance	= null;
 

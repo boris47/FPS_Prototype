@@ -57,11 +57,11 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 		{ SceneLoadStep.AFTER_SAVE_LOAD, new List<System.Action<SceneEnumeration>>() }
 	};
 
-//	private	static	List< System.Action<KeyValuePair< SceneLoadStep, Scene>> > Delegates = new List<System.Action<KeyValuePair<SceneLoadStep, Scene>>>();
-	
+	//	private	static	List< System.Action<KeyValuePair< SceneLoadStep, Scene>> > Delegates = new List<System.Action<KeyValuePair<SceneLoadStep, Scene>>>();
+
 
 	/////////////////////////////////////////////////////////////////
-	protected override void OnBeforeSceneLoad()
+	protected override void OnBeforeSplashScreen()
 	{
 		Delegates[SceneLoadStep.BEFORE_SCENE_ACTIOVATION].Clear();
 		Delegates[SceneLoadStep.AFTER_SCENE_ACTIVATION].Clear();
@@ -379,18 +379,12 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 			yield return null;
 		}
 
-		// Collect Static Receivers
-		List<System.Type> types = ReflectionHelper.FindInerithed<IOnSceneLoadEvents>();
-
 		// Send message "OnBeforeSceneActivation"
 		{
 			Loading.SetSubTask( "Calling 'OnBeforeSceneActivation' on receivers" );
 
-			// Call all receivers
-			ReflectionHelper.CallMethodOnTypes( types, "OnBeforeSceneActivation", IsBaseMethod: false );
-
 			// Call on every registered
-//			Delegates[SceneLoadStep.BEFORE_SCENE_ACTIOVATION].ForEach( d => d(loadSceneData.eScene) );
+			Delegates[SceneLoadStep.BEFORE_SCENE_ACTIOVATION].ForEach( d => d(loadSceneData.eScene) );
 		}
 
 		Loading.SetSubTask( "Waiting for loading condition" );
@@ -417,11 +411,8 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 
 		Loading.SetSubTask( "Calling 'OnAfterSceneActivation' on receivers" );
 
-		// Call all receivers
-		ReflectionHelper.CallMethodOnTypes( types, "OnAfterSceneActivation", IsBaseMethod: false );
-
 		// Call on every registered
-//		Delegates[SceneLoadStep.AFTER_SCENE_ACTIVATION].ForEach( d => d(loadSceneData.eScene) );
+		Delegates[SceneLoadStep.AFTER_SCENE_ACTIVATION].ForEach( d => d(loadSceneData.eScene) );
 
 		// Wait for start completion
 		Loading.SetProgress( 0.70f );
@@ -470,16 +461,13 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 
 		Loading.SetSubTask( "Calling 'OnAfterLoadedData' on receivers" );
 
-		// Call all receivers
-		ReflectionHelper.CallMethodOnTypes( types, "OnAfterLoadedData", IsBaseMethod: false );
-
 		// Call on every registered
-//		Delegates[SceneLoadStep.AFTER_SAVE_LOAD].ForEach( d => d(loadSceneData.eScene) );
+		Delegates[SceneLoadStep.AFTER_SAVE_LOAD].ForEach( d => d(loadSceneData.eScene) );
 
 		Loading.SetSubTask( "Waitning for the unload of unused assets" );
 
 		// Unload unused asset in order to free same memory
-		yield return Resources.UnloadUnusedAssets();
+//		yield return Resources.UnloadUnusedAssets();
 
 		Loading.SetSubTask( "GC..." );
 
