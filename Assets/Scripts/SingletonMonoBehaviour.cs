@@ -77,9 +77,9 @@ public abstract class SingletonMonoBehaviour<T> : MonoBehaviour, SingletonInitia
 		get; private set;
 	}
 
-	
+
 	//////////////////////////////////////////////////////////////////////////
-	private static void BeforeSceneLoad()
+	private	static	void	Initialize()
 	{
 		if ( m_IsInitialized == false )
 		{
@@ -98,19 +98,77 @@ public abstract class SingletonMonoBehaviour<T> : MonoBehaviour, SingletonInitia
 			{
 				ShowDebugInfo = debugInfosSection.AsBool( typeof(T).Name, false );
 			}
-
-			m_Instance.OnBeforeSceneLoad();
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected virtual void OnBeforeSceneLoad()
-	{ }
+	// Called by unity in type SingletonInitializer
+	private	static	void	SubsystemRegistration()
+	{
+		Initialize();
+
+		m_Instance.OnSubsystemRegistration();
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected virtual void OnDestroy()
+	// Called by unity in type SingletonInitializer
+	private	static	void	AfterAssembliesLoaded()
+	{
+		Initialize();
+
+		m_Instance.OnAfterAssembliesLoaded();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Called by unity in type SingletonInitializer
+	private	static	void	BeforeSplashScreen()
+	{
+		Initialize();
+
+		m_Instance.OnBeforeSplashScreen();
+	}
+
+	
+	//////////////////////////////////////////////////////////////////////////
+	// Called by unity in type SingletonInitializer
+	private	static	void	BeforeSceneLoad()
+	{
+		Initialize();
+
+		m_Instance.OnBeforeSceneLoad();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////
+
+		
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> Callback used for registration of subsystems </summary>
+	protected virtual	void	OnSubsystemRegistration() {}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> Callback when all assemblies are loaded and preloaded assets are initialized. </summary>
+	protected virtual	void	OnAfterAssembliesLoaded() {}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> Immediately before the splash screen is shown. </summary>
+	protected virtual	void	OnBeforeSplashScreen() { }
+
+
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> Before Scene is loaded. </summary>
+	protected virtual	void	OnBeforeSceneLoad() { }
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected virtual	void	OnDestroy()
 	{
 		if ( m_Instance != this )
 			return;
