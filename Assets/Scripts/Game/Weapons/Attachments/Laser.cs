@@ -112,7 +112,7 @@ public class Laser : WeaponAttachment, ILaser {
 
 		m_RayCastHit = m_DefaultRaycastHit;
 
-		m_HasHit = Physics.Raycast( transform.position, transform.forward, out m_RayCastHit, m_LaserLength, Utils.Base.LayersAllButOne( "Bullets" ) );
+		m_HasHit = Physics.Raycast( transform.position, transform.forward, out m_RayCastHit, m_LaserLength, Utils.LayersHelper.Layers_AllButOne( "Bullets" ) );
 
 		float currentLength = HasHit ? m_RayCastHit.distance : m_LaserLength;
 

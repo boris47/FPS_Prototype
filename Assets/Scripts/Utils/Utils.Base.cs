@@ -26,6 +26,7 @@ namespace Utils {
 
 	public static class FlagsHelper
 	{
+		////////////////////////////////////////////////
 		public static bool IsSet<T>(T flags, T flag)
 		{
 			uint flagsValue = (uint)(object)flags;
@@ -34,6 +35,7 @@ namespace Utils {
 			return (flagsValue & flagValue) != 0;
 		}
 
+		////////////////////////////////////////////////
 		public static void Set<T>(ref T flags, T flag)
 		{
 			uint flagsValue = (uint)(object)flags;
@@ -42,12 +44,58 @@ namespace Utils {
 			flags = (T)(object)(flagsValue | flagValue);
 		}
 
+		////////////////////////////////////////////////
 		public static void Unset<T>(ref T flags, T flag)
 		{
 			uint flagsValue = (uint)(object)flags;
 			uint flagValue = (uint)(object)flag;
 
 			flags = (T)(object)(flagsValue & (~flagValue));
+		}
+	}
+
+	public	static	class LayersHelper {
+
+		////////////////////////////////////////////////
+		public	static	int		Layers_AllButOne( string layerName )
+		{
+			int layer = LayerMask.NameToLayer( layerName );
+
+			int layerMask = 1 << layer;
+
+			return ~layerMask;
+		}
+
+		////////////////////////////////////////////////
+		public	static	int		Layers_OneOnly( string layerName )
+		{
+			int layer = LayerMask.NameToLayer( layerName );
+
+			int layerMask = 1 << layer;
+
+			return layerMask;
+		}
+
+		////////////////////////////////////////////////
+		public	static LayerMask	Layers_InclusiveMask( int[] layers )
+		{
+			int m = 0;
+			for (int l=0; l<layers.Length; l++)
+			{
+				m |= (1<<layers[l]);
+			}
+			return m;
+		}
+ 
+		////////////////////////////////////////////////
+		public	static LayerMask	 Layers_ExclusiveMask( int[] layers )
+		{
+			int m = 0;
+			for (int l=0; l<layers.Length; l++)
+			{
+				m |= (1<<layers[l]);
+			}
+			return ~m;
 		}
 	}
 
@@ -98,37 +146,7 @@ namespace Utils {
 
 
 		////////////////////////////////////////////////
-		public	static	int		LayersAllButOne( string layerName )
-		{
-			int layer = LayerMask.NameToLayer( layerName );
-
-			int layerMask = 1 << layer;
-
-			return ~layerMask;
-		}
-
-
-		////////////////////////////////////////////////
-		public	static	int		LayersOneOnly( string layerName )
-		{
-			int layer = LayerMask.NameToLayer( layerName );
-
-			int layerMask = 1 << layer;
-
-			return layerMask;
-		}
-
-
-		////////////////////////////////////////////////
-		public	static	bool	Choose<T>( T a, T b, ref T choosen ) where T : Object
-		{
-			choosen = a ?? b;
-			return choosen != null;
-		}
-
-
-		////////////////////////////////////////////////
-		private	static	void	CloneComponent( ref Component component, ref GameObject destinationObj, bool copyProperties = false )
+		private	static	void	CloneComponent( Component component, ref GameObject destinationObj, bool copyProperties = false )
 		{
 			global::System.Type componentType = component.GetType();
 		
@@ -166,7 +184,7 @@ namespace Utils {
 			for (int i = 0; i < copyModelComponents.Length; i++)
 			{
 				Component copyModelComponent = copyModelComponents[ i ];
-				CloneComponent( ref copyModelComponent, ref destinationObj, copyProperties );
+				CloneComponent( copyModelComponent, ref destinationObj, copyProperties );
 			}
 
 			// MESH FILTER MESH

@@ -111,7 +111,7 @@ public abstract class BulletGeneric : Bullet, IBulletGeneric {
 	protected	virtual		void	ShootInstant( Vector3 position, Vector3 direction, float maxDistance = Mathf.Infinity )
 	{
 		RaycastHit hit = default( RaycastHit );
-		bool bHasHit = Physics.Raycast( position, direction, out hit, Mathf.Infinity, Utils.Base.LayersAllButOne( "Bullets" ) );
+		bool bHasHit = Physics.Raycast( position, direction, out hit, Mathf.Infinity, Utils.LayersHelper.Layers_AllButOne( "Bullets" ) );
 		if ( bHasHit )
 		{
 			bool bIsBullet = hit.transform.HasComponent<Bullet>();

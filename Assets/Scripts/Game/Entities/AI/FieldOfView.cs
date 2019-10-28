@@ -91,7 +91,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		m_ViewTriggerCollider.isTrigger = true;
 		m_ViewTriggerCollider.radius = m_ViewDistance;
 
-		m_LayerMask = Utils.Base.LayersAllButOne( "Shield" );// 1 << LayerMask.NameToLayer("Entities");
+		m_LayerMask = Utils.LayersHelper.Layers_AllButOne( "Shield" );// 1 << LayerMask.NameToLayer("Entities");
 	}
 
 
@@ -173,6 +173,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		// TARGET LOST
 		if ( m_CurrentTargetInfo.HasTarget == true )
 		{
+			m_CurrentTargetInfo.Type = TargetInfoType.LOST;
 			m_OnTargetLost ( m_CurrentTargetInfo );
 		}
 		m_CurrentTargetInfo.Reset();
@@ -252,7 +253,8 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		// SET NEW TARGET
 		if ( m_CurrentTargetInfo.HasTarget == false )
 		{
-			m_CurrentTargetInfo.HasTarget = true;			
+			m_CurrentTargetInfo.HasTarget = true;
+			m_CurrentTargetInfo.Type = TargetInfoType.ACQUIRED;
 			m_OnTargetAquired( m_CurrentTargetInfo );
 		}
 		else
@@ -260,6 +262,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		{
 			if ( previousTarget != null && previousTarget.ID != currentTarget.ID )
 			{
+				m_CurrentTargetInfo.Type = TargetInfoType.LOST;
 				m_OnTargetChanged( m_CurrentTargetInfo );
 			}
 		}
@@ -351,10 +354,17 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 }
 
 
+public enum TargetInfoType {
+
+	NONE, ACQUIRED, CHANGED, LOST
+
+}
+
 [System.Serializable]
 public class TargetInfo {
 	public	bool	HasTarget;
 	public	IEntity	CurrentTarget;
+	public	TargetInfoType Type;
 	public	float	TargetSqrDistance;
 
 	public	void	Update( TargetInfo Infos )
@@ -366,6 +376,7 @@ public class TargetInfo {
 
 	public	void	Reset()
 	{
+		Type				= TargetInfoType.NONE;
 		HasTarget			= false;
 		CurrentTarget		= null;
 		TargetSqrDistance	= 0.0f;
