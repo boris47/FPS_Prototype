@@ -180,7 +180,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 
 		public		void	AssigPendingOperations( IEnumerator enumerator )
 		{
-
+			pCoroutineToWait = enumerator;
 		}
 
 		public IEnumerator WaitForPendingOperations()
