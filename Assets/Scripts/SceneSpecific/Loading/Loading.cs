@@ -57,8 +57,6 @@ public class Loading : MonoBehaviour {
 		m_IsInitializedInternal = transform.SearchComponent( ref m_LoadingBar, SearchContext.CHILDREN );
 		m_IsInitializedInternal &= transform.SearchComponent( ref m_LoadingLevelNameText, SearchContext.CHILDREN, c => c.name == "LoadingSceneNameText" );
 		m_IsInitializedInternal &= transform.SearchComponent( ref m_LoadingSubTask, SearchContext.CHILDREN, c => c.name == "LoadingSubTask" );
-
-		// LoadingSubTask
 	}
 
 
@@ -120,8 +118,7 @@ public class Loading : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	public	static	void	SetProgress( float CurrentProgress )
 	{
-//		m_LoadingBar.value = CurrentProgress;
-		m_Instance.m_CurrentProgressValue = CurrentProgress;
+		m_Instance.m_CurrentProgressValue = Mathf.Clamp01( CurrentProgress );
 	}
 
 

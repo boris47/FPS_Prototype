@@ -218,7 +218,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 
 
 
-	/// <summary> Complete the load of a èrevious preloaded scene </summary>
+	/// <summary> Complete the load of a previous preloaded scene </summary>
 	public	static	IEnumerator	CompleteSceneAsyncLoad( PreloadSceneData preloadSceneData )
 	{
 		IEnumerator enumerator = Instance.CompleteSceneAsyncLoadCO( preloadSceneData );
@@ -334,21 +334,18 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 	/// <summary> Internal coroutine that load a scene asynchronously </summary>
 	private	IEnumerator	LoadSceneAsyncCO( LoadSceneData loadSceneData, LoadCondition loadCondition = null )
 	{
-		// Wait for every launched coroutine in awake of scripts
-		yield return CoroutinesManager.WaitPendingCoroutines();
-
-		Loading.SetLoadingSceneName( loadSceneData.eScene );
-		Loading.SetProgress( 0.0f );
-
-		GlobalManager.bIsLoadingScene = true;
-
 		// Disable all input categories
 		GlobalManager.InputMgr.DisableCategory( InputCategory.ALL );
 
+		// Wait for every coroutine
+		yield return CoroutinesManager.WaitPendingCoroutines();
+
+		GlobalManager.bIsLoadingScene = true;
+
 		// Enable Loading UI
-		Loading.Show();
-		
+		Loading.SetLoadingSceneName( loadSceneData.eScene );
 		Loading.SetSubTask( "Loading 'Loading' Level" );
+		Loading.Show();
 
 		// Load Synchronously Loading Scene syncronously
 		LoadSceneData loadingLoadSceneData = new LoadSceneData()
@@ -368,7 +365,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 		AsyncOperation asyncOperation = SceneManager.LoadSceneAsync( (int)loadSceneData.eScene, LoadSceneMode.Single );
 
 		// We want this operation to impact performance less than possible
-//		asyncOperation.priority = 0;
+		asyncOperation.priority = 0;
 
 		asyncOperation.allowSceneActivation = false;
 
@@ -464,7 +461,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 		// Call on every registered
 		Delegates[SceneLoadStep.AFTER_SAVE_LOAD].ForEach( d => d(loadSceneData.eScene) );
 
-		Loading.SetSubTask( "Waitning for the unload of unused assets" );
+		Loading.SetSubTask( "Waiting for the unload of unused assets" );
 
 		// Unload unused asset in order to free same memory
 //		yield return Resources.UnloadUnusedAssets();

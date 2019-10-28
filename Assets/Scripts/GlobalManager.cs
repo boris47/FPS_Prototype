@@ -143,7 +143,8 @@ public class GlobalManager : MonoBehaviour {
 		Application.backgroundLoadingPriority = ThreadPriority.Low;
 		QualitySettings.asyncUploadBufferSize = 24; // MB
 
-		m_LoggerInstance = new CustomFileLogHandler();
+		if ( Application.isEditor == false )
+			m_LoggerInstance = new CustomFileLogHandler();
 	}
 
 
@@ -224,7 +225,8 @@ public class GlobalManager : MonoBehaviour {
 		m_IsInitialized = false;
 		m_Instance = null;
 
-		m_LoggerInstance.UnSetup();
+		if ( m_LoggerInstance != null )
+			m_LoggerInstance.UnSetup();
 	}
 
 
