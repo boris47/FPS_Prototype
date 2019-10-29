@@ -22,7 +22,7 @@ public	enum SceneEnumeration {
 
 [System.Serializable]
 public	enum SceneLoadStep {
-	BEFORE_SCENE_ACTIOVATION,
+	BEFORE_SCENE_ACTIVATION,
 	AFTER_SCENE_ACTIVATION,
 	AFTER_SAVE_LOAD
 }
@@ -37,7 +37,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 	}
 
 	public class LoadSceneData {
-		public	SceneEnumeration	eScene				= SceneEnumeration.NONE;
+		public	SceneEnumeration	eScene					= SceneEnumeration.NONE;
 		public	SceneEnumeration	iPrevSceneIdx			= SceneEnumeration.PREVIOUS;
 		public	bool				bMustLoadSave			= false;
 		public	string				sSaveToLoad				= "";
@@ -52,7 +52,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 
 	private	static	Dictionary< SceneLoadStep, List<System.Action<SceneEnumeration>> > Delegates = new Dictionary<SceneLoadStep, List<System.Action<SceneEnumeration>>>()
 	{
-		{ SceneLoadStep.BEFORE_SCENE_ACTIOVATION, new List<System.Action<SceneEnumeration>>() },
+		{ SceneLoadStep.BEFORE_SCENE_ACTIVATION, new List<System.Action<SceneEnumeration>>() },
 		{ SceneLoadStep.AFTER_SCENE_ACTIVATION, new List<System.Action<SceneEnumeration>>() },
 		{ SceneLoadStep.AFTER_SAVE_LOAD, new List<System.Action<SceneEnumeration>>() }
 	};
@@ -63,7 +63,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 	/////////////////////////////////////////////////////////////////
 	protected override void OnBeforeSplashScreen()
 	{
-		Delegates[SceneLoadStep.BEFORE_SCENE_ACTIOVATION].Clear();
+		Delegates[SceneLoadStep.BEFORE_SCENE_ACTIVATION].Clear();
 		Delegates[SceneLoadStep.AFTER_SCENE_ACTIVATION].Clear();
 		Delegates[SceneLoadStep.AFTER_SAVE_LOAD].Clear();
 
@@ -381,7 +381,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 			Loading.SetSubTask( "Calling 'OnBeforeSceneActivation' on receivers" );
 
 			// Call on every registered
-			Delegates[SceneLoadStep.BEFORE_SCENE_ACTIOVATION].ForEach( d => d(loadSceneData.eScene) );
+			Delegates[SceneLoadStep.BEFORE_SCENE_ACTIVATION].ForEach( d => d(loadSceneData.eScene) );
 		}
 
 		Loading.SetSubTask( "Waiting for loading condition" );
