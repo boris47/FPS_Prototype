@@ -61,12 +61,11 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 
 
 	/////////////////////////////////////////////////////////////////
-	protected override void OnBeforeSplashScreen()
+	protected override void OnBeforeSceneLoad()
 	{
 		Delegates[SceneLoadStep.BEFORE_SCENE_ACTIVATION].Clear();
 		Delegates[SceneLoadStep.AFTER_SCENE_ACTIVATION].Clear();
 		Delegates[SceneLoadStep.AFTER_SAVE_LOAD].Clear();
-
 	}
 
 
@@ -398,18 +397,29 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 		// Wait for every launched coroutine
 		yield return CoroutinesManager.WaitPendingCoroutines();
 
+		Physics.autoSimulation = false;
+		float currenFixedDeltaTime = Time.fixedDeltaTime;
+
 		// Setting the time scale to Zero because in order to freeze everything but continue to receive unity messages
 		Time.timeScale = 0F;
 
-		Loading.SetSubTask( "Activation of the scene" );
+		Loading.SetSubTask( "Fake activation of the scene" );
 
 		// Proceed with scene activation and Awake Calls
 		asyncOperation.allowSceneActivation = true;
-
-		Loading.SetSubTask( "Calling 'OnAfterSceneActivation' on receivers" );
+		asyncOperation.allowSceneActivation = false;
 
 		// Call on every registered
 		Delegates[SceneLoadStep.AFTER_SCENE_ACTIVATION].ForEach( d => d(loadSceneData.eScene) );
+
+		// Wait for every launched coroutine
+		yield return CoroutinesManager.WaitPendingCoroutines();
+
+		Loading.SetSubTask( "Real activation of the scene" );
+
+		asyncOperation.allowSceneActivation = true;
+
+		Loading.SetSubTask( "Calling 'OnAfterSceneActivation' on receivers" );
 
 		// Wait for start completion
 		Loading.SetProgress( 0.70f );
@@ -508,7 +518,9 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 		yield return null;
 
 		Loading.SetSubTask( "Completed" );
-
+		
+		Time.fixedDeltaTime = currenFixedDeltaTime;
+		Physics.autoSimulation = true;
 		Time.timeScale = 1.0F;
 	}
 
