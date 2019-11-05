@@ -208,7 +208,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		{
 			Entity target = m_AllTargets[ i ];
 
-			Vector3 targettablePosition = target.Interface.Transform.position;
+			Vector3 targettablePosition = target.AsInterface.Transform.position;
 			Vector3 direction = ( targettablePosition - currentViewPoint.position );
 
 			m_LookRotation.SetLookRotation( direction, currentViewPoint.up );
@@ -230,7 +230,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 				);
 				
 
-				if ( result == true && m_RaycastHit.collider.GetInstanceID() == target.Interface.PhysicCollider.GetInstanceID() )
+				if ( result == true && m_RaycastHit.collider.GetInstanceID() == target.AsInterface.PhysicCollider.GetInstanceID() )
 				{
 					m_ValidTargets[ currentCount ] = target;
 					currentCount ++;
@@ -286,7 +286,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	private void OnTriggerEnter( Collider other )
 	{
 		Entity entity = other.GetComponent<Entity>();
-		if ( entity.IsNotNull() && entity.IsAlive == true && entity.Interface.EntityType == m_EntityType )
+		if ( entity.IsNotNull() && entity.IsAlive == true && entity.AsInterface.EntityType == m_EntityType )
 		{
 			// This avoid to the current entity being added
 		//	if ( entity.transform.GetInstanceID() == transform.parent.GetInstanceID() )

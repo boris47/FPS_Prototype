@@ -45,7 +45,7 @@ AI Behiaviours
 	Memory introduction
 **	Seeker mode extended
 *	Extended head rotation function
-	Muzzle effects
+*	Muzzle effects
 **	Remake of bullets
 	Entity dead parts
 	Infected enemies

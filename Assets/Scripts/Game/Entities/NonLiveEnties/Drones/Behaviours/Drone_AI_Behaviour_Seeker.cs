@@ -58,11 +58,6 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour {
 			EntityData.EntityRef.ChangeState( BrainState.ALARMED );
 		}
 	}
-	
-	private	bool IsInView( Vector3 newForward )
-	{
-		return Vector3.Angle( EntityData.Head_Forward, newForward ) < 4.5f;
-	}
 
 	protected	IEnumerator	InvestigateAroundCO()
 	{
