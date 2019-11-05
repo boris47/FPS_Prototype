@@ -43,6 +43,9 @@ public partial interface IEntity {
 
 	/// <summary> Entity brain </summary>
 	IBrain					Brain							{ get; }
+
+	/// <summary> Return the entity object </summary>
+	Entity					AsEntity						{ get; }
 }
 
 
@@ -69,6 +72,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 				IBrain					IEntity.Brain						{	get { return this;				}	}
 				IEntityEvents			IEntity.Events						{	get { return m_EventsInterface; }	}
 				ENTITY_TYPE				IEntity.EntityType					{	get { return m_EntityType;		}	}
+				Entity					IEntity.AsEntity					{	get { return m_Instance;		}	}
 	// INTERFACE END
 
 	// GETTERS START
@@ -90,7 +94,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	public		Quaternion					BodyRotation					{ get { return m_BodyTransform.rotation; } }
 	// GETTERS END
 
-	public		IEntity						Interface						{ get { return m_Interface; } }
+	public		IEntity						AsInterface						{ get { return m_Interface; } }
 
 	// INTERNALS
 	[Header("Entity Properties")]
@@ -108,6 +112,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	protected	Collider					m_TriggerCollider				= null;
 	protected	Transform					m_EffectsPivot					= null;
 	protected	IEntity						m_Interface						= null;
+	protected	Entity						m_Instance						= null;
 
 	// AI
 	protected	TargetInfo					m_TargetInfo					= new TargetInfo();
@@ -166,6 +171,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	protected	virtual		void	Awake()
 	{
 		m_ID				= NewID();
+		m_Instance			= this;
 		m_Interface			= this as IEntity;
 		m_EventsInterface	= this as IEntityEvents;
 		EnableEvents();
