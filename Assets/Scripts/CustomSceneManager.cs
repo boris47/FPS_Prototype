@@ -387,10 +387,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 
 		// Wait for load condition if defined
 		Loading.SetProgress( 0.60f );
-		if ( loadCondition.IsNotNull() )
-		{
-			yield return loadCondition.WaitForPendingOperations();
-		}
+		yield return loadCondition?.WaitForPendingOperations();
 
 		Loading.SetSubTask( "1. Waiting for pending coroutines" );
 

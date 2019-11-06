@@ -116,10 +116,7 @@ public abstract partial class Entity : IBrain {
 		}
 		else
 		{
-			if ( GameManager.FieldsOfViewManager.IsNotNull() )
-			{
-				GameManager.FieldsOfViewManager.UnregisterAgent( m_FieldOfView );
-			}
+			GameManager.FieldsOfViewManager?.UnregisterAgent( m_FieldOfView );
 		}
 	}
 
@@ -133,7 +130,7 @@ public abstract partial class Entity : IBrain {
 
 	//	m_FieldOfView.UpdateFOV();
 
-		m_MemoryInstance.CleanInvalidMemories();
+		UpdateMemory();
 	}
 
 
@@ -155,9 +152,9 @@ public abstract partial class Entity : IBrain {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected virtual void	Brain_OnReset( BrainState brainState = BrainState.NORMAL )
+	protected virtual void	Brain_OnReset()
 	{
-		ChangeState( brainState );
+		ChangeState( BrainState.NORMAL );
 		m_FieldOfView.OnReset();
 	}
 

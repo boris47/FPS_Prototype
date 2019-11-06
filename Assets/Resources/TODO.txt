@@ -42,7 +42,7 @@ AI Behiaviours
 
 ***	default empty behaviour
 ***	well done behaviour change
-	Memory introduction
+///	Memory introduction
 **	Seeker mode extended
 *	Extended head rotation function
 *	Muzzle effects

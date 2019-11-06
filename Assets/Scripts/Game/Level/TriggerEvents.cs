@@ -144,10 +144,7 @@ public class TriggerEvents : MonoBehaviour {
 
 		m_HasTriggered = true;
 
-		if ( m_OnEnter.IsNotNull() )
-		{
-			m_OnEnter.Invoke( other.gameObject );
-		}
+		m_OnEnter?.Invoke( other.gameObject );
 	}
 
 
@@ -160,11 +157,8 @@ public class TriggerEvents : MonoBehaviour {
 
 		if ( m_Target && other.gameObject.GetInstanceID() != m_Target.GetInstanceID() )
 			return;
-
-		if ( m_OnExit.IsNotNull() )
-		{
-			m_OnExit.Invoke( other.gameObject );
-		}
+		
+		m_OnExit?.Invoke( other.gameObject );
 	}
 
 }
