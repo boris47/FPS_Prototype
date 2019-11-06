@@ -131,7 +131,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 					shooterPosition:	m_GunTransform.position,
 					shooterVelocity:	m_NavAgent.velocity,
 					shotSpeed:			m_Pool.PeekComponent<IBullet>().Velocity,
-					targetPosition:		m_TargetInfo.CurrentTarget.Transform.position,
+					targetPosition:		m_TargetInfo.CurrentTarget.AsEntity.transform.position,
 					targetVelocity:		m_TargetInfo.CurrentTarget.RigidBody.velocity
 				);
 			}

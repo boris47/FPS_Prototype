@@ -5,8 +5,6 @@ using UnityEngine.AI;
 
 
 public partial interface IEntity {
-	/// <summary> Entity Transform </summary>
-	Transform				Transform						{ get; }
 
 	/// <summary> Generic flag for entity state </summary>
 	bool					IsActive						{ get; }
@@ -56,23 +54,21 @@ public partial interface IEntity {
 public abstract partial class Entity : MonoBehaviour, IEntity {
 
 	private	static uint			CurrentID							= 0;
-	public	static uint			NewID()								{ return CurrentID++; }
+	public	static uint			NewID()										{ return CurrentID++; }
 
 	// INTERFACE START
-				Transform				IEntity.Transform					{	get { return m_Targettable;		}	}
-				bool					IEntity.IsActive					{	get { return m_IsActive;		}	}
-				uint					IEntity.ID							{	get { return m_ID;				}	}
-				float					IEntity.Health						{	get { return m_Health;			}	}
-				IShield					IEntity.Shield						{	get { return m_Shield;			}	}
-				string					IEntity.Section						{	get { return m_SectionName;		}	}
-				Rigidbody				IEntity.RigidBody					{	get { return m_RigidBody;		}	}
-				Collider				IEntity.PhysicCollider				{	get { return m_PhysicCollider;	}	}
-//				Collider				IEntity.TriggerCollider				{	get { return m_TriggerCollider;	}	}
-				Transform				IEntity.EffectsPivot				{	get { return m_EffectsPivot;	}	}
-				IBrain					IEntity.Brain						{	get { return this;				}	}
-				IEntityEvents			IEntity.Events						{	get { return m_EventsInterface; }	}
-				ENTITY_TYPE				IEntity.EntityType					{	get { return m_EntityType;		}	}
-				Entity					IEntity.AsEntity					{	get { return m_Instance;		}	}
+				bool						IEntity.IsActive				{	get { return m_IsActive;		}	}
+				uint						IEntity.ID						{	get { return m_ID;				}	}
+				float						IEntity.Health					{	get { return m_Health;			}	}
+				IShield						IEntity.Shield					{	get { return m_Shield;			}	}
+				string						IEntity.Section					{	get { return m_SectionName;		}	}
+				Rigidbody					IEntity.RigidBody				{	get { return m_RigidBody;		}	}
+				Collider					IEntity.PhysicCollider			{	get { return m_PhysicCollider;	}	}
+				Transform					IEntity.EffectsPivot			{	get { return m_EffectsPivot;	}	}
+				ENTITY_TYPE					IEntity.EntityType				{	get { return m_EntityType;		}	}
+				IBrain						IEntity.Brain					{	get { return m_BrainInstance;	}	}
+				IEntityEvents				IEntity.Events					{	get { return m_EventsInterface;	}	}
+				Entity						IEntity.AsEntity				{	get { return this;				}	}
 	// INTERFACE END
 
 	// GETTERS START
@@ -112,7 +108,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	protected	Collider					m_TriggerCollider				= null;
 	protected	Transform					m_EffectsPivot					= null;
 	protected	IEntity						m_Interface						= null;
-	protected	Entity						m_Instance						= null;
 
 	// AI
 	protected	TargetInfo					m_TargetInfo					= new TargetInfo();
@@ -171,7 +166,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	protected	virtual		void	Awake()
 	{
 		m_ID				= NewID();
-		m_Instance			= this;
 		m_Interface			= this as IEntity;
 		m_EventsInterface	= this as IEntityEvents;
 		EnableEvents();

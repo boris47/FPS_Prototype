@@ -141,7 +141,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 			Vector3 pointToLookAt = m_LookData.PointToLookAt;
 			if ( m_TargetInfo.HasTarget == true )
 			{
-				Vector3 targetPosition = m_TargetInfo.CurrentTarget.Transform.position;
+				Vector3 targetPosition = m_TargetInfo.CurrentTarget.AsEntity.transform.position;
 				IBullet model = m_Pool.PeekComponent<IBullet>();
 				if ( model.MotionType == BulletMotionType.PARABOLIC )
 				{

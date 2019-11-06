@@ -44,7 +44,7 @@ public class Walker_AI_Behaviour_Attacker : AIBehaviour {
 		Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
 			planeNormal:	EntityData.Body_Up,
 			planePoint:		EntityData.Body_Position,
-			point:			EntityData.TargetInfo.CurrentTarget.Transform.position
+			point:			EntityData.TargetInfo.CurrentTarget.AsEntity.transform.position
 		);
 
 
@@ -70,7 +70,7 @@ public class Walker_AI_Behaviour_Attacker : AIBehaviour {
 		// Update targeting
 		if ( EntityData.TargetInfo.HasTarget == true )
 		{
-			EntityData.EntityRef.SetPointToLookAt( EntityData.TargetInfo.CurrentTarget.Transform.position );
+			EntityData.EntityRef.SetPointToLookAt( EntityData.TargetInfo.CurrentTarget.AsEntity.transform.position );
 
 			// with a target, if gun alligned, fire
 			if ( EntityData.EntityRef.CanFire() == true )
@@ -135,7 +135,7 @@ public class Walker_AI_Behaviour_Attacker : AIBehaviour {
 			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
 				planeNormal:	EntityData.Body_Up,
 				planePoint:		EntityData.Body_Position,
-				point:			EntityData.TargetInfo.CurrentTarget.Transform.position
+				point:			EntityData.TargetInfo.CurrentTarget.AsEntity.transform.position
 			);
 
 
@@ -144,7 +144,7 @@ public class Walker_AI_Behaviour_Attacker : AIBehaviour {
 
 		// Orientation
 		{
-			Vector3 newPointToLookAt = EntityData.TargetInfo.CurrentTarget.Transform.position + EntityData.TargetInfo.CurrentTarget.RigidBody.velocity.normalized;
+			Vector3 newPointToLookAt = EntityData.TargetInfo.CurrentTarget.AsEntity.transform.position + EntityData.TargetInfo.CurrentTarget.RigidBody.velocity.normalized;
 			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
 				planeNormal:	EntityData.Body_Up,
 				planePoint:		EntityData.Head_Position,

@@ -8,7 +8,7 @@ public interface IBrain {
 	IFieldOfView				FieldOfView				{ get; }
 	BrainState					State					{ get; }
 
-	void						SetBehaviour( BrainState brainState, string behaviourId, bool State ); 
+	void						SetBehaviour			( BrainState brainState, string behaviourId, bool State ); 
 
 	void						ChangeState				( BrainState newState );
 }
@@ -34,7 +34,7 @@ public abstract partial class Entity : IBrain {
 	[SerializeField]
 	protected			AIBehaviour					m_CurrentBehaviour				= new Behaviour_Empty();
 	[SerializeField]
-	protected			List<AIBehaviour>			m_Behaviours					= new List<AIBehaviour>( new AIBehaviour[5] );
+	protected			List<AIBehaviour>			m_Behaviours					= new List<AIBehaviour>( 5 );
 
 	protected			FieldOfView					m_FieldOfView					= null;
 	protected			bool						m_bHasFieldOfView				= false;
@@ -47,7 +47,7 @@ public abstract partial class Entity : IBrain {
 	{
 		m_FieldOfView.Setup( maxVisibleEntities : 10 );
 
-		m_BrainInstance = this as IBrain;
+		m_BrainInstance = this;
 
 		EnableMemory();
 	}

@@ -208,7 +208,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		{
 			Entity target = m_AllTargets[ i ];
 
-			Vector3 targettablePosition = target.AsInterface.Transform.position;
+			Vector3 targettablePosition = target.AsInterface.AsEntity.transform.position;
 			Vector3 direction = ( targettablePosition - currentViewPoint.position );
 
 			m_LookRotation.SetLookRotation( direction, currentViewPoint.up );
@@ -248,7 +248,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		IEntity previousTarget = m_CurrentTargetInfo.CurrentTarget;
 
 		m_CurrentTargetInfo.CurrentTarget = currentTarget;
-		m_CurrentTargetInfo.TargetSqrDistance = ( m_CurrentTargetInfo.CurrentTarget.Transform.position - currentViewPoint.position ).sqrMagnitude;
+		m_CurrentTargetInfo.TargetSqrDistance = ( m_CurrentTargetInfo.CurrentTarget.AsEntity.transform.position - currentViewPoint.position ).sqrMagnitude;
 		
 		// SET NEW TARGET
 		if ( m_CurrentTargetInfo.HasTarget == false )

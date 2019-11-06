@@ -141,7 +141,7 @@ public abstract class Turret : NonLiveEntity {
 					shooterPosition:	m_GunTransform.position,
 					shooterVelocity:	Vector3.zero,
 					shotSpeed:			m_Pool.PeekComponent<IBullet>().Velocity,
-					targetPosition:		m_TargetInfo.CurrentTarget.Transform.position,
+					targetPosition:		m_TargetInfo.CurrentTarget.AsEntity.transform.position,
 					targetVelocity:		m_TargetInfo.CurrentTarget.RigidBody.velocity
 				);
 			}

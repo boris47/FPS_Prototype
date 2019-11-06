@@ -82,7 +82,7 @@ public class Walker_AI_Behaviour_Seeker : AIBehaviour {
 			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
 				planeNormal:	EntityData.Body_Up,
 				planePoint:		EntityData.Body_Position,
-				point:			EntityData.TargetInfo.CurrentTarget.Transform.position
+				point:			EntityData.TargetInfo.CurrentTarget.AsEntity.transform.position
 			);
 
 

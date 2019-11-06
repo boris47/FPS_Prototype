@@ -108,14 +108,14 @@ public sealed class GranadeFrammentation : BulletExplosive, ITimedExplosive {
 
 
 			// Entity
-			IEntity entity = null;
+			IEntity entityInterface = null;
 			IShield shield = null;
-			bool bIsEntity = Utils.Base.SearchComponent( hittedCollider.gameObject, ref entity, SearchContext.LOCAL );
+			bool bIsEntity = Utils.Base.SearchComponent( hittedCollider.gameObject, ref entityInterface, SearchContext.LOCAL );
 			bool bHasShield = Utils.Base.SearchComponent( hittedCollider.gameObject, ref shield, SearchContext.LOCAL );
 
 			if ( bIsEntity && ( ( bHasShield && shield.Status > 0f ) || true ) )
 			{
-				float dmgMult = Vector3.Distance( transform.position, entity.Transform.position ) / m_Range + 0.001f;
+				float dmgMult = Vector3.Distance( transform.position, entityInterface.AsEntity.transform.position ) / m_Range + 0.001f;
 				float damage = m_Damage * dmgMult;
 //				if ( entity.Shield != null && entity.Shield.Status > 0.0f )
 //				{
@@ -123,7 +123,7 @@ public sealed class GranadeFrammentation : BulletExplosive, ITimedExplosive {
 //				}
 //				else
 				{
-					entity.Events.OnHittedDetails( m_StartPosition, m_WhoRef, m_DamageType, damage, m_CanPenetrate );
+					entityInterface.Events.OnHittedDetails( m_StartPosition, m_WhoRef, m_DamageType, damage, m_CanPenetrate );
 				}
 			}
 
