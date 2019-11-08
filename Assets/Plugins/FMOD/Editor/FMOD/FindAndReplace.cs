@@ -38,12 +38,12 @@ namespace FMODUnity
 
             if (!levelScope)
             {
-                emitters.RemoveAll(x => PrefabUtility.GetPrefabType(x) != PrefabType.Prefab);
+                emitters.RemoveAll(x => PrefabUtility.GetPrefabAssetType(x) != PrefabAssetType.Regular);
             }
 
             if (!prefabScope)
             {
-                emitters.RemoveAll(x => PrefabUtility.GetPrefabType(x) == PrefabType.Prefab);
+                emitters.RemoveAll(x => PrefabUtility.GetPrefabAssetType(x) == PrefabAssetType.Regular);
             }            
         }
 

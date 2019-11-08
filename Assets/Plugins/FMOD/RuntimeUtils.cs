@@ -405,11 +405,7 @@ namespace FMODUnity
                     return FMODPlatform.iOS;
                 case BuildTarget.PS4:
                     return FMODPlatform.PS4;
-                case BuildTarget.PSP2:
-                    return FMODPlatform.PSVita;
-                case BuildTarget.StandaloneLinux:
                 case BuildTarget.StandaloneLinux64:
-                case BuildTarget.StandaloneLinuxUniversal:
                     return FMODPlatform.Linux;
                 #if UNITY_2017_3_OR_NEWER
                 case BuildTarget.StandaloneOSX:
@@ -424,25 +420,9 @@ namespace FMODUnity
                     return FMODPlatform.Windows;
                 case BuildTarget.XboxOne:
                     return FMODPlatform.XboxOne;
-                #if UNITY_5_2 || UNITY_5_3_OR_NEWER
-                case BuildTarget.WiiU:
-                    return FMODPlatform.WiiU;
-                #endif
                 case BuildTarget.WSAPlayer:
                 #if UNITY_2017_1_OR_NEWER
                     return FMODPlatform.UWP;
-                #elif UNITY_5_2 || UNITY_5_3_OR_NEWER
-                    if (EditorUserBuildSettings.wsaSDK == WSASDK.UWP)
-                    {
-                        return FMODPlatform.UWP;
-                    }
-                    return FMODPlatform.None;
-                #else
-                    if (EditorUserBuildSettings.wsaSDK == WSASDK.PhoneSDK81)
-                    { 
-                        return FMODPlatform.WindowsPhone;
-                    }
-                    return FMODPlatform.None;
                 #endif
                 #if UNITY_5_3_OR_NEWER
                 case BuildTarget.tvOS:
