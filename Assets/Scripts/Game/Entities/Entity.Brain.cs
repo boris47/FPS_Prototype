@@ -34,7 +34,7 @@ public abstract partial class Entity : IBrain {
 	[SerializeField]
 	protected			AIBehaviour					m_CurrentBehaviour				= new Behaviour_Empty();
 	[SerializeField]
-	protected			List<AIBehaviour>			m_Behaviours					= new List<AIBehaviour>( 5 );
+	protected			List<AIBehaviour>			m_Behaviours					= new List<AIBehaviour>( new AIBehaviour[5] );
 
 	protected			FieldOfView					m_FieldOfView					= null;
 	protected			bool						m_bHasFieldOfView				= false;
