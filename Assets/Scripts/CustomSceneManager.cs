@@ -208,6 +208,12 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 	{
 		Debug.Log( "Preloading of scene " + SceneIdx );
 
+		if ( m_IsCurrentlyPreloading == true || m_HasPreloadedScene == true )
+		{
+			Debug.LogError( "CoroutinesManager::Preload: a preload operation is currently in progress, preload denied for scene " + preloadSceneData.eScene.ToString() );
+			return new WaitForSecondsRealtime(1.0f);
+		}
+
 		m_IsCurrentlyPreloading = true;
 
 		IEnumerator enumerator = Instance.PreloadCO( SceneIdx, preloadSceneData );
