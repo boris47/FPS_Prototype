@@ -73,8 +73,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 			return false;
 
 		// LOAD FIRE MODE
-		weaponFireModeSectionName = "WPN_FireMode_" + weaponFireModeSectionName;
-		if ( TryLoadFireMode( m_FireModeContainer, weaponFireModeSectionName, ref m_WpnFireMode ) == false )
+		if ( ChangeFireMode( weaponFireModeSectionName ) == false )
 			return false;
 
 //		m_WpnFireMode.transform.SetParent( m_FireModeContainer.transform );
@@ -269,12 +268,10 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 		// DAMAGE
 		m_PoolBullets.ExecuteActionOnObjects( ActionOnBullet );
 
-
 		// DEVIATION AND DISPERSION
 		m_CamDeviation						= Configuration.AsFloat( "CamDeviation" );
 		m_FireDispersion					= Configuration.AsFloat( "FireDispersion");
 		m_Recoil							= Configuration.AsFloat( "Recoil");
-
 
 		// FIRE MODE
 		string newFireModeSecName			= Configuration.AsString( "FireMode" );
@@ -284,40 +281,42 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 
 		// BULLET
 		string bulletObjectName				= Configuration.AsString( "Bullet" );
-		GameObject bulletGO = null;
-		if ( ( bulletGO = Resources.Load<GameObject>( "Prefabs/Bullets/" + bulletObjectName ) ) != null )
+		if ( bulletObjectName != m_PoolBullets.PeekComponent().GetType().Name )
 		{
-			m_PoolBullets.Convert( bulletGO, ActionOnBullet );
+			ResourceManager.LoadedData<GameObject> loadedData = new ResourceManager.LoadedData<GameObject>();
+			if ( ResourceManager.LoadResourceSync( "Prefabs/Bullets/" + bulletObjectName, loadedData ) )
+			{
+				m_PoolBullets.Convert( loadedData.Asset, ActionOnBullet );
+			}
 		}
 	}
 
 
 	//		FIREMODE
 	//////////////////////////////////////////////////////////////////////////
-	public					bool	ChangeFireMode( string FireMode )
+	public					bool	ChangeFireMode( string weaponFireModeSectionName )
 	{
-		FireMode = "WPN_FireMode_" + FireMode;
-		return TryLoadFireMode( m_FireModeContainer, FireMode, ref m_WpnFireMode );
+		weaponFireModeSectionName = "WPN_FireMode_" + weaponFireModeSectionName;
+		System.Type type = System.Type.GetType( weaponFireModeSectionName.Trim() );
+		if ( type == null )
+		{
+			Debug.Log( "WPN_FireModule:ChangeFireMode:Setting invalid weapon fire mode \"" + weaponFireModeSectionName + "\"" );
+			return false;
+		}
+		return TryLoadFireMode( m_FireModeContainer, type, ref m_WpnFireMode );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public					bool	ChangeFireMode<T>()
 	{
-		return TryLoadFireMode( m_FireModeContainer, typeof(T).Name, ref m_WpnFireMode );
+		return TryLoadFireMode( m_FireModeContainer, typeof(T), ref m_WpnFireMode );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private	static			bool	TryLoadFireMode( GameObject container, string weaponFireModeSectionName, ref WPN_FireMode_Base fireMode )
+	private	static			bool	TryLoadFireMode( GameObject container, System.Type type, ref WPN_FireMode_Base fireMode )
 	{
-		System.Type type = System.Type.GetType( weaponFireModeSectionName.Trim() );
-		if ( type == null )
-		{
-			Debug.Log( "WPN_FireModule:Setting invalid weapon fire mode \"" + weaponFireModeSectionName + "\"" );
-			return false;
-		}
-		
 		if ( fireMode != null )
 		{
 			if ( fireMode.GetType() == type )
@@ -329,6 +328,8 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 				Object.Destroy( fireMode );
 			}
 		}
+
+		string weaponFireModeSectionName = type.Name;
 			
 		// Check module type as child of WPN_BaseModule
 		if ( type.IsSubclassOf( typeof( WPN_FireMode_Base ) ) == false )
