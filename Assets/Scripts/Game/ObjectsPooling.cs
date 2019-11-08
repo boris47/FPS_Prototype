@@ -151,7 +151,10 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 			
 		m_ActionOnObject = actionOnObject ?? m_ActionOnObject;
 
+		Utils.Base.DestroyChildren( m_ContainerGO.transform );
+
 		int size = m_ObjectsPool.Count;
+		/*
 		{
 			m_ContainerGO.transform.DetachChildren();
 			for ( int i = m_ObjectsPool.Count - 1; i >= 0; i-- )
@@ -161,17 +164,15 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 				m_ObjectsPool.RemoveAt(i);
 			}
 		}
+		*/
 		m_ObjectsPool.Clear();
 			
 		// Create the internal pool
-		m_ObjectsPool = new List<T>( size );
+		for ( uint i = 0; i < size; i++ )
 		{
-			for ( uint i = 0; i < size; i++ )
-			{
-				T comp = Createitem( model );
-				m_ActionOnObject( comp );
-				m_ObjectsPool.Add( comp );
-			}
+			T comp = Createitem( model );
+			m_ActionOnObject( comp );
+			m_ObjectsPool.Add( comp );
 		}
 		
 		return true;
