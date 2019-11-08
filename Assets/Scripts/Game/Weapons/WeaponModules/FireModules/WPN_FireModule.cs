@@ -287,7 +287,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 		GameObject bulletGO = null;
 		if ( ( bulletGO = Resources.Load<GameObject>( "Prefabs/Bullets/" + bulletObjectName ) ) != null )
 		{
-//			m_PoolBullets.Convert( bulletGO, ActionOnBullet );
+			m_PoolBullets.Convert( bulletGO, ActionOnBullet );
 		}
 	}
 
@@ -340,7 +340,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 		Database.Section section = null;
 		if ( GlobalManager.Configs.bGetSection( weaponFireModeSectionName, ref section ) == false )
 		{
-			Debug.Log( "WPN_FireModule: CAnnot find section for fire mode \"" + weaponFireModeSectionName + "\"" );
+			Debug.Log( "WPN_FireModule: Cannot find section for fire mode \"" + weaponFireModeSectionName + "\"" );
 			return false;
 		}
 
