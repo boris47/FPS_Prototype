@@ -143,22 +143,19 @@ public partial class Player {
 
 		MoveGrabbedObject();
 		CheckIfUnderSomething();
-		CheckForFallOrUserBreak();
+//		CheckForFallOrUserBreak();
 
 		m_RigidBody.angularVelocity = Vector3.zero;
-//		m_RigidBody.drag = IsGrounded ? BODY_DRAG : 0.0f;
 
 		// Forced by ovverride
 		if ( m_MovementOverrideEnabled )
 		{
 			// Controlled in Player.Motion_Walk::SimulateMovement
-//			m_RigidBody.velocity = m_Move;
 			m_RigidBody.AddForce( m_Move, ForceMode.Acceleration );
 			return;
 		}
 		
-		// User inputs
-//		if ( IsGrounded )
+		// Apply User inputs
 		{
 			// Controlled in Player.Motion_Walk::Update_Walk
 			Vector3 forward	= Vector3.Cross( CameraControl.Instance.Transform.right, transform.up );
@@ -175,31 +172,29 @@ public partial class Player {
 				m_RigidBody.AddForce( up		* m_UpSmooth		* 1.0f,	ForceMode.VelocityChange );
 
 			m_ForwardSmooth = m_RightSmooth = m_UpSmooth = 0.0f;
-	//		m_States.IsMoving = false;
 
 			// Reset "local" states
 			m_States.Reset();
-
 		}
 		
-		float drag = IsGrounded ? 5f : 0.0f;
+		float drag = IsGrounded ? 7f : 0.0f;
 		m_RigidBody.drag = drag;
 
 		// Apply gravity
 		{
 			// add RELATIVE gravity force
-			Vector3 gravity = transform.up * Physics.gravity.y;// * 30;// ( IsGrounded ? 1.0f: 30f );
+			Vector3 gravity = transform.up * Physics.gravity.y;
 			m_RigidBody.AddForce( gravity, ForceMode.Acceleration );
 		}
 	}
 
 
 
-
 	private	bool FlashlightPredicate()
 	{
-		return WeaponManager.Instance.CurrentWeapon.Flashlight != null;
+		return WeaponManager.Instance.CurrentWeapon?.Flashlight != null;
 	}
+
 
 
 	private	void FlashlightAction()
@@ -207,6 +202,7 @@ public partial class Player {
 		WeaponManager.Instance.CurrentWeapon.Flashlight.Toggle();
 	}
 	
+
 
 	// Pick eventual collision info from camera to up
 	private	void	CheckIfUnderSomething()
@@ -216,6 +212,7 @@ public partial class Player {
 		Vector3 cameraUpPosition = position + ( upwards * 0.3f );
 		m_IsUnderSomething = Physics.Linecast( start: position, end: cameraUpPosition, layerMask: Physics.DefaultRaycastLayers, queryTriggerInteraction: QueryTriggerInteraction.Ignore );
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
