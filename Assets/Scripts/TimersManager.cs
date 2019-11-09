@@ -12,10 +12,10 @@ public sealed class TimersManager
 		internal System.Timers.Timer Timer;
 		internal System.EventHandler TaskComplete;
 
-		public ScheduledTask(System.Action action, int timeoutMs)
+		public ScheduledTask(System.Action action, float timeoutMS)
 		{
 			Action = action;
-			Timer = new System.Timers.Timer() { Interval = timeoutMs };
+			Timer = new System.Timers.Timer() { Interval = timeoutMS };
 			Timer.Elapsed += TimerElapsed;            
 		}
 
@@ -34,9 +34,9 @@ public sealed class TimersManager
 
 
 	//////////////////////////////////////////////////////////////////////////
-    public static void AddTimer(System.Action action, int timeoutMs )
+    public static void AddTimer(System.Action action, float timeoutMS )
     {
-        ScheduledTask task = new ScheduledTask( action, timeoutMs );
+        ScheduledTask task = new ScheduledTask( action, timeoutMS );
         task.TaskComplete += RemoveTask;
         m_ScheduledTasks.Add( action, task );
         task.Timer.Start();
