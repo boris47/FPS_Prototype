@@ -499,6 +499,10 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 	{
 		m_Animator.Play( "draw", -1, 0f );
 		m_WeaponState	= WeaponState.DRAWED;
+
+		m_IsLocked = true;
+		TimersManager.AddTimer( () => m_IsLocked = false, m_DrawAnim.length * 1000f );
+
 		return m_DrawAnim.length;
 	}
 
@@ -509,6 +513,10 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 	{
 		m_Animator.Play( "stash", -1, 0f );
 		m_WeaponState	= WeaponState.STASHED;
+
+		m_IsLocked = true;
+		TimersManager.AddTimer( () => m_IsLocked = false, m_DrawAnim.length * 1000f );
+
 		return m_DrawAnim.length;
 	}
 
