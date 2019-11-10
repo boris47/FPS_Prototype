@@ -501,7 +501,7 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 		m_WeaponState	= WeaponState.DRAWED;
 
 		m_IsLocked = true;
-		TimersManager.AddTimer( () => m_IsLocked = false, m_DrawAnim.length * 1000f );
+		TimersManager.Instance.AddTimerScaled( m_DrawAnim.length, () => m_IsLocked = false );
 
 		return m_DrawAnim.length;
 	}
@@ -515,7 +515,7 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 		m_WeaponState	= WeaponState.STASHED;
 
 		m_IsLocked = true;
-		TimersManager.AddTimer( () => m_IsLocked = false, m_DrawAnim.length * 1000f );
+		TimersManager.Instance.AddTimerScaled( m_DrawAnim.length, () => m_IsLocked = false );
 
 		return m_DrawAnim.length;
 	}
