@@ -8,127 +8,107 @@ public sealed class TimersManager : SingletonMonoBehaviour<TimersManager>
 	private	int id = 0;
 	private	int NextId() => id++;
 
-	public	enum TimerType {
-		SINGLE_CALL,
-		REPEAT
-	};
-
-	private	enum TimerContext {
-		SCALED, UNSCALED
-	}
 
 	[System.Serializable]
 	private	class InternalTimer {
-		public	float currentTime;
-		public	float interval;
-		public	TimerType type;
-		public	TimerContext context;
-		public	System.Action action;
-		public	int id;
+
+		[SerializeField] public		readonly	int				id			= -1;
+		[SerializeField] private				float			interval	= 0;
+		[SerializeField] private				System.Action	action		= () => { };
+		[SerializeField] private				bool			repeat		= false;
+		[SerializeField] private				bool			scaled		= false;
+		[SerializeField] private				float			currentTime	= 0.0f;
+
+		// CONSTRUCTOR
+		public InternalTimer( int id, float startDuration, float interval, System.Action action, bool repeat, bool scaled )
+		{
+			this.id				= id;
+			this.currentTime	= startDuration;
+			this.interval		= interval;
+			this.action			= action ?? this.action;
+			this.repeat			= repeat;
+			this.scaled			= scaled;
+		}
+
+
+		/// <summary> Must be kept alive </summary>
+		public bool Eval()
+		{
+			currentTime -= scaled ? Time.deltaTime : Time.unscaledDeltaTime;
+			if ( currentTime <= 0 )
+			{
+				this.action();
+				currentTime = interval;
+				return repeat;
+			}
+			return true;
+		}
 	}
 
 	[SerializeField]
 	private List<InternalTimer> m_Timers = new List<InternalTimer>();
 
 
-	//
-	private	int	AddInternal( float duration, System.Action action, bool bMustRepeat, float interval, bool bMustBeScaled )
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> INTERNAL USE ONLY: Construct and add a new timer to list of timers </summary>
+	private	int	AddInternal( float startDuration, System.Action action, bool bMustRepeat, float interval, bool bMustBeScaled )
 	{
-		if ( duration < 0.0f )
+		// Sanity check
+		if ( startDuration < 0.0f || ( bMustRepeat && interval <= 0 ) )
 		{
 			return -1;
 		}
 
-		if ( bMustRepeat && interval <= 0 )
-		{
-			return -1;
-		}
-
-		if ( action == null )
-		{
-			action = () => { };
-		}
-
-		InternalTimer newTimer = new InternalTimer()
-		{
-			currentTime = duration,
-			interval = interval,
-			type = bMustRepeat ? TimerType.REPEAT : TimerType.SINGLE_CALL,
-			context = bMustBeScaled ? TimerContext.SCALED : TimerContext.UNSCALED,
-			action = action,
-			id = NextId()
-		};
-
+		InternalTimer newTimer = new InternalTimer( NextId(), startDuration, interval, action, bMustRepeat, bMustBeScaled );
 		m_Timers.Add( newTimer );
 
 		return newTimer.id;
 	}
 
 
+	/// <summary> Add an unscaled interval </summary>
+	public	int	AddIntervalUnscaled( float interval, System.Action action ) => this.AddInternal( startDuration: interval, action: action, bMustRepeat: true, interval: interval, bMustBeScaled: false );
+	
 
-	//
-	public	int	AddIntervalUnscaled( float interval, System.Action action )
-	{
-		return this.AddInternal( duration: interval, action: action, bMustRepeat: true, interval: interval, bMustBeScaled: false );
-	}
+	/// <summary> Add an unscaled timer </summary>
+	public	int	AddTimerUnscaled( float duration, System.Action action ) => this.AddInternal( startDuration: duration, action: action, bMustRepeat: false, interval: 0, bMustBeScaled: false );
+
+
+	/// <summary> Add an scaled interval </summary>
+	public	int	AddIntervalScaled( float interval, System.Action action ) => this.AddInternal( startDuration: interval, action: action, bMustRepeat: true, interval: interval, bMustBeScaled: true );
 
 	
-	//
-	public	int	AddTimerUnscaled( float duration, System.Action action )
-	{
-		return this.AddInternal( duration: duration, action: action, bMustRepeat: false, interval: 0, bMustBeScaled: false );
-	}
+	/// <summary> Add an scaled timer </summary>
+	public	int	AddTimerScaled( float duration, System.Action action ) => this.AddInternal( startDuration: duration, action: action, bMustRepeat: false, interval: 0, bMustBeScaled: true );
 
-
-
-	//
-	public	int	AddIntervalScaled( float interval, System.Action action )
-	{
-		return this.AddInternal( duration: interval, action: action, bMustRepeat: true, interval: interval, bMustBeScaled: true );
-	}
 
 	
-	//
-	public	int	AddTimerScaled( float duration, System.Action action )
-	{
-		return this.AddInternal( duration: duration, action: action, bMustRepeat: false, interval: 0, bMustBeScaled: true );
-	}
-
-
-	//
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> Search a timer with given id and remove it if found </summary>
 	public	void	RemoveTimer( int id )
 	{
-		if ( id == -1 )
+		if ( id >= 0 )
 		{
-			return;
-		}
-
-		int index = m_Timers.FindIndex( t => t.id == id );
-		if ( index > -1 )
-		{
-			m_Timers.RemoveAt( index );
+			int index = m_Timers.FindIndex( t => t.id == id );
+			if ( index > -1 )
+			{
+				m_Timers.RemoveAt( index );
+			}
 		}
 	}
 
 
-	//
+
+	//////////////////////////////////////////////////////////////////////////
 	private void Update()
 	{
 		for ( int i = m_Timers.Count - 1; i >= 0; i-- )
 		{
 			InternalTimer timer = m_Timers[i];
 
-			float timeToRemove = timer.context == TimerContext.SCALED ? Time.deltaTime : Time.unscaledDeltaTime;
-			timer.currentTime-= timeToRemove;
-
-			if ( timer.currentTime <= 0 )
+			if ( timer.Eval() == false )
 			{
-				timer.action();
-				timer.currentTime = timer.interval;
-				if ( timer.type == TimerType.SINGLE_CALL )
-				{
-					m_Timers.RemoveAt(i);
-				}
+				m_Timers.RemoveAt(i);
 			}
 		}
 	}
