@@ -37,7 +37,7 @@ public class Loading : MonoBehaviour {
 
 			DontDestroyOnLoad( m_Instance );
 
-			m_IsInitialized = false;
+			m_IsInitialized = true;
 		}
 	}
 
@@ -55,7 +55,7 @@ public class Loading : MonoBehaviour {
 		gameObject.SetActive(false);
 
 		m_IsInitializedInternal = transform.SearchComponent( ref m_LoadingBar, SearchContext.CHILDREN );
-		m_IsInitializedInternal &= transform.SearchComponent( ref m_LoadingLevelNameText, SearchContext.CHILDREN, c => c.name == "LoadingSceneNameText" );
+		m_IsInitializedInternal &= transform.SearchComponent( ref m_LoadingLevelNameText, SearchContext.CHILDREN, c => c.name == "LoadingSceneName" );
 		m_IsInitializedInternal &= transform.SearchComponent( ref m_LoadingSubTask, SearchContext.CHILDREN, c => c.name == "LoadingSubTask" );
 	}
 
