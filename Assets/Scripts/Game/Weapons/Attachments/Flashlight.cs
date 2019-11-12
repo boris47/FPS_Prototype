@@ -2,7 +2,7 @@
 using UnityEngine;
 
 
-public interface IFlashLight {
+public interface IFlashLight : IWeaponAttachment {
 	
 }
 

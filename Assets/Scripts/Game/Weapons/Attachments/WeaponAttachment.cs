@@ -3,7 +3,6 @@ using System.Collections;
 
 public interface IWeaponAttachment {
 
-	WPN_BaseModule	WpnModule { get; }
 	bool			IsActive { get; }
 	bool			IsAttached { get; }
 
@@ -11,22 +10,16 @@ public interface IWeaponAttachment {
 	void			OnDeactivated();
 	void			SetActive( bool state );
 
-	void			OnAttached( WPN_BaseModule wpnModule );
+	void			OnAttached();
 	void			OnRemoved();
 
 }
 
-public abstract class WeaponAttachment : MonoBehaviour, IWeaponAttachment {
+public abstract class WeaponAttachment : MonoBehaviour {
 
-	protected	WPN_BaseModule	m_WpnModule		= null;
 	protected	bool			m_IsActive		= false;
 	protected	bool			m_IsAttached	= false;
 	protected	bool			m_IsUsable		= false;
-
-	public WPN_BaseModule WpnModule
-	{
-		get { return m_WpnModule; }
-	}
 
 	public bool IsActive
 	{
@@ -42,14 +35,12 @@ public abstract class WeaponAttachment : MonoBehaviour, IWeaponAttachment {
 	public abstract void SetActive( bool state );
 	public abstract void OnDeactivated();
 
-	public void OnAttached( WPN_BaseModule wpnModule )
+	public void OnAttached()
 	{
-		m_WpnModule = wpnModule;
 		m_IsAttached = true;
 	}
 	public void OnRemoved()
 	{
-		m_WpnModule = null;
 		m_IsAttached = false;
 	}
 }

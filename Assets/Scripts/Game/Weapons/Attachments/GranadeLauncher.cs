@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public interface IGranadeLauncher {
+public interface IGranadeLauncher : IWeaponAttachment {
 
 }
 

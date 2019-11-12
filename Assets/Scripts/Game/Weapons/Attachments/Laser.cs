@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public interface ILaser {
+public interface ILaser : IWeaponAttachment {
 
 }
 

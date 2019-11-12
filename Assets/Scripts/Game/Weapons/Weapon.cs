@@ -65,11 +65,11 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 	protected		string									m_WpnBaseSectionName		= "";
 
 	// ATTACHMENTS
-	protected		IWeaponAttachment						m_FlashLight				= null;
+	protected		IFlashLight								m_FlashLight				= null;
 	protected		bool									m_bHasFlashlight			= false;
-	protected		IWeaponAttachment						m_Laser						= null;
+	protected		ILaser									m_Laser						= null;
 	protected		bool									m_bHasLaser					= false;
-	protected		IWeaponAttachment						m_GranadeLauncher			= null;
+	protected		IGranadeLauncher						m_GranadeLauncher			= null;
 	protected		bool									m_bHasGranadeLauncher		= false;
 
 
@@ -145,13 +145,22 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 	protected	void	UpdateAttachments()
 	{
 		// Flashlight
-		m_bHasFlashlight		= Utils.Base.SearchComponent( gameObject, ref m_FlashLight, SearchContext.CHILDREN );
+		if( m_bHasFlashlight = Utils.Base.SearchComponent( gameObject, ref m_FlashLight, SearchContext.CHILDREN ) )
+		{
+			m_FlashLight.OnAttached();
+		}
 
 		// Laser
-		m_bHasLaser				= Utils.Base.SearchComponent( gameObject, ref m_Laser, SearchContext.CHILDREN );
+		if ( m_bHasLaser = Utils.Base.SearchComponent( gameObject, ref m_Laser, SearchContext.CHILDREN ) )
+		{
+			m_Laser.OnAttached();
+		}
 
 		// Granade Launcher
-		m_bHasGranadeLauncher	= Utils.Base.SearchComponent( gameObject, ref m_GranadeLauncher, SearchContext.CHILDREN );
+		if ( m_bHasGranadeLauncher = Utils.Base.SearchComponent( gameObject, ref m_GranadeLauncher, SearchContext.CHILDREN ))
+		{
+			m_GranadeLauncher.OnAttached();
+		}
 	}
 
 
@@ -371,6 +380,9 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 			() => { WeaponManager.Instance.ZoomOut(); },
 			delegate() { return  Player.Instance.IsRunning && WeaponManager.Instance.IsZoomed; }
 		);
+
+
+		if ( m_bHasLaser )				m_Laser.OnActivate();
 	}
 
 
@@ -397,6 +409,8 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 		GlobalManager.InputMgr.UnbindCall( eInputCommands.RELOAD_WPN,				"Wpn_Reload" );
 
 		GlobalManager.InputMgr.UnbindCall( eInputCommands.STATE_RUN,				"Wpn_ExitZoom" );
+
+		if ( m_bHasLaser )				m_Laser.OnDeactivated();
 	}
 
 
