@@ -199,7 +199,7 @@ public partial class Player {
 
 	private	void FlashlightAction()
 	{
-		WeaponManager.Instance.CurrentWeapon.Flashlight.Toggle();
+		WeaponManager.Instance.CurrentWeapon.Flashlight.SetActive( !WeaponManager.Instance.CurrentWeapon.Flashlight.IsActive );
 	}
 	
 

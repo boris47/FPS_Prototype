@@ -28,16 +28,7 @@ public class Laser : WeaponAttachment, ILaser {
 	{
 		get { return m_HasHit; }
 	}
-/*
-	[SerializeField]
-	private		LayerMask			m_LayerMaskToExclude = default( LayerMask );
-	// Layer mask to exclude during raycast
-	public		LayerMask			LayerMaskToExclude
-	{
-		get { return m_LayerMaskToExclude; }
-		set { m_LayerMaskToExclude = value; }
-	}
-*/
+
 	protected		RaycastHit			m_RayCastHit		= default( RaycastHit );
 	protected		RaycastHit			m_DefaultRaycastHit	= default( RaycastHit );
 	public			RaycastHit			RayCastHit
@@ -50,8 +41,8 @@ public class Laser : WeaponAttachment, ILaser {
 	protected		Renderer			m_Renderer			= null;
 	protected		bool				m_CanBeUsed			= true;
 
+
 	//////////////////////////////////////////////////////////////////////////
-	// Awake
 	protected void Awake()
 	{
 		m_CanBeUsed &= transform.childCount > 0;
@@ -71,8 +62,7 @@ public class Laser : WeaponAttachment, ILaser {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnEnable
-	protected void OnEnable()
+	public override void OnActivate()
 	{
 		if ( m_CanBeUsed == false )
 			return;
@@ -84,8 +74,7 @@ public class Laser : WeaponAttachment, ILaser {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnDisable
-	protected void OnDisable()
+	public override void OnDeactivated()
 	{
 		if ( m_CanBeUsed == false )
 			return;
@@ -98,12 +87,31 @@ public class Laser : WeaponAttachment, ILaser {
 		}
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	public	override void	SetActive( bool state )
+	{
+		if ( m_IsUsable == false || m_IsAttached == false )
+			return;
+
+		m_IsActive = state;
+		m_LaserTransform.gameObject.SetActive( m_IsActive );
+
+		if ( m_IsActive == true )
+		{
+			OnActivate();
+		}
+		else
+		{
+			OnDeactivated();
+		}
+	}
+	
 	
 	//////////////////////////////////////////////////////////////////////////
-	// Update
 	protected void InternalUpdate( float DeltaTime )
 	{
-		if ( m_CanBeUsed == false )
+		if ( m_CanBeUsed == false || m_IsAttached == false )
 			return;
 
 		// Save cpu
@@ -123,5 +131,5 @@ public class Laser : WeaponAttachment, ILaser {
 		m_LaserTransform.localScale		= m_LocalScale;
 		m_LaserTransform.localPosition	= Vector3.forward * beamPosition;
 	}
-	
+
 }

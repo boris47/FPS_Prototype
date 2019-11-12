@@ -21,11 +21,11 @@ public interface IModifiable {
 public interface IAttachments {
 
 	// Weapon Attachments
-	IFlashLight				Flashlight						{ get; }
+	IWeaponAttachment		Flashlight						{ get; }
 	bool					HasFlashlight					{ get; }
-	ILaser					Laser							{ get; }
+	IWeaponAttachment		Laser							{ get; }
 	bool					HasLaser						{ get; }
-	IGranadeLauncher		GranadeLauncher					{ get; }
+	IWeaponAttachment		GranadeLauncher					{ get; }
 	bool					HasGranadeLauncher				{ get; }
 
 }
@@ -65,11 +65,11 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 	protected		string									m_WpnBaseSectionName		= "";
 
 	// ATTACHMENTS
-	protected		IFlashLight								m_FlashLight				= null;
+	protected		IWeaponAttachment						m_FlashLight				= null;
 	protected		bool									m_bHasFlashlight			= false;
-	protected		ILaser									m_Laser						= null;
+	protected		IWeaponAttachment						m_Laser						= null;
 	protected		bool									m_bHasLaser					= false;
-	protected		IGranadeLauncher						m_GranadeLauncher			= null;
+	protected		IWeaponAttachment						m_GranadeLauncher			= null;
 	protected		bool									m_bHasGranadeLauncher		= false;
 
 
@@ -85,11 +85,11 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 	protected		List<Database.Section>					m_Modifiers					= new List<Database.Section>();
 
 	// INTERFACE START
-					IFlashLight								IAttachments.Flashlight			{ get { return m_FlashLight; } }
+					IWeaponAttachment						IAttachments.Flashlight			{ get { return m_FlashLight; } }
 					bool									IAttachments.HasFlashlight		{ get { return m_bHasFlashlight; } }
-					ILaser									IAttachments.Laser				{ get { return m_Laser; } }
+					IWeaponAttachment						IAttachments.Laser				{ get { return m_Laser; } }
 					bool									IAttachments.HasLaser			{ get { return m_bHasLaser; } }
-					IGranadeLauncher						IAttachments.GranadeLauncher	{ get { return m_GranadeLauncher; } }
+					IWeaponAttachment						IAttachments.GranadeLauncher	{ get { return m_GranadeLauncher; } }
 					bool									IAttachments.HasGranadeLauncher	{ get { return m_bHasGranadeLauncher; } }
 
 
@@ -421,7 +421,7 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 		// Flashlight
 		if ( m_FlashLight != null )
 		{
-			streamUnit.SetInternal( "FlashLightActive", m_FlashLight.Activated );
+			streamUnit.SetInternal( "FlashLightActive", m_FlashLight.IsActive );
 		}
 
 		// Save Weapon Modules Data
