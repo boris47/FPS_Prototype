@@ -39,32 +39,31 @@ public class Laser : WeaponAttachment, ILaser {
 	protected		Transform			m_LaserTransform	= null;
 	protected		Vector3				m_LocalScale		= new Vector3();
 	protected		Renderer			m_Renderer			= null;
-	protected		bool				m_CanBeUsed			= true;
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected void Awake()
 	{
-		m_CanBeUsed &= transform.childCount > 0;
-		if ( m_CanBeUsed )
+		m_IsUsable &= transform.childCount > 0;
+		if ( m_IsUsable )
 		{
 			m_LaserTransform = transform.GetChild( 0 );
 		}
 
-		m_CanBeUsed &= transform.SearchComponent( ref m_Renderer, SearchContext.CHILDREN );
-		if ( m_CanBeUsed )
+		m_IsUsable &= transform.SearchComponent( ref m_Renderer, SearchContext.CHILDREN );
+		if ( m_IsUsable )
 		{
 			m_Renderer.material.color = m_Color;
 		}
 
-		enabled = m_CanBeUsed;
+		enabled = m_IsUsable;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public override void OnActivate()
+	protected override void OnActivate()
 	{
-		if ( m_CanBeUsed == false )
+		if ( m_IsUsable == false )
 			return;
 
 		m_LaserTransform.gameObject.SetActive( true );
@@ -74,9 +73,9 @@ public class Laser : WeaponAttachment, ILaser {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public override void OnDeactivated()
+	protected override void OnDeactivated()
 	{
-		if ( m_CanBeUsed == false )
+		if ( m_IsUsable == false )
 			return;
 
 		m_LaserTransform.gameObject.SetActive( false );
@@ -86,32 +85,12 @@ public class Laser : WeaponAttachment, ILaser {
 			GameManager.UpdateEvents.OnFrame -= InternalUpdate;
 		}
 	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	public	override void	SetActive( bool state )
-	{
-		if ( m_IsUsable == false || m_IsAttached == false )
-			return;
-
-		m_IsActive = state;
-		m_LaserTransform.gameObject.SetActive( m_IsActive );
-
-		if ( m_IsActive == true )
-		{
-			OnActivate();
-		}
-		else
-		{
-			OnDeactivated();
-		}
-	}
 	
 	
 	//////////////////////////////////////////////////////////////////////////
 	protected void InternalUpdate( float DeltaTime )
 	{
-		if ( m_CanBeUsed == false || m_IsAttached == false )
+		if ( m_IsUsable == false || m_IsAttached == false )
 			return;
 
 		// Save cpu

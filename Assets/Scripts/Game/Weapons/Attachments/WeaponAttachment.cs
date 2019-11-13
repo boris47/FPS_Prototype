@@ -6,8 +6,6 @@ public interface IWeaponAttachment {
 	bool			IsActive { get; }
 	bool			IsAttached { get; }
 
-	void			OnActivate();
-	void			OnDeactivated();
 	void			SetActive( bool state );
 
 	void			OnAttached();
@@ -19,7 +17,7 @@ public abstract class WeaponAttachment : MonoBehaviour {
 
 	protected	bool			m_IsActive		= false;
 	protected	bool			m_IsAttached	= false;
-	protected	bool			m_IsUsable		= false;
+	protected	bool			m_IsUsable		= true;
 
 	public bool IsActive
 	{
@@ -31,9 +29,27 @@ public abstract class WeaponAttachment : MonoBehaviour {
 		get { return m_IsAttached; }
 	}
 
-	public abstract void OnActivate();
-	public abstract void SetActive( bool state );
-	public abstract void OnDeactivated();
+	protected abstract void OnActivate();
+	protected abstract void OnDeactivated();
+
+	//////////////////////////////////////////////////////////////////////////
+	public	void	SetActive( bool state )
+	{
+		if ( m_IsUsable == false || m_IsAttached == false || ( state == m_IsActive ) )
+			return;
+
+		m_IsActive = state;
+
+		if ( m_IsActive == true )
+		{
+			OnActivate();
+		}
+		else
+		{
+			OnDeactivated();
+		}
+	}
+
 
 	public void OnAttached()
 	{

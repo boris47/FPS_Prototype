@@ -356,11 +356,6 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void			OnEnable()
 	{
-		// Update events registration
-//		GameManager.UpdateEvents.OnFrame += m_PrimaryWeaponModuleSlot.WeaponModule.InternalUpdate;
-//		GameManager.UpdateEvents.OnFrame += m_SecondaryWeaponModuleSlot.WeaponModule.InternalUpdate;
-//		GameManager.UpdateEvents.OnFrame += m_TertiaryWeaponModuleSlot.WeaponModule.InternalUpdate;
-
 		//										COMMAND								COMMAND ID						ACTION							PREDICATE
 		GlobalManager.InputMgr.BindCall( eInputCommands.PRIMARY_FIRE_PRESS,		"Wpn_Primary_Fire_Start",		PrimaryFire_Start,		Predicate_PrimaryFire_Start		);
 		GlobalManager.InputMgr.BindCall( eInputCommands.PRIMARY_FIRE_HOLD,		"Wpn_Primary_Fire_Update",		PrimaryFire_Update,		Predicate_PrimaryFire_Update	);
@@ -381,19 +376,13 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 			delegate() { return  Player.Instance.IsRunning && WeaponManager.Instance.IsZoomed; }
 		);
 
-
-		if ( m_bHasLaser )				m_Laser.OnActivate();
+		if ( m_bHasLaser )				m_Laser.SetActive(true);
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void			OnDisable()
 	{
-		// Update events un-registration
-//		GameManager.UpdateEvents.OnFrame -= m_PrimaryWeaponModuleSlot.WeaponModule.InternalUpdate;
-//		GameManager.UpdateEvents.OnFrame -= m_SecondaryWeaponModuleSlot.WeaponModule.InternalUpdate;
-//		GameManager.UpdateEvents.OnFrame -= m_TertiaryWeaponModuleSlot.WeaponModule.InternalUpdate;
-
 		GlobalManager.InputMgr.UnbindCall( eInputCommands.PRIMARY_FIRE_PRESS,		"Wpn_Primary_Fire_Start"	);
 		GlobalManager.InputMgr.UnbindCall( eInputCommands.PRIMARY_FIRE_HOLD,		"Wpn_Primary_Fire_Update"	);
 		GlobalManager.InputMgr.UnbindCall( eInputCommands.PRIMARY_FIRE_RELEASE,		"Wpn_Primary_Fire_End"		);
@@ -410,7 +399,7 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 
 		GlobalManager.InputMgr.UnbindCall( eInputCommands.STATE_RUN,				"Wpn_ExitZoom" );
 
-		if ( m_bHasLaser )				m_Laser.OnDeactivated();
+		if ( m_bHasLaser )				m_Laser.SetActive(false);
 	}
 
 

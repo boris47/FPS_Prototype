@@ -19,7 +19,7 @@ public class Scope : WeaponAttachment, IScope {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public override void OnActivate()
+	protected override void OnActivate()
 	{
 		if ( m_IsUsable == false || m_IsAttached == false )
 			return;
@@ -29,31 +29,13 @@ public class Scope : WeaponAttachment, IScope {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public override void OnDeactivated()
+	protected override void OnDeactivated()
 	{
 		if ( m_IsUsable == false || m_IsAttached == false )
 			return;
 
 		m_IsActive = false;
 	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	public	override void	SetActive( bool state )
-	{
-		if ( m_IsUsable == false || m_IsAttached == false )
-			return;
-
-		m_IsActive = state;
-
-		if ( m_IsActive == true )
-		{
-			OnActivate();
-		}
-		else
-		{
-			OnDeactivated();
-		}
-	}
+	
 	
 }
