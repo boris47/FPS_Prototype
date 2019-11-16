@@ -122,6 +122,7 @@ public class Interactable : MonoBehaviour, IInteractable {
 	{
 		m_OnInteractionCallback();
 		m_OnInteraction.Invoke();
+		m_HasInteracted = true;
 	}
 
 
@@ -131,6 +132,7 @@ public class Interactable : MonoBehaviour, IInteractable {
 	{
 		m_OnRetroInteractionCallback();
 		m_OnRetroInteraction.Invoke();
+		m_HasInteracted = false;
 	}
 
 }
