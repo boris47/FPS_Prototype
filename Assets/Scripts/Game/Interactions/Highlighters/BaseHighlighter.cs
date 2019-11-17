@@ -9,13 +9,22 @@ public class BaseHighlighter : MonoBehaviour
 
 	protected const string OTULINE_SHADER_BUFFER_PATH = "Shaders/Outline/OutlineBufferShader";
 
-	public		static	Material	outlineEraseMaterial	{ get; private set; }
-	private		static	Shader		outlineBufferShader		= null;
+	public		static	Material	outlineEraseMaterial		{ get; private set; }
+	private		static	Shader		outlineBufferShader			= null;
 	
-	public	Renderer Renderer							{ get; private set; }
-	public	SkinnedMeshRenderer SkinnedMeshRenderer		{ get; private set; }
-	public	MeshFilter MeshFilter						{ get; private set; }
-    public	Material[] SharedMaterials					{ get { return Renderer.sharedMaterials; } }
+	public		Renderer				Renderer				{ get; private set; }
+	public		SkinnedMeshRenderer		SkinnedMeshRenderer		{ get; private set; }
+	public		MeshFilter				MeshFilter				{ get; private set; }
+    public		Material[]				SharedMaterials			{ get { return Renderer.sharedMaterials; } }
+
+	[Range(1.0f, 6.0f)]
+	public		float					lineThickness			= 1.25f;
+
+	public		Color					color					= Color.red;
+	public		bool					eraseRenderer			= false;
+
+	private		Material				m_MatToUse				= null;
+	private		Material[]				_SharedMaterials		= null;
 
 
 	public Material MatToUse {
@@ -24,17 +33,6 @@ public class BaseHighlighter : MonoBehaviour
 			return m_MatToUse;
 		}
 	}
-
-	
-	[Range(1.0f, 6.0f)]
-	public float lineThickness = 1.25f;
-
-	public		Color color = Color.red;
-	public		bool eraseRenderer;
-
-	private		Material m_MatToUse = null;
-	private		Material[] _SharedMaterials;
-
 
 
 

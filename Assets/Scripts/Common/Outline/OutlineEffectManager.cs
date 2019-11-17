@@ -25,12 +25,13 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Rendering;
-using UnityEngine.VR;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Camera))]
 public class OutlineEffectManager : MonoBehaviour
 {
+	private	const	string	OUTLINE_SHADER_PATH = "Shaders/Outline/OutlineShader";
+
 	public static OutlineEffectManager Instance { get; private set; }
 
 	private static readonly List<BaseHighlighter> outlines = new List<BaseHighlighter>();
@@ -77,32 +78,27 @@ public class OutlineEffectManager : MonoBehaviour
 
 	void Start()
 	{
-		CreateMaterialsIfNeeded();
-//		UpdateMaterialsPublicProperties();
+		if(outlineShader == null)
+			outlineShader = Resources.Load<Shader>(OUTLINE_SHADER_PATH);
+	
+		if(outlineShaderMaterial == null)
+		{
+			outlineShaderMaterial = new Material(outlineShader);
+			outlineShaderMaterial.hideFlags = HideFlags.HideAndDontSave;
+		}
 		
 		GameObject cameraGameObject = new GameObject("Outline Camera");
 		cameraGameObject.transform.parent = sourceCamera.transform;
 		outlineCamera = cameraGameObject.AddComponent<Camera>();
-		outlineCamera.enabled = false;
-		
 
 		renderTexture = new RenderTexture(sourceCamera.pixelWidth, sourceCamera.pixelHeight, 16/*depth*/, RenderTextureFormat.Default);
 		UpdateOutlineCameraFromSource();
 
 		commandBuffer = new CommandBuffer();
 		outlineCamera.AddCommandBuffer(CameraEvent.BeforeImageEffects, commandBuffer);
-	}
 
-
-	//
-	private void Update()
-	{
-		if ( renderTexture.width != sourceCamera.pixelWidth || renderTexture.height != sourceCamera.pixelHeight)
-		{
-			Destroy(renderTexture);
-			renderTexture = new RenderTexture(sourceCamera.pixelWidth, sourceCamera.pixelHeight, 16/*Depth*/, RenderTextureFormat.Default);
-			outlineCamera.targetTexture = renderTexture;
-		}
+		outlineCamera.targetTexture = renderTexture;
+		commandBuffer.SetRenderTarget(renderTexture);
 	}
 
 
@@ -124,9 +120,17 @@ public class OutlineEffectManager : MonoBehaviour
 			RenderTheNextFrame = true;
 		}
 
-		outlineCamera.fieldOfView = sourceCamera.fieldOfView;
-		outlineCamera.targetTexture = renderTexture;
+		if ( renderTexture.width != sourceCamera.pixelWidth || renderTexture.height != sourceCamera.pixelHeight )
+        {
+			Destroy(renderTexture);
+		    renderTexture = new RenderTexture(sourceCamera.pixelWidth, sourceCamera.pixelHeight, 16, RenderTextureFormat.Default);
+			commandBuffer.SetRenderTarget(renderTexture);
+			outlineCamera.targetTexture = renderTexture;
+		}
 
+		commandBuffer.Clear();
+
+		outlineCamera.fieldOfView = sourceCamera.fieldOfView;
 
 		for ( int i = outlines.Count - 1; i >= 0; i-- )
 		{
@@ -142,12 +146,12 @@ public class OutlineEffectManager : MonoBehaviour
 			if ( bIsNotCulled )
 			{
 				UpdateMaterialsPublicProperties( outline );
-				for ( int v = 0; v < outline.SharedMaterials.Length; v++)
+				for ( int v = 0; v < outline.SharedMaterials.Length; v++ )
 				{
 					Material MaterialToRender = null;
 					if ( outline.SharedMaterials[v]?.mainTexture != null )
 					{
-						foreach(Material matBuffer in materialBuffer)
+						foreach( Material matBuffer in materialBuffer )
 						{
 							if ( matBuffer.mainTexture == outline.SharedMaterials[v].mainTexture )
 							{
@@ -179,7 +183,7 @@ public class OutlineEffectManager : MonoBehaviour
 
 					commandBuffer.DrawRenderer(outline.Renderer, MaterialToRender, 0, 0);
 					MeshFilter meshFilter = outline.MeshFilter;
-					if ( meshFilter && meshFilter.sharedMesh != null)
+					if ( meshFilter && meshFilter.sharedMesh )
 					{
 						for( int j = 1; j < meshFilter.sharedMesh.subMeshCount; j++ )
 						{
@@ -188,7 +192,7 @@ public class OutlineEffectManager : MonoBehaviour
 					}
 
 					SkinnedMeshRenderer skinnedMeshRenderer = outline.SkinnedMeshRenderer;
-					if(skinnedMeshRenderer && skinnedMeshRenderer.sharedMesh != null)
+					if ( skinnedMeshRenderer && skinnedMeshRenderer.sharedMesh )
 					{
 						for( int j = 1; j < skinnedMeshRenderer.sharedMesh.subMeshCount; j++ )
 						{
@@ -227,57 +231,39 @@ public class OutlineEffectManager : MonoBehaviour
 		outlines.Clear();
 	}
 
-	void OnRenderImage(RenderTexture source, RenderTexture destination)
+	// OnRenderImage is called after all rendering is complete to render image
+	private void OnRenderImage( RenderTexture source, RenderTexture destination )
 	{
 		outlineShaderMaterial.SetTexture("_OutlineSource", renderTexture);
 
 		Graphics.Blit(source, destination, outlineShaderMaterial, 1);
 	}
 
-
-	const string OUTLINE_SHADER_PATH = "Shaders/Outline/OutlineShader";
-	
-	private void CreateMaterialsIfNeeded()
-	{
-		if(outlineShader == null)
-			outlineShader = Resources.Load<Shader>(OUTLINE_SHADER_PATH);
-	
-		if(outlineShaderMaterial == null)
-		{
-			outlineShaderMaterial = new Material(outlineShader);
-			outlineShaderMaterial.hideFlags = HideFlags.HideAndDontSave;
-		}
-	}
-
-
 	public void UpdateMaterialsPublicProperties(BaseHighlighter highlighter)
 	{
-		if(outlineShaderMaterial)
+		float scalingFactor = 1;
+		if(scaleWithScreenSize)
 		{
-			float scalingFactor = 1;
-			if(scaleWithScreenSize)
-			{
-				// If Screen.height gets bigger, outlines gets thicker
-				scalingFactor = Screen.height / 360.0f;
-			}
-
-			// If scaling is too small (height less than 360 pixels), make sure you still render the outlines, but render them with 1 thickness
-			if(scaleWithScreenSize && scalingFactor < 1)
-			{
-				outlineShaderMaterial.SetFloat("_LineThicknessX", (1.0f / 1000.0f) * (1.0f / Screen.width) * 1000.0f);
-				outlineShaderMaterial.SetFloat("_LineThicknessY", (1.0f / 1000.0f) * (1.0f / Screen.height) * 1000.0f);
-			}
-			else
-			{
-				outlineShaderMaterial.SetFloat("_LineThicknessX", scalingFactor * (highlighter.lineThickness / 1000.0f) * (1.0f / Screen.width) * 1000.0f);
-				outlineShaderMaterial.SetFloat("_LineThicknessY", scalingFactor * (highlighter.lineThickness / 1000.0f) * (1.0f / Screen.height) * 1000.0f);
-			}
-			outlineShaderMaterial.SetFloat("_LineIntensity", lineIntensity);
-			outlineShaderMaterial.SetFloat("_FillAmount", fillAmount);
-			outlineShaderMaterial.SetColor("_LineColor", highlighter.color);
-
-			Shader.SetGlobalFloat("_OutlineAlphaCutoff", alphaCutoff);
+			// If Screen.height gets bigger, outlines gets thicker
+			scalingFactor = Screen.height / 360.0f;
 		}
+
+		// If scaling is too small (height less than 360 pixels), make sure you still render the outlines, but render them with 1 thickness
+		if(scaleWithScreenSize && scalingFactor < 1)
+		{
+			outlineShaderMaterial.SetFloat("_LineThicknessX", (1.0f / 1000.0f) * (1.0f / Screen.width) * 1000.0f);
+			outlineShaderMaterial.SetFloat("_LineThicknessY", (1.0f / 1000.0f) * (1.0f / Screen.height) * 1000.0f);
+		}
+		else
+		{
+			outlineShaderMaterial.SetFloat("_LineThicknessX", scalingFactor * (highlighter.lineThickness / 1000.0f) * (1.0f / Screen.width) * 1000.0f);
+			outlineShaderMaterial.SetFloat("_LineThicknessY", scalingFactor * (highlighter.lineThickness / 1000.0f) * (1.0f / Screen.height) * 1000.0f);
+		}
+		outlineShaderMaterial.SetFloat("_LineIntensity", lineIntensity);
+		outlineShaderMaterial.SetFloat("_FillAmount", fillAmount);
+		outlineShaderMaterial.SetColor("_LineColor", highlighter.color);
+
+		Shader.SetGlobalFloat("_OutlineAlphaCutoff", alphaCutoff);
 	}
 
 	void UpdateOutlineCameraFromSource()
