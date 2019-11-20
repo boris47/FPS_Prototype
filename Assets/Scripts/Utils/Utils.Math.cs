@@ -41,13 +41,22 @@ namespace Utils {
 		/// Return the scaled value between given limits clamped to range [0, 1]
 		/// Ex: CurrentDistance, MAX_DISTANCE, MIN_DISTANCE ( 0 -> 1 [ MinLimit -> CurrentDistance -> MaxLimit ] )
 		/// </summary>
-		/// <param name="CurrentValue"></param>
-		/// <param name="MinLimit"></param>
-		/// <param name="MaxLimit"></param>
+        /// <param name="CurrentValue">The actual value to normalize.</param>
+        /// <param name="MinValue">The minimum value the actual value can be.</param>
+        /// <param name="MaxValue">The maximum value the actual value can be.</param>
+        /// <param name="Threshold">The threshold to force to the minimum or maximum value if the normalized value is within the threhold limits.</param>
 		/// <returns></returns>
-		public static float ScaleBetweenClamped01( float CurrentValue, float MinLimit, float MaxLimit )
+		public static float ScaleBetweenClamped01( float CurrentValue, float MinValue, float MaxValue, float Threshold = 0f )
 		{
-			return Mathf.Clamp01( ( ( CurrentValue - MinLimit ) / ( MaxLimit - MinLimit ) ) );
+
+			float normalizedMax = MaxValue - MinValue;
+            float normalizedValue = normalizedMax - (MaxValue - CurrentValue);
+            float result = normalizedValue * ( (normalizedMax != 0f ? 1f / normalizedMax : 1f) ) ;
+            result = (result < Threshold ? 0f : result);
+            result = (result > 1f - Threshold ? 1f : result);
+            return Mathf.Clamp(result, 0f, 1f);
+
+//			return Mathf.Clamp01( ( ( CurrentValue - MinLimit ) / ( MaxLimit - MinLimit ) ) );
 		}
 
 		/// Ref: https://en.wikipedia.org/wiki/Feature_scaling
