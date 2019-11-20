@@ -29,10 +29,6 @@ using UnityEngine.Rendering;
 [DisallowMultipleComponent]
 public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager> {
 
-	private	const	string	OUTLINE_SHADER_PATH = "Shaders/Outline/OutlineShader";
-
-	private static readonly List<BaseHighlighter> outlines = new List<BaseHighlighter>();
-
 	public enum HighlightType {
 		Glow = 0,
 		Solid = 1
@@ -134,7 +130,6 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 		RecreateCommandBuffer();
 	}
 
-
 	public void UpdateRenderers( uint id, OutlineData outlineData )
 	{
 		m_ObjectRenderers[id].outlineData = outlineData;
@@ -157,7 +152,7 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 	{
 		m_ObjectRenderers.Clear();
 		m_ObjectExcluders.Clear();
-		m_CommandBuffer.Clear();
+		commandBuffer.Clear();
 	}
 
 
@@ -171,14 +166,27 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 		};
 	}
 
+
+	private	static	CommandBuffer commandBuffer
+	{
+		get {
+			if ( m_CommandBuffer == null )
+			{
+				m_CommandBuffer = new CommandBuffer();
+				m_CommandBuffer.name = "HighlightFX Command Buffer";
+			}
+			return m_CommandBuffer;
+		}
+	}
+
+
 	//
 	private void Awake()
 	{
 		m_ObjectRenderers = new Dictionary<uint, CustomOutlineData>();
 		m_ObjectExcluders = new List<List<Renderer>>();
 
-		m_CommandBuffer = new CommandBuffer();
-		m_CommandBuffer.name = "HighlightFX Command Buffer";
+
 
 		m_HighlightRTID		= Shader.PropertyToID( "_HighlightRT" );
 		m_BlurredRTID		= Shader.PropertyToID( "_BlurredRT" );
@@ -200,24 +208,12 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 		if ( camera )
 		{
 			camera.depthTextureMode = DepthTextureMode.Depth;
-			camera.AddCommandBuffer( CameraEvent.BeforeImageEffects, m_CommandBuffer );
+			camera.AddCommandBuffer( CameraEvent.BeforeImageEffects, commandBuffer );
 		}
 		m_Camera = camera;
 	}
 
-
-	private void Update()
-	{
-		if ( Screen.width != m_CurrentResolutionX || Screen.height != m_CurrentResolutionY )
-		{
-			m_CurrentResolutionX = Screen.width;
-			m_CurrentResolutionY = Screen.height;
-			m_RTWidth  = ( int ) ( m_CurrentResolutionX / ( float ) m_Resolution );
-			m_RTHeight = ( int ) ( m_CurrentResolutionY / ( float ) m_Resolution );
-			RecreateCommandBuffer();
-		}
-	}
-
+	
 	private void OnPreRender()
 	{
 		if ( Screen.width != m_CurrentResolutionX || Screen.height != m_CurrentResolutionY )
@@ -230,40 +226,45 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 		}
 	}
 
+	private void OnValidate()
+	{
+		if ( m_CommandBuffer != null )
+		RecreateCommandBuffer();
+	}
+
 	//
 	private void RecreateCommandBuffer()
 	{
-		m_CommandBuffer.Clear();
+		commandBuffer.Clear();
 
 		if ( m_ObjectRenderers.Count == 0 || m_Camera == null )
 			return;
 
 		// Initialization
-
-		m_CommandBuffer.GetTemporaryRT( m_HighlightRTID, m_RTWidth, m_RTHeight, 0, FilterMode.Bilinear, RenderTextureFormat.ARGB32 );
-		m_CommandBuffer.SetRenderTarget( m_HighlightRTID, BuiltinRenderTextureType.CurrentActive );
-		m_CommandBuffer.ClearRenderTarget( false, true, Color.clear );
+		commandBuffer.GetTemporaryRT( m_HighlightRTID, m_RTWidth, m_RTHeight, 0, FilterMode.Bilinear, RenderTextureFormat.ARGB32 );
+		commandBuffer.SetRenderTarget( m_HighlightRTID, BuiltinRenderTextureType.CurrentActive );
+		commandBuffer.ClearRenderTarget( false, true, Color.clear );
 
 		// Rendering into texture
 		foreach ( KeyValuePair<uint, CustomOutlineData> superCollection in m_ObjectRenderers )
 		{
 			CustomOutlineData customOutlineData = superCollection.Value;
-			m_CommandBuffer.SetGlobalColor( "_Color", customOutlineData.outlineData.color );
+			commandBuffer.SetGlobalColor( "_Color", customOutlineData.outlineData.color );
 
 			int pass = ( int ) customOutlineData.outlineData.sortingType;
 			foreach ( Renderer render in customOutlineData.renderers )
 			{
-				m_CommandBuffer.DrawRenderer( render, m_HighlightMaterial, 0, pass );
+				commandBuffer.DrawRenderer( render, m_HighlightMaterial, 0, pass );
 			}
 		}
 
 		// Excluding from texture 
-		m_CommandBuffer.SetGlobalColor( "_Color", Color.clear );
+		commandBuffer.SetGlobalColor( "_Color", Color.clear );
 		foreach ( List<Renderer> collection in m_ObjectExcluders )
 		{
 			foreach ( Renderer render in collection )
 			{
-				m_CommandBuffer.DrawRenderer( render, m_HighlightMaterial, 0, ( int ) SortingType.Overlay );
+				commandBuffer.DrawRenderer( render, m_HighlightMaterial, 0, ( int ) SortingType.Overlay );
 			}
 		}
 
@@ -273,10 +274,10 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 		int rtW = m_RTWidth >> m_Downsample;
 		int rtH = m_RTHeight >> m_Downsample;
 
-		m_CommandBuffer.GetTemporaryRT( m_BlurredRTID, rtW, rtH, 0, FilterMode.Bilinear, RenderTextureFormat.ARGB32 );
-		m_CommandBuffer.GetTemporaryRT( m_TemporaryRTID, rtW, rtH, 0, FilterMode.Bilinear, RenderTextureFormat.ARGB32 );
+		commandBuffer.GetTemporaryRT( m_BlurredRTID, rtW, rtH, 0, FilterMode.Bilinear, RenderTextureFormat.ARGB32 );
+		commandBuffer.GetTemporaryRT( m_TemporaryRTID, rtW, rtH, 0, FilterMode.Bilinear, RenderTextureFormat.ARGB32 );
 
-		m_CommandBuffer.Blit( m_HighlightRTID, m_TemporaryRTID, m_BlurMaterial, 0 );
+		commandBuffer.Blit( m_HighlightRTID, m_TemporaryRTID, m_BlurMaterial, 0 );
 
 		int passOffs = m_BlurType == BlurType.StandardGauss ? 0 : 2;
 
@@ -286,36 +287,36 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 			float blurHorizParam = m_BlurSize * widthMod + iterationOffs;
 			float blurVertParam = -m_BlurSize * widthMod - iterationOffs;
 
-			m_CommandBuffer.SetGlobalVector( "_Parameter", new Vector4( blurHorizParam, blurVertParam ) );
+			commandBuffer.SetGlobalVector( "_Parameter", new Vector4( blurHorizParam, blurVertParam ) );
 
-			m_CommandBuffer.Blit( m_TemporaryRTID, m_BlurredRTID, m_BlurMaterial, 1 + passOffs );
-			m_CommandBuffer.Blit( m_BlurredRTID, m_TemporaryRTID, m_BlurMaterial, 2 + passOffs );
+			commandBuffer.Blit( m_TemporaryRTID, m_BlurredRTID, m_BlurMaterial, 1 + passOffs );
+			commandBuffer.Blit( m_BlurredRTID, m_TemporaryRTID, m_BlurMaterial, 2 + passOffs );
 		}
 
 		// Occlusion
 		if ( m_FillType == FillType.Outline )
 		{
 			// Excluding the original image from the blurred image, leaving out the areal alone
-			m_CommandBuffer.SetGlobalTexture( "_SecondaryTex", m_HighlightRTID );
-			m_CommandBuffer.Blit( m_TemporaryRTID, m_BlurredRTID, m_HighlightMaterial, 2 );
+			commandBuffer.SetGlobalTexture( "_SecondaryTex", m_HighlightRTID );
+			commandBuffer.Blit( m_TemporaryRTID, m_BlurredRTID, m_HighlightMaterial, 2 );
 
-			m_CommandBuffer.SetGlobalTexture( "_SecondaryTex", m_BlurredRTID );
+			commandBuffer.SetGlobalTexture( "_SecondaryTex", m_BlurredRTID );
 		}
 		else
 		{
-			m_CommandBuffer.SetGlobalTexture( "_SecondaryTex", m_TemporaryRTID );
+			commandBuffer.SetGlobalTexture( "_SecondaryTex", m_TemporaryRTID );
 		}
 
 		// Back buffer
-		m_CommandBuffer.Blit( BuiltinRenderTextureType.CameraTarget, m_HighlightRTID );
+		commandBuffer.Blit( BuiltinRenderTextureType.CameraTarget, m_HighlightRTID );
 
 		// Overlay
-		m_CommandBuffer.SetGlobalFloat( "_ControlValue", m_ControlValue );
-		m_CommandBuffer.Blit( m_HighlightRTID, BuiltinRenderTextureType.CameraTarget, m_HighlightMaterial, ( int ) m_SelectionType );
+		commandBuffer.SetGlobalFloat( "_ControlValue", m_ControlValue );
+		commandBuffer.Blit( m_HighlightRTID, BuiltinRenderTextureType.CameraTarget, m_HighlightMaterial, ( int ) m_SelectionType );
 
-		m_CommandBuffer.ReleaseTemporaryRT( m_TemporaryRTID );
-		m_CommandBuffer.ReleaseTemporaryRT( m_BlurredRTID );
-		m_CommandBuffer.ReleaseTemporaryRT( m_HighlightRTID );
+		commandBuffer.ReleaseTemporaryRT( m_TemporaryRTID );
+		commandBuffer.ReleaseTemporaryRT( m_BlurredRTID );
+		commandBuffer.ReleaseTemporaryRT( m_HighlightRTID );
 	}
 
 }
