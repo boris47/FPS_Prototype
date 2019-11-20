@@ -175,26 +175,37 @@ namespace Utils {
 			}
 		}
 
-
+		class dummy {}
 		////////////////////////////////////////////////
-		public	static	void	Clone( ref GameObject sourceObj, ref GameObject destinationObj, bool copyProperties = false )
+		public static void Clone( ref GameObject sourceObj, ref GameObject destinationObj, bool copyProperties = false, global::System.Type[] copyComponents = null )
 		{
+			copyComponents = copyComponents ?? new global::System.Type[] { typeof(dummy) };
+
 			// ALL COMPONENTS AND PROPERTIES EXCEPT MESH FILTER MESH PROPERTY
 			Component[] copyModelComponents = sourceObj.GetComponents<Component>();
-			for (int i = 0; i < copyModelComponents.Length; i++)
+			for ( int i = 0; i < copyModelComponents.Length; i++ )
 			{
-				Component copyModelComponent = copyModelComponents[ i ];
-				CloneComponent( copyModelComponent, ref destinationObj, copyProperties );
+				Component copyModelComponent = copyModelComponents[i];
+				if ( global::System.Array.Exists( copyComponents, c => 
+				copyModelComponent.GetType() == c || copyModelComponent.GetType().IsSubclassOf(c)) )
+				{
+					CloneComponent( copyModelComponent, ref destinationObj, copyProperties );
+				}
 			}
 
 			// MESH FILTER MESH
-			MeshFilter sourceMeshFilter = sourceObj.GetComponent<MeshFilter>();
-			if ( sourceMeshFilter != null )
-				destinationObj.GetComponent<MeshFilter>().mesh = sourceMeshFilter.mesh;
+			MeshFilter sourceMeshFilter = null, destMeshFilter = null;
+			if ( sourceObj.TryGetComponent( out sourceMeshFilter ) && destinationObj.TryGetComponent( out destMeshFilter ) )
+			{
+				destMeshFilter.mesh = sourceMeshFilter.mesh;
+			}
 
 			//	RENDERER MATERIAL
-			Material returnHighlightMaterial = sourceObj.GetComponent<Renderer>().material;
-			destinationObj.GetComponent<Renderer>().material = returnHighlightMaterial;
+			Renderer sourceRenderer = null, destRenderer = null;
+			if ( sourceObj.TryGetComponent( out sourceRenderer ) && destinationObj.TryGetComponent( out destRenderer ) )
+			{
+				destRenderer.material = sourceRenderer.material;
+			}
 
 			// SCALE
 			destinationObj.transform.localScale = sourceObj.transform.localScale;
