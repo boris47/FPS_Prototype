@@ -61,9 +61,9 @@ public abstract class SingletonMonoBehaviour<T> : MonoBehaviour, SingletonInitia
 	public		static			T										Instance
 	{
 		get {
-			UnityEngine.Assertions.Assert.IsNotNull
+			UnityEngine.Assertions.Assert.IsTrue
 			(
-				m_Instance,
+				!!m_Instance || !m_IsInitialized,
 				typeof(T).Name + " has been not initialized correctly!!"
 			);
 			return m_Instance as T;
@@ -87,6 +87,7 @@ public abstract class SingletonMonoBehaviour<T> : MonoBehaviour, SingletonInitia
 			if ( m_Instance == null )
 			{
 				m_Instance = new GameObject( typeof(T).Name ).AddComponent<T>() as SingletonMonoBehaviour<T>;
+				print( "Singleton created " + typeof(T).Name );
 			}
 //			m_Instance.hideFlags = HideFlags.DontSave;
 			m_IsInitialized = true;

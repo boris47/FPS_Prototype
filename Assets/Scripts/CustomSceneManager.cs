@@ -59,7 +59,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 
 	//	private	static	List< System.Action<KeyValuePair< SceneLoadStep, Scene>> > Delegates = new List<System.Action<KeyValuePair<SceneLoadStep, Scene>>>();
 
-
+	/*
 	/////////////////////////////////////////////////////////////////
 	protected override void OnBeforeSceneLoad()
 	{
@@ -67,7 +67,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 		Delegates[SceneLoadStep.AFTER_SCENE_ACTIVATION].Clear();
 		Delegates[SceneLoadStep.AFTER_SAVE_LOAD].Clear();
 	}
-
+	*/
 
 
 	/////////////////////////////////////////////////////////////////
@@ -216,7 +216,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 
 		m_IsCurrentlyPreloading = true;
 
-		IEnumerator enumerator = Instance.PreloadCO( SceneIdx, preloadSceneData );
+		IEnumerator enumerator = Instance?.PreloadCO( SceneIdx, preloadSceneData );
 		CoroutinesManager.Start( enumerator, "CustomSceneManager::Preload: Preloading scene " + SceneIdx );
 		return enumerator;
 	}
@@ -226,7 +226,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 	/// <summary> Complete the load of a previous preloaded scene </summary>
 	public	static	IEnumerator	CompleteSceneAsyncLoad( PreloadSceneData preloadSceneData )
 	{
-		IEnumerator enumerator = Instance.CompleteSceneAsyncLoadCO( preloadSceneData );
+		IEnumerator enumerator = Instance?.CompleteSceneAsyncLoadCO( preloadSceneData );
 		CoroutinesManager.Start( enumerator, "CustomSceneManager::CompleteSceneAsyncLoad: Completing load of " + preloadSceneData.eScene );
 		return enumerator;
 	}
@@ -239,7 +239,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 		if ( HasGotValidLoadScenData( loadSceneData ) == false )
 			return null;
 
-		IEnumerator enumerator = Instance.LoadSceneAsyncCO( loadSceneData, loadCondition );
+		IEnumerator enumerator = Instance?.LoadSceneAsyncCO( loadSceneData, loadCondition );
 		CoroutinesManager.Start( enumerator, "CustomSceneManager::LoadSceneAsync: Loading " + loadSceneData.eScene );
 		return enumerator;
 	}
@@ -253,7 +253,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 		if ( scene.isLoaded == false )
 			return null;
 
-		IEnumerator enumerator = Instance.UnLoadSceneAsyncCO( scene );
+		IEnumerator enumerator = Instance?.UnLoadSceneAsyncCO( scene );
 		CoroutinesManager.Start( enumerator, "CustomSceneManager::UnLoadSceneAsync:Async unload of " + scene.name );
 		return enumerator;
 	}

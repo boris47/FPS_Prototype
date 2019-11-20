@@ -103,7 +103,7 @@ public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
 		{
 			Debug.Log( "Starting coroutine for " + debugKey );
 		}
-		return Instance.StartCoroutine( routine );
+		return Instance?.StartCoroutine( routine );
 	}
 
 
@@ -111,7 +111,7 @@ public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
 	/// <summary> Start given coroutine </summary>
 	public	static	void	Stop( Coroutine routine )
 	{
-		Instance.StopCoroutine( routine );
+		Instance?.StopCoroutine( routine );
 	}
 
 
@@ -119,7 +119,7 @@ public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
 	/// <summary> Stop all running coroutines </summary>
 	public	static	void	StopAll()
 	{
-		Instance.StopAllCoroutines();
+		Instance?.StopAllCoroutines();
 	}
 
 	/////////////////////////////////////////////////////////////////
