@@ -171,6 +171,8 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 
 		GameManager.StreamEvents.OnSave += OnSave;
 		GameManager.StreamEvents.OnLoad += OnLoad;
+
+		OutlineEffectManager.SetEffectCamera( m_CameraRef );
 	}
 	
 
@@ -183,6 +185,7 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 			GameManager.StreamEvents.OnSave -= OnSave;
 			GameManager.StreamEvents.OnLoad -= OnLoad;
 		}
+		OutlineEffectManager.SetEffectCamera( null );
 	}
 
 

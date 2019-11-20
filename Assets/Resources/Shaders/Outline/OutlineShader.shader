@@ -33,6 +33,43 @@ Shader "Hidden/OutlineEffect"
 	}
 	SubShader 
 	{
+
+        Pass {
+                CGPROGRAM
+                #pragma vertex vert_img
+                #pragma fragment frag
+                #pragma fragmentoption ARB_precision_hint_fastest
+                #include "UnityCG.cginc"
+            
+                sampler2D _MainTex;
+                sampler2D _OccludeMap;
+            
+                half4 frag(v2f_img IN) : COLOR {
+                    return tex2D (_MainTex, IN.uv) - tex2D(_OccludeMap, IN.uv);
+                }
+                ENDCG
+        }
+
+
+		Pass {
+            CGPROGRAM
+                #pragma vertex vert_img
+                #pragma fragment frag
+                #pragma fragmentoption ARB_precision_hint_fastest
+                #include "UnityCG.cginc"
+            
+                sampler2D _MainTex;
+                sampler2D _OccludeMap;
+            
+                half4 frag(v2f_img IN) : COLOR {
+                    return tex2D (_MainTex, IN.uv) + tex2D(_OccludeMap, IN.uv);
+                }
+            ENDCG
+        }
+
+
+
+
 		Pass
 		{
 			Tags{ "RenderType" = "Opaque" }
@@ -182,6 +219,47 @@ Shader "Hidden/OutlineEffect"
 					return originalPixel;
 			}
 			
+			ENDCG
+		}
+		Pass
+		{
+			Tags { "RenderType"="Opaque" }
+			LOD 200
+			ZTest Always
+			ZWrite Off
+			Cull Off
+
+			CGPROGRAM
+
+			#pragma vertex vert
+			#pragma fragment frag
+			#pragma target 3.0
+			#include "UnityCG.cginc"
+
+			sampler2D _MainTex;
+			float4 _MainTex_ST;
+
+			struct v2f {
+			   float4 position : SV_POSITION;
+			   float2 uv : TEXCOORD0;
+			};
+
+			v2f vert(appdata_img v)
+			{
+			   	v2f o;
+				o.position = UnityObjectToClipPos(v.vertex);
+				o.uv = v.texcoord;
+				
+			   	return o;
+			}
+
+			fixed4 _OutlineColor;
+
+			fixed4 frag (v2f i) : SV_Target
+			{
+				return _OutlineColor;
+			}
+
 			ENDCG
 		}
 	} 
