@@ -101,70 +101,16 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 	}
 
 	private     Dictionary<uint, CustomOutlineData>     m_ObjectRenderers       = new Dictionary<uint, CustomOutlineData>();
-	private     List<List<Renderer>>                    m_ObjectExcluders       = new List<List<Renderer>>();
 
-	private     Material                                m_HighlightMaterial     = null;
-	private     Material                                m_BlurMaterial          = null;
-	private     static CommandBuffer					m_CommandBuffer         = null;
+	private     Material                                m_HighlightMaterial		= null;
+	private     Material                                m_BlurMaterial			= null;
 
 
-
-	private static  uint id = 0;
-	private static uint NewId() => id++;
-
-	public void AddRenderers( Renderer[] renderers, OutlineData outlineData, ref uint newID )
-	{
-		CustomOutlineData customOutlineData = new CustomOutlineData() {
-			renderers = renderers,
-			outlineData = outlineData
-		};
-		
-		newID = NewId();
-		m_ObjectRenderers.Add( newID, customOutlineData );
-		RecreateCommandBuffer();
-	}
-
-	public void RemoveRenderers( uint id )
-	{
-		m_ObjectRenderers.Remove( id );
-		RecreateCommandBuffer();
-	}
-
-	public void UpdateRenderers( uint id, OutlineData outlineData )
-	{
-		m_ObjectRenderers[id].outlineData = outlineData;
-		RecreateCommandBuffer();
-	}
-
-	private void AddExcluders( List<Renderer> renderers )
-	{
-		m_ObjectExcluders.Add( renderers );
-		RecreateCommandBuffer();
-	}
-
-	private void RemoveExcluders( List<Renderer> renderers )
-	{
-		m_ObjectExcluders.Remove( renderers );
-		RecreateCommandBuffer();
-	}
-
-	public void ClearOutlineData()
-	{
-		m_ObjectRenderers.Clear();
-		m_ObjectExcluders.Clear();
-		commandBuffer.Clear();
-	}
-
-
-	private static     Camera                                  m_Camera                = null;
-
-	static OutlineEffectManager()
-	{
-		UnityEngine.SceneManagement.SceneManager.sceneLoaded += delegate( UnityEngine.SceneManagement.Scene arg0, UnityEngine.SceneManagement.LoadSceneMode arg1 )
-		{
-			SetEffectCamera( Camera.main );
-		};
-	}
+	private     static		CommandBuffer				m_CommandBuffer			= null;
+	private		static		Camera						m_Camera				= null;
+	private		static		DepthTextureMode			m_PrevDepthTextureMode	= DepthTextureMode.None;
+	private		static		uint						id						= 1;
+	private		static		uint						NewId() => id++;
 
 
 	private	static	CommandBuffer commandBuffer
@@ -180,13 +126,44 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 	}
 
 
-	//
+	// STATIC CONSTRUCTOR
+	static OutlineEffectManager()
+	{
+		UnityEngine.SceneManagement.SceneManager.sceneLoaded += delegate( UnityEngine.SceneManagement.Scene arg0, UnityEngine.SceneManagement.LoadSceneMode arg1 )
+		{
+			SetEffectCamera( Camera.main );
+		};
+	}
+
+	
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> if given camera is valid is then used for command buffer </summary>
+	public	static void	SetEffectCamera( Camera camera )
+	{
+		if ( camera )
+		{
+			if ( camera == m_Camera )
+				return;
+
+			if ( m_Camera )
+			{
+				m_Camera.depthTextureMode = m_PrevDepthTextureMode;
+				m_Camera.RemoveCommandBuffer( CameraEvent.BeforeImageEffects, commandBuffer );
+			}
+
+			m_PrevDepthTextureMode = camera.depthTextureMode;
+			camera.depthTextureMode = DepthTextureMode.Depth;
+			camera.AddCommandBuffer( CameraEvent.BeforeImageEffects, commandBuffer );
+		}
+		m_Camera = camera;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	// Awake
 	private void Awake()
 	{
 		m_ObjectRenderers = new Dictionary<uint, CustomOutlineData>();
-		m_ObjectExcluders = new List<List<Renderer>>();
-
-
 
 		m_HighlightRTID		= Shader.PropertyToID( "_HighlightRT" );
 		m_BlurredRTID		= Shader.PropertyToID( "_BlurredRT" );
@@ -202,18 +179,80 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 	}
 
 
-	//
-	public	static void	SetEffectCamera( Camera camera )
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary>
+	/// Add the renderers to use for outline effect and assign to newID the unique id of the outline effect slot.
+	/// A newID of value Zero express failure.
+	/// 'Color.Clear' color is not accepted
+	/// </summary>
+	public void AddRenderers( Renderer[] renderers, OutlineData outlineData, ref uint newID )
 	{
-		if ( camera )
+		if ( renderers == null || outlineData.color == Color.clear )
 		{
-			camera.depthTextureMode = DepthTextureMode.Depth;
-			camera.AddCommandBuffer( CameraEvent.BeforeImageEffects, commandBuffer );
+			newID = 0;
+			return;
 		}
-		m_Camera = camera;
+
+		CustomOutlineData customOutlineData = new CustomOutlineData() {
+			renderers = renderers,
+			outlineData = outlineData
+		};
+		
+		newID = NewId();
+		m_ObjectRenderers.Add( newID, customOutlineData );
+		RecreateCommandBuffer();
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> Using the slot id, if registered, remove renderers </summary>
+	public void RemoveRenderers( uint id )
+	{
+		if ( id == 0 )
+		{
+			return;
+		}
+
+		m_ObjectRenderers.Remove( id );
+		RecreateCommandBuffer();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> Update the renderers using the given id </summary>
+	public	void	UpdateRenderers( uint id, Renderer[] newRenderers )
+	{
+		if ( id == 0 || newRenderers == null )
+			return;
+
+		m_ObjectRenderers[id].renderers = newRenderers;
+		RecreateCommandBuffer();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> Update the outline data using the given id </summary>
+	public void UpdateRenderers( uint id, OutlineData outlineData )
+	{
+		if ( id == 0 )
+			return;
+
+		m_ObjectRenderers[id].outlineData = outlineData;
+		RecreateCommandBuffer();
+	}
 	
+
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> Clear every renderer from internal collection </summary>
+	public void ClearOutlineData()
+	{
+		m_ObjectRenderers.Clear();
+		commandBuffer.Clear();
+	}
+
+
+	/// <summary> OnPreRender is called before a camera starts rendering the scene </summary>
+	/// This could be usefull if resolution is changed
 	private void OnPreRender()
 	{
 		if ( Screen.width != m_CurrentResolutionX || Screen.height != m_CurrentResolutionY )
@@ -226,10 +265,14 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 		}
 	}
 
+
+	/// <summary> This function is called when the script is loaded or a value is changed in the inspector (Called in the editor only)</summary>
 	private void OnValidate()
 	{
 		if ( m_CommandBuffer != null )
-		RecreateCommandBuffer();
+		{
+			RecreateCommandBuffer();
+		}
 	}
 
 	//
@@ -255,16 +298,6 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 			foreach ( Renderer render in customOutlineData.renderers )
 			{
 				commandBuffer.DrawRenderer( render, m_HighlightMaterial, 0, pass );
-			}
-		}
-
-		// Excluding from texture 
-		commandBuffer.SetGlobalColor( "_Color", Color.clear );
-		foreach ( List<Renderer> collection in m_ObjectExcluders )
-		{
-			foreach ( Renderer render in collection )
-			{
-				commandBuffer.DrawRenderer( render, m_HighlightMaterial, 0, ( int ) SortingType.Overlay );
 			}
 		}
 
@@ -302,7 +335,7 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 
 			commandBuffer.SetGlobalTexture( "_SecondaryTex", m_BlurredRTID );
 		}
-		else
+		else // FillType.Fill
 		{
 			commandBuffer.SetGlobalTexture( "_SecondaryTex", m_TemporaryRTID );
 		}
