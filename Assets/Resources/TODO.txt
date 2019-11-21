@@ -121,3 +121,7 @@ AI Behiaviours
 ***	TODO ArrayList inside Sections
 ***	TODO Add suport for multiline list in sections
 ***	TODO TimersManager
+
+
+	Convert All AIBehaviours to sigleton, with no properties and nested constructors; all the properties have
+	to be stored in the blackboard. When an entity is destroyied, it removes it's references from balckboard.
