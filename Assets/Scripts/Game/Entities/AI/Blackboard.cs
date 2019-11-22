@@ -15,29 +15,26 @@ public class EntityBlackBoardData {
 
 	public	Entity				EntityRef							= null;
 
-//	public	Transform			HeadTransform						= null;
-//	public	Transform			BodyTransform						= null;
+	// Body
+	public	Vector3				Head_Position						=> m_HeadTransform.position;
+	public	Quaternion			Head_Rotation						=> m_HeadTransform.rotation;
+	public	Vector3				Head_Forward						=> m_HeadTransform.forward;
+	public	Vector3				Head_Up								=> m_HeadTransform.up;
+	public	Vector3				Head_Right							=> m_HeadTransform.right;
 
 	// Body
-	public	Vector3				Head_Position						{ get { return m_HeadTransform.position; } }
-	public	Quaternion			Head_Rotation						{ get { return m_HeadTransform.rotation; } }
-	public	Vector3				Head_Forward						{ get { return m_HeadTransform.forward; } }
-	public	Vector3				Head_Up								{ get { return m_HeadTransform.up; } }
-	public	Vector3				Head_Right							{ get { return m_HeadTransform.right; } }
-
-	// Body
-	public	Vector3				Body_Position						{ get { return m_BodyTransform.position; } }
-	public	Quaternion			Body_Rotation						{ get { return m_BodyTransform.rotation; } }
-	public	Vector3				Body_Forward						{ get { return m_BodyTransform.forward; } }
-	public	Vector3				Body_Up								{ get { return m_BodyTransform.up; } }
-	public	Vector3				Body_Right							{ get { return m_BodyTransform.right; } }
+	public	Vector3				Body_Position						=> m_BodyTransform.position;
+	public	Quaternion			Body_Rotation						=> m_BodyTransform.rotation;
+	public	Vector3				Body_Forward						=> m_BodyTransform.forward;
+	public	Vector3				Body_Up								=> m_BodyTransform.up;
+	public	Vector3				Body_Right							=> m_BodyTransform.right;
 
 	// Targettable
-	public	Vector3				Transform_Position					{ get { return m_Transform.position; } }
-	public	Quaternion			Transform_Rotation					{ get { return m_Transform.rotation; } }
-	public	Vector3				Transform_Forward					{ get { return m_Transform.forward; } }
-	public	Vector3				Transform_Up						{ get { return m_Transform.up; } }
-	public	Vector3				Transform_Right						{ get { return m_Transform.right; } }
+	public	Vector3				Transform_Position					=> m_Transform.position;
+	public	Quaternion			Transform_Rotation					=> m_Transform.rotation;
+	public	Vector3				Transform_Forward					=> m_Transform.forward;
+	public	Vector3				Transform_Up						=> m_Transform.up;
+	public	Vector3				Transform_Right						=> m_Transform.right;
 
 	public	LookData			LookData							= null;
 
