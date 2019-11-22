@@ -72,14 +72,6 @@ public class OutlineWithCommandBuffer : BaseHighlighter {
 		m_OutlineData.sortingType = sortingType;
 	}
 
-
-	//
-	private void Start()
-	{
-		Highlight();
-	}
-
-
 	//
 	protected override void OnDisable()
 	{
