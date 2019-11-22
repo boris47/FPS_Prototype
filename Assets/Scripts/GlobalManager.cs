@@ -4,19 +4,27 @@ using UnityEngine;
 
 #if UNITY_EDITOR
 [UnityEditor.InitializeOnLoad]
-class EditorInitializer
+class EditorInitializer { static EditorInitializer ()
 {
-    static EditorInitializer ()
-    {
-		const string assetPath = WeatherSystem.WindowWeatherEditor.RESOURCE_PATH + "/" + WeatherSystem.WindowWeatherEditor.COLLECTION_FILENAME + ".asset";
-		var a = UnityEditor.AssetDatabase.LoadAssetAtPath<WeatherSystem.Weathers>( assetPath );
+	const string assetPath = WeatherSystem.WindowWeatherEditor.RESOURCE_PATH + "/" + WeatherSystem.WindowWeatherEditor.COLLECTION_FILENAME + ".asset";
+	bool bExists = System.IO.File.Exists( assetPath );
+	UnityEngine.Assertions.Assert.IsTrue
+	(
+		bExists,
+		"Weather cycles file " + assetPath + " cannot be found !!"
+	);
+
+	if ( bExists )
+	{
+		WeatherSystem.Weathers weathers = UnityEditor.AssetDatabase.LoadAssetAtPath<WeatherSystem.Weathers>( assetPath );
 		UnityEngine.Assertions.Assert.IsNotNull
 		(
-			a,
+			weathers,
 			"Cannot preload weather cycles"
 		);
-    }
-}
+	}
+	Debug.Log( "Weathers cycles preloaded!" );
+} }
 #endif
 
 public class CustomFileLogHandler : ILogHandler
