@@ -49,7 +49,7 @@ public class Interactable : MonoBehaviour, IInteractable {
 	public			bool				HasRetroInteraction
 	{
 		get { return m_HasRetroInteraction; }
-		set { HasRetroInteraction = value; }
+		set { m_HasRetroInteraction = value; }
 	}
 
 	//-
