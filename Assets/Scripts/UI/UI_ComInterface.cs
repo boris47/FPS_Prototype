@@ -63,7 +63,7 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 		CoroutinesManager.AddCoroutineToPendingCount( 1 );
 
 		m_NotificationsPanel = transform.Find( "NotificationsPanel" ) as RectTransform;
-		UnityEngine.Assertions.Assert.IsTrue( m_NotificationsPanel != null );
+		UnityEngine.Assertions.Assert.IsNotNull( m_NotificationsPanel );
 
 		yield return null;
 
@@ -86,8 +86,8 @@ public class UI_ComInterface : MonoBehaviour, IStateDefiner {
 		(
 			ResourcePath:			"Prefabs/UI/UI_Notification",
 			loadedResource:			notificationPrefab,
-			OnResourceLoaded :		(a) => { resourcesLoaded &= true; },
-			OnFailure:				(p) => resourcesLoaded &= false
+			OnResourceLoaded :		_ => resourcesLoaded = true,
+			OnFailure:				_ => resourcesLoaded = false
 		);
 
 		if ( resourcesLoaded )
