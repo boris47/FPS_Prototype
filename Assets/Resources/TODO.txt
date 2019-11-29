@@ -114,7 +114,7 @@ AI Behiaviours
 ***	TODO GameObjectsPool support async creation
 
 	// Ref: https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/anonymous-types
-	// var v = new { Amount = 108, Message = "Hello" 
+	// var v = new { Amount = 108, Message = "Hello" }
 	// Can be used in bGetSection !!!
 
 	TODO Fix player raycast
