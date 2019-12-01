@@ -135,11 +135,6 @@ namespace WeatherSystem {
 					Utils.Converters.StringToVector( m_SunRotationString, ref m_CurrentDescriptor.SunRotation );
 					m_SunRotationString = "";
 				}
-				if ( GUILayout.Button( "SET CURRENT" ) )
-				{
-					Vector3 current = WindowWeatherEditor.GetWMGR().INTERNAL_Sun.transform.rotation.eulerAngles;
-					m_CurrentDescriptor.SunRotation = current;
-				}
 				GUILayout.EndHorizontal();
 			}
 //			GUILayout.EndHorizontal();

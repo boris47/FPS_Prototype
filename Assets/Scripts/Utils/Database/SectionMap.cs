@@ -233,6 +233,13 @@ public class SectionMap {
 			Utils.String.ConvertFromAssetPathToResourcePath( ref sFilePath );
 		}
 
+		if ( Utils.String.IsAbsolutePath( sFilePath ) )
+		{
+			Utils.String.ConvertFromAbsolutePathToResourcePath( ref sFilePath );
+		}
+
+
+
 		TextAsset pTextAsset = Resources.Load( sFilePath ) as TextAsset;
 		if ( pTextAsset == null )
 		{

@@ -3,6 +3,7 @@ using System.Threading;
 using UnityEngine;
 using System.Collections.Generic;
 
+
 public static class Extensions {
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -45,7 +46,7 @@ public static class Extensions {
 		}
 		return str;
 	}
-	
+
 	
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
@@ -313,7 +314,7 @@ public static class Extensions {
 	public	static	T				GetOrAddIfNotFound<T>( this Transform t ) where T : Component
 	{
 		T result = null;
-		if ( ( result = t.GetComponent<T>() ) == null )
+		if ( t.TryGetComponent<T>( out result) == false )
 		{
 			result = t.gameObject.AddComponent<T>();
 		}

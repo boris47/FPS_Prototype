@@ -18,7 +18,7 @@ namespace WeatherSystem {
 
 		/////////////////////////////////////////////////////////////////////////////
 		// Init ( EDITING )
-		public static void Init( string weatherCyclePath )
+		public static void Init( string assetWeatherCyclePath )
 		{
 			if ( m_Window != null )
 			{
@@ -26,12 +26,12 @@ namespace WeatherSystem {
 				m_Window = null;
 			}
 
-			string weatherCycleName = System.IO.Path.GetFileNameWithoutExtension( weatherCyclePath );
+			string weatherCycleName = System.IO.Path.GetFileNameWithoutExtension( assetWeatherCyclePath );
 
 			m_Window = EditorWindow.GetWindow<WindowCycleEditor>( true, "Cycle Editor: " + weatherCycleName );
 			m_Window.minSize = m_Window.maxSize = new Vector2( 600f, 600f );
 
-			string path = "Assets/Resources/" + weatherCyclePath + ".asset";
+			string path = /*"Assets/Resources/" +*/ assetWeatherCyclePath;
 			m_Window.m_CurrentCycle = AssetDatabase.LoadAssetAtPath<WeatherCycle>( path );
 
 			
@@ -86,54 +86,8 @@ namespace WeatherSystem {
 			// CONFIG FILE
 			if ( GUILayout.Button( "Read Config File" ) )
 			{
-				string path = EditorUtility.OpenFilePanel( "Pick a config file", "", "ltx" );
-				if ( path.Length == 0 )
-					return;
-
-				SectionMap reader = new SectionMap();
-				if ( reader.LoadFile( path ) == false )
-				{
-					 EditorUtility.DisplayDialog( "Error !", "Selected file cannot be parsed !", "OK" );
-				}
-				else
-				{
-					foreach( EnvDescriptor descriptor in m_CurrentCycle.LoadedDescriptors )
-					{
-						Debug.Log( "Parsing data for descripter " + descriptor.Identifier );
-
-						Database.Section section = null;
-						if ( reader.bGetSection( descriptor.Identifier + ":00", ref section ) )
-						{
-							Utils.Converters.StringToColor( section.GetRawValue("ambient_color"),		ref descriptor.AmbientColor	);
-							Utils.Converters.StringToColor( section.GetRawValue("sky_color"),			ref descriptor.SkyColor		);
-							Utils.Converters.StringToColor(	section.GetRawValue("sun_color"),			ref descriptor.SunColor		);
-
-							descriptor.FogFactor		= section.AsFloat( "fog_density" );
-							descriptor.RainIntensity	= section.AsFloat( "rain_density" );
-
-							if ( section.HasKey( "sun_rotation" ) )
-							{
-								Utils.Converters.StringToVector(section.GetRawValue("sun_rotation"),		ref descriptor.SunRotation	);
-							}
-							else if ( section.HasKey( "sun_altitude" ) && section.HasKey( "sun_longitude") )
-							{
-								descriptor.SunRotation = Utils.Math.VectorByHP
-								(
-									section.AsFloat( "sun_altitude" ),
-									section.AsFloat( "sun_longitude" )
-								);
-							}
-
-						}
-						descriptor.set = true;
-						EditorUtility.SetDirty( descriptor );
-						Debug.Log( "Data parsed correctly" );
-						section = null;
-					}
-					reader = null;
-					EditorUtility.SetDirty( m_CurrentCycle );
-					AssetDatabase.SaveAssets();
-				}
+				string path = EditorUtility.OpenFilePanel( "Pick a config file", "", "txt" );
+				m_CurrentCycle.LoadFromPresetFile( path );
 			}
 
 			for ( int i = 0; i < 24; i++ )

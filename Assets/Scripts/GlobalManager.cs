@@ -6,14 +6,9 @@ using UnityEngine;
 [UnityEditor.InitializeOnLoad]
 class EditorInitializer { static EditorInitializer ()
 {
-	const string assetPath = WeatherSystem.WindowWeatherEditor.RESOURCE_PATH + "/" + WeatherSystem.WindowWeatherEditor.COLLECTION_FILENAME + ".asset";
+		// Assets/Resources/Scriptables/WeatherCollection.asset
+	const string assetPath = WeatherSystem.WindowWeatherEditor.ASSETS_SCRIPTABLES_PATH + "/" + WeatherSystem.WeatherManager.RESOURCES_WEATHERSCOLLECTION + ".asset";
 	bool bExists = System.IO.File.Exists( assetPath );
-	UnityEngine.Assertions.Assert.IsTrue
-	(
-		bExists,
-		"Weather cycles file " + assetPath + " cannot be found !!"
-	);
-
 	if ( bExists )
 	{
 		WeatherSystem.Weathers weathers = UnityEditor.AssetDatabase.LoadAssetAtPath<WeatherSystem.Weathers>( assetPath );
@@ -22,8 +17,8 @@ class EditorInitializer { static EditorInitializer ()
 			weathers,
 			"Cannot preload weather cycles"
 		);
+		Debug.Log( "Weathers cycles preloaded!" );
 	}
-	Debug.Log( "Weathers cycles preloaded!" );
 } }
 #endif
 

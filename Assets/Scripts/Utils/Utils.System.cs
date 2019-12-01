@@ -7,7 +7,14 @@ using UnityEngine;
 
 namespace Utils {
 
-	public static class System {
+	public static class MySystem {
+
+		public	static	bool	FileExistsNoExt( string filePath )
+		{
+			string [] files = System.IO.Directory.GetFiles( System.IO.Path.GetDirectoryName(filePath), System.IO.Path.GetFileNameWithoutExtension( filePath ) + "*");
+			return files.Length > 0;
+		}
+
 
 		public static string GetPathFromFilePath( string FilePath, bool bSlash = true )
 		{

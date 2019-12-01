@@ -21,6 +21,14 @@ namespace Utils {
 			return path.StartsWith( "Assets/" ) == false;
 		}
 
+		public	static	bool	IsAbsolutePath( string path )
+		{
+			return !string.IsNullOrWhiteSpace(path)
+			&& path.IndexOfAny(global::System.IO.Path.GetInvalidPathChars()) == -1
+			&& global::System.IO.Path.IsPathRooted(path)
+			&& !global::System.IO.Path.GetPathRoot(path).Equals(global::System.IO.Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal);
+		}
+
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary> </summary>
@@ -29,16 +37,14 @@ namespace Utils {
 			const string AssetPathPrefix = "Assets/Resources/";
 			const int AssetPathPrefixLength = 17;
 
-			if ( string.IsNullOrEmpty( resourcePath ) )
-				return false;
-
-			string result = resourcePath;
-
-			// Assets/Resources/SkyCubeMaps/Clear/00-00.png
-			if ( global::System.IO.Path.HasExtension( resourcePath ) == false )
+			if ( string.IsNullOrEmpty( resourcePath ) || global::System.IO.Path.HasExtension( resourcePath ) == false )
 			{
 				return false;
 			}
+
+			// Assets/Resources/SkyCubeMaps/Clear/00-00.png
+			string result = resourcePath;
+
 			result = global::System.IO.Path.ChangeExtension( resourcePath, null );
 			// Assets/Resources/SkyCubeMaps/Clear/00-00
 
@@ -58,29 +64,52 @@ namespace Utils {
 		/// <summary> </summary>
 		public	static	bool	ConvertFromResourcePathToAssetPath( ref string resourcePath )
 		{
-	//		const string AssetPathPrefix = "Assets/Resources/";
-			string AssetPathPrefix = Application.dataPath + "/Resources/";
-	//		const int AssetPathPrefixLength = 17;
-
-			if ( string.IsNullOrEmpty( resourcePath ) )
-				return false;
-
-			string result = resourcePath;
-
-			// SkyCubeMaps/Clear/00-00.png
-			if ( global::System.IO.Path.HasExtension( resourcePath ) == false )
+			if ( string.IsNullOrEmpty( resourcePath ) || global::System.IO.Path.HasExtension( resourcePath ) == false )
 			{
 				return false;
 			}
+
+			// SkyCubeMaps/Clear/00-00.png
+			string result = resourcePath;
+
 			result = global::System.IO.Path.ChangeExtension( resourcePath, null );
 			// SkyCubeMaps/Clear/00-00
 
+			string AssetPathPrefix = Application.dataPath + "/Resources/";
 			if ( result.StartsWith( AssetPathPrefix ) == true )
 			{
 				return false;
 			}
 			result = AssetPathPrefix + resourcePath;
 			//E:/SourceTree/8_FPS_Prototype2017/Assets/Resources/Configs/Assets/Resources/SkyCubeMaps/Clear/00-00
+
+			resourcePath = result;
+			return true;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary> </summary>
+		public	static	bool	ConvertFromAbsolutePathToResourcePath( ref string resourcePath )
+		{
+			if ( string.IsNullOrEmpty( resourcePath ) )
+				return false;
+
+			int index = resourcePath.IndexOf( "Resources" );
+			if ( index == -1 )
+				return false;
+
+			string result = resourcePath;
+
+			// E:/SourceTree/8_FPS_Prototype2019/Assets/Resources/Configs/WeatherPresets/af3_medium_clear_2.ltx
+			if ( global::System.IO.Path.HasExtension( resourcePath ) == true )
+			{
+				result = global::System.IO.Path.ChangeExtension( resourcePath, null );
+			}
+			// E:/SourceTree/8_FPS_Prototype2019/Assets/Resources/Configs/WeatherPresets/af3_medium_clear_2
+
+			result = result.Remove( 0, index + 9 /*'Resource'*/ + 1 /*'/'*/ );
+			// Configs/WeatherPresets/af3_medium_clear_2
 
 			resourcePath = result;
 			return true;

@@ -7,15 +7,17 @@ using UnityEditor;
 
 public class WindowValueStep : EditorWindow {
 
-	public	static	WindowValueStep		m_Window		= null;
-	public	static	cValue				Value			= null;
+	public	static	WindowValueStep		m_Window		{ get; private set; }
+	public	static	cValue				Value			{ get; private set; }
+	public	static	cValue				Arg				{ get; private set; }
 
 	private	System.Action		OnOK					= null;
-	private System.Action       OnCancel				= null;
+	private System.Action		OnCancel				= null;
+	private System.Func<cValue>	OptionalArg				= null;
 	private	System.Type			RequestedType			= null;
 
 	//
-	public static void Init<T>( System.Action callbackOK , System.Action callbackCancel = null )
+	public static void Init<T>( System.Action callbackOK, System.Action callbackCancel = null, System.Func<cValue> optionalArg = null )
 	{
 		if ( m_Window != null )
 		{
@@ -35,27 +37,15 @@ public class WindowValueStep : EditorWindow {
 
 		m_Window.OnOK				= callbackOK;
 		m_Window.OnCancel			= callbackCancel;
+		m_Window.OptionalArg		= optionalArg;
 		m_Window.RequestedType		= requestedType;
 
-		if ( requestedType == typeof( bool ) )
-		{
-			Value = new cValue( false );
-		}
+		if ( requestedType == typeof( bool ) )		Value = new cValue( false );
+		if ( requestedType == typeof( int ) )		Value = new cValue( 0 );
+		if ( requestedType == typeof( float ) )		Value = new cValue( 0.0f );		
+		if ( requestedType == typeof( string ) )	Value = new cValue( "None" );
 
-		if ( requestedType == typeof( int ) )
-		{
-			Value = new cValue( 0 );
-		}
-
-		if ( requestedType == typeof( float ) )
-		{
-			Value = new cValue( 0.0f );
-		}
-		
-		if ( requestedType == typeof( string ) )
-		{
-			Value = new cValue( "None" );
-		}
+		Arg = "";
 	}
 
 
@@ -75,23 +65,37 @@ public class WindowValueStep : EditorWindow {
 	//
 	private void OnGUI()
 	{
+		EditorGUIUtility.editingTextField = true;
 		GUILayout.BeginVertical();
 		{
 			GUILayout.Label( "Value" );
 
 	//		if ( Value.ToSystemObject() != null )
 			{
-				if ( RequestedType == typeof( bool ) )
-					Value = EditorGUILayout.Toggle( Value );
+				if ( RequestedType == typeof( bool ) )					Value = EditorGUILayout.Toggle( Value );
+				if ( RequestedType == typeof( int ) )					Value = EditorGUILayout.IntField( Value );
+				if ( RequestedType == typeof( float ) )					Value = EditorGUILayout.FloatField( Value );
+				if ( RequestedType == typeof( string ) )				Value = EditorGUILayout.TextField( Value );
+			}
 
-				if ( RequestedType == typeof( int ) )
-					Value = EditorGUILayout.IntField( Value );
+			if ( OptionalArg != null )
+			{
+				GUILayout.BeginHorizontal();	
+				{
+					if ( GUILayout.Button( "Arg", GUILayout.MaxWidth(32f) ) )
+					{
+						Arg = OptionalArg.Invoke();
 
-				if ( RequestedType == typeof( float ) )
-					Value = EditorGUILayout.FloatField( Value );
+					}
 
-				if ( RequestedType == typeof( string ) )
-					Value = EditorGUILayout.TextField( Value );
+					EditorGUIUtility.editingTextField = false;
+					System.Type currentArgType = Arg.GetType();
+					if ( currentArgType == typeof( bool ) )						Arg = EditorGUILayout.Toggle( Arg );
+					if ( currentArgType == typeof( int ) )						Arg = EditorGUILayout.IntField( Arg );
+					if ( currentArgType == typeof( float ) )					Arg = EditorGUILayout.FloatField( Arg );
+					if ( currentArgType == typeof( string ) )					Arg = EditorGUILayout.TextField( Arg );
+				}
+				GUILayout.EndHorizontal();
 			}
 
 			GUILayout.BeginHorizontal();
@@ -110,11 +114,11 @@ public class WindowValueStep : EditorWindow {
 					m_Window.Close();
 					return;
 				}
-
 			}
 			GUILayout.EndHorizontal();
 		}
 		GUILayout.EndVertical();
+		EditorGUIUtility.editingTextField = true;
 	}
 
 
