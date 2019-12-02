@@ -31,7 +31,7 @@ namespace WeatherSystem {
 			m_Window.minSize = m_Window.maxSize = new Vector2( 300f, 470f );
 
 			m_Window.m_CurrentDescriptor = thisDescriptor;
-			WindowWeatherEditor.GetWMGR().INTERNAL_EditorDescriptorLinked = true;
+			WindowWeatherEditor.GetWMGR().EDITOR_EditorDescriptorLinked = true;
 		}
 
 		
@@ -41,7 +41,7 @@ namespace WeatherSystem {
 		// UNITY
 		private void OnGUI()
 		{
-			WindowWeatherEditor.GetWMGR().INTERNAL_EditorDescriptorLinked = true;
+			WindowWeatherEditor.GetWMGR().EDITOR_EditorDescriptorLinked = true;
 			GUILayout.Label( "DESCRIPTOR " + m_CurrentDescriptor.Identifier );
 			GUILayout.Space( 10f );
 
@@ -190,7 +190,7 @@ namespace WeatherSystem {
 			if ( m_SunRotationString.Length > 0 )
 				Utils.Converters.StringToVector( m_SunRotationString, ref m_CurrentDescriptor.SunRotation );
 
-			WindowWeatherEditor.GetWMGR().INTERNAL_EditorDescriptorLinked = false;
+			WindowWeatherEditor.GetWMGR().EDITOR_EditorDescriptorLinked = false;
 		}
 
 	}

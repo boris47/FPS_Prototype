@@ -20,74 +20,72 @@ namespace WeatherSystem {
 		void						SetTime( float H, float M, float S );
 		void						SetTime( string sTime );
 		string						GetTimeAsString();
+		void						OverrideSkyColor( Color color );
 
-		Material					SkyMixerMaterial					{ get; }
 		string						CurrentCycleName					{ get; }
-		bool						AreResLoaded						{ get; }
 	}
 
 	// CLASS
 	public partial class WeatherManager : MonoBehaviour, IWeatherManager, IWeatherManager_Cycles {
 
-#region VARS
+	#region VARS
 
 		// STATIC
-		private	static	IWeatherManager			m_Instance					= null;
-		public	static	IWeatherManager			Instance					=> m_Instance;
+		private	static	IWeatherManager			m_Instance						= null;
+		public	static	IWeatherManager			Instance						=> m_Instance;
 
-		private	static	IWeatherManager_Cycles	m_Instance_Cycles			= null;
-		public	static	IWeatherManager_Cycles	Cycles						=> m_Instance_Cycles;
+		private	static	IWeatherManager_Cycles	m_Instance_Cycles				= null;
+		public	static	IWeatherManager_Cycles	Cycles							=> m_Instance_Cycles;
 
 
 		// CONST
-		public	const	float					DAY_LENGTH					= 86400f;
-		public	const	string					RESOURCES_WEATHERSCOLLECTION= "WeatherCollection";
-		private	const	string					RESOURCES_SKYMIXER_MAT		= "Materials/SkyMixer";
-
-		[Header("Main")]
-		[ SerializeField, ReadOnly ]
-		private	string							CurrentDayTime				= string.Empty;
+		public	const	float					DAY_LENGTH						= 86400f;
+		public	const	string					RESOURCES_WEATHERSCOLLECTION	= "WeatherCollection";
+		private	const	string					RESOURCES_SKYMIXER_MAT			= "Materials/SkyMixer";
 
 		// SERIALIZED
+		[Header("Main")]
+		[ SerializeField, ReadOnly ]
+		private		string						m_CurrentDayTime				= string.Empty;
+
 		[ Header("Weather Info") ]
 
 		[ SerializeField, Range( 1f, 500f ) ]
-		private	float							m_TimeFactor				= 1.0f;
+		private		float						m_TimeFactor					= 1.0f;
 
 		[ SerializeField, ReadOnly ]
-		private		float						m_WeatherChoiceFactor		= 1.0f;
-
-		[SerializeField, ReadOnly]
-		private		bool						m_IsOK						= true;
+		private		float						m_WeatherChoiceFactor			= 1.0f;
 
 		[Header( "Cycles" )]
 
 		[SerializeField, ReadOnly]
-		private		Material					m_SkyMaterial				= null;
+		private		Material					m_SkyMaterial					= null;
 
-		[SerializeField/*, ReadOnly*/]
-		private		Weathers					m_Cycles					= null;
+		[SerializeField]
+		private		Weathers					m_Cycles						= null;
+
 		[SerializeField, ReadOnly ]
-		private		WeatherCycle				m_CurrentCycle				= null;
+		private		WeatherCycle				m_CurrentCycle					= null;
+
 		[ SerializeField, ReadOnly ]
-		private		string						m_CurrentCycleName			= string.Empty;
+		private		string						m_CurrentCycleName				= string.Empty;
+
 		[SerializeField, ReadOnly]
-		private		List<EnvDescriptor>			m_Descriptors				= null;
-		private		EnvDescriptor				m_EnvDescriptorCurrent		= null;
-		private		EnvDescriptor				m_EnvDescriptorNext			= null;
-		private		EnvDescriptorMixer			m_EnvDescriptorMixer		= new EnvDescriptorMixer();
-		private		float						m_EnvEffectTimer			= 0f;
+		private		List<EnvDescriptor>			m_Descriptors					= null;
 
-		private 	Quaternion					m_RotationOffset			= Quaternion.AngleAxis( 180f, Vector3.up );
-		[SerializeField, ReadOnly ]
-		private		bool						m_AreResLoaded_Cylces		= false;
-		
-		// PRIVATE VARS
-		private	Light							m_Sun						= null;
-		private	static float					m_DayTimeNow				= -1.0f;
-		private	static bool						m_ShowDebugInfo				= false;
+		private		EnvDescriptor				m_EnvDescriptorCurrent			= null;
+		private		EnvDescriptor				m_EnvDescriptorNext				= null;
+		private		EnvDescriptorMixer			m_EnvDescriptorMixer			= new EnvDescriptorMixer();
 
-	#region INTERFACE
+		private		float						m_EnvEffectTimer				= 0.0f;
+		private 	Quaternion					m_RotationOffset				= Quaternion.AngleAxis( 180f, Vector3.up );
+		private		Light						m_Sun							= null;
+		private		float						m_DayTimeNow					= -1.0f;
+		private		bool						m_ShowDebugInfo					= false;
+
+	#endregion
+
+	#region INTERFACE BASE
 
 		float IWeatherManager.TimeFactor
 		{
@@ -102,10 +100,7 @@ namespace WeatherSystem {
 
 	#endregion
 
-	#region INTERFACE
-
-		Material			IWeatherManager_Cycles.SkyMixerMaterial					{ get { return m_SkyMaterial; } }
-		bool				IWeatherManager_Cycles.AreResLoaded						{ get { return m_AreResLoaded_Cylces; } }
+	#region INTERFACE CYCLES
 
 		/////////////////////////////////////////////////////////////////////////////
 		// CurrentCycleName
@@ -155,25 +150,27 @@ namespace WeatherSystem {
 
 
 		/////////////////////////////////////////////////////////////////////////////
+		// OverrideSkyColor
+		void IWeatherManager_Cycles.OverrideSkyColor( Color color )
+		{
+			m_SkyMaterial.SetColor( "_Tint", color );
+		}
+
+
+		/////////////////////////////////////////////////////////////////////////////
 		// SetWeatherByName
 		void	IWeatherManager_Cycles.SetWeatherByName( string weatherName )
 		{
-//			if ( m_CurrentCycle != null && m_CurrentCycle.name == weatherName )
-//				return;
-
 			WeatherCycle newCycle = m_Cycles.LoadedCycles.Find( c => c.name == weatherName );
-			if ( newCycle == null )
-				return;
-
-			ChangeWeather( newCycle );
+			if ( newCycle )
+			{
+				ChangeWeather( newCycle );
+			}
 		}
 		
 	#endregion
 
-
-#endregion
-
-#region STATIC MEMBERS
+	#region STATIC MEMBERS
 
 		/////////////////////////////////////////////////////////////////////////////
 		// Utility
@@ -217,7 +214,7 @@ namespace WeatherSystem {
 
 		#endregion
 
-#region INITIALIZATION
+	#region INITIALIZATION
 
 		/////////////////////////////////////////////////////////////////////////////
 		// Awake
@@ -229,7 +226,7 @@ namespace WeatherSystem {
 #if UNITY_EDITOR
 				// In EDITOR: If is editor play mode
 				if ( UnityEditor.EditorApplication.isPlaying == true )
-					DestroyImmediate( gameObject );	// Immediate is allowed
+					Destroy/*DestroyImmediate*/( gameObject );	// Immediate is allowed
 				else
 					Destroy( gameObject );	// If not in play we destroy normally
 #else
@@ -253,6 +250,15 @@ namespace WeatherSystem {
 			// In EDITOR: If is editor play mode
 			if ( UnityEditor.EditorApplication.isPlaying == true )
 				DontDestroyOnLoad( this );
+
+			System.Action<UnityEditor.PlayModeStateChange> OnPlayModeStateChanged = delegate( UnityEditor.PlayModeStateChange newState )
+			{
+			//	Debug.Log( newState.ToString() );
+				IWeatherManager_Editor a = WindowWeatherEditor.GetWMGR( true );
+			};
+
+			UnityEditor.EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+			UnityEditor.EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
 #else
 			// In BUILD: DontDestroyOnLoad called normally
 			DontDestroyOnLoad( this );
@@ -301,8 +307,6 @@ namespace WeatherSystem {
 
 			if ( m_Cycles.IsNotNull() && m_Cycles.LoadedCycles.Count > 0 )
 			{
-				m_AreResLoaded_Cylces = true;
-
 				Setup_Cycles();
 
 				// Select descriptors
@@ -684,52 +688,30 @@ namespace WeatherSystem {
 		// Update
 		private void			Update()
 		{
-			if ( m_AreResLoaded_Cylces == false )
-			{
-				return;
-			}
-			
-			if ( m_IsOK == false )
+			if ( this.runInEditMode ) // 
 				return;
 
 			if ( m_EnvDescriptorCurrent.set == false || m_EnvDescriptorNext.set == false )
 				return;
 
-#if UNITY_EDITOR
-			// Only every 10 frames
-			if ( UnityEditor.EditorApplication.isPlaying == true && Time.frameCount % 10 == 0 )
-				return;
-			
-//			if ( EnableInEditor == false && UnityEditor.EditorApplication.isPlaying == false )
-//				return;
-#else
 			// Only every 10 frames
 			if ( Time.frameCount % 10 == 0 )
 				return;
-#endif
 
-			if ( Editor.INTERNAL_EditorCycleLinked == false )
-			{
-				m_DayTimeNow += Time.deltaTime * m_TimeFactor; // + Level()->GetTimeFactor();
-			}
-
+			m_DayTimeNow += Time.deltaTime * m_TimeFactor;
 			if ( m_DayTimeNow > DAY_LENGTH )
 				m_DayTimeNow = 0.0f;
 
+			TransformTime( m_DayTimeNow, ref m_CurrentDayTime );
+
 			SelectDescriptors( m_DayTimeNow );
+
 			EnvironmentLerp();
 
 			AmbientEffectUpdate();
 
 			// Sun rotation by data
-			if ( Editor.INTERNAL_EditorDescriptorLinked == false )
-			{
-				m_Sun.transform.rotation = m_RotationOffset * Quaternion.LookRotation( m_EnvDescriptorMixer.SunRotation );
-			}
-
-
-			TransformTime( m_DayTimeNow, ref CurrentDayTime );
-			
+			m_Sun.transform.rotation = m_RotationOffset * Quaternion.LookRotation( m_EnvDescriptorMixer.SunRotation );
 		}
 
 
@@ -737,8 +719,6 @@ namespace WeatherSystem {
 		// Reset
 		private void			Reset()
 		{
-			m_IsOK					= true;
-			m_AreResLoaded_Cylces	= false;
 			m_Cycles				= null;
 			m_CurrentCycle			= null; 
 			m_CurrentCycleName		= string.Empty;
@@ -753,6 +733,7 @@ namespace WeatherSystem {
 			LoadSkyMixerMaterial();
 #if UNITY_EDITOR
 			this.runInEditMode = false;
+			UnityEditor.EditorApplication.update -= EditorUpdate;
 #endif
 		}
 

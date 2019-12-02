@@ -35,7 +35,7 @@ namespace WeatherSystem {
 			m_Window.m_CurrentCycle = AssetDatabase.LoadAssetAtPath<WeatherCycle>( path );
 
 			
-			float dayTimeNow = WindowWeatherEditor.GetWMGR().INTERNAL_DayTimeNow;
+			float dayTimeNow = WindowWeatherEditor.GetWMGR().EDITOR_DayTimeNow;
 
 			m_Window.m_CurrentTime = ( dayTimeNow / WeatherManager.DAY_LENGTH );
 			
@@ -59,7 +59,7 @@ namespace WeatherSystem {
 				m_Window.m_CurrentCycle.LoadedDescriptors[i] = loadedDescriptor;
 			}
 
-			WindowWeatherEditor.GetWMGR().INTERNAL_EditorCycleLinked = true;
+			WindowWeatherEditor.GetWMGR().EDITOR_EditorCycleLinked = true;
 			WindowWeatherEditor.GetWMGR().INTERNAL_Start( m_Window.m_CurrentCycle, 2f );
 		}
 
@@ -80,7 +80,7 @@ namespace WeatherSystem {
 			}
 			m_PrevTime = m_CurrentTime;
 
-			WindowWeatherEditor.GetWMGR().INTERNAL_DayTimeNow = WeatherManager.DAY_LENGTH * m_CurrentTime;
+			WindowWeatherEditor.GetWMGR().EDITOR_DayTimeNow = WeatherManager.DAY_LENGTH * m_CurrentTime;
 
 
 			// CONFIG FILE
@@ -126,8 +126,8 @@ namespace WeatherSystem {
 		// 
 		private static Color GetColor( EnvDescriptor thisDescriptor )
 		{
-			EnvDescriptor currDesc = WindowWeatherEditor.GetWMGR().INTERNAL_CurrentDescriptor;
-			EnvDescriptor nextDesc = WindowWeatherEditor.GetWMGR().INTERNAL_NextDescriptor;
+			EnvDescriptor currDesc = WindowWeatherEditor.GetWMGR().EDITOR_CurrentDescriptor;
+			EnvDescriptor nextDesc = WindowWeatherEditor.GetWMGR().EDITOR_NextDescriptor;
 
 			Color toSet = ( currDesc != null && thisDescriptor == currDesc ) ? Color.yellow : ( thisDescriptor.set ? Color.green : Color.red );
 				  toSet = ( nextDesc != null && thisDescriptor == nextDesc ) ? Color.cyan : toSet;
@@ -146,8 +146,8 @@ namespace WeatherSystem {
 			AssetDatabase.SaveAssets();
 
 			WeatherManager.Editor.INTERNAL_Start( m_CurrentCycle, Random.value );
-			WeatherManager.Editor.INTERNAL_EditorDescriptorLinked = false;
-			WeatherManager.Editor.INTERNAL_EditorCycleLinked = false;
+			WeatherManager.Editor.EDITOR_EditorDescriptorLinked = false;
+			WeatherManager.Editor.EDITOR_EditorCycleLinked = false;
 		}
 	}
 

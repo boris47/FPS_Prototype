@@ -21,8 +21,14 @@ namespace WeatherSystem {
 		private	static	IWeatherManager_Editor			m_WeatherManager		= null;
 
 
-		public	static	IWeatherManager_Editor	GetWMGR() 
+		public	static	IWeatherManager_Editor	GetWMGR( bool bForceSearch = false )
 		{
+			if ( bForceSearch )
+			{
+				WeatherManager wmgr = Object.FindObjectOfType<WeatherManager>();
+				m_WeatherManager = wmgr as IWeatherManager_Editor;
+			}
+
 			if ( m_WeatherManager == null || m_WeatherManager.GetType() != typeof(WeatherManager) )
 			{
 				if ( WeatherManager.Editor == null )
@@ -46,10 +52,7 @@ namespace WeatherSystem {
 			if ( m_Window != null )
 			{
 				return;
-//				m_Window.Close();
-//				m_Window = null;
 			}
-
 
 			if ( GetWMGR() == null )
 			{
@@ -80,12 +83,12 @@ namespace WeatherSystem {
 
 
 			// Create or load asset
-			Weathers cycles = GetWMGR().Cycles = GetCycles();
+			Weathers cycles = GetWMGR().EDITOR_Cycles = GetCycles();
 
 			if ( cycles.CyclesPaths.Count > 0 )
 			{
 //				GetWMGR().INTERNAL_ForceEnable();
-				GetWMGR().INTERNAL_EditorLinked = true;
+				GetWMGR().EDITOR_EditorLinked = true;
 			}
 
 		}
@@ -218,7 +221,7 @@ namespace WeatherSystem {
 		// Delete Weather Cycle
 		private	static	void	DeleteCycle( int idx )
 		{
-			Weathers cycles = GetWMGR().Cycles;
+			Weathers cycles = GetWMGR().EDITOR_Cycles;
 			EditorUtility.SetDirty( cycles );
 
 			if ( cycles.CyclesPaths[ idx ] == null )
@@ -259,23 +262,23 @@ namespace WeatherSystem {
 		// UNITY
 		private	void	OnGUI()
 		{
-			Weathers cycles = GetWMGR().Cycles;
+			Weathers cycles = GetWMGR().EDITOR_Cycles;
 
 			if ( cycles == null || cycles.CyclesPaths == null )
 			{
 				return;
 			}
 
-			if ( cycles.CyclesPaths.Count == 0 && GetWMGR().INTERNAL_EditModeEnabled == true )
+			if ( cycles.CyclesPaths.Count == 0 && GetWMGR().EDITOR_EditModeEnabled == true )
 			{
-				GetWMGR().INTERNAL_EditModeEnabled = false;
+				GetWMGR().EDITOR_EditModeEnabled = false;
 				return;
 			}
 
 			if ( GUILayout.Button( "Attach" ) )
 			{
-				if ( GetWMGR().INTERNAL_EditModeEnabled == false )
-					GetWMGR().INTERNAL_EditModeEnabled = true;
+				if ( GetWMGR(true).EDITOR_EditModeEnabled == false )
+					GetWMGR().EDITOR_EditModeEnabled = true;
 			}
 
 			if ( GUILayout.Button( "Create cycle" ) )
@@ -298,8 +301,8 @@ namespace WeatherSystem {
 							cycles.CyclesPaths.Add( ASSETS_SCRIPTABLES_PATH + "/" + cycleName + ".asset" );
 							cycles.LoadedCycles.Add( AssetDatabase.LoadAssetAtPath<WeatherCycle>( assetPath ) );
 
-							if ( GetWMGR().INTERNAL_EditModeEnabled == false )
-								GetWMGR().INTERNAL_EditModeEnabled = true;
+							if ( GetWMGR().EDITOR_EditModeEnabled == false )
+								GetWMGR().EDITOR_EditModeEnabled = true;
 						}
 					},
 					callbackCancel:null,
@@ -337,9 +340,9 @@ namespace WeatherSystem {
 								DeleteCycle( i-- );
 								
 								// Set runInEditMode false if no cycle can be used
-								if ( cycles.CyclesPaths.Count == 0 && GetWMGR().INTERNAL_EditModeEnabled == true )
+								if ( cycles.CyclesPaths.Count == 0 && GetWMGR().EDITOR_EditModeEnabled == true )
 								{
-									GetWMGR().INTERNAL_EditModeEnabled = false;
+									GetWMGR().EDITOR_EditModeEnabled = false;
 								}
 								continue;
 							}
@@ -366,11 +369,11 @@ namespace WeatherSystem {
 			if ( WindowValueStep.m_Window != null )
 				WindowValueStep.m_Window.Close();
 
-			Weathers cycles = GetWMGR().Cycles;
+			Weathers cycles = GetWMGR().EDITOR_Cycles;
 			EditorUtility.SetDirty( cycles );
 			AssetDatabase.SaveAssets();
 
-			GetWMGR().INTERNAL_EditorLinked = false;
+			GetWMGR().EDITOR_EditorLinked = false;
 
 			m_Window = null;
 		}

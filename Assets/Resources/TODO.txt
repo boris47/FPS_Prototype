@@ -121,3 +121,5 @@ AI Behiaviours
 ***	TODO ArrayList inside Sections
 ***	TODO Add suport for multiline list in sections
 ***	TODO TimersManager
+
+	TODO Refactoring WeatherManager

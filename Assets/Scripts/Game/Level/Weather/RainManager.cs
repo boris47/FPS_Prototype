@@ -341,8 +341,6 @@ namespace WeatherSystem {
 			float	thunderLifeStep	= thunderLifeTime / thunderSteps;
 			float	currentLifeTime	= 0f;
 			bool	lightON			= false;
-
-			Material skyMixerMaterial = WeatherManager.Cycles.SkyMixerMaterial;
 			
 			// Random rotation for thunder light
 			Quaternion thunderLightRotation = Quaternion.Euler( m_ThunderLight.transform.rotation.eulerAngles + Vector3.up * Random.Range( -360f, 360f ) );
@@ -356,20 +354,20 @@ namespace WeatherSystem {
 					// Thunder light rotation
 					m_ThunderLight.transform.rotation = thunderLightRotation;
 
-					float randomIntensity = Random.Range( 0.3f, 1.0f );
+					float randomIntensity = Random.Range( 0.06f, 0.2f );
 
 					// thunder light intensity
 					m_ThunderLight.intensity = lightON ? randomIntensity : 0.001f;
 
 					// Sky color
-					skyMixerMaterial.SetColor( "_Tint", lightON ? Color.white * randomIntensity * 0.2f : Color.clear );
+					WeatherManager.Cycles.OverrideSkyColor( lightON ? Color.white * randomIntensity : Color.clear );
 
 					lightON = !lightON;
 					currentLifeTime += thunderLifeStep;
 					yield return new WaitForSeconds ( Random.Range( thunderLifeStep, thunderLifeTime - currentLifeTime ) );
 				}
 				m_ThunderLight.intensity = 0.001f;
-				skyMixerMaterial.SetColor( "_Tint", Color.clear );
+				WeatherManager.Cycles.OverrideSkyColor( Color.clear );
 			}
 
 			yield return new WaitForSeconds ( Random.Range( 0.1f, 3f ) );
