@@ -78,18 +78,17 @@ public class CustomFileLogHandler : ILogHandler
 
 
 
-public class GlobalManager : SingletonMonoBehaviour<GlobalManager> {
+public class GlobalManager : MonoBehaviour {
 
 	private static			CustomFileLogHandler m_LoggerInstance	= null;
-	/*
+
 	private	static			GlobalManager	m_Instance				= null;
 	public	static			GlobalManager	Instance
 	{
 		get { return m_Instance; }
 	}
-	
+
 	private	static			bool			m_IsInitialized			= false;
-	*/
 
 	// Load Settings and Configs
 	private	const string settingspath		= "Settings";
@@ -132,7 +131,25 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager> {
 	{
 		get { return m_InputMgr; }
 	}
-	/*
+
+	
+	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
+	private static void OnBeforeSceneLoad ()
+	{
+		if ( Application.isEditor == false )
+		{
+			Application.logMessageReceived += HandleException;
+		}
+
+		Debug.developerConsoleVisible = true;
+		Physics.queriesHitBackfaces = false;
+		Application.backgroundLoadingPriority = ThreadPriority.Low;
+		QualitySettings.asyncUploadBufferSize = 24; // MB
+
+		if ( Application.isEditor == false )
+			m_LoggerInstance = new CustomFileLogHandler();
+	}
+
 
 	public void OnBeforeSceneActivation()
 	{
@@ -150,7 +167,7 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager> {
 	}
 
 
-	*/
+
 
 	static void HandleException( string condition, string stackTrace, LogType type )
     {
@@ -167,34 +184,54 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager> {
     }
 
 
-	protected override void OnBeforeSplashScreen()
+
+	//////////////////////////////////////////////////////////////////////////
+	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
+	private	static	void	Initialize()
 	{
-		m_InputMgr	= new InputManager();
-		m_InputMgr.Setup();
-
-		if ( Application.isEditor == false )
+		if ( m_IsInitialized == false )
 		{
-			Application.logMessageReceived += HandleException;
+			m_Instance = FindObjectOfType<GlobalManager>();
+			if ( m_Instance == null )
+			{
+				m_Instance = new GameObject("GlobalManager").AddComponent<GlobalManager>();
+			}
+			m_Instance.hideFlags = HideFlags.DontSave;
+			m_IsInitialized = true;
+
+			DontDestroyOnLoad( m_Instance );
+
+			m_InputMgr	= new InputManager();
+			m_InputMgr.Setup();
 		}
+	}
 
-		Debug.developerConsoleVisible = true;
-		Physics.queriesHitBackfaces = false;
-		Application.backgroundLoadingPriority = ThreadPriority.Low;
-		QualitySettings.asyncUploadBufferSize = 24; // MB
-
-		if ( Application.isEditor == false )
-			m_LoggerInstance = new CustomFileLogHandler();
+	
+	//////////////////////////////////////////////////////////////////////////
+	private void Awake()
+	{
+		// Singleton
+		if ( m_Instance != null )
+		{
+			Destroy( gameObject );
+			return;
+		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected override void OnDestroy()
+	private void OnDestroy()
 	{
-		base.OnDestroy();
+		if ( m_Instance != this )
+			return;
+
+		m_IsInitialized = false;
+		m_Instance = null;
 
 		if ( m_LoggerInstance != null )
 			m_LoggerInstance.UnSetup();
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
