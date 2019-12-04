@@ -54,7 +54,7 @@ namespace WeatherSystem {
 				return;
 			}
 
-			if ( GetWMGR() == null )
+			if ( GetWMGR( bForceSearch: true) == null )
 			{
 				Debug.Log("Cannot find WeatherManager");
 				return;

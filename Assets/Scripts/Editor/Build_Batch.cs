@@ -40,15 +40,17 @@ public class Build_Batch
 
 		PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.IL2CPP);
 		PlayerSettings.SetIl2CppCompilerConfiguration(BuildTargetGroup.Standalone, Il2CppCompilerConfiguration.Debug);
-		PlayerSettings.gcIncremental = true;
-		PlayerSettings.graphicsJobs = true;
-		PlayerSettings.MTRendering = true;
+//		PlayerSettings.gcIncremental = true;
+//		PlayerSettings.graphicsJobs = true;
+//		PlayerSettings.MTRendering = true;
 		PlayerSettings.usePlayerLog = true;
-		PlayerSettings.actionOnDotNetUnhandledException = ActionOnDotNetUnhandledException.Crash;
+//		PlayerSettings.actionOnDotNetUnhandledException = ActionOnDotNetUnhandledException.Crash;
 
 		// Build Options
 		const BuildOptions buildOptions =	BuildOptions.Development |						// Build a development version of the player.
 											BuildOptions.ForceEnableAssertions |			// Include assertions in the build. By default, the assertions are only included in development builds.
+											BuildOptions.ConnectToHost |					// Sets the Player to connect to the Editor.
+											BuildOptions.WaitForPlayerConnection |
 										//	BuildOptions.ForceOptimizeScriptCompilation |	// Force full optimizations for script complilation in Development builds.
 											BuildOptions.ShowBuiltPlayer |					// Show the built player.
 											BuildOptions.AllowDebugging |					// Allow script debuggers to attach to the player remotely.

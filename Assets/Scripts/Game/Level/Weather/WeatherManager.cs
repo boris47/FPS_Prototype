@@ -174,7 +174,7 @@ namespace WeatherSystem {
 
 		/////////////////////////////////////////////////////////////////////////////
 		// Utility
-		/// <summary> Set the corrisponding float value for given time ( HH:MM:SS ), return boolean as result </summary>
+		/// <summary> Set the corrisponding float value for given time ( HH:MM[:SS] ), return boolean as result </summary>
 		public static	bool	TransformTime( string sTime, ref float Time )
 		{
 			int iH = 0, iM = 0, iS = 0;
@@ -182,7 +182,7 @@ namespace WeatherSystem {
 			string[] parts = sTime.Split( ':' );
 			iH = int.Parse( parts[0] );
 			iM = int.Parse( parts[1] );
-			iS = int.Parse( parts[2] );
+			iS = parts.Length == 3 ? int.Parse( parts[2] ) : 0;
 
 			if ( IsValidTime( iH, iM, iS ) == false )
 			{
@@ -251,14 +251,16 @@ namespace WeatherSystem {
 			if ( UnityEditor.EditorApplication.isPlaying == true )
 				DontDestroyOnLoad( this );
 
-			System.Action<UnityEditor.PlayModeStateChange> OnPlayModeStateChanged = delegate( UnityEditor.PlayModeStateChange newState )
+			// This callback for the WindowWeatherEditor to update the reference to the current available instance of WeatherManager in scene
+			void OnPlayModeStateChanged( UnityEditor.PlayModeStateChange newState )
 			{
-			//	Debug.Log( newState.ToString() );
+				//	Debug.Log( newState.ToString() );
 				IWeatherManager_Editor a = WindowWeatherEditor.GetWMGR( true );
-			};
+			}
 
 			UnityEditor.EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
 			UnityEditor.EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+			m_Instance_Editor	= this as IWeatherManager_Editor;
 #else
 			// In BUILD: DontDestroyOnLoad called normally
 			DontDestroyOnLoad( this );
@@ -266,7 +268,6 @@ namespace WeatherSystem {
 
 			m_Instance			= this as IWeatherManager;
 			m_Instance_Cycles	= this as IWeatherManager_Cycles;
-			m_Instance_Editor	= this as IWeatherManager_Editor;
 
 			LoadSkyMixerMaterial();
 		}
@@ -366,8 +367,7 @@ namespace WeatherSystem {
 		}
 
 
-		/////////////////////////////////////////////////////////////////////////////
-		private void			Setup_Cycles()
+		private void			SetupSun()
 		{
 			if ( m_Sun == null )
 			{
@@ -389,7 +389,16 @@ namespace WeatherSystem {
 			m_Sun.shadows			= LightShadows.Soft;
 			
 			if ( m_ShowDebugInfo )
+			{
 				Debug.Log( "WeatherManager: Sun configured" );
+			}
+		}
+
+
+		/////////////////////////////////////////////////////////////////////////////
+		private void			Setup_Cycles()
+		{
+			SetupSun();
 
 			// Setup for Environment
 			RenderSettings.sun		= m_Sun;
@@ -571,7 +580,7 @@ namespace WeatherSystem {
 
 			// get descriptor next current from new cycle
 			m_EnvDescriptorNext = GetNextDescriptor( correspondingDescriptor );
-//			print( "New cycle: " + newCycle.name );
+			print( "New cycle: " + newCycle.name );
 		}
 
 
@@ -616,7 +625,7 @@ namespace WeatherSystem {
 				else
 				{
 					// Editor stuff
-					if ( m_WeatherChoiceFactor <= 2.0f )
+					if ( m_WeatherChoiceFactor <= 1.0f )
 						m_WeatherChoiceFactor = Mathf.Clamp01( m_WeatherChoiceFactor  - 0.2f );
 					m_EnvDescriptorCurrent = m_EnvDescriptorNext;
 					m_EnvDescriptorNext = GetNextDescriptor( m_EnvDescriptorNext );
@@ -687,8 +696,10 @@ namespace WeatherSystem {
 		// Update
 		private void			Update()
 		{
+#if UNITY_EDITOR
 			if ( this.runInEditMode ) // 
 				return;
+#endif
 
 			if ( m_EnvDescriptorCurrent.set == false || m_EnvDescriptorNext.set == false )
 				return;
@@ -727,10 +738,10 @@ namespace WeatherSystem {
 
 			m_Instance			= this as IWeatherManager;
 			m_Instance_Cycles	= this as IWeatherManager_Cycles;
-			m_Instance_Editor	= this as IWeatherManager_Editor;
 
 			LoadSkyMixerMaterial();
 #if UNITY_EDITOR
+			m_Instance_Editor	= this as IWeatherManager_Editor;
 			this.runInEditMode = false;
 			UnityEditor.EditorApplication.update -= EditorUpdate;
 #endif
