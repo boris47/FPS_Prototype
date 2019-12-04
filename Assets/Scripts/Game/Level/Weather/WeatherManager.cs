@@ -71,7 +71,7 @@ namespace WeatherSystem {
 		private		string						m_CurrentCycleName				= string.Empty;
 
 		[SerializeField, ReadOnly]
-		private		List<EnvDescriptor>			m_Descriptors					= null;
+		private		EnvDescriptor[]				m_Descriptors					= null;
 
 		private		EnvDescriptor				m_EnvDescriptorCurrent			= null;
 		private		EnvDescriptor				m_EnvDescriptorNext				= null;
@@ -426,7 +426,7 @@ namespace WeatherSystem {
 				// set as current
 				m_CurrentCycle = cycle;
 				// update current descriptors
-				m_Descriptors =  new List<EnvDescriptor>( cycle.LoadedDescriptors );
+				m_Descriptors =  cycle.LoadedDescriptors;
 				// update cycle name
 				m_CurrentCycleName = cycle.name;
 				// current updated
@@ -498,8 +498,8 @@ namespace WeatherSystem {
 		// GetPreviousDescriptor
 		private	EnvDescriptor	GetPreviousDescriptor( EnvDescriptor current )
 		{
-			int idx = m_Descriptors.IndexOf( current );
-			return m_Descriptors[ ( idx ) == 0 ? m_Descriptors.Count - 1 : ( idx - 1 ) ];
+			int idx = System.Array.IndexOf( m_Descriptors, current );
+			return m_Descriptors[ ( idx ) == 0 ? m_Descriptors.Length - 1 : ( idx - 1 ) ];
 		}
 
 
@@ -507,8 +507,8 @@ namespace WeatherSystem {
 		// GetNextDescriptor
 		private	EnvDescriptor	GetNextDescriptor( EnvDescriptor current )
 		{
-			int idx = m_Descriptors.IndexOf( current );
-			return m_Descriptors[ ( idx + 1 ) == m_Descriptors.Count ? 0 : ( idx + 1 ) ];
+			int idx = System.Array.IndexOf( m_Descriptors, current );
+			return m_Descriptors[ ( idx + 1 ) == m_Descriptors.Length ? 0 : ( idx + 1 ) ];
 		}
 
 
@@ -518,14 +518,14 @@ namespace WeatherSystem {
 		{
 			if ( cycle != null )
 			{
-				m_Descriptors = new List<EnvDescriptor>( cycle.LoadedDescriptors );
+				m_Descriptors = cycle.LoadedDescriptors;
 			}
 
 			// get the last valid descriptor where its execTime is less than dayTime
-			EnvDescriptor descriptor = m_Descriptors.FindLast( ( EnvDescriptor d ) => d.ExecTime < DayTime );
+			EnvDescriptor descriptor = System.Array.FindLast( m_Descriptors, ( EnvDescriptor d ) => d.ExecTime < DayTime );
 
 			EnvDescriptor first = m_Descriptors[ 0 ];
-			EnvDescriptor last  = m_Descriptors[ m_Descriptors.Count - 1 ];
+			EnvDescriptor last  = m_Descriptors[ m_Descriptors.Length - 1 ];
 			if ( descriptor == last )
 			{
 				m_EnvDescriptorCurrent	= last;
@@ -539,8 +539,7 @@ namespace WeatherSystem {
 
 			if ( m_ShowDebugInfo )
 				Debug.Log( "WeatherManager: Descriptors selected: " + m_EnvDescriptorCurrent.Identifier + "," + m_EnvDescriptorNext.Identifier );
-
-
+			
 			SetCubemaps();
 		}
 
@@ -563,7 +562,7 @@ namespace WeatherSystem {
 			m_CurrentCycle = newCycle;
 
 			// update current descriptors
-			m_Descriptors = new List<EnvDescriptor>( m_CurrentCycle.LoadedDescriptors );
+			m_Descriptors = m_CurrentCycle.LoadedDescriptors;
 					
 			// current updated
 			m_EnvDescriptorCurrent = m_EnvDescriptorNext;
