@@ -78,18 +78,18 @@ public class CustomFileLogHandler : ILogHandler
 
 
 
-public class GlobalManager : MonoBehaviour {
+public class GlobalManager : SingletonMonoBehaviour<GlobalManager> {
 
 	private static			CustomFileLogHandler m_LoggerInstance	= null;
-
+	/*
 	private	static			GlobalManager	m_Instance				= null;
 	public	static			GlobalManager	Instance
 	{
 		get { return m_Instance; }
 	}
-
+	
 	private	static			bool			m_IsInitialized			= false;
-
+	*/
 	// Load Settings and Configs
 	private	const string settingspath		= "Settings";
 	private	const string configsPath		= "Configs/All";
@@ -132,7 +132,7 @@ public class GlobalManager : MonoBehaviour {
 		get { return m_InputMgr; }
 	}
 
-	
+	/*
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
 	private static void OnBeforeSceneLoad ()
 	{
@@ -149,7 +149,7 @@ public class GlobalManager : MonoBehaviour {
 		if ( Application.isEditor == false )
 			m_LoggerInstance = new CustomFileLogHandler();
 	}
-
+	*/
 
 	public void OnBeforeSceneActivation()
 	{
@@ -184,7 +184,32 @@ public class GlobalManager : MonoBehaviour {
     }
 
 
+	protected override void OnBeforeSceneLoad()
+	{
+		if ( Application.isEditor == false )
+		{
+			Application.logMessageReceived += HandleException;
+		}
 
+		Debug.developerConsoleVisible = true;
+		Physics.queriesHitBackfaces = false;
+		Application.backgroundLoadingPriority = ThreadPriority.Low;
+		QualitySettings.asyncUploadBufferSize = 24; // MB
+
+		if ( Application.isEditor == false )
+			m_LoggerInstance = new CustomFileLogHandler();
+
+		m_InputMgr = new InputManager();
+		m_InputMgr.Setup();
+	}
+
+	protected override void OnDestroy()
+	{
+		if ( m_LoggerInstance != null )
+			m_LoggerInstance.UnSetup();
+	}
+
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
 	private	static	void	Initialize()
@@ -205,8 +230,8 @@ public class GlobalManager : MonoBehaviour {
 			m_InputMgr.Setup();
 		}
 	}
-
-	
+	*/
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	private void Awake()
 	{
@@ -231,7 +256,7 @@ public class GlobalManager : MonoBehaviour {
 		if ( m_LoggerInstance != null )
 			m_LoggerInstance.UnSetup();
 	}
-
+	*/
 
 
 	//////////////////////////////////////////////////////////////////////////
