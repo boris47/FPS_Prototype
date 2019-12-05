@@ -79,7 +79,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 		if ( loadSceneData.eScene == SceneEnumeration.NONE )
 			return false;
 
-		// Check for save existance
+		// Check for save existence
 		if ( loadSceneData.bMustLoadSave && System.IO.File.Exists( loadSceneData.sSaveToLoad ) == false )
 		{
 			return false;
@@ -141,7 +141,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 		// Remove global state as ChangingScene state
 		GlobalManager.bIsChangingScene = false;
 
-		// Pre load callback
+		// Preload callback
 		loadSceneData.pOnPreLoadCompleted();
 
 		SoundManager.Instance.OnSceneLoaded();
@@ -286,7 +286,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 			yield return null;
 		}
 
-		print("Preload comleted");
+		print("Preload completed");
 		m_IsCurrentlyPreloading = false;
 		m_HasPreloadedScene = true;
 	}
@@ -352,7 +352,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 		Loading.SetSubTask( "Loading 'Loading' Level" );
 		Loading.Show();
 
-		// Load Synchronously Loading Scene syncronously
+		// Load Synchronously Loading Scene synchronously
 		LoadSceneData loadingLoadSceneData = new LoadSceneData()
 		{
 			eScene = SceneEnumeration.LOADING,

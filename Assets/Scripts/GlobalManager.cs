@@ -22,7 +22,7 @@ class EditorInitializer { static EditorInitializer ()
 } }
 #endif
 
-public class CustomFileLogHandler : ILogHandler
+public class CustomLogHandler : ILogHandler
 {
     private System.IO.FileStream m_FileStream = null;
     private System.IO.StreamWriter m_StreamWriter = null;
@@ -32,7 +32,7 @@ public class CustomFileLogHandler : ILogHandler
 	private System.Globalization.CultureInfo cultureInfo = (System.Globalization.CultureInfo)System.Globalization.CultureInfo.InvariantCulture.Clone();
 
 	//////////////////////////////////////////////////////////////////////////
-	public CustomFileLogHandler()
+	public CustomLogHandler()
     {
         m_DefaultLogHandler = Debug.unityLogger.logHandler;
         Debug.unityLogger.logHandler = this;
@@ -80,95 +80,51 @@ public class CustomFileLogHandler : ILogHandler
 
 public class GlobalManager : SingletonMonoBehaviour<GlobalManager> {
 
-	private static			CustomFileLogHandler m_LoggerInstance	= null;
-	/*
-	private	static			GlobalManager	m_Instance				= null;
-	public	static			GlobalManager	Instance
-	{
-		get { return m_Instance; }
-	}
-	
-	private	static			bool			m_IsInitialized			= false;
-	*/
-	// Load Settings and Configs
-	private	const string settingspath		= "Settings";
-	private	const string configsPath		= "Configs/All";
-
-	public	static			bool			bIsChangingScene		= false;
-	public	static			bool			bIsLoadingScene			= false;
-	public	static			bool			bCanSave				= true;
+	private	const			string				m_SettingsFilePath	= "Settings";
+	private	const			string				m_ConfigsFilePath	= "Configs/All";
 
 
-	private	static			SectionMap		m_Settings				= null;
-	public	static			SectionMap		Settings
+	private static			CustomLogHandler	m_LoggerInstance	= null;
+	public	static			bool				bIsChangingScene	= false;
+	public	static			bool				bIsLoadingScene		= false;
+	public	static			bool				bCanSave			= true;
+
+
+	private	static			SectionMap			m_Settings			= null;
+	public	static			SectionMap			Settings
 	{
 		get {
 			if ( m_Settings == null )
 			{
-				m_Settings	= new SectionMap();
-				m_Settings.LoadFile( settingspath );
+				m_Settings = new SectionMap();
+				m_Settings.LoadFile( m_SettingsFilePath );
 			}
 			return m_Settings;
 		}
 	}
 
 
-	private	static			SectionMap		m_Configs				= null;
-	public	static			SectionMap		Configs
+	private	static			SectionMap			m_Configs			= null;
+	public	static			SectionMap			Configs
 	{
 		get {
 			if ( m_Configs == null )
 			{
-				m_Configs	= new SectionMap();
-				m_Configs.LoadFile( configsPath );
+				m_Configs = new SectionMap();
+				m_Configs.LoadFile( m_ConfigsFilePath );
 			}
 			return m_Configs;
 		}
 	}
 
-	private	static				InputManager	m_InputMgr				= null;
+	private	static				InputManager	m_InputMgr			= null;
 	public	static				InputManager	InputMgr
 	{
 		get { return m_InputMgr; }
 	}
 
-	/*
-	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
-	private static void OnBeforeSceneLoad ()
-	{
-		if ( Application.isEditor == false )
-		{
-			Application.logMessageReceived += HandleException;
-		}
-
-		Debug.developerConsoleVisible = true;
-		Physics.queriesHitBackfaces = false;
-		Application.backgroundLoadingPriority = ThreadPriority.Low;
-		QualitySettings.asyncUploadBufferSize = 24; // MB
-
-		if ( Application.isEditor == false )
-			m_LoggerInstance = new CustomFileLogHandler();
-	}
-	*/
-
-	public void OnBeforeSceneActivation()
-	{
-		Debug.Log("GlobalManager::OnBeforeSceneActivation");
-	}
-
-	public void OnAfterSceneActivation()
-	{
-		Debug.Log("GlobalManager::OnAfterSceneActivation");
-	}
-
-	public void OnAfterLoadedData()
-	{
-		Debug.Log("GlobalManager::OnAfterLoadedData");
-	}
-
-
-
-
+	
+	//////////////////////////////////////////////////////////////////////////
 	static void HandleException( string condition, string stackTrace, LogType type )
     {
 		switch ( type )
@@ -184,6 +140,7 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager> {
     }
 
 
+	//////////////////////////////////////////////////////////////////////////
 	protected override void OnBeforeSceneLoad()
 	{
 		if ( Application.isEditor == false )
@@ -191,72 +148,37 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager> {
 			Application.logMessageReceived += HandleException;
 		}
 
-		Debug.developerConsoleVisible = true;
+		// Whether physics queries should hit back-face triangles.
 		Physics.queriesHitBackfaces = false;
+
+		// Priority of background loading thread.
 		Application.backgroundLoadingPriority = ThreadPriority.Low;
+
+		// Async texture upload provides timesliced async texture upload on the render thread
+		// with tight control over memory and timeslicing. There are no allocations except
+		// for the ones which driver has to do. To read data and upload texture data a ringbuffer
+		// whose size can be controlled is re-used. Use asyncUploadBufferSize to set the
+		// buffer size for asynchronous texture uploads. The size is in megabytes. Minimum
+		// value is 2 and maximum is 512. Although the buffer will resize automatically
+		// to fit the largest texture currently loading, it is recommended to set the value
+		// approximately to the size of biggest texture used in the Scene to avoid re-sizing
+		// of the buffer which can incur performance cost.
 		QualitySettings.asyncUploadBufferSize = 24; // MB
 
 		if ( Application.isEditor == false )
-			m_LoggerInstance = new CustomFileLogHandler();
+			m_LoggerInstance = new CustomLogHandler();
 
 		m_InputMgr = new InputManager();
 		m_InputMgr.Setup();
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
 	protected override void OnDestroy()
 	{
 		if ( m_LoggerInstance != null )
 			m_LoggerInstance.UnSetup();
 	}
-
-	/*
-	//////////////////////////////////////////////////////////////////////////
-	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
-	private	static	void	Initialize()
-	{
-		if ( m_IsInitialized == false )
-		{
-			m_Instance = FindObjectOfType<GlobalManager>();
-			if ( m_Instance == null )
-			{
-				m_Instance = new GameObject("GlobalManager").AddComponent<GlobalManager>();
-			}
-			m_Instance.hideFlags = HideFlags.DontSave;
-			m_IsInitialized = true;
-
-			DontDestroyOnLoad( m_Instance );
-
-			m_InputMgr	= new InputManager();
-			m_InputMgr.Setup();
-		}
-	}
-	*/
-	/*
-	//////////////////////////////////////////////////////////////////////////
-	private void Awake()
-	{
-		// Singleton
-		if ( m_Instance != null )
-		{
-			Destroy( gameObject );
-			return;
-		}
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private void OnDestroy()
-	{
-		if ( m_Instance != this )
-			return;
-
-		m_IsInitialized = false;
-		m_Instance = null;
-
-		if ( m_LoggerInstance != null )
-			m_LoggerInstance.UnSetup();
-	}
-	*/
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -264,17 +186,20 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager> {
 	{
 		Cursor.visible = newState;
 		Cursor.lockState = newState ? CursorLockMode.None : CursorLockMode.Locked;
-//		Debug.Log( "SetCursorVisibility: " + newState );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public		static		void		SetTimeScale( float value )
 	{
-		SoundManager.Instance.Pitch = Time.timeScale = value;
+		SoundManager.Instance.Pitch = value;
+
+		Time.timeScale = value;
 	}
 
+
 //	float maximum = 1;
+	//////////////////////////////////////////////////////////////////////////
 	private void Update()
 	{
 		/*
@@ -289,7 +214,7 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager> {
 			}
 			m_StopWatch.Stop();
 
-			print( "Performance test: operaztions done in " + m_StopWatch.Elapsed.Milliseconds + "ms, maximium iterations " + maximum );
+			print( "Performance test: operations done in " + m_StopWatch.Elapsed.Milliseconds + "ms, maximum iterations " + maximum );
 			maximum *= 2f;
 		}
 		*/
@@ -331,8 +256,6 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager> {
 #else
 		Application.Quit();
 #endif
-
-		
 	}
 
 }

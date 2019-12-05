@@ -27,8 +27,6 @@ public partial class Player {
 	protected override		void		BeforeSimulationStage( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
 		CameraControl.Instance.Target = target;
-
-		base.BeforeSimulationStage( movementType, destination, target, timeScaleTarget );
 	}
 
 
@@ -75,7 +73,7 @@ public partial class Player {
 	//////////////////////////////////////////////////////////////////////////
 	protected override		void		AfterSimulationStage( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
-		base.AfterSimulationStage( movementType, destination, target, timeScaleTarget );
+		CameraControl.Instance.Target = null;
 	}
 
 
