@@ -105,12 +105,21 @@ public class Loading : MonoBehaviour {
 		m_Instance.m_LoadingLevelNameText.text = "Loading: " + scene.ToString();
 	}
 
+	private static System.Diagnostics.Stopwatch stopWatch = new System.Diagnostics.Stopwatch();
+	//////////////////////////////////////////////////////////////////////////
+	public	static	void	EndSubTask()
+	{
+		stopWatch.Stop();
+		Debug.Log("Step \"" + m_Instance.m_LoadingSubTask.text + "\" required " + stopWatch.ElapsedMilliseconds + "ms" );
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public	static	void	SetSubTask( string subTaskName )
 	{
+		stopWatch.Reset(); stopWatch.Start();
 		m_Instance.m_LoadingSubTask.text = subTaskName;
+		Debug.Log( subTaskName );
 	}
 
 

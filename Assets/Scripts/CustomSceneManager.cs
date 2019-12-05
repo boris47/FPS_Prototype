@@ -349,170 +349,210 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 
 		// Enable Loading UI
 		Loading.SetLoadingSceneName( loadSceneData.eScene );
-		Loading.SetSubTask( "Loading 'Loading' Level" );
 		Loading.Show();
 
-		// Load Synchronously Loading Scene synchronously
-		LoadSceneData loadingLoadSceneData = new LoadSceneData()
+		Loading.SetSubTask( "Loading 'Loading' Level" );
 		{
-			eScene = SceneEnumeration.LOADING,
-		};
-		LoadSceneSync( loadingLoadSceneData );
+			// Load Synchronously Loading Scene synchronously
+			LoadSceneData loadingLoadSceneData = new LoadSceneData()
+			{
+				eScene = SceneEnumeration.LOADING,
+			};
+			LoadSceneSync( loadingLoadSceneData );
 		
-		yield return null;
-
-		// Set global state as ChangingScene state
-		GlobalManager.bIsChangingScene = true;
-		
-		Loading.SetSubTask( "Start async Loading" );
-
-		// Start async load of scene
-		AsyncOperation asyncOperation = SceneManager.LoadSceneAsync( (int)loadSceneData.eScene, LoadSceneMode.Single );
-
-		// We want this operation to impact performance less than possible
-		asyncOperation.priority = 0;
-
-		asyncOperation.allowSceneActivation = false;
-
-		// Wait for load completion
-		while ( asyncOperation.progress < 0.90f )
-		{
-			Loading.SetProgress( asyncOperation.progress * 0.5f );
 			yield return null;
-		}
 
-		// Send message "OnBeforeSceneActivation"
+			// Set global state as ChangingScene state
+			GlobalManager.bIsChangingScene = true;
+		}
+		Loading.EndSubTask();
+
+		AsyncOperation asyncOperation = null;
+		Loading.SetSubTask( "Start async Loading" );
 		{
-			Loading.SetSubTask( "Calling 'OnBeforeSceneActivation' on receivers" );
+			// Start async load of scene
+			asyncOperation = SceneManager.LoadSceneAsync( (int)loadSceneData.eScene, LoadSceneMode.Single );
 
-			// Call on every registered
-			Delegates[SceneLoadStep.BEFORE_SCENE_ACTIVATION].ForEach( d => d(loadSceneData.eScene) );
+			// We want this operation to impact performance less than possible
+			asyncOperation.priority = 0;
+
+			asyncOperation.allowSceneActivation = false;
+
+			// Wait for load completion
+			while ( asyncOperation.progress < 0.90f )
+			{
+				Loading.SetProgress( asyncOperation.progress * 0.5f );
+				yield return null;
+			}
+
+			// Send message "OnBeforeSceneActivation"
+			{
+				Loading.SetSubTask( "Calling 'OnBeforeSceneActivation' on receivers" );
+
+				// Call on every registered
+				Delegates[SceneLoadStep.BEFORE_SCENE_ACTIVATION].ForEach( d => d(loadSceneData.eScene) );
+			}
 		}
+		Loading.EndSubTask();
 
 		Loading.SetSubTask( "Waiting for loading condition" );
+		{
+			// Wait for load condition if defined
+			Loading.SetProgress( 0.60f );
+			yield return loadCondition?.WaitForPendingOperations();
+		}
+		Loading.EndSubTask();
 
-		// Wait for load condition if defined
-		Loading.SetProgress( 0.60f );
-		yield return loadCondition?.WaitForPendingOperations();
-
+		float currentFixedDeltaTime = 0f;
 		Loading.SetSubTask( "1. Waiting for pending coroutines" );
+		{
+			// Wait for every launched coroutine
+			yield return CoroutinesManager.WaitPendingCoroutines();
 
-		// Wait for every launched coroutine
-		yield return CoroutinesManager.WaitPendingCoroutines();
+			Physics.autoSimulation = false;
+			currentFixedDeltaTime = Time.fixedDeltaTime;
+			Time.fixedDeltaTime = 0.0f;
 
-		Physics.autoSimulation = false;
-		float currenFixedDeltaTime = Time.fixedDeltaTime;
-
-		// Setting the time scale to Zero because in order to freeze everything but continue to receive unity messages
-		Time.timeScale = 0F;
+			// Setting the time scale to Zero because in order to freeze everything but continue to receive unity messages
+			Time.timeScale = 0F;
+		}
+		Loading.EndSubTask();
 
 		Loading.SetSubTask( "Fake activation of the scene" );
+		{
+			// Proceed with scene activation and Awake and OnEnable Calls
+			asyncOperation.allowSceneActivation = true;
+			yield return null;
+			asyncOperation.allowSceneActivation = false;
 
-		// Proceed with scene activation and Awake Calls
-		asyncOperation.allowSceneActivation = true;
-		asyncOperation.allowSceneActivation = false;
+			// Call on every registered
+			Delegates[SceneLoadStep.AFTER_SCENE_ACTIVATION].ForEach( d => d(loadSceneData.eScene) );
 
-		// Call on every registered
-		Delegates[SceneLoadStep.AFTER_SCENE_ACTIVATION].ForEach( d => d(loadSceneData.eScene) );
-
-		// Wait for every launched coroutine
-		yield return CoroutinesManager.WaitPendingCoroutines();
+			// Wait for every launched coroutine
+			yield return CoroutinesManager.WaitPendingCoroutines();
+		}
+		Loading.EndSubTask();
 
 		Loading.SetSubTask( "Real activation of the scene" );
-
-		asyncOperation.allowSceneActivation = true;
+		{
+			asyncOperation.allowSceneActivation = true;
+		}
+		Loading.EndSubTask();
 
 		Loading.SetSubTask( "Calling 'OnAfterSceneActivation' on receivers" );
-
-		// Wait for start completion
-		Loading.SetProgress( 0.70f );
-		while ( asyncOperation.isDone == false )
 		{
-			yield return null;
+			// Wait for start completion
+			Loading.SetProgress( 0.70f );
+			while ( asyncOperation.isDone == false )
+			{
+				yield return null;
+			}
 		}
+		Loading.EndSubTask();
 
 		Loading.SetSubTask( "2. Waiting for pending coroutines" );
-
-		// Wait for every launched coroutine
-		yield return CoroutinesManager.WaitPendingCoroutines();
+		{
+			// Wait for every launched coroutine
+			yield return CoroutinesManager.WaitPendingCoroutines();
+		}
+		Loading.EndSubTask();
 		
 		Loading.SetSubTask( "Calling 'pOnPreLoadCompleted' callback" );
+		{
+			// Pre load callback
+			Loading.SetProgress( 0.80f );
+			loadSceneData.pOnPreLoadCompleted();
 
-		// Pre load callback
-		Loading.SetProgress( 0.80f );
-		loadSceneData.pOnPreLoadCompleted();
-
-		yield return null;
+			yield return null;
+		}
+		Loading.EndSubTask();
 
 		Loading.SetSubTask( "3. Waiting for pending coroutines" );
-
-		// Wait for every launched coroutine in awake of scripts
-		yield return CoroutinesManager.WaitPendingCoroutines();
+		{
+			// Wait for every launched coroutine in awake of scripts
+			yield return CoroutinesManager.WaitPendingCoroutines();
+		}
+		Loading.EndSubTask();
 
 		Loading.SetSubTask( "Calling 'SoundManager.OnSceneLoaded'" );
-
-		SoundManager.Instance.OnSceneLoaded();
+		{
+			SoundManager.Instance.OnSceneLoaded();
 		
-		yield return null;
+			yield return null;
+		}
+		Loading.EndSubTask();
 
 		// LOAD DATA
 		if ( loadSceneData.bMustLoadSave == true )
 		{
 			Loading.SetSubTask( "Going to load save " + loadSceneData.sSaveToLoad );
-			Loading.SetProgress( 0.95f );
-			GameManager.StreamEvents.Load( loadSceneData.sSaveToLoad );
+			{
+				Loading.SetProgress( 0.95f );
+				GameManager.StreamEvents.Load( loadSceneData.sSaveToLoad );
+			}
+			Loading.EndSubTask();
 		}
-
+		
 		Loading.SetSubTask( "4. Waiting for pending coroutines" );
-
-		// Wait for every coroutines started from load
-		yield return CoroutinesManager.WaitPendingCoroutines();
-
+		{
+			// Wait for every coroutines started from load
+			yield return CoroutinesManager.WaitPendingCoroutines();
+		}
+		Loading.EndSubTask();
 
 		Loading.SetSubTask( "Calling 'OnAfterLoadedData' on receivers" );
-
-		// Call on every registered
-		Delegates[SceneLoadStep.AFTER_SAVE_LOAD].ForEach( d => d(loadSceneData.eScene) );
+		{
+			// Call on every registered
+			Delegates[SceneLoadStep.AFTER_SAVE_LOAD].ForEach( d => d(loadSceneData.eScene) );
+		}
+		Loading.EndSubTask();
 
 		Loading.SetSubTask( "Waiting for the unload of unused assets" );
-
-		// Unload unused asset in order to free same memory
-//		yield return Resources.UnloadUnusedAssets();
+		{
+	// Unload unused asset in order to free same memory
+	//		yield return Resources.UnloadUnusedAssets();
+		}
+		Loading.EndSubTask();
 
 		Loading.SetSubTask( "GC..." );
-
-		System.GC.Collect();
+		{
+			System.GC.Collect();
+		}
+		Loading.EndSubTask();
 
 		Loading.SetSubTask( "Calling 'pOnLoadCompleted' callback" );
+		{
+			// Post load callback
+			Loading.SetProgress( 0.95f );
+			loadSceneData.pOnLoadCompleted();
 
-		// Post load callback
-		Loading.SetProgress( 0.95f );
-		loadSceneData.pOnLoadCompleted();
-
-		yield return null;
+			yield return null;
+		}
+		Loading.EndSubTask();
 
 		Loading.SetSubTask( "Enabling components" );
+		{
+			GlobalManager.bIsLoadingScene = false;
+			Loading.SetProgress( 1.00f );
+			UIManager.Indicators.enabled = true;
+			UIManager.Minimap.enabled = true;
 
-		GlobalManager.bIsLoadingScene = false;
-		Loading.SetProgress( 1.00f );
-		UIManager.Indicators.enabled = true;
-		UIManager.Minimap.enabled = true;
+			yield return null;
 
-		yield return null;
+			GlobalManager.InputMgr.EnableCategory( InputCategory.ALL );
 
-		GlobalManager.InputMgr.EnableCategory( InputCategory.ALL );
+			if ( GameManager.Instance )
+				GameManager.SetInGameAs( true );
 
-		if ( GameManager.Instance )
-			GameManager.SetInGameAs( true );
+			if ( CameraControl.Instance.IsNotNull() )
+				CameraControl.Instance.CanParseInput = true;
 
-		if ( CameraControl.Instance.IsNotNull() )
-			CameraControl.Instance.CanParseInput = true;
+			// Wait for every launched coroutine
+			yield return CoroutinesManager.WaitPendingCoroutines();
 
-		// Wait for every launched coroutine
-		yield return CoroutinesManager.WaitPendingCoroutines();
-
-//		yield return new WaitForSecondsRealtime( 3.00f );
-
+			//		yield return new WaitForSecondsRealtime( 3.00f );
+		}
+		Loading.EndSubTask();
 		Loading.Hide();
 
 		// Leave to UIManager the decision on which UI menu must be shown
@@ -522,7 +562,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 
 		Loading.SetSubTask( "Completed" );
 		
-		Time.fixedDeltaTime = currenFixedDeltaTime;
+		Time.fixedDeltaTime = currentFixedDeltaTime;
 		Physics.autoSimulation = true;
 		Time.timeScale = 1.0F;
 	}
