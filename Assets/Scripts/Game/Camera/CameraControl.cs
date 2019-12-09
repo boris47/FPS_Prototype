@@ -333,8 +333,25 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 	// LateUpdate
 	private	void	LateUpdate()
 	{
-		if ( m_ViewPoint == null || GameManager.IsPaused || 
-			GlobalManager.InputMgr.HasCategoryEnabled( InputCategory.CAMERA ) == false )
+		if ( m_ViewPoint == null )
+			return;
+
+		// Look at target is assigned
+		if ( m_Target )
+		{
+			// Camera Rotation
+//			Quaternion rotation		= Quaternion.LookRotation( m_Target.position - transform.position, transform.parent.up );
+//			transform.rotation		= Quaternion.Slerp( transform.rotation, rotation, Time.unscaledDeltaTime * 8f ) * Quaternion.Euler( m_HeadBob.Direction /*+ m_HeadMove.Direction*/ );
+
+			m_ViewPoint.LookAt( m_Target );
+			
+			// Head Rotation
+		//	Vector3 projectedPoint	= Utils.Math.ProjectPointOnPlane( transform.parent.up, transform.parent.position, m_Target.position );
+		//	transform.parent.rotation	= Quaternion.LookRotation( projectedPoint - transform.parent.position, transform.parent.up );
+			return;
+		}
+
+		if ( GameManager.IsPaused || GlobalManager.InputMgr.HasCategoryEnabled( InputCategory.CAMERA ) == false )
 			return;
 
 		float dt = Time.deltaTime;
@@ -386,21 +403,6 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 				float frameFeedBack = m_Recoil * 10.0f;
 				UIManager.InGame.FrameFeedBack( 1.0f + frameFeedBack, delta ); // 1.0f + Because is scale factor
 			}
-		}
-
-		// Look at target is assigned
-		if ( m_Target )
-		{
-			// Camera Rotation
-//			Quaternion rotation		= Quaternion.LookRotation( m_Target.position - transform.position, transform.parent.up );
-//			transform.rotation		= Quaternion.Slerp( transform.rotation, rotation, Time.unscaledDeltaTime * 8f ) * Quaternion.Euler( m_HeadBob.Direction /*+ m_HeadMove.Direction*/ );
-
-			m_ViewPoint.LookAt( m_Target );
-			
-			// Head Rotation
-		//	Vector3 projectedPoint	= Utils.Math.ProjectPointOnPlane( transform.parent.up, transform.parent.position, m_Target.position );
-		//	transform.parent.rotation	= Quaternion.LookRotation( projectedPoint - transform.parent.position, transform.parent.up );
-			return;
 		}
 
 		// Cam Dispersion

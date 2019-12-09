@@ -51,6 +51,8 @@ public partial class Player {
 		Time.timeScale = Mathf.Clamp01( timeScale );
 		SoundManager.Instance.Pitch = timeScale;
 		
+		CameraControl.Instance.Target = target;
+
 		//	POSITION BY DISTANCE
 		{
 			bool isWalking	= ( movementType != SimMovementType.RUN );
@@ -74,6 +76,7 @@ public partial class Player {
 	protected override		void		AfterSimulationStage( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
 		CameraControl.Instance.Target = null;
+		m_Move = Vector3.zero;
 	}
 
 

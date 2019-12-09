@@ -21,7 +21,7 @@ namespace CutScene {
 		public	void	Setup( Entity entityParent, PointsCollectionOnline pointCollection )
 		{
 			m_EntityParent		= entityParent;
-			m_EntitySimulation	= m_EntityParent;
+			m_EntitySimulation	= entityParent;
 			m_PointsCollection	= pointCollection;
 			m_CurrentIdx		= 0;
 
@@ -93,13 +93,8 @@ namespace CutScene {
 		/// <returns></returns>
 		public	bool	Update()
 		{
-			// Continue simulation until need updates
-			bool isBusy = m_EntitySimulation.SimulateMovement( m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
-			if ( isBusy == true ) // if true is currently simulating and here we have to wait simulation to be completed
-				return false;
-
 			// If a waiter is defined, we have to wait for its completion
-			if ( m_Waiter != null && m_Waiter.HasToWait == true )
+			if ( m_Waiter && m_Waiter.HasToWait == true )
 			{
 				Vector3 tempDestination = Utils.Math.ProjectPointOnPlane( m_EntityParent.transform.up, m_Destination, m_EntityParent.transform.position );
 				m_EntitySimulation.SimulateMovement( SimMovementType.STATIONARY, tempDestination, m_Target, m_TimeScaleTarget );
@@ -107,14 +102,17 @@ namespace CutScene {
 				return false;
 			}
 
+			// Continue simulation until need updates
+			bool isBusy = m_EntitySimulation.SimulateMovement( m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
+			if ( isBusy == true ) // if true is currently simulating and here we have to wait simulation to be completed
+			{
+				return false;
+			}
+
 			m_Waiter = null;
 
 			// call callback when each waypoint is reached
-			GameEvent onWayPointReached = m_PointsCollection[ m_CurrentIdx ].OnWayPointReached;
-			if ( onWayPointReached != null && onWayPointReached.GetPersistentEventCount() > 0 )
-			{
-				onWayPointReached.Invoke();
-			}
+			m_PointsCollection[ m_CurrentIdx ].OnWayPointReached?.Invoke();
 
 			// AFTER A SIMULATION STAGE
 			m_EntitySimulation.AfterSimulationStage( m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );

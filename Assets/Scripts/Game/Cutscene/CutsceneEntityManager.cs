@@ -52,10 +52,7 @@ namespace CutScene {
 //			( entityParent as IEntitySimulation ).EnterSimulationState();
 
 			// On start event called
-			if ( pointsCollection.OnStart != null && pointsCollection.OnStart.GetPersistentEventCount() > 0 )
-			{
-				pointsCollection.OnStart.Invoke();
-			}
+			pointsCollection.OnStart?.Invoke();
 		}
 
 
