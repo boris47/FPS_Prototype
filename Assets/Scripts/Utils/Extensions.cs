@@ -47,6 +47,23 @@ public static class Extensions {
 		return str;
 	}
 
+
+	/// <summary>
+	/// Return true if parse succeded, otherwise false
+	/// </summary>
+	// https://stackoverflow.com/questions/1082532/how-to-tryparse-for-enum-value
+    public	static	bool			TryConvertToEnum<TEnum>(this string str, ref TEnum result )
+	{
+		System.Type requestedType = typeof(TEnum);
+		if ( System.Enum.IsDefined( requestedType, str) == false )
+		{
+			return false;
+		}
+
+		result = (TEnum)System.Enum.Parse( requestedType, str );
+		return true;
+	}
+
 	
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
