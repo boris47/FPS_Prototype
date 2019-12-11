@@ -39,11 +39,6 @@ namespace CutScene {
 			m_MovementType				= data.movementType;							// movement type
 			m_TimeScaleTarget			= Mathf.Clamp01( data.timeScaleTraget );		// time scale for this trip
 
-
-
-			// ORIENTATION
-//			CameraControl.Instance.Target = m_Target;
-
 			// WEAPON ZOOM
 			if ( m_EntityParent is Player )
 			{
@@ -60,14 +55,10 @@ namespace CutScene {
 				}
 			}
 
-			if ( data.waiter != null && data.movementType == SimMovementType.STATIONARY )
-			{
-				m_Waiter = data.waiter;
-			}
-			else
-			{
-				m_Waiter = null;
+			m_Waiter = data.waiter;
 
+			if ( !m_Waiter  )
+			{
 				// MOVEMENT
 				Vector3 destination = data.point.position;	// destination to reach
 				RaycastHit hit;

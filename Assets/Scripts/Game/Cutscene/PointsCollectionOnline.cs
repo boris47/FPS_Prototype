@@ -20,7 +20,6 @@ namespace CutScene {
 		public	GameEvent						OnWayPointReached	= null;
 	}
 
-
 	public class PointsCollectionOnline : MonoBehaviour {
 
 		[SerializeField]
@@ -40,6 +39,24 @@ namespace CutScene {
 		public	int	Count
 		{
 			get { return m_Waypoints.Length; }
+		}
+
+		private void OnEnable()
+		{
+			if ( m_Waypoints.Length == 0 )
+				return;
+
+			for ( int i = 0; i < m_Waypoints.Length; i++ )
+			{
+				CutsceneWaypointData wayPoint = m_Waypoints[i];
+				if ( wayPoint.movementType == SimMovementType.STATIONARY && wayPoint.waiter == null )
+				{
+					print( "PointsCollectionOnline::OnEnable: Collection " + name + " has stationary waypoints without waiter assigned at index " + i );
+#if UNITY_EDITOR
+					UnityEditor.EditorApplication.isPlaying = false;
+#endif
+				}
+			}
 		}
 
 

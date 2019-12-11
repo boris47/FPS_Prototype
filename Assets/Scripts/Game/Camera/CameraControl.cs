@@ -252,6 +252,12 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 			m_CurrentDirection.y = m_ViewPoint ? m_ViewPoint.localEulerAngles.y : 0.0f;
 			m_CurrentDirection.z = 0.0f;
 		}
+
+		if ( value && !m_Target && m_ViewPoint )
+		{
+			m_ViewPoint.up = m_ViewPoint?.parent.up ?? Vector3.up;
+		}
+
 		m_Target = value;
 	}
 
@@ -266,17 +272,6 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 //		transform.SetParent( viewPoint );
 //		transform.localPosition = Vector3.zero;
 //		transform.localRotation = Quaternion.identity;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// Update
-	private void Update()
-	{
-		if ( m_ViewPoint )
-		{
-			transform.SetPositionAndRotation( m_ViewPoint.position, m_ViewPoint.rotation );
-		}
 	}
 
 
@@ -330,42 +325,30 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 	}
 
 	//////////////////////////////////////////////////////////////////////////
+	// Update
+	private void Update()
+	{
+		if ( m_ViewPoint && !m_Target )
+		{
+			transform.SetPositionAndRotation( m_ViewPoint.position, m_ViewPoint.rotation );
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
 	// LateUpdate
 	private	void	LateUpdate()
 	{
+		if ( GameManager.IsPaused )
+			return;
+
 		if ( m_ViewPoint == null )
 			return;
-
-		// Look at target is assigned
-		if ( m_Target )
-		{
-			// Camera Rotation
-			Quaternion rotation		= Quaternion.LookRotation( m_Target.position - transform.position, transform.parent.up );
-			//	transform.rotation		= Quaternion.Slerp( transform.rotation, rotation, Time.unscaledDeltaTime * 8f ) * Quaternion.Euler( m_HeadBob.Direction /*+ m_HeadMove.Direction*/ );
-
-		//	Vector3 effects = ( m_CurrentDirection + m_HeadBob.Direction + m_HeadMove.Direction );
-
-			// Horizontal and Vertical rotation
-		//	m_ViewPoint.localRotation = Quaternion.Euler( ( Vector3.up * effects.y ) + ( Vector3.right * effects.x ) );
-
-			m_ViewPoint.rotation = Quaternion.Slerp( transform.rotation, rotation, Time.unscaledDeltaTime * 8f ) * Quaternion.Euler( m_HeadBob.Direction );
-
-//			m_ViewPoint.LookAt( m_Target );
-			
-			// Head Rotation
-		//	Vector3 projectedPoint	= Utils.Math.ProjectPointOnPlane( transform.parent.up, transform.parent.position, m_Target.position );
-		//	transform.parent.rotation	= Quaternion.LookRotation( projectedPoint - transform.parent.position, transform.parent.up );
-			return;
-		}
-
-		if ( GameManager.IsPaused || GlobalManager.InputMgr.HasCategoryEnabled( InputCategory.CAMERA ) == false )
-			return;
-
-		float dt = Time.deltaTime;
 
 		// CAMERA EFFECTS
 		m_HeadMove.Update();
 		m_HeadBob.Update();
+
+		float dt = Time.deltaTime;
 
 		// Used for view smoothness
 		m_SmoothFactor = Mathf.Clamp( m_SmoothFactor, 1.0f, 10.0f );
@@ -411,6 +394,26 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 				UIManager.InGame.FrameFeedBack( 1.0f + frameFeedBack, delta ); // 1.0f + Because is scale factor
 			}
 		}
+
+		// Look at target is assigned
+		if ( m_Target )
+		{
+			// Head Rotation
+			Vector3 viewPointUp = m_ViewPoint.up;
+			Vector3 projectedPoint	= Utils.Math.ProjectPointOnPlane( viewPointUp, m_ViewPoint.position, m_Target.position );
+			m_ViewPoint.rotation	= Quaternion.LookRotation( projectedPoint - m_ViewPoint.position, viewPointUp );
+		
+			// Camera Rotation
+			Vector3 effects = ( m_HeadBob.Direction + m_HeadMove.Direction );
+			Vector3 direction = m_Target.position - transform.position;
+			Vector3 dirPlusEffects = direction + effects;
+			transform.position = m_ViewPoint.position;
+			transform.rotation = Quaternion.LookRotation( dirPlusEffects, viewPointUp );
+			return;
+		}
+
+		if ( GlobalManager.InputMgr.HasCategoryEnabled( InputCategory.CAMERA ) == false )
+			return;
 
 		// Cam Dispersion
 		m_CurrentDirection		= Vector3.Lerp( m_CurrentDirection, m_CurrentDirection + m_WpnCurrentDeviation, dt * 13f );
