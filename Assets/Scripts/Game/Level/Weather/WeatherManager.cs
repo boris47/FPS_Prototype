@@ -753,7 +753,7 @@ namespace WeatherSystem {
 		private void			OnDestroy()
 		{
 		//	if ( m_ShowDebugInfo )
-				Debug.Log( "WeatherManager::OnEnabled: OnDestroy" );
+				Debug.Log( "WeatherManager::OnDestroy" );
 		}
 
 
