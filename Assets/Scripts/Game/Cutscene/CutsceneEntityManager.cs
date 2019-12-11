@@ -41,7 +41,9 @@ namespace CutScene {
 				return;
 			}
 
-			this.enabled						= true;
+			this.enabled = true;
+
+			GameManager.UpdateEvents.OnFrame += OnFrameUpdate;
 
 			m_CutsceneSubject = CutsceneSubject.ENTITY;
 
@@ -67,6 +69,8 @@ namespace CutScene {
 
 			this.enabled						= true;
 
+			GameManager.UpdateEvents.OnFrame += OnFrameUpdate;
+
 			m_CutsceneSubject = CutsceneSubject.CAMERA;
 
 			m_CameraCutsceneController.Setup( cameraPath );
@@ -78,7 +82,7 @@ namespace CutScene {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		private	void	Update()
+		private	void	OnFrameUpdate( float DeltaTime )
 		{
 			if ( GameManager.IsPaused == true )
 				return;
@@ -120,6 +124,8 @@ namespace CutScene {
 
 			// to save performance disable this script
 			this.enabled						= false;
+
+			GameManager.UpdateEvents.OnFrame -= OnFrameUpdate;
 		}
 	
 	}

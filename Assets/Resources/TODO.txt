@@ -122,4 +122,6 @@ AI Behiaviours
 ***	TODO Add suport for multiline list in sections
 ***	TODO TimersManager
 
-	TODO Refactoring WeatherManager
+**	TODO Refactoring WeatherManager
+	TODO Using Hash128, HashUnsafeUtilities, HashUtilities
+**	TODO Manage Camera outside player

@@ -340,10 +340,17 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 		if ( m_Target )
 		{
 			// Camera Rotation
-//			Quaternion rotation		= Quaternion.LookRotation( m_Target.position - transform.position, transform.parent.up );
-//			transform.rotation		= Quaternion.Slerp( transform.rotation, rotation, Time.unscaledDeltaTime * 8f ) * Quaternion.Euler( m_HeadBob.Direction /*+ m_HeadMove.Direction*/ );
+			Quaternion rotation		= Quaternion.LookRotation( m_Target.position - transform.position, transform.parent.up );
+			//	transform.rotation		= Quaternion.Slerp( transform.rotation, rotation, Time.unscaledDeltaTime * 8f ) * Quaternion.Euler( m_HeadBob.Direction /*+ m_HeadMove.Direction*/ );
 
-			m_ViewPoint.LookAt( m_Target );
+		//	Vector3 effects = ( m_CurrentDirection + m_HeadBob.Direction + m_HeadMove.Direction );
+
+			// Horizontal and Vertical rotation
+		//	m_ViewPoint.localRotation = Quaternion.Euler( ( Vector3.up * effects.y ) + ( Vector3.right * effects.x ) );
+
+			m_ViewPoint.rotation = Quaternion.Slerp( transform.rotation, rotation, Time.unscaledDeltaTime * 8f ) * Quaternion.Euler( m_HeadBob.Direction );
+
+//			m_ViewPoint.LookAt( m_Target );
 			
 			// Head Rotation
 		//	Vector3 projectedPoint	= Utils.Math.ProjectPointOnPlane( transform.parent.up, transform.parent.position, m_Target.position );

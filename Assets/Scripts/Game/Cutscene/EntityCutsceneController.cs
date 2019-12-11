@@ -102,14 +102,14 @@ namespace CutScene {
 				return false;
 			}
 
+			m_Waiter = null;
+
 			// Continue simulation until need updates
 			bool isBusy = m_EntitySimulation.SimulateMovement( m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
 			if ( isBusy == true ) // if true is currently simulating and here we have to wait simulation to be completed
 			{
 				return false;
 			}
-
-			m_Waiter = null;
 
 			// call callback when each waypoint is reached
 			m_PointsCollection[ m_CurrentIdx ].OnWayPointReached?.Invoke();
@@ -148,7 +148,7 @@ namespace CutScene {
 			if ( WeaponManager.Instance.IsZoomed == true )
 				WeaponManager.Instance.ZoomOut();
 
-			// Called on entity in order to reset vars or evething else
+			// Called on entity in order to reset vars or everything else
 			m_EntitySimulation.ExitSimulationState();
 
 			// Resetting internals
