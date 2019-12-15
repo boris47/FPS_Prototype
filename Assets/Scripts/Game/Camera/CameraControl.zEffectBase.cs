@@ -1,15 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿
 using UnityEngine;
 
-
+[SerializeField]
 public abstract class CameraEffectBase {
 
-	protected	const	float	RETURN_FACTOR = 0.005f;
+	protected	const	float	RETURN_FACTOR = 0.1f;
 
-	public	delegate	bool	EffectActiveCondition();
-
-	protected	EffectActiveCondition	m_EffectActiveCondition		= delegate() { return true; };
+	protected EffectActiveCondition m_EffectActiveCondition = () => true;
 	
 	[SerializeField]
 	protected	float		m_WpnInfluence				= 0.01f;
@@ -34,22 +31,33 @@ public abstract class CameraEffectBase {
 
 	[SerializeField]
 	protected	Vector3		m_Direction					= Vector3.zero;
-	public		Vector3		Direction					{ get { return m_Direction; } }
-
-	protected	static float		m_ThetaX					= 0f;
-	protected	static float		m_ThetaY					= 90f;
-
-	protected	float		m_SpeedMul					= 1.0f;
-	public		float		SpeedMul					{ get { return m_SpeedMul; } set { m_SpeedMul = value; } }
 
 	[SerializeField]
-	protected	float		m_AmplitudeMult				= 1.0f;
-	public		float		AmplitudeMult				{ get { return m_AmplitudeMult; } set { m_AmplitudeMult = value; } }
+	protected	Vector3		m_WeaponRotationDelta		= Vector3.zero;
 
 	[SerializeField]
-	protected	bool		m_IsActive					= true;
-	public		bool		IsActive					{ get { return m_IsActive; } set { m_IsActive = value; } }
+	protected	Vector3		m_WeaponPositionDelta		= Vector3.zero;
 
+//	[SerializeField]
+	public		bool		IsActive					= true;
+
+//	[SerializeField]
+	public	float			AmplitudeMult				= 1.0f;
+
+//	[SerializeField]
+	public	float			SpeedMul					= 1.0f;
+
+
+	protected	float		m_ThetaX					= 0f;
+	protected	float		m_ThetaY					= 90f;
+
+
+
+	//////////////////////////////////////////////////////////////////////////
 	public abstract	void Setup( EffectActiveCondition condition );
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public abstract	void Update( float deltaTime, ref CameraEffectorsManager.CameraEffectorData data );
 
 }

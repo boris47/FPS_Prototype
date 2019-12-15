@@ -327,8 +327,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 		if ( GameManager.Instance )
 			GameManager.SetInGameAs( true );
 
-		if ( CameraControl.Instance.IsNotNull() )
-			CameraControl.Instance.CanParseInput = true;
+		GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, true);
 
 		// Leave to UIManager the decision on which UI menu must be shown
 		UIManager.Instance.EnableMenuByScene( preloadSceneData.eScene );
@@ -544,8 +543,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager> {
 			if ( GameManager.Instance )
 				GameManager.SetInGameAs( true );
 
-			if ( CameraControl.Instance.IsNotNull() )
-				CameraControl.Instance.CanParseInput = true;
+			GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, true);
 
 			// Wait for every launched coroutine
 			yield return CoroutinesManager.WaitPendingCoroutines();

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Security.Cryptography;
-using System.Threading;
 
 
 [System.Serializable]
@@ -608,18 +607,20 @@ public partial class GameManager : IPauseEvents {
 		{
 			UIManager.Instance.GoToMenu( UIManager.PauseMenu );
 			m_PrevTimeScale							= Time.timeScale;
-			m_PrevCanParseInput						= CameraControl.Instance.CanParseInput;
+			m_PrevCanParseInput						= GlobalManager.InputMgr.HasCategoryEnabled(InputCategory.CAMERA);
 			m_PrevInputEnabled						= InputManager.IsEnabled;
 
 			Time.timeScale							= 0f;
-			CameraControl.Instance.CanParseInput	= false;
+
+//			CameraControl.Instance.CanParseInput	= false;
+			GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, false);
 			InputManager.IsEnabled					= false;
 		}
 		else
 		{
 			UIManager.Instance.GoToMenu( UIManager.InGame );
 			Time.timeScale							= m_PrevTimeScale;
-			CameraControl.Instance.CanParseInput	= m_PrevCanParseInput;
+			GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, m_PrevCanParseInput);
 			InputManager.IsEnabled					= m_PrevInputEnabled;
 		}
 		m_SkipOneFrame = true;

@@ -225,8 +225,8 @@ public partial class Player {
 
 		// Setup
 		UnityEngine.UI.Image effectFrame			= UIManager.EffectFrame;
-		CameraControl.Instance.HeadBob.IsActive		= false;
-		CameraControl.Instance.HeadMove.IsActive	= false;
+		CameraControl.Instance.CameraEffectorsManager.SetEffectorState<HeadBob>(false);
+		CameraControl.Instance.CameraEffectorsManager.SetEffectorState<HeadMove>(false);
 		m_RigidBody.velocity						= Vector3.zero;
 		m_RigidBody.constraints						= RigidbodyConstraints.None;
 
@@ -287,8 +287,8 @@ public partial class Player {
 
 		// Camera Reset
 		CameraControl.Instance.OnCutsceneEnd();
-		CameraControl.Instance.HeadBob.IsActive		= true;
-		CameraControl.Instance.HeadMove.IsActive	= true;
+		CameraControl.Instance.CameraEffectorsManager.SetEffectorState<HeadBob>(true);
+		CameraControl.Instance.CameraEffectorsManager.SetEffectorState<HeadMove>(true);
 
 		SetMotionType( eMotionType.Walking );
 

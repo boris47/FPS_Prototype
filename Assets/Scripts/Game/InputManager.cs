@@ -211,6 +211,22 @@ public class InputManager {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	// SetCategory
+	public		void	SetCategory( InputCategory category, bool newState )
+	{
+		if ( newState == true && Utils.FlagsHelper.IsSet( m_InputCategories, category ) == false )
+		{
+			Utils.FlagsHelper.Set( ref m_InputCategories, category );
+		}
+
+		if ( newState == false && Utils.FlagsHelper.IsSet( m_InputCategories, category ) == true )
+		{
+			Utils.FlagsHelper.Unset( ref m_InputCategories, category );
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	// HasCategoryEnabled
 	public		bool	HasCategoryEnabled( InputCategory category )
 	{

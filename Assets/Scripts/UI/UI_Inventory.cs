@@ -218,10 +218,7 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 			return;
 		}
 
-		if ( CameraControl.Instance.IsNotNull() )
-		{
-			CameraControl.Instance.CanParseInput	= false;
-		}
+		GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, false);
 
 		InputManager.IsEnabled						= false;
 
@@ -254,10 +251,7 @@ public class UI_Inventory : MonoBehaviour, IStateDefiner {
 			return;
 		}
 
-		if ( CameraControl.Instance.IsNotNull() )
-		{
-			CameraControl.Instance.CanParseInput	= true;
-		}
+		GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, true);
 
 		InputManager.IsEnabled						= true;
 

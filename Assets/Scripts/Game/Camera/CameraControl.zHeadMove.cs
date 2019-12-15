@@ -5,17 +5,6 @@ using UnityEngine;
 [System.Serializable]
 public class HeadMove : CameraEffectBase {
 
-	private	static	Vector3				m_WeaponPositionDelta		= Vector3.zero;
-	public	static	Vector3				WeaponPositionDelta
-	{
-		get { return m_WeaponPositionDelta; }
-	}
-
-	private	static	Vector3				m_WeaponRotationDelta		= Vector3.zero;
-	public	static	Vector3				WeaponRotationDelta
-	{
-		get { return m_WeaponRotationDelta; }
-	}
 
 
 	// SECTION DATA
@@ -59,17 +48,17 @@ public class HeadMove : CameraEffectBase {
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	public void Update()
+	public override void Update( float deltaTime, ref CameraEffectorsManager.CameraEffectorData data )
 	{
-		if ( m_IsActive == false )
+		if ( IsActive == false )
 			return;
 
-		float dt = Time.deltaTime;
 		if ( m_EffectActiveCondition() == false )
 		{
-			m_Direction = Vector3.Lerp( m_Direction, Vector3.zero, dt * RETURN_FACTOR );
-			m_WeaponPositionDelta = Vector3.Lerp( m_WeaponPositionDelta, Vector3.zero, dt * RETURN_FACTOR );
-			m_WeaponRotationDelta = Vector3.Lerp( m_WeaponRotationDelta, Vector3.zero, dt * RETURN_FACTOR );
+//			m_Direction = Vector3.MoveTowards( m_Direction, Vector3.zero, deltaTime * RETURN_FACTOR );
+//			m_WeaponPositionDelta = Vector3.MoveTowards( m_WeaponPositionDelta, Vector3.zero, deltaTime * RETURN_FACTOR );
+//			m_WeaponRotationDelta = Vector3.MoveTowards( m_WeaponRotationDelta, Vector3.zero, deltaTime * RETURN_FACTOR );
+			this.SetData( ref data );
 			return;
 		}
 
@@ -77,13 +66,13 @@ public class HeadMove : CameraEffectBase {
 		bool	bCrouched	= Player.Instance.IsCrouched;
 		bool	bZoomed		= WeaponManager.Instance.IsZoomed;
 
-		float fSpeed = m_SpeedBase * m_SpeedMul * dt;
+		float fSpeed = m_SpeedBase * SpeedMul * deltaTime;
 		fSpeed		*= ( bCrouched )	?	0.80f : 1.00f;
 //		fSpeed		*= ( bIsUnderwater )?	0.50f : 1.00f;
 		fSpeed		*= ( bZoomed )		?	0.85f : 1.00f;
 		fSpeed		*= ( 4.0f - ( fStamina * 2.0f ) );
 
-		float fAmplitude = m_AmplitudeBase * m_AmplitudeMult;
+		float fAmplitude = m_AmplitudeBase * AmplitudeMult;
 		fAmplitude		*= ( ( bCrouched )	? 0.80f : 1.00f );
 		fAmplitude		*= ( ( bZoomed )	? 0.55f : 1.00f );
 		fAmplitude		*= ( 5.0f - ( fStamina * 4.0f ) );
@@ -105,6 +94,15 @@ public class HeadMove : CameraEffectBase {
 //		m_WeaponPositionDelta.y = -deltaYBase * m_WpnInfluence;
 //		m_WeaponRotationDelta.x = deltaXBase * m_WpnInfluence;
 //		m_WeaponRotationDelta.y = deltaYBase * m_WpnInfluence;
+
+		this.SetData( ref data );
 	}
 
+
+	private	void SetData( ref CameraEffectorsManager.CameraEffectorData data )
+	{
+		data.CameraEffectsDirection += m_Direction;
+		data.WeaponPositionDelta += m_WeaponPositionDelta;
+		data.WeaponRotationDelta += m_WeaponRotationDelta;
+	}
 }

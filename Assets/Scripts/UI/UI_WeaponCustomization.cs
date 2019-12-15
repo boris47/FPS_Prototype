@@ -136,7 +136,7 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 		FillDropdown( m_TertiaryDropDown,	allModules, WeaponSlots.TERTIARY );
 
 
-		CameraControl.Instance.CanParseInput	= false;
+		GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, false);
 //		InputManager.IsEnabled					= false;
 
 		// All categories but not interface
@@ -249,10 +249,7 @@ public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 			return;
 		}
 
-		if ( CameraControl.Instance != null )
-		{
-			CameraControl.Instance.CanParseInput	= true;
-		}
+		GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, true);
 
 //		InputManager.IsEnabled					= true;
 		GlobalManager.InputMgr.EnableCategory( InputCategory.ALL );

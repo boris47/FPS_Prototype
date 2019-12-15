@@ -12,7 +12,7 @@ public partial class Player {
 		m_MovementOverrideEnabled				= true;
 		m_SimulationStartPosition				= transform.position;
 
-		CameraControl.Instance.CanParseInput	= false;
+		GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, false);
 //		InputManager.IsEnabled					= false;
 		GlobalManager.InputMgr.DisableCategory( InputCategory.ALL );
 
@@ -102,7 +102,7 @@ public partial class Player {
 		m_States.IsMoving		= false;
 		Time.timeScale			= 1f;
 
-		CameraControl.Instance.CanParseInput = true;
+		GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, true);
 //		InputManager.IsEnabled = true;
 		GlobalManager.InputMgr.EnableCategory( InputCategory.ALL );
 	}
