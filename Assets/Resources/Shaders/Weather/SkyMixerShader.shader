@@ -61,7 +61,7 @@ Shader "Custom/SkyMixerShader" {
 			{
 				float4 env1 = texCUBE (_Skybox1, i.texcoord);
 				float4 env2 = texCUBE (_Skybox2, i.texcoord);
-				float4 env = lerp( env2, env1, _Interpolant );
+				float4 env = lerp( env1, env2, _Interpolant );
 				const half3 c = env.rgb * _Tint.rgb * unity_ColorSpaceDouble * _Exposure;
 				return half4(c, _Tint.a);
 			//	return env * _Tint.rgb * unity_ColorSpaceDouble * _Tint.a;
