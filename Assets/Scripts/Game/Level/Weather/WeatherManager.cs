@@ -289,7 +289,7 @@ namespace WeatherSystem {
 			if ( loadedMaterial )
 			{
 				// Load Sky Material
-				m_SkyMaterial = Object.Instantiate(loadedMaterial);
+				m_SkyMaterial = new Material(loadedMaterial);
 				return true;
 			}
 			return false;
@@ -641,7 +641,7 @@ namespace WeatherSystem {
 		{
 			float interpolant = TimeInterpolant( m_DayTimeNow );
 			InterpolateOthers( interpolant );
-			m_SkyMaterial.SetFloat( "_Blend", interpolant );
+			m_SkyMaterial.SetFloat( "_Interpolant", interpolant );
 		}
 
 		
