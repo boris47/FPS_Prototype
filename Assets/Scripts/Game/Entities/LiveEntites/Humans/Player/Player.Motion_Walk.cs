@@ -341,11 +341,11 @@ public partial class Player {
 		GlobalManager.InputMgr.BindCall( eInputCommands.MOVE_BACKWARD,		"BackwardEvent",	GoBackwardAction,		Motion_Walk_Predicate );
 
 		GlobalManager.InputMgr.BindCall( eInputCommands.MOVE_LEFT,			"LeftEvent",		StrafeLeftAction,		Motion_Walk_Predicate );
-		GlobalManager.InputMgr.BindCall( eInputCommands.MOVE_RIGHT,		"RightEvent",		StrafeRightAction,		Motion_Walk_Predicate );
+		GlobalManager.InputMgr.BindCall( eInputCommands.MOVE_RIGHT,			"RightEvent",		StrafeRightAction,		Motion_Walk_Predicate );
 
 		GlobalManager.InputMgr.BindCall( eInputCommands.STATE_RUN,			"RunEvent",			RunAction,				RunPredicate );
 
-		GlobalManager.InputMgr.BindCall( eInputCommands.STATE_JUMP,		"JumpEvent",		JumpAction,				JumpPredicate );
+		GlobalManager.InputMgr.BindCall( eInputCommands.STATE_JUMP,			"JumpEvent",		JumpAction,				JumpPredicate );
 
 		GlobalManager.InputMgr.BindCall( eInputCommands.USAGE,				"Interaction",		InteractionAction,		InteractionPredicate );
 		GlobalManager.InputMgr.BindCall( eInputCommands.USAGE,				"Grab",				GrabAction,				GrabPredicate );
@@ -359,7 +359,7 @@ public partial class Player {
 	
 	private	void	UnRegisterGroundedMotion()
 	{
-		GlobalManager.InputMgr.UnbindCall( eInputCommands.MOVE_FORWARD,	"ForwardEvent" );
+		GlobalManager.InputMgr.UnbindCall( eInputCommands.MOVE_FORWARD,		"ForwardEvent" );
 		GlobalManager.InputMgr.UnbindCall( eInputCommands.MOVE_BACKWARD,	"BackwardEvent" );
 
 		GlobalManager.InputMgr.UnbindCall( eInputCommands.MOVE_LEFT,		"LeftEvent" );
@@ -374,7 +374,7 @@ public partial class Player {
 		GlobalManager.InputMgr.UnbindCall( eInputCommands.GADGET3,			"Flashlight" );
 
 		GlobalManager.InputMgr.UnbindCall( eInputCommands.ABILITY_PRESS,	"DodgeStart" );
-		GlobalManager.InputMgr.UnbindCall( eInputCommands.ABILITY_HOLD,	"DodgeContinue" );
+		GlobalManager.InputMgr.UnbindCall( eInputCommands.ABILITY_HOLD,		"DodgeContinue" );
 		GlobalManager.InputMgr.UnbindCall( eInputCommands.ABILITY_RELEASE,	"DodgeEnd" );
 	}
 

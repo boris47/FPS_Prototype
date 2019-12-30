@@ -60,4 +60,8 @@ public abstract class CameraEffectBase {
 	//////////////////////////////////////////////////////////////////////////
 	public abstract	void Update( float deltaTime, ref CameraEffectorsManager.CameraEffectorData data );
 
+
+	//////////////////////////////////////////////////////////////////////////
+	public	abstract void SetData( ref CameraEffectorsManager.CameraEffectorData data );
+
 }

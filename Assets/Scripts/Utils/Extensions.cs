@@ -194,6 +194,8 @@ public static class Extensions {
 		/////////////////////////////////////////////////////////////////////////////
 		#region ANIMATOR
 
+
+		/////////////////////////////////////////////////////////////////////////////
 		public static	bool			GetClipFromAnimator( this Animator animator, string name, ref AnimationClip result )
 		{
 			if ( animator.runtimeAnimatorController == null || animator.runtimeAnimatorController.animationClips.Length == 0 )
@@ -225,30 +227,39 @@ public static class Extensions {
 		/////////////////////////////////////////////////////////////////////////////
 		#region TRANSFORM
 
+		/////////////////////////////////////////////////////////////////////////////
 		/// <summary> Return true if component is found, otherwise return false </summary>
 		public static	bool			HasComponent<T>( this Transform transform ) where T : Component
 		{
 			return transform.GetComponent<T>() != null;
 		}
 
+
+		/////////////////////////////////////////////////////////////////////////////
 		/// <summary> Return the first transform found in child hiearchy with the given name or null if not found </summary>
 		public	static	bool			SearchChildWithName( this Transform transform, string childName, ref Transform child )
 		{
 			return Utils.Base.SearchComponent( transform.gameObject, ref child, SearchContext.CHILDREN, t => t.name == childName );
 		}
 
+
+		/////////////////////////////////////////////////////////////////////////////
 		/// <summary> Can be used to retrieve a component with more detailed research details </summary>
 		public	static	bool			SearchComponent<T>( this Transform transform, ref T Component, SearchContext Context, global::System.Predicate<T> Filter = null ) where T : Component
 		{
 			return Utils.Base.SearchComponent( transform.gameObject, ref Component, Context, Filter );
 		}
 
+
+		/////////////////////////////////////////////////////////////////////////////
 		/// <summary> Can be used to retrieve a component's array with more detailed research details </summary>
 		public	static	bool			SearchComponents<T>( this Transform transform, ref T[] Component, SearchContext Context, global::System.Predicate<T> Filter = null ) where T : Component
 		{
 			return Utils.Base.SearchComponents( transform.gameObject, ref Component, Context, Filter );
 		}
 
+
+		/////////////////////////////////////////////////////////////////////////////
 		/// <summary> Search for a specific component at specific child, if found, return operation result </summary>
 		public	static	bool			SearchComponentInChild<T>( this Transform t, string childName, ref T Component) where T : Component
 		{
@@ -264,6 +275,7 @@ public static class Extensions {
 		}
 
 
+		/////////////////////////////////////////////////////////////////////////////
 		/// <summary> Search for a specific component at specific child, if found, return operation result </summary>
 		public	static	bool			SearchComponentInChild<T>( this Transform t, int childIndex, ref T Component) where T : Component
 		{
@@ -281,6 +293,8 @@ public static class Extensions {
 			return Component != null;
 		} 
 
+
+		/////////////////////////////////////////////////////////////////////////////
 		/// <summary> Create and fills up given array with components found paired in childrens to the given enum type </summary>
 		public	static	bool			PairComponentsInChildrenIntoArray<T0, T1>( this Transform t, ref T0[] array ) where T0 :Component
 		{
@@ -305,7 +319,9 @@ public static class Extensions {
 
 			return bResult;
 		}
+		
 
+		/////////////////////////////////////////////////////////////////////////////
 		/// <summary> Search for the given component only in children of given transform </summary>
 		public	static	T[]				GetComponentOnlyInChildren<T>( this Transform transform, bool deepSearch = false, bool includeInactive = false  )
 		{
@@ -334,6 +350,8 @@ public static class Extensions {
 			return list.ToArray();
 		}
 
+
+		/////////////////////////////////////////////////////////////////////////////
 		/// <summary> Look for given component, if not found add it, return component reference  </summary>
 		public	static	T				GetOrAddIfNotFound<T>( this Transform t ) where T : Component
 		{
@@ -352,6 +370,8 @@ public static class Extensions {
 		/////////////////////////////////////////////////////////////////////////////
 		#region GAMEOBJECT
 
+
+		/////////////////////////////////////////////////////////////////////////////
 		/// <summary> Look for given component, if not found add it, return component reference  </summary>
 		public static	T				GetOrAddIfNotFound<T>( this GameObject go ) where T : Component
 		{
@@ -369,6 +389,8 @@ public static class Extensions {
 		/////////////////////////////////////////////////////////////////////////////
 		#region VECTOR2
 
+
+		/////////////////////////////////////////////////////////////////////////////
 		public static	Vector2			ClampComponents( this Vector2 v, float min, float max )
 		{
 			v.x = Mathf.Clamp( v.x, min, max );
@@ -376,11 +398,29 @@ public static class Extensions {
 			return v;
 		}
 
+
+		/////////////////////////////////////////////////////////////////////////////
 		public	static	Vector2			ClampComponents( this Vector2 v, Vector2 clamping )
 		{
 			v.x = Mathf.Clamp( v.x, -clamping.x, clamping.x );
 			v.y = Mathf.Clamp( v.y, -clamping.y, clamping.x );
 			return v;
+		}
+
+
+		/////////////////////////////////////////////////////////////////////////////
+		public	static	void			Set( this Vector2 v, float newX, float newY )
+		{
+			v.x = newX;
+			v.y = newY;
+		}
+
+
+		/////////////////////////////////////////////////////////////////////////////
+		public	static	void			LerpTo( this Vector2 v, Vector2 dest, float interpolant )
+		{
+			v.x = Mathf.Lerp( v.x, dest.x, interpolant );
+			v.y = Mathf.Lerp( v.x, dest.y, interpolant );
 		}
 
 		#endregion
@@ -389,6 +429,7 @@ public static class Extensions {
 		/////////////////////////////////////////////////////////////////////////////
 		#region VECTOR3
 
+		/////////////////////////////////////////////////////////////////////////////
 		public static	Vector3			ClampComponents( this Vector3 v, float min, float max )
 		{
 			v.x = Mathf.Clamp( v.x, min, max );
@@ -397,6 +438,8 @@ public static class Extensions {
 			return v;
 		}
 
+
+		/////////////////////////////////////////////////////////////////////////////
 		public	static	Vector3			ClampComponents( this Vector3 v, Vector3 clamping )
 		{
 			v.x = Mathf.Clamp( v.x, -clamping.x, clamping.x );
@@ -404,15 +447,36 @@ public static class Extensions {
 			v.z = Mathf.Clamp( v.y, -clamping.z, clamping.z );
 			return v;
 		}
-
-		#endregion
+		
 
 		/////////////////////////////////////////////////////////////////////////////
-		/////////////////////////////////////////////////////////////////////////////
-		#region QUATERNION
+		public static	void			Set( this Vector3 v, float newX, float newY, float newZ )
+		{
+			v.x = newX;
+			v.y = newY;
+			v.z = newZ;
+		}
 
-		/// <summary> Returna vector which rotation is the given quaternion </summary>
-		public static	Vector3			GetVector( this Quaternion q, Vector3 d )
+
+		/////////////////////////////////////////////////////////////////////////////
+		public	static	void			LerpTo( this Vector3 v, Vector3 dest, float interpolant )
+		{
+			v.x = Mathf.Lerp( v.x, dest.x, interpolant );
+			v.y = Mathf.Lerp( v.y, dest.y, interpolant );
+			v.z = Mathf.Lerp( v.z, dest.z, interpolant );
+		}
+
+
+	#endregion
+
+	/////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+	#region QUATERNION
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Returna vector which rotation is the given quaternion </summary>
+	public static	Vector3			GetVector( this Quaternion q, Vector3 d )
 		{
 			// A quaternion doesn't have a direction by itself. It is a rotation.
 			// It can be used to rotate any vector by the rotation it represents. Just multiply a Vector3 by the quaternion.
@@ -426,6 +490,8 @@ public static class Extensions {
 	*/
 		}
 
+
+		/////////////////////////////////////////////////////////////////////////////
 		/// <summary> We need this because Quaternion.Slerp always uses the shortest arc </summary>
 		public	static	Quaternion		Slerp( this Quaternion p, Quaternion q, float t)
 		{
@@ -461,6 +527,8 @@ public static class Extensions {
 			return ret;
 		}
 
+
+		/////////////////////////////////////////////////////////////////////////////
 		/// <summary> Return th lenght of a quaternion </summary>
 		public	static	float			GetLength( this Quaternion q )
 		{

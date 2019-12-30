@@ -118,7 +118,7 @@ public class HeadBob : CameraEffectBase {
 		}
 	}
 
-	private	void SetData( ref CameraEffectorsManager.CameraEffectorData data )
+	public	override void SetData( ref CameraEffectorsManager.CameraEffectorData data )
 	{
 		data.CameraEffectsDirection += m_Direction;
 		data.WeaponPositionDelta += m_WeaponPositionDelta;
