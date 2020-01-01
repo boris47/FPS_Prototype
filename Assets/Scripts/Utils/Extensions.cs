@@ -391,7 +391,7 @@ public static class Extensions {
 
 
 		/////////////////////////////////////////////////////////////////////////////
-		public static	Vector2			ClampComponents( this Vector2 v, float min, float max )
+		public static	Vector2			ClampComponents( this ref Vector2 v, float min, float max )
 		{
 			v.x = Mathf.Clamp( v.x, min, max );
 			v.y = Mathf.Clamp( v.y, min, max );
@@ -400,7 +400,7 @@ public static class Extensions {
 
 
 		/////////////////////////////////////////////////////////////////////////////
-		public	static	Vector2			ClampComponents( this Vector2 v, Vector2 clamping )
+		public	static	Vector2			ClampComponents( this ref Vector2 v, Vector2 clamping )
 		{
 			v.x = Mathf.Clamp( v.x, -clamping.x, clamping.x );
 			v.y = Mathf.Clamp( v.y, -clamping.y, clamping.x );
@@ -409,7 +409,7 @@ public static class Extensions {
 
 
 		/////////////////////////////////////////////////////////////////////////////
-		public	static	void			Set( this Vector2 v, float newX, float newY )
+		public	static	void			Set( this ref Vector2 v, float newX, float newY )
 		{
 			v.x = newX;
 			v.y = newY;
@@ -417,7 +417,7 @@ public static class Extensions {
 
 
 		/////////////////////////////////////////////////////////////////////////////
-		public	static	void			LerpTo( this Vector2 v, Vector2 dest, float interpolant )
+		public	static	void			LerpTo( this ref Vector2 v, Vector2 dest, float interpolant )
 		{
 			v.x = Mathf.Lerp( v.x, dest.x, interpolant );
 			v.y = Mathf.Lerp( v.x, dest.y, interpolant );
@@ -430,7 +430,7 @@ public static class Extensions {
 		#region VECTOR3
 
 		/////////////////////////////////////////////////////////////////////////////
-		public static	Vector3			ClampComponents( this Vector3 v, float min, float max )
+		public static	Vector3			ClampComponents( this ref Vector3 v, float min, float max )
 		{
 			v.x = Mathf.Clamp( v.x, min, max );
 			v.y = Mathf.Clamp( v.y, min, max );
@@ -440,7 +440,7 @@ public static class Extensions {
 
 
 		/////////////////////////////////////////////////////////////////////////////
-		public	static	Vector3			ClampComponents( this Vector3 v, Vector3 clamping )
+		public	static	Vector3			ClampComponents( this ref Vector3 v, Vector3 clamping )
 		{
 			v.x = Mathf.Clamp( v.x, -clamping.x, clamping.x );
 			v.y = Mathf.Clamp( v.y, -clamping.y, clamping.x );
@@ -450,7 +450,7 @@ public static class Extensions {
 		
 
 		/////////////////////////////////////////////////////////////////////////////
-		public static	void			Set( this Vector3 v, float newX, float newY, float newZ )
+		public static	void			Set( this ref Vector3 v, float newX, float newY, float newZ )
 		{
 			v.x = newX;
 			v.y = newY;
@@ -459,7 +459,7 @@ public static class Extensions {
 
 
 		/////////////////////////////////////////////////////////////////////////////
-		public	static	void			LerpTo( this Vector3 v, Vector3 dest, float interpolant )
+		public	static	void			LerpTo( this ref Vector3 v, Vector3 dest, float interpolant )
 		{
 			v.x = Mathf.Lerp( v.x, dest.x, interpolant );
 			v.y = Mathf.Lerp( v.y, dest.y, interpolant );
