@@ -14,7 +14,7 @@ public interface ICameraControl {
 	Vector3						CurrentDirection					{ get; set; }
 	CameraEffectorsManager		CameraEffectorsManager				{ get; }
 
-	void						SetViewPoint						( Transform viewPoint );
+	void						SetViewPoint						( Transform viewPoint, Transform viewPointBody );
 	void						OnCutsceneEnd						();
 	void						ApplyDeviation						( float deviation, float weightX = 1f, float weightY = 1f );
 	void						ApplyDispersion						( float dispersion, float weightX = 1f, float weightY = 1f );
@@ -65,6 +65,12 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 	
 	[SerializeField]
 	private		Transform						m_WeaponPivot							= null;
+
+	[SerializeField]
+	private		Transform						m_ViewPoint								= null;
+
+	[SerializeField]
+	private		Transform						m_ViewPointBody							= null;
 
 
 	// EFFECTORS	
@@ -202,22 +208,22 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 	private	StreamUnit	OnLoad( StreamData streamData )
 	{
 		StreamUnit streamUnit = null;
-		if ( streamData.GetUnit( gameObject, ref streamUnit ) == false )
-			return null;
+		if ( streamData.GetUnit( gameObject, ref streamUnit ) )
+		{
+			// Camera internals
+			m_WpnCurrentDeviation	= Vector3.zero;
+			m_WpnCurrentDispersion	= Vector3.zero;
+			m_WpnRotationFeedback	= Vector3.zero;
+			m_WpnFallFeedback		= Vector3.zero;
 
-		// Camera internals
-		m_WpnCurrentDeviation	= Vector3.zero;
-		m_WpnCurrentDispersion	= Vector3.zero;
-		m_WpnRotationFeedback	= Vector3.zero;
-		m_WpnFallFeedback		= Vector3.zero;
+			// Current internal direction
+			m_CurrentDirection		= streamUnit.GetAsVector( "CurrentDirection" );
 
-		// Current internal direction
-		m_CurrentDirection		= streamUnit.GetAsVector( "CurrentDirection" );
+			// Can parse input
+			GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, streamUnit.GetAsBool( "CanParseInput" ));
 
-		// Can parse input
-		GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, streamUnit.GetAsBool( "CanParseInput" ));
-		
-		// TODO Save Effectors
+			// TODO Save Effectors
+		}
 
 		return streamUnit;
 	}
@@ -241,23 +247,19 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 
 		if ( value && !m_Target && m_ViewPoint )
 		{
-			m_ViewPoint.up = m_ViewPoint?.parent.up ?? Vector3.up;
+			m_ViewPoint.up = m_ViewPointBody?.up ?? Vector3.up;
 		}
 
 		m_Target = value;
 	}
 
-	private	Transform m_ViewPoint = null;
-
 
 	//////////////////////////////////////////////////////////////////////////
 	// SetViewPoint
-	void	ICameraControl.SetViewPoint( Transform viewPoint )
+	void	ICameraControl.SetViewPoint( Transform viewPoint, Transform viewPointBody )
 	{
 		m_ViewPoint = viewPoint ?? m_ViewPoint;
-//		transform.SetParent( viewPoint );
-//		transform.localPosition = Vector3.zero;
-//		transform.localRotation = Quaternion.identity;
+		m_ViewPointBody = viewPointBody ?? m_ViewPointBody;
 	}
 
 
@@ -308,6 +310,7 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 	void	ICameraControl.AddRecoil( float recoil )
 	{
 		m_Recoil += recoil;
+		m_Recoil = Mathf.Clamp( m_Recoil, 0.0f, 0.05f );
 	}
 
 
@@ -315,18 +318,16 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 	// LateUpdate
 	private	void	LateUpdate()
 	{
-		if ( m_ViewPoint && m_Target == null )
-		{
-			transform.SetPositionAndRotation( m_ViewPoint.position, m_ViewPoint.rotation );
-		}
+		Transform viewPoint = m_ViewPoint ?? transform;
+		Transform viewPointBody = m_ViewPointBody ?? transform;
+		bool bHasTargetAssigned = m_Target;
 
-		if ( GameManager.IsPaused || m_ViewPoint == null )
-			return;
+		// ByDefault Camera follow viewPoint
+		transform.SetPositionAndRotation( viewPoint.position, viewPoint.rotation );
 
-		float deltaTime = Time.deltaTime;
+		float deltaTime = GameManager.IsPaused ? 0f : Time.deltaTime;
 
 		m_CameraEffectorsManager.Update( deltaTime );
-		
 
 		// Used for view smoothness
 		m_SmoothFactor = Mathf.Clamp( m_SmoothFactor, 1.0f, 10.0f );
@@ -338,22 +339,19 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 			m_WpnFallFeedback		= Vector3.Lerp( m_WpnFallFeedback,		Vector3.zero, deltaTime * 3.7f );
 			m_WpnCurrentDeviation	= Vector3.Lerp( m_WpnCurrentDeviation,  Vector3.zero, deltaTime * 3.7f );
 			m_Recoil				= Mathf.Lerp( m_Recoil, 0.0f, deltaTime * 3.7f );
-			m_Recoil				= Mathf.Clamp( m_Recoil, 0.0f, 0.05f );
 
-			if ( m_WeaponMoveEffectEnabled && WeaponManager.Instance.CurrentWeapon != null )
+			if ( m_WeaponMoveEffectEnabled )
 			{
-				// Position
+				// Weapon Local Position
 				Vector3 localPosition = m_CameraEffectorsManager.CameraEffectorsData.WeaponPositionDelta + ( Vector3.left * m_Recoil );
-
 				WeaponManager.Instance.CurrentWeapon.Transform.localPosition = localPosition;
 
-				// Rotation
-				Vector3 localEulerAngles	= m_CameraEffectorsManager.CameraEffectorsData.WeaponRotationDelta + m_WpnCurrentDispersion + m_WpnRotationFeedback + m_WpnFallFeedback;
-				WeaponManager.Instance.CurrentWeapon.Transform.localEulerAngles	= localEulerAngles;
-
 				// Headbob effect on weapon
-				Vector3 basePivotRotation = Vector3.up * -90f;
-				m_WeaponPivot.localEulerAngles = ( m_CameraEffectorsManager.GetEffectorData<HeadBob>()?.CameraEffectsDirection * -1f + basePivotRotation ) ?? Vector3.zero;
+				Vector3 headbobEffectOnWeapon = ( m_CameraEffectorsManager.GetEffectorData<HeadBob>()?.CameraEffectsDirection * -1f ) ?? Vector3.zero;
+
+				// Weapon Local Rotation
+				Vector3 localEulerAngles = m_CameraEffectorsManager.CameraEffectorsData.WeaponRotationDelta + m_WpnCurrentDispersion + m_WpnRotationFeedback + m_WpnFallFeedback + headbobEffectOnWeapon;
+				WeaponManager.Instance.CurrentWeapon.Transform.localEulerAngles	= localEulerAngles;
 			
 				// Optic sight alignment
 				if ( WeaponManager.Instance.IsZoomed )
@@ -374,19 +372,17 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 			}
 		}
 
-		// Look at target if assigned
-		if ( m_Target )
+		// Look at target if assigned ( override previous assignment )
+		if ( bHasTargetAssigned )
 		{
-			// Head Rotation
-			Vector3 viewPointUp = m_ViewPoint.up;
-			Vector3 projectedPoint	= Utils.Math.ProjectPointOnPlane( viewPointUp, m_ViewPoint.position, m_Target.position );
-			m_ViewPoint.rotation	= Quaternion.LookRotation( projectedPoint - m_ViewPoint.position, viewPointUp );
-		
+			// Body Rotation
+			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( viewPointBody.up, viewPointBody.position, m_Target.position );
+			viewPointBody.rotation = Quaternion.LookRotation( projectedPoint - viewPointBody.position, viewPointBody.up );
+
 			// Camera Rotation
-			Vector3 direction = m_Target.position - transform.position;
-			Vector3 dirPlusEffects = direction + m_CameraEffectorsManager.CameraEffectorsData.CameraEffectsDirection;
-			transform.position = m_ViewPoint.position;
-			transform.rotation = Quaternion.LookRotation( dirPlusEffects, viewPointUp );
+			Vector3 direction = m_Target.position - viewPoint.position;
+			Vector3 DirectionPlusEffects = direction + m_CameraEffectorsManager.CameraEffectorsData.CameraEffectsDirection + m_WpnCurrentDeviation;
+			viewPoint.rotation = Quaternion.Euler( Vector3.right * -DirectionPlusEffects.x );
 			return;
 		}
 
@@ -401,18 +397,25 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 		float	Axis_X_Delta		= Input.GetAxisRaw ( "Mouse X" ) * m_MouseSensitivity * ( ( isZoomed ) ? wpnZoomSensitivity : 1.0f );
 		float	Axis_Y_Delta		= Input.GetAxisRaw ( "Mouse Y" ) * m_MouseSensitivity * ( ( isZoomed ) ? wpnZoomSensitivity : 1.0f );
 
+		// Interpolate if m_SmoothedRotation is enabled
 		float interpolant = m_SmoothedRotation ? ( Time.unscaledDeltaTime * ( 100f / m_SmoothFactor ) ) : 1f;
 		m_CurrentRotation_X_Delta = Mathf.LerpUnclamped( m_CurrentRotation_X_Delta, Axis_X_Delta, interpolant );
 		m_CurrentRotation_Y_Delta = Mathf.LerpUnclamped( m_CurrentRotation_Y_Delta, Axis_Y_Delta, interpolant );
 
 		m_CurrentDirection.x = Utils.Math.Clamp( m_CurrentDirection.x - m_CurrentRotation_X_Delta, CLAMP_MIN_X_AXIS, CLAMP_MAX_X_AXIS );
-		m_CurrentDirection.y = m_CurrentDirection.y + m_CurrentRotation_Y_Delta;		
+		m_CurrentDirection.y = m_CurrentDirection.y + m_CurrentRotation_Y_Delta;
 
-		// Apply effects
-		Vector3 DirectionPlusEffects = ( m_CurrentDirection + m_CameraEffectorsManager.CameraEffectorsData.CameraEffectsDirection + m_WpnCurrentDeviation );
+		// Apply rotation
+		{
+			// Apply effects
+			Vector3 DirectionPlusEffects = ( m_CurrentDirection + m_CameraEffectorsManager.CameraEffectorsData.CameraEffectsDirection + m_WpnCurrentDeviation );
 
-		// Horizontal and Vertical rotation
-		m_ViewPoint.localRotation = Quaternion.Euler( DirectionPlusEffects );
+			// Horizonatal rotation
+			m_ViewPointBody.localRotation = Quaternion.Euler( Vector3.up * DirectionPlusEffects.y );
+
+			// Vertical rotation
+			viewPoint.localRotation = Quaternion.Euler( Vector3.right * DirectionPlusEffects.x );
+		}
 
 		// rotation with effect added
 		{

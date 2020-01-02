@@ -186,7 +186,7 @@ public partial class Player : Human {
 		}
 		*/
 
-		CameraControl.Instance.SetViewPoint( m_HeadTransform );
+		CameraControl.Instance.SetViewPoint( m_HeadTransform, m_BodyTransform );
 
 		IsGrounded = false;
 

@@ -11,6 +11,7 @@ public class Waiter_Timer : Waiter_Base {
 	[SerializeField]
 	private		bool	m_ScaledTime	= true;
 
+	[SerializeField, ReadOnly]
 	private		float	m_CurrentTime	= 0.0f;
 
 

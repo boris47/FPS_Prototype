@@ -246,6 +246,8 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 	public				void		RegisterWeapon( Weapon weapon )
 	{
 		m_WeaponsList.Add( weapon );
+
+		CurrentWeapon = weapon;
 	}
 
 

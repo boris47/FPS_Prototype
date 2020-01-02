@@ -181,8 +181,15 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		
 		// TRANSFORMS
 		{
-			m_BodyTransform		= transform.Find( "Body" );
+			m_BodyTransform		= transform;//.Find( "Body" );
 			m_HeadTransform		= m_BodyTransform.Find( "Head" );
+
+			UnityEngine.Assertions.Assert.IsNotNull
+			(
+				m_HeadTransform,
+				"Entity " + name + " has not head"
+			);
+
 			m_Targettable		= m_HeadTransform;
 			m_EffectsPivot		= transform.Find( "EffectsPivot" );
 		}

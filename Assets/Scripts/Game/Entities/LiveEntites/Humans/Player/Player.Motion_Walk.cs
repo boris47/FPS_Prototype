@@ -12,7 +12,7 @@ public partial class Player {
 		m_MovementOverrideEnabled				= true;
 		m_SimulationStartPosition				= transform.position;
 
-		GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, false);
+//		GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, false);
 //		InputManager.IsEnabled					= false;
 		GlobalManager.InputMgr.DisableCategory( InputCategory.ALL );
 
@@ -102,7 +102,7 @@ public partial class Player {
 		m_States.IsMoving		= false;
 		Time.timeScale			= 1f;
 
-		GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, true);
+//		GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, true);
 //		InputManager.IsEnabled = true;
 		GlobalManager.InputMgr.EnableCategory( InputCategory.ALL );
 	}
@@ -357,6 +357,8 @@ public partial class Player {
 		GlobalManager.InputMgr.BindCall( eInputCommands.ABILITY_RELEASE,	"DodgeEnd",			AbilityEndAction,		AbilityPredcate );
 	}
 	
+
+	//////////////////////////////////////////////////////////////////////////
 	private	void	UnRegisterGroundedMotion()
 	{
 		GlobalManager.InputMgr.UnbindCall( eInputCommands.MOVE_FORWARD,		"ForwardEvent" );
@@ -379,103 +381,82 @@ public partial class Player {
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
 	private	bool	Motion_Walk_Predicate()
 	{
 		return IsGrounded;
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
 	private	void	GoForwardAction()
 	{
 		m_States.IsMoving = true;
 
-		float force = 1.0f;
-
 		bool bIsWalking = m_States.IsRunning == false && m_States.IsCrouched == false;
-		
-		// Walking
-		force *= ( bIsWalking ) ? m_WalkSpeed : 1.0f;
-		
-		// Crouch
-		force *= ( m_States.IsCrouched )	? m_CrouchSpeed : 1.0f;
 
-		// Running
-		force *= ( m_States.IsRunning )		? m_RunSpeed : 1.0f;
+		//						Walking									Running									Crouch
+		float force = ( bIsWalking ) ? m_WalkSpeed : ( m_States.IsRunning ) ? m_RunSpeed : ( m_States.IsCrouched )	? m_CrouchSpeed : 1.0f;
 		
 		m_ForwardSmooth = force;
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
 	private	void	GoBackwardAction()
 	{
 		m_States.IsMoving = true;
 
-		float force = 1.0f;
-
 		bool bIsWalking = m_States.IsRunning == false && m_States.IsCrouched == false;
 		
-		// Walking
-		force *= ( bIsWalking ) ? m_WalkSpeed : 1.0f;
-		
-		// Crouch
-		force *= ( m_States.IsCrouched )	? m_CrouchSpeed : 1.0f;
-
-		// Running
-		force *= ( m_States.IsRunning )		? m_RunSpeed : 1.0f;
+		//						Walking									Running									Crouch
+		float force = ( bIsWalking ) ? m_WalkSpeed : ( m_States.IsRunning ) ? m_RunSpeed : ( m_States.IsCrouched ) ? m_CrouchSpeed : 1.0f;
 		
 		m_ForwardSmooth = -force;
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
 	private	void	StrafeRightAction()
 	{
 		m_States.IsMoving = true;
 
-		const float strafeFactor = 0.8f;
-		float force = 1.0f;
-
 		bool bIsWalking = m_States.IsRunning == false && m_States.IsCrouched == false;
-		
-		// Walking
-		force *= ( bIsWalking ) ? m_WalkSpeed : 1.0f;
-		
-		// Crouch
-		force *= ( m_States.IsCrouched )	? m_CrouchSpeed : 1.0f;
 
-		// Running
-		force *= ( m_States.IsRunning )		? m_RunSpeed : 1.0f;
-		
+		//						Walking									Running									Crouch
+		float force = ( bIsWalking ) ? m_WalkSpeed : ( m_States.IsRunning ) ? m_RunSpeed : ( m_States.IsCrouched ) ? m_CrouchSpeed : 1.0f;
+
+		const float strafeFactor = 0.8f;
 		m_RightSmooth = force * strafeFactor;
 	}
 	
+
+	//////////////////////////////////////////////////////////////////////////
 	private	void	StrafeLeftAction()
 	{
 		m_States.IsMoving = true;
 
-		const float strafeFactor = 0.8f;
-		float force = 1.0f;
-
 		bool bIsWalking = m_States.IsRunning == false && m_States.IsCrouched == false;
-		
-		// Walking
-		force *= ( bIsWalking ) ? m_WalkSpeed : 1.0f;
-		
-		// Crouch
-		force *= ( m_States.IsCrouched )	? m_CrouchSpeed : 1.0f;
 
-		// Running
-		force *= ( m_States.IsRunning )		? m_RunSpeed : 1.0f;
-		
+		//						Walking									Running									Crouch
+		float force = ( bIsWalking ) ? m_WalkSpeed : ( m_States.IsRunning ) ? m_RunSpeed : ( m_States.IsCrouched ) ? m_CrouchSpeed : 1.0f;
+
+		const float strafeFactor = 0.8f;
 		m_RightSmooth = -force * strafeFactor;
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
 	private	bool	RunPredicate()
 	{
 		return true;//( ( m_States.IsCrouched && !m_IsUnderSomething ) || !m_States.IsCrouched );
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
 	private	void	RunAction()
 	{
-		if ( m_ForwardSmooth != 0.0f || m_RightSmooth != 0.0f )
+		if ( m_States.IsMoving )
 		{
 			m_States.IsCrouched = false;
 			m_States.IsRunning = true;
@@ -483,11 +464,14 @@ public partial class Player {
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
 	private	bool	JumpPredicate()
 	{
 		return IsGrounded && m_States.IsJumping == false && m_States.IsHanging == false && m_States.IsFalling == false && m_GrabbedObject == null;
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
 	private	void	JumpAction()
 	{
 		m_UpSmooth = m_JumpForce / ( m_States.IsCrouched ? 1.5f : 1.0f );
