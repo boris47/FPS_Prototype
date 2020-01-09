@@ -376,13 +376,20 @@ public class CameraControl : MonoBehaviour, ICameraControl {
 		if ( bHasTargetAssigned )
 		{
 			// Body Rotation
-			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( viewPointBody.up, viewPointBody.position, m_Target.position );
-			viewPointBody.rotation = Quaternion.LookRotation( projectedPoint - viewPointBody.position, viewPointBody.up );
+			if ( m_ViewPointBody )
+			{
+				Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( viewPointBody.up, viewPointBody.position, m_Target.position );
+				viewPointBody.LookAt( projectedPoint, viewPointBody.up );
+			}
+			
+//			viewPointBody.rotation = Quaternion.LookRotation( projectedPoint - viewPointBody.position, viewPointBody.up );
 
 			// Camera Rotation
+//			viewPoint.LookAt( m_Target, viewPointBody.up );
+
 			Vector3 direction = m_Target.position - viewPoint.position;
 			Vector3 DirectionPlusEffects = direction + m_CameraEffectorsManager.CameraEffectorsData.CameraEffectsDirection + m_WpnCurrentDeviation;
-			viewPoint.rotation = Quaternion.Euler( Vector3.right * -DirectionPlusEffects.x );
+//			viewPoint.rotation = Quaternion.Euler( DirectionPlusEffects.x, 0f, 0f );
 			return;
 		}
 

@@ -110,6 +110,19 @@ public class Shield : MonoBehaviour, IShield {
 
 
 	//////////////////////////////////////////////////////////////////////////
+	// OnTriggerEnter
+	private void OnTriggerEnter( Collider other )
+	{
+		IBullet bullet = null;
+		bool bIsBullet = Utils.Base.SearchComponent( other.gameObject, ref bullet, SearchContext.CHILDREN );
+		if ( bIsBullet == true )
+		{
+			m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageType, bullet.Damage, bullet.CanPenetrate );
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	// OnEnable
 	private void OnEnable()
 	{

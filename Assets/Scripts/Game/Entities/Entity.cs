@@ -30,6 +30,9 @@ public partial interface IEntity {
 	/// <summary> Physic collider, only manage entity in space </summary>
 	Collider				PhysicCollider					{ get; }
 
+	/// <summary> Physic collider, only manage entity in space </summary>
+	Collider				TriggerCollider					{ get; }
+
 	/// <summary> Trigger collider, used for interactions with incoming objects or trigger areas
 //	Collider				TriggerCollider					{ get; }
 
@@ -50,7 +53,7 @@ public partial interface IEntity {
 
 
 //					Physics intreractions,		Entity volume,		   Navigation
-[RequireComponent( typeof( Rigidbody ), typeof( CapsuleCollider ), typeof( NavMeshAgent ) ) ]
+[RequireComponent( typeof( Rigidbody ), typeof( Collider ), typeof( NavMeshAgent ) ) ]
 public abstract partial class Entity : MonoBehaviour, IEntity {
 
 	private	static uint			CurrentID							= 0;
@@ -64,6 +67,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 				string						IEntity.Section					{	get { return m_SectionName;		}	}
 				Rigidbody					IEntity.RigidBody				{	get { return m_RigidBody;		}	}
 				Collider					IEntity.PhysicCollider			{	get { return m_PhysicCollider;	}	}
+				Collider					IEntity.TriggerCollider			{	get { return m_TriggerCollider;	}	}
 				Transform					IEntity.EffectsPivot			{	get { return m_EffectsPivot;	}	}
 				ENTITY_TYPE					IEntity.EntityType				{	get { return m_EntityType;		}	}
 				IBrain						IEntity.Brain					{	get { return m_BrainInstance;	}	}
@@ -202,7 +206,10 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		m_IsOK = true;
 		{
 			// PHYSIC COLLIDER
-			m_IsOK   =	Utils.Base.SearchComponent( gameObject, ref m_PhysicCollider, SearchContext.LOCAL, (p) => { return p is CapsuleCollider; } );
+			m_IsOK   =	Utils.Base.SearchComponent( gameObject, ref m_PhysicCollider, SearchContext.LOCAL, c => !c.isTrigger );
+
+			// m_TriggerCollider
+			m_IsOK   =	Utils.Base.SearchComponent( gameObject, ref m_TriggerCollider, SearchContext.LOCAL, c => c.isTrigger );
 
 			// RIGIDBODY
 			m_IsOK	&=	Utils.Base.SearchComponent( gameObject, ref m_RigidBody, SearchContext.LOCAL );
@@ -244,12 +251,12 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 			m_CurrentBrainState = BrainState.COUNT;
 		}
 
-		if ( m_IsOK && m_bHasNavAgent && ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
+		if ( m_IsOK && m_bHasNavAgent )
 		{
 			m_IsOK	&= m_NavAgent.isOnNavMesh;
 		}
 
-		if ( m_IsOK == false && ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
+		if ( m_IsOK == false )
 		{
 			print( name + " is not OK" );
 		}

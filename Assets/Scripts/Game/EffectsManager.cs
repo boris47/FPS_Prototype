@@ -11,7 +11,9 @@ public enum EffectType {
 	EXPLOSION,
 
 	MUZZLE,
-	SMOKE
+	SMOKE,
+
+	TRACER
 };
 
 
@@ -80,6 +82,11 @@ public class EffectsManager : MonoBehaviour {
 			}
 			Destroy( p.gameObject, gameObjectLife );
 		}
+	}
+
+	public	void	PlaceTracer( Vector3 startPosition, Vector3 endPosition )
+	{
+
 	}
 	
 

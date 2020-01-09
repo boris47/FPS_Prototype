@@ -190,7 +190,36 @@ public abstract class BulletGeneric : Bullet, IBulletGeneric {
 	//////////////////////////////////////////////////////////////////////////
 	// OnTriggerEnter ( Override )
 	protected override void OnTriggerEnter( Collider other )
-	{ }
+	{
+		bool bIsBullet = other.transform.HasComponent<Bullet>();
+		if ( bIsBullet == true )
+			return;
+
+		EffectType effectToPlay = EffectType.ENTITY_ON_HIT;
+
+		IEntity entity = null;
+		IShield shield = null;
+		if ( Utils.Base.SearchComponent( other.gameObject, ref entity, SearchContext.LOCAL ) )
+		{
+			entity.Events.OnHittedDetails( m_StartPosition, m_WhoRef, m_DamageType, 0, m_CanPenetrate );
+		}
+		else if ( Utils.Base.SearchComponent( other.gameObject, ref shield, SearchContext.CHILDREN ) )
+		{
+			shield.CollisionHit( gameObject );
+		}
+		else
+		{
+			effectToPlay = EffectType.AMBIENT_ON_HIT;
+		}
+
+		;
+
+		Vector3 position = other.ClosestPointOnBounds( transform.position );
+		Vector3 direction = other.transform.position - position;
+		EffectsManager.Instance.PlayEffect( effectToPlay, position, direction, 3 );
+
+		this.SetActive( false );
+	}
 
 	
 	//////////////////////////////////////////////////////////////////////////

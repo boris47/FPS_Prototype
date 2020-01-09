@@ -125,3 +125,6 @@ AI Behiaviours
 **	TODO Refactoring WeatherManager
 	TODO Using Hash128, HashUnsafeUtilities, HashUtilities
 **	TODO Manage Camera outside player
+	TODO Entity Groups
+**	TODO Bullets as triggers
+	TODO INSTANT Bullet tracers

@@ -13,6 +13,47 @@ public sealed class BulletElectro : BulletBallistic {
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
+	// OnTriggerEnter ( Override )
+	protected override void OnTriggerEnter( Collider other )
+	{
+//		bool bIsBullet = other.transform.HasComponent<Bullet>();
+//		if ( bIsBullet == true )
+//			return;
+
+		IEntity entity = null;
+		IShield shield = null;
+		bool bIsAnEntity = Utils.Base.SearchComponent( other.gameObject, ref entity, SearchContext.LOCAL );
+		bool bIsShield = Utils.Base.SearchComponent( other.gameObject, ref shield, SearchContext.CHILDREN );
+
+		int nParticle = 3;
+
+		EffectType effectToPlay;
+		if ( bIsShield )
+		{
+			effectToPlay = EffectType.ELETTRO;
+			nParticle = 15;
+		}
+		else
+		// If is an entity and who and hitted entites are of different category
+		if ( bIsAnEntity == true && ( ( m_WhoRef is NonLiveEntity && entity is NonLiveEntity ) == false ) )
+		{
+			nParticle = 15;
+			effectToPlay = EffectType.ELETTRO;
+		}
+		else
+		{
+			nParticle = 25;
+			effectToPlay = EffectType.ELETTRO;
+		}
+
+		Vector3 position = other.ClosestPointOnBounds( transform.position );
+		Vector3 direction = other.transform.position - position;
+		EffectsManager.Instance.PlayEffect( effectToPlay, position, direction, nParticle );
+
+		this.SetActive( false );
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnCollisionEnter ( Override )
