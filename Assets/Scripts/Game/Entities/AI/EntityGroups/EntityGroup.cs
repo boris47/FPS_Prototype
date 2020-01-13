@@ -4,22 +4,67 @@ using UnityEngine;
 
 public class EntityGroup : MonoBehaviour, IIdentificable<System.Guid>
 {
-	private		System.Guid		m_ID		= new System.Guid();
+	private		System.Guid		m_ID		= System.Guid.NewGuid();
 	public		System.Guid		ID
 	{
 		get => m_ID;
 	}
 
+	[SerializeField]
+	private  List<Entity> m_Collection = new List<Entity>();
 
-	private static  List<Entity> m_Collection = new List<Entity>();
+	
 
+	//////////////////////////////////////////////////////////////////////////
+	private void Awake()
+	{
+		// If some already assigned 
+		m_Collection.ForEach( e =>
+		{
+			if ( e )
+			{
+				// Assign this as their group
+				e.AsInterface.GroupRef.SetGroup( this );
+					
+				// register on death callback
+				e.OnEvent_Killed += OnEntityKilled;
+			}
+		});
+
+		GroupSceneManager.Instance.RegisterGroup( this );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void OnDestroy()
+	{
+		m_Collection.ForEach( e =>
+		{
+			if ( e )
+			{
+				// Assign this as their group
+				e.AsInterface.GroupRef.SetGroup( null );
+					
+				// register on death callback
+				e.OnEvent_Killed -= OnEntityKilled;
+			}
+		});
+
+		GroupSceneManager.Instance.UnregisterGroup( this );
+	}
+
+
+	private	void OnEntityKilled( Entity entityKilled )
+	{
+		this.UnregisterEntity( entityKilled );
+	}
 
 	/// <summary> Add a new entity to the group </summary>
 	public void RegisterEntity( Entity entity )
 	{
 		if ( entity && !m_Collection.Contains( entity ) )
 		{
-			entity.OnEvent_Killed += () => this.UnregisterEntity(entity);
+			entity.OnEvent_Killed += OnEntityKilled;
 			m_Collection.Add( entity );
 			entity.AsInterface.GroupRef.SetGroup( this );
 		}
@@ -55,5 +100,7 @@ public class EntityGroup : MonoBehaviour, IIdentificable<System.Guid>
 	{
 		return m_Collection.ToArray();
 	}
+
+
 
 }

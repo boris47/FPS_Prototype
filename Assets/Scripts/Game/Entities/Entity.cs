@@ -68,7 +68,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<ui
 				ENTITY_TYPE					IEntity.EntityType				{	get { return m_EntityType;		}	}
 				IBrain						IEntity.Brain					{	get { return m_BrainInstance;	}	}
 				IEntityEvents				IEntity.Events					{	get { return m_EventsInterface;	}	}
-				IEntityGroup				IEntity.GroupRef					{	get { return m_EntityGroup;		}	}
+				IEntityGroup				IEntity.GroupRef				{	get { return m_EntityGroup;		}	}
 				Entity						IEntity.AsEntity				{	get { return this;				}	}
 
 				uint						IIdentificable<uint>.ID			{	get { return m_ID;				}	}

@@ -295,8 +295,8 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 			if ( m_AllTargets.Contains( entity ) == true )
 				return;
 
-			entity.OnEvent_Killed += () => {
-				m_AllTargets.Remove( entity );
+			entity.OnEvent_Killed += ( Entity entityKilled ) => {
+				m_AllTargets.Remove( entityKilled );
 			};
 
 			m_AllTargets.Add( entity );
@@ -314,8 +314,8 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		{
 			m_AllTargets.Remove( entity );
 
-			entity.OnEvent_Killed -= () => {
-				m_AllTargets.Remove( entity );
+			entity.OnEvent_Killed -= ( Entity entityKilled ) => {
+				m_AllTargets.Remove( entityKilled );
 			};
 		}
 	}

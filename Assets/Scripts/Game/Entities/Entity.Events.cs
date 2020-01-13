@@ -6,7 +6,7 @@ public struct EntityEvents {
 	public	delegate	void		HitDetailsEvent( Vector3 startPosition, Entity whoRef, DamageType damageType, float damage, bool canPenetrate = false );
 	public	delegate	void		TargetEvent( TargetInfo targetInfo );
 	public	delegate	void		NavigationEvent( Vector3 Destination );
-	public	delegate	void		KilledEvent();
+	public	delegate	void		KilledEvent( Entity entityKilled );
 }
 
 public interface IEntityEvents {
@@ -270,6 +270,14 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 		m_CurrentBehaviour.OnHit( startPosition, whoRef, damage, canPenetrate );
 
 		m_OnHittedDetails( startPosition, whoRef, damageType, damage, canPenetrate );
+
+		if ( m_Group )
+		{
+			foreach ( Entity entity in GroupSceneManager.Instance.GetOthers( this ) )
+			{
+				entity.NotifyHit( startPosition, null, DamageType.NONE, 0.0f );
+			}
+		}
 	}
 
 
@@ -370,7 +378,7 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 
 		m_CurrentBehaviour.OnKilled();
 
-		m_OnKilled();
+		m_OnKilled( this );
 
 		Blackboard.UnRegister( this );
 	}

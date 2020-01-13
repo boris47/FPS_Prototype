@@ -102,7 +102,7 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// OnKill
-		private void OnKill()
+		private void OnKill( Entity entityKilled )
 		{
 			Deactivate();
 
