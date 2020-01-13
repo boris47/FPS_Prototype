@@ -33,7 +33,7 @@ public class Walker_AI_Behaviour_Attacker : AIBehaviour {
 
 	public override void OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
-		if ( EntityData.EntityRef.IsAlive && whoRef.IsAlive && EntityData.TargetInfo.CurrentTarget.ID == whoRef.ID )
+		if ( EntityData.EntityRef.IsAlive && whoRef.IsAlive && EntityData.TargetInfo.CurrentTarget.ID == whoRef.AsInterface.ID )
 		{
 			EntityData.EntityRef.SetPointToLookAt( startPosition );
 		}

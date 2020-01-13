@@ -116,14 +116,14 @@ public abstract partial class Entity : IEntityMemory {
 			return false;
 		}
 
-		bool bIsMemoryNotPresent = Memory.Contains( entity.ID ) == false;
+		bool bIsMemoryNotPresent = Memory.Contains( entity.AsInterface.ID ) == false;
 		if ( bIsMemoryNotPresent )
 		{
 			MemoryUnit u = new MemoryUnit()
 			{
 				LastEnemyPosition	= entity.HeadPosition,
 				LastEnemyDirection	= entity.AsInterface.RigidBody.velocity,
-				EntityID			= entity.ID,
+				EntityID			= entity.AsInterface.ID,
 				EntityRef			= entity,
 				Time				= Time.time
 			};
@@ -191,7 +191,7 @@ public abstract partial class Entity : IEntityMemory {
 			return false;
 		}
 
-		int memoryUnitIndex = m_Memories.FindIndex( ( MemoryUnit u ) => u.EntityID == entity.ID ) ;
+		int memoryUnitIndex = m_Memories.FindIndex( ( MemoryUnit u ) => u.EntityID == entity.AsInterface.ID ) ;
 		if ( memoryUnitIndex != -1 )
 		{
 			m_Memories.RemoveAt( memoryUnitIndex );

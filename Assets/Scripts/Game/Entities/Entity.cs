@@ -4,13 +4,10 @@ using Database;
 using UnityEngine.AI;
 
 
-public partial interface IEntity {
+public partial interface IEntity : IIdentificable<uint> {
 
 	/// <summary> Generic flag for entity state </summary>
 	bool					IsActive						{ get; }
-
-	/// <summary> Entity unique ID </summary>
-	uint					ID								{ get; }
 
 	/// <summary> Entity Health </summary>
 	float					Health							{ get; }
@@ -30,17 +27,17 @@ public partial interface IEntity {
 	/// <summary> Physic collider, only manage entity in space </summary>
 	Collider				PhysicCollider					{ get; }
 
-	/// <summary> Physic collider, only manage entity in space </summary>
-	Collider				TriggerCollider					{ get; }
-
 	/// <summary> Trigger collider, used for interactions with incoming objects or trigger areas
-//	Collider				TriggerCollider					{ get; }
+	Collider				TriggerCollider					{ get; }
 
 	/// <summary> Transform where to play effects at </summary>
 	Transform				EffectsPivot					{ get; }
 
 	/// <summary> Group all entity class events and functions </summary>
 	IEntityEvents			Events							{ get; }
+
+	/// <summary> Is the group this entity belongs to </summary>
+	IEntityGroup			GroupRef						{ get; }
 
 	/// <summary> Entity brain </summary>
 	IBrain					Brain							{ get; }
@@ -54,14 +51,13 @@ public partial interface IEntity {
 
 //					Physics intreractions,		Entity volume,		   Navigation
 [RequireComponent( typeof( Rigidbody ), typeof( Collider ), typeof( NavMeshAgent ) ) ]
-public abstract partial class Entity : MonoBehaviour, IEntity {
+public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<uint> {
 
 	private	static uint			CurrentID							= 0;
 	public	static uint			NewID()										{ return CurrentID++; }
 
 	// INTERFACE START
 				bool						IEntity.IsActive				{	get { return m_IsActive;		}	}
-				uint						IEntity.ID						{	get { return m_ID;				}	}
 				float						IEntity.Health					{	get { return m_Health;			}	}
 				IShield						IEntity.Shield					{	get { return m_Shield;			}	}
 				string						IEntity.Section					{	get { return m_SectionName;		}	}
@@ -72,11 +68,13 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 				ENTITY_TYPE					IEntity.EntityType				{	get { return m_EntityType;		}	}
 				IBrain						IEntity.Brain					{	get { return m_BrainInstance;	}	}
 				IEntityEvents				IEntity.Events					{	get { return m_EventsInterface;	}	}
+				IEntityGroup				IEntity.GroupRef					{	get { return m_EntityGroup;		}	}
 				Entity						IEntity.AsEntity				{	get { return this;				}	}
+
+				uint						IIdentificable<uint>.ID			{	get { return m_ID;				}	}
 	// INTERFACE END
 
 	// GETTERS START
-	public		uint						ID								{ get { return m_ID; } }
 	public		bool						IsAlive							{ get { return m_Health > 0.0f; } }
 	public		bool						IsAllignedHeadToPoint			{ get { return m_IsAllignedHeadToPoint; } }
 	public		bool						IsDisallignedHeadWithPoint		{ get { return m_IsDisallignedHeadWithPoint; } }
@@ -112,6 +110,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 	protected	Collider					m_TriggerCollider				= null;
 	protected	Transform					m_EffectsPivot					= null;
 	protected	IEntity						m_Interface						= null;
+	
 
 	// AI
 	protected	TargetInfo					m_TargetInfo					= new TargetInfo();
@@ -172,6 +171,8 @@ public abstract partial class Entity : MonoBehaviour, IEntity {
 		m_ID				= NewID();
 		m_Interface			= this as IEntity;
 		m_EventsInterface	= this as IEntityEvents;
+		m_EntityGroup		= this as IEntityGroup;
+
 		EnableEvents();
 
 		// config file

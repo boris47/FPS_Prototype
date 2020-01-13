@@ -380,6 +380,11 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	protected	virtual		void		OnDestroy()
 	{
 		Blackboard.UnRegister( this );
+
+		if ( m_Group )
+		{
+			m_Group.UnregisterEntity(this);
+		}
 	}
 
 }
