@@ -273,10 +273,7 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 
 		if ( m_Group )
 		{
-			foreach ( Entity entity in GroupSceneManager.Instance.GetOthers( this ) )
-			{
-				entity.NotifyHit( startPosition, null, DamageType.NONE, 0.0f );
-			}
+			m_Group.GetOthers( this ).ForEach( e => e.NotifyHit( startPosition, null, DamageType.NONE, 0.0f ) );
 		}
 	}
 

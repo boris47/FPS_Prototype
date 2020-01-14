@@ -56,22 +56,6 @@ public class GroupSceneManager : SingletonMonoBehaviour<GroupSceneManager> {
 		return bResult;
 	}
 
-
-	/// <summary> Search for the other entites in the group </summary>
-	public Entity[] GetOthers( IEntity entity )
-	{
-		List<Entity> others = new List<Entity>();
-		
-		EntityGroup group = null;
-		if ( entity.GroupRef.Group && this.GetById( entity.GroupRef.Group.ID, ref group ) )
-		{
-			Entity[] othersArray = System.Array.FindAll( group.GetEntites(), e => e.AsInterface.ID != entity.ID );
-			others.AddRange( othersArray );
-		}
-
-		return others.ToArray();
-	}
-
 }
 
 

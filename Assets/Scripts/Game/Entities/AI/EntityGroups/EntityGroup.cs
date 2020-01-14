@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class EntityGroup : MonoBehaviour, IIdentificable<System.Guid>
 {
-	private		System.Guid		m_ID		= System.Guid.NewGuid();
+	private		System.Guid		m_ID				= System.Guid.NewGuid();
 	public		System.Guid		ID
 	{
 		get => m_ID;
 	}
 
 	[SerializeField]
-	private  List<Entity> m_Collection = new List<Entity>();
+	private		List<Entity>	m_Collection		= new List<Entity>();
 
 	
 
@@ -62,7 +62,7 @@ public class EntityGroup : MonoBehaviour, IIdentificable<System.Guid>
 	/// <summary> Add a new entity to the group </summary>
 	public void RegisterEntity( Entity entity )
 	{
-		if ( entity && !m_Collection.Contains( entity ) )
+		if ( entity && entity.AsInterface.GroupRef.Group == null && !m_Collection.Contains( entity ) )
 		{
 			entity.OnEvent_Killed += OnEntityKilled;
 			m_Collection.Add( entity );
@@ -76,6 +76,7 @@ public class EntityGroup : MonoBehaviour, IIdentificable<System.Guid>
 	{
 		if ( !m_Collection.Contains( entity ) )
 		{
+			entity.OnEvent_Killed -= OnEntityKilled;
 			entity.AsInterface.GroupRef.SetGroup( null );
 			m_Collection.Remove( entity );
 		}
@@ -99,6 +100,15 @@ public class EntityGroup : MonoBehaviour, IIdentificable<System.Guid>
 	public	Entity[]	GetEntites()
 	{
 		return m_Collection.ToArray();
+	}
+
+
+	/// <summary> Search for the other entites in the group </summary>
+	public List<Entity> GetOthers( IEntity entity )
+	{
+		List<Entity> othersArray = m_Collection.FindAll( e => e.AsInterface.ID != entity.ID );
+
+		return othersArray;
 	}
 
 
