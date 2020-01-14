@@ -10,8 +10,7 @@ public class GroupSceneManager : SingletonMonoBehaviour<GroupSceneManager> {
 
 	protected override void OnBeforeSplashScreen()
 	{
-		// Add anì empty group
-		m_Collection.Add( new EntityGroup() );
+		base.OnBeforeSplashScreen();
 	}
 
 
@@ -28,7 +27,7 @@ public class GroupSceneManager : SingletonMonoBehaviour<GroupSceneManager> {
 	/// <summary> Remove the group </summary>
 	public void UnregisterGroup( EntityGroup group )
 	{
-		if ( !m_Collection.Exists( g => g.ID == group.ID ) )
+		if ( m_Collection.Exists( g => g.ID == group.ID ) )
 		{
 			m_Collection.Remove( group );
 		}
@@ -41,6 +40,8 @@ public class GroupSceneManager : SingletonMonoBehaviour<GroupSceneManager> {
 		{
 			entity.AsInterface.GroupRef.SetGroup(null);
 		}
+
+		Object.Destroy( group );
 	}
 
 
