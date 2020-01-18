@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UI_MainMenu : MonoBehaviour, IStateDefiner {
+public sealed class UI_MainMenu : MonoBehaviour, IStateDefiner {
 
 //	private	const string shaderPath = "VR/SpatialMapping/Wireframe";
 	

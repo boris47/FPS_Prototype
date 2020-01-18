@@ -18,7 +18,7 @@ public partial interface IWeaponManager {
 }
 
 
-public partial class WeaponManager : IWeaponManager {
+public sealed partial class WeaponManager : IWeaponManager {
 
 	private			List<string>	m_AvailableWeaponModifiers		= new List<string>();
 	private			List<string>	m_AvailableModuleModifiers		= new List<string>();

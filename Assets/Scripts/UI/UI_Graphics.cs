@@ -6,7 +6,7 @@ using UnityEngine.Events;
 using UnityEngine.PostProcessing;
 using UnityEngine.UI;
 
-public class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
+public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner {
 
 	// Registry Keys
 	private	const	string	FLAG_SAVED_GRAPHIC_SETTINGS	= "bSavedVideoSettings";

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UI_Audio : MonoBehaviour, IUIOptions, IStateDefiner {
+public sealed class UI_Audio : MonoBehaviour, IUIOptions, IStateDefiner {
 
 	// Registry Keys
 	private	const	string	FLAG_SAVED_AUDIO_SETTINGS	= "bSavedAudioSettings";

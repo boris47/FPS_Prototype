@@ -22,7 +22,7 @@ public interface ICameraControl {
 	void						AddRecoil							( float recoil );
 }
 
-public class CameraControl : MonoBehaviour, ICameraControl {
+public sealed class CameraControl : MonoBehaviour, ICameraControl {
 
 	private		const		float				WPN_ROTATION_CLAMP_VALUE				= 0.6f;
 	private		const		float				WPN_FALL_FEEDBACK_CLAMP_VALUE			= 5f;

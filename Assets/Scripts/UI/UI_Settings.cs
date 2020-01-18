@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UI_Settings : MonoBehaviour, IStateDefiner {
+public sealed class UI_Settings : MonoBehaviour, IStateDefiner {
 
 	
 	private	bool			m_bIsInitialized			= false;

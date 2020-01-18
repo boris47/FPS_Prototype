@@ -36,9 +36,9 @@ public class GroupSceneManager : SingletonMonoBehaviour<GroupSceneManager> {
 	/// <summary> Removes the assigned group to all entities belonging the given group </summary>
 	public void DisgregateGroup( EntityGroup group )
 	{
-		foreach( Entity entity in group.GetEntites() )
+		foreach( IEntity entity in group.GetEntites() )
 		{
-			entity.AsInterface.GroupRef.SetGroup(null);
+			entity.GroupRef.SetGroup(null);
 		}
 
 		Object.Destroy( group );

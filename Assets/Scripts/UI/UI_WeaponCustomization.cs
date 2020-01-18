@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
+public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 
 	private		Dropdown		m_PrimaryDropDown		= null;
 	private		Dropdown		m_SecondaryDropDown		= null;

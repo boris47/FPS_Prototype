@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UI_Confirmation : MonoBehaviour, IStateDefiner {
+public sealed class UI_Confirmation : MonoBehaviour, IStateDefiner {
 
 	private	System.Action	m_OnConfirmAction	= null;
 	private	System.Action	m_OnCancelAction	= null;

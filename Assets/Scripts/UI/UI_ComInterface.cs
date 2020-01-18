@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UI_ComInterface : MonoBehaviour, IStateDefiner {
+public sealed class UI_ComInterface : MonoBehaviour, IStateDefiner {
 
 	private	const	int			MAX_ELEMENTS = 05;
 

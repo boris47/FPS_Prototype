@@ -142,13 +142,13 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		colliders = list.ToArray();
 
 		IEntity entityComponent = null;
-		System.Action<Collider> addToTargets = delegate( Collider c )
+		void addToTargets( Collider c )
 		{
 			if ( Utils.Base.SearchComponent<IEntity>( c.gameObject, ref entityComponent, SearchContext.CHILDREN, ( IEntity e ) => { return e.EntityType == newType; } ) )
 			{
 				m_AllTargets.Add( entityComponent as Entity );
 			}
-		};
+		}
 		System.Array.ForEach( colliders, addToTargets );
 	}
 

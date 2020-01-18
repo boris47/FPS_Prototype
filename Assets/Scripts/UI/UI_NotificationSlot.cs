@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UI_NotificationSlot : MonoBehaviour {
+public sealed class UI_NotificationSlot : MonoBehaviour {
 
 
 	

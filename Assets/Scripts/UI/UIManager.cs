@@ -81,14 +81,14 @@ public interface IUI {
 
 
 
-public class UIManager : MonoBehaviour, IUI {
+public sealed class UIManager : MonoBehaviour, IUI {
 
 	[DllImport("User32.Dll")]
-	public static extern long SetCursorPos(int x, int y);
+	internal static extern long SetCursorPos(int x, int y);
  
 	[DllImport("user32.dll")]
 	[return: MarshalAs(UnmanagedType.Bool)]
-	public static extern bool GetCursorPos(out POINT lpPoint);
+	internal static extern bool GetCursorPos(out POINT lpPoint);
  
 	[StructLayout(LayoutKind.Sequential)]
 	public struct POINT

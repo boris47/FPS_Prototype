@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class UI_InventorySlot : MonoBehaviour, IPointerClickHandler, IStateDefiner {
+public sealed class UI_InventorySlot : MonoBehaviour, IPointerClickHandler, IStateDefiner {
 
 	private		Texture2D			m_Texture			= null;
 	private		Image				m_Image				= null;
