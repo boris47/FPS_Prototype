@@ -6,7 +6,7 @@ using UnityEngine;
 public sealed class TimersManager : SingletonMonoBehaviour<TimersManager>
 {
 	private	int id = 0;
-	private	int NextId() => id++;
+	private	int NextId() => this.id++;
 
 
 	[System.Serializable]
@@ -34,12 +34,12 @@ public sealed class TimersManager : SingletonMonoBehaviour<TimersManager>
 		/// <summary> Must be kept alive </summary>
 		public bool Eval()
 		{
-			currentTime -= scaled ? Time.deltaTime : Time.unscaledDeltaTime;
-			if ( currentTime <= 0 )
+			this.currentTime -= this.scaled ? Time.deltaTime : Time.unscaledDeltaTime;
+			if (this.currentTime <= 0 )
 			{
 				this.action();
-				currentTime = interval;
-				return repeat;
+				this.currentTime = this.interval;
+				return this.repeat;
 			}
 			return true;
 		}
@@ -59,8 +59,8 @@ public sealed class TimersManager : SingletonMonoBehaviour<TimersManager>
 			return -1;
 		}
 
-		InternalTimer newTimer = new InternalTimer( NextId(), startDuration, interval, action, bMustRepeat, bMustBeScaled );
-		m_Timers.Add( newTimer );
+		InternalTimer newTimer = new InternalTimer(this.NextId(), startDuration, interval, action, bMustRepeat, bMustBeScaled );
+		this.m_Timers.Add( newTimer );
 
 		return newTimer.id;
 	}
@@ -89,10 +89,10 @@ public sealed class TimersManager : SingletonMonoBehaviour<TimersManager>
 	{
 		if ( id >= 0 )
 		{
-			int index = m_Timers.FindIndex( t => t.id == id );
+			int index = this.m_Timers.FindIndex( t => t.id == id );
 			if ( index > -1 )
 			{
-				m_Timers.RemoveAt( index );
+				this.m_Timers.RemoveAt( index );
 			}
 		}
 	}
@@ -102,13 +102,13 @@ public sealed class TimersManager : SingletonMonoBehaviour<TimersManager>
 	//////////////////////////////////////////////////////////////////////////
 	private void Update()
 	{
-		for ( int i = m_Timers.Count - 1; i >= 0; i-- )
+		for ( int i = this.m_Timers.Count - 1; i >= 0; i-- )
 		{
-			InternalTimer timer = m_Timers[i];
+			InternalTimer timer = this.m_Timers[i];
 
 			if ( timer.Eval() == false )
 			{
-				m_Timers.RemoveAt(i);
+				this.m_Timers.RemoveAt(i);
 			}
 		}
 	}

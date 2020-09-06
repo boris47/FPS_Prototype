@@ -17,17 +17,17 @@ public sealed class UI_Inventory : MonoBehaviour, IStateDefiner {
 	private		Button				m_ReturnToGame			= null;
 	private		Button				m_SwitchToWeaponCustomization		= null;
 
-	private		bool				m_bIsInitialized		= false;
+	private		bool				m_IsInitialized		= false;
 
 
 	bool IStateDefiner.IsInitialized
 	{
-		get { return m_bIsInitialized; }
+		get { return this.m_IsInitialized; }
 	}
 
 	string IStateDefiner.StateName
 	{
-		get { return name; }
+		get { return this.name; }
 	}
 
 	[System.Serializable]
@@ -48,40 +48,40 @@ public sealed class UI_Inventory : MonoBehaviour, IStateDefiner {
 	// Initialize
 	IEnumerator IStateDefiner.Initialize()
 	{
-		if ( m_bIsInitialized == true )
+		if (this.m_IsInitialized == true )
 			yield break;
 
 		CoroutinesManager.AddCoroutineToPendingCount( 1 );
 
-		m_bIsInitialized = true;
+		this.m_IsInitialized = true;
 		{
-			m_MainPanel = ( transform.Find( "MainPanel" ) as RectTransform );
-			m_bIsInitialized &= m_MainPanel != null;
+			this.m_MainPanel = (this.transform.Find( "MainPanel" ) as RectTransform );
+			this.m_IsInitialized &= this.m_MainPanel != null;
 
-			if ( m_bIsInitialized == true )
+			if (this.m_IsInitialized == true )
 			{
-				m_InventorySlots = ( m_MainPanel.Find("InventorySlots") as RectTransform );
-				m_bIsInitialized &= m_InventorySlots != null;
+				this.m_InventorySlots = (this.m_MainPanel.Find("InventorySlots") as RectTransform );
+				this.m_IsInitialized &= this.m_InventorySlots != null;
 			}
 
 			yield return null;
 
 
 			// LOAD SECTION
-			m_bIsInitialized &= GlobalManager.Configs.bGetSection( "UI_Inventory", m_InventorySectionData );
+			this.m_IsInitialized &= GlobalManager.Configs.GetSection( "UI_Inventory", this.m_InventorySectionData );
 
 			// Search grid component
-			m_bIsInitialized &= m_InventorySlots.SearchComponent( ref m_GridLayoutGroup, SearchContext.LOCAL );
+			this.m_IsInitialized &= this.m_InventorySlots.SearchComponent( ref this.m_GridLayoutGroup, ESearchContext.LOCAL );
 			
 			// LOAD PREFAB
 			ResourceManager.LoadedData<GameObject> loadedResource = new ResourceManager.LoadedData<GameObject>();
 			yield return ResourceManager.LoadResourceAsyncCoroutine( "Prefabs/UI/UI_InventorySlot", loadedResource, null );
 
-			if ( m_bIsInitialized &= loadedResource.Asset != null )
+			if (this.m_IsInitialized &= loadedResource.Asset != null )
 			{
-				m_UI_MatrixSlots = new UI_InventorySlot[ m_InventorySectionData.CellCountHorizontal, m_InventorySectionData.CellCountVertical ];
+				this.m_UI_MatrixSlots = new UI_InventorySlot[this.m_InventorySectionData.CellCountHorizontal, this.m_InventorySectionData.CellCountVertical ];
 
-				Canvas canvas = transform.parent.GetComponent<Canvas>();
+				Canvas canvas = this.transform.parent.GetComponent<Canvas>();
 
 				float scaleFactor = ( canvas.scaleFactor < 1.0f ) ? canvas.scaleFactor : 1f / canvas.scaleFactor;
 //				print( "My scale factor: " + scaleFactor );			
@@ -89,42 +89,42 @@ public sealed class UI_Inventory : MonoBehaviour, IStateDefiner {
 				float ratio = (float)Screen.width / (float)Screen.height;
 //				print(ratio);
 				
-				int halfHorizontalPadding = m_InventorySectionData.HorizzontalPadding / 2;
-				int halfVerticalPadding   = m_InventorySectionData.VerticalPadding    / 2;
+				int halfHorizontalPadding = this.m_InventorySectionData.HorizzontalPadding / 2;
+				int halfVerticalPadding   = this.m_InventorySectionData.VerticalPadding    / 2;
 				RectOffset padding = new RectOffset
 				( 
 					left: halfHorizontalPadding,	right: halfHorizontalPadding, 
 					top: halfVerticalPadding,		bottom: halfVerticalPadding 
 				);
-				m_GridLayoutGroup.padding			= padding;
+				this.m_GridLayoutGroup.padding			= padding;
 
-			//	m_GridLayoutGroup.cellSize			= new Vector2( m_InventorySectionData.CellSizeX, m_InventorySectionData.CellSizeY ) * scaleFactor;
-				m_GridLayoutGroup.spacing			= new Vector2( m_InventorySectionData.HSpaceBetweenSlots, m_InventorySectionData.VSpaceBetweenSlots ) * scaleFactor / ratio;
-				m_GridLayoutGroup.cellSize = new Vector2
+				//	m_GridLayoutGroup.cellSize			= new Vector2( m_InventorySectionData.CellSizeX, m_InventorySectionData.CellSizeY ) * scaleFactor;
+				this.m_GridLayoutGroup.spacing			= new Vector2(this.m_InventorySectionData.HSpaceBetweenSlots, this.m_InventorySectionData.VSpaceBetweenSlots ) * scaleFactor / ratio;
+				this.m_GridLayoutGroup.cellSize = new Vector2
 				(
-					( m_InventorySlots.rect.width - m_GridLayoutGroup.spacing.x ) / m_InventorySectionData.CellCountVertical, 
-					( m_InventorySlots.rect.height - m_GridLayoutGroup.spacing.y ) / m_InventorySectionData.CellCountHorizontal
+					(this.m_InventorySlots.rect.width - this.m_GridLayoutGroup.spacing.x ) / this.m_InventorySectionData.CellCountVertical, 
+					(this.m_InventorySlots.rect.height - this.m_GridLayoutGroup.spacing.y ) / this.m_InventorySectionData.CellCountHorizontal
 				);
-				m_GridLayoutGroup.childAlignment	= TextAnchor.MiddleCenter;
-				m_GridLayoutGroup.constraint		= GridLayoutGroup.Constraint.FixedColumnCount;
-				m_GridLayoutGroup.constraintCount	= m_InventorySectionData.CellCountHorizontal;
+				this.m_GridLayoutGroup.childAlignment	= TextAnchor.MiddleCenter;
+				this.m_GridLayoutGroup.constraint		= GridLayoutGroup.Constraint.FixedColumnCount;
+				this.m_GridLayoutGroup.constraintCount	= this.m_InventorySectionData.CellCountHorizontal;
 
 				yield return null;
 
-				UI_Graphics.OnResolutionChanged += OnResolutionChange;
+				UserSettings.VideoSettings.OnResolutionChanged += this.OnResolutionChange;
 
 				GameObject inventorySlotPrefab = loadedResource.Asset;
 				
-				for ( int i = 0; i < m_InventorySectionData.CellCountVertical; i++ )
+				for ( int i = 0; i < this.m_InventorySectionData.CellCountVertical; i++ )
 				{
-					for ( int j = 0; j < m_InventorySectionData.CellCountHorizontal; j++ )
+					for ( int j = 0; j < this.m_InventorySectionData.CellCountHorizontal; j++ )
 					{
 						GameObject instancedInventorySlot = Instantiate( inventorySlotPrefab );
-						instancedInventorySlot.transform.SetParent( m_InventorySlots, worldPositionStays: false );
+						instancedInventorySlot.transform.SetParent(this.m_InventorySlots, worldPositionStays: false );
 						( instancedInventorySlot.transform as RectTransform ).anchorMin = Vector2.zero;
 						( instancedInventorySlot.transform as RectTransform ).anchorMax = Vector2.one;
 
-						IStateDefiner slot = m_UI_MatrixSlots[i, j] = instancedInventorySlot.GetComponent<UI_InventorySlot>();
+						IStateDefiner slot = this.m_UI_MatrixSlots[i, j] = instancedInventorySlot.GetComponent<UI_InventorySlot>();
 						CoroutinesManager.Start( slot.Initialize() );
 					}
 
@@ -133,29 +133,29 @@ public sealed class UI_Inventory : MonoBehaviour, IStateDefiner {
 			}
 
 			// SWITCH TO INVENTORY
-			if ( m_bIsInitialized &= transform.SearchComponentInChild( "SwitchToWeaponCustomization", ref m_SwitchToWeaponCustomization ) )
+			if (this.m_IsInitialized &= this.transform.SearchComponentInChild( "SwitchToWeaponCustomization", ref this.m_SwitchToWeaponCustomization ) )
 			{
-				m_SwitchToWeaponCustomization.onClick.AddListener
-				(	
-					OnSwitchToWeaponCustomization
+				this.m_SwitchToWeaponCustomization.onClick.AddListener
+				(
+					this.OnSwitchToWeaponCustomization
 				);
 			}
 
 			yield return null;
 
 			// RETURN TO GAME
-			if ( m_bIsInitialized &= transform.SearchComponentInChild( "ReturnToGame", ref m_ReturnToGame ) )
+			if (this.m_IsInitialized &= this.transform.SearchComponentInChild( "ReturnToGame", ref this.m_ReturnToGame ) )
 			{
-				m_ReturnToGame.onClick.AddListener
+				this.m_ReturnToGame.onClick.AddListener
 				(
-					OnReturnToGame
+					this.OnReturnToGame
 				);
 			}
 
 			yield return null;
 		}
 
-		if ( m_bIsInitialized )
+		if (this.m_IsInitialized )
 		{
 			CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 		}
@@ -177,7 +177,7 @@ public sealed class UI_Inventory : MonoBehaviour, IStateDefiner {
 	// Finalize
 	bool	 IStateDefiner.Finalize()
 	{
-		return m_bIsInitialized;
+		return this.m_IsInitialized;
 	}
 	
 
@@ -186,7 +186,7 @@ public sealed class UI_Inventory : MonoBehaviour, IStateDefiner {
 	{
 		Vector2 position = Vector2.zero;
 		UI_InventorySlot matrixSlot = null;
-		bool bAllAttempDone = m_UI_MatrixSlots.FindByPredicate( ref matrixSlot, ref position, ( UI_InventorySlot i ) => i.IsSet == false );
+		bool bAllAttempDone = this.m_UI_MatrixSlots.FindByPredicate( ref matrixSlot, ref position, ( UI_InventorySlot i ) => i.IsSet == false );
 		if ( bAllAttempDone )
 		{
 			bAllAttempDone &= matrixSlot.TrySet( itemIcon, itemSection );
@@ -201,7 +201,7 @@ public sealed class UI_Inventory : MonoBehaviour, IStateDefiner {
 	{
 		Vector2 position = Vector2.zero;
 		UI_InventorySlot matrixSlot = null;
-		bool bHasBeenFound = m_UI_MatrixSlots.FindByPredicate( ref matrixSlot, ref position, ( UI_InventorySlot i ) => i.Section.GetName() == itemName );
+		bool bHasBeenFound = this.m_UI_MatrixSlots.FindByPredicate( ref matrixSlot, ref position, ( UI_InventorySlot i ) => i.Section.GetName() == itemName );
 		if ( bHasBeenFound )
 		{
 			matrixSlot.Reset();
@@ -213,12 +213,12 @@ public sealed class UI_Inventory : MonoBehaviour, IStateDefiner {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnEnable()
 	{
-		if ( m_bIsInitialized == false )
+		if (this.m_IsInitialized == false )
 		{
 			return;
 		}
 
-		GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, false);
+		GlobalManager.InputMgr.SetCategory(EInputCategory.CAMERA, false);
 
 		InputManager.IsEnabled						= false;
 
@@ -246,12 +246,12 @@ public sealed class UI_Inventory : MonoBehaviour, IStateDefiner {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnDisable()
 	{
-		if ( m_bIsInitialized == false )
+		if (this.m_IsInitialized == false )
 		{
 			return;
 		}
 
-		GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, true);
+		GlobalManager.InputMgr.SetCategory(EInputCategory.CAMERA, true);
 
 		InputManager.IsEnabled						= true;
 
@@ -262,10 +262,10 @@ public sealed class UI_Inventory : MonoBehaviour, IStateDefiner {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnResolutionChange( float newWidth, float newHeight )
 	{
-		m_GridLayoutGroup.cellSize = new Vector2
+		this.m_GridLayoutGroup.cellSize = new Vector2
 		(
-			( m_InventorySlots.rect.width - m_GridLayoutGroup.spacing.x ) / m_InventorySectionData.CellCountVertical, 
-			( m_InventorySlots.rect.height - m_GridLayoutGroup.spacing.y ) / m_InventorySectionData.CellCountHorizontal
+			(this.m_InventorySlots.rect.width - this.m_GridLayoutGroup.spacing.x ) / this.m_InventorySectionData.CellCountVertical, 
+			(this.m_InventorySlots.rect.height - this.m_GridLayoutGroup.spacing.y ) / this.m_InventorySectionData.CellCountHorizontal
 		);
 	}
 	

@@ -9,38 +9,38 @@ public partial class Player {
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		EnterSimulationState()
 	{
-		m_MovementOverrideEnabled				= true;
-		m_SimulationStartPosition				= transform.position;
+		this.m_MovementOverrideEnabled				= true;
+		this.m_SimulationStartPosition				= this.transform.position;
 
 //		GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, false);
 //		InputManager.IsEnabled					= false;
-		GlobalManager.InputMgr.DisableCategory( InputCategory.ALL );
+		GlobalManager.InputMgr.DisableCategory( EInputCategory.ALL );
 
-		prevInterpolation						= m_RigidBody.interpolation;
-		m_RigidBody.interpolation				= RigidbodyInterpolation.Interpolate;
+		this.prevInterpolation						= this.m_RigidBody.interpolation;
+		this.m_RigidBody.interpolation				= RigidbodyInterpolation.Interpolate;
 
-		DropEntityDragged();
+		this.DropEntityDragged();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected override		void		BeforeSimulationStage( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
+	protected override		void		BeforeSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
 		CameraControl.Instance.Target = target;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	bool		SimulateMovement( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
+	protected	override	bool		SimulateMovement( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
 		// END OF SIMULATION STEP
-		Vector3 direction = ( destination - m_SimulationStartPosition );
+		Vector3 direction = ( destination - this.m_SimulationStartPosition );
 		float simulationdDistanceToTravel = direction.sqrMagnitude;
-		float simulationDistanceTravelled = ( transform.position - m_SimulationStartPosition ).sqrMagnitude;
+		float simulationDistanceTravelled = (this.transform.position - this.m_SimulationStartPosition ).sqrMagnitude;
 		
 		if ( simulationDistanceTravelled > simulationdDistanceToTravel )
 		{
-			m_SimulationStartPosition = transform.position;
+			this.m_SimulationStartPosition = this.transform.position;
 			return false;				// force logic update
 		}
 
@@ -49,23 +49,23 @@ public partial class Player {
 		// TIME SCALE
 		float timeScale = Mathf.Lerp( Time.timeScale, timeScaleTarget, interpolant );
 		Time.timeScale = Mathf.Clamp01( timeScale );
-		SoundManager.Instance.Pitch = timeScale;
+		SoundManager.Pitch = timeScale;
 		
 		CameraControl.Instance.Target = target;
 
 		//	POSITION BY DISTANCE
 		{
-			bool isWalking	= ( movementType != SimMovementType.RUN );
+			bool isWalking	= ( movementType != ESimMovementType.RUN );
 			bool isRunning	= !isWalking;
-			bool isCrouched = ( movementType == SimMovementType.CROUCHED );
-			m_ForwardSmooth = ( movementType != SimMovementType.STATIONARY ) ? ( isCrouched ) ? m_CrouchSpeed : ( isRunning ) ? m_RunSpeed : m_WalkSpeed : 0.0f;
+			bool isCrouched = ( movementType == ESimMovementType.CROUCHED );
+			this.m_ForwardSmooth = ( movementType != ESimMovementType.STATIONARY ) ? ( isCrouched ) ? this.m_CrouchSpeed : ( isRunning ) ? this.m_RunSpeed : this.m_WalkSpeed : 0.0f;
 
-			m_States.IsWalking	= isWalking;
-			m_States.IsRunning	= isRunning;
-			m_States.IsCrouched	= isCrouched;
-			m_States.IsMoving	= movementType != SimMovementType.STATIONARY;
+			this.m_States.IsWalking	= isWalking;
+			this.m_States.IsRunning	= isRunning;
+			this.m_States.IsCrouched	= isCrouched;
+			this.m_States.IsMoving	= movementType != ESimMovementType.STATIONARY;
 
-			m_Move = ( m_ForwardSmooth * direction.normalized ) * GroundSpeedModifier;
+			this.m_Move = (this.m_ForwardSmooth * direction.normalized ) * this.GroundSpeedModifier;
 //			m_RigidBody.velocity = m_Move;
 		}
 		return true;
@@ -73,38 +73,38 @@ public partial class Player {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected override		void		AfterSimulationStage( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
+	protected override		void		AfterSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
 		CameraControl.Instance.Target = null;
-		m_Move = Vector3.zero;
+		this.m_Move = Vector3.zero;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		ExitSimulationState()
 	{
-		m_MovementOverrideEnabled = false;
-		m_SimulationStartPosition = Vector3.zero;
+		this.m_MovementOverrideEnabled = false;
+		this.m_SimulationStartPosition = Vector3.zero;
 
-		m_RigidBody.interpolation = prevInterpolation;
+		this.m_RigidBody.interpolation = this.prevInterpolation;
 
 		if ( CameraControl.Instance.Target != null )
 		{
-			Vector3 projectedTarget = Utils.Math.ProjectPointOnPlane( transform.up, transform.position, CameraControl.Instance.Target.position );
-			Quaternion rotation = Quaternion.LookRotation( projectedTarget - transform.position, transform.up );
-			transform.rotation = rotation;
+			Vector3 projectedTarget = Utils.Math.ProjectPointOnPlane(this.transform.up, this.transform.position, CameraControl.Instance.Target.position );
+			Quaternion rotation = Quaternion.LookRotation( projectedTarget - this.transform.position, this.transform.up );
+			this.transform.rotation = rotation;
 		}
 
-		m_Move					= Vector3.zero;
-		m_ForwardSmooth			= 0f;
-		m_States.IsWalking		= false;
-		m_States.IsRunning		= false;
-		m_States.IsMoving		= false;
+		this.m_Move					= Vector3.zero;
+		this.m_ForwardSmooth			= 0f;
+		this.m_States.IsWalking		= false;
+		this.m_States.IsRunning		= false;
+		this.m_States.IsMoving		= false;
 		Time.timeScale			= 1f;
 
 //		GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, true);
 //		InputManager.IsEnabled = true;
-		GlobalManager.InputMgr.EnableCategory( InputCategory.ALL );
+		GlobalManager.InputMgr.EnableCategory( EInputCategory.ALL );
 	}
 
 
@@ -337,112 +337,112 @@ public partial class Player {
 
 	private	void	RegisterGroundedMotion()
 	{
-		GlobalManager.InputMgr.BindCall( eInputCommands.MOVE_FORWARD,		"ForwardEvent",		GoForwardAction,		Motion_Walk_Predicate );
-		GlobalManager.InputMgr.BindCall( eInputCommands.MOVE_BACKWARD,		"BackwardEvent",	GoBackwardAction,		Motion_Walk_Predicate );
+		GlobalManager.InputMgr.BindCall( EInputCommands.MOVE_FORWARD,		"ForwardEvent", this.GoForwardAction, this.Motion_Walk_Predicate );
+		GlobalManager.InputMgr.BindCall( EInputCommands.MOVE_BACKWARD,		"BackwardEvent", this.GoBackwardAction, this.Motion_Walk_Predicate );
 
-		GlobalManager.InputMgr.BindCall( eInputCommands.MOVE_LEFT,			"LeftEvent",		StrafeLeftAction,		Motion_Walk_Predicate );
-		GlobalManager.InputMgr.BindCall( eInputCommands.MOVE_RIGHT,			"RightEvent",		StrafeRightAction,		Motion_Walk_Predicate );
+		GlobalManager.InputMgr.BindCall( EInputCommands.MOVE_LEFT,			"LeftEvent", this.StrafeLeftAction, this.Motion_Walk_Predicate );
+		GlobalManager.InputMgr.BindCall( EInputCommands.MOVE_RIGHT,			"RightEvent", this.StrafeRightAction, this.Motion_Walk_Predicate );
 
-		GlobalManager.InputMgr.BindCall( eInputCommands.STATE_RUN,			"RunEvent",			RunAction,				RunPredicate );
+		GlobalManager.InputMgr.BindCall( EInputCommands.STATE_RUN,			"RunEvent", this.RunAction, this.RunPredicate );
 
-		GlobalManager.InputMgr.BindCall( eInputCommands.STATE_JUMP,			"JumpEvent",		JumpAction,				JumpPredicate );
+		GlobalManager.InputMgr.BindCall( EInputCommands.STATE_JUMP,			"JumpEvent", this.JumpAction, this.JumpPredicate );
 
-		GlobalManager.InputMgr.BindCall( eInputCommands.USAGE,				"Interaction",		InteractionAction,		InteractionPredicate );
-		GlobalManager.InputMgr.BindCall( eInputCommands.USAGE,				"Grab",				GrabAction,				GrabPredicate );
+		GlobalManager.InputMgr.BindCall( EInputCommands.USAGE,				"Interaction", this.InteractionAction, this.InteractionPredicate );
+		GlobalManager.InputMgr.BindCall( EInputCommands.USAGE,				"Grab", this.GrabAction, this.GrabPredicate );
 
-		GlobalManager.InputMgr.BindCall( eInputCommands.GADGET3,			"Flashlight",		FlashlightAction,		FlashlightPredicate );
+		GlobalManager.InputMgr.BindCall( EInputCommands.GADGET3,			"Flashlight", this.FlashlightAction, this.FlashlightPredicate );
 
-		GlobalManager.InputMgr.BindCall( eInputCommands.ABILITY_PRESS,		"DodgeStart",		AbilityEnableAction,	AbilityPredcate );
-		GlobalManager.InputMgr.BindCall( eInputCommands.ABILITY_HOLD,		"DodgeContinue",	AbilityContinueAction,	AbilityPredcate );
-		GlobalManager.InputMgr.BindCall( eInputCommands.ABILITY_RELEASE,	"DodgeEnd",			AbilityEndAction,		AbilityPredcate );
+		GlobalManager.InputMgr.BindCall( EInputCommands.ABILITY_PRESS,		"DodgeStart", this.AbilityEnableAction, this.AbilityPredcate );
+		GlobalManager.InputMgr.BindCall( EInputCommands.ABILITY_HOLD,		"DodgeContinue", this.AbilityContinueAction, this.AbilityPredcate );
+		GlobalManager.InputMgr.BindCall( EInputCommands.ABILITY_RELEASE,	"DodgeEnd", this.AbilityEndAction, this.AbilityPredcate );
 	}
 	
 
 	//////////////////////////////////////////////////////////////////////////
 	private	void	UnRegisterGroundedMotion()
 	{
-		GlobalManager.InputMgr.UnbindCall( eInputCommands.MOVE_FORWARD,		"ForwardEvent" );
-		GlobalManager.InputMgr.UnbindCall( eInputCommands.MOVE_BACKWARD,	"BackwardEvent" );
+		GlobalManager.InputMgr.UnbindCall( EInputCommands.MOVE_FORWARD,		"ForwardEvent" );
+		GlobalManager.InputMgr.UnbindCall( EInputCommands.MOVE_BACKWARD,	"BackwardEvent" );
 
-		GlobalManager.InputMgr.UnbindCall( eInputCommands.MOVE_LEFT,		"LeftEvent" );
-		GlobalManager.InputMgr.UnbindCall( eInputCommands.MOVE_RIGHT,		"RightEvent" );
+		GlobalManager.InputMgr.UnbindCall( EInputCommands.MOVE_LEFT,		"LeftEvent" );
+		GlobalManager.InputMgr.UnbindCall( EInputCommands.MOVE_RIGHT,		"RightEvent" );
  
-		GlobalManager.InputMgr.UnbindCall( eInputCommands.STATE_RUN,		"RunEvent" );
+		GlobalManager.InputMgr.UnbindCall( EInputCommands.STATE_RUN,		"RunEvent" );
 
-		GlobalManager.InputMgr.UnbindCall( eInputCommands.STATE_JUMP,		"JumpEvent" );
+		GlobalManager.InputMgr.UnbindCall( EInputCommands.STATE_JUMP,		"JumpEvent" );
 
-		GlobalManager.InputMgr.UnbindCall( eInputCommands.USAGE,			"Interaction" );
-		GlobalManager.InputMgr.UnbindCall( eInputCommands.USAGE,			"Grab" );
-		GlobalManager.InputMgr.UnbindCall( eInputCommands.GADGET3,			"Flashlight" );
+		GlobalManager.InputMgr.UnbindCall( EInputCommands.USAGE,			"Interaction" );
+		GlobalManager.InputMgr.UnbindCall( EInputCommands.USAGE,			"Grab" );
+		GlobalManager.InputMgr.UnbindCall( EInputCommands.GADGET3,			"Flashlight" );
 
-		GlobalManager.InputMgr.UnbindCall( eInputCommands.ABILITY_PRESS,	"DodgeStart" );
-		GlobalManager.InputMgr.UnbindCall( eInputCommands.ABILITY_HOLD,		"DodgeContinue" );
-		GlobalManager.InputMgr.UnbindCall( eInputCommands.ABILITY_RELEASE,	"DodgeEnd" );
+		GlobalManager.InputMgr.UnbindCall( EInputCommands.ABILITY_PRESS,	"DodgeStart" );
+		GlobalManager.InputMgr.UnbindCall( EInputCommands.ABILITY_HOLD,		"DodgeContinue" );
+		GlobalManager.InputMgr.UnbindCall( EInputCommands.ABILITY_RELEASE,	"DodgeEnd" );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private	bool	Motion_Walk_Predicate()
 	{
-		return IsGrounded;
+		return this.IsGrounded;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private	void	GoForwardAction()
 	{
-		m_States.IsMoving = true;
+		this.m_States.IsMoving = true;
 
-		bool bIsWalking = m_States.IsRunning == false && m_States.IsCrouched == false;
+		bool bIsWalking = this.m_States.IsRunning == false && this.m_States.IsCrouched == false;
 
 		//						Walking									Running									Crouch
-		float force = ( bIsWalking ) ? m_WalkSpeed : ( m_States.IsRunning ) ? m_RunSpeed : ( m_States.IsCrouched )	? m_CrouchSpeed : 1.0f;
-		
-		m_ForwardSmooth = force;
+		float force = ( bIsWalking ) ? this.m_WalkSpeed : (this.m_States.IsRunning ) ? this.m_RunSpeed : (this.m_States.IsCrouched )	? this.m_CrouchSpeed : 1.0f;
+
+		this.m_ForwardSmooth = force;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private	void	GoBackwardAction()
 	{
-		m_States.IsMoving = true;
+		this.m_States.IsMoving = true;
 
-		bool bIsWalking = m_States.IsRunning == false && m_States.IsCrouched == false;
+		bool bIsWalking = this.m_States.IsRunning == false && this.m_States.IsCrouched == false;
 		
 		//						Walking									Running									Crouch
-		float force = ( bIsWalking ) ? m_WalkSpeed : ( m_States.IsRunning ) ? m_RunSpeed : ( m_States.IsCrouched ) ? m_CrouchSpeed : 1.0f;
-		
-		m_ForwardSmooth = -force;
+		float force = ( bIsWalking ) ? this.m_WalkSpeed : (this.m_States.IsRunning ) ? this.m_RunSpeed : (this.m_States.IsCrouched ) ? this.m_CrouchSpeed : 1.0f;
+
+		this.m_ForwardSmooth = -force;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private	void	StrafeRightAction()
 	{
-		m_States.IsMoving = true;
+		this.m_States.IsMoving = true;
 
-		bool bIsWalking = m_States.IsRunning == false && m_States.IsCrouched == false;
+		bool bIsWalking = this.m_States.IsRunning == false && this.m_States.IsCrouched == false;
 
 		//						Walking									Running									Crouch
-		float force = ( bIsWalking ) ? m_WalkSpeed : ( m_States.IsRunning ) ? m_RunSpeed : ( m_States.IsCrouched ) ? m_CrouchSpeed : 1.0f;
+		float force = ( bIsWalking ) ? this.m_WalkSpeed : (this.m_States.IsRunning ) ? this.m_RunSpeed : (this.m_States.IsCrouched ) ? this.m_CrouchSpeed : 1.0f;
 
 		const float strafeFactor = 0.8f;
-		m_RightSmooth = force * strafeFactor;
+		this.m_RightSmooth = force * strafeFactor;
 	}
 	
 
 	//////////////////////////////////////////////////////////////////////////
 	private	void	StrafeLeftAction()
 	{
-		m_States.IsMoving = true;
+		this.m_States.IsMoving = true;
 
-		bool bIsWalking = m_States.IsRunning == false && m_States.IsCrouched == false;
+		bool bIsWalking = this.m_States.IsRunning == false && this.m_States.IsCrouched == false;
 
 		//						Walking									Running									Crouch
-		float force = ( bIsWalking ) ? m_WalkSpeed : ( m_States.IsRunning ) ? m_RunSpeed : ( m_States.IsCrouched ) ? m_CrouchSpeed : 1.0f;
+		float force = ( bIsWalking ) ? this.m_WalkSpeed : (this.m_States.IsRunning ) ? this.m_RunSpeed : (this.m_States.IsCrouched ) ? this.m_CrouchSpeed : 1.0f;
 
 		const float strafeFactor = 0.8f;
-		m_RightSmooth = -force * strafeFactor;
+		this.m_RightSmooth = -force * strafeFactor;
 	}
 
 
@@ -456,10 +456,10 @@ public partial class Player {
 	//////////////////////////////////////////////////////////////////////////
 	private	void	RunAction()
 	{
-		if ( m_States.IsMoving )
+		if (this.m_States.IsMoving )
 		{
-			m_States.IsCrouched = false;
-			m_States.IsRunning = true;
+			this.m_States.IsCrouched = false;
+			this.m_States.IsRunning = true;
 		}
 	}
 
@@ -467,15 +467,15 @@ public partial class Player {
 	//////////////////////////////////////////////////////////////////////////
 	private	bool	JumpPredicate()
 	{
-		return IsGrounded && m_States.IsJumping == false && m_States.IsHanging == false && m_States.IsFalling == false && m_GrabbedObject == null;
+		return this.IsGrounded && this.m_States.IsJumping == false && this.m_States.IsHanging == false && this.m_States.IsFalling == false && this.m_GrabbedObject == null;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private	void	JumpAction()
 	{
-		m_UpSmooth = m_JumpForce / ( m_States.IsCrouched ? 1.5f : 1.0f );
-		m_States.IsJumping = true;
+		this.m_UpSmooth = this.m_JumpForce / (this.m_States.IsCrouched ? 1.5f : 1.0f );
+		this.m_States.IsJumping = true;
 	}
 
 }

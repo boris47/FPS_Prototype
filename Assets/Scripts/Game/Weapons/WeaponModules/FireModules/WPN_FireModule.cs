@@ -23,15 +23,15 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 	[SerializeField]	protected	WPN_FireMode_Base			m_WpnFireMode				= null;
 
 	// INTERFACE START
-	public abstract	FireModes									FireMode					{ get; }
-	public			Vector3										FirePointPosition			{ get { return m_FirePoint.position; } }
-	public			Quaternion									FirePointRotation			{ get { return m_FirePoint.rotation; } }
+	public abstract	EFireMode									FireMode					{ get; }
+	public			Vector3										FirePointPosition			{ get { return this.m_FirePoint.position; } }
+	public			Quaternion									FirePointRotation			{ get { return this.m_FirePoint.rotation; } }
 
-	public			uint										Magazine					{ get { return m_Magazine; } }
-	public			uint										MagazineCapacity			{ get { return m_MagazineCapacity; } }
+	public			uint										Magazine					{ get { return this.m_Magazine; } }
+	public			uint										MagazineCapacity			{ get { return this.m_MagazineCapacity; } }
 
-	public			float										CamDeviation				{ get { return m_CamDeviation; } }
-	public			float										FireDispersion				{ get { return m_FireDispersion; } }
+	public			float										CamDeviation				{ get { return this.m_CamDeviation; } }
+	public			float										FireDispersion				{ get { return this.m_FireDispersion; } }
 	// INTERFACE END
 
 	protected		GameObjectsPool<Bullet>						m_PoolBullets				= null;
@@ -41,56 +41,56 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 
 	//		SETUP
 	//////////////////////////////////////////////////////////////////////////
-	public		override	bool	Setup( IWeapon wpn, WeaponSlots slot )
+	public		override	bool	Setup( IWeapon wpn, EWeaponSlots slot )
 	{
 		string moduleSectionName = this.GetType().FullName;
 
-		m_WeaponRef = wpn;
-		m_ModuleSlot = slot;
+		this.m_WeaponRef = wpn;
+		this.m_ModuleSlot = slot;
 
-		m_FirePoint = m_WeaponRef.Transform.Find( "FirePoint" );
+		this.m_FirePoint = this.m_WeaponRef.Transform.Find( "FirePoint" );
 
 		// MODULE CONTAINER
 		string containerID = Weapon.GetModuleSlotName( slot );
-		m_FireModeContainer = transform.Find(containerID) != null ? transform.Find(containerID).gameObject : null;
-		if ( m_FireModeContainer != null )
+		this.m_FireModeContainer = this.transform.Find(containerID) != null ? this.transform.Find(containerID).gameObject : null;
+		if (this.m_FireModeContainer != null )
 		{
-			Destroy( m_FireModeContainer );
+			Destroy(this.m_FireModeContainer );
 		}
-		m_FireModeContainer = new GameObject( containerID );
-		m_FireModeContainer.transform.SetParent( transform );
-		m_FireModeContainer.transform.localPosition = Vector3.zero;
-		m_FireModeContainer.transform.localRotation = Quaternion.identity;
+		this.m_FireModeContainer = new GameObject( containerID );
+		this.m_FireModeContainer.transform.SetParent(this.transform );
+		this.m_FireModeContainer.transform.localPosition = Vector3.zero;
+		this.m_FireModeContainer.transform.localRotation = Quaternion.identity;
 		
 
 		// TRY RECOVER MODULE SECTION
-		if ( GlobalManager.Configs.bGetSection( moduleSectionName, ref m_ModuleSection ) == false )			// Get Module Section
+		if ( GlobalManager.Configs.GetSection( moduleSectionName, ref this.m_ModuleSection ) == false )			// Get Module Section
 			return false;
 
 		// GET FIRE MODE SECTION NAME
 		string weaponFireModeSectionName = null;
-		if ( m_ModuleSection.bAsString( "FireMode", ref weaponFireModeSectionName ) == false )
+		if (this.m_ModuleSection.bAsString( "FireMode", ref weaponFireModeSectionName ) == false )
 			return false;
 
 		// LOAD FIRE MODE
-		if ( ChangeFireMode( weaponFireModeSectionName ) == false )
+		if (this.ChangeFireMode( weaponFireModeSectionName ) == false )
 			return false;
 
-//		m_WpnFireMode.transform.SetParent( m_FireModeContainer.transform );
+		//		m_WpnFireMode.transform.SetParent( m_FireModeContainer.transform );
 
 		// ASSIGN INTERNALS
-		m_ShotDelay				= m_ModuleSection.AsFloat( "BaseShotDelay", m_ShotDelay );
-		m_MagazineCapacity		= m_ModuleSection.AsUInt( "BaseMagazineCapacity", m_MagazineCapacity );
-		m_CamDeviation			= m_ModuleSection.AsFloat( "BaseCamDeviation", m_CamDeviation );
-		m_FireDispersion		= m_ModuleSection.AsFloat( "BaseFireDispersion", m_FireDispersion );
-		m_Recoil				= m_ModuleSection.AsFloat( "BaseRecoil", m_Recoil);
-		m_Magazine				= m_MagazineCapacity;
+		this.m_ShotDelay				= this.m_ModuleSection.AsFloat( "BaseShotDelay", this.m_ShotDelay );
+		this.m_MagazineCapacity		= this.m_ModuleSection.AsUInt( "BaseMagazineCapacity", this.m_MagazineCapacity );
+		this.m_CamDeviation			= this.m_ModuleSection.AsFloat( "BaseCamDeviation", this.m_CamDeviation );
+		this.m_FireDispersion		= this.m_ModuleSection.AsFloat( "BaseFireDispersion", this.m_FireDispersion );
+		this.m_Recoil				= this.m_ModuleSection.AsFloat( "BaseRecoil", this.m_Recoil);
+		this.m_Magazine				= this.m_MagazineCapacity;
 
 		// CREATE FIRE MODE
-		m_WpnFireMode.Setup( this, m_ShotDelay, Shoot );
+		this.m_WpnFireMode.Setup( this, this.m_ShotDelay, this.Shoot );
 
 
-		if ( InternalSetup( m_ModuleSection ) == false )
+		if (this.InternalSetup(this.m_ModuleSection ) == false )
 			return false;
 
 
@@ -104,18 +104,18 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 			}
 
 			string fireSound = null;
-			if ( m_ModuleSection.bAsString( "FireSound", ref fireSound ) )
+			if (this.m_ModuleSection.bAsString( "FireSound", ref fireSound ) )
 			{
-				AudioSource source = m_FireModeContainer.GetOrAddIfNotFound<AudioSource>();
+				AudioSource source = this.m_FireModeContainer.GetOrAddIfNotFound<AudioSource>();
 				{
 					source.playOnAwake = false;
 					if ( source.clip = System.Array.Find( m_ModuleSounds.AudioClips, s => s.name == fireSound ) )
 					{
-						DynamicCustomAudioSource audioSource = m_FireModeContainer.GetOrAddIfNotFound<DynamicCustomAudioSource>();
+						DynamicCustomAudioSource audioSource = this.m_FireModeContainer.GetOrAddIfNotFound<DynamicCustomAudioSource>();
 						audioSource.enabled = true;
 
 						audioSource.Setup( source );
-						m_AudioSourceFire = audioSource;
+						this.m_AudioSourceFire = audioSource;
 					}
 				}
 			}
@@ -124,14 +124,14 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 		// BULLET POOL
 		{
 			// Remove previous if exists
-			if ( m_PoolBullets != null )
+			if (this.m_PoolBullets != null )
 			{
-				m_PoolBullets.Destroy();
-				m_PoolBullets = null;
+				this.m_PoolBullets.Destroy();
+				this.m_PoolBullets = null;
 			}
 
 			// Create new pool
-			string bulletObjectName = m_ModuleSection.AsString( "Bullet", "InvalidBulletResource" );
+			string bulletObjectName = this.m_ModuleSection.AsString( "Bullet", "InvalidBulletResource" );
 
 			ResourceManager.LoadedData<GameObject> loadedResource = new ResourceManager.LoadedData<GameObject>();
 			bool bIsBulletLoaded = ResourceManager.LoadResourceSync( "Prefabs/Bullets/" + bulletObjectName, loadedResource );
@@ -153,7 +153,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 				IsAsyncBuild	= bIsAsyncLoaded,
 			};
 
-			m_PoolBullets = new GameObjectsPool<Bullet>( data );
+			this.m_PoolBullets = new GameObjectsPool<Bullet>( data );
 		}
 
 		return true;
@@ -167,7 +167,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 		bullet.Setup
 		(
 			whoRef: Player.Instance,
-			weaponRef: m_WeaponRef as Weapon
+			weaponRef: this.m_WeaponRef as Weapon
 		);
 		bullet.gameObject.layer = LayerMask.NameToLayer("PlayerBullets");
 //		Player.Instance.DisableCollisionsWith( bullet.Collider );
@@ -224,11 +224,11 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 	//////////////////////////////////////////////////////////////////////////
 	public		override	void	ApplyModifier( Database.Section modifier )
 	{
-		m_Modifiers.Add( modifier );
+		this.m_Modifiers.Add( modifier );
 
-		Database.Section Configuration = GetCurrentConfiguration( m_ModuleSection, m_Modifiers );
+		Database.Section Configuration = GetCurrentConfiguration(this.m_ModuleSection, this.m_Modifiers );
 
-		ApplyConfiguration( Configuration );
+		this.ApplyConfiguration( Configuration );
 	}
 
 
@@ -236,25 +236,25 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 	public		override	void	ResetBaseConfiguration()
 	{
 		// Reset everything of this module
-		m_Modifiers.Clear();
-		Setup( m_WeaponRef, m_ModuleSlot );
+		this.m_Modifiers.Clear();
+		this.Setup(this.m_WeaponRef, this.m_ModuleSlot );
 	}
 	
 
 	//////////////////////////////////////////////////////////////////////////
 	public		override	void	RemoveModifier( Database.Section modifier )
 	{
-		int indexOfModifier = m_Modifiers.IndexOf( modifier );
+		int indexOfModifier = this.m_Modifiers.IndexOf( modifier );
 		if ( indexOfModifier < 0 )
 		{
 			return;
 		}
-		
-		m_Modifiers.RemoveAt( indexOfModifier );
-		
-		Database.Section Configuration = GetCurrentConfiguration( m_ModuleSection, m_Modifiers );
 
-		ApplyConfiguration( Configuration );
+		this.m_Modifiers.RemoveAt( indexOfModifier );
+		
+		Database.Section Configuration = GetCurrentConfiguration(this.m_ModuleSection, this.m_Modifiers );
+
+		this.ApplyConfiguration( Configuration );
 	}
 
 
@@ -262,31 +262,31 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 	private	void	ApplyConfiguration( Database.Section Configuration )
 	{
 		// MAGAZINE
-		m_MagazineCapacity					= Configuration.AsUInt( "MagazineCapacity", m_MagazineCapacity );
-		m_PoolBullets.Resize( m_Magazine = m_MagazineCapacity );
+		this.m_MagazineCapacity					= Configuration.AsUInt( "MagazineCapacity", this.m_MagazineCapacity );
+		this.m_PoolBullets.Resize(this.m_Magazine = this.m_MagazineCapacity );
 
 		// DAMAGE
-		m_PoolBullets.ExecuteActionOnObjects( ActionOnBullet );
+		this.m_PoolBullets.ExecuteActionOnObjects(this.ActionOnBullet );
 
 		// DEVIATION AND DISPERSION
-		m_CamDeviation						= Configuration.AsFloat( "CamDeviation" );
-		m_FireDispersion					= Configuration.AsFloat( "FireDispersion");
-		m_Recoil							= Configuration.AsFloat( "Recoil");
+		this.m_CamDeviation						= Configuration.AsFloat( "CamDeviation" );
+		this.m_FireDispersion					= Configuration.AsFloat( "FireDispersion");
+		this.m_Recoil							= Configuration.AsFloat( "Recoil");
 
 		// FIRE MODE
 		string newFireModeSecName			= Configuration.AsString( "FireMode" );
-		ChangeFireMode( newFireModeSecName );
-		m_ShotDelay							= Configuration.AsFloat( "ShotDelay");
-		m_WpnFireMode.Setup( this, m_ShotDelay, Shoot );
+		this.ChangeFireMode( newFireModeSecName );
+		this.m_ShotDelay							= Configuration.AsFloat( "ShotDelay");
+		this.m_WpnFireMode.Setup( this, this.m_ShotDelay, this.Shoot );
 
 		// BULLET
 		string bulletObjectName				= Configuration.AsString( "Bullet" );
-		if ( bulletObjectName != m_PoolBullets.PeekComponent().GetType().Name )
+		if ( bulletObjectName != this.m_PoolBullets.PeekComponent().GetType().Name )
 		{
 			ResourceManager.LoadedData<GameObject> loadedData = new ResourceManager.LoadedData<GameObject>();
 			if ( ResourceManager.LoadResourceSync( "Prefabs/Bullets/" + bulletObjectName, loadedData ) )
 			{
-				m_PoolBullets.Convert( loadedData.Asset, ActionOnBullet );
+				this.m_PoolBullets.Convert( loadedData.Asset, this.ActionOnBullet );
 			}
 		}
 	}
@@ -303,14 +303,14 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 			Debug.Log( "WPN_FireModule:ChangeFireMode:Setting invalid weapon fire mode \"" + weaponFireModeSectionName + "\"" );
 			return false;
 		}
-		return TryLoadFireMode( m_FireModeContainer, type, ref m_WpnFireMode );
+		return TryLoadFireMode(this.m_FireModeContainer, type, ref this.m_WpnFireMode );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public					bool	ChangeFireMode<T>()
 	{
-		return TryLoadFireMode( m_FireModeContainer, typeof(T), ref m_WpnFireMode );
+		return TryLoadFireMode(this.m_FireModeContainer, typeof(T), ref this.m_WpnFireMode );
 	}
 
 
@@ -339,7 +339,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 		}
 
 		Database.Section section = null;
-		if ( GlobalManager.Configs.bGetSection( weaponFireModeSectionName, ref section ) == false )
+		if ( GlobalManager.Configs.GetSection( weaponFireModeSectionName, ref section ) == false )
 		{
 			Debug.Log( "WPN_FireModule: Cannot find section for fire mode \"" + weaponFireModeSectionName + "\"" );
 			return false;
@@ -354,14 +354,14 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		float	GetFireDispersion()
 	{
-		return m_FireDispersion;
+		return this.m_FireDispersion;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		float	GetCamDeviation()
 	{
-		return m_CamDeviation;
+		return this.m_CamDeviation;
 	}
 
 
@@ -373,14 +373,14 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnDestroy()
 	{
-		if ( m_PoolBullets != null )
+		if (this.m_PoolBullets != null )
 		{
-			m_PoolBullets.Destroy();
+			this.m_PoolBullets.Destroy();
 		}
 
-		if ( m_FireModeContainer )
+		if (this.m_FireModeContainer )
 		{
-			Destroy( m_FireModeContainer );
+			Destroy(this.m_FireModeContainer );
 		}
 	}
 

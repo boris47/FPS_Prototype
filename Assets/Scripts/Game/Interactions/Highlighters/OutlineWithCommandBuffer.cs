@@ -21,61 +21,61 @@ public class OutlineWithCommandBuffer : BaseHighlighter {
 	//
 	public override bool Highlight( Color? color = null )
 	{
-		if ( m_IsActive == false )
+		if (this.m_IsActive == false )
 		{
-			m_OutlineData.color = color ?? m_OutlineData.color;
+			this.m_OutlineData.color = color ?? this.m_OutlineData.color;
 			OutlineEffectManager.Instance?.AddRenderers
 			(
-				renderers:		m_Renderers,
-				outlineData:	m_OutlineData,
-				newID:			ref m_ID
+				renderers: this.m_Renderers,
+				outlineData: this.m_OutlineData,
+				newID:			ref this.m_ID
 			);
-			m_IsActive = true;
+			this.m_IsActive = true;
 		}
-		return m_IsActive;
+		return this.m_IsActive;
 	}
 
 
 	//
 	public override bool UnHighlight()
 	{
-		if ( m_IsActive == true )
+		if (this.m_IsActive == true )
 		{
-			OutlineEffectManager.Instance?.RemoveRenderers( m_ID );
-			m_IsActive = false;
+			OutlineEffectManager.Instance?.RemoveRenderers(this.m_ID );
+			this.m_IsActive = false;
 		}
-		return !m_IsActive;
+		return !this.m_IsActive;
 	}
 
 
 	//
 	protected override void Awake()
 	{
-		m_Renderers = GetComponentsInChildren<Renderer>( includeInactive: true );
+		this.m_Renderers = this.GetComponentsInChildren<Renderer>( includeInactive: true );
 	}
 
 	private void OnValidate()
 	{
-		if ( m_Renderers?.Length > 0 && m_IsActive )
+		if (this.m_Renderers?.Length > 0 && this.m_IsActive )
 		{
-			m_OutlineData.color = m_ColorToUse;
-			m_OutlineData.sortingType = sortingType;
+			this.m_OutlineData.color = this.m_ColorToUse;
+			this.m_OutlineData.sortingType = this.sortingType;
 
-			OutlineEffectManager.Instance?.UpdateRenderers( m_ID, m_OutlineData );
+			OutlineEffectManager.Instance?.UpdateRenderers(this.m_ID, this.m_OutlineData );
 		}
 	}
 
 	//
 	protected override void OnEnable()
 	{
-		m_OutlineData.color = m_ColorToUse;
-		m_OutlineData.sortingType = sortingType;
+		this.m_OutlineData.color = this.m_ColorToUse;
+		this.m_OutlineData.sortingType = this.sortingType;
 	}
 
 	//
 	protected override void OnDisable()
 	{
-		UnHighlight();
+		this.UnHighlight();
 	}
 
 

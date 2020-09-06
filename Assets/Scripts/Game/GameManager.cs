@@ -2,7 +2,7 @@
 using UnityEngine;
 
 
-public partial class GameManager : MonoBehaviour {
+public sealed partial class GameManager : MonoBehaviour {
 
 	private	static			GameManager		m_Instance				= null;
 	public	static			GameManager		Instance
@@ -41,7 +41,7 @@ public partial class GameManager : MonoBehaviour {
 		// SINGLETON
 		if ( m_Instance != null )
 		{
-			Destroy( gameObject );
+			Destroy(this.gameObject );
 			return;
 		}
 		DontDestroyOnLoad( this );
@@ -63,9 +63,9 @@ public partial class GameManager : MonoBehaviour {
 		// StreamEvents
 		m_OnSave			= delegate ( StreamData streamData ) { return null; };
 		m_OnSaveComplete	= delegate ( StreamData streamData ) { return null; };
-		m_OnLoad.Clear();//	= delegate ( StreamData streamData ) { return null; };
-		m_OnLoadComplete.Clear();//	= delegate ( StreamData streamData ) { return null; };
-		m_SaveLoadState		= StreamingState.NONE;
+		this.m_OnLoad.Clear();//	= delegate ( StreamData streamData ) { return null; };
+		this.m_OnLoadComplete.Clear();//	= delegate ( StreamData streamData ) { return null; };
+		this.m_SaveLoadState		= EStreamingState.NONE;
 
 		// PauseEvents
 		m_OnPauseSet		= delegate { };
@@ -85,11 +85,11 @@ public partial class GameManager : MonoBehaviour {
 		if ( m_Instance != this )
 			return;
 
-		ReseteDelegates();
+		this.ReseteDelegates();
 
 		GlobalManager.InputMgr.BindCall
 		(
-			command:		eInputCommands.INVENTORY,
+			command:		EInputCommands.INVENTORY,
 			inputEventID:	"Inventory",
 			action:			() =>
 				{
@@ -109,7 +109,7 @@ public partial class GameManager : MonoBehaviour {
 
 		GlobalManager.InputMgr.BindCall
 		(
-			command:		eInputCommands.WPN_CUSTOMIZATION,
+			command:		EInputCommands.WPN_CUSTOMIZATION,
 			inputEventID:	"WeaponCustomization",
 			action:			() =>
 				{
@@ -126,9 +126,9 @@ public partial class GameManager : MonoBehaviour {
 			predicate:		() => WeaponManager.Instance.IsZoomed == false
 		);
 
-		// Because we ha bypassed the menu and this flag is set true only after asyn load is completed,
+		// Because we ha bypassed the menu and this flag is set true only after async load is completed,
 		// this is the only way to check if user used the main menu
-		if ( UI_MainMenu.FromMenu == false )
+		if ( UI_MainMenu.IsComingFromMenu == false )
 		{
 			m_InGame = true;
 		}
@@ -142,10 +142,10 @@ public partial class GameManager : MonoBehaviour {
 		if ( m_Instance != this )
 			return;
 
-		GlobalManager.InputMgr.UnbindCall( eInputCommands.WPN_CUSTOMIZATION,	"WeaponCustomization"	);
-		GlobalManager.InputMgr.UnbindCall( eInputCommands.INVENTORY,			"Inventory"				);
+		GlobalManager.InputMgr.UnbindCall( EInputCommands.WPN_CUSTOMIZATION,	"WeaponCustomization"	);
+		GlobalManager.InputMgr.UnbindCall( EInputCommands.INVENTORY,			"Inventory"				);
 
-		ReseteDelegates();
+		this.ReseteDelegates();
 
 		m_InGame = false;
 	}
@@ -156,7 +156,7 @@ public partial class GameManager : MonoBehaviour {
 	public	void		QuitRequest()
 	{
 		m_QuitRequest = true;
-		GlobalManager.InputMgr.DisableCategory( InputCategory.ALL );
+		GlobalManager.InputMgr.DisableCategory( EInputCategory.ALL );
 		Debug.Log("GameManager: Requesting exit");
 	}
 
@@ -165,7 +165,7 @@ public partial class GameManager : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	public	void	RequireFrameSkip()
 	{
-		m_SkipOneFrame = true;
+		this.m_SkipOneFrame = true;
 	}
 
 
@@ -184,21 +184,21 @@ public partial class GameManager : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private			void		Update()
 	{
-//		if ( Time.frameCount % 90 == 0 )
-//		{
-//			System.GC.Collect( 1, System.GCCollectionMode.Optimized );
-//		}
-	
-		EDITOR_InGame = m_InGame;
+		//		if ( Time.frameCount % 90 == 0 )
+		//		{
+		//			System.GC.Collect( 1, System.GCCollectionMode.Optimized );
+		//		}
+
+		this.EDITOR_InGame = m_InGame;
 		if ( m_InGame == false )
 		{
 			return;
 		}
 		
 		// This prevent the ui interaction can trigger actions in-game
-		if ( m_SkipOneFrame == true )
+		if (this.m_SkipOneFrame == true )
 		{
-			m_SkipOneFrame = false;
+			this.m_SkipOneFrame = false;
 			return;
 		}
 
@@ -246,17 +246,17 @@ public partial class GameManager : MonoBehaviour {
 
 		if ( Input.GetKeyDown( KeyCode.N ) )
 		{
-			UIManager.ComInterface.SendNotification( "Ciao Mamma"+counter++, Color.red );
+			UIManager.ComInterface.SendNotification( "Ciao Mamma"+ this.counter++, Color.red );
 		}
-		
+
 
 		// Thinking Update
-		m_ThinkTimer += Time.deltaTime;
-		if ( m_ThinkTimer > Entity.THINK_TIMER )
+		this.m_ThinkTimer += Time.deltaTime;
+		if (this.m_ThinkTimer > Entity.THINK_TIMER )
 		{
 			m_OnThink();
-			UpdateCurrentFieldOfView();
-			m_ThinkTimer = 0f;
+			this.UpdateCurrentFieldOfView();
+			this.m_ThinkTimer = 0f;
 		}
 
 		// Frame Update
@@ -294,7 +294,7 @@ public partial class GameManager : MonoBehaviour {
 		{
 			CustomSceneManager.LoadSceneData data = new CustomSceneManager.LoadSceneData()
 			{
-				eScene = SceneEnumeration.NEXT
+				eScene = ESceneEnumeration.NEXT
 			};
 			CustomSceneManager.LoadSceneAsync( data );
 		}
@@ -303,7 +303,7 @@ public partial class GameManager : MonoBehaviour {
 		if ( m_QuitRequest == true )
 		{
 			Debug.Log("GameManager: Processing exit request");
-			if ( m_SaveLoadState != StreamingState.SAVING )
+			if (this.m_SaveLoadState != EStreamingState.SAVING )
 			{
 				QuitInstanly();
 			}
@@ -347,7 +347,7 @@ public partial class GameManager : MonoBehaviour {
 		if ( (Object)m_Instance != this )
 			return;
 
-		ReseteDelegates();
+		this.ReseteDelegates();
 
 		m_Instance		= null;
 		m_StreamEvents	= null;
@@ -355,13 +355,13 @@ public partial class GameManager : MonoBehaviour {
 		m_UpdateEvents	= null;
 		m_FieldsOfViewManager = null;
 
-		EDITOR_InGame = false;
+		this.EDITOR_InGame = false;
 
 		m_InGame = false;
 		m_QuitRequest = false;
-		m_SkipOneFrame = false;
+		this.m_SkipOneFrame = false;
 
-		m_ThinkTimer = 0f;
+		this.m_ThinkTimer = 0f;
 
 		m_IsPaused = false;
 	}

@@ -11,7 +11,8 @@ using System.Reflection;
 public class SectionMap {
 
 	// READING PHASES
-	private enum eREADING_PHASES {
+	private enum EReadingPhase
+	{
 		NONE					= 0,
 		READING_SECTION			= 1,
 		READING_SECTION_LIST	= 2,
@@ -25,7 +26,7 @@ public class SectionMap {
 	private	List < string >						m_FilePaths			= new List < string >();
 
 	// INTERNAL VARS
-	private	eREADING_PHASES						m_ReadingPhase		= eREADING_PHASES.NONE;
+	private	EReadingPhase						m_ReadingPhase		= EReadingPhase.NONE;
 	private	Section								m_CurrentSection	= null;
 	private	ArrayData							m_CurrentArrayData	= null;
 	private	cLineValue							m_CurrentLineValue	= null;
@@ -42,25 +43,25 @@ public class SectionMap {
 	// CREATE A NEW SECTION WHILE READING FILE
 	private bool Section_Create( string sLine, string sFilePath, int iLine )
 	{
-		if ( m_CurrentSection != null )
+		if (this.m_CurrentSection != null )
 		{
-			Section_Close();
+			this.Section_Close();
 		}
 
 		int sectionNameCloseChar = sLine.IndexOf( "]", 0 );
 		string sSectionName = sLine.Substring( 1, sectionNameCloseChar - 1 );
 
 		Section bump = null;
-		if ( HasFileElement( sSectionName, ref bump ) )
+		if (this.HasFileElement( sSectionName, ref bump ) )
 		{
 			Debug.LogError( "SectionMap::Section_Create:" + sFilePath + ":[" + iLine + "]: Section \"" + sSectionName + "\" already exists!" );
 			return false;
 		}
 
-		m_ReadingPhase = eREADING_PHASES.READING_SECTION;
+		this.m_ReadingPhase = EReadingPhase.READING_SECTION;
 
 		string context = System.IO.Path.GetFileNameWithoutExtension( sFilePath );
-		m_CurrentSection = new Section( sSectionName, context: context );
+		this.m_CurrentSection = new Section( sSectionName, context: context );
 
 		// Get the name of mother section, if present
 		int iIndex = sLine.IndexOf( ":", sectionNameCloseChar );
@@ -76,9 +77,9 @@ public class SectionMap {
 			foreach ( string motherName in mothers )
 			{
 				Section motherSection = null;
-				if ( bGetSection( motherName, ref motherSection ) )
+				if (this.GetSection( motherName, ref motherSection ) )
 				{
-					m_CurrentSection += motherSection;
+					this.m_CurrentSection += motherSection;
 				} else
 				{
 					Debug.LogError( "SectionMap::Section_Create:" + sFilePath + ":[" + iLine + "]: Section requested for inheritance \"" + motherName + "\" doesn't exist!" );
@@ -98,10 +99,10 @@ public class SectionMap {
 		cLineValue pLineValue = new cLineValue( Pair.Key , Pair.Value );
 		if ( pLineValue.IsOK == false )
 		{
-			Debug.LogError( " SectionMap::Section_Add:LineValue invalid for key |" + Pair.Key + "| in Section |" + m_CurrentSection.GetName() + "| in file |" + sFilePath + "|" );
+			Debug.LogError( " SectionMap::Section_Add:LineValue invalid for key |" + Pair.Key + "| in Section |" + this.m_CurrentSection.GetName() + "| in file |" + sFilePath + "|" );
 			return false;
 		}
-		m_CurrentSection.Add( pLineValue );
+		this.m_CurrentSection.Add( pLineValue );
 		return true;
 	}
 
@@ -111,11 +112,11 @@ public class SectionMap {
 	// DEFINITELY SAVE THE PARSING SECTION
 	private void Section_Close()
 	{
-		if ( m_CurrentSection != null )
-			m_SectionMap.Add( m_CurrentSection.GetName(), m_CurrentSection );
+		if (this.m_CurrentSection != null )
+			this.m_SectionMap.Add(this.m_CurrentSection.GetName(), this.m_CurrentSection );
 
-		m_CurrentSection = null;
-		m_ReadingPhase = eREADING_PHASES.NONE;
+		this.m_CurrentSection = null;
+		this.m_ReadingPhase = EReadingPhase.NONE;
 	}
 
 
@@ -124,25 +125,25 @@ public class SectionMap {
 	// CREATE A NEW ARRAY DATA LIST WHILE READING FILE
 	private bool ArrayData_Create( string sLine, string sFilePath, int iLine )
 	{
-		if ( m_CurrentArrayData != null )
+		if (this.m_CurrentArrayData != null )
 		{
-			ArrayData_Close();
+			this.ArrayData_Close();
 		}
 
 		int ArrayDataNameCloseChar = sLine.IndexOf( "\'", 1 );
 		string sArrayDataName = sLine.Substring( 1, ArrayDataNameCloseChar - 1 );
 
 		ArrayData bump = null;
-		if ( HasFileElement( sArrayDataName, ref bump ) )
+		if (this.HasFileElement( sArrayDataName, ref bump ) )
 		{
 			Debug.LogError( "SectionMap::ArrayData_Create:" + sFilePath + ":[" + iLine + "]: ArrayData \"" + sArrayDataName + "\" already exists!" );
 			return false;
 		}
 
-		m_ReadingPhase = eREADING_PHASES.READING_ARRAYDATA;
+		this.m_ReadingPhase = EReadingPhase.READING_ARRAYDATA;
 
 		string context = System.IO.Path.GetFileNameWithoutExtension( sFilePath );
-		m_CurrentArrayData = new ArrayData( sArrayDataName, context: context );
+		this.m_CurrentArrayData = new ArrayData( sArrayDataName, context: context );
 
 		// Get the name of mother , if present
 		int iIndex = sLine.IndexOf( ":", ArrayDataNameCloseChar );
@@ -158,9 +159,9 @@ public class SectionMap {
 			foreach ( string motherName in mothers )
 			{
 				ArrayData mother = null;
-				if ( bGetArrayData( motherName, ref mother ) )
+				if (this.bGetArrayData( motherName, ref mother ) )
 				{
-					m_CurrentArrayData += mother;
+					this.m_CurrentArrayData += mother;
 				} else
 				{
 					Debug.LogError( "SectionMap::ArrayData_Create:" + sFilePath + ":[" + iLine + "]: ArrayData requested for inheritance \"" + motherName + "\" doesn't exist!" );
@@ -180,10 +181,10 @@ public class SectionMap {
 		cLineValue pLineValue = new cLineValue( sFilePath + "_"+ iLine , sLine );
 		if ( pLineValue.IsOK == false )
 		{
-			Debug.LogError( " SectionMap::ArrayData_Add: LineValue invalid at line |" + iLine + "| in Section |" + m_CurrentArrayData.GetName() + "| in file |" + sFilePath + "|" );
+			Debug.LogError( " SectionMap::ArrayData_Add: LineValue invalid at line |" + iLine + "| in Section |" + this.m_CurrentArrayData.GetName() + "| in file |" + sFilePath + "|" );
 			return false;
 		}
-		m_CurrentArrayData.Add( pLineValue );
+		this.m_CurrentArrayData.Add( pLineValue );
 		return true;
 	}
 
@@ -193,39 +194,25 @@ public class SectionMap {
 	// DEFINITELY SAVE THE PARSING SECTION
 	private void ArrayData_Close()
 	{
-		if ( m_CurrentArrayData != null )
-			m_ArrayDataMap.Add( m_CurrentArrayData.GetName(), m_CurrentArrayData );
+		if (this.m_CurrentArrayData != null )
+			this.m_ArrayDataMap.Add(this.m_CurrentArrayData.GetName(), this.m_CurrentArrayData );
 
-		m_CurrentArrayData = null;
-		m_ReadingPhase = eREADING_PHASES.NONE;
+		this.m_CurrentArrayData = null;
+		this.m_ReadingPhase = EReadingPhase.NONE;
 	}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	private static	char[]	EscapeCharToRemove = new char[] { '\n','\b','\t','\r' };
+	private static readonly char[]	EscapeCharToRemove = new char[] { '\n','\b','\t','\r' };
 
 	//////////////////////////////////////////////////////////////////////////
 	// LoadFile
 	// LOAD A FILE AND ALL INCLUDED FILES
 	public bool LoadFile( string sFilePath )
 	{
-		if ( IsLoaded( sFilePath ) )
+		if (this.IsLoaded( sFilePath ) )
 			return true;
 
-		IsOK = false;
+		this.IsOK = false;
 
 		
 		if ( Utils.String.IsAssetsPath( sFilePath ) )
@@ -266,9 +253,9 @@ public class SectionMap {
 			/// Able to include file in same dir of root file
 			if ( ( sLine[ 0 ] == '#' ) && sLine.Contains( "#include" ) )
 			{
-				if  ( m_ReadingPhase != eREADING_PHASES.NONE )
+				if  (this.m_ReadingPhase != EReadingPhase.NONE )
 				{
-					Debug.LogError( " SectionMap::LoadFile:trying to load another file while " + m_ReadingPhase + " at line |" + iLine + "| in file |" + sFilePath + "| " );
+					Debug.LogError( " SectionMap::LoadFile:trying to load another file while " + this.m_ReadingPhase + " at line |" + iLine + "| in file |" + sFilePath + "| " );
 					return false;
 				}
 
@@ -276,7 +263,7 @@ public class SectionMap {
 				string sFileName = sLine.Trim().Substring( "#include".Length + 1 ).TrimInside();
 				string sSubPath = System.IO.Path.GetDirectoryName( sFileName );
 				string combinedPath = Path.Combine( sPath, Path.Combine( sSubPath, System.IO.Path.GetFileNameWithoutExtension( sFileName ) ) );
-				if ( LoadFile( combinedPath ) == false )
+				if (this.LoadFile( combinedPath ) == false )
 					return false;
 
 				continue;
@@ -292,7 +279,7 @@ public class SectionMap {
 				}
 
 				// Create a new section
-				if ( Section_Create( sLine.TrimInside(), sFilePath, iLine ) == false )
+				if (this.Section_Create( sLine.TrimInside(), sFilePath, iLine ) == false )
 				{
 					return false;
 				}
@@ -309,7 +296,7 @@ public class SectionMap {
 				}
 
 				// Create a new arrayData
-				if ( ArrayData_Create( sLine.TrimInside(), sFilePath, iLine ) == false )
+				if (this.ArrayData_Create( sLine.TrimInside(), sFilePath, iLine ) == false )
 				{
 					return false;
 				}
@@ -317,13 +304,13 @@ public class SectionMap {
 			}
 
 			// READING SECTION
-			if ( m_ReadingPhase == eREADING_PHASES.READING_SECTION )
+			if (this.m_ReadingPhase == EReadingPhase.READING_SECTION )
 			{
 				// KEY = VALUE
 				KeyValue pKeyValue = Utils.String.GetKeyValue( sLine );
 				if ( pKeyValue.IsOK )
 				{
-					if ( m_CurrentSection == null )
+					if (this.m_CurrentSection == null )
 					{
 						Debug.LogError( " SectionMap::LoadFile:No section created to insert KeyValue at line |" + iLine + "| in file |" + sFilePath + "| " );
 						return false;
@@ -332,13 +319,13 @@ public class SectionMap {
 					// SECTION LIST
 					if ( pKeyValue.Value == "{" )
 					{
-						m_ReadingPhase = eREADING_PHASES.READING_SECTION_LIST;
-						m_CurrentLineValue = new cLineValue( pKeyValue.Key, LineValueType.MULTI );
-						m_CurrentMultiValue = new cMultiValue( null );
+						this.m_ReadingPhase = EReadingPhase.READING_SECTION_LIST;
+						this.m_CurrentLineValue = new cLineValue( pKeyValue.Key, ELineValueType.MULTI );
+						this.m_CurrentMultiValue = new cMultiValue( null );
 						continue;
 					}
 
-					if ( Section_Add( pKeyValue, sFilePath, iLine ) == false )
+					if (this.Section_Add( pKeyValue, sFilePath, iLine ) == false )
 					{
 						return false;
 					}
@@ -347,25 +334,25 @@ public class SectionMap {
 			}
 
 			// READING SECTION LIST
-			if ( m_ReadingPhase == eREADING_PHASES.READING_SECTION_LIST )
+			if (this.m_ReadingPhase == EReadingPhase.READING_SECTION_LIST )
 			{
 				string trimmedLine = sLine.Trim( new char[] { ',', '.', ' ' } );
 				if ( trimmedLine == "}" )
 				{
-					m_CurrentLineValue.Set( m_CurrentMultiValue );
-					m_CurrentSection.Add( m_CurrentLineValue );
-					m_ReadingPhase = eREADING_PHASES.READING_SECTION;
+					this.m_CurrentLineValue.Set(this.m_CurrentMultiValue );
+					this.m_CurrentSection.Add(this.m_CurrentLineValue );
+					this.m_ReadingPhase = EReadingPhase.READING_SECTION;
 					continue;
 				}
 
-				m_CurrentMultiValue.Add( trimmedLine );
+				this.m_CurrentMultiValue.Add( trimmedLine );
 				continue;
 			}
 
 			// READING ARRAY DATA LIST
-			if ( m_ReadingPhase == eREADING_PHASES.READING_ARRAYDATA )
+			if (this.m_ReadingPhase == EReadingPhase.READING_ARRAYDATA )
 			{
-				if ( ArrayData_Add( sLine, sFilePath, iLine ) == false )
+				if (this.ArrayData_Add( sLine, sFilePath, iLine ) == false )
 				{
 					return false;
 				}
@@ -377,10 +364,10 @@ public class SectionMap {
 			return false;
 		}
 
-		Section_Close();
-		ArrayData_Close();
-		m_FilePaths.Add( sFilePath );
-		IsOK = true;
+		this.Section_Close();
+		this.ArrayData_Close();
+		this.m_FilePaths.Add( sFilePath );
+		this.IsOK = true;
 		return true;
 	}
 
@@ -390,10 +377,10 @@ public class SectionMap {
 	// CHECK IF A FILE IS ALREADY LOADED BY PATH
 	public bool IsLoaded( string sFilePath )
 	{
-		if ( m_FilePaths.Count < 1 )
+		if (this.m_FilePaths.Count < 1 )
 			return false;
 
-		return m_FilePaths.Find( (s) => s == sFilePath ) != null;
+		return this.m_FilePaths.Find( (s) => s == sFilePath ) != null;
 	}
 
 
@@ -402,7 +389,7 @@ public class SectionMap {
 	// CHECK AND RETURN IN CASE IF SECTION ALREADY EXISTS
 	public bool HasFileElement( string identifier, ref Section result )
 	{
-		return m_SectionMap.TryGetValue( identifier, out result );
+		return this.m_SectionMap.TryGetValue( identifier, out result );
 	}
 
 
@@ -411,7 +398,7 @@ public class SectionMap {
 	// CHECK AND RETURN IN CASE IF SECTION ALREADY EXISTS
 	public bool HasFileElement( string identifier, ref ArrayData result )
 	{
-		return m_ArrayDataMap.TryGetValue( identifier, out result );
+		return this.m_ArrayDataMap.TryGetValue( identifier, out result );
 	}
 
 
@@ -421,13 +408,13 @@ public class SectionMap {
 	public Section NewSection ( string SecName, string Context )
 	{
 		Section pSec = null;
-		if ( HasFileElement( SecName, ref pSec  ) )
+		if (this.HasFileElement( SecName, ref pSec  ) )
 		{
 			pSec.Destroy();
 		}
 
 		pSec = new Section( SecName, context: Context );
-		m_SectionMap[SecName] = pSec; // Adding in this way will overwrite section, if already exists
+		this.m_SectionMap[SecName] = pSec; // Adding in this way will overwrite section, if already exists
 		return pSec;
 	}
 
@@ -435,21 +422,21 @@ public class SectionMap {
 	//////////////////////////////////////////////////////////////////////////
 	// bGetSection
 	/// <summary> Retrieve a section, return true if section exists otherwise false </summary>
-	public bool bGetSection( string SectionName, ref Section section )
+	public bool GetSection( string SectionName, ref Section section )
 	{
-		return m_SectionMap.TryGetValue( SectionName, out section );
+		return this.m_SectionMap.TryGetValue( SectionName, out section );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// bGetSection
-	public	bool	bGetSection<T>( string identifier, T outer ) where T : class
+	public	bool	GetSection<T>( string identifier, T outer ) where T : class
 	{
 		if ( outer == null )
 			return false;
 
 		Section section = null;
-		bool bHadGoodResult = bGetSection( identifier, ref section );
+		bool bHadGoodResult = this.GetSection( identifier, ref section );
 		if ( bHadGoodResult == false )
 		{
 			return false;
@@ -480,7 +467,7 @@ public class SectionMap {
 			}
 
 			cLineValue lineValue = section[index];
-			if ( lineValue.Type == LineValueType.SINGLE )
+			if ( lineValue.Type == ELineValueType.SINGLE )
 			{
 				object valueToAssign = null;
 				if ( bIsEnum )
@@ -497,7 +484,7 @@ public class SectionMap {
 			}
 			
 			System.Type elementType = null;
-			if ( lineValue.Type == LineValueType.MULTI && lineValue.MultiValue.DeductType( ref elementType ) )
+			if ( lineValue.Type == ELineValueType.MULTI && lineValue.MultiValue.DeductType( ref elementType ) )
 			{
 				if ( elementType == typeof( Vector2 ) )
 				{
@@ -550,7 +537,7 @@ public class SectionMap {
 	/// <summary> Retrieve an array data, return true if section exists otherwise false </summary>
 	public bool bGetArrayData( string identifier, ref ArrayData result )
 	{
-		return m_ArrayDataMap.TryGetValue( identifier, out result );
+		return this.m_ArrayDataMap.TryGetValue( identifier, out result );
 	}
 
 
@@ -562,7 +549,7 @@ public class SectionMap {
 	{
 		List<Section> results = new List<Section>();
 		{
-			foreach( Section sec in m_SectionMap.Values )
+			foreach( Section sec in this.m_SectionMap.Values )
 			{
 				if ( sec.Context == context ) results.Add( sec );
 			}
@@ -621,7 +608,7 @@ public class SectionMap {
 
 	public	void	SaveContextSections( string Context )
 	{
-		Section[] sections = GetSectionsByContext( Context );
+		Section[] sections = this.GetSectionsByContext( Context );
 
 		if ( sections.Length == 0 )
 			return;

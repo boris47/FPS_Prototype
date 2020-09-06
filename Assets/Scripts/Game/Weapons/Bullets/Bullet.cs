@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public enum BulletMotionType {
+public enum EBulletMotionType
+{
 	INSTANT,
 	DIRECT,
 	PARABOLIC
@@ -13,12 +14,12 @@ public enum BulletMotionType {
 
 public interface IBullet {
 
-	BulletMotionType	MotionType					{ get; }
-	DamageType			DamageType					{ get; }
+	EBulletMotionType	MotionType					{ get; }
+	EDamageType			DamageType					{ get; }
 	float				Damage						{ get; }
 	bool				HasDamageOverTime			{ get; }
 	float				OverTimeDamageDuration		{ get; }
-	DamageType			OverTimeDamageType			{ get; }
+	EDamageType			OverTimeDamageType			{ get; }
 	bool				CanPenetrate				{ get; }
 	float				Velocity					{ get; }
 
@@ -42,10 +43,10 @@ public interface IBullet {
 public abstract class Bullet : MonoBehaviour, IBullet {
 	
 	[SerializeField, ReadOnly]
-	protected		BulletMotionType	m_BulletMotionType		= BulletMotionType.DIRECT;
+	protected		EBulletMotionType	m_BulletMotionType		= EBulletMotionType.DIRECT;
 
 	[SerializeField, ReadOnly]
-	protected		DamageType			m_DamageType			= DamageType.BALLISTIC;
+	protected		EDamageType			m_DamageType			= EDamageType.BALLISTIC;
 
 	[SerializeField, ReadOnly]
 	protected		float				m_Damage				= 0f;
@@ -57,7 +58,7 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 	protected		float				m_OverTimeDamageDuration = 5.0f;
 
 	[SerializeField, ReadOnly]
-	protected		DamageType			m_OverTimeDamageType	= DamageType.NONE;
+	protected		EDamageType			m_OverTimeDamageType	= EDamageType.NONE;
 
 	[SerializeField, ReadOnly]
 	protected		float				m_Velocity				= 15f;
@@ -83,20 +84,20 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 	protected		Object				m_BulletEffect			= null;
 
 	// INTERFACE START
-					BulletMotionType	IBullet.MotionType				{	get { return m_BulletMotionType; }	}
-					DamageType			IBullet.DamageType				{	get { return m_DamageType; }	}
-					float				IBullet.Damage					{	get { return m_Damage;}		}
-					bool				IBullet.HasDamageOverTime		{	get { return m_HasDamageOverTime; }	}
-					float				IBullet.OverTimeDamageDuration	{	get { return m_OverTimeDamageDuration; }		}
-					DamageType			IBullet.OverTimeDamageType		{	get { return m_OverTimeDamageType; }		}
-					bool				IBullet.CanPenetrate			{	get { return m_CanPenetrate; }	}
-					float				IBullet.Velocity				{	get { return m_Velocity; }		}
+					EBulletMotionType	IBullet.MotionType				{	get { return this.m_BulletMotionType; }	}
+					EDamageType			IBullet.DamageType				{	get { return this.m_DamageType; }	}
+					float				IBullet.Damage					{	get { return this.m_Damage;}		}
+					bool				IBullet.HasDamageOverTime		{	get { return this.m_HasDamageOverTime; }	}
+					float				IBullet.OverTimeDamageDuration	{	get { return this.m_OverTimeDamageDuration; }		}
+					EDamageType			IBullet.OverTimeDamageType		{	get { return this.m_OverTimeDamageType; }		}
+					bool				IBullet.CanPenetrate			{	get { return this.m_CanPenetrate; }	}
+					float				IBullet.Velocity				{	get { return this.m_Velocity; }		}
 
-					Entity				IBullet.WhoRef					{	get { return m_WhoRef; }		}
-					Weapon				IBullet.Weapon					{	get { return m_Weapon; }		}
-					Object				IBullet.Effect					{	get { return m_BulletEffect; }	}
-					float				IBullet.RecoilMult				{	get { return m_RecoilMult; }	}
-					Vector3				IBullet.StartPosition			{	get { return m_StartPosition; }	}
+					Entity				IBullet.WhoRef					{	get { return this.m_WhoRef; }		}
+					Weapon				IBullet.Weapon					{	get { return this.m_Weapon; }		}
+					Object				IBullet.Effect					{	get { return this.m_BulletEffect; }	}
+					float				IBullet.RecoilMult				{	get { return this.m_RecoilMult; }	}
+					Vector3				IBullet.StartPosition			{	get { return this.m_StartPosition; }	}
 	// INTERFACE END
 
 	protected		Renderer			m_Renderer				= null;
@@ -115,18 +116,18 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 	// Awake ( Virtual )
 	protected	virtual		void	Awake()
 	{
-		string sectionName = GetType().Name;
-		if ( m_BulletsSections.TryGetValue( sectionName, out m_BulletSection ) == false )
+		string sectionName = this.GetType().Name;
+		if ( m_BulletsSections.TryGetValue( sectionName, out this.m_BulletSection ) == false )
 		{
-			GlobalManager.Configs.bGetSection( sectionName, ref m_BulletSection );
-			m_BulletsSections[sectionName] = m_BulletSection;
+			GlobalManager.Configs.GetSection( sectionName, ref this.m_BulletSection );
+			m_BulletsSections[sectionName] = this.m_BulletSection;
 		}
 
-		CoroutinesManager.Start( SetupBulletCO() );
+		CoroutinesManager.Start(this.SetupBulletCO() );
 
-		m_RigidBody	= GetComponent<Rigidbody>();
-		m_Collider	= GetComponent<Collider>();
-		m_Renderer	= GetComponent<Renderer>();
+		this.m_RigidBody	= this.GetComponent<Rigidbody>();
+		this.m_Collider	= this.GetComponent<Collider>();
+		this.m_Renderer	= this.GetComponent<Renderer>();
 	}
 
 
@@ -137,38 +138,38 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 	{
 		yield return null;
 
-		m_RigidBody.interpolation				= RigidbodyInterpolation.Interpolate;
-		m_RigidBody.collisionDetectionMode		= CollisionDetectionMode.ContinuousDynamic;
-		m_RigidBody.maxAngularVelocity			= 0f;
+		this.m_RigidBody.interpolation				= RigidbodyInterpolation.Interpolate;
+		this.m_RigidBody.collisionDetectionMode		= CollisionDetectionMode.ContinuousDynamic;
+		this.m_RigidBody.maxAngularVelocity			= 0f;
 
 		yield return null;
 
 		// MotionType
-		Utils.Converters.StringToEnum( m_BulletSection.AsString("eBulletMotionType"), ref m_BulletMotionType );
+		Utils.Converters.StringToEnum(this.m_BulletSection.AsString("eBulletMotionType"), ref this.m_BulletMotionType );
 
 		// DamageType
-		Utils.Converters.StringToEnum( m_BulletSection.AsString("eDamageType"), ref m_DamageType );
+		Utils.Converters.StringToEnum(this.m_BulletSection.AsString("eDamageType"), ref this.m_DamageType );
 
 		// fDamage
-		m_Damage = m_BulletSection.AsFloat( "fDamage", m_Damage );
+		this.m_Damage = this.m_BulletSection.AsFloat( "fDamage", this.m_Damage );
 
 		// bHasDamageOverTime
-		m_HasDamageOverTime = m_BulletSection.AsBool( "bHasDamageOverTime", m_HasDamageOverTime );
+		this.m_HasDamageOverTime = this.m_BulletSection.AsBool( "bHasDamageOverTime", this.m_HasDamageOverTime );
 
 		// fOverTimeDamageDuration
-		m_OverTimeDamageDuration = m_BulletSection.AsFloat( "fOverTimeDamageDuration", m_OverTimeDamageDuration );
+		this.m_OverTimeDamageDuration = this.m_BulletSection.AsFloat( "fOverTimeDamageDuration", this.m_OverTimeDamageDuration );
 
 		// eOverTimeDamageType
-		Utils.Converters.StringToEnum( m_BulletSection.AsString("eOverTimeDamageType"), ref m_OverTimeDamageType );
+		Utils.Converters.StringToEnum(this.m_BulletSection.AsString("eOverTimeDamageType"), ref this.m_OverTimeDamageType );
 
 		// bCanPenetrate
-		m_BulletSection.bAsBool( "bCanPenetrate", ref m_CanPenetrate );
+		this.m_BulletSection.bAsBool( "bCanPenetrate", ref this.m_CanPenetrate );
 
 		// fVelocity
-		m_Velocity = m_BulletSection.AsFloat( "fVelocity", m_Velocity );
+		this.m_Velocity = this.m_BulletSection.AsFloat( "fVelocity", this.m_Velocity );
 
 		// fRange
-		m_Range = m_BulletSection.AsFloat( "fRange", m_Range );
+		this.m_Range = this.m_BulletSection.AsFloat( "fRange", this.m_Range );
 	}
 
 

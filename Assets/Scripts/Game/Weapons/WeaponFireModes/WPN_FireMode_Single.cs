@@ -6,10 +6,10 @@ using UnityEngine;
 // WPN_FireMode_Single
 public class WPN_FireMode_Single : WPN_FireMode_Base {
 
-	public override FireModes FireMode
+	public override EFireMode FireMode
 	{
 		get {
-			return FireModes.SINGLE;
+			return EFireMode.SINGLE;
 		}
 	}
 
@@ -20,16 +20,16 @@ public class WPN_FireMode_Single : WPN_FireMode_Base {
 	{
 		if ( fireFunction != null )
 		{
-			m_FireFunction = fireFunction;
-			m_FireDelay = shotDelay;
-			m_FireModule = fireModule;
+			this.m_FireFunction = fireFunction;
+			this.m_FireDelay = shotDelay;
+			this.m_FireModule = fireModule;
 		}
 	}
 	
 
 	public	override	void	ApplyModifier	( Database.Section modifier )
 	{
-		m_Modifiers.Add( modifier );
+		this.m_Modifiers.Add( modifier );
 	}
 
 	public	override	void	ResetBaseConfiguration()
@@ -39,7 +39,7 @@ public class WPN_FireMode_Single : WPN_FireMode_Base {
 
 	public	override	void	RemoveModifier( Database.Section modifier )
 	{
-		m_Modifiers.Remove( modifier );
+		this.m_Modifiers.Remove( modifier );
 	}
 
 
@@ -51,29 +51,29 @@ public class WPN_FireMode_Single : WPN_FireMode_Base {
 
 	public	override	bool	OnLoad			( StreamUnit streamUnit )
 	{
-		m_CurrentDelay = 0.0f;
+		this.m_CurrentDelay = 0.0f;
 		return true;
 	}
 
 	public	override	void	OnWeaponChange	()
 	{
-		m_CurrentDelay = 0.0f;
+		this.m_CurrentDelay = 0.0f;
 	}
 	
 
 	//	INTERNAL UPDATE
 	public	override	void	InternalUpdate( float DeltaTime, uint magazineSize )
 	{
-		m_CurrentDelay -= DeltaTime;
+		this.m_CurrentDelay -= DeltaTime;
 	}
 
 	//	START
 	public override		void	OnStart( float baseFireDispersion, float baseCamDeviation )
 	{
-		if ( m_CurrentDelay <= 0.0f )
+		if (this.m_CurrentDelay <= 0.0f )
 		{
-			m_FireFunction( baseFireDispersion, baseCamDeviation );
-			m_CurrentDelay = m_FireDelay;
+			this.m_FireFunction( baseFireDispersion, baseCamDeviation );
+			this.m_CurrentDelay = this.m_FireDelay;
 		}
 	}
 

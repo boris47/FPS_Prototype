@@ -163,19 +163,19 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 	// Awake
 	private void Awake()
 	{
-		m_ObjectRenderers = new Dictionary<uint, CustomOutlineData>();
+		this.m_ObjectRenderers = new Dictionary<uint, CustomOutlineData>();
 
-		m_HighlightRTID		= Shader.PropertyToID( "_HighlightRT" );
-		m_BlurredRTID		= Shader.PropertyToID( "_BlurredRT" );
-		m_TemporaryRTID		= Shader.PropertyToID( "_TemporaryRT" );
+		this.m_HighlightRTID		= Shader.PropertyToID( "_HighlightRT" );
+		this.m_BlurredRTID		= Shader.PropertyToID( "_BlurredRT" );
+		this.m_TemporaryRTID		= Shader.PropertyToID( "_TemporaryRT" );
 
-		m_HighlightMaterial	= new Material( Shader.Find( "Custom/Highlight" ) );
-		m_BlurMaterial		= new Material( Shader.Find( "Hidden/FastBlur" ) );
+		this.m_HighlightMaterial	= new Material( Shader.Find( "Custom/Highlight" ) );
+		this.m_BlurMaterial		= new Material( Shader.Find( "Hidden/FastBlur" ) );
 
-		m_CurrentResolutionX = Screen.width;
-		m_CurrentResolutionY = Screen.height;
-		m_RTWidth  = ( int ) ( m_CurrentResolutionX / ( float ) m_Resolution );
-		m_RTHeight = ( int ) ( m_CurrentResolutionY / ( float ) m_Resolution );
+		this.m_CurrentResolutionX = Screen.width;
+		this.m_CurrentResolutionY = Screen.height;
+		this.m_RTWidth  = ( int ) (this.m_CurrentResolutionX / ( float )this.m_Resolution );
+		this.m_RTHeight = ( int ) (this.m_CurrentResolutionY / ( float )this.m_Resolution );
 	}
 
 
@@ -199,8 +199,8 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 		};
 		
 		newID = NewId();
-		m_ObjectRenderers.Add( newID, customOutlineData );
-		RecreateCommandBuffer();
+		this.m_ObjectRenderers.Add( newID, customOutlineData );
+		this.RecreateCommandBuffer();
 	}
 
 
@@ -213,8 +213,8 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 			return;
 		}
 
-		m_ObjectRenderers.Remove( id );
-		RecreateCommandBuffer();
+		this.m_ObjectRenderers.Remove( id );
+		this.RecreateCommandBuffer();
 	}
 
 
@@ -225,8 +225,8 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 		if ( id == 0 || newRenderers == null )
 			return;
 
-		m_ObjectRenderers[id].renderers = newRenderers;
-		RecreateCommandBuffer();
+		this.m_ObjectRenderers[id].renderers = newRenderers;
+		this.RecreateCommandBuffer();
 	}
 
 
@@ -237,8 +237,8 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 		if ( id == 0 )
 			return;
 
-		m_ObjectRenderers[id].outlineData = outlineData;
-		RecreateCommandBuffer();
+		this.m_ObjectRenderers[id].outlineData = outlineData;
+		this.RecreateCommandBuffer();
 	}
 	
 
@@ -246,7 +246,7 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 	/// <summary> Clear every renderer from internal collection </summary>
 	public void ClearOutlineData()
 	{
-		m_ObjectRenderers.Clear();
+		this.m_ObjectRenderers.Clear();
 		commandBuffer.Clear();
 	}
 
@@ -255,13 +255,13 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 	/// This could be usefull if resolution is changed
 	private void OnPreRender()
 	{
-		if ( Screen.width != m_CurrentResolutionX || Screen.height != m_CurrentResolutionY )
+		if ( Screen.width != this.m_CurrentResolutionX || Screen.height != this.m_CurrentResolutionY )
 		{
-			m_CurrentResolutionX = Screen.width;
-			m_CurrentResolutionY = Screen.height;
-			m_RTWidth  = ( int ) ( m_CurrentResolutionX / ( float ) m_Resolution );
-			m_RTHeight = ( int ) ( m_CurrentResolutionY / ( float ) m_Resolution );
-			RecreateCommandBuffer();
+			this.m_CurrentResolutionX = Screen.width;
+			this.m_CurrentResolutionY = Screen.height;
+			this.m_RTWidth  = ( int ) (this.m_CurrentResolutionX / ( float )this.m_Resolution );
+			this.m_RTHeight = ( int ) (this.m_CurrentResolutionY / ( float )this.m_Resolution );
+			this.RecreateCommandBuffer();
 		}
 	}
 
@@ -271,7 +271,7 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 	{
 		if ( m_CommandBuffer != null )
 		{
-			RecreateCommandBuffer();
+			this.RecreateCommandBuffer();
 		}
 	}
 
@@ -280,16 +280,16 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 	{
 		commandBuffer.Clear();
 
-		if ( m_ObjectRenderers.Count == 0 || m_Camera == null )
+		if (this.m_ObjectRenderers.Count == 0 || m_Camera == null )
 			return;
 
 		// Initialization
-		commandBuffer.GetTemporaryRT( m_HighlightRTID, m_RTWidth, m_RTHeight, 0, FilterMode.Bilinear, RenderTextureFormat.ARGB32 );
-		commandBuffer.SetRenderTarget( m_HighlightRTID, BuiltinRenderTextureType.CurrentActive );
+		commandBuffer.GetTemporaryRT(this.m_HighlightRTID, this.m_RTWidth, this.m_RTHeight, 0, FilterMode.Bilinear, RenderTextureFormat.ARGB32 );
+		commandBuffer.SetRenderTarget(this.m_HighlightRTID, BuiltinRenderTextureType.CurrentActive );
 		commandBuffer.ClearRenderTarget( false, true, Color.clear );
 
 		// Rendering into texture
-		foreach ( KeyValuePair<uint, CustomOutlineData> superCollection in m_ObjectRenderers )
+		foreach ( KeyValuePair<uint, CustomOutlineData> superCollection in this.m_ObjectRenderers )
 		{
 			CustomOutlineData customOutlineData = superCollection.Value;
 			commandBuffer.SetGlobalColor( "_Color", customOutlineData.outlineData.color );
@@ -297,59 +297,59 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 			int pass = ( int ) customOutlineData.outlineData.sortingType;
 			foreach ( Renderer render in customOutlineData.renderers )
 			{
-				commandBuffer.DrawRenderer( render, m_HighlightMaterial, 0, pass );
+				commandBuffer.DrawRenderer( render, this.m_HighlightMaterial, 0, pass );
 			}
 		}
 
 		// Bluring texture
-		float widthMod = 1.0f / ( 1.0f * ( 1 << m_Downsample ) );
+		float widthMod = 1.0f / ( 1.0f * ( 1 << this.m_Downsample ) );
 
-		int rtW = m_RTWidth >> m_Downsample;
-		int rtH = m_RTHeight >> m_Downsample;
+		int rtW = this.m_RTWidth >> this.m_Downsample;
+		int rtH = this.m_RTHeight >> this.m_Downsample;
 
-		commandBuffer.GetTemporaryRT( m_BlurredRTID, rtW, rtH, 0, FilterMode.Bilinear, RenderTextureFormat.ARGB32 );
-		commandBuffer.GetTemporaryRT( m_TemporaryRTID, rtW, rtH, 0, FilterMode.Bilinear, RenderTextureFormat.ARGB32 );
+		commandBuffer.GetTemporaryRT(this.m_BlurredRTID, rtW, rtH, 0, FilterMode.Bilinear, RenderTextureFormat.ARGB32 );
+		commandBuffer.GetTemporaryRT(this.m_TemporaryRTID, rtW, rtH, 0, FilterMode.Bilinear, RenderTextureFormat.ARGB32 );
 
-		commandBuffer.Blit( m_HighlightRTID, m_TemporaryRTID, m_BlurMaterial, 0 );
+		commandBuffer.Blit(this.m_HighlightRTID, this.m_TemporaryRTID, this.m_BlurMaterial, 0 );
 
-		int passOffs = m_BlurType == BlurType.StandardGauss ? 0 : 2;
+		int passOffs = this.m_BlurType == BlurType.StandardGauss ? 0 : 2;
 
-		for ( int i = 0; i < m_BlurIterations; i++ )
+		for ( int i = 0; i < this.m_BlurIterations; i++ )
 		{
 			float iterationOffs = ( i * 1.0f );
-			float blurHorizParam = m_BlurSize * widthMod + iterationOffs;
-			float blurVertParam = -m_BlurSize * widthMod - iterationOffs;
+			float blurHorizParam = ( this.m_BlurSize * widthMod ) + iterationOffs;
+			float blurVertParam = -( this.m_BlurSize * widthMod ) - iterationOffs;
 
 			commandBuffer.SetGlobalVector( "_Parameter", new Vector4( blurHorizParam, blurVertParam ) );
 
-			commandBuffer.Blit( m_TemporaryRTID, m_BlurredRTID, m_BlurMaterial, 1 + passOffs );
-			commandBuffer.Blit( m_BlurredRTID, m_TemporaryRTID, m_BlurMaterial, 2 + passOffs );
+			commandBuffer.Blit(this.m_TemporaryRTID, this.m_BlurredRTID, this.m_BlurMaterial, 1 + passOffs );
+			commandBuffer.Blit(this.m_BlurredRTID, this.m_TemporaryRTID, this.m_BlurMaterial, 2 + passOffs );
 		}
 
 		// Occlusion
-		if ( m_FillType == FillType.Outline )
+		if (this.m_FillType == FillType.Outline )
 		{
 			// Excluding the original image from the blurred image, leaving out the areal alone
-			commandBuffer.SetGlobalTexture( "_SecondaryTex", m_HighlightRTID );
-			commandBuffer.Blit( m_TemporaryRTID, m_BlurredRTID, m_HighlightMaterial, 2 );
+			commandBuffer.SetGlobalTexture( "_SecondaryTex", this.m_HighlightRTID );
+			commandBuffer.Blit(this.m_TemporaryRTID, this.m_BlurredRTID, this.m_HighlightMaterial, 2 );
 
-			commandBuffer.SetGlobalTexture( "_SecondaryTex", m_BlurredRTID );
+			commandBuffer.SetGlobalTexture( "_SecondaryTex", this.m_BlurredRTID );
 		}
 		else // FillType.Fill
 		{
-			commandBuffer.SetGlobalTexture( "_SecondaryTex", m_TemporaryRTID );
+			commandBuffer.SetGlobalTexture( "_SecondaryTex", this.m_TemporaryRTID );
 		}
 
 		// Back buffer
-		commandBuffer.Blit( BuiltinRenderTextureType.CameraTarget, m_HighlightRTID );
+		commandBuffer.Blit( BuiltinRenderTextureType.CameraTarget, this.m_HighlightRTID );
 
 		// Overlay
-		commandBuffer.SetGlobalFloat( "_ControlValue", m_ControlValue );
-		commandBuffer.Blit( m_HighlightRTID, BuiltinRenderTextureType.CameraTarget, m_HighlightMaterial, ( int ) m_SelectionType );
+		commandBuffer.SetGlobalFloat( "_ControlValue", this.m_ControlValue );
+		commandBuffer.Blit(this.m_HighlightRTID, BuiltinRenderTextureType.CameraTarget, this.m_HighlightMaterial, ( int )this.m_SelectionType );
 
-		commandBuffer.ReleaseTemporaryRT( m_TemporaryRTID );
-		commandBuffer.ReleaseTemporaryRT( m_BlurredRTID );
-		commandBuffer.ReleaseTemporaryRT( m_HighlightRTID );
+		commandBuffer.ReleaseTemporaryRT(this.m_TemporaryRTID );
+		commandBuffer.ReleaseTemporaryRT(this.m_BlurredRTID );
+		commandBuffer.ReleaseTemporaryRT(this.m_HighlightRTID );
 	}
 
 }

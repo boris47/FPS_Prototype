@@ -8,7 +8,7 @@ public abstract	class AIBehaviour {
 
 	public	virtual	void				Setup( uint EntityId )
 	{
-		EntityData = Blackboard.GetData( EntityId );
+		this.EntityData = Blackboard.GetData( EntityId );
 	}
 
 	protected			void			print( string msg )

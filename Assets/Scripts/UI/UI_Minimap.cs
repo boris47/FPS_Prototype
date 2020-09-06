@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public sealed class UI_Minimap : MonoBehaviour, IStateDefiner {
 
 	private			Camera			m_TopViewCamera				= null;
-	private			bool			m_bIsVisible				= true;
+	private			bool			m_IsVisible					= true;
 	private			RawImage		m_RawImage					= null;
 	private			RenderTexture	m_MinimapRenderTexture		= null;
 
@@ -19,33 +19,33 @@ public sealed class UI_Minimap : MonoBehaviour, IStateDefiner {
 
 	public			RectTransform	GetRawImageRect()
 	{
-		return m_MiniMapRectTransform;
+		return this.m_MiniMapRectTransform;
 	}
 
 	public			bool			IsVisible()
 	{
-		return m_bIsVisible;
+		return this.m_IsVisible;
 	}
 
-	private			bool			m_bIsInitialized			= false;
+	private			bool			m_IsInitialized			= false;
 	bool IStateDefiner.IsInitialized
 	{
-		get { return m_bIsInitialized; }
+		get { return this.m_IsInitialized; }
 	}
 
 	string IStateDefiner.StateName
 	{
-		get { return name; }
+		get { return this.name; }
 	}
 
-	private			bool			m_bIsCompletedInitialization	= false;
+	private			bool			m_IsCompletedInitialization	= false;
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
 	IEnumerator IStateDefiner.Initialize()
 	{
-		if ( m_bIsInitialized == true )
+		if (this.m_IsInitialized == true )
 			yield break;
 
 		yield return null;
@@ -53,60 +53,60 @@ public sealed class UI_Minimap : MonoBehaviour, IStateDefiner {
 		CoroutinesManager.AddCoroutineToPendingCount( 1 );
 
 		// Trick where panel is set very on the bottom of ui and allowed to do onFrame stuf in coroutine, then gameobject is deactivated
-		Vector3 previousCanvasPosition = transform.position;
+		Vector3 previousCanvasPosition = this.transform.position;
 
-		m_bIsInitialized = true;
+		this.m_IsInitialized = true;
 		{
-			m_bIsInitialized &= transform.SearchComponent( ref m_RawImage, SearchContext.CHILDREN );
+			this.m_IsInitialized &= this.transform.SearchComponent( ref this.m_RawImage, ESearchContext.CHILDREN );
 
 			ResourceManager.LoadedData<RenderTexture> loadedResource = new ResourceManager.LoadedData<RenderTexture>();
 			yield return ResourceManager.LoadResourceAsyncCoroutine
 			(
 				ResourcePath:			"Textures/MinimapRenderTexture",
 				loadedResource:			loadedResource,
-				OnResourceLoaded :		(a) => { m_bIsInitialized &= true; m_MinimapRenderTexture = a; },
-				OnFailure:				(p) => m_bIsInitialized &= false
+				OnResourceLoaded :		(a) => { this.m_IsInitialized &= true; this.m_MinimapRenderTexture = a; },
+				OnFailure:				(p) => this.m_IsInitialized &= false
 			);
 
-			if ( m_bIsInitialized )
+			if (this.m_IsInitialized )
 			{
-				m_MinimapRenderTexture = loadedResource.Asset;
+				this.m_MinimapRenderTexture = loadedResource.Asset;
 
-				if ( m_CameraContainer != null )
+				if (this.m_CameraContainer != null )
 				{
-					Object.Destroy( m_CameraContainer );
+					Object.Destroy(this.m_CameraContainer );
 				}
 
-				m_CameraContainer = new GameObject("TopViewCamera");
-				m_CameraContainer.transform.position = Vector3.up * 100f;
+				this.m_CameraContainer = new GameObject("TopViewCamera");
+				this.m_CameraContainer.transform.position = Vector3.up * 100f;
 
-				m_TopViewCamera = m_CameraContainer.AddComponent<Camera>();
-				m_TopViewCamera.orthographic		= true;
-				m_TopViewCamera.orthographicSize	= 32f;
-				m_TopViewCamera.clearFlags			= CameraClearFlags.Depth;
-				DontDestroyOnLoad( m_CameraContainer );
+				this.m_TopViewCamera = this.m_CameraContainer.AddComponent<Camera>();
+				this.m_TopViewCamera.orthographic		= true;
+				this.m_TopViewCamera.orthographicSize	= 32f;
+				this.m_TopViewCamera.clearFlags			= CameraClearFlags.Depth;
+				DontDestroyOnLoad(this.m_CameraContainer );
 
-				m_TopViewCamera.allowMSAA			= false;
-				m_TopViewCamera.useOcclusionCulling	= false;
-				m_TopViewCamera.allowHDR			= false;
-				m_TopViewCamera.farClipPlane		= m_CameraContainer.transform.position.y * 2f;
-				m_TopViewCamera.targetTexture		= m_RawImage.texture as RenderTexture;
+				this.m_TopViewCamera.allowMSAA			= false;
+				this.m_TopViewCamera.useOcclusionCulling	= false;
+				this.m_TopViewCamera.allowHDR			= false;
+				this.m_TopViewCamera.farClipPlane		= this.m_CameraContainer.transform.position.y * 2f;
+				this.m_TopViewCamera.targetTexture		= this.m_RawImage.texture as RenderTexture;
 
 				yield return null;
 
-				m_MiniMapRectTransform = m_RawImage.transform as RectTransform;
+				this.m_MiniMapRectTransform = this.m_RawImage.transform as RectTransform;
 
-				m_HelperRectTransform = new GameObject("MinimapHelper").AddComponent<RectTransform>();
-				m_HelperRectTransform.SetParent( m_MiniMapRectTransform, worldPositionStays: false );
-				m_HelperRectTransform.anchorMin = Vector2.zero;
-				m_HelperRectTransform.anchorMax = Vector2.zero;
-				m_HelperRectTransform.gameObject.hideFlags = HideFlags.HideAndDontSave;
+				this.m_HelperRectTransform = new GameObject("MinimapHelper").AddComponent<RectTransform>();
+				this.m_HelperRectTransform.SetParent(this.m_MiniMapRectTransform, worldPositionStays: false );
+				this.m_HelperRectTransform.anchorMin = Vector2.zero;
+				this.m_HelperRectTransform.anchorMax = Vector2.zero;
+				this.m_HelperRectTransform.gameObject.hideFlags = HideFlags.HideAndDontSave;
 
-				m_RatioVector = new Vector2( m_MiniMapRectTransform.rect.width / m_TopViewCamera.pixelWidth, m_MiniMapRectTransform.rect.height / m_TopViewCamera.pixelHeight );
-				m_bIsCompletedInitialization = true;
+				this.m_RatioVector = new Vector2(this.m_MiniMapRectTransform.rect.width / this.m_TopViewCamera.pixelWidth, this.m_MiniMapRectTransform.rect.height / this.m_TopViewCamera.pixelHeight );
+				this.m_IsCompletedInitialization = true;
 			}
 
-			if ( m_bIsInitialized )
+			if (this.m_IsInitialized )
 			{	
 				CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 			}
@@ -130,7 +130,7 @@ public sealed class UI_Minimap : MonoBehaviour, IStateDefiner {
 	// Finalize
 	bool	 IStateDefiner.Finalize()
 	{
-		return m_bIsCompletedInitialization;
+		return this.m_IsCompletedInitialization;
 	}
 
 
@@ -139,76 +139,76 @@ public sealed class UI_Minimap : MonoBehaviour, IStateDefiner {
 	public bool GetPositionOnUI( Vector3 worldPosition, out Vector2 screenPointInWorldSpace )
 	{
 		//first we get screnPoint in camera viewport space
-		Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint (m_TopViewCamera, worldPosition);
+		Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint (this.m_TopViewCamera, worldPosition);
 		
 		// if render texture has different size of map rect size then we multiply by factor the scrrenPoint
-		if ( m_MinimapRenderTexture.width != m_MiniMapRectTransform.rect.width || m_MinimapRenderTexture.height != m_MiniMapRectTransform.rect.height )
+		if (this.m_MinimapRenderTexture.width != this.m_MiniMapRectTransform.rect.width || this.m_MinimapRenderTexture.height != this.m_MiniMapRectTransform.rect.height )
 		{
 			// then transform it to position in worldImage using its rect
-			screenPoint.x *= m_RatioVector.x;
-			screenPoint.y *= m_RatioVector.y;
+			screenPoint.x *= this.m_RatioVector.x;
+			screenPoint.y *= this.m_RatioVector.y;
 		}
 
 		//after positioning helper to that spot
-		m_HelperRectTransform.anchoredPosition = screenPoint;
+		this.m_HelperRectTransform.anchoredPosition = screenPoint;
 		
-		screenPointInWorldSpace = m_HelperRectTransform.position;
+		screenPointInWorldSpace = this.m_HelperRectTransform.position;
 
-		return RectTransformUtility.RectangleContainsScreenPoint( m_MiniMapRectTransform, screenPointInWorldSpace );
+		return RectTransformUtility.RectangleContainsScreenPoint(this.m_MiniMapRectTransform, screenPointInWorldSpace );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private void FixedUpdate()
 	{
-		if ( m_bIsCompletedInitialization == false || Player.Instance.IsNotNull() == false )
+		if (this.m_IsCompletedInitialization == false || Player.Instance.IsNotNull() == false )
 			return;
 
-		Vector3 prevPosition = m_TopViewCamera.transform.position;
+		Vector3 prevPosition = this.m_TopViewCamera.transform.position;
 		prevPosition.x = Player.Instance.transform.position.x;
 		prevPosition.z = Player.Instance.transform.position.z;
-		m_TopViewCamera.transform.position = prevPosition;
+		this.m_TopViewCamera.transform.position = prevPosition;
 		
 		Vector3 planePoint		= CameraControl.Instance.Transform.position;
 		Vector3 planeNormal		= Vector3.up;
 		Vector3 point			= CameraControl.Instance.Transform.position + CameraControl.Instance.Transform.forward * 100f;
 		Vector3 projectedPoint	= Utils.Math.ProjectPointOnPlane( planeNormal, planePoint, point );
 		Vector3 upwards			= ( projectedPoint - planePoint ).normalized;
-		
-		m_TopViewCamera.transform.rotation = Quaternion.LookRotation( Vector3.down, upwards );
+
+		this.m_TopViewCamera.transform.rotation = Quaternion.LookRotation( Vector3.down, upwards );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public	void	Show()
 	{
-		if ( m_bIsCompletedInitialization == false )
+		if (this.m_IsCompletedInitialization == false )
 			return;
 
-		m_bIsVisible = true;
+		this.m_IsVisible = true;
 
 		const float alphaValue = 0.7333333333333333f;
 		Color colorToAssign = Color.white;
 		colorToAssign.a = alphaValue;
-		m_RawImage.material.color = colorToAssign;
+		this.m_RawImage.material.color = colorToAssign;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public	void	Hide()
 	{
-		if ( m_bIsCompletedInitialization == false )
+		if (this.m_IsCompletedInitialization == false )
 			return;
 
-		m_bIsVisible = false;
-		m_RawImage.material.color = Color.clear;
+		this.m_IsVisible = false;
+		this.m_RawImage.material.color = Color.clear;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private void OnDestroy()
 	{
-		Show();
+		this.Show();
 	}
 
 }

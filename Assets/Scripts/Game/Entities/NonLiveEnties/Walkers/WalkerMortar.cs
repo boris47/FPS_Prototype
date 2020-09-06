@@ -9,7 +9,7 @@ public class WalkerMortar : Walker {
 	//////////////////////////////////////////////////////////////////////////
 	protected override void Awake()
 	{
-		m_SectionName = this.GetType().FullName;
+		this.m_SectionName = this.GetType().FullName;
 
 		base.Awake();
 	}

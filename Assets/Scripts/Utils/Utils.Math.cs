@@ -72,7 +72,7 @@ namespace Utils {
 		/// <returns></returns>
 		public static float ScaleBetween( float CurrentValue, float MinValue, float MaxValue, float MinScale, float MaxScale )
 		{
-			return MinScale + ( CurrentValue - MinValue ) /( MaxValue - MinValue ) * ( MaxScale - MinScale );
+			return MinScale + (( CurrentValue - MinValue ) / ( MaxValue - MinValue ) * ( MaxScale - MinScale ));
 		}
 
 
@@ -174,15 +174,15 @@ namespace Utils {
 			Mesh aMesh = MeshFilter.sharedMesh;
 			Vector3 aLocalPoint = MeshFilter.transform.InverseTransformPoint(WorldPosition);
 			Plane plane = new Plane();
-			
-			var verts = aMesh.vertices;
-			var tris = aMesh.triangles;
+
+			Vector3[] verts = aMesh.vertices;
+			int[] tris = aMesh.triangles;
 			int triangleCount = tris.Length / 3;
 			for ( int i = 0; i < triangleCount; i++ )
 			{
-				var V1 = verts[ tris[ i * 3 ] ];
-				var V2 = verts[ tris[ i * 3 + 1 ] ];
-				var V3 = verts[ tris[ i * 3 + 2 ] ];
+				Vector3 V1 = verts[ tris[ i * 3 ] ];
+				Vector3 V2 = verts[ tris[ i * 3 + 1 ] ];
+				Vector3 V3 = verts[ tris[ i * 3 + 2 ] ];
 				plane.Set3Points( V1, V2, V3 );
 				if ( plane.GetSide( aLocalPoint ) )
 					return false;
@@ -246,7 +246,7 @@ namespace Utils {
 				targetRelativePosition:	targetRelativePosition,
 				targetRelativeVelocity:	targetRelativeVelocity
 			);
-			return targetPosition + t * ( targetRelativeVelocity );
+			return targetPosition + (t * targetRelativeVelocity );
 		}
 
 		//first-order intercept using relative target position

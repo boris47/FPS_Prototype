@@ -3,107 +3,105 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public sealed class UI_Audio : MonoBehaviour, IUIOptions, IStateDefiner {
-
-	// Registry Keys
-	private	const	string	FLAG_SAVED_AUDIO_SETTINGS	= "bSavedAudioSettings";
-	private	const	string	VAR_MUSIC_VOLUME			= "iMusicVolume";
-	private	const	string	VAR_SOUND_VOLUME			= "iSoundVolume";
-
-
-	// CHANGES STRUCTURES
-	// ---------------------------
-	private struct VolumeData {
-		public	float MusicVolume;
-		public	float SoundVolume;
-		public	bool isDirty;
-	}
-	private	VolumeData m_VolumeData;
-
-
+public sealed class UI_Audio : MonoBehaviour, IUIOptions, IStateDefiner
+{
 	// UI Components
 	private	Slider			m_MusicSlider				= null;
 	private	Slider			m_SoundSlider				= null;
 	private	Button			m_ApplyButton				= null;
 	private	Button			m_ResetButton				= null;
 
-	private	bool			m_bIsInitialized			= false;
-	bool IStateDefiner.IsInitialized
-	{
-		get { return m_bIsInitialized; }
-	}
+	private	bool			m_IsInitialized			= false;
 
-	string IStateDefiner.StateName
-	{
-		get { return name; }
-	}
+	#region IStateDefiner
+
+	//------------------------------------------------------------
+	bool IStateDefiner.IsInitialized => this.m_IsInitialized = false;
+
+
+	//------------------------------------------------------------
+	string IStateDefiner.StateName => this.name;
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Initialize
 	IEnumerator IStateDefiner.Initialize()
 	{
-		if ( m_bIsInitialized == true )
-			yield break;
-		
-		CoroutinesManager.AddCoroutineToPendingCount( 1 );
-
-		m_bIsInitialized = true;
+		if (this.m_IsInitialized == true)
 		{
-			m_bIsInitialized &= transform.SearchComponentInChild( "Slider_MusicVolume", ref m_MusicSlider );
-			m_bIsInitialized &= transform.SearchComponentInChild( "Slider_SoundVolume", ref m_SoundSlider );
+			yield break;
+		}
 
-			yield return null;
+		this.OnEnable();
+		this.OnApplyChanges();
 
-			if ( m_bIsInitialized &= transform.SearchComponentInChild( "ApplyButton", ref m_ApplyButton ) )
+		CoroutinesManager.AddCoroutineToPendingCount(1);
+
+		this.m_IsInitialized = true;
+		{
+			if (this.m_IsInitialized &= this.transform.SearchComponentInChild("Slider_MusicVolume", ref this.m_MusicSlider))
 			{
-				m_ApplyButton.onClick.AddListener
-				(	
-					delegate()
-					{
-						UIManager.Confirmation.Show( "Apply Changes?", OnApplyChanges, delegate { ReadFromRegistry(); UpdateUI(); } );
-					}
-				);
-				m_ApplyButton.interactable = false;
+				this.m_MusicSlider.onValueChanged.AddListener((float newValue) =>
+				{
+					UserSettings.AudioSettings.OnMusicVolumeSet(newValue);
+					this.m_ApplyButton.interactable = true;
+				});
 			}
 
 			yield return null;
 
-			if ( m_bIsInitialized &= transform.SearchComponentInChild( "ResetButton", ref m_ResetButton ) )
+			if (this.m_IsInitialized &= this.transform.SearchComponentInChild("Slider_SoundVolume", ref this.m_SoundSlider))
 			{
-				m_ResetButton.onClick.AddListener
-				(
-					delegate()
-					{
-						UIManager.Confirmation.Show( "Reset?", ApplyDefaults, delegate { ReadFromRegistry(); UpdateUI(); } );
-					}	
-				);
+				this.m_SoundSlider.onValueChanged.AddListener((float newValue) =>
+				{
+					UserSettings.AudioSettings.OnSoundsVolumeSet(newValue);
+					this.m_ApplyButton.interactable = true;
+				});
 			}
 
 			yield return null;
 
-			if ( m_bIsInitialized )
+			if (this.m_IsInitialized &= this.transform.SearchComponentInChild("ApplyButton", ref this.m_ApplyButton))
 			{
-				OnEnable();
+				this.m_ApplyButton.onClick.AddListener(() =>
+				{
+					UIManager.Confirmation.Show("Apply Changes?", this.OnApplyChanges, () => { UserSettings.AudioSettings.ReadFromRegistry(); this.UpdateUI(); });
+				});
+				this.m_ApplyButton.interactable = false;
+			}
+
+			yield return null;
+
+			if (this.m_IsInitialized &= this.transform.SearchComponentInChild("ResetButton", ref this.m_ResetButton))
+			{
+				this.m_ResetButton.onClick.AddListener(() =>
+				{
+					UIManager.Confirmation.Show("Reset?", () => { UserSettings.AudioSettings.ApplyDefaults(); this.UpdateUI(); });
+				});
+			}
+
+			yield return null;
+
+			if (this.m_IsInitialized)
+			{
+				this.OnEnable();
 
 				yield return null;
 
-				OnApplyChanges();
+				this.OnApplyChanges();
 
-				CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
+				CoroutinesManager.RemoveCoroutineFromPendingCount(1);
 
 				yield return null;
 			}
 			else
 			{
-				Debug.LogError( "UI_Audio: Bad initialization!!!" );
+				Debug.LogError("UI_Audio: Bad initialization!!!");
 			}
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ReInit
 	IEnumerator IStateDefiner.ReInit()
 	{
 		yield return null;
@@ -111,186 +109,66 @@ public sealed class UI_Audio : MonoBehaviour, IUIOptions, IStateDefiner {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Finalize
-	bool	 IStateDefiner.Finalize()
+	bool IStateDefiner.Finalize()
 	{
-		return m_bIsInitialized;
+		return this.m_IsInitialized;
 	}
 
+	#endregion
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnEnable
 	public void OnEnable()
 	{
-		if ( m_bIsInitialized == false )
+		if (this.m_IsInitialized == false)
 		{
 			return;
 		}
 
-		if ( PlayerPrefs.HasKey( FLAG_SAVED_AUDIO_SETTINGS ) == true )
-		{
-			ReadFromRegistry();
-
-			UpdateUI();
-		}
-		else
-		{
-			ApplyDefaults();
-
-			PlayerPrefs.SetString( FLAG_SAVED_AUDIO_SETTINGS, "1" );
-		}
+		UserSettings.AudioSettings.OnEnable();
+		this.UpdateUI();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnMusicVolumeSet
-	public	void	OnMusicVolumeSet( float value )
-	{
-		if ( m_bIsInitialized == false )
-		{
-			return;
-		}
-
-		SoundManager.Instance.MusicVolume = value;
-		m_VolumeData.MusicVolume = value;
-		m_VolumeData.isDirty = true;
-		m_ApplyButton.interactable = true;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnSoundsVolumeSet
-	public	void	OnSoundsVolumeSet( float value )
-	{
-		if ( m_bIsInitialized == false )
-		{
-			return;
-		}
-
-		SoundManager.Instance.SoundVolume = value;
-		m_VolumeData.SoundVolume = value;
-		m_VolumeData.isDirty = true;
-		m_ApplyButton.interactable = true;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// ApplyDefaults
-	public	void	ApplyDefaults()
-	{
-		if ( m_bIsInitialized == false )
-		{
-			return;
-		}
-
-		// Remove keys from registry
-		Reset();
-		{
-			m_VolumeData.MusicVolume = 1f;
-			m_VolumeData.SoundVolume = 1f;
-			m_VolumeData.isDirty = false;
-		}
-		// Save new keys into registry
-		SaveToRegistry();
-
-		//Update UI components
-		UpdateUI();
-
-		// Apply the default settings
-		OnApplyChanges();
-
-		// Reset buttons state
-		m_ApplyButton.interactable = false;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// ReadFromRegistry
-	/// <summary> Read value from Registry </summary>
-	public	void	ReadFromRegistry()
-	{
-		if ( m_bIsInitialized == false )
-		{
-			return;
-		}
-
-		m_VolumeData.MusicVolume = PlayerPrefs.GetFloat( VAR_MUSIC_VOLUME );
-		m_VolumeData.SoundVolume = PlayerPrefs.GetFloat( VAR_SOUND_VOLUME );
-		m_VolumeData.isDirty = true;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// ApplyDefaults
-	/// <summary> Updates UI Components </summary>
-	public	void	UpdateUI()
-	{
-		if ( m_bIsInitialized == false )
-		{
-			return;
-		}
-
-		m_MusicSlider.value = m_VolumeData.MusicVolume;
-		m_SoundSlider.value = m_VolumeData.SoundVolume;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// SaveToRegistry
-	/// <summary> Save settings </summary>
-	public	void	SaveToRegistry()
-	{
-		if ( m_bIsInitialized == false )
-		{
-			return;
-		}
-
-		// Save settings
-		{
-			PlayerPrefs.SetFloat( VAR_MUSIC_VOLUME, m_VolumeData.MusicVolume );
-			PlayerPrefs.SetFloat( VAR_SOUND_VOLUME, m_VolumeData.SoundVolume );
-		}
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnApplyChanges
 	/// <summary> Apply changes </summary>
-	public	void	OnApplyChanges()
+	public void OnApplyChanges()
 	{
-		if ( m_bIsInitialized == false )
+		if (this.m_IsInitialized == false)
 		{
 			return;
 		}
 
-		if ( m_VolumeData.isDirty )
-		{
-			m_VolumeData.isDirty = false;
-			SoundManager.Instance.MusicVolume = m_VolumeData.MusicVolume;
-			SoundManager.Instance.SoundVolume = m_VolumeData.SoundVolume;
-		}
-		// Save settings
-		SaveToRegistry();
-
-		m_ApplyButton.interactable = false;
+		UserSettings.AudioSettings.OnApplyChanges();
+		this.m_ApplyButton.interactable = false;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Reset
-	/// <summary> Remove key from registry </summary>
-	public	void	Reset()
+	/// <summary> Updates UI Components </summary>
+	public void UpdateUI()
 	{
-		if ( m_bIsInitialized == false )
+		if (this.m_IsInitialized == false)
 		{
 			return;
 		}
 
-		PlayerPrefs.DeleteKey( FLAG_SAVED_AUDIO_SETTINGS );
+		UserSettings.AudioSettings.AudioData data = UserSettings.AudioSettings.GetAudioData();
+		this.m_MusicSlider.value = data.MusicVolume;
+		this.m_SoundSlider.value = data.SoundVolume;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> Remove key from registry </summary>
+	public void Reset()
+	{
+		if (this.m_IsInitialized == false)
 		{
-			PlayerPrefs.DeleteKey( VAR_MUSIC_VOLUME );
-			PlayerPrefs.DeleteKey( VAR_SOUND_VOLUME );
+			return;
 		}
+
+		UserSettings.AudioSettings.Reset();
+		this.UpdateUI();
 	}
 
 }

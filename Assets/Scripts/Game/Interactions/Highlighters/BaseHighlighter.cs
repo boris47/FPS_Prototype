@@ -12,7 +12,7 @@ public abstract class BaseHighlighter : MonoBehaviour {
 	[SerializeField, ReadOnly]
 	protected				bool		m_IsActive		= false;
 
-	public					bool		IsActive => m_IsActive;
+	public					bool		IsActive => this.m_IsActive;
 
 
 	public		abstract	bool		Highlight( Color? color = null );

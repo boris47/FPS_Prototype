@@ -20,19 +20,19 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 
 	public	virtual	float			ZoomSensitivity
 	{
-		get { return m_ZoomSensitivity; }
+		get { return this.m_ZoomSensitivity; }
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public	override	bool	Setup			( IWeapon w, WeaponSlots slot )
+	public	override	bool	Setup			( IWeapon w, EWeaponSlots slot )
 	{
 		string moduleSectionName = this.GetType().FullName;
-		m_WeaponRef = w;
-		if ( GlobalManager.Configs.bGetSection( moduleSectionName, ref m_ModuleSection ) == false )			// Get Module Section
+		this.m_WeaponRef = w;
+		if ( GlobalManager.Configs.GetSection( moduleSectionName, ref this.m_ModuleSection ) == false )			// Get Module Section
 			return false;
 
-		if ( InternalSetup( m_ModuleSection ) == false )
+		if (this.InternalSetup(this.m_ModuleSection ) == false )
 			return false;
 
 		return true;
@@ -44,16 +44,16 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 	{
 		Vector3 zoomOffset		= Vector3.zero;
 		moduleSection.bAsVec3( "ZoomOffset", ref zoomOffset, Vector3.zero );
-		float zoomFactor		= moduleSection.AsFloat( "ZoomFactor",		m_ZoomFactor );
-		float zoomingTime		= moduleSection.AsFloat( "ZoomingTime",		m_ZoomFactor );
-		float zoomSensitivity	= moduleSection.AsFloat( "ZoomSensitivity",	m_ZoomFactor );
+		float zoomFactor		= moduleSection.AsFloat( "ZoomFactor", this.m_ZoomFactor );
+		float zoomingTime		= moduleSection.AsFloat( "ZoomingTime", this.m_ZoomFactor );
+		float zoomSensitivity	= moduleSection.AsFloat( "ZoomSensitivity", this.m_ZoomFactor );
 		string FramePath		= moduleSection.AsString( "FramePath", "" );
 		string ScopePath		= moduleSection.AsString( "ScopePath", "" );
 
-		m_ZoomOffset			= zoomOffset;
-		m_ZoomFactor			= zoomFactor;
-		m_ZoomingTime			= zoomingTime;
-		m_ZoomSensitivity		= zoomSensitivity;
+		this.m_ZoomOffset			= zoomOffset;
+		this.m_ZoomFactor			= zoomFactor;
+		this.m_ZoomingTime			= zoomingTime;
+		this.m_ZoomSensitivity		= zoomSensitivity;
 		
 		// Image frame
 		if ( FramePath.Length > 0 )
@@ -64,7 +64,7 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 				Transform parent = UIManager.InGame.transform;
 				if ( t && t.transform.HasComponent<Image>() )
 				{
-					m_ZoomFrame = Instantiate( t, parent: parent ).GetComponent<Image>();
+					this.m_ZoomFrame = Instantiate( t, parent: parent ).GetComponent<Image>();
 
 				}
 			};
@@ -76,7 +76,7 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 		if ( ScopePath.Length > 0 )
 		{
 			Transform opticSpot = null;
-			bool bHasSpot = transform.SearchChildWithName( "OpticSpot", ref opticSpot );
+			bool bHasSpot = this.transform.SearchChildWithName( "OpticSpot", ref opticSpot );
 			if ( bHasSpot )
 			{
 				ResourceManager.LoadedData<GameObject> ScopeObject = new ResourceManager.LoadedData<GameObject>();
@@ -84,9 +84,9 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 				{
 					if ( t.transform.HasComponent<Scope>() )
 					{
-						m_Scope = Instantiate( t, opticSpot ).GetComponent<Scope>();
-						m_Scope.transform.localPosition = Vector3.zero;
-						m_Scope.transform.localRotation = Quaternion.identity;
+						this.m_Scope = Instantiate( t, opticSpot ).GetComponent<Scope>();
+						this.m_Scope.transform.localPosition = Vector3.zero;
+						this.m_Scope.transform.localRotation = Quaternion.identity;
 					}
 				};
 				ResourceManager.LoadResourceAsync( ScopePath, ScopeObject, onLoadSuccess );
@@ -170,21 +170,21 @@ public	struct ZoomWeaponData {
 		}
 		else
 		{
-			WeaponManager.Instance.ZoomIn( m_WeaponRef.ZoomOffset, m_WeaponRef.ZoomFactor, m_WeaponRef.ZoomingTime, m_WeaponRef.ZoomSensitivity, null );
+			WeaponManager.Instance.ZoomIn(this.m_WeaponRef.ZoomOffset, this.m_WeaponRef.ZoomFactor, this.m_WeaponRef.ZoomingTime, this.m_WeaponRef.ZoomSensitivity, null );
 		}
 	}
 
 
 	private void OnDestroy()
 	{
-		if ( m_ZoomFrame )
+		if (this.m_ZoomFrame )
 		{
-			Destroy( m_ZoomFrame.gameObject );
+			Destroy(this.m_ZoomFrame.gameObject );
 		}
 
-		if ( m_Scope )
+		if (this.m_Scope )
 		{
-			Destroy( m_Scope.gameObject );
+			Destroy(this.m_Scope.gameObject );
 		}
 	}
 
@@ -206,7 +206,7 @@ public class WPN_WeaponModule_OpticZoom : WPN_WeaponModule_Zoom {
 		}
 		else
 		{
-			WeaponManager.Instance.ZoomIn( m_ZoomOffset, m_ZoomFactor, m_ZoomingTime, m_ZoomSensitivity, m_ZoomFrame );
+			WeaponManager.Instance.ZoomIn(this.m_ZoomOffset, this.m_ZoomFactor, this.m_ZoomingTime, this.m_ZoomSensitivity, this.m_ZoomFrame );
 		}
 	}
 

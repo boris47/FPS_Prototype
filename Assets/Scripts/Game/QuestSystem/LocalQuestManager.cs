@@ -7,7 +7,7 @@ namespace QuestSystem {
 
 	
 
-	public class LocalQuestManager : MonoBehaviour, IQuestManager {
+	public sealed class LocalQuestManager : MonoBehaviour, IQuestManager {
 
 		private		static IQuestManager		m_Instance						= null;
 		public		static	IQuestManager		Instance
@@ -28,14 +28,14 @@ namespace QuestSystem {
 			m_Instance = this;
 
 			// Already assigned
-			if ( m_LocalQuests.Count > 0 )
+			if (this.m_LocalQuests.Count > 0 )
 			{
-				foreach( IQuest q in m_LocalQuests )
+				foreach( IQuest q in this.m_LocalQuests )
 				{
-					q.Initialize( this, OnQuestCompleted );
+					q.Initialize( this, this.OnQuestCompleted );
 				}
-			
-				m_LocalQuests[0].Activate();
+
+				this.m_LocalQuests[0].Activate();
 			}
 		}
 
@@ -52,10 +52,10 @@ namespace QuestSystem {
 		// OnQuestCompleted
 		private	void	OnQuestCompleted( IQuest completedQuest )
 		{
-			if ( completedQuest.Scope != QuestScope.LOCAL )
+			if ( completedQuest.Scope != EQuestScope.LOCAL )
 				return;
 
-			bool bAreQuestsCompleted = m_LocalQuests.TrueForAll( ( Quest q ) => { return q.IsCompleted == true; } );
+			bool bAreQuestsCompleted = this.m_LocalQuests.TrueForAll( ( Quest q ) => { return q.IsCompleted == true; } );
 			if ( bAreQuestsCompleted )
 			{
 				if ( GlobalQuestManager.ShowDebugInfo )
@@ -63,27 +63,27 @@ namespace QuestSystem {
 			}
 			else
 			{
-				int nextIndex = ( m_LocalQuests.IndexOf( completedQuest as Quest ) + 1 );
-				if ( nextIndex < m_LocalQuests.Count )
+				int nextIndex = (this.m_LocalQuests.IndexOf( completedQuest as Quest ) + 1 );
+				if ( nextIndex < this.m_LocalQuests.Count )
 				{
-					IQuest nextQuest = m_LocalQuests[ nextIndex ];
+					IQuest nextQuest = this.m_LocalQuests[ nextIndex ];
 					nextQuest.Activate();
 				}
 			}
 
 			IObjective objective = null;
-			GetObjectiveByID( "LocationToReach", ref objective );
+			this.GetObjectiveByID( "LocationToReach", ref objective );
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// GetQuestStatus ( Interface )
-		QuestStatus IQuestManager.GetQuestStatus( uint questIndex )
+		EQuestStatus IQuestManager.GetQuestStatus( uint questIndex )
 		{
-			if ( m_LocalQuests.Count > questIndex )
-				return QuestStatus.NONE;
+			if (this.m_LocalQuests.Count > questIndex )
+				return EQuestStatus.NONE;
 
-			IQuest quest = m_LocalQuests[ (int)questIndex ];
+			IQuest quest = this.m_LocalQuests[ (int)questIndex ];
 			return quest.Status;
 		}
 
@@ -95,15 +95,15 @@ namespace QuestSystem {
 			if ( newQuest == null )
 				return false;
 
-			if ( newQuest.Status == QuestStatus.NONE )
+			if ( newQuest.Status == EQuestStatus.NONE )
 				return false;
 
 			Quest quest = newQuest as Quest;
-			if ( m_LocalQuests.Contains( quest ) == false )
+			if (this.m_LocalQuests.Contains( quest ) == false )
 				return false;
 
-			m_LocalQuests.Add( quest );
-			newQuest.Initialize( this, OnQuestCompleted );
+			this.m_LocalQuests.Add( quest );
+			newQuest.Initialize( this, this.OnQuestCompleted );
 			if ( activateNow )
 			{
 				newQuest.Activate();
@@ -116,18 +116,18 @@ namespace QuestSystem {
 		// GetQuestCount ( Interface )
 		int IQuestManager.GetQuestCount()
 		{
-			return m_LocalQuests.Count;
+			return this.m_LocalQuests.Count;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// GetQuestSope ( Interface )
-		QuestScope IQuestManager.GetQuestSope( uint questIndex )
+		EQuestScope IQuestManager.GetQuestSope( uint questIndex )
 		{
-			if ( m_LocalQuests.Count > questIndex )
-				return QuestScope.NONE;
+			if (this.m_LocalQuests.Count > questIndex )
+				return EQuestScope.NONE;
 
-			IQuest nextQuest = m_LocalQuests[ (int)questIndex ];
+			IQuest nextQuest = this.m_LocalQuests[ (int)questIndex ];
 			return nextQuest.Scope;
 		}
 

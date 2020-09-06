@@ -16,15 +16,15 @@ public sealed class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 
 
 
-	private	bool			m_bIsInitialized			= false;
+	private	bool			m_IsInitialized			= false;
 	bool IStateDefiner.IsInitialized
 	{
-		get { return m_bIsInitialized; }
+		get { return this.m_IsInitialized; }
 	}
 
 	string IStateDefiner.StateName
 	{
-		get { return name; }
+		get { return this.name; }
 	}
 
 
@@ -32,31 +32,31 @@ public sealed class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 	// Initialize
 	IEnumerator IStateDefiner.Initialize()
 	{
-		if ( m_bIsInitialized == true )
+		if (this.m_IsInitialized == true )
 			yield break;
 
 		CoroutinesManager.AddCoroutineToPendingCount( 1 );
 
-		m_bIsInitialized = true;
+		this.m_IsInitialized = true;
 		{
 			// RESUME BUTTON
-			if ( m_bIsInitialized &= transform.SearchComponentInChild( "Button_Resume", ref m_ResumeButton ) )
+			if (this.m_IsInitialized &= this.transform.SearchComponentInChild( "Button_Resume", ref this.m_ResumeButton ) )
 			{
-				m_ResumeButton.onClick.AddListener( delegate()
+				this.m_ResumeButton.onClick.AddListener( delegate()
 				{
 					//UI.Instance.SetPauseMenuState( false );
-					Resume();
+					this.Resume();
 				} );
 			}
 		/*
 			// SAVE BUTTON
-			if ( m_bIsInitialized &= transform.SearchComponentInChild( "Button_Save", ref m_SaveButton ) )
+			if ( m_IsInitialized &= transform.SearchComponentInChild( "Button_Save", ref m_SaveButton ) )
 			{
 				m_SaveButton.onClick.AddListener( Save );
 			}
 
 			// SETTINGS BUTTON
-			if ( m_bIsInitialized &= transform.SearchComponentInChild( "Button_Settings", ref m_SettingsButton ) )
+			if ( m_IsInitialized &= transform.SearchComponentInChild( "Button_Settings", ref m_SettingsButton ) )
 			{
 				m_SettingsButton.onClick.AddListener( delegate()
 				{
@@ -65,7 +65,7 @@ public sealed class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 			}
 
 			// SETTINGS BUTTON
-			if ( m_bIsInitialized &= transform.SearchComponentInChild( "Button_MainMenu", ref m_MainMenuButton ) )
+			if ( m_IsInitialized &= transform.SearchComponentInChild( "Button_MainMenu", ref m_MainMenuButton ) )
 			{
 				m_MainMenuButton.onClick.AddListener( delegate()
 				{
@@ -74,7 +74,7 @@ public sealed class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 			}
 
 			// SETTINGS BUTTON
-			if ( m_bIsInitialized &= transform.SearchComponentInChild( "Button_Quit", ref m_QuitButton ) )
+			if ( m_IsInitialized &= transform.SearchComponentInChild( "Button_Quit", ref m_QuitButton ) )
 			{
 				m_QuitButton.onClick.AddListener( delegate()
 				{
@@ -84,7 +84,7 @@ public sealed class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 			*/
 		}
 
-		if ( m_bIsInitialized )
+		if (this.m_IsInitialized )
 		{
 			CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 		}
@@ -107,7 +107,7 @@ public sealed class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 	// Finalize
 	bool	 IStateDefiner.Finalize()
 	{
-		return m_bIsInitialized;
+		return this.m_IsInitialized;
 	}
 	
 
@@ -138,7 +138,7 @@ public sealed class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 		UIManager.EffectFrame.color = Color.black;
 
 		// Hide Pause menu UI
-		gameObject.SetActive( false );
+		this.gameObject.SetActive( false );
 
 		// update current active transform
 		UIManager.Instance.GoToMenu( UIManager.MainMenu );
@@ -152,7 +152,7 @@ public sealed class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 		// Load menu
 		CustomSceneManager.LoadSceneData loadSceneData = new CustomSceneManager.LoadSceneData()
 		{
-			eScene = SceneEnumeration.MAIN_MENU
+			eScene = ESceneEnumeration.MAIN_MENU
 		};
 		CustomSceneManager.LoadSceneAsync( loadSceneData );
 	}
@@ -171,7 +171,7 @@ public sealed class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 		// Pause Event
 		if ( Input.GetKeyDown( KeyCode.Escape ) && GameManager.IsPaused == true )
 		{
-			Resume();
+			this.Resume();
 		}
 	}
 

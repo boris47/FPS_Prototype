@@ -11,7 +11,8 @@ public struct KeyValue {
 };
 
 
-public enum SearchContext {
+public enum ESearchContext
+{
 	/// <summary> Only on this object </summary>
 	LOCAL,
 	/// <summary> On this object and children </summary>
@@ -127,7 +128,7 @@ namespace Utils {
 			if ( results.Length > 1 )
 			{
 				string msg = "Multiple components found:\n";
-				foreach ( var a in results )
+				foreach ( T a in results )
 				{
 					msg += "Root: " + a.transform.root.name + "\n";
 				}
@@ -193,16 +194,12 @@ namespace Utils {
 				}
 			}
 
-			// MESH FILTER MESH
-			MeshFilter sourceMeshFilter = null, destMeshFilter = null;
-			if ( sourceObj.TryGetComponent( out sourceMeshFilter ) && destinationObj.TryGetComponent( out destMeshFilter ) )
+			if ( sourceObj.TryGetComponent( out MeshFilter sourceMeshFilter ) && destinationObj.TryGetComponent( out MeshFilter destMeshFilter ) )
 			{
 				destMeshFilter.mesh = sourceMeshFilter.mesh;
 			}
 
-			//	RENDERER MATERIAL
-			Renderer sourceRenderer = null, destRenderer = null;
-			if ( sourceObj.TryGetComponent( out sourceRenderer ) && destinationObj.TryGetComponent( out destRenderer ) )
+			if ( sourceObj.TryGetComponent( out Renderer sourceRenderer ) && destinationObj.TryGetComponent( out Renderer destRenderer ) )
 			{
 				destRenderer.material = sourceRenderer.material;
 			}
@@ -213,31 +210,31 @@ namespace Utils {
 
 
 		////////////////////////////////////////////////
-		private	static	T[]		SearchResults<T>( GameObject GameObject, SearchContext Context )
+		private	static	T[]		SearchResults<T>( GameObject GameObject, ESearchContext Context )
 		{
 			T[] results = null;
 			
 			switch ( Context )
 			{
-				case SearchContext.LOCAL:
+				case ESearchContext.LOCAL:
 				{
 					results = GameObject.GetComponents<T>();
 					break;
 				}
 					
-				case SearchContext.CHILDREN:
+				case ESearchContext.CHILDREN:
 				{
 					results = GameObject.GetComponentsInChildren<T>();
 					break;
 				}
 				
-				case SearchContext.PARENT:
+				case ESearchContext.PARENT:
 				{
 					results = GameObject.GetComponentsInParent<T>();
 					break;
 				}
 
-				case SearchContext.FROM_ROOT:
+				case ESearchContext.FROM_ROOT:
 				{
 					results = GameObject.transform.root.GetComponentsInChildren<T>();
 					break;
@@ -249,7 +246,7 @@ namespace Utils {
 
 
 		////////////////////////////////////////////////
-		public	static	bool	SearchComponent<T1>( GameObject GameObject, ref T1 Component, SearchContext Context, global::System.Predicate<T1> Filter = null )
+		public	static	bool	SearchComponent<T1>( GameObject GameObject, ref T1 Component, ESearchContext Context, global::System.Predicate<T1> Filter = null )
 		{
 			T1[] results = SearchResults<T1>( GameObject, Context );
 			
@@ -279,7 +276,7 @@ namespace Utils {
 
 
 		////////////////////////////////////////////////
-		public	static	bool	SearchComponents<T1>( GameObject GameObject, ref T1[] Components, SearchContext Context, global::System.Predicate<T1> Filter = null )
+		public	static	bool	SearchComponents<T1>( GameObject GameObject, ref T1[] Components, ESearchContext Context, global::System.Predicate<T1> Filter = null )
 		{
 			T1[] results = SearchResults<T1>( GameObject, Context );
 
@@ -342,13 +339,13 @@ namespace Utils {
 		private uint	m_Latest = 0;
 
 		////////////////////////////////////////////////
-		public DoubleBuffer( T t1, T t2 )	{		m_Buffer = new T[] { t1, t2 };						}
+		public DoubleBuffer( T t1, T t2 )	{ this.m_Buffer = new T[] { t1, t2 };						}
 		////////////////////////////////////////////////
-		public	T	Current()				{		return m_Buffer[ m_Latest ];						}
+		public	T	Current()				{		return this.m_Buffer[this.m_Latest ];						}
 		////////////////////////////////////////////////
-		public	T	Previous()				{		return m_Buffer[ ( m_Latest + 1 ) % 2 ];			}
+		public	T	Previous()				{		return this.m_Buffer[ (this.m_Latest + 1 ) % 2 ];			}
 		////////////////////////////////////////////////
-		public	T	SwapBuffers()			{		return m_Buffer[ m_Latest = ( m_Latest + 1 ) % 2 ]; }
+		public	T	SwapBuffers()			{		return this.m_Buffer[this.m_Latest = (this.m_Latest + 1 ) % 2 ]; }
 
 	}
 

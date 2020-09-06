@@ -11,9 +11,9 @@ namespace Database {
 		public	global::System.Type		ValueType( string Key )
 		{
 			cLineValue pLineValue = null;
-			if ( bGetLineValue( Key, ref pLineValue ) )
+			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
-				if ( pLineValue.Type == LineValueType.SINGLE )
+				if ( pLineValue.Type == ELineValueType.SINGLE )
 				{
 					return pLineValue.Value.GetType();
 				}
@@ -27,7 +27,7 @@ namespace Database {
 		public	string					GetRawValue( string Key, string Default = "" )
 		{
 			cLineValue pLineValue = null;
-			return ( bGetLineValue( Key, ref pLineValue ) ) ? pLineValue.RawValue : Default;
+			return (this.bGetLineValue( Key, ref pLineValue ) ) ? pLineValue.RawValue : Default;
 		}
 
 
@@ -36,12 +36,12 @@ namespace Database {
 		public	T						As<T>( string Key )
 		{
 			cLineValue pLineValue = null;
-			if ( bGetLineValue( Key, ref pLineValue ) )
+			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
 				UnityEngine.Assertions.Assert.IsTrue
 				(
-					pLineValue.Type == LineValueType.SINGLE,
-					"Database::Section::As: Line value for section " + GetName() + " at key " + Key + " is not of single type"
+					pLineValue.Type == ELineValueType.SINGLE,
+					"Database::Section::As: Line value for section " + this.GetName() + " at key " + Key + " is not of single type"
 				);
 
 				return pLineValue.Value.As<T>();
@@ -55,12 +55,12 @@ namespace Database {
 		public	bool					AsBool( string Key, bool Default = false )
 		{
 			cLineValue pLineValue = null;
-			if ( bGetLineValue( Key, ref pLineValue ) )
+			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
 				UnityEngine.Assertions.Assert.IsTrue
 				(
-					pLineValue.Type == LineValueType.SINGLE,
-					"Database::Section::AsBool: Line value for section " + GetName() + " at key " + Key + " is not of single type"
+					pLineValue.Type == ELineValueType.SINGLE,
+					"Database::Section::AsBool: Line value for section " + this.GetName() + " at key " + Key + " is not of single type"
 				);
 
 				return pLineValue.Value.As<bool>();
@@ -74,12 +74,12 @@ namespace Database {
 		public	int						AsInt( string Key, int Default = 0 )
 		{
 			cLineValue pLineValue = null;
-			if ( bGetLineValue( Key, ref pLineValue ) )
+			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
 				UnityEngine.Assertions.Assert.IsTrue
 				(
-					pLineValue.Type == LineValueType.SINGLE,
-					"Database::Section::AsInt: Line value for section " + GetName() + " at key " + Key + " is not of single type"
+					pLineValue.Type == ELineValueType.SINGLE,
+					"Database::Section::AsInt: Line value for section " + this.GetName() + " at key " + Key + " is not of single type"
 				);
 
 				return pLineValue.Value.As<int>();
@@ -92,12 +92,12 @@ namespace Database {
 		public	uint					AsUInt( string Key, uint Default = 0u )
 		{
 			cLineValue pLineValue = null;
-			if ( bGetLineValue( Key, ref pLineValue ) )
+			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
 				UnityEngine.Assertions.Assert.IsTrue
 				(
-					pLineValue.Type == LineValueType.SINGLE,
-					"Database::Section::AsUInt: Line value for section " + GetName() + " at key " + Key + " is not of single type"
+					pLineValue.Type == ELineValueType.SINGLE,
+					"Database::Section::AsUInt: Line value for section " + this.GetName() + " at key " + Key + " is not of single type"
 				);
 
 				return pLineValue.Value.As<uint>();
@@ -111,12 +111,12 @@ namespace Database {
 		public	float					AsFloat( string Key, float Default = 0.0f )
 		{
 			cLineValue pLineValue = null;
-			if ( bGetLineValue( Key, ref pLineValue ) )
+			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
 				UnityEngine.Assertions.Assert.IsTrue
 				(
-					pLineValue.Type == LineValueType.SINGLE,
-					"Database::Section::AsUInt: Line value for section " + GetName() + " at key " + Key + " is not of single type"
+					pLineValue.Type == ELineValueType.SINGLE,
+					"Database::Section::AsUInt: Line value for section " + this.GetName() + " at key " + Key + " is not of single type"
 				);
 
 				return pLineValue.Value.ToFloat();
@@ -130,12 +130,12 @@ namespace Database {
 		public	string					AsString( string Key, string Default = "" )
 		{
 			cLineValue pLineValue = null;
-			if ( bGetLineValue( Key, ref pLineValue ) )
+			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
 				UnityEngine.Assertions.Assert.IsTrue
 				(
-					pLineValue.Type == LineValueType.SINGLE,
-					"Database::Section::AsString: Line value for section " + GetName() + " at key " + Key + " is not of single type"
+					pLineValue.Type == ELineValueType.SINGLE,
+					"Database::Section::AsString: Line value for section " + this.GetName() + " at key " + Key + " is not of single type"
 				);
 
 				return pLineValue.Value.As<string>();
@@ -149,7 +149,7 @@ namespace Database {
 		public	cValue					OfMultiValue( string Key, int Index )
 		{
 			cLineValue pLineValue = null;
-			if ( bGetLineValue( Key, ref pLineValue ) && Index > 0 )
+			if (this.bGetLineValue( Key, ref pLineValue ) && Index > 0 )
 			{
 				cMultiValue pMultiValue = null;
 				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
@@ -166,7 +166,7 @@ namespace Database {
 		public	void					AsMultiValue<T1,T2>( string Key, int Idx1, int Idx2, ref T1 t1, ref T2 t2 )
 		{
 			cLineValue pLineValue		= null;
-			if ( bGetLineValue( Key, ref pLineValue ) )
+			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
 				cMultiValue pMultiValue = null;
 				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
@@ -183,7 +183,7 @@ namespace Database {
 		public	void					AsMultiValue<T1,T2,T3>( string Key, int Idx1, int Idx2, int Idx3, ref T1 t1, ref T2 t2, ref T3 t3 )
 		{
 			cLineValue pLineValue		= null;
-			if ( bGetLineValue( Key, ref pLineValue ) )
+			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
 				cMultiValue pMultiValue = null;
 				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
@@ -201,7 +201,7 @@ namespace Database {
 		public	void					AsMultiValue<T1,T2,T3,T4>( string Key, int Idx1, int Idx2, int Idx3, int Idx4, ref T1 t1, ref T2 t2, ref T3 t3, ref T4 t4 )
 		{
 			cLineValue pLineValue		= null;
-			if ( bGetLineValue( Key, ref pLineValue ) )
+			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
 				cMultiValue pMultiValue = null;
 				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
@@ -221,8 +221,8 @@ namespace Database {
 		{
 			cLineValue pLineValue = null; cMultiValue pMultiValue = null;
 			return
-				( 
-					bGetLineValue( Key, ref pLineValue ) && 
+				(
+					this.bGetLineValue( Key, ref pLineValue ) && 
 					pLineValue.GetAsMulti( ref pMultiValue ) 
 				) ? pMultiValue.Size : 0;
 		}
@@ -235,7 +235,7 @@ namespace Database {
 			bool bResult = false;
 
 			cLineValue pLineValue = null;
-			if ( bGetLineValue( Key, ref pLineValue ) )
+			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
 				// If is single value
 				cValue value = null;
@@ -290,7 +290,7 @@ namespace Database {
 		{
 			UnityEngine.Vector2 Out = Default.GetValueOrDefault();
 			cLineValue pLineValue = null;
-			if ( bGetLineValue( Key, ref pLineValue ) )
+			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
 				cMultiValue pMultiValue	= null;
 				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
@@ -314,7 +314,7 @@ namespace Database {
 		{
 			UnityEngine.Vector3 Out = Default.GetValueOrDefault();
 			cLineValue pLineValue		= null;
-			if ( bGetLineValue( Key, ref pLineValue ) )
+			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
 				cMultiValue pMultiValue	= null;
 				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
@@ -336,7 +336,7 @@ namespace Database {
 		{
 			UnityEngine.Vector4 Out = Default.GetValueOrDefault();
 			cLineValue pLineValue		= null;
-			if ( bGetLineValue( Key, ref pLineValue ) )
+			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
 				cMultiValue pMultiValue	= null;
 				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
@@ -359,7 +359,7 @@ namespace Database {
 		{
 			UnityEngine.Color Out = Default.GetValueOrDefault();
 			UnityEngine.Vector4 refVec = UnityEngine.Vector4.zero;
-			if ( bAsVec4( Key, ref refVec, UnityEngine.Vector4.zero ) == true )
+			if (this.bAsVec4( Key, ref refVec, UnityEngine.Vector4.zero ) == true )
 			{
 				Out = refVec;
 			}

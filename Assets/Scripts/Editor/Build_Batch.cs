@@ -160,7 +160,7 @@ public class Build_Batch
 		//Save the prefabs as bundles to the "bundleFolder" path.
 		UnityEngine.AssetBundleManifest a = BuildPipeline.BuildAssetBundles( bundleRelativePath, buildMap, BuildAssetBundleOptions.None, BuildTarget.StandaloneWindows64 );
 
-		foreach( var b in a.GetAllAssetBundles() )
+		foreach(string b in a.GetAllAssetBundles() )
 		{
 			UnityEngine.Debug.Log( b );
 		}
@@ -282,7 +282,7 @@ public class Build_Batch
 		if ( buildSettings.LoadFile( BuildSettingsConfigFile ) == true )
 		{
 			Database.Section buildSettingsSection = null;
-			if ( buildSettings.bGetSection( buildSettingsSectionName, ref buildSettingsSection ) == false )
+			if ( buildSettings.GetSection( buildSettingsSectionName, ref buildSettingsSection ) == false )
 			{
 				UnityEngine.Debug.LogError( "Cannot load build settings section for " + buildSettingsSectionName );
 				buildSettings = null;

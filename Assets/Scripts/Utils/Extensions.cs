@@ -166,7 +166,7 @@ public static class Extensions {
 		public static	T				Random<T>( this List<T> list )
 		{
 			if ( list == null || list.Count == 0 )
-				return default( T );
+				return default;
 
 			return list[ UnityEngine.Random.Range( 0, list.Count ) ]; 
 		}
@@ -239,13 +239,13 @@ public static class Extensions {
 		/// <summary> Return the first transform found in child hiearchy with the given name or null if not found </summary>
 		public	static	bool			SearchChildWithName( this Transform transform, string childName, ref Transform child )
 		{
-			return Utils.Base.SearchComponent( transform.gameObject, ref child, SearchContext.CHILDREN, t => t.name == childName );
+			return Utils.Base.SearchComponent( transform.gameObject, ref child, ESearchContext.CHILDREN, t => t.name == childName );
 		}
 
 
 		/////////////////////////////////////////////////////////////////////////////
-		/// <summary> Can be used to retrieve a component with more detailed research details </summary>
-		public	static	bool			SearchComponent<T>( this Transform transform, ref T Component, SearchContext Context, global::System.Predicate<T> Filter = null ) where T : Component
+		/// <summary> Can be used to retrieve a component with more detailed research </summary>
+		public	static	bool			SearchComponent<T>( this Transform transform, ref T Component, ESearchContext Context, global::System.Predicate<T> Filter = null ) where T : Component
 		{
 			return Utils.Base.SearchComponent( transform.gameObject, ref Component, Context, Filter );
 		}
@@ -253,7 +253,7 @@ public static class Extensions {
 
 		/////////////////////////////////////////////////////////////////////////////
 		/// <summary> Can be used to retrieve a component's array with more detailed research details </summary>
-		public	static	bool			SearchComponents<T>( this Transform transform, ref T[] Component, SearchContext Context, global::System.Predicate<T> Filter = null ) where T : Component
+		public	static	bool			SearchComponents<T>( this Transform transform, ref T[] Component, ESearchContext Context, global::System.Predicate<T> Filter = null ) where T : Component
 		{
 			return Utils.Base.SearchComponents( transform.gameObject, ref Component, Context, Filter );
 		}
@@ -313,7 +313,7 @@ public static class Extensions {
 			{
 				Transform child = t.GetChild( i );
 				T0 comp = null;
-				bResult &= Utils.Base.SearchComponent<T0>( child.gameObject, ref comp, SearchContext.LOCAL );
+				bResult &= Utils.Base.SearchComponent<T0>( child.gameObject, ref comp, ESearchContext.LOCAL );
 				array[i] = comp;
 			}
 
@@ -355,8 +355,7 @@ public static class Extensions {
 		/// <summary> Look for given component, if not found add it, return component reference  </summary>
 		public	static	T				GetOrAddIfNotFound<T>( this Transform t ) where T : Component
 		{
-			T result = null;
-			if ( t.TryGetComponent<T>( out result) == false )
+			if (t.TryGetComponent<T>(out T result) == false)
 			{
 				result = t.gameObject.AddComponent<T>();
 			}
@@ -375,8 +374,7 @@ public static class Extensions {
 		/// <summary> Look for given component, if not found add it, return component reference  </summary>
 		public static	T				GetOrAddIfNotFound<T>( this GameObject go ) where T : Component
 		{
-			T result = null;
-			if ( ( result = go.GetComponent<T>() ) == null )
+			if (!go.TryGetComponent<T>(out T result))
 			{
 				result = go.AddComponent<T>();
 			}
@@ -469,71 +467,71 @@ public static class Extensions {
 
 	#endregion
 
-	/////////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////
-	#region QUATERNION
+	    /////////////////////////////////////////////////////////////////////////////
+	    /////////////////////////////////////////////////////////////////////////////
+	    #region QUATERNION
 
 
-	/////////////////////////////////////////////////////////////////////////////
-	/// <summary> Returna vector which rotation is the given quaternion </summary>
-	public static	Vector3			GetVector( this Quaternion q, Vector3 d )
-		{
-			// A quaternion doesn't have a direction by itself. It is a rotation.
-			// It can be used to rotate any vector by the rotation it represents. Just multiply a Vector3 by the quaternion.
-			// Ref: http://answers.unity.com/answers/525956/view.html
-			return q * d;
+	    /////////////////////////////////////////////////////////////////////////////
+	    /// <summary> Returna vector which rotation is the given quaternion </summary>
+	    public static	Vector3			GetVector( this Quaternion q, Vector3 d )
+		    {
+			    // A quaternion doesn't have a direction by itself. It is a rotation.
+			    // It can be used to rotate any vector by the rotation it represents. Just multiply a Vector3 by the quaternion.
+			    // Ref: http://answers.unity.com/answers/525956/view.html
+			    return q * d;
 
-	/*		// Ref: Unreal math Library
-			Vector3 Q = new Vector3( q.x, q.y, q.z );
-			Vector3 T = 2.0f * Vector3.Cross( Q, d );
-			return d + ( T * q.w ) + Vector3.Cross( Q, T );
-	*/
-		}
+	    /*		// Ref: Unreal math Library
+			    Vector3 Q = new Vector3( q.x, q.y, q.z );
+			    Vector3 T = 2.0f * Vector3.Cross( Q, d );
+			    return d + ( T * q.w ) + Vector3.Cross( Q, T );
+	    */
+		    }
 
 
-		/////////////////////////////////////////////////////////////////////////////
-		/// <summary> We need this because Quaternion.Slerp always uses the shortest arc </summary>
-		public	static	Quaternion		Slerp( this Quaternion p, Quaternion q, float t)
-		{
-			Quaternion ret;
+		    /////////////////////////////////////////////////////////////////////////////
+		    /// <summary> We need this because Quaternion.Slerp always uses the shortest arc </summary>
+		    public	static	Quaternion		Slerp( this Quaternion p, Quaternion q, float t)
+		    {
+			    Quaternion ret;
 
-			float fCos = Quaternion.Dot(p, q);
+			    float fCos = Quaternion.Dot(p, q);
 
-			fCos = ( fCos >= 0.0f ) ? fCos : -fCos;
+			    fCos = ( fCos >= 0.0f ) ? fCos : -fCos;
 
-			float fCoeff0, fCoeff1;
+			    float fCoeff0, fCoeff1;
 
-			if ( fCos < 0.9999f )
-			{
-				float omega = Mathf.Acos(fCos);
-				float invSin = 1.0f / Mathf.Sin(omega);
-				fCoeff0 = Mathf.Sin((1.0f - t) * omega) * invSin;
-				fCoeff1 = Mathf.Sin(t * omega) * invSin;
-			}
-			else
-			{
-				// Use linear interpolation
-				fCoeff0 = 1.0f - t;
-				fCoeff1 = t;
-			}
+			    if ( fCos < 0.9999f )
+			    {
+				    float omega = Mathf.Acos(fCos);
+				    float invSin = 1.0f / Mathf.Sin(omega);
+				    fCoeff0 = Mathf.Sin((1.0f - t) * omega) * invSin;
+				    fCoeff1 = Mathf.Sin(t * omega) * invSin;
+			    }
+			    else
+			    {
+				    // Use linear interpolation
+				    fCoeff0 = 1.0f - t;
+				    fCoeff1 = t;
+			    }
 
-			fCoeff1 = ( fCos >= 0.0f ) ? fCoeff1 : -fCoeff1;
+			    fCoeff1 = ( fCos >= 0.0f ) ? fCoeff1 : -fCoeff1;
 
-			ret.x = fCoeff0 * p.x + fCoeff1 * q.x;
-			ret.y = fCoeff0 * p.y + fCoeff1 * q.y;
-			ret.z = fCoeff0 * p.z + fCoeff1 * q.z;
-			ret.w = fCoeff0 * p.w + fCoeff1 * q.w;
+			    ret.x = fCoeff0 * p.x + fCoeff1 * q.x;
+			    ret.y = fCoeff0 * p.y + fCoeff1 * q.y;
+			    ret.z = fCoeff0 * p.z + fCoeff1 * q.z;
+			    ret.w = fCoeff0 * p.w + fCoeff1 * q.w;
 			
-			return ret;
-		}
+			    return ret;
+		    }
 
 
-		/////////////////////////////////////////////////////////////////////////////
-		/// <summary> Return th lenght of a quaternion </summary>
-		public	static	float			GetLength( this Quaternion q )
-		{
-			return Mathf.Sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
-		}
+		    /////////////////////////////////////////////////////////////////////////////
+		    /// <summary> Return th lenght of a quaternion </summary>
+		    public	static	float			GetLength( this Quaternion q )
+		    {
+			    return Mathf.Sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
+		    }
 
 		#endregion
 

@@ -15,23 +15,23 @@ public class ControlledDoor : ControlledObject {
 
 	private void Awake()
 	{
-		m_Animator = GetComponentInChildren<Animator>();
+		this.m_Animator = this.GetComponentInChildren<Animator>();
 
-		ICustomAudioSource[] sources = GetComponents<ICustomAudioSource>();
-		m_OpeningSource = sources[0];
-		m_ClosingSource = ( sources.Length > 1 ) ? sources[1] : sources[0];
+		ICustomAudioSource[] sources = this.GetComponents<ICustomAudioSource>();
+		this.m_OpeningSource = sources[0];
+		this.m_ClosingSource = ( sources.Length > 1 ) ? sources[1] : sources[0];
 	}
 
 
 	public override void OnActivation()
 	{
-		m_IsOpen = !m_IsOpen;
-		m_Animator.SetBool( "IsOpen", m_IsOpen );
+		this.m_IsOpen = !this.m_IsOpen;
+		this.m_Animator.SetBool( "IsOpen", this.m_IsOpen );
 
-		if ( m_IsOpen == true )
-			m_ClosingSource.Play();
+		if (this.m_IsOpen == true )
+			this.m_ClosingSource.Play();
 		else
-			m_OpeningSource.Play();
+			this.m_OpeningSource.Play();
 
 	}
 	

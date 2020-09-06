@@ -18,7 +18,7 @@ public class Foots : MonoBehaviour, IFoots {
 	private		Collider			m_Collider			= null;
 	public		Collider			Collider
 	{
-		get { return m_Collider == null ? m_Collider = GetComponent<Collider>() : m_Collider; }
+		get { return this.m_Collider ?? (this.m_Collider = this.GetComponent<Collider>()); }
 	}
 
 	private		Collider			m_CurrentCollider	= null;
@@ -29,8 +29,8 @@ public class Foots : MonoBehaviour, IFoots {
 	// AWAKE
 	private void Awake()
 	{
-		m_LiveEntity	= transform.parent.GetComponent<LiveEntity>();
-		m_AudioSource	= transform.GetComponent<ICustomAudioSource>();
+		this.m_LiveEntity	= this.transform.parent.GetComponent<LiveEntity>();
+		this.m_AudioSource	= this.transform.GetComponent<ICustomAudioSource>();
 	}
 
 
@@ -38,18 +38,18 @@ public class Foots : MonoBehaviour, IFoots {
 	// PlayStep
 	public	void	PlayStep()
 	{
-		if ( m_CurrentCollider == null )
+		if (this.m_CurrentCollider == null )
 			return;
 
 		if ( SurfaceManager.Instance == null )
 			return;
 
-		AudioClip footstepClip = SurfaceManager.Instance.GetFootstep( m_CurrentCollider, transform.position );
+		AudioClip footstepClip = SurfaceManager.Instance.GetFootstep(this.m_CurrentCollider, this.transform.position );
 		if ( footstepClip == null )
 			return;
 
-		m_AudioSource.Clip = footstepClip;
-		m_AudioSource.Play();
+		this.m_AudioSource.Clip = footstepClip;
+		this.m_AudioSource.Play();
 	}
 
 
@@ -60,8 +60,8 @@ public class Foots : MonoBehaviour, IFoots {
 		if ( other.isTrigger )
 			return;
 
-		m_CurrentCollider = other;
-		m_LiveEntity.IsGrounded = true;
+		this.m_CurrentCollider = other;
+		this.m_LiveEntity.IsGrounded = true;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -71,6 +71,6 @@ public class Foots : MonoBehaviour, IFoots {
 		if ( other.isTrigger )
 			return;
 
-		m_LiveEntity.IsGrounded = false;
+		this.m_LiveEntity.IsGrounded = false;
 	}
 }

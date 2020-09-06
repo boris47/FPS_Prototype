@@ -23,31 +23,31 @@ public sealed class BulletElectro : BulletBallistic {
 
 		IEntity entity = null;
 		IShield shield = null;
-		bool bIsAnEntity = Utils.Base.SearchComponent( other.gameObject, ref entity, SearchContext.LOCAL );
-		bool bIsShield = Utils.Base.SearchComponent( other.gameObject, ref shield, SearchContext.CHILDREN );
+		bool bIsAnEntity = Utils.Base.SearchComponent( other.gameObject, ref entity, ESearchContext.LOCAL );
+		bool bIsShield = Utils.Base.SearchComponent( other.gameObject, ref shield, ESearchContext.CHILDREN );
 
 		int nParticle = 3;
 
-		EffectType effectToPlay;
+		EEffectType effectToPlay;
 		if ( bIsShield )
 		{
-			effectToPlay = EffectType.ELETTRO;
+			effectToPlay = EEffectType.ELETTRO;
 			nParticle = 15;
 		}
 		else
 		// If is an entity and who and hitted entites are of different category
-		if ( bIsAnEntity == true && ( ( m_WhoRef is NonLiveEntity && entity is NonLiveEntity ) == false ) )
+		if ( bIsAnEntity == true && ( (this.m_WhoRef is NonLiveEntity && entity is NonLiveEntity ) == false ) )
 		{
 			nParticle = 15;
-			effectToPlay = EffectType.ELETTRO;
+			effectToPlay = EEffectType.ELETTRO;
 		}
 		else
 		{
 			nParticle = 25;
-			effectToPlay = EffectType.ELETTRO;
+			effectToPlay = EEffectType.ELETTRO;
 		}
 
-		Vector3 position = other.ClosestPointOnBounds( transform.position );
+		Vector3 position = other.ClosestPointOnBounds(this.transform.position );
 		Vector3 direction = other.transform.position - position;
 		EffectsManager.Instance.PlayEffect( effectToPlay, position, direction, nParticle );
 
@@ -65,32 +65,32 @@ public sealed class BulletElectro : BulletBallistic {
 
 		IEntity entity = null;
 		IShield shield = null;
-		bool bIsAnEntity = Utils.Base.SearchComponent( collision.gameObject, ref entity, SearchContext.LOCAL    );
-		bool bIsShield   = Utils.Base.SearchComponent( collision.gameObject, ref shield, SearchContext.CHILDREN );
+		bool bIsAnEntity = Utils.Base.SearchComponent( collision.gameObject, ref entity, ESearchContext.LOCAL    );
+		bool bIsShield   = Utils.Base.SearchComponent( collision.gameObject, ref shield, ESearchContext.CHILDREN );
 
 		Vector3 position  = collision.contacts[0].point;
 		Vector3 direction = collision.contacts[0].normal;
 
 		int nParticle = 3;
 
-		EffectType effectToPlay;
+		EEffectType effectToPlay;
 		if ( bIsShield )
 		{
-			effectToPlay = EffectType.ELETTRO;
+			effectToPlay = EEffectType.ELETTRO;
 			nParticle = 15;
 		}
 		else
 		// If is an entity and who and hitted entites are of different category
-		if ( bIsAnEntity == true && ( ( m_WhoRef is NonLiveEntity && entity is NonLiveEntity ) == false ) )
+		if ( bIsAnEntity == true && ( (this.m_WhoRef is NonLiveEntity && entity is NonLiveEntity ) == false ) )
 		{
 			nParticle = 15;
-			effectToPlay = EffectType.ELETTRO;
+			effectToPlay = EEffectType.ELETTRO;
 			entity.RigidBody.angularVelocity = entity.RigidBody.velocity = Vector3.zero;
 		}
 		else
 		{
 			nParticle = 25;
-			effectToPlay = EffectType.ELETTRO;
+			effectToPlay = EEffectType.ELETTRO;
 		}
 
 		EffectsManager.Instance.PlayEffect( effectToPlay, position, direction, nParticle );

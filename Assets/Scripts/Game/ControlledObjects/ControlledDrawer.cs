@@ -4,19 +4,20 @@ using System.Collections;
 using UnityEngine;
 
 public class ControlledDrawer : ControlledObject {
-
-	private	enum	axisDirection {
+	
+	private	enum	EAxisDirection
+	{
 		X, Y, Z
 	}
 
 	[SerializeField]
-	private GameEvent		   m_OnOpen				= null;
+	private GameEvent			m_OnOpen				= null;
 
 	[SerializeField]
-	private GameEvent		   m_OnClose			   = null;
+	private GameEvent			m_OnClose			   = null;
 
 	[SerializeField]
-	private	axisDirection		m_OperatingAxis		 = axisDirection.Z;
+	private	EAxisDirection		m_OperatingAxis		 = EAxisDirection.Z;
 	
 	[SerializeField]
 	private	bool			   m_Opened					= false;
@@ -35,16 +36,16 @@ public class ControlledDrawer : ControlledObject {
 	// START
 	private void Start()
 	{
-		m_Rigidbody = GetComponentInChildren<Rigidbody>();
+		this.m_Rigidbody = this.GetComponentInChildren<Rigidbody>();
 
-		if ( m_Rigidbody == null )
-			m_Rigidbody = gameObject.AddComponent<Rigidbody>();
+		if (this.m_Rigidbody == null )
+			this.m_Rigidbody = this.gameObject.AddComponent<Rigidbody>();
 
-		m_Rigidbody.useGravity = false;
-		m_Rigidbody.isKinematic = true;
-		m_Rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
+		this.m_Rigidbody.useGravity = false;
+		this.m_Rigidbody.isKinematic = true;
+		this.m_Rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
 
-		OnClose();
+		this.OnClose();
 	}
 
 
@@ -52,12 +53,12 @@ public class ControlledDrawer : ControlledObject {
 	// Activate
 	public override void OnActivation()
 	{
-		if ( m_InTransition )
+		if (this.m_InTransition )
 			return;
 
-		m_InTransition = true;
+		this.m_InTransition = true;
 
-		CoroutinesManager.Start( Traslation(), "ControlledDrawer::OnActivation: Activation of " + name );
+		CoroutinesManager.Start(this.Traslation(), "ControlledDrawer::OnActivation: Activation of " + this.name );
 	}
 
 
@@ -66,7 +67,7 @@ public class ControlledDrawer : ControlledObject {
 	// OnOpen
 	private void	OnOpen()
 	{
-		Collider[] colliders = Physics.OverlapBox( transform.position, overlapBoxSize, transform.rotation );
+		Collider[] colliders = Physics.OverlapBox(this.transform.position, this.overlapBoxSize, this.transform.rotation );
 		foreach (Collider coll in colliders)
 		{
 			IInteractable interactable = coll.GetComponent<IInteractable>();
@@ -82,7 +83,7 @@ public class ControlledDrawer : ControlledObject {
 	// OnClose
 	private void OnClose()
 	{
-		Collider[] colliders = Physics.OverlapBox( transform.position, overlapBoxSize, transform.rotation );
+		Collider[] colliders = Physics.OverlapBox(this.transform.position, this.overlapBoxSize, this.transform.rotation );
 		foreach( Collider coll in colliders )
 		{
 		   IInteractable interactable = coll.GetComponent<IInteractable>();
@@ -98,26 +99,26 @@ public class ControlledDrawer : ControlledObject {
 	// Traslation
 	private IEnumerator Traslation()
 	{
-		Vector3 startPosition	= transform.position;
+		Vector3 startPosition	= this.transform.position;
 		Vector3 endPosition		= Vector3.zero;
 
 		// When is opening
-		if ( m_Opened == false )
+		if (this.m_Opened == false )
 		{
 
 		}
 
 		// When is closing
-		if ( m_Opened == true )
+		if (this.m_Opened == true )
 		{
-			OnClose(); // Disable interactions
+			this.OnClose(); // Disable interactions
 		}
 
-		switch( m_OperatingAxis )
+		switch(this.m_OperatingAxis )
 		{
-			case axisDirection.X: endPosition = startPosition + transform.right.normalized   * (m_Opened ? -m_LocalMovement : m_LocalMovement); break;
-			case axisDirection.Y: endPosition = startPosition + transform.up.normalized		 * (m_Opened ? -m_LocalMovement : m_LocalMovement); break;
-			case axisDirection.Z: endPosition = startPosition + transform.forward.normalized * (m_Opened ? -m_LocalMovement : m_LocalMovement); break;
+			case EAxisDirection.X: endPosition = startPosition + ( this.transform.right.normalized   * (this.m_Opened ? -this.m_LocalMovement : this.m_LocalMovement)); break;
+			case EAxisDirection.Y: endPosition = startPosition + ( this.transform.up.normalized	    * (this.m_Opened ? -this.m_LocalMovement : this.m_LocalMovement)); break;
+			case EAxisDirection.Z: endPosition = startPosition + ( this.transform.forward.normalized * (this.m_Opened ? -this.m_LocalMovement : this.m_LocalMovement)); break;
 		}
 		
 		float interpolant = 0f;
@@ -126,34 +127,34 @@ public class ControlledDrawer : ControlledObject {
 		while( interpolant < 1.0f )
 		{
 			currentTime += Time.deltaTime;
-			interpolant = currentTime / m_TransitionTime;
-			m_Rigidbody.MovePosition( Vector3.Lerp( startPosition, endPosition, interpolant ) );
+			interpolant = currentTime / this.m_TransitionTime;
+			this.m_Rigidbody.MovePosition( Vector3.Lerp( startPosition, endPosition, interpolant ) );
 			yield return null;
 		}
 
 		// When is opened
-		if ( m_Opened == false )
+		if (this.m_Opened == false )
 		{
-			OnOpen();
-			if ( m_OnOpen != null && m_OnOpen.GetPersistentEventCount() > 0 )
+			this.OnOpen();
+			if (this.m_OnOpen != null && this.m_OnOpen.GetPersistentEventCount() > 0 )
 			{
-				m_OnOpen.Invoke();
+				this.m_OnOpen.Invoke();
 			}
 		}
 
 		// When is closed
-		if ( m_Opened == true )
+		if (this.m_Opened == true )
 		{
-			if (m_OnClose != null && m_OnClose.GetPersistentEventCount() > 0)
+			if (this.m_OnClose != null && this.m_OnClose.GetPersistentEventCount() > 0)
 			{
-				m_OnClose.Invoke();
+				this.m_OnClose.Invoke();
 			}
 		}
 
-		transform.position = endPosition;
+		this.transform.position = endPosition;
 
-		m_Opened = !m_Opened;
-		m_InTransition = false;
+		this.m_Opened = !this.m_Opened;
+		this.m_InTransition = false;
 	}
 
 }

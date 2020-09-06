@@ -5,52 +5,53 @@ using UnityEngine;
 public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
 
 	public	class RoutinesSequence {
-		private		int						m_CurrentIndex				= 0;
-		private		List<IEnumerator>		m_Routines					= new List<IEnumerator>();
-		private		MonoBehaviour			m_MonoBehaviour				= null;
-		private		IEnumerator				m_CurrentEnumerator			= null;
+		private readonly IEnumerator				m_CurrentEnumerator			= null;
+		private readonly MonoBehaviour				m_MonoBehaviour				= null;
+		private readonly List<IEnumerator>			m_Routines					= new List<IEnumerator>();
+		private			int							m_CurrentIndex				= 0;
 
 		public RoutinesSequence( MonoBehaviour monoBehaviour, IEnumerator Routine )
 		{
 			if ( Routine.IsNotNull() )
 				return;
 
-			m_CurrentEnumerator = Routine;
-			m_MonoBehaviour = monoBehaviour;
-			m_Routines.Add( Routine );
+			this.m_CurrentEnumerator = Routine;
+			this.m_MonoBehaviour = monoBehaviour;
+			this.m_Routines.Add( Routine );
 		}
 
 		public RoutinesSequence AddStep( IEnumerator Routine )
 		{
 			if ( Routine.IsNotNull() )
 			{
-				m_Routines.Add( Routine );
+				this.m_Routines.Add( Routine );
 			}
 			return this;
 		}
 
 		private	IEnumerator StartCO()
 		{
-			while ( m_CurrentIndex < m_Routines.Count )
+			while (this.m_CurrentIndex < this.m_Routines.Count )
 			{
-				IEnumerator CurrentEnumerator = m_Routines[ m_CurrentIndex ];
-				yield return m_MonoBehaviour.StartCoroutine( CurrentEnumerator );
-				m_CurrentIndex ++;
+				IEnumerator CurrentEnumerator = this.m_Routines[this.m_CurrentIndex ];
+				yield return this.m_MonoBehaviour.StartCoroutine( CurrentEnumerator );
+				this.m_CurrentIndex ++;
 			}
 
 		}
 
 		public	Coroutine	ExecuteSequence()
 		{
-			return m_MonoBehaviour.StartCoroutine( StartCO() );
+			return this.m_MonoBehaviour.StartCoroutine(this.StartCO() );
 		}
 
 	}
 
-	private	static	uint				m_PendingRoutines	= 0;
+	[SerializeField]
+	private	uint				m_PendingRoutines	= 0;
 	public	static	uint				PendingRoutines
 	{
-		get { return m_PendingRoutines; }
+		get { return Instance.m_PendingRoutines; }
 	}
 
 
@@ -62,7 +63,7 @@ public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
 	/////////////////////////////////////////////////////////////////
 	public static  void	AddCoroutineToPendingCount( uint howMany )
 	{
-		m_PendingRoutines += howMany;
+		Instance.m_PendingRoutines += howMany;
 	//	print( "CoroutinesManager::AddCoroutineToPendingCount: Current Count " + m_PendingRoutines );
 	}
 
@@ -70,14 +71,14 @@ public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
 	/////////////////////////////////////////////////////////////////
 	public static  void	RemoveCoroutineFromPendingCount( uint howMany )
 	{
-		if ( howMany > m_PendingRoutines )
+		if ( howMany > Instance.m_PendingRoutines)
 		{
 			Debug.Log( "CoroutinesManager::RemoveCoroutineToPendingCount:Trying to remove more than available pending routines" );
-			Debug.Log( "Current Pending Routines are : " + m_PendingRoutines + ", tried to remove: " + howMany );
+			Debug.Log( "Current Pending Routines are : " + Instance.m_PendingRoutines + ", tried to remove: " + howMany );
 			return;
 		}
 
-		m_PendingRoutines -= howMany;
+		Instance.m_PendingRoutines -= howMany;
 
 	//	print( "CoroutinesManager::RemoveCoroutineFromPendingCount: Current Count " + m_PendingRoutines );
 	}
@@ -87,11 +88,7 @@ public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
 	public static IEnumerator	WaitPendingCoroutines()
 	{
 		yield return null;
-
-		while ( m_PendingRoutines > 0 )
-		{
-			yield return null;
-		}
+		yield return new WaitUntil(() => Instance.m_PendingRoutines == 0);
 	}
 
 	

@@ -14,7 +14,7 @@ public interface IFieldOfView {
 
 	float				Distance			{ get; set; }
 	float				Angle				{ get; set; }
-	ENTITY_TYPE			TargetType			{ get; set; }
+	EEntityType			TargetType			{ get; set; }
 
 	void				Setup				( uint maxVisibleEntities );
 	void				UpdateFOV			();
@@ -26,10 +26,10 @@ public interface IFieldOfView {
 [RequireComponent( typeof( SphereCollider ) )]
 public class FieldOfView : MonoBehaviour, IFieldOfView {
 
-	public		OnTargetEvent			OnTargetAquired			{ set { m_OnTargetAquired = value; } }
-	public		OnTargetEvent			OnTargetChanged			{ set { m_OnTargetChanged = value; } }
-	public		OnTargetEvent			OnTargetLost			{ set { m_OnTargetLost	  = value; } }
-	public		OnTargetsAcquired		OnTargetsAcquired		{ set { m_OnTargetsAcquired = value; } }
+	public		OnTargetEvent			OnTargetAquired			{ set { this.m_OnTargetAquired = value; } }
+	public		OnTargetEvent			OnTargetChanged			{ set { this.m_OnTargetChanged = value; } }
+	public		OnTargetEvent			OnTargetLost			{ set { this.m_OnTargetLost	  = value; } }
+	public		OnTargetsAcquired		OnTargetsAcquired		{ set { this.m_OnTargetsAcquired = value; } }
 
 
 	[SerializeField]
@@ -43,7 +43,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 
 
 	[ SerializeField ]
-	private		ENTITY_TYPE				m_EntityType			= ENTITY_TYPE.NONE;
+	private		EEntityType				m_EntityType			= EEntityType.NONE;
 
 	[SerializeField]
 	private		LayerMask				m_LayerMask				 = default( LayerMask );
@@ -51,20 +51,20 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 
 	float	IFieldOfView.Distance
 	{
-		get { return m_ViewDistance; }
-		set { m_ViewDistance = value; }
+		get { return this.m_ViewDistance; }
+		set { this.m_ViewDistance = value; }
 	}
 
 	float	IFieldOfView.Angle
 	{
-		get { return m_ViewCone; }
-		set { m_ViewCone = value; }
+		get { return this.m_ViewCone; }
+		set { this.m_ViewCone = value; }
 	}
 
-	ENTITY_TYPE IFieldOfView.TargetType
+	EEntityType IFieldOfView.TargetType
 	{
-		get { return m_EntityType; }
-		set { m_EntityType = value; }
+		get { return this.m_EntityType; }
+		set { this.m_EntityType = value; }
 	}
 
 	private		OnTargetEvent			m_OnTargetAquired		= null;
@@ -87,11 +87,11 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	// Awake
 	private void Awake()
 	{
-		m_ViewTriggerCollider = GetComponent<SphereCollider>();
-		m_ViewTriggerCollider.isTrigger = true;
-		m_ViewTriggerCollider.radius = m_ViewDistance;
+		this.m_ViewTriggerCollider = this.GetComponent<SphereCollider>();
+		this.m_ViewTriggerCollider.isTrigger = true;
+		this.m_ViewTriggerCollider.radius = this.m_ViewDistance;
 
-		m_LayerMask = Utils.LayersHelper.Layers_AllButOne( "Shield" );// 1 << LayerMask.NameToLayer("Entities");
+		this.m_LayerMask = Utils.LayersHelper.Layers_AllButOne( "Shield" );// 1 << LayerMask.NameToLayer("Entities");
 	}
 
 
@@ -100,9 +100,9 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	// OnValidate
 	private void OnValidate()
 	{
-		m_ViewTriggerCollider = GetComponent<SphereCollider>();
-		m_ViewTriggerCollider.isTrigger = true;
-		m_ViewTriggerCollider.radius = m_ViewDistance;
+		this.m_ViewTriggerCollider = this.GetComponent<SphereCollider>();
+		this.m_ViewTriggerCollider.isTrigger = true;
+		this.m_ViewTriggerCollider.radius = this.m_ViewDistance;
 	}
 
 
@@ -111,13 +111,13 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	// Setup
 	public	void	Setup( uint maxVisibleEntities )
 	{
-		m_MaxVisibleEntities = maxVisibleEntities;
-		m_ValidTargets = new Entity[ m_MaxVisibleEntities ];
+		this.m_MaxVisibleEntities = maxVisibleEntities;
+		this.m_ValidTargets = new Entity[this.m_MaxVisibleEntities ];
 
 		Collider[] colliders = null;
-		if ( transform.parent && transform.parent.SearchComponents( ref colliders, SearchContext.CHILDREN ) )
+		if (this.transform.parent && this.transform.parent.SearchComponents( ref colliders, ESearchContext.CHILDREN ) )
 		{
-			System.Array.ForEach( colliders, ( c ) => Physics.IgnoreCollision( m_ViewTriggerCollider, c ) );
+			System.Array.ForEach( colliders, ( c ) => Physics.IgnoreCollision(this.m_ViewTriggerCollider, c ) );
 		}
 	}
 
@@ -125,28 +125,28 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 
 	//////////////////////////////////////////////////////////////////////////
 	// CheckTargets
-	public	void	UpdateTargets( ENTITY_TYPE newType )
+	public	void	UpdateTargets( EEntityType newType )
 	{
-		if ( newType == m_EntityType )
+		if ( newType == this.m_EntityType )
 			return;
 
-		m_EntityType = newType;
+		this.m_EntityType = newType;
 
-		m_AllTargets.Clear();
+		this.m_AllTargets.Clear();
 
-		Collider[] colliders = Physics.OverlapSphere( transform.position, m_ViewTriggerCollider.radius, 1, QueryTriggerInteraction.Ignore );
+		Collider[] colliders = Physics.OverlapSphere(this.transform.position, this.m_ViewTriggerCollider.radius, 1, QueryTriggerInteraction.Ignore );
 
 		// This avoid to the current entity being added
 		List<Collider> list = new List<Collider>( colliders );
-		list.Remove( m_ViewTriggerCollider );
+		list.Remove(this.m_ViewTriggerCollider );
 		colliders = list.ToArray();
 
 		IEntity entityComponent = null;
 		void addToTargets( Collider c )
 		{
-			if ( Utils.Base.SearchComponent<IEntity>( c.gameObject, ref entityComponent, SearchContext.CHILDREN, ( IEntity e ) => { return e.EntityType == newType; } ) )
+			if ( Utils.Base.SearchComponent<IEntity>( c.gameObject, ref entityComponent, ESearchContext.CHILDREN, ( IEntity e ) => { return e.EntityType == newType; } ) )
 			{
-				m_AllTargets.Add( entityComponent as Entity );
+				this.m_AllTargets.Add( entityComponent as Entity );
 			}
 		}
 		System.Array.ForEach( colliders, addToTargets );
@@ -171,12 +171,12 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	private	void	ClearLastTarget()
 	{
 		// TARGET LOST
-		if ( m_CurrentTargetInfo.HasTarget == true )
+		if (this.m_CurrentTargetInfo.HasTarget == true )
 		{
-			m_CurrentTargetInfo.Type = TargetInfoType.LOST;
-			m_OnTargetLost ( m_CurrentTargetInfo );
+			this.m_CurrentTargetInfo.Type = ETargetInfoType.LOST;
+			this.m_OnTargetLost (this.m_CurrentTargetInfo );
 		}
-		m_CurrentTargetInfo.Reset();
+		this.m_CurrentTargetInfo.Reset();
 	}
 
 
@@ -186,53 +186,53 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	public	void	UpdateFOV()
 	{
 		// Prepare results array
-		System.Array.Clear( m_ValidTargets, 0, m_ValidTargets.Length );
+		System.Array.Clear(this.m_ValidTargets, 0, this.m_ValidTargets.Length );
 
-		if ( m_AllTargets.Count == 0 )
+		if (this.m_AllTargets.Count == 0 )
 		{
-			ClearLastTarget();
+			this.ClearLastTarget();
 			return;
 		}
 
 
 		// Choose view point
-		Transform currentViewPoint = m_ViewPoint ?? transform;
+		Transform currentViewPoint = this.m_ViewPoint ?? this.transform;
 
 		// Sort targets by distance
-		if ( m_AllTargets.Count > 1 )
-			m_AllTargets.Sort( ( a, b ) => CompareTargetsDistances( currentViewPoint.position, a, b ) );
+		if (this.m_AllTargets.Count > 1 )
+			this.m_AllTargets.Sort( ( a, b ) => this.CompareTargetsDistances( currentViewPoint.position, a, b ) );
 
 		// FIND ALL VISIBLE TARGETS
 		int currentCount = 0;
-		for ( int i = 0; i < m_AllTargets.Count && currentCount < m_MaxVisibleEntities; i++ )
+		for ( int i = 0; i < this.m_AllTargets.Count && currentCount < this.m_MaxVisibleEntities; i++ )
 		{
-			Entity target = m_AllTargets[ i ];
+			Entity target = this.m_AllTargets[ i ];
 
 			Vector3 targettablePosition = target.AsInterface.AsEntity.transform.position;
 			Vector3 direction = ( targettablePosition - currentViewPoint.position );
 
-			m_LookRotation.SetLookRotation( direction, currentViewPoint.up );
+			this.m_LookRotation.SetLookRotation( direction, currentViewPoint.up );
 
-			float angle = Quaternion.Angle( m_LookRotation, currentViewPoint.rotation );
+			float angle = Quaternion.Angle(this.m_LookRotation, currentViewPoint.rotation );
 
 			// CHECK IF IS IN VIEW CONE
-			if ( angle <= ( m_ViewCone * 0.5f ) )
+			if ( angle <= (this.m_ViewCone * 0.5f ) )
 			{
 				// CHECK IF HITTED IS A TARGET
 				bool result = Physics.Raycast
 				(
 					origin:						currentViewPoint.position,
 					direction:					direction,
-					hitInfo:					out m_RaycastHit,
-					maxDistance:				m_ViewDistance,
-					layerMask:					m_LayerMask,
+					hitInfo:					out this.m_RaycastHit,
+					maxDistance: this.m_ViewDistance,
+					layerMask: this.m_LayerMask,
 					queryTriggerInteraction:	QueryTriggerInteraction.Ignore
 				);
 				
 
-				if ( result == true && m_RaycastHit.collider.GetInstanceID() == target.AsInterface.PhysicCollider.GetInstanceID() )
+				if ( result == true && this.m_RaycastHit.collider.GetInstanceID() == target.AsInterface.PhysicCollider.GetInstanceID() )
 				{
-					m_ValidTargets[ currentCount ] = target;
+					this.m_ValidTargets[ currentCount ] = target;
 					currentCount ++;
 				}
 			}
@@ -240,30 +240,30 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 
 		if ( currentCount == 0 )
 		{
-			ClearLastTarget();
+			this.ClearLastTarget();
 			return;
 		}
 
-		IEntity currentTarget  = m_ValidTargets[ 0 ];
-		IEntity previousTarget = m_CurrentTargetInfo.CurrentTarget;
+		IEntity currentTarget  = this.m_ValidTargets[ 0 ];
+		IEntity previousTarget = this.m_CurrentTargetInfo.CurrentTarget;
 
-		m_CurrentTargetInfo.CurrentTarget = currentTarget;
-		m_CurrentTargetInfo.TargetSqrDistance = ( m_CurrentTargetInfo.CurrentTarget.AsEntity.transform.position - currentViewPoint.position ).sqrMagnitude;
+		this.m_CurrentTargetInfo.CurrentTarget = currentTarget;
+		this.m_CurrentTargetInfo.TargetSqrDistance = (this.m_CurrentTargetInfo.CurrentTarget.AsEntity.transform.position - currentViewPoint.position ).sqrMagnitude;
 		
 		// SET NEW TARGET
-		if ( m_CurrentTargetInfo.HasTarget == false )
+		if (this.m_CurrentTargetInfo.HasTarget == false )
 		{
-			m_CurrentTargetInfo.HasTarget = true;
-			m_CurrentTargetInfo.Type = TargetInfoType.ACQUIRED;
-			m_OnTargetAquired( m_CurrentTargetInfo );
+			this.m_CurrentTargetInfo.HasTarget = true;
+			this.m_CurrentTargetInfo.Type = ETargetInfoType.ACQUIRED;
+			this.m_OnTargetAquired(this.m_CurrentTargetInfo );
 		}
 		else
 		// CHANGING A TARGET
 		{
 			if ( previousTarget != null && previousTarget.ID != currentTarget.ID )
 			{
-				m_CurrentTargetInfo.Type = TargetInfoType.LOST;
-				m_OnTargetChanged( m_CurrentTargetInfo );
+				this.m_CurrentTargetInfo.Type = ETargetInfoType.LOST;
+				this.m_OnTargetChanged(this.m_CurrentTargetInfo );
 			}
 		}
 	}
@@ -274,9 +274,9 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	// OnReset
 	public	void	OnReset()
 	{
-		m_CurrentTargetInfo.Reset();
-		System.Array.Clear( m_ValidTargets, 0, ( int ) m_MaxVisibleEntities );
-		m_AllTargets.Clear();
+		this.m_CurrentTargetInfo.Reset();
+		System.Array.Clear(this.m_ValidTargets, 0, ( int )this.m_MaxVisibleEntities );
+		this.m_AllTargets.Clear();
 	}
 
 
@@ -286,20 +286,20 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	private void OnTriggerEnter( Collider other )
 	{
 		Entity entity = other.GetComponent<Entity>();
-		if ( entity.IsNotNull() && entity.IsAlive == true && entity.AsInterface.EntityType == m_EntityType )
+		if ( entity.IsNotNull() && entity.IsAlive == true && entity.AsInterface.EntityType == this.m_EntityType )
 		{
 			// This avoid to the current entity being added
 		//	if ( entity.transform.GetInstanceID() == transform.parent.GetInstanceID() )
 		//		return;
 
-			if ( m_AllTargets.Contains( entity ) == true )
+			if (this.m_AllTargets.Contains( entity ) == true )
 				return;
 
 			entity.OnEvent_Killed += ( Entity entityKilled ) => {
-				m_AllTargets.Remove( entityKilled );
+				this.m_AllTargets.Remove( entityKilled );
 			};
 
-			m_AllTargets.Add( entity );
+			this.m_AllTargets.Add( entity );
 		}
 	}
 
@@ -310,12 +310,12 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	private void OnTriggerExit( Collider other )
 	{
 		Entity entity = other.GetComponent<Entity>();
-		if ( entity.IsNotNull() && m_AllTargets.Contains( entity ) == true )
+		if ( entity.IsNotNull() && this.m_AllTargets.Contains( entity ) == true )
 		{
-			m_AllTargets.Remove( entity );
+			this.m_AllTargets.Remove( entity );
 
 			entity.OnEvent_Killed -= ( Entity entityKilled ) => {
-				m_AllTargets.Remove( entityKilled );
+				this.m_AllTargets.Remove( entityKilled );
 			};
 		}
 	}
@@ -325,10 +325,10 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	// OnDrawGizmosSelected
 	void OnDrawGizmosSelected()
 	{
-		float halfFOV = m_ViewCone * 0.5f;
+		float halfFOV = this.m_ViewCone * 0.5f;
 
-		Transform currentViewPoint		= ( m_ViewPoint == null ) ? transform : m_ViewPoint;
-		Gizmos.matrix = Matrix4x4.TRS( currentViewPoint.position, Quaternion.Euler( transform.rotation * ( Vector3.one * 0.5f ) ), Vector3.one );
+		Transform currentViewPoint		= (this.m_ViewPoint == null ) ? this.transform : this.m_ViewPoint;
+		Gizmos.matrix = Matrix4x4.TRS( currentViewPoint.position, Quaternion.Euler(this.transform.rotation * ( Vector3.one * 0.5f ) ), Vector3.one );
 
 		for ( float i = 0; i < 180f; i += 10f )
 		{
@@ -341,12 +341,12 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 			// left
 			Quaternion leftRayRotation		= Quaternion.AngleAxis( halfFOV, axisLeft );
 			Vector3 leftRayDirection		= ( leftRayRotation  * currentViewPoint.forward ).normalized;
-			Gizmos.DrawRay( Vector3.zero, leftRayDirection  * m_ViewDistance );
+			Gizmos.DrawRay( Vector3.zero, leftRayDirection  * this.m_ViewDistance );
 
 			// right
 			Quaternion rightRayRotation		= Quaternion.AngleAxis(  halfFOV, axisRight );
 			Vector3 rightRayDirection		= ( rightRayRotation * currentViewPoint.forward ).normalized;
-			Gizmos.DrawRay( Vector3.zero, rightRayDirection * m_ViewDistance );
+			Gizmos.DrawRay( Vector3.zero, rightRayDirection * this.m_ViewDistance );
 		}
 		Gizmos.matrix = Matrix4x4.identity;
 	}
@@ -354,7 +354,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 }
 
 
-public enum TargetInfoType {
+public enum ETargetInfoType {
 
 	NONE, ACQUIRED, CHANGED, LOST
 
@@ -364,21 +364,21 @@ public enum TargetInfoType {
 public class TargetInfo {
 	public	bool	HasTarget;
 	public	IEntity	CurrentTarget;
-	public	TargetInfoType Type;
+	public	ETargetInfoType Type;
 	public	float	TargetSqrDistance;
 
 	public	void	Update( TargetInfo Infos )
 	{
-		HasTarget			= Infos.HasTarget;
-		CurrentTarget		= Infos.CurrentTarget;
-		TargetSqrDistance	= Infos.TargetSqrDistance;
+		this.HasTarget			= Infos.HasTarget;
+		this.CurrentTarget		= Infos.CurrentTarget;
+		this.TargetSqrDistance	= Infos.TargetSqrDistance;
 	}
 
 	public	void	Reset()
 	{
-		Type				= TargetInfoType.NONE;
-		HasTarget			= false;
-		CurrentTarget		= null;
-		TargetSqrDistance	= 0.0f;
+		this.Type				= ETargetInfoType.NONE;
+		this.HasTarget			= false;
+		this.CurrentTarget		= null;
+		this.TargetSqrDistance	= 0.0f;
 	}
 }

@@ -27,17 +27,17 @@ public class RuntimeExecutor {
 
 	private	void	Initialize(  )
 	{
-		m_CSharpCodeProvider = new CSharpCodeProvider( m_ProviderOptions );
+		this.m_CSharpCodeProvider = new CSharpCodeProvider(this.m_ProviderOptions );
 
-		m_CompilerParams.IncludeDebugInformation = true;
+		this.m_CompilerParams.IncludeDebugInformation = true;
 
-		m_IsInitialized = true;
+		this.m_IsInitialized = true;
 	}
 
 
 	private bool Execute( string expression )
 	{
-		if ( m_IsInitialized == false )
+		if (this.m_IsInitialized == false )
 			return false;
 
 		StringBuilder sourceToCompile = new StringBuilder();
@@ -58,7 +58,7 @@ public class RuntimeExecutor {
 		);
 
 
-		CompilerResults results = m_CSharpCodeProvider.CompileAssemblyFromSource( m_CompilerParams, sourceToCompile.ToString() );
+		CompilerResults results = this.m_CSharpCodeProvider.CompileAssemblyFromSource(this.m_CompilerParams, sourceToCompile.ToString() );
 
 		if ( results.Errors.Count != 0 )
 		{

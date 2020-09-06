@@ -13,27 +13,27 @@ namespace QuestSystem {
 		// Initialize ( IStateDefiner )
 		protected		override	bool		InitializeInternal( ITask motherTask, System.Action<IObjective> onCompletionCallback, System.Action<IObjective> onFailureCallback )
 		{
-			if ( m_IsInitialized == true )
+			if (this.m_IsInitialized == true )
 				return true;
 
-			m_IsInitialized = true;
+			this.m_IsInitialized = true;
 
-			m_OnCompletionCallback = onCompletionCallback;
-			m_OnFailureCallback = onFailureCallback;
+			this.m_OnCompletionCallback = onCompletionCallback;
+			this.m_OnFailureCallback = onFailureCallback;
 			motherTask.AddObjective( this );
 			
 			Entity entity = null;
-			bool bIsEntity = Utils.Base.SearchComponent( gameObject, ref entity, SearchContext.LOCAL );
+			bool bIsEntity = Utils.Base.SearchComponent(this.gameObject, ref entity, ESearchContext.LOCAL );
 			if ( bIsEntity )
 			{
-				entity.OnEvent_Killed += OnKill;
+				entity.OnEvent_Killed += this.OnKill;
 			}
 
 			bool bIsGoodResult = true;
 			{
-				if ( m_ObjectToFollow == null )
+				if (this.m_ObjectToFollow == null )
 				{
-					m_ObjectToFollow = gameObject;
+					this.m_ObjectToFollow = this.gameObject;
 				}
 			}
 			return bIsGoodResult;
@@ -76,7 +76,7 @@ namespace QuestSystem {
 		// Activate ( IObjective )
 		protected		override	void		ActivateInternal()
 		{
-			UIManager.Indicators.EnableIndicator( m_ObjectToFollow, IndicatorType.OBJECT_TO_FOLLOW, bMustBeClamped: true );
+			UIManager.Indicators.EnableIndicator(this.m_ObjectToFollow, EIndicatorType.OBJECT_TO_FOLLOW, bMustBeClamped: true );
 		}
 
 
@@ -84,7 +84,7 @@ namespace QuestSystem {
 		// Deactivate ( IObjective )
 		protected		override	void		DeactivateInternal()
 		{
-			UIManager.Indicators.DisableIndicator( m_ObjectToFollow );
+			UIManager.Indicators.DisableIndicator(this.m_ObjectToFollow );
 		}
 
 
@@ -92,9 +92,9 @@ namespace QuestSystem {
 		// OnFollowDoneCompleted
 		public	void	OnFollowDoneCompleted()
 		{
-			Deactivate();
+			this.Deactivate();
 
-			OnObjectiveCompleted();
+			this.OnObjectiveCompleted();
 		}
 
 
@@ -104,9 +104,9 @@ namespace QuestSystem {
 		// OnKill
 		private void OnKill( Entity entityKilled )
 		{
-			Deactivate();
+			this.Deactivate();
 
-			OnObjectiveFailed();
+			this.OnObjectiveFailed();
 			//OnObjectiveCompleted();
 		}
 

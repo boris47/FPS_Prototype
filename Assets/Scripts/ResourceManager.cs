@@ -5,33 +5,36 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public interface IResourceComposite {
-
-	bool		NeedToBeLoaded();
-	void		Reinit();
-	string[]	GetChildPaths();
-	void		AddChild( Object child );
+public interface IResourceComposite
+{
+	bool NeedToBeLoaded();
+	void Reinit();
+	string[] GetChildPaths();
+	void AddChild(Object child);
 }
 
-public partial class ResourceManager : SingletonMonoBehaviour<ResourceManager> {
+public partial class ResourceManager : SingletonMonoBehaviour<ResourceManager>
+{
 
-	public enum AsyncLoadStrategy {
+	public enum EAsyncLoadStrategy
+	{
 		CONTINUOS,
 		PAUSED
 	};
 
 	/// <summary> Class that contains the loaded asset, if load succeded </summary>
-	public class LoadedData<T> {
-		public		T					Asset			= default(T);
-	//	public		AsynLoadStrategy	Strategy		= AsyncLoadStrategy.CONTINUOS;
-	//	public		float				TimeToWait		= 1.0f;
+	public class LoadedData<T>
+	{
+		public T Asset = default(T);
+		//	public		AsynLoadStrategy	Strategy		= AsyncLoadStrategy.CONTINUOS;
+		//	public		float				TimeToWait		= 1.0f;
 	}
 
-//	private	static		ResourceManager				m_Instance			= null;
+	//	private	static		ResourceManager				m_Instance			= null;
 
-//	private	static		bool						m_IsInitialized		= false;
+	//	private	static		bool						m_IsInitialized		= false;
 
-	private	static	new	System.Action<string>		print				= delegate { };
+	private static new System.Action<string> print = delegate { };
 
 	/*
 	///////////////////////////////////////////////////
@@ -56,7 +59,7 @@ public partial class ResourceManager : SingletonMonoBehaviour<ResourceManager> {
 
 	///////////////////////////////////////////////////
 	protected override void OnBeforeSceneLoad()
-	{}
+	{ }
 
 
 	/////////////////////////////////////////////////////////////////
@@ -66,68 +69,68 @@ public partial class ResourceManager : SingletonMonoBehaviour<ResourceManager> {
 	/////////////////////////////////////////////////////////////////
 
 	/// <summary> Synchronously load resource with given path, load recursively if composite type </summary>
-	public	static	bool	LoadResourceSync<T>( string ResourcePath, LoadedData<T> loadedResource ) where T : Object
+	public static bool LoadResourceSync<T>(string ResourcePath, LoadedData<T> loadedResource) where T : Object
 	{
 		bool result = true;
 
-		print( "SYNC Loading: " + ResourcePath );
-		
-		result &= InternalLoadResourceSync( ResourcePath, loadedResource, ref result );
-		
-		print( "SYNC Loaded: " + ResourcePath );
+		print("SYNC Loading: " + ResourcePath);
+
+		result &= InternalLoadResourceSync(ResourcePath, loadedResource, ref result);
+
+		print("SYNC Loaded: " + ResourcePath);
 
 		return result;
 	}
 
 
 	/////////////////////////////////////////////////////////////////
-	private	static  bool	InternalLoadResourceSync<T>( string ResourcePath, LoadedData<T> loadedResource, ref bool bResult ) where T : Object
+	private static bool InternalLoadResourceSync<T>(string ResourcePath, LoadedData<T> loadedResource, ref bool bResult) where T : Object
 	{
-		if ( bResult == false )
+		if (bResult == false)
 		{
 			return bResult;
 		}
 
 		System.Diagnostics.Stopwatch m_StopWatch = null;
-		print( "INTERNAL SYNC Loading: " + ResourcePath );	
-		if ( ShowDebugInfo )
+		print("INTERNAL SYNC Loading: " + ResourcePath);
+		if (ShowDebugInfo)
 		{
 			m_StopWatch = new System.Diagnostics.Stopwatch();
 			m_StopWatch.Start();
 		}
-			
-		loadedResource.Asset = Resources.Load<T>( ResourcePath );
 
-		if ( ShowDebugInfo )
+		loadedResource.Asset = Resources.Load<T>(ResourcePath);
+
+		if (ShowDebugInfo)
 		{
 			m_StopWatch.Stop();
-			print( "INTERNAL SYNC Loaded: " + ResourcePath + " in " + m_StopWatch.Elapsed.Milliseconds + "ms" );
+			print("INTERNAL SYNC Loaded: " + ResourcePath + " in " + m_StopWatch.Elapsed.Milliseconds + "ms");
 			m_StopWatch.Reset();
 		}
 
 		bResult = loadedResource.Asset.IsNotNull();
 
 		// Coposite parse
-		if ( loadedResource.Asset is IResourceComposite )
+		if (loadedResource.Asset is IResourceComposite)
 		{
 			IResourceComposite composite = loadedResource.Asset as IResourceComposite;
-			if ( composite.NeedToBeLoaded() == true )
+			if (composite.NeedToBeLoaded() == true)
 			{
 				composite.Reinit();
-				foreach( string childPath in composite.GetChildPaths() )
+				foreach (string childPath in composite.GetChildPaths())
 				{
 					LoadedData<Object> childloadedResource = new LoadedData<Object>();
-					if ( bResult = InternalLoadResourceSync( childPath, childloadedResource, ref bResult ) )
+					if (bResult = InternalLoadResourceSync(childPath, childloadedResource, ref bResult))
 					{
-						composite.AddChild( childloadedResource.Asset );
+						composite.AddChild(childloadedResource.Asset);
 					}
 				}
 			}
 		}
 
-		if ( bResult )
+		if (bResult)
 		{
-			print( "INTERNAL SYNC Loaded: " + ResourcePath );
+			print("INTERNAL SYNC Loaded: " + ResourcePath);
 		}
 
 		return bResult;
@@ -142,10 +145,10 @@ public partial class ResourceManager : SingletonMonoBehaviour<ResourceManager> {
 	/////////////////////////////////////////////////////////////////
 
 	/// <summary> Asynchronously load resource with given path, load recursively if composite type. Onload completed with success callbeck is called </summary>
-	public static void LoadResourceAsync<T>( string ResourcePath, LoadedData<T> loadedResource, System.Action<T> OnResourceLoaded ) where T : Object
+	public static void LoadResourceAsync<T>(string ResourcePath, LoadedData<T> loadedResource, System.Action<T> OnResourceLoaded) where T : Object
 	{
-		CoroutinesManager.Start( LoadResourceAsyncCoroutine( ResourcePath, loadedResource, OnResourceLoaded ),
-			"ResourceManger::LoadResourceAsync: Loading " + ResourcePath );
+		CoroutinesManager.Start(LoadResourceAsyncCoroutine(ResourcePath, loadedResource, OnResourceLoaded),
+			"ResourceManger::LoadResourceAsync: Loading " + ResourcePath);
 	}
 
 
@@ -153,81 +156,81 @@ public partial class ResourceManager : SingletonMonoBehaviour<ResourceManager> {
 	/// <summary> Asynchronously load resource with given path, load recursively if composite type. Onload completed with success callbeck is called
 	/// return iterator of the MAIN load coroutine </summary>
 
-	public	static  	IEnumerator LoadResourceAsyncCoroutine<T>( string ResourcePath, LoadedData<T> loadedResource, System.Action<T> OnResourceLoaded, System.Action<string> OnFailure = null) where T : Object
+	public static IEnumerator LoadResourceAsyncCoroutine<T>(string ResourcePath, LoadedData<T> loadedResource, System.Action<T> OnResourceLoaded = null, System.Action<string> OnFailure = null) where T : Object
 	{
-		if ( loadedResource == null )
+		if (loadedResource == null)
 		{
 			loadedResource = new LoadedData<T>();
 		}
 
-		print( "COROUTINE ASYNC Loading: " + ResourcePath );
-		
-		yield return CoroutinesManager.Start( InternalLoadResourceAsync( ResourcePath, loadedResource ),
-			"ResourceManger::LoadResourceAsyncCoroutine: Loading " + ResourcePath );
-		
-		print( "COROUTINE ASYNC Loaded: " + ResourcePath );
+		print("COROUTINE ASYNC Loading: " + ResourcePath);
+
+		yield return CoroutinesManager.Start(InternalLoadResourceAsync(ResourcePath, loadedResource),
+			"ResourceManger::LoadResourceAsyncCoroutine: Loading " + ResourcePath);
+
+		print("COROUTINE ASYNC Loaded: " + ResourcePath);
 
 		bool bHasValidAsset = loadedResource.Asset != null;
-		if ( bHasValidAsset == false )
+		if (bHasValidAsset == false)
 		{
-			Debug.LogError( "ResourceManager::LoadResourceAsyncCoroutine: Cannot load resource " + ResourcePath );
-			if ( OnFailure.IsNotNull() )
+			Debug.LogError("ResourceManager::LoadResourceAsyncCoroutine: Cannot load resource " + ResourcePath);
+			if (OnFailure.IsNotNull())
 			{
-				OnFailure( ResourcePath );
+				OnFailure(ResourcePath);
 			}
 		}
 
-		if ( OnResourceLoaded.IsNotNull() && bHasValidAsset == true )
+		if (OnResourceLoaded.IsNotNull() && bHasValidAsset == true)
 		{
-			OnResourceLoaded( loadedResource.Asset as T );
+			OnResourceLoaded(loadedResource.Asset as T);
 		}
 	}
 
-	
+
 	/////////////////////////////////////////////////////////////////
-	private	static  IEnumerator InternalLoadResourceAsync<T>( string ResourcePath, LoadedData<T> loadedResource ) where T : Object
+	private static IEnumerator InternalLoadResourceAsync<T>(string ResourcePath, LoadedData<T> loadedResource) where T : Object
 	{
 		System.Diagnostics.Stopwatch m_StopWatch = null;
-		print( "ResourceManger::InternalLoadResourceAsync: INTERNAL ASYNC Loading: " + ResourcePath );
+		print("ResourceManger::InternalLoadResourceAsync: INTERNAL ASYNC Loading: " + ResourcePath);
 
-		if ( ShowDebugInfo )
+		if (ShowDebugInfo)
 		{
 			m_StopWatch = new System.Diagnostics.Stopwatch();
 			m_StopWatch.Start();
 		}
-		
-		ResourceRequest request = Resources.LoadAsync( ResourcePath );
-//		request.priority = 0;
-		while( request.isDone == false )
+
+		ResourceRequest request = Resources.LoadAsync(ResourcePath);
+		//		request.priority = 0;
+		while (request.isDone == false)
 		{
 			yield return null;
 		}
 
 		loadedResource.Asset = request.asset as T;
 
-		if ( ShowDebugInfo )
+		if (ShowDebugInfo)
 		{
 			m_StopWatch.Stop();
-			print( "ResourceManger::InternalLoadResourceAsync: INTERNAL ASYNC Loaded: " + ResourcePath + " in " + m_StopWatch.Elapsed.Milliseconds + "ms" );
+			print("ResourceManger::InternalLoadResourceAsync: INTERNAL ASYNC Loaded: " + ResourcePath + " in " + m_StopWatch.Elapsed.Milliseconds + "ms");
 			m_StopWatch.Reset();
 		}
 
 		// If composite, load children
-		if ( loadedResource.Asset is IResourceComposite )
+		if (loadedResource.Asset is IResourceComposite)
 		{
 			IResourceComposite composite = loadedResource.Asset as IResourceComposite;
-			if ( composite.NeedToBeLoaded() == true )
+			if (composite.NeedToBeLoaded() == true)
 			{
 				composite.Reinit();
 
 				string[] compositeFilePaths = composite.GetChildPaths();
 				int arraySize = compositeFilePaths.Length;
 
-				for ( int i = 0; i < arraySize; i++ )
+				for (int i = 0; i < arraySize; i++)
 				{
 					string compositeFilePath = compositeFilePaths[i];
 					LoadedData<Object> childloadedResource = new LoadedData<Object>();
-					yield return InternalLoadResourceAsync( compositeFilePath, childloadedResource );
+					yield return InternalLoadResourceAsync(compositeFilePath, childloadedResource);
 /*					yield return CoroutinesManager.Start
 					(
 						InternalLoadResourceAsync( compositeFilePath, childloadedResource ),
@@ -235,12 +238,12 @@ public partial class ResourceManager : SingletonMonoBehaviour<ResourceManager> {
 					);
 */
 					yield return null;
-					composite.AddChild( childloadedResource.Asset );
+					composite.AddChild(childloadedResource.Asset);
 				}
 			}
 		}
 
-		print( "ResourceManger::InternalLoadResourceAsync: INTERNAL ASYNC Loaded: " + ResourcePath );
+		print("ResourceManger::InternalLoadResourceAsync: INTERNAL ASYNC Loaded: " + ResourcePath);
 	}
 
 
@@ -248,38 +251,29 @@ public partial class ResourceManager : SingletonMonoBehaviour<ResourceManager> {
 
 
 
-public partial class ResourceManager {
-
+public partial class ResourceManager
+{
 	[System.Serializable]
-	public	class WeakRefResource {
+	public class WeakRefResource
+	{
+		[System.NonSerialized]
+		private Object m_Asset = null;
 
 		[SerializeField]
-		private		Object				m_Asset					= null;
-
-		[SerializeField]
-		private		string				m_AssetPath				= string.Empty;
-
-//		private		bool				m_bIsAssetPathValid		= false;
-
-		/*
-		public		bool				FileExists
-		{
-			get { return System.IO.File.Exists( m_AssetPath ); }
-		}
-		*/
+		private string m_AssetPath = string.Empty;
 
 		///////////////////////////////////////////////////
-		public WeakRefResource( string path )
+		public WeakRefResource(string path)
 		{
-			if ( Utils.String.IsAssetsPath( path ) )
+			if (Utils.String.IsAssetsPath(path))
 			{
-				Utils.String.ConvertFromAssetPathToResourcePath( ref path );
-				m_AssetPath = path;
+				Utils.String.ConvertFromAssetPathToResourcePath(ref path);
+				this.m_AssetPath = path;
 			}
 
-			if ( Utils.String.IsResourcesPath( path ) )
+			if (Utils.String.IsResourcesPath(path))
 			{
-				m_AssetPath = path;
+				this.m_AssetPath = path;
 			}
 
 			// TODO System.WeakReference
@@ -287,32 +281,32 @@ public partial class ResourceManager {
 
 
 		///////////////////////////////////////////////////
-		public	Object	TryLoad()
+		public Object TryLoad()
 		{
-			return Resources.Load( m_AssetPath );
+			return Resources.Load(this.m_AssetPath);
 		}
 
 
 		///////////////////////////////////////////////////
-		public	bool	TryLoad( ref Object objRef )
+		public bool TryLoad(ref Object objRef)
 		{
-			objRef = Resources.Load( m_AssetPath );
+			objRef = Resources.Load(this.m_AssetPath);
 			return objRef != null;
 		}
 
 
 		///////////////////////////////////////////////////
-		public	void	Unload()
+		public void Unload()
 		{
-			Resources.UnloadAsset( m_Asset );
+			Resources.UnloadAsset(this.m_Asset);
 		}
 
 
 		///////////////////////////////////////////////////
-		public	void	Reset()
+		public void Reset()
 		{
-			m_Asset		= null;
-			m_AssetPath	= string.Empty;
+			this.m_Asset = null;
+			this.m_AssetPath = string.Empty;
 		}
 
 	}

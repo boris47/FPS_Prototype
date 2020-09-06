@@ -7,7 +7,8 @@ using UnityEngine;
 /////////////////////////////////////////
 /////////////////////////////////////////
 
-public enum WeaponSlots : uint {
+public enum EWeaponSlots : uint
+{
 	PRIMARY, SECONDARY, TERTIARY, NONE
 }
 
@@ -16,9 +17,9 @@ public abstract partial class Weapon {
 
 	[Header("WeaponModules")]
 
-	[SerializeField]	protected		WeaponModuleSlot		m_PrimaryWeaponModuleSlot		= new WeaponModuleSlot( WeaponSlots.PRIMARY );
-	[SerializeField]	protected		WeaponModuleSlot		m_SecondaryWeaponModuleSlot		= new WeaponModuleSlot( WeaponSlots.SECONDARY );
-	[SerializeField]	protected		WeaponModuleSlot		m_TertiaryWeaponModuleSlot		= new WeaponModuleSlot( WeaponSlots.TERTIARY );
+	[SerializeField]	protected		WeaponModuleSlot		m_PrimaryWeaponModuleSlot		= new WeaponModuleSlot( EWeaponSlots.PRIMARY );
+	[SerializeField]	protected		WeaponModuleSlot		m_SecondaryWeaponModuleSlot		= new WeaponModuleSlot( EWeaponSlots.SECONDARY );
+	[SerializeField]	protected		WeaponModuleSlot		m_TertiaryWeaponModuleSlot		= new WeaponModuleSlot( EWeaponSlots.TERTIARY );
 
 	//////////////////////////////////////////////////////////////////////////
 	private	static	bool					LoadAndConfigureModule( IWeapon wpn, Database.Section section, ref WeaponModuleSlot weaponModuleSlot )
@@ -41,7 +42,7 @@ public abstract partial class Weapon {
 		}
 
 		// Get Module Section
-		if ( GlobalManager.Configs.bGetSection( wpnModuleSect, ref moduleSection ) == false )
+		if ( GlobalManager.Configs.GetSection( wpnModuleSect, ref moduleSection ) == false )
 		{
 			Debug.Log( "Error: Weapon " + wpn.Transform.name + ": Unable to retrieve " + wpnModuleSect + " for module " + wpnModuleSectName );
 			return false;
@@ -77,7 +78,7 @@ public abstract partial class Weapon {
 			Database.Section modifierSection = null;
 			foreach( string modifierSectionName in mods )
 			{
-				if ( GlobalManager.Configs.bGetSection( modifierSectionName, ref modifierSection ) )
+				if ( GlobalManager.Configs.GetSection( modifierSectionName, ref modifierSection ) )
 				{
 					weaponModule.WeaponModule.ApplyModifier( modifierSection );
 				}
@@ -89,38 +90,38 @@ public abstract partial class Weapon {
 
 	#region		PREDICATES
 	// PREDICATES	START
-	protected virtual		bool			Predicate_Base() { return m_WeaponState == WeaponState.DRAWED && Player.Instance.ChosingDodgeRotation == false && m_IsLocked == false; }
-	protected	virtual		bool			Predicate_PrimaryFire_Start()		{ return Predicate_Base() && m_PrimaryWeaponModuleSlot.WeaponModule.CanBeUsed(); }
-	protected	virtual		bool			Predicate_PrimaryFire_Update()		{ return Predicate_Base() && m_PrimaryWeaponModuleSlot.WeaponModule.CanBeUsed(); }
-	protected	virtual		bool			Predicate_PrimaryFire_End()			{ return Predicate_Base() && m_PrimaryWeaponModuleSlot.WeaponModule.CanBeUsed(); }
+	protected virtual		bool			Predicate_Base() { return this.m_WeaponState == EWeaponState.DRAWED && Player.Instance.ChosingDodgeRotation == false && this.m_IsLocked == false; }
+	protected	virtual		bool			Predicate_PrimaryFire_Start()		{ return this.Predicate_Base() && this.m_PrimaryWeaponModuleSlot.WeaponModule.CanBeUsed(); }
+	protected	virtual		bool			Predicate_PrimaryFire_Update()		{ return this.Predicate_Base() && this.m_PrimaryWeaponModuleSlot.WeaponModule.CanBeUsed(); }
+	protected	virtual		bool			Predicate_PrimaryFire_End()			{ return this.Predicate_Base() && this.m_PrimaryWeaponModuleSlot.WeaponModule.CanBeUsed(); }
 
-	protected	virtual		bool			Predicate_SecondaryFire_Start()		{ return Predicate_Base() && m_SecondaryWeaponModuleSlot.WeaponModule.CanBeUsed(); }
-	protected	virtual		bool			Predicate_SecondaryFire_Update()	{ return Predicate_Base() && m_SecondaryWeaponModuleSlot.WeaponModule.CanBeUsed(); }
-	protected	virtual		bool			Predicate_SecondaryFire_End()		{ return Predicate_Base() && m_SecondaryWeaponModuleSlot.WeaponModule.CanBeUsed(); }
+	protected	virtual		bool			Predicate_SecondaryFire_Start()		{ return this.Predicate_Base() && this.m_SecondaryWeaponModuleSlot.WeaponModule.CanBeUsed(); }
+	protected	virtual		bool			Predicate_SecondaryFire_Update()	{ return this.Predicate_Base() && this.m_SecondaryWeaponModuleSlot.WeaponModule.CanBeUsed(); }
+	protected	virtual		bool			Predicate_SecondaryFire_End()		{ return this.Predicate_Base() && this.m_SecondaryWeaponModuleSlot.WeaponModule.CanBeUsed(); }
 
-	protected	virtual		bool			Predicate_TertiaryFire_Start()		{ return Predicate_Base() && m_TertiaryWeaponModuleSlot.WeaponModule.CanBeUsed(); }
-	protected	virtual		bool			Predicate_TertiaryFire_Update()		{ return Predicate_Base() && m_TertiaryWeaponModuleSlot.WeaponModule.CanBeUsed(); }
-	protected	virtual		bool			Predicate_TertiaryFire_End()		{ return Predicate_Base() && m_TertiaryWeaponModuleSlot.WeaponModule.CanBeUsed(); }
+	protected	virtual		bool			Predicate_TertiaryFire_Start()		{ return this.Predicate_Base() && this.m_TertiaryWeaponModuleSlot.WeaponModule.CanBeUsed(); }
+	protected	virtual		bool			Predicate_TertiaryFire_Update()		{ return this.Predicate_Base() && this.m_TertiaryWeaponModuleSlot.WeaponModule.CanBeUsed(); }
+	protected	virtual		bool			Predicate_TertiaryFire_End()		{ return this.Predicate_Base() && this.m_TertiaryWeaponModuleSlot.WeaponModule.CanBeUsed(); }
 
-	protected	virtual		bool			Predicate_Reload()					{ return Predicate_Base() && m_NeedRecharge == true; }
+	protected	virtual		bool			Predicate_Reload()					{ return this.Predicate_Base() && this.m_NeedRecharge == true; }
 	// PREDICATES	END
 	#endregion
 
 	#region MODULES EVENTS
 	//////////////////////////////////////////////////////////////////////////
-	protected virtual		void			PrimaryFire_Start()		{	m_PrimaryWeaponModuleSlot.WeaponModule.OnStart();	}
-	protected	virtual		void			PrimaryFire_Update()	{	m_PrimaryWeaponModuleSlot.WeaponModule.OnUpdate();	}
-	protected	virtual		void			PrimaryFire_End()		{	m_PrimaryWeaponModuleSlot.WeaponModule.OnEnd();		}
+	protected virtual		void			PrimaryFire_Start()		{ this.m_PrimaryWeaponModuleSlot.WeaponModule.OnStart();	}
+	protected	virtual		void			PrimaryFire_Update()	{ this.m_PrimaryWeaponModuleSlot.WeaponModule.OnUpdate();	}
+	protected	virtual		void			PrimaryFire_End()		{ this.m_PrimaryWeaponModuleSlot.WeaponModule.OnEnd();		}
 	
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		void			SecondaryFire_Start()	{	m_SecondaryWeaponModuleSlot.WeaponModule.OnStart();	}
-	protected	virtual		void			SecondaryFire_Update()	{	m_SecondaryWeaponModuleSlot.WeaponModule.OnUpdate();	}
-	protected	virtual		void			SecondaryFire_End()		{	m_SecondaryWeaponModuleSlot.WeaponModule.OnEnd();	}
+	protected	virtual		void			SecondaryFire_Start()	{ this.m_SecondaryWeaponModuleSlot.WeaponModule.OnStart();	}
+	protected	virtual		void			SecondaryFire_Update()	{ this.m_SecondaryWeaponModuleSlot.WeaponModule.OnUpdate();	}
+	protected	virtual		void			SecondaryFire_End()		{ this.m_SecondaryWeaponModuleSlot.WeaponModule.OnEnd();	}
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		void			TertiaryFire_Update()	{	m_TertiaryWeaponModuleSlot.WeaponModule.OnStart();	}
-	protected	virtual		void			TertiaryFire_Start()	{	m_TertiaryWeaponModuleSlot.WeaponModule.OnUpdate();	}
-	protected	virtual		void			TertiaryFire_End()		{	m_TertiaryWeaponModuleSlot.WeaponModule.OnEnd();		}
+	protected	virtual		void			TertiaryFire_Update()	{ this.m_TertiaryWeaponModuleSlot.WeaponModule.OnStart();	}
+	protected	virtual		void			TertiaryFire_Start()	{ this.m_TertiaryWeaponModuleSlot.WeaponModule.OnUpdate();	}
+	protected	virtual		void			TertiaryFire_End()		{ this.m_TertiaryWeaponModuleSlot.WeaponModule.OnEnd();		}
 	#endregion
 
 }
@@ -132,11 +133,11 @@ public abstract partial class Weapon {
 public class WeaponModuleSlot {
 
 	[SerializeField]
-	private	readonly		WeaponSlots				m_ThisSlot					= WeaponSlots.PRIMARY;
+	private	readonly		EWeaponSlots				m_ThisSlot					= EWeaponSlots.PRIMARY;
 
-	public					WeaponSlots				ThisSlot
+	public					EWeaponSlots				ThisSlot
 	{
-		get { return m_ThisSlot; }
+		get { return this.m_ThisSlot; }
 	}
 
 	[SerializeField]
@@ -144,20 +145,20 @@ public class WeaponModuleSlot {
 
 	public					WPN_BaseModule			WeaponModule
 	{
-		get { return m_WeaponModule; }
+		get { return this.m_WeaponModule; }
 	}
 
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public WeaponModuleSlot( WeaponSlots slot )
+	public WeaponModuleSlot( EWeaponSlots slot )
 	{
-		m_ThisSlot = slot;
+		this.m_ThisSlot = slot;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private static bool	GetModuleRules( Database.Section moduleSection, ref Dictionary<WeaponSlots, bool> allowedSlots, ref int maxCount )
+	private static bool	GetModuleRules( Database.Section moduleSection, ref Dictionary<EWeaponSlots, bool> allowedSlots, ref int maxCount )
 	{
 		maxCount = moduleSection.AsInt( "MaxModuleCount", 1 );
 
@@ -166,11 +167,11 @@ public class WeaponModuleSlot {
 		int[] localAllowedSlots = new int[ 3 ] { 1, 2, 3 };
 		if ( moduleSection.bGetMultiAsArray<int>( "AllowedSlots", ref localAllowedSlots ) )
 		{
-			allowedSlots = new Dictionary<WeaponSlots, bool>()
+			allowedSlots = new Dictionary<EWeaponSlots, bool>()
 			{ // slot - 1 because in config file user use nuber 1, 2 and 3 but array starts from Zero
-				{ WeaponSlots.PRIMARY,		System.Array.Exists( localAllowedSlots, slot => slot - 1 == (int)WeaponSlots.PRIMARY ) },
-				{ WeaponSlots.SECONDARY,	System.Array.Exists( localAllowedSlots, slot => slot - 1 == (int)WeaponSlots.SECONDARY ) },
-				{ WeaponSlots.TERTIARY,		System.Array.Exists( localAllowedSlots, slot => slot - 1 == (int)WeaponSlots.TERTIARY ) }
+				{ EWeaponSlots.PRIMARY,		System.Array.Exists( localAllowedSlots, slot => slot - 1 == (int)EWeaponSlots.PRIMARY ) },
+				{ EWeaponSlots.SECONDARY,	System.Array.Exists( localAllowedSlots, slot => slot - 1 == (int)EWeaponSlots.SECONDARY ) },
+				{ EWeaponSlots.TERTIARY,		System.Array.Exists( localAllowedSlots, slot => slot - 1 == (int)EWeaponSlots.TERTIARY ) }
 			};
 		}
 		return true;
@@ -185,10 +186,10 @@ public class WeaponModuleSlot {
 
 		// Is this slot allowed for module
 		int maxCount = 0;
-		Dictionary<WeaponSlots, bool> allowedSlots = null;
+		Dictionary<EWeaponSlots, bool> allowedSlots = null;
 		if ( GetModuleRules( moduleSection, ref allowedSlots, ref maxCount ) )
 		{
-			result &= allowedSlots[ m_ThisSlot ];
+			result &= allowedSlots[this.m_ThisSlot ];
 		}
 		
 		// Is this module max count less the maxximum allowed
@@ -208,7 +209,7 @@ public class WeaponModuleSlot {
 	public	bool	TrySetModule( IWeapon wpn, Database.Section moduleSection )
 	{
 		System.Type type = System.Type.GetType( moduleSection.GetName() );
-		return TrySetModule( wpn, type );
+		return this.TrySetModule( wpn, type );
 	}
 
 
@@ -217,42 +218,42 @@ public class WeaponModuleSlot {
 	{
 		if ( type == null )
 		{
-			Debug.Log( "WeaponModuleSlot::TrySetModule: " + wpn.Section.GetName() + ", Slot:" + Weapon.GetModuleSlotName(m_ThisSlot) + ", Setting invalid weapon module" );
+			Debug.Log( "WeaponModuleSlot::TrySetModule: " + wpn.Section.GetName() + ", Slot:" + Weapon.GetModuleSlotName(this.m_ThisSlot) + ", Setting invalid weapon module" );
 			return false;
 		}
 			
 		// Check module type as child of WPN_BaseModule
 		if ( type.IsSubclassOf( typeof( WPN_BaseModule ) ) == false )
 		{
-			Debug.Log( "WeaponModuleSlot::TrySetModule: " + wpn.Section.GetName() + ", Slot:" + Weapon.GetModuleSlotName(m_ThisSlot) + ", Class Requested is not a supported weapon module, \"" + type.ToString() + "\"" );
+			Debug.Log( "WeaponModuleSlot::TrySetModule: " + wpn.Section.GetName() + ", Slot:" + Weapon.GetModuleSlotName(this.m_ThisSlot) + ", Class Requested is not a supported weapon module, \"" + type.ToString() + "\"" );
 			return false;
 		}
 
-		if ( m_WeaponModule.IsNotNull() )
+		if (this.m_WeaponModule.IsNotNull() )
 		{
-			if ( m_WeaponModule.GetType() == type )
+			if (this.m_WeaponModule.GetType() == type )
 			{
-				Debug.Log( "WeaponModuleSlot::TrySetModule: " + GetType().Name + ", Slot:" + Weapon.GetModuleSlotName(m_ThisSlot) + ", the module \"" + type.ToString() + "\" is already mounted" );
+				Debug.Log( "WeaponModuleSlot::TrySetModule: " + this.GetType().Name + ", Slot:" + Weapon.GetModuleSlotName(this.m_ThisSlot) + ", the module \"" + type.ToString() + "\" is already mounted" );
 				return true;
 			}
 
 //			GameManager.UpdateEvents.OnFrame -= m_WeaponModule.InternalUpdate;
-			Object.Destroy( m_WeaponModule );
+			Object.Destroy(this.m_WeaponModule );
 		}
 
 		WPN_BaseModule wpnModule = wpn.Transform.gameObject.AddComponent( type ) as WPN_BaseModule;
 
 		// On success assign to internal var
-		bool bSetupSuccess = wpnModule.Setup( wpn, m_ThisSlot );
+		bool bSetupSuccess = wpnModule.Setup( wpn, this.m_ThisSlot );
 		if ( bSetupSuccess == true )
 		{
-			m_WeaponModule = wpnModule;
+			this.m_WeaponModule = wpnModule;
 		}
 		// On Fail add empty module
 		else
 		{
 			Object.Destroy( wpnModule );
-			m_WeaponModule = wpn.Transform.gameObject.AddComponent<WPN_BaseModuleEmpty>();
+			this.m_WeaponModule = wpn.Transform.gameObject.AddComponent<WPN_BaseModuleEmpty>();
 			Debug.Log( "WeaponModuleSlot::TrySetModule: " + wpn.Section.GetName() + ": Class Requested is not a supported weapon module, \"" + type.ToString() + "\"" );
 		}
 

@@ -15,72 +15,70 @@ public class PropertyBlockHighlighter : BaseHighlighter {
 	//
 	public override bool Highlight( Color? color = null )
 	{
-		if ( m_IsActive == false )
+		if (this.m_IsActive == false )
 		{
-			Color colorToUse = color ?? m_ColorToUse;
-			for ( int i = 0; i < m_Renderers.Length; i++ )
+			Color colorToUse = color ?? this.m_ColorToUse;
+			for ( int i = 0; i < this.m_Renderers.Length; i++ )
 			{
-				Renderer renderer = m_Renderers[i];
+				Renderer renderer = this.m_Renderers[i];
 				string objectReference = renderer.gameObject.GetInstanceID().ToString();
 
-				MaterialPropertyBlock highlightMaterialPropertyBlock = null;
-				if ( m_HighlightMaterialPropertyBlocks.TryGetValue( objectReference, out highlightMaterialPropertyBlock ) )
+				if (this.m_HighlightMaterialPropertyBlocks.TryGetValue(objectReference, out MaterialPropertyBlock highlightMaterialPropertyBlock))
 				{
-					renderer.GetPropertyBlock( highlightMaterialPropertyBlock );
-						highlightMaterialPropertyBlock.SetColor( "_Color", colorToUse );
-						highlightMaterialPropertyBlock.SetColor( "_EmissionColor", colorToUse );
-					renderer.SetPropertyBlock( highlightMaterialPropertyBlock );
+					renderer.GetPropertyBlock(highlightMaterialPropertyBlock);
+					highlightMaterialPropertyBlock.SetColor("_Color", colorToUse);
+					highlightMaterialPropertyBlock.SetColor("_EmissionColor", colorToUse);
+					renderer.SetPropertyBlock(highlightMaterialPropertyBlock);
 				}
 			}
 			return true;
 		
 		}
-		return m_IsActive;
+		return this.m_IsActive;
 	}
 
 	
 	//
 	public override bool UnHighlight()
 	{
-		if ( m_IsActive == true )
+		if (this.m_IsActive == true )
 		{
-			for ( int i = 0; i < m_Renderers.Length; i++ )
+			for ( int i = 0; i < this.m_Renderers.Length; i++ )
 			{
-				Renderer renderer = m_Renderers[i];
+				Renderer renderer = this.m_Renderers[i];
 				string objectReference = renderer.gameObject.GetInstanceID().ToString();
 
-				MaterialPropertyBlock storedPropertyBlock = null;
-				if ( m_OriginalMaterialPropertyBlocks.TryGetValue( objectReference, out storedPropertyBlock ) )
+				if (this.m_OriginalMaterialPropertyBlocks.TryGetValue(objectReference, out MaterialPropertyBlock storedPropertyBlock))
 				{
-					renderer.SetPropertyBlock( storedPropertyBlock );
+					renderer.SetPropertyBlock(storedPropertyBlock);
 				}
 			}
 		}
-		return !m_IsActive;
+		return !this.m_IsActive;
 	}
 
 
 	//
 	protected override void Awake()
 	{
-		m_OriginalMaterialPropertyBlocks.Clear();
-		m_HighlightMaterialPropertyBlocks.Clear();
+		this.m_OriginalMaterialPropertyBlocks.Clear();
+		this.m_HighlightMaterialPropertyBlocks.Clear();
 
-		m_Renderers = gameObject.GetComponentsInChildren<Renderer>( includeInactive: true );
-		for ( int i = 0; i < m_Renderers.Length; i++ )
+		this.m_Renderers = this.gameObject.GetComponentsInChildren<Renderer>( includeInactive: true );
+		for ( int i = 0; i < this.m_Renderers.Length; i++ )
 		{
-			Renderer renderer = m_Renderers[i];
+			Renderer renderer = this.m_Renderers[i];
 			string objectReference = renderer.gameObject.GetInstanceID().ToString();
 
 			// get the initial material property block to restore the original material properties later on
 			MaterialPropertyBlock originalPropertyBlock = new MaterialPropertyBlock();
 			renderer.GetPropertyBlock( originalPropertyBlock );
-			m_OriginalMaterialPropertyBlocks.Add( objectReference, originalPropertyBlock );
+			this.m_OriginalMaterialPropertyBlocks.Add( objectReference, originalPropertyBlock );
 			
 			// we need a second instance of the original material property block which will be modified for highlighting
 			MaterialPropertyBlock highlightPropertyBlock = new MaterialPropertyBlock();
 			renderer.GetPropertyBlock( highlightPropertyBlock );
-			m_HighlightMaterialPropertyBlocks.Add( objectReference, highlightPropertyBlock );
+			this.m_HighlightMaterialPropertyBlocks.Add( objectReference, highlightPropertyBlock );
 		}
 	}
 
@@ -95,7 +93,7 @@ public class PropertyBlockHighlighter : BaseHighlighter {
 	//
 	protected override void OnDisable()
 	{
-		UnHighlight();
+		this.UnHighlight();
 	}
 
 

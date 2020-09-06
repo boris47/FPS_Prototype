@@ -11,14 +11,14 @@ public class DodgeTarget : MonoBehaviour {
 	private			AnimationCurve		m_DodgeTimeScaleCurve		= AnimationCurve.Linear( 0f, 1f, 1f, 1f );
 	public			AnimationCurve		DodgeTimeScaleCurve
 	{
-		get { return m_DodgeTimeScaleCurve; }
+		get { return this.m_DodgeTimeScaleCurve; }
 	}
 
 	[SerializeField]
 	private			bool				m_HasTimeScaleCurveOverride	= false;
 	public			bool				HasTimeScaleCurveOverride
 	{
-		get { return m_HasTimeScaleCurveOverride; }
+		get { return this.m_HasTimeScaleCurveOverride; }
 	}
 
 		
@@ -33,9 +33,9 @@ public class DodgeTarget : MonoBehaviour {
 	private void	Awake()
 	{
 		// Get components and other refs
-		m_Renderer				= GetComponent<Renderer>();
-		m_TextWorldSpace		= transform.GetChild( 0 );
-		m_TextWorldSpace.gameObject.SetActive( false );
+		this.m_Renderer				= this.GetComponent<Renderer>();
+		this.m_TextWorldSpace		= this.transform.GetChild( 0 );
+		this.m_TextWorldSpace.gameObject.SetActive( false );
 
 		// Load colors collection
 		if ( m_ColorsCollection == null )
@@ -44,20 +44,20 @@ public class DodgeTarget : MonoBehaviour {
 			if ( m_ColorsCollection == null )
 			{
 				print( "Cannot load \"Scriptables/DodgeTargetColors\"" );
-				enabled = false;
+				this.enabled = false;
 				return;
 			}
 
 			if ( m_ColorsCollection.Colors == null || m_ColorsCollection.Colors.Length < 4 )
 			{
 				print( "Colors number is less than 4" );
-				enabled = false;
+				this.enabled = false;
 				return;
 			}
 		}
 
 		// If has not a custom time curve return
-		if ( m_HasTimeScaleCurveOverride == false )
+		if (this.m_HasTimeScaleCurveOverride == false )
 			return;
 
 		// PARSE CURVE IN ORDER TO GET MIN VALUE AND SET A CORRECT COLOR TO RENDER MATERIAL
@@ -65,7 +65,7 @@ public class DodgeTarget : MonoBehaviour {
 		float minValue = 1f;
 		for ( float i = 0f; i < 1f; i += 0.05f )
 		{
-			float currentValue = m_DodgeTimeScaleCurve.Evaluate ( i );
+			float currentValue = this.m_DodgeTimeScaleCurve.Evaluate ( i );
 			if ( currentValue < minValue )
 			{
 				minValue = currentValue;
@@ -75,25 +75,25 @@ public class DodgeTarget : MonoBehaviour {
 
 		if ( minValue >= 0.7f )
 		{
-			m_Renderer.material.color = m_ColorsCollection.Colors[ 0 ];
+			this.m_Renderer.material.color = m_ColorsCollection.Colors[ 0 ];
 			return;
 		}
 
 		if ( minValue < 0.7f && minValue >= 0.5f )
 		{
-			m_Renderer.material.color = m_ColorsCollection.Colors[ 1 ];
+			this.m_Renderer.material.color = m_ColorsCollection.Colors[ 1 ];
 			return;
 		}
 
 		if ( minValue < 0.5f && minValue >= 0.25f )
 		{
-			m_Renderer.material.color = m_ColorsCollection.Colors[ 2 ];
+			this.m_Renderer.material.color = m_ColorsCollection.Colors[ 2 ];
 			return;
 		}
 
 		if ( minValue < 0.25f && minValue >= 0f )
 		{
-			m_Renderer.material.color = m_ColorsCollection.Colors[ 3 ];
+			this.m_Renderer.material.color = m_ColorsCollection.Colors[ 3 ];
 			return;
 		}
 #endregion
@@ -104,7 +104,7 @@ public class DodgeTarget : MonoBehaviour {
 	// OnTargetReached
 	public	void	OnTargetReached()
 	{
-		gameObject.layer = m_LayerIgnoreRaycast;
+		this.gameObject.layer = m_LayerIgnoreRaycast;
 	}
 
 
@@ -112,9 +112,9 @@ public class DodgeTarget : MonoBehaviour {
 	// OnReset
 	public	void	OnReset()
 	{
-		m_Renderer.enabled = true;
-		gameObject.layer = m_Layer_Default;
-		m_IsActive = true;
+		this.m_Renderer.enabled = true;
+		this.gameObject.layer = m_Layer_Default;
+		this.m_IsActive = true;
 	}
 
 
@@ -122,7 +122,7 @@ public class DodgeTarget : MonoBehaviour {
 	// ShowText
 	public	void	ShowText()
 	{
-		m_TextWorldSpace.gameObject.SetActive( true );
+		this.m_TextWorldSpace.gameObject.SetActive( true );
 	}
 
 
@@ -130,7 +130,7 @@ public class DodgeTarget : MonoBehaviour {
 	// HideText
 	public	void	HideText()
 	{
-		m_TextWorldSpace.gameObject.SetActive( false );
+		this.m_TextWorldSpace.gameObject.SetActive( false );
 	}
 
 
@@ -138,9 +138,9 @@ public class DodgeTarget : MonoBehaviour {
 	// Enable
 	public	void	Enable()
 	{
-		m_Renderer.enabled = true;
-		gameObject.layer = m_Layer_Default;
-		m_IsActive = true;
+		this.m_Renderer.enabled = true;
+		this.gameObject.layer = m_Layer_Default;
+		this.m_IsActive = true;
 	}
 
 
@@ -148,9 +148,9 @@ public class DodgeTarget : MonoBehaviour {
 	// Disable
 	public	void	Disable()
 	{
-		m_Renderer.enabled = false;
-		gameObject.layer = m_LayerIgnoreRaycast;
-		m_IsActive = false;
+		this.m_Renderer.enabled = false;
+		this.gameObject.layer = m_LayerIgnoreRaycast;
+		this.m_IsActive = false;
 	}
 
 
@@ -158,11 +158,11 @@ public class DodgeTarget : MonoBehaviour {
 	// Update
 	private void	Update()
 	{
-		if ( m_IsActive == true )
+		if (this.m_IsActive == true )
 		{
 			Vector3 lookPoint = CameraControl.Instance.MainCamera.transform.position;
-			lookPoint.y = m_TextWorldSpace.position.y;
-			m_TextWorldSpace.LookAt( lookPoint );
+			lookPoint.y = this.m_TextWorldSpace.position.y;
+			this.m_TextWorldSpace.LookAt( lookPoint );
 		}
 	}
 
@@ -176,11 +176,11 @@ public class DodgeTarget : MonoBehaviour {
 		{
 			if ( sName[1] == 'N' )	// Near
 			{
-				Disable();
+				this.Disable();
 			}
 			else					// Far
 			{
-				Enable();
+				this.Enable();
 			}
 		}
 	}
@@ -195,12 +195,12 @@ public class DodgeTarget : MonoBehaviour {
 		{
 			if ( sName[1] == 'N' )	// Near
 			{
-				OnReset();
+				this.OnReset();
 			}
 			else					// Far
 			{
-				HideText();
-				Disable();
+				this.HideText();
+				this.Disable();
 			}
 		}
 	}

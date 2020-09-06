@@ -15,12 +15,12 @@ namespace Database {
 			cLineValue pLineValue = null;
 
 			// if not exists create one
-			if ( bGetLineValue( Key, ref pLineValue ) == false )
-				pLineValue = new cLineValue( Key, ( byte ) LineValueType.SINGLE );
+			if (this.bGetLineValue( Key, ref pLineValue ) == false )
+				pLineValue = new cLineValue( Key, ( byte ) ELineValueType.SINGLE );
 
 			pLineValue.Clear();
 			pLineValue.Set( Value );
-			m_Linevalues.Add( pLineValue );
+			this.m_Linevalues.Add( pLineValue );
 		}
 
 
@@ -31,13 +31,13 @@ namespace Database {
 			cLineValue pLineValue = null;
 
 			// if not exists create one
-			if ( bGetLineValue( Key, ref pLineValue ) == false )
-				pLineValue = new cLineValue( Key, LineValueType.MULTI );
+			if (this.bGetLineValue( Key, ref pLineValue ) == false )
+				pLineValue = new cLineValue( Key, ELineValueType.MULTI );
 
 			pLineValue.Clear();
 			cMultiValue multivalue = new cMultiValue( vValues );
 			pLineValue.Set( multivalue );
-			m_Linevalues.Add( pLineValue );
+			this.m_Linevalues.Add( pLineValue );
 		}
 
 
@@ -45,7 +45,7 @@ namespace Database {
 		// Set<T>
 		public	void					Set<T>( string Key, T Value )
 		{
-			SetValue( Key, new cValue( Value ) );
+			this.SetValue( Key, new cValue( Value ) );
 		}
 
 
@@ -56,14 +56,14 @@ namespace Database {
 			cLineValue pLineValue = null;
 
 			// if not exists create one
-			if ( bGetLineValue( Key, ref pLineValue ) == false )
-				pLineValue = new cLineValue( Key, LineValueType.MULTI );
+			if (this.bGetLineValue( Key, ref pLineValue ) == false )
+				pLineValue = new cLineValue( Key, ELineValueType.MULTI );
 
 			pLineValue.Clear();
 			cValue[] vValues = new cValue[2] { new cValue( Vec.x ), new cValue( Vec.y ) };
 			cMultiValue multivalue = new cMultiValue( vValues );
 			pLineValue.Set( multivalue );
-			m_Linevalues.Add( pLineValue );
+			this.m_Linevalues.Add( pLineValue );
 		}
 
 
@@ -74,14 +74,14 @@ namespace Database {
 			cLineValue pLineValue = null;
 
 			// if not exists create one
-			if ( bGetLineValue( Key, ref pLineValue ) == false )
-				pLineValue = new cLineValue( Key, LineValueType.MULTI );
+			if (this.bGetLineValue( Key, ref pLineValue ) == false )
+				pLineValue = new cLineValue( Key, ELineValueType.MULTI );
 
 			pLineValue.Clear();
 			cValue[] vValues = new cValue[] { new cValue( Vec.x ), new cValue( Vec.y ), new cValue( Vec.z ) };
 			cMultiValue multivalue = new cMultiValue( vValues );
 			pLineValue.Set( multivalue );
-			m_Linevalues.Add( pLineValue );
+			this.m_Linevalues.Add( pLineValue );
 		}
 
 
@@ -92,14 +92,14 @@ namespace Database {
 			cLineValue pLineValue = null;
 
 			// if not exists create one
-			if ( bGetLineValue( Key, ref pLineValue ) == false )
-				pLineValue = new cLineValue( Key, LineValueType.MULTI );
+			if (this.bGetLineValue( Key, ref pLineValue ) == false )
+				pLineValue = new cLineValue( Key, ELineValueType.MULTI );
 
 			pLineValue.Clear();
 			cValue[] vValues = new cValue[] { new cValue( Vec.x ), new cValue( Vec.y ), new cValue( Vec.z ), new cValue( Vec.w ) };
 			cMultiValue multivalue = new cMultiValue( vValues );
 			pLineValue.Set( multivalue );
-			m_Linevalues.Add( pLineValue );
+			this.m_Linevalues.Add( pLineValue );
 		}
 
 
@@ -110,14 +110,14 @@ namespace Database {
 			cLineValue pLineValue = null;
 
 			// if not exists create one
-			if ( bGetLineValue( Key, ref pLineValue ) == false )
-				pLineValue = new cLineValue( Key, LineValueType.MULTI );
+			if (this.bGetLineValue( Key, ref pLineValue ) == false )
+				pLineValue = new cLineValue( Key, ELineValueType.MULTI );
 
 			pLineValue.Clear();
 			cValue[] vValues = new cValue[] { new cValue( color.r ), new cValue( color.g ), new cValue( color.b ), new cValue( color.a ) };
 			cMultiValue multivalue = new cMultiValue( vValues );
 			pLineValue.Set( multivalue );
-			m_Linevalues.Add( pLineValue );
+			this.m_Linevalues.Add( pLineValue );
 		}
 
 	};

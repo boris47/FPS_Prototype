@@ -26,18 +26,18 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	private	System.Action<T>	m_ActionOnObject	= delegate { };
 	private	GameObject			m_ModelGO			= null;
 	private	Coroutine			m_Coroutine			= null;
-	private bool				m_bIsBuilding		= false;
+	private bool				m_IsBuilding		= false;
 
 	
 	// Iterations
 	public List<T>.Enumerator  GetEnumerator()
 	{
-		return m_ObjectsPool.GetEnumerator();
+		return this.m_ObjectsPool.GetEnumerator();
 	}
 
 	public	bool				IsValid
 	{
-		get { return m_ContainerGO.IsNotNull() && m_ObjectsPool.IsNotNull() && m_ModelGO.IsNotNull(); }
+		get { return this.m_ContainerGO.IsNotNull() && this.m_ObjectsPool.IsNotNull() && this.m_ModelGO.IsNotNull(); }
 	}
 
 
@@ -63,42 +63,42 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 			constructorData.Model.transform.HasComponent<T>() == true,
 			"GameObjectsPool trying to create a pool with Model with no component " + typeof(T).Name + ", Model is " + constructorData.Model.name
 		);
-		
+
 
 		// Get data from GameObjectsPoolConstructorData
-		m_ModelGO				= constructorData.Model;
+		this.m_ModelGO				= constructorData.Model;
 		string containerName	= constructorData.ContainerName + Counter.ToString();
 		uint poolSize			= constructorData.Size;
 
 
 		// Assign action for every object
-		m_ActionOnObject = constructorData.ActionOnObject ?? m_ActionOnObject;
+		this.m_ActionOnObject = constructorData.ActionOnObject ?? this.m_ActionOnObject;
 
 
 		// Create game object container
-		m_ContainerGO = new GameObject( containerName );
-		m_ContainerGO.transform.SetPositionAndRotation( Vector3.up * 80000f, Quaternion.identity ); 
-		Object.DontDestroyOnLoad(m_ContainerGO);
+		this.m_ContainerGO = new GameObject( containerName );
+		this.m_ContainerGO.transform.SetPositionAndRotation( Vector3.up * 80000f, Quaternion.identity ); 
+		Object.DontDestroyOnLoad(this.m_ContainerGO);
 		Counter ++;
 		
 
 		// Create the internal pool
 		if ( constructorData.IsAsyncBuild ) // Asyncronously
 		{
-			constructorData.CoroutineEnumerator = CreateItemsCO( constructorData );
-			m_bIsBuilding = true;
-			m_Coroutine = CoroutinesManager.Start( constructorData.CoroutineEnumerator, "GameObjectsPool::Constructor: Create items of " + m_ModelGO.name );
+			constructorData.CoroutineEnumerator = this.CreateItemsCO( constructorData );
+			this.m_IsBuilding = true;
+			this.m_Coroutine = CoroutinesManager.Start( constructorData.CoroutineEnumerator, "GameObjectsPool::Constructor: Create items of " + this.m_ModelGO.name );
 		}
 		else
 		// Instantly
 		{
-			m_ObjectsPool = new List<T>( (int)( poolSize ) );
+			this.m_ObjectsPool = new List<T>( (int)( poolSize ) );
 			{
 				for ( uint i = 0; i < poolSize; i++ )
 				{
-					T comp = Createitem( m_ModelGO );
-					m_ActionOnObject( comp );
-					m_ObjectsPool.Add( comp );
+					T comp = this.Createitem(this.m_ModelGO );
+					this.m_ActionOnObject( comp );
+					this.m_ObjectsPool.Add( comp );
 				}
 			}
 		}
@@ -114,20 +114,20 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 
 		int size = (int) ( constructorData.Size );
 
-		m_ObjectsPool = new List<T>( size );
+		this.m_ObjectsPool = new List<T>( size );
 
 		for ( uint i = 0; i < size; i++ )
 		{
 //				Debug.Log( "Creating " + model );
-			T comp = Createitem( m_ModelGO );
-			m_ActionOnObject( comp );
-			m_ObjectsPool.Add( comp );
+			T comp = this.Createitem(this.m_ModelGO );
+			this.m_ActionOnObject( comp );
+			this.m_ObjectsPool.Add( comp );
 			yield return null;
 		}
 		
 		constructorData.ActionOnLoadEnd();
-		m_bIsBuilding = false;
-		m_Coroutine = null;
+		this.m_IsBuilding = false;
+		this.m_Coroutine = null;
 	}
 
 
@@ -141,19 +141,19 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 			model != null,
 			"Trying to covert a GameObjectsPool using null model"
 		);
-		
-		m_ModelGO = model;
 
-		if ( m_bIsBuilding == true )
+		this.m_ModelGO = model;
+
+		if (this.m_IsBuilding == true )
 		{
-			CoroutinesManager.Stop( m_Coroutine );
+			CoroutinesManager.Stop(this.m_Coroutine );
 		}
-			
-		m_ActionOnObject = actionOnObject ?? m_ActionOnObject;
 
-		Utils.Base.DestroyChildren( m_ContainerGO.transform );
+		this.m_ActionOnObject = actionOnObject ?? this.m_ActionOnObject;
 
-		int size = m_ObjectsPool.Count;
+		Utils.Base.DestroyChildren(this.m_ContainerGO.transform );
+
+		int size = this.m_ObjectsPool.Count;
 		/*
 		{
 			m_ContainerGO.transform.DetachChildren();
@@ -165,14 +165,14 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 			}
 		}
 		*/
-		m_ObjectsPool.Clear();
+		this.m_ObjectsPool.Clear();
 			
 		// Create the internal pool
 		for ( uint i = 0; i < size; i++ )
 		{
-			T comp = Createitem( model );
-			m_ActionOnObject( comp );
-			m_ObjectsPool.Add( comp );
+			T comp = this.Createitem( model );
+			this.m_ActionOnObject( comp );
+			this.m_ObjectsPool.Add( comp );
 		}
 		
 		return true;
@@ -184,7 +184,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	// Createitem
 	private		T			Createitem( GameObject model )
 	{	//											Model	Position,		Rotation			Parent
-		GameObject objectCopy = Object.Instantiate( model, Vector3.zero, Quaternion.identity, m_ContainerGO.transform );
+		GameObject objectCopy = Object.Instantiate( model, Vector3.zero, Quaternion.identity, this.m_ContainerGO.transform );
 		T comp = objectCopy.GetComponent<T>();
 		return comp;
 	}
@@ -195,7 +195,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	// ExecuteActionOnObject
 	public		void		ExecuteActionOnObjects( System.Action<T> actionOnObject )
 	{
-		m_ObjectsPool.ForEach( actionOnObject );
+		this.m_ObjectsPool.ForEach( actionOnObject );
 	}
 
 
@@ -204,7 +204,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	// Resize
 	public		bool		Resize( uint newSize )
 	{
-		if ( IsValid == false )
+		if (this.IsValid == false )
 			return false;
 
 		// Skip for invalid new size
@@ -214,17 +214,17 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 		}
 
 		// Return true if the requested size is the currently set
-		if ( m_ObjectsPool.Count == newSize )
+		if (this.m_ObjectsPool.Count == newSize )
 			return true;
 
 		// Calculate the delta
-		int delta = Mathf.Abs( m_ObjectsPool.Count - (int)newSize );
+		int delta = Mathf.Abs(this.m_ObjectsPool.Count - (int)newSize );
 
-		int childCount = m_ObjectsPool.Count;
+		int childCount = this.m_ObjectsPool.Count;
 
-		if ( m_bIsBuilding == true )
+		if (this.m_IsBuilding == true )
 		{
-			CoroutinesManager.Stop( m_Coroutine );
+			CoroutinesManager.Stop(this.m_Coroutine );
 		}
 
 		// Enlarge
@@ -232,9 +232,9 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 		{
 			for ( int i = 0; i < delta; i++ )
 			{
-				T comp = Createitem( m_ModelGO );
-				m_ActionOnObject( comp );
-				m_ObjectsPool.Add( comp );
+				T comp = this.Createitem(this.m_ModelGO );
+				this.m_ActionOnObject( comp );
+				this.m_ObjectsPool.Add( comp );
 			}
 		}
 		
@@ -243,13 +243,13 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 		{
 			for ( int i = delta - 1; i >= 0; i-- )
 			{
-				Component comp = m_ObjectsPool[i];
-				m_ObjectsPool.RemoveAt(i);
+				Component comp = this.m_ObjectsPool[i];
+				this.m_ObjectsPool.RemoveAt(i);
 				Object.Destroy( comp.gameObject );
 			}
 		}
 
-		m_InternalIndex = 0;
+		this.m_InternalIndex = 0;
 		return true;
 	}
 
@@ -259,15 +259,15 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	// GetGameObject
 	public		GameObject	GetGameObject()
 	{
-		if ( IsValid == false )
+		if (this.IsValid == false )
 			return null;
 
-		if ( m_InternalIndex >= m_ObjectsPool.Count )
+		if (this.m_InternalIndex >= this.m_ObjectsPool.Count )
 		{
-			m_InternalIndex = 0;
+			this.m_InternalIndex = 0;
 		}
 
-		return m_ContainerGO.transform.GetChild( m_InternalIndex ).gameObject;
+		return this.m_ContainerGO.transform.GetChild(this.m_InternalIndex ).gameObject;
 	}
 
 
@@ -276,7 +276,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	// GetGameObject
 	public		bool	GetGameObject( ref GameObject go )
 	{
-		go = GetGameObject();
+		go = this.GetGameObject();
 		return go != null;
 	}
 
@@ -286,16 +286,16 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	// GetNextComponent
 	public		T			GetNextComponent()
 	{
-		if ( IsValid == false )
+		if (this.IsValid == false )
 			return null;
 
-		m_InternalIndex ++;
-		if ( m_InternalIndex >= m_ObjectsPool.Count )
+		this.m_InternalIndex ++;
+		if (this.m_InternalIndex >= this.m_ObjectsPool.Count )
 		{
-			m_InternalIndex = 0;
+			this.m_InternalIndex = 0;
 		}
 
-		return m_ObjectsPool[ m_InternalIndex ];
+		return this.m_ObjectsPool[this.m_InternalIndex ];
 	}
 
 
@@ -304,10 +304,10 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	// GetAsModel
 	public		T			PeekComponent()
 	{
-		if ( IsValid == false )
+		if (this.IsValid == false )
 			return null;
 
-		return m_ObjectsPool[ m_InternalIndex ];
+		return this.m_ObjectsPool[this.m_InternalIndex ];
 	}
 
 
@@ -316,10 +316,10 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	// GetAsModel
 	public		T2			PeekComponent<T2>() where T2 : class
 	{
-		if ( IsValid == false )
+		if (this.IsValid == false )
 			return null;
 
-		return m_ObjectsPool[ m_InternalIndex ] as T2;
+		return this.m_ObjectsPool[this.m_InternalIndex ] as T2;
 	}
 
 
@@ -328,10 +328,10 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	// SetActive
 	public		void		SetActive( bool state )
 	{
-		if ( IsValid == false )
+		if (this.IsValid == false )
 			return;
 
-		m_ContainerGO.SetActive( state );
+		this.m_ContainerGO.SetActive( state );
 	}
 
 
@@ -340,19 +340,19 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	// Destroy
 	internal	void		Destroy()
 	{
-		if ( IsValid == false )
+		if (this.IsValid == false )
 			return;
 
 		Counter --;
 
-		if ( m_bIsBuilding == true )
+		if (this.m_IsBuilding == true )
 		{
-			CoroutinesManager.Stop( m_Coroutine );
+			CoroutinesManager.Stop(this.m_Coroutine );
 		}
-		
-		m_ObjectsPool.Clear();
 
-		Object.Destroy( m_ContainerGO );
+		this.m_ObjectsPool.Clear();
+
+		Object.Destroy(this.m_ContainerGO );
 	}
 
 	
@@ -367,7 +367,7 @@ public	class ObjectsPool<T> where T : UnityEngine.Component {
 	private	int			m_InternalIndex		= 0;
 	public	int			Count
 	{
-		get { return m_Storage.Count; }
+		get { return this.m_Storage.Count; }
 	}
 
 
@@ -376,7 +376,7 @@ public	class ObjectsPool<T> where T : UnityEngine.Component {
 	public	ObjectsPool( uint size = 0 )
 	{
 		if ( size > 0 )
-			m_Storage = new List<T>( (int)size );
+			this.m_Storage = new List<T>( (int)size );
 	}
 
 
@@ -386,7 +386,7 @@ public	class ObjectsPool<T> where T : UnityEngine.Component {
 	{
 		if ( newItem != null )
 		{
-			m_Storage.Add( newItem );
+			this.m_Storage.Add( newItem );
 		}
 	}
 
@@ -394,8 +394,8 @@ public	class ObjectsPool<T> where T : UnityEngine.Component {
 	// Set
 	public	void	Set( T[] array )
 	{
-		m_Storage = new List<T>( array );
-		m_InternalIndex = 0;
+		this.m_Storage = new List<T>( array );
+		this.m_InternalIndex = 0;
 	}
 
 
@@ -403,17 +403,17 @@ public	class ObjectsPool<T> where T : UnityEngine.Component {
 	// Resize
 	public void	Resize( uint newSize )
 	{
-		if ( m_Storage == null || ( m_Storage.Count == 0 && newSize > 0 ) )
+		if (this.m_Storage == null || (this.m_Storage.Count == 0 && newSize > 0 ) )
 		{
-			m_Storage = new List<T>( (int)newSize );
+			this.m_Storage = new List<T>( (int)newSize );
 		}
 
-		if ( newSize == m_Storage.Count )
+		if ( newSize == this.m_Storage.Count )
 			return;
 
-		m_InternalIndex = 0;
-		
-		m_Storage.Capacity = (int)newSize;
+		this.m_InternalIndex = 0;
+
+		this.m_Storage.Capacity = (int)newSize;
 	}
 
 
@@ -421,11 +421,11 @@ public	class ObjectsPool<T> where T : UnityEngine.Component {
 	// Get
 	public	T	Get()
 	{
-		m_InternalIndex ++;
-		if ( m_InternalIndex >= m_Storage.Count )
-			m_InternalIndex = 0;
+		this.m_InternalIndex ++;
+		if (this.m_InternalIndex >= this.m_Storage.Count )
+			this.m_InternalIndex = 0;
 
-		return m_Storage[ m_InternalIndex ];
+		return this.m_Storage[this.m_InternalIndex ];
 	}
 
 
@@ -433,10 +433,10 @@ public	class ObjectsPool<T> where T : UnityEngine.Component {
 	// At
 	public	T	At( int index )
 	{
-		if ( index >= m_Storage.Count )
+		if ( index >= this.m_Storage.Count )
 			return null;
 
-		return m_Storage[ index ];
+		return this.m_Storage[ index ];
 	}
 
 
@@ -444,17 +444,17 @@ public	class ObjectsPool<T> where T : UnityEngine.Component {
 	// Destroy
 	internal	void	Destroy()
 	{
-		for ( int i = m_Storage.Count - 1; i >= 0; i-- )
+		for ( int i = this.m_Storage.Count - 1; i >= 0; i-- )
 		{
-			Component comp = m_Storage[ i ];
+			Component comp = this.m_Storage[ i ];
 			if ( comp.IsNotNull() )
 			{
 				Object.Destroy( comp );
 			}
-			m_Storage.RemoveAt(i);
+			this.m_Storage.RemoveAt(i);
 		}
-		m_Storage.Clear();
-		m_Storage= null;
+		this.m_Storage.Clear();
+		this.m_Storage = null;
 	}
 
 }
@@ -467,7 +467,7 @@ public	class ClassPool<T> where T : class, new() {
 	private	int			m_InternalIndex		= 0;
 	public	int			Count
 	{
-		get { return m_Storage.Count; }
+		get { return this.m_Storage.Count; }
 	}
 
 
@@ -475,8 +475,8 @@ public	class ClassPool<T> where T : class, new() {
 	// Costructor
 	public	ClassPool( uint size = 0 )
 	{
-		m_Storage = new List<T>( (int)size );
-		Resize( size );
+		this.m_Storage = new List<T>( (int)size );
+		this.Resize( size );
 	}
 
 
@@ -486,7 +486,7 @@ public	class ClassPool<T> where T : class, new() {
 	{
 		if ( newItem != null )
 		{
-			m_Storage.Add( newItem );
+			this.m_Storage.Add( newItem );
 		}
 	}
 
@@ -494,8 +494,8 @@ public	class ClassPool<T> where T : class, new() {
 	// Set
 	public	void	Set( T[] array )
 	{
-		m_Storage = new List<T>( array );
-		m_InternalIndex = 0;
+		this.m_Storage = new List<T>( array );
+		this.m_InternalIndex = 0;
 	}
 
 
@@ -510,32 +510,32 @@ public	class ClassPool<T> where T : class, new() {
 		}
 
 		// Return true if the requested size is the currently set
-		if ( m_Storage.Count == newSize )
+		if (this.m_Storage.Count == newSize )
 			return false;
 
 		// Calculate the delta
-		int delta = Mathf.Abs( m_Storage.Count - (int)newSize );
+		int delta = Mathf.Abs(this.m_Storage.Count - (int)newSize );
 
 
 		// Enlarge
-		if ( m_Storage.Count < newSize )
+		if (this.m_Storage.Count < newSize )
 		{
 			for ( int i = 0; i < delta; i++ )
 			{
-				m_Storage.Add( new T() );
+				this.m_Storage.Add( new T() );
 			}
 		}
 
 		// Reduction
-		if ( m_Storage.Count > newSize )
+		if (this.m_Storage.Count > newSize )
 		{
 			for ( int i = delta - 1; i >= 0; i-- )
 			{
-				m_Storage.RemoveAt(i);
+				this.m_Storage.RemoveAt(i);
 			}
 		}
 
-		m_InternalIndex = 0;
+		this.m_InternalIndex = 0;
 		return true;
 	}
 
@@ -544,11 +544,11 @@ public	class ClassPool<T> where T : class, new() {
 	// Get
 	public	T	Get()
 	{
-		m_InternalIndex ++;
-		if ( m_InternalIndex >= m_Storage.Count )
-			m_InternalIndex = 0;
+		this.m_InternalIndex ++;
+		if (this.m_InternalIndex >= this.m_Storage.Count )
+			this.m_InternalIndex = 0;
 
-		return m_Storage[ m_InternalIndex ];
+		return this.m_Storage[this.m_InternalIndex ];
 	}
 
 
@@ -556,10 +556,10 @@ public	class ClassPool<T> where T : class, new() {
 	// At
 	public	T	At( int index )
 	{
-		if ( index >= m_Storage.Count )
+		if ( index >= this.m_Storage.Count )
 			return default(T);
 
-		return m_Storage[ index ];
+		return this.m_Storage[ index ];
 	}
 
 
@@ -567,8 +567,8 @@ public	class ClassPool<T> where T : class, new() {
 	// Destroy
 	internal	void	Destroy()
 	{
-		m_Storage.Clear();
-		m_Storage= null;
+		this.m_Storage.Clear();
+		this.m_Storage = null;
 	}
 
 }
@@ -581,7 +581,7 @@ public	class ClassPoolStack<T> where T : class, new() {
 	private	IEnumerator	m_Enumerator		= null;
 	public	int			Count
 	{
-		get { return m_Storage.Count; }
+		get { return this.m_Storage.Count; }
 	}
 
 
@@ -589,10 +589,10 @@ public	class ClassPoolStack<T> where T : class, new() {
 	// Costructor
 	public	ClassPoolStack( uint size = 0 )
 	{
-		m_Storage = new Stack<T>( (int)size );
-		Resize( size );
+		this.m_Storage = new Stack<T>( (int)size );
+		this.Resize( size );
 
-		m_Enumerator = m_Storage.GetEnumerator();
+		this.m_Enumerator = this.m_Storage.GetEnumerator();
 	}
 
 
@@ -602,7 +602,7 @@ public	class ClassPoolStack<T> where T : class, new() {
 	{
 		if ( newItem != null )
 		{
-			m_Storage.Push( newItem );
+			this.m_Storage.Push( newItem );
 		}
 	}
 
@@ -610,15 +610,15 @@ public	class ClassPoolStack<T> where T : class, new() {
 	// Set
 	public	void	Set( T[] array )
 	{
-		m_Storage = new Stack<T>( array );
-		m_Enumerator = m_Storage.GetEnumerator();
+		this.m_Storage = new Stack<T>( array );
+		this.m_Enumerator = this.m_Storage.GetEnumerator();
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	// Peek
 	public	T	Peek()
 	{
-		return m_Enumerator.Current as T;
+		return this.m_Enumerator.Current as T;
 	}
 
 
@@ -633,32 +633,32 @@ public	class ClassPoolStack<T> where T : class, new() {
 		}
 
 		// Return true if the requested size is the currently set
-		if ( m_Storage.Count == newSize )
+		if (this.m_Storage.Count == newSize )
 			return false;
 
 		// Calculate the delta
-		int delta = Mathf.Abs( m_Storage.Count - (int)newSize );
+		int delta = Mathf.Abs(this.m_Storage.Count - (int)newSize );
 
 
 		// Enlarge
-		if ( m_Storage.Count < newSize )
+		if (this.m_Storage.Count < newSize )
 		{
 			for ( int i = 0; i < delta; i++ )
 			{
-				m_Storage.Push( new T() );
+				this.m_Storage.Push( new T() );
 			}
 		}
 
 		// Reduction
-		if ( m_Storage.Count > newSize )
+		if (this.m_Storage.Count > newSize )
 		{
 			for ( int i = delta - 1; i >= 0; i-- )
 			{
-				m_Storage.Pop();
+				this.m_Storage.Pop();
 			}
 		}
 
-		m_Enumerator.Reset();
+		this.m_Enumerator.Reset();
 		return true;
 	}
 
@@ -667,13 +667,13 @@ public	class ClassPoolStack<T> where T : class, new() {
 	// Get
 	public	T	Get()
 	{
-		bool bHasNext = m_Enumerator.MoveNext();
+		bool bHasNext = this.m_Enumerator.MoveNext();
 
-		T result = m_Enumerator.Current as T;
+		T result = this.m_Enumerator.Current as T;
 
 		if ( bHasNext == false )
 		{
-			m_Enumerator.Reset();
+			this.m_Enumerator.Reset();
 		}
 
 		return result;
@@ -684,8 +684,8 @@ public	class ClassPoolStack<T> where T : class, new() {
 	// Destroy
 	internal	void	Destroy()
 	{
-		m_Storage.Clear();
-		m_Storage= null;
+		this.m_Storage.Clear();
+		this.m_Storage = null;
 	}
 
 }

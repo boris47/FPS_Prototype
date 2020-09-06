@@ -38,14 +38,14 @@ public sealed class CameraControl : MonoBehaviour, ICameraControl {
 	
 
 	// INTERFACE START
-				Transform						ICameraControl.Transform				{ get { return transform; } }
-				bool							ICameraControl.Enabled					{ get { return enabled; } set { enabled = value; } }
-				PostProcessingProfile			ICameraControl.GetPP_Profile			{ get { return m_PP_Profile; } }
-				Camera							ICameraControl.MainCamera				{ get { return m_CameraRef; } }
-				Transform						ICameraControl.Target					{ get { return m_Target; } set { OnTargetSet( value ); } }
-				Transform						ICameraControl.WeaponPivot				{ get { return m_WeaponPivot; } }
-				Vector3							ICameraControl.CurrentDirection			{ get { return m_CurrentDirection; } set{ m_CurrentDirection = value; } }
-				CameraEffectorsManager			ICameraControl.CameraEffectorsManager	{ get { return m_CameraEffectorsManager; } }
+				Transform						ICameraControl.Transform				{ get { return this.transform; } }
+				bool							ICameraControl.Enabled					{ get { return this.enabled; } set { this.enabled = value; } }
+				PostProcessingProfile			ICameraControl.GetPP_Profile			{ get { return this.m_PP_Profile; } }
+				Camera							ICameraControl.MainCamera				{ get { return this.m_CameraRef; } }
+				Transform						ICameraControl.Target					{ get { return this.m_Target; } set { this.OnTargetSet( value ); } }
+				Transform						ICameraControl.WeaponPivot				{ get { return this.m_WeaponPivot; } }
+				Vector3							ICameraControl.CurrentDirection			{ get { return this.m_CurrentDirection; } set{ this.m_CurrentDirection = value; } }
+				CameraEffectorsManager			ICameraControl.CameraEffectorsManager	{ get { return this.m_CameraEffectorsManager; } }
 	// INTERFACE END
 	
 	[SerializeField, Tooltip("Camera Target"), ReadOnly]
@@ -77,7 +77,7 @@ public sealed class CameraControl : MonoBehaviour, ICameraControl {
 	[SerializeField]
 	private		CameraEffectorsManager			m_CameraEffectorsManager				= new CameraEffectorsManager();
 
-	public		CameraEffectorsManager			CameraEffectorsManager => m_CameraEffectorsManager;
+	public		CameraEffectorsManager			CameraEffectorsManager => this.m_CameraEffectorsManager;
 
 	private		Vector3							m_CurrentDirection						= Vector3.zero;
 	private		PostProcessingProfile			m_PP_Profile							= null;
@@ -111,12 +111,12 @@ public sealed class CameraControl : MonoBehaviour, ICameraControl {
 		if ( Instance != null )
 		{
 			print( "Camera Awake: Instance already found" );
-			gameObject.SetActive( false );
+			this.gameObject.SetActive( false );
 			return;
 		}
 		m_Instance = this;
 
-		m_WeaponPivot = transform.Find( "WeaponPivot" );
+		this.m_WeaponPivot = this.transform.Find( "WeaponPivot" );
 
 		// Sprites for TargetToKill, LocationToReach or ObjectToInteractWith
 		ResourceManager.LoadedData<PostProcessingProfile> cameraPostProcesses = new ResourceManager.LoadedData<PostProcessingProfile>();
@@ -132,11 +132,11 @@ public sealed class CameraControl : MonoBehaviour, ICameraControl {
 			"CameraControl::Awake: Failed the load of camera post processes profile"
 		);
 
-		m_CameraRef = GetComponent<Camera>();
-		m_PP_Profile = gameObject.GetOrAddIfNotFound<PostProcessingBehaviour>().profile = cameraPostProcesses.Asset;
+		this.m_CameraRef = this.GetComponent<Camera>();
+		this.m_PP_Profile = this.gameObject.GetOrAddIfNotFound<PostProcessingBehaviour>().profile = cameraPostProcesses.Asset;
 
 
-		if ( GlobalManager.Configs.bGetSection( "Camera", m_CameraSectionData ) == false )
+		if ( GlobalManager.Configs.GetSection( "Camera", this.m_CameraSectionData ) == false )
 		{
 			Debug.Log( "UI_Indicators::Initialize:Cannot load m_CameraSectionData" );
 		}
@@ -147,10 +147,10 @@ public sealed class CameraControl : MonoBehaviour, ICameraControl {
 				return Player.Instance.IsGrounded;
 			};
 
-			m_CameraEffectorsManager.Add<HeadBob>( mainCondition + delegate() { return Player.Instance.IsMoving == true; } );
-			m_CameraEffectorsManager.Add<HeadMove>( mainCondition + delegate() { return Player.Instance.IsMoving == false; } );
+			this.m_CameraEffectorsManager.Add<HeadBob>( mainCondition + delegate() { return Player.Instance.IsMoving == true; } );
+			this.m_CameraEffectorsManager.Add<HeadMove>( mainCondition + delegate() { return Player.Instance.IsMoving == false; } );
 
-			m_CameraRef.farClipPlane = m_CameraSectionData.ViewDistance;
+			this.m_CameraRef.farClipPlane = this.m_CameraSectionData.ViewDistance;
 		}
 	}
 
@@ -165,10 +165,10 @@ public sealed class CameraControl : MonoBehaviour, ICameraControl {
 			"CameraControl::OnEnable : GameManager.StreamEvents is null"
 		);
 
-		GameManager.StreamEvents.OnSave += OnSave;
-		GameManager.StreamEvents.OnLoad += OnLoad;
+		GameManager.StreamEvents.OnSave += this.OnSave;
+		GameManager.StreamEvents.OnLoad += this.OnLoad;
 
-		OutlineEffectManager.SetEffectCamera( m_CameraRef );
+		OutlineEffectManager.SetEffectCamera(this.m_CameraRef );
 	}
 	
 
@@ -178,8 +178,8 @@ public sealed class CameraControl : MonoBehaviour, ICameraControl {
 	{
 		if ( GameManager.StreamEvents.IsNotNull() )
 		{
-			GameManager.StreamEvents.OnSave -= OnSave;
-			GameManager.StreamEvents.OnLoad -= OnLoad;
+			GameManager.StreamEvents.OnSave -= this.OnSave;
+			GameManager.StreamEvents.OnLoad -= this.OnLoad;
 		}
 		OutlineEffectManager.SetEffectCamera( null );
 	}
@@ -189,13 +189,13 @@ public sealed class CameraControl : MonoBehaviour, ICameraControl {
 	// OnSave
 	private	StreamUnit	OnSave( StreamData streamData )
 	{
-		StreamUnit streamUnit	= streamData.NewUnit( gameObject );
+		StreamUnit streamUnit	= streamData.NewUnit(this.gameObject );
 
 		// Current internal direction
-		streamUnit.SetInternal( "CurrentDirection", Utils.Converters.Vector3ToString( m_CurrentDirection ) );
+		streamUnit.SetInternal( "CurrentDirection", Utils.Converters.Vector3ToString(this.m_CurrentDirection ) );
 
 		// Can parse input
-		streamUnit.SetInternal( "CanParseInput", GlobalManager.InputMgr.HasCategoryEnabled(InputCategory.CAMERA) );
+		streamUnit.SetInternal( "CanParseInput", GlobalManager.InputMgr.HasCategoryEnabled(EInputCategory.CAMERA) );
 		
 		// TODO load effectors
 
@@ -208,19 +208,19 @@ public sealed class CameraControl : MonoBehaviour, ICameraControl {
 	private	StreamUnit	OnLoad( StreamData streamData )
 	{
 		StreamUnit streamUnit = null;
-		if ( streamData.GetUnit( gameObject, ref streamUnit ) )
+		if ( streamData.GetUnit(this.gameObject, ref streamUnit ) )
 		{
 			// Camera internals
-			m_WpnCurrentDeviation	= Vector3.zero;
-			m_WpnCurrentDispersion	= Vector3.zero;
-			m_WpnRotationFeedback	= Vector3.zero;
-			m_WpnFallFeedback		= Vector3.zero;
+			this.m_WpnCurrentDeviation	= Vector3.zero;
+			this.m_WpnCurrentDispersion	= Vector3.zero;
+			this.m_WpnRotationFeedback	= Vector3.zero;
+			this.m_WpnFallFeedback		= Vector3.zero;
 
 			// Current internal direction
-			m_CurrentDirection		= streamUnit.GetAsVector( "CurrentDirection" );
+			this.m_CurrentDirection		= streamUnit.GetAsVector( "CurrentDirection" );
 
 			// Can parse input
-			GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, streamUnit.GetAsBool( "CanParseInput" ));
+			GlobalManager.InputMgr.SetCategory(EInputCategory.CAMERA, streamUnit.GetAsBool( "CanParseInput" ));
 
 			// TODO Save Effectors
 		}
@@ -235,22 +235,22 @@ public sealed class CameraControl : MonoBehaviour, ICameraControl {
 	{
 		if ( value == null )
 		{
-			float x = transform.localEulerAngles.x;
+			float x = this.transform.localEulerAngles.x;
 
 			while( x > CLAMP_MAX_X_AXIS ) x -= 360f;
             while( x < CLAMP_MIN_X_AXIS ) x += 360f;
 
-			m_CurrentDirection.x = x;
-			m_CurrentDirection.y = m_ViewPoint ? m_ViewPoint.localEulerAngles.y : 0.0f;
-			m_CurrentDirection.z = 0.0f;
+			this.m_CurrentDirection.x = x;
+			this.m_CurrentDirection.y = this.m_ViewPoint ? this.m_ViewPoint.localEulerAngles.y : 0.0f;
+			this.m_CurrentDirection.z = 0.0f;
 		}
 
-		if ( value && !m_Target && m_ViewPoint )
+		if ( value && !this.m_Target && this.m_ViewPoint )
 		{
-			m_ViewPoint.up = m_ViewPointBody?.up ?? Vector3.up;
+			this.m_ViewPoint.up = this.m_ViewPointBody?.up ?? Vector3.up;
 		}
 
-		m_Target = value;
+		this.m_Target = value;
 	}
 
 
@@ -258,8 +258,8 @@ public sealed class CameraControl : MonoBehaviour, ICameraControl {
 	// SetViewPoint
 	void	ICameraControl.SetViewPoint( Transform viewPoint, Transform viewPointBody )
 	{
-		m_ViewPoint = viewPoint ?? m_ViewPoint;
-		m_ViewPointBody = viewPointBody ?? m_ViewPointBody;
+		this.m_ViewPoint = viewPoint ?? this.m_ViewPoint;
+		this.m_ViewPointBody = viewPointBody ?? this.m_ViewPointBody;
 	}
 
 
@@ -267,10 +267,10 @@ public sealed class CameraControl : MonoBehaviour, ICameraControl {
 	// OnCutsceneEnd
 	void	ICameraControl.OnCutsceneEnd()
 	{
-		OnTargetSet( null );
-		m_CurrentRotation_X_Delta	= 0.0f;
-		m_CurrentRotation_Y_Delta	= 0.0f;
-		m_WpnCurrentDeviation		= m_WpnCurrentDispersion = Vector3.zero;
+		this.OnTargetSet( null );
+		this.m_CurrentRotation_X_Delta	= 0.0f;
+		this.m_CurrentRotation_Y_Delta	= 0.0f;
+		this.m_WpnCurrentDeviation		= this.m_WpnCurrentDispersion = Vector3.zero;
 	}
 
 
@@ -281,8 +281,8 @@ public sealed class CameraControl : MonoBehaviour, ICameraControl {
 		if ( Player.Instance.IsDodging )
 			return;
 
-		m_WpnCurrentDeviation.x -= Random.Range( 0.001f, deviation ) * weightX;
-		m_WpnCurrentDeviation.y += Random.Range( -deviation, deviation ) * weightY;
+		this.m_WpnCurrentDeviation.x -= Random.Range( 0.001f, deviation ) * weightX;
+		this.m_WpnCurrentDeviation.y += Random.Range( -deviation, deviation ) * weightY;
 	}
 
 
@@ -290,8 +290,8 @@ public sealed class CameraControl : MonoBehaviour, ICameraControl {
 	// ApplyDispersion
 	void	ICameraControl.ApplyDispersion( float dispersion, float weightX, float weightY )
 	{
-		m_WpnCurrentDispersion.x += Random.Range( 0.001f, dispersion ) * weightX;
-		m_WpnCurrentDispersion.y += Random.Range( -dispersion, dispersion ) * weightY;
+		this.m_WpnCurrentDispersion.x += Random.Range( 0.001f, dispersion ) * weightX;
+		this.m_WpnCurrentDispersion.y += Random.Range( -dispersion, dispersion ) * weightY;
 	}
 
 
@@ -299,8 +299,8 @@ public sealed class CameraControl : MonoBehaviour, ICameraControl {
 	// ApplyFallFeedback
 	void	ICameraControl.ApplyFallFeedback( float delta, float weightX, float weightY )
 	{
-		m_WpnFallFeedback.x = delta * weightX;
-		m_WpnFallFeedback.y = delta * weightY;
+		this.m_WpnFallFeedback.x = delta * weightX;
+		this.m_WpnFallFeedback.y = delta * weightY;
 //		m_WpnFallFeedback = Vector3.ClampMagnitude( m_WpnCurrentDeviation, WPN_FALL_FEEDBACK_CLAMP_VALUE );
 	}
 
@@ -309,8 +309,8 @@ public sealed class CameraControl : MonoBehaviour, ICameraControl {
 	// AddRecoil
 	void	ICameraControl.AddRecoil( float recoil )
 	{
-		m_Recoil += recoil;
-		m_Recoil = Mathf.Clamp( m_Recoil, 0.0f, 0.05f );
+		this.m_Recoil += recoil;
+		this.m_Recoil = Mathf.Clamp(this.m_Recoil, 0.0f, 0.05f );
 	}
 
 
@@ -318,39 +318,39 @@ public sealed class CameraControl : MonoBehaviour, ICameraControl {
 	// LateUpdate
 	private	void	LateUpdate()
 	{
-		Transform viewPoint = m_ViewPoint ?? transform;
-		Transform viewPointBody = m_ViewPointBody ?? transform;
-		bool bHasTargetAssigned = m_Target;
+		Transform viewPoint = this.m_ViewPoint ?? this.transform;
+		Transform viewPointBody = this.m_ViewPointBody ?? this.transform;
+		bool bHasTargetAssigned = this.m_Target;
 
 		// ByDefault Camera follow viewPoint
-		transform.SetPositionAndRotation( viewPoint.position, viewPoint.rotation );
+		this.transform.SetPositionAndRotation( viewPoint.position, viewPoint.rotation );
 
 		float deltaTime = GameManager.IsPaused ? 0f : Time.deltaTime;
 
-		m_CameraEffectorsManager.Update( deltaTime );
+		this.m_CameraEffectorsManager.Update( deltaTime );
 
 		// Used for view smoothness
-		m_SmoothFactor = Mathf.Clamp( m_SmoothFactor, 1.0f, 10.0f );
+		this.m_SmoothFactor = Mathf.Clamp(this.m_SmoothFactor, 1.0f, 10.0f );
 
 		// Weapon movements
 		{
-			m_WpnCurrentDispersion	= Vector3.Lerp( m_WpnCurrentDispersion, Vector3.zero, deltaTime * 3.7f );
-			m_WpnRotationFeedback	= Vector3.Lerp( m_WpnRotationFeedback,	Vector3.zero, deltaTime );
-			m_WpnFallFeedback		= Vector3.Lerp( m_WpnFallFeedback,		Vector3.zero, deltaTime * 3.7f );
-			m_WpnCurrentDeviation	= Vector3.Lerp( m_WpnCurrentDeviation,  Vector3.zero, deltaTime * 3.7f );
-			m_Recoil				= Mathf.Lerp( m_Recoil, 0.0f, deltaTime * 3.7f );
+			this.m_WpnCurrentDispersion	= Vector3.Lerp(this.m_WpnCurrentDispersion, Vector3.zero, deltaTime * 3.7f );
+			this.m_WpnRotationFeedback	= Vector3.Lerp(this.m_WpnRotationFeedback,	Vector3.zero, deltaTime );
+			this.m_WpnFallFeedback		= Vector3.Lerp(this.m_WpnFallFeedback,		Vector3.zero, deltaTime * 3.7f );
+			this.m_WpnCurrentDeviation	= Vector3.Lerp(this.m_WpnCurrentDeviation,  Vector3.zero, deltaTime * 3.7f );
+			this.m_Recoil				= Mathf.Lerp(this.m_Recoil, 0.0f, deltaTime * 3.7f );
 
-			if ( m_WeaponMoveEffectEnabled )
+			if (this.m_WeaponMoveEffectEnabled )
 			{
 				// Weapon Local Position
-				Vector3 localPosition = m_CameraEffectorsManager.CameraEffectorsData.WeaponPositionDelta + ( Vector3.left * m_Recoil );
+				Vector3 localPosition = this.m_CameraEffectorsManager.CameraEffectorsData.WeaponPositionDelta + ( Vector3.left * this.m_Recoil );
 				WeaponManager.Instance.CurrentWeapon.Transform.localPosition = localPosition;
 
 				// Headbob effect on weapon
-				Vector3 headbobEffectOnWeapon = ( m_CameraEffectorsManager.GetEffectorData<HeadBob>()?.CameraEffectsDirection * -1f ) ?? Vector3.zero;
+				Vector3 headbobEffectOnWeapon = (this.m_CameraEffectorsManager.GetEffectorData<HeadBob>()?.CameraEffectsDirection * -1f ) ?? Vector3.zero;
 
 				// Weapon Local Rotation
-				Vector3 localEulerAngles = m_CameraEffectorsManager.CameraEffectorsData.WeaponRotationDelta + m_WpnCurrentDispersion + m_WpnRotationFeedback + m_WpnFallFeedback + headbobEffectOnWeapon;
+				Vector3 localEulerAngles = this.m_CameraEffectorsManager.CameraEffectorsData.WeaponRotationDelta + this.m_WpnCurrentDispersion + this.m_WpnRotationFeedback + this.m_WpnFallFeedback + headbobEffectOnWeapon;
 				WeaponManager.Instance.CurrentWeapon.Transform.localEulerAngles	= localEulerAngles;
 			
 				// Optic sight alignment
@@ -360,13 +360,13 @@ public sealed class CameraControl : MonoBehaviour, ICameraControl {
 					{
 						Vector3 wpnDir = WeaponManager.Instance.CurrentWeapon.Transform.right;
 						Vector3 wpnPos = WeaponManager.Instance.CurrentWeapon.Transform.position;
-						Vector3 distantPoint = wpnPos + wpnDir * 1000f;
-						Vector3 projectedPoint = m_CameraRef.WorldToScreenPoint( distantPoint );
+						Vector3 distantPoint = wpnPos + ( wpnDir * 1000f );
+						Vector3 projectedPoint = this.m_CameraRef.WorldToScreenPoint( distantPoint );
 
 						delta =  projectedPoint;
 					}
 
-					float frameFeedBack =  1.0f + m_Recoil * 10.0f; // 1.0f + Because is scale factor
+					float frameFeedBack =  1.0f + ( this.m_Recoil * 10.0f ); // 1.0f + Because is scale factor
 					UIManager.InGame.FrameFeedBack( frameFeedBack, delta ); 
 				}
 			}
@@ -376,9 +376,9 @@ public sealed class CameraControl : MonoBehaviour, ICameraControl {
 		if ( bHasTargetAssigned )
 		{
 			// Body Rotation
-			if ( m_ViewPointBody )
+			if (this.m_ViewPointBody )
 			{
-				Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( viewPointBody.up, viewPointBody.position, m_Target.position );
+				Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( viewPointBody.up, viewPointBody.position, this.m_Target.position );
 				viewPointBody.LookAt( projectedPoint, viewPointBody.up );
 			}
 			
@@ -387,38 +387,38 @@ public sealed class CameraControl : MonoBehaviour, ICameraControl {
 			// Camera Rotation
 //			viewPoint.LookAt( m_Target, viewPointBody.up );
 
-			Vector3 direction = m_Target.position - viewPoint.position;
-			Vector3 DirectionPlusEffects = direction + m_CameraEffectorsManager.CameraEffectorsData.CameraEffectsDirection + m_WpnCurrentDeviation;
+			Vector3 direction = this.m_Target.position - viewPoint.position;
+			Vector3 DirectionPlusEffects = direction + this.m_CameraEffectorsManager.CameraEffectorsData.CameraEffectsDirection + this.m_WpnCurrentDeviation;
 //			viewPoint.rotation = Quaternion.Euler( DirectionPlusEffects.x, 0f, 0f );
 			return;
 		}
 
 
 		// Return if input is disabled
-		if ( GlobalManager.InputMgr.HasCategoryEnabled( InputCategory.CAMERA ) == false )
+		if ( GlobalManager.InputMgr.HasCategoryEnabled( EInputCategory.CAMERA ) == false )
 			return;
 
 
 		bool	isZoomed			= WeaponManager.Instance.IsZoomed;
 		float	wpnZoomSensitivity  = WeaponManager.Instance.ZoomSensitivity;
-		float	Axis_X_Delta		= Input.GetAxisRaw ( "Mouse X" ) * m_MouseSensitivity * ( ( isZoomed ) ? wpnZoomSensitivity : 1.0f );
-		float	Axis_Y_Delta		= Input.GetAxisRaw ( "Mouse Y" ) * m_MouseSensitivity * ( ( isZoomed ) ? wpnZoomSensitivity : 1.0f );
+		float	Axis_X_Delta		= Input.GetAxisRaw ( "Mouse X" ) * this.m_MouseSensitivity * ( ( isZoomed ) ? wpnZoomSensitivity : 1.0f );
+		float	Axis_Y_Delta		= Input.GetAxisRaw ( "Mouse Y" ) * this.m_MouseSensitivity * ( ( isZoomed ) ? wpnZoomSensitivity : 1.0f );
 
 		// Interpolate if m_SmoothedRotation is enabled
-		float interpolant = m_SmoothedRotation ? ( Time.unscaledDeltaTime * ( 100f / m_SmoothFactor ) ) : 1f;
-		m_CurrentRotation_X_Delta = Mathf.LerpUnclamped( m_CurrentRotation_X_Delta, Axis_X_Delta, interpolant );
-		m_CurrentRotation_Y_Delta = Mathf.LerpUnclamped( m_CurrentRotation_Y_Delta, Axis_Y_Delta, interpolant );
+		float interpolant = this.m_SmoothedRotation ? ( Time.unscaledDeltaTime * ( 100f / this.m_SmoothFactor ) ) : 1f;
+		this.m_CurrentRotation_X_Delta = Mathf.LerpUnclamped(this.m_CurrentRotation_X_Delta, Axis_X_Delta, interpolant );
+		this.m_CurrentRotation_Y_Delta = Mathf.LerpUnclamped(this.m_CurrentRotation_Y_Delta, Axis_Y_Delta, interpolant );
 
-		m_CurrentDirection.x = Utils.Math.Clamp( m_CurrentDirection.x - m_CurrentRotation_X_Delta, CLAMP_MIN_X_AXIS, CLAMP_MAX_X_AXIS );
-		m_CurrentDirection.y = m_CurrentDirection.y + m_CurrentRotation_Y_Delta;
+		this.m_CurrentDirection.x = Utils.Math.Clamp(this.m_CurrentDirection.x - this.m_CurrentRotation_X_Delta, CLAMP_MIN_X_AXIS, CLAMP_MAX_X_AXIS );
+		this.m_CurrentDirection.y = this.m_CurrentDirection.y + this.m_CurrentRotation_Y_Delta;
 
 		// Apply rotation
 		{
 			// Apply effects
-			Vector3 DirectionPlusEffects = ( m_CurrentDirection + m_CameraEffectorsManager.CameraEffectorsData.CameraEffectsDirection + m_WpnCurrentDeviation );
+			Vector3 DirectionPlusEffects = (this.m_CurrentDirection + this.m_CameraEffectorsManager.CameraEffectorsData.CameraEffectsDirection + this.m_WpnCurrentDeviation );
 
 			// Horizonatal rotation
-			m_ViewPointBody.localRotation = Quaternion.Euler( Vector3.up * DirectionPlusEffects.y );
+			this.m_ViewPointBody.localRotation = Quaternion.Euler( Vector3.up * DirectionPlusEffects.y );
 
 			// Vertical rotation
 			viewPoint.localRotation = Quaternion.Euler( Vector3.right * DirectionPlusEffects.x );
@@ -427,7 +427,7 @@ public sealed class CameraControl : MonoBehaviour, ICameraControl {
 		// rotation with effect added
 		{
 			Vector3 finalWpnRotationFeedback = new Vector3( Axis_Y_Delta, Axis_X_Delta );
-			m_WpnRotationFeedback = Vector3.ClampMagnitude( Vector3.Lerp( m_WpnRotationFeedback, new Vector3( Axis_Y_Delta, Axis_X_Delta ), deltaTime * 8f ), WPN_ROTATION_CLAMP_VALUE );
+			this.m_WpnRotationFeedback = Vector3.ClampMagnitude( Vector3.Lerp(this.m_WpnRotationFeedback, new Vector3( Axis_Y_Delta, Axis_X_Delta ), deltaTime * 8f ), WPN_ROTATION_CLAMP_VALUE );
 		}
 	}
 
@@ -479,7 +479,7 @@ public class CameraEffectorsManager {
 
 	[SerializeField]
 	protected CameraEffectorData m_CameraEffectorData = new CameraEffectorData();
-	public CameraEffectorData CameraEffectorsData  => m_CameraEffectorData;
+	public CameraEffectorData CameraEffectorsData  => this.m_CameraEffectorData;
 
 	[SerializeField]
 	protected List<CameraEffectBase> m_Effects = new List<CameraEffectBase>();
@@ -488,21 +488,21 @@ public class CameraEffectorsManager {
 	//////////////////////////////////////////////////////////////////////////
 	public void Add<T>( EffectActiveCondition condition ) where T : CameraEffectBase, new()
 	{
-		if ( m_Effects.Exists( e => e is T ) )
+		if (this.m_Effects.Exists( e => e is T ) )
 			return;
 
 		T newEffect = new T();
 
 		newEffect.Setup( condition );
 
-		m_Effects.Add( newEffect );
+		this.m_Effects.Add( newEffect );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public CameraEffectorData? GetEffectorData<T>() where T: CameraEffectBase
 	{
-		CameraEffectBase effector = m_Effects.Find( e => e is T );
+		CameraEffectBase effector = this.m_Effects.Find( e => e is T );
 		if ( effector != null )
 		{
 			CameraEffectorData data = default;
@@ -517,7 +517,7 @@ public class CameraEffectorsManager {
 	//////////////////////////////////////////////////////////////////////////
 	public void SetEffectorState<T>( bool newState ) where T: CameraEffectBase
 	{
-		CameraEffectBase effector = m_Effects.Find( e => e is T );
+		CameraEffectBase effector = this.m_Effects.Find( e => e is T );
 		if ( effector != null )
 		{
 			effector.IsActive= newState;
@@ -528,7 +528,7 @@ public class CameraEffectorsManager {
 	//////////////////////////////////////////////////////////////////////////
 	public void SetAmplitudeMultiplier<T>( float newAmplitudeMultiplier ) where T : CameraEffectBase
 	{
-		CameraEffectBase effector = m_Effects.Find( e => e is T );
+		CameraEffectBase effector = this.m_Effects.Find( e => e is T );
 		if ( effector != null )
 		{
 			effector.AmplitudeMult = newAmplitudeMultiplier;
@@ -539,7 +539,7 @@ public class CameraEffectorsManager {
 	//////////////////////////////////////////////////////////////////////////
 	public void SetSpeedMultiplier<T>( float newSpeedMultiplier ) where T : CameraEffectBase
 	{
-		CameraEffectBase effector = m_Effects.Find( e => e is T );
+		CameraEffectBase effector = this.m_Effects.Find( e => e is T );
 		if ( effector != null )
 		{
 			effector.SpeedMul = newSpeedMultiplier;
@@ -550,23 +550,23 @@ public class CameraEffectorsManager {
 	//////////////////////////////////////////////////////////////////////////
 	public void	Update( float deltaTime )
 	{
-		m_CameraEffectorData.Reset();
-		m_Effects.ForEach( e => e.Update( deltaTime, ref m_CameraEffectorData ) );
+		this.m_CameraEffectorData.Reset();
+		this.m_Effects.ForEach( e => e.Update( deltaTime, ref this.m_CameraEffectorData ) );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public void Remove<T>() where T : CameraEffectBase
 	{
-		m_Effects.RemoveAll( e => e is T );
+		this.m_Effects.RemoveAll( e => e is T );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public void Reset()
 	{
-		m_Effects.Clear();
+		this.m_Effects.Clear();
 
-		m_CameraEffectorData = new CameraEffectorData();
+		this.m_CameraEffectorData = new CameraEffectorData();
 	}
 }

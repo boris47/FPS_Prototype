@@ -20,13 +20,11 @@ public class WPN_FireModule_Syphon : WPN_FireModule {
 
 	protected		Laser							m_Laser						= null;
 
-	protected		Slider							m_Slider					= null;
 
-
-	public override FireModes FireMode
+	public override EFireMode FireMode
 	{
 		get {
-			return FireModes.NONE;
+			return EFireMode.NONE;
 		}
 	}
 
@@ -35,27 +33,25 @@ public class WPN_FireModule_Syphon : WPN_FireModule {
 		string modulePrefabPath = null;
 		if ( moduleSection.bAsString( "Module_Prefab", ref modulePrefabPath ) )
 		{
-			m_BaseAmmoRestoreCounter = moduleSection.AsFloat( "BaseAmmoRestoreCounter", m_BaseAmmoRestoreCounter );
+			this.m_BaseAmmoRestoreCounter = moduleSection.AsFloat( "BaseAmmoRestoreCounter", this.m_BaseAmmoRestoreCounter );
 
 			GameObject modulePrefab = Resources.Load( modulePrefabPath ) as GameObject;
 			if ( modulePrefab )
 			{	
-				GameObject modulePrefabInstance = Instantiate<GameObject>( modulePrefab, m_FirePoint );
+				GameObject modulePrefabInstance = Instantiate<GameObject>( modulePrefab, this.m_FirePoint );
 				modulePrefabInstance.transform.localPosition = Vector3.zero;
 				modulePrefabInstance.transform.localRotation = Quaternion.identity;
 			
-				if ( modulePrefabInstance.transform.SearchComponent( ref m_Laser, SearchContext.LOCAL ) )
+				if ( modulePrefabInstance.transform.SearchComponent( ref this.m_Laser, ESearchContext.LOCAL ) )
 				{
-					m_Laser.LaserLength = m_BeamLength;
-					m_Laser.enabled = false;
+					this.m_Laser.LaserLength = this.m_BeamLength;
+					this.m_Laser.enabled = false;
 				}
 
-				if ( m_WeaponRef.Transform.SearchComponent( ref m_Renderer, SearchContext.CHILDREN, s => s.name == "Graphics" ) )
+				if (this.m_WeaponRef.Transform.SearchComponent( ref this.m_Renderer, ESearchContext.CHILDREN, s => s.name == "Graphics" ) )
 				{
-					m_StartEmissiveColor = m_Renderer.material.GetColor( "_EmissionColor" );
+					this.m_StartEmissiveColor = this.m_Renderer.material.GetColor( "_EmissionColor" );
 				}
-
-				m_WeaponRef.Transform.SearchComponent( ref m_Slider, SearchContext.CHILDREN );
 			}
 		}
 
@@ -87,20 +83,20 @@ public class WPN_FireModule_Syphon : WPN_FireModule {
 
 	protected void Start()
 	{
-		m_Laser.enabled = false;
+		this.m_Laser.enabled = false;
 	}
 
 
 	public	override	bool	OnSave			( StreamUnit streamUnit )
 	{
-		streamUnit.SetInternal( name, m_Magazine );
+		streamUnit.SetInternal(this.name, this.m_Magazine );
 		return true;
 	}
 
 	//
 	public	override	bool	OnLoad			( StreamUnit streamUnit )
 	{
-		m_Magazine = (uint)streamUnit.GetAsInt( name );
+		this.m_Magazine = (uint)streamUnit.GetAsInt(this.name );
 		return true;
 	}
 
@@ -108,39 +104,39 @@ public class WPN_FireModule_Syphon : WPN_FireModule {
 	//
 	public	override	bool	NeedReload()
 	{
-		return m_Magazine < m_MagazineCapacity;
+		return this.m_Magazine < this.m_MagazineCapacity;
 	}
 
 	//
 	public		override	void	OnAfterReload()
 	{
-		m_Magazine = m_MagazineCapacity;
+		this.m_Magazine = this.m_MagazineCapacity;
 	}
 
 	// ON LOAD
 	public		virtual		void	OnLoad( uint magazine )
 	{
-		m_Magazine = magazine;
+		this.m_Magazine = magazine;
 	}
 
 	// CAN SHOOT
 	public	override		bool	CanBeUsed()
 	{
-		return m_Magazine > 0;
+		return this.m_Magazine > 0;
 	}
 
 	
 	// SHOOT
 	protected	override		void	Shoot( float moduleFireDispersion, float moduleCamDeviation )
 	{
-//		m_FireDelay = m_BaseShotDelay;
+		//		m_FireDelay = m_BaseShotDelay;
 
-		m_Magazine --;
+		this.m_Magazine --;
 
-		if ( m_Magazine == 0 )
+		if (this.m_Magazine == 0 )
 		{
-			m_Laser.enabled = false;
-			m_AudioSourceFire.Stop();
+			this.m_Laser.enabled = false;
+			this.m_AudioSourceFire.Stop();
 		}
 
 		// TODO muzzle flash
@@ -180,79 +176,77 @@ public class WPN_FireModule_Syphon : WPN_FireModule {
 
 	public override void OnWeaponChange()
 	{
-		m_Laser.enabled = false;
+		this.m_Laser.enabled = false;
 	}
 
 	// FIXED UPDATE
 	protected void FixedUpdate()
 	{
 		// Hit target(s)
-		if ( m_Laser.enabled == true && m_Laser.HasHit == true )
+		if (this.m_Laser.enabled == true && this.m_Laser.HasHit == true )
 		{
 			IEntity entity = null;
-			if ( Utils.Base.SearchComponent( m_Laser.RayCastHit.transform.gameObject, ref entity, SearchContext.LOCAL ) )
+			if ( Utils.Base.SearchComponent(this.m_Laser.RayCastHit.transform.gameObject, ref entity, ESearchContext.LOCAL ) )
 			{
-				IBullet bullet = m_PoolBullets.PeekComponent();
+				IBullet bullet = this.m_PoolBullets.PeekComponent();
 
 				// Do damage scaled with time scale
-				entity.Events.OnHittedDetails( transform.position, Player.Instance, bullet.DamageType, bullet.Damage * Time.timeScale, false );
+				entity.Events.OnHittedDetails(this.transform.position, Player.Instance, bullet.DamageType, bullet.Damage * Time.timeScale, false );
 
-				EffectsManager.Instance.PlayEffect( EffectType.PLASMA, m_Laser.RayCastHit.point, m_Laser.RayCastHit.normal, 1 );
+				EffectsManager.Instance.PlayEffect( EEffectType.PLASMA, this.m_Laser.RayCastHit.point, this.m_Laser.RayCastHit.normal, 1 );
 			}
-			EffectsManager.Instance.PlayEffect( EffectType.ENTITY_ON_HIT, m_Laser.RayCastHit.point, m_Laser.RayCastHit.normal, 1 );
+			EffectsManager.Instance.PlayEffect( EEffectType.ENTITY_ON_HIT, this.m_Laser.RayCastHit.point, this.m_Laser.RayCastHit.normal, 1 );
 		}
 	}
 
 	// INTERNAL UPDATE
 	public override void InternalUpdate( float DeltaTime )
 	{
-		m_WpnFireMode.InternalUpdate( DeltaTime, m_Magazine );
+		this.m_WpnFireMode.InternalUpdate( DeltaTime, this.m_Magazine );
 
-		if ( m_Laser.enabled == false && m_Magazine < m_MagazineCapacity )
+		if (this.m_Laser.enabled == false && this.m_Magazine < this.m_MagazineCapacity )
 		{
-			m_BaseAmmoRestoreCounter -= Time.deltaTime;
-			if ( m_BaseAmmoRestoreCounter < 0f )
+			this.m_BaseAmmoRestoreCounter -= Time.deltaTime;
+			if (this.m_BaseAmmoRestoreCounter < 0f )
 			{
-				m_Magazine ++;
-				m_BaseAmmoRestoreCounter = m_AmmoUnitRechargeDelay;
+				this.m_Magazine ++;
+				this.m_BaseAmmoRestoreCounter = this.m_AmmoUnitRechargeDelay;
 			}
 		}
 
-		float value = ( ( float )m_Magazine / ( float )m_MagazineCapacity );
-		Color current = Color.Lerp( Color.black, m_StartEmissiveColor, value );
-		m_Renderer.material.SetColor( "_EmissionColor", current );
-
-		m_Slider.value = value;
+		float value = ( ( float )this.m_Magazine / ( float )this.m_MagazineCapacity );
+		Color current = Color.Lerp( Color.black, this.m_StartEmissiveColor, value );
+		this.m_Renderer.material.SetColor( "_EmissionColor", current );
 	}
 
 	//    START
 	public override        void    OnStart()
 	{
-		if ( CanBeUsed() )
+		if (this.CanBeUsed() )
 		{
-			m_WpnFireMode.OnStart( GetFireDispersion(), GetCamDeviation() );
-			m_AudioSourceFire.Play();
-			m_Laser.enabled = true;
+			this.m_WpnFireMode.OnStart(this.GetFireDispersion(), this.GetCamDeviation() );
+			this.m_AudioSourceFire.Play();
+			this.m_Laser.enabled = true;
 		}
 	}
 
 	//    INTERNAL UPDATE
 	public    override    void    OnUpdate()
 	{
-		if ( CanBeUsed() )
+		if (this.CanBeUsed() )
 		{
-			m_WpnFireMode.OnUpdate( GetFireDispersion(), GetCamDeviation() );
+			this.m_WpnFireMode.OnUpdate(this.GetFireDispersion(), this.GetCamDeviation() );
 		}
 	}
 
 	//    END
 	public override        void    OnEnd()
 	{
-		if ( CanBeUsed() )
+		if (this.CanBeUsed() )
 		{
-			m_WpnFireMode.OnEnd( GetFireDispersion(), GetCamDeviation() );
-			m_AudioSourceFire.Stop();
-			m_Laser.enabled = false;
+			this.m_WpnFireMode.OnEnd(this.GetFireDispersion(), this.GetCamDeviation() );
+			this.m_AudioSourceFire.Stop();
+			this.m_Laser.enabled = false;
 		}
 	}
 	

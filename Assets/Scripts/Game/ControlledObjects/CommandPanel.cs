@@ -19,22 +19,22 @@ public class CommandPanel : MonoBehaviour {
 	private void Awake()
 	{
 		// Get Trigger Collider
-		if ( m_TriggerCollider == null )
+		if (this.m_TriggerCollider == null )
 		{
-			Debug.LogError( "CommandPanel " + name + " has not TriggerCollider child" );
+			Debug.LogError( "CommandPanel " + this.name + " has not TriggerCollider child" );
 		}
 
-		m_TriggerCollider.isTrigger = true;
+		this.m_TriggerCollider.isTrigger = true;
 
-		if ( m_ObjectToControl == null || m_Activator == null )
+		if (this.m_ObjectToControl == null || this.m_Activator == null )
 		{
-			Debug.LogError( "CommandPanel " + name + " has not ObjectToControl and Activator set!!" );
-			m_TriggerCollider.enabled = false;
+			Debug.LogError( "CommandPanel " + this.name + " has not ObjectToControl and Activator set!!" );
+			this.m_TriggerCollider.enabled = false;
 			return;
 		}
 
-		GameManager.StreamEvents.OnSave += OnSave;
-		GameManager.StreamEvents.OnLoad += OnLoad;
+		GameManager.StreamEvents.OnSave += this.OnSave;
+		GameManager.StreamEvents.OnLoad += this.OnLoad;
 	}
 
 
@@ -42,9 +42,9 @@ public class CommandPanel : MonoBehaviour {
 	// OnSave
 	private	StreamUnit	OnSave( StreamData streamData )
 	{
-		StreamUnit streamUnit	= streamData.NewUnit( gameObject );
+		StreamUnit streamUnit	= streamData.NewUnit(this.gameObject );
 
-		streamUnit.SetInternal( "IsTriggered", m_IsTriggered );
+		streamUnit.SetInternal( "IsTriggered", this.m_IsTriggered );
 
 		return streamUnit;
 	}
@@ -55,18 +55,18 @@ public class CommandPanel : MonoBehaviour {
 	private	StreamUnit	OnLoad( StreamData streamData )
 	{
 		StreamUnit streamUnit = null;
-		if ( streamData.GetUnit( gameObject, ref streamUnit ) == false )
+		if ( streamData.GetUnit(this.gameObject, ref streamUnit ) == false )
 			return null;
 
-		if ( m_IsTriggered = streamUnit.GetAsBool( "IsTriggered" ) == true )
+		if (this.m_IsTriggered = streamUnit.GetAsBool( "IsTriggered" ) == true )
 		{
-			m_ObjectToControl.OnActivation();
-			m_Activator.transform.position			= m_TriggerCollider.transform.position;
-			m_Activator.transform.rotation			= m_TriggerCollider.transform.rotation;
-			m_Activator.RigidBody.constraints		= RigidbodyConstraints.FreezeAll;
-			m_Activator.RigidBody.useGravity		= false;
-			m_Activator.Collider.enabled			= false;
-			m_TriggerCollider.enabled				= false;
+			this.m_ObjectToControl.OnActivation();
+			this.m_Activator.transform.position			= this.m_TriggerCollider.transform.position;
+			this.m_Activator.transform.rotation			= this.m_TriggerCollider.transform.rotation;
+			this.m_Activator.RigidBody.constraints		= RigidbodyConstraints.FreezeAll;
+			this.m_Activator.RigidBody.useGravity		= false;
+			this.m_Activator.Collider.enabled			= false;
+			this.m_TriggerCollider.enabled				= false;
 		}
 
 		return streamUnit;
@@ -77,19 +77,19 @@ public class CommandPanel : MonoBehaviour {
 	// OnTriggerEnter
 	private void OnTriggerEnter( Collider other )
 	{
-		if ( other.GetInstanceID() == m_Activator.Collider.GetInstanceID() )
+		if ( other.GetInstanceID() == this.m_Activator.Collider.GetInstanceID() )
 		{
 			Player.Instance.DropEntityDragged();
 
-			m_ObjectToControl.OnActivation();
-			m_IsTriggered = true;
+			this.m_ObjectToControl.OnActivation();
+			this.m_IsTriggered = true;
 
-			m_Activator.transform.position			= m_TriggerCollider.transform.position;
-			m_Activator.transform.rotation			= m_TriggerCollider.transform.rotation;
-			m_Activator.RigidBody.constraints		= RigidbodyConstraints.FreezeAll;
-			m_Activator.RigidBody.useGravity		= false;
-			m_Activator.Collider.enabled			= false;
-			m_TriggerCollider.enabled				= false;
+			this.m_Activator.transform.position			= this.m_TriggerCollider.transform.position;
+			this.m_Activator.transform.rotation			= this.m_TriggerCollider.transform.rotation;
+			this.m_Activator.RigidBody.constraints		= RigidbodyConstraints.FreezeAll;
+			this.m_Activator.RigidBody.useGravity		= false;
+			this.m_Activator.Collider.enabled			= false;
+			this.m_TriggerCollider.enabled				= false;
 		}
 	}
 

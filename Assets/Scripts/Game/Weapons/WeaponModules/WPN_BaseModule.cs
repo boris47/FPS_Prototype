@@ -7,7 +7,7 @@ using UnityEngine;
 
 public interface IWPN_FireModule {
 
-	FireModes				FireMode						{ get; }
+	EFireMode				FireMode						{ get; }
 
 	uint					Magazine						{ get; }
 	uint					MagazineCapacity				{ get; }
@@ -33,17 +33,17 @@ public abstract class WPN_BaseModule : MonoBehaviour, IModifiable {
 
 	protected		Database.Section			m_ModuleSection				= new Database.Section( "Empty", "Unassigned" );
 	protected		IWeapon						m_WeaponRef					= null;
-	protected		WeaponSlots					m_ModuleSlot				= WeaponSlots.NONE;
+	protected		EWeaponSlots					m_ModuleSlot				= EWeaponSlots.NONE;
 	protected		List<Database.Section>		m_Modifiers					= new List<Database.Section>();
 	protected		GameObject					m_FireModeContainer			= null;
 
 
 	public virtual		Database.Section			ModuleSection
 	{
-		get { return m_ModuleSection; }
+		get { return this.m_ModuleSection; }
 	}
 
-	public		abstract	bool	Setup			( IWeapon w, WeaponSlots slot );
+	public		abstract	bool	Setup			( IWeapon w, EWeaponSlots slot );
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	abstract	bool	InternalSetup( Database.Section moduleSection );
@@ -70,7 +70,7 @@ public abstract class WPN_BaseModule : MonoBehaviour, IModifiable {
 		bool result = true;
 
 		string[] allowedBullets = null;
-		if ( result &= GetRules( m_ModuleSection, ref allowedBullets ) )
+		if ( result &= GetRules(this.m_ModuleSection, ref allowedBullets ) )
 		{
 			result &= System.Array.IndexOf( allowedBullets, bulletName ) > -1;
 		}
@@ -89,13 +89,13 @@ public abstract class WPN_BaseModule : MonoBehaviour, IModifiable {
 
 	protected	virtual	void OnEnable()
 	{
-		GameManager.UpdateEvents.OnFrame += InternalUpdate;
+		GameManager.UpdateEvents.OnFrame += this.InternalUpdate;
 	}
 
 	protected	virtual void OnDisable()
 	{
 		if ( GameManager.UpdateEvents.IsNotNull() )
-			GameManager.UpdateEvents.OnFrame -= InternalUpdate;
+			GameManager.UpdateEvents.OnFrame -= this.InternalUpdate;
 	}
 
 	public		abstract	bool	OnSave			( StreamUnit streamUnit );

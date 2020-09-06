@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace CutScene {
 
-	public	enum CutsceneSubject { ENTITY, CAMERA }
+	public	enum ECutsceneSubject { ENTITY, CAMERA }
 
 	public class CutsceneEntityManager : MonoBehaviour {
 	
@@ -11,7 +11,7 @@ namespace CutScene {
 
 		private		EntityCutsceneController		m_EntityCutsceneController	= new EntityCutsceneController();
 		private		CameraCutsceneController		m_CameraCutsceneController	= new CameraCutsceneController();
-		private		CutsceneSubject					m_CutsceneSubject			= CutsceneSubject.ENTITY;
+		private		ECutsceneSubject				m_CutsceneSubject			= ECutsceneSubject.ENTITY;
 
 
 
@@ -34,7 +34,7 @@ namespace CutScene {
 			}
 
 			Entity entityParent = null;
-			bool found = Utils.Base.SearchComponent( gameObject, ref entityParent, SearchContext.PARENT );
+			bool found = Utils.Base.SearchComponent(this.gameObject, ref entityParent, ESearchContext.PARENT );
 
 			if ( found == false )
 			{
@@ -43,13 +43,13 @@ namespace CutScene {
 
 			this.enabled = true;
 
-			GameManager.UpdateEvents.OnFrame += OnFrameUpdate;
+			GameManager.UpdateEvents.OnFrame += this.OnFrameUpdate;
 
-			m_CutsceneSubject = CutsceneSubject.ENTITY;
+			this.m_CutsceneSubject = ECutsceneSubject.ENTITY;
 
-			m_EntityCutsceneController.Setup( entityParent, pointsCollection );
+			this.m_EntityCutsceneController.Setup( entityParent, pointsCollection );
 
-			IsPlaying = true;
+			this.IsPlaying = true;
 
 //			( entityParent as IEntitySimulation ).EnterSimulationState();
 
@@ -69,13 +69,13 @@ namespace CutScene {
 
 			this.enabled						= true;
 
-			GameManager.UpdateEvents.OnFrame += OnFrameUpdate;
+			GameManager.UpdateEvents.OnFrame += this.OnFrameUpdate;
 
-			m_CutsceneSubject = CutsceneSubject.CAMERA;
+			this.m_CutsceneSubject = ECutsceneSubject.CAMERA;
 
-			m_CameraCutsceneController.Setup( cameraPath );
+			this.m_CameraCutsceneController.Setup( cameraPath );
 
-			IsPlaying = true;
+			this.IsPlaying = true;
 
 			// start event called automatically called by path
 		}
@@ -87,22 +87,22 @@ namespace CutScene {
 			if ( GameManager.IsPaused == true )
 				return;
 
-			if ( IsPlaying == false )
+			if (this.IsPlaying == false )
 				return;
 			
 			bool bHasCompleted = true;
-			if ( m_CutsceneSubject == CutsceneSubject.ENTITY )
+			if (this.m_CutsceneSubject == ECutsceneSubject.ENTITY )
 			{
-				bHasCompleted = m_EntityCutsceneController.Update();
+				bHasCompleted = this.m_EntityCutsceneController.Update();
 			}
 			else
 			{
-				bHasCompleted = m_CameraCutsceneController.Update();
+				bHasCompleted = this.m_CameraCutsceneController.Update();
 			}
 
 			if ( bHasCompleted )
 			{
-				Terminate();
+				this.Terminate();
 			}
 		}
 
@@ -110,22 +110,22 @@ namespace CutScene {
 		//////////////////////////////////////////////////////////////////////////
 		public	void	Terminate()
 		{
-			if ( m_CutsceneSubject == CutsceneSubject.ENTITY )
+			if (this.m_CutsceneSubject == ECutsceneSubject.ENTITY )
 			{
-				m_EntityCutsceneController.Terminate();
+				this.m_EntityCutsceneController.Terminate();
 			}
 			else
 			{
-				m_CameraCutsceneController.Terminate();
+				this.m_CameraCutsceneController.Terminate();
 			}
 
 			// Resetting internals
-			IsPlaying							= false;
+			this.IsPlaying							= false;
 
 			// to save performance disable this script
 			this.enabled						= false;
 
-			GameManager.UpdateEvents.OnFrame -= OnFrameUpdate;
+			GameManager.UpdateEvents.OnFrame -= this.OnFrameUpdate;
 		}
 	
 	}

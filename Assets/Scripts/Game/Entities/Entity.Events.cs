@@ -3,7 +3,7 @@ using UnityEngine;
 
 public struct EntityEvents {
 	public	delegate	void		HitWithBullet( IBullet bullet );
-	public	delegate	void		HitDetailsEvent( Vector3 startPosition, Entity whoRef, DamageType damageType, float damage, bool canPenetrate = false );
+	public	delegate	void		HitDetailsEvent( Vector3 startPosition, Entity whoRef, EDamageType damageType, float damage, bool canPenetrate = false );
 	public	delegate	void		TargetEvent( TargetInfo targetInfo );
 	public	delegate	void		NavigationEvent( Vector3 Destination );
 	public	delegate	void		KilledEvent( Entity entityKilled );
@@ -39,14 +39,14 @@ public interface IEntityEvents {
 	void				OnHittedBullet						( Bullet hittingBullet );
 
 	///<summary> Call with details about hit </summary>
-	void				OnHittedDetails						( Vector3 startPosition, Entity whoRef, DamageType damageType, float damage, bool canPenetrate = false );
+	void				OnHittedDetails						( Vector3 startPosition, Entity whoRef, EDamageType damageType, float damage, bool canPenetrate = false );
 }
 
 
 public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	
 	private				IEntityEvents				m_EventsInterface				= null;
-	public				IEntityEvents				EventsInterface					{ get { return m_EventsInterface; } }
+	public				IEntityEvents				EventsInterface					{ get { return this.m_EventsInterface; } }
 
 	protected	event	EntityEvents.KilledEvent			m_OnKilled			= delegate { };
 	protected	event	EntityEvents.HitDetailsEvent		m_OnHittedDetails	= delegate { };
@@ -85,7 +85,7 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	//-
 	bool IEntityEvents.HasEventsEnabled
 	{
-		get { return m_HasEventsEnabled; }
+		get { return this.m_HasEventsEnabled; }
 	}
 
 
@@ -93,7 +93,7 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	// EnableEvents
 	public		virtual		void		EnableEvents()
 	{
-		m_HasEventsEnabled = true;
+		this.m_HasEventsEnabled = true;
 	}
 
 
@@ -101,7 +101,7 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	// DisableEvents
 	public		virtual		void		DisableEvents()
 	{
-		m_HasEventsEnabled = false;
+		this.m_HasEventsEnabled = false;
 	}
 
 
@@ -117,25 +117,25 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	{
 		// Events registration
 		{
-			GameManager.StreamEvents.OnSave				+= OnSave;
-			GameManager.StreamEvents.OnLoad				+= OnLoad;
+			GameManager.StreamEvents.OnSave				+= this.OnSave;
+			GameManager.StreamEvents.OnLoad				+= this.OnLoad;
 
-			GameManager.UpdateEvents.OnThink			+= OnThink;
-			GameManager.UpdateEvents.OnPhysicFrame		+= OnPhysicFrame;
-			GameManager.UpdateEvents.OnFrame			+= OnFrame;
+			GameManager.UpdateEvents.OnThink			+= this.OnThink;
+			GameManager.UpdateEvents.OnPhysicFrame		+= this.OnPhysicFrame;
+			GameManager.UpdateEvents.OnFrame			+= this.OnFrame;
 			
 			// Field Of View Callbacks
-			if ( ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
+			if ( (this.m_EntityType == EEntityType.ACTOR ) == false )
 			{
-				string targetType = m_SectionRef.AsString( "DefaultTarget" );
-				ENTITY_TYPE type = ENTITY_TYPE.NONE;
+				string targetType = this.m_SectionRef.AsString( "DefaultTarget" );
+				EEntityType type = EEntityType.NONE;
 				Utils.Converters.StringToEnum( targetType, ref type );
-				m_BrainInstance.FieldOfView.TargetType = type;
+				this.m_BrainInstance.FieldOfView.TargetType = type;
 
-//				m_FieldOfView.Setup( maxVisibleEntities : 10 );
-				m_FieldOfView.OnTargetAquired			= OnTargetAquired;
-				m_FieldOfView.OnTargetChanged			= OnTargetChanged;
-				m_FieldOfView.OnTargetLost				= OnTargetLost;
+				//				m_FieldOfView.Setup( maxVisibleEntities : 10 );
+				this.m_FieldOfView.OnTargetAquired			= this.OnTargetAquired;
+				this.m_FieldOfView.OnTargetChanged			= this.OnTargetChanged;
+				this.m_FieldOfView.OnTargetLost				= this.OnTargetLost;
 			}		
 		}
 		
@@ -145,25 +145,25 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void		OnDisable()
 	{
-		Brain_SetActive( false );
+		this.Brain_SetActive( false );
 
 		// Events un-registration
 		if ( GameManager.Instance != null )
 		{
-			GameManager.StreamEvents.OnSave				-= OnSave;
-			GameManager.StreamEvents.OnLoad				-= OnLoad;
+			GameManager.StreamEvents.OnSave				-= this.OnSave;
+			GameManager.StreamEvents.OnLoad				-= this.OnLoad;
 
-			GameManager.UpdateEvents.OnPhysicFrame		-= OnPhysicFrame;
-			GameManager.UpdateEvents.OnFrame			-= OnFrame;
-			GameManager.UpdateEvents.OnThink			-= OnThink;
+			GameManager.UpdateEvents.OnPhysicFrame		-= this.OnPhysicFrame;
+			GameManager.UpdateEvents.OnFrame			-= this.OnFrame;
+			GameManager.UpdateEvents.OnThink			-= this.OnThink;
 
-			if ( ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
+			if ( (this.m_EntityType == EEntityType.ACTOR ) == false )
 			{
-				Destroy_Brain();
+				this.Destroy_Brain();
 
-				m_FieldOfView.OnTargetAquired			= null;
-				m_FieldOfView.OnTargetChanged			= null;
-				m_FieldOfView.OnTargetLost				= null;
+				this.m_FieldOfView.OnTargetAquired			= null;
+				this.m_FieldOfView.OnTargetChanged			= null;
+				this.m_FieldOfView.OnTargetLost				= null;
 			}
 		}
 	}
@@ -172,17 +172,17 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		StreamUnit	OnSave( StreamData streamData )
 	{
-		if ( m_IsActive == false )
+		if (this.m_IsActive == false )
 			return null;
 
-		StreamUnit streamUnit		= streamData.NewUnit( gameObject );
-		streamUnit.Position			= transform.position;
-		streamUnit.Rotation			= transform.rotation;
+		StreamUnit streamUnit		= streamData.NewUnit(this.gameObject );
+		streamUnit.Position			= this.transform.position;
+		streamUnit.Rotation			= this.transform.rotation;
 
-		if ( ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
+		if ( (this.m_EntityType == EEntityType.ACTOR ) == false )
 		{
 			// save data of every behaviour
-			m_Behaviours.ForEach( ( AIBehaviour b ) => b.OnSave( streamUnit ) );
+			this.m_Behaviours.ForEach( ( AIBehaviour b ) => b.OnSave( streamUnit ) );
 		}
 
 		return streamUnit;
@@ -193,32 +193,32 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	protected	virtual		StreamUnit	OnLoad( StreamData streamData )
 	{
 		StreamUnit streamUnit = null;
-		if ( streamData.GetUnit( gameObject, ref streamUnit ) == false )
+		if ( streamData.GetUnit(this.gameObject, ref streamUnit ) == false )
 		{
-			gameObject.SetActive( false );
-			m_IsActive = false;
+			this.gameObject.SetActive( false );
+			this.m_IsActive = false;
 			return null;
 		}
 
-		gameObject.SetActive( true );
-		m_IsActive						= true;
+		this.gameObject.SetActive( true );
+		this.m_IsActive						= true;
 
 		// Entity
-		m_TargetInfo					= new TargetInfo();
-		m_HasDestination				= false;
+		this.m_TargetInfo					= new TargetInfo();
+		this.m_HasDestination				= false;
 
-		m_NavCanMoveAlongPath			= false;
-		m_IsAllignedBodyToPoint			= false;
+		this.m_NavCanMoveAlongPath			= false;
+		this.m_IsAllignedBodyToPoint			= false;
 
 		// NonLiveEntity
-		m_IsAllignedHeadToPoint			= false;
+		this.m_IsAllignedHeadToPoint			= false;
 
-		transform.position = streamUnit.Position;
-		transform.rotation = streamUnit.Rotation;
+		this.transform.position = streamUnit.Position;
+		this.transform.rotation = streamUnit.Rotation;
 
-		if ( ( m_EntityType == ENTITY_TYPE.ACTOR ) == false )
+		if ( (this.m_EntityType == EEntityType.ACTOR ) == false )
 		{
-			m_Behaviours.ForEach( ( AIBehaviour b ) => b.OnLoad( streamUnit ) );
+			this.m_Behaviours.ForEach( ( AIBehaviour b ) => b.OnLoad( streamUnit ) );
 		}
 
 		return streamUnit;
@@ -228,22 +228,22 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	//////////////////////////////////////////////////////////////////////////
 	public		virtual		void		OnDestinationReached( Vector3 Destination )
 	{
-		m_CurrentBehaviour.OnDestinationReached( Destination );
+		this.m_CurrentBehaviour.OnDestinationReached( Destination );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public		virtual		void		OnLookRotationReached( Vector3 Direction )
 	{
-		m_CurrentBehaviour.OnLookRotationReached( Direction );
+		this.m_CurrentBehaviour.OnLookRotationReached( Direction );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		void		OnShieldHit( Vector3 startPosition, Entity whoRef, Weapon weaponRef, DamageType damageType, float damage, bool canPenetrate = false )
+	protected	virtual		void		OnShieldHit( Vector3 startPosition, Entity whoRef, Weapon weaponRef, EDamageType damageType, float damage, bool canPenetrate = false )
 	{
 		// Notify this entity of the received hit
-		NotifyHit( startPosition, whoRef, damageType, damage, canPenetrate );
+		this.NotifyHit( startPosition, whoRef, damageType, damage, canPenetrate );
 	}
 
 
@@ -254,35 +254,35 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 		if ( bIsBullet )
 		{
 			IBullet bullet = hittingBullet as IBullet;
-			float dmgMultiplier = ( m_Shield != null && m_Shield.Status > 0.0f ) ? 
+			float dmgMultiplier = (this.m_Shield != null && this.m_Shield.Status > 0.0f ) ? 
 				( bullet.CanPenetrate ) ? 0.5f : 0.0f
 				: 
 				1.0f;
-			
-			OnHittedDetails( bullet.StartPosition, bullet.WhoRef, bullet.DamageType, bullet.Damage * dmgMultiplier, bullet.CanPenetrate );
+
+			this.OnHittedDetails( bullet.StartPosition, bullet.WhoRef, bullet.DamageType, bullet.Damage * dmgMultiplier, bullet.CanPenetrate );
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		void		NotifyHit( Vector3 startPosition, Entity whoRef, DamageType damageType, float damage, bool canPenetrate = false )
+	protected	virtual		void		NotifyHit( Vector3 startPosition, Entity whoRef, EDamageType damageType, float damage, bool canPenetrate = false )
 	{
-		m_CurrentBehaviour.OnHit( startPosition, whoRef, damage, canPenetrate );
+		this.m_CurrentBehaviour.OnHit( startPosition, whoRef, damage, canPenetrate );
 
 		m_OnHittedDetails( startPosition, whoRef, damageType, damage, canPenetrate );
 
-		if ( m_Group )
+		if (this.m_Group )
 		{
-			m_Group.GetOthers( this ).ForEach( e => e.NotifyHit( startPosition, null, DamageType.NONE, 0.0f ) );
+			this.m_Group.GetOthers( this ).ForEach( e => e.NotifyHit( startPosition, null, EDamageType.NONE, 0.0f ) );
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		virtual		void		OnHittedDetails( Vector3 startPosition, Entity whoRef, DamageType damageType, float damage, bool canPenetrate = false )
+	public		virtual		void		OnHittedDetails( Vector3 startPosition, Entity whoRef, EDamageType damageType, float damage, bool canPenetrate = false )
 	{
 		// Notify behaviur
-		NotifyHit( startPosition, whoRef, damageType, damage, canPenetrate );
+		this.NotifyHit( startPosition, whoRef, damageType, damage, canPenetrate );
 		
 		this.OnTakeDamage( damage );
 //		print( name + ":Taking damage " + damage );
@@ -292,34 +292,34 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void		OnThink()
 	{
-		OnThinkBrain();
-		m_CurrentBehaviour.OnThink();
+		this.OnThinkBrain();
+		this.m_CurrentBehaviour.OnThink();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void		OnPhysicFrame( float FixedDeltaTime )
 	{
-		m_CurrentBehaviour.OnPhysicFrame( FixedDeltaTime );
+		this.m_CurrentBehaviour.OnPhysicFrame( FixedDeltaTime );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void		OnFrame( float DeltaTime )
 	{
-		UpdateHeadRotation();
+		this.UpdateHeadRotation();
 
-		m_CurrentBehaviour.OnFrame( DeltaTime );
+		this.m_CurrentBehaviour.OnFrame( DeltaTime );
 
-		if ( m_NavAgent != null )
-			m_NavAgent.speed = m_BlackBoardData.AgentSpeed;
+		if (this.m_NavAgent != null )
+			this.m_NavAgent.speed = this.m_BlackBoardData.AgentSpeed;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void		OnTargetAquired( TargetInfo targetInfo )
 	{
-		m_CurrentBehaviour.OnTargetAcquired();
+		this.m_CurrentBehaviour.OnTargetAcquired();
 //		Memory.Add( targetInfo.CurrentTarget as Entity );
 
 		m_OnTarget( targetInfo );
@@ -329,7 +329,7 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void		OnTargetChanged( TargetInfo targetInfo )
 	{
-		m_CurrentBehaviour.OnTargetChange();
+		this.m_CurrentBehaviour.OnTargetChange();
 
 		m_OnTarget( targetInfo );
 	}
@@ -338,7 +338,7 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void		OnTargetLost( TargetInfo targetInfo )
 	{
-		m_CurrentBehaviour.OnTargetLost();
+		this.m_CurrentBehaviour.OnTargetLost();
 
 		m_OnTarget( targetInfo );
 //		Memory.Remove( targetInfo.CurrentTarget as Entity );
@@ -350,10 +350,10 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	{
 		// DAMAGE
 		{
-			m_Health -= Damage;
-			if ( m_Health <= 0f )
+			this.m_Health -= Damage;
+			if (this.m_Health <= 0f )
 			{
-				OnKill();
+				this.OnKill();
 			}
 		}
 	}
@@ -362,18 +362,18 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void		OnKill()
 	{
-		if ( m_IsActive == false )
+		if (this.m_IsActive == false )
 			return;
 
-		m_IsActive = false;
+		this.m_IsActive = false;
 
-		m_RigidBody.velocity			= Vector3.zero;
-		m_RigidBody.angularVelocity		= Vector3.zero;
+		this.m_RigidBody.velocity			= Vector3.zero;
+		this.m_RigidBody.angularVelocity		= Vector3.zero;
 
-		EffectsManager.Instance.PlayEffect( EffectType.EXPLOSION, transform.position, transform.up, 0 );
-		EffectsManager.Instance.PlayExplosionSound( transform.position );
+		EffectsManager.Instance.PlayEffect( EEffectType.EXPLOSION, this.transform.position, this.transform.up, 0 );
+		EffectsManager.Instance.PlayExplosionSound(this.transform.position );
 
-		m_CurrentBehaviour.OnKilled();
+		this.m_CurrentBehaviour.OnKilled();
 
 		m_OnKilled( this );
 
@@ -386,9 +386,9 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	{
 		Blackboard.UnRegister( this );
 
-		if ( m_Group )
+		if (this.m_Group )
 		{
-			m_Group.UnregisterEntity(this);
+			this.m_Group.UnregisterEntity(this);
 		}
 	}
 

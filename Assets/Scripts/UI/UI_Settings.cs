@@ -5,15 +5,15 @@ using UnityEngine;
 public sealed class UI_Settings : MonoBehaviour, IStateDefiner {
 
 	
-	private	bool			m_bIsInitialized			= false;
+	private	bool			m_IsInitialized			= false;
 	bool IStateDefiner.IsInitialized
 	{
-		get { return m_bIsInitialized; }
+		get { return this.m_IsInitialized; }
 	}
 
 	string IStateDefiner.StateName
 	{
-		get { return name; }
+		get { return this.name; }
 	}
 
 
@@ -21,15 +21,15 @@ public sealed class UI_Settings : MonoBehaviour, IStateDefiner {
 	// Initialize
 	IEnumerator IStateDefiner.Initialize()
 	{
-		if ( m_bIsInitialized == true )
+		if (this.m_IsInitialized == true )
 			yield break;
 
-		m_bIsInitialized = true;
+		this.m_IsInitialized = true;
 		{
 
 		}
 
-		if ( m_bIsInitialized )
+		if (this.m_IsInitialized )
 		{
 				
 		}
@@ -52,6 +52,6 @@ public sealed class UI_Settings : MonoBehaviour, IStateDefiner {
 	// Finalize
 	bool	 IStateDefiner.Finalize()
 	{
-		return m_bIsInitialized;
+		return this.m_IsInitialized;
 	}
 }

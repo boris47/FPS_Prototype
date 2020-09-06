@@ -33,9 +33,9 @@ public class Turret_AI_Behaviour_Alarmed : AIBehaviour {
 
 	public override void OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
-		if ( EntityData.EntityRef.IsAlive )
+		if (this.EntityData.EntityRef.IsAlive )
 		{
-			EntityData.EntityRef.SetPointToLookAt( startPosition );
+			this.EntityData.EntityRef.SetPointToLookAt( startPosition );
 		}
 	}
 
@@ -67,7 +67,7 @@ public class Turret_AI_Behaviour_Alarmed : AIBehaviour {
 	public override void OnTargetAcquired()
 	{
 		// Switch brain State
-		EntityData.EntityRef.ChangeState( BrainState.ATTACKER );
+		this.EntityData.EntityRef.ChangeState( EBrainState.ATTACKER );
 	}
 
 	public override void OnTargetChange()

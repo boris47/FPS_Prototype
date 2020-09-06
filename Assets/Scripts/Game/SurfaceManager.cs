@@ -1,21 +1,24 @@
 ﻿// Ref: https://www.assetstore.unity3d.com/en/#!/content/47967
 
+using System.Linq;
 using UnityEngine;
 
 [System.Serializable]
-public struct SurfaceDefinition {
+public struct SurfaceDefinition
+{
 	public string name;
 	public AudioClip[] footsteps;
 }
 
 [System.Serializable]
-public struct RegisteredMaterial {
+public struct RegisteredMaterial
+{
 	public Texture texture;
 	public int surfaceIndex;
 }
 
-public class SurfaceManager : MonoBehaviour {
-
+public sealed class SurfaceManager : MonoBehaviour
+{
 	private		static		SurfaceManager	m_Instance				= null;
 	public		static		SurfaceManager Instance
 	{
@@ -35,7 +38,7 @@ public class SurfaceManager : MonoBehaviour {
 		// Singleton
 		if ( m_Instance != null )
 		{
-			Destroy( gameObject );
+			Destroy( this.gameObject );
 			return;
 		}
 		DontDestroyOnLoad( this );
@@ -46,12 +49,12 @@ public class SurfaceManager : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	public		AudioClip	GetFootstep( Collider groundCollider, Vector3 worldPosition )
 	{
-		int surfaceIndex = GetSurfaceIndex( groundCollider, worldPosition );
+		int surfaceIndex = this.GetSurfaceIndex( groundCollider, worldPosition );
 		if( surfaceIndex == -1 )
 			return null;
 
 		// Getting the footstep sounds based on surface index.
-		AudioClip[] footsteps = m_DefinedSurfaces[surfaceIndex].footsteps;
+		AudioClip[] footsteps = this.m_DefinedSurfaces[surfaceIndex].footsteps;
 		return footsteps[ Random.Range( 0, footsteps.Length ) ];
 	}
 
@@ -59,12 +62,7 @@ public class SurfaceManager : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	public		string[]	GetAllSurfaceNames()
 	{
-		string[] names = new string[ m_DefinedSurfaces.Length ];
-
-		for ( int i = 0; i < names.Length; i ++ )
-			names[i] = m_DefinedSurfaces[i].name;
-
-		return names;
+		return this.m_DefinedSurfaces.Select(surface => surface.name).ToArray();
 	}
 
 
@@ -79,8 +77,8 @@ public class SurfaceManager : MonoBehaviour {
 		{
 			Terrain terrain = col.GetComponent<Terrain>();
 			TerrainData terrainData = terrain.terrainData;
-			float[] textureMix = GetTerrainTextureMix( worldPos, terrainData, terrain.GetPosition() );
-			int textureIndex = GetTextureIndex( textureMix );
+			float[] textureMix = this.GetTerrainTextureMix( worldPos, terrainData, terrain.GetPosition() );
+			int textureIndex = this.GetTextureIndex( textureMix );
 		//	textureInstanceID = terrainData.splatPrototypes[ textureIndex ].texture.GetInstanceID();
 			textureInstanceID = terrainData.terrainLayers[ textureIndex ].diffuseTexture.GetInstanceID();
 
@@ -88,12 +86,12 @@ public class SurfaceManager : MonoBehaviour {
 		// Case when the ground is a normal mesh.
 		else
 		{
-			textureInstanceID = GetMeshMaterialAtPoint( worldPos, ray );
+			textureInstanceID = this.GetMeshMaterialAtPoint( worldPos, ray );
 		}
 
 		// Searching for the found texture / material name in registered materials.
-		int regTextureIndex = System.Array.FindIndex( m_RegisteredTextures, m => m.texture.GetInstanceID() == textureInstanceID );
-		return m_RegisteredTextures[regTextureIndex].surfaceIndex;
+		int regTextureIndex = System.Array.FindIndex(this.m_RegisteredTextures, m => m.texture.GetInstanceID() == textureInstanceID );
+		return this.m_RegisteredTextures[regTextureIndex].surfaceIndex;
 	}
 
 
@@ -108,8 +106,8 @@ public class SurfaceManager : MonoBehaviour {
 		{
 			Terrain terrain = col.GetComponent<Terrain>();
 			TerrainData terrainData = terrain.terrainData;
-			float[] textureMix = GetTerrainTextureMix( worldPos, terrainData, terrain.GetPosition() );
-			int textureIndex = GetTextureIndex( textureMix );
+			float[] textureMix = this.GetTerrainTextureMix( worldPos, terrainData, terrain.GetPosition() );
+			int textureIndex = this.GetTextureIndex( textureMix );
 			//	textureInstanceID = terrainData.splatPrototypes[ textureIndex ].texture.GetInstanceID();
 			textureInstanceID = terrainData.terrainLayers[textureIndex].diffuseTexture.GetInstanceID();
 
@@ -117,18 +115,18 @@ public class SurfaceManager : MonoBehaviour {
 		// Case when the ground is a normal mesh.
 		else
 		{
-			textureInstanceID = GetMeshMaterialAtPoint( worldPos, null );
+			textureInstanceID = this.GetMeshMaterialAtPoint( worldPos, null );
 		}
 
 		// Searching for the found texture / material name in registered materials.
-		int regTextureIndex = System.Array.FindIndex( m_RegisteredTextures, m => m.texture.GetInstanceID() == textureInstanceID );
-		if ( regTextureIndex == -1 || regTextureIndex >= m_RegisteredTextures.Length )
+		int regTextureIndex = System.Array.FindIndex(this.m_RegisteredTextures, m => m.texture.GetInstanceID() == textureInstanceID );
+		if ( regTextureIndex == -1 || regTextureIndex >= this.m_RegisteredTextures.Length )
 		{
 			Debug.DebugBreak();
 			return 0;
 		}
 
-		return m_RegisteredTextures[regTextureIndex].surfaceIndex;
+		return this.m_RegisteredTextures[regTextureIndex].surfaceIndex;
 	}
 
 
@@ -141,12 +139,11 @@ public class SurfaceManager : MonoBehaviour {
 			ray = new Ray( worldPosition + Vector3.up * 0.01f, Vector3.down );
 		}
 
-		RaycastHit hit;
-		if ( Physics.Raycast( ray.Value, out hit ) == false )
+		if (Physics.Raycast(ray.Value, out RaycastHit hit) == false)
 			return -1;
 
 		Renderer r = null;
-		bool bHasRender = Utils.Base.SearchComponent( hit.collider.gameObject, ref r, SearchContext.LOCAL );
+		bool bHasRender = Utils.Base.SearchComponent( hit.collider.gameObject, ref r, ESearchContext.LOCAL );
 		if ( bHasRender == false || r.sharedMaterial == null || r.sharedMaterial.mainTexture == null )
 			return -1;
 

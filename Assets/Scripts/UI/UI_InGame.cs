@@ -26,16 +26,16 @@ public sealed class UI_InGame : MonoBehaviour, IStateDefiner {
 
 	private			bool			m_IsActive					= false;
 
-	private			bool			m_bIsCompletedInitialization	= false;
-	private			bool			m_bIsInitialized			= false;
+	private			bool			m_IsCompletedInitialization	= false;
+	private			bool			m_IsInitialized			= false;
 	bool IStateDefiner.IsInitialized
 	{
-		get { return m_bIsInitialized; }
+		get { return this.m_IsInitialized; }
 	}
 
 	string IStateDefiner.StateName
 	{
-		get { return name; }
+		get { return this.name; }
 	}
 
 
@@ -43,60 +43,60 @@ public sealed class UI_InGame : MonoBehaviour, IStateDefiner {
 	// Initialize
 	IEnumerator IStateDefiner.Initialize()
 	{
-		if ( m_bIsInitialized == true )
+		if (this.m_IsInitialized == true )
 			yield break;
 
 		CoroutinesManager.AddCoroutineToPendingCount( 1 );
 
-		m_bIsInitialized = true;
+		this.m_IsInitialized = true;
 		{
-			m_bIsInitialized &= transform.childCount > 1;
+			this.m_IsInitialized &= this.transform.childCount > 1;
 
-			m_bIsInitialized &= transform.SearchComponent( ref m_Canvas, SearchContext.LOCAL );
+			this.m_IsInitialized &= this.transform.SearchComponent( ref this.m_Canvas, ESearchContext.LOCAL );
 
 			yield return null;
 
-			if ( m_bIsInitialized )
+			if (this.m_IsInitialized )
 			{
-				m_GenericInfosPanel = transform.Find( "GenericInfosPanel" );
+				this.m_GenericInfosPanel = this.transform.Find( "GenericInfosPanel" );
 				{
-					m_bIsInitialized &=	m_GenericInfosPanel.SearchComponentInChild( 0, ref m_CycleNameText );
-					m_bIsInitialized &=	m_GenericInfosPanel.SearchComponentInChild( 1, ref m_TimeText);
-					m_bIsInitialized &=	m_GenericInfosPanel.SearchComponentInChild( 2, ref m_HealthText );
-					m_bIsInitialized &= m_GenericInfosPanel.SearchComponentInChild( 3, ref m_Timetime );
+					this.m_IsInitialized &= this.m_GenericInfosPanel.SearchComponentInChild( 0, ref this.m_CycleNameText );
+					this.m_IsInitialized &= this.m_GenericInfosPanel.SearchComponentInChild( 1, ref this.m_TimeText);
+					this.m_IsInitialized &= this.m_GenericInfosPanel.SearchComponentInChild( 2, ref this.m_HealthText );
+					this.m_IsInitialized &= this.m_GenericInfosPanel.SearchComponentInChild( 3, ref this.m_Timetime );
 				}
 			}
 
 			yield return null;
 
-			if ( m_bIsInitialized )
+			if (this.m_IsInitialized )
 			{
-				m_WeaponInfosPanel = transform.Find( "WeaponInfosPanel" );
+				this.m_WeaponInfosPanel = this.transform.Find( "WeaponInfosPanel" );
 				{
-					m_bIsInitialized &=	m_WeaponInfosPanel.SearchComponentInChild( 0, ref m_WpnNameText );
-					m_bIsInitialized &=	m_WeaponInfosPanel.SearchComponentInChild( 2, ref m_WpnOtherInfoText );
-					m_bIsInitialized &=	m_WeaponInfosPanel.SearchComponentInChild( 3, ref m_StaminaBarImage );
+					this.m_IsInitialized &= this.m_WeaponInfosPanel.SearchComponentInChild( 0, ref this.m_WpnNameText );
+					this.m_IsInitialized &= this.m_WeaponInfosPanel.SearchComponentInChild( 2, ref this.m_WpnOtherInfoText );
+					this.m_IsInitialized &= this.m_WeaponInfosPanel.SearchComponentInChild( 3, ref this.m_StaminaBarImage );
 				}
 			}
 
 			yield return null;
 
-			m_bIsInitialized &= transform.SearchComponentInChild( "UI_Frame", ref m_ZoomFrameImage );
+			this.m_IsInitialized &= this.transform.SearchComponentInChild( "UI_Frame", ref this.m_ZoomFrameImage );
 
-			m_bIsInitialized &= ( m_CrosshairTransform = transform.Find( "Crosshair" )) != null;
-			if ( m_bIsInitialized )
+			this.m_IsInitialized &= (this.m_CrosshairTransform = this.transform.Find( "Crosshair" )) != null;
+			if (this.m_IsInitialized )
 			{
-				m_ZoomFrameImage.raycastTarget = false;
+				this.m_ZoomFrameImage.raycastTarget = false;
 
-				UI_Graphics.OnResolutionChanged += UI_Graphics_OnResolutionChanged;
+				UserSettings.VideoSettings.OnResolutionChanged += this.UI_Graphics_OnResolutionChanged;
 
-				InvokeRepeating( "PrintTime", 1.0f, 1.0f );	
+				this.InvokeRepeating( "PrintTime", 1.0f, 1.0f );	
 
 				CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 
 				yield return null;
 
-				m_bIsCompletedInitialization = true;
+				this.m_IsCompletedInitialization = true;
 			}
 			else
 			{
@@ -126,7 +126,7 @@ public sealed class UI_InGame : MonoBehaviour, IStateDefiner {
 	// Finalize
 	bool	 IStateDefiner.Finalize()
 	{
-		return m_bIsInitialized;
+		return this.m_IsInitialized;
 	}
 
 
@@ -134,7 +134,7 @@ public sealed class UI_InGame : MonoBehaviour, IStateDefiner {
 	// OnEnable
 	private void OnEnable()
 	{
-		m_IsActive = true;
+		this.m_IsActive = true;
 
 //		UI.Instance.EffectFrame.color = Color.clear;
 
@@ -151,12 +151,12 @@ public sealed class UI_InGame : MonoBehaviour, IStateDefiner {
 	// Reset
 	private void InternalReset()
 	{
-		m_ZoomFrameImage.enabled	= false;
-		m_ZoomFrameImage.sprite		= null;
-		m_ZoomFrameImage.color		= Color.clear;
-		m_ZoomFrameImage.material	= null;
-		ShowCrosshair();
-		Show();
+		this.m_ZoomFrameImage.enabled	= false;
+		this.m_ZoomFrameImage.sprite		= null;
+		this.m_ZoomFrameImage.color		= Color.clear;
+		this.m_ZoomFrameImage.material	= null;
+		this.ShowCrosshair();
+		this.Show();
 	}
 
 
@@ -164,15 +164,15 @@ public sealed class UI_InGame : MonoBehaviour, IStateDefiner {
 	// OnDisable
 	private	void	OnDisable()
 	{
-		m_IsActive = false;
+		this.m_IsActive = false;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	// Show
 	public	void	Show()
 	{
-		m_GenericInfosPanel.gameObject.SetActive( true );
-		m_WeaponInfosPanel.gameObject.SetActive( true );
+		this.m_GenericInfosPanel.gameObject.SetActive( true );
+		this.m_WeaponInfosPanel.gameObject.SetActive( true );
 	}
 
 
@@ -180,8 +180,8 @@ public sealed class UI_InGame : MonoBehaviour, IStateDefiner {
 	// Hide
 	public	void	Hide()
 	{
-		m_GenericInfosPanel.gameObject.SetActive( false );
-		m_WeaponInfosPanel.gameObject.SetActive( false );
+		this.m_GenericInfosPanel.gameObject.SetActive( false );
+		this.m_WeaponInfosPanel.gameObject.SetActive( false );
 	}
 
 
@@ -189,14 +189,14 @@ public sealed class UI_InGame : MonoBehaviour, IStateDefiner {
 	// UpdateUI
 	public	void	UpdateUI()
 	{
-		if ( m_IsActive == false || m_bIsCompletedInitialization == false )
+		if (this.m_IsActive == false || this.m_IsCompletedInitialization == false )
 			return;
 
 		IEntity player				= Player.Instance as IEntity;
 
-		m_HealthText.text			= Mathf.CeilToInt( player.Health ).ToString();
+		this.m_HealthText.text			= Mathf.CeilToInt( player.Health ).ToString();
 
-		m_WpnNameText.text			= WeaponManager.Instance.CurrentWeapon.Transform.name;
+		this.m_WpnNameText.text			= WeaponManager.Instance.CurrentWeapon.Transform.name;
 //		m_WpnOtherInfoText.text		= WeaponManager.Instance.CurrentWeapon.OtherInfo;
 	}
 
@@ -205,7 +205,7 @@ public sealed class UI_InGame : MonoBehaviour, IStateDefiner {
 	// ShowCrosshair
 	public	void	ShowCrosshair()
 	{
-		m_CrosshairTransform.gameObject.SetActive( true );
+		this.m_CrosshairTransform.gameObject.SetActive( true );
 	}
 
 
@@ -213,7 +213,7 @@ public sealed class UI_InGame : MonoBehaviour, IStateDefiner {
 	// HideCrosshair
 	public	void	HideCrosshair()
 	{
-		m_CrosshairTransform.gameObject.SetActive( false );
+		this.m_CrosshairTransform.gameObject.SetActive( false );
 	}
 
 
@@ -224,24 +224,24 @@ public sealed class UI_InGame : MonoBehaviour, IStateDefiner {
 		if ( frame != null )
 		{
 			// Size
-			m_ZoomFrameImage.rectTransform.SetSizeWithCurrentAnchors( RectTransform.Axis.Horizontal, frame.rectTransform.rect.width  );
-			m_ZoomFrameImage.rectTransform.SetSizeWithCurrentAnchors( RectTransform.Axis.Vertical,   frame.rectTransform.rect.height );
+			this.m_ZoomFrameImage.rectTransform.SetSizeWithCurrentAnchors( RectTransform.Axis.Horizontal, frame.rectTransform.rect.width  );
+			this.m_ZoomFrameImage.rectTransform.SetSizeWithCurrentAnchors( RectTransform.Axis.Vertical,   frame.rectTransform.rect.height );
 
-			m_ZoomFrameImage.sprite		= frame.sprite;
-			m_ZoomFrameImage.color		= frame.color;
-			m_ZoomFrameImage.material	= frame.material;
-			m_ZoomFrameImage.enabled	= true;
-			HideCrosshair();
-			Hide();
+			this.m_ZoomFrameImage.sprite		= frame.sprite;
+			this.m_ZoomFrameImage.color		= frame.color;
+			this.m_ZoomFrameImage.material	= frame.material;
+			this.m_ZoomFrameImage.enabled	= true;
+			this.HideCrosshair();
+			this.Hide();
 		}
 		else
 		{
-			m_ZoomFrameImage.enabled	= false;
-			m_ZoomFrameImage.sprite		= null;
-			m_ZoomFrameImage.color		= Color.clear;
-			m_ZoomFrameImage.material	= null;
-			ShowCrosshair();
-			Show();
+			this.m_ZoomFrameImage.enabled	= false;
+			this.m_ZoomFrameImage.sprite		= null;
+			this.m_ZoomFrameImage.color		= Color.clear;
+			this.m_ZoomFrameImage.material	= null;
+			this.ShowCrosshair();
+			this.Show();
 		}
 	}
 
@@ -250,10 +250,10 @@ public sealed class UI_InGame : MonoBehaviour, IStateDefiner {
 	// PrintTime
 	public void FrameFeedBack( float feedback, Vector2 delta )
 	{
-		if ( m_ZoomFrameImage.enabled == true )
+		if (this.m_ZoomFrameImage.enabled == true )
 		{
-			m_ZoomFrameImage.rectTransform.localScale = Vector3.one * feedback;
-			m_ZoomFrameImage.rectTransform.position = delta;
+			this.m_ZoomFrameImage.rectTransform.localScale = Vector3.one * feedback;
+			this.m_ZoomFrameImage.rectTransform.position = delta;
 		}
 	}
 
@@ -262,13 +262,13 @@ public sealed class UI_InGame : MonoBehaviour, IStateDefiner {
 	// PrintTime
 	private	void	PrintTime()
 	{
-		if ( m_IsActive == false || m_bIsCompletedInitialization == false )
+		if (this.m_IsActive == false || this.m_IsCompletedInitialization == false )
 			return;
 
 		if ( WeatherSystem.WeatherManager.Instance != null )
 		{
-			m_TimeText.text	= WeatherSystem.WeatherManager.Cycles.GetTimeAsString();
-			m_CycleNameText.text	= WeatherSystem.WeatherManager.Cycles.CurrentCycleName;
+			this.m_TimeText.text	= WeatherSystem.WeatherManager.Cycles.GetTimeAsString();
+			this.m_CycleNameText.text	= WeatherSystem.WeatherManager.Cycles.CurrentCycleName;
 		}
 	}
 
@@ -277,16 +277,16 @@ public sealed class UI_InGame : MonoBehaviour, IStateDefiner {
 	// Update
 	private void	Update()
 	{
-		if ( m_IsActive == false || m_bIsCompletedInitialization == false || Player.Instance.IsNotNull() == false )
+		if (this.m_IsActive == false || this.m_IsCompletedInitialization == false || Player.Instance.IsNotNull() == false )
 			return;
 
 		// Only every 10 frames
 		if ( Time.frameCount % 10 == 0 )
 			return;
 
-		m_Timetime.text = Time.timeScale.ToString();
+		this.m_Timetime.text = Time.timeScale.ToString();
 
-		m_StaminaBarImage.fillAmount = Player.Instance.OxygenCurrentLevel / 100f;
+		this.m_StaminaBarImage.fillAmount = Player.Instance.OxygenCurrentLevel / 100f;
 	}
 	
 }

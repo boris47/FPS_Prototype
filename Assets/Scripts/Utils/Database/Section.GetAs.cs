@@ -13,9 +13,9 @@ namespace Database {
 		public	bool					bAs<T>( string Key, ref T Out )
 		{
 			cLineValue pLineValue = null;
-			if ( bGetLineValue( Key, ref pLineValue ) )
+			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
-				if ( pLineValue.Type == LineValueType.SINGLE )
+				if ( pLineValue.Type == ELineValueType.SINGLE )
 				{
 					Out = pLineValue.Value.As<T>();
 					return true;
@@ -30,9 +30,9 @@ namespace Database {
 		public	bool					bAs<T>( string Key, ref T[] Out )
 		{
 			cLineValue pLineValue = null;
-			if ( bGetLineValue( Key, ref pLineValue ) )
+			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
-				if ( pLineValue.Type == LineValueType.MULTI )
+				if ( pLineValue.Type == ELineValueType.MULTI )
 				{
 					List<cValue> values = pLineValue.MultiValue.ValueList;
 					bool bAreValidValues = true;
@@ -54,9 +54,9 @@ namespace Database {
 		public	bool					bAsBool( string Key, ref bool Out, bool Default = false )
 		{
 			cLineValue pLineValue = null;
-			if ( bGetLineValue( Key, ref pLineValue ) )
+			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
-				if ( pLineValue.Type == LineValueType.SINGLE )
+				if ( pLineValue.Type == ELineValueType.SINGLE )
 				{
 					Out = pLineValue.Value.ToBool();
 					return true;
@@ -72,9 +72,9 @@ namespace Database {
 		public	bool					bAsInt( string Key, ref int Out, int Default = 0 )
 		{
 			cLineValue pLineValue = null;
-			if ( bGetLineValue( Key, ref pLineValue ) )
+			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
-				if ( pLineValue.Type == LineValueType.SINGLE )
+				if ( pLineValue.Type == ELineValueType.SINGLE )
 				{
 					Out = pLineValue.Value.ToInteger();
 					return true;
@@ -90,9 +90,9 @@ namespace Database {
 		public	bool					bAsFloat( string Key, ref float Out, float Default = 0.0f )
 		{
 			cLineValue pLineValue = null;
-			if ( bGetLineValue( Key, ref pLineValue ) )
+			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
-				if ( pLineValue.Type == LineValueType.SINGLE )
+				if ( pLineValue.Type == ELineValueType.SINGLE )
 				{
 					Out = pLineValue.Value.ToFloat();
 					return true;
@@ -108,9 +108,9 @@ namespace Database {
 		public	bool					bAsString( string Key, ref string Out, string Default = "" )
 		{
 			cLineValue pLineValue = null;
-			if ( bGetLineValue( Key, ref pLineValue ) )
+			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
-				if ( pLineValue.Type == LineValueType.SINGLE )
+				if ( pLineValue.Type == ELineValueType.SINGLE )
 				{
 					Out = pLineValue.Value.ToString();
 					return true;
@@ -126,7 +126,7 @@ namespace Database {
 		public	bool					bAsMultiValue( string Key, int Index, out cValue Out )
 		{
 			cLineValue pLineValue = null;
-			if ( bGetLineValue( Key, ref pLineValue ) )
+			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
 				cMultiValue pMultiValue	= null;
 				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
@@ -145,7 +145,7 @@ namespace Database {
 		public	bool					bAsVec2( string Key, ref Vector2 Out, Vector2? Default )
 		{
 			cLineValue pLineValue = null;
-			if ( bGetLineValue( Key, ref pLineValue ) )
+			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
 				cMultiValue pMultiValue	= null;
 				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
@@ -170,7 +170,7 @@ namespace Database {
 		public	bool					bAsVec3( string Key, ref Vector3 Out, Vector3? Default )
 		{
 			cLineValue pLineValue		= null;
-			if ( bGetLineValue( Key, ref pLineValue ) )
+			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
 				cMultiValue pMultiValue	= null;
 				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
@@ -193,7 +193,7 @@ namespace Database {
 		public	bool					bAsVec4( string Key, ref Vector4 Out, Vector4? Default )
 		{
 			cLineValue pLineValue		= null;
-			if ( bGetLineValue( Key, ref pLineValue ) )
+			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
 				cMultiValue pMultiValue	= null;
 				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
@@ -217,7 +217,7 @@ namespace Database {
 		public	bool					bAsColor( string Key, ref Color Out, Color Default )
 		{
 			Vector4 refVec = Vector4.zero;
-			bool result = bAsVec4( Key, ref refVec, Vector4.zero );
+			bool result = this.bAsVec4( Key, ref refVec, Vector4.zero );
 
 			if ( result == true )
 			{

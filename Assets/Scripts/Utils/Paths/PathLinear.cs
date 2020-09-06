@@ -13,7 +13,7 @@ public class PathLinear : PathBase {
 	//
 	private				void	Awake()
 	{
-		ElaboratePath( 100f );
+		this.ElaboratePath( 100f );
 	}
 
 
@@ -21,31 +21,31 @@ public class PathLinear : PathBase {
 	protected	override	void		ElaboratePath( float Steps, float StepLength = 1.0f )
 	{
 		// Nodes
-		m_Nodes = transform.GetComponentOnlyInChildren<PathWaypoint>();
-		m_PathLength = 0.0f;
+		this.m_Nodes = this.transform.GetComponentOnlyInChildren<PathWaypoint>();
+		this.m_PathLength = 0.0f;
 
 		// Waypoints
 		{
-			List<PathWayPointOnline> waypointsList = new List<PathWayPointOnline>( m_Nodes.Length );
+			List<PathWayPointOnline> waypointsList = new List<PathWayPointOnline>(this.m_Nodes.Length );
 			{
 				System.Array.ForEach
-				( 	m_Nodes,
+				(this.m_Nodes,
 					( PathWaypoint w ) =>
 					{
 						waypointsList.Add( new PathWayPointOnline( w.transform.position, w.transform.rotation ) );
 					}
 				);
 			}
-			m_Waypoints = waypointsList.ToArray();
+			this.m_Waypoints = waypointsList.ToArray();
 		}
 
 		// Path Length
 		{
-			Vector3 prevPosition = m_Waypoints[0];
-			for ( int i = 1; i < m_Waypoints.Length; i++ )
+			Vector3 prevPosition = this.m_Waypoints[0];
+			for ( int i = 1; i < this.m_Waypoints.Length; i++ )
 			{
-				Vector3 currentposition = m_Waypoints[i];
-				m_PathLength += Vector3.Distance( prevPosition, currentposition );
+				Vector3 currentposition = this.m_Waypoints[i];
+				this.m_PathLength += Vector3.Distance( prevPosition, currentposition );
 				prevPosition = currentposition;
 			}
 		}
@@ -60,7 +60,7 @@ public class PathLinear : PathBase {
 			return;
 		}
 
-		System.Array.ForEach( m_Waypoints, ( PathWayPointOnline wayPoint ) => {
+		System.Array.ForEach(this.m_Waypoints, ( PathWayPointOnline wayPoint ) => {
 			OnPosition( wayPoint );
 		});
 	}
@@ -69,42 +69,42 @@ public class PathLinear : PathBase {
 	//
 	public	override	bool	Move( ref Transform subject, float? speed, Vector3? upwards )
 	{
-		if ( m_IsCompleted )
+		if (this.m_IsCompleted )
 			return false;
 
 		// Start event
-		if ( m_Interpolant == 0.0f && m_CurrentSegment == 0 )
+		if (this.m_Interpolant == 0.0f && this.m_CurrentSegment == 0 )
 		{
-			if ( m_OnPathStart != null && m_OnPathStart.GetPersistentEventCount() > 0 )
+			if (this.m_OnPathStart != null && this.m_OnPathStart.GetPersistentEventCount() > 0 )
 			{
-				m_OnPathStart.Invoke();
+				this.m_OnPathStart.Invoke();
 			}
 		}
 
 		// Interpolant
-		m_Interpolant += Time.deltaTime * ( speed.HasValue ? speed.Value : m_Speed ) * m_Nodes.Length;
+		this.m_Interpolant += Time.deltaTime * ( speed.HasValue ? speed.Value : this.m_Speed ) * this.m_Nodes.Length;
 
 		// Position
 		{
-			Vector3 p1 = m_Nodes[ m_CurrentSegment + 0 ].transform.position;
-			Vector3 p2 = m_Nodes[ m_CurrentSegment + 1 ].transform.position;
-			subject.position = Vector3.Lerp( p1, p2, m_Interpolant );
+			Vector3 p1 = this.m_Nodes[this.m_CurrentSegment + 0 ].transform.position;
+			Vector3 p2 = this.m_Nodes[this.m_CurrentSegment + 1 ].transform.position;
+			subject.position = Vector3.Lerp( p1, p2, this.m_Interpolant );
 		}
 
 		// Rotation
 		{
-			Vector3 r1 = m_Nodes[ m_CurrentSegment + 0 ].transform.forward;
-			Vector3 r2 = m_Nodes[ m_CurrentSegment + 1 ].transform.forward;
-			Vector3 rotationLerped = Vector3.Lerp( r1, r2, m_Interpolant );
+			Vector3 r1 = this.m_Nodes[this.m_CurrentSegment + 0 ].transform.forward;
+			Vector3 r2 = this.m_Nodes[this.m_CurrentSegment + 1 ].transform.forward;
+			Vector3 rotationLerped = Vector3.Lerp( r1, r2, this.m_Interpolant );
 
 			// Upwards
 			Vector3 finalUpwards = Vector3.zero;
 			if ( upwards.HasValue == false )
 			{
-				Vector3 u1 = m_Nodes[ m_CurrentSegment + 0 ].transform.up;
-				Vector3 u2 = m_Nodes[ m_CurrentSegment + 1 ].transform.up;
+				Vector3 u1 = this.m_Nodes[this.m_CurrentSegment + 0 ].transform.up;
+				Vector3 u2 = this.m_Nodes[this.m_CurrentSegment + 1 ].transform.up;
 
-				Vector3 upwardsLerped = Vector3.Lerp( u1, u2, m_Interpolant );
+				Vector3 upwardsLerped = Vector3.Lerp( u1, u2, this.m_Interpolant );
 				finalUpwards = upwardsLerped;
 			}
 			else
@@ -116,18 +116,18 @@ public class PathLinear : PathBase {
 		}
 
 		// Interpolant upgrade
-		if ( m_Interpolant > 1.0f )
+		if (this.m_Interpolant > 1.0f )
 		{
-			m_Interpolant = 0.0f;
-			m_Nodes[ m_CurrentSegment ].OnReached();
-			m_CurrentSegment ++;
-			if ( m_CurrentSegment == m_Nodes.Length - 1 )
+			this.m_Interpolant = 0.0f;
+			this.m_Nodes[this.m_CurrentSegment ].OnReached();
+			this.m_CurrentSegment ++;
+			if (this.m_CurrentSegment == this.m_Nodes.Length - 1 )
 			{
-				m_IsCompleted = true;
+				this.m_IsCompleted = true;
 
-				if ( m_OnPathCompleted != null && m_OnPathCompleted.GetPersistentEventCount() > 0 )
+				if (this.m_OnPathCompleted != null && this.m_OnPathCompleted.GetPersistentEventCount() > 0 )
 				{
-					m_OnPathCompleted.Invoke();
+					this.m_OnPathCompleted.Invoke();
 				}
 			}
 		}
@@ -140,23 +140,23 @@ public class PathLinear : PathBase {
 	public override void ResetPath()
 	{
 		base.ResetPath();
-		m_CurrentSegment = 0;
+		this.m_CurrentSegment = 0;
 	}
 
 
 	// Called by waypoints
 	public	override	void	DrawGizmos()
 	{
-		OnDrawGizmosSelected();
+		this.OnDrawGizmosSelected();
 	}
 		
 	//
 	private				void	OnDrawGizmosSelected()
 	{
-		ElaboratePath( Steps: 100f );
+		this.ElaboratePath( Steps: 100f );
 
-		Vector3 prevPosition = m_Waypoints[0];
-		IteratePath
+		Vector3 prevPosition = this.m_Waypoints[0];
+		this.IteratePath
 		(
 			OnPosition: ( PathWayPointOnline w ) => {
 				Gizmos.DrawLine( prevPosition, w.Position );

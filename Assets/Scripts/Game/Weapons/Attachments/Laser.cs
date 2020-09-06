@@ -18,22 +18,22 @@ public class Laser : WeaponAttachment, ILaser {
 	protected		float				m_LaserLength		= 100f;
 	public			float				LaserLength
 	{
-		get { return m_LaserLength; }
-		set { m_LaserLength = value; }
+		get { return this.m_LaserLength; }
+		set { this.m_LaserLength = value; }
 	}
 
 	[SerializeField, ReadOnly]
 	protected		bool				m_HasHit			= false;
 	public			bool				HasHit
 	{
-		get { return m_HasHit; }
+		get { return this.m_HasHit; }
 	}
 
 	protected		RaycastHit			m_RayCastHit		= default( RaycastHit );
 	protected		RaycastHit			m_DefaultRaycastHit	= default( RaycastHit );
 	public			RaycastHit			RayCastHit
 	{
-		get { return m_RayCastHit; }
+		get { return this.m_RayCastHit; }
 	}
 
 	protected		Transform			m_LaserTransform	= null;
@@ -44,45 +44,45 @@ public class Laser : WeaponAttachment, ILaser {
 	//////////////////////////////////////////////////////////////////////////
 	protected void Awake()
 	{
-		m_IsUsable &= transform.childCount > 0;
-		if ( m_IsUsable )
+		this.m_IsUsable &= this.transform.childCount > 0;
+		if (this.m_IsUsable )
 		{
-			m_LaserTransform = transform.GetChild( 0 );
+			this.m_LaserTransform = this.transform.GetChild( 0 );
 		}
 
-		m_IsUsable &= transform.SearchComponent( ref m_Renderer, SearchContext.CHILDREN );
-		if ( m_IsUsable )
+		this.m_IsUsable &= this.transform.SearchComponent( ref this.m_Renderer, ESearchContext.CHILDREN );
+		if (this.m_IsUsable )
 		{
-			m_Renderer.material.color = m_Color;
+			this.m_Renderer.material.color = this.m_Color;
 		}
 
-		enabled = m_IsUsable;
+		this.enabled = this.m_IsUsable;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected override void OnActivate()
 	{
-		if ( m_IsUsable == false )
+		if (this.m_IsUsable == false )
 			return;
 
-		m_LaserTransform.gameObject.SetActive( true );
+		this.m_LaserTransform.gameObject.SetActive( true );
 
-		GameManager.UpdateEvents.OnFrame += InternalUpdate;
+		GameManager.UpdateEvents.OnFrame += this.InternalUpdate;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected override void OnDeactivated()
 	{
-		if ( m_IsUsable == false )
+		if (this.m_IsUsable == false )
 			return;
 
-		m_LaserTransform.gameObject.SetActive( false );
+		this.m_LaserTransform.gameObject.SetActive( false );
 
 		if ( GameManager.UpdateEvents.IsNotNull() )
 		{
-			GameManager.UpdateEvents.OnFrame -= InternalUpdate;
+			GameManager.UpdateEvents.OnFrame -= this.InternalUpdate;
 		}
 	}
 	
@@ -90,25 +90,25 @@ public class Laser : WeaponAttachment, ILaser {
 	//////////////////////////////////////////////////////////////////////////
 	protected void InternalUpdate( float DeltaTime )
 	{
-		if ( m_IsUsable == false || m_IsAttached == false )
+		if (this.m_IsUsable == false || this.m_IsAttached == false )
 			return;
 
 		// Save cpu
 		if ( Time.frameCount % 15 == 0 )
 			return;
 
-		m_RayCastHit = m_DefaultRaycastHit;
+		this.m_RayCastHit = this.m_DefaultRaycastHit;
 
-		m_HasHit = Physics.Raycast( transform.position, transform.forward, out m_RayCastHit, m_LaserLength, Utils.LayersHelper.Layers_AllButOne( "Bullets" ) );
+		this.m_HasHit = Physics.Raycast(this.transform.position, this.transform.forward, out this.m_RayCastHit, this.m_LaserLength, Utils.LayersHelper.Layers_AllButOne( "Bullets" ) );
 
-		float currentLength = HasHit ? m_RayCastHit.distance : m_LaserLength;
+		float currentLength = this.HasHit ? this.m_RayCastHit.distance : this.m_LaserLength;
 
 		 //if the additional decimal isn't added then the beam position glitches
 		float beamPosition = currentLength * ( 0.5f + 0.0001f );
 
-		m_LocalScale.Set( m_ScaleFactor, m_ScaleFactor, currentLength );
-		m_LaserTransform.localScale		= m_LocalScale;
-		m_LaserTransform.localPosition	= Vector3.forward * beamPosition;
+		this.m_LocalScale.Set(this.m_ScaleFactor, this.m_ScaleFactor, currentLength );
+		this.m_LaserTransform.localScale		= this.m_LocalScale;
+		this.m_LaserTransform.localPosition	= Vector3.forward * beamPosition;
 	}
 
 }

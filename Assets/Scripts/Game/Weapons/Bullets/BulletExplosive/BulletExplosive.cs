@@ -40,10 +40,10 @@ public abstract class BulletExplosive : BulletGeneric, IExplosive {
 	protected	float			m_BlastDamage				= 0.0f;
 
 	// INTERFACE START
-		bool	IExplosive.BlowOnHit			{	get { return m_BlowOnHit; } }
-		bool	IExplosive.AttachOnHit			{	get { return m_AttachOnHit; } }
-		float	IExplosive.BlastRadius			{	get { return m_BlastRadius; } }
-		float	IExplosive.BlastDamage			{	get { return m_BlastDamage;	} }
+		bool	IExplosive.BlowOnHit			{	get { return this.m_BlowOnHit; } }
+		bool	IExplosive.AttachOnHit			{	get { return this.m_AttachOnHit; } }
+		float	IExplosive.BlastRadius			{	get { return this.m_BlastRadius; } }
+		float	IExplosive.BlastDamage			{	get { return this.m_BlastDamage;	} }
 	// INTERFACE END
 	
 
@@ -57,7 +57,7 @@ public abstract class BulletExplosive : BulletGeneric, IExplosive {
 	{
 		base.Awake();
 
-		SetActive( false );
+		this.SetActive( false );
 	}
 
 
@@ -68,12 +68,12 @@ public abstract class BulletExplosive : BulletGeneric, IExplosive {
 	{
 		yield return base.SetupBulletCO();
 
-		m_BlowOnHit		= m_BulletSection.AsBool( "bBlowOnHit", m_BlowOnHit );
-		m_AttachOnHit	= m_BulletSection.AsBool( "bAttachOnHit", m_AttachOnHit );
-		m_BlastRadius	= m_BulletSection.AsFloat( "fBlastRadius", m_BlastRadius );
-		m_BlastDamage	= m_BulletSection.AsFloat( "fBlastDamage", m_BlastDamage );
+		this.m_BlowOnHit		= this.m_BulletSection.AsBool( "bBlowOnHit", this.m_BlowOnHit );
+		this.m_AttachOnHit	= this.m_BulletSection.AsBool( "bAttachOnHit", this.m_AttachOnHit );
+		this.m_BlastRadius	= this.m_BulletSection.AsFloat( "fBlastRadius", this.m_BlastRadius );
+		this.m_BlastDamage	= this.m_BulletSection.AsFloat( "fBlastDamage", this.m_BlastDamage );
 
-		SetActive( false );
+		this.SetActive( false );
 	}
 
 
@@ -85,19 +85,19 @@ public abstract class BulletExplosive : BulletGeneric, IExplosive {
 		// Reset
 		if ( state == false )
 		{
-			transform.position			= Vector3.zero;
-			m_RigidBody.velocity		= Vector3.zero;
+			this.transform.position			= Vector3.zero;
+			this.m_RigidBody.velocity		= Vector3.zero;
 		}
 		else
 		{
-			m_Emission					= 0f;
+			this.m_Emission					= 0f;
 		}
-		m_RigidBody.mass				= float.Epsilon;
-		m_RigidBody.useGravity			= state;
-		m_RigidBody.detectCollisions	= state;
-		m_Collider.enabled				= state;
-		m_Renderer.enabled				= state;
-		m_Renderer.material.SetColor( "_EmissionColor", Color.red );
+		this.m_RigidBody.mass				= float.Epsilon;
+		this.m_RigidBody.useGravity			= state;
+		this.m_RigidBody.detectCollisions	= state;
+		this.m_Collider.enabled				= state;
+		this.m_Renderer.enabled				= state;
+		this.m_Renderer.material.SetColor( "_EmissionColor", Color.red );
 		this.enabled					= state;
 	}
 
@@ -106,7 +106,7 @@ public abstract class BulletExplosive : BulletGeneric, IExplosive {
 	// ForceExplosion ( Virtual )
 	public		virtual		void	ForceExplosion()
 	{
-		OnExplosion();
+		this.OnExplosion();
 	}
 
 

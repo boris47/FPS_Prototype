@@ -21,11 +21,11 @@ public class TurretGatling : Turret {
 	
 	protected override void Awake()
 	{
-		m_SectionName = this.GetType().FullName;
+		this.m_SectionName = this.GetType().FullName;
 
 		base.Awake();
 
-		m_GatlingTransform = m_GunTransform.Find( "Gatling" );
+		this.m_GatlingTransform = this.m_GunTransform.Find( "Gatling" );
 	}
 
 
@@ -36,25 +36,25 @@ public class TurretGatling : Turret {
 		base.OnFrame( deltaTime );
 
 		// DECELLERATION
-		if ( m_TargetInfo.HasTarget == false )
+		if (this.m_TargetInfo.HasTarget == false )
 		{
-			m_IsActivated = false;
-			m_RotationSpeed = Mathf.Max( m_RotationSpeed - ROTATION_DEACC * deltaTime, 0f );
+			this.m_IsActivated = false;
+			this.m_RotationSpeed = Mathf.Max(this.m_RotationSpeed - ROTATION_DEACC * deltaTime, 0f );
 		}
 
 		// APPLY ROTATION
-		if ( m_RotationSpeed > 0.0f )
+		if (this.m_RotationSpeed > 0.0f )
 		{
-			m_GatlingTransform.Rotate( Vector3.right, m_RotationSpeed * deltaTime, Space.Self );
+			this.m_GatlingTransform.Rotate( Vector3.right, this.m_RotationSpeed * deltaTime, Space.Self );
 		}
 
 		// ACTIVATION
-		if ( m_TargetInfo.HasTarget == true )
+		if (this.m_TargetInfo.HasTarget == true )
 		{
-			m_RotationSpeed = Mathf.Clamp( m_RotationSpeed + ROTATION_ACC * deltaTime, 0f, MAX_ROTATION_SPEED );
-			if ( m_RotationSpeed >= MAX_ROTATION_SPEED )
+			this.m_RotationSpeed = Mathf.Clamp(this.m_RotationSpeed + ROTATION_ACC * deltaTime, 0f, MAX_ROTATION_SPEED );
+			if (this.m_RotationSpeed >= MAX_ROTATION_SPEED )
 			{
-				m_IsActivated = true;
+				this.m_IsActivated = true;
 			}
 		}
 	}
@@ -64,29 +64,29 @@ public class TurretGatling : Turret {
 	
 	public	override		void	FireLongRange()
 	{
-		if ( m_IsActivated == false )
+		if (this.m_IsActivated == false )
 			return;
 
-		if ( m_ShotTimer > 0 )
+		if (this.m_ShotTimer > 0 )
 				return;
 
-		m_ShotTimer = m_ShotDelay;
+		this.m_ShotTimer = this.m_ShotDelay;
 		
-		IBullet bullet = m_Pool.GetNextComponent();
+		IBullet bullet = this.m_Pool.GetNextComponent();
 
 		// Add some dispersion
-		m_DispersionVector.Set
+		this.m_DispersionVector.Set
 		(
 			Random.Range( -FIRE_SPREAD, FIRE_SPREAD ),
 			Random.Range( -FIRE_SPREAD, FIRE_SPREAD ),
 			Random.Range( -FIRE_SPREAD, FIRE_SPREAD )
 		);
 
-		Vector3 direction = ( m_FirePoint.forward + m_DispersionVector ).normalized;
+		Vector3 direction = (this.m_FirePoint.forward + this.m_DispersionVector ).normalized;
 
-		bullet.Shoot( position: m_FirePoint.position, direction: direction );
-		
-		m_FireAudioSource.Play();
+		bullet.Shoot( position: this.m_FirePoint.position, direction: direction );
+
+		this.m_FireAudioSource.Play();
 	}
 
 }

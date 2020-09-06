@@ -20,9 +20,9 @@ public class PickupableItem : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnEnable()
 	{
-		if ( GlobalManager.Configs.bGetSection( m_PickUpSectionName, ref m_ItemSection ) )
+		if ( GlobalManager.Configs.GetSection(this.m_PickUpSectionName, ref this.m_ItemSection ) )
 		{
-			m_Initialized = true;
+			this.m_Initialized = true;
 		}
 	}
 
@@ -31,10 +31,10 @@ public class PickupableItem : MonoBehaviour {
 	public	bool	SetPickupSectionName( string PickupSectionName )
 	{
 		Database.Section m_PickupableSection	= null;
-		bool bIsSectionFound = GlobalManager.Configs.bGetSection( m_PickUpSectionName, ref m_PickupableSection );
+		bool bIsSectionFound = GlobalManager.Configs.GetSection(this.m_PickUpSectionName, ref m_PickupableSection );
 		if ( bIsSectionFound )
 		{
-			m_PickUpSectionName = PickupSectionName;
+			this.m_PickUpSectionName = PickupSectionName;
 		}
 		return m_PickupableSection != null;
 	}
@@ -43,23 +43,23 @@ public class PickupableItem : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnTriggerEnter( Collider other )
 	{
-		if ( m_Initialized && other.name == "Player" )
+		if (this.m_Initialized && other.name == "Player" )
 		{
 //			WeaponManager.Instance.ApplyModifierToWeaponSlot( WeaponManager.Instance.CurrentWeapon, WeaponSlots.PRIMARY, m_PickUpSectionName );
 
 			IEntityInventary entity = null;
-			if ( Utils.Base.SearchComponent( other.transform.gameObject, ref entity, SearchContext.LOCAL ) )
+			if ( Utils.Base.SearchComponent( other.transform.gameObject, ref entity, ESearchContext.LOCAL ) )
 			{
-				entity.AddInventoryItem( m_ItemSection, m_Texture );
+				entity.AddInventoryItem(this.m_ItemSection, this.m_Texture );
 			}
 
-			enabled = false;
-			Destroy( gameObject );
+			this.enabled = false;
+			Destroy(this.gameObject );
 		}
 
-		if ( m_Initialized == false )
+		if (this.m_Initialized == false )
 		{
-			enabled = false;
+			this.enabled = false;
 		}
 	}
 

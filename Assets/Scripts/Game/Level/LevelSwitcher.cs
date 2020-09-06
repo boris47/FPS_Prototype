@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 public class LevelSwitcher : MonoBehaviour {
 
 	[SerializeField]
-	private		SceneEnumeration				m_NextSceneIdx				= SceneEnumeration.NONE;
+	private		ESceneEnumeration				m_NextSceneIdx				= ESceneEnumeration.NONE;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -15,8 +15,6 @@ public class LevelSwitcher : MonoBehaviour {
 	{
 		if ( GlobalManager.bIsChangingScene == true )
 			return;
-
-		GlobalManager.bIsChangingScene = true;
 
 		bool bIsPlayer = other.transform.HasComponent<Player>();
 		if ( bIsPlayer == false )

@@ -21,13 +21,11 @@ public class SetupScene : EditorWindow  {
 			DestroyImmediate( go );
 		}
 		
-		LoadPrefab<GlobalManager>		( prefabPath:"Prefabs/Essentials/GlobalManager"			);
+		LoadPrefab<GlobalManager>		( prefabPath:"Prefabs/Essentials/GlobalManager"				);
 
 		LoadPrefab<CustomSceneManager>	( prefabPath:"Prefabs/Essentials/CustomSceneManager"		);
 		
 		LoadPrefab<ResourceManager>		( prefabPath:"Prefabs/Essentials/ResourceManager"			);
-		
-		LoadPrefab<SoundManager>		( prefabPath:"Prefabs/Essentials/SoundManager"				);
 
 		LoadPrefab<EffectsManager>		( prefabPath:"Prefabs/Essentials/EffectsManager"			);
 

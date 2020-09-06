@@ -4,30 +4,28 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public sealed class UI_MainMenu : MonoBehaviour, IStateDefiner {
-
+public sealed class UI_MainMenu : MonoBehaviour, IStateDefiner
+{
 //	private	const string shaderPath = "VR/SpatialMapping/Wireframe";
 	
-//	private		Button	m_NewGameButton			= null;
 	private		Button	m_ResumeButton			= null;
-//	private		Button	m_SettingsButton		= null;
 	
-	private	static		bool	m_bFromMenu				= false;
-	public	static		bool	FromMenu
+	private	static		bool	m_IsComingFromMenu				= false;
+	public	static		bool	IsComingFromMenu
 	{
-		get { return m_bFromMenu; }
+		get { return m_IsComingFromMenu; }
 	}
 
 
-	private	bool			m_bIsInitialized			= false;
+	private	bool			m_IsInitialized			= false;
 	bool IStateDefiner.IsInitialized
 	{
-		get { return m_bIsInitialized; }
+		get { return this.m_IsInitialized; }
 	}
 
 	string IStateDefiner.StateName
 	{
-		get { return name; }
+		get { return this.name; }
 	}
 
 
@@ -36,14 +34,14 @@ public sealed class UI_MainMenu : MonoBehaviour, IStateDefiner {
 	// Initialize
 	IEnumerator IStateDefiner.Initialize()
 	{
-		if ( m_bIsInitialized == true )
+		if (this.m_IsInitialized == true )
 			yield break;
 
 		yield return null;
 
 		CoroutinesManager.AddCoroutineToPendingCount( 1 );
 
-		m_bIsInitialized = true;
+		this.m_IsInitialized = true;
 		{
 			/*
 			// NEW GAME BUTTON
@@ -53,7 +51,7 @@ public sealed class UI_MainMenu : MonoBehaviour, IStateDefiner {
 			}
 			*/
 			// RESUME BUTTON
-			if ( m_bIsInitialized &= transform.SearchComponentInChild( "Button_Resume", ref m_ResumeButton ) )
+			if (this.m_IsInitialized &= this.transform.SearchComponentInChild( "Button_Resume", ref this.m_ResumeButton ) )
 			{
 //				m_ResumeButton.onClick.AddListener( OnResume );
 			}
@@ -69,7 +67,7 @@ public sealed class UI_MainMenu : MonoBehaviour, IStateDefiner {
 			*/
 		}
 
-		if ( m_bIsInitialized )
+		if (this.m_IsInitialized )
 		{
 		//	RenderSettings.skybox = new Material( Shader.Find( shaderPath ) );
 			CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
@@ -95,7 +93,7 @@ public sealed class UI_MainMenu : MonoBehaviour, IStateDefiner {
 	// Finalize
 	bool	 IStateDefiner.Finalize()
 	{
-		return m_bIsInitialized;
+		return this.m_IsInitialized;
 	}
 
 
@@ -104,7 +102,7 @@ public sealed class UI_MainMenu : MonoBehaviour, IStateDefiner {
 		if ( UIManager.MainMenu != this )
 			return;
 
-		CoroutinesManager.Start( OnStart() );
+		CoroutinesManager.Start(this.OnStart() );
 	}
 
 
@@ -116,7 +114,7 @@ public sealed class UI_MainMenu : MonoBehaviour, IStateDefiner {
 
 		UIManager.EffectFrame.color = Color.clear;
 
-		m_bFromMenu = true;
+		m_IsComingFromMenu = true;
 
 		GlobalManager.SetCursorVisibility( true );
 	}
@@ -135,14 +133,14 @@ public sealed class UI_MainMenu : MonoBehaviour, IStateDefiner {
 		yield return null;
 
 		// UI interaction
-		UIManager.Instance.DisableInteraction( transform );
+		UIManager.Instance.DisableInteraction(this.transform);
 		{
 			yield return CoroutinesManager.WaitPendingCoroutines();
 		}
 
 		print( "MainMenu::OnStart await completed" );
 
-		UIManager.Instance.EnableInteraction( transform );
+		UIManager.Instance.EnableInteraction(this.transform);
 
 		// Cursor
 		GlobalManager.SetCursorVisibility( true );
@@ -150,9 +148,9 @@ public sealed class UI_MainMenu : MonoBehaviour, IStateDefiner {
 		bool bHasSavedSceneIndex	= PlayerPrefs.HasKey( "SaveSceneIdx" );
 		bool bHasSaveFilePath		= PlayerPrefs.HasKey( "SaveFilePath" );
 		bool bSaveFileExists		= bHasSaveFilePath && System.IO.File.Exists( PlayerPrefs.GetString( "SaveFilePath" ) );
-		
+
 		// Resume button
-		m_ResumeButton.interactable = bHasSavedSceneIndex && bHasSaveFilePath && bSaveFileExists;
+		this.m_ResumeButton.interactable = bHasSavedSceneIndex && bHasSaveFilePath && bSaveFileExists;
 	}
 
 
@@ -167,7 +165,7 @@ public sealed class UI_MainMenu : MonoBehaviour, IStateDefiner {
 
 			CustomSceneManager.LoadSceneData LoadSceneData = new CustomSceneManager.LoadSceneData()
 			{
-				eScene				= SceneEnumeration.OPENWORLD1,
+				eScene				= ESceneEnumeration.OPENWORLD1,
 				sSaveToLoad			= "",
 				bMustLoadSave		= false
 			};
@@ -201,7 +199,7 @@ public sealed class UI_MainMenu : MonoBehaviour, IStateDefiner {
 		{
 			CustomSceneManager.LoadSceneData LoadSceneData = new CustomSceneManager.LoadSceneData()
 			{
-				eScene			= (SceneEnumeration)saveSceneIdx,
+				eScene			= (ESceneEnumeration)saveSceneIdx,
 				sSaveToLoad			= saveFilePath,
 				bMustLoadSave		= true
 			};

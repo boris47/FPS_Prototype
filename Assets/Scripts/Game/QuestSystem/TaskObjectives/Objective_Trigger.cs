@@ -14,19 +14,19 @@ namespace QuestSystem {
 		// Initialize ( IStateDefiner )
 		protected		override	bool		InitializeInternal( ITask motherTask, System.Action<IObjective> onCompletionCallback, System.Action<IObjective> onFailureCallback )
 		{
-			if ( m_IsInitialized == true )
+			if (this.m_IsInitialized == true )
 				return true;
 
-			m_IsInitialized = true;
+			this.m_IsInitialized = true;
 
-			bool bIsGoodResult = Utils.Base.SearchComponent( gameObject, ref m_Collider, SearchContext.LOCAL );
+			bool bIsGoodResult = Utils.Base.SearchComponent(this.gameObject, ref this.m_Collider, ESearchContext.LOCAL );
 			if ( bIsGoodResult )
 			{
-				m_Collider.isTrigger = true;
-				m_Collider.enabled = false;
-				
-				m_OnCompletionCallback = onCompletionCallback;
-				m_OnFailureCallback = onFailureCallback;
+				this.m_Collider.isTrigger = true;
+				this.m_Collider.enabled = false;
+
+				this.m_OnCompletionCallback = onCompletionCallback;
+				this.m_OnFailureCallback = onFailureCallback;
 				motherTask.AddObjective( this );
 			}
 			
@@ -70,9 +70,9 @@ namespace QuestSystem {
 		// Activate ( IObjective )
 		protected		override	void		ActivateInternal()
 		{
-			m_Collider.enabled = true;
+			this.m_Collider.enabled = true;
 
-			UIManager.Indicators.EnableIndicator( gameObject, IndicatorType.AREA_TO_REACH, bMustBeClamped: true );
+			UIManager.Indicators.EnableIndicator(this.gameObject, EIndicatorType.AREA_TO_REACH, bMustBeClamped: true );
 		}
 
 
@@ -80,9 +80,9 @@ namespace QuestSystem {
 		// Deactivate ( IObjective )
 		protected		override	void		DeactivateInternal()
 		{
-			m_Collider.enabled = false;
+			this.m_Collider.enabled = false;
 
-			UIManager.Indicators.DisableIndicator( gameObject );
+			UIManager.Indicators.DisableIndicator(this.gameObject );
 		}
 
 
@@ -90,19 +90,19 @@ namespace QuestSystem {
 		// OnTriggerEnter
 		private void OnTriggerEnter( Collider other )
 		{
-			if ( m_ObjectiveState != ObjectiveState.ACTIVATED )
+			if (this.m_ObjectiveState != EObjectiveState.ACTIVATED )
 				return;
 
 			if ( other.GetInstanceID() != Player.Entity.PhysicCollider.GetInstanceID() )
 				return;
 
 			// Require dependencies to be completed
-			if ( m_Dependencies.Count > 0 && m_Dependencies.FindIndex( o => o.IsCompleted == false ) > -1 )
+			if (this.m_Dependencies.Count > 0 && this.m_Dependencies.FindIndex( o => o.IsCompleted == false ) > -1 )
 				return;
 
-			Deactivate();
+			this.Deactivate();
 
-			OnObjectiveCompleted();
+			this.OnObjectiveCompleted();
 		}
 
 	}

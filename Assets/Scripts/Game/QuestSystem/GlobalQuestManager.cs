@@ -8,17 +8,17 @@ namespace QuestSystem {
 
 	public interface IQuestManager {
 
-		QuestStatus		GetQuestStatus	( uint questIndex );
+		EQuestStatus		GetQuestStatus	( uint questIndex );
 
 		bool			AddQuest		( IQuest newQuest, bool activateNow );
 
 		int				GetQuestCount	();
 
-		QuestScope		GetQuestSope	( uint questIndex );
+		EQuestScope		GetQuestSope	( uint questIndex );
 
 	}
 
-	public class GlobalQuestManager : MonoBehaviour, IQuestManager {
+	public sealed class GlobalQuestManager : MonoBehaviour, IQuestManager {
 
 		private		static	bool				m_ShowDebugInfo					= false;
 		public		static	bool				ShowDebugInfo
@@ -42,20 +42,20 @@ namespace QuestSystem {
 		{
 			m_Instance = this;
 			Database.Section debugInfosSection = null;
-			if ( GlobalManager.Configs.bGetSection( "DebugInfos", ref debugInfosSection ) )
+			if ( GlobalManager.Configs.GetSection( "DebugInfos", ref debugInfosSection ) )
 			{
 				m_ShowDebugInfo = debugInfosSection.AsBool( "Quests", false );
 			}
 
 			// Already assigned
-			foreach( IQuest q in m_GlobalQuests )
+			foreach( IQuest q in this.m_GlobalQuests )
 			{
-				q.Initialize(this, OnQuestCompleted );
+				q.Initialize(this, this.OnQuestCompleted );
 			}
 
-			if ( m_GlobalQuests.Count > 0 )
+			if (this.m_GlobalQuests.Count > 0 )
 			{
-				m_GlobalQuests[0].Activate();
+				this.m_GlobalQuests[0].Activate();
 			}
 		}
 
@@ -64,11 +64,11 @@ namespace QuestSystem {
 		// OnQuestCompleted
 		private	void	OnQuestCompleted( IQuest completedQuest )
 		{
-			if ( completedQuest.Scope != QuestScope.LOCAL )
+			if ( completedQuest.Scope != EQuestScope.LOCAL )
 				return;
 
 			bool bAreQuestsCompleted = true;
-			foreach( IQuest q in m_GlobalQuests )
+			foreach( IQuest q in this.m_GlobalQuests )
 			{
 				bAreQuestsCompleted &= q.IsCompleted;
 			}
@@ -82,12 +82,12 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// GetQuestStatus ( Interface )
-		QuestStatus IQuestManager.GetQuestStatus( uint questIndex )
+		EQuestStatus IQuestManager.GetQuestStatus( uint questIndex )
 		{
-			if ( m_GlobalQuests.Count > questIndex )
-				return QuestStatus.NONE;
+			if (this.m_GlobalQuests.Count > questIndex )
+				return EQuestStatus.NONE;
 
-			IQuest quest = m_GlobalQuests[ (int)questIndex ];
+			IQuest quest = this.m_GlobalQuests[ (int)questIndex ];
 			return quest.Status;
 		}
 
@@ -99,14 +99,14 @@ namespace QuestSystem {
 			if ( newQuest == null )
 				return false;
 
-			if ( newQuest.Status == QuestStatus.NONE )
+			if ( newQuest.Status == EQuestStatus.NONE )
 				return false;
 
-			if ( m_GlobalQuests.Contains( newQuest as Quest ) == true )
+			if (this.m_GlobalQuests.Contains( newQuest as Quest ) == true )
 				return false;
 
-			m_GlobalQuests.Add( newQuest as Quest );
-			newQuest.Initialize( this, OnQuestCompleted );
+			this.m_GlobalQuests.Add( newQuest as Quest );
+			newQuest.Initialize( this, this.OnQuestCompleted );
 			if ( activateNow )
 			{
 				newQuest.Activate();
@@ -119,18 +119,18 @@ namespace QuestSystem {
 		// GetQuestCount ( Interface )
 		int IQuestManager.GetQuestCount()
 		{
-			return m_GlobalQuests.Count;
+			return this.m_GlobalQuests.Count;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// GetQuestSope ( Interface )
-		QuestScope IQuestManager.GetQuestSope( uint questIndex )
+		EQuestScope IQuestManager.GetQuestSope( uint questIndex )
 		{
-			if ( m_GlobalQuests.Count > questIndex )
-				return QuestScope.NONE;
+			if (this.m_GlobalQuests.Count > questIndex )
+				return EQuestScope.NONE;
 
-			IQuest quest = m_GlobalQuests[ (int)questIndex ];
+			IQuest quest = this.m_GlobalQuests[ (int)questIndex ];
 			return quest.Scope;
 		}
 	}

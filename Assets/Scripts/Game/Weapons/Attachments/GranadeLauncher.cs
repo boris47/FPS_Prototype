@@ -12,27 +12,27 @@ public class GranadeLauncher : WeaponAttachment, IGranadeLauncher {
 	// Awake
 	protected	void	Awake()
 	{
-		m_IsUsable = true;
+		this.m_IsUsable = true;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected override void OnActivate()
 	{
-		if ( m_IsUsable == false || m_IsAttached == false )
+		if (this.m_IsUsable == false || this.m_IsAttached == false )
 			return;
 
-		m_IsActive = true;
+		this.m_IsActive = true;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected override void OnDeactivated()
 	{
-		if ( m_IsUsable == false || m_IsAttached == false )
+		if (this.m_IsUsable == false || this.m_IsAttached == false )
 			return;
 
-		m_IsActive = false;
+		this.m_IsActive = false;
 	}
 	
 }

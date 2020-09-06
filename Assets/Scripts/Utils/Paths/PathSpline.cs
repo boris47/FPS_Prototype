@@ -15,7 +15,7 @@ public class PathSpline : PathBase {
 
 	private void	Awake()
 	{
-		ElaboratePath( Steps: 250 );
+		this.ElaboratePath( Steps: 250 );
 	}
 
 
@@ -23,7 +23,7 @@ public class PathSpline : PathBase {
 	protected override void ElaboratePath( float Steps, float StepLength = 1.0f )
 	{
 		// Nodes
-		PathWaypoint[] m_Nodes = transform.GetComponentsInChildren<PathWaypoint>();
+		PathWaypoint[] m_Nodes = this.transform.GetComponentsInChildren<PathWaypoint>();
 
 		// Spline base points
 		{
@@ -35,7 +35,7 @@ public class PathSpline : PathBase {
 				// All middle nodes
 				waypointsList.AddRange( m_Nodes.Select( w => new PathWayPointOnline( w.transform ) ) );
 
-				if ( m_IsCyclic )
+				if (this.m_IsCyclic )
 				{
 					// Fist node
 					waypointsList.Add ( new PathWayPointOnline( m_Nodes.First().transform ) );
@@ -47,7 +47,7 @@ public class PathSpline : PathBase {
 					waypointsList.Add ( new PathWayPointOnline( m_Nodes.Last().transform ) );
 				}
 			}
-			m_Waypoints = waypointsList.ToArray();
+			this.m_Waypoints = waypointsList.ToArray();
 		}
 	}
 
@@ -60,7 +60,7 @@ public class PathSpline : PathBase {
 			return;
 		}
 
-		System.Array.ForEach( m_Waypoints, ( PathWayPointOnline wayPoint ) => {
+		System.Array.ForEach(this.m_Waypoints, ( PathWayPointOnline wayPoint ) => {
 			OnPosition( wayPoint );
 		});
 	}
@@ -69,11 +69,11 @@ public class PathSpline : PathBase {
 	//
 	public	override	bool	Move( ref Transform subject, float? speed, Vector3? upwards )
 	{
-		if ( m_IsCompleted )
+		if (this.m_IsCompleted )
 		{
-			if ( m_IsCyclic == true )
+			if (this.m_IsCyclic == true )
 			{
-				ResetPath();
+				this.ResetPath();
 			}
 			else
 			{
@@ -82,40 +82,40 @@ public class PathSpline : PathBase {
 		}
 
 		// Start event
-		if ( m_IsStartEventCalled == false && m_Interpolant == 0.0f )
+		if (this.m_IsStartEventCalled == false && this.m_Interpolant == 0.0f )
 		{
-			if ( m_OnPathStart != null && m_OnPathStart.GetPersistentEventCount() > 0 )
+			if (this.m_OnPathStart != null && this.m_OnPathStart.GetPersistentEventCount() > 0 )
 			{
-				m_OnPathStart.Invoke();
+				this.m_OnPathStart.Invoke();
 			}
-			m_IsStartEventCalled = true;
+			this.m_IsStartEventCalled = true;
 		}
 
 		// Interpolant
-		m_Interpolant += ( Time.deltaTime ) * ( speed.HasValue ? speed.Value : m_Speed );
+		this.m_Interpolant += ( Time.deltaTime ) * ( speed.HasValue ? speed.Value : this.m_Speed );
 
 		// End event
-		if ( Mathf.Abs(m_Interpolant) >= 1.0f && m_IsCompleted == false )
+		if ( Mathf.Abs(this.m_Interpolant) >= 1.0f && this.m_IsCompleted == false )
 		{
-			m_IsCompleted = true;
+			this.m_IsCompleted = true;
 
-			if ( m_IsEndEventCalled == false && m_OnPathCompleted != null && m_OnPathCompleted.GetPersistentEventCount() > 0 )
+			if (this.m_IsEndEventCalled == false && this.m_OnPathCompleted != null && this.m_OnPathCompleted.GetPersistentEventCount() > 0 )
 			{
-				m_OnPathCompleted.Invoke();
+				this.m_OnPathCompleted.Invoke();
 			}
-			m_IsEndEventCalled = true;
+			this.m_IsEndEventCalled = true;
 		}
 
-		if ( Mathf.Abs(m_Interpolant) >= 1.0f )
+		if ( Mathf.Abs(this.m_Interpolant) >= 1.0f )
 		{
-			m_Interpolant = 0.0f;
+			this.m_Interpolant = 0.0f;
 		}
 
 		// Interpolation
 		Vector3 position		= subject.position;
 		Quaternion rotation		= subject.rotation;
 
-		Utils.Math.GetInterpolatedWaypoint( m_Waypoints, m_Interpolant, ref position, ref rotation );
+		Utils.Math.GetInterpolatedWaypoint(this.m_Waypoints, this.m_Interpolant, ref position, ref rotation );
 
 		if ( upwards.HasValue )
 		{
@@ -131,7 +131,7 @@ public class PathSpline : PathBase {
 	// called by childs
 	public	override	void	DrawGizmos()
 	{
-		OnDrawGizmosSelected();
+		this.OnDrawGizmosSelected();
 	}
 		
 	public bool reversed;
@@ -140,15 +140,15 @@ public class PathSpline : PathBase {
 		const float Steps = 50f;
 		const float StepLength = 1.0f;
 
-		ElaboratePath( Steps: Steps );
+		this.ElaboratePath( Steps: Steps );
 
-		Vector3 prevPosition = m_Waypoints[0];
+		Vector3 prevPosition = this.m_Waypoints[0];
 		Vector3 currPosition = Vector3.zero;
 		Quaternion rotation = Quaternion.identity;
 
 		// Very first start point
 		{
-			Utils.Math.GetInterpolatedWaypoint( m_Waypoints, 0.0f, ref currPosition, ref rotation );
+			Utils.Math.GetInterpolatedWaypoint(this.m_Waypoints, 0.0f, ref currPosition, ref rotation );
 
 			Gizmos.DrawLine( prevPosition, currPosition );
 			Gizmos.DrawRay( currPosition, rotation * ( Vector3.forward * 3f ) );
@@ -162,7 +162,7 @@ public class PathSpline : PathBase {
 		{
 			float interpolant = Mathf.Clamp01( currentStep / Steps );
 
-			Utils.Math.GetInterpolatedWaypoint( m_Waypoints, reversed ? -interpolant : interpolant, ref currPosition, ref rotation );
+			Utils.Math.GetInterpolatedWaypoint(this.m_Waypoints, this.reversed ? -interpolant : interpolant, ref currPosition, ref rotation );
 
 			Gizmos.DrawLine( prevPosition, currPosition );
 			Gizmos.DrawRay( currPosition, rotation * ( Vector3.forward * 3f ) );
@@ -173,7 +173,7 @@ public class PathSpline : PathBase {
 		
 		// End point
 		{
-			Utils.Math.GetInterpolatedWaypoint( m_Waypoints, reversed ? -1.0f:1.0f, ref currPosition, ref rotation );
+			Utils.Math.GetInterpolatedWaypoint(this.m_Waypoints, this.reversed ? -1.0f:1.0f, ref currPosition, ref rotation );
 
 			Gizmos.DrawLine( prevPosition, currPosition );
 			Gizmos.DrawRay( currPosition, rotation * ( Vector3.forward * 3f ) );

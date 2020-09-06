@@ -6,11 +6,11 @@ using UnityEngine;
 // Brain Interface
 public interface IBrain {
 	IFieldOfView				FieldOfView				{ get; }
-	BrainState					State					{ get; }
+	EBrainState					State					{ get; }
 
-	void						SetBehaviour			( BrainState brainState, string behaviourId, bool State ); 
+	void						SetBehaviour			( EBrainState brainState, string behaviourId, bool State ); 
 
-	void						ChangeState				( BrainState newState );
+	void						ChangeState				( EBrainState newState );
 }
 
 
@@ -19,16 +19,16 @@ public abstract partial class Entity : IBrain {
 	public	const		float						THINK_TIMER						= 0.2f; // 200 ms
 
 	private				IBrain						m_BrainInstance					= null;
-	public				IBrain						Brain							{ get { return m_BrainInstance; } }
+	public				IBrain						Brain							{ get { return this.m_BrainInstance; } }
 
 	[Header( "Brain" )]
 
 	[SerializeField]
-	protected			BrainState					m_CurrentBrainState				= BrainState.COUNT;
+	protected			EBrainState					m_CurrentBrainState				= EBrainState.COUNT;
 
 	// INTERFACE START
-						IFieldOfView				IBrain.FieldOfView				{	get { return m_FieldOfView;				}	}
-						BrainState					IBrain.State					{	get { return m_CurrentBrainState;		}	}
+						IFieldOfView				IBrain.FieldOfView				{	get { return this.m_FieldOfView;				}	}
+						EBrainState					IBrain.State					{	get { return this.m_CurrentBrainState;		}	}
 	// INTERFACE END
 
 	[SerializeField]
@@ -37,7 +37,7 @@ public abstract partial class Entity : IBrain {
 	protected			List<AIBehaviour>			m_Behaviours					= new List<AIBehaviour>( new AIBehaviour[5] );
 
 	protected			FieldOfView					m_FieldOfView					= null;
-	protected			bool						m_bHasFieldOfView				= false;
+	protected			bool						m_HasFieldOfView				= false;
 	protected			bool						m_IsBrainActive					= true;
 
 
@@ -45,11 +45,11 @@ public abstract partial class Entity : IBrain {
 	//////////////////////////////////////////////////////////////////////////
 	protected	void	Brain_Setup()
 	{
-		m_FieldOfView.Setup( maxVisibleEntities : 10 );
+		this.m_FieldOfView.Setup( maxVisibleEntities : 10 );
 
-		m_BrainInstance = this;
+		this.m_BrainInstance = this;
 
-		EnableMemory();
+		this.EnableMemory();
 	}
 
 
@@ -57,22 +57,22 @@ public abstract partial class Entity : IBrain {
 	//////////////////////////////////////////////////////////////////////////
 	protected	void	Destroy_Brain()
 	{
-		m_BrainInstance = null;
+		this.m_BrainInstance = null;
 
-		DisableMemory();
+		this.DisableMemory();
 	}
 
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public	void	SetBehaviour( BrainState brainState, string behaviourId, bool state ) 
+	public	void	SetBehaviour( EBrainState brainState, string behaviourId, bool state ) 
 	{
 		// Pre-set empty behaviour as default
-		m_Behaviours[ (int)brainState ] = new Behaviour_Empty();
+		this.m_Behaviours[ (int)brainState ] = new Behaviour_Empty();
 
 		if ( behaviourId == null || behaviourId.Trim().Length == 0 )
 		{
-			Debug.Log( "Brain.SetBehaviour Setting invalid behaviour for state " + brainState + ", with id" + behaviourId + ", for entity (section) " + m_SectionName );
+			Debug.Log( "Brain.SetBehaviour Setting invalid behaviour for state " + brainState + ", with id" + behaviourId + ", for entity (section) " + this.m_SectionName );
 			return;
 		}
 
@@ -93,14 +93,14 @@ public abstract partial class Entity : IBrain {
 
 		// Setup of the instanced behaviour
 		AIBehaviour behaviour = System.Activator.CreateInstance( type ) as AIBehaviour;
-		behaviour.Setup( m_ID );
+		behaviour.Setup(this.m_ID );
 		if ( state == true )
 		{
-			m_CurrentBehaviour = behaviour;
+			this.m_CurrentBehaviour = behaviour;
 		}
 
 		// Behaviour assignment
-		m_Behaviours[ (int)brainState ] = behaviour;
+		this.m_Behaviours[ (int)brainState ] = behaviour;
 	}
 
 
@@ -108,15 +108,15 @@ public abstract partial class Entity : IBrain {
 	//////////////////////////////////////////////////////////////////////////
 	public	virtual void	Brain_SetActive( bool State )
 	{
-		m_IsBrainActive = State;
+		this.m_IsBrainActive = State;
 
-		if ( m_IsBrainActive )
+		if (this.m_IsBrainActive )
 		{
-			GameManager.FieldsOfViewManager.RegisterAgent( m_FieldOfView, m_FieldOfView.UpdateFOV );
+			GameManager.FieldsOfViewManager.RegisterAgent(this.m_FieldOfView, this.m_FieldOfView.UpdateFOV );
 		}
 		else
 		{
-			GameManager.FieldsOfViewManager?.UnregisterAgent( m_FieldOfView );
+			GameManager.FieldsOfViewManager?.UnregisterAgent(this.m_FieldOfView );
 		}
 	}
 
@@ -125,28 +125,28 @@ public abstract partial class Entity : IBrain {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual	void	OnThinkBrain()
 	{
-		if ( m_IsBrainActive == false )
+		if (this.m_IsBrainActive == false )
 			return;
 
-	//	m_FieldOfView.UpdateFOV();
+		//	m_FieldOfView.UpdateFOV();
 
-		UpdateMemory();
+		this.UpdateMemory();
 	}
 
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public	virtual	void	ChangeState( BrainState newState )
+	public	virtual	void	ChangeState( EBrainState newState )
 	{
-		if ( newState == m_CurrentBrainState )
+		if ( newState == this.m_CurrentBrainState )
 			return;
 
-		m_CurrentBehaviour.OnDisable();
+		this.m_CurrentBehaviour.OnDisable();
 		{
-			m_CurrentBrainState	= newState;
-			m_CurrentBehaviour	= m_Behaviours[ (int)newState ];
+			this.m_CurrentBrainState	= newState;
+			this.m_CurrentBehaviour	= this.m_Behaviours[ (int)newState ];
 		}
-		m_CurrentBehaviour.OnEnable();
+		this.m_CurrentBehaviour.OnEnable();
 	}
 
 
@@ -154,8 +154,8 @@ public abstract partial class Entity : IBrain {
 	//////////////////////////////////////////////////////////////////////////
 	protected virtual void	Brain_OnReset()
 	{
-		ChangeState( BrainState.NORMAL );
-		m_FieldOfView.OnReset();
+		this.ChangeState( EBrainState.NORMAL );
+		this.m_FieldOfView.OnReset();
 	}
 
 }
@@ -163,7 +163,7 @@ public abstract partial class Entity : IBrain {
 
 
 [ System.Serializable ]
-public enum BrainState {
+public enum EBrainState {
 	EVASIVE		= 0,
 	NORMAL		= 1,
 	ALARMED		= 2,

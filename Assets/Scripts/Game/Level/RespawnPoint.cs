@@ -9,14 +9,11 @@ public	interface	IRespawn
 
 public class RespawnPoint : MonoBehaviour {
 
-	private	float	m_Counter	= 0f;
-
-
 	//////////////////////////////////////////////////////////////////////////
 	// Respawn
 	public	void	Respawn( IRespawn entity, float time )
 	{
-		CoroutinesManager.Start( RespawnCO( entity, time ), "RespawnPoint::Respawn" );
+		CoroutinesManager.Start(this.RespawnCO( entity, time ), "RespawnPoint::Respawn" );
 	}
 
 
@@ -24,13 +21,7 @@ public class RespawnPoint : MonoBehaviour {
 	// RespawnCO ( Coroutine )
 	private	IEnumerator	RespawnCO( IRespawn entity, float time )
 	{
-		while ( m_Counter < time )
-		{
-			m_Counter += Time.deltaTime;
-			yield return null;
-		}
-
-		m_Counter = 0f;
+		yield return new WaitForSeconds(time * 1000f);
 		entity.OnRespawn();
 	}
 

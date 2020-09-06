@@ -16,7 +16,7 @@ public class WPN_BaseModuleEmpty : WPN_BaseModule {
 			return new Database.Section( "WPN_BaseModuleEmpty", "Unassigned" );
 		}
 	}
-	public		override	bool	Setup				( IWeapon w, WeaponSlots slot ) { return true; }
+	public		override	bool	Setup				( IWeapon w, EWeaponSlots slot ) { return true; }
 	protected	override	bool	InternalSetup		( Database.Section moduleSection ) { return true; }
 
 	public		override	bool	OnSave				( StreamUnit streamUnit ) { return true; }

@@ -8,7 +8,7 @@ public	abstract	class	WPN_FireMode_Base : MonoBehaviour, IModifiable {
 	
 	public delegate	void FireFunctionDel( float baseFireDispersion, float baseCamDeviation );
 
-	public	abstract	FireModes	FireMode
+	public	abstract	EFireMode	FireMode
 	{
 		get;
 	}
@@ -45,10 +45,10 @@ public	abstract	class	WPN_FireMode_Base : MonoBehaviour, IModifiable {
 
 public	class WPN_FireMode_Empty : WPN_FireMode_Base {
 
-	public override FireModes FireMode
+	public override EFireMode FireMode
 	{
 		get {
-			return FireModes.NONE;
+			return EFireMode.NONE;
 		}
 	}
 

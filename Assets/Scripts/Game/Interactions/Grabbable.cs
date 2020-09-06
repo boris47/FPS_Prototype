@@ -13,11 +13,11 @@ public interface IGrabbable : IInteractable {
 public class Grabbable : Interactable, IGrabbable {
 
 	// TRANSFORM
-	public	Transform		Transform		{ get { return transform; } }
+	public	Transform		Transform		{ get { return this.transform; } }
 
 //	// INTERACTABLE REF
 	private	IInteractable	m_Interactable	= null;
-	public	IInteractable	Interactable	{ get { return m_Interactable; } }
+	public	IInteractable	Interactable	{ get { return this.m_Interactable; } }
 
 
 	
@@ -26,7 +26,7 @@ public class Grabbable : Interactable, IGrabbable {
 	protected override void Awake()
 	{
 		base.Awake();
-		m_Interactable = ( this as IInteractable );
+		this.m_Interactable = ( this as IInteractable );
 	}
 	
 

@@ -12,24 +12,24 @@ namespace QuestSystem {
 		// Initialize ( IStateDefiner )
 		protected		override	bool		InitializeInternal( ITask motherTask, System.Action<IObjective> onCompletionCallback, System.Action<IObjective> onFailureCallback )
 		{
-			if ( m_IsInitialized == true )
+			if (this.m_IsInitialized == true )
 				return true;
 
-			m_IsInitialized = true;
+			this.m_IsInitialized = true;
 
-			bool bIsGoodResult = Utils.Base.SearchComponent( gameObject, ref m_Interactable, SearchContext.LOCAL );
+			bool bIsGoodResult = Utils.Base.SearchComponent(this.gameObject, ref this.m_Interactable, ESearchContext.LOCAL );
 			if ( bIsGoodResult )
 			{
-				m_Interactable.CanInteract = true;
-				m_Interactable.OnInteractionCallback += OnInteraction;
-				m_Interactable.OnRetroInteractionCallback += OnRetroInteraction;
+				this.m_Interactable.CanInteract = true;
+				this.m_Interactable.OnInteractionCallback += this.OnInteraction;
+				this.m_Interactable.OnRetroInteractionCallback += this.OnRetroInteraction;
 
-				m_OnCompletionCallback = onCompletionCallback;
-				m_OnFailureCallback = onFailureCallback;
+				this.m_OnCompletionCallback = onCompletionCallback;
+				this.m_OnFailureCallback = onFailureCallback;
 				motherTask.AddObjective( this );
 			}
 
-			return m_IsInitialized;
+			return this.m_IsInitialized;
 		}
 
 
@@ -69,7 +69,7 @@ namespace QuestSystem {
 		// Activate ( IObjective )
 		protected		override	void		ActivateInternal()
 		{	
-			UIManager.Indicators.EnableIndicator( m_Interactable.Collider.gameObject, IndicatorType.OBJECT_TO_INTERACT, bMustBeClamped: true );
+			UIManager.Indicators.EnableIndicator(this.m_Interactable.Collider.gameObject, EIndicatorType.OBJECT_TO_INTERACT, bMustBeClamped: true );
 		}
 
 
@@ -77,7 +77,7 @@ namespace QuestSystem {
 		// Deactivate ( IObjective )
 		protected		override	void		DeactivateInternal()
 		{
-			UIManager.Indicators.DisableIndicator( gameObject );
+			UIManager.Indicators.DisableIndicator(this.gameObject );
 		}
 
 
@@ -85,9 +85,9 @@ namespace QuestSystem {
 		// OnInteraction
 		private void	OnInteraction()
 		{
-			Deactivate();
-			
-			OnObjectiveCompleted();
+			this.Deactivate();
+
+			this.OnObjectiveCompleted();
 		}
 
 
@@ -96,15 +96,15 @@ namespace QuestSystem {
 		private	void	OnRetroInteraction()
 		{
 			// Require dependencies to be completed
-			if ( m_Dependencies.Count > 0 && m_Dependencies.FindIndex( o => o.IsCompleted == false ) > -1 )
+			if (this.m_Dependencies.Count > 0 && this.m_Dependencies.FindIndex( o => o.IsCompleted == false ) > -1 )
 			{
 				// Our depenencies ask for this objective to be completed, so we are goint to deaticate them
-				m_Dependencies.ForEach( d => d.Deactivate() );
+				this.m_Dependencies.ForEach( d => d.Deactivate() );
 
 				// and activate again this
-				Activate();
+				this.Activate();
 
-				m_IsCompleted = false;
+				this.m_IsCompleted = false;
 			}
 		}
 

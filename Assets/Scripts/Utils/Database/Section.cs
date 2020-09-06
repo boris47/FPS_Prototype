@@ -8,7 +8,7 @@ namespace Database {
 	// PUBLIC INTERFACE
 	public interface ISection {
 
-		bool					m_bIsOK							{ get; }
+		bool					m_IsOK							{ get; }
 
 		void					Destroy							();
 		int						Lines							();
@@ -75,38 +75,38 @@ namespace Database {
 		private		List<string>		m_Mothers		= new List<string>();
 
 		[SerializeField]
-		public		bool				m_bIsOK
+		public		bool				m_IsOK
 		{
 			get; private set;
 		}
 
 		public	string	Context
 		{
-			get { return ( m_Context.Length > 0 ) ? (string)m_Context.Clone() :""; }
+			get { return (this.m_Context.Length > 0 ) ? (string)this.m_Context.Clone() :""; }
 		}
 
 
 		IEnumerator IEnumerable.GetEnumerator()
 		{
-			return (IEnumerator) GetEnumerator();
+			return (IEnumerator)this.GetEnumerator();
 		}
 	
 		public List<cLineValue>.Enumerator  GetEnumerator()
 		{
-			return m_Linevalues.GetEnumerator();
+			return this.m_Linevalues.GetEnumerator();
 		}
 
 		// Indexer
 		public cLineValue this[int i]
 		{
-			get { return ( i > -1 && i < m_Linevalues.Count ) ? m_Linevalues[i] : null; }
+			get { return ( i > -1 && i < this.m_Linevalues.Count ) ? this.m_Linevalues[i] : null; }
 		}
 
 		public Section( string sectionName, string context )
 		{
-			name = sectionName;
-			m_Context = context;
-			m_bIsOK = true;
+			this.name = sectionName;
+			this.m_Context = context;
+			this.m_IsOK = true;
 		}
 
 
@@ -127,7 +127,7 @@ namespace Database {
 
 		public static Section operator +( Section SecA, Section SecB )
 		{
-			if ( SecB.m_bIsOK == true )
+			if ( SecB.m_IsOK == true )
 			{
 				foreach( cLineValue lineValue in SecB )
 				{
@@ -144,38 +144,38 @@ namespace Database {
 		public	bool					IsChildOf						( Section mother )
 		{
 			string motherName = mother.GetName();
-			return ( m_Mothers.FindIndex( m => m == motherName ) > -1 );
+			return (this.m_Mothers.FindIndex( m => m == motherName ) > -1 );
 		}
 
 		public	bool					IsChildOf						( string MotherName )
 		{
-			return ( m_Mothers.FindIndex( m => m == MotherName ) > -1 );
+			return (this.m_Mothers.FindIndex( m => m == MotherName ) > -1 );
 		}
 		
 		
 
 		public void Destroy()
 		{
-			m_Linevalues.ForEach( ( cLineValue lv ) => lv.Destroy() );
+			this.m_Linevalues.ForEach( ( cLineValue lv ) => lv.Destroy() );
 		}
 
 		public	int						Lines()
 		{
-			return m_Linevalues.Count;
+			return this.m_Linevalues.Count;
 		}
 
 
-		public	string					GetName()				{ return ( string ) name.Clone(); }
+		public	string					GetName()				{ return ( string )this.name.Clone(); }
 	
 
 		//////////////////////////////////////////////////////////////////////////
 		// GetKeys
 		public	string[]				GetKeys()
 		{
-			string[] arrayToReturn = new string[ m_Linevalues.Count ];
-			for ( int i = 0; i < m_Linevalues.Count; i++ )
+			string[] arrayToReturn = new string[this.m_Linevalues.Count ];
+			for ( int i = 0; i < this.m_Linevalues.Count; i++ )
 			{
-				arrayToReturn[i] = m_Linevalues[i].Key;
+				arrayToReturn[i] = this.m_Linevalues[i].Key;
 			}
 			return arrayToReturn;
 		}
@@ -184,16 +184,16 @@ namespace Database {
 		// Add
 		public	bool				Add( cLineValue LineValue )
 		{
-			int index = m_Linevalues.FindIndex( ( s ) => s.Key == LineValue.Key );
+			int index = this.m_Linevalues.FindIndex( ( s ) => s.Key == LineValue.Key );
 			// Confirmed new linevalue
 			if ( index == -1 )
 			{
-				m_Linevalues.Add( LineValue );
+				this.m_Linevalues.Add( LineValue );
 			}
 			// overwrite of existing linevalue
 			else
 			{
-				m_Linevalues[ index ] = new cLineValue( LineValue );
+				this.m_Linevalues[ index ] = new cLineValue( LineValue );
 			}
 			return index > -1;
 		}
@@ -203,11 +203,11 @@ namespace Database {
 		// Remove
 		public	bool					Remove( string lineValueID )
 		{
-			int index = m_Linevalues.FindIndex( ( s ) => s.Key == lineValueID );
+			int index = this.m_Linevalues.FindIndex( ( s ) => s.Key == lineValueID );
 			if ( index > -1 )
 			{
-				m_Linevalues[index].Destroy();
-				m_Linevalues.RemoveAt( index );
+				this.m_Linevalues[index].Destroy();
+				this.m_Linevalues.RemoveAt( index );
 			}
 			return index > -1;
 		}
@@ -217,11 +217,11 @@ namespace Database {
 		// bGetLineValue
 		public	bool					bGetLineValue( string key, ref cLineValue lineValue )
 		{
-			int index = m_Linevalues.FindIndex( ( cLineValue lv ) => lv.IsKey( key ) == true );
+			int index = this.m_Linevalues.FindIndex( ( cLineValue lv ) => lv.IsKey( key ) == true );
 			bool bHasBeenFound = index > -1;
 			if ( bHasBeenFound )
 			{
-				lineValue = m_Linevalues[ index ];
+				lineValue = this.m_Linevalues[ index ];
 			}
 			return bHasBeenFound;
 		}
@@ -232,7 +232,7 @@ namespace Database {
 		public	bool					HasKey( string Key )
 		{	
 			cLineValue bump = null;
-			return bGetLineValue( Key, ref bump );
+			return this.bGetLineValue( Key, ref bump );
 		}
 
 
@@ -240,11 +240,11 @@ namespace Database {
 		// PrintSection
 		public void PrintSection()
 		{
-			Debug.Log( "---|Section START" + name );
-			foreach ( cLineValue LineValue in m_Linevalues )
+			Debug.Log( "---|Section START" + this.name );
+			foreach ( cLineValue LineValue in this.m_Linevalues )
 			{
 				string result = LineValue.Key;
-				if ( LineValue.Type == LineValueType.MULTI )
+				if ( LineValue.Type == ELineValueType.MULTI )
 				{
 					cMultiValue multi = LineValue.MultiValue;
 					for ( int i = 0; i < multi.Size; i++ )
@@ -274,15 +274,15 @@ namespace Database {
 			List<string> lines = new List<string>();
 
 			// SECTION DEFINITION
-			string sectionDefinition = "[" + name + "]";
+			string sectionDefinition = "[" + this.name + "]";
 			{
 				// Concatenate mothers names
-				if ( m_Mothers.Count > 0 )
+				if (this.m_Mothers.Count > 0 )
 				{
-					sectionDefinition += ":" + m_Mothers[0];
-					for ( int i = 1; i < m_Mothers.Count; i++, sectionDefinition += ',' )
+					sectionDefinition += ":" + this.m_Mothers[0];
+					for ( int i = 1; i < this.m_Mothers.Count; i++, sectionDefinition += ',' )
 					{
-						string motherName = m_Mothers[i];
+						string motherName = this.m_Mothers[i];
 						sectionDefinition += motherName;
 					}
 				}
@@ -290,11 +290,11 @@ namespace Database {
 			lines.Add( sectionDefinition );
 
 			// Write key value pairs
-			foreach ( cLineValue LineValue in m_Linevalues )
+			foreach ( cLineValue LineValue in this.m_Linevalues )
 			{
 				string key = LineValue.Key;
 				string value = "";
-				if ( LineValue.Type == LineValueType.MULTI )
+				if ( LineValue.Type == ELineValueType.MULTI )
 				{
 					cMultiValue multi = LineValue.MultiValue;
 					value += multi[ 0 ];

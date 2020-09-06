@@ -8,8 +8,7 @@ class EditorInitializer { static EditorInitializer ()
 {
 		// Assets/Resources/Scriptables/WeatherCollection.asset
 	const string assetPath = WeatherSystem.WindowWeatherEditor.ASSETS_SCRIPTABLES_PATH + "/" + WeatherSystem.WeatherManager.RESOURCES_WEATHERSCOLLECTION + ".asset";
-	bool bExists = System.IO.File.Exists( assetPath );
-	if ( bExists )
+	if (System.IO.File.Exists(assetPath))
 	{
 		WeatherSystem.Weathers weathers = UnityEditor.AssetDatabase.LoadAssetAtPath<WeatherSystem.Weathers>( assetPath );
 		UnityEngine.Assertions.Assert.IsNotNull
@@ -29,7 +28,7 @@ public class CustomLogHandler : ILogHandler
 
 	public static ILogHandler m_DefaultLogHandler { get; private set; }
 
-	private System.Globalization.CultureInfo cultureInfo = (System.Globalization.CultureInfo)System.Globalization.CultureInfo.InvariantCulture.Clone();
+	private readonly System.Globalization.CultureInfo cultureInfo = (System.Globalization.CultureInfo)System.Globalization.CultureInfo.InvariantCulture.Clone();
 
 	//////////////////////////////////////////////////////////////////////////
 	public CustomLogHandler()
@@ -39,17 +38,17 @@ public class CustomLogHandler : ILogHandler
 
 		string filePath = Application.dataPath + "/SessionLog.log";
 		{
-			m_FileStream = new System.IO.FileStream( filePath, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Write );
-			m_StreamWriter = new System.IO.StreamWriter( m_FileStream );
+			this.m_FileStream = new System.IO.FileStream( filePath, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Write );
+			this.m_StreamWriter = new System.IO.StreamWriter(this.m_FileStream );
 		}
 
-		cultureInfo.NumberFormat.NumberDecimalSeparator = ".";
+		this.cultureInfo.NumberFormat.NumberDecimalSeparator = ".";
     }
 
 	//////////////////////////////////////////////////////////////////////////
     public void LogFormat( LogType logType, Object context, string format, params object[] args )
     {
-        m_StreamWriter.WriteLine( "[" + Time.time.ToString("0.000", cultureInfo) + "]" +  System.String.Format( format, args ) );
+		this.m_StreamWriter.WriteLine( "[" + Time.time.ToString("0.000", this.cultureInfo) + "]" +  System.String.Format( format, args ) );
         m_DefaultLogHandler.LogFormat( logType, context, format, args );
     }
 
@@ -57,9 +56,9 @@ public class CustomLogHandler : ILogHandler
 	//////////////////////////////////////////////////////////////////////////
     public void LogException( System.Exception exception, Object context )
     {
-		m_StreamWriter.WriteLine( "[" + Time.time.ToString("0.000", cultureInfo) + "]" + exception.Message );
-		m_StreamWriter.WriteLine( exception.StackTrace );
-        m_StreamWriter.Flush();
+		this.m_StreamWriter.WriteLine( "[" + Time.time.ToString("0.000", this.cultureInfo) + "]" + exception.Message );
+		this.m_StreamWriter.WriteLine( exception.StackTrace );
+		this.m_StreamWriter.Flush();
         m_DefaultLogHandler.LogException( exception, context );
     }
 	
@@ -67,9 +66,9 @@ public class CustomLogHandler : ILogHandler
 	//////////////////////////////////////////////////////////////////////////
 	public  void UnSetup()
 	{
-		m_StreamWriter.Flush();
-		m_StreamWriter.Close();
-		m_FileStream.Close();
+		this.m_StreamWriter.Flush();
+		this.m_StreamWriter.Close();
+		this.m_FileStream.Close();
 
 		Debug.unityLogger.logHandler = m_DefaultLogHandler;
 	}
@@ -192,13 +191,13 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager> {
 	//////////////////////////////////////////////////////////////////////////
 	public		static		void		SetTimeScale( float value )
 	{
-		SoundManager.Instance.Pitch = value;
+		SoundManager.Pitch = value;
 
 		Time.timeScale = value;
 	}
 
 
-//	float maximum = 1;
+	//	float maximum = 1;
 	//////////////////////////////////////////////////////////////////////////
 	private void Update()
 	{
@@ -222,7 +221,7 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager> {
 		if ( Input.GetKeyDown( KeyCode.V ) )
 		{
 			Destroy( UIManager.InGame.transform.parent.gameObject );
-			CustomSceneManager.LoadSceneSync( new CustomSceneManager.LoadSceneData() { eScene = SceneEnumeration.MAIN_MENU } );
+			CustomSceneManager.LoadSceneSync( new CustomSceneManager.LoadSceneData() { eScene = ESceneEnumeration.MAIN_MENU } );
 		}
 	}
 

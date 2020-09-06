@@ -18,19 +18,19 @@ namespace QuestSystem {
 		// Initialize ( IStateDefiner )
 		protected		override	bool		InitializeInternal( ITask motherTask, System.Action<IObjective> onCompletionCallback, System.Action<IObjective> onFailureCallback )
 		{
-			if ( m_IsInitialized == true )
+			if (this.m_IsInitialized == true )
 				return true;
 
-			m_IsInitialized = true;
+			this.m_IsInitialized = true;
 
-			bool bIsGoodResult = Utils.Base.SearchComponent( gameObject, ref m_Collider, SearchContext.LOCAL );
+			bool bIsGoodResult = Utils.Base.SearchComponent(this.gameObject, ref this.m_Collider, ESearchContext.LOCAL );
 			if ( bIsGoodResult )
 			{
-				m_Collider.isTrigger = true;
-				m_Collider.enabled = false;
-				
-				m_OnCompletionCallback = onCompletionCallback;
-				m_OnFailureCallback = onFailureCallback;
+				this.m_Collider.isTrigger = true;
+				this.m_Collider.enabled = false;
+
+				this.m_OnCompletionCallback = onCompletionCallback;
+				this.m_OnFailureCallback = onFailureCallback;
 				motherTask.AddObjective( this );
 			}
 
@@ -74,11 +74,11 @@ namespace QuestSystem {
 		// Activate ( IObjective )
 		protected		override	void		ActivateInternal()
 		{
-			if ( m_ObjectThatTrigger.IsNotNull() )
+			if (this.m_ObjectThatTrigger.IsNotNull() )
 			{
-				m_Collider.enabled = true;
+				this.m_Collider.enabled = true;
 
-				UIManager.Indicators.EnableIndicator( m_Collider.gameObject, IndicatorType.AREA_WHERE_PLACE_OBJECT, bMustBeClamped: true );
+				UIManager.Indicators.EnableIndicator(this.m_Collider.gameObject, EIndicatorType.AREA_WHERE_PLACE_OBJECT, bMustBeClamped: true );
 			}
 		}
 
@@ -87,11 +87,11 @@ namespace QuestSystem {
 		// Deactivate ( IObjective )
 		protected		override	void		DeactivateInternal()
 		{
-			if ( m_ObjectThatTrigger.IsNotNull() )
+			if (this.m_ObjectThatTrigger.IsNotNull() )
 			{
-				m_Collider.enabled = false;
+				this.m_Collider.enabled = false;
 
-				UIManager.Indicators.DisableIndicator( gameObject );
+				UIManager.Indicators.DisableIndicator(this.gameObject );
 			}
 		}
 
@@ -102,7 +102,7 @@ namespace QuestSystem {
 		{
 			if ( objCollider && objCollider.isTrigger == false )
 			{
-				m_ObjectThatTrigger = objCollider;
+				this.m_ObjectThatTrigger = objCollider;
 			}
 		}
 
@@ -111,23 +111,23 @@ namespace QuestSystem {
 		// OnTriggerEnter
 		private void OnTriggerEnter( Collider other )
 		{
-			if ( m_ObjectiveState != ObjectiveState.ACTIVATED )
+			if (this.m_ObjectiveState != EObjectiveState.ACTIVATED )
 				return;
 
-			if ( other.GetInstanceID() != m_ObjectThatTrigger.GetInstanceID() )
+			if ( other.GetInstanceID() != this.m_ObjectThatTrigger.GetInstanceID() )
 				return;
 
-			Deactivate();
+			this.Deactivate();
 
 			// Require dependencies to be completed
-			int dependencyIndex = m_Dependencies.Count > 0 ? m_Dependencies.FindLastIndex( o => o.IsCompleted == false ) : -1;
+			int dependencyIndex = this.m_Dependencies.Count > 0 ? this.m_Dependencies.FindLastIndex( o => o.IsCompleted == false ) : -1;
 			if ( dependencyIndex > -1 )
 			{
-				m_Dependencies[dependencyIndex].Activate();
+				this.m_Dependencies[dependencyIndex].Activate();
 				return;
 			}
 
-			OnObjectiveCompleted();
+			this.OnObjectiveCompleted();
 		}
 
 	}

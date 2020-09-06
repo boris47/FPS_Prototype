@@ -18,16 +18,16 @@ public partial class Player {
 			return null;
 
 		// Health
-		streamUnit.SetInternal( "Health", m_Health );
+		streamUnit.SetInternal( "Health", this.m_Health );
 
 		// Stamina
-		streamUnit.SetInternal( "Stamina", m_Stamina );
+		streamUnit.SetInternal( "Stamina", this.m_Stamina );
 
 		// Crouch state
-		streamUnit.SetInternal( "IsCrouched", IsCrouched );
+		streamUnit.SetInternal( "IsCrouched", this.IsCrouched );
 
 		// Motion Type
-		streamUnit.SetInternal( "MotionType", m_CurrentMotionType );
+		streamUnit.SetInternal( "MotionType", this.m_CurrentMotionType );
 
 		return streamUnit;
 	}
@@ -41,54 +41,54 @@ public partial class Player {
 			return null;
 
 		// Cutscene Manager
-		if ( m_CutsceneManager.IsPlaying == true )
-			m_CutsceneManager.Terminate();
+		if (this.m_CutsceneManager.IsPlaying == true )
+			this.m_CutsceneManager.Terminate();
 
 		// UI effect reset
 		UIManager.EffectFrame.color = Color.clear;
 
 		// Dodging reset
-		if ( m_DodgeCoroutine != null )
+		if (this.m_DodgeCoroutine != null )
 		{
-			StopCoroutine( m_DodgeCoroutine );
+			this.StopCoroutine(this.m_DodgeCoroutine );
 		}
-		m_RigidBody.constraints						= RigidbodyConstraints.FreezeRotation;
-		m_RigidBody.velocity						= Vector3.zero;
+		this.m_RigidBody.constraints						= RigidbodyConstraints.FreezeRotation;
+		this.m_RigidBody.velocity						= Vector3.zero;
 
 		GlobalManager.SetTimeScale( 1.0f );
 
-		m_DodgeRaycastNormal						= Vector3.zero;
-		m_DodgeAbilityTarget.gameObject.SetActive( false );
-		m_ChosingDodgeRotation						= false;
-		m_DodgeInterpolant							= 0f;
-		var settings								= CameraControl.Instance.GetPP_Profile.motionBlur.settings;
+		this.m_DodgeRaycastNormal						= Vector3.zero;
+		this.m_DodgeAbilityTarget.gameObject.SetActive( false );
+		this.m_ChosingDodgeRotation						= false;
+		this.m_DodgeInterpolant							= 0f;
+		UnityEngine.PostProcessing.MotionBlurModel.Settings settings								= CameraControl.Instance.GetPP_Profile.motionBlur.settings;
 		settings.frameBlending						= 0f;
 		CameraControl.Instance.GetPP_Profile.motionBlur.settings = settings;
-		m_IsDodging = false;
+		this.m_IsDodging = false;
 
 		// Player internals
-		m_Interactable								= null;
-		m_Move										= Vector3.zero;
-		m_RaycastHit								= default( RaycastHit );
+		this.m_Interactable								= null;
+		this.m_Move										= Vector3.zero;
+		this.m_RaycastHit								= default( RaycastHit );
 
-		DropEntityDragged();
+		this.DropEntityDragged();
 
-		m_ForwardSmooth = m_RightSmooth = m_UpSmooth = 0f;
+		this.m_ForwardSmooth = this.m_RightSmooth = this.m_UpSmooth = 0f;
 
 		// Health
-		m_Health			= streamUnit.GetAsFloat( "Health" );
+		this.m_Health			= streamUnit.GetAsFloat( "Health" );
 
 		// Stamina
-		m_Stamina			= streamUnit.GetAsFloat( "Stamina" );
+		this.m_Stamina			= streamUnit.GetAsFloat( "Stamina" );
 
 		// Crouch state
-		m_States.IsCrouched = streamUnit.GetAsBool( "IsCrouched" );
+		this.m_States.IsCrouched = streamUnit.GetAsBool( "IsCrouched" );
 
 		// Motion Type
-		m_CurrentMotionType	= streamUnit.GetAsEnum<eMotionType>( "MotionType");
-		SetMotionType( m_CurrentMotionType );
+		this.m_CurrentMotionType	= streamUnit.GetAsEnum<EMotionType>( "MotionType");
+		this.SetMotionType(this.m_CurrentMotionType );
 
-		m_RigidBody.useGravity = false;
+		this.m_RigidBody.useGravity = false;
 
 		return streamUnit;
 	}
@@ -116,15 +116,15 @@ public partial class Player {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		override	void		OnHittedDetails( Vector3 startPosition, Entity whoRef, DamageType damageType, float damage, bool canPenetrate = false )
+	public		override	void		OnHittedDetails( Vector3 startPosition, Entity whoRef, EDamageType damageType, float damage, bool canPenetrate = false )
 	{
-		m_DamageEffect = 0.2f; // damage / m_Health;
+		this.m_DamageEffect = 0.2f; // damage / m_Health;
 
-		m_Health -= damage;
+		this.m_Health -= damage;
 		UIManager.InGame.UpdateUI();
 
-		if ( m_Health < 0f )
-			OnKill();
+		if (this.m_Health < 0f )
+			this.OnKill();
 	}
 
 
@@ -138,53 +138,55 @@ public partial class Player {
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		OnPhysicFrame( float fixedDeltaTime )
 	{
-		if ( m_IsActive == false )
+		if (this.m_IsActive == false )
 			return;
 
-		MoveGrabbedObject();
-		CheckIfUnderSomething();
-//		CheckForFallOrUserBreak();
+		this.MoveGrabbedObject();
+		this.CheckIfUnderSomething();
+		//		CheckForFallOrUserBreak();
 
-		m_RigidBody.angularVelocity = Vector3.zero;
+		this.m_RigidBody.angularVelocity = Vector3.zero;
 
 		// Forced by ovverride
-		if ( m_MovementOverrideEnabled )
+		if (this.m_MovementOverrideEnabled )
 		{
 			// Controlled in Player.Motion_Walk::SimulateMovement
-			m_RigidBody.AddForce( m_Move, ForceMode.Acceleration );
+			this.m_RigidBody.AddForce(this.m_Move, ForceMode.Acceleration );
 			return;
 		}
 		
 		// Apply User inputs
 		{
 			// Controlled in Player.Motion_Walk::Update_Walk
-			Vector3 forward	= Vector3.Cross( CameraControl.Instance.Transform.right, transform.up );
+			Vector3 forward	= Vector3.Cross( CameraControl.Instance.Transform.right, this.transform.up );
 			Vector3 right	= CameraControl.Instance.Transform.right;
-			Vector3 up		= transform.up;
+			Vector3 up		= this.transform.up;
 			
-			if ( m_ForwardSmooth != 0.0f )
-				m_RigidBody.AddForce( forward	* m_ForwardSmooth	* GroundSpeedModifier,	m_UpSmooth > 0.0f ? ForceMode.Impulse : ForceMode.Acceleration );
+			if ( !Utils.Math.SimilarZero( this.m_ForwardSmooth, 0.01f ))//  this.m_ForwardSmooth != 0.0f )
+				this.m_RigidBody.AddForce( forward	* this.m_ForwardSmooth	* this.GroundSpeedModifier, this.m_UpSmooth > 0.0f ? ForceMode.Impulse : ForceMode.Acceleration );
 
-			if ( m_RightSmooth != 0.0f )
-				m_RigidBody.AddForce( right		* m_RightSmooth		* GroundSpeedModifier,	m_UpSmooth > 0.0f ? ForceMode.Impulse : ForceMode.Acceleration );
+	//		if (this.m_RightSmooth != 0.0f )
+			if (!Utils.Math.SimilarZero(this.m_RightSmooth, 0.01f))
+				this.m_RigidBody.AddForce( right		* this.m_RightSmooth		* this.GroundSpeedModifier, this.m_UpSmooth > 0.0f ? ForceMode.Impulse : ForceMode.Acceleration );
 				
-			if ( m_UpSmooth > 0.0f )
-				m_RigidBody.AddForce( up		* m_UpSmooth		* 1.0f,	ForceMode.VelocityChange );
+	//		if (this.m_UpSmooth > 0.0f )
+			if (!Utils.Math.SimilarZero(this.m_UpSmooth, 0.01f))
+				this.m_RigidBody.AddForce( up		* this.m_UpSmooth		* 1.0f,	ForceMode.VelocityChange );
 
-			m_ForwardSmooth = m_RightSmooth = m_UpSmooth = 0.0f;
+			this.m_ForwardSmooth = this.m_RightSmooth = this.m_UpSmooth = 0.0f;
 
 			// Reset "local" states
-			m_States.Reset();
+			this.m_States.Reset();
 		}
 		
-		float drag = IsGrounded ? 7f : 0.0f;
-		m_RigidBody.drag = drag;
+		float drag = this.IsGrounded ? 7f : 0.0f;
+		this.m_RigidBody.drag = drag;
 
 		// Apply gravity
 		{
 			// add RELATIVE gravity force
-			Vector3 gravity = transform.up * Physics.gravity.y;
-			m_RigidBody.AddForce( gravity, ForceMode.Acceleration );
+			Vector3 gravity = this.transform.up * Physics.gravity.y;
+			this.m_RigidBody.AddForce( gravity, ForceMode.Acceleration );
 		}
 	}
 
@@ -210,7 +212,7 @@ public partial class Player {
 		Vector3 position = CameraControl.Instance.Transform.position;
 		Vector3 upwards = CameraControl.Instance.Transform.up;
 		Vector3 cameraUpPosition = position + ( upwards * 0.3f );
-		m_IsUnderSomething = Physics.Linecast( start: position, end: cameraUpPosition, layerMask: Physics.DefaultRaycastLayers, queryTriggerInteraction: QueryTriggerInteraction.Ignore );
+		this.m_IsUnderSomething = Physics.Linecast( start: position, end: cameraUpPosition, layerMask: Physics.DefaultRaycastLayers, queryTriggerInteraction: QueryTriggerInteraction.Ignore );
 	}
 
 
@@ -219,15 +221,15 @@ public partial class Player {
 	protected	override	void		OnFrame( float deltaTime )
 	{
 		base.OnFrame( deltaTime );
-		if ( m_IsActive == false )
+		if (this.m_IsActive == false )
 			return;
 
 		// Damage Effect
 		UnityEngine.PostProcessing.VignetteModel.Settings settings = CameraControl.Instance.GetPP_Profile.vignette.settings;
-		if ( m_DamageEffect > 0.0f )
+		if (this.m_DamageEffect > 0.0f )
 		{
-			m_DamageEffect = Mathf.Lerp( m_DamageEffect, 0f, Time.deltaTime * 2f );
-			settings.intensity = m_DamageEffect;
+			this.m_DamageEffect = Mathf.Lerp(this.m_DamageEffect, 0f, Time.deltaTime * 2f );
+			settings.intensity = this.m_DamageEffect;
 			CameraControl.Instance.GetPP_Profile.vignette.settings = settings;
 		}
 		
@@ -238,12 +240,12 @@ public partial class Player {
 		{
 			Vector3 position  = CameraControl.Instance.Transform.position;
 			Vector3 direction = CameraControl.Instance.Transform.forward;
-			m_HasRaycasthit = Physics.Raycast( position, direction, out m_RaycastHit, MAX_INTERACTION_DISTANCE, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore );
+			this.m_HasRaycasthit = Physics.Raycast( position, direction, out this.m_RaycastHit, MAX_INTERACTION_DISTANCE, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore );
 		}
 
 #endregion
 
-		if ( m_IsDodging == true )
+		if (this.m_IsDodging == true )
 			return;
 // Water
 #region TO IMPLEMENT
@@ -310,7 +312,7 @@ public partial class Player {
 		}
 
 		// trace previuos states
-		m_PreviousStates = m_States;
+		this.m_PreviousStates = this.m_States;
 	}
 
 
@@ -320,10 +322,10 @@ public partial class Player {
 		// remove parent for camera
 		CameraControl.Instance.Transform.SetParent( null );
 
-		m_IsActive = false;
+		this.m_IsActive = false;
 
 		// reset effect
-		var settings = CameraControl.Instance.GetPP_Profile.vignette.settings;
+		UnityEngine.PostProcessing.VignetteModel.Settings settings = CameraControl.Instance.GetPP_Profile.vignette.settings;
 		settings.intensity = 0f;
 		CameraControl.Instance.GetPP_Profile.vignette.settings = settings;
 
@@ -339,7 +341,7 @@ public partial class Player {
 		UIManager.InGame.UpdateUI();
 
 		// Turn off player object
-		gameObject.SetActive( false );
+		this.gameObject.SetActive( false );
 
 		// print a message
 		print( "U r dead" );

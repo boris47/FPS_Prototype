@@ -14,40 +14,40 @@ public sealed class UI_Bindings : MonoBehaviour, IStateDefiner {
 	private		Button				m_ApplyButton					= null;
 
 
-	private	bool			m_bIsInitialized					= false;
+	private	bool			m_IsInitialized					= false;
 	bool IStateDefiner.IsInitialized
 	{
-		get { return m_bIsInitialized; }
+		get { return this.m_IsInitialized; }
 	}
 
 	string IStateDefiner.StateName
 	{
-		get { return name; }
+		get { return this.name; }
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
 	IEnumerator IStateDefiner.Initialize()
 	{
-		if ( m_bIsInitialized == true )
+		if (this.m_IsInitialized == true )
 			yield break;
 
 		CoroutinesManager.AddCoroutineToPendingCount( 1 );
 
-		m_bIsInitialized = true;
+		this.m_IsInitialized = true;
 		{
 			keyStateDropDownList = new List<Dropdown.OptionData>
 			(
-				System.Enum.GetValues( typeof( eKeyState ) ).
-				Cast<eKeyState>().
-				Select( ( eKeyState k ) => new Dropdown.OptionData( k.ToString() ) )
+				System.Enum.GetValues( typeof( EKeyState ) ).
+				Cast<EKeyState>().
+				Select( ( EKeyState k ) => new Dropdown.OptionData( k.ToString() ) )
 			);
 
 			yield return null;
 
-			if ( m_bIsInitialized &= transform.SearchComponentInChild( "Button_Apply", ref m_ApplyButton ) )
+			if (this.m_IsInitialized &= this.transform.SearchComponentInChild( "Button_Apply", ref this.m_ApplyButton ) )
 			{
-				m_ApplyButton.interactable = false;
+				this.m_ApplyButton.interactable = false;
 			}
 
 			yield return null;
@@ -58,21 +58,21 @@ public sealed class UI_Bindings : MonoBehaviour, IStateDefiner {
 			(
 				ResourcePath:			"Prefabs/UI/UI_CommandRow",
 				loadedResource:			loadedResource,
-				OnResourceLoaded:		(a) => { m_bIsInitialized &= true; m_UI_CommandRow = a; },
-				OnFailure:				(p) => m_bIsInitialized &= false
+				OnResourceLoaded:		(a) => { this.m_IsInitialized &= true; this.m_UI_CommandRow = a; },
+				OnFailure:				(p) => this.m_IsInitialized &= false
 			);
 
 			// Scroll content conmponent
-			m_bIsInitialized &= transform.SearchComponent( ref m_ScrollContentTransform, SearchContext.CHILDREN, c => c.HasComponent<VerticalLayoutGroup>() );
+			this.m_IsInitialized &= this.transform.SearchComponent( ref this.m_ScrollContentTransform, ESearchContext.CHILDREN, c => c.HasComponent<VerticalLayoutGroup>() );
 
-			m_BlockPanel = transform.Find("BlockPanel" );
-			m_bIsInitialized &= m_BlockPanel != null;
+			this.m_BlockPanel = this.transform.Find("BlockPanel" );
+			this.m_IsInitialized &= this.m_BlockPanel != null;
 
 			yield return null;
 
-			if ( m_bIsInitialized )
+			if (this.m_IsInitialized )
 			{
-				m_BlockPanel.gameObject.SetActive( false );
+				this.m_BlockPanel.gameObject.SetActive( false );
 				CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 			}
 			else
@@ -95,7 +95,7 @@ public sealed class UI_Bindings : MonoBehaviour, IStateDefiner {
 	// Finalize
 	bool	 IStateDefiner.Finalize()
 	{
-		return m_bIsInitialized;
+		return this.m_IsInitialized;
 	}
 
 
@@ -104,16 +104,16 @@ public sealed class UI_Bindings : MonoBehaviour, IStateDefiner {
 	{
 		if ( GlobalManager.InputMgr != null )
 		{
-			m_InputMgr = GlobalManager.InputMgr;
+			this.m_InputMgr = GlobalManager.InputMgr;
 		}
 		else
 		{
-			m_InputMgr	= new InputManager();
-			m_InputMgr.Setup();
+			this.m_InputMgr	= new InputManager();
+			this.m_InputMgr.Setup();
 			Debug.Log( "UI_Bindings::OnEnable: Cannot fin input manager in global manager" );
 		}
 
-		FillGrid();
+		this.FillGrid();
 	}
 
 
@@ -122,7 +122,7 @@ public sealed class UI_Bindings : MonoBehaviour, IStateDefiner {
 	{
 		KeyCode keyChosen	= KeyCode.None;
 
-		m_BlockPanel.gameObject.SetActive( true );
+		this.m_BlockPanel.gameObject.SetActive( true );
 
 		bool bIsWaiting	= true;
 		while( bIsWaiting == true )
@@ -138,7 +138,7 @@ public sealed class UI_Bindings : MonoBehaviour, IStateDefiner {
 			yield return null;
 		}
 
-		m_BlockPanel.gameObject.SetActive( false );
+		this.m_BlockPanel.gameObject.SetActive( false );
 
 		if ( OnKeyPressed != null && keyChosen != KeyCode.None )
 		{
@@ -149,9 +149,9 @@ public sealed class UI_Bindings : MonoBehaviour, IStateDefiner {
 	private Navigation noNavigationMode = new Navigation() { mode = Navigation.Mode.None };
 	private	void CreateGridElement( KeyCommandPair info )
 	{
-		GameObject commandRow = Instantiate<GameObject>( m_UI_CommandRow );
+		GameObject commandRow = Instantiate<GameObject>(this.m_UI_CommandRow );
 		{
-			commandRow.transform.SetParent( m_ScrollContentTransform );
+			commandRow.transform.SetParent(this.m_ScrollContentTransform );
 			commandRow.transform.localScale  = Vector3.one;
 			commandRow.name = info.Command.ToString();
 		}
@@ -173,7 +173,7 @@ public sealed class UI_Bindings : MonoBehaviour, IStateDefiner {
 				primaryKeyStateDropdown.onValueChanged.AddListener( 
 					delegate( int i )
 					{
-						OnKeyStateChanged( info, eKeys.PRIMARY, i );
+						this.OnKeyStateChanged( info, EKeys.PRIMARY, i );
 					}
 				);
 			}
@@ -188,18 +188,18 @@ public sealed class UI_Bindings : MonoBehaviour, IStateDefiner {
 			Button primaryKeyChoiceButton = null;
 			if (commandRow.transform.SearchComponentInChild( 2, ref primaryKeyChoiceButton ) )
 			{
-				primaryKeyChoiceButton.navigation = noNavigationMode;
+				primaryKeyChoiceButton.navigation = this.noNavigationMode;
 				primaryKeyChoiceButton.onClick.AddListener( 
 					delegate() 
 					{
-						OnKeyChoiceButtonClicked( info, eKeys.PRIMARY );
+						this.OnKeyChoiceButtonClicked( info, EKeys.PRIMARY );
 					}
 				);
 			}
 
 			Text label = null;
 			if ( primaryKeyChoiceButton.transform.SearchComponentInChild( 0, ref label ) )
-				label.text = info.GetKeyCode( eKeys.PRIMARY ).ToString();
+				label.text = info.GetKeyCode( EKeys.PRIMARY ).ToString();
 		}
 
 		// Secondary KeyState Dropdown
@@ -212,7 +212,7 @@ public sealed class UI_Bindings : MonoBehaviour, IStateDefiner {
 				secondaryKeyStateDropdown.onValueChanged.AddListener( 
 					delegate( int i )
 					{
-						OnKeyStateChanged( info, eKeys.SECONDARY, i );
+						this.OnKeyStateChanged( info, EKeys.SECONDARY, i );
 					}
 				);
 			}
@@ -227,18 +227,18 @@ public sealed class UI_Bindings : MonoBehaviour, IStateDefiner {
 			Button secondaryKeyChoiceButton = null;
 			if ( commandRow.transform.SearchComponentInChild( 4, ref secondaryKeyChoiceButton ) )
 			{
-				secondaryKeyChoiceButton.navigation = noNavigationMode;
+				secondaryKeyChoiceButton.navigation = this.noNavigationMode;
 				secondaryKeyChoiceButton.onClick.AddListener( 
 					delegate()
 					{
-						OnKeyChoiceButtonClicked( info, eKeys.SECONDARY );
+						this.OnKeyChoiceButtonClicked( info, EKeys.SECONDARY );
 					}
 				);
 			}
 
 			Text label = null;
 			if ( secondaryKeyChoiceButton.transform.SearchComponentInChild( 0, ref label ) )
-				label.text = info.GetKeyCode( eKeys.SECONDARY ).ToString();
+				label.text = info.GetKeyCode( EKeys.SECONDARY ).ToString();
 		}
 	}
 
@@ -247,40 +247,40 @@ public sealed class UI_Bindings : MonoBehaviour, IStateDefiner {
 	private	void	FillGrid()
 	{
 		// Clear the content of scroll view
-		foreach( Transform t in m_ScrollContentTransform )
+		foreach( Transform t in this.m_ScrollContentTransform )
 		{
 			Destroy( t.gameObject );
 		}
 
 		// Fill the grid
-		System.Array.ForEach( m_InputMgr.Bindings, CreateGridElement );
+		System.Array.ForEach(this.m_InputMgr.Bindings, this.CreateGridElement );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private	void	OnKeyStateChanged( KeyCommandPair info, eKeys Key, int newValue )
+	private	void	OnKeyStateChanged( KeyCommandPair info, EKeys Key, int newValue )
 	{
-		eKeyState newKeyState = ( eKeyState ) newValue;
+		EKeyState newKeyState = ( EKeyState ) newValue;
 
 		// skip for identical assignment
 		if ( newKeyState == info.GetKeyState( Key ) )
 			return;
 
 		{
-			m_InputMgr.AssignNewKeyState( Key, newKeyState, info.Command );
+			this.m_InputMgr.AssignNewKeyState( Key, newKeyState, info.Command );
 
-			if ( newKeyState == eKeyState.SCROLL_DOWN || newKeyState == eKeyState.SCROLL_UP )
+			if ( newKeyState == EKeyState.SCROLL_DOWN || newKeyState == EKeyState.SCROLL_UP )
 			{
 				info.Assign( Key, null, KeyCode.None );
 			}
 		}
 
-		FillGrid();
-		m_ApplyButton.interactable = true;
+		this.FillGrid();
+		this.m_ApplyButton.interactable = true;
 	}
 	
 	//////////////////////////////////////////////////////////////////////////
-	private	void	OnKeyChoiceButtonClicked( KeyCommandPair info, eKeys Key )
+	private	void	OnKeyChoiceButtonClicked( KeyCommandPair info, EKeys Key )
 	{
 		// Create callback for key assigning
 		System.Action<KeyCode> onKeyPressed = delegate( KeyCode keyCode )
@@ -289,34 +289,34 @@ public sealed class UI_Bindings : MonoBehaviour, IStateDefiner {
 			if ( keyCode == info.GetKeyCode( Key ) )
 				return;
 
-			if ( m_InputMgr.CanNewKeyCodeBeAssigned( Key, keyCode, info.Command ) )
+			if (this.m_InputMgr.CanNewKeyCodeBeAssigned( Key, keyCode, info.Command ) )
 			{
-				if ( m_InputMgr.AssignNewKeyCode( Key, keyCode, info.Command, false ) )
+				if (this.m_InputMgr.AssignNewKeyCode( Key, keyCode, info.Command, false ) )
 				{
 //					m_InputMgr.SaveBindings();
 				}
 
-				FillGrid();
-				m_ApplyButton.interactable = true;
+				this.FillGrid();
+				this.m_ApplyButton.interactable = true;
 			}
 			else
 			{
 				System.Action onConfirm = delegate()
 				{
-					if ( m_InputMgr.AssignNewKeyCode( Key, keyCode, info.Command, true ) )
+					if (this.m_InputMgr.AssignNewKeyCode( Key, keyCode, info.Command, true ) )
 					{
 //						m_InputMgr.SaveBindings();
 					}
 
-					FillGrid();
-					m_ApplyButton.interactable = true;
+					this.FillGrid();
+					this.m_ApplyButton.interactable = true;
 				};
 
 				UIManager.Confirmation.Show( "Confirm key substitution?", OnConfirm: onConfirm, OnCancel: null );
 			}
 		};
 
-		CoroutinesManager.Start( WaitForKeyCO( onKeyPressed ),
+		CoroutinesManager.Start(this.WaitForKeyCO( onKeyPressed ),
 			"UI_Bindings::OnKeyChoiceButtonClicked: Waiting for button press"
 			);
 	}
@@ -327,10 +327,10 @@ public sealed class UI_Bindings : MonoBehaviour, IStateDefiner {
 	{
 		System.Action onConfirm = delegate()
 		{
-			m_InputMgr.SaveBindings();
+			this.m_InputMgr.SaveBindings();
 
-			FillGrid();
-			m_ApplyButton.interactable = false;
+			this.FillGrid();
+			this.m_ApplyButton.interactable = false;
 		};
 
 		UIManager.Confirmation.Show( "Confirm bindings?", OnConfirm: onConfirm, OnCancel: null );
@@ -342,10 +342,10 @@ public sealed class UI_Bindings : MonoBehaviour, IStateDefiner {
 	{
 		System.Action onConfirm = delegate()
 		{
-			m_InputMgr.ResetBindings();
+			this.m_InputMgr.ResetBindings();
 
-			FillGrid();
-			m_ApplyButton.interactable = false;
+			this.FillGrid();
+			this.m_ApplyButton.interactable = false;
 		};
 
 		UIManager.Confirmation.Show( "Do you really want to reset bindings?", OnConfirm: onConfirm, OnCancel: null );
@@ -355,7 +355,7 @@ public sealed class UI_Bindings : MonoBehaviour, IStateDefiner {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnDisable()
 	{
-		m_InputMgr	= null;
+		this.m_InputMgr	= null;
 	}
 
 

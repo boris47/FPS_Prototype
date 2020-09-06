@@ -21,6 +21,7 @@ public static class ReflectionHelper
 {
 //	private static Dictionary<Type, List<Type>> _classToComponentMapping = new Dictionary<Type, List<Type>>();
 	private static Dictionary<Type, List<Type>> _interfaceToComponentMapping = new Dictionary<Type, List<Type>>();
+	private static Dictionary<Type, List<Type>> _classToComponentMapping = new Dictionary<Type, List<Type>>();
 	private static Type[] _allTypes;
 
 
@@ -128,13 +129,9 @@ public static class ReflectionHelper
 #endregion
 
 		// Interfaces
-		foreach ( Type curInterface in _allTypes)
+		foreach ( Type currentType in _allTypes)
 		{
-			//We're interested only in interfaces
-			if (!curInterface.IsInterface)
-				continue;
-
-			string typeName = curInterface.ToString().ToLower();
+			string typeName = currentType.ToString().ToLower();
 
 			//Skip system interfaces
 			if ( typeName.Contains( "unity" ) || typeName.Contains( "system." )
@@ -145,28 +142,50 @@ public static class ReflectionHelper
 				 || typeName.Contains( "editor" ) || typeName.Contains( "debug" ) )
 				continue;
 
-			List<Type> typesInherited = GetTypesInherited( curInterface );
 
-			if ( typesInherited.Count <= 0 )
-				continue;
-
-			List<Type> componentsList = new List<Type>();
-
-			foreach (Type curType in typesInherited)
+			if (currentType.IsClass || currentType.IsAbstract)
 			{
-				//Skip interfaces
-				if (curType.IsInterface)
-					continue;
+				List<Type> componentsList = new List<Type>();
+				List<Type> typesImplementingTheInterface = GetTypesInherited(currentType);
+				foreach (Type curType in typesImplementingTheInterface)
+				{
+					//Skip interfaces
+					if (curType.IsInterface)
+						continue;
 
-				//Ignore non-component classes
-				if ( !( typeof(Component) == curType || curType.IsSubclassOf( typeof(Component) ) ) )
-					continue;
+					//Ignore non-component classes
+	//				if (!(typeof(Component) == curType || curType.IsSubclassOf(typeof(Component))))
+	//					continue;
 
-				if ( !componentsList.Contains( curType ) )
-					componentsList.Add( curType );
+					if (!componentsList.Contains(curType))
+						componentsList.Add(curType);
+				}
+				_classToComponentMapping.Add(currentType, componentsList);
 			}
 
-			_interfaceToComponentMapping.Add( curInterface, componentsList );
+
+			if (currentType.IsInterface)
+			{
+				List<Type> typesImplementingTheInterface = GetTypesInherited(currentType);
+		//		if (typesImplementingTheInterface.Count <= 0)
+		//			continue;
+
+				List<Type> componentsList = new List<Type>();
+				foreach (Type curType in typesImplementingTheInterface)
+				{
+					//Skip interfaces
+					if (curType.IsInterface)
+						continue;
+
+					//Ignore non-component classes
+	//				if (!(typeof(Component) == curType || curType.IsSubclassOf(typeof(Component))))
+	//					continue;
+
+					if (!componentsList.Contains(curType))
+						componentsList.Add(curType);
+				}
+				_interfaceToComponentMapping.Add(currentType, componentsList);
+			}
 		}
 	}
 
@@ -174,10 +193,9 @@ public static class ReflectionHelper
 	//////////////////////////////////////////////////////////////////////////
 	public static List<T> FindObjects<T>() where T : class
 	{
-		List<T> resList = new List<T>();
+		List<T> resultList = new List<T>();
 
 		List<Type> types = _interfaceToComponentMapping[ typeof(T) ];
-
 		if ( null == types || types.Count <= 0 )
 		{
 			Debug.LogError( "No descendants found for type " + typeof(T) );
@@ -187,29 +205,23 @@ public static class ReflectionHelper
 		foreach ( Type curType in types )
 		{
 			Object[] objects = Object.FindObjectsOfType( curType );
-
 			if ( null == objects || objects.Length <= 0 )
 				continue;
 
 			List<T> tList = new List<T>();
-
 			foreach ( Object curObj in objects )
 			{
-				T curObjAsT = curObj as T;
-
-				if ( null == curObjAsT )
+				if (!(curObj is T curObjAsT))
 				{
-					Debug.LogError( "Unable to cast '" + curObj.GetType() + "' to '" + typeof( T ) + "'" );
+					Debug.LogError("Unable to cast '" + curObj.GetType() + "' to '" + typeof(T) + "'");
 					continue;
 				}
-
 				tList.Add( curObjAsT );
 			}
-
-			resList.AddRange( tList );
+			resultList.AddRange( tList );
 		}
 
-		return resList;
+		return resultList;
 	}
 
 
@@ -225,16 +237,43 @@ public static class ReflectionHelper
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public static List<Type> FindInerithed<T>()
+	public static List<Type> FindInerithedFromInterface<T>(bool bInlcludeAbstracts)
+	{
+		return FindInerithedFromInterface(typeof(T), bInlcludeAbstracts);
+	}
+
+	public static List<Type> FindInerithedFromInterface(Type type, bool bInlcludeAbstracts)
 	{
 		List<Type> types = new List<Type>();
-
-		if ( _interfaceToComponentMapping.TryGetValue( typeof(T), out types ) )
+		if (_interfaceToComponentMapping.TryGetValue(type, out types))
 		{
 			// Remove abstract because usually is not needed
-			types.RemoveAll( t => t.IsAbstract );
+			if (!bInlcludeAbstracts)
+			{
+				types.RemoveAll(t => t.IsAbstract);
+			}
 		}
+		return types;
+	}
 
+	//////////////////////////////////////////////////////////////////////////
+	public static List<Type> FindInerithedFromClass<T>(bool bInlcludeAbstracts) where T : class
+	{
+		return FindInerithedFromClass(typeof(T), bInlcludeAbstracts);
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	public static List<Type> FindInerithedFromClass(Type type, bool bInlcludeAbstracts)
+	{
+		List<Type> types = new List<Type>();
+		if (_classToComponentMapping.TryGetValue(type, out types))
+		{
+			// Remove abstract because usually is not needed
+			if (!bInlcludeAbstracts)
+			{
+				types.RemoveAll(t => t.IsAbstract);
+			}
+		}
 		return types;
 	}
 
@@ -253,20 +292,19 @@ public static class ReflectionHelper
 			foreach( Type type in types )
 			{
 				Type typeToUse = IsBaseMethod ? type.BaseType : type;
-				MethodInfo initializeMethod = typeToUse.GetMethod( methodName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance );
-				if ( initializeMethod != null )
+				MethodInfo method = typeToUse.GetMethod( methodName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance );
+				if ( method != null )
 				{
-					if ( initializeMethod.IsStatic )
+					if ( method.IsStatic )
 					{
-						initializeMethod.Invoke( null, null );
+						method.Invoke( null, null );
 						continue;
 					}
 
 					object instance = typeToUse.GetField( "m_Instance", BindingFlags.NonPublic | BindingFlags.Static )?.GetValue( null );
 					if ( instance != null )
 					{
-						initializeMethod.Invoke( instance, null );
-
+						method.Invoke( instance, null );
 					}
 				}
 			}
@@ -279,7 +317,7 @@ public static class ReflectionHelper
 	private static Type[] GetAllTypes()
 	{
 		List<Type> res = new List<Type>();
-		foreach ( System.Reflection.Assembly assembly in AppDomain.CurrentDomain.GetAssemblies() )
+		foreach ( Assembly assembly in AppDomain.CurrentDomain.GetAssemblies() )
 		{
 			res.AddRange( assembly.GetTypes() );
 		}

@@ -10,11 +10,11 @@ public partial interface IWeaponManager {
 	bool					RemoveModifierFromWeapon				( IWeapon wpn, string modifier );
 
 	
-	bool					ApplyModifierToWeaponSlot				( IWeapon wpn, WeaponSlots slot, string modifier );
-	bool					RemoveModifierToWeaponSlot				( IWeapon wpn, WeaponSlots slot, string modifier );
+	bool					ApplyModifierToWeaponSlot				( IWeapon wpn, EWeaponSlots slot, string modifier );
+	bool					RemoveModifierToWeaponSlot				( IWeapon wpn, EWeaponSlots slot, string modifier );
 
 
-	List<Database.Section>	ListCompatibleModifiersWithModule		( IWeapon wpn, WeaponSlots slot );
+	List<Database.Section>	ListCompatibleModifiersWithModule		( IWeapon wpn, EWeaponSlots slot );
 }
 
 
@@ -43,7 +43,7 @@ public sealed partial class WeaponManager : IWeaponManager {
 	bool			IWeaponManager.ApplyModifierToWeapon( IWeapon wpn, string modifierSectionName )
 	{
 		Database.Section modifierSection = null;
-		if ( GlobalManager.Configs.bGetSection( modifierSectionName, ref modifierSection ) )
+		if ( GlobalManager.Configs.GetSection( modifierSectionName, ref modifierSection ) )
 		{
 			( wpn as IModifiable ).ApplyModifier( modifierSection );
 			return true;
@@ -54,7 +54,7 @@ public sealed partial class WeaponManager : IWeaponManager {
 	bool			IWeaponManager.RemoveModifierFromWeapon( IWeapon wpn, string modifierSectionName )
 	{
 		Database.Section modifierSection = null;
-		if ( GlobalManager.Configs.bGetSection( modifierSectionName, ref modifierSection ) )
+		if ( GlobalManager.Configs.GetSection( modifierSectionName, ref modifierSection ) )
 		{
 			( wpn as IModifiable ).RemoveModifier( modifierSection );
 			return true;
@@ -63,11 +63,11 @@ public sealed partial class WeaponManager : IWeaponManager {
 	}
 
 
-	bool			IWeaponManager.ApplyModifierToWeaponSlot( IWeapon wpn, WeaponSlots slot, string modifier )
+	bool			IWeaponManager.ApplyModifierToWeaponSlot( IWeapon wpn, EWeaponSlots slot, string modifier )
 	{
 		WPN_BaseModule weaponModule = null;
 		Database.Section modifierSection = null;
-		if ( wpn.bGetModuleBySlot( slot, ref weaponModule ) && GlobalManager.Configs.bGetSection( modifier, ref modifierSection ) )
+		if ( wpn.bGetModuleBySlot( slot, ref weaponModule ) && GlobalManager.Configs.GetSection( modifier, ref modifierSection ) )
 		{
 			weaponModule.ApplyModifier( modifierSection );
 			return true;
@@ -77,11 +77,11 @@ public sealed partial class WeaponManager : IWeaponManager {
 	}
 
 
-	bool			IWeaponManager.RemoveModifierToWeaponSlot( IWeapon wpn, WeaponSlots slot, string modifier )
+	bool			IWeaponManager.RemoveModifierToWeaponSlot( IWeapon wpn, EWeaponSlots slot, string modifier )
 	{
 		WPN_BaseModule weaponModule = null;
 		Database.Section modifierSection = null;
-		if ( wpn.bGetModuleBySlot( slot, ref weaponModule ) && GlobalManager.Configs.bGetSection( modifier, ref modifierSection ) )
+		if ( wpn.bGetModuleBySlot( slot, ref weaponModule ) && GlobalManager.Configs.GetSection( modifier, ref modifierSection ) )
 		{
 			weaponModule.RemoveModifier( modifierSection );
 			return true;
@@ -91,7 +91,7 @@ public sealed partial class WeaponManager : IWeaponManager {
 	}
 
 
-	List<Database.Section>	IWeaponManager.ListCompatibleModifiersWithModule( IWeapon wpn, WeaponSlots slot )
+	List<Database.Section>	IWeaponManager.ListCompatibleModifiersWithModule( IWeapon wpn, EWeaponSlots slot )
 	{
 		List<Database.Section> result = null;
 

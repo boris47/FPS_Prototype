@@ -11,7 +11,7 @@ namespace CutScene {
 		private		PointsCollectionOnline			m_PointsCollection			= null;
 		private		int								m_CurrentIdx				= 0;
 
-		private		SimMovementType					m_MovementType				= SimMovementType.WALK;
+		private		ESimMovementType					m_MovementType				= ESimMovementType.WALK;
 		private		Vector3							m_Destination				= Vector3.zero;
 		private		Transform						m_Target					= null;
 		private		float							m_TimeScaleTarget			= 1f;
@@ -20,29 +20,29 @@ namespace CutScene {
 
 		public	void	Setup( Entity entityParent, PointsCollectionOnline pointCollection )
 		{
-			m_EntityParent		= entityParent;
-			m_EntitySimulation	= entityParent;
-			m_PointsCollection	= pointCollection;
-			m_CurrentIdx		= 0;
+			this.m_EntityParent		= entityParent;
+			this.m_EntitySimulation	= entityParent;
+			this.m_PointsCollection	= pointCollection;
+			this.m_CurrentIdx		= 0;
 
-			m_EntitySimulation.EnterSimulationState();
+			this.m_EntitySimulation.EnterSimulationState();
 
-			CutsceneWaypointData data = m_PointsCollection[ m_CurrentIdx ];
-			SetupForNextWaypoint( data );
+			CutsceneWaypointData data = this.m_PointsCollection[this.m_CurrentIdx ];
+			this.SetupForNextWaypoint( data );
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		private	void	SetupForNextWaypoint( CutsceneWaypointData data )
 		{
-			m_Target					= data.target;									// target to look at
-			m_MovementType				= data.movementType;							// movement type
-			m_TimeScaleTarget			= Mathf.Clamp01( data.timeScaleTraget );		// time scale for this trip
+			this.m_Target					= data.target;                                  // target to look at
+			this.m_MovementType				= data.movementType;                            // movement type
+			this.m_TimeScaleTarget			= Mathf.Clamp01( data.timeScaleTraget );		// time scale for this trip
 
 			// WEAPON ZOOM
-			if ( m_EntityParent is Player )
+			if (this.m_EntityParent is Player )
 			{
-				if ( WeaponManager.Instance.CurrentWeapon.WeaponState == WeaponState.DRAWED )
+				if ( WeaponManager.Instance.CurrentWeapon.WeaponState == EWeaponState.DRAWED )
 				{
 					if ( data.zoomEnabled == true )
 					{
@@ -55,26 +55,25 @@ namespace CutScene {
 				}
 			}
 
-			m_Waiter = data.waiter;
+			this.m_Waiter = data.waiter;
 
-			if ( !m_Waiter  )
+			if ( !this.m_Waiter  )
 			{
 				// MOVEMENT
 				Vector3 destination = data.point.position;	// destination to reach
-				RaycastHit hit;
-				if ( Physics.Raycast( destination, -m_EntityParent.transform.up, out hit ) )
+				if ( Physics.Raycast( destination, -this.m_EntityParent.transform.up, out RaycastHit hit) )
 				{
-					m_Destination = Utils.Math.ProjectPointOnPlane( m_EntityParent.transform.up, m_EntityParent.transform.position, hit.point );
+					this.m_Destination = Utils.Math.ProjectPointOnPlane(this.m_EntityParent.transform.up, this.m_EntityParent.transform.position, hit.point );
 				}
 				else
 				{
-					Terminate();
+					this.Terminate();
 					return;
 				}
 			}
 
 			// BEFORE A SIMULATION STAGE
-			m_EntitySimulation.BeforeSimulationStage( m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
+			this.m_EntitySimulation.BeforeSimulationStage(this.m_MovementType, this.m_Destination, this.m_Target, this.m_TimeScaleTarget );
 		}
 
 
@@ -85,47 +84,47 @@ namespace CutScene {
 		public	bool	Update()
 		{
 			// If a waiter is defined, we have to wait for its completion
-			if ( m_Waiter && m_Waiter.HasToWait == true )
+			if (this.m_Waiter && this.m_Waiter.HasToWait == true )
 			{
-				Vector3 tempDestination = Utils.Math.ProjectPointOnPlane( m_EntityParent.transform.up, m_Destination, m_EntityParent.transform.position );
-				m_EntitySimulation.SimulateMovement( SimMovementType.STATIONARY, tempDestination, m_Target, m_TimeScaleTarget );
-				m_Waiter.Wait();
+				Vector3 tempDestination = Utils.Math.ProjectPointOnPlane(this.m_EntityParent.transform.up, this.m_Destination, this.m_EntityParent.transform.position );
+				this.m_EntitySimulation.SimulateMovement( ESimMovementType.STATIONARY, tempDestination, this.m_Target, this.m_TimeScaleTarget );
+				this.m_Waiter.Wait();
 				return false;
 			}
 
-			m_Waiter = null;
+			this.m_Waiter = null;
 
 			// Continue simulation until need updates
-			bool isBusy = m_EntitySimulation.SimulateMovement( m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
+			bool isBusy = this.m_EntitySimulation.SimulateMovement(this.m_MovementType, this.m_Destination, this.m_Target, this.m_TimeScaleTarget );
 			if ( isBusy == true ) // if true is currently simulating and here we have to wait simulation to be completed
 			{
 				return false;
 			}
 
 			// call callback when each waypoint is reached
-			m_PointsCollection[ m_CurrentIdx ].OnWayPointReached?.Invoke();
+			this.m_PointsCollection[this.m_CurrentIdx ].OnWayPointReached?.Invoke();
 
 			// AFTER A SIMULATION STAGE
-			m_EntitySimulation.AfterSimulationStage( m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
+			this.m_EntitySimulation.AfterSimulationStage(this.m_MovementType, this.m_Destination, this.m_Target, this.m_TimeScaleTarget );
 
 			// Next waypoint index
-			m_CurrentIdx ++;
+			this.m_CurrentIdx ++;
 
 			// End of simulation
-			if ( m_CurrentIdx != m_PointsCollection.Count )
+			if (this.m_CurrentIdx != this.m_PointsCollection.Count )
 			{
 				// Update store start position for distance check
-				m_EntitySimulation.StartPosition = m_EntityParent.transform.position;
+				this.m_EntitySimulation.StartPosition = this.m_EntityParent.transform.position;
 
 				// Update to next simulation targets
-				CutsceneWaypointData data	= m_PointsCollection[ m_CurrentIdx ];
+				CutsceneWaypointData data	= this.m_PointsCollection[this.m_CurrentIdx ];
 
-				SetupForNextWaypoint( data );
+				this.SetupForNextWaypoint( data );
 
 				return false;
 			}
 
-			Terminate();
+			this.Terminate();
 			return true;
 		}
 
@@ -140,15 +139,15 @@ namespace CutScene {
 				WeaponManager.Instance.ZoomOut();
 
 			// Called on entity in order to reset vars or everything else
-			m_EntitySimulation.ExitSimulationState();
+			this.m_EntitySimulation.ExitSimulationState();
 
 			// Resetting internals
-			m_CurrentIdx						= 0;
-			m_MovementType						= SimMovementType.WALK;
-			m_Destination						= Vector3.zero;
-			m_Target							= null;
-			m_TimeScaleTarget					= 1f;
-			m_PointsCollection					= null;
+			this.m_CurrentIdx						= 0;
+			this.m_MovementType						= ESimMovementType.WALK;
+			this.m_Destination						= Vector3.zero;
+			this.m_Target							= null;
+			this.m_TimeScaleTarget					= 1f;
+			this.m_PointsCollection					= null;
 		}
 
 	}

@@ -13,24 +13,24 @@ public sealed class UI_InventorySlot : MonoBehaviour, IPointerClickHandler, ISta
 	private		bool				m_IsSet				= false;
 	public		bool	IsSet
 	{
-		get { return m_IsSet; }
+		get { return this.m_IsSet; }
 	}
 
 	private		Database.Section	m_ItemSection		= null;
 	public	Database.Section	Section
 	{
-		get { return m_ItemSection; }
+		get { return this.m_ItemSection; }
 	}
 
-	private	bool			m_bIsInitialized			= false;
+	private	bool			m_IsInitialized			= false;
 	bool IStateDefiner.IsInitialized
 	{
-		get { return m_bIsInitialized; }
+		get { return this.m_IsInitialized; }
 	}
 
 	string IStateDefiner.StateName
 	{
-		get { return name; }
+		get { return this.name; }
 	}
 
 
@@ -38,17 +38,17 @@ public sealed class UI_InventorySlot : MonoBehaviour, IPointerClickHandler, ISta
 	// Initialize
 	IEnumerator IStateDefiner.Initialize()
 	{
-		if ( m_bIsInitialized == true )
+		if (this.m_IsInitialized == true )
 			yield break;
 
 		CoroutinesManager.AddCoroutineToPendingCount( 1 );
 
-		m_bIsInitialized = true;
+		this.m_IsInitialized = true;
 		{
-			m_bIsInitialized &= transform.SearchComponent<Image>( ref m_Image, SearchContext.LOCAL );
+			this.m_IsInitialized &= this.transform.SearchComponent<Image>( ref this.m_Image, ESearchContext.LOCAL );
 		}
 
-		if ( m_bIsInitialized )
+		if (this.m_IsInitialized )
 		{
 			CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 		}
@@ -70,7 +70,7 @@ public sealed class UI_InventorySlot : MonoBehaviour, IPointerClickHandler, ISta
 	// Finalize
 	bool	 IStateDefiner.Finalize()
 	{
-		return m_bIsInitialized;
+		return this.m_IsInitialized;
 	}
 
 	
@@ -97,9 +97,9 @@ public sealed class UI_InventorySlot : MonoBehaviour, IPointerClickHandler, ISta
 	//////////////////////////////////////////////////////////////////////////
 	public	void	Reset()
 	{
-		m_Texture = null;
-		m_ItemSection = null;
-		m_IsSet = false;
+		this.m_Texture = null;
+		this.m_ItemSection = null;
+		this.m_IsSet = false;
 	}
 
 
@@ -112,13 +112,13 @@ public sealed class UI_InventorySlot : MonoBehaviour, IPointerClickHandler, ISta
 			result &= section.Lines() > 0;	// section must contain some info
 		}
 
-		if ( m_bIsInitialized && result )
+		if (this.m_IsInitialized && result )
 		{
-			m_Texture = texture;
-			m_ItemSection = section;
-			m_IsSet = true;
+			this.m_Texture = texture;
+			this.m_ItemSection = section;
+			this.m_IsSet = true;
 
-			m_Image.sprite = Sprite.Create( m_Texture, Rect.MinMaxRect(0, 0, m_Texture.width, m_Texture.height ), new Vector2( 0.5f, 0.5f ) );
+			this.m_Image.sprite = Sprite.Create(this.m_Texture, Rect.MinMaxRect(0, 0, this.m_Texture.width, this.m_Texture.height ), new Vector2( 0.5f, 0.5f ) );
 		}
 		return result;
 	}

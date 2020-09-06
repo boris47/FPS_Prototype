@@ -48,15 +48,15 @@ public class Loading : MonoBehaviour {
 		// Singleton
 		if ( m_Instance != null )
 		{
-			Destroy(gameObject);
+			Destroy(this.gameObject);
 			return;
 		}
-		
-		gameObject.SetActive(false);
 
-		m_IsInitializedInternal = transform.SearchComponent( ref m_LoadingBar, SearchContext.CHILDREN );
-		m_IsInitializedInternal &= transform.SearchComponent( ref m_LoadingLevelNameText, SearchContext.CHILDREN, c => c.name == "LoadingSceneName" );
-		m_IsInitializedInternal &= transform.SearchComponent( ref m_LoadingSubTask, SearchContext.CHILDREN, c => c.name == "LoadingSubTask" );
+		this.gameObject.SetActive(false);
+
+		this.m_IsInitializedInternal = this.transform.SearchComponent( ref this.m_LoadingBar, ESearchContext.CHILDREN );
+		this.m_IsInitializedInternal &= this.transform.SearchComponent( ref this.m_LoadingLevelNameText, ESearchContext.CHILDREN, c => c.name == "LoadingSceneName" );
+		this.m_IsInitializedInternal &= this.transform.SearchComponent( ref this.m_LoadingSubTask, ESearchContext.CHILDREN, c => c.name == "LoadingSubTask" );
 	}
 
 
@@ -100,7 +100,7 @@ public class Loading : MonoBehaviour {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public	static	void	SetLoadingSceneName( SceneEnumeration scene )
+	public	static	void	SetLoadingSceneName( ESceneEnumeration scene )
 	{
 		m_Instance.m_LoadingLevelNameText.text = "Loading: " + scene.ToString();
 	}
@@ -110,7 +110,7 @@ public class Loading : MonoBehaviour {
 	public	static	void	EndSubTask()
 	{
 		stopWatch.Stop();
-		Debug.Log("Step \"" + m_Instance.m_LoadingSubTask.text + "\" required " + stopWatch.ElapsedMilliseconds + "ms" );
+		Debug.LogFormat( "Step '{0}' required {1}ms.", m_Instance.m_LoadingSubTask.text, stopWatch.ElapsedMilliseconds);
 	}
 
 

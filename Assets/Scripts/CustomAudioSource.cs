@@ -52,16 +52,16 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 	protected	bool				m_IsUnityAudioSource	= true;
 
 	// INTERFACE START
-	public		Transform			Transform				{ get { return transform; } }
-	public		AudioSource			AudioSource				{ get { return m_AudioSource; } }
-	public		StudioEventEmitter	Emitter					{ get { return m_AudioEmitter; } }
-	public		float				Volume					{ get { return m_Volume; }			 set { m_Volume = value; this.UpdateInternal(); } }
-	public		float				Pitch					{ get { return m_Pitch; }			 set { m_Pitch = value;  this.UpdateInternal(); } }
-	public		AudioClip			Clip					{ get { return m_AudioSource.clip; } set { m_AudioSource.clip = value; } }
-	public		bool				IsFading				{ get { return m_IsFading; } }
+	public		Transform			Transform				{ get { return this.transform; } }
+	public		AudioSource			AudioSource				{ get { return this.m_AudioSource; } }
+	public		StudioEventEmitter	Emitter					{ get { return this.m_AudioEmitter; } }
+	public		float				Volume					{ get { return this.m_Volume; }			 set { this.m_Volume = value; this.UpdateInternal(); } }
+	public		float				Pitch					{ get { return this.m_Pitch; }			 set { this.m_Pitch = value;  this.UpdateInternal(); } }
+	public		AudioClip			Clip					{ get { return this.m_AudioSource.clip; } set { this.m_AudioSource.clip = value; } }
+	public		bool				IsFading				{ get { return this.m_IsFading; } }
 	public		bool				IsPlaying
 	{
-		get { return m_IsUnityAudioSource ? m_AudioSource.isPlaying : m_AudioEmitter.IsPlaying(); }
+		get { return this.m_IsUnityAudioSource ? this.m_AudioSource.isPlaying : this.m_AudioEmitter.IsPlaying(); }
 	}
 	// INTERFACE END
 
@@ -70,9 +70,9 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 	// Awake
 	protected virtual	void Awake()
 	{
-		if ( m_AudioSource == null && m_AudioEmitter == null )
+		if (this.m_AudioSource == null && this.m_AudioEmitter == null )
 		{
-			print( gameObject.name + ": custom audio source with no reference assigned !!" );
+			print(this.gameObject.name + ": custom audio source with no reference assigned !!" );
 			Destroy( this );
 		}
 	}
@@ -82,63 +82,73 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 	// OnEnable
 	protected virtual	void OnEnable()
 	{
-		m_IsUnityAudioSource = m_AudioSource != null;
-		if ( m_IsUnityAudioSource == true )
+		this.m_IsUnityAudioSource = this.m_AudioSource != null;
+		if (this.m_IsUnityAudioSource == true )
 		{
-			SoundManager.OnSoundVolumeChange += OnSoundVolumeChange;
-			OnSoundVolumeChange( SoundManager.Instance.SoundVolume );
+			SoundManager.OnSoundVolumeChange += this.OnSoundVolumeChange;
+			this.OnSoundVolumeChange( SoundManager.SoundVolume );
 		}
 		else
 		{
-			SoundManager.OnMusicVolumeChange += OnMusicVolumeChange;
-			OnMusicVolumeChange( SoundManager.Instance.MusicVolume );
+			SoundManager.OnMusicVolumeChange += this.OnMusicVolumeChange;
+			this.OnMusicVolumeChange( SoundManager.MusicVolume );
 		}
+
+		SoundManager.OnPauseSet += this.OnPauseStateSet;
 
 		if ( GameManager.Instance != null )
 		{
-			SoundManager.OnPitchChange += OnPitchChange;
-//			GameManager.PauseEvents.OnPauseSet += OnPauseSet;
+			SoundManager.OnPitchChange += this.OnPitchChange;
 		}
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnVolumeChange
-	protected	virtual	void	OnSoundVolumeChange( float value )
+	protected virtual void OnPauseStateSet(bool value)
 	{
-		m_Volume = value;
-		float currentVolume = m_InternalVolume * m_Volume;
-		m_AudioSource.volume = currentVolume;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnVolumeChange
-	protected	virtual	void	OnMusicVolumeChange( float value )
-	{
-		m_Volume = value;
-		float currentVolume = m_InternalVolume * m_Volume;
-		m_AudioEmitter.EventInstance.setVolume( currentVolume );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnPitchChange
-	protected	virtual	void	OnPitchChange( float value )
-	{
-		m_Pitch = value;
-		float currentPitch = m_InternalPitch * m_Pitch;
-		if ( m_IsUnityAudioSource == true )
+		if (this.m_IsUnityAudioSource)
 		{
-			m_AudioSource.pitch = currentPitch;
+			if (value) this.m_AudioSource.Pause(); else this.m_AudioSource.UnPause();
 		}
 		else
 		{
-			m_AudioEmitter.EventInstance.setPitch( currentPitch );
+			this.m_AudioEmitter.EventInstance.setPaused(value);
 		}
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnPitchChange
+	protected	virtual	void	OnSoundVolumeChange( float value )
+	{
+		this.m_Volume = value;
+		float currentVolume = this.m_InternalVolume * this.m_Volume;
+		this.m_AudioSource.volume = currentVolume;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	virtual	void	OnMusicVolumeChange( float value )
+	{
+		this.m_Volume = value;
+		float currentVolume = this.m_InternalVolume * this.m_Volume;
+		this.m_AudioEmitter.EventInstance.setVolume( currentVolume );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	virtual	void	OnPitchChange( float value )
+	{
+		this.m_Pitch = value;
+		float currentPitch = this.m_InternalPitch * this.m_Pitch;
+		if (this.m_IsUnityAudioSource == true )
+		{
+			this.m_AudioSource.pitch = currentPitch;
+		}
+		else
+		{
+			this.m_AudioEmitter.EventInstance.setPitch( currentPitch );
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
 	protected	virtual	void	OnPauseSet( bool isPaused )
 	{
 		if ( isPaused == true )
@@ -154,119 +164,110 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// SetParamenter
 	protected	virtual	void	SetParamenter( float value )
 	{
-		if ( m_IsUnityAudioSource == false )
+		if (this.m_IsUnityAudioSource == false )
 		{
-			m_AudioEmitter.SetParameter( "Phase", value );
+			this.m_AudioEmitter.SetParameter( "Phase", value );
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// FadeIn
 	protected virtual	void	UpdateInternal()
 	{
-		if ( m_IsFading == true )
+		if (this.m_IsFading == true )
 			return;
 
-		float volume = m_InternalVolume * m_Volume;
-		float pitch  = m_InternalPitch  * m_Pitch;
+		float volume = this.m_InternalVolume * this.m_Volume;
+		float pitch  = this.m_InternalPitch  * this.m_Pitch;
 
-		if ( m_IsUnityAudioSource == true )
+		if (this.m_IsUnityAudioSource == true )
 		{
-			m_AudioSource.volume = volume;
-			m_AudioSource.pitch	 = pitch;
+			this.m_AudioSource.volume = volume;
+			this.m_AudioSource.pitch	 = pitch;
 		}
 		else
 		{
-			m_AudioEmitter.EventInstance.setVolume( volume );
-			m_AudioEmitter.EventInstance.setPitch( pitch );
+			this.m_AudioEmitter.EventInstance.setVolume( volume );
+			this.m_AudioEmitter.EventInstance.setPitch( pitch );
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Play
 	public	virtual	void	Play()
 	{
-		if ( m_IsUnityAudioSource == true )
+		if (this.m_IsUnityAudioSource == true )
 		{
-			m_AudioSource.Play();
+			this.m_AudioSource.Play();
 		}
 		else
 		{
-			m_AudioEmitter.Play();
+			this.m_AudioEmitter.Play();
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Play
 	public	virtual	void	Stop()
 	{
-		if ( m_IsUnityAudioSource == true )
+		if (this.m_IsUnityAudioSource == true )
 		{
-			m_AudioSource.Stop();
+			this.m_AudioSource.Stop();
 		}
 		else
 		{
-			m_AudioEmitter.Stop();
+			this.m_AudioEmitter.Stop();
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// FadeIn
 	public	virtual	void	Pause()
 	{
-		if ( m_IsUnityAudioSource == true )
+		if (this.m_IsUnityAudioSource == true )
 		{
-			m_AudioSource.Pause();
+			this.m_AudioSource.Pause();
 		}
 		else
 		{
-			m_AudioEmitter.EventInstance.setPaused( true );
+			this.m_AudioEmitter.EventInstance.setPaused( true );
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// FadeIn
 	public	virtual	void	Resume()
 	{
-		if ( m_IsUnityAudioSource == true )
+		if (this.m_IsUnityAudioSource == true )
 		{
-			m_AudioSource.UnPause();
+			this.m_AudioSource.UnPause();
 		}
 		else
 		{
-			m_AudioEmitter.EventInstance.setPaused( false );
+			this.m_AudioEmitter.EventInstance.setPaused( false );
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// FadeIn
 	public	virtual	void	FadeIn( float time )
 	{
-		m_IsFading = true;
-		CoroutinesManager.Start( FadeCO( time, fadeIn : true ), "CustomAudioSource::FadeIn: Fade in of " + name );
+		this.m_IsFading = true;
+		CoroutinesManager.Start(this.FadeCO( time, fadeIn : true ), "CustomAudioSource::FadeIn: Fade in of " + this.name );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// FadeOut
 	public	virtual	void	FadeOut( float time )
 	{
-		m_IsFading = true;
-		CoroutinesManager.Start( FadeCO( time, fadeIn : false ), "CustomAudioSource::FadeOut: Fade out of " + name );
+		this.m_IsFading = true;
+		CoroutinesManager.Start(this.FadeCO( time, fadeIn : false ), "CustomAudioSource::FadeOut: Fade out of " + this.name );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// FadeCO ( Coroutine )
 	protected	IEnumerator	FadeCO( float time, bool fadeIn )
 	{
 		float startMul	= ( fadeIn == true ) ? 0f : 1f;
@@ -280,49 +281,48 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 			currentTime += Time.unscaledDeltaTime;
 			interpolant = currentTime / time;
 
-			float volume = m_InternalVolume * Mathf.Lerp( startMul, endMul, interpolant );
+			float volume = this.m_InternalVolume * Mathf.Lerp( startMul, endMul, interpolant );
 
-			if ( m_IsUnityAudioSource == true )
+			if (this.m_IsUnityAudioSource == true )
 			{
-				m_AudioSource.volume = volume;
+				this.m_AudioSource.volume = volume;
 			}
 			else
 			{
-				m_AudioEmitter.EventInstance.setVolume( volume );
+				this.m_AudioEmitter.EventInstance.setVolume( volume );
 			}
 			yield return null;
 		}
 
-		if ( m_IsUnityAudioSource == true )
+		if (this.m_IsUnityAudioSource == true )
 		{
-			m_AudioSource.volume = m_Volume = m_InternalVolume * endMul;
+			this.m_AudioSource.volume = this.m_Volume = this.m_InternalVolume * endMul;
 		}
 		else
 		{
-			m_AudioEmitter.EventInstance.setVolume( m_Volume = m_InternalVolume * endMul );
+			this.m_AudioEmitter.EventInstance.setVolume(this.m_Volume = this.m_InternalVolume * endMul );
 		}
 
-		m_IsFading = false;
+		this.m_IsFading = false;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnDisable
 	protected virtual	void OnDisable()
 	{
-		if ( m_IsUnityAudioSource == true )
+		if (this.m_IsUnityAudioSource == true )
 		{
-			SoundManager.OnSoundVolumeChange -= OnSoundVolumeChange;
-			if ( m_AudioSource )
-				m_AudioSource.Stop();
+			SoundManager.OnSoundVolumeChange -= this.OnSoundVolumeChange;
+			if (this.m_AudioSource )
+				this.m_AudioSource.Stop();
 		}
 		else
 		{
-			SoundManager.OnMusicVolumeChange -= OnMusicVolumeChange;
-			if ( m_AudioEmitter )
-				m_AudioEmitter.Stop();
+			SoundManager.OnMusicVolumeChange -= this.OnMusicVolumeChange;
+			if (this.m_AudioEmitter )
+				this.m_AudioEmitter.Stop();
 		}
-		SoundManager.OnPitchChange -= OnPitchChange;
+		SoundManager.OnPitchChange -= this.OnPitchChange;
 	}
 }
 
@@ -340,9 +340,9 @@ public class DynamicCustomAudioSource : CustomAudioSource {
 		bool bIsValid = source != null;
 		if ( bIsValid )
 		{
-			m_AudioSource = source;
-			m_IsUnityAudioSource = true;
-			OnSoundVolumeChange( SoundManager.Instance.SoundVolume );
+			this.m_AudioSource = source;
+			this.m_IsUnityAudioSource = true;
+			this.OnSoundVolumeChange( SoundManager.SoundVolume );
 		}
 		return bIsValid;
 	}
@@ -352,9 +352,9 @@ public class DynamicCustomAudioSource : CustomAudioSource {
 		bool bIsValid = emitter != null;
 		if ( bIsValid )
 		{
-			m_AudioEmitter = emitter;
-			m_IsUnityAudioSource = false;
-			OnMusicVolumeChange( SoundManager.Instance.MusicVolume );
+			this.m_AudioEmitter = emitter;
+			this.m_IsUnityAudioSource = false;
+			this.OnMusicVolumeChange( SoundManager.MusicVolume );
 		}
 		return bIsValid;
 	}
@@ -363,18 +363,18 @@ public class DynamicCustomAudioSource : CustomAudioSource {
 	protected override void OnEnable()
 	{
 //		m_IsUnityAudioSource = m_AudioSource != null;
-		if ( m_IsUnityAudioSource == true )
+		if (this.m_IsUnityAudioSource == true )
 		{
-			SoundManager.OnSoundVolumeChange += OnSoundVolumeChange;
+			SoundManager.OnSoundVolumeChange += this.OnSoundVolumeChange;
 		}
 		else
 		{
-			SoundManager.OnMusicVolumeChange += OnMusicVolumeChange;
+			SoundManager.OnMusicVolumeChange += this.OnMusicVolumeChange;
 		}
 
 		if ( GameManager.Instance != null )
 		{
-			SoundManager.OnPitchChange += OnPitchChange;
+			SoundManager.OnPitchChange += this.OnPitchChange;
 //			GameManager.PauseEvents.OnPauseSet += OnPauseSet;
 		}
 	}

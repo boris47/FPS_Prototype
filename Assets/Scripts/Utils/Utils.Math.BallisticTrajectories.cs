@@ -489,8 +489,7 @@ namespace Utils {
 			float c0 = Vector3.Dot(targetVelXZ, targetVelXZ) - lateral_speed*lateral_speed;
 			float c1 = 2f * Vector3.Dot(diffXZ, targetVelXZ);
 			float c2 = Vector3.Dot(diffXZ, diffXZ);
-			float t0, t1;
-			int n = BallisticTrajectories.SolveQuadric(c0, c1, c2, out t0, out t1);
+			int n = BallisticTrajectories.SolveQuadric(c0, c1, c2, out float t0, out float t1);
 
 			// pick smallest, positive time
 			bool valid0 = n > 0 && t0 > 0;

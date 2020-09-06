@@ -8,7 +8,7 @@ public abstract partial class LiveEntity : Entity {
 	protected	IFoots				m_Foots						= null;
 	public		IFoots				Foots
 	{
-		get { return m_Foots; }
+		get { return this.m_Foots; }
 	}
 	[Header("Live Entity Properties")]
 
@@ -16,7 +16,7 @@ public abstract partial class LiveEntity : Entity {
 	protected	float				m_OxygenBaseLevel			= 100f;
 	public		float				OxygenBaseLevel
 	{
-		get { return m_OxygenBaseLevel; }
+		get { return this.m_OxygenBaseLevel; }
 	}
 
 
@@ -24,7 +24,7 @@ public abstract partial class LiveEntity : Entity {
 	protected	float				m_OxygenCurrentLevel		= 100f;
 	public		float				OxygenCurrentLevel
 	{
-		get { return m_OxygenCurrentLevel; }
+		get { return this.m_OxygenCurrentLevel; }
 	}
 
 
@@ -44,8 +44,8 @@ public abstract partial class LiveEntity : Entity {
 	protected	float				m_Stamina					= 0f;
 	public		float				Stamina
 	{
-		get { return m_Stamina; }
-		set { m_Stamina = Mathf.Clamp01( value ); }
+		get { return this.m_Stamina; }
+		set { this.m_Stamina = Mathf.Clamp01( value ); }
 	}
 
 
@@ -125,50 +125,50 @@ public abstract partial class LiveEntity : Entity {
 	/// <summary> The range is [0, 100] by default </summary>
 	public	virtual void	AddOxygenAmmount( float Ammount )
 	{
-		m_OxygenCurrentLevel = Mathf.Min( m_OxygenCurrentLevel + Ammount, m_OxygenBaseLevel );
+		this.m_OxygenCurrentLevel = Mathf.Min(this.m_OxygenCurrentLevel + Ammount, this.m_OxygenBaseLevel );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected override void OnFrame( float DeltaTime )
 	{
-//		base.OnFrame( DeltaTime );
+		//		base.OnFrame( DeltaTime );
 
-		m_OxygenCurrentLevel -= DeltaTime;
+		this.m_OxygenCurrentLevel -= DeltaTime;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		BeforeSimulationStage( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
+	protected	override	void		BeforeSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
 		// Movement
-		RequestMovement( destination );
+		this.RequestMovement( destination );
 
 		// Look At
 		if ( target )
 		{
-			SetTransformToLookAt( target, LookTargetMode.HEAD_ONLY );
+			this.SetTransformToLookAt( target, ELookTargetMode.HEAD_ONLY );
 		}
 		else
 		{
-			StopLooking();
+			this.StopLooking();
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	bool		SimulateMovement( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1 )
+	protected	override	bool		SimulateMovement( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1 )
 	{
 		return false;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		AfterSimulationStage( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
+	protected	override	void		AfterSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
-		NavStop();
+		this.NavStop();
 
-		StopLooking();
+		this.StopLooking();
 	}
 
 

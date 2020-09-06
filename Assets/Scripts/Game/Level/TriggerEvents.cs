@@ -45,7 +45,7 @@ public class TriggerEvents : MonoBehaviour {
 	// Awake
 	private void Awake()
 	{
-		bool bHasCollider = transform.SearchComponent( ref m_Collider, SearchContext.LOCAL );
+		bool bHasCollider = this.transform.SearchComponent( ref this.m_Collider, ESearchContext.LOCAL );
 
 		if ( bHasCollider == false )
 		{
@@ -53,14 +53,14 @@ public class TriggerEvents : MonoBehaviour {
 			return;
 		}
 
-		m_Collider.isTrigger = true; // ensure is used as trigger
-		m_Collider.enabled = false;
+		this.m_Collider.isTrigger = true; // ensure is used as trigger
+		this.m_Collider.enabled = false;
 
-		m_OnEnter.AddListener( ( GameObject go ) => { m_OnEnterEvent( go ); } ); 
-		m_OnExit.AddListener ( ( GameObject go ) => { m_OnExitEvent( go ); } ); 
+		this.m_OnEnter.AddListener( ( GameObject go ) => { m_OnEnterEvent( go ); } );
+		this.m_OnExit.AddListener ( ( GameObject go ) => { m_OnExitEvent( go ); } ); 
 
-		GameManager.StreamEvents.OnSave += StreamEvents_OnSave;
-		GameManager.StreamEvents.OnLoad += StreamEvents_OnLoad;
+		GameManager.StreamEvents.OnSave += this.StreamEvents_OnSave;
+		GameManager.StreamEvents.OnLoad += this.StreamEvents_OnLoad;
 	}
 
 
@@ -68,11 +68,11 @@ public class TriggerEvents : MonoBehaviour {
 	private StreamUnit StreamEvents_OnSave( StreamData streamData )
 	{
 		// Skip if no required
-		if ( m_TriggerOnce == false )
+		if (this.m_TriggerOnce == false )
 			return null;
 
-		StreamUnit streamUnit = streamData.NewUnit( gameObject );
-		streamUnit.SetInternal( "HasTriggered", m_HasTriggered );
+		StreamUnit streamUnit = streamData.NewUnit(this.gameObject );
+		streamUnit.SetInternal( "HasTriggered", this.m_HasTriggered );
 
 		return streamUnit;
 	}
@@ -82,18 +82,18 @@ public class TriggerEvents : MonoBehaviour {
 	private StreamUnit StreamEvents_OnLoad( StreamData streamData )
 	{
 		// Skip if no required
-		if ( m_TriggerOnce == false )
+		if (this.m_TriggerOnce == false )
 			return null;
 
 		// Get unit
 		StreamUnit streamUnit = null;
-		if ( streamData.GetUnit( gameObject, ref streamUnit ) == false )
+		if ( streamData.GetUnit(this.gameObject, ref streamUnit ) == false )
 		{
 			return null;
 		}
-		
+
 		// TRIGGERED
-		m_HasTriggered = streamUnit.GetAsBool( "HasTriggered" );
+		this.m_HasTriggered = streamUnit.GetAsBool( "HasTriggered" );
 		
 		return streamUnit;
 	}
@@ -104,11 +104,11 @@ public class TriggerEvents : MonoBehaviour {
 	{
 		UnityEngine.Assertions.Assert.IsNotNull
 		(
-			m_Collider,
+			this.m_Collider,
 			"TriggerEvents::OnEnable: m_Collider is a null reference"
 		);
 
-		m_Collider.enabled = true;
+		this.m_Collider.enabled = true;
 	}
 
 
@@ -117,11 +117,11 @@ public class TriggerEvents : MonoBehaviour {
 	{
 		UnityEngine.Assertions.Assert.IsNotNull
 		(
-			m_Collider,
+			this.m_Collider,
 			"TriggerEvents::OnDisable: m_Collider is a null reference"
 		);
 
-		m_Collider.enabled = false;
+		this.m_Collider.enabled = false;
 	}
 
 
@@ -129,22 +129,22 @@ public class TriggerEvents : MonoBehaviour {
 	// OnTriggerEnter
 	private void OnTriggerEnter( Collider other )
 	{
-		if ( m_TriggerOnce == true && m_HasTriggered == true )
+		if (this.m_TriggerOnce == true && this.m_HasTriggered == true )
 			return;
 
-		if ( m_Target && other.gameObject.GetInstanceID() != m_Target.GetInstanceID() )
+		if (this.m_Target && other.transform.root.GetInstanceID() != this.m_Target.transform.root.GetInstanceID() )
 			return;
 
 		Entity entity = null;
-		bool bIsEntity = Utils.Base.SearchComponent( other.gameObject, ref entity, SearchContext.CHILDREN );
-		if ( bIsEntity && m_BypassEntityCheck == false && entity.CanTrigger() == false )
+		bool bIsEntity = Utils.Base.SearchComponent( other.gameObject, ref entity, ESearchContext.CHILDREN );
+		if ( bIsEntity && this.m_BypassEntityCheck == false && entity.CanTrigger() == false )
 		{
 			return;
 		}
 
-		m_HasTriggered = true;
+		this.m_HasTriggered = true;
 
-		m_OnEnter?.Invoke( other.gameObject );
+		this.m_OnEnter?.Invoke( other.gameObject );
 	}
 
 
@@ -152,13 +152,13 @@ public class TriggerEvents : MonoBehaviour {
 	// OnTriggerExit
 	private void OnTriggerExit( Collider other )
 	{
-		if ( m_TriggerOnce == true && m_HasTriggered == true )
+		if (this.m_TriggerOnce == true && this.m_HasTriggered == true )
 			return;
 
-		if ( m_Target && other.gameObject.GetInstanceID() != m_Target.GetInstanceID() )
+		if (this.m_Target && other.transform.root.GetInstanceID() != this.m_Target.transform.root.GetInstanceID())
 			return;
-		
-		m_OnExit?.Invoke( other.gameObject );
+
+		this.m_OnExit?.Invoke( other.gameObject );
 	}
 
 }

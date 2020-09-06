@@ -22,5 +22,5 @@ StaminaRestore			= 0.08;
 StaminaRunMin			= 0.2;
 StaminaJumpMin			= 0.3;
 
-[ActorFootSteeps1]
+[ActorFootSteps1]
 Steps					= Default, Brush, Concrete, Earth, Floortile, Grass, Gravel, Metal, Tin, Water, Wood;

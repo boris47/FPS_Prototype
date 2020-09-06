@@ -9,30 +9,30 @@ namespace Database {
 		private List<cValue>		m_ValuesList			= new List<cValue>();
 		public	List<cValue>		ValueList
 		{
-			get { return m_ValuesList; }
+			get { return this.m_ValuesList; }
 		}
 
 		public	int				Size
 		{
 			get 
 			{
-				return m_ValuesList.Count;
+				return this.m_ValuesList.Count;
 			}
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()
 		{
-			return (IEnumerator) GetEnumerator();
+			return (IEnumerator)this.GetEnumerator();
 		}
 
 		public List<cValue>.Enumerator  GetEnumerator()
 		{
-			return m_ValuesList.GetEnumerator();
+			return this.m_ValuesList.GetEnumerator();
 		}
 
 		public cMultiValue( cValue[] vValues = null, int capacity = 1 )
 		{
-			m_ValuesList = vValues == null ? new List<cValue>(capacity) : new List<cValue>( vValues );
+			this.m_ValuesList = vValues == null ? new List<cValue>(capacity) : new List<cValue>( vValues );
 		}
 
 
@@ -41,8 +41,8 @@ namespace Database {
 		{
 			get
 			{
-				if ( m_ValuesList.Count > Index )
-					return m_ValuesList[Index];
+				if (this.m_ValuesList.Count > Index )
+					return this.m_ValuesList[Index];
 				return null;
 			}
 		}
@@ -50,7 +50,7 @@ namespace Database {
 		/////////////////////////////////////////////////////////
 		public void		Add( cValue pValue )
 		{
-			m_ValuesList.Add( pValue );
+			this.m_ValuesList.Add( pValue );
 		}
 
 
@@ -58,23 +58,23 @@ namespace Database {
 		{
 			bool result = true;
 			{
-				System.Type elementType = m_ValuesList[0].GetType();
-				bool bIsSameType = m_ValuesList.TrueForAll( v => v.GetType() == elementType );
+				System.Type elementType = this.m_ValuesList[0].GetType();
+				bool bIsSameType = this.m_ValuesList.TrueForAll( v => v.GetType() == elementType );
 				if ( bIsSameType )
 				{
 					if ( elementType == typeof( int ) || elementType == typeof( float ) )
 					{
-						if ( m_ValuesList.Count == 2 )
+						if (this.m_ValuesList.Count == 2 )
 						{
 							typeFound = typeof( UnityEngine.Vector2 );
 						}
 
-						if ( m_ValuesList.Count == 3 )
+						if (this.m_ValuesList.Count == 3 )
 						{
 							typeFound = typeof( UnityEngine.Vector3 );
 						}
 
-						if ( m_ValuesList.Count == 4 )
+						if (this.m_ValuesList.Count == 4 )
 						{
 							typeFound = typeof( UnityEngine.Vector4 );
 						}

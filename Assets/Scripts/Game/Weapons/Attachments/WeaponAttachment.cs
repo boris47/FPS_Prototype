@@ -21,12 +21,12 @@ public abstract class WeaponAttachment : MonoBehaviour {
 
 	public bool IsActive
 	{
-		get { return m_IsActive; }
+		get { return this.m_IsActive; }
 	}
 
 	public bool IsAttached
 	{
-		get { return m_IsAttached; }
+		get { return this.m_IsAttached; }
 	}
 
 	protected abstract void OnActivate();
@@ -35,28 +35,28 @@ public abstract class WeaponAttachment : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	public	void	SetActive( bool state )
 	{
-		if ( m_IsUsable == false || m_IsAttached == false || ( state == m_IsActive ) )
+		if (this.m_IsUsable == false || this.m_IsAttached == false || ( state == this.m_IsActive ) )
 			return;
 
-		m_IsActive = state;
+		this.m_IsActive = state;
 
-		if ( m_IsActive == true )
+		if (this.m_IsActive == true )
 		{
-			OnActivate();
+			this.OnActivate();
 		}
 		else
 		{
-			OnDeactivated();
+			this.OnDeactivated();
 		}
 	}
 
 
 	public void OnAttached()
 	{
-		m_IsAttached = true;
+		this.m_IsAttached = true;
 	}
 	public void OnRemoved()
 	{
-		m_IsAttached = false;
+		this.m_IsAttached = false;
 	}
 }

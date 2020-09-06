@@ -13,52 +13,52 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 	private		Button			m_SwitchToInventory		= null;
 	private		Button			m_ApplyButton			= null;
 
-	private		bool			m_bIsInitialized		= false;
+	private		bool			m_IsInitialized		= false;
 
 	bool IStateDefiner.IsInitialized
 	{
-		get { return m_bIsInitialized; }
+		get { return this.m_IsInitialized; }
 	}
 
 	string IStateDefiner.StateName
 	{
-		get { return name; }
+		get { return this.name; }
 	}
 
-	Dictionary<WeaponSlots, Database.Section> m_CurrentAssignedModuleSections = new Dictionary<WeaponSlots, Database.Section>()
+	Dictionary<EWeaponSlots, Database.Section> m_CurrentAssignedModuleSections = new Dictionary<EWeaponSlots, Database.Section>()
 	{
-		{ WeaponSlots.PRIMARY,		new Database.Section( "WPN_BaseModuleEmpty", "Unassigned" ) },
-		{ WeaponSlots.SECONDARY,	new Database.Section( "WPN_BaseModuleEmpty", "Unassigned" ) },
-		{ WeaponSlots.TERTIARY,		new Database.Section( "WPN_BaseModuleEmpty", "Unassigned" ) }
+		{ EWeaponSlots.PRIMARY,		new Database.Section( "WPN_BaseModuleEmpty", "Unassigned" ) },
+		{ EWeaponSlots.SECONDARY,	new Database.Section( "WPN_BaseModuleEmpty", "Unassigned" ) },
+		{ EWeaponSlots.TERTIARY,		new Database.Section( "WPN_BaseModuleEmpty", "Unassigned" ) }
 	};
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
 	IEnumerator	IStateDefiner.Initialize()
 	{
-		if ( m_bIsInitialized == true )
+		if (this.m_IsInitialized == true )
 			yield break;
 
 		CoroutinesManager.AddCoroutineToPendingCount( 1 );
 
-		Transform child = transform.Find("CustomizationPanel");
-		if ( m_bIsInitialized = ( child != null ) )
+		Transform child = this.transform.Find("CustomizationPanel");
+		if (this.m_IsInitialized = ( child != null ) )
 		{
-			m_bIsInitialized &= child.SearchComponentInChild( "ModulePrimaryDropdown", ref m_PrimaryDropDown );
-			m_bIsInitialized &= child.SearchComponentInChild( "ModuleSecondaryDropdown", ref m_SecondaryDropDown );
-			m_bIsInitialized &= child.SearchComponentInChild( "ModuleTertiaryDropdown", ref m_TertiaryDropDown );
+			this.m_IsInitialized &= child.SearchComponentInChild( "ModulePrimaryDropdown", ref this.m_PrimaryDropDown );
+			this.m_IsInitialized &= child.SearchComponentInChild( "ModuleSecondaryDropdown", ref this.m_SecondaryDropDown );
+			this.m_IsInitialized &= child.SearchComponentInChild( "ModuleTertiaryDropdown", ref this.m_TertiaryDropDown );
 
 			yield return null;
 
 			// APPLY BUTTON
-			if ( m_bIsInitialized &= transform.SearchComponentInChild( "ApplyButton", ref m_ApplyButton ) )
+			if (this.m_IsInitialized &= this.transform.SearchComponentInChild( "ApplyButton", ref this.m_ApplyButton ) )
 			{
-				m_ApplyButton.interactable = false;
-				m_ApplyButton.onClick.AddListener
+				this.m_ApplyButton.interactable = false;
+				this.m_ApplyButton.onClick.AddListener
 				(	
 					delegate()
 					{
-						UIManager.Confirmation.Show( "Apply Changes?", OnApply, delegate { OnEnable(); } );
+						UIManager.Confirmation.Show( "Apply Changes?", this.OnApply, delegate { this.OnEnable(); } );
 					}
 				);
 			}
@@ -66,22 +66,22 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 			yield return null;
 
 			// SWITCH TO INVENTORY
-			if ( m_bIsInitialized &= transform.SearchComponentInChild( "SwitchToInventory", ref m_SwitchToInventory ) )
+			if (this.m_IsInitialized &= this.transform.SearchComponentInChild( "SwitchToInventory", ref this.m_SwitchToInventory ) )
 			{
-				m_SwitchToInventory.onClick.AddListener
-				(	
-					OnSwitchToInventory
+				this.m_SwitchToInventory.onClick.AddListener
+				(
+					this.OnSwitchToInventory
 				);
 			}
 
 			yield return null;
 
 			// RETURN TO GAME
-			if ( m_bIsInitialized &= transform.SearchComponentInChild( "ReturnToGame", ref m_ReturnToGame ) )
+			if (this.m_IsInitialized &= this.transform.SearchComponentInChild( "ReturnToGame", ref this.m_ReturnToGame ) )
 			{
-				m_ReturnToGame.onClick.AddListener
+				this.m_ReturnToGame.onClick.AddListener
 				(
-					OnReturnToGame
+					this.OnReturnToGame
 				);
 			}
 
@@ -104,7 +104,7 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 	// Finalize
 	bool	 IStateDefiner.Finalize()
 	{
-		return m_bIsInitialized;
+		return this.m_IsInitialized;
 	}
 
 
@@ -112,7 +112,7 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 	// OnEnable
 	private void OnEnable()
 	{
-		if ( m_bIsInitialized == false )
+		if (this.m_IsInitialized == false )
 		{
 			return;
 		}
@@ -127,20 +127,20 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 		}
 
 		// PRIMARY
-		FillDropdown( m_PrimaryDropDown,	allModules, WeaponSlots.PRIMARY );
+		this.FillDropdown(this.m_PrimaryDropDown,	allModules, EWeaponSlots.PRIMARY );
 
 		// SECONDARY
-		FillDropdown( m_SecondaryDropDown,	allModules, WeaponSlots.SECONDARY );
+		this.FillDropdown(this.m_SecondaryDropDown,	allModules, EWeaponSlots.SECONDARY );
 
 		// TERTIARY
-		FillDropdown( m_TertiaryDropDown,	allModules, WeaponSlots.TERTIARY );
+		this.FillDropdown(this.m_TertiaryDropDown,	allModules, EWeaponSlots.TERTIARY );
 
 
-		GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, false);
+		GlobalManager.InputMgr.SetCategory(EInputCategory.CAMERA, false);
 //		InputManager.IsEnabled					= false;
 
 		// All categories but not interface
-		GlobalManager.InputMgr.DisableCategory( InputCategory.ALL | InputCategory.INTERFACE );
+		GlobalManager.InputMgr.DisableCategory( EInputCategory.ALL | EInputCategory.INTERFACE );
 
 		GlobalManager.SetCursorVisibility( true );
 
@@ -150,7 +150,7 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 
 	//////////////////////////////////////////////////////////////////////////
 	// FillDropdown
-	private	void	FillDropdown( Dropdown thisDropdown, List<Database.Section> allModules, WeaponSlots slot )
+	private	void	FillDropdown( Dropdown thisDropdown, List<Database.Section> allModules, EWeaponSlots slot )
 	{
 		thisDropdown.ClearOptions();
 
@@ -177,7 +177,7 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 		);
 		thisDropdown.AddOptions( ui_Names );
 
-		m_CurrentAssignedModuleSections[slot] = new Database.Section( alreadyAssignedModules[(int)slot], "" );
+		this.m_CurrentAssignedModuleSections[slot] = new Database.Section( alreadyAssignedModules[(int)slot], "" );
 
 		// Search current Value
 		thisDropdown.value = filtered.FindIndex( s => s.GetName() == alreadyAssignedModules[(int)slot] );
@@ -185,7 +185,7 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 		thisDropdown.onValueChanged.RemoveAllListeners();
 		UnityEngine.Events.UnityAction<int> callback = delegate( int moduleIndex )
 		{
-			OnModuleChanged( slot, filtered[moduleIndex] );
+			this.OnModuleChanged( slot, filtered[moduleIndex] );
 		};
 		thisDropdown.onValueChanged.AddListener( callback );
 	}
@@ -195,11 +195,11 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnModuleChanged
-	private	void	OnModuleChanged( WeaponSlots slot, Database.Section choosenModuleSection )
+	private	void	OnModuleChanged( EWeaponSlots slot, Database.Section choosenModuleSection )
 	{
-		m_CurrentAssignedModuleSections[slot] = choosenModuleSection;
+		this.m_CurrentAssignedModuleSections[slot] = choosenModuleSection;
 
-		m_ApplyButton.interactable = true;
+		this.m_ApplyButton.interactable = true;
 
 		/*
 		WeaponModuleSlot slotModule = null;
@@ -213,7 +213,7 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 	//////////////////////////////////////////////////////////////////////////
 	private void	OnApply()
 	{
-		foreach( KeyValuePair<WeaponSlots, Database.Section> pair in m_CurrentAssignedModuleSections )
+		foreach( KeyValuePair<EWeaponSlots, Database.Section> pair in this.m_CurrentAssignedModuleSections )
 		{
 			WeaponModuleSlot slotModule = null;
 			WeaponManager.Instance.CurrentWeapon.bGetModuleSlot( pair.Key, ref slotModule );
@@ -244,15 +244,15 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 	// OnDisable
 	private void OnDisable()
 	{
-		if ( m_bIsInitialized == false )
+		if (this.m_IsInitialized == false )
 		{
 			return;
 		}
 
-		GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, true);
+		GlobalManager.InputMgr.SetCategory(EInputCategory.CAMERA, true);
 
 //		InputManager.IsEnabled					= true;
-		GlobalManager.InputMgr.EnableCategory( InputCategory.ALL );
+		GlobalManager.InputMgr.EnableCategory( EInputCategory.ALL );
 
 		GlobalManager.SetCursorVisibility( false );
 

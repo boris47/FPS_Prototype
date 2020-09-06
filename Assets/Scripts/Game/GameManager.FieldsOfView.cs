@@ -15,7 +15,7 @@ public interface IFieldsOfViewManager {
 };
 
 
-public partial class GameManager : IFieldsOfViewManager {
+public sealed partial class GameManager : IFieldsOfViewManager {
 
 	private		static	IFieldsOfViewManager	m_FieldsOfViewManager = null;
 	public		static	IFieldsOfViewManager	FieldsOfViewManager
@@ -36,7 +36,7 @@ public partial class GameManager : IFieldsOfViewManager {
 		if ( update == null )
 			return false;
 
-		m_FieldsOfViewList.Add( 
+		this.m_FieldsOfViewList.Add( 
 			new KeyValuePair<FieldOfView, System.Action>( agent, update )
 		);;
 		return true;
@@ -46,7 +46,7 @@ public partial class GameManager : IFieldsOfViewManager {
 
 	bool IFieldsOfViewManager.IsRegistered( FieldOfView agent )
 	{
-		bool result = m_FieldsOfViewList.FindIndex((p) => p.Key== agent ) > -1;
+		bool result = this.m_FieldsOfViewList.FindIndex((p) => p.Key== agent ) > -1;
 
 		return result;
 	}
@@ -56,13 +56,13 @@ public partial class GameManager : IFieldsOfViewManager {
 	bool IFieldsOfViewManager.UnregisterAgent( FieldOfView agent )
 	{
 		int index = 0;
-		if ( ( index = m_FieldsOfViewList.FindIndex((p) => p.Key== agent ) ) == -1 )
+		if ( ( index = this.m_FieldsOfViewList.FindIndex((p) => p.Key== agent ) ) == -1 )
 			return false;
 
-		if ( index == m_CurrentFieldOfViewIndex )
-			m_CurrentFieldOfViewIndex--;
+		if ( index == this.m_CurrentFieldOfViewIndex )
+			this.m_CurrentFieldOfViewIndex--;
 
-		m_FieldsOfViewList.RemoveAt( index );
+		this.m_FieldsOfViewList.RemoveAt( index );
 		return true;
 	}
 
@@ -70,16 +70,16 @@ public partial class GameManager : IFieldsOfViewManager {
 
 	private	void	UpdateCurrentFieldOfView()
 	{
-		if ( m_FieldsOfViewList.Count == 0 )
+		if (this.m_FieldsOfViewList.Count == 0 )
 			return;
 
-		m_CurrentFieldOfViewIndex++;
-		if ( m_CurrentFieldOfViewIndex > m_FieldsOfViewList.Count - 1 )
+		this.m_CurrentFieldOfViewIndex++;
+		if (this.m_CurrentFieldOfViewIndex > this.m_FieldsOfViewList.Count - 1 )
 		{
-			m_CurrentFieldOfViewIndex = 0;
+			this.m_CurrentFieldOfViewIndex = 0;
 		}
 
-		m_FieldsOfViewList[m_CurrentFieldOfViewIndex].Value();
+		this.m_FieldsOfViewList[this.m_CurrentFieldOfViewIndex].Value();
 
 		
 	}

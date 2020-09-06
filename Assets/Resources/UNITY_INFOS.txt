@@ -13,7 +13,7 @@ Debug.Log( Application.temporaryCachePath );		// C:/Users/Drako/AppData/Local/Te
 
 
 var v = new { Amount = 108, Message = "Hello" };
-m_bIsInitialized &= GlobalManager.Configs.bGetSection( SectionName, v );
+m_IsInitialized &= GlobalManager.Configs.bGetSection( SectionName, v );
 
 
 
@@ -45,3 +45,21 @@ The foreach loop completes when the end of the iterator method or a yield break 
 
 
 [ObsoleteInspector]
+
+///////////////////////////////////////////////////////
+using UnityEngine.Networking;
+
+private IEnumerator Start()
+{
+	UnityWebRequest www = UnityWebRequest.Get("http://localhost:55594/ping");
+	yield return www.SendWebRequest();
+
+	if (www.isNetworkError || www.isHttpError)
+	{
+		Debug.Log(www.error);
+	}
+	else
+	{
+		Debug.Log("Form upload complete!" + www.downloadHandler.text);
+	}
+}

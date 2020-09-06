@@ -33,17 +33,17 @@ public class Walker_AI_Behaviour_Normal : AIBehaviour {
 
 	public override void OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
-		if ( EntityData.EntityRef.IsAlive )
+		if (this.EntityData.EntityRef.IsAlive )
 		{
-			EntityData.EntityRef.SetPointToLookAt( startPosition );
+			this.EntityData.EntityRef.SetPointToLookAt( startPosition );
 
-			EntityData.EntityRef.ChangeState( BrainState.ALARMED );
+			this.EntityData.EntityRef.ChangeState( EBrainState.ALARMED );
 		}
 	}
 
 	public override void OnDestinationReached( Vector3 Destination )
 	{
-		EntityData.EntityRef.NavReset();
+		this.EntityData.EntityRef.NavReset();
 	}
 
 	public override void OnThink()
@@ -59,9 +59,9 @@ public class Walker_AI_Behaviour_Normal : AIBehaviour {
 	public override void OnFrame( float DeltaTime )
 	{
 		// Update PathFinding and movement along path
-		if ( EntityData.EntityRef.HasDestination && EntityData.EntityRef.IsAllignedHeadToPoint )
+		if (this.EntityData.EntityRef.HasDestination && this.EntityData.EntityRef.IsAllignedHeadToPoint )
 		{
-			EntityData.AgentSpeed = EntityData.EntityRef.MaxAgentSpeed;
+			this.EntityData.AgentSpeed = this.EntityData.EntityRef.MaxAgentSpeed;
 		}
 	}
 
@@ -75,17 +75,17 @@ public class Walker_AI_Behaviour_Normal : AIBehaviour {
 		// Destination
 		{
 			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
-				planeNormal:	EntityData.Body_Up,
-				planePoint:		EntityData.Body_Position,
-				point:			EntityData.TargetInfo.CurrentTarget.AsEntity.transform.position
+				planeNormal: this.EntityData.Body_Up,
+				planePoint: this.EntityData.Body_Position,
+				point: this.EntityData.TargetInfo.CurrentTarget.AsEntity.transform.position
 			);
 
 
-			EntityData.EntityRef.RequestMovement( projectedPoint );
+			this.EntityData.EntityRef.RequestMovement( projectedPoint );
 		}
 
 		// Switch brain State
-		EntityData.EntityRef.ChangeState( BrainState.ATTACKER );
+		this.EntityData.EntityRef.ChangeState( EBrainState.ATTACKER );
 	}
 
 	public override void OnTargetChange()

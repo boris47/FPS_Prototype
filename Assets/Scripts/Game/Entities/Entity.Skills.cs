@@ -17,7 +17,7 @@ public interface IEntitySkills
 public	abstract	partial	class Entity : IEntitySkills {
 
 	private			IEntitySkills				m_SkillInstance			= null;
-	public			IEntitySkills				Skills					{ get { return m_SkillInstance; } }
+	public			IEntitySkills				Skills					{ get { return this.m_SkillInstance; } }
 
 	private class MultiplierData<T> {
 		public		bool	IsEnabled	= true;
@@ -35,9 +35,9 @@ public	abstract	partial	class Entity : IEntitySkills {
 	private		bool	AddSkill( string Key, float Value )
 	{
 		bool result = false;
-		if ( m_SkillsMap.ContainsKey( Key ) )
+		if (this.m_SkillsMap.ContainsKey( Key ) )
 		{
-			m_SkillsMap.Add( Key, new MultiplierData<float>() { Value = Value } );
+			this.m_SkillsMap.Add( Key, new MultiplierData<float>() { Value = Value } );
 			result = true;
 		}
 		return result;
@@ -47,35 +47,35 @@ public	abstract	partial	class Entity : IEntitySkills {
 	//////////////////////////////////////////////////////////////////////////
 	public		bool	EnableSkill( string Key )
 	{
-		return HasSkill( Key ) && ( m_SkillsMap[ Key ].IsEnabled = true );
+		return this.HasSkill( Key ) && (this.m_SkillsMap[ Key ].IsEnabled = true );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public		bool	DisableSkill( string Key )
 	{
-		return HasSkill( Key ) && !( m_SkillsMap[ Key ].IsEnabled = false );
+		return this.HasSkill( Key ) && !(this.m_SkillsMap[ Key ].IsEnabled = false );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public		bool	IsSkillEnabled( string Key )
 	{
-		return HasSkill( Key ) && m_SkillsMap[Key].IsEnabled;
+		return this.HasSkill( Key ) && this.m_SkillsMap[Key].IsEnabled;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public		bool	HasSkill( string Key )
 	{
-		return m_SkillsMap.ContainsKey( Key );
+		return this.m_SkillsMap.ContainsKey( Key );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public		float	GetSkill( string Key, float Default = 0.0f )
 	{
-		return ( ( HasSkill( Key ) && m_SkillsMap[Key].IsEnabled ) ? m_SkillsMap[Key].Value : Default );
+		return ( (this.HasSkill( Key ) && this.m_SkillsMap[Key].IsEnabled ) ? this.m_SkillsMap[Key].Value : Default );
 	}
 
 
@@ -84,9 +84,9 @@ public	abstract	partial	class Entity : IEntitySkills {
 	{
 		Value = Default;
 		bool result = false;
-		if ( HasSkill( Key ) && m_SkillsMap[ Key ].IsEnabled )
+		if (this.HasSkill( Key ) && this.m_SkillsMap[ Key ].IsEnabled )
 		{
-			Value = m_SkillsMap[ Key ].Value;
+			Value = this.m_SkillsMap[ Key ].Value;
 			result = true;
 		}
 		return result;
@@ -97,9 +97,9 @@ public	abstract	partial	class Entity : IEntitySkills {
 	private		bool	LoseSkill( string Key )
 	{
 		bool result = false;
-		if ( HasSkill( Key ) == true )
+		if (this.HasSkill( Key ) == true )
 		{
-			m_SkillsMap.Remove( Key );
+			this.m_SkillsMap.Remove( Key );
 		}
 		return result;
 	}

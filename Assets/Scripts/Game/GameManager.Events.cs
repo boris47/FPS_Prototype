@@ -43,7 +43,8 @@ public struct GameEvents {
 //						SAVE & LOAD								//
 //////////////////////////////////////////////////////////////////
 
-public enum StreamingState {
+public enum EStreamingState
+{
 	NONE, SAVING, SAVE_COMPLETE, LOADING, LOAD_COMPLETE
 }
 
@@ -76,12 +77,12 @@ public interface IStreamEvents {
 					void									Load	( string fileName = "SaveFile.txt" );
 
 	/// <summary> Return the current state of the manager </summary>
-	StreamingState											State	{ get; }
+	EStreamingState											State	{ get; }
 }
 
 // SAVE & LOAD IMPLEMENTATION
-public partial class GameManager : IStreamEvents {
-
+public sealed partial class GameManager : IStreamEvents
+{
 	// Save slot infos
 	public class SaveFileinfo {
 
@@ -103,7 +104,7 @@ public partial class GameManager : IStreamEvents {
 	private			List<GameEvents.StreamingEvent>	m_OnLoad = new List<GameEvents.StreamingEvent>();
 //	private	event	GameEvents.StreamingEvent		m_OnLoadComplete	= delegate ( StreamData streamData ) { return null; };
 	private			List<GameEvents.StreamingEvent>	m_OnLoadComplete = new List<GameEvents.StreamingEvent>();
-	private			StreamingState					m_SaveLoadState		= StreamingState.NONE;
+	private			EStreamingState					m_SaveLoadState		= EStreamingState.NONE;
 
 #region INTERFACE
 	// INTERFACE START
@@ -114,9 +115,9 @@ public partial class GameManager : IStreamEvents {
 	}
 
 	/// <summary> Return the current stream State </summary>
-	StreamingState	IStreamEvents.State
+	EStreamingState	IStreamEvents.State
 	{
-		get { return m_SaveLoadState; }
+		get { return this.m_SaveLoadState; }
 	}
 
 	/// <summary> Events called when game is saving </summary>
@@ -136,8 +137,8 @@ public partial class GameManager : IStreamEvents {
 	/// <summary> Events called when game is loading ( Events are called along more frames !! ) </summary>
 	event GameEvents.StreamingEvent IStreamEvents.OnLoad
 	{
-		add		{ if ( value != null )	m_OnLoad.Add(value); }// m_OnLoad += value; }
-		remove	{ if ( value != null )	m_OnLoad.Remove(value); }// m_OnLoad -= value; }
+		add		{ if ( value != null ) this.m_OnLoad.Add(value); }// m_OnLoad += value; }
+		remove	{ if ( value != null ) this.m_OnLoad.Remove(value); }// m_OnLoad -= value; }
 	}
 
 	/// <summary> Events called when game has been loaded ( Events are called along more frames !! ) </summary>
@@ -145,8 +146,8 @@ public partial class GameManager : IStreamEvents {
 	{
 //		add		{ if ( value != null )	m_OnLoadComplete += value; }
 //		remove	{ if ( value != null )	m_OnLoadComplete -= value; }
-		add		{ if ( value != null )	m_OnLoadComplete.Add(value); }// m_OnLoadComplete += value; }
-		remove	{ if ( value != null )	m_OnLoadComplete.Remove(value); }// m_OnLoadComplete -= value; }
+		add		{ if ( value != null ) this.m_OnLoadComplete.Add(value); }// m_OnLoadComplete += value; }
+		remove	{ if ( value != null ) this.m_OnLoadComplete.Remove(value); }// m_OnLoadComplete -= value; }
 	}
 
 	// INTERFACE END
@@ -167,13 +168,13 @@ public partial class GameManager : IStreamEvents {
 		// TODO: CHECK FOR AUTOMAIC SAVE
 
 		// Conditions
-		if ( m_SaveLoadState == StreamingState.SAVING )
+		if (this.m_SaveLoadState == EStreamingState.SAVING )
 		{
 			UnityEngine.Debug.Log( "Another save must finish write actions !!" );
 			return;
 		}
 
-		m_SaveLoadState = StreamingState.SAVING;
+		this.m_SaveLoadState = EStreamingState.SAVING;
 
 		PlayerPrefs.SetInt( "SaveSceneIdx", UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex );
 		PlayerPrefs.SetString( "SaveFilePath", filePath );
@@ -184,23 +185,23 @@ public partial class GameManager : IStreamEvents {
 		m_OnSave( streamData );
 
 		// Thread Body
-		System.Action body = delegate()
+		void body()
 		{
-			print( "Saving..." );
+			print("Saving...");
 
 			// Serialize data
-			string toSave = JsonUtility.ToJson( streamData, prettyPrint: true );
-//			Encrypt( ref toSave );
-			File.WriteAllText( filePath, toSave );
-		};
+			string toSave = JsonUtility.ToJson(streamData, prettyPrint: true);
+			//			Encrypt( ref toSave );
+			File.WriteAllText(filePath, toSave);
+		}
 
 		// Thread OnCompletion
-		System.Action onCompletion = delegate()
+		void onCompletion()
 		{
-			m_SaveLoadState = StreamingState.SAVE_COMPLETE;
-			m_OnSaveComplete( streamData );
-			print( "Saved!" );
-		};
+			this.m_SaveLoadState = EStreamingState.SAVE_COMPLETE;
+			m_OnSaveComplete(streamData);
+			print("Saved!");
+		}
 		MultiThreading.CreateThread( body: body, bCanStart: true, onCompletion: onCompletion );
 	}
 	
@@ -209,7 +210,7 @@ public partial class GameManager : IStreamEvents {
 	void						IStreamEvents.Load( string fileName )
 	{
 		// Conditions
-		if ( m_SaveLoadState == StreamingState.SAVING || m_SaveLoadState == StreamingState.LOADING )
+		if (this.m_SaveLoadState == EStreamingState.SAVING || this.m_SaveLoadState == EStreamingState.LOADING )
 		{
 			UnityEngine.Debug.Log( "Cannot load while loading or saving !!" );
 			return;
@@ -220,9 +221,9 @@ public partial class GameManager : IStreamEvents {
 			UnityEngine.Debug.Log( "Cannot load because invalid filename !!" );
 			return;
 		}
-		
+
 		// Body
-		m_SaveLoadState = StreamingState.LOADING;
+		this.m_SaveLoadState = EStreamingState.LOADING;
 		InputManager.IsEnabled = false;
 		print( "Loading "  + System.IO.Path.GetFileNameWithoutExtension( fileName ) + "..." );
 
@@ -233,11 +234,11 @@ public partial class GameManager : IStreamEvents {
 
 		if ( streamData != null )
 		{
-			CoroutinesManager.Start( LoadCO( streamData ), "GameManager::Load: Start of loading" );
+			CoroutinesManager.Start(this.LoadCO( streamData ), "GameManager::Load: Start of loading" );
 		}
 		else
 		{
-			m_SaveLoadState = StreamingState.LOAD_COMPLETE;
+			this.m_SaveLoadState = EStreamingState.LOAD_COMPLETE;
 			InputManager.IsEnabled = true;
 			Debug.LogError( "GameManager::Load:: Save \"" + fileName + "\" cannot be loaded" );
 		}
@@ -248,9 +249,9 @@ public partial class GameManager : IStreamEvents {
 	{
 		yield return null;
 
-		for ( int i = 0; i < m_OnLoad.Count; i++ )
+		for ( int i = 0; i < this.m_OnLoad.Count; i++ )
 		{
-			GameEvents.StreamingEvent _delegate = m_OnLoad[i];
+			GameEvents.StreamingEvent _delegate = this.m_OnLoad[i];
 			_delegate( streamData );
 			yield return null;
 		}
@@ -260,7 +261,7 @@ public partial class GameManager : IStreamEvents {
 
 		yield return null;
 
-		foreach ( GameEvents.StreamingEvent _delegate in m_OnLoadComplete )
+		foreach ( GameEvents.StreamingEvent _delegate in this.m_OnLoadComplete )
 		{
 			_delegate( streamData );
 			yield return null;
@@ -268,7 +269,7 @@ public partial class GameManager : IStreamEvents {
 
 		print( "Loaded!" );
 
-		m_SaveLoadState = StreamingState.LOAD_COMPLETE;
+		this.m_SaveLoadState = EStreamingState.LOAD_COMPLETE;
 		InputManager.IsEnabled = true;
 	}
 
@@ -278,14 +279,13 @@ public partial class GameManager : IStreamEvents {
 	private		void			Encrypt( ref string clearText )
 	{
 		// TODO re-enable encryption
-#pragma warning disable CS0162 // È stato rilevato codice non raggiungibile
 		byte[] clearBytes = Encoding.Unicode.GetBytes( clearText );
-		m_Encryptor.Key = m_PDB.GetBytes( 32 );
-		m_Encryptor.IV = m_PDB.GetBytes( 16 );
+		this.m_Encryptor.Key = this.m_PDB.GetBytes( 32 );
+		this.m_Encryptor.IV = this.m_PDB.GetBytes( 16 );
 
 		MemoryStream stream = new MemoryStream();
 		{
-			CryptoStream crypter = new CryptoStream( stream, m_Encryptor.CreateEncryptor(), CryptoStreamMode.Write );
+			CryptoStream crypter = new CryptoStream( stream, this.m_Encryptor.CreateEncryptor(), CryptoStreamMode.Write );
 			{
 				crypter.Write( clearBytes, 0, clearBytes.Length );
 			}
@@ -294,7 +294,6 @@ public partial class GameManager : IStreamEvents {
 			clearText = System.Convert.ToBase64String( stream.ToArray() );
 		}
 		stream.Dispose();
-#pragma warning restore CS0162 // È stato rilevato codice non raggiungibile
 	}
 
 
@@ -302,15 +301,14 @@ public partial class GameManager : IStreamEvents {
 	private		void			Decrypt( ref string cipherText )
 	{
 		// TODO re-enable decryption
-#pragma warning disable CS0162 // È stato rilevato codice non raggiungibile
 		cipherText = cipherText.Replace( " ", "+" );
 		byte[] cipherBytes = System.Convert.FromBase64String( cipherText );
-		m_Encryptor.Key = m_PDB.GetBytes( 32 );
-		m_Encryptor.IV = m_PDB.GetBytes( 16 );
+		this.m_Encryptor.Key = this.m_PDB.GetBytes( 32 );
+		this.m_Encryptor.IV = this.m_PDB.GetBytes( 16 );
 
 		MemoryStream stream = new MemoryStream();
 		{
-			CryptoStream crypter = new CryptoStream( stream, m_Encryptor.CreateDecryptor(), CryptoStreamMode.Write );
+			CryptoStream crypter = new CryptoStream( stream, this.m_Encryptor.CreateDecryptor(), CryptoStreamMode.Write );
 			{
 				crypter.Write( cipherBytes, 0, cipherBytes.Length );
 			}
@@ -319,13 +317,12 @@ public partial class GameManager : IStreamEvents {
 		//	crypter.Dispose();
 		}
 		stream.Dispose();
-#pragma warning restore CS0162 // È stato rilevato codice non raggiungibile
 	}
 }
 
 [System.Serializable]
-public class StreamUnit {
-
+public class StreamUnit
+{
 	[SerializeField]
 	public	int						InstanceID		= -1;
 
@@ -346,16 +343,16 @@ public class StreamUnit {
 	public	void		SetInternal( string key, object value )
 	{
 		MyKeyValuePair keyValue = null;
-		int index = Internals.FindIndex( ( MyKeyValuePair kv ) => kv.Key == key );
+		int index = this.Internals.FindIndex( ( MyKeyValuePair kv ) => kv.Key == key );
 		if ( index == -1 )
 		{
 			//SetInternal( key, value );
 			MyKeyValuePair kv = new MyKeyValuePair( key, value.ToString() );
-			Internals.Add( kv );
+			this.Internals.Add( kv );
 		}
 		else
 		{
-			keyValue = Internals[ index ];
+			keyValue = this.Internals[ index ];
 			keyValue.Value = value.ToString();
 		}
 	}
@@ -364,11 +361,11 @@ public class StreamUnit {
 	//////////////////////////////////////////////////////////////////////////
 	public	bool		RemoveInternal( string key )
 	{
-		int index = Internals.FindIndex( ( MyKeyValuePair kv ) => kv.Key == key );
+		int index = this.Internals.FindIndex( ( MyKeyValuePair kv ) => kv.Key == key );
 		bool found = ( index != -1 );
 		if ( found )
 		{
-			Internals.RemoveAt( index );
+			this.Internals.RemoveAt( index );
 		}
 		return found;
 	}
@@ -377,7 +374,7 @@ public class StreamUnit {
 	//////////////////////////////////////////////////////////////////////////
 	public	bool		HasInternal( string key )
 	{
-		MyKeyValuePair keyValue = Internals.Find( ( MyKeyValuePair kv ) => kv.Key == key );
+		MyKeyValuePair keyValue = this.Internals.Find( ( MyKeyValuePair kv ) => kv.Key == key );
 		return keyValue != null;
 	}
 
@@ -385,7 +382,7 @@ public class StreamUnit {
 	//////////////////////////////////////////////////////////////////////////
 	public	string		GetInternal( string key )
 	{
-		MyKeyValuePair keyValue = Internals.Find( ( MyKeyValuePair kv ) => kv.Key == key );
+		MyKeyValuePair keyValue = this.Internals.Find( ( MyKeyValuePair kv ) => kv.Key == key );
 		if ( keyValue == null || keyValue.Value == null )
 		{
 			Debug.Log( "Cannot retrieve value for key " + key );
@@ -398,24 +395,22 @@ public class StreamUnit {
 	//////////////////////////////////////////////////////////////////////////
 	public	bool		GetAsBool( string key )
 	{
-		string value = GetInternal( key );
-		bool result = false;
-		if ( bool.TryParse( value, out result ) == false )
+		string value = this.GetInternal( key );
+		if (bool.TryParse(value, out bool result) == false)
 		{
-			Debug.Log( "Cannot retrieve value for key  " + key + " as BOOLEAN" );
+			Debug.Log("Cannot retrieve value for key  " + key + " as BOOLEAN");
 		}
-		return result;
+		return false;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public	int			GetAsInt( string key )
 	{
-		string value = GetInternal( key );
-		int result = 0;
-		if ( int.TryParse( value, out result ) == false )
+		string value = this.GetInternal( key );
+		if (int.TryParse(value, out int result) == false)
 		{
-			Debug.Log( "Cannot retrieve value for key  " + key + " as INTEGER" );
+			Debug.Log("Cannot retrieve value for key  " + key + " as INTEGER");
 		}
 		return result;
 	}
@@ -424,11 +419,10 @@ public class StreamUnit {
 	//////////////////////////////////////////////////////////////////////////
 	public	float		GetAsFloat( string key )
 	{
-		string value = GetInternal( key );
-		float result = 0f;
-		if ( float.TryParse( value, out result ) == false )
+		string value = this.GetInternal( key );
+		if (float.TryParse(value, out float result) == false)
 		{
-			Debug.Log( "Cannot retrieve value for key  " + key + " as FLOAT" );
+			Debug.Log("Cannot retrieve value for key  " + key + " as FLOAT");
 		}
 		return result;
 	}
@@ -438,7 +432,7 @@ public class StreamUnit {
 	//////////////////////////////////////////////////////////////////////////
 	public	T			GetAsEnum<T>( string key )
 	{
-		string value = GetInternal( key );
+		string value = this.GetInternal( key );
 		T result = default( T );
 		if ( Utils.Converters.StringToEnum( value, ref result ) == false )
 		{
@@ -452,7 +446,7 @@ public class StreamUnit {
 	//////////////////////////////////////////////////////////////////////////
 	public Vector3		GetAsVector( string key )
 	{
-		string value = GetInternal( key );
+		string value = this.GetInternal( key );
 		Vector3 result = Vector3.zero;
 		if ( Utils.Converters.StringToVector( value, ref result ) == false )
 		{
@@ -465,7 +459,7 @@ public class StreamUnit {
 	//////////////////////////////////////////////////////////////////////////
 	public Quaternion	GetAsQuaternion( string key )
 	{
-		string value = GetInternal( key );
+		string value = this.GetInternal( key );
 		Quaternion result = Quaternion.identity;
 		if ( Utils.Converters.StringToQuaternion( value, ref result ) == false )
 		{
@@ -476,8 +470,8 @@ public class StreamUnit {
 }
 
 [System.Serializable]
-public class StreamData {
-
+public class StreamData
+{
 	[SerializeField]
 	private List<StreamUnit> m_Data = new List<StreamUnit>();
 
@@ -486,15 +480,15 @@ public class StreamData {
 	/// <summary> To be used ONLY during the SAVE event, otherwise nothing happens </summary>
 	public	StreamUnit	NewUnit( GameObject gameObject )
 	{
-		if ( GameManager.StreamEvents.State != StreamingState.SAVING )
+		if ( GameManager.StreamEvents.State != EStreamingState.SAVING )
 			return null;
 
 		StreamUnit streamUnit		= null;
-		int index = m_Data.FindIndex( ( StreamUnit data ) => data.InstanceID == gameObject.GetInstanceID() );
+		int index = this.m_Data.FindIndex( ( StreamUnit data ) => data.InstanceID == gameObject.GetInstanceID() );
 		if ( index > -1 )
 		{
 //			Debug.Log( gameObject.name + " already saved" );
-			streamUnit = m_Data[index];
+			streamUnit = this.m_Data[index];
 		}
 		else
 		{
@@ -502,7 +496,7 @@ public class StreamData {
 			streamUnit.InstanceID		= gameObject.GetInstanceID();
 			streamUnit.Name				= gameObject.name;
 
-			m_Data.Add( streamUnit );
+			this.m_Data.Add( streamUnit );
 		}
 
 		return streamUnit;
@@ -517,17 +511,17 @@ public class StreamData {
 //			return false;
 
 		int GOInstanceID = gameObject.GetInstanceID();
-		int index = m_Data.FindIndex( ( StreamUnit data ) => data.InstanceID == GOInstanceID );
+		int index = this.m_Data.FindIndex( ( StreamUnit data ) => data.InstanceID == GOInstanceID );
 
 		if ( index == -1 )
 		{
-			index = m_Data.FindIndex( ( StreamUnit data ) => data.Name == gameObject.name );
+			index = this.m_Data.FindIndex( ( StreamUnit data ) => data.Name == gameObject.name );
 		}
 
 		bool found = index > -1;
 		if ( found )
 		{
-			streamUnit = m_Data[ index ];
+			streamUnit = this.m_Data[ index ];
 		}
 
 		return found;
@@ -536,11 +530,13 @@ public class StreamData {
 }
 
 [System.Serializable]
-public class MyKeyValuePair {
+public class MyKeyValuePair
+{
 	[SerializeField]
-	public	string	Key;
+	public	string	Key = string.Empty;
+
 	[SerializeField]
-	public	string	Value;
+	public	string	Value = string.Empty;
 
 	public	MyKeyValuePair( string Key, string Value )
 	{
@@ -556,9 +552,9 @@ public class MyKeyValuePair {
 
 public interface IPauseEvents {
 	/// <summary> Events called when game is setting on pause </summary>
-		event		GameEvents.OnPauseSetEvent		OnPauseSet;
+	event		GameEvents.OnPauseSetEvent		OnPauseSet;
 
-		void							SetPauseState( bool bPauseState );
+	void							SetPauseState( bool bPauseState );
 }
 
 // PAUSE IMPLEMENTATION
@@ -602,28 +598,29 @@ public partial class GameManager : IPauseEvents {
 		m_OnPauseSet( m_IsPaused );
 
 		GlobalManager.SetCursorVisibility( bIsPauseRequested == true );
+		SoundManager.IsPaused = bIsPauseRequested;
 		
 		if ( bIsPauseRequested == true )
 		{
 			UIManager.Instance.GoToMenu( UIManager.PauseMenu );
-			m_PrevTimeScale							= Time.timeScale;
-			m_PrevCanParseInput						= GlobalManager.InputMgr.HasCategoryEnabled(InputCategory.CAMERA);
-			m_PrevInputEnabled						= InputManager.IsEnabled;
+			this.m_PrevTimeScale					= Time.timeScale;
+			this.m_PrevCanParseInput				= GlobalManager.InputMgr.HasCategoryEnabled(EInputCategory.CAMERA);
+			this.m_PrevInputEnabled					= InputManager.IsEnabled;
 
 			Time.timeScale							= 0f;
 
 //			CameraControl.Instance.CanParseInput	= false;
-			GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, false);
+			GlobalManager.InputMgr.SetCategory(EInputCategory.CAMERA, false);
 			InputManager.IsEnabled					= false;
 		}
 		else
 		{
 			UIManager.Instance.GoToMenu( UIManager.InGame );
-			Time.timeScale							= m_PrevTimeScale;
-			GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, m_PrevCanParseInput);
-			InputManager.IsEnabled					= m_PrevInputEnabled;
+			Time.timeScale							= this.m_PrevTimeScale;
+			GlobalManager.InputMgr.SetCategory(EInputCategory.CAMERA, this.m_PrevCanParseInput);
+			InputManager.IsEnabled					= this.m_PrevInputEnabled;
 		}
-		m_SkipOneFrame = true;
+		this.m_SkipOneFrame = true;
 	}
 
 }

@@ -16,13 +16,13 @@ public interface IEntitySimulation {
 	void		EnterSimulationState	();
 
 	/// <summary> Before Simulation Stage </summary>
-	void		BeforeSimulationStage	( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget );
+	void		BeforeSimulationStage	( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget );
 
 	/// <summary> Simulate Movement, Return true if is Busy otherwise false </summary>
-	bool		SimulateMovement		( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1f );
+	bool		SimulateMovement		( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1f );
 
 	/// <summary> After Simulation Stage </summary>
-	void		AfterSimulationStage	( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget );
+	void		AfterSimulationStage	( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget );
 
 	/// <summary> Exit Simulation State </summary>
 	void		ExitSimulationState		();
@@ -33,7 +33,7 @@ public interface IEntitySimulation {
 [RequireComponent( typeof( CutsceneEntityManager ) ) ]
 public abstract partial class Entity : IEntitySimulation {
 
-	CutsceneEntityManager	IEntity.CutsceneManager				{ get { return m_CutsceneManager; }	}
+	CutsceneEntityManager	IEntity.CutsceneManager				{ get { return this.m_CutsceneManager; }	}
 
 	Vector3					IEntitySimulation.StartPosition		{ get; set; }
 
@@ -41,7 +41,7 @@ public abstract partial class Entity : IEntitySimulation {
 
 	// CUTSCENE MANAGER
 	protected	CutsceneEntityManager		m_CutsceneManager				= null;
-	protected	bool						m_bHasCutsceneManager			= false;
+	protected	bool						m_HasCutsceneManager			= false;
 
 	protected	bool						m_MovementOverrideEnabled		= false;
 	protected	Vector3						m_SimulationStartPosition		= Vector3.zero;
@@ -56,21 +56,21 @@ public abstract partial class Entity : IEntitySimulation {
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Before Simulation Stage </summary>
-	void	IEntitySimulation.BeforeSimulationStage( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
+	void	IEntitySimulation.BeforeSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
 		this.BeforeSimulationStage( movementType, destination, target, timeScaleTarget );
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Simulate Movement, Return true if is Busy otherwise false </summary>
-	bool	IEntitySimulation.SimulateMovement( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
+	bool	IEntitySimulation.SimulateMovement( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
 		return this.SimulateMovement( movementType, destination, target, timeScaleTarget );
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> After Simulation Stage </summary>
-	void	IEntitySimulation.AfterSimulationStage( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
+	void	IEntitySimulation.AfterSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
 		this.AfterSimulationStage( movementType, destination, target, timeScaleTarget );
 	}
@@ -91,17 +91,17 @@ public abstract partial class Entity : IEntitySimulation {
 	protected	abstract	void	ExitSimulationState();
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	abstract	void	BeforeSimulationStage( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget );
+	protected	abstract	void	BeforeSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget );
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	abstract	bool	SimulateMovement( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1f );
+	protected	abstract	bool	SimulateMovement( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1f );
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	abstract	void	AfterSimulationStage( SimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget );
+	protected	abstract	void	AfterSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget );
 
 }
 
-public enum SimMovementType {
+public enum ESimMovementType {
 	STATIONARY,
 	WALK,
 	CROUCHED,

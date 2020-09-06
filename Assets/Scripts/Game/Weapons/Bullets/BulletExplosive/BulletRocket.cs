@@ -10,7 +10,7 @@ public sealed class BulletRocket : BulletExplosive, IFlyingExplosive {
 	// INTERFACE START
 		float		IFlyingExplosive.GetMaxRange							()
 		{
-			return m_MaxRange;
+			return this.m_MaxRange;
 		}
 	// INTERFACE END
 
@@ -30,7 +30,7 @@ public sealed class BulletRocket : BulletExplosive, IFlyingExplosive {
 	{
 		yield return base.SetupBulletCO();
 
-		m_MaxRange = m_BulletSection.AsFloat( "fMaxRange", m_MaxRange );
+		this.m_MaxRange = this.m_BulletSection.AsFloat( "fMaxRange", this.m_MaxRange );
 	}
 
 
@@ -43,13 +43,13 @@ public sealed class BulletRocket : BulletExplosive, IFlyingExplosive {
 		if ( Time.frameCount % 25 == 0 )
 			return;
 
-		m_RigidBody.velocity	= m_RigidBodyVelocity;
-		transform.up			= m_RigidBodyVelocity;
+		this.m_RigidBody.velocity	= this.m_RigidBodyVelocity;
+		this.transform.up			= this.m_RigidBodyVelocity;
 
-		float traveledDistance = ( m_StartPosition - transform.position ).sqrMagnitude;
-		if ( traveledDistance > m_Range * m_Range )
+		float traveledDistance = (this.m_StartPosition - this.transform.position ).sqrMagnitude;
+		if ( traveledDistance > this.m_Range * this.m_Range )
 		{
-			OnExplosion();
+			this.OnExplosion();
 		}
 	}
 
@@ -92,24 +92,24 @@ public sealed class BulletRocket : BulletExplosive, IFlyingExplosive {
 //		if ( bIsBullet == true )
 //			return;
 
-		EffectType effectToPlay = EffectType.ENTITY_ON_HIT;
+		EEffectType effectToPlay = EEffectType.ENTITY_ON_HIT;
 
 		IEntity entity = null;
 		IShield shield = null;
-		if ( Utils.Base.SearchComponent( other.gameObject, ref entity, SearchContext.LOCAL ) )
+		if ( Utils.Base.SearchComponent( other.gameObject, ref entity, ESearchContext.LOCAL ) )
 		{
-			entity.Events.OnHittedDetails( m_StartPosition, m_WhoRef, DamageType.EXPLOSIVE, 0, false );
+			entity.Events.OnHittedDetails(this.m_StartPosition, this.m_WhoRef, EDamageType.EXPLOSIVE, 0, false );
 		}
-		else if ( Utils.Base.SearchComponent( other.gameObject, ref shield, SearchContext.CHILDREN ) )
+		else if ( Utils.Base.SearchComponent( other.gameObject, ref shield, ESearchContext.CHILDREN ) )
 		{
-			shield.CollisionHit( gameObject );
+			shield.CollisionHit(this.gameObject );
 		}
 		else
 		{
-			effectToPlay = EffectType.AMBIENT_ON_HIT;
+			effectToPlay = EEffectType.AMBIENT_ON_HIT;
 		}
 
-		Vector3 position = other.ClosestPointOnBounds( transform.position );
+		Vector3 position = other.ClosestPointOnBounds(this.transform.position );
 		Vector3 direction = other.transform.position - position;
 		EffectsManager.Instance.PlayEffect( effectToPlay, position, direction, 3 );
 

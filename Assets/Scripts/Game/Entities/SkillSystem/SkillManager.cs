@@ -19,9 +19,9 @@ public class EntityMultliers {
 	public	bool	AddMultiplier( string Key, float Value )
 	{
 		bool result = false;
-		if ( m_Skills.ContainsKey( Key ) == false )
+		if (this.m_Skills.ContainsKey( Key ) == false )
 		{
-			m_Skills.Add( Key, Value );
+			this.m_Skills.Add( Key, Value );
 			result = true;
 		}
 		return result;
@@ -35,9 +35,9 @@ public class EntityMultliers {
 	public	bool	RemoveMultiplier( string Key )
 	{
 		bool result = false;
-		if ( m_Skills.ContainsKey( Key ) == true )
+		if (this.m_Skills.ContainsKey( Key ) == true )
 		{
-			m_Skills.Remove( Key );
+			this.m_Skills.Remove( Key );
 			result = true;
 		}
 		return result;
@@ -52,9 +52,9 @@ public class EntityMultliers {
 	public	float	GetMultiplier( string Key, float Default = 1.0f )
 	{
 		float result = Default;
-		if ( m_Skills.ContainsKey( Key ) == true )
+		if (this.m_Skills.ContainsKey( Key ) == true )
 		{
-			result = m_Skills[ Key ];
+			result = this.m_Skills[ Key ];
 		}
 		return result;
 	}
@@ -68,7 +68,7 @@ public class EntityMultliers {
 	/// <returns></returns>
 	public	bool	GetMultiplier( string Key, out float Value, float Default = 1.0f )
 	{
-		bool result = m_Skills.TryGetValue( Key, out Value );
+		bool result = this.m_Skills.TryGetValue( Key, out Value );
 		if ( result == false )
 		{
 			Value = Default;
@@ -85,7 +85,7 @@ public	static class SkillManager {
 
 	private	static	readonly	Dictionary<uint, EntityMultliers>		m_Data			= new Dictionary<uint, EntityMultliers>();
 
-	private	static	bool											m_bIsInitialized	= false;
+	private	static	bool											m_IsInitialized	= false;
 
 
 	/// <summary>
@@ -93,10 +93,10 @@ public	static class SkillManager {
 	/// </summary>
 	static	SkillManager()
 	{
-		if ( m_bIsInitialized == false )
+		if ( m_IsInitialized == false )
 		{
 			m_Data = new Dictionary<uint, EntityMultliers>();
-			m_bIsInitialized = true;
+			m_IsInitialized = true;
 		}
 	}
 

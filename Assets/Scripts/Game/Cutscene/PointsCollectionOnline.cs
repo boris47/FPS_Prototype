@@ -8,7 +8,7 @@ namespace CutScene {
 	public class CutsceneWaypointData {
 		[HideInInspector]
 		public	string							Name				= "CutsceneWaypointData";
-		public	SimMovementType					movementType		= SimMovementType.WALK;
+		public	ESimMovementType					movementType		= ESimMovementType.WALK;
 		public	Transform						point				= null;
 		public	Transform						target				= null;
 		[Range( 0.01f, 1f )]
@@ -32,26 +32,26 @@ namespace CutScene {
 		public		CutsceneWaypointData	this[int index]
 		{
 			get { 
-				return m_Waypoints[ index ];
+				return this.m_Waypoints[ index ];
 			}
 		}
 
 		public	int	Count
 		{
-			get { return m_Waypoints.Length; }
+			get { return this.m_Waypoints.Length; }
 		}
 
 		private void OnEnable()
 		{
-			if ( m_Waypoints.Length == 0 )
+			if (this.m_Waypoints.Length == 0 )
 				return;
 
-			for ( int i = 0; i < m_Waypoints.Length; i++ )
+			for ( int i = 0; i < this.m_Waypoints.Length; i++ )
 			{
-				CutsceneWaypointData wayPoint = m_Waypoints[i];
-				if ( wayPoint.movementType == SimMovementType.STATIONARY && wayPoint.waiter == null )
+				CutsceneWaypointData wayPoint = this.m_Waypoints[i];
+				if ( wayPoint.movementType == ESimMovementType.STATIONARY && wayPoint.waiter == null )
 				{
-					print( "PointsCollectionOnline::OnEnable: Collection " + name + " has stationary waypoints without waiter assigned at index " + i );
+					print( "PointsCollectionOnline::OnEnable: Collection " + this.name + " has stationary waypoints without waiter assigned at index " + i );
 #if UNITY_EDITOR
 					UnityEditor.EditorApplication.isPlaying = false;
 #endif
@@ -62,15 +62,15 @@ namespace CutScene {
 
 		private void OnDrawGizmosSelected()
 		{
-			if ( m_Waypoints == null || m_Waypoints.Length < 2 )
+			if (this.m_Waypoints == null || this.m_Waypoints.Length < 2 )
 				return;
 
-			Vector3 prevPosition = m_Waypoints[0].point.position;
-			for ( int i = 1; i < m_Waypoints.Length; i++ )
+			Vector3 prevPosition = this.m_Waypoints[0].point.position;
+			for ( int i = 1; i < this.m_Waypoints.Length; i++ )
 			{
-				if ( m_Waypoints[ i ].point != null )
+				if (this.m_Waypoints[ i ].point != null )
 				{
-					Vector3 currentPosition = m_Waypoints[ i ].point.position;
+					Vector3 currentPosition = this.m_Waypoints[ i ].point.position;
 
 					Gizmos.DrawLine( prevPosition, currentPosition );
 

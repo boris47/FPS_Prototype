@@ -19,18 +19,18 @@ public partial class Player {
 	private		bool				m_CanDodge						= false;
 	public		bool				CanDodge
 	{
-		get { return m_CanDodge; }
+		get { return this.m_CanDodge; }
 	}
 
 	private		bool				m_IsDodging						= false;
 	public		bool				IsDodging
 	{
-		get { return m_IsDodging; }
+		get { return this.m_IsDodging; }
 	}
 	private		bool				m_ChosingDodgeRotation			= false;
 	public		bool				ChosingDodgeRotation
 	{
-		get { return m_ChosingDodgeRotation; }
+		get { return this.m_ChosingDodgeRotation; }
 	}
 
 	private	Coroutine		m_DodgeCoroutine		= null;
@@ -39,22 +39,22 @@ public partial class Player {
 
 	private	bool	AbilityPredcate()
 	{
-		return m_GrabbedObject == null;
+		return this.m_GrabbedObject == null;
 	}
 
 	private	void	AbilityEnableAction()
 	{
-		OnDodgeAbilityEnable();
+		this.OnDodgeAbilityEnable();
 	}
 
 	private	void	AbilityContinueAction()
 	{
-		OnDodgeAbilitySelection();
+		this.OnDodgeAbilitySelection();
 	}
 
 	private	void	AbilityEndAction()
 	{
-		OnDodgeAbilityAction();
+		this.OnDodgeAbilityAction();
 	}
 
 	/*
@@ -84,19 +84,18 @@ public partial class Player {
 	// CheckForFallOrUserBreck
 	public bool	CheckForFallOrUserBreak()
 	{
-		bool condition = ( m_IsDodging == false && transform.up != Vector3.up ) &&
-			m_States.IsJumping == false && m_States.IsHanging == false && IsGrounded == false; //		( m_States.IsJumping || IsGrounded == false );
+		bool condition = (this.m_IsDodging == false && this.transform.up != Vector3.up ) &&
+			this.m_States.IsJumping == false && this.m_States.IsHanging == false && this.IsGrounded == false; //		( m_States.IsJumping || IsGrounded == false );
 		if ( condition )
 		{
-			RaycastHit hit;
-			Physics.Raycast( transform.position, Vector3.down, out hit );
+			Physics.Raycast(this.transform.position, Vector3.down, out RaycastHit hit );
 
-			if ( m_CutsceneManager.IsPlaying )
-				m_CutsceneManager.Terminate();
+			if (this.m_CutsceneManager.IsPlaying )
+				this.m_CutsceneManager.Terminate();
 
-			Vector3 alignedForward = Vector3.Cross( transform.right, Vector3.up );
+			Vector3 alignedForward = Vector3.Cross(this.transform.right, Vector3.up );
 			Quaternion finalRotation = Quaternion.LookRotation( alignedForward, Vector3.up );
-			m_DodgeCoroutine = CoroutinesManager.Start( Dodge( destination: hit.point, rotation: finalRotation, falling: true ),
+			this.m_DodgeCoroutine = CoroutinesManager.Start(this.Dodge( destination: hit.point, rotation: finalRotation, falling: true ),
 				"Player::CheckForFallOrUserBreak: Start of dodge" );
 		}
 		return condition;
@@ -107,22 +106,22 @@ public partial class Player {
 	// OnDodgeAbilityEnable
 	private	void	OnDodgeAbilityEnable()
 	{
-		float angle = Vector3.Angle( m_RaycastHit.normal, transform.up );
+		float angle = Vector3.Angle(this.m_RaycastHit.normal, this.transform.up );
 		bool validAngle = angle >= 89f && angle < 179f;
 
-		if ( validAngle == true && m_ChosingDodgeRotation == false )
+		if ( validAngle == true && this.m_ChosingDodgeRotation == false )
 		{
 			// return if 
-			if ( m_DodgeRaycastNormal != Vector3.zero && m_DodgeRaycastNormal == m_RaycastHit.normal )
+			if (this.m_DodgeRaycastNormal != Vector3.zero && this.m_DodgeRaycastNormal == this.m_RaycastHit.normal )
 			{
 				return;
 			}
 
 			// Enable dodge target object and scale time
-			m_DodgeAbilityTarget.gameObject.SetActive( true );
-			m_DodgeAbilityTarget.position	= m_RaycastHit.point;
-			m_DodgeAbilityTarget.up			= m_RaycastHit.normal;
-			m_DodgeRaycastNormal			= m_RaycastHit.normal;
+			this.m_DodgeAbilityTarget.gameObject.SetActive( true );
+			this.m_DodgeAbilityTarget.position	= this.m_RaycastHit.point;
+			this.m_DodgeAbilityTarget.up			= this.m_RaycastHit.normal;
+			this.m_DodgeRaycastNormal			= this.m_RaycastHit.normal;
 			GlobalManager.SetTimeScale( SELECTION_TIME_SCALE );
 		}
 	}
@@ -132,27 +131,27 @@ public partial class Player {
 	// OnDodgeAbilitySelection
 	private	void	OnDodgeAbilitySelection()
 	{
-		if ( m_DodgeAbilityTarget.gameObject.activeSelf == true )
+		if (this.m_DodgeAbilityTarget.gameObject.activeSelf == true )
 		{
 			// "Abort" because pointing to a point with different normals
-			if ( m_DodgeRaycastNormal != m_RaycastHit.normal )
+			if (this.m_DodgeRaycastNormal != this.m_RaycastHit.normal )
 			{
-				m_ChosingDodgeRotation = false;
+				this.m_ChosingDodgeRotation = false;
 			}
 			// pointing on the same surface
 			else
 			{
-				m_ChosingDodgeRotation = true;
+				this.m_ChosingDodgeRotation = true;
 
 				// finding the point in the space where target must look at
 				// Pojecting the hit point on same hitted surface plane at the height of dodge ability target
-				Vector3 pointToFace = Utils.Math.ProjectPointOnPlane( m_RaycastHit.normal, m_DodgeAbilityTarget.position, m_RaycastHit.point );
+				Vector3 pointToFace = Utils.Math.ProjectPointOnPlane(this.m_RaycastHit.normal, this.m_DodgeAbilityTarget.position, this.m_RaycastHit.point );
 
 				// if found point is different from the current dodge target position
-				if ( pointToFace != m_DodgeAbilityTarget.position )
+				if ( pointToFace != this.m_DodgeAbilityTarget.position )
 				{
 					// Force dodge ability target to look at found point
-					m_DodgeAbilityTarget.rotation = Quaternion.LookRotation( ( pointToFace - m_DodgeAbilityTarget.position ), m_RaycastHit.normal );
+					this.m_DodgeAbilityTarget.rotation = Quaternion.LookRotation( ( pointToFace - this.m_DodgeAbilityTarget.position ), this.m_RaycastHit.normal );
 				}
 			}
 		}
@@ -163,25 +162,25 @@ public partial class Player {
 	// OnDodgeAbilityAction
 	private	void	OnDodgeAbilityAction()
 	{
-		if ( m_ChosingDodgeRotation == true )
+		if (this.m_ChosingDodgeRotation == true )
 		{
-			if ( m_DodgeCoroutine != null )
+			if (this.m_DodgeCoroutine != null )
 			{
-				StopCoroutine( m_DodgeCoroutine );
+				this.StopCoroutine(this.m_DodgeCoroutine );
 			}
 
 			// restore internals
-			m_DodgeRaycastNormal = Vector3.zero;
-			m_ChosingDodgeRotation = false;
+			this.m_DodgeRaycastNormal = Vector3.zero;
+			this.m_ChosingDodgeRotation = false;
 
 			// restore time scale
 			GlobalManager.SetTimeScale( 1.0f );
 
 			// destination is on dodge target position
-			Vector3 destination = m_DodgeAbilityTarget.position + m_DodgeAbilityTarget.up;
-				
+			Vector3 destination = this.m_DodgeAbilityTarget.position + this.m_DodgeAbilityTarget.up;
+
 			// Allign actor body to camera vertical axis
-			transform.Rotate( Vector3.up, CameraControl.Instance.CurrentDirection.y, Space.Self );
+			this.transform.Rotate( Vector3.up, CameraControl.Instance.CurrentDirection.y, Space.Self );
 
 			// remove value of current rotation on veritcal axis of camera
 			{
@@ -191,13 +190,13 @@ public partial class Player {
 			}
 
 			// hide dodge ability target object
-			m_DodgeAbilityTarget.gameObject.SetActive( false );
+			this.m_DodgeAbilityTarget.gameObject.SetActive( false );
 
 			// finally start dodge coroutine
-			m_DodgeCoroutine = CoroutinesManager.Start (
-				Dodge (
+			this.m_DodgeCoroutine = CoroutinesManager.Start (
+				this.Dodge (
 					destination:		destination,
-					rotation:			m_DodgeAbilityTarget.rotation,
+					rotation: this.m_DodgeAbilityTarget.rotation,
 					falling :			false,
 					dodgeTarget :		null,
 					bInstantly :		false
@@ -212,87 +211,87 @@ public partial class Player {
 	// Dodge ( Coroutine )
 	private	IEnumerator	Dodge( Vector3 destination, Quaternion rotation, bool falling = false, DodgeTarget dodgeTarget = null, bool bInstantly = false )
 	{
-		Vector3		startPosition					= transform.position;
-		Quaternion	startRotation					= transform.rotation;
+		Vector3		startPosition					= this.transform.position;
+		Quaternion	startRotation					= this.transform.rotation;
 		Quaternion	finalRotation					= rotation;
-		
-		var		settings							= CameraControl.Instance.GetPP_Profile.motionBlur.settings;
-		float	drag								= m_RigidBody.drag;
-		m_DodgeInterpolant							= 0f;
+
+		UnityEngine.PostProcessing.MotionBlurModel.Settings settings							= CameraControl.Instance.GetPP_Profile.motionBlur.settings;
+		float	drag								= this.m_RigidBody.drag;
+		this.m_DodgeInterpolant							= 0f;
 
 		// Enabling dodge ability
-		m_IsDodging									= true;
+		this.m_IsDodging									= true;
 
 		// Setup
 		UnityEngine.UI.Image effectFrame			= UIManager.EffectFrame;
 		CameraControl.Instance.CameraEffectorsManager.SetEffectorState<HeadBob>(false);
 		CameraControl.Instance.CameraEffectorsManager.SetEffectorState<HeadMove>(false);
-		m_RigidBody.velocity						= Vector3.zero;
-		m_RigidBody.constraints						= RigidbodyConstraints.None;
+		this.m_RigidBody.velocity						= Vector3.zero;
+		this.m_RigidBody.constraints						= RigidbodyConstraints.None;
 
 //		float slowMotionCoeff			= WeaponManager.Instance.CurrentWeapon.SlowMotionCoeff;
-		AnimationCurve animationCurve	= ( ( dodgeTarget != null && dodgeTarget.HasTimeScaleCurveOverride ) ? dodgeTarget.DodgeTimeScaleCurve : m_DodgeTimeScaleCurve );
-		while ( m_DodgeInterpolant < 1f )
+		AnimationCurve animationCurve	= ( ( dodgeTarget != null && dodgeTarget.HasTimeScaleCurveOverride ) ? dodgeTarget.DodgeTimeScaleCurve : this.m_DodgeTimeScaleCurve );
+		while (this.m_DodgeInterpolant < 1f )
 		{
 			// If is paused, wait for resume
 			while ( GameManager.IsPaused == true )
 				yield return null;
 
-			m_DodgeInterpolant		+= Time.deltaTime;
+			this.m_DodgeInterpolant		+= Time.deltaTime;
 
 			if ( bInstantly == true )
-				m_DodgeInterpolant = 1.0f;
+				this.m_DodgeInterpolant = 1.0f;
 
 			// Flash effect
-			effectFrame.color		= Color.Lerp ( Color.white, Color.clear, m_DodgeInterpolant * 6f );
+			effectFrame.color		= Color.Lerp ( Color.white, Color.clear, this.m_DodgeInterpolant * 6f );
 
 			// Time Scale
-			float timeScaleNow		= animationCurve.Evaluate( m_DodgeInterpolant );// * slowMotionCoeff;
-			if ( m_ChosingDodgeRotation == false )
+			float timeScaleNow		= animationCurve.Evaluate(this.m_DodgeInterpolant );// * slowMotionCoeff;
+			if (this.m_ChosingDodgeRotation == false )
 				Time.timeScale			= ( falling == true ) ? Time.timeScale : timeScaleNow;
 			
 			// Position and Rotation
 			if ( falling == false )
-				transform.position	= Vector3.Lerp( startPosition, destination, m_DodgeInterpolant );
-			transform.rotation		= Quaternion.Lerp( startRotation, finalRotation, m_DodgeInterpolant * ( ( falling == true ) ? 4f : 1f ) );
+				this.transform.position	= Vector3.Lerp( startPosition, destination, this.m_DodgeInterpolant );
+			this.transform.rotation		= Quaternion.Lerp( startRotation, finalRotation, this.m_DodgeInterpolant * ( ( falling == true ) ? 4f : 1f ) );
 
 			// Motion Blur Intensity
 			settings.frameBlending	= ( 1f - Time.timeScale );
 			CameraControl.Instance.GetPP_Profile.motionBlur.settings = settings;
 
 			// Audio Global Pitch
-			SoundManager.Instance.Pitch = Time.timeScale;
+			SoundManager.Pitch = Time.timeScale;
 			yield return null;
 		}
 
-		m_DodgeInterpolant							= 0f;
+		this.m_DodgeInterpolant							= 0f;
 
 		// Reset
-		m_RigidBody.constraints						= RigidbodyConstraints.FreezeRotation;
-		m_RigidBody.velocity						= Vector3.zero;
-		SoundManager.Instance.Pitch					= 1f;
+		this.m_RigidBody.constraints						= RigidbodyConstraints.FreezeRotation;
+		this.m_RigidBody.velocity						= Vector3.zero;
+		SoundManager.Pitch					= 1f;
 		Time.timeScale								= 1f;
 		effectFrame.color							= Color.clear;
-		m_DodgeRaycastNormal						= Vector3.zero;
-		m_DodgeAbilityTarget.gameObject.SetActive( false );
-		m_ChosingDodgeRotation						= false;
+		this.m_DodgeRaycastNormal						= Vector3.zero;
+		this.m_DodgeAbilityTarget.gameObject.SetActive( false );
+		this.m_ChosingDodgeRotation						= false;
 
 		// Final Position and Rotation
 		if ( falling == false )
-			transform.position						= destination;
-		transform.rotation							= finalRotation;
+			this.transform.position						= destination;
+		this.transform.rotation							= finalRotation;
 
 		// Disabling dodge ability
-		m_IsDodging									= false;
+		this.m_IsDodging									= false;
 
 		// Camera Reset
 		CameraControl.Instance.OnCutsceneEnd();
 		CameraControl.Instance.CameraEffectorsManager.SetEffectorState<HeadBob>(true);
 		CameraControl.Instance.CameraEffectorsManager.SetEffectorState<HeadMove>(true);
 
-		SetMotionType( eMotionType.Walking );
+		this.SetMotionType( EMotionType.Walking );
 
-		m_DodgeCoroutine = null;
+		this.m_DodgeCoroutine = null;
 	}
 
 }

@@ -42,14 +42,14 @@ public class Interactable : MonoBehaviour, IInteractable {
 	protected		bool			m_HasInteracted						= false;
 	public			bool				HasInteracted
 	{
-		get { return m_HasInteracted; }
+		get { return this.m_HasInteracted; }
 	}
 
 	//-
 	public			bool				HasRetroInteraction
 	{
-		get { return m_HasRetroInteraction; }
-		set { m_HasRetroInteraction = value; }
+		get { return this.m_HasRetroInteraction; }
+		set { this.m_HasRetroInteraction = value; }
 	}
 
 	//-
@@ -72,16 +72,16 @@ public class Interactable : MonoBehaviour, IInteractable {
 	//-
 	public		bool		CanInteract
 	{
-		get { return m_CanInteract; }
-		set { m_CanInteract = value; }
+		get { return this.m_CanInteract; }
+		set { this.m_CanInteract = value; }
 	}
 
 
 	protected	Rigidbody	m_RigidBody		= null;
-	public		Rigidbody	RigidBody		{ get { return m_RigidBody; } }
+	public		Rigidbody	RigidBody		{ get { return this.m_RigidBody; } }
 
 	protected	Collider	m_Collider		= null;
-	public		Collider	Collider		{ get { return m_Collider; } }
+	public		Collider	Collider		{ get { return this.m_Collider; } }
 
 
 
@@ -89,8 +89,8 @@ public class Interactable : MonoBehaviour, IInteractable {
 	// Awake ( Virtual )
 	protected	virtual	 void	Awake()
 	{
-		m_RigidBody = GetComponent<Rigidbody>();
-		m_Collider	= GetComponent<Collider>();
+		this.m_RigidBody = this.GetComponent<Rigidbody>();
+		this.m_Collider	= this.GetComponent<Collider>();
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -98,21 +98,21 @@ public class Interactable : MonoBehaviour, IInteractable {
 	public 	virtual		void		OnInteractionToggle()
 	{
 		// Only Available if has a retro interaction action
-		if ( m_HasRetroInteraction == false )
+		if (this.m_HasRetroInteraction == false )
 			return;
 
-		if ( m_HasInteracted == false )
+		if (this.m_HasInteracted == false )
 		{
 			m_OnInteractionCallback();
-			m_OnInteraction.Invoke();
+			this.m_OnInteraction.Invoke();
 		}
 		else
 		{
 			m_OnRetroInteractionCallback();
-			m_OnRetroInteraction.Invoke();
+			this.m_OnRetroInteraction.Invoke();
 		}
 
-		m_HasInteracted = !m_HasInteracted;
+		this.m_HasInteracted = !this.m_HasInteracted;
 	}
 
 
@@ -121,8 +121,8 @@ public class Interactable : MonoBehaviour, IInteractable {
 	public	virtual		void		OnInteraction()
 	{
 		m_OnInteractionCallback();
-		m_OnInteraction.Invoke();
-		m_HasInteracted = true;
+		this.m_OnInteraction.Invoke();
+		this.m_HasInteracted = true;
 	}
 
 
@@ -131,8 +131,8 @@ public class Interactable : MonoBehaviour, IInteractable {
 	public	virtual		void		OnRetroInteraction()
 	{
 		m_OnRetroInteractionCallback();
-		m_OnRetroInteraction.Invoke();
-		m_HasInteracted = false;
+		this.m_OnRetroInteraction.Invoke();
+		this.m_HasInteracted = false;
 	}
 
 }

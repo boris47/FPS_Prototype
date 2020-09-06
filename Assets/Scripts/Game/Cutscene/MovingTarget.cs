@@ -19,18 +19,18 @@ namespace CutScene {
 
 		private void Awake()
 		{
-			thisTransform = transform;
+			this.thisTransform = this.transform;
 		}
 
 		private void FixedUpdate()
 		{
-			Vector3	position	= transform.position;
-			Quaternion rotation = transform.rotation;
-			bool completed = m_UseUpVector ? m_Path.Move( ref thisTransform, m_Speed, Vector3.up ) : m_Path.Move( ref thisTransform, m_Speed, null );
+			Vector3	position	= this.transform.position;
+			Quaternion rotation = this.transform.rotation;
+			bool completed = this.m_UseUpVector ? this.m_Path.Move( ref this.thisTransform, this.m_Speed, Vector3.up ) : this.m_Path.Move( ref this.thisTransform, this.m_Speed, null );
 
 			if ( completed == true )
 			{
-				enabled = false;
+				this.enabled = false;
 			}
 		}
 		

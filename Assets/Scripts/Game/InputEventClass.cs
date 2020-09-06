@@ -9,34 +9,35 @@ public class SingleInputEvent {
 
 	private	System.Func<bool>		m_Condition		= delegate() { return true; };
 
-	private	string					m_InputEventID	= "NONE";
+	private readonly string			m_InputEventID	= "NONE";
 
 	//////////////////////////////////////////////////////////////////////////
 	public	string					InputEventID
 	{
-		get { return m_InputEventID; }
+		get { return this.m_InputEventID; }
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	public SingleInputEvent( string Id, InputDelegateHandler eventToCall, System.Func<bool> condition )
 	{
-		m_InputEventID = Id;
-		m_InputEvent = eventToCall;
-		m_Condition = condition;
+		this.m_InputEventID = Id;
+		this.m_InputEvent = eventToCall;
+		this.m_Condition = condition;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	public	void	Rebind( InputDelegateHandler eventToCall, System.Func<bool> condition )
 	{
-		m_InputEvent = eventToCall;
+		this.m_InputEvent = eventToCall;
+		this.m_Condition = condition;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	public void Call()
 	{
-		if ( m_Condition() )
+		if (this.m_Condition() )
 		{
-			m_InputEvent();
+			this.m_InputEvent();
 		}
 	}
 
@@ -44,22 +45,22 @@ public class SingleInputEvent {
 
 public class InputEventCollection {	
 
-	private static System.Func<bool>		m_AlwaysTrueCondition	= delegate() { return true; };
-	private	List<SingleInputEvent>			m_Events				= new List<SingleInputEvent>();
+	private static	readonly System.Func<bool>				m_AlwaysTrueCondition	= delegate() { return true; };
+	private			readonly List<SingleInputEvent>			m_Events				= new List<SingleInputEvent>();
 
 	//////////////////////////////////////////////////////////////////////////
-	public	InputEventCollection	Bind( string inputEventID, InputDelegateHandler method, System.Func<bool> condition )
+	public	InputEventCollection	Bind( string inputEventID, InputDelegateHandler method, System.Func<bool> predicate )
 	{
-		System.Func<bool> internalCondition = ( condition != null ) ? condition : m_AlwaysTrueCondition;
+		System.Func<bool> internalCondition = predicate ?? m_AlwaysTrueCondition;
 
-		int index = m_Events.FindIndex( s => s.InputEventID == inputEventID );
+		int index = this.m_Events.FindIndex( s => s.InputEventID == inputEventID );
 		if ( index == -1 )
 		{
-			m_Events.Add( new SingleInputEvent( inputEventID, method, internalCondition ) );
+			this.m_Events.Add( new SingleInputEvent( inputEventID, method, internalCondition ) );
 		}
 		else
 		{
-			m_Events[ index ].Rebind( method, internalCondition );
+			this.m_Events[ index ].Rebind( method, internalCondition );
 		}
 		return this;
 	}
@@ -67,10 +68,10 @@ public class InputEventCollection {
 	//////////////////////////////////////////////////////////////////////////
 	public	InputEventCollection	Unbind( string inputEventID )
 	{
-		int index = m_Events.FindIndex( s => s.InputEventID == inputEventID );
+		int index = this.m_Events.FindIndex( s => s.InputEventID == inputEventID );
 		if ( index > -1 ) // Only if found
 		{
-			m_Events.RemoveAt( index );
+			this.m_Events.RemoveAt( index );
 		}
 		return this;
 	}
@@ -78,6 +79,6 @@ public class InputEventCollection {
 	//////////////////////////////////////////////////////////////////////////
 	public void Call()
 	{
-		m_Events.ForEach( s => s.Call() );
+		this.m_Events.ForEach( s => s.Call() );
 	}
 }

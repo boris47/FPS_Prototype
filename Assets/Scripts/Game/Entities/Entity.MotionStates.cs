@@ -4,7 +4,7 @@ using UnityEngine;
 
 
 
-public enum eMotionType {
+public enum EMotionType {
 	None		= 1 << 0,
 	Walking		= 1 << 1,
 	Flying		= 1 << 2,
@@ -16,7 +16,7 @@ public enum eMotionType {
 
 
 public partial interface IEntity {
-	eMotionType		MotionType							{ get; }
+	EMotionType		MotionType							{ get; }
 	
 	/// <summary> Events called this entity motion state changed </summary>
 	event			Entity.OnMotionStateChangedEvent	OnMotionStateChangedEvent;
@@ -26,13 +26,13 @@ public partial interface IEntity {
 public abstract partial class Entity : IEntity {
 
 	// DELEGATE
-	public	delegate	void		OnMotionStateChangedEvent( eMotionType prevState, eMotionType newState );
+	public	delegate	void		OnMotionStateChangedEvent( EMotionType prevState, EMotionType newState );
 
 	// STORE VARIABLE
 	protected	event	OnMotionStateChangedEvent					m_OnMotionStateChangedEvent			= delegate { };
 
 
-	eMotionType		IEntity.MotionType							{ get { return m_CurrentMotionType; } }
+	EMotionType		IEntity.MotionType							{ get { return this.m_CurrentMotionType; } }
 	
 	/// <summary> Events called this entity motion state changed </summary>
 	event OnMotionStateChangedEvent IEntity.OnMotionStateChangedEvent
@@ -58,7 +58,7 @@ public abstract partial class Entity : IEntity {
 
 		public void Reset()
 		{
-			IsMoving = IsWalking = IsRunning = IsJumping = IsHanging = IsFalling = false;
+			this.IsMoving = this.IsWalking = this.IsRunning = this.IsJumping = this.IsHanging = this.IsFalling = false;
 		}
 	};
 
@@ -68,64 +68,64 @@ public abstract partial class Entity : IEntity {
 
 
 	// This variable control which physic to use on entity
-	protected	eMotionType		m_CurrentMotionType		= eMotionType.NONE;
-	public		eMotionType		CurrentMotionType
+	protected	EMotionType		m_CurrentMotionType		= EMotionType.NONE;
+	public		EMotionType		CurrentMotionType
 	{
-		get { return m_CurrentMotionType; }
+		get { return this.m_CurrentMotionType; }
 	}
 
-	protected	eMotionType		m_PreviousMotionType	= eMotionType.NONE;
-	public		eMotionType		PreviousMotionType
+	protected	EMotionType		m_PreviousMotionType	= EMotionType.NONE;
+	public		EMotionType		PreviousMotionType
 	{
-		get { return m_PreviousMotionType; }
+		get { return this.m_PreviousMotionType; }
 	}
 
 
 
 
 	// STATES
-	public		bool	IsMoving {		get { return  m_States.IsMoving; }		set { m_States.IsMoving = value; }	}
-	public		bool	IsIdle {		get { return  !m_States.IsMoving; }		set { m_States.IsMoving = !value; }	}
-	public		bool	IsLeaning {		get { return  m_States.IsLeaning; }		set { m_States.IsLeaning = value; }	}
-	public		bool	IsWalking {		get { return  m_States.IsWalking; }		set { m_States.IsWalking = value; }	}
-	public		bool	IsRunning {		get { return  m_States.IsRunning; }		set { m_States.IsRunning = value; }	}
-	public		bool	IsJumping {		get { return  m_States.IsJumping; }		set { m_States.IsJumping = value; }	}
-	public		bool	IsHanging {		get { return  m_States.IsHanging; }		set { m_States.IsHanging = value; }	}
-	public		bool	IsFalling {		get { return  m_States.IsFalling; }		set { m_States.IsFalling = value; }	}
-	public		bool	IsCrouched {	get { return  m_States.IsCrouched; }	set { m_States.IsCrouched = value; }}
-	public		void	ResetStates()	{ m_States.Reset(); }
+	public		bool	IsMoving {		get { return this.m_States.IsMoving; }		set { this.m_States.IsMoving = value; }	}
+	public		bool	IsIdle {		get { return  !this.m_States.IsMoving; }		set { this.m_States.IsMoving = !value; }	}
+	public		bool	IsLeaning {		get { return this.m_States.IsLeaning; }		set { this.m_States.IsLeaning = value; }	}
+	public		bool	IsWalking {		get { return this.m_States.IsWalking; }		set { this.m_States.IsWalking = value; }	}
+	public		bool	IsRunning {		get { return this.m_States.IsRunning; }		set { this.m_States.IsRunning = value; }	}
+	public		bool	IsJumping {		get { return this.m_States.IsJumping; }		set { this.m_States.IsJumping = value; }	}
+	public		bool	IsHanging {		get { return this.m_States.IsHanging; }		set { this.m_States.IsHanging = value; }	}
+	public		bool	IsFalling {		get { return this.m_States.IsFalling; }		set { this.m_States.IsFalling = value; }	}
+	public		bool	IsCrouched {	get { return this.m_States.IsCrouched; }	set { this.m_States.IsCrouched = value; }}
+	public		void	ResetStates()	{ this.m_States.Reset(); }
 
 
 
 
 
 	// Set the motion type
-	protected		void	SetMotionType( eMotionType NewState )
+	protected		void	SetMotionType( EMotionType NewState )
 	{
-		if ( m_CurrentMotionType == NewState )
+		if (this.m_CurrentMotionType == NewState )
 			return;
 
-		m_OnMotionStateChangedEvent( m_CurrentMotionType, NewState );
+		m_OnMotionStateChangedEvent(this.m_CurrentMotionType, NewState );
 
-/*		System.Action<eMotionType, bool, bool, bool> SetMotionTypeInternal = delegate( eMotionType type, bool HoldCrouch, bool HoldJump, bool HoldRun )
-		{
-			InputManager.HoldCrouch	= HoldCrouch;
-			InputManager.HoldJump	= HoldJump;
-			InputManager.HoldRun	= HoldRun;
-		};
-*/
-		m_PreviousMotionType = m_CurrentMotionType;
-		m_CurrentMotionType = NewState;
-//		switch( NewState )
-//		{	//																HoldCrouch, HoldJump, HoldRun
-//			case eMotionType.Walking:	{ SetMotionTypeInternal( NewState, false,	false,	true ); break; }
-//			case eMotionType.Flying:	{ SetMotionTypeInternal( NewState, true,	true,	true ); break; }
-//			case eMotionType.Swimming:	{ SetMotionTypeInternal( NewState, true,	true,	true ); break; }
-//			case eMotionType.P1ToP2:	{ SetMotionTypeInternal( NewState, false,	false,	true ); break; }
-//		}
+		/*		System.Action<eMotionType, bool, bool, bool> SetMotionTypeInternal = delegate( eMotionType type, bool HoldCrouch, bool HoldJump, bool HoldRun )
+				{
+					InputManager.HoldCrouch	= HoldCrouch;
+					InputManager.HoldJump	= HoldJump;
+					InputManager.HoldRun	= HoldRun;
+				};
+		*/
+		this.m_PreviousMotionType = this.m_CurrentMotionType;
+		this.m_CurrentMotionType = NewState;
+		//		switch( NewState )
+		//		{	//																HoldCrouch, HoldJump, HoldRun
+		//			case eMotionType.Walking:	{ SetMotionTypeInternal( NewState, false,	false,	true ); break; }
+		//			case eMotionType.Flying:	{ SetMotionTypeInternal( NewState, true,	true,	true ); break; }
+		//			case eMotionType.Swimming:	{ SetMotionTypeInternal( NewState, true,	true,	true ); break; }
+		//			case eMotionType.P1ToP2:	{ SetMotionTypeInternal( NewState, false,	false,	true ); break; }
+		//		}
 
 		// Reset states
-		m_States.Reset();
+		this.m_States.Reset();
 	}
 
 }

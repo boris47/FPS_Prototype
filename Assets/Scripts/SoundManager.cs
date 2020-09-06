@@ -4,28 +4,23 @@ using UnityEngine;
 
 public		delegate	void	OnValueChange( float value );
 
-public interface ISoundManager {
-
-	float				MusicVolume				{ get; set; }
-	float				SoundVolume				{ get; set; }
-	float				Pitch					{ get; set; }
-
-	void				OnSceneLoaded			();
-}
-
-
-public class SoundManager : MonoBehaviour, ISoundManager {
-
-	// STATIC
-	private	static	ISoundManager						m_Instance				= null;
-	public	static	ISoundManager						Instance
-	{
-		get { return m_Instance; }
-	}
-
+public class SoundManager : SingletonMonoBehaviour<SoundManager>
+{
+	private static	event		System.Action<bool>		m_OnPauseSet			= delegate { };
 	private	static	event		OnValueChange			m_OnMusicVolumeChange	= delegate { };
 	private	static	event		OnValueChange			m_OnSoundVolumeChange	= delegate { };
 	private	static	event		OnValueChange			m_OnPitchChange			= delegate { };
+
+	public static	event		System.Action<bool>		OnPauseSet
+	{
+		add { if (value != null)
+			m_OnPauseSet += value;
+		}
+
+		remove { if (value != null)
+			m_OnPauseSet -= value;
+		}
+	}
 
 	public	static	event		OnValueChange			OnMusicVolumeChange
 	{
@@ -62,35 +57,54 @@ public class SoundManager : MonoBehaviour, ISoundManager {
 
 	// EDITOR ONLY
 	[SerializeField, ReadOnly]
-	private				float					m_MusicVolume	= 1f;
+	private bool m_IsPaused = false;
 
 	[SerializeField, ReadOnly]
-	private				float					m_SoundVolume	= 1f;
+	private	float m_MusicVolume	= 1f;
 
 	[SerializeField, ReadOnly]
-	private				float					m_Pitch			= 1f;
+	private	float m_SoundVolume	= 1f;
 
-	public				float					MusicVolume
+	[SerializeField, ReadOnly]
+	private	float m_Pitch		= 1f;
+
+
+	//------------------------------------------------------------
+	public static bool IsPaused
 	{
-		get { return m_MusicVolume; }
+		get { return Instance.m_IsPaused; }
+		set
+		{
+			UpdatePauseState(value);
+		}
+	}
+
+
+
+	//------------------------------------------------------------
+	public static float MusicVolume
+	{
+		get { return Instance.m_MusicVolume; }
 		set
 		{
 			UpdateMusicVolume( value );
 		}
 	}
 
-	public				float					SoundVolume
+	//------------------------------------------------------------
+	public static float SoundVolume
 	{
-		get { return m_SoundVolume; }
+		get { return Instance.m_SoundVolume; }
 		set
 		{
 			UpdateSoundVolume( value );
 		}
 	}
 
-	public				float					Pitch
+	//------------------------------------------------------------
+	public static float Pitch
 	{
-		get { return m_Pitch; }
+		get { return Instance.m_Pitch; }
 		set
 		{
 			UpdatePitch( value );
@@ -99,73 +113,46 @@ public class SoundManager : MonoBehaviour, ISoundManager {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Awake
-	private void Awake()
+	private static void UpdatePauseState(bool value)
 	{
-		// Singleton
-		if ( m_Instance != null )
-		{
-#if UNITY_EDITOR
-			if ( UnityEditor.EditorApplication.isPlaying == true )
-				DestroyImmediate( gameObject );
-			else
-				Destroy( gameObject );
-#else
-			Destroy( gameObject );
-#endif
-			return;
-		}
-		m_OnMusicVolumeChange	= delegate { };
-		m_OnSoundVolumeChange	= delegate { };	
-		m_OnPitchChange			= delegate { };
-		m_Instance = this as ISoundManager;
+		Instance.m_IsPaused = value;
 
-#if UNITY_EDITOR
-		if ( UnityEditor.EditorApplication.isPlaying == true )
-				DontDestroyOnLoad( this );
-#else
-		DontDestroyOnLoad( this );
-#endif
+		m_OnPauseSet(value);
 	}
 
-
 	//////////////////////////////////////////////////////////////////////////
-	// UpdateMusicVolume
-	private	void	UpdateMusicVolume( float value )
+	private static void	UpdateMusicVolume( float value )
 	{
-		m_MusicVolume = value;
+		Instance.m_MusicVolume = value;
 
 		m_OnMusicVolumeChange( value );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// UpdateSoundVolume
-	private	void	UpdateSoundVolume( float value )
+	private	static void	UpdateSoundVolume( float value )
 	{
-		m_SoundVolume = value;
+		Instance.m_SoundVolume = value;
 
 		m_OnSoundVolumeChange( value );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// UpdatePitch
-	private	void	UpdatePitch( float value )
+	private	static void	UpdatePitch( float value )
 	{
-		m_Pitch = value;
+		Instance.m_Pitch = value;
 
 		m_OnPitchChange( value );
 	}
 
-	//
 
-	public void OnSceneLoaded()
+	//////////////////////////////////////////////////////////////////////////
+	public static void OnSceneLoaded()
 	{
-		m_OnMusicVolumeChange( m_MusicVolume );
-		m_OnSoundVolumeChange( m_SoundVolume );
-
-		m_OnPitchChange( m_Pitch );
+		m_OnMusicVolumeChange(Instance.m_MusicVolume);
+		m_OnSoundVolumeChange(Instance.m_SoundVolume);
+		m_OnPitchChange(Instance.m_Pitch);
 	}
 
 }

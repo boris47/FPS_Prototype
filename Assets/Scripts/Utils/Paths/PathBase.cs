@@ -11,24 +11,24 @@ public	struct	PathWayPointOnline {
 
 	public	Vector3		Position
 	{
-		get { return m_Position; }
+		get { return this.m_Position; }
 	}
 
 	public	Quaternion	Rotation
 	{
-		get { return m_Rotation; }
+		get { return this.m_Rotation; }
 	}
 
 	public PathWayPointOnline( Transform t )
 	{
-		m_Position = t.position;
-		m_Rotation = t.rotation;
+		this.m_Position = t.position;
+		this.m_Rotation = t.rotation;
 	}
 
 	public PathWayPointOnline( Vector3 position, Quaternion rotation )
 	{
-		m_Position = position;
-		m_Rotation = rotation;
+		this.m_Position = position;
+		this.m_Rotation = rotation;
 	}
 
 	public static implicit operator Vector3		( PathWayPointOnline w )		{	return w.Position;	}
@@ -56,7 +56,7 @@ public abstract	class PathBase : MonoBehaviour {
 	protected		float					m_PathLength		= 0.0f;
 	public			float					PathLength
 	{
-		get { return m_PathLength; }
+		get { return this.m_PathLength; }
 	}
 
 	// 
@@ -74,8 +74,8 @@ public abstract	class PathBase : MonoBehaviour {
 	// 
 	public		virtual void	ResetPath()
 	{
-		m_Interpolant		= 0f;
-		m_IsCompleted		= false;
+		this.m_Interpolant		= 0f;
+		this.m_IsCompleted		= false;
 	}
 
 

@@ -17,11 +17,11 @@ public class WalkerHidden : Walker {
 	// Awake ( Override )
 	protected override void Awake()
 	{
-		m_SectionName = this.GetType().FullName;
+		this.m_SectionName = this.GetType().FullName;
 
 		base.Awake();
 
-		m_Animator = GetComponent<Animator>();
+		this.m_Animator = this.GetComponent<Animator>();
 	}
 	/*
 
@@ -148,9 +148,9 @@ public class WalkerHidden : Walker {
 	// Activate
 	private		void	Activate()
 	{
-///		m_IsEnabled = true;
-///		m_InTransition = true;
-		m_Animator.Play( "Enable", -1, 0.0f );
+		///		m_IsEnabled = true;
+		///		m_InTransition = true;
+		this.m_Animator.Play( "Enable", -1, 0.0f );
 	}
 
 
@@ -158,9 +158,9 @@ public class WalkerHidden : Walker {
 	// Deactivate
 	private		void	Deactivate()
 	{
-///		m_IsEnabled = false;
-///		m_InTransition = true;
-		m_Animator.Play( "Disable", -1, 0.0f );
+		///		m_IsEnabled = false;
+		///		m_InTransition = true;
+		this.m_Animator.Play( "Disable", -1, 0.0f );
 	}
 
 

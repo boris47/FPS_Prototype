@@ -10,15 +10,15 @@ public sealed class UI_Confirmation : MonoBehaviour, IStateDefiner {
 
 	private	Text			m_LabelText			= null;
 
-	private	bool			m_bIsInitialized	= false;
+	private	bool			m_IsInitialized	= false;
 	bool IStateDefiner.IsInitialized
 	{
-		get { return m_bIsInitialized; }
+		get { return this.m_IsInitialized; }
 	}
 
 	string IStateDefiner.StateName
 	{
-		get { return name; }
+		get { return this.name; }
 	}
 
 
@@ -26,40 +26,40 @@ public sealed class UI_Confirmation : MonoBehaviour, IStateDefiner {
 	// Initialize
 	IEnumerator IStateDefiner.Initialize()
 	{
-		if ( m_bIsInitialized == true )
+		if (this.m_IsInitialized == true )
 			yield break;
 
 		CoroutinesManager.AddCoroutineToPendingCount( 1 );
 
-		m_bIsInitialized = true;
+		this.m_IsInitialized = true;
 		{
 			Navigation noNavigationMode = new Navigation() { mode = Navigation.Mode.None };
 
-			m_bIsInitialized &= transform.childCount > 0;
+			this.m_IsInitialized &= this.transform.childCount > 0;
 
 			Transform panel = null;
-			if ( m_bIsInitialized )
+			if (this.m_IsInitialized )
 			{
-				panel = transform.GetChild( 0 );
+				panel = this.transform.GetChild( 0 );
 			}
 				
 			// Label
-			if ( m_bIsInitialized )
+			if (this.m_IsInitialized )
 			{
-				m_bIsInitialized &= panel.SearchComponentInChild( 0, ref m_LabelText );
+				this.m_IsInitialized &= panel.SearchComponentInChild( 0, ref this.m_LabelText );
 			}
 
 			yield return null;
 
 			// Confirm button
 			Button onConfirmButton = null;
-			if ( m_bIsInitialized && ( m_bIsInitialized &= panel.SearchComponentInChild( 1, ref onConfirmButton ) ) )
+			if (this.m_IsInitialized && (this.m_IsInitialized &= panel.SearchComponentInChild( 1, ref onConfirmButton ) ) )
 			{
 				onConfirmButton.navigation = noNavigationMode;
 				onConfirmButton.onClick.AddListener( 
 					() => {
-						m_OnConfirmAction();
-						gameObject.SetActive( false );
+						this.m_OnConfirmAction();
+						this.gameObject.SetActive( false );
 					}
 				);
 			}
@@ -68,22 +68,22 @@ public sealed class UI_Confirmation : MonoBehaviour, IStateDefiner {
 
 			// Cancel button
 			Button onCancelButton = null;
-			if ( m_bIsInitialized && ( m_bIsInitialized &= panel.SearchComponentInChild( 2, ref onCancelButton ) ) )
+			if (this.m_IsInitialized && (this.m_IsInitialized &= panel.SearchComponentInChild( 2, ref onCancelButton ) ) )
 			{
 				onCancelButton.navigation = noNavigationMode;
 				onCancelButton.onClick.AddListener( 
 					() => {
-						m_OnCancelAction();
-						gameObject.SetActive( false );
+						this.m_OnCancelAction();
+						this.gameObject.SetActive( false );
 					}
 				);
 			}
 
-			gameObject.SetActive( false );
+			this.gameObject.SetActive( false );
 
 			yield return null;
 
-			if ( m_bIsInitialized )
+			if (this.m_IsInitialized )
 			{
 				CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 			}
@@ -107,7 +107,7 @@ public sealed class UI_Confirmation : MonoBehaviour, IStateDefiner {
 	// Finalize
 	bool IStateDefiner.Finalize()
 	{
-		return m_bIsInitialized;
+		return this.m_IsInitialized;
 	}
 
 
@@ -115,13 +115,13 @@ public sealed class UI_Confirmation : MonoBehaviour, IStateDefiner {
 	// Show
 	public	void	Show( string LabelMsg, System.Action OnConfirm , System.Action OnCancel = null )
 	{
-		if ( m_bIsInitialized == false )
+		if (this.m_IsInitialized == false )
 			return;
 
-		m_LabelText.text	= LabelMsg;
-		m_OnConfirmAction	= OnConfirm != null ? OnConfirm : () => { };
-		m_OnCancelAction	= OnCancel  != null ? OnCancel  : () => { };
-		gameObject.SetActive( true );
+		this.m_LabelText.text	= LabelMsg;
+		this.m_OnConfirmAction	= OnConfirm != null ? OnConfirm : () => { };
+		this.m_OnCancelAction	= OnCancel  != null ? OnCancel  : () => { };
+		this.gameObject.SetActive( true );
 	}
 
 }

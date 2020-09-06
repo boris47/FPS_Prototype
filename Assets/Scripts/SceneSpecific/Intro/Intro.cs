@@ -9,11 +9,11 @@ public class Intro : MonoBehaviour {
 	{
 		if ( Input.anyKeyDown == true )
 		{
-			enabled = false;
+			this.enabled = false;
 
 			CustomSceneManager.LoadSceneData loadSceneData = new CustomSceneManager.LoadSceneData()
 			{
-				eScene = SceneEnumeration.MAIN_MENU
+				eScene = ESceneEnumeration.MAIN_MENU
 			};
 			CustomSceneManager.LoadSceneAsync( loadSceneData );
 		}
