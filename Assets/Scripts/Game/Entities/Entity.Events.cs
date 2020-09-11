@@ -250,10 +250,8 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	//////////////////////////////////////////////////////////////////////////
 	public	void			OnHittedBullet( Bullet hittingBullet )
 	{
-		bool bIsBullet = hittingBullet is IBullet;
-		if ( bIsBullet )
+		if ( hittingBullet is IBullet bullet )
 		{
-			IBullet bullet = hittingBullet as IBullet;
 			float dmgMultiplier = (this.m_Shield != null && this.m_Shield.Status > 0.0f ) ? 
 				( bullet.CanPenetrate ) ? 0.5f : 0.0f
 				: 
