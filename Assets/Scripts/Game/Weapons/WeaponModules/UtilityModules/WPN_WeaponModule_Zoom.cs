@@ -25,7 +25,7 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public	override	bool	Setup			( IWeapon w, EWeaponSlots slot )
+	public	override	bool	OnAttach			( IWeapon w, EWeaponSlots slot )
 	{
 		string moduleSectionName = this.GetType().FullName;
 		this.m_WeaponRef = w;
@@ -36,6 +36,11 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 			return false;
 
 		return true;
+	}
+
+	public override void OnDetach()
+	{
+		
 	}
 
 
@@ -54,20 +59,20 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 		this.m_ZoomFactor			= zoomFactor;
 		this.m_ZoomingTime			= zoomingTime;
 		this.m_ZoomSensitivity		= zoomSensitivity;
-		
+
 		// Image frame
 		if ( FramePath.Length > 0 )
 		{
 			ResourceManager.LoadedData<GameObject> imageData = new ResourceManager.LoadedData<GameObject>();
-			System.Action<GameObject> onLoadSuccess = delegate( GameObject t )
+			void onLoadSuccess(GameObject resource)
 			{
 				Transform parent = UIManager.InGame.transform;
-				if ( t && t.transform.HasComponent<Image>() )
+				if ( resource && resource.transform.HasComponent<Image>() )
 				{
-					this.m_ZoomFrame = Instantiate( t, parent: parent ).GetComponent<Image>();
+					this.m_ZoomFrame = Instantiate( resource, parent: parent ).GetComponent<Image>();
 
 				}
-			};
+			}
 			ResourceManager.LoadResourceAsync( FramePath, imageData, onLoadSuccess );
 
 		}
@@ -80,15 +85,15 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 			if ( bHasSpot )
 			{
 				ResourceManager.LoadedData<GameObject> ScopeObject = new ResourceManager.LoadedData<GameObject>();
-				System.Action<GameObject> onLoadSuccess = delegate( GameObject t )
+				void onLoadSuccess(GameObject resource)
 				{
-					if ( t.transform.HasComponent<Scope>() )
+					if ( resource.transform.HasComponent<Scope>() )
 					{
-						this.m_Scope = Instantiate( t, opticSpot ).GetComponent<Scope>();
+						this.m_Scope = Instantiate( resource, opticSpot ).GetComponent<Scope>();
 						this.m_Scope.transform.localPosition = Vector3.zero;
 						this.m_Scope.transform.localRotation = Quaternion.identity;
 					}
-				};
+				}
 				ResourceManager.LoadResourceAsync( ScopePath, ScopeObject, onLoadSuccess );
 			}
 		}
@@ -175,8 +180,9 @@ public	struct ZoomWeaponData {
 	}
 
 
-	private void OnDestroy()
+	protected override void OnDestroy()
 	{
+		base.OnDestroy();
 		if (this.m_ZoomFrame )
 		{
 			Destroy(this.m_ZoomFrame.gameObject );

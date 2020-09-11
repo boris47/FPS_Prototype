@@ -5,8 +5,8 @@ using Database;
 using UnityEngine;
 
 
-public interface IWPN_FireModule {
-
+public interface IWPN_FireModule
+{
 	EFireMode				FireMode						{ get; }
 
 	uint					Magazine						{ get; }
@@ -17,10 +17,11 @@ public interface IWPN_FireModule {
 
 	bool					NeedReload						();
 	bool					ChangeFireMode					( string FireMode );
-	bool					ChangeFireMode				<T>	();
+	bool					ChangeFireMode				<T>	() where T : WPN_FireMode_Base;
 }
 
-public interface IWPN_UtilityModule {
+public interface IWPN_UtilityModule
+{
 
 }
 
@@ -29,21 +30,20 @@ public interface IWPN_UtilityModule {
 // WPN_BaseModule ( Abstract )
 /// <summary> Abstract base class for weapon modules </summary>
 [System.Serializable]
-public abstract class WPN_BaseModule : MonoBehaviour, IModifiable {
-
+public abstract class WPN_BaseModule : MonoBehaviour, IModifiable
+{
 	protected		Database.Section			m_ModuleSection				= new Database.Section( "Empty", "Unassigned" );
 	protected		IWeapon						m_WeaponRef					= null;
-	protected		EWeaponSlots					m_ModuleSlot				= EWeaponSlots.NONE;
+	protected		EWeaponSlots				m_ModuleSlot				= EWeaponSlots.NONE;
 	protected		List<Database.Section>		m_Modifiers					= new List<Database.Section>();
 	protected		GameObject					m_FireModeContainer			= null;
 
+	public virtual		Database.Section			ModuleSection			=> this.m_ModuleSection;
 
-	public virtual		Database.Section			ModuleSection
-	{
-		get { return this.m_ModuleSection; }
-	}
 
-	public		abstract	bool	Setup			( IWeapon w, EWeaponSlots slot );
+	public		abstract	bool	OnAttach( IWeapon w, EWeaponSlots slot );
+
+	public		abstract	void	OnDetach();
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	abstract	bool	InternalSetup( Database.Section moduleSection );
@@ -114,5 +114,10 @@ public abstract class WPN_BaseModule : MonoBehaviour, IModifiable {
 	public		virtual		void	OnStart		()	{ }
 	public		virtual		void	OnUpdate	()	{ }
 	public		virtual		void	OnEnd		()	{ }
+
+	protected virtual void OnDestroy()
+	{
+		this.OnDetach();
+	}
 
 }

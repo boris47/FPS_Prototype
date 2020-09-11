@@ -20,12 +20,8 @@ public class WPN_FireModule_Syphon : WPN_FireModule
 	protected		Laser							m_Laser						= null;
 
 
-	public override EFireMode FireMode
-	{
-		get {
-			return EFireMode.NONE;
-		}
-	}
+	public override EFireMode FireMode => EFireMode.NONE;
+	
 
 	protected	override	bool	InternalSetup( Database.Section moduleSection )
 	{	
@@ -45,7 +41,7 @@ public class WPN_FireModule_Syphon : WPN_FireModule
 				{
 					this.m_Laser.LaserLength = this.m_BeamLength;
 					this.m_Laser.enabled = false;
-					this.m_Laser.OnAttached();
+			//		this.m_Laser.OnAttached(); TODO Remove asap
 				}
 
 				if (this.m_WeaponRef.Transform.SearchComponent( ref this.m_Renderer, ESearchContext.CHILDREN, s => s.name == "Graphics" ) )

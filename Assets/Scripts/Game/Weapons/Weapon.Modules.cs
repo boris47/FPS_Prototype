@@ -244,8 +244,8 @@ public class WeaponModuleSlot {
 		WPN_BaseModule wpnModule = wpn.Transform.gameObject.AddComponent( type ) as WPN_BaseModule;
 
 		// On success assign to internal var
-		bool bSetupSuccess = wpnModule.Setup( wpn, this.m_ThisSlot );
-		if ( bSetupSuccess == true )
+		bool bAttachSuccess = wpnModule.OnAttach( wpn, this.m_ThisSlot );
+		if ( bAttachSuccess == true )
 		{
 			this.m_WeaponModule = wpnModule;
 		}
@@ -259,7 +259,7 @@ public class WeaponModuleSlot {
 
 //		GameManager.UpdateEvents.OnFrame += m_WeaponModule.InternalUpdate;
 
-		return bSetupSuccess;
+		return bAttachSuccess;
 	}
 
 	public	void	OnDestroy()

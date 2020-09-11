@@ -4,12 +4,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class WPN_FireModule_Barrel : WPN_FireModule {
+public class WPN_FireModule_Barrel : WPN_FireModule
+{
 	public override EFireMode FireMode
 	{
-		get {
-			return EFireMode.NONE;
-		}
+		get => EFireMode.NONE;
 	}
 
 	protected	override	bool	InternalSetup( Database.Section moduleSection )

@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public interface IWeaponAttachment {
-
+public interface IWeaponAttachment
+{
 	bool			IsActive { get; }
 	bool			IsAttached { get; }
 
@@ -10,11 +10,10 @@ public interface IWeaponAttachment {
 
 	void			OnAttached();
 	void			OnRemoved();
-
 }
 
-public abstract class WeaponAttachment : MonoBehaviour {
-
+public abstract class WeaponAttachment : MonoBehaviour
+{
 	protected	bool			m_IsActive		= false;
 	protected	bool			m_IsAttached	= false;
 	protected	bool			m_IsUsable		= true;

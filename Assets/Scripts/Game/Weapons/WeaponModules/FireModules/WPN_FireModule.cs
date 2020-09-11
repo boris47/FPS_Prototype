@@ -1,16 +1,12 @@
 ﻿
-using System.Collections;
 using System.Collections.Generic;
-using Database;
 using UnityEngine;
 
 
-//////////////////////////////////////////////////////////////////////////
-// WPN_FireModule  ( Abstract )
 /// <summary> Abstract base class for fire modules </summary>
 [System.Serializable]
-public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
-
+public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule
+{
 	private	static		AudioCollection							m_ModuleSounds				= null;
 
 	[SerializeField]	protected	Transform					m_FirePoint					= null;
@@ -24,14 +20,14 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 
 	// INTERFACE START
 	public abstract	EFireMode									FireMode					{ get; }
-	public			Vector3										FirePointPosition			{ get { return this.m_FirePoint.position; } }
-	public			Quaternion									FirePointRotation			{ get { return this.m_FirePoint.rotation; } }
+	public			Vector3										FirePointPosition			=> this.m_FirePoint.position; 
+	public			Quaternion									FirePointRotation			=> this.m_FirePoint.rotation;
 
-	public			uint										Magazine					{ get { return this.m_Magazine; } }
-	public			uint										MagazineCapacity			{ get { return this.m_MagazineCapacity; } }
+	public			uint										Magazine					=> this.m_Magazine;
+	public			uint										MagazineCapacity			=> this.m_MagazineCapacity;
 
-	public			float										CamDeviation				{ get { return this.m_CamDeviation; } }
-	public			float										FireDispersion				{ get { return this.m_FireDispersion; } }
+	public			float										CamDeviation				=> this.m_CamDeviation;
+	public			float										FireDispersion				=> this.m_FireDispersion;
 	// INTERFACE END
 
 	protected		GameObjectsPool<Bullet>						m_PoolBullets				= null;
@@ -41,14 +37,14 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 
 	//		SETUP
 	//////////////////////////////////////////////////////////////////////////
-	public		override	bool	Setup( IWeapon wpn, EWeaponSlots slot )
+	public		override	bool	OnAttach( IWeapon wpn, EWeaponSlots slot )
 	{
 		string moduleSectionName = this.GetType().FullName;
 
 		this.m_WeaponRef = wpn;
 		this.m_ModuleSlot = slot;
 
-		this.m_FirePoint = this.m_WeaponRef.Transform.Find( "FirePoint" );
+		this.m_FirePoint = wpn.Transform.Find( "FirePoint" );
 
 		// MODULE CONTAINER
 		string containerID = Weapon.GetModuleSlotName( slot );
@@ -64,16 +60,16 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 		
 
 		// TRY RECOVER MODULE SECTION
-		if ( GlobalManager.Configs.GetSection( moduleSectionName, ref this.m_ModuleSection ) == false )			// Get Module Section
+		if ( !GlobalManager.Configs.GetSection( moduleSectionName, ref this.m_ModuleSection ) )			// Get Module Section
 			return false;
 
 		// GET FIRE MODE SECTION NAME
 		string weaponFireModeSectionName = null;
-		if (this.m_ModuleSection.bAsString( "FireMode", ref weaponFireModeSectionName ) == false )
+		if ( !this.m_ModuleSection.bAsString( "FireMode", ref weaponFireModeSectionName ) ) 
 			return false;
 
 		// LOAD FIRE MODE
-		if (this.ChangeFireMode( weaponFireModeSectionName ) == false )
+		if ( !this.ChangeFireMode( weaponFireModeSectionName ) ) 
 			return false;
 
 		//		m_WpnFireMode.transform.SetParent( m_FireModeContainer.transform );
@@ -89,10 +85,8 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 		// CREATE FIRE MODE
 		this.m_WpnFireMode.Setup( this, this.m_ShotDelay, this.Shoot );
 
-
 		if (this.InternalSetup(this.m_ModuleSection ) == false )
 			return false;
-
 
 		// AUDIO
 		{
@@ -156,10 +150,23 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 			this.m_PoolBullets = new GameObjectsPool<Bullet>( data );
 		}
 
+		foreach(IWeaponAttachment attachment in this.m_WeaponRef.Transform.GetComponentsInChildren<IWeaponAttachment>())
+		{
+			attachment.OnAttached();
+		}
+
 		return true;
 	}
 
-	
+	public override void OnDetach()
+	{
+		foreach(IWeaponAttachment attachment in this.m_WeaponRef.Transform.GetComponentsInChildren<IWeaponAttachment>())
+		{
+			attachment.OnRemoved();
+		}
+	}
+
+
 	//////////////////////////////////////////////////////////////////////////
 	protected				void	ActionOnBullet( Bullet bullet )
 	{
@@ -237,7 +244,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 	{
 		// Reset everything of this module
 		this.m_Modifiers.Clear();
-		this.Setup(this.m_WeaponRef, this.m_ModuleSlot );
+		this.OnAttach(this.m_WeaponRef, this.m_ModuleSlot );
 	}
 	
 
@@ -274,9 +281,9 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 		this.m_Recoil							= Configuration.AsFloat( "Recoil");
 
 		// FIRE MODE
-		string newFireModeSecName			= Configuration.AsString( "FireMode" );
+		string newFireModeSecName				= Configuration.AsString( "FireMode" );
 		this.ChangeFireMode( newFireModeSecName );
-		this.m_ShotDelay							= Configuration.AsFloat( "ShotDelay");
+		this.m_ShotDelay						= Configuration.AsFloat( "ShotDelay");
 		this.m_WpnFireMode.Setup( this, this.m_ShotDelay, this.Shoot );
 
 		// BULLET
@@ -308,7 +315,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public					bool	ChangeFireMode<T>()
+	public					bool	ChangeFireMode<T>() where T : WPN_FireMode_Base
 	{
 		return TryLoadFireMode(this.m_FireModeContainer, typeof(T), ref this.m_WpnFireMode );
 	}
@@ -371,8 +378,10 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private void OnDestroy()
+	protected override void OnDestroy()
 	{
+		base.OnDestroy();
+
 		if (this.m_PoolBullets != null )
 		{
 			this.m_PoolBullets.Destroy();
@@ -380,7 +389,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 
 		if (this.m_FireModeContainer )
 		{
-			Destroy(this.m_FireModeContainer );
+			Destroy( this.m_FireModeContainer );
 		}
 	}
 

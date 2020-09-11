@@ -16,7 +16,7 @@ public class WPN_WeaponModule_Shield : WPN_BaseModule, IWPN_UtilityModule {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public	override	bool	Setup			( IWeapon w, EWeaponSlots slot )
+	public	override	bool	OnAttach			( IWeapon w, EWeaponSlots slot )
 	{
 		string moduleSectionName = this.GetType().FullName;
 		this.m_WeaponRef = w;
@@ -51,6 +51,11 @@ public class WPN_WeaponModule_Shield : WPN_BaseModule, IWPN_UtilityModule {
 			return false;
 
 		return true;
+	}
+
+	public override void OnDetach()
+	{
+		
 	}
 
 
@@ -164,8 +169,9 @@ public class WPN_WeaponModule_Shield : WPN_BaseModule, IWPN_UtilityModule {
 	}
 
 
-	private void OnDestroy()
+	protected override void OnDestroy()
 	{
-		Destroy(this.m_ShieldGO );
+		base.OnDestroy();
+		Destroy( this.m_ShieldGO );
 	}
 }
