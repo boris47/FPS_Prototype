@@ -130,7 +130,7 @@ public class WPN_FireModule_Syphon : WPN_FireModule
 	protected	override		void	Shoot( float moduleFireDispersion, float moduleCamDeviation )
 	{
 		//		m_FireDelay = m_BaseShotDelay;
-		this.m_Magazine = (uint)Mathf.Min( --this.m_Magazine, 1 );
+		this.m_Magazine = (uint)Mathf.Max( --this.m_Magazine, 1 );
 //		this.m_Magazine --;
 
 		if (this.m_Magazine == 0 )
