@@ -12,8 +12,8 @@ public enum EBulletMotionType
 }
 
 
-public interface IBullet {
-
+public interface IBullet
+{
 	EBulletMotionType	MotionType					{ get; }
 	EDamageType			DamageType					{ get; }
 	float				Damage						{ get; }
@@ -33,15 +33,21 @@ public interface IBullet {
 	void				Setup						( Entity whoRef, Weapon weaponRef );
 	void				OverrideDamages				( float NewMinDamage, float NewMaxDamage );
 	void				SetActive					( bool state );
-	void				Shoot						( Vector3 position, Vector3 direction, float velocity = 0f ); // TODO Compute modifiers
+
+	void				Shoot						(Vector3 position, Vector3 direction, float velocity = Bullet.MAX_BULLET_DISTANCE);
+	void				ShootInstant				(Vector3 position, Vector3 direction, float maxDistance);
+	void				ShootDirect					(Vector3 position, Vector3 direction, float velocity = Bullet.MAX_BULLET_DISTANCE);
+	void				ShootParabolic				(Vector3 position, Vector3 direction, float velocity = Bullet.MAX_BULLET_DISTANCE);
 }
 
 
 
 
 [RequireComponent( typeof( Rigidbody ), typeof( Collider ), typeof( Renderer ) )]
-public abstract class Bullet : MonoBehaviour, IBullet {
-	
+public abstract class Bullet : MonoBehaviour, IBullet
+{
+	public const float MAX_BULLET_DISTANCE = 900.0f;
+
 	[SerializeField, ReadOnly]
 	protected		EBulletMotionType	m_BulletMotionType		= EBulletMotionType.DIRECT;
 
@@ -63,7 +69,6 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 	[SerializeField, ReadOnly]
 	protected		float				m_Velocity				= 15f;
 
-
 	[Space(), Header("Prefab Data")]
 
 	[SerializeField]
@@ -75,7 +80,22 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 	[SerializeField]
 	protected		bool				m_CanPenetrate			= false;
 
+	// INTERFACE START
+					EBulletMotionType	IBullet.MotionType				=> this.m_BulletMotionType;
+					EDamageType			IBullet.DamageType				=> this.m_DamageType;
+					float				IBullet.Damage					=> this.m_Damage;
+					bool				IBullet.HasDamageOverTime		=> this.m_HasDamageOverTime;
+					float				IBullet.OverTimeDamageDuration	=> this.m_OverTimeDamageDuration;
+					EDamageType			IBullet.OverTimeDamageType		=> this.m_OverTimeDamageType;
+					bool				IBullet.CanPenetrate			=> this.m_CanPenetrate;
+					float				IBullet.Velocity				=> this.m_Velocity;
 
+					Entity				IBullet.WhoRef					=> this.m_WhoRef;
+					Weapon				IBullet.Weapon					=> this.m_Weapon;
+					Object				IBullet.Effect					=> this.m_BulletEffect;
+					float				IBullet.RecoilMult				=> this.m_RecoilMult;
+					Vector3				IBullet.StartPosition			=> this.m_StartPosition;
+	// INTERFACE END
 
 	protected		Rigidbody			m_RigidBody				= null;
 	protected		Collider			m_Collider				= null;
@@ -83,37 +103,16 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 	protected		Weapon				m_Weapon				= null;
 	protected		Object				m_BulletEffect			= null;
 
-	// INTERFACE START
-					EBulletMotionType	IBullet.MotionType				{	get { return this.m_BulletMotionType; }	}
-					EDamageType			IBullet.DamageType				{	get { return this.m_DamageType; }	}
-					float				IBullet.Damage					{	get { return this.m_Damage;}		}
-					bool				IBullet.HasDamageOverTime		{	get { return this.m_HasDamageOverTime; }	}
-					float				IBullet.OverTimeDamageDuration	{	get { return this.m_OverTimeDamageDuration; }		}
-					EDamageType			IBullet.OverTimeDamageType		{	get { return this.m_OverTimeDamageType; }		}
-					bool				IBullet.CanPenetrate			{	get { return this.m_CanPenetrate; }	}
-					float				IBullet.Velocity				{	get { return this.m_Velocity; }		}
-
-					Entity				IBullet.WhoRef					{	get { return this.m_WhoRef; }		}
-					Weapon				IBullet.Weapon					{	get { return this.m_Weapon; }		}
-					Object				IBullet.Effect					{	get { return this.m_BulletEffect; }	}
-					float				IBullet.RecoilMult				{	get { return this.m_RecoilMult; }	}
-					Vector3				IBullet.StartPosition			{	get { return this.m_StartPosition; }	}
-	// INTERFACE END
-
 	protected		Renderer			m_Renderer				= null;
-
 	protected		Vector3				m_StartPosition			= Vector3.zero;
 	protected		Vector3				m_RigidBodyVelocity		= Vector3.zero;
 	protected		Database.Section	m_BulletSection			= null;
 
 
-	private static Dictionary<string, Database.Section> m_BulletsSections = new Dictionary<string, Database.Section>();
+	private readonly static Dictionary<string, Database.Section> m_BulletsSections = new Dictionary<string, Database.Section>();
 
 
 
-
-	//////////////////////////////////////////////////////////////////////////
-	// Awake ( Virtual )
 	protected	virtual		void	Awake()
 	{
 		string sectionName = this.GetType().Name;
@@ -130,11 +129,7 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 		this.SetupBulletCO();
 	}
 
-
-	
-	//////////////////////////////////////////////////////////////////////////
-	// SetupBulletCO ( Virtual )
-	protected virtual void SetupBulletCO()
+	protected	virtual		void	SetupBulletCO()
 	{
 		this.m_RigidBody.interpolation				= RigidbodyInterpolation.Interpolate;
 		this.m_RigidBody.collisionDetectionMode		= CollisionDetectionMode.ContinuousDynamic;
@@ -168,40 +163,28 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 		this.m_Range = this.m_BulletSection.AsFloat( "fRange", this.m_Range );
 	}
 
-
-	//////////////////////////////////////////////////////////////////////////
-	// Setup ( Abstract )
-	/// <summary> For Bullet Setup </summary>
 	public		abstract	void	Setup( Entity whoRef, Weapon weaponRef );
 
-
-	//////////////////////////////////////////////////////////////////////////
-	// OverrideDamages ( Abstract )
-	public		/*abstract*/	void	OverrideDamages( float NewMinDamage, float NewMaxDamage ) { }
+	public		virtual		void	OverrideDamages( float NewMinDamage, float NewMaxDamage ) { }
 
 
-	//////////////////////////////////////////////////////////////////////////
-	// Update ( Abstract )
-	protected	abstract	void	Update();
-	
-
-	//////////////////////////////////////////////////////////////////////////
-	// Shoot ( Abstract )
-	public		abstract	void	Shoot( Vector3 position, Vector3 direction, float velocity = 0f );
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// SetActive ( Abstract )
 	public		abstract	void	SetActive( bool state );
+	protected	abstract	void	Update();	
 
+	/** Shhot bullet using asigned motion type */
+	public		abstract	void	Shoot(Vector3 position, Vector3 direction, float velocity);
 
-	//////////////////////////////////////////////////////////////////////////
-	// OnCollisionEnter ( Abstract )
+	/** Use physic to shoot immediately */
+	public		abstract	void	ShootInstant(Vector3 position, Vector3 direction, float maxDistance = Bullet.MAX_BULLET_DISTANCE);
+
+	/** Launch the bullet with fixed velocity and distance check */
+	public		abstract	void	ShootDirect(Vector3 position, Vector3 direction, float velocity);
+
+	/** Launch the bullet with physic applied */
+	public		abstract	void	ShootParabolic(Vector3 position, Vector3 direction, float velocity);
+
+	// 
 	protected	abstract	void	OnCollisionEnter( Collision collision );
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnTriggerEnter ( Abstract )
 	protected	abstract	void	OnTriggerEnter( Collider other );
 
 }

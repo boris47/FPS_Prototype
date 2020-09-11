@@ -185,16 +185,17 @@ public class WPN_FireModule_Syphon : WPN_FireModule
 		// Hit target(s)
 		if (this.m_Laser.enabled == true && this.m_Laser.HasHit == true )
 		{
+			IBullet bullet = this.m_PoolBullets.PeekComponent();
 			IEntity entity = null;
 			if ( Utils.Base.SearchComponent(this.m_Laser.RayCastHit.transform.gameObject, ref entity, ESearchContext.LOCAL ) )
 			{
-				IBullet bullet = this.m_PoolBullets.PeekComponent();
 
 				// Do damage scaled with time scale
 				entity.Events.OnHittedDetails(this.transform.position, Player.Instance, bullet.DamageType, bullet.Damage * Time.timeScale, false );
 
 				EffectsManager.Instance.PlayEffect( EffectsManager.EEffecs.PLASMA, this.m_Laser.RayCastHit.point, this.m_Laser.RayCastHit.normal, 1 );
 			}
+			this.m_Laser.RayCastHit.rigidbody?.AddForceAtPosition( this.m_Laser.transform.forward * bullet.Velocity , this.m_Laser.RayCastHit.point, ForceMode.Impulse );
 			EffectsManager.Instance.PlayEffect( EffectsManager.EEffecs.ENTITY_ON_HIT, this.m_Laser.RayCastHit.point, this.m_Laser.RayCastHit.normal, 1 );
 		}
 	}

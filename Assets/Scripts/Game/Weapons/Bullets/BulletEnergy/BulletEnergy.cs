@@ -4,7 +4,7 @@ using System.Collections;
 using UnityEngine;
 
 
-public interface IBulletGeneric
+public interface IBulletEnergy
 {
 
 }
@@ -13,7 +13,7 @@ public interface IBulletGeneric
 /// <summary>
 /// Base class for projectiles
 /// </summary>
-public abstract class BulletGeneric : Bullet, IBulletGeneric
+public abstract class BulletEnergy : Bullet, IBulletEnergy
 {
 	protected		Light				m_PointLight			= null;
 	protected		LensFlare			m_LensFlare				= null;
@@ -106,8 +106,8 @@ public abstract class BulletGeneric : Bullet, IBulletGeneric
 		}
 	}
 
-
-	//////////////////////////////////////////////////////////////////////////
+	
+		//////////////////////////////////////////////////////////////////////////
 	// ShootInstant ( Virtual )
 	public	override		void	ShootInstant( Vector3 position, Vector3 direction, float maxDistance = Mathf.Infinity )
 	{

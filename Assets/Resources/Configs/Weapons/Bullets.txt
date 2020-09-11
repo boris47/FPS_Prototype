@@ -1,8 +1,18 @@
 
-; public enum BulletMotionType {
+; public enum EBulletMotionType {
 ; 	INSTANT,
 ; 	DIRECT,
 ; 	PARABOLIC
+; }
+
+; public enum EDamageType {
+; 	NONE,
+; 	BALLISTIC,
+; 	ENERGY,
+; 	ELECTRO,
+; 	EXPLOSIVE,
+; 	FLAME,
+; 	COUNT
 ; }
 
 
@@ -32,6 +42,18 @@ fOverTimeDamageDuration			= 5.0;				Over Time Damage Duration
 eOverTimeDamageType				= FLAME;			Over Time Damage Type
 bCanPenetrate					= false;
 fVelocity						= 90.0f;
+fRange							= 90.0f;
+
+
+[BulletSyphon]
+eBulletMotionType				= INSTANT;
+eDamageType						= ENERGY;			Impact Damage Type
+fDamage							= 10.0;				Impact Damage Ammount
+bHasDamageOverTime				= false;			Has Over Time Damage
+fOverTimeDamageDuration			= 5.0;				Over Time Damage Duration
+eOverTimeDamageType				= FLAME;			Over Time Damage Type
+bCanPenetrate					= false;
+fVelocity						= 30.0f;
 fRange							= 90.0f;
 
 
