@@ -19,7 +19,7 @@ namespace QuestSystem {
 
 			this.m_IsInitialized = true;
 
-			bool bIsGoodResult = Utils.Base.SearchComponent(this.gameObject, ref this.m_Target, ESearchContext.LOCAL );
+			bool bIsGoodResult = Utils.Base.SearchComponent(this.gameObject, out this.m_Target, ESearchContext.LOCAL );
 			if ( bIsGoodResult )
 			{
 				this.m_Target.OnEvent_Killed += this.OnKill;

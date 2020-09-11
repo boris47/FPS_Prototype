@@ -19,7 +19,7 @@ namespace QuestSystem {
 
 			this.m_IsInitialized = true;
 
-			bool bIsGoodResult = Utils.Base.SearchComponent(this.gameObject, ref this.m_Collider, ESearchContext.LOCAL );
+			bool bIsGoodResult = Utils.Base.SearchComponent(this.gameObject, out this.m_Collider, ESearchContext.LOCAL );
 			if ( bIsGoodResult )
 			{
 				this.m_Collider.isTrigger = true;

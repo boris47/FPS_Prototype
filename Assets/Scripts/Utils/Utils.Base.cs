@@ -247,11 +247,11 @@ namespace Utils
 
 
 		////////////////////////////////////////////////
-		public	static	bool	SearchComponent<T1>( GameObject GameObject, ref T1 Component, ESearchContext Context, global::System.Predicate<T1> Filter = null )
+		public	static	bool	SearchComponent<T>( GameObject GameObject, out T Component, ESearchContext Context, global::System.Predicate<T> Filter = null )
 		{
-			T1[] results = SearchResults<T1>( GameObject, Context );
+			T[] results = SearchResults<T>( GameObject, Context );
 			
-			T1 result = default( T1 );
+			T result = default( T );
 
 			if ( results != null && results.Length > 0 )
 			{
@@ -271,6 +271,10 @@ namespace Utils
 			if ( bHasValidResult )
 			{
 				Component = result;
+			}
+			else
+			{
+				Component = default(T);
 			}
 			return bHasValidResult;
 		}

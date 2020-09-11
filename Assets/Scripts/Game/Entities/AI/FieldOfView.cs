@@ -141,10 +141,9 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		list.Remove(this.m_ViewTriggerCollider );
 		colliders = list.ToArray();
 
-		IEntity entityComponent = null;
 		void addToTargets( Collider c )
 		{
-			if ( Utils.Base.SearchComponent<IEntity>( c.gameObject, ref entityComponent, ESearchContext.CHILDREN, ( IEntity e ) => { return e.EntityType == newType; } ) )
+			if ( Utils.Base.SearchComponent( c.gameObject, out IEntity entityComponent, ESearchContext.CHILDREN, ( IEntity e ) => { return e.EntityType == newType; } ) )
 			{
 				this.m_AllTargets.Add( entityComponent as Entity );
 			}

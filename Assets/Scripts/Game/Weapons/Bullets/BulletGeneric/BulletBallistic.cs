@@ -2,9 +2,8 @@
 using UnityEngine;
 
 
-public class BulletBallistic : BulletGeneric {
-
-
+public class BulletBallistic : BulletGeneric
+{
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
 	protected override void Awake()
@@ -53,46 +52,23 @@ public class BulletBallistic : BulletGeneric {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Shoot ( Override )
-	public		override	void	Shoot( Vector3 position, Vector3 direction, float velocity )
-	{
-		switch (this.m_BulletMotionType )
-		{
-			case EBulletMotionType.INSTANT:
-				this.ShootInstant( position, direction, velocity );
-				break;
-			case EBulletMotionType.DIRECT:
-				this.ShootDirect( position, direction, velocity );
-				break;
-			case EBulletMotionType.PARABOLIC:
-				this.ShootParabolic( position, direction, velocity );
-				break;
-			default:
-				break;
-		}
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
 	// ShootInstant ( Virtual )
-	protected	override		void	ShootInstant( Vector3 position, Vector3 direction, float maxDistance = Mathf.Infinity )
+	public	override		void	ShootInstant( Vector3 position, Vector3 direction, float maxDistance = Mathf.Infinity )
 	{
-		bool bHasHit = Physics.Raycast(position, direction, out RaycastHit hit, Mathf.Infinity, Utils.LayersHelper.Layers_AllButOne("Bullets"));
-		if ( bHasHit )
+		if ( Physics.Raycast(position, direction, out RaycastHit hit, Mathf.Infinity, Utils.LayersHelper.Layers_AllButOne("Bullets")) )
 		{
 			bool bIsBullet = hit.transform.HasComponent<Bullet>();
 			if ( bIsBullet == true )
 				return;
 
 			EffectsManager.EEffecs effectToPlay = EffectsManager.EEffecs.ENTITY_ON_HIT;
-
-			IEntity entity = null;
-			IShield shield = null;
-			if ( Utils.Base.SearchComponent( hit.transform.gameObject, ref entity, ESearchContext.LOCAL ) )
+			if ( Utils.Base.SearchComponent( hit.transform.gameObject, out IEntity entity, ESearchContext.LOCAL ) )
 			{
-				entity.Events.OnHittedBullet( this );
+//				entity.Events.OnHittedBullet( this );
+
+				entity.Events.OnHittedDetails(this.m_StartPosition, this.m_WhoRef, this.m_DamageType, this.m_Damage, this.m_CanPenetrate );
 			}
-			else if ( Utils.Base.SearchComponent( hit.transform.gameObject, ref shield, ESearchContext.CHILDREN ) )
+			else if ( Utils.Base.SearchComponent( hit.transform.gameObject, out IShield shield, ESearchContext.CHILDREN ) )
 			{
 				shield.CollisionHit(this.gameObject );
 			}
@@ -106,33 +82,6 @@ public class BulletBallistic : BulletGeneric {
 		}
 		EffectsManager.Instance.PlayEffect( EffectsManager.EEffecs.MUZZLE, position, direction, 0, 0.1f );
 	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// ShootDirect ( Virtual )
-	protected	override		void	ShootDirect( Vector3 position, Vector3 direction, float velocity )
-	{
-		this.transform.up			= direction;
-		this.transform.position		= position;
-		this.m_StartPosition		= position;
-		this.m_RigidBody.velocity	= this.m_RigidBodyVelocity = direction * ( ( velocity > 0f ) ? velocity : this.m_Velocity );
-		this.m_RigidBody.useGravity	= false;
-		this.SetActive( true );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// ShootParabolic ( Virtual )
-	protected	override		void	ShootParabolic( Vector3 position, Vector3 direction, float velocity )
-	{
-		this.transform.up			= direction;
-		this.transform.position		= position;
-		this.m_RigidBody.velocity	= this.m_RigidBodyVelocity = direction * ( ( velocity > 0f ) ? velocity : this.m_Velocity );
-		this.m_StartPosition		= position;
-		this.m_RigidBody.useGravity	= true;
-		this.SetActive( true );
-	}
-
 
 	//////////////////////////////////////////////////////////////////////////
 	// SetActive ( Override )
@@ -165,24 +114,18 @@ public class BulletBallistic : BulletGeneric {
 			return;
 
 		EffectsManager.EEffecs effectToPlay = EffectsManager.EEffecs.ENTITY_ON_HIT;
-
-		IEntity entity = null;
-		IShield shield = null;
-		if ( Utils.Base.SearchComponent( other.gameObject, ref entity, ESearchContext.LOCAL ) )
+		if ( Utils.Base.SearchComponent( other.gameObject, out IEntity entity, ESearchContext.LOCAL ) )
 		{
 			entity.Events.OnHittedDetails(this.m_StartPosition, this.m_WhoRef, this.m_DamageType, this.m_Damage, this.m_CanPenetrate );
 		}
-		else if ( Utils.Base.SearchComponent( other.gameObject, ref shield, ESearchContext.CHILDREN ) )
+		else if ( Utils.Base.SearchComponent( other.gameObject, out IShield shield, ESearchContext.CHILDREN ) )
 		{
 			shield.CollisionHit(this.gameObject );
 		}
 		else
 		{
 			effectToPlay = EffectsManager.EEffecs.AMBIENT_ON_HIT;
-			if (other.TryGetComponent(out Rigidbody asd))
-			{
-				asd.AddForce( this.m_RigidBody.velocity * this.m_RigidBody.mass, ForceMode.Impulse );
-			}
+			other.attachedRigidbody?.AddForce( this.m_RigidBody.velocity * this.m_RigidBody.mass, ForceMode.Impulse );
 		}
 
 		Vector3 position = this.transform.position;
@@ -202,14 +145,11 @@ public class BulletBallistic : BulletGeneric {
 			return;
 
 		EffectsManager.EEffecs effectToPlay = EffectsManager.EEffecs.ENTITY_ON_HIT;
-
-		IEntity entity = null;
-		IShield shield = null;
-		if ( Utils.Base.SearchComponent( collision.gameObject, ref entity, ESearchContext.LOCAL ) )
+		if ( Utils.Base.SearchComponent( collision.gameObject, out IEntity entity, ESearchContext.LOCAL ) )
 		{
 			entity.Events.OnHittedDetails(this.m_StartPosition, this.m_WhoRef, this.m_DamageType, this.m_Damage, this.m_CanPenetrate );
 		}
-		else if ( Utils.Base.SearchComponent( collision.gameObject, ref shield, ESearchContext.CHILDREN ) )
+		else if ( Utils.Base.SearchComponent( collision.gameObject, out IShield shield, ESearchContext.CHILDREN ) )
 		{
 			shield.CollisionHit(this.gameObject );
 		}

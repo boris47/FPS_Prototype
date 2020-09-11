@@ -108,10 +108,8 @@ public sealed class GranadeFrammentation : BulletExplosive, ITimedExplosive {
 
 
 			// Entity
-			IEntity entityInterface = null;
-			IShield shield = null;
-			bool bIsEntity = Utils.Base.SearchComponent( hittedCollider.gameObject, ref entityInterface, ESearchContext.LOCAL );
-			bool bHasShield = Utils.Base.SearchComponent( hittedCollider.gameObject, ref shield, ESearchContext.LOCAL );
+			bool bIsEntity = Utils.Base.SearchComponent( hittedCollider.gameObject, out IEntity entityInterface, ESearchContext.LOCAL );
+			bool bHasShield = Utils.Base.SearchComponent( hittedCollider.gameObject, out IShield shield, ESearchContext.LOCAL );
 
 			if ( bIsEntity && ( ( bHasShield && shield.Status > 0f ) || true ) )
 			{

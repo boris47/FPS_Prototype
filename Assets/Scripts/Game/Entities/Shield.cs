@@ -63,8 +63,8 @@ public class Shield : MonoBehaviour, IShield {
 	// Awake
 	private void Awake()
 	{
-		Utils.Base.SearchComponent(this.gameObject, ref this.m_Renderer, ESearchContext.LOCAL );
-		Utils.Base.SearchComponent(this.gameObject, ref this.m_Collider, ESearchContext.LOCAL );
+		Utils.Base.SearchComponent(this.gameObject, out this.m_Renderer, ESearchContext.LOCAL );
+		Utils.Base.SearchComponent(this.gameObject, out this.m_Collider, ESearchContext.LOCAL );
 
 		// First assignment
 		this.ResetDelegate();
@@ -87,9 +87,7 @@ public class Shield : MonoBehaviour, IShield {
 	// OnTriggerHit
 	public		void		CollisionHit				( GameObject collidingObject )
 	{
-		IBullet bullet = null;
-		bool bIsBullet = Utils.Base.SearchComponent( collidingObject, ref bullet, ESearchContext.CHILDREN );
-		if ( bIsBullet == true )
+		if ( Utils.Base.SearchComponent( collidingObject, out IBullet bullet, ESearchContext.CHILDREN ) )
 		{
 			this.m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageType, bullet.Damage, bullet.CanPenetrate );
 		}
@@ -100,9 +98,7 @@ public class Shield : MonoBehaviour, IShield {
 	// OnCollisionEnter
 	private void OnCollisionEnter( Collision collision )
 	{
-		IBullet bullet = null;
-		bool bIsBullet = Utils.Base.SearchComponent( collision.gameObject, ref bullet, ESearchContext.CHILDREN );
-		if ( bIsBullet == true )
+		if ( Utils.Base.SearchComponent( collision.gameObject, out IBullet bullet, ESearchContext.CHILDREN ) )
 		{
 			this.m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageType, bullet.Damage, bullet.CanPenetrate );
 		}
@@ -113,9 +109,7 @@ public class Shield : MonoBehaviour, IShield {
 	// OnTriggerEnter
 	private void OnTriggerEnter( Collider other )
 	{
-		IBullet bullet = null;
-		bool bIsBullet = Utils.Base.SearchComponent( other.gameObject, ref bullet, ESearchContext.CHILDREN );
-		if ( bIsBullet == true )
+		if ( Utils.Base.SearchComponent( other.gameObject, out IBullet bullet, ESearchContext.CHILDREN ) )
 		{
 			this.m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageType, bullet.Damage, bullet.CanPenetrate );
 		}

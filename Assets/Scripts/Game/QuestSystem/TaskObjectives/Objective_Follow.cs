@@ -21,10 +21,8 @@ namespace QuestSystem {
 			this.m_OnCompletionCallback = onCompletionCallback;
 			this.m_OnFailureCallback = onFailureCallback;
 			motherTask.AddObjective( this );
-			
-			Entity entity = null;
-			bool bIsEntity = Utils.Base.SearchComponent(this.gameObject, ref entity, ESearchContext.LOCAL );
-			if ( bIsEntity )
+
+			if ( Utils.Base.SearchComponent( this.gameObject, out Entity entity, ESearchContext.LOCAL ) )
 			{
 				entity.OnEvent_Killed += this.OnKill;
 			}

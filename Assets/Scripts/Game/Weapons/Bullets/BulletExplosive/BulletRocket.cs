@@ -93,14 +93,11 @@ public sealed class BulletRocket : BulletExplosive, IFlyingExplosive {
 //			return;
 
 		EffectsManager.EEffecs effectToPlay = EffectsManager.EEffecs.ENTITY_ON_HIT;
-
-		IEntity entity = null;
-		IShield shield = null;
-		if ( Utils.Base.SearchComponent( other.gameObject, ref entity, ESearchContext.LOCAL ) )
+		if ( Utils.Base.SearchComponent( other.gameObject, out IEntity entity, ESearchContext.LOCAL ) )
 		{
 			entity.Events.OnHittedDetails(this.m_StartPosition, this.m_WhoRef, EDamageType.EXPLOSIVE, 0, false );
 		}
-		else if ( Utils.Base.SearchComponent( other.gameObject, ref shield, ESearchContext.CHILDREN ) )
+		else if ( Utils.Base.SearchComponent( other.gameObject, out IShield shield, ESearchContext.CHILDREN ) )
 		{
 			shield.CollisionHit(this.gameObject );
 		}

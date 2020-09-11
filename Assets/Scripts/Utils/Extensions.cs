@@ -239,7 +239,7 @@ public static class Extensions {
 	/// <summary> Return the first transform found in child hiearchy with the given name or null if not found </summary>
 	public	static	bool			SearchChildWithName( this Transform transform, string childName, ref Transform child )
 	{
-		return Utils.Base.SearchComponent( transform.gameObject, ref child, ESearchContext.CHILDREN, t => t.name == childName );
+		return Utils.Base.SearchComponent( transform.gameObject, out child, ESearchContext.CHILDREN, t => t.name == childName );
 	}
 
 
@@ -247,7 +247,7 @@ public static class Extensions {
 	/// <summary> Can be used to retrieve a component with more detailed research </summary>
 	public	static	bool			SearchComponent<T>( this Transform transform, ref T Component, ESearchContext Context, global::System.Predicate<T> Filter = null ) where T : Component
 	{
-		return Utils.Base.SearchComponent( transform.gameObject, ref Component, Context, Filter );
+		return Utils.Base.SearchComponent( transform.gameObject, out Component, Context, Filter );
 	}
 
 
@@ -316,7 +316,7 @@ public static class Extensions {
 			if ( t.SearchChildWithName( name, ref child ))
 			{
 				T0 component = null;
-				Utils.Base.SearchComponent( child.gameObject, ref component, ESearchContext.LOCAL );
+				Utils.Base.SearchComponent( child.gameObject, out component, ESearchContext.LOCAL );
 				array[i] = component;
 			}
 		}
@@ -523,10 +523,10 @@ public static class Extensions {
 
 			fCoeff1 = ( fCos >= 0.0f ) ? fCoeff1 : -fCoeff1;
 
-			ret.x = fCoeff0 * p.x + fCoeff1 * q.x;
-			ret.y = fCoeff0 * p.y + fCoeff1 * q.y;
-			ret.z = fCoeff0 * p.z + fCoeff1 * q.z;
-			ret.w = fCoeff0 * p.w + fCoeff1 * q.w;
+			ret.x = (fCoeff0 * p.x) + (fCoeff1 * q.x);
+			ret.y = (fCoeff0 * p.y) + (fCoeff1 * q.y);
+			ret.z = (fCoeff0 * p.z) + (fCoeff1 * q.z);
+			ret.w = (fCoeff0 * p.w) + (fCoeff1 * q.w);
 			
 			return ret;
 		}
@@ -536,7 +536,7 @@ public static class Extensions {
 		/// <summary> Return th lenght of a quaternion </summary>
 		public	static	float			GetLength( this Quaternion q )
 		{
-			return Mathf.Sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
+			return Mathf.Sqrt((q.x * q.x) + (q.y * q.y) + (q.z * q.z) + (q.w * q.w));
 		}
 
 	#endregion

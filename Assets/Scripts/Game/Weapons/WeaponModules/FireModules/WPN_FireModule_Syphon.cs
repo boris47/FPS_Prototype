@@ -186,12 +186,10 @@ public class WPN_FireModule_Syphon : WPN_FireModule
 		if (this.m_Laser.enabled == true && this.m_Laser.HasHit == true )
 		{
 			IBullet bullet = this.m_PoolBullets.PeekComponent();
-			IEntity entity = null;
-			if ( Utils.Base.SearchComponent(this.m_Laser.RayCastHit.transform.gameObject, ref entity, ESearchContext.LOCAL ) )
+			if ( Utils.Base.SearchComponent( this.m_Laser.RayCastHit.transform.gameObject, out IEntity entity, ESearchContext.LOCAL ) )
 			{
-
 				// Do damage scaled with time scale
-				entity.Events.OnHittedDetails(this.transform.position, Player.Instance, bullet.DamageType, bullet.Damage * Time.timeScale, false );
+				entity.Events.OnHittedDetails( this.transform.position, Player.Instance, bullet.DamageType, bullet.Damage * Time.timeScale, false );
 
 				EffectsManager.Instance.PlayEffect( EffectsManager.EEffecs.PLASMA, this.m_Laser.RayCastHit.point, this.m_Laser.RayCastHit.normal, 1 );
 			}

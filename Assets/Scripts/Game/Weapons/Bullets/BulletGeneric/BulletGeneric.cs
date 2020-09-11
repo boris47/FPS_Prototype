@@ -120,13 +120,11 @@ public abstract class BulletGeneric : Bullet, IBulletGeneric
 
 			EffectsManager.EEffecs effectToPlay = EffectsManager.EEffecs.ENTITY_ON_HIT;
 
-			IEntity entity = null;
-			IShield shield = null;
-			if ( Utils.Base.SearchComponent( hit.transform.gameObject, ref entity, ESearchContext.LOCAL ) )
+			if ( Utils.Base.SearchComponent( hit.transform.gameObject, out IEntity entity, ESearchContext.LOCAL ) )
 			{
 				entity.Events.OnHittedBullet( this );
 			}
-			else if ( Utils.Base.SearchComponent( hit.transform.gameObject, ref shield, ESearchContext.CHILDREN ) )
+			else if ( Utils.Base.SearchComponent( hit.transform.gameObject, out IShield shield, ESearchContext.CHILDREN ) )
 			{
 				shield.CollisionHit(this.gameObject );
 			}
@@ -196,14 +194,11 @@ public abstract class BulletGeneric : Bullet, IBulletGeneric
 			return;
 
 		EffectsManager.EEffecs effectToPlay = EffectsManager.EEffecs.ENTITY_ON_HIT;
-
-		IEntity entity = null;
-		IShield shield = null;
-		if ( Utils.Base.SearchComponent( other.gameObject, ref entity, ESearchContext.LOCAL ) )
+		if ( Utils.Base.SearchComponent( other.gameObject, out IEntity entity, ESearchContext.LOCAL ) )
 		{
 			entity.Events.OnHittedDetails(this.m_StartPosition, this.m_WhoRef, this.m_DamageType, 0, this.m_CanPenetrate );
 		}
-		else if ( Utils.Base.SearchComponent( other.gameObject, ref shield, ESearchContext.CHILDREN ) )
+		else if ( Utils.Base.SearchComponent( other.gameObject, out IShield shield, ESearchContext.CHILDREN ) )
 		{
 			shield.CollisionHit(this.gameObject );
 		}
@@ -211,8 +206,6 @@ public abstract class BulletGeneric : Bullet, IBulletGeneric
 		{
 			effectToPlay = EffectsManager.EEffecs.AMBIENT_ON_HIT;
 		}
-
-		;
 
 		Vector3 position = other.ClosestPointOnBounds(this.transform.position );
 		Vector3 direction = other.transform.position - position;
@@ -231,16 +224,13 @@ public abstract class BulletGeneric : Bullet, IBulletGeneric
 			return;
 
 		EffectsManager.EEffecs effectToPlay = EffectsManager.EEffecs.ENTITY_ON_HIT;
-
-		IEntity entity = null;
-		IShield shield = null;
-		if ( Utils.Base.SearchComponent( collision.gameObject, ref entity, ESearchContext.LOCAL ) )
+		if ( Utils.Base.SearchComponent( collision.gameObject, out IEntity entity, ESearchContext.LOCAL ) )
 		{
-			entity.Events.OnHittedDetails(this.m_StartPosition, this.m_WhoRef, this.m_DamageType, 0, this.m_CanPenetrate );
+			entity.Events.OnHittedDetails( this.m_StartPosition, this.m_WhoRef, this.m_DamageType, 0, this.m_CanPenetrate );
 		}
-		else if ( Utils.Base.SearchComponent( collision.gameObject, ref shield, ESearchContext.CHILDREN ) )
+		else if ( Utils.Base.SearchComponent( collision.gameObject, out IShield shield, ESearchContext.CHILDREN ) )
 		{
-			shield.CollisionHit(this.gameObject );
+			shield.CollisionHit( this.gameObject );
 		}
 		else
 		{

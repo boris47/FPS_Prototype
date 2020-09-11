@@ -17,14 +17,8 @@ public sealed class BulletElectro : BulletBallistic {
 	// OnTriggerEnter ( Override )
 	protected override void OnTriggerEnter( Collider other )
 	{
-//		bool bIsBullet = other.transform.HasComponent<Bullet>();
-//		if ( bIsBullet == true )
-//			return;
-
-		IEntity entity = null;
-		IShield shield = null;
-		bool bIsAnEntity = Utils.Base.SearchComponent( other.gameObject, ref entity, ESearchContext.LOCAL );
-		bool bIsShield = Utils.Base.SearchComponent( other.gameObject, ref shield, ESearchContext.CHILDREN );
+		bool bIsAnEntity = Utils.Base.SearchComponent( other.gameObject, out IEntity entity, ESearchContext.LOCAL );
+		bool bIsShield = Utils.Base.SearchComponent( other.gameObject, out IShield shield, ESearchContext.CHILDREN );
 
 		int nParticle = 3;
 
@@ -63,10 +57,8 @@ public sealed class BulletElectro : BulletBallistic {
 		if ( bIsBullet == true )
 			return;
 
-		IEntity entity = null;
-		IShield shield = null;
-		bool bIsAnEntity = Utils.Base.SearchComponent( collision.gameObject, ref entity, ESearchContext.LOCAL    );
-		bool bIsShield   = Utils.Base.SearchComponent( collision.gameObject, ref shield, ESearchContext.CHILDREN );
+		bool bIsAnEntity = Utils.Base.SearchComponent( collision.gameObject, out IEntity entity, ESearchContext.LOCAL );
+		bool bIsShield   = Utils.Base.SearchComponent( collision.gameObject, out IShield shield, ESearchContext.CHILDREN );
 
 		Vector3 position  = collision.contacts[0].point;
 		Vector3 direction = collision.contacts[0].normal;

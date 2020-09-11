@@ -207,32 +207,32 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<ui
 		this.m_IsOK = true;
 		{
 			// PHYSIC COLLIDER
-			this.m_IsOK   =	Utils.Base.SearchComponent(this.gameObject, ref this.m_PhysicCollider, ESearchContext.LOCAL, c => !c.isTrigger );
+			this.m_IsOK   =	Utils.Base.SearchComponent(this.gameObject, out this.m_PhysicCollider, ESearchContext.LOCAL, c => !c.isTrigger );
 
 			// m_TriggerCollider
-			this.m_IsOK   =	Utils.Base.SearchComponent(this.gameObject, ref this.m_TriggerCollider, ESearchContext.LOCAL, c => c.isTrigger );
+			this.m_IsOK   =	Utils.Base.SearchComponent(this.gameObject, out this.m_TriggerCollider, ESearchContext.LOCAL, c => c.isTrigger );
 
 			// RIGIDBODY
-			this.m_IsOK	&=	Utils.Base.SearchComponent(this.gameObject, ref this.m_RigidBody, ESearchContext.LOCAL );
+			this.m_IsOK	&=	Utils.Base.SearchComponent(this.gameObject, out this.m_RigidBody, ESearchContext.LOCAL );
 		}
 
 		// SHIELD
-		if (this.m_HasShield = Utils.Base.SearchComponent(this.gameObject, ref this.m_Shield, ESearchContext.CHILDREN ) )
+		if (this.m_HasShield = Utils.Base.SearchComponent(this.gameObject, out this.m_Shield, ESearchContext.CHILDREN ) )
 		{
 			this.m_Shield.OnHit += this.OnShieldHit;
 		}
 
 
 		// CUTSCENE MANAGER
-		this.m_HasCutsceneManager = Utils.Base.SearchComponent(this.gameObject, ref this.m_CutsceneManager, ESearchContext.CHILDREN );
+		this.m_HasCutsceneManager = Utils.Base.SearchComponent(this.gameObject, out this.m_CutsceneManager, ESearchContext.CHILDREN );
 
 		// AI
 		{
 			// NAV AGENT
-			this.m_HasNavAgent = Utils.Base.SearchComponent(this.gameObject, ref this.m_NavAgent, ESearchContext.LOCAL	);
+			this.m_HasNavAgent = Utils.Base.SearchComponent(this.gameObject, out this.m_NavAgent, ESearchContext.LOCAL	);
 
 			// FIELD OF VIEW
-			this.m_HasFieldOfView = Utils.Base.SearchComponent(this.gameObject, ref this.m_FieldOfView, ESearchContext.CHILDREN );
+			this.m_HasFieldOfView = Utils.Base.SearchComponent(this.gameObject, out this.m_FieldOfView, ESearchContext.CHILDREN );
 
 			// BLACKBOARD
 			if ( Blackboard.IsEntityRegistered(this.m_ID ) == false )

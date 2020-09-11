@@ -82,7 +82,7 @@ public partial class Player : Human {
 		// Player Components
 		{
 			// Foots
-			Utils.Base.SearchComponent(this.gameObject, ref this.m_Foots, ESearchContext.CHILDREN );
+			Utils.Base.SearchComponent(this.gameObject, out this.m_Foots, ESearchContext.CHILDREN );
 			this.DisableCollisionsWith(this.m_Foots.Collider );
 
 //			this.m_DodgeAbilityTarget = this.transform.Find( "DodgeAbilityTarget" );
@@ -388,11 +388,10 @@ public partial class Player : Human {
 			this.DropEntityDragged();
 			return;
 		}
-		
+
 
 		// GRAB ACTION
-		Grabbable grabbable = null;
-		bool m_HasComponent = Utils.Base.SearchComponent(this.m_RaycastHit.transform.gameObject, ref grabbable, ESearchContext.LOCAL );
+		bool m_HasComponent = Utils.Base.SearchComponent( this.m_RaycastHit.transform.gameObject, out Grabbable grabbable, ESearchContext.LOCAL );
 		if ( m_HasComponent && grabbable.CanInteract )
 		{
 			grabbable.OnInteraction();

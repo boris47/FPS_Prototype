@@ -33,10 +33,7 @@ namespace CutScene {
 				return;
 			}
 
-			Entity entityParent = null;
-			bool found = Utils.Base.SearchComponent(this.gameObject, ref entityParent, ESearchContext.PARENT );
-
-			if ( found == false )
+			if ( !Utils.Base.SearchComponent(this.gameObject, out Entity entityParent, ESearchContext.PARENT ) )
 			{
 				return;
 			}

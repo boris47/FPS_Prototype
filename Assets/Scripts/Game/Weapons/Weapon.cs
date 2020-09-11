@@ -145,19 +145,19 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 	protected	void	UpdateAttachments()
 	{
 		// Flashlight
-		if(this.m_HasFlashlight = Utils.Base.SearchComponent(this.gameObject, ref this.m_FlashLight, ESearchContext.CHILDREN ) )
+		if(this.m_HasFlashlight = Utils.Base.SearchComponent(this.gameObject, out this.m_FlashLight, ESearchContext.CHILDREN ) )
 		{
 			this.m_FlashLight.OnAttached();
 		}
 
 		// Laser
-		if (this.m_HasLaser = Utils.Base.SearchComponent(this.gameObject, ref this.m_Laser, ESearchContext.CHILDREN ) )
+		if (this.m_HasLaser = Utils.Base.SearchComponent(this.gameObject, out this.m_Laser, ESearchContext.CHILDREN ) )
 		{
 			this.m_Laser.OnAttached();
 		}
 
 		// Granade Launcher
-		if (this.m_HasGranadeLauncher = Utils.Base.SearchComponent(this.gameObject, ref this.m_GranadeLauncher, ESearchContext.CHILDREN ))
+		if (this.m_HasGranadeLauncher = Utils.Base.SearchComponent(this.gameObject, out this.m_GranadeLauncher, ESearchContext.CHILDREN ))
 		{
 			this.m_GranadeLauncher.OnAttached();
 		}
@@ -175,7 +175,7 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 
 		// Animations
 		{
-			bIsInitilalizedSuccessfully &= Utils.Base.SearchComponent<Animator>(this.gameObject, ref this.m_Animator, ESearchContext.LOCAL );
+			bIsInitilalizedSuccessfully &= Utils.Base.SearchComponent(this.gameObject, out this.m_Animator, ESearchContext.LOCAL );
 //			bIsInitilalizedSuccessfully &= m_Animator.GetClipFromAnimator( "fire",		ref m_FireAnim );
 			bIsInitilalizedSuccessfully &= this.m_Animator.GetClipFromAnimator( "reload",	ref this.m_ReloadAnim );
 			bIsInitilalizedSuccessfully &= this.m_Animator.GetClipFromAnimator( "draw",		ref this.m_DrawAnim );

@@ -142,15 +142,14 @@ public sealed class SurfaceManager : MonoBehaviour
 		if (Physics.Raycast(ray.Value, out RaycastHit hit) == false)
 			return -1;
 
-		Renderer r = null;
-		bool bHasRender = Utils.Base.SearchComponent( hit.collider.gameObject, ref r, ESearchContext.LOCAL );
-		if ( bHasRender == false || r.sharedMaterial == null || r.sharedMaterial.mainTexture == null )
+		bool bHasRender = Utils.Base.SearchComponent( hit.collider.gameObject, out Renderer renderer, ESearchContext.LOCAL );
+		if ( bHasRender == false || renderer.sharedMaterial == null || renderer.sharedMaterial.mainTexture == null )
 			return -1;
 
 		bool bIsMeshCollider = hit.collider.GetType() == typeof( MeshCollider );
 		MeshCollider mc = hit.collider as MeshCollider;
 		if ( bIsMeshCollider == false || mc.convex )
-			return r.material.mainTexture.GetInstanceID();
+			return renderer.material.mainTexture.GetInstanceID();
 
 		Mesh m = mc.sharedMesh;
 		int materialIndex = -1;
@@ -172,7 +171,7 @@ public sealed class SurfaceManager : MonoBehaviour
 			}
 		}
 
-		return r.materials[materialIndex].mainTexture.GetInstanceID();
+		return renderer.materials[materialIndex].mainTexture.GetInstanceID();
 	}
 
 

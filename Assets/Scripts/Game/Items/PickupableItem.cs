@@ -47,10 +47,9 @@ public class PickupableItem : MonoBehaviour {
 		{
 //			WeaponManager.Instance.ApplyModifierToWeaponSlot( WeaponManager.Instance.CurrentWeapon, WeaponSlots.PRIMARY, m_PickUpSectionName );
 
-			IEntityInventary entity = null;
-			if ( Utils.Base.SearchComponent( other.transform.gameObject, ref entity, ESearchContext.LOCAL ) )
+			if ( Utils.Base.SearchComponent( other.transform.gameObject, out IEntityInventary entity, ESearchContext.LOCAL ) )
 			{
-				entity.AddInventoryItem(this.m_ItemSection, this.m_Texture );
+				entity.AddInventoryItem( this.m_ItemSection, this.m_Texture );
 			}
 
 			this.enabled = false;

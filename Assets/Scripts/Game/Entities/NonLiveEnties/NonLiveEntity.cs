@@ -24,7 +24,7 @@ public abstract partial class NonLiveEntity : Entity {
 	{
 		base.Awake();
 
-		Utils.Base.SearchComponent(this.gameObject, ref this.m_FireAudioSource, ESearchContext.LOCAL );
+		Utils.Base.SearchComponent(this.gameObject, out this.m_FireAudioSource, ESearchContext.LOCAL );
 
 		this.m_GunTransform		= this.m_HeadTransform.Find( "Gun" );
 		this.m_FirePoint			= this.m_GunTransform.Find( "FirePoint" );
