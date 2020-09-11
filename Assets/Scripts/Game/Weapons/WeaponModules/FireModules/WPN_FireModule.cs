@@ -52,7 +52,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 
 		// MODULE CONTAINER
 		string containerID = Weapon.GetModuleSlotName( slot );
-		this.m_FireModeContainer = this.transform.Find(containerID) != null ? this.transform.Find(containerID).gameObject : null;
+		this.m_FireModeContainer = this.transform.Find(containerID)?.gameObject;
 		if (this.m_FireModeContainer != null )
 		{
 			Destroy(this.m_FireModeContainer );
@@ -79,7 +79,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 		//		m_WpnFireMode.transform.SetParent( m_FireModeContainer.transform );
 
 		// ASSIGN INTERNALS
-		this.m_ShotDelay				= this.m_ModuleSection.AsFloat( "BaseShotDelay", this.m_ShotDelay );
+		this.m_ShotDelay			= this.m_ModuleSection.AsFloat( "BaseShotDelay", this.m_ShotDelay );
 		this.m_MagazineCapacity		= this.m_ModuleSection.AsUInt( "BaseMagazineCapacity", this.m_MagazineCapacity );
 		this.m_CamDeviation			= this.m_ModuleSection.AsFloat( "BaseCamDeviation", this.m_CamDeviation );
 		this.m_FireDispersion		= this.m_ModuleSection.AsFloat( "BaseFireDispersion", this.m_FireDispersion );
@@ -112,9 +112,9 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 					if ( source.clip = System.Array.Find( m_ModuleSounds.AudioClips, s => s.name == fireSound ) )
 					{
 						DynamicCustomAudioSource audioSource = this.m_FireModeContainer.GetOrAddIfNotFound<DynamicCustomAudioSource>();
-						audioSource.enabled = true;
-
 						audioSource.Setup( source );
+						if (!audioSource.enabled) audioSource.enabled = true;
+
 						this.m_AudioSourceFire = audioSource;
 					}
 				}
@@ -139,7 +139,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 			UnityEngine.Assertions.Assert.IsTrue
 			(
 				bIsBulletLoaded,
-				"WPN_FireModule::Setup: Cannot load bullet with name " + bulletObjectName + " for weapon " + wpn.Section.GetName()
+				"WPN_FireModule::Setup: Cannot load bullet with name " + bulletObjectName + " for weapon " + wpn.Section.GetSectionName()
 			);
 
 			const bool bIsAsyncLoaded = true;
@@ -207,7 +207,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule {
 		}
 
 		// return the current configuration
-		Database.Section config = new Database.Section( "LastConfigSection", ModuleSection.GetName() );
+		Database.Section config = new Database.Section( "LastConfigSection", ModuleSection.GetSectionName() );
 		config.Set( "MagazineCapacity",				MagazineCapacity	);
 		config.Set( "Damage",						Damage				);
 		config.Set( "CamDeviation",					CamDeviation		);

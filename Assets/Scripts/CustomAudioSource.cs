@@ -75,61 +75,65 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 			print(this.gameObject.name + ": custom audio source with no reference assigned !!" );
 			Destroy( this );
 		}
+
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnEnable
-	protected virtual	void OnEnable()
+	protected virtual void OnEnable()
 	{
 		this.m_IsUnityAudioSource = this.m_AudioSource != null;
-		if (this.m_IsUnityAudioSource == true )
+		if (this.m_IsUnityAudioSource == true)
 		{
 			SoundManager.OnSoundVolumeChange += this.OnSoundVolumeChange;
-			this.OnSoundVolumeChange( SoundManager.SoundVolume );
+			this.OnSoundVolumeChange(SoundManager.SoundVolume);
 		}
 		else
 		{
 			SoundManager.OnMusicVolumeChange += this.OnMusicVolumeChange;
-			this.OnMusicVolumeChange( SoundManager.MusicVolume );
+			this.OnMusicVolumeChange(SoundManager.MusicVolume);
 		}
-
 		SoundManager.OnPauseSet += this.OnPauseStateSet;
-
-		if ( GameManager.Instance != null )
-		{
-			SoundManager.OnPitchChange += this.OnPitchChange;
-		}
+		SoundManager.OnPitchChange += this.OnPitchChange;
 	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	protected virtual void OnPauseStateSet(bool value)
 	{
 		if (this.m_IsUnityAudioSource)
 		{
-			if (value) this.m_AudioSource.Pause(); else this.m_AudioSource.UnPause();
+			if (value) this.m_AudioSource?.Pause(); else this.m_AudioSource?.UnPause();
 		}
 		else
 		{
-			this.m_AudioEmitter.EventInstance.setPaused(value);
+			this.m_AudioEmitter?.EventInstance.setPaused(value);
 		}
 	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual	void	OnSoundVolumeChange( float value )
 	{
-		this.m_Volume = value;
-		float currentVolume = this.m_InternalVolume * this.m_Volume;
-		this.m_AudioSource.volume = currentVolume;
+		if (this.m_AudioSource)
+		{
+			this.m_Volume = value;
+			float currentVolume = this.m_InternalVolume * this.m_Volume;
+			this.m_AudioSource.volume = currentVolume;
+		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual	void	OnMusicVolumeChange( float value )
 	{
-		this.m_Volume = value;
-		float currentVolume = this.m_InternalVolume * this.m_Volume;
-		this.m_AudioEmitter.EventInstance.setVolume( currentVolume );
+		if (this.m_AudioEmitter && this.m_AudioEmitter.EventInstance.isValid())
+		{
+			this.m_Volume = value;
+			float currentVolume = this.m_InternalVolume * this.m_Volume;
+			this.m_AudioEmitter.EventInstance.setVolume( currentVolume );
+		}
 	}
 
 
@@ -140,11 +144,17 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 		float currentPitch = this.m_InternalPitch * this.m_Pitch;
 		if (this.m_IsUnityAudioSource == true )
 		{
-			this.m_AudioSource.pitch = currentPitch;
+			if (this.m_AudioSource)
+			{
+				this.m_AudioSource.pitch = currentPitch;
+			}
 		}
 		else
 		{
-			this.m_AudioEmitter.EventInstance.setPitch( currentPitch );
+			if (this.m_AudioEmitter && this.m_AudioEmitter.EventInstance.isValid())
+			{
+				this.m_AudioEmitter.EventInstance.setPitch( currentPitch );
+			}
 		}
 	}
 
@@ -153,22 +163,22 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 	{
 		if ( isPaused == true )
 		{
-			( this as ICustomAudioSource ).Pause();
+			this.Pause();
 		}
 		else
 		{
-			( this as ICustomAudioSource ).Resume();
+			this.Resume();
 		}
 	}
 
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual	void	SetParamenter( float value )
+	protected	virtual	void	SetParamenter( string name, float value )
 	{
 		if (this.m_IsUnityAudioSource == false )
 		{
-			this.m_AudioEmitter.SetParameter( "Phase", value );
+			this.m_AudioEmitter.SetParameter( name, value );
 		}
 	}
 
@@ -273,16 +283,13 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 		float startMul	= ( fadeIn == true ) ? 0f : 1f;
 		float endMul	= ( fadeIn == true ) ? 1f : 0f;
 
-		float interpolant = 0f;
-		float currentTime = 0;
-
+		float interpolant = 0f, currentTime = 0f;
 		while( interpolant < 1f )
 		{
 			currentTime += Time.unscaledDeltaTime;
 			interpolant = currentTime / time;
 
 			float volume = this.m_InternalVolume * Mathf.Lerp( startMul, endMul, interpolant );
-
 			if (this.m_IsUnityAudioSource == true )
 			{
 				this.m_AudioSource.volume = volume;
@@ -294,13 +301,14 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 			yield return null;
 		}
 
+		this.m_Volume = this.m_InternalVolume * endMul;
 		if (this.m_IsUnityAudioSource == true )
 		{
-			this.m_AudioSource.volume = this.m_Volume = this.m_InternalVolume * endMul;
+			this.m_AudioSource.volume = this.m_Volume;
 		}
 		else
 		{
-			this.m_AudioEmitter.EventInstance.setVolume(this.m_Volume = this.m_InternalVolume * endMul );
+			this.m_AudioEmitter.EventInstance.setVolume(this.m_Volume);
 		}
 
 		this.m_IsFading = false;
@@ -322,13 +330,15 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 			if (this.m_AudioEmitter )
 				this.m_AudioEmitter.Stop();
 		}
+		SoundManager.OnPauseSet -= this.OnPauseStateSet;
 		SoundManager.OnPitchChange -= this.OnPitchChange;
 	}
 }
 
 
 
-public class DynamicCustomAudioSource : CustomAudioSource {
+public class DynamicCustomAudioSource : CustomAudioSource
+{
 
 	protected override void Awake()
 	{
@@ -358,11 +368,10 @@ public class DynamicCustomAudioSource : CustomAudioSource {
 		}
 		return bIsValid;
 	}
-
-
+	/*
+	// This override exists because
 	protected override void OnEnable()
 	{
-//		m_IsUnityAudioSource = m_AudioSource != null;
 		if (this.m_IsUnityAudioSource == true )
 		{
 			SoundManager.OnSoundVolumeChange += this.OnSoundVolumeChange;
@@ -372,11 +381,13 @@ public class DynamicCustomAudioSource : CustomAudioSource {
 			SoundManager.OnMusicVolumeChange += this.OnMusicVolumeChange;
 		}
 
-		if ( GameManager.Instance != null )
-		{
-			SoundManager.OnPitchChange += this.OnPitchChange;
-//			GameManager.PauseEvents.OnPauseSet += OnPauseSet;
-		}
+		SoundManager.OnPauseSet += this.OnPauseStateSet;
+		SoundManager.OnPitchChange += this.OnPitchChange;
 	}
 
+	protected override void OnDisable()
+	{
+		
+	}
+	*/
 }

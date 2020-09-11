@@ -174,9 +174,10 @@ namespace WeatherSystem {
 			}
 
 			yield return null;
-
+			
 			// Get info from settings file
-			if ( GlobalManager.Configs != null && !GlobalManager.Configs.GetSection("Thunderbolts", this.m_ThunderboltsSectionData))
+			Database.Section thunderboltsSection = null;
+			if ( !(GlobalManager.Configs.GetSection("Thunderbolts", ref thunderboltsSection) && GlobalManager.Configs.bSectionToOuter(thunderboltsSection, this.m_ThunderboltsSectionData)) )
 			{
 				Debug.LogError("Cannot load Thunderbolts Section");
 				this.enabled = false;
@@ -301,7 +302,7 @@ namespace WeatherSystem {
 			bool	lightON			= false;
 			
 			// Random rotation for thunder light
-			Quaternion thunderLightRotation = Quaternion.Euler(this.m_ThunderLight.transform.rotation.eulerAngles + Vector3.up * Random.Range( -360f, 360f ) );
+			Quaternion thunderLightRotation = Quaternion.Euler(this.m_ThunderLight.transform.rotation.eulerAngles + (Vector3.up * Random.Range( -360f, 360f )) );
 			this.m_ThunderLight.transform.rotation = thunderLightRotation;
 			
 			if ( lighting == true )
@@ -374,7 +375,7 @@ namespace WeatherSystem {
 		// RainFallEmissionRate
 		private float			RainFallEmissionRate()
 		{
-			return (this.m_RainFallParticleSystem.main.maxParticles / this.m_RainFallParticleSystem.main.startLifetime.constant ) * this.m_RainIntensity;
+			return this.m_RainFallParticleSystem.main.maxParticles / this.m_RainFallParticleSystem.main.startLifetime.constant * this.m_RainIntensity;
 		}
 
 
@@ -410,9 +411,12 @@ namespace WeatherSystem {
 				return;
 			}
 #endif
+			if (this.m_Camera)
+			{
+				this.UpdateRainPosition();
+				this.UpdateThunderbols();
+			}
 			this.CheckForRainChange();
-			this.UpdateRainPosition();
-			this.UpdateThunderbols();
 			this.m_RainIntensityEvent.setValue(this.m_RainIntensity );
 		}
 

@@ -191,15 +191,14 @@ public static class ReflectionHelper
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public static List<T> FindObjects<T>() where T : class
+	public static List<T> FindObjectsImplementingInterface<T>() where T : class
 	{
 		List<T> resultList = new List<T>();
 
 		List<Type> types = _interfaceToComponentMapping[ typeof(T) ];
 		if ( null == types || types.Count <= 0 )
 		{
-			Debug.LogError( "No descendants found for type " + typeof(T) );
-			return null;
+			return resultList;
 		}
 
 		foreach ( Type curType in types )
@@ -225,11 +224,17 @@ public static class ReflectionHelper
 	}
 
 
+	public static List<T> SelectImplementInterface<T>(Object[] objects) where T : class
+	{
+		return objects.Where( obj => obj is T ).ToList().ConvertAll( obj => obj as T );
+	}
+
+
 
 	//////////////////////////////////////////////////////////////////////////
 	public static T FindObject<T>() where T : class
 	{
-		IList<T> list = FindObjects<T>();
+		IList<T> list = FindObjectsImplementingInterface<T>();
 
 		return list[0];
 	}

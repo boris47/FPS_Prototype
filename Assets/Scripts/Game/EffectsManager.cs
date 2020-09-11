@@ -3,61 +3,48 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public enum EEffectType {
-	ENTITY_ON_HIT,
-	AMBIENT_ON_HIT,
-	ELETTRO,
-	PLASMA,
-	EXPLOSION,
-
-	MUZZLE,
-	SMOKE,
-
-	TRACER
-};
-
-
-public class EffectsManager : MonoBehaviour {
-
-	private	static	EffectsManager			m_Instance								= null;
-	public static EffectsManager			Instance
+public sealed class EffectsManager : SingletonMonoBehaviour<EffectsManager>
+{
+	public enum EEffecs
 	{
-		get { return m_Instance; }
-	}
+		ENTITY_ON_HIT
+		, AMBIENT_ON_HIT
+		, ELETTRO
+		, PLASMA
+		, EXPLOSION
 
-	[ SerializeField ]
-	private		CustomAudioSource			m_ExplosionSource						= null;
+		, MUZZLE
+		, SMOKE
 
+//		, TRACER
+	};
 
-	private		ParticleSystem[]			m_Effects			= null;
-
-
+	[SerializeField, ReadOnly]
 	private		Transform					m_ParticleEffects	= null;
+	[SerializeField, ReadOnly]
+	private		Transform					m_AudioSources		= null;
+
+	[SerializeField, ReadOnly]
+	private		ParticleSystem[]			m_Effects			= null;
+	[SerializeField, ReadOnly]
+	private		CustomAudioSource[]			m_CustomAudioSource	= null;
+
 	private		bool						m_IsOK				= true;
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Awake
 	private void	Awake()
 	{
-		// Singleton
-		if ( m_Instance != null )
-		{
-			Destroy(this.gameObject );
-			return;
-		}
-		DontDestroyOnLoad( this );
-		m_Instance = this;
-
 		this.m_ParticleEffects = this.transform.Find("ParticleEffects");
+		this.m_AudioSources = this.transform.Find("AudioSources");
 
-		this.m_IsOK = this.m_ParticleEffects.PairComponentsInChildrenIntoArray<ParticleSystem, EEffectType>( ref this.m_Effects );
+		this.m_IsOK &= this.m_ParticleEffects.MapComponentsInChildrenToArray<ParticleSystem, EEffecs>( ref this.m_Effects );
+		this.m_IsOK &= this.m_AudioSources.MapComponentsInChildrenToArray<CustomAudioSource, EEffecs>( ref this.m_CustomAudioSource );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// PlayEntityOnHit
-	public	void	PlayEffect( EEffectType effectType,  Vector3 position, Vector3 direction, int count = 0, float gameObjectLife = 5f )
+	public	void	PlayEffect( EEffecs effectType,  Vector3 position, Vector3 direction, int count = 0, float gameObjectLife = 5f )
 	{
 		if (this.m_IsOK == false )
 			return;
@@ -84,6 +71,8 @@ public class EffectsManager : MonoBehaviour {
 		}
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
 	public	void	PlaceTracer( Vector3 startPosition, Vector3 endPosition )
 	{
 
@@ -91,14 +80,17 @@ public class EffectsManager : MonoBehaviour {
 	
 
 	//////////////////////////////////////////////////////////////////////////
-	// PlayerExplosionSound
-	public	void	PlayExplosionSound( Vector3 position )
+	public	void	PlayExplosionSound( EEffecs effectType, Vector3 position )
 	{
-		if (this.m_ExplosionSource == null )
-			return;
+		CustomAudioSource source = this.m_CustomAudioSource[(int) effectType];
+		if (source)
+		{
+			source.transform.position = position;
+			source.Play();
+		}
 
-		this.m_ExplosionSource.transform.position = position;
-		(this.m_ExplosionSource as ICustomAudioSource ).Play();
+//		this.m_ExplosionSource.transform.position = position;
+//		(this.m_ExplosionSource as ICustomAudioSource ).Play();
 	}
 
 }

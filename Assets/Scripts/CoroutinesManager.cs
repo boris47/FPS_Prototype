@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -120,8 +121,8 @@ public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
 	}
 
 	/////////////////////////////////////////////////////////////////
-	// Create a sequence object, where to add routine and finally start
-	public	static	RoutinesSequence	CreateSequence( IEnumerator MainRoutine )
+	/// <summary> Create a sequence object, where to add routine and finally start </summary>
+	public static	RoutinesSequence	CreateSequence( IEnumerator MainRoutine )
 	{
 		return new RoutinesSequence( Instance, MainRoutine );
 	}

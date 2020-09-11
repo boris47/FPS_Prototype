@@ -6,14 +6,14 @@ using UnityEngine;
 namespace Database {
 
 	// PUBLIC INTERFACE
-	public interface ISection {
-
+	public interface ISection
+	{
 		bool					m_IsOK							{ get; }
 
 		void					Destroy							();
 		int						Lines							();
-		string					GetName							();
-		bool					Add								( cLineValue LineValue );
+		string					GetSectionName							();
+		bool					Add								( LineValue LineValue );
 		bool					Remove							( string LineValueID );
 		bool					HasKey							( string Key );
 		bool					IsChildOf						( Section MotherSection );
@@ -28,7 +28,7 @@ namespace Database {
 		float					AsFloat							( string Key, float Default = 0.0f );
 		string					AsString						( string Key, string Default = "" );
 
-		cValue					OfMultiValue					( string Key, int Index );
+		Value					OfMultiValue					( string Key, int Index );
 		void					AsMultiValue	<T1,T2>			( string Key, int Idx1, int Idx2, ref T1 t1, ref T2 t2 );
 		void					AsMultiValue	<T1,T2,T3>		( string Key, int Idx1, int Idx2, int Idx3, ref T1 t1, ref T2 t2, ref T3 t3 );
 		void					AsMultiValue	<T1,T2,T3,T4>	( string Key, int Idx1, int Idx2, int Idx3, int Idx4, ref T1 t1, ref T2 t2, ref T3 t3, ref T4 t4 );
@@ -41,7 +41,7 @@ namespace Database {
 
 		int						GetMultiSize					( string Key );
 
-		bool					bAsMultiValue					( string Key, int Index, out cValue Out );
+		bool					bAsMultiValue					( string Key, int Index, out Value Out );
 
 		bool					bAsVec2							( string Key, ref Vector2 Out, Vector2? Default );
 		bool					bAsVec3							( string Key, ref Vector3 Out, Vector3? Default );
@@ -52,15 +52,15 @@ namespace Database {
 		Vector4					AsVec4							( string Key, Vector4? Default );
 		Color					AsColor							( string Key, Color? Default );
 
-		void					SetValue						( string Key, cValue Value );
-		void					SetMultiValue					( string Key, cValue[] vValues );
+		void					SetValue						( string Key, Value Value );
+		void					SetMultiValue					( string Key, Value[] vValues );
 		void					Set				<T>				( string Key, T Value );
 		void					PrintSection					();
 	}
 	
 	[System.Serializable]
-	public partial class Section : ISection, IEnumerable {
-
+	public partial class Section : ISection, IEnumerable
+	{
 		// INTERNAL VARS
 		[SerializeField]
 		private		string				name			= null;
@@ -69,7 +69,7 @@ namespace Database {
 		private		string				m_Context		= "";
 
 		[SerializeField]
-		private		List<cLineValue>	m_Linevalues		= new List<cLineValue>();
+		private		List<LineValue>	m_Linevalues		= new List<LineValue>();
 
 		[SerializeField]
 		private		List<string>		m_Mothers		= new List<string>();
@@ -91,13 +91,13 @@ namespace Database {
 			return (IEnumerator)this.GetEnumerator();
 		}
 	
-		public List<cLineValue>.Enumerator  GetEnumerator()
+		public List<LineValue>.Enumerator  GetEnumerator()
 		{
 			return this.m_Linevalues.GetEnumerator();
 		}
 
 		// Indexer
-		public cLineValue this[int i]
+		public LineValue this[int i]
 		{
 			get { return ( i > -1 && i < this.m_Linevalues.Count ) ? this.m_Linevalues[i] : null; }
 		}
@@ -129,7 +129,7 @@ namespace Database {
 		{
 			if ( SecB.m_IsOK == true )
 			{
-				foreach( cLineValue lineValue in SecB )
+				foreach( LineValue lineValue in SecB )
 				{
 					if ( SecA.HasKey( lineValue.Key ) == false )
 					{
@@ -143,7 +143,7 @@ namespace Database {
 
 		public	bool					IsChildOf						( Section mother )
 		{
-			string motherName = mother.GetName();
+			string motherName = mother.GetSectionName();
 			return (this.m_Mothers.FindIndex( m => m == motherName ) > -1 );
 		}
 
@@ -156,7 +156,7 @@ namespace Database {
 
 		public void Destroy()
 		{
-			this.m_Linevalues.ForEach( ( cLineValue lv ) => lv.Destroy() );
+			this.m_Linevalues.ForEach( ( LineValue lv ) => lv.Destroy() );
 		}
 
 		public	int						Lines()
@@ -165,14 +165,14 @@ namespace Database {
 		}
 
 
-		public	string					GetName()				{ return ( string )this.name.Clone(); }
+		public	string					GetSectionName()				{ return ( string )this.name.Clone(); }
 	
 
 		//////////////////////////////////////////////////////////////////////////
 		// GetKeys
 		public	string[]				GetKeys()
 		{
-			string[] arrayToReturn = new string[this.m_Linevalues.Count ];
+			string[] arrayToReturn = new string[this.m_Linevalues.Count];
 			for ( int i = 0; i < this.m_Linevalues.Count; i++ )
 			{
 				arrayToReturn[i] = this.m_Linevalues[i].Key;
@@ -182,18 +182,18 @@ namespace Database {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Add
-		public	bool				Add( cLineValue LineValue )
+		public	bool				Add( LineValue LineValue )
 		{
-			int index = this.m_Linevalues.FindIndex( ( s ) => s.Key == LineValue.Key );
+			int index = this.m_Linevalues.FindIndex((s) => s.Key == LineValue.Key);
 			// Confirmed new linevalue
-			if ( index == -1 )
+			if (index == -1)
 			{
-				this.m_Linevalues.Add( LineValue );
+				this.m_Linevalues.Add(LineValue);
 			}
 			// overwrite of existing linevalue
 			else
 			{
-				this.m_Linevalues[ index ] = new cLineValue( LineValue );
+				this.m_Linevalues[index] = new LineValue(LineValue);
 			}
 			return index > -1;
 		}
@@ -203,11 +203,11 @@ namespace Database {
 		// Remove
 		public	bool					Remove( string lineValueID )
 		{
-			int index = this.m_Linevalues.FindIndex( ( s ) => s.Key == lineValueID );
-			if ( index > -1 )
+			int index = this.m_Linevalues.FindIndex((s) => s.Key == lineValueID);
+			if (index > -1)
 			{
 				this.m_Linevalues[index].Destroy();
-				this.m_Linevalues.RemoveAt( index );
+				this.m_Linevalues.RemoveAt(index);
 			}
 			return index > -1;
 		}
@@ -215,13 +215,13 @@ namespace Database {
 
 		//////////////////////////////////////////////////////////////////////////
 		// bGetLineValue
-		public	bool					bGetLineValue( string key, ref cLineValue lineValue )
+		public	bool					bGetLineValue( string key, ref LineValue lineValue )
 		{
-			int index = this.m_Linevalues.FindIndex( ( cLineValue lv ) => lv.IsKey( key ) == true );
+			int index = this.m_Linevalues.FindIndex((LineValue lv) => lv.IsKey(key) == true);
 			bool bHasBeenFound = index > -1;
-			if ( bHasBeenFound )
+			if (bHasBeenFound)
 			{
-				lineValue = this.m_Linevalues[ index ];
+				lineValue = this.m_Linevalues[index];
 			}
 			return bHasBeenFound;
 		}
@@ -231,7 +231,7 @@ namespace Database {
 		// HasKey
 		public	bool					HasKey( string Key )
 		{	
-			cLineValue bump = null;
+			LineValue bump = null;
 			return this.bGetLineValue( Key, ref bump );
 		}
 
@@ -240,30 +240,30 @@ namespace Database {
 		// PrintSection
 		public void PrintSection()
 		{
-			Debug.Log( "---|Section START" + this.name );
-			foreach ( cLineValue LineValue in this.m_Linevalues )
+			Debug.Log("---|Section START" + this.name);
+			foreach (LineValue LineValue in this.m_Linevalues)
 			{
 				string result = LineValue.Key;
-				if ( LineValue.Type == ELineValueType.MULTI )
+				if (LineValue.Type == ELineValueType.MULTI)
 				{
-					cMultiValue multi = LineValue.MultiValue;
-					for ( int i = 0; i < multi.Size; i++ )
+					MultiValue multi = LineValue.MultiValue;
+					for (int i = 0; i < multi.Size; i++)
 					{
-						result += " " + multi[ i ];
+						result += " " + multi[i];
 					}
-					Debug.Log( "\t" + result );
+					Debug.Log("\t" + result);
 				}
 				else
 				{
-					if ( LineValue.Value.ToSystemObject() == null )
+					if (LineValue.Value.ToSystemObject() == null)
 					{
-						Debug.Log( result + " " + LineValue.RawValue );
+						Debug.Log(result + " " + LineValue.RawValue);
 					}
 					else
-					Debug.Log( "\t" + result + " " + LineValue.Value.ToSystemObject() + ", " + LineValue.Value.ToSystemObject().GetType() );
+						Debug.Log("\t" + result + " " + LineValue.Value.ToSystemObject() + ", " + LineValue.Value.ToSystemObject().GetType());
 				}
 			}
-			Debug.Log( "---|Section END" );
+			Debug.Log("---|Section END");
 		}
 
 
@@ -277,46 +277,44 @@ namespace Database {
 			string sectionDefinition = "[" + this.name + "]";
 			{
 				// Concatenate mothers names
-				if (this.m_Mothers.Count > 0 )
+				if (this.m_Mothers.Count > 0)
 				{
 					sectionDefinition += ":" + this.m_Mothers[0];
-					for ( int i = 1; i < this.m_Mothers.Count; i++, sectionDefinition += ',' )
+					for (int i = 1; i < this.m_Mothers.Count; i++, sectionDefinition += ',')
 					{
 						string motherName = this.m_Mothers[i];
 						sectionDefinition += motherName;
 					}
 				}
 			}
-			lines.Add( sectionDefinition );
+			lines.Add(sectionDefinition);
 
 			// Write key value pairs
-			foreach ( cLineValue LineValue in this.m_Linevalues )
+			foreach (LineValue LineValue in this.m_Linevalues)
 			{
-				string key = LineValue.Key;
-				string value = "";
-				if ( LineValue.Type == ELineValueType.MULTI )
+				string key = LineValue.Key, valueStringified = "";
+				if (LineValue.Type == ELineValueType.MULTI)
 				{
-					cMultiValue multi = LineValue.MultiValue;
-					value += multi[ 0 ];
-					for ( int i = 1; i < multi.Size; i++, value += "," )
+					MultiValue multi = LineValue.MultiValue;
+					valueStringified += multi[0];
+					for (int i = 1; i < multi.Size; i++, valueStringified += ",")
 					{
-						string subValue = multi[ i ];
-						value += subValue;
+						string subValue = multi[i];
+						valueStringified += subValue;
 					}
 				}
 				else
 				{
-					cValue multi = LineValue.Value;
-					value += multi.ToString();
+					Value value = LineValue.Value;
+					valueStringified += value.ToString();
 				}
-				string keyValuePair = key + "=" + value;
-				lines.Add( keyValuePair );
+				string keyValuePair = key + "=" + valueStringified;
+				lines.Add(keyValuePair);
 			}
 
-			string internalBuffer = string.Join( "\n", lines.ToArray() );
+			string internalBuffer = string.Join("\n", lines.ToArray());
 			buffer += internalBuffer;
 		}
-
 
 	};
 

@@ -68,7 +68,8 @@ public sealed class UI_Inventory : MonoBehaviour, IStateDefiner {
 
 
 			// LOAD SECTION
-			this.m_IsInitialized &= GlobalManager.Configs.GetSection( "UI_Inventory", this.m_InventorySectionData );
+			Database.Section inventorySection = null;
+			this.m_IsInitialized &= GlobalManager.Configs.GetSection("UI_Inventory", ref inventorySection ) &&  GlobalManager.Configs.bSectionToOuter(inventorySection, this.m_InventorySectionData );
 
 			// Search grid component
 			this.m_IsInitialized &= this.m_InventorySlots.SearchComponent( ref this.m_GridLayoutGroup, ESearchContext.LOCAL );
@@ -201,7 +202,7 @@ public sealed class UI_Inventory : MonoBehaviour, IStateDefiner {
 	{
 		Vector2 position = Vector2.zero;
 		UI_InventorySlot matrixSlot = null;
-		bool bHasBeenFound = this.m_UI_MatrixSlots.FindByPredicate( ref matrixSlot, ref position, ( UI_InventorySlot i ) => i.Section.GetName() == itemName );
+		bool bHasBeenFound = this.m_UI_MatrixSlots.FindByPredicate( ref matrixSlot, ref position, ( UI_InventorySlot i ) => i.Section.GetSectionName() == itemName );
 		if ( bHasBeenFound )
 		{
 			matrixSlot.Reset();

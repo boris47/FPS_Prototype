@@ -68,7 +68,7 @@ public interface IUI {
 
 	void					GoToMenu					( Transform MenuToShow );
 	void					GoToMenu					( MonoBehaviour MenuToShow );
-	IEnumerator				EnableMenuByScene			( ESceneEnumeration scene );
+	void					EnableMenuByScene			( ESceneEnumeration scene );
 	bool					IsCurrentActive				( MonoBehaviour menu );
 	void					GoToSubMenu					( Transform MenuToShow );
 	void					GoBack						();
@@ -265,7 +265,7 @@ public sealed class UIManager : MonoBehaviour, IUI {
 
 	//////////////////////////////////////////////////////////////////////////
 	// EnableMenuByScene
-	public IEnumerator EnableMenuByScene( ESceneEnumeration scene )
+	public void EnableMenuByScene( ESceneEnumeration scene )
 	{
 		switch ( scene )
 		{
@@ -289,7 +289,6 @@ public sealed class UIManager : MonoBehaviour, IUI {
 			case ESceneEnumeration.ENDING:
 				break;
 		}
-		yield return null;
 	}
 
 

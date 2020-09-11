@@ -1,16 +1,14 @@
 ﻿
-namespace Database {
-
-	
-	public class cValue {
-
+namespace Database
+{
+	public class Value
+	{
 		private	readonly	object			m_Value	= null;
 		private readonly 	System.Type		m_Type	= null;
 
 
 		///////////////////////////////////////////////////////////////////////////////
-
-		public	cValue( object value )
+		public	Value( object value )
 		{
 			this.m_Value = value;
 			this.m_Type = value.GetType();
@@ -18,7 +16,6 @@ namespace Database {
 
 
 		///////////////////////////////////////////////////////////////////////////////
-
 		public	bool	Is<T>()
 		{	
 			System.Type requiredType = typeof(T);
@@ -27,45 +24,30 @@ namespace Database {
 
 
 		///////////////////////////////////////////////////////////////////////////////
-
 		public T As<T>()
 		{
-			T result = default( T );
 			try
 			{
-				result = (T) System.Convert.ChangeType(this.m_Value, typeof(T) );
+				T result = (T) System.Convert.ChangeType(this.m_Value, typeof(T) );
+				return result;
 			}
 			catch( System.Exception e )
 			{
 				UnityEngine.Debug.LogException( e );
+				return default(T);
 			}
-
-			// Alternative: 
-		//	T result = (T) System.Convert.ChangeType( m_Value, typeof(T) );
-			/*
-			T result;
-			try
-			{
-				result = (T) m_Value;
-			}
-			catch ( System.Exception )
-			{
-				result = default( T );
-			}
-			*/
-			return result;
 		}
 
 
 		///////////////////////////////////////////////////////////////////////////////
-
 		public	new 	System.Type	GetType()
 		{
 			return this.m_Type;
 		}
 
 
-		private	string InternalToString()
+		///////////////////////////////////////////////////////////////////////////////
+		private string InternalToString()
 		{
 			string result = null;
 			if (this.m_Type == typeof(float) )
@@ -91,17 +73,17 @@ namespace Database {
 
 		///////////////////////////////////////////////////////////////////////////////
 
-		public static implicit operator bool	( cValue v )		{	return v.ToBool();		}
-		public static implicit operator int		( cValue v )		{	return v.ToInteger();	}
-		public static implicit operator float	( cValue v )		{	return v.ToFloat();		}
-		public static implicit operator string	( cValue v )		{	return v.ToString();	}
+		public static implicit operator bool	( Value v )		{	return v.ToBool();		}
+		public static implicit operator int		( Value v )		{	return v.ToInteger();	}
+		public static implicit operator float	( Value v )		{	return v.ToFloat();		}
+		public static implicit operator string	( Value v )		{	return v.ToString();	}
 
 		///////////////////////////////////////////////////////////////////////////////
 
-		public static implicit operator cValue	( bool b )			{	return new cValue( b );	}
-		public static implicit operator cValue	( int i )			{	return new cValue( i );	}
-		public static implicit operator cValue	( float f )			{	return new cValue( f );	}
-		public static implicit operator cValue	( string s )		{	return new cValue( s );	}
+		public static implicit operator Value	( bool b )			{	return new Value( b );	}
+		public static implicit operator Value	( int i )			{	return new Value( i );	}
+		public static implicit operator Value	( float f )			{	return new Value( f );	}
+		public static implicit operator Value	( string s )		{	return new Value( s );	}
 
 		///////////////////////////////////////////////////////////////////////////////
 

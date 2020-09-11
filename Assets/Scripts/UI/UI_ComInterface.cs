@@ -70,9 +70,10 @@ public sealed class UI_ComInterface : MonoBehaviour, IStateDefiner {
 		bool resourcesLoaded = true;
 
 		// Section Data
+		Database.Section notificationseSection = null;
 		UnityEngine.Assertions.Assert.IsTrue
 		(
-			GlobalManager.Configs.GetSection( "Notifications", this.m_NotificationsSectionData ),
+			GlobalManager.Configs.GetSection("Notifications", ref notificationseSection) && GlobalManager.Configs.bSectionToOuter(notificationseSection, this.m_NotificationsSectionData),
 			"UI_ComInterface::Initialize:Cannot load m_NotificationsSectionData"
 		);
 
@@ -237,7 +238,7 @@ public sealed class UI_ComInterface : MonoBehaviour, IStateDefiner {
 
 			// Update time and color
 			notification.CurrentTime -= Time.deltaTime;
-			notification.TextComponent.color = Color.Lerp( notification.Color, Color.clear, 1.0f - Mathf.Pow( notification.CurrentTime, 2f ) / this.m_NotificationsDuration );
+			notification.TextComponent.color = Color.Lerp( notification.Color, Color.clear, 1.0f - (Mathf.Pow( notification.CurrentTime, 2f ) / this.m_NotificationsDuration) );
 
 			// Remove if out of date
 			if ( notification.CurrentTime < 0.0f )

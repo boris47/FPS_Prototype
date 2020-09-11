@@ -117,32 +117,28 @@ public abstract class Bullet : MonoBehaviour, IBullet {
 	protected	virtual		void	Awake()
 	{
 		string sectionName = this.GetType().Name;
-		if ( m_BulletsSections.TryGetValue( sectionName, out this.m_BulletSection ) == false )
+		if ( !m_BulletsSections.TryGetValue( sectionName, out this.m_BulletSection ) )
 		{
 			GlobalManager.Configs.GetSection( sectionName, ref this.m_BulletSection );
 			m_BulletsSections[sectionName] = this.m_BulletSection;
 		}
 
-		CoroutinesManager.Start(this.SetupBulletCO() );
-
-		this.m_RigidBody	= this.GetComponent<Rigidbody>();
+		this.m_RigidBody = this.GetComponent<Rigidbody>();
 		this.m_Collider	= this.GetComponent<Collider>();
 		this.m_Renderer	= this.GetComponent<Renderer>();
+
+		this.SetupBulletCO();
 	}
 
 
 	
 	//////////////////////////////////////////////////////////////////////////
 	// SetupBulletCO ( Virtual )
-	protected virtual IEnumerator SetupBulletCO()
+	protected virtual void SetupBulletCO()
 	{
-		yield return null;
-
 		this.m_RigidBody.interpolation				= RigidbodyInterpolation.Interpolate;
 		this.m_RigidBody.collisionDetectionMode		= CollisionDetectionMode.ContinuousDynamic;
 		this.m_RigidBody.maxAngularVelocity			= 0f;
-
-		yield return null;
 
 		// MotionType
 		Utils.Converters.StringToEnum(this.m_BulletSection.AsString("eBulletMotionType"), ref this.m_BulletMotionType );

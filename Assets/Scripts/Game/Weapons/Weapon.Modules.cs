@@ -196,7 +196,7 @@ public class WeaponModuleSlot {
 		if ( alreadyAssignedModules != null )
 		{
 			int counter = 0;
-			System.Array.ForEach( alreadyAssignedModules, m => { if (m == moduleSection.GetName()) counter++; } );
+			System.Array.ForEach( alreadyAssignedModules, m => { if (m == moduleSection.GetSectionName()) counter++; } );
 
 			result &= !( counter > maxCount );
 		}
@@ -208,7 +208,7 @@ public class WeaponModuleSlot {
 	//////////////////////////////////////////////////////////////////////////
 	public	bool	TrySetModule( IWeapon wpn, Database.Section moduleSection )
 	{
-		System.Type type = System.Type.GetType( moduleSection.GetName() );
+		System.Type type = System.Type.GetType( moduleSection.GetSectionName() );
 		return this.TrySetModule( wpn, type );
 	}
 
@@ -218,14 +218,14 @@ public class WeaponModuleSlot {
 	{
 		if ( type == null )
 		{
-			Debug.Log( "WeaponModuleSlot::TrySetModule: " + wpn.Section.GetName() + ", Slot:" + Weapon.GetModuleSlotName(this.m_ThisSlot) + ", Setting invalid weapon module" );
+			Debug.Log( "WeaponModuleSlot::TrySetModule: " + wpn.Section.GetSectionName() + ", Slot:" + Weapon.GetModuleSlotName(this.m_ThisSlot) + ", Setting invalid weapon module" );
 			return false;
 		}
 			
 		// Check module type as child of WPN_BaseModule
 		if ( type.IsSubclassOf( typeof( WPN_BaseModule ) ) == false )
 		{
-			Debug.Log( "WeaponModuleSlot::TrySetModule: " + wpn.Section.GetName() + ", Slot:" + Weapon.GetModuleSlotName(this.m_ThisSlot) + ", Class Requested is not a supported weapon module, \"" + type.ToString() + "\"" );
+			Debug.Log( "WeaponModuleSlot::TrySetModule: " + wpn.Section.GetSectionName() + ", Slot:" + Weapon.GetModuleSlotName(this.m_ThisSlot) + ", Class Requested is not a supported weapon module, \"" + type.ToString() + "\"" );
 			return false;
 		}
 
@@ -254,7 +254,7 @@ public class WeaponModuleSlot {
 		{
 			Object.Destroy( wpnModule );
 			this.m_WeaponModule = wpn.Transform.gameObject.AddComponent<WPN_BaseModuleEmpty>();
-			Debug.Log( "WeaponModuleSlot::TrySetModule: " + wpn.Section.GetName() + ": Class Requested is not a supported weapon module, \"" + type.ToString() + "\"" );
+			Debug.Log( "WeaponModuleSlot::TrySetModule: " + wpn.Section.GetSectionName() + ": Class Requested is not a supported weapon module, \"" + type.ToString() + "\"" );
 		}
 
 //		GameManager.UpdateEvents.OnFrame += m_WeaponModule.InternalUpdate;

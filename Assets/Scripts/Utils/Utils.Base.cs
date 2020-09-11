@@ -1,11 +1,11 @@
 ﻿
 using System.Reflection;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 
-public struct KeyValue {
+public struct KeyValue
+{
 	public	string	Key, Value;
 	public	bool	IsOK;
 };
@@ -23,7 +23,8 @@ public enum ESearchContext
 	FROM_ROOT = CHILDREN | LOCAL | PARENT
 }
 
-namespace Utils {
+namespace Utils
+{
 
 	public static class FlagsHelper
 	{
@@ -55,7 +56,8 @@ namespace Utils {
 		}
 	}
 
-	public	static	class LayersHelper {
+	public	static	class LayersHelper
+	{
 
 		////////////////////////////////////////////////
 		public	static	int		Layers_AllButOne( string layerName )
@@ -100,8 +102,8 @@ namespace Utils {
 		}
 	}
 
-	public static class Base {
-
+	public static class Base
+	{
 
 		////////////////////////////////////////////////
 		public	static	bool	GetTemplateSingle<T>( ref T Output, bool bSpawnIfNecessary = false ) where T : Component
@@ -187,8 +189,7 @@ namespace Utils {
 			for ( int i = 0; i < copyModelComponents.Length; i++ )
 			{
 				Component copyModelComponent = copyModelComponents[i];
-				if ( global::System.Array.Exists( copyComponents, c => 
-				copyModelComponent.GetType() == c || copyModelComponent.GetType().IsSubclassOf(c)) )
+				if ( global::System.Array.Exists( copyComponents, c => copyModelComponent.GetType() == c || copyModelComponent.GetType().IsSubclassOf(c)) )
 				{
 					CloneComponent( copyModelComponent, ref destinationObj, copyProperties );
 				}
@@ -257,7 +258,7 @@ namespace Utils {
 				// Filtered search
 				if (  Filter != null )
 				{
-					result = global::System.Array.Find( results, Filter );
+					result = System.Array.Find( results, Filter );
 				}
 				// Normal search
 				else

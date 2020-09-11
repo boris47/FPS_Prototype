@@ -17,10 +17,28 @@ public class Build_Batch
 		UnityEngine.Resources.UnloadUnusedAssets();
 	}
 
+	[MenuItem( MENU_LABEL + "/Recompile All Scripts", priority = 2 )]
+	public		static		void		RecompileAllScripts()
+	{
+		UnityEditor.Compilation.Assembly[] assemblies = UnityEditor.Compilation.CompilationPipeline.GetAssemblies();
+		int assembliesCount = assemblies.Length;
+		int assemblyCompiled = 0;
+		
+		UnityEditor.Compilation.CompilationPipeline.compilationStarted += (object arg1) => EditorUtility.DisplayProgressBar( "Compilation", "", 0.01f );
+		UnityEditor.Compilation.CompilationPipeline.assemblyCompilationFinished += (string arg1, UnityEditor.Compilation.CompilerMessage[] arg2) =>
+		{
+			float value = (float) (++assemblyCompiled) / (float) assembliesCount;
+			EditorUtility.DisplayProgressBar( $"Assembly {arg1}", "", value );
+			
+		};
+		UnityEditor.Compilation.CompilationPipeline.compilationFinished += (object arg1) => EditorUtility.ClearProgressBar();
+		UnityEditor.Compilation.CompilationPipeline.RequestScriptCompilation();
+		
+	}
 
 	///////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////////
-	[MenuItem( MENU_LABEL + "/Development", priority = 1 )]
+	[MenuItem( MENU_LABEL + "/Development", priority = 3 )]
 	public		static		void		Build_Development()
 	{
 		// BUILD SETTINGS CONFIG SECTION NAME
@@ -62,7 +80,7 @@ public class Build_Batch
 
 	///////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////////
-	[MenuItem( MENU_LABEL + "/Release", priority = 2 )]
+	[MenuItem( MENU_LABEL + "/Release", priority = 4 )]
 	public		static		void		Build_Release()
 	{
 		// BUILD SETTINGS CONFIG SECTION NAME
@@ -174,9 +192,9 @@ public class Build_Batch
 		// Get project folder
 		string projectFolder = GetProjectFolder();
 
-		string relativeBuildFolder		= projectFolder + "/Builds/" + folderName + "/";
+		string relativeBuildFolder = $"{projectFolder}/Builds/{folderName}/";// projectFolder + "/Builds/" + folderName + "/";
 
-		string executableRelativePath	= relativeBuildFolder + "Build_" + executableFilename + ".exe";
+		string executableRelativePath = $"{relativeBuildFolder}Build_{executableFilename}.exe";// relativeBuildFolder + "Build_" + executableFilename + ".exe";
 
 		const BuildTarget			buildTarget				= BuildTarget.StandaloneWindows64;
 		const BuildTargetGroup		targetGroup				= BuildTargetGroup.Standalone;
@@ -282,7 +300,7 @@ public class Build_Batch
 		if ( buildSettings.LoadFile( BuildSettingsConfigFile ) == true )
 		{
 			Database.Section buildSettingsSection = null;
-			if ( buildSettings.GetSection( buildSettingsSectionName, ref buildSettingsSection ) == false )
+			if ( !buildSettings.GetSection( buildSettingsSectionName, ref buildSettingsSection ) )
 			{
 				UnityEngine.Debug.LogError( "Cannot load build settings section for " + buildSettingsSectionName );
 				buildSettings = null;

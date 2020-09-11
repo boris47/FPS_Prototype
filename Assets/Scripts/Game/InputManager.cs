@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.FlagsAttribute] 
-public enum EInputCategory : uint {
+public enum EInputCategory : uint
+{
 	NONE		= 0,
 	/// <summary> Cotnrols State </summary>
 	STATE		= 01,
@@ -32,7 +33,7 @@ public enum EInputCategory : uint {
 	/// <summary> In Game Interface </summary>
 	INTERFACE	= 13,
 	/// <summary> Camera control </summary>
-	CAMERA		= 14,
+	CAMERA		= 14, // TODO Implementation
 	/// <summary> Categories Count </summary>
 	COUNT,
 	/// <summary> All categories </summary>
@@ -42,8 +43,8 @@ public enum EInputCategory : uint {
 public	delegate	void	InputDelegateHandler();
 
 //[System.Serializable]
-public class InputManager {
-
+public class InputManager
+{
 //	public	static	bool					HoldCrouch				{ get; set; }
 //	public	static	bool					HoldJump				{ get; set; }
 //	public	static	bool					HoldRun					{ get; set; }
@@ -545,7 +546,8 @@ public	enum EKeys { PRIMARY, SECONDARY }
 
 [System.Serializable]
 /// <summary> enum of commands to link keys at </summary>
-public	enum EInputCommands {
+public	enum EInputCommands
+{
 /*00*/	NONE,
 /*01*/	STATE_CROUCH, STATE_JUMP, STATE_RUN,
 /*02*/	MOVE_FORWARD, MOVE_BACKWARD, MOVE_LEFT, MOVE_RIGHT,
@@ -564,10 +566,11 @@ public	enum EInputCommands {
 /*  */	COUNT
 }
 
+
 [System.Serializable]
 /// <summary> Command pair simple class </summary>
-public	class KeyCommandPair {
-
+public	class KeyCommandPair
+{
 	[SerializeField]
 	private	EKeyState			m_PrimaryKeyState			= EKeyState.PRESS;
 	public	EKeyState			PrimaryKeyState

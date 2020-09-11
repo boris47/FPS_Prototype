@@ -135,17 +135,14 @@ public sealed class CameraControl : MonoBehaviour, ICameraControl {
 		this.m_CameraRef = this.GetComponent<Camera>();
 		this.m_PP_Profile = this.gameObject.GetOrAddIfNotFound<PostProcessingBehaviour>().profile = cameraPostProcesses.Asset;
 
-
-		if ( GlobalManager.Configs.GetSection( "Camera", this.m_CameraSectionData ) == false )
+		Database.Section cameraSection = null;
+		if ( !(GlobalManager.Configs.GetSection("Camera", ref cameraSection) && GlobalManager.Configs.bSectionToOuter(cameraSection, this.m_CameraSectionData )) )
 		{
 			Debug.Log( "UI_Indicators::Initialize:Cannot load m_CameraSectionData" );
 		}
 		else
 		{
-			EffectActiveCondition mainCondition = delegate()
-			{
-				return Player.Instance.IsGrounded;
-			};
+			EffectActiveCondition mainCondition = () => Player.Instance.IsGrounded;
 
 			this.m_CameraEffectorsManager.Add<HeadBob>( mainCondition + delegate() { return Player.Instance.IsMoving == true; } );
 			this.m_CameraEffectorsManager.Add<HeadMove>( mainCondition + delegate() { return Player.Instance.IsMoving == false; } );

@@ -11,7 +11,7 @@
 ;								BULLETS
 
 [BulletElectro]
-eBulletMotionType				= DIRECT;
+eBulletMotionType				= INSTANT;
 eDamageType						= ELECTRO;			Impact Damage Type
 fDamage							= 10.0;				Impact Damage Ammount
 bHasDamageOverTime				= true;				Has Over Time Damage
@@ -24,21 +24,21 @@ fRange							= 60.0f;
 ;
 
 [BulletBallistic]
-eBulletMotionType				= DIRECT;
+eBulletMotionType				= INSTANT;
 eDamageType						= BALLISTIC;		Impact Damage Type
 fDamage							= 10.0;				Impact Damage Ammount
 bHasDamageOverTime				= false;			Has Over Time Damage
 fOverTimeDamageDuration			= 5.0;				Over Time Damage Duration
 eOverTimeDamageType				= FLAME;			Over Time Damage Type
 bCanPenetrate					= false;
-fVelocity						= 45.0;
-fRange							= 60.0f;
+fVelocity						= 90.0f;
+fRange							= 90.0f;
 
 
 [BulletBlaster] : BulletBallistic
 fDamage							= 4.50;				Impact Damage Ammount
-fVelocity						= 70.0;
-fRange							= 40.0f;
+fVelocity						= 80.0;
+fRange							= 90.0f;
 
 ;
 

@@ -34,20 +34,21 @@ public class HeadBob : CameraEffectBase {
 	{
 		this.m_EffectActiveCondition =  condition;
 
-		if ( GlobalManager.Configs.GetSection( "HeadBob", this.m_EffectSectionData ) == false )
+		Database.Section headbobSection = null;
+		if (!(GlobalManager.Configs.GetSection("HeadBob", ref headbobSection) && GlobalManager.Configs.bSectionToOuter(headbobSection, this.m_EffectSectionData)))
 		{
 			Debug.Log( "HeadBob::Setup:Cannot load m_HeadBobSectionData" );
 		}
 		else
 		{
 			this.m_WpnInfluence		= this.m_EffectSectionData.WpnInfluence;
-			this.m_AmplitudeBase		= this.m_EffectSectionData.AmplitudeBase;
+			this.m_AmplitudeBase	= this.m_EffectSectionData.AmplitudeBase;
 			this.m_AmplitudeHoriz	= this.m_EffectSectionData.AmplitudeHoriz;
-			this.m_AmplitudeVert		= this.m_EffectSectionData.AmplitudeVert;
-			this.m_SpeedBase			= this.m_EffectSectionData.SpeedBase;
+			this.m_AmplitudeVert	= this.m_EffectSectionData.AmplitudeVert;
+			this.m_SpeedBase		= this.m_EffectSectionData.SpeedBase;
 			this.m_Theta_Upd_Vert	= this.m_EffectSectionData.Theta_Upd_Vert;
 			this.m_Theta_Upd_Oriz	= this.m_EffectSectionData.Theta_Upd_Oriz;
-			this.m_StepValue			= this.m_EffectSectionData.Step;
+			this.m_StepValue		= this.m_EffectSectionData.Step;
 			this.m_ThetaX			= Random.Range( 0f, 360f );
 			this.m_ThetaY			= Random.Range( 0f, 360f );
 		}
@@ -83,7 +84,7 @@ public class HeadBob : CameraEffectBase {
 		fAmplitude		*= ( ( bRunning )	?	2.00f : 1.00f );
 		fAmplitude		*= ( ( bCrouched )	?	0.70f : 1.00f );
 		fAmplitude		*= ( ( bZoomed )	?	0.80f : 1.00f );
-		fAmplitude		*= ( 3.0f - fStamina * 2.0f );
+		fAmplitude		*= ( 3.0f - (fStamina * 2.0f) );
 
 		this.m_ThetaX += fSpeed * this.m_Theta_Upd_Vert;
 		this.m_ThetaY += fSpeed * this.m_Theta_Upd_Oriz;

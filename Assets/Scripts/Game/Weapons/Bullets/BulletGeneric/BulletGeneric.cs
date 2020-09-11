@@ -35,9 +35,9 @@ public abstract class BulletGeneric : Bullet, IBulletGeneric {
 
 	//////////////////////////////////////////////////////////////////////////
 	// SetupBulletCO ( Override )
-	protected override IEnumerator SetupBulletCO()
+	protected override void SetupBulletCO()
 	{
-		yield return base.SetupBulletCO();
+		base.SetupBulletCO();
 
 		if (this.m_HasLight )
 		{
@@ -49,8 +49,6 @@ public abstract class BulletGeneric : Bullet, IBulletGeneric {
 				this.m_LensFlare.color = this.m_PointLight.color;
 			}
 		}
-
-		yield return null;
 
 		this.SetActive( false );
 	}
@@ -120,7 +118,7 @@ public abstract class BulletGeneric : Bullet, IBulletGeneric {
 			if ( bIsBullet == true )
 				return;
 
-			EEffectType effectToPlay = EEffectType.ENTITY_ON_HIT;
+			EffectsManager.EEffecs effectToPlay = EffectsManager.EEffecs.ENTITY_ON_HIT;
 
 			IEntity entity = null;
 			IShield shield = null;
@@ -134,12 +132,12 @@ public abstract class BulletGeneric : Bullet, IBulletGeneric {
 			}
 			else
 			{
-				effectToPlay = EEffectType.AMBIENT_ON_HIT;
+				effectToPlay = EffectsManager.EEffecs.AMBIENT_ON_HIT;
 			}
 
 			EffectsManager.Instance.PlayEffect( effectToPlay, hit.point, hit.normal, 3 );
 		}
-		EffectsManager.Instance.PlayEffect( EEffectType.MUZZLE, position, direction, 0, 0.1f );
+		EffectsManager.Instance.PlayEffect( EffectsManager.EEffecs.MUZZLE, position, direction, 0, 0.1f );
 	}
 
 
@@ -197,7 +195,7 @@ public abstract class BulletGeneric : Bullet, IBulletGeneric {
 		if ( bIsBullet == true )
 			return;
 
-		EEffectType effectToPlay = EEffectType.ENTITY_ON_HIT;
+		EffectsManager.EEffecs effectToPlay = EffectsManager.EEffecs.ENTITY_ON_HIT;
 
 		IEntity entity = null;
 		IShield shield = null;
@@ -211,7 +209,7 @@ public abstract class BulletGeneric : Bullet, IBulletGeneric {
 		}
 		else
 		{
-			effectToPlay = EEffectType.AMBIENT_ON_HIT;
+			effectToPlay = EffectsManager.EEffecs.AMBIENT_ON_HIT;
 		}
 
 		;
@@ -232,7 +230,7 @@ public abstract class BulletGeneric : Bullet, IBulletGeneric {
 		if ( bIsBullet == true )
 			return;
 
-		EEffectType effectToPlay = EEffectType.ENTITY_ON_HIT;
+		EffectsManager.EEffecs effectToPlay = EffectsManager.EEffecs.ENTITY_ON_HIT;
 
 		IEntity entity = null;
 		IShield shield = null;
@@ -246,7 +244,7 @@ public abstract class BulletGeneric : Bullet, IBulletGeneric {
 		}
 		else
 		{
-			effectToPlay = EEffectType.AMBIENT_ON_HIT;
+			effectToPlay = EffectsManager.EEffecs.AMBIENT_ON_HIT;
 		}
 
 		Vector3 position  = collision.contacts[0].point;

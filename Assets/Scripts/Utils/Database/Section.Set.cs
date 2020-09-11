@@ -3,20 +3,21 @@
 using UnityEngine;
 
 
-namespace Database {
+namespace Database
+{
 
-
-	public partial class Section : ISection {
+	public partial class Section : ISection
+	{
 	
 		//////////////////////////////////////////////////////////////////////////
 		// SetValue
-		public	void					SetValue( string Key, cValue Value )
+		public	void					SetValue( string Key, Value Value )
 		{
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 
 			// if not exists create one
 			if (this.bGetLineValue( Key, ref pLineValue ) == false )
-				pLineValue = new cLineValue( Key, ( byte ) ELineValueType.SINGLE );
+				pLineValue = new LineValue( Key, ( byte ) ELineValueType.SINGLE );
 
 			pLineValue.Clear();
 			pLineValue.Set( Value );
@@ -26,16 +27,16 @@ namespace Database {
 
 		//////////////////////////////////////////////////////////////////////////
 		// SetMultiValue
-		public	void					SetMultiValue( string Key, cValue[] vValues )
+		public	void					SetMultiValue( string Key, Value[] vValues )
 		{
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 
 			// if not exists create one
 			if (this.bGetLineValue( Key, ref pLineValue ) == false )
-				pLineValue = new cLineValue( Key, ELineValueType.MULTI );
+				pLineValue = new LineValue( Key, ELineValueType.MULTI );
 
 			pLineValue.Clear();
-			cMultiValue multivalue = new cMultiValue( vValues );
+			MultiValue multivalue = new MultiValue( vValues );
 			pLineValue.Set( multivalue );
 			this.m_Linevalues.Add( pLineValue );
 		}
@@ -45,7 +46,7 @@ namespace Database {
 		// Set<T>
 		public	void					Set<T>( string Key, T Value )
 		{
-			this.SetValue( Key, new cValue( Value ) );
+			this.SetValue( Key, new Value( Value ) );
 		}
 
 
@@ -53,15 +54,15 @@ namespace Database {
 		// SetVec2
 		public	void			SetVec2( string Key, Vector2 Vec )
 		{
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 
 			// if not exists create one
 			if (this.bGetLineValue( Key, ref pLineValue ) == false )
-				pLineValue = new cLineValue( Key, ELineValueType.MULTI );
+				pLineValue = new LineValue( Key, ELineValueType.MULTI );
 
 			pLineValue.Clear();
-			cValue[] vValues = new cValue[2] { new cValue( Vec.x ), new cValue( Vec.y ) };
-			cMultiValue multivalue = new cMultiValue( vValues );
+			Value[] vValues = new Value[2] { new Value( Vec.x ), new Value( Vec.y ) };
+			MultiValue multivalue = new MultiValue( vValues );
 			pLineValue.Set( multivalue );
 			this.m_Linevalues.Add( pLineValue );
 		}
@@ -71,15 +72,15 @@ namespace Database {
 		// SetVec3
 		public	void			SetVec3( string Key, Vector3 Vec ) {
 
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 
 			// if not exists create one
 			if (this.bGetLineValue( Key, ref pLineValue ) == false )
-				pLineValue = new cLineValue( Key, ELineValueType.MULTI );
+				pLineValue = new LineValue( Key, ELineValueType.MULTI );
 
 			pLineValue.Clear();
-			cValue[] vValues = new cValue[] { new cValue( Vec.x ), new cValue( Vec.y ), new cValue( Vec.z ) };
-			cMultiValue multivalue = new cMultiValue( vValues );
+			Value[] vValues = new Value[] { new Value( Vec.x ), new Value( Vec.y ), new Value( Vec.z ) };
+			MultiValue multivalue = new MultiValue( vValues );
 			pLineValue.Set( multivalue );
 			this.m_Linevalues.Add( pLineValue );
 		}
@@ -89,15 +90,15 @@ namespace Database {
 		// SetVec4
 		public	void			SetVec4( string Key, Vector4 Vec ) {
 
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 
 			// if not exists create one
 			if (this.bGetLineValue( Key, ref pLineValue ) == false )
-				pLineValue = new cLineValue( Key, ELineValueType.MULTI );
+				pLineValue = new LineValue( Key, ELineValueType.MULTI );
 
 			pLineValue.Clear();
-			cValue[] vValues = new cValue[] { new cValue( Vec.x ), new cValue( Vec.y ), new cValue( Vec.z ), new cValue( Vec.w ) };
-			cMultiValue multivalue = new cMultiValue( vValues );
+			Value[] vValues = new Value[] { new Value( Vec.x ), new Value( Vec.y ), new Value( Vec.z ), new Value( Vec.w ) };
+			MultiValue multivalue = new MultiValue( vValues );
 			pLineValue.Set( multivalue );
 			this.m_Linevalues.Add( pLineValue );
 		}
@@ -107,15 +108,15 @@ namespace Database {
 		// SetVec4
 		public	void			SetColor( string Key, Color color ) {
 
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 
 			// if not exists create one
 			if (this.bGetLineValue( Key, ref pLineValue ) == false )
-				pLineValue = new cLineValue( Key, ELineValueType.MULTI );
+				pLineValue = new LineValue( Key, ELineValueType.MULTI );
 
 			pLineValue.Clear();
-			cValue[] vValues = new cValue[] { new cValue( color.r ), new cValue( color.g ), new cValue( color.b ), new cValue( color.a ) };
-			cMultiValue multivalue = new cMultiValue( vValues );
+			Value[] vValues = new Value[] { new Value( color.r ), new Value( color.g ), new Value( color.b ), new Value( color.a ) };
+			MultiValue multivalue = new MultiValue( vValues );
 			pLineValue.Set( multivalue );
 			this.m_Linevalues.Add( pLineValue );
 		}

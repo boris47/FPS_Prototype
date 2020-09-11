@@ -4,11 +4,7 @@ using UnityEngine;
 
 public class EntityGroup : MonoBehaviour, IIdentificable<System.Guid>
 {
-	private		System.Guid		m_ID				= System.Guid.NewGuid();
-	public		System.Guid		ID
-	{
-		get => this.m_ID;
-	}
+	public System.Guid ID { get; } = System.Guid.NewGuid();
 
 	[SerializeField]
 	private		List<Entity>	m_Collection		= new List<Entity>();
@@ -107,7 +103,6 @@ public class EntityGroup : MonoBehaviour, IIdentificable<System.Guid>
 	public List<Entity> GetOthers( IEntity entity )
 	{
 		List<Entity> othersArray = this.m_Collection.FindAll( e => e.AsInterface.ID != entity.ID );
-
 		return othersArray;
 	}
 

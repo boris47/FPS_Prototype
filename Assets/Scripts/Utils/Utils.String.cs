@@ -251,7 +251,7 @@ namespace Utils {
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Return a cValue object if value is identified, otherwise null </summary>
-		public	static		cValue RecognizeValue( string line )
+		public	static		Value RecognizeValue( string line )
 		{
 			global::System.Type type = ReturnValueType( line );
 			if ( type == typeof( bool ) )
@@ -279,12 +279,12 @@ namespace Utils {
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Parse a string and return a list of values </summary>
-		public	static		cValue[] RecognizeValues( string line )
+		public	static		Value[] RecognizeValues( string line )
 		{
 			string[] values = line.Split( ',' );
 			if ( values.Length > 0 )
 			{
-				cValue[] cValues = new cValue[ values.Length ];
+				Value[] cValues = new Value[ values.Length ];
 				for ( int i = 0; i < values.Length; i++ )
 				{
 					cValues[ i ] = RecognizeValue( values[ i ] );

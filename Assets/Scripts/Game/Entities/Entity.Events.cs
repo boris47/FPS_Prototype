@@ -271,7 +271,7 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 
 		m_OnHittedDetails( startPosition, whoRef, damageType, damage, canPenetrate );
 
-		if (this.m_Group )
+		if (this.m_Group)
 		{
 			this.m_Group.GetOthers( this ).ForEach( e => e.NotifyHit( startPosition, null, EDamageType.NONE, 0.0f ) );
 		}
@@ -370,8 +370,8 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 		this.m_RigidBody.velocity			= Vector3.zero;
 		this.m_RigidBody.angularVelocity		= Vector3.zero;
 
-		EffectsManager.Instance.PlayEffect( EEffectType.EXPLOSION, this.transform.position, this.transform.up, 0 );
-		EffectsManager.Instance.PlayExplosionSound(this.transform.position );
+		EffectsManager.Instance.PlayEffect( EffectsManager.EEffecs.EXPLOSION, this.transform.position, this.transform.up, 0 );
+		EffectsManager.Instance.PlayExplosionSound(EffectsManager.EEffecs.EXPLOSION, this.transform.position );
 
 		this.m_CurrentBehaviour.OnKilled();
 

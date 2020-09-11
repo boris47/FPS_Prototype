@@ -22,7 +22,7 @@ BaseZoomingTime				= 0.1;
 BaseZoomSensitivity			= 0.3;
 
 HasPrimaryWeaponModule		= true;
-PrimaryWeaponModule			= WPN_FireModule_Barrel;
+PrimaryWeaponModule			= WPN_FireModule_Syphon;
 ;PrimaryWeaponModuleMods	= WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy;
 
 HasSecondaryWeaponModule	= true;

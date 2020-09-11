@@ -1,13 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public interface ILaser : IWeaponAttachment {
+public interface ILaser : IWeaponAttachment
+{
 
 }
 
 [System.Serializable]
-public class Laser : WeaponAttachment, ILaser {
-
+public class Laser : WeaponAttachment, ILaser
+{
 	[SerializeField]
 	protected		float				m_ScaleFactor		= 0.03f;
 
@@ -60,6 +61,17 @@ public class Laser : WeaponAttachment, ILaser {
 	}
 
 
+	private void OnEnable()
+	{
+		this.SetActive( true );
+	}
+
+	private void OnDisable()
+	{
+		this.SetActive( false );
+	}
+
+
 	//////////////////////////////////////////////////////////////////////////
 	protected override void OnActivate()
 	{
@@ -99,7 +111,7 @@ public class Laser : WeaponAttachment, ILaser {
 
 		this.m_RayCastHit = this.m_DefaultRaycastHit;
 
-		this.m_HasHit = Physics.Raycast(this.transform.position, this.transform.forward, out this.m_RayCastHit, this.m_LaserLength, Utils.LayersHelper.Layers_AllButOne( "Bullets" ) );
+		this.m_HasHit = Physics.Raycast( this.transform.position, this.transform.forward, out this.m_RayCastHit, this.m_LaserLength );//, Utils.LayersHelper.Layers_AllButOne( "Bullets" ) );
 
 		float currentLength = this.HasHit ? this.m_RayCastHit.distance : this.m_LaserLength;
 

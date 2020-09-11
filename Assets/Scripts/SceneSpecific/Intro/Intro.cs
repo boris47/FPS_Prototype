@@ -3,7 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class Intro : MonoBehaviour {
+public class Intro : MonoBehaviour
+{
+/*	
+	private void Awake()
+	{
+		CustomSceneManager.LoadSceneData loadSceneData = new CustomSceneManager.LoadSceneData()
+		{
+			eScene = ESceneEnumeration.LOADING,
+			eMode = LoadSceneMode.Additive
+		};
+		CustomSceneManager.LoadSceneSync( loadSceneData );
+	//	SceneManager.LoadScene( (int) ESceneEnumeration.LOADING, LoadSceneMode.Additive );
+	}
+*/
 
 	private void Update()
 	{

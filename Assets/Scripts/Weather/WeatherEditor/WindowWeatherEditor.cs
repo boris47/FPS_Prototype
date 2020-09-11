@@ -145,11 +145,11 @@ namespace WeatherSystem {
 			// ADD DESCRIPTORS
 			for ( int i = 0; i < 24; i++ )
 			{
-				EditorUtility.DisplayProgressBar( "Cycle Creation", "", 0.2f + i * 0.01f );
+				EditorUtility.DisplayProgressBar( "Cycle Creation", "", 0.2f + (i * 0.01f) );
 				string assetDescriptorLoadPath = CreateDescriptor( cycleName, (float)i );
 				weatherCycle.DescriptorsPaths[i] = assetDescriptorLoadPath;
 
-				EditorUtility.DisplayProgressBar( "Cycle Creation", "", 0.2f + i * 0.15f );
+				EditorUtility.DisplayProgressBar( "Cycle Creation", "", 0.2f + (i * 0.15f) );
 
 				// Load created asset
 				EnvDescriptor desc = AssetDatabase.LoadAssetAtPath<EnvDescriptor>( assetDescriptorLoadPath + ".asset" );

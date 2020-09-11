@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Loading : MonoBehaviour {
-
+public class Loading : MonoBehaviour
+{
 	private		const	string		RESOURCE_PATH						= "Prefabs/Loading";
 
 	private		static	Loading		m_Instance							= null;
-	private		static	bool		m_IsInitialized						= false;
+//	private		static	bool		m_IsInitialized						= false;
 
 
 	private		Slider				m_LoadingBar						= null;
@@ -19,7 +19,7 @@ public class Loading : MonoBehaviour {
 	private		bool				m_IsInitializedInternal				= false;
 
 
-
+	/*
 	///////////////////////////////////////////////////
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
 	private	static	void	Initialize()
@@ -40,7 +40,7 @@ public class Loading : MonoBehaviour {
 			m_IsInitialized = true;
 		}
 	}
-
+	*/
 	
 	//////////////////////////////////////////////////////////////////////////
 	private	void	Awake()
@@ -51,12 +51,21 @@ public class Loading : MonoBehaviour {
 			Destroy(this.gameObject);
 			return;
 		}
+		m_Instance = this;
 
 		this.gameObject.SetActive(false);
 
 		this.m_IsInitializedInternal = this.transform.SearchComponent( ref this.m_LoadingBar, ESearchContext.CHILDREN );
 		this.m_IsInitializedInternal &= this.transform.SearchComponent( ref this.m_LoadingLevelNameText, ESearchContext.CHILDREN, c => c.name == "LoadingSceneName" );
 		this.m_IsInitializedInternal &= this.transform.SearchComponent( ref this.m_LoadingSubTask, ESearchContext.CHILDREN, c => c.name == "LoadingSubTask" );
+
+		if ( !this.m_IsInitializedInternal )
+		{
+			Debug.LogError( "Loading Singlton has initialization problem" );
+#if UNITY_EDITOR
+			UnityEditor.EditorApplication.isPlaying = UnityEditor.EditorApplication.isPaused = false;
+#endif
+		}
 	}
 
 
@@ -66,7 +75,7 @@ public class Loading : MonoBehaviour {
 		if ( m_Instance != this )
 			return;
 
-		m_IsInitialized = false;
+//		m_IsInitialized = false;
 		m_Instance = null;
 	}
 
@@ -137,4 +146,5 @@ public class Loading : MonoBehaviour {
 	{
 		m_Instance.m_LoadingBar.value = Mathf.MoveTowards( m_Instance.m_LoadingBar.value, m_Instance.m_CurrentProgressValue, Time.unscaledDeltaTime );
 	}
+
 }

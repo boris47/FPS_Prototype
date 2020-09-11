@@ -6,14 +6,14 @@ using UnityEngine;
 namespace Database {
 
 	// PUBLIC INTERFACE
-	public interface IArrayData {
-
+	public interface IArrayData
+	{
 	}
 
 
 	[System.Serializable]
-	public partial class ArrayData : IArrayData, IEnumerable {
-
+	public partial class ArrayData : IArrayData, IEnumerable
+	{
 		// INTERNAL VARS
 		[SerializeField]
 		private		string				name			= null;
@@ -22,7 +22,7 @@ namespace Database {
 		private		string				m_Context		= "";
 
 		[SerializeField]
-		private		List<cLineValue>	vList		= new List<cLineValue>();
+		private		List<LineValue>	vList		= new List<LineValue>();
 
 		[SerializeField]
 		private		List<string>		m_Mothers		= new List<string>();
@@ -38,18 +38,15 @@ namespace Database {
 			get { return (this.m_Context.IsNotNull() ) ? (string)this.m_Context.Clone() :""; }
 		}
 
-
-
 		IEnumerator IEnumerable.GetEnumerator()
 		{
-			return (IEnumerator)this.GetEnumerator();
+			return this.GetEnumerator();
 		}
 	
-		public List<cLineValue>.Enumerator  GetEnumerator()
+		public List<LineValue>.Enumerator  GetEnumerator()
 		{
 			return this.vList.GetEnumerator();
 		}
-
 
 		public ArrayData( string arrayDataName, string context )
 		{
@@ -78,7 +75,7 @@ namespace Database {
 		{
 			if ( listB.m_IsOK == true )
 			{
-				foreach( cLineValue lineValue in listB )
+				foreach( LineValue lineValue in listB )
 				{
 					listA.Add( lineValue );
 				}
@@ -101,7 +98,7 @@ namespace Database {
 
 		public void Destroy()
 		{
-			this.vList.ForEach( ( cLineValue lv ) => lv.Destroy() );
+			this.vList.ForEach( ( LineValue lv ) => lv.Destroy() );
 		}
 
 		public	int						Lines()
@@ -114,7 +111,7 @@ namespace Database {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Add
-		public	bool				Add( cLineValue LineValue )
+		public	bool				Add( LineValue LineValue )
 		{
 			int index = this.vList.FindIndex( ( s ) => s.Key == LineValue.Key );
 			// Confirmed new linevalue
@@ -125,7 +122,7 @@ namespace Database {
 			// overwrite of existing linevalue
 			else
 			{
-				this.vList[ index ] = new cLineValue( LineValue );
+				this.vList[ index ] = new LineValue( LineValue );
 			}
 			return index > -1;
 		}
@@ -147,7 +144,7 @@ namespace Database {
 
 		//////////////////////////////////////////////////////////////////////////
 		// bGetLineValue
-		public	bool					bGetLineValue( int index, ref cLineValue lineValue )
+		public	bool					bGetLineValue( int index, ref LineValue lineValue )
 		{
 			if ( index < 0 || index >= this.vList.Count )
 				return false;
@@ -171,7 +168,7 @@ namespace Database {
 		// ValueType
 		public	global::System.Type		ValueType( int index )
 		{
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 			if (this.bGetLineValue( index, ref pLineValue ) )
 			{
 				if ( pLineValue.Type == ELineValueType.SINGLE )
@@ -187,7 +184,7 @@ namespace Database {
 		// GetRawValue
 		public	string					GetRawValue( int index, string Default = "" )
 		{
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 			return (this.bGetLineValue( index, ref pLineValue ) ) ? pLineValue.RawValue : Default;
 		}
 
@@ -196,7 +193,7 @@ namespace Database {
 		// As<T>
 		public	T						As<T>( int index )
 		{
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 			if (this.bGetLineValue( index, ref pLineValue ) && pLineValue.Type == ELineValueType.SINGLE )
 			{
 				return pLineValue.Value.As<T>();
@@ -208,7 +205,7 @@ namespace Database {
 		// AsBool
 		public	bool					AsBool( int index, bool Default = false )
 		{
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 			if (this.bGetLineValue( index, ref pLineValue ) && pLineValue.Type == ELineValueType.SINGLE )
 			{
 				return pLineValue.Value.As<bool>();
@@ -221,7 +218,7 @@ namespace Database {
 		// AsInt
 		public	int						AsInt( int index, int Default = 0 )
 		{
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 			if (this.bGetLineValue( index, ref pLineValue ) && pLineValue.Type == ELineValueType.SINGLE )
 			{
 				return pLineValue.Value.As<int>();
@@ -242,7 +239,7 @@ namespace Database {
 		public	float					AsFloat( int index, float Default = 0.0f )
 		{
 			
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 			if (this.bGetLineValue( index, ref pLineValue ) && pLineValue.Type == ELineValueType.SINGLE )
 			{
 				float value = pLineValue.Value;
@@ -256,7 +253,7 @@ namespace Database {
 		// AsString
 		public	string					AsString( int index, string Default = "" )
 		{
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 			if (this.bGetLineValue( index, ref pLineValue ) )
 			{
 				return pLineValue.Value.As<string>();
@@ -272,16 +269,14 @@ namespace Database {
 			bool bResult = true;
 
 			System.Type requiredType = typeof( T );
-
-			System.Converter<cLineValue, T> converter = delegate( cLineValue v )
+			T converter(LineValue v)
 			{
 				bResult &= v.Value.GetType() == requiredType;
 				return v.Value.As<T>();
-			};
+			}
 
 			// Get a list of converted cvalues to requested type
 			List<T> converted = this.vList.ConvertAll( converter );
-
 			if ( bResult )
 			{
 				array = converted.ToArray();
@@ -328,7 +323,7 @@ namespace Database {
 		// bAs<T>
 		public	bool					bAs<T>( int index, ref T Out )
 		{
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 			if (this.bGetLineValue( index, ref pLineValue ) )
 			{
 				if ( pLineValue.Type == ELineValueType.SINGLE )
@@ -346,7 +341,7 @@ namespace Database {
 		// bAsBool
 		public	bool					bAsBool( int index, ref bool Out, bool Default = false )
 		{
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 			if (this.bGetLineValue( index, ref pLineValue ) )
 			{
 				if ( pLineValue.Type == ELineValueType.SINGLE )
@@ -364,7 +359,7 @@ namespace Database {
 		// bAsInt
 		public	bool					bAsInt( int index, ref int Out, int Default = 0 )
 		{
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 			if (this.bGetLineValue( index, ref pLineValue ) )
 			{
 				if ( pLineValue.Type == ELineValueType.SINGLE )
@@ -382,7 +377,7 @@ namespace Database {
 		// bAsFloat
 		public	bool					bAsFloat( int index, ref float Out, float Default = 0.0f )
 		{
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 			if (this.bGetLineValue( index, ref pLineValue ) )
 			{
 				if ( pLineValue.Type == ELineValueType.SINGLE )
@@ -400,7 +395,7 @@ namespace Database {
 		// bAsString
 		public	bool					bAsString( int index, ref string Out, string Default = "" )
 		{
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 			if (this.bGetLineValue( index, ref pLineValue ) )
 			{
 				if ( pLineValue.Type == ELineValueType.SINGLE )

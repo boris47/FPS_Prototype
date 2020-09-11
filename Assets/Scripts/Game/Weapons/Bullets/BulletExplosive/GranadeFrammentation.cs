@@ -41,9 +41,9 @@ public sealed class GranadeFrammentation : BulletExplosive, ITimedExplosive {
 
 	//////////////////////////////////////////////////////////////////////////
 	// SetupBulletCO ( Override )
-	protected override IEnumerator SetupBulletCO()
+	protected override void SetupBulletCO()
 	{
-		yield return base.SetupBulletCO();
+		base.SetupBulletCO();
 
 		this.m_ExplosionDelay = this.m_BulletSection.AsFloat( "fExplosionDelay", this.m_ExplosionDelay );
 	}
@@ -115,7 +115,7 @@ public sealed class GranadeFrammentation : BulletExplosive, ITimedExplosive {
 
 			if ( bIsEntity && ( ( bHasShield && shield.Status > 0f ) || true ) )
 			{
-				float dmgMult = Vector3.Distance(this.transform.position, entityInterface.AsEntity.transform.position ) / this.m_Range + 0.001f;
+				float dmgMult = (Vector3.Distance(this.transform.position, entityInterface.AsEntity.transform.position ) / this.m_Range) + 0.001f;
 				float damage = this.m_Damage * dmgMult;
 //				if ( entity.Shield != null && entity.Shield.Status > 0.0f )
 //				{
@@ -134,7 +134,7 @@ public sealed class GranadeFrammentation : BulletExplosive, ITimedExplosive {
 				rb.AddExplosionForce( 1000, this.transform.position, this.m_Range, 3.0f );
 			}			
 		}
-		EffectsManager.Instance.PlayEffect( EEffectType.EXPLOSION, this.transform.position, Vector3.up, 0 );
+		EffectsManager.Instance.PlayEffect( EffectsManager.EEffecs.EXPLOSION, this.transform.position, Vector3.up, 0 );
 		this.SetActive( false );
 		this.m_InternalCounter	= 0f;
 	}

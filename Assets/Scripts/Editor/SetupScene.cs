@@ -15,19 +15,18 @@ public class SetupScene : EditorWindow  {
 	[MenuItem( "Window/Scene/MainSceneSetup" )]
 	private	static	void	MainSceneSetup()
 	{
-
 		foreach ( GameObject go in Object.FindObjectsOfType<GameObject>() )
 		{
 			DestroyImmediate( go );
 		}
 		
-		LoadPrefab<GlobalManager>		( prefabPath:"Prefabs/Essentials/GlobalManager"				);
+//		LoadPrefab<GlobalManager>		( prefabPath:"Prefabs/Essentials/GlobalManager"				);
 
-		LoadPrefab<CustomSceneManager>	( prefabPath:"Prefabs/Essentials/CustomSceneManager"		);
+//		LoadPrefab<CustomSceneManager>	( prefabPath:"Prefabs/Essentials/CustomSceneManager"		);
 		
-		LoadPrefab<ResourceManager>		( prefabPath:"Prefabs/Essentials/ResourceManager"			);
+//		LoadPrefab<ResourceManager>		( prefabPath:"Prefabs/Essentials/ResourceManager"			);
 
-		LoadPrefab<EffectsManager>		( prefabPath:"Prefabs/Essentials/EffectsManager"			);
+//		LoadPrefab<EffectsManager>		( prefabPath:"Prefabs/Essentials/EffectsManager"			);
 
 //		LoadPrefab<CustomSceneManager>	( prefabPath:"Prefabs/Essentials/CustomSceneManager"		);
 		
@@ -42,7 +41,6 @@ public class SetupScene : EditorWindow  {
 	[MenuItem( "Window/Scene/InGameSceneSetup" )]
 	private	static	void	InGameSceneSetup()
 	{
-
 		MainSceneSetup();
 		
 		LoadPrefab<GameManager>			( prefabPath:"Prefabs/Essentials/InGame/GameManager"		);
@@ -59,23 +57,6 @@ public class SetupScene : EditorWindow  {
 
 		EditorSceneManager.SaveOpenScenes();
 	}
-
-	private	static	T	SpawnIfNotFound<T>( bool bDontDestroyOnLoad = false ) where T : Component
-	{
-		T result = FindObjectOfType<T>();
-		if ( result == null )
-		{
-			GameObject go = new GameObject( typeof( T ).Name );
-			result = go.AddComponent<T>();
-			if ( bDontDestroyOnLoad )
-			{
-				Object.DontDestroyOnLoad(go);
-			}
-		}
-		return result;
-	}
-
-	
 
 
 	private	static	void	LoadPrefab<T>( string prefabPath ) where T : Component

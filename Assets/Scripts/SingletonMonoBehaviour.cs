@@ -3,16 +3,15 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
-
-internal class SingletonInitializer : MonoBehaviour {
-
+internal class SingletonInitializer
+{
 	public interface ITopSingleton {}
 
 	// ref https://docs.microsoft.com/it-it/dotnet/api/system.reflection.bindingflags?view=netframework-4.7.1
 
 	/** We use reflection to get all types including interface 'ITopSingleton' and initialize them on phase 'SubsystemRegistration' */
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.SubsystemRegistration)]
-	protected	static	void	SubsystemRegistration()
+	private	static	void	SubsystemRegistration()
 	{
 		List<System.Type> singletons = ReflectionHelper.FindInerithedFromInterface<ITopSingleton>(bInlcludeAbstracts:false);
 		ReflectionHelper.CallMethodOnTypes( singletons, "SubsystemRegistration", IsBaseMethod: true );
@@ -20,7 +19,7 @@ internal class SingletonInitializer : MonoBehaviour {
 
 	/** We use reflection to get all types including interface 'ITopSingleton' and initialize them on phase 'AfterAssembliesLoaded' */
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.AfterAssembliesLoaded)]
-	protected	static	void	AfterAssembliesLoaded()
+	private	static	void	AfterAssembliesLoaded()
 	{
 		List<System.Type> singletons = ReflectionHelper.FindInerithedFromInterface<ITopSingleton>(bInlcludeAbstracts: false);
 		ReflectionHelper.CallMethodOnTypes( singletons, "AfterAssembliesLoaded", IsBaseMethod: true );
@@ -30,16 +29,15 @@ internal class SingletonInitializer : MonoBehaviour {
 	 * If the splash screen is turned off, functions using this load type are invoked when the splash screen would have been displayed
 	 */
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSplashScreen)]
-	protected	static	void	BeforeSplashScreen()
+	private	static	void	BeforeSplashScreen()
 	{
 		List<System.Type> singletons = ReflectionHelper.FindInerithedFromInterface<ITopSingleton>(bInlcludeAbstracts: false);
 		ReflectionHelper.CallMethodOnTypes( singletons, "BeforeSplashScreen", IsBaseMethod: true );
 	}
 
-
 	/** We use reflection to get all types including interface 'ITopSingleton' and initialize them on phase 'BeforeSceneLoad' */
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
-	protected	static	void	BeforeSceneLoad()
+	private	static	void	BeforeSceneLoad()
 	{
 		List<System.Type> singletons = ReflectionHelper.FindInerithedFromInterface<ITopSingleton>(bInlcludeAbstracts: false);
 		ReflectionHelper.CallMethodOnTypes( singletons, "BeforeSceneLoad", IsBaseMethod: true );
@@ -48,15 +46,21 @@ internal class SingletonInitializer : MonoBehaviour {
 
 
 
-public abstract class SingletonMonoBehaviour<T> : MonoBehaviour, SingletonInitializer.ITopSingleton where T : MonoBehaviour {
+public abstract class SingletonMonoBehaviour<T> : MonoBehaviour, SingletonInitializer.ITopSingleton where T : MonoBehaviour
+{
+	private const string SINGLETONS_FOLDER_PATH = "Prefabs/Essentials/Singletons/";
 
 	private		static			SingletonMonoBehaviour<T>				m_Instance				= null;
 	public		static			T										Instance
 	{
 		get {
-			UnityEngine.Assertions.Assert.IsTrue
+			if (m_Instance == null)
+			{
+				Initialize();
+			}
+			UnityEngine.Assertions.Assert.IsNotNull
 			(
-				!!m_Instance || !m_IsInitialized,
+				m_Instance,
 				typeof(T).Name + " has been not initialized correctly!!"
 			);
 			return m_Instance as T;
@@ -76,16 +80,33 @@ public abstract class SingletonMonoBehaviour<T> : MonoBehaviour, SingletonInitia
 	{
 		if ( m_IsInitialized == false )
 		{
+			string name = typeof( T ).Name;
 			m_Instance = FindObjectOfType<SingletonMonoBehaviour<T>>();
-			if ( m_Instance == null )
+			if ( !m_Instance )
 			{
-				m_Instance = new GameObject( typeof(T).Name ).AddComponent<T>() as SingletonMonoBehaviour<T>;
-				print( "Singleton created " + typeof(T).Name );
+				m_Instance = Resources.Load<SingletonMonoBehaviour<T>>($"{SINGLETONS_FOLDER_PATH}{name}");
+				m_Instance = m_Instance ? Instantiate( m_Instance ) : m_Instance;
+				if (!m_Instance)
+				{
+//					print($"Singleton resource '{name}' not found");
+					m_Instance = new GameObject(name).AddComponent<T>() as SingletonMonoBehaviour<T>;
+					print( $"Singleton {name} created" );
+				}
+				else
+				{
+					print( $"Singleton {name} loaded from {SINGLETONS_FOLDER_PATH}" );
+				}
+			}
+			else
+			{
+				print( $"Singleton {name} instance alredy found" );
 			}
 //			m_Instance.hideFlags = HideFlags.DontSave;
 			m_IsInitialized = true;
 
 			DontDestroyOnLoad( m_Instance );
+
+			m_Instance.OnInitialize();
 
 			Database.Section debugInfosSection = null;
 			if ( GlobalManager.Configs.GetSection( "DebugInfos", ref debugInfosSection ) )
@@ -140,6 +161,9 @@ public abstract class SingletonMonoBehaviour<T> : MonoBehaviour, SingletonInitia
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> Called on initialization </summary>
+	protected virtual	void	OnInitialize() { }
 		
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Callback used for registration of subsystems </summary>

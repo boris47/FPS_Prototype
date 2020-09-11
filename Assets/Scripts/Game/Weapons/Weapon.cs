@@ -54,8 +54,8 @@ public interface IWeapon :  IAttachments, IWeaponZoom, IModifiable {
 
 
 [System.Serializable]
-public abstract partial class Weapon : MonoBehaviour, IWeapon {
-
+public abstract partial class Weapon : MonoBehaviour, IWeapon
+{
 	[Header("Weapon Properties")]
 
 	[SerializeField, ReadOnly]	protected		Vector3				m_ZoomOffset				= Vector3.zero;
@@ -133,9 +133,9 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 	protected	virtual	string				OtherInfo
 	{
 		get {
-			string primaryModule	= this.m_PrimaryWeaponModuleSlot.WeaponModule.ModuleSection ? this.m_PrimaryWeaponModuleSlot.WeaponModule.ModuleSection.GetName() : "None";
-			string secondaryModule	= this.m_SecondaryWeaponModuleSlot.WeaponModule.ModuleSection ? this.m_SecondaryWeaponModuleSlot.WeaponModule.ModuleSection.GetName() : "None";
-			string tertiaryModule	= this.m_TertiaryWeaponModuleSlot.WeaponModule.ModuleSection ? this.m_TertiaryWeaponModuleSlot.WeaponModule.ModuleSection.GetName() : "None";
+			string primaryModule	= this.m_PrimaryWeaponModuleSlot.WeaponModule.ModuleSection ? this.m_PrimaryWeaponModuleSlot.WeaponModule.ModuleSection.GetSectionName() : "None";
+			string secondaryModule	= this.m_SecondaryWeaponModuleSlot.WeaponModule.ModuleSection ? this.m_SecondaryWeaponModuleSlot.WeaponModule.ModuleSection.GetSectionName() : "None";
+			string tertiaryModule	= this.m_TertiaryWeaponModuleSlot.WeaponModule.ModuleSection ? this.m_TertiaryWeaponModuleSlot.WeaponModule.ModuleSection.GetSectionName() : "None";
 			return primaryModule + "," + secondaryModule + "," + tertiaryModule;
 		}
 	}
@@ -211,9 +211,9 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 	private		bool						ReloadBaseConfiguration()
 	{
 		bool result = true;
-		this.m_PrimaryWeaponModuleSlot.TrySetModule		( this,	typeof( WPN_BaseModuleEmpty ) );
-		this.m_SecondaryWeaponModuleSlot.TrySetModule	( this,	typeof( WPN_BaseModuleEmpty ) );
-		this.m_TertiaryWeaponModuleSlot.TrySetModule		( this,	typeof( WPN_BaseModuleEmpty ) );
+		this.m_PrimaryWeaponModuleSlot.TrySetModule(this,	typeof( WPN_BaseModuleEmpty ) );
+		this.m_SecondaryWeaponModuleSlot.TrySetModule(this,	typeof( WPN_BaseModuleEmpty ) );
+		this.m_TertiaryWeaponModuleSlot.TrySetModule(this,	typeof( WPN_BaseModuleEmpty ) );
 
 		this.m_Modifiers.Clear();
 
@@ -415,7 +415,7 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon {
 	{
 		StreamUnit streamUnit	= streamData.NewUnit(this.gameObject );
 		
-		streamUnit.SetInternal( "PrimaryModule", this.m_PrimaryWeaponModuleSlot.WeaponModule.ModuleSection.GetName() );
+		streamUnit.SetInternal( "PrimaryModule", this.m_PrimaryWeaponModuleSlot.WeaponModule.ModuleSection.GetSectionName() );
 
 		this.m_PrimaryWeaponModuleSlot.WeaponModule.OnSave( streamUnit );
 		this.m_SecondaryWeaponModuleSlot.WeaponModule.OnSave( streamUnit );

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
-public	static	class	MultiThreading {
-
+public	static	class	MultiThreading
+{
 	public	static	Thread	CreateThread( System.Action body, bool bCanStart = true, System.Action onCompletion = null )
 	{
 		if ( body == null )

@@ -26,9 +26,9 @@ public sealed class BulletRocket : BulletExplosive, IFlyingExplosive {
 
 	//////////////////////////////////////////////////////////////////////////
 	// SetupBulletCO ( Override )
-	protected override IEnumerator SetupBulletCO()
+	protected override void SetupBulletCO()
 	{
-		yield return base.SetupBulletCO();
+		base.SetupBulletCO();
 
 		this.m_MaxRange = this.m_BulletSection.AsFloat( "fMaxRange", this.m_MaxRange );
 	}
@@ -92,7 +92,7 @@ public sealed class BulletRocket : BulletExplosive, IFlyingExplosive {
 //		if ( bIsBullet == true )
 //			return;
 
-		EEffectType effectToPlay = EEffectType.ENTITY_ON_HIT;
+		EffectsManager.EEffecs effectToPlay = EffectsManager.EEffecs.ENTITY_ON_HIT;
 
 		IEntity entity = null;
 		IShield shield = null;
@@ -106,7 +106,7 @@ public sealed class BulletRocket : BulletExplosive, IFlyingExplosive {
 		}
 		else
 		{
-			effectToPlay = EEffectType.AMBIENT_ON_HIT;
+			effectToPlay = EffectsManager.EEffecs.AMBIENT_ON_HIT;
 		}
 
 		Vector3 position = other.ClosestPointOnBounds(this.transform.position );

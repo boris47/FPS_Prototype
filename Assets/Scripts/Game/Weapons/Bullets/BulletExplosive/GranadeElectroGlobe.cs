@@ -52,9 +52,9 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 
 	//////////////////////////////////////////////////////////////////////////
 	// ConfigureInternal ( Override )
-	protected override IEnumerator SetupBulletCO()
+	protected override void SetupBulletCO()
 	{
-		yield return base.SetupBulletCO();
+		base.SetupBulletCO();
 
 		this.m_ExplosionDelay = this.m_BulletSection.AsFloat( "fExplosionDelay", this.m_ExplosionDelay );
 	}
@@ -169,7 +169,7 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 	private					IEnumerator	ExplosionCO()
 	{
 		this.m_ExplosionGlobe.localScale = Vector3.zero;
-		Vector3 finalScale			= Vector3.one * (this.m_Range ) * (this.transform.localScale.x * 40f );
+		Vector3 finalScale			= Vector3.one * this.m_Range  * (this.transform.localScale.x * 40f );
 		float	interpolant			= 0f;
 
 		this.m_RigidBody.constraints = RigidbodyConstraints.FreezeAll;

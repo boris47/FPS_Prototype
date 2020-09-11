@@ -1,24 +1,45 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 #if UNITY_EDITOR
 [UnityEditor.InitializeOnLoad]
-class EditorInitializer { static EditorInitializer ()
+class EditorInitializer
 {
-		// Assets/Resources/Scriptables/WeatherCollection.asset
-	const string assetPath = WeatherSystem.WindowWeatherEditor.ASSETS_SCRIPTABLES_PATH + "/" + WeatherSystem.WeatherManager.RESOURCES_WEATHERSCOLLECTION + ".asset";
-	if (System.IO.File.Exists(assetPath))
+	static EditorInitializer ()
 	{
-		WeatherSystem.Weathers weathers = UnityEditor.AssetDatabase.LoadAssetAtPath<WeatherSystem.Weathers>( assetPath );
-		UnityEngine.Assertions.Assert.IsNotNull
-		(
-			weathers,
-			"Cannot preload weather cycles"
-		);
-		Debug.Log( "Weathers cycles preloaded!" );
+		// Assets/Resources/Scriptables/WeatherCollection.asset
+		const string assetPath = WeatherSystem.WindowWeatherEditor.ASSETS_SCRIPTABLES_PATH + "/" + WeatherSystem.WeatherManager.RESOURCES_WEATHERSCOLLECTION + ".asset";
+		if (System.IO.File.Exists(assetPath))
+		{
+			WeatherSystem.Weathers weathers = UnityEditor.AssetDatabase.LoadAssetAtPath<WeatherSystem.Weathers>( assetPath );
+			UnityEngine.Assertions.Assert.IsNotNull
+			(
+				weathers,
+				"Cannot preload weather cycles"
+			);
+			Debug.Log( "Weathers cycles preloaded!" );
+		}
+	//	UnityEditor.SceneManagement.EditorSceneManager.OpenScene("Assets/Scenes/Loading.unity", UnityEditor.SceneManagement.OpenSceneMode.Additive);
 	}
-} }
+	/*
+	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
+	private static void LoadLoadingScene()
+	{
+		Scene loadingScene = SceneManager.GetSceneByBuildIndex( (int) ESceneEnumeration.LOADING );
+		if (!loadingScene.isLoaded)
+		{
+			CustomSceneManager.LoadSceneData loadSceneData = new CustomSceneManager.LoadSceneData()
+			{
+				eScene = ESceneEnumeration.LOADING,
+				eMode = LoadSceneMode.Additive
+			};
+			CustomSceneManager.LoadSceneSync( loadSceneData );
+		}
+	}
+	*/
+}
 #endif
 
 public class CustomLogHandler : ILogHandler
@@ -77,8 +98,8 @@ public class CustomLogHandler : ILogHandler
 
 
 
-public class GlobalManager : SingletonMonoBehaviour<GlobalManager> {
-
+public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
+{
 	private	const			string				m_SettingsFilePath	= "Settings";
 	private	const			string				m_ConfigsFilePath	= "Configs/All";
 
@@ -116,13 +137,9 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager> {
 		}
 	}
 
-	private	static				InputManager	m_InputMgr			= null;
-	public	static				InputManager	InputMgr
-	{
-		get { return m_InputMgr; }
-	}
+	public static InputManager InputMgr { get; private set; } = null;
 
-	
+
 	//////////////////////////////////////////////////////////////////////////
 	static void HandleException( string condition, string stackTrace, LogType type )
     {
@@ -140,7 +157,7 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager> {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected override void OnBeforeSceneLoad()
+	protected override void OnInitialize()
 	{
 		if ( Application.isEditor == false )
 		{
@@ -165,10 +182,24 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager> {
 		QualitySettings.asyncUploadBufferSize = 24; // MB
 
 		if ( Application.isEditor == false )
+		{
 			m_LoggerInstance = new CustomLogHandler();
+		}
 
-		m_InputMgr = new InputManager();
-		m_InputMgr.Setup();
+		InputMgr = new InputManager();
+		InputMgr.Setup();
+
+		// If not already loaded from previous scenes, ensure scene loaded for next sequence
+		Scene loadingScene = SceneManager.GetSceneByBuildIndex( (int) ESceneEnumeration.LOADING );
+		if (!loadingScene.isLoaded)
+		{
+			CustomSceneManager.LoadSceneData loadSceneData = new CustomSceneManager.LoadSceneData()
+			{
+				eScene = ESceneEnumeration.LOADING,
+				eMode = LoadSceneMode.Additive
+			};
+			CustomSceneManager.LoadSceneSync( loadSceneData );
+		}
 	}
 
 
@@ -218,9 +249,14 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager> {
 		}
 		*/
 
+		if ( Input.GetKeyDown( KeyCode.K ) )
+		{
+			SoundManager.Pitch = Time.timeScale = 0.2f;
+		}
+
 		if ( Input.GetKeyDown( KeyCode.V ) )
 		{
-			Destroy( UIManager.InGame.transform.parent.gameObject );
+			Destroy( UIManager.InGame?.transform.parent.gameObject );
 			CustomSceneManager.LoadSceneSync( new CustomSceneManager.LoadSceneData() { eScene = ESceneEnumeration.MAIN_MENU } );
 		}
 	}

@@ -3,16 +3,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Database {
-
-	public partial class Section {
-
-
+namespace Database
+{
+	public partial class Section
+	{
 		//////////////////////////////////////////////////////////////////////////
 		// bAs<T>
 		public	bool					bAs<T>( string Key, ref T Out )
 		{
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
 				if ( pLineValue.Type == ELineValueType.SINGLE )
@@ -29,17 +28,16 @@ namespace Database {
 		// bAs<T>
 		public	bool					bAs<T>( string Key, ref T[] Out )
 		{
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
 				if ( pLineValue.Type == ELineValueType.MULTI )
 				{
-					List<cValue> values = pLineValue.MultiValue.ValueList;
-					bool bAreValidValues = true;
-					values.ForEach( ( cValue value ) => bAreValidValues &= typeof(T) == value.GetType() );
-					if ( bAreValidValues )
+					Value[] values = pLineValue.MultiValue.ValueList;
+					System.Type requestedType = typeof(T);
+					if (System.Array.TrueForAll(values, (Value value) => value.GetType().IsEquivalentTo(requestedType)))
 					{
-						Out = values.ConvertAll( ( s ) => s.As<T>() ).ToArray();
+						Out = System.Array.ConvertAll(values, (s) => s.As<T>());
 						return true;
 					}
 				}
@@ -53,7 +51,7 @@ namespace Database {
 		// bAsBool
 		public	bool					bAsBool( string Key, ref bool Out, bool Default = false )
 		{
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
 				if ( pLineValue.Type == ELineValueType.SINGLE )
@@ -71,7 +69,7 @@ namespace Database {
 		// bAsInt
 		public	bool					bAsInt( string Key, ref int Out, int Default = 0 )
 		{
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
 				if ( pLineValue.Type == ELineValueType.SINGLE )
@@ -89,7 +87,7 @@ namespace Database {
 		// bAsFloat
 		public	bool					bAsFloat( string Key, ref float Out, float Default = 0.0f )
 		{
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
 				if ( pLineValue.Type == ELineValueType.SINGLE )
@@ -107,7 +105,7 @@ namespace Database {
 		// bAsString
 		public	bool					bAsString( string Key, ref string Out, string Default = "" )
 		{
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
 				if ( pLineValue.Type == ELineValueType.SINGLE )
@@ -123,12 +121,12 @@ namespace Database {
 
 		//////////////////////////////////////////////////////////////////////////
 		// bAsMultiValue
-		public	bool					bAsMultiValue( string Key, int Index, out cValue Out )
+		public	bool					bAsMultiValue( string Key, int Index, out Value Out )
 		{
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
-				cMultiValue pMultiValue	= null;
+				MultiValue pMultiValue	= null;
 				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
 				{
 					Out = pMultiValue[ Index - 1 ];
@@ -144,15 +142,13 @@ namespace Database {
 		// bAsVec2
 		public	bool					bAsVec2( string Key, ref Vector2 Out, Vector2? Default )
 		{
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
-				cMultiValue pMultiValue	= null;
+				MultiValue pMultiValue	= null;
 				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
 				{
-					cValue pValue1				= pMultiValue[ 0 ];
-					cValue pValue2				= pMultiValue[ 1 ];
-
+					Value pValue1 = pMultiValue[ 0 ], pValue2 = pMultiValue[ 1 ];
 					if ( ( pValue1 != null ) && ( pValue2 != null ) )
 					{
 						Out = new Vector2( pValue1.ToFloat(), pValue2.ToFloat() );
@@ -169,16 +165,13 @@ namespace Database {
 		// bAsVec3
 		public	bool					bAsVec3( string Key, ref Vector3 Out, Vector3? Default )
 		{
-			cLineValue pLineValue		= null;
+			LineValue pLineValue		= null;
 			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
-				cMultiValue pMultiValue	= null;
+				MultiValue pMultiValue	= null;
 				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
 				{
-					float x = pMultiValue[ 0 ];
-					float y = pMultiValue[ 1 ];
-					float z = pMultiValue[ 2 ];
-
+					float x = pMultiValue[ 0 ], y = pMultiValue[ 1 ], z = pMultiValue[ 2 ];
 					Out = new Vector3( x, y, z );
 					return true;
 				}
@@ -192,18 +185,14 @@ namespace Database {
 		// bAsVec4
 		public	bool					bAsVec4( string Key, ref Vector4 Out, Vector4? Default )
 		{
-			cLineValue pLineValue		= null;
+			LineValue pLineValue		= null;
 			if (this.bGetLineValue( Key, ref pLineValue ) )
 			{
-				cMultiValue pMultiValue	= null;
+				MultiValue pMultiValue	= null;
 				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
 				{
-					float x = pMultiValue[ 0 ];
-					float y = pMultiValue[ 1 ];
-					float z = pMultiValue[ 2 ];
-					float w = pMultiValue[ 3 ];
-
-					Out = new Vector4( x, y, z, w );
+					float x = pMultiValue[0], y = pMultiValue[1], z = pMultiValue[2], w = pMultiValue[3];
+					Out = new Vector4( x:x, y:y, z:z, w:w );
 					return true;
 				}
 			}
@@ -217,17 +206,13 @@ namespace Database {
 		public	bool					bAsColor( string Key, ref Color Out, Color Default )
 		{
 			Vector4 refVec = Vector4.zero;
-			bool result = this.bAsVec4( Key, ref refVec, Vector4.zero );
-
-			if ( result == true )
+			if (this.bAsVec4(Key, ref refVec, Vector4.zero))
 			{
-				Out = new Color( refVec[0], refVec[1], refVec[2], refVec[3] );
+				float r = refVec[0], g = refVec[1], b = refVec[2], a = refVec[3];
+				Out = new Color( r:r, g:g, b:b, a:a );
 			}
-			else
-			{
-				Out = Default;
-			}
-			return result;
+			Out = Default;
+			return false;
 		}
 	
 	};

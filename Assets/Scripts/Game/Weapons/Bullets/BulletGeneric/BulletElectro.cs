@@ -28,10 +28,10 @@ public sealed class BulletElectro : BulletBallistic {
 
 		int nParticle = 3;
 
-		EEffectType effectToPlay;
+		EffectsManager.EEffecs effectToPlay;
 		if ( bIsShield )
 		{
-			effectToPlay = EEffectType.ELETTRO;
+			effectToPlay = EffectsManager.EEffecs.ELETTRO;
 			nParticle = 15;
 		}
 		else
@@ -39,12 +39,12 @@ public sealed class BulletElectro : BulletBallistic {
 		if ( bIsAnEntity == true && ( (this.m_WhoRef is NonLiveEntity && entity is NonLiveEntity ) == false ) )
 		{
 			nParticle = 15;
-			effectToPlay = EEffectType.ELETTRO;
+			effectToPlay = EffectsManager.EEffecs.ELETTRO;
 		}
 		else
 		{
 			nParticle = 25;
-			effectToPlay = EEffectType.ELETTRO;
+			effectToPlay = EffectsManager.EEffecs.ELETTRO;
 		}
 
 		Vector3 position = other.ClosestPointOnBounds(this.transform.position );
@@ -73,10 +73,10 @@ public sealed class BulletElectro : BulletBallistic {
 
 		int nParticle = 3;
 
-		EEffectType effectToPlay;
+		EffectsManager.EEffecs effectToPlay;
 		if ( bIsShield )
 		{
-			effectToPlay = EEffectType.ELETTRO;
+			effectToPlay = EffectsManager.EEffecs.ELETTRO;
 			nParticle = 15;
 		}
 		else
@@ -84,13 +84,13 @@ public sealed class BulletElectro : BulletBallistic {
 		if ( bIsAnEntity == true && ( (this.m_WhoRef is NonLiveEntity && entity is NonLiveEntity ) == false ) )
 		{
 			nParticle = 15;
-			effectToPlay = EEffectType.ELETTRO;
+			effectToPlay = EffectsManager.EEffecs.ELETTRO;
 			entity.RigidBody.angularVelocity = entity.RigidBody.velocity = Vector3.zero;
 		}
 		else
 		{
 			nParticle = 25;
-			effectToPlay = EEffectType.ELETTRO;
+			effectToPlay = EffectsManager.EEffecs.ELETTRO;
 		}
 
 		EffectsManager.Instance.PlayEffect( effectToPlay, position, direction, nParticle );

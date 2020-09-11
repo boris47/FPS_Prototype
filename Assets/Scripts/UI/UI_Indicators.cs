@@ -79,9 +79,10 @@ public sealed class UI_Indicators : MonoBehaviour, IStateDefiner {
 		bool resourcesLoaded = true;
 
 		// Section Data
+		Database.Section indicatorsseSection = null;
 		UnityEngine.Assertions.Assert.IsTrue
 		(
-			GlobalManager.Configs.GetSection( "UI_Indicators", this.m_IndicatorsSectionData ),
+			GlobalManager.Configs.GetSection("UI_Indicators", ref indicatorsseSection) && GlobalManager.Configs.bSectionToOuter(indicatorsseSection, this.m_IndicatorsSectionData),
 			"UI_Indicators::Initialize:Cannot load UI_IndicatorsSectionData"
 		);
 
@@ -349,12 +350,12 @@ public sealed class UI_Indicators : MonoBehaviour, IStateDefiner {
 			ScreenPoint2D -= screenCenter2D;
 
 			// Find angle from center of screen to mouse position
-			float angle = Mathf.Atan2( ScreenPoint2D.y, ScreenPoint2D.x ) - 90f * Mathf.Deg2Rad;
+			float angle = Mathf.Atan2( ScreenPoint2D.y, ScreenPoint2D.x ) - (90f * Mathf.Deg2Rad);
 			float cos = Mathf.Cos( angle );
 			float sin = -Mathf.Sin( angle );
 
 			const float amplify = 150f;
-			ScreenPoint2D.Set( screenCenter2D.x + sin * amplify, screenCenter2D.y + cos * amplify );
+			ScreenPoint2D.Set( screenCenter2D.x + (sin * amplify), screenCenter2D.y + (cos * amplify) );
 
 			// y = mx + b format
 			float m = cos / sin;
@@ -422,12 +423,12 @@ public sealed class UI_Indicators : MonoBehaviour, IStateDefiner {
 			Vector2 screenPointInLocalSpace = UIManager.Minimap.transform.InverseTransformPoint( screenPointInWorldSpace );
 
 			// Find angle from center of screen to mouse position
-			float angle = Mathf.Atan2( screenPointInLocalSpace.y, screenPointInLocalSpace.x ) - 90f * Mathf.Deg2Rad;
+			float angle = Mathf.Atan2( screenPointInLocalSpace.y, screenPointInLocalSpace.x ) - (90f * Mathf.Deg2Rad);
 			float cos = Mathf.Cos( angle );
 			float sin = -Mathf.Sin( angle );
 
 			float amplify = 150f;
-			screenPointInLocalSpace.Set( screenPointInLocalSpace.x + sin * amplify, screenPointInLocalSpace.y + cos * amplify );
+			screenPointInLocalSpace.Set( screenPointInLocalSpace.x + (sin * amplify), screenPointInLocalSpace.y + (cos * amplify) );
 
 			// y = mx + b format
 			float m = cos / sin;

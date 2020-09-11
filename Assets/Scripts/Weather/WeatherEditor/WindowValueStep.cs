@@ -8,16 +8,16 @@ using UnityEditor;
 public class WindowValueStep : EditorWindow {
 
 	public	static	WindowValueStep		m_Window		{ get; private set; }
-	public	static	cValue				Value			{ get; private set; }
-	public	static	cValue				Arg				{ get; private set; }
+	public	static	Value				Value			{ get; private set; }
+	public	static	Value				Arg				{ get; private set; }
 
 	private	System.Action		OnOK					= null;
 	private System.Action		OnCancel				= null;
-	private System.Func<cValue>	OptionalArg				= null;
+	private System.Func<Value>	OptionalArg				= null;
 	private	System.Type			RequestedType			= null;
 
 	//
-	public static void Init<T>( System.Action callbackOK, System.Action callbackCancel = null, System.Func<cValue> optionalArg = null )
+	public static void Init<T>( System.Action callbackOK, System.Action callbackCancel = null, System.Func<Value> optionalArg = null )
 	{
 		if ( m_Window != null )
 		{
@@ -40,17 +40,17 @@ public class WindowValueStep : EditorWindow {
 		m_Window.OptionalArg		= optionalArg;
 		m_Window.RequestedType		= requestedType;
 
-		if ( requestedType == typeof( bool ) )		Value = new cValue( false );
-		if ( requestedType == typeof( int ) )		Value = new cValue( 0 );
-		if ( requestedType == typeof( float ) )		Value = new cValue( 0.0f );		
-		if ( requestedType == typeof( string ) )	Value = new cValue( "None" );
+		if ( requestedType == typeof( bool ) )		Value = new Value( false );
+		if ( requestedType == typeof( int ) )		Value = new Value( 0 );
+		if ( requestedType == typeof( float ) )		Value = new Value( 0.0f );		
+		if ( requestedType == typeof( string ) )	Value = new Value( "None" );
 
 		Arg = "";
 	}
 
 
 	//
-	private static	bool	HasValidValue( cValue Value )
+	private static	bool	HasValidValue( Value Value )
 	{
 		if ( Value.ToSystemObject() == null )
 			return false;

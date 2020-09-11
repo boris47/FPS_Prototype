@@ -9,8 +9,8 @@ namespace Database {
 	public enum ELineValueType : byte	{ SINGLE, MULTI };
 
 	[System.Serializable]
-	public class cLineValue {
-
+	public class LineValue
+	{
 		[SerializeField]
 		private	string						sKey				= string.Empty;
 		[SerializeField]
@@ -20,9 +20,9 @@ namespace Database {
 		private	ELineValueType				iType				= 0;
 
 		[SerializeField]
-		private	cMultiValue					pMultiValue			= null;
+		private	MultiValue					pMultiValue			= null;
 		[SerializeField]
-		private	cValue						pValue				= null;
+		private	Value						pValue				= null;
 
 		public	bool						IsOK
 		{
@@ -34,15 +34,15 @@ namespace Database {
 		public 	ELineValueType		Type 						{ get {return this.iType; } }
 		public 	string				Key							{ get { return ( string )this.sKey.Clone(); } }
 		public 	string				RawValue 					{ get { return ( string )this.sRawValue.Clone(); } }
-		public 	cValue				Value						{ get { return this.pValue; } }
-		public 	cMultiValue			MultiValue					{ get { return this.pMultiValue;	} }
+		public 	Value				Value						{ get { return this.pValue; } }
+		public 	MultiValue			MultiValue					{ get { return this.pMultiValue;	} }
 
 
 
 		// Type can be Single or Multi
 		/////////////////////////////////////////////////////////////////////////////////
 		// CONSTRUCTOR
-		public cLineValue( string Key, ELineValueType Type )
+		public LineValue( string Key, ELineValueType Type )
 		{
 			this.iType = Type; this.sKey = Key; this.sRawValue = Key;
 		}
@@ -50,13 +50,13 @@ namespace Database {
 
 		/////////////////////////////////////////////////////////////////////////////////
 		// CONSTRUCTOR
-		public cLineValue( cLineValue clone ) : this( clone.sKey, clone.sRawValue )
+		public LineValue( LineValue clone ) : this( clone.sKey, clone.sRawValue )
 		{}
 
 
 		/////////////////////////////////////////////////////////////////////////////////
 		// CONSTRUCTOR
-		public cLineValue ( string Key, string sLine )
+		public LineValue ( string Key, string sLine )
 		{
 			this.sKey = Key;
 			this.sRawValue = ( ( sLine.Length > 0 ) ? sLine : "" );
@@ -64,17 +64,17 @@ namespace Database {
 			if ( sLine.IndexOf( ',' ) > -1 )
 			{ // Supposing is a MultiVal string
 				this.iType = ELineValueType.MULTI;
-				cValue[] vValues = Utils.String.RecognizeValues( sLine );
+				Value[] vValues = Utils.String.RecognizeValues( sLine );
 				if ( vValues.Length < 1 )
 					return;
 
-				this.pMultiValue = new cMultiValue( vValues );
+				this.pMultiValue = new MultiValue( vValues );
 		
 			}
 			else
 			{ // Single value
 				this.iType = ELineValueType.SINGLE;
-				cValue pValue = Utils.String.RecognizeValue( sLine );
+				Value pValue = Utils.String.RecognizeValue( sLine );
 				if ( pValue == null ) {
 					UnityEngine.Debug.LogError( " cLineValue::Constructor: for key " + Key + " value type is undefined" );
 					return;
@@ -87,7 +87,7 @@ namespace Database {
 
 
 		/////////////////////////////////////////////////////////////////////////////////
-		public bool	GetAsSingle( ref cValue value )
+		public bool	GetAsSingle( ref Value value )
 		{
 			bool bResult = this.iType == ELineValueType.SINGLE;
 			if ( bResult )
@@ -99,7 +99,7 @@ namespace Database {
 
 
 		/////////////////////////////////////////////////////////////////////////////////
-		public bool	GetAsMulti( ref cMultiValue multiValue )
+		public bool	GetAsMulti( ref MultiValue multiValue )
 		{
 			bool bResult = this.iType == ELineValueType.MULTI;
 			if ( bResult )
@@ -109,12 +109,13 @@ namespace Database {
 			return bResult;
 		}
 
+
+		/////////////////////////////////////////////////////////////////////////////////
 		public void Destroy()
 		{
 			this.pValue = null;
 			this.pMultiValue = null;
 		}
-
 
 
 		/////////////////////////////////////////////////////////////////////////////////
@@ -133,21 +134,21 @@ namespace Database {
 		
 
 		/////////////////////////////////////////////////////////////////////////////////
-		public 	cLineValue Set( cValue _Value )
+		public 	LineValue Set( Value _Value )
 		{
-			this.pValue		= _Value;
-			this.pMultiValue = null;
-			this.iType		= ELineValueType.SINGLE;
+			this.pValue			= _Value;
+			this.pMultiValue	= null;
+			this.iType			= ELineValueType.SINGLE;
 			return this;
 		}
 
 
 		/////////////////////////////////////////////////////////////////////////////////
-		public 	cLineValue Set( cMultiValue _MultiValue )
+		public 	LineValue Set( MultiValue _MultiValue )
 		{
 			this.pMultiValue	= _MultiValue;
-			this.pValue		= null;
-			this.iType		= ELineValueType.MULTI;
+			this.pValue			= null;
+			this.iType			= ELineValueType.MULTI;
 			return this;
 		}
 		

@@ -84,7 +84,7 @@ public class BulletBallistic : BulletGeneric {
 			if ( bIsBullet == true )
 				return;
 
-			EEffectType effectToPlay = EEffectType.ENTITY_ON_HIT;
+			EffectsManager.EEffecs effectToPlay = EffectsManager.EEffecs.ENTITY_ON_HIT;
 
 			IEntity entity = null;
 			IShield shield = null;
@@ -98,12 +98,13 @@ public class BulletBallistic : BulletGeneric {
 			}
 			else
 			{
-				effectToPlay = EEffectType.AMBIENT_ON_HIT;
+				effectToPlay = EffectsManager.EEffecs.AMBIENT_ON_HIT;
+				hit.rigidbody?.AddForceAtPosition( direction * this.m_Velocity * this.m_RigidBody.mass, hit.point, ForceMode.Impulse );
 			}
 
 			EffectsManager.Instance.PlayEffect( effectToPlay, hit.point, hit.normal, 3 );
 		}
-		EffectsManager.Instance.PlayEffect( EEffectType.MUZZLE, position, direction, 0, 0.1f );
+		EffectsManager.Instance.PlayEffect( EffectsManager.EEffecs.MUZZLE, position, direction, 0, 0.1f );
 	}
 
 
@@ -113,7 +114,7 @@ public class BulletBallistic : BulletGeneric {
 	{
 		this.transform.up			= direction;
 		this.transform.position		= position;
-		this.m_StartPosition			= position;
+		this.m_StartPosition		= position;
 		this.m_RigidBody.velocity	= this.m_RigidBodyVelocity = direction * ( ( velocity > 0f ) ? velocity : this.m_Velocity );
 		this.m_RigidBody.useGravity	= false;
 		this.SetActive( true );
@@ -127,7 +128,7 @@ public class BulletBallistic : BulletGeneric {
 		this.transform.up			= direction;
 		this.transform.position		= position;
 		this.m_RigidBody.velocity	= this.m_RigidBodyVelocity = direction * ( ( velocity > 0f ) ? velocity : this.m_Velocity );
-		this.m_StartPosition			= position;
+		this.m_StartPosition		= position;
 		this.m_RigidBody.useGravity	= true;
 		this.SetActive( true );
 	}
@@ -157,11 +158,13 @@ public class BulletBallistic : BulletGeneric {
 	// OnTriggerEnter ( Override )
 	protected override void OnTriggerEnter( Collider other )
 	{
+		if ( other.isTrigger ) return;
+
 		bool bIsBullet = other.transform.HasComponent<Bullet>();
 		if ( bIsBullet == true )
 			return;
 
-		EEffectType effectToPlay = EEffectType.ENTITY_ON_HIT;
+		EffectsManager.EEffecs effectToPlay = EffectsManager.EEffecs.ENTITY_ON_HIT;
 
 		IEntity entity = null;
 		IShield shield = null;
@@ -175,13 +178,17 @@ public class BulletBallistic : BulletGeneric {
 		}
 		else
 		{
-			effectToPlay = EEffectType.AMBIENT_ON_HIT;
+			effectToPlay = EffectsManager.EEffecs.AMBIENT_ON_HIT;
+			if (other.TryGetComponent(out Rigidbody asd))
+			{
+				asd.AddForce( this.m_RigidBody.velocity * this.m_RigidBody.mass, ForceMode.Impulse );
+			}
 		}
 
 		Vector3 position = this.transform.position;
 		Vector3 direction = this.m_RigidBody.velocity;
 		EffectsManager.Instance.PlayEffect( effectToPlay, position, direction, 3 );
-
+		
 		this.SetActive( false );
 	}
 
@@ -194,7 +201,7 @@ public class BulletBallistic : BulletGeneric {
 		if ( bIsBullet == true )
 			return;
 
-		EEffectType effectToPlay = EEffectType.ENTITY_ON_HIT;
+		EffectsManager.EEffecs effectToPlay = EffectsManager.EEffecs.ENTITY_ON_HIT;
 
 		IEntity entity = null;
 		IShield shield = null;
@@ -208,7 +215,8 @@ public class BulletBallistic : BulletGeneric {
 		}
 		else
 		{
-			effectToPlay = EEffectType.AMBIENT_ON_HIT;
+			effectToPlay = EffectsManager.EEffecs.AMBIENT_ON_HIT;
+			collision.rigidbody?.AddForceAtPosition(this.m_RigidBodyVelocity, collision.contacts[0].point );
 		}
 
 		Vector3 position  = collision.contacts[0].point;

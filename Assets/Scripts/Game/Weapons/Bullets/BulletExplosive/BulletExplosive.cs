@@ -64,11 +64,11 @@ public abstract class BulletExplosive : BulletGeneric, IExplosive {
 
 	//////////////////////////////////////////////////////////////////////////
 	// SetupBulletCO ( Override )
-	protected override IEnumerator SetupBulletCO()
+	protected override void SetupBulletCO()
 	{
-		yield return base.SetupBulletCO();
+		base.SetupBulletCO();
 
-		this.m_BlowOnHit		= this.m_BulletSection.AsBool( "bBlowOnHit", this.m_BlowOnHit );
+		this.m_BlowOnHit	= this.m_BulletSection.AsBool( "bBlowOnHit", this.m_BlowOnHit );
 		this.m_AttachOnHit	= this.m_BulletSection.AsBool( "bAttachOnHit", this.m_AttachOnHit );
 		this.m_BlastRadius	= this.m_BulletSection.AsFloat( "fBlastRadius", this.m_BlastRadius );
 		this.m_BlastDamage	= this.m_BulletSection.AsFloat( "fBlastDamage", this.m_BlastDamage );

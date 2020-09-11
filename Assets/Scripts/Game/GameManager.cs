@@ -2,8 +2,8 @@
 using UnityEngine;
 
 
-public sealed partial class GameManager : MonoBehaviour {
-
+public sealed partial class GameManager : MonoBehaviour
+{
 	private	static			GameManager		m_Instance				= null;
 	public	static			GameManager		Instance
 	{

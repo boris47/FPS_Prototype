@@ -1,19 +1,17 @@
 ﻿
-using System.Collections.Generic;
 
 namespace Database {
 
-	public partial class Section {
-
-
+	public partial class Section
+	{
 		//////////////////////////////////////////////////////////////////////////
 		// ValueType
-		public	global::System.Type		ValueType( string Key )
+		public	System.Type		ValueType( string Key )
 		{
-			cLineValue pLineValue = null;
-			if (this.bGetLineValue( Key, ref pLineValue ) )
+			LineValue pLineValue = null;
+			if (this.bGetLineValue(Key, ref pLineValue))
 			{
-				if ( pLineValue.Type == ELineValueType.SINGLE )
+				if (pLineValue.Type == ELineValueType.SINGLE)
 				{
 					return pLineValue.Value.GetType();
 				}
@@ -26,7 +24,7 @@ namespace Database {
 		// GetRawValue
 		public	string					GetRawValue( string Key, string Default = "" )
 		{
-			cLineValue pLineValue = null;
+			LineValue pLineValue = null;
 			return (this.bGetLineValue( Key, ref pLineValue ) ) ? pLineValue.RawValue : Default;
 		}
 
@@ -35,18 +33,18 @@ namespace Database {
 		// As<T>
 		public	T						As<T>( string Key )
 		{
-			cLineValue pLineValue = null;
-			if (this.bGetLineValue( Key, ref pLineValue ) )
+			LineValue pLineValue = null;
+			if (this.bGetLineValue(Key, ref pLineValue))
 			{
 				UnityEngine.Assertions.Assert.IsTrue
 				(
 					pLineValue.Type == ELineValueType.SINGLE,
-					"Database::Section::As: Line value for section " + this.GetName() + " at key " + Key + " is not of single type"
+					"Database::Section::As: Line value for section " + this.GetSectionName() + " at key " + Key + " is not of single type"
 				);
 
 				return pLineValue.Value.As<T>();
 			}
-			return default( T );
+			return default(T);
 		}
 
 
@@ -54,13 +52,13 @@ namespace Database {
 		// AsBool
 		public	bool					AsBool( string Key, bool Default = false )
 		{
-			cLineValue pLineValue = null;
-			if (this.bGetLineValue( Key, ref pLineValue ) )
+			LineValue pLineValue = null;
+			if (this.bGetLineValue(Key, ref pLineValue))
 			{
 				UnityEngine.Assertions.Assert.IsTrue
 				(
 					pLineValue.Type == ELineValueType.SINGLE,
-					"Database::Section::AsBool: Line value for section " + this.GetName() + " at key " + Key + " is not of single type"
+					"Database::Section::AsBool: Line value for section " + this.GetSectionName() + " at key " + Key + " is not of single type"
 				);
 
 				return pLineValue.Value.As<bool>();
@@ -73,13 +71,13 @@ namespace Database {
 		// AsInt
 		public	int						AsInt( string Key, int Default = 0 )
 		{
-			cLineValue pLineValue = null;
-			if (this.bGetLineValue( Key, ref pLineValue ) )
+			LineValue pLineValue = null;
+			if (this.bGetLineValue(Key, ref pLineValue))
 			{
 				UnityEngine.Assertions.Assert.IsTrue
 				(
 					pLineValue.Type == ELineValueType.SINGLE,
-					"Database::Section::AsInt: Line value for section " + this.GetName() + " at key " + Key + " is not of single type"
+					"Database::Section::AsInt: Line value for section " + this.GetSectionName() + " at key " + Key + " is not of single type"
 				);
 
 				return pLineValue.Value.As<int>();
@@ -91,13 +89,13 @@ namespace Database {
 		// AsInt ( UInt )
 		public	uint					AsUInt( string Key, uint Default = 0u )
 		{
-			cLineValue pLineValue = null;
-			if (this.bGetLineValue( Key, ref pLineValue ) )
+			LineValue pLineValue = null;
+			if (this.bGetLineValue(Key, ref pLineValue))
 			{
 				UnityEngine.Assertions.Assert.IsTrue
 				(
 					pLineValue.Type == ELineValueType.SINGLE,
-					"Database::Section::AsUInt: Line value for section " + this.GetName() + " at key " + Key + " is not of single type"
+					"Database::Section::AsUInt: Line value for section " + this.GetSectionName() + " at key " + Key + " is not of single type"
 				);
 
 				return pLineValue.Value.As<uint>();
@@ -110,13 +108,13 @@ namespace Database {
 		// AsFloat
 		public	float					AsFloat( string Key, float Default = 0.0f )
 		{
-			cLineValue pLineValue = null;
-			if (this.bGetLineValue( Key, ref pLineValue ) )
+			LineValue pLineValue = null;
+			if (this.bGetLineValue(Key, ref pLineValue))
 			{
 				UnityEngine.Assertions.Assert.IsTrue
 				(
 					pLineValue.Type == ELineValueType.SINGLE,
-					"Database::Section::AsUInt: Line value for section " + this.GetName() + " at key " + Key + " is not of single type"
+					"Database::Section::AsUInt: Line value for section " + this.GetSectionName() + " at key " + Key + " is not of single type"
 				);
 
 				return pLineValue.Value.ToFloat();
@@ -129,13 +127,13 @@ namespace Database {
 		// AsString
 		public	string					AsString( string Key, string Default = "" )
 		{
-			cLineValue pLineValue = null;
-			if (this.bGetLineValue( Key, ref pLineValue ) )
+			LineValue pLineValue = null;
+			if (this.bGetLineValue(Key, ref pLineValue))
 			{
 				UnityEngine.Assertions.Assert.IsTrue
 				(
 					pLineValue.Type == ELineValueType.SINGLE,
-					"Database::Section::AsString: Line value for section " + this.GetName() + " at key " + Key + " is not of single type"
+					"Database::Section::AsString: Line value for section " + this.GetSectionName() + " at key " + Key + " is not of single type"
 				);
 
 				return pLineValue.Value.As<string>();
@@ -146,15 +144,15 @@ namespace Database {
 
 		//////////////////////////////////////////////////////////////////////////
 		// AsMultiValue
-		public	cValue					OfMultiValue( string Key, int Index )
+		public	Value					OfMultiValue( string Key, int Index )
 		{
-			cLineValue pLineValue = null;
-			if (this.bGetLineValue( Key, ref pLineValue ) && Index > 0 )
+			LineValue pLineValue = null;
+			if (this.bGetLineValue(Key, ref pLineValue) && Index > 0)
 			{
-				cMultiValue pMultiValue = null;
-				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
+				MultiValue pMultiValue = null;
+				if (pLineValue.GetAsMulti(ref pMultiValue))
 				{
-					return pMultiValue [Index - 1 ];
+					return pMultiValue[Index - 1];
 				}
 			}
 			return null;
@@ -165,14 +163,14 @@ namespace Database {
 		// AsMultiValue<T1,T2>
 		public	void					AsMultiValue<T1,T2>( string Key, int Idx1, int Idx2, ref T1 t1, ref T2 t2 )
 		{
-			cLineValue pLineValue		= null;
-			if (this.bGetLineValue( Key, ref pLineValue ) )
+			LineValue pLineValue = null;
+			if (this.bGetLineValue(Key, ref pLineValue))
 			{
-				cMultiValue pMultiValue = null;
-				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
+				MultiValue pMultiValue = null;
+				if (pLineValue.GetAsMulti(ref pMultiValue))
 				{
-					t1 = pMultiValue [Idx1 - 1].As<T1>();
-					t2 = pMultiValue [Idx2 - 1].As<T2>();
+					t1 = pMultiValue[Idx1 - 1].As<T1>();
+					t2 = pMultiValue[Idx2 - 1].As<T2>();
 				}
 			}
 		}
@@ -182,15 +180,15 @@ namespace Database {
 		// AsMultiValue<T1,T2,T3>
 		public	void					AsMultiValue<T1,T2,T3>( string Key, int Idx1, int Idx2, int Idx3, ref T1 t1, ref T2 t2, ref T3 t3 )
 		{
-			cLineValue pLineValue		= null;
-			if (this.bGetLineValue( Key, ref pLineValue ) )
+			LineValue pLineValue = null;
+			if (this.bGetLineValue(Key, ref pLineValue))
 			{
-				cMultiValue pMultiValue = null;
-				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
+				MultiValue pMultiValue = null;
+				if (pLineValue.GetAsMulti(ref pMultiValue))
 				{
-					t1 = pMultiValue [Idx1 - 1].As<T1>();
-					t2 = pMultiValue [Idx2 - 1].As<T2>();
-					t3 = pMultiValue [Idx3 - 1].As<T3>();
+					t1 = pMultiValue[Idx1 - 1].As<T1>();
+					t2 = pMultiValue[Idx2 - 1].As<T2>();
+					t3 = pMultiValue[Idx3 - 1].As<T3>();
 				}
 			}
 		}
@@ -200,16 +198,16 @@ namespace Database {
 		// AsMultiValue<T1,T2,T3,T4>
 		public	void					AsMultiValue<T1,T2,T3,T4>( string Key, int Idx1, int Idx2, int Idx3, int Idx4, ref T1 t1, ref T2 t2, ref T3 t3, ref T4 t4 )
 		{
-			cLineValue pLineValue		= null;
-			if (this.bGetLineValue( Key, ref pLineValue ) )
+			LineValue pLineValue = null;
+			if (this.bGetLineValue(Key, ref pLineValue))
 			{
-				cMultiValue pMultiValue = null;
-				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
+				MultiValue pMultiValue = null;
+				if (pLineValue.GetAsMulti(ref pMultiValue))
 				{
-					t1 = pMultiValue [Idx1 - 1].As<T1>();
-					t2 = pMultiValue [Idx2 - 1].As<T2>();
-					t3 = pMultiValue [Idx3 - 1].As<T3>();
-					t4 = pMultiValue [Idx4 - 1].As<T4>();
+					t1 = pMultiValue[Idx1 - 1].As<T1>();
+					t2 = pMultiValue[Idx2 - 1].As<T2>();
+					t3 = pMultiValue[Idx3 - 1].As<T3>();
+					t4 = pMultiValue[Idx4 - 1].As<T4>();
 				}
 			}
 		}
@@ -219,12 +217,16 @@ namespace Database {
 		// GetMultiSize
 		public	int						GetMultiSize( string Key )
 		{
-			cLineValue pLineValue = null; cMultiValue pMultiValue = null;
-			return
-				(
-					this.bGetLineValue( Key, ref pLineValue ) && 
-					pLineValue.GetAsMulti( ref pMultiValue ) 
-				) ? pMultiValue.Size : 0;
+			LineValue pLineValue = null;
+			if (this.bGetLineValue(Key, ref pLineValue))
+			{
+				MultiValue pMultiValue = null;
+				if (pLineValue.GetAsMulti(ref pMultiValue))
+				{
+					return pMultiValue.Size;
+				}
+			}
+			return 0;
 		}
 
 
@@ -232,35 +234,24 @@ namespace Database {
 		// bGetMultiAsArray
 		public	bool						bGetMultiAsArray<T>( string Key, ref T[] array )
 		{
-			bool bResult = false;
-
-			cLineValue pLineValue = null;
-			if (this.bGetLineValue( Key, ref pLineValue ) )
+			LineValue pLineValue = null;
+			if (this.bGetLineValue(Key, ref pLineValue))
 			{
-				// If is single value
-				cValue value = null;
-				if ( pLineValue.GetAsSingle( ref value ) )
+				Value value = null;
+				if (pLineValue.GetAsSingle(ref value))
 				{
 					array = new T[1] { value.As<T>() };
-					bResult = true;
+					return true;
 				}
 
-				// If is multi value
-				cMultiValue multiValue = null;
-				if ( pLineValue.GetAsMulti( ref multiValue ) )
+				MultiValue multiValue = null;
+				if (pLineValue.GetAsMulti(ref multiValue))
 				{
-					array = multiValue.ValueList
-					.ConvertAll	// Get a list of converted cvalues to requested type
-					(
-						new System.Converter<cValue, T> ( ( cValue v ) => { return v.As<T>(); } )
-					)
-					.ToArray(); // return as array
-
-					bResult = true;
-				}	
+					array = System.Array.ConvertAll(multiValue.ValueList, (Value v) => v.As<T>());
+					return true;
+				}
 			}
-			
-			return bResult;
+			return false;
 		}
 
 
@@ -288,23 +279,20 @@ namespace Database {
 		// bAsVec2
 		public	UnityEngine.Vector2				AsVec2( string Key, UnityEngine.Vector2? Default )
 		{
-			UnityEngine.Vector2 Out = Default.GetValueOrDefault();
-			cLineValue pLineValue = null;
-			if (this.bGetLineValue( Key, ref pLineValue ) )
+			LineValue pLineValue = null;
+			if (this.bGetLineValue(Key, ref pLineValue))
 			{
-				cMultiValue pMultiValue	= null;
-				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
+				MultiValue pMultiValue = null;
+				if (pLineValue.GetAsMulti(ref pMultiValue))
 				{
-					cValue pValue1				= pMultiValue[ 0 ];
-					cValue pValue2				= pMultiValue[ 1 ];
-
-					if ( ( pValue1 != null ) && ( pValue2 != null ) )
+					Value pValue1 = pMultiValue[0], pValue2 = pMultiValue[1];
+					if ((pValue1 != null) && (pValue2 != null))
 					{
-						Out = new UnityEngine.Vector2( pValue1.ToFloat(), pValue2.ToFloat() );
+						return new UnityEngine.Vector2(pValue1.ToFloat(), pValue2.ToFloat());
 					}
 				}
 			}
-			return Out;
+			return Default.GetValueOrDefault();
 		}
 
 
@@ -312,21 +300,17 @@ namespace Database {
 		// bAsVec3
 		public	UnityEngine.Vector3					AsVec3( string Key, UnityEngine.Vector3? Default )
 		{
-			UnityEngine.Vector3 Out = Default.GetValueOrDefault();
-			cLineValue pLineValue		= null;
-			if (this.bGetLineValue( Key, ref pLineValue ) )
+			LineValue pLineValue = null;
+			if (this.bGetLineValue(Key, ref pLineValue))
 			{
-				cMultiValue pMultiValue	= null;
-				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
+				MultiValue pMultiValue = null;
+				if (pLineValue.GetAsMulti(ref pMultiValue))
 				{
-					float x = pMultiValue[ 0 ];
-					float y = pMultiValue[ 1 ];
-					float z = pMultiValue[ 2 ];
-
-					Out = new UnityEngine.Vector3( x, y, z );
+					float x = pMultiValue[0], y = pMultiValue[1], z = pMultiValue[2];
+					return new UnityEngine.Vector3(x, y, z);
 				}
 			}
-			return Out;
+			return Default.GetValueOrDefault();
 		}
 
 
@@ -334,22 +318,17 @@ namespace Database {
 		// bAsVec4
 		public	UnityEngine.Vector4					AsVec4( string Key, UnityEngine.Vector4? Default )
 		{
-			UnityEngine.Vector4 Out = Default.GetValueOrDefault();
-			cLineValue pLineValue		= null;
-			if (this.bGetLineValue( Key, ref pLineValue ) )
+			LineValue pLineValue = null;
+			if (this.bGetLineValue(Key, ref pLineValue))
 			{
-				cMultiValue pMultiValue	= null;
-				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
+				MultiValue pMultiValue = null;
+				if (pLineValue.GetAsMulti(ref pMultiValue))
 				{
-					float x = pMultiValue[ 0 ];
-					float y = pMultiValue[ 1 ];
-					float z = pMultiValue[ 2 ];
-					float w = pMultiValue[ 3 ];
-
-					Out = new UnityEngine.Vector4( x, y, z, w );
+					float x = pMultiValue[0], y = pMultiValue[1], z = pMultiValue[2], w = pMultiValue[3];
+					return new UnityEngine.Vector4(x, y, z, w);
 				}
 			}
-			return Out;
+			return Default.GetValueOrDefault();
 		}
 
 
@@ -357,13 +336,12 @@ namespace Database {
 		// bAsColor
 		public	UnityEngine.Color					AsColor( string Key, UnityEngine.Color? Default )
 		{
-			UnityEngine.Color Out = Default.GetValueOrDefault();
 			UnityEngine.Vector4 refVec = UnityEngine.Vector4.zero;
-			if (this.bAsVec4( Key, ref refVec, UnityEngine.Vector4.zero ) == true )
+			if (this.bAsVec4(Key, ref refVec, UnityEngine.Vector4.zero))
 			{
-				Out = refVec;
+				return refVec;
 			}
-			return Out;
+			return Default.GetValueOrDefault();
 		}
 
 	};

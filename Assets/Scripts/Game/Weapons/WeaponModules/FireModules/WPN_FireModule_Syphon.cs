@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class WPN_FireModule_Syphon : WPN_FireModule {
-
-
+public class WPN_FireModule_Syphon : WPN_FireModule
+{
 	[SerializeField]
 	protected		float							m_BeamLength				= 50f;
 
@@ -46,6 +45,7 @@ public class WPN_FireModule_Syphon : WPN_FireModule {
 				{
 					this.m_Laser.LaserLength = this.m_BeamLength;
 					this.m_Laser.enabled = false;
+					this.m_Laser.OnAttached();
 				}
 
 				if (this.m_WeaponRef.Transform.SearchComponent( ref this.m_Renderer, ESearchContext.CHILDREN, s => s.name == "Graphics" ) )
@@ -130,8 +130,8 @@ public class WPN_FireModule_Syphon : WPN_FireModule {
 	protected	override		void	Shoot( float moduleFireDispersion, float moduleCamDeviation )
 	{
 		//		m_FireDelay = m_BaseShotDelay;
-
-		this.m_Magazine --;
+		this.m_Magazine = (uint)Mathf.Min( --this.m_Magazine, 1 );
+//		this.m_Magazine --;
 
 		if (this.m_Magazine == 0 )
 		{
@@ -193,9 +193,9 @@ public class WPN_FireModule_Syphon : WPN_FireModule {
 				// Do damage scaled with time scale
 				entity.Events.OnHittedDetails(this.transform.position, Player.Instance, bullet.DamageType, bullet.Damage * Time.timeScale, false );
 
-				EffectsManager.Instance.PlayEffect( EEffectType.PLASMA, this.m_Laser.RayCastHit.point, this.m_Laser.RayCastHit.normal, 1 );
+				EffectsManager.Instance.PlayEffect( EffectsManager.EEffecs.PLASMA, this.m_Laser.RayCastHit.point, this.m_Laser.RayCastHit.normal, 1 );
 			}
-			EffectsManager.Instance.PlayEffect( EEffectType.ENTITY_ON_HIT, this.m_Laser.RayCastHit.point, this.m_Laser.RayCastHit.normal, 1 );
+			EffectsManager.Instance.PlayEffect( EffectsManager.EEffecs.ENTITY_ON_HIT, this.m_Laser.RayCastHit.point, this.m_Laser.RayCastHit.normal, 1 );
 		}
 	}
 

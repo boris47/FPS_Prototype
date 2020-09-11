@@ -82,7 +82,7 @@ public abstract partial class Entity : MonoBehaviour, IEntityInventary {
 	//////////////////////////////////////////////////////////////////////////
 	public	virtual	bool	HasInventoryItem( string sectionName )
 	{
-		bool bHasBeenFound = this.m_InventoryItems.FindIndex( ii => ii.ItemSection.GetName() == sectionName ) > -1;
+		bool bHasBeenFound = this.m_InventoryItems.FindIndex( ii => ii.ItemSection.GetSectionName() == sectionName ) > -1;
 		return bHasBeenFound;
 	}
 
@@ -90,7 +90,7 @@ public abstract partial class Entity : MonoBehaviour, IEntityInventary {
 	//////////////////////////////////////////////////////////////////////////
 	public	virtual	bool	RemoveInventoryItem( string sectionName )
 	{
-		int index = this.m_InventoryItems.FindIndex( ii => ii.ItemSection.GetName() == sectionName );
+		int index = this.m_InventoryItems.FindIndex( ii => ii.ItemSection.GetSectionName() == sectionName );
 		bool result = true;
 		if ( result &= index > -1 )
 		{

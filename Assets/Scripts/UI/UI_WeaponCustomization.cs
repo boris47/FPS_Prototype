@@ -180,7 +180,7 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 		this.m_CurrentAssignedModuleSections[slot] = new Database.Section( alreadyAssignedModules[(int)slot], "" );
 
 		// Search current Value
-		thisDropdown.value = filtered.FindIndex( s => s.GetName() == alreadyAssignedModules[(int)slot] );
+		thisDropdown.value = filtered.FindIndex( s => s.GetSectionName() == alreadyAssignedModules[(int)slot] );
 
 		thisDropdown.onValueChanged.RemoveAllListeners();
 		UnityEngine.Events.UnityAction<int> callback = delegate( int moduleIndex )
