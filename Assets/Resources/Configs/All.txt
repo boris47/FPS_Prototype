@@ -19,7 +19,7 @@
 
 [Time]
 TimeFactor			= 1.00f;
-StartTime			= 13:00:00
+StartTime			= 10:45:00
 StartWeather		= Rainy
 
 [Thunderbolts]
