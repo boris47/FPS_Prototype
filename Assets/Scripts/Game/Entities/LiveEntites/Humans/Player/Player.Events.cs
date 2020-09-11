@@ -48,23 +48,23 @@ public partial class Player {
 		UIManager.EffectFrame.color = Color.clear;
 
 		// Dodging reset
-		if (this.m_DodgeCoroutine != null )
-		{
-			this.StopCoroutine(this.m_DodgeCoroutine );
-		}
+//		if (this.m_DodgeCoroutine != null )
+//		{
+//			this.StopCoroutine(this.m_DodgeCoroutine );
+//		}
 		this.m_RigidBody.constraints						= RigidbodyConstraints.FreezeRotation;
 		this.m_RigidBody.velocity						= Vector3.zero;
 
 		GlobalManager.SetTimeScale( 1.0f );
 
-		this.m_DodgeRaycastNormal						= Vector3.zero;
-		this.m_DodgeAbilityTarget.gameObject.SetActive( false );
-		this.m_ChosingDodgeRotation						= false;
-		this.m_DodgeInterpolant							= 0f;
+//		this.m_DodgeRaycastNormal						= Vector3.zero;
+//		this.m_DodgeAbilityTarget.gameObject.SetActive( false );
+//		this.m_ChosingDodgeRotation						= false;
+//		this.m_DodgeInterpolant							= 0f;
 		UnityEngine.PostProcessing.MotionBlurModel.Settings settings								= CameraControl.Instance.GetPP_Profile.motionBlur.settings;
 		settings.frameBlending						= 0f;
 		CameraControl.Instance.GetPP_Profile.motionBlur.settings = settings;
-		this.m_IsDodging = false;
+//		this.m_IsDodging = false;
 
 		// Player internals
 		this.m_Interactable								= null;
@@ -245,8 +245,8 @@ public partial class Player {
 
 #endregion
 
-		if (this.m_IsDodging == true )
-			return;
+//		if (this.m_IsDodging == true )
+//			return;
 // Water
 #region TO IMPLEMENT
 		////////////////////////////////////////////////////////////////////////////////////////

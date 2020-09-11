@@ -85,9 +85,9 @@ public partial class Player : Human {
 			Utils.Base.SearchComponent(this.gameObject, ref this.m_Foots, ESearchContext.CHILDREN );
 			this.DisableCollisionsWith(this.m_Foots.Collider );
 
-			this.m_DodgeAbilityTarget = this.transform.Find( "DodgeAbilityTarget" );
-			this.m_DodgeAbilityTarget.SetParent( null );
-			this.m_DodgeAbilityTarget.gameObject.SetActive( false );
+//			this.m_DodgeAbilityTarget = this.transform.Find( "DodgeAbilityTarget" );
+//			this.m_DodgeAbilityTarget.SetParent( null );
+//			this.m_DodgeAbilityTarget.gameObject.SetActive( false );
 		}
 
 		// Player Data
@@ -232,9 +232,9 @@ public partial class Player : Human {
 		GlobalManager.InputMgr.UnbindCall( EInputCommands.USAGE,			"Grab" );
 		GlobalManager.InputMgr.UnbindCall( EInputCommands.GADGET3,		"Flashlight" );
 
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.ABILITY_PRESS,	"DodgeStart" );
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.ABILITY_HOLD,	"DodgeContinue" );
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.ABILITY_RELEASE,"DodgeEnd" );
+//		GlobalManager.InputMgr.UnbindCall( EInputCommands.ABILITY_PRESS,	"DodgeStart" );
+//		GlobalManager.InputMgr.UnbindCall( EInputCommands.ABILITY_HOLD,	"DodgeContinue" );
+//		GlobalManager.InputMgr.UnbindCall( EInputCommands.ABILITY_RELEASE,"DodgeEnd" );
 	}
 
 
@@ -258,8 +258,8 @@ public partial class Player : Human {
 		if ( base.CanTrigger() == false )
 			return false;
 
-		if (this.m_IsDodging == true )
-			return false;
+//		if (this.m_IsDodging == true )
+//			return false;
 
 		return true;
 	}
@@ -302,7 +302,7 @@ public partial class Player : Human {
 			return;
 
 		float distance = (this.m_GrabbedObject.Transform.position - this.m_GrabPoint.transform.position ).sqrMagnitude;
-		if ( distance > this.m_UseDistance * this.m_UseDistance + 0.1f )
+		if ( distance > (this.m_UseDistance * this.m_UseDistance) + 0.1f )
 		{
 			this.DropEntityDragged();
 			return;
@@ -355,7 +355,7 @@ public partial class Player : Human {
 
 	private	bool	InteractionPredicate()
 	{
-		return (this.m_IsDodging == false && this.m_GrabbedObject == null && this.m_HasRaycasthit && this.m_RaycastHit.distance <= this.m_UseDistance && this.m_Interactable != null && this.m_Interactable.CanInteract );
+		return (/*this.m_IsDodging == false && */this.m_GrabbedObject == null && this.m_HasRaycasthit && this.m_RaycastHit.distance <= this.m_UseDistance && this.m_Interactable != null && this.m_Interactable.CanInteract );
 	}
 
 

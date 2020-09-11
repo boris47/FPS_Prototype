@@ -352,9 +352,9 @@ public partial class Player {
 
 		GlobalManager.InputMgr.BindCall( EInputCommands.GADGET3,			"Flashlight", this.FlashlightAction, this.FlashlightPredicate );
 
-		GlobalManager.InputMgr.BindCall( EInputCommands.ABILITY_PRESS,		"DodgeStart", this.AbilityEnableAction, this.AbilityPredcate );
-		GlobalManager.InputMgr.BindCall( EInputCommands.ABILITY_HOLD,		"DodgeContinue", this.AbilityContinueAction, this.AbilityPredcate );
-		GlobalManager.InputMgr.BindCall( EInputCommands.ABILITY_RELEASE,	"DodgeEnd", this.AbilityEndAction, this.AbilityPredcate );
+//		GlobalManager.InputMgr.BindCall( EInputCommands.ABILITY_PRESS,		"DodgeStart", this.AbilityEnableAction, this.AbilityPredcate );
+//		GlobalManager.InputMgr.BindCall( EInputCommands.ABILITY_HOLD,		"DodgeContinue", this.AbilityContinueAction, this.AbilityPredcate );
+//		GlobalManager.InputMgr.BindCall( EInputCommands.ABILITY_RELEASE,	"DodgeEnd", this.AbilityEndAction, this.AbilityPredcate );
 	}
 	
 
@@ -375,9 +375,9 @@ public partial class Player {
 		GlobalManager.InputMgr.UnbindCall( EInputCommands.USAGE,			"Grab" );
 		GlobalManager.InputMgr.UnbindCall( EInputCommands.GADGET3,			"Flashlight" );
 
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.ABILITY_PRESS,	"DodgeStart" );
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.ABILITY_HOLD,		"DodgeContinue" );
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.ABILITY_RELEASE,	"DodgeEnd" );
+//		GlobalManager.InputMgr.UnbindCall( EInputCommands.ABILITY_PRESS,	"DodgeStart" );
+//		GlobalManager.InputMgr.UnbindCall( EInputCommands.ABILITY_HOLD,		"DodgeContinue" );
+//		GlobalManager.InputMgr.UnbindCall( EInputCommands.ABILITY_RELEASE,	"DodgeEnd" );
 	}
 
 

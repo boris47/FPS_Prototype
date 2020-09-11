@@ -90,7 +90,7 @@ public abstract partial class Weapon {
 
 	#region		PREDICATES
 	// PREDICATES	START
-	protected virtual		bool			Predicate_Base() { return this.m_WeaponState == EWeaponState.DRAWED && Player.Instance.ChosingDodgeRotation == false && this.m_IsLocked == false; }
+	protected virtual		bool			Predicate_Base() { return this.m_WeaponState == EWeaponState.DRAWED /*&& Player.Instance.ChosingDodgeRotation == false*/ && this.m_IsLocked == false; }
 	protected	virtual		bool			Predicate_PrimaryFire_Start()		{ return this.Predicate_Base() && this.m_PrimaryWeaponModuleSlot.WeaponModule.CanBeUsed(); }
 	protected	virtual		bool			Predicate_PrimaryFire_Update()		{ return this.Predicate_Base() && this.m_PrimaryWeaponModuleSlot.WeaponModule.CanBeUsed(); }
 	protected	virtual		bool			Predicate_PrimaryFire_End()			{ return this.Predicate_Base() && this.m_PrimaryWeaponModuleSlot.WeaponModule.CanBeUsed(); }

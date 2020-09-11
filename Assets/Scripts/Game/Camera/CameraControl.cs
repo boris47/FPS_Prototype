@@ -275,8 +275,8 @@ public sealed class CameraControl : MonoBehaviour, ICameraControl {
 	// ApplyDeviation
 	void	ICameraControl.ApplyDeviation( float deviation, float weightX, float weightY )
 	{
-		if ( Player.Instance.IsDodging )
-			return;
+//		if ( Player.Instance.IsDodging )
+//			return;
 
 		this.m_WpnCurrentDeviation.x -= Random.Range( 0.001f, deviation ) * weightX;
 		this.m_WpnCurrentDeviation.y += Random.Range( -deviation, deviation ) * weightY;
