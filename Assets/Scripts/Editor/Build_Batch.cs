@@ -1,5 +1,6 @@
 ﻿// C# example.
 using System.Text;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 
@@ -20,11 +21,27 @@ public class Build_Batch
 	[MenuItem( MENU_LABEL + "/Recompile All Scripts", priority = 2 )]
 	public		static		void		RecompileAllScripts()
 	{
+		string[] scriptPaths = AssetDatabase.GetAllAssetPaths()
+			.Where( assetPath => assetPath.EndsWith(".cs") )
+			.ToArray();
+
+		int scriptsCount = scriptPaths.Length;
+		int scriptsCompiled = 0;
+		EditorUtility.DisplayProgressBar( "Compilation of scripts", "", 0.01f );
+		AssetDatabase.StartAssetEditing();
+		foreach (string assetPath in scriptPaths)
+		{
+			float value = (float) (++scriptsCompiled) / (float) scriptsCount;
+			AssetDatabase.ImportAsset(assetPath);
+			EditorUtility.DisplayProgressBar( $"Script {assetPath} compiled", "", value );
+		}
+		AssetDatabase.StopAssetEditing();
+
 		UnityEditor.Compilation.Assembly[] assemblies = UnityEditor.Compilation.CompilationPipeline.GetAssemblies();
 		int assembliesCount = assemblies.Length;
 		int assemblyCompiled = 0;
 		
-		UnityEditor.Compilation.CompilationPipeline.compilationStarted += (object arg1) => EditorUtility.DisplayProgressBar( "Compilation", "", 0.01f );
+		UnityEditor.Compilation.CompilationPipeline.compilationStarted += (object arg1) => EditorUtility.DisplayProgressBar( "Compilation of Assemblies", "", 0.01f );
 		UnityEditor.Compilation.CompilationPipeline.assemblyCompilationFinished += (string arg1, UnityEditor.Compilation.CompilerMessage[] arg2) =>
 		{
 			float value = (float) (++assemblyCompiled) / (float) assembliesCount;
