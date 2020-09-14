@@ -19,7 +19,7 @@ ZoomOffset					= -0.0655, 0.009, -0.052;
 ZoomFactor					= 8.0;
 ZoomingTime					= 0.2;
 ZoomSensitivityMultiplier	= 0.2;
-FramePath					= Prefabs/WeaponAttachments/UtilityAttachments/WPN_WeaponAttachment_OpticZoom;
+Attachment_Prefab			= Prefabs/WeaponAttachments/UtilityAttachments/WPN_WeaponAttachment_OpticZoom;
 
 
 [WPN_WeaponAttachment_Flashlight]

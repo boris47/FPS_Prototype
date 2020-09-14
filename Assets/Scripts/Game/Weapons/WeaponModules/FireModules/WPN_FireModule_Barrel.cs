@@ -74,18 +74,10 @@ public class WPN_FireModule_Barrel : WPN_FireModule
 	{
 		return this.m_Magazine > 0;
 	}
-
-	/*
-	//
-	protected	abstract	float	GetFireDispersion();
-	//
-	protected	abstract	float	GetCamDeviation();
-	*/
+	
 	// SHOOT
 	protected	override		void	Shoot( float moduleFireDispersion, float moduleCamDeviation )
 	{
-		//		m_FireDelay = m_BaseShotDelay;
-
 		this.m_Magazine --;
 
 		// TODO muzzle flash
@@ -129,7 +121,7 @@ public class WPN_FireModule_Barrel : WPN_FireModule
 		
 	}
 
-	public override void InternalUpdate( float DeltaTime )
+	protected override void InternalUpdate( float DeltaTime )
 	{
 		this.m_WpnFireMode.InternalUpdate( DeltaTime, this.m_Magazine );
 	}

@@ -45,7 +45,23 @@ public class IterableVolume : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private void Awake()
 	{
-		this.EnsureComponents();
+		// EnsureComponents
+
+		// Mesh Filter
+		MeshFilter filter = null;
+		if ( ( filter = this.GetComponent<MeshFilter>() ) == null )
+		{
+			filter = this.gameObject.AddComponent<MeshFilter>();
+		}
+		this.m_MeshFilter = filter;
+
+		// mesh renderer
+		MeshRenderer renderer = null;
+		if ( ( renderer = this.GetComponent<MeshRenderer>() ) == null )
+		{
+			renderer = this.gameObject.AddComponent<MeshRenderer>();
+		}
+		this.m_MeshRenderer = renderer;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -66,27 +82,6 @@ public class IterableVolume : MonoBehaviour {
 		{
 			Destroy( go );
 		}
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private	void	EnsureComponents()
-	{
-		// Mesh Filter
-		MeshFilter filter = null;
-		if ( ( filter = this.GetComponent<MeshFilter>() ) == null )
-		{
-			filter = this.gameObject.AddComponent<MeshFilter>();
-		}
-		this.m_MeshFilter = filter;
-
-		// mesh renderer
-		MeshRenderer renderer = null;
-		if ( ( renderer = this.GetComponent<MeshRenderer>() ) == null )
-		{
-			renderer = this.gameObject.AddComponent<MeshRenderer>();
-		}
-		this.m_MeshRenderer = renderer;
 	}
 
 

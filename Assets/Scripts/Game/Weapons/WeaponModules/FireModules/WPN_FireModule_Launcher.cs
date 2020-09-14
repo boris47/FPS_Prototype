@@ -151,7 +151,7 @@ public class WPN_FireModule_Launcher : WPN_FireModule {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		override	void InternalUpdate( float DeltaTime )
+	protected	override	void InternalUpdate( float DeltaTime )
 	{
 		this.m_WpnFireMode.InternalUpdate( DeltaTime, this.m_Magazine );
 	}

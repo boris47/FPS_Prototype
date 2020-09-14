@@ -19,7 +19,7 @@ public class TurretHidden : Turret {
 
 		base.Awake();
 
-		this.m_Animator = this.GetComponent<Animator>();
+		this.TryGetComponent(out this.m_Animator);
 	}
 
 	/*

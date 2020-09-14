@@ -75,7 +75,7 @@ public sealed class SurfaceManager : MonoBehaviour
 		// Case when the ground is a terrain.
 		if ( col.GetType() == typeof( TerrainCollider ) )
 		{
-			Terrain terrain = col.GetComponent<Terrain>();
+			col.TryGetComponent(out Terrain terrain);
 			TerrainData terrainData = terrain.terrainData;
 			float[] textureMix = this.GetTerrainTextureMix( worldPos, terrainData, terrain.GetPosition() );
 			int textureIndex = this.GetTextureIndex( textureMix );
@@ -104,7 +104,7 @@ public sealed class SurfaceManager : MonoBehaviour
 		// Case when the ground is a terrain.
 		if ( col.GetType() == typeof( TerrainCollider ) )
 		{
-			Terrain terrain = col.GetComponent<Terrain>();
+			col.TryGetComponent(out Terrain terrain);
 			TerrainData terrainData = terrain.terrainData;
 			float[] textureMix = this.GetTerrainTextureMix( worldPos, terrainData, terrain.GetPosition() );
 			int textureIndex = this.GetTextureIndex( textureMix );

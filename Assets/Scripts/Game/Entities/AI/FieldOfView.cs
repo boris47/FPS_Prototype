@@ -87,7 +87,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	// Awake
 	private void Awake()
 	{
-		this.m_ViewTriggerCollider = this.GetComponent<SphereCollider>();
+		this.TryGetComponent(out this.m_ViewTriggerCollider);
 		this.m_ViewTriggerCollider.isTrigger = true;
 		this.m_ViewTriggerCollider.radius = this.m_ViewDistance;
 
@@ -100,7 +100,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	// OnValidate
 	private void OnValidate()
 	{
-		this.m_ViewTriggerCollider = this.GetComponent<SphereCollider>();
+		this.TryGetComponent(out this.m_ViewTriggerCollider);
 		this.m_ViewTriggerCollider.isTrigger = true;
 		this.m_ViewTriggerCollider.radius = this.m_ViewDistance;
 	}
@@ -284,8 +284,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	// OnTriggerEnter
 	private void OnTriggerEnter( Collider other )
 	{
-		Entity entity = other.GetComponent<Entity>();
-		if ( entity.IsNotNull() && entity.IsAlive == true && entity.AsInterface.EntityType == this.m_EntityType )
+		if ( other.TryGetComponent(out Entity entity) && entity.IsAlive == true && entity.AsInterface.EntityType == this.m_EntityType )
 		{
 			// This avoid to the current entity being added
 		//	if ( entity.transform.GetInstanceID() == transform.parent.GetInstanceID() )
@@ -308,8 +307,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	// OnTriggerExit
 	private void OnTriggerExit( Collider other )
 	{
-		Entity entity = other.GetComponent<Entity>();
-		if ( entity.IsNotNull() && this.m_AllTargets.Contains( entity ) == true )
+		if ( other.TryGetComponent(out Entity entity) && this.m_AllTargets.Contains( entity ) == true )
 		{
 			this.m_AllTargets.Remove( entity );
 

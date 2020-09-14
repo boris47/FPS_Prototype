@@ -49,8 +49,8 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager>
 		public	LoadSceneMode		eMode					= LoadSceneMode.Single;
 		public	bool				bMustLoadSave			= false;
 		public	string				sSaveToLoad				= "";
-		public	System.Action		pOnPreLoadCompleted		= delegate { };
-		public	System.Action		pOnLoadCompleted		= delegate { };
+		public	System.Action		pOnPreLoadCompleted		= null;
+		public	System.Action		pOnLoadCompleted		= null;
 	}
 
 	private	static	bool				m_IsCurrentlyPreloading		= false;
@@ -149,7 +149,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager>
 		Delegates[ESceneLoadStep.AFTER_SCENE_ACTIVATION].ForEach(d => d(loadSceneData.eScene));
 
 		// Preload callback
-		loadSceneData.pOnPreLoadCompleted();
+		loadSceneData.pOnPreLoadCompleted?.Invoke();
 
 		SoundManager.OnSceneLoaded();
 
@@ -164,7 +164,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager>
 
 		System.GC.Collect();
 
-		loadSceneData.pOnLoadCompleted();
+		loadSceneData.pOnLoadCompleted?.Invoke();
 
 		GlobalManager.bIsLoadingScene = false;
 
@@ -306,7 +306,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager>
 			yield return null;
 		}
 
-		print("Preload completed");
+		print( "Preload completed" );
 		m_IsCurrentlyPreloading = false;
 		m_HasPreloadedScene = true;
 	}
@@ -438,13 +438,6 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager>
 		}
 		Loading.EndSubTask();
 
-		// TODO More testing about this
-		Object[] rty = FindObjectsOfType<Object>();
-
-		List<ILoadingObject> sdfgsdf = ReflectionHelper.SelectImplementInterface<ILoadingObject>( rty );
-		sdfgsdf.ForEach( obj => obj.LoadAsync() );
-		yield return CoroutinesManager.WaitPendingCoroutines();
-
 		float currentFixedDeltaTime = 0f;
 		Loading.SetSubTask( "1. Waiting for pending coroutines" );
 		{
@@ -478,7 +471,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager>
 		{
 			// Wait for start completion
 			Loading.SetProgress( 0.70f );
-			yield return new WaitUntil(() => asyncOperation.isDone);
+			yield return new WaitUntil( () => asyncOperation.isDone );
 		}
 		Loading.EndSubTask();
 
@@ -495,7 +488,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager>
 		{
 			// Pre load callback
 			Loading.SetProgress( 0.80f );
-			loadSceneData.pOnPreLoadCompleted();
+			loadSceneData.pOnPreLoadCompleted?.Invoke();
 			yield return null;
 		}
 		Loading.EndSubTask();
@@ -535,7 +528,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager>
 		Loading.SetSubTask( "Calling 'OnAfterLoadedData' on receivers" );
 		{
 			// Call on every registered
-			Delegates[ESceneLoadStep.AFTER_SAVE_LOAD].ForEach( d => d(loadSceneData.eScene) );
+			Delegates[ESceneLoadStep.AFTER_SAVE_LOAD].ForEach( d => d( loadSceneData.eScene ) );
 		}
 		Loading.EndSubTask();
 
@@ -556,7 +549,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager>
 		{
 			// Post load callback
 			Loading.SetProgress( 0.95f );
-			loadSceneData.pOnLoadCompleted();
+			loadSceneData.pOnLoadCompleted?.Invoke();
 			yield return null;
 		}
 		Loading.EndSubTask();
@@ -594,7 +587,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager>
 		// Leave to UIManager the decision on which UI menu must be shown
 		if (UIManager.Instance != null)
 		{
-			UIManager.Instance.EnableMenuByScene(loadSceneData.eScene);
+			UIManager.Instance.EnableMenuByScene( loadSceneData.eScene );
 		}
 
 		yield return null;
@@ -604,7 +597,7 @@ public class CustomSceneManager : SingletonMonoBehaviour<CustomSceneManager>
 		Time.timeScale = 1.0F;
 
 		loadWatch.Stop();
-		Debug.LogFormat("Loading {0} took {1}ms.", loadSceneData.eScene, loadWatch.ElapsedMilliseconds);
+		Debug.LogFormat( "Loading {0} took {1}ms.", loadSceneData.eScene, loadWatch.ElapsedMilliseconds );
 	}
 
 

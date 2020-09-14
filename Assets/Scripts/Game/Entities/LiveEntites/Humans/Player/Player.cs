@@ -277,8 +277,7 @@ public partial class Player : Human {
 		rb.useGravity		= this.m_GrabbedObjectUseGravity;
 		rb.mass				= this.m_GrabbedObjectMass;
 
-		OnHitEventGrabbedHandler eventHandler = this.m_GrabbedObject.Transform.GetComponent<OnHitEventGrabbedHandler>();
-		if ( eventHandler )
+		if ( this.m_GrabbedObject.Transform.TryGetComponent(out OnHitEventGrabbedHandler eventHandler) )
 		{
 			Destroy( eventHandler );
 		}

@@ -2,18 +2,15 @@
 using UnityEngine;
 
 
-public interface IFlashLight : IWeaponAttachment {
-	
-}
-
-
-public class Flashlight : WeaponAttachment, IFlashLight {
-	
+public class WPN_WeaponAttachment_Flashlight : WPN_BaseWeaponAttachment
+{	
 	protected		Light	m_SpotLight			= null;
 
+	protected		float	m_Intensity			= 1f;
+	protected		float	m_Range				= 30f;
+	protected		float	m_SpotAngle			= 45f;
 
 	//////////////////////////////////////////////////////////////////////////
-	// Awake
 	protected	void	Awake()
 	{
 		this.m_IsUsable = this.transform.SearchComponent( ref this.m_SpotLight, ESearchContext.CHILDREN );
@@ -22,6 +19,21 @@ public class Flashlight : WeaponAttachment, IFlashLight {
 			this.m_SpotLight.type = LightType.Spot;
 			this.m_SpotLight.intensity = 0.001f;
 		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public override bool Configure(in Database.Section attachmentSection)
+	{
+		this.m_Intensity	= attachmentSection.AsFloat( "Intensity", this.m_Intensity );
+		this.m_Range		= attachmentSection.AsFloat( "Range", this.m_Range );
+		this.m_SpotAngle	= attachmentSection.AsFloat( "SpotAngle", this.m_SpotAngle );
+
+
+		this.m_SpotLight.intensity = 0.001f;
+		this.m_SpotLight.range = this.m_Range;
+		this.m_SpotLight.spotAngle = this.m_SpotAngle;
+		return true;
 	}
 	
 
@@ -33,7 +45,9 @@ public class Flashlight : WeaponAttachment, IFlashLight {
 
 		this.m_IsActive = true;
 
-		this.m_SpotLight.intensity = 1.0f;
+		this.m_SpotLight.intensity = this.m_Intensity;
+//		this.m_SpotLight.range = this.m_Range;
+//		this.m_SpotLight.spotAngle = this.m_SpotAngle;
 	}
 
 
@@ -47,5 +61,4 @@ public class Flashlight : WeaponAttachment, IFlashLight {
 
 		this.m_SpotLight.intensity = 0.001f;
 	}
-
 }

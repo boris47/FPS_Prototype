@@ -16,8 +16,7 @@ namespace WeatherSystem {
 		// START
 		private void Awake()
 		{
-			this.m_RainParticleSystem = this.GetComponent<ParticleSystem>();
-			if (this.m_RainParticleSystem == null )
+			if (!this.TryGetComponent(out this.m_RainParticleSystem))
 			{
 				this.enabled = false;
 				return;

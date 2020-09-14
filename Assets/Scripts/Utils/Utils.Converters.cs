@@ -10,12 +10,9 @@ namespace Utils {
 		/// <summary>
 		/// Accept a string and return the parsed result as enum value
 		/// </summary>
-		public	static	bool	StringToEnum<T>( string s, ref T e, bool ignoreCase = true )
+		public	static	bool	StringToEnum<T>( string s, ref T e, bool ignoreCase = true ) where T : System.Enum
 		{
 			if ( s.Length == 0 )
-				return false;
-
-			if ( typeof( T ).IsEnum == false )
 				return false;
 
 			e = ( T ) global::System.Enum.Parse( typeof( T ), s, ignoreCase: true );			

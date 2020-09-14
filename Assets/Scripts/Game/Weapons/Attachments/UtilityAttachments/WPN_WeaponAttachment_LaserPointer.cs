@@ -1,13 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public interface ILaser : IWeaponAttachment
-{
-
-}
-
 [System.Serializable]
-public class Laser : WeaponAttachment, ILaser
+public class WPN_WeaponAttachment_LaserPointer : WPN_BaseWeaponAttachment
 {
 	[SerializeField]
 	protected		float				m_ScaleFactor		= 0.03f;
@@ -19,23 +14,18 @@ public class Laser : WeaponAttachment, ILaser
 	protected		float				m_LaserLength		= 100f;
 	public			float				LaserLength
 	{
-		get { return this.m_LaserLength; }
-		set { this.m_LaserLength = value; }
+		get => this.m_LaserLength;
+		set => this.m_LaserLength = value;
 	}
 
 	[SerializeField, ReadOnly]
 	protected		bool				m_HasHit			= false;
-	public			bool				HasHit
-	{
-		get { return this.m_HasHit; }
-	}
+	public			bool				HasHit				=> this.m_HasHit;
 
-	protected		RaycastHit			m_RayCastHit		= default( RaycastHit );
 	protected		RaycastHit			m_DefaultRaycastHit	= default( RaycastHit );
-	public			RaycastHit			RayCastHit
-	{
-		get { return this.m_RayCastHit; }
-	}
+	protected		RaycastHit			m_RayCastHit		= default( RaycastHit );
+	public			RaycastHit			RayCastHit			=> this.m_RayCastHit;
+
 
 	protected		Transform			m_LaserTransform	= null;
 	protected		Vector3				m_LocalScale		= new Vector3();
@@ -57,15 +47,24 @@ public class Laser : WeaponAttachment, ILaser
 			this.m_Renderer.material.color = this.m_Color;
 		}
 
+		this.m_LaserTransform.gameObject.SetActive( false );
 		this.enabled = this.m_IsUsable;
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	public override bool Configure(in Database.Section attachmentSection)
+	{
+		return true;
+	}
 
+	//////////////////////////////////////////////////////////////////////////
 	private void OnEnable()
 	{
 		this.SetActive( true );
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
 	private void OnDisable()
 	{
 		this.SetActive( false );
@@ -75,7 +74,7 @@ public class Laser : WeaponAttachment, ILaser
 	//////////////////////////////////////////////////////////////////////////
 	protected override void OnActivate()
 	{
-		if (this.m_IsUsable == false )
+		if (this.m_IsUsable == false || this.m_IsAttached == false )
 			return;
 
 		this.m_LaserTransform.gameObject.SetActive( true );
@@ -87,7 +86,7 @@ public class Laser : WeaponAttachment, ILaser
 	//////////////////////////////////////////////////////////////////////////
 	protected override void OnDeactivated()
 	{
-		if (this.m_IsUsable == false )
+		if (this.m_IsUsable == false || this.m_IsAttached == false )
 			return;
 
 		this.m_LaserTransform.gameObject.SetActive( false );
@@ -122,5 +121,4 @@ public class Laser : WeaponAttachment, ILaser
 		this.m_LaserTransform.localScale		= this.m_LocalScale;
 		this.m_LaserTransform.localPosition	= Vector3.forward * beamPosition;
 	}
-
 }

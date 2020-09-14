@@ -231,7 +231,7 @@ public static class Extensions {
 	/// <summary> Return true if component is found, otherwise return false </summary>
 	public static	bool			HasComponent<T>( this Transform transform ) where T : Component
 	{
-		return transform.GetComponent<T>() != null;
+		return transform.TryGetComponent( out T comp );
 	}
 
 
@@ -267,11 +267,12 @@ public static class Extensions {
 			return false;
 
 		Transform child = t.Find( childName );
-		if ( child == null )
-			return false;
+		if (child)
+		{
+			return child.TryGetComponent<T>( out Component );
+		}
 
-		Component = child.GetComponent<T>();
-		return Component != null;
+		return t.SearchComponent( ref Component, ESearchContext.CHILDREN, childd => childd.name == childName );
 	}
 
 
@@ -279,18 +280,14 @@ public static class Extensions {
 	/// <summary> Search for a specific component at specific child, if found, return operation result </summary>
 	public	static	bool			SearchComponentInChild<T>( this Transform t, int childIndex, ref T Component) where T : Component
 	{
-		if ( t.childCount == 0 )
+		if ( t.childCount == 0 || t.childCount < childIndex )
 			return false;
-
-		if ( t.childCount < childIndex )
-			return false;
-
+		
 		Transform child = t.GetChild( childIndex );
 		if ( child == null )
 			return false;
 
-		Component = child.GetComponent<T>();
-		return Component != null;
+		return child.TryGetComponent<T>( out Component );
 	} 
 
 
@@ -299,7 +296,7 @@ public static class Extensions {
 	/// Create and fills up given array with components found paired in childrens to the given enum type
 	/// Requirements: children must have same name (case sensitive) of enum members
 	/// </summary>
-	public	static	bool			MapComponentsInChildrenToArray<T0, T1>( this Transform t, ref T0[] array ) where T0 :Component
+	public	static	bool			MapComponentsInChildrenToArray<T0, T1>( this Transform t, ref T0[] array ) where T0 :Component where T1 : System.Enum
 	{
 		if ( typeof( T1 ).IsEnum == false | t == null)
 		{
@@ -311,14 +308,8 @@ public static class Extensions {
 
 		for ( int i = 0; i < names.Length; i++ )
 		{
-			string name = names[i];
-			Transform child = null;
-			if ( t.SearchChildWithName( name, ref child ))
-			{
-				T0 component = null;
-				Utils.Base.SearchComponent( child.gameObject, out component, ESearchContext.LOCAL );
-				array[i] = component;
-			}
+			string name = names[i];	array[i] = null;
+			t.SearchComponentInChild( name, ref array[i] );
 		}
 		return true;
 	}
@@ -341,8 +332,7 @@ public static class Extensions {
 				}
 				else
 				{
-					T childComponent = child.GetComponent<T>();
-					if ( childComponent != null )
+					if (child.TryGetComponent( out T childComponent ))
 					{
 						list.Add( childComponent );
 					}

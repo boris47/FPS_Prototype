@@ -3,33 +3,29 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class SingleInputEvent {
+public class SingleInputEvent
+{
+	private static	readonly System.Func<bool>				m_AlwaysTrueCondition	= () => true;
 
-	private	InputDelegateHandler	m_InputEvent	= null;
+	public		string					InputEventID	{ get; private set; } = "NONE";
 
-	private	System.Func<bool>		m_Condition		= delegate() { return true; };
+	private		InputDelegateHandler	m_InputEvent	= null;
+	private		System.Func<bool>		m_Condition		= m_AlwaysTrueCondition;
 
-	private readonly string			m_InputEventID	= "NONE";
-
-	//////////////////////////////////////////////////////////////////////////
-	public	string					InputEventID
-	{
-		get { return this.m_InputEventID; }
-	}
 
 	//////////////////////////////////////////////////////////////////////////
 	public SingleInputEvent( string Id, InputDelegateHandler eventToCall, System.Func<bool> condition )
 	{
-		this.m_InputEventID = Id;
+		this.InputEventID = Id;
 		this.m_InputEvent = eventToCall;
-		this.m_Condition = condition;
+		this.m_Condition = condition ?? m_AlwaysTrueCondition;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	public	void	Rebind( InputDelegateHandler eventToCall, System.Func<bool> condition )
+	public	void	Rebind( InputDelegateHandler eventToCall, System.Func<bool> condition = null )
 	{
 		this.m_InputEvent = eventToCall;
-		this.m_Condition = condition;
+		this.m_Condition = condition ?? m_AlwaysTrueCondition;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -43,9 +39,9 @@ public class SingleInputEvent {
 
 }
 
-public class InputEventCollection {	
-
-	private static	readonly System.Func<bool>				m_AlwaysTrueCondition	= delegate() { return true; };
+public class InputEventCollection
+{
+	private static	readonly System.Func<bool>				m_AlwaysTrueCondition	= () => true;
 	private			readonly List<SingleInputEvent>			m_Events				= new List<SingleInputEvent>();
 
 	//////////////////////////////////////////////////////////////////////////

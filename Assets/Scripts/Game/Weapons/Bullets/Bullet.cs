@@ -122,9 +122,9 @@ public abstract class Bullet : MonoBehaviour, IBullet
 			m_BulletsSections[sectionName] = this.m_BulletSection;
 		}
 
-		this.m_RigidBody = this.GetComponent<Rigidbody>();
-		this.m_Collider	= this.GetComponent<Collider>();
-		this.m_Renderer	= this.GetComponent<Renderer>();
+		this.TryGetComponent( out this.m_RigidBody );
+		this.TryGetComponent( out this.m_Collider );
+		this.TryGetComponent( out this.m_Renderer );
 
 		this.SetupBulletCO();
 	}

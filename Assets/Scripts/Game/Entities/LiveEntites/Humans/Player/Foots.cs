@@ -29,8 +29,8 @@ public class Foots : MonoBehaviour, IFoots {
 	// AWAKE
 	private void Awake()
 	{
-		this.m_LiveEntity	= this.transform.parent.GetComponent<LiveEntity>();
-		this.m_AudioSource	= this.transform.GetComponent<ICustomAudioSource>();
+		this.transform.parent.TryGetComponent(out this.m_LiveEntity);
+		this.transform.TryGetComponent(out this.m_AudioSource);
 	}
 
 

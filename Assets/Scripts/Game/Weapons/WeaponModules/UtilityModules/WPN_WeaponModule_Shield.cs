@@ -116,7 +116,7 @@ public class WPN_WeaponModule_Shield : WPN_BaseModule, IWPN_UtilityModule {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public	override	void	InternalUpdate	( float DeltaTime )
+	protected	override	void	InternalUpdate	( float DeltaTime )
 	{
 		if (this.m_TimeToWaitBeforeRestore > 0.0f )
 		{

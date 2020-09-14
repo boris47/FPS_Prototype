@@ -3,38 +3,34 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IWeaponZoom {
-
+public interface IWeaponZoom
+{
 	Vector3					ZoomOffset			{ get; }
 	float					ZoomingTime			{ get; }
 	float					ZoomSensitivity		{ get; }
 	float					ZoomFactor			{ get; }
 }
 
-public interface IModifiable {
-
+public interface IModifiable
+{
 	void					ApplyModifier			( Database.Section modifier );
 	void					ResetBaseConfiguration	();
 	void					RemoveModifier			( Database.Section modifier );
 }
 
-public interface IAttachments {
-
-	// Weapon Attachments
-	IWeaponAttachment		Flashlight						{ get; }
-	bool					HasFlashlight					{ get; }
-	IWeaponAttachment		Laser							{ get; }
-	bool					HasLaser						{ get; }
-	IWeaponAttachment		GranadeLauncher					{ get; }
-	bool					HasGranadeLauncher				{ get; }
-
+public interface IUsable
+{
+	void					OnStart		();
+	void					OnUpdate	();
+	void					OnEnd		();
 }
 
-public interface IWeapon :  IAttachments, IWeaponZoom, IModifiable {
-	
+public interface IWeapon : IWeaponZoom, IModifiable
+{	
 	Transform				Transform						{ get; }
 	bool					Enabled							{ get; set; }
-	EWeaponState				WeaponState						{ get; }
+	EWeaponState			WeaponState						{ get; }
+	IAttachments			Attachments						{ get; }
 
 	bool					bGetModuleBySlot				( EWeaponSlots slot, ref WPN_BaseModule weaponModule );
 	bool					bGetModuleSlot					( EWeaponSlots slot, ref WeaponModuleSlot moduleSlot );	
@@ -58,19 +54,12 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 {
 	[Header("Weapon Properties")]
 
-	[SerializeField, ReadOnly]	protected		Vector3				m_ZoomOffset				= Vector3.zero;
+	[SerializeField, ReadOnly]
+	protected		Vector3									m_ZoomOffset				= Vector3.zero;
 
 	// SECTION
 	protected		Database.Section						m_WpnSection				= null;
-	protected		string									m_WpnBaseSectionName		= "";
-
-	// ATTACHMENTS
-	protected		IFlashLight								m_FlashLight				= null;
-	protected		bool									m_HasFlashlight			= false;
-	protected		ILaser									m_Laser						= null;
-	protected		bool									m_HasLaser					= false;
-	protected		IGranadeLauncher						m_GranadeLauncher			= null;
-	protected		bool									m_HasGranadeLauncher		= false;
+	protected		string									m_WpnBaseSectionName		=> this.GetType().FullName;
 
 
 	// WEAPON STATE
@@ -85,30 +74,20 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 	protected		List<Database.Section>					m_Modifiers					= new List<Database.Section>();
 
 	// INTERFACE START
-					IWeaponAttachment						IAttachments.Flashlight			{ get { return this.m_FlashLight; } }
-					bool									IAttachments.HasFlashlight		{ get { return this.m_HasFlashlight; } }
-					IWeaponAttachment						IAttachments.Laser				{ get { return this.m_Laser; } }
-					bool									IAttachments.HasLaser			{ get { return this.m_HasLaser; } }
-					IWeaponAttachment						IAttachments.GranadeLauncher	{ get { return this.m_GranadeLauncher; } }
-					bool									IAttachments.HasGranadeLauncher	{ get { return this.m_HasGranadeLauncher; } }
+					bool IWeapon.Enabled					{ get { return this.enabled; } set { this.enabled = value; } }
 
+					Transform								IWeapon.Transform					=> this.transform;
+					EWeaponState							IWeapon.WeaponState					=> this.m_WeaponState;
+					Database.Section						IWeapon.Section						=> this.m_WpnSection;
+					string									IWeapon.OtherInfo					=> this.OtherInfo;
 
+					Vector3									IWeaponZoom.ZoomOffset				=> this.m_ZoomOffset;
 
-					Transform								IWeapon.Transform			{ get { return this.transform; } }
-					bool									IWeapon.Enabled				{ get { return this.enabled; } set { this.enabled = value; } }
-					EWeaponState							IWeapon.WeaponState			{ get { return this.m_WeaponState; } }
-					Database.Section						IWeapon.Section				{ get { return this.m_WpnSection; } }
-					string									IWeapon.OtherInfo			{ get { return this.OtherInfo; } }
-	
-					Vector3									IWeaponZoom.ZoomOffset		{ get { return this.m_ZoomOffset; } }
-	
-					float									IWeaponZoom.ZoomingTime		{ get { return this.m_BaseZoomingTime; } }
-					float									IWeaponZoom.ZoomSensitivity	{ get { return this.GetZoomSensitivity(); } }
-					float									IWeaponZoom.ZoomFactor		{ get { return this.m_BaseZoomFactor; } }
-	
+					float									IWeaponZoom.ZoomingTime				=> this.m_BaseZoomingTime;
+					float									IWeaponZoom.ZoomSensitivity			=> this.GetZoomSensitivity();
+					float									IWeaponZoom.ZoomFactor				=> this.m_BaseZoomFactor;
 	// INTERFACE END
 
-	
 	// UNITY COMPONENTS
 	protected		Animator								m_Animator					= null;
 	
@@ -119,49 +98,25 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 
 	// Weapon Flags
 	protected		bool									m_IsLocked					= false;
-	protected		bool									m_NeedRecharge
-	{
-		get {
-			return this.m_PrimaryWeaponModuleSlot.WeaponModule.NeedReload() ||
+	protected bool m_NeedRecharge => this.m_PrimaryWeaponModuleSlot.WeaponModule.NeedReload() ||
 				this.m_SecondaryWeaponModuleSlot.WeaponModule.NeedReload() ||
 				this.m_TertiaryWeaponModuleSlot.WeaponModule.NeedReload();
-		}
-	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual	string				OtherInfo
 	{
-		get {
-			string primaryModule	= this.m_PrimaryWeaponModuleSlot.WeaponModule.ModuleSection ? this.m_PrimaryWeaponModuleSlot.WeaponModule.ModuleSection.GetSectionName() : "None";
-			string secondaryModule	= this.m_SecondaryWeaponModuleSlot.WeaponModule.ModuleSection ? this.m_SecondaryWeaponModuleSlot.WeaponModule.ModuleSection.GetSectionName() : "None";
-			string tertiaryModule	= this.m_TertiaryWeaponModuleSlot.WeaponModule.ModuleSection ? this.m_TertiaryWeaponModuleSlot.WeaponModule.ModuleSection.GetSectionName() : "None";
-			return primaryModule + "," + secondaryModule + "," + tertiaryModule;
+		get
+		{
+			string primaryModule	= this.m_PrimaryWeaponModuleSlot.WeaponModule.ModuleSection.GetSectionName();
+			string secondaryModule	= this.m_SecondaryWeaponModuleSlot.WeaponModule.ModuleSection.GetSectionName();
+			string tertiaryModule	= this.m_TertiaryWeaponModuleSlot.WeaponModule.ModuleSection.GetSectionName();
+			return $"{primaryModule}, {secondaryModule}, {tertiaryModule}";
 		}
 	}
 
 
-	//////////////////////////////////////////////////////////////////////////
-	protected	void	UpdateAttachments()
-	{
-		// Flashlight
-		if(this.m_HasFlashlight = Utils.Base.SearchComponent(this.gameObject, out this.m_FlashLight, ESearchContext.CHILDREN ) )
-		{
-			this.m_FlashLight.OnAttached();
-		}
 
-		// Laser
-		if (this.m_HasLaser = Utils.Base.SearchComponent(this.gameObject, out this.m_Laser, ESearchContext.CHILDREN ) )
-		{
-			this.m_Laser.OnAttached();
-		}
-
-		// Granade Launcher
-		if (this.m_HasGranadeLauncher = Utils.Base.SearchComponent(this.gameObject, out this.m_GranadeLauncher, ESearchContext.CHILDREN ))
-		{
-			this.m_GranadeLauncher.OnAttached();
-		}
-	}
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -169,26 +124,29 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 	{
 		System.Diagnostics.Stopwatch m_StopWatch = new System.Diagnostics.Stopwatch();
 		m_StopWatch.Start();
-		this.m_WpnBaseSectionName = this.GetType().FullName;
 
 		bool bIsInitilalizedSuccessfully = true;
 
 		// Animations
 		{
 			bIsInitilalizedSuccessfully &= Utils.Base.SearchComponent(this.gameObject, out this.m_Animator, ESearchContext.LOCAL );
-//			bIsInitilalizedSuccessfully &= m_Animator.GetClipFromAnimator( "fire",		ref m_FireAnim );
+//			bIsInitilalizedSuccessfully &= this.m_Animator.GetClipFromAnimator( "fire",		ref m_FireAnim );
 			bIsInitilalizedSuccessfully &= this.m_Animator.GetClipFromAnimator( "reload",	ref this.m_ReloadAnim );
 			bIsInitilalizedSuccessfully &= this.m_Animator.GetClipFromAnimator( "draw",		ref this.m_DrawAnim );
 		}
 
+//		this.m_AreAttachmentsAllowed = this.transform.SearchComponentInChild( "Attachments", ref this.m_AttachmentRoot );
+
+		bIsInitilalizedSuccessfully &= bIsInitilalizedSuccessfully && GlobalManager.Configs.GetSection( this.m_WpnBaseSectionName, ref this.m_WpnSection );
+
 		// ATTACHMENTS
-		this.UpdateAttachments();
+		bIsInitilalizedSuccessfully &= bIsInitilalizedSuccessfully && this.InitializeAttachments();
 
 		// Registering game events
 		GameManager.StreamEvents.OnSave += this.OnSave;
 		GameManager.StreamEvents.OnLoad += this.OnLoad;
 
-		bIsInitilalizedSuccessfully &= this.ReloadBaseConfiguration();
+		bIsInitilalizedSuccessfully &= bIsInitilalizedSuccessfully && this.ReloadBaseConfiguration();
 
 		// Only if the construction complete successflly, the weapon get registered
 		if ( bIsInitilalizedSuccessfully )
@@ -218,7 +176,6 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 		this.m_Modifiers.Clear();
 
 		// LOAD BASE CONFIGURATION
-		if ( result &= GlobalManager.Configs.GetSection(this.m_WpnBaseSectionName, ref this.m_WpnSection ) )
 		{
 			this.m_WpnSection.bAsVec3( "ZoomOffset", ref this.m_ZoomOffset, null );
 
@@ -235,6 +192,7 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 			//Tertiary Weapon Module
 			result &= LoadAndConfigureModule( this, this.m_WpnSection, ref this.m_TertiaryWeaponModuleSlot );
 		}
+		
 		return result;
 	}
 
@@ -341,11 +299,11 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 	private		float						GetZoomSensitivity()
 	{
 		float zoomSensitivity		= this.m_BaseZoomSensitivity;
-		
-		WPN_WeaponModule_Zoom zoomModule = null;
-		if (this.transform.SearchComponent( ref zoomModule, ESearchContext.CHILDREN ) )
+
+		if (this.Attachments.HasAttachment<WPN_WeaponAttachment_Zoom>())
 		{
-			zoomSensitivity *= zoomModule.ZoomSensitivity;
+			WPN_WeaponAttachment_Zoom attachment = this.Attachments.GetAttachment<WPN_WeaponAttachment_Zoom>();
+			zoomSensitivity = attachment.ZoomSensitivityMultiplier;
 		}
 		
 		return zoomSensitivity;
@@ -375,8 +333,6 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 			() => { WeaponManager.Instance.ZoomOut(); },
 			delegate() { return  Player.Instance.IsRunning && WeaponManager.Instance.IsZoomed; }
 		);
-
-		if (this.m_HasLaser ) this.m_Laser.SetActive(true);
 	}
 
 
@@ -398,8 +354,6 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 		GlobalManager.InputMgr.UnbindCall( EInputCommands.RELOAD_WPN,				"Wpn_Reload" );
 
 		GlobalManager.InputMgr.UnbindCall( EInputCommands.STATE_RUN,				"Wpn_ExitZoom" );
-
-		if (this.m_HasLaser ) this.m_Laser.SetActive(false);
 	}
 
 
@@ -422,10 +376,10 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 		this.m_TertiaryWeaponModuleSlot.WeaponModule.OnSave( streamUnit );
 
 		// Flashlight
-		if (this.m_FlashLight != null )
-		{
-			streamUnit.SetInternal( "FlashLightActive", this.m_FlashLight.IsActive );
-		}
+//		if (this.m_FlashLight != null )
+//		{
+//			streamUnit.SetInternal( "FlashLightActive", this.m_FlashLight.IsActive );
+//		}
 
 		// Save Weapon Modules Data
 
@@ -446,10 +400,10 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 			this.m_TertiaryWeaponModuleSlot.WeaponModule.OnLoad( streamUnit );
 
 			// Flashlight
-			if (this.m_FlashLight != null )
-			{
-				this.m_FlashLight.SetActive( streamUnit.GetAsBool( "FlashLightActive") );
-			}
+//			if (this.m_FlashLight != null )
+//			{
+//				this.m_FlashLight.SetActive( streamUnit.GetAsBool( "FlashLightActive") );
+//			}
 
 			// Load Weapon Modules Data
 

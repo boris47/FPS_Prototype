@@ -189,20 +189,6 @@ public partial class Player {
 			this.m_RigidBody.AddForce( gravity, ForceMode.Acceleration );
 		}
 	}
-
-
-
-	private	bool FlashlightPredicate()
-	{
-		return WeaponManager.Instance.CurrentWeapon?.Flashlight != null;
-	}
-
-
-
-	private	void FlashlightAction()
-	{
-		WeaponManager.Instance.CurrentWeapon.Flashlight.SetActive( !WeaponManager.Instance.CurrentWeapon.Flashlight.IsActive );
-	}
 	
 
 

@@ -39,7 +39,6 @@ public class SectionMap
 	
 
 	//////////////////////////////////////////////////////////////////////////
-	// Section_Create
 	// CREATE A NEW SECTION WHILE READING FILE
 	private bool Section_Create( string sLine, string sFilePath, int iLine )
 	{
@@ -93,7 +92,6 @@ public class SectionMap
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Section_Add
 	// INSERT A KEY VALUE PAIR INSIDE THE ACTUAL PARSING SECTION
 	private bool Section_Add( KeyValue Pair, string sFilePath, int iLine )
 	{
@@ -109,7 +107,6 @@ public class SectionMap
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Section_Close
 	// DEFINITELY SAVE THE PARSING SECTION
 	private void Section_Close()
 	{
@@ -122,7 +119,6 @@ public class SectionMap
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ArrayData_Create
 	// CREATE A NEW ARRAY DATA LIST WHILE READING FILE
 	private bool ArrayData_Create( string sLine, string sFilePath, int iLine )
 	{
@@ -175,14 +171,13 @@ public class SectionMap
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ArrayData_Add
 	// INSERT VALUE INSIDE THE ACTUAL PARSING ARRAY DATA LIST
 	private	bool ArrayData_Add( string sLine, string sFilePath, int iLine )
 	{
 		LineValue pLineValue = new LineValue( sFilePath + "_"+ iLine , sLine );
 		if ( pLineValue.IsOK == false )
 		{
-			Debug.LogErrorFormat( " SectionMap::ArrayData_Add: LineValue invalid at line |{0}| in Section |{1}| in file |{2}|",	iLine, this.m_CurrentArrayData.GetName(), sFilePath );
+			Debug.LogErrorFormat( " SectionMap::ArrayData_Add: LineValue invalid at line |{0}| in Section |{1}| in file |{2}|",	iLine, this.m_CurrentArrayData.GetArrayDataName(), sFilePath );
 			return false;
 		}
 		this.m_CurrentArrayData.Add( pLineValue );
@@ -191,12 +186,11 @@ public class SectionMap
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Section_Close
 	// DEFINITELY SAVE THE PARSING SECTION
 	private void ArrayData_Close()
 	{
 		if (this.m_CurrentArrayData != null )
-			this.m_ArrayDataMap.Add(this.m_CurrentArrayData.GetName(), this.m_CurrentArrayData );
+			this.m_ArrayDataMap.Add(this.m_CurrentArrayData.GetArrayDataName(), this.m_CurrentArrayData );
 
 		this.m_CurrentArrayData = null;
 		this.m_ReadingPhase = EReadingPhase.NONE;
@@ -204,6 +198,8 @@ public class SectionMap
 
 
 	private static readonly char[]	EscapeCharToRemove = new char[] { '\n','\b','\t','\r' };
+	private static readonly char[] SectionListTrimChars = new char[] { ',', '.', ' ' };
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// LoadFile
@@ -335,7 +331,7 @@ public class SectionMap
 			// READING SECTION LIST
 			if (this.m_ReadingPhase == EReadingPhase.READING_SECTION_LIST)
 			{
-				string trimmedLine = sLine.Trim(new char[] { ',', '.', ' ' });
+				string trimmedLine = sLine.Trim(SectionListTrimChars);
 				if (trimmedLine == "}")
 				{
 					this.m_CurrentLineValue.Set(this.m_CurrentMultiValue);

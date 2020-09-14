@@ -17,7 +17,7 @@ public class WPN_FireModule_Syphon : WPN_FireModule
 	protected		Color							m_StartEmissiveColor		= Color.clear;
 	protected		float							m_BaseAmmoRestoreCounter	= 0f;
 
-	protected		Laser							m_Laser						= null;
+	protected		WPN_WeaponAttachment_LaserPointer m_Laser						= null;
 
 
 	public override EFireMode FireMode => EFireMode.NONE;
@@ -41,7 +41,6 @@ public class WPN_FireModule_Syphon : WPN_FireModule
 				{
 					this.m_Laser.LaserLength = this.m_BeamLength;
 					this.m_Laser.enabled = false;
-			//		this.m_Laser.OnAttached(); TODO Remove asap
 				}
 
 				if (this.m_WeaponRef.Transform.SearchComponent( ref this.m_Renderer, ESearchContext.CHILDREN, s => s.name == "Graphics" ) )
@@ -195,7 +194,7 @@ public class WPN_FireModule_Syphon : WPN_FireModule
 	}
 
 	// INTERNAL UPDATE
-	public override void InternalUpdate( float DeltaTime )
+	protected override void InternalUpdate( float DeltaTime )
 	{
 		this.m_WpnFireMode.InternalUpdate( DeltaTime, this.m_Magazine );
 

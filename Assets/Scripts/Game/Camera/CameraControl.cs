@@ -132,7 +132,7 @@ public sealed class CameraControl : MonoBehaviour, ICameraControl {
 			"CameraControl::Awake: Failed the load of camera post processes profile"
 		);
 
-		this.m_CameraRef = this.GetComponent<Camera>();
+		this.TryGetComponent( out this.m_CameraRef );
 		this.m_PP_Profile = this.gameObject.GetOrAddIfNotFound<PostProcessingBehaviour>().profile = cameraPostProcesses.Asset;
 
 		Database.Section cameraSection = null;

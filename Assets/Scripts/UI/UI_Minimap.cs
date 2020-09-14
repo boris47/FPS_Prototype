@@ -208,6 +208,7 @@ public sealed class UI_Minimap : MonoBehaviour, IStateDefiner {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnDestroy()
 	{
+		Resources.UnloadAsset( this.m_MinimapRenderTexture );
 		this.Show();
 	}
 

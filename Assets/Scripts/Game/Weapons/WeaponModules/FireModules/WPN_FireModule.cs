@@ -152,7 +152,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule
 
 		foreach(IWeaponAttachment attachment in this.m_WeaponRef.Transform.GetComponentsInChildren<IWeaponAttachment>())
 		{
-			attachment.OnAttached();
+			attachment.OnAttach();
 		}
 
 		return true;
@@ -162,7 +162,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule
 	{
 		foreach(IWeaponAttachment attachment in this.m_WeaponRef.Transform.GetComponentsInChildren<IWeaponAttachment>())
 		{
-			attachment.OnRemoved();
+			attachment.OnDetach();
 		}
 	}
 

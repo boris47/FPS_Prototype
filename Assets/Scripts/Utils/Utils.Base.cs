@@ -153,10 +153,11 @@ namespace Utils
 		{
 			global::System.Type componentType = component.GetType();
 		
-			Component tmpComponent = destinationObj.GetComponent( componentType );
-			if ( tmpComponent == null )
+			if (!destinationObj.TryGetComponent(out Component tmpComponent))
+			{
 				tmpComponent = destinationObj.AddComponent( componentType );
-
+			}
+			
 			if (copyProperties)
 			{
 				PropertyInfo[] foundProperties = componentType.GetProperties();

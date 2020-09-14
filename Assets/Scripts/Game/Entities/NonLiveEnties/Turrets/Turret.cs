@@ -22,7 +22,7 @@ public abstract class Turret : NonLiveEntity {
 	[SerializeField, ReadOnly]
 	protected	int				m_PoolSize					= 5;
 
-	private		Laser			m_Laser						= null;
+	private		WPN_WeaponAttachment_LaserPointer			m_Laser						= null;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -51,9 +51,9 @@ public abstract class Turret : NonLiveEntity {
 
 			this.m_DamageMax				= this.m_SectionRef.AsFloat( "DamageMax", 2.0f );
 			this.m_DamageMin				= this.m_SectionRef.AsFloat( "DamageMin", 0.5f );
-			this.m_PoolSize				= this.m_SectionRef.AsInt( "PoolSize", this.m_PoolSize );
+			this.m_PoolSize					= this.m_SectionRef.AsInt( "PoolSize", this.m_PoolSize );
 
-			this.m_EntityType			= EEntityType.ROBOT;
+			this.m_EntityType				= EEntityType.ROBOT;
 		}
 
 		// BULLETS POOL CREATION
@@ -92,7 +92,7 @@ public abstract class Turret : NonLiveEntity {
 	{
 		base.OnEnable();
 
-		this.m_Laser = this.GetComponentInChildren<Laser>();
+		this.m_Laser = this.GetComponentInChildren<WPN_WeaponAttachment_LaserPointer>();
 		if (this.m_Laser != null )
 		{
 			this.m_Laser.LaserLength = this.Brain.FieldOfView.Distance;

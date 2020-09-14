@@ -1,7 +1,6 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using Database;
 using UnityEngine;
 
 
@@ -30,7 +29,7 @@ public interface IWPN_UtilityModule
 // WPN_BaseModule ( Abstract )
 /// <summary> Abstract base class for weapon modules </summary>
 [System.Serializable]
-public abstract class WPN_BaseModule : MonoBehaviour, IModifiable
+public abstract class WPN_BaseModule : MonoBehaviour, IModifiable, IUsable
 {
 	protected		Database.Section			m_ModuleSection				= new Database.Section( "Empty", "Unassigned" );
 	protected		IWeapon						m_WeaponRef					= null;
@@ -38,11 +37,12 @@ public abstract class WPN_BaseModule : MonoBehaviour, IModifiable
 	protected		List<Database.Section>		m_Modifiers					= new List<Database.Section>();
 	protected		GameObject					m_FireModeContainer			= null;
 
-	public virtual		Database.Section			ModuleSection			=> this.m_ModuleSection;
+	public virtual	Database.Section			ModuleSection				=> this.m_ModuleSection;
 
-
+	/// <summary> Initialize everything about this module </summary>
 	public		abstract	bool	OnAttach( IWeapon w, EWeaponSlots slot );
 
+	/// <summary> Unload and clean everything about this module </summary>
 	public		abstract	void	OnDetach();
 
 	//////////////////////////////////////////////////////////////////////////
@@ -108,7 +108,7 @@ public abstract class WPN_BaseModule : MonoBehaviour, IModifiable
 	public		abstract	bool	NeedReload		();
 	public		abstract	void	OnAfterReload	();
 
-	public		abstract	void	InternalUpdate( float DeltaTime );
+	protected	abstract	void	InternalUpdate( float DeltaTime );
 
 	//
 	public		virtual		void	OnStart		()	{ }

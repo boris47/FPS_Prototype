@@ -19,7 +19,7 @@ public class WPN_FireModule_Shotgun : WPN_FireModule {
 
 	protected	override		bool	InternalSetup( Database.Section moduleSection )
 	{
-		this.m_BuckshotSize				= moduleSection.AsUInt( "BaseBucketSize", this.m_BuckshotSize );
+		this.m_BuckshotSize				 = moduleSection.AsUInt( "BaseBucketSize", this.m_BuckshotSize );
 		this.m_BasePerShotFireDispersion = moduleSection.AsFloat( "BasePerShotFireDispersion", this.m_BasePerShotFireDispersion );
 		return true;
 	}
@@ -31,8 +31,8 @@ public class WPN_FireModule_Shotgun : WPN_FireModule {
 		float MultPerShotFireDispersion		= modifier.AsFloat( "MultPerShotFireDispersion",	1.0f );
 		float MultBucketSize				= modifier.AsFloat( "MultBucketSize",				1.0f );
 
-		this.m_BasePerShotFireDispersion			= this.m_BasePerShotFireDispersion * MultPerShotFireDispersion;
-		this.m_BuckshotSize						= (uint)( (float)this.m_BuckshotSize * MultBucketSize);
+		this.m_BasePerShotFireDispersion	= this.m_BasePerShotFireDispersion * MultPerShotFireDispersion;
+		this.m_BuckshotSize					= (uint)( (float)this.m_BuckshotSize * MultBucketSize);
 	}
 
 	public	override	void	ResetBaseConfiguration()
@@ -151,7 +151,7 @@ public class WPN_FireModule_Shotgun : WPN_FireModule {
 		
 	}
 
-	public override void InternalUpdate( float DeltaTime )
+	protected override void InternalUpdate( float DeltaTime )
 	{
 		this.m_WpnFireMode.InternalUpdate( DeltaTime, this.m_Magazine );
 	}

@@ -16,13 +16,13 @@ namespace Database {
 	{
 		// INTERNAL VARS
 		[SerializeField]
-		private		string				name			= null;
+		private		string				m_name			= null;
 
 		[SerializeField]
 		private		string				m_Context		= "";
 
 		[SerializeField]
-		private		List<LineValue>	vList		= new List<LineValue>();
+		private		List<LineValue>		vList			= new List<LineValue>();
 
 		[SerializeField]
 		private		List<string>		m_Mothers		= new List<string>();
@@ -50,7 +50,7 @@ namespace Database {
 
 		public ArrayData( string arrayDataName, string context )
 		{
-			this.name = arrayDataName;
+			this.m_name = arrayDataName;
 			this.m_Context = context;
 			this.m_IsOK = true;
 		}
@@ -79,7 +79,7 @@ namespace Database {
 				{
 					listA.Add( lineValue );
 				}
-				listA.m_Mothers.Add( listB.name );
+				listA.m_Mothers.Add( listB.m_name );
 			}
 			return listA;
 		}
@@ -87,7 +87,7 @@ namespace Database {
 
 		public	bool					IsChildOf						( ArrayData mother )
 		{
-			string motherName = mother.GetName();
+			string motherName = mother.GetArrayDataName();
 			return (this.m_Mothers.FindIndex( m => m == motherName ) > -1 );
 		}
 
@@ -106,14 +106,14 @@ namespace Database {
 			return this.vList.Count;
 		}
 
-		public	string					GetName()				{ return ( string )this.name.Clone(); }
+		public	string					GetArrayDataName()				{ return ( string )this.m_name.Clone(); }
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// Add
-		public	bool				Add( LineValue LineValue )
+		public	bool					Add( LineValue LineValue )
 		{
-			int index = this.vList.FindIndex( ( s ) => s.Key == LineValue.Key );
+			int index = this.vList.FindIndex( (s) => s.Key == LineValue.Key );
 			// Confirmed new linevalue
 			if ( index == -1 )
 			{
@@ -122,7 +122,7 @@ namespace Database {
 			// overwrite of existing linevalue
 			else
 			{
-				this.vList[ index ] = new LineValue( LineValue );
+				this.vList[index] = new LineValue( LineValue );
 			}
 			return index > -1;
 		}
@@ -264,30 +264,16 @@ namespace Database {
 
 		//////////////////////////////////////////////////////////////////////////
 		// bGetMultiAsArray
-		public	bool						bGetMultiAsArray<T>( ref T[] array )
+		public	bool					MapToArray<T>( ref T[] array )
 		{
-			bool bResult = true;
+//			System.Type requiredType = typeof( T );
+//			if (!this.vList.TrueForAll( lineValue => lineValue.Value?.GetType() == requiredType ))
+//			{
+//				return false;
+//			}
 
-			System.Type requiredType = typeof( T );
-			T converter(LineValue v)
-			{
-				bResult &= v.Value.GetType() == requiredType;
-				return v.Value.As<T>();
-			}
-
-			// Get a list of converted cvalues to requested type
-			List<T> converted = this.vList.ConvertAll( converter );
-			if ( bResult )
-			{
-				array = converted.ToArray();
-			}
-			else
-			{
-				converted.Clear();
-				converted = null;
-			}
-			
-			return bResult;
+			array = this.vList.ConvertAll( lineValue => lineValue.Value.As<T>() ).ToArray();
+			return true;
 		}
 
 

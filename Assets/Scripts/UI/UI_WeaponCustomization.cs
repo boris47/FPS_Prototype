@@ -15,21 +15,15 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 
 	private		bool			m_IsInitialized		= false;
 
-	bool IStateDefiner.IsInitialized
-	{
-		get { return this.m_IsInitialized; }
-	}
+	bool IStateDefiner.IsInitialized => this.m_IsInitialized;
 
-	string IStateDefiner.StateName
-	{
-		get { return this.name; }
-	}
+	string IStateDefiner.StateName => this.name;
 
-	Dictionary<EWeaponSlots, Database.Section> m_CurrentAssignedModuleSections = new Dictionary<EWeaponSlots, Database.Section>()
+	private readonly Dictionary<EWeaponSlots, Database.Section> m_CurrentAssignedModuleSections = new Dictionary<EWeaponSlots, Database.Section>()
 	{
 		{ EWeaponSlots.PRIMARY,		new Database.Section( "WPN_BaseModuleEmpty", "Unassigned" ) },
 		{ EWeaponSlots.SECONDARY,	new Database.Section( "WPN_BaseModuleEmpty", "Unassigned" ) },
-		{ EWeaponSlots.TERTIARY,		new Database.Section( "WPN_BaseModuleEmpty", "Unassigned" ) }
+		{ EWeaponSlots.TERTIARY,	new Database.Section( "WPN_BaseModuleEmpty", "Unassigned" ) }
 	};
 
 	//////////////////////////////////////////////////////////////////////////
@@ -39,7 +33,7 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 		if (this.m_IsInitialized == true )
 			yield break;
 
-		CoroutinesManager.AddCoroutineToPendingCount( 1 );
+//		CoroutinesManager.AddCoroutineToPendingCount( 1 );
 
 		Transform child = this.transform.Find("CustomizationPanel");
 		if (this.m_IsInitialized = ( child != null ) )
@@ -88,7 +82,7 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 			yield return null;
 		}
 
-		CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
+//		CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 	}
 
 
@@ -183,10 +177,10 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 		thisDropdown.value = filtered.FindIndex( s => s.GetSectionName() == alreadyAssignedModules[(int)slot] );
 
 		thisDropdown.onValueChanged.RemoveAllListeners();
-		UnityEngine.Events.UnityAction<int> callback = delegate( int moduleIndex )
+		void callback(int moduleIndex)
 		{
 			this.OnModuleChanged( slot, filtered[moduleIndex] );
-		};
+		}
 		thisDropdown.onValueChanged.AddListener( callback );
 	}
 

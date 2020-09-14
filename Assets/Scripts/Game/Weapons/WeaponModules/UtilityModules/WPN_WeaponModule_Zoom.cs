@@ -1,4 +1,5 @@
 ﻿
+/*
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,15 +8,15 @@ using UnityEngine.UI;
 
 //////////////////////////////////////////////////////////////////////////
 // WPN_WeaponModule_Zoom
-public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
-
+public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule
+{
 	protected	Vector3				m_ZoomOffset			= Vector3.zero;
 	protected	float				m_ZoomFactor			= 2.0f;
 	protected	float				m_ZoomingTime			= 1.0f;
 	protected	float				m_ZoomSensitivity		= 1.0f;
 
 	protected	Image				m_ZoomFrame				= null;
-	protected	Scope				m_Scope					= null;
+	protected	WPN_Scope			m_Scope					= null;
 
 
 	public	virtual	float			ZoomSensitivity
@@ -87,9 +88,9 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 				ResourceManager.LoadedData<GameObject> ScopeObject = new ResourceManager.LoadedData<GameObject>();
 				void onLoadSuccess(GameObject resource)
 				{
-					if ( resource.transform.HasComponent<Scope>() )
+					if ( resource.transform.HasComponent<WPN_Scope>() )
 					{
-						this.m_Scope = Instantiate( resource, opticSpot ).GetComponent<Scope>();
+						this.m_Scope = Instantiate( resource, opticSpot ).GetComponent<WPN_Scope>();
 						this.m_Scope.transform.localPosition = Vector3.zero;
 						this.m_Scope.transform.localRotation = Quaternion.identity;
 					}
@@ -154,16 +155,8 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule {
 	public	override	void	OnWeaponChange	() { }
 	public	override	bool	NeedReload		() { return false; }
 	public	override	void	OnAfterReload	() { }
-	public	override	void	InternalUpdate	( float DeltaTime ) { }
+	protected	override	void	InternalUpdate	( float DeltaTime ) { }
 
-
-/*
-public	struct ZoomWeaponData {
-	public	float				ZoomFactor;
-	public	float				ZoomTime;
-	public	float				ZoomSensitivity;
-}
-*/
 	
 
 	/// <summary> Zoom toggle </summary>
@@ -202,8 +195,8 @@ public	struct ZoomWeaponData {
 
 //////////////////////////////////////////////////////////////////////////
 // WPN_WeaponModule_OpticZoom
-public class WPN_WeaponModule_OpticZoom : WPN_WeaponModule_Zoom {
-
+public class WPN_WeaponModule_OpticZoom : WPN_WeaponModule_Zoom
+{
 	public override void OnStart()
 	{
 		if ( WeaponManager.Instance.IsZoomed )
@@ -217,3 +210,5 @@ public class WPN_WeaponModule_OpticZoom : WPN_WeaponModule_Zoom {
 	}
 
 }
+
+*/

@@ -3,8 +3,8 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
-public partial interface IWeaponManager {
-
+public partial interface IWeaponManager
+{
 	GameObject			GameObject						{ get; }
 	bool				Enabled							{ get; set; }
 
@@ -13,38 +13,37 @@ public partial interface IWeaponManager {
 	int					CurrentWeaponIndex				{ get; set; }
 	float				ZoomSensitivity					{ get; }
 	float				ZoomFactor						{ get; }
+	bool				IsChangingZoom					{ get; }
 	bool				IsChangingWeapon				{ get; }
 
 	void				RegisterWeapon					( Weapon wpn );
+	Coroutine			ToggleZoom						(Vector3? ZoomOffset = null, float ZoomFactor = -1f, float ZoomingTime = -1f, float ZoomSensitivity = -1f, Image ZoomFrame = null);
 	Coroutine			ZoomIn							( Vector3? ZoomOffset = null, float ZoomFactor = -1f, float ZoomingTime = -1f, float ZoomSensitivity = -1f, Image ZoomFrame = null );
 	Coroutine			ZoomOut							();
 	void				ChangeWeaponRequest				( int wpnIdx );
-
+	
 }
 
 [System.Serializable]
-public partial class WeaponManager : MonoBehaviour, IWeaponManager {
-	
-	private static	IWeaponManager	m_Instance						= null;
-	public static	IWeaponManager	Instance
-	{
-		get { return m_Instance; }
-	}
+public partial class WeaponManager : MonoBehaviour, IWeaponManager
+{
+	public static	IWeaponManager	Instance						{ get; private set; }	= null;
 
 	private			List<Weapon>	m_WeaponsList					= new List<Weapon>();
 	private			bool			m_IsReady						= false;
-	private			bool			IsEnabled() => this.m_IsReady;
+	private			bool			IsEnabled()						=> this.m_IsReady;
 
 	// INTERFACE START
-	public			GameObject		GameObject						{ get { return this.gameObject; } }
-	public			bool			Enabled							{ get { return this.enabled; } set { this.enabled = value; } }
+	public			GameObject		GameObject						=> this.gameObject;
+	public			bool			Enabled							{ get => this.enabled; set => this.enabled = value; }
 
-	public			bool			IsZoomed						{ get { return this.m_ZoomedIn; } }
+	public			bool			IsZoomed						=> this.m_ZoomedIn;
 	public			IWeapon			CurrentWeapon					{ get; set; }
 	public			int				CurrentWeaponIndex				{ get; set; }
-	public			bool			IsChangingWeapon				{ get { return this.m_IsChangingWpn != false; } }
-	public			float			ZoomSensitivity					{ get { return this.m_ZoomSensitivity; } }
-	public			float			ZoomFactor						{ get { return this.m_ZoomFactor; } }
+	public			bool			IsChangingZoom					=> this.m_IsChangingZoom;
+	public			bool			IsChangingWeapon				=> this.m_IsChangingWpn;
+	public			float			ZoomSensitivity					=> this.m_ZoomSensitivity;
+	public			float			ZoomFactor						=> this.m_ZoomFactor;
 	// INTERFACE END
 
 	// ZOOM
@@ -63,22 +62,20 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Awake
 	private				void		Awake()
 	{
 		// Singleton
-		if ( m_Instance != null )
+		if ( Instance != null )
 		{
 			Destroy(this.gameObject );
 			return;
 		}
 		DontDestroyOnLoad( this );
-		m_Instance = this;
+		Instance = this;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnEnable
 	private				void		OnEnable()
 	{
 		GameManager.StreamEvents.OnSave += this.OnSave;
@@ -96,11 +93,25 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 
 		GlobalManager.InputMgr.BindCall( EInputCommands.SWITCH_NEXT,		"WeaponChange_Next",	() => this.ChangeWeapon( -1,  1 ), this.IsEnabled	);
 		GlobalManager.InputMgr.BindCall( EInputCommands.SWITCH_PREVIOUS,	"WeaponChange_Prev",	() => this.ChangeWeapon( -1, -1 ), this.IsEnabled	);
+
+		GlobalManager.InputMgr.BindCall( EInputCommands.GADGET3,			"Flashlight",
+			() => this.CurrentWeapon.Attachments.ToggleAttachment<WPN_WeaponAttachment_Flashlight>(),
+			() => this.CurrentWeapon.Attachments.HasAttachment<WPN_WeaponAttachment_Flashlight>()
+		);
+
+		GlobalManager.InputMgr.BindCall( EInputCommands.GADGET2,			"Zoom",
+			() => this.CurrentWeapon.Attachments.ToggleAttachment<WPN_WeaponAttachment_Zoom>(),
+			() => this.CurrentWeapon.Attachments.HasAttachment<WPN_WeaponAttachment_Zoom>()
+		);
+
+		GlobalManager.InputMgr.BindCall( EInputCommands.GADGET1,			"LaserPointer",
+			() => this.CurrentWeapon.Attachments.ToggleAttachment<WPN_WeaponAttachment_LaserPointer>(),
+			() => this.CurrentWeapon.Attachments.HasAttachment<WPN_WeaponAttachment_LaserPointer>()
+		);
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnDisable
 	private				void		OnDisable()
 	{
 		if ( GameManager.StreamEvents.IsNotNull() )
@@ -121,11 +132,14 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 
 		GlobalManager.InputMgr.UnbindCall( EInputCommands.SWITCH_NEXT,		"WeaponChange_Next" );
 		GlobalManager.InputMgr.UnbindCall( EInputCommands.SWITCH_PREVIOUS,	"WeaponChange_Prev" );
+
+		GlobalManager.InputMgr.UnbindCall( EInputCommands.GADGET3,			"Flashlight" );
+		GlobalManager.InputMgr.UnbindCall( EInputCommands.GADGET2,			"Zoom" );
+		GlobalManager.InputMgr.UnbindCall( EInputCommands.GADGET2,			"LaserPointer" );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// WeaponComparer ( Static )
 	private static		int			WeaponOrderComparer( Weapon a, Weapon b )
 	{
 		int indexA = a.transform.GetSiblingIndex();
@@ -137,7 +151,6 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Start
 	private IEnumerator Start()
 	{
 		yield return CoroutinesManager.WaitPendingCoroutines();
@@ -154,7 +167,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 		this.CurrentWeapon.Enabled = true;
 		this.CurrentWeapon.Draw();
 
-		//		m_ZoomSensitivity = CurrentWeapon.ZoomSensitivity;
+//		m_ZoomSensitivity = CurrentWeapon.ZoomSensitivity;
 
 		this.m_StartCameraFOV = CameraControl.Instance.MainCamera.fieldOfView;
 
@@ -166,7 +179,6 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnSave
 	private				StreamUnit	OnSave( StreamData streamData )
 	{
 		StreamUnit streamUnit	= streamData.NewUnit(this.gameObject );
@@ -185,7 +197,6 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnLoad
 	private				StreamUnit	OnLoad( StreamData streamData )
 	{
 		StreamUnit streamUnit = null;
@@ -226,7 +237,6 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// DisableAllWeapons
 	private				void		DisableAllWeapons()
 	{
 		this.m_WeaponsList.ForEach( w => { w.enabled = false; w.gameObject.SetActive( false ); } );
@@ -234,7 +244,6 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 	
 
 	//////////////////////////////////////////////////////////////////////////
-	// ZoomIGetWeaponByIndex
 	private				IWeapon		GetWeaponByIndex( int WpnIdx )
 	{
 		return ( WpnIdx > -1 && WpnIdx < this.m_WeaponsList.Count ) ? this.m_WeaponsList[WpnIdx] : null;
@@ -242,7 +251,6 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 	
 
 	//////////////////////////////////////////////////////////////////////////
-	// RegisterWeapon
 	public				void		RegisterWeapon( Weapon weapon )
 	{
 		this.m_WeaponsList.Add( weapon );
@@ -252,12 +260,25 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ZoomIn
+	public				Coroutine	ToggleZoom(Vector3? ZoomOffset, float ZoomFactor = -1f, float ZoomingTime = -1f, float ZoomSensitivity = -1f, Image ZoomFrame = null)
+	{
+		if (this.m_ZoomedIn)
+		{
+			return this.ZoomOut();
+		}
+		else
+		{
+			return this.ZoomIn( ZoomOffset, ZoomFactor, ZoomingTime, ZoomSensitivity, ZoomFrame );
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	public				Coroutine	ZoomIn( Vector3? ZoomOffset, float ZoomFactor = -1f, float ZoomingTime = -1f, float ZoomSensitivity = -1f, Image ZoomFrame = null )
 	{
 		if (this.m_ZoomedIn == false && this.m_IsChangingZoom == false )
 		{
-			Vector3 zoomOffset		= ZoomOffset.HasValue	? ZoomOffset.Value  : this.CurrentWeapon.ZoomOffset;
+			Vector3 zoomOffset		= ZoomOffset ?? this.CurrentWeapon.ZoomOffset;
 			float zoomFactor		= ZoomFactor > 0f		? ZoomFactor  : this.CurrentWeapon.ZoomFactor;
 			float zoomingTime		= ZoomingTime > 0f		? ZoomingTime : this.CurrentWeapon.ZoomingTime;
 			float zoomSensitivity	= ZoomSensitivity > 0f	? ZoomSensitivity : this.CurrentWeapon.ZoomSensitivity;
@@ -268,7 +289,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 			this.m_ZoomFactor		= ZoomFactor;
 			this.m_ZoomingTime		= ZoomingTime;
 			this.m_ZoomSensitivity	= ZoomSensitivity;
-			this.m_ZoomFrame			= ZoomFrame;
+			this.m_ZoomFrame		= ZoomFrame;
 
 
 			this.m_IsChangingZoom = true;
@@ -279,7 +300,6 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ZoomOut
 	public				Coroutine	ZoomOut()
 	{
 		if (this.m_ZoomedIn == true && this.m_IsChangingZoom == false )
@@ -292,7 +312,6 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ChangeWeaponRequest
 	public				void		ChangeWeaponRequest( int wpnIdx )
 	{
 		if (this.m_IsChangingWpn == true )
@@ -306,7 +325,6 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 	
 
 	//////////////////////////////////////////////////////////////////////////
-	// ChangeWeapon
 	private				void		ChangeWeapon( int index, int versus = 0 )
 	{
 		if (this.m_IsChangingWpn == true )
@@ -353,7 +371,6 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ChangeWeaponCO ( Coroutine )
 	private				IEnumerator	ChangeWeaponCO( int newWeaponIdx )
 	{
 		this.m_IsChangingWpn = true;
@@ -402,7 +419,6 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ZoomInCO ( Coroutine )
 	private				IEnumerator	Internal_ZoomInCO()
 	{
 		float cameraFinalFov = this.m_StartCameraFOV / this.m_ZoomFactor;
@@ -440,7 +456,6 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ZoomOut ( Coroutine )
 	private				IEnumerator	Internal_ZoomOutCO()
 	{
 		float	cameraCurrentFov = CameraControl.Instance.MainCamera.fieldOfView;
@@ -469,7 +484,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 			yield return null;
 		}
 
-		///		CameraControl.Instance.HeadMove.AmplitudeMult *= m_ZoomFactor;
+///		CameraControl.Instance.HeadMove.AmplitudeMult *= m_ZoomFactor;
 
 
 		//		CurrentWeapon.Enabled = true;
@@ -479,13 +494,12 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager {
 
 	
 	//////////////////////////////////////////////////////////////////////////
-	// OnDestroy
 	private void OnDestroy()
 	{
-		if ( (Object)m_Instance != this )
+		if ( (Object)Instance != this )
 			return;
 
-		m_Instance = null;
+		Instance = null;
 		this.m_IsReady = false;
 	}
 	

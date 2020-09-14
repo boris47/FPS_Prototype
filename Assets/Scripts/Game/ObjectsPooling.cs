@@ -185,7 +185,7 @@ public	class GameObjectsPool<T> where T : UnityEngine.Component  {
 	private		T			Createitem( GameObject model )
 	{	//											Model	Position,		Rotation			Parent
 		GameObject objectCopy = Object.Instantiate( model, Vector3.zero, Quaternion.identity, this.m_ContainerGO.transform );
-		T comp = objectCopy.GetComponent<T>();
+		objectCopy.TryGetComponent(out T comp);
 		return comp;
 	}
 

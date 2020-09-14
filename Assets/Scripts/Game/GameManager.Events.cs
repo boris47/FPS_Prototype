@@ -430,11 +430,11 @@ public class StreamUnit
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public	T			GetAsEnum<T>( string key )
+	public	T			GetAsEnum<T>( string key ) where T : System.Enum
 	{
 		string value = this.GetInternal( key );
 		T result = default( T );
-		if ( Utils.Converters.StringToEnum( value, ref result ) == false )
+		if ( Utils.Converters.StringToEnum<T>( value, ref result ) == false )
 		{
 			Debug.Log( "Cannot retrieve value for key  " + key + " as ENUM" );
 		}

@@ -89,8 +89,8 @@ public class Interactable : MonoBehaviour, IInteractable {
 	// Awake ( Virtual )
 	protected	virtual	 void	Awake()
 	{
-		this.m_RigidBody = this.GetComponent<Rigidbody>();
-		this.m_Collider	= this.GetComponent<Collider>();
+		this.TryGetComponent(out this.m_RigidBody);
+		this.TryGetComponent(out this.m_Collider);
 	}
 
 	//////////////////////////////////////////////////////////////////////////

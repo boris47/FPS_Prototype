@@ -44,24 +44,23 @@ public sealed class EffectsManager : SingletonMonoBehaviour<EffectsManager>
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public	void	PlayEffect( EEffecs effectType,  Vector3 position, Vector3 direction, int count = 0, float gameObjectLife = 5f )
+	public	void	PlayEffect( EEffecs effectType,  Vector3 position, Vector3 direction, int? count = 0, float gameObjectLife = 5f )
 	{
 		if (this.m_IsOK == false )
 			return;
 
-		ParticleSystem p = null;
-		if ( count > 0 )
+		if ( count.HasValue )
 		{
-			p = this.m_Effects[ (int) effectType ];
+			ParticleSystem p = this.m_Effects[ (int) effectType ];
 			{
 				p.transform.position = position;
 				p.transform.forward = direction;
 			}
-			p.Emit( count );
+			p.Emit( count.Value );
 		}
 		else
 		{
-			p = Instantiate(this.m_Effects[ (int) effectType ] );
+			ParticleSystem p = Instantiate(this.m_Effects[ (int) effectType ] );
 			{
 				p.transform.position = position;
 				p.transform.forward = direction;
@@ -82,6 +81,9 @@ public sealed class EffectsManager : SingletonMonoBehaviour<EffectsManager>
 	//////////////////////////////////////////////////////////////////////////
 	public	void	PlayExplosionSound( EEffecs effectType, Vector3 position )
 	{
+		if (this.m_IsOK == false )
+			return;
+
 		CustomAudioSource source = this.m_CustomAudioSource[(int) effectType];
 		if (source)
 		{

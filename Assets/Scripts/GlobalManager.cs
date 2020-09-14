@@ -141,7 +141,7 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 
 
 	//////////////////////////////////////////////////////////////////////////
-	static void HandleException( string condition, string stackTrace, LogType type )
+	private static void HandleException( string condition, string stackTrace, LogType type )
     {
 		switch ( type )
 		{
@@ -159,9 +159,14 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 	//////////////////////////////////////////////////////////////////////////
 	protected override void OnInitialize()
 	{
-		if ( Application.isEditor == false )
+//		if ( Application.isEditor == false )
 		{
 			Application.logMessageReceived += HandleException;
+		}
+
+		if ( Application.isEditor == false )
+		{
+			m_LoggerInstance = new CustomLogHandler();
 		}
 
 		// Whether physics queries should hit back-face triangles.
@@ -180,11 +185,6 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 		// approximately to the size of biggest texture used in the Scene to avoid re-sizing
 		// of the buffer which can incur performance cost.
 		QualitySettings.asyncUploadBufferSize = 24; // MB
-
-		if ( Application.isEditor == false )
-		{
-			m_LoggerInstance = new CustomLogHandler();
-		}
 
 		InputMgr = new InputManager();
 		InputMgr.Setup();
