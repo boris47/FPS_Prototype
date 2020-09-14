@@ -13,6 +13,7 @@
 #include Weapons/WeaponUtilityModules.txt
 #include Weapons/WeaponModulesModifiers.txt
 #include Weapons/WeaponFireModes.txt
+#include Weapons/Attachments.txt
 
 
 ; WEATHER SETTINGS

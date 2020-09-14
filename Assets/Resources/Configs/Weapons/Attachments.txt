@@ -1,0 +1,36 @@
+﻿
+[WPN_BaseWeaponAttachmentEmpty]
+
+; IRON SIGHT ZOOM
+[WPN_WeaponAttachment_Zoom]
+Name						= Iron Sight;
+SlotName					= Zoom;
+ZoomOffset					= -0.0655, 0.009, -0.052;
+ZoomFactor					= 2.0;
+ZoomingTime					= 0.1;
+ZoomSensitivityMultiplier	= 1.0;
+
+
+; OPTIC SCOPE ZOOM
+[WPN_WeaponAttachment_OpticZoom]
+Name						= Optic Zoom;
+SlotName					= Zoom;
+ZoomOffset					= -0.0655, 0.009, -0.052;
+ZoomFactor					= 8.0;
+ZoomingTime					= 0.2;
+ZoomSensitivityMultiplier	= 0.2;
+FramePath					= Prefabs/WeaponAttachments/UtilityAttachments/WPN_WeaponAttachment_OpticZoom;
+
+
+[WPN_WeaponAttachment_Flashlight]
+SlotName					= Flashlight;
+Intensity					= 4.0;
+Range						= 30.0;
+SpotAngle					= 45.0;
+Attachment_Prefab			= Prefabs/WeaponAttachments/UtilityAttachments/WPN_WeaponAttachment_Flashlight;
+
+
+[WPN_WeaponAttachment_LaserPointer]
+SlotName					= LaserPointer;
+Attachment_Prefab			= Prefabs/WeaponAttachments/UtilityAttachments/WPN_WeaponAttachment_LaserPointer;
+
