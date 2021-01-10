@@ -39,14 +39,14 @@ public class Shield : MonoBehaviour, IShield {
 	/// <summary> Event called when shiled is hitted </summary>
 	event ShieldHitEvent	IShield.OnHit
 	{
-		add		{ if ( value != null ) this.m_ShielHitEvent += value; }
-		remove	{ if ( value != null ) this.m_ShielHitEvent -= value; }
+		add		{ if ( value != null ) m_ShielHitEvent += value; }
+		remove	{ if ( value != null ) m_ShielHitEvent -= value; }
 	}
 
-	EShieldContext	IShield.Context						{	get { return this.m_Context; } }
-	float			IShield.StartStatus					{	get { return this.m_StartStatus; } }
-	float			IShield.Status						{	get { return this.m_CurrentStatus;	} set { this.m_CurrentStatus = value; }  }
-	bool			IShield.IsUnbreakable				{	get { return this.m_IsUnbreakable;	}	}
+	EShieldContext	IShield.Context						{	get { return m_Context; } }
+	float			IShield.StartStatus					{	get { return m_StartStatus; } }
+	float			IShield.Status						{	get { return m_CurrentStatus;	} set { m_CurrentStatus = value; }  }
+	bool			IShield.IsUnbreakable				{	get { return m_IsUnbreakable;	}	}
 	
 
 	/// INTERFACE END
@@ -63,11 +63,11 @@ public class Shield : MonoBehaviour, IShield {
 	// Awake
 	private void Awake()
 	{
-		Utils.Base.SearchComponent(this.gameObject, out this.m_Renderer, ESearchContext.LOCAL );
-		Utils.Base.SearchComponent(this.gameObject, out this.m_Collider, ESearchContext.LOCAL );
+		Utils.Base.SearchComponent(gameObject, out m_Renderer, ESearchContext.LOCAL );
+		Utils.Base.SearchComponent(gameObject, out m_Collider, ESearchContext.LOCAL );
 
 		// First assignment
-		this.ResetDelegate();
+		ResetDelegate();
 	}
 
 
@@ -77,9 +77,9 @@ public class Shield : MonoBehaviour, IShield {
 	{
 		ShieldHitEvent onShiledHit = delegate( Vector3 startPosition, Entity whoRef, Weapon weaponRef, EDamageType damageType, float damage, bool canPenetrate )
 		{
-			this.TakeDamage( startPosition, whoRef, weaponRef, damageType, damage, canPenetrate );
+			TakeDamage( startPosition, whoRef, weaponRef, damageType, damage, canPenetrate );
 		};
-		this.m_ShielHitEvent = onShiledHit;
+		m_ShielHitEvent = onShiledHit;
 	}
 
 
@@ -89,7 +89,7 @@ public class Shield : MonoBehaviour, IShield {
 	{
 		if ( Utils.Base.SearchComponent( collidingObject, out IBullet bullet, ESearchContext.CHILDREN ) )
 		{
-			this.m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageType, bullet.Damage, bullet.CanPenetrate );
+			m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageType, bullet.Damage, bullet.CanPenetrate );
 		}
 	}
 	
@@ -100,7 +100,7 @@ public class Shield : MonoBehaviour, IShield {
 	{
 		if ( Utils.Base.SearchComponent( collision.gameObject, out IBullet bullet, ESearchContext.CHILDREN ) )
 		{
-			this.m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageType, bullet.Damage, bullet.CanPenetrate );
+			m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageType, bullet.Damage, bullet.CanPenetrate );
 		}
 	}
 
@@ -111,7 +111,7 @@ public class Shield : MonoBehaviour, IShield {
 	{
 		if ( Utils.Base.SearchComponent( other.gameObject, out IBullet bullet, ESearchContext.CHILDREN ) )
 		{
-			this.m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageType, bullet.Damage, bullet.CanPenetrate );
+			m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageType, bullet.Damage, bullet.CanPenetrate );
 		}
 	}
 
@@ -120,8 +120,8 @@ public class Shield : MonoBehaviour, IShield {
 	// OnEnable
 	private void OnEnable()
 	{
-		this.m_Renderer.enabled = true;
-		this.m_Collider.enabled = true;
+		m_Renderer.enabled = true;
+		m_Collider.enabled = true;
 	}
 
 
@@ -129,8 +129,8 @@ public class Shield : MonoBehaviour, IShield {
 	// OnDisable
 	private void OnDisable()
 	{
-		this.m_Renderer.enabled = false;
-		this.m_Collider.enabled = false;
+		m_Renderer.enabled = false;
+		m_Collider.enabled = false;
 	}
 
 
@@ -139,15 +139,15 @@ public class Shield : MonoBehaviour, IShield {
 	StreamUnit IStreamableByEvents.OnSave( StreamData streamData )
 	{
 		StreamUnit streamUnit = null;
-		if ( streamData.GetUnit(this.gameObject, ref streamUnit ) == false )
+		if ( streamData.GetUnit(gameObject, ref streamUnit ) == false )
 		{
-			this.enabled = false;
-			this.ResetDelegate();
+			enabled = false;
+			ResetDelegate();
 //			gameObject.SetActive( false );
 			return null;
 		}
 
-		streamUnit.SetInternal( "CurrentStatus", this.m_CurrentStatus );	
+		streamUnit.SetInternal( "CurrentStatus", m_CurrentStatus );	
 
 		return streamUnit;
 	}
@@ -158,19 +158,19 @@ public class Shield : MonoBehaviour, IShield {
 	StreamUnit IStreamableByEvents.OnLoad( StreamData streamData )
 	{
 		StreamUnit streamUnit = null;
-		if ( streamData.GetUnit(this.gameObject, ref streamUnit ) == false )
+		if ( streamData.GetUnit(gameObject, ref streamUnit ) == false )
 		{
-			this.enabled = false;
-			this.ResetDelegate();
+			enabled = false;
+			ResetDelegate();
 //			gameObject.SetActive( false );
 			return null;
 		}
 
-		this.m_CurrentStatus = streamUnit.GetAsFloat( "CurrentStatus" );
+		m_CurrentStatus = streamUnit.GetAsFloat( "CurrentStatus" );
 
-		bool bIsActive = this.m_CurrentStatus > 0.0f;
-		this.m_Renderer.enabled = bIsActive;
-		this.m_Collider.enabled = bIsActive;
+		bool bIsActive = m_CurrentStatus > 0.0f;
+		m_Renderer.enabled = bIsActive;
+		m_Collider.enabled = bIsActive;
 
 		return streamUnit;
 	}
@@ -180,9 +180,9 @@ public class Shield : MonoBehaviour, IShield {
 	// Setup
 	void		IShield.Setup( float StartStatus, EShieldContext Context, bool IsUnbreakable )
 	{
-		this.m_StartStatus	= StartStatus;
-		this.m_Context		= Context;
-		this.m_IsUnbreakable	= IsUnbreakable;
+		m_StartStatus	= StartStatus;
+		m_Context		= Context;
+		m_IsUnbreakable	= IsUnbreakable;
 	}
 
 
@@ -190,9 +190,9 @@ public class Shield : MonoBehaviour, IShield {
 	// OnReset
 	void		IShield.OnReset()
 	{
-		this.m_Renderer.enabled = true;
-		this.m_Collider.enabled = true;
-		this.m_CurrentStatus = this.m_StartStatus;
+		m_Renderer.enabled = true;
+		m_Collider.enabled = true;
+		m_CurrentStatus = m_StartStatus;
 	}
 
 
@@ -200,15 +200,15 @@ public class Shield : MonoBehaviour, IShield {
 	// TakeDamage
 	protected		void	TakeDamage( Vector3 startPosition, Entity whoRef, Weapon weaponRef, EDamageType damageType, float damage, bool canPenetrate )
 	{
-		if (this.m_IsUnbreakable == true )
+		if (m_IsUnbreakable == true )
 		{
 			return;
 		}
 
-		this.m_CurrentStatus -= damage;
-		if (this.m_CurrentStatus <= 0.0f )
+		m_CurrentStatus -= damage;
+		if (m_CurrentStatus <= 0.0f )
 		{
-			this.enabled = false;
+			enabled = false;
 		}
 	}
 

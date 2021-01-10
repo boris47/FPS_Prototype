@@ -28,14 +28,14 @@ public class Turret_AI_Behaviour_Attacker : AIBehaviour {
 
 	public override void OnHit( IBullet bullet )
 	{
-		this.OnHit( bullet.StartPosition, bullet.WhoRef, bullet.Damage, bullet.CanPenetrate );
+		OnHit( bullet.StartPosition, bullet.WhoRef, bullet.Damage, bullet.CanPenetrate );
 	}
 
 	public override void OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
-		if (this.EntityData.EntityRef.IsAlive && whoRef.IsAlive && this.EntityData.TargetInfo.CurrentTarget.ID == whoRef.AsInterface.ID )
+		if (EntityData.EntityRef.IsAlive && whoRef.IsAlive && EntityData.TargetInfo.CurrentTarget.ID == whoRef.AsInterface.ID )
 		{
-			this.EntityData.EntityRef.SetPointToLookAt( startPosition );
+			EntityData.EntityRef.SetPointToLookAt( startPosition );
 		}
 	}
 
@@ -57,14 +57,14 @@ public class Turret_AI_Behaviour_Attacker : AIBehaviour {
 	public override void OnFrame( float DeltaTime )
 	{
 		// Update targeting
-		if (this.EntityData.TargetInfo.HasTarget == true )
+		if (EntityData.TargetInfo.HasTarget == true )
 		{
-			this.EntityData.EntityRef.SetPointToLookAt(this.EntityData.TargetInfo.CurrentTarget.AsEntity.transform.position );
+			EntityData.EntityRef.SetPointToLookAt(EntityData.TargetInfo.CurrentTarget.AsEntity.transform.position );
 
 			// with a target, if gun alligned, fire
-			if (this.EntityData.EntityRef.CanFire() == true )
+			if (EntityData.EntityRef.CanFire() == true )
 			{
-				this.EntityData.EntityRef.FireLongRange();
+				EntityData.EntityRef.FireLongRange();
 			}
 		}
 	}
@@ -88,18 +88,18 @@ public class Turret_AI_Behaviour_Attacker : AIBehaviour {
 	{
 		// Orientation
 		{
-			Vector3 newPointToLookAt = this.EntityData.TargetInfo.CurrentTarget.AsEntity.transform.position + this.EntityData.TargetInfo.CurrentTarget.RigidBody.velocity.normalized;
+			Vector3 newPointToLookAt = EntityData.TargetInfo.CurrentTarget.AsEntity.transform.position + EntityData.TargetInfo.CurrentTarget.RigidBody.velocity.normalized;
 			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
-				planeNormal: this.EntityData.Body_Up,
-				planePoint: this.EntityData.Head_Position,
+				planeNormal: EntityData.Body_Up,
+				planePoint: EntityData.Head_Position,
 				point:			newPointToLookAt
 			);
 
-			this.EntityData.EntityRef.SetPointToLookAt( projectedPoint );
+			EntityData.EntityRef.SetPointToLookAt( projectedPoint );
 		}
 
 		// TODO Set brain to SEKKER mode
-		this.EntityData.EntityRef.ChangeState( EBrainState.SEEKER );
+		EntityData.EntityRef.ChangeState( EBrainState.SEEKER );
 	}
 
 	public override void OnKilled()

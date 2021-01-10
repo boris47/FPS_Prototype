@@ -14,36 +14,35 @@ public class WPN_WeaponAttachment_Zoom : WPN_BaseWeaponAttachment
 	protected	Image				m_ZoomFrame					= null;
 	protected	GameObject			m_ScopeModel				= null;
 
-	public	virtual	float			ZoomSensitivityMultiplier	=> this.m_ZoomSensitivityMultiplier;
+	public	virtual	float			ZoomSensitivityMultiplier	=> m_ZoomSensitivityMultiplier;
 	
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	void	Awake()
 	{
-		this.m_IsUsable = true;
+		m_IsUsable = true;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public override bool Configure(in Database.Section attachmentSection)
+	public override bool ConfigureInternal(in Database.Section attachmentSection)
 	{
-		this.m_ZoomOffset					= attachmentSection.AsVec3( "ZoomOffset", Vector3.zero );
-		this.m_ZoomFactor					= attachmentSection.AsFloat( "ZoomFactor", this.m_ZoomFactor );
-		this.m_ZoomingTime					= attachmentSection.AsFloat( "ZoomingTime", this.m_ZoomingTime );
-		this.m_ZoomSensitivityMultiplier	= attachmentSection.AsFloat( "ZoomSensitivityMultiplier", this.m_ZoomSensitivityMultiplier );
-		this.m_Attachment_PrefabPath		= attachmentSection.AsString( "Attachment_Prefab", null );
+		m_ZoomOffset					= attachmentSection.AsVec3( "ZoomOffset", Vector3.zero );
+		m_ZoomFactor					= attachmentSection.AsFloat( "ZoomFactor", m_ZoomFactor );
+		m_ZoomingTime					= attachmentSection.AsFloat( "ZoomingTime", m_ZoomingTime );
+		m_ZoomSensitivityMultiplier	= attachmentSection.AsFloat( "ZoomSensitivityMultiplier", m_ZoomSensitivityMultiplier );
+		m_Attachment_PrefabPath		= attachmentSection.AsString( "Attachment_Prefab", null );
 		
-		if ( !string.IsNullOrEmpty(this.m_Attachment_PrefabPath) )
+		if ( !string.IsNullOrEmpty(m_Attachment_PrefabPath) )
 		{
 			void onLoadSuccess(GameObject resource)
 			{
-				this.m_ScopeModel = Instantiate( resource, this.transform );
-				this.m_ScopeModel.transform.localPosition = Vector3.zero;
-				this.m_ScopeModel.transform.localRotation = Quaternion.identity;
-				this.m_ZoomFrame = this.m_ScopeModel.transform.GetComponentInChildren<Image>(includeInactive: true);
+				m_ScopeModel = Instantiate( resource, transform );
+				m_ScopeModel.transform.localPosition = Vector3.zero;
+				m_ScopeModel.transform.localRotation = Quaternion.identity;
+				m_ZoomFrame = m_ScopeModel.transform.GetComponentInChildren<Image>(includeInactive: true);
 			}
-			ResourceManager.LoadResourceAsync<GameObject>( ResourcePath: this.m_Attachment_PrefabPath, LoadedResource: null, OnResourceLoaded: onLoadSuccess );
-			
+			ResourceManager.LoadResourceAsync<GameObject>( ResourcePath: m_Attachment_PrefabPath, LoadedResource: null, OnResourceLoaded: onLoadSuccess );
 		}
 		return true;
 	}
@@ -52,32 +51,32 @@ public class WPN_WeaponAttachment_Zoom : WPN_BaseWeaponAttachment
 	//////////////////////////////////////////////////////////////////////////
 	protected sealed override void OnActivate()
 	{
-		if (this.m_IsUsable == false || this.m_IsAttached == false || WeaponManager.Instance.IsChangingZoom )
+		if (m_IsUsable == false || m_IsAttached == false || WeaponManager.Instance.IsChangingZoom || m_WeaponRef.WeaponSubState == EWeaponSubState.RELOADING )
 			return;
 
 		if (!WeaponManager.Instance.IsZoomed && !WeaponManager.Instance.IsChangingWeapon)
 		{
-			this.m_ZoomFrame.transform.SetParent(UIManager.InGame.transform);
-			this.OnActivateInternal();
+			m_ZoomFrame.transform.SetParent(UIManager.InGame.transform);
+			OnActivateInternal();
 		}
 
-		this.m_IsActive = true;
+		m_IsActive = true;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected sealed override void OnDeactivated()
 	{
-		if (this.m_IsUsable == false || this.m_IsAttached == false || WeaponManager.Instance.IsChangingZoom )
+		if (m_IsUsable == false || m_IsAttached == false || WeaponManager.Instance.IsChangingZoom || m_WeaponRef.WeaponSubState == EWeaponSubState.RELOADING )
 			return;
 
 		if (WeaponManager.Instance.IsZoomed && !WeaponManager.Instance.IsChangingWeapon)
 		{
-			this.m_ZoomFrame.transform.SetParent( null );
-			this.OnDeactivatedInternal();
+			m_ZoomFrame.transform.SetParent( null );
+			OnDeactivatedInternal();
 		}
 
-		this.m_IsActive = false;
+		m_IsActive = false;
 	}
 
 

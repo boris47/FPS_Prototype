@@ -42,7 +42,7 @@ namespace WeatherSystem {
 		private void OnGUI()
 		{
 			WindowWeatherEditor.GetWMGR().EDITOR_EditorDescriptorLinked = true;
-			GUILayout.Label( "DESCRIPTOR " + this.m_CurrentDescriptor.Identifier );
+			GUILayout.Label( "DESCRIPTOR " + m_CurrentDescriptor.Identifier );
 			GUILayout.Space( 10f );
 
 
@@ -51,13 +51,13 @@ namespace WeatherSystem {
 			GUILayout.Label( "Ambient Color" );
 			GUILayout.BeginHorizontal();
 			{
-				this.m_CurrentDescriptor.AmbientColor = EditorGUILayout.ColorField (this.m_CurrentDescriptor.AmbientColor, GUILayout.MaxWidth( 50f ) );
+				m_CurrentDescriptor.AmbientColor = EditorGUILayout.ColorField (m_CurrentDescriptor.AmbientColor, GUILayout.MaxWidth( 50f ) );
 				//				GUILayout.Label( "Ambient Color String" );
-				this.m_AmbColorString = EditorGUILayout.TextArea (this.m_AmbColorString, GUILayout.MinWidth( BUTTON_WIDTH ) );
+				m_AmbColorString = EditorGUILayout.TextArea (m_AmbColorString, GUILayout.MinWidth( BUTTON_WIDTH ) );
 				if ( GUILayout.Button( "GO" ) )
 				{
-					Utils.Converters.StringToColor(this.m_AmbColorString, ref this.m_CurrentDescriptor.AmbientColor );
-					this.m_AmbColorString = "";
+					Utils.Converters.StringToColor(m_AmbColorString, ref m_CurrentDescriptor.AmbientColor );
+					m_AmbColorString = "";
 				}
 			}
 			GUILayout.EndHorizontal();
@@ -65,26 +65,26 @@ namespace WeatherSystem {
 
 			// Ambient Effects
 			GUILayout.Label( "Ambient Effects" );
-			this.m_CurrentDescriptor.AmbientEffects = EditorGUILayout.ObjectField(this.m_CurrentDescriptor.AmbientEffects, typeof( AudioCollection ), false ) as AudioCollection;
+			m_CurrentDescriptor.AmbientEffects = EditorGUILayout.ObjectField(m_CurrentDescriptor.AmbientEffects, typeof( AudioCollection ), false ) as AudioCollection;
 
 
 
 			// Fog Factor
 			GUILayout.Label( "Fog Factor" );
-			this.m_CurrentDescriptor.FogFactor = EditorGUILayout.Slider(this.m_CurrentDescriptor.FogFactor, 0.0f, 1.0f );
+			m_CurrentDescriptor.FogFactor = EditorGUILayout.Slider(m_CurrentDescriptor.FogFactor, 0.0f, 1.0f );
 
 
 
 
 			// Fog Factor
 			GUILayout.Label( "Rain Intensity" );
-			this.m_CurrentDescriptor.RainIntensity = EditorGUILayout.Slider(this.m_CurrentDescriptor.RainIntensity, 0.0f, 1.0f );
+			m_CurrentDescriptor.RainIntensity = EditorGUILayout.Slider(m_CurrentDescriptor.RainIntensity, 0.0f, 1.0f );
 
 
 
 			// Sky Cube Map
 			GUILayout.Label( "Sky Cube Map" );
-			this.m_CurrentDescriptor.SkyCubemap = EditorGUILayout.ObjectField(this.m_CurrentDescriptor.SkyCubemap, typeof( Cubemap ), false ) as Cubemap;
+			m_CurrentDescriptor.SkyCubemap = EditorGUILayout.ObjectField(m_CurrentDescriptor.SkyCubemap, typeof( Cubemap ), false ) as Cubemap;
 
 
 
@@ -92,13 +92,13 @@ namespace WeatherSystem {
 			GUILayout.Label( "Sky Color" );
 			GUILayout.BeginHorizontal();
 			{
-				this.m_CurrentDescriptor.SkyColor = EditorGUILayout.ColorField (this.m_CurrentDescriptor.SkyColor, GUILayout.MaxWidth( 50f ) );
+				m_CurrentDescriptor.SkyColor = EditorGUILayout.ColorField (m_CurrentDescriptor.SkyColor, GUILayout.MaxWidth( 50f ) );
 				//				GUILayout.Label( "Sky Color String" );
-				this.m_SkyColorString = EditorGUILayout.TextArea (this.m_SkyColorString, GUILayout.MinWidth( BUTTON_WIDTH ) );
+				m_SkyColorString = EditorGUILayout.TextArea (m_SkyColorString, GUILayout.MinWidth( BUTTON_WIDTH ) );
 				if ( GUILayout.Button( "GO" ) )
 				{
-					Utils.Converters.StringToColor(this.m_SkyColorString, ref this.m_CurrentDescriptor.SkyColor );
-					this.m_SkyColorString = "";
+					Utils.Converters.StringToColor(m_SkyColorString, ref m_CurrentDescriptor.SkyColor );
+					m_SkyColorString = "";
 				}
 			}
 			GUILayout.EndHorizontal();
@@ -109,13 +109,13 @@ namespace WeatherSystem {
 			GUILayout.Label( "Sun Color" );
 			GUILayout.BeginHorizontal();
 			{
-				this.m_CurrentDescriptor.SunColor = EditorGUILayout.ColorField (this.m_CurrentDescriptor.SunColor, GUILayout.MaxWidth( 50f ) );
+				m_CurrentDescriptor.SunColor = EditorGUILayout.ColorField (m_CurrentDescriptor.SunColor, GUILayout.MaxWidth( 50f ) );
 				//				GUILayout.Label( "Sky Color String" );
-				this.m_SunColorString = EditorGUILayout.TextArea (this.m_SunColorString, GUILayout.MinWidth( BUTTON_WIDTH ) );
+				m_SunColorString = EditorGUILayout.TextArea (m_SunColorString, GUILayout.MinWidth( BUTTON_WIDTH ) );
 				if ( GUILayout.Button( "GO" ) )
 				{
-					Utils.Converters.StringToColor(this.m_SunColorString, ref this.m_CurrentDescriptor.SunColor );
-					this.m_SunColorString = "";
+					Utils.Converters.StringToColor(m_SunColorString, ref m_CurrentDescriptor.SunColor );
+					m_SunColorString = "";
 				}
 			}
 			GUILayout.EndHorizontal();
@@ -126,14 +126,14 @@ namespace WeatherSystem {
 			GUILayout.Label( "Sun Rotation V3" );
 //			GUILayout.BeginHorizontal();
 			{
-				this.m_CurrentDescriptor.SunRotation = EditorGUILayout.Vector3Field ( "", this.m_CurrentDescriptor.SunRotation );
+				m_CurrentDescriptor.SunRotation = EditorGUILayout.Vector3Field ( "", m_CurrentDescriptor.SunRotation );
 				//				GUILayout.Label( "Sun Rotation String" );
-				this.m_SunRotationString = EditorGUILayout.TextArea (this.m_SunRotationString, GUILayout.MinWidth( BUTTON_WIDTH ) );
+				m_SunRotationString = EditorGUILayout.TextArea (m_SunRotationString, GUILayout.MinWidth( BUTTON_WIDTH ) );
 				GUILayout.BeginHorizontal();
 				if ( GUILayout.Button( "GO" ) )
 				{
-					Utils.Converters.StringToVector(this.m_SunRotationString, ref this.m_CurrentDescriptor.SunRotation );
-					this.m_SunRotationString = "";
+					Utils.Converters.StringToVector(m_SunRotationString, ref m_CurrentDescriptor.SunRotation );
+					m_SunRotationString = "";
 				}
 				GUILayout.EndHorizontal();
 			}
@@ -154,13 +154,13 @@ namespace WeatherSystem {
 				else
 				{
 					Database.Section section = null;
-					reader.GetSection(this.m_CurrentDescriptor.Identifier + ":00", ref section );
+					reader.GetSection(m_CurrentDescriptor.Identifier + ":00", ref section );
 					if ( section != null )
 					{
-						Utils.Converters.StringToColor( section.GetRawValue("ambient_color"),		ref this.m_CurrentDescriptor.AmbientColor	);
-						Utils.Converters.StringToColor( section.GetRawValue("sky_color"),			ref this.m_CurrentDescriptor.SkyColor		);
-						Utils.Converters.StringToColor(	section.GetRawValue("sun_color"),			ref this.m_CurrentDescriptor.SunColor		);
-						Utils.Converters.StringToVector(section.GetRawValue("sun_rotation"),		ref this.m_CurrentDescriptor.SunRotation		);
+						Utils.Converters.StringToColor( section.GetRawValue("ambient_color"),		ref m_CurrentDescriptor.AmbientColor	);
+						Utils.Converters.StringToColor( section.GetRawValue("sky_color"),			ref m_CurrentDescriptor.SkyColor		);
+						Utils.Converters.StringToColor(	section.GetRawValue("sun_color"),			ref m_CurrentDescriptor.SunColor		);
+						Utils.Converters.StringToVector(section.GetRawValue("sun_rotation"),		ref m_CurrentDescriptor.SunRotation		);
 						section = null;
 						reader = null;
 					}
@@ -176,19 +176,19 @@ namespace WeatherSystem {
 		// UNITY
 		private void OnDestroy()
 		{
-			this.m_CurrentDescriptor.set = true;
+			m_CurrentDescriptor.set = true;
 
-			if (this.m_AmbColorString.Length > 0 )
-				Utils.Converters.StringToColor(this.m_AmbColorString, ref this.m_CurrentDescriptor.AmbientColor );
+			if (m_AmbColorString.Length > 0 )
+				Utils.Converters.StringToColor(m_AmbColorString, ref m_CurrentDescriptor.AmbientColor );
 
-			if (this.m_SkyColorString.Length > 0 )
-				Utils.Converters.StringToColor(this.m_SkyColorString, ref this.m_CurrentDescriptor.SkyColor );
+			if (m_SkyColorString.Length > 0 )
+				Utils.Converters.StringToColor(m_SkyColorString, ref m_CurrentDescriptor.SkyColor );
 
-			if (this.m_SunColorString.Length > 0 )
-				Utils.Converters.StringToColor(this.m_SunColorString, ref this.m_CurrentDescriptor.SunColor );
+			if (m_SunColorString.Length > 0 )
+				Utils.Converters.StringToColor(m_SunColorString, ref m_CurrentDescriptor.SunColor );
 
-			if (this.m_SunRotationString.Length > 0 )
-				Utils.Converters.StringToVector(this.m_SunRotationString, ref this.m_CurrentDescriptor.SunRotation );
+			if (m_SunRotationString.Length > 0 )
+				Utils.Converters.StringToVector(m_SunRotationString, ref m_CurrentDescriptor.SunRotation );
 
 			WindowWeatherEditor.GetWMGR().EDITOR_EditorDescriptorLinked = false;
 		}

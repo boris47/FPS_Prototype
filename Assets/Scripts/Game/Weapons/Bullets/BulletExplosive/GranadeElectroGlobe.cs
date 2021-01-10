@@ -11,15 +11,15 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 	// INTERFACE START
 		float		ITimedExplosive.GetExplosionDelay					()
 		{
-			return this.m_ExplosionDelay;
+			return m_ExplosionDelay;
 		}
 		float		ITimedExplosive.GetRemainingTime					()
 		{
-			return Mathf.Clamp(this.m_InternalCounter, 0f, 10f );
+			return Mathf.Clamp(m_InternalCounter, 0f, 10f );
 		}
 		float		ITimedExplosive.GetRemainingTimeNormalized			()
 		{
-			return 1f - (this.m_InternalCounter / this.m_ExplosionDelay );
+			return 1f - (m_InternalCounter / m_ExplosionDelay );
 		}
 	// INTERFACE END
 
@@ -43,20 +43,20 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 	{
 		base.Awake();
 
-		this.m_WaitInstruction	= new WaitForSeconds(this.m_Duration );
-		this.m_ExplosionGlobe	= this.transform.GetChild(0);
-		this.m_ExplosionGlobe.gameObject.SetActive( false );
+		m_WaitInstruction	= new WaitForSeconds(m_Duration );
+		m_ExplosionGlobe	= transform.GetChild(0);
+		m_ExplosionGlobe.gameObject.SetActive( false );
 	}
 
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// ConfigureInternal ( Override )
-	protected override void SetupBulletCO()
+	protected override void SetupBullet()
 	{
-		base.SetupBulletCO();
+		base.SetupBullet();
 
-		this.m_ExplosionDelay = this.m_BulletSection.AsFloat( "fExplosionDelay", this.m_ExplosionDelay );
+		m_ExplosionDelay = m_BulletSection.AsFloat( "fExplosionDelay", m_ExplosionDelay );
 	}
 
 
@@ -65,21 +65,21 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 	// OnDisable
 	private void OnDisable()
 	{
-		this.m_ExplosionGlobe.localScale = Vector3.zero;
+		m_ExplosionGlobe.localScale = Vector3.zero;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// Shoot ( Override )
-	public override void Shoot( Vector3 position, Vector3 direction, float velocity )
+	public override void Shoot( Vector3 position, Vector3 direction, float? velocity )
 	{
-		this.SetActive( false );
+		SetActive( false );
 		{
-			this.transform.position		= position;
-			this.m_RigidBody.velocity	= direction * ( ( velocity > 0f ) ? velocity : this.m_Velocity );
-			this.m_StartPosition = position;
+			transform.position		= position;
+			m_RigidBody.velocity	= direction * ( velocity ?? m_Velocity );
+			m_StartPosition = position;
 		}
-		this.SetActive( true );
+		SetActive( true );
 	}
 
 
@@ -88,18 +88,18 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 	// SetActive ( Override )
 	public override void	SetActive( bool state )
 	{
-		this.StopAllCoroutines();
-		this.m_RigidBody.constraints		= RigidbodyConstraints.None;
-		this.m_InternalCounter			= 0f;
-		this.m_InExplosion				= false;
-		this.m_Entites.Clear();
+		StopAllCoroutines();
+		m_RigidBody.constraints		= RigidbodyConstraints.None;
+		m_InternalCounter			= 0f;
+		m_InExplosion				= false;
+		m_Entites.Clear();
 
-		if (this.m_ExplosionGlobe == null )
+		if (m_ExplosionGlobe == null )
 		{
-			this.m_ExplosionGlobe	= this.transform.GetChild(0);
+			m_ExplosionGlobe	= transform.GetChild(0);
 		}
-		this.m_ExplosionGlobe.localScale = Vector3.zero;
-		this.m_ExplosionGlobe.gameObject.SetActive( false );
+		m_ExplosionGlobe.localScale = Vector3.zero;
+		m_ExplosionGlobe.gameObject.SetActive( false );
 
 		base.SetActive( state );
 	}
@@ -110,21 +110,21 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 	// Update ( Override )
 	protected override void Update()
 	{
-		if (this.m_InExplosion == true )
+		if (m_InExplosion == true )
 		{
-			this.MakeDamage();
+			MakeDamage();
 			return;
 		}
 
-		this.m_InternalCounter -= Time.deltaTime;
-		if (this.m_InternalCounter < 0f )
+		m_InternalCounter -= Time.deltaTime;
+		if (m_InternalCounter < 0f )
 		{
-			this.OnExplosion();
+			OnExplosion();
 			return;
 		}
 
-		this.m_Emission += Time.deltaTime * 2f;
-		this.m_Renderer.material.SetColor( "_EmissionColor", Color.red * this.m_Emission );
+		m_Emission += Time.deltaTime * 2f;
+		m_Renderer.material.SetColor( "_EmissionColor", Color.red * m_Emission );
 	}
 
 
@@ -133,9 +133,9 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 	// MakeDamage
 	public	void	MakeDamage()
 	{
-		this.m_Entites.ForEach( ( Entity entity ) =>
+		m_Entites.ForEach( ( Entity entity ) =>
 		{
-			entity.OnHittedDetails(this.m_StartPosition, this.m_WhoRef, this.m_DamageType, this.m_Damage, canPenetrate: false );
+			entity.OnHittedDetails(m_StartPosition, m_WhoRef, m_DamageType, m_Damage, canPenetrate: false );
 		} );
 	}
 
@@ -154,12 +154,12 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 	// OnExplosion ( Override )
 	protected	override	void		OnExplosion()
 	{
-		if (this.m_InExplosion == true )
+		if (m_InExplosion == true )
 			return;
 
-		this.m_InExplosion = true;
+		m_InExplosion = true;
 
-		CoroutinesManager.Start(this.ExplosionCO(), "GranadeElectroGlobe::OnExplosion: Explosion CO" );
+		CoroutinesManager.Start(ExplosionCO(), "GranadeElectroGlobe::OnExplosion: Explosion CO" );
 	}
 
 
@@ -168,31 +168,31 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 	// ExplosionCO ( Coroutine )
 	private					IEnumerator	ExplosionCO()
 	{
-		this.m_ExplosionGlobe.localScale = Vector3.zero;
-		Vector3 finalScale			= Vector3.one * this.m_Range  * (this.transform.localScale.x * 40f );
+		m_ExplosionGlobe.localScale = Vector3.zero;
+		Vector3 finalScale			= Vector3.one * m_Range  * (transform.localScale.x * 40f );
 		float	interpolant			= 0f;
 
-		this.m_RigidBody.constraints = RigidbodyConstraints.FreezeAll;
-		this.m_Renderer.enabled = false;
-		this.m_ExplosionGlobe.gameObject.SetActive( true );
+		m_RigidBody.constraints = RigidbodyConstraints.FreezeAll;
+		m_Renderer.enabled = false;
+		m_ExplosionGlobe.gameObject.SetActive( true );
 
 		while( interpolant < 1f )
 		{
 			interpolant += Time.deltaTime * 0.5f;
-			this.m_ExplosionGlobe.localScale = Vector3.LerpUnclamped( Vector3.zero, finalScale, interpolant );
+			m_ExplosionGlobe.localScale = Vector3.LerpUnclamped( Vector3.zero, finalScale, interpolant );
 			yield return null;
 		}
 
-		yield return this.m_WaitInstruction; // wait for m_Duration
+		yield return m_WaitInstruction; // wait for m_Duration
 
-		this.m_RigidBody.constraints = RigidbodyConstraints.None;
+		m_RigidBody.constraints = RigidbodyConstraints.None;
 
-		this.m_ExplosionGlobe.localScale = Vector3.zero;
-		this.m_ExplosionGlobe.gameObject.SetActive( false );
-		this.m_InExplosion = false;
+		m_ExplosionGlobe.localScale = Vector3.zero;
+		m_ExplosionGlobe.gameObject.SetActive( false );
+		m_InExplosion = false;
 
-		this.m_InternalCounter = 0f;
-		this.SetActive( false );
+		m_InternalCounter = 0f;
+		SetActive( false );
 	}
 
 
@@ -201,23 +201,23 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 	// OnCollisionEnter ( Override )
 	protected override void OnCollisionEnter( Collision collision )
 	{
-		if (this.m_InExplosion == true )
+		if (m_InExplosion == true )
 			return;
 
-		print("OnCollision");
+	//	print("OnCollision");
 
-		if (this.m_RigidBody.constraints == RigidbodyConstraints.FreezeAll )
+		if (m_RigidBody.constraints == RigidbodyConstraints.FreezeAll )
 			return;
 
-		this.m_RigidBody.constraints = RigidbodyConstraints.FreezeAll;
+		m_RigidBody.constraints = RigidbodyConstraints.FreezeAll;
 
-		bool hitEntity = collision.transform.HasComponent<Entity>();
-		bool hitShield = collision.transform.HasComponent<Shield>();
-		bool hitBullet = collision.transform.HasComponent<Bullet>();
+		bool hitEntity = collision.transform.TryGetComponent(out Entity e);
+		bool hitShield = collision.transform.TryGetComponent(out Shield s);
+		bool hitBullet = collision.transform.TryGetComponent(out Bullet b);
 
 		if ( hitEntity || hitShield || hitBullet )
 		{
-			this.OnExplosion();
+			OnExplosion();
 		}
 	}
 
@@ -230,10 +230,10 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 		Entity entity = null;
 		if ( other.transform.SearchComponent( ref entity, ESearchContext.LOCAL ) )
 		{
-			if (this.m_Entites.Contains( entity ) )
+			if (m_Entites.Contains( entity ) )
 				return;
 
-			this.m_Entites.Add( entity );
+			m_Entites.Add( entity );
 		}
 	}
 
@@ -246,10 +246,10 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive {
 		Entity entity = null;
 		if ( other.transform.SearchComponent( ref entity, ESearchContext.LOCAL ) )
 		{
-			if (this.m_Entites.Contains( entity ) )
+			if (m_Entites.Contains( entity ) )
 				return;
 
-			this.m_Entites.Remove( entity );
+			m_Entites.Remove( entity );
 		}
 	}
 }

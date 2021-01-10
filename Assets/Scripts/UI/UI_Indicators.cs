@@ -13,65 +13,62 @@ public enum EIndicatorType {
 	TARGET_TO_KILL
 }
 
-public sealed class UI_Indicators : MonoBehaviour, IStateDefiner {
+public sealed class UI_Indicators : MonoBehaviour, IStateDefiner
+{
+	private	const	float								MAX_DISTANCE_TO_RESIZE		= 25f;
+	private	const	float								MIN_DISTANCE_TO_RESIZE		= 2f;
+	private	const	int									MAX_ELEMENTS				= 4;
 
-	private	const	float		MAX_DISTANCE_TO_RESIZE = 25f;
-	private	const	float		MIN_DISTANCE_TO_RESIZE = 2f;
-	private	const	int			MAX_ELEMENTS = 4;
+	private			SpriteCollection					m_SpriteCollection			= null;
 
-	private		SpriteCollection					m_SpriteCollection			= null;
-
-	private		GameObjectsPool<Transform>			m_Pool						= null;
+	private			GameObjectsPool<Transform>			m_Pool						= null;
 
 	// STORE DATA
-	private	struct ActiveIndicatorData {
+	private	struct ActiveIndicatorData
+	{
 		public	GameObject		Target;
-		public	Image			MainIndicatorImage;
-		public	Image			MinimapIndicatorImage;
+		public  Transform		IndicatorTransform;
+		public	Transform		MainIndicatorImageTransform;
+		public	Transform		MinimapIndicatorImageTransform;
 		public	bool			bMustBeClamped;
 	};
-	private		List<ActiveIndicatorData>			m_CurrentlyActive			= new List<ActiveIndicatorData>(MAX_ELEMENTS);
+	private		List<ActiveIndicatorData>			m_CurrentlyActive				= new List<ActiveIndicatorData>(MAX_ELEMENTS);
 
 	// REQUESTS
 	[System.Serializable]
-	private	struct IndicatorRequest {
+	private	struct IndicatorRequest
+	{
 		public	GameObject			target;
 		public	EIndicatorType		IndicatorType;
 		public	bool				bMustBeClamped;
 	}
 	[SerializeField]
-	private	Queue<IndicatorRequest>					m_Requests					= new Queue<IndicatorRequest>();
+	private	Queue<IndicatorRequest>					m_Requests						= new Queue<IndicatorRequest>();
 
 	// SECTION DATA
 	[System.Serializable]
-	private class UI_IndicatorsSectionData {
+	private class UI_IndicatorsSectionData
+	{
 		public	float	InScreenMarkerFactor		= 0.8f;
-
 		public	float	MinimapClampFactor			= 0.72f;
 	}
 	[SerializeField]
-	private		UI_IndicatorsSectionData			m_IndicatorsSectionData = new UI_IndicatorsSectionData();
+	private		UI_IndicatorsSectionData			m_IndicatorsSectionData			= new UI_IndicatorsSectionData();
 
 	// INITIALIZATION
-	private		bool								m_IsInitialized			= false;
-	bool IStateDefiner.IsInitialized
-	{
-		get { return this.m_IsInitialized; }
-	}
-
-	string IStateDefiner.StateName
-	{
-		get { return this.name; }
-	}
+	private		bool								m_IsInitialized					= false;
+				bool								IStateDefiner.IsInitialized		=> m_IsInitialized;
+				string								IStateDefiner.StateName			=> name;
 
 
-
+	//////////////////////////////////////////////////////////////////////////
+	public void PreInit() { }
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
 	IEnumerator IStateDefiner.Initialize()
 	{
-		if (this.m_IsInitialized )
+		if (m_IsInitialized )
 			yield break;
 
 		CoroutinesManager.AddCoroutineToPendingCount( 1 );
@@ -82,47 +79,45 @@ public sealed class UI_Indicators : MonoBehaviour, IStateDefiner {
 		Database.Section indicatorsseSection = null;
 		UnityEngine.Assertions.Assert.IsTrue
 		(
-			GlobalManager.Configs.GetSection("UI_Indicators", ref indicatorsseSection) && GlobalManager.Configs.bSectionToOuter(indicatorsseSection, this.m_IndicatorsSectionData),
+			GlobalManager.Configs.GetSection("UI_Indicators", ref indicatorsseSection) && GlobalManager.Configs.bSectionToOuter(indicatorsseSection, m_IndicatorsSectionData),
 			"UI_Indicators::Initialize:Cannot load UI_IndicatorsSectionData"
 		);
 
 		// Sprites for TargetToKill, LocationToReach or ObjectToInteractWith
-		ResourceManager.LoadedData<SpriteCollection> indicatorsSpritesCollection = new ResourceManager.LoadedData<SpriteCollection>();
+		ResourceManager.AsyncLoadedData<SpriteCollection> indicatorsSpritesCollection = new ResourceManager.AsyncLoadedData<SpriteCollection>();
 		yield return ResourceManager.LoadResourceAsyncCoroutine
 		(
 			ResourcePath:			"Scriptables/UI_Indicators",
 			loadedResource:			indicatorsSpritesCollection,
-			OnResourceLoaded :		(a) => { resourcesLoaded &= true; this.m_SpriteCollection = a; },
-			OnFailure:				(p) => resourcesLoaded &= false
+			OnResourceLoaded :		(res) => { resourcesLoaded &= true; m_SpriteCollection = res; },
+			OnFailure:				(path) => resourcesLoaded &= false
 		);
 
 		// A prefab where the sprites will be set
-		ResourceManager.LoadedData<GameObject> indicatorPrefab = new ResourceManager.LoadedData<GameObject>();
+		ResourceManager.AsyncLoadedData<GameObject> indicatorPrefab = new ResourceManager.AsyncLoadedData<GameObject>();
 		yield return ResourceManager.LoadResourceAsyncCoroutine
 		(
 			ResourcePath:			"Prefabs/UI/Task_Objective",
 			loadedResource:			indicatorPrefab,
-			OnResourceLoaded :		(a) => { resourcesLoaded &= true; },
-			OnFailure:				(p) => resourcesLoaded &= false
+			OnResourceLoaded :		(res) => { resourcesLoaded &= true; },
+			OnFailure:				(path) => resourcesLoaded &= false
 		);
 
 		if ( resourcesLoaded )
 		{
 			// Pool Creation
-			GameObjectsPoolConstructorData<Transform> data = new GameObjectsPoolConstructorData<Transform>()
+			GameObjectsPoolConstructorData<Transform> data = new GameObjectsPoolConstructorData<Transform>(indicatorPrefab.Asset, MAX_ELEMENTS)
 			{
-				Model			= indicatorPrefab.Asset,
-				Size			= MAX_ELEMENTS,
 				ContainerName	= "UI_IndicatorsPool",
-				ActionOnObject	= delegate( Transform t ) { t.gameObject.SetActive(false); t.SetParent(this.transform); },
+				ActionOnObject	= delegate( Transform t ) { t.gameObject.SetActive(false); t.SetParent(transform); },
 				IsAsyncBuild	= true
 			};
-			this.m_Pool = new GameObjectsPool<Transform>( data );
+			m_Pool = new GameObjectsPool<Transform>( data );
 
 			yield return data.CoroutineEnumerator;
 
 			CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
-			this.m_IsInitialized = true;
+			m_IsInitialized = true;
 		}
 	}
 
@@ -147,13 +142,7 @@ public sealed class UI_Indicators : MonoBehaviour, IStateDefiner {
 	// ShowLabel
 	private void OnEnable()
 	{
-		UnityEngine.Assertions.Assert.IsNotNull
-		(
-			GameManager.UpdateEvents,
-			"UI_Indicators::OnEnable : GameManager.UpdateEvents is null"
-		);
-
-		GameManager.UpdateEvents.OnThink += this.UpdateRequestQueue;
+		GameManager.UpdateEvents.OnThink += UpdateRequestQueue;
 	}
 
 
@@ -163,7 +152,7 @@ public sealed class UI_Indicators : MonoBehaviour, IStateDefiner {
 	{
 		if ( GameManager.UpdateEvents.IsNotNull() )
 		{
-			GameManager.UpdateEvents.OnThink -= this.UpdateRequestQueue;
+			GameManager.UpdateEvents.OnThink -= UpdateRequestQueue;
 		}
 	}
 
@@ -172,17 +161,17 @@ public sealed class UI_Indicators : MonoBehaviour, IStateDefiner {
 	// EnableIndicator
 	private	bool	EnableIndicatorInternal( IndicatorRequest request )
 	{
-		int index = this.m_CurrentlyActive.FindIndex( ( ActiveIndicatorData p ) => { return p.Target == request.target; } );
+		int index = m_CurrentlyActive.FindIndex( ( ActiveIndicatorData p ) => { return p.Target == request.target; } );
 		if ( index > -1 )
 		{
 			return false;
 		}
 
-		this.InternalCheck();
+		InternalCheck();
 
-		Sprite indicator = this.m_SpriteCollection.Sprites[(int)request.IndicatorType];
+		Sprite indicator = m_SpriteCollection.Sprites[(int)request.IndicatorType];
 
-		Transform indicatorTransform = this.m_Pool.GetNextComponent();
+		Transform indicatorTransform = m_Pool.GetNextComponent();
 
 		Image mainIndicatorImage = null;
 		Image MinimapIndicatorImage = null;
@@ -194,12 +183,13 @@ public sealed class UI_Indicators : MonoBehaviour, IStateDefiner {
 		ActiveIndicatorData pair = new ActiveIndicatorData()
 		{
 			Target = request.target,
-			MainIndicatorImage = mainIndicatorImage,
-			MinimapIndicatorImage = MinimapIndicatorImage,
+			IndicatorTransform = indicatorTransform,
+			MainIndicatorImageTransform = mainIndicatorImage.transform,
+			MinimapIndicatorImageTransform = MinimapIndicatorImage.transform,
 			bMustBeClamped = request.bMustBeClamped
 		};
 
-		this.m_CurrentlyActive.Add( pair );
+		m_CurrentlyActive.Add( pair );
 
 		indicatorTransform.gameObject.SetActive( true );
 		return true;
@@ -215,7 +205,7 @@ public sealed class UI_Indicators : MonoBehaviour, IStateDefiner {
 			IndicatorType  = IndicatorType,
 			bMustBeClamped = bMustBeClamped
 		};
-		this.m_Requests.Enqueue( indicatorRequest );
+		m_Requests.Enqueue( indicatorRequest );
 	}
 
 
@@ -223,16 +213,15 @@ public sealed class UI_Indicators : MonoBehaviour, IStateDefiner {
 	// DisableIndicator
 	public	bool	DisableIndicator( GameObject target )
 	{
-		int index = this.m_CurrentlyActive.FindIndex( ( ActiveIndicatorData p ) => { return p.Target == target; } );
+		int index = m_CurrentlyActive.FindIndex( ( ActiveIndicatorData p ) => { return p.Target == target; } );
 		bool bIsFound = index > -1;
 		if ( bIsFound )
 		{
-			this.m_CurrentlyActive[index].MainIndicatorImage.gameObject.SetActive( false );
-			this.m_CurrentlyActive[index].MinimapIndicatorImage.gameObject.SetActive( false );
-			this.m_CurrentlyActive.RemoveAt( index );
+			m_CurrentlyActive[index].IndicatorTransform.gameObject.SetActive( false );
+			m_CurrentlyActive.RemoveAt( index );
 		}
 
-		this.InternalCheck();
+		InternalCheck();
 		return bIsFound;
 	}
 
@@ -242,14 +231,13 @@ public sealed class UI_Indicators : MonoBehaviour, IStateDefiner {
 	/// <summary> Check whetever some data has been invalidated </summary>
 	private	void InternalCheck()
 	{
-		for ( int i = this.m_CurrentlyActive.Count - 1; i >= 0; i-- )
+		for ( int index = m_CurrentlyActive.Count - 1; index >= 0; index-- )
 		{
-			ActiveIndicatorData p = this.m_CurrentlyActive[i];
+			ActiveIndicatorData p = m_CurrentlyActive[index];
 			if ( p.Target == null )
 			{
-				this.m_CurrentlyActive[i].MainIndicatorImage.gameObject.SetActive( false );
-				this.m_CurrentlyActive[i].MinimapIndicatorImage.gameObject.SetActive( false );
-				this.m_CurrentlyActive.RemoveAt( i );
+				m_CurrentlyActive[index].IndicatorTransform.gameObject.SetActive( false );
+				m_CurrentlyActive.RemoveAt( index );
 			}
 		}
 	}
@@ -259,13 +247,13 @@ public sealed class UI_Indicators : MonoBehaviour, IStateDefiner {
 	// UpdateNotifications
 	private	void	UpdateRequestQueue()
 	{
-		if (this.m_IsInitialized == false )
+		if (m_IsInitialized == false )
 			return;
 
-		if (this.m_Requests.Count > 0 )
+		if (m_Pool.IsReady && m_Requests.Count > 0 )
 		{
-			IndicatorRequest request = this.m_Requests.Dequeue();
-			this.EnableIndicatorInternal( request );
+			IndicatorRequest request = m_Requests.Dequeue();
+			EnableIndicatorInternal( request );
 		}
 	}
 
@@ -273,24 +261,24 @@ public sealed class UI_Indicators : MonoBehaviour, IStateDefiner {
 	// FixedUpdate
 	private void LateUpdate()
 	{
-		if (this.m_IsInitialized == false )
+		if (m_IsInitialized == false )
 			return;
 
-		for ( int i = this.m_CurrentlyActive.Count - 1; i >= 0; i-- )
+		for ( int i = m_CurrentlyActive.Count - 1; i >= 0; i-- )
 		{
-			ActiveIndicatorData indicatorData = this.m_CurrentlyActive[i];
-			GameObject target			= indicatorData.Target;
-			Image mainIndicatorImage	= indicatorData.MainIndicatorImage;
-			Image minimapIndicatorImage = indicatorData.MinimapIndicatorImage;
-			bool bMustBeClamped			= indicatorData.bMustBeClamped;
+			ActiveIndicatorData indicatorData = m_CurrentlyActive[i];
+			GameObject target							= indicatorData.Target;
+			Transform mainIndicatorImageTransform		= indicatorData.MainIndicatorImageTransform;
+			Transform minimapIndicatorImageTransform	= indicatorData.MinimapIndicatorImageTransform;
+			bool bMustBeClamped							= indicatorData.bMustBeClamped;
 
 			if ( target ) // The gameobject could been destroyed in meanwhile 
 			{
-				this.DrawUIElementObjectivesOnScreen( target.transform, mainIndicatorImage.transform );
+				DrawUIElementObjectivesOnScreen( target.transform, mainIndicatorImageTransform);
 
 				if ( UIManager.Minimap.IsVisible() )
 				{
-					this.DrawUIElementObjectivesOnMinimap( target.transform, minimapIndicatorImage.transform, bMustBeClamped );
+					DrawUIElementObjectivesOnMinimap( target.transform, minimapIndicatorImageTransform, bMustBeClamped );
 				}
 			}
 		}
@@ -299,7 +287,7 @@ public sealed class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 	//////////////////////////////////////////////////////////////////////////
 	// DrawUIElementOnObjectives
-	private	void	DrawUIElementObjectivesOnScreen( Transform targetTransform, Transform m_IconTransform )
+	private	void	DrawUIElementObjectivesOnScreen( in Transform targetTransform, Transform m_IconTransform )
 	{
 		Camera camera = CameraControl.Instance.MainCamera;
 
@@ -322,8 +310,8 @@ public sealed class UI_Indicators : MonoBehaviour, IStateDefiner {
 		Vector3 DrawPosition = Vector3.zero;
 
 
-		float scaledWidth  = (float)Screen.width  * this.m_IndicatorsSectionData.InScreenMarkerFactor;
-		float scaledHeight = (float)Screen.height * this.m_IndicatorsSectionData.InScreenMarkerFactor;
+		float scaledWidth  = (float)Screen.width  * m_IndicatorsSectionData.InScreenMarkerFactor;
+		float scaledHeight = (float)Screen.height * m_IndicatorsSectionData.InScreenMarkerFactor;
 
 		// Normal projection because inside screen
 		if ( ScreenPoint.z > 0f 
@@ -360,7 +348,7 @@ public sealed class UI_Indicators : MonoBehaviour, IStateDefiner {
 			// y = mx + b format
 			float m = cos / sin;
 
-			float rectBorderFactor = this.m_IndicatorsSectionData.InScreenMarkerFactor;
+			float rectBorderFactor = m_IndicatorsSectionData.InScreenMarkerFactor;
 			Vector2 screenBounds = screenCenter2D * rectBorderFactor;
 
 			// Check up and down first
@@ -399,7 +387,7 @@ public sealed class UI_Indicators : MonoBehaviour, IStateDefiner {
 
 	//////////////////////////////////////////////////////////////////////////
 	// DrawUIElementOnObjectivesOnMinimap
-	private	void	DrawUIElementObjectivesOnMinimap( Transform targetTransform, Transform m_IconTransform, bool bMustBeClamped )
+	private	void	DrawUIElementObjectivesOnMinimap( in Transform targetTransform, Transform m_IconTransform, bool bMustBeClamped )
 	{
 		RectTransform minimapRectTransform		= UIManager.Minimap.GetRawImageRect();
 
@@ -433,7 +421,7 @@ public sealed class UI_Indicators : MonoBehaviour, IStateDefiner {
 			// y = mx + b format
 			float m = cos / sin;
 
-			float rectBorderFactor = this.m_IndicatorsSectionData.MinimapClampFactor;
+			float rectBorderFactor = m_IndicatorsSectionData.MinimapClampFactor;
 			Vector2 minimapBounds = minimapRectTransform.rect.size * rectBorderFactor;
 
 			// Check up and down first

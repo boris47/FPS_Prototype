@@ -13,26 +13,26 @@ public class WPN_WeaponAttachment_Flashlight : WPN_BaseWeaponAttachment
 	//////////////////////////////////////////////////////////////////////////
 	protected	void	Awake()
 	{
-		this.m_IsUsable = this.transform.SearchComponent( ref this.m_SpotLight, ESearchContext.CHILDREN );
-		if (this.m_IsUsable )
+		m_IsUsable = transform.SearchComponent( ref m_SpotLight, ESearchContext.CHILDREN );
+		if (m_IsUsable )
 		{
-			this.m_SpotLight.type = LightType.Spot;
-			this.m_SpotLight.intensity = 0.001f;
+			m_SpotLight.type = LightType.Spot;
+			m_SpotLight.intensity = 0.001f;
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public override bool Configure(in Database.Section attachmentSection)
+	public override bool ConfigureInternal(in Database.Section attachmentSection)
 	{
-		this.m_Intensity	= attachmentSection.AsFloat( "Intensity", this.m_Intensity );
-		this.m_Range		= attachmentSection.AsFloat( "Range", this.m_Range );
-		this.m_SpotAngle	= attachmentSection.AsFloat( "SpotAngle", this.m_SpotAngle );
+		m_Intensity	= attachmentSection.AsFloat( "Intensity", m_Intensity );
+		m_Range		= attachmentSection.AsFloat( "Range", m_Range );
+		m_SpotAngle	= attachmentSection.AsFloat( "SpotAngle", m_SpotAngle );
 
 
-		this.m_SpotLight.intensity = 0.001f;
-		this.m_SpotLight.range = this.m_Range;
-		this.m_SpotLight.spotAngle = this.m_SpotAngle;
+		m_SpotLight.intensity = 0.001f;
+		m_SpotLight.range = m_Range;
+		m_SpotLight.spotAngle = m_SpotAngle;
 		return true;
 	}
 	
@@ -40,12 +40,12 @@ public class WPN_WeaponAttachment_Flashlight : WPN_BaseWeaponAttachment
 	//////////////////////////////////////////////////////////////////////////
 	protected override void OnActivate()
 	{
-		if (this.m_IsUsable == false || this.m_IsAttached == false )
+		if (m_IsUsable == false || m_IsAttached == false )
 			return;
 
-		this.m_IsActive = true;
+		m_IsActive = true;
 
-		this.m_SpotLight.intensity = this.m_Intensity;
+		m_SpotLight.intensity = m_Intensity;
 //		this.m_SpotLight.range = this.m_Range;
 //		this.m_SpotLight.spotAngle = this.m_SpotAngle;
 	}
@@ -54,11 +54,11 @@ public class WPN_WeaponAttachment_Flashlight : WPN_BaseWeaponAttachment
 	//////////////////////////////////////////////////////////////////////////
 	protected override void OnDeactivated()
 	{
-		if (this.m_IsUsable == false || this.m_IsAttached == false )
+		if (m_IsUsable == false || m_IsAttached == false )
 			return;
 
-		this.m_IsActive = false;
+		m_IsActive = false;
 
-		this.m_SpotLight.intensity = 0.001f;
+		m_SpotLight.intensity = 0.001f;
 	}
 }

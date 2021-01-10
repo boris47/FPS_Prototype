@@ -19,7 +19,7 @@ public interface IEntityGroup {
 public abstract partial class Entity : IEntityGroup {
 	
 	// INTERFACE START
-				EntityGroup					IEntityGroup.Group					{ get { return this.m_Group; } }
+				EntityGroup					IEntityGroup.Group					{ get { return m_Group; } }
 	// INTERFACE END
 	
 	protected	EntityGroup					m_Group					= null;
@@ -30,6 +30,6 @@ public abstract partial class Entity : IEntityGroup {
 
 	void IEntityGroup.SetGroup( EntityGroup group )
 	{
-		this.m_Group = group;
+		m_Group = group;
 	}
 }

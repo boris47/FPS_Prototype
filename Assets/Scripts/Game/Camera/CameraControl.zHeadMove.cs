@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class HeadMove : CameraEffectBase {
-
-
-
+public class HeadMove : CameraEffectBase
+{
 	// SECTION DATA
 	[System.Serializable]
-	private class EffectSectionData {
+	private class EffectSectionData
+	{
 		public	float	WpnInfluence			= 1.0f;
 		public	float	AmplitudeBase			= 0.003f;
 		public	float	AmplitudeHoriz			= 0.003f;
@@ -25,41 +24,38 @@ public class HeadMove : CameraEffectBase {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public override	void Setup( EffectActiveCondition condition )
+	public override	void Setup( in EffectActiveCondition condition )
 	{
-		this.m_EffectActiveCondition =  condition;
+		m_EffectActiveCondition =  condition;
 
 		Database.Section headmoveSection = null;
-		if (!(GlobalManager.Configs.GetSection("HeadMove", ref headmoveSection) && GlobalManager.Configs.bSectionToOuter(headmoveSection, this.m_EffectSectionData)))
+		if ( !( GlobalManager.Configs.GetSection( "HeadMove", ref headmoveSection ) && GlobalManager.Configs.bSectionToOuter( headmoveSection, m_EffectSectionData ) ) )
 		{
 			Debug.Log( "HeadMove::Setup:Cannot load m_HeadMoveSectionData" );
 		}
 		else
 		{
-			this.m_WpnInfluence		= this.m_EffectSectionData.WpnInfluence;
-			this.m_AmplitudeBase		= this.m_EffectSectionData.AmplitudeBase;
-			this.m_AmplitudeHoriz	= this.m_EffectSectionData.AmplitudeHoriz;
-			this.m_AmplitudeVert		= this.m_EffectSectionData.AmplitudeVert;
-			this.m_SpeedBase			= this.m_EffectSectionData.SpeedBase;
-			this.m_Theta_Upd_Vert	= this.m_EffectSectionData.Theta_Upd_Vert;
-			this.m_Theta_Upd_Oriz	= this.m_EffectSectionData.Theta_Upd_Oriz;
-			this.m_ThetaX			= Random.Range( 0f, 360f );
-			this.m_ThetaY			= Random.Range( 0f, 360f );
+			m_WpnInfluence		= m_EffectSectionData.WpnInfluence;
+			m_AmplitudeBase		= m_EffectSectionData.AmplitudeBase;
+			m_AmplitudeHoriz	= m_EffectSectionData.AmplitudeHoriz;
+			m_AmplitudeVert		= m_EffectSectionData.AmplitudeVert;
+			m_SpeedBase			= m_EffectSectionData.SpeedBase;
+			m_Theta_Upd_Vert	= m_EffectSectionData.Theta_Upd_Vert;
+			m_Theta_Upd_Oriz	= m_EffectSectionData.Theta_Upd_Oriz;
+			m_ThetaX			= Random.Range( 0f, 360f );
+			m_ThetaY			= Random.Range( 0f, 360f );
 		}
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	public override void Update( float deltaTime, ref CameraEffectorsManager.CameraEffectorData data )
+	public override void Update( float deltaTime, ref CameraEffectorData data )
 	{
-		if (this.IsActive == false )
+		if (IsActive == false )
 			return;
 
-		if (this.m_EffectActiveCondition() == false )
+		if (m_EffectActiveCondition() == false )
 		{
-//			m_Direction = Vector3.MoveTowards( m_Direction, Vector3.zero, deltaTime * RETURN_FACTOR );
-//			m_WeaponPositionDelta = Vector3.MoveTowards( m_WeaponPositionDelta, Vector3.zero, deltaTime * RETURN_FACTOR );
-//			m_WeaponRotationDelta = Vector3.MoveTowards( m_WeaponRotationDelta, Vector3.zero, deltaTime * RETURN_FACTOR );
-			this.SetData( ref data );
+			SetData( ref data );
 			return;
 		}
 
@@ -67,43 +63,36 @@ public class HeadMove : CameraEffectBase {
 		bool	bCrouched	= Player.Instance.IsCrouched;
 		bool	bZoomed		= WeaponManager.Instance.IsZoomed;
 
-		float fSpeed = this.m_SpeedBase * this.SpeedMul * deltaTime;
+		float fSpeed = m_SpeedBase * SpeedMul * deltaTime;
 		fSpeed		*= ( bCrouched )	?	0.80f : 1.00f;
 //		fSpeed		*= ( bIsUnderwater )?	0.50f : 1.00f;
 		fSpeed		*= ( bZoomed )		?	0.85f : 1.00f;
 		fSpeed		*= ( 4.0f - ( fStamina * 2.0f ) );
 
-		float fAmplitude = this.m_AmplitudeBase * this.AmplitudeMult;
+		float fAmplitude = m_AmplitudeBase * AmplitudeMult;
 		fAmplitude		*= ( ( bCrouched )	? 0.80f : 1.00f );
 		fAmplitude		*= ( ( bZoomed )	? 0.55f : 1.00f );
 		fAmplitude		*= ( 5.0f - ( fStamina * 4.0f ) );
 
-		this.m_ThetaX += fSpeed * this.m_Theta_Upd_Vert;
-		this.m_ThetaY += fSpeed * this.m_Theta_Upd_Oriz;
+		m_ThetaX += fSpeed * m_Theta_Upd_Vert;
+		m_ThetaY += fSpeed * m_Theta_Upd_Oriz;
 
-		float deltaXBase = Mathf.Sin(this.m_ThetaX ) * fAmplitude * this.m_AmplitudeVert;
-		float deltaYBase = Mathf.Cos(this.m_ThetaY ) * fAmplitude * this.m_AmplitudeHoriz;
+		float deltaXBase = Mathf.Sin(m_ThetaX ) * fAmplitude * m_AmplitudeVert;
+		float deltaYBase = Mathf.Cos(m_ThetaY ) * fAmplitude * m_AmplitudeHoriz;
 
 		float deltaX = deltaXBase;
 		float deltaY = deltaYBase;
-		this.m_Direction.Set ( deltaX, deltaY, 0.0f );
+		m_Direction.Set ( deltaX, deltaY, 0.0f );
 
-		//		m_WeaponPositionDelta.x = deltaX;
-		this.m_WeaponPositionDelta.y = -deltaX * this.m_WpnInfluence;
-
-//		m_WeaponPositionDelta.x = deltaXBase * m_WpnInfluence;
-//		m_WeaponPositionDelta.y = -deltaYBase * m_WpnInfluence;
-//		m_WeaponRotationDelta.x = deltaXBase * m_WpnInfluence;
-//		m_WeaponRotationDelta.y = deltaYBase * m_WpnInfluence;
-
-		this.SetData( ref data );
+		m_WeaponPositionDelta.y = -deltaX * m_WpnInfluence;
+		SetData( ref data );
 	}
 
 
-	public	override void SetData( ref CameraEffectorsManager.CameraEffectorData data )
+	protected void SetData(ref CameraEffectorData data)
 	{
-		data.CameraEffectsDirection += this.m_Direction;
-		data.WeaponPositionDelta += this.m_WeaponPositionDelta;
-		data.WeaponRotationDelta += this.m_WeaponRotationDelta;
+		data.CameraEffectsDirection += m_Direction;
+		data.WeaponPositionDelta += m_WeaponPositionDelta;
+		data.WeaponRotationDelta += m_WeaponRotationDelta;
 	}
 }

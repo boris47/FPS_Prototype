@@ -4,7 +4,7 @@ using UnityEngine;
 
 //////////////////////////////////////////////////////////////////////////
 // WPN_FireMode_Burst
-public class WPN_FireMode_Burst : WPN_FireMode_Base {
+public class WPN_FireMode_Burst : WPN_BaseFireMode {
 	
 	// Burst
 	protected		uint					m_BurstCount				= 0;
@@ -25,29 +25,16 @@ public class WPN_FireMode_Burst : WPN_FireMode_Base {
 //	public	WPN_FireMode_Burst( Database.Section section ) { }
 
 
-	// Setup
-	public	override void Setup( WPN_FireModule fireModule, float shotDelay, FireFunctionDel fireFunction )
+	protected	override	void	InternalSetup	(in Database.Section fireModeSection, in WPN_FireModule fireModule, in float shotDelay, in FireFunctionDel fireFunction)
 	{
-		if ( fireFunction != null )
-		{
-			this.m_FireDelay = shotDelay;
-			this.m_FireFunction = fireFunction;
-			this.m_FireModule = fireModule;
-		}
-
-		string moduleSectionName = this.GetType().Name;
-		Database.Section section = null;
-		if ( GlobalManager.Configs.GetSection( moduleSectionName, ref section ) )
-		{
-			this.m_BurstSize			= section.AsUInt( "BurstSize", this.m_BurstSize );
-			this.m_ApplyDeviation	= section.AsBool( "ApplyDeviationOnLastShot", this.m_ApplyDeviation );
-		}
+		m_BurstSize			= fireModeSection.AsUInt( "BurstSize", m_BurstSize );
+		m_ApplyDeviation	= fireModeSection.AsBool( "ApplyDeviationOnLastShot", m_ApplyDeviation );
 	}
 
 
 	public	override	void	ApplyModifier	( Database.Section modifier )
 	{
-		this.m_Modifiers.Add( modifier );
+		m_Modifiers.Add( modifier );
 	}
 
 	public	override	void	ResetBaseConfiguration()
@@ -57,7 +44,7 @@ public class WPN_FireMode_Burst : WPN_FireMode_Base {
 
 	public	override	void	RemoveModifier( Database.Section modifier )
 	{
-		this.m_Modifiers.Remove( modifier );
+		m_Modifiers.Remove( modifier );
 	}
 
 
@@ -69,51 +56,51 @@ public class WPN_FireMode_Burst : WPN_FireMode_Base {
 
 	public	override	bool	OnLoad			( StreamUnit streamUnit )
 	{
-		this.m_CurrentDelay = 0.0f;
-		this.m_BurstCount = 0;
+		m_CurrentDelay = 0.0f;
+		m_BurstCount = 0;
 		return true;
 	}
 
 
 	public	override	void	OnWeaponChange	()
 	{
-		this.m_CurrentDelay = 0.0f;
-		this.m_BurstCount = 0;
+		m_CurrentDelay = 0.0f;
+		m_BurstCount = 0;
 	}
 
 
 	//	INTERNAL UPDATE
 	public	override	void	InternalUpdate( float DeltaTime, uint magazineSize )
 	{
-		this.m_CurrentDelay -= DeltaTime;
+		m_CurrentDelay = Mathf.Max( m_CurrentDelay - DeltaTime, 0.0f );
 	}
 
 	//	START
 	public override		void	OnStart( float baseFireDispersion, float baseCamDeviation )
 	{
-		if (this.m_CurrentDelay <= 0.0f && this.m_BurstCount < this.m_BurstSize )
+		if (m_CurrentDelay <= 0.0f && m_BurstCount < m_BurstSize )
 		{
-			this.m_FireFunction( baseFireDispersion, baseCamDeviation );
-			this.m_BurstCount ++;
-			this.m_CurrentDelay = this.m_FireDelay;
+			m_FireFunction( baseFireDispersion * m_DispersionMultiplier * 0.5f, baseCamDeviation * m_DeviationMultiplier * 0.5f );
+			m_BurstCount ++;
+			m_CurrentDelay = m_FireDelay;
 		}
 	}
 
 	//	INTERNAL UPDATE
 	public	override	void	OnUpdate( float baseFireDispersion, float baseCamDeviation )
 	{
-		if (this.m_CurrentDelay <= 0.0f && this.m_BurstCount < this.m_BurstSize )
+		if (m_CurrentDelay <= 0.0f && m_BurstCount < m_BurstSize )
 		{
-			this.m_FireFunction( baseFireDispersion, baseCamDeviation );
-			this.m_BurstCount ++;
-			this.m_CurrentDelay = this.m_FireDelay;
+			m_FireFunction( baseFireDispersion * m_DispersionMultiplier, baseCamDeviation * m_DeviationMultiplier );
+			m_BurstCount ++;
+			m_CurrentDelay = m_FireDelay;
 		}
 	}
 
 	//	END
 	public override		void	OnEnd( float baseFireDispersion, float baseCamDeviation )
 	{
-		this.m_BurstCount = 0;
+		m_BurstCount = 0;
 	}
 	
 }
@@ -159,33 +146,33 @@ public class WPN_FireMode_BurstAuto : WPN_FireMode_Burst {
 
 	private	void	StopAutoBurstSequence()
 	{
-		this.m_BurstCount = 0;
-		this.m_BurstActive = false;
+		m_BurstCount = 0;
+		m_BurstActive = false;
 	}
 
 
 	//	INTERNAL UPDATE
 	public	override	void	InternalUpdate( float DeltaTime, uint magazineSize )
 	{
-		this.m_CurrentDelay -= DeltaTime;
+		m_CurrentDelay = Mathf.Max( m_CurrentDelay - DeltaTime, 0.0f );
 
-		if (this.m_CurrentDelay <= 0.0f && this.m_BurstActive == true )
+		if (m_CurrentDelay <= 0.0f && m_BurstActive == true )
 		{
-			this.m_FireFunction(this.m_BaseFireDispersion, this.m_BaseCamDeviation );
+			m_FireFunction(m_BaseFireDispersion, m_BaseCamDeviation );
 
-			this.m_BurstCount ++;
+			m_BurstCount ++;
 
-			this.m_CurrentDelay = this.m_FireDelay;
+			m_CurrentDelay = m_FireDelay;
 
-			if (this.m_BurstCount >= this.m_BurstSize || magazineSize == 0 )
+			if (m_BurstCount >= m_BurstSize || magazineSize == 0 )
 			{
-				this.StopAutoBurstSequence();
+				StopAutoBurstSequence();
 			}
 		}
 
-		if (this.m_FireModule.Magazine <= 0 )
+		if (m_FireModule.Magazine <= 0 )
 		{
-			this.StopAutoBurstSequence();
+			StopAutoBurstSequence();
 		}
 	}
 	
@@ -193,17 +180,17 @@ public class WPN_FireMode_BurstAuto : WPN_FireMode_Burst {
 	//	START
 	public override void OnStart( float baseFireDispersion, float baseCamDeviation )
 	{
-		if (this.m_CurrentDelay <= 0.0f && this.m_BurstCount < this.m_BurstSize )
+		if (m_CurrentDelay <= 0.0f && m_BurstCount < m_BurstSize )
 		{
-			float fireDispersion = ( !this.m_ApplyDeviation ) ? baseFireDispersion : 0.0f;
-			this.m_FireFunction( fireDispersion, baseCamDeviation );
+			float fireDispersion = ( !m_ApplyDeviation ) ? baseFireDispersion : 0.0f;
+			m_FireFunction( fireDispersion, baseCamDeviation );
 
-			this.m_BaseFireDispersion	= fireDispersion;
-			this.m_BaseCamDeviation		= baseCamDeviation;
+			m_BaseFireDispersion	= fireDispersion;
+			m_BaseCamDeviation		= baseCamDeviation;
 
-			this.m_BurstCount ++;
-			this.m_BurstActive = true;
-			this.m_CurrentDelay = this.m_FireDelay;
+			m_BurstCount ++;
+			m_BurstActive = true;
+			m_CurrentDelay = m_FireDelay;
 		}
 	}
 

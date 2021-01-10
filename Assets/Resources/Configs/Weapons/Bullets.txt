@@ -31,22 +31,22 @@ bCanPenetrate					= false;
 fVelocity						= 45.0;
 fRange							= 60.0f;
 
-;
+
 
 [BulletBallistic]
-eBulletMotionType				= INSTANT;
+eBulletMotionType				= DIRECT;
 eDamageType						= BALLISTIC;		Impact Damage Type
 fDamage							= 10.0;				Impact Damage Ammount
 bHasDamageOverTime				= false;			Has Over Time Damage
 fOverTimeDamageDuration			= 5.0;				Over Time Damage Duration
 eOverTimeDamageType				= FLAME;			Over Time Damage Type
 bCanPenetrate					= false;
-fVelocity						= 90.0f;
+fVelocity						= 150.0f;
 fRange							= 90.0f;
 
 
 [BulletSyphon]
-eBulletMotionType				= INSTANT;
+eBulletMotionType				= DIRECT;
 eDamageType						= ENERGY;			Impact Damage Type
 fDamage							= 10.0;				Impact Damage Ammount
 bHasDamageOverTime				= false;			Has Over Time Damage

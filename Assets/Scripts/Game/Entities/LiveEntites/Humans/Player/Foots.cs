@@ -3,22 +3,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IFoots {
-
+public interface IFoots
+{
 	Collider		Collider { get; }
-
 	void			PlayStep();
-
 }
 
-public class Foots : MonoBehaviour, IFoots {
-
+public class Foots : MonoBehaviour, IFoots
+{
 	private		LiveEntity			m_LiveEntity		= null;
 
 	private		Collider			m_Collider			= null;
 	public		Collider			Collider
 	{
-		get { return this.m_Collider ?? (this.m_Collider = this.GetComponent<Collider>()); }
+		get { return m_Collider ?? (m_Collider = GetComponent<Collider>()); }
 	}
 
 	private		Collider			m_CurrentCollider	= null;
@@ -26,51 +24,44 @@ public class Foots : MonoBehaviour, IFoots {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// AWAKE
 	private void Awake()
 	{
-		this.transform.parent.TryGetComponent(out this.m_LiveEntity);
-		this.transform.TryGetComponent(out this.m_AudioSource);
+		transform.parent.TryGetComponent(out m_LiveEntity);
+		transform.TryGetComponent(out m_AudioSource);
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// PlayStep
 	public	void	PlayStep()
 	{
-		if (this.m_CurrentCollider == null )
-			return;
-
-		if ( SurfaceManager.Instance == null )
-			return;
-
-		AudioClip footstepClip = SurfaceManager.Instance.GetFootstep(this.m_CurrentCollider, this.transform.position );
-		if ( footstepClip == null )
-			return;
-
-		this.m_AudioSource.Clip = footstepClip;
-		this.m_AudioSource.Play();
+		if (m_LiveEntity && m_CurrentCollider)
+		{
+			Vector3 direction = m_LiveEntity.transform.rotation.GetVector( Vector3.down );
+			if (SurfaceManager.Instance.TryGetFootstep(out AudioClip footstepClip, m_CurrentCollider, new Ray(transform.position, direction)))
+			{
+				m_AudioSource.Clip = footstepClip;
+				m_AudioSource.Play();
+			}
+		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnTriggerEnter
 	private void OnTriggerEnter( Collider other )
 	{
 		if ( other.isTrigger )
 			return;
 
-		this.m_CurrentCollider = other;
-		this.m_LiveEntity.IsGrounded = true;
+		m_CurrentCollider = other;
+		m_LiveEntity.IsGrounded = true;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnTriggerExit
 	private void OnTriggerExit( Collider other )
 	{
 		if ( other.isTrigger )
 			return;
 
-		this.m_LiveEntity.IsGrounded = false;
+		m_LiveEntity.IsGrounded = false;
 	}
 }

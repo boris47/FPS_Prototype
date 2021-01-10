@@ -36,16 +36,16 @@ public class ControlledDrawer : ControlledObject {
 	// START
 	private void Start()
 	{
-		this.m_Rigidbody = this.GetComponentInChildren<Rigidbody>();
+		m_Rigidbody = GetComponentInChildren<Rigidbody>();
 
-		if (this.m_Rigidbody == null )
-			this.m_Rigidbody = this.gameObject.AddComponent<Rigidbody>();
+		if (m_Rigidbody == null )
+			m_Rigidbody = gameObject.AddComponent<Rigidbody>();
 
-		this.m_Rigidbody.useGravity = false;
-		this.m_Rigidbody.isKinematic = true;
-		this.m_Rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
+		m_Rigidbody.useGravity = false;
+		m_Rigidbody.isKinematic = true;
+		m_Rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
 
-		this.OnClose();
+		OnClose();
 	}
 
 
@@ -53,12 +53,12 @@ public class ControlledDrawer : ControlledObject {
 	// Activate
 	public override void OnActivation()
 	{
-		if (this.m_InTransition )
+		if (m_InTransition )
 			return;
 
-		this.m_InTransition = true;
+		m_InTransition = true;
 
-		CoroutinesManager.Start(this.Traslation(), "ControlledDrawer::OnActivation: Activation of " + this.name );
+		CoroutinesManager.Start(Traslation(), "ControlledDrawer::OnActivation: Activation of " + name );
 	}
 
 
@@ -67,7 +67,7 @@ public class ControlledDrawer : ControlledObject {
 	// OnOpen
 	private void	OnOpen()
 	{
-		Collider[] colliders = Physics.OverlapBox(this.transform.position, this.overlapBoxSize, this.transform.rotation );
+		Collider[] colliders = Physics.OverlapBox(transform.position, overlapBoxSize, transform.rotation );
 		foreach (Collider coll in colliders)
 		{
 			if (coll.TryGetComponent(out IInteractable interactable))
@@ -82,7 +82,7 @@ public class ControlledDrawer : ControlledObject {
 	// OnClose
 	private void OnClose()
 	{
-		Collider[] colliders = Physics.OverlapBox(this.transform.position, this.overlapBoxSize, this.transform.rotation );
+		Collider[] colliders = Physics.OverlapBox(transform.position, overlapBoxSize, transform.rotation );
 		foreach( Collider coll in colliders )
 		{
 			if (coll.TryGetComponent(out IInteractable interactable))
@@ -97,26 +97,26 @@ public class ControlledDrawer : ControlledObject {
 	// Traslation
 	private IEnumerator Traslation()
 	{
-		Vector3 startPosition	= this.transform.position;
+		Vector3 startPosition	= transform.position;
 		Vector3 endPosition		= Vector3.zero;
 
 		// When is opening
-		if (this.m_Opened == false )
+		if (m_Opened == false )
 		{
 
 		}
 
 		// When is closing
-		if (this.m_Opened == true )
+		if (m_Opened == true )
 		{
-			this.OnClose(); // Disable interactions
+			OnClose(); // Disable interactions
 		}
 
-		switch(this.m_OperatingAxis )
+		switch(m_OperatingAxis )
 		{
-			case EAxisDirection.X: endPosition = startPosition + ( this.transform.right.normalized   * (this.m_Opened ? -this.m_LocalMovement : this.m_LocalMovement)); break;
-			case EAxisDirection.Y: endPosition = startPosition + ( this.transform.up.normalized	    * (this.m_Opened ? -this.m_LocalMovement : this.m_LocalMovement)); break;
-			case EAxisDirection.Z: endPosition = startPosition + ( this.transform.forward.normalized * (this.m_Opened ? -this.m_LocalMovement : this.m_LocalMovement)); break;
+			case EAxisDirection.X: endPosition = startPosition + ( transform.right.normalized   * (m_Opened ? -m_LocalMovement : m_LocalMovement)); break;
+			case EAxisDirection.Y: endPosition = startPosition + ( transform.up.normalized	    * (m_Opened ? -m_LocalMovement : m_LocalMovement)); break;
+			case EAxisDirection.Z: endPosition = startPosition + ( transform.forward.normalized * (m_Opened ? -m_LocalMovement : m_LocalMovement)); break;
 		}
 		
 		float interpolant = 0f;
@@ -125,34 +125,34 @@ public class ControlledDrawer : ControlledObject {
 		while( interpolant < 1.0f )
 		{
 			currentTime += Time.deltaTime;
-			interpolant = currentTime / this.m_TransitionTime;
-			this.m_Rigidbody.MovePosition( Vector3.Lerp( startPosition, endPosition, interpolant ) );
+			interpolant = currentTime / m_TransitionTime;
+			m_Rigidbody.MovePosition( Vector3.Lerp( startPosition, endPosition, interpolant ) );
 			yield return null;
 		}
 
 		// When is opened
-		if (this.m_Opened == false )
+		if (m_Opened == false )
 		{
-			this.OnOpen();
-			if (this.m_OnOpen != null && this.m_OnOpen.GetPersistentEventCount() > 0 )
+			OnOpen();
+			if (m_OnOpen != null && m_OnOpen.GetPersistentEventCount() > 0 )
 			{
-				this.m_OnOpen.Invoke();
+				m_OnOpen.Invoke();
 			}
 		}
 
 		// When is closed
-		if (this.m_Opened == true )
+		if (m_Opened == true )
 		{
-			if (this.m_OnClose != null && this.m_OnClose.GetPersistentEventCount() > 0)
+			if (m_OnClose != null && m_OnClose.GetPersistentEventCount() > 0)
 			{
-				this.m_OnClose.Invoke();
+				m_OnClose.Invoke();
 			}
 		}
 
-		this.transform.position = endPosition;
+		transform.position = endPosition;
 
-		this.m_Opened = !this.m_Opened;
-		this.m_InTransition = false;
+		m_Opened = !m_Opened;
+		m_InTransition = false;
 	}
 
 }

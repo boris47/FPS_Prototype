@@ -16,26 +16,26 @@ public class RectTransformData : MonoBehaviour {
 
 	private void Init()
 	{
-		if (this.m_Initialized )
+		if (m_Initialized )
 			return;
 
-		this.m_RectTransform = this.transform as RectTransform;
-		this.m_Initialized = true;
+		m_RectTransform = transform as RectTransform;
+		m_Initialized = true;
 	}
 
 	private	void	UpdateInfo()
 	{
-		this.Init();
+		Init();
 
-		this.anchoredPosition		= this.m_RectTransform.anchoredPosition;
-		this.anchoredPosition3D		= this.m_RectTransform.anchoredPosition3D;
+		anchoredPosition		= m_RectTransform.anchoredPosition;
+		anchoredPosition3D		= m_RectTransform.anchoredPosition3D;
 
-		this.anchorMin				= this.m_RectTransform.anchorMin;
-		this.anchorMax				= this.m_RectTransform.anchorMax;
+		anchorMin				= m_RectTransform.anchorMin;
+		anchorMax				= m_RectTransform.anchorMax;
 
-		this.rect					= this.m_RectTransform.rect;
+		rect					= m_RectTransform.rect;
 
-		this.sizeDelta				= this.m_RectTransform.sizeDelta;
+		sizeDelta				= m_RectTransform.sizeDelta;
 	}
 
 
@@ -44,26 +44,26 @@ public class RectTransformData : MonoBehaviour {
 
 	private void OnTransformChildrenChanged()
 	{
-		this.UpdateInfo();	
+		UpdateInfo();	
 	}
 
 	private void OnTransformParentChanged()
 	{
-		this.UpdateInfo();
+		UpdateInfo();
 	}
 
 	private void OnBeforeTransformParentChanged()
 	{
-		this.UpdateInfo();
+		UpdateInfo();
 	}
 
 	private void OnRectTransformDimensionsChange()
 	{
-		this.UpdateInfo();		
+		UpdateInfo();		
 	}
 
 	private void OnValidate()
 	{
-		this.UpdateInfo();
+		UpdateInfo();
 	}
 }

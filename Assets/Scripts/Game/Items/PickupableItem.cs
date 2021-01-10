@@ -20,9 +20,9 @@ public class PickupableItem : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnEnable()
 	{
-		if ( GlobalManager.Configs.GetSection(this.m_PickUpSectionName, ref this.m_ItemSection ) )
+		if ( GlobalManager.Configs.GetSection(m_PickUpSectionName, ref m_ItemSection ) )
 		{
-			this.m_Initialized = true;
+			m_Initialized = true;
 		}
 	}
 
@@ -31,10 +31,10 @@ public class PickupableItem : MonoBehaviour {
 	public	bool	SetPickupSectionName( string PickupSectionName )
 	{
 		Database.Section m_PickupableSection	= null;
-		bool bIsSectionFound = GlobalManager.Configs.GetSection(this.m_PickUpSectionName, ref m_PickupableSection );
+		bool bIsSectionFound = GlobalManager.Configs.GetSection(m_PickUpSectionName, ref m_PickupableSection );
 		if ( bIsSectionFound )
 		{
-			this.m_PickUpSectionName = PickupSectionName;
+			m_PickUpSectionName = PickupSectionName;
 		}
 		return m_PickupableSection != null;
 	}
@@ -43,22 +43,22 @@ public class PickupableItem : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnTriggerEnter( Collider other )
 	{
-		if (this.m_Initialized && other.name == "Player" )
+		if (m_Initialized && other.name == "Player" )
 		{
 //			WeaponManager.Instance.ApplyModifierToWeaponSlot( WeaponManager.Instance.CurrentWeapon, WeaponSlots.PRIMARY, m_PickUpSectionName );
 
 			if ( Utils.Base.SearchComponent( other.transform.gameObject, out IEntityInventary entity, ESearchContext.LOCAL ) )
 			{
-				entity.AddInventoryItem( this.m_ItemSection, this.m_Texture );
+				entity.AddInventoryItem( m_ItemSection, m_Texture );
 			}
 
-			this.enabled = false;
-			Destroy(this.gameObject );
+			enabled = false;
+			Destroy(gameObject );
 		}
 
-		if (this.m_Initialized == false )
+		if (m_Initialized == false )
 		{
-			this.enabled = false;
+			enabled = false;
 		}
 	}
 

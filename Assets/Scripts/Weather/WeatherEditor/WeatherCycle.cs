@@ -34,7 +34,7 @@ namespace WeatherSystem {
 			}
 			else
 			{
-				foreach( EnvDescriptor descriptor in this.LoadedDescriptors )
+				foreach( EnvDescriptor descriptor in LoadedDescriptors )
 				{
 					Debug.Log( "Parsing data for descripter " + descriptor.Identifier );
 

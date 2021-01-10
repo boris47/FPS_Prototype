@@ -55,10 +55,10 @@
         /// </returns>
         public virtual bool MatchesRequirements(Type type)
         {
-            if (this.ExcludeTypes == null)
+            if (ExcludeTypes == null)
                 return true;
 
-            return !this.ExcludeTypes.Contains(type);
+            return !ExcludeTypes.Contains(type);
         }
     }
 }

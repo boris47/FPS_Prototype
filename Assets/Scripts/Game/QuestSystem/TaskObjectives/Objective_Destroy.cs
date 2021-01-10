@@ -5,31 +5,32 @@ using UnityEngine;
 namespace QuestSystem {
 
 	[RequireComponent(typeof(Collider), typeof(Entity))]
-	public class Objective_Destroy : Objective_Base {
-
+	public class Objective_Destroy : Objective_Base
+	{
+		[SerializeField]
 		private	Entity				m_Target						= null;
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// Initialize ( IStateDefiner )
-		protected		override	bool		InitializeInternal( ITask motherTask, System.Action<IObjective> onCompletionCallback, System.Action<IObjective> onFailureCallback )
+		protected		override	bool		InitializeInternal( Task motherTask, System.Action<Objective_Base> onCompletionCallback, System.Action<Objective_Base> onFailureCallback )
 		{
-			if (this.m_IsInitialized == true )
+			if (m_IsInitialized == true )
 				return true;
 
-			this.m_IsInitialized = true;
+			m_IsInitialized = true;
 
-			bool bIsGoodResult = Utils.Base.SearchComponent(this.gameObject, out this.m_Target, ESearchContext.LOCAL );
+			bool bIsGoodResult = Utils.Base.SearchComponent(gameObject, out m_Target, ESearchContext.LOCAL );
 			if ( bIsGoodResult )
 			{
-				this.m_Target.OnEvent_Killed += this.OnKill;
+				m_Target.OnEvent_Killed += OnKill;
 
-				this.m_OnCompletionCallback = onCompletionCallback;
-				this.m_OnFailureCallback = onFailureCallback;
+				m_OnCompletionCallback = onCompletionCallback;
+				m_OnFailureCallback = onFailureCallback;
 				motherTask.AddObjective( this );
 			}
 
-			return this.m_IsInitialized;
+			return m_IsInitialized;
 		}
 
 
@@ -70,7 +71,7 @@ namespace QuestSystem {
 		/// <summary> Set as current active to true and add indicator </summary>
 		protected		override	void		ActivateInternal()
 		{
-			UIManager.Indicators.EnableIndicator(this.gameObject, EIndicatorType.TARGET_TO_KILL, bMustBeClamped: true );
+			UIManager.Indicators.EnableIndicator(gameObject, EIndicatorType.TARGET_TO_KILL, bMustBeClamped: true );
 		}
 
 
@@ -79,7 +80,7 @@ namespace QuestSystem {
 		/// <summary> Set as current active to false and remove indicator </summary>
 		protected		override	void		DeactivateInternal()
 		{
-			UIManager.Indicators.DisableIndicator(this.gameObject );
+			UIManager.Indicators.DisableIndicator(gameObject );
 		}
 
 
@@ -87,9 +88,9 @@ namespace QuestSystem {
 		// OnKill
 		private void OnKill( Entity entityKilled )
 		{
-			this.Deactivate();
+			Deactivate();
 
-			this.OnObjectiveCompleted();
+			OnObjectiveCompleted();
 		}
 
 	}

@@ -4,107 +4,91 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public sealed class UI_InGame : MonoBehaviour, IStateDefiner {
+public sealed class UI_InGame : MonoBehaviour, IStateDefiner
+{
 
-	private			Transform		m_GenericInfosPanel			= null;
-	private			Text			m_TimeText					= null;
-	private			Text			m_CycleNameText				= null;
-	private			Text			m_HealthText				= null;
-	private			Text			m_Timetime					= null;
+	private			Transform		m_GenericInfosPanel				= null;
+	private			Text			m_TimeText						= null;
+	private			Text			m_CycleNameText					= null;
+	private			Text			m_HealthText					= null;
+	private			Text			m_Timetime						= null;
 
 	private			Transform		m_WeaponInfosPanel				= null;
-	private			Text			m_WpnNameText				= null;
-	private			Text			m_WpnOtherInfoText			= null;
+	private			Text			m_WpnNameText					= null;
+	private			Text			m_WpnOtherInfoText				= null;
 
-	private			Image			m_StaminaBarImage			= null;
-	private			Transform		m_CrosshairTransform		= null;
+	private			Image			m_StaminaBarImage				= null;
+	private			Transform		m_CrosshairsTransform			= null;
 
-	private			Image			m_ZoomFrameImage			= null;
+	private			Image			m_ZoomFrameImage				= null;
 
-	private			Canvas			m_Canvas					= null;
+	private			Canvas			m_Canvas						= null;
 
+	private			bool			m_IsActive						= false;
 
-	private			bool			m_IsActive					= false;
+	private			bool			m_IsCompletedInitialization		= false;
+	private			bool			m_IsInitialized					= false;
 
-	private			bool			m_IsCompletedInitialization	= false;
-	private			bool			m_IsInitialized			= false;
-	bool IStateDefiner.IsInitialized
-	{
-		get { return this.m_IsInitialized; }
-	}
+					bool			IStateDefiner.IsInitialized		=> m_IsInitialized;
+					string			IStateDefiner.StateName			=> name;
 
-	string IStateDefiner.StateName
-	{
-		get { return this.name; }
-	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Initialize
+	public void PreInit()
+	{
+		m_IsInitialized = true;
+		m_IsInitialized &= transform.childCount > 1;
+
+		m_IsInitialized &= transform.SearchComponent( ref m_Canvas, ESearchContext.LOCAL );
+
+		m_IsInitialized &= transform.SearchComponentInChild( "UI_Frame", ref m_ZoomFrameImage );
+
+		if ( m_IsInitialized &= transform.SearchComponentInChild( "GenericInfosPanel", ref m_GenericInfosPanel ) )
+		{
+			m_IsInitialized &= m_GenericInfosPanel.SearchComponentInChild( 0, ref m_CycleNameText );
+			m_IsInitialized &= m_GenericInfosPanel.SearchComponentInChild( 1, ref m_TimeText );
+			m_IsInitialized &= m_GenericInfosPanel.SearchComponentInChild( 2, ref m_HealthText );
+			m_IsInitialized &= m_GenericInfosPanel.SearchComponentInChild( 3, ref m_Timetime );
+		}
+
+		if ( m_IsInitialized &= transform.SearchComponentInChild( "WeaponInfosPanel", ref m_WeaponInfosPanel ) )
+		{
+			m_IsInitialized &= m_WeaponInfosPanel.SearchComponentInChild( 0, ref m_WpnNameText );
+			m_IsInitialized &= m_WeaponInfosPanel.SearchComponentInChild( 2, ref m_WpnOtherInfoText );
+			m_IsInitialized &= m_WeaponInfosPanel.SearchComponentInChild( 3, ref m_StaminaBarImage );
+		}
+
+		m_IsInitialized &= transform.SearchComponentInChild( "Crosshairs", ref m_CrosshairsTransform );
+	}
+
+	//////////////////////////////////////////////////////////////////////////
 	IEnumerator IStateDefiner.Initialize()
 	{
-		if (this.m_IsInitialized == true )
+		if (m_IsInitialized == true )
 			yield break;
 
 		CoroutinesManager.AddCoroutineToPendingCount( 1 );
 
-		this.m_IsInitialized = true;
+		if ( m_IsInitialized )
 		{
-			this.m_IsInitialized &= this.transform.childCount > 1;
+			m_ZoomFrameImage.raycastTarget = false;
 
-			this.m_IsInitialized &= this.transform.SearchComponent( ref this.m_Canvas, ESearchContext.LOCAL );
+			UserSettings.VideoSettings.OnResolutionChanged += UI_Graphics_OnResolutionChanged;
 
-			yield return null;
+			InvokeRepeating( "PrintTime", 1.0f, 1.0f );
 
-			if (this.m_IsInitialized )
-			{
-				this.m_GenericInfosPanel = this.transform.Find( "GenericInfosPanel" );
-				{
-					this.m_IsInitialized &= this.m_GenericInfosPanel.SearchComponentInChild( 0, ref this.m_CycleNameText );
-					this.m_IsInitialized &= this.m_GenericInfosPanel.SearchComponentInChild( 1, ref this.m_TimeText);
-					this.m_IsInitialized &= this.m_GenericInfosPanel.SearchComponentInChild( 2, ref this.m_HealthText );
-					this.m_IsInitialized &= this.m_GenericInfosPanel.SearchComponentInChild( 3, ref this.m_Timetime );
-				}
-			}
+			CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 
 			yield return null;
 
-			if (this.m_IsInitialized )
-			{
-				this.m_WeaponInfosPanel = this.transform.Find( "WeaponInfosPanel" );
-				{
-					this.m_IsInitialized &= this.m_WeaponInfosPanel.SearchComponentInChild( 0, ref this.m_WpnNameText );
-					this.m_IsInitialized &= this.m_WeaponInfosPanel.SearchComponentInChild( 2, ref this.m_WpnOtherInfoText );
-					this.m_IsInitialized &= this.m_WeaponInfosPanel.SearchComponentInChild( 3, ref this.m_StaminaBarImage );
-				}
-			}
-
-			yield return null;
-
-			this.m_IsInitialized &= this.transform.SearchComponentInChild( "UI_Frame", ref this.m_ZoomFrameImage );
-
-			this.m_IsInitialized &= (this.m_CrosshairTransform = this.transform.Find( "Crosshair" )) != null;
-			if (this.m_IsInitialized )
-			{
-				this.m_ZoomFrameImage.raycastTarget = false;
-
-				UserSettings.VideoSettings.OnResolutionChanged += this.UI_Graphics_OnResolutionChanged;
-
-				this.InvokeRepeating( "PrintTime", 1.0f, 1.0f );	
-
-				CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
-
-				yield return null;
-
-				this.m_IsCompletedInitialization = true;
-			}
-			else
-			{
-				Debug.LogError( "UI_InGame: Bad initialization!!!" );
-			}
+			m_IsCompletedInitialization = true;
+		}
+		else
+		{
+			Debug.LogError( "UI_InGame: Bad initialization!!!" );
 		}
 	}
-
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -115,7 +99,6 @@ public sealed class UI_InGame : MonoBehaviour, IStateDefiner {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ReInit
 	IEnumerator	IStateDefiner.ReInit()
 	{
 		yield return null;
@@ -123,18 +106,16 @@ public sealed class UI_InGame : MonoBehaviour, IStateDefiner {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Finalize
 	bool	 IStateDefiner.Finalize()
 	{
-		return this.m_IsInitialized;
+		return m_IsInitialized;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnEnable
 	private void OnEnable()
 	{
-		this.m_IsActive = true;
+		m_IsActive = true;
 
 //		UI.Instance.EffectFrame.color = Color.clear;
 
@@ -148,145 +129,149 @@ public sealed class UI_InGame : MonoBehaviour, IStateDefiner {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Reset
 	private void InternalReset()
 	{
-		this.m_ZoomFrameImage.enabled	= false;
-		this.m_ZoomFrameImage.sprite		= null;
-		this.m_ZoomFrameImage.color		= Color.clear;
-		this.m_ZoomFrameImage.material	= null;
-		this.ShowCrosshair();
-		this.Show();
+		m_ZoomFrameImage.enabled	= false;
+		m_ZoomFrameImage.sprite		= null;
+		m_ZoomFrameImage.color		= Color.clear;
+		m_ZoomFrameImage.material	= null;
+		ShowCrosshairs();
+		Show();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnDisable
 	private	void	OnDisable()
 	{
-		this.m_IsActive = false;
+		m_IsActive = false;
 	}
 
+
 	//////////////////////////////////////////////////////////////////////////
-	// Show
 	public	void	Show()
 	{
-		this.m_GenericInfosPanel.gameObject.SetActive( true );
-		this.m_WeaponInfosPanel.gameObject.SetActive( true );
+		m_GenericInfosPanel.gameObject.SetActive( true );
+		m_WeaponInfosPanel.gameObject.SetActive( true );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Hide
 	public	void	Hide()
 	{
-		this.m_GenericInfosPanel.gameObject.SetActive( false );
-		this.m_WeaponInfosPanel.gameObject.SetActive( false );
+		m_GenericInfosPanel.gameObject.SetActive( false );
+		m_WeaponInfosPanel.gameObject.SetActive( false );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// UpdateUI
 	public	void	UpdateUI()
 	{
-		if (this.m_IsActive == false || this.m_IsCompletedInitialization == false )
+		if (m_IsActive == false || m_IsCompletedInitialization == false )
 			return;
 
 		IEntity player				= Player.Instance as IEntity;
-
-		this.m_HealthText.text			= Mathf.CeilToInt( player.Health ).ToString();
-
-		this.m_WpnNameText.text			= WeaponManager.Instance.CurrentWeapon.Transform.name;
+		m_HealthText.text		= Mathf.CeilToInt( player.Health ).ToString();
+		m_WpnNameText.text		= WeaponManager.Instance.CurrentWeapon.Transform.name;
 //		m_WpnOtherInfoText.text		= WeaponManager.Instance.CurrentWeapon.OtherInfo;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ShowCrosshair
-	public	void	ShowCrosshair()
+	public	void	ShowCrosshairs()
 	{
-		this.m_CrosshairTransform.gameObject.SetActive( true );
+		m_CrosshairsTransform.gameObject.SetActive( true );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// HideCrosshair
-	public	void	HideCrosshair()
+	public	UI_BaseCrosshair	EnableCrosshair(System.Type crosshairType)
 	{
-		this.m_CrosshairTransform.gameObject.SetActive( false );
+		UI_BaseCrosshair crosshair = m_CrosshairsTransform.GetComponentInChildren(crosshairType, includeInactive: true) as UI_BaseCrosshair;
+		crosshair?.AddRef();
+		return crosshair;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// SetFrame
+	public	void	RemoveCrosshair(UI_BaseCrosshair crosshair)
+	{
+		crosshair.RemoveRef();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public	void	HideCrosshairs()
+	{
+		m_CrosshairsTransform.gameObject.SetActive( false );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	public void SetFrame( Image frame )
 	{
 		if ( frame != null )
 		{
 			// Size
-			this.m_ZoomFrameImage.rectTransform.SetSizeWithCurrentAnchors( RectTransform.Axis.Horizontal, frame.rectTransform.rect.width  );
-			this.m_ZoomFrameImage.rectTransform.SetSizeWithCurrentAnchors( RectTransform.Axis.Vertical,   frame.rectTransform.rect.height );
+			m_ZoomFrameImage.rectTransform.SetSizeWithCurrentAnchors( RectTransform.Axis.Horizontal, frame.rectTransform.rect.width  );
+			m_ZoomFrameImage.rectTransform.SetSizeWithCurrentAnchors( RectTransform.Axis.Vertical,   frame.rectTransform.rect.height );
 
-			this.m_ZoomFrameImage.sprite		= frame.sprite;
-			this.m_ZoomFrameImage.color		= frame.color;
-			this.m_ZoomFrameImage.material	= frame.material;
-			this.m_ZoomFrameImage.enabled	= true;
-			this.HideCrosshair();
-			this.Hide();
+			m_ZoomFrameImage.sprite	= frame.sprite;
+			m_ZoomFrameImage.color		= frame.color;
+			m_ZoomFrameImage.material	= frame.material;
+			m_ZoomFrameImage.enabled	= true;
+			HideCrosshairs();
+			Hide();
 		}
 		else
 		{
-			this.m_ZoomFrameImage.enabled	= false;
-			this.m_ZoomFrameImage.sprite		= null;
-			this.m_ZoomFrameImage.color		= Color.clear;
-			this.m_ZoomFrameImage.material	= null;
-			this.ShowCrosshair();
-			this.Show();
+			m_ZoomFrameImage.enabled	= false;
+			m_ZoomFrameImage.sprite	= null;
+			m_ZoomFrameImage.color		= Color.clear;
+			m_ZoomFrameImage.material	= null;
+			ShowCrosshairs();
+			Show();
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// PrintTime
 	public void FrameFeedBack( float feedback, Vector2 delta )
 	{
-		if (this.m_ZoomFrameImage.enabled == true )
+		if (m_ZoomFrameImage.enabled == true )
 		{
-			this.m_ZoomFrameImage.rectTransform.localScale = Vector3.one * feedback;
-			this.m_ZoomFrameImage.rectTransform.position = delta;
+			m_ZoomFrameImage.rectTransform.localScale = Vector3.one * feedback;
+			m_ZoomFrameImage.rectTransform.position = delta;
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// PrintTime
 	private	void	PrintTime()
 	{
-		if (this.m_IsActive == false || this.m_IsCompletedInitialization == false )
+		if (m_IsActive == false || m_IsCompletedInitialization == false )
 			return;
 
 		if ( WeatherSystem.WeatherManager.Instance != null )
 		{
-			this.m_TimeText.text	= WeatherSystem.WeatherManager.Cycles.GetTimeAsString();
-			this.m_CycleNameText.text	= WeatherSystem.WeatherManager.Cycles.CurrentCycleName;
+			m_TimeText.text	= WeatherSystem.WeatherManager.Cycles.GetTimeAsString();
+			m_CycleNameText.text	= WeatherSystem.WeatherManager.Cycles.CurrentCycleName;
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Update
 	private void	Update()
 	{
-		if (this.m_IsActive == false || this.m_IsCompletedInitialization == false || Player.Instance.IsNotNull() == false )
+		if (m_IsActive == false || m_IsCompletedInitialization == false || Player.Instance.IsNotNull() == false )
 			return;
 
 		// Only every 10 frames
 		if ( Time.frameCount % 10 == 0 )
 			return;
 
-		this.m_Timetime.text = Time.timeScale.ToString();
+		m_Timetime.text = Time.timeScale.ToString();
 
-		this.m_StaminaBarImage.fillAmount = Player.Instance.OxygenCurrentLevel / 100f;
+		m_StaminaBarImage.fillAmount = Player.Instance.OxygenCurrentLevel / 100f;
 	}
 	
 }

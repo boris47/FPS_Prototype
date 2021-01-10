@@ -17,16 +17,16 @@ public abstract partial class Entity : IEntity {
 	protected	const	float PATH_SEARCH_TIMEOUT		=		3.0f;
 
 	// INTERFACE START
-	NavMeshAgent				IEntity.NavAgent						{ get { return this.m_NavAgent; } }
+	NavMeshAgent				IEntity.NavAgent						{ get { return m_NavAgent; } }
 	
 	void						IEntity.RequestMovement( Vector3 Destination )
 	{
-		this.RequestMovement( Destination );
+		RequestMovement( Destination );
 	}
 
 	void						IEntity.NavStop()
 	{
-		this.NavStop();
+		NavStop();
 	}
 	// INTERFACE END
 
@@ -54,17 +54,17 @@ public abstract partial class Entity : IEntity {
 
 	protected	virtual System.Collections.IEnumerator RequestMovementCO( Vector3 Destination )
 	{
-		this.m_NavAgent.SetDestination( Destination );
-		this.m_NavAgent.isStopped = true;
+		m_NavAgent.SetDestination( Destination );
+		m_NavAgent.isStopped = true;
 
 		float currentSearchTime = 0.0f;
 
-		while (this.m_NavAgent.pathPending )
+		while (m_NavAgent.pathPending )
 		{
-			if (this.m_NavAgent.pathStatus == NavMeshPathStatus.PathPartial )
+			if (m_NavAgent.pathStatus == NavMeshPathStatus.PathPartial )
 			{
-				print(  "For " + this.name + " destination is unreachable" );
-				this.m_HasPendingPathRequest = false;
+				print(  "For " + name + " destination is unreachable" );
+				m_HasPendingPathRequest = false;
 				yield break;
 			}
 
@@ -72,18 +72,18 @@ public abstract partial class Entity : IEntity {
 			if ( currentSearchTime > PATH_SEARCH_TIMEOUT )
 			{
 				print( "On Path Search TimeOut Reached" );
-				this.OnPathSearchTimeOutReached();
-				this.m_HasPendingPathRequest = false;
+				OnPathSearchTimeOutReached();
+				m_HasPendingPathRequest = false;
 				yield break;
 			}
 			yield return null;
 		}
-		this.m_NavAgent.isStopped			= false;
-		this.m_HasPendingPathRequest			= false;
-		this.m_PendingPathRequestCO			= null;
-		this.m_HasDestination				= true;
-		this.m_DestinationToReachPosition	= Destination;
-		this.m_NavCanMoveAlongPath			= true;
+		m_NavAgent.isStopped			= false;
+		m_HasPendingPathRequest			= false;
+		m_PendingPathRequestCO			= null;
+		m_HasDestination				= true;
+		m_DestinationToReachPosition	= Destination;
+		m_NavCanMoveAlongPath			= true;
 
 		m_OnNavigation( Destination );
 	}
@@ -93,10 +93,10 @@ public abstract partial class Entity : IEntity {
 
 	public	virtual		void	RequestMovement( Vector3 Destination )
 	{
-		if (this.m_HasPendingPathRequest == false )
+		if (m_HasPendingPathRequest == false )
 		{
-			this.m_PendingPathRequestCO = CoroutinesManager.Start(this.RequestMovementCO( Destination ), "Entity::RequestMovement: Request of movement" );
-			this.m_HasPendingPathRequest = true;
+			m_PendingPathRequestCO = CoroutinesManager.Start(RequestMovementCO( Destination ), "Entity::RequestMovement: Request of movement" );
+			m_HasPendingPathRequest = true;
 		}
 	}
 	
@@ -105,10 +105,10 @@ public abstract partial class Entity : IEntity {
 
 	public	virtual		void	NavStop()
 	{
-		this.m_NavAgent.isStopped = true;
+		m_NavAgent.isStopped = true;
 
 		// Reset internals
-		this.NavReset();
+		NavReset();
 	}
 
 
@@ -116,15 +116,15 @@ public abstract partial class Entity : IEntity {
 
 	protected	virtual		void	CheckForNewReachPoint( Vector3 TargetPosition ) // m_TargetInfo.CurrentTarget.Transform.position
 	{
-		if (this.m_TargetInfo.HasTarget == true )
+		if (m_TargetInfo.HasTarget == true )
 		{
 			// Path search event if not already close enough
-			if ( ( TargetPosition - this.m_DestinationToReachPosition ).sqrMagnitude > 180.0f )
+			if ( ( TargetPosition - m_DestinationToReachPosition ).sqrMagnitude > 180.0f )
 			{
-				if ( (this.transform.position - TargetPosition ).sqrMagnitude > this.m_MinEngageDistance * this.m_MinEngageDistance )
+				if ( (transform.position - TargetPosition ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
 				{
 					///					print( "CheckForNewReachPoint" );
-					this.RequestMovement ( TargetPosition );
+					RequestMovement ( TargetPosition );
 				}
 			}
 		}
@@ -135,16 +135,16 @@ public abstract partial class Entity : IEntity {
 
 	public	virtual		void	NavReset()
 	{
-		this.m_HasDestination				= false;
-		this.m_DestinationToReachPosition	= Vector3.zero;
-		this.m_NavCanMoveAlongPath			= false;
+		m_HasDestination				= false;
+		m_DestinationToReachPosition	= Vector3.zero;
+		m_NavCanMoveAlongPath			= false;
 
-		if (this.m_HasPendingPathRequest )
+		if (m_HasPendingPathRequest )
 		{
-			if (this.m_PendingPathRequestCO != null )
-				this.StopCoroutine(this.m_PendingPathRequestCO );
-			this.m_PendingPathRequestCO = null;
-			this.m_HasPendingPathRequest = false;
+			if (m_PendingPathRequestCO != null )
+				StopCoroutine(m_PendingPathRequestCO );
+			m_PendingPathRequestCO = null;
+			m_HasPendingPathRequest = false;
 		}
 	}
 

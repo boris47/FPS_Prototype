@@ -21,7 +21,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 	protected	float			m_DamageMin					= 0.5f;
 
 	[SerializeField, ReadOnly]
-	protected	int				m_PoolSize					= 5;
+	protected	uint			m_PoolSize					= 5;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -32,30 +32,28 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 		// LOAD CONFIGURATION
 		{
-			this.m_Health				= this.m_SectionRef.AsFloat( "Health", 60.0f );
+			m_Health				= m_SectionRef.AsFloat( "Health", 60.0f );
 
-			if (this.m_Shield != null )
+			if (m_Shield != null )
 			{
-				float shieldStatus	= this.m_SectionRef.AsFloat( "Shield", 0.0f );
-				this.m_Shield.Setup( shieldStatus, EShieldContext.ENTITY );
+				float shieldStatus	= m_SectionRef.AsFloat( "Shield", 0.0f );
+				m_Shield.Setup( shieldStatus, EShieldContext.ENTITY );
 			}
 
-			this.m_DamageMax				= this.m_SectionRef.AsFloat( "DamageMax", 2.0f );
-			this.m_DamageMin				= this.m_SectionRef.AsFloat( "DamageMin", 0.5f );
-			this.m_PoolSize				= this.m_SectionRef.AsInt( "PoolSize", this.m_PoolSize );
+			m_DamageMax				= m_SectionRef.AsFloat( "DamageMax", 2.0f );
+			m_DamageMin				= m_SectionRef.AsFloat( "DamageMin", 0.5f );
+			m_PoolSize				= m_SectionRef.AsUInt( "PoolSize", m_PoolSize );
 
-			this.m_EntityType			= EEntityType.ROBOT;
+			m_EntityType			= EEntityType.ROBOT;
 		}
 
 		// BULLETS POOL CREATION
-		if (this.m_Pool == null )		// check for respawn
+		if (m_Pool == null )		// check for respawn
 		{
-			GameObject	bulletGO		= this.m_Bullet.gameObject;
-			GameObjectsPoolConstructorData<Bullet> data = new GameObjectsPoolConstructorData<Bullet>()
+			GameObject	bulletGO		= m_Bullet.gameObject;
+			GameObjectsPoolConstructorData<Bullet> data = new GameObjectsPoolConstructorData<Bullet>(bulletGO, m_PoolSize)
 			{
-				Model					= bulletGO,
-				Size					= ( uint )this.m_PoolSize,
-				ContainerName			= this.name + "BulletPool",
+				ContainerName			= name + "BulletPool",
 				CoroutineEnumerator		= null,
 				IsAsyncBuild			= true,
 				ActionOnObject			= ( Bullet o ) =>
@@ -71,12 +69,12 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 				//	Player.Instance.DisableCollisionsWith( o.Collider, bAlsoTriggerCollider: false );
 				}
 			};
-			this.m_Pool = new GameObjectsPool<Bullet>( data );
+			m_Pool = new GameObjectsPool<Bullet>( data );
 		}
 
-		this.m_Pool.SetActive( true );
-		this.m_ShotTimer = 0f;
-		this.m_MaxAgentSpeed = this.m_MoveMaxSpeed;
+		m_Pool.SetActive( true );
+		m_ShotTimer = 0f;
+		m_MaxAgentSpeed = m_MoveMaxSpeed;
 	}
 
 	
@@ -102,11 +100,11 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 	{
 		base.OnKill();
 		//		m_Pool.SetActive( false );
-		this.gameObject.SetActive( false );
+		gameObject.SetActive( false );
 
-		if (this.m_RespawnPoint != null )
+		if (m_RespawnPoint != null )
 		{
-			this.m_RespawnPoint.Respawn( this, 2f );
+			m_RespawnPoint.Respawn( this, 2f );
 		}
 	}
 	
@@ -138,26 +136,26 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		*/
 		// GUN
 		{
-			Vector3 pointToLookAt = this.m_LookData.PointToLookAt;
-			if (this.m_TargetInfo.HasTarget == true )
+			Vector3 pointToLookAt = m_LookData.PointToLookAt;
+			if (m_TargetInfo.HasTarget == true )
 			{
-				Vector3 targetPosition = this.m_TargetInfo.CurrentTarget.AsEntity.transform.position;
-				IBullet model = this.m_Pool.PeekComponent<IBullet>();
+				Vector3 targetPosition = m_TargetInfo.CurrentTarget.AsEntity.transform.position;
+				IBullet model = m_Pool.TryPeekComponentAs<IBullet>();
 				if ( model.MotionType == EBulletMotionType.PARABOLIC )
 				{
 					// BALLISTIC TRAJECTORY
 					float targetHeight = targetPosition.y;
 					float angle = Utils.Math.CalculateFireAngle
 					(
-						alt:			0f,
-						startPosition: this.m_GunTransform.position,
+					//	alt:			0f,
+						startPosition: m_GunTransform.position,
 						endPosition:	pointToLookAt,
 						bulletVelocity:	model.Velocity,
 						targetHeight:	targetHeight
 					);
 					Vector3 ballisticVelocity = Utils.Math.BallisticVelocity
 					(
-						startPosition: this.m_GunTransform.position,
+						startPosition: m_GunTransform.position,
 						destination:	targetPosition,
 						angle:			angle
 					);
@@ -168,22 +166,22 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 				// PREDICTION
 				pointToLookAt = Utils.Math.CalculateBulletPrediction
 				(
-					shooterPosition: this.m_GunTransform.position,
-					shooterVelocity: this.m_NavAgent.velocity,
+					shooterPosition: m_GunTransform.position,
+					shooterVelocity: m_NavAgent.velocity,
 					shotSpeed:			model.Velocity,
 					targetPosition:		targetPosition,
-					targetVelocity: this.m_TargetInfo.CurrentTarget.RigidBody.velocity
+					targetVelocity: m_TargetInfo.CurrentTarget.RigidBody.velocity
 				);
 			}
 		
 
-			Vector3 dirToPosition = ( pointToLookAt - this.m_GunTransform.position );
-			if (this.m_IsAllignedHeadToPoint == true )
+			Vector3 dirToPosition = ( pointToLookAt - m_GunTransform.position );
+			if (m_IsAllignedHeadToPoint == true )
 			{
-				this.m_RotationToAllignTo.SetLookRotation( dirToPosition, this.m_BodyTransform.up );
-				this.m_GunTransform.rotation = Quaternion.RotateTowards(this.m_GunTransform.rotation, this.m_RotationToAllignTo, this.m_GunRotationSpeed * Time.deltaTime );
+				m_RotationToAllignTo.SetLookRotation( dirToPosition, m_BodyTransform.up );
+				m_GunTransform.rotation = Quaternion.RotateTowards(m_GunTransform.rotation, m_RotationToAllignTo, m_GunRotationSpeed * Time.deltaTime );
 			}
-			this.m_IsAllignedGunToPoint = Vector3.Angle(this.m_GunTransform.forward, dirToPosition ) < 16f;
+			m_IsAllignedGunToPoint = Vector3.Angle(m_GunTransform.forward, dirToPosition ) < 16f;
 		}
 	}
 
@@ -191,23 +189,23 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 	
 	public	override		void	FireLongRange()
 	{
-		if (this.m_ShotTimer > 0 )
+		if (m_ShotTimer > 0 )
 				return;
 
-		this.m_ShotTimer = this.m_ShotDelay;
+		m_ShotTimer = m_ShotDelay;
 
-		IBullet bullet = this.m_Pool.GetNextComponent();
+		IBullet bullet = m_Pool.GetNextComponent();
 		
-		Vector3 direction = this.m_FirePoint.forward;
+		Vector3 direction = m_FirePoint.forward;
 		{
-			direction.x += Random.Range( -this.m_FireDispersion, this.m_FireDispersion );
-			direction.y += Random.Range( -this.m_FireDispersion, this.m_FireDispersion );
-			direction.z += Random.Range( -this.m_FireDispersion, this.m_FireDispersion );
+			direction.x += Random.Range( -m_FireDispersion, m_FireDispersion );
+			direction.y += Random.Range( -m_FireDispersion, m_FireDispersion );
+			direction.z += Random.Range( -m_FireDispersion, m_FireDispersion );
 		}
 		direction.Normalize();
-		bullet.Shoot( position: this.m_FirePoint.position, direction: direction );
+		bullet.Shoot( position: m_FirePoint.position, direction: direction, velocity: null );
 
-		this.m_FireAudioSource.Play();
+		m_FireAudioSource.Play();
 	}
 	
 
@@ -215,33 +213,33 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 	void IRespawn.OnRespawn()
 	{
-		this.transform.position = this.m_RespawnPoint.transform.position;
-		this.transform.rotation = this.m_RespawnPoint.transform.rotation;
+		transform.position = m_RespawnPoint.transform.position;
+		transform.rotation = m_RespawnPoint.transform.rotation;
 
-		this.gameObject.SetActive( true );
+		gameObject.SetActive( true );
 
 		// Entity
-		this.m_IsActive						= true;
-		this.m_TargetInfo					= new TargetInfo();
+		m_IsActive						= true;
+		m_TargetInfo					= new TargetInfo();
 		//		m_NavHasDestination				= false;
 		//		m_HasFaceTarget					= false;
 		//		m_Destination					= Vector3.zero;
 		//		m_PointToFace					= Vector3.zero;
-		this.m_NavCanMoveAlongPath						= false;
-		this.m_IsAllignedBodyToPoint	= false;
+		m_NavCanMoveAlongPath						= false;
+		m_IsAllignedBodyToPoint	= false;
 		//		m_DistanceToTravel				= 0f;
 
 		// NonLiveEntity
-		this.m_ShotTimer						= 0f;
-		this.m_IsAllignedGunToPoint			= false;
+		m_ShotTimer						= 0f;
+		m_IsAllignedGunToPoint			= false;
 
 		// Reinitialize properties
-		this.Awake();
+		Awake();
 
 //		m_Brain.OnReset();
-		if (this.m_Shield != null )
+		if (m_Shield != null )
 		{
-			this.m_Shield.OnReset();
+			m_Shield.OnReset();
 		}
 	}
 	

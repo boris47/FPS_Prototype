@@ -16,25 +16,25 @@ public class EntityBlackBoardData {
 	public	Entity				EntityRef							= null;
 
 	// Body
-	public	Vector3				Head_Position						=> this.m_HeadTransform.position;
-	public	Quaternion			Head_Rotation						=> this.m_HeadTransform.rotation;
-	public	Vector3				Head_Forward						=> this.m_HeadTransform.forward;
-	public	Vector3				Head_Up								=> this.m_HeadTransform.up;
-	public	Vector3				Head_Right							=> this.m_HeadTransform.right;
+	public	Vector3				Head_Position						=> m_HeadTransform.position;
+	public	Quaternion			Head_Rotation						=> m_HeadTransform.rotation;
+	public	Vector3				Head_Forward						=> m_HeadTransform.forward;
+	public	Vector3				Head_Up								=> m_HeadTransform.up;
+	public	Vector3				Head_Right							=> m_HeadTransform.right;
 
 	// Body
-	public	Vector3				Body_Position						=> this.m_BodyTransform.position;
-	public	Quaternion			Body_Rotation						=> this.m_BodyTransform.rotation;
-	public	Vector3				Body_Forward						=> this.m_BodyTransform.forward;
-	public	Vector3				Body_Up								=> this.m_BodyTransform.up;
-	public	Vector3				Body_Right							=> this.m_BodyTransform.right;
+	public	Vector3				Body_Position						=> m_BodyTransform.position;
+	public	Quaternion			Body_Rotation						=> m_BodyTransform.rotation;
+	public	Vector3				Body_Forward						=> m_BodyTransform.forward;
+	public	Vector3				Body_Up								=> m_BodyTransform.up;
+	public	Vector3				Body_Right							=> m_BodyTransform.right;
 
 	// Targettable
-	public	Vector3				Transform_Position					=> this.m_Transform.position;
-	public	Quaternion			Transform_Rotation					=> this.m_Transform.rotation;
-	public	Vector3				Transform_Forward					=> this.m_Transform.forward;
-	public	Vector3				Transform_Up						=> this.m_Transform.up;
-	public	Vector3				Transform_Right						=> this.m_Transform.right;
+	public	Vector3				Transform_Position					=> m_Transform.position;
+	public	Quaternion			Transform_Rotation					=> m_Transform.rotation;
+	public	Vector3				Transform_Forward					=> m_Transform.forward;
+	public	Vector3				Transform_Up						=> m_Transform.up;
+	public	Vector3				Transform_Right						=> m_Transform.right;
 
 	public	LookData			LookData							= null;
 
@@ -48,9 +48,9 @@ public class EntityBlackBoardData {
 
 	public	EntityBlackBoardData( Transform Transform, Transform Head, Transform Body )
 	{
-		this.m_Transform			= Transform;
-		this.m_HeadTransform		= Head;
-		this.m_BodyTransform		= Body;
+		m_Transform			= Transform;
+		m_HeadTransform		= Head;
+		m_BodyTransform		= Body;
 	}
 
 }

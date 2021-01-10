@@ -3,33 +3,34 @@ using UnityEngine;
 
 namespace QuestSystem {
 
-	public class Objective_Interact : Objective_Base {
-		
-		private	IInteractable	m_Interactable = null;
+	public class Objective_Interact : Objective_Base
+	{	
+		[SerializeField]
+		private	Interactable	m_Interactable = null;
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// Initialize ( IStateDefiner )
-		protected		override	bool		InitializeInternal( ITask motherTask, System.Action<IObjective> onCompletionCallback, System.Action<IObjective> onFailureCallback )
+		protected		override	bool		InitializeInternal( Task motherTask, System.Action<Objective_Base> onCompletionCallback, System.Action<Objective_Base> onFailureCallback )
 		{
-			if (this.m_IsInitialized == true )
+			if (m_IsInitialized == true )
 				return true;
 
-			this.m_IsInitialized = true;
+			m_IsInitialized = true;
 
-			bool bIsGoodResult = Utils.Base.SearchComponent(this.gameObject, out this.m_Interactable, ESearchContext.LOCAL );
+			bool bIsGoodResult = Utils.Base.SearchComponent(gameObject, out m_Interactable, ESearchContext.LOCAL );
 			if ( bIsGoodResult )
 			{
-				this.m_Interactable.CanInteract = true;
-				this.m_Interactable.OnInteractionCallback += this.OnInteraction;
-				this.m_Interactable.OnRetroInteractionCallback += this.OnRetroInteraction;
+				m_Interactable.CanInteract = true;
+				m_Interactable.OnInteractionCallback += OnInteraction;
+				m_Interactable.OnRetroInteractionCallback += OnRetroInteraction;
 
-				this.m_OnCompletionCallback = onCompletionCallback;
-				this.m_OnFailureCallback = onFailureCallback;
+				m_OnCompletionCallback = onCompletionCallback;
+				m_OnFailureCallback = onFailureCallback;
 				motherTask.AddObjective( this );
 			}
 
-			return this.m_IsInitialized;
+			return m_IsInitialized;
 		}
 
 
@@ -69,7 +70,7 @@ namespace QuestSystem {
 		// Activate ( IObjective )
 		protected		override	void		ActivateInternal()
 		{	
-			UIManager.Indicators.EnableIndicator(this.m_Interactable.Collider.gameObject, EIndicatorType.OBJECT_TO_INTERACT, bMustBeClamped: true );
+			UIManager.Indicators.EnableIndicator(m_Interactable.Collider.gameObject, EIndicatorType.OBJECT_TO_INTERACT, bMustBeClamped: true );
 		}
 
 
@@ -77,7 +78,7 @@ namespace QuestSystem {
 		// Deactivate ( IObjective )
 		protected		override	void		DeactivateInternal()
 		{
-			UIManager.Indicators.DisableIndicator(this.gameObject );
+			UIManager.Indicators.DisableIndicator(gameObject );
 		}
 
 
@@ -85,9 +86,9 @@ namespace QuestSystem {
 		// OnInteraction
 		private void	OnInteraction()
 		{
-			this.Deactivate();
+			Deactivate();
 
-			this.OnObjectiveCompleted();
+			OnObjectiveCompleted();
 		}
 
 
@@ -96,15 +97,15 @@ namespace QuestSystem {
 		private	void	OnRetroInteraction()
 		{
 			// Require dependencies to be completed
-			if (this.m_Dependencies.Count > 0 && this.m_Dependencies.FindIndex( o => o.IsCompleted == false ) > -1 )
+			if (m_Dependencies.Count > 0 && m_Dependencies.FindIndex( o => o.IsCompleted == false ) > -1 )
 			{
 				// Our depenencies ask for this objective to be completed, so we are goint to deaticate them
-				this.m_Dependencies.ForEach( d => d.Deactivate() );
+				m_Dependencies.ForEach( d => d.Deactivate() );
 
 				// and activate again this
-				this.Activate();
+				Activate();
 
-				this.m_IsCompleted = false;
+				m_IsCompleted = false;
 			}
 		}
 

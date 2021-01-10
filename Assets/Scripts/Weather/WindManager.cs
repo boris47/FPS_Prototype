@@ -32,11 +32,11 @@ namespace WeatherSystem {
 		private		Transform			m_Target						= null;
 		public		Transform			Target
 		{
-			get { return this.m_Target; }
+			get { return m_Target; }
 			set
 			{
-				this.m_Target = value;
-				this.OnTargetSet ( value == null );
+				m_Target = value;
+				OnTargetSet ( value == null );
 			}
 		}
 
@@ -63,30 +63,30 @@ namespace WeatherSystem {
 		private void OnEnable()
 		{
 	#if UNITY_EDITOR
-			UnityEditor.EditorApplication.update += this.Update;
+			UnityEditor.EditorApplication.update += Update;
 #endif
 
-			this.m_WindZone = this.transform.Find( "WindZone" ).GetComponent<WindZone>();
-			if (this.m_WindZone == null )
+			m_WindZone = transform.Find( "WindZone" ).GetComponent<WindZone>();
+			if (m_WindZone == null )
 				return;
 
 			// Audio Sources Setup
 			//			Transform audioSource = transform.Find( "AudioSources" ).Find( "Wind" );
 
-			this.m_AudioSourceWind = this.GetComponent<ICustomAudioSource>();
+			m_AudioSourceWind = GetComponent<ICustomAudioSource>();
 
 			//			AudioSource source = audioSource.GetComponent<AudioSource>();
 			//			m_AudioSourceWind.AudioSource = source;
 			//			SoundEffectManager.Instance.RegisterSource( ref source );
-			this.m_AudioSourceWind.Volume	= 0f;
+			m_AudioSourceWind.Volume	= 0f;
 
-			this.m_State1.windMain			= 0f;
-			this.m_State1.windTurbolence		= 0f;
-			this.m_State1.windZoneRotation	= this.transform.rotation;
+			m_State1.windMain			= 0f;
+			m_State1.windTurbolence		= 0f;
+			m_State1.windZoneRotation	= transform.rotation;
 
-			this.m_State2.windMain			= Random.Range(this.m_WindSpeedRange.x, this.m_WindSpeedRange.y );
-			this.m_State2.windTurbolence		= Random.Range(this.m_WindSpeedRange.x, this.m_WindSpeedRange.y );
-			this.m_State2.windZoneRotation	= Quaternion.Euler( 0f, Random.Range(0f, 360f), 0f );
+			m_State2.windMain			= Random.Range(m_WindSpeedRange.x, m_WindSpeedRange.y );
+			m_State2.windTurbolence		= Random.Range(m_WindSpeedRange.x, m_WindSpeedRange.y );
+			m_State2.windZoneRotation	= Quaternion.Euler( 0f, Random.Range(0f, 360f), 0f );
 		}
 
 
@@ -94,12 +94,12 @@ namespace WeatherSystem {
 		// OnDisable
 		private void OnDisable()
 		{
-			this.m_AudioSourceWind		= null;
-			this.m_CurrentWindTime		= 0f;
-			this.m_Interpolant			= 0f;
+			m_AudioSourceWind		= null;
+			m_CurrentWindTime		= 0f;
+			m_Interpolant			= 0f;
 
 	#if UNITY_EDITOR
-			UnityEditor.EditorApplication.update -= this.Update;
+			UnityEditor.EditorApplication.update -= Update;
 	#endif
 		}
 
@@ -110,9 +110,9 @@ namespace WeatherSystem {
 		{
 			if ( IsNull == true )
 			{
-				this.m_State2.windMain			= Random.Range(this.m_WindSpeedRange.x, this.m_WindSpeedRange.y );
-				this.m_State2.windTurbolence		= Random.Range(this.m_WindSpeedRange.x, this.m_WindSpeedRange.y );
-				this.m_State2.windZoneRotation	= Quaternion.Euler( 0f, Random.Range(0f, 360f), 0f );
+				m_State2.windMain			= Random.Range(m_WindSpeedRange.x, m_WindSpeedRange.y );
+				m_State2.windTurbolence		= Random.Range(m_WindSpeedRange.x, m_WindSpeedRange.y );
+				m_State2.windZoneRotation	= Quaternion.Euler( 0f, Random.Range(0f, 360f), 0f );
 			}
 		}
 
@@ -121,54 +121,54 @@ namespace WeatherSystem {
 		// UpdateWind
 		private void	UpdateWind()
 		{
-			if (this.m_WindZone == null )
+			if (m_WindZone == null )
 				return;
 
-			if (this.m_EnableWind == true && this.m_WindSpeedRange.y > 1.0f )
+			if (m_EnableWind == true && m_WindSpeedRange.y > 1.0f )
 			{
 
-				this.m_CurrentWindTime += Time.deltaTime;
-				this.m_Interpolant = this.m_CurrentWindTime / this.m_NextWindTime;
-				if (this.m_Interpolant  < 1f )
+				m_CurrentWindTime += Time.deltaTime;
+				m_Interpolant = m_CurrentWindTime / m_NextWindTime;
+				if (m_Interpolant  < 1f )
 				{
-					this.m_WindZone.windMain				= Mathf.Lerp(this.m_State1.windMain, this.m_State2.windMain, this.m_Interpolant );
-					this.m_WindZone.windTurbulence		= Mathf.Lerp(this.m_State1.windTurbolence, this.m_State2.windTurbolence, this.m_Interpolant );
+					m_WindZone.windMain				= Mathf.Lerp(m_State1.windMain, m_State2.windMain, m_Interpolant );
+					m_WindZone.windTurbulence		= Mathf.Lerp(m_State1.windTurbolence, m_State2.windTurbolence, m_Interpolant );
 
-					if (this.m_WindZone.windMain > 0.01f )
+					if (m_WindZone.windMain > 0.01f )
 					{
-						if (this.m_Target != null )
+						if (m_Target != null )
 						{
-							this.m_WindZone.transform.LookAt(this.m_Target );
+							m_WindZone.transform.LookAt(m_Target );
 						}
 						else
 						{
-							this.m_WindZone.transform.rotation = Quaternion.Lerp(this.m_State1.windZoneRotation, this.m_State2.windZoneRotation, this.m_Interpolant );
+							m_WindZone.transform.rotation = Quaternion.Lerp(m_State1.windZoneRotation, m_State2.windZoneRotation, m_Interpolant );
 						}
 
 					}
 				}
 				else
 				{
-					this.m_NextWindTime				= Random.Range(this.m_WindChangeInterval.x, this.m_WindChangeInterval.y );
-					this.m_CurrentWindTime			= 0f;
-					this.m_Interpolant				= 0f;
+					m_NextWindTime				= Random.Range(m_WindChangeInterval.x, m_WindChangeInterval.y );
+					m_CurrentWindTime			= 0f;
+					m_Interpolant				= 0f;
 
 					// set as current state
-					this.m_State1 = this.m_State2;
+					m_State1 = m_State2;
 
 					// Generate next state
-					this.m_State2.windMain			= Random.Range(this.m_WindSpeedRange.x, this.m_WindSpeedRange.y );
-					this.m_State2.windTurbolence		= Random.Range(this.m_WindSpeedRange.x, this.m_WindSpeedRange.y );
-					this.m_State2.windZoneRotation	= Quaternion.Euler( 0f, Random.Range(0.0f, 360f), 0f );
+					m_State2.windMain			= Random.Range(m_WindSpeedRange.x, m_WindSpeedRange.y );
+					m_State2.windTurbolence		= Random.Range(m_WindSpeedRange.x, m_WindSpeedRange.y );
+					m_State2.windZoneRotation	= Quaternion.Euler( 0f, Random.Range(0.0f, 360f), 0f );
 			
 				}
 
-				this.m_AudioSourceWind.Volume = ( (this.m_WindZone.windMain / this.m_WindSpeedRange.z ) * this.m_WindSoundVolumeModifier );
+				m_AudioSourceWind.Volume = ( (m_WindZone.windMain / m_WindSpeedRange.z ) * m_WindSoundVolumeModifier );
 			}
 			else
 			{
-				this.m_WindZone.windMain = 0f;
-				this.m_AudioSourceWind.Volume = 0f;
+				m_WindZone.windMain = 0f;
+				m_AudioSourceWind.Volume = 0f;
 			}
 		}
 
@@ -177,10 +177,10 @@ namespace WeatherSystem {
 		// Update
 		private void Update()
 		{
-			if (this.EnableInEditor == false )
+			if (EnableInEditor == false )
 				return;
 
-			this.UpdateWind();
+			UpdateWind();
 		}
 
 	}

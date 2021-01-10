@@ -7,7 +7,7 @@ public class Waiter_Flag : Waiter_Base {
 
 	public		void	CanContinue()
 	{
-		this.m_HasToWait = false;
+		m_HasToWait = false;
 	}
 
 	public		override	void		Wait()

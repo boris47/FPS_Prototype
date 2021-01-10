@@ -241,6 +241,11 @@ namespace Utils
 					results = GameObject.transform.root.GetComponentsInChildren<T>();
 					break;
 				}
+				default:
+				{
+					results = new T[0];
+					break;
+				}
 			}
 
 			return results;
@@ -345,13 +350,13 @@ namespace Utils
 		private uint	m_Latest = 0;
 
 		////////////////////////////////////////////////
-		public DoubleBuffer( T t1, T t2 )	{ this.m_Buffer = new T[] { t1, t2 };						}
+		public DoubleBuffer( T t1, T t2 )	{ m_Buffer = new T[] { t1, t2 };						}
 		////////////////////////////////////////////////
-		public	T	Current()				{		return this.m_Buffer[this.m_Latest ];						}
+		public	T	Current()				{		return m_Buffer[m_Latest ];						}
 		////////////////////////////////////////////////
-		public	T	Previous()				{		return this.m_Buffer[ (this.m_Latest + 1 ) % 2 ];			}
+		public	T	Previous()				{		return m_Buffer[ (m_Latest + 1 ) % 2 ];			}
 		////////////////////////////////////////////////
-		public	T	SwapBuffers()			{		return this.m_Buffer[this.m_Latest = (this.m_Latest + 1 ) % 2 ]; }
+		public	T	SwapBuffers()			{		return m_Buffer[m_Latest = (m_Latest + 1 ) % 2 ]; }
 
 	}
 

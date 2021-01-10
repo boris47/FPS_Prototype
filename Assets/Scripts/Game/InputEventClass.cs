@@ -16,24 +16,24 @@ public class SingleInputEvent
 	//////////////////////////////////////////////////////////////////////////
 	public SingleInputEvent( string Id, InputDelegateHandler eventToCall, System.Func<bool> condition )
 	{
-		this.InputEventID = Id;
-		this.m_InputEvent = eventToCall;
-		this.m_Condition = condition ?? m_AlwaysTrueCondition;
+		InputEventID = Id;
+		m_InputEvent = eventToCall;
+		m_Condition = condition ?? m_AlwaysTrueCondition;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	public	void	Rebind( InputDelegateHandler eventToCall, System.Func<bool> condition = null )
 	{
-		this.m_InputEvent = eventToCall;
-		this.m_Condition = condition ?? m_AlwaysTrueCondition;
+		m_InputEvent = eventToCall;
+		m_Condition = condition ?? m_AlwaysTrueCondition;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	public void Call()
 	{
-		if (this.m_Condition() )
+		if (m_Condition() )
 		{
-			this.m_InputEvent();
+			m_InputEvent();
 		}
 	}
 
@@ -49,14 +49,14 @@ public class InputEventCollection
 	{
 		System.Func<bool> internalCondition = predicate ?? m_AlwaysTrueCondition;
 
-		int index = this.m_Events.FindIndex( s => s.InputEventID == inputEventID );
+		int index = m_Events.FindIndex( s => s.InputEventID == inputEventID );
 		if ( index == -1 )
 		{
-			this.m_Events.Add( new SingleInputEvent( inputEventID, method, internalCondition ) );
+			m_Events.Add( new SingleInputEvent( inputEventID, method, internalCondition ) );
 		}
 		else
 		{
-			this.m_Events[ index ].Rebind( method, internalCondition );
+			m_Events[ index ].Rebind( method, internalCondition );
 		}
 		return this;
 	}
@@ -64,10 +64,10 @@ public class InputEventCollection
 	//////////////////////////////////////////////////////////////////////////
 	public	InputEventCollection	Unbind( string inputEventID )
 	{
-		int index = this.m_Events.FindIndex( s => s.InputEventID == inputEventID );
+		int index = m_Events.FindIndex( s => s.InputEventID == inputEventID );
 		if ( index > -1 ) // Only if found
 		{
-			this.m_Events.RemoveAt( index );
+			m_Events.RemoveAt( index );
 		}
 		return this;
 	}
@@ -75,6 +75,6 @@ public class InputEventCollection
 	//////////////////////////////////////////////////////////////////////////
 	public void Call()
 	{
-		this.m_Events.ForEach( s => s.Call() );
+		m_Events.ForEach( s => s.Call() );
 	}
 }

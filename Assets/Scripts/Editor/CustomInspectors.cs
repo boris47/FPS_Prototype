@@ -2,21 +2,13 @@
 using UnityEditor;
 
 
-// Custom property inspector of type 'RegisteredMaterial'
-[CustomPropertyDrawer(typeof(RegisteredMaterial))]
-public class MaterialDrawer : PropertyDrawer
+// Custom property inspector of type 'SurfaceManager.RegisteredMaterial'
+[CustomPropertyDrawer(typeof(SurfaceManager.RegisteredTexture))]
+public class SurfaceManager_MaterialDrawer : PropertyDrawer
 {
-	private SurfaceManager surfManag = null;
-
 	//
 	public override void OnGUI (Rect position, SerializedProperty property, GUIContent label)
 	{
-		if (this.surfManag == null )
-		{
-			this.surfManag = GameObject.FindObjectOfType<SurfaceManager>();
-			return;
-		}
-
 		SerializedProperty texture = property.FindPropertyRelative("texture");
 		SerializedProperty surfaceIndex = property.FindPropertyRelative("surfaceIndex");
 
@@ -30,14 +22,11 @@ public class MaterialDrawer : PropertyDrawer
 
 		// Draw the type field
 		position.x = position.xMax;
-		surfaceIndex.intValue = EditorGUI.Popup(position, surfaceIndex.intValue, this.surfManag.GetAllSurfaceNames());
+		surfaceIndex.intValue = EditorGUI.Popup(position, surfaceIndex.intValue, SurfaceManager.Instance.GetAllSurfaceNames());
 	}
 
 	//
-	public override float GetPropertyHeight( SerializedProperty property, GUIContent label )
-	{
-		return 32f;
-	}
+	public override float GetPropertyHeight(SerializedProperty property, GUIContent label) => 32f;
 }
 
 
@@ -48,7 +37,7 @@ class ObsoleteInspectorDrawer : PropertyDrawer
 {
 	public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 	{
-		System.ObsoleteAttribute obsoleteAttribute = ( System.ObsoleteAttribute ) System.Attribute.GetCustomAttribute(this.fieldInfo, typeof( System.ObsoleteAttribute ) );
+		System.ObsoleteAttribute obsoleteAttribute = ( System.ObsoleteAttribute ) System.Attribute.GetCustomAttribute(fieldInfo, typeof( System.ObsoleteAttribute ) );
 		EditorStyles.label.richText = true;
 		EditorGUI.PropertyField(position, property, new GUIContent("<color=red><i>" + label.text + "</i></color>", "**OBSOLETE**\n\n" + obsoleteAttribute.Message), true);
 		EditorStyles.label.richText = false;

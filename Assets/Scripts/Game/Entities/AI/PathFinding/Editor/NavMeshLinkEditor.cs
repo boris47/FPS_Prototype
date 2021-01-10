@@ -24,14 +24,14 @@ namespace UnityEditor.AI
 
         void OnEnable()
         {
-			this.m_AgentTypeID = this.serializedObject.FindProperty("m_AgentTypeID");
-			this.m_Area = this.serializedObject.FindProperty("m_Area");
-			this.m_CostModifier = this.serializedObject.FindProperty("m_CostModifier");
-			this.m_AutoUpdatePosition = this.serializedObject.FindProperty("m_AutoUpdatePosition");
-			this.m_Bidirectional = this.serializedObject.FindProperty("m_Bidirectional");
-			this.m_EndPoint = this.serializedObject.FindProperty("m_EndPoint");
-			this.m_StartPoint = this.serializedObject.FindProperty("m_StartPoint");
-			this.m_Width = this.serializedObject.FindProperty("m_Width");
+			m_AgentTypeID = serializedObject.FindProperty("m_AgentTypeID");
+			m_Area = serializedObject.FindProperty("m_Area");
+			m_CostModifier = serializedObject.FindProperty("m_CostModifier");
+			m_AutoUpdatePosition = serializedObject.FindProperty("m_AutoUpdatePosition");
+			m_Bidirectional = serializedObject.FindProperty("m_Bidirectional");
+			m_EndPoint = serializedObject.FindProperty("m_EndPoint");
+			m_StartPoint = serializedObject.FindProperty("m_StartPoint");
+			m_Width = serializedObject.FindProperty("m_Width");
 
             s_SelectedID = 0;
             s_SelectedPoint = -1;
@@ -73,19 +73,19 @@ namespace UnityEditor.AI
 
         public override void OnInspectorGUI()
         {
-			this.serializedObject.Update();
+			serializedObject.Update();
 
-            NavMeshComponentsGUIUtility.AgentTypePopup("Agent Type", this.m_AgentTypeID);
+            NavMeshComponentsGUIUtility.AgentTypePopup("Agent Type", m_AgentTypeID);
             EditorGUILayout.Space();
 
-            EditorGUILayout.PropertyField(this.m_StartPoint);
-            EditorGUILayout.PropertyField(this.m_EndPoint);
+            EditorGUILayout.PropertyField(m_StartPoint);
+            EditorGUILayout.PropertyField(m_EndPoint);
 
             GUILayout.BeginHorizontal();
             GUILayout.Space(EditorGUIUtility.labelWidth);
             if (GUILayout.Button("Swap"))
             {
-                foreach (NavMeshLink navLink in this.targets)
+                foreach (NavMeshLink navLink in targets)
                 {
 					Vector3 tmp = navLink.StartPoint;
                     navLink.StartPoint = navLink.EndPoint;
@@ -95,25 +95,25 @@ namespace UnityEditor.AI
             }
             if (GUILayout.Button("Align Transform"))
             {
-                foreach (NavMeshLink navLink in this.targets)
+                foreach (NavMeshLink navLink in targets)
                 {
                     Undo.RecordObject(navLink.transform, "Align Transform to End Points");
                     Undo.RecordObject(navLink, "Align Transform to End Points");
-					this.AlignTransformToEndPoints(navLink);
+					AlignTransformToEndPoints(navLink);
                 }
                 SceneView.RepaintAll();
             }
             GUILayout.EndHorizontal();
             EditorGUILayout.Space();
 
-            EditorGUILayout.PropertyField(this.m_Width);
-            EditorGUILayout.PropertyField(this.m_CostModifier);
-            EditorGUILayout.PropertyField(this.m_AutoUpdatePosition);
-            EditorGUILayout.PropertyField(this.m_Bidirectional);
+            EditorGUILayout.PropertyField(m_Width);
+            EditorGUILayout.PropertyField(m_CostModifier);
+            EditorGUILayout.PropertyField(m_AutoUpdatePosition);
+            EditorGUILayout.PropertyField(m_Bidirectional);
 
-            NavMeshComponentsGUIUtility.AreaPopup("Area Type", this.m_Area);
+            NavMeshComponentsGUIUtility.AreaPopup("Area Type", m_Area);
 
-			this.serializedObject.ApplyModifiedProperties();
+			serializedObject.ApplyModifiedProperties();
 
             EditorGUILayout.Space();
         }
@@ -185,7 +185,7 @@ namespace UnityEditor.AI
 
         public void OnSceneGUI()
         {
-			NavMeshLink navLink = (NavMeshLink)this.target;
+			NavMeshLink navLink = (NavMeshLink)target;
             if (!navLink.enabled)
                 return;
 

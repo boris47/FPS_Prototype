@@ -7,13 +7,13 @@ public class MenuFloatingItem : MonoBehaviour {
 
 	private void Awake()
 	{
-		this.transform.rotation = Random.rotation;
-		this.m_Speed = Random.value * 3f + 0.1f;
+		transform.rotation = Random.rotation;
+		m_Speed = Random.value * 3f + 0.1f;
 	}
 
 	private void Update()
 	{
-		this.transform.Rotate( Vector3.up, this.m_Speed * Time.deltaTime, Space.Self );
+		transform.Rotate( Vector3.up, m_Speed * Time.deltaTime, Space.Self );
 	}
 
 }

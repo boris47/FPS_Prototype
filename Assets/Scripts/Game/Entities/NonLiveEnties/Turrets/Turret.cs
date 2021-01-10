@@ -20,7 +20,7 @@ public abstract class Turret : NonLiveEntity {
 	protected	float			m_DamageMin					= 0.5f;
 
 	[SerializeField, ReadOnly]
-	protected	int				m_PoolSize					= 5;
+	protected	uint			m_PoolSize					= 5;
 
 	private		WPN_WeaponAttachment_LaserPointer			m_Laser						= null;
 
@@ -33,38 +33,36 @@ public abstract class Turret : NonLiveEntity {
 
 		// LOAD CONFIGURATION
 		{
-			GlobalManager.Configs.GetSection(this.m_SectionName, ref this.m_SectionRef );
-			if (this.m_SectionRef == null )
+			GlobalManager.Configs.GetSection(m_SectionName, ref m_SectionRef );
+			if (m_SectionRef == null )
 			{
-				print( "Cannot find cfg section for entity " + this.name );
-				Destroy(this.gameObject );
+				print( "Cannot find cfg section for entity " + name );
+				Destroy(gameObject );
 				return;
 			}
 
-			this.m_Health				= this.m_SectionRef.AsFloat( "Health", 60.0f );
+			m_Health				= m_SectionRef.AsFloat( "Health", 60.0f );
 
-			if (this.m_Shield != null )
+			if (m_Shield != null )
 			{
-				float shieldStatus	= this.m_SectionRef.AsFloat( "Shield", 0.0f );
-				this.m_Shield.Setup( shieldStatus, EShieldContext.ENTITY );
+				float shieldStatus	= m_SectionRef.AsFloat( "Shield", 0.0f );
+				m_Shield.Setup( shieldStatus, EShieldContext.ENTITY );
 			};
 
-			this.m_DamageMax				= this.m_SectionRef.AsFloat( "DamageMax", 2.0f );
-			this.m_DamageMin				= this.m_SectionRef.AsFloat( "DamageMin", 0.5f );
-			this.m_PoolSize					= this.m_SectionRef.AsInt( "PoolSize", this.m_PoolSize );
+			m_DamageMax				= m_SectionRef.AsFloat( "DamageMax", 2.0f );
+			m_DamageMin				= m_SectionRef.AsFloat( "DamageMin", 0.5f );
+			m_PoolSize				= m_SectionRef.AsUInt( "PoolSize", m_PoolSize );
 
-			this.m_EntityType				= EEntityType.ROBOT;
+			m_EntityType			= EEntityType.ROBOT;
 		}
 
 		// BULLETS POOL CREATION
-		if (this.m_Pool == null )		// check for respawn
+		if (m_Pool == null )		// check for respawn
 		{
-			GameObject	bulletGO		= this.m_Bullet.gameObject;
-			GameObjectsPoolConstructorData<Bullet> data = new GameObjectsPoolConstructorData<Bullet>()
+			GameObject	bulletGO		= m_Bullet.gameObject;
+			GameObjectsPoolConstructorData<Bullet> data = new GameObjectsPoolConstructorData<Bullet>(bulletGO, m_PoolSize)
 			{
-				Model					= bulletGO,
-				Size					= ( uint )this.m_PoolSize,
-				ContainerName			= this.name + "BulletPool",
+				ContainerName			= name + "BulletPool",
 				CoroutineEnumerator		= null,
 				IsAsyncBuild			= true,
 				ActionOnObject			= ( Bullet o ) =>
@@ -80,10 +78,10 @@ public abstract class Turret : NonLiveEntity {
 //					Player.Instance.DisableCollisionsWith( o.Collider, bAlsoTriggerCollider: false );
 				}
 			};
-			this.m_Pool = new GameObjectsPool<Bullet>( data );
+			m_Pool = new GameObjectsPool<Bullet>( data );
 		}
-		this.m_Pool.SetActive( true );
-		this.m_ShotTimer = 0f;
+		m_Pool.SetActive( true );
+		m_ShotTimer = 0f;
 
 
 	}
@@ -92,10 +90,10 @@ public abstract class Turret : NonLiveEntity {
 	{
 		base.OnEnable();
 
-		this.m_Laser = this.GetComponentInChildren<WPN_WeaponAttachment_LaserPointer>();
-		if (this.m_Laser != null )
+		m_Laser = GetComponentInChildren<WPN_WeaponAttachment_LaserPointer>();
+		if (m_Laser != null )
 		{
-			this.m_Laser.LaserLength = this.Brain.FieldOfView.Distance;
+			m_Laser.LaserLength = Brain.FieldOfView.Distance;
 //			m_Laser.LayerMaskToExclude = LayerMask.NameToLayer("Bullets");
 		}
 
@@ -116,7 +114,7 @@ public abstract class Turret : NonLiveEntity {
 	{
 		base.OnKill();
 		//		m_Pool.SetActive( false );
-		this.gameObject.SetActive( false );
+		gameObject.SetActive( false );
 	}
 	
 	//////////////////////////////////////////////////////////////////////////
@@ -132,27 +130,27 @@ public abstract class Turret : NonLiveEntity {
 
 		// GUN
 		{
-			Vector3 pointToLookAt = this.m_LookData.PointToLookAt;
-			if (this.m_TargetInfo.HasTarget == true ) // PREDICTION
+			Vector3 pointToLookAt = m_LookData.PointToLookAt;
+			if (m_TargetInfo.HasTarget == true ) // PREDICTION
 			{
 				// Vector3 shooterPosition, Vector3 shooterVelocity, float shotSpeed, Vector3 targetPosition, Vector3 targetVelocity
 				pointToLookAt = Utils.Math.CalculateBulletPrediction
 				(
-					shooterPosition: this.m_GunTransform.position,
+					shooterPosition: m_GunTransform.position,
 					shooterVelocity:	Vector3.zero,
-					shotSpeed: this.m_Pool.PeekComponent<IBullet>().Velocity,
-					targetPosition: this.m_TargetInfo.CurrentTarget.AsEntity.transform.position,
-					targetVelocity: this.m_TargetInfo.CurrentTarget.RigidBody.velocity
+					shotSpeed: m_Pool.TryPeekComponentAs<IBullet>().Velocity,
+					targetPosition: m_TargetInfo.CurrentTarget.AsEntity.transform.position,
+					targetVelocity: m_TargetInfo.CurrentTarget.RigidBody.velocity
 				);
 			}
 
-			Vector3 dirToPosition = ( pointToLookAt - this.m_GunTransform.position );
-			if (this.m_IsAllignedHeadToPoint == true )
+			Vector3 dirToPosition = ( pointToLookAt - m_GunTransform.position );
+			if (m_IsAllignedHeadToPoint == true )
 			{
-				this.m_RotationToAllignTo.SetLookRotation( dirToPosition, this.m_BodyTransform.up );
-				this.m_GunTransform.rotation = Quaternion.RotateTowards(this.m_GunTransform.rotation, this.m_RotationToAllignTo, this.m_GunRotationSpeed * Time.deltaTime );
+				m_RotationToAllignTo.SetLookRotation( dirToPosition, m_BodyTransform.up );
+				m_GunTransform.rotation = Quaternion.RotateTowards(m_GunTransform.rotation, m_RotationToAllignTo, m_GunRotationSpeed * Time.deltaTime );
 			}
-			this.m_IsAllignedGunToPoint = Vector3.Angle(this.m_GunTransform.forward, dirToPosition ) < 16f;
+			m_IsAllignedGunToPoint = Vector3.Angle(m_GunTransform.forward, dirToPosition ) < 16f;
 		}
 	}
 
@@ -161,14 +159,14 @@ public abstract class Turret : NonLiveEntity {
 	
 	public	override		void	FireLongRange()
 	{
-		if (this.m_ShotTimer > 0 )
+		if (m_ShotTimer > 0 )
 				return;
 
-		this.m_ShotTimer = this.m_ShotDelay;
+		m_ShotTimer = m_ShotDelay;
 		
-		IBullet bullet = this.m_Pool.GetNextComponent();
-		bullet.Shoot( position: this.m_FirePoint.position, direction: this.m_FirePoint.forward );
+		IBullet bullet = m_Pool.GetNextComponent();
+		bullet.Shoot( position: m_FirePoint.position, direction: m_FirePoint.forward, velocity: null );
 
-		this.m_FireAudioSource.Play();
+		m_FireAudioSource.Play();
 	}
 }

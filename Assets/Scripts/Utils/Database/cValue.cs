@@ -10,8 +10,8 @@ namespace Database
 		///////////////////////////////////////////////////////////////////////////////
 		public	Value( object value )
 		{
-			this.m_Value = value;
-			this.m_Type = value.GetType();
+			m_Value = value;
+			m_Type = value.GetType();
 		}
 
 
@@ -19,7 +19,7 @@ namespace Database
 		public	bool	Is<T>()
 		{	
 			System.Type requiredType = typeof(T);
-			return this.m_Type == requiredType;
+			return m_Type == requiredType;
 		}
 
 
@@ -28,7 +28,7 @@ namespace Database
 		{
 			try
 			{
-				T result = (T) System.Convert.ChangeType(this.m_Value, typeof(T) );
+				T result = (T) System.Convert.ChangeType(m_Value, typeof(T) );
 				return result;
 			}
 			catch( System.Exception e )
@@ -42,7 +42,7 @@ namespace Database
 		///////////////////////////////////////////////////////////////////////////////
 		public	new 	System.Type	GetType()
 		{
-			return this.m_Type;
+			return m_Type;
 		}
 
 
@@ -50,13 +50,13 @@ namespace Database
 		private string InternalToString()
 		{
 			string result = null;
-			if (this.m_Type == typeof(float) )
+			if (m_Type == typeof(float) )
 			{
-				result = ((float)this.m_Value).ToString("0.0000000");
+				result = ((float)m_Value).ToString("0.0000000");
 			}
 			else
 			{
-				result = this.m_Value.ToString();
+				result = m_Value.ToString();
 			}
 
 			return result;
@@ -64,11 +64,11 @@ namespace Database
 
 		///////////////////////////////////////////////////////////////////////////////
 
-		public	bool			ToBool()			{	return this.As<bool>();			}
-		public	int				ToInteger()			{	return this.As<int>();			}
-		public	float			ToFloat()			{	return this.As<float>();			}
-		public override string	ToString()			{	return this.InternalToString();	}
-		public	object			ToSystemObject()	{	return this.m_Value;				}
+		public	bool			ToBool()			{	return As<bool>();			}
+		public	int				ToInteger()			{	return As<int>();			}
+		public	float			ToFloat()			{	return As<float>();			}
+		public override string	ToString()			{	return InternalToString();	}
+		public	object			ToSystemObject()	{	return m_Value;				}
 
 
 		///////////////////////////////////////////////////////////////////////////////

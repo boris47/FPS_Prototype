@@ -21,16 +21,16 @@
             Rect position,
             TypeDropDownDrawer dropDownDrawer)
         {
-			this._serializedTypeRef = serializedTypeRef;
-			this._position = position;
-			this._dropDownDrawer = dropDownDrawer;
+			_serializedTypeRef = serializedTypeRef;
+			_position = position;
+			_dropDownDrawer = dropDownDrawer;
         }
 
         public void Draw()
         {
             bool valueToRestore = EditorGUI.showMixedValue;
-            EditorGUI.showMixedValue = this._serializedTypeRef.TypeNameHasMultipleDifferentValues;
-			this.DrawTypeSelectionControl();
+            EditorGUI.showMixedValue = _serializedTypeRef.TypeNameHasMultipleDifferentValues;
+			DrawTypeSelectionControl();
             EditorGUI.showMixedValue = valueToRestore;
         }
 
@@ -39,19 +39,19 @@
             int controlID = GUIUtility.GetControlID(
                 CachedTypeReference.ControlHint,
                 FocusType.Keyboard,
-				this._position);
+				_position);
 
-			this._triggerDropDown = false;
+			_triggerDropDown = false;
 
-			this.ReactToCurrentEvent(controlID);
+			ReactToCurrentEvent(controlID);
 
-            if ( !this._triggerDropDown)
+            if ( !_triggerDropDown)
                 return;
 
             CachedTypeReference.SelectionControlID = controlID;
-            CachedTypeReference.SelectedTypeNameAndAssembly = this._serializedTypeRef.TypeNameAndAssembly;
+            CachedTypeReference.SelectedTypeNameAndAssembly = _serializedTypeRef.TypeNameAndAssembly;
 
-			this._dropDownDrawer.Draw(this._position);
+			_dropDownDrawer.Draw(_position);
         }
 
         private void ReactToCurrentEvent(int controlID)
@@ -60,31 +60,31 @@
             {
                 case EventType.ExecuteCommand:
                     if (Event.current.commandName == CachedTypeReference.ReferenceUpdatedCommandName)
-						this.OnTypeReferenceUpdated(controlID);
+						OnTypeReferenceUpdated(controlID);
 
                     break;
 
                 case EventType.MouseDown:
-					this.OnMouseDown(controlID);
+					OnMouseDown(controlID);
                     break;
 
                 case EventType.KeyDown:
-					this.OnKeyDown(controlID);
+					OnKeyDown(controlID);
                     break;
 
                 case EventType.Repaint:
-					this.DrawFieldContent(controlID);
+					DrawFieldContent(controlID);
                     break;
             }
         }
 
         private void OnMouseDown(int controlID)
         {
-            if (!GUI.enabled || !this._position.Contains(Event.current.mousePosition))
+            if (!GUI.enabled || !_position.Contains(Event.current.mousePosition))
                 return;
 
             GUIUtility.keyboardControl = controlID;
-			this._triggerDropDown = true;
+			_triggerDropDown = true;
             Event.current.Use();
         }
 
@@ -98,31 +98,31 @@
 
             if (keyboardFocusIsOnElement && necessaryKeyIsDown)
             {
-				this._triggerDropDown = true;
+				_triggerDropDown = true;
                 Event.current.Use();
             }
         }
 
         private void DrawFieldContent(int controlID)
         {
-            CachedTypeReference.FieldContent.text = this.GetTypeNameForField();
-            EditorStyles.popup.Draw(this._position, CachedTypeReference.FieldContent, controlID);
+            CachedTypeReference.FieldContent.text = GetTypeNameForField();
+            EditorStyles.popup.Draw(_position, CachedTypeReference.FieldContent, controlID);
         }
 
         private string GetTypeNameForField()
         {
-			string[] typeParts = this._serializedTypeRef.TypeNameAndAssembly.Split(',');
+			string[] typeParts = _serializedTypeRef.TypeNameAndAssembly.Split(',');
             string typeName = typeParts[0].Trim();
 
             if (typeName == string.Empty)
             {
                 typeName = TypeReference.NoneElement;
             }
-            else if (CachedTypeReference.GetType(this._serializedTypeRef.TypeNameAndAssembly) == null)
+            else if (CachedTypeReference.GetType(_serializedTypeRef.TypeNameAndAssembly) == null)
             {
-				this._serializedTypeRef.TryUpdatingTypeUsingGUID();
+				_serializedTypeRef.TryUpdatingTypeUsingGUID();
 
-                if (CachedTypeReference.GetType(this._serializedTypeRef.TypeNameAndAssembly) == null)
+                if (CachedTypeReference.GetType(_serializedTypeRef.TypeNameAndAssembly) == null)
                     typeName += MissingSuffix;
             }
 
@@ -134,9 +134,9 @@
             if (CachedTypeReference.SelectionControlID != controlID)
                 return;
 
-            if (this._serializedTypeRef.TypeNameAndAssembly != CachedTypeReference.SelectedTypeNameAndAssembly)
+            if (_serializedTypeRef.TypeNameAndAssembly != CachedTypeReference.SelectedTypeNameAndAssembly)
             {
-				this._serializedTypeRef.TypeNameAndAssembly = CachedTypeReference.SelectedTypeNameAndAssembly;
+				_serializedTypeRef.TypeNameAndAssembly = CachedTypeReference.SelectedTypeNameAndAssembly;
                 GUI.changed = true;
             }
 

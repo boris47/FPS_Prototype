@@ -3,11 +3,15 @@
 ; Must start with "WPN_FireMode_"
 ;; SINGLE SHOT
 [WPN_FireMode_Single]
+DispersionMultiplier		= 0.5;
+DeviationMultiplier			= 0.45;
 
 
 
 ;; BURST SEMI
 [WPN_FireMode_Burst]
+DispersionMultiplier		= 1.0;
+DeviationMultiplier			= 1.3;
 BurstSize					= 3;
 ApplyDeviationOnLastShot	= false;
 
@@ -15,6 +19,8 @@ ApplyDeviationOnLastShot	= false;
 
 ;; BURST AUTO
 [WPN_FireMode_BurstAuto]
+DispersionMultiplier		= 1.1;
+DeviationMultiplier			= 1.5;
 BurstSize					= 3;
 ApplyDeviationOnLastShot	= false;
 
@@ -22,10 +28,14 @@ ApplyDeviationOnLastShot	= false;
 
 ;; FULL AUTO
 [WPN_FireMode_Auto]
+DispersionMultiplier		= 1.2;
+DeviationMultiplier			= 1.3;
 
 
 
 ;; FULL AUTO INCREMENTAL
 [WPN_FireMode_Auto_Incremental]
+DispersionMultiplier		= 1.5;
+DeviationMultiplier			= 1.2;
 IncremetalSpeed				= 0.1;
 MaxIncrement				= 5.0;

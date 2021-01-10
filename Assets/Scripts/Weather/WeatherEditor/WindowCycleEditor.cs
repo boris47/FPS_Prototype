@@ -70,37 +70,37 @@ namespace WeatherSystem {
 		{
 			// LIGHT CONTROL FOR SUN SIMULATION
 			string timeAsString = string.Empty;
-			WeatherManager.TransformTime( WeatherManager.DAY_LENGTH * this.m_CurrentTime, ref timeAsString, false );
+			WeatherManager.TransformTime( WeatherManager.DAY_LENGTH * m_CurrentTime, ref timeAsString, false );
 
 			GUILayout.Label( timeAsString );
-			this.m_CurrentTime = EditorGUILayout.Slider(this.m_CurrentTime, 0.0001f, 1.0f );
-			if (this.m_CurrentTime != this.m_PrevTime )
+			m_CurrentTime = EditorGUILayout.Slider(m_CurrentTime, 0.0001f, 1.0f );
+			if (m_CurrentTime != m_PrevTime )
 			{
-				WindowWeatherEditor.GetWMGR().INTERNAL_StartSelectDescriptors( WeatherManager.DAY_LENGTH * this.m_CurrentTime, this.m_CurrentCycle );
+				WindowWeatherEditor.GetWMGR().INTERNAL_StartSelectDescriptors( WeatherManager.DAY_LENGTH * m_CurrentTime, m_CurrentCycle );
 			}
-			this.m_PrevTime = this.m_CurrentTime;
+			m_PrevTime = m_CurrentTime;
 
-			WindowWeatherEditor.GetWMGR().EDITOR_DayTimeNow = WeatherManager.DAY_LENGTH * this.m_CurrentTime;
+			WindowWeatherEditor.GetWMGR().EDITOR_DayTimeNow = WeatherManager.DAY_LENGTH * m_CurrentTime;
 
 
 			// CONFIG FILE
 			if ( GUILayout.Button( "Read Config File" ) )
 			{
 				string path = EditorUtility.OpenFilePanel( "Pick a config file", "", "txt" );
-				this.m_CurrentCycle.LoadFromPresetFile( path );
+				m_CurrentCycle.LoadFromPresetFile( path );
 			}
 
 			for ( int i = 0; i < 24; i++ )
 			{
 				float bo = ( 360f / 12f * (float)i );
 				
-				EnvDescriptor thisDescriptor = this.m_CurrentCycle.LoadedDescriptors[ i ];
+				EnvDescriptor thisDescriptor = m_CurrentCycle.LoadedDescriptors[ i ];
 
-				if ( i > 0 && this.m_CurrentCycle.LoadedDescriptors[ i - 1 ].set == false )
+				if ( i > 0 && m_CurrentCycle.LoadedDescriptors[ i - 1 ].set == false )
 					return;
 
 				// BACKGROUND COLOR ADAPTED
-				this.m_OriginalColor = GUI.backgroundColor;
+				m_OriginalColor = GUI.backgroundColor;
 				
 				GUI.backgroundColor = GetColor( thisDescriptor );
 				{
@@ -108,17 +108,17 @@ namespace WeatherSystem {
 					Rect btnRect = new Rect( Screen.width/2 + Mathf.Sin( bo * Mathf.Deg2Rad ) * twentyFourVis, Screen.height/2 - Mathf.Cos( bo * Mathf.Deg2Rad ) * twentyFourVis, 50f, 25f );
 					if ( GUI.Button( btnRect, thisDescriptor.Identifier ) == true )
 					{
-						if ( i > 0 && this.m_CurrentCycle.LoadedDescriptors[ i - 1 ].set == true && thisDescriptor.set == false )
+						if ( i > 0 && m_CurrentCycle.LoadedDescriptors[ i - 1 ].set == true && thisDescriptor.set == false )
 						{
-							EnvDescriptor loaded = this.m_CurrentCycle.LoadedDescriptors[ i - 1 ];
+							EnvDescriptor loaded = m_CurrentCycle.LoadedDescriptors[ i - 1 ];
 							EnvDescriptor.Copy( ref thisDescriptor, loaded );
 						}
 
 						WindowDescriptorEditor.Init( thisDescriptor );
-						EditorUtility.SetDirty(this.m_CurrentCycle );
+						EditorUtility.SetDirty(m_CurrentCycle );
 					}
 				}
-				GUI.backgroundColor = this.m_OriginalColor;
+				GUI.backgroundColor = m_OriginalColor;
 				// BACKGROUND COLOR RESET
 			}
 		}
@@ -142,10 +142,10 @@ namespace WeatherSystem {
 			if ( WindowDescriptorEditor.m_Window != null )
 				WindowDescriptorEditor.m_Window.Close();
 
-			EditorUtility.SetDirty(this.m_CurrentCycle );
+			EditorUtility.SetDirty(m_CurrentCycle );
 			AssetDatabase.SaveAssets();
 
-			WeatherManager.Editor.INTERNAL_Start(this.m_CurrentCycle, Random.value );
+			WeatherManager.Editor.INTERNAL_Start(m_CurrentCycle, Random.value );
 			WeatherManager.Editor.EDITOR_EditorDescriptorLinked = false;
 			WeatherManager.Editor.EDITOR_EditorCycleLinked = false;
 		}

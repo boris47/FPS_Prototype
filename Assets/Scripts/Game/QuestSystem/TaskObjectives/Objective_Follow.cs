@@ -4,34 +4,34 @@ using UnityEngine;
 
 namespace QuestSystem {
 
-	public class Objective_Follow : Objective_Base {
-		
+	public class Objective_Follow : Objective_Base
+	{	
 		[SerializeField]
 		private		GameObject	m_ObjectToFollow = null;
 
 		//////////////////////////////////////////////////////////////////////////
 		// Initialize ( IStateDefiner )
-		protected		override	bool		InitializeInternal( ITask motherTask, System.Action<IObjective> onCompletionCallback, System.Action<IObjective> onFailureCallback )
+		protected		override	bool		InitializeInternal( Task motherTask, System.Action<Objective_Base> onCompletionCallback, System.Action<Objective_Base> onFailureCallback )
 		{
-			if (this.m_IsInitialized == true )
+			if (m_IsInitialized == true )
 				return true;
 
-			this.m_IsInitialized = true;
+			m_IsInitialized = true;
 
-			this.m_OnCompletionCallback = onCompletionCallback;
-			this.m_OnFailureCallback = onFailureCallback;
+			m_OnCompletionCallback = onCompletionCallback;
+			m_OnFailureCallback = onFailureCallback;
 			motherTask.AddObjective( this );
 
-			if ( Utils.Base.SearchComponent( this.gameObject, out Entity entity, ESearchContext.LOCAL ) )
+			if ( Utils.Base.SearchComponent( gameObject, out Entity entity, ESearchContext.LOCAL ) )
 			{
-				entity.OnEvent_Killed += this.OnKill;
+				entity.OnEvent_Killed += OnKill;
 			}
 
 			bool bIsGoodResult = true;
 			{
-				if (this.m_ObjectToFollow == null )
+				if (m_ObjectToFollow == null )
 				{
-					this.m_ObjectToFollow = this.gameObject;
+					m_ObjectToFollow = gameObject;
 				}
 			}
 			return bIsGoodResult;
@@ -74,7 +74,7 @@ namespace QuestSystem {
 		// Activate ( IObjective )
 		protected		override	void		ActivateInternal()
 		{
-			UIManager.Indicators.EnableIndicator(this.m_ObjectToFollow, EIndicatorType.OBJECT_TO_FOLLOW, bMustBeClamped: true );
+			UIManager.Indicators.EnableIndicator(m_ObjectToFollow, EIndicatorType.OBJECT_TO_FOLLOW, bMustBeClamped: true );
 		}
 
 
@@ -82,7 +82,7 @@ namespace QuestSystem {
 		// Deactivate ( IObjective )
 		protected		override	void		DeactivateInternal()
 		{
-			UIManager.Indicators.DisableIndicator(this.m_ObjectToFollow );
+			UIManager.Indicators.DisableIndicator(m_ObjectToFollow );
 		}
 
 
@@ -90,9 +90,9 @@ namespace QuestSystem {
 		// OnFollowDoneCompleted
 		public	void	OnFollowDoneCompleted()
 		{
-			this.Deactivate();
+			Deactivate();
 
-			this.OnObjectiveCompleted();
+			OnObjectiveCompleted();
 		}
 
 
@@ -102,9 +102,9 @@ namespace QuestSystem {
 		// OnKill
 		private void OnKill( Entity entityKilled )
 		{
-			this.Deactivate();
+			Deactivate();
 
-			this.OnObjectiveFailed();
+			OnObjectiveFailed();
 			//OnObjectiveCompleted();
 		}
 

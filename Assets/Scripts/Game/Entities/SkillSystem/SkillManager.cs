@@ -19,9 +19,9 @@ public class EntityMultliers {
 	public	bool	AddMultiplier( string Key, float Value )
 	{
 		bool result = false;
-		if (this.m_Skills.ContainsKey( Key ) == false )
+		if (m_Skills.ContainsKey( Key ) == false )
 		{
-			this.m_Skills.Add( Key, Value );
+			m_Skills.Add( Key, Value );
 			result = true;
 		}
 		return result;
@@ -35,9 +35,9 @@ public class EntityMultliers {
 	public	bool	RemoveMultiplier( string Key )
 	{
 		bool result = false;
-		if (this.m_Skills.ContainsKey( Key ) == true )
+		if (m_Skills.ContainsKey( Key ) == true )
 		{
-			this.m_Skills.Remove( Key );
+			m_Skills.Remove( Key );
 			result = true;
 		}
 		return result;
@@ -52,9 +52,9 @@ public class EntityMultliers {
 	public	float	GetMultiplier( string Key, float Default = 1.0f )
 	{
 		float result = Default;
-		if (this.m_Skills.ContainsKey( Key ) == true )
+		if (m_Skills.ContainsKey( Key ) == true )
 		{
-			result = this.m_Skills[ Key ];
+			result = m_Skills[ Key ];
 		}
 		return result;
 	}
@@ -68,7 +68,7 @@ public class EntityMultliers {
 	/// <returns></returns>
 	public	bool	GetMultiplier( string Key, out float Value, float Default = 1.0f )
 	{
-		bool result = this.m_Skills.TryGetValue( Key, out Value );
+		bool result = m_Skills.TryGetValue( Key, out Value );
 		if ( result == false )
 		{
 			Value = Default;

@@ -7,7 +7,7 @@ public class WPN_FireModule_Blaster : WPN_FireModule_Barrel
 {
 	protected override void InternalUpdate( float DeltaTime )
 	{
-		this.m_WpnFireMode.InternalUpdate( DeltaTime, this.m_Magazine );
+		m_WpnFireMode.InternalUpdate( DeltaTime, m_Magazine );
 	}
 
 	public override void ApplyModifier( Database.Section modifier )

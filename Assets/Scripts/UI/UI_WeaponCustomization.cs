@@ -15,9 +15,9 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 
 	private		bool			m_IsInitialized		= false;
 
-	bool IStateDefiner.IsInitialized => this.m_IsInitialized;
+	bool IStateDefiner.IsInitialized => m_IsInitialized;
 
-	string IStateDefiner.StateName => this.name;
+	string IStateDefiner.StateName => name;
 
 	private readonly Dictionary<EWeaponSlots, Database.Section> m_CurrentAssignedModuleSections = new Dictionary<EWeaponSlots, Database.Section>()
 	{
@@ -27,32 +27,35 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 	};
 
 	//////////////////////////////////////////////////////////////////////////
+	public void PreInit() { }
+
+	//////////////////////////////////////////////////////////////////////////
 	// Initialize
 	IEnumerator	IStateDefiner.Initialize()
 	{
-		if (this.m_IsInitialized == true )
+		if (m_IsInitialized == true )
 			yield break;
 
 //		CoroutinesManager.AddCoroutineToPendingCount( 1 );
 
-		Transform child = this.transform.Find("CustomizationPanel");
-		if (this.m_IsInitialized = ( child != null ) )
+		Transform child = transform.Find("CustomizationPanel");
+		if (m_IsInitialized = ( child != null ) )
 		{
-			this.m_IsInitialized &= child.SearchComponentInChild( "ModulePrimaryDropdown", ref this.m_PrimaryDropDown );
-			this.m_IsInitialized &= child.SearchComponentInChild( "ModuleSecondaryDropdown", ref this.m_SecondaryDropDown );
-			this.m_IsInitialized &= child.SearchComponentInChild( "ModuleTertiaryDropdown", ref this.m_TertiaryDropDown );
+			m_IsInitialized &= child.SearchComponentInChild( "ModulePrimaryDropdown", ref m_PrimaryDropDown );
+			m_IsInitialized &= child.SearchComponentInChild( "ModuleSecondaryDropdown", ref m_SecondaryDropDown );
+			m_IsInitialized &= child.SearchComponentInChild( "ModuleTertiaryDropdown", ref m_TertiaryDropDown );
 
 			yield return null;
 
 			// APPLY BUTTON
-			if (this.m_IsInitialized &= this.transform.SearchComponentInChild( "ApplyButton", ref this.m_ApplyButton ) )
+			if (m_IsInitialized &= transform.SearchComponentInChild( "ApplyButton", ref m_ApplyButton ) )
 			{
-				this.m_ApplyButton.interactable = false;
-				this.m_ApplyButton.onClick.AddListener
+				m_ApplyButton.interactable = false;
+				m_ApplyButton.onClick.AddListener
 				(	
 					delegate()
 					{
-						UIManager.Confirmation.Show( "Apply Changes?", this.OnApply, delegate { this.OnEnable(); } );
+						UIManager.Confirmation.Show( "Apply Changes?", OnApply, delegate { OnEnable(); } );
 					}
 				);
 			}
@@ -60,22 +63,22 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 			yield return null;
 
 			// SWITCH TO INVENTORY
-			if (this.m_IsInitialized &= this.transform.SearchComponentInChild( "SwitchToInventory", ref this.m_SwitchToInventory ) )
+			if (m_IsInitialized &= transform.SearchComponentInChild( "SwitchToInventory", ref m_SwitchToInventory ) )
 			{
-				this.m_SwitchToInventory.onClick.AddListener
+				m_SwitchToInventory.onClick.AddListener
 				(
-					this.OnSwitchToInventory
+					OnSwitchToInventory
 				);
 			}
 
 			yield return null;
 
 			// RETURN TO GAME
-			if (this.m_IsInitialized &= this.transform.SearchComponentInChild( "ReturnToGame", ref this.m_ReturnToGame ) )
+			if (m_IsInitialized &= transform.SearchComponentInChild( "ReturnToGame", ref m_ReturnToGame ) )
 			{
-				this.m_ReturnToGame.onClick.AddListener
+				m_ReturnToGame.onClick.AddListener
 				(
-					this.OnReturnToGame
+					OnReturnToGame
 				);
 			}
 
@@ -98,7 +101,7 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 	// Finalize
 	bool	 IStateDefiner.Finalize()
 	{
-		return this.m_IsInitialized;
+		return m_IsInitialized;
 	}
 
 
@@ -106,28 +109,28 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 	// OnEnable
 	private void OnEnable()
 	{
-		if (this.m_IsInitialized == false )
+		if (m_IsInitialized == false )
 		{
 			return;
 		}
 
 		Database.Section[] fireModules		= GlobalManager.Configs.GetSectionsByContext( "WeaponFireModules" );
-		Database.Section[] utiliyModules	= GlobalManager.Configs.GetSectionsByContext( "WeaponUtilityModules" );
+		Database.Section[] utilityModules	= GlobalManager.Configs.GetSectionsByContext( "WeaponUtilityModules" );
 
 		List<Database.Section> allModules = new List<Database.Section>();
 		{
 			allModules.AddRange( fireModules );
-			allModules.AddRange( utiliyModules );
+			allModules.AddRange( utilityModules );
 		}
 
 		// PRIMARY
-		this.FillDropdown(this.m_PrimaryDropDown,	allModules, EWeaponSlots.PRIMARY );
+		FillDropdown(m_PrimaryDropDown,	allModules, EWeaponSlots.PRIMARY );
 
 		// SECONDARY
-		this.FillDropdown(this.m_SecondaryDropDown,	allModules, EWeaponSlots.SECONDARY );
+		FillDropdown(m_SecondaryDropDown,	allModules, EWeaponSlots.SECONDARY );
 
 		// TERTIARY
-		this.FillDropdown(this.m_TertiaryDropDown,	allModules, EWeaponSlots.TERTIARY );
+		FillDropdown(m_TertiaryDropDown,	allModules, EWeaponSlots.TERTIARY );
 
 
 		GlobalManager.InputMgr.SetCategory(EInputCategory.CAMERA, false);
@@ -158,7 +161,7 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 		List<Database.Section> filtered = new List<Database.Section>();
 		foreach( Database.Section current in allModules )
 		{
-			if ( slotModule.CanAssignModule( current, alreadyAssignedModules: alreadyAssignedModules ) )
+			if ( slotModule.CanAssignModule( current, alreadyAssignedModules ) )
 			{
 				filtered.Add( current );
 			}
@@ -171,15 +174,16 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 		);
 		thisDropdown.AddOptions( ui_Names );
 
-		this.m_CurrentAssignedModuleSections[slot] = new Database.Section( alreadyAssignedModules[(int)slot], "" );
+		string currentAssigned = alreadyAssignedModules[(int) slot];
+		m_CurrentAssignedModuleSections[slot] = new Database.Section( currentAssigned, "" );
 
 		// Search current Value
-		thisDropdown.value = filtered.FindIndex( s => s.GetSectionName() == alreadyAssignedModules[(int)slot] );
+		thisDropdown.value = filtered.FindIndex( s => s.GetSectionName() == currentAssigned );
 
 		thisDropdown.onValueChanged.RemoveAllListeners();
 		void callback(int moduleIndex)
 		{
-			this.OnModuleChanged( slot, filtered[moduleIndex] );
+			OnModuleChanged( slot, filtered[moduleIndex] );
 		}
 		thisDropdown.onValueChanged.AddListener( callback );
 	}
@@ -191,9 +195,9 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 	// OnModuleChanged
 	private	void	OnModuleChanged( EWeaponSlots slot, Database.Section choosenModuleSection )
 	{
-		this.m_CurrentAssignedModuleSections[slot] = choosenModuleSection;
+		m_CurrentAssignedModuleSections[slot] = choosenModuleSection;
 
-		this.m_ApplyButton.interactable = true;
+		m_ApplyButton.interactable = true;
 
 		/*
 		WeaponModuleSlot slotModule = null;
@@ -207,7 +211,7 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 	//////////////////////////////////////////////////////////////////////////
 	private void	OnApply()
 	{
-		foreach( KeyValuePair<EWeaponSlots, Database.Section> pair in this.m_CurrentAssignedModuleSections )
+		foreach( KeyValuePair<EWeaponSlots, Database.Section> pair in m_CurrentAssignedModuleSections )
 		{
 			WeaponModuleSlot slotModule = null;
 			WeaponManager.Instance.CurrentWeapon.bGetModuleSlot( pair.Key, ref slotModule );
@@ -238,7 +242,7 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 	// OnDisable
 	private void OnDisable()
 	{
-		if (this.m_IsInitialized == false )
+		if (m_IsInitialized == false )
 		{
 			return;
 		}

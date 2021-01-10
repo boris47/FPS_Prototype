@@ -5,12 +5,12 @@ using UnityEngine;
 public	static	class	PickupableItemSpawner {
 
 	//////////////////////////////////////////////////////////////////////////
-	public	static	bool	Spawn<Colider>( string PickupSectionName, Vector3 Position, Quaternion Rotation ) where Colider : Collider
+	public	static	bool	Spawn<T>( string PickupSectionName, Vector3 Position, Quaternion Rotation ) where T : Collider
 	{
 		GameObject go = new GameObject();
 
 		// Collider
-		Collider collider = go.AddComponent<Colider>();
+		Collider collider = go.AddComponent<T>();
 		collider.isTrigger = true;
 
 		// Pickupable component

@@ -19,7 +19,7 @@ public abstract partial class Entity : IBrain {
 	public	const		float						THINK_TIMER						= 0.2f; // 200 ms
 
 	private				IBrain						m_BrainInstance					= null;
-	public				IBrain						Brain							{ get { return this.m_BrainInstance; } }
+	public				IBrain						Brain							{ get { return m_BrainInstance; } }
 
 	[Header( "Brain" )]
 
@@ -27,8 +27,8 @@ public abstract partial class Entity : IBrain {
 	protected			EBrainState					m_CurrentBrainState				= EBrainState.COUNT;
 
 	// INTERFACE START
-						IFieldOfView				IBrain.FieldOfView				{	get { return this.m_FieldOfView;				}	}
-						EBrainState					IBrain.State					{	get { return this.m_CurrentBrainState;		}	}
+						IFieldOfView				IBrain.FieldOfView				{	get { return m_FieldOfView;				}	}
+						EBrainState					IBrain.State					{	get { return m_CurrentBrainState;		}	}
 	// INTERFACE END
 
 	[SerializeField]
@@ -45,11 +45,11 @@ public abstract partial class Entity : IBrain {
 	//////////////////////////////////////////////////////////////////////////
 	protected	void	Brain_Setup()
 	{
-		this.m_FieldOfView.Setup( maxVisibleEntities : 10 );
+		m_FieldOfView.Setup( maxVisibleEntities : 10 );
 
-		this.m_BrainInstance = this;
+		m_BrainInstance = this;
 
-		this.EnableMemory();
+		EnableMemory();
 	}
 
 
@@ -57,9 +57,9 @@ public abstract partial class Entity : IBrain {
 	//////////////////////////////////////////////////////////////////////////
 	protected	void	Destroy_Brain()
 	{
-		this.m_BrainInstance = null;
+		m_BrainInstance = null;
 
-		this.DisableMemory();
+		DisableMemory();
 	}
 
 
@@ -68,11 +68,11 @@ public abstract partial class Entity : IBrain {
 	public	void	SetBehaviour( EBrainState brainState, string behaviourId, bool state ) 
 	{
 		// Pre-set empty behaviour as default
-		this.m_Behaviours[ (int)brainState ] = new Behaviour_Empty();
+		m_Behaviours[ (int)brainState ] = new Behaviour_Empty();
 
 		if ( behaviourId == null || behaviourId.Trim().Length == 0 )
 		{
-			Debug.Log( "Brain.SetBehaviour Setting invalid behaviour for state " + brainState + ", with id" + behaviourId + ", for entity (section) " + this.m_SectionName );
+			Debug.Log( "Brain.SetBehaviour Setting invalid behaviour for state " + brainState + ", with id" + behaviourId + ", for entity (section) " + m_SectionName );
 			return;
 		}
 
@@ -93,14 +93,14 @@ public abstract partial class Entity : IBrain {
 
 		// Setup of the instanced behaviour
 		AIBehaviour behaviour = System.Activator.CreateInstance( type ) as AIBehaviour;
-		behaviour.Setup(this.m_ID );
+		behaviour.Setup(m_ID );
 		if ( state == true )
 		{
-			this.m_CurrentBehaviour = behaviour;
+			m_CurrentBehaviour = behaviour;
 		}
 
 		// Behaviour assignment
-		this.m_Behaviours[ (int)brainState ] = behaviour;
+		m_Behaviours[ (int)brainState ] = behaviour;
 	}
 
 
@@ -108,15 +108,15 @@ public abstract partial class Entity : IBrain {
 	//////////////////////////////////////////////////////////////////////////
 	public	virtual void	Brain_SetActive( bool State )
 	{
-		this.m_IsBrainActive = State;
+		m_IsBrainActive = State;
 
-		if (this.m_IsBrainActive )
+		if (m_IsBrainActive )
 		{
-			GameManager.FieldsOfViewManager.RegisterAgent(this.m_FieldOfView, this.m_FieldOfView.UpdateFOV );
+			GameManager.FieldsOfViewManager.RegisterAgent(m_FieldOfView, m_FieldOfView.UpdateFOV );
 		}
 		else
 		{
-			GameManager.FieldsOfViewManager?.UnregisterAgent(this.m_FieldOfView );
+			GameManager.FieldsOfViewManager?.UnregisterAgent(m_FieldOfView );
 		}
 	}
 
@@ -125,12 +125,12 @@ public abstract partial class Entity : IBrain {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual	void	OnThinkBrain()
 	{
-		if (this.m_IsBrainActive == false )
+		if (m_IsBrainActive == false )
 			return;
 
 		//	m_FieldOfView.UpdateFOV();
 
-		this.UpdateMemory();
+		UpdateMemory();
 	}
 
 
@@ -138,15 +138,15 @@ public abstract partial class Entity : IBrain {
 	//////////////////////////////////////////////////////////////////////////
 	public	virtual	void	ChangeState( EBrainState newState )
 	{
-		if ( newState == this.m_CurrentBrainState )
+		if ( newState == m_CurrentBrainState )
 			return;
 
-		this.m_CurrentBehaviour.OnDisable();
+		m_CurrentBehaviour.OnDisable();
 		{
-			this.m_CurrentBrainState	= newState;
-			this.m_CurrentBehaviour	= this.m_Behaviours[ (int)newState ];
+			m_CurrentBrainState	= newState;
+			m_CurrentBehaviour	= m_Behaviours[ (int)newState ];
 		}
-		this.m_CurrentBehaviour.OnEnable();
+		m_CurrentBehaviour.OnEnable();
 	}
 
 
@@ -154,8 +154,8 @@ public abstract partial class Entity : IBrain {
 	//////////////////////////////////////////////////////////////////////////
 	protected virtual void	Brain_OnReset()
 	{
-		this.ChangeState( EBrainState.NORMAL );
-		this.m_FieldOfView.OnReset();
+		ChangeState( EBrainState.NORMAL );
+		m_FieldOfView.OnReset();
 	}
 
 }

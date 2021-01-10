@@ -20,28 +20,31 @@ public sealed class UI_MainMenu : MonoBehaviour, IStateDefiner
 	private	bool			m_IsInitialized			= false;
 	bool IStateDefiner.IsInitialized
 	{
-		get { return this.m_IsInitialized; }
+		get { return m_IsInitialized; }
 	}
 
 	string IStateDefiner.StateName
 	{
-		get { return this.name; }
+		get { return name; }
 	}
 
 
 
 	//////////////////////////////////////////////////////////////////////////
+	public void PreInit() { }
+
+	//////////////////////////////////////////////////////////////////////////
 	// Initialize
 	IEnumerator IStateDefiner.Initialize()
 	{
-		if (this.m_IsInitialized == true )
+		if (m_IsInitialized == true )
 			yield break;
 
 		yield return null;
 
 		CoroutinesManager.AddCoroutineToPendingCount( 1 );
 
-		this.m_IsInitialized = true;
+		m_IsInitialized = true;
 		{
 			/*
 			// NEW GAME BUTTON
@@ -51,7 +54,7 @@ public sealed class UI_MainMenu : MonoBehaviour, IStateDefiner
 			}
 			*/
 			// RESUME BUTTON
-			if (this.m_IsInitialized &= this.transform.SearchComponentInChild( "Button_Resume", ref this.m_ResumeButton ) )
+			if (m_IsInitialized &= transform.SearchComponentInChild( "Button_Resume", ref m_ResumeButton ) )
 			{
 //				m_ResumeButton.onClick.AddListener( OnResume );
 			}
@@ -67,7 +70,7 @@ public sealed class UI_MainMenu : MonoBehaviour, IStateDefiner
 			*/
 		}
 
-		if (this.m_IsInitialized )
+		if (m_IsInitialized )
 		{
 		//	RenderSettings.skybox = new Material( Shader.Find( shaderPath ) );
 			CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
@@ -93,7 +96,7 @@ public sealed class UI_MainMenu : MonoBehaviour, IStateDefiner
 	// Finalize
 	bool	 IStateDefiner.Finalize()
 	{
-		return this.m_IsInitialized;
+		return m_IsInitialized;
 	}
 
 
@@ -102,7 +105,7 @@ public sealed class UI_MainMenu : MonoBehaviour, IStateDefiner
 		if ( UIManager.MainMenu != this )
 			return;
 
-		CoroutinesManager.Start(this.OnStart() );
+		CoroutinesManager.Start(OnStart() );
 	}
 
 
@@ -133,14 +136,14 @@ public sealed class UI_MainMenu : MonoBehaviour, IStateDefiner
 		yield return null;
 
 		// UI interaction
-		UIManager.Instance.DisableInteraction(this.transform);
+		UIManager.Instance.DisableInteraction(transform);
 		{
 			yield return CoroutinesManager.WaitPendingCoroutines();
 		}
 
 		print( "MainMenu::OnStart await completed" );
 
-		UIManager.Instance.EnableInteraction(this.transform);
+		UIManager.Instance.EnableInteraction(transform);
 
 		// Cursor
 		GlobalManager.SetCursorVisibility( true );
@@ -150,7 +153,7 @@ public sealed class UI_MainMenu : MonoBehaviour, IStateDefiner
 		bool bSaveFileExists		= bHasSaveFilePath && System.IO.File.Exists( PlayerPrefs.GetString( "SaveFilePath" ) );
 
 		// Resume button
-		this.m_ResumeButton.interactable = bHasSavedSceneIndex && bHasSaveFilePath && bSaveFileExists;
+		m_ResumeButton.interactable = bHasSavedSceneIndex && bHasSaveFilePath && bSaveFileExists;
 	}
 
 

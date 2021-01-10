@@ -296,7 +296,7 @@ namespace WeatherSystem {
 							AssetDatabase.SaveAssets();
 							AssetDatabase.Refresh();
 
-							this.Repaint();
+							Repaint();
 
 							cycles.CyclesPaths.Add( ASSETS_SCRIPTABLES_PATH + "/" + cycleName + ".asset" );
 							cycles.LoadedCycles.Add( AssetDatabase.LoadAssetAtPath<WeatherCycle>( assetPath ) );
@@ -318,7 +318,7 @@ namespace WeatherSystem {
 				return;
 
 
-			this.m_ScrollPosition = GUILayout.BeginScrollView(this.m_ScrollPosition );
+			m_ScrollPosition = GUILayout.BeginScrollView(m_ScrollPosition );
 			{
 				GUILayout.BeginVertical();
 				{

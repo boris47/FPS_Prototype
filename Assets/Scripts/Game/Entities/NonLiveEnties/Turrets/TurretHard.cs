@@ -19,7 +19,7 @@ public class TurretHard : Turret {
 	//////////////////////////////////////////////////////////////////////////
 	protected override void Awake()
 	{
-		this.m_SectionName = this.GetType().FullName;
+		m_SectionName = GetType().FullName;
 
 		base.Awake();
 	}
@@ -39,7 +39,7 @@ public class TurretHard : Turret {
 
 	protected override void OnKill()
 	{
-		this.StopAllCoroutines();
+		StopAllCoroutines();
 		base.OnKill();
 	}
 	
@@ -48,21 +48,21 @@ public class TurretHard : Turret {
 
 	public override void FireLongRange()
 	{
-		if (this.m_ShotTimer > 0 )
+		if (m_ShotTimer > 0 )
 			return;
 
-		this.m_ShotTimer = this.m_ShotDelay;
+		m_ShotTimer = m_ShotDelay;
 
-		IBullet bullet = this.m_Pool.GetNextComponent();
-		bullet.Shoot(this.m_FirePoint.position, this.m_FirePoint.forward );
+		IBullet bullet = m_Pool.GetNextComponent();
+		bullet.Shoot(m_FirePoint.position, m_FirePoint.forward, velocity: null );
 
-		this.m_FireAudioSource.Play();
+		m_FireAudioSource.Play();
 
-		this.m_FiredBullets ++;
-		if (this.m_FiredBullets >= this.m_Magazine )
+		m_FiredBullets ++;
+		if (m_FiredBullets >= m_Magazine )
 		{
-			this.m_IsRecharging = true;
-			CoroutinesManager.Start(this.ChargingCO(), "TurretHard::FireLongRange: Start of charging" );
+			m_IsRecharging = true;
+			CoroutinesManager.Start(ChargingCO(), "TurretHard::FireLongRange: Start of charging" );
 		}
 	}
 	
@@ -75,7 +75,7 @@ public class TurretHard : Turret {
 		if ( streamUnit == null )
 			return null;
 
-		streamUnit.SetInternal( "FiredBullets", this.m_FiredBullets );
+		streamUnit.SetInternal( "FiredBullets", m_FiredBullets );
 
 		return streamUnit;
 	}
@@ -89,7 +89,7 @@ public class TurretHard : Turret {
 		if ( streamUnit == null )
 			return null;
 
-		this.m_FiredBullets = ( uint ) streamUnit.GetAsInt( "FiredBullets" );
+		m_FiredBullets = ( uint ) streamUnit.GetAsInt( "FiredBullets" );
 		
 		return streamUnit;
 	}
@@ -102,9 +102,9 @@ public class TurretHard : Turret {
 		float	currentTime = 0f;
 		float	interpolant	= 0f;
 
-		float	timeStep = (this.m_RechargeTime / 3f );
+		float	timeStep = (m_RechargeTime / 3f );
 
-		Transform shiledTransform = (this.m_Shield as Shield ).transform;
+		Transform shiledTransform = (m_Shield as Shield ).transform;
 
 		Vector3 savedShieldScale = shiledTransform.localScale;
 
@@ -138,8 +138,8 @@ public class TurretHard : Turret {
 			yield return null;
 		}
 
-		this.m_IsRecharging = false;
-		this.m_FiredBullets = 0;
+		m_IsRecharging = false;
+		m_FiredBullets = 0;
 	}
 
 	
@@ -147,7 +147,7 @@ public class TurretHard : Turret {
 
 	protected override void OnFrame( float deltaTime )
 	{
-		if (this.m_IsRecharging == false )
+		if (m_IsRecharging == false )
 		{
 			base.OnFrame( deltaTime );
 		}

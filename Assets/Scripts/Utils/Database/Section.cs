@@ -28,7 +28,7 @@ namespace Database {
 		float					AsFloat							( string Key, float Default = 0.0f );
 		string					AsString						( string Key, string Default = "" );
 
-		Value					OfMultiValue					( string Key, int Index );
+		T						OfMultiValue	<T>				(string Key, int Index, T Default);
 		void					AsMultiValue	<T1,T2>			( string Key, int Idx1, int Idx2, ref T1 t1, ref T2 t2 );
 		void					AsMultiValue	<T1,T2,T3>		( string Key, int Idx1, int Idx2, int Idx3, ref T1 t1, ref T2 t2, ref T3 t3 );
 		void					AsMultiValue	<T1,T2,T3,T4>	( string Key, int Idx1, int Idx2, int Idx3, int Idx4, ref T1 t1, ref T2 t2, ref T3 t3, ref T4 t4 );
@@ -82,31 +82,31 @@ namespace Database {
 
 		public	string	Context
 		{
-			get { return (this.m_Context.Length > 0 ) ? (string)this.m_Context.Clone() :""; }
+			get { return (m_Context.Length > 0 ) ? (string)m_Context.Clone() :""; }
 		}
 
 
 		IEnumerator IEnumerable.GetEnumerator()
 		{
-			return (IEnumerator)this.GetEnumerator();
+			return (IEnumerator)GetEnumerator();
 		}
 	
 		public List<LineValue>.Enumerator  GetEnumerator()
 		{
-			return this.m_Linevalues.GetEnumerator();
+			return m_Linevalues.GetEnumerator();
 		}
 
 		// Indexer
 		public LineValue this[int i]
 		{
-			get { return ( i > -1 && i < this.m_Linevalues.Count ) ? this.m_Linevalues[i] : null; }
+			get { return ( i > -1 && i < m_Linevalues.Count ) ? m_Linevalues[i] : null; }
 		}
 
 		public Section( string sectionName, string context )
 		{
-			this.name = sectionName;
-			this.m_Context = context;
-			this.m_IsOK = true;
+			name = sectionName;
+			m_Context = context;
+			m_IsOK = true;
 		}
 
 
@@ -127,16 +127,16 @@ namespace Database {
 
 		public static Section operator +( Section SecA, Section SecB )
 		{
-			if ( SecB.m_IsOK == true )
+			if (SecB.m_IsOK)
 			{
-				foreach( LineValue lineValue in SecB )
+				foreach (LineValue lineValue in SecB)
 				{
-					if ( SecA.HasKey( lineValue.Key ) == false )
+					if (!SecA.HasKey( lineValue.Key ))
 					{
-						SecA.Add( lineValue );
+						SecA.Add(lineValue);
 					}
 				}
-				SecA.m_Mothers.Add( SecB.name );
+				SecA.m_Mothers.Add(SecB.name);
 			}
 			return SecA;
 		}
@@ -144,38 +144,38 @@ namespace Database {
 		public	bool					IsChildOf						( Section mother )
 		{
 			string motherName = mother.GetSectionName();
-			return (this.m_Mothers.FindIndex( m => m == motherName ) > -1 );
+			return (m_Mothers.FindIndex( m => m == motherName ) > -1 );
 		}
 
 		public	bool					IsChildOf						( string MotherName )
 		{
-			return (this.m_Mothers.FindIndex( m => m == MotherName ) > -1 );
+			return (m_Mothers.FindIndex( m => m == MotherName ) > -1 );
 		}
 		
 		
 
 		public void Destroy()
 		{
-			this.m_Linevalues.ForEach( ( LineValue lv ) => lv.Destroy() );
+			m_Linevalues.ForEach( ( LineValue lv ) => lv.Destroy() );
 		}
 
 		public	int						Lines()
 		{
-			return this.m_Linevalues.Count;
+			return m_Linevalues.Count;
 		}
 
 
-		public	string					GetSectionName()				{ return ( string )this.name.Clone(); }
+		public	string					GetSectionName()				{ return ( string )name.Clone(); }
 	
 
 		//////////////////////////////////////////////////////////////////////////
 		// GetKeys
 		public	string[]				GetKeys()
 		{
-			string[] arrayToReturn = new string[this.m_Linevalues.Count];
-			for ( int i = 0; i < this.m_Linevalues.Count; i++ )
+			string[] arrayToReturn = new string[m_Linevalues.Count];
+			for ( int i = 0; i < m_Linevalues.Count; i++ )
 			{
-				arrayToReturn[i] = this.m_Linevalues[i].Key;
+				arrayToReturn[i] = m_Linevalues[i].Key;
 			}
 			return arrayToReturn;
 		}
@@ -184,16 +184,15 @@ namespace Database {
 		// Add
 		public	bool				Add( LineValue LineValue )
 		{
-			int index = this.m_Linevalues.FindIndex((s) => s.Key == LineValue.Key);
+			int index = m_Linevalues.FindIndex((s) => s.Key == LineValue.Key);
 			// Confirmed new linevalue
 			if (index == -1)
 			{
-				this.m_Linevalues.Add(LineValue);
+				m_Linevalues.Add(LineValue);
 			}
-			// overwrite of existing linevalue
-			else
+			else // overwrite of existing linevalue
 			{
-				this.m_Linevalues[index] = new LineValue(LineValue);
+				m_Linevalues[index] = new LineValue(LineValue);
 			}
 			return index > -1;
 		}
@@ -203,11 +202,11 @@ namespace Database {
 		// Remove
 		public	bool					Remove( string lineValueID )
 		{
-			int index = this.m_Linevalues.FindIndex((s) => s.Key == lineValueID);
+			int index = m_Linevalues.FindIndex((s) => s.Key == lineValueID);
 			if (index > -1)
 			{
-				this.m_Linevalues[index].Destroy();
-				this.m_Linevalues.RemoveAt(index);
+				m_Linevalues[index].Destroy();
+				m_Linevalues.RemoveAt(index);
 			}
 			return index > -1;
 		}
@@ -215,13 +214,13 @@ namespace Database {
 
 		//////////////////////////////////////////////////////////////////////////
 		// bGetLineValue
-		public	bool					bGetLineValue( string key, ref LineValue lineValue )
+		public	bool					TryGetLineValue( string key, ref LineValue lineValue )
 		{
-			int index = this.m_Linevalues.FindIndex((LineValue lv) => lv.IsKey(key) == true);
+			int index = m_Linevalues.FindIndex((LineValue lv) => lv.IsKey(key));
 			bool bHasBeenFound = index > -1;
 			if (bHasBeenFound)
 			{
-				lineValue = this.m_Linevalues[index];
+				lineValue = m_Linevalues[index];
 			}
 			return bHasBeenFound;
 		}
@@ -232,7 +231,7 @@ namespace Database {
 		public	bool					HasKey( string Key )
 		{	
 			LineValue bump = null;
-			return this.bGetLineValue( Key, ref bump );
+			return TryGetLineValue( Key, ref bump );
 		}
 
 
@@ -240,8 +239,8 @@ namespace Database {
 		// PrintSection
 		public void PrintSection()
 		{
-			Debug.Log("---|Section START" + this.name);
-			foreach (LineValue LineValue in this.m_Linevalues)
+			Debug.Log($"---|Section START {name}");
+			foreach (LineValue LineValue in m_Linevalues)
 			{
 				string result = LineValue.Key;
 				if (LineValue.Type == ELineValueType.MULTI)
@@ -249,18 +248,20 @@ namespace Database {
 					MultiValue multi = LineValue.MultiValue;
 					for (int i = 0; i < multi.Size; i++)
 					{
-						result += " " + multi[i];
+						result += $" {multi.Get<Value>(i)}";
 					}
-					Debug.Log("\t" + result);
+					Debug.Log($"\t{result}");
 				}
 				else
 				{
 					if (LineValue.Value.ToSystemObject() == null)
 					{
-						Debug.Log(result + " " + LineValue.RawValue);
+						Debug.Log($"{result} {LineValue.RawValue}");
 					}
 					else
-						Debug.Log("\t" + result + " " + LineValue.Value.ToSystemObject() + ", " + LineValue.Value.ToSystemObject().GetType());
+					{
+						Debug.Log($"\t{result} {LineValue.Value.ToSystemObject()}, {LineValue.Value.ToSystemObject().GetType()}");
+					}
 				}
 			}
 			Debug.Log("---|Section END");
@@ -274,15 +275,15 @@ namespace Database {
 			List<string> lines = new List<string>();
 
 			// SECTION DEFINITION
-			string sectionDefinition = "[" + this.name + "]";
+			string sectionDefinition = $"[{name}]";
 			{
 				// Concatenate mothers names
-				if (this.m_Mothers.Count > 0)
+				if (m_Mothers.Count > 0)
 				{
-					sectionDefinition += ":" + this.m_Mothers[0];
-					for (int i = 1; i < this.m_Mothers.Count; i++, sectionDefinition += ',')
+					sectionDefinition += $":{m_Mothers[0]}";
+					for (int i = 1; i < m_Mothers.Count; i++, sectionDefinition += ',')
 					{
-						string motherName = this.m_Mothers[i];
+						string motherName = m_Mothers[i];
 						sectionDefinition += motherName;
 					}
 				}
@@ -290,16 +291,16 @@ namespace Database {
 			lines.Add(sectionDefinition);
 
 			// Write key value pairs
-			foreach (LineValue LineValue in this.m_Linevalues)
+			foreach (LineValue LineValue in m_Linevalues)
 			{
 				string key = LineValue.Key, valueStringified = "";
 				if (LineValue.Type == ELineValueType.MULTI)
 				{
 					MultiValue multi = LineValue.MultiValue;
-					valueStringified += multi[0];
+					valueStringified += multi.Get<string>(0);
 					for (int i = 1; i < multi.Size; i++, valueStringified += ",")
 					{
-						string subValue = multi[i];
+						string subValue = multi.Get<string>(i);
 						valueStringified += subValue;
 					}
 				}
@@ -308,7 +309,7 @@ namespace Database {
 					Value value = LineValue.Value;
 					valueStringified += value.ToString();
 				}
-				string keyValuePair = key + "=" + valueStringified;
+				string keyValuePair = $"{key}={valueStringified}";
 				lines.Add(keyValuePair);
 			}
 

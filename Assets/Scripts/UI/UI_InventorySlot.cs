@@ -13,42 +13,45 @@ public sealed class UI_InventorySlot : MonoBehaviour, IPointerClickHandler, ISta
 	private		bool				m_IsSet				= false;
 	public		bool	IsSet
 	{
-		get { return this.m_IsSet; }
+		get { return m_IsSet; }
 	}
 
 	private		Database.Section	m_ItemSection		= null;
 	public	Database.Section	Section
 	{
-		get { return this.m_ItemSection; }
+		get { return m_ItemSection; }
 	}
 
 	private	bool			m_IsInitialized			= false;
 	bool IStateDefiner.IsInitialized
 	{
-		get { return this.m_IsInitialized; }
+		get { return m_IsInitialized; }
 	}
 
 	string IStateDefiner.StateName
 	{
-		get { return this.name; }
+		get { return name; }
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	public void PreInit() { }
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
 	IEnumerator IStateDefiner.Initialize()
 	{
-		if (this.m_IsInitialized == true )
+		if (m_IsInitialized == true )
 			yield break;
 
 		CoroutinesManager.AddCoroutineToPendingCount( 1 );
 
-		this.m_IsInitialized = true;
+		m_IsInitialized = true;
 		{
-			this.m_IsInitialized &= this.transform.SearchComponent<Image>( ref this.m_Image, ESearchContext.LOCAL );
+			m_IsInitialized &= transform.SearchComponent<Image>( ref m_Image, ESearchContext.LOCAL );
 		}
 
-		if (this.m_IsInitialized )
+		if (m_IsInitialized )
 		{
 			CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 		}
@@ -70,7 +73,7 @@ public sealed class UI_InventorySlot : MonoBehaviour, IPointerClickHandler, ISta
 	// Finalize
 	bool	 IStateDefiner.Finalize()
 	{
-		return this.m_IsInitialized;
+		return m_IsInitialized;
 	}
 
 	
@@ -97,9 +100,9 @@ public sealed class UI_InventorySlot : MonoBehaviour, IPointerClickHandler, ISta
 	//////////////////////////////////////////////////////////////////////////
 	public	void	Reset()
 	{
-		this.m_Texture = null;
-		this.m_ItemSection = null;
-		this.m_IsSet = false;
+		m_Texture = null;
+		m_ItemSection = null;
+		m_IsSet = false;
 	}
 
 
@@ -112,13 +115,13 @@ public sealed class UI_InventorySlot : MonoBehaviour, IPointerClickHandler, ISta
 			result &= section.Lines() > 0;	// section must contain some info
 		}
 
-		if (this.m_IsInitialized && result )
+		if (m_IsInitialized && result )
 		{
-			this.m_Texture = texture;
-			this.m_ItemSection = section;
-			this.m_IsSet = true;
+			m_Texture = texture;
+			m_ItemSection = section;
+			m_IsSet = true;
 
-			this.m_Image.sprite = Sprite.Create(this.m_Texture, Rect.MinMaxRect(0, 0, this.m_Texture.width, this.m_Texture.height ), new Vector2( 0.5f, 0.5f ) );
+			m_Image.sprite = Sprite.Create(m_Texture, Rect.MinMaxRect(0, 0, m_Texture.width, m_Texture.height ), new Vector2( 0.5f, 0.5f ) );
 		}
 		return result;
 	}

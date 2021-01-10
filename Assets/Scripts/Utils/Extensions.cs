@@ -9,182 +9,209 @@ public static class Extensions {
 	#region C#
 
 
-		/////////////////////////////////////////////////////////////////////////////
-		/////////////////////////////////////////////////////////////////////////////
-		#region C# OBJECT
+	/////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+	#region C# OBJECT
 
-		/// <summary> Check if Object is null internally </summary>
-		public static	bool	IsNotNull( this System.Object obj )
-		{
-			bool bIsNotNull = ( obj ) != null;
-			return bIsNotNull;
-		}
-
-		#endregion
-
-
-		/////////////////////////////////////////////////////////////////////////////
-		/////////////////////////////////////////////////////////////////////////////
-		#region C# STRING
-
-		/// <summary> This method also trim inside the string </summary>
-		public static	string			TrimInside( this string str, params char[] trimChars )
-		{
-			List<char> charsToSearch = new List<char>(1);
-			if ( trimChars != null && trimChars.Length > 0 )
-			{
-				charsToSearch.AddRange( trimChars );
-			}
-			else
-			{
-				charsToSearch.Add( ' ' );
-			}
-
-			for ( int i = str.Length - 1; i >= 0; i-- )
-			{
-				if ( charsToSearch.IndexOf( str[ i ] ) != -1 )
-				{
-					str = str.Remove( i, 1 );
-				}
-			}
-			return str;
-		}
-
-
-		/// <summary> Return true if parse succeeded, otherwise false </summary>
-		/// <see cref="https://stackoverflow.com/questions/1082532/how-to-tryparse-for-enum-value"/>
-		public	static	bool			TryConvertToEnum<TEnum>(this string str, ref TEnum result )
-		{
-			System.Type requestedType = typeof(TEnum);
-			if ( System.Enum.IsDefined( requestedType, str) == false )
-			{
-				return false;
-			}
-
-			result = (TEnum)System.Enum.Parse( requestedType, str );
-			return true;
-		}
-
-		#endregion
-
-
-		/////////////////////////////////////////////////////////////////////////////
-		/////////////////////////////////////////////////////////////////////////////
-		#region C# ARRAY
-
-		/// <summary> For a valid array return a random contained element </summary>
-		public static	T				Random<T>( this global::System.Array a )
-		{
-			if ( a == null || a.Length == 0 )
-				return default( T );
-
-			return a.GetByIndex<T>( UnityEngine.Random.Range( 0, a.Length ) ); 
-		}
-
-		/// <summary> Allow to easly get a value from an array checking given index, default value is supported </summary>
-		public	static	T				GetByIndex<T>( this global::System.Array a, int idx, T Default = default(T) )
-		{
-			return ( idx > -1 && idx < a.Length ) ? (T)a.GetValue(idx) : Default;
-		}
-
-
-		/// <summary> Search along a bidimensional array for item using predicate </summary>
-		public	static	bool			FindByPredicate<T>( this T[,] array, ref T value, ref Vector2 location, System.Predicate<T> predicate )
-		{
-			// Gets the rank (number of dimensions) of the Array
-			int dimensions = array.Rank;
-			bool bIsFound = false;
-			location.Set( 0, 0 );
-			for ( int dimension = 0; dimension < dimensions && bIsFound == false; dimension++ )
-			{
-				int upper = array.GetUpperBound(dimension);
-				int lower = array.GetLowerBound(dimension);
-
-				for ( int index = lower; index <= upper && bIsFound == false; index++ )
-				{
-					T currentValue = array[ dimension, index ];
-					if ( predicate( currentValue ) )
-					{
-						value = currentValue;
-						location.Set( dimension, index );
-						bIsFound = true;
-					}
-				}
-			}
-
-			return bIsFound;
-		}
-
-
-		public	static	bool		FindByPredicate<T>( this global::System.Array array, System.Predicate<T> predicate, ref T value, ref int[] location, int locationLevel )
-		{
-			bool bIsFound = false;
-
-			int dimensions = array.Rank;
-
-			// Mono-dimensional array
-			if ( dimensions == 1 )
-			{
-				int upper = array.GetUpperBound(1);
-				int lower = array.GetLowerBound(1);
-
-				for ( int index = lower; index <= upper && bIsFound == false; index++ )
-				{
-					T currentValue = (T)array.GetValue( index );
-					if ( predicate( currentValue ) )
-					{
-						value = currentValue;
-						location = new int[2] { dimensions, index };
-						bIsFound = true;
-					}
-				}
-				return bIsFound;
-			}
-
-			// Multi dimensional array
-			for ( int dimension = 1; dimension < dimensions && bIsFound == false; dimension++ )
-			{
-				int upper = array.GetUpperBound(dimension);
-				int lower = array.GetLowerBound(dimension);
-
-				for ( int index = lower; index <= upper && bIsFound == false; index++ )
-				{
-
-				}
-			}
-
-			return bIsFound;
-		}
-
-		#endregion
-
-		/////////////////////////////////////////////////////////////////////////////
-		/////////////////////////////////////////////////////////////////////////////
-		#region C# LIST
-
-		/// <summary> For a valid list return a random contained element </summary>
-		public static	T				Random<T>( this List<T> list )
-		{
-			if ( list == null || list.Count == 0 )
-				return default;
-
-			return list[ UnityEngine.Random.Range( 0, list.Count ) ]; 
-		}
-
-
-		/// <summary> Ensure the the inserting element is only present one tine in the list </summary>
-		public	static	bool		AddUnique<T>( this List<T> list, T element, System.Predicate<T> predicate = null )
-		{
-			System.Predicate<T> finalPredicate = predicate ?? delegate( T e ) { return e.Equals( element ); };
-			bool bAlreadyExists = list.FindIndex( finalPredicate ) > -1;
-			if ( bAlreadyExists == false )
-			{
-				list.Add( element );
-			}
-			return bAlreadyExists;
-		}
+	/// <summary> Check if Object is null internally </summary>
+	public static	bool	IsNotNull( this System.Object obj )
+	{
+		bool bIsNotNull = ( obj ) != null;
+		return bIsNotNull;
+	}
 
 	#endregion
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+	#region C# STRING
+
+	/// <summary> This method also trim inside the string </summary>
+	public static	string			TrimInside( this string str, params char[] trimChars )
+	{
+		List<char> charsToSearch = new List<char>(1);
+		if ( trimChars != null && trimChars.Length > 0 )
+		{
+			charsToSearch.AddRange( trimChars );
+		}
+		else
+		{
+			charsToSearch.Add( ' ' );
+		}
+
+		for ( int i = str.Length - 1; i >= 0; i-- )
+		{
+			if ( charsToSearch.IndexOf( str[ i ] ) != -1 )
+			{
+				str = str.Remove( i, 1 );
+			}
+		}
+		return str;
+	}
+
+
+	/// <summary> Return true if parse succeeded, otherwise false </summary>
+	/// <see cref="https://stackoverflow.com/questions/1082532/how-to-tryparse-for-enum-value"/>
+	public	static	bool			TryConvertToEnum<TEnum>(this string str, ref TEnum result )
+	{
+		System.Type requestedType = typeof(TEnum);
+		if ( System.Enum.IsDefined( requestedType, str) == false )
+		{
+			return false;
+		}
+
+		result = (TEnum)System.Enum.Parse( requestedType, str );
+		return true;
+	}
+
+	#endregion
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+	#region C# ARRAY
+
+	/// <summary> For a valid array return a random contained element </summary>
+	public static	T				Random<T>( this global::System.Array a )
+	{
+		if ( a == null || a.Length == 0 )
+			return default( T );
+
+		return a.GetByIndex<T>( UnityEngine.Random.Range( 0, a.Length ) ); 
+	}
+
+	/// <summary> Tests if index is valid, i.e. greater than or equal to zero, and less than the number of elements in the array </summary>
+	/// <param name="index">Index to test</param>
+	/// <returns>returns True if index is valid. False otherwise</returns>
+	public	static bool				IsValidIndex( this global::System.Array array, int index )
+	{
+		return index >= 0 && index < array.Length;
+	}
+
+	/// <summary> Allow to easly get a value from an array checking given index, default value is supported </summary>
+	public	static	T				GetByIndex<T>( this global::System.Array array, int index, T Default = default(T) )
+	{
+		return IsValidIndex(array, index) ? (T)array.GetValue(index) : Default;
+	}
+
+
+	/// <summary> Search along a bidimensional array for item using predicate </summary>
+	public	static	bool			FindByPredicate<T>( this T[,] array, ref T value, ref Vector2 location, System.Predicate<T> predicate )
+	{
+		// Gets the rank (number of dimensions) of the Array
+		int dimensions = array.Rank;
+		bool bIsFound = false;
+		location.Set( 0, 0 );
+		for ( int dimension = 0; dimension < dimensions && bIsFound == false; dimension++ )
+		{
+			int upper = array.GetUpperBound(dimension);
+			int lower = array.GetLowerBound(dimension);
+
+			for ( int index = lower; index <= upper && bIsFound == false; index++ )
+			{
+				T currentValue = array[ dimension, index ];
+				if ( predicate( currentValue ) )
+				{
+					value = currentValue;
+					location.Set( dimension, index );
+					bIsFound = true;
+				}
+			}
+		}
+
+		return bIsFound;
+	}
+
+
+	public	static	bool		FindByPredicate<T>( this global::System.Array array, System.Predicate<T> predicate, ref T value, ref int[] location, int locationLevel )
+	{
+		bool bIsFound = false;
+
+		int dimensions = array.Rank;
+
+		// Mono-dimensional array
+		if ( dimensions == 1 )
+		{
+			int upper = array.GetUpperBound(1);
+			int lower = array.GetLowerBound(1);
+
+			for ( int index = lower; index <= upper && bIsFound == false; index++ )
+			{
+				T currentValue = (T)array.GetValue( index );
+				if ( predicate( currentValue ) )
+				{
+					value = currentValue;
+					location = new int[2] { dimensions, index };
+					bIsFound = true;
+				}
+			}
+			return bIsFound;
+		}
+
+		// Multi dimensional array
+		for ( int dimension = 1; dimension < dimensions && bIsFound == false; dimension++ )
+		{
+			int upper = array.GetUpperBound(dimension);
+			int lower = array.GetLowerBound(dimension);
+
+			for ( int index = lower; index <= upper && bIsFound == false; index++ )
+			{
+
+			}
+		}
+
+		return bIsFound;
+	}
+
+	#endregion
+
+	/////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+	#region C# LIST
+
+	/// <summary> For a valid list return a random contained element </summary>
+	public static	T				Random<T>( this List<T> list )
+	{
+		if ( list == null || list.Count == 0 )
+			return default;
+
+		return list[ UnityEngine.Random.Range( 0, list.Count ) ]; 
+	}
+
+
+	/// <summary> Tests if index is valid, i.e. greater than or equal to zero, and less than the number of elements in the list </summary>
+	/// <param name="index">Index to test</param>
+	/// <returns>returns True if index is valid. False otherwise</returns>
+	public static bool IsValidIndex<T>(this List<T> list, int index)
+	{
+		return index >= 0 && index < list.Count;
+	}
+
+	/// <summary> Resize the list with the new size </summary>
+	public static void Resize<T>(this List<T> list, int newSize)
+	{
+		if (newSize > list.Capacity)
+		{
+			list.Capacity = newSize;
+		}
+	}
+
+
+
+	/// <summary> Ensure the the inserting element is only present one tine in the list </summary>
+	public static	bool		AddUnique<T>( this List<T> list, T element, System.Predicate<T> predicate = null )
+	{
+		System.Predicate<T> finalPredicate = predicate ?? delegate( T e ) { return e.Equals( element ); };
+		bool bAlreadyExists = list.FindIndex( finalPredicate ) > -1;
+		if ( bAlreadyExists == false )
+		{
+			list.Add( element );
+		}
+		return bAlreadyExists;
+	}
+
+#endregion
 
 	#endregion
 
@@ -237,7 +264,7 @@ public static class Extensions {
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Return the first transform found in child hiearchy with the given name or null if not found </summary>
-	public	static	bool			SearchChildWithName( this Transform transform, string childName, ref Transform child )
+	public	static	bool			SearchChildWithName<T>( this Transform transform, string childName, ref T child ) where T : Component
 	{
 		return Utils.Base.SearchComponent( transform.gameObject, out child, ESearchContext.CHILDREN, t => t.name == childName );
 	}
@@ -253,9 +280,9 @@ public static class Extensions {
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Can be used to retrieve a component's array with more detailed research details </summary>
-	public	static	bool			SearchComponents<T>( this Transform transform, ref T[] Component, ESearchContext Context, global::System.Predicate<T> Filter = null ) where T : Component
+	public	static	bool			SearchComponents<T>( this Transform transform, ref T[] Components, ESearchContext Context, global::System.Predicate<T> Filter = null ) where T : Component
 	{
-		return Utils.Base.SearchComponents( transform.gameObject, ref Component, Context, Filter );
+		return Utils.Base.SearchComponents( transform.gameObject, ref Components, Context, Filter );
 	}
 
 
@@ -317,7 +344,7 @@ public static class Extensions {
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Search for the given component only in children of given transform </summary>
-	public	static	T[]				GetComponentOnlyInChildren<T>( this Transform transform, bool deepSearch = false, bool includeInactive = false  )
+	public	static	T[]				GetComponentsOnlyInChildren<T>( this Transform transform, bool deepSearch = false, bool includeInactive = false  )
 	{
 		List<T> list = new List<T>();
 		{

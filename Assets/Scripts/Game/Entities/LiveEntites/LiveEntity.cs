@@ -8,7 +8,7 @@ public abstract partial class LiveEntity : Entity {
 	protected	IFoots				m_Foots						= null;
 	public		IFoots				Foots
 	{
-		get { return this.m_Foots; }
+		get { return m_Foots; }
 	}
 	[Header("Live Entity Properties")]
 
@@ -16,7 +16,7 @@ public abstract partial class LiveEntity : Entity {
 	protected	float				m_OxygenBaseLevel			= 100f;
 	public		float				OxygenBaseLevel
 	{
-		get { return this.m_OxygenBaseLevel; }
+		get { return m_OxygenBaseLevel; }
 	}
 
 
@@ -24,7 +24,7 @@ public abstract partial class LiveEntity : Entity {
 	protected	float				m_OxygenCurrentLevel		= 100f;
 	public		float				OxygenCurrentLevel
 	{
-		get { return this.m_OxygenCurrentLevel; }
+		get { return m_OxygenCurrentLevel; }
 	}
 
 
@@ -44,8 +44,8 @@ public abstract partial class LiveEntity : Entity {
 	protected	float				m_Stamina					= 0f;
 	public		float				Stamina
 	{
-		get { return this.m_Stamina; }
-		set { this.m_Stamina = Mathf.Clamp01( value ); }
+		get { return m_Stamina; }
+		set { m_Stamina = Mathf.Clamp01( value ); }
 	}
 
 
@@ -125,7 +125,7 @@ public abstract partial class LiveEntity : Entity {
 	/// <summary> The range is [0, 100] by default </summary>
 	public	virtual void	AddOxygenAmmount( float Ammount )
 	{
-		this.m_OxygenCurrentLevel = Mathf.Min(this.m_OxygenCurrentLevel + Ammount, this.m_OxygenBaseLevel );
+		m_OxygenCurrentLevel = Mathf.Min(m_OxygenCurrentLevel + Ammount, m_OxygenBaseLevel );
 	}
 
 
@@ -134,7 +134,7 @@ public abstract partial class LiveEntity : Entity {
 	{
 		//		base.OnFrame( DeltaTime );
 
-		this.m_OxygenCurrentLevel -= DeltaTime;
+		m_OxygenCurrentLevel -= DeltaTime;
 	}
 
 
@@ -142,16 +142,16 @@ public abstract partial class LiveEntity : Entity {
 	protected	override	void		BeforeSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
 		// Movement
-		this.RequestMovement( destination );
+		RequestMovement( destination );
 
 		// Look At
 		if ( target )
 		{
-			this.SetTransformToLookAt( target, ELookTargetMode.HEAD_ONLY );
+			SetTransformToLookAt( target, ELookTargetMode.HEAD_ONLY );
 		}
 		else
 		{
-			this.StopLooking();
+			StopLooking();
 		}
 	}
 
@@ -166,9 +166,9 @@ public abstract partial class LiveEntity : Entity {
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		AfterSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
-		this.NavStop();
+		NavStop();
 
-		this.StopLooking();
+		StopLooking();
 	}
 
 

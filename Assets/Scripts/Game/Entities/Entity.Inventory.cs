@@ -24,31 +24,31 @@ public abstract partial class Entity : MonoBehaviour, IEntityInventary {
 
 		public	bool	IsSet
 		{
-			get { return this.m_IsSet; }
+			get { return m_IsSet; }
 		}
 
 		public	Database.Section	ItemSection
 		{
-			get { return this.m_ItemSection; }
+			get { return m_ItemSection; }
 		}
 
 		public	Texture2D ItemIcon
 		{
-			get { return this.m_ItemIcon; }
+			get { return m_ItemIcon; }
 		}
 
 
 		public InventoryItem( Database.Section itemSection, Texture2D itemIcon )
 		{
-			this.m_ItemSection	= null;
-			this.m_ItemIcon		= null;
-			this.m_IsSet			= false;
+			m_ItemSection	= null;
+			m_ItemIcon		= null;
+			m_IsSet			= false;
 
 			if ( itemSection != null && itemIcon != null )
 			{
-				this.m_ItemSection	= itemSection;
-				this.m_ItemIcon		= itemIcon;
-				this.m_IsSet			= true;
+				m_ItemSection	= itemSection;
+				m_ItemIcon		= itemIcon;
+				m_IsSet			= true;
 			}
 		}
 	}
@@ -67,9 +67,9 @@ public abstract partial class Entity : MonoBehaviour, IEntityInventary {
 		InventoryItem inventoryItem = new InventoryItem( itemSection, itemIcon );
 		if ( result &= inventoryItem.IsSet )
 		{
-			this.m_InventoryItems.Add( inventoryItem );
+			m_InventoryItems.Add( inventoryItem );
 
-			if (this.m_EntityType == EEntityType.ACTOR )
+			if (m_EntityType == EEntityType.ACTOR )
 			{
 				result &= UIManager.Inventory.AddItem( itemSection, itemIcon );
 			}
@@ -82,7 +82,7 @@ public abstract partial class Entity : MonoBehaviour, IEntityInventary {
 	//////////////////////////////////////////////////////////////////////////
 	public	virtual	bool	HasInventoryItem( string sectionName )
 	{
-		bool bHasBeenFound = this.m_InventoryItems.FindIndex( ii => ii.ItemSection.GetSectionName() == sectionName ) > -1;
+		bool bHasBeenFound = m_InventoryItems.FindIndex( ii => ii.ItemSection.GetSectionName() == sectionName ) > -1;
 		return bHasBeenFound;
 	}
 
@@ -90,16 +90,16 @@ public abstract partial class Entity : MonoBehaviour, IEntityInventary {
 	//////////////////////////////////////////////////////////////////////////
 	public	virtual	bool	RemoveInventoryItem( string sectionName )
 	{
-		int index = this.m_InventoryItems.FindIndex( ii => ii.ItemSection.GetSectionName() == sectionName );
+		int index = m_InventoryItems.FindIndex( ii => ii.ItemSection.GetSectionName() == sectionName );
 		bool result = true;
 		if ( result &= index > -1 )
 		{
-			if (this.m_EntityType == EEntityType.ACTOR )
+			if (m_EntityType == EEntityType.ACTOR )
 			{
 				result &= UIManager.Inventory.RemoveItem( sectionName );
 			}
 
-			this.m_InventoryItems.RemoveAt( index );
+			m_InventoryItems.RemoveAt( index );
 		}
 		return result;
 	}

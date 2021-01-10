@@ -10,7 +10,7 @@ class EditorInitializer
 	static EditorInitializer ()
 	{
 		// Assets/Resources/Scriptables/WeatherCollection.asset
-		const string assetPath = WeatherSystem.WindowWeatherEditor.ASSETS_SCRIPTABLES_PATH + "/" + WeatherSystem.WeatherManager.RESOURCES_WEATHERSCOLLECTION + ".asset";
+		string assetPath = System.IO.Path.Combine( WeatherSystem.WindowWeatherEditor.ASSETS_SCRIPTABLES_PATH, $"{WeatherSystem.WeatherManager.RESOURCES_WEATHERSCOLLECTION}.asset");
 		if (System.IO.File.Exists(assetPath))
 		{
 			WeatherSystem.Weathers weathers = UnityEditor.AssetDatabase.LoadAssetAtPath<WeatherSystem.Weathers>( assetPath );
@@ -21,21 +21,14 @@ class EditorInitializer
 			);
 			Debug.Log( "Weathers cycles preloaded!" );
 		}
-	//	UnityEditor.SceneManagement.EditorSceneManager.OpenScene("Assets/Scenes/Loading.unity", UnityEditor.SceneManagement.OpenSceneMode.Additive);
 	}
 	/*
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
 	private static void LoadLoadingScene()
 	{
-		Scene loadingScene = SceneManager.GetSceneByBuildIndex( (int) ESceneEnumeration.LOADING );
-		if (!loadingScene.isLoaded)
+		if (!SceneManager.GetSceneByBuildIndex( (int)ESceneEnumeration.LOADING).isLoaded)
 		{
-			CustomSceneManager.LoadSceneData loadSceneData = new CustomSceneManager.LoadSceneData()
-			{
-				eScene = ESceneEnumeration.LOADING,
-				eMode = LoadSceneMode.Additive
-			};
-			CustomSceneManager.LoadSceneSync( loadSceneData );
+			UnityEditor.SceneManagement.EditorSceneManager.OpenScene("Assets/Scenes/Loading.unity", UnityEditor.SceneManagement.OpenSceneMode.Additive);
 		}
 	}
 	*/
@@ -57,19 +50,19 @@ public class CustomLogHandler : ILogHandler
         m_DefaultLogHandler = Debug.unityLogger.logHandler;
         Debug.unityLogger.logHandler = this;
 
-		string filePath = Application.dataPath + "/SessionLog.log";
 		{
-			this.m_FileStream = new System.IO.FileStream( filePath, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Write );
-			this.m_StreamWriter = new System.IO.StreamWriter(this.m_FileStream );
+			string filePath = $"{Application.dataPath}/SessionLog.log";
+			m_FileStream = new System.IO.FileStream( filePath, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Write );
+			m_StreamWriter = new System.IO.StreamWriter(m_FileStream );
 		}
 
-		this.cultureInfo.NumberFormat.NumberDecimalSeparator = ".";
+		cultureInfo.NumberFormat.NumberDecimalSeparator = ".";
     }
 
 	//////////////////////////////////////////////////////////////////////////
     public void LogFormat( LogType logType, Object context, string format, params object[] args )
     {
-		this.m_StreamWriter.WriteLine( "[" + Time.time.ToString("0.000", this.cultureInfo) + "]" +  System.String.Format( format, args ) );
+		m_StreamWriter.WriteLine( $"[{Time.time.ToString("0.000", cultureInfo)}] {System.String.Format( format, args )}" );
         m_DefaultLogHandler.LogFormat( logType, context, format, args );
     }
 
@@ -77,9 +70,9 @@ public class CustomLogHandler : ILogHandler
 	//////////////////////////////////////////////////////////////////////////
     public void LogException( System.Exception exception, Object context )
     {
-		this.m_StreamWriter.WriteLine( "[" + Time.time.ToString("0.000", this.cultureInfo) + "]" + exception.Message );
-		this.m_StreamWriter.WriteLine( exception.StackTrace );
-		this.m_StreamWriter.Flush();
+		m_StreamWriter.WriteLine( $"[{Time.time.ToString("0.000", cultureInfo)}] {exception.Message}" );
+		m_StreamWriter.WriteLine( exception.StackTrace );
+		m_StreamWriter.Flush();
         m_DefaultLogHandler.LogException( exception, context );
     }
 	
@@ -87,9 +80,9 @@ public class CustomLogHandler : ILogHandler
 	//////////////////////////////////////////////////////////////////////////
 	public  void UnSetup()
 	{
-		this.m_StreamWriter.Flush();
-		this.m_StreamWriter.Close();
-		this.m_FileStream.Close();
+		m_StreamWriter.Flush();
+		m_StreamWriter.Close();
+		m_FileStream.Close();
 
 		Debug.unityLogger.logHandler = m_DefaultLogHandler;
 	}
@@ -100,6 +93,46 @@ public class CustomLogHandler : ILogHandler
 
 public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 {
+#if UNITY_EDITOR
+	private short updateCount = 0;
+    private short fixedUpdateCount = 0;
+    private short updateUpdateCountPerSecond;
+    private short updateFixedUpdateCountPerSecond;
+	private GUIStyle fontSize = null;
+
+	private void Awake()
+	{
+		IEnumerator Loop()
+		{
+			while (true)
+			{
+				yield return new WaitForSeconds(1);
+				updateUpdateCountPerSecond = updateCount;
+				updateFixedUpdateCountPerSecond = fixedUpdateCount;
+
+				updateCount = 0;
+				fixedUpdateCount = 0;
+			}
+		}
+		StartCoroutine(Loop());
+	}
+
+	private void FixedUpdate()
+	{
+		fixedUpdateCount += 1;
+	}
+
+	private void OnGUI()
+	{
+		fontSize = fontSize ?? new GUIStyle( GUI.skin.GetStyle( "label" ) )
+		{
+			fontSize = 10
+		};
+		GUI.Label(new Rect(20,  5, 200, 50), $"Update: {updateUpdateCountPerSecond.ToString()}", fontSize );
+        GUI.Label(new Rect(20, 15, 200, 50), $"FixedUpdate: {updateFixedUpdateCountPerSecond.ToString()}", fontSize );
+	}
+#endif
+
 	private	const			string				m_SettingsFilePath	= "Settings";
 	private	const			string				m_ConfigsFilePath	= "Configs/All";
 
@@ -116,8 +149,7 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 		get {
 			if ( m_Settings == null )
 			{
-				m_Settings = new SectionMap();
-				m_Settings.LoadFile( m_SettingsFilePath );
+				m_Settings = new SectionMap(m_SettingsFilePath);
 			}
 			return m_Settings;
 		}
@@ -130,14 +162,13 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 		get {
 			if ( m_Configs == null )
 			{
-				m_Configs = new SectionMap();
-				m_Configs.LoadFile( m_ConfigsFilePath );
+				m_Configs = new SectionMap(m_ConfigsFilePath);
 			}
 			return m_Configs;
 		}
 	}
 
-	public static InputManager InputMgr { get; private set; } = null;
+	public static InputManager InputMgr = null;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -159,6 +190,7 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 	//////////////////////////////////////////////////////////////////////////
 	protected override void OnInitialize()
 	{
+		InputMgr = new InputManager();
 //		if ( Application.isEditor == false )
 		{
 			Application.logMessageReceived += HandleException;
@@ -185,9 +217,6 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 		// approximately to the size of biggest texture used in the Scene to avoid re-sizing
 		// of the buffer which can incur performance cost.
 		QualitySettings.asyncUploadBufferSize = 24; // MB
-
-		InputMgr = new InputManager();
-		InputMgr.Setup();
 
 		// If not already loaded from previous scenes, ensure scene loaded for next sequence
 		Scene loadingScene = SceneManager.GetSceneByBuildIndex( (int) ESceneEnumeration.LOADING );
@@ -232,6 +261,9 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 	//////////////////////////////////////////////////////////////////////////
 	private void Update()
 	{
+#if UNITY_EDITOR
+		updateCount++;
+#endif
 		/*
 		if ( Input.GetKeyDown( KeyCode.V ) )
 		{
@@ -251,13 +283,14 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 
 		if ( Input.GetKeyDown( KeyCode.K ) )
 		{
-			SoundManager.Pitch = Time.timeScale = 0.2f;
+			SoundManager.Pitch = Time.timeScale = 0.02f;
 		}
 
 		if ( Input.GetKeyDown( KeyCode.V ) )
 		{
-			Destroy( UIManager.InGame?.transform.parent.gameObject );
-			CustomSceneManager.LoadSceneSync( new CustomSceneManager.LoadSceneData() { eScene = ESceneEnumeration.MAIN_MENU } );
+			UIManager.PauseMenu.ReturnToMenu();
+//			Destroy( UIManager.InGame?.transform.parent.gameObject );
+//			CustomSceneManager.LoadSceneSync( new CustomSceneManager.LoadSceneData() { eScene = ESceneEnumeration.MAIN_MENU } );
 		}
 	}
 

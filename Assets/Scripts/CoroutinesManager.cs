@@ -16,34 +16,34 @@ public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
 			if ( Routine.IsNotNull() )
 				return;
 
-			this.m_CurrentEnumerator = Routine;
-			this.m_MonoBehaviour = monoBehaviour;
-			this.m_Routines.Add( Routine );
+			m_CurrentEnumerator = Routine;
+			m_MonoBehaviour = monoBehaviour;
+			m_Routines.Add( Routine );
 		}
 
 		public RoutinesSequence AddStep( IEnumerator Routine )
 		{
 			if ( Routine.IsNotNull() )
 			{
-				this.m_Routines.Add( Routine );
+				m_Routines.Add( Routine );
 			}
 			return this;
 		}
 
 		private	IEnumerator StartCO()
 		{
-			while (this.m_CurrentIndex < this.m_Routines.Count )
+			while (m_CurrentIndex < m_Routines.Count )
 			{
-				IEnumerator CurrentEnumerator = this.m_Routines[this.m_CurrentIndex ];
-				yield return this.m_MonoBehaviour.StartCoroutine( CurrentEnumerator );
-				this.m_CurrentIndex ++;
+				IEnumerator CurrentEnumerator = m_Routines[m_CurrentIndex ];
+				yield return m_MonoBehaviour.StartCoroutine( CurrentEnumerator );
+				m_CurrentIndex ++;
 			}
 
 		}
 
 		public	Coroutine	ExecuteSequence()
 		{
-			return this.m_MonoBehaviour.StartCoroutine(this.StartCO() );
+			return m_MonoBehaviour.StartCoroutine(StartCO() );
 		}
 
 	}
@@ -75,7 +75,7 @@ public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
 		if ( howMany > Instance.m_PendingRoutines)
 		{
 			Debug.Log( "CoroutinesManager::RemoveCoroutineToPendingCount:Trying to remove more than available pending routines" );
-			Debug.Log( "Current Pending Routines are : " + Instance.m_PendingRoutines + ", tried to remove: " + howMany );
+			Debug.Log( $"Current Pending Routines are : {Instance.m_PendingRoutines}, tried to remove: {howMany}" );
 			return;
 		}
 
@@ -99,7 +99,7 @@ public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
 	{
 		if ( ShowDebugInfo && debugKey.Length > 0 )
 		{
-			Debug.Log( "Starting coroutine for " + debugKey );
+			Debug.Log( $"Starting coroutine for {debugKey}" );
 		}
 		return Instance?.StartCoroutine( routine );
 	}

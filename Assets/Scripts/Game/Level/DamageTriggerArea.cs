@@ -51,15 +51,15 @@ public class DamageTriggerArea : MonoBehaviour {
 	private void Awake()
 	{
 		
-		this.m_IsActiveArea = this.transform.SearchComponent(ref this.m_TriggerEvents, ESearchContext.LOCAL);
-		this.m_IsActiveArea &= this.transform.SearchComponent(ref this.m_Collider, ESearchContext.LOCAL);
+		m_IsActiveArea = transform.SearchComponent(ref m_TriggerEvents, ESearchContext.LOCAL);
+		m_IsActiveArea &= transform.SearchComponent(ref m_Collider, ESearchContext.LOCAL);
 
-		if (this.m_IsActiveArea )
+		if (m_IsActiveArea )
 		{
-			this.m_TriggerEvents.OnEnterEvent += this.OnEnter;
-			this.m_TriggerEvents.OnExitEvent += this.OnExit;
+			m_TriggerEvents.OnEnterEvent += OnEnter;
+			m_TriggerEvents.OnExitEvent += OnExit;
 
-			GameManager.UpdateEvents.OnFrame += this.UpdateEvents_OnFrame;
+			GameManager.UpdateEvents.OnFrame += UpdateEvents_OnFrame;
 		}
 	}
 
@@ -67,23 +67,23 @@ public class DamageTriggerArea : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnEnable()
 	{
-		this.m_IsActiveArea = true;
+		m_IsActiveArea = true;
 
-		this.m_EnteredGameObjects.Clear();
+		m_EnteredGameObjects.Clear();
 
 		Collider[] colliders = null;
 		bool bHasColliders = false;
 
-		if (this.m_Collider is BoxCollider )
+		if (m_Collider is BoxCollider )
 		{
-			BoxCollider thisCollider = this.m_Collider as BoxCollider;
+			BoxCollider thisCollider = m_Collider as BoxCollider;
 			colliders = Physics.OverlapBox( thisCollider.transform.position, thisCollider.size, thisCollider.transform.rotation );
 			bHasColliders = colliders.Length > 0;
 		}
 
-		if (this.m_Collider is SphereCollider )
+		if (m_Collider is SphereCollider )
 		{
-			SphereCollider thisCollider = this.m_Collider as SphereCollider;
+			SphereCollider thisCollider = m_Collider as SphereCollider;
 			colliders = Physics.OverlapSphere( thisCollider.transform.position, thisCollider.radius );
 			bHasColliders = colliders.Length > 0;
 		}
@@ -93,7 +93,7 @@ public class DamageTriggerArea : MonoBehaviour {
 			for ( int i = 0; i < colliders.Length; i++ )
 			{
 				Collider collider = colliders[i];
-				this.OnEnter( collider.gameObject );
+				OnEnter( collider.gameObject );
 			}
 		}
 	}
@@ -102,22 +102,22 @@ public class DamageTriggerArea : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnDisable()
 	{
-		this.m_IsActiveArea = false;
+		m_IsActiveArea = false;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private void UpdateEvents_OnFrame( float DeltaTime )
 	{
-		if (this.m_IsActiveArea == false )
+		if (m_IsActiveArea == false )
 			return;
 		
-		for ( int i = this.m_EnteredGameObjects.Count - 1; i >= 0; i-- )
+		for ( int i = m_EnteredGameObjects.Count - 1; i >= 0; i-- )
 		{
-			EnteredGameObjectData data = this.m_EnteredGameObjects[i];
+			EnteredGameObjectData data = m_EnteredGameObjects[i];
 			if ( data.EnteredGameObject == null )
 			{
-				this.m_EnteredGameObjects.RemoveAt( i ); continue;
+				m_EnteredGameObjects.RemoveAt( i ); continue;
 			}
 
 			if ( data.bIsEntity && data.EnteredEntity == null )
@@ -127,7 +127,7 @@ public class DamageTriggerArea : MonoBehaviour {
 
 			if ( data.bIsEntity )
 			{
-				data.EnteredEntity.OnHittedDetails( Vector3.zero, null, this.m_DamageType, this.m_EveryFrameAppliedDamage * DeltaTime, false );
+				data.EnteredEntity.OnHittedDetails( Vector3.zero, null, m_DamageType, m_EveryFrameAppliedDamage * DeltaTime, false );
 			}
 		}
 	}
@@ -136,12 +136,12 @@ public class DamageTriggerArea : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private	void	OnEnter( GameObject go )
 	{
-		if (this.m_EnteredGameObjects.FindIndex( (o) => go.transform.root.GetInstanceID() == o.ObjectID ) > -1 )
+		if (m_EnteredGameObjects.FindIndex( (o) => go.transform.root.GetInstanceID() == o.ObjectID ) > -1 )
 		{
 			return;
 		}
 
-		if (!go.TryGetComponent(this.m_EntityType.Type, out Component comp))
+		if (!go.TryGetComponent(m_EntityType.Type, out Component comp))
 		{
 			return;
 		}
@@ -156,7 +156,7 @@ public class DamageTriggerArea : MonoBehaviour {
 			EnteredGameObject = go,
 			ObjectID = go.transform.root.GetInstanceID()
 		};
-		this.m_EnteredGameObjects.Add( newData );
+		m_EnteredGameObjects.Add( newData );
 	}
 
 
@@ -164,11 +164,11 @@ public class DamageTriggerArea : MonoBehaviour {
 	private	void	OnExit( GameObject go )
 	{
 		int IDToFind = go.transform.root.GetInstanceID();
-		int index = this.m_EnteredGameObjects.FindIndex( (s) => s.ObjectID == IDToFind );
+		int index = m_EnteredGameObjects.FindIndex( (s) => s.ObjectID == IDToFind );
 		if ( index > -1 )
 		{
 			Debug.Log( "TixicTriggerArea::OnExit: Exit " + go.name );
-			this.m_EnteredGameObjects.RemoveAt(index);
+			m_EnteredGameObjects.RemoveAt(index);
 		}
 	}
 
@@ -176,20 +176,20 @@ public class DamageTriggerArea : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnDrawGizmos()
 	{
-		if (this.transform.SearchComponent( ref this.m_Collider, ESearchContext.LOCAL ) )
+		if (transform.SearchComponent( ref m_Collider, ESearchContext.LOCAL ) )
 		{
 			Matrix4x4 mat = Gizmos.matrix;
-			Gizmos.matrix = this.transform.localToWorldMatrix;
+			Gizmos.matrix = transform.localToWorldMatrix;
 
-			if (this.m_Collider is BoxCollider )
+			if (m_Collider is BoxCollider )
 			{
-				BoxCollider thisCollider = this.m_Collider as BoxCollider;
+				BoxCollider thisCollider = m_Collider as BoxCollider;
 				Gizmos.DrawCube( Vector3.zero, thisCollider.size );
 			}
 		
-			if (this.m_Collider is SphereCollider )
+			if (m_Collider is SphereCollider )
 			{
-				SphereCollider thisCollider = this.m_Collider as SphereCollider;
+				SphereCollider thisCollider = m_Collider as SphereCollider;
 				Gizmos.DrawSphere( Vector3.zero, thisCollider.radius );
 			}
 

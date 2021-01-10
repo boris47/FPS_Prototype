@@ -16,78 +16,81 @@ public sealed class UI_Audio : MonoBehaviour, IUIOptions, IStateDefiner
 	#region IStateDefiner
 
 	//------------------------------------------------------------
-	bool IStateDefiner.IsInitialized => this.m_IsInitialized = false;
+	bool IStateDefiner.IsInitialized => m_IsInitialized = false;
 
 
 	//------------------------------------------------------------
-	string IStateDefiner.StateName => this.name;
+	string IStateDefiner.StateName => name;
 
+
+	//////////////////////////////////////////////////////////////////////////
+	public void PreInit() { }
 
 	//////////////////////////////////////////////////////////////////////////
 	IEnumerator IStateDefiner.Initialize()
 	{
-		if (this.m_IsInitialized == true)
+		if (m_IsInitialized == true)
 		{
 			yield break;
 		}
 
-		this.OnEnable();
-		this.OnApplyChanges();
+		OnEnable();
+		OnApplyChanges();
 
 		CoroutinesManager.AddCoroutineToPendingCount(1);
 
-		this.m_IsInitialized = true;
+		m_IsInitialized = true;
 		{
-			if (this.m_IsInitialized &= this.transform.SearchComponentInChild("Slider_MusicVolume", ref this.m_MusicSlider))
+			if (m_IsInitialized &= transform.SearchComponentInChild("Slider_MusicVolume", ref m_MusicSlider))
 			{
-				this.m_MusicSlider.onValueChanged.AddListener((float newValue) =>
+				m_MusicSlider.onValueChanged.AddListener((float newValue) =>
 				{
 					UserSettings.AudioSettings.OnMusicVolumeSet(newValue);
-					this.m_ApplyButton.interactable = true;
+					m_ApplyButton.interactable = true;
 				});
 			}
 
 			yield return null;
 
-			if (this.m_IsInitialized &= this.transform.SearchComponentInChild("Slider_SoundVolume", ref this.m_SoundSlider))
+			if (m_IsInitialized &= transform.SearchComponentInChild("Slider_SoundVolume", ref m_SoundSlider))
 			{
-				this.m_SoundSlider.onValueChanged.AddListener((float newValue) =>
+				m_SoundSlider.onValueChanged.AddListener((float newValue) =>
 				{
 					UserSettings.AudioSettings.OnSoundsVolumeSet(newValue);
-					this.m_ApplyButton.interactable = true;
+					m_ApplyButton.interactable = true;
 				});
 			}
 
 			yield return null;
 
-			if (this.m_IsInitialized &= this.transform.SearchComponentInChild("ApplyButton", ref this.m_ApplyButton))
+			if (m_IsInitialized &= transform.SearchComponentInChild("ApplyButton", ref m_ApplyButton))
 			{
-				this.m_ApplyButton.onClick.AddListener(() =>
+				m_ApplyButton.onClick.AddListener(() =>
 				{
-					UIManager.Confirmation.Show("Apply Changes?", this.OnApplyChanges, () => { UserSettings.AudioSettings.ReadFromRegistry(); this.UpdateUI(); });
+					UIManager.Confirmation.Show("Apply Changes?", OnApplyChanges, () => { UserSettings.AudioSettings.ReadFromRegistry(); UpdateUI(); });
 				});
-				this.m_ApplyButton.interactable = false;
+				m_ApplyButton.interactable = false;
 			}
 
 			yield return null;
 
-			if (this.m_IsInitialized &= this.transform.SearchComponentInChild("ResetButton", ref this.m_ResetButton))
+			if (m_IsInitialized &= transform.SearchComponentInChild("ResetButton", ref m_ResetButton))
 			{
-				this.m_ResetButton.onClick.AddListener(() =>
+				m_ResetButton.onClick.AddListener(() =>
 				{
-					UIManager.Confirmation.Show("Reset?", () => { UserSettings.AudioSettings.ApplyDefaults(); this.UpdateUI(); });
+					UIManager.Confirmation.Show("Reset?", () => { UserSettings.AudioSettings.ApplyDefaults(); UpdateUI(); });
 				});
 			}
 
 			yield return null;
 
-			if (this.m_IsInitialized)
+			if (m_IsInitialized)
 			{
-				this.OnEnable();
+				OnEnable();
 
 				yield return null;
 
-				this.OnApplyChanges();
+				OnApplyChanges();
 
 				CoroutinesManager.RemoveCoroutineFromPendingCount(1);
 
@@ -111,7 +114,7 @@ public sealed class UI_Audio : MonoBehaviour, IUIOptions, IStateDefiner
 	//////////////////////////////////////////////////////////////////////////
 	bool IStateDefiner.Finalize()
 	{
-		return this.m_IsInitialized;
+		return m_IsInitialized;
 	}
 
 	#endregion
@@ -119,13 +122,13 @@ public sealed class UI_Audio : MonoBehaviour, IUIOptions, IStateDefiner
 	//////////////////////////////////////////////////////////////////////////
 	public void OnEnable()
 	{
-		if (this.m_IsInitialized == false)
+		if (m_IsInitialized == false)
 		{
 			return;
 		}
 
 		UserSettings.AudioSettings.OnEnable();
-		this.UpdateUI();
+		UpdateUI();
 	}
 
 
@@ -133,13 +136,13 @@ public sealed class UI_Audio : MonoBehaviour, IUIOptions, IStateDefiner
 	/// <summary> Apply changes </summary>
 	public void OnApplyChanges()
 	{
-		if (this.m_IsInitialized == false)
+		if (m_IsInitialized == false)
 		{
 			return;
 		}
 
 		UserSettings.AudioSettings.OnApplyChanges();
-		this.m_ApplyButton.interactable = false;
+		m_ApplyButton.interactable = false;
 	}
 
 
@@ -147,14 +150,14 @@ public sealed class UI_Audio : MonoBehaviour, IUIOptions, IStateDefiner
 	/// <summary> Updates UI Components </summary>
 	public void UpdateUI()
 	{
-		if (this.m_IsInitialized == false)
+		if (m_IsInitialized == false)
 		{
 			return;
 		}
 
 		UserSettings.AudioSettings.AudioData data = UserSettings.AudioSettings.GetAudioData();
-		this.m_MusicSlider.value = data.MusicVolume;
-		this.m_SoundSlider.value = data.SoundVolume;
+		m_MusicSlider.value = data.MusicVolume;
+		m_SoundSlider.value = data.SoundVolume;
 	}
 
 
@@ -162,13 +165,13 @@ public sealed class UI_Audio : MonoBehaviour, IUIOptions, IStateDefiner
 	/// <summary> Remove key from registry </summary>
 	public void Reset()
 	{
-		if (this.m_IsInitialized == false)
+		if (m_IsInitialized == false)
 		{
 			return;
 		}
 
 		UserSettings.AudioSettings.Reset();
-		this.UpdateUI();
+		UpdateUI();
 	}
 
 }

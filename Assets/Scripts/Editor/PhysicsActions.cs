@@ -1,7 +1,8 @@
 
-// C# example.
 using UnityEditor;
+using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class PhysicsActions 
 {
@@ -55,5 +56,13 @@ public class PhysicsActions
 
 		}
 //		UnityEngine.Physics.autoSimulation = true;
+	}
+
+	[MenuItem( MENU_LABEL + "/SimulatePhysisStep" )]
+	private static void PhysicsActions_SimulatePhysisStep()
+	{
+		Physics.autoSimulation = false;
+		Physics.Simulate( 1 );
+		Physics.autoSimulation = true;
 	}
 }

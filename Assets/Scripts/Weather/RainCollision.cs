@@ -16,13 +16,13 @@ namespace WeatherSystem {
 		// START
 		private void Awake()
 		{
-			if (!this.TryGetComponent(out this.m_RainParticleSystem))
+			if (!TryGetComponent(out m_RainParticleSystem))
 			{
-				this.enabled = false;
+				enabled = false;
 				return;
 			}
 
-			this.m_CollisionEvents.Capacity = this.m_RainParticleSystem.main.maxParticles / 3;
+			m_CollisionEvents.Capacity = m_RainParticleSystem.main.maxParticles / 3;
 		}
 
 
@@ -40,13 +40,13 @@ namespace WeatherSystem {
 				const float lifetime = 0.1f;// UnityEngine.Random.Range(0.25f, 0.75f);
 				float size = Random.Range( 0.05f, 0.1f );
 
-				this.param.position			= position;
-				this.param.velocity			= new Vector3( xVelocity, yVelocity, zVelocity );
-				this.param.startLifetime		= lifetime;
-				this.param.startSize			= size;
-				this.param.startColor		= this.m_Color;
+				param.position			= position;
+				param.velocity			= new Vector3( xVelocity, yVelocity, zVelocity );
+				param.startLifetime		= lifetime;
+				param.startSize			= size;
+				param.startColor		= m_Color;
 
-				particle.Emit(this.param, 1 );
+				particle.Emit(param, 1 );
 
 				count--;
 			}
@@ -60,16 +60,16 @@ namespace WeatherSystem {
 			if ( obj.tag == "Player" )
 				return;
 
-			if (this.m_RainExplosion != null && this.m_RainParticleSystem != null )
+			if (m_RainExplosion != null && m_RainParticleSystem != null )
 			{
-				int count = this.m_RainParticleSystem.GetCollisionEvents( obj, this.m_CollisionEvents );
+				int count = m_RainParticleSystem.GetCollisionEvents( obj, m_CollisionEvents );
 				for ( int i = 0; i < count; i++ )
 				{
 					if ( Random.value > 0.75f )
 						continue;
 
 //					ParticleCollisionEvent evt = m_CollisionEvents[ i ];
-					this.Emit( ref this.m_RainExplosion, this.m_CollisionEvents[ i ].intersection );
+					Emit( ref m_RainExplosion, m_CollisionEvents[ i ].intersection );
 				}
 			}
 		}

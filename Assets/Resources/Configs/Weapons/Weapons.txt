@@ -23,13 +23,13 @@ BaseZoomSensitivity			= 0.3;
 
 HasPrimaryWeaponModule		= true;
 PrimaryWeaponModule			= WPN_FireModule_Shotgun;
-;PrimaryWeaponModuleMods	= WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy;
+;PrimaryWeaponModuleMods		= WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy;
 
 HasSecondaryWeaponModule	= true;
-SecondaryWeaponModule		= WPN_FireModule_SniperBarrel;
+SecondaryWeaponModule		= WPN_FireModule_Barrel;
 
 HasTertiaryWeaponModule		= true;
-TertiaryWeaponModule		= WPN_WeaponModule_Shield;
+TertiaryWeaponModule		= WPN_FireModule_Blaster;
 ;TertiaryWeaponModuleMods	= WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_BiggerMag, WPN_Module_Prop_BiggerMag;
 
 ; Prefab must have "Attachments" child

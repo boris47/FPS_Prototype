@@ -35,23 +35,23 @@ public sealed class EffectsManager : SingletonMonoBehaviour<EffectsManager>
 	//////////////////////////////////////////////////////////////////////////
 	private void	Awake()
 	{
-		this.m_ParticleEffects = this.transform.Find("ParticleEffects");
-		this.m_AudioSources = this.transform.Find("AudioSources");
+		m_ParticleEffects = transform.Find("ParticleEffects");
+		m_AudioSources = transform.Find("AudioSources");
 
-		this.m_IsOK &= this.m_ParticleEffects.MapComponentsInChildrenToArray<ParticleSystem, EEffecs>( ref this.m_Effects );
-		this.m_IsOK &= this.m_AudioSources.MapComponentsInChildrenToArray<CustomAudioSource, EEffecs>( ref this.m_CustomAudioSource );
+		m_IsOK &= m_ParticleEffects.MapComponentsInChildrenToArray<ParticleSystem, EEffecs>( ref m_Effects );
+		m_IsOK &= m_AudioSources.MapComponentsInChildrenToArray<CustomAudioSource, EEffecs>( ref m_CustomAudioSource );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public	void	PlayEffect( EEffecs effectType,  Vector3 position, Vector3 direction, int? count = 0, float gameObjectLife = 5f )
 	{
-		if (this.m_IsOK == false )
+		if (m_IsOK == false )
 			return;
 
 		if ( count.HasValue )
 		{
-			ParticleSystem p = this.m_Effects[ (int) effectType ];
+			ParticleSystem p = m_Effects[ (int) effectType ];
 			{
 				p.transform.position = position;
 				p.transform.forward = direction;
@@ -60,7 +60,7 @@ public sealed class EffectsManager : SingletonMonoBehaviour<EffectsManager>
 		}
 		else
 		{
-			ParticleSystem p = Instantiate(this.m_Effects[ (int) effectType ] );
+			ParticleSystem p = Instantiate(m_Effects[ (int) effectType ] );
 			{
 				p.transform.position = position;
 				p.transform.forward = direction;
@@ -81,10 +81,10 @@ public sealed class EffectsManager : SingletonMonoBehaviour<EffectsManager>
 	//////////////////////////////////////////////////////////////////////////
 	public	void	PlayExplosionSound( EEffecs effectType, Vector3 position )
 	{
-		if (this.m_IsOK == false )
+		if (m_IsOK == false )
 			return;
 
-		CustomAudioSource source = this.m_CustomAudioSource[(int) effectType];
+		CustomAudioSource source = m_CustomAudioSource[(int) effectType];
 		if (source)
 		{
 			source.transform.position = position;

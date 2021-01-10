@@ -15,7 +15,7 @@
         /// <param name="baseType">Type that selectable types must inherit from.</param>
         public InheritsAttribute(Type baseType)
         {
-			this.BaseType = baseType;
+			BaseType = baseType;
         }
 
         /// <summary>
@@ -38,7 +38,7 @@
         /// <inheritdoc/>
         public override bool MatchesRequirements(Type type)
         {
-            if (type == this.BaseType && !this.IncludeBaseType)
+            if (type == BaseType && !IncludeBaseType)
             {
                 return false;
             }
@@ -46,12 +46,12 @@
             // Include base type in the drop-down even if it is abstract.
             // If the user set IncludeBaseType to true, they probably want to include the base type in the dropdown
             // even though it is abstract.
-            if (type == this.BaseType)
+            if (type == BaseType)
                 return true;
 
-            bool passesAbstractConstraint = this.AllowAbstract || !type.IsAbstract;
+            bool passesAbstractConstraint = AllowAbstract || !type.IsAbstract;
 
-            return this.BaseType.IsAssignableFrom(type) && passesAbstractConstraint && base.MatchesRequirements(type);
+            return BaseType.IsAssignableFrom(type) && passesAbstractConstraint && base.MatchesRequirements(type);
         }
     }
 }

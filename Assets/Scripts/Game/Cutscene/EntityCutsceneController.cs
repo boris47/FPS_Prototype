@@ -20,27 +20,27 @@ namespace CutScene {
 
 		public	void	Setup( Entity entityParent, PointsCollectionOnline pointCollection )
 		{
-			this.m_EntityParent		= entityParent;
-			this.m_EntitySimulation	= entityParent;
-			this.m_PointsCollection	= pointCollection;
-			this.m_CurrentIdx		= 0;
+			m_EntityParent		= entityParent;
+			m_EntitySimulation	= entityParent;
+			m_PointsCollection	= pointCollection;
+			m_CurrentIdx		= 0;
 
-			this.m_EntitySimulation.EnterSimulationState();
+			m_EntitySimulation.EnterSimulationState();
 
-			CutsceneWaypointData data = this.m_PointsCollection[this.m_CurrentIdx ];
-			this.SetupForNextWaypoint( data );
+			CutsceneWaypointData data = m_PointsCollection[m_CurrentIdx ];
+			SetupForNextWaypoint( data );
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		private	void	SetupForNextWaypoint( CutsceneWaypointData data )
 		{
-			this.m_Target					= data.target;                                  // target to look at
-			this.m_MovementType				= data.movementType;                            // movement type
-			this.m_TimeScaleTarget			= Mathf.Clamp01( data.timeScaleTraget );		// time scale for this trip
+			m_Target					= data.target;                                  // target to look at
+			m_MovementType				= data.movementType;                            // movement type
+			m_TimeScaleTarget			= Mathf.Clamp01( data.timeScaleTraget );		// time scale for this trip
 
 			// WEAPON ZOOM
-			if (this.m_EntityParent is Player )
+			if (m_EntityParent is Player )
 			{
 				if ( WeaponManager.Instance.CurrentWeapon.WeaponState == EWeaponState.DRAWED )
 				{
@@ -55,25 +55,25 @@ namespace CutScene {
 				}
 			}
 
-			this.m_Waiter = data.waiter;
+			m_Waiter = data.waiter;
 
-			if ( !this.m_Waiter  )
+			if ( !m_Waiter  )
 			{
 				// MOVEMENT
 				Vector3 destination = data.point.position;	// destination to reach
-				if ( Physics.Raycast( destination, -this.m_EntityParent.transform.up, out RaycastHit hit) )
+				if ( Physics.Raycast( destination, -m_EntityParent.transform.up, out RaycastHit hit) )
 				{
-					this.m_Destination = Utils.Math.ProjectPointOnPlane(this.m_EntityParent.transform.up, this.m_EntityParent.transform.position, hit.point );
+					m_Destination = Utils.Math.ProjectPointOnPlane(m_EntityParent.transform.up, m_EntityParent.transform.position, hit.point );
 				}
 				else
 				{
-					this.Terminate();
+					Terminate();
 					return;
 				}
 			}
 
 			// BEFORE A SIMULATION STAGE
-			this.m_EntitySimulation.BeforeSimulationStage(this.m_MovementType, this.m_Destination, this.m_Target, this.m_TimeScaleTarget );
+			m_EntitySimulation.BeforeSimulationStage(m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
 		}
 
 
@@ -84,47 +84,47 @@ namespace CutScene {
 		public	bool	Update()
 		{
 			// If a waiter is defined, we have to wait for its completion
-			if (this.m_Waiter && this.m_Waiter.HasToWait == true )
+			if (m_Waiter && m_Waiter.HasToWait == true )
 			{
-				Vector3 tempDestination = Utils.Math.ProjectPointOnPlane(this.m_EntityParent.transform.up, this.m_Destination, this.m_EntityParent.transform.position );
-				this.m_EntitySimulation.SimulateMovement( ESimMovementType.STATIONARY, tempDestination, this.m_Target, this.m_TimeScaleTarget );
-				this.m_Waiter.Wait();
+				Vector3 tempDestination = Utils.Math.ProjectPointOnPlane(m_EntityParent.transform.up, m_Destination, m_EntityParent.transform.position );
+				m_EntitySimulation.SimulateMovement( ESimMovementType.STATIONARY, tempDestination, m_Target, m_TimeScaleTarget );
+				m_Waiter.Wait();
 				return false;
 			}
 
-			this.m_Waiter = null;
+			m_Waiter = null;
 
 			// Continue simulation until need updates
-			bool isBusy = this.m_EntitySimulation.SimulateMovement(this.m_MovementType, this.m_Destination, this.m_Target, this.m_TimeScaleTarget );
+			bool isBusy = m_EntitySimulation.SimulateMovement(m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
 			if ( isBusy == true ) // if true is currently simulating and here we have to wait simulation to be completed
 			{
 				return false;
 			}
 
 			// call callback when each waypoint is reached
-			this.m_PointsCollection[this.m_CurrentIdx ].OnWayPointReached?.Invoke();
+			m_PointsCollection[m_CurrentIdx ].OnWayPointReached?.Invoke();
 
 			// AFTER A SIMULATION STAGE
-			this.m_EntitySimulation.AfterSimulationStage(this.m_MovementType, this.m_Destination, this.m_Target, this.m_TimeScaleTarget );
+			m_EntitySimulation.AfterSimulationStage(m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
 
 			// Next waypoint index
-			this.m_CurrentIdx ++;
+			m_CurrentIdx ++;
 
 			// End of simulation
-			if (this.m_CurrentIdx != this.m_PointsCollection.Count )
+			if (m_CurrentIdx != m_PointsCollection.Count )
 			{
 				// Update store start position for distance check
-				this.m_EntitySimulation.StartPosition = this.m_EntityParent.transform.position;
+				m_EntitySimulation.StartPosition = m_EntityParent.transform.position;
 
 				// Update to next simulation targets
-				CutsceneWaypointData data	= this.m_PointsCollection[this.m_CurrentIdx ];
+				CutsceneWaypointData data	= m_PointsCollection[m_CurrentIdx ];
 
-				this.SetupForNextWaypoint( data );
+				SetupForNextWaypoint( data );
 
 				return false;
 			}
 
-			this.Terminate();
+			Terminate();
 			return true;
 		}
 
@@ -139,15 +139,15 @@ namespace CutScene {
 				WeaponManager.Instance.ZoomOut();
 
 			// Called on entity in order to reset vars or everything else
-			this.m_EntitySimulation.ExitSimulationState();
+			m_EntitySimulation.ExitSimulationState();
 
 			// Resetting internals
-			this.m_CurrentIdx						= 0;
-			this.m_MovementType						= ESimMovementType.WALK;
-			this.m_Destination						= Vector3.zero;
-			this.m_Target							= null;
-			this.m_TimeScaleTarget					= 1f;
-			this.m_PointsCollection					= null;
+			m_CurrentIdx						= 0;
+			m_MovementType						= ESimMovementType.WALK;
+			m_Destination						= Vector3.zero;
+			m_Target							= null;
+			m_TimeScaleTarget					= 1f;
+			m_PointsCollection					= null;
 		}
 
 	}

@@ -19,33 +19,36 @@ public sealed class UI_Minimap : MonoBehaviour, IStateDefiner {
 
 	public			RectTransform	GetRawImageRect()
 	{
-		return this.m_MiniMapRectTransform;
+		return m_MiniMapRectTransform;
 	}
 
 	public			bool			IsVisible()
 	{
-		return this.m_IsVisible;
+		return m_IsVisible;
 	}
 
 	private			bool			m_IsInitialized			= false;
 	bool IStateDefiner.IsInitialized
 	{
-		get { return this.m_IsInitialized; }
+		get { return m_IsInitialized; }
 	}
 
 	string IStateDefiner.StateName
 	{
-		get { return this.name; }
+		get { return name; }
 	}
 
 	private			bool			m_IsCompletedInitialization	= false;
 
 
 	//////////////////////////////////////////////////////////////////////////
+	public void PreInit() { }
+
+	//////////////////////////////////////////////////////////////////////////
 	// Initialize
 	IEnumerator IStateDefiner.Initialize()
 	{
-		if (this.m_IsInitialized == true )
+		if (m_IsInitialized == true )
 			yield break;
 
 		yield return null;
@@ -53,60 +56,60 @@ public sealed class UI_Minimap : MonoBehaviour, IStateDefiner {
 		CoroutinesManager.AddCoroutineToPendingCount( 1 );
 
 		// Trick where panel is set very on the bottom of ui and allowed to do onFrame stuf in coroutine, then gameobject is deactivated
-		Vector3 previousCanvasPosition = this.transform.position;
+		Vector3 previousCanvasPosition = transform.position;
 
-		this.m_IsInitialized = true;
+		m_IsInitialized = true;
 		{
-			this.m_IsInitialized &= this.transform.SearchComponent( ref this.m_RawImage, ESearchContext.CHILDREN );
+			m_IsInitialized &= transform.SearchComponent( ref m_RawImage, ESearchContext.CHILDREN );
 
-			ResourceManager.LoadedData<RenderTexture> loadedResource = new ResourceManager.LoadedData<RenderTexture>();
+			ResourceManager.AsyncLoadedData<RenderTexture> loadedResource = new ResourceManager.AsyncLoadedData<RenderTexture>();
 			yield return ResourceManager.LoadResourceAsyncCoroutine
 			(
 				ResourcePath:			"Textures/MinimapRenderTexture",
 				loadedResource:			loadedResource,
-				OnResourceLoaded :		(a) => { this.m_IsInitialized &= true; this.m_MinimapRenderTexture = a; },
-				OnFailure:				(p) => this.m_IsInitialized &= false
+				OnResourceLoaded :		(a) => { m_IsInitialized &= true; m_MinimapRenderTexture = a; },
+				OnFailure:				(p) => m_IsInitialized &= false
 			);
 
-			if (this.m_IsInitialized )
+			if (m_IsInitialized )
 			{
-				this.m_MinimapRenderTexture = loadedResource.Asset;
+				m_MinimapRenderTexture = loadedResource.Asset;
 
-				if (this.m_CameraContainer != null )
+				if (m_CameraContainer != null )
 				{
-					Object.Destroy(this.m_CameraContainer );
+					Object.Destroy(m_CameraContainer );
 				}
 
-				this.m_CameraContainer = new GameObject("TopViewCamera");
-				this.m_CameraContainer.transform.position = Vector3.up * 100f;
+				m_CameraContainer = new GameObject("TopViewCamera");
+				m_CameraContainer.transform.position = Vector3.up * 100f;
 
-				this.m_TopViewCamera = this.m_CameraContainer.AddComponent<Camera>();
-				this.m_TopViewCamera.orthographic		= true;
-				this.m_TopViewCamera.orthographicSize	= 32f;
-				this.m_TopViewCamera.clearFlags			= CameraClearFlags.Depth;
-				DontDestroyOnLoad(this.m_CameraContainer );
+				m_TopViewCamera = m_CameraContainer.AddComponent<Camera>();
+				m_TopViewCamera.orthographic		= true;
+				m_TopViewCamera.orthographicSize	= 32f;
+				m_TopViewCamera.clearFlags			= CameraClearFlags.Depth;
+				DontDestroyOnLoad(m_CameraContainer );
 
-				this.m_TopViewCamera.allowMSAA			= false;
-				this.m_TopViewCamera.useOcclusionCulling	= false;
-				this.m_TopViewCamera.allowHDR			= false;
-				this.m_TopViewCamera.farClipPlane		= this.m_CameraContainer.transform.position.y * 2f;
-				this.m_TopViewCamera.targetTexture		= this.m_RawImage.texture as RenderTexture;
+				m_TopViewCamera.allowMSAA			= false;
+				m_TopViewCamera.useOcclusionCulling	= false;
+				m_TopViewCamera.allowHDR			= false;
+				m_TopViewCamera.farClipPlane		= m_CameraContainer.transform.position.y * 2f;
+				m_TopViewCamera.targetTexture		= m_RawImage.texture as RenderTexture;
 
 				yield return null;
 
-				this.m_MiniMapRectTransform = this.m_RawImage.transform as RectTransform;
+				m_MiniMapRectTransform = m_RawImage.transform as RectTransform;
 
-				this.m_HelperRectTransform = new GameObject("MinimapHelper").AddComponent<RectTransform>();
-				this.m_HelperRectTransform.SetParent(this.m_MiniMapRectTransform, worldPositionStays: false );
-				this.m_HelperRectTransform.anchorMin = Vector2.zero;
-				this.m_HelperRectTransform.anchorMax = Vector2.zero;
-				this.m_HelperRectTransform.gameObject.hideFlags = HideFlags.HideAndDontSave;
+				m_HelperRectTransform = new GameObject("MinimapHelper").AddComponent<RectTransform>();
+				m_HelperRectTransform.SetParent(m_MiniMapRectTransform, worldPositionStays: false );
+				m_HelperRectTransform.anchorMin = Vector2.zero;
+				m_HelperRectTransform.anchorMax = Vector2.zero;
+				m_HelperRectTransform.gameObject.hideFlags = HideFlags.HideAndDontSave;
 
-				this.m_RatioVector = new Vector2(this.m_MiniMapRectTransform.rect.width / this.m_TopViewCamera.pixelWidth, this.m_MiniMapRectTransform.rect.height / this.m_TopViewCamera.pixelHeight );
-				this.m_IsCompletedInitialization = true;
+				m_RatioVector = new Vector2(m_MiniMapRectTransform.rect.width / m_TopViewCamera.pixelWidth, m_MiniMapRectTransform.rect.height / m_TopViewCamera.pixelHeight );
+				m_IsCompletedInitialization = true;
 			}
 
-			if (this.m_IsInitialized )
+			if (m_IsInitialized )
 			{	
 				CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 			}
@@ -130,86 +133,86 @@ public sealed class UI_Minimap : MonoBehaviour, IStateDefiner {
 	// Finalize
 	bool	 IStateDefiner.Finalize()
 	{
-		return this.m_IsCompletedInitialization;
+		return m_IsCompletedInitialization;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// Ref: http://answers.unity.com/answers/1461171/view.html
-	public bool GetPositionOnUI( Vector3 worldPosition, out Vector2 screenPointInWorldSpace )
+	public bool GetPositionOnUI(in Vector3 worldPosition, out Vector2 screenPointInWorldSpace)
 	{
 		//first we get screnPoint in camera viewport space
-		Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint (this.m_TopViewCamera, worldPosition);
-		
+		Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint( m_TopViewCamera, worldPosition );
+
 		// if render texture has different size of map rect size then we multiply by factor the scrrenPoint
-		if (this.m_MinimapRenderTexture.width != this.m_MiniMapRectTransform.rect.width || this.m_MinimapRenderTexture.height != this.m_MiniMapRectTransform.rect.height )
+		if ( m_MinimapRenderTexture.width != m_MiniMapRectTransform.rect.width || m_MinimapRenderTexture.height != m_MiniMapRectTransform.rect.height )
 		{
 			// then transform it to position in worldImage using its rect
-			screenPoint.x *= this.m_RatioVector.x;
-			screenPoint.y *= this.m_RatioVector.y;
+			screenPoint.x *= m_RatioVector.x;
+			screenPoint.y *= m_RatioVector.y;
 		}
 
 		//after positioning helper to that spot
-		this.m_HelperRectTransform.anchoredPosition = screenPoint;
-		
-		screenPointInWorldSpace = this.m_HelperRectTransform.position;
+		m_HelperRectTransform.anchoredPosition = screenPoint;
 
-		return RectTransformUtility.RectangleContainsScreenPoint(this.m_MiniMapRectTransform, screenPointInWorldSpace );
+		screenPointInWorldSpace = m_HelperRectTransform.position;
+
+		return RectTransformUtility.RectangleContainsScreenPoint( m_MiniMapRectTransform, screenPointInWorldSpace );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private void FixedUpdate()
 	{
-		if (this.m_IsCompletedInitialization == false || Player.Instance.IsNotNull() == false )
+		if (m_IsCompletedInitialization == false || Player.Instance.IsNotNull() == false )
 			return;
 
-		Vector3 prevPosition = this.m_TopViewCamera.transform.position;
+		Vector3 prevPosition = m_TopViewCamera.transform.position;
 		prevPosition.x = Player.Instance.transform.position.x;
 		prevPosition.z = Player.Instance.transform.position.z;
-		this.m_TopViewCamera.transform.position = prevPosition;
+		m_TopViewCamera.transform.position = prevPosition;
 		
-		Vector3 planePoint		= CameraControl.Instance.Transform.position;
+		Vector3 planePoint		= CameraControl.Instance.transform.position;
 		Vector3 planeNormal		= Vector3.up;
-		Vector3 point			= CameraControl.Instance.Transform.position + CameraControl.Instance.Transform.forward * 100f;
+		Vector3 point			= CameraControl.Instance.transform.position + ( CameraControl.Instance.transform.forward * 100f );
 		Vector3 projectedPoint	= Utils.Math.ProjectPointOnPlane( planeNormal, planePoint, point );
 		Vector3 upwards			= ( projectedPoint - planePoint ).normalized;
 
-		this.m_TopViewCamera.transform.rotation = Quaternion.LookRotation( Vector3.down, upwards );
+		m_TopViewCamera.transform.rotation = Quaternion.LookRotation( Vector3.down, upwards );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public	void	Show()
 	{
-		if (this.m_IsCompletedInitialization == false )
+		if (m_IsCompletedInitialization == false )
 			return;
 
-		this.m_IsVisible = true;
+		m_IsVisible = true;
 
 		const float alphaValue = 0.7333333333333333f;
 		Color colorToAssign = Color.white;
 		colorToAssign.a = alphaValue;
-		this.m_RawImage.material.color = colorToAssign;
+		m_RawImage.material.color = colorToAssign;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public	void	Hide()
 	{
-		if (this.m_IsCompletedInitialization == false )
+		if (m_IsCompletedInitialization == false )
 			return;
 
-		this.m_IsVisible = false;
-		this.m_RawImage.material.color = Color.clear;
+		m_IsVisible = false;
+		m_RawImage.material.color = Color.clear;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private void OnDestroy()
 	{
-		Resources.UnloadAsset( this.m_MinimapRenderTexture );
-		this.Show();
+		Resources.UnloadAsset( m_MinimapRenderTexture );
+		Show();
 	}
 
 }

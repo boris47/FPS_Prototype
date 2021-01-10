@@ -11,9 +11,9 @@ public class ControlledButton : Interactable {
 
 	public	override	 void	OnInteraction()
 	{
-		if (this.m_OnUse != null && this.m_OnUse.GetPersistentEventCount() > 0 )
+		if (m_OnUse != null && m_OnUse.GetPersistentEventCount() > 0 )
 		{
-			this.m_OnUse.Invoke();
+			m_OnUse.Invoke();
 		}
 	}
 }

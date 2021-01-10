@@ -8,28 +8,31 @@ public sealed class UI_Settings : MonoBehaviour, IStateDefiner {
 	private	bool			m_IsInitialized			= false;
 	bool IStateDefiner.IsInitialized
 	{
-		get { return this.m_IsInitialized; }
+		get { return m_IsInitialized; }
 	}
 
 	string IStateDefiner.StateName
 	{
-		get { return this.name; }
+		get { return name; }
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	public void PreInit() { }
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
 	IEnumerator IStateDefiner.Initialize()
 	{
-		if (this.m_IsInitialized == true )
+		if (m_IsInitialized == true )
 			yield break;
 
-		this.m_IsInitialized = true;
+		m_IsInitialized = true;
 		{
 
 		}
 
-		if (this.m_IsInitialized )
+		if (m_IsInitialized )
 		{
 				
 		}
@@ -52,6 +55,6 @@ public sealed class UI_Settings : MonoBehaviour, IStateDefiner {
 	// Finalize
 	bool	 IStateDefiner.Finalize()
 	{
-		return this.m_IsInitialized;
+		return m_IsInitialized;
 	}
 }

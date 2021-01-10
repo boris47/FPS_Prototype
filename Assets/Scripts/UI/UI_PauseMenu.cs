@@ -19,33 +19,36 @@ public sealed class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 	private	bool			m_IsInitialized			= false;
 	bool IStateDefiner.IsInitialized
 	{
-		get { return this.m_IsInitialized; }
+		get { return m_IsInitialized; }
 	}
 
 	string IStateDefiner.StateName
 	{
-		get { return this.name; }
+		get { return name; }
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	public void PreInit() { }
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
 	IEnumerator IStateDefiner.Initialize()
 	{
-		if (this.m_IsInitialized == true )
+		if (m_IsInitialized == true )
 			yield break;
 
 		CoroutinesManager.AddCoroutineToPendingCount( 1 );
 
-		this.m_IsInitialized = true;
+		m_IsInitialized = true;
 		{
 			// RESUME BUTTON
-			if (this.m_IsInitialized &= this.transform.SearchComponentInChild( "Button_Resume", ref this.m_ResumeButton ) )
+			if (m_IsInitialized &= transform.SearchComponentInChild( "Button_Resume", ref m_ResumeButton ) )
 			{
-				this.m_ResumeButton.onClick.AddListener( delegate()
+				m_ResumeButton.onClick.AddListener( delegate()
 				{
 					//UI.Instance.SetPauseMenuState( false );
-					this.Resume();
+					Resume();
 				} );
 			}
 		/*
@@ -84,7 +87,7 @@ public sealed class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 			*/
 		}
 
-		if (this.m_IsInitialized )
+		if (m_IsInitialized )
 		{
 			CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 		}
@@ -107,7 +110,7 @@ public sealed class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 	// Finalize
 	bool	 IStateDefiner.Finalize()
 	{
-		return this.m_IsInitialized;
+		return m_IsInitialized;
 	}
 	
 
@@ -125,7 +128,7 @@ public sealed class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 	{
 		// Destroy singletons
 		{
-			Destroy( CameraControl.Instance.Transform.gameObject );
+			Destroy( CameraControl.Instance.transform.gameObject );
 			Destroy( Player.Instance.gameObject );
 			Destroy( WeaponManager.Instance.GameObject );
 			Destroy( GameManager.Instance.gameObject );
@@ -138,7 +141,7 @@ public sealed class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 		UIManager.EffectFrame.color = Color.black;
 
 		// Hide Pause menu UI
-		this.gameObject.SetActive( false );
+		gameObject.SetActive( false );
 
 		// update current active transform
 		UIManager.Instance.GoToMenu( UIManager.MainMenu );
@@ -171,7 +174,7 @@ public sealed class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 		// Pause Event
 		if ( Input.GetKeyDown( KeyCode.Escape ) && GameManager.IsPaused == true )
 		{
-			this.Resume();
+			Resume();
 		}
 	}
 

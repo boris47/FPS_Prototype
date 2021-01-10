@@ -17,10 +17,10 @@ public class Waiter_Timer : Waiter_Base {
 
 	public override void Wait()
 	{
-		if (this.m_CurrentTime < this.m_TimeToWait )
+		if (m_CurrentTime < m_TimeToWait )
 		{
-			this.m_CurrentTime += (this.m_ScaledTime ? Time.deltaTime : Time.fixedUnscaledDeltaTime );
+			m_CurrentTime += (m_ScaledTime ? Time.deltaTime : Time.fixedUnscaledDeltaTime );
 		}
-		this.m_HasToWait = this.m_CurrentTime < this.m_TimeToWait;
+		m_HasToWait = m_CurrentTime < m_TimeToWait;
 	}
 }

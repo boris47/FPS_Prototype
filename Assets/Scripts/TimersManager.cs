@@ -6,7 +6,7 @@ using UnityEngine;
 public sealed class TimersManager : SingletonMonoBehaviour<TimersManager>
 {
 	private	int id = 0;
-	private	int NextId() => this.id++;
+	private	int NextId() => id++;
 
 
 	[System.Serializable]
@@ -23,7 +23,7 @@ public sealed class TimersManager : SingletonMonoBehaviour<TimersManager>
 		public InternalTimer( int id, float startDuration, float interval, System.Action action, bool repeat, bool scaled )
 		{
 			this.id				= id;
-			this.currentTime	= startDuration;
+			currentTime	= startDuration;
 			this.interval		= interval;
 			this.action			= action ?? this.action;
 			this.repeat			= repeat;
@@ -34,12 +34,12 @@ public sealed class TimersManager : SingletonMonoBehaviour<TimersManager>
 		/// <summary> Must be kept alive </summary>
 		public bool Eval()
 		{
-			this.currentTime -= this.scaled ? Time.deltaTime : Time.unscaledDeltaTime;
-			if (this.currentTime <= 0 )
+			currentTime -= scaled ? Time.deltaTime : Time.unscaledDeltaTime;
+			if (currentTime <= 0 )
 			{
-				this.action();
-				this.currentTime = this.interval;
-				return this.repeat;
+				action();
+				currentTime = interval;
+				return repeat;
 			}
 			return true;
 		}
@@ -59,27 +59,27 @@ public sealed class TimersManager : SingletonMonoBehaviour<TimersManager>
 			return -1;
 		}
 
-		InternalTimer newTimer = new InternalTimer(this.NextId(), startDuration, interval, action, bMustRepeat, bMustBeScaled );
-		this.m_Timers.Add( newTimer );
+		InternalTimer newTimer = new InternalTimer(NextId(), startDuration, interval, action, bMustRepeat, bMustBeScaled );
+		m_Timers.Add( newTimer );
 
 		return newTimer.id;
 	}
 
 
 	/// <summary> Add an unscaled interval </summary>
-	public	int	AddIntervalUnscaled( float interval, System.Action action ) => this.AddInternal( startDuration: interval, action: action, bMustRepeat: true, interval: interval, bMustBeScaled: false );
+	public	int	AddIntervalUnscaled( float interval, System.Action action ) => AddInternal( startDuration: interval, action: action, bMustRepeat: true, interval: interval, bMustBeScaled: false );
 	
 
 	/// <summary> Add an unscaled timer </summary>
-	public	int	AddTimerUnscaled( float duration, System.Action action ) => this.AddInternal( startDuration: duration, action: action, bMustRepeat: false, interval: 0, bMustBeScaled: false );
+	public	int	AddTimerUnscaled( float duration, System.Action action ) => AddInternal( startDuration: duration, action: action, bMustRepeat: false, interval: 0, bMustBeScaled: false );
 
 
 	/// <summary> Add an scaled interval </summary>
-	public	int	AddIntervalScaled( float interval, System.Action action ) => this.AddInternal( startDuration: interval, action: action, bMustRepeat: true, interval: interval, bMustBeScaled: true );
+	public	int	AddIntervalScaled( float interval, System.Action action ) => AddInternal( startDuration: interval, action: action, bMustRepeat: true, interval: interval, bMustBeScaled: true );
 
 	
 	/// <summary> Add an scaled timer </summary>
-	public	int	AddTimerScaled( float duration, System.Action action ) => this.AddInternal( startDuration: duration, action: action, bMustRepeat: false, interval: 0, bMustBeScaled: true );
+	public	int	AddTimerScaled( float duration, System.Action action ) => AddInternal( startDuration: duration, action: action, bMustRepeat: false, interval: 0, bMustBeScaled: true );
 
 
 	
@@ -89,10 +89,10 @@ public sealed class TimersManager : SingletonMonoBehaviour<TimersManager>
 	{
 		if ( id >= 0 )
 		{
-			int index = this.m_Timers.FindIndex( t => t.id == id );
+			int index = m_Timers.FindIndex( t => t.id == id );
 			if ( index > -1 )
 			{
-				this.m_Timers.RemoveAt( index );
+				m_Timers.RemoveAt( index );
 			}
 		}
 	}
@@ -102,13 +102,13 @@ public sealed class TimersManager : SingletonMonoBehaviour<TimersManager>
 	//////////////////////////////////////////////////////////////////////////
 	private void Update()
 	{
-		for ( int i = this.m_Timers.Count - 1; i >= 0; i-- )
+		for ( int i = m_Timers.Count - 1; i >= 0; i-- )
 		{
-			InternalTimer timer = this.m_Timers[i];
+			InternalTimer timer = m_Timers[i];
 
 			if ( timer.Eval() == false )
 			{
-				this.m_Timers.RemoveAt(i);
+				m_Timers.RemoveAt(i);
 			}
 		}
 	}

@@ -2,16 +2,13 @@ using UnityEngine;
 using System.Collections;
 using System;
 
-public sealed class BulletRocket : BulletExplosive, IFlyingExplosive {
-
+public sealed class BulletRocket : BulletExplosive, IFlyingExplosive
+{
 	private	float		m_MaxRange = 80.0f;
 
 
 	// INTERFACE START
-		float		IFlyingExplosive.GetMaxRange							()
-		{
-			return this.m_MaxRange;
-		}
+	float IFlyingExplosive.GetMaxRange() => m_MaxRange;
 	// INTERFACE END
 
 
@@ -26,11 +23,11 @@ public sealed class BulletRocket : BulletExplosive, IFlyingExplosive {
 
 	//////////////////////////////////////////////////////////////////////////
 	// SetupBulletCO ( Override )
-	protected override void SetupBulletCO()
+	protected override void SetupBullet()
 	{
-		base.SetupBulletCO();
+		base.SetupBullet();
 
-		this.m_MaxRange = this.m_BulletSection.AsFloat( "fMaxRange", this.m_MaxRange );
+		m_MaxRange = m_BulletSection.AsFloat( "fMaxRange", m_MaxRange );
 	}
 
 
@@ -43,13 +40,13 @@ public sealed class BulletRocket : BulletExplosive, IFlyingExplosive {
 		if ( Time.frameCount % 25 == 0 )
 			return;
 
-		this.m_RigidBody.velocity	= this.m_RigidBodyVelocity;
-		this.transform.up			= this.m_RigidBodyVelocity;
+		m_RigidBody.velocity	= m_RigidBodyVelocity;
+		transform.up			= m_RigidBodyVelocity;
 
-		float traveledDistance = (this.m_StartPosition - this.transform.position ).sqrMagnitude;
-		if ( traveledDistance > this.m_Range * this.m_Range )
+		float traveledDistance = (m_StartPosition - transform.position ).sqrMagnitude;
+		if ( traveledDistance > m_Range * m_Range )
 		{
-			this.OnExplosion();
+			OnExplosion();
 		}
 	}
 
@@ -86,31 +83,29 @@ public sealed class BulletRocket : BulletExplosive, IFlyingExplosive {
 	}
 	*/
 
-	protected override void OnTriggerEnter( Collider other )
+	protected override void OnCollisionDetailed( in Vector3 point, in Vector3 normal, in Collider otherCollider )
 	{
 //		bool bIsBullet = other.transform.HasComponent<Bullet>();
 //		if ( bIsBullet == true )
 //			return;
 
 		EffectsManager.EEffecs effectToPlay = EffectsManager.EEffecs.ENTITY_ON_HIT;
-		if ( Utils.Base.SearchComponent( other.gameObject, out IEntity entity, ESearchContext.LOCAL ) )
+		if ( Utils.Base.SearchComponent( otherCollider.gameObject, out IEntity entity, ESearchContext.LOCAL ) )
 		{
-			entity.Events.OnHittedDetails(this.m_StartPosition, this.m_WhoRef, EDamageType.EXPLOSIVE, 0, false );
+			entity.Events.OnHittedDetails(m_StartPosition, m_WhoRef, EDamageType.EXPLOSIVE, 0, false );
 		}
-		else if ( Utils.Base.SearchComponent( other.gameObject, out IShield shield, ESearchContext.CHILDREN ) )
+		else if ( Utils.Base.SearchComponent( otherCollider.gameObject, out IShield shield, ESearchContext.CHILDREN ) )
 		{
-			shield.CollisionHit(this.gameObject );
+			shield.CollisionHit(gameObject );
 		}
 		else
 		{
 			effectToPlay = EffectsManager.EEffecs.AMBIENT_ON_HIT;
 		}
 
-		Vector3 position = other.ClosestPointOnBounds(this.transform.position );
-		Vector3 direction = other.transform.position - position;
-		EffectsManager.Instance.PlayEffect( effectToPlay, position, direction, 3 );
+		EffectsManager.Instance.PlayEffect( effectToPlay, point, normal, 3 );
 
-		this.SetActive( false );
+		SetActive( false );
 	}
 
 

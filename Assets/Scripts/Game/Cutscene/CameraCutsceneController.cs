@@ -17,14 +17,14 @@ namespace CutScene {
 
 		public	void	Setup( PathBase cameraPath )
 		{
-			this.m_CameraPath = cameraPath;
-			this.m_OldParent = CameraControl.Instance.Transform.parent;
-			CameraControl.Instance.Transform.SetParent( null );
+			m_CameraPath = cameraPath;
+			m_OldParent = CameraControl.Instance.transform.parent;
+			CameraControl.Instance.transform.SetParent( null );
 
-			this.m_PrevWeaponState = WeaponManager.Instance.CurrentWeapon.WeaponState;
+			m_PrevWeaponState = WeaponManager.Instance.CurrentWeapon.WeaponState;
 
-			if (this.m_PrevWeaponState == EWeaponState.DRAWED )
-				this.m_TimeToWait = WeaponManager.Instance.CurrentWeapon.Stash();
+			if (m_PrevWeaponState == EWeaponState.DRAWED )
+				m_TimeToWait = WeaponManager.Instance.CurrentWeapon.Stash();
 		}
 
 
@@ -34,14 +34,14 @@ namespace CutScene {
 		/// <returns></returns>
 		public	bool	Update()
 		{
-			if (this.m_TimeToWait > 0.0f )
+			if (m_TimeToWait > 0.0f )
 			{
-				this.m_TimeToWait -= Time.deltaTime;
+				m_TimeToWait -= Time.deltaTime;
 				return false;
 			}
 
-			Transform cameraTransform = CameraControl.Instance.Transform;
-			bool completed = this.m_CameraPath.Move( ref cameraTransform, null, null );
+			Transform cameraTransform = CameraControl.Instance.transform;
+			bool completed = m_CameraPath.Move( ref cameraTransform, null, null );
 
 			return completed;
 		}
@@ -49,16 +49,16 @@ namespace CutScene {
 
 		public	void	Terminate()
 		{
-			CameraControl.Instance.Transform.SetParent(this.m_OldParent );
-			CameraControl.Instance.Transform.localPosition = Vector3.zero;
-			CameraControl.Instance.Transform.localRotation = Quaternion.identity;
+			CameraControl.Instance.transform.SetParent(m_OldParent );
+			CameraControl.Instance.transform.localPosition = Vector3.zero;
+			CameraControl.Instance.transform.localRotation = Quaternion.identity;
 
-			if (this.m_PrevWeaponState == EWeaponState.DRAWED )
+			if (m_PrevWeaponState == EWeaponState.DRAWED )
 				WeaponManager.Instance.CurrentWeapon.Draw();
 
-			this.m_TimeToWait		= 0.0f;
-			this.m_CameraPath		= null;
-			this.m_OldParent			= null;
+			m_TimeToWait		= 0.0f;
+			m_CameraPath		= null;
+			m_OldParent			= null;
 		}
 
 	}

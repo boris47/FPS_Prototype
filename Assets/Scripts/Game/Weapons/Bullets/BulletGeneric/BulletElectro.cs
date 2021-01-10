@@ -13,55 +13,17 @@ public sealed class BulletElectro : BulletBallistic {
 	}
 
 
-	//////////////////////////////////////////////////////////////////////////
-	// OnTriggerEnter ( Override )
-	protected override void OnTriggerEnter( Collider other )
-	{
-		bool bIsAnEntity = Utils.Base.SearchComponent( other.gameObject, out IEntity entity, ESearchContext.LOCAL );
-		bool bIsShield = Utils.Base.SearchComponent( other.gameObject, out IShield shield, ESearchContext.CHILDREN );
-
-		int nParticle = 3;
-
-		EffectsManager.EEffecs effectToPlay;
-		if ( bIsShield )
-		{
-			effectToPlay = EffectsManager.EEffecs.ELETTRO;
-			nParticle = 15;
-		}
-		else
-		// If is an entity and who and hitted entites are of different category
-		if ( bIsAnEntity == true && ( (this.m_WhoRef is NonLiveEntity && entity is NonLiveEntity ) == false ) )
-		{
-			nParticle = 15;
-			effectToPlay = EffectsManager.EEffecs.ELETTRO;
-		}
-		else
-		{
-			nParticle = 25;
-			effectToPlay = EffectsManager.EEffecs.ELETTRO;
-		}
-
-		Vector3 position = other.ClosestPointOnBounds(this.transform.position );
-		Vector3 direction = other.transform.position - position;
-		EffectsManager.Instance.PlayEffect( effectToPlay, position, direction, nParticle );
-
-		this.SetActive( false );
-	}
-
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnCollisionEnter ( Override )
-	protected override void OnCollisionEnter( Collision collision )
+	protected override void OnCollisionDetailed( in Vector3 point, in Vector3 normal, in Collider otherCollider )
 	{
-		bool bIsBullet = collision.transform.HasComponent<Bullet>();
+		bool bIsBullet = otherCollider.transform.HasComponent<Bullet>();
 		if ( bIsBullet == true )
 			return;
 
-		bool bIsAnEntity = Utils.Base.SearchComponent( collision.gameObject, out IEntity entity, ESearchContext.LOCAL );
-		bool bIsShield   = Utils.Base.SearchComponent( collision.gameObject, out IShield shield, ESearchContext.CHILDREN );
-
-		Vector3 position  = collision.contacts[0].point;
-		Vector3 direction = collision.contacts[0].normal;
+		bool bIsAnEntity = Utils.Base.SearchComponent( otherCollider.gameObject, out IEntity entity, ESearchContext.LOCAL );
+		bool bIsShield   = Utils.Base.SearchComponent( otherCollider.gameObject, out IShield shield, ESearchContext.CHILDREN );
 
 		int nParticle = 3;
 
@@ -73,7 +35,7 @@ public sealed class BulletElectro : BulletBallistic {
 		}
 		else
 		// If is an entity and who and hitted entites are of different category
-		if ( bIsAnEntity == true && ( (this.m_WhoRef is NonLiveEntity && entity is NonLiveEntity ) == false ) )
+		if ( bIsAnEntity == true && ( (m_WhoRef is NonLiveEntity && entity is NonLiveEntity ) == false ) )
 		{
 			nParticle = 15;
 			effectToPlay = EffectsManager.EEffecs.ELETTRO;
@@ -85,9 +47,9 @@ public sealed class BulletElectro : BulletBallistic {
 			effectToPlay = EffectsManager.EEffecs.ELETTRO;
 		}
 
-		EffectsManager.Instance.PlayEffect( effectToPlay, position, direction, nParticle );
+		EffectsManager.Instance.PlayEffect( effectToPlay, point, normal, nParticle );
 
-		this.SetActive( false );
+		SetActive( false );
 	}
 
 }

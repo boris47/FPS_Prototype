@@ -1,35 +1,22 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
+﻿
 //////////////////////////////////////////////////////////////////////////
 // WPN_FireMode_Single
-public class WPN_FireMode_Single : WPN_FireMode_Base {
+using UnityEngine;
 
-	public override EFireMode FireMode
+public class WPN_FireMode_Single : WPN_BaseFireMode
+{
+	public	override	EFireMode FireMode		=> EFireMode.SINGLE;
+	
+
+	protected	override	void	InternalSetup	(in Database.Section fireModeSection, in WPN_FireModule fireModule, in float shotDelay, in FireFunctionDel fireFunction)
 	{
-		get {
-			return EFireMode.SINGLE;
-		}
-	}
-
-//	public	WPN_FireMode_Single( Database.Section section ) { }
-
-
-	public	override	void	Setup			( WPN_FireModule fireModule, float shotDelay, FireFunctionDel fireFunction )
-	{
-		if ( fireFunction != null )
-		{
-			this.m_FireFunction = fireFunction;
-			this.m_FireDelay = shotDelay;
-			this.m_FireModule = fireModule;
-		}
+		
 	}
 	
 
 	public	override	void	ApplyModifier	( Database.Section modifier )
 	{
-		this.m_Modifiers.Add( modifier );
+		m_Modifiers.Add( modifier );
 	}
 
 	public	override	void	ResetBaseConfiguration()
@@ -39,7 +26,7 @@ public class WPN_FireMode_Single : WPN_FireMode_Base {
 
 	public	override	void	RemoveModifier( Database.Section modifier )
 	{
-		this.m_Modifiers.Remove( modifier );
+		m_Modifiers.Remove( modifier );
 	}
 
 
@@ -51,29 +38,29 @@ public class WPN_FireMode_Single : WPN_FireMode_Base {
 
 	public	override	bool	OnLoad			( StreamUnit streamUnit )
 	{
-		this.m_CurrentDelay = 0.0f;
+		m_CurrentDelay = 0.0f;
 		return true;
 	}
 
 	public	override	void	OnWeaponChange	()
 	{
-		this.m_CurrentDelay = 0.0f;
+		m_CurrentDelay = 0.0f;
 	}
 	
 
 	//	INTERNAL UPDATE
 	public	override	void	InternalUpdate( float DeltaTime, uint magazineSize )
 	{
-		this.m_CurrentDelay -= DeltaTime;
+		m_CurrentDelay = Mathf.Max( m_CurrentDelay - DeltaTime, 0.0f );
 	}
 
 	//	START
 	public override		void	OnStart( float baseFireDispersion, float baseCamDeviation )
 	{
-		if (this.m_CurrentDelay <= 0.0f )
+		if ( m_CurrentDelay <= 0.0f )
 		{
-			this.m_FireFunction( baseFireDispersion, baseCamDeviation );
-			this.m_CurrentDelay = this.m_FireDelay;
+			m_FireFunction( baseFireDispersion * m_DispersionMultiplier, baseCamDeviation * m_DeviationMultiplier );
+			m_CurrentDelay = m_FireDelay;
 		}
 	}
 

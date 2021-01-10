@@ -18,7 +18,7 @@ public class WPN_FireModule_Launcher : WPN_FireModule {
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	bool	InternalSetup( Database.Section moduleSection )
 	{
-		this.m_BaseLaunchForce			= moduleSection.AsFloat( "BaseLaunchForce", this.m_BaseLaunchForce );
+		m_BaseLaunchForce			= moduleSection.AsFloat( "BaseLaunchForce", m_BaseLaunchForce );
 		return true;
 	}
 
@@ -29,7 +29,7 @@ public class WPN_FireModule_Launcher : WPN_FireModule {
 		// Do actions here
 
 		float MultLaunchForce		= modifier.AsFloat( "MultLaunchForce",	1.0f );
-		this.m_BaseLaunchForce			= this.m_BaseLaunchForce * MultLaunchForce;
+		m_BaseLaunchForce			= m_BaseLaunchForce * MultLaunchForce;
 
 		base.ApplyModifier( modifier );
 	}
@@ -56,7 +56,7 @@ public class WPN_FireModule_Launcher : WPN_FireModule {
 	//////////////////////////////////////////////////////////////////////////
 	public		override	bool	OnSave			( StreamUnit streamUnit )
 	{
-		streamUnit.SetInternal(this.name, this.m_Magazine );
+		streamUnit.SetInternal(name, m_Magazine );
 		return true;
 	}
 
@@ -64,7 +64,7 @@ public class WPN_FireModule_Launcher : WPN_FireModule {
 	//////////////////////////////////////////////////////////////////////////
 	public		override	bool	OnLoad			( StreamUnit streamUnit )
 	{
-		this.m_Magazine = (uint)streamUnit.GetAsInt(this.name );
+		m_Magazine = (uint)streamUnit.GetAsInt(name );
 		return true;
 	}
 
@@ -72,28 +72,28 @@ public class WPN_FireModule_Launcher : WPN_FireModule {
 	//////////////////////////////////////////////////////////////////////////
 	public		override	bool	NeedReload()
 	{
-		return this.m_Magazine == 0 || this.m_Magazine < this.m_MagazineCapacity;
+		return m_Magazine == 0 || m_Magazine < m_MagazineCapacity;
 	}
 
 	
 	//////////////////////////////////////////////////////////////////////////
 	public		override	void	OnAfterReload()
 	{
-		this.m_Magazine = this.m_MagazineCapacity;
+		m_Magazine = m_MagazineCapacity;
 	}
 
 	
 	//////////////////////////////////////////////////////////////////////////
 	public		virtual		void	OnLoad( uint magazine )
 	{
-		this.m_Magazine = magazine;
+		m_Magazine = magazine;
 	}
 
 	
 	//////////////////////////////////////////////////////////////////////////
 	public		override	bool	CanBeUsed()
 	{
-		return this.m_Magazine > 0;
+		return m_Magazine > 0;
 	}
 
 	
@@ -102,14 +102,14 @@ public class WPN_FireModule_Launcher : WPN_FireModule {
 	{
 		//		m_FireDelay = m_BaseShotDelay;
 
-		this.m_Magazine --;
+		m_Magazine --;
 
 		// TODO muzzle flash
 //		EffectManager.Instance.PlayEffect( EffectType.MUZZLE, m_FirePoint.position, m_FirePoint.forward, 1 );
 //		EffectManager.Instance.PlayEffect( EffectType.SMOKE, m_FirePoint.position, m_FirePoint.forward, 1 );
 
 		// BULLET
-		IBullet bullet = this.m_PoolBullets.GetNextComponent();
+		IBullet bullet = m_PoolBullets.GetNextComponent();
 
 		moduleFireDispersion	*= Player.Instance.IsCrouched			? 0.50f : 1.00f;
 		moduleFireDispersion	*= Player.Instance.IsMoving				? 1.50f : 1.00f;
@@ -118,18 +118,18 @@ public class WPN_FireModule_Launcher : WPN_FireModule {
 		moduleFireDispersion	*= bullet.RecoilMult;
 
 		// SHOOT
-		bullet.Shoot( position: this.m_FirePoint.position, direction: this.m_FirePoint.forward, velocity: this.m_BaseLaunchForce );
+		bullet.Shoot( position: m_FirePoint.position, direction: m_FirePoint.forward, velocity: m_BaseLaunchForce );
 
-		this.m_AudioSourceFire.Play();
+		m_AudioSourceFire.Play();
 
 		// CAM DEVIATION
-		CameraControl.Instance.ApplyDeviation( moduleCamDeviation );
+		m_WeaponRef.ApplyDeviation( moduleCamDeviation );
 
 		// CAM DISPERSION
-		CameraControl.Instance.ApplyDispersion( moduleFireDispersion );
+		m_WeaponRef.ApplyDispersion( moduleFireDispersion );
 
 		// CAM RECOIL
-		CameraControl.Instance.AddRecoil(this.m_Recoil );
+		m_WeaponRef.AddRecoil( m_Recoil );
 
 		// UI ELEMENTS
 		UIManager.InGame.UpdateUI();
@@ -153,16 +153,16 @@ public class WPN_FireModule_Launcher : WPN_FireModule {
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void InternalUpdate( float DeltaTime )
 	{
-		this.m_WpnFireMode.InternalUpdate( DeltaTime, this.m_Magazine );
+		m_WpnFireMode.InternalUpdate( DeltaTime, m_Magazine );
 	}
 
 	
 	//////////////////////////////////////////////////////////////////////////
 	public		 override	void	OnStart()
 	{
-		if (this.CanBeUsed() )
+		if (CanBeUsed() )
 		{
-			this.m_WpnFireMode.OnStart(this.GetFireDispersion(), this.GetCamDeviation() );
+			m_WpnFireMode.OnStart(GetFireDispersion(), GetCamDeviation() );
 		}
 	}
 
@@ -170,9 +170,9 @@ public class WPN_FireModule_Launcher : WPN_FireModule {
 	//////////////////////////////////////////////////////////////////////////
 	public		override	void	OnUpdate()
 	{
-		if (this.CanBeUsed() )
+		if (CanBeUsed() )
 		{
-			this.m_WpnFireMode.OnUpdate(this.GetFireDispersion(), this.GetCamDeviation() );
+			m_WpnFireMode.OnUpdate(GetFireDispersion(), GetCamDeviation() );
 		}
 	}
 
@@ -180,9 +180,9 @@ public class WPN_FireModule_Launcher : WPN_FireModule {
 	//////////////////////////////////////////////////////////////////////////
 	public		override	void	OnEnd()
 	{
-		if (this.CanBeUsed() )
+		if (CanBeUsed() )
 		{
-			this.m_WpnFireMode.OnEnd(this.GetFireDispersion(), this.GetCamDeviation() );
+			m_WpnFireMode.OnEnd(GetFireDispersion(), GetCamDeviation() );
 		}
 	}
 	

@@ -14,32 +14,8 @@ namespace QuestSystem {
 		FAILED
 	}
 
-	public interface IObjective : IStateDefiner<ITask, IObjective> {
-
-		string			ID { get; }
-
-		bool			IsCompleted				{ get; }
-
-		bool			IsOptional				{ get; }
-
-		bool			IsCurrentlyActive		{ get; }
-
-		/// <summary> Add this objective to a Task, can be set as optioanl </summary>
-		void			AddToTask				( ITask task, bool isOptional = false );
-
-		/// <summary> Add another objective as dependency for the completion of this objective. 
-		/// The dependencies must result completed in order to se as completed this objective </summary>
-		void			AddDependency			( Objective_Base other );
-
-		/// <summary> Set as current active to true and add indicator </summary>
-		void			Activate();
-
-		/// <summary> Set as current active to false and remove indicator </summary>
-		void			Deactivate();
-	}
-
-
-	public abstract class Objective_Base : MonoBehaviour, IObjective {
+	public abstract class Objective_Base : MonoBehaviour
+	{
 
 		[SerializeField]
 		private GameEvent							m_OnCompletion				= new GameEvent();
@@ -47,65 +23,47 @@ namespace QuestSystem {
 		[SerializeField]
 		protected	List<Objective_Base>			m_Dependencies				= new List<Objective_Base>();
 
-		protected	System.Action<IObjective>		m_OnCompletionCallback		= delegate { };
-		protected	System.Action<IObjective>		m_OnFailureCallback			= delegate { };
+		protected	System.Action<Objective_Base>	m_OnCompletionCallback		= delegate { };
+		protected	System.Action<Objective_Base>	m_OnFailureCallback			= delegate { };
 		protected	bool							m_IsCompleted				= false;
 
 		[SerializeField]
 		protected	bool							m_IsOptional				= false;
 
-		protected	ITask							m_MotherTask					= null;
+		protected	Task							m_MotherTask				= null;
 
 		protected	EObjectiveState					m_ObjectiveState			= EObjectiveState.NONE;
 
 		protected	bool							m_IsInitialized				= false;
 
 		//--
-		public string			ID
-		{
-			get { return this.name; }
-		}
+		public string ID => name;
 
 		//--
-		public	bool			IsOptional
-		{
-			get { return this.m_IsOptional; }
-		}
+		public bool IsOptional => m_IsOptional;
 
 		//--
-		public	bool			IsCompleted
-		{
-			get { return this.m_IsCompleted; }
-		}
+		public bool IsCompleted => m_IsCompleted;
 
 		//--
-		public	bool			IsCurrentlyActive
-		{
-			get { return this.m_ObjectiveState == EObjectiveState.ACTIVATED; }
-		}
+		public bool IsCurrentlyActive => m_ObjectiveState == EObjectiveState.ACTIVATED;
 
 		//--
-		public bool IsInitialized	// IStateDefiner
-		{
-			get { return this.m_IsInitialized; }
-		}
+		public bool IsInitialized  => m_IsInitialized;
 
-		string IStateDefiner<ITask, IObjective>.StateName
-		{
-			get { return this.name; }
-		}
+		public string StateName => name;
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// ( IStateDefiner )
-		public		bool		Initialize( ITask motherTask, System.Action<IObjective> onCompletionCallback, System.Action<IObjective> onFailureCallback )
+		public		bool		Initialize( Task motherTask, System.Action<Objective_Base> onCompletionCallback, System.Action<Objective_Base> onFailureCallback )
 		{
-			this.m_MotherTask = motherTask;
+			m_MotherTask = motherTask;
 
-			return this.InitializeInternal( motherTask, onCompletionCallback, onFailureCallback );
+			return InitializeInternal( motherTask, onCompletionCallback, onFailureCallback );
 		}
 
-		protected	abstract	bool	InitializeInternal( ITask motherTask, System.Action<IObjective> onCompletionCallback, System.Action<IObjective> onFailureCallback );
+		protected	abstract	bool	InitializeInternal( Task motherTask, System.Action<Objective_Base> onCompletionCallback, System.Action<Objective_Base> onFailureCallback );
 
 
 		//////////////////////////////////////////////////////////////////////////
@@ -132,9 +90,9 @@ namespace QuestSystem {
 		// Activate ( IObjective )
 		public		void		Activate()
 		{
-			this.m_ObjectiveState = EObjectiveState.ACTIVATED;
+			m_ObjectiveState = EObjectiveState.ACTIVATED;
 
-			this.ActivateInternal();
+			ActivateInternal();
 		}
 
 		protected	abstract	void	ActivateInternal();
@@ -144,9 +102,9 @@ namespace QuestSystem {
 		// Deactivate ( IObjective )
 		public		void		Deactivate()
 		{
-			this.m_ObjectiveState = EObjectiveState.NONE;
+			m_ObjectiveState = EObjectiveState.NONE;
 
-			this.DeactivateInternal();
+			DeactivateInternal();
 		}
 		
 		protected	abstract	void	DeactivateInternal();
@@ -154,22 +112,22 @@ namespace QuestSystem {
 		//////////////////////////////////////////////////////////////////////////
 		// SetTaskOwner ( IObjective )
 		/// <summary> Add this objective to a Task </summary>
-		void			IObjective.AddToTask( ITask task, bool isOptional )
+		public void			AddToTask( Task task, bool isOptional )
 		{
 			// If Already assignet to a task, we must remove it before add to another task
-			if (this.m_MotherTask != null )
+			if (m_MotherTask != null )
 			{
-				this.m_MotherTask.RemoveObjective( this );
+				m_MotherTask.RemoveObjective( this );
 			}
 
 			// If add succeeded
 			bool result = task.AddObjective( this );
 			if ( result )
 			{
-				this.m_MotherTask = task;
+				m_MotherTask = task;
 			}
 
-			this.m_IsOptional = isOptional;
+			m_IsOptional = isOptional;
 		}
 
 
@@ -177,11 +135,11 @@ namespace QuestSystem {
 		// AddDependency ( IObjective )
 		/// <summary> Add another objective as dependency for the completion of this objective. 
 		/// The dependencies must result completed in order to se as completed this objective </summary>
-		void			IObjective.AddDependency(Objective_Base other)
+		public void			AddDependency(Objective_Base other)
 		{
-			if ( other.IsCompleted == false && this.m_Dependencies.Contains( other ) == false )
+			if ( other.IsCompleted == false && m_Dependencies.Contains( other ) == false )
 			{
-				this.m_Dependencies.Add( other );
+				m_Dependencies.Add( other );
 			}
 		}
 
@@ -191,20 +149,20 @@ namespace QuestSystem {
 		protected	void			OnObjectiveCompleted()
 		{
 			// Internal Flag
-			this.m_IsCompleted = true;
+			m_IsCompleted = true;
 
 			// Unity Events
-			if (this.m_OnCompletion.GetPersistentEventCount() > 0 )
+			if (m_OnCompletion.GetPersistentEventCount() > 0 )
 			{
-				this.m_OnCompletion.Invoke();
+				m_OnCompletion.Invoke();
 			}
 
 			// Internal Delegates
-			this.m_OnCompletionCallback( this );
+			m_OnCompletionCallback( this );
 
-			print( "Completed Objective " + this.name );
+			print( "Completed Objective " + name );
 
-			this.Finalize();
+			Finalize();
 		}
 
 
@@ -213,14 +171,14 @@ namespace QuestSystem {
 		protected	void	OnObjectiveFailed()
 		{
 			// Internal Flag
-			this.m_IsCompleted = true;
+			m_IsCompleted = true;
 
 			// Internal Delegates
-			this.m_OnFailureCallback( this );
+			m_OnFailureCallback( this );
 
-			print( "Failed Objective " + this.name );
+			print( "Failed Objective " + name );
 
-			this.Finalize();
+			Finalize();
 		}
 		
 	}

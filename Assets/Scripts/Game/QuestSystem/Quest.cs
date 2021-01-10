@@ -5,107 +5,84 @@ namespace QuestSystem {
 
 	using System.Collections.Generic;
 
-	public	enum EQuestStatus {
+	[System.Serializable]
+	public	enum EQuestStatus
+	{
 		NONE,
 		ACTIVE,
 		COMPLETED
 	};
 
-	public	enum EQuestScope {
+	[System.Serializable]
+	public	enum EQuestScope
+	{
 		NONE,
 		LOCAL,
 		GLOBAL
 	}
 
-	public interface IQuest : IStateDefiner<IQuestManager, IQuest> {
 
-		bool			Activate();
-
-		int				TaskCount		{ get; }
-
-		bool			IsCompleted		{ get; }
-		EQuestStatus		Status			{ get; }
-		EQuestScope		Scope			{ get; }
-
-		bool			AddTask			( Task newTask );
-
-		bool			RemoveTask		( Task task );
-	}
-
-	public class Quest : MonoBehaviour, IQuest {
-		
+	public class Quest : MonoBehaviour
+	{
+	
 		[SerializeField]
 		private	List<Task>					m_Tasks						= new List<Task>();
 
 		[SerializeField]
 		private	GameEvent					m_OnCompletion				= null;
 
-		private	System.Action<IQuest>		m_OnCompletionCallback		= delegate { };
+		private	System.Action<Quest>		m_OnCompletionCallback		= delegate { };
+
+		[System.NonSerialized]
 		private	bool						m_IsCompleted				= false;
+		[System.NonSerialized]
 		private	bool						m_IsInitialized				= false;
 
-
-		private	EQuestStatus					m_Status					= EQuestStatus.NONE;
+		[System.NonSerialized]
+		private	EQuestStatus				m_Status					= EQuestStatus.NONE;
+		[System.NonSerialized]
 		private	EQuestScope					m_Scope						= EQuestScope.LOCAL;
 
 		//--
-		int				IQuest.TaskCount
-		{
-			get { return this.m_Tasks.Count; }
-		}
+		public int							TaskCount					=> m_Tasks.Count;
+
+		// IQuest
+		public bool							IsCompleted					=> m_IsCompleted;
+
+		// IStateDefiner
+		public bool							IsInitialized				=> m_IsInitialized;
 
 		//--
-		public	bool		IsCompleted	// IQuest
-		{
-			get { return this.m_IsCompleted; }
-		}
+		public EQuestStatus					Status						=> m_Status;
 
 		//--
-		public bool		IsInitialized	// IStateDefiner
-		{
-			get { return this.m_IsInitialized; }
-		}
+		public EQuestScope					Scope						=> m_Scope;
 
-		//--
-		EQuestStatus		IQuest.Status
-		{
-			get { return this.m_Status; }
-		}
-
-		//--
-		EQuestScope		IQuest.Scope
-		{
-			get { return this.m_Scope; }
-		}
-
-		string IStateDefiner<IQuestManager, IQuest>.StateName
-		{
-			get { return this.name; }
-		}
 		
+
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// Initialize ( IStateDefiner )
-		public			bool		Initialize( IQuestManager manager, System.Action<IQuest> onCompletionCallback, System.Action<IQuest> dump  )
+		public			bool		Initialize( System.Action<Quest> onCompletionCallback, System.Action<Quest> onFailureCallback  )
 		{
-			if (this.m_IsInitialized == true )
+			if (m_IsInitialized == true )
 				return true;
 
-			this.m_IsInitialized = true;
+			m_IsInitialized = true;
 
 			bool result = false;
 
 			// Already assigned
-			foreach( ITask t in this.m_Tasks )
+			foreach( Task t in m_Tasks )
 			{
-				result &= t.Initialize( this, this.OnTaskCompleted );
+				result &= t.Initialize( this, OnTaskCompleted, null);
 			}
-			this.m_OnCompletionCallback = onCompletionCallback;
+			m_OnCompletionCallback = onCompletionCallback;
 
 			// Registering game events
-			GameManager.StreamEvents.OnSave += this.OnSave;
-			GameManager.StreamEvents.OnLoad += this.OnLoad;
+			GameManager.StreamEvents.OnSave += OnSave;
+			GameManager.StreamEvents.OnLoad += OnLoad;
 
 			return result;
 		}
@@ -124,8 +101,8 @@ namespace QuestSystem {
 		public			bool		Finalize()
 		{
 			// UnRegistering game events
-			GameManager.StreamEvents.OnSave -= this.OnSave;
-			GameManager.StreamEvents.OnLoad -= this.OnLoad;
+			GameManager.StreamEvents.OnSave -= OnSave;
+			GameManager.StreamEvents.OnLoad -= OnLoad;
 			return true;
 		}
 
@@ -134,9 +111,9 @@ namespace QuestSystem {
 		// OnSave
 		protected	virtual		StreamUnit		OnSave( StreamData streamData )
 		{
-			StreamUnit streamUnit	= streamData.NewUnit(this.gameObject );
+			StreamUnit streamUnit	= streamData.NewUnit(gameObject );
 			{
-				this.m_Tasks.ForEach( t => t.OnSave( streamUnit ) );
+				m_Tasks.ForEach( t => t.OnSave( streamUnit ) );
 			}
 			return streamUnit;
 		}
@@ -147,9 +124,9 @@ namespace QuestSystem {
 		protected	virtual		StreamUnit		OnLoad( StreamData streamData )
 		{
 			StreamUnit streamUnit = null;
-			if ( streamData.GetUnit(this.gameObject, ref streamUnit ) )
+			if ( streamData.GetUnit(gameObject, ref streamUnit ) )
 			{
-				this.m_Tasks.ForEach( t => t.OnLoad( streamUnit ) );
+				m_Tasks.ForEach( t => t.OnLoad( streamUnit ) );
 			}
 			return streamUnit;
 		}
@@ -157,31 +134,31 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// AddTask ( IQuest )
-		bool			IQuest.AddTask( Task newTask )
+		public bool			AddTask( Task newTask )
 		{
 			if ( newTask == null )
 				return false;
 
-			if (this.m_Tasks.Contains( newTask ) == true )
+			if (m_Tasks.Contains( newTask ) == true )
 				return true;
 
-			newTask.Initialize( this, this.OnTaskCompleted, null );
-			this.m_Tasks.Add( newTask );
+			newTask.Initialize( this, OnTaskCompleted, null );
+			m_Tasks.Add( newTask );
 			return true;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// RemoveTask ( IQuest )
-		bool			IQuest.RemoveTask( Task task )
+		public bool			RemoveTask( Task task )
 		{
 			if ( task == null )
 				return false;
 
-			if (this.m_Tasks.Contains( task ) == false )
+			if (m_Tasks.Contains( task ) == false )
 				return true;
 
-			this.m_Tasks.Remove( task );
+			m_Tasks.Remove( task );
 			return true;
 		}
 
@@ -191,43 +168,43 @@ namespace QuestSystem {
 		private void OnQuestCompleted()
 		{
 			// Internal Flag
-			this.m_Status = EQuestStatus.COMPLETED;
+			m_Status = EQuestStatus.COMPLETED;
 
-			this.m_IsCompleted = true;
+			m_IsCompleted = true;
 
 			if ( GlobalQuestManager.ShowDebugInfo )
-				print( "Completed quest " + this.name );
+				print( "Completed quest " + name );
 
 			// Unity Events
-			if (this.m_OnCompletion != null && this.m_OnCompletion.GetPersistentEventCount() > 0 )
-				this.m_OnCompletion.Invoke();
+			if (m_OnCompletion != null && m_OnCompletion.GetPersistentEventCount() > 0 )
+				m_OnCompletion.Invoke();
 
 			// Internal Delegates
-			this.m_OnCompletionCallback(this);
+			m_OnCompletionCallback(this);
 
-			this.Finalize();
+			Finalize();
 
-			this.m_Status = EQuestStatus.COMPLETED;
+			m_Status = EQuestStatus.COMPLETED;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// OnTaskCompleted
-		private	void	OnTaskCompleted( ITask task )
+		private	void	OnTaskCompleted( Task task )
 		{
-			bool bAreTasksCompleted = this.m_Tasks.TrueForAll( ( Task t ) => { return t.IsCompleted == true; } );
+			bool bAreTasksCompleted = m_Tasks.TrueForAll( ( Task t ) => { return t.IsCompleted == true; } );
 			if ( bAreTasksCompleted == false )
 			{
-				ITask nextTask = null;
-				int nextIndex = (this.m_Tasks.IndexOf( task as Task ) + 1 );
-				if ( nextIndex < this.m_Tasks.Count )
+				Task nextTask = null;
+				int nextIndex = (m_Tasks.IndexOf( task as Task ) + 1 );
+				if ( nextIndex < m_Tasks.Count )
 				{
-					nextTask = this.m_Tasks[nextIndex];
+					nextTask = m_Tasks[nextIndex];
 				}
 				// Some tasks are completed and sequence is broken, search for a valid target randomly among availables
 				else
 				{
-					nextTask = this.m_Tasks.Find( t => t.IsCompleted == false ) as ITask;
+					nextTask = m_Tasks.Find( t => t.IsCompleted == false );
 				}
 
 				nextTask.Activate();
@@ -235,7 +212,7 @@ namespace QuestSystem {
 			}
 
 			// Only Called if trurly completed
-			this.OnQuestCompleted();
+			OnQuestCompleted();
 		}
 
 
@@ -243,16 +220,16 @@ namespace QuestSystem {
 		// Activate
 		public	bool	Activate()
 		{
-			if (this.m_Tasks.Count == 0 )
+			if (m_Tasks.Count == 0 )
 			{
 				return false;
 			}
 
 			if ( GlobalQuestManager.ShowDebugInfo )
-				print(this.name + " quest activated" );
+				print(name + " quest activated" );
 
-			this.m_Status = EQuestStatus.ACTIVE;
-			this.m_Tasks[ 0 ].Activate();
+			m_Status = EQuestStatus.ACTIVE;
+			m_Tasks[ 0 ].Activate();
 			return true;
 		}
 		

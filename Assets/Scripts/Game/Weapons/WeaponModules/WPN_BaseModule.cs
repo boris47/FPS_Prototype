@@ -4,21 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public interface IWPN_FireModule
-{
-	EFireMode				FireMode						{ get; }
-
-	uint					Magazine						{ get; }
-	uint					MagazineCapacity				{ get; }
-
-	float					CamDeviation					{ get; }
-	float					FireDispersion					{ get; }
-
-	bool					NeedReload						();
-	bool					ChangeFireMode					( string FireMode );
-	bool					ChangeFireMode				<T>	() where T : WPN_FireMode_Base;
-}
-
 public interface IWPN_UtilityModule
 {
 
@@ -29,7 +14,7 @@ public interface IWPN_UtilityModule
 // WPN_BaseModule ( Abstract )
 /// <summary> Abstract base class for weapon modules </summary>
 [System.Serializable]
-public abstract class WPN_BaseModule : MonoBehaviour, IModifiable, IUsable
+public abstract class WPN_BaseModule : MonoBehaviour, IModifiable
 {
 	protected		Database.Section			m_ModuleSection				= new Database.Section( "Empty", "Unassigned" );
 	protected		IWeapon						m_WeaponRef					= null;
@@ -37,7 +22,7 @@ public abstract class WPN_BaseModule : MonoBehaviour, IModifiable, IUsable
 	protected		List<Database.Section>		m_Modifiers					= new List<Database.Section>();
 	protected		GameObject					m_FireModeContainer			= null;
 
-	public virtual	Database.Section			ModuleSection				=> this.m_ModuleSection;
+	public virtual	Database.Section			ModuleSection				=> m_ModuleSection;
 
 	/// <summary> Initialize everything about this module </summary>
 	public		abstract	bool	OnAttach( IWeapon w, EWeaponSlots slot );
@@ -70,7 +55,7 @@ public abstract class WPN_BaseModule : MonoBehaviour, IModifiable, IUsable
 		bool result = true;
 
 		string[] allowedBullets = null;
-		if ( result &= GetRules(this.m_ModuleSection, ref allowedBullets ) )
+		if ( result &= GetRules(m_ModuleSection, ref allowedBullets ) )
 		{
 			result &= System.Array.IndexOf( allowedBullets, bulletName ) > -1;
 		}
@@ -89,13 +74,13 @@ public abstract class WPN_BaseModule : MonoBehaviour, IModifiable, IUsable
 
 	protected	virtual	void OnEnable()
 	{
-		GameManager.UpdateEvents.OnFrame += this.InternalUpdate;
+		GameManager.UpdateEvents.OnFrame += InternalUpdate;
 	}
 
 	protected	virtual void OnDisable()
 	{
 		if ( GameManager.UpdateEvents.IsNotNull() )
-			GameManager.UpdateEvents.OnFrame -= this.InternalUpdate;
+			GameManager.UpdateEvents.OnFrame -= InternalUpdate;
 	}
 
 	public		abstract	bool	OnSave			( StreamUnit streamUnit );
@@ -114,10 +99,4 @@ public abstract class WPN_BaseModule : MonoBehaviour, IModifiable, IUsable
 	public		virtual		void	OnStart		()	{ }
 	public		virtual		void	OnUpdate	()	{ }
 	public		virtual		void	OnEnd		()	{ }
-
-	protected virtual void OnDestroy()
-	{
-		this.OnDetach();
-	}
-
 }

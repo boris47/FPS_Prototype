@@ -72,19 +72,19 @@ public class WindowValueStep : EditorWindow {
 
 	//		if ( Value.ToSystemObject() != null )
 			{
-				if (this.RequestedType == typeof( bool ) )					Value = EditorGUILayout.Toggle( Value );
-				if (this.RequestedType == typeof( int ) )					Value = EditorGUILayout.IntField( Value );
-				if (this.RequestedType == typeof( float ) )					Value = EditorGUILayout.FloatField( Value );
-				if (this.RequestedType == typeof( string ) )				Value = EditorGUILayout.TextField( Value );
+				if (RequestedType == typeof( bool ) )					Value = EditorGUILayout.Toggle( Value );
+				if (RequestedType == typeof( int ) )					Value = EditorGUILayout.IntField( Value );
+				if (RequestedType == typeof( float ) )					Value = EditorGUILayout.FloatField( Value );
+				if (RequestedType == typeof( string ) )				Value = EditorGUILayout.TextField( Value );
 			}
 
-			if (this.OptionalArg != null )
+			if (OptionalArg != null )
 			{
 				GUILayout.BeginHorizontal();	
 				{
 					if ( GUILayout.Button( "Arg", GUILayout.MaxWidth(32f) ) )
 					{
-						Arg = this.OptionalArg.Invoke();
+						Arg = OptionalArg.Invoke();
 
 					}
 
@@ -102,15 +102,15 @@ public class WindowValueStep : EditorWindow {
 			{
 				if ( GUILayout.Button( "OK" ) && HasValidValue(Value) )
 				{
-					if (this.OnOK != null )
-						this.OnOK.Invoke();
+					if (OnOK != null )
+						OnOK.Invoke();
 					m_Window.Close();
 					return;
 				}
 				if ( GUILayout.Button( "Cancel" ) )
 				{
-					if (this.OnCancel != null )
-						this.OnCancel.Invoke();
+					if (OnCancel != null )
+						OnCancel.Invoke();
 					m_Window.Close();
 					return;
 				}

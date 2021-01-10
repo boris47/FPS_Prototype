@@ -4,6 +4,7 @@ FolderName=Development;
 ExecutableFilename=Development;
 
 ScenesToBuild = { ;IMPORTANT: MIND THE ORDER
+	Assets/Scenes/Brigde.unity,
 	Assets/Scenes/Intro.unity,
 	Assets/Scenes/Loading.unity,
 	Assets/Scenes/MainMenu.unity,
@@ -18,6 +19,7 @@ FolderName=Release;
 ExecutableFilename=Release;
 
 ScenesToBuild = { ;IMPORTANT: MIND THE ORDER
+	Assets/Scenes/Brigde.unity,
 	Assets/Scenes/Intro.unity,
 	Assets/Scenes/Loading.unity,
 	Assets/Scenes/MainMenu.unity,

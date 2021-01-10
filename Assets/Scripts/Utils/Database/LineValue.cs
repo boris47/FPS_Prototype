@@ -31,11 +31,11 @@ namespace Database {
 
 
 		// Can be NONE, SINGLE, MULTI, KEYONLY
-		public 	ELineValueType		Type 						{ get {return this.iType; } }
-		public 	string				Key							{ get { return ( string )this.sKey.Clone(); } }
-		public 	string				RawValue 					{ get { return ( string )this.sRawValue.Clone(); } }
-		public 	Value				Value						{ get { return this.pValue; } }
-		public 	MultiValue			MultiValue					{ get { return this.pMultiValue;	} }
+		public 	ELineValueType		Type 						{ get {return iType; } }
+		public 	string				Key							{ get { return ( string )sKey.Clone(); } }
+		public 	string				RawValue 					{ get { return ( string )sRawValue.Clone(); } }
+		public 	Value				Value						{ get { return pValue; } }
+		public 	MultiValue			MultiValue					{ get { return pMultiValue;	} }
 
 
 
@@ -44,7 +44,7 @@ namespace Database {
 		// CONSTRUCTOR
 		public LineValue( string Key, ELineValueType Type )
 		{
-			this.iType = Type; this.sKey = Key; this.sRawValue = Key;
+			iType = Type; sKey = Key; sRawValue = Key;
 		}
 
 
@@ -58,22 +58,22 @@ namespace Database {
 		// CONSTRUCTOR
 		public LineValue ( string Key, string sLine )
 		{
-			this.sKey = Key;
-			this.sRawValue = ( ( sLine.Length > 0 ) ? sLine : "" );
+			sKey = Key;
+			sRawValue = ( ( sLine.Length > 0 ) ? sLine : "" );
 
 			if ( sLine.IndexOf( ',' ) > -1 )
 			{ // Supposing is a MultiVal string
-				this.iType = ELineValueType.MULTI;
+				iType = ELineValueType.MULTI;
 				Value[] vValues = Utils.String.RecognizeValues( sLine );
 				if ( vValues.Length < 1 )
 					return;
 
-				this.pMultiValue = new MultiValue( vValues );
+				pMultiValue = new MultiValue( vValues );
 		
 			}
 			else
 			{ // Single value
-				this.iType = ELineValueType.SINGLE;
+				iType = ELineValueType.SINGLE;
 				Value pValue = Utils.String.RecognizeValue( sLine );
 				if ( pValue == null ) {
 					UnityEngine.Debug.LogError( " cLineValue::Constructor: for key " + Key + " value type is undefined" );
@@ -81,7 +81,7 @@ namespace Database {
 				}
 				this.pValue = pValue;
 			}
-			this.IsOK = true;
+			IsOK = true;
 		}
 
 
@@ -89,10 +89,10 @@ namespace Database {
 		/////////////////////////////////////////////////////////////////////////////////
 		public bool	GetAsSingle( ref Value value )
 		{
-			bool bResult = this.iType == ELineValueType.SINGLE;
+			bool bResult = iType == ELineValueType.SINGLE;
 			if ( bResult )
 			{
-				value = this.pValue;
+				value = pValue;
 			}
 			return bResult;
 		}
@@ -101,10 +101,10 @@ namespace Database {
 		/////////////////////////////////////////////////////////////////////////////////
 		public bool	GetAsMulti( ref MultiValue multiValue )
 		{
-			bool bResult = this.iType == ELineValueType.MULTI;
+			bool bResult = iType == ELineValueType.MULTI;
 			if ( bResult )
 			{
-				multiValue = this.pMultiValue;
+				multiValue = pMultiValue;
 			}
 			return bResult;
 		}
@@ -113,32 +113,32 @@ namespace Database {
 		/////////////////////////////////////////////////////////////////////////////////
 		public void Destroy()
 		{
-			this.pValue = null;
-			this.pMultiValue = null;
+			pValue = null;
+			pMultiValue = null;
 		}
 
 
 		/////////////////////////////////////////////////////////////////////////////////
 		public 	bool IsKey( string Key )
 		{
-			return (this.sKey == Key );
+			return (sKey == Key );
 		}
 
 
 		/////////////////////////////////////////////////////////////////////////////////
 		public 	void Clear()
 		{
-			this.pValue		= null;
-			this.pMultiValue = null;
+			pValue		= null;
+			pMultiValue = null;
 		}
 		
 
 		/////////////////////////////////////////////////////////////////////////////////
 		public 	LineValue Set( Value _Value )
 		{
-			this.pValue			= _Value;
-			this.pMultiValue	= null;
-			this.iType			= ELineValueType.SINGLE;
+			pValue			= _Value;
+			pMultiValue	= null;
+			iType			= ELineValueType.SINGLE;
 			return this;
 		}
 
@@ -146,9 +146,9 @@ namespace Database {
 		/////////////////////////////////////////////////////////////////////////////////
 		public 	LineValue Set( MultiValue _MultiValue )
 		{
-			this.pMultiValue	= _MultiValue;
-			this.pValue			= null;
-			this.iType			= ELineValueType.MULTI;
+			pMultiValue	= _MultiValue;
+			pValue			= null;
+			iType			= ELineValueType.MULTI;
 			return this;
 		}
 		

@@ -24,36 +24,36 @@ public abstract partial class NonLiveEntity : Entity {
 	{
 		base.Awake();
 
-		Utils.Base.SearchComponent(this.gameObject, out this.m_FireAudioSource, ESearchContext.LOCAL );
+		Utils.Base.SearchComponent(gameObject, out m_FireAudioSource, ESearchContext.LOCAL );
 
-		this.m_GunTransform		= this.m_HeadTransform.Find( "Gun" );
-		this.m_FirePoint			= this.m_GunTransform.Find( "FirePoint" );
+		m_GunTransform		= m_HeadTransform.Find( "Gun" );
+		m_FirePoint			= m_GunTransform.Find( "FirePoint" );
 	}
 	
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		EnterSimulationState()
 	{
-		this.NavStop();
+		NavStop();
 
-		this.StopLooking();
+		StopLooking();
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		BeforeSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
 		// Movement
-		this.RequestMovement( destination );
+		RequestMovement( destination );
 //		Debug.Log("BeforeSimulationStage " + destination.ToString() );
 
 		// Look At
 		if ( target )
 		{
-			this.SetTransformToLookAt( target, ELookTargetMode.HEAD_ONLY );
+			SetTransformToLookAt( target, ELookTargetMode.HEAD_ONLY );
 		}
 		else
 		{
-			this.StopLooking();
+			StopLooking();
 		}
 	}
 
@@ -63,7 +63,7 @@ public abstract partial class NonLiveEntity : Entity {
 	{
 		bool isBusy = true;
 
-		isBusy &= this.m_HasDestination || this.m_HasPendingPathRequest;
+		isBusy &= m_HasDestination || m_HasPendingPathRequest;
 
 //		isBusy |= HasLookAtObject;
 
@@ -74,9 +74,9 @@ public abstract partial class NonLiveEntity : Entity {
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		AfterSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
-		this.NavStop();
+		NavStop();
 
-		this.StopLooking();
+		StopLooking();
 	}
 
 
@@ -89,13 +89,13 @@ public abstract partial class NonLiveEntity : Entity {
 
 	public override bool CanFire()
 	{
-		return this.m_IsAllignedGunToPoint;
+		return m_IsAllignedGunToPoint;
 	}
 
 	protected override void OnDestroy()
 	{
 		base.OnDestroy();
 
-		this.m_Pool.Destroy();
+		m_Pool.Destroy();
 	}
 }

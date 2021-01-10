@@ -15,11 +15,11 @@ public class TurretHidden : Turret {
 	// Awake ( Override )
 	protected override void Awake()
 	{
-		this.m_SectionName = this.GetType().FullName;
+		m_SectionName = GetType().FullName;
 
 		base.Awake();
 
-		this.TryGetComponent(out this.m_Animator);
+		TryGetComponent(out m_Animator);
 	}
 
 	/*

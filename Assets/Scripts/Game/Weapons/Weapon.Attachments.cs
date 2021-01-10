@@ -56,25 +56,25 @@ public abstract partial class Weapon : IAttachments
 	//////////////////////////////////////////////////////////////////////////
 	bool					IAttachments.HasAttachment<T>()
 	{
-		return FindAttachmentByType( this.m_AttachmentsList, typeof( T ) );
+		return FindAttachmentByType( m_AttachmentsList, typeof( T ) );
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	T						IAttachments.AddAttachment<T>()
 	{
-		return this.AddAttachmentInternal( typeof( T ) ) as T;
+		return AddAttachmentInternal( typeof( T ) ) as T;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	T						IAttachments.GetAttachment<T>()
 	{
-		return FindAttachmentByType( this.m_AttachmentsList, typeof( T ) ) as T;
+		return FindAttachmentByType( m_AttachmentsList, typeof( T ) ) as T;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	void					IAttachments.RemoveAttachment<T>()
 	{
-		WPN_BaseWeaponAttachment attachmentFound = FindAttachmentByType( this.m_AttachmentsList, typeof( T ) );
+		WPN_BaseWeaponAttachment attachmentFound = FindAttachmentByType( m_AttachmentsList, typeof( T ) );
 		if (attachmentFound)
 		{
 			Object.Destroy( attachmentFound.gameObject );
@@ -84,7 +84,7 @@ public abstract partial class Weapon : IAttachments
 	//////////////////////////////////////////////////////////////////////////
 	void					IAttachments.ToggleAttachment<T>()
 	{
-		WPN_BaseWeaponAttachment attachmentFound = FindAttachmentByType( this.m_AttachmentsList, typeof( T ) );
+		WPN_BaseWeaponAttachment attachmentFound = FindAttachmentByType( m_AttachmentsList, typeof( T ) );
 		if (attachmentFound)
 		{
 			attachmentFound.SetActive( !attachmentFound.IsActive );
@@ -94,7 +94,7 @@ public abstract partial class Weapon : IAttachments
 	//////////////////////////////////////////////////////////////////////////
 	void					IAttachments.ActivateAttachment<T>()
 	{
-		WPN_BaseWeaponAttachment attachmentFound = FindAttachmentByType( this.m_AttachmentsList, typeof( T ) );
+		WPN_BaseWeaponAttachment attachmentFound = FindAttachmentByType( m_AttachmentsList, typeof( T ) );
 		if (attachmentFound)
 		{
 			attachmentFound.SetActive( true );
@@ -104,7 +104,7 @@ public abstract partial class Weapon : IAttachments
 	//////////////////////////////////////////////////////////////////////////
 	void					IAttachments.DeactivateAttachment<T>()
 	{
-		WPN_BaseWeaponAttachment attachmentFound = FindAttachmentByType( this.m_AttachmentsList, typeof( T ) );
+		WPN_BaseWeaponAttachment attachmentFound = FindAttachmentByType( m_AttachmentsList, typeof( T ) );
 		if (attachmentFound)
 		{
 			attachmentFound.SetActive( false );
@@ -114,7 +114,7 @@ public abstract partial class Weapon : IAttachments
 	//////////////////////////////////////////////////////////////////////////
 	void					IAttachments.ActivateAllAttachments()
 	{
-		this.m_AttachmentsList.ForEach( attachment =>
+		m_AttachmentsList.ForEach( attachment =>
 		{
 			if ( !attachment.IsActive ) attachment.SetActive( true );
 		} );
@@ -123,7 +123,7 @@ public abstract partial class Weapon : IAttachments
 	//////////////////////////////////////////////////////////////////////////
 	void					IAttachments.DeactivateAllAttachments()
 	{
-		this.m_AttachmentsList.ForEach( attachment =>
+		m_AttachmentsList.ForEach( attachment =>
 		{
 			if ( attachment.IsActive ) attachment.SetActive( false );
 		} );
@@ -132,13 +132,13 @@ public abstract partial class Weapon : IAttachments
 	//////////////////////////////////////////////////////////////////////////
 	void					IAttachments.RemoveAllAttachments()
 	{
-		this.m_AttachmentsList.ForEach( attachment => Object.Destroy( attachment.gameObject ) );
+		m_AttachmentsList.ForEach( attachment => Object.Destroy( attachment.gameObject ) );
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	void					IAttachments.ResetAttachments()
 	{
-		this.ResetAttachmentsInternal();
+		ResetAttachmentsInternal();
 	}
 
 
@@ -152,24 +152,24 @@ public abstract partial class Weapon : IAttachments
 	//////////////////////////////////////////////////////////////////////////
 	public bool InitializeAttachments()
 	{
-		this.Attachments = this as IAttachments;
+		Attachments = this as IAttachments;
 
-		if (this.m_AreAttachmentsAllowed = this.transform.SearchComponentInChild( "AllowedAttachments", ref this.m_AttachmentRoot ))
+		if (m_AreAttachmentsAllowed = transform.SearchComponentInChild( "AllowedAttachments", ref m_AttachmentRoot ))
 		{
-			if (this.m_WpnSection.bGetMultiAsArray( "AllowedAttachments", ref this.m_AllowedAttachments ))
+			if (m_WpnSection.bGetMultiAsArray( "AllowedAttachments", ref m_AllowedAttachments ))
 			{
-				string[] allowedByPrefabSlots = this.m_AttachmentRoot.Cast<Transform>().Select( child => child.name ).ToArray();
+				string[] allowedByPrefabSlots = m_AttachmentRoot.Cast<Transform>().Select( child => child.name ).ToArray();
 //				foreach(string allowedAttachmentBySection in this.m_AllowedAttachments )
 				{
 //					string err = $"Weapon:InitializeAttachments: {this.m_WpnBaseSectionName} allows attachment '{allowedAttachmentBySection}' by section but prefab does not!";
 //					Debug.Assert( allowedByPrefabSlots.Contains( allowedAttachmentBySection ), err, this.gameObject );
 				}
 
-				if (allowedByPrefabSlots.Length < this.m_AllowedAttachments.Length)
+				if (allowedByPrefabSlots.Length < m_AllowedAttachments.Length)
 				{
-					string[] notAllowedbyPrefabAttachments = this.m_AllowedAttachments.Where( attachmentName => !allowedByPrefabSlots.Contains( attachmentName ) ).ToArray();
-					string err = $"Weapon:InitializeAttachments: {this.m_WpnBaseSectionName} allows less attachments as required by section, missing attachment slots:\n- {string.Join( "\n- ", notAllowedbyPrefabAttachments )}";
-					Debug.Assert( false, err, this.gameObject );
+					string[] notAllowedbyPrefabAttachments = m_AllowedAttachments.Where( attachmentName => !allowedByPrefabSlots.Contains( attachmentName ) ).ToArray();
+					string err = $"Weapon:InitializeAttachments: {m_WpnBaseSectionName} allows less attachments as required by section, missing attachment slots:\n- {string.Join( "\n- ", notAllowedbyPrefabAttachments )}";
+					Debug.Assert( false, err, gameObject );
 				}
 
 //				foreach(string allowedByPrefabSlot in allowedByPrefabSlots)
@@ -178,14 +178,14 @@ public abstract partial class Weapon : IAttachments
 //					Debug.Assert( this.m_AllowedAttachments.Contains(allowedByPrefabSlot), err, this.gameObject );
 				}
 
-				if (this.m_WpnSection.bGetMultiAsArray("DefaultAttachments", ref this.m_DefaultAttachments ))
+				if (m_WpnSection.bGetMultiAsArray("DefaultAttachments", ref m_DefaultAttachments ))
 				{
-					foreach(string defaultAttachment in this.m_DefaultAttachments )
+					foreach(string defaultAttachment in m_DefaultAttachments )
 					{
-						string err = $"Weapon:InitializeAttachments: Weapon {this.m_WpnBaseSectionName}, ";
-						Debug.Assert( this.m_AllowedAttachments.Contains( defaultAttachment ), err, this );
+						string err = $"Weapon:InitializeAttachments: Weapon {m_WpnBaseSectionName}, ";
+						Debug.Assert( m_AllowedAttachments.Contains( defaultAttachment ), err, this );
 					}
-					this.ResetAttachmentsInternal();
+					ResetAttachmentsInternal();
 				}
 			}
 		}
@@ -209,11 +209,11 @@ public abstract partial class Weapon : IAttachments
 		{
 			if ( !attachmentSection.bAsString("SlotName", ref slotName ) )
 			{
-				Debug.Assert( false, $"Weapon.Attachment:AddAttachmentInternal: Weapon {this.m_WpnBaseSectionName}:Cannot find slot name in attachment {attachmentType.FullName}" );
+				Debug.Assert( false, $"Weapon.Attachment:AddAttachmentInternal: Weapon {m_WpnBaseSectionName}:Cannot find slot name in attachment {attachmentType.FullName}" );
 			}
 
-			string err = $"Weapon.Attachment:AddAttachmentInternal: Weapon {this.m_WpnBaseSectionName}: Attachment {attachmentType.FullName} require missing slot {slotName}";
-			Debug.Assert( this.m_AttachmentRoot.Find( slotName ), err, this );
+			string err = $"Weapon.Attachment:AddAttachmentInternal: Weapon {m_WpnBaseSectionName}: Attachment {attachmentType.FullName} require missing slot {slotName}";
+			Debug.Assert( m_AttachmentRoot.Find( slotName ), err, this );
 		}
 
 		// Check attachment type as child of WPN_WeaponAttachment
@@ -224,8 +224,8 @@ public abstract partial class Weapon : IAttachments
 
 		// Check the requested type is allowed to this weapon
 		{
-			string err = $"Weapon.Attachment:AddAttachmentInternal: Weapon {this.m_WpnBaseSectionName}: Trying to add not allowed attachment {attachmentType.FullName}";
-			Debug.Assert( this.m_AllowedAttachments.Contains( attachmentType.FullName ), err, this );
+			string err = $"Weapon.Attachment:AddAttachmentInternal: Weapon {m_WpnBaseSectionName}: Trying to add not allowed attachment {attachmentType.FullName}";
+			Debug.Assert( m_AllowedAttachments.Contains( attachmentType.FullName ), err, this );
 		}
 
 		WPN_BaseWeaponAttachment wpnAttachment = null;
@@ -236,7 +236,7 @@ public abstract partial class Weapon : IAttachments
 			GameObject attachmentPrefab = Resources.Load( attachmentPrefabPath ) as GameObject;
 			if ( attachmentPrefab )
 			{
-				GameObject attachmentInstance = Instantiate<GameObject>( attachmentPrefab, this.m_AttachmentRoot.Find( slotName ) );
+				GameObject attachmentInstance = Instantiate<GameObject>( attachmentPrefab, m_AttachmentRoot.Find( slotName ) );
 				attachmentInstance.transform.localPosition = Vector3.zero;
 				attachmentInstance.transform.localRotation = Quaternion.identity;
 
@@ -246,27 +246,27 @@ public abstract partial class Weapon : IAttachments
 		}
 		else
 		{
-			wpnAttachment = this.m_AttachmentRoot.gameObject.AddComponent( attachmentType ) as WPN_BaseWeaponAttachment;
+			wpnAttachment = m_AttachmentRoot.gameObject.AddComponent( attachmentType ) as WPN_BaseWeaponAttachment;
 		}
 
 		// Final Check
 		{
-			string err = $"Weapon.Attachment:AddAttachmentInternal: Weapon {this.m_WpnBaseSectionName}: Attachment {attachmentType.FullName} is null";
+			string err = $"Weapon.Attachment:AddAttachmentInternal: Weapon {m_WpnBaseSectionName}: Attachment {attachmentType.FullName} is null";
 			Debug.Assert( wpnAttachment, err, this );
 		}
 
 		// On success attach the component
-		bool bConfiguredSuccessfully = wpnAttachment.Configure(attachmentSection);
+		bool bConfiguredSuccessfully = wpnAttachment.Configure(attachmentSection, this);
 		if ( bConfiguredSuccessfully == true )
 		{
 			wpnAttachment.OnAttach();
-			this.m_AttachmentsList.Add( wpnAttachment );
+			m_AttachmentsList.Add( wpnAttachment );
 		}
 		// On Fail remove the component
 		else
 		{
 			Object.Destroy( wpnAttachment.gameObject );
-			Debug.LogError( $"Weapon.Attachments::AddAttachmentInternal: Weapon: {this.m_WpnBaseSectionName}: Attachment \"{attachmentType.ToString()}\" has failed the attach" );
+			Debug.LogError( $"Weapon.Attachments::AddAttachmentInternal: Weapon: {m_WpnBaseSectionName}: Attachment \"{attachmentType.ToString()}\" has failed the attach" );
 		}
 		return bConfiguredSuccessfully ? wpnAttachment : null;
 	}
@@ -275,9 +275,9 @@ public abstract partial class Weapon : IAttachments
 	//////////////////////////////////////////////////////////////////////////
 	private void ResetAttachmentsInternal()
 	{
-		foreach(string defaultAttachment in this.m_DefaultAttachments)
+		foreach(string defaultAttachment in m_DefaultAttachments)
 		{
-			this.AddAttachmentInternal(System.Type.GetType(defaultAttachment));
+			AddAttachmentInternal(System.Type.GetType(defaultAttachment));
 		}
 	}
 }

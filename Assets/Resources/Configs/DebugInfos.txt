@@ -3,5 +3,5 @@
 [DebugInfos]
 ResourceManager			= false;
 WeatherManager			= false;
-Quests					= false;
+QuestSystem				= true;
 CoroutinesManager		= false;

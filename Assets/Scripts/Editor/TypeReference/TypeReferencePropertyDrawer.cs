@@ -19,7 +19,7 @@ namespace TypeReferences.Editor
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             position = ExcludeLabelFromPositionIfNecessary(position, label);
-			this.DrawTypeReferenceField(position, property);
+			DrawTypeReferenceField(position, property);
         }
 
         private static Rect ExcludeLabelFromPositionIfNecessary(Rect position, GUIContent label)
@@ -33,13 +33,13 @@ namespace TypeReferences.Editor
 
         private void DrawTypeReferenceField(Rect position, SerializedProperty property)
         {
-			TypeOptionsAttribute constraints = this.attribute as TypeOptionsAttribute;
+			TypeOptionsAttribute constraints = attribute as TypeOptionsAttribute;
 			SerializedTypeReference serializedTypeRef = new SerializedTypeReference(property);
 
 			TypeDropDownDrawer dropDown = new TypeDropDownDrawer(
                 serializedTypeRef.TypeNameAndAssembly,
                 constraints,
-				this.fieldInfo?.DeclaringType);
+				fieldInfo?.DeclaringType);
 
 			TypeFieldDrawer fieldDrawer = new TypeFieldDrawer(serializedTypeRef, position, dropDown);
 

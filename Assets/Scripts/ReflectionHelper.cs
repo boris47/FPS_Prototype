@@ -6,8 +6,8 @@ using Component = UnityEngine.Component;
 using Object = UnityEngine.Object;
 using System.Reflection;
 
-public interface IOnSceneLoadEvents {
-
+public interface IOnSceneLoadEvents
+{
 	void OnBeforeSceneActivation();
 
 	void OnAfterSceneActivation();

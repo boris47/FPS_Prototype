@@ -3,175 +3,124 @@
 using System.Linq;
 using UnityEngine;
 
-[System.Serializable]
-public struct SurfaceDefinition
-{
-	public string name;
-	public AudioClip[] footsteps;
-}
 
-[System.Serializable]
-public struct RegisteredMaterial
+public sealed class SurfaceManager : InGameSingleton<SurfaceManager>
 {
-	public Texture texture;
-	public int surfaceIndex;
-}
-
-public sealed class SurfaceManager : MonoBehaviour
-{
-	private		static		SurfaceManager	m_Instance				= null;
-	public		static		SurfaceManager Instance
+	[System.Serializable]
+	public struct SurfaceDefinition
 	{
-		get { return m_Instance; }
+		public string name;
+		public AudioClip[] footsteps;
+		public Material decal;
+	}
+
+	[System.Serializable]
+	public struct RegisteredTexture
+	{
+		public Texture texture;
+		public int surfaceIndex;
 	}
 
 	[SerializeField]
-	private		RegisteredMaterial[]		m_RegisteredTextures	= null;
+	private		RegisteredTexture[]			m_RegisteredTextures	= null;
 	[SerializeField]
 	private		SurfaceDefinition[]			m_DefinedSurfaces		= null;
 
 
-
 	//////////////////////////////////////////////////////////////////////////
-	private		void		Awake()
+	public		bool	TryGetFootstep( out AudioClip footStepClip, Collider collider, Ray ray )
 	{
-		// Singleton
-		if ( m_Instance != null )
+		int surfaceIndex = GetSurfaceIndex( collider, ray );
+		if (m_DefinedSurfaces.IsValidIndex(surfaceIndex))
 		{
-			Destroy( this.gameObject );
-			return;
+			AudioClip[] footsteps = m_DefinedSurfaces[surfaceIndex].footsteps;
+			footStepClip = footsteps[ Random.Range( 0, footsteps.Length ) ];
+			return true;
 		}
-		DontDestroyOnLoad( this );
-		m_Instance = this;
+		footStepClip = null;
+		return false;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		AudioClip	GetFootstep( Collider groundCollider, Vector3 worldPosition )
+	public		bool	TryGetDecal( out Material decal, Collider collider, Ray ray )
 	{
-		int surfaceIndex = this.GetSurfaceIndex( groundCollider, worldPosition );
-		if( surfaceIndex == -1 )
-			return null;
-
-		// Getting the footstep sounds based on surface index.
-		AudioClip[] footsteps = this.m_DefinedSurfaces[surfaceIndex].footsteps;
-		return footsteps[ Random.Range( 0, footsteps.Length ) ];
+		int surfaceIndex = GetSurfaceIndex( collider, ray );
+		if (m_DefinedSurfaces.IsValidIndex(surfaceIndex))
+		{
+			decal = m_DefinedSurfaces[surfaceIndex].decal;
+			return true;
+		}
+		decal = null;
+		return false;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public		string[]	GetAllSurfaceNames()
 	{
-		return this.m_DefinedSurfaces.Select(surface => surface.name).ToArray();
+		return m_DefinedSurfaces.Select((SurfaceDefinition surface) =>
+		{
+			return (!string.IsNullOrEmpty(surface.name))?surface.name:"None";
+		}).ToArray();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// This is for bullet hit particles
-	private		int			GetSurfaceIndex( Ray ray, Collider col, Vector3 worldPos )
+	private		int			GetSurfaceIndex( Collider col, Ray ray )
 	{
 		int textureInstanceID = -1;
 
-		// Case when the ground is a terrain.
+		// When the collider belongs to a terrain.
 		if ( col.GetType() == typeof( TerrainCollider ) )
 		{
 			col.TryGetComponent(out Terrain terrain);
 			TerrainData terrainData = terrain.terrainData;
-			float[] textureMix = this.GetTerrainTextureMix( worldPos, terrainData, terrain.GetPosition() );
-			int textureIndex = this.GetTextureIndex( textureMix );
-		//	textureInstanceID = terrainData.splatPrototypes[ textureIndex ].texture.GetInstanceID();
+			float[] textureMix = GetTerrainTextureMix( ray.origin, terrainData, terrain.GetPosition() );
+			int textureIndex = GetTextureIndex( textureMix );
 			textureInstanceID = terrainData.terrainLayers[ textureIndex ].diffuseTexture.GetInstanceID();
 
 		}
-		// Case when the ground is a normal mesh.
+		// When the collider belongs to a normal mesh.
 		else
 		{
-			textureInstanceID = this.GetMeshMaterialAtPoint( worldPos, ray );
-		}
-
-		// Searching for the found texture / material name in registered materials.
-		int regTextureIndex = System.Array.FindIndex(this.m_RegisteredTextures, m => m.texture.GetInstanceID() == textureInstanceID );
-		return this.m_RegisteredTextures[regTextureIndex].surfaceIndex;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// This is for footsteps
-	private		int			GetSurfaceIndex( Collider col, Vector3 worldPos )
-	{
-		int textureInstanceID = -1;
-
-		// Case when the ground is a terrain.
-		if ( col.GetType() == typeof( TerrainCollider ) )
-		{
-			col.TryGetComponent(out Terrain terrain);
-			TerrainData terrainData = terrain.terrainData;
-			float[] textureMix = this.GetTerrainTextureMix( worldPos, terrainData, terrain.GetPosition() );
-			int textureIndex = this.GetTextureIndex( textureMix );
-			//	textureInstanceID = terrainData.splatPrototypes[ textureIndex ].texture.GetInstanceID();
-			textureInstanceID = terrainData.terrainLayers[textureIndex].diffuseTexture.GetInstanceID();
-
-		}
-		// Case when the ground is a normal mesh.
-		else
-		{
-			textureInstanceID = this.GetMeshMaterialAtPoint( worldPos, null );
-		}
-
-		// Searching for the found texture / material name in registered materials.
-		int regTextureIndex = System.Array.FindIndex(this.m_RegisteredTextures, m => m.texture.GetInstanceID() == textureInstanceID );
-		if ( regTextureIndex == -1 || regTextureIndex >= this.m_RegisteredTextures.Length )
-		{
-			Debug.DebugBreak();
-			return 0;
-		}
-
-		return this.m_RegisteredTextures[regTextureIndex].surfaceIndex;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private		int		GetMeshMaterialAtPoint( Vector3 worldPosition, Ray? ray )
-	{
-		if( ray.HasValue == false )
-		{
-			// direction down
-			ray = new Ray( worldPosition + Vector3.up * 0.01f, Vector3.down );
-		}
-
-		if (Physics.Raycast(ray.Value, out RaycastHit hit) == false)
-			return -1;
-
-		bool bHasRender = Utils.Base.SearchComponent( hit.collider.gameObject, out Renderer renderer, ESearchContext.LOCAL );
-		if ( bHasRender == false || renderer.sharedMaterial == null || renderer.sharedMaterial.mainTexture == null )
-			return -1;
-
-		bool bIsMeshCollider = hit.collider.GetType() == typeof( MeshCollider );
-		MeshCollider mc = hit.collider as MeshCollider;
-		if ( bIsMeshCollider == false || mc.convex )
-			return renderer.material.mainTexture.GetInstanceID();
-
-		Mesh m = mc.sharedMesh;
-		int materialIndex = -1;
-		int triangleIdx = hit.triangleIndex;
-		int lookupIdx1	= m.triangles[ triangleIdx * 3 ];
-		int lookupIdx2	= m.triangles[ triangleIdx * 3 + 1 ];
-		int lookupIdx3	= m.triangles[ triangleIdx * 3 + 2 ];
-		int subMeshesNr = m.subMeshCount;
-
-		for( int i = 0;i < subMeshesNr && materialIndex == -1; i ++ )
-		{
-			int[] tr = m.GetTriangles( i );
-			for( int j = 0; j < tr.Length && materialIndex == -1; j += 3 )
+			if (Physics.Raycast(ray, out RaycastHit hit) && Utils.Base.SearchComponent( hit.collider.gameObject, out Renderer renderer, ESearchContext.LOCAL ))
 			{
-				if ( tr[ j ] == lookupIdx1 && tr[ j+1 ] == lookupIdx2 && tr[ j+2 ] == lookupIdx3 )
+				if (renderer.sharedMaterial && renderer.sharedMaterial.mainTexture)
 				{
-					materialIndex = i;
+					MeshCollider meshCollider = hit.collider as MeshCollider;
+					if (!meshCollider || meshCollider.convex)
+					{
+						textureInstanceID = renderer.material.mainTexture.GetInstanceID();
+					}
+					else
+					{
+						// Not Convex MeshCollider
+						Mesh mesh = meshCollider.sharedMesh;
+						int triangleIdx = hit.triangleIndex * 3;
+						int lookupIdx1 = mesh.triangles[triangleIdx], lookupIdx2 = mesh.triangles[triangleIdx + 1], lookupIdx3 = mesh.triangles[triangleIdx + 2];
+						int materialIndex = -1;
+						for( int i = 0; i < mesh.subMeshCount && materialIndex == -1; i ++ )
+						{
+							int[] tr = mesh.GetTriangles(i);
+							for( int j = 0; j < tr.Length && materialIndex == -1; j += 3 )
+							{
+								if (tr[j]  == lookupIdx1 && tr[j+1] == lookupIdx2 && tr[j+2] == lookupIdx3)
+								{
+									materialIndex = i;
+								}
+							}
+						}
+						textureInstanceID = materialIndex == -1 ? -1 : renderer.materials[materialIndex].mainTexture.GetInstanceID();
+					}
 				}
 			}
 		}
 
-		return renderer.materials[materialIndex].mainTexture.GetInstanceID();
+		// Searching for the found texture / material name in registered materials.
+		int regTextureIndex = System.Array.FindIndex(m_RegisteredTextures, m => m.texture.GetInstanceID() == textureInstanceID );
+		return m_RegisteredTextures[regTextureIndex].surfaceIndex;
 	}
 
 
@@ -185,20 +134,18 @@ public sealed class SurfaceManager : MonoBehaviour
 		// of textures added to the terrain.
 
 		// calculate which splat map cell the worldPos falls within (ignoring y)
-		int mapX = ( int )( ( ( worldPos.x - terrainPos.x ) / terrainData.size.x ) * terrainData.alphamapWidth  );
-		int mapZ = ( int )( ( ( worldPos.z - terrainPos.z ) / terrainData.size.z ) * terrainData.alphamapHeight );
+		int mapX = (int) ( ( worldPos.x - terrainPos.x ) / terrainData.size.x * terrainData.alphamapWidth );
+		int mapZ = (int) ( ( worldPos.z - terrainPos.z ) / terrainData.size.z * terrainData.alphamapHeight );
 
 		// get the splat data for this cell as a 1x1xN 3d array (where N = number of textures)
 		float[,,] splatmapData = terrainData.GetAlphamaps( mapX, mapZ, 1, 1 );
 
 		// extract the 3D array data to a 1D array:
 		float[] cellMix = new float[ splatmapData.GetUpperBound(2) + 1 ];
-
 		for( int n = 0; n < cellMix.Length; n++ )
 		{
 			cellMix[ n ] = splatmapData[ 0, 0, n ];
 		}
-
 		return cellMix;
 	}
 

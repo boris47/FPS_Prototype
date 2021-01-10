@@ -9,28 +9,28 @@ public class WorldPositionViewer : MonoBehaviour {
 
 	private void OnValidate()
 	{
-		this.m_WorldPosition = this.transform.position;
+		m_WorldPosition = transform.position;
 	}
 
 	private void OnEnable()
 	{
-		this.m_WorldPosition = this.transform.position;
+		m_WorldPosition = transform.position;
 	}
 
 	private void OnDisable()
 	{
-		this.m_WorldPosition = this.transform.position;
+		m_WorldPosition = transform.position;
 	}
 
 	private void Awake()
 	{
-		this.m_WorldPosition = this.transform.position;
+		m_WorldPosition = transform.position;
 	}
 
 	
 	void Start ()
 	{
-		this.m_WorldPosition = this.transform.position;
+		m_WorldPosition = transform.position;
 	}
 	
 }

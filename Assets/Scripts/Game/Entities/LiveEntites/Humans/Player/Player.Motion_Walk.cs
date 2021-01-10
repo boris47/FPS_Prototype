@@ -9,17 +9,17 @@ public partial class Player {
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		EnterSimulationState()
 	{
-		this.m_MovementOverrideEnabled				= true;
-		this.m_SimulationStartPosition				= this.transform.position;
+		m_MovementOverrideEnabled				= true;
+		m_SimulationStartPosition				= transform.position;
 
 //		GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, false);
 //		InputManager.IsEnabled					= false;
 		GlobalManager.InputMgr.DisableCategory( EInputCategory.ALL );
 
-		this.prevInterpolation						= this.m_RigidBody.interpolation;
-		this.m_RigidBody.interpolation				= RigidbodyInterpolation.Interpolate;
+		prevInterpolation						= m_RigidBody.interpolation;
+		m_RigidBody.interpolation				= RigidbodyInterpolation.Interpolate;
 
-		this.DropEntityDragged();
+		DropEntityDragged();
 	}
 
 
@@ -34,13 +34,13 @@ public partial class Player {
 	protected	override	bool		SimulateMovement( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
 		// END OF SIMULATION STEP
-		Vector3 direction = ( destination - this.m_SimulationStartPosition );
+		Vector3 direction = ( destination - m_SimulationStartPosition );
 		float simulationdDistanceToTravel = direction.sqrMagnitude;
-		float simulationDistanceTravelled = (this.transform.position - this.m_SimulationStartPosition ).sqrMagnitude;
+		float simulationDistanceTravelled = (transform.position - m_SimulationStartPosition ).sqrMagnitude;
 		
 		if ( simulationDistanceTravelled > simulationdDistanceToTravel )
 		{
-			this.m_SimulationStartPosition = this.transform.position;
+			m_SimulationStartPosition = transform.position;
 			return false;				// force logic update
 		}
 
@@ -58,14 +58,14 @@ public partial class Player {
 			bool isWalking	= ( movementType != ESimMovementType.RUN );
 			bool isRunning	= !isWalking;
 			bool isCrouched = ( movementType == ESimMovementType.CROUCHED );
-			this.m_ForwardSmooth = ( movementType != ESimMovementType.STATIONARY ) ? ( isCrouched ) ? this.m_CrouchSpeed : ( isRunning ) ? this.m_RunSpeed : this.m_WalkSpeed : 0.0f;
+			m_ForwardSmooth = ( movementType != ESimMovementType.STATIONARY ) ? ( isCrouched ) ? m_CrouchSpeed : ( isRunning ) ? m_RunSpeed : m_WalkSpeed : 0.0f;
 
-			this.m_States.IsWalking	= isWalking;
-			this.m_States.IsRunning	= isRunning;
-			this.m_States.IsCrouched	= isCrouched;
-			this.m_States.IsMoving	= movementType != ESimMovementType.STATIONARY;
+			m_States.IsWalking	= isWalking;
+			m_States.IsRunning	= isRunning;
+			m_States.IsCrouched	= isCrouched;
+			m_States.IsMoving	= movementType != ESimMovementType.STATIONARY;
 
-			this.m_Move = (this.m_ForwardSmooth * direction.normalized ) * this.GroundSpeedModifier;
+			m_Move = (m_ForwardSmooth * direction.normalized ) * GroundSpeedModifier;
 //			m_RigidBody.velocity = m_Move;
 		}
 		return true;
@@ -76,30 +76,30 @@ public partial class Player {
 	protected override		void		AfterSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
 		CameraControl.Instance.Target = null;
-		this.m_Move = Vector3.zero;
+		m_Move = Vector3.zero;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		ExitSimulationState()
 	{
-		this.m_MovementOverrideEnabled = false;
-		this.m_SimulationStartPosition = Vector3.zero;
+		m_MovementOverrideEnabled = false;
+		m_SimulationStartPosition = Vector3.zero;
 
-		this.m_RigidBody.interpolation = this.prevInterpolation;
+		m_RigidBody.interpolation = prevInterpolation;
 
 		if ( CameraControl.Instance.Target != null )
 		{
-			Vector3 projectedTarget = Utils.Math.ProjectPointOnPlane(this.transform.up, this.transform.position, CameraControl.Instance.Target.position );
-			Quaternion rotation = Quaternion.LookRotation( projectedTarget - this.transform.position, this.transform.up );
-			this.transform.rotation = rotation;
+			Vector3 projectedTarget = Utils.Math.ProjectPointOnPlane(transform.up, transform.position, CameraControl.Instance.Target.position );
+			Quaternion rotation = Quaternion.LookRotation( projectedTarget - transform.position, transform.up );
+			transform.rotation = rotation;
 		}
 
-		this.m_Move					= Vector3.zero;
-		this.m_ForwardSmooth			= 0f;
-		this.m_States.IsWalking		= false;
-		this.m_States.IsRunning		= false;
-		this.m_States.IsMoving		= false;
+		m_Move					= Vector3.zero;
+		m_ForwardSmooth			= 0f;
+		m_States.IsWalking		= false;
+		m_States.IsRunning		= false;
+		m_States.IsMoving		= false;
 		Time.timeScale			= 1f;
 
 //		GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, true);
@@ -337,18 +337,18 @@ public partial class Player {
 
 	private	void	RegisterGroundedMotion()
 	{
-		GlobalManager.InputMgr.BindCall( EInputCommands.MOVE_FORWARD,		"ForwardEvent", this.GoForwardAction, this.Motion_Walk_Predicate );
-		GlobalManager.InputMgr.BindCall( EInputCommands.MOVE_BACKWARD,		"BackwardEvent", this.GoBackwardAction, this.Motion_Walk_Predicate );
+		GlobalManager.InputMgr.BindCall( EInputCommands.MOVE_FORWARD,		"ForwardEvent", GoForwardAction, Motion_Walk_Predicate );
+		GlobalManager.InputMgr.BindCall( EInputCommands.MOVE_BACKWARD,		"BackwardEvent", GoBackwardAction, Motion_Walk_Predicate );
 
-		GlobalManager.InputMgr.BindCall( EInputCommands.MOVE_LEFT,			"LeftEvent", this.StrafeLeftAction, this.Motion_Walk_Predicate );
-		GlobalManager.InputMgr.BindCall( EInputCommands.MOVE_RIGHT,			"RightEvent", this.StrafeRightAction, this.Motion_Walk_Predicate );
+		GlobalManager.InputMgr.BindCall( EInputCommands.MOVE_LEFT,			"LeftEvent", StrafeLeftAction, Motion_Walk_Predicate );
+		GlobalManager.InputMgr.BindCall( EInputCommands.MOVE_RIGHT,			"RightEvent", StrafeRightAction, Motion_Walk_Predicate );
 
-		GlobalManager.InputMgr.BindCall( EInputCommands.STATE_RUN,			"RunEvent", this.RunAction, this.RunPredicate );
+		GlobalManager.InputMgr.BindCall( EInputCommands.STATE_RUN,			"RunEvent", RunAction, RunPredicate );
 
-		GlobalManager.InputMgr.BindCall( EInputCommands.STATE_JUMP,			"JumpEvent", this.JumpAction, this.JumpPredicate );
+		GlobalManager.InputMgr.BindCall( EInputCommands.STATE_JUMP,			"JumpEvent", JumpAction, JumpPredicate );
 
-		GlobalManager.InputMgr.BindCall( EInputCommands.USAGE,				"Interaction", this.InteractionAction, this.InteractionPredicate );
-		GlobalManager.InputMgr.BindCall( EInputCommands.USAGE,				"Grab", this.GrabAction, this.GrabPredicate );
+		GlobalManager.InputMgr.BindCall( EInputCommands.USAGE,				"Interaction", InteractionAction, InteractionPredicate );
+		GlobalManager.InputMgr.BindCall( EInputCommands.USAGE,				"Grab", GrabAction, GrabPredicate );
 
 //		GlobalManager.InputMgr.BindCall( EInputCommands.ABILITY_PRESS,		"DodgeStart", this.AbilityEnableAction, this.AbilityPredcate );
 //		GlobalManager.InputMgr.BindCall( EInputCommands.ABILITY_HOLD,		"DodgeContinue", this.AbilityContinueAction, this.AbilityPredcate );
@@ -381,65 +381,65 @@ public partial class Player {
 	//////////////////////////////////////////////////////////////////////////
 	private	bool	Motion_Walk_Predicate()
 	{
-		return this.IsGrounded;
+		return IsGrounded;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private	void	GoForwardAction()
 	{
-		this.m_States.IsMoving = true;
+		m_States.IsMoving = true;
 
-		bool bIsWalking = this.m_States.IsRunning == false && this.m_States.IsCrouched == false;
+		bool bIsWalking = m_States.IsRunning == false && m_States.IsCrouched == false;
 
 		//						Walking									Running									Crouch
-		float force = ( bIsWalking ) ? this.m_WalkSpeed : (this.m_States.IsRunning ) ? this.m_RunSpeed : (this.m_States.IsCrouched )	? this.m_CrouchSpeed : 1.0f;
+		float force = ( bIsWalking ) ? m_WalkSpeed : (m_States.IsRunning ) ? m_RunSpeed : (m_States.IsCrouched )	? m_CrouchSpeed : 1.0f;
 
-		this.m_ForwardSmooth = force;
+		m_ForwardSmooth = force;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private	void	GoBackwardAction()
 	{
-		this.m_States.IsMoving = true;
+		m_States.IsMoving = true;
 
-		bool bIsWalking = this.m_States.IsRunning == false && this.m_States.IsCrouched == false;
+		bool bIsWalking = m_States.IsRunning == false && m_States.IsCrouched == false;
 		
 		//						Walking									Running									Crouch
-		float force = ( bIsWalking ) ? this.m_WalkSpeed : (this.m_States.IsRunning ) ? this.m_RunSpeed : (this.m_States.IsCrouched ) ? this.m_CrouchSpeed : 1.0f;
+		float force = ( bIsWalking ) ? m_WalkSpeed : (m_States.IsRunning ) ? m_RunSpeed : (m_States.IsCrouched ) ? m_CrouchSpeed : 1.0f;
 
-		this.m_ForwardSmooth = -force;
+		m_ForwardSmooth = -force;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private	void	StrafeRightAction()
 	{
-		this.m_States.IsMoving = true;
+		m_States.IsMoving = true;
 
-		bool bIsWalking = this.m_States.IsRunning == false && this.m_States.IsCrouched == false;
+		bool bIsWalking = m_States.IsRunning == false && m_States.IsCrouched == false;
 
 		//						Walking									Running									Crouch
-		float force = ( bIsWalking ) ? this.m_WalkSpeed : (this.m_States.IsRunning ) ? this.m_RunSpeed : (this.m_States.IsCrouched ) ? this.m_CrouchSpeed : 1.0f;
+		float force = ( bIsWalking ) ? m_WalkSpeed : (m_States.IsRunning ) ? m_RunSpeed : (m_States.IsCrouched ) ? m_CrouchSpeed : 1.0f;
 
 		const float strafeFactor = 0.8f;
-		this.m_RightSmooth = force * strafeFactor;
+		m_RightSmooth = force * strafeFactor;
 	}
 	
 
 	//////////////////////////////////////////////////////////////////////////
 	private	void	StrafeLeftAction()
 	{
-		this.m_States.IsMoving = true;
+		m_States.IsMoving = true;
 
-		bool bIsWalking = this.m_States.IsRunning == false && this.m_States.IsCrouched == false;
+		bool bIsWalking = m_States.IsRunning == false && m_States.IsCrouched == false;
 
 		//						Walking									Running									Crouch
-		float force = ( bIsWalking ) ? this.m_WalkSpeed : (this.m_States.IsRunning ) ? this.m_RunSpeed : (this.m_States.IsCrouched ) ? this.m_CrouchSpeed : 1.0f;
+		float force = ( bIsWalking ) ? m_WalkSpeed : (m_States.IsRunning ) ? m_RunSpeed : (m_States.IsCrouched ) ? m_CrouchSpeed : 1.0f;
 
 		const float strafeFactor = 0.8f;
-		this.m_RightSmooth = -force * strafeFactor;
+		m_RightSmooth = -force * strafeFactor;
 	}
 
 
@@ -453,10 +453,10 @@ public partial class Player {
 	//////////////////////////////////////////////////////////////////////////
 	private	void	RunAction()
 	{
-		if (this.m_States.IsMoving )
+		if (m_States.IsMoving )
 		{
-			this.m_States.IsCrouched = false;
-			this.m_States.IsRunning = true;
+			m_States.IsCrouched = false;
+			m_States.IsRunning = true;
 		}
 	}
 
@@ -464,15 +464,15 @@ public partial class Player {
 	//////////////////////////////////////////////////////////////////////////
 	private	bool	JumpPredicate()
 	{
-		return this.IsGrounded && this.m_States.IsJumping == false && this.m_States.IsHanging == false && this.m_States.IsFalling == false && this.m_GrabbedObject == null;
+		return IsGrounded && m_States.IsJumping == false && m_States.IsHanging == false && m_States.IsFalling == false && m_GrabbedObject == null;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private	void	JumpAction()
 	{
-		this.m_UpSmooth = this.m_JumpForce / (this.m_States.IsCrouched ? 1.5f : 1.0f );
-		this.m_States.IsJumping = true;
+		m_UpSmooth = m_JumpForce / (m_States.IsCrouched ? 1.5f : 1.0f );
+		m_States.IsJumping = true;
 	}
 
 }

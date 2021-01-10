@@ -21,3 +21,21 @@ MinimapClampFactor		= 0.72;
 [Notifications]
 
 NotificationsDuration	= 5.0;
+
+
+
+; Shotgun, GLauncher
+[UI_CircleCross]
+EffectMult				= 0.2;
+
+; Sniper
+[UI_CrysisCross]
+EffectMult				= 1.0;
+
+; Barrel, Blaster
+[UI_SimpleCross]
+EffectMult				= 12.0;
+
+; Syphon
+[UI_SimpleCross45]
+EffectMult				= 1.0;

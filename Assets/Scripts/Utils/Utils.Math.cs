@@ -3,18 +3,20 @@ using UnityEngine;
 
 
 
-namespace Utils {
+namespace Utils
+{
 
-	public static class Math {
+	public static class Math
+	{
 
-		public	const	float	EPS		= 0.00001f;
+		public const float EPS = 0.00001f;
 
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary>
 		/// Equal to Mathf.Sign but this works
 		/// </summary>
-		public	static		float		Sign( float value )
+		public static float Sign(in float value)
 		{
 			return ( value > 0f ) ? 1f : ( value < 0f ) ? -1f : 0f;
 		}
@@ -27,7 +29,7 @@ namespace Utils {
 		/// <param name="Val1"></param>
 		/// <param name="Val2"></param>
 		/// <returns></returns>
-		public	static		bool		IsBetweenValues( float Value, float Val1, float Val2 )
+		public static bool IsBetweenValues(in float Value, in float Val1, in float Val2)
 		{
 			float minBound = Mathf.Min( Val1, Val2 );
 			float maxBound = Mathf.Max( Val1, Val2 );
@@ -41,22 +43,22 @@ namespace Utils {
 		/// Return the scaled value between given limits clamped to range [0, 1]
 		/// Ex: CurrentDistance, MAX_DISTANCE, MIN_DISTANCE ( 0 -> 1 [ MinLimit -> CurrentDistance -> MaxLimit ] )
 		/// </summary>
-        /// <param name="CurrentValue">The actual value to normalize.</param>
-        /// <param name="MinValue">The minimum value the actual value can be.</param>
-        /// <param name="MaxValue">The maximum value the actual value can be.</param>
-        /// <param name="Threshold">The threshold to force to the minimum or maximum value if the normalized value is within the threhold limits.</param>
+		/// <param name="CurrentValue">The actual value to normalize.</param>
+		/// <param name="MinValue">The minimum value the actual value can be.</param>
+		/// <param name="MaxValue">The maximum value the actual value can be.</param>
+		/// <param name="Threshold">The threshold to force to the minimum or maximum value if the normalized value is within the threhold limits.</param>
 		/// <returns></returns>
-		public static float ScaleBetweenClamped01( float CurrentValue, float MinValue, float MaxValue, float Threshold = 0f )
+		public static float ScaleBetweenClamped01(in float CurrentValue, in float MinValue, in float MaxValue, in float Threshold = 0f)
 		{
 
 			float normalizedMax = MaxValue - MinValue;
-            float normalizedValue = normalizedMax - (MaxValue - CurrentValue);
-            float result = normalizedValue * ( (normalizedMax != 0f ? 1f / normalizedMax : 1f) ) ;
-            result = (result < Threshold ? 0f : result);
-            result = (result > 1f - Threshold ? 1f : result);
-            return Mathf.Clamp(result, 0f, 1f);
+			float normalizedValue = normalizedMax - ( MaxValue - CurrentValue );
+			float result = normalizedValue * ( ( normalizedMax != 0f ? 1f / normalizedMax : 1f ) );
+			result = ( result < Threshold ? 0f : result );
+			result = ( result > 1f - Threshold ? 1f : result );
+			return Mathf.Clamp( result, 0f, 1f );
 
-//			return Mathf.Clamp01( ( ( CurrentValue - MinLimit ) / ( MaxLimit - MinLimit ) ) );
+			//			return Mathf.Clamp01( ( ( CurrentValue - MinLimit ) / ( MaxLimit - MinLimit ) ) );
 		}
 
 		/// Ref: https://en.wikipedia.org/wiki/Feature_scaling
@@ -70,16 +72,16 @@ namespace Utils {
 		/// <param name="MinScale"></param>
 		/// <param name="MaxScale"></param>
 		/// <returns></returns>
-		public static float ScaleBetween( float CurrentValue, float MinValue, float MaxValue, float MinScale, float MaxScale )
+		public static float ScaleBetween(in float CurrentValue, in float MinValue, in float MaxValue, in float MinScale, in float MaxScale)
 		{
-			return MinScale + (( CurrentValue - MinValue ) / ( MaxValue - MinValue ) * ( MaxScale - MinScale ));
+			return MinScale + ( ( CurrentValue - MinValue ) / ( MaxValue - MinValue ) * ( MaxScale - MinScale ) );
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary>
 		/// Return a better performance method to get squared value
-		public	static		float		Sqr( float value )
+		public static float Sqr(in float value)
 		{
 			return Mathf.Pow( value, 0.5f );
 		}
@@ -89,7 +91,7 @@ namespace Utils {
 		/// <summary>
 		/// With a facoltative Epsilon, determines if value is similar to Zero
 		/// </summary>
-		public	static		bool		SimilarZero( float a, float cmp = EPS )
+		public static bool SimilarZero(in float a, float cmp = EPS)
 		{
 			return Mathf.Abs( a ) < cmp;
 		}
@@ -99,7 +101,7 @@ namespace Utils {
 		/// <summary>
 		/// Return a clamped value
 		/// </summary>
-		public	static		float		Clamp( float Value, float Min, float Max )
+		public static float Clamp(in float Value, in float Min, in float Max)
 		{
 			return ( Value > Max ) ? Max : ( Value < Min ) ? Min : Value;
 		}
@@ -109,14 +111,15 @@ namespace Utils {
 		/// <summary>
 		/// Return a clamped angle
 		/// </summary>
-		public	static		float		ClampAngle( float Angle, float Min, float Max )
+		public static float ClampAngle(in float Angle, in float Min, in float Max)
 		{
+			float angle = Angle;
 			while ( Angle > 360 )
-				Angle =-360;
+				angle = -360;
 
-			Angle = Mathf.Max ( Mathf.Min ( Angle, Max ), Min );
-			if ( Angle < 0 )
-				Angle += 360;
+			angle = Mathf.Max( Mathf.Min( Angle, Max ), Min );
+			if ( angle < 0 )
+				angle += 360;
 
 			return Angle;
 		}
@@ -127,7 +130,7 @@ namespace Utils {
 		/// Get planar squared distance between two positions, position1 is projected on position2 plane
 		/// </summary>
 		/// <returns>Planar Squared Distance</returns>
-		public	static		float		PlanarSqrDistance( Vector3 position1, Vector3 position2, Vector3 position2PlaneNormal )
+		public static float PlanarSqrDistance(in Vector3 position1, in Vector3 position2, in Vector3 position2PlaneNormal)
 		{
 			// with given plane normal, project position1 on position2 plane
 			Vector3 projectedPoint = ProjectPointOnPlane( position2PlaneNormal, position1, position2 );
@@ -141,10 +144,10 @@ namespace Utils {
 		/// Get planar distance between two positions, position1 is projected on position2 plane
 		/// </summary>
 		/// <returns>Planar Distance</returns>
-		public	static		float		PlanarDistance( Vector3 position1, Vector3 position2, Vector3 planeNormal )
+		public static float PlanarDistance(in Vector3 position1, in Vector3 position2, in Vector3 planeNormal)
 		{
 			float sqrDistance = PlanarSqrDistance( position1, position2, planeNormal );
-			
+
 			return Mathf.Sqrt( sqrDistance );
 		}
 
@@ -153,15 +156,13 @@ namespace Utils {
 		/// <summary>
 		/// Get a direction vector from polar coordinates
 		/// </summary>>
-		public	static		Vector3		VectorByHP( float h, float p )
+		public static Vector3 VectorByHP(in float h, in float p)
 		{
-			h *= Mathf.Deg2Rad;
-			p *= Mathf.Deg2Rad;
-			float _ch = Mathf.Cos( h );
-			float _cp = Mathf.Cos( p );
+			float _ch = Mathf.Cos( h * Mathf.Deg2Rad );
+			float _cp = Mathf.Cos( p * Mathf.Deg2Rad );
 			float _sh = Mathf.Sin( h );
 			float _sp = Mathf.Sin( p );
-			return new Vector3 ( _cp * _sh, _sp, _cp * _ch );
+			return new Vector3( _cp * _sh, _sp, _cp * _ch );
 		}
 
 
@@ -169,10 +170,10 @@ namespace Utils {
 		/// <summary>
 		/// Return if a position is inside a mesh
 		/// </summary>
-		public	static		bool		IsPointInside( MeshFilter MeshFilter, Vector3 WorldPosition )
+		public static bool IsPointInside(in MeshFilter MeshFilter, in Vector3 WorldPosition)
 		{
 			Mesh aMesh = MeshFilter.sharedMesh;
-			Vector3 aLocalPoint = MeshFilter.transform.InverseTransformPoint(WorldPosition);
+			Vector3 aLocalPoint = MeshFilter.transform.InverseTransformPoint( WorldPosition );
 			Plane plane = new Plane();
 
 			Vector3[] verts = aMesh.vertices;
@@ -180,9 +181,9 @@ namespace Utils {
 			int triangleCount = tris.Length / 3;
 			for ( int i = 0; i < triangleCount; i++ )
 			{
-				Vector3 V1 = verts[ tris[ i * 3 ] ];
-				Vector3 V2 = verts[ tris[ i * 3 + 1 ] ];
-				Vector3 V3 = verts[ tris[ i * 3 + 2 ] ];
+				Vector3 V1 = verts[tris[i * 3]];
+				Vector3 V2 = verts[tris[( i * 3 ) + 1]];
+				Vector3 V3 = verts[tris[( i * 3 ) + 2]];
 				plane.Set3Points( V1, V2, V3 );
 				if ( plane.GetSide( aLocalPoint ) )
 					return false;
@@ -195,10 +196,10 @@ namespace Utils {
 		/// <summary>
 		/// Create a vector of direction "vector" with length "size"
 		/// </summary>
-		public	static		Vector3		SetVectorLength( Vector3 vector, float size )
+		public static Vector3 SetVectorLength(in Vector3 vector, in float size)
 		{
 			//normalize the vector
-			Vector3 vectorNormalized = Vector3.Normalize(vector);
+			Vector3 vectorNormalized = Vector3.Normalize( vector );
 
 			//scale the vector
 			return vectorNormalized *= size;
@@ -209,20 +210,20 @@ namespace Utils {
 		/// <summary>
 		/// This function returns a point which is a projection from a point to a plane.
 		/// </summary>
-		public	static		Vector3		ProjectPointOnPlane( Vector3 planeNormal, Vector3 planePoint, Vector3 point )
+		public static Vector3 ProjectPointOnPlane(in Vector3 planeNormal, in Vector3 planePoint, in Vector3 point)
 		{
 			//First calculate the distance from the point to the plane:
-//			float distance = Vector3.Dot( planeNormal, ( point - planePoint ) );
+			//			float distance = Vector3.Dot( planeNormal, ( point - planePoint ) );
 
 			//Reverse the sign of the distance
-//			distance *= -1;
+			//			distance *= -1;
 
 			//Get a translation vector
-//			Vector3 translationVector = SetVectorLength( planeNormal, distance );
+			//			Vector3 translationVector = SetVectorLength( planeNormal, distance );
 
 			//Translate the point to form a projection
-//			return point - translationVector;
-			
+			//			return point - translationVector;
+
 			// Dot product of two normalize vector means the cos of the angle between this two vectors
 			// If it's positive means a < 180 angle and negative and angle >= 180
 			// Dot product can also be: ( ax × bx ) + ( ay × by ), that's the point
@@ -233,30 +234,113 @@ namespace Utils {
 
 
 		//////////////////////////////////////////////////////////////////////////
+		public static bool LineSphereIntersection(in Vector3 SphereCenter, in float SphereRadius, in Vector3 LineStart, in Vector3 LineEnd, /*in float LineLength,*/ out Vector3 ClosestPoint)
+		{
+			ClosestPoint = Vector3.zero;
+
+			Vector3 LineDirectionNormalized = ( LineEnd - LineStart ).normalized;
+			Vector3 m = LineStart - SphereCenter;
+			float b = Vector3.Dot( m, LineDirectionNormalized );
+			float c = Vector3.Dot( m, m ) - ( SphereRadius * SphereRadius );
+
+			// Exit if r’s origin outside s (c > 0) and r pointing away from s (b > 0) 
+			if ( c > 0.0f && b > 0.0f )
+			{
+				return false;
+			}
+
+			float discriminant = ( b * b ) - c;
+
+			// A negative discriminant corresponds to ray missing sphere 
+			if ( discriminant < 0.0f )
+			{
+				return false;
+			}
+
+			// Ray now found to intersect sphere, compute smallest t value of intersection
+			float t = -b - Sqr( discriminant );
+
+			// If t is negative, ray started inside sphere so clamp t to zero 
+			if ( t < 0.0f )
+			{
+				t = 0.0f;
+			}
+			ClosestPoint = LineStart + ( t * LineDirectionNormalized );
+			return true;
+
+			/*
+			bool IsThereIntersection(in Vector3 lineStart, in Vector3 lineDirection, in float lineLength, in Vector3 sphereCenter, in float sphereRadius)
+			{
+				Vector3 EO = lineStart - sphereCenter;
+				float v = Vector3.Dot( lineDirection, ( sphereCenter - lineStart ) );
+				float disc = ( sphereRadius * sphereRadius ) - ( Vector3.Dot( EO, EO ) - ( v * v ) );
+				if(disc >= 0.0f)
+				{
+					float Time = ( v - Sqr( disc ) ) / lineLength;
+					return ( Time >= 0.0f && Time <= 1.0f );
+				}
+				else
+					return false;
+			}
+
+			if (IsThereIntersection(LineStart, LineDirectionNormalized, LineLength, SphereCenter, SphereRadius))
+			{
+				Vector3 LineOriginToSphereOrigin = SphereCenter - LineStart;
+				float B = -2.0f * Vector3.Dot(LineDirectionNormalized, LineOriginToSphereOrigin);
+				float C = Vector3.Dot(LineOriginToSphereOrigin, LineOriginToSphereOrigin) - Sqr(SphereRadius);
+				float D	= Sqr(B) - (4.0f * C);
+
+				if( D <= Mathf.Epsilon )
+				{
+					// line is not intersecting sphere (or is tangent at one point if D == 0 )
+					Vector3 PointOnLine = LineStart + ( ( -B * 0.5f ) * LineDirectionNormalized );
+					ClosestPoint = SphereCenter + ( ( PointOnLine - SphereCenter ).normalized * SphereRadius );
+				}
+				else
+				{
+					// Line intersecting sphere in 2 points. Pick closest to line origin.
+					float E	= Sqr(D);
+					float T1 = (-B + E) * 0.5f;
+					float T2 = (-B - E) * 0.5f;
+					float T	= Mathf.Abs( T1 ) == Mathf.Abs( T2 ) ? Mathf.Abs( T1 ) : Mathf.Abs( T1 ) < Mathf.Abs( T2 ) ? T1 : T2;
+
+					ClosestPoint = LineStart + ( T * LineDirectionNormalized );
+				}
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+			*/
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
 		/// <summary>
 		/// First-order intercept using absolute target position
 		/// </summary>
-		public	static		Vector3		CalculateBulletPrediction( Vector3 shooterPosition, Vector3 shooterVelocity, float shotSpeed, Vector3 targetPosition, Vector3 targetVelocity )
+		public static Vector3 CalculateBulletPrediction(in Vector3 shooterPosition, in Vector3 shooterVelocity, in float shotSpeed, in Vector3 targetPosition, in Vector3 targetVelocity)
 		{
 			Vector3 targetRelativePosition = targetPosition - shooterPosition;
 			Vector3 targetRelativeVelocity = targetVelocity - shooterVelocity;
 			float t = FirstOrderInterceptTime
 			(
-				shotSpeed:				shotSpeed,
-				targetRelativePosition:	targetRelativePosition,
-				targetRelativeVelocity:	targetRelativeVelocity
+				shotSpeed: shotSpeed,
+				targetRelativePosition: targetRelativePosition,
+				targetRelativeVelocity: targetRelativeVelocity
 			);
-			return targetPosition + (t * targetRelativeVelocity );
+			return targetPosition + ( t * targetRelativeVelocity );
 		}
 
 		//first-order intercept using relative target position
-		public	static		float		FirstOrderInterceptTime( float shotSpeed, Vector3 targetRelativePosition, Vector3 targetRelativeVelocity )
+		public static float FirstOrderInterceptTime(in float shotSpeed, in Vector3 targetRelativePosition, in Vector3 targetRelativeVelocity)
 		{
 			float velocitySquared = targetRelativeVelocity.sqrMagnitude;
 			if ( velocitySquared < 0.001f )
 				return 0f;
 
-			float a = velocitySquared - shotSpeed * shotSpeed;
+			float a = velocitySquared - ( shotSpeed * shotSpeed );
 
 			//handle similar velocities
 			if ( Mathf.Abs( a ) < 0.001f )
@@ -267,13 +351,13 @@ namespace Utils {
 
 			float b = 2f * Vector3.Dot( targetRelativeVelocity, targetRelativePosition );
 			float c = targetRelativePosition.sqrMagnitude;
-			float determinant = b * b - 4f * a * c;
+			float determinant = ( b * b ) - ( 4f * a * c );
 
 			// First assignment: Determinant == 0; one intercept path, pretty much never happens
 			float result = Mathf.Max( -b / ( 2f * a ), 0f ); //don't shoot back in time
 
 			if ( determinant > 0f )
-			{	//	Determinant > 0; two intercept paths (most common)
+			{   //	Determinant > 0; two intercept paths (most common)
 				float t1 = ( -b + Mathf.Sqrt( determinant ) ) / ( 2f * a );
 				float t2 = ( -b - Mathf.Sqrt( determinant ) ) / ( 2f * a );
 				if ( t1 > 0f )
@@ -288,59 +372,59 @@ namespace Utils {
 					result = Mathf.Max( t2, 0f ); //don't shoot back in time
 				}
 			}
-			
+
 			//determinant < 0; no intercept path
-			if ( determinant < 0f ) 
+			if ( determinant < 0f )
 			{
 				result = 0f;
 			}
 
 			return result;
 		}
-		
-		
+
+
 		// https://unity3d.college/2017/06/30/unity3d-cannon-projectile-ballistics/
 		//////////////////////////////////////////////////////////////////////////
-		public	static		Vector3		BallisticVelocity( Vector3 startPosition, Vector3 destination, float angle )
+		public static Vector3 BallisticVelocity(in Vector3 startPosition, in Vector3 destination, in float angle)
 		{
-			Vector3 dir = destination - startPosition;				// get Target Direction
-			float height = dir.y;									// get height difference
-			dir.y = 0;												// retain only the horizontal difference
-			float dist = dir.magnitude;								// get horizontal direction
-			float a = angle * Mathf.Deg2Rad;						// Convert angle to radians
-			dir.y = dist * Mathf.Tan(a);							// set dir to the elevation angle.
-			dist += height / Mathf.Tan(a);							// Correction for small height differences
+			Vector3 dir = destination - startPosition;              // get Target Direction
+			float height = dir.y;                                   // get height difference
+			dir.y = 0;                                              // retain only the horizontal difference
+			float dist = dir.magnitude;                             // get horizontal direction
+			float a = angle * Mathf.Deg2Rad;                        // Convert angle to radians
+			dir.y = dist * Mathf.Tan( a );                          // set dir to the elevation angle.
+			dist += height / Mathf.Tan( a );                            // Correction for small height differences
 
 			// Calculate the velocity magnitude
-			float velocity = Mathf.Sqrt(dist * Physics.gravity.magnitude / Mathf.Sin(2 * a));
-			return velocity * dir;						// Return a normalized vector.
+			float velocity = Mathf.Sqrt( dist * Physics.gravity.magnitude / Mathf.Sin( 2 * a ) );
+			return velocity * dir;                      // Return a normalized vector.
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		public	static		float		CalculateFireAngle( float alt, Vector3 startPosition, Vector3 endPosition, float bulletVelocity, float targetHeight )
-		{ 
+		public static float CalculateFireAngle(in Vector3 startPosition, in Vector3 endPosition, in float bulletVelocity, in float targetHeight)
+		{
 			Vector2 a = new Vector2( startPosition.x, startPosition.z );
 			Vector2 b = new Vector2( endPosition.x, endPosition.z );
 			float dis = Vector2.Distance( a, b );
-			alt = -( startPosition.y - targetHeight );
-		
+			float alt = -( startPosition.y - targetHeight );
+
 			float g = Mathf.Abs( Physics.gravity.y );
-				
+
 			float dis2 = dis * dis;
 			float vel2 = bulletVelocity * bulletVelocity;
 			float vel4 = bulletVelocity * bulletVelocity * bulletVelocity * bulletVelocity;
 			float num;
-			float sqrt = vel4 - g * ( ( g * dis2 ) + ( 2f * alt * vel2 ) );
+			float sqrt = vel4 - ( g * ( ( g * dis2 ) + ( 2f * alt * vel2 ) ) );
 			if ( sqrt < 0 )
-				return(45f);
+				return ( 45f );
 
 			//Direct Fire
 			if ( Vector3.Distance( startPosition, endPosition ) > bulletVelocity / 2f )
-				num = vel2 - Mathf.Sqrt( vel4 - g * ( ( g * dis2 ) + ( 2f * alt * vel2 ) ) );
+				num = vel2 - Mathf.Sqrt( vel4 - ( g * ( ( g * dis2 ) + ( 2f * alt * vel2 ) ) ) );
 			else
-				num = vel2 + Mathf.Sqrt( vel4 - g * ( ( g * dis2 ) + ( 2f * alt * vel2 ) ) );
-		
+				num = vel2 + Mathf.Sqrt( vel4 - ( g * ( ( g * dis2 ) + ( 2f * alt * vel2 ) ) ) );
+
 			float dom = g * dis;
 			float angle = Mathf.Atan( num / dom );
 
@@ -352,7 +436,7 @@ namespace Utils {
 		/// <summary>
 		/// 
 		/// </summary>
-		public	static		float		FindClosestPointOfApproach( Vector3 aPos1, Vector3 aSpeed1, Vector3 aPos2, Vector3 aSpeed2 )
+		public static float FindClosestPointOfApproach(in Vector3 aPos1, in Vector3 aSpeed1, in Vector3 aPos2, in Vector3 aSpeed2)
 		{
 			Vector3 PVec = aPos1 - aPos2;
 			Vector3 SVec = aSpeed1 - aSpeed2;
@@ -368,7 +452,7 @@ namespace Utils {
 		/// <summary>
 		/// Returns the quadratic interpolation of given vectors
 		/// </summary>
-		public	static		Vector3		GetPointLinear( Vector3 p0, Vector3 p1, Vector3 p2, float t )
+		public static Vector3 GetPointLinear(in Vector3 p0, in Vector3 p1, in Vector3 p2, in float t)
 		{
 			Vector3 v1 = Vector3.Lerp( p0, p1, t );
 			Vector3 v2 = Vector3.Lerp( p1, p2, t );
@@ -379,7 +463,7 @@ namespace Utils {
 		/// <summary>
 		/// Returns the cubic interpolation of given vectors
 		/// </summary>>
-		public	static		Vector3		GetPointLinear( Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t )
+		public static Vector3 GetPointLinear(in Vector3 p0, in Vector3 p1, in Vector3 p2, in Vector3 p3, in float t)
 		{
 			Vector3 v1 = GetPointLinear( p0, p1, p2, t );
 			Vector3 v2 = GetPointLinear( p1, p2, p3, t );
@@ -390,7 +474,7 @@ namespace Utils {
 		/// <summary>
 		/// Return a Five dimensional interpolation of given vectors
 		/// </summary>
-		public	static		Vector3		GetPointLinear( Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, float t )
+		public static Vector3 GetPointLinear(in Vector3 p0, in Vector3 p1, in Vector3 p2, in Vector3 p3, in Vector3 p4, in float t)
 		{
 			Vector3 v1 = GetPointLinear( p0, p1, p2, p3, t );
 			Vector3 v2 = GetPointLinear( p1, p2, p3, p4, t );
@@ -400,9 +484,9 @@ namespace Utils {
 		/// <summary>
 		/// 
 		/// </summary>
-		public	static		Quaternion	GetRotation( Quaternion r0, Quaternion r1, Quaternion r2, float t )
+		public static Quaternion GetRotation(in Quaternion r0, in Quaternion r1, in Quaternion r2, in float t)
 		{
-			float slerpT = 2.0f * t * (1.0f - t);
+			float slerpT = 2.0f * t * ( 1.0f - t );
 			Quaternion q1 = Quaternion.Slerp( r0, r1, t );
 			Quaternion q2 = Quaternion.Slerp( r1, r2, t );
 			return Quaternion.Slerp( q1, q2, t );
@@ -412,9 +496,9 @@ namespace Utils {
 		/// <summary>
 		/// Return a spherical quadrangle interpolation of given quaterniions
 		/// </summary>
-		public	static		Quaternion	GetRotation( Quaternion r0, Quaternion r1, Quaternion r2, Quaternion r3, float t )
+		public static Quaternion GetRotation(in Quaternion r0, in Quaternion r1, in Quaternion r2, in Quaternion r3, in float t)
 		{
-			float slerpT = 2.0f * t * (1.0f - t);
+			float slerpT = 2.0f * t * ( 1.0f - t );
 
 			Quaternion q1 = GetRotation( r0, r1, r2, t );
 			Quaternion q2 = GetRotation( r1, r2, r3, t );
@@ -426,14 +510,14 @@ namespace Utils {
 		/// <summary>
 		/// Return a cubic interpolated vector 
 		/// </summary>
-		public	static		Vector3		GetPoint( Vector3 p0, Vector3 p1, Vector3 p2, float t )
+		public static Vector3 GetPoint(in Vector3 p0, in Vector3 p1, in Vector3 p2, float t)
 		{
 			t = Mathf.Clamp01( t );
 			float oneMinusT = 1f - t;
 			return
-						oneMinusT	*	oneMinusT	*	p0	+
-				2f	*	oneMinusT	*		t		*	p1 +
-							t		*		t		*	p2;
+						( oneMinusT * oneMinusT * p0 ) +
+				( 2f * oneMinusT * t * p1 ) +
+							( t * t * p2 );
 		}
 
 
@@ -441,15 +525,15 @@ namespace Utils {
 		/// <summary>
 		/// Return a quadratic interpolated vector
 		/// </summary>
-		public	static		Vector3		GetPoint( Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t )
+		public static Vector3 GetPoint(in Vector3 p0, in Vector3 p1, in Vector3 p2, in Vector3 p3, float t)
 		{
 			t = Mathf.Clamp01( t );
 			float OneMinusT = 1f - t;
 			return
-						OneMinusT	*	OneMinusT	*	OneMinusT	*	p0 +
-				3f	*	OneMinusT	*	OneMinusT	*		t		*	p1 +
-				3f	*	OneMinusT	*		t		*		t		*	p2 +
-				t	*		t		*		t		*		1.0f	*	p3;
+						( OneMinusT * OneMinusT * OneMinusT * p0 ) +
+				( 3f * OneMinusT * OneMinusT * t * p1 ) +
+				( 3f * OneMinusT * t * t * p2 ) +
+				( t * t * t * 1.0f * p3 );
 		}
 
 
@@ -457,16 +541,16 @@ namespace Utils {
 		/// <summary>
 		/// Return a Five dimensional interpolated vector
 		/// </summary>
-		public	static		Vector3		GetPoint( Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, float t )
+		public static Vector3 GetPoint(in Vector3 p0, in Vector3 p1, in Vector3 p2, in Vector3 p3, in Vector3 p4, float t)
 		{
 			t = Mathf.Clamp01( t );
 			float OneMinusT = 1f - t;
 			return
-						OneMinusT	*	OneMinusT	*	OneMinusT	*	OneMinusT	*	p0 +
-				4f *	OneMinusT	*	OneMinusT	*	OneMinusT	*		t		*	p1 +
-				5f *	OneMinusT	*	OneMinusT	*		t		*		t		*	p2 +
-				4f *	OneMinusT	*		t		*		t		*		t		*	p3 +
-							t		*		t		*		t		*		t		*	p4;
+						( OneMinusT * OneMinusT * OneMinusT * OneMinusT * p0 ) +
+				( 4f * OneMinusT * OneMinusT * OneMinusT * t * p1 ) +
+				( 5f * OneMinusT * OneMinusT * t * t * p2 ) +
+				( 4f * OneMinusT * t * t * t * p3 ) +
+							( t * t * t * t * p4 );
 		}
 
 
@@ -474,7 +558,7 @@ namespace Utils {
 		/// <summary>
 		/// Return a Spline interpolation between given points
 		/// </summary>
-		public	static		Vector3		GetPoint( Vector3[] points, float t )
+		public static Vector3 GetPoint(in Vector3[] points, float t)
 		{
 			int length = points.Length;
 			if ( points == null || length < 4 )
@@ -485,43 +569,43 @@ namespace Utils {
 
 			bool bIsReversed = t < 0.0f;
 			t = Mathf.Abs( t );
-			
+
 			int numSections = length - 3;
-			int currPt = Mathf.Min( Mathf.FloorToInt( t * ( float ) numSections ), numSections - 1 );
+			int currPt = Mathf.Min( Mathf.FloorToInt( t * (float) numSections ), numSections - 1 );
 			if ( bIsReversed )
 			{
 				currPt = length - 1 - currPt;
 			}
 
-			float u = ( t * ( float ) numSections ) - (
+			float u = ( t * (float) numSections ) - (
 				bIsReversed ?
-					( (float) length - 1f - (float)currPt )
+					( (float) length - 1f - (float) currPt )
 					:
-					( float ) currPt
+					(float) currPt
 				)
 			;
-			u = Mathf.Clamp01(u);
+			u = Mathf.Clamp01( u );
 
-			Vector3 a = points[ currPt + 0 ];
-			Vector3 b = points[ currPt + 1 ];
-			Vector3 c = points[ currPt + 2 ];
-			Vector3 d = points[ currPt + 3 ];
+			Vector3 a = points[currPt + 0];
+			Vector3 b = points[currPt + 1];
+			Vector3 c = points[currPt + 2];
+			Vector3 d = points[currPt + 3];
 
 			// catmull Rom interpolation
-			return .5f * 
+			return .5f *
 			(
-				( -a + 3f * b - 3f * c + d )		* ( u * u * u ) +
-				( 2f * a - 5f * b + 4f * c - d )	* ( u * u ) +
-				( -a + c )							* u +
-				2f * b
+				( ( -a + ( 3f * b ) - ( 3f * c ) + d ) * ( u * u * u ) ) +
+				( ( ( 2f * a ) - ( 5f * b ) + ( 4f * c ) - d ) * ( u * u ) ) +
+				( ( -a + c ) * u ) +
+				( 2f * b )
 			);
 		}
-		
+
 
 		/// <summary>
 		/// Compute spline's waypoints interpolation, assigning position and rotation, return true if everything fine otherwise false
 		/// </summary>
-		public		static		bool		GetInterpolatedWaypoint( PathWayPointOnline[] ws, float t, ref Vector3 position, ref Quaternion rotation )
+		public static bool GetInterpolatedWaypoint(in PathWayPointOnline[] ws, float t, ref Vector3 position, ref Quaternion rotation)
 		{
 			int length = ws.Length;
 			if ( ws == null || ws.Length < 4 )
@@ -533,62 +617,62 @@ namespace Utils {
 
 			bool bIsReversed = t < 0.0f;
 			t = Mathf.Abs( t );
-			
+
 			int numSections = length - 3;
-			int currPt = Mathf.Min( Mathf.FloorToInt( t * ( float ) numSections ), numSections - 1 );
+			int currPt = Mathf.Min( Mathf.FloorToInt( t * (float) numSections ), numSections - 1 );
 			if ( bIsReversed )
 			{
 				currPt = length - 1 - currPt;
 			}
 
-			float u = ( t * ( float ) numSections ) - (
+			float u = ( t * (float) numSections ) - (
 				bIsReversed ?
-					( (float) length - 1f - (float)currPt )
+					( (float) length - 1f - (float) currPt )
 					:
-					( float ) currPt
+					(float) currPt
 				)
 			;
-			u = Mathf.Clamp01(u);
-//			float rotationInterpolant = 0.0f;
+			u = Mathf.Clamp01( u );
+			//			float rotationInterpolant = 0.0f;
 
 			#region Position
 			{
-				Vector3 p_a = ws[ currPt ];
-				Vector3 p_b = bIsReversed ? ws[ currPt - 1 ] : ws[ currPt + 1 ];
-				Vector3 p_c = bIsReversed ? ws[ currPt - 2 ] : ws[ currPt + 2 ];
-				Vector3 p_d = bIsReversed ? ws[ currPt - 3 ] : ws[ currPt + 3 ];
+				Vector3 p_a = ws[currPt];
+				Vector3 p_b = bIsReversed ? ws[currPt - 1] : ws[currPt + 1];
+				Vector3 p_c = bIsReversed ? ws[currPt - 2] : ws[currPt + 2];
+				Vector3 p_d = bIsReversed ? ws[currPt - 3] : ws[currPt + 3];
 
-//				rotationInterpolant = ( p_b - position ).magnitude / ( p_c - p_b ).magnitude;
+				//				rotationInterpolant = ( p_b - position ).magnitude / ( p_c - p_b ).magnitude;
 
-				position = .5f * 
+				position = .5f *
 				(
-					( -p_a + 3f * p_b - 3f * p_c + p_d )		* ( u * u * u ) +
-					( 2f * p_a - 5f * p_b + 4f * p_c - p_d )	* ( u * u ) +
-					( -p_a + p_c )								* u +
-					2f * p_b
+					( ( -p_a + ( 3f * p_b ) - ( 3f * p_c ) + p_d ) * ( u * u * u ) ) +
+					( ( ( 2f * p_a ) - ( 5f * p_b ) + ( 4f * p_c ) - p_d ) * ( u * u ) ) +
+					( ( -p_a + p_c ) * u ) +
+					( 2f * p_b )
 				);
-				
+
 			}
 			#endregion
-			
+
 			#region Rotation
 			{
-//				Quaternion r_a = ws[ currPt ];
-				Quaternion r_b = bIsReversed ? ws[ currPt - 1 ] : ws[ currPt + 1 ];
-				Quaternion r_c = bIsReversed ? ws[ currPt - 2 ] : ws[ currPt + 2 ];
-//				Quaternion r_d = bIsReversed ? ws[ currPt - 3 ] : ws[ currPt + 3 ];
+				//				Quaternion r_a = ws[ currPt ];
+				Quaternion r_b = bIsReversed ? ws[currPt - 1] : ws[currPt + 1];
+				Quaternion r_c = bIsReversed ? ws[currPt - 2] : ws[currPt + 2];
+				//				Quaternion r_d = bIsReversed ? ws[ currPt - 3 ] : ws[ currPt + 3 ];
 
 				rotation = Quaternion.Slerp( r_b, r_c, u );
-//				rotation = Utils.Math.GetRotation( r_a, r_b, r_c, r_d, u );
+				//				rotation = Utils.Math.GetRotation( r_a, r_b, r_c, r_d, u );
 			}
 			#endregion
-			
+
 			return true;
 		}
 
 
 		// 
-		public		static        bool        GetSegment<T>( global::System.Collections.Generic.IList<T> collection, float t, ref T a, ref T b, ref T c, ref T d )
+		public static bool GetSegment<T>(in System.Collections.Generic.IList<T> collection, float t, ref T a, ref T b, ref T c, ref T d)
 		{
 			int length = collection.Count;
 			if ( collection == null || length < 4 )
@@ -600,18 +684,18 @@ namespace Utils {
 
 			bool bIsReversed = t < 0.0f;
 			t = Mathf.Abs( t );
-			
-			int numSections		= length - 3;
-			int currPt = Mathf.Min( Mathf.FloorToInt( t * ( float ) numSections ), numSections - 1 );
+
+			int numSections = length - 3;
+			int currPt = Mathf.Min( Mathf.FloorToInt( t * (float) numSections ), numSections - 1 );
 			if ( bIsReversed )
 			{
 				currPt = length - 1 - currPt;
 			}
 
-			a = bIsReversed ? collection[ currPt + 0 ] : collection[ currPt + 0 ];
-			b = bIsReversed ? collection[ currPt - 1 ] : collection[ currPt + 1 ];
-			c = bIsReversed ? collection[ currPt - 2 ] : collection[ currPt + 2 ];
-			d = bIsReversed ? collection[ currPt - 2 ] : collection[ currPt + 2 ];
+			a = bIsReversed ? collection[currPt + 0] : collection[currPt + 0];
+			b = bIsReversed ? collection[currPt - 1] : collection[currPt + 1];
+			c = bIsReversed ? collection[currPt - 2] : collection[currPt + 2];
+			d = bIsReversed ? collection[currPt - 2] : collection[currPt + 2];
 
 			return true;
 		}

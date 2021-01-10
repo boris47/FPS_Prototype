@@ -8,19 +8,24 @@ public class BulletSyphon : BulletEnergy
 	{
 		base.Awake();
 	}
-
+	
 	protected override void Update()
 	{
 		
 	}
 
-	public		override	void	Shoot( Vector3 position, Vector3 direction, float velocity )
+	protected override void OnCollisionDetailed(in Vector3 point, in Vector3 normal, in Collider otherCollider)
 	{
-		if (this.m_BulletMotionType != EBulletMotionType.INSTANT)
+		
+	}
+
+	public		override	void	Shoot( Vector3 position, Vector3 direction, float? velocity )
+	{
+		if (m_BulletMotionType != EBulletMotionType.INSTANT)
 		{
 			Debug.LogError( $"Syphon bullet can only have motion type {EBulletMotionType.INSTANT.ToString()}" );
 		}
-		this.ShootInstant( position, direction, velocity );
+		ShootInstant( position, direction, velocity );
 	}
 	
 }

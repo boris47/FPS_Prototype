@@ -18,14 +18,14 @@ namespace CutScene {
 		//////////////////////////////////////////////////////////////////////////
 		private void	Awake()
 		{
-			this.enabled						= false;
+			enabled						= false;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		public	void	Play( PointsCollectionOnline pointsCollection )
 		{
-			if ( this.enabled == true )
+			if ( enabled == true )
 				return;
 
 			if ( pointsCollection == null || pointsCollection.Count == 0 )
@@ -33,20 +33,20 @@ namespace CutScene {
 				return;
 			}
 
-			if ( !Utils.Base.SearchComponent(this.gameObject, out Entity entityParent, ESearchContext.PARENT ) )
+			if ( !Utils.Base.SearchComponent(gameObject, out Entity entityParent, ESearchContext.PARENT ) )
 			{
 				return;
 			}
 
-			this.enabled = true;
+			enabled = true;
 
-			GameManager.UpdateEvents.OnFrame += this.OnFrameUpdate;
+			GameManager.UpdateEvents.OnFrame += OnFrameUpdate;
 
-			this.m_CutsceneSubject = ECutsceneSubject.ENTITY;
+			m_CutsceneSubject = ECutsceneSubject.ENTITY;
 
-			this.m_EntityCutsceneController.Setup( entityParent, pointsCollection );
+			m_EntityCutsceneController.Setup( entityParent, pointsCollection );
 
-			this.IsPlaying = true;
+			IsPlaying = true;
 
 //			( entityParent as IEntitySimulation ).EnterSimulationState();
 
@@ -58,21 +58,21 @@ namespace CutScene {
 		//////////////////////////////////////////////////////////////////////////
 		public	void	Play( PathBase cameraPath )
 		{
-			if ( this.enabled == true )
+			if ( enabled == true )
 				return;
 
 			if ( cameraPath == null )
 				return;
 
-			this.enabled						= true;
+			enabled						= true;
 
-			GameManager.UpdateEvents.OnFrame += this.OnFrameUpdate;
+			GameManager.UpdateEvents.OnFrame += OnFrameUpdate;
 
-			this.m_CutsceneSubject = ECutsceneSubject.CAMERA;
+			m_CutsceneSubject = ECutsceneSubject.CAMERA;
 
-			this.m_CameraCutsceneController.Setup( cameraPath );
+			m_CameraCutsceneController.Setup( cameraPath );
 
-			this.IsPlaying = true;
+			IsPlaying = true;
 
 			// start event called automatically called by path
 		}
@@ -84,22 +84,22 @@ namespace CutScene {
 			if ( GameManager.IsPaused == true )
 				return;
 
-			if (this.IsPlaying == false )
+			if (IsPlaying == false )
 				return;
 			
 			bool bHasCompleted = true;
-			if (this.m_CutsceneSubject == ECutsceneSubject.ENTITY )
+			if (m_CutsceneSubject == ECutsceneSubject.ENTITY )
 			{
-				bHasCompleted = this.m_EntityCutsceneController.Update();
+				bHasCompleted = m_EntityCutsceneController.Update();
 			}
 			else
 			{
-				bHasCompleted = this.m_CameraCutsceneController.Update();
+				bHasCompleted = m_CameraCutsceneController.Update();
 			}
 
 			if ( bHasCompleted )
 			{
-				this.Terminate();
+				Terminate();
 			}
 		}
 
@@ -107,22 +107,22 @@ namespace CutScene {
 		//////////////////////////////////////////////////////////////////////////
 		public	void	Terminate()
 		{
-			if (this.m_CutsceneSubject == ECutsceneSubject.ENTITY )
+			if (m_CutsceneSubject == ECutsceneSubject.ENTITY )
 			{
-				this.m_EntityCutsceneController.Terminate();
+				m_EntityCutsceneController.Terminate();
 			}
 			else
 			{
-				this.m_CameraCutsceneController.Terminate();
+				m_CameraCutsceneController.Terminate();
 			}
 
 			// Resetting internals
-			this.IsPlaying							= false;
+			IsPlaying							= false;
 
 			// to save performance disable this script
-			this.enabled						= false;
+			enabled						= false;
 
-			GameManager.UpdateEvents.OnFrame -= this.OnFrameUpdate;
+			GameManager.UpdateEvents.OnFrame -= OnFrameUpdate;
 		}
 	
 	}

@@ -44,26 +44,29 @@ public sealed class UI_ComInterface : MonoBehaviour, IStateDefiner {
 	private	bool			m_IsInitialized	= false;
 	bool IStateDefiner.IsInitialized
 	{
-		get { return this.m_IsInitialized; }
+		get { return m_IsInitialized; }
 	}
 
 	string IStateDefiner.StateName
 	{
-		get { return this.name; }
+		get { return name; }
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	public void PreInit() { }
 
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize
 	IEnumerator IStateDefiner.Initialize()
 	{
-		if (this.m_IsInitialized == true )
+		if (m_IsInitialized == true )
 			yield break;
 
 		CoroutinesManager.AddCoroutineToPendingCount( 1 );
 
-		this.m_NotificationsPanel = this.transform.Find( "NotificationsPanel" ) as RectTransform;
-		UnityEngine.Assertions.Assert.IsNotNull(this.m_NotificationsPanel );
+		m_NotificationsPanel = transform.Find( "NotificationsPanel" ) as RectTransform;
+		UnityEngine.Assertions.Assert.IsNotNull(m_NotificationsPanel );
 
 		yield return null;
 
@@ -73,16 +76,16 @@ public sealed class UI_ComInterface : MonoBehaviour, IStateDefiner {
 		Database.Section notificationseSection = null;
 		UnityEngine.Assertions.Assert.IsTrue
 		(
-			GlobalManager.Configs.GetSection("Notifications", ref notificationseSection) && GlobalManager.Configs.bSectionToOuter(notificationseSection, this.m_NotificationsSectionData),
+			GlobalManager.Configs.GetSection("Notifications", ref notificationseSection) && GlobalManager.Configs.bSectionToOuter(notificationseSection, m_NotificationsSectionData),
 			"UI_ComInterface::Initialize:Cannot load m_NotificationsSectionData"
 		);
 
 		yield return null;
 
-		this.m_NotificationsDuration = this.m_NotificationsSectionData.NotificationsDuration;
+		m_NotificationsDuration = m_NotificationsSectionData.NotificationsDuration;
 
 		// A prefab where the sprites will be set
-		ResourceManager.LoadedData<GameObject> notificationPrefab = new ResourceManager.LoadedData<GameObject>();
+		ResourceManager.AsyncLoadedData<GameObject> notificationPrefab = new ResourceManager.AsyncLoadedData<GameObject>();
 		yield return ResourceManager.LoadResourceAsyncCoroutine
 		(
 			ResourcePath:			"Prefabs/UI/UI_Notification",
@@ -93,8 +96,8 @@ public sealed class UI_ComInterface : MonoBehaviour, IStateDefiner {
 
 		if ( resourcesLoaded )
 		{
-			Destroy(this.m_NotificationsPanel.GetChild(0).gameObject );
-			this.m_NotificationsPanel.DetachChildren();
+			Destroy(m_NotificationsPanel.GetChild(0).gameObject );
+			m_NotificationsPanel.DetachChildren();
 
 			yield return null;
 
@@ -104,28 +107,26 @@ public sealed class UI_ComInterface : MonoBehaviour, IStateDefiner {
 
 				RectTransform rectTransform = t.transform as RectTransform;
 
-				t.transform.SetParent( parent: this.m_NotificationsPanel, false );
+				t.transform.SetParent( parent: m_NotificationsPanel, false );
 //				rectTransform.transform.localPosition = Vector3.zero;
 //				rectTransform.anchorMin = Vector2.zero;
 //				rectTransform.anchorMax = Vector2.zero;
 			};
 
 			// Pool Creation
-			GameObjectsPoolConstructorData<Text> data = new GameObjectsPoolConstructorData<Text>()
+			GameObjectsPoolConstructorData<Text> data = new GameObjectsPoolConstructorData<Text>(notificationPrefab.Asset, MAX_ELEMENTS)
 			{
-				Model			= notificationPrefab.Asset,
-				Size			= MAX_ELEMENTS,
 				ContainerName	= "UI_NotificationsPool",
 				ActionOnObject	= onItemAction,
 				IsAsyncBuild	= true
 			};
-			this.m_NotificationsPool = new GameObjectsPool<Text>( data );
+			m_NotificationsPool = new GameObjectsPool<Text>( data );
 
 			yield return data.CoroutineEnumerator;
 
-			UserSettings.VideoSettings.OnResolutionChanged += this.UI_Graphics_OnResolutionChanged;
+			UserSettings.VideoSettings.OnResolutionChanged += UI_Graphics_OnResolutionChanged;
 
-			this.m_IsInitialized = true;
+			m_IsInitialized = true;
 
 			yield return null;
 
@@ -141,7 +142,7 @@ public sealed class UI_ComInterface : MonoBehaviour, IStateDefiner {
 	//////////////////////////////////////////////////////////////////////////
 	private void UI_Graphics_OnResolutionChanged( float newWidth, float newHeight )
 	{
-		foreach( Text textComponent in this.m_NotificationsPool )
+		foreach( Text textComponent in m_NotificationsPool )
 		{
 
 		}
@@ -161,7 +162,7 @@ public sealed class UI_ComInterface : MonoBehaviour, IStateDefiner {
 	// Finalize
 	bool IStateDefiner.Finalize()
 	{
-		return this.m_IsInitialized;
+		return m_IsInitialized;
 	}
 
 	
@@ -169,8 +170,8 @@ public sealed class UI_ComInterface : MonoBehaviour, IStateDefiner {
 	// ShowLabel
 	private void OnEnable()
 	{
-		Debug.Log(this.name + " OnEnable " + Time.time);
-		GameManager.UpdateEvents.OnThink += this.UpdateRequestQueue;
+		Debug.Log(name + " OnEnable " + Time.time);
+		GameManager.UpdateEvents.OnThink += UpdateRequestQueue;
 	}
 
 
@@ -178,8 +179,8 @@ public sealed class UI_ComInterface : MonoBehaviour, IStateDefiner {
 	// ShowLabel
 	private void OnDisable()
 	{
-		Debug.Log(this.name + " OnDisable " + Time.time);
-		GameManager.UpdateEvents.OnThink -= this.UpdateRequestQueue;
+		Debug.Log(name + " OnDisable " + Time.time);
+		GameManager.UpdateEvents.OnThink -= UpdateRequestQueue;
 	}
 
 
@@ -192,7 +193,7 @@ public sealed class UI_ComInterface : MonoBehaviour, IStateDefiner {
 			Text = text,
 			Color = textColor
 		};
-		this.m_Requests.Enqueue( request );
+		m_Requests.Enqueue( request );
 	}	
 
 
@@ -200,13 +201,13 @@ public sealed class UI_ComInterface : MonoBehaviour, IStateDefiner {
 	// UpdateNotifications
 	private	void	UpdateRequestQueue()
 	{
-		if (this.m_IsInitialized == false )
+		if (m_IsInitialized == false )
 			return;
 
-		if (this.m_Requests.Count > 0 )
+		if (m_Requests.Count > 0 )
 		{
-			NotificationRequest request = this.m_Requests.Dequeue();
-			this.EnableNotificationInternal( request );
+			NotificationRequest request = m_Requests.Dequeue();
+			EnableNotificationInternal( request );
 		}
 	}
 
@@ -215,36 +216,36 @@ public sealed class UI_ComInterface : MonoBehaviour, IStateDefiner {
 	// Update
 	private void Update()
 	{
-		if (this.m_IsInitialized == false )
+		if (m_IsInitialized == false )
 			return;
 		
 		// Disable ranged overflow
-		if (this.m_Notifications.Count >= MAX_ELEMENTS )
+		if (m_Notifications.Count >= MAX_ELEMENTS )
 		{
-			int delta = Mathf.Max( 1, this.m_Notifications.Count - MAX_ELEMENTS );
-			for ( int i = 0; i < delta && i < this.m_Notifications.Count; i++ )
+			int delta = Mathf.Max( 1, m_Notifications.Count - MAX_ELEMENTS );
+			for ( int i = 0; i < delta && i < m_Notifications.Count; i++ )
 			{
-				ComInterfaceNotification notification = this.m_Notifications[i];
+				ComInterfaceNotification notification = m_Notifications[i];
 				notification.TextComponent.gameObject.SetActive( false );
 
 			}
-			this.m_Notifications.RemoveRange( 0, delta );
+			m_Notifications.RemoveRange( 0, delta );
 		}
 		
 
-		for ( int i = this.m_Notifications.Count - 1; i > -1; i-- )
+		for ( int i = m_Notifications.Count - 1; i > -1; i-- )
 		{
-			ComInterfaceNotification notification = this.m_Notifications[i];
+			ComInterfaceNotification notification = m_Notifications[i];
 
 			// Update time and color
 			notification.CurrentTime -= Time.deltaTime;
-			notification.TextComponent.color = Color.Lerp( notification.Color, Color.clear, 1.0f - (Mathf.Pow( notification.CurrentTime, 2f ) / this.m_NotificationsDuration) );
+			notification.TextComponent.color = Color.Lerp( notification.Color, Color.clear, 1.0f - (Mathf.Pow( notification.CurrentTime, 2f ) / m_NotificationsDuration) );
 
 			// Remove if out of date
 			if ( notification.CurrentTime < 0.0f )
 			{
 				notification.TextComponent.gameObject.SetActive( false );
-				this.m_Notifications.RemoveAt( i );
+				m_Notifications.RemoveAt( i );
 			}
 		}
 	}
@@ -254,14 +255,14 @@ public sealed class UI_ComInterface : MonoBehaviour, IStateDefiner {
 	// UpdatePositions
 	private	void	UpdatePositions()
 	{
-		this.transform.root.TryGetComponent( out Canvas canvas );
+		transform.root.TryGetComponent( out Canvas canvas );
 
 		float scaleFactor = ( canvas.scaleFactor < 1.0f ) ? 1.0f : 1f / canvas.scaleFactor;
 
-		int count = this.m_Notifications.Count - 1;
+		int count = m_Notifications.Count - 1;
 		for ( int i = count; i > -1; i-- )
 		{
-			ComInterfaceNotification notification = this.m_Notifications[i];
+			ComInterfaceNotification notification = m_Notifications[i];
 
 			notification.TextComponent.rectTransform.localPosition = 
 				Vector2.up * 
@@ -276,7 +277,7 @@ public sealed class UI_ComInterface : MonoBehaviour, IStateDefiner {
 	private	bool	EnableNotificationInternal( NotificationRequest request )
 	{
 		// Set components properties
-		Text textComponent = this.m_NotificationsPool.GetNextComponent();
+		Text textComponent = m_NotificationsPool.GetNextComponent();
 		textComponent.text = request.Text;
 		textComponent.color = request.Color;
 		textComponent.gameObject.SetActive( true );
@@ -288,9 +289,9 @@ public sealed class UI_ComInterface : MonoBehaviour, IStateDefiner {
 			CurrentTime		= m_NotificationsDuration,
 			TextComponent	= textComponent
 		};
-		this.m_Notifications.Add( activeNotification );
+		m_Notifications.Add( activeNotification );
 
-		this.UpdatePositions();
+		UpdatePositions();
 		return true;
 	}
 

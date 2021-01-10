@@ -39,7 +39,7 @@
         /// <param name="assemblyQualifiedTypeName">Assembly qualified type name.</param>
         public TypeReference(string assemblyQualifiedTypeName)
         {
-			this.Type = IsNotEmpty(assemblyQualifiedTypeName)
+			Type = IsNotEmpty(assemblyQualifiedTypeName)
                 ? Type.GetType(assemblyQualifiedTypeName)
                 : null;
         }
@@ -54,7 +54,7 @@
         /// </exception>
         public TypeReference(Type type)
         {
-			this.Type = type;
+			Type = type;
         }
 
         /// <summary>
@@ -65,15 +65,15 @@
         /// </exception>
         public Type Type
         {
-            get => this._type;
+            get => _type;
 
             set
             {
                 MakeSureTypeHasName(value);
 
-				this._type = value;
-				this._typeNameAndAssembly = GetTypeNameAndAssembly(value);
-				this.SetClassGuidIfExists(value);
+				_type = value;
+				_typeNameAndAssembly = GetTypeNameAndAssembly(value);
+				SetClassGuidIfExists(value);
             }
         }
 
@@ -100,13 +100,13 @@
         {
             try
             {
-				this._GUID = GetClassGUID(type);
+				_GUID = GetClassGUID(type);
             }
             // It is thrown on assembly recompiling if field initialization is used on field.
             catch (UnityException)
             {
-				this.GuidAssignmentFailed = true;
-				this._GUID = string.Empty;
+				GuidAssignmentFailed = true;
+				_GUID = string.Empty;
             }
         }
 
@@ -138,9 +138,9 @@
 
         public override string ToString()
         {
-            if (this.Type != null && this.Type.FullName != null)
+            if (Type != null && Type.FullName != null)
             {
-                return this.Type.FullName;
+                return Type.FullName;
             }
             else
             {
@@ -150,7 +150,7 @@
 
         void ISerializationCallbackReceiver.OnAfterDeserialize()
         {
-			this._type = IsNotEmpty(this._typeNameAndAssembly) ? this.TryGetTypeFromSerializedFields() : null;
+			_type = IsNotEmpty(_typeNameAndAssembly) ? TryGetTypeFromSerializedFields() : null;
         }
 
         void ISerializationCallbackReceiver.OnBeforeSerialize() { }
@@ -171,13 +171,13 @@
 
         private Type TryGetTypeFromSerializedFields()
         {
-			Type type = Type.GetType(this._typeNameAndAssembly);
+			Type type = Type.GetType(_typeNameAndAssembly);
 
             if (type == null)
             {
                 Debug.LogWarningFormat(
                     "'{0}' was referenced but class type was not found.",
-					this._typeNameAndAssembly);
+					_typeNameAndAssembly);
             }
 
             return type;

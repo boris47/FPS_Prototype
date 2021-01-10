@@ -32,36 +32,39 @@ public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
 	#region IStateDefiner
 
 	//------------------------------------------------------------
-	bool IStateDefiner.IsInitialized => this.m_IsInitialized = false;
+	bool IStateDefiner.IsInitialized => m_IsInitialized = false;
 
 
 	//------------------------------------------------------------
-	string IStateDefiner.StateName => this.name;
+	string IStateDefiner.StateName => name;
 
+
+	//////////////////////////////////////////////////////////////////////////
+	public void PreInit() { }
 
 	//////////////////////////////////////////////////////////////////////////
 	IEnumerator IStateDefiner.Initialize()
 	{
-		if (this.m_IsInitialized == true)
+		if (m_IsInitialized == true)
 			yield break;
 
 		CoroutinesManager.AddCoroutineToPendingCount(1);
 
-		this.m_IsInitialized = true;
+		m_IsInitialized = true;
 		{
 			Navigation noNavigationMode = new Navigation() { mode = Navigation.Mode.None };
 
 			yield return null;
 
-			if (this.m_IsInitialized &= this.transform.SearchComponentInChild("ResolutionsDropDown", ref this.m_ResolutionDropDown))
+			if (m_IsInitialized &= transform.SearchComponentInChild("ResolutionsDropDown", ref m_ResolutionDropDown))
 			{
 				Resolution[] availableResolutions = UserSettings.VideoSettings.GetAvailableResolutions();
-				this.m_ResolutionDropDown.onValueChanged.AddListener((int index) =>
+				m_ResolutionDropDown.onValueChanged.AddListener((int index) =>
 				{
 					UserSettings.VideoSettings.OnResolutionChosen(availableResolutions[index], index);
-					this.m_ApplyButton.interactable = true;
+					m_ApplyButton.interactable = true;
 				});
-				this.m_ResolutionDropDown.AddOptions(
+				m_ResolutionDropDown.AddOptions(
 					new List<Resolution>(availableResolutions).ConvertAll
 					(
 						new System.Converter<Resolution, string>((Resolution res) => { return res.ToString(); })
@@ -71,154 +74,154 @@ public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
 
 			yield return null;
 
-			if (this.m_IsInitialized &= this.transform.SearchComponentInChild("QualityLevelDropDown", ref this.m_QualityLevelDropDown))
+			if (m_IsInitialized &= transform.SearchComponentInChild("QualityLevelDropDown", ref m_QualityLevelDropDown))
 			{
-				this.m_QualityLevelDropDown.onValueChanged.AddListener((int newiIndex) =>
+				m_QualityLevelDropDown.onValueChanged.AddListener((int newiIndex) =>
 				{
 					UserSettings.VideoSettings.OnQualityLevelSet(newiIndex);
-					this.m_ApplyButton.interactable = true;
+					m_ApplyButton.interactable = true;
 				});
-				this.m_QualityLevelDropDown.AddOptions(new List<string>(QualitySettings.names));
+				m_QualityLevelDropDown.AddOptions(new List<string>(QualitySettings.names));
 			}
 
 			yield return null;
 
-			if (this.m_IsInitialized &= this.transform.SearchComponentInChild("FullScreenToggle", ref this.m_FullScreenToogle))
+			if (m_IsInitialized &= transform.SearchComponentInChild("FullScreenToggle", ref m_FullScreenToogle))
 			{
-				this.m_FullScreenToogle.onValueChanged.AddListener((bool newValue) =>
+				m_FullScreenToogle.onValueChanged.AddListener((bool newValue) =>
 				{
 					UserSettings.VideoSettings.OnFullScreenSet(newValue);
-					this.m_ApplyButton.interactable = true;
+					m_ApplyButton.interactable = true;
 				});
 			}
 
 			yield return null;
 
-			if (this.m_IsInitialized &= this.transform.SearchComponentInChild("AnisotropicFilterToogle", ref this.m_AnisotropicFilterToogle))
+			if (m_IsInitialized &= transform.SearchComponentInChild("AnisotropicFilterToogle", ref m_AnisotropicFilterToogle))
 			{
-				this.m_AnisotropicFilterToogle.onValueChanged.AddListener((bool newValue) =>
+				m_AnisotropicFilterToogle.onValueChanged.AddListener((bool newValue) =>
 				{
 					UserSettings.VideoSettings.OnAnisotropicFilterSet(newValue);
-					this.m_ApplyButton.interactable = true;
+					m_ApplyButton.interactable = true;
 				});
 			}
 
 			yield return null;
 
-			if (this.m_IsInitialized &= this.transform.SearchComponentInChild("AntialiasingDropDown", ref this.m_AntialiasingDropDown))
+			if (m_IsInitialized &= transform.SearchComponentInChild("AntialiasingDropDown", ref m_AntialiasingDropDown))
 			{
-				this.m_AntialiasingDropDown.onValueChanged.AddListener((int newIndex) =>
+				m_AntialiasingDropDown.onValueChanged.AddListener((int newIndex) =>
 				{
 					UserSettings.VideoSettings.OnAntialiasingSet(newIndex);
-					this.m_ApplyButton.interactable = true;
+					m_ApplyButton.interactable = true;
 				});
-				this.m_AntialiasingDropDown.AddOptions(
+				m_AntialiasingDropDown.AddOptions(
 					new List<string>(new string[7] { "None", "2x", "4x", "8x", "16x", "32x", "64x" })
 				);
 			}
 
 			yield return null;
 
-			if (this.m_IsInitialized &= this.transform.SearchComponentInChild("MotionBlurToogle", ref this.m_MotionBlurToggle))
+			if (m_IsInitialized &= transform.SearchComponentInChild("MotionBlurToogle", ref m_MotionBlurToggle))
 			{
-				this.m_MotionBlurToggle.onValueChanged.AddListener((bool bIsEnabled) =>
+				m_MotionBlurToggle.onValueChanged.AddListener((bool bIsEnabled) =>
 				{
 					UserSettings.VideoSettings.OnMotionBlurSetEnabled(bIsEnabled);
-					this.m_ApplyButton.interactable = true;
+					m_ApplyButton.interactable = true;
 				});
 			}
 
 			yield return null;
 
-			if (this.m_IsInitialized &= this.transform.SearchComponentInChild("BloomToogle", ref this.m_BloomToggle))
+			if (m_IsInitialized &= transform.SearchComponentInChild("BloomToogle", ref m_BloomToggle))
 			{
-				this.m_BloomToggle.onValueChanged.AddListener((bool bIsEnabled) =>
+				m_BloomToggle.onValueChanged.AddListener((bool bIsEnabled) =>
 				{
 					UserSettings.VideoSettings.OnBloomSetEnabled(bIsEnabled);
-					this.m_ApplyButton.interactable = true;
+					m_ApplyButton.interactable = true;
 				});
 			}
 
 			yield return null;
 
-			if (this.m_IsInitialized &= this.transform.SearchComponentInChild("ChromaticAberrationToogle", ref this.m_ChromaticAberrationToggle))
+			if (m_IsInitialized &= transform.SearchComponentInChild("ChromaticAberrationToogle", ref m_ChromaticAberrationToggle))
 			{
-				this.m_ChromaticAberrationToggle.onValueChanged.AddListener((bool bIsEnabled) =>
+				m_ChromaticAberrationToggle.onValueChanged.AddListener((bool bIsEnabled) =>
 				{
 					UserSettings.VideoSettings.OnChromaticAberrationSetEnabled(bIsEnabled);
-					this.m_ApplyButton.interactable = true;
+					m_ApplyButton.interactable = true;
 				});
 			}
 
-			if (this.m_IsInitialized &= this.transform.SearchComponentInChild("AmbientOcclusionToggle", ref this.m_AmbientOcclusionToggle))
+			if (m_IsInitialized &= transform.SearchComponentInChild("AmbientOcclusionToggle", ref m_AmbientOcclusionToggle))
 			{
-				this.m_AmbientOcclusionToggle.onValueChanged.AddListener((bool bIsEnabled) =>
+				m_AmbientOcclusionToggle.onValueChanged.AddListener((bool bIsEnabled) =>
 				{
 					UserSettings.VideoSettings.OnAmbientOcclusionSetEnabled(bIsEnabled);
-					this.m_ApplyButton.interactable = true;
-					this.m_AmbientOcclusionDropDown.interactable = bIsEnabled;
+					m_ApplyButton.interactable = true;
+					m_AmbientOcclusionDropDown.interactable = bIsEnabled;
 				});
 			}
 
-			if (this.m_IsInitialized &= this.transform.SearchComponentInChild("AmbientOcclusionDropDown", ref this.m_AmbientOcclusionDropDown))
+			if (m_IsInitialized &= transform.SearchComponentInChild("AmbientOcclusionDropDown", ref m_AmbientOcclusionDropDown))
 			{
-				this.m_AmbientOcclusionDropDown.interactable = this.m_AmbientOcclusionToggle.isOn;
-				this.m_AmbientOcclusionDropDown.onValueChanged.AddListener((int level) =>
+				m_AmbientOcclusionDropDown.interactable = m_AmbientOcclusionToggle.isOn;
+				m_AmbientOcclusionDropDown.onValueChanged.AddListener((int level) =>
 				{
 					UserSettings.VideoSettings.OnAmbientOcclusionSetLvl(level);
-					this.m_ApplyButton.interactable = true;
+					m_ApplyButton.interactable = true;
 				});
-				this.m_AmbientOcclusionDropDown.AddOptions(
+				m_AmbientOcclusionDropDown.AddOptions(
 					new List<string>(new string[3] { "Low", "Normal", "High" })
 				);
 			}
 
 			yield return null;
 
-			if (this.m_IsInitialized &= this.transform.SearchComponentInChild("ScreenSpaceReflectionToggle", ref this.m_ScreenSpaceReflectionToggle))
+			if (m_IsInitialized &= transform.SearchComponentInChild("ScreenSpaceReflectionToggle", ref m_ScreenSpaceReflectionToggle))
 			{
-				this.m_ScreenSpaceReflectionToggle.onValueChanged.AddListener((bool bIsEnabled) =>
+				m_ScreenSpaceReflectionToggle.onValueChanged.AddListener((bool bIsEnabled) =>
 				{
 					UserSettings.VideoSettings.OnScreenSpaceReflectionSetEnabled(bIsEnabled);
-					this.m_ApplyButton.interactable = true;
-					this.m_ScreenSpaceReflectionDropDown.interactable = bIsEnabled;
+					m_ApplyButton.interactable = true;
+					m_ScreenSpaceReflectionDropDown.interactable = bIsEnabled;
 				});
 			}
 
-			if (this.m_IsInitialized &= this.transform.SearchComponentInChild("ScreenSpaceReflectionDropDown", ref this.m_ScreenSpaceReflectionDropDown))
+			if (m_IsInitialized &= transform.SearchComponentInChild("ScreenSpaceReflectionDropDown", ref m_ScreenSpaceReflectionDropDown))
 			{
-				this.m_ScreenSpaceReflectionDropDown.interactable = this.m_ScreenSpaceReflectionToggle.isOn;
-				this.m_ScreenSpaceReflectionDropDown.onValueChanged.AddListener((int level) =>
+				m_ScreenSpaceReflectionDropDown.interactable = m_ScreenSpaceReflectionToggle.isOn;
+				m_ScreenSpaceReflectionDropDown.onValueChanged.AddListener((int level) =>
 				{
 					UserSettings.VideoSettings.OnScreenSpaceReflectionSetLvl(level);
-					this.m_ApplyButton.interactable = true;
+					m_ApplyButton.interactable = true;
 				});
-				this.m_ScreenSpaceReflectionDropDown.AddOptions(
+				m_ScreenSpaceReflectionDropDown.AddOptions(
 					new List<string>(new string[3] { "Low", "Normal", "High" })
 				);
 			}
 
 			yield return null;
 
-			if (this.m_IsInitialized &= this.transform.SearchComponentInChild("DepthOfFieldToggle", ref this.m_DepthOfFieldToggle))
+			if (m_IsInitialized &= transform.SearchComponentInChild("DepthOfFieldToggle", ref m_DepthOfFieldToggle))
 			{
-				this.m_DepthOfFieldToggle.onValueChanged.AddListener((bool bIsEnabled) =>
+				m_DepthOfFieldToggle.onValueChanged.AddListener((bool bIsEnabled) =>
 				{
 					UserSettings.VideoSettings.OnDepthOfFieldSetEnabled(bIsEnabled);
-					this.m_ApplyButton.interactable = true;
-					this.m_DepthOfFieldDropDown.interactable = bIsEnabled;
+					m_ApplyButton.interactable = true;
+					m_DepthOfFieldDropDown.interactable = bIsEnabled;
 				});
 			}
 
-			if (this.m_IsInitialized &= this.transform.SearchComponentInChild("DepthOfFieldDropDown", ref this.m_DepthOfFieldDropDown))
+			if (m_IsInitialized &= transform.SearchComponentInChild("DepthOfFieldDropDown", ref m_DepthOfFieldDropDown))
 			{
-				this.m_DepthOfFieldDropDown.interactable = this.m_DepthOfFieldToggle.isOn;
-				this.m_DepthOfFieldDropDown.onValueChanged.AddListener((int level) =>
+				m_DepthOfFieldDropDown.interactable = m_DepthOfFieldToggle.isOn;
+				m_DepthOfFieldDropDown.onValueChanged.AddListener((int level) =>
 				{
 					UserSettings.VideoSettings.OnDepthOfFieldSetLvl(level);
-					this.m_ApplyButton.interactable = true;
+					m_ApplyButton.interactable = true;
 				});
-				this.m_DepthOfFieldDropDown.AddOptions(
+				m_DepthOfFieldDropDown.AddOptions(
 					new List<string>(new string[3] { "Low", "Normal", "High" })
 				);
 			}
@@ -226,46 +229,46 @@ public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
 			yield return null;
 
 
-			if (this.m_IsInitialized &= this.transform.SearchComponentInChild("ApplyButton", ref this.m_ApplyButton))
+			if (m_IsInitialized &= transform.SearchComponentInChild("ApplyButton", ref m_ApplyButton))
 			{
-				this.m_ApplyButton.onClick.AddListener
+				m_ApplyButton.onClick.AddListener
 				(
 					delegate ()
 					{
-						UIManager.Confirmation.Show("Apply Changes?", this.OnApplyChanges, () => { UserSettings.VideoSettings.ReadFromRegistry(); this.UpdateUI(); });
+						UIManager.Confirmation.Show("Apply Changes?", OnApplyChanges, () => { UserSettings.VideoSettings.ReadFromRegistry(); UpdateUI(); });
 					}
 				);
-				this.m_ApplyButton.interactable = false;
+				m_ApplyButton.interactable = false;
 			}
 
 			yield return null;
 
-			if (this.m_IsInitialized &= this.transform.SearchComponentInChild("ResetButton", ref this.m_ResetButton))
+			if (m_IsInitialized &= transform.SearchComponentInChild("ResetButton", ref m_ResetButton))
 			{
-				this.m_ResetButton.onClick.AddListener
+				m_ResetButton.onClick.AddListener
 				(
 					delegate ()
 					{
-						UIManager.Confirmation.Show("Reset?", () => { UserSettings.VideoSettings.ApplyDefaults(); this.UpdateUI(); });
+						UIManager.Confirmation.Show("Reset?", () => { UserSettings.VideoSettings.ApplyDefaults(); UpdateUI(); });
 					}
 				);
 			}
 
 			// disable navigation for everything
-			foreach (Selectable s in this.GetComponentsInChildren<Selectable>())
+			foreach (Selectable s in GetComponentsInChildren<Selectable>())
 			{
 				s.navigation = noNavigationMode;
 			}
 
 			yield return null;
 
-			if (this.m_IsInitialized)
+			if (m_IsInitialized)
 			{
-				this.OnEnable();
+				OnEnable();
 
 				yield return null;
 
-				this.OnApplyChanges();
+				OnApplyChanges();
 
 				CoroutinesManager.RemoveCoroutineFromPendingCount(1);
 
@@ -290,7 +293,7 @@ public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
 	//////////////////////////////////////////////////////////////////////////
 	bool IStateDefiner.Finalize()
 	{
-		return this.m_IsInitialized;
+		return m_IsInitialized;
 	}
 
 	#endregion
@@ -298,30 +301,19 @@ public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
 	//////////////////////////////////////////////////////////////////////////
 	public void OnEnable()
 	{
-		if (this.m_IsInitialized == false)
+		if (m_IsInitialized == false)
 		{
 			return;
 		}
 
 		// Sprites for TargetToKill, LocationToReach or ObjectToInteractWith
-		ResourceManager.LoadedData<PostProcessingProfile> cameraPostProcesses = new ResourceManager.LoadedData<PostProcessingProfile>();
-		bool bLoadResult = ResourceManager.LoadResourceSync
-		(
-			ResourcePath: "Scriptables/CameraPostProcesses",
-			loadedResource: cameraPostProcesses
-		);
+		bool bLoadResult = ResourceManager.LoadResourceSync( "Scriptables/CameraPostProcesses", out PostProcessingProfile cameraPostProcesses );
+		UnityEngine.Assertions.Assert.IsTrue( bLoadResult, "CameraControl::Awake: Failed the load of camera post processes profile" );
 
-		UnityEngine.Assertions.Assert.IsTrue
-		(
-			bLoadResult,
-			"CameraControl::Awake: Failed the load of camera post processes profile"
-		);
-
-
-		PostProcessingProfile PP_Profile = Camera.main.gameObject.GetOrAddIfNotFound<PostProcessingBehaviour>().profile = cameraPostProcesses.Asset;
+		PostProcessingProfile PP_Profile = Camera.main.gameObject.GetOrAddIfNotFound<PostProcessingBehaviour>().profile = cameraPostProcesses;
 		UserSettings.VideoSettings.OnEnable(PP_Profile);
-		this.m_ApplyButton.interactable = false;
-		this.UpdateUI();
+		m_ApplyButton.interactable = false;
+		UpdateUI();
 	}
 
 
@@ -329,13 +321,13 @@ public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
 	/// <summary> Apply changes </summary>
 	public void OnApplyChanges()
 	{
-		if (this.m_IsInitialized == false)
+		if (m_IsInitialized == false)
 		{
 			return;
 		}
 
 		UserSettings.VideoSettings.OnApplyChanges();
-		this.m_ApplyButton.interactable = false;
+		m_ApplyButton.interactable = false;
 	}
 
 
@@ -343,16 +335,16 @@ public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
 	/// <summary> Updates UI Components </summary>
 	public void UpdateUI()
 	{
-		if (this.m_IsInitialized == false)
+		if (m_IsInitialized == false)
 		{
 			return;
 		}
 
-		this.m_ResolutionDropDown.value = UserSettings.VideoSettings.GetScreenData().iResolutionIndex;
-		this.m_FullScreenToogle.isOn = UserSettings.VideoSettings.GetScreenData().bIsFullScreen;
-		this.m_AnisotropicFilterToogle.isOn = UserSettings.VideoSettings.GetFiltersData().bHasAnisotropicFilter;
-		this.m_AntialiasingDropDown.value = UserSettings.VideoSettings.GetFiltersData().iAntialiasing;
-		this.m_QualityLevelDropDown.value = UserSettings.VideoSettings.GetQualityData().iQualityLevel;
+		m_ResolutionDropDown.value = UserSettings.VideoSettings.GetScreenData().iResolutionIndex;
+		m_FullScreenToogle.isOn = UserSettings.VideoSettings.GetScreenData().bIsFullScreen;
+		m_AnisotropicFilterToogle.isOn = UserSettings.VideoSettings.GetFiltersData().bHasAnisotropicFilter;
+		m_AntialiasingDropDown.value = UserSettings.VideoSettings.GetFiltersData().iAntialiasing;
+		m_QualityLevelDropDown.value = UserSettings.VideoSettings.GetQualityData().iQualityLevel;
 	}
 
 
@@ -360,7 +352,7 @@ public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
 	/// <summary> Remove key from registry </summary>
 	public void Reset()
 	{
-		if (this.m_IsInitialized == false)
+		if (m_IsInitialized == false)
 		{
 			return;
 		}

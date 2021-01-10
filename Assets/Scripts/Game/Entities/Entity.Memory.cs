@@ -46,7 +46,7 @@ public abstract partial class Entity : IEntityMemory {
 
 
 	private				IEntityMemory				m_MemoryInstance				= null;
-	public				IEntityMemory				Memory							{ get { return this.m_MemoryInstance; } }
+	public				IEntityMemory				Memory							{ get { return m_MemoryInstance; } }
 
 	[SerializeField]
 	private				int							m_MemoriesCount = 0;
@@ -54,7 +54,7 @@ public abstract partial class Entity : IEntityMemory {
 
 	int		IEntityMemory.Count
 	{
-		get { return this.m_MemoriesCount; }
+		get { return m_MemoriesCount; }
 	}
 	
 
@@ -62,30 +62,30 @@ public abstract partial class Entity : IEntityMemory {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual	void	EnableMemory()
 	{
-		this.m_MemoryInstance = this as IEntityMemory;
+		m_MemoryInstance = this as IEntityMemory;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual	void	DisableMemory()
 	{
-		this.m_MemoryInstance.Empty();
+		m_MemoryInstance.Empty();
 
-		this.m_MemoryInstance = null;
+		m_MemoryInstance = null;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual	void	UpdateMemory()
 	{
-		this.Memory.CleanInvalidMemories();
+		Memory.CleanInvalidMemories();
 
 		// This entity has no target at the moment
-		if (this.m_TargetInfo.HasTarget == false )
+		if (m_TargetInfo.HasTarget == false )
 		{
-			for ( int i = this.m_Memories.Count - 1; i >= 0; i-- )
+			for ( int i = m_Memories.Count - 1; i >= 0; i-- )
 			{
-				MemoryUnit unit = this.m_Memories[ i ];
+				MemoryUnit unit = m_Memories[ i ];
 
 			}
 		}
@@ -96,12 +96,12 @@ public abstract partial class Entity : IEntityMemory {
 	/// <summary> Validate all the memories checking data valid values </summary>
 	void		IEntityMemory.CleanInvalidMemories()
 	{
-		for ( int i = this.m_Memories.Count - 1; i >= 0; i-- )
+		for ( int i = m_Memories.Count - 1; i >= 0; i-- )
 		{
-			MemoryUnit unit = this.m_Memories[ i ];
+			MemoryUnit unit = m_Memories[ i ];
 			if ( unit == null ||  unit.EntityID < 0 || unit.EntityRef == null || unit.EntityRef.IsAlive == false )
 			{
-				this.m_Memories.RemoveAt( i );
+				m_Memories.RemoveAt( i );
 			}
 		}
 	}
@@ -116,7 +116,7 @@ public abstract partial class Entity : IEntityMemory {
 			return false;
 		}
 
-		bool bIsMemoryNotPresent = this.Memory.Contains( entity.AsInterface.ID ) == false;
+		bool bIsMemoryNotPresent = Memory.Contains( entity.AsInterface.ID ) == false;
 		if ( bIsMemoryNotPresent )
 		{
 			MemoryUnit u = new MemoryUnit()
@@ -127,8 +127,8 @@ public abstract partial class Entity : IEntityMemory {
 				EntityRef			= entity,
 				Time				= Time.time
 			};
-			this.m_Memories.Add( u );
-			this.m_MemoriesCount ++;
+			m_Memories.Add( u );
+			m_MemoriesCount ++;
 		}
 
 		return bIsMemoryNotPresent;
@@ -138,28 +138,28 @@ public abstract partial class Entity : IEntityMemory {
 	/// <summary> Check if memory contains this entity </summary>
 	bool		IEntityMemory.Contains( uint EntityID )
 	{
-		return this.m_Memories.FindIndex( ( MemoryUnit u ) => u.EntityID == EntityID ) != -1;
+		return m_Memories.FindIndex( ( MemoryUnit u ) => u.EntityID == EntityID ) != -1;
 	}
 
 
 	/// <summary> Get the last position giving a specific index </summary>
 	Vector3		IEntityMemory.GetLastPositionByindex( int index )
 	{
-		return ( index > -1 && index < this.m_Memories.Count ) ? Vector3.zero : this.m_Memories[ index ].LastEnemyPosition;
+		return ( index > -1 && index < m_Memories.Count ) ? Vector3.zero : m_Memories[ index ].LastEnemyPosition;
 	}
 
 
 	/// <summary> Get the last direction giving a specific index </summary>
 	Vector3		IEntityMemory.GetLastDirectionByindex( int index )
 	{
-		return ( index > -1 && index < this.m_Memories.Count ) ? Vector3.zero : this.m_Memories[ index ].LastEnemyDirection;
+		return ( index > -1 && index < m_Memories.Count ) ? Vector3.zero : m_Memories[ index ].LastEnemyDirection;
 	}
 
 
 	/// <summary> Get the entity giving a specific index </summary>
 	Entity		IEntityMemory.GetEntityByindex( int index )
 	{
-		return ( index > -1 && index < this.m_Memories.Count ) ? null : this.m_Memories[ index ].EntityRef;
+		return ( index > -1 && index < m_Memories.Count ) ? null : m_Memories[ index ].EntityRef;
 	}
 
 
@@ -167,16 +167,16 @@ public abstract partial class Entity : IEntityMemory {
 	/// <summary> Return the last position searched by entity index, vector zero otherwise </summary>
 	Vector3		IEntityMemory.GetLastPosition( uint EntityID )
 	{
-		int memoryUnitIndex = this.m_Memories.FindIndex( ( MemoryUnit u ) => u.EntityID == EntityID );
-		return ( memoryUnitIndex == -1 ) ? Vector3.zero : this.m_Memories[ memoryUnitIndex ].LastEnemyPosition;
+		int memoryUnitIndex = m_Memories.FindIndex( ( MemoryUnit u ) => u.EntityID == EntityID );
+		return ( memoryUnitIndex == -1 ) ? Vector3.zero : m_Memories[ memoryUnitIndex ].LastEnemyPosition;
 	}
 
 
 	/// <summary> Return the entity searched by index, null otherwise </summary>
 	Entity		IEntityMemory.GetEntity( uint EntityID )
 	{
-		int memoryUnitIndex = this.m_Memories.FindIndex( ( MemoryUnit u ) => u.EntityID == EntityID );
-		return ( memoryUnitIndex == -1 ) ? null : this.m_Memories[ memoryUnitIndex ].EntityRef;
+		int memoryUnitIndex = m_Memories.FindIndex( ( MemoryUnit u ) => u.EntityID == EntityID );
+		return ( memoryUnitIndex == -1 ) ? null : m_Memories[ memoryUnitIndex ].EntityRef;
 	}
 
 
@@ -191,11 +191,11 @@ public abstract partial class Entity : IEntityMemory {
 			return false;
 		}
 
-		int memoryUnitIndex = this.m_Memories.FindIndex( ( MemoryUnit u ) => u.EntityID == entity.AsInterface.ID ) ;
+		int memoryUnitIndex = m_Memories.FindIndex( ( MemoryUnit u ) => u.EntityID == entity.AsInterface.ID ) ;
 		if ( memoryUnitIndex != -1 )
 		{
-			this.m_Memories.RemoveAt( memoryUnitIndex );
-			this.m_MemoriesCount -- ;
+			m_Memories.RemoveAt( memoryUnitIndex );
+			m_MemoriesCount -- ;
 		}
 
 		return memoryUnitIndex != -1;
@@ -205,8 +205,8 @@ public abstract partial class Entity : IEntityMemory {
 	/// <summary> Clear all entity memeory data </summary>
 	void		IEntityMemory.Empty()
 	{
-		this.m_Memories.Clear();
-		this.m_MemoriesCount = 0;
+		m_Memories.Clear();
+		m_MemoriesCount = 0;
 	}
 
 }

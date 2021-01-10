@@ -6,25 +6,13 @@ using UnityEngine;
 //////////////////////////////////////////////////////////////////////////
 // WPN_FireMode_Auto
 [System.Serializable]
-public class WPN_FireMode_Auto : WPN_FireMode_Base {
+public class WPN_FireMode_Auto : WPN_BaseFireMode
+{
+	public override EFireMode FireMode => EFireMode.AUTO;
 
-	public override EFireMode FireMode
+	protected	override	void	InternalSetup	(in Database.Section fireModeSection, in WPN_FireModule fireModule, in float shotDelay, in FireFunctionDel fireFunction)
 	{
-		get {
-			return EFireMode.AUTO;
-		}
-	}
 
-//	public	WPN_FireMode_Auto( Database.Section section ) { }
-
-	public	override	void	Setup			( WPN_FireModule fireModule, float shotDelay, FireFunctionDel fireFunction )
-	{
-		if ( fireFunction != null )
-		{
-			this.m_FireFunction = fireFunction;
-			this.m_FireDelay = shotDelay;
-			this.m_FireModule = fireModule;
-		}
 	}
 
 
@@ -46,49 +34,49 @@ public class WPN_FireMode_Auto : WPN_FireMode_Base {
 
 	public	override	bool	OnLoad			( StreamUnit streamUnit )
 	{
-		this.m_CurrentDelay = 0.0f;
+		m_CurrentDelay = 0.0f;
 		return true;
 	}
 
 	public	override	void	OnWeaponChange	()
 	{
-		this.m_CurrentDelay = 0.0f;
+		m_CurrentDelay = 0.0f;
 	}
 	
 
 	//	INTERNAL UPDATE
 	public	override	void	InternalUpdate( float DeltaTime, uint magazineSize )
 	{
-		this.m_CurrentDelay -= DeltaTime;
+		m_CurrentDelay = Mathf.Max( m_CurrentDelay - DeltaTime, 0.0f );
 	}
 
 	//	START
 	public override		void	OnStart( float baseFireDispersion, float baseCamDeviation )
 	{
-		if (this.m_CurrentDelay <= 0.0f )
+		if ( m_CurrentDelay <= 0.0f )
 		{
-			this.m_FireFunction( baseFireDispersion, baseCamDeviation );
-			this.m_CurrentDelay = this.m_FireDelay;
+			m_FireFunction( baseFireDispersion * m_DispersionMultiplier * 0.5f, baseCamDeviation * m_DeviationMultiplier * 0.5f );
+			m_CurrentDelay = m_FireDelay;
 		}
 	}
 
 	//	INTERNAL UPDATE
 	public	override	void	OnUpdate( float baseFireDispersion, float baseCamDeviation )
 	{
-		if (this.m_CurrentDelay <= 0.0f )
+		if ( m_CurrentDelay <= 0.0f )
 		{
-			this.m_FireFunction( baseFireDispersion, baseCamDeviation );
-			this.m_CurrentDelay = this.m_FireDelay;
+			m_FireFunction( baseFireDispersion * m_DispersionMultiplier, baseCamDeviation * m_DeviationMultiplier );
+			m_CurrentDelay = m_FireDelay;
 		}
 	}
 
 	//	END
 	public override		void	OnEnd( float baseFireDispersion, float baseCamDeviation )
 	{
-		if (this.m_CurrentDelay <= 0.0f )
+		if ( m_CurrentDelay <= 0.0f )
 		{
-			this.m_FireFunction( baseFireDispersion, baseCamDeviation );
-			this.m_CurrentDelay = this.m_FireDelay;
+			m_FireFunction( baseFireDispersion * m_DispersionMultiplier, baseCamDeviation * m_DeviationMultiplier );
+			m_CurrentDelay = m_FireDelay;
 		}
 	}
 }
@@ -97,8 +85,8 @@ public class WPN_FireMode_Auto : WPN_FireMode_Base {
 
 //////////////////////////////////////////////////////////////////////////
 // WPN_FireMode_Auto_Incremental
-public class WPN_FireMode_Auto_Incremental : WPN_FireMode_Auto {
-
+public class WPN_FireMode_Auto_Incremental : WPN_FireMode_Auto
+{
 	private		float	m_IncremetalSpeed			= 1.0f;
 	private		float	m_MaxIncrement				= 2.0f;
 
@@ -107,17 +95,10 @@ public class WPN_FireMode_Auto_Incremental : WPN_FireMode_Auto {
 
 //	public WPN_FireMode_Auto_Incremental( Database.Section section ) : base( section ) { }
 
-	public override void Setup( WPN_FireModule fireModule, float shotDelay, FireFunctionDel fireFunction )
+	protected	override	void	InternalSetup	(in Database.Section fireModeSection, in WPN_FireModule fireModule, in float shotDelay, in FireFunctionDel fireFunction)
 	{
-		base.Setup( fireModule, shotDelay, fireFunction );
-
-		string moduleSectionName = this.GetType().Name;
-		Database.Section section = null;
-		if ( GlobalManager.Configs.GetSection( moduleSectionName, ref section ) )
-		{
-			this.m_IncremetalSpeed	= section.AsFloat( "IncremetalSpeed", this.m_IncremetalSpeed );
-			this.m_MaxIncrement		= section.AsFloat( "MaxIncrement", this.m_MaxIncrement );
-		}
+		m_IncremetalSpeed	= fireModeSection.AsFloat( "IncremetalSpeed", m_IncremetalSpeed );
+		m_MaxIncrement		= fireModeSection.AsFloat( "MaxIncrement", m_MaxIncrement );
 	}
 
 
@@ -151,7 +132,7 @@ public class WPN_FireMode_Auto_Incremental : WPN_FireMode_Auto {
 
 	public override bool OnLoad( StreamUnit streamUnit )
 	{
-		this.m_CurrentMultiplier = 1.0f;
+		m_CurrentMultiplier = 1.0f;
 
 		return base.OnLoad( streamUnit );
 	}
@@ -159,26 +140,26 @@ public class WPN_FireMode_Auto_Incremental : WPN_FireMode_Auto {
 	//	INTERNAL UPDATE
 	public	override	void	InternalUpdate( float DeltaTime, uint magazineSize )
 	{
-		this.m_CurrentDelay -= DeltaTime * this.m_CurrentMultiplier;
+		m_CurrentDelay = Mathf.Max( m_CurrentDelay - ( DeltaTime * m_CurrentMultiplier ), 0.0f );
 	}
 
 	public override void OnStart( float baseFireDispersion, float baseCamDeviation )
 	{
 		base.OnStart( baseFireDispersion, baseCamDeviation );
-		this.m_CurrentMultiplier += this.m_IncremetalSpeed;
-		this.m_CurrentMultiplier = Mathf.Clamp(this.m_CurrentMultiplier, 1.0f, this.m_MaxIncrement );
+		m_CurrentMultiplier += m_IncremetalSpeed;
+		m_CurrentMultiplier = Mathf.Clamp(m_CurrentMultiplier, 1.0f, m_MaxIncrement );
 	}
 
 	public override void OnUpdate( float baseFireDispersion, float baseCamDeviation )
 	{
 		base.OnUpdate( baseFireDispersion, baseCamDeviation );
-		this.m_CurrentMultiplier += this.m_IncremetalSpeed;
-		this.m_CurrentMultiplier = Mathf.Clamp(this.m_CurrentMultiplier, 1.0f, this.m_MaxIncrement );
+		m_CurrentMultiplier += m_IncremetalSpeed;
+		m_CurrentMultiplier = Mathf.Clamp(m_CurrentMultiplier, 1.0f, m_MaxIncrement );
 	}
 
 	public override void OnEnd( float baseFireDispersion, float baseCamDeviation )
 	{
 		base.OnEnd( baseFireDispersion, baseCamDeviation );
-		this.m_CurrentMultiplier = 1.0f;
+		m_CurrentMultiplier = 1.0f;
 	}
 }

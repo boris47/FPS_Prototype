@@ -25,31 +25,31 @@ namespace WeatherSystem {
 		// OnEnable
 		private		void		OnEnable()
 		{
-			this.m_Camera = Camera.current;
+			m_Camera = Camera.current;
 
 			//	m_RainMistParticleSystem Child
 			{
-				Transform child = this.transform.Find( "RainMistParticleSystem" );;
+				Transform child = transform.Find( "RainMistParticleSystem" );;
 				if ( child )
-					this.m_RainMistParticleSystem = child.GetComponent<ParticleSystem>();
+					m_RainMistParticleSystem = child.GetComponent<ParticleSystem>();
 
-				if (this.m_RainMistParticleSystem == null )
+				if (m_RainMistParticleSystem == null )
 				{
-					this.enabled = false;
+					enabled = false;
 					return;
 				}
 			}
 
-			ParticleSystem.EmissionModule e = this.m_RainMistParticleSystem.emission;
+			ParticleSystem.EmissionModule e = m_RainMistParticleSystem.emission;
 			e.enabled = true;
 			ParticleSystem.MinMaxCurve rate = e.rateOverTime;
 			rate.mode = ParticleSystemCurveMode.Constant;
-			Renderer rainRenderer = this.m_RainMistParticleSystem.GetComponent<Renderer>();
+			Renderer rainRenderer = m_RainMistParticleSystem.GetComponent<Renderer>();
 			rainRenderer.enabled = true;
-			this.m_RainMistMaterial = new Material( rainRenderer.material );
-			this.m_RainMistMaterial.EnableKeyword( "SOFTPARTICLES_ON" );
-			rainRenderer.material = this.m_RainMistMaterial;
-			this.m_RainMistParticleSystem.Play();
+			m_RainMistMaterial = new Material( rainRenderer.material );
+			m_RainMistMaterial.EnableKeyword( "SOFTPARTICLES_ON" );
+			rainRenderer.material = m_RainMistMaterial;
+			m_RainMistParticleSystem.Play();
 		}
 
 
@@ -57,7 +57,7 @@ namespace WeatherSystem {
 		// MistEmissionRate
 		private		float		MistEmissionRate()
 		{
-			return (this.m_RainMistParticleSystem.main.maxParticles / this.m_RainMistParticleSystem.main.startLifetime.constant ) * RainManager.Instance.RainIntensity * 2f;
+			return (m_RainMistParticleSystem.main.maxParticles / m_RainMistParticleSystem.main.startLifetime.constant ) * RainManager.Instance.RainIntensity * 2f;
 		}
 
 
@@ -68,7 +68,7 @@ namespace WeatherSystem {
 #if UNITY_EDITOR
 			if ( UnityEditor.EditorApplication.isPlaying == false )
 				if ( UnityEditor.SceneView.lastActiveSceneView != null )
-					this.m_Camera = UnityEditor.SceneView.lastActiveSceneView.camera;
+					m_Camera = UnityEditor.SceneView.lastActiveSceneView.camera;
 #endif
 //			if ( m_Camera == null )
 			{
@@ -76,16 +76,16 @@ namespace WeatherSystem {
 				//				if ( m_Camera == null )
 				//					m_Camera = Camera.main;
 				//				if ( m_Camera == null )
-				this.m_Camera = CameraControl.Instance != null ? CameraControl.Instance.MainCamera : null;
-				if (this.m_Camera == null )
+				m_Camera = CameraControl.Instance != null ? CameraControl.Instance.MainCamera : null;
+				if (m_Camera == null )
 					return;
 			}
 
-			this.m_RainMistParticleSystem.transform.position = this.m_Camera.transform.position;
+			m_RainMistParticleSystem.transform.position = m_Camera.transform.position;
 
-			ParticleSystem.EmissionModule e = this.m_RainMistParticleSystem.emission;
+			ParticleSystem.EmissionModule e = m_RainMistParticleSystem.emission;
 			ParticleSystem.MinMaxCurve rate = e.rateOverTime;
-			float emissionRate = RainManager.Instance.RainIntensity > this.m_RainMistThreshold ? this.MistEmissionRate() : 0f;
+			float emissionRate = RainManager.Instance.RainIntensity > m_RainMistThreshold ? MistEmissionRate() : 0f;
 			rate.constantMin = rate.constantMax = emissionRate;
 			e.rateOverTime = rate;
 		}

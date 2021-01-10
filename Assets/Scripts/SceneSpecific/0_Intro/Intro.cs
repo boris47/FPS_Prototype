@@ -22,7 +22,7 @@ public class Intro : MonoBehaviour
 	{
 		if ( Input.anyKeyDown == true )
 		{
-			this.enabled = false;
+			enabled = false;
 
 			CustomSceneManager.LoadSceneData loadSceneData = new CustomSceneManager.LoadSceneData()
 			{

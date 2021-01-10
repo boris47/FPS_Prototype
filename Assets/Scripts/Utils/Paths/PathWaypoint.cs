@@ -17,16 +17,16 @@ public class PathWaypoint : MonoBehaviour {
 	//
 	public	bool	HasToWait()
 	{
-		return (this.m_Waiter != null && this.m_Waiter.HasToWait );
+		return (m_Waiter != null && m_Waiter.HasToWait );
 	}
 
 
 	//
 	public	void	OnReached()
 	{
-		if (this.m_OnWayPointReached != null && this.m_OnWayPointReached.GetPersistentEventCount() > 0 )
+		if (m_OnWayPointReached != null && m_OnWayPointReached.GetPersistentEventCount() > 0 )
 		{
-			this.m_OnWayPointReached.Invoke();
+			m_OnWayPointReached.Invoke();
 		}
 	}
 
@@ -34,7 +34,7 @@ public class PathWaypoint : MonoBehaviour {
 	//
 	private void OnDrawGizmosSelected()
 	{
-		PathBase path = this.GetComponentInParent<PathBase>();
+		PathBase path = GetComponentInParent<PathBase>();
 		path.DrawGizmos();
 	}
 

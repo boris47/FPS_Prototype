@@ -5,8 +5,8 @@ using UnityEngine;
 namespace QuestSystem {
 
 	[RequireComponent(typeof(Collider))]
-	public class Objective_LeaveObjectInTrigger : Objective_Base {
-
+	public class Objective_LeaveObjectInTrigger : Objective_Base
+	{
 		[SerializeField]
 		private	Collider			m_ObjectThatTrigger				= null;
 
@@ -16,21 +16,21 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Initialize ( IStateDefiner )
-		protected		override	bool		InitializeInternal( ITask motherTask, System.Action<IObjective> onCompletionCallback, System.Action<IObjective> onFailureCallback )
+		protected		override	bool		InitializeInternal( Task motherTask, System.Action<Objective_Base> onCompletionCallback, System.Action<Objective_Base> onFailureCallback )
 		{
-			if (this.m_IsInitialized == true )
+			if (m_IsInitialized == true )
 				return true;
 
-			this.m_IsInitialized = true;
+			m_IsInitialized = true;
 
-			bool bIsGoodResult = Utils.Base.SearchComponent(this.gameObject, out this.m_Collider, ESearchContext.LOCAL );
+			bool bIsGoodResult = Utils.Base.SearchComponent(gameObject, out m_Collider, ESearchContext.LOCAL );
 			if ( bIsGoodResult )
 			{
-				this.m_Collider.isTrigger = true;
-				this.m_Collider.enabled = false;
+				m_Collider.isTrigger = true;
+				m_Collider.enabled = false;
 
-				this.m_OnCompletionCallback = onCompletionCallback;
-				this.m_OnFailureCallback = onFailureCallback;
+				m_OnCompletionCallback = onCompletionCallback;
+				m_OnFailureCallback = onFailureCallback;
 				motherTask.AddObjective( this );
 			}
 
@@ -74,11 +74,11 @@ namespace QuestSystem {
 		// Activate ( IObjective )
 		protected		override	void		ActivateInternal()
 		{
-			if (this.m_ObjectThatTrigger.IsNotNull() )
+			if (m_ObjectThatTrigger.IsNotNull() )
 			{
-				this.m_Collider.enabled = true;
+				m_Collider.enabled = true;
 
-				UIManager.Indicators.EnableIndicator(this.m_Collider.gameObject, EIndicatorType.AREA_WHERE_PLACE_OBJECT, bMustBeClamped: true );
+				UIManager.Indicators.EnableIndicator(m_Collider.gameObject, EIndicatorType.AREA_WHERE_PLACE_OBJECT, bMustBeClamped: true );
 			}
 		}
 
@@ -87,11 +87,11 @@ namespace QuestSystem {
 		// Deactivate ( IObjective )
 		protected		override	void		DeactivateInternal()
 		{
-			if (this.m_ObjectThatTrigger.IsNotNull() )
+			if (m_ObjectThatTrigger.IsNotNull() )
 			{
-				this.m_Collider.enabled = false;
+				m_Collider.enabled = false;
 
-				UIManager.Indicators.DisableIndicator(this.gameObject );
+				UIManager.Indicators.DisableIndicator(gameObject );
 			}
 		}
 
@@ -102,7 +102,7 @@ namespace QuestSystem {
 		{
 			if ( objCollider && objCollider.isTrigger == false )
 			{
-				this.m_ObjectThatTrigger = objCollider;
+				m_ObjectThatTrigger = objCollider;
 			}
 		}
 
@@ -111,23 +111,23 @@ namespace QuestSystem {
 		// OnTriggerEnter
 		private void OnTriggerEnter( Collider other )
 		{
-			if (this.m_ObjectiveState != EObjectiveState.ACTIVATED )
+			if (m_ObjectiveState != EObjectiveState.ACTIVATED )
 				return;
 
-			if ( other.GetInstanceID() != this.m_ObjectThatTrigger.GetInstanceID() )
+			if ( other.GetInstanceID() != m_ObjectThatTrigger.GetInstanceID() )
 				return;
 
-			this.Deactivate();
+			Deactivate();
 
 			// Require dependencies to be completed
-			int dependencyIndex = this.m_Dependencies.Count > 0 ? this.m_Dependencies.FindLastIndex( o => o.IsCompleted == false ) : -1;
+			int dependencyIndex = m_Dependencies.Count > 0 ? m_Dependencies.FindLastIndex( o => o.IsCompleted == false ) : -1;
 			if ( dependencyIndex > -1 )
 			{
-				this.m_Dependencies[dependencyIndex].Activate();
+				m_Dependencies[dependencyIndex].Activate();
 				return;
 			}
 
-			this.OnObjectiveCompleted();
+			OnObjectiveCompleted();
 		}
 
 	}

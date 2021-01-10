@@ -12,7 +12,7 @@ namespace Database
 		public	bool					bAs<T>( string Key, ref T Out )
 		{
 			LineValue pLineValue = null;
-			if (this.bGetLineValue( Key, ref pLineValue ) )
+			if (TryGetLineValue( Key, ref pLineValue ) )
 			{
 				if ( pLineValue.Type == ELineValueType.SINGLE )
 				{
@@ -29,7 +29,7 @@ namespace Database
 		public	bool					bAs<T>( string Key, ref T[] Out )
 		{
 			LineValue pLineValue = null;
-			if (this.bGetLineValue( Key, ref pLineValue ) )
+			if (TryGetLineValue( Key, ref pLineValue ) )
 			{
 				if ( pLineValue.Type == ELineValueType.MULTI )
 				{
@@ -52,7 +52,7 @@ namespace Database
 		public	bool					bAsBool( string Key, ref bool Out, bool Default = false )
 		{
 			LineValue pLineValue = null;
-			if (this.bGetLineValue( Key, ref pLineValue ) )
+			if (TryGetLineValue( Key, ref pLineValue ) )
 			{
 				if ( pLineValue.Type == ELineValueType.SINGLE )
 				{
@@ -70,7 +70,7 @@ namespace Database
 		public	bool					bAsInt( string Key, ref int Out, int Default = 0 )
 		{
 			LineValue pLineValue = null;
-			if (this.bGetLineValue( Key, ref pLineValue ) )
+			if (TryGetLineValue( Key, ref pLineValue ) )
 			{
 				if ( pLineValue.Type == ELineValueType.SINGLE )
 				{
@@ -88,7 +88,7 @@ namespace Database
 		public	bool					bAsFloat( string Key, ref float Out, float Default = 0.0f )
 		{
 			LineValue pLineValue = null;
-			if (this.bGetLineValue( Key, ref pLineValue ) )
+			if (TryGetLineValue( Key, ref pLineValue ) )
 			{
 				if ( pLineValue.Type == ELineValueType.SINGLE )
 				{
@@ -106,7 +106,7 @@ namespace Database
 		public	bool					bAsString( string Key, ref string Out, string Default = "" )
 		{
 			LineValue pLineValue = null;
-			if (this.bGetLineValue( Key, ref pLineValue ) )
+			if (TryGetLineValue( Key, ref pLineValue ) )
 			{
 				if ( pLineValue.Type == ELineValueType.SINGLE )
 				{
@@ -124,12 +124,11 @@ namespace Database
 		public	bool					bAsMultiValue( string Key, int Index, out Value Out )
 		{
 			LineValue pLineValue = null;
-			if (this.bGetLineValue( Key, ref pLineValue ) )
+			if (TryGetLineValue( Key, ref pLineValue ) )
 			{
 				MultiValue pMultiValue	= null;
-				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
+				if (pLineValue.GetAsMulti(ref pMultiValue) && pMultiValue.TryGet(Index - 1, out Out))
 				{
-					Out = pMultiValue[ Index - 1 ];
 					return true;
 				}
 			}
@@ -143,15 +142,14 @@ namespace Database
 		public	bool					bAsVec2( string Key, ref Vector2 Out, Vector2? Default )
 		{
 			LineValue pLineValue = null;
-			if (this.bGetLineValue( Key, ref pLineValue ) )
+			if (TryGetLineValue( Key, ref pLineValue ) )
 			{
 				MultiValue pMultiValue	= null;
 				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
 				{
-					Value pValue1 = pMultiValue[ 0 ], pValue2 = pMultiValue[ 1 ];
-					if ( ( pValue1 != null ) && ( pValue2 != null ) )
+					if (pMultiValue.TryGet(0, out float x) && pMultiValue.TryGet(1, out float y))
 					{
-						Out = new Vector2( pValue1.ToFloat(), pValue2.ToFloat() );
+						Out = new Vector2( x, y );
 						return true;
 					}
 				}
@@ -166,14 +164,16 @@ namespace Database
 		public	bool					bAsVec3( string Key, ref Vector3 Out, Vector3? Default )
 		{
 			LineValue pLineValue		= null;
-			if (this.bGetLineValue( Key, ref pLineValue ) )
+			if (TryGetLineValue( Key, ref pLineValue ) )
 			{
 				MultiValue pMultiValue	= null;
 				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
 				{
-					float x = pMultiValue[ 0 ], y = pMultiValue[ 1 ], z = pMultiValue[ 2 ];
-					Out = new Vector3( x, y, z );
-					return true;
+					if (pMultiValue.TryGet(0, out float x) && pMultiValue.TryGet(1, out float y) && pMultiValue.TryGet(2, out float z))
+					{
+						Out = new Vector3( x, y, z );
+						return true;
+					}
 				}
 			}
 			Out = Default.GetValueOrDefault();
@@ -186,14 +186,16 @@ namespace Database
 		public	bool					bAsVec4( string Key, ref Vector4 Out, Vector4? Default )
 		{
 			LineValue pLineValue		= null;
-			if (this.bGetLineValue( Key, ref pLineValue ) )
+			if (TryGetLineValue( Key, ref pLineValue ) )
 			{
 				MultiValue pMultiValue	= null;
 				if ( pLineValue.GetAsMulti( ref pMultiValue ) )
 				{
-					float x = pMultiValue[0], y = pMultiValue[1], z = pMultiValue[2], w = pMultiValue[3];
-					Out = new Vector4( x:x, y:y, z:z, w:w );
-					return true;
+					if (pMultiValue.TryGet(0, out float x) && pMultiValue.TryGet(1, out float y) && pMultiValue.TryGet(2, out float z) && pMultiValue.TryGet(3, out float w))
+					{
+						Out = new Vector4( x, y, z, w );
+						return true;
+					}
 				}
 			}
 			Out = Default.GetValueOrDefault();
@@ -206,7 +208,7 @@ namespace Database
 		public	bool					bAsColor( string Key, ref Color Out, Color Default )
 		{
 			Vector4 refVec = Vector4.zero;
-			if (this.bAsVec4(Key, ref refVec, Vector4.zero))
+			if (bAsVec4(Key, ref refVec, Vector4.zero))
 			{
 				float r = refVec[0], g = refVec[1], b = refVec[2], a = refVec[3];
 				Out = new Color( r:r, g:g, b:b, a:a );

@@ -8,7 +8,7 @@ public class DroneStandard : Drone {
 	// Awake ( Override )
 	protected override void Awake()
 	{
-		this.m_SectionName = this.GetType().FullName;
+		m_SectionName = GetType().FullName;
 
 		base.Awake();
 	}

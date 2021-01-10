@@ -27,63 +27,63 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour {
 
 	public override void OnDisable()
 	{
-		if (this.m_InvestigationCO != null )
+		if (m_InvestigationCO != null )
 		{
-			this.EntityData.EntityRef.StopCoroutine(this.m_InvestigationCO );
+			EntityData.EntityRef.StopCoroutine(m_InvestigationCO );
 		}
 
-		this.m_CurrentInvestigationDirection = EInvestigationDirection.RIGHT;
+		m_CurrentInvestigationDirection = EInvestigationDirection.RIGHT;
 	}
 
 	public override void OnSave( StreamUnit streamUnit )
 	{
-		streamUnit.SetInternal( EBrainState.SEEKER.ToString() + "_CurrentInvestigationDirection", this.m_CurrentInvestigationDirection );
+		streamUnit.SetInternal( EBrainState.SEEKER.ToString() + "_CurrentInvestigationDirection", m_CurrentInvestigationDirection );
 	}
 
 	public override void OnLoad( StreamUnit streamUnit )
 	{
-		this.m_CurrentInvestigationDirection = streamUnit.GetAsEnum<EInvestigationDirection>( EBrainState.SEEKER.ToString() + "_CurrentInvestigationDirection" );
+		m_CurrentInvestigationDirection = streamUnit.GetAsEnum<EInvestigationDirection>( EBrainState.SEEKER.ToString() + "_CurrentInvestigationDirection" );
 	}
 
 	public override void OnHit( IBullet bullet )
 	{
-		this.OnHit( bullet.StartPosition, bullet.WhoRef, bullet.Damage, bullet.CanPenetrate );
+		OnHit( bullet.StartPosition, bullet.WhoRef, bullet.Damage, bullet.CanPenetrate );
 	}
 
 	public override void OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
-		if (this.EntityData.EntityRef.IsAlive )
+		if (EntityData.EntityRef.IsAlive )
 		{
-			this.EntityData.EntityRef.SetPointToLookAt( startPosition );
+			EntityData.EntityRef.SetPointToLookAt( startPosition );
 
-			this.EntityData.EntityRef.ChangeState( EBrainState.ALARMED );
+			EntityData.EntityRef.ChangeState( EBrainState.ALARMED );
 		}
 	}
 
 	protected	IEnumerator	InvestigateAroundCO()
 	{
-		while(this.m_CurrentInvestigationDirection < EInvestigationDirection.END )
+		while(m_CurrentInvestigationDirection < EInvestigationDirection.END )
 		{
 			yield return new WaitForSecondsRealtime( UnityEngine.Random.Range( 0.7f, 1.3f ) );
 			Vector3 newDirection = Vector3.zero;
-			switch (this.m_CurrentInvestigationDirection )
+			switch (m_CurrentInvestigationDirection )
 			{
-				case EInvestigationDirection.RIGHT:	newDirection = this.EntityData.Head_Right; this.print("Right"); break;
-				case EInvestigationDirection.LEFT:	newDirection = this.EntityData.Head_Forward * -1f; this.print("left");  break;
-				case EInvestigationDirection.BACK:	newDirection = this.EntityData.Head_Right   * -1f; this.print("back");  break;
-				case EInvestigationDirection.FRONT:	newDirection = this.EntityData.Head_Forward * -1f; this.print("Front"); break;
+				case EInvestigationDirection.RIGHT:	newDirection = EntityData.Head_Right; print("Right"); break;
+				case EInvestigationDirection.LEFT:	newDirection = EntityData.Head_Forward * -1f; print("left");  break;
+				case EInvestigationDirection.BACK:	newDirection = EntityData.Head_Right   * -1f; print("back");  break;
+				case EInvestigationDirection.FRONT:	newDirection = EntityData.Head_Forward * -1f; print("Front"); break;
 			}
 
-			this.m_CurrentInvestigationDirection ++;
-			this.EntityData.EntityRef.SetPointToLookAt(this.EntityData.Head_Position + newDirection, ELookTargetMode.HEAD_ONLY );
-			yield return new WaitUntil( () => Vector3.Angle(this.EntityData.Head_Forward, newDirection ) < 4.5f );
+			m_CurrentInvestigationDirection ++;
+			EntityData.EntityRef.SetPointToLookAt(EntityData.Head_Position + newDirection, ELookTargetMode.HEAD_ONLY );
+			yield return new WaitUntil( () => Vector3.Angle(EntityData.Head_Forward, newDirection ) < 4.5f );
 		}
 
-		this.EntityData.EntityRef.RequestMovement(this.EntityData.EntityRef.SpawnPoint );
-		this.EntityData.EntityRef.SetPointToLookAt(this.EntityData.EntityRef.SpawnPoint + this.EntityData.EntityRef.SpawnDirection );
-		this.EntityData.EntityRef.ChangeState( EBrainState.NORMAL );
-		this.m_CurrentInvestigationDirection = EInvestigationDirection.RIGHT;
-		this.m_InvestigationCO = null;
+		EntityData.EntityRef.RequestMovement(EntityData.EntityRef.SpawnPoint );
+		EntityData.EntityRef.SetPointToLookAt(EntityData.EntityRef.SpawnPoint + EntityData.EntityRef.SpawnDirection );
+		EntityData.EntityRef.ChangeState( EBrainState.NORMAL );
+		m_CurrentInvestigationDirection = EInvestigationDirection.RIGHT;
+		m_InvestigationCO = null;
 	}
 	
 
@@ -94,15 +94,15 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour {
 	
 	public override void OnDestinationReached( Vector3 Destination )
 	{
-		this.EntityData.EntityRef.NavReset();
+		EntityData.EntityRef.NavReset();
 
 		// TODO
 		// before returning to normal state should investigate around current position
 
-		if (this.m_InvestigationCO == null )
+		if (m_InvestigationCO == null )
 		{
-			this.m_CurrentInvestigationDirection = EInvestigationDirection.RIGHT;
-			this.m_InvestigationCO = CoroutinesManager.Start(this.InvestigateAroundCO(), "Drone-Seeker::On DestinationReached: Start of search" );
+			m_CurrentInvestigationDirection = EInvestigationDirection.RIGHT;
+			m_InvestigationCO = CoroutinesManager.Start(InvestigateAroundCO(), "Drone-Seeker::On DestinationReached: Start of search" );
 		}
 
 //		EntityData.EntityRef.StartCoroutine( InnvestigateAroundCO() );
@@ -125,19 +125,19 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour {
 
 	public override void OnFrame( float DeltaTime )
 	{
-		Debug.DrawLine(this.EntityData.Head_Position, this.EntityData.Head_Position + this.EntityData.Head_Forward, Color.red, 0.0f );
+		Debug.DrawLine(EntityData.Head_Position, EntityData.Head_Position + EntityData.Head_Forward, Color.red, 0.0f );
 
 		// Update movement speed along path
-		if (this.EntityData.EntityRef.HasDestination )
+		if (EntityData.EntityRef.HasDestination )
 		{
-			if (this.EntityData.EntityRef.IsAllignedHeadToPoint )
+			if (EntityData.EntityRef.IsAllignedHeadToPoint )
 			{
-				this.EntityData.AgentSpeed = this.EntityData.EntityRef.MaxAgentSpeed;
+				EntityData.AgentSpeed = EntityData.EntityRef.MaxAgentSpeed;
 			}
 
-			if (this.EntityData.EntityRef.IsDisallignedHeadWithPoint )
+			if (EntityData.EntityRef.IsDisallignedHeadWithPoint )
 			{
-				this.EntityData.AgentSpeed = 0.0f;
+				EntityData.AgentSpeed = 0.0f;
 			}
 		}
 	}
@@ -152,17 +152,17 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour {
 		// Destination
 		{
 			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
-				planeNormal: this.EntityData.Body_Up,
-				planePoint: this.EntityData.Body_Position,
-				point: this.EntityData.TargetInfo.CurrentTarget.AsEntity.transform.position
+				planeNormal: EntityData.Body_Up,
+				planePoint: EntityData.Body_Position,
+				point: EntityData.TargetInfo.CurrentTarget.AsEntity.transform.position
 			);
 
 
-			this.EntityData.EntityRef.RequestMovement( projectedPoint );
+			EntityData.EntityRef.RequestMovement( projectedPoint );
 		}
 
 		// Switch brain State
-		this.EntityData.EntityRef.ChangeState( EBrainState.ATTACKER );
+		EntityData.EntityRef.ChangeState( EBrainState.ATTACKER );
 	}
 
 	public override void OnTargetChange()

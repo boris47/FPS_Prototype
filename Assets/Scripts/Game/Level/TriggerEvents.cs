@@ -45,7 +45,7 @@ public class TriggerEvents : MonoBehaviour {
 	// Awake
 	private void Awake()
 	{
-		bool bHasCollider = this.transform.SearchComponent( ref this.m_Collider, ESearchContext.LOCAL );
+		bool bHasCollider = transform.SearchComponent( ref m_Collider, ESearchContext.LOCAL );
 
 		if ( bHasCollider == false )
 		{
@@ -53,14 +53,14 @@ public class TriggerEvents : MonoBehaviour {
 			return;
 		}
 
-		this.m_Collider.isTrigger = true; // ensure is used as trigger
-		this.m_Collider.enabled = false;
+		m_Collider.isTrigger = true; // ensure is used as trigger
+		m_Collider.enabled = false;
 
-		this.m_OnEnter.AddListener( ( GameObject go ) => { m_OnEnterEvent( go ); } );
-		this.m_OnExit.AddListener ( ( GameObject go ) => { m_OnExitEvent( go ); } ); 
+		m_OnEnter.AddListener( ( GameObject go ) => { m_OnEnterEvent( go ); } );
+		m_OnExit.AddListener ( ( GameObject go ) => { m_OnExitEvent( go ); } ); 
 
-		GameManager.StreamEvents.OnSave += this.StreamEvents_OnSave;
-		GameManager.StreamEvents.OnLoad += this.StreamEvents_OnLoad;
+		GameManager.StreamEvents.OnSave += StreamEvents_OnSave;
+		GameManager.StreamEvents.OnLoad += StreamEvents_OnLoad;
 	}
 
 
@@ -68,11 +68,11 @@ public class TriggerEvents : MonoBehaviour {
 	private StreamUnit StreamEvents_OnSave( StreamData streamData )
 	{
 		// Skip if no required
-		if (this.m_TriggerOnce == false )
+		if (m_TriggerOnce == false )
 			return null;
 
-		StreamUnit streamUnit = streamData.NewUnit(this.gameObject );
-		streamUnit.SetInternal( "HasTriggered", this.m_HasTriggered );
+		StreamUnit streamUnit = streamData.NewUnit(gameObject );
+		streamUnit.SetInternal( "HasTriggered", m_HasTriggered );
 
 		return streamUnit;
 	}
@@ -82,18 +82,18 @@ public class TriggerEvents : MonoBehaviour {
 	private StreamUnit StreamEvents_OnLoad( StreamData streamData )
 	{
 		// Skip if no required
-		if (this.m_TriggerOnce == false )
+		if (m_TriggerOnce == false )
 			return null;
 
 		// Get unit
 		StreamUnit streamUnit = null;
-		if ( streamData.GetUnit(this.gameObject, ref streamUnit ) == false )
+		if ( streamData.GetUnit(gameObject, ref streamUnit ) == false )
 		{
 			return null;
 		}
 
 		// TRIGGERED
-		this.m_HasTriggered = streamUnit.GetAsBool( "HasTriggered" );
+		m_HasTriggered = streamUnit.GetAsBool( "HasTriggered" );
 		
 		return streamUnit;
 	}
@@ -104,11 +104,11 @@ public class TriggerEvents : MonoBehaviour {
 	{
 		UnityEngine.Assertions.Assert.IsNotNull
 		(
-			this.m_Collider,
+			m_Collider,
 			"TriggerEvents::OnEnable: m_Collider is a null reference"
 		);
 
-		this.m_Collider.enabled = true;
+		m_Collider.enabled = true;
 	}
 
 
@@ -117,11 +117,11 @@ public class TriggerEvents : MonoBehaviour {
 	{
 		UnityEngine.Assertions.Assert.IsNotNull
 		(
-			this.m_Collider,
+			m_Collider,
 			"TriggerEvents::OnDisable: m_Collider is a null reference"
 		);
 
-		this.m_Collider.enabled = false;
+		m_Collider.enabled = false;
 	}
 
 
@@ -129,21 +129,21 @@ public class TriggerEvents : MonoBehaviour {
 	// OnTriggerEnter
 	private void OnTriggerEnter( Collider other )
 	{
-		if (this.m_TriggerOnce == true && this.m_HasTriggered == true )
+		if (m_TriggerOnce == true && m_HasTriggered == true )
 			return;
 
-		if (this.m_Target && other.transform.root.GetInstanceID() != this.m_Target.transform.root.GetInstanceID() )
+		if (m_Target && other.transform.root.GetInstanceID() != m_Target.transform.root.GetInstanceID() )
 			return;
 
 		bool bIsEntity = Utils.Base.SearchComponent( other.gameObject, out Entity entity, ESearchContext.CHILDREN );
-		if ( bIsEntity && this.m_BypassEntityCheck == false && entity.CanTrigger() == false )
+		if ( bIsEntity && m_BypassEntityCheck == false && entity.CanTrigger() == false )
 		{
 			return;
 		}
 
-		this.m_HasTriggered = true;
+		m_HasTriggered = true;
 
-		this.m_OnEnter?.Invoke( other.gameObject );
+		m_OnEnter?.Invoke( other.gameObject );
 	}
 
 
@@ -151,13 +151,37 @@ public class TriggerEvents : MonoBehaviour {
 	// OnTriggerExit
 	private void OnTriggerExit( Collider other )
 	{
-		if (this.m_TriggerOnce == true && this.m_HasTriggered == true )
+		if (m_TriggerOnce == true && m_HasTriggered == true )
 			return;
 
-		if (this.m_Target && other.transform.root.GetInstanceID() != this.m_Target.transform.root.GetInstanceID())
+		if (m_Target && other.transform.root.GetInstanceID() != m_Target.transform.root.GetInstanceID())
 			return;
 
-		this.m_OnExit?.Invoke( other.gameObject );
+		m_OnExit?.Invoke( other.gameObject );
+	}
+
+
+	private void OnDrawGizmos()
+	{
+		if (transform.SearchComponent( ref m_Collider, ESearchContext.LOCAL ) )
+		{
+			Matrix4x4 mat = Gizmos.matrix;
+			Gizmos.matrix = transform.localToWorldMatrix;
+
+			if (m_Collider is BoxCollider )
+			{
+				BoxCollider thisCollider = m_Collider as BoxCollider;
+				Gizmos.DrawCube( Vector3.zero, thisCollider.size );
+			}
+		
+			if (m_Collider is SphereCollider )
+			{
+				SphereCollider thisCollider = m_Collider as SphereCollider;
+				Gizmos.DrawSphere( Vector3.zero, thisCollider.radius );
+			}
+
+			Gizmos.matrix = mat;
+		}
 	}
 
 }

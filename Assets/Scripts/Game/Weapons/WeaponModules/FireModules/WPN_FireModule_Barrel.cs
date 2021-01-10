@@ -6,10 +6,7 @@ using UnityEngine;
 [System.Serializable]
 public class WPN_FireModule_Barrel : WPN_FireModule
 {
-	public override EFireMode FireMode
-	{
-		get => EFireMode.NONE;
-	}
+	public override EFireMode FireMode => EFireMode.NONE;
 
 	protected	override	bool	InternalSetup( Database.Section moduleSection )
 	{ return true; }
@@ -39,14 +36,14 @@ public class WPN_FireModule_Barrel : WPN_FireModule
 
 	public	override	bool	OnSave			( StreamUnit streamUnit )
 	{
-		streamUnit.SetInternal(this.name, this.m_Magazine );
+		streamUnit.SetInternal(name, m_Magazine );
 		return true;
 	}
 
 	//
 	public	override	bool	OnLoad			( StreamUnit streamUnit )
 	{
-		this.m_Magazine = (uint)streamUnit.GetAsInt(this.name );
+		m_Magazine = (uint)streamUnit.GetAsInt(name );
 		return true;
 	}
 
@@ -54,38 +51,38 @@ public class WPN_FireModule_Barrel : WPN_FireModule
 	//
 	public	override	bool	NeedReload()
 	{
-		return this.m_Magazine == 0 || this.m_Magazine < this.m_MagazineCapacity;
+		return m_Magazine == 0 || m_Magazine < m_MagazineCapacity;
 	}
 
 	//
 	public		override	void	OnAfterReload()
 	{
-		this.m_Magazine = this.m_MagazineCapacity;
+		m_Magazine = m_MagazineCapacity;
 	}
 
 	// ON LOAD
 	public		virtual		void	OnLoad( uint magazine )
 	{
-		this.m_Magazine = magazine;
+		m_Magazine = magazine;
 	}
 
 	// CAN SHOOT
 	public	override		bool	CanBeUsed()
 	{
-		return this.m_Magazine > 0;
+		return m_Magazine > 0;
 	}
 	
 	// SHOOT
 	protected	override		void	Shoot( float moduleFireDispersion, float moduleCamDeviation )
 	{
-		this.m_Magazine --;
+		--m_Magazine;
 
 		// TODO muzzle flash
-		EffectsManager.Instance.PlayEffect( EffectsManager.EEffecs.MUZZLE, this.m_FirePoint.position, this.m_FirePoint.forward, 1 );
-		EffectsManager.Instance.PlayEffect( EffectsManager.EEffecs.SMOKE, this.m_FirePoint.position, this.m_FirePoint.forward, 1 );
+		EffectsManager.Instance.PlayEffect( EffectsManager.EEffecs.MUZZLE, m_FirePoint.position, m_FirePoint.forward, 1 );
+		EffectsManager.Instance.PlayEffect( EffectsManager.EEffecs.SMOKE,  m_FirePoint.position, m_FirePoint.forward, 1 );
 
 		// BULLET
-		IBullet bullet = this.m_PoolBullets.GetNextComponent();
+		IBullet bullet = m_PoolBullets.GetNextComponent();
 
 		moduleFireDispersion	*= Player.Instance.IsCrouched			? 0.50f : 1.00f;
 		moduleFireDispersion	*= Player.Instance.IsMoving				? 1.50f : 1.00f;
@@ -94,18 +91,18 @@ public class WPN_FireModule_Barrel : WPN_FireModule
 		moduleFireDispersion	*= bullet.RecoilMult;
 
 		// SHOOT
-		bullet.Shoot( position: this.m_FirePoint.position, direction: this.m_FirePoint.forward );
+		bullet.Shoot( position: m_FirePoint.position, direction: m_FirePoint.forward, velocity: null );
 
-		this.m_AudioSourceFire.Play();
+		m_AudioSourceFire.Play();
 
 		// CAM DEVIATION
-		CameraControl.Instance.ApplyDeviation( moduleCamDeviation );
+		m_WeaponRef.ApplyDeviation( moduleCamDeviation );
 
 		// CAM DISPERSION
-		CameraControl.Instance.ApplyDispersion( moduleFireDispersion );
+		m_WeaponRef.ApplyDispersion( moduleFireDispersion );
 
 		// CAM RECOIL
-		CameraControl.Instance.AddRecoil(this.m_Recoil );
+		m_WeaponRef.AddRecoil( m_Recoil );
 
 		// UI ELEMENTS
 		UIManager.InGame.UpdateUI();
@@ -123,38 +120,40 @@ public class WPN_FireModule_Barrel : WPN_FireModule
 
 	protected override void InternalUpdate( float DeltaTime )
 	{
-		this.m_WpnFireMode.InternalUpdate( DeltaTime, this.m_Magazine );
+		m_WpnFireMode.InternalUpdate( DeltaTime, m_Magazine );
 	}
 
 	//    START
 	public override        void    OnStart()
 	{
-		if (this.CanBeUsed() )
+		if (CanBeUsed() )
 		{
-			this.m_WpnFireMode.OnStart(this.GetFireDispersion(), this.GetCamDeviation() );
+			m_WpnFireMode.OnStart(GetFireDispersion(), GetCamDeviation() );
 		}
 	}
 
 	//    INTERNAL UPDATE
 	public    override    void    OnUpdate()
 	{
-		if (this.CanBeUsed() )
+		if (CanBeUsed() )
 		{
-			this.m_WpnFireMode.OnUpdate(this.GetFireDispersion(), this.GetCamDeviation() );
+			m_WpnFireMode.OnUpdate(GetFireDispersion(), GetCamDeviation() );
 		}
 	}
 
 	//    END
 	public override        void    OnEnd()
 	{
-		if (this.CanBeUsed() )
+		if (CanBeUsed() )
 		{
-			this.m_WpnFireMode.OnEnd(this.GetFireDispersion(), this.GetCamDeviation() );
+			m_WpnFireMode.OnEnd(GetFireDispersion(), GetCamDeviation() );
 		}
 	}
 }
 
 
 [System.Serializable]
-public class WPN_FireModule_SniperBarrel : WPN_FireModule_Barrel {
+public class WPN_FireModule_SniperBarrel : WPN_FireModule_Barrel
+{
+
 }

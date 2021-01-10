@@ -8,7 +8,7 @@ public interface IWeaponAttachment
 
 	void			SetActive(bool state);
 
-	bool			Configure(in Database.Section attachmentSection);
+	bool			Configure(in Database.Section attachmentSection, in IWeapon weaponRef);
 	void			OnAttach();
 	void			OnDetach();
 }
@@ -18,6 +18,7 @@ public abstract class WPN_BaseWeaponAttachment : MonoBehaviour, IWeaponAttachmen
 	protected	bool			m_IsActive		= false;
 	protected	bool			m_IsAttached	= false;
 	protected	bool			m_IsUsable		= true;
+	protected	IWeapon			m_WeaponRef		= null;
 
 
 	protected abstract void OnActivate();
@@ -30,26 +31,31 @@ public abstract class WPN_BaseWeaponAttachment : MonoBehaviour, IWeaponAttachmen
 	
 
 	// IWeaponAttachment
-	public bool IsActive						=> this.m_IsActive;
-	public bool IsAttached						=> this.m_IsAttached;
-	public abstract bool Configure(in Database.Section attachmentSection);
+	public bool IsActive						=> m_IsActive;
+	public bool IsAttached						=> m_IsAttached;
+	public bool Configure(in Database.Section attachmentSection, in IWeapon weaponRef)
+	{
+		m_WeaponRef = weaponRef;
+		return ConfigureInternal( attachmentSection );
+	}
+	public abstract bool ConfigureInternal(in Database.Section attachmentSection);
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public	void	SetActive( bool state )
 	{
-		if (this.m_IsUsable == false || this.m_IsAttached == false || ( state == this.m_IsActive ) )
+		if (m_IsUsable == false || m_IsAttached == false || ( state == m_IsActive ) )
 			return;
 
-		this.m_IsActive = state;
+		m_IsActive = state;
 
-		if (this.m_IsActive == true )
+		if (m_IsActive == true )
 		{
-			this.OnActivate();
+			OnActivate();
 		}
 		else
 		{
-			this.OnDeactivated();
+			OnDeactivated();
 		}
 	}
 
@@ -57,13 +63,13 @@ public abstract class WPN_BaseWeaponAttachment : MonoBehaviour, IWeaponAttachmen
 	//////////////////////////////////////////////////////////////////////////
 	public void OnAttach()
 	{
-		this.m_IsAttached = true;
+		m_IsAttached = true;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public void OnDetach()
 	{
-		this.m_IsAttached = false;
+		m_IsAttached = false;
 	}
 }

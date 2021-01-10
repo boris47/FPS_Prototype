@@ -13,12 +13,12 @@ public abstract partial class NonLiveEntity : Entity {
 		StreamUnit streamUnit = base.OnSave( streamData );
 
 		// Health
-		streamUnit.SetInternal( "Health", this.m_Health );
+		streamUnit.SetInternal( "Health", m_Health );
 
 		// Shield
-		if (this.m_Shield != null )
+		if (m_Shield != null )
 		{
-			streamUnit.SetInternal( "ShieldStatus", this.m_Shield.Status );
+			streamUnit.SetInternal( "ShieldStatus", m_Shield.Status );
 		}
 
 
@@ -28,15 +28,15 @@ public abstract partial class NonLiveEntity : Entity {
 //		streamUnit.AddInternal( "HasFaceTarget",					m_HasFaceTarget );
 //		streamUnit.AddInternal( "Destination",					Utils.Converters.Vector3ToString( m_Destination ) );
 //		streamUnit.AddInternal( "PointToFace",					Utils.Converters.Vector3ToString( m_PointToFace ) );
-		streamUnit.SetInternal( "IsMoving", this.m_NavCanMoveAlongPath );
-		streamUnit.SetInternal( "IsAllignedBodyToDestination", this.m_IsAllignedBodyToPoint );
-		streamUnit.SetInternal( "IsAllignedGunToPoint", this.m_IsAllignedHeadToPoint );
+		streamUnit.SetInternal( "IsMoving", m_NavCanMoveAlongPath );
+		streamUnit.SetInternal( "IsAllignedBodyToDestination", m_IsAllignedBodyToPoint );
+		streamUnit.SetInternal( "IsAllignedGunToPoint", m_IsAllignedHeadToPoint );
 //		streamUnit.AddInternal( "DistanceToTravel",				m_DistanceToTravel );
 		
 		// Body and Gun
 		{
-			streamUnit.SetInternal( "BodyRotation",				Utils.Converters.QuaternionToString(this.m_BodyTransform.localRotation ) );
-			streamUnit.SetInternal( "GunRotation",				Utils.Converters.QuaternionToString(this.m_GunTransform.localRotation ) );
+			streamUnit.SetInternal( "BodyRotation",				Utils.Converters.QuaternionToString(m_BodyTransform.localRotation ) );
+			streamUnit.SetInternal( "GunRotation",				Utils.Converters.QuaternionToString(m_GunTransform.localRotation ) );
 		}
 
 		// Brain state
@@ -55,12 +55,12 @@ public abstract partial class NonLiveEntity : Entity {
 			return null;
 
 		// Health
-		this.m_Health = streamUnit.GetAsFloat( "Health" );
+		m_Health = streamUnit.GetAsFloat( "Health" );
 
 		// Shield
-		if (this.m_Shield != null )
+		if (m_Shield != null )
 		{
-			this.m_Shield.OnLoad( streamData );
+			m_Shield.OnLoad( streamData );
 		}
 
 		// Internals
@@ -68,15 +68,15 @@ public abstract partial class NonLiveEntity : Entity {
 		//		m_HasFaceTarget						= streamUnit.GetAsBool( "HasFaceTarget" );
 		//		m_Destination						= streamUnit.GetAsVector( "Destination" );
 		//		m_PointToFace						= streamUnit.GetAsVector( "PointToFace" );
-		this.m_NavCanMoveAlongPath							= streamUnit.GetAsBool( "IsMoving" );
-		this.m_IsAllignedBodyToPoint		= streamUnit.GetAsBool( "IsAllignedBodyToDestination" );
-		this.m_IsAllignedHeadToPoint				= streamUnit.GetAsBool( "IsAllignedGunToPoint" );
+		m_NavCanMoveAlongPath							= streamUnit.GetAsBool( "IsMoving" );
+		m_IsAllignedBodyToPoint		= streamUnit.GetAsBool( "IsAllignedBodyToDestination" );
+		m_IsAllignedHeadToPoint				= streamUnit.GetAsBool( "IsAllignedGunToPoint" );
 //		m_DistanceToTravel					= streamUnit.GetAsFloat( "DistanceToTravel" );
 
 		// Body and Gun
 		{
-			this.m_BodyTransform.localRotation	= streamUnit.GetAsQuaternion( "BodyRotation" );;
-			this.m_GunTransform.localRotation	= streamUnit.GetAsQuaternion( "GunRotation" );
+			m_BodyTransform.localRotation	= streamUnit.GetAsQuaternion( "BodyRotation" );;
+			m_GunTransform.localRotation	= streamUnit.GetAsQuaternion( "GunRotation" );
 		}
 
 		// Brain state
@@ -90,9 +90,9 @@ public abstract partial class NonLiveEntity : Entity {
 
 	protected	override	void		OnTargetAquired( TargetInfo targetInfo )
 	{
-		this.m_TargetInfo.Update( targetInfo );
+		m_TargetInfo.Update( targetInfo );
 
-		base.OnTargetAquired(this.m_TargetInfo );
+		base.OnTargetAquired(m_TargetInfo );
 	}
 
 
@@ -100,9 +100,9 @@ public abstract partial class NonLiveEntity : Entity {
 
 	protected	override	void		OnTargetChanged( TargetInfo targetInfo )
 	{
-		this.m_TargetInfo.Update( targetInfo );
+		m_TargetInfo.Update( targetInfo );
 
-		base.OnTargetChanged(this.m_TargetInfo );
+		base.OnTargetChanged(m_TargetInfo );
 	}
 
 
@@ -110,9 +110,9 @@ public abstract partial class NonLiveEntity : Entity {
 
 	protected	override	void		OnTargetLost( TargetInfo targetInfo )
 	{
-		base.OnTargetLost(this.m_TargetInfo );
+		base.OnTargetLost(m_TargetInfo );
 
-		this.m_TargetInfo.Reset();
+		m_TargetInfo.Reset();
 	}
 
 
@@ -136,16 +136,16 @@ public abstract partial class NonLiveEntity : Entity {
 	protected	bool	WasMoving = false;
 	protected	override	void		OnFrame( float deltaTime )
 	{
-		this.m_ShotTimer -= deltaTime;
+		m_ShotTimer -= deltaTime;
 
-		if (this.m_NavAgent != null )
+		if (m_NavAgent != null )
 		{
-			bool nowIsMoving = this.m_NavAgent.velocity.sqrMagnitude > 0.0f;
-			if (this.m_HasDestination == true && this.WasMoving == true && nowIsMoving == false )
+			bool nowIsMoving = m_NavAgent.velocity.sqrMagnitude > 0.0f;
+			if (m_HasDestination == true && WasMoving == true && nowIsMoving == false )
 			{
-				this.OnDestinationReached(this.transform.position );
+				OnDestinationReached(transform.position );
 			}
-			this.WasMoving = this.m_NavAgent.velocity.sqrMagnitude > 0.0f;
+			WasMoving = m_NavAgent.velocity.sqrMagnitude > 0.0f;
 		}
 
 		base.OnFrame( deltaTime );

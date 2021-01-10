@@ -37,11 +37,10 @@ public sealed partial class GameManager : MonoBehaviour
 	//////////////////////////////////////////////////////////////////////////
 	private			void		Awake ()
 	{
-		print("GameManager::Awake");
 		// SINGLETON
 		if ( m_Instance != null )
 		{
-			Destroy(this.gameObject );
+			Destroy(gameObject );
 			return;
 		}
 		DontDestroyOnLoad( this );
@@ -63,9 +62,9 @@ public sealed partial class GameManager : MonoBehaviour
 		// StreamEvents
 		m_OnSave			= delegate ( StreamData streamData ) { return null; };
 		m_OnSaveComplete	= delegate ( StreamData streamData ) { return null; };
-		this.m_OnLoad.Clear();//	= delegate ( StreamData streamData ) { return null; };
-		this.m_OnLoadComplete.Clear();//	= delegate ( StreamData streamData ) { return null; };
-		this.m_SaveLoadState		= EStreamingState.NONE;
+		m_OnLoad.Clear();//	= delegate ( StreamData streamData ) { return null; };
+		m_OnLoadComplete.Clear();//	= delegate ( StreamData streamData ) { return null; };
+		m_SaveLoadState		= EStreamingState.NONE;
 
 		// PauseEvents
 		m_OnPauseSet		= delegate { };
@@ -85,7 +84,7 @@ public sealed partial class GameManager : MonoBehaviour
 		if ( m_Instance != this )
 			return;
 
-		this.ReseteDelegates();
+		ReseteDelegates();
 
 		GlobalManager.InputMgr.BindCall
 		(
@@ -145,7 +144,7 @@ public sealed partial class GameManager : MonoBehaviour
 		GlobalManager.InputMgr.UnbindCall( EInputCommands.WPN_CUSTOMIZATION,	"WeaponCustomization"	);
 		GlobalManager.InputMgr.UnbindCall( EInputCommands.INVENTORY,			"Inventory"				);
 
-		this.ReseteDelegates();
+		ReseteDelegates();
 
 		m_InGame = false;
 	}
@@ -165,7 +164,7 @@ public sealed partial class GameManager : MonoBehaviour
 	//////////////////////////////////////////////////////////////////////////
 	public	void	RequireFrameSkip()
 	{
-		this.m_SkipOneFrame = true;
+		m_SkipOneFrame = true;
 	}
 
 
@@ -189,16 +188,16 @@ public sealed partial class GameManager : MonoBehaviour
 		//			System.GC.Collect( 1, System.GCCollectionMode.Optimized );
 		//		}
 
-		this.EDITOR_InGame = m_InGame;
+		EDITOR_InGame = m_InGame;
 		if ( m_InGame == false )
 		{
 			return;
 		}
 		
 		// This prevent the ui interaction can trigger actions in-game
-		if (this.m_SkipOneFrame == true )
+		if (m_SkipOneFrame == true )
 		{
-			this.m_SkipOneFrame = false;
+			m_SkipOneFrame = false;
 			return;
 		}
 
@@ -246,17 +245,17 @@ public sealed partial class GameManager : MonoBehaviour
 
 		if ( Input.GetKeyDown( KeyCode.N ) )
 		{
-			UIManager.ComInterface.SendNotification( "Ciao Mamma"+ this.counter++, Color.red );
+			UIManager.ComInterface.SendNotification( "Ciao Mamma"+ counter++, Color.red );
 		}
 
 
 		// Thinking Update
-		this.m_ThinkTimer += Time.deltaTime;
-		if (this.m_ThinkTimer > Entity.THINK_TIMER )
+		m_ThinkTimer += Time.deltaTime;
+		if (m_ThinkTimer > Entity.THINK_TIMER )
 		{
 			m_OnThink();
-			this.UpdateCurrentFieldOfView();
-			this.m_ThinkTimer = 0f;
+			UpdateCurrentFieldOfView();
+			m_ThinkTimer = 0f;
 		}
 
 		// Frame Update
@@ -303,7 +302,7 @@ public sealed partial class GameManager : MonoBehaviour
 		if ( m_QuitRequest == true )
 		{
 			Debug.Log("GameManager: Processing exit request");
-			if (this.m_SaveLoadState != EStreamingState.SAVING )
+			if (m_SaveLoadState != EStreamingState.SAVING )
 			{
 				QuitInstanly();
 			}
@@ -347,7 +346,7 @@ public sealed partial class GameManager : MonoBehaviour
 		if ( (Object)m_Instance != this )
 			return;
 
-		this.ReseteDelegates();
+		ReseteDelegates();
 
 		m_Instance		= null;
 		m_StreamEvents	= null;
@@ -355,13 +354,13 @@ public sealed partial class GameManager : MonoBehaviour
 		m_UpdateEvents	= null;
 		m_FieldsOfViewManager = null;
 
-		this.EDITOR_InGame = false;
+		EDITOR_InGame = false;
 
 		m_InGame = false;
 		m_QuitRequest = false;
-		this.m_SkipOneFrame = false;
+		m_SkipOneFrame = false;
 
-		this.m_ThinkTimer = 0f;
+		m_ThinkTimer = 0f;
 
 		m_IsPaused = false;
 	}

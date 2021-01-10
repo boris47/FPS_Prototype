@@ -176,10 +176,9 @@ namespace Utils {
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Return true for non empty string, that non contains at last one number or one letter or a block closing char </summary>
-		public	static		bool IsValid( ref string str )
+		public	static		bool IsValid( string str )
 		{
-			CleanComments( ref str );
-			return ( ( str.Length > 0 )  && ( ( ContainsLetter( str ) == true || ContainsDigit( str ) == true ) || str == "}" ) );
+			return ( ( str.Length > 0 )  && (  ContainsLetter( str ) == true || ContainsDigit( str ) == true  || str == "}" ) );
 		}
 
 
@@ -326,7 +325,8 @@ namespace Utils {
 		{
 			KeyValue Result = new KeyValue() { IsOK = false, Key = "", Value = "" };
 
-			if ( Utils.String.IsValid( ref Line ) == true )
+			Utils.String.CleanComments( ref Line );
+			if ( Utils.String.IsValid( Line ) == true )
 			{
 				int iEqualSign = Line.IndexOf( '=' );
 

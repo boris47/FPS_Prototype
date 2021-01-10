@@ -8,7 +8,7 @@ public class WalkerGatling : Walker {
 	// Awake ( Override )
 	protected override void Awake()
 	{
-		this.m_SectionName = this.GetType().FullName;
+		m_SectionName = GetType().FullName;
 
 		base.Awake();
 	}

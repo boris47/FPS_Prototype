@@ -33,7 +33,7 @@ public interface IEntitySimulation {
 [RequireComponent( typeof( CutsceneEntityManager ) ) ]
 public abstract partial class Entity : IEntitySimulation {
 
-	CutsceneEntityManager	IEntity.CutsceneManager				{ get { return this.m_CutsceneManager; }	}
+	CutsceneEntityManager	IEntity.CutsceneManager				{ get { return m_CutsceneManager; }	}
 
 	Vector3					IEntitySimulation.StartPosition		{ get; set; }
 
@@ -51,35 +51,35 @@ public abstract partial class Entity : IEntitySimulation {
 	/// <summary> Enter Simulation State </summary>
 	void	IEntitySimulation.EnterSimulationState()
 	{
-		this.EnterSimulationState();
+		EnterSimulationState();
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Before Simulation Stage </summary>
 	void	IEntitySimulation.BeforeSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
-		this.BeforeSimulationStage( movementType, destination, target, timeScaleTarget );
+		BeforeSimulationStage( movementType, destination, target, timeScaleTarget );
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Simulate Movement, Return true if is Busy otherwise false </summary>
 	bool	IEntitySimulation.SimulateMovement( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
-		return this.SimulateMovement( movementType, destination, target, timeScaleTarget );
+		return SimulateMovement( movementType, destination, target, timeScaleTarget );
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> After Simulation Stage </summary>
 	void	IEntitySimulation.AfterSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
-		this.AfterSimulationStage( movementType, destination, target, timeScaleTarget );
+		AfterSimulationStage( movementType, destination, target, timeScaleTarget );
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Exit Simulation State </summary>
 	void	IEntitySimulation.ExitSimulationState()
 	{
-		this.ExitSimulationState();
+		ExitSimulationState();
 	}
 
 

@@ -117,7 +117,7 @@ public sealed partial class GameManager : IStreamEvents
 	/// <summary> Return the current stream State </summary>
 	EStreamingState	IStreamEvents.State
 	{
-		get { return this.m_SaveLoadState; }
+		get { return m_SaveLoadState; }
 	}
 
 	/// <summary> Events called when game is saving </summary>
@@ -137,8 +137,8 @@ public sealed partial class GameManager : IStreamEvents
 	/// <summary> Events called when game is loading ( Events are called along more frames !! ) </summary>
 	event GameEvents.StreamingEvent IStreamEvents.OnLoad
 	{
-		add		{ if ( value != null ) this.m_OnLoad.Add(value); }// m_OnLoad += value; }
-		remove	{ if ( value != null ) this.m_OnLoad.Remove(value); }// m_OnLoad -= value; }
+		add		{ if ( value != null ) m_OnLoad.Add(value); }// m_OnLoad += value; }
+		remove	{ if ( value != null ) m_OnLoad.Remove(value); }// m_OnLoad -= value; }
 	}
 
 	/// <summary> Events called when game has been loaded ( Events are called along more frames !! ) </summary>
@@ -146,8 +146,8 @@ public sealed partial class GameManager : IStreamEvents
 	{
 //		add		{ if ( value != null )	m_OnLoadComplete += value; }
 //		remove	{ if ( value != null )	m_OnLoadComplete -= value; }
-		add		{ if ( value != null ) this.m_OnLoadComplete.Add(value); }// m_OnLoadComplete += value; }
-		remove	{ if ( value != null ) this.m_OnLoadComplete.Remove(value); }// m_OnLoadComplete -= value; }
+		add		{ if ( value != null ) m_OnLoadComplete.Add(value); }// m_OnLoadComplete += value; }
+		remove	{ if ( value != null ) m_OnLoadComplete.Remove(value); }// m_OnLoadComplete -= value; }
 	}
 
 	// INTERFACE END
@@ -168,13 +168,13 @@ public sealed partial class GameManager : IStreamEvents
 		// TODO: CHECK FOR AUTOMAIC SAVE
 
 		// Conditions
-		if (this.m_SaveLoadState == EStreamingState.SAVING )
+		if (m_SaveLoadState == EStreamingState.SAVING )
 		{
 			UnityEngine.Debug.Log( "Another save must finish write actions !!" );
 			return;
 		}
 
-		this.m_SaveLoadState = EStreamingState.SAVING;
+		m_SaveLoadState = EStreamingState.SAVING;
 
 		PlayerPrefs.SetInt( "SaveSceneIdx", UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex );
 		PlayerPrefs.SetString( "SaveFilePath", filePath );
@@ -198,7 +198,7 @@ public sealed partial class GameManager : IStreamEvents
 		// Thread OnCompletion
 		void onCompletion()
 		{
-			this.m_SaveLoadState = EStreamingState.SAVE_COMPLETE;
+			m_SaveLoadState = EStreamingState.SAVE_COMPLETE;
 			m_OnSaveComplete(streamData);
 			print("Saved!");
 		}
@@ -210,7 +210,7 @@ public sealed partial class GameManager : IStreamEvents
 	void						IStreamEvents.Load( string fileName )
 	{
 		// Conditions
-		if (this.m_SaveLoadState == EStreamingState.SAVING || this.m_SaveLoadState == EStreamingState.LOADING )
+		if (m_SaveLoadState == EStreamingState.SAVING || m_SaveLoadState == EStreamingState.LOADING )
 		{
 			UnityEngine.Debug.Log( "Cannot load while loading or saving !!" );
 			return;
@@ -223,22 +223,22 @@ public sealed partial class GameManager : IStreamEvents
 		}
 
 		// Body
-		this.m_SaveLoadState = EStreamingState.LOADING;
+		m_SaveLoadState = EStreamingState.LOADING;
 		InputManager.IsEnabled = false;
 		print( "Loading "  + System.IO.Path.GetFileNameWithoutExtension( fileName ) + "..." );
 
 		// Deserialize data
 		string toLoad = File.ReadAllText( fileName );
 //		Decrypt( ref toLoad );
-		StreamData streamData = JsonUtility.FromJson< StreamData >( toLoad );
+		StreamData streamData = JsonUtility.FromJson<StreamData>( toLoad );
 
 		if ( streamData != null )
 		{
-			CoroutinesManager.Start(this.LoadCO( streamData ), "GameManager::Load: Start of loading" );
+			CoroutinesManager.Start(LoadCO( streamData ), "GameManager::Load: Start of loading" );
 		}
 		else
 		{
-			this.m_SaveLoadState = EStreamingState.LOAD_COMPLETE;
+			m_SaveLoadState = EStreamingState.LOAD_COMPLETE;
 			InputManager.IsEnabled = true;
 			Debug.LogError( "GameManager::Load:: Save \"" + fileName + "\" cannot be loaded" );
 		}
@@ -249,19 +249,15 @@ public sealed partial class GameManager : IStreamEvents
 	{
 		yield return null;
 
-		for ( int i = 0; i < this.m_OnLoad.Count; i++ )
+		foreach(GameEvents.StreamingEvent _delegate in m_OnLoad)
 		{
-			GameEvents.StreamingEvent _delegate = this.m_OnLoad[i];
 			_delegate( streamData );
 			yield return null;
 		}
 
-		// call all load callbacks
-//		m_OnLoad( streamData );
-
 		yield return null;
 
-		foreach ( GameEvents.StreamingEvent _delegate in this.m_OnLoadComplete )
+		foreach ( GameEvents.StreamingEvent _delegate in m_OnLoadComplete )
 		{
 			_delegate( streamData );
 			yield return null;
@@ -269,8 +265,8 @@ public sealed partial class GameManager : IStreamEvents
 
 		print( "Loaded!" );
 
-		this.m_SaveLoadState = EStreamingState.LOAD_COMPLETE;
-		InputManager.IsEnabled = true;
+		m_SaveLoadState = EStreamingState.LOAD_COMPLETE;
+//		InputManager.IsEnabled = true;
 	}
 
 	
@@ -280,12 +276,12 @@ public sealed partial class GameManager : IStreamEvents
 	{
 		// TODO re-enable encryption
 		byte[] clearBytes = Encoding.Unicode.GetBytes( clearText );
-		this.m_Encryptor.Key = this.m_PDB.GetBytes( 32 );
-		this.m_Encryptor.IV = this.m_PDB.GetBytes( 16 );
+		m_Encryptor.Key = m_PDB.GetBytes( 32 );
+		m_Encryptor.IV = m_PDB.GetBytes( 16 );
 
 		MemoryStream stream = new MemoryStream();
 		{
-			CryptoStream crypter = new CryptoStream( stream, this.m_Encryptor.CreateEncryptor(), CryptoStreamMode.Write );
+			CryptoStream crypter = new CryptoStream( stream, m_Encryptor.CreateEncryptor(), CryptoStreamMode.Write );
 			{
 				crypter.Write( clearBytes, 0, clearBytes.Length );
 			}
@@ -303,12 +299,12 @@ public sealed partial class GameManager : IStreamEvents
 		// TODO re-enable decryption
 		cipherText = cipherText.Replace( " ", "+" );
 		byte[] cipherBytes = System.Convert.FromBase64String( cipherText );
-		this.m_Encryptor.Key = this.m_PDB.GetBytes( 32 );
-		this.m_Encryptor.IV = this.m_PDB.GetBytes( 16 );
+		m_Encryptor.Key = m_PDB.GetBytes( 32 );
+		m_Encryptor.IV = m_PDB.GetBytes( 16 );
 
 		MemoryStream stream = new MemoryStream();
 		{
-			CryptoStream crypter = new CryptoStream( stream, this.m_Encryptor.CreateDecryptor(), CryptoStreamMode.Write );
+			CryptoStream crypter = new CryptoStream( stream, m_Encryptor.CreateDecryptor(), CryptoStreamMode.Write );
 			{
 				crypter.Write( cipherBytes, 0, cipherBytes.Length );
 			}
@@ -343,16 +339,16 @@ public class StreamUnit
 	public	void		SetInternal( string key, object value )
 	{
 		MyKeyValuePair keyValue = null;
-		int index = this.Internals.FindIndex( ( MyKeyValuePair kv ) => kv.Key == key );
+		int index = Internals.FindIndex( ( MyKeyValuePair kv ) => kv.Key == key );
 		if ( index == -1 )
 		{
 			//SetInternal( key, value );
 			MyKeyValuePair kv = new MyKeyValuePair( key, value.ToString() );
-			this.Internals.Add( kv );
+			Internals.Add( kv );
 		}
 		else
 		{
-			keyValue = this.Internals[ index ];
+			keyValue = Internals[ index ];
 			keyValue.Value = value.ToString();
 		}
 	}
@@ -361,11 +357,11 @@ public class StreamUnit
 	//////////////////////////////////////////////////////////////////////////
 	public	bool		RemoveInternal( string key )
 	{
-		int index = this.Internals.FindIndex( ( MyKeyValuePair kv ) => kv.Key == key );
+		int index = Internals.FindIndex( ( MyKeyValuePair kv ) => kv.Key == key );
 		bool found = ( index != -1 );
 		if ( found )
 		{
-			this.Internals.RemoveAt( index );
+			Internals.RemoveAt( index );
 		}
 		return found;
 	}
@@ -374,7 +370,7 @@ public class StreamUnit
 	//////////////////////////////////////////////////////////////////////////
 	public	bool		HasInternal( string key )
 	{
-		MyKeyValuePair keyValue = this.Internals.Find( ( MyKeyValuePair kv ) => kv.Key == key );
+		MyKeyValuePair keyValue = Internals.Find( ( MyKeyValuePair kv ) => kv.Key == key );
 		return keyValue != null;
 	}
 
@@ -382,7 +378,7 @@ public class StreamUnit
 	//////////////////////////////////////////////////////////////////////////
 	public	string		GetInternal( string key )
 	{
-		MyKeyValuePair keyValue = this.Internals.Find( ( MyKeyValuePair kv ) => kv.Key == key );
+		MyKeyValuePair keyValue = Internals.Find( ( MyKeyValuePair kv ) => kv.Key == key );
 		if ( keyValue == null || keyValue.Value == null )
 		{
 			Debug.Log( "Cannot retrieve value for key " + key );
@@ -395,7 +391,7 @@ public class StreamUnit
 	//////////////////////////////////////////////////////////////////////////
 	public	bool		GetAsBool( string key )
 	{
-		string value = this.GetInternal( key );
+		string value = GetInternal( key );
 		if (bool.TryParse(value, out bool result) == false)
 		{
 			Debug.Log("Cannot retrieve value for key  " + key + " as BOOLEAN");
@@ -407,7 +403,7 @@ public class StreamUnit
 	//////////////////////////////////////////////////////////////////////////
 	public	int			GetAsInt( string key )
 	{
-		string value = this.GetInternal( key );
+		string value = GetInternal( key );
 		if (int.TryParse(value, out int result) == false)
 		{
 			Debug.Log("Cannot retrieve value for key  " + key + " as INTEGER");
@@ -419,7 +415,7 @@ public class StreamUnit
 	//////////////////////////////////////////////////////////////////////////
 	public	float		GetAsFloat( string key )
 	{
-		string value = this.GetInternal( key );
+		string value = GetInternal( key );
 		if (float.TryParse(value, out float result) == false)
 		{
 			Debug.Log("Cannot retrieve value for key  " + key + " as FLOAT");
@@ -432,7 +428,7 @@ public class StreamUnit
 	//////////////////////////////////////////////////////////////////////////
 	public	T			GetAsEnum<T>( string key ) where T : System.Enum
 	{
-		string value = this.GetInternal( key );
+		string value = GetInternal( key );
 		T result = default( T );
 		if ( Utils.Converters.StringToEnum<T>( value, ref result ) == false )
 		{
@@ -446,7 +442,7 @@ public class StreamUnit
 	//////////////////////////////////////////////////////////////////////////
 	public Vector3		GetAsVector( string key )
 	{
-		string value = this.GetInternal( key );
+		string value = GetInternal( key );
 		Vector3 result = Vector3.zero;
 		if ( Utils.Converters.StringToVector( value, ref result ) == false )
 		{
@@ -459,7 +455,7 @@ public class StreamUnit
 	//////////////////////////////////////////////////////////////////////////
 	public Quaternion	GetAsQuaternion( string key )
 	{
-		string value = this.GetInternal( key );
+		string value = GetInternal( key );
 		Quaternion result = Quaternion.identity;
 		if ( Utils.Converters.StringToQuaternion( value, ref result ) == false )
 		{
@@ -484,11 +480,11 @@ public class StreamData
 			return null;
 
 		StreamUnit streamUnit		= null;
-		int index = this.m_Data.FindIndex( ( StreamUnit data ) => data.InstanceID == gameObject.GetInstanceID() );
+		int index = m_Data.FindIndex( ( StreamUnit data ) => data.InstanceID == gameObject.GetInstanceID() );
 		if ( index > -1 )
 		{
 //			Debug.Log( gameObject.name + " already saved" );
-			streamUnit = this.m_Data[index];
+			streamUnit = m_Data[index];
 		}
 		else
 		{
@@ -496,7 +492,7 @@ public class StreamData
 			streamUnit.InstanceID		= gameObject.GetInstanceID();
 			streamUnit.Name				= gameObject.name;
 
-			this.m_Data.Add( streamUnit );
+			m_Data.Add( streamUnit );
 		}
 
 		return streamUnit;
@@ -511,17 +507,17 @@ public class StreamData
 //			return false;
 
 		int GOInstanceID = gameObject.GetInstanceID();
-		int index = this.m_Data.FindIndex( ( StreamUnit data ) => data.InstanceID == GOInstanceID );
+		int index = m_Data.FindIndex( ( StreamUnit data ) => data.InstanceID == GOInstanceID );
 
 		if ( index == -1 )
 		{
-			index = this.m_Data.FindIndex( ( StreamUnit data ) => data.Name == gameObject.name );
+			index = m_Data.FindIndex( ( StreamUnit data ) => data.Name == gameObject.name );
 		}
 
 		bool found = index > -1;
 		if ( found )
 		{
-			streamUnit = this.m_Data[ index ];
+			streamUnit = m_Data[ index ];
 		}
 
 		return found;
@@ -603,9 +599,9 @@ public partial class GameManager : IPauseEvents {
 		if ( bIsPauseRequested == true )
 		{
 			UIManager.Instance.GoToMenu( UIManager.PauseMenu );
-			this.m_PrevTimeScale					= Time.timeScale;
-			this.m_PrevCanParseInput				= GlobalManager.InputMgr.HasCategoryEnabled(EInputCategory.CAMERA);
-			this.m_PrevInputEnabled					= InputManager.IsEnabled;
+			m_PrevTimeScale					= Time.timeScale;
+			m_PrevCanParseInput				= GlobalManager.InputMgr.HasCategoryEnabled(EInputCategory.CAMERA);
+			m_PrevInputEnabled					= InputManager.IsEnabled;
 
 			Time.timeScale							= 0f;
 
@@ -616,11 +612,11 @@ public partial class GameManager : IPauseEvents {
 		else
 		{
 			UIManager.Instance.GoToMenu( UIManager.InGame );
-			Time.timeScale							= this.m_PrevTimeScale;
-			GlobalManager.InputMgr.SetCategory(EInputCategory.CAMERA, this.m_PrevCanParseInput);
-			InputManager.IsEnabled					= this.m_PrevInputEnabled;
+			Time.timeScale							= m_PrevTimeScale;
+			GlobalManager.InputMgr.SetCategory(EInputCategory.CAMERA, m_PrevCanParseInput);
+			InputManager.IsEnabled					= m_PrevInputEnabled;
 		}
-		this.m_SkipOneFrame = true;
+		m_SkipOneFrame = true;
 	}
 
 }

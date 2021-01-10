@@ -16,44 +16,44 @@
 
         public SerializedTypeReference(SerializedProperty typeReferenceProperty)
         {
-			this._typeNameProperty = typeReferenceProperty.FindPropertyRelative(TypeReference.NameOfTypeNameField);
-			this._guidProperty = typeReferenceProperty.FindPropertyRelative(TypeReference.NameOfGuidField);
-			this._guidAssignmentFailedProperty = typeReferenceProperty.FindPropertyRelative(nameof(TypeReference.GuidAssignmentFailed));
+			_typeNameProperty = typeReferenceProperty.FindPropertyRelative(TypeReference.NameOfTypeNameField);
+			_guidProperty = typeReferenceProperty.FindPropertyRelative(TypeReference.NameOfGuidField);
+			_guidAssignmentFailedProperty = typeReferenceProperty.FindPropertyRelative(nameof(TypeReference.GuidAssignmentFailed));
 
-			this.SetGuidIfAssignmentFailed();
+			SetGuidIfAssignmentFailed();
         }
 
         public string TypeNameAndAssembly
         {
-            get => this._typeNameProperty.stringValue;
+            get => _typeNameProperty.stringValue;
             set
             {
-				this._typeNameProperty.stringValue = value;
-				this._guidProperty.stringValue = this.GetClassGuidFromTypeName(value);
+				_typeNameProperty.stringValue = value;
+				_guidProperty.stringValue = GetClassGuidFromTypeName(value);
             }
         }
 
         private bool GuidAssignmentFailed
         {
-            get => this._guidAssignmentFailedProperty.boolValue;
-            set => this._guidAssignmentFailedProperty.boolValue = value;
+            get => _guidAssignmentFailedProperty.boolValue;
+            set => _guidAssignmentFailedProperty.boolValue = value;
         }
 
         private string GUID
         {
-            get => this._guidProperty.stringValue;
-            set => this._guidProperty.stringValue = value;
+            get => _guidProperty.stringValue;
+            set => _guidProperty.stringValue = value;
         }
 
-        public bool TypeNameHasMultipleDifferentValues => this._typeNameProperty.hasMultipleDifferentValues;
+        public bool TypeNameHasMultipleDifferentValues => _typeNameProperty.hasMultipleDifferentValues;
 
         private void SetGuidIfAssignmentFailed()
         {
-            if ( !this.GuidAssignmentFailed || string.IsNullOrEmpty(this.TypeNameAndAssembly))
+            if ( !GuidAssignmentFailed || string.IsNullOrEmpty(TypeNameAndAssembly))
                 return;
 
-			this.GuidAssignmentFailed = false;
-			this.GUID = this.GetClassGuidFromTypeName(this.TypeNameAndAssembly);
+			GuidAssignmentFailed = false;
+			GUID = GetClassGuidFromTypeName(TypeNameAndAssembly);
         }
 
         /// <summary>
@@ -62,21 +62,21 @@
         /// </summary>
         public void TryUpdatingTypeUsingGUID()
         {
-            if (this.GUID == string.Empty)
+            if (GUID == string.Empty)
                 return;
 
-            string assetPath = AssetDatabase.GUIDToAssetPath(this.GUID);
+            string assetPath = AssetDatabase.GUIDToAssetPath(GUID);
 			MonoScript script = AssetDatabase.LoadAssetAtPath<MonoScript>(assetPath);
             if (script == null)
                 return;
 
             Type type = script.GetClass();
-            string previousValue = this.TypeNameAndAssembly;
-			this.TypeNameAndAssembly = TypeReference.GetTypeNameAndAssembly(type);
+            string previousValue = TypeNameAndAssembly;
+			TypeNameAndAssembly = TypeReference.GetTypeNameAndAssembly(type);
             Debug.LogFormat(
                 "Type reference has been updated from '{0}' to '{1}'.",
                 previousValue,
-				this.TypeNameAndAssembly);
+				TypeNameAndAssembly);
         }
 
         private string GetClassGuidFromTypeName(string typeName)

@@ -15,7 +15,7 @@ public class EntityGroup : MonoBehaviour, IIdentificable<System.Guid>
 	private void Awake()
 	{
 		// If some already assigned 
-		this.m_Collection.ForEach( e =>
+		m_Collection.ForEach( e =>
 		{
 			if ( e )
 			{
@@ -23,7 +23,7 @@ public class EntityGroup : MonoBehaviour, IIdentificable<System.Guid>
 				e.AsInterface.GroupRef.SetGroup( this );
 					
 				// register on death callback
-				e.OnEvent_Killed += this.OnEntityKilled;
+				e.OnEvent_Killed += OnEntityKilled;
 			}
 		});
 
@@ -34,7 +34,7 @@ public class EntityGroup : MonoBehaviour, IIdentificable<System.Guid>
 	//////////////////////////////////////////////////////////////////////////
 	private void OnDestroy()
 	{
-		this.m_Collection.ForEach( e =>
+		m_Collection.ForEach( e =>
 		{
 			if ( e )
 			{
@@ -42,7 +42,7 @@ public class EntityGroup : MonoBehaviour, IIdentificable<System.Guid>
 				e.AsInterface.GroupRef.SetGroup( null );
 					
 				// register on death callback
-				e.OnEvent_Killed -= this.OnEntityKilled;
+				e.OnEvent_Killed -= OnEntityKilled;
 			}
 		});
 
@@ -52,16 +52,16 @@ public class EntityGroup : MonoBehaviour, IIdentificable<System.Guid>
 
 	private	void OnEntityKilled( Entity entityKilled )
 	{
-		this.UnregisterEntity( entityKilled );
+		UnregisterEntity( entityKilled );
 	}
 
 	/// <summary> Add a new entity to the group </summary>
 	public void RegisterEntity( Entity entity )
 	{
-		if ( entity && entity.AsInterface.GroupRef.Group == null && !this.m_Collection.Contains( entity ) )
+		if ( entity && entity.AsInterface.GroupRef.Group == null && !m_Collection.Contains( entity ) )
 		{
-			entity.OnEvent_Killed += this.OnEntityKilled;
-			this.m_Collection.Add( entity );
+			entity.OnEvent_Killed += OnEntityKilled;
+			m_Collection.Add( entity );
 			entity.AsInterface.GroupRef.SetGroup( this );
 		}
 	}
@@ -70,11 +70,11 @@ public class EntityGroup : MonoBehaviour, IIdentificable<System.Guid>
 	/// <summary> Removes the entity from the group </summary>
 	public void UnregisterEntity( Entity entity )
 	{
-		if ( !this.m_Collection.Contains( entity ) )
+		if ( !m_Collection.Contains( entity ) )
 		{
-			entity.OnEvent_Killed -= this.OnEntityKilled;
+			entity.OnEvent_Killed -= OnEntityKilled;
 			entity.AsInterface.GroupRef.SetGroup( null );
-			this.m_Collection.Remove( entity );
+			m_Collection.Remove( entity );
 		}
 	}
 
@@ -82,11 +82,11 @@ public class EntityGroup : MonoBehaviour, IIdentificable<System.Guid>
 	/// <summary> Return true if entity with given id is found in the group </summary>
 	public bool GetById( uint id, ref Entity outEntity )
 	{
-		int index = this.m_Collection.FindIndex( i => i.AsInterface.ID == id );
+		int index = m_Collection.FindIndex( i => i.AsInterface.ID == id );
 		bool bResult = index >= 0;
 		if ( bResult )
 		{
-			outEntity = this.m_Collection[index];
+			outEntity = m_Collection[index];
 		}
 		return bResult;
 	}
@@ -95,14 +95,14 @@ public class EntityGroup : MonoBehaviour, IIdentificable<System.Guid>
 	/// <summary> Retrieve the list of entities registered to this group </summary>
 	public	Entity[]	GetEntites()
 	{
-		return this.m_Collection.ToArray();
+		return m_Collection.ToArray();
 	}
 
 
 	/// <summary> Search for the other entites in the group </summary>
 	public List<Entity> GetOthers( IEntity entity )
 	{
-		List<Entity> othersArray = this.m_Collection.FindAll( e => e.AsInterface.ID != entity.ID );
+		List<Entity> othersArray = m_Collection.FindAll( e => e.AsInterface.ID != entity.ID );
 		return othersArray;
 	}
 

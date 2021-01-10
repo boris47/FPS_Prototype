@@ -20,61 +20,61 @@
 
         public TypeDropDownDrawer(string typeName, TypeOptionsAttribute constraints, Type declaringType)
         {
-			this._selectedType = CachedTypeReference.GetType(typeName);
-			this._constraints = constraints;
-			this._declaringType = declaringType;
+			_selectedType = CachedTypeReference.GetType(typeName);
+			_constraints = constraints;
+			_declaringType = declaringType;
         }
 
         public void Draw(Rect position)
         {
-			this._menu = new LimitedGenericMenu();
+			_menu = new LimitedGenericMenu();
 
-			this.AddNoneElementIfNotExcluded();
+			AddNoneElementIfNotExcluded();
 
-			Grouping grouping = this._constraints?.Grouping ?? TypeOptionsAttribute.DefaultGrouping;
-			this.AddTypesToMenu(grouping);
+			Grouping grouping = _constraints?.Grouping ?? TypeOptionsAttribute.DefaultGrouping;
+			AddTypesToMenu(grouping);
 
-			this._menu.DropDown(position);
+			_menu.DropDown(position);
         }
 
         private void AddNoneElementIfNotExcluded()
         {
-            bool excludeNone = this._constraints?.ExcludeNone ?? false;
+            bool excludeNone = _constraints?.ExcludeNone ?? false;
             if (excludeNone)
                 return;
 
-			this._menu.AddItem(
+			_menu.AddItem(
                 new GUIContent(TypeReference.NoneElement),
-				this._selectedType == null,
+				_selectedType == null,
                 CachedTypeReference.SelectedTypeName,
                 null);
 
-			this._menu.AddLineSeparator();
+			_menu.AddLineSeparator();
         }
 
         private void AddTypesToMenu(Grouping typeGrouping)
         {
-			SortedList<string, Type> types = this.GetFilteredTypes();
+			SortedList<string, Type> types = GetFilteredTypes();
 
-			this.AddIncludedTypes(types);
+			AddIncludedTypes(types);
 
             foreach (KeyValuePair<string, Type> nameTypePair in types)
             {
                 string menuLabel = TypeNameFormatter.Format(nameTypePair.Value, typeGrouping);
-				this.AddLabelIfNotEmpty(menuLabel, nameTypePair.Value);
+				AddLabelIfNotEmpty(menuLabel, nameTypePair.Value);
             }
         }
 
         private SortedList<string, Type> GetFilteredTypes()
         {
-			List<Assembly> typeRelatedAssemblies = TypeCollector.GetAssembliesTypeHasAccessTo(this._declaringType);
+			List<Assembly> typeRelatedAssemblies = TypeCollector.GetAssembliesTypeHasAccessTo(_declaringType);
 
-            if (this._constraints?.IncludeAdditionalAssemblies != null)
-				this.IncludeAdditionalAssemblies(typeRelatedAssemblies);
+            if (_constraints?.IncludeAdditionalAssemblies != null)
+				IncludeAdditionalAssemblies(typeRelatedAssemblies);
 
 			List<Type> filteredTypes = TypeCollector.GetFilteredTypesFromAssemblies(
                 typeRelatedAssemblies,
-				this._constraints);
+				_constraints);
 
 			SortedList<string, Type> sortedTypes = new SortedList<string, Type>(filteredTypes.ToDictionary(type => type.FullName));
 
@@ -83,11 +83,11 @@
 
         private void AddIncludedTypes(IDictionary<string, Type> types)
         {
-			Type[] typesToInclude = this._constraints?.IncludeTypes;
+			Type[] typesToInclude = _constraints?.IncludeTypes;
             if (typesToInclude == null)
                 return;
 
-            foreach (Type typeToInclude in this._constraints?.IncludeTypes)
+            foreach (Type typeToInclude in _constraints?.IncludeTypes)
             {
                 if (typeToInclude != null)
                     types.Add(typeToInclude.FullName ?? string.Empty, typeToInclude);
@@ -100,12 +100,12 @@
                 return;
 
 			GUIContent content = new GUIContent(menuLabel);
-			this._menu.AddItem(content, this._selectedType == type, CachedTypeReference.SelectedTypeName, type);
+			_menu.AddItem(content, _selectedType == type, CachedTypeReference.SelectedTypeName, type);
         }
 
         private void IncludeAdditionalAssemblies(ICollection<Assembly> typeRelatedAssemblies)
         {
-            foreach (string assemblyName in this._constraints.IncludeAdditionalAssemblies)
+            foreach (string assemblyName in _constraints.IncludeAdditionalAssemblies)
             {
 				Assembly additionalAssembly = TypeCollector.TryLoadAssembly(assemblyName);
                 if (additionalAssembly == null)
@@ -126,33 +126,33 @@
 
         public LimitedGenericMenu()
         {
-			this._menu = new GenericMenu();
+			_menu = new GenericMenu();
         }
 
         public void DropDown(Rect position)
         {
-			this._menu.DropDown(position);
+			_menu.DropDown(position);
         }
 
         public void AddItem(GUIContent content, bool on, GenericMenu.MenuFunction2 func, object userData)
         {
-            if (this._itemLimitAlreadyReached)
+            if (_itemLimitAlreadyReached)
                 return;
 
-            if (this._itemCount == ItemLimit)
+            if (_itemCount == ItemLimit)
             {
                 Debug.LogWarning("Item limit has been reached. Only the first 1000 items are shown in the list.");
-				this._itemLimitAlreadyReached = true;
+				_itemLimitAlreadyReached = true;
                 return;
             }
 
-			this._menu.AddItem(content, on, func, userData);
-			this._itemCount++;
+			_menu.AddItem(content, on, func, userData);
+			_itemCount++;
         }
 
         public void AddLineSeparator()
         {
-			this._menu.AddSeparator(string.Empty);
+			_menu.AddSeparator(string.Empty);
         }
     }
 }
