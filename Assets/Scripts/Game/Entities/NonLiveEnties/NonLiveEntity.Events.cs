@@ -8,81 +8,81 @@ public abstract partial class NonLiveEntity : Entity {
 	
 	//////////////////////////////////////////////////////////////////////////
 
-	protected	override	StreamUnit	OnSave( StreamData streamData )
+	protected	override	bool	OnSave( StreamData streamData, ref StreamUnit streamUnit )
 	{
-		StreamUnit streamUnit = base.OnSave( streamData );
-
-		// Health
-		streamUnit.SetInternal( "Health", m_Health );
-
-		// Shield
-		if (m_Shield != null )
+		bool bResult = base.OnSave( streamData, ref streamUnit );
+		if (bResult)
 		{
-			streamUnit.SetInternal( "ShieldStatus", m_Shield.Status );
+			// Health
+			streamUnit.SetInternal( "Health", m_Health );
+
+			// Shield
+			if (m_Shield != null )
+			{
+				streamUnit.SetInternal( "ShieldStatus", m_Shield.Status );
+			}
+
+
+
+			// Internals
+	//		streamUnit.AddInternal( "HasDestination",				m_NavHasDestination );
+	//		streamUnit.AddInternal( "HasFaceTarget",					m_HasFaceTarget );
+	//		streamUnit.AddInternal( "Destination",					Utils.Converters.Vector3ToString( m_Destination ) );
+	//		streamUnit.AddInternal( "PointToFace",					Utils.Converters.Vector3ToString( m_PointToFace ) );
+			streamUnit.SetInternal( "IsMoving", m_NavCanMoveAlongPath );
+			streamUnit.SetInternal( "IsAllignedBodyToDestination", m_IsAllignedBodyToPoint );
+			streamUnit.SetInternal( "IsAllignedGunToPoint", m_IsAllignedHeadToPoint );
+	//		streamUnit.AddInternal( "DistanceToTravel",				m_DistanceToTravel );
+			
+			// Body and Gun
+			{
+				streamUnit.SetInternal( "BodyRotation",				Utils.Converters.QuaternionToString(m_BodyTransform.localRotation ) );
+	//			streamUnit.SetInternal( "GunRotation",				Utils.Converters.QuaternionToString(m_GunTransform.localRotation ) );
+			}
+
+			// Brain state
+	//		streamUnit.AddInternal( "BrainState", m_Brain.State );
 		}
-
-
-
-		// Internals
-//		streamUnit.AddInternal( "HasDestination",				m_NavHasDestination );
-//		streamUnit.AddInternal( "HasFaceTarget",					m_HasFaceTarget );
-//		streamUnit.AddInternal( "Destination",					Utils.Converters.Vector3ToString( m_Destination ) );
-//		streamUnit.AddInternal( "PointToFace",					Utils.Converters.Vector3ToString( m_PointToFace ) );
-		streamUnit.SetInternal( "IsMoving", m_NavCanMoveAlongPath );
-		streamUnit.SetInternal( "IsAllignedBodyToDestination", m_IsAllignedBodyToPoint );
-		streamUnit.SetInternal( "IsAllignedGunToPoint", m_IsAllignedHeadToPoint );
-//		streamUnit.AddInternal( "DistanceToTravel",				m_DistanceToTravel );
-		
-		// Body and Gun
-		{
-			streamUnit.SetInternal( "BodyRotation",				Utils.Converters.QuaternionToString(m_BodyTransform.localRotation ) );
-//			streamUnit.SetInternal( "GunRotation",				Utils.Converters.QuaternionToString(m_GunTransform.localRotation ) );
-		}
-
-		// Brain state
-//		streamUnit.AddInternal( "BrainState", m_Brain.State );
-
-		return streamUnit;
+		return bResult;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 
-	protected	override	StreamUnit	OnLoad( StreamData streamData )
+	protected	override	bool	OnLoad( StreamData streamData, ref StreamUnit streamUnit )
 	{
-		StreamUnit streamUnit = base.OnLoad( streamData );
-		if ( streamUnit == null )
-			return null;
-
-		// Health
-		m_Health = streamUnit.GetAsFloat( "Health" );
-
-		// Shield
-		if (m_Shield != null )
+		bool bResult = base.OnLoad( streamData, ref streamUnit );
+		if (bResult)
 		{
-			m_Shield.OnLoad( streamData );
+			// Health
+			m_Health = streamUnit.GetAsFloat( "Health" );
+
+			// Shield
+			if (m_Shield != null )
+			{
+				m_Shield.OnLoad( streamData );
+			}
+
+			// Internals
+			//		m_NavHasDestination					= streamUnit.GetAsBool( "HasDestination" );
+			//		m_HasFaceTarget						= streamUnit.GetAsBool( "HasFaceTarget" );
+			//		m_Destination						= streamUnit.GetAsVector( "Destination" );
+			//		m_PointToFace						= streamUnit.GetAsVector( "PointToFace" );
+			m_NavCanMoveAlongPath							= streamUnit.GetAsBool( "IsMoving" );
+			m_IsAllignedBodyToPoint		= streamUnit.GetAsBool( "IsAllignedBodyToDestination" );
+			m_IsAllignedHeadToPoint				= streamUnit.GetAsBool( "IsAllignedGunToPoint" );
+	//		m_DistanceToTravel					= streamUnit.GetAsFloat( "DistanceToTravel" );
+
+			// Body and Gun
+			{
+				m_BodyTransform.localRotation	= streamUnit.GetAsQuaternion( "BodyRotation" );;
+	//			m_GunTransform.localRotation	= streamUnit.GetAsQuaternion( "GunRotation" );
+			}
+
+			// Brain state
+	//		m_Brain.ChangeState ( streamUnit.GetAsEnum<BrainState>( "BrainState" ) );
 		}
-
-		// Internals
-		//		m_NavHasDestination					= streamUnit.GetAsBool( "HasDestination" );
-		//		m_HasFaceTarget						= streamUnit.GetAsBool( "HasFaceTarget" );
-		//		m_Destination						= streamUnit.GetAsVector( "Destination" );
-		//		m_PointToFace						= streamUnit.GetAsVector( "PointToFace" );
-		m_NavCanMoveAlongPath							= streamUnit.GetAsBool( "IsMoving" );
-		m_IsAllignedBodyToPoint		= streamUnit.GetAsBool( "IsAllignedBodyToDestination" );
-		m_IsAllignedHeadToPoint				= streamUnit.GetAsBool( "IsAllignedGunToPoint" );
-//		m_DistanceToTravel					= streamUnit.GetAsFloat( "DistanceToTravel" );
-
-		// Body and Gun
-		{
-			m_BodyTransform.localRotation	= streamUnit.GetAsQuaternion( "BodyRotation" );;
-//			m_GunTransform.localRotation	= streamUnit.GetAsQuaternion( "GunRotation" );
-		}
-
-		// Brain state
-//		m_Brain.ChangeState ( streamUnit.GetAsEnum<BrainState>( "BrainState" ) );
-
-		return streamUnit;
+		return bResult;
 	}
 
 

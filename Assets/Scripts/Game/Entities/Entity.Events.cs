@@ -170,29 +170,32 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		StreamUnit	OnSave( StreamData streamData )
+	protected	virtual		bool	OnSave( StreamData streamData, ref StreamUnit streamUnit )
 	{
 		if (m_IsActive == false )
-			return null;
+			return true;
 
-		StreamUnit streamUnit		= streamData.NewUnit(gameObject );
+		streamUnit		= streamData.NewUnit(gameObject);
 		streamUnit.Position			= transform.position;
 		streamUnit.Rotation			= transform.rotation;
 
 		if ( m_EntityType != EEntityType.ACTOR )
 		{
-			// save data of every behaviour
-			System.Array.ForEach(m_Behaviours, ( AIBehaviour b ) => b.OnSave( streamUnit ));
+			foreach (AIBehaviour b in m_Behaviours)
+			{
+				b.OnSave( streamUnit );
+			}
 		}
 
-		return streamUnit;
+		return true;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		StreamUnit	OnLoad( StreamData streamData )
+	protected	virtual		bool	OnLoad( StreamData streamData, ref StreamUnit streamUnit )
 	{
-		if (streamData.TryGetUnit(gameObject, out StreamUnit streamUnit))
+		bool bResult = streamData.TryGetUnit(gameObject, out streamUnit);
+		if (bResult)
 		{
 			gameObject.SetActive(true);
 			m_IsActive = true;
@@ -212,16 +215,18 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 
 			if (m_EntityType != EEntityType.ACTOR)
 			{
-				System.Array.ForEach(m_Behaviours, ( AIBehaviour b ) => b.OnLoad( streamUnit ));
+				foreach (AIBehaviour b in m_Behaviours)
+				{
+					b.OnLoad(streamUnit);
+				}
 			}
-			return streamUnit;
 		}
 		else
 		{
 			gameObject.SetActive( false );
 			m_IsActive = false;
-			return null;
 		}
+		return bResult;
 	}
 
 

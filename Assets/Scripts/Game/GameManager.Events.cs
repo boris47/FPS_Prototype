@@ -24,7 +24,7 @@ public class GameEventArg4	: UnityEngine.Events.UnityEvent< UnityEngine.GameObje
 //	DELEGATES FOR EVENTS
 public struct GameEvents {
 	// SAVE & LOAD
-	public	delegate	StreamUnit	StreamingEvent( StreamData streamData );	// StreamEvents.OnSave & StreamEvents.OnLoad
+	public	delegate	bool	StreamingEvent( StreamData streamData, ref StreamUnit streamUnit );	// StreamEvents.OnSave & StreamEvents.OnLoad
 
 	// PAUSE
 	public	delegate	void		OnPauseSetEvent( bool isPaused );			// PauseEvents.OnPauseSet
@@ -96,8 +96,8 @@ public sealed partial class GameManager : IStreamEvents
 	private	static	IStreamEvents		m_StreamEvents	= null;
 
 	// Events
-	private	event	GameEvents.StreamingEvent		m_OnSave			= delegate ( StreamData streamData ) { return null; };
-	private	event	GameEvents.StreamingEvent		m_OnSaveComplete	= delegate ( StreamData streamData ) { return null; };
+	private	event	GameEvents.StreamingEvent		m_OnSave			= delegate ( StreamData streamData, ref StreamUnit streamUnit ) { return true; };
+	private	event	GameEvents.StreamingEvent		m_OnSaveComplete	= delegate ( StreamData streamData, ref StreamUnit streamUnit ) { return true; };
 
 //	private	event	GameEvents.StreamingEvent		m_OnLoad			= delegate ( StreamData streamData ) { return null; };
 	private			List<GameEvents.StreamingEvent>	m_OnLoad = new List<GameEvents.StreamingEvent>();
@@ -172,9 +172,9 @@ public sealed partial class GameManager : IStreamEvents
 		PlayerPrefs.SetString( "SaveFilePath", filePath );
 
 		StreamData streamData = new StreamData();
-
+		StreamUnit streamUnit = null;
 		// call all save callbacks
-		m_OnSave( streamData );
+		m_OnSave( streamData, ref streamUnit );
 
 		// Thread Body
 		void body()
@@ -191,7 +191,7 @@ public sealed partial class GameManager : IStreamEvents
 		void onCompletion()
 		{
 			m_SaveLoadState = EStreamingState.SAVE_COMPLETE;
-			m_OnSaveComplete(streamData);
+			m_OnSaveComplete(streamData, ref streamUnit);
 			print("Saved!");
 		}
 		MultiThreading.CreateThread( body, bCanStart: true, onCompletion );
@@ -223,10 +223,10 @@ public sealed partial class GameManager : IStreamEvents
 		string toLoad = File.ReadAllText( fileName );
 //		Decrypt( ref toLoad );
 		StreamData streamData = JsonUtility.FromJson<StreamData>( toLoad );
-
+		StreamUnit streamUnit = null;
 		if ( streamData != null )
 		{
-			CoroutinesManager.Start(LoadCO( streamData ), "GameManager::Load: Start of loading" );
+			CoroutinesManager.Start(LoadCO( streamData, streamUnit ), "GameManager::Load: Start of loading" );
 		}
 		else
 		{
@@ -237,13 +237,13 @@ public sealed partial class GameManager : IStreamEvents
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	private IEnumerator LoadCO( StreamData streamData )
+	private IEnumerator LoadCO( StreamData streamData, StreamUnit streamUnit )
 	{
 		yield return null;
 
 		foreach(GameEvents.StreamingEvent _delegate in m_OnLoad)
 		{
-			_delegate( streamData );
+			_delegate( streamData, ref streamUnit );
 			yield return null;
 		}
 
@@ -251,7 +251,7 @@ public sealed partial class GameManager : IStreamEvents
 
 		foreach ( GameEvents.StreamingEvent _delegate in m_OnLoadComplete )
 		{
-			_delegate( streamData );
+			_delegate( streamData, ref streamUnit );
 			yield return null;
 		}
 
@@ -465,24 +465,25 @@ public class StreamData
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> To be used ONLY during the SAVE event, otherwise nothing happens </summary>
-	public	StreamUnit	NewUnit( GameObject gameObject )
+	public	StreamUnit	NewUnit( Object unityObj )
 	{
 		if ( GameManager.StreamEvents.State != EStreamingState.SAVING )
 			return null;
 
-		StreamUnit streamUnit		= null;
-		int index = m_Data.FindIndex( ( StreamUnit data ) => data.InstanceID == gameObject.GetInstanceID() );
+		StreamUnit streamUnit = null;
+		int index = m_Data.FindIndex( ( StreamUnit data ) => data.InstanceID == unityObj.GetInstanceID() );
 		if ( index > -1 )
 		{
-//			Debug.Log( gameObject.name + " already saved" );
+//			Debug.Log( unityObj.name + " already saved" );
 			streamUnit = m_Data[index];
 		}
 		else
 		{
-			streamUnit					= new StreamUnit();
-			streamUnit.InstanceID		= gameObject.GetInstanceID();
-			streamUnit.Name				= gameObject.name;
-
+			streamUnit = new StreamUnit()
+			{
+				InstanceID = unityObj.GetInstanceID(),
+				Name = unityObj.name
+			};
 			m_Data.Add( streamUnit );
 		}
 
@@ -492,24 +493,24 @@ public class StreamData
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> To be used ONLY during the LOAD event, otherwise nothing happen </summary>
-	public	bool		TryGetUnit( GameObject gameObject, out StreamUnit streamUnit )
+	public	bool		TryGetUnit( Object unityObj, out StreamUnit streamUnit )
 	{
 	//	if ( GameManager.StreamEvents.State != StreamingState.LOAD_COMPLETE )
 	//		return false;
 
 		streamUnit = null;
-		int GOInstanceID = gameObject.GetInstanceID();
+		int GOInstanceID = unityObj.GetInstanceID();
 		int index = m_Data.FindIndex( ( StreamUnit data ) => data.InstanceID == GOInstanceID );
 
 		if ( index == -1 )
 		{
-			index = m_Data.FindIndex( ( StreamUnit data ) => data.Name == gameObject.name );
+			index = m_Data.FindIndex( ( StreamUnit data ) => data.Name == unityObj.name );
 		}
 
 		bool found = index > -1;
 		if ( found )
 		{
-			streamUnit = m_Data[ index ];
+			streamUnit = m_Data[index];
 		}
 
 		return found;

@@ -13,86 +13,85 @@ public partial class Player {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	StreamUnit	OnSave( StreamData streamData )
+	protected	override	bool	OnSave( StreamData streamData, ref StreamUnit streamUnit )
 	{
-		StreamUnit streamUnit	= base.OnSave( streamData );
-		if ( streamUnit == null )
-			return null;
+		bool bResult = base.OnSave( streamData, ref streamUnit );
+		if (bResult)
+		{
+			// Health
+			streamUnit.SetInternal( "Health", m_Health );
 
-		// Health
-		streamUnit.SetInternal( "Health", m_Health );
+			// Stamina
+			streamUnit.SetInternal( "Stamina", m_Stamina );
 
-		// Stamina
-		streamUnit.SetInternal( "Stamina", m_Stamina );
+			// Crouch state
+			streamUnit.SetInternal( "IsCrouched", IsCrouched );
 
-		// Crouch state
-		streamUnit.SetInternal( "IsCrouched", IsCrouched );
-
-		// Motion Type
-		streamUnit.SetInternal( "MotionType", m_CurrentMotionType );
-
-		return streamUnit;
+			// Motion Type
+			streamUnit.SetInternal( "MotionType", m_CurrentMotionType );
+		}
+		return bResult;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	StreamUnit	OnLoad( StreamData streamData )
+	protected	override	bool	OnLoad( StreamData streamData, ref StreamUnit streamUnit )
 	{
-		StreamUnit streamUnit = base.OnLoad( streamData );
-		if ( streamUnit == null )
-			return null;
+		bool bResult = base.OnLoad( streamData, ref streamUnit );
+		if (bResult)
+		{
+			// Cutscene Manager
+			if (m_CutsceneManager.IsPlaying == true )
+				m_CutsceneManager.Terminate();
 
-		// Cutscene Manager
-		if (m_CutsceneManager.IsPlaying == true )
-			m_CutsceneManager.Terminate();
+			// UI effect reset
+			UIManager.EffectFrame.color = Color.clear;
 
-		// UI effect reset
-		UIManager.EffectFrame.color = Color.clear;
+			// Dodging reset
+	//		if (this.m_DodgeCoroutine != null )
+	//		{
+	//			this.StopCoroutine(this.m_DodgeCoroutine );
+	//		}
+			m_RigidBody.constraints						= RigidbodyConstraints.FreezeRotation;
+			m_RigidBody.velocity						= Vector3.zero;
 
-		// Dodging reset
-//		if (this.m_DodgeCoroutine != null )
-//		{
-//			this.StopCoroutine(this.m_DodgeCoroutine );
-//		}
-		m_RigidBody.constraints						= RigidbodyConstraints.FreezeRotation;
-		m_RigidBody.velocity						= Vector3.zero;
+			GlobalManager.SetTimeScale( 1.0f );
 
-		GlobalManager.SetTimeScale( 1.0f );
+	//		this.m_DodgeRaycastNormal						= Vector3.zero;
+	//		this.m_DodgeAbilityTarget.gameObject.SetActive( false );
+	//		this.m_ChosingDodgeRotation						= false;
+	//		this.m_DodgeInterpolant							= 0f;
+			UnityEngine.PostProcessing.MotionBlurModel.Settings settings								= CameraControl.Instance.PP_Profile.motionBlur.settings;
+			settings.frameBlending						= 0f;
+			CameraControl.Instance.PP_Profile.motionBlur.settings = settings;
+	//		this.m_IsDodging = false;
 
-//		this.m_DodgeRaycastNormal						= Vector3.zero;
-//		this.m_DodgeAbilityTarget.gameObject.SetActive( false );
-//		this.m_ChosingDodgeRotation						= false;
-//		this.m_DodgeInterpolant							= 0f;
-		UnityEngine.PostProcessing.MotionBlurModel.Settings settings								= CameraControl.Instance.PP_Profile.motionBlur.settings;
-		settings.frameBlending						= 0f;
-		CameraControl.Instance.PP_Profile.motionBlur.settings = settings;
-//		this.m_IsDodging = false;
+			// Player internals
+			m_Interactable								= null;
+			m_Move										= Vector3.zero;
+			m_RaycastHit								= default( RaycastHit );
 
-		// Player internals
-		m_Interactable								= null;
-		m_Move										= Vector3.zero;
-		m_RaycastHit								= default( RaycastHit );
+			DropEntityDragged();
 
-		DropEntityDragged();
+			m_ForwardSmooth = m_RightSmooth = m_UpSmooth = 0f;
 
-		m_ForwardSmooth = m_RightSmooth = m_UpSmooth = 0f;
+			// Health
+			m_Health			= streamUnit.GetAsFloat( "Health" );
 
-		// Health
-		m_Health			= streamUnit.GetAsFloat( "Health" );
+			// Stamina
+			m_Stamina			= streamUnit.GetAsFloat( "Stamina" );
 
-		// Stamina
-		m_Stamina			= streamUnit.GetAsFloat( "Stamina" );
+			// Crouch state
+			m_States.IsCrouched = streamUnit.GetAsBool( "IsCrouched" );
 
-		// Crouch state
-		m_States.IsCrouched = streamUnit.GetAsBool( "IsCrouched" );
+			// Motion Type
+			m_CurrentMotionType	= streamUnit.GetAsEnum<EMotionType>( "MotionType");
+			SetMotionType(m_CurrentMotionType );
 
-		// Motion Type
-		m_CurrentMotionType	= streamUnit.GetAsEnum<EMotionType>( "MotionType");
-		SetMotionType(m_CurrentMotionType );
+			m_RigidBody.useGravity = false;
 
-		m_RigidBody.useGravity = false;
-
-		return streamUnit;
+		}
+		return bResult;
 	}
 
 

@@ -179,9 +179,9 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private				StreamUnit	OnSave( StreamData streamData )
+	private				bool	OnSave( StreamData streamData, ref StreamUnit streamUnit )
 	{
-		StreamUnit streamUnit	= streamData.NewUnit(gameObject );
+		streamUnit	= streamData.NewUnit(gameObject );
 
 		streamUnit.SetInternal( "CurrentWeaponIndex", CurrentWeaponIndex );
 		streamUnit.SetInternal( "ZoomedIn", m_ZoomedIn );
@@ -192,47 +192,47 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager
 		streamUnit.SetInternal( "ZoomSensitivity", m_ZoomSensitivity );
 		streamUnit.SetInternal( "StartCameraFOV", m_StartCameraFOV );
 
-		return streamUnit;
+		return true;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private				StreamUnit	OnLoad( StreamData streamData )
+	private				bool	OnLoad( StreamData streamData, ref StreamUnit streamUnit )
 	{
-		StreamUnit streamUnit = null;
-		streamData.TryGetUnit(gameObject, out streamUnit );
-
 		StopAllCoroutines();
 		m_ZoomingTime					= 0f;
 		m_IsChangingWpn					= false;
 
-		// Current Weapon
+		bool bResult = streamData.TryGetUnit(gameObject, out streamUnit );
+		if ( bResult )
 		{
-			DisableAllWeapons();
+			// Current Weapon
+			{
+				DisableAllWeapons();
 
-			CurrentWeaponIndex			= streamUnit.GetAsInt("CurrentWeaponIndex" );
-			CurrentWeapon				= GetWeaponByIndex(CurrentWeaponIndex );
-			CurrentWeapon.Transform.gameObject.SetActive( true );
-			CurrentWeapon.Enabled		= true;
+				CurrentWeaponIndex			= streamUnit.GetAsInt("CurrentWeaponIndex" );
+				CurrentWeapon				= GetWeaponByIndex(CurrentWeaponIndex );
+				CurrentWeapon.Transform.gameObject.SetActive( true );
+				CurrentWeapon.Enabled		= true;
+			}
+
+			// Zoom
+			{
+				m_ZoomedIn					= streamUnit.GetAsBool( "ZoomedIn" );
+				m_StartOffset				= streamUnit.GetAsVector( "StartOffset" );
+				m_FinalOffset				= streamUnit.GetAsVector( "FinalOffset" );
+				m_ZoomFactor				= streamUnit.GetAsFloat( "ZoomFactor" );
+				m_ZoomingTime				= streamUnit.GetAsFloat( "ZoomingTime" );
+				m_ZoomSensitivity			= streamUnit.GetAsFloat( "ZoomSensitivity" );
+				m_StartCameraFOV			= streamUnit.GetAsFloat( "StartCameraFOV" );
+
+				CameraControl.Instance.WeaponPivot.localPosition = (m_ZoomedIn == true ) ? m_FinalOffset : m_StartOffset;
+
+				float cameraFinalFov = m_StartCameraFOV / m_ZoomFactor;
+				CameraControl.Instance.MainCamera.fieldOfView = (m_ZoomedIn == true ) ? cameraFinalFov : m_StartCameraFOV;
+			}
 		}
-
-		// Zoom
-		{
-			m_ZoomedIn					= streamUnit.GetAsBool( "ZoomedIn" );
-			m_StartOffset				= streamUnit.GetAsVector( "StartOffset" );
-			m_FinalOffset				= streamUnit.GetAsVector( "FinalOffset" );
-			m_ZoomFactor				= streamUnit.GetAsFloat( "ZoomFactor" );
-			m_ZoomingTime				= streamUnit.GetAsFloat( "ZoomingTime" );
-			m_ZoomSensitivity			= streamUnit.GetAsFloat( "ZoomSensitivity" );
-			m_StartCameraFOV			= streamUnit.GetAsFloat( "StartCameraFOV" );
-
-			CameraControl.Instance.WeaponPivot.localPosition = (m_ZoomedIn == true ) ? m_FinalOffset : m_StartOffset;
-
-			float cameraFinalFov = m_StartCameraFOV / m_ZoomFactor;
-			CameraControl.Instance.MainCamera.fieldOfView = (m_ZoomedIn == true ) ? cameraFinalFov : m_StartCameraFOV;
-		}
-
-		return streamUnit;
+		return bResult;
 	}
 
 

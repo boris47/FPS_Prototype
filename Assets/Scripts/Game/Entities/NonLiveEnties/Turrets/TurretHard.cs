@@ -13,7 +13,7 @@ public class TurretHard : Turret {
 	private		float		m_RechargeTime		= 2f;
 
 	private		bool		m_IsRecharging		= false;
-	private		uint		m_FiredBullets		= 0;
+//	private		uint		m_FiredBullets		= 0;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -69,29 +69,26 @@ public class TurretHard : Turret {
 
 	//////////////////////////////////////////////////////////////////////////
 
-	protected override StreamUnit OnSave( StreamData streamData )
+	protected override bool OnSave( StreamData streamData, ref StreamUnit streamUnit )
 	{
-		StreamUnit streamUnit = base.OnSave( streamData );
-		if ( streamUnit == null )
-			return null;
-
-		streamUnit.SetInternal( "FiredBullets", m_FiredBullets );
-
-		return streamUnit;
+		bool bResult = base.OnSave( streamData, ref streamUnit );
+		{
+		//	streamUnit.SetInternal( "FiredBullets", m_FiredBullets );
+		}
+		return bResult;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 
-	protected override StreamUnit OnLoad( StreamData streamData )
+	protected override bool OnLoad( StreamData streamData, ref StreamUnit streamUnit )
 	{
-		StreamUnit streamUnit = base.OnLoad( streamData );
-		if ( streamUnit == null )
-			return null;
-
-		m_FiredBullets = ( uint ) streamUnit.GetAsInt( "FiredBullets" );
-		
-		return streamUnit;
+		bool bResult = base.OnLoad( streamData, ref streamUnit );
+		if (bResult)
+		{
+	//		m_FiredBullets = ( uint ) streamUnit.GetAsInt( "FiredBullets" );
+		}
+		return bResult;
 	}
 	
 
@@ -139,7 +136,7 @@ public class TurretHard : Turret {
 		}
 
 		m_IsRecharging = false;
-		m_FiredBullets = 0;
+	//	m_FiredBullets = 0;
 	}
 
 	

@@ -393,9 +393,9 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		StreamUnit		OnSave( StreamData streamData )
+	protected	virtual		bool		OnSave( StreamData streamData, ref StreamUnit streamUnit )
 	{
-		StreamUnit streamUnit	= streamData.NewUnit(gameObject );
+		streamUnit	= streamData.NewUnit(gameObject );
 		
 		streamUnit.SetInternal( "PrimaryModule", m_PrimaryWeaponModuleSlot.WeaponModule.ModuleSection.GetSectionName() );
 
@@ -411,17 +411,17 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 
 		// Save Weapon Modules Data
 
-		return streamUnit;
+		return true;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		StreamUnit		OnLoad( StreamData streamData )
+	protected	virtual		bool		OnLoad( StreamData streamData, ref StreamUnit streamUnit )
 	{
 		m_Animator.Play( "draw", -1, 0.99f );
 
-		StreamUnit streamUnit = null;
-		if ( streamData.TryGetUnit(gameObject, out streamUnit ) )
+		bool bResult = streamData.TryGetUnit(this, out streamUnit );
+		if ( bResult )
 		{
 			m_PrimaryWeaponModuleSlot.WeaponModule.OnLoad( streamUnit );
 			m_SecondaryWeaponModuleSlot.WeaponModule.OnLoad( streamUnit );
@@ -440,7 +440,7 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 
 			UIManager.InGame.UpdateUI();
 		}
-		return streamUnit;
+		return bResult;
 	}
 
 

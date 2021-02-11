@@ -40,35 +40,35 @@ public class CommandPanel : MonoBehaviour {
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnSave
-	private	StreamUnit	OnSave( StreamData streamData )
+	private	bool	OnSave( StreamData streamData, ref StreamUnit streamUnit )
 	{
-		StreamUnit streamUnit	= streamData.NewUnit(gameObject );
+		streamUnit = streamData.NewUnit(gameObject );
 
 		streamUnit.SetInternal( "IsTriggered", m_IsTriggered );
 
-		return streamUnit;
+		return true;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnLoad
-	private	StreamUnit	OnLoad( StreamData streamData )
+	private	bool	OnLoad( StreamData streamData, ref StreamUnit streamUnit )
 	{
-		if ( streamData.TryGetUnit(gameObject, out StreamUnit streamUnit ) == false )
-			return null;
-
-		if (m_IsTriggered = streamUnit.GetAsBool( "IsTriggered" ) == true )
+		bool bResult = streamData.TryGetUnit(gameObject, out streamUnit );
+		if (bResult)
 		{
-			m_ObjectToControl.OnActivation();
-			m_Activator.transform.position			= m_TriggerCollider.transform.position;
-			m_Activator.transform.rotation			= m_TriggerCollider.transform.rotation;
-			m_Activator.RigidBody.constraints		= RigidbodyConstraints.FreezeAll;
-			m_Activator.RigidBody.useGravity		= false;
-			m_Activator.Collider.enabled			= false;
-			m_TriggerCollider.enabled				= false;
+			if (m_IsTriggered = streamUnit.GetAsBool( "IsTriggered" ) == true )
+			{
+				m_ObjectToControl.OnActivation();
+				m_Activator.transform.position			= m_TriggerCollider.transform.position;
+				m_Activator.transform.rotation			= m_TriggerCollider.transform.rotation;
+				m_Activator.RigidBody.constraints		= RigidbodyConstraints.FreezeAll;
+				m_Activator.RigidBody.useGravity		= false;
+				m_Activator.Collider.enabled			= false;
+				m_TriggerCollider.enabled				= false;
+			}
 		}
-
-		return streamUnit;
+		return bResult;
 	}
 
 

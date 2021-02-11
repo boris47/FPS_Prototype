@@ -66,37 +66,34 @@ public class TriggerEvents : MonoBehaviour {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private StreamUnit StreamEvents_OnSave( StreamData streamData )
+	private bool StreamEvents_OnSave( StreamData streamData, ref StreamUnit streamUnit )
 	{
 		// Skip if no required
 		if (m_TriggerOnce == false )
-			return null;
+			return true;
 
-		StreamUnit streamUnit = streamData.NewUnit(gameObject );
+		streamUnit = streamData.NewUnit(gameObject );
 		streamUnit.SetInternal( "HasTriggered", m_HasTriggered );
 
-		return streamUnit;
+		return true;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private StreamUnit StreamEvents_OnLoad( StreamData streamData )
+	private bool StreamEvents_OnLoad( StreamData streamData, ref StreamUnit streamUnit )
 	{
 		// Skip if no required
 		if (m_TriggerOnce == false )
-			return null;
+			return true;
 
 		// Get unit
-		StreamUnit streamUnit = null;
-		if ( streamData.TryGetUnit(gameObject, out streamUnit ) == false )
+		bool bResult = streamData.TryGetUnit(gameObject, out streamUnit );
+		if ( bResult )
 		{
-			return null;
+			// TRIGGERED
+			m_HasTriggered = streamUnit.GetAsBool( "HasTriggered" );
 		}
-
-		// TRIGGERED
-		m_HasTriggered = streamUnit.GetAsBool( "HasTriggered" );
-		
-		return streamUnit;
+		return bResult;
 	}
 
 

@@ -143,9 +143,9 @@ public sealed class CameraControl : MonoBehaviour
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnSave
-	private	StreamUnit	OnSave( StreamData streamData )
+	private	bool	OnSave( StreamData streamData, ref StreamUnit streamUnit )
 	{
-		StreamUnit streamUnit	= streamData.NewUnit(gameObject );
+		streamUnit = streamData.NewUnit(gameObject );
 
 		// Current internal direction
 		streamUnit.SetInternal( "CurrentDirection", Utils.Converters.Vector3ToString(m_CurrentDirection ) );
@@ -155,15 +155,16 @@ public sealed class CameraControl : MonoBehaviour
 		
 		// TODO load effectors
 
-		return streamUnit;
+		return true;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnLoad
-	private	StreamUnit	OnLoad( StreamData streamData )
+	private	bool	OnLoad( StreamData streamData, ref StreamUnit streamUnit )
 	{
-		if ( streamData.TryGetUnit(gameObject, out StreamUnit streamUnit) )
+		bool bResult = streamData.TryGetUnit(gameObject, out streamUnit);
+		if ( bResult )
 		{
 			// Camera internals
 			m_RotationFeedback	= Vector3.zero;
@@ -176,8 +177,7 @@ public sealed class CameraControl : MonoBehaviour
 
 			// TODO Save Effectors
 		}
-
-		return streamUnit;
+		return bResult;
 	}
 
 

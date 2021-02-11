@@ -60,8 +60,8 @@ public sealed partial class GameManager : MonoBehaviour
 	private	void	ReseteDelegates()
 	{
 		// StreamEvents
-		m_OnSave			= delegate ( StreamData streamData ) { return null; };
-		m_OnSaveComplete	= delegate ( StreamData streamData ) { return null; };
+		m_OnSave			= delegate ( StreamData streamData, ref StreamUnit streamUnit ) { return true; };
+		m_OnSaveComplete	= delegate ( StreamData streamData, ref StreamUnit streamUnit ) { return true; };
 		m_OnLoad.Clear();//	= delegate ( StreamData streamData ) { return null; };
 		m_OnLoadComplete.Clear();//	= delegate ( StreamData streamData ) { return null; };
 		m_SaveLoadState		= EStreamingState.NONE;

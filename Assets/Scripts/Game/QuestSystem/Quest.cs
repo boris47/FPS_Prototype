@@ -109,26 +109,32 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// OnSave
-		protected	virtual		StreamUnit		OnSave( StreamData streamData )
+		protected	virtual		bool		OnSave( StreamData streamData, ref StreamUnit streamUnit )
 		{
-			StreamUnit streamUnit	= streamData.NewUnit(gameObject );
+			streamUnit = streamData.NewUnit(gameObject );
 			{
-				m_Tasks.ForEach( t => t.OnSave( streamUnit ) );
+				foreach (Task task in m_Tasks)
+				{
+					task.OnSave(streamUnit) ;
+				}
 			}
-			return streamUnit;
+			return true;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// OnLoad
-		protected	virtual		StreamUnit		OnLoad( StreamData streamData )
+		protected	virtual		bool		OnLoad( StreamData streamData, ref StreamUnit streamUnit )
 		{
-			StreamUnit streamUnit = null;
-			if ( streamData.TryGetUnit(gameObject, out streamUnit ) )
+			bool bResult = streamData.TryGetUnit(gameObject, out streamUnit );
+			if ( bResult )
 			{
-				m_Tasks.ForEach( t => t.OnLoad( streamUnit ) );
+				foreach (Task task in m_Tasks)
+				{
+					task.OnLoad(streamUnit) ;
+				}
 			}
-			return streamUnit;
+			return bResult;
 		}
 		
 
