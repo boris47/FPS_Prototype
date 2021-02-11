@@ -6,6 +6,20 @@ using System.Collections.Generic;
 
 public static class Extensions
 {
+	private static System.Type UnityEngineObjectType = typeof(UnityEngine.Object);
+	private static System.Func<int, UnityEngine.Object> m_FindObjectFromInstanceID = null;
+
+	static Extensions()
+	{
+		// Create FindObjectFromInstanceID delegate from internal UnityEngine.Object.FindObjectFromInstanceID
+		System.Reflection.MethodInfo methodInfo = UnityEngineObjectType.GetMethod("FindObjectFromInstanceID", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+		if (methodInfo.IsNotNull())
+		{
+			m_FindObjectFromInstanceID = (System.Func<int, UnityEngine.Object>)System.Delegate.CreateDelegate(typeof(System.Func<int, UnityEngine.Object>), methodInfo);
+		}
+	}
+
+
 	/////////////////////////---------------------------/////////////////////////
 	#region C#
 
@@ -413,11 +427,26 @@ public static class Extensions
 
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
+	#region OBJECT
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Return the object with instance id requested or null </summary>
+	public static UnityEngine.Object	FindByInstanceID(this UnityEngine.Object obj, int InstanceId)
+	{
+		return m_FindObjectFromInstanceID?.Invoke(InstanceId);
+	}
+
+	#endregion // OBJECT
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
 	#region GAMEOBJECT
 
 
 	/////////////////////////////////////////////////////////////////////////////
-	/// <summary> Look for given component, if not found add it, return component reference  </summary>
+	/// <summary> Look for given component, if not found add it, return component reference </summary>
 	public static	T				GetOrAddIfNotFound<T>( this GameObject go ) where T : Component
 	{
 		if (!go.TryGetComponent<T>(out T result))
