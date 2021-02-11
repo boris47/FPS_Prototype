@@ -60,7 +60,7 @@ public sealed class UI_Minimap : MonoBehaviour, IStateDefiner {
 
 		m_IsInitialized = true;
 		{
-			m_IsInitialized &= transform.SearchComponent( ref m_RawImage, ESearchContext.CHILDREN );
+			m_IsInitialized &= transform.TrySearchComponent(ESearchContext.CHILDREN, out m_RawImage );
 
 			ResourceManager.AsyncLoadedData<RenderTexture> loadedResource = new ResourceManager.AsyncLoadedData<RenderTexture>();
 			yield return ResourceManager.LoadResourceAsyncCoroutine

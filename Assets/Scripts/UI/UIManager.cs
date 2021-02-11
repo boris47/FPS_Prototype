@@ -160,29 +160,29 @@ public sealed class UIManager : InGameSingleton<UIManager>, IUI
 		}
 
 		// Get Menus
-		m_IsInitialized &= transform.SearchComponentInChild( "UI_MainMenu",				ref m_MainMenu );
-		m_IsInitialized &= transform.SearchComponentInChild( "UI_InGame",				ref m_InGame );
-		m_IsInitialized &= transform.SearchComponentInChild( "UI_WeaponCustomization",	ref m_WeaponCustomization );
-		m_IsInitialized &= transform.SearchComponentInChild( "UI_Inventory",			ref m_Inventory );
-		m_IsInitialized &= transform.SearchComponentInChild( "UI_Settings",				ref m_Settings );
-		m_IsInitialized &= transform.SearchComponentInChild( "UI_PauseMenu",			ref m_PauseMenu );
-		m_IsInitialized &= transform.SearchComponentInChild( "UI_Bindings",				ref m_Bindings );
-		m_IsInitialized &= transform.SearchComponentInChild( "UI_Graphics",				ref m_Graphics );
-		m_IsInitialized &= transform.SearchComponentInChild( "UI_Audio",				ref m_Audio );
-		m_IsInitialized &= transform.SearchComponentInChild( "UI_Confirmation",			ref m_Confirmation );
+		m_IsInitialized &= transform.TrySearchComponentByChildName( "UI_MainMenu",				out m_MainMenu );
+		m_IsInitialized &= transform.TrySearchComponentByChildName( "UI_InGame",				out m_InGame );
+		m_IsInitialized &= transform.TrySearchComponentByChildName( "UI_WeaponCustomization",	out m_WeaponCustomization );
+		m_IsInitialized &= transform.TrySearchComponentByChildName( "UI_Inventory",				out m_Inventory );
+		m_IsInitialized &= transform.TrySearchComponentByChildName( "UI_Settings",				out m_Settings );
+		m_IsInitialized &= transform.TrySearchComponentByChildName( "UI_PauseMenu",				out m_PauseMenu );
+		m_IsInitialized &= transform.TrySearchComponentByChildName( "UI_Bindings",				out m_Bindings );
+		m_IsInitialized &= transform.TrySearchComponentByChildName( "UI_Graphics",				out m_Graphics );
+		m_IsInitialized &= transform.TrySearchComponentByChildName( "UI_Audio",					out m_Audio );
+		m_IsInitialized &= transform.TrySearchComponentByChildName( "UI_Confirmation",			out m_Confirmation );
 
 		if (m_IsInitialized )
 		{
 			// Indicators
-			m_IsInitialized &= m_InGame.transform.SearchComponent( ref m_Indicators, ESearchContext.CHILDREN );
+			m_IsInitialized &= m_InGame.transform.TrySearchComponent(ESearchContext.CHILDREN, out m_Indicators );
 			// Mini map
-			m_IsInitialized &= m_InGame.transform.SearchComponent( ref m_UI_Minimap, ESearchContext.CHILDREN );
+			m_IsInitialized &= m_InGame.transform.TrySearchComponent(ESearchContext.CHILDREN, out m_UI_Minimap );
 
-			m_IsInitialized &= m_InGame.transform.SearchComponent( ref m_UI_ComInterface, ESearchContext.CHILDREN );
+			m_IsInitialized &= m_InGame.transform.TrySearchComponent(ESearchContext.CHILDREN, out m_UI_ComInterface );
 		}
 
 		// Effect Frame
-		m_IsInitialized &= transform.SearchComponentInChild( "EffectFrame", ref m_EffectFrame );
+		m_IsInitialized &= transform.TrySearchComponentByChildName( "EffectFrame", out m_EffectFrame );
 
 		// Ray cast interceptor
 		m_RayCastInterceptor = transform.Find( "RayCastInterceptor" );

@@ -114,8 +114,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 		m_MaxVisibleEntities = maxVisibleEntities;
 		m_ValidTargets = new Entity[m_MaxVisibleEntities ];
 
-		Collider[] colliders = null;
-		if (transform.parent && transform.parent.SearchComponents( ref colliders, ESearchContext.CHILDREN ) )
+		if (transform.parent && transform.parent.TrySearchComponents(ESearchContext.CHILDREN, out Collider[] colliders ) )
 		{
 			System.Array.ForEach( colliders, ( c ) => Physics.IgnoreCollision(m_ViewTriggerCollider, c ) );
 		}
@@ -143,9 +142,9 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 
 		void addToTargets( Collider c )
 		{
-			if ( Utils.Base.SearchComponent( c.gameObject, out IEntity entityComponent, ESearchContext.CHILDREN, ( IEntity e ) => { return e.EntityType == newType; } ) )
+			if ( Utils.Base.TrySearchComponent( c.gameObject, ESearchContext.CHILDREN, out IEntity entityComponent, ( IEntity e ) => { return e.EntityType == newType; } ) )
 			{
-				m_AllTargets.Add( entityComponent as Entity );
+				m_AllTargets.Add( entityComponent.AsEntity );
 			}
 		}
 		System.Array.ForEach( colliders, addToTargets );

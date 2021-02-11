@@ -5,9 +5,9 @@ using UnityEngine;
 
 public abstract class Turret : NonLiveEntity {
 
-	[Header("Turret Properties")]
+//	[Header("Turret Properties")]
 
-	[SerializeField]
+/*	[SerializeField]
 	private		Bullet			m_Bullet					= null;
 
 	[SerializeField]
@@ -23,7 +23,7 @@ public abstract class Turret : NonLiveEntity {
 	protected	uint			m_PoolSize					= 5;
 
 	private		WPN_WeaponAttachment_LaserPointer			m_Laser						= null;
-
+*/
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
@@ -33,8 +33,7 @@ public abstract class Turret : NonLiveEntity {
 
 		// LOAD CONFIGURATION
 		{
-			GlobalManager.Configs.GetSection(m_SectionName, ref m_SectionRef );
-			if (m_SectionRef == null )
+			if (!GlobalManager.Configs.TryGetSection(m_SectionName, out m_SectionRef))
 			{
 				print( "Cannot find cfg section for entity " + name );
 				Destroy(gameObject );
@@ -48,7 +47,7 @@ public abstract class Turret : NonLiveEntity {
 				float shieldStatus	= m_SectionRef.AsFloat( "Shield", 0.0f );
 				m_Shield.Setup( shieldStatus, EShieldContext.ENTITY );
 			};
-
+/*
 			m_DamageMax				= m_SectionRef.AsFloat( "DamageMax", 2.0f );
 			m_DamageMin				= m_SectionRef.AsFloat( "DamageMin", 0.5f );
 			m_PoolSize				= m_SectionRef.AsUInt( "PoolSize", m_PoolSize );
@@ -79,29 +78,25 @@ public abstract class Turret : NonLiveEntity {
 				}
 			};
 			m_Pool = new GameObjectsPool<Bullet>( data );
-		}
-		m_Pool.SetActive( true );
-		m_ShotTimer = 0f;
+*/		}
 
-
+	
+//		m_Pool.SetActive( true );
+//		m_ShotTimer = 0f;
 	}
 
 	protected override void OnEnable()
 	{
 		base.OnEnable();
-
-		m_Laser = GetComponentInChildren<WPN_WeaponAttachment_LaserPointer>();
-		if (m_Laser != null )
-		{
-			m_Laser.LaserLength = Brain.FieldOfView.Distance;
-//			m_Laser.LayerMaskToExclude = LayerMask.NameToLayer("Bullets");
-		}
-
 	}
-	
+
+	protected override void OnDisable()
+	{
+		base.OnDisable();
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
-
 	protected	override	void	OnFrame( float deltaTime )
 	{
 		base.OnFrame( deltaTime );
@@ -109,7 +104,7 @@ public abstract class Turret : NonLiveEntity {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	
+
 	protected		override	void	OnKill()
 	{
 		base.OnKill();
@@ -118,7 +113,6 @@ public abstract class Turret : NonLiveEntity {
 	}
 	
 	//////////////////////////////////////////////////////////////////////////
-
 	protected	override		void	UpdateHeadRotation()
 	{
 		base.UpdateHeadRotation();
@@ -130,7 +124,7 @@ public abstract class Turret : NonLiveEntity {
 
 		// GUN
 		{
-			Vector3 pointToLookAt = m_LookData.PointToLookAt;
+	/*		Vector3 pointToLookAt = m_LookData.PointToLookAt;
 			if (m_TargetInfo.HasTarget == true ) // PREDICTION
 			{
 				// Vector3 shooterPosition, Vector3 shooterVelocity, float shotSpeed, Vector3 targetPosition, Vector3 targetVelocity
@@ -138,7 +132,7 @@ public abstract class Turret : NonLiveEntity {
 				(
 					shooterPosition: m_GunTransform.position,
 					shooterVelocity:	Vector3.zero,
-					shotSpeed: m_Pool.TryPeekComponentAs<IBullet>().Velocity,
+					shotSpeed: 0, // TODO handle this m_Pool.TryPeekComponentAs<IBullet>().Velocity,
 					targetPosition: m_TargetInfo.CurrentTarget.AsEntity.transform.position,
 					targetVelocity: m_TargetInfo.CurrentTarget.RigidBody.velocity
 				);
@@ -148,15 +142,15 @@ public abstract class Turret : NonLiveEntity {
 			if (m_IsAllignedHeadToPoint == true )
 			{
 				m_RotationToAllignTo.SetLookRotation( dirToPosition, m_BodyTransform.up );
-				m_GunTransform.rotation = Quaternion.RotateTowards(m_GunTransform.rotation, m_RotationToAllignTo, m_GunRotationSpeed * Time.deltaTime );
+				m_GunTransform.rotation = Quaternion.RotateTowards(m_GunTransform.rotation, m_RotationToAllignTo, m_GunAllignmentSpeed * Time.deltaTime );
 			}
 			m_IsAllignedGunToPoint = Vector3.Angle(m_GunTransform.forward, dirToPosition ) < 16f;
-		}
+	*/	}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	
+	/*
 	public	override		void	FireLongRange()
 	{
 		if (m_ShotTimer > 0 )
@@ -169,4 +163,5 @@ public abstract class Turret : NonLiveEntity {
 
 		m_FireAudioSource.Play();
 	}
+	*/
 }

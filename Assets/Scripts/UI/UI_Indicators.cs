@@ -76,10 +76,9 @@ public sealed class UI_Indicators : MonoBehaviour, IStateDefiner
 		bool resourcesLoaded = true;
 
 		// Section Data
-		Database.Section indicatorsseSection = null;
 		UnityEngine.Assertions.Assert.IsTrue
 		(
-			GlobalManager.Configs.GetSection("UI_Indicators", ref indicatorsseSection) && GlobalManager.Configs.bSectionToOuter(indicatorsseSection, m_IndicatorsSectionData),
+			GlobalManager.Configs.TryGetSection("UI_Indicators", out Database.Section indicatorsSection) && GlobalManager.Configs.TrySectionToOuter(indicatorsSection, m_IndicatorsSectionData),
 			"UI_Indicators::Initialize:Cannot load UI_IndicatorsSectionData"
 		);
 
@@ -175,8 +174,8 @@ public sealed class UI_Indicators : MonoBehaviour, IStateDefiner
 
 		Image mainIndicatorImage = null;
 		Image MinimapIndicatorImage = null;
-		indicatorTransform.SearchComponentInChild( "MainIndicator",		ref mainIndicatorImage );
-		indicatorTransform.SearchComponentInChild( "MinimapIndicator",	ref MinimapIndicatorImage );
+		indicatorTransform.TrySearchComponentByChildName( "MainIndicator",		out mainIndicatorImage );
+		indicatorTransform.TrySearchComponentByChildName( "MinimapIndicator",	out MinimapIndicatorImage );
 
 		MinimapIndicatorImage.sprite = mainIndicatorImage.sprite = indicator;
 

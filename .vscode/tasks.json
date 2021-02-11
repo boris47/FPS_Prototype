@@ -1,0 +1,39 @@
+{
+	// See https://go.microsoft.com/fwlink/?LinkId=733558
+	// for the documentation about the tasks.json format
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build",
+			"command": "dotnet",
+			"type": "shell",
+			"args": [
+				"build",
+				"8_FPS_Prototype2019.sln",
+				"--force"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"presentation": {
+				"reveal": "always"
+			},
+			"problemMatcher": "$msCompile",
+			"dependsOn": "Clean"
+		},
+		{
+			"label": "Clean",
+			"command": "dotnet",
+			"type": "shell",
+			"args": [
+				"clean",
+				"8_FPS_Prototype2019.sln"
+			],
+			"presentation": {
+				"reveal": "silent"
+			},
+			"problemMatcher": "$msCompile"
+		}
+	]
+}

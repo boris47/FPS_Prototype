@@ -103,7 +103,7 @@ namespace WeatherSystem {
 			yield return null;
 
 			//	m_RainFallParticleSystem Child
-			if (transform.SearchComponentInChild( "RainFallParticleSystem", ref m_RainFallParticleSystem ) == false ) 
+			if (transform.TrySearchComponentByChildName( "RainFallParticleSystem", out m_RainFallParticleSystem ) == false ) 
 			{
 				enabled = false;
 				yield break; //return;
@@ -112,7 +112,7 @@ namespace WeatherSystem {
 			yield return null;
 
 			//	m_RainExplosionParticleSystem Child
-			if (transform.SearchComponentInChild( "RainExplosionParticleSystem", ref m_RainExplosionParticleSystem ) == false ) 
+			if (transform.TrySearchComponentByChildName( "RainExplosionParticleSystem", out m_RainExplosionParticleSystem ) == false ) 
 			{
 				enabled = false;
 				yield break; //return;
@@ -121,7 +121,7 @@ namespace WeatherSystem {
 			yield return null;
 
 			// ThunderLight
-			if (transform.SearchComponentInChild( "ThunderLight", ref m_ThunderLight ) == false ) 
+			if (transform.TrySearchComponentByChildName( "ThunderLight", out m_ThunderLight ) == false ) 
 			{
 				enabled = false;
 				yield break; //return;
@@ -151,7 +151,7 @@ namespace WeatherSystem {
 			// m_RainFallParticleSystem Setup
 			{
 				Renderer rainRenderer = null;
-				bool bHasRenderer = m_RainFallParticleSystem.transform.SearchComponent( ref rainRenderer, ESearchContext.LOCAL );
+				bool bHasRenderer = m_RainFallParticleSystem.transform.TrySearchComponent(ESearchContext.LOCAL, out rainRenderer );
 				if ( bHasRenderer && rainRenderer.sharedMaterial != null )
 				{
 					m_RainMaterial = Resources.Load<Material>( RAIN_MATERIAL );
@@ -165,7 +165,7 @@ namespace WeatherSystem {
 			// m_RainExplosionParticleSystem Setup
 			{
 				Renderer rainRenderer = null;
-				bool bHasRenderer = m_RainExplosionParticleSystem.transform.SearchComponent( ref rainRenderer, ESearchContext.LOCAL );
+				bool bHasRenderer = m_RainExplosionParticleSystem.transform.TrySearchComponent(ESearchContext.LOCAL, out rainRenderer );
 				if ( bHasRenderer && rainRenderer.sharedMaterial != null )
 				{
 					m_RainExplosionMaterial = Resources.Load<Material>( RAIN_EXPLOSION_MATERIAL );
@@ -177,8 +177,7 @@ namespace WeatherSystem {
 			yield return null;
 			
 			// Get info from settings file
-			Database.Section thunderboltsSection = null;
-			if ( !(GlobalManager.Configs.GetSection("Thunderbolts", ref thunderboltsSection) && GlobalManager.Configs.bSectionToOuter(thunderboltsSection, m_ThunderboltsSectionData)) )
+			if ( !(GlobalManager.Configs.TryGetSection("Thunderbolts", out Database.Section thunderboltsSection) && GlobalManager.Configs.TrySectionToOuter(thunderboltsSection, m_ThunderboltsSectionData)) )
 			{
 				Debug.LogError("Cannot load Thunderbolts Section");
 				enabled = false;

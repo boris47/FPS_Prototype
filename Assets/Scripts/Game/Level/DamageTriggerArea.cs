@@ -51,8 +51,8 @@ public class DamageTriggerArea : MonoBehaviour {
 	private void Awake()
 	{
 		
-		m_IsActiveArea = transform.SearchComponent(ref m_TriggerEvents, ESearchContext.LOCAL);
-		m_IsActiveArea &= transform.SearchComponent(ref m_Collider, ESearchContext.LOCAL);
+		m_IsActiveArea = transform.TrySearchComponent(ESearchContext.LOCAL, out m_TriggerEvents);
+		m_IsActiveArea &= transform.TrySearchComponent(ESearchContext.LOCAL, out m_Collider);
 
 		if (m_IsActiveArea )
 		{
@@ -151,7 +151,7 @@ public class DamageTriggerArea : MonoBehaviour {
 		Entity enteredEntity = null;
 		EnteredGameObjectData newData = new EnteredGameObjectData()
 		{
-			bIsEntity = go.transform.SearchComponent(ref enteredEntity, ESearchContext.LOCAL),
+			bIsEntity = go.transform.TrySearchComponent(ESearchContext.LOCAL, out enteredEntity),
 			EnteredEntity = enteredEntity,
 			EnteredGameObject = go,
 			ObjectID = go.transform.root.GetInstanceID()
@@ -176,7 +176,7 @@ public class DamageTriggerArea : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnDrawGizmos()
 	{
-		if (transform.SearchComponent( ref m_Collider, ESearchContext.LOCAL ) )
+		if (transform.TrySearchComponent(ESearchContext.LOCAL, out m_Collider) )
 		{
 			Matrix4x4 mat = Gizmos.matrix;
 			Gizmos.matrix = transform.localToWorldMatrix;

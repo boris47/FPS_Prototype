@@ -20,9 +20,9 @@ namespace Database {
 		private	ELineValueType				iType				= 0;
 
 		[SerializeField]
-		private	MultiValue					pMultiValue			= null;
+		private	MultiValue					m_MultiValue			= null;
 		[SerializeField]
-		private	Value						pValue				= null;
+		private	Value						m_SingleValue				= null;
 
 		public	bool						IsOK
 		{
@@ -31,17 +31,15 @@ namespace Database {
 
 
 		// Can be NONE, SINGLE, MULTI, KEYONLY
-		public 	ELineValueType		Type 						{ get {return iType; } }
-		public 	string				Key							{ get { return ( string )sKey.Clone(); } }
-		public 	string				RawValue 					{ get { return ( string )sRawValue.Clone(); } }
-		public 	Value				Value						{ get { return pValue; } }
-		public 	MultiValue			MultiValue					{ get { return pMultiValue;	} }
+		public		ELineValueType		Type				=> iType;
+		public		string				Key					=> sKey;
+		public		string				RawValue			=> sRawValue;
+		public		Value				Value				=> m_SingleValue;
+		public		MultiValue			MultiValue			=> m_MultiValue;
+		public		bool				IsKey(string Key) => (sKey == Key);
 
 
-
-		// Type can be Single or Multi
 		/////////////////////////////////////////////////////////////////////////////////
-		// CONSTRUCTOR
 		public LineValue( string Key, ELineValueType Type )
 		{
 			iType = Type; sKey = Key; sRawValue = Key;
@@ -49,7 +47,6 @@ namespace Database {
 
 
 		/////////////////////////////////////////////////////////////////////////////////
-		// CONSTRUCTOR
 		public LineValue( LineValue clone ) : this( clone.sKey, clone.sRawValue )
 		{}
 
@@ -60,85 +57,82 @@ namespace Database {
 		{
 			sKey = Key;
 			sRawValue = ( ( sLine.Length > 0 ) ? sLine : "" );
+			IsOK = false;
 
-			if ( sLine.IndexOf( ',' ) > -1 )
-			{ // Supposing is a MultiVal string
+			if ( sLine.IndexOf( ',' ) > -1 ) // Supposing is a MultiVal string
+			{
 				iType = ELineValueType.MULTI;
 				Value[] vValues = Utils.String.RecognizeValues( sLine );
-				if ( vValues.Length < 1 )
-					return;
-
-				pMultiValue = new MultiValue( vValues );
-		
+				if ( vValues.Length >= 0 )
+				{
+					m_MultiValue = new MultiValue( vValues );
+					IsOK = true;
+				}
 			}
-			else
-			{ // Single value
+			else // Single value
+			{
 				iType = ELineValueType.SINGLE;
 				Value pValue = Utils.String.RecognizeValue( sLine );
-				if ( pValue == null ) {
-					UnityEngine.Debug.LogError( " cLineValue::Constructor: for key " + Key + " value type is undefined" );
-					return;
+				if (!pValue)
+				{
+					UnityEngine.Debug.LogError( $"cLineValue::Constructor: for key {Key} value type is undefined" );
 				}
-				this.pValue = pValue;
+				else
+				{
+					m_SingleValue = pValue;
+					IsOK = true;
+				}
 			}
-			IsOK = true;
-		}
-
-
-
-		/////////////////////////////////////////////////////////////////////////////////
-		public bool	GetAsSingle( ref Value value )
-		{
-			bool bResult = iType == ELineValueType.SINGLE;
-			if ( bResult )
-			{
-				value = pValue;
-			}
-			return bResult;
 		}
 
 
 		/////////////////////////////////////////////////////////////////////////////////
-		public bool	GetAsMulti( ref MultiValue multiValue )
+		public bool	GetAsSingle( out Value result )
 		{
-			bool bResult = iType == ELineValueType.MULTI;
-			if ( bResult )
+			if (iType == ELineValueType.SINGLE)
 			{
-				multiValue = pMultiValue;
+				result = m_SingleValue;
+				return true;
 			}
-			return bResult;
+			result = null;
+			return false;
+		}
+
+
+		/////////////////////////////////////////////////////////////////////////////////
+		public bool	GetAsMulti( out MultiValue result )
+		{
+			if (iType == ELineValueType.MULTI)
+			{
+				result = m_MultiValue;
+				return true;
+			}
+			result = null;
+			return false;
 		}
 
 
 		/////////////////////////////////////////////////////////////////////////////////
 		public void Destroy()
 		{
-			pValue = null;
-			pMultiValue = null;
-		}
-
-
-		/////////////////////////////////////////////////////////////////////////////////
-		public 	bool IsKey( string Key )
-		{
-			return (sKey == Key );
+			Clear();
 		}
 
 
 		/////////////////////////////////////////////////////////////////////////////////
 		public 	void Clear()
 		{
-			pValue		= null;
-			pMultiValue = null;
+			m_SingleValue = null;
+			m_MultiValue  = null;
 		}
 		
 
 		/////////////////////////////////////////////////////////////////////////////////
 		public 	LineValue Set( Value _Value )
 		{
-			pValue			= _Value;
-			pMultiValue	= null;
-			iType			= ELineValueType.SINGLE;
+			m_SingleValue		= _Value;
+			m_MultiValue		= null;
+			iType				= ELineValueType.SINGLE;
 			return this;
 		}
 
@@ -146,15 +140,10 @@ namespace Database {
 		/////////////////////////////////////////////////////////////////////////////////
 		public 	LineValue Set( MultiValue _MultiValue )
 		{
-			pMultiValue	= _MultiValue;
-			pValue			= null;
-			iType			= ELineValueType.MULTI;
+			m_SingleValue		= null;
+			m_MultiValue		= _MultiValue;
+			iType				= ELineValueType.MULTI;
 			return this;
 		}
-		
-	
-
 	}
-
-
 }

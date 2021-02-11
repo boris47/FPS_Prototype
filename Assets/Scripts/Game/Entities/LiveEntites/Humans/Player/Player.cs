@@ -7,8 +7,6 @@ public partial class Player : Human {
 
 	[Header("Player Properties")]
 
-	private	const	float			MAX_INTERACTION_DISTANCE		= 40.1f; // TODO set to 2.1
-
 	private	const	float			BODY_DRAG						= 8f;
 
 	public	static	Player			m_Instance						= null;
@@ -76,13 +74,13 @@ public partial class Player : Human {
 
 		base.Awake();
 
-		transform.SearchComponentInChild( "PNAT", ref m_PlayerNearAreaTrigger ); // Player Near Area Trigger
-		transform.SearchComponentInChild( "PFAT", ref m_PlayerFarAreaTrigger  ); // Player Far  Area Trigger
+		transform.TrySearchComponentByChildName( "PNAT", out m_PlayerNearAreaTrigger ); // Player Near Area Trigger
+		transform.TrySearchComponentByChildName( "PFAT", out m_PlayerFarAreaTrigger  ); // Player Far  Area Trigger
 
 		// Player Components
 		{
 			// Foots
-			Utils.Base.SearchComponent(gameObject, out m_Foots, ESearchContext.CHILDREN );
+			Utils.Base.TrySearchComponent(gameObject, ESearchContext.CHILDREN, out m_Foots );
 			DisableCollisionsWith(m_Foots.Collider );
 
 //			this.m_DodgeAbilityTarget = this.transform.Find( "DodgeAbilityTarget" );
@@ -93,13 +91,13 @@ public partial class Player : Human {
 		// Player Data
 		{
 			// Walking
-			m_SectionRef.AsMultiValue( "Walk",		1, 2, 3, ref m_WalkSpeed,	ref m_WalkJumpCoef,		ref m_WalkStamina );
+			m_SectionRef.AsMultiValue( "Walk",		1, 2, 3, out m_WalkSpeed,	out m_WalkJumpCoef,		out m_WalkStamina );
 
 			// Running
-			m_SectionRef.AsMultiValue( "Run",		1, 2, 3, ref m_RunSpeed,	ref m_RunJumpCoef,		ref m_RunStamina );
+			m_SectionRef.AsMultiValue( "Run",		1, 2, 3, out m_RunSpeed,	out m_RunJumpCoef,		out m_RunStamina );
 
 			// Crouched
-			m_SectionRef.AsMultiValue( "Crouch",	1, 2, 3, ref m_CrouchSpeed,	ref m_CrouchJumpCoef,	ref m_CrouchStamina );
+			m_SectionRef.AsMultiValue( "Crouch",	1, 2, 3, out m_CrouchSpeed, out m_CrouchJumpCoef,	out m_CrouchStamina );
 
 			m_FallDistanceThreshold		= m_SectionRef.AsFloat( "FallDistanceThreshold" );
 
@@ -110,14 +108,7 @@ public partial class Player : Human {
 
 			// Jumping
 			{
-				//				Database.cMultiValue JumpInfos	= m_SectionRef[ "Jump" ].MultiValue;
-				//	/*float*/	m_JumpForce				= JumpInfos[ 0 ].As<float>();				// Using System.Convert.ChangeType
-				//	/*float*/	m_JumpForce				= JumpInfos[ 0 ].ToFloat();					// Same as before
-				//	/*float*/	m_JumpForce				= JumpInfos[ 0 ];							// Implicit conversion
-
-				m_SectionRef.AsMultiValue( "Jump", 1, 2,	ref m_JumpForce,	ref m_JumpStamina );
-
-//				print( m_SectionRef[ "Jump" ].MultiValue[0].ToInteger() );
+				m_SectionRef.AsMultiValue( "Jump", 1, 2, out m_JumpForce, out m_JumpStamina );
 			}
 
 			// Stamina
@@ -337,7 +328,7 @@ public partial class Player : Human {
 		//// Distance check
 		//if ( m_RaycastHit.distance <= m_UseDistance )
 		//{
-		//	m_HasComponent = Utils.Base.SearchComponent( m_RaycastHit.transform.gameObject,ref m_Interactable, SearchContext.LOCAL );
+		//	m_HasComponent = Utils.Base.TrySearchComponent( m_RaycastHit.transform.gameObject,ref m_Interactable, SearchContext.LOCAL );
 		//}
 
 		//// ACTION INTERACT
@@ -390,7 +381,7 @@ public partial class Player : Human {
 
 
 		// GRAB ACTION
-		bool m_HasComponent = Utils.Base.SearchComponent( m_RaycastHit.transform.gameObject, out Grabbable grabbable, ESearchContext.LOCAL );
+		bool m_HasComponent = Utils.Base.TrySearchComponent( m_RaycastHit.transform.gameObject, ESearchContext.LOCAL, out Grabbable grabbable );
 		if ( m_HasComponent && grabbable.CanInteract )
 		{
 			grabbable.OnInteraction();
@@ -438,7 +429,7 @@ public partial class Player : Human {
 
 		//	// GRAB ACTION
 		//	Grabbable grabbable = null;
-		//	bool m_HasComponent = Utils.Base.SearchComponent( m_RaycastHit.transform.gameObject, ref grabbable, SearchContext.LOCAL );
+		//	bool m_HasComponent = Utils.Base.TrySearchComponent( m_RaycastHit.transform.gameObject, ref grabbable, SearchContext.LOCAL );
 		//	if ( InputManager.Inputs.Use && m_HasComponent && grabbable.CanInteract )
 		//	{
 		//		m_GrabbedObject = grabbable;

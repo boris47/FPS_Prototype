@@ -33,7 +33,6 @@ public class DecalsManager : InGameSingleton<DecalsManager>
 			IsAsyncBuild = true,
 		};
 		m_DecalsPool = new GameObjectsPool<Decal>(options);
-
 	}
 
 	//////////////////////////////////////////////////////////////////////////

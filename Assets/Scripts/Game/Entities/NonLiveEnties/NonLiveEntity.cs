@@ -9,25 +9,13 @@ public abstract partial class NonLiveEntity : Entity {
 	[Space]
 
 	[SerializeField]
-	protected		float				m_GunRotationSpeed			= 5.0f;
+	protected		float				m_GunAllignmentSpeed		= 5.0f;
 
-	[SerializeField]
-	protected		float				m_FireDispersion			= 0.01f;
-
-	// Weapon
-	protected		GameObjectsPool<Bullet> m_Pool					= null;
-	protected		float				m_ShotTimer					= 0.0f;
-	protected		ICustomAudioSource	m_FireAudioSource			= null;
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		Awake()
 	{
 		base.Awake();
-
-		Utils.Base.SearchComponent(gameObject, out m_FireAudioSource, ESearchContext.LOCAL );
-
-		m_GunTransform		= m_HeadTransform.Find( "Gun" );
-		m_FirePoint			= m_GunTransform.Find( "FirePoint" );
 	}
 	
 
@@ -87,15 +75,13 @@ public abstract partial class NonLiveEntity : Entity {
 	}
 
 
-	public override bool CanFire()
-	{
-		return m_IsAllignedGunToPoint;
-	}
+//	public override bool CanFire()
+//	{
+//		return m_IsAllignedGunToPoint;
+//	}
 
 	protected override void OnDestroy()
 	{
 		base.OnDestroy();
-
-		m_Pool.Destroy();
 	}
 }

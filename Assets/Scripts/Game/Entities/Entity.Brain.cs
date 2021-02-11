@@ -3,6 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
+[ System.Serializable ]
+public enum EBrainState {
+	EVASIVE		= 0,
+	NORMAL		= 1,
+	ALARMED		= 2,
+	SEEKER		= 3,
+	ATTACKER	= 4,
+	COUNT		= 5
+}
+
+
 // Brain Interface
 public interface IBrain {
 	IFieldOfView				FieldOfView				{ get; }
@@ -34,7 +45,7 @@ public abstract partial class Entity : IBrain {
 	[SerializeField]
 	protected			AIBehaviour					m_CurrentBehaviour				= new Behaviour_Empty();
 	[SerializeField]
-	protected			List<AIBehaviour>			m_Behaviours					= new List<AIBehaviour>( new AIBehaviour[5] );
+	protected			AIBehaviour[]				m_Behaviours					= new AIBehaviour[5] {null,null,null,null,null};
 
 	protected			FieldOfView					m_FieldOfView					= null;
 	protected			bool						m_HasFieldOfView				= false;
@@ -112,11 +123,11 @@ public abstract partial class Entity : IBrain {
 
 		if (m_IsBrainActive )
 		{
-			GameManager.FieldsOfViewManager.RegisterAgent(m_FieldOfView, m_FieldOfView.UpdateFOV );
+			GameManager.FieldsOfViewManager.RegisterAgent(m_FieldOfView, m_FieldOfView.UpdateFOV);
 		}
 		else
 		{
-			GameManager.FieldsOfViewManager?.UnregisterAgent(m_FieldOfView );
+			GameManager.FieldsOfViewManager?.UnregisterAgent(m_FieldOfView);
 		}
 	}
 
@@ -144,6 +155,12 @@ public abstract partial class Entity : IBrain {
 		m_CurrentBehaviour.OnDisable();
 		{
 			m_CurrentBrainState	= newState;
+			AIBehaviour nextBehaviour = m_Behaviours[ (int)newState ];
+			UnityEngine.Assertions.Assert.IsNotNull
+			(
+				nextBehaviour,
+				$"next behaviour is not valid"
+			);
 			m_CurrentBehaviour	= m_Behaviours[ (int)newState ];
 		}
 		m_CurrentBehaviour.OnEnable();
@@ -158,16 +175,4 @@ public abstract partial class Entity : IBrain {
 		m_FieldOfView.OnReset();
 	}
 
-}
-
-
-
-[ System.Serializable ]
-public enum EBrainState {
-	EVASIVE		= 0,
-	NORMAL		= 1,
-	ALARMED		= 2,
-	SEEKER		= 3,
-	ATTACKER	= 4,
-	COUNT		= 5
 }

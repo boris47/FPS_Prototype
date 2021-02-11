@@ -25,7 +25,7 @@ public class TurretGatling : Turret {
 
 		base.Awake();
 
-		m_GatlingTransform = m_GunTransform.Find( "Gatling" );
+//		m_GatlingTransform = m_GunTransform.Find( "Gatling" );
 	}
 
 
@@ -45,7 +45,7 @@ public class TurretGatling : Turret {
 		// APPLY ROTATION
 		if (m_RotationSpeed > 0.0f )
 		{
-			m_GatlingTransform.Rotate( Vector3.right, m_RotationSpeed * deltaTime, Space.Self );
+		//	m_GatlingTransform.Rotate( Vector3.right, m_RotationSpeed * deltaTime, Space.Self );
 		}
 
 		// ACTIVATION
@@ -61,7 +61,7 @@ public class TurretGatling : Turret {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	
+	/*
 	public	override		void	FireLongRange()
 	{
 		if (m_IsActivated == false )
@@ -88,5 +88,5 @@ public class TurretGatling : Turret {
 
 		m_FireAudioSource.Play();
 	}
-
+	*/
 }

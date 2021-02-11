@@ -1,6 +1,5 @@
 ﻿
 using UnityEngine;
-using Database;
 using UnityEngine.AI;
 
 
@@ -79,7 +78,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<ui
 	public		bool						IsAllignedHeadToPoint			{ get { return m_IsAllignedHeadToPoint; } }
 	public		bool						IsDisallignedHeadWithPoint		{ get { return m_IsDisallignedHeadWithPoint; } }
 	public		bool						IsAllignedBodyToPoint			{ get { return m_IsAllignedBodyToPoint; } }
-	public		bool						IsAllignedGunToPoint			{ get { return m_IsAllignedGunToPoint; } }
+//	public		bool						IsAllignedGunToPoint			{ get { return m_IsAllignedGunToPoint; } }
 	public		bool						HasLookAtObject					{ get { return m_LookData.HasLookAtObject; } }
 	public		bool						HasDestination					{ get { return m_HasDestination; } }
 	public		float						MinEngageDistance				{ get { return m_MinEngageDistance; } }
@@ -102,7 +101,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<ui
 	protected	bool						m_HasShield						= false;
 	protected	bool						m_IsActive						= true;
 	protected 	uint						m_ID							= 0;
-	protected	Section						m_SectionRef					= null;
+	protected	Database.Section			m_SectionRef					= null;
 	protected 	string						m_SectionName					= "None";
 	protected 	EEntityType					m_EntityType					= EEntityType.NONE;
 	protected	Rigidbody					m_RigidBody						= null;
@@ -143,13 +142,13 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<ui
 	protected	bool						m_IsDisallignedHeadWithPoint		= false;
 
 	// Flag set if gun of entity is aligned with target
-	protected   bool                        m_IsAllignedGunToPoint			= false;
+//	protected   bool                        m_IsAllignedGunToPoint			= false;
 
 	// Transforms
 	protected	Transform					m_HeadTransform					= null;
 	protected	Transform					m_BodyTransform					= null;
-	protected	Transform					m_GunTransform					= null;
-	protected	Transform					m_FirePoint						= null;
+//	protected	Transform					m_GunTransform					= null;
+//	protected	Transform					m_FirePoint						= null;
 
 	[Header("Orientation")]
 	[SerializeField]
@@ -176,7 +175,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<ui
 		EnableEvents();
 
 		// config file
-		if ( GlobalManager.Configs.GetSection(m_SectionName, ref m_SectionRef ) == false )
+		if ( GlobalManager.Configs.TryGetSection(m_SectionName, out m_SectionRef ) == false )
 		{
 			print( "Cannot find cfg section \""+ m_SectionName +"\" for entity " + name );
 			Destroy(gameObject );
@@ -207,32 +206,32 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<ui
 		m_IsOK = true;
 		{
 			// PHYSIC COLLIDER
-			m_IsOK   =	Utils.Base.SearchComponent(gameObject, out m_PhysicCollider, ESearchContext.LOCAL, c => !c.isTrigger );
+			m_IsOK   =	Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL, out m_PhysicCollider, c => !c.isTrigger );
 
 			// m_TriggerCollider
-			m_IsOK   =	Utils.Base.SearchComponent(gameObject, out m_TriggerCollider, ESearchContext.LOCAL, c => c.isTrigger );
+			m_IsOK   =	Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL, out m_TriggerCollider, c => c.isTrigger );
 
 			// RIGIDBODY
-			m_IsOK	&=	Utils.Base.SearchComponent(gameObject, out m_RigidBody, ESearchContext.LOCAL );
+			m_IsOK	&=	Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL, out m_RigidBody);
 		}
 
 		// SHIELD
-		if (m_HasShield = Utils.Base.SearchComponent(gameObject, out m_Shield, ESearchContext.CHILDREN ) )
+		if (m_HasShield = Utils.Base.TrySearchComponent(gameObject, ESearchContext.CHILDREN, out m_Shield ) )
 		{
 			m_Shield.OnHit += OnShieldHit;
 		}
 
 
 		// CUTSCENE MANAGER
-		m_HasCutsceneManager = Utils.Base.SearchComponent(gameObject, out m_CutsceneManager, ESearchContext.CHILDREN );
+		m_HasCutsceneManager = Utils.Base.TrySearchComponent(gameObject, ESearchContext.CHILDREN, out m_CutsceneManager );
 
 		// AI
 		{
 			// NAV AGENT
-			m_HasNavAgent = Utils.Base.SearchComponent(gameObject, out m_NavAgent, ESearchContext.LOCAL	);
+			m_HasNavAgent = Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL, out m_NavAgent);
 
 			// FIELD OF VIEW
-			m_HasFieldOfView = Utils.Base.SearchComponent(gameObject, out m_FieldOfView, ESearchContext.CHILDREN );
+			m_HasFieldOfView = Utils.Base.TrySearchComponent(gameObject, ESearchContext.CHILDREN, out m_FieldOfView);
 
 			// BLACKBOARD
 			if ( Blackboard.IsEntityRegistered(m_ID ) == false )
@@ -349,6 +348,12 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<ui
 		return false;
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	public		virtual	void	FireWeapon()
+	{
+
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Set the Collision state with another collider </summary>
@@ -374,10 +379,10 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<ui
 			Vector3 pointToLookAt = m_LookData.LookTargetType == ELookTargetType.TRANSFORM ? m_LookData.TransformToLookAt.position : m_LookData.PointToLookAt;
 
 			// point on the head 'Horizontal'  plane
-			Vector3 pointOnHeadPlane	= Utils.Math.ProjectPointOnPlane(m_BodyTransform.up, m_HeadTransform.position,		 pointToLookAt );
+			Vector3 pointOnHeadPlane	= Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_HeadTransform.position, pointToLookAt );
 
 			// point on the entity 'Horizontal' plane
-			Vector3 pointOnEntityPlane	= Utils.Math.ProjectPointOnPlane(m_BodyTransform.up, transform.position, pointToLookAt );
+			Vector3 pointOnEntityPlane	= Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, transform.position, pointToLookAt );
 
 			// Direction from head to point
 			Vector3 dirHeadToPosition	= ( pointOnHeadPlane - m_HeadTransform.position );
@@ -386,7 +391,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<ui
 			Vector3 dirEntityToPosition	= ( pointOnEntityPlane - transform.position );
 
 			// Angle between head and projected point
-			float lookDeltaAngle = Vector3.Angle(m_HeadTransform.forward, dirHeadToPosition );
+			float lookDeltaAngle = Vector3.Angle( m_HeadTransform.forward, dirHeadToPosition );
 
 			// Current head allignment state
 			bool isCurrentlyAlligned = lookDeltaAngle < 4f;
@@ -420,13 +425,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<ui
 				m_HeadTransform.rotation = Quaternion.RotateTowards(m_HeadTransform.rotation, m_RotationToAllignTo, rotationSpeed );
 			}
 		}
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	public	virtual	void	FireLongRange()
-	{
-
 	}
 
 }

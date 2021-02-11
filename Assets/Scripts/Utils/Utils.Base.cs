@@ -104,7 +104,6 @@ namespace Utils
 
 	public static class Base
 	{
-
 		////////////////////////////////////////////////
 		public	static	bool	GetTemplateSingle<T>( ref T Output, bool bSpawnIfNecessary = false ) where T : Component
 		{
@@ -212,98 +211,61 @@ namespace Utils
 
 
 		////////////////////////////////////////////////
-		private	static	T[]		SearchResults<T>( GameObject GameObject, ESearchContext Context )
+		private	static	bool	TrySearchResults<T>( GameObject GameObject, ESearchContext Context, out T[] results)
 		{
-			T[] results = null;
-			
-			switch ( Context )
+			results = null;
+			switch (Context)
 			{
-				case ESearchContext.LOCAL:
-				{
-					results = GameObject.GetComponents<T>();
-					break;
-				}
-					
-				case ESearchContext.CHILDREN:
-				{
-					results = GameObject.GetComponentsInChildren<T>();
-					break;
-				}
-				
-				case ESearchContext.PARENT:
-				{
-					results = GameObject.GetComponentsInParent<T>();
-					break;
-				}
-
-				case ESearchContext.FROM_ROOT:
-				{
-					results = GameObject.transform.root.GetComponentsInChildren<T>();
-					break;
-				}
-				default:
-				{
-					results = new T[0];
-					break;
-				}
+				case ESearchContext.LOCAL		: { results = GameObject.GetComponents<T>(); break; }
+				case ESearchContext.CHILDREN	: { results = GameObject.GetComponentsInChildren<T>(); break; }
+				case ESearchContext.PARENT		: { results = GameObject.GetComponentsInParent<T>(); break; }
+				case ESearchContext.FROM_ROOT	: { results = GameObject.transform.root.GetComponentsInChildren<T>(); break; }
 			}
-
-			return results;
+			return results != null && results.Length > 0;
 		}
 
 
 		////////////////////////////////////////////////
-		public	static	bool	SearchComponent<T>( GameObject GameObject, out T Component, ESearchContext Context, global::System.Predicate<T> Filter = null )
+		public	static	bool	TrySearchComponent<T>( GameObject GameObject, ESearchContext Context, out T Component, global::System.Predicate<T> Filter = null )
 		{
-			T[] results = SearchResults<T>( GameObject, Context );
-			
-			T result = default( T );
-
-			if ( results != null && results.Length > 0 )
+			Component = default(T);
+			if (TrySearchResults( GameObject, Context, out T[] results))
 			{
 				// Filtered search
-				if (  Filter != null )
+				if (Filter != null)
 				{
-					result = System.Array.Find( results, Filter );
+					Component = System.Array.Find(results, Filter);
 				}
 				// Normal search
 				else
 				{
-					result = results[0];
+					Component = results[0];
 				}
+				return Component.IsNotNull();
 			}
-
-			bool bHasValidResult = ( result != null );
-			if ( bHasValidResult )
-			{
-				Component = result;
-			}
-			else
-			{
-				Component = default(T);
-			}
-			return bHasValidResult;
+			return false;
 		}
 
 
 		////////////////////////////////////////////////
-		public	static	bool	SearchComponents<T1>( GameObject GameObject, ref T1[] Components, ESearchContext Context, global::System.Predicate<T1> Filter = null )
+		public	static	bool	TrySearchComponents<T>( GameObject GameObject, ESearchContext Context, out T[] Components, global::System.Predicate<T> Filter = null ) where T : Component
 		{
-			T1[] results = SearchResults<T1>( GameObject, Context );
-
-			// Filtered search
-			if ( Filter != null && results.Length > 0 )
+			Components = null;
+			if (TrySearchResults(GameObject, Context, out T[] results))
 			{
-				Components = global::System.Array.FindAll( results, ( T1 c ) => Filter( c ) );
+				// Filtered search
+				if (Filter != null)
+				{
+					Components = global::System.Array.FindAll(results, Filter);
+				}
+				// Normal search
+				else
+				{
+					Components = results;
+				}
+				return true;
 			}
-			// Normal search
-			else
-			{
-				Components = results;
-			}
-
-			bool bHasValidResult = ( Components != null && Components.Length > 0 );
-			return bHasValidResult;
+			return false;
 		}
 
 
@@ -344,20 +306,19 @@ namespace Utils
 
 
 	////////////////////////////////////////////////
-	public class DoubleBuffer<T> {
+	public class DoubleBuffer<T>
+	{
+		private readonly	T[]		m_Buffer = null;
+		private				uint	m_Latest = 0;
 
-		private	T[]		m_Buffer = null;
-		private uint	m_Latest = 0;
-
-		////////////////////////////////////////////////
-		public DoubleBuffer( T t1, T t2 )	{ m_Buffer = new T[] { t1, t2 };						}
-		////////////////////////////////////////////////
-		public	T	Current()				{		return m_Buffer[m_Latest ];						}
-		////////////////////////////////////////////////
-		public	T	Previous()				{		return m_Buffer[ (m_Latest + 1 ) % 2 ];			}
-		////////////////////////////////////////////////
-		public	T	SwapBuffers()			{		return m_Buffer[m_Latest = (m_Latest + 1 ) % 2 ]; }
-
+		//----------------------------------------------
+		public DoubleBuffer( T t1, T t2 )	{ m_Buffer = new T[] { t1, t2 }; }
+		//----------------------------------------------
+		public T Current()		=> m_Buffer[m_Latest];
+		//----------------------------------------------
+		public T Previous()		=> m_Buffer[(m_Latest + 1) % 2];
+		//----------------------------------------------
+		public T SwapBuffers()	 => m_Buffer[m_Latest = (m_Latest + 1) % 2];
 	}
 
 }

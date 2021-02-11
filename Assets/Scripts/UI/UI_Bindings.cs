@@ -47,7 +47,7 @@ public sealed class UI_Bindings : MonoBehaviour, IStateDefiner {
 
 			yield return null;
 
-			if (m_IsInitialized &= transform.SearchComponentInChild( "Button_Apply", ref m_ApplyButton ) )
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName( "Button_Apply", out m_ApplyButton ) )
 			{
 				m_ApplyButton.interactable = false;
 			}
@@ -65,7 +65,7 @@ public sealed class UI_Bindings : MonoBehaviour, IStateDefiner {
 			);
 
 			// Scroll content conmponent
-			m_IsInitialized &= transform.SearchComponent( ref m_ScrollContentTransform, ESearchContext.CHILDREN, c => c.HasComponent<VerticalLayoutGroup>() );
+			m_IsInitialized &= transform.TrySearchComponent(ESearchContext.CHILDREN, out m_ScrollContentTransform, c => c.HasComponent<VerticalLayoutGroup>() );
 
 			m_BlockPanel = transform.Find("BlockPanel" );
 			m_IsInitialized &= m_BlockPanel != null;
@@ -158,14 +158,14 @@ public sealed class UI_Bindings : MonoBehaviour, IStateDefiner {
 		// Command Label
 		{
 			Text commandLabel = null;
-			if ( commandRow.transform.SearchComponentInChild( 0, ref commandLabel ) )
+			if ( commandRow.transform.TrySearchComponentByChildIndex( 0, out commandLabel ) )
 				commandLabel.text = info.Command.ToString();
 		}
 
 		// Primary KeyState Dropdown
 		{
 			Dropdown primaryKeyStateDropdown = null;
-			if ( commandRow.transform.SearchComponentInChild( 1, ref primaryKeyStateDropdown ) )
+			if ( commandRow.transform.TrySearchComponentByChildIndex( 1, out primaryKeyStateDropdown ) )
 			{
 				primaryKeyStateDropdown.AddOptions( keyStateDropDownList );
 				primaryKeyStateDropdown.value = (int)info.PrimaryKeyState;
@@ -178,14 +178,14 @@ public sealed class UI_Bindings : MonoBehaviour, IStateDefiner {
 			}
 
 			Text label = null;
-			if ( primaryKeyStateDropdown.transform.SearchComponentInChild( 0, ref label ) )
+			if ( primaryKeyStateDropdown.transform.TrySearchComponentByChildIndex( 0, out label ) )
 				label.text = info.PrimaryKeyState.ToString();
 		}
 
 		// Primary Key Choice Button
 		{
 			Button primaryKeyChoiceButton = null;
-			if (commandRow.transform.SearchComponentInChild( 2, ref primaryKeyChoiceButton ) )
+			if (commandRow.transform.TrySearchComponentByChildIndex( 2, out primaryKeyChoiceButton ) )
 			{
 				primaryKeyChoiceButton.navigation = noNavigationMode;
 				primaryKeyChoiceButton.onClick.AddListener( 
@@ -197,14 +197,14 @@ public sealed class UI_Bindings : MonoBehaviour, IStateDefiner {
 			}
 
 			Text label = null;
-			if ( primaryKeyChoiceButton.transform.SearchComponentInChild( 0, ref label ) )
+			if ( primaryKeyChoiceButton.transform.TrySearchComponentByChildIndex( 0, out label ) )
 				label.text = info.GetKeyCode( EKeys.PRIMARY ).ToString();
 		}
 
 		// Secondary KeyState Dropdown
 		{
 			Dropdown secondaryKeyStateDropdown = null;
-			if ( commandRow.transform.SearchComponentInChild( 3, ref secondaryKeyStateDropdown ) )
+			if ( commandRow.transform.TrySearchComponentByChildIndex( 3, out secondaryKeyStateDropdown ) )
 			{
 				secondaryKeyStateDropdown.AddOptions( keyStateDropDownList );
 				secondaryKeyStateDropdown.value = (int)info.SecondaryKeyState;
@@ -217,14 +217,14 @@ public sealed class UI_Bindings : MonoBehaviour, IStateDefiner {
 			}
 
 			Text label = null;
-			if ( secondaryKeyStateDropdown.transform.SearchComponentInChild( 0, ref label ) )
+			if ( secondaryKeyStateDropdown.transform.TrySearchComponentByChildIndex( 0, out label ) )
 				label.text = info.SecondaryKeyState.ToString();
 		}
 
 		// Secondary Key Choice Button
 		{
 			Button secondaryKeyChoiceButton = null;
-			if ( commandRow.transform.SearchComponentInChild( 4, ref secondaryKeyChoiceButton ) )
+			if ( commandRow.transform.TrySearchComponentByChildIndex( 4, out secondaryKeyChoiceButton ) )
 			{
 				secondaryKeyChoiceButton.navigation = noNavigationMode;
 				secondaryKeyChoiceButton.onClick.AddListener( 
@@ -236,7 +236,7 @@ public sealed class UI_Bindings : MonoBehaviour, IStateDefiner {
 			}
 
 			Text label = null;
-			if ( secondaryKeyChoiceButton.transform.SearchComponentInChild( 0, ref label ) )
+			if ( secondaryKeyChoiceButton.transform.TrySearchComponentByChildIndex( 0, out label ) )
 				label.text = info.GetKeyCode( EKeys.SECONDARY ).ToString();
 		}
 	}

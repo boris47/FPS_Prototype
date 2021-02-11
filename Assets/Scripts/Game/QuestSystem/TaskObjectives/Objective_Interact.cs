@@ -18,7 +18,7 @@ namespace QuestSystem {
 
 			m_IsInitialized = true;
 
-			bool bIsGoodResult = Utils.Base.SearchComponent(gameObject, out m_Interactable, ESearchContext.LOCAL );
+			bool bIsGoodResult = Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL, out m_Interactable );
 			if ( bIsGoodResult )
 			{
 				m_Interactable.CanInteract = true;

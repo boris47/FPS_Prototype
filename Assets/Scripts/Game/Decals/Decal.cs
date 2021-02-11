@@ -14,7 +14,6 @@ public class Decal : MonoBehaviour
 		{
 
 		}
-
 	}
 
 	public void SetDecal(Material decalMaterial)

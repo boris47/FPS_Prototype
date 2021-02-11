@@ -1,5 +1,5 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -21,72 +21,89 @@ class EditorInitializer
 			);
 			Debug.Log( "Weathers cycles preloaded!" );
 		}
+
+		UnityEditor.EditorApplication.playModeStateChanged += (UnityEditor.PlayModeStateChange currentState) =>
+		{
+			if (currentState == UnityEditor.PlayModeStateChange.EnteredEditMode)
+			{
+				Cursor.lockState = CursorLockMode.None;
+				Cursor.visible = true;
+			}
+		};
 	}
-	/*
-	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
+	
+/*	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
 	private static void LoadLoadingScene()
 	{
 		if (!SceneManager.GetSceneByBuildIndex( (int)ESceneEnumeration.LOADING).isLoaded)
 		{
 			UnityEditor.SceneManagement.EditorSceneManager.OpenScene("Assets/Scenes/Loading.unity", UnityEditor.SceneManagement.OpenSceneMode.Additive);
 		}
-	}
-	*/
+	}*/
 }
 #endif
 
 public class CustomLogHandler : ILogHandler
 {
-    private System.IO.FileStream m_FileStream = null;
-    private System.IO.StreamWriter m_StreamWriter = null;
-
-	public static ILogHandler m_DefaultLogHandler { get; private set; }
-
-	private readonly System.Globalization.CultureInfo cultureInfo = (System.Globalization.CultureInfo)System.Globalization.CultureInfo.InvariantCulture.Clone();
+	public		static ILogHandler					m_DefaultLogHandler { get; private set; }	= null;
+    private		readonly System.IO.FileStream		m_FileStream								= null;
+    private		readonly System.IO.StreamWriter		m_StreamWriter								= null;
+	private		readonly CultureInfo				m_CultureInfo								= (CultureInfo)CultureInfo.InvariantCulture.Clone();
 
 	//////////////////////////////////////////////////////////////////////////
-	public CustomLogHandler()
+	public CustomLogHandler(bool UseFileSystemWriter)
     {
         m_DefaultLogHandler = Debug.unityLogger.logHandler;
         Debug.unityLogger.logHandler = this;
 
+		if (UseFileSystemWriter)
 		{
-			string filePath = $"{Application.dataPath}/SessionLog.log";
+			string filePath = System.IO.Path.Combine(Application.dataPath, "SessionLog.log");
 			m_FileStream = new System.IO.FileStream( filePath, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Write );
 			m_StreamWriter = new System.IO.StreamWriter(m_FileStream );
 		}
-
-		cultureInfo.NumberFormat.NumberDecimalSeparator = ".";
+		m_CultureInfo.NumberFormat.NumberDecimalSeparator = ".";
     }
+
+	private readonly System.Text.RegularExpressions.Regex filter = new System.Text.RegularExpressions.Regex("get_StackTrace|CustomLogHandler|UnityEngine|UnityEditor");
+	//////////////////////////////////////////////////////////////////////////
+	private string GetContext()
+	{
+		string contextTitle = "";
+		string line = System.Array.Find(System.Environment.StackTrace.Split('\n'), ln => !filter.IsMatch(ln));
+		if (!string.IsNullOrEmpty(line))
+		{
+			int start = line.IndexOf(' ', 2) + 1, end = line.IndexOf(' ', start);
+			contextTitle = $"{line.Substring(start, end - start)}: ";
+		}
+		return contextTitle;
+	}
 
 	//////////////////////////////////////////////////////////////////////////
     public void LogFormat( LogType logType, Object context, string format, params object[] args )
     {
-		m_StreamWriter.WriteLine( $"[{Time.time.ToString("0.000", cultureInfo)}] {System.String.Format( format, args )}" );
-        m_DefaultLogHandler.LogFormat( logType, context, format, args );
+		m_StreamWriter?.WriteLine( $"[{Time.time.ToString("0.000", m_CultureInfo)}] {string.Format( format, args )}" );
+        m_DefaultLogHandler.LogFormat( logType, context, $"{GetContext()}{format}", args );
     }
-
 
 	//////////////////////////////////////////////////////////////////////////
     public void LogException( System.Exception exception, Object context )
     {
-		m_StreamWriter.WriteLine( $"[{Time.time.ToString("0.000", cultureInfo)}] {exception.Message}" );
-		m_StreamWriter.WriteLine( exception.StackTrace );
-		m_StreamWriter.Flush();
+		m_StreamWriter?.WriteLine( $"[{Time.time.ToString("0.000", m_CultureInfo)}] {exception.Message}" );
+		m_StreamWriter?.WriteLine( exception.StackTrace );
+		m_StreamWriter?.Flush();
         m_DefaultLogHandler.LogException( exception, context );
     }
-	
 
 	//////////////////////////////////////////////////////////////////////////
 	public  void UnSetup()
 	{
-		m_StreamWriter.Flush();
-		m_StreamWriter.Close();
-		m_FileStream.Close();
+		m_StreamWriter?.Flush();
+		m_StreamWriter?.Close();
+		m_FileStream?.Close();
 
 		Debug.unityLogger.logHandler = m_DefaultLogHandler;
 	}
-	
 }
 
 
@@ -106,7 +123,7 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 		{
 			while (true)
 			{
-				yield return new WaitForSeconds(1);
+				yield return new WaitForSecondsRealtime(1);
 				updateUpdateCountPerSecond = updateCount;
 				updateFixedUpdateCountPerSecond = fixedUpdateCount;
 
@@ -128,8 +145,8 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 		{
 			fontSize = 10
 		};
-		GUI.Label(new Rect(20,  5, 200, 50), $"Update: {updateUpdateCountPerSecond.ToString()}", fontSize );
-        GUI.Label(new Rect(20, 15, 200, 50), $"FixedUpdate: {updateFixedUpdateCountPerSecond.ToString()}", fontSize );
+		GUI.Label(new Rect(20,  5, 200, 50), $"Update: {updateUpdateCountPerSecond}", fontSize );
+        GUI.Label(new Rect(20, 15, 200, 50), $"FixedUpdate: {updateFixedUpdateCountPerSecond}", fontSize );
 	}
 #endif
 
@@ -143,26 +160,26 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 	public	static			bool				bCanSave			= true;
 
 
-	private	static			SectionMap			m_Settings			= null;
-	public	static			SectionMap			Settings
+	private	static			SectionDB.LocalDB		m_Settings			= null;
+	public	static			SectionDB.LocalDB		Settings
 	{
 		get {
 			if ( m_Settings == null )
 			{
-				m_Settings = new SectionMap(m_SettingsFilePath);
+				m_Settings = new SectionDB.LocalDB(m_SettingsFilePath);
 			}
 			return m_Settings;
 		}
 	}
 
 
-	private	static			SectionMap			m_Configs			= null;
-	public	static			SectionMap			Configs
+	private	static			SectionDB.LocalDB		m_Configs			= null;
+	public	static			SectionDB.LocalDB		Configs
 	{
 		get {
 			if ( m_Configs == null )
 			{
-				m_Configs = new SectionMap(m_ConfigsFilePath);
+				m_Configs = new SectionDB.LocalDB(m_ConfigsFilePath);
 			}
 			return m_Configs;
 		}
@@ -196,9 +213,9 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 			Application.logMessageReceived += HandleException;
 		}
 
-		if ( Application.isEditor == false )
+	//	if ( Application.isEditor == false )
 		{
-			m_LoggerInstance = new CustomLogHandler();
+			m_LoggerInstance = new CustomLogHandler(!Application.isEditor);
 		}
 
 		// Whether physics queries should hit back-face triangles.
@@ -280,6 +297,13 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 			maximum *= 2f;
 		}
 		*/
+		if ( Input.GetKeyDown( KeyCode.U ) )
+		{
+			SectionDB.LocalDB qwe = new SectionDB.LocalDB("Configs/All");
+
+			SectionDB.GlobalDB.TryLoadFile("Configs/BuildSettings");
+		}
+
 
 		if ( Input.GetKeyDown( KeyCode.K ) )
 		{

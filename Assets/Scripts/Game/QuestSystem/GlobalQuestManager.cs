@@ -41,8 +41,7 @@ namespace QuestSystem {
 		private void Awake()
 		{
 			m_Instance = this;
-			Database.Section debugInfosSection = null;
-			if ( GlobalManager.Configs.GetSection( "DebugInfos", ref debugInfosSection ) )
+			if ( GlobalManager.Configs.TryGetSection( "DebugInfos", out Database.Section debugInfosSection ) )
 			{
 				m_ShowDebugInfo = debugInfosSection.AsBool( "QuestSystem", false );
 			}

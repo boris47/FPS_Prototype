@@ -50,8 +50,7 @@ public abstract class UI_BaseCrosshair : MonoBehaviour, IStateDefiner
 	//-------------------------------------
 	public virtual	IEnumerator Initialize		()
 	{
-		Database.Section section = null;
-		if ( IsInitialized &= GlobalManager.Configs.GetSection( GetType().FullName, ref section ) )
+		if ( IsInitialized &= GlobalManager.Configs.TryGetSection( GetType().FullName, out Database.Section section ) )
 		{
 			m_EffectMult = section.AsFloat( "EffectMult", m_EffectMult );
 		}

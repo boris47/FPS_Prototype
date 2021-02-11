@@ -38,8 +38,8 @@ public sealed class EffectsManager : SingletonMonoBehaviour<EffectsManager>
 		m_ParticleEffects = transform.Find("ParticleEffects");
 		m_AudioSources = transform.Find("AudioSources");
 
-		m_IsOK &= m_ParticleEffects.MapComponentsInChildrenToArray<ParticleSystem, EEffecs>( ref m_Effects );
-		m_IsOK &= m_AudioSources.MapComponentsInChildrenToArray<CustomAudioSource, EEffecs>( ref m_CustomAudioSource );
+		m_IsOK &= m_ParticleEffects.MapComponentsInChildrenToArray<ParticleSystem, EEffecs>( out m_Effects );
+		m_IsOK &= m_AudioSources.MapComponentsInChildrenToArray<CustomAudioSource, EEffecs>( out m_CustomAudioSource );
 	}
 
 

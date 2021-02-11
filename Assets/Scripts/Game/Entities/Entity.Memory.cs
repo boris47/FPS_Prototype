@@ -23,8 +23,8 @@ public partial interface IEntityMemory {
 	int				Count									{ get; }
 	bool			Contains								( uint EntityID );
 
-	Vector3			GetLastPositionByindex					( int index );
-	Vector3			GetLastDirectionByindex					( int index );
+	Vector3			GetLastPositionByIndex					( int index );
+	Vector3			GetLastDirectionByIndex					( int index );
 	Entity			GetEntityByindex						( int index );
 
 	Vector3			GetLastPosition							( uint EntityID );
@@ -46,17 +46,14 @@ public abstract partial class Entity : IEntityMemory {
 
 
 	private				IEntityMemory				m_MemoryInstance				= null;
-	public				IEntityMemory				Memory							{ get { return m_MemoryInstance; } }
+	public				IEntityMemory				Memory							=> m_MemoryInstance;
 
 	[SerializeField]
 	private				int							m_MemoriesCount = 0;
 
 
-	int		IEntityMemory.Count
-	{
-		get { return m_MemoriesCount; }
-	}
-	
+	int IEntityMemory.Count => m_MemoriesCount;
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -86,7 +83,6 @@ public abstract partial class Entity : IEntityMemory {
 			for ( int i = m_Memories.Count - 1; i >= 0; i-- )
 			{
 				MemoryUnit unit = m_Memories[ i ];
-
 			}
 		}
 	}
@@ -143,14 +139,14 @@ public abstract partial class Entity : IEntityMemory {
 
 
 	/// <summary> Get the last position giving a specific index </summary>
-	Vector3		IEntityMemory.GetLastPositionByindex( int index )
+	Vector3		IEntityMemory.GetLastPositionByIndex( int index )
 	{
 		return ( index > -1 && index < m_Memories.Count ) ? Vector3.zero : m_Memories[ index ].LastEnemyPosition;
 	}
 
 
 	/// <summary> Get the last direction giving a specific index </summary>
-	Vector3		IEntityMemory.GetLastDirectionByindex( int index )
+	Vector3		IEntityMemory.GetLastDirectionByIndex( int index )
 	{
 		return ( index > -1 && index < m_Memories.Count ) ? Vector3.zero : m_Memories[ index ].LastEnemyDirection;
 	}

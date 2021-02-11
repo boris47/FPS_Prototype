@@ -25,11 +25,11 @@ namespace WeatherSystem {
 			if ( path.Length == 0 )
 					return false;
 
-			SectionMap reader = new SectionMap();
-			if ( reader.LoadFile( path ) == false )
+			SectionDB.LocalDB reader = new SectionDB.LocalDB();
+			if ( !reader.TryLoadFile(path) )
 			{
 #if UNITY_EDITOR
-					EditorUtility.DisplayDialog( "Error !", "Selected file cannot be parsed !", "OK" );
+				EditorUtility.DisplayDialog( "Error !", "Selected file cannot be parsed !", "OK" );
 #endif
 			}
 			else
@@ -38,29 +38,27 @@ namespace WeatherSystem {
 				{
 					Debug.Log( "Parsing data for descripter " + descriptor.Identifier );
 
-					Database.Section section = null;
-					if ( reader.GetSection( descriptor.Identifier, ref section ) )
+					if (reader.TryGetSection(descriptor.Identifier, out Database.Section section))
 					{
-						Utils.Converters.StringToColor( section.GetRawValue("ambient_color"),		ref descriptor.AmbientColor	);
-						Utils.Converters.StringToColor( section.GetRawValue("sky_color"),			ref descriptor.SkyColor		);
-						Utils.Converters.StringToColor(	section.GetRawValue("sun_color"),			ref descriptor.SunColor		);
+						Utils.Converters.StringToColor(section.GetRawValue("ambient_color"), out descriptor.AmbientColor);
+						Utils.Converters.StringToColor(section.GetRawValue("sky_color"), out descriptor.SkyColor);
+						Utils.Converters.StringToColor(section.GetRawValue("sun_color"), out descriptor.SunColor);
 
-						descriptor.FogFactor		= section.AsFloat( "fog_density" );
-						descriptor.RainIntensity	= section.AsFloat( "rain_density" );
+						descriptor.FogFactor = section.AsFloat("fog_density");
+						descriptor.RainIntensity = section.AsFloat("rain_density");
 
-						if ( section.HasKey( "sun_rotation" ) )
+						if (section.HasKey("sun_rotation"))
 						{
-							Utils.Converters.StringToVector(section.GetRawValue("sun_rotation"),		ref descriptor.SunRotation	);
+							Utils.Converters.StringToVector3(section.GetRawValue("sun_rotation"), out descriptor.SunRotation);
 						}
-						else if ( section.HasKey( "sun_altitude" ) && section.HasKey( "sun_longitude") )
+						else if (section.HasKey("sun_altitude") && section.HasKey("sun_longitude"))
 						{
 							descriptor.SunRotation = Utils.Math.VectorByHP
 							(
-								section.AsFloat( "sun_altitude" ),
-								section.AsFloat( "sun_longitude" )
+								section.AsFloat("sun_altitude"),
+								section.AsFloat("sun_longitude")
 							);
 						}
-
 					}
 					descriptor.set = true;
 #if UNITY_EDITOR

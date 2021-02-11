@@ -85,7 +85,7 @@ public sealed class SurfaceManager : InGameSingleton<SurfaceManager>
 		// When the collider belongs to a normal mesh.
 		else
 		{
-			if (Physics.Raycast(ray, out RaycastHit hit) && Utils.Base.SearchComponent( hit.collider.gameObject, out Renderer renderer, ESearchContext.LOCAL ))
+			if (Physics.Raycast(ray, out RaycastHit hit) && Utils.Base.TrySearchComponent( hit.collider.gameObject, ESearchContext.LOCAL, out Renderer renderer))
 			{
 				if (renderer.sharedMaterial && renderer.sharedMaterial.mainTexture)
 				{

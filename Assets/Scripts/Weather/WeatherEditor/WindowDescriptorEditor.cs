@@ -56,7 +56,7 @@ namespace WeatherSystem {
 				m_AmbColorString = EditorGUILayout.TextArea (m_AmbColorString, GUILayout.MinWidth( BUTTON_WIDTH ) );
 				if ( GUILayout.Button( "GO" ) )
 				{
-					Utils.Converters.StringToColor(m_AmbColorString, ref m_CurrentDescriptor.AmbientColor );
+					Utils.Converters.StringToColor(m_AmbColorString, out m_CurrentDescriptor.AmbientColor );
 					m_AmbColorString = "";
 				}
 			}
@@ -97,7 +97,7 @@ namespace WeatherSystem {
 				m_SkyColorString = EditorGUILayout.TextArea (m_SkyColorString, GUILayout.MinWidth( BUTTON_WIDTH ) );
 				if ( GUILayout.Button( "GO" ) )
 				{
-					Utils.Converters.StringToColor(m_SkyColorString, ref m_CurrentDescriptor.SkyColor );
+					Utils.Converters.StringToColor(m_SkyColorString, out m_CurrentDescriptor.SkyColor );
 					m_SkyColorString = "";
 				}
 			}
@@ -114,7 +114,7 @@ namespace WeatherSystem {
 				m_SunColorString = EditorGUILayout.TextArea (m_SunColorString, GUILayout.MinWidth( BUTTON_WIDTH ) );
 				if ( GUILayout.Button( "GO" ) )
 				{
-					Utils.Converters.StringToColor(m_SunColorString, ref m_CurrentDescriptor.SunColor );
+					Utils.Converters.StringToColor(m_SunColorString, out m_CurrentDescriptor.SunColor );
 					m_SunColorString = "";
 				}
 			}
@@ -132,7 +132,7 @@ namespace WeatherSystem {
 				GUILayout.BeginHorizontal();
 				if ( GUILayout.Button( "GO" ) )
 				{
-					Utils.Converters.StringToVector(m_SunRotationString, ref m_CurrentDescriptor.SunRotation );
+					Utils.Converters.StringToVector3(m_SunRotationString, out m_CurrentDescriptor.SunRotation );
 					m_SunRotationString = "";
 				}
 				GUILayout.EndHorizontal();
@@ -146,23 +146,20 @@ namespace WeatherSystem {
 				if ( path.Length == 0 )
 					return;
 
-				SectionMap reader = new SectionMap();
-				if ( reader.LoadFile( path ) == false )
+				SectionDB.LocalDB reader = new SectionDB.LocalDB();
+				if ( reader.TryLoadFile( path ) == false )
 				{
 					 EditorUtility.DisplayDialog( "Error !", "Selected file cannot be parsed !", "OK" );
 				}
 				else
 				{
-					Database.Section section = null;
-					reader.GetSection(m_CurrentDescriptor.Identifier + ":00", ref section );
+					reader.TryGetSection($"{m_CurrentDescriptor.Identifier}:00", out Database.Section section );
 					if ( section != null )
 					{
-						Utils.Converters.StringToColor( section.GetRawValue("ambient_color"),		ref m_CurrentDescriptor.AmbientColor	);
-						Utils.Converters.StringToColor( section.GetRawValue("sky_color"),			ref m_CurrentDescriptor.SkyColor		);
-						Utils.Converters.StringToColor(	section.GetRawValue("sun_color"),			ref m_CurrentDescriptor.SunColor		);
-						Utils.Converters.StringToVector(section.GetRawValue("sun_rotation"),		ref m_CurrentDescriptor.SunRotation		);
-						section = null;
-						reader = null;
+						Utils.Converters.StringToColor( section.GetRawValue("ambient_color"),		out m_CurrentDescriptor.AmbientColor	);
+						Utils.Converters.StringToColor( section.GetRawValue("sky_color"),			out m_CurrentDescriptor.SkyColor		);
+						Utils.Converters.StringToColor(	section.GetRawValue("sun_color"),			out m_CurrentDescriptor.SunColor		);
+						Utils.Converters.StringToVector3(section.GetRawValue("sun_rotation"),		out m_CurrentDescriptor.SunRotation		);
 					}
 				}
 			}
@@ -177,19 +174,10 @@ namespace WeatherSystem {
 		private void OnDestroy()
 		{
 			m_CurrentDescriptor.set = true;
-
-			if (m_AmbColorString.Length > 0 )
-				Utils.Converters.StringToColor(m_AmbColorString, ref m_CurrentDescriptor.AmbientColor );
-
-			if (m_SkyColorString.Length > 0 )
-				Utils.Converters.StringToColor(m_SkyColorString, ref m_CurrentDescriptor.SkyColor );
-
-			if (m_SunColorString.Length > 0 )
-				Utils.Converters.StringToColor(m_SunColorString, ref m_CurrentDescriptor.SunColor );
-
-			if (m_SunRotationString.Length > 0 )
-				Utils.Converters.StringToVector(m_SunRotationString, ref m_CurrentDescriptor.SunRotation );
-
+			Utils.Converters.StringToColor(m_AmbColorString, out m_CurrentDescriptor.AmbientColor);
+			Utils.Converters.StringToColor(m_SkyColorString, out m_CurrentDescriptor.SkyColor );
+			Utils.Converters.StringToColor(m_SunColorString, out m_CurrentDescriptor.SunColor );
+			Utils.Converters.StringToVector3(m_SunRotationString, out m_CurrentDescriptor.SunRotation );
 			WindowWeatherEditor.GetWMGR().EDITOR_EditorDescriptorLinked = false;
 		}
 

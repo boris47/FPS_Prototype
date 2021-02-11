@@ -123,16 +123,16 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 			GameManager.UpdateEvents.OnThink			+= OnThink;
 			GameManager.UpdateEvents.OnPhysicFrame		+= OnPhysicFrame;
 			GameManager.UpdateEvents.OnFrame			+= OnFrame;
-			
+
 			// Field Of View Callbacks
-			if ( (m_EntityType == EEntityType.ACTOR ) == false )
+			if (m_EntityType != EEntityType.ACTOR)
 			{
 				string targetType = m_SectionRef.AsString( "DefaultTarget" );
-				EEntityType type = EEntityType.NONE;
-				Utils.Converters.StringToEnum( targetType, ref type );
-				m_BrainInstance.FieldOfView.TargetType = type;
+				if (Utils.Converters.StringToEnum(targetType, out EEntityType type))
+				{
+					m_BrainInstance.FieldOfView.TargetType = type;
+				}
 
-				//				m_FieldOfView.Setup( maxVisibleEntities : 10 );
 				m_FieldOfView.OnTargetAquired			= OnTargetAquired;
 				m_FieldOfView.OnTargetChanged			= OnTargetChanged;
 				m_FieldOfView.OnTargetLost				= OnTargetLost;
@@ -157,7 +157,7 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 			GameManager.UpdateEvents.OnFrame			-= OnFrame;
 			GameManager.UpdateEvents.OnThink			-= OnThink;
 
-			if ( (m_EntityType == EEntityType.ACTOR ) == false )
+			if (m_EntityType != EEntityType.ACTOR)
 			{
 				Destroy_Brain();
 
@@ -179,10 +179,10 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 		streamUnit.Position			= transform.position;
 		streamUnit.Rotation			= transform.rotation;
 
-		if ( (m_EntityType == EEntityType.ACTOR ) == false )
+		if ( m_EntityType != EEntityType.ACTOR )
 		{
 			// save data of every behaviour
-			m_Behaviours.ForEach( ( AIBehaviour b ) => b.OnSave( streamUnit ) );
+			System.Array.ForEach(m_Behaviours, ( AIBehaviour b ) => b.OnSave( streamUnit ));
 		}
 
 		return streamUnit;
@@ -192,36 +192,36 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		StreamUnit	OnLoad( StreamData streamData )
 	{
-		StreamUnit streamUnit = null;
-		if ( streamData.GetUnit(gameObject, ref streamUnit ) == false )
+		if (streamData.TryGetUnit(gameObject, out StreamUnit streamUnit))
+		{
+			gameObject.SetActive(true);
+			m_IsActive = true;
+
+			// Entity
+			m_TargetInfo = new TargetInfo();
+			m_HasDestination = false;
+
+			m_NavCanMoveAlongPath = false;
+			m_IsAllignedBodyToPoint = false;
+
+			// NonLiveEntity
+			m_IsAllignedHeadToPoint = false;
+
+			transform.position = streamUnit.Position;
+			transform.rotation = streamUnit.Rotation;
+
+			if (m_EntityType != EEntityType.ACTOR)
+			{
+				System.Array.ForEach(m_Behaviours, ( AIBehaviour b ) => b.OnLoad( streamUnit ));
+			}
+			return streamUnit;
+		}
+		else
 		{
 			gameObject.SetActive( false );
 			m_IsActive = false;
 			return null;
 		}
-
-		gameObject.SetActive( true );
-		m_IsActive						= true;
-
-		// Entity
-		m_TargetInfo					= new TargetInfo();
-		m_HasDestination				= false;
-
-		m_NavCanMoveAlongPath			= false;
-		m_IsAllignedBodyToPoint			= false;
-
-		// NonLiveEntity
-		m_IsAllignedHeadToPoint			= false;
-
-		transform.position = streamUnit.Position;
-		transform.rotation = streamUnit.Rotation;
-
-		if ( (m_EntityType == EEntityType.ACTOR ) == false )
-		{
-			m_Behaviours.ForEach( ( AIBehaviour b ) => b.OnLoad( streamUnit ) );
-		}
-
-		return streamUnit;
 	}
 
 

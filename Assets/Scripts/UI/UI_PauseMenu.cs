@@ -43,7 +43,7 @@ public sealed class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 		m_IsInitialized = true;
 		{
 			// RESUME BUTTON
-			if (m_IsInitialized &= transform.SearchComponentInChild( "Button_Resume", ref m_ResumeButton ) )
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName( "Button_Resume", out m_ResumeButton ) )
 			{
 				m_ResumeButton.onClick.AddListener( delegate()
 				{
@@ -53,13 +53,13 @@ public sealed class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 			}
 		/*
 			// SAVE BUTTON
-			if ( m_IsInitialized &= transform.SearchComponentInChild( "Button_Save", ref m_SaveButton ) )
+			if ( m_IsInitialized &= transform.TrySearchComponentInChild( "Button_Save", ref m_SaveButton ) )
 			{
 				m_SaveButton.onClick.AddListener( Save );
 			}
 
 			// SETTINGS BUTTON
-			if ( m_IsInitialized &= transform.SearchComponentInChild( "Button_Settings", ref m_SettingsButton ) )
+			if ( m_IsInitialized &= transform.TrySearchComponentInChild( "Button_Settings", ref m_SettingsButton ) )
 			{
 				m_SettingsButton.onClick.AddListener( delegate()
 				{
@@ -68,7 +68,7 @@ public sealed class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 			}
 
 			// SETTINGS BUTTON
-			if ( m_IsInitialized &= transform.SearchComponentInChild( "Button_MainMenu", ref m_MainMenuButton ) )
+			if ( m_IsInitialized &= transform.TrySearchComponentInChild( "Button_MainMenu", ref m_MainMenuButton ) )
 			{
 				m_MainMenuButton.onClick.AddListener( delegate()
 				{
@@ -77,7 +77,7 @@ public sealed class UI_PauseMenu : MonoBehaviour, IStateDefiner {
 			}
 
 			// SETTINGS BUTTON
-			if ( m_IsInitialized &= transform.SearchComponentInChild( "Button_Quit", ref m_QuitButton ) )
+			if ( m_IsInitialized &= transform.TrySearchComponentInChild( "Button_Quit", ref m_QuitButton ) )
 			{
 				m_QuitButton.onClick.AddListener( delegate()
 				{

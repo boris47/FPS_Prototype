@@ -128,3 +128,4 @@ AI Behiaviours
 	TODO Entity Groups
 **	TODO Bullets as triggers
 	TODO INSTANT Bullet tracers
+	TODO Enemies use custom weapons with custom logic and data

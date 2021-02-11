@@ -267,8 +267,7 @@ namespace WeatherSystem {
 				return;
 			}
 
-			Database.Section debugInfosSection = null;
-			if (m_ShowDebugInfo == false && GlobalManager.Configs.GetSection( "DebugInfos", ref debugInfosSection ) )
+			if (m_ShowDebugInfo == false && GlobalManager.Configs.TryGetSection( "DebugInfos", out Database.Section debugInfosSection ) )
 			{
 				m_ShowDebugInfo = debugInfosSection.AsBool( "WeatherManager", false);
 				if (m_ShowDebugInfo )
@@ -380,7 +379,7 @@ namespace WeatherSystem {
 		private StreamUnit StreamEvents_OnLoad( StreamData streamData )
 		{
 			StreamUnit streamUnit = null;
-			if ( streamData.GetUnit(gameObject, ref streamUnit ) == false )
+			if ( streamData.TryGetUnit(gameObject, out streamUnit ) == false )
 			{
 				m_DayTimeNow = streamUnit.GetAsFloat( "DayTimeNow" );
 				string cycleName = streamUnit.GetInternal( "CycleName" );
@@ -438,12 +437,11 @@ namespace WeatherSystem {
 			string startWeather = m_Cycles.LoadedCycles[0].name;
 
 			// Get info from settings file
-			Database.Section pSection = null;
-			if ( GlobalManager.Configs.GetSection( "Time", ref pSection) == true )
+			if ( GlobalManager.Configs.TryGetSection( "Time", out Database.Section pSection) == true )
 			{
-				pSection.bAsString( "StartTime",	ref startTime );
-				pSection.bAsString( "StartWeather", ref startWeather );
-				pSection.bAsFloat(	"TimeFactor",	ref m_TimeFactor );
+				pSection.TryAsString("StartTime",    out startTime,    startTime    );
+				pSection.TryAsString("StartWeather", out startWeather, startWeather );
+				pSection.TryAsFloat ("TimeFactor",   out m_TimeFactor, m_TimeFactor );
 			}
 
 			// Set current time

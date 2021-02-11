@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 
 namespace Utils {
@@ -7,58 +6,48 @@ namespace Utils {
 	public static  class Converters {
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		/// Accept a string and return the parsed result as enum value
-		/// </summary>
-		public	static	bool	StringToEnum<T>( string s, ref T e, bool ignoreCase = true ) where T : System.Enum
+		/// <summary> Accept a string and return the parsed result as enum value </summary>
+		public	static	bool	StringToEnum<T>( string s, out T enumValue, bool ignoreCase = true ) where T : struct
 		{
-			if ( s.Length == 0 )
-				return false;
-
-			e = ( T ) global::System.Enum.Parse( typeof( T ), s, ignoreCase: true );			
-			return true;
+			return global::System.Enum.TryParse( s, true, out enumValue);			
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		/// Accept a string and return the parsed result as enum value
-		/// </summary>
-		public	static	bool	StringToEnum( string s, global::System.Type t, ref object e, bool ignoreCase = true )
+		/// <summary> Accept a string and return the parsed result as enum value </summary>
+		public	static	bool	StringToEnum( string s, System.Type t, out object e, bool ignoreCase = true )
 		{
-			if ( s.Length == 0 )
-				return false;
-
-			if ( t.IsEnum == false )
-				return false;
-
-			e = global::System.Enum.Parse( t, s, ignoreCase: true );			
-			return true;
+			e = null;
+			if (s.Length > 0 && t.IsEnum)
+			{
+				e = global::System.Enum.Parse(t, s, ignoreCase: true);
+				return true;
+			}
+			return false;
 		}
 
 
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		/// Accept a ref Color and return read result
-		/// </summary>
-		public	static	bool	StringToColor( string s, ref Color c, float Alpha = 1.0f )
+		/// <summary> Accept a ref Color and return read result </summary>
+		public	static	bool	StringToColor( string s, out Color c, float Alpha = 0.0f )
 		{
-			if ( s.Length == 0 )
-				return false;
-
-			s.TrimStart(); s.Trim(); s.TrimEnd();
-
-			string[] sArray = s.Split( ',' );
-			if ( sArray.Length < 3 )
-				return false;
-			
-			c.r = float.Parse( sArray[0] );
-			c.g = float.Parse( sArray[1] );
-			c.b = float.Parse( sArray[2] );
-			c.a = Alpha;
-			return true;
+			c = Color.clear;
+			if ( s.Length > 0 )
+			{
+				string[] sArray = s.TrimStart().TrimInside().TrimEnd().Split(',');
+				if (sArray.Length >= 3)
+				{
+					if (float.TryParse(sArray[0], out float r) && float.TryParse(sArray[1], out float g) && float.TryParse(sArray[2], out float b))
+					{
+						c.r = r; c.g = g; c.b = b;
+						c.a = Alpha > 0.0f ? Alpha : (sArray.Length > 3 && float.TryParse(sArray[3], out float a)) ? a : 1.0f;
+						return true;
+					}
+				}
+			}
+			return false;
 		}
 
 
@@ -66,19 +55,22 @@ namespace Utils {
 		/// <summary>
 		///  Accept a ref Vector and return read result
 		/// </summary>
-		public	static	bool	StringToVector( string s, ref Vector3 v )
+		public	static	bool	StringToVector3( string s, out Vector3 v )
 		{
-			if ( s.Length == 0 )
-				return false;
-
-			s.TrimStart(); s.Trim(); s.TrimEnd();
-
-			string[] sArray = s.Split( ',' );
-			if ( sArray.Length < 3 )
-				return false;
-
-			v.Set( float.Parse( sArray[0] ), float.Parse( sArray[1] ), float.Parse( sArray[2] ) ); 
-			return true;
+			v = Vector3.zero;
+			if ( s.Length > 0 )
+			{
+				string[] sArray = s.TrimStart().TrimInside().TrimEnd().Split(',');
+				if (sArray.Length >= 3)
+				{
+					if (float.TryParse(sArray[0], out float x) && float.TryParse(sArray[1], out float y) && float.TryParse(sArray[2], out float z))
+					{
+						v.Set(x, y, z);
+						return true;
+					}
+				}
+			}
+			return false;
 		}
 
 
@@ -86,19 +78,23 @@ namespace Utils {
 		/// <summary>
 		///  Accept a ref Quaternion and return read result
 		/// </summary>
-		public	static	bool	StringToQuaternion( string s, ref Quaternion q )
+		public	static	bool	StringToQuaternion( string s, out Quaternion q )
 		{
-			if ( s.Length == 0 )
-				return false;
-
-			s.TrimStart(); s.Trim(); s.TrimEnd();
-
-			string[] sArray = s.Split( ',' );
-			if ( sArray.Length < 4 )
-				return false;
-
-			q.Set( float.Parse( sArray[0] ), float.Parse( sArray[1] ), float.Parse( sArray[2] ), float.Parse( sArray[3] ) );
-			return true;
+			q = Quaternion.identity;
+			if ( s.Length > 0 )
+			{
+				string[] sArray = s.TrimStart().TrimInside().TrimEnd().Split(',');
+				if (sArray.Length >= 4)
+				{
+					if (float.TryParse(sArray[0], out float x) && float.TryParse(sArray[1], out float y)
+					 && float.TryParse(sArray[2], out float z) && float.TryParse(sArray[3], out float w))
+					{
+						q.Set(x, y, z, w);
+						return true;
+					}
+				}
+			}
+			return false;
 		}
 
 
@@ -108,7 +104,7 @@ namespace Utils {
 		/// </summary>
 		public	static	string	Vector3ToString( Vector3 vector )
 		{
-			return vector.x + ", " + vector.y + ", " + vector.z;
+			return $"{vector.x}, {vector.y}, {vector.z}";
 		}
 
 
@@ -118,7 +114,7 @@ namespace Utils {
 		/// </summary>
 		public	static	string	QuaternionToString( Quaternion quaternion )
 		{
-			return quaternion.x + ", " + quaternion.y + ", " + quaternion.z + ", " + quaternion.w;
+			return $"{quaternion.x}, {quaternion.y}, {quaternion.z}, {quaternion.w}";
 		}
 
 

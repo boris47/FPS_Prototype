@@ -22,7 +22,7 @@ namespace QuestSystem {
 			m_OnFailureCallback = onFailureCallback;
 			motherTask.AddObjective( this );
 
-			if ( Utils.Base.SearchComponent( gameObject, out Entity entity, ESearchContext.LOCAL ) )
+			if ( Utils.Base.TrySearchComponent( gameObject, ESearchContext.LOCAL, out Entity entity ) )
 			{
 				entity.OnEvent_Killed += OnKill;
 			}

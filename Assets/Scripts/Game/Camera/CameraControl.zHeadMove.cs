@@ -28,8 +28,7 @@ public class HeadMove : CameraEffectBase
 	{
 		m_EffectActiveCondition =  condition;
 
-		Database.Section headmoveSection = null;
-		if ( !( GlobalManager.Configs.GetSection( "HeadMove", ref headmoveSection ) && GlobalManager.Configs.bSectionToOuter( headmoveSection, m_EffectSectionData ) ) )
+		if ( !( GlobalManager.Configs.TryGetSection( "HeadMove", out Database.Section headmoveSection ) && GlobalManager.Configs.TrySectionToOuter( headmoveSection, m_EffectSectionData ) ) )
 		{
 			Debug.Log( "HeadMove::Setup:Cannot load m_HeadMoveSectionData" );
 		}

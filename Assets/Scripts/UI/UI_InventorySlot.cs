@@ -48,7 +48,7 @@ public sealed class UI_InventorySlot : MonoBehaviour, IPointerClickHandler, ISta
 
 		m_IsInitialized = true;
 		{
-			m_IsInitialized &= transform.SearchComponent<Image>( ref m_Image, ESearchContext.LOCAL );
+			m_IsInitialized &= transform.TrySearchComponent<Image>(ESearchContext.LOCAL, out m_Image );
 		}
 
 		if (m_IsInitialized )

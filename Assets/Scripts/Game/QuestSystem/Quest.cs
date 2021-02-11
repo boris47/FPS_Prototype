@@ -124,7 +124,7 @@ namespace QuestSystem {
 		protected	virtual		StreamUnit		OnLoad( StreamData streamData )
 		{
 			StreamUnit streamUnit = null;
-			if ( streamData.GetUnit(gameObject, ref streamUnit ) )
+			if ( streamData.TryGetUnit(gameObject, out streamUnit ) )
 			{
 				m_Tasks.ForEach( t => t.OnLoad( streamUnit ) );
 			}

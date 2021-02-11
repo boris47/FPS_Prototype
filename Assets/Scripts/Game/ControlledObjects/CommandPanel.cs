@@ -54,8 +54,7 @@ public class CommandPanel : MonoBehaviour {
 	// OnLoad
 	private	StreamUnit	OnLoad( StreamData streamData )
 	{
-		StreamUnit streamUnit = null;
-		if ( streamData.GetUnit(gameObject, ref streamUnit ) == false )
+		if ( streamData.TryGetUnit(gameObject, out StreamUnit streamUnit ) == false )
 			return null;
 
 		if (m_IsTriggered = streamUnit.GetAsBool( "IsTriggered" ) == true )

@@ -7,7 +7,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 	[SerializeField]
 	protected	float			m_MoveMaxSpeed				= 3f;
-
+/*
 	[SerializeField]
 	protected	Bullet			m_Bullet					= null;
 
@@ -22,7 +22,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 	[SerializeField, ReadOnly]
 	protected	uint			m_PoolSize					= 5;
-
+*/
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -40,14 +40,16 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 				m_Shield.Setup( shieldStatus, EShieldContext.ENTITY );
 			}
 
-			m_DamageMax				= m_SectionRef.AsFloat( "DamageMax", 2.0f );
-			m_DamageMin				= m_SectionRef.AsFloat( "DamageMin", 0.5f );
-			m_PoolSize				= m_SectionRef.AsUInt( "PoolSize", m_PoolSize );
+	//		m_DamageMax				= m_SectionRef.AsFloat( "DamageMax", 2.0f );
+	//		m_DamageMin				= m_SectionRef.AsFloat( "DamageMin", 0.5f );
+	//		m_PoolSize				= m_SectionRef.AsUInt( "PoolSize", m_PoolSize );
 
 			m_EntityType			= EEntityType.ROBOT;
 		}
+		
 
-		// BULLETS POOL CREATION
+
+	/*	// BULLETS POOL CREATION
 		if (m_Pool == null )		// check for respawn
 		{
 			GameObject	bulletGO		= m_Bullet.gameObject;
@@ -74,7 +76,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 		m_Pool.SetActive( true );
 		m_ShotTimer = 0f;
-		m_MaxAgentSpeed = m_MoveMaxSpeed;
+	*/	m_MaxAgentSpeed = m_MoveMaxSpeed;
 	}
 
 	
@@ -136,7 +138,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		*/
 		// GUN
 		{
-			Vector3 pointToLookAt = m_LookData.PointToLookAt;
+/*			Vector3 pointToLookAt = m_LookData.PointToLookAt;
 			if (m_TargetInfo.HasTarget == true )
 			{
 				Vector3 targetPosition = m_TargetInfo.CurrentTarget.AsEntity.transform.position;
@@ -173,20 +175,20 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 					targetVelocity: m_TargetInfo.CurrentTarget.RigidBody.velocity
 				);
 			}
-		
+
 
 			Vector3 dirToPosition = ( pointToLookAt - m_GunTransform.position );
 			if (m_IsAllignedHeadToPoint == true )
 			{
 				m_RotationToAllignTo.SetLookRotation( dirToPosition, m_BodyTransform.up );
-				m_GunTransform.rotation = Quaternion.RotateTowards(m_GunTransform.rotation, m_RotationToAllignTo, m_GunRotationSpeed * Time.deltaTime );
+				m_GunTransform.rotation = Quaternion.RotateTowards(m_GunTransform.rotation, m_RotationToAllignTo, m_GunAllignmentSpeed * Time.deltaTime );
 			}
 			m_IsAllignedGunToPoint = Vector3.Angle(m_GunTransform.forward, dirToPosition ) < 16f;
-		}
+*/		}
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	
+	/*
 	public	override		void	FireLongRange()
 	{
 		if (m_ShotTimer > 0 )
@@ -207,7 +209,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 
 		m_FireAudioSource.Play();
 	}
-	
+	*/
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -230,8 +232,8 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		//		m_DistanceToTravel				= 0f;
 
 		// NonLiveEntity
-		m_ShotTimer						= 0f;
-		m_IsAllignedGunToPoint			= false;
+//		m_ShotTimer						= 0f;
+//		m_IsAllignedGunToPoint			= false;
 
 		// Reinitialize properties
 		Awake();

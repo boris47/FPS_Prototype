@@ -10,23 +10,17 @@ namespace Utils {
 	public static class String {
 
 
-		public	static	bool	IsAssetsPath( string path )
-		{
-			return path.StartsWith( "Assets/" );
-		}
+		public static bool IsAssetsPath(in string path) => path.StartsWith("Assets/");
 
 
-		public	static	bool	IsResourcesPath( string path )
-		{
-			return path.StartsWith( "Assets/" ) == false;
-		}
+		public static bool IsResourcesPath(in string path) => !path.StartsWith("Assets/");
 
-		public	static	bool	IsAbsolutePath( string path )
+		public	static	bool	IsAbsolutePath( in string path )
 		{
 			return !string.IsNullOrWhiteSpace(path)
-			&& path.IndexOfAny(global::System.IO.Path.GetInvalidPathChars()) == -1
-			&& global::System.IO.Path.IsPathRooted(path)
-			&& !global::System.IO.Path.GetPathRoot(path).Equals(global::System.IO.Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal);
+			&& path.IndexOfAny(System.IO.Path.GetInvalidPathChars()) == -1
+			&& System.IO.Path.IsPathRooted(path) //  whether the specified path string contains a root.
+			&& !System.IO.Path.GetPathRoot(path).Equals(System.IO.Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal);
 		}
 
 
@@ -116,15 +110,6 @@ namespace Utils {
 		}
 
 
-
-		//////////////////////////////////////////////////////////////////////////
-		/// <summary> Replace all '\\' with a dot each one </summary>
-		public	static		string ToDotStr( string FilePath )
-		{
-			return FilePath.Replace( '\\', '.' ).Replace( '/', '.' );
-		}
-
-
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Search for comment char and discard all presente on the right side of comment char, default char is ';' </summary>
 		public	static		void CleanComments( ref string str, char commentChar = ';' )
@@ -138,13 +123,12 @@ namespace Utils {
 					return;
 				}
 			}
-
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Return if string contains at last one letter </summary>
-		public	static		bool ContainsLetter( string str )
+		public	static		bool ContainsLetter( in string str )
 		{
 			bool found = false;
 			for ( int i = 0; i < str.Length && found == false; i++ )
@@ -160,7 +144,7 @@ namespace Utils {
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Return if string contains at last one digit </summary>
-		public	static		bool ContainsDigit( string str )
+		public	static		bool ContainsDigit( in string str )
 		{
 			bool found = false;
 			for ( int i = 0; i < str.Length && found == false; i++ )
@@ -176,15 +160,15 @@ namespace Utils {
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Return true for non empty string, that non contains at last one number or one letter or a block closing char </summary>
-		public	static		bool IsValid( string str )
+		public	static		bool IsValid( in string str )
 		{
-			return ( ( str.Length > 0 )  && (  ContainsLetter( str ) == true || ContainsDigit( str ) == true  || str == "}" ) );
+			return  ( str.Length > 0 )  && ( ContainsLetter( str ) || ContainsDigit( str ) );
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Return true for valid chars ( A - Z, ':' ) </summary>
-		private	static		bool IsValidChar( char Char )
+		private	static		bool IsValidChar( in char Char )
 		{
 			return ( ( Char > 64 && Char < 91  ) || // A - Z
 					 ( Char > 96 && Char < 123 ) || // a - z
@@ -250,7 +234,7 @@ namespace Utils {
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Return a cValue object if value is identified, otherwise null </summary>
-		public	static		Value RecognizeValue( string line )
+		public	static		Value RecognizeValue( in string line )
 		{
 			global::System.Type type = ReturnValueType( line );
 			if ( type == typeof( bool ) )
@@ -278,7 +262,7 @@ namespace Utils {
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Parse a string and return a list of values </summary>
-		public	static		Value[] RecognizeValues( string line )
+		public	static		Value[] RecognizeValues( in string line )
 		{
 			string[] values = line.Split( ',' );
 			if ( values.Length > 0 )
@@ -296,7 +280,7 @@ namespace Utils {
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Return an array of KeyValue on the same line </summary>
-		public	static	KeyValue[]	GetKeyValues( string line )
+		public	static	KeyValue[]	GetKeyValues( in string line )
 		{
 			string[] keyValues = line.Split( ',' );
 

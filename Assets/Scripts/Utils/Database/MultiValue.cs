@@ -14,45 +14,20 @@ namespace Database
 		public Value[] ValueList => m_ValuesList.ToArray();
 
 		//-------------------------------------------------------
-		public int Size
-		{
-			get
-			{
-				return m_ValuesList.Count;
-			}
-		}
+		public int Size => m_ValuesList.Count;
 
 		//-------------------------------------------------------
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
+		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
 		//-------------------------------------------------------
-		public List<Value>.Enumerator GetEnumerator()
-		{
-			return m_ValuesList.GetEnumerator();
-		}
+		public List<Value>.Enumerator GetEnumerator() => m_ValuesList.GetEnumerator();
 
 
+		/////////////////////////////////////////////////////////
 		public MultiValue(Value[] vValues = null, int capacity = 1)
 		{
 			m_ValuesList = vValues == null ? new List<Value>(capacity) : new List<Value>(vValues);
 		}
-
-		// Indexer behaviour
-/*		public Value this[int Index]
-		{
-			get
-			{
-				if (m_ValuesList.IsValidIndex(Index))
-				{
-					return m_ValuesList[Index];
-				}
-				return null;
-			}
-		}
-*/
 
 		/////////////////////////////////////////////////////////
 		public T Get<T>(int Index, T Default = default(T))
@@ -65,27 +40,26 @@ namespace Database
 		}
 
 		/////////////////////////////////////////////////////////
-		public bool TryGet<T>(int Index, out T ouput, T Default = default(T))
+		public bool TryGet<T>(int Index, out T ouput)
 		{
 			if (m_ValuesList.IsValidIndex(Index))
 			{
 				ouput = m_ValuesList[Index].As<T>();
 				return true;
 			}
-			ouput = Default;
+			ouput = default(T);
 			return false;
 		}
 
 		/////////////////////////////////////////////////////////
-		public void Add(Value pValue)
-		{
-			m_ValuesList.Add(pValue);
-		}
+		public void Add(Value pValue) => m_ValuesList.Add(pValue);
 
 
 		/////////////////////////////////////////////////////////
-		public bool DeductType(ref System.Type typeFound)
+		// TODO Refactor this method
+		public bool DeductType(out System.Type typeFound)
 		{
+			typeFound = null;
 			bool result = true;
 			{
 				System.Type elementType = m_ValuesList[0].GetType();

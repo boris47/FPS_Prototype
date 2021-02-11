@@ -39,13 +39,14 @@ public class TriggerEvents : MonoBehaviour {
 	private		bool			m_HasTriggered			= false;
 
 	private		Collider		m_Collider				= null;
+	private		Renderer		m_Renderer				= null;
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake
 	private void Awake()
 	{
-		bool bHasCollider = transform.SearchComponent( ref m_Collider, ESearchContext.LOCAL );
+		bool bHasCollider = transform.TrySearchComponent(ESearchContext.LOCAL, out m_Collider);
 
 		if ( bHasCollider == false )
 		{
@@ -87,7 +88,7 @@ public class TriggerEvents : MonoBehaviour {
 
 		// Get unit
 		StreamUnit streamUnit = null;
-		if ( streamData.GetUnit(gameObject, ref streamUnit ) == false )
+		if ( streamData.TryGetUnit(gameObject, out streamUnit ) == false )
 		{
 			return null;
 		}
@@ -135,7 +136,7 @@ public class TriggerEvents : MonoBehaviour {
 		if (m_Target && other.transform.root.GetInstanceID() != m_Target.transform.root.GetInstanceID() )
 			return;
 
-		bool bIsEntity = Utils.Base.SearchComponent( other.gameObject, out Entity entity, ESearchContext.CHILDREN );
+		bool bIsEntity = Utils.Base.TrySearchComponent( other.gameObject, ESearchContext.CHILDREN, out Entity entity );
 		if ( bIsEntity && m_BypassEntityCheck == false && entity.CanTrigger() == false )
 		{
 			return;
@@ -163,7 +164,12 @@ public class TriggerEvents : MonoBehaviour {
 
 	private void OnDrawGizmos()
 	{
-		if (transform.SearchComponent( ref m_Collider, ESearchContext.LOCAL ) )
+		if (TryGetComponent(out m_Renderer) && m_Renderer.enabled)
+		{
+			return; // avoid Z-fighting in the editor
+		}
+
+		if (transform.TrySearchComponent(ESearchContext.LOCAL, out m_Collider ) )
 		{
 			Matrix4x4 mat = Gizmos.matrix;
 			Gizmos.matrix = transform.localToWorldMatrix;

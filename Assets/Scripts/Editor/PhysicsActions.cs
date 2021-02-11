@@ -28,13 +28,9 @@ public class PhysicsActions
 			for ( int i = 0; i < transforms.Length; i++ )
 			{
 				UnityEngine.Transform t = transforms[i];
-
-				UnityEngine.Collider collider = null;
-				if ( t.SearchComponent( ref collider, ESearchContext.LOCAL ) )
+				if ( t.TrySearchComponent(ESearchContext.LOCAL, out UnityEngine.Collider collider) )
 				{
-					UnityEngine.Rigidbody rigidBody = null;
-					bool bHasRigidbody = t.SearchComponent( ref rigidBody, ESearchContext.LOCAL );
-					if ( bHasRigidbody )
+					if (t.TrySearchComponent(ESearchContext.LOCAL, out UnityEngine.Rigidbody rigidBody))
 					{
 						if ( rigidBody.constraints == UnityEngine.RigidbodyConstraints.FreezePosition ||
 							rigidBody.constraints == UnityEngine.RigidbodyConstraints.FreezePositionY )
@@ -42,12 +38,12 @@ public class PhysicsActions
 					}
 
 					float halfHeight = collider.bounds.extents.y;
-					UnityEngine.Vector3 origin = t.position + UnityEngine.Vector3.down * halfHeight;
+					UnityEngine.Vector3 origin = t.position + (UnityEngine.Vector3.down * halfHeight);
 					UnityEngine.Vector3 direction = UnityEngine.Vector3.down;
 
 					if (UnityEngine.Physics.Raycast(origin: origin, direction: direction, hitInfo: out UnityEngine.RaycastHit hitInfo))
 					{
-						t.position = hitInfo.point + UnityEngine.Vector3.up * halfHeight;
+						t.position = hitInfo.point + (UnityEngine.Vector3.up * halfHeight);
 					}
 
 				}

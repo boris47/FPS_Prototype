@@ -84,13 +84,12 @@ public interface IStreamEvents {
 public sealed partial class GameManager : IStreamEvents
 {
 	// Save slot infos
-	public class SaveFileinfo {
-
+	public class SaveFileinfo
+	{
 		public	string	fileName	= "";
 		public	string	filePath	= "";
 		public	string	saveTime	= "";
 		public	bool	isAutomatic = false;
-
 	}
 
 	private const	string				ENCRIPTION_KEY	= "Boris474Ever";
@@ -106,19 +105,13 @@ public sealed partial class GameManager : IStreamEvents
 	private			List<GameEvents.StreamingEvent>	m_OnLoadComplete = new List<GameEvents.StreamingEvent>();
 	private			EStreamingState					m_SaveLoadState		= EStreamingState.NONE;
 
-#region INTERFACE
+	#region INTERFACE
 	// INTERFACE START
 	/// <summary> Streaming events interface </summary>
-	public static	IStreamEvents		StreamEvents
-	{
-		get { return m_StreamEvents; }
-	}
+	public static IStreamEvents StreamEvents => m_StreamEvents;
 
 	/// <summary> Return the current stream State </summary>
-	EStreamingState	IStreamEvents.State
-	{
-		get { return m_SaveLoadState; }
-	}
+	EStreamingState IStreamEvents.State => m_SaveLoadState;
 
 	/// <summary> Events called when game is saving </summary>
 	event GameEvents.StreamingEvent IStreamEvents.OnSave
@@ -149,7 +142,6 @@ public sealed partial class GameManager : IStreamEvents
 		add		{ if ( value != null ) m_OnLoadComplete.Add(value); }// m_OnLoadComplete += value; }
 		remove	{ if ( value != null ) m_OnLoadComplete.Remove(value); }// m_OnLoadComplete -= value; }
 	}
-
 	// INTERFACE END
 #endregion INTERFACE
 
@@ -191,7 +183,7 @@ public sealed partial class GameManager : IStreamEvents
 
 			// Serialize data
 			string toSave = JsonUtility.ToJson(streamData, prettyPrint: true);
-			//			Encrypt( ref toSave );
+		//	Encrypt( ref toSave );
 			File.WriteAllText(filePath, toSave);
 		}
 
@@ -202,7 +194,7 @@ public sealed partial class GameManager : IStreamEvents
 			m_OnSaveComplete(streamData);
 			print("Saved!");
 		}
-		MultiThreading.CreateThread( body: body, bCanStart: true, onCompletion: onCompletion );
+		MultiThreading.CreateThread( body, bCanStart: true, onCompletion );
 	}
 	
 	//////////////////////////////////////////////////////////////////////////
@@ -225,7 +217,7 @@ public sealed partial class GameManager : IStreamEvents
 		// Body
 		m_SaveLoadState = EStreamingState.LOADING;
 		InputManager.IsEnabled = false;
-		print( "Loading "  + System.IO.Path.GetFileNameWithoutExtension( fileName ) + "..." );
+		print( $"Loading {System.IO.Path.GetFileNameWithoutExtension( fileName )}..." );
 
 		// Deserialize data
 		string toLoad = File.ReadAllText( fileName );
@@ -240,7 +232,7 @@ public sealed partial class GameManager : IStreamEvents
 		{
 			m_SaveLoadState = EStreamingState.LOAD_COMPLETE;
 			InputManager.IsEnabled = true;
-			Debug.LogError( "GameManager::Load:: Save \"" + fileName + "\" cannot be loaded" );
+			Debug.LogError( $"GameManager::Load:: Save \"{fileName}\" cannot be loaded" );
 		}
 	}
 
@@ -274,45 +266,34 @@ public sealed partial class GameManager : IStreamEvents
 	//////////////////////////////////////////////////////////////////////////
 	private		void			Encrypt( ref string clearText )
 	{
-		// TODO re-enable encryption
 		byte[] clearBytes = Encoding.Unicode.GetBytes( clearText );
-		m_Encryptor.Key = m_PDB.GetBytes( 32 );
-		m_Encryptor.IV = m_PDB.GetBytes( 16 );
+		m_Encryptor.Key = m_PDB.GetBytes( 32 ); m_Encryptor.IV = m_PDB.GetBytes( 16 );
 
-		MemoryStream stream = new MemoryStream();
+		using (MemoryStream stream = new MemoryStream())
 		{
-			CryptoStream crypter = new CryptoStream( stream, m_Encryptor.CreateEncryptor(), CryptoStreamMode.Write );
+			using (CryptoStream crypter = new CryptoStream(stream, m_Encryptor.CreateEncryptor(), CryptoStreamMode.Write))
 			{
-				crypter.Write( clearBytes, 0, clearBytes.Length );
+				crypter.Write(clearBytes, 0, clearBytes.Length);
 			}
-			crypter.Close();
-			crypter.Dispose();
 			clearText = System.Convert.ToBase64String( stream.ToArray() );
 		}
-		stream.Dispose();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private		void			Decrypt( ref string cipherText )
 	{
-		// TODO re-enable decryption
-		cipherText = cipherText.Replace( " ", "+" );
-		byte[] cipherBytes = System.Convert.FromBase64String( cipherText );
-		m_Encryptor.Key = m_PDB.GetBytes( 32 );
-		m_Encryptor.IV = m_PDB.GetBytes( 16 );
+		byte[] cipherBytes = System.Convert.FromBase64String( cipherText.Replace( " ", "+" ) );
+		m_Encryptor.Key = m_PDB.GetBytes( 32 ); m_Encryptor.IV = m_PDB.GetBytes( 16 );
 
-		MemoryStream stream = new MemoryStream();
+		using (MemoryStream stream = new MemoryStream())
 		{
-			CryptoStream crypter = new CryptoStream( stream, m_Encryptor.CreateDecryptor(), CryptoStreamMode.Write );
+			using (CryptoStream crypter = new CryptoStream(stream, m_Encryptor.CreateDecryptor(), CryptoStreamMode.Write))
 			{
 				crypter.Write( cipherBytes, 0, cipherBytes.Length );
 			}
 			cipherText = Encoding.Unicode.GetString( stream.ToArray() );
-		//	crypter.Close();
-		//	crypter.Dispose();
 		}
-		stream.Dispose();
 	}
 }
 
@@ -331,9 +312,24 @@ public class StreamUnit
 	[SerializeField]
 	public	Quaternion				Rotation		= Quaternion.identity;
 
+	[System.Serializable]
+	protected class MyKeyValuePair
+	{
+		[SerializeField]
+		public	string	Key = string.Empty;
+
+		[SerializeField]
+		public	string	Value = string.Empty;
+
+		public	MyKeyValuePair( string Key, string Value )
+		{
+			this.Key	= Key;
+			this.Value	= Value;
+		}
+	}
+
 	[SerializeField]
 	private	List<MyKeyValuePair>	Internals		= new List<MyKeyValuePair>();
-
 
 	//////////////////////////////////////////////////////////////////////////
 	public	void		SetInternal( string key, object value )
@@ -342,7 +338,6 @@ public class StreamUnit
 		int index = Internals.FindIndex( ( MyKeyValuePair kv ) => kv.Key == key );
 		if ( index == -1 )
 		{
-			//SetInternal( key, value );
 			MyKeyValuePair kv = new MyKeyValuePair( key, value.ToString() );
 			Internals.Add( kv );
 		}
@@ -370,32 +365,32 @@ public class StreamUnit
 	//////////////////////////////////////////////////////////////////////////
 	public	bool		HasInternal( string key )
 	{
-		MyKeyValuePair keyValue = Internals.Find( ( MyKeyValuePair kv ) => kv.Key == key );
-		return keyValue != null;
+		int index = Internals.FindIndex( ( MyKeyValuePair kv ) => kv.Key == key );
+		return index > -1;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public	string		GetInternal( string key )
 	{
-		MyKeyValuePair keyValue = Internals.Find( ( MyKeyValuePair kv ) => kv.Key == key );
-		if ( keyValue == null || keyValue.Value == null )
+		int keyValueIndex = Internals.FindIndex( ( MyKeyValuePair kv ) => kv.Key == key );
+		if (keyValueIndex > -1 && !string.IsNullOrEmpty(Internals[keyValueIndex].Value))
 		{
-			Debug.Log( "Cannot retrieve value for key " + key );
-			return "";
+			return Internals[keyValueIndex].Value;
 		}
-		return keyValue.Value;
+		Debug.Log($"Cannot retrieve value for key {key}");
+		return string.Empty;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public	bool		GetAsBool( string key )
 	{
-		string value = GetInternal( key );
-		if (bool.TryParse(value, out bool result) == false)
+		if (bool.TryParse(GetInternal(key), out bool result))
 		{
-			Debug.Log("Cannot retrieve value for key  " + key + " as BOOLEAN");
+			return result;
 		}
+		Debug.Log($"Streamunit:GetAsBool: Cannot retrieve value for key {key} as BOOLEAN");
 		return false;
 	}
 
@@ -403,65 +398,61 @@ public class StreamUnit
 	//////////////////////////////////////////////////////////////////////////
 	public	int			GetAsInt( string key )
 	{
-		string value = GetInternal( key );
-		if (int.TryParse(value, out int result) == false)
+		if (int.TryParse(GetInternal(key), out int result))
 		{
-			Debug.Log("Cannot retrieve value for key  " + key + " as INTEGER");
+			return result;
 		}
-		return result;
+		Debug.Log($"Streamunit:GetAsInt: Cannot retrieve value for key {key} as INTEGER");
+		return -1;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public	float		GetAsFloat( string key )
 	{
-		string value = GetInternal( key );
-		if (float.TryParse(value, out float result) == false)
+		if (float.TryParse(GetInternal(key), out float result))
 		{
-			Debug.Log("Cannot retrieve value for key  " + key + " as FLOAT");
+			return result;
 		}
-		return result;
+		Debug.Log($"Streamunit:GetAsFloat: Cannot retrieve value for key {key} as FLOAT");
+		return 0.0f;
 	}
 
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public	T			GetAsEnum<T>( string key ) where T : System.Enum
+	public	T			GetAsEnum<T>( string key ) where T : struct
 	{
-		string value = GetInternal( key );
-		T result = default( T );
-		if ( Utils.Converters.StringToEnum<T>( value, ref result ) == false )
+		if (Utils.Converters.StringToEnum(GetInternal(key), out T result) == false)
 		{
-			Debug.Log( "Cannot retrieve value for key  " + key + " as ENUM" );
+			return result;
 		}
-
-		return result;
+		Debug.Log($"Streamunit:GetAsEnum: Cannot retrieve value for key {key} as ENUM");
+		return default(T);
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public Vector3		GetAsVector( string key )
 	{
-		string value = GetInternal( key );
-		Vector3 result = Vector3.zero;
-		if ( Utils.Converters.StringToVector( value, ref result ) == false )
+		if (Utils.Converters.StringToVector3(GetInternal(key), out Vector3 result ))
 		{
-			Debug.Log( "Cannot retrieve value for key  " + key + " as VECTOR" );
+			return result;
 		}
-		return result;
+		Debug.Log($"Streamunit:GetAsVector: Cannot retrieve value for key {key} as VECTOR3");
+		return Vector3.zero;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public Quaternion	GetAsQuaternion( string key )
 	{
-		string value = GetInternal( key );
-		Quaternion result = Quaternion.identity;
-		if ( Utils.Converters.StringToQuaternion( value, ref result ) == false )
+		if (Utils.Converters.StringToQuaternion(GetInternal(key), out Quaternion result) )
 		{
-			Debug.Log( "Cannot retrieve value for key  " + key + " as QUATERNION" );
+			return result;
 		}
-		return result;
+		Debug.Log($"Streamunit:GetAsQuaternion: Cannot retrieve value for key {key} as QUATERNION");
+		return Quaternion.identity;
 	}
 }
 
@@ -501,11 +492,12 @@ public class StreamData
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> To be used ONLY during the LOAD event, otherwise nothing happen </summary>
-	public	bool		GetUnit( GameObject gameObject, ref StreamUnit streamUnit )
+	public	bool		TryGetUnit( GameObject gameObject, out StreamUnit streamUnit )
 	{
-//		if ( GameManager.StreamEvents.State != StreamingState.LOAD_COMPLETE )
-//			return false;
+	//	if ( GameManager.StreamEvents.State != StreamingState.LOAD_COMPLETE )
+	//		return false;
 
+		streamUnit = null;
 		int GOInstanceID = gameObject.GetInstanceID();
 		int index = m_Data.FindIndex( ( StreamUnit data ) => data.InstanceID == GOInstanceID );
 
@@ -523,22 +515,6 @@ public class StreamData
 		return found;
 	}
 
-}
-
-[System.Serializable]
-public class MyKeyValuePair
-{
-	[SerializeField]
-	public	string	Key = string.Empty;
-
-	[SerializeField]
-	public	string	Value = string.Empty;
-
-	public	MyKeyValuePair( string Key, string Value )
-	{
-		this.Key	= Key;
-		this.Value	= Value;
-	}
 }
 
 

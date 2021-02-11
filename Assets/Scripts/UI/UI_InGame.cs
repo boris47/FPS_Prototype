@@ -40,26 +40,26 @@ public sealed class UI_InGame : MonoBehaviour, IStateDefiner
 		m_IsInitialized = true;
 		m_IsInitialized &= transform.childCount > 1;
 
-		m_IsInitialized &= transform.SearchComponent( ref m_Canvas, ESearchContext.LOCAL );
+		m_IsInitialized &= transform.TrySearchComponent(ESearchContext.LOCAL, out m_Canvas);
 
-		m_IsInitialized &= transform.SearchComponentInChild( "UI_Frame", ref m_ZoomFrameImage );
+		m_IsInitialized &= transform.TrySearchComponentByChildName( "UI_Frame", out m_ZoomFrameImage );
 
-		if ( m_IsInitialized &= transform.SearchComponentInChild( "GenericInfosPanel", ref m_GenericInfosPanel ) )
+		if ( m_IsInitialized &= transform.TrySearchComponentByChildName( "GenericInfosPanel", out m_GenericInfosPanel ) )
 		{
-			m_IsInitialized &= m_GenericInfosPanel.SearchComponentInChild( 0, ref m_CycleNameText );
-			m_IsInitialized &= m_GenericInfosPanel.SearchComponentInChild( 1, ref m_TimeText );
-			m_IsInitialized &= m_GenericInfosPanel.SearchComponentInChild( 2, ref m_HealthText );
-			m_IsInitialized &= m_GenericInfosPanel.SearchComponentInChild( 3, ref m_Timetime );
+			m_IsInitialized &= m_GenericInfosPanel.TrySearchComponentByChildIndex( 0, out m_CycleNameText );
+			m_IsInitialized &= m_GenericInfosPanel.TrySearchComponentByChildIndex( 1, out m_TimeText );
+			m_IsInitialized &= m_GenericInfosPanel.TrySearchComponentByChildIndex( 2, out m_HealthText );
+			m_IsInitialized &= m_GenericInfosPanel.TrySearchComponentByChildIndex( 3, out m_Timetime );
 		}
 
-		if ( m_IsInitialized &= transform.SearchComponentInChild( "WeaponInfosPanel", ref m_WeaponInfosPanel ) )
+		if ( m_IsInitialized &= transform.TrySearchComponentByChildName( "WeaponInfosPanel", out m_WeaponInfosPanel ) )
 		{
-			m_IsInitialized &= m_WeaponInfosPanel.SearchComponentInChild( 0, ref m_WpnNameText );
-			m_IsInitialized &= m_WeaponInfosPanel.SearchComponentInChild( 2, ref m_WpnOtherInfoText );
-			m_IsInitialized &= m_WeaponInfosPanel.SearchComponentInChild( 3, ref m_StaminaBarImage );
+			m_IsInitialized &= m_WeaponInfosPanel.TrySearchComponentByChildIndex( 0, out m_WpnNameText );
+			m_IsInitialized &= m_WeaponInfosPanel.TrySearchComponentByChildIndex( 2, out m_WpnOtherInfoText );
+			m_IsInitialized &= m_WeaponInfosPanel.TrySearchComponentByChildIndex( 3, out m_StaminaBarImage );
 		}
 
-		m_IsInitialized &= transform.SearchComponentInChild( "Crosshairs", ref m_CrosshairsTransform );
+		m_IsInitialized &= transform.TrySearchComponentByChildName( "Crosshairs", out m_CrosshairsTransform );
 	}
 
 	//////////////////////////////////////////////////////////////////////////

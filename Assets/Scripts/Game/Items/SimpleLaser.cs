@@ -21,7 +21,7 @@ public class SimpleLaser : MonoBehaviour
 	{
 		m_LaserTransform = transform.GetChild( 0 );
 
-		if (enabled = transform.SearchComponent( ref m_Renderer, ESearchContext.CHILDREN ))
+		if (enabled = transform.TrySearchComponent(ESearchContext.CHILDREN, out m_Renderer ))
 		{
 			m_Renderer.material.color = m_Color;
 		}

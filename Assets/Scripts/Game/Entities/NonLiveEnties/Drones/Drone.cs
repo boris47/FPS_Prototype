@@ -8,7 +8,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 	[SerializeField]
 	protected	float			m_MoveMaxSpeed				= 3f;
 
-	[SerializeField]
+/*	[SerializeField]
 	private		Bullet			m_Bullet					= null;
 
 	[SerializeField]
@@ -22,7 +22,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 	[SerializeField, ReadOnly]
 	protected	uint			m_PoolSize					= 5;
-
+*/
 	//////////////////////////////////////////////////////////////////////////
 
 	protected	override	void	Awake()
@@ -41,16 +41,16 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 			m_MoveMaxSpeed			= m_SectionRef.AsFloat( "MoveMaxSpeed",			1.0f );
 
-			m_DamageLongRangeMax	= m_SectionRef.AsFloat( "DamageLongRangeMax",	2.0f );
-			m_DamageLongRangeMin	= m_SectionRef.AsFloat( "DamageLongRangeMin",	0.5f );
+	//		m_DamageLongRangeMax	= m_SectionRef.AsFloat( "DamageLongRangeMax",	2.0f );
+	//		m_DamageLongRangeMin	= m_SectionRef.AsFloat( "DamageLongRangeMin",	0.5f );
 
-			m_PoolSize				= m_SectionRef.AsUInt( "PoolSize", m_PoolSize );
+	//		m_PoolSize				= m_SectionRef.AsUInt( "PoolSize", m_PoolSize );
 
 			m_EntityType			= EEntityType.ROBOT;
 		}
 
 		// BULLETS POOL CREATION
-		if (m_Pool == null )		// check for respawn
+	/*	if (m_Pool == null )		// check for respawn
 		{
 			GameObject	bulletGO		= m_Bullet.gameObject;
 			GameObjectsPoolConstructorData<Bullet> data = new GameObjectsPoolConstructorData<Bullet>(bulletGO, m_PoolSize)
@@ -76,7 +76,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		}
 		m_Pool.SetActive( true );
 		m_ShotTimer = 0f;
-		m_MaxAgentSpeed = m_MoveMaxSpeed;
+	*/	m_MaxAgentSpeed = m_MoveMaxSpeed;
 	}
 	
 
@@ -119,7 +119,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		}
 
 		// GUN
-		{
+/*		{
 			Vector3 pointToLookAt = m_LookData.PointToLookAt;
 			if (m_TargetInfo.HasTarget == true ) // PREDICTION
 			{
@@ -138,15 +138,15 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 			if (m_IsAllignedHeadToPoint == true )
 			{
 				m_RotationToAllignTo.SetLookRotation( dirToPosition, m_BodyTransform.up );
-				m_GunTransform.rotation = Quaternion.RotateTowards(m_GunTransform.rotation, m_RotationToAllignTo, m_GunRotationSpeed * Time.deltaTime );
+				m_GunTransform.rotation = Quaternion.RotateTowards(m_GunTransform.rotation, m_RotationToAllignTo, m_GunAllignmentSpeed * Time.deltaTime );
 			}
 			m_IsAllignedGunToPoint = Vector3.Angle(m_GunTransform.forward, dirToPosition ) < 16f;
 		}
-	}
+*/	}
 	
 
 	//////////////////////////////////////////////////////////////////////////
-	
+	/*	
 	public	override		void	FireLongRange()
 	{
 		if (m_ShotTimer > 0 )
@@ -167,7 +167,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 
 		m_FireAudioSource.Play();
 	}
-	
+	*/
 	
 	//////////////////////////////////////////////////////////////////////////
 
@@ -189,13 +189,11 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		//		m_DistanceToTravel				= 0f;
 
 		// NonLiveEntity
-		m_ShotTimer						= 0f;
-		m_IsAllignedGunToPoint			= false;
+//		m_ShotTimer						= 0f;
+//		m_IsAllignedGunToPoint			= false;
 
 		// Reinitialize properties
 		Awake();
-
-
 
 		Brain_OnReset();
 

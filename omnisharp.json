@@ -1,0 +1,13 @@
+{
+	"RoslynExtensionsOptions": {
+		"EnableAnalyzersSupport": false,
+		"LocationPaths": [
+			"NuGet"
+		]
+	},
+	"script": {
+		"enabled": true,
+		"defaultTargetFramework": "net462",
+		"enableScriptNuGetReferences": true
+	}
+}

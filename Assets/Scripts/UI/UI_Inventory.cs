@@ -71,11 +71,10 @@ public sealed class UI_Inventory : MonoBehaviour, IStateDefiner {
 
 
 			// LOAD SECTION
-			Database.Section inventorySection = null;
-			m_IsInitialized &= GlobalManager.Configs.GetSection("UI_Inventory", ref inventorySection ) &&  GlobalManager.Configs.bSectionToOuter(inventorySection, m_InventorySectionData );
+			m_IsInitialized &= GlobalManager.Configs.TryGetSection("UI_Inventory", out Database.Section inventorySection ) &&  GlobalManager.Configs.TrySectionToOuter(inventorySection, m_InventorySectionData );
 
 			// Search grid component
-			m_IsInitialized &= m_InventorySlots.SearchComponent( ref m_GridLayoutGroup, ESearchContext.LOCAL );
+			m_IsInitialized &= m_InventorySlots.TrySearchComponent(ESearchContext.LOCAL, out m_GridLayoutGroup );
 			
 			// LOAD PREFAB
 			ResourceManager.AsyncLoadedData<GameObject> loadedResource = new ResourceManager.AsyncLoadedData<GameObject>();
@@ -137,7 +136,7 @@ public sealed class UI_Inventory : MonoBehaviour, IStateDefiner {
 			}
 
 			// SWITCH TO INVENTORY
-			if (m_IsInitialized &= transform.SearchComponentInChild( "SwitchToWeaponCustomization", ref m_SwitchToWeaponCustomization ) )
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName( "SwitchToWeaponCustomization", out m_SwitchToWeaponCustomization ) )
 			{
 				m_SwitchToWeaponCustomization.onClick.AddListener
 				(
@@ -148,7 +147,7 @@ public sealed class UI_Inventory : MonoBehaviour, IStateDefiner {
 			yield return null;
 
 			// RETURN TO GAME
-			if (m_IsInitialized &= transform.SearchComponentInChild( "ReturnToGame", ref m_ReturnToGame ) )
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName( "ReturnToGame", out m_ReturnToGame ) )
 			{
 				m_ReturnToGame.onClick.AddListener
 				(

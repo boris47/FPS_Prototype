@@ -78,8 +78,7 @@ public abstract class SingletonMonoBehaviour<T> : MonoBehaviour, SingletonInitia
 		if ( m_IsInitialized == false )
 		{
 			string typeName = typeof( T ).Name;
-			Database.Section debugInfosSection = null;
-			if ( GlobalManager.Configs.GetSection( "DebugInfos", ref debugInfosSection ) )
+			if ( GlobalManager.Configs.TryGetSection( "DebugInfos", out Database.Section debugInfosSection ) )
 			{
 				ShowDebugInfo = debugInfosSection.AsBool( typeName, false );
 			}
@@ -225,8 +224,7 @@ public abstract class InGameSingleton<T>: MonoBehaviour where T : MonoBehaviour
 		if ( m_IsInitialized == false )
 		{
 			string typeName = typeof( T ).Name;
-			Database.Section debugInfosSection = null;
-			if ( GlobalManager.Configs.GetSection( "DebugInfos", ref debugInfosSection ) )
+			if ( GlobalManager.Configs.TryGetSection( "DebugInfos", out Database.Section debugInfosSection ) )
 			{
 				ShowDebugInfo = debugInfosSection.AsBool( typeName, false );
 			}

@@ -9,7 +9,7 @@ public class UI_CircleCross : UI_BaseCrosshair
 
 	public override IEnumerator Initialize()
 	{
-		IsInitialized = transform.SearchChildWithName( "Circle", ref m_Circle	);
+		IsInitialized = transform.TrySearchComponentByChildName( "Circle", out m_Circle	);
 		yield return base.Initialize();
 		
 	}

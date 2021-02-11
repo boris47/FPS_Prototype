@@ -63,8 +63,8 @@ public class Shield : MonoBehaviour, IShield {
 	// Awake
 	private void Awake()
 	{
-		Utils.Base.SearchComponent(gameObject, out m_Renderer, ESearchContext.LOCAL );
-		Utils.Base.SearchComponent(gameObject, out m_Collider, ESearchContext.LOCAL );
+		Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL, out m_Renderer );
+		Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL, out m_Collider );
 
 		// First assignment
 		ResetDelegate();
@@ -87,7 +87,7 @@ public class Shield : MonoBehaviour, IShield {
 	// OnTriggerHit
 	public		void		CollisionHit				( GameObject collidingObject )
 	{
-		if ( Utils.Base.SearchComponent( collidingObject, out IBullet bullet, ESearchContext.CHILDREN ) )
+		if ( Utils.Base.TrySearchComponent( collidingObject, ESearchContext.CHILDREN, out IBullet bullet ) )
 		{
 			m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageType, bullet.Damage, bullet.CanPenetrate );
 		}
@@ -98,7 +98,7 @@ public class Shield : MonoBehaviour, IShield {
 	// OnCollisionEnter
 	private void OnCollisionEnter( Collision collision )
 	{
-		if ( Utils.Base.SearchComponent( collision.gameObject, out IBullet bullet, ESearchContext.CHILDREN ) )
+		if ( Utils.Base.TrySearchComponent( collision.gameObject, ESearchContext.CHILDREN, out IBullet bullet ) )
 		{
 			m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageType, bullet.Damage, bullet.CanPenetrate );
 		}
@@ -109,7 +109,7 @@ public class Shield : MonoBehaviour, IShield {
 	// OnTriggerEnter
 	private void OnTriggerEnter( Collider other )
 	{
-		if ( Utils.Base.SearchComponent( other.gameObject, out IBullet bullet, ESearchContext.CHILDREN ) )
+		if ( Utils.Base.TrySearchComponent( other.gameObject, ESearchContext.CHILDREN, out IBullet bullet ) )
 		{
 			m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageType, bullet.Damage, bullet.CanPenetrate );
 		}
@@ -139,7 +139,7 @@ public class Shield : MonoBehaviour, IShield {
 	StreamUnit IStreamableByEvents.OnSave( StreamData streamData )
 	{
 		StreamUnit streamUnit = null;
-		if ( streamData.GetUnit(gameObject, ref streamUnit ) == false )
+		if ( streamData.TryGetUnit(gameObject, out streamUnit ) == false )
 		{
 			enabled = false;
 			ResetDelegate();
@@ -158,7 +158,7 @@ public class Shield : MonoBehaviour, IShield {
 	StreamUnit IStreamableByEvents.OnLoad( StreamData streamData )
 	{
 		StreamUnit streamUnit = null;
-		if ( streamData.GetUnit(gameObject, ref streamUnit ) == false )
+		if ( streamData.TryGetUnit(gameObject, out streamUnit ) == false )
 		{
 			enabled = false;
 			ResetDelegate();

@@ -3,6 +3,8 @@ using UnityEngine;
 
 public partial class Player {
 
+	private	const	float			MAX_INTERACTION_DISTANCE		= 40.1f; // TODO set to 2.1
+
 	// The ammount of hit effect to show
 
 	[Header("Player Events")]

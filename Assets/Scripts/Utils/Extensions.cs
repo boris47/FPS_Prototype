@@ -1,11 +1,12 @@
 ﻿
-using System.Threading;
 using UnityEngine;
+using System.Linq;
 using System.Collections.Generic;
 
 
-public static class Extensions {
-
+public static class Extensions
+{
+	/////////////////////////---------------------------/////////////////////////
 	#region C#
 
 
@@ -20,29 +21,29 @@ public static class Extensions {
 		return bIsNotNull;
 	}
 
-	#endregion
+	#endregion C# OBJECT
 
 
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
 	#region C# STRING
-
+	
 	/// <summary> This method also trim inside the string </summary>
 	public static	string			TrimInside( this string str, params char[] trimChars )
 	{
 		List<char> charsToSearch = new List<char>(1);
 		if ( trimChars != null && trimChars.Length > 0 )
 		{
-			charsToSearch.AddRange( trimChars );
+			charsToSearch.AddRange(trimChars);
 		}
 		else
 		{
-			charsToSearch.Add( ' ' );
+			charsToSearch.Add(' ');
 		}
 
-		for ( int i = str.Length - 1; i >= 0; i-- )
+		for (int i = str.Length - 1; i >= 0; i--)
 		{
-			if ( charsToSearch.IndexOf( str[ i ] ) != -1 )
+			if (charsToSearch.IndexOf(str[i]) != -1)
 			{
 				str = str.Remove( i, 1 );
 			}
@@ -65,7 +66,7 @@ public static class Extensions {
 		return true;
 	}
 
-	#endregion
+	#endregion // C# STRING
 
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -164,32 +165,33 @@ public static class Extensions {
 		return bIsFound;
 	}
 
-	#endregion
+	#endregion // C# ARRAY
+
 
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
 	#region C# LIST
 
 	/// <summary> For a valid list return a random contained element </summary>
-	public static	T				Random<T>( this List<T> list )
+	public static	T				Random<T>( this ICollection<T> list )
 	{
 		if ( list == null || list.Count == 0 )
 			return default;
 
-		return list[ UnityEngine.Random.Range( 0, list.Count ) ]; 
+		return list.ElementAt( UnityEngine.Random.Range( 0, list.Count ) ); 
 	}
 
 
 	/// <summary> Tests if index is valid, i.e. greater than or equal to zero, and less than the number of elements in the list </summary>
 	/// <param name="index">Index to test</param>
 	/// <returns>returns True if index is valid. False otherwise</returns>
-	public static bool IsValidIndex<T>(this List<T> list, int index)
+	public static	bool			IsValidIndex<T>(this ICollection<T> list, in int index)
 	{
 		return index >= 0 && index < list.Count;
 	}
 
 	/// <summary> Resize the list with the new size </summary>
-	public static void Resize<T>(this List<T> list, int newSize)
+	public static	void			Resize<T>(this List<T> list, in int newSize)
 	{
 		if (newSize > list.Capacity)
 		{
@@ -200,9 +202,9 @@ public static class Extensions {
 
 
 	/// <summary> Ensure the the inserting element is only present one tine in the list </summary>
-	public static	bool		AddUnique<T>( this List<T> list, T element, System.Predicate<T> predicate = null )
+	public static	bool		AddUnique<T>( this List<T> list, T element, in System.Predicate<T> predicate = null )
 	{
-		System.Predicate<T> finalPredicate = predicate ?? delegate( T e ) { return e.Equals( element ); };
+		System.Predicate<T> finalPredicate = predicate ?? delegate(T e) { return e.Equals( element ); };
 		bool bAlreadyExists = list.FindIndex( finalPredicate ) > -1;
 		if ( bAlreadyExists == false )
 		{
@@ -211,16 +213,48 @@ public static class Extensions {
 		return bAlreadyExists;
 	}
 
-#endregion
+	#endregion // C# LIST
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+	#region C# DICTIONARY
+
+	public static	void		AddRange<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, in Dictionary<TKey, TValue> other, in bool bOverwrite = false)
+	{
+		if (other != null)
+		{
+			foreach(KeyValuePair<TKey, TValue> pair in other)
+			{
+				if (dictionary.ContainsKey(pair.Key))
+				{
+					if (bOverwrite)
+					{
+						dictionary.Add(pair.Key, pair.Value);
+					}
+				}
+				else
+				{
+					dictionary.Add(pair.Key, pair.Value);
+				}
+			}
+		}
+	}
 
 	#endregion
 
-	#region Unity
+
+	#endregion // C#
+
+	//-------------------------------------------------------------------------//
+
+	/////////////////////////---------------------------/////////////////////////
+	#region UNITY
+
 
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
 	#region ANIMATOR
-
 
 	/////////////////////////////////////////////////////////////////////////////
 	public static	bool			GetClipFromAnimator( this Animator animator, string name, ref AnimationClip result )
@@ -247,7 +281,7 @@ public static class Extensions {
 		return bIsClipFound;
 	}
 
-	#endregion
+	#endregion // ANIMATOR
 
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -263,58 +297,49 @@ public static class Extensions {
 
 
 	/////////////////////////////////////////////////////////////////////////////
-	/// <summary> Return the first transform found in child hiearchy with the given name or null if not found </summary>
-	public	static	bool			SearchChildWithName<T>( this Transform transform, string childName, ref T child ) where T : Component
-	{
-		return Utils.Base.SearchComponent( transform.gameObject, out child, ESearchContext.CHILDREN, t => t.name == childName );
-	}
-
-
-	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Can be used to retrieve a component with more detailed research </summary>
-	public	static	bool			SearchComponent<T>( this Transform transform, ref T Component, ESearchContext Context, global::System.Predicate<T> Filter = null ) where T : Component
+	public	static	bool			TrySearchComponent<T>( this Transform transform, ESearchContext Context, out T Component, global::System.Predicate<T> Filter = null ) where T : Component
 	{
-		return Utils.Base.SearchComponent( transform.gameObject, out Component, Context, Filter );
+		return Utils.Base.TrySearchComponent( transform.gameObject, Context, out Component, Filter );
 	}
 
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Can be used to retrieve a component's array with more detailed research details </summary>
-	public	static	bool			SearchComponents<T>( this Transform transform, ref T[] Components, ESearchContext Context, global::System.Predicate<T> Filter = null ) where T : Component
+	public	static	bool			TrySearchComponents<T>( this Transform transform, ESearchContext Context, out T[] Components, global::System.Predicate<T> Filter = null ) where T : Component
 	{
-		return Utils.Base.SearchComponents( transform.gameObject, ref Components, Context, Filter );
+		return Utils.Base.TrySearchComponents( transform.gameObject, Context, out Components, Filter );
 	}
 
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Search for a specific component at specific child, if found, return operation result </summary>
-	public	static	bool			SearchComponentInChild<T>( this Transform t, string childName, ref T Component) where T : Component
+	public	static	bool			TrySearchComponentByChildName<T>( this Transform transform, string childName, out T Component) where T : Component
 	{
-		if ( t.childCount == 0 )
-			return false;
-
-		Transform child = t.Find( childName );
-		if (child)
+		Component = default(T);
+		foreach (Transform child in transform)
 		{
-			return child.TryGetComponent<T>( out Component );
+			if (child.name == childName)
+			{
+				return child.TryGetComponent<T>(out Component);
+			}
 		}
-
-		return t.SearchComponent( ref Component, ESearchContext.CHILDREN, childd => childd.name == childName );
+		return false;
+	//	return Utils.Base.TrySearchComponent(transform.gameObject, ESearchContext.CHILDREN, out Component, child => child.name == childName);
+	//	return transform.TrySearchComponent(ESearchContext.CHILDREN, out Component, child => child.name == childName);
 	}
 
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Search for a specific component at specific child, if found, return operation result </summary>
-	public	static	bool			SearchComponentInChild<T>( this Transform t, int childIndex, ref T Component) where T : Component
+	public	static	bool			TrySearchComponentByChildIndex<T>( this Transform t, int childIndex, out T Component) where T : Component
 	{
-		if ( t.childCount == 0 || t.childCount < childIndex )
-			return false;
-		
-		Transform child = t.GetChild( childIndex );
-		if ( child == null )
-			return false;
-
-		return child.TryGetComponent<T>( out Component );
+		Component = default(T);
+		if (childIndex < t.childCount)
+		{
+			return t.GetChild(childIndex).TryGetComponent<T>(out Component);
+		}
+		return false;
 	} 
 
 
@@ -323,28 +348,29 @@ public static class Extensions {
 	/// Create and fills up given array with components found paired in childrens to the given enum type
 	/// Requirements: children must have same name (case sensitive) of enum members
 	/// </summary>
-	public	static	bool			MapComponentsInChildrenToArray<T0, T1>( this Transform t, ref T0[] array ) where T0 :Component where T1 : System.Enum
+	public	static	bool			MapComponentsInChildrenToArray<T0, T1>( this Transform t, out T0[] array ) where T0 :Component where T1 : System.Enum
 	{
-		if ( typeof( T1 ).IsEnum == false | t == null)
+		array = null;
+		if (typeof(T1).IsEnum)
 		{
-			return false;
+			string[] names = System.Enum.GetNames( typeof(T1) );
+			int namesCount = names.Length;
+			array = new T0[namesCount];
+			for (int i = 0; i < namesCount; i++)
+			{
+				string name = names[i];
+				array[i] = null;
+				t.TrySearchComponentByChildName( name, out array[i] );
+			}
+			return true;
 		}
-
-		string[] names = System.Enum.GetNames( typeof(T1) );
-		array = new T0[names.Length];
-
-		for ( int i = 0; i < names.Length; i++ )
-		{
-			string name = names[i];	array[i] = null;
-			t.SearchComponentInChild( name, ref array[i] );
-		}
-		return true;
+		return false;
 	}
 		
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Search for the given component only in children of given transform </summary>
-	public	static	T[]				GetComponentsOnlyInChildren<T>( this Transform transform, bool deepSearch = false, bool includeInactive = false  )
+	public	static	T[]				GetComponentsOnlyInChildren<T>(this Transform transform, bool deepSearch = false, bool includeInactive = false) where T : Component
 	{
 		List<T> list = new List<T>();
 		{
@@ -373,7 +399,7 @@ public static class Extensions {
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Look for given component, if not found add it, return component reference  </summary>
-	public	static	T				GetOrAddIfNotFound<T>( this Transform t ) where T : Component
+	public	static	T				GetOrAddIfNotFound<T>(this Transform t) where T : Component
 	{
 		if (t.TryGetComponent<T>(out T result) == false)
 		{
@@ -382,7 +408,7 @@ public static class Extensions {
 		return result;
 	}
 
-	#endregion
+	#endregion // TRANSFORM
 
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -401,13 +427,12 @@ public static class Extensions {
 		return result;
 	}
 
-	#endregion
+	#endregion // GAMEOBJECT
 
 
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
 	#region VECTOR2
-
 
 	/////////////////////////////////////////////////////////////////////////////
 	public static	Vector2			ClampComponents( this ref Vector2 v, float min, float max )
@@ -442,7 +467,7 @@ public static class Extensions {
 		v.y = Mathf.Lerp( v.x, dest.y, interpolant );
 	}
 
-	#endregion
+	#endregion // VECTOR2
 
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -486,14 +511,12 @@ public static class Extensions {
 		v.z = Mathf.Lerp( v.z, dest.z, interpolant );
 	}
 
-
-#endregion
+	#endregion // VECTOR3
 
 
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
 	#region QUATERNION
-
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Returna vector which rotation is the given quaternion </summary>
@@ -512,53 +535,54 @@ public static class Extensions {
 		}
 
 
-		/////////////////////////////////////////////////////////////////////////////
-		/// <summary> We need this because Quaternion.Slerp always uses the shortest arc </summary>
-		public	static	Quaternion		Slerp( this Quaternion p, Quaternion q, float t)
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> We need this because Quaternion.Slerp always uses the shortest arc </summary>
+	public	static	Quaternion		Slerp( this Quaternion p, Quaternion q, float t)
+	{
+		Quaternion ret;
+
+		float fCos = Quaternion.Dot(p, q);
+
+		fCos = ( fCos >= 0.0f ) ? fCos : -fCos;
+
+		float fCoeff0, fCoeff1;
+
+		if ( fCos < 0.9999f )
 		{
-			Quaternion ret;
+			float omega = Mathf.Acos(fCos);
+			float invSin = 1.0f / Mathf.Sin(omega);
+			fCoeff0 = Mathf.Sin((1.0f - t) * omega) * invSin;
+			fCoeff1 = Mathf.Sin(t * omega) * invSin;
+		}
+		else
+		{
+			// Use linear interpolation
+			fCoeff0 = 1.0f - t;
+			fCoeff1 = t;
+		}
 
-			float fCos = Quaternion.Dot(p, q);
+		fCoeff1 = ( fCos >= 0.0f ) ? fCoeff1 : -fCoeff1;
 
-			fCos = ( fCos >= 0.0f ) ? fCos : -fCos;
-
-			float fCoeff0, fCoeff1;
-
-			if ( fCos < 0.9999f )
-			{
-				float omega = Mathf.Acos(fCos);
-				float invSin = 1.0f / Mathf.Sin(omega);
-				fCoeff0 = Mathf.Sin((1.0f - t) * omega) * invSin;
-				fCoeff1 = Mathf.Sin(t * omega) * invSin;
-			}
-			else
-			{
-				// Use linear interpolation
-				fCoeff0 = 1.0f - t;
-				fCoeff1 = t;
-			}
-
-			fCoeff1 = ( fCos >= 0.0f ) ? fCoeff1 : -fCoeff1;
-
-			ret.x = (fCoeff0 * p.x) + (fCoeff1 * q.x);
-			ret.y = (fCoeff0 * p.y) + (fCoeff1 * q.y);
-			ret.z = (fCoeff0 * p.z) + (fCoeff1 * q.z);
-			ret.w = (fCoeff0 * p.w) + (fCoeff1 * q.w);
+		ret.x = (fCoeff0 * p.x) + (fCoeff1 * q.x);
+		ret.y = (fCoeff0 * p.y) + (fCoeff1 * q.y);
+		ret.z = (fCoeff0 * p.z) + (fCoeff1 * q.z);
+		ret.w = (fCoeff0 * p.w) + (fCoeff1 * q.w);
 			
-			return ret;
-		}
+		return ret;
+	}
 
 
-		/////////////////////////////////////////////////////////////////////////////
-		/// <summary> Return th lenght of a quaternion </summary>
-		public	static	float			GetLength( this Quaternion q )
-		{
-			return Mathf.Sqrt((q.x * q.x) + (q.y * q.y) + (q.z * q.z) + (q.w * q.w));
-		}
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Return th lenght of a quaternion </summary>
+	public	static	float			GetLength( this Quaternion q )
+	{
+		return Mathf.Sqrt((q.x * q.x) + (q.y * q.y) + (q.z * q.z) + (q.w * q.w));
+	}
 
-	#endregion
+	#endregion // QUATERNION
 
-	#endregion
+
+	#endregion // UNITY
 }
 
 

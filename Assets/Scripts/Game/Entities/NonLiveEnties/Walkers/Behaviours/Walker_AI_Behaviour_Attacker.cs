@@ -75,7 +75,7 @@ public class Walker_AI_Behaviour_Attacker : AIBehaviour {
 			// with a target, if gun alligned, fire
 			if (EntityData.EntityRef.CanFire() == true )
 			{
-				EntityData.EntityRef.FireLongRange();
+				EntityData.EntityRef.FireWeapon();
 			}
 		}
 

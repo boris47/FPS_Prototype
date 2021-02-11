@@ -73,10 +73,9 @@ public sealed class UI_ComInterface : MonoBehaviour, IStateDefiner {
 		bool resourcesLoaded = true;
 
 		// Section Data
-		Database.Section notificationseSection = null;
 		UnityEngine.Assertions.Assert.IsTrue
 		(
-			GlobalManager.Configs.GetSection("Notifications", ref notificationseSection) && GlobalManager.Configs.bSectionToOuter(notificationseSection, m_NotificationsSectionData),
+			GlobalManager.Configs.TryGetSection("Notifications", out Database.Section notificationseSection) && GlobalManager.Configs.TrySectionToOuter(notificationseSection, m_NotificationsSectionData),
 			"UI_ComInterface::Initialize:Cannot load m_NotificationsSectionData"
 		);
 

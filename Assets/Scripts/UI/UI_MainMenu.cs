@@ -48,19 +48,19 @@ public sealed class UI_MainMenu : MonoBehaviour, IStateDefiner
 		{
 			/*
 			// NEW GAME BUTTON
-			if ( transform.SearchComponentInChild( "Button_NewGame", ref m_NewGameButton ) )
+			if ( transform.TrySearchComponentInChild( "Button_NewGame", ref m_NewGameButton ) )
 			{
 				m_NewGameButton.onClick.AddListener( OnNewGame );
 			}
 			*/
 			// RESUME BUTTON
-			if (m_IsInitialized &= transform.SearchComponentInChild( "Button_Resume", ref m_ResumeButton ) )
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName( "Button_Resume", out m_ResumeButton ) )
 			{
 //				m_ResumeButton.onClick.AddListener( OnResume );
 			}
 			/*
 			// SETTINGS BUTTON
-			if ( transform.SearchComponentInChild( "Button_Settings", ref m_SettingsButton ) )
+			if ( transform.TrySearchComponentInChild( "Button_Settings", ref m_SettingsButton ) )
 			{
 				m_SettingsButton.onClick.AddListener( delegate()
 				{

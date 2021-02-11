@@ -56,7 +56,7 @@ public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
 
 			yield return null;
 
-			if (m_IsInitialized &= transform.SearchComponentInChild("ResolutionsDropDown", ref m_ResolutionDropDown))
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName("ResolutionsDropDown", out m_ResolutionDropDown))
 			{
 				Resolution[] availableResolutions = UserSettings.VideoSettings.GetAvailableResolutions();
 				m_ResolutionDropDown.onValueChanged.AddListener((int index) =>
@@ -74,7 +74,7 @@ public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
 
 			yield return null;
 
-			if (m_IsInitialized &= transform.SearchComponentInChild("QualityLevelDropDown", ref m_QualityLevelDropDown))
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName("QualityLevelDropDown", out m_QualityLevelDropDown))
 			{
 				m_QualityLevelDropDown.onValueChanged.AddListener((int newiIndex) =>
 				{
@@ -86,7 +86,7 @@ public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
 
 			yield return null;
 
-			if (m_IsInitialized &= transform.SearchComponentInChild("FullScreenToggle", ref m_FullScreenToogle))
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName("FullScreenToggle", out m_FullScreenToogle))
 			{
 				m_FullScreenToogle.onValueChanged.AddListener((bool newValue) =>
 				{
@@ -97,7 +97,7 @@ public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
 
 			yield return null;
 
-			if (m_IsInitialized &= transform.SearchComponentInChild("AnisotropicFilterToogle", ref m_AnisotropicFilterToogle))
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName("AnisotropicFilterToogle", out m_AnisotropicFilterToogle))
 			{
 				m_AnisotropicFilterToogle.onValueChanged.AddListener((bool newValue) =>
 				{
@@ -108,7 +108,7 @@ public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
 
 			yield return null;
 
-			if (m_IsInitialized &= transform.SearchComponentInChild("AntialiasingDropDown", ref m_AntialiasingDropDown))
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName("AntialiasingDropDown", out m_AntialiasingDropDown))
 			{
 				m_AntialiasingDropDown.onValueChanged.AddListener((int newIndex) =>
 				{
@@ -122,7 +122,7 @@ public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
 
 			yield return null;
 
-			if (m_IsInitialized &= transform.SearchComponentInChild("MotionBlurToogle", ref m_MotionBlurToggle))
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName("MotionBlurToogle", out m_MotionBlurToggle))
 			{
 				m_MotionBlurToggle.onValueChanged.AddListener((bool bIsEnabled) =>
 				{
@@ -133,7 +133,7 @@ public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
 
 			yield return null;
 
-			if (m_IsInitialized &= transform.SearchComponentInChild("BloomToogle", ref m_BloomToggle))
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName("BloomToogle", out m_BloomToggle))
 			{
 				m_BloomToggle.onValueChanged.AddListener((bool bIsEnabled) =>
 				{
@@ -144,7 +144,7 @@ public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
 
 			yield return null;
 
-			if (m_IsInitialized &= transform.SearchComponentInChild("ChromaticAberrationToogle", ref m_ChromaticAberrationToggle))
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName("ChromaticAberrationToogle", out m_ChromaticAberrationToggle))
 			{
 				m_ChromaticAberrationToggle.onValueChanged.AddListener((bool bIsEnabled) =>
 				{
@@ -153,7 +153,7 @@ public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
 				});
 			}
 
-			if (m_IsInitialized &= transform.SearchComponentInChild("AmbientOcclusionToggle", ref m_AmbientOcclusionToggle))
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName("AmbientOcclusionToggle", out m_AmbientOcclusionToggle))
 			{
 				m_AmbientOcclusionToggle.onValueChanged.AddListener((bool bIsEnabled) =>
 				{
@@ -163,7 +163,7 @@ public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
 				});
 			}
 
-			if (m_IsInitialized &= transform.SearchComponentInChild("AmbientOcclusionDropDown", ref m_AmbientOcclusionDropDown))
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName("AmbientOcclusionDropDown", out m_AmbientOcclusionDropDown))
 			{
 				m_AmbientOcclusionDropDown.interactable = m_AmbientOcclusionToggle.isOn;
 				m_AmbientOcclusionDropDown.onValueChanged.AddListener((int level) =>
@@ -178,7 +178,7 @@ public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
 
 			yield return null;
 
-			if (m_IsInitialized &= transform.SearchComponentInChild("ScreenSpaceReflectionToggle", ref m_ScreenSpaceReflectionToggle))
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName("ScreenSpaceReflectionToggle", out m_ScreenSpaceReflectionToggle))
 			{
 				m_ScreenSpaceReflectionToggle.onValueChanged.AddListener((bool bIsEnabled) =>
 				{
@@ -188,7 +188,7 @@ public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
 				});
 			}
 
-			if (m_IsInitialized &= transform.SearchComponentInChild("ScreenSpaceReflectionDropDown", ref m_ScreenSpaceReflectionDropDown))
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName("ScreenSpaceReflectionDropDown", out m_ScreenSpaceReflectionDropDown))
 			{
 				m_ScreenSpaceReflectionDropDown.interactable = m_ScreenSpaceReflectionToggle.isOn;
 				m_ScreenSpaceReflectionDropDown.onValueChanged.AddListener((int level) =>
@@ -203,7 +203,7 @@ public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
 
 			yield return null;
 
-			if (m_IsInitialized &= transform.SearchComponentInChild("DepthOfFieldToggle", ref m_DepthOfFieldToggle))
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName("DepthOfFieldToggle", out m_DepthOfFieldToggle))
 			{
 				m_DepthOfFieldToggle.onValueChanged.AddListener((bool bIsEnabled) =>
 				{
@@ -213,7 +213,7 @@ public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
 				});
 			}
 
-			if (m_IsInitialized &= transform.SearchComponentInChild("DepthOfFieldDropDown", ref m_DepthOfFieldDropDown))
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName("DepthOfFieldDropDown", out m_DepthOfFieldDropDown))
 			{
 				m_DepthOfFieldDropDown.interactable = m_DepthOfFieldToggle.isOn;
 				m_DepthOfFieldDropDown.onValueChanged.AddListener((int level) =>
@@ -229,7 +229,7 @@ public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
 			yield return null;
 
 
-			if (m_IsInitialized &= transform.SearchComponentInChild("ApplyButton", ref m_ApplyButton))
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName("ApplyButton", out m_ApplyButton))
 			{
 				m_ApplyButton.onClick.AddListener
 				(
@@ -243,7 +243,7 @@ public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
 
 			yield return null;
 
-			if (m_IsInitialized &= transform.SearchComponentInChild("ResetButton", ref m_ResetButton))
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName("ResetButton", out m_ResetButton))
 			{
 				m_ResetButton.onClick.AddListener
 				(

@@ -70,9 +70,6 @@ namespace QuestSystem {
 					nextQuest.Activate();
 				}
 			}
-
-			Objective_Base objective = null;
-			GetObjectiveByID( "LocationToReach", ref objective );
 		}
 
 
@@ -133,37 +130,35 @@ namespace QuestSystem {
 
 
 
-		public	bool	GetTaskByID( string ID, ref Task task )
+		public	bool	GetTaskByID( string ID, out Task task )
 		{
-			bool result = false;
+			task = null;
 
+			// TODO store all task in a global list
 			Task[] allTasks = FindObjectsOfType<Task>();
-
 			int index = System.Array.FindIndex( allTasks, t => t.ID == ID );
 			if ( index > -1 )
 			{
 				task = allTasks[ index ];
-				result = true;
+				return true;
 			}
-
-			return result;
+			return false;
 		}
 
 
-		public	bool	GetObjectiveByID( string ID, ref Objective_Base objective )
+		public	bool	GetObjectiveByID( string ID, out Objective_Base objective )
 		{
-			bool result = false;
+			objective = null;
 
+			// TODO store all Objectives in a global list
 			Objective_Base[] allObjectives = FindObjectsOfType<Objective_Base>();
-
 			int index = System.Array.FindIndex( allObjectives, o => o.ID == ID );
 			if ( index > -1 )
 			{
 				objective = allObjectives[ index ];
-				result = true;
+				return true;
 			}
-
-			return result;
+			return false;
 		}
 	}
 

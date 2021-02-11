@@ -40,10 +40,7 @@ namespace Database
 
 
 		///////////////////////////////////////////////////////////////////////////////
-		public	new 	System.Type	GetType()
-		{
-			return m_Type;
-		}
+		public new System.Type GetType() => m_Type;
 
 
 		///////////////////////////////////////////////////////////////////////////////
@@ -64,29 +61,30 @@ namespace Database
 
 		///////////////////////////////////////////////////////////////////////////////
 
-		public	bool			ToBool()			{	return As<bool>();			}
-		public	int				ToInteger()			{	return As<int>();			}
-		public	float			ToFloat()			{	return As<float>();			}
-		public override string	ToString()			{	return InternalToString();	}
-		public	object			ToSystemObject()	{	return m_Value;				}
+		public bool				ToBool()			=> As<bool>();
+		public int				ToInteger()			=> As<int>();
+		public float			ToFloat()			=> As<float>();
+		public override string	ToString()			=> InternalToString();
+		public object			ToSystemObject()	=> m_Value;
 
 
 		///////////////////////////////////////////////////////////////////////////////
 
-		public static implicit operator bool	( Value v )		{	return v.ToBool();		}
-		public static implicit operator int		( Value v )		{	return v.ToInteger();	}
-		public static implicit operator float	( Value v )		{	return v.ToFloat();		}
-		public static implicit operator string	( Value v )		{	return v.ToString();	}
+		public static implicit operator bool	(Value v) => v.ToBool();
+		public static implicit operator int		(Value v) => v.ToInteger();
+		public static implicit operator float	(Value v) => v.ToFloat();
+		public static implicit operator string	(Value v) => v.ToString();
+		
+		///////////////////////////////////////////////////////////////////////////////
+
+		public static implicit operator Value	(bool   b)	=> new Value(b);
+		public static implicit operator Value	(int    i)	=> new Value(i);
+		public static implicit operator Value	(float  f)	=> new Value(f);
+		public static implicit operator Value	(string s)	=> new Value(s);
 
 		///////////////////////////////////////////////////////////////////////////////
 
-		public static implicit operator Value	( bool b )			{	return new Value( b );	}
-		public static implicit operator Value	( int i )			{	return new Value( i );	}
-		public static implicit operator Value	( float f )			{	return new Value( f );	}
-		public static implicit operator Value	( string s )		{	return new Value( s );	}
-
-		///////////////////////////////////////////////////////////////////////////////
-
+		public static bool operator !(Value obj) => obj == null;
 	}
 
 

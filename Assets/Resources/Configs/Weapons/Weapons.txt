@@ -2,7 +2,8 @@
 
 #include Bullets.txt
 
-;********************************
+;*************************************************************************************;
+;********************************   PLAYER WEAPONS   ********************************;
 
 ; BASE VARS FOR WEAPONS
 [EmptyWeapon]
@@ -125,3 +126,14 @@ SecondaryWeaponModule		= WPN_WeaponModule_OpticZoom;
 
 HasTertiaryWeaponModule		= false;
 TertiaryWeaponModule		= WPN_FireModule_Auto;
+
+
+;*************************************************************************************;
+;********************************   ENEMIES WEAPONS   ********************************;
+
+[Enemy_Gatling]
+
+[Enemy_MachineGun]
+
+[Enemy_GranadeLauncher]
+

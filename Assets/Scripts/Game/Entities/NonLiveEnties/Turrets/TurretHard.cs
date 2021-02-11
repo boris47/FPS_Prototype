@@ -45,7 +45,7 @@ public class TurretHard : Turret {
 	
 
 	//////////////////////////////////////////////////////////////////////////
-
+	/*
 	public override void FireLongRange()
 	{
 		if (m_ShotTimer > 0 )
@@ -65,7 +65,7 @@ public class TurretHard : Turret {
 			CoroutinesManager.Start(ChargingCO(), "TurretHard::FireLongRange: Start of charging" );
 		}
 	}
-	
+	*/
 
 	//////////////////////////////////////////////////////////////////////////
 

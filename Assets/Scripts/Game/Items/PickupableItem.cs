@@ -20,7 +20,7 @@ public class PickupableItem : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnEnable()
 	{
-		if ( GlobalManager.Configs.GetSection(m_PickUpSectionName, ref m_ItemSection ) )
+		if ( GlobalManager.Configs.TryGetSection(m_PickUpSectionName, out m_ItemSection ) )
 		{
 			m_Initialized = true;
 		}
@@ -30,13 +30,12 @@ public class PickupableItem : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	public	bool	SetPickupSectionName( string PickupSectionName )
 	{
-		Database.Section m_PickupableSection	= null;
-		bool bIsSectionFound = GlobalManager.Configs.GetSection(m_PickUpSectionName, ref m_PickupableSection );
+		bool bIsSectionFound = GlobalManager.Configs.TryGetSection(m_PickUpSectionName, out Database.Section pickupableSection);
 		if ( bIsSectionFound )
 		{
 			m_PickUpSectionName = PickupSectionName;
 		}
-		return m_PickupableSection != null;
+		return bIsSectionFound;
 	}
 
 
@@ -47,7 +46,7 @@ public class PickupableItem : MonoBehaviour {
 		{
 //			WeaponManager.Instance.ApplyModifierToWeaponSlot( WeaponManager.Instance.CurrentWeapon, WeaponSlots.PRIMARY, m_PickUpSectionName );
 
-			if ( Utils.Base.SearchComponent( other.transform.gameObject, out IEntityInventary entity, ESearchContext.LOCAL ) )
+			if ( Utils.Base.TrySearchComponent( other.transform.gameObject, ESearchContext.LOCAL, out IEntityInventary entity ) )
 			{
 				entity.AddInventoryItem( m_ItemSection, m_Texture );
 			}

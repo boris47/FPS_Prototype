@@ -20,11 +20,12 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 	string IStateDefiner.StateName => name;
 
 	private readonly Dictionary<EWeaponSlots, Database.Section> m_CurrentAssignedModuleSections = new Dictionary<EWeaponSlots, Database.Section>()
-	{
-		{ EWeaponSlots.PRIMARY,		new Database.Section( "WPN_BaseModuleEmpty", "Unassigned" ) },
-		{ EWeaponSlots.SECONDARY,	new Database.Section( "WPN_BaseModuleEmpty", "Unassigned" ) },
-		{ EWeaponSlots.TERTIARY,	new Database.Section( "WPN_BaseModuleEmpty", "Unassigned" ) }
-	};
+//	{
+//		{ EWeaponSlots.PRIMARY,		new Database.Section( "WPN_BaseModuleEmpty", "Unassigned" ) },
+//		{ EWeaponSlots.SECONDARY,	new Database.Section( "WPN_BaseModuleEmpty", "Unassigned" ) },
+//		{ EWeaponSlots.TERTIARY,	new Database.Section( "WPN_BaseModuleEmpty", "Unassigned" ) }
+//	}
+	;
 
 	//////////////////////////////////////////////////////////////////////////
 	public void PreInit() { }
@@ -36,56 +37,43 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 		if (m_IsInitialized == true )
 			yield break;
 
-//		CoroutinesManager.AddCoroutineToPendingCount( 1 );
-
 		Transform child = transform.Find("CustomizationPanel");
 		if (m_IsInitialized = ( child != null ) )
 		{
-			m_IsInitialized &= child.SearchComponentInChild( "ModulePrimaryDropdown", ref m_PrimaryDropDown );
-			m_IsInitialized &= child.SearchComponentInChild( "ModuleSecondaryDropdown", ref m_SecondaryDropDown );
-			m_IsInitialized &= child.SearchComponentInChild( "ModuleTertiaryDropdown", ref m_TertiaryDropDown );
+			m_IsInitialized &= child.TrySearchComponentByChildName( "ModulePrimaryDropdown", out m_PrimaryDropDown );
+			m_IsInitialized &= child.TrySearchComponentByChildName( "ModuleSecondaryDropdown", out m_SecondaryDropDown );
+			m_IsInitialized &= child.TrySearchComponentByChildName( "ModuleTertiaryDropdown", out m_TertiaryDropDown );
 
 			yield return null;
 
 			// APPLY BUTTON
-			if (m_IsInitialized &= transform.SearchComponentInChild( "ApplyButton", ref m_ApplyButton ) )
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName( "ApplyButton", out m_ApplyButton ) )
 			{
 				m_ApplyButton.interactable = false;
 				m_ApplyButton.onClick.AddListener
 				(	
-					delegate()
-					{
-						UIManager.Confirmation.Show( "Apply Changes?", OnApply, delegate { OnEnable(); } );
-					}
+					() => UIManager.Confirmation.Show( "Apply Changes?", OnApply, delegate { OnEnable(); } )
 				);
 			}
 
 			yield return null;
 
 			// SWITCH TO INVENTORY
-			if (m_IsInitialized &= transform.SearchComponentInChild( "SwitchToInventory", ref m_SwitchToInventory ) )
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName( "SwitchToInventory", out m_SwitchToInventory ) )
 			{
-				m_SwitchToInventory.onClick.AddListener
-				(
-					OnSwitchToInventory
-				);
+				m_SwitchToInventory.onClick.AddListener( OnSwitchToInventory );
 			}
 
 			yield return null;
 
 			// RETURN TO GAME
-			if (m_IsInitialized &= transform.SearchComponentInChild( "ReturnToGame", ref m_ReturnToGame ) )
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName( "ReturnToGame", out m_ReturnToGame ) )
 			{
-				m_ReturnToGame.onClick.AddListener
-				(
-					OnReturnToGame
-				);
+				m_ReturnToGame.onClick.AddListener( OnReturnToGame );
 			}
 
 			yield return null;
 		}
-
-//		CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
 	}
 
 
@@ -117,14 +105,12 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 		Database.Section[] fireModules		= GlobalManager.Configs.GetSectionsByContext( "WeaponFireModules" );
 		Database.Section[] utilityModules	= GlobalManager.Configs.GetSectionsByContext( "WeaponUtilityModules" );
 
-		List<Database.Section> allModules = new List<Database.Section>();
-		{
-			allModules.AddRange( fireModules );
-			allModules.AddRange( utilityModules );
-		}
+		List<Database.Section> allModules = new List<Database.Section>(System.Linq.Enumerable.Concat(fireModules, utilityModules));
+//		allModules.AddRange( fireModules );
+//		allModules.AddRange( utilityModules );
 
 		// PRIMARY
-		FillDropdown(m_PrimaryDropDown,	allModules, EWeaponSlots.PRIMARY );
+		FillDropdown(m_PrimaryDropDown,		allModules, EWeaponSlots.PRIMARY );
 
 		// SECONDARY
 		FillDropdown(m_SecondaryDropDown,	allModules, EWeaponSlots.SECONDARY );
@@ -145,79 +131,63 @@ public sealed class UI_WeaponCustomization : MonoBehaviour, IStateDefiner {
 	}
 
 
-	//////////////////////////////////////////////////////////////////////////
-	// FillDropdown
 	private	void	FillDropdown( Dropdown thisDropdown, List<Database.Section> allModules, EWeaponSlots slot )
 	{
 		thisDropdown.ClearOptions();
 
-		string[] alreadyAssignedModules = WeaponManager.Instance.CurrentWeapon.OtherInfo.Split( ',' );
-
 		// Get weapon module slot
-		WeaponModuleSlot slotModule = null;
-		WeaponManager.Instance.CurrentWeapon.bGetModuleSlot( slot, ref slotModule);
-
-		// Ask slot if module can be assigned
-		List<Database.Section> filtered = new List<Database.Section>();
-		foreach( Database.Section current in allModules )
+		if (WeaponManager.Instance.CurrentWeapon.TryGetModuleSlot( slot, out WeaponModuleSlot slotModule))
 		{
-			if ( slotModule.CanAssignModule( current, alreadyAssignedModules ) )
+			string[] alreadyAssignedModules = WeaponManager.Instance.CurrentWeapon.OtherInfo.Split( ',' );
+
+			// Ask slot if module can be assigned
+			List<Database.Section> filtered = new List<Database.Section>();
+			foreach( Database.Section current in allModules )
 			{
-				filtered.Add( current );
+				if ( slotModule.CanAssignModule( current, alreadyAssignedModules ) )
+				{
+					filtered.Add( current );
+				}
 			}
+
+			// Assign readable names to dropdown options
+			List<string> ui_Names = filtered.ConvertAll
+			(
+				new System.Converter<Database.Section, string>( s => s.AsString("Name") )
+			);
+			thisDropdown.AddOptions( ui_Names );
+
+			string currentAssigned = alreadyAssignedModules[(int) slot];
+			m_CurrentAssignedModuleSections[slot] = new Database.Section( currentAssigned, "" );
+
+			// Search current Value
+			thisDropdown.value = filtered.FindIndex( s => s.GetSectionName() == currentAssigned );
+
+			void callback(int moduleIndex)
+			{
+				m_CurrentAssignedModuleSections[slot] = filtered[moduleIndex];
+				m_ApplyButton.interactable = true;
+			}
+			thisDropdown.onValueChanged.RemoveAllListeners();
+			thisDropdown.onValueChanged.AddListener( callback );
 		}
-
-		// Assign readble names to dropdown options
-		List<string> ui_Names = filtered.ConvertAll
-		(
-			new System.Converter<Database.Section, string>( s => { return s.AsString("Name"); } )
-		);
-		thisDropdown.AddOptions( ui_Names );
-
-		string currentAssigned = alreadyAssignedModules[(int) slot];
-		m_CurrentAssignedModuleSections[slot] = new Database.Section( currentAssigned, "" );
-
-		// Search current Value
-		thisDropdown.value = filtered.FindIndex( s => s.GetSectionName() == currentAssigned );
-
-		thisDropdown.onValueChanged.RemoveAllListeners();
-		void callback(int moduleIndex)
+		else
 		{
-			OnModuleChanged( slot, filtered[moduleIndex] );
+			Debug.LogError($"UI_WeaponCustomization::");
 		}
-		thisDropdown.onValueChanged.AddListener( callback );
-	}
-
-	
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnModuleChanged
-	private	void	OnModuleChanged( EWeaponSlots slot, Database.Section choosenModuleSection )
-	{
-		m_CurrentAssignedModuleSections[slot] = choosenModuleSection;
-
-		m_ApplyButton.interactable = true;
-
-		/*
-		WeaponModuleSlot slotModule = null;
-		WeaponManager.Instance.CurrentWeapon.bGetModuleSlot( slot, ref slotModule);
-
-		slotModule.TrySetModule( WeaponManager.Instance.CurrentWeapon, choosenModuleSection );
-		*/
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private void	OnApply()
 	{
-		foreach( KeyValuePair<EWeaponSlots, Database.Section> pair in m_CurrentAssignedModuleSections )
+		foreach (KeyValuePair<EWeaponSlots, Database.Section> pair in m_CurrentAssignedModuleSections)
 		{
-			WeaponModuleSlot slotModule = null;
-			WeaponManager.Instance.CurrentWeapon.bGetModuleSlot( pair.Key, ref slotModule );
-
-			slotModule.TrySetModule( WeaponManager.Instance.CurrentWeapon, pair.Value );
-		} 
+			if (WeaponManager.Instance.CurrentWeapon.TryGetModuleSlot(pair.Key, out WeaponModuleSlot slotModule))
+			{
+				slotModule.TrySetModule(WeaponManager.Instance.CurrentWeapon, pair.Value);
+			}
+		}
 	} 
 
 

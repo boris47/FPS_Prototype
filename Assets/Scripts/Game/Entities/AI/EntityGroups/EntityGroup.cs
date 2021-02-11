@@ -80,8 +80,9 @@ public class EntityGroup : MonoBehaviour, IIdentificable<System.Guid>
 
 
 	/// <summary> Return true if entity with given id is found in the group </summary>
-	public bool GetById( uint id, ref Entity outEntity )
+	public bool TryGetById( uint id, out Entity outEntity )
 	{
+		outEntity = null;
 		int index = m_Collection.FindIndex( i => i.AsInterface.ID == id );
 		bool bResult = index >= 0;
 		if ( bResult )

@@ -19,7 +19,7 @@ namespace QuestSystem {
 
 			m_IsInitialized = true;
 
-			bool bIsGoodResult = Utils.Base.SearchComponent(gameObject, out m_Collider, ESearchContext.LOCAL );
+			bool bIsGoodResult = Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL , out m_Collider);
 			if ( bIsGoodResult )
 			{
 				m_Collider.isTrigger = true;
@@ -107,7 +107,7 @@ namespace QuestSystem {
 
 		private void OnDrawGizmos()
 		{
-			if (transform.SearchComponent( ref m_Collider, ESearchContext.LOCAL ) )
+			if (transform.TrySearchComponent(ESearchContext.LOCAL, out m_Collider ) )
 			{
 				Matrix4x4 mat = Gizmos.matrix;
 				Gizmos.matrix = transform.localToWorldMatrix;

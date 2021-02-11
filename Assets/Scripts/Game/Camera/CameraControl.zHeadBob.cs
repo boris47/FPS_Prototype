@@ -33,8 +33,7 @@ public class HeadBob : CameraEffectBase
 	{
 		m_EffectActiveCondition =  condition;
 
-		Database.Section headbobSection = null;
-		if (!(GlobalManager.Configs.GetSection("HeadBob", ref headbobSection) && GlobalManager.Configs.bSectionToOuter(headbobSection, m_EffectSectionData)))
+		if (!(GlobalManager.Configs.TryGetSection("HeadBob", out Database.Section headbobSection) && GlobalManager.Configs.TrySectionToOuter(headbobSection, m_EffectSectionData)))
 		{
 			Debug.Log( "HeadBob::Setup:Cannot load m_HeadBobSectionData" );
 		}

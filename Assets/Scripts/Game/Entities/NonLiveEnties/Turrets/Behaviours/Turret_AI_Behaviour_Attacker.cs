@@ -64,7 +64,7 @@ public class Turret_AI_Behaviour_Attacker : AIBehaviour {
 			// with a target, if gun alligned, fire
 			if (EntityData.EntityRef.CanFire() == true )
 			{
-				EntityData.EntityRef.FireLongRange();
+				EntityData.EntityRef.FireWeapon();
 			}
 		}
 	}
@@ -98,7 +98,6 @@ public class Turret_AI_Behaviour_Attacker : AIBehaviour {
 			EntityData.EntityRef.SetPointToLookAt( projectedPoint );
 		}
 
-		// TODO Set brain to SEKKER mode
 		EntityData.EntityRef.ChangeState( EBrainState.SEEKER );
 	}
 

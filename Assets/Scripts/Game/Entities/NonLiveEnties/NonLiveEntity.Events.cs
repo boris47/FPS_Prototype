@@ -36,7 +36,7 @@ public abstract partial class NonLiveEntity : Entity {
 		// Body and Gun
 		{
 			streamUnit.SetInternal( "BodyRotation",				Utils.Converters.QuaternionToString(m_BodyTransform.localRotation ) );
-			streamUnit.SetInternal( "GunRotation",				Utils.Converters.QuaternionToString(m_GunTransform.localRotation ) );
+//			streamUnit.SetInternal( "GunRotation",				Utils.Converters.QuaternionToString(m_GunTransform.localRotation ) );
 		}
 
 		// Brain state
@@ -76,7 +76,7 @@ public abstract partial class NonLiveEntity : Entity {
 		// Body and Gun
 		{
 			m_BodyTransform.localRotation	= streamUnit.GetAsQuaternion( "BodyRotation" );;
-			m_GunTransform.localRotation	= streamUnit.GetAsQuaternion( "GunRotation" );
+//			m_GunTransform.localRotation	= streamUnit.GetAsQuaternion( "GunRotation" );
 		}
 
 		// Brain state
@@ -136,12 +136,12 @@ public abstract partial class NonLiveEntity : Entity {
 	protected	bool	WasMoving = false;
 	protected	override	void		OnFrame( float deltaTime )
 	{
-		m_ShotTimer -= deltaTime;
+//		m_ShotTimer -= deltaTime;
 
 		if (m_NavAgent != null )
 		{
 			bool nowIsMoving = m_NavAgent.velocity.sqrMagnitude > 0.0f;
-			if (m_HasDestination == true && WasMoving == true && nowIsMoving == false )
+			if (m_HasDestination && WasMoving && !nowIsMoving )
 			{
 				OnDestinationReached(transform.position );
 			}

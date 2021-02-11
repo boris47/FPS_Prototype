@@ -313,11 +313,10 @@ public class Build_Batch
 	private		static		bool		GetBuildInfo( string buildSettingsSectionName, ref string folderName, ref string executableFilename, ref string[] scenesToBuild )
 	{
 		// Search for build settings in corresponding section
-		SectionMap buildSettings = new SectionMap();
-		if ( buildSettings.LoadFile( BuildSettingsConfigFile ) == true )
+		SectionDB.LocalDB buildSettings = new SectionDB.LocalDB();
+		if (buildSettings.TryLoadFile( BuildSettingsConfigFile ))
 		{
-			Database.Section buildSettingsSection = null;
-			if ( !buildSettings.GetSection( buildSettingsSectionName, ref buildSettingsSection ) )
+			if ( !buildSettings.TryGetSection( buildSettingsSectionName, out Database.Section buildSettingsSection ) )
 			{
 				UnityEngine.Debug.LogError( "Cannot load build settings section for " + buildSettingsSectionName );
 				buildSettings = null;
@@ -326,8 +325,7 @@ public class Build_Batch
 
 			folderName			= buildSettingsSection.AsString( "FolderName", folderName );
 			executableFilename	= buildSettingsSection.AsString( "ExecutableFilename", executableFilename );
-
-			return buildSettingsSection.bGetMultiAsArray( "ScenesToBuild", ref scenesToBuild );
+			return buildSettingsSection.TryGetMultiAsArray( "ScenesToBuild", out scenesToBuild );
 		}
 		return false;
 	}

@@ -41,7 +41,7 @@ public sealed class UI_Audio : MonoBehaviour, IUIOptions, IStateDefiner
 
 		m_IsInitialized = true;
 		{
-			if (m_IsInitialized &= transform.SearchComponentInChild("Slider_MusicVolume", ref m_MusicSlider))
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName("Slider_MusicVolume", out m_MusicSlider))
 			{
 				m_MusicSlider.onValueChanged.AddListener((float newValue) =>
 				{
@@ -52,7 +52,7 @@ public sealed class UI_Audio : MonoBehaviour, IUIOptions, IStateDefiner
 
 			yield return null;
 
-			if (m_IsInitialized &= transform.SearchComponentInChild("Slider_SoundVolume", ref m_SoundSlider))
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName("Slider_SoundVolume", out m_SoundSlider))
 			{
 				m_SoundSlider.onValueChanged.AddListener((float newValue) =>
 				{
@@ -63,7 +63,7 @@ public sealed class UI_Audio : MonoBehaviour, IUIOptions, IStateDefiner
 
 			yield return null;
 
-			if (m_IsInitialized &= transform.SearchComponentInChild("ApplyButton", ref m_ApplyButton))
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName("ApplyButton", out m_ApplyButton))
 			{
 				m_ApplyButton.onClick.AddListener(() =>
 				{
@@ -74,7 +74,7 @@ public sealed class UI_Audio : MonoBehaviour, IUIOptions, IStateDefiner
 
 			yield return null;
 
-			if (m_IsInitialized &= transform.SearchComponentInChild("ResetButton", ref m_ResetButton))
+			if (m_IsInitialized &= transform.TrySearchComponentByChildName("ResetButton", out m_ResetButton))
 			{
 				m_ResetButton.onClick.AddListener(() =>
 				{

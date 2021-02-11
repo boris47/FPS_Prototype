@@ -33,25 +33,23 @@ namespace CutScene {
 				return;
 			}
 
-			if ( !Utils.Base.SearchComponent(gameObject, out Entity entityParent, ESearchContext.PARENT ) )
+			if ( Utils.Base.TrySearchComponent(gameObject, ESearchContext.PARENT, out Entity entityParent ) )
 			{
-				return;
+				enabled = true;
+
+				GameManager.UpdateEvents.OnFrame += OnFrameUpdate;
+
+				m_CutsceneSubject = ECutsceneSubject.ENTITY;
+
+				m_EntityCutsceneController.Setup( entityParent, pointsCollection );
+
+				IsPlaying = true;
+
+	//			( entityParent as IEntitySimulation ).EnterSimulationState();
+
+				// On start event called
+				pointsCollection.OnStart?.Invoke();
 			}
-
-			enabled = true;
-
-			GameManager.UpdateEvents.OnFrame += OnFrameUpdate;
-
-			m_CutsceneSubject = ECutsceneSubject.ENTITY;
-
-			m_EntityCutsceneController.Setup( entityParent, pointsCollection );
-
-			IsPlaying = true;
-
-//			( entityParent as IEntitySimulation ).EnterSimulationState();
-
-			// On start event called
-			pointsCollection.OnStart?.Invoke();
 		}
 
 

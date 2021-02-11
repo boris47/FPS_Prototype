@@ -46,8 +46,9 @@ public class GroupSceneManager : SingletonMonoBehaviour<GroupSceneManager> {
 
 
 	/// <summary> Returns true if group with the given id is found </summary>
-	public bool GetById( System.Guid id, ref EntityGroup outGroup )
+	public bool GetById( System.Guid id, out EntityGroup outGroup )
 	{
+		outGroup = null;
 		int index = m_Collection.FindIndex( i => i.ID == id );
 		bool  bResult = index >= 0;
 		if ( bResult )

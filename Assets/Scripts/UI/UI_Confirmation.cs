@@ -49,14 +49,14 @@ public sealed class UI_Confirmation : MonoBehaviour, IStateDefiner {
 			// Label
 			if (m_IsInitialized )
 			{
-				m_IsInitialized &= panel.SearchComponentInChild( 0, ref m_LabelText );
+				m_IsInitialized &= panel.TrySearchComponentByChildIndex( 0, out m_LabelText );
 			}
 
 			yield return null;
 
 			// Confirm button
 			Button onConfirmButton = null;
-			if (m_IsInitialized && (m_IsInitialized &= panel.SearchComponentInChild( 1, ref onConfirmButton ) ) )
+			if (m_IsInitialized && (m_IsInitialized &= panel.TrySearchComponentByChildIndex( 1, out onConfirmButton ) ) )
 			{
 				onConfirmButton.navigation = noNavigationMode;
 				onConfirmButton.onClick.AddListener( 
@@ -71,7 +71,7 @@ public sealed class UI_Confirmation : MonoBehaviour, IStateDefiner {
 
 			// Cancel button
 			Button onCancelButton = null;
-			if (m_IsInitialized && (m_IsInitialized &= panel.SearchComponentInChild( 2, ref onCancelButton ) ) )
+			if (m_IsInitialized && (m_IsInitialized &= panel.TrySearchComponentByChildIndex( 2, out onCancelButton ) ) )
 			{
 				onCancelButton.navigation = noNavigationMode;
 				onCancelButton.onClick.AddListener( 
