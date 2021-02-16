@@ -45,13 +45,14 @@ class EditorInitializer
 
 public class CustomLogHandler : ILogHandler
 {
-	public		static ILogHandler					m_DefaultLogHandler { get; private set; }	= null;
-    private		readonly System.IO.FileStream		m_FileStream								= null;
-    private		readonly System.IO.StreamWriter		m_StreamWriter								= null;
-	private		readonly CultureInfo				m_CultureInfo								= (CultureInfo)CultureInfo.InvariantCulture.Clone();
+	public		static ILogHandler								m_DefaultLogHandler { get; private set; }	= null;
+    private		readonly System.IO.FileStream					m_FileStream								= null;
+    private		readonly System.IO.StreamWriter					m_StreamWriter								= null;
+	private		readonly CultureInfo							m_CultureInfo								= (CultureInfo)CultureInfo.InvariantCulture.Clone();
+	private		readonly System.Text.RegularExpressions.Regex	m_Filter			= new System.Text.RegularExpressions.Regex("get_StackTrace|CustomLogHandler|UnityEngine|UnityEditor");
 
-	private bool bCanLog = true;
-	private bool bExceptionsAsWarnings = false;
+	private		bool											bCanLog										= true;
+	private		bool											bExceptionsAsWarnings						= false;
 
 	public void Silence() => bCanLog = false;
 	public void Talk() => bCanLog = true;
@@ -67,18 +68,17 @@ public class CustomLogHandler : ILogHandler
 		if (UseFileSystemWriter)
 		{
 			string filePath = System.IO.Path.Combine(Application.dataPath, "SessionLog.log");
-			m_FileStream = new System.IO.FileStream( filePath, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Write );
-			m_StreamWriter = new System.IO.StreamWriter(m_FileStream );
+			m_FileStream = new System.IO.FileStream(filePath, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Write);
+			m_StreamWriter = new System.IO.StreamWriter(m_FileStream);
 		}
 		m_CultureInfo.NumberFormat.NumberDecimalSeparator = ".";
     }
 
-	private readonly System.Text.RegularExpressions.Regex filter = new System.Text.RegularExpressions.Regex("get_StackTrace|CustomLogHandler|UnityEngine|UnityEditor");
 	//////////////////////////////////////////////////////////////////////////
 	private string GetContext()
 	{
 		string contextTitle = "";
-		string line = System.Array.Find(System.Environment.StackTrace.Split('\n'), ln => !filter.IsMatch(ln));
+		string line = System.Array.Find(System.Environment.StackTrace.Split('\n'), ln => !m_Filter.IsMatch(ln));
 		if (!string.IsNullOrEmpty(line))
 		{
 			int start = line.IndexOf(' ', 2) + 1, end = line.IndexOf(' ', start);
@@ -124,7 +124,7 @@ public class CustomLogHandler : ILogHandler
     }
 
 	//////////////////////////////////////////////////////////////////////////
-	public  void UnSetup()
+	public  void Close()
 	{
 		m_StreamWriter?.Flush();
 		m_StreamWriter?.Close();
@@ -281,8 +281,7 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 	//////////////////////////////////////////////////////////////////////////
 	protected override void OnDestroy()
 	{
-		if ( m_LoggerInstance != null )
-			m_LoggerInstance.UnSetup();
+		m_LoggerInstance?.Close();
 	}
 
 

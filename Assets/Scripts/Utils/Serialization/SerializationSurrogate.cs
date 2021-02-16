@@ -4,15 +4,15 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
+
 public static class SurrogatesInstaller
 {
 	private sealed class SerializationSurrogate_Generic<T> : ISerializationSurrogate
 	{
 		public void GetObjectData(System.Object obj, SerializationInfo info, StreamingContext context)
 		{
-			// JsonUtility can serialize all public or serializable fields. (No properties!!)
-
-			var wrapper = new ToJsonWrapper<T>((T)obj);
+			// JsonUtility.ToJson can serialize all public or serializable fields. (No properties!!)
+			ToJsonWrapper<T> wrapper = new ToJsonWrapper<T>((T)obj);
 			info.AddValue(obj.GetType().Name, JsonUtility.ToJson(wrapper));
 		}
 
@@ -146,12 +146,11 @@ public static class SurrogatesInstaller
 		}
 	}
 
-	private sealed class SerializationSurrogat_RaycastHit : ISerializationSurrogate
+	private sealed class SerializationSurrogate_RaycastHit : ISerializationSurrogate
 	{
 		public void GetObjectData(System.Object obj, SerializationInfo info, StreamingContext context)
 		{
 			RaycastHit r = (RaycastHit)obj;
-
 			foreach(PropertyInfo propertyInfo in (r.GetType().GetProperties(BindingFlags.Public)))
 			{
 				if (ReflectionHelper.GetPropertyValue(r, propertyInfo.Name, out object value))
@@ -164,24 +163,24 @@ public static class SurrogatesInstaller
 		public System.Object SetObjectData(System.Object obj, SerializationInfo info, StreamingContext context, ISurrogateSelector selector)
 		{
 			RaycastHit r = (RaycastHit)obj;
-
-			foreach (PropertyInfo propertyInfo in (r.GetType().GetProperties(BindingFlags.Public)))
 			{
-				object value = info.GetValue(propertyInfo.Name, typeof(object));
-				ReflectionHelper.SetPropertyValue(r, propertyInfo.Name, value);
+				foreach (PropertyInfo propertyInfo in (r.GetType().GetProperties(BindingFlags.Public)))
+				{
+					object value = info.GetValue(propertyInfo.Name, typeof(object));
+					ReflectionHelper.SetPropertyValue(r, propertyInfo.Name, value);
+				}
 			}
-		
 			return obj = r;
 		}
 	}
 
-	private sealed class SerializationSurrogat_LayerMask : ISerializationSurrogate
+	private sealed class SerializationSurrogate_LayerMask : ISerializationSurrogate
 	{
 		public void GetObjectData(System.Object obj, SerializationInfo info, StreamingContext context)
 		{
 			LayerMask l = (LayerMask)obj;
 			{
-				var wrapper = new ToJsonWrapper<LayerMask>(l);
+				ToJsonWrapper<LayerMask> wrapper = new ToJsonWrapper<LayerMask>(l);
 				info.AddValue("layerMask", JsonUtility.ToJson(wrapper));
 			}
 		}
@@ -190,29 +189,31 @@ public static class SurrogatesInstaller
 		{
 			LayerMask l = (LayerMask)obj;
 			{
-				var wrapper = JsonUtility.FromJson<ToJsonWrapper<LayerMask>>((string)info.GetValue("layerMask", typeof(string)));
+				string input = (string)info.GetValue("layerMask", typeof(string));
+				ToJsonWrapper<LayerMask> wrapper = JsonUtility.FromJson<ToJsonWrapper<LayerMask>>(input);
 				l = wrapper.content.value;
 			}	
 			return obj = l;
 		}
 	}
 
+
 	public static BinaryFormatter InstallSurrogates(this BinaryFormatter formatter)
 	{
 		// 1. Construct a SurrogateSelector object
 		SurrogateSelector ss = new SurrogateSelector();
+		{
+			ss.AddSurrogate(typeof(Vector2),		new StreamingContext(StreamingContextStates.All), new SerializationSurrogate_Generic<Vector2>());
+			ss.AddSurrogate(typeof(Vector3),		new StreamingContext(StreamingContextStates.All), new SerializationSurrogate_Generic<Vector3>());
+			ss.AddSurrogate(typeof(Vector4),		new StreamingContext(StreamingContextStates.All), new SerializationSurrogate_Generic<Vector4>());
+			ss.AddSurrogate(typeof(Quaternion),		new StreamingContext(StreamingContextStates.All), new SerializationSurrogate_Generic<Quaternion>());
+			ss.AddSurrogate(typeof(Transform),		new StreamingContext(StreamingContextStates.All), new SerializationSurrogate_Transform());
 
-		ss.AddSurrogate(typeof(Vector2), new StreamingContext(StreamingContextStates.All), new SerializationSurrogate_Generic<Vector2>());
-		ss.AddSurrogate(typeof(Vector3), new StreamingContext(StreamingContextStates.All), new SerializationSurrogate_Generic<Vector3>());
-		ss.AddSurrogate(typeof(Vector4), new StreamingContext(StreamingContextStates.All), new SerializationSurrogate_Generic<Vector4>());
-		ss.AddSurrogate(typeof(Quaternion), new StreamingContext(StreamingContextStates.All), new SerializationSurrogate_Generic<Quaternion>());
-		ss.AddSurrogate(typeof(Transform), new StreamingContext(StreamingContextStates.All), new SerializationSurrogate_Transform());
-
-		ss.AddSurrogate(typeof(Matrix4x4), new StreamingContext(StreamingContextStates.All), new SerializationSurrogate_Generic<Matrix4x4>());
-		ss.AddSurrogate(typeof(Bounds), new StreamingContext(StreamingContextStates.All), new SerializationSurrogate_Bounds());
-		ss.AddSurrogate(typeof(RaycastHit), new StreamingContext(StreamingContextStates.All), new SerializationSurrogat_RaycastHit());
-		ss.AddSurrogate(typeof(LayerMask), new StreamingContext(StreamingContextStates.All), new SerializationSurrogate_Generic<LayerMask>());
-
+			ss.AddSurrogate(typeof(Matrix4x4),		new StreamingContext(StreamingContextStates.All), new SerializationSurrogate_Generic<Matrix4x4>());
+			ss.AddSurrogate(typeof(Bounds),			new StreamingContext(StreamingContextStates.All), new SerializationSurrogate_Bounds());
+			ss.AddSurrogate(typeof(RaycastHit),		new StreamingContext(StreamingContextStates.All), new SerializationSurrogate_RaycastHit());
+			ss.AddSurrogate(typeof(LayerMask),		new StreamingContext(StreamingContextStates.All), new SerializationSurrogate_Generic<LayerMask>());
+		}
 		// 2. Have the formatter use our surrogate selector
 		formatter.SurrogateSelector = ss;
 		return formatter;
