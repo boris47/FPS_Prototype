@@ -2,6 +2,33 @@
 using UnityEngine;
 using UnityEngine.AI;
 
+public enum EEntityType : uint {
+	NONE,
+	ACTOR,
+	HUMAN,
+	ROBOT,
+	ANIMAL,
+	OBJECT
+};
+
+public	enum ELookTargetType : uint {
+	POSITION,
+	TRANSFORM
+};
+
+public	enum ELookTargetMode : uint {
+	HEAD_ONLY,
+	WITH_BODY
+}
+
+public class LookData {
+	public	bool			HasLookAtObject		= false;
+	public	Vector3			PointToLookAt		= Vector3.zero;
+	public	Transform		TransformToLookAt	= null;
+	public	ELookTargetType	LookTargetType		= ELookTargetType.POSITION;
+	public	ELookTargetMode	LookTargetMode		= ELookTargetMode.HEAD_ONLY;
+};
+
 
 public partial interface IEntity : IIdentificable<uint> {
 
@@ -47,9 +74,9 @@ public partial interface IEntity : IIdentificable<uint> {
 
 
 
-
-//					Physics intreractions,		Entity volume,		   Navigation
-[RequireComponent( typeof( Rigidbody ), typeof( Collider ), typeof( NavMeshAgent ) )]
+[System.Serializable]
+//					Physics intreractions,		Entity volume
+[RequireComponent( typeof( Rigidbody ), typeof( Collider ))]
 public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<uint> {
 
 	private	static uint			CurrentID							= 0;
@@ -103,7 +130,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<ui
 	protected 	uint						m_ID							= 0;
 	protected	Database.Section			m_SectionRef					= null;
 	protected 	string						m_SectionName					= "None";
-	protected 	EEntityType					m_EntityType					= EEntityType.NONE;
+	protected	abstract EEntityType		m_EntityType					{ get; }
 	protected	Rigidbody					m_RigidBody						= null;
 	protected	Collider					m_PhysicCollider				= null;
 	protected	Collider					m_TriggerCollider				= null;
@@ -117,9 +144,6 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<ui
 
 	[SerializeField]
 	protected	float						m_MinEngageDistance				= 0f;
-
-//	[SerializeField]
-	protected	RespawnPoint				m_RespawnPoint					= null;
 
 
 	// ORIENTATION
@@ -174,8 +198,10 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<ui
 
 		EnableEvents();
 
+		m_SectionName = GetType().FullName;
+
 		// config file
-		if ( GlobalManager.Configs.TryGetSection(m_SectionName, out m_SectionRef ) == false )
+		if ( !GlobalManager.Configs.TryGetSection(m_SectionName, out m_SectionRef) )
 		{
 			print( "Cannot find cfg section \""+ m_SectionName +"\" for entity " + name );
 			Destroy(gameObject );
@@ -258,11 +284,11 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<ui
 
 		if (m_IsOK == false )
 		{
-			print(name + " is not OK" );
+			print(name + " is not OK");
 		}
 
 		// Executed only for non player entities
-		if ( (m_EntityType == EEntityType.ACTOR ) == false )
+		if ( m_EntityType != EEntityType.ACTOR )
 		{
 			Brain_Setup();             // Setup for field of view and memory
 			Brain_SetActive( true );	// Brain updates activation
@@ -428,32 +454,3 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<ui
 	}
 
 }
-
-
-
-public enum EEntityType : uint {
-	NONE,
-	ACTOR,
-	HUMAN,
-	ROBOT,
-	ANIMAL,
-	OBJECT
-};
-
-public	enum ELookTargetType : uint {
-	POSITION,
-	TRANSFORM
-};
-
-public	enum ELookTargetMode : uint {
-	HEAD_ONLY,
-	WITH_BODY
-}
-
-public class LookData {
-	public	bool			HasLookAtObject		= false;
-	public	Vector3			PointToLookAt		= Vector3.zero;
-	public	Transform		TransformToLookAt	= null;
-	public	ELookTargetType	LookTargetType		= ELookTargetType.POSITION;
-	public	ELookTargetMode	LookTargetMode		= ELookTargetMode.HEAD_ONLY;
-};

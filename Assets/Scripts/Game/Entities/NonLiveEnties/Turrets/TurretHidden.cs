@@ -15,8 +15,6 @@ public class TurretHidden : Turret {
 	// Awake ( Override )
 	protected override void Awake()
 	{
-		m_SectionName = GetType().FullName;
-
 		base.Awake();
 
 		TryGetComponent(out m_Animator);

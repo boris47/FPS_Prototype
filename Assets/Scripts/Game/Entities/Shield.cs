@@ -60,7 +60,6 @@ public class Shield : MonoBehaviour, IShield {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Awake
 	private void Awake()
 	{
 		Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL, out m_Renderer );
@@ -72,19 +71,13 @@ public class Shield : MonoBehaviour, IShield {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ResetDelegate
 	private	void	ResetDelegate()
 	{
-		ShieldHitEvent onShiledHit = delegate( Vector3 startPosition, Entity whoRef, Weapon weaponRef, EDamageType damageType, float damage, bool canPenetrate )
-		{
-			TakeDamage( startPosition, whoRef, weaponRef, damageType, damage, canPenetrate );
-		};
-		m_ShielHitEvent = onShiledHit;
+		m_ShielHitEvent = TakeDamage;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnTriggerHit
 	public		void		CollisionHit				( GameObject collidingObject )
 	{
 		if ( Utils.Base.TrySearchComponent( collidingObject, ESearchContext.CHILDREN, out IBullet bullet ) )
@@ -95,7 +88,6 @@ public class Shield : MonoBehaviour, IShield {
 	
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnCollisionEnter
 	private void OnCollisionEnter( Collision collision )
 	{
 		if ( Utils.Base.TrySearchComponent( collision.gameObject, ESearchContext.CHILDREN, out IBullet bullet ) )
@@ -106,7 +98,6 @@ public class Shield : MonoBehaviour, IShield {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnTriggerEnter
 	private void OnTriggerEnter( Collider other )
 	{
 		if ( Utils.Base.TrySearchComponent( other.gameObject, ESearchContext.CHILDREN, out IBullet bullet ) )
@@ -117,7 +108,6 @@ public class Shield : MonoBehaviour, IShield {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnEnable
 	private void OnEnable()
 	{
 		m_Renderer.enabled = true;
@@ -126,7 +116,6 @@ public class Shield : MonoBehaviour, IShield {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnDisable
 	private void OnDisable()
 	{
 		m_Renderer.enabled = false;
@@ -135,7 +124,6 @@ public class Shield : MonoBehaviour, IShield {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnSave
 	StreamUnit IStreamableByEvents.OnSave( StreamData streamData )
 	{
 		StreamUnit streamUnit = null;
@@ -154,7 +142,6 @@ public class Shield : MonoBehaviour, IShield {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnLoad
 	StreamUnit IStreamableByEvents.OnLoad( StreamData streamData )
 	{
 		StreamUnit streamUnit = null;
@@ -177,7 +164,6 @@ public class Shield : MonoBehaviour, IShield {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Setup
 	void		IShield.Setup( float StartStatus, EShieldContext Context, bool IsUnbreakable )
 	{
 		m_StartStatus	= StartStatus;

@@ -40,9 +40,7 @@ namespace CutScene {
 				return false;
 			}
 
-			Transform cameraTransform = CameraControl.Instance.transform;
-			bool completed = m_CameraPath.Move( ref cameraTransform, null, null );
-
+			bool completed = m_CameraPath.Move( CameraControl.Instance.transform, null, null );
 			return completed;
 		}
 

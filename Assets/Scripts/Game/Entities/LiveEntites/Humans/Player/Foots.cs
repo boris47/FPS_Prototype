@@ -26,8 +26,16 @@ public class Foots : MonoBehaviour, IFoots
 	//////////////////////////////////////////////////////////////////////////
 	private void Awake()
 	{
-		transform.parent.TryGetComponent(out m_LiveEntity);
-		transform.TryGetComponent(out m_AudioSource);
+		UnityEngine.Assertions.Assert.IsNotNull
+		(
+			transform.parent,
+			$"Foots without parent"
+		);
+		if (transform.parent)
+		{
+			transform.parent.TryGetComponent(out m_LiveEntity);
+			transform.TryGetComponent(out m_AudioSource);
+		}
 	}
 
 

@@ -55,9 +55,9 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 	public		Transform			Transform				{ get { return transform; } }
 	public		AudioSource			AudioSource				{ get { return m_AudioSource; } }
 	public		StudioEventEmitter	Emitter					{ get { return m_AudioEmitter; } }
-	public		float				Volume					{ get { return m_Volume; }			 set { m_Volume = value; UpdateInternal(); } }
-	public		float				Pitch					{ get { return m_Pitch; }			 set { m_Pitch = value;  UpdateInternal(); } }
-	public		AudioClip			Clip					{ get { return m_AudioSource.clip; } set { m_AudioSource.clip = value; } }
+	public		float				Volume					{ get { return m_Volume; }			 set { m_Volume = value; /*UpdateInternal();*/ } }
+	public		float				Pitch					{ get { return m_Pitch; }			 set { m_Pitch = value;  /*UpdateInternal();*/ } }
+	public		AudioClip			Clip					{ get { return m_AudioSource?.clip; } set { if (m_AudioSource) m_AudioSource.clip = value; } }
 	public		bool				IsFading				{ get { return m_IsFading; } }
 	public		bool				IsPlaying
 	{
@@ -68,21 +68,23 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 	
 	//////////////////////////////////////////////////////////////////////////
 	// Awake
-	protected virtual	void Awake()
+/*	protected virtual	void Awake()
 	{
 		if (m_AudioSource == null && m_AudioEmitter == null )
 		{
 			print(gameObject.name + ": custom audio source with no reference assigned !!" );
 			Destroy( this );
 		}
-
 	}
-
+*/
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnEnable
 	protected virtual void OnEnable()
 	{
+		TryGetComponent(out m_AudioSource);
+		TryGetComponent(out m_AudioEmitter);
+
 		m_IsUnityAudioSource = m_AudioSource != null;
 		if (m_IsUnityAudioSource == true)
 		{
@@ -340,11 +342,11 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 public class DynamicCustomAudioSource : CustomAudioSource
 {
 
-	protected override void Awake()
+/*	protected override void Awake()
 	{
 		
 	}
-
+*/
 	public	bool	Setup( AudioSource source )
 	{
 		bool bIsValid = source != null;

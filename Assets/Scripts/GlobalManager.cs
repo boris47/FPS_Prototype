@@ -50,6 +50,14 @@ public class CustomLogHandler : ILogHandler
     private		readonly System.IO.StreamWriter		m_StreamWriter								= null;
 	private		readonly CultureInfo				m_CultureInfo								= (CultureInfo)CultureInfo.InvariantCulture.Clone();
 
+	private bool bCanLog = true;
+	private bool bExceptionsAsWarnings = false;
+
+	public void Silence() => bCanLog = false;
+	public void Talk() => bCanLog = true;
+	public bool CanTalk() => bCanLog;
+	public void SetExceptionsAsWarnings(bool value) => bExceptionsAsWarnings = value;
+
 	//////////////////////////////////////////////////////////////////////////
 	public CustomLogHandler(bool UseFileSystemWriter)
     {
@@ -82,17 +90,37 @@ public class CustomLogHandler : ILogHandler
 	//////////////////////////////////////////////////////////////////////////
     public void LogFormat( LogType logType, Object context, string format, params object[] args )
     {
-		m_StreamWriter?.WriteLine( $"[{Time.time.ToString("0.000", m_CultureInfo)}] {string.Format( format, args )}" );
-        m_DefaultLogHandler.LogFormat( logType, context, $"{GetContext()}{format}", args );
+		if (bCanLog)
+		{
+			m_StreamWriter?.WriteLine( $"[{Time.time.ToString("0.000", m_CultureInfo)}] {string.Format( format, args )}" );
+			if (bExceptionsAsWarnings && ( logType == LogType.Exception || logType == LogType.Error))
+			{
+				m_DefaultLogHandler.LogFormat(LogType.Warning, context, $"{GetContext()}{format}", args);
+			}
+			else
+			{
+				m_DefaultLogHandler.LogFormat( logType, context, $"{GetContext()}{format}", args );
+			}
+		}
     }
 
 	//////////////////////////////////////////////////////////////////////////
     public void LogException( System.Exception exception, Object context )
     {
-		m_StreamWriter?.WriteLine( $"[{Time.time.ToString("0.000", m_CultureInfo)}] {exception.Message}" );
-		m_StreamWriter?.WriteLine( exception.StackTrace );
-		m_StreamWriter?.Flush();
-        m_DefaultLogHandler.LogException( exception, context );
+		if (bCanLog)
+		{
+			m_StreamWriter?.WriteLine( $"[{Time.time.ToString("0.000", m_CultureInfo)}] {exception.Message}" );
+			m_StreamWriter?.WriteLine( exception.StackTrace );
+			m_StreamWriter?.Flush();
+			if (bExceptionsAsWarnings)
+			{
+				m_DefaultLogHandler.LogFormat( LogType.Warning, context, "{0}", $"{exception.Message}");
+			}
+			else
+			{
+				m_DefaultLogHandler.LogException(exception, context);
+			}
+		}
     }
 
 	//////////////////////////////////////////////////////////////////////////
@@ -155,6 +183,7 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 
 
 	private static			CustomLogHandler	m_LoggerInstance	= null;
+	public	static			CustomLogHandler	LoggerInstance		{ get => m_LoggerInstance; }
 	public	static			bool				bIsChangingScene	= false;
 	public	static			bool				bIsLoadingScene		= false;
 	public	static			bool				bCanSave			= true;
@@ -302,6 +331,13 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 			SectionDB.LocalDB qwe = new SectionDB.LocalDB("Configs/All");
 
 			SectionDB.GlobalDB.TryLoadFile("Configs/BuildSettings");
+		}
+
+		if (Input.GetKeyDown( KeyCode.L ))
+		{
+			string result = SaveSystem.GameObjectToJSON(Player.Instance.gameObject);
+			GameObject clone = SaveSystem.JSONToGameObject(result);
+			UnityEditor.EditorApplication.isPaused = true;
 		}
 
 

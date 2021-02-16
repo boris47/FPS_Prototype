@@ -25,6 +25,8 @@ public abstract class Turret : NonLiveEntity {
 	private		WPN_WeaponAttachment_LaserPointer			m_Laser						= null;
 */
 
+	protected 	override EEntityType			m_EntityType { get { return EEntityType.ROBOT; } }
+
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
 	protected	override	void	Awake()
@@ -79,8 +81,6 @@ public abstract class Turret : NonLiveEntity {
 			};
 			m_Pool = new GameObjectsPool<Bullet>( data );
 */		}
-
-	
 //		m_Pool.SetActive( true );
 //		m_ShotTimer = 0f;
 	}

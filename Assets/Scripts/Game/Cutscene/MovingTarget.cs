@@ -14,21 +14,11 @@ namespace CutScene {
 		[SerializeField]
 		private		bool		m_UseUpVector		= true;
 
-
-		private	Transform thisTransform = null;
-
-		private void Awake()
-		{
-			thisTransform = transform;
-		}
-
 		private void FixedUpdate()
 		{
-			Vector3	position	= transform.position;
-			Quaternion rotation = transform.rotation;
-			bool completed = m_UseUpVector ? m_Path.Move( ref thisTransform, m_Speed, Vector3.up ) : m_Path.Move( ref thisTransform, m_Speed, null );
 
-			if ( completed == true )
+			bool bIsCompleted = m_UseUpVector ? m_Path.Move( transform, m_Speed, Vector3.up ) : m_Path.Move(transform, m_Speed, null );
+			if ( bIsCompleted )
 			{
 				enabled = false;
 			}

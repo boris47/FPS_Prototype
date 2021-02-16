@@ -257,7 +257,7 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	{
 		if ( hittingBullet is IBullet bullet )
 		{
-			float dmgMultiplier = (m_Shield != null && m_Shield.Status > 0.0f ) ? 
+			float dmgMultiplier = (m_HasShield && m_Shield.Status > 0.0f ) ? 
 				( bullet.CanPenetrate ) ? 0.5f : 0.0f
 				: 
 				1.0f;

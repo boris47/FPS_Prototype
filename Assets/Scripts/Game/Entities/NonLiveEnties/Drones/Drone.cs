@@ -1,12 +1,14 @@
 ﻿
 using UnityEngine;
 
-public abstract class Drone : NonLiveEntity, IRespawn {
+public abstract class Drone : NonLiveEntity {
 
 	[Header("Drone Properties")]
 
 	[SerializeField]
 	protected	float			m_MoveMaxSpeed				= 3f;
+
+	protected 	override EEntityType			m_EntityType { get { return EEntityType.ROBOT; } }
 
 /*	[SerializeField]
 	private		Bullet			m_Bullet					= null;
@@ -45,8 +47,6 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 	//		m_DamageLongRangeMin	= m_SectionRef.AsFloat( "DamageLongRangeMin",	0.5f );
 
 	//		m_PoolSize				= m_SectionRef.AsUInt( "PoolSize", m_PoolSize );
-
-			m_EntityType			= EEntityType.ROBOT;
 		}
 
 		// BULLETS POOL CREATION
@@ -102,7 +102,7 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 	protected	override	void	OnKill()
 	{
 		base.OnKill();
-		//		m_Pool.SetActive( false );
+	//	m_Pool.SetActive( false );
 		gameObject.SetActive( false );
 	}
 	
@@ -168,40 +168,6 @@ public abstract class Drone : NonLiveEntity, IRespawn {
 		m_FireAudioSource.Play();
 	}
 	*/
-	
-	//////////////////////////////////////////////////////////////////////////
-
-	void IRespawn.OnRespawn()
-	{
-		transform.position = m_RespawnPoint.transform.position;
-		transform.rotation = m_RespawnPoint.transform.rotation;
-
-		gameObject.SetActive( true );
-
-		// Entity
-		m_IsActive						= true;
-		m_TargetInfo					= new TargetInfo();
-		//		m_NavHasDestination				= false;
-		//		m_HasFaceTarget					= false;
-		//		m_Destination					= Vector3.zero;
-		//		m_PointToFace					= Vector3.zero;
-		m_IsAllignedBodyToPoint	= false;
-		//		m_DistanceToTravel				= 0f;
-
-		// NonLiveEntity
-//		m_ShotTimer						= 0f;
-//		m_IsAllignedGunToPoint			= false;
-
-		// Reinitialize properties
-		Awake();
-
-		Brain_OnReset();
-
-		if (m_Shield != null )
-		{
-			m_Shield.OnReset();
-		}
-	}
 
 }
 

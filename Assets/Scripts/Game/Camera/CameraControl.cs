@@ -85,12 +85,18 @@ public sealed class CameraControl : MonoBehaviour
 			return;
 		}
 		m_Instance = this;
+	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	// OnEnable
+	private void OnEnable()
+	{
 		m_WeaponPivot = transform.Find("WeaponPivot");
 
 		// Sprites for TargetToKill, LocationToReach or ObjectToInteractWith
 		bool bLoadResult = ResourceManager.LoadResourceSync("Scriptables/CameraPostProcesses", out PostProcessingProfile cameraPostProcesses);
-		UnityEngine.Assertions.Assert.IsTrue(bLoadResult, "CameraControl::Awake: Failed the load of camera post processes profile");
+		UnityEngine.Assertions.Assert.IsTrue(bLoadResult, "CameraControl::OnEnable: Failed the load of camera post processes profile");
 
 		TryGetComponent(out m_CameraRef);
 		m_PP_Profile = gameObject.GetOrAddIfNotFound<PostProcessingBehaviour>().profile = cameraPostProcesses;
@@ -103,18 +109,12 @@ public sealed class CameraControl : MonoBehaviour
 		{
 			EffectActiveCondition mainCondition = () => Player.Instance.IsGrounded;
 
-			m_CameraEffectorsManager.Add<HeadBob>(mainCondition + delegate () { return Player.Instance.IsMoving == true; });
-			m_CameraEffectorsManager.Add<HeadMove>(mainCondition + delegate () { return Player.Instance.IsMoving == false; });
+			m_CameraEffectorsManager.Add<HeadBob>(mainCondition + (() => Player.Instance.IsMoving));
+			m_CameraEffectorsManager.Add<HeadMove>(mainCondition + (() => !Player.Instance.IsMoving));
 
 			m_CameraRef.farClipPlane = m_CameraSectionData.ViewDistance;
 		}
-	}
 
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnEnable
-	private void OnEnable()
-	{
 		UnityEngine.Assertions.Assert.IsNotNull
 		(
 			GameManager.StreamEvents,
@@ -124,7 +124,7 @@ public sealed class CameraControl : MonoBehaviour
 		GameManager.StreamEvents.OnSave += OnSave;
 		GameManager.StreamEvents.OnLoad += OnLoad;
 
-		OutlineEffectManager.SetEffectCamera(m_CameraRef );
+		OutlineEffectManager.SetEffectCamera(m_CameraRef);
 	}
 	
 
@@ -167,10 +167,10 @@ public sealed class CameraControl : MonoBehaviour
 		if ( bResult )
 		{
 			// Camera internals
-			m_RotationFeedback	= Vector3.zero;
+			m_RotationFeedback = Vector3.zero;
 
 			// Current internal direction
-			m_CurrentDirection		= streamUnit.GetAsVector( "CurrentDirection" );
+			m_CurrentDirection = streamUnit.GetAsVector( "CurrentDirection" );
 
 			// Can parse input
 			GlobalManager.InputMgr.SetCategory(EInputCategory.CAMERA, streamUnit.GetAsBool( "CanParseInput" ));

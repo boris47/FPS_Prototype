@@ -35,7 +35,7 @@ public class PathWaypoint : MonoBehaviour {
 	private void OnDrawGizmosSelected()
 	{
 		PathBase path = GetComponentInParent<PathBase>();
-		path.DrawGizmos();
+		path?.DrawGizmos();
 	}
 
 }

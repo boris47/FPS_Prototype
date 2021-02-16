@@ -24,7 +24,6 @@ public static class ReflectionHelper
 	private static Dictionary<Type, List<Type>> _classToComponentMapping = new Dictionary<Type, List<Type>>();
 	private static Type[] _allTypes;
 
-
 	//////////////////////////////////////////////////////////////////////////
 	// CONSTRUCTOR
 	static ReflectionHelper()
@@ -189,6 +188,119 @@ public static class ReflectionHelper
 		}
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="obj"></param>
+	/// <param name="propertyName"></param>
+	/// <param name="value"></param>
+	/// <returns></returns>
+	public static bool GetPropertyValue(in object obj, in string propertyName, out object value)
+	{
+		value = default;
+		bool logger_canTalk = GlobalManager.LoggerInstance?.CanTalk() ?? false;
+		bool bResult = true;
+		GlobalManager.LoggerInstance?.Silence();
+		{
+			PropertyInfo propertyInfo = obj.GetType().GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+			try
+			{
+				MethodInfo getMethodInfo = propertyInfo.GetGetMethod();
+				if (getMethodInfo.IsNotNull())
+				{
+					value = getMethodInfo.Invoke(obj, null);
+				}
+				else
+				{
+					value = propertyInfo.GetValue(obj);
+				}
+			}
+			catch (System.Exception) { bResult = false; }
+		}
+		if (logger_canTalk) GlobalManager.LoggerInstance?.Talk();
+		return bResult;
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="obj"></param>
+	/// <param name="propertyName"></param>
+	/// <param name="value"></param>
+	/// <returns></returns>
+	public static bool SetPropertyValue(in object obj, in string propertyName, in object value)
+	{
+		bool logger_canTalk = GlobalManager.LoggerInstance?.CanTalk() ?? false;
+		bool bResult = true;
+		GlobalManager.LoggerInstance?.Silence();
+		{
+			PropertyInfo propertyInfo = obj.GetType().GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+			try
+			{
+				MethodInfo setMethodInfo = propertyInfo.GetSetMethod();
+				if (setMethodInfo.IsNotNull())
+				{
+					setMethodInfo.Invoke(obj, new object[] { value });
+				}
+				else
+				{
+					propertyInfo.SetValue(obj, value);
+				}
+			}
+			catch (System.Exception) { bResult = false; }
+		}
+		if (logger_canTalk) GlobalManager.LoggerInstance?.Talk();
+		return bResult;
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="obj"></param>
+	/// <param name="fieldName"></param>
+	/// <param name="value"></param>
+	/// <returns></returns>
+	public static bool GetFieldValue(in object obj, in string fieldName, out object value)
+	{
+		value = default;
+		bool logger_canTalk = GlobalManager.LoggerInstance?.CanTalk() ?? false;
+		bool bResult = true;
+		GlobalManager.LoggerInstance?.Silence();
+		{
+			FieldInfo fieldInfo = obj.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+			try
+			{
+				value = fieldInfo.GetValue(obj);
+			}
+			catch (System.Exception) { bResult = false; }
+		}
+		if (logger_canTalk) GlobalManager.LoggerInstance?.Talk();
+		return bResult;
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="obj"></param>
+	/// <param name="fieldName"></param>
+	/// <param name="value"></param>
+	/// <returns></returns>
+	public static bool SetFieldValue(in object obj, in string fieldName, in object value)
+	{
+		bool logger_canTalk = GlobalManager.LoggerInstance?.CanTalk() ?? false;
+		bool bResult = true;
+		GlobalManager.LoggerInstance?.Silence();
+		{
+			FieldInfo fieldInfo = obj.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+			try
+			{
+				fieldInfo.SetValue(obj, value);
+			}
+			catch (System.Exception) { bResult = false; }
+		}
+		if (logger_canTalk) GlobalManager.LoggerInstance?.Talk();
+		return bResult;
+	}
 
 	//////////////////////////////////////////////////////////////////////////
 	public static List<T> FindObjectsImplementingInterface<T>() where T : class
@@ -292,9 +404,9 @@ public static class ReflectionHelper
 	/// <param name="IsBaseMethod"> Specify if this method has to searched on base class or not</param>
 	public	static void CallMethodOnTypes( List<Type> types, string methodName, bool IsBaseMethod )
 	{
-		if ( types != null && types.Count > 0 )
+		if (types.IsNotNull())
 		{
-			foreach( Type type in types )
+			foreach(Type type in types)
 			{
 				Type typeToUse = IsBaseMethod ? type.BaseType : type;
 				MethodInfo method = typeToUse.GetMethod( methodName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance );

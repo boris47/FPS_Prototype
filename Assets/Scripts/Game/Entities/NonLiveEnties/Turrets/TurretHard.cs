@@ -6,8 +6,8 @@ public class TurretHard : Turret {
 
 	[Header("Turret Hard Properties")]
 
-	[SerializeField]
-	private		uint		m_Magazine			= 10;
+//	[SerializeField]
+//	private		uint		m_Magazine			= 10;
 
 	[SerializeField]
 	private		float		m_RechargeTime		= 2f;
@@ -15,14 +15,6 @@ public class TurretHard : Turret {
 	private		bool		m_IsRecharging		= false;
 //	private		uint		m_FiredBullets		= 0;
 
-
-	//////////////////////////////////////////////////////////////////////////
-	protected override void Awake()
-	{
-		m_SectionName = GetType().FullName;
-
-		base.Awake();
-	}
 
 	//////////////////////////////////////////////////////////////////////////
 	/*

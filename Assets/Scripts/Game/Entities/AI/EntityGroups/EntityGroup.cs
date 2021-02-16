@@ -55,6 +55,7 @@ public class EntityGroup : MonoBehaviour, IIdentificable<System.Guid>
 		UnregisterEntity( entityKilled );
 	}
 
+
 	/// <summary> Add a new entity to the group </summary>
 	public void RegisterEntity( Entity entity )
 	{
@@ -94,19 +95,10 @@ public class EntityGroup : MonoBehaviour, IIdentificable<System.Guid>
 
 
 	/// <summary> Retrieve the list of entities registered to this group </summary>
-	public	Entity[]	GetEntites()
-	{
-		return m_Collection.ToArray();
-	}
+	public	Entity[]	GetEntites() => m_Collection.ToArray();
 
 
 	/// <summary> Search for the other entites in the group </summary>
-	public List<Entity> GetOthers( IEntity entity )
-	{
-		List<Entity> othersArray = m_Collection.FindAll( e => e.AsInterface.ID != entity.ID );
-		return othersArray;
-	}
-
-
+	public List<Entity> GetOthers( IEntity entity ) => m_Collection.FindAll( e => e.AsInterface.ID != entity.ID );
 
 }

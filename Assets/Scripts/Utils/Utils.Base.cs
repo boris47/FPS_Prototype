@@ -1,8 +1,12 @@
 ﻿
+using System.Linq;
 using System.Reflection;
 using System.Collections;
 using UnityEngine;
-
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Xml.Serialization;
+using System.Collections.Generic;
 
 public struct KeyValue
 {
@@ -23,9 +27,20 @@ public enum ESearchContext
 	FROM_ROOT = CHILDREN | LOCAL | PARENT
 }
 
+[System.Serializable]
+public class ToJsonWrapper<T>
+{
+	[SerializeField]
+	public T content = default(T);
+
+	public ToJsonWrapper(T content)
+	{
+		this.content = content;
+	}
+}
+
 namespace Utils
 {
-
 	public static class FlagsHelper
 	{
 		////////////////////////////////////////////////
@@ -148,7 +163,166 @@ namespace Utils
 
 
 		////////////////////////////////////////////////
-		private	static	void	CloneComponent( Component component, ref GameObject destinationObj, bool copyProperties = false )
+		public static bool SerializeObject(object o, out string result)
+		{
+			result = string.Empty;
+			try
+			{
+				using (MemoryStream memoryStream = new MemoryStream())
+				{
+					new BinaryFormatter().InstallSurrogates().Serialize(memoryStream, o);
+					result = System.Convert.ToBase64String(memoryStream.ToArray());
+				}
+			}
+			catch (System.Exception e)
+			{
+				Debug.LogException(e);
+				return false;
+			}
+			return true;
+		}
+
+		////////////////////////////////////////////////
+		public static bool DeserializeObject<T>(string str, out T result)
+		{
+			result = default(T);
+			try
+			{
+				byte[] bytes = System.Convert.FromBase64String(str);
+				using (MemoryStream stream = new MemoryStream(bytes))
+				{
+					result = (T)new BinaryFormatter().InstallSurrogates().Deserialize(stream);
+				}
+			}
+			catch (System.Exception e)
+			{
+				Debug.LogException(e);
+				return false;
+			}
+			return true;
+		}
+
+		////////////////////////////////////////////////
+		public static bool SerializeToStream(in object o, out MemoryStream stream)
+		{
+			bool bResult = true;
+			stream = new MemoryStream();
+			try
+			{
+				new BinaryFormatter().InstallSurrogates().Serialize(stream, o);
+			}
+			catch (System.Exception e)
+			{
+				stream.Dispose();
+				stream = null;
+				bResult = false;
+				Debug.LogException(e);
+			}
+			return bResult;
+		}
+
+		////////////////////////////////////////////////
+		public static bool DeserializeFromStream(in MemoryStream stream, out object result)
+		{
+			result = default;
+			bool bResult = true;
+			long prevPosition = stream.Position;
+			stream.Seek(0, SeekOrigin.Begin);
+			try
+			{
+				new BinaryFormatter().InstallSurrogates().Deserialize(stream);
+			}
+			catch (System.Exception e)
+			{
+				stream.Seek(prevPosition, SeekOrigin.Begin);
+				bResult = false;
+				Debug.LogException(e);
+			}
+			return bResult;
+		}
+
+
+		/*	private static readonly List<System.Type> ExcludedTypes = new List<System.Type>()
+			{
+				typeof(UnityEngine.AI.NavMeshPath),
+				typeof(UnityEngine.GameObject),
+
+				typeof(UnityEngine.Component),
+				typeof(UnityEngine.Mesh),
+				typeof(UnityEngine.Material),
+				typeof(UnityEngine.PhysicMaterial),
+			};
+		*/    ////////////////////////////////////////////////
+		private static string[] Excluded = new string[]
+		{
+			"sleepVelocity", "sleepAngularVelocity", "inertiaTensor", "inertiaTensorRotation"
+		};
+		public static	void	GetComponentFieldsAndPropertiesInfo(in Component component, in Dictionary<string, object> propertiesInfo, in Dictionary<string, object> fieldsInfo)
+		{
+			System.Type componentType = component.GetType();
+			
+			GlobalManager.LoggerInstance.SetExceptionsAsWarnings(true);
+			{
+				// Properties
+				foreach (PropertyInfo property in componentType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+				{
+					System.Type propertyType = property.PropertyType;
+					bool bIsExcluded = Excluded.Any(excludedName => property.Name.ToLower().Contains(excludedName.ToLower()));
+					if (!propertyType.IsClass && !propertyType.IsInterface && !bIsExcluded)
+					{
+						if (ReflectionHelper.GetPropertyValue(component, property.Name, out object value))
+						{
+							propertiesInfo.Add(property.Name, value);
+						}
+					}
+				}
+
+				// Fields
+				foreach (FieldInfo field in componentType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+				{
+					System.Type fieldType = field.FieldType;
+					if (!fieldType.IsClass && !fieldType.IsInterface)
+					{
+						if (ReflectionHelper.GetFieldValue(component, field.Name, out object value))
+						{
+							fieldsInfo.Add(field.Name, value);
+						}
+					}
+				}
+			}
+			GlobalManager.LoggerInstance.SetExceptionsAsWarnings(false);
+		}
+
+
+		////////////////////////////////////////////////
+		public static	void	SetComponentFieldsAndPropertiesInfo(in Component component, in Dictionary<string, object> propertiesInfo, in Dictionary<string, object> fieldsInfo)
+		{
+			System.Type componentType = component.GetType();
+
+			GlobalManager.LoggerInstance.SetExceptionsAsWarnings(true);
+			{
+				// Properties
+				foreach (KeyValuePair<string, object> foundProperty in propertiesInfo)
+				{
+					PropertyInfo property = componentType.GetProperty(foundProperty.Key, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+					ReflectionHelper.SetPropertyValue(component, property.Name, foundProperty.Value);
+				}
+
+				// Fields
+				foreach (KeyValuePair<string, object> foundField in fieldsInfo)
+				{
+					FieldInfo field = componentType.GetField(foundField.Key, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+					ReflectionHelper.SetFieldValue(component, field.Name, foundField.Value);
+				}
+			}
+			GlobalManager.LoggerInstance.SetExceptionsAsWarnings(false);
+		}
+		
+
+		////////////////////////////////////////////////
+		private	static	void	CloneComponent( Component component, GameObject destinationObj, bool copyProperties = false )
 		{
 			global::System.Type componentType = component.GetType();
 		
@@ -159,10 +333,8 @@ namespace Utils
 			
 			if (copyProperties)
 			{
-				PropertyInfo[] foundProperties = componentType.GetProperties();
-				for (int i = 0; i < foundProperties.Length; i++)
+				foreach(PropertyInfo foundProperty in componentType.GetProperties())
 				{
-					PropertyInfo foundProperty = foundProperties[i];
 					if (foundProperty.CanWrite)
 					{
 						foundProperty.SetValue( tmpComponent, foundProperty.GetValue( component, null ) , null );
@@ -170,28 +342,24 @@ namespace Utils
 				}
 			}
 
-			FieldInfo[] foundFields = componentType.GetFields();
-			for (int i = 0; i < foundFields.Length; i++)
+			foreach(FieldInfo foundField in componentType.GetFields())
 			{
-				FieldInfo foundField = foundFields[i];
 				foundField.SetValue( tmpComponent, foundField.GetValue( component ) );
 			}
 		}
 
-		class dummy {}
-		////////////////////////////////////////////////
-		public static void Clone( ref GameObject sourceObj, ref GameObject destinationObj, bool copyProperties = false, global::System.Type[] copyComponents = null )
-		{
-			copyComponents = copyComponents ?? new global::System.Type[] { typeof(dummy) };
 
+		////////////////////////////////////////////////
+		public static	void	Clone( GameObject sourceObj, GameObject destinationObj, bool copyProperties = false, global::System.Type[] copyComponents = null )
+		{
 			// ALL COMPONENTS AND PROPERTIES EXCEPT MESH FILTER MESH PROPERTY
 			Component[] copyModelComponents = sourceObj.GetComponents<Component>();
 			for ( int i = 0; i < copyModelComponents.Length; i++ )
 			{
 				Component copyModelComponent = copyModelComponents[i];
-				if ( global::System.Array.Exists( copyComponents, c => copyModelComponent.GetType() == c || copyModelComponent.GetType().IsSubclassOf(c)) )
+				if (copyComponents.IsNotNull() && global::System.Array.Exists( copyComponents, c => copyModelComponent.GetType() == c || copyModelComponent.GetType().IsSubclassOf(c)) )
 				{
-					CloneComponent( copyModelComponent, ref destinationObj, copyProperties );
+					CloneComponent( copyModelComponent, destinationObj, copyProperties );
 				}
 			}
 

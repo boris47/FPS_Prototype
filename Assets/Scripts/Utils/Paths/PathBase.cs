@@ -68,7 +68,7 @@ public abstract	class PathBase : MonoBehaviour {
 
 
 	// 
-	public		abstract bool	Move( ref Transform subject, float? speed, Vector3? upwards );
+	public		abstract bool	Move( Transform subject, float? speed, Vector3? upwards );
 
 
 	// 

@@ -15,6 +15,7 @@ public class ControlledDoor : ControlledObject {
 
 	private void Awake()
 	{
+		// TODO Improve this awake
 		m_Animator = GetComponentInChildren<Animator>();
 
 		ICustomAudioSource[] sources = GetComponents<ICustomAudioSource>();

@@ -9,6 +9,13 @@ internal class SingletonInitializer
 
 	// ref https://docs.microsoft.com/it-it/dotnet/api/system.reflection.bindingflags?view=netframework-4.7.1
 
+
+
+	static SingletonInitializer()
+	{
+
+	}
+
 	/** We use reflection to get all types including interface 'ITopSingleton' and initialize them on phase 'SubsystemRegistration' */
 	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.SubsystemRegistration)]
 	private	static	void	SubsystemRegistration()

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
+[System.Serializable]
 public abstract partial class LiveEntity : Entity {
 
 	protected	IFoots				m_Foots						= null;
@@ -106,21 +106,6 @@ public abstract partial class LiveEntity : Entity {
 	[System.NonSerialized]
 	protected	bool				m_Landed					= false;
 
-
-	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		Awake()
-	{
-		base.Awake();
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		EnterSimulationState()
-	{
-		
-	}
-
-
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> The range is [0, 100] by default </summary>
 	public	virtual void	AddOxygenAmmount( float Ammount )
@@ -135,6 +120,13 @@ public abstract partial class LiveEntity : Entity {
 		//		base.OnFrame( DeltaTime );
 
 		m_OxygenCurrentLevel -= DeltaTime;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	override	void		EnterSimulationState()
+	{
+		
 	}
 
 

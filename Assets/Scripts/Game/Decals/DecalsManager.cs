@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using System.Collections;
-using System.Collections.Generic;
+﻿
 using UnityEngine;
 
 
@@ -42,7 +40,7 @@ public class DecalsManager : InGameSingleton<DecalsManager>
 		{
 			Decal decal = m_DecalsPool.GetNextComponent();
 			{
-				decal.SetDecal(decalMaterial);
+				decal.SetDecalMaterial(decalMaterial);
 				decal.Show(WorldPosition, Quaternion.Euler(normal), DecalLifeTime);
 			}
 		}

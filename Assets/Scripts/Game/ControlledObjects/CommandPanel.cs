@@ -32,9 +32,21 @@ public class CommandPanel : MonoBehaviour {
 			m_TriggerCollider.enabled = false;
 			return;
 		}
+	}
 
+	private void OnEnable()
+	{
 		GameManager.StreamEvents.OnSave += OnSave;
 		GameManager.StreamEvents.OnLoad += OnLoad;
+	}
+
+	private void OnDisable()
+	{
+		if (GameManager.StreamEvents.IsNotNull())
+		{
+			GameManager.StreamEvents.OnSave	-= OnSave;
+			GameManager.StreamEvents.OnLoad	-= OnLoad;	
+		}
 	}
 
 

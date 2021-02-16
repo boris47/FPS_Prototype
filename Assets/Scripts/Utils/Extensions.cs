@@ -1,8 +1,9 @@
 ﻿
 using UnityEngine;
 using System.Linq;
+using System.Reflection;
 using System.Collections.Generic;
-
+using System.IO;
 
 public static class Extensions
 {
@@ -182,6 +183,12 @@ public static class Extensions
 	#endregion // C# ARRAY
 
 
+	public static HashSet<T> ToHashSet<T>( this IEnumerable<T> source, IEqualityComparer<T> comparer = null )
+	{
+		return new HashSet<T>(source, comparer);
+	}
+
+
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
 	#region C# LIST
@@ -309,10 +316,19 @@ public static class Extensions
 		return transform.TryGetComponent( out T comp );
 	}
 
+	/// <summary>
+	/// The SetGlobalScale method is used to set a transform scale based on a global scale instead of a local scale.
+	/// </summary>
+	/// <param name="worldScale">A Vector3 of a world scale to apply to the given transform.</param>
+	public static	void			SetWorldScale(this Transform transform, Vector3 worldScale)
+	{
+		transform.localScale = new Vector3(worldScale.x / transform.lossyScale.x, worldScale.y / transform.lossyScale.y, worldScale.z / transform.lossyScale.z);
+	}
+
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Can be used to retrieve a component with more detailed research </summary>
-	public	static	bool			TrySearchComponent<T>( this Transform transform, ESearchContext Context, out T Component, global::System.Predicate<T> Filter = null ) where T : Component
+	public static	bool			TrySearchComponent<T>( this Transform transform, ESearchContext Context, out T Component, global::System.Predicate<T> Filter = null ) where T : Component
 	{
 		return Utils.Base.TrySearchComponent( transform.gameObject, Context, out Component, Filter );
 	}
@@ -388,23 +404,19 @@ public static class Extensions
 	{
 		List<T> list = new List<T>();
 		{
-			for ( int i = 0; i < transform.childCount; i++ )
+			foreach(Transform child in transform)
 			{
-				Transform child = transform.GetChild( i );
-
-				if ( deepSearch == true )
+				if (deepSearch)
 				{
-					T[] childComponents = child.GetComponentsInChildren<T>( includeInactive: includeInactive );
-					list.AddRange( childComponents );
+					list.AddRange(child.GetComponentsInChildren<T>(includeInactive: includeInactive));
 				}
 				else
 				{
-					if (child.TryGetComponent( out T childComponent ))
+					if (child.TryGetComponent(out T childComponent))
 					{
 						list.Add( childComponent );
 					}
 				}
-
 			}
 		}
 		return list.ToArray();
@@ -447,14 +459,23 @@ public static class Extensions
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Look for given component, if not found add it, return component reference </summary>
-	public static	T				GetOrAddIfNotFound<T>( this GameObject go ) where T : Component
+	public static	T				GetOrAddIfNotFound<T>( this UnityEngine.GameObject go ) where T : UnityEngine.Component
 	{
-		if (!go.TryGetComponent<T>(out T result))
+		return GetOrAddIfNotFound(go, typeof(T)) as T;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Look for given component, if not found add it, return component reference </summary>
+	public static Component			GetOrAddIfNotFound(this UnityEngine.GameObject go, System.Type type)
+	{
+		Component result = null;
+		if (type.IsSubclassOf(typeof(UnityEngine.Component)) && !go.TryGetComponent(type, out result))
 		{
-			result = go.AddComponent<T>();
+			result = go.AddComponent(type);
 		}
 		return result;
 	}
+	
 
 	#endregion // GAMEOBJECT
 
@@ -463,7 +484,7 @@ public static class Extensions
 	/////////////////////////////////////////////////////////////////////////////
 	#region VECTOR2
 
-	/////////////////////////////////////////////////////////////////////////////
+		/////////////////////////////////////////////////////////////////////////////
 	public static	Vector2			ClampComponents( this ref Vector2 v, float min, float max )
 	{
 		v.x = Mathf.Clamp( v.x, min, max );
@@ -482,18 +503,24 @@ public static class Extensions
 
 
 	/////////////////////////////////////////////////////////////////////////////
-	public	static	void			Set( this ref Vector2 v, float newX, float newY )
-	{
-		v.x = newX;
-		v.y = newY;
-	}
-
-
-	/////////////////////////////////////////////////////////////////////////////
 	public	static	void			LerpTo( this ref Vector2 v, Vector2 dest, float interpolant )
 	{
 		v.x = Mathf.Lerp( v.x, dest.x, interpolant );
 		v.y = Mathf.Lerp( v.x, dest.y, interpolant );
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	public static	Vector2			FromString(this ref Vector2 v, string input)
+	{
+		Vector2 result = Vector2.zero;
+		{
+			string[] values = input.Replace("(", string.Empty).Replace(")", string.Empty).Trim().TrimInside().Split(',');
+			if (values.Length == 2 && float.TryParse(values[0], out float x) && float.TryParse(values[1], out float y))
+			{
+				result.Set(x, y);
+			}
+		}
+		return result;
 	}
 
 	#endregion // VECTOR2
@@ -521,15 +548,6 @@ public static class Extensions
 		v.z = Mathf.Clamp( v.y, -clamping.z, clamping.z );
 		return v;
 	}
-		
-
-	/////////////////////////////////////////////////////////////////////////////
-	public static	void			Set( this ref Vector3 v, float newX, float newY, float newZ )
-	{
-		v.x = newX;
-		v.y = newY;
-		v.z = newZ;
-	}
 
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -538,6 +556,20 @@ public static class Extensions
 		v.x = Mathf.Lerp( v.x, dest.x, interpolant );
 		v.y = Mathf.Lerp( v.y, dest.y, interpolant );
 		v.z = Mathf.Lerp( v.z, dest.z, interpolant );
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	public static Vector3			FromString(this ref Vector3 v, string input)
+	{
+		Vector3 result = Vector3.zero;
+		{
+			string[] values = input.Replace("(", string.Empty).Replace(")", string.Empty).Trim().TrimInside().Split(',');
+			if (values.Length == 3 && float.TryParse(values[0], out float x) && float.TryParse(values[1], out float y) && float.TryParse(values[2], out float z))
+			{
+				result.Set(x, y, z);
+			}
+		}
+		return result;
 	}
 
 	#endregion // VECTOR3

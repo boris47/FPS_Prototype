@@ -6,23 +6,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using Database;
 
-
-namespace asdqwe
-{
-
-	internal class qwe
-	{
-
-	}
-
-	public class asd
-	{
-
-	}
-
-}
-
-
 public abstract class SectionDB
 {
 	public class LocalDB

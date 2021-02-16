@@ -118,6 +118,15 @@ namespace Utils {
 		}
 
 
+		public static void ObjectToJson( UnityEngine.GameObject unityObj )
+		{
+			if ( unityObj is UnityEngine.GameObject asGameobject)
+			{
+				Component[] components = asGameobject.GetComponents<UnityEngine.Component>();
+
+			}
+		}
+
 	}
 
 }

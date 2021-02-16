@@ -87,9 +87,11 @@ public class FieldOfView : MonoBehaviour, IFieldOfView {
 	// Awake
 	private void Awake()
 	{
-		TryGetComponent(out m_ViewTriggerCollider);
-		m_ViewTriggerCollider.isTrigger = true;
-		m_ViewTriggerCollider.radius = m_ViewDistance;
+		if (TryGetComponent(out m_ViewTriggerCollider))
+		{
+			m_ViewTriggerCollider.isTrigger = true;
+			m_ViewTriggerCollider.radius = m_ViewDistance;
+		}
 
 		m_LayerMask = Utils.LayersHelper.Layers_AllButOne( "Shield" );// 1 << LayerMask.NameToLayer("Entities");
 	}

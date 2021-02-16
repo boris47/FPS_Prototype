@@ -21,6 +21,6 @@ public class Waiter_Timer : Waiter_Base {
 		{
 			m_CurrentTime += (m_ScaledTime ? Time.deltaTime : Time.fixedUnscaledDeltaTime );
 		}
-		m_HasToWait = m_CurrentTime < m_TimeToWait;
+		HasToWait = m_CurrentTime < m_TimeToWait;
 	}
 }

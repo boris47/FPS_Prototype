@@ -22,7 +22,8 @@ public class GameEventArg4	: UnityEngine.Events.UnityEvent< UnityEngine.GameObje
 
 
 //	DELEGATES FOR EVENTS
-public struct GameEvents {
+public struct GameEvents
+{
 	// SAVE & LOAD
 	public	delegate	bool	StreamingEvent( StreamData streamData, ref StreamUnit streamUnit );	// StreamEvents.OnSave & StreamEvents.OnLoad
 
@@ -48,16 +49,17 @@ public enum EStreamingState
 	NONE, SAVING, SAVE_COMPLETE, LOADING, LOAD_COMPLETE
 }
 
-public interface IStreamableByEvents {
-
+public interface IStreamableByEvents
+{
+	// TODO Fix this
 	StreamUnit	OnSave( StreamData streamData );
 
 	StreamUnit	OnLoad( StreamData streamData );
 }
 
 /// <summary> Clean interface of only GameManager Save&load Section </summary>
-public interface IStreamEvents {
-
+public interface IStreamEvents
+{
 	/// <summary> Events called when game is saving </summary>
 		event		GameEvents.StreamingEvent		OnSave;
 
@@ -100,9 +102,9 @@ public sealed partial class GameManager : IStreamEvents
 	private	event	GameEvents.StreamingEvent		m_OnSaveComplete	= delegate ( StreamData streamData, ref StreamUnit streamUnit ) { return true; };
 
 //	private	event	GameEvents.StreamingEvent		m_OnLoad			= delegate ( StreamData streamData ) { return null; };
-	private			List<GameEvents.StreamingEvent>	m_OnLoad = new List<GameEvents.StreamingEvent>();
+	private readonly List<GameEvents.StreamingEvent>	m_OnLoad = new List<GameEvents.StreamingEvent>();
 //	private	event	GameEvents.StreamingEvent		m_OnLoadComplete	= delegate ( StreamData streamData ) { return null; };
-	private			List<GameEvents.StreamingEvent>	m_OnLoadComplete = new List<GameEvents.StreamingEvent>();
+	private readonly List<GameEvents.StreamingEvent>	m_OnLoadComplete = new List<GameEvents.StreamingEvent>();
 	private			EStreamingState					m_SaveLoadState		= EStreamingState.NONE;
 
 	#region INTERFACE
@@ -146,8 +148,9 @@ public sealed partial class GameManager : IStreamEvents
 #endregion INTERFACE
 
 	// Vars
-	private		Aes						m_Encryptor		= Aes.Create();
-	private		Rfc2898DeriveBytes		m_PDB			= new Rfc2898DeriveBytes( 
+	private		readonly Aes						m_Encryptor		= Aes.Create();
+	private		readonly Rfc2898DeriveBytes			m_PDB			= new Rfc2898DeriveBytes
+	( 
 		password:	ENCRIPTION_KEY,
 		salt :		new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 }
 	);
@@ -300,36 +303,38 @@ public sealed partial class GameManager : IStreamEvents
 [System.Serializable]
 public class StreamUnit
 {
-	[SerializeField]
-	public	int						InstanceID		= -1;
-
-	[SerializeField]
-	public	string					Name			= "";
-
-	[SerializeField]
-	public	Vector3					Position		= Vector3.zero;
-
-	[SerializeField]
-	public	Quaternion				Rotation		= Quaternion.identity;
-
 	[System.Serializable]
 	protected class MyKeyValuePair
 	{
 		[SerializeField]
-		public	string	Key = string.Empty;
+		public string Key = string.Empty;
 
 		[SerializeField]
-		public	string	Value = string.Empty;
+		public string Value = string.Empty;
 
-		public	MyKeyValuePair( string Key, string Value )
+		public MyKeyValuePair(string Key, string Value)
 		{
-			this.Key	= Key;
-			this.Value	= Value;
+			this.Key = Key;
+			this.Value = Value;
 		}
 	}
 
 	[SerializeField]
-	private	List<MyKeyValuePair>	Internals		= new List<MyKeyValuePair>();
+	public string Name = "";
+
+	[SerializeField]
+	public Vector3 Position = Vector3.zero;
+
+	[SerializeField]
+	public Quaternion Rotation = Quaternion.identity;
+
+	[SerializeField]
+	private List<MyKeyValuePair> Internals = new List<MyKeyValuePair>();
+
+	public StreamUnit(string name)
+	{
+		this.Name = name;
+	}
 
 	//////////////////////////////////////////////////////////////////////////
 	public	void		SetInternal( string key, object value )
@@ -470,23 +475,12 @@ public class StreamData
 		if ( GameManager.StreamEvents.State != EStreamingState.SAVING )
 			return null;
 
-		StreamUnit streamUnit = null;
-		int index = m_Data.FindIndex( ( StreamUnit data ) => data.InstanceID == unityObj.GetInstanceID() );
-		if ( index > -1 )
+		StreamUnit streamUnit = m_Data.Find((StreamUnit data) => data.Name == unityObj.name);
+		if (streamUnit == null)
 		{
-//			Debug.Log( unityObj.name + " already saved" );
-			streamUnit = m_Data[index];
-		}
-		else
-		{
-			streamUnit = new StreamUnit()
-			{
-				InstanceID = unityObj.GetInstanceID(),
-				Name = unityObj.name
-			};
+			streamUnit = new StreamUnit(unityObj.name);
 			m_Data.Add( streamUnit );
 		}
-
 		return streamUnit;
 	}
 
@@ -498,22 +492,8 @@ public class StreamData
 	//	if ( GameManager.StreamEvents.State != StreamingState.LOAD_COMPLETE )
 	//		return false;
 
-		streamUnit = null;
-		int GOInstanceID = unityObj.GetInstanceID();
-		int index = m_Data.FindIndex( ( StreamUnit data ) => data.InstanceID == GOInstanceID );
-
-		if ( index == -1 )
-		{
-			index = m_Data.FindIndex( ( StreamUnit data ) => data.Name == unityObj.name );
-		}
-
-		bool found = index > -1;
-		if ( found )
-		{
-			streamUnit = m_Data[index];
-		}
-
-		return found;
+		streamUnit = m_Data.Find((StreamUnit data) => data.Name == unityObj.name);
+		return streamUnit.IsNotNull(); ;
 	}
 
 }

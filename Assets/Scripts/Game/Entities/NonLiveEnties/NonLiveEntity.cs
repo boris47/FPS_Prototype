@@ -5,19 +5,8 @@ using UnityEngine;
 
 public abstract partial class NonLiveEntity : Entity {
 	
-	[Header("Non Live Entity Properties")]
-	[Space]
+//	[Header("Non Live Entity Properties")]
 
-	[SerializeField]
-	protected		float				m_GunAllignmentSpeed		= 5.0f;
-
-
-	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		Awake()
-	{
-		base.Awake();
-	}
-	
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		EnterSimulationState()
@@ -32,7 +21,6 @@ public abstract partial class NonLiveEntity : Entity {
 	{
 		// Movement
 		RequestMovement( destination );
-//		Debug.Log("BeforeSimulationStage " + destination.ToString() );
 
 		// Look At
 		if ( target )
@@ -72,16 +60,5 @@ public abstract partial class NonLiveEntity : Entity {
 	protected	override	void		ExitSimulationState()
 	{
 		
-	}
-
-
-//	public override bool CanFire()
-//	{
-//		return m_IsAllignedGunToPoint;
-//	}
-
-	protected override void OnDestroy()
-	{
-		base.OnDestroy();
 	}
 }

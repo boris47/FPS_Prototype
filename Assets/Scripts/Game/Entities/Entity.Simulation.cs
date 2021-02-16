@@ -7,6 +7,8 @@ public partial interface IEntity {
 	// Cutscene manager, that take control over entity during cutscene sequences
 	CutsceneEntityManager	CutsceneManager					{ get; }
 
+	bool					HasCutsceneManager				{ get; }
+
 }
 
 public interface IEntitySimulation {
@@ -30,10 +32,11 @@ public interface IEntitySimulation {
 }
 
 // Cutscene Simulation Manager
-[RequireComponent( typeof( CutsceneEntityManager ) ) ]
+//[RequireComponent( typeof( CutsceneEntityManager ) ) ]
 public abstract partial class Entity : IEntitySimulation {
 
 	CutsceneEntityManager	IEntity.CutsceneManager				{ get { return m_CutsceneManager; }	}
+	bool					IEntity.HasCutsceneManager			{ get { return m_HasCutsceneManager; } }
 
 	Vector3					IEntitySimulation.StartPosition		{ get; set; }
 

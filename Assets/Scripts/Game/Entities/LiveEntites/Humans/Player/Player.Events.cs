@@ -41,7 +41,7 @@ public partial class Player {
 		if (bResult)
 		{
 			// Cutscene Manager
-			if (m_CutsceneManager.IsPlaying == true )
+			if (m_HasCutsceneManager && m_CutsceneManager.IsPlaying )
 				m_CutsceneManager.Terminate();
 
 			// UI effect reset

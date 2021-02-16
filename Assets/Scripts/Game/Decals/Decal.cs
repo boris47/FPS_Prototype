@@ -12,15 +12,14 @@ public class Decal : MonoBehaviour
 	{
 		if (!gameObject.TryGetComponent(out m_Renderer))
 		{
-
+			Debug.Log($"Cannot get renderer component");
 		}
 	}
 
-	public void SetDecal(Material decalMaterial)
+	public void SetDecalMaterial(Material decalMaterial)
 	{
 		m_Renderer.material = decalMaterial;
 	}
-
 
 	public void Show(Vector3 worldPosition, Quaternion worldRotation, float decalLifeTime)
 	{

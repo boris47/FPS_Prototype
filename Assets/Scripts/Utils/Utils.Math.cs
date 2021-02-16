@@ -79,8 +79,7 @@ namespace Utils
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		/// Return a better performance method to get squared value
+		/// <summary> Return a better performance method to get squared value </summary>
 		public static float Sqr(in float value)
 		{
 			return Mathf.Pow( value, 0.5f );
@@ -88,9 +87,7 @@ namespace Utils
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		/// With a facoltative Epsilon, determines if value is similar to Zero
-		/// </summary>
+		/// <summary> With a optional Epsilon, determines if value is similar to Zero </summary>
 		public static bool SimilarZero(in float a, float cmp = EPS)
 		{
 			return Mathf.Abs( a ) < cmp;

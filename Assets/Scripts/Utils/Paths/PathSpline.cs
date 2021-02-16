@@ -67,7 +67,7 @@ public class PathSpline : PathBase {
 
 
 	//
-	public	override	bool	Move( ref Transform subject, float? speed, Vector3? upwards )
+	public	override	bool	Move( Transform subject, float? speed, Vector3? upwards )
 	{
 		if (m_IsCompleted )
 		{

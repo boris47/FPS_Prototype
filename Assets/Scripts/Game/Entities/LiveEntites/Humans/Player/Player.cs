@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+[System.Serializable]
 public partial class Player : Human {
 
 	[Header("Player Properties")]
@@ -53,35 +54,38 @@ public partial class Player : Human {
 		get { return m_PlayerFarAreaTrigger; }
 	}
 
-
+	protected override EEntityType m_EntityType { get => EEntityType.ACTOR; }
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void	Awake()
 	{
-		m_EntityType = EEntityType.ACTOR;
-
+		// Singleton
 		if ( m_Instance != null )
 		{
-			Destroy(gameObject );
-			return;
+		//	Destroy(gameObject );
+		//	return;
 		}
-
 		m_Instance = this;
-		Entity = this as IEntity;
 		DontDestroyOnLoad( this );
-
-		m_SectionName = GetType().FullName;
 
 		base.Awake();
 
+		Entity = this as IEntity;
 		transform.TrySearchComponentByChildName( "PNAT", out m_PlayerNearAreaTrigger ); // Player Near Area Trigger
 		transform.TrySearchComponentByChildName( "PFAT", out m_PlayerFarAreaTrigger  ); // Player Far  Area Trigger
 
 		// Player Components
 		{
 			// Foots
-			Utils.Base.TrySearchComponent(gameObject, ESearchContext.CHILDREN, out m_Foots );
-			DisableCollisionsWith(m_Foots.Collider );
+			UnityEngine.Assertions.Assert.IsTrue
+			(
+				Utils.Base.TrySearchComponent(gameObject, ESearchContext.CHILDREN, out m_Foots ),
+				$"We need foots !!"
+			);
+			if (m_Foots.IsNotNull())
+			{
+				DisableCollisionsWith(m_Foots.Collider);
+			}
 
 //			this.m_DodgeAbilityTarget = this.transform.Find( "DodgeAbilityTarget" );
 //			this.m_DodgeAbilityTarget.SetParent( null );
@@ -102,9 +106,8 @@ public partial class Player : Human {
 			m_FallDistanceThreshold		= m_SectionRef.AsFloat( "FallDistanceThreshold" );
 
 			// Climbing
-			///			bool result = m_SectionRef.bAsFloat( "Climb", ref m_ClimbSpeed );
+		///	bool result = m_SectionRef.bAsFloat( "Climb", ref m_ClimbSpeed );
 			m_ClimbSpeed				= m_SectionRef.AsFloat( "Climb", 0.12f );
-//			m_ClimbSpeed				= m_SectionRef[ "Climb" ].Value.ToFloat();
 
 			// Jumping
 			{
@@ -117,7 +120,6 @@ public partial class Player : Human {
 				m_StaminaRunMin			= m_SectionRef.AsFloat( "StaminaRunMin",  0.3f );
 				m_StaminaJumpMin		= m_SectionRef.AsFloat( "StaminaJumpMin", 0.4f );
 			}
-
 		}
 
 		m_Health			= m_SectionRef.AsFloat( "Health", 100.0f );
@@ -128,7 +130,6 @@ public partial class Player : Human {
 		GroundSpeedModifier = 1.0f;
 		IsGrounded			= false;
 		m_IsActive			= true;
-
 
 		m_OnMotionStateChangedEvent += OnMotionTypeChanged;
 		SetMotionType( EMotionType.Walking );

@@ -29,38 +29,45 @@ using UnityEngine.Rendering;
 [DisallowMultipleComponent]
 public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager> {
 
-	public enum HighlightType {
+	public enum HighlightType
+	{
 		Glow = 0,
 		Solid = 1
 	}
 
-	public enum SortingType {
+	public enum SortingType
+	{
 		Overlay = 3,
 		DepthFiltered = 4,
 	}
 
-	public enum DepthInvertPass {
+	public enum DepthInvertPass
+	{
 		StencilMapper = 5,
 		StencilDrawer = 6
 	}
 
-	public enum FillType {
+	public enum FillType
+	{
 		Fill,
 		Outline
 	}
-	public enum RTResolution {
+
+	public enum RTResolution
+	{
 		Quarter = 4,
 		Half = 2,
 		Full = 1
 	}
 
-	public enum BlurType {
+	public enum BlurType
+	{
 		StandardGauss = 0,
 		SgxGauss = 1,
 	}
 
-
-	public struct OutlineData {
+	public struct OutlineData
+	{
 		public Color color;
 		public SortingType sortingType;
 	}
@@ -95,7 +102,8 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 	private		int										m_CurrentResolutionX	= 0;
 	private		int										m_CurrentResolutionY	= 0;
 
-	private class CustomOutlineData {
+	private class CustomOutlineData
+	{
 		public Renderer[] renderers;
 		public OutlineData outlineData;
 	}
@@ -138,29 +146,36 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 	
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> if given camera is valid is then used for command buffer </summary>
-	public	static void	SetEffectCamera( Camera camera )
+	public static void SetEffectCamera( Camera camera )
 	{
-		if ( camera )
+		if (camera)
 		{
-			if ( camera == m_Camera )
-				return;
+			if (camera != m_Camera)
+			{
+				if (m_Camera)
+				{
+					m_Camera.depthTextureMode = m_PrevDepthTextureMode;
+					m_Camera.RemoveCommandBuffer( CameraEvent.BeforeImageEffects, commandBuffer );
+				}
 
+				m_PrevDepthTextureMode = camera.depthTextureMode;
+				camera.depthTextureMode = DepthTextureMode.Depth;
+				camera.AddCommandBuffer( CameraEvent.BeforeImageEffects, commandBuffer );
+			}
+		}
+		else
+		{
 			if ( m_Camera )
 			{
-				m_Camera.depthTextureMode = m_PrevDepthTextureMode;
+				m_Camera.depthTextureMode = DepthTextureMode.None;
 				m_Camera.RemoveCommandBuffer( CameraEvent.BeforeImageEffects, commandBuffer );
 			}
-
-			m_PrevDepthTextureMode = camera.depthTextureMode;
-			camera.depthTextureMode = DepthTextureMode.Depth;
-			camera.AddCommandBuffer( CameraEvent.BeforeImageEffects, commandBuffer );
 		}
 		m_Camera = camera;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Awake
 	private void Awake()
 	{
 		m_ObjectRenderers = new Dictionary<uint, CustomOutlineData>();
@@ -178,49 +193,64 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 		m_RTHeight = ( int ) (m_CurrentResolutionY / ( float )m_Resolution );
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	private void OnEnable()
+	{
+		if ( m_Camera )
+		{
+			m_PrevDepthTextureMode = m_Camera.depthTextureMode;
+			m_Camera.depthTextureMode = DepthTextureMode.Depth;
+			m_Camera.AddCommandBuffer( CameraEvent.BeforeImageEffects, commandBuffer );
+		}
+	}
 
 	//////////////////////////////////////////////////////////////////////////
-	/// <summary>
-	/// Add the renderers to use for outline effect and assign to newID the unique id of the outline effect slot.
-	/// A newID of value Zero express failure.
-	/// 'Color.Clear' color is not accepted
-	/// </summary>
-	public void AddRenderers( Renderer[] renderers, OutlineData outlineData, ref uint newID )
+	private void OnDisable()
+	{
+		if ( m_Camera )
+		{
+			m_Camera.depthTextureMode = DepthTextureMode.None;
+			m_Camera.RemoveCommandBuffer( CameraEvent.BeforeImageEffects, commandBuffer );
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> Add the renderers to use for outline effect and assign to newID the unique id of the outline effect slot.'Color.Clear' color is not accepted </summary>
+	public bool AddRenderers( Renderer[] renderers, OutlineData outlineData, ref uint newID )
 	{
 		if ( renderers == null || outlineData.color == Color.clear )
 		{
-			newID = 0;
-			return;
+			return false;
 		}
 
-		CustomOutlineData customOutlineData = new CustomOutlineData() {
+		CustomOutlineData customOutlineData = new CustomOutlineData()
+		{
 			renderers = renderers,
 			outlineData = outlineData
 		};
 		
-		newID = NewId();
-		m_ObjectRenderers.Add( newID, customOutlineData );
+		m_ObjectRenderers.Add( newID = NewId(), customOutlineData );
 		RecreateCommandBuffer();
+		return true;
 	}
-
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Using the slot id, if registered, remove renderers </summary>
-	public void RemoveRenderers( uint id )
+	public bool RemoveRenderers( uint id )
 	{
 		if ( id == 0 )
 		{
-			return;
+			return false;
 		}
 
-		m_ObjectRenderers.Remove( id );
+		bool bResult = m_ObjectRenderers.Remove( id );
 		RecreateCommandBuffer();
+		return true;
 	}
-
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Update the renderers using the given id </summary>
-	public	void	UpdateRenderers( uint id, Renderer[] newRenderers )
+	public void UpdateRenderers( uint id, Renderer[] newRenderers )
 	{
 		if ( id == 0 || newRenderers == null )
 			return;
@@ -228,7 +258,6 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 		m_ObjectRenderers[id].renderers = newRenderers;
 		RecreateCommandBuffer();
 	}
-
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Update the outline data using the given id </summary>
@@ -241,7 +270,6 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 		RecreateCommandBuffer();
 	}
 	
-
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Clear every renderer from internal collection </summary>
 	public void ClearOutlineData()
@@ -250,7 +278,7 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 		commandBuffer.Clear();
 	}
 
-
+	//////////////////////////////////////////////////////////////////////////
 	/// <summary> OnPreRender is called before a camera starts rendering the scene </summary>
 	/// This could be usefull if resolution is changed
 	private void OnPreRender()
@@ -265,7 +293,7 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 		}
 	}
 
-
+	//////////////////////////////////////////////////////////////////////////
 	/// <summary> This function is called when the script is loaded or a value is changed in the inspector (Called in the editor only)</summary>
 	private void OnValidate()
 	{
@@ -275,7 +303,7 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 		}
 	}
 
-	//
+	//////////////////////////////////////////////////////////////////////////
 	private void RecreateCommandBuffer()
 	{
 		commandBuffer.Clear();
@@ -310,11 +338,11 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 		commandBuffer.GetTemporaryRT(m_BlurredRTID, rtW, rtH, 0, FilterMode.Bilinear, RenderTextureFormat.ARGB32 );
 		commandBuffer.GetTemporaryRT(m_TemporaryRTID, rtW, rtH, 0, FilterMode.Bilinear, RenderTextureFormat.ARGB32 );
 
-		commandBuffer.Blit(m_HighlightRTID, m_TemporaryRTID, m_BlurMaterial, 0 );
+		commandBuffer.Blit(m_HighlightRTID, m_TemporaryRTID, m_BlurMaterial, 0);
 
 		int passOffs = m_BlurType == BlurType.StandardGauss ? 0 : 2;
 
-		for ( int i = 0; i < m_BlurIterations; i++ )
+		for (int i = 0; i < m_BlurIterations; i++)
 		{
 			float iterationOffs = ( i * 1.0f );
 			float blurHorizParam = ( m_BlurSize * widthMod ) + iterationOffs;

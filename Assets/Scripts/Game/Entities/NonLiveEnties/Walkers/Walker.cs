@@ -1,7 +1,7 @@
 ﻿
 using UnityEngine;
 
-public abstract class Walker : NonLiveEntity, IRespawn {
+public abstract class Walker : NonLiveEntity {
 
 	[Header("Walker Properties")]
 
@@ -23,9 +23,9 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 	[SerializeField, ReadOnly]
 	protected	uint			m_PoolSize					= 5;
 */
+	protected 	override EEntityType			m_EntityType { get { return EEntityType.ROBOT; } }
 
 	//////////////////////////////////////////////////////////////////////////
-
 	protected	override	void	Awake()
 	{
 		base.Awake();
@@ -34,7 +34,7 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		{
 			m_Health				= m_SectionRef.AsFloat( "Health", 60.0f );
 
-			if (m_Shield != null )
+			if (m_Shield.IsNotNull())
 			{
 				float shieldStatus	= m_SectionRef.AsFloat( "Shield", 0.0f );
 				m_Shield.Setup( shieldStatus, EShieldContext.ENTITY );
@@ -43,8 +43,6 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 	//		m_DamageMax				= m_SectionRef.AsFloat( "DamageMax", 2.0f );
 	//		m_DamageMin				= m_SectionRef.AsFloat( "DamageMin", 0.5f );
 	//		m_PoolSize				= m_SectionRef.AsUInt( "PoolSize", m_PoolSize );
-
-			m_EntityType			= EEntityType.ROBOT;
 		}
 		
 
@@ -103,11 +101,6 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		base.OnKill();
 		//		m_Pool.SetActive( false );
 		gameObject.SetActive( false );
-
-		if (m_RespawnPoint != null )
-		{
-			m_RespawnPoint.Respawn( this, 2f );
-		}
 	}
 	
 
@@ -210,39 +203,4 @@ public abstract class Walker : NonLiveEntity, IRespawn {
 		m_FireAudioSource.Play();
 	}
 	*/
-
-	//////////////////////////////////////////////////////////////////////////
-
-	void IRespawn.OnRespawn()
-	{
-		transform.position = m_RespawnPoint.transform.position;
-		transform.rotation = m_RespawnPoint.transform.rotation;
-
-		gameObject.SetActive( true );
-
-		// Entity
-		m_IsActive						= true;
-		m_TargetInfo					= new TargetInfo();
-		//		m_NavHasDestination				= false;
-		//		m_HasFaceTarget					= false;
-		//		m_Destination					= Vector3.zero;
-		//		m_PointToFace					= Vector3.zero;
-		m_NavCanMoveAlongPath						= false;
-		m_IsAllignedBodyToPoint	= false;
-		//		m_DistanceToTravel				= 0f;
-
-		// NonLiveEntity
-//		m_ShotTimer						= 0f;
-//		m_IsAllignedGunToPoint			= false;
-
-		// Reinitialize properties
-		Awake();
-
-//		m_Brain.OnReset();
-		if (m_Shield != null )
-		{
-			m_Shield.OnReset();
-		}
-	}
-	
 }
