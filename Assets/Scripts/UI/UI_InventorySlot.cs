@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public sealed class UI_InventorySlot : MonoBehaviour, IPointerClickHandler, IStateDefiner {
+public sealed class UI_InventorySlot : UI_Base, IPointerClickHandler, IStateDefiner {
 
 	private		Texture2D			m_Texture			= null;
 	private		Image				m_Image				= null;
@@ -111,7 +111,7 @@ public sealed class UI_InventorySlot : MonoBehaviour, IPointerClickHandler, ISta
 	{
 		bool result = true;
 		{
-			result &= texture != null;		// texture must be valid
+			result &= texture.IsNotNull();	// texture must be valid
 			result &= section.Lines() > 0;	// section must contain some info
 		}
 

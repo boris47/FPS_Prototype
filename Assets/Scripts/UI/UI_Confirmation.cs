@@ -3,30 +3,24 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public sealed class UI_Confirmation : MonoBehaviour, IStateDefiner {
+public sealed class UI_Confirmation : UI_Base, IStateDefiner {
 
 	private	System.Action	m_OnConfirmAction	= null;
 	private	System.Action	m_OnCancelAction	= null;
-
 	private	Text			m_LabelText			= null;
 
-	private	bool			m_IsInitialized	= false;
-	bool IStateDefiner.IsInitialized
-	{
-		get { return m_IsInitialized; }
-	}
+	private	bool			m_IsInitialized		= false;
 
-	string IStateDefiner.StateName
-	{
-		get { return name; }
-	}
+	bool IStateDefiner.IsInitialized => m_IsInitialized;
+
+	string IStateDefiner.StateName => name;
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public void PreInit() { }
+	void IStateDefiner.PreInit() { }
+
 
 	//////////////////////////////////////////////////////////////////////////
-	// Initialize
 	IEnumerator IStateDefiner.Initialize()
 	{
 		if (m_IsInitialized == true )
@@ -59,12 +53,11 @@ public sealed class UI_Confirmation : MonoBehaviour, IStateDefiner {
 			if (m_IsInitialized && (m_IsInitialized &= panel.TrySearchComponentByChildIndex( 1, out onConfirmButton ) ) )
 			{
 				onConfirmButton.navigation = noNavigationMode;
-				onConfirmButton.onClick.AddListener( 
-					() => {
-						m_OnConfirmAction();
-						gameObject.SetActive( false );
-					}
-				);
+				onConfirmButton.onClick.AddListener( () =>
+				{
+					m_OnConfirmAction();
+					gameObject.SetActive( false );
+				});
 			}
 
 			yield return null;
@@ -74,12 +67,11 @@ public sealed class UI_Confirmation : MonoBehaviour, IStateDefiner {
 			if (m_IsInitialized && (m_IsInitialized &= panel.TrySearchComponentByChildIndex( 2, out onCancelButton ) ) )
 			{
 				onCancelButton.navigation = noNavigationMode;
-				onCancelButton.onClick.AddListener( 
-					() => {
-						m_OnCancelAction();
-						gameObject.SetActive( false );
-					}
-				);
+				onCancelButton.onClick.AddListener( () =>
+				{
+					m_OnCancelAction();
+					gameObject.SetActive(false);
+				});
 			}
 
 			gameObject.SetActive( false );
@@ -122,8 +114,8 @@ public sealed class UI_Confirmation : MonoBehaviour, IStateDefiner {
 			return;
 
 		m_LabelText.text	= LabelMsg;
-		m_OnConfirmAction	= OnConfirm != null ? OnConfirm : () => { };
-		m_OnCancelAction	= OnCancel  != null ? OnCancel  : () => { };
+		m_OnConfirmAction	= OnConfirm ?? (() => { });
+		m_OnCancelAction	= OnCancel ?? (() => { });
 		gameObject.SetActive( true );
 	}
 

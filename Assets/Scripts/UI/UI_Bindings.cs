@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
 
-public sealed class UI_Bindings : MonoBehaviour, IStateDefiner {
+public sealed class UI_Bindings : UI_Base, IStateDefiner {
 
 	static		List<Dropdown.OptionData> keyStateDropDownList		= null;
 	private		InputManager		m_InputMgr						= null;

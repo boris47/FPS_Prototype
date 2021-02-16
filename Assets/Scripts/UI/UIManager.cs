@@ -68,16 +68,15 @@ public interface IUIOptions
 
 public interface IUI
 {
-	void					GoToMenu					( Transform MenuToShow );
-	void					GoToMenu					( MonoBehaviour MenuToShow );
+	void					GoToMenu					( UI_Base MenuToShow );
 	void					EnableMenuByScene			( ESceneEnumeration scene );
-	bool					IsCurrentActive				( MonoBehaviour menu );
-	void					GoToSubMenu					( Transform MenuToShow );
+	bool					IsCurrentActive				( UI_Base menu );
+	void					GoToSubMenu					( UI_Base MenuToShow );
 	void					GoBack						();
 
 
-	void					DisableInteraction			( Transform menu );
-	void					EnableInteraction			( Transform menu );
+	void					DisableInteraction			( UI_Base menu );
+	void					EnableInteraction			( UI_Base menu );
 }
 
 
@@ -132,11 +131,11 @@ public sealed class UIManager : InGameSingleton<UIManager>, IUI
 
 
 //	[SerializeField, ReadOnly]
-	private			Transform				m_CurrentActiveTransform		= null;
-//	private			Transform				m_PrevActiveTransform			= null;
+	private			UI_Base					m_CurrentActiveUI			= null;
+//	private			Transform				m_PrevActiveTransform		= null;
 
 	[SerializeField]
-	private			Stack<Transform>		m_TransformStack				= new Stack<Transform>();
+	private			Stack<UI_Base>			m_History					= new Stack<UI_Base>();
 
 	private	bool							m_IsInitialized				= false;
 	public	bool		IsInitialized
@@ -186,7 +185,7 @@ public sealed class UIManager : InGameSingleton<UIManager>, IUI
 
 		// Ray cast interceptor
 		m_RayCastInterceptor = transform.Find( "RayCastInterceptor" );
-		m_IsInitialized &= m_RayCastInterceptor != null;
+		m_IsInitialized &= m_RayCastInterceptor.IsNotNull();
 
 		m_RayCastInterceptor.gameObject.SetActive( false );
 
@@ -205,14 +204,14 @@ public sealed class UIManager : InGameSingleton<UIManager>, IUI
 	// Initialize
 	private	IEnumerator Initialize()
 	{
-		CoroutinesManager.AddCoroutineToPendingCount( 1 );
+		CoroutinesManager.AddCoroutineToPendingCount(1);
 
 		yield return null;
 
-		m_CurrentActiveTransform =	m_InGame.gameObject.activeSelf
-			? m_InGame.transform
+		m_CurrentActiveUI =	m_InGame.gameObject.activeSelf
+			? m_InGame as UI_Base
 			: m_MainMenu.gameObject.activeSelf
-			? m_MainMenu.transform
+			? m_MainMenu as UI_Base
 			: null;
 
 		uint numCoroutines = CoroutinesManager.PendingRoutines;
@@ -224,9 +223,6 @@ public sealed class UIManager : InGameSingleton<UIManager>, IUI
 		}
 		yield return new WaitUntil( () => CoroutinesManager.PendingRoutines <= numCoroutines);
 
-		yield return null;
-		yield return null;
-
 		int sceneIdx = CustomSceneManager.CurrentSceneIndex; // gameObject.scene.buildIndex;
 		if ( sceneIdx == (int)ESceneEnumeration.LOADING )
 		{
@@ -234,7 +230,7 @@ public sealed class UIManager : InGameSingleton<UIManager>, IUI
 		}
 		else if ( sceneIdx == (int)ESceneEnumeration.MAIN_MENU )
 		{
-			SwitchTo( m_MainMenu.transform );
+			SwitchTo( m_MainMenu );
 		}
 		else if ( sceneIdx == (int)ESceneEnumeration.INTRO )
 		{
@@ -242,7 +238,7 @@ public sealed class UIManager : InGameSingleton<UIManager>, IUI
 		}
 		else
 		{
-			SwitchTo( m_InGame.transform );
+			SwitchTo( m_InGame );
 		}
 
 		CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
@@ -252,7 +248,7 @@ public sealed class UIManager : InGameSingleton<UIManager>, IUI
 
 	//////////////////////////////////////////////////////////////////////////
 	// EnableMenuByScene
-	public void EnableMenuByScene( ESceneEnumeration scene )
+	public void EnableMenuByScene(ESceneEnumeration scene)
 	{
 		switch ( scene )
 		{
@@ -280,18 +276,18 @@ public sealed class UIManager : InGameSingleton<UIManager>, IUI
 
 	//////////////////////////////////////////////////////////////////////////
 	// IsCurrentActive
-	public	bool		IsCurrentActive( MonoBehaviour menu )
+	public	bool		IsCurrentActive(UI_Base menu)
 	{
-		return m_CurrentActiveTransform == menu.transform;
+		return m_CurrentActiveUI == menu;
 	}
 
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// SwitchTo
-	private	void	SwitchTo( Transform TransformToShow )
+	private	void	SwitchTo(UI_Base uiToShow)
 	{
-		if (m_CurrentActiveTransform?.GetInstanceID() == TransformToShow?.GetInstanceID() )
+		if (m_CurrentActiveUI?.GetInstanceID() == uiToShow?.GetInstanceID())
 			return;
 
 		POINT lastCursorPosition = new POINT();
@@ -300,14 +296,13 @@ public sealed class UIManager : InGameSingleton<UIManager>, IUI
 		GetCursorPos( out lastCursorPosition );
 
 		// Disable current active menu gameobject
-		if (m_CurrentActiveTransform )
-			m_CurrentActiveTransform.gameObject.SetActive( false );
+		m_CurrentActiveUI?.gameObject.SetActive( false );
 
 		// Swicth to new menu
-		m_CurrentActiveTransform	= TransformToShow;
+		m_CurrentActiveUI	= uiToShow;
 
 		// Enable current active menu gameobject
-		m_CurrentActiveTransform.gameObject.SetActive( true );
+		m_CurrentActiveUI.gameObject.SetActive( true );
 
 //		string currentName = m_CurrentActiveTransform.name;
 
@@ -319,54 +314,37 @@ public sealed class UIManager : InGameSingleton<UIManager>, IUI
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// GoToMenu
-	public	void	GoToMenu( Transform MenuToShow )
+	public	void	GoToMenu( UI_Base MenuToShow )
 	{
 		if ( MenuToShow == null )
 			return;
 
-		m_TransformStack.Clear();
+		m_History.Clear();
 
 		SwitchTo( MenuToShow );
-	}
-
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// GoToMenu
-	public	void	GoToMenu( MonoBehaviour MenuToShow )
-	{
-		if ( MenuToShow == null )
-			return;
-
-		m_TransformStack.Clear();
-
-		SwitchTo( MenuToShow.transform );
 	}
 
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// GoToSubMenu
-	public	void	GoToSubMenu( Transform MenuToShow )
+	public	void	GoToSubMenu(UI_Base MenuToShow)
 	{
 		if ( MenuToShow == null )
 			return;
 
-		m_TransformStack.Push(m_CurrentActiveTransform );
+		m_History.Push(m_CurrentActiveUI );
 
 		SwitchTo( MenuToShow );
 	}
-
-
 
 	//////////////////////////////////////////////////////////////////////////
 	// GoBack
 	public	void GoBack()
 	{
-		if (m_TransformStack.Count > 0 )
+		if (m_History.Count > 0 )
 		{
-			Transform t = m_TransformStack.Pop();
+			UI_Base t = m_History.Pop();
 			SwitchTo( t );
 		}
 	}
@@ -375,7 +353,7 @@ public sealed class UIManager : InGameSingleton<UIManager>, IUI
 
 	//////////////////////////////////////////////////////////////////////////
 	// DisableInteraction
-	public	void	DisableInteraction( Transform menu )
+	public	void	DisableInteraction( UI_Base menu )
 	{
 		Selectable[] selectables = menu.GetComponentsInChildren<Selectable>( includeInactive: true );
 		System.Array.ForEach( selectables, ( s ) => s.interactable = false );
@@ -385,7 +363,7 @@ public sealed class UIManager : InGameSingleton<UIManager>, IUI
 
 	//////////////////////////////////////////////////////////////////////////
 	// EnableInteraction
-	public	void	EnableInteraction( Transform menu )
+	public	void	EnableInteraction( UI_Base menu )
 	{
 		Selectable[] selectables = menu.GetComponentsInChildren<Selectable>( includeInactive: true );
 		System.Array.ForEach( selectables, ( s ) => s.interactable = true );

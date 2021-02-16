@@ -13,7 +13,7 @@ public enum EIndicatorType {
 	TARGET_TO_KILL
 }
 
-public sealed class UI_Indicators : MonoBehaviour, IStateDefiner
+public sealed class UI_Indicators : UI_Base, IStateDefiner
 {
 	private	const	float								MAX_DISTANCE_TO_RESIZE		= 25f;
 	private	const	float								MIN_DISTANCE_TO_RESIZE		= 2f;

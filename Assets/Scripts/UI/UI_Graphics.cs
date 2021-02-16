@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.PostProcessing;
 using UnityEngine.UI;
 
-public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
+public sealed class UI_Graphics : UI_Base, IUIOptions, IStateDefiner
 {
 	// UI Components
 	private	Dropdown					m_ResolutionDropDown				= null;
@@ -271,8 +271,6 @@ public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
 				OnApplyChanges();
 
 				CoroutinesManager.RemoveCoroutineFromPendingCount(1);
-
-				yield return null;
 			}
 			else
 			{
@@ -308,10 +306,10 @@ public sealed class UI_Graphics : MonoBehaviour, IUIOptions, IStateDefiner
 
 		// Sprites for TargetToKill, LocationToReach or ObjectToInteractWith
 		bool bLoadResult = ResourceManager.LoadResourceSync( "Scriptables/CameraPostProcesses", out PostProcessingProfile cameraPostProcesses );
-		UnityEngine.Assertions.Assert.IsTrue( bLoadResult, "CameraControl::Awake: Failed the load of camera post processes profile" );
+		UnityEngine.Assertions.Assert.IsTrue( bLoadResult, "Failed the load of camera post processes profile" );
 
-		PostProcessingProfile PP_Profile = Camera.main.gameObject.GetOrAddIfNotFound<PostProcessingBehaviour>().profile = cameraPostProcesses;
-		UserSettings.VideoSettings.OnEnable(PP_Profile);
+		Camera.main.gameObject.GetOrAddIfNotFound<PostProcessingBehaviour>().profile = cameraPostProcesses;
+		UserSettings.VideoSettings.OnEnable(cameraPostProcesses);
 		m_ApplyButton.interactable = false;
 		UpdateUI();
 	}

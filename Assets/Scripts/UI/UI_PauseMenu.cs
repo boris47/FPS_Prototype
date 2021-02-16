@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public sealed class UI_PauseMenu : MonoBehaviour, IStateDefiner {
+public sealed class UI_PauseMenu : UI_Base, IStateDefiner {
 
 
 	private		Button	m_ResumeButton			= null;

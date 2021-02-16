@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public sealed class UI_Audio : MonoBehaviour, IUIOptions, IStateDefiner
+public sealed class UI_Audio : UI_Base, IUIOptions, IStateDefiner
 {
 	// UI Components
 	private	Slider			m_MusicSlider				= null;

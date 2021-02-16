@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public sealed class UI_Minimap : MonoBehaviour, IStateDefiner {
+public sealed class UI_Minimap : UI_Base, IStateDefiner {
 
 	private			Camera			m_TopViewCamera				= null;
 	private			bool			m_IsVisible					= true;

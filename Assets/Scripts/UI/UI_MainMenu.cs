@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public sealed class UI_MainMenu : MonoBehaviour, IStateDefiner
+public sealed class UI_MainMenu : UI_Base, IStateDefiner
 {
 //	private	const string shaderPath = "VR/SpatialMapping/Wireframe";
 	
@@ -136,14 +136,14 @@ public sealed class UI_MainMenu : MonoBehaviour, IStateDefiner
 		yield return null;
 
 		// UI interaction
-		UIManager.Instance.DisableInteraction(transform);
+		UIManager.Instance.DisableInteraction(this);
 		{
 			yield return CoroutinesManager.WaitPendingCoroutines();
 		}
 
 		print( "MainMenu::OnStart await completed" );
 
-		UIManager.Instance.EnableInteraction(transform);
+		UIManager.Instance.EnableInteraction(this);
 
 		// Cursor
 		GlobalManager.SetCursorVisibility( true );
@@ -162,18 +162,18 @@ public sealed class UI_MainMenu : MonoBehaviour, IStateDefiner
 	// OnNewGame
 	public	void	OnNewGame()
 	{
-		System.Action onNewGame = delegate()
+		void onNewGame()
 		{
-			PlayerPrefs.DeleteKey( "SaveSceneIdx" );
+			PlayerPrefs.DeleteKey("SaveSceneIdx");
 
 			CustomSceneManager.LoadSceneData LoadSceneData = new CustomSceneManager.LoadSceneData()
 			{
-				eScene				= ESceneEnumeration.OPENWORLD1,
-				sSaveToLoad			= "",
-				bMustLoadSave		= false
+				eScene = ESceneEnumeration.OPENWORLD1,
+				sSaveToLoad = "",
+				bMustLoadSave = false
 			};
-			CustomSceneManager.LoadSceneAsync( LoadSceneData );
-		};
+			CustomSceneManager.LoadSceneAsync(LoadSceneData);
+		}
 
 		if ( PlayerPrefs.HasKey( "SaveSceneIdx" ) )
 		{

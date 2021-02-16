@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public sealed class UI_Inventory : MonoBehaviour, IStateDefiner {
+public sealed class UI_Inventory : UI_Base, IStateDefiner {
 
 	private		RectTransform		m_MainPanel				= null;
 	private		RectTransform		m_InventorySlots		= null;

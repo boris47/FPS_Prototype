@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public sealed class UI_InGame : MonoBehaviour, IStateDefiner
+public sealed class UI_InGame : UI_Base, IStateDefiner
 {
 
 	private			Transform		m_GenericInfosPanel				= null;

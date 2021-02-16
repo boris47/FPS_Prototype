@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Collections;
 
 
-public abstract class UI_BaseCrosshair : MonoBehaviour, IStateDefiner
+public abstract class UI_BaseCrosshair : UI_Base, IStateDefiner
 {
 	[SerializeField]
 	private		float	m_MinValue			= 0.0f;
@@ -23,7 +23,7 @@ public abstract class UI_BaseCrosshair : MonoBehaviour, IStateDefiner
 	public void AddRef()
 	{
 		++m_RefCount;
-		if ( m_RefCount >= 0 )
+		if ( m_RefCount > 0 )
 		{
 			gameObject.SetActive( true );
 		}
@@ -34,10 +34,7 @@ public abstract class UI_BaseCrosshair : MonoBehaviour, IStateDefiner
 		--m_RefCount;
 		if ( m_RefCount <= 0 )
 		{
-			if (gameObject != null)
-			{
-				gameObject.SetActive( false );
-			}
+			gameObject.SetActive( false );
 		}
 	}
 
