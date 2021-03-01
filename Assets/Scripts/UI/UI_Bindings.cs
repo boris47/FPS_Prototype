@@ -65,7 +65,7 @@ public sealed class UI_Bindings : UI_Base, IStateDefiner {
 			);
 
 			// Scroll content conmponent
-			m_IsInitialized &= transform.TrySearchComponent(ESearchContext.CHILDREN, out m_ScrollContentTransform, c => c.HasComponent<VerticalLayoutGroup>() );
+			m_IsInitialized &= transform.TrySearchComponent(ESearchContext.LOCAL_AND_CHILDREN, out m_ScrollContentTransform, c => c.HasComponent<VerticalLayoutGroup>() );
 
 			m_BlockPanel = transform.Find("BlockPanel" );
 			m_IsInitialized &= m_BlockPanel != null;

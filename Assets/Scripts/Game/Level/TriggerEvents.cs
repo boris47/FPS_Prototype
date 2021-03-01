@@ -1,5 +1,6 @@
 ﻿
 using UnityEngine;
+using System.Linq;
 
 
 public class TriggerEvents : MonoBehaviour {
@@ -13,7 +14,7 @@ public class TriggerEvents : MonoBehaviour {
 	private		GameEventArg1			m_OnExit				= null;
 
 	[SerializeField]
-	private		GameObject				m_Target				= null;
+	private		Entity					m_Target				= null;
 
 	[SerializeField]
 	private		bool					m_TriggerOnce			= false;
@@ -21,7 +22,10 @@ public class TriggerEvents : MonoBehaviour {
 	[SerializeField]
 	private		bool					m_BypassEntityCheck		= false;
 
-	private		event TargetTriggerDelegate	m_OnEnterEvent	= delegate( GameObject go ) { };
+	private		bool					m_HasTriggered			= false;
+	private		Collider				m_Collider				= null;
+
+	private		event TargetTriggerDelegate	m_OnEnterEvent		= delegate( GameObject go ) { };
 	public event	TargetTriggerDelegate	OnEnterEvent
 	{
 		add		{ if ( value.IsNotNull() ) m_OnEnterEvent += value; }
@@ -29,52 +33,42 @@ public class TriggerEvents : MonoBehaviour {
 	}
 
 
-	private		event TargetTriggerDelegate	m_OnExitEvent	= delegate( GameObject go ) { };
+	private		event TargetTriggerDelegate	m_OnExitEvent		= delegate( GameObject go ) { };
 	public event	TargetTriggerDelegate	OnExitEvent
 	{
 		add		{ if ( value.IsNotNull() ) m_OnExitEvent += value; }
 		remove	{ if ( value.IsNotNull() ) m_OnExitEvent += value; }
 	}
 
-	private		bool			m_HasTriggered			= false;
-
-	private		Collider		m_Collider				= null;
-	private		Renderer		m_Renderer				= null;
-
 
 	//////////////////////////////////////////////////////////////////////////
-	// Awake
 	private void Awake()
 	{
-		bool bHasCollider = transform.TrySearchComponent(ESearchContext.LOCAL, out m_Collider);
-
-		if ( bHasCollider == false )
+		if (!transform.TrySearchComponent(ESearchContext.LOCAL, out m_Collider))
 		{
 			Destroy(this);
 			return;
 		}
+		else
+		{
+			m_Collider.isTrigger = true; // ensure is used as trigger
+			m_Collider.enabled = false;
 
-		m_Collider.isTrigger = true; // ensure is used as trigger
-		m_Collider.enabled = false;
+			m_OnEnter.AddListener( ( GameObject go ) => { m_OnEnterEvent( go ); } );
+			m_OnExit.AddListener ( ( GameObject go ) => { m_OnExitEvent( go ); } ); 
 
-		m_OnEnter.AddListener( ( GameObject go ) => { m_OnEnterEvent( go ); } );
-		m_OnExit.AddListener ( ( GameObject go ) => { m_OnExitEvent( go ); } ); 
-
-		GameManager.StreamEvents.OnSave += StreamEvents_OnSave;
-		GameManager.StreamEvents.OnLoad += StreamEvents_OnLoad;
+			GameManager.StreamEvents.OnSave += StreamEvents_OnSave;
+			GameManager.StreamEvents.OnLoad += StreamEvents_OnLoad;
+		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private bool StreamEvents_OnSave( StreamData streamData, ref StreamUnit streamUnit )
 	{
-		// Skip if no required
-		if (m_TriggerOnce == false )
-			return true;
-
 		streamUnit = streamData.NewUnit(gameObject );
-		streamUnit.SetInternal( "HasTriggered", m_HasTriggered );
-
+		streamUnit.SetInternal("HasTriggered", m_HasTriggered);
+		streamUnit.SetInternal("TriggerOnce", m_TriggerOnce);
 		return true;
 	}
 
@@ -82,10 +76,6 @@ public class TriggerEvents : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private bool StreamEvents_OnLoad( StreamData streamData, ref StreamUnit streamUnit )
 	{
-		// Skip if no required
-		if (m_TriggerOnce == false )
-			return true;
-
 		// Get unit
 		bool bResult = streamData.TryGetUnit(gameObject, out streamUnit );
 		if ( bResult )
@@ -100,11 +90,13 @@ public class TriggerEvents : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnEnable()
 	{
-		UnityEngine.Assertions.Assert.IsNotNull
-		(
-			m_Collider,
-			"TriggerEvents::OnEnable: m_Collider is a null reference"
-		);
+		UnityEngine.Assertions.Assert.IsNotNull(m_Collider, "Collider is a null reference");
+
+		if (GameManager.StreamEvents.IsNotNull())
+		{
+			GameManager.StreamEvents.OnSave += StreamEvents_OnSave;
+			GameManager.StreamEvents.OnLoad += StreamEvents_OnLoad;
+		}
 
 		m_Collider.enabled = true;
 	}
@@ -113,74 +105,109 @@ public class TriggerEvents : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnDisable()
 	{
-		UnityEngine.Assertions.Assert.IsNotNull
-		(
-			m_Collider,
-			"TriggerEvents::OnDisable: m_Collider is a null reference"
-		);
+		UnityEngine.Assertions.Assert.IsNotNull( m_Collider, "Collider is a null reference" );
+
+		if (GameManager.StreamEvents.IsNotNull())
+		{
+			GameManager.StreamEvents.OnSave -= StreamEvents_OnSave;
+			GameManager.StreamEvents.OnLoad -= StreamEvents_OnLoad;
+		}
 
 		m_Collider.enabled = false;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnTriggerEnter
-	private void OnTriggerEnter( Collider other )
+	private static void OnEnter(TriggerEvents triggerEvents, GameObject gameObject)
 	{
-		if (m_TriggerOnce == true && m_HasTriggered == true )
-			return;
-
-		if (m_Target && other.transform.root.GetInstanceID() != m_Target.transform.root.GetInstanceID() )
-			return;
-
-		bool bIsEntity = Utils.Base.TrySearchComponent( other.gameObject, ESearchContext.CHILDREN, out Entity entity );
-		if ( bIsEntity && m_BypassEntityCheck == false && entity.CanTrigger() == false )
+		if (triggerEvents.m_TriggerOnce)
 		{
-			return;
+			triggerEvents.m_HasTriggered = true;
+			triggerEvents.m_Collider.enabled = false;
 		}
 
-		m_HasTriggered = true;
-
-		m_OnEnter?.Invoke( other.gameObject );
+		triggerEvents.m_OnEnter.Invoke(gameObject);
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnTriggerExit
-	private void OnTriggerExit( Collider other )
+	private static void OnExit(TriggerEvents triggerEvents, GameObject gameObject)
 	{
-		if (m_TriggerOnce == true && m_HasTriggered == true )
-			return;
-
-		if (m_Target && other.transform.root.GetInstanceID() != m_Target.transform.root.GetInstanceID())
-			return;
-
-		m_OnExit?.Invoke( other.gameObject );
+		triggerEvents.m_OnExit.Invoke(gameObject);
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
+	private void OnTriggerEnter(Collider other)
+	{
+		if (Utils.Base.TrySearchComponent(other.gameObject, ESearchContext.LOCAL_AND_PARENTS, out Entity entity))
+		{
+			if (m_Target)
+			{
+				if (m_Target.GetInstanceID() != entity.GetInstanceID())
+				{
+					return; // Different instance ID
+				}
+
+				if (!m_BypassEntityCheck && !entity.CanTrigger())
+				{
+					return; // Entity cannot trigger
+				}
+			}
+
+			OnEnter(this, other.gameObject);
+		}
+
+		// Interactable (No target only)
+		if (!m_Target && Utils.Base.TrySearchComponent(other.gameObject, ESearchContext.LOCAL, out Interactable bump))
+		{
+			OnEnter(this, other.gameObject);
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void OnTriggerExit(Collider other)
+	{
+		// Entity
+		if (Utils.Base.TrySearchComponent(other.gameObject, ESearchContext.LOCAL_AND_PARENTS, out Entity entity))
+		{
+			if (m_Target && m_Target.GetInstanceID() != entity.GetInstanceID())
+			{
+				return; // Different instance ID
+			}
+
+			OnExit(this, other.gameObject);
+		}
+		// Interactable
+		else if (Utils.Base.TrySearchComponent(other.gameObject, ESearchContext.LOCAL, out Interactable bump))
+		{
+			OnExit(this, other.gameObject);
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	private void OnDrawGizmos()
 	{
-		if (TryGetComponent(out m_Renderer) && m_Renderer.enabled)
+		if (TryGetComponent(out Renderer renderer) && renderer.enabled)
 		{
 			return; // avoid Z-fighting in the editor
 		}
 
-		if (transform.TrySearchComponent(ESearchContext.LOCAL, out m_Collider ) )
+		if (transform.TrySearchComponent(ESearchContext.LOCAL, out m_Collider))
 		{
 			Matrix4x4 mat = Gizmos.matrix;
 			Gizmos.matrix = transform.localToWorldMatrix;
 
-			if (m_Collider is BoxCollider )
+			if (m_Collider is BoxCollider boxCollider)
 			{
-				BoxCollider thisCollider = m_Collider as BoxCollider;
-				Gizmos.DrawCube( Vector3.zero, thisCollider.size );
+				Gizmos.DrawCube( Vector3.zero, boxCollider.size );
 			}
 		
-			if (m_Collider is SphereCollider )
+			if (m_Collider is SphereCollider sphereCollider)
 			{
-				SphereCollider thisCollider = m_Collider as SphereCollider;
-				Gizmos.DrawSphere( Vector3.zero, thisCollider.radius );
+				Gizmos.DrawSphere( Vector3.zero, sphereCollider.radius );
 			}
 
 			Gizmos.matrix = mat;

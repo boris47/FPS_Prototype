@@ -23,7 +23,7 @@ public abstract class Walker : NonLiveEntity {
 	[SerializeField, ReadOnly]
 	protected	uint			m_PoolSize					= 5;
 */
-	protected 	override EEntityType			m_EntityType { get { return EEntityType.ROBOT; } }
+	protected 	override EEntityType			m_EntityType => EEntityType.ROBOT;
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void	Awake()

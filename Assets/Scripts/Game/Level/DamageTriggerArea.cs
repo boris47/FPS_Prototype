@@ -148,10 +148,9 @@ public class DamageTriggerArea : MonoBehaviour {
 
 		Debug.Log( "TixicTriggerArea::OnEnter: Enter " + go.name );
 
-		Entity enteredEntity = null;
 		EnteredGameObjectData newData = new EnteredGameObjectData()
 		{
-			bIsEntity = go.transform.TrySearchComponent(ESearchContext.LOCAL, out enteredEntity),
+			bIsEntity = go.transform.TrySearchComponent(ESearchContext.LOCAL, out Entity enteredEntity),
 			EnteredEntity = enteredEntity,
 			EnteredGameObject = go,
 			ObjectID = go.transform.root.GetInstanceID()

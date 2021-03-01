@@ -173,11 +173,11 @@ public sealed class UIManager : InGameSingleton<UIManager>, IUI
 		if (m_IsInitialized )
 		{
 			// Indicators
-			m_IsInitialized &= m_InGame.transform.TrySearchComponent(ESearchContext.CHILDREN, out m_Indicators );
+			m_IsInitialized &= m_InGame.transform.TrySearchComponent(ESearchContext.LOCAL_AND_CHILDREN, out m_Indicators );
 			// Mini map
-			m_IsInitialized &= m_InGame.transform.TrySearchComponent(ESearchContext.CHILDREN, out m_UI_Minimap );
+			m_IsInitialized &= m_InGame.transform.TrySearchComponent(ESearchContext.LOCAL_AND_CHILDREN, out m_UI_Minimap );
 
-			m_IsInitialized &= m_InGame.transform.TrySearchComponent(ESearchContext.CHILDREN, out m_UI_ComInterface );
+			m_IsInitialized &= m_InGame.transform.TrySearchComponent(ESearchContext.LOCAL_AND_CHILDREN, out m_UI_ComInterface );
 		}
 
 		// Effect Frame
@@ -258,14 +258,15 @@ public sealed class UIManager : InGameSingleton<UIManager>, IUI
 			case ESceneEnumeration.COUNT:
 			case ESceneEnumeration.INTRO:
 			case ESceneEnumeration.LOADING:
+				GoToMenu(null);
 				break;
 			case ESceneEnumeration.MAIN_MENU:
-				GoToMenu( MainMenu );
+				GoToMenu(MainMenu);
 				break;
 			case ESceneEnumeration.OPENWORLD1:
 			case ESceneEnumeration.OPENWORLD2:
 			case ESceneEnumeration.OPENWORLD3:
-				GoToMenu( InGame );
+				GoToMenu(InGame);
 				break;
 			case ESceneEnumeration.ENDING:
 				break;
@@ -299,10 +300,10 @@ public sealed class UIManager : InGameSingleton<UIManager>, IUI
 		m_CurrentActiveUI?.gameObject.SetActive( false );
 
 		// Swicth to new menu
-		m_CurrentActiveUI	= uiToShow;
+		m_CurrentActiveUI = uiToShow;
 
 		// Enable current active menu gameobject
-		m_CurrentActiveUI.gameObject.SetActive( true );
+		m_CurrentActiveUI?.gameObject.SetActive( true );
 
 //		string currentName = m_CurrentActiveTransform.name;
 
@@ -316,9 +317,6 @@ public sealed class UIManager : InGameSingleton<UIManager>, IUI
 	//////////////////////////////////////////////////////////////////////////
 	public	void	GoToMenu( UI_Base MenuToShow )
 	{
-		if ( MenuToShow == null )
-			return;
-
 		m_History.Clear();
 
 		SwitchTo( MenuToShow );

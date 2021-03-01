@@ -62,25 +62,25 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour {
 
 	protected	IEnumerator	InvestigateAroundCO()
 	{
-		while(m_CurrentInvestigationDirection < EInvestigationDirection.END )
+		while(m_CurrentInvestigationDirection < EInvestigationDirection.END)
 		{
 			yield return new WaitForSecondsRealtime( UnityEngine.Random.Range( 0.7f, 1.3f ) );
 			Vector3 newDirection = Vector3.zero;
 			switch (m_CurrentInvestigationDirection )
 			{
-				case EInvestigationDirection.RIGHT:	newDirection = EntityData.Head_Right; print("Right"); break;
+				case EInvestigationDirection.RIGHT:	newDirection = EntityData.Head_Right   *  1f; print("Right"); break;
 				case EInvestigationDirection.LEFT:	newDirection = EntityData.Head_Forward * -1f; print("left");  break;
 				case EInvestigationDirection.BACK:	newDirection = EntityData.Head_Right   * -1f; print("back");  break;
 				case EInvestigationDirection.FRONT:	newDirection = EntityData.Head_Forward * -1f; print("Front"); break;
 			}
 
-			m_CurrentInvestigationDirection ++;
-			EntityData.EntityRef.SetPointToLookAt(EntityData.Head_Position + newDirection, ELookTargetMode.HEAD_ONLY );
-			yield return new WaitUntil( () => Vector3.Angle(EntityData.Head_Forward, newDirection ) < 4.5f );
+			m_CurrentInvestigationDirection++;
+			EntityData.EntityRef.SetPointToLookAt( EntityData.Head_Position + newDirection, ELookTargetMode.HEAD_ONLY );
+			yield return new WaitUntil( () => Vector3.Angle( EntityData.Head_Forward, newDirection ) < 4.5f );
 		}
 
-		EntityData.EntityRef.RequestMovement(EntityData.EntityRef.SpawnPoint );
-		EntityData.EntityRef.SetPointToLookAt(EntityData.EntityRef.SpawnPoint + EntityData.EntityRef.SpawnDirection );
+		EntityData.EntityRef.RequestMovement( EntityData.SpawnBodyLocation );
+		EntityData.EntityRef.SetPointToLookAt( EntityData.SpawnHeadLocation + EntityData.SpawnHeadRotation.GetVector(Vector3.forward) );
 		EntityData.EntityRef.ChangeState( EBrainState.NORMAL );
 		m_CurrentInvestigationDirection = EInvestigationDirection.RIGHT;
 		m_InvestigationCO = null;

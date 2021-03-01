@@ -3,9 +3,9 @@ using UnityEngine;
 using System.Collections.Generic;
 
 [System.Serializable]
-public class EntityBlackBoardData {
-
-	public	Transform			m_Transform							= null;
+public class EntityBlackBoardData
+{
+	private	Transform			m_Transform							= null;
 	private	Transform			m_HeadTransform						= null;
 	private	Transform			m_BodyTransform						= null;
 
@@ -14,6 +14,10 @@ public class EntityBlackBoardData {
 	//*/////////////////////////////////////////////////////////////////////
 
 	public	Entity				EntityRef							= null;
+	public	Vector3				SpawnBodyLocation					= Vector3.zero;
+	public	Vector3				SpawnHeadLocation					= Vector3.zero;
+	public	Quaternion			SpawnBodyRotation					= Quaternion.identity;
+	public	Quaternion			SpawnHeadRotation					= Quaternion.identity;
 
 	// Body
 	public	Vector3				Head_Position						=> m_HeadTransform.position;
@@ -40,9 +44,6 @@ public class EntityBlackBoardData {
 
 	public	TargetInfo			TargetInfo							= null;
 
-	public	Transform			TransformToLookAt					= null;
-//	public	Vector3				PointToLookAt						= Vector3.zero;
-
 	public	float				AgentSpeed							= 0.0f;
 
 
@@ -58,36 +59,14 @@ public class EntityBlackBoardData {
 
 public static class Blackboard {
 
-	private static readonly	Dictionary< uint, EntityBlackBoardData >	m_Data						= null;
-
-	private	static	bool												m_IsInitialized			= false;
+	private static readonly	Dictionary<uint, EntityBlackBoardData>	m_Data = new Dictionary<uint, EntityBlackBoardData>();
 
 
-	/// <summary>
-	/// If not initialized, initialize blackboard data
-	/// </summary>
-	static	Blackboard()
-	{
-		if ( m_IsInitialized == false )
-		{
-			m_Data = new Dictionary< uint, EntityBlackBoardData >();
-			m_IsInitialized = true;
-		}
-	}
-
-
-	/// <summary>
-	/// If not already registered, register an entity by its ID
-	/// </summary>
+	/// <summary> If not already registered, register an entity by its ID </summary>
 	/// <param name="EntityID"></param>
 	/// <returns></returns>
 	public	static	bool	Register( uint EntityID, EntityBlackBoardData entityData )
 	{
-		if ( m_IsInitialized == false )
-		{
-		//	Initialize();
-		}
-
 		if ( m_Data.ContainsKey( EntityID ) )
 		{
 			return false;
@@ -98,14 +77,11 @@ public static class Blackboard {
 	}
 
 
-	/// <summary>
-	/// If already registered, Un-register an entity by its ID
-	/// </summary>
+	/// <summary> If already registered, Un-register an entity by its ID </summary>
 	/// <param name="EntityID"></param>
 	/// <returns></returns>
 	public	static	bool	UnRegister( IEntity entity )
 	{
-	//	Initialize();
 		if ( IsEntityRegistered( entity.ID ) )
 		{
 			return m_Data.Remove( entity.ID );
@@ -114,27 +90,25 @@ public static class Blackboard {
 	}
 
 
-	/// <summary>
-	/// Check and returns if an entity is registered by its ID
-	/// </summary>
+	/// <summary> Check and returns if an entity is registered by its ID </summary>
 	/// <param name="EntityID"></param>
 	/// <returns></returns>
 	public	static	bool	IsEntityRegistered( uint EntityID )
 	{
-		return m_IsInitialized ? m_Data.ContainsKey( EntityID ) : false;
+		return m_Data.ContainsKey( EntityID );
 	}
 
 	
-	/// <summary>
-	/// Return data for a given entity ID if registered
-	/// </summary>
+	/// <summary> Return data for a given entity ID if registered </summary>
 	/// <param name="EntityID"></param>
 	/// <param name="Key"></param>
 	/// <param name="Default"></param>
 	/// <returns></returns>
 	public	static	EntityBlackBoardData	GetData( uint EntityID )
 	{
-		return IsEntityRegistered( EntityID ) ? m_Data[ EntityID ] : null;
+		EntityBlackBoardData data;
+		m_Data.TryGetValue(EntityID, out data);
+		return data;
 	}
 
 }

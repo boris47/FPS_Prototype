@@ -26,15 +26,8 @@ namespace QuestSystem {
 			{
 				entity.OnEvent_Killed += OnKill;
 			}
-
-			bool bIsGoodResult = true;
-			{
-				if (m_ObjectToFollow == null )
-				{
-					m_ObjectToFollow = gameObject;
-				}
-			}
-			return bIsGoodResult;
+			
+			return m_ObjectToFollow.IsNotNull();
 		}
 
 

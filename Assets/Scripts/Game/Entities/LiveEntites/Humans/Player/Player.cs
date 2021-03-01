@@ -1,33 +1,22 @@
 ﻿
 using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 
 [System.Serializable]
-public partial class Player : Human {
-
+public partial class Player : Human
+{
 	[Header("Player Properties")]
 
 	private	const	float			BODY_DRAG						= 8f;
 
-	public	static	Player			m_Instance						= null;
-	public	static	Player			Instance
-	{
-		get { return m_Instance; }
-	}
+	private	static	Player			m_Instance						= null;
+	public	static	Player			Instance						=> m_Instance;
 	public	static	IEntity			Entity							= null;
 
-	private		IInteractable		m_Interactable					= null;
-
-	// GRABBING OBJECT
-	[System.NonSerialized]
-	protected	GameObject			m_GrabPoint						= null;
-
-	protected	IGrabbable			m_GrabbedObject					= null;
-	public		IGrabbable			GrabbedObject
-	{
-		get { return m_GrabbedObject; }
-	}
+	private		GameObject			m_GrabPoint						= null;
+	[SerializeField]
+	private		Interactable		m_Interactable					= null;
+	[SerializeField]
+	private		Grabbable			m_CurrentGrabbed				= null;
 
 	[System.NonSerialized]
 	protected	float				m_GrabbedObjectMass				= 0f;
@@ -38,92 +27,89 @@ public partial class Player : Human {
 
 	private		Vector3				m_Move							= Vector3.zero;
 
-	private		RaycastHit			m_RaycastHit;
+	private		RaycastHit			m_RaycastHit					= default;
+
 	[SerializeField]
 	private		bool				m_HasRaycasthit					= false;
 
 	private		Collider			m_PlayerNearAreaTrigger			= null;
-	public		Collider			PlayerNearAreaTrigger
-	{
-		get { return m_PlayerNearAreaTrigger; }
-	}
+	public		Collider			PlayerNearAreaTrigger			=> m_PlayerNearAreaTrigger;
 
 	private		Collider			m_PlayerFarAreaTrigger			= null;
-	public		Collider			PlayerFarAreaTrigger
-	{
-		get { return m_PlayerFarAreaTrigger; }
-	}
+	public		Collider			PlayerFarAreaTrigger			=> m_PlayerFarAreaTrigger;
 
-	protected override EEntityType m_EntityType { get => EEntityType.ACTOR; }
+	protected	override EEntityType			m_EntityType => EEntityType.ACTOR;
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void	Awake()
 	{
 		// Singleton
-		if ( m_Instance != null )
+		if (m_Instance.IsNotNull())
 		{
-		//	Destroy(gameObject );
-		//	return;
+			Destroy(gameObject);
+			return;
 		}
 		m_Instance = this;
-		DontDestroyOnLoad( this );
+		DontDestroyOnLoad(this);
 
 		base.Awake();
 
 		Entity = this as IEntity;
-		transform.TrySearchComponentByChildName( "PNAT", out m_PlayerNearAreaTrigger ); // Player Near Area Trigger
-		transform.TrySearchComponentByChildName( "PFAT", out m_PlayerFarAreaTrigger  ); // Player Far  Area Trigger
+		transform.TrySearchComponentByChildName("PNAT", out m_PlayerNearAreaTrigger);
+		transform.TrySearchComponentByChildName("PFAT", out m_PlayerFarAreaTrigger);
 
 		// Player Components
 		{
 			// Foots
 			UnityEngine.Assertions.Assert.IsTrue
 			(
-				Utils.Base.TrySearchComponent(gameObject, ESearchContext.CHILDREN, out m_Foots ),
+				Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL_AND_CHILDREN, out m_Foots),
 				$"We need foots !!"
 			);
 			if (m_Foots.IsNotNull())
 			{
 				DisableCollisionsWith(m_Foots.Collider);
 			}
-
-//			this.m_DodgeAbilityTarget = this.transform.Find( "DodgeAbilityTarget" );
-//			this.m_DodgeAbilityTarget.SetParent( null );
-//			this.m_DodgeAbilityTarget.gameObject.SetActive( false );
 		}
 
 		// Player Data
 		{
 			// Walking
-			m_SectionRef.AsMultiValue( "Walk",		1, 2, 3, out m_WalkSpeed,	out m_WalkJumpCoef,		out m_WalkStamina );
+			m_SectionRef.AsMultiValue("Walk",		1, 2, 3, out m_WalkSpeed,	out m_WalkJumpCoef,		out m_WalkStamina);
 
 			// Running
-			m_SectionRef.AsMultiValue( "Run",		1, 2, 3, out m_RunSpeed,	out m_RunJumpCoef,		out m_RunStamina );
+			m_SectionRef.AsMultiValue("Run",		1, 2, 3, out m_RunSpeed,	out m_RunJumpCoef,		out m_RunStamina);
 
 			// Crouched
-			m_SectionRef.AsMultiValue( "Crouch",	1, 2, 3, out m_CrouchSpeed, out m_CrouchJumpCoef,	out m_CrouchStamina );
+			m_SectionRef.AsMultiValue("Crouch",		1, 2, 3, out m_CrouchSpeed, out m_CrouchJumpCoef,	out m_CrouchStamina);
 
-			m_FallDistanceThreshold		= m_SectionRef.AsFloat( "FallDistanceThreshold" );
+			m_FallDistanceThreshold		= m_SectionRef.AsFloat( "FallDistanceThreshold", m_FallDistanceThreshold);
 
 			// Climbing
-		///	bool result = m_SectionRef.bAsFloat( "Climb", ref m_ClimbSpeed );
-			m_ClimbSpeed				= m_SectionRef.AsFloat( "Climb", 0.12f );
+			m_ClimbSpeed				= m_SectionRef.AsFloat( "Climb", m_ClimbSpeed);
 
 			// Jumping
 			{
-				m_SectionRef.AsMultiValue( "Jump", 1, 2, out m_JumpForce, out m_JumpStamina );
+				m_SectionRef.AsMultiValue("Jump", 1, 2, out m_JumpForce, out m_JumpStamina);
 			}
 
 			// Stamina
 			{
-				m_StaminaRestore		= m_SectionRef.AsFloat( "StaminaRestore", 0.0f );
-				m_StaminaRunMin			= m_SectionRef.AsFloat( "StaminaRunMin",  0.3f );
-				m_StaminaJumpMin		= m_SectionRef.AsFloat( "StaminaJumpMin", 0.4f );
+				m_StaminaRestore		= m_SectionRef.AsFloat("StaminaRestore", 0.0f);
+				m_StaminaRunMin			= m_SectionRef.AsFloat("StaminaRunMin",  0.3f);
+				m_StaminaJumpMin		= m_SectionRef.AsFloat("StaminaJumpMin", 0.4f);
 			}
 		}
 
-		m_Health			= m_SectionRef.AsFloat( "Health", 100.0f );
-		m_RigidBody.mass	= m_SectionRef.AsFloat( "phMass", 80.0f  );
+		// Create grab point gameobject
+		m_GrabPoint = new GameObject("GrabPoint");
+		m_GrabPoint.transform.SetParent(m_HeadTransform);
+		m_GrabPoint.transform.localPosition = Vector3.zero;
+		m_GrabPoint.transform.localRotation = Quaternion.identity;
+		m_GrabPoint.transform.Translate(0f, 0f, m_UseDistance);
+
+		m_Health			= m_SectionRef.AsFloat("Health", 100.0f);
+		m_RigidBody.mass	= m_SectionRef.AsFloat("phMass", 80.0f);
 		m_RigidBody.maxAngularVelocity = 0f;
 		m_RigidBody.useGravity = false;
 		m_Stamina			= 1.0f;
@@ -132,7 +118,6 @@ public partial class Player : Human {
 		m_IsActive			= true;
 
 		m_OnMotionStateChangedEvent += OnMotionTypeChanged;
-		SetMotionType( EMotionType.Walking );
 	}
 
 
@@ -178,23 +163,9 @@ public partial class Player : Human {
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void	Start()
 	{
-		/*
-		if ( CameraControl.Instance.Transform.IsChildOf( m_HeadTransform ) == false )
-		{
-			Debug.Log( "Player::Start: Camera not parented with player head. Setting player's head as parent of camera" );
-			CameraControl.Instance.SetViewPoint( m_HeadTransform );
-		}
-		*/
-
-		CameraControl.Instance.SetViewPoint(m_HeadTransform, m_BodyTransform );
+		FPSEntityCamera.Instance.SetViewPoint(m_HeadTransform, transform); // the entity entity is rotating so we use that transform
 
 		IsGrounded = false;
-
-		m_GrabPoint = new GameObject( "GrabPoint" );
-		m_GrabPoint.transform.SetParent( CameraControl.Instance.transform );
-		m_GrabPoint.transform.localPosition = Vector3.zero;
-		m_GrabPoint.transform.localRotation = Quaternion.identity;
-		m_GrabPoint.transform.Translate( 0f, 0f, m_UseDistance );
 	}
 
 
@@ -202,41 +173,27 @@ public partial class Player : Human {
 	protected override void OnEnable()
 	{
 		base.OnEnable();
+
+		SetMotionType(EMotionType.Walking); // Default
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected override void OnDisable()
 	{
+		SetMotionType(EMotionType.NONE); // also Unbind bindings
+
 		base.OnDisable();
-
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.MOVE_FORWARD,	"ForwardEvent" );
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.MOVE_BACKWARD,	"BackwardEvent" );
-
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.MOVE_LEFT,		"LeftEvent" );
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.MOVE_RIGHT,	"RightEvent" );
- 
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.STATE_RUN,		"RunEvent" );
-
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.STATE_JUMP,	"JumpEvent" );
-
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.USAGE,			"Interaction" );
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.USAGE,			"Grab" );
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.GADGET3,		"Flashlight" );
-
-//		GlobalManager.InputMgr.UnbindCall( EInputCommands.ABILITY_PRESS,	"DodgeStart" );
-//		GlobalManager.InputMgr.UnbindCall( EInputCommands.ABILITY_HOLD,	"DodgeContinue" );
-//		GlobalManager.InputMgr.UnbindCall( EInputCommands.ABILITY_RELEASE,"DodgeEnd" );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public					void	DisableCollisionsWith( Collider collider, bool bAlsoTriggerCollider = true )
+	public					void	DisableCollisionsWith( in Collider collider, in bool bAlsoTriggerCollider = true )
 	{
-//		if ( bAlsoTriggerCollider )
-	//	{
-	//		Physics.IgnoreCollision( collider, m_TriggerCollider, ignore: true );
-	//	}
+		if (bAlsoTriggerCollider)
+		{
+			Physics.IgnoreCollision( collider, m_TriggerCollider, ignore: true );
+		}
 		Physics.IgnoreCollision( collider, m_PhysicCollider, ignore: true );
 		Physics.IgnoreCollision( collider, m_PlayerNearAreaTrigger, ignore: true );
 		Physics.IgnoreCollision( collider, m_PlayerFarAreaTrigger, ignore: true );
@@ -249,10 +206,6 @@ public partial class Player : Human {
 	{
 		if ( base.CanTrigger() == false )
 			return false;
-
-//		if (this.m_IsDodging == true )
-//			return false;
-
 		return true;
 	}
 
@@ -260,55 +213,52 @@ public partial class Player : Human {
 	//////////////////////////////////////////////////////////////////////////
 	public					void	DropEntityDragged()
 	{
-		if (m_GrabbedObject == null )
-			return;
-
-		m_GrabPoint.transform.localPosition = Vector3.forward * m_UseDistance;
-
-		Rigidbody rb		= m_GrabbedObject.Interactable.RigidBody;
-		rb.useGravity		= m_GrabbedObjectUseGravity;
-		rb.mass				= m_GrabbedObjectMass;
-
-		if ( m_GrabbedObject.Transform.TryGetComponent(out OnHitEventGrabbedHandler eventHandler) )
+		if (m_CurrentGrabbed.IsNotNull())
 		{
-			Destroy( eventHandler );
+			m_GrabPoint.transform.localPosition = Vector3.forward * m_UseDistance;
+
+			Rigidbody rb		= m_CurrentGrabbed.Interactable.RigidBody;
+			rb.useGravity		= m_GrabbedObjectUseGravity;
+			rb.mass				= m_GrabbedObjectMass;
+
+			if (m_CurrentGrabbed.Transform.TryGetComponent(out OnHitEventGrabbedHandler eventHandler))
+			{
+				Destroy( eventHandler );
+			}
+
+			m_CurrentGrabbed.Interactable.OnRetroInteraction();
+
+			Physics.IgnoreCollision(m_PhysicCollider, m_CurrentGrabbed.Interactable.Collider, ignore: false);
+
+			m_CurrentGrabbed			= null;
+			m_CanGrabObjects	= true;
 		}
-
-		m_GrabbedObject.Interactable.OnRetroInteraction();
-
-		Physics.IgnoreCollision(m_PhysicCollider, m_GrabbedObject.Interactable.Collider, ignore: false );
-
-		m_GrabbedObject		= null;
-		m_CanGrabObjects	= true;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private					void	MoveGrabbedObject()
+	private					void	MoveGrabbedObject(float fixedDeltaTime)
 	{
-		if (m_IsActive == false )
-			return;
-
-		if (m_GrabbedObject == null )
-			return;
-
-		float distance = (m_GrabbedObject.Transform.position - m_GrabPoint.transform.position ).sqrMagnitude;
-		if ( distance > (m_UseDistance * m_UseDistance) + 0.1f )
+		if (m_IsActive && m_CurrentGrabbed)
 		{
-			DropEntityDragged();
-			return;
-		}
+			float distance = (m_CurrentGrabbed.Transform.position - m_GrabPoint.transform.position ).sqrMagnitude;
+			if ( distance > (m_UseDistance * m_UseDistance) + 0.1f )
+			{
+				DropEntityDragged();
+				return;
+			}
 
-		Rigidbody rb = m_GrabbedObject.Interactable.RigidBody;
-		rb.rotation = CameraControl.Instance.transform.rotation;
-		rb.angularVelocity = Vector3.zero;
-		rb.velocity = (m_GrabPoint.transform.position - m_GrabbedObject.Transform.position ) / ( Time.fixedDeltaTime * 4f );
-//		* ( 1.0f - Vector3.Angle( transform.forward, CameraControl.Instance.transform.forward ) / CameraControl.CLAMP_MAX_X_AXIS );
+			Rigidbody rb = m_CurrentGrabbed.Interactable.RigidBody;
+			rb.rotation = FPSEntityCamera.Instance.transform.rotation;
+			rb.angularVelocity = Vector3.zero;
+			rb.velocity = (m_GrabPoint.transform.position - m_CurrentGrabbed.Transform.position ) / ( fixedDeltaTime * 4f );
+		//	* ( 1.0f - Vector3.Angle( transform.forward, CameraControl.Instance.transform.forward ) / CameraControl.CLAMP_MAX_X_AXIS );
+		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private					void	CheckForInteraction( bool hasHit )
+	private					void	CheckForInteraction(bool hasHit)
 	{
 		//// skip if no target
 		//if ( hasHit == false )
@@ -340,21 +290,29 @@ public partial class Player : Human {
 		//		m_Interactable.OnInteraction();
 		//	}
 		//}
-
 	}
 
 
-	private	bool	InteractionPredicate()
+	//////////////////////////////////////////////////////////////////////////
+	private					bool	InteractionPredicate()
 	{
-		return (/*this.m_IsDodging == false && */m_GrabbedObject == null && m_HasRaycasthit && m_RaycastHit.distance <= m_UseDistance && m_Interactable != null && m_Interactable.CanInteract );
+		bool bResult = m_HasRaycasthit; // Player must be pointing something
+		bResult &= m_CurrentGrabbed == null; // hand must be free;
+		bResult &= m_RaycastHit.distance <= m_UseDistance; // Pointed object must be in use distance range
+		if (bResult &= m_Interactable.IsNotNull()) // There must be an interactable component on it
+		{
+			bResult &= m_Interactable.CanInteract; // The interactable can be interacted to
+		}
+		return bResult;
 	}
 
 
-	private	void	InteractionAction()
+	//////////////////////////////////////////////////////////////////////////
+	private					void	InteractionAction()
 	{
-		m_Interactable.OnInteraction();
-/*
-		if ( m_Interactable.HasRetroInteraction && m_Interactable.HasInteracted )
+	//	m_Interactable.OnInteraction();
+
+		if (m_Interactable.HasRetroInteraction && m_Interactable.HasInteracted)
 		{
 			m_Interactable.OnRetroInteraction();
 		}
@@ -362,44 +320,60 @@ public partial class Player : Human {
 		{
 			m_Interactable.OnInteraction();
 		}
-*/
+
 	}
 
 
-
-	private	bool	GrabPredicate()
+	//////////////////////////////////////////////////////////////////////////
+	private					bool	GrabPredicate()
 	{
-		return m_HasRaycasthit && m_RaycastHit.distance <= m_UseDistance;// m_CanGrabObjects == true;
+		if (m_CurrentGrabbed.IsNotNull())
+		{
+			// An object is already grabbed, so in order to allow the player to drop the
+			// object predicate must return always true
+			return true;
+		}
+
+		bool bResult = m_HasRaycasthit; // Player must be pointing something
+		bResult &= m_RaycastHit.distance <= m_UseDistance; // Pointed object must be in use distance range
+		if (bResult &= m_Interactable.IsNotNull()) // There must be an grabbable component on it
+		{
+			bResult &= m_Interactable.CanInteract; // The interactable can be interacted to
+			bResult &= m_Interactable.transform.HasComponent<Grabbable>();
+		}
+		return bResult;
 	}
 
-	private	void	GrabAction()
+
+	//////////////////////////////////////////////////////////////////////////
+	private					void	GrabAction()
 	{
-		if (m_GrabbedObject != null )
+		if (m_CurrentGrabbed.IsNotNull())
 		{
 			DropEntityDragged();
 			return;
 		}
 
+		UnityEngine.Assertions.Assert.IsNotNull(m_Interactable);
+
+		Grabbable grabbable = m_Interactable.GetComponent<Grabbable>();
+		UnityEngine.Assertions.Assert.IsNotNull(grabbable);
+
+		m_CurrentGrabbed = grabbable;
 
 		// GRAB ACTION
-		bool m_HasComponent = Utils.Base.TrySearchComponent( m_RaycastHit.transform.gameObject, ESearchContext.LOCAL, out Grabbable grabbable );
-		if ( m_HasComponent && grabbable.CanInteract )
-		{
-			grabbable.OnInteraction();
-			m_GrabbedObject = grabbable;
-			m_GrabPoint.transform.localPosition = Vector3.forward * Vector3.Distance(transform.position, grabbable.transform.position );
+		m_CurrentGrabbed.OnInteraction();
+		m_GrabPoint.transform.localPosition = Vector3.forward * Vector3.Distance(transform.position, m_CurrentGrabbed.transform.position);
 
-			Rigidbody rb				= grabbable.RigidBody;
-			m_GrabbedObjectMass			= rb.mass;			rb.mass				= 1f;
-			m_GrabbedObjectUseGravity	= rb.useGravity;	rb.useGravity		= false;
-			rb.velocity					= Vector3.zero;		rb.interpolation	= RigidbodyInterpolation.Interpolate;
-			m_CanGrabObjects			= false;
+		Rigidbody rb = m_CurrentGrabbed.RigidBody;
+		m_GrabbedObjectMass = rb.mass; rb.mass = 1f;
+		m_GrabbedObjectUseGravity = rb.useGravity; rb.useGravity = false;
+		rb.velocity = Vector3.zero; rb.interpolation = RigidbodyInterpolation.Interpolate;
+		m_CanGrabObjects = false;
 
-			Physics.IgnoreCollision(m_PhysicCollider, grabbable.Collider, ignore: true );
+		Physics.IgnoreCollision(m_PhysicCollider, m_CurrentGrabbed.Collider, ignore: true);
 
-			grabbable.gameObject.AddComponent<OnHitEventGrabbedHandler>();
-		}
-		
+		m_CurrentGrabbed.gameObject.GetOrAddIfNotFound<OnHitEventGrabbedHandler>();
 	}
 
 

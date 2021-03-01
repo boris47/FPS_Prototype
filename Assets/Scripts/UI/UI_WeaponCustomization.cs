@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -102,21 +103,18 @@ public sealed class UI_WeaponCustomization : UI_Base, IStateDefiner {
 			return;
 		}
 
-		Database.Section[] fireModules		= GlobalManager.Configs.GetSectionsByContext( "WeaponFireModules" );
-		Database.Section[] utilityModules	= GlobalManager.Configs.GetSectionsByContext( "WeaponUtilityModules" );
-
-		List<Database.Section> allModules = new List<Database.Section>(System.Linq.Enumerable.Concat(fireModules, utilityModules));
-//		allModules.AddRange( fireModules );
-//		allModules.AddRange( utilityModules );
+		Database.Section[] fireModules		= GlobalManager.Configs.GetSectionsByContext("WeaponFireModules");
+		Database.Section[] utilityModules	= GlobalManager.Configs.GetSectionsByContext("WeaponUtilityModules");
+		Database.Section[] allModules		= System.Linq.Enumerable.Concat(fireModules, utilityModules).ToArray();
 
 		// PRIMARY
-		FillDropdown(m_PrimaryDropDown,		allModules, EWeaponSlots.PRIMARY );
+		FillDropdown(m_PrimaryDropDown,		allModules, EWeaponSlots.PRIMARY);
 
 		// SECONDARY
-		FillDropdown(m_SecondaryDropDown,	allModules, EWeaponSlots.SECONDARY );
+		FillDropdown(m_SecondaryDropDown,	allModules, EWeaponSlots.SECONDARY);
 
 		// TERTIARY
-		FillDropdown(m_TertiaryDropDown,	allModules, EWeaponSlots.TERTIARY );
+		FillDropdown(m_TertiaryDropDown,	allModules, EWeaponSlots.TERTIARY);
 
 
 		GlobalManager.InputMgr.SetCategory(EInputCategory.CAMERA, false);
@@ -131,30 +129,20 @@ public sealed class UI_WeaponCustomization : UI_Base, IStateDefiner {
 	}
 
 
-	private	void	FillDropdown( Dropdown thisDropdown, List<Database.Section> allModules, EWeaponSlots slot )
+	private	void	FillDropdown(in Dropdown thisDropdown, in Database.Section[] allModules, EWeaponSlots slot)
 	{
 		thisDropdown.ClearOptions();
 
 		// Get weapon module slot
-		if (WeaponManager.Instance.CurrentWeapon.TryGetModuleSlot( slot, out WeaponModuleSlot slotModule))
+		if (Weapon.TryGetModuleSlot(WeaponManager.Instance.CurrentWeapon, slot, out WeaponModuleSlot slotModule))
 		{
 			string[] alreadyAssignedModules = WeaponManager.Instance.CurrentWeapon.OtherInfo.Split( ',' );
 
 			// Ask slot if module can be assigned
-			List<Database.Section> filtered = new List<Database.Section>();
-			foreach( Database.Section current in allModules )
-			{
-				if ( slotModule.CanAssignModule( current, alreadyAssignedModules ) )
-				{
-					filtered.Add( current );
-				}
-			}
+			List<Database.Section> filtered = allModules.Where(s => slotModule.CanAssignModule(s, alreadyAssignedModules)).ToList();
 
 			// Assign readable names to dropdown options
-			List<string> ui_Names = filtered.ConvertAll
-			(
-				new System.Converter<Database.Section, string>( s => s.AsString("Name") )
-			);
+			List<string> ui_Names = filtered.Select(section => section.AsString("Name")).ToList();
 			thisDropdown.AddOptions( ui_Names );
 
 			string currentAssigned = alreadyAssignedModules[(int) slot];
@@ -169,7 +157,7 @@ public sealed class UI_WeaponCustomization : UI_Base, IStateDefiner {
 				m_ApplyButton.interactable = true;
 			}
 			thisDropdown.onValueChanged.RemoveAllListeners();
-			thisDropdown.onValueChanged.AddListener( callback );
+			thisDropdown.onValueChanged.AddListener(callback);
 		}
 		else
 		{
@@ -183,7 +171,7 @@ public sealed class UI_WeaponCustomization : UI_Base, IStateDefiner {
 	{
 		foreach (KeyValuePair<EWeaponSlots, Database.Section> pair in m_CurrentAssignedModuleSections)
 		{
-			if (WeaponManager.Instance.CurrentWeapon.TryGetModuleSlot(pair.Key, out WeaponModuleSlot slotModule))
+			if (Weapon.TryGetModuleSlot(WeaponManager.Instance.CurrentWeapon, pair.Key, out WeaponModuleSlot slotModule))
 			{
 				slotModule.TrySetModule(WeaponManager.Instance.CurrentWeapon, pair.Value);
 			}

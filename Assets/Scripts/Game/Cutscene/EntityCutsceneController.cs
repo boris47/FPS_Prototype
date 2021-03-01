@@ -3,20 +3,27 @@ using UnityEngine;
 
 namespace CutScene {
 	[System.Serializable]
-	public	class EntityCutsceneController {
-
-
+	public	class EntityCutsceneController
+	{
+		[SerializeField, ReadOnly]
 		private		Entity							m_EntityParent				= null;
-		private		IEntitySimulation				m_EntitySimulation			= null;
+		[SerializeField, ReadOnly]
 		private		PointsCollectionOnline			m_PointsCollection			= null;
+		[SerializeField, ReadOnly]
 		private		int								m_CurrentIdx				= 0;
 
-		private		ESimMovementType					m_MovementType				= ESimMovementType.WALK;
+		[SerializeField, ReadOnly]
+		private		ESimMovementType				m_MovementType				= ESimMovementType.WALK;
+		[SerializeField, ReadOnly]
 		private		Vector3							m_Destination				= Vector3.zero;
+		[SerializeField, ReadOnly]
 		private		Transform						m_Target					= null;
+		[SerializeField, ReadOnly]
 		private		float							m_TimeScaleTarget			= 1f;
+		[SerializeField, ReadOnly]
 		private		Waiter_Base						m_Waiter					= null;
 
+		private		IEntitySimulation				m_EntitySimulation			= null;
 
 		public	void	Setup( Entity entityParent, PointsCollectionOnline pointCollection )
 		{
@@ -40,7 +47,7 @@ namespace CutScene {
 			m_TimeScaleTarget			= Mathf.Clamp01( data.timeScaleTraget );		// time scale for this trip
 
 			// WEAPON ZOOM
-			if (m_EntityParent is Player )
+			if (m_EntityParent is Player)
 			{
 				if ( WeaponManager.Instance.CurrentWeapon.WeaponState == EWeaponState.DRAWED )
 				{
@@ -77,26 +84,24 @@ namespace CutScene {
 		}
 
 
-		/// <summary>
-		/// return true if completed, otherwise false
-		/// </summary>
-		/// <returns></returns>
+		/// <summary> Return true if completed, otherwise false </summary>
 		public	bool	Update()
 		{
 			// If a waiter is defined, we have to wait for its completion
-			if (m_Waiter && m_Waiter.HasToWait == true )
+			if (m_Waiter && m_Waiter.HasToWait)
 			{
 				Vector3 tempDestination = Utils.Math.ProjectPointOnPlane(m_EntityParent.transform.up, m_Destination, m_EntityParent.transform.position );
-				m_EntitySimulation.SimulateMovement( ESimMovementType.STATIONARY, tempDestination, m_Target, m_TimeScaleTarget );
+			//	m_EntitySimulation.SimulateMovement( ESimMovementType.STATIONARY, tempDestination, m_Target, m_TimeScaleTarget ); // Why?? TODO
 				m_Waiter.Wait();
 				return false;
 			}
 
+			// Ensuse no waiter
 			m_Waiter = null;
 
 			// Continue simulation until need updates
 			bool isBusy = m_EntitySimulation.SimulateMovement(m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
-			if ( isBusy == true ) // if true is currently simulating and here we have to wait simulation to be completed
+			if (isBusy) // if true is currently simulating and here we have to wait simulation to be completed
 			{
 				return false;
 			}
@@ -105,22 +110,20 @@ namespace CutScene {
 			m_PointsCollection[m_CurrentIdx ].OnWayPointReached?.Invoke();
 
 			// AFTER A SIMULATION STAGE
-			m_EntitySimulation.AfterSimulationStage(m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
+			m_EntitySimulation.AfterSimulationStage(m_MovementType, m_Destination, m_Target, m_TimeScaleTarget);
 
 			// Next waypoint index
-			m_CurrentIdx ++;
+			++m_CurrentIdx;
 
 			// End of simulation
-			if (m_CurrentIdx != m_PointsCollection.Count )
+			if (m_CurrentIdx < m_PointsCollection.Count)
 			{
 				// Update store start position for distance check
 				m_EntitySimulation.StartPosition = m_EntityParent.transform.position;
 
 				// Update to next simulation targets
-				CutsceneWaypointData data	= m_PointsCollection[m_CurrentIdx ];
-
+				CutsceneWaypointData data = m_PointsCollection[m_CurrentIdx];
 				SetupForNextWaypoint( data );
-
 				return false;
 			}
 
@@ -132,11 +135,11 @@ namespace CutScene {
 		public	void Terminate()
 		{
 			// Reset some internal variables
-			CameraControl.Instance.OnCutsceneEnd();
+			FPSEntityCamera.Instance.OnCutsceneEnd();
 
 			// Restore zoom
-			if ( WeaponManager.Instance.IsZoomed == true )
-				WeaponManager.Instance.ZoomOut();
+	//		if ( WeaponManager.Instance.IsZoomed == true )
+	//			WeaponManager.Instance.ZoomOut();
 
 			// Called on entity in order to reset vars or everything else
 			m_EntitySimulation.ExitSimulationState();

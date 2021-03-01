@@ -124,7 +124,7 @@ public abstract class BulletEnergy : Bullet, IBulletEnergy
 			{
 				entity.Events.OnHittedBullet( this );
 			}
-			else if ( Utils.Base.TrySearchComponent( hit.transform.gameObject, ESearchContext.CHILDREN, out IShield shield ) )
+			else if ( Utils.Base.TrySearchComponent( hit.transform.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out IShield shield ) )
 			{
 				shield.CollisionHit(gameObject );
 			}
@@ -199,7 +199,7 @@ public abstract class BulletEnergy : Bullet, IBulletEnergy
 		{
 			entity.Events.OnHittedDetails(m_StartPosition, m_WhoRef, m_DamageType, 0, m_CanPenetrate );
 		}
-		else if ( Utils.Base.TrySearchComponent( other.gameObject, ESearchContext.CHILDREN, out IShield shield ) )
+		else if ( Utils.Base.TrySearchComponent( other.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out IShield shield ) )
 		{
 			shield.CollisionHit(gameObject );
 		}
@@ -232,7 +232,7 @@ public abstract class BulletEnergy : Bullet, IBulletEnergy
 		{
 			entity.Events.OnHittedDetails(m_StartPosition, m_WhoRef, m_DamageType, 0, m_CanPenetrate );
 		}
-		else if ( Utils.Base.TrySearchComponent( collision.gameObject, ESearchContext.CHILDREN, out IShield shield ) )
+		else if ( Utils.Base.TrySearchComponent( collision.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out IShield shield ) )
 		{
 			shield.CollisionHit(gameObject );
 		}

@@ -23,33 +23,25 @@ namespace CutScene {
 	public class PointsCollectionOnline : MonoBehaviour {
 
 		[SerializeField]
-		public	GameEvent					OnStart			= null;
+		public		GameEvent						OnStart			= null;
 
 		[SerializeField]
-		private		CutsceneWaypointData[]	m_Waypoints		= null;
+		private		CutsceneWaypointData[]			m_Waypoints		= null;
 
 		// INDEXER
-		public		CutsceneWaypointData	this[int index]
-		{
-			get { 
-				return m_Waypoints[ index ];
-			}
-		}
+		public		CutsceneWaypointData			this[int index] => m_Waypoints[index];
 
-		public	int	Count
-		{
-			get { return m_Waypoints.Length; }
-		}
+		public		int								Count => m_Waypoints.Length;
 
 		private void OnEnable()
 		{
 			if (m_Waypoints.Length == 0 )
 				return;
 
-			for ( int i = 0; i < m_Waypoints.Length; i++ )
+			for (int i = 0; i < m_Waypoints.Length; i++)
 			{
 				CutsceneWaypointData wayPoint = m_Waypoints[i];
-				if ( wayPoint.movementType == ESimMovementType.STATIONARY && wayPoint.waiter == null )
+				if (wayPoint.movementType == ESimMovementType.STATIONARY && wayPoint.waiter.IsNotNull())
 				{
 					print( "PointsCollectionOnline::OnEnable: Collection " + name + " has stationary waypoints without waiter assigned at index " + i );
 #if UNITY_EDITOR
@@ -68,11 +60,11 @@ namespace CutScene {
 			Vector3 prevPosition = m_Waypoints[0].point.position;
 			for ( int i = 1; i < m_Waypoints.Length; i++ )
 			{
-				if (m_Waypoints[ i ].point != null )
+				if (m_Waypoints[ i ].point.IsNotNull())
 				{
-					Vector3 currentPosition = m_Waypoints[ i ].point.position;
+					Vector3 currentPosition = m_Waypoints[i].point.position;
 
-					Gizmos.DrawLine( prevPosition, currentPosition );
+					Gizmos.DrawLine(prevPosition, currentPosition);
 
 					prevPosition = currentPosition;
 				}				

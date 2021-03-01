@@ -43,9 +43,7 @@ public interface IWeapon : IWeaponZoom, IModifiable
 	EWeaponState			WeaponState						{ get; }
 	EWeaponSubState			WeaponSubState					{ get; }
 	IAttachments			Attachments						{ get; }
-
-	bool					TryGetModuleBySlot				( EWeaponSlots slot, out WPN_BaseModule weaponModule );
-	bool					TryGetModuleSlot				( EWeaponSlots slot, out WeaponModuleSlot moduleSlot );	
+	Transform				WeaponPivot						{ get; }
 
 	Database.Section		Section							{ get; }
 	string					OtherInfo						{ get; }
@@ -53,11 +51,13 @@ public interface IWeapon : IWeaponZoom, IModifiable
 	void					ApplyDeviation					( float deviation, float weightX = 1f, float weightY = 1f );
 	void					ApplyDispersion					( float dispersion, float weightX = 1f, float weightY = 1f );
 	void					ApplyFallFeedback				( float delta, float weightX = 1.0f, float weightY = 1.0f );
+	void					AddRotationFeedBack				( Vector3 rotation );
 	void					AddRecoil						( float recoil );
 
 	Vector3					Deviation						{ get; }
 	Vector3					Dispersion						{ get; }
 	Vector3					FallFeedback					{ get; }
+	Vector3					RotationFeedback				{ get; }
 	float					Recoil							{ get; }
 
 	bool					CanChangeWeapon					();
@@ -74,8 +74,8 @@ public interface IWeapon : IWeaponZoom, IModifiable
 [System.Serializable]
 public abstract partial class Weapon : MonoBehaviour, IWeapon
 {
-	public		const	float						RECOVERY_SPEED_MULT				= 4.0f;
-	private		const	float						MAX_RECOIL						= 0.6f;
+	public		const	float						RECOVERY_SPEED_MULT				= 4.00f;
+	private		const	float						MAX_RECOIL						= 0.60f;
 
 	[Header("Weapon Properties")]
 
@@ -93,6 +93,11 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 	[SerializeField]
 	protected		EWeaponSubState				m_WeaponSubState				= EWeaponSubState.IDLE;
 
+	[SerializeField]
+	private			Transform					m_WeaponPivot					= null;
+
+	public			Transform					WeaponPivot						=> m_WeaponPivot;
+
 	// INTERNALS
 	protected		Vector3						m_StartOffset					= Vector3.zero;
 	protected		float						m_BaseZoomFactor				= 1.0f;
@@ -102,6 +107,7 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 	protected		Vector3						m_Deviation						= Vector3.zero;
 	protected		Vector3						m_Dispersion					= Vector3.zero;
 	protected		Vector3						m_FallFeedback					= Vector3.zero;
+	protected		Vector3						m_RotationFeedback				= Vector3.zero;
 	protected		float						m_Recoil						= 0.0f;
 
 	// INTERFACE START
@@ -116,6 +122,7 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 					Vector3						IWeapon.Deviation				=> m_Deviation;
 					Vector3						IWeapon.Dispersion				=> m_Dispersion;
 					Vector3						IWeapon.FallFeedback			=> m_FallFeedback;
+					Vector3						IWeapon.RotationFeedback		=> m_RotationFeedback;
 					float						IWeapon.Recoil					=> m_Recoil;
 
 					Vector3						IWeaponZoom.ZoomOffset			=> m_ZoomOffset;
@@ -159,15 +166,12 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void			Awake()
 	{
-		System.Diagnostics.Stopwatch m_StopWatch = new System.Diagnostics.Stopwatch();
-		m_StopWatch.Start();
-
 		bool bIsInitilalizedSuccessfully = true;
 
 		// Animations
 		{
 			bIsInitilalizedSuccessfully &= Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL, out m_Animator );
-//			bIsInitilalizedSuccessfully &= this.m_Animator.GetClipFromAnimator( "fire",		ref m_FireAnim );
+//			bIsInitilalizedSuccessfully &= m_Animator.GetClipFromAnimator( "fire",		ref m_FireAnim );
 			bIsInitilalizedSuccessfully &= m_Animator.GetClipFromAnimator( "reload",	ref m_ReloadAnim );
 			bIsInitilalizedSuccessfully &= m_Animator.GetClipFromAnimator( "draw",		ref m_DrawAnim );
 		}
@@ -179,24 +183,99 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 		// ATTACHMENTS
 		bIsInitilalizedSuccessfully &= bIsInitilalizedSuccessfully && InitializeAttachments();
 
-		// Registering game events
-		GameManager.StreamEvents.OnSave += OnSave;
-		GameManager.StreamEvents.OnLoad += OnLoad;
-
 		bIsInitilalizedSuccessfully &= bIsInitilalizedSuccessfully && ReloadBaseConfiguration();
 
-		foreach(IWeaponAttachment attachment in transform.GetComponentsInChildren<IWeaponAttachment>())
-		{
-			attachment.OnAttach();
-		}
+		bool bHasPivot = Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL_AND_PARENTS, out m_WeaponPivot, c => c.name.Contains("pivot"));
 
 		// Only if the construction complete successflly, the weapon get registered
 		if ( bIsInitilalizedSuccessfully )
 		{
-			WeaponManager.Instance.RegisterWeapon( this );
+			foreach (IWeaponAttachment attachment in transform.GetComponentsInChildren<IWeaponAttachment>())
+			{
+				attachment.OnAttach();
+			}
+
+			// The weapons and modules and attachments must be sabed in any case, event if the wepoan is not active at save moment
+			UnityEngine.Assertions.Assert.IsNotNull(GameManager.StreamEvents);
+			{
+				GameManager.StreamEvents.OnSave += OnSave;
+				GameManager.StreamEvents.OnLoad += OnLoad;
+			}
+
+			WeaponManager.Instance.RegisterWeapon(this);
 		}
-		m_StopWatch.Stop();
-		print( "Weapon: " + m_WpnBaseSectionName + " loaded in " + m_StopWatch.Elapsed.Milliseconds + "ms" );
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected virtual void OnEnable()
+	{
+		// Re-Activate attachments (Pheraps is not a good idea to force as activated)
+		// Actitve and internal state should be set using default settings or saved ones
+	//	foreach (IWeaponAttachment attachment in transform.GetComponentsInChildren<IWeaponAttachment>())
+	//	{
+	//		attachment.SetActive(true);
+	//	}
+
+		UnityEngine.Assertions.Assert.IsNotNull(GlobalManager.InputMgr);
+		{
+			//										COMMAND								COMMAND ID						ACTION							PREDICATE
+			GlobalManager.InputMgr.BindCall(EInputCommands.PRIMARY_FIRE_PRESS,		"Wpn_Primary_Fire_Start",		PrimaryFire_Start,		Predicate_PrimaryFire_Start);
+			GlobalManager.InputMgr.BindCall(EInputCommands.PRIMARY_FIRE_HOLD,		"Wpn_Primary_Fire_Update",		PrimaryFire_Update,		Predicate_PrimaryFire_Update);
+			GlobalManager.InputMgr.BindCall(EInputCommands.PRIMARY_FIRE_RELEASE,	"Wpn_Primary_Fire_End",			PrimaryFire_End,		Predicate_PrimaryFire_End);
+
+			GlobalManager.InputMgr.BindCall(EInputCommands.SECONDARY_FIRE_PRESS,	"Wpn_Secondary_Fire_Start",		SecondaryFire_Start,	Predicate_SecondaryFire_Start);
+			GlobalManager.InputMgr.BindCall(EInputCommands.SECONDARY_FIRE_HOLD,		"Wpn_Secondary_Fire_Update",	SecondaryFire_Update,	Predicate_SecondaryFire_Update);
+			GlobalManager.InputMgr.BindCall(EInputCommands.SECONDARY_FIRE_RELEASE,	"Wpn_Secondary_Fire_End",		SecondaryFire_End,		Predicate_SecondaryFire_End);
+
+			GlobalManager.InputMgr.BindCall(EInputCommands.TERTIARY_FIRE_PRESS,		"Wpn_Tertiary_Fire_Start",		TertiaryFire_Start,		Predicate_TertiaryFire_Start);
+			GlobalManager.InputMgr.BindCall(EInputCommands.TERTIARY_FIRE_HOLD,		"Wpn_Tertiary_Fire_Update",		TertiaryFire_Update,	Predicate_TertiaryFire_Update);
+			GlobalManager.InputMgr.BindCall(EInputCommands.TERTIARY_FIRE_RELEASE,	"Wpn_Tertiary_Fire_End",		TertiaryFire_End,		Predicate_TertiaryFire_End);
+
+			GlobalManager.InputMgr.BindCall(EInputCommands.RELOAD_WPN,				"Wpn_Reload",					Reload,					Predicate_Reload);
+
+			void UnZoom() => WeaponManager.Instance.ZoomOut();
+			bool Predicate_UnZoom() => Player.Instance.IsRunning && WeaponManager.Instance.IsZoomed;
+			GlobalManager.InputMgr.BindCall(EInputCommands.STATE_RUN,				"Wpn_ExitZoom",					UnZoom,					Predicate_UnZoom);
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected virtual void OnDisable()
+	{
+		UnityEngine.Assertions.Assert.IsNotNull(GlobalManager.InputMgr);
+		{
+			GlobalManager.InputMgr.UnbindCall(EInputCommands.PRIMARY_FIRE_PRESS,		"Wpn_Primary_Fire_Start");
+			GlobalManager.InputMgr.UnbindCall(EInputCommands.PRIMARY_FIRE_HOLD,			"Wpn_Primary_Fire_Update");
+			GlobalManager.InputMgr.UnbindCall(EInputCommands.PRIMARY_FIRE_RELEASE,		"Wpn_Primary_Fire_End");
+
+			GlobalManager.InputMgr.UnbindCall(EInputCommands.SECONDARY_FIRE_PRESS,		"Wpn_Secondary_Fire_Start");
+			GlobalManager.InputMgr.UnbindCall(EInputCommands.SECONDARY_FIRE_HOLD,		"Wpn_Secondary_Fire_Update");
+			GlobalManager.InputMgr.UnbindCall(EInputCommands.SECONDARY_FIRE_RELEASE,	"Wpn_Secondary_Fire_End");
+
+			GlobalManager.InputMgr.UnbindCall(EInputCommands.TERTIARY_FIRE_PRESS,		"Wpn_Tertiary_Fire_Start");
+			GlobalManager.InputMgr.UnbindCall(EInputCommands.TERTIARY_FIRE_HOLD,		"Wpn_Tertiary_Fire_Update");
+			GlobalManager.InputMgr.UnbindCall(EInputCommands.TERTIARY_FIRE_RELEASE,		"Wpn_Tertiary_Fire_End");
+
+			GlobalManager.InputMgr.UnbindCall(EInputCommands.RELOAD_WPN,				"Wpn_Reload");
+
+			GlobalManager.InputMgr.UnbindCall(EInputCommands.STATE_RUN,					"Wpn_ExitZoom");
+		}
+
+	//	foreach (IWeaponAttachment attachment in transform.GetComponentsInChildren<IWeaponAttachment>())
+	//	{
+	//		attachment.SetActive(false);
+	//	}
+
+	//	UnityEngine.Assertions.Assert.IsNotNull(m_PrimaryWeaponModuleSlot.WeaponModule);
+	//	m_PrimaryWeaponModuleSlot.WeaponModule.enabled = false;
+
+	//	UnityEngine.Assertions.Assert.IsNotNull(m_SecondaryWeaponModuleSlot.WeaponModule);
+	//	m_SecondaryWeaponModuleSlot.WeaponModule.enabled = false;
+
+	//	UnityEngine.Assertions.Assert.IsNotNull(m_TertiaryWeaponModuleSlot.WeaponModule);
+	//	m_TertiaryWeaponModuleSlot.WeaponModule.enabled = false;
 	}
 
 
@@ -204,9 +283,9 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 	private					bool			ReloadBaseConfiguration()
 	{
 		bool result = true;
-		m_PrimaryWeaponModuleSlot.TrySetModule(this,	typeof( WPN_BaseModuleEmpty ) );
-		m_SecondaryWeaponModuleSlot.TrySetModule(this,	typeof( WPN_BaseModuleEmpty ) );
-		m_TertiaryWeaponModuleSlot.TrySetModule(this,	typeof( WPN_BaseModuleEmpty ) );
+		m_PrimaryWeaponModuleSlot.TrySetModule(this,	typeof(WPN_BaseModuleEmpty));
+		m_SecondaryWeaponModuleSlot.TrySetModule(this,	typeof(WPN_BaseModuleEmpty));
+		m_TertiaryWeaponModuleSlot.TrySetModule(this,	typeof(WPN_BaseModuleEmpty));
 
 		m_Modifiers.Clear();
 
@@ -233,14 +312,15 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public					bool			TryGetModuleBySlot( EWeaponSlots slot, out WPN_BaseModule weaponModule )
+	public	static			bool			TryGetModuleBySlot( in IWeapon wpn, in EWeaponSlots slot, out WPN_BaseModule weaponModule )
 	{
 		weaponModule = null;
-		switch ( slot )
+		Weapon w = wpn as Weapon;
+		switch (slot)
 		{
-			case EWeaponSlots.PRIMARY:		weaponModule = m_PrimaryWeaponModuleSlot.WeaponModule;		break;
-			case EWeaponSlots.SECONDARY:	weaponModule = m_SecondaryWeaponModuleSlot.WeaponModule;	break;
-			case EWeaponSlots.TERTIARY:		weaponModule = m_TertiaryWeaponModuleSlot.WeaponModule;	break;
+			case EWeaponSlots.PRIMARY:		weaponModule = w.m_PrimaryWeaponModuleSlot.WeaponModule;		break;
+			case EWeaponSlots.SECONDARY:	weaponModule = w.m_SecondaryWeaponModuleSlot.WeaponModule;		break;
+			case EWeaponSlots.TERTIARY:		weaponModule = w.m_TertiaryWeaponModuleSlot.WeaponModule;		break;
 			default:	break;
 		}
 		return weaponModule.IsNotNull();
@@ -248,14 +328,15 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public					bool			TryGetModuleSlot( EWeaponSlots slot, out WeaponModuleSlot moduleSlot )
+	public	static			bool			TryGetModuleSlot(in IWeapon wpn, in EWeaponSlots slot, out WeaponModuleSlot moduleSlot )
 	{
 		moduleSlot = null;
-		switch ( slot )
+		Weapon w = wpn as Weapon;
+		switch (slot)
 		{
-			case EWeaponSlots.PRIMARY:		moduleSlot = m_PrimaryWeaponModuleSlot;		break;
-			case EWeaponSlots.SECONDARY:	moduleSlot = m_SecondaryWeaponModuleSlot;		break;
-			case EWeaponSlots.TERTIARY:		moduleSlot = m_TertiaryWeaponModuleSlot;		break;
+			case EWeaponSlots.PRIMARY:		moduleSlot = w.m_PrimaryWeaponModuleSlot;			break;
+			case EWeaponSlots.SECONDARY:	moduleSlot = w.m_SecondaryWeaponModuleSlot;		break;
+			case EWeaponSlots.TERTIARY:		moduleSlot = w.m_TertiaryWeaponModuleSlot;		break;
 			default:	break;
 		}
 		return moduleSlot.IsNotNull();
@@ -337,63 +418,17 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 		
 		return zoomSensitivity;
 	}
-	
-
-	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		void			OnEnable()
-	{
-		//										COMMAND								COMMAND ID						ACTION							PREDICATE
-		GlobalManager.InputMgr.BindCall( EInputCommands.PRIMARY_FIRE_PRESS,		"Wpn_Primary_Fire_Start",		PrimaryFire_Start,		Predicate_PrimaryFire_Start	);
-		GlobalManager.InputMgr.BindCall( EInputCommands.PRIMARY_FIRE_HOLD,		"Wpn_Primary_Fire_Update",		PrimaryFire_Update,	Predicate_PrimaryFire_Update	);
-		GlobalManager.InputMgr.BindCall( EInputCommands.PRIMARY_FIRE_RELEASE,	"Wpn_Primary_Fire_End",			PrimaryFire_End,		Predicate_PrimaryFire_End		);
-
-		GlobalManager.InputMgr.BindCall( EInputCommands.SECONDARY_FIRE_PRESS,	"Wpn_Secondary_Fire_Start",		SecondaryFire_Start,	Predicate_SecondaryFire_Start	);
-		GlobalManager.InputMgr.BindCall( EInputCommands.SECONDARY_FIRE_HOLD,	"Wpn_Secondary_Fire_Update",	SecondaryFire_Update,	Predicate_SecondaryFire_Update	);
-		GlobalManager.InputMgr.BindCall( EInputCommands.SECONDARY_FIRE_RELEASE,	"Wpn_Secondary_Fire_End",		SecondaryFire_End,		Predicate_SecondaryFire_End	);
-
-		GlobalManager.InputMgr.BindCall( EInputCommands.TERTIARY_FIRE_PRESS,	"Wpn_Tertiary_Fire_Start",		TertiaryFire_Start,	Predicate_TertiaryFire_Start	);
-		GlobalManager.InputMgr.BindCall( EInputCommands.TERTIARY_FIRE_HOLD,		"Wpn_Tertiary_Fire_Update",		TertiaryFire_Update,	Predicate_TertiaryFire_Update	);
-		GlobalManager.InputMgr.BindCall( EInputCommands.TERTIARY_FIRE_RELEASE,	"Wpn_Tertiary_Fire_End",		TertiaryFire_End,		Predicate_TertiaryFire_End		);
-
-		GlobalManager.InputMgr.BindCall( EInputCommands.RELOAD_WPN,				"Wpn_Reload",					Reload,				Predicate_Reload				);
-
-		GlobalManager.InputMgr.BindCall( EInputCommands.STATE_RUN,				"Wpn_ExitZoom",
-			() => { WeaponManager.Instance.ZoomOut(); },
-			delegate() { return  Player.Instance.IsRunning && WeaponManager.Instance.IsZoomed; }
-		);
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		void			OnDisable()
-	{
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.PRIMARY_FIRE_PRESS,		"Wpn_Primary_Fire_Start"	);
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.PRIMARY_FIRE_HOLD,		"Wpn_Primary_Fire_Update"	);
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.PRIMARY_FIRE_RELEASE,		"Wpn_Primary_Fire_End"		);
-
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.SECONDARY_FIRE_PRESS,		"Wpn_Secondary_Fire_Start"	);
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.SECONDARY_FIRE_HOLD,		"Wpn_Secondary_Fire_Update"	);
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.SECONDARY_FIRE_RELEASE,	"Wpn_Secondary_Fire_End"	);
-
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.TERTIARY_FIRE_PRESS,		"Wpn_Tertiary_Fire_Start"	);
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.TERTIARY_FIRE_HOLD,		"Wpn_Tertiary_Fire_Update"	);
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.TERTIARY_FIRE_RELEASE,	"Wpn_Tertiary_Fire_End"		);
-
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.RELOAD_WPN,				"Wpn_Reload" );
-
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.STATE_RUN,				"Wpn_ExitZoom" );
-	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void			Reload()
 	{
-		CoroutinesManager.Start( ReloadCO( OnEndReload ), "Weapon::Reload: Reloading co" );
+		CoroutinesManager.Start(ReloadCO(OnEndReload), "Weapon::Reload: Reloading co");
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		bool		OnSave( StreamData streamData, ref StreamUnit streamUnit )
+	protected	virtual		bool		OnSave(StreamData streamData, ref StreamUnit streamUnit)
 	{
 		streamUnit	= streamData.NewUnit(gameObject );
 		
@@ -429,6 +464,8 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 
 			m_Deviation = Vector3.zero;
 			m_Dispersion = Vector3.zero;
+			m_FallFeedback = Vector3.zero;
+			m_RotationFeedback = Vector3.zero;
 
 			// Flashlight
 //			if (this.m_FlashLight != null )
@@ -467,17 +504,23 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	public void	ApplyFallFeedback( float delta, float weightX = 1.0f, float weightY = 1.0f )
+	public					void			ApplyFallFeedback( float delta, float weightX = 1.0f, float weightY = 1.0f )
 	{
 		m_FallFeedback.x = delta * weightX;
 		m_FallFeedback.y = delta * weightY;
 //		m_WpnFallFeedback = Vector3.ClampMagnitude( m_WpnCurrentDeviation, WPN_FALL_FEEDBACK_CLAMP_VALUE );
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	public					void			AddRotationFeedBack( Vector3 rotation )
+	{
+		m_RotationFeedback += rotation;
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Return if the current weapon allow the change at this time </summary>
-	public		virtual		bool			CanChangeWeapon()
+	public virtual			bool			CanChangeWeapon()
 	{
 		bool result = m_IsLocked == false;
 		result &= m_PrimaryWeaponModuleSlot.WeaponModule.CanChangeWeapon();
@@ -553,7 +596,7 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 	//////////////////////////////////////////////////////////////////////////
 	public					void			Hide()
 	{
-		if (transform.TrySearchComponents(ESearchContext.CHILDREN, out m_WeaponRenderes, (r) => r.enabled == true))
+		if (transform.TrySearchComponents(ESearchContext.LOCAL_AND_CHILDREN, out m_WeaponRenderes, (r) => r.enabled == true))
 		{
 			foreach ( Renderer r in m_WeaponRenderes )
 			{
@@ -578,6 +621,8 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 	{
 		m_Deviation = Vector3.zero;
 		m_Dispersion = Vector3.zero;
+		m_FallFeedback = Vector3.zero;
+		m_RotationFeedback = Vector3.zero;
 	}
 
 
@@ -588,12 +633,12 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void			LateUpdate()
 	{
-		float deltaTime = Time.deltaTime;
-
-		m_Dispersion	= Vector3.Lerp( m_Dispersion,	Vector3.zero, deltaTime * RECOVERY_SPEED_MULT );
-		m_Deviation		= Vector3.Lerp( m_Deviation,	Vector3.zero, deltaTime * RECOVERY_SPEED_MULT );
-		m_FallFeedback	= Vector3.Lerp( m_FallFeedback,	Vector3.zero, deltaTime * RECOVERY_SPEED_MULT );
-		m_Recoil		= Mathf.Lerp( m_Recoil, 0.0f, deltaTime * RECOVERY_SPEED_MULT );
+		float interpolant = Time.deltaTime * RECOVERY_SPEED_MULT;
+		m_Dispersion.LerpTo(Vector3.zero, interpolant);
+		m_Deviation.LerpTo(Vector3.zero, interpolant);
+		m_FallFeedback.LerpTo(Vector3.zero, interpolant);
+		m_RotationFeedback.LerpTo(Vector3.zero, interpolant);
+		m_Recoil = Mathf.Lerp( m_Recoil, 0.0f, interpolant);
 	}
 
 
@@ -640,16 +685,8 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void			OnDestroy()
 	{
-		m_PrimaryWeaponModuleSlot.WeaponModule.enabled = false;
-		m_SecondaryWeaponModuleSlot.WeaponModule.enabled = false;
-		m_TertiaryWeaponModuleSlot.WeaponModule.enabled = false;
-
-		foreach(IWeaponAttachment attachment in transform.GetComponentsInChildren<IWeaponAttachment>())
-		{
-			attachment.OnDetach();
-		}
-
-		if ( GameManager.StreamEvents.IsNotNull() )
+		// Deregister only on destruction
+		if (GameManager.StreamEvents.IsNotNull())
 		{
 			GameManager.StreamEvents.OnSave -= OnSave;
 			GameManager.StreamEvents.OnLoad -= OnLoad;

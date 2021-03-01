@@ -159,10 +159,10 @@ public abstract partial class Weapon : IAttachments
 			if (m_WpnSection.TryGetMultiAsArray( "AllowedAttachments", out m_AllowedAttachments ))
 			{
 				string[] allowedByPrefabSlots = m_AttachmentRoot.Cast<Transform>().Select( child => child.name ).ToArray();
-//				foreach(string allowedAttachmentBySection in this.m_AllowedAttachments )
+				foreach(string allowedAttachmentBySection in this.m_AllowedAttachments )
 				{
-//					string err = $"Weapon:InitializeAttachments: {this.m_WpnBaseSectionName} allows attachment '{allowedAttachmentBySection}' by section but prefab does not!";
-//					Debug.Assert( allowedByPrefabSlots.Contains( allowedAttachmentBySection ), err, this.gameObject );
+					string err = $"Weapon:InitializeAttachments: {this.m_WpnBaseSectionName} allows attachment '{allowedAttachmentBySection}' by section but prefab does not!";
+					Debug.Assert( allowedByPrefabSlots.Contains( allowedAttachmentBySection ), err, this.gameObject );
 				}
 
 				if (allowedByPrefabSlots.Length < m_AllowedAttachments.Length)
@@ -172,15 +172,15 @@ public abstract partial class Weapon : IAttachments
 					Debug.Assert( false, err, gameObject );
 				}
 
-//				foreach(string allowedByPrefabSlot in allowedByPrefabSlots)
+				foreach(string allowedByPrefabSlot in allowedByPrefabSlots)
 				{
-//					string err = $"Weapon:InitializeAttachments: {this.m_WpnBaseSectionName} does not allow section allowed attachment '{allowedByPrefabSlot}'";
-//					Debug.Assert( this.m_AllowedAttachments.Contains(allowedByPrefabSlot), err, this.gameObject );
+					string err = $"Weapon:InitializeAttachments: {this.m_WpnBaseSectionName} does not allow section allowed attachment '{allowedByPrefabSlot}'";
+					Debug.Assert( this.m_AllowedAttachments.Contains(allowedByPrefabSlot), err, this.gameObject );
 				}
 
 				if (m_WpnSection.TryGetMultiAsArray("DefaultAttachments", out m_DefaultAttachments ))
 				{
-					foreach(string defaultAttachment in m_DefaultAttachments )
+					foreach(string defaultAttachment in m_DefaultAttachments)
 					{
 						string err = $"Weapon:InitializeAttachments: Weapon {m_WpnBaseSectionName}, ";
 						Debug.Assert( m_AllowedAttachments.Contains( defaultAttachment ), err, this );

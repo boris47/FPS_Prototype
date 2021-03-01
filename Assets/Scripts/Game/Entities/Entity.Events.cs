@@ -123,6 +123,7 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 			GameManager.UpdateEvents.OnThink			+= OnThink;
 			GameManager.UpdateEvents.OnPhysicFrame		+= OnPhysicFrame;
 			GameManager.UpdateEvents.OnFrame			+= OnFrame;
+			GameManager.UpdateEvents.OnLateFrame		+= OnLateFrame;
 
 			// Field Of View Callbacks
 			if (m_EntityType != EEntityType.ACTOR)
@@ -314,8 +315,16 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 
 		m_CurrentBehaviour.OnFrame( DeltaTime );
 
-		if (m_NavAgent != null )
+		if (m_NavAgent.IsNotNull() )
+		{
 			m_NavAgent.speed = m_BlackBoardData.AgentSpeed;
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	protected	virtual		void		OnLateFrame( float DeltaTime )
+	{
+		m_CurrentBehaviour.OnLateFrame(DeltaTime);
 	}
 
 

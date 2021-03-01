@@ -76,7 +76,7 @@ namespace WeatherSystem {
 				//				if ( m_Camera == null )
 				//					m_Camera = Camera.main;
 				//				if ( m_Camera == null )
-				m_Camera = CameraControl.Instance != null ? CameraControl.Instance.MainCamera : null;
+				m_Camera = FPSEntityCamera.Instance != null ? FPSEntityCamera.Instance.MainCamera : null;
 				if (m_Camera == null )
 					return;
 			}

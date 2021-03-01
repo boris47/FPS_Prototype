@@ -56,7 +56,7 @@ public abstract partial class Entity : IBrain {
 	//////////////////////////////////////////////////////////////////////////
 	protected	void	Brain_Setup()
 	{
-		m_FieldOfView.Setup( maxVisibleEntities : 10 );
+		m_FieldOfView.Setup();
 
 		m_BrainInstance = this;
 

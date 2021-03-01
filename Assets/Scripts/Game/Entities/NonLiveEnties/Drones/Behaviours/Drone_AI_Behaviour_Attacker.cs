@@ -74,7 +74,7 @@ public class Drone_AI_Behaviour_Attacker : AIBehaviour {
 		// Update targeting
 //		if ( EntityData.TargetInfo.HasTarget == true )
 		{
-			EntityData.EntityRef.SetPointToLookAt(EntityData.TargetInfo.CurrentTarget.AsEntity.transform.position );
+			EntityData.EntityRef.SetPointToLookAt(EntityData.TargetInfo.CurrentTarget.AsEntity.transform.position);
 
 			// with a target, if gun alligned, fire
 			if (EntityData.EntityRef.CanFire() == true )

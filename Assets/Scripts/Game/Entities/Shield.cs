@@ -12,13 +12,12 @@ public interface IShield : IStreamableByEvents {
 	event			Shield.ShieldHitEvent		OnHit;
 	
 	EShieldContext	Context						{ get; }
-
-	void			CollisionHit				( GameObject collidingObject );
-
+	Collider		Collider					{ get; }
 	float			StartStatus					{ get; }
 	float			Status						{ get; set; }
 	bool			IsUnbreakable				{ get; }
 
+	void			CollisionHit				( GameObject collidingObject );
 	void			Setup						( float StartStatus, EShieldContext Context, bool IsUnbreakable = false );
 	void			OnReset						();
 }
@@ -35,28 +34,26 @@ public class Shield : MonoBehaviour, IShield {
 	[SerializeField]
 	protected		bool		m_IsUnbreakable			= false;
 
+	private		EShieldContext	m_Context				= EShieldContext.NONE;
+	private		Collider		m_Collider				= null;
+	private		Renderer		m_Renderer				= null;
+	private		float			m_CurrentStatus			= 100f;
+	private		float			m_StartStatus			= 100f;
+
 	/// INTERFACE START
 	/// <summary> Event called when shiled is hitted </summary>
 	event ShieldHitEvent	IShield.OnHit
 	{
-		add		{ if ( value != null ) m_ShielHitEvent += value; }
-		remove	{ if ( value != null ) m_ShielHitEvent -= value; }
+		add		{ if ( value.IsNotNull() ) m_ShielHitEvent += value; }
+		remove	{ if ( value.IsNotNull() ) m_ShielHitEvent -= value; }
 	}
 
-	EShieldContext	IShield.Context						{	get { return m_Context; } }
-	float			IShield.StartStatus					{	get { return m_StartStatus; } }
-	float			IShield.Status						{	get { return m_CurrentStatus;	} set { m_CurrentStatus = value; }  }
-	bool			IShield.IsUnbreakable				{	get { return m_IsUnbreakable;	}	}
-	
-
+				EShieldContext	IShield.Context			=> m_Context;
+				Collider		IShield.Collider		=> m_Collider;
+				float			IShield.StartStatus		=> m_StartStatus;
+				float			IShield.Status			{ get => m_CurrentStatus; set => m_CurrentStatus = value; }
+				bool			IShield.IsUnbreakable	=> m_IsUnbreakable;
 	/// INTERFACE END
-	/// 
-	
-	private		EShieldContext	m_Context			= EShieldContext.NONE;
-	private		Collider		m_Collider			= null;
-	private		Renderer		m_Renderer			= null;
-	private		float			m_CurrentStatus		= 100f;
-	private		float			m_StartStatus		= 100f;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -80,7 +77,7 @@ public class Shield : MonoBehaviour, IShield {
 	//////////////////////////////////////////////////////////////////////////
 	public		void		CollisionHit				( GameObject collidingObject )
 	{
-		if ( Utils.Base.TrySearchComponent( collidingObject, ESearchContext.CHILDREN, out IBullet bullet ) )
+		if ( Utils.Base.TrySearchComponent( collidingObject, ESearchContext.LOCAL_AND_CHILDREN, out IBullet bullet ) )
 		{
 			m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageType, bullet.Damage, bullet.CanPenetrate );
 		}
@@ -90,7 +87,7 @@ public class Shield : MonoBehaviour, IShield {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnCollisionEnter( Collision collision )
 	{
-		if ( Utils.Base.TrySearchComponent( collision.gameObject, ESearchContext.CHILDREN, out IBullet bullet ) )
+		if ( Utils.Base.TrySearchComponent( collision.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out IBullet bullet ) )
 		{
 			m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageType, bullet.Damage, bullet.CanPenetrate );
 		}
@@ -100,7 +97,7 @@ public class Shield : MonoBehaviour, IShield {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnTriggerEnter( Collider other )
 	{
-		if ( Utils.Base.TrySearchComponent( other.gameObject, ESearchContext.CHILDREN, out IBullet bullet ) )
+		if ( Utils.Base.TrySearchComponent( other.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out IBullet bullet ) )
 		{
 			m_ShielHitEvent( bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageType, bullet.Damage, bullet.CanPenetrate );
 		}

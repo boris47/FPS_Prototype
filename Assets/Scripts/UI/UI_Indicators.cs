@@ -288,7 +288,7 @@ public sealed class UI_Indicators : UI_Base, IStateDefiner
 	// DrawUIElementOnObjectives
 	private	void	DrawUIElementObjectivesOnScreen( in Transform targetTransform, Transform m_IconTransform )
 	{
-		Camera camera = CameraControl.Instance.MainCamera;
+		Camera camera = FPSEntityCamera.Instance.MainCamera;
 
 		// Icon Scale Factor
 		float scaleFactor = 1.0f;

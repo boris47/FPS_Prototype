@@ -31,7 +31,7 @@ public class SingleInputEvent
 	//////////////////////////////////////////////////////////////////////////
 	public void Call()
 	{
-		if (m_Condition() )
+		if (m_Condition())
 		{
 			m_InputEvent();
 		}
@@ -48,15 +48,14 @@ public class InputEventCollection
 	public	InputEventCollection	Bind( string inputEventID, InputDelegateHandler method, System.Func<bool> predicate )
 	{
 		System.Func<bool> internalCondition = predicate ?? m_AlwaysTrueCondition;
-
-		int index = m_Events.FindIndex( s => s.InputEventID == inputEventID );
-		if ( index == -1 )
+		int index = m_Events.FindIndex(s => s.InputEventID == inputEventID);
+		if (index == -1)
 		{
-			m_Events.Add( new SingleInputEvent( inputEventID, method, internalCondition ) );
+			m_Events.Add(new SingleInputEvent(inputEventID, method, internalCondition));
 		}
 		else
 		{
-			m_Events[ index ].Rebind( method, internalCondition );
+			m_Events[index].Rebind(method, internalCondition);
 		}
 		return this;
 	}

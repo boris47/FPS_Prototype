@@ -36,8 +36,8 @@ public abstract partial class LiveEntity : Entity {
 
 
 	// LIVE ENTITY PARAMENTERS
-	public		bool				IsGrounded					{ get; set; }
-	public		float				GroundSpeedModifier			{ get; set; }
+	public		bool				IsGrounded					= false;
+	public		float				GroundSpeedModifier			= 0.0f;
 
 	// Stamina always reach 1.0f
 	[SerializeField]

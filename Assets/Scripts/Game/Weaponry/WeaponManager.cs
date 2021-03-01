@@ -16,11 +16,11 @@ public partial interface IWeaponManager
 	bool				IsChangingZoom					{ get; }
 	bool				IsChangingWeapon				{ get; }
 
-	void				RegisterWeapon					( Weapon wpn );
+	void				RegisterWeapon					(Weapon wpn);
 	Coroutine			ToggleZoom						(Vector3? ZoomOffset = null, float ZoomFactor = -1f, float ZoomingTime = -1f, float ZoomSensitivity = -1f, Image ZoomFrame = null);
-	Coroutine			ZoomIn							( Vector3? ZoomOffset = null, float ZoomFactor = -1f, float ZoomingTime = -1f, float ZoomSensitivity = -1f, Image ZoomFrame = null );
+	Coroutine			ZoomIn							(Vector3? ZoomOffset = null, float ZoomFactor = -1f, float ZoomingTime = -1f, float ZoomSensitivity = -1f, Image ZoomFrame = null);
 	Coroutine			ZoomOut							();
-	void				ChangeWeaponRequest				( int wpnIdx );
+	void				ChangeWeaponRequest				(int wpnIdx);
 	
 }
 
@@ -169,7 +169,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager
 
 //		m_ZoomSensitivity = CurrentWeapon.ZoomSensitivity;
 
-		m_StartCameraFOV = CameraControl.Instance.MainCamera.fieldOfView;
+		m_StartCameraFOV = FPSEntityCamera.Instance.MainCamera.fieldOfView;
 
 		// Make sure that ui show data of currnt active weapon
 		UIManager.InGame.UpdateUI();
@@ -181,7 +181,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager
 	//////////////////////////////////////////////////////////////////////////
 	private				bool	OnSave( StreamData streamData, ref StreamUnit streamUnit )
 	{
-		streamUnit	= streamData.NewUnit(gameObject );
+		streamUnit	= streamData.NewUnit(this);
 
 		streamUnit.SetInternal( "CurrentWeaponIndex", CurrentWeaponIndex );
 		streamUnit.SetInternal( "ZoomedIn", m_ZoomedIn );
@@ -208,7 +208,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager
 		{
 			// Current Weapon
 			{
-				DisableAllWeapons();
+				DisableAllWeapons(); // TODO Wrong
 
 				CurrentWeaponIndex			= streamUnit.GetAsInt("CurrentWeaponIndex" );
 				CurrentWeapon				= GetWeaponByIndex(CurrentWeaponIndex );
@@ -226,10 +226,10 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager
 				m_ZoomSensitivity			= streamUnit.GetAsFloat( "ZoomSensitivity" );
 				m_StartCameraFOV			= streamUnit.GetAsFloat( "StartCameraFOV" );
 
-				CameraControl.Instance.WeaponPivot.localPosition = (m_ZoomedIn == true ) ? m_FinalOffset : m_StartOffset;
+				CurrentWeapon.WeaponPivot.localPosition = (m_ZoomedIn == true ) ? m_FinalOffset : m_StartOffset;
 
 				float cameraFinalFov = m_StartCameraFOV / m_ZoomFactor;
-				CameraControl.Instance.MainCamera.fieldOfView = (m_ZoomedIn == true ) ? cameraFinalFov : m_StartCameraFOV;
+				FPSEntityCamera.Instance.MainCamera.fieldOfView = (m_ZoomedIn == true ) ? cameraFinalFov : m_StartCameraFOV;
 			}
 		}
 		return bResult;
@@ -283,8 +283,8 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager
 			float zoomingTime		= ZoomingTime > 0f		? ZoomingTime : CurrentWeapon.ZoomingTime;
 			float zoomSensitivity	= ZoomSensitivity > 0f	? ZoomSensitivity : CurrentWeapon.ZoomSensitivity;
 
-			m_StartOffset		= CameraControl.Instance.WeaponPivot.localPosition;
-			m_StartCameraFOV	= CameraControl.Instance.MainCamera.fieldOfView;
+			m_StartOffset		= CurrentWeapon.WeaponPivot.localPosition;
+			m_StartCameraFOV	= FPSEntityCamera.Instance.MainCamera.fieldOfView;
 			m_FinalOffset		= zoomOffset;
 			m_ZoomFactor		= ZoomFactor;
 			m_ZoomingTime		= ZoomingTime;
@@ -428,8 +428,8 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager
 		float	interpolant = 0f;
 		float	currentTime = 0f;
 
-		Transform weaponPivot = CameraControl.Instance.WeaponPivot;
-		Camera mainCamera = CameraControl.Instance.MainCamera;
+		Transform weaponPivot = CurrentWeapon.WeaponPivot;
+		Camera mainCamera = FPSEntityCamera.Instance.MainCamera;
 
 		// Transition
 		while( interpolant < 1f )
@@ -459,14 +459,14 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager
 	//////////////////////////////////////////////////////////////////////////
 	private				IEnumerator	Internal_ZoomOutCO()
 	{
-		float	cameraCurrentFov = CameraControl.Instance.MainCamera.fieldOfView;
+		Camera	mainCamera = FPSEntityCamera.Instance.MainCamera;
+		float	cameraCurrentFov = mainCamera.fieldOfView;
 //		CurrentWeapon.Enabled = false;
 
 		float	interpolant = 0f;
 		float	currentTime = 0f;
 
-		Transform weaponPivot = CameraControl.Instance.WeaponPivot;
-		Camera mainCamera = CameraControl.Instance.MainCamera;
+		Transform weaponPivot = CurrentWeapon.WeaponPivot;
 
 		if (m_ZoomFrame != null )
 		{

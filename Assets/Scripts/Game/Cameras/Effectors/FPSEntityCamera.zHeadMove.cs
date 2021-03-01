@@ -18,13 +18,12 @@ public class HeadMove : CameraEffectBase
 		public	float	Theta_Upd_Oriz			= 0.40f;
 	}
 
-	[SerializeField]
 	private		EffectSectionData			m_EffectSectionData = new EffectSectionData();
 
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public override	void Setup( in EffectActiveCondition condition )
+	public override	void Setup( in EffectorActiveCondition condition )
 	{
 		m_EffectActiveCondition =  condition;
 
@@ -47,14 +46,14 @@ public class HeadMove : CameraEffectBase
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	public override void Update( float deltaTime, ref CameraEffectorData data )
+	public override void Update( float deltaTime, CameraEffectorData data )
 	{
 		if (IsActive == false )
 			return;
 
 		if (m_EffectActiveCondition() == false )
 		{
-			SetData( ref data );
+			SetData( data );
 			return;
 		}
 
@@ -76,22 +75,22 @@ public class HeadMove : CameraEffectBase
 		m_ThetaX += fSpeed * m_Theta_Upd_Vert;
 		m_ThetaY += fSpeed * m_Theta_Upd_Oriz;
 
-		float deltaXBase = Mathf.Sin(m_ThetaX ) * fAmplitude * m_AmplitudeVert;
-		float deltaYBase = Mathf.Cos(m_ThetaY ) * fAmplitude * m_AmplitudeHoriz;
+		float deltaXBase = Mathf.Sin(m_ThetaX) * fAmplitude * m_AmplitudeVert;
+		float deltaYBase = Mathf.Cos(m_ThetaY) * fAmplitude * m_AmplitudeHoriz;
 
 		float deltaX = deltaXBase;
 		float deltaY = deltaYBase;
-		m_Direction.Set ( deltaX, deltaY, 0.0f );
+		m_Direction.Set( deltaX, deltaY, 0.0f );
 
 		m_WeaponPositionDelta.y = -deltaX * m_WpnInfluence;
-		SetData( ref data );
+		SetData( data );
 	}
 
 
-	protected void SetData(ref CameraEffectorData data)
+	protected void SetData(CameraEffectorData data)
 	{
 		data.CameraEffectsDirection += m_Direction;
 		data.WeaponPositionDelta += m_WeaponPositionDelta;
-		data.WeaponRotationDelta += m_WeaponRotationDelta;
+		data.WeaponDirectionDelta += m_WeaponDirectionDelta;
 	}
 }

@@ -23,7 +23,7 @@ public sealed class BulletElectro : BulletBallistic {
 			return;
 
 		bool bIsAnEntity = Utils.Base.TrySearchComponent( otherCollider.gameObject, ESearchContext.LOCAL, out IEntity entity );
-		bool bIsShield   = Utils.Base.TrySearchComponent( otherCollider.gameObject, ESearchContext.CHILDREN, out IShield shield );
+		bool bIsShield   = Utils.Base.TrySearchComponent( otherCollider.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out IShield shield );
 
 		int nParticle = 3;
 

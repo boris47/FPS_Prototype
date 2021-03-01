@@ -45,7 +45,7 @@ public class SetupScene : EditorWindow  {
 		
 		LoadPrefab<GameManager>			( prefabPath:"Prefabs/Essentials/InGame/GameManager"		);
 
-		LoadPrefab<CameraControl>		( prefabPath:"Prefabs/Essentials/InGame/Camera_InGame"		);
+		LoadPrefab<FPSEntityCamera>		( prefabPath:"Prefabs/Essentials/InGame/Camera_InGame"		);
 
 		LoadPrefab<LocalQuestManager>	( prefabPath:"Prefabs/Essentials/InGame/LocalQuestManager"	);
 

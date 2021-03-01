@@ -2,6 +2,7 @@
 using System.Globalization;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Networking;
 
 #if UNITY_EDITOR
 [UnityEditor.InitializeOnLoad]
@@ -43,98 +44,6 @@ class EditorInitializer
 }
 #endif
 
-public class CustomLogHandler : ILogHandler
-{
-	public		static ILogHandler								m_DefaultLogHandler { get; private set; }	= null;
-    private		readonly System.IO.FileStream					m_FileStream								= null;
-    private		readonly System.IO.StreamWriter					m_StreamWriter								= null;
-	private		readonly CultureInfo							m_CultureInfo								= (CultureInfo)CultureInfo.InvariantCulture.Clone();
-	private		readonly System.Text.RegularExpressions.Regex	m_Filter			= new System.Text.RegularExpressions.Regex("get_StackTrace|CustomLogHandler|UnityEngine|UnityEditor");
-
-	private		bool											bCanLog										= true;
-	private		bool											bExceptionsAsWarnings						= false;
-
-	public void Silence() => bCanLog = false;
-	public void Talk() => bCanLog = true;
-	public bool CanTalk() => bCanLog;
-	public void SetExceptionsAsWarnings(bool value) => bExceptionsAsWarnings = value;
-
-	//////////////////////////////////////////////////////////////////////////
-	public CustomLogHandler(bool UseFileSystemWriter)
-    {
-        m_DefaultLogHandler = Debug.unityLogger.logHandler;
-        Debug.unityLogger.logHandler = this;
-
-		if (UseFileSystemWriter)
-		{
-			string filePath = System.IO.Path.Combine(Application.dataPath, "SessionLog.log");
-			m_FileStream = new System.IO.FileStream(filePath, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Write);
-			m_StreamWriter = new System.IO.StreamWriter(m_FileStream);
-		}
-		m_CultureInfo.NumberFormat.NumberDecimalSeparator = ".";
-    }
-
-	//////////////////////////////////////////////////////////////////////////
-	private string GetContext()
-	{
-		string contextTitle = "";
-		string line = System.Array.Find(System.Environment.StackTrace.Split('\n'), ln => !m_Filter.IsMatch(ln));
-		if (!string.IsNullOrEmpty(line))
-		{
-			int start = line.IndexOf(' ', 2) + 1, end = line.IndexOf(' ', start);
-			contextTitle = $"{line.Substring(start, end - start)}: ";
-		}
-		return contextTitle;
-	}
-
-	//////////////////////////////////////////////////////////////////////////
-    public void LogFormat( LogType logType, Object context, string format, params object[] args )
-    {
-		if (bCanLog)
-		{
-			m_StreamWriter?.WriteLine( $"[{Time.time.ToString("0.000", m_CultureInfo)}] {string.Format( format, args )}" );
-			if (bExceptionsAsWarnings && ( logType == LogType.Exception || logType == LogType.Error))
-			{
-				m_DefaultLogHandler.LogFormat(LogType.Warning, context, $"{GetContext()}{format}", args);
-			}
-			else
-			{
-				m_DefaultLogHandler.LogFormat( logType, context, $"{GetContext()}{format}", args );
-			}
-		}
-    }
-
-	//////////////////////////////////////////////////////////////////////////
-    public void LogException( System.Exception exception, Object context )
-    {
-		if (bCanLog)
-		{
-			m_StreamWriter?.WriteLine( $"[{Time.time.ToString("0.000", m_CultureInfo)}] {exception.Message}" );
-			m_StreamWriter?.WriteLine( exception.StackTrace );
-			m_StreamWriter?.Flush();
-			if (bExceptionsAsWarnings)
-			{
-				m_DefaultLogHandler.LogFormat( LogType.Warning, context, "{0}", $"{exception.Message}");
-			}
-			else
-			{
-				m_DefaultLogHandler.LogException(exception, context);
-			}
-		}
-    }
-
-	//////////////////////////////////////////////////////////////////////////
-	public  void Close()
-	{
-		m_StreamWriter?.Flush();
-		m_StreamWriter?.Close();
-		m_FileStream?.Close();
-
-		Debug.unityLogger.logHandler = m_DefaultLogHandler;
-	}
-}
-
-
 
 public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 {
@@ -167,6 +76,7 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 		fixedUpdateCount += 1;
 	}
 
+
 	private void OnGUI()
 	{
 		fontSize = fontSize ?? new GUIStyle( GUI.skin.GetStyle( "label" ) )
@@ -176,9 +86,9 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 		GUI.Label(new Rect(20,  5, 200, 50), $"Update: {updateUpdateCountPerSecond}", fontSize );
         GUI.Label(new Rect(20, 15, 200, 50), $"FixedUpdate: {updateFixedUpdateCountPerSecond}", fontSize );
 	}
-#endif
+#endif // UNITY_EDITOR
 
-	private	const			string				m_SettingsFilePath	= "Settings";
+	private const			string				m_SettingsFilePath	= "Settings";
 	private	const			string				m_ConfigsFilePath	= "Configs/All";
 
 
@@ -334,22 +244,19 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 
 		if (Input.GetKeyDown( KeyCode.L ))
 		{
-			string result = SaveSystem.GameObjectToJSON(Player.Instance.gameObject);
-			GameObject clone = SaveSystem.JSONToGameObject(result);
-			UnityEditor.EditorApplication.isPaused = true;
+		//	string result = SaveSystem.GameObjectToJSON(Player.Instance.gameObject);
+		//	GameObject clone = SaveSystem.JSONToGameObject(result);
+		//	UnityEditor.EditorApplication.isPaused = true;
+			foreach(var spawnPoint in Object.FindObjectsOfType<SpawnPoint>())
+			{
+				spawnPoint.Spawn();
+			}
 		}
 
 
 		if ( Input.GetKeyDown( KeyCode.K ) )
 		{
 			SoundManager.Pitch = Time.timeScale = 0.02f;
-		}
-
-		if ( Input.GetKeyDown( KeyCode.V ) )
-		{
-			UIManager.PauseMenu.ReturnToMenu();
-//			Destroy( UIManager.InGame?.transform.parent.gameObject );
-//			CustomSceneManager.LoadSceneSync( new CustomSceneManager.LoadSceneData() { eScene = ESceneEnumeration.MAIN_MENU } );
 		}
 	}
 
@@ -383,6 +290,98 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 #else
 		Application.Quit();
 #endif
+	}
+
+
+	public class CustomLogHandler : ILogHandler
+	{
+		public static ILogHandler m_DefaultLogHandler { get; private set; } = null;
+		private readonly System.IO.FileStream m_FileStream = null;
+		private readonly System.IO.StreamWriter m_StreamWriter = null;
+		private readonly CultureInfo m_CultureInfo = (CultureInfo)CultureInfo.InvariantCulture.Clone();
+		private readonly System.Text.RegularExpressions.Regex m_Filter = new System.Text.RegularExpressions.Regex("get_StackTrace|CustomLogHandler|UnityEngine|UnityEditor");
+
+		private bool bCanLog = true;
+		private bool bExceptionsAsWarnings = false;
+
+		public void Silence() => bCanLog = false;
+		public void Talk() => bCanLog = true;
+		public bool CanTalk() => bCanLog;
+		public void SetExceptionsAsWarnings(bool value) => bExceptionsAsWarnings = value;
+
+		//////////////////////////////////////////////////////////////////////////
+		public CustomLogHandler(bool UseFileSystemWriter)
+		{
+			m_DefaultLogHandler = Debug.unityLogger.logHandler;
+			Debug.unityLogger.logHandler = this;
+
+			if (UseFileSystemWriter)
+			{
+				string filePath = System.IO.Path.Combine(Application.dataPath, "SessionLog.log");
+				m_FileStream = new System.IO.FileStream(filePath, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Write);
+				m_StreamWriter = new System.IO.StreamWriter(m_FileStream);
+			}
+			m_CultureInfo.NumberFormat.NumberDecimalSeparator = ".";
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		private string GetContext()
+		{
+			string contextTitle = "";
+			string line = System.Array.Find(System.Environment.StackTrace.Split('\n'), ln => !m_Filter.IsMatch(ln));
+			if (!string.IsNullOrEmpty(line))
+			{
+				int start = line.IndexOf(' ', 2) + 1, end = line.IndexOf(' ', start);
+				contextTitle = $"{line.Substring(start, end - start)}: ";
+			}
+			return contextTitle;
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public void LogFormat(LogType logType, Object context, string format, params object[] args)
+		{
+			if (bCanLog)
+			{
+				m_StreamWriter?.WriteLine($"[{Time.time.ToString("0.000", m_CultureInfo)}] {string.Format(format, args)}");
+				if (bExceptionsAsWarnings && (logType == LogType.Exception || logType == LogType.Error))
+				{
+					m_DefaultLogHandler.LogFormat(LogType.Warning, context, $"{GetContext()}{format}", args);
+				}
+				else
+				{
+					m_DefaultLogHandler.LogFormat(logType, context, $"{GetContext()}{format}", args);
+				}
+			}
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public void LogException(System.Exception exception, Object context)
+		{
+			if (bCanLog)
+			{
+				m_StreamWriter?.WriteLine($"[{Time.time.ToString("0.000", m_CultureInfo)}] {exception.Message}");
+				m_StreamWriter?.WriteLine(exception.StackTrace);
+				m_StreamWriter?.Flush();
+				if (bExceptionsAsWarnings)
+				{
+					m_DefaultLogHandler.LogFormat(LogType.Warning, context, "{0}", $"{exception.Message}");
+				}
+				else
+				{
+					m_DefaultLogHandler.LogException(exception, context);
+				}
+			}
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public void Close()
+		{
+			m_StreamWriter?.Flush();
+			m_StreamWriter?.Close();
+			m_FileStream?.Close();
+
+			Debug.unityLogger.logHandler = m_DefaultLogHandler;
+		}
 	}
 
 }

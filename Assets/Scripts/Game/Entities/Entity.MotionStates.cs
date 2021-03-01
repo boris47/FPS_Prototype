@@ -23,27 +23,26 @@ public partial interface IEntity {
 }
 
 
-public abstract partial class Entity : IEntity {
-
+public abstract partial class Entity : IEntity
+{
 	// DELEGATE
 	public	delegate	void		OnMotionStateChangedEvent( EMotionType prevState, EMotionType newState );
 
 	// STORE VARIABLE
-	protected	event	OnMotionStateChangedEvent					m_OnMotionStateChangedEvent			= delegate { };
+	protected	event	OnMotionStateChangedEvent				m_OnMotionStateChangedEvent = delegate { };
 
-
-	EMotionType		IEntity.MotionType							{ get { return m_CurrentMotionType; } }
+	EMotionType		IEntity.MotionType							=> m_CurrentMotionType;
 	
 	/// <summary> Events called this entity motion state changed </summary>
 	event OnMotionStateChangedEvent IEntity.OnMotionStateChangedEvent
 	{
-		add		{ if ( value != null )	m_OnMotionStateChangedEvent += value; }
-		remove	{ if ( value != null )	m_OnMotionStateChangedEvent -= value; }
+		add		{ if ( value.IsNotNull() )	m_OnMotionStateChangedEvent += value; }
+		remove	{ if ( value.IsNotNull() )	m_OnMotionStateChangedEvent -= value; }
 	}
 
 	[System.Serializable]
-	protected class _States {
-
+	protected class EntityStates
+	{
 		public	bool	IsCrouched		= false;
 
 		public	bool	IsMoving		= false;
@@ -60,43 +59,49 @@ public abstract partial class Entity : IEntity {
 		{
 			IsMoving = IsWalking = IsRunning = IsJumping = IsHanging = IsFalling = false;
 		}
-	};
 
-	protected   _States			m_States			= new _States();
-	[System.NonSerialized]
-	protected	_States			m_PreviousStates	= new _States();
+		public void Assign(EntityStates other)
+		{
+			IsCrouched		= other.IsCrouched	;
+
+			IsMoving		= other.IsMoving	;
+			IsWalking		= other.IsWalking	;
+			IsRunning		= other.IsRunning	;
+							  
+			IsLeaning		= other.IsLeaning	;
+				
+			IsJumping		= other.IsJumping	;
+			IsHanging		= other.IsHanging	;
+			IsFalling		= other.IsFalling;
+		}
+	};
+	[Header("Entity: Motion States")]
+
+	[SerializeField]
+	protected   EntityStates			m_States			= new EntityStates();
+	[SerializeField]
+	//[System.NonSerialized]
+	protected	EntityStates			m_PreviousStates	= new EntityStates();
 
 
 	// This variable control which physic to use on entity
 	protected	EMotionType		m_CurrentMotionType		= EMotionType.NONE;
-	public		EMotionType		CurrentMotionType
-	{
-		get { return m_CurrentMotionType; }
-	}
+	public		EMotionType		CurrentMotionType		=> m_CurrentMotionType;
 
 	protected	EMotionType		m_PreviousMotionType	= EMotionType.NONE;
-	public		EMotionType		PreviousMotionType
-	{
-		get { return m_PreviousMotionType; }
-	}
-
-
+	public		EMotionType		PreviousMotionType		=> m_PreviousMotionType;
 
 
 	// STATES
-	public		bool	IsMoving {		get { return m_States.IsMoving; }		set { m_States.IsMoving = value; }	}
-	public		bool	IsIdle {		get { return  !m_States.IsMoving; }		set { m_States.IsMoving = !value; }	}
-	public		bool	IsLeaning {		get { return m_States.IsLeaning; }		set { m_States.IsLeaning = value; }	}
-	public		bool	IsWalking {		get { return m_States.IsWalking; }		set { m_States.IsWalking = value; }	}
-	public		bool	IsRunning {		get { return m_States.IsRunning; }		set { m_States.IsRunning = value; }	}
-	public		bool	IsJumping {		get { return m_States.IsJumping; }		set { m_States.IsJumping = value; }	}
-	public		bool	IsHanging {		get { return m_States.IsHanging; }		set { m_States.IsHanging = value; }	}
-	public		bool	IsFalling {		get { return m_States.IsFalling; }		set { m_States.IsFalling = value; }	}
-	public		bool	IsCrouched {	get { return m_States.IsCrouched; }	set { m_States.IsCrouched = value; }}
-	public		void	ResetStates()	{ m_States.Reset(); }
-
-
-
+	public		bool	IsMoving	{ get => m_States.IsMoving;   }
+	public		bool	IsIdle		{ get => !m_States.IsMoving;  }
+	public		bool	IsLeaning	{ get => m_States.IsLeaning;  }
+	public		bool	IsWalking	{ get => m_States.IsWalking;  }
+	public		bool	IsRunning	{ get => m_States.IsRunning;  }
+	public		bool	IsJumping	{ get => m_States.IsJumping;  }
+	public		bool	IsHanging	{ get => m_States.IsHanging;  }
+	public		bool	IsFalling	{ get => m_States.IsFalling;  }
+	public		bool	IsCrouched	{ get => m_States.IsCrouched; }
 
 
 	// Set the motion type

@@ -1,8 +1,8 @@
 ﻿
 using UnityEngine;
-
-public interface IInteractable {
-
+/*
+public interface IInteractable
+{
 	event Interactable.OnInteractionDel	OnInteractionCallback;
 
 	event Interactable.OnInteractionDel	OnRetroInteractionCallback;
@@ -19,12 +19,11 @@ public interface IInteractable {
 	void		OnInteractionToggle();
 	void		OnInteraction();
 	void		OnRetroInteraction();
-
 }
-
-[RequireComponent( typeof(Rigidbody), typeof(Collider) )]
-public class Interactable : MonoBehaviour, IInteractable {
-
+*/
+[RequireComponent(typeof(Rigidbody), typeof(Collider))]
+public class Interactable : MonoBehaviour//, IInteractable
+{
 	public	delegate	void OnInteractionDel();
 
 	[SerializeField]
@@ -40,48 +39,44 @@ public class Interactable : MonoBehaviour, IInteractable {
 	protected		bool			m_CanInteract						= true;
 
 	protected		bool			m_HasInteracted						= false;
-	public			bool				HasInteracted
-	{
-		get { return m_HasInteracted; }
-	}
-
+	public			bool			HasInteracted						=> m_HasInteracted;
+	
 	//-
 	public			bool				HasRetroInteraction
 	{
-		get { return m_HasRetroInteraction; }
-		set { m_HasRetroInteraction = value; }
+		get => m_HasRetroInteraction;
+		set => m_HasRetroInteraction = value;
 	}
 
 	//-
 	protected	event OnInteractionDel	m_OnInteractionCallback			= delegate { };
 	public		event OnInteractionDel  OnInteractionCallback
 	{
-		add		{	if ( value != null )	m_OnInteractionCallback += value; }
-		remove	{	if ( value != null )	m_OnInteractionCallback -= value; }
+		add		{	if ( value.IsNotNull() )	m_OnInteractionCallback += value; }
+		remove	{	if ( value.IsNotNull() )	m_OnInteractionCallback -= value; }
 	}
 
 	//-
 	protected	event OnInteractionDel	m_OnRetroInteractionCallback	= delegate { };
 	public		event OnInteractionDel  OnRetroInteractionCallback
 	{
-		add		{	if ( value != null )	m_OnRetroInteractionCallback += value; }
-		remove	{	if ( value != null )	m_OnRetroInteractionCallback -= value; }
+		add		{	if ( value.IsNotNull() )	m_OnRetroInteractionCallback += value; }
+		remove	{	if ( value.IsNotNull() )	m_OnRetroInteractionCallback -= value; }
 	}
-
 
 	//-
 	public		bool		CanInteract
 	{
-		get { return m_CanInteract; }
-		set { m_CanInteract = value; }
+		get => m_CanInteract;
+		set => m_CanInteract = value;
 	}
 
 
 	protected	Rigidbody	m_RigidBody		= null;
-	public		Rigidbody	RigidBody		{ get { return m_RigidBody; } }
+	public		Rigidbody	RigidBody		=> m_RigidBody;
 
 	protected	Collider	m_Collider		= null;
-	public		Collider	Collider		{ get { return m_Collider; } }
+	public		Collider	Collider		=> m_Collider;
 
 
 

@@ -84,7 +84,7 @@ public abstract partial class Weapon
 	#region		PREDICATES
 	protected	virtual		bool			Predicate_Base()
 	{
-		return m_WeaponState == EWeaponState.DRAWED /*&& Player.Instance.ChosingDodgeRotation == false*/ && m_IsLocked == false;
+		return m_WeaponState == EWeaponState.DRAWED && m_IsLocked == false;
 	}
 	protected	virtual		bool			Predicate_PrimaryFire_Start()		{ return Predicate_Base() && m_PrimaryWeaponModuleSlot.WeaponModule.CanBeUsed(); }
 	protected	virtual		bool			Predicate_PrimaryFire_Update()		{ return Predicate_Base() && m_PrimaryWeaponModuleSlot.WeaponModule.CanBeUsed(); }
@@ -129,11 +129,8 @@ public class WeaponModuleSlot
 	[SerializeField]
 	private					WPN_BaseModule			m_WeaponModule				= null;
 
-	public					WPN_BaseModule			WeaponModule
-	{
-		get { return m_WeaponModule; }
-	}
-
+	public					WPN_BaseModule			WeaponModule				=> m_WeaponModule;
+	
 	//////////////////////////////////////////////////////////////////////////
 	public WeaponModuleSlot( EWeaponSlots slot )
 	{

@@ -53,7 +53,7 @@ public class BulletBallistic : BulletGeneric
 
 				entity.Events.OnHittedDetails(m_StartPosition, m_WhoRef, m_DamageType, m_Damage, m_CanPenetrate );
 			}
-			else if ( Utils.Base.TrySearchComponent( hit.transform.gameObject, ESearchContext.CHILDREN, out IShield shield ) )
+			else if ( Utils.Base.TrySearchComponent( hit.transform.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out IShield shield ) )
 			{
 				shield.CollisionHit(gameObject );
 			}
@@ -78,11 +78,11 @@ public class BulletBallistic : BulletGeneric
 			return;
 
 		EffectsManager.EEffecs effectToPlay = EffectsManager.EEffecs.ENTITY_ON_HIT;
-		if ( Utils.Base.TrySearchComponent( otherCollider.gameObject, ESearchContext.LOCAL, out IEntity entity ) )
+		if ( Utils.Base.TrySearchComponent( otherCollider.gameObject, ESearchContext.LOCAL_AND_PARENTS, out IEntity entity ) )
 		{
 			entity.Events.OnHittedDetails(m_StartPosition, m_WhoRef, m_DamageType, m_Damage, m_CanPenetrate );
 		}
-		else if ( Utils.Base.TrySearchComponent( otherCollider.gameObject, ESearchContext.CHILDREN, out IShield shield) )
+		else if ( Utils.Base.TrySearchComponent( otherCollider.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out IShield shield) )
 		{
 			shield.CollisionHit(gameObject );
 		}

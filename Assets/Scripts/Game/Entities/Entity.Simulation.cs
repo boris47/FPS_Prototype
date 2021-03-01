@@ -2,16 +2,24 @@
 using UnityEngine;
 using CutScene;
 
-public partial interface IEntity {
+public enum ESimMovementType
+{
+	STATIONARY,
+	WALK,
+	CROUCHED,
+	RUN
+}
 
+public partial interface IEntity
+{
 	// Cutscene manager, that take control over entity during cutscene sequences
 	CutsceneEntityManager	CutsceneManager					{ get; }
 
 	bool					HasCutsceneManager				{ get; }
-
 }
 
-public interface IEntitySimulation {
+public interface IEntitySimulation
+{
 	Vector3		StartPosition			{ get; set; }
 
 	/// <summary> Enter Simulation State </summary>
@@ -102,11 +110,4 @@ public abstract partial class Entity : IEntitySimulation {
 	//////////////////////////////////////////////////////////////////////////
 	protected	abstract	void	AfterSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget );
 
-}
-
-public enum ESimMovementType {
-	STATIONARY,
-	WALK,
-	CROUCHED,
-	RUN
 }

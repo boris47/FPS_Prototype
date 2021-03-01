@@ -28,30 +28,28 @@ public sealed class SurfaceManager : InGameSingleton<SurfaceManager>
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		bool	TryGetFootstep( out AudioClip footStepClip, Collider collider, Ray ray )
+	public		bool	TryGetFootstep( out AudioClip footStepClip, in Collider collider, in Ray ray )
 	{
-		int surfaceIndex = GetSurfaceIndex( collider, ray );
-		if (m_DefinedSurfaces.IsValidIndex(surfaceIndex))
+		footStepClip = default;
+		if (TryGetSurfaceIndex(collider, ray, out int surfaceIndex))
 		{
 			AudioClip[] footsteps = m_DefinedSurfaces[surfaceIndex].footsteps;
 			footStepClip = footsteps[ Random.Range( 0, footsteps.Length ) ];
 			return true;
 		}
-		footStepClip = null;
 		return false;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		bool	TryGetDecal( out Material decal, Collider collider, Ray ray )
+	public		bool	TryGetDecal( out Material decal, in Collider collider, in Ray ray )
 	{
-		int surfaceIndex = GetSurfaceIndex( collider, ray );
-		if (m_DefinedSurfaces.IsValidIndex(surfaceIndex))
+		decal = default;
+		if (TryGetSurfaceIndex(collider, ray, out int surfaceIndex))
 		{
 			decal = m_DefinedSurfaces[surfaceIndex].decal;
 			return true;
 		}
-		decal = null;
 		return false;
 	}
 
@@ -59,21 +57,18 @@ public sealed class SurfaceManager : InGameSingleton<SurfaceManager>
 	//////////////////////////////////////////////////////////////////////////
 	public		string[]	GetAllSurfaceNames()
 	{
-		return m_DefinedSurfaces.Select((SurfaceDefinition surface) =>
-		{
-			return (!string.IsNullOrEmpty(surface.name))?surface.name:"None";
-		}).ToArray();
+		return m_DefinedSurfaces.Select((SurfaceDefinition surface) => (!string.IsNullOrEmpty(surface.name))?surface.name:"None" ).ToArray();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	// This is for bullet hit particles
-	private		int			GetSurfaceIndex( Collider col, Ray ray )
+	private		bool			TryGetSurfaceIndex( in Collider col, in Ray ray, out int index )
 	{
-		int textureInstanceID = -1;
+		int textureInstanceID = index = - 1;
 
 		// When the collider belongs to a terrain.
-		if ( col.GetType() == typeof( TerrainCollider ) )
+		if (col.GetType() == typeof(TerrainCollider))
 		{
 			col.TryGetComponent(out Terrain terrain);
 			TerrainData terrainData = terrain.terrainData;
@@ -99,7 +94,9 @@ public sealed class SurfaceManager : InGameSingleton<SurfaceManager>
 						// Not Convex MeshCollider
 						Mesh mesh = meshCollider.sharedMesh;
 						int triangleIdx = hit.triangleIndex * 3;
-						int lookupIdx1 = mesh.triangles[triangleIdx], lookupIdx2 = mesh.triangles[triangleIdx + 1], lookupIdx3 = mesh.triangles[triangleIdx + 2];
+						int lookupIdx1 = mesh.triangles[triangleIdx + 0];
+						int lookupIdx2 = mesh.triangles[triangleIdx + 1];
+						int lookupIdx3 = mesh.triangles[triangleIdx + 2];
 						int materialIndex = -1;
 						for( int i = 0; i < mesh.subMeshCount && materialIndex == -1; i ++ )
 						{
@@ -120,12 +117,18 @@ public sealed class SurfaceManager : InGameSingleton<SurfaceManager>
 
 		// Searching for the found texture / material name in registered materials.
 		int regTextureIndex = System.Array.FindIndex(m_RegisteredTextures, m => m.texture.GetInstanceID() == textureInstanceID );
-		return m_RegisteredTextures[regTextureIndex].surfaceIndex;
+		if (m_RegisteredTextures.IsValidIndex(regTextureIndex))
+		{
+			index = m_RegisteredTextures[regTextureIndex].surfaceIndex;
+			return true;
+		}
+		UnityEngine.Debug.LogWarning($"Cannot retrieve texture index");
+		return false;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private		float[]		GetTerrainTextureMix( Vector3 worldPos, TerrainData terrainData, Vector3 terrainPos )
+	private		float[]		GetTerrainTextureMix( in Vector3 worldPos, in TerrainData terrainData, in Vector3 terrainPos )
 	{
 		// returns an array containing the relative mix of textures
 		// on the main terrain at this world position.
@@ -151,7 +154,7 @@ public sealed class SurfaceManager : InGameSingleton<SurfaceManager>
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private		int			GetTextureIndex( float[] textureMix )
+	private		int			GetTextureIndex(in float[] textureMix )
 	{
 		// returns the zero-based index of the most dominant texture
 		// on the terrain at this world position.
@@ -159,12 +162,12 @@ public sealed class SurfaceManager : InGameSingleton<SurfaceManager>
 		int maxIndex = 0;
 
 		// loop through each mix value and find the maximum
-		for ( int n = 0; n < textureMix.Length; n ++ )
+		for (int n = 0; n < textureMix.Length; n++)
 		{
 			if ( textureMix[n] > maxMix )
 			{
 				maxIndex = n;
-				maxMix = textureMix[ n ];
+				maxMix = textureMix[n];
 			}
 		}
 

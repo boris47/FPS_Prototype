@@ -5,7 +5,6 @@ using UnityEngine;
 [System.Serializable]
 public class HeadBob : CameraEffectBase
 {
-	[SerializeField]
 	private	float						m_StepValue					= 0.8f;
 
 	private	bool						m_StepDone					= false;
@@ -24,12 +23,11 @@ public class HeadBob : CameraEffectBase
 		public	float	Theta_Upd_Oriz			= 0.50f;
 	}
 
-	[SerializeField]
 	private		EffectSectionData			m_EffectSectionData = new EffectSectionData();
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public override	void Setup( in EffectActiveCondition condition )
+	public override	void Setup( in EffectorActiveCondition condition )
 	{
 		m_EffectActiveCondition =  condition;
 
@@ -54,14 +52,14 @@ public class HeadBob : CameraEffectBase
 
 	
 	//////////////////////////////////////////////////////////////////////////
-	public override void Update( float deltaTime, ref CameraEffectorData data )
+	public override void Update( float deltaTime, CameraEffectorData data )
 	{
 		if (IsActive == false )
 			return;
 
 		if (m_EffectActiveCondition() == false )
 		{
-			SetData( ref data );
+			SetData( data );
 			return;
 		}
 
@@ -94,10 +92,10 @@ public class HeadBob : CameraEffectBase
 		m_WeaponPositionDelta.z = deltaY * m_WpnInfluence;
 		m_WeaponPositionDelta.y = deltaX * m_WpnInfluence;
 
-		m_WeaponRotationDelta.x = deltaX * m_WpnInfluence;
-		m_WeaponRotationDelta.y = deltaY * m_WpnInfluence;
+		m_WeaponDirectionDelta.x = deltaX * m_WpnInfluence;
+		m_WeaponDirectionDelta.y = deltaY * m_WpnInfluence;
 
-		SetData( ref data );
+		SetData( data );
 
 		// Steps
 		if ( Mathf.Abs( Mathf.Sin(m_ThetaY ) ) > m_StepValue )
@@ -115,10 +113,10 @@ public class HeadBob : CameraEffectBase
 	}
 
 
-	protected	void SetData( ref CameraEffectorData data )
+	protected	void SetData( CameraEffectorData data )
 	{
 		data.CameraEffectsDirection += m_Direction;
 		data.WeaponPositionDelta += m_WeaponPositionDelta;
-		data.WeaponRotationDelta += m_WeaponRotationDelta;
+		data.WeaponDirectionDelta += m_WeaponDirectionDelta;
 	}
 }

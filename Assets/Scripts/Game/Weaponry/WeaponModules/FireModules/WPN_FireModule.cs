@@ -158,12 +158,12 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule
 
 		if (!m_UI_Crosshair)
 		{
-			string crosshairPrefabPath = m_ModuleSection.AsString( "Crosshair", null );
-			Debug.Assert( !string.IsNullOrEmpty( crosshairPrefabPath ), $"{GetType().FullName}:OnAttach:Crosshair has invalid path" );
-
-			m_UI_Crosshair = UIManager.InGame.EnableCrosshair( System.Type.GetType( crosshairPrefabPath ) );
-			Debug.Assert( m_UI_Crosshair, $"{typeof(WPN_FireModule).FullName}:OnAttach:Crosshair is null" );
-			m_UI_Crosshair.SetMin(m_FireDispersion*2f);
+			if (m_ModuleSection.TryAsString("Crosshair", out string crosshairSection))
+			{
+				m_UI_Crosshair = UIManager.InGame.EnableCrosshair( System.Type.GetType( crosshairSection ) );
+				m_UI_Crosshair.SetMin(m_FireDispersion*2f);
+			}
+			Debug.Assert( m_UI_Crosshair.IsNotNull(), $"Crosshair is invalid" );
 		}
 
 		return true;

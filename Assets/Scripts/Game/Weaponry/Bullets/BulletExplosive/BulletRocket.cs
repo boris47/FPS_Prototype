@@ -94,7 +94,7 @@ public sealed class BulletRocket : BulletExplosive, IFlyingExplosive
 		{
 			entity.Events.OnHittedDetails(m_StartPosition, m_WhoRef, EDamageType.EXPLOSIVE, 0, false );
 		}
-		else if ( Utils.Base.TrySearchComponent( otherCollider.gameObject, ESearchContext.CHILDREN, out IShield shield ) )
+		else if ( Utils.Base.TrySearchComponent( otherCollider.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out IShield shield ) )
 		{
 			shield.CollisionHit(gameObject );
 		}

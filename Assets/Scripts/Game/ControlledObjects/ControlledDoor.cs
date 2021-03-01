@@ -2,38 +2,46 @@
 using UnityEngine;
 
 
-public class ControlledDoor : ControlledObject {
-
-	[SerializeField]
+public class ControlledDoor : ControlledObject
+{
+	[SerializeField, ReadOnly]
 	private		bool				m_IsOpen					= false;
 
+	[SerializeField]
 	private		Animator			m_Animator					= null;
 
-	private		ICustomAudioSource	m_OpeningSource				= null;
-	private		ICustomAudioSource	m_ClosingSource				= null;
+	[SerializeField]
+	private		CustomAudioSource	m_OpeningSource				= null;
+
+	[SerializeField]
+	private		CustomAudioSource	m_ClosingSource				= null;
 
 
 	private void Awake()
 	{
-		// TODO Improve this awake
-		m_Animator = GetComponentInChildren<Animator>();
+		UnityEngine.Assertions.Assert.IsNotNull(m_Animator);
+		UnityEngine.Assertions.Assert.IsNotNull(m_OpeningSource);
+		UnityEngine.Assertions.Assert.IsNotNull(m_ClosingSource);
 
-		ICustomAudioSource[] sources = GetComponents<ICustomAudioSource>();
-		m_OpeningSource = sources[0];
-		m_ClosingSource = ( sources.Length > 1 ) ? sources[1] : sources[0];
+		enabled = m_Animator.IsNotNull() && m_OpeningSource.IsNotNull() && m_ClosingSource.IsNotNull();
 	}
 
 
 	public override void OnActivation()
 	{
-		m_IsOpen = !m_IsOpen;
-		m_Animator.SetBool( "IsOpen", m_IsOpen );
+		if (enabled)
+		{
+			if (m_IsOpen)
+			{
+				m_ClosingSource.Play();
+			}
+			else
+			{
+				m_OpeningSource.Play();
+			}
 
-		if (m_IsOpen == true )
-			m_ClosingSource.Play();
-		else
-			m_OpeningSource.Play();
-
+			m_IsOpen = !m_IsOpen;
+			m_Animator.SetBool("IsOpen", m_IsOpen);
+		}
 	}
-	
 }

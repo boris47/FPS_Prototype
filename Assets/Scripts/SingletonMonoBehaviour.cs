@@ -244,7 +244,7 @@ public abstract class InGameSingleton<T>: MonoBehaviour where T : MonoBehaviour
 				UnityEngine.Assertions.Assert.IsNotNull
 				(
 					m_Instance,
-					$"InGameSingleton: cannot create and instance for type ${typeName}"
+					$"InGameSingleton: cannot create and instance for type {typeName}"
 				);
 				//	if ( !m_Instance )
 				//	{

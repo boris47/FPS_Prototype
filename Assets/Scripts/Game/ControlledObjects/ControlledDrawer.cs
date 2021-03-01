@@ -70,7 +70,7 @@ public class ControlledDrawer : ControlledObject {
 		Collider[] colliders = Physics.OverlapBox(transform.position, overlapBoxSize, transform.rotation );
 		foreach (Collider coll in colliders)
 		{
-			if (coll.TryGetComponent(out IInteractable interactable))
+			if (coll.TryGetComponent(out Interactable interactable))
 			{
 				interactable.CanInteract = true;
 			}
@@ -85,7 +85,7 @@ public class ControlledDrawer : ControlledObject {
 		Collider[] colliders = Physics.OverlapBox(transform.position, overlapBoxSize, transform.rotation );
 		foreach( Collider coll in colliders )
 		{
-			if (coll.TryGetComponent(out IInteractable interactable))
+			if (coll.TryGetComponent(out Interactable interactable))
 			{
 				interactable.CanInteract = false;
 			}

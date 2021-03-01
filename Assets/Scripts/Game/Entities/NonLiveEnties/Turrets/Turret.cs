@@ -25,7 +25,7 @@ public abstract class Turret : NonLiveEntity {
 	private		WPN_WeaponAttachment_LaserPointer			m_Laser						= null;
 */
 
-	protected 	override EEntityType			m_EntityType { get { return EEntityType.ROBOT; } }
+	protected 	override EEntityType			m_EntityType => EEntityType.ROBOT;
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )

@@ -1,23 +1,23 @@
 ﻿
 using UnityEngine;
-
-public interface IGrabbable : IInteractable {
-
+/*
+public interface IGrabbable
+{
 	Transform		Transform		{ get; }
-	IInteractable	Interactable	{ get; }
+	Interactable	Interactable	{ get; }
 
 	void			OnGrab			();
 }
+*/
 
-
-public class Grabbable : Interactable, IGrabbable {
-
+public class Grabbable : Interactable//, IGrabbable
+{
 	// TRANSFORM
-	public	Transform		Transform		{ get { return transform; } }
+	public	Transform		Transform		=> transform;
 
 //	// INTERACTABLE REF
-	private	IInteractable	m_Interactable	= null;
-	public	IInteractable	Interactable	{ get { return m_Interactable; } }
+	private	Interactable	m_Interactable	= null;
+	public	Interactable	Interactable	=> m_Interactable;
 
 
 	
@@ -26,7 +26,7 @@ public class Grabbable : Interactable, IGrabbable {
 	protected override void Awake()
 	{
 		base.Awake();
-		m_Interactable = ( this as IInteractable );
+		m_Interactable = this;
 	}
 	
 

@@ -75,55 +75,17 @@ public partial interface IEntity : IIdentificable<uint> {
 
 
 [System.Serializable]
-//					Physics intreractions,		Entity volume
-[RequireComponent( typeof( Rigidbody ), typeof( Collider ))]
+//					Physics intreractions
+[RequireComponent( typeof( Rigidbody ) )]
 public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<uint> {
 
 	private	static uint			CurrentID							= 0;
 	public	static uint			NewID()										{ return CurrentID++; }
 
-	// INTERFACE START
-				bool						IEntity.IsActive				{	get { return m_IsActive;		}	}
-				float						IEntity.Health					{	get { return m_Health;			}	}
-				IShield						IEntity.Shield					{	get { return m_Shield;			}	}
-				string						IEntity.Section					{	get { return m_SectionName;		}	}
-				Rigidbody					IEntity.RigidBody				{	get { return m_RigidBody;		}	}
-				Collider					IEntity.PhysicCollider			{	get { return m_PhysicCollider;	}	}
-				Collider					IEntity.TriggerCollider			{	get { return m_TriggerCollider;	}	}
-				Transform					IEntity.EffectsPivot			{	get { return m_EffectsPivot;	}	}
-				EEntityType					IEntity.EntityType				{	get { return m_EntityType;		}	}
-				IBrain						IEntity.Brain					{	get { return m_BrainInstance;	}	}
-				IEntityEvents				IEntity.Events					{	get { return m_EventsInterface;	}	}
-				IEntityGroup				IEntity.GroupRef				{	get { return m_EntityGroup;		}	}
-				Entity						IEntity.AsEntity				{	get { return this;				}	}
-
-				uint						IIdentificable<uint>.ID			{	get { return m_ID;				}	}
-	// INTERFACE END
-
-	// GETTERS START
-	public		bool						IsAlive							{ get { return m_Health > 0.0f; } }
-	public		bool						IsAllignedHeadToPoint			{ get { return m_IsAllignedHeadToPoint; } }
-	public		bool						IsDisallignedHeadWithPoint		{ get { return m_IsDisallignedHeadWithPoint; } }
-	public		bool						IsAllignedBodyToPoint			{ get { return m_IsAllignedBodyToPoint; } }
-//	public		bool						IsAllignedGunToPoint			{ get { return m_IsAllignedGunToPoint; } }
-	public		bool						HasLookAtObject					{ get { return m_LookData.HasLookAtObject; } }
-	public		bool						HasDestination					{ get { return m_HasDestination; } }
-	public		float						MinEngageDistance				{ get { return m_MinEngageDistance; } }
-	public		float						MaxAgentSpeed					{ get { return m_MaxAgentSpeed; } }
-
-	public		Vector3						HeadPosition					{ get { return m_HeadTransform.position; } }
-	public		Quaternion					HeadRotation					{ get { return m_HeadTransform.rotation; } }
-
-	public		Vector3						BodyPosition					{ get { return m_BodyTransform.position; } }
-	public		Quaternion					BodyRotation					{ get { return m_BodyTransform.rotation; } }
-	// GETTERS END
-
-	public		IEntity						AsInterface						{ get { return m_Interface; } }
-
 	// INTERNALS
 	[Header("Entity Properties")]
 	[SerializeField]
-	protected	float						m_Health						= 1f;
+	protected	float						m_Health						= 1.0f;
 	protected	IShield						m_Shield						= null;
 	protected	bool						m_HasShield						= false;
 	protected	bool						m_IsActive						= true;
@@ -131,9 +93,13 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<ui
 	protected	Database.Section			m_SectionRef					= null;
 	protected 	string						m_SectionName					= "None";
 	protected	abstract EEntityType		m_EntityType					{ get; }
+	[SerializeField]
 	protected	Rigidbody					m_RigidBody						= null;
+	[SerializeField]
 	protected	Collider					m_PhysicCollider				= null;
+	[SerializeField]
 	protected	Collider					m_TriggerCollider				= null;
+	[SerializeField]
 	protected	Transform					m_EffectsPivot					= null;
 	protected	IEntity						m_Interface						= null;
 	
@@ -145,48 +111,74 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<ui
 	[SerializeField]
 	protected	float						m_MinEngageDistance				= 0f;
 
-
 	// ORIENTATION
 	protected	Quaternion					m_RotationToAllignTo			= Quaternion.identity;
 	protected	LookData					m_LookData						= new LookData();
-
 
 	// NAVIGATION
 	protected	bool						m_HasDestination				= false;
 	protected	Vector3						m_DestinationToReachPosition	= Vector3.zero;
 	protected	float						m_MaxAgentSpeed					= 0.0f;
 
+	/// <summary> Flag set if body of entity is aligned with target </summary>
+	protected bool							m_IsAllignedBodyToPoint			= false;
 
-	// Flag set if body of entity is aligned with target
-	protected	bool						m_IsAllignedBodyToPoint			= false;
+	/// <summary> Flag set if head of entity is aligned with target </summary>
+	protected bool							m_IsAllignedHeadToPoint			= false;
 
-	// Flag set if head of entity is aligned with target
-	protected	bool						m_IsAllignedHeadToPoint			= false;
+	/// <summary>  </summary>
+	protected bool							m_IsDisallignedHeadWithPoint		= false;
 
-	protected	bool						m_IsDisallignedHeadWithPoint		= false;
-
-	// Flag set if gun of entity is aligned with target
-//	protected   bool                        m_IsAllignedGunToPoint			= false;
-
-	// Transforms
+	[SerializeField]
 	protected	Transform					m_HeadTransform					= null;
+	[SerializeField]
 	protected	Transform					m_BodyTransform					= null;
-//	protected	Transform					m_GunTransform					= null;
-//	protected	Transform					m_FirePoint						= null;
 
-	[Header("Orientation")]
 	[SerializeField]
 	protected	float						m_BodyRotationSpeed				= 5.0f;
-
 	[SerializeField]
 	protected	float						m_HeadRotationSpeed				= 5.0f;
 
+	[SerializeField, ReadOnly]
 	protected	Transform					m_Targettable					= null;
 
-	protected	bool 						m_IsOK							= true;
-	
-	public		Vector3						SpawnPoint;
-	public		Vector3						SpawnDirection;
+	// INTERFACE START
+				bool			IEntity.IsActive							=> m_IsActive;
+				float			IEntity.Health								=> m_Health;
+				IShield			IEntity.Shield								=> m_Shield;
+				string			IEntity.Section								=> m_SectionName;
+				Rigidbody		IEntity.RigidBody							=> m_RigidBody;
+				Collider		IEntity.PhysicCollider						=> m_PhysicCollider;
+				Collider		IEntity.TriggerCollider						=> m_TriggerCollider;
+				Transform		IEntity.EffectsPivot						=> m_EffectsPivot;
+				EEntityType		IEntity.EntityType							=> m_EntityType;
+				IBrain			IEntity.Brain								=> m_BrainInstance;
+				IEntityEvents	IEntity.Events								=> m_EventsInterface;
+				IEntityGroup	IEntity.GroupRef							=> m_EntityGroup;
+				Entity			IEntity.AsEntity							=> this;
+
+				uint			IIdentificable<uint>.ID						=> m_ID;
+	// INTERFACE END
+
+	// GETTERS START
+	public		bool			IsAlive										=> m_Health > 0.0f;
+	public		bool			IsAllignedHeadToPoint						=> m_IsAllignedHeadToPoint;
+	public		bool			IsDisallignedHeadWithPoint					=> m_IsDisallignedHeadWithPoint;
+	public		bool			IsAllignedBodyToPoint						=> m_IsAllignedBodyToPoint;
+	public		bool			HasLookAtObject								=> m_LookData.HasLookAtObject;
+	public		bool			HasDestination								=> m_HasDestination;
+	public		float			MinEngageDistance							=> m_MinEngageDistance;
+	public		float			MaxAgentSpeed								=> m_MaxAgentSpeed;
+
+	public		Vector3			HeadPosition								=> m_HeadTransform.position;
+	public		Quaternion		HeadRotation								=> m_HeadTransform.rotation;
+
+	public		Vector3			BodyPosition								=> m_BodyTransform.position;
+	public		Quaternion		BodyRotation								=> m_BodyTransform.rotation;
+	public		Transform		Targettable									=> m_Targettable;
+	// GETTERS END
+
+	public		IEntity			AsInterface									=> m_Interface;
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void	Awake()
@@ -196,95 +188,71 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<ui
 		m_EventsInterface	= this as IEntityEvents;
 		m_EntityGroup		= this as IEntityGroup;
 
-		EnableEvents();
-
 		m_SectionName = GetType().FullName;
 
 		// config file
-		if ( !GlobalManager.Configs.TryGetSection(m_SectionName, out m_SectionRef) )
+		if (!GlobalManager.Configs.TryGetSection(m_SectionName, out m_SectionRef))
 		{
-			print( "Cannot find cfg section \""+ m_SectionName +"\" for entity " + name );
-			Destroy(gameObject );
+			print($"Cannot find cfg section \"{m_SectionName}\" for entity {name}");
+			Destroy(gameObject);
 			return;
 		}
-
 		
 		// TRANSFORMS
 		{
-			m_BodyTransform		= transform;//.Find( "Body" );
-			m_HeadTransform		= m_BodyTransform.Find( "Head" );
+			m_BodyTransform		= transform.Find("Body");
+			m_HeadTransform		= transform.Find("Head");
 
-			UnityEngine.Assertions.Assert.IsNotNull
-			(
-				m_HeadTransform,
-				"Entity " + name + " has not head"
-			);
+			m_Targettable		= m_BodyTransform;
+			m_EffectsPivot		= transform.Find("EffectsPivot");
 
-			m_Targettable		= m_HeadTransform;
-			m_EffectsPivot		= transform.Find( "EffectsPivot" );
+			UnityEngine.Assertions.Assert.IsNotNull(m_BodyTransform, $"Entity {name} has not body");
+			UnityEngine.Assertions.Assert.IsNotNull(m_HeadTransform, $"Entity {name} has not head");
 		}
 
-
-		SpawnPoint = m_BodyTransform.position;
-		SpawnDirection = m_HeadTransform.forward;
-
 		// ESSENTIALS CHECK
-		m_IsOK = true;
 		{
-			// PHYSIC COLLIDER
-			m_IsOK   =	Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL, out m_PhysicCollider, c => !c.isTrigger );
-
-			// m_TriggerCollider
-			m_IsOK   =	Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL, out m_TriggerCollider, c => c.isTrigger );
-
-			// RIGIDBODY
-			m_IsOK	&=	Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL, out m_RigidBody);
+			UnityEngine.Assertions.Assert.IsTrue(m_PhysicCollider.IsNotNull() && !m_PhysicCollider.isTrigger, "Invalid Physic Collider");
+			UnityEngine.Assertions.Assert.IsTrue(m_TriggerCollider.IsNotNull() && m_TriggerCollider.isTrigger, "Invalid Trigger Collider");
+			UnityEngine.Assertions.Assert.IsNotNull( m_RigidBody, "Invalid RigidBody" );
 		}
 
 		// SHIELD
-		if (m_HasShield = Utils.Base.TrySearchComponent(gameObject, ESearchContext.CHILDREN, out m_Shield ) )
+		if (m_HasShield = Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL_AND_CHILDREN, out m_Shield))
 		{
 			m_Shield.OnHit += OnShieldHit;
 		}
 
-
 		// CUTSCENE MANAGER
-		m_HasCutsceneManager = Utils.Base.TrySearchComponent(gameObject, ESearchContext.CHILDREN, out m_CutsceneManager );
+		m_HasCutsceneManager = Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL_AND_CHILDREN, out m_CutsceneManager);
 
 		// AI
 		{
 			// NAV AGENT
-			m_HasNavAgent = Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL, out m_NavAgent);
+			if (m_HasNavAgent = Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL, out m_NavAgent))
+			{
+				UnityEngine.Assertions.Assert.IsTrue(m_NavAgent.isOnNavMesh, $"m_NavAgent.isOnNavMesh is false for {name}");
+			}
 
 			// FIELD OF VIEW
-			m_HasFieldOfView = Utils.Base.TrySearchComponent(gameObject, ESearchContext.CHILDREN, out m_FieldOfView);
+			m_HasFieldOfView = Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL_AND_CHILDREN, out m_FieldOfView);
+			m_FieldOfView.SetViewPoint(m_HeadTransform);
 
 			// BLACKBOARD
-			if ( Blackboard.IsEntityRegistered(m_ID ) == false )
+			m_BlackBoardData = new EntityBlackBoardData(m_Targettable, m_HeadTransform, m_BodyTransform)
 			{
-				m_BlackBoardData	= new EntityBlackBoardData(m_Targettable, m_HeadTransform, m_BodyTransform )
-				{
-					EntityRef		= this,
-					LookData		= m_LookData,
-					TargetInfo		= m_TargetInfo,
-				};
-
-				Blackboard.Register(m_ID, m_BlackBoardData );
-			}
-			m_BlackBoardData = Blackboard.GetData(m_ID );
+				EntityRef = this,
+				LookData = m_LookData,
+				TargetInfo = m_TargetInfo,
+				SpawnBodyLocation = m_BodyTransform.position,
+				SpawnBodyRotation = m_BodyTransform.rotation,
+				SpawnHeadLocation = m_HeadTransform.position,
+				SpawnHeadRotation = m_HeadTransform.rotation,
+			};
+			Blackboard.Register(m_ID, m_BlackBoardData);
 
 			// BRAINSTATE
 			m_CurrentBrainState = EBrainState.COUNT;
-		}
-
-		if (m_IsOK && m_HasNavAgent )
-		{
-			m_IsOK	&= m_NavAgent.isOnNavMesh;
-		}
-
-		if (m_IsOK == false )
-		{
-			print(name + " is not OK");
 		}
 
 		// Executed only for non player entities
@@ -326,7 +294,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<ui
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Set the Transform to Look At </summary>
-	public	virtual		void	SetTransformToLookAt( Transform t, ELookTargetMode LookMode = ELookTargetMode.HEAD_ONLY )
+	public		virtual		void	SetTransformToLookAt( Transform t, ELookTargetMode LookMode = ELookTargetMode.HEAD_ONLY )
 	{
 		m_LookData.HasLookAtObject		= true;
 		m_LookData.TransformToLookAt		= t;
@@ -337,7 +305,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<ui
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Set the point to Look At </summary>
-	public	virtual		void	SetPointToLookAt( Vector3 point, ELookTargetMode LookMode = ELookTargetMode.HEAD_ONLY )
+	public		virtual		void	SetPointToLookAt( Vector3 point, ELookTargetMode LookMode = ELookTargetMode.HEAD_ONLY )
 	{
 		m_LookData.HasLookAtObject		= true;
 		m_LookData.TransformToLookAt		= null;
@@ -349,7 +317,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<ui
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Stop looking to target point or target </summary>
-	public	virtual		void	StopLooking()
+	public		virtual		void	StopLooking()
 	{
 		m_LookData.HasLookAtObject		= false;
 		m_LookData.TransformToLookAt		= null;
@@ -369,13 +337,13 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<ui
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Return if this player can fire </summary>
-	public		virtual	bool	CanFire()
+	public		virtual		bool	CanFire()
 	{
 		return false;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	public		virtual	void	FireWeapon()
+	public		virtual		void	FireWeapon()
 	{
 
 	}
@@ -383,7 +351,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<ui
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Set the Collision state with another collider </summary>
-	public				void	SetCollisionStateWith( Collider coll, bool state )
+	public					void	SetCollisionStateWith( Collider coll, bool state )
 	{
 		Collider[] thisColliders = GetComponentsInChildren<Collider>( includeInactive: true );
 		for ( int i = 0; i < thisColliders.Length; i++ )
@@ -395,7 +363,7 @@ public abstract partial class Entity : MonoBehaviour, IEntity, IIdentificable<ui
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual	void	UpdateHeadRotation()
+	protected	virtual		void	UpdateHeadRotation()
 	{
 		if (m_LookData.HasLookAtObject == false )
 			return;

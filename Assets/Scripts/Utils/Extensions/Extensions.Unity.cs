@@ -5,12 +5,12 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.IO;
 
-public static class Extensions
+public static class Extensions_Unity
 {
 	private static System.Type UnityEngineObjectType = typeof(UnityEngine.Object);
 	private static System.Func<int, UnityEngine.Object> m_FindObjectFromInstanceID = null;
 
-	static Extensions()
+	static Extensions_Unity()
 	{
 		// Create FindObjectFromInstanceID delegate from internal UnityEngine.Object.FindObjectFromInstanceID
 		System.Reflection.MethodInfo methodInfo = UnityEngineObjectType.GetMethod("FindObjectFromInstanceID", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
@@ -19,259 +19,6 @@ public static class Extensions
 			m_FindObjectFromInstanceID = (System.Func<int, UnityEngine.Object>)System.Delegate.CreateDelegate(typeof(System.Func<int, UnityEngine.Object>), methodInfo);
 		}
 	}
-
-
-	/////////////////////////---------------------------/////////////////////////
-	#region C#
-
-
-	/////////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////
-	#region C# OBJECT
-
-	/// <summary> Check if Object is null internally </summary>
-	public static	bool	IsNotNull( this System.Object obj )
-	{
-		bool bIsNotNull = ( obj ) != null;
-		return bIsNotNull;
-	}
-
-	#endregion C# OBJECT
-
-
-	/////////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////
-	#region C# STRING
-	
-	/// <summary> This method also trim inside the string </summary>
-	public static	string			TrimInside( this string str, params char[] trimChars )
-	{
-		List<char> charsToSearch = new List<char>(1);
-		if ( trimChars != null && trimChars.Length > 0 )
-		{
-			charsToSearch.AddRange(trimChars);
-		}
-		else
-		{
-			charsToSearch.Add(' ');
-		}
-
-		for (int i = str.Length - 1; i >= 0; i--)
-		{
-			if (charsToSearch.IndexOf(str[i]) != -1)
-			{
-				str = str.Remove( i, 1 );
-			}
-		}
-		return str;
-	}
-
-
-	/// <summary> Return true if parse succeeded, otherwise false </summary>
-	/// <see cref="https://stackoverflow.com/questions/1082532/how-to-tryparse-for-enum-value"/>
-	public	static	bool			TryConvertToEnum<TEnum>(this string str, ref TEnum result )
-	{
-		System.Type requestedType = typeof(TEnum);
-		if ( System.Enum.IsDefined( requestedType, str) == false )
-		{
-			return false;
-		}
-
-		result = (TEnum)System.Enum.Parse( requestedType, str );
-		return true;
-	}
-
-	#endregion // C# STRING
-
-
-	/////////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////
-	#region C# ARRAY
-
-	/// <summary> For a valid array return a random contained element </summary>
-	public static	T				Random<T>( this global::System.Array a )
-	{
-		if ( a == null || a.Length == 0 )
-			return default( T );
-
-		return a.GetByIndex<T>( UnityEngine.Random.Range( 0, a.Length ) ); 
-	}
-
-	/// <summary> Tests if index is valid, i.e. greater than or equal to zero, and less than the number of elements in the array </summary>
-	/// <param name="index">Index to test</param>
-	/// <returns>returns True if index is valid. False otherwise</returns>
-	public	static bool				IsValidIndex( this global::System.Array array, int index )
-	{
-		return index >= 0 && index < array.Length;
-	}
-
-	/// <summary> Allow to easly get a value from an array checking given index, default value is supported </summary>
-	public	static	T				GetByIndex<T>( this global::System.Array array, int index, T Default = default(T) )
-	{
-		return IsValidIndex(array, index) ? (T)array.GetValue(index) : Default;
-	}
-
-
-	/// <summary> Search along a bidimensional array for item using predicate </summary>
-	public	static	bool			FindByPredicate<T>( this T[,] array, ref T value, ref Vector2 location, System.Predicate<T> predicate )
-	{
-		// Gets the rank (number of dimensions) of the Array
-		int dimensions = array.Rank;
-		bool bIsFound = false;
-		location.Set( 0, 0 );
-		for ( int dimension = 0; dimension < dimensions && bIsFound == false; dimension++ )
-		{
-			int upper = array.GetUpperBound(dimension);
-			int lower = array.GetLowerBound(dimension);
-
-			for ( int index = lower; index <= upper && bIsFound == false; index++ )
-			{
-				T currentValue = array[ dimension, index ];
-				if ( predicate( currentValue ) )
-				{
-					value = currentValue;
-					location.Set( dimension, index );
-					bIsFound = true;
-				}
-			}
-		}
-
-		return bIsFound;
-	}
-
-
-	public	static	bool		FindByPredicate<T>( this global::System.Array array, System.Predicate<T> predicate, ref T value, ref int[] location, int locationLevel )
-	{
-		bool bIsFound = false;
-
-		int dimensions = array.Rank;
-
-		// Mono-dimensional array
-		if ( dimensions == 1 )
-		{
-			int upper = array.GetUpperBound(1);
-			int lower = array.GetLowerBound(1);
-
-			for ( int index = lower; index <= upper && bIsFound == false; index++ )
-			{
-				T currentValue = (T)array.GetValue( index );
-				if ( predicate( currentValue ) )
-				{
-					value = currentValue;
-					location = new int[2] { dimensions, index };
-					bIsFound = true;
-				}
-			}
-			return bIsFound;
-		}
-
-		// Multi dimensional array
-		for ( int dimension = 1; dimension < dimensions && bIsFound == false; dimension++ )
-		{
-			int upper = array.GetUpperBound(dimension);
-			int lower = array.GetLowerBound(dimension);
-
-			for ( int index = lower; index <= upper && bIsFound == false; index++ )
-			{
-
-			}
-		}
-
-		return bIsFound;
-	}
-
-	#endregion // C# ARRAY
-
-
-	public static HashSet<T> ToHashSet<T>( this IEnumerable<T> source, IEqualityComparer<T> comparer = null )
-	{
-		return new HashSet<T>(source, comparer);
-	}
-
-
-	/////////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////
-	#region C# LIST
-
-	/// <summary> For a valid list return a random contained element </summary>
-	public static	T				Random<T>( this ICollection<T> list )
-	{
-		if ( list == null || list.Count == 0 )
-			return default;
-
-		return list.ElementAt( UnityEngine.Random.Range( 0, list.Count ) ); 
-	}
-
-
-	/// <summary> Tests if index is valid, i.e. greater than or equal to zero, and less than the number of elements in the list </summary>
-	/// <param name="index">Index to test</param>
-	/// <returns>returns True if index is valid. False otherwise</returns>
-	public static	bool			IsValidIndex<T>(this ICollection<T> list, in int index)
-	{
-		return index >= 0 && index < list.Count;
-	}
-
-	/// <summary> Resize the list with the new size </summary>
-	public static	void			Resize<T>(this List<T> list, in int newSize)
-	{
-		if (newSize > list.Capacity)
-		{
-			list.Capacity = newSize;
-		}
-	}
-
-
-
-	/// <summary> Ensure the the inserting element is only present one tine in the list </summary>
-	public static	bool		AddUnique<T>( this List<T> list, T element, in System.Predicate<T> predicate = null )
-	{
-		System.Predicate<T> finalPredicate = predicate ?? delegate(T e) { return e.Equals( element ); };
-		bool bAlreadyExists = list.FindIndex( finalPredicate ) > -1;
-		if ( bAlreadyExists == false )
-		{
-			list.Add( element );
-		}
-		return bAlreadyExists;
-	}
-
-	#endregion // C# LIST
-
-
-	/////////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////
-	#region C# DICTIONARY
-
-	public static	void		AddRange<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, in Dictionary<TKey, TValue> other, in bool bOverwrite = false)
-	{
-		if (other != null)
-		{
-			foreach(KeyValuePair<TKey, TValue> pair in other)
-			{
-				if (dictionary.ContainsKey(pair.Key))
-				{
-					if (bOverwrite)
-					{
-						dictionary.Add(pair.Key, pair.Value);
-					}
-				}
-				else
-				{
-					dictionary.Add(pair.Key, pair.Value);
-				}
-			}
-		}
-	}
-
-	#endregion
-
-
-	#endregion // C#
-
-	//-------------------------------------------------------------------------//
-
-	/////////////////////////---------------------------/////////////////////////
-	#region UNITY
-
 
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
@@ -328,7 +75,7 @@ public static class Extensions
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Can be used to retrieve a component with more detailed research </summary>
-	public static	bool			TrySearchComponent<T>( this Transform transform, ESearchContext Context, out T Component, global::System.Predicate<T> Filter = null ) where T : Component
+	public static	bool			TrySearchComponent<T>( this Transform transform, ESearchContext Context, out T Component, System.Predicate<T> Filter = null ) where T : Component
 	{
 		return Utils.Base.TrySearchComponent( transform.gameObject, Context, out Component, Filter );
 	}
@@ -336,7 +83,7 @@ public static class Extensions
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Can be used to retrieve a component's array with more detailed research details </summary>
-	public	static	bool			TrySearchComponents<T>( this Transform transform, ESearchContext Context, out T[] Components, global::System.Predicate<T> Filter = null ) where T : Component
+	public	static	bool			TrySearchComponents<T>( this Transform transform, ESearchContext Context, out T[] Components, System.Predicate<T> Filter = null ) where T : Component
 	{
 		return Utils.Base.TrySearchComponents( transform.gameObject, Context, out Components, Filter );
 	}
@@ -344,30 +91,35 @@ public static class Extensions
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Search for a specific component at specific child, if found, return operation result </summary>
-	public	static	bool			TrySearchComponentByChildName<T>( this Transform transform, string childName, out T Component) where T : Component
+	public	static	bool			TrySearchComponentByChildName<T>( this Transform transform, string childName, out T component, System.Predicate<T> filter = null) where T : Component
 	{
-		Component = default(T);
+		component = default(T);
+
+		filter = filter.IsNotNull() ? filter : delegate (T c) { return true; };
+
 		foreach (Transform child in transform)
 		{
-			if (child.name == childName)
+			if (child.name == childName && child.TryGetComponent<T>(out T componentFound))
 			{
-				return child.TryGetComponent<T>(out Component);
+				if (filter(componentFound))
+				{
+					component = componentFound;
+					return true;
+				}
 			}
 		}
 		return false;
-	//	return Utils.Base.TrySearchComponent(transform.gameObject, ESearchContext.CHILDREN, out Component, child => child.name == childName);
-	//	return transform.TrySearchComponent(ESearchContext.CHILDREN, out Component, child => child.name == childName);
 	}
 
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Search for a specific component at specific child, if found, return operation result </summary>
-	public	static	bool			TrySearchComponentByChildIndex<T>( this Transform t, int childIndex, out T Component) where T : Component
+	public	static	bool			TrySearchComponentByChildIndex<T>(this Transform t, int childIndex, out T component, System.Predicate<T> filter = null) where T : Component
 	{
-		Component = default(T);
-		if (childIndex < t.childCount)
+		component = default(T);
+		if (childIndex >= 0 && childIndex < t.childCount)
 		{
-			return t.GetChild(childIndex).TryGetComponent<T>(out Component);
+			return t.GetChild(childIndex).TrySearchComponent(ESearchContext.LOCAL, out component, filter);
 		}
 		return false;
 	} 
@@ -378,7 +130,7 @@ public static class Extensions
 	/// Create and fills up given array with components found paired in childrens to the given enum type
 	/// Requirements: children must have same name (case sensitive) of enum members
 	/// </summary>
-	public	static	bool			MapComponentsInChildrenToArray<T0, T1>( this Transform t, out T0[] array ) where T0 :Component where T1 : System.Enum
+	public	static	bool			MapComponentsInChildrenToArray<T0, T1>( this Transform t, out T0[] array ) where T0 : Component where T1 : System.Enum
 	{
 		array = null;
 		if (typeof(T1).IsEnum)
@@ -400,26 +152,30 @@ public static class Extensions
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Search for the given component only in children of given transform </summary>
-	public	static	T[]				GetComponentsOnlyInChildren<T>(this Transform transform, bool deepSearch = false, bool includeInactive = false) where T : Component
+	public	static	T[]				GetComponentsOnlyInChildren<T>(this Transform transform, bool deepSearch = false, bool includeInactive = false, System.Predicate<T> filter = null) where T : Component
 	{
-		List<T> list = new List<T>();
+		T[] results = default;
+
+		filter = filter.IsNotNull() ? filter : delegate (T c) { return true; };
+
+		if (deepSearch)
 		{
+			results = transform.GetComponentsInChildren<T>(includeInactive: includeInactive).Where(c => filter(c)).ToArray();
+		}
+		else
+		{
+			List<T> compsList = new List<T>();
 			foreach(Transform child in transform)
 			{
-				if (deepSearch)
+				if (child.TrySearchComponents(ESearchContext.LOCAL, out T[] comps, filter))
 				{
-					list.AddRange(child.GetComponentsInChildren<T>(includeInactive: includeInactive));
-				}
-				else
-				{
-					if (child.TryGetComponent(out T childComponent))
-					{
-						list.Add( childComponent );
-					}
+					compsList.AddRange(comps);
 				}
 			}
+			results = compsList.ToArray();
 		}
-		return list.ToArray();
+
+		return results;
 	}
 
 
@@ -427,7 +183,7 @@ public static class Extensions
 	/// <summary> Look for given component, if not found add it, return component reference  </summary>
 	public	static	T				GetOrAddIfNotFound<T>(this Transform t) where T : Component
 	{
-		if (t.TryGetComponent<T>(out T result) == false)
+		if (!t.TryGetComponent<T>(out T result))
 		{
 			result = t.gameObject.AddComponent<T>();
 		}
@@ -485,7 +241,7 @@ public static class Extensions
 	#region VECTOR2
 
 		/////////////////////////////////////////////////////////////////////////////
-	public static	Vector2			ClampComponents( this ref Vector2 v, float min, float max )
+	public static	Vector2			ClampComponents( this ref Vector2 v, in float min, in float max )
 	{
 		v.x = Mathf.Clamp( v.x, min, max );
 		v.y = Mathf.Clamp( v.y, min, max );
@@ -494,7 +250,7 @@ public static class Extensions
 
 
 	/////////////////////////////////////////////////////////////////////////////
-	public	static	Vector2			ClampComponents( this ref Vector2 v, Vector2 clamping )
+	public	static	Vector2			ClampComponents( this ref Vector2 v, in Vector2 clamping )
 	{
 		v.x = Mathf.Clamp( v.x, -clamping.x, clamping.x );
 		v.y = Mathf.Clamp( v.y, -clamping.y, clamping.x );
@@ -503,14 +259,28 @@ public static class Extensions
 
 
 	/////////////////////////////////////////////////////////////////////////////
-	public	static	void			LerpTo( this ref Vector2 v, Vector2 dest, float interpolant )
+	public	static	Vector3			Add( this ref Vector2 v, in Vector2 v2 )
+	{
+		v.x += v2.x; v.y += v2.y; return v;
+	}
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	public	static	Vector3			Sub( this ref Vector2 v, in Vector2 v2 )
+	{
+		v.x -= v2.x; v.y -= v2.y; return v;
+	}
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	public	static	void			LerpTo( this ref Vector2 v, in Vector2 dest, in float interpolant )
 	{
 		v.x = Mathf.Lerp( v.x, dest.x, interpolant );
 		v.y = Mathf.Lerp( v.x, dest.y, interpolant );
 	}
 
 	/////////////////////////////////////////////////////////////////////////////
-	public static	Vector2			FromString(this ref Vector2 v, string input)
+	public static	Vector2			FromString(this ref Vector2 v, in string input)
 	{
 		Vector2 result = Vector2.zero;
 		{
@@ -531,7 +301,7 @@ public static class Extensions
 	#region VECTOR3
 
 	/////////////////////////////////////////////////////////////////////////////
-	public static	Vector3			ClampComponents( this ref Vector3 v, float min, float max )
+	public static	Vector3			ClampComponents( this ref Vector3 v, in float min, in float max )
 	{
 		v.x = Mathf.Clamp( v.x, min, max );
 		v.y = Mathf.Clamp( v.y, min, max );
@@ -541,7 +311,7 @@ public static class Extensions
 
 
 	/////////////////////////////////////////////////////////////////////////////
-	public	static	Vector3			ClampComponents( this ref Vector3 v, Vector3 clamping )
+	public	static	Vector3			ClampComponents( this ref Vector3 v, in Vector3 clamping )
 	{
 		v.x = Mathf.Clamp( v.x, -clamping.x, clamping.x );
 		v.y = Mathf.Clamp( v.y, -clamping.y, clamping.x );
@@ -551,15 +321,63 @@ public static class Extensions
 
 
 	/////////////////////////////////////////////////////////////////////////////
-	public	static	void			LerpTo( this ref Vector3 v, Vector3 dest, float interpolant )
+	public	static	Vector3			Add( this ref Vector3 v, in Vector3 v2 )
 	{
-		v.x = Mathf.Lerp( v.x, dest.x, interpolant );
-		v.y = Mathf.Lerp( v.y, dest.y, interpolant );
-		v.z = Mathf.Lerp( v.z, dest.z, interpolant );
+		v.x += v2.x;
+		v.y += v2.y;
+		v.z += v2.z;
+		return v;
 	}
 
+
 	/////////////////////////////////////////////////////////////////////////////
-	public static Vector3			FromString(this ref Vector3 v, string input)
+	public	static	Vector3			Sub( this ref Vector3 v, in Vector3 v2 )
+	{
+		v.x -= v2.x;
+		v.y -= v2.y;
+		v.z -= v2.z;
+		return v;
+	}
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	public	static	void			LerpTo( this ref Vector3 v, in Vector3 dest, in float interpolant )
+	{
+		v.x = Mathf.Lerp(v.x, dest.x, interpolant);
+		v.y = Mathf.Lerp(v.y, dest.y, interpolant);
+		v.z = Mathf.Lerp(v.z, dest.z, interpolant);
+	}
+	/*
+	public static float SignedAngleFromPosition(this Vector3 referencepoint, Vector3 frompoint, Vector3 topoint, Vector3 referenceup)
+	{
+		// calculates the the angle between two position vectors regarding to a reference point (plane), with a referenceup a sign in which direction it points can be calculated (clockwise is positive and counter clockwise is negative)
+		Vector3 fromdir = frompoint - referencepoint;                       // calculate the directionvector pointing from refpoint towards frompoint
+		Vector3 todir = topoint - referencepoint;                           // calculate the directionvector pointing from refpoint towards topoint
+		Vector3 planenormal = Vector3.Cross(fromdir, todir);               // calculate the planenormal (perpendicular vector)
+		float angle = Vector3.Angle(fromdir, todir);                       // calculate the angle between the 2 direction vectors (note: its always the smaller one smaller than 180°)
+		float orientationdot = Vector3.Dot(planenormal, referenceup);   // calculate wether the normal and the referenceup point in the same direction (>0) or not (<0), http://docs.unity3d.com/Documentation/Manual/ComputingNormalPerpendicularVector.html
+
+		return angle * Mathf.Sign(orientationdot);
+	//	if (orientationdot > 0.0f)                                           // the angle is positive (clockwise orientation seen from referenceup)
+	//		return angle;
+	//	return -angle;   // the angle is negative (counter-clockwise orientation seen from referenceup)
+	}
+
+	public static float SignedAngleFromDirection(this Vector3 fromdir, Vector3 todir, Vector3 referenceup)
+	{
+		// calculates the the angle between two direction vectors, with a referenceup a sign in which direction it points can be calculated (clockwise is positive and counter clockwise is negative)
+		Vector3 planenormal = Vector3.Cross(fromdir, todir);             // calculate the planenormal (perpendicular vector)
+		float angle = Vector3.Angle(fromdir, todir);                     // calculate the angle between the 2 direction vectors (note: its always the smaller one smaller than 180°)
+		float orientationdot = Vector3.Dot(planenormal, referenceup);    // calculate wether the normal and the referenceup point in the same direction (>0) or not (<0), http://docs.unity3d.com/Documentation/Manual/ComputingNormalPerpendicularVector.html
+
+		return angle * Mathf.Sign(orientationdot);
+//		if (orientationdot > 0.0f)                                         // the angle is positive (clockwise orientation seen from referenceup)
+//			return angle;
+//		return -angle;  // the angle is negative (counter-clockwise orientation seen from referenceup)
+	}
+	*/
+	/////////////////////////////////////////////////////////////////////////////
+	public static Vector3			FromString(this ref Vector3 v, in string input)
 	{
 		Vector3 result = Vector3.zero;
 		{
@@ -581,7 +399,7 @@ public static class Extensions
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Returna vector which rotation is the given quaternion </summary>
-	public static	Vector3			GetVector( this Quaternion q, Vector3 d )
+	public static	Vector3			GetVector( this ref Quaternion q, Vector3 d )
 		{
 			// A quaternion doesn't have a direction by itself. It is a rotation.
 			// It can be used to rotate any vector by the rotation it represents. Just multiply a Vector3 by the quaternion.
@@ -598,7 +416,7 @@ public static class Extensions
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> We need this because Quaternion.Slerp always uses the shortest arc </summary>
-	public	static	Quaternion		Slerp( this Quaternion p, Quaternion q, float t)
+	public	static	Quaternion		Slerp( this ref Quaternion p, Quaternion q, float t)
 	{
 		Quaternion ret;
 
@@ -635,15 +453,12 @@ public static class Extensions
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Return th lenght of a quaternion </summary>
-	public	static	float			GetLength( this Quaternion q )
+	public	static	float			GetLength( this ref Quaternion q )
 	{
 		return Mathf.Sqrt((q.x * q.x) + (q.y * q.y) + (q.z * q.z) + (q.w * q.w));
 	}
 
 	#endregion // QUATERNION
-
-
-	#endregion // UNITY
 }
 
 

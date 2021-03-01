@@ -42,7 +42,7 @@ public class WPN_FireModule_Syphon : WPN_FireModule
 					m_Laser.enabled = false;
 				}
 
-				if (m_WeaponRef.Transform.TrySearchComponent(ESearchContext.CHILDREN, out m_Renderer, s => s.name == "Graphics" ) )
+				if (m_WeaponRef.Transform.TrySearchComponent(ESearchContext.LOCAL_AND_CHILDREN, out m_Renderer, s => s.name == "Graphics" ) )
 				{
 					m_StartEmissiveColor = m_Renderer.material.GetColor( "_EmissionColor" );
 				}

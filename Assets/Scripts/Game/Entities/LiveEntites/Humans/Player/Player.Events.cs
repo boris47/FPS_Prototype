@@ -61,9 +61,9 @@ public partial class Player {
 	//		this.m_DodgeAbilityTarget.gameObject.SetActive( false );
 	//		this.m_ChosingDodgeRotation						= false;
 	//		this.m_DodgeInterpolant							= 0f;
-			UnityEngine.PostProcessing.MotionBlurModel.Settings settings								= CameraControl.Instance.PP_Profile.motionBlur.settings;
+			UnityEngine.PostProcessing.MotionBlurModel.Settings settings								= FPSEntityCamera.Instance.PP_Profile.motionBlur.settings;
 			settings.frameBlending						= 0f;
-			CameraControl.Instance.PP_Profile.motionBlur.settings = settings;
+			FPSEntityCamera.Instance.PP_Profile.motionBlur.settings = settings;
 	//		this.m_IsDodging = false;
 
 			// Player internals
@@ -142,100 +142,69 @@ public partial class Player {
 		if (m_IsActive == false )
 			return;
 
-		MoveGrabbedObject();
+		MoveGrabbedObject(fixedDeltaTime);
 		CheckIfUnderSomething();
-		//		CheckForFallOrUserBreak();
+	//	CheckForFallOrUserBreak();
 
 		m_RigidBody.angularVelocity = Vector3.zero;
 
-		// Forced by ovverride
-		if (m_MovementOverrideEnabled )
-		{
-			// Controlled in Player.Motion_Walk::SimulateMovement
-			m_RigidBody.AddForce(m_Move, ForceMode.Acceleration );
-			return;
-		}
-		
-		// Apply User inputs
-		{
-			// Controlled in Player.Motion_Walk::Update_Walk
-			Vector3 forward	= Vector3.Cross( CameraControl.Instance.transform.right, transform.up );
-			Vector3 right	= CameraControl.Instance.transform.right;
-			Vector3 up		= transform.up;
-			
-			if ( !Utils.Math.SimilarZero( m_ForwardSmooth, 0.01f ))//  this.m_ForwardSmooth != 0.0f )
-				m_RigidBody.AddForce( forward	* m_ForwardSmooth	* GroundSpeedModifier, m_UpSmooth > 0.0f ? ForceMode.Impulse : ForceMode.Acceleration );
-
-	//		if (this.m_RightSmooth != 0.0f )
-			if (!Utils.Math.SimilarZero(m_RightSmooth, 0.01f))
-				m_RigidBody.AddForce( right		* m_RightSmooth		* GroundSpeedModifier, m_UpSmooth > 0.0f ? ForceMode.Impulse : ForceMode.Acceleration );
-				
-	//		if (this.m_UpSmooth > 0.0f )
-			if (!Utils.Math.SimilarZero(m_UpSmooth, 0.01f))
-				m_RigidBody.AddForce( up		* m_UpSmooth		* 1.0f,	ForceMode.VelocityChange );
-
-			m_ForwardSmooth = m_RightSmooth = m_UpSmooth = 0.0f;
-
-			// Reset "local" states
-			m_States.Reset();
-		}
-		
 		float drag = IsGrounded ? 7f : 0.0f;
 		m_RigidBody.drag = drag;
-
+		
 		// Apply gravity
 		{
 			// add RELATIVE gravity force
 			Vector3 gravity = transform.up * Physics.gravity.y;
-			m_RigidBody.AddForce( gravity, ForceMode.Acceleration );
+			m_RigidBody.AddForce(gravity, ForceMode.Acceleration);
 		}
 	}
 	
 
 
 	// Pick eventual collision info from camera to up
-	private	void	CheckIfUnderSomething()
+	private					void		CheckIfUnderSomething()
 	{
-		Vector3 position = CameraControl.Instance.transform.position;
-		Vector3 upwards = CameraControl.Instance.transform.up;
-		Vector3 cameraUpPosition = position + ( upwards * 0.3f );
-		m_IsUnderSomething = Physics.Linecast( start: position, end: cameraUpPosition, layerMask: Physics.DefaultRaycastLayers, queryTriggerInteraction: QueryTriggerInteraction.Ignore );
+		Vector3 position = m_HeadTransform.position;
+		Vector3 upwards = m_BodyTransform.up;
+		Vector3 cameraUpPosition = position + (upwards * 0.3f);
+		m_IsUnderSomething = Physics.Linecast(position, cameraUpPosition, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
 	}
 
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		OnFrame( float deltaTime )
+	protected	override	void		OnFrame(float deltaTime)
 	{
 		base.OnFrame( deltaTime );
-		if (m_IsActive == false )
+
+		if (!m_IsActive)
 			return;
 
 		// Damage Effect
-		UnityEngine.PostProcessing.VignetteModel.Settings settings = CameraControl.Instance.PP_Profile.vignette.settings;
-		if (m_DamageEffect > 0.0f )
+		if (m_DamageEffect > 0.0f)
 		{
-			m_DamageEffect = Mathf.Lerp(m_DamageEffect, 0f, Time.deltaTime * 2f );
+			var settings = FPSEntityCamera.Instance.PP_Profile.vignette.settings;
+			m_DamageEffect = Mathf.Lerp(m_DamageEffect, 0f, Time.deltaTime * 2f);
 			settings.intensity = m_DamageEffect;
-			CameraControl.Instance.PP_Profile.vignette.settings = settings;
+			FPSEntityCamera.Instance.PP_Profile.vignette.settings = settings;
 		}
-		
 
-		////////////////////////////////////////////////////////////////////////////////////////
-		// Check for usage
-#region		INTERACTIONS
+
+		#region		INTERACTIONS
 		{
-			Vector3 position  = CameraControl.Instance.transform.position;
-			Vector3 direction = CameraControl.Instance.transform.forward;
-			m_HasRaycasthit = Physics.Raycast( position, direction, out m_RaycastHit, MAX_INTERACTION_DISTANCE, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore );
+			Vector3 position  = FPSEntityCamera.Instance.transform.position;
+			Vector3 direction = FPSEntityCamera.Instance.transform.forward;
+
+			m_Interactable = default;
+
+			if (m_HasRaycasthit = Physics.Raycast(position, direction, out m_RaycastHit, MAX_INTERACTION_DISTANCE, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+			{
+				Utils.Base.TrySearchComponent(m_RaycastHit.transform.gameObject, ESearchContext.LOCAL, out m_Interactable);
+			}
 		}
+		#endregion
 
-#endregion
-
-//		if (this.m_IsDodging == true )
-//			return;
-// Water
-#region TO IMPLEMENT
+		#region TO IMPLEMENT (Water)
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Water
 		/*		bool bIsEntityInWater, bIsCameraUnderWater, bIsCameraReallyUnderWater;
@@ -282,39 +251,46 @@ public partial class Player {
 
 				}
 		*/
-#endregion
+		#endregion
+	}
 
+	//////////////////////////////////////////////////////////////////////////
+	protected override void OnLateFrame(float DeltaTime)
+	{
+		base.OnLateFrame(DeltaTime);
 
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Movement Update
 		{
-//			switch ( m_CurrentMotionType )
-//			{
-//				case eMotionType.Walking:	{ this.Update_Walk();		break; }
-//				case eMotionType.Flying:	{ this.Update_Fly();		break; }
-//				case eMotionType.Swimming:	{ this.Update_Swim();		break; }
-//				case eMotionType.Swimming:	{ this->Update_Swim( bIsEntityInWater, bIsCameraUnderWater, bIsCameraReallyUnderWater );	break; }
-//				case eMotionType.P1ToP2:	{ this.Update_P1ToP2();		break; }
-//			}
+			switch (m_CurrentMotionType)
+			{
+				case EMotionType.Walking:	{ Update_Walk(DeltaTime);		break; }
+				case EMotionType.Flying:	{ /*Update_Fly(); 		break;*/ throw new System.NotImplementedException(); }
+				case EMotionType.Swimming:	{ /*Update_Swim();		break;*/ throw new System.NotImplementedException(); }
+				case EMotionType.P1ToP2:	{ /*Update_P1ToP2();	break;*/ throw new System.NotImplementedException(); }
+			}
+
+			// trace previuos states
+			m_PreviousStates.Assign(m_States);
+
+			// Reset "local" states
+			m_States.Reset();
 		}
-
-		// trace previuos states
-		m_PreviousStates = m_States;
 	}
-
+	
 
 	//////////////////////////////////////////////////////////////////////////
 	protected		override	void		OnKill()
 	{
 		// remove parent for camera
-		CameraControl.Instance.transform.SetParent( null );
+		FPSEntityCamera.Instance.transform.SetParent(null);
 
 		m_IsActive = false;
 
 		// reset effect
-		UnityEngine.PostProcessing.VignetteModel.Settings settings = CameraControl.Instance.PP_Profile.vignette.settings;
+		UnityEngine.PostProcessing.VignetteModel.Settings settings = FPSEntityCamera.Instance.PP_Profile.vignette.settings;
 		settings.intensity = 0f;
-		CameraControl.Instance.PP_Profile.vignette.settings = settings;
+		FPSEntityCamera.Instance.PP_Profile.vignette.settings = settings;
 
 		// disable weapon actions
 		WeaponManager.Instance.CurrentWeapon.Enabled = false;
@@ -322,13 +298,13 @@ public partial class Player {
 		
 		
 		// Disable camera updates
-		CameraControl.Instance.enabled = false;
+		FPSEntityCamera.Instance.enabled = false;
 
 		// Update UI elements
 		UIManager.InGame.UpdateUI();
 
 		// Turn off player object
-		gameObject.SetActive( false );
+		gameObject.SetActive(false);
 
 		// print a message
 		print( "U r dead" );

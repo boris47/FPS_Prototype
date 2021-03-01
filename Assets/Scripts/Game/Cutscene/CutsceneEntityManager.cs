@@ -9,8 +9,13 @@ namespace CutScene {
 	
 		public		bool							IsPlaying					{ get; private set; }
 
+		[SerializeField, ReadOnly]
 		private		EntityCutsceneController		m_EntityCutsceneController	= new EntityCutsceneController();
+
+		[SerializeField, ReadOnly]
 		private		CameraCutsceneController		m_CameraCutsceneController	= new CameraCutsceneController();
+
+		[SerializeField, ReadOnly]
 		private		ECutsceneSubject				m_CutsceneSubject			= ECutsceneSubject.ENTITY;
 
 
@@ -33,7 +38,7 @@ namespace CutScene {
 				return;
 			}
 
-			if ( Utils.Base.TrySearchComponent(gameObject, ESearchContext.PARENT, out Entity entityParent ) )
+			if ( Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL_AND_PARENTS, out Entity entityParent ) )
 			{
 				enabled = true;
 
@@ -62,7 +67,7 @@ namespace CutScene {
 			if ( cameraPath == null )
 				return;
 
-			enabled						= true;
+			enabled = true;
 
 			GameManager.UpdateEvents.OnFrame += OnFrameUpdate;
 

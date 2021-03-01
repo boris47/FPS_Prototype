@@ -1,7 +1,11 @@
 ﻿
 using UnityEngine;
 
-
+/// <summary> Can be used to access a Vector3 component </summary>
+public enum EVector3Component
+{
+	X, Y, Z
+}
 
 namespace Utils
 {
@@ -13,28 +17,32 @@ namespace Utils
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		/// Equal to Mathf.Sign but this works
-		/// </summary>
+		/// <summary> Equal to Mathf.Sign but this works </summary>
 		public static float Sign(in float value)
 		{
 			return ( value > 0f ) ? 1f : ( value < 0f ) ? -1f : 0f;
 		}
 
 
-		/// <summary>
-		/// Return true if the value lays betweeen bound values, otherwise return false
-		/// </summary>
+		/// <summary> Return true if the value is between min and max values, otherwise return false </summary>
 		/// <param name="Value"></param>
-		/// <param name="Val1"></param>
-		/// <param name="Val2"></param>
+		/// <param name="Min"></param>
+		/// <param name="Max"></param>
 		/// <returns></returns>
-		public static bool IsBetweenValues(in float Value, in float Val1, in float Val2)
+		public static bool IsBetweenValues(in float Value, in float Min, in float Max)
 		{
-			float minBound = Mathf.Min( Val1, Val2 );
-			float maxBound = Mathf.Max( Val1, Val2 );
+			return Value > Min && Value < Max;
+		}
 
-			return Value > minBound && Val1 < maxBound;
+
+		/// <summary> Return true if the value is between or equal min and max values, otherwise return false </summary>
+		/// <param name="Value"></param>
+		/// <param name="Min"></param>
+		/// <param name="Max"></param>
+		/// <returns></returns>
+		public static bool IsBetweenOrEqualValues(in float Value, in float Min, in float Max)
+		{
+			return Value >= Min && Value <= Max;
 		}
 
 
@@ -57,8 +65,6 @@ namespace Utils
 			result = ( result < Threshold ? 0f : result );
 			result = ( result > 1f - Threshold ? 1f : result );
 			return Mathf.Clamp( result, 0f, 1f );
-
-			//			return Mathf.Clamp01( ( ( CurrentValue - MinLimit ) / ( MaxLimit - MinLimit ) ) );
 		}
 
 		/// Ref: https://en.wikipedia.org/wiki/Feature_scaling
@@ -95,9 +101,7 @@ namespace Utils
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		/// Return a clamped value
-		/// </summary>
+		/// <summary> Return a clamped value </summary>
 		public static float Clamp(in float Value, in float Min, in float Max)
 		{
 			return ( Value > Max ) ? Max : ( Value < Min ) ? Min : Value;
@@ -105,10 +109,18 @@ namespace Utils
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		/// Return a clamped angle
-		/// </summary>
-		public static float ClampAngle(in float Angle, in float Min, in float Max)
+		/// <summary> assagn a value the clamp itself and return true if value was still in range on [min-max] </summary>
+		public static bool ClampResult(ref float value, in float expressionValue, in float min, in float max)
+		{
+			bool bResult = expressionValue >= min && expressionValue <= max;
+			value = (expressionValue > max) ? max : (expressionValue < min) ? min : expressionValue;
+			return bResult;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary> Return a clamped angle </summary>
+		public static float ClampAngle(in float Angle, in float Min = 0f, in float Max = 360f)
 		{
 			float angle = Angle;
 			while ( Angle > 360 )
@@ -229,6 +241,78 @@ namespace Utils
 			return point - ( planeNormal * pointPlaneDistance );
 		}
 
+
+		/// <summary> Get the intersection between a line and a plane.  </summary>
+		/// <param name="intersection"></param>
+		/// <param name="linePoint"></param>
+		/// <param name="lineVec"></param>
+		/// <param name="planeNormal"></param>
+		/// <param name="planePoint"></param>
+		/// <returns>If the line and plane are not parallel, the function outputs true, otherwise false.</returns>
+		public static bool LinePlaneIntersection(out Vector3 intersection, Vector3 linePoint, Vector3 lineVec, Vector3 planePoint, Vector3 planeNormal)
+		{
+			float length = 0f;
+			float dotNumerator = 0f;
+			float dotDenominator = 0f;
+			Vector3 vector = Vector3.zero;
+			intersection = Vector3.zero;
+
+			//calculate the distance between the linePoint and the line-plane intersection point
+			dotNumerator = Vector3.Dot((planePoint - linePoint), planeNormal);
+			dotDenominator = Vector3.Dot(lineVec, planeNormal);
+
+			//line and plane are not parallel
+			if (dotDenominator != 0f)
+			{
+				length = dotNumerator / dotDenominator;
+
+				//create a vector from the linePoint to the intersection point
+				vector = SetVectorLength(lineVec, length);
+
+				//get the coordinates of the line-plane intersection point
+				intersection = linePoint + vector;
+
+				return true;
+			}
+			//output not valid
+			return false;
+		}
+
+		/// <summary> For valid arguments return the angle between two vectors that lins on the plane defined by given components </summary>
+		/// <param name="v1">The first vector</param>
+		/// <param name="v2">The second vecor</param>
+		/// <param name="Comp1">Primary compoent of the plane</param>
+		/// <param name="Comp2">Secondary component of the plane</param>
+		/// <returns>The the angle between two vector that defined by the plane defined by given components </returns>
+		public static float Angle(Vector3 v1, Vector3 v2, EVector3Component Comp1, EVector3Component Comp2)
+		{
+			float tanAngleA = 0f, tanAngleB = 0f;
+			try
+			{
+				tanAngleA = Mathf.Atan2(v1[(int)Comp1], v1[(int)Comp2]);
+				tanAngleB = Mathf.Atan2(v2[(int)Comp1], v2[(int)Comp2]);
+			}
+			catch (System.Exception)
+			{
+				Debug.LogWarning($"Comp1 or Comp2 bad value: AtanY: {(int)Comp1}, AtanX: {(int)Comp2}");
+			}
+
+			float angleA = tanAngleA * Mathf.Rad2Deg;
+			float angleB = tanAngleB * Mathf.Rad2Deg;
+			return Mathf.DeltaAngle(angleA, angleB);
+		}
+
+		/// <summary> Calculate the angle between a vector and a plane. The plane is made by a normal vector. Output is in degree. </summary>
+		public static float AngleVectorPlane(Vector3 vector, Vector3 normal)
+		{
+			//calculate the the dot product between the two input vectors. This gives the cosine between the two vectors
+			float dot = Vector3.Dot(vector, normal);
+
+			//this is in radians
+			float angle = (float)System.Math.Acos(dot);
+
+			return (1.570796326794897f - angle) * Mathf.Rad2Deg; //90 degrees - angle
+		}
 
 		//////////////////////////////////////////////////////////////////////////
 		public static bool LineSphereIntersection(in Vector3 SphereCenter, in float SphereRadius, in Vector3 LineStart, in Vector3 LineEnd, /*in float LineLength,*/ out Vector3 ClosestPoint)

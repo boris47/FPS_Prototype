@@ -13,7 +13,7 @@ public class WPN_WeaponAttachment_Flashlight : WPN_BaseWeaponAttachment
 	//////////////////////////////////////////////////////////////////////////
 	protected	void	Awake()
 	{
-		m_IsUsable = transform.TrySearchComponent(ESearchContext.CHILDREN, out m_SpotLight );
+		m_IsUsable = transform.TrySearchComponent(ESearchContext.LOCAL_AND_CHILDREN, out m_SpotLight );
 		if (m_IsUsable )
 		{
 			m_SpotLight.type = LightType.Spot;

@@ -8,7 +8,7 @@ public abstract class Drone : NonLiveEntity {
 	[SerializeField]
 	protected	float			m_MoveMaxSpeed				= 3f;
 
-	protected 	override EEntityType			m_EntityType { get { return EEntityType.ROBOT; } }
+	protected 	override EEntityType			m_EntityType => EEntityType.ROBOT;
 
 /*	[SerializeField]
 	private		Bullet			m_Bullet					= null;
@@ -25,7 +25,7 @@ public abstract class Drone : NonLiveEntity {
 	[SerializeField, ReadOnly]
 	protected	uint			m_PoolSize					= 5;
 */
-	//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 	protected	override	void	Awake()
 	{

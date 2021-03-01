@@ -60,7 +60,7 @@ public sealed class UI_Minimap : UI_Base, IStateDefiner {
 
 		m_IsInitialized = true;
 		{
-			m_IsInitialized &= transform.TrySearchComponent(ESearchContext.CHILDREN, out m_RawImage );
+			m_IsInitialized &= transform.TrySearchComponent(ESearchContext.LOCAL_AND_CHILDREN, out m_RawImage );
 
 			ResourceManager.AsyncLoadedData<RenderTexture> loadedResource = new ResourceManager.AsyncLoadedData<RenderTexture>();
 			yield return ResourceManager.LoadResourceAsyncCoroutine
@@ -172,9 +172,9 @@ public sealed class UI_Minimap : UI_Base, IStateDefiner {
 		prevPosition.z = Player.Instance.transform.position.z;
 		m_TopViewCamera.transform.position = prevPosition;
 		
-		Vector3 planePoint		= CameraControl.Instance.transform.position;
+		Vector3 planePoint		= FPSEntityCamera.Instance.transform.position;
 		Vector3 planeNormal		= Vector3.up;
-		Vector3 point			= CameraControl.Instance.transform.position + ( CameraControl.Instance.transform.forward * 100f );
+		Vector3 point			= FPSEntityCamera.Instance.transform.position + ( FPSEntityCamera.Instance.transform.forward * 100f );
 		Vector3 projectedPoint	= Utils.Math.ProjectPointOnPlane( planeNormal, planePoint, point );
 		Vector3 upwards			= ( projectedPoint - planePoint ).normalized;
 

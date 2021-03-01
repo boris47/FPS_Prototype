@@ -17,9 +17,9 @@ public class Loading : InGameSingleton<Loading>
 	{
 		gameObject.SetActive(false);
 
-		m_IsInitializedInternal = transform.TrySearchComponent(ESearchContext.CHILDREN, out m_LoadingBar);
-		m_IsInitializedInternal &= transform.TrySearchComponent(ESearchContext.CHILDREN, out m_LoadingLevelNameText, child => child.name == "LoadingSceneName");
-		m_IsInitializedInternal &= transform.TrySearchComponent(ESearchContext.CHILDREN, out m_LoadingSubTaskText, child => child.name == "LoadingSubTask");
+		m_IsInitializedInternal = transform.TrySearchComponent(ESearchContext.LOCAL_AND_CHILDREN, out m_LoadingBar);
+		m_IsInitializedInternal &= transform.TrySearchComponent(ESearchContext.LOCAL_AND_CHILDREN, out m_LoadingLevelNameText, child => child.name == "LoadingSceneName");
+		m_IsInitializedInternal &= transform.TrySearchComponent(ESearchContext.LOCAL_AND_CHILDREN, out m_LoadingSubTaskText, child => child.name == "LoadingSubTask");
 
 		if (!m_IsInitializedInternal)
 		{

@@ -40,12 +40,19 @@ public class PhysicsActions
 					float halfHeight = collider.bounds.extents.y;
 					UnityEngine.Vector3 origin = t.position + (UnityEngine.Vector3.down * halfHeight);
 					UnityEngine.Vector3 direction = UnityEngine.Vector3.down;
-
 					if (UnityEngine.Physics.Raycast(origin: origin, direction: direction, hitInfo: out UnityEngine.RaycastHit hitInfo))
 					{
 						t.position = hitInfo.point + (UnityEngine.Vector3.up * halfHeight);
 					}
-
+				}
+				else
+				{
+					UnityEngine.Vector3 origin = t.position;
+					UnityEngine.Vector3 direction = UnityEngine.Vector3.down;
+					if (UnityEngine.Physics.Raycast(origin: origin, direction: direction, hitInfo: out UnityEngine.RaycastHit hitInfo))
+					{
+						t.position = hitInfo.point + (Vector3.up * 0.001f);
+					}
 				}
 			}
 

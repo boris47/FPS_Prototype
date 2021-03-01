@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 
 namespace Utils {
@@ -55,7 +56,7 @@ namespace Utils {
 		/// <summary>
 		///  Accept a ref Vector and return read result
 		/// </summary>
-		public	static	bool	StringToVector3( string s, out Vector3 v )
+		public	static	bool	StringToVector3( in string s, out Vector3 v )
 		{
 			v = Vector3.zero;
 			if ( s.Length > 0 )
@@ -99,19 +100,22 @@ namespace Utils {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		///  Return a stringified version of a vector ( Used in Save & Load )
-		/// </summary>
-		public	static	string	Vector3ToString( Vector3 vector )
+		/// <summary> Return a stringified version of a vector ( Used in Save & Load ) </summary>
+		public static string Vector2ToString(Vector2 vector)
+		{
+			return $"{vector.x}, {vector.y}";
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary> Return a stringified version of a vector ( Used in Save & Load ) </summary>
+		public	static	string	Vector3ToString(Vector3 vector)
 		{
 			return $"{vector.x}, {vector.y}, {vector.z}";
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		/// Return a stringified version of a quaternion ( Used in Save & Load )
-		/// </summary>
+		/// <summary>  Return a stringified version of a quaternion ( Used in Save & Load ) </summary>
 		public	static	string	QuaternionToString( Quaternion quaternion )
 		{
 			return $"{quaternion.x}, {quaternion.y}, {quaternion.z}, {quaternion.w}";
@@ -126,7 +130,6 @@ namespace Utils {
 
 			}
 		}
-
 	}
 
 }

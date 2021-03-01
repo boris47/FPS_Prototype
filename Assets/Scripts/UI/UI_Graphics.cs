@@ -304,12 +304,7 @@ public sealed class UI_Graphics : UI_Base, IUIOptions, IStateDefiner
 			return;
 		}
 
-		// Sprites for TargetToKill, LocationToReach or ObjectToInteractWith
-		bool bLoadResult = ResourceManager.LoadResourceSync( "Scriptables/CameraPostProcesses", out PostProcessingProfile cameraPostProcesses );
-		UnityEngine.Assertions.Assert.IsTrue( bLoadResult, "Failed the load of camera post processes profile" );
-
-		Camera.main.gameObject.GetOrAddIfNotFound<PostProcessingBehaviour>().profile = cameraPostProcesses;
-		UserSettings.VideoSettings.OnEnable(cameraPostProcesses);
+		UserSettings.VideoSettings.OnEnable();
 		m_ApplyButton.interactable = false;
 		UpdateUI();
 	}

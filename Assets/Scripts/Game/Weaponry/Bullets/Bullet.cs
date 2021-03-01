@@ -198,17 +198,17 @@ public abstract class Bullet : MonoBehaviour, IBullet
 	public		abstract	void	ShootParabolic(Vector3 position, Vector3 direction, float? velocity);
 
 	//
-	protected	virtual void	OnCollisionEnter( Collision collision )
+	protected	virtual void	OnCollisionEnter(Collision collision)
 	{
 		ContactPoint contact = collision.GetContact( 0 );
 		OnCollisionDetailed( contact.point, contact.normal, collision.collider );
 	}
 
-	protected	virtual void	OnTriggerEnter( Collider other )
+	protected	virtual void	OnTriggerEnter(Collider other)
 	{
-		Vector3 point = other.ClosestPoint( transform.position );
-		Vector3 normal = ( other.transform.position - point ).normalized;
-		OnCollisionDetailed( point, normal, other );
+		Vector3 point = other.ClosestPoint(transform.position);
+		Vector3 normal = (other.transform.position - point).normalized;
+		OnCollisionDetailed(point, normal, other);
 	}
 
 	protected	abstract	void	OnCollisionDetailed( in Vector3 point, in Vector3 normal, in Collider otherCollider );

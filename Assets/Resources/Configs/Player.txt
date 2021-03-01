@@ -7,15 +7,15 @@ FootStepsSection		= ActorFootSteeps;
 phMass					= 80.0
 
 ; Movements				Speed, JumpCoef, Stamina usage
-Walk					= 30.0, 0.66, 0.0;
-Run						= 80.0, 0.72, 0.05;
-Crouch					= 18.5, 1.00, 0.0;
+Walk					= 3.0, 0.66, 0.0;
+Run						= 8.0, 0.72, 0.05;
+Crouch					= 1.8, 1.00, 0.0;
 Climb					= 0.1;
 
 FallDistanceThreshold	= 5.0; in meters
 
 ;						JumpForce,	Stamina usage
-Jump					= 8.2,		0.2;
+Jump					= 7.0,		0.2;
 
 ; Stamina
 StaminaRestore			= 0.08;

@@ -106,7 +106,7 @@ public abstract class BulletGeneric : Bullet, IBulletGeneric
 			{
 				entity.Events.OnHittedBullet( this );
 			}
-			else if ( Utils.Base.TrySearchComponent( hit.transform.gameObject, ESearchContext.CHILDREN, out IShield shield ) )
+			else if ( Utils.Base.TrySearchComponent( hit.transform.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out IShield shield ) )
 			{
 				shield.CollisionHit(gameObject );
 			}
@@ -127,6 +127,7 @@ public abstract class BulletGeneric : Bullet, IBulletGeneric
 	{
 		float finalVelocity		= ( velocity ?? m_Velocity );
 		m_RigidBodyVelocity		= direction * finalVelocity;
+		m_StartPosition			= position;
 
 		if ( Physics.Raycast( position, direction, out RaycastHit hit, finalVelocity * 0.3f ) )
 		{
@@ -136,7 +137,6 @@ public abstract class BulletGeneric : Bullet, IBulletGeneric
 
 		transform.up			= direction;
 		transform.position		= position;
-		m_StartPosition			= position;
 		m_RigidBody.velocity	= m_RigidBodyVelocity;
 		m_RigidBody.useGravity	= false;
 		SetActive( true );
@@ -193,11 +193,11 @@ public abstract class BulletGeneric : Bullet, IBulletGeneric
 			return;
 
 		EffectsManager.EEffecs effectToPlay = EffectsManager.EEffecs.ENTITY_ON_HIT;
-		if ( Utils.Base.TrySearchComponent( otherCollider.gameObject, ESearchContext.LOCAL, out IEntity entity) )
+		if ( Utils.Base.TrySearchComponent( otherCollider.gameObject, ESearchContext.LOCAL_AND_PARENTS, out IEntity entity) )
 		{
 			entity.Events.OnHittedDetails( m_StartPosition, m_WhoRef, m_DamageType, 0, m_CanPenetrate );
 		}
-		else if ( Utils.Base.TrySearchComponent( otherCollider.gameObject, ESearchContext.CHILDREN, out IShield shield ) )
+		else if ( Utils.Base.TrySearchComponent( otherCollider.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out IShield shield ) )
 		{
 			shield.CollisionHit( gameObject );
 		}

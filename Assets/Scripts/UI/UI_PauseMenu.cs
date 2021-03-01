@@ -128,7 +128,7 @@ public sealed class UI_PauseMenu : UI_Base, IStateDefiner {
 	{
 		// Destroy singletons
 		{
-			Destroy( CameraControl.Instance.transform.gameObject );
+			Destroy( FPSEntityCamera.Instance.transform.gameObject );
 			Destroy( Player.Instance.gameObject );
 			Destroy( WeaponManager.Instance.GameObject );
 			Destroy( GameManager.Instance.gameObject );

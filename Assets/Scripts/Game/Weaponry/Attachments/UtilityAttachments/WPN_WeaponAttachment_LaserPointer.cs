@@ -41,7 +41,7 @@ public class WPN_WeaponAttachment_LaserPointer : WPN_BaseWeaponAttachment
 			m_LaserTransform = transform.GetChild( 0 );
 		}
 
-		m_IsUsable &= transform.TrySearchComponent(ESearchContext.CHILDREN, out m_Renderer );
+		m_IsUsable &= transform.TrySearchComponent(ESearchContext.LOCAL_AND_CHILDREN, out m_Renderer );
 		if (m_IsUsable )
 		{
 			m_Renderer.material.color = m_Color;

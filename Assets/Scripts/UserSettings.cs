@@ -213,7 +213,7 @@ namespace UserSettings
 			sortedResolutions.Sort(comparer);
 			m_AvailableResolutions = sortedResolutions.ToArray();
 
-			OnEnable(null);
+			OnEnable();
 
 			OnApplyChanges();
 		}
@@ -334,9 +334,8 @@ namespace UserSettings
 		}
 
 
-		public static void OnEnable(PostProcessingProfile PP_Profile)
+		public static void OnEnable()
 		{
-			m_PP_Profile = PP_Profile;
 			if (PlayerPrefs.HasKey(FLAG_SAVED_GRAPHIC_SETTINGS) == true)
 			{
 				ReadFromRegistry();
@@ -406,6 +405,11 @@ namespace UserSettings
 			PlayerPrefs.SetInt(VAR_QUALITY_LEVEL, m_QualityData.iQualityLevel);
 		}
 
+		public static void SetPPProfile(PostProcessingProfile PP_Profile)
+		{
+			m_PP_Profile = PP_Profile;
+		}
+
 		public static void OnApplyChanges()
 		{
 			// Post	Processes
@@ -416,15 +420,12 @@ namespace UserSettings
 
 					{   // Ambient Occlusion
 						m_PP_Profile.ambientOcclusion.enabled = m_PostProcessingData.bIsAmbientOcclusionEnabled;
-		//				m_PP_Profile.ambientOcclusion.Reset();
 					}
 					{   // Screen Space Reflection
 						m_PP_Profile.screenSpaceReflection.enabled = m_PostProcessingData.bIsScreenSpaceReflectionEnabled;
-		//				m_PP_Profile.screenSpaceReflection.Reset();
 					}
 					{   // Depth Of Field
 						m_PP_Profile.depthOfField.enabled = m_PostProcessingData.bIsDepthOfFieldEnabled;
-		//				m_PP_Profile.depthOfField.Reset();
 					}
 					{   // Motion Blur
 						m_PP_Profile.motionBlur.enabled = m_PostProcessingData.bIsMotionBlurEnabled;

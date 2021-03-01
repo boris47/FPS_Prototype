@@ -20,11 +20,11 @@ public enum ESearchContext
 	/// <summary> Only on this object </summary>
 	LOCAL,
 	/// <summary> On this object and children </summary>
-	CHILDREN,
+	LOCAL_AND_CHILDREN,
 	/// <summary> On this object and parents </summary>
-	PARENT,
+	LOCAL_AND_PARENTS,
 	/// <summary> On all the object hierarchy </summary>
-	FROM_ROOT = CHILDREN | LOCAL | PARENT
+	FROM_ROOT = LOCAL_AND_CHILDREN | LOCAL | LOCAL_AND_PARENTS
 }
 
 [System.Serializable]
@@ -384,10 +384,10 @@ namespace Utils
 			results = null;
 			switch (Context)
 			{
-				case ESearchContext.LOCAL		: { results = GameObject.GetComponents<T>(); break; }
-				case ESearchContext.CHILDREN	: { results = GameObject.GetComponentsInChildren<T>(); break; }
-				case ESearchContext.PARENT		: { results = GameObject.GetComponentsInParent<T>(); break; }
-				case ESearchContext.FROM_ROOT	: { results = GameObject.transform.root.GetComponentsInChildren<T>(); break; }
+				case ESearchContext.LOCAL				: { results = GameObject.GetComponents<T>(); break; }
+				case ESearchContext.LOCAL_AND_CHILDREN	: { results = GameObject.GetComponentsInChildren<T>(includeInactive: true); break; }
+				case ESearchContext.LOCAL_AND_PARENTS	: { results = GameObject.GetComponentsInParent<T>(includeInactive: true); break; }
+				case ESearchContext.FROM_ROOT			: { results = GameObject.transform.root.GetComponentsInChildren<T>(includeInactive: true); break; }
 			}
 			return results != null && results.Length > 0;
 		}

@@ -5,7 +5,8 @@ using CutScene;
 using UnityEngine.AI;
 
 
-public partial interface IEntity {
+public partial interface IEntity
+{
 	NavMeshAgent	NavAgent			{ get; }
 	void			RequestMovement		( Vector3 Destination );
 	void			NavStop				();

@@ -26,7 +26,7 @@ public partial class Player {
 	//////////////////////////////////////////////////////////////////////////
 	protected override		void		BeforeSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
-		CameraControl.Instance.Target = target;
+		FPSEntityCamera.Instance.SetTarget(target);
 	}
 
 
@@ -34,9 +34,9 @@ public partial class Player {
 	protected	override	bool		SimulateMovement( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
 		// END OF SIMULATION STEP
-		Vector3 direction = ( destination - m_SimulationStartPosition );
+		Vector3 direction = (destination - m_SimulationStartPosition);
 		float simulationdDistanceToTravel = direction.sqrMagnitude;
-		float simulationDistanceTravelled = (transform.position - m_SimulationStartPosition ).sqrMagnitude;
+		float simulationDistanceTravelled = (transform.position - m_SimulationStartPosition).sqrMagnitude;
 		
 		if ( simulationDistanceTravelled > simulationdDistanceToTravel )
 		{
@@ -51,7 +51,7 @@ public partial class Player {
 		Time.timeScale = Mathf.Clamp01( timeScale );
 		SoundManager.Pitch = timeScale;
 		
-		CameraControl.Instance.Target = target;
+		FPSEntityCamera.Instance.SetTarget(target);
 
 		//	POSITION BY DISTANCE
 		{
@@ -65,7 +65,7 @@ public partial class Player {
 			m_States.IsCrouched	= isCrouched;
 			m_States.IsMoving	= movementType != ESimMovementType.STATIONARY;
 
-			m_Move = (m_ForwardSmooth * direction.normalized ) * GroundSpeedModifier;
+			m_Move = m_ForwardSmooth * direction.normalized * GroundSpeedModifier;
 //			m_RigidBody.velocity = m_Move;
 		}
 		return true;
@@ -75,7 +75,7 @@ public partial class Player {
 	//////////////////////////////////////////////////////////////////////////
 	protected override		void		AfterSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
-		CameraControl.Instance.Target = null;
+	//	FPSEntityCamera.Instance.SetTarget(null); TODO why?
 		m_Move = Vector3.zero;
 	}
 
@@ -88,9 +88,9 @@ public partial class Player {
 
 		m_RigidBody.interpolation = prevInterpolation;
 
-		if ( CameraControl.Instance.Target != null )
+		if ( FPSEntityCamera.Instance.Target.IsNotNull() )
 		{
-			Vector3 projectedTarget = Utils.Math.ProjectPointOnPlane(transform.up, transform.position, CameraControl.Instance.Target.position );
+			Vector3 projectedTarget = Utils.Math.ProjectPointOnPlane(transform.up, transform.position, FPSEntityCamera.Instance.Target.position );
 			Quaternion rotation = Quaternion.LookRotation( projectedTarget - transform.position, transform.up );
 			transform.rotation = rotation;
 		}
@@ -371,6 +371,7 @@ public partial class Player {
 
 		GlobalManager.InputMgr.UnbindCall( EInputCommands.USAGE,			"Interaction" );
 		GlobalManager.InputMgr.UnbindCall( EInputCommands.USAGE,			"Grab" );
+		GlobalManager.InputMgr.UnbindCall( EInputCommands.GADGET3,		"Flashlight" );
 
 //		GlobalManager.InputMgr.UnbindCall( EInputCommands.ABILITY_PRESS,	"DodgeStart" );
 //		GlobalManager.InputMgr.UnbindCall( EInputCommands.ABILITY_HOLD,		"DodgeContinue" );
@@ -453,18 +454,15 @@ public partial class Player {
 	//////////////////////////////////////////////////////////////////////////
 	private	void	RunAction()
 	{
-		if (m_States.IsMoving )
-		{
-			m_States.IsCrouched = false;
-			m_States.IsRunning = true;
-		}
+		m_States.IsCrouched = false;
+		m_States.IsRunning = true;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private	bool	JumpPredicate()
 	{
-		return IsGrounded && m_States.IsJumping == false && m_States.IsHanging == false && m_States.IsFalling == false && m_GrabbedObject == null;
+		return IsGrounded && !m_States.IsJumping && !m_States.IsHanging && !m_States.IsFalling && m_CurrentGrabbed == null;
 	}
 
 
@@ -473,6 +471,42 @@ public partial class Player {
 	{
 		m_UpSmooth = m_JumpForce / (m_States.IsCrouched ? 1.5f : 1.0f );
 		m_States.IsJumping = true;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void Update_Walk(float DeltaTime)
+	{
+		if (m_MovementOverrideEnabled)
+		{
+			// Controlled in Player.Motion_Walk::SimulateMovement
+			m_RigidBody.velocity = m_Move;
+			return;
+		}
+		
+		if (IsGrounded)
+		{
+			// Controlled in Player.Motion_Walk::Update_Walk
+			Vector3 forward = m_BodyTransform.forward;
+			Vector3 right	= m_BodyTransform.right;
+			Vector3 up		= m_BodyTransform.up;
+
+			// Forward and strafe
+			Vector3 localVelocity = transform.InverseTransformDirection(m_RigidBody.velocity);
+			{
+				localVelocity.z = m_ForwardSmooth;
+				localVelocity.x = m_RightSmooth;
+			}
+			m_RigidBody.velocity = transform.TransformDirection(localVelocity);
+
+			// Jump
+			if (m_UpSmooth > 0.0f)
+			{
+				m_RigidBody.AddForce(up * m_UpSmooth * 1.0f, ForceMode.VelocityChange);
+			}
+
+			m_ForwardSmooth = m_RightSmooth = m_UpSmooth = 0.0f;
+		}
 	}
 
 }

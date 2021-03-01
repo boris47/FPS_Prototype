@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace QuestSystem {
 
-	[RequireComponent(typeof(Collider), typeof(Entity))]
+	[RequireComponent(typeof(Entity))]
 	public class Objective_Destroy : Objective_Base
 	{
 		[SerializeField]
@@ -71,7 +71,7 @@ namespace QuestSystem {
 		/// <summary> Set as current active to true and add indicator </summary>
 		protected		override	void		ActivateInternal()
 		{
-			UIManager.Indicators.EnableIndicator(gameObject, EIndicatorType.TARGET_TO_KILL, bMustBeClamped: true );
+			UIManager.Indicators.EnableIndicator(gameObject, EIndicatorType.TARGET_TO_KILL, bMustBeClamped: true);
 		}
 
 
@@ -80,7 +80,7 @@ namespace QuestSystem {
 		/// <summary> Set as current active to false and remove indicator </summary>
 		protected		override	void		DeactivateInternal()
 		{
-			UIManager.Indicators.DisableIndicator(gameObject );
+			UIManager.Indicators.DisableIndicator(gameObject);
 		}
 
 
