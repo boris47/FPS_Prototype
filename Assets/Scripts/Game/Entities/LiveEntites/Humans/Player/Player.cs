@@ -13,9 +13,9 @@ public partial class Player : Human
 	public	static	IEntity			Entity							= null;
 
 	private		GameObject			m_GrabPoint						= null;
-	[SerializeField]
+	[SerializeField, ReadOnly]
 	private		Interactable		m_Interactable					= null;
-	[SerializeField]
+	[SerializeField, ReadOnly]
 	private		Grabbable			m_CurrentGrabbed				= null;
 
 	[System.NonSerialized]

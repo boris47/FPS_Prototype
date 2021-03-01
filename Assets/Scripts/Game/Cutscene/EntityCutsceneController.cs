@@ -25,7 +25,9 @@ namespace CutScene {
 
 		private		IEntitySimulation				m_EntitySimulation			= null;
 
-		public	void	Setup( Entity entityParent, PointsCollectionOnline pointCollection )
+
+		//////////////////////////////////////////////////////////////////////////
+		public	void	Setup(Entity entityParent, PointsCollectionOnline pointCollection)
 		{
 			m_EntityParent		= entityParent;
 			m_EntitySimulation	= entityParent;
@@ -34,43 +36,43 @@ namespace CutScene {
 
 			m_EntitySimulation.EnterSimulationState();
 
-			CutsceneWaypointData data = m_PointsCollection[m_CurrentIdx ];
-			SetupForNextWaypoint( data );
+			CutsceneWaypointData data = m_PointsCollection[m_CurrentIdx];
+			SetupForNextWaypoint(data);
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		private	void	SetupForNextWaypoint( CutsceneWaypointData data )
+		private	void	SetupForNextWaypoint(CutsceneWaypointData data)
 		{
 			m_Target					= data.target;                                  // target to look at
 			m_MovementType				= data.movementType;                            // movement type
-			m_TimeScaleTarget			= Mathf.Clamp01( data.timeScaleTraget );		// time scale for this trip
+			m_TimeScaleTarget			= Mathf.Clamp01(data.timeScaleTraget);		// time scale for this trip
 
 			// WEAPON ZOOM
 			if (m_EntityParent is Player)
 			{
-				if ( WeaponManager.Instance.CurrentWeapon.WeaponState == EWeaponState.DRAWED )
+				if (WeaponManager.Instance.CurrentWeapon.WeaponState == EWeaponState.DRAWED)
 				{
-					if ( data.zoomEnabled == true )
+					if (data.zoomEnabled == true)
 					{
-						if ( WeaponManager.Instance.IsZoomed == false ) WeaponManager.Instance.ZoomIn();
+						if (WeaponManager.Instance.IsZoomed == false) WeaponManager.Instance.ZoomIn();
 					}
 					else
 					{
-						if ( WeaponManager.Instance.IsZoomed == true ) WeaponManager.Instance.ZoomOut();
+						if (WeaponManager.Instance.IsZoomed == true) WeaponManager.Instance.ZoomOut();
 					}
 				}
 			}
 
 			m_Waiter = data.waiter;
 
-			if ( !m_Waiter  )
+		//	if (!m_Waiter)
 			{
 				// MOVEMENT
-				Vector3 destination = data.point.position;	// destination to reach
-				if ( Physics.Raycast( destination, -m_EntityParent.transform.up, out RaycastHit hit) )
+				Vector3 destination = data.point.position;  // destination to reach
+				if (Physics.Raycast(destination, -m_EntityParent.transform.up, out RaycastHit hit))
 				{
-					m_Destination = Utils.Math.ProjectPointOnPlane(m_EntityParent.transform.up, m_EntityParent.transform.position, hit.point );
+					m_Destination = Utils.Math.ProjectPointOnPlane(m_EntityParent.transform.up, m_EntityParent.transform.position, hit.point);
 				}
 				else
 				{
@@ -84,14 +86,22 @@ namespace CutScene {
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Return true if completed, otherwise false </summary>
 		public	bool	Update()
 		{
+			// Continue simulation until need updates
+			bool isBusy = m_EntitySimulation.SimulateMovement(m_MovementType, m_Destination, m_Target, m_TimeScaleTarget);
+			if (isBusy) // if true is currently simulating and here we have to wait simulation to be completed
+			{
+				return false;
+			}
+
 			// If a waiter is defined, we have to wait for its completion
 			if (m_Waiter && m_Waiter.HasToWait)
 			{
-				Vector3 tempDestination = Utils.Math.ProjectPointOnPlane(m_EntityParent.transform.up, m_Destination, m_EntityParent.transform.position );
-			//	m_EntitySimulation.SimulateMovement( ESimMovementType.STATIONARY, tempDestination, m_Target, m_TimeScaleTarget ); // Why?? TODO
+				Vector3 tempDestination = Utils.Math.ProjectPointOnPlane(m_EntityParent.transform.up, m_Destination, m_EntityParent.transform.position);
+			//	m_EntitySimulation.SimulateMovement(ESimMovementType.STATIONARY, tempDestination, m_Target, m_TimeScaleTarget); // Why?? TODO
 				m_Waiter.Wait();
 				return false;
 			}
@@ -99,15 +109,8 @@ namespace CutScene {
 			// Ensuse no waiter
 			m_Waiter = null;
 
-			// Continue simulation until need updates
-			bool isBusy = m_EntitySimulation.SimulateMovement(m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
-			if (isBusy) // if true is currently simulating and here we have to wait simulation to be completed
-			{
-				return false;
-			}
-
 			// call callback when each waypoint is reached
-			m_PointsCollection[m_CurrentIdx ].OnWayPointReached?.Invoke();
+			m_PointsCollection[m_CurrentIdx].OnWayPointReached?.Invoke();
 
 			// AFTER A SIMULATION STAGE
 			m_EntitySimulation.AfterSimulationStage(m_MovementType, m_Destination, m_Target, m_TimeScaleTarget);
@@ -118,21 +121,17 @@ namespace CutScene {
 			// End of simulation
 			if (m_CurrentIdx < m_PointsCollection.Count)
 			{
-				// Update store start position for distance check
-				m_EntitySimulation.StartPosition = m_EntityParent.transform.position;
-
 				// Update to next simulation targets
 				CutsceneWaypointData data = m_PointsCollection[m_CurrentIdx];
-				SetupForNextWaypoint( data );
+				SetupForNextWaypoint(data);
 				return false;
 			}
 
-			Terminate();
 			return true;
 		}
 
 
-		public	void Terminate()
+		public	void	Terminate()
 		{
 			// Reset some internal variables
 			FPSEntityCamera.Instance.OnCutsceneEnd();

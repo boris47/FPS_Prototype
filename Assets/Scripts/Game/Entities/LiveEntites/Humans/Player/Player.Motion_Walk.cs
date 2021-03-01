@@ -26,6 +26,7 @@ public partial class Player {
 	//////////////////////////////////////////////////////////////////////////
 	protected override		void		BeforeSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
+		m_SimulationStartPosition = transform.position;
 		FPSEntityCamera.Instance.SetTarget(target);
 	}
 
@@ -37,20 +38,21 @@ public partial class Player {
 		Vector3 direction = (destination - m_SimulationStartPosition);
 		float simulationdDistanceToTravel = direction.sqrMagnitude;
 		float simulationDistanceTravelled = (transform.position - m_SimulationStartPosition).sqrMagnitude;
-		
-		if ( simulationDistanceTravelled > simulationdDistanceToTravel )
+
+		if (simulationDistanceTravelled > simulationdDistanceToTravel)
 		{
-			m_SimulationStartPosition = transform.position;
+	//		m_SimulationStartPosition = transform.position;
+			m_Move = Vector3.zero;
 			return false;				// force logic update
 		}
 
 		float interpolant = simulationDistanceTravelled / simulationdDistanceToTravel;
 
 		// TIME SCALE
-		float timeScale = Mathf.Lerp( Time.timeScale, timeScaleTarget, interpolant );
-		Time.timeScale = Mathf.Clamp01( timeScale );
-		SoundManager.Pitch = timeScale;
-		
+		float timeScale = Mathf.Lerp(Time.timeScale, timeScaleTarget, interpolant);
+
+		SoundManager.Pitch = Time.timeScale = Mathf.Clamp01(timeScale);
+
 		FPSEntityCamera.Instance.SetTarget(target);
 
 		//	POSITION BY DISTANCE
@@ -76,6 +78,7 @@ public partial class Player {
 	protected override		void		AfterSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
 	//	FPSEntityCamera.Instance.SetTarget(null); TODO why?
+		m_SimulationStartPosition = Vector3.zero;
 		m_Move = Vector3.zero;
 	}
 

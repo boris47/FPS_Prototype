@@ -5,10 +5,11 @@ using System.Collections.Generic;
 namespace CutScene {
 
 	[System.Serializable]
-	public class CutsceneWaypointData {
+	public class CutsceneWaypointData
+	{
 		[HideInInspector]
 		public	string							Name				= "CutsceneWaypointData";
-		public	ESimMovementType					movementType		= ESimMovementType.WALK;
+		public	ESimMovementType				movementType		= ESimMovementType.WALK;
 		public	Transform						point				= null;
 		public	Transform						target				= null;
 		[Range( 0.01f, 1f )]
@@ -20,8 +21,8 @@ namespace CutScene {
 		public	GameEvent						OnWayPointReached	= null;
 	}
 
-	public class PointsCollectionOnline : MonoBehaviour {
-
+	public class PointsCollectionOnline : MonoBehaviour
+	{
 		[SerializeField]
 		public		GameEvent						OnStart			= null;
 

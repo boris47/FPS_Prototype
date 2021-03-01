@@ -20,8 +20,6 @@ public partial interface IEntity
 
 public interface IEntitySimulation
 {
-	Vector3		StartPosition			{ get; set; }
-
 	/// <summary> Enter Simulation State </summary>
 	void		EnterSimulationState	();
 
@@ -36,17 +34,14 @@ public interface IEntitySimulation
 
 	/// <summary> Exit Simulation State </summary>
 	void		ExitSimulationState		();
-
 }
 
 // Cutscene Simulation Manager
 //[RequireComponent( typeof( CutsceneEntityManager ) ) ]
-public abstract partial class Entity : IEntitySimulation {
-
-	CutsceneEntityManager	IEntity.CutsceneManager				{ get { return m_CutsceneManager; }	}
-	bool					IEntity.HasCutsceneManager			{ get { return m_HasCutsceneManager; } }
-
-	Vector3					IEntitySimulation.StartPosition		{ get; set; }
+public abstract partial class Entity : IEntitySimulation
+{
+	CutsceneEntityManager	IEntity.CutsceneManager				=> m_CutsceneManager;
+	bool					IEntity.HasCutsceneManager			=> m_HasCutsceneManager;
 
 	[Header("Cutscene Manager")]
 
@@ -102,12 +97,12 @@ public abstract partial class Entity : IEntitySimulation {
 	protected	abstract	void	ExitSimulationState();
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	abstract	void	BeforeSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget );
+	protected	abstract	void	BeforeSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1f);
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	abstract	bool	SimulateMovement( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1f );
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	abstract	void	AfterSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget );
+	protected	abstract	void	AfterSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1f);
 
 }
