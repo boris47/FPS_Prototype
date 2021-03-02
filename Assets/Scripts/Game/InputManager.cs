@@ -40,8 +40,6 @@ public enum EInputCategory : uint
 	ALL			= STATE | MOVE | ABILITY | USE | SWITCH | SELECTION | ITEM | GADGET | FIRE1 | FIRE2 | FIRE3 | RELOAD | INTERFACE | CAMERA,
 }
 
-public	delegate	void	InputDelegateHandler();
-
 //[System.Serializable]
 public class InputManager
 {
@@ -155,7 +153,7 @@ public class InputManager
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Allow to bind a method to specified command </summary>
-	public		void	BindCall(EInputCommands command, string inputEventID, InputDelegateHandler action, System.Func<bool> predicate = null)
+	public		void	BindCall(EInputCommands command, string inputEventID, System.Action action, System.Func<bool> predicate = null)
 	{
 		if (!m_ActionMap.TryGetValue(command, out InputEventCollection inputEventCollection))
 		{

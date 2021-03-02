@@ -2,8 +2,8 @@
 using UnityEngine;
 
 
-public partial class Player {
-
+public partial class Player
+{
 	RigidbodyInterpolation prevInterpolation;
 
 	//////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,8 @@ public partial class Player {
 
 		prevInterpolation						= m_RigidBody.interpolation;
 		m_RigidBody.interpolation				= RigidbodyInterpolation.Interpolate;
+
+		m_MotionStrategy.SetOverridenInputs(true);
 
 		DropEntityDragged();
 	}
@@ -41,8 +43,8 @@ public partial class Player {
 
 		if (simulationDistanceTravelled > simulationdDistanceToTravel)
 		{
-	//		m_SimulationStartPosition = transform.position;
-			m_Move = Vector3.zero;
+			//		m_SimulationStartPosition = transform.position;
+			m_MotionStrategy.OverrideMove(ESimMovementType.STATIONARY, Vector3.zero);
 			return false;				// force logic update
 		}
 
@@ -60,15 +62,12 @@ public partial class Player {
 			bool isWalking	= ( movementType != ESimMovementType.RUN );
 			bool isRunning	= !isWalking;
 			bool isCrouched = ( movementType == ESimMovementType.CROUCHED );
-			m_ForwardSmooth = ( movementType != ESimMovementType.STATIONARY ) ? ( isCrouched ) ? m_CrouchSpeed : ( isRunning ) ? m_RunSpeed : m_WalkSpeed : 0.0f;
 
-			m_States.IsWalking	= isWalking;
-			m_States.IsRunning	= isRunning;
-			m_States.IsCrouched	= isCrouched;
-			m_States.IsMoving	= movementType != ESimMovementType.STATIONARY;
-
-			m_Move = m_ForwardSmooth * direction.normalized * GroundSpeedModifier;
-//			m_RigidBody.velocity = m_Move;
+			m_MotionStrategy.States.IsWalking	= isWalking;
+			m_MotionStrategy.States.IsRunning	= isRunning;
+			m_MotionStrategy.States.IsCrouched	= isCrouched;
+			m_MotionStrategy.States.IsMoving	= movementType != ESimMovementType.STATIONARY;
+			m_MotionStrategy.OverrideMove(movementType, direction.normalized);
 		}
 		return true;
 	}
@@ -79,7 +78,7 @@ public partial class Player {
 	{
 	//	FPSEntityCamera.Instance.SetTarget(null); TODO why?
 		m_SimulationStartPosition = Vector3.zero;
-		m_Move = Vector3.zero;
+		m_MotionStrategy.OverrideMove(ESimMovementType.STATIONARY, Vector3.zero);
 	}
 
 
@@ -91,23 +90,25 @@ public partial class Player {
 
 		m_RigidBody.interpolation = prevInterpolation;
 
-		if ( FPSEntityCamera.Instance.Target.IsNotNull() )
-		{
-			Vector3 projectedTarget = Utils.Math.ProjectPointOnPlane(transform.up, transform.position, FPSEntityCamera.Instance.Target.position );
-			Quaternion rotation = Quaternion.LookRotation( projectedTarget - transform.position, transform.up );
-			transform.rotation = rotation;
-		}
+//		if ( FPSEntityCamera.Instance.Target.IsNotNull() )
+//		{
+//			Vector3 projectedTarget = Utils.Math.ProjectPointOnPlane(transform.up, transform.position, FPSEntityCamera.Instance.Target.position );
+//			Quaternion rotation = Quaternion.LookRotation( projectedTarget - transform.position, transform.up );
+//			transform.rotation = rotation;
+//		}
 
-		m_Move					= Vector3.zero;
-		m_ForwardSmooth			= 0f;
-		m_States.IsWalking		= false;
-		m_States.IsRunning		= false;
-		m_States.IsMoving		= false;
+		m_MotionStrategy.States.IsWalking		= false;
+		m_MotionStrategy.States.IsRunning		= false;
+		m_MotionStrategy.States.IsMoving		= false;
+
 		Time.timeScale			= 1f;
 
 //		GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, true);
 //		InputManager.IsEnabled = true;
 		GlobalManager.InputMgr.EnableCategory( EInputCategory.ALL );
+
+		m_MotionStrategy.OverrideMove(ESimMovementType.STATIONARY, Vector3.zero);
+		m_MotionStrategy.SetOverridenInputs(false);
 	}
 
 
@@ -335,181 +336,5 @@ public partial class Player {
 //	}
 // /
 	
-		
-	/* MOTION TYPE GROUNDED */
-
-	private	void	RegisterGroundedMotion()
-	{
-		GlobalManager.InputMgr.BindCall( EInputCommands.MOVE_FORWARD,		"ForwardEvent", GoForwardAction, Motion_Walk_Predicate );
-		GlobalManager.InputMgr.BindCall( EInputCommands.MOVE_BACKWARD,		"BackwardEvent", GoBackwardAction, Motion_Walk_Predicate );
-
-		GlobalManager.InputMgr.BindCall( EInputCommands.MOVE_LEFT,			"LeftEvent", StrafeLeftAction, Motion_Walk_Predicate );
-		GlobalManager.InputMgr.BindCall( EInputCommands.MOVE_RIGHT,			"RightEvent", StrafeRightAction, Motion_Walk_Predicate );
-
-		GlobalManager.InputMgr.BindCall( EInputCommands.STATE_RUN,			"RunEvent", RunAction, RunPredicate );
-
-		GlobalManager.InputMgr.BindCall( EInputCommands.STATE_JUMP,			"JumpEvent", JumpAction, JumpPredicate );
-
-		GlobalManager.InputMgr.BindCall( EInputCommands.USAGE,				"Interaction", InteractionAction, InteractionPredicate );
-		GlobalManager.InputMgr.BindCall( EInputCommands.USAGE,				"Grab", GrabAction, GrabPredicate );
-
-//		GlobalManager.InputMgr.BindCall( EInputCommands.ABILITY_PRESS,		"DodgeStart", this.AbilityEnableAction, this.AbilityPredcate );
-//		GlobalManager.InputMgr.BindCall( EInputCommands.ABILITY_HOLD,		"DodgeContinue", this.AbilityContinueAction, this.AbilityPredcate );
-//		GlobalManager.InputMgr.BindCall( EInputCommands.ABILITY_RELEASE,	"DodgeEnd", this.AbilityEndAction, this.AbilityPredcate );
-	}
-	
-
-	//////////////////////////////////////////////////////////////////////////
-	private	void	UnRegisterGroundedMotion()
-	{
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.MOVE_FORWARD,		"ForwardEvent" );
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.MOVE_BACKWARD,	"BackwardEvent" );
-
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.MOVE_LEFT,		"LeftEvent" );
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.MOVE_RIGHT,		"RightEvent" );
- 
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.STATE_RUN,		"RunEvent" );
-
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.STATE_JUMP,		"JumpEvent" );
-
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.USAGE,			"Interaction" );
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.USAGE,			"Grab" );
-		GlobalManager.InputMgr.UnbindCall( EInputCommands.GADGET3,		"Flashlight" );
-
-//		GlobalManager.InputMgr.UnbindCall( EInputCommands.ABILITY_PRESS,	"DodgeStart" );
-//		GlobalManager.InputMgr.UnbindCall( EInputCommands.ABILITY_HOLD,		"DodgeContinue" );
-//		GlobalManager.InputMgr.UnbindCall( EInputCommands.ABILITY_RELEASE,	"DodgeEnd" );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private	bool	Motion_Walk_Predicate()
-	{
-		return IsGrounded;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private	void	GoForwardAction()
-	{
-		m_States.IsMoving = true;
-
-		bool bIsWalking = m_States.IsRunning == false && m_States.IsCrouched == false;
-
-		//						Walking									Running									Crouch
-		float force = ( bIsWalking ) ? m_WalkSpeed : (m_States.IsRunning ) ? m_RunSpeed : (m_States.IsCrouched )	? m_CrouchSpeed : 1.0f;
-
-		m_ForwardSmooth = force;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private	void	GoBackwardAction()
-	{
-		m_States.IsMoving = true;
-
-		bool bIsWalking = m_States.IsRunning == false && m_States.IsCrouched == false;
-		
-		//						Walking									Running									Crouch
-		float force = ( bIsWalking ) ? m_WalkSpeed : (m_States.IsRunning ) ? m_RunSpeed : (m_States.IsCrouched ) ? m_CrouchSpeed : 1.0f;
-
-		m_ForwardSmooth = -force;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private	void	StrafeRightAction()
-	{
-		m_States.IsMoving = true;
-
-		bool bIsWalking = m_States.IsRunning == false && m_States.IsCrouched == false;
-
-		//						Walking									Running									Crouch
-		float force = ( bIsWalking ) ? m_WalkSpeed : (m_States.IsRunning ) ? m_RunSpeed : (m_States.IsCrouched ) ? m_CrouchSpeed : 1.0f;
-
-		const float strafeFactor = 0.8f;
-		m_RightSmooth = force * strafeFactor;
-	}
-	
-
-	//////////////////////////////////////////////////////////////////////////
-	private	void	StrafeLeftAction()
-	{
-		m_States.IsMoving = true;
-
-		bool bIsWalking = m_States.IsRunning == false && m_States.IsCrouched == false;
-
-		//						Walking									Running									Crouch
-		float force = ( bIsWalking ) ? m_WalkSpeed : (m_States.IsRunning ) ? m_RunSpeed : (m_States.IsCrouched ) ? m_CrouchSpeed : 1.0f;
-
-		const float strafeFactor = 0.8f;
-		m_RightSmooth = -force * strafeFactor;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private	bool	RunPredicate()
-	{
-		return true;//( ( m_States.IsCrouched && !m_IsUnderSomething ) || !m_States.IsCrouched );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private	void	RunAction()
-	{
-		m_States.IsCrouched = false;
-		m_States.IsRunning = true;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private	bool	JumpPredicate()
-	{
-		return IsGrounded && !m_States.IsJumping && !m_States.IsHanging && !m_States.IsFalling && m_CurrentGrabbed == null;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private	void	JumpAction()
-	{
-		m_UpSmooth = m_JumpForce / (m_States.IsCrouched ? 1.5f : 1.0f );
-		m_States.IsJumping = true;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private void Update_Walk(float DeltaTime)
-	{
-		if (m_MovementOverrideEnabled)
-		{
-			// Controlled in Player.Motion_Walk::SimulateMovement
-			m_RigidBody.velocity = m_Move;
-			return;
-		}
-		
-		if (IsGrounded)
-		{
-			// Controlled in Player.Motion_Walk::Update_Walk
-			Vector3 forward = m_BodyTransform.forward;
-			Vector3 right	= m_BodyTransform.right;
-			Vector3 up		= m_BodyTransform.up;
-
-			// Forward and strafe
-			Vector3 localVelocity = transform.InverseTransformDirection(m_RigidBody.velocity);
-			{
-				localVelocity.z = m_ForwardSmooth;
-				localVelocity.x = m_RightSmooth;
-			}
-			m_RigidBody.velocity = transform.TransformDirection(localVelocity);
-
-			// Jump
-			if (m_UpSmooth > 0.0f)
-			{
-				m_RigidBody.AddForce(up * m_UpSmooth * 1.0f, ForceMode.VelocityChange);
-			}
-
-			m_ForwardSmooth = m_RightSmooth = m_UpSmooth = 0.0f;
-		}
-	}
 
 }

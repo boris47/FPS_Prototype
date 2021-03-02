@@ -25,7 +25,7 @@ public partial class Player : Human
 	protected	bool				m_GrabbedObjectUseGravity		= false;
 	protected	bool				m_CanGrabObjects				= true;
 
-	private		Vector3				m_Move							= Vector3.zero;
+//	private		Vector3				m_Move							= Vector3.zero;
 
 	private		RaycastHit			m_RaycastHit					= default;
 
@@ -75,18 +75,18 @@ public partial class Player : Human
 		// Player Data
 		{
 			// Walking
-			m_SectionRef.AsMultiValue("Walk",		1, 2, 3, out m_WalkSpeed,	out m_WalkJumpCoef,		out m_WalkStamina);
+	//		m_SectionRef.AsMultiValue("Walk",		1, 2, 3, out m_WalkSpeed,	out m_WalkJumpCoef,		out m_WalkStamina);
 
 			// Running
-			m_SectionRef.AsMultiValue("Run",		1, 2, 3, out m_RunSpeed,	out m_RunJumpCoef,		out m_RunStamina);
+	//		m_SectionRef.AsMultiValue("Run",		1, 2, 3, out m_RunSpeed,	out m_RunJumpCoef,		out m_RunStamina);
 
 			// Crouched
-			m_SectionRef.AsMultiValue("Crouch",		1, 2, 3, out m_CrouchSpeed, out m_CrouchJumpCoef,	out m_CrouchStamina);
+	//		m_SectionRef.AsMultiValue("Crouch",		1, 2, 3, out m_CrouchSpeed, out m_CrouchJumpCoef,	out m_CrouchStamina);
 
 			m_FallDistanceThreshold		= m_SectionRef.AsFloat( "FallDistanceThreshold", m_FallDistanceThreshold);
 
 			// Climbing
-			m_ClimbSpeed				= m_SectionRef.AsFloat( "Climb", m_ClimbSpeed);
+	//		m_ClimbSpeed				= m_SectionRef.AsFloat( "Climb", m_ClimbSpeed);
 
 			// Jumping
 			{
@@ -116,47 +116,6 @@ public partial class Player : Human
 		GroundSpeedModifier = 1.0f;
 		IsGrounded			= false;
 		m_IsActive			= true;
-
-		m_OnMotionStateChangedEvent += OnMotionTypeChanged;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private	void	OnMotionTypeChanged( EMotionType prevState, EMotionType newState )
-	{
-		switch ( prevState )
-		{
-			case EMotionType.Walking:
-				UnRegisterGroundedMotion();
-				break;
-			case EMotionType.Flying:
-				UnRegisterFlyMotion();
-				break;
-			case EMotionType.Swimming:
-				UnRegisterSwimMotion();
-				break;
-			case EMotionType.P1ToP2:
-				UnRegisterP1ToP2Motion();
-				break;
-			default:
-				break;
-		}
-
-		switch ( newState )
-		{
-			case EMotionType.Walking:
-				RegisterGroundedMotion();
-				break;
-			case EMotionType.Flying:
-				RegisterFlyMotion();
-				break;
-			case EMotionType.Swimming:
-				RegisterSwimMotion();
-				break;
-			case EMotionType.P1ToP2:
-				RegisterP1ToP2Motion();
-				break;
-		}
 	}
 
 
@@ -168,13 +127,28 @@ public partial class Player : Human
 		IsGrounded = false;
 	}
 
+	/*
+	// TODO
+	private void OnTransformParentChanged()
+	{
+		if(transform.parent.IsNotNull())
+		{
+			SetMotionType(EMotionType.Platform);
+		}
+		else
+		{
+			SetMotionType(EMotionType.Walking);
+		}
+	}
+	// TODO
+	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	protected override void OnEnable()
 	{
 		base.OnEnable();
 
-		SetMotionType(EMotionType.Walking); // Default
+		SetMotionType(EMotionType.WALK); // Default
 	}
 
 

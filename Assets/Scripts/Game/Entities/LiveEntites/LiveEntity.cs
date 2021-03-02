@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public abstract partial class LiveEntity : Entity {
-
+public abstract partial class LiveEntity : Entity
+{
 	protected	IFoots				m_Foots						= null;
 	public		IFoots				Foots
 	{
-		get { return m_Foots; }
+		get => m_Foots;
 	}
 	[Header("Live Entity Properties")]
 
@@ -16,7 +16,7 @@ public abstract partial class LiveEntity : Entity {
 	protected	float				m_OxygenBaseLevel			= 100f;
 	public		float				OxygenBaseLevel
 	{
-		get { return m_OxygenBaseLevel; }
+		get => m_OxygenBaseLevel;
 	}
 
 
@@ -24,40 +24,23 @@ public abstract partial class LiveEntity : Entity {
 	protected	float				m_OxygenCurrentLevel		= 100f;
 	public		float				OxygenCurrentLevel
 	{
-		get { return m_OxygenCurrentLevel; }
+		get => m_OxygenCurrentLevel;
 	}
-
-
-
 
 
 	[SerializeField]
 	protected	float				m_UseDistance				= 1f;
-
-
-	// LIVE ENTITY PARAMENTERS
-	public		bool				IsGrounded					= false;
-	public		float				GroundSpeedModifier			= 0.0f;
 
 	// Stamina always reach 1.0f
 	[SerializeField]
 	protected	float				m_Stamina					= 0f;
 	public		float				Stamina
 	{
-		get { return m_Stamina; }
-		set { m_Stamina = Mathf.Clamp01( value ); }
+		get => m_Stamina;
+		set => m_Stamina = Mathf.Clamp01( value );
 	}
 
 
-	// Movements
-	[SerializeField]
-	protected	float				m_WalkSpeed					= 0f;
-	[SerializeField]
-	protected	float				m_RunSpeed					= 0f;
-	[SerializeField]
-	protected	float				m_CrouchSpeed				= 0f;
-	[SerializeField]
-	protected	float				m_ClimbSpeed				= 0f;
 	[System.NonSerialized]
 	protected	float				m_WalkJumpCoef				= 0f;
 	[System.NonSerialized]
@@ -83,17 +66,7 @@ public abstract partial class LiveEntity : Entity {
 	[System.NonSerialized]
 	protected	float				m_StaminaJumpMin			= 0f;
 	
-	
 
-
-	// Var used for smooth movements of entity
-//	[System.NonSerialized]
-	protected	float				m_ForwardSmooth				= 0f;
-//	[System.NonSerialized]
-	protected	float				m_RightSmooth				= 0f;
-//	[System.NonSerialized]
-	protected	float				m_UpSmooth					= 0f;
-//	[System.NonSerialized]
 	protected	bool				m_IsUnderSomething			= false;
 	
 	/// <summary> If currently is tired ( stanco ) </summary>

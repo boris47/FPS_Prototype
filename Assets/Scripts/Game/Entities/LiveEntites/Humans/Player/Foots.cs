@@ -11,7 +11,7 @@ public interface IFoots
 
 public class Foots : MonoBehaviour, IFoots
 {
-	private		LiveEntity			m_LiveEntity		= null;
+	private		Entity				m_Entity			= null;
 
 	private		Collider			m_Collider			= null;
 	public		Collider			Collider			=> m_Collider;
@@ -30,7 +30,7 @@ public class Foots : MonoBehaviour, IFoots
 		);
 		if (transform.parent)
 		{
-			transform.parent.TryGetComponent(out m_LiveEntity);
+			transform.parent.TryGetComponent(out m_Entity);
 			transform.TryGetComponent(out m_AudioSource);
 		}
 
@@ -41,9 +41,9 @@ public class Foots : MonoBehaviour, IFoots
 	//////////////////////////////////////////////////////////////////////////
 	public	void	PlayStep()
 	{
-		if (m_LiveEntity && m_CurrentCollider)
+		if (m_Entity && m_CurrentCollider)
 		{
-			Vector3 direction = -m_LiveEntity.transform.up;
+			Vector3 direction = -m_Entity.transform.up;
 			Vector3 origin = transform.position + (-direction * 0.1f);
 			if (SurfaceManager.Instance.TryGetFootstep(out AudioClip footstepClip, m_CurrentCollider, new Ray(origin, direction)))
 			{
@@ -57,7 +57,7 @@ public class Foots : MonoBehaviour, IFoots
 	//////////////////////////////////////////////////////////////////////////
 	private void Update()
 	{
-		m_LiveEntity.IsGrounded = m_CurrentCollider.IsNotNull();
+		m_Entity.IsGrounded = m_CurrentCollider.IsNotNull();
 	}
 
 

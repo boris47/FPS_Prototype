@@ -9,12 +9,12 @@ public class SingleInputEvent
 
 	public		string					InputEventID	{ get; private set; } = "NONE";
 
-	private		InputDelegateHandler	m_InputEvent	= null;
+	private		System.Action			m_InputEvent	= null;
 	private		System.Func<bool>		m_Condition		= m_AlwaysTrueCondition;
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public SingleInputEvent( string Id, InputDelegateHandler eventToCall, System.Func<bool> condition )
+	public SingleInputEvent( string Id, System.Action eventToCall, System.Func<bool> condition )
 	{
 		InputEventID = Id;
 		m_InputEvent = eventToCall;
@@ -22,7 +22,7 @@ public class SingleInputEvent
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	public	void	Rebind( InputDelegateHandler eventToCall, System.Func<bool> condition = null )
+	public	void	Rebind( System.Action eventToCall, System.Func<bool> condition = null )
 	{
 		m_InputEvent = eventToCall;
 		m_Condition = condition ?? m_AlwaysTrueCondition;
@@ -45,7 +45,7 @@ public class InputEventCollection
 	private			readonly List<SingleInputEvent>			m_Events				= new List<SingleInputEvent>();
 
 	//////////////////////////////////////////////////////////////////////////
-	public	InputEventCollection	Bind( string inputEventID, InputDelegateHandler method, System.Func<bool> predicate )
+	public	InputEventCollection	Bind( string inputEventID, System.Action method, System.Func<bool> predicate )
 	{
 		System.Func<bool> internalCondition = predicate ?? m_AlwaysTrueCondition;
 		int index = m_Events.FindIndex(s => s.InputEventID == inputEventID);

@@ -114,23 +114,23 @@ public abstract partial class Entity : IEntity {
 
 
 	//////////////////////////////////////////////////////////////////////////
-
-	protected	virtual		void	CheckForNewReachPoint( Vector3 TargetPosition ) // m_TargetInfo.CurrentTarget.Transform.position
+	/*
+	protected	virtual		void	CheckForNewReachPoint(Vector3 TargetPosition) // m_TargetInfo.CurrentTarget.Transform.position
 	{
-		if (m_TargetInfo.HasTarget == true )
+		if (m_TargetInfo.HasTarget == true)
 		{
 			// Path search event if not already close enough
-			if ( ( TargetPosition - m_DestinationToReachPosition ).sqrMagnitude > 180.0f )
+			if ((TargetPosition - m_DestinationToReachPosition).sqrMagnitude > 180.0f)
 			{
-				if ( (transform.position - TargetPosition ).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance )
+				if ((transform.position - TargetPosition).sqrMagnitude > m_MinEngageDistance * m_MinEngageDistance)
 				{
-					///					print( "CheckForNewReachPoint" );
-					RequestMovement ( TargetPosition );
+				//	print( "CheckForNewReachPoint" );
+					RequestMovement(TargetPosition);
 				}
 			}
 		}
 	}
-
+	*/
 
 	//////////////////////////////////////////////////////////////////////////
 

@@ -64,21 +64,21 @@ public abstract partial class Entity : IEntitySimulation
 	/// <summary> Before Simulation Stage </summary>
 	void	IEntitySimulation.BeforeSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
-		BeforeSimulationStage( movementType, destination, target, timeScaleTarget );
+		BeforeSimulationStage(movementType, destination, target, timeScaleTarget);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Simulate Movement, Return true if is Busy otherwise false </summary>
 	bool	IEntitySimulation.SimulateMovement( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
-		return SimulateMovement( movementType, destination, target, timeScaleTarget );
+		return SimulateMovement(movementType, destination, target, timeScaleTarget);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> After Simulation Stage </summary>
 	void	IEntitySimulation.AfterSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
-		AfterSimulationStage( movementType, destination, target, timeScaleTarget );
+		AfterSimulationStage(movementType, destination, target, timeScaleTarget);
 	}
 
 	//////////////////////////////////////////////////////////////////////////

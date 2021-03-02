@@ -37,11 +37,11 @@ public partial class Player {
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	bool	OnLoad( StreamData streamData, ref StreamUnit streamUnit )
 	{
-		bool bResult = base.OnLoad( streamData, ref streamUnit );
+		bool bResult = base.OnLoad(streamData, ref streamUnit);
 		if (bResult)
 		{
 			// Cutscene Manager
-			if (m_HasCutsceneManager && m_CutsceneManager.IsPlaying )
+			if (m_HasCutsceneManager && m_CutsceneManager.IsPlaying)
 				m_CutsceneManager.Terminate();
 
 			// UI effect reset
@@ -61,19 +61,16 @@ public partial class Player {
 	//		this.m_DodgeAbilityTarget.gameObject.SetActive( false );
 	//		this.m_ChosingDodgeRotation						= false;
 	//		this.m_DodgeInterpolant							= 0f;
-			UnityEngine.PostProcessing.MotionBlurModel.Settings settings								= FPSEntityCamera.Instance.PP_Profile.motionBlur.settings;
+			var settings								= FPSEntityCamera.Instance.PP_Profile.motionBlur.settings;
 			settings.frameBlending						= 0f;
 			FPSEntityCamera.Instance.PP_Profile.motionBlur.settings = settings;
 	//		this.m_IsDodging = false;
 
 			// Player internals
 			m_Interactable								= null;
-			m_Move										= Vector3.zero;
 			m_RaycastHit								= default( RaycastHit );
 
 			DropEntityDragged();
-
-			m_ForwardSmooth = m_RightSmooth = m_UpSmooth = 0f;
 
 			// Health
 			m_Health			= streamUnit.GetAsFloat( "Health" );
@@ -82,11 +79,13 @@ public partial class Player {
 			m_Stamina			= streamUnit.GetAsFloat( "Stamina" );
 
 			// Crouch state
-			m_States.IsCrouched = streamUnit.GetAsBool( "IsCrouched" );
+		//	m_States.IsCrouched = streamUnit.GetAsBool( "IsCrouched" );
 
 			// Motion Type
-			m_CurrentMotionType	= streamUnit.GetAsEnum<EMotionType>( "MotionType");
-			SetMotionType(m_CurrentMotionType );
+			EMotionType motionType = streamUnit.GetAsEnum<EMotionType>( "MotionType");
+			SetMotionType(motionType);
+
+			// TODO Load motion data ?
 
 			m_RigidBody.useGravity = false;
 
@@ -154,8 +153,8 @@ public partial class Player {
 		// Apply gravity
 		{
 			// add RELATIVE gravity force
-			Vector3 gravity = transform.up * Physics.gravity.y;
-			m_RigidBody.AddForce(gravity, ForceMode.Acceleration);
+	//		Vector3 gravity = transform.up * Physics.gravity.y;
+	//		m_RigidBody.AddForce(gravity, ForceMode.Acceleration);
 		}
 	}
 	
@@ -189,8 +188,7 @@ public partial class Player {
 			FPSEntityCamera.Instance.PP_Profile.vignette.settings = settings;
 		}
 
-
-		#region		INTERACTIONS
+		// Interactions
 		{
 			Vector3 position  = FPSEntityCamera.Instance.transform.position;
 			Vector3 direction = FPSEntityCamera.Instance.transform.forward;
@@ -202,7 +200,6 @@ public partial class Player {
 				Utils.Base.TrySearchComponent(m_RaycastHit.transform.gameObject, ESearchContext.LOCAL, out m_Interactable);
 			}
 		}
-		#endregion
 
 		#region TO IMPLEMENT (Water)
 		////////////////////////////////////////////////////////////////////////////////////////
@@ -262,19 +259,19 @@ public partial class Player {
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Movement Update
 		{
-			switch (m_CurrentMotionType)
-			{
-				case EMotionType.Walking:	{ Update_Walk(DeltaTime);		break; }
-				case EMotionType.Flying:	{ /*Update_Fly(); 		break;*/ throw new System.NotImplementedException(); }
-				case EMotionType.Swimming:	{ /*Update_Swim();		break;*/ throw new System.NotImplementedException(); }
-				case EMotionType.P1ToP2:	{ /*Update_P1ToP2();	break;*/ throw new System.NotImplementedException(); }
-			}
-
-			// trace previuos states
-			m_PreviousStates.Assign(m_States);
-
-			// Reset "local" states
-			m_States.Reset();
+		//	switch (m_CurrentMotionType)
+		//	{
+		//		case EMotionType.Walking:	{ Update_Walk(DeltaTime);		break; }
+		//		case EMotionType.Flying:	{ /*Update_Fly(); 		break;*/ throw new System.NotImplementedException(); }
+		//		case EMotionType.Swimming:	{ /*Update_Swim();		break;*/ throw new System.NotImplementedException(); }
+		//		case EMotionType.P1ToP2:	{ /*Update_P1ToP2();	break;*/ throw new System.NotImplementedException(); }
+		//	}
+		//
+		//	// trace previuos states
+		//	m_PreviousStates.Assign(m_States);
+		//
+		//	// Reset "local" states
+		//	m_States.Reset();
 		}
 	}
 	
