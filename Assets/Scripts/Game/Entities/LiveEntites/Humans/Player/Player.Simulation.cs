@@ -12,16 +12,14 @@ public partial class Player
 		m_MovementOverrideEnabled				= true;
 		m_SimulationStartPosition				= transform.position;
 
-//		GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, false);
-//		InputManager.IsEnabled					= false;
-		GlobalManager.InputMgr.DisableCategory( EInputCategory.ALL );
+		GlobalManager.InputMgr.DisableCategory(EInputCategory.ALL);
 
 		prevInterpolation						= m_RigidBody.interpolation;
 		m_RigidBody.interpolation				= RigidbodyInterpolation.Interpolate;
 
 		m_MotionStrategy.SetOverridenInputs(true);
 
-		DropEntityDragged();
+		DropDraggedObject();
 	}
 
 
@@ -43,7 +41,6 @@ public partial class Player
 
 		if (simulationDistanceTravelled > simulationdDistanceToTravel)
 		{
-			//		m_SimulationStartPosition = transform.position;
 			m_MotionStrategy.OverrideMove(ESimMovementType.STATIONARY, Vector3.zero);
 			return false;				// force logic update
 		}
@@ -57,18 +54,11 @@ public partial class Player
 
 		FPSEntityCamera.Instance.SetTarget(target);
 
-		//	POSITION BY DISTANCE
-		{
-			bool isWalking	= ( movementType != ESimMovementType.RUN );
-			bool isRunning	= !isWalking;
-			bool isCrouched = ( movementType == ESimMovementType.CROUCHED );
-
-			m_MotionStrategy.States.IsWalking	= isWalking;
-			m_MotionStrategy.States.IsRunning	= isRunning;
-			m_MotionStrategy.States.IsCrouched	= isCrouched;
-			m_MotionStrategy.States.IsMoving	= movementType != ESimMovementType.STATIONARY;
-			m_MotionStrategy.OverrideMove(movementType, direction.normalized);
-		}
+		m_MotionStrategy.States.IsWalking	= movementType != ESimMovementType.RUN;
+		m_MotionStrategy.States.IsRunning	= !m_MotionStrategy.States.IsWalking;
+		m_MotionStrategy.States.IsCrouched	= movementType == ESimMovementType.CROUCHED;
+		m_MotionStrategy.States.IsMoving	= movementType != ESimMovementType.STATIONARY;
+		m_MotionStrategy.OverrideMove(movementType, direction.normalized);
 		return true;
 	}
 
@@ -76,8 +66,10 @@ public partial class Player
 	//////////////////////////////////////////////////////////////////////////
 	protected override		void		AfterSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
-	//	FPSEntityCamera.Instance.SetTarget(null); TODO why?
 		m_SimulationStartPosition = Vector3.zero;
+
+		FPSEntityCamera.Instance.SetTarget(target);
+
 		m_MotionStrategy.OverrideMove(ESimMovementType.STATIONARY, Vector3.zero);
 	}
 
@@ -85,27 +77,21 @@ public partial class Player
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		ExitSimulationState()
 	{
-		m_MovementOverrideEnabled = false;
-		m_SimulationStartPosition = Vector3.zero;
+		m_MovementOverrideEnabled				= false;
+		m_SimulationStartPosition				= Vector3.zero;
 
-		m_RigidBody.interpolation = prevInterpolation;
-
-//		if ( FPSEntityCamera.Instance.Target.IsNotNull() )
-//		{
-//			Vector3 projectedTarget = Utils.Math.ProjectPointOnPlane(transform.up, transform.position, FPSEntityCamera.Instance.Target.position );
-//			Quaternion rotation = Quaternion.LookRotation( projectedTarget - transform.position, transform.up );
-//			transform.rotation = rotation;
-//		}
+		m_RigidBody.interpolation				= prevInterpolation;
 
 		m_MotionStrategy.States.IsWalking		= false;
 		m_MotionStrategy.States.IsRunning		= false;
+		m_MotionStrategy.States.IsCrouched		= false;
 		m_MotionStrategy.States.IsMoving		= false;
 
-		Time.timeScale			= 1f;
+		SoundManager.Pitch = Time.timeScale = 1f;
 
-//		GlobalManager.InputMgr.SetCategory(InputCategory.CAMERA, true);
-//		InputManager.IsEnabled = true;
-		GlobalManager.InputMgr.EnableCategory( EInputCategory.ALL );
+		GlobalManager.InputMgr.EnableCategory(EInputCategory.ALL);
+
+		FPSEntityCamera.Instance.SetTarget(null);
 
 		m_MotionStrategy.OverrideMove(ESimMovementType.STATIONARY, Vector3.zero);
 		m_MotionStrategy.SetOverridenInputs(false);

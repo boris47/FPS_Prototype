@@ -1,65 +1,67 @@
 ﻿
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class Turret_AI_Behaviour_Attacker : AIBehaviour {
-
+public class Turret_AI_Behaviour_Attacker : AIBehaviour
+{
 	public override void OnEnable()
 	{
-		
+		base.OnEnable();
 	}
 
 	public override void OnDisable()
 	{
-		
+		base.OnDisable();
 	}
 
-	public override void OnSave( StreamUnit streamUnit )
+	public override void OnSave(StreamUnit streamUnit)
 	{
-		
+		base.OnSave(streamUnit);
 	}
 
-	public override void OnLoad( StreamUnit streamUnit )
+	public override void OnLoad(StreamUnit streamUnit)
 	{
-		
+		base.OnLoad(streamUnit);
 	}
 
-	public override void OnHit( IBullet bullet )
+	public override void OnHit(IBullet bullet)
 	{
-		OnHit( bullet.StartPosition, bullet.WhoRef, bullet.Damage, bullet.CanPenetrate );
+		base.OnHit(bullet);
+
+		OnHit(bullet.StartPosition, bullet.WhoRef, bullet.Damage, bullet.CanPenetrate);
 	}
 
-	public override void OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
+	public override void OnHit(Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false)
 	{
-		if (EntityData.EntityRef.IsAlive && whoRef.IsAlive && EntityData.TargetInfo.CurrentTarget.ID == whoRef.AsInterface.ID )
-		{
-			EntityData.EntityRef.SetPointToLookAt( startPosition );
-		}
+		base.OnHit(startPosition, whoRef, damage, canPenetrate);
+
+		EntityData.EntityRef.SetPointToLookAt(startPosition);
 	}
 
-	public override void OnDestinationReached( Vector3 Destination )
+	public override void OnDestinationReached(Vector3 Destination)
 	{
-		
+		base.OnDestinationReached(Destination);
+
+		EntityData.EntityRef.NavReset();
 	}
 
 	public override void OnThink()
 	{
-		
+		base.OnThink();
 	}
 
-	public override void OnPhysicFrame( float FixedDeltaTime )
+	public override void OnPhysicFrame(float FixedDeltaTime)
 	{
-		
+		base.OnPhysicFrame(FixedDeltaTime);
 	}
 
-	public override void OnFrame( float DeltaTime )
+	public override void OnFrame(float DeltaTime)
 	{
+		base.OnFrame(DeltaTime);
+
 		// Update targeting
-		if (EntityData.TargetInfo.HasTarget == true )
+		if (EntityData.TargetInfo.HasTarget)
 		{
-			EntityData.EntityRef.SetPointToLookAt(EntityData.TargetInfo.CurrentTarget.AsEntity.transform.position );
+			EntityData.EntityRef.SetPointToLookAt(EntityData.TargetInfo.CurrentTarget.AsEntity.transform.position);
 
 			// with a target, if gun alligned, fire
 			if (EntityData.EntityRef.CanFire() == true )
@@ -69,14 +71,14 @@ public class Turret_AI_Behaviour_Attacker : AIBehaviour {
 		}
 	}
 
-	public override void OnPauseSet( bool isPaused )
+	public override void OnPauseSet(bool isPaused)
 	{
-		
+		base.OnPauseSet(isPaused);
 	}
 
 	public override void OnTargetAcquired()
 	{
-		
+		base.OnTargetAcquired();
 	}
 
 	public override void OnTargetChange()
@@ -86,6 +88,8 @@ public class Turret_AI_Behaviour_Attacker : AIBehaviour {
 
 	public override void OnTargetLost()
 	{
+		base.OnTargetChange();
+
 		// Orientation
 		{
 			Vector3 newPointToLookAt = EntityData.TargetInfo.CurrentTarget.AsEntity.transform.position + EntityData.TargetInfo.CurrentTarget.RigidBody.velocity.normalized;
@@ -103,7 +107,7 @@ public class Turret_AI_Behaviour_Attacker : AIBehaviour {
 
 	public override void OnKilled()
 	{
-		
+		base.OnKilled();
 	}
 
 }

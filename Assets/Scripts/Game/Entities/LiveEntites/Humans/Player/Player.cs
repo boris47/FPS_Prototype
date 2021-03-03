@@ -10,7 +10,6 @@ public partial class Player : Human
 
 	private	static	Player			m_Instance						= null;
 	public	static	Player			Instance						=> m_Instance;
-	public	static	IEntity			Entity							= null;
 
 	private		GameObject			m_GrabPoint						= null;
 	[SerializeField, ReadOnly]
@@ -54,7 +53,6 @@ public partial class Player : Human
 
 		base.Awake();
 
-		Entity = this as IEntity;
 		transform.TrySearchComponentByChildName("PNAT", out m_PlayerNearAreaTrigger);
 		transform.TrySearchComponentByChildName("PFAT", out m_PlayerFarAreaTrigger);
 
@@ -185,7 +183,7 @@ public partial class Player : Human
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public					void	DropEntityDragged()
+	public					void	DropDraggedObject()
 	{
 		if (m_CurrentGrabbed.IsNotNull())
 		{
@@ -218,7 +216,7 @@ public partial class Player : Human
 			float distance = (m_CurrentGrabbed.Transform.position - m_GrabPoint.transform.position ).sqrMagnitude;
 			if ( distance > (m_UseDistance * m_UseDistance) + 0.1f )
 			{
-				DropEntityDragged();
+				DropDraggedObject();
 				return;
 			}
 
@@ -324,7 +322,7 @@ public partial class Player : Human
 	{
 		if (m_CurrentGrabbed.IsNotNull())
 		{
-			DropEntityDragged();
+			DropDraggedObject();
 			return;
 		}
 

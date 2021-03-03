@@ -13,22 +13,23 @@ public class MotionStrategy_Empty : MotionStrategyBase
 
 
 	//////////////////////////////////////////////////////////////////////////
+	protected override void OnPhysicFrame(float fixedDeltaTime)
+	{
+		Rigidbody rigidBody = m_Entity.AsInterface.RigidBody;
+
+		rigidBody.velocity = Vector3.zero;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	protected override void OnFrame(float deltaTime)
 	{
 		
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	protected override void OnLateFrame(float DeltaTime)
+	protected override void OnLateFrame(float deltaTime)
 	{
 		
-	}
-
-	//////////////////////////////////////////////////////////////////////////
-	protected override void OnPhysicFrame(float fixedDeltaTime)
-	{
-		Rigidbody rigidBody = m_Entity.AsInterface.RigidBody;
-
-		rigidBody.velocity = Vector3.zero;
 	}
 }

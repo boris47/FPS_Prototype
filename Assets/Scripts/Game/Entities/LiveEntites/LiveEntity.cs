@@ -90,7 +90,7 @@ public abstract partial class LiveEntity : Entity
 	//////////////////////////////////////////////////////////////////////////
 	protected override void OnFrame( float DeltaTime )
 	{
-		//		base.OnFrame( DeltaTime );
+		//		base.OnFrame( DeltaTime ); // TODO Re-enable this
 
 		m_OxygenCurrentLevel -= DeltaTime;
 	}

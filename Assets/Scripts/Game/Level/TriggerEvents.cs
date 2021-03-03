@@ -54,8 +54,8 @@ public class TriggerEvents : MonoBehaviour {
 			m_Collider.isTrigger = true; // ensure is used as trigger
 			m_Collider.enabled = false;
 
-			m_OnEnter.AddListener( ( GameObject go ) => { m_OnEnterEvent( go ); } );
-			m_OnExit.AddListener ( ( GameObject go ) => { m_OnExitEvent( go ); } ); 
+			m_OnEnter.AddListener( ( GameObject go ) => m_OnEnterEvent( go ) );
+			m_OnExit.AddListener ( ( GameObject go ) => m_OnExitEvent( go ) ); 
 
 			GameManager.StreamEvents.OnSave += StreamEvents_OnSave;
 			GameManager.StreamEvents.OnLoad += StreamEvents_OnLoad;
@@ -66,7 +66,7 @@ public class TriggerEvents : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private bool StreamEvents_OnSave( StreamData streamData, ref StreamUnit streamUnit )
 	{
-		streamUnit = streamData.NewUnit(gameObject );
+		streamUnit = streamData.NewUnit(gameObject);
 		streamUnit.SetInternal("HasTriggered", m_HasTriggered);
 		streamUnit.SetInternal("TriggerOnce", m_TriggerOnce);
 		return true;
@@ -77,7 +77,7 @@ public class TriggerEvents : MonoBehaviour {
 	private bool StreamEvents_OnLoad( StreamData streamData, ref StreamUnit streamUnit )
 	{
 		// Get unit
-		bool bResult = streamData.TryGetUnit(gameObject, out streamUnit );
+		bool bResult = streamData.TryGetUnit(gameObject, out streamUnit);
 		if ( bResult )
 		{
 			// TRIGGERED

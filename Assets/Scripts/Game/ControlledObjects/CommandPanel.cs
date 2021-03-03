@@ -90,7 +90,7 @@ public class CommandPanel : MonoBehaviour {
 	{
 		if ( other.GetInstanceID() == m_Activator.Collider.GetInstanceID() )
 		{
-			Player.Instance.DropEntityDragged();
+			Player.Instance.DropDraggedObject();
 
 			m_ObjectToControl.OnActivation();
 			m_IsTriggered = true;

@@ -1,5 +1,6 @@
 ﻿
 using UnityEngine;
+using UnityEngine.PostProcessing;
 
 public class FPSEntityCamera : CameraBase
 {
@@ -131,8 +132,12 @@ public class FPSEntityCamera : CameraBase
 		bool bResult = streamData.TryGetUnit(gameObject, out streamUnit);
 		if ( bResult )
 		{
+			MotionBlurModel.Settings settings = m_PP_Profile.motionBlur.settings;
+			settings.frameBlending = 0f;
+			m_PP_Profile.motionBlur.settings = settings;
+
 			// Current internal direction
-		//	m_CurrentDirection = streamUnit.GetAsVector( "CurrentDirection" );
+			//	m_CurrentDirection = streamUnit.GetAsVector( "CurrentDirection" );
 
 			// Can parse input
 			GlobalManager.InputMgr.SetCategory(EInputCategory.CAMERA, streamUnit.GetAsBool( "CanParseInput" ));
@@ -160,13 +165,39 @@ public class FPSEntityCamera : CameraBase
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public void		SetViewPoint( Transform entityHead, Transform entityBody )
+	private void	OnOwnerDeath(Entity entitykilled)
 	{
+		// reset effect
+		VignetteModel.Settings settings = m_PP_Profile.vignette.settings;
+		settings.intensity = 0f;
+		m_PP_Profile.vignette.settings = settings;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public void		SetViewPoint(Transform entityHead, Transform entityBody)
+	{
+		if (m_EntityHead)
+		{
+			if (m_EntityHead.TrySearchComponent(ESearchContext.LOCAL_AND_PARENTS, out Entity parent))
+			{
+				parent.OnEvent_Killed -= OnOwnerDeath;
+			}
+		}
+
 		m_EntityHead = entityHead;
 		m_EntityBody = entityBody;
 		transform.SetParent(entityHead);
 		transform.localPosition = Vector3.zero;
 		transform.localRotation = Quaternion.identity;
+
+		if (m_EntityHead)
+		{
+			if (m_EntityHead.TrySearchComponent(ESearchContext.LOCAL_AND_PARENTS, out Entity parent))
+			{
+				parent.OnEvent_Killed += OnOwnerDeath;
+			}
+		}
 	}
 
 	//////////////////////////////////////////////////////////////////////////

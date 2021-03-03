@@ -117,11 +117,11 @@ public abstract partial class Entity : IBrain {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public	virtual void	Brain_SetActive( bool State )
+	public	virtual void	Brain_SetActive(bool State)
 	{
 		m_IsBrainActive = State;
 
-		if (m_IsBrainActive )
+		if (m_IsBrainActive)
 		{
 			GameManager.FieldsOfViewManager.RegisterAgent(m_FieldOfView, m_FieldOfView.UpdateFOV);
 		}
@@ -136,12 +136,10 @@ public abstract partial class Entity : IBrain {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual	void	OnThinkBrain()
 	{
-		if (m_IsBrainActive == false )
-			return;
-
-		//	m_FieldOfView.UpdateFOV();
-
-		UpdateMemory();
+		if (m_IsBrainActive)
+		{
+			UpdateMemory();
+		}
 	}
 
 

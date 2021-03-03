@@ -1,15 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-
+[System.Serializable]
 public enum EMotionType
 {
-	NONE		= 1 << 0,
-	WALK		= 1 << 1,
-	PLATFORM	= 1 << 2,
-	FLY			= 1 << 3,
-	SWIM		= 1 << 4,
-	COUNT		= 1 << 5
+	NONE		= 0,
+	WALK		= 1,
+	PLATFORM	= 2,
+	FLY			= 3,
+	SWIM		= 4
 };
 
 
@@ -118,8 +117,9 @@ public abstract class MotionStrategyBase : MonoBehaviour
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected virtual void OnEnable()
+	public virtual void Enable()
 	{
+		print($"Enabling {GetType().Name}");
 		foreach (MotionBindingsData bindingsData in m_Bindings)
 		{
 			GlobalManager.InputMgr.BindCall(bindingsData.command, bindingsData.id, bindingsData.action, bindingsData.predicate);
@@ -134,8 +134,9 @@ public abstract class MotionStrategyBase : MonoBehaviour
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected virtual void OnDisable()
+	public virtual void Disable()
 	{
+		print($"Disabling {GetType().Name}");
 		foreach (MotionBindingsData bindingsData in m_Bindings)
 		{
 			GlobalManager.InputMgr.UnbindCall(bindingsData.command, bindingsData.id);
@@ -165,7 +166,7 @@ public abstract class MotionStrategyBase : MonoBehaviour
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected virtual void OnLateFrame(float DeltaTime)
+	protected virtual void OnLateFrame(float deltaTime)
 	{
 		// trace previuos states
 		m_PreviousStates.Assign(m_States);

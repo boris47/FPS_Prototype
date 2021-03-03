@@ -47,43 +47,29 @@ public partial class Player {
 			// UI effect reset
 			UIManager.EffectFrame.color = Color.clear;
 
-			// Dodging reset
-	//		if (this.m_DodgeCoroutine != null )
-	//		{
-	//			this.StopCoroutine(this.m_DodgeCoroutine );
-	//		}
 			m_RigidBody.constraints						= RigidbodyConstraints.FreezeRotation;
 			m_RigidBody.velocity						= Vector3.zero;
 
 			GlobalManager.SetTimeScale( 1.0f );
 
-	//		this.m_DodgeRaycastNormal						= Vector3.zero;
-	//		this.m_DodgeAbilityTarget.gameObject.SetActive( false );
-	//		this.m_ChosingDodgeRotation						= false;
-	//		this.m_DodgeInterpolant							= 0f;
-			var settings								= FPSEntityCamera.Instance.PP_Profile.motionBlur.settings;
-			settings.frameBlending						= 0f;
-			FPSEntityCamera.Instance.PP_Profile.motionBlur.settings = settings;
-	//		this.m_IsDodging = false;
-
 			// Player internals
 			m_Interactable								= null;
-			m_RaycastHit								= default( RaycastHit );
+			m_RaycastHit								= default;
 
-			DropEntityDragged();
+			DropDraggedObject();
 
 			// Health
-			m_Health			= streamUnit.GetAsFloat( "Health" );
+			m_Health			= streamUnit.GetAsFloat("Health");
 
 			// Stamina
-			m_Stamina			= streamUnit.GetAsFloat( "Stamina" );
-
-			// Crouch state
-		//	m_States.IsCrouched = streamUnit.GetAsBool( "IsCrouched" );
+			m_Stamina			= streamUnit.GetAsFloat("Stamina");
 
 			// Motion Type
-			EMotionType motionType = streamUnit.GetAsEnum<EMotionType>( "MotionType");
+			EMotionType motionType = streamUnit.GetAsEnum<EMotionType>("MotionType");
 			SetMotionType(motionType);
+
+			// Crouch state
+			m_MotionStrategy.States.IsCrouched = streamUnit.GetAsBool("IsCrouched");
 
 			// TODO Load motion data ?
 
@@ -136,25 +122,13 @@ public partial class Player {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		OnPhysicFrame( float fixedDeltaTime )
+	protected	override	void		OnPhysicFrame(float fixedDeltaTime)
 	{
-		if (m_IsActive == false )
-			return;
-
-		MoveGrabbedObject(fixedDeltaTime);
-		CheckIfUnderSomething();
-	//	CheckForFallOrUserBreak();
-
-		m_RigidBody.angularVelocity = Vector3.zero;
-
-		float drag = IsGrounded ? 7f : 0.0f;
-		m_RigidBody.drag = drag;
-		
-		// Apply gravity
+		if (m_IsActive)
 		{
-			// add RELATIVE gravity force
-	//		Vector3 gravity = transform.up * Physics.gravity.y;
-	//		m_RigidBody.AddForce(gravity, ForceMode.Acceleration);
+			MoveGrabbedObject(fixedDeltaTime);
+			CheckIfUnderSomething();
+		//	CheckForFallOrUserBreak();
 		}
 	}
 	
@@ -252,47 +226,20 @@ public partial class Player {
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	protected override void OnLateFrame(float DeltaTime)
+	protected		override	void		OnLateFrame(float DeltaTime)
 	{
 		base.OnLateFrame(DeltaTime);
-
-		////////////////////////////////////////////////////////////////////////////////////////
-		// Movement Update
-		{
-		//	switch (m_CurrentMotionType)
-		//	{
-		//		case EMotionType.Walking:	{ Update_Walk(DeltaTime);		break; }
-		//		case EMotionType.Flying:	{ /*Update_Fly(); 		break;*/ throw new System.NotImplementedException(); }
-		//		case EMotionType.Swimming:	{ /*Update_Swim();		break;*/ throw new System.NotImplementedException(); }
-		//		case EMotionType.P1ToP2:	{ /*Update_P1ToP2();	break;*/ throw new System.NotImplementedException(); }
-		//	}
-		//
-		//	// trace previuos states
-		//	m_PreviousStates.Assign(m_States);
-		//
-		//	// Reset "local" states
-		//	m_States.Reset();
-		}
 	}
 	
 
 	//////////////////////////////////////////////////////////////////////////
 	protected		override	void		OnKill()
 	{
-		// remove parent for camera
-		FPSEntityCamera.Instance.transform.SetParent(null);
-
-		m_IsActive = false;
-
-		// reset effect
-		UnityEngine.PostProcessing.VignetteModel.Settings settings = FPSEntityCamera.Instance.PP_Profile.vignette.settings;
-		settings.intensity = 0f;
-		FPSEntityCamera.Instance.PP_Profile.vignette.settings = settings;
+		base.OnKill();
 
 		// disable weapon actions
 		WeaponManager.Instance.CurrentWeapon.Enabled = false;
 		WeaponManager.Instance.Enabled = false;
-		
 		
 		// Disable camera updates
 		FPSEntityCamera.Instance.enabled = false;
@@ -306,16 +253,4 @@ public partial class Player {
 		// print a message
 		print( "U r dead" );
 	}
-
-	/*
-	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		OnDestroy()
-	{
-		if ( m_DodgeAbilityTarget != null )
-			Destroy( m_DodgeAbilityTarget.gameObject );
-
-		m_Instance = null;
-		Entity = null;
-	}
-	*/
 }

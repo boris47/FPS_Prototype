@@ -8,7 +8,7 @@ public class OnHitEventGrabbedHandler : MonoBehaviour {
 	{
 		if ( collision.transform.HasComponent<Bullet>() )
 		{
-			Player.Instance.DropEntityDragged();
+			Player.Instance.DropDraggedObject();
 			Destroy(this);
 		}
 	}

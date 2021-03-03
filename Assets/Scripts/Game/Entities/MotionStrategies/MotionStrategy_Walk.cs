@@ -54,16 +54,34 @@ public class MotionStrategy_Walk : MotionStrategyBase
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected override void OnFrame(float deltaTime)
+	protected override void OnPhysicFrame(float fixedDeltaTime)
 	{
+		base.OnPhysicFrame(fixedDeltaTime);
 
+		Rigidbody rigidBody = m_Entity.AsInterface.RigidBody;
+
+		rigidBody.angularVelocity = Vector3.zero;
+
+		float drag = m_Entity.IsGrounded ? 7f : 0.0f;
+		rigidBody.drag = drag;
+
+		// add RELATIVE gravity force
+		Vector3 gravity = m_Body.up * Physics.gravity.y;
+		rigidBody.AddForce(gravity, ForceMode.Acceleration);
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected override void OnLateFrame(float DeltaTime)
+	protected override void OnFrame(float deltaTime)
 	{
-		base.OnLateFrame(DeltaTime);
+		base.OnFrame(deltaTime);
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected override void OnLateFrame(float deltaTime)
+	{
+		base.OnLateFrame(deltaTime);
 
 		Rigidbody rigidBody = m_Entity.AsInterface.RigidBody;
 
@@ -76,7 +94,6 @@ public class MotionStrategy_Walk : MotionStrategyBase
 		{
 			if (m_Entity.IsGrounded)
 			{
-
 				// Forward and strafe
 				Vector3 localVelocity = rigidBody.transform.InverseTransformDirection(rigidBody.velocity);
 				{
@@ -99,23 +116,14 @@ public class MotionStrategy_Walk : MotionStrategyBase
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected override void OnPhysicFrame(float fixedDeltaTime)
-	{
-		// add RELATIVE gravity force
-		Vector3 gravity = m_Body.up * Physics.gravity.y;
-		m_Entity.AsInterface.RigidBody.AddForce(gravity, ForceMode.Acceleration);
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private bool Predicate_Move()
+	protected bool Predicate_Move()
 	{
 		return m_Entity.IsGrounded;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private void Action_MoveForward()
+	protected void Action_MoveForward()
 	{
 		m_States.IsMoving = true;
 
@@ -129,7 +137,7 @@ public class MotionStrategy_Walk : MotionStrategyBase
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private void Action_MoveBackward()
+	protected void Action_MoveBackward()
 	{
 		m_States.IsMoving = true;
 
@@ -143,7 +151,7 @@ public class MotionStrategy_Walk : MotionStrategyBase
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private void Action_MoveRight()
+	protected void Action_MoveRight()
 	{
 		m_States.IsMoving = true;
 
@@ -158,7 +166,7 @@ public class MotionStrategy_Walk : MotionStrategyBase
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private void Action_MoveLeft()
+	protected void Action_MoveLeft()
 	{
 		m_States.IsMoving = true;
 
@@ -173,14 +181,14 @@ public class MotionStrategy_Walk : MotionStrategyBase
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private bool Predicate_Run()
+	protected bool Predicate_Run()
 	{
-		return true;//( ( m_States.IsCrouched && !m_IsUnderSomething ) || !m_States.IsCrouched );
+		return true;//( ( m_States.IsCrouched && !m_IsUnderSomething ) || !m_States.IsCrouched ); // TODO re-implement
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private void Action_Run()
+	protected void Action_Run()
 	{
 		m_States.IsCrouched = false;
 		m_States.IsRunning = true;
@@ -188,17 +196,16 @@ public class MotionStrategy_Walk : MotionStrategyBase
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private bool Predicate_Jump()
+	protected bool Predicate_Jump()
 	{
 		return m_Entity.IsGrounded && !m_States.IsJumping && !m_States.IsHanging && !m_States.IsFalling;// && m_CurrentGrabbed == null;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private void Action_Jump()
+	protected void Action_Jump()
 	{
 		m_Move.y = m_JumpForce / (m_States.IsCrouched ? 1.5f : 1.0f);
 		m_States.IsJumping = true;
 	}
-
 }

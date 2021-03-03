@@ -1,17 +1,14 @@
 ﻿
-using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 
 
-public interface IFieldsOfViewManager {
+public interface IFieldsOfViewManager
+{
+	bool RegisterAgent(FieldOfView agent, System.Action update);
 
-	bool	RegisterAgent( FieldOfView agent, System.Action update );
+	bool IsRegistered(FieldOfView agent);
 
-	bool	IsRegistered( FieldOfView agent );
-
-	bool	UnregisterAgent( FieldOfView agent );
-
+	bool UnregisterAgent(FieldOfView agent);
 };
 
 

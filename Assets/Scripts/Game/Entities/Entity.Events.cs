@@ -146,10 +146,10 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void		OnDisable()
 	{
-		Brain_SetActive( false );
+		Brain_SetActive(false);
 
 		// Events un-registration
-		if ( GameManager.Instance != null )
+		if ( GameManager.Instance.IsNotNull())
 		{
 			GameManager.StreamEvents.OnSave				-= OnSave;
 			GameManager.StreamEvents.OnLoad				-= OnLoad;
@@ -173,21 +173,20 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		bool	OnSave( StreamData streamData, ref StreamUnit streamUnit )
 	{
-		if (m_IsActive == false )
-			return true;
-
-		streamUnit		= streamData.NewUnit(gameObject);
-		streamUnit.Position			= transform.position;
-		streamUnit.Rotation			= transform.rotation;
-
-		if ( m_EntityType != EEntityType.ACTOR )
+		if (m_IsActive)
 		{
-			foreach (AIBehaviour b in m_Behaviours)
+			streamUnit = streamData.NewUnit(gameObject);
+			streamUnit.Position = transform.position;
+			streamUnit.Rotation = transform.rotation;
+
+			if (m_EntityType != EEntityType.ACTOR)
 			{
-				b.OnSave( streamUnit );
+				foreach (AIBehaviour b in m_Behaviours)
+				{
+					b.OnSave(streamUnit);
+				}
 			}
 		}
-
 		return true;
 	}
 
@@ -224,7 +223,7 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 		}
 		else
 		{
-			gameObject.SetActive( false );
+			gameObject.SetActive(false);
 			m_IsActive = false;
 		}
 		return bResult;
@@ -304,7 +303,7 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void		OnPhysicFrame( float FixedDeltaTime )
 	{
-		m_CurrentBehaviour.OnPhysicFrame( FixedDeltaTime );
+		m_CurrentBehaviour.OnPhysicFrame(FixedDeltaTime);
 	}
 
 
@@ -313,9 +312,9 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	{
 		UpdateHeadRotation();
 
-		m_CurrentBehaviour.OnFrame( DeltaTime );
+		m_CurrentBehaviour.OnFrame(DeltaTime);
 
-		if (m_NavAgent.IsNotNull() )
+		if (m_NavAgent)
 		{
 			m_NavAgent.speed = m_BlackBoardData.AgentSpeed;
 		}
@@ -334,7 +333,7 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 		m_CurrentBehaviour.OnTargetAcquired();
 //		Memory.Add( targetInfo.CurrentTarget as Entity );
 
-		m_OnTarget( targetInfo );
+		m_OnTarget(targetInfo);
 	}
 	
 
@@ -343,7 +342,7 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	{
 		m_CurrentBehaviour.OnTargetChange();
 
-		m_OnTarget( targetInfo );
+		m_OnTarget(targetInfo);
 	}
 
 	
@@ -352,7 +351,7 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	{
 		m_CurrentBehaviour.OnTargetLost();
 
-		m_OnTarget( targetInfo );
+		m_OnTarget(targetInfo);
 //		Memory.Remove( targetInfo.CurrentTarget as Entity );
 	}
 
@@ -374,18 +373,15 @@ public abstract partial class Entity : MonoBehaviour, IEntityEvents {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void		OnKill()
 	{
-		if (m_IsActive == false )
-			return;
-
 		m_IsActive = false;
 
 		m_RigidBody.velocity			= Vector3.zero;
 		m_RigidBody.angularVelocity		= Vector3.zero;
 
-		EffectsManager.Instance.PlayEffect( EffectsManager.EEffecs.EXPLOSION, transform.position, transform.up, 0 );
-		EffectsManager.Instance.PlayExplosionSound(EffectsManager.EEffecs.EXPLOSION, transform.position );
+	//	EffectsManager.Instance.PlayEffect( EffectsManager.EEffecs.EXPLOSION, transform.position, transform.up, 0 );
+	//	EffectsManager.Instance.PlayExplosionSound(EffectsManager.EEffecs.EXPLOSION, transform.position );
 
-		m_CurrentBehaviour.OnKilled();
+		m_CurrentBehaviour?.OnKilled();
 
 		m_OnKilled( this );
 
