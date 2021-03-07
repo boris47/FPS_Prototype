@@ -39,7 +39,7 @@ public class Interactable : MonoBehaviour//, IInteractable
 	protected		bool			m_CanInteract						= true;
 
 	protected		bool			m_HasInteracted						= false;
-	public			bool			HasInteracted						=> m_HasInteracted;
+	public			bool			HasBeenInteracted						=> m_HasInteracted;
 	
 	//-
 	public			bool				HasRetroInteraction

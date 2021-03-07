@@ -3,17 +3,8 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-
-public interface IBulletGeneric
-{
-
-}
-
-
-/// <summary>
-/// Base class for projectiles
-/// </summary>
-public abstract class BulletGeneric : Bullet, IBulletGeneric
+/// <summary> Base class for projectiles  </summary>
+public abstract class BulletGeneric : Bullet
 {
 	protected		Light				m_PointLight			= null;
 	protected		LensFlare			m_LensFlare				= null;
@@ -102,11 +93,11 @@ public abstract class BulletGeneric : Bullet, IBulletGeneric
 
 			EffectsManager.EEffecs effectToPlay = EffectsManager.EEffecs.ENTITY_ON_HIT;
 
-			if ( Utils.Base.TrySearchComponent( hit.transform.gameObject, ESearchContext.LOCAL, out IEntity entity ) )
+			if ( Utils.Base.TrySearchComponent( hit.transform.gameObject, ESearchContext.LOCAL, out Entity entity ) )
 			{
-				entity.Events.OnHittedBullet( this );
+				entity.OnHittedBullet( this );
 			}
-			else if ( Utils.Base.TrySearchComponent( hit.transform.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out IShield shield ) )
+			else if ( Utils.Base.TrySearchComponent( hit.transform.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out Shield shield ) )
 			{
 				shield.CollisionHit(gameObject );
 			}
@@ -193,11 +184,11 @@ public abstract class BulletGeneric : Bullet, IBulletGeneric
 			return;
 
 		EffectsManager.EEffecs effectToPlay = EffectsManager.EEffecs.ENTITY_ON_HIT;
-		if ( Utils.Base.TrySearchComponent( otherCollider.gameObject, ESearchContext.LOCAL_AND_PARENTS, out IEntity entity) )
+		if ( Utils.Base.TrySearchComponent( otherCollider.gameObject, ESearchContext.LOCAL_AND_PARENTS, out Entity entity) )
 		{
-			entity.Events.OnHittedDetails( m_StartPosition, m_WhoRef, m_DamageType, 0, m_CanPenetrate );
+			entity.OnHittedDetails( m_StartPosition, m_WhoRef, m_DamageType, 0, m_CanPenetrate );
 		}
-		else if ( Utils.Base.TrySearchComponent( otherCollider.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out IShield shield ) )
+		else if ( Utils.Base.TrySearchComponent( otherCollider.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out Shield shield ) )
 		{
 			shield.CollisionHit( gameObject );
 		}

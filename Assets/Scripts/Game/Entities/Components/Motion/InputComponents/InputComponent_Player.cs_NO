@@ -1,0 +1,98 @@
+﻿using UnityEngine;
+
+public class InputComponent_Player : InputComponent
+{
+	/*
+	protected struct MotionBindingsData
+	{
+		public EInputCommands command;
+		public string id;
+		public System.Action action;
+		public System.Func<bool> predicate;
+
+		public MotionBindingsData(EInputCommands command, string id, System.Action action, System.Func<bool> predicate)
+		{
+			this.command = command;
+			this.id = id;
+			this.action = action;
+			this.predicate = predicate;
+		}
+	}
+	*/
+	/*
+	private MotionBindingsData[] m_Bindings_Grounded => new MotionBindingsData[]
+	{
+		new MotionBindingsData( EInputCommands.MOVE_FORWARD,        "ForwardEvent",     Action_MoveForward,     Predicate_Move  ),
+		new MotionBindingsData( EInputCommands.MOVE_BACKWARD,       "BackwardEvent",    Action_MoveBackward,    Predicate_Move  ),
+		new MotionBindingsData( EInputCommands.MOVE_LEFT,           "LeftEvent",        Action_MoveLeft,        Predicate_Move  ),
+		new MotionBindingsData( EInputCommands.MOVE_RIGHT,          "RightEvent",       Action_MoveRight,       Predicate_Move  ),
+
+		new MotionBindingsData( EInputCommands.STATE_RUN,           "RunEvent",         Action_Run,             Predicate_Run   ),
+		new MotionBindingsData( EInputCommands.STATE_JUMP,          "JumpEvent",        Action_Jump,            Predicate_Jump  ),
+		new MotionBindingsData( EInputCommands.STATE_CROUCH,		"CrouchEvent",		() => { },				null            ),
+	};
+	*/
+	/*
+	private MotionBindingsData[] m_Bindings_Climb => new MotionBindingsData[]
+	{
+		new MotionBindingsData( EInputCommands.MOVE_FORWARD,        "ForwardEvent",     Action_MoveForward,     Predicate_Move  ),
+		new MotionBindingsData( EInputCommands.MOVE_BACKWARD,       "BackwardEvent",    Action_MoveBackward,    Predicate_Move  ),
+		new MotionBindingsData( EInputCommands.MOVE_LEFT,           "LeftEvent",        Action_MoveLeft,        Predicate_Move  ),
+		new MotionBindingsData( EInputCommands.MOVE_RIGHT,          "RightEvent",       Action_MoveRight,       Predicate_Move  ),
+
+		new MotionBindingsData( EInputCommands.STATE_RUN,           "RunEvent",         Action_Run,             Predicate_Run   ),
+		new MotionBindingsData( EInputCommands.STATE_JUMP,          "JumpEvent",        Action_Jump,            Predicate_Jump  ),
+		new MotionBindingsData( EInputCommands.STATE_CROUCH,		"CrouchEvent",		() => { },				null            ),
+	};
+	*/
+
+	private MotionStrategy_Grounded.MotionData_Grounded	m_MotionData = null;
+
+
+
+	public override void SetStrategy(MotionStrategyBase.MotionDataBase motionData)
+	{
+		// Disable previous
+		{
+			MotionBindingsData[] bindings = null;
+			switch (m_MotionType)
+			{
+				case EMotionType.NONE:		bindings = new MotionBindingsData[0];		break; // TODO
+				case EMotionType.GROUNDED:	bindings = m_Bindings_Grounded;				break;
+				case EMotionType.CLIMB:		bindings = new MotionBindingsData[0];		break; // TODO
+				case EMotionType.FLY:		bindings = new MotionBindingsData[0];		break; // TODO
+				case EMotionType.SWIM:		bindings = new MotionBindingsData[0];		break; // TODO
+			}
+
+			UnityEngine.Assertions.Assert.IsNotNull(bindings);
+
+			foreach (MotionBindingsData bindingsData in bindings)
+			{
+				GlobalManager.InputMgr.UnbindCall(bindingsData.command, bindingsData.id);
+			}
+		}
+
+		m_MotionType = motionData.MotionType;
+
+		// Enable current
+		{
+			MotionBindingsData[] bindings = null;
+			switch (m_MotionType)
+			{
+				case EMotionType.NONE:		bindings = new MotionBindingsData[0];		break; // TODO
+				case EMotionType.GROUNDED:	bindings = m_Bindings_Grounded;			m_MotionData = motionData as MotionStrategy_Grounded.MotionData_Grounded; break;
+				case EMotionType.CLIMB:		bindings = new MotionBindingsData[0];		break; // TODO
+				case EMotionType.FLY:		bindings = new MotionBindingsData[0];		break; // TODO
+				case EMotionType.SWIM:		bindings = new MotionBindingsData[0];		break; // TODO
+			}
+
+			UnityEngine.Assertions.Assert.IsNotNull(bindings);
+
+			foreach (MotionBindingsData bindingsData in bindings)
+			{
+				GlobalManager.InputMgr.BindCall(bindingsData.command, bindingsData.id, bindingsData.action, bindingsData.predicate);
+			}
+		}
+
+	}
+}

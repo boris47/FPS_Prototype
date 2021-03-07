@@ -1,0 +1,38 @@
+﻿using UnityEngine;
+
+public interface IMotion_Player : IMotion_Common
+{
+/*	bool	IsLeaning				{ get; }
+	bool	IsWalking				{ get; }
+	bool	IsRunning				{ get; }
+	bool	IsJumping				{ get; }
+	bool	IsHanging				{ get; }
+	bool	IsFalling				{ get; }
+	bool	IsCrouched				{ get; }
+*/
+}
+
+// TODO Merge Motion strategies into Motion components
+public class Motion_Player : Motion_Common, IMotion_Player
+{
+/*	[SerializeField]
+	protected	Foots		m_Foots						= null;
+	[SerializeField]
+	protected	bool		m_IsUnderSomething			= false;
+
+    // STATES
+    public		bool		IsLeaning					=>  m_MotionStrategy.States.IsLeaning;
+    public		bool		IsWalking					=>  m_MotionStrategy.States.IsWalking;
+    public		bool		IsRunning					=>  m_MotionStrategy.States.IsRunning;
+    public		bool		IsJumping					=>  m_MotionStrategy.States.IsJumping;
+    public		bool		IsHanging					=>  m_MotionStrategy.States.IsHanging;
+    public		bool		IsFalling					=>  m_MotionStrategy.States.IsFalling;
+    public		bool		IsCrouched					=>  m_MotionStrategy.States.IsCrouched;
+
+*/
+	//////////////////////////////////////////////////////////////////////////
+	protected override void Resolve_Internal(Entity entity, Database.Section entitySection)
+	{
+		base.Resolve_Internal(entity, entitySection);
+	}
+}

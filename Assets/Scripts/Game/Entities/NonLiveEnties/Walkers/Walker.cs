@@ -23,7 +23,16 @@ public abstract class Walker : NonLiveEntity {
 	[SerializeField, ReadOnly]
 	protected	uint			m_PoolSize					= 5;
 */
-	protected 	override EEntityType			m_EntityType => EEntityType.ROBOT;
+	protected 	override EEntityType				m_EntityType			=> EEntityType.ROBOT;
+
+	protected	override EntityComponentContainer[] m_RequiredComponents	=> new EntityComponentContainer[]
+	{
+		new EntityComponentContainer_Memory<Memory_Common>(),
+		new EntityComponentContainer_Inventory<Inventory_Common>(),
+		new EntityComponentContainer_Motion<Motion_Common>(),
+		new EntityComponentContainer_Behaviours<Behaviours_Common>(),
+		new EntityComponentContainer_Navigation<Navigation_Common>()
+	};
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void	Awake()
@@ -74,23 +83,8 @@ public abstract class Walker : NonLiveEntity {
 
 		m_Pool.SetActive( true );
 		m_ShotTimer = 0f;
-	*/	m_MaxAgentSpeed = m_MoveMaxSpeed;
-	}
-
-	
-	//////////////////////////////////////////////////////////////////////////
-	
-	public		override	void	OnDestinationReached( Vector3 Destionation )
-	{
-		base.OnDestinationReached( Destionation );
-	}
-
-	
-	//////////////////////////////////////////////////////////////////////////
-
-	protected	override	void	OnFrame( float deltaTime )
-	{
-		base.OnFrame( deltaTime );
+	*/
+		Navigation.MaxAgentSpeed = m_MoveMaxSpeed;
 	}
 
 	
@@ -106,9 +100,8 @@ public abstract class Walker : NonLiveEntity {
 
 	//////////////////////////////////////////////////////////////////////////
 
-	protected	override		void	UpdateHeadRotation()
+	public virtual		void	UpdateHeadRotation()
 	{
-		base.UpdateHeadRotation();
 		// ORIENTATION
 		// BODY
 		{
@@ -134,7 +127,7 @@ public abstract class Walker : NonLiveEntity {
 /*			Vector3 pointToLookAt = m_LookData.PointToLookAt;
 			if (m_TargetInfo.HasTarget == true )
 			{
-				Vector3 targetPosition = m_TargetInfo.CurrentTarget.AsEntity.transform.position;
+				Vector3 targetPosition = m_TargetInfo.CurrentTarget.transform.position;
 				IBullet model = m_Pool.TryPeekComponentAs<IBullet>();
 				if ( model.MotionType == EBulletMotionType.PARABOLIC )
 				{

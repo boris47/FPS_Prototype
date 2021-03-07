@@ -1,19 +1,8 @@
 ﻿
-using System;
-using System.Collections;
 using UnityEngine;
 
 
-public interface IBulletEnergy
-{
-
-}
-
-
-/// <summary>
-/// Base class for projectiles
-/// </summary>
-public abstract class BulletEnergy : Bullet, IBulletEnergy
+public abstract class BulletEnergy : Bullet
 {
 	protected		Light				m_PointLight			= null;
 	protected		LensFlare			m_LensFlare				= null;
@@ -34,9 +23,7 @@ public abstract class BulletEnergy : Bullet, IBulletEnergy
 	}
 
 
-
 	//////////////////////////////////////////////////////////////////////////
-	// SetupBulletCO ( Override )
 	protected override void SetupBullet()
 	{
 		base.SetupBullet();
@@ -55,8 +42,8 @@ public abstract class BulletEnergy : Bullet, IBulletEnergy
 		SetActive( false );
 	}
 
+
 	//////////////////////////////////////////////////////////////////////////
-	// Setup ( Override )
 	public	override		void	Setup( Entity whoRef, Weapon weaponRef )
 	{
 		m_WhoRef		= whoRef;
@@ -67,29 +54,9 @@ public abstract class BulletEnergy : Bullet, IBulletEnergy
 			whoRef.SetCollisionStateWith(m_Collider, state: false );
 		}
 	}
-
-	/*
-	//////////////////////////////////////////////////////////////////////////
-	// Update ( Override )
-	protected	override	void	Update()
-	{
-		// Only every 25 frames
-		if ( Time.frameCount % 25 == 0 )
-			return;
-
-		m_RigidBody.velocity	= m_RigidBodyVelocity;
-		transform.up			= m_RigidBodyVelocity;
-
-		float traveledDistance = ( m_StartPosition - transform.position ).sqrMagnitude;
-		if ( traveledDistance > m_Range * m_Range )
-		{
-			SetActive( false );
-		}
-	}
-	*/
+	
 
 	//////////////////////////////////////////////////////////////////////////
-	// Shoot ( Override )
 	public		override	void	Shoot( Vector3 position, Vector3 direction, float? velocity )
 	{
 		switch (m_BulletMotionType )
@@ -107,8 +74,7 @@ public abstract class BulletEnergy : Bullet, IBulletEnergy
 	}
 
 	
-		//////////////////////////////////////////////////////////////////////////
-	// ShootInstant ( Virtual )
+	//////////////////////////////////////////////////////////////////////////
 	public	override		void	ShootInstant( Vector3 position, Vector3 direction, float? maxDistance )
 	{
 		bool bHasHit = Physics.Raycast(position, direction, out RaycastHit hit, Mathf.Infinity, Utils.LayersHelper.Layers_AllButOne("Bullets"));
@@ -120,11 +86,11 @@ public abstract class BulletEnergy : Bullet, IBulletEnergy
 
 			EffectsManager.EEffecs effectToPlay = EffectsManager.EEffecs.ENTITY_ON_HIT;
 
-			if ( Utils.Base.TrySearchComponent( hit.transform.gameObject, ESearchContext.LOCAL, out IEntity entity ) )
+			if ( Utils.Base.TrySearchComponent( hit.transform.gameObject, ESearchContext.LOCAL, out Entity entity ) )
 			{
-				entity.Events.OnHittedBullet( this );
+				entity.OnHittedBullet( this );
 			}
-			else if ( Utils.Base.TrySearchComponent( hit.transform.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out IShield shield ) )
+			else if ( Utils.Base.TrySearchComponent( hit.transform.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out Shield shield ) )
 			{
 				shield.CollisionHit(gameObject );
 			}
@@ -140,7 +106,6 @@ public abstract class BulletEnergy : Bullet, IBulletEnergy
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ShootDirect ( Virtual )
 	public	override		void	ShootDirect( Vector3 position, Vector3 direction, float? velocity )
 	{
 		transform.up			= direction;
@@ -153,7 +118,6 @@ public abstract class BulletEnergy : Bullet, IBulletEnergy
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ShootParabolic ( Virtual )
 	public	override		void	ShootParabolic( Vector3 position, Vector3 direction, float? velocity )
 	{
 		transform.up			= direction;
@@ -166,7 +130,6 @@ public abstract class BulletEnergy : Bullet, IBulletEnergy
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// SetActive ( Override )
 	public		override	void	SetActive( bool state )
 	{
 		// Reset
@@ -178,74 +141,69 @@ public abstract class BulletEnergy : Bullet, IBulletEnergy
 
 		m_RigidBody.angularVelocity = Vector3.zero;
 		m_RigidBody.detectCollisions = state;
-		//	m_Collider.enabled = state;
-		//	m_Renderer.enabled = state;
+	//	m_Collider.enabled = state;
+	//	m_Renderer.enabled = state;
 		gameObject.SetActive( state );
 	//	this.enabled = state;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnTriggerEnter ( Override )
 	protected override void OnTriggerEnter( Collider other )
 	{
 		bool bIsBullet = other.transform.HasComponent<Bullet>();
-		if ( bIsBullet == true )
+		if (bIsBullet)
 			return;
 
 		EffectsManager.EEffecs effectToPlay = EffectsManager.EEffecs.ENTITY_ON_HIT;
 
-		if (Utils.Base.TrySearchComponent( other.gameObject, ESearchContext.LOCAL, out IEntity entity ) )
+		if (Utils.Base.TrySearchComponent(other.gameObject, ESearchContext.LOCAL, out Entity entity))
 		{
-			entity.Events.OnHittedDetails(m_StartPosition, m_WhoRef, m_DamageType, 0, m_CanPenetrate );
+			entity.OnHittedDetails(m_StartPosition, m_WhoRef, m_DamageType, 0, m_CanPenetrate);
 		}
-		else if ( Utils.Base.TrySearchComponent( other.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out IShield shield ) )
+		else if (Utils.Base.TrySearchComponent(other.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out Shield shield))
 		{
-			shield.CollisionHit(gameObject );
+			shield.CollisionHit(gameObject);
 		}
 		else
 		{
 			effectToPlay = EffectsManager.EEffecs.AMBIENT_ON_HIT;
 		}
 
-		;
-
-		Vector3 position = other.ClosestPointOnBounds(transform.position );
+		Vector3 position = other.ClosestPointOnBounds(transform.position);
 		Vector3 direction = other.transform.position - position;
-		EffectsManager.Instance.PlayEffect( effectToPlay, position, direction, 3 );
+		EffectsManager.Instance.PlayEffect(effectToPlay, position, direction, 3);
 
-		SetActive( false );
+		SetActive(false);
 	}
 
 	
 	//////////////////////////////////////////////////////////////////////////
-	// OnCollisionEnter ( Override )
 	protected	override	void	OnCollisionEnter( Collision collision )
 	{
 		bool bIsBullet = collision.transform.HasComponent<Bullet>();
-		if ( bIsBullet == true )
+		if (bIsBullet)
 			return;
 
 		EffectsManager.EEffecs effectToPlay = EffectsManager.EEffecs.ENTITY_ON_HIT;
 
-		if ( Utils.Base.TrySearchComponent( collision.gameObject, ESearchContext.LOCAL, out IEntity entity ) )
+		if (Utils.Base.TrySearchComponent(collision.gameObject, ESearchContext.LOCAL, out Entity entity))
 		{
-			entity.Events.OnHittedDetails(m_StartPosition, m_WhoRef, m_DamageType, 0, m_CanPenetrate );
+			entity.OnHittedDetails(m_StartPosition, m_WhoRef, m_DamageType, 0, m_CanPenetrate);
 		}
-		else if ( Utils.Base.TrySearchComponent( collision.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out IShield shield ) )
+		else if (Utils.Base.TrySearchComponent(collision.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out Shield shield))
 		{
-			shield.CollisionHit(gameObject );
+			shield.CollisionHit(gameObject);
 		}
 		else
 		{
 			effectToPlay = EffectsManager.EEffecs.AMBIENT_ON_HIT;
 		}
 
-		Vector3 position  = collision.contacts[0].point;
+		Vector3 position = collision.contacts[0].point;
 		Vector3 direction = collision.contacts[0].normal;
-		EffectsManager.Instance.PlayEffect( effectToPlay, position, direction, 3 );
+		EffectsManager.Instance.PlayEffect(effectToPlay, position, direction, 3);
 
-		SetActive( false );
+		SetActive(false);
 	}
-	
 }

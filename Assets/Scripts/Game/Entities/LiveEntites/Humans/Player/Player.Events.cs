@@ -22,13 +22,13 @@ public partial class Player {
 			streamUnit.SetInternal( "Health", m_Health );
 
 			// Stamina
-			streamUnit.SetInternal( "Stamina", m_Stamina );
+		//	streamUnit.SetInternal( "Stamina", m_Stamina );
 
 			// Crouch state
-			streamUnit.SetInternal( "IsCrouched", IsCrouched );
+		//	streamUnit.SetInternal( "IsCrouched", IsCrouched );
 
 			// Motion Type
-			streamUnit.SetInternal( "MotionType", m_CurrentMotionType );
+		//	streamUnit.SetInternal( "MotionType", m_CurrentMotionType );
 		}
 		return bResult;
 	}
@@ -41,8 +41,12 @@ public partial class Player {
 		if (bResult)
 		{
 			// Cutscene Manager
-			if (m_HasCutsceneManager && m_CutsceneManager.IsPlaying)
+			if (m_CutsceneManager.IsPlaying)
+			{
 				m_CutsceneManager.Terminate();
+			}
+
+
 
 			// UI effect reset
 			UIManager.EffectFrame.color = Color.clear;
@@ -50,26 +54,14 @@ public partial class Player {
 			m_RigidBody.constraints						= RigidbodyConstraints.FreezeRotation;
 			m_RigidBody.velocity						= Vector3.zero;
 
-			GlobalManager.SetTimeScale( 1.0f );
-
-			// Player internals
-			m_Interactable								= null;
-			m_RaycastHit								= default;
-
-			DropDraggedObject();
-
 			// Health
 			m_Health			= streamUnit.GetAsFloat("Health");
 
 			// Stamina
-			m_Stamina			= streamUnit.GetAsFloat("Stamina");
-
-			// Motion Type
-			EMotionType motionType = streamUnit.GetAsEnum<EMotionType>("MotionType");
-			SetMotionType(motionType);
+		//	m_Stamina			= streamUnit.GetAsFloat("Stamina");
 
 			// Crouch state
-			m_MotionStrategy.States.IsCrouched = streamUnit.GetAsBool("IsCrouched");
+		//	Motion.States.IsCrouched = streamUnit.GetAsBool("IsCrouched");
 
 			// TODO Load motion data ?
 
@@ -79,61 +71,53 @@ public partial class Player {
 		return bResult;
 	}
 
-
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		OnTargetAquired( TargetInfo targetInfo )
 	{
-
+		base.OnTargetAquired(targetInfo);
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		OnTargetChanged( TargetInfo targetInfo )
 	{
-
+		base.OnTargetChanged(targetInfo);
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		OnTargetLost( TargetInfo targetInfo )
 	{
-
+		base.OnTargetLost(targetInfo);
 	}
-
+	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	public		override	void		OnHittedDetails( Vector3 startPosition, Entity whoRef, EDamageType damageType, float damage, bool canPenetrate = false )
 	{
 		m_DamageEffect = 0.2f; // damage / m_Health;
 
-		m_Health -= damage;
+		base.OnHittedDetails(startPosition, whoRef, damageType, damage, canPenetrate);
+
 		UIManager.InGame.UpdateUI();
-
-		if (m_Health < 0f )
-			OnKill();
 	}
 
-
-	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		OnThink()
-	{
-
-	}
-
-
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void		OnPhysicFrame(float fixedDeltaTime)
 	{
+		base.OnPhysicFrame(fixedDeltaTime);
+
 		if (m_IsActive)
 		{
-			MoveGrabbedObject(fixedDeltaTime);
-			CheckIfUnderSomething();
+//			CheckIfUnderSomething();
 		//	CheckForFallOrUserBreak();
 		}
 	}
-	
+	*/
 
-
+	/*
 	// Pick eventual collision info from camera to up
 	private					void		CheckIfUnderSomething()
 	{
@@ -142,17 +126,12 @@ public partial class Player {
 		Vector3 cameraUpPosition = position + (upwards * 0.3f);
 		m_IsUnderSomething = Physics.Linecast(position, cameraUpPosition, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
 	}
-
+	*/
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		OnFrame(float deltaTime)
+	private	void		OnFrame(float deltaTime)
 	{
-		base.OnFrame( deltaTime );
-
-		if (!m_IsActive)
-			return;
-
 		// Damage Effect
 		if (m_DamageEffect > 0.0f)
 		{
@@ -161,7 +140,7 @@ public partial class Player {
 			settings.intensity = m_DamageEffect;
 			FPSEntityCamera.Instance.PP_Profile.vignette.settings = settings;
 		}
-
+		/*
 		// Interactions
 		{
 			Vector3 position  = FPSEntityCamera.Instance.transform.position;
@@ -174,7 +153,7 @@ public partial class Player {
 				Utils.Base.TrySearchComponent(m_RaycastHit.transform.gameObject, ESearchContext.LOCAL, out m_Interactable);
 			}
 		}
-
+		*/
 		#region TO IMPLEMENT (Water)
 		////////////////////////////////////////////////////////////////////////////////////////
 		// Water
@@ -223,12 +202,6 @@ public partial class Player {
 				}
 		*/
 		#endregion
-	}
-
-	//////////////////////////////////////////////////////////////////////////
-	protected		override	void		OnLateFrame(float DeltaTime)
-	{
-		base.OnLateFrame(DeltaTime);
 	}
 	
 

@@ -1,9 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 
-public interface IExplosive {
+public interface IExplosive
+{
 	bool		BlowOnHit							{ get; }
 	bool		AttachOnHit							{ get; }
 	float		BlastRadius							{ get; }
@@ -12,11 +11,13 @@ public interface IExplosive {
 	void		ForceExplosion						();
 }
 
-public interface IFlyingExplosive {
+public interface IFlyingExplosive
+{
 	float		GetMaxRange							();
 }
 
-public interface ITimedExplosive {
+public interface ITimedExplosive
+{
 	float		GetExplosionDelay					();
 	float		GetRemainingTime					();
 	float		GetRemainingTimeNormalized			();

@@ -6,14 +6,14 @@ namespace CutScene {
 	public	class EntityCutsceneController
 	{
 		[SerializeField, ReadOnly]
-		private		Entity							m_EntityParent				= null;
+		private		Entity							m_Entity				= null;
 		[SerializeField, ReadOnly]
 		private		PointsCollectionOnline			m_PointsCollection			= null;
 		[SerializeField, ReadOnly]
 		private		int								m_CurrentIdx				= 0;
 
 		[SerializeField, ReadOnly]
-		private		ESimMovementType				m_MovementType				= ESimMovementType.WALK;
+		private		EMovementType				m_MovementType				= EMovementType.WALK;
 		[SerializeField, ReadOnly]
 		private		Vector3							m_Destination				= Vector3.zero;
 		[SerializeField, ReadOnly]
@@ -23,18 +23,15 @@ namespace CutScene {
 		[SerializeField, ReadOnly]
 		private		Waiter_Base						m_Waiter					= null;
 
-		private		IEntitySimulation				m_EntitySimulation			= null;
-
 
 		//////////////////////////////////////////////////////////////////////////
-		public	void	Setup(Entity entityParent, PointsCollectionOnline pointCollection)
+		public	void	Setup(Entity entity, PointsCollectionOnline pointCollection)
 		{
-			m_EntityParent		= entityParent;
-			m_EntitySimulation	= entityParent;
+			m_Entity		= entity;
 			m_PointsCollection	= pointCollection;
 			m_CurrentIdx		= 0;
 
-			m_EntitySimulation.EnterSimulationState();
+			m_Entity.EnterSimulationState();
 
 			CutsceneWaypointData data = m_PointsCollection[m_CurrentIdx];
 			SetupForNextWaypoint(data);
@@ -49,7 +46,7 @@ namespace CutScene {
 			m_TimeScaleTarget			= Mathf.Clamp01(data.timeScaleTraget);		// time scale for this trip
 
 			// WEAPON ZOOM
-			if (m_EntityParent is Player)
+			if (m_Entity is Player)
 			{
 				if (WeaponManager.Instance.CurrentWeapon.WeaponState == EWeaponState.DRAWED)
 				{
@@ -70,9 +67,9 @@ namespace CutScene {
 			{
 				// MOVEMENT
 				Vector3 destination = data.point.position;  // destination to reach
-				if (Physics.Raycast(destination, -m_EntityParent.transform.up, out RaycastHit hit))
+				if (Physics.Raycast(destination, -m_Entity.transform.up, out RaycastHit hit))
 				{
-					m_Destination = Utils.Math.ProjectPointOnPlane(m_EntityParent.transform.up, m_EntityParent.transform.position, hit.point);
+					m_Destination = Utils.Math.ProjectPointOnPlane(m_Entity.transform.up, m_Entity.transform.position, hit.point);
 				}
 				else
 				{
@@ -82,7 +79,7 @@ namespace CutScene {
 			}
 
 			// BEFORE A SIMULATION STAGE
-			m_EntitySimulation.BeforeSimulationStage(m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
+			m_Entity.BeforeSimulationStage(m_MovementType, m_Destination, m_Target, m_TimeScaleTarget );
 		}
 
 
@@ -91,7 +88,7 @@ namespace CutScene {
 		public	bool	Update()
 		{
 			// Continue simulation until need updates
-			bool isBusy = m_EntitySimulation.SimulateMovement(m_MovementType, m_Destination, m_Target, m_TimeScaleTarget);
+			bool isBusy = m_Entity.SimulateMovement(m_MovementType, m_Destination, m_Target, m_TimeScaleTarget);
 			if (isBusy) // if true is currently simulating and here we have to wait simulation to be completed
 			{
 				return false;
@@ -100,7 +97,7 @@ namespace CutScene {
 			// If a waiter is defined, we have to wait for its completion
 			if (m_Waiter && m_Waiter.HasToWait)
 			{
-				Vector3 tempDestination = Utils.Math.ProjectPointOnPlane(m_EntityParent.transform.up, m_Destination, m_EntityParent.transform.position);
+				Vector3 tempDestination = Utils.Math.ProjectPointOnPlane(m_Entity.transform.up, m_Destination, m_Entity.transform.position);
 			//	m_EntitySimulation.SimulateMovement(ESimMovementType.STATIONARY, tempDestination, m_Target, m_TimeScaleTarget); // Why?? TODO
 				m_Waiter.Wait();
 				return false;
@@ -113,7 +110,7 @@ namespace CutScene {
 			m_PointsCollection[m_CurrentIdx].OnWayPointReached?.Invoke();
 
 			// AFTER A SIMULATION STAGE
-			m_EntitySimulation.AfterSimulationStage(m_MovementType, m_Destination, m_Target, m_TimeScaleTarget);
+			m_Entity.AfterSimulationStage(m_MovementType, m_Destination, m_Target, m_TimeScaleTarget);
 
 			// Next waypoint index
 			++m_CurrentIdx;
@@ -141,11 +138,11 @@ namespace CutScene {
 	//			WeaponManager.Instance.ZoomOut();
 
 			// Called on entity in order to reset vars or everything else
-			m_EntitySimulation.ExitSimulationState();
+			m_Entity.ExitSimulationState();
 
 			// Resetting internals
 			m_CurrentIdx						= 0;
-			m_MovementType						= ESimMovementType.WALK;
+			m_MovementType						= EMovementType.WALK;
 			m_Destination						= Vector3.zero;
 			m_Target							= null;
 			m_TimeScaleTarget					= 1f;

@@ -5,42 +5,27 @@ using UnityEngine;
 [System.Serializable]
 public abstract partial class LiveEntity : Entity
 {
-	protected	IFoots				m_Foots						= null;
-	public		IFoots				Foots
-	{
-		get => m_Foots;
-	}
-	[Header("Live Entity Properties")]
+//	[Header("Live Entity Properties")]
 
-	[SerializeField]
-	protected	float				m_OxygenBaseLevel			= 100f;
-	public		float				OxygenBaseLevel
-	{
-		get => m_OxygenBaseLevel;
-	}
+//	[SerializeField]
+//	protected	float				m_OxygenBaseLevel			= 100f;
 
+//	[SerializeField]
+//	protected	float				m_OxygenCurrentLevel		= 100f;
 
-	[SerializeField]
-	protected	float				m_OxygenCurrentLevel		= 100f;
-	public		float				OxygenCurrentLevel
-	{
-		get => m_OxygenCurrentLevel;
-	}
+//	[SerializeField]
+//	protected	float				m_Stamina					= 0f;
 
+	
+//	public		float				OxygenBaseLevel				=> m_OxygenBaseLevel;
+//	public		float				OxygenCurrentLevel			=> m_OxygenCurrentLevel;
+//	public		float				Stamina
+//	{
+//		get => m_Stamina;
+//		set => m_Stamina = Mathf.Clamp01(value);
+//	}
 
-	[SerializeField]
-	protected	float				m_UseDistance				= 1f;
-
-	// Stamina always reach 1.0f
-	[SerializeField]
-	protected	float				m_Stamina					= 0f;
-	public		float				Stamina
-	{
-		get => m_Stamina;
-		set => m_Stamina = Mathf.Clamp01( value );
-	}
-
-
+	/*
 	[System.NonSerialized]
 	protected	float				m_WalkJumpCoef				= 0f;
 	[System.NonSerialized]
@@ -65,46 +50,40 @@ public abstract partial class LiveEntity : Entity
 	protected	float				m_StaminaRunMin				= 0f;
 	[System.NonSerialized]
 	protected	float				m_StaminaJumpMin			= 0f;
+	*/
 	
-
-	protected	bool				m_IsUnderSomething			= false;
-	
-	/// <summary> If currently is tired ( stanco ) </summary>
-	[System.NonSerialized]
-	protected	bool				m_Tiredness					= false;
 	/// <summary> In current frame the player has completed a heavy fall </summary>
-	[System.NonSerialized]
-	protected	bool				m_HeavyFall					= false;
+//	[System.NonSerialized]
+//	protected	bool				m_HeavyFall					= false;
 	/// <summary> In current frame the player has reached the ground </summary>
-	[System.NonSerialized]
-	protected	bool				m_Landed					= false;
+//	[System.NonSerialized]
+//	protected	bool				m_Landed					= false;
 
 	//////////////////////////////////////////////////////////////////////////
-	/// <summary> The range is [0, 100] by default </summary>
-	public	virtual void	AddOxygenAmmount( float Ammount )
+/*	public	virtual void	AddOxygenAmmount( float Ammount )
 	{
-		m_OxygenCurrentLevel = Mathf.Min(m_OxygenCurrentLevel + Ammount, m_OxygenBaseLevel );
+		m_OxygenCurrentLevel = Mathf.Min(m_OxygenCurrentLevel + Ammount, m_OxygenBaseLevel);
 	}
+*/
 
-
-	//////////////////////////////////////////////////////////////////////////
-	protected override void OnFrame( float DeltaTime )
+/*	//////////////////////////////////////////////////////////////////////////
+	protected override void OnFrame(float deltaTime)
 	{
-		//		base.OnFrame( DeltaTime ); // TODO Re-enable this
+		base.OnFrame(deltaTime);
 
-		m_OxygenCurrentLevel -= DeltaTime;
+	//	m_OxygenCurrentLevel -= deltaTime;
 	}
-
-
+*/
+	/*
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		EnterSimulationState()
+	public	override	void		EnterSimulationState()
 	{
 		
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		BeforeSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
+	public	override	void		BeforeSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
 		// Movement
 		RequestMovement( destination );
@@ -122,14 +101,14 @@ public abstract partial class LiveEntity : Entity
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	bool		SimulateMovement( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1 )
+	public	override	bool		SimulateMovement( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1 )
 	{
 		return false;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		AfterSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
+	public	override	void		AfterSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
 		NavStop();
 
@@ -138,9 +117,9 @@ public abstract partial class LiveEntity : Entity
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		ExitSimulationState()
+	public	override	void		ExitSimulationState()
 	{
 		
 	}
-
+	*/
 }

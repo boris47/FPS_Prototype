@@ -3,61 +3,56 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class GroupSceneManager : SingletonMonoBehaviour<GroupSceneManager> {
+public class GroupSceneManager : SingletonMonoBehaviour<GroupSceneManager>
+{
+	[SerializeField]
+	private List<EntityGroup> m_Collection = new List<EntityGroup>();
 
-	private static  List<EntityGroup> m_Collection = new List<EntityGroup>();
-
-
-	protected override void OnBeforeSplashScreen()
-	{
-		base.OnBeforeSplashScreen();
-	}
-
-
+	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Register a new group if not already contained </summary>
-	public void RegisterGroup( EntityGroup group )
+	public void RegisterGroup(EntityGroup group)
 	{
-		if ( !m_Collection.Exists( g => g.ID == group.ID ) )
+		if (!m_Collection.Exists(g => g.Id == group.Id))
 		{
-			m_Collection.Add( group );
+			m_Collection.Add(group);
 		}
 	}
 
-
+	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Remove the group </summary>
-	public void UnregisterGroup( EntityGroup group )
+	public void UnregisterGroup(EntityGroup group)
 	{
-		if ( m_Collection.Exists( g => g.ID == group.ID ) )
+		if (m_Collection.Exists(g => g.Id == group.Id))
 		{
-			m_Collection.Remove( group );
+			m_Collection.Remove(group);
 		}
 	}
 
-	/// <summary> Removes the assigned group to all entities belonging the given group </summary>
-	public void DisgregateGroup( EntityGroup group )
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> Removes all entities from the group and destroy it</summary>
+	public void DisgregateGroup(EntityGroup group)
 	{
-		foreach( IEntity entity in group.GetEntites() )
+		foreach (Entity entity in group.GetEntites())
 		{
-			entity.GroupRef.SetGroup(null);
+			entity.SetGroup(null);
 		}
 
-		Object.Destroy( group );
+		Object.Destroy(group);
 	}
 
-
+	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Returns true if group with the given id is found </summary>
-	public bool GetById( System.Guid id, out EntityGroup outGroup )
+	public bool TryGetById(System.Guid id, out EntityGroup outGroup)
 	{
 		outGroup = null;
-		int index = m_Collection.FindIndex( i => i.ID == id );
-		bool  bResult = index >= 0;
-		if ( bResult )
+		int index = m_Collection.FindIndex(i => i.Id == id);
+		bool bResult = index >= 0;
+		if (bResult)
 		{
 			outGroup = m_Collection[index];
 		}
 		return bResult;
 	}
-
 }
 
 

@@ -2,8 +2,8 @@
 using UnityEngine;
 
 
-public sealed class BulletElectro : BulletBallistic {
-
+public sealed class BulletElectro : BulletBallistic
+{
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
@@ -11,8 +11,6 @@ public sealed class BulletElectro : BulletBallistic {
 	{
 		base.Awake();
 	}
-
-
 
 	//////////////////////////////////////////////////////////////////////////
 	// OnCollisionEnter ( Override )
@@ -22,8 +20,8 @@ public sealed class BulletElectro : BulletBallistic {
 		if ( bIsBullet == true )
 			return;
 
-		bool bIsAnEntity = Utils.Base.TrySearchComponent( otherCollider.gameObject, ESearchContext.LOCAL, out IEntity entity );
-		bool bIsShield   = Utils.Base.TrySearchComponent( otherCollider.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out IShield shield );
+		bool bIsAnEntity = Utils.Base.TrySearchComponent( otherCollider.gameObject, ESearchContext.LOCAL, out Entity entity );
+		bool bIsShield   = Utils.Base.TrySearchComponent( otherCollider.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out Shield shield );
 
 		int nParticle = 3;
 
@@ -39,7 +37,7 @@ public sealed class BulletElectro : BulletBallistic {
 		{
 			nParticle = 15;
 			effectToPlay = EffectsManager.EEffecs.ELETTRO;
-			entity.RigidBody.angularVelocity = entity.RigidBody.velocity = Vector3.zero;
+			entity.EntityRigidBody.angularVelocity = entity.EntityRigidBody.velocity = Vector3.zero;
 		}
 		else
 		{

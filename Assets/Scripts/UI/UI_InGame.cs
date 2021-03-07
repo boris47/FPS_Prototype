@@ -169,9 +169,9 @@ public sealed class UI_InGame : UI_Base, IStateDefiner
 		if (m_IsActive == false || m_IsCompletedInitialization == false )
 			return;
 
-		IEntity player				= Player.Instance as IEntity;
-		m_HealthText.text		= Mathf.CeilToInt( player.Health ).ToString();
-		m_WpnNameText.text		= WeaponManager.Instance.CurrentWeapon.Transform.name;
+		Entity player				= Player.Instance;
+		m_HealthText.text			= Mathf.CeilToInt( player.Health ).ToString();
+		m_WpnNameText.text			= WeaponManager.Instance.CurrentWeapon.Transform.name;
 //		m_WpnOtherInfoText.text		= WeaponManager.Instance.CurrentWeapon.OtherInfo;
 	}
 
@@ -271,7 +271,7 @@ public sealed class UI_InGame : UI_Base, IStateDefiner
 
 		m_Timetime.text = Time.timeScale.ToString();
 
-		m_StaminaBarImage.fillAmount = Player.Instance.OxygenCurrentLevel / 100f;
+	//	m_StaminaBarImage.fillAmount = Player.Instance.OxygenCurrentLevel / 100f;
 	}
 	
 }

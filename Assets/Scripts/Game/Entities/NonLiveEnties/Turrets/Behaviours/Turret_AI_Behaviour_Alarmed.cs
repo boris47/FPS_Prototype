@@ -5,84 +5,88 @@ public class Turret_AI_Behaviour_Alarmed : AIBehaviour
 {
 	public override void OnEnable()
 	{
-		base.OnEnable();
+
 	}
 
 	public override void OnDisable()
 	{
-		base.OnDisable();
+
 	}
 
 	public override void OnSave(StreamUnit streamUnit)
 	{
-		base.OnSave(streamUnit);
+
 	}
 
 	public override void OnLoad(StreamUnit streamUnit)
 	{
-		base.OnLoad(streamUnit);
+
 	}
 
 	public override void OnHit(IBullet bullet)
 	{
-		base.OnHit(bullet);
-
 		OnHit(bullet.StartPosition, bullet.WhoRef, bullet.Damage, bullet.CanPenetrate);
 	}
 
 	public override void OnHit(Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false)
 	{
-		base.OnHit(startPosition, whoRef, damage, canPenetrate);
-
-		EntityData.EntityRef.SetPointToLookAt(startPosition);
+	//	EntityData.EntityRef.SetPointToLookAt(startPosition);
 	}
 
 	public override void OnDestinationReached(Vector3 Destination)
 	{
-		base.OnDestinationReached(Destination);
+		
+	}
+
+	public override void OnLookRotationReached(Vector3 Direction)
+	{
+
 	}
 
 	public override void OnThink()
 	{
-		base.OnThink();
+		
 	}
 
 	public override void OnPhysicFrame(float FixedDeltaTime)
 	{
-		base.OnPhysicFrame(FixedDeltaTime);
+		
 	}
 
 	public override void OnFrame(float DeltaTime)
 	{
-		base.OnFrame(DeltaTime);
+		
+	}
+
+	public override void OnLateFrame(float DeltaTime)
+	{
+
 	}
 
 	public override void OnPauseSet(bool isPaused)
 	{
-		base.OnPauseSet(isPaused);
+		
 	}
 
-	public override void OnTargetAcquired()
+	public override void OnTargetAcquired(TargetInfo targetInfo)
 	{
-		base.OnTargetAcquired();
-
 		// Switch brain State
-		EntityData.EntityRef.ChangeState(EBrainState.ATTACKER);
+		EntityData.EntityRef.Behaviours.ChangeState(EBrainState.ATTACKER);
 	}
 
-	public override void OnTargetChange()
+	public override void OnTargetChange(TargetInfo targetInfo)
 	{
-		base.OnTargetChange();
+		
 	}
 
-	public override void OnTargetLost()
+	public override void OnTargetLost(TargetInfo targetInfo)
 	{
-		base.OnTargetLost();
+		
 	}
 
-	public override void OnKilled()
+	public override void OnKilled(Entity entityKilled)
 	{
-		base.OnKilled();
+
 	}
 }
 

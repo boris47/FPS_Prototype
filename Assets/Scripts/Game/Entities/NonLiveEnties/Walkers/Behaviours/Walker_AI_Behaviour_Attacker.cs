@@ -33,9 +33,9 @@ public class Walker_AI_Behaviour_Attacker : AIBehaviour {
 
 	public override void OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
-		if (EntityData.EntityRef.IsAlive && whoRef.IsAlive && EntityData.TargetInfo.CurrentTarget.ID == whoRef.AsInterface.ID )
+		if (EntityData.EntityRef.IsAlive && whoRef.IsAlive && EntityData.TargetInfo.CurrentTarget.Id == whoRef.Id)
 		{
-			EntityData.EntityRef.SetPointToLookAt( startPosition );
+	//		EntityData.EntityRef.SetPointToLookAt( startPosition );
 		}
 	}
 
@@ -44,15 +44,20 @@ public class Walker_AI_Behaviour_Attacker : AIBehaviour {
 		Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
 			planeNormal: EntityData.Body_Up,
 			planePoint: EntityData.Body_Position,
-			point: EntityData.TargetInfo.CurrentTarget.AsEntity.transform.position
+			point: EntityData.TargetInfo.CurrentTarget.transform.position
 		);
 
 
-		bool IsNotUnderEngageDistance = (EntityData.Transform_Position - projectedPoint ).sqrMagnitude > EntityData.EntityRef.MinEngageDistance * EntityData.EntityRef.MinEngageDistance;
-		if ( IsNotUnderEngageDistance )
-		{
-			EntityData.EntityRef.RequestMovement( projectedPoint );
-		}
+	//	bool IsNotUnderEngageDistance = (EntityData.Transform_Position - projectedPoint ).sqrMagnitude > EntityData.EntityRef.MinEngageDistance * EntityData.EntityRef.MinEngageDistance;
+	//	if ( IsNotUnderEngageDistance )
+	//	{
+	//		EntityData.EntityRef.Navigation.RequestMovement( projectedPoint );
+	//	}
+	}
+
+	public override void OnLookRotationReached(Vector3 Direction)
+	{
+		
 	}
 
 	public override void OnThink()
@@ -70,45 +75,50 @@ public class Walker_AI_Behaviour_Attacker : AIBehaviour {
 		// Update targeting
 		if (EntityData.TargetInfo.HasTarget == true )
 		{
-			EntityData.EntityRef.SetPointToLookAt(EntityData.TargetInfo.CurrentTarget.AsEntity.transform.position );
+		//	EntityData.EntityRef.SetPointToLookAt(EntityData.TargetInfo.CurrentTarget.transform.position );
 
-			// with a target, if gun alligned, fire
-			if (EntityData.EntityRef.CanFire() == true )
-			{
-				EntityData.EntityRef.FireWeapon();
-			}
+			// with a target, if gun alligned, fire TODO
+		//	if (EntityData.EntityRef.CanFire() == true )
+		//	{
+		//		EntityData.EntityRef.FireWeapon();
+		//	}
 		}
 
 		// Update PathFinding and movement along path
-		if (EntityData.EntityRef.HasDestination && EntityData.EntityRef.IsAllignedHeadToPoint )
-		{
-			float agentFinalSpeed = 0.0f;
-			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
-				planeNormal: EntityData.Body_Up,
-				planePoint: EntityData.Body_Position,
-				point: EntityData.LookData.PointToLookAt
-			);
+	//	if (EntityData.EntityRef.Navigation.HasDestination && EntityData.EntityRef.IsAllignedHeadToPoint )
+	//	{
+	//		float agentFinalSpeed = 0.0f;
+	//		Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
+	//			planeNormal: EntityData.Body_Up,
+	//			planePoint: EntityData.Body_Position,
+	//			point: EntityData.LookData.PointToLookAt
+	//		);
+	//
+	//		bool IsNotUnderEngageDistance = (EntityData.Transform_Position - projectedPoint ).sqrMagnitude > EntityData.EntityRef.MinEngageDistance * EntityData.EntityRef.MinEngageDistance;
+	//
+	//		if (EntityData.TargetInfo.HasTarget == true )
+	//		{
+	//			if ( IsNotUnderEngageDistance )
+	//			{
+	//				agentFinalSpeed = EntityData.EntityRef.Navigation.MaxAgentSpeed;
+	//			}
+	//			else
+	//			{
+	//				agentFinalSpeed = 0.0f;
+	//			}
+	//		}
+	//		else
+	//		{
+	//			agentFinalSpeed = EntityData.EntityRef.Navigation.MaxAgentSpeed;
+	//		}
+	//
+	//		EntityData.AgentSpeed = agentFinalSpeed;
+	//	}
+	}
 
-			bool IsNotUnderEngageDistance = (EntityData.Transform_Position - projectedPoint ).sqrMagnitude > EntityData.EntityRef.MinEngageDistance * EntityData.EntityRef.MinEngageDistance;
-
-			if (EntityData.TargetInfo.HasTarget == true )
-			{
-				if ( IsNotUnderEngageDistance )
-				{
-					agentFinalSpeed = EntityData.EntityRef.MaxAgentSpeed;
-				}
-				else
-				{
-					agentFinalSpeed = 0.0f;
-				}
-			}
-			else
-			{
-				agentFinalSpeed = EntityData.EntityRef.MaxAgentSpeed;
-			}
-
-			EntityData.AgentSpeed = agentFinalSpeed;
-		}
+	public override void OnLateFrame(float DeltaTime)
+	{
+		
 	}
 
 	public override void OnPauseSet( bool isPaused )
@@ -116,17 +126,17 @@ public class Walker_AI_Behaviour_Attacker : AIBehaviour {
 		
 	}
 
-	public override void OnTargetAcquired()
+	public override void OnTargetAcquired(TargetInfo targetInfo)
 	{
 		
 	}
 
-	public override void OnTargetChange()
+	public override void OnTargetChange(TargetInfo targetInfo)
 	{
 		
 	}
 
-	public override void OnTargetLost()
+	public override void OnTargetLost(TargetInfo targetInfo)
 	{
 		// SEEKING MODE
 
@@ -135,30 +145,30 @@ public class Walker_AI_Behaviour_Attacker : AIBehaviour {
 			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
 				planeNormal: EntityData.Body_Up,
 				planePoint: EntityData.Body_Position,
-				point: EntityData.TargetInfo.CurrentTarget.AsEntity.transform.position
+				point: EntityData.TargetInfo.CurrentTarget.transform.position
 			);
 
 
-			EntityData.EntityRef.RequestMovement( projectedPoint );
+			EntityData.EntityRef.Navigation.RequestMovement( projectedPoint );
 		}
 
 		// Orientation
 		{
-			Vector3 newPointToLookAt = EntityData.TargetInfo.CurrentTarget.AsEntity.transform.position + EntityData.TargetInfo.CurrentTarget.RigidBody.velocity.normalized;
+			Vector3 newPointToLookAt = EntityData.TargetInfo.CurrentTarget.transform.position + EntityData.TargetInfo.CurrentTarget.EntityRigidBody.velocity.normalized;
 			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
 				planeNormal: EntityData.Body_Up,
 				planePoint: EntityData.Head_Position,
 				point:			newPointToLookAt
 			);
 
-			EntityData.EntityRef.SetPointToLookAt( projectedPoint );
+	//		EntityData.EntityRef.SetPointToLookAt( projectedPoint );
 		}
 
 		// TODO Set brain to SEKKER mode
-		EntityData.EntityRef.ChangeState( EBrainState.SEEKER );
+		EntityData.EntityRef.Behaviours.ChangeState( EBrainState.SEEKER );
 	}
 
-	public override void OnKilled()
+	public override void OnKilled(Entity entityKilled)
 	{
 		
 	}

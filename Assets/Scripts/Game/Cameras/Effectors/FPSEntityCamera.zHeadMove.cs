@@ -57,8 +57,8 @@ public class HeadMove : CameraEffectBase
 			return;
 		}
 
-		float	fStamina	= Player.Instance.Stamina;
-		bool	bCrouched	= Player.Instance.IsCrouched;
+		float	fStamina	= 1f; //Player.Instance.Stamina; TODO Restore asap
+		bool	bCrouched	= Player.Instance.Motion.MotionStrategy.States.IsCrouched;
 		bool	bZoomed		= WeaponManager.Instance.IsZoomed;
 
 		float fSpeed = m_SpeedBase * SpeedMul * deltaTime;

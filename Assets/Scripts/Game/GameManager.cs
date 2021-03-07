@@ -4,6 +4,8 @@ using UnityEngine;
 
 public sealed partial class GameManager : MonoBehaviour
 {
+	public const		float						THINK_TIMER						= 0.2f; // 200 ms
+
 	private	static			GameManager		m_Instance				= null;
 	public	static			GameManager		Instance
 	{
@@ -251,7 +253,7 @@ public sealed partial class GameManager : MonoBehaviour
 
 		// Thinking Update
 		m_ThinkTimer += Time.deltaTime;
-		if (m_ThinkTimer > Entity.THINK_TIMER )
+		if (m_ThinkTimer > THINK_TIMER )
 		{
 			m_OnThink();
 			UpdateCurrentFieldOfView();

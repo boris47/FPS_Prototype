@@ -5,8 +5,6 @@ ViewDistance			= 100.0;
 FlySpeed				= 3.7;
 FlyBoost				= 2.0;
 
-HeadLean_Max_Deegree	= 15.0;
-
 ;Effects
 
 [HeadMove]

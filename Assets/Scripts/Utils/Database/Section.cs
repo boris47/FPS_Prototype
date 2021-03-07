@@ -31,9 +31,9 @@ namespace Database
 		void					AsMultiValue	<T1,T2,T3,T4>	( in string Key, in int Idx1, in int Idx2, in int Idx3, in int Idx4, out T1 t1, out T2 t2, out T3 t3, out T4 t4 );
 		int						GetMultiSize					( in string Key );
 		bool					TryGetMultiAsArray<T>			( in string Key, out T[] array );
-		Vector2					AsVec2							( in string Key, in Vector2? Default );
-		Vector3					AsVec3							( in string Key, in Vector3? Default );
-		Vector4					AsVec4							( in string Key, in Vector4? Default );
+		Vector2					AsVec2							( in string Key, in Vector2 Default = default );
+		Vector3					AsVec3							( in string Key, in Vector3 Default = default );
+		Vector4					AsVec4							( in string Key, in Vector4 Default = default );
 		Color					AsColor							( in string Key, in Color? Default );
 
 		// Section.GetAs
@@ -44,9 +44,9 @@ namespace Database
 		bool					TryAsFloat						( in string Key, out float  Out, in float	Default = 0.0f );
 		bool					TryAsString						( in string Key, out string Out, in string	Default = "" );
 		bool					TryAsMultiValue					( in string Key, in int Index, out Value Out );
-		bool					TryAsVec2						( in string Key, out Vector2 Out, in Vector2? Default );
-		bool					TryAsVec3						( in string Key, out Vector3 Out, in Vector3? Default );
-		bool					TryAsVec4						( in string Key, out Vector4 Out, in Vector4? Default );
+		bool					TryAsVec2						( in string Key, out Vector2 Out, in Vector2 Default = default );
+		bool					TryAsVec3						( in string Key, out Vector3 Out, in Vector3 Default = default );
+		bool					TryAsVec4						( in string Key, out Vector4 Out, in Vector4 Default = default );
 		bool					TryAsColor						( in string Key, out Color Out, in Color Default );
 
 		// Section.Set
@@ -163,7 +163,7 @@ namespace Database
 		}
 
 		/////////////////////////////////////////////////////////
-		public	bool					TryGetLineValue(int index, out LineValue lineValue)
+		public	bool					TryGetLineValue( int index, out LineValue lineValue )
 		{
 			lineValue = null;
 			if (m_Linevalues.IsValidIndex(index))
@@ -256,7 +256,7 @@ namespace Database
 		//------- OPERATORS
 		public static bool operator !(Section obj) => obj == null;
 		public static bool operator false(Section obj) => obj == null;
-		public static bool operator true(Section obj) => obj != null;
+		public static bool operator true(Section obj) => obj.IsNotNull();
 		public static Section operator +(Section SecA, Section SecB)
 		{
 			if (SecB.m_IsOK)
@@ -315,7 +315,7 @@ namespace Database
 
 		//////////////////////////////////////////////////////////////////////////
 		// bAsBool
-		public	bool					TryAsBool( in string Key, out bool Out, in bool Default = false )
+		public	bool					TryAsBool( in string Key, out bool Out, in bool Default = default )
 		{
 			if (TryGetLineValue( Key, out LineValue pLineValue ) )
 			{
@@ -332,7 +332,7 @@ namespace Database
 
 		//////////////////////////////////////////////////////////////////////////
 		// bAsInt
-		public	bool					TryAsInt( in string Key, out int Out, in int Default = 0 )
+		public	bool					TryAsInt( in string Key, out int Out, in int Default = default )
 		{
 			if (TryGetLineValue( Key, out LineValue pLineValue ) )
 			{
@@ -349,7 +349,7 @@ namespace Database
 
 		//////////////////////////////////////////////////////////////////////////
 		// bAsInt
-		public	bool					TryAsUInt( in string Key, out uint Out, in uint Default = 0 )
+		public	bool					TryAsUInt( in string Key, out uint Out, in uint Default = default )
 		{
 			if (TryGetLineValue( Key, out LineValue pLineValue ) )
 			{
@@ -366,7 +366,7 @@ namespace Database
 
 		//////////////////////////////////////////////////////////////////////////
 		// bAsFloat
-		public	bool					TryAsFloat( in string Key, out float Out, in float Default = 0.0f )
+		public	bool					TryAsFloat( in string Key, out float Out, in float Default = default )
 		{
 			if (TryGetLineValue( Key, out LineValue pLineValue ) )
 			{
@@ -409,14 +409,14 @@ namespace Database
 					return true;
 				}
 			}
-			Out = null;
+			Out = default;
 			return false;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// bAsVec2
-		public	bool					TryAsVec2( in string Key, out Vector2 Out, in Vector2? Default )
+		public	bool					TryAsVec2( in string Key, out Vector2 Out, in Vector2 Default = default )
 		{
 			if (TryGetLineValue( Key, out LineValue pLineValue ) )
 			{
@@ -429,14 +429,14 @@ namespace Database
 					}
 				}
 			}
-			Out = Default.GetValueOrDefault();
+			Out = Default;
 			return false;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// bAsVec3
-		public	bool					TryAsVec3( in string Key, out Vector3 Out, in Vector3? Default )
+		public	bool					TryAsVec3( in string Key, out Vector3 Out, in Vector3 Default = default )
 		{
 			if (TryGetLineValue( Key, out LineValue pLineValue ) )
 			{
@@ -449,14 +449,14 @@ namespace Database
 					}
 				}
 			}
-			Out = Default.GetValueOrDefault();
+			Out = Default;
 			return false;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// bAsVec4
-		public	bool					TryAsVec4( in string Key, out Vector4 Out, in Vector4? Default )
+		public	bool					TryAsVec4( in string Key, out Vector4 Out, in Vector4 Default = default )
 		{
 			if (TryGetLineValue( Key, out LineValue pLineValue ) )
 			{
@@ -469,14 +469,14 @@ namespace Database
 					}
 				}
 			}
-			Out = Default.GetValueOrDefault();
+			Out = Default;
 			return false;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// bAsColor
-		public	bool					TryAsColor( in string Key, out Color Out, in Color Default )
+		public	bool					TryAsColor( in string Key, out Color Out, in Color Default = default )
 		{
 			if (TryAsVec4(Key, out Vector4 vec4, Vector4.zero))
 			{
@@ -519,7 +519,7 @@ namespace Database
 
 		//////////////////////////////////////////////////////////////////////////
 		// AsBool
-		public	bool					AsBool( in string Key, in bool Default = false )
+		public	bool					AsBool( in string Key, in bool Default = default )
 		{
 			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
@@ -537,7 +537,7 @@ namespace Database
 
 		//////////////////////////////////////////////////////////////////////////
 		// AsInt
-		public	int						AsInt( in string Key, in int Default = 0 )
+		public	int						AsInt( in string Key, in int Default = default )
 		{
 			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
@@ -554,7 +554,7 @@ namespace Database
 
 		//////////////////////////////////////////////////////////////////////////
 		// AsInt ( UInt )
-		public	uint					AsUInt( in string Key, in uint Default = 0u )
+		public	uint					AsUInt( in string Key, in uint Default = default )
 		{
 			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
@@ -572,7 +572,7 @@ namespace Database
 
 		//////////////////////////////////////////////////////////////////////////
 		// AsFloat
-		public	float					AsFloat( in string Key, in float Default = 0.0f )
+		public	float					AsFloat( in string Key, in float Default = default )
 		{
 			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
@@ -608,7 +608,7 @@ namespace Database
 
 		//////////////////////////////////////////////////////////////////////////
 		// AsMultiValue
-		public	T						OfMultiValue<T>( in string Key, in int Index, in T Default )
+		public	T						OfMultiValue<T>( in string Key, in int Index, in T Default = default )
 		{
 			if (Index > 0 && TryGetLineValue(Key, out LineValue pLineValue))
 			{
@@ -712,7 +712,7 @@ namespace Database
 
 		//////////////////////////////////////////////////////////////////////////
 		// bAsVec2
-		public	Vector2		AsVec2( in string Key, in Vector2? Default )
+		public	Vector2		AsVec2( in string Key, in Vector2 Default = default )
 		{
 			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
@@ -724,13 +724,13 @@ namespace Database
 					}
 				}
 			}
-			return Default.GetValueOrDefault();
+			return Default;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// bAsVec3
-		public	Vector3		AsVec3( in string Key, in Vector3? Default )
+		public	Vector3		AsVec3( in string Key, in Vector3 Default = default )
 		{
 			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
@@ -742,13 +742,13 @@ namespace Database
 					}
 				}
 			}
-			return Default.GetValueOrDefault();
+			return Default;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// bAsVec4
-		public	Vector4		AsVec4( in string Key, in Vector4? Default )
+		public	Vector4		AsVec4( in string Key, in Vector4 Default = default )
 		{
 			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
@@ -760,7 +760,7 @@ namespace Database
 					}
 				}
 			}
-			return Default.GetValueOrDefault();
+			return Default;
 		}
 
 

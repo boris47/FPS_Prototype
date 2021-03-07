@@ -3,43 +3,43 @@ using System;
 using UnityEngine;
 
 
-public abstract partial class NonLiveEntity : Entity {
-	
+public abstract partial class NonLiveEntity : Entity
+{	
 //	[Header("Non Live Entity Properties")]
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		EnterSimulationState()
+	public	override	void		EnterSimulationState()
 	{
-		NavStop();
+	//	NavStop();
 
-		StopLooking();
+	//	StopLooking();
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		BeforeSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
+	public	override	void		BeforeSimulationStage( EMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
 		// Movement
-		RequestMovement( destination );
+	//	RequestMovement( destination );
 
 		// Look At
-		if ( target )
-		{
-			SetTransformToLookAt( target, ELookTargetMode.HEAD_ONLY );
-		}
-		else
-		{
-			StopLooking();
-		}
+	//	if ( target )
+	//	{
+	//		SetTransformToLookAt( target, ELookTargetMode.HEAD_ONLY );
+	//	}
+	//	else
+	//	{
+	//		StopLooking();
+	//	}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	bool		SimulateMovement( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1 )
+	public	override	bool		SimulateMovement( EMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget = 1 )
 	{
 		bool isBusy = true;
 
-		isBusy &= m_HasDestination || m_HasPendingPathRequest;
+	//	isBusy &= m_HasDestination || m_HasPendingPathRequest;
 
 //		isBusy |= HasLookAtObject;
 
@@ -48,16 +48,16 @@ public abstract partial class NonLiveEntity : Entity {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		AfterSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
+	public	override	void		AfterSimulationStage( EMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
-		NavStop();
+	//	NavStop();
 
-		StopLooking();
+	//	StopLooking();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		ExitSimulationState()
+	public	override	void		ExitSimulationState()
 	{
 		
 	}

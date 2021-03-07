@@ -63,9 +63,9 @@ public class HeadBob : CameraEffectBase
 			return;
 		}
 
-		float	fStamina	= Player.Instance.Stamina;
-		bool	bRunning	= Player.Instance.IsRunning;
-		bool	bCrouched	= Player.Instance.IsCrouched;
+		float	fStamina	= 1f; // Player.Instance.Stamina; TODO ASAP
+		bool	bRunning	= Player.Instance.Motion.MotionStrategy.States.IsRunning;
+		bool	bCrouched	= Player.Instance.Motion.MotionStrategy.States.IsCrouched;
 		bool	bZoomed		= WeaponManager.Instance.IsZoomed;
 
 		float fSpeed = m_SpeedBase * SpeedMul * deltaTime;
@@ -102,7 +102,7 @@ public class HeadBob : CameraEffectBase
 		{
 			if (m_StepDone == false )
 			{
-				Player.Instance.Foots.PlayStep();
+			//	Player.Instance.Foots.PlayStep();  TODO ASAP
 				m_StepDone = true;
 			}
 		}

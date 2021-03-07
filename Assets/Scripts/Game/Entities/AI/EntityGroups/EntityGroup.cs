@@ -2,25 +2,32 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EntityGroup : MonoBehaviour, IIdentificable<System.Guid>
+public class EntityGroup : MonoBehaviour//, IIdentificable<System.Guid>
 {
-	public System.Guid ID { get; } = System.Guid.NewGuid();
+	public System.Guid Id { get; } = System.Guid.NewGuid();
 
 	[SerializeField]
-	private		List<Entity>	m_Collection		= new List<Entity>();
+	private		List<Entity>	m_Entities		= new List<Entity>();
 
 	
+	/// <summary> Retrieve the list of entities registered to this group </summary>
+	public		Entity[]		GetEntites() => m_Entities.ToArray();
+
+
+	/// <summary> Search for the other entites in the group </summary>
+	public		List<Entity>	GetOthers(Entity entity) => m_Entities.FindAll(e => e.Id != entity.Id);
+
 
 	//////////////////////////////////////////////////////////////////////////
 	private void Awake()
 	{
 		// If some already assigned 
-		m_Collection.ForEach( e =>
+		m_Entities.ForEach( e =>
 		{
 			if ( e )
 			{
 				// Assign this as their group
-				e.AsInterface.GroupRef.SetGroup( this );
+				e.SetGroup(this);
 					
 				// register on death callback
 				e.OnEvent_Killed += OnEntityKilled;
@@ -34,12 +41,12 @@ public class EntityGroup : MonoBehaviour, IIdentificable<System.Guid>
 	//////////////////////////////////////////////////////////////////////////
 	private void OnDestroy()
 	{
-		m_Collection.ForEach( e =>
+		m_Entities.ForEach( e =>
 		{
 			if ( e )
 			{
 				// Assign this as their group
-				e.AsInterface.GroupRef.SetGroup( null );
+				e.SetGroup(null);
 					
 				// register on death callback
 				e.OnEvent_Killed -= OnEntityKilled;
@@ -57,48 +64,39 @@ public class EntityGroup : MonoBehaviour, IIdentificable<System.Guid>
 
 
 	/// <summary> Add a new entity to the group </summary>
-	public void RegisterEntity( Entity entity )
+	public void RegisterEntity(Entity entity)
 	{
-		if ( entity && entity.AsInterface.GroupRef.Group == null && !m_Collection.Contains( entity ) )
+		if (entity && entity.EntityGroup == null && !m_Entities.Contains(entity))
 		{
 			entity.OnEvent_Killed += OnEntityKilled;
-			m_Collection.Add( entity );
-			entity.AsInterface.GroupRef.SetGroup( this );
+			m_Entities.Add(entity);
+			entity.SetGroup(this);
 		}
 	}
 
 
 	/// <summary> Removes the entity from the group </summary>
-	public void UnregisterEntity( Entity entity )
+	public void UnregisterEntity(Entity entity)
 	{
-		if ( !m_Collection.Contains( entity ) )
+		if (m_Entities.Contains(entity))
 		{
 			entity.OnEvent_Killed -= OnEntityKilled;
-			entity.AsInterface.GroupRef.SetGroup( null );
-			m_Collection.Remove( entity );
+			entity.SetGroup(null);
+			m_Entities.Remove(entity);
 		}
 	}
 
 
 	/// <summary> Return true if entity with given id is found in the group </summary>
-	public bool TryGetById( uint id, out Entity outEntity )
+	public bool TryGetById(uint id, out Entity outEntity)
 	{
 		outEntity = null;
-		int index = m_Collection.FindIndex( i => i.AsInterface.ID == id );
+		int index = m_Entities.FindIndex(i => i.Id == id);
 		bool bResult = index >= 0;
-		if ( bResult )
+		if (bResult)
 		{
-			outEntity = m_Collection[index];
+			outEntity = m_Entities[index];
 		}
 		return bResult;
 	}
-
-
-	/// <summary> Retrieve the list of entities registered to this group </summary>
-	public	Entity[]	GetEntites() => m_Collection.ToArray();
-
-
-	/// <summary> Search for the other entites in the group </summary>
-	public List<Entity> GetOthers( IEntity entity ) => m_Collection.FindAll( e => e.AsInterface.ID != entity.ID );
-
 }

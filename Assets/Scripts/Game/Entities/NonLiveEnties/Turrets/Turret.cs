@@ -25,7 +25,13 @@ public abstract class Turret : NonLiveEntity {
 	private		WPN_WeaponAttachment_LaserPointer			m_Laser						= null;
 */
 
-	protected 	override EEntityType			m_EntityType => EEntityType.ROBOT;
+	protected 	override EEntityType				m_EntityType			=> EEntityType.ROBOT;
+
+	protected	override EntityComponentContainer[] m_RequiredComponents	=> new EntityComponentContainer[]
+	{
+		new EntityComponentContainer_Memory<Memory_Common>(),
+		new EntityComponentContainer_Behaviours<Behaviours_Common>(),
+	};
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
@@ -85,24 +91,6 @@ public abstract class Turret : NonLiveEntity {
 //		m_ShotTimer = 0f;
 	}
 
-	protected override void OnEnable()
-	{
-		base.OnEnable();
-	}
-
-	protected override void OnDisable()
-	{
-		base.OnDisable();
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	protected	override	void	OnFrame( float deltaTime )
-	{
-		base.OnFrame( deltaTime );
-	}
-
-
 	//////////////////////////////////////////////////////////////////////////
 
 	protected		override	void	OnKill()
@@ -113,17 +101,16 @@ public abstract class Turret : NonLiveEntity {
 	}
 	
 	//////////////////////////////////////////////////////////////////////////
-	protected	override		void	UpdateHeadRotation()
-	{
-		base.UpdateHeadRotation();
+//	protected virtual		void	UpdateHeadRotation()
+//	{
 		// ORIENTATION
 		// BODY
-		{
+//		{
 			// Nothing, rotation not allowed here
-		}
+//		}
 
 		// GUN
-		{
+//		{
 	/*		Vector3 pointToLookAt = m_LookData.PointToLookAt;
 			if (m_TargetInfo.HasTarget == true ) // PREDICTION
 			{
@@ -133,7 +120,7 @@ public abstract class Turret : NonLiveEntity {
 					shooterPosition: m_GunTransform.position,
 					shooterVelocity:	Vector3.zero,
 					shotSpeed: 0, // TODO handle this m_Pool.TryPeekComponentAs<IBullet>().Velocity,
-					targetPosition: m_TargetInfo.CurrentTarget.AsEntity.transform.position,
+					targetPosition: m_TargetInfo.CurrentTarget.transform.position,
 					targetVelocity: m_TargetInfo.CurrentTarget.RigidBody.velocity
 				);
 			}
@@ -145,8 +132,8 @@ public abstract class Turret : NonLiveEntity {
 				m_GunTransform.rotation = Quaternion.RotateTowards(m_GunTransform.rotation, m_RotationToAllignTo, m_GunAllignmentSpeed * Time.deltaTime );
 			}
 			m_IsAllignedGunToPoint = Vector3.Angle(m_GunTransform.forward, dirToPosition ) < 16f;
-	*/	}
-	}
+//		}
+//	}
 
 
 	//////////////////////////////////////////////////////////////////////////

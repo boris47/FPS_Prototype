@@ -8,7 +8,7 @@ namespace CutScene
 	{
 		[HideInInspector]
 		public	string							Name				= "CutsceneWaypointData";
-		public	ESimMovementType				movementType		= ESimMovementType.WALK;
+		public	EMovementType				movementType		= EMovementType.WALK;
 		public	Transform						point				= null;
 		public	Transform						target				= null;
 		[Range(0.01f, 1f)]
@@ -40,7 +40,7 @@ namespace CutScene
 			for (int i = 0; i < m_Waypoints.Length; i++)
 			{
 				CutsceneWaypointData wayPoint = m_Waypoints[i];
-				if (wayPoint.movementType == ESimMovementType.STATIONARY && wayPoint.waiter.IsNotNull())
+				if (wayPoint.movementType == EMovementType.STATIONARY && wayPoint.waiter.IsNotNull())
 				{
 					print( $"PointsCollectionOnline::OnEnable: Collection {name} has stationary waypoints without waiter assigned at index {i}" );
 #if UNITY_EDITOR

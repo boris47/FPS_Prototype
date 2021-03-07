@@ -21,7 +21,7 @@ public enum EAcquisitionStrategy
 public class TargetInfo
 {
 	public bool HasTarget;
-	public IEntity CurrentTarget;
+	public Entity CurrentTarget;
 	public ETargetInfoType Type;
 
 	public void Update(TargetInfo Infos)
@@ -38,76 +38,50 @@ public class TargetInfo
 	}
 }
 
-public interface IFieldOfView
-{	
-	OnTargetEvent		OnTargetAquired		{ set; }
-	OnTargetEvent		OnTargetChanged		{ set; }
-	OnTargetEvent		OnTargetLost		{ set; }
-
-	float				Distance			{ get; set; }
-	float				Angle				{ get; set; }
-	EEntityType			TargetType			{ get; set; }
-
-	void				Setup				();
-	void				UpdateFOV			();
-	void				OnReset				();
-}
-
-
-
-[RequireComponent( typeof( SphereCollider ) )]
-public class FieldOfView : MonoBehaviour, IFieldOfView
+[RequireComponent(typeof(SphereCollider))]
+public class FieldOfView : MonoBehaviour
 {
-	public		OnTargetEvent			OnTargetAquired			{ set { m_OnTargetAquired = value; } }
-	public		OnTargetEvent			OnTargetChanged			{ set { m_OnTargetChanged = value; } }
-	public		OnTargetEvent			OnTargetLost			{ set { m_OnTargetLost	  = value; } }
-	public		OnTargetsAcquired		OnTargetsAcquired		{ set { m_OnTargetsAcquired = value; } }
+	private		SphereCollider			m_ViewTriggerCollider	= null;
 
-
-	[SerializeField]
-	private		Transform				m_ViewPoint				= null;
-
-	[SerializeField, Range( 1f, 200f )]
-	private		float					m_ViewDistance			= 10f;
-
-	[SerializeField,Range( 1f, 150f)]
-	private		float					m_ViewCone				= 100f;
-
-	[SerializeField]
-	private		EEntityType				m_EntityType			= EEntityType.NONE;
 	private		EEntityType				m_PrevEntityType		= EEntityType.NONE;
-
-	[SerializeField]
-	private EAcquisitionStrategy		m_strategy				= EAcquisitionStrategy.CLOSEST;
-
-//	[SerializeField]
-//	private		LayerMask				m_LayerMask				 = default;
-
-
-				float					IFieldOfView.Distance	{ get => m_ViewDistance; set => m_ViewDistance = value; }
-				float					IFieldOfView.Angle		{ get => m_ViewCone; set => m_ViewCone = value; }
-				EEntityType				IFieldOfView.TargetType	{ get => m_EntityType; set => m_EntityType = value; }
-
+	private		List<Entity>			m_AllTargets			= new List<Entity>();
+	private		Entity					m_Owner					= null;
 	private		OnTargetEvent			m_OnTargetAquired		= null;
 	private		OnTargetEvent			m_OnTargetChanged		= null;
 	private		OnTargetEvent			m_OnTargetLost			= null;
 	private		OnTargetsAcquired		m_OnTargetsAcquired		= null;
-
-	private		SphereCollider			m_ViewTriggerCollider	= null;
-	private		List<Entity>			m_AllTargets			= new List<Entity>();
-	private		Entity					m_Owner					= null;
-
 	private		TargetInfo				m_CurrentTargetInfo		= new TargetInfo();
 
+	[SerializeField]
+	private		Transform				m_ViewPoint				= null;
+	[SerializeField, Range( 1f, 200f )]
+	public		float					m_ViewDistance			= 10f;
+	[SerializeField,Range( 1f, 150f)]
+	public		float					m_ViewCone				= 100f;
+	[SerializeField]
+	private		EEntityType				m_EntityType			= EEntityType.NONE;
+	[SerializeField]
+	private		EAcquisitionStrategy	m_strategy				= EAcquisitionStrategy.CLOSEST;
+
+	public		OnTargetEvent			OnTargetAquired			{ set => m_OnTargetAquired   = value;  }
+	public		OnTargetEvent			OnTargetChanged			{ set => m_OnTargetChanged   = value;  }
+	public		OnTargetEvent			OnTargetLost			{ set => m_OnTargetLost	     = value;  }
+	public		OnTargetsAcquired		OnTargetsAcquired		{ set => m_OnTargetsAcquired = value;  }
+
+	public		float					Distance				{ get => m_ViewDistance; set => m_ViewDistance = value; }
+	public		float					Angle					{ get => m_ViewCone;	 set => m_ViewCone     = value; }
+	public		EEntityType				TargetType				{ get => m_EntityType;   set => m_EntityType   = value; }
+
+
+	//////////////////////////////////////////////////////////////////////////
 	private void	Awake()
 	{
 		m_ViewTriggerCollider = gameObject.GetOrAddIfNotFound<SphereCollider>();
 		m_ViewTriggerCollider.isTrigger = true;
 		m_ViewTriggerCollider.radius = m_ViewDistance;
-
-//		m_LayerMask = Utils.LayersHelper.Layers_AllButOne("Shield");
 	}
 
+	//////////////////////////////////////////////////////////////////////////
 	private void	OnValidate()
 	{
 		m_ViewTriggerCollider = gameObject.GetOrAddIfNotFound<SphereCollider>();
@@ -115,7 +89,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView
 		m_ViewTriggerCollider.radius = m_ViewDistance;
 	}
 
-	/// <summary>  </summary>
+	//////////////////////////////////////////////////////////////////////////
 	public	void	Setup()
 	{
 		UnityEngine.Assertions.Assert.IsNotNull(m_ViewTriggerCollider, "Collider required in this context");
@@ -124,19 +98,18 @@ public class FieldOfView : MonoBehaviour, IFieldOfView
 
 		if (transform.parent && transform.parent.TrySearchComponents(ESearchContext.LOCAL_AND_CHILDREN, out Collider[] colliders))
 		{
-			System.Array.ForEach(colliders, c => Physics.IgnoreCollision(m_ViewTriggerCollider, c));
+			System.Array.ForEach(colliders, c => Physics.IgnoreCollision(m_ViewTriggerCollider, c, true));
 		}
 	}
 
-
-	/// <summary>  </summary>
+	//////////////////////////////////////////////////////////////////////////
 	public void		SetViewPoint(in Transform viewPoint)
 	{
 		m_ViewPoint = viewPoint ?? m_ViewPoint;
 	}
 
-	/// <summary>  </summary>
-	public	void	UpdateFOV()
+	//////////////////////////////////////////////////////////////////////////
+	public void	UpdateFOV()
 	{
 		HandleEntityTargetTypeChange();
 
@@ -164,17 +137,17 @@ public class FieldOfView : MonoBehaviour, IFieldOfView
 			if (Physics.Raycast(viewPointPosition, direction, out RaycastHit m_RaycastHit, m_ViewDistance/*, 0, QueryTriggerInteraction.Ignore*/))
 			{
 				int colliderInstanceID = m_RaycastHit.collider.GetInstanceID();
-				int entityPhysicColliderInstanceID = target.AsInterface.PhysicCollider.GetInstanceID();
-				int shieldColliderInstanceID = target.AsInterface.Shield?.Collider.GetInstanceID() ?? -1;
+				int entityPhysicColliderInstanceID = target.PhysicCollider.GetInstanceID();
+				int shieldColliderInstanceID = target.EntityShield?.Collider.GetInstanceID() ?? -1;
 				return (colliderInstanceID == entityPhysicColliderInstanceID || colliderInstanceID == shieldColliderInstanceID);
 			}
 			return false;
 		}
 
 		// If target is valid and visible select by strategy
-		if (TrySelectTargetByStrategy(m_AllTargets.Where( e => IsValidEntity(e) && InsideViewCone(e) && IsTargettable(e)), m_strategy, out IEntity choosenTarget))
+		if (TrySelectTargetByStrategy(m_AllTargets.Where( e => IsValidEntity(e) && InsideViewCone(e) && IsTargettable(e)), m_strategy, out Entity choosenTarget))
 		{
-			IEntity previousTarget = m_CurrentTargetInfo.CurrentTarget;
+			Entity previousTarget = m_CurrentTargetInfo.CurrentTarget;
 			m_CurrentTargetInfo.CurrentTarget = choosenTarget;
 
 			// SET NEW TARGET
@@ -187,7 +160,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView
 			else
 			// CHANGING A TARGET
 			{
-				if (previousTarget.ID != choosenTarget.ID)
+				if (previousTarget.IsNotNull() && previousTarget.Id != choosenTarget.Id)
 				{
 					m_CurrentTargetInfo.Type = ETargetInfoType.LOST;
 					m_OnTargetChanged(m_CurrentTargetInfo);
@@ -207,8 +180,9 @@ public class FieldOfView : MonoBehaviour, IFieldOfView
 		
 	}
 
+	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Return true if and entity has been choosen, otherwise false. Return false with empty list. </summary>
-	private bool TrySelectTargetByStrategy(in IEnumerable<Entity> availableTargets, in EAcquisitionStrategy strategy, out IEntity entity)
+	private bool TrySelectTargetByStrategy(in IEnumerable<Entity> availableTargets, in EAcquisitionStrategy strategy, out Entity entity)
 	{
 		entity = null;
 
@@ -240,23 +214,26 @@ public class FieldOfView : MonoBehaviour, IFieldOfView
 		return entity.IsNotNull();
 	}
 
-	private static IEntity GetTargetByDistance(in IEnumerable<Entity> availableTargets, in EAcquisitionStrategy strategy, Vector3 point)
+	//////////////////////////////////////////////////////////////////////////
+	private static Entity GetTargetByDistance(in IEnumerable<Entity> availableTargets, in EAcquisitionStrategy strategy, Vector3 point)
 	{
 		float Selector(Entity e) => (e.transform.position - point).sqrMagnitude;
 		return strategy == EAcquisitionStrategy.CLOSEST ? availableTargets.MinBy(Selector) : availableTargets.MaxBy(Selector);
 	}
 
-	private static IEntity GetTargetByHealth(in IEnumerable<Entity> availableTargets, in EAcquisitionStrategy strategy)
+	//////////////////////////////////////////////////////////////////////////
+	private static Entity GetTargetByHealth(in IEnumerable<Entity> availableTargets, in EAcquisitionStrategy strategy)
 	{
-		return strategy == EAcquisitionStrategy.WEAKER ? availableTargets.MinBy(e => e.AsInterface.Health) : availableTargets.MaxBy(e => e.AsInterface.Health);
+		return strategy == EAcquisitionStrategy.WEAKER ? availableTargets.MinBy(e => e.Health) : availableTargets.MaxBy(e => e.Health);
 	}
 
-	private static IEntity GetSameTrargetOrRandom(in IEnumerable<Entity> availableTargets, in EAcquisitionStrategy strategy, in TargetInfo m_CurrentTargetInfo)
+	//////////////////////////////////////////////////////////////////////////
+	private static Entity GetSameTrargetOrRandom(in IEnumerable<Entity> availableTargets, in EAcquisitionStrategy strategy, in TargetInfo m_CurrentTargetInfo)
 	{
 		return m_CurrentTargetInfo.CurrentTarget ?? availableTargets.Random();
 	}
 
-	/// <summary>  </summary>
+	//////////////////////////////////////////////////////////////////////////
 	private void HandleEntityTargetTypeChange()
 	{
 		if (m_PrevEntityType != m_EntityType)
@@ -267,7 +244,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView
 
 			void addToTargets(Collider c)
 			{
-				if (c.transform.TrySearchComponent(ESearchContext.LOCAL_AND_PARENTS, out Entity entity, e => e.AsInterface.EntityType == m_EntityType) && entity != m_Owner)
+				if (c.transform.TrySearchComponent(ESearchContext.LOCAL_AND_PARENTS, out Entity entity, e => e.EntityType == m_EntityType) && entity != m_Owner)
 				{
 					m_AllTargets.Add(entity);
 				}
@@ -280,16 +257,18 @@ public class FieldOfView : MonoBehaviour, IFieldOfView
 		}
 	}
 
-	public	void	OnReset()
+	//////////////////////////////////////////////////////////////////////////
+	public void	OnReset()
 	{
 		m_CurrentTargetInfo.Reset();
 
 		m_AllTargets.Clear();
 	}
 
+	//////////////////////////////////////////////////////////////////////////
 	private void OnTriggerEnter(Collider other)
 	{
-		if (other.transform.TrySearchComponent( ESearchContext.LOCAL_AND_PARENTS, out Entity entity) && entity.IsAlive && entity.AsInterface.EntityType == m_EntityType && !m_AllTargets.Contains(entity))
+		if (other.transform.TrySearchComponent( ESearchContext.LOCAL_AND_PARENTS, out Entity entity) && entity.IsAlive && entity.EntityType == m_EntityType && !m_AllTargets.Contains(entity))
 		{
 			m_AllTargets.Add(entity);
 
@@ -300,6 +279,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView
 		}
 	}
 
+	//////////////////////////////////////////////////////////////////////////
 	private void OnTriggerExit(Collider other)
 	{
 		if (other.transform.TrySearchComponent(ESearchContext.LOCAL_AND_PARENTS, out Entity entity) && m_AllTargets.Contains(entity))
@@ -313,6 +293,7 @@ public class FieldOfView : MonoBehaviour, IFieldOfView
 		}
 	}
 
+	//////////////////////////////////////////////////////////////////////////
 	private void OnDrawGizmosSelected()
 	{
 		float halfFOV = m_ViewCone * 0.5f;

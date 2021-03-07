@@ -18,7 +18,9 @@ namespace CutScene {
 		[SerializeField, ReadOnly]
 		private		float			m_TimeToWait		= 0.0f;
 
-		public	void	Setup( PathBase cameraPath )
+
+		//////////////////////////////////////////////////////////////////////////
+		public void Setup(PathBase cameraPath)
 		{
 			m_CameraPath = cameraPath;
 			m_OldParent = FPSEntityCamera.Instance.transform.parent;
@@ -27,14 +29,17 @@ namespace CutScene {
 			m_PrevWeaponState = WeaponManager.Instance.CurrentWeapon.WeaponState;
 
 			if (m_PrevWeaponState == EWeaponState.DRAWED )
+			{
 				m_TimeToWait = WeaponManager.Instance.CurrentWeapon.Stash();
+			}
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Return true if completed, otherwise false </summary>
 		public bool	Update()
 		{
-			if (m_TimeToWait > 0.0f )
+			if (m_TimeToWait > 0.0f)
 			{
 				m_TimeToWait -= Time.deltaTime;
 				return false;
@@ -45,7 +50,8 @@ namespace CutScene {
 		}
 
 
-		public	void	Terminate()
+		//////////////////////////////////////////////////////////////////////////
+		public void	Terminate()
 		{
 			FPSEntityCamera.Instance.transform.SetParent(m_OldParent );
 			FPSEntityCamera.Instance.transform.localPosition = Vector3.zero;

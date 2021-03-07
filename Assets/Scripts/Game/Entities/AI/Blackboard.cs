@@ -47,19 +47,19 @@ public class EntityBlackBoardData
 	public	float				AgentSpeed							= 0.0f;
 
 
-	public	EntityBlackBoardData( Transform Transform, Transform Head, Transform Body )
+	public	EntityBlackBoardData(Entity entity)
 	{
-		m_Transform			= Transform;
-		m_HeadTransform		= Head;
-		m_BodyTransform		= Body;
+		m_Transform			= entity.Targettable;
+		m_HeadTransform		= entity.Head;
+		m_BodyTransform		= entity.Body;
 	}
 
 }
 
 
-public static class Blackboard {
-
-	private static readonly	Dictionary<uint, EntityBlackBoardData>	m_Data = new Dictionary<uint, EntityBlackBoardData>();
+public static class Blackboard
+{
+	private static readonly	Dictionary<uint, EntityBlackBoardData> m_Data = new Dictionary<uint, EntityBlackBoardData>();
 
 
 	/// <summary> If not already registered, register an entity by its ID </summary>
@@ -67,12 +67,12 @@ public static class Blackboard {
 	/// <returns></returns>
 	public	static	bool	Register( uint EntityID, EntityBlackBoardData entityData )
 	{
-		if ( m_Data.ContainsKey( EntityID ) )
+		if (m_Data.ContainsKey(EntityID))
 		{
 			return false;
 		}
 
-		m_Data.Add( EntityID, entityData );
+		m_Data.Add(EntityID, entityData);
 		return true;
 	}
 
@@ -80,11 +80,11 @@ public static class Blackboard {
 	/// <summary> If already registered, Un-register an entity by its ID </summary>
 	/// <param name="EntityID"></param>
 	/// <returns></returns>
-	public	static	bool	UnRegister( IEntity entity )
+	public	static	bool	UnRegister( Entity entity )
 	{
-		if ( IsEntityRegistered( entity.ID ) )
+		if (IsEntityRegistered(entity.Id))
 		{
-			return m_Data.Remove( entity.ID );
+			return m_Data.Remove(entity.Id);
 		}
 		return false;
 	}
@@ -95,7 +95,7 @@ public static class Blackboard {
 	/// <returns></returns>
 	public	static	bool	IsEntityRegistered( uint EntityID )
 	{
-		return m_Data.ContainsKey( EntityID );
+		return m_Data.ContainsKey(EntityID);
 	}
 
 	

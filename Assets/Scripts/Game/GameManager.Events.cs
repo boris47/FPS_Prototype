@@ -25,7 +25,7 @@ public class GameEventArg4	: UnityEngine.Events.UnityEvent< UnityEngine.GameObje
 public struct GameEvents
 {
 	// SAVE & LOAD
-	public	delegate	bool	StreamingEvent( StreamData streamData, ref StreamUnit streamUnit );	// StreamEvents.OnSave & StreamEvents.OnLoad
+	public	delegate	bool		StreamingEvent( StreamData streamData, ref StreamUnit streamUnit );	// StreamEvents.OnSave & StreamEvents.OnLoad
 
 	// PAUSE
 	public	delegate	void		OnPauseSetEvent( bool isPaused );			// PauseEvents.OnPauseSet
@@ -51,10 +51,9 @@ public enum EStreamingState
 
 public interface IStreamableByEvents
 {
-	// TODO Fix this
-	StreamUnit	OnSave( StreamData streamData );
+	bool OnSave(StreamData streamData, ref StreamUnit streamUnit);
 
-	StreamUnit	OnLoad( StreamData streamData );
+	bool OnLoad(StreamData streamData, ref StreamUnit streamUnit);
 }
 
 /// <summary> Clean interface of only GameManager Save&load Section </summary>
@@ -73,13 +72,13 @@ public interface IStreamEvents
 		event		GameEvents.StreamingEvent		OnLoadComplete;
 
 	/// <summary> Save current play </summary>
-					void									Save	( string filePath = "SaveFile.txt", bool isAutomaic = false );
+					void							Save	(string filePath = "SaveFile.txt", bool isAutomaic = false);
 
 	/// <summary> Load a file </summary>
-					void									Load	( string fileName = "SaveFile.txt" );
+					void							Load	(string fileName = "SaveFile.txt");
 
 	/// <summary> Return the current state of the manager </summary>
-	EStreamingState											State	{ get; }
+	EStreamingState									State	{ get; }
 }
 
 // SAVE & LOAD IMPLEMENTATION
@@ -118,31 +117,31 @@ public sealed partial class GameManager : IStreamEvents
 	/// <summary> Events called when game is saving </summary>
 	event GameEvents.StreamingEvent IStreamEvents.OnSave
 	{
-		add		{ if ( value != null )	m_OnSave += value; }
-		remove	{ if ( value != null )	m_OnSave -= value; }
+		add		{ if ( value.IsNotNull() )	m_OnSave += value; }
+		remove	{ if ( value.IsNotNull() )	m_OnSave -= value; }
 	}
 
 	/// <summary> Events called when game is saving </summary>
 	event GameEvents.StreamingEvent IStreamEvents.OnSaveComplete
 	{
-		add		{ if ( value != null )	m_OnSaveComplete += value; }
-		remove	{ if ( value != null )	m_OnSaveComplete -= value; }
+		add		{ if ( value.IsNotNull() )	m_OnSaveComplete += value; }
+		remove	{ if ( value.IsNotNull() )	m_OnSaveComplete -= value; }
 	}
 
 	/// <summary> Events called when game is loading ( Events are called along more frames !! ) </summary>
 	event GameEvents.StreamingEvent IStreamEvents.OnLoad
 	{
-		add		{ if ( value != null ) m_OnLoad.Add(value); }// m_OnLoad += value; }
-		remove	{ if ( value != null ) m_OnLoad.Remove(value); }// m_OnLoad -= value; }
+		add		{ if ( value.IsNotNull() ) m_OnLoad.Add(value); }// m_OnLoad += value; }
+		remove	{ if ( value.IsNotNull() ) m_OnLoad.Remove(value); }// m_OnLoad -= value; }
 	}
 
 	/// <summary> Events called when game has been loaded ( Events are called along more frames !! ) </summary>
 	event GameEvents.StreamingEvent IStreamEvents.OnLoadComplete
 	{
-//		add		{ if ( value != null )	m_OnLoadComplete += value; }
-//		remove	{ if ( value != null )	m_OnLoadComplete -= value; }
-		add		{ if ( value != null ) m_OnLoadComplete.Add(value); }// m_OnLoadComplete += value; }
-		remove	{ if ( value != null ) m_OnLoadComplete.Remove(value); }// m_OnLoadComplete -= value; }
+//		add		{ if ( value.IsNotNull() )	m_OnLoadComplete += value; }
+//		remove	{ if ( value.IsNotNull() )	m_OnLoadComplete -= value; }
+		add		{ if ( value.IsNotNull() ) m_OnLoadComplete.Add(value); }// m_OnLoadComplete += value; }
+		remove	{ if ( value.IsNotNull() ) m_OnLoadComplete.Remove(value); }// m_OnLoadComplete -= value; }
 	}
 	// INTERFACE END
 #endregion INTERFACE
@@ -227,7 +226,7 @@ public sealed partial class GameManager : IStreamEvents
 //		Decrypt( ref toLoad );
 		StreamData streamData = JsonUtility.FromJson<StreamData>( toLoad );
 		StreamUnit streamUnit = null;
-		if ( streamData != null )
+		if ( streamData.IsNotNull() )
 		{
 			CoroutinesManager.Start(LoadCO( streamData, streamUnit ), "GameManager::Load: Start of loading" );
 		}
@@ -472,14 +471,13 @@ public class StreamData
 	/// <summary> To be used ONLY during the SAVE event, otherwise nothing happens </summary>
 	public	StreamUnit	NewUnit( Object unityObj )
 	{
-		if ( GameManager.StreamEvents.State != EStreamingState.SAVING )
-			return null;
+		UnityEngine.Assertions.Assert.IsTrue(GameManager.StreamEvents.State == EStreamingState.SAVING);
 
 		StreamUnit streamUnit = m_Data.Find((StreamUnit data) => data.Name == unityObj.name);
 		if (streamUnit == null)
 		{
 			streamUnit = new StreamUnit(unityObj.name);
-			m_Data.Add( streamUnit );
+			m_Data.Add(streamUnit);
 		}
 		return streamUnit;
 	}
@@ -491,6 +489,8 @@ public class StreamData
 	{
 	//	if ( GameManager.StreamEvents.State != StreamingState.LOAD_COMPLETE )
 	//		return false;
+
+		UnityEngine.Assertions.Assert.IsTrue(GameManager.StreamEvents.State == EStreamingState.LOADING);
 
 		streamUnit = m_Data.Find((StreamUnit data) => data.Name == unityObj.name);
 		return streamUnit.IsNotNull(); ;
@@ -525,8 +525,8 @@ public partial class GameManager : IPauseEvents {
 	/// <summary> Events called when game is setting on pause </summary>
 	event GameEvents.OnPauseSetEvent IPauseEvents.OnPauseSet
 	{
-		add		{ if ( value != null )	m_OnPauseSet += value; }
-		remove	{ if ( value != null )	m_OnPauseSet -= value; }
+		add		{ if ( value.IsNotNull() )	m_OnPauseSet += value; }
+		remove	{ if ( value.IsNotNull() )	m_OnPauseSet -= value; }
 	}
 
 	// Vars
@@ -614,26 +614,26 @@ public partial class GameManager : IUpdateEvents {
 
 	event		GameEvents.OnThinkEvent			IUpdateEvents.OnThink
 	{
-		add		{	if ( value != null )	m_OnThink += value;	}
-		remove	{	if ( value != null )	m_OnThink -= value;	}
+		add		{	if ( value.IsNotNull() )	m_OnThink += value;	}
+		remove	{	if ( value.IsNotNull() )	m_OnThink -= value;	}
 	}
 
 	event		GameEvents.OnPhysicFrameEvent	IUpdateEvents.OnPhysicFrame
 	{
-		add		{	if ( value != null )	m_OnPhysicFrame += value; }
-		remove	{	if ( value != null )	m_OnPhysicFrame -= value; }
+		add		{	if ( value.IsNotNull() )	m_OnPhysicFrame += value; }
+		remove	{	if ( value.IsNotNull() )	m_OnPhysicFrame -= value; }
 	}
 
 	event		GameEvents.OnFrameEvent			IUpdateEvents.OnFrame
 	{
-		add		{	if ( value != null )	m_OnFrame += value;	}
-		remove	{	if ( value != null )	m_OnFrame -= value; }
+		add		{	if ( value.IsNotNull() )	m_OnFrame += value;	}
+		remove	{	if ( value.IsNotNull() )	m_OnFrame -= value; }
 	}
 
 	event		GameEvents.OnFrameEvent			IUpdateEvents.OnLateFrame
 	{
-		add		{	if ( value != null )	m_OnLateFrame += value;	}
-		remove	{	if ( value != null )	m_OnLateFrame -= value; }
+		add		{	if ( value.IsNotNull() )	m_OnLateFrame += value;	}
+		remove	{	if ( value.IsNotNull() )	m_OnLateFrame -= value; }
 	}
 }
 

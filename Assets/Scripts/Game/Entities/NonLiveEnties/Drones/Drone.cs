@@ -8,24 +8,32 @@ public abstract class Drone : NonLiveEntity {
 	[SerializeField]
 	protected	float			m_MoveMaxSpeed				= 3f;
 
-	protected 	override EEntityType			m_EntityType => EEntityType.ROBOT;
+	protected 	override EEntityType				m_EntityType			=> EEntityType.ROBOT;
 
-/*	[SerializeField]
-	private		Bullet			m_Bullet					= null;
+	protected	override EntityComponentContainer[] m_RequiredComponents	=> new EntityComponentContainer[]
+	{
+		new EntityComponentContainer_Memory<Memory_Common>(),
+		new EntityComponentContainer_Motion<Motion_Common>(),
+		new EntityComponentContainer_Behaviours<Behaviours_Common>(),
+		new EntityComponentContainer_Navigation<Navigation_Common>(),
+	};
 
-	[SerializeField]
-	protected	float			m_ShotDelay					= 0.7f;
+	/*	[SerializeField]
+		private		Bullet			m_Bullet					= null;
 
-	[SerializeField]
-	protected	float			m_DamageLongRangeMax		= 2f;
+		[SerializeField]
+		protected	float			m_ShotDelay					= 0.7f;
 
-	[SerializeField]
-	protected	float			m_DamageLongRangeMin		= 0.5f;
+		[SerializeField]
+		protected	float			m_DamageLongRangeMax		= 2f;
 
-	[SerializeField, ReadOnly]
-	protected	uint			m_PoolSize					= 5;
-*/
-//////////////////////////////////////////////////////////////////////////
+		[SerializeField]
+		protected	float			m_DamageLongRangeMin		= 0.5f;
+
+		[SerializeField, ReadOnly]
+		protected	uint			m_PoolSize					= 5;
+	*/
+	//////////////////////////////////////////////////////////////////////////
 
 	protected	override	void	Awake()
 	{
@@ -76,24 +84,8 @@ public abstract class Drone : NonLiveEntity {
 		}
 		m_Pool.SetActive( true );
 		m_ShotTimer = 0f;
-	*/	m_MaxAgentSpeed = m_MoveMaxSpeed;
-	}
-	
-
-
-	//////////////////////////////////////////////////////////////////////////
-
-	public		override	void	OnDestinationReached( Vector3 Destionation )
-	{
-		base.OnDestinationReached( Destionation );
-	}
-
-	
-	//////////////////////////////////////////////////////////////////////////
-
-	protected	override	void	OnFrame( float deltaTime )
-	{
-		base.OnFrame( deltaTime );
+	*/
+		Navigation.MaxAgentSpeed = m_MoveMaxSpeed;
 	}
 
 	
@@ -109,14 +101,14 @@ public abstract class Drone : NonLiveEntity {
 
 	//////////////////////////////////////////////////////////////////////////
 
-	protected	override	void	UpdateHeadRotation()
-	{
-		base.UpdateHeadRotation();
+//	protected	override	void	UpdateHeadRotation()
+//	{
+//		base.UpdateHeadRotation();
 		// ORIENTATION
 		// BODY
-		{
+//		{
 			// Nothing, rotation not allowed here
-		}
+//		}
 
 		// GUN
 /*		{
@@ -129,7 +121,7 @@ public abstract class Drone : NonLiveEntity {
 					shooterPosition: m_GunTransform.position,
 					shooterVelocity: m_NavAgent.velocity,
 					shotSpeed: m_Pool.TryPeekComponentAs<IBullet>().Velocity,
-					targetPosition: m_TargetInfo.CurrentTarget.AsEntity.transform.position,
+					targetPosition: m_TargetInfo.CurrentTarget.transform.position,
 					targetVelocity: m_TargetInfo.CurrentTarget.RigidBody.velocity
 				);
 			}
@@ -142,7 +134,7 @@ public abstract class Drone : NonLiveEntity {
 			}
 			m_IsAllignedGunToPoint = Vector3.Angle(m_GunTransform.forward, dirToPosition ) < 16f;
 		}
-*/	}
+*///	}
 	
 
 	//////////////////////////////////////////////////////////////////////////

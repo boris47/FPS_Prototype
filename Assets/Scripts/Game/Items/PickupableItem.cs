@@ -42,13 +42,11 @@ public class PickupableItem : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnTriggerEnter( Collider other )
 	{
-		if (m_Initialized && other.name == "Player" )
+		if (m_Initialized && other.name == "Player" ) //TODO Improved for support all entities
 		{
-//			WeaponManager.Instance.ApplyModifierToWeaponSlot( WeaponManager.Instance.CurrentWeapon, WeaponSlots.PRIMARY, m_PickUpSectionName );
-
-			if ( Utils.Base.TrySearchComponent( other.transform.gameObject, ESearchContext.LOCAL, out IEntityInventary entity ) )
+			if (Utils.Base.TrySearchComponent(other.transform.gameObject, ESearchContext.LOCAL, out Entity entity))
 			{
-				entity.AddInventoryItem( m_ItemSection, m_Texture );
+				entity.Inventory.AddInventoryItem(m_ItemSection.GetSectionName());
 			}
 
 			enabled = false;

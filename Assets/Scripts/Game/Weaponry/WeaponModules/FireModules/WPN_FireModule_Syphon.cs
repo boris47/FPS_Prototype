@@ -139,9 +139,11 @@ public class WPN_FireModule_Syphon : WPN_FireModule
 		// BULLET
 //		IBullet bullet = m_PoolBullets.GetComponent();
 
-		moduleFireDispersion	*= Player.Instance.IsCrouched			? 0.50f : 1.00f;
-		moduleFireDispersion	*= Player.Instance.IsMoving				? 1.50f : 1.00f;
-		moduleFireDispersion	*= Player.Instance.IsRunning			? 2.00f : 1.00f;
+
+
+		moduleFireDispersion	*= Player.Instance.Motion.MotionStrategy.States.IsCrouched		? 0.50f : 1.00f;
+		moduleFireDispersion	*= Player.Instance.Motion.MotionStrategy.States.IsMoving		? 1.50f : 1.00f;
+		moduleFireDispersion	*= Player.Instance.Motion.MotionStrategy.States.IsRunning		? 2.00f : 1.00f;
 		moduleFireDispersion	*= WeaponManager.Instance.IsZoomed		? 0.80f : 1.00f;
 //		moduleFireDispersion *= bullet.RecoilMult;
 
@@ -179,10 +181,10 @@ public class WPN_FireModule_Syphon : WPN_FireModule
 		if (m_Laser.enabled == true && m_Laser.HasHit == true )
 		{
 			IBullet bullet = m_PoolBullets.PeekComponent();
-			if ( Utils.Base.TrySearchComponent( m_Laser.RayCastHit.transform.gameObject, ESearchContext.LOCAL, out IEntity entity ) )
+			if ( Utils.Base.TrySearchComponent( m_Laser.RayCastHit.transform.gameObject, ESearchContext.LOCAL, out Entity entity ) )
 			{
 				// Do damage scaled with time scale
-				entity.Events.OnHittedDetails( transform.position, Player.Instance, bullet.DamageType, bullet.Damage * Time.timeScale, false );
+				entity.OnHittedDetails( transform.position, Player.Instance, bullet.DamageType, bullet.Damage * Time.timeScale, false );
 
 				EffectsManager.Instance.PlayEffect( EffectsManager.EEffecs.PLASMA, m_Laser.RayCastHit.point, m_Laser.RayCastHit.normal, 1 );
 			}

@@ -2,7 +2,7 @@
 using System.Collections;
 using UnityEngine;
 
-public enum EInvestigationDirection : uint
+public enum EInvestigationDirection : byte
 {
 	RIGHT, LEFT, BACK, FRONT, END
 }
@@ -15,13 +15,11 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour
 
 	public override void OnEnable()
 	{
-		base.OnEnable();
+		
 	}
 
 	public override void OnDisable()
 	{
-		base.OnDisable();
-
 		if (m_InvestigationCO.IsNotNull())
 		{
 			EntityData.EntityRef.StopCoroutine(m_InvestigationCO);
@@ -32,44 +30,34 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour
 
 	public override void OnSave(StreamUnit streamUnit)
 	{
-		base.OnSave(streamUnit);
-
 		streamUnit.SetInternal($"{EBrainState.SEEKER.ToString()}_CurrentInvestigationDirection", m_CurrentInvestigationDirection);
 	}
 
 	public override void OnLoad(StreamUnit streamUnit)
 	{
-		base.OnLoad(streamUnit);
-
 		m_CurrentInvestigationDirection = streamUnit.GetAsEnum<EInvestigationDirection>($"{EBrainState.SEEKER.ToString()}_CurrentInvestigationDirection");
 	}
 
 	public override void OnHit(IBullet bullet)
 	{
-		base.OnHit(bullet);
-
 		OnHit(bullet.StartPosition, bullet.WhoRef, bullet.Damage, bullet.CanPenetrate);
 	}
 
 	public override void OnHit(Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false)
 	{
-		base.OnHit(startPosition, whoRef, damage, canPenetrate);
+	//	EntityData.EntityRef.SetPointToLookAt(startPosition);
 
-		EntityData.EntityRef.SetPointToLookAt(startPosition);
-
-		EntityData.EntityRef.ChangeState(EBrainState.ALARMED);
+		EntityData.EntityRef.Behaviours.ChangeState(EBrainState.ALARMED);
 	}
 
 	public override void OnLookRotationReached(Vector3 Direction)
 	{
-		base.OnLookRotationReached(Direction);
+		
 	}
 
 	public override void OnDestinationReached(Vector3 Destination)
 	{
-		base.OnDestinationReached(Destination);
-
-		EntityData.EntityRef.NavReset();
+		EntityData.EntityRef.Navigation.NavReset();
 
 		// TODO
 		// before returning to normal state should investigate around current position
@@ -91,13 +79,13 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour
 					}
 
 					m_CurrentInvestigationDirection++;
-					EntityData.EntityRef.SetPointToLookAt(EntityData.Head_Position + newDirection, ELookTargetMode.HEAD_ONLY);
+		//			EntityData.EntityRef.SetPointToLookAt(EntityData.Head_Position + newDirection, ELookTargetMode.HEAD_ONLY);
 					yield return new WaitUntil(() => Vector3.Angle(EntityData.Head_Forward, newDirection) < 4.5f);
 				}
 
-				EntityData.EntityRef.RequestMovement(EntityData.SpawnBodyLocation);
-				EntityData.EntityRef.SetPointToLookAt(EntityData.SpawnHeadLocation + EntityData.SpawnHeadRotation.GetVector(Vector3.forward));
-				EntityData.EntityRef.ChangeState(EBrainState.NORMAL);
+				EntityData.EntityRef.Navigation.RequestMovement(EntityData.SpawnBodyLocation);
+		//		EntityData.EntityRef.SetPointToLookAt(EntityData.SpawnHeadLocation + EntityData.SpawnHeadRotation.GetVector(Vector3.forward));
+				EntityData.EntityRef.Behaviours.ChangeState(EBrainState.NORMAL);
 				m_CurrentInvestigationDirection = EInvestigationDirection.RIGHT;
 				m_InvestigationCO = null;
 			}
@@ -109,71 +97,72 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour
 
 	public override void OnThink()
 	{
-		base.OnThink();
+		
 	}
 
 	public override void OnPhysicFrame(float FixedDeltaTime)
 	{
-		base.OnPhysicFrame(FixedDeltaTime);
+		
 	}
 
 	public override void OnFrame(float DeltaTime)
 	{
-		base.OnFrame(DeltaTime);
-
 		// Update movement speed along path
-		if (EntityData.EntityRef.HasDestination)
+		if (EntityData.EntityRef.Navigation.HasDestination)
 		{
-			if (EntityData.EntityRef.IsAllignedHeadToPoint)
+	//		if (EntityData.EntityRef.IsAllignedHeadToPoint)
 			{
-				EntityData.AgentSpeed = EntityData.EntityRef.MaxAgentSpeed;
+				EntityData.AgentSpeed = EntityData.EntityRef.Navigation.MaxAgentSpeed;
 			}
 
-			if (EntityData.EntityRef.IsDisallignedHeadWithPoint)
-			{
-				EntityData.AgentSpeed = 0.0f;
-			}
+	//		if (EntityData.EntityRef.IsDisallignedHeadWithPoint)
+	//		{
+	//			EntityData.AgentSpeed = 0.0f;
+	//		}
 		}
+	}
+
+	public override void OnLateFrame(float DeltaTime)
+	{
+		
 	}
 
 	public override void OnPauseSet(bool isPaused)
 	{
-		base.OnPauseSet(isPaused);
+		
 	}
 
-	public override void OnTargetAcquired()
+	public override void OnTargetAcquired(TargetInfo targetInfo)
 	{
-		base.OnTargetAcquired();
-
 		// Destination
 		{
 			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane(
 				planeNormal: EntityData.Body_Up,
 				planePoint: EntityData.Body_Position,
-				point: EntityData.TargetInfo.CurrentTarget.AsEntity.transform.position
+				point: EntityData.TargetInfo.CurrentTarget.transform.position
 			);
 
 
-			EntityData.EntityRef.RequestMovement(projectedPoint);
+			EntityData.EntityRef.Navigation.RequestMovement(projectedPoint);
 		}
 
 		// Switch brain State
-		EntityData.EntityRef.ChangeState(EBrainState.ATTACKER);
+		EntityData.EntityRef.Behaviours.ChangeState(EBrainState.ATTACKER);
 	}
 
-	public override void OnTargetChange()
+	public override void OnTargetChange(TargetInfo targetInfo)
 	{
-		base.OnTargetChange();
+		
 	}
 
-	public override void OnTargetLost()
+	public override void OnTargetLost(TargetInfo targetInfo)
 	{
-		base.OnTargetLost();
+		
 	}
 
-	public override void OnKilled()
+	public override void OnKilled(Entity entityKilled)
 	{
-		base.OnKilled();
+		
 	}
 }
 

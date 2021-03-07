@@ -7,24 +7,20 @@ public partial class Player
 	RigidbodyInterpolation prevInterpolation;
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		EnterSimulationState()
+	public	override	void		EnterSimulationState()
 	{
+		GlobalManager.InputMgr.DisableCategory(EInputCategory.ALL);
+		Interactions.DropGrabbedObject();
+
 		m_MovementOverrideEnabled				= true;
 		m_SimulationStartPosition				= transform.position;
-
-		GlobalManager.InputMgr.DisableCategory(EInputCategory.ALL);
-
 		prevInterpolation						= m_RigidBody.interpolation;
 		m_RigidBody.interpolation				= RigidbodyInterpolation.Interpolate;
-
-		m_MotionStrategy.SetOverridenInputs(true);
-
-		DropDraggedObject();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected override		void		BeforeSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
+	public	override		void		BeforeSimulationStage( EMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
 		m_SimulationStartPosition = transform.position;
 		FPSEntityCamera.Instance.SetTarget(target);
@@ -32,7 +28,7 @@ public partial class Player
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	bool		SimulateMovement( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
+	public	override	bool		SimulateMovement( EMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
 		// END OF SIMULATION STEP
 		Vector3 direction = (destination - m_SimulationStartPosition);
@@ -41,7 +37,7 @@ public partial class Player
 
 		if (simulationDistanceTravelled > simulationdDistanceToTravel)
 		{
-			m_MotionStrategy.OverrideMove(ESimMovementType.STATIONARY, Vector3.zero);
+			Motion.MotionStrategy.Move(EMovementType.STATIONARY, Vector3.zero);
 			return false;				// force logic update
 		}
 
@@ -54,38 +50,38 @@ public partial class Player
 
 		FPSEntityCamera.Instance.SetTarget(target);
 
-		m_MotionStrategy.States.IsWalking	= movementType != ESimMovementType.RUN;
-		m_MotionStrategy.States.IsRunning	= !m_MotionStrategy.States.IsWalking;
-		m_MotionStrategy.States.IsCrouched	= movementType == ESimMovementType.CROUCHED;
-		m_MotionStrategy.States.IsMoving	= movementType != ESimMovementType.STATIONARY;
-		m_MotionStrategy.OverrideMove(movementType, direction.normalized);
+		Motion.MotionStrategy.States.IsWalking	= movementType != EMovementType.RUN;
+		Motion.MotionStrategy.States.IsRunning	= !Motion.MotionStrategy.States.IsWalking;
+		Motion.MotionStrategy.States.IsCrouched	= movementType == EMovementType.CROUCHED;
+		Motion.MotionStrategy.States.IsMoving	= movementType != EMovementType.STATIONARY;
+		Motion.MotionStrategy.Move(movementType, direction.normalized);
 		return true;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected override		void		AfterSimulationStage( ESimMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
+	public	 override		void		AfterSimulationStage( EMovementType movementType, Vector3 destination, Transform target, float timeScaleTarget )
 	{
 		m_SimulationStartPosition = Vector3.zero;
 
 		FPSEntityCamera.Instance.SetTarget(target);
 
-		m_MotionStrategy.OverrideMove(ESimMovementType.STATIONARY, Vector3.zero);
+		Motion.MotionStrategy.Move(EMovementType.STATIONARY, Vector3.zero);
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	void		ExitSimulationState()
+	public	override	void		ExitSimulationState()
 	{
 		m_MovementOverrideEnabled				= false;
 		m_SimulationStartPosition				= Vector3.zero;
 
 		m_RigidBody.interpolation				= prevInterpolation;
 
-		m_MotionStrategy.States.IsWalking		= false;
-		m_MotionStrategy.States.IsRunning		= false;
-		m_MotionStrategy.States.IsCrouched		= false;
-		m_MotionStrategy.States.IsMoving		= false;
+		Motion.MotionStrategy.States.IsWalking		= false;
+		Motion.MotionStrategy.States.IsRunning		= false;
+		Motion.MotionStrategy.States.IsCrouched		= false;
+		Motion.MotionStrategy.States.IsMoving		= false;
 
 		SoundManager.Pitch = Time.timeScale = 1f;
 
@@ -93,8 +89,7 @@ public partial class Player
 
 		FPSEntityCamera.Instance.SetTarget(null);
 
-		m_MotionStrategy.OverrideMove(ESimMovementType.STATIONARY, Vector3.zero);
-		m_MotionStrategy.SetOverridenInputs(false);
+		Motion.MotionStrategy.Move(EMovementType.STATIONARY, Vector3.zero);
 	}
 
 

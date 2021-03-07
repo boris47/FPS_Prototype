@@ -12,7 +12,7 @@ public class TurretHard : Turret {
 	[SerializeField]
 	private		float		m_RechargeTime		= 2f;
 
-	private		bool		m_IsRecharging		= false;
+//	private		bool		m_IsRecharging		= false;
 //	private		uint		m_FiredBullets		= 0;
 
 
@@ -93,23 +93,23 @@ public class TurretHard : Turret {
 
 		float	timeStep = (m_RechargeTime / 3f );
 
-		Transform shiledTransform = (m_Shield as Shield ).transform;
+		Transform shieldTransform = m_Shield.transform;
 
-		Vector3 savedShieldScale = shiledTransform.localScale;
+		Vector3 savedShieldScale = shieldTransform.localScale;
 
 		// PHASE 1: Shield scaling down
-		while( interpolant < 1f )
+		while (interpolant < 1f)
 		{
 			currentTime += Time.deltaTime;
 			interpolant = currentTime / timeStep;
 
-			shiledTransform.localScale = Vector3.Lerp( savedShieldScale, Vector3.zero, interpolant );
+			shieldTransform.localScale = Vector3.Lerp(savedShieldScale, Vector3.zero, interpolant);
 			yield return null;
 		}
 		interpolant = currentTime = 0f;
 
 		// PHASE 2: Recharge
-		while( interpolant < 1f )
+		while (interpolant < 1f)
 		{
 			currentTime += Time.deltaTime;
 			interpolant = currentTime / timeStep;
@@ -118,28 +118,17 @@ public class TurretHard : Turret {
 		interpolant = currentTime = 0f;
 
 		// PHASE 3: Shield scaling up
-		while( interpolant < 1f )
+		while (interpolant < 1f)
 		{
 			currentTime += Time.deltaTime;
 			interpolant = currentTime / timeStep;
 
-			shiledTransform.localScale = Vector3.Lerp( Vector3.zero, savedShieldScale, interpolant );
+			shieldTransform.localScale = Vector3.Lerp(Vector3.zero, savedShieldScale, interpolant);
 			yield return null;
 		}
 
-		m_IsRecharging = false;
+	//	m_IsRecharging = false;
 	//	m_FiredBullets = 0;
-	}
-
-	
-	//////////////////////////////////////////////////////////////////////////
-
-	protected override void OnFrame( float deltaTime )
-	{
-		if (m_IsRecharging == false )
-		{
-			base.OnFrame( deltaTime );
-		}
 	}
 
 }

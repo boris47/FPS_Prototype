@@ -78,10 +78,9 @@ public class FPSEntityCamera : CameraBase
 		}
 		else
 		{
-			EffectorActiveCondition mainCondition = () => Player.Instance.IsGrounded;
-
-			m_CameraEffectorsManager.AddCondition<HeadBob>(mainCondition + (() => Player.Instance.IsMoving));
-			m_CameraEffectorsManager.AddCondition<HeadMove>(mainCondition + (() => !Player.Instance.IsMoving));
+			EffectorActiveCondition mainCondition = () => Player.Instance.Motion.CanMove;
+			m_CameraEffectorsManager.AddCondition<HeadBob>(mainCondition + (() => Player.Instance.Motion.IsMoving));
+			m_CameraEffectorsManager.AddCondition<HeadMove>(mainCondition + (() => !Player.Instance.Motion.IsMoving));
 
 			m_CameraRef.farClipPlane = m_CameraSectionData.ViewDistance;
 		}

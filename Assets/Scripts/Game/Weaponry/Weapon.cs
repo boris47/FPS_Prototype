@@ -235,7 +235,7 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 			GlobalManager.InputMgr.BindCall(EInputCommands.RELOAD_WPN,				"Wpn_Reload",					Reload,					Predicate_Reload);
 
 			void UnZoom() => WeaponManager.Instance.ZoomOut();
-			bool Predicate_UnZoom() => Player.Instance.IsRunning && WeaponManager.Instance.IsZoomed;
+			bool Predicate_UnZoom() => Player.Instance.Motion.MotionStrategy.States.IsRunning && WeaponManager.Instance.IsZoomed;
 			GlobalManager.InputMgr.BindCall(EInputCommands.STATE_RUN,				"Wpn_ExitZoom",					UnZoom,					Predicate_UnZoom);
 		}
 	}
@@ -291,7 +291,7 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 
 		// LOAD BASE CONFIGURATION
 		{
-			m_WpnSection.TryAsVec3( "ZoomOffset", out m_ZoomOffset, null );
+			m_WpnSection.TryAsVec3( "ZoomOffset", out m_ZoomOffset );
 
 			m_BaseZoomFactor		= m_WpnSection.AsFloat( "BaseZoomFactor", m_BaseZoomFactor );
 			m_BaseZoomingTime		= m_WpnSection.AsFloat( "BaseZoomingTime", m_BaseZoomingTime );

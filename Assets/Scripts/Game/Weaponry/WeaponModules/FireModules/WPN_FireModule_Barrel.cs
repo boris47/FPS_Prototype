@@ -84,9 +84,9 @@ public class WPN_FireModule_Barrel : WPN_FireModule
 		// BULLET
 		IBullet bullet = m_PoolBullets.GetNextComponent();
 
-		moduleFireDispersion	*= Player.Instance.IsCrouched			? 0.50f : 1.00f;
-		moduleFireDispersion	*= Player.Instance.IsMoving				? 1.50f : 1.00f;
-		moduleFireDispersion	*= Player.Instance.IsRunning			? 2.00f : 1.00f;
+		moduleFireDispersion	*= Player.Instance.Motion.MotionStrategy.States.IsCrouched		? 0.50f : 1.00f;
+		moduleFireDispersion	*= Player.Instance.Motion.MotionStrategy.States.IsMoving		? 1.50f : 1.00f;
+		moduleFireDispersion	*= Player.Instance.Motion.MotionStrategy.States.IsRunning		? 2.00f : 1.00f;
 		moduleFireDispersion	*= WeaponManager.Instance.IsZoomed		? 0.80f : 1.00f;
 		moduleFireDispersion	*= bullet.RecoilMult;
 

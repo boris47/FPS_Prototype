@@ -13,7 +13,7 @@ public class OutlineWithCommandBuffer : BaseHighlighter {
 	protected		OutlineEffectManager.SortingType	sortingType		= OutlineEffectManager.SortingType.Overlay;
 
 	[SerializeField, ReadOnly]
-	protected		uint								m_ID			= 0;
+	protected		uint								m_Id			= 0;
 
 	protected		Renderer[]							m_Renderers		= null;
 
@@ -28,7 +28,7 @@ public class OutlineWithCommandBuffer : BaseHighlighter {
 			(
 				renderers: m_Renderers,
 				outlineData: m_OutlineData,
-				newID:			ref m_ID
+				newID:			ref m_Id
 			);
 			m_IsActive = true;
 		}
@@ -41,7 +41,7 @@ public class OutlineWithCommandBuffer : BaseHighlighter {
 	{
 		if (m_IsActive == true )
 		{
-			OutlineEffectManager.Instance?.RemoveRenderers(m_ID );
+			OutlineEffectManager.Instance?.RemoveRenderers(m_Id );
 			m_IsActive = false;
 		}
 		return !m_IsActive;
@@ -61,7 +61,7 @@ public class OutlineWithCommandBuffer : BaseHighlighter {
 			m_OutlineData.color = m_ColorToUse;
 			m_OutlineData.sortingType = sortingType;
 
-			OutlineEffectManager.Instance?.UpdateRenderers(m_ID, m_OutlineData );
+			OutlineEffectManager.Instance?.UpdateRenderers(m_Id, m_OutlineData );
 		}
 	}
 
