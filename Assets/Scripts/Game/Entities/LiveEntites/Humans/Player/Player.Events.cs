@@ -1,8 +1,8 @@
 ﻿
 using UnityEngine;
 
-public partial class Player {
-
+public partial class Player
+{
 	private	const	float			MAX_INTERACTION_DISTANCE		= 40.1f; // TODO set to 2.1
 
 	// The ammount of hit effect to show
@@ -203,7 +203,14 @@ public partial class Player {
 		*/
 		#endregion
 	}
-	
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public override void LookAt(in Vector3 worldpoint, in float bodyRotationSpeed, in float headRotationSpeed, in Vector2? clampsHoriz, in Vector2? clampsVert, out bool isBodyAlligned, out bool isHeadAlligned)
+	{
+		throw new System.NotSupportedException();
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	protected		override	void		OnKill()

@@ -23,9 +23,9 @@ public abstract class Walker : NonLiveEntity {
 	[SerializeField, ReadOnly]
 	protected	uint			m_PoolSize					= 5;
 */
-	protected 	override EEntityType				m_EntityType			=> EEntityType.ROBOT;
-
-	protected	override EntityComponentContainer[] m_RequiredComponents	=> new EntityComponentContainer[]
+	protected	override ERotationsMode				m_LookTargetMode						=> ERotationsMode.WITH_BODY;
+	protected 	override EEntityType				m_EntityType							=> EEntityType.ROBOT;
+	protected	override EntityComponentContainer[] m_RequiredComponents					=> new EntityComponentContainer[]
 	{
 		new EntityComponentContainer_Memory<Memory_Common>(),
 		new EntityComponentContainer_Inventory<Inventory_Common>(),
@@ -33,6 +33,7 @@ public abstract class Walker : NonLiveEntity {
 		new EntityComponentContainer_Behaviours<Behaviours_Common>(),
 		new EntityComponentContainer_Navigation<Navigation_Common>()
 	};
+
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void	Awake()
@@ -96,10 +97,17 @@ public abstract class Walker : NonLiveEntity {
 		//		m_Pool.SetActive( false );
 		gameObject.SetActive( false );
 	}
-	
+
 
 	//////////////////////////////////////////////////////////////////////////
+	public override void LookAt(in Vector3 worldpoint, in float bodyRotationSpeed, in float headRotationSpeed, in Vector2? clampsHoriz, in Vector2? clampsVert, out bool isBodyAlligned, out bool isHeadAlligned)
+	{
+		isBodyAlligned = default;
+		isHeadAlligned = default;
+	}
 
+
+	//////////////////////////////////////////////////////////////////////////
 	public virtual		void	UpdateHeadRotation()
 	{
 		// ORIENTATION

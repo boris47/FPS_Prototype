@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 
+[System.Serializable]
 public enum EEntityType : short
 {
 	NONE,
@@ -8,6 +9,14 @@ public enum EEntityType : short
 	ROBOT,
 	ANIMAL
 };
+
+[System.Serializable]
+public enum ERotationsMode : short
+{
+	NONE,
+	HEAD_ONLY,
+	WITH_BODY
+}
 
 [RequireComponent(typeof(Rigidbody))]
 public abstract partial class Entity : MonoBehaviour//, IIdentificable<uint>
@@ -40,6 +49,7 @@ public abstract partial class Entity : MonoBehaviour//, IIdentificable<uint>
 	protected	EntityGroup								m_Group						= null;
 
 
+	protected	abstract ERotationsMode					m_LookTargetMode			{ get; }
 	protected	abstract EEntityType					m_EntityType				{ get; }
 	protected	abstract EntityComponentContainer[]		m_RequiredComponents		{ get; }
 	protected 	uint									m_Id						= 0;
@@ -71,6 +81,7 @@ public abstract partial class Entity : MonoBehaviour//, IIdentificable<uint>
 	// INTERFACE IIdentificable END
 	
 
+
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void	Awake()
 	{
@@ -87,14 +98,14 @@ public abstract partial class Entity : MonoBehaviour//, IIdentificable<uint>
 		
 		// TRANSFORMS
 		{
-			m_HeadTransform		= m_HeadTransform ?? transform.Find("Head");
-			m_BodyTransform		= m_BodyTransform ?? transform.Find("Body");
-			m_EffectsPivot		= m_EffectsPivot ?? transform.Find("EffectsPivot");
-
-			m_Targettable		= m_BodyTransform;
+			m_HeadTransform		= m_HeadTransform.IsNotNull() ? m_HeadTransform : transform.Find("Head");
+			m_BodyTransform		= m_BodyTransform.IsNotNull() ? m_BodyTransform : transform;
 
 			UnityEngine.Assertions.Assert.IsNotNull(m_HeadTransform, $"Entity {name} has not head");
 			UnityEngine.Assertions.Assert.IsNotNull(m_BodyTransform, $"Entity {name} has not body");
+
+			m_EffectsPivot		= m_EffectsPivot.IsNotNull() ? m_EffectsPivot : transform.Find("EffectsPivot");
+			m_Targettable		= transform.Find("Body");
 		}
 
 		// ESSENTIALS CHECK (Assigned in prefab)
@@ -118,6 +129,15 @@ public abstract partial class Entity : MonoBehaviour//, IIdentificable<uint>
 
 		// Entity Components
 		SetupComponents();
+
+		Collider[] allColliders = GetComponentsInChildren<Collider>(includeInactive: true);
+		foreach (Collider colliderA in allColliders)
+		{
+			foreach (Collider colliderB in allColliders)
+			{
+				Physics.IgnoreCollision(colliderA, colliderB, ignore: true);
+			}
+		}
 	}
 
 
@@ -128,23 +148,25 @@ public abstract partial class Entity : MonoBehaviour//, IIdentificable<uint>
 		return true;
 	}
 
+
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Set the collision state between physic and trigger(if required) collider and another collider </summary>
-	public void SetLocalCollisionStateWith(in Collider collider, in bool bAlsoTriggerCollider = true)
+	public void SetLocalCollisionStateWith(in Collider collider, in bool state, in bool bAlsoTriggerCollider = true)
 	{
 		if (bAlsoTriggerCollider)
 		{
-			Physics.IgnoreCollision(collider, m_TriggerCollider, ignore: true);
+			Physics.IgnoreCollision(collider, m_TriggerCollider, ignore: !state);
 		}
-		Physics.IgnoreCollision(collider, m_PhysicCollider, ignore: true);
+		Physics.IgnoreCollision(collider, m_PhysicCollider, ignore: !state);
 	//	Physics.IgnoreCollision( collider, m_PlayerNearAreaTrigger, ignore: true );
 	//	Physics.IgnoreCollision( collider, m_PlayerFarAreaTrigger, ignore: true );
 	//	Physics.IgnoreCollision( collider, m_Foots.Collider, ignore: true );
 	}
 
+
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Set the collision state of each collider on this entity end its children with another collider </summary>
-	public					void	SetCollisionStateWith(Collider coll, bool state)
+	public void SetCollisionStateWith(in Collider coll, in bool state)
 	{
 		foreach(Collider collider in GetComponentsInChildren<Collider>(includeInactive: true))
 		{
@@ -152,8 +174,39 @@ public abstract partial class Entity : MonoBehaviour//, IIdentificable<uint>
 		}
 	}
 
+
 	//////////////////////////////////////////////////////////////////////////
-	public void SetGroup(EntityGroup group)
+	/// <summary> Calculate the rotation to apply to parent and child to face the point </summary>
+	public static void GetRotationsToPoint(in Transform parent, in Transform child, in Vector3 worldPoint, out float horizontalRotation, out float verticalRotation)
+	{
+		UnityEngine.Assertions.Assert.IsNotNull(parent);
+		UnityEngine.Assertions.Assert.IsNotNull(child);
+		UnityEngine.Assertions.Assert.IsTrue(child.IsChildOf(parent));
+
+		// parent rotation
+		{
+			Vector3 projctedPoint = Utils.Math.ProjectPointOnPlane(parent.up, parent.position, worldPoint);
+			Vector3 directionToPoint = (projctedPoint - parent.position);
+			horizontalRotation = Vector3.SignedAngle(parent.forward, directionToPoint, parent.up);
+		}
+
+		// child rotation
+		{
+			Vector3 directionToPoint = (worldPoint - child.position);
+			float angle = Vector3.Angle(parent.up, directionToPoint);
+			Vector3 eulerAngles = child.localRotation.eulerAngles;
+
+			verticalRotation = Mathf.DeltaAngle(angle, eulerAngles.x) + 90f; // +90 because of body.up
+		}
+	}
+
+	
+	//////////////////////////////////////////////////////////////////////////
+	public abstract void LookAt(in Vector3 worldpoint, in float bodyRotationSpeed, in float headRotationSpeed, in Vector2? clampsHoriz, in Vector2? clampsVert, out bool isBodyAlligned, out bool isHeadAlligned);
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public void SetGroup(in EntityGroup group)
 	{
 		m_Group = group;
 	}

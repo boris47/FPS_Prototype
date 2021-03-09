@@ -1,64 +1,62 @@
 
 using UnityEditor;
-using UnityEngine.SceneManagement;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PhysicsActions 
 {
 	const string MENU_LABEL = "Physics";
+	
+	// TODO
+	/// - Collect all objects that need of physic simulation ( Pheraps just the selected ones in editor?? )
+	/// - Add RigidBody if none is found
+	/// - Execute simulation
+	/// - Remove RigidBody if was added
+	/// 
 
 	[MenuItem( MENU_LABEL + "/SimulateOnlySelectedWithRaycasts" )]
 	private	static	void	PhysicsActions_SimulateOnlySelectedWithRaycasts()
 	{
+		SimulateOnlySelectedWithRaycasts(Space.World);
+	}
 
-		// TODO
-		/// - Collect all objects that need of physic simulation ( Pheraps just the selected ones in editor?? )
-		/// - Add RigidBody if none is found
-		/// - Execute simulation
-		/// - Remove RigidBody if was added
-		/// 
+	[MenuItem(MENU_LABEL + "/SimulateOnlySelectedWithRaycastsLocalUp")]
+	private static void PhysicsActions_SimulateOnlySelectedWithRaycastsLocalUp()
+	{
+		SimulateOnlySelectedWithRaycasts(Space.Self);
+	}
 
-		
-		UnityEngine.Transform[] transforms = UnityEditor.Selection.GetTransforms(SelectionMode.ExcludePrefab | SelectionMode.Editable | SelectionMode.OnlyUserModifiable );
-
-		if ( transforms.Length == 0 ) return;
-//		UnityEngine.Physics.autoSimulation = false;
+	private static void SimulateOnlySelectedWithRaycasts(Space space)
+	{
+		Transform[] transforms = UnityEditor.Selection.GetTransforms(SelectionMode.ExcludePrefab | SelectionMode.Editable | SelectionMode.OnlyUserModifiable);
+		foreach(Transform t in transforms)
 		{
-			for ( int i = 0; i < transforms.Length; i++ )
+			Vector3 up = space == Space.World ? Vector3.up : t.up;
+			if (t.TryGetComponent(out Collider collider))
 			{
-				UnityEngine.Transform t = transforms[i];
-				if ( t.TrySearchComponent(ESearchContext.LOCAL, out UnityEngine.Collider collider) )
+				if (t.TryGetComponent(out Rigidbody rigidBody))
 				{
-					if (t.TrySearchComponent(ESearchContext.LOCAL, out UnityEngine.Rigidbody rigidBody))
-					{
-						if ( rigidBody.constraints == UnityEngine.RigidbodyConstraints.FreezePosition ||
-							rigidBody.constraints == UnityEngine.RigidbodyConstraints.FreezePositionY )
-							continue;
-					}
-
-					float halfHeight = collider.bounds.extents.y;
-					UnityEngine.Vector3 origin = t.position + (UnityEngine.Vector3.down * halfHeight);
-					UnityEngine.Vector3 direction = UnityEngine.Vector3.down;
-					if (UnityEngine.Physics.Raycast(origin: origin, direction: direction, hitInfo: out UnityEngine.RaycastHit hitInfo))
-					{
-						t.position = hitInfo.point + (UnityEngine.Vector3.up * halfHeight);
-					}
+					if (rigidBody.constraints == RigidbodyConstraints.FreezePosition || rigidBody.constraints == RigidbodyConstraints.FreezePositionY)
+						continue;
 				}
-				else
+
+				float halfHeight = collider.bounds.extents.y;
+				Vector3 origin = t.position + (-up * halfHeight);
+				Vector3 direction = -up;
+				if (Physics.Raycast(origin: origin, direction: direction, hitInfo: out RaycastHit hitInfo))
 				{
-					UnityEngine.Vector3 origin = t.position;
-					UnityEngine.Vector3 direction = UnityEngine.Vector3.down;
-					if (UnityEngine.Physics.Raycast(origin: origin, direction: direction, hitInfo: out UnityEngine.RaycastHit hitInfo))
-					{
-						t.position = hitInfo.point + (Vector3.up * 0.001f);
-					}
+					t.position = hitInfo.point + (up * halfHeight) + (up * 0.001f)/*Always leave a small space in order to avoid undesired collisons*/;
 				}
 			}
-
-
+			else
+			{
+				Vector3 origin = t.position;
+				Vector3 direction = -up;
+				if (Physics.Raycast(origin: origin, direction: direction, hitInfo: out RaycastHit hitInfo))
+				{
+					t.position = hitInfo.point + (up * 0.001f)/*Always leave a small space in order to avoid undesired collisons*/;
+				}
+			}
 		}
-//		UnityEngine.Physics.autoSimulation = true;
 	}
 
 	[MenuItem( MENU_LABEL + "/SimulatePhysisStep" )]

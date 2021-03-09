@@ -1,37 +1,41 @@
 ﻿
-using System;
 using UnityEngine;
 
-
-public abstract class Turret : NonLiveEntity {
-
-//	[Header("Turret Properties")]
-
+public abstract class Turret : NonLiveEntity
+{
 /*	[SerializeField]
-	private		Bullet			m_Bullet					= null;
+	private				Bullet						m_Bullet				= null;
 
 	[SerializeField]
-	protected	float			m_ShotDelay					= 0.7f;
+	protected			float						m_ShotDelay				= 0.7f;
 
 	[SerializeField]
-	protected	float			m_DamageMax					= 2f;
+	protected			float						m_DamageMax				= 2f;
 
 	[SerializeField]
-	protected	float			m_DamageMin					= 0.5f;
+	protected			float						m_DamageMin				= 0.5f;
 
 	[SerializeField, ReadOnly]
-	protected	uint			m_PoolSize					= 5;
-
-	private		WPN_WeaponAttachment_LaserPointer			m_Laser						= null;
+	protected			uint						m_PoolSize				= 5;
+	
+	private				WPN_WeaponAttachment_LaserPointer m_Laser			= null;
 */
 
+	protected	override ERotationsMode				m_LookTargetMode		=> ERotationsMode.HEAD_ONLY;
 	protected 	override EEntityType				m_EntityType			=> EEntityType.ROBOT;
-
 	protected	override EntityComponentContainer[] m_RequiredComponents	=> new EntityComponentContainer[]
 	{
 		new EntityComponentContainer_Memory<Memory_Common>(),
 		new EntityComponentContainer_Behaviours<Behaviours_Common>(),
 	};
+
+	[Header("Turret Properties")]
+
+	[SerializeField, ReadOnly]
+	protected			float						m_CurrentAngle_X				= 0.0f;
+	[SerializeField, ReadOnly]
+	protected			float						m_CurrentAngle_Y				= 0.0f;
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )
@@ -50,7 +54,7 @@ public abstract class Turret : NonLiveEntity {
 
 			m_Health				= m_SectionRef.AsFloat( "Health", 60.0f );
 
-			if (m_Shield != null )
+			if (m_Shield.IsNotNull())
 			{
 				float shieldStatus	= m_SectionRef.AsFloat( "Shield", 0.0f );
 				m_Shield.Setup( shieldStatus, EShieldContext.ENTITY );
@@ -91,12 +95,48 @@ public abstract class Turret : NonLiveEntity {
 //		m_ShotTimer = 0f;
 	}
 
-	//////////////////////////////////////////////////////////////////////////
 
+	//////////////////////////////////////////////////////////////////////////
+	public override void LookAt(in Vector3 worldpoint, in float bodyRotationSpeed, in float headRotationSpeed, in Vector2? clampsHoriz, in Vector2? clampsVert, out bool isBodyAlligned, out bool isHeadAlligned)
+	{
+		Entity.GetRotationsToPoint(m_BodyTransform, m_HeadTransform, worldpoint, out float horizontalRotation, out float verticalRotation);
+
+		// Horizontal rotation
+		{
+			float newAngle_Y = m_CurrentAngle_Y + horizontalRotation;
+			if (clampsHoriz.HasValue)
+			{
+				float min = clampsHoriz.Value.x;
+				float max = clampsHoriz.Value.y;
+				newAngle_Y = Utils.Math.Clamp(newAngle_Y, min, max);
+			}
+			m_CurrentAngle_Y = Mathf.MoveTowards(m_CurrentAngle_Y, newAngle_Y, Time.deltaTime * bodyRotationSpeed);
+			m_BodyTransform.localRotation = Quaternion.Euler(Vector3.up * m_CurrentAngle_Y);
+		}
+		
+		// Vertical rotation
+		{
+			float newAngle_X = m_CurrentAngle_X - verticalRotation;
+			if (clampsVert.HasValue)
+			{
+				float min = clampsVert.Value.x;
+				float max = clampsVert.Value.y;
+				newAngle_X = Utils.Math.Clamp(newAngle_X, min, max);
+			}
+			m_CurrentAngle_X = Mathf.MoveTowards(m_CurrentAngle_X, newAngle_X, Time.deltaTime * headRotationSpeed);
+			m_HeadTransform.localRotation = Quaternion.Euler(Vector3.right * m_CurrentAngle_X);
+		}
+
+		isBodyAlligned = m_CurrentAngle_Y <= 4f;
+		isHeadAlligned = m_CurrentAngle_X <= 4f;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	protected		override	void	OnKill()
 	{
 		base.OnKill();
-		//		m_Pool.SetActive( false );
+	//	m_Pool.SetActive( false );
 		gameObject.SetActive( false );
 	}
 	

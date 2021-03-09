@@ -36,7 +36,7 @@ public sealed class UI_Inventory : UI_Base, IStateDefiner {
 		public		float				CellSizeY			= 0;
 		public		int					CellCountHorizontal	= 0;
 		public		int					CellCountVertical	= 0;
-		public		int					HorizzontalPadding	= 0;
+		public		int					HorizontalPadding	= 0;
 		public		int					VerticalPadding		= 0;
 		public		float				HSpaceBetweenSlots	= 0;
 		public		float				VSpaceBetweenSlots	= 0;
@@ -92,7 +92,7 @@ public sealed class UI_Inventory : UI_Base, IStateDefiner {
 				float ratio = (float)Screen.width / (float)Screen.height;
 //				print(ratio);
 				
-				int halfHorizontalPadding = m_InventorySectionData.HorizzontalPadding / 2;
+				int halfHorizontalPadding = m_InventorySectionData.HorizontalPadding  / 2;
 				int halfVerticalPadding   = m_InventorySectionData.VerticalPadding    / 2;
 				RectOffset padding = new RectOffset
 				( 

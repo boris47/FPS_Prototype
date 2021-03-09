@@ -27,10 +27,7 @@ public class FPSEntityCamera : CameraBase
 	private		float							m_SmoothFactor							= 1.0f;
 
 	[SerializeField, ReadOnly]
-	private		Transform						m_EntityHead							= null;
-
-	[SerializeField, ReadOnly]
-	private		Transform						m_EntityBody							= null;
+	private		Entity							m_Entity								= null;
 
 	[SerializeField]
 	private		Transform						m_Target								= null;
@@ -174,29 +171,24 @@ public class FPSEntityCamera : CameraBase
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public void		SetViewPoint(Transform entityHead, Transform entityBody)
+	public void		SetViewPoint(Entity entity)
 	{
-		if (m_EntityHead)
+		UnityEngine.Assertions.Assert.IsNotNull(entity);
+		UnityEngine.Assertions.Assert.IsNotNull(entity.Head);
+		UnityEngine.Assertions.Assert.IsNotNull(entity.Body);
+
+		if (m_Entity)
 		{
-			if (m_EntityHead.TrySearchComponent(ESearchContext.LOCAL_AND_PARENTS, out Entity parent))
-			{
-				parent.OnEvent_Killed -= OnOwnerDeath;
-			}
+			m_Entity.OnEvent_Killed -= OnOwnerDeath;
 		}
 
-		m_EntityHead = entityHead;
-		m_EntityBody = entityBody;
-		transform.SetParent(entityHead);
+		m_Entity = entity;
+
+		transform.SetParent(entity.Head);
 		transform.localPosition = Vector3.zero;
 		transform.localRotation = Quaternion.identity;
 
-		if (m_EntityHead)
-		{
-			if (m_EntityHead.TrySearchComponent(ESearchContext.LOCAL_AND_PARENTS, out Entity parent))
-			{
-				parent.OnEvent_Killed += OnOwnerDeath;
-			}
-		}
+		m_Entity.OnEvent_Killed += OnOwnerDeath;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -238,73 +230,67 @@ public class FPSEntityCamera : CameraBase
 		;
 
 		// Optic sight alignment
-		if ( WeaponManager.Instance.IsZoomed )
+		if (WeaponManager.Instance.IsZoomed)
 		{
-			Vector3 distantPoint = currentWeapon.Transform.position + ( currentWeapon.Transform.right * 1000f );
-			Vector2 delta = m_CameraRef.WorldToScreenPoint( distantPoint );
+			Vector3 distantPoint = currentWeapon.Transform.position + (currentWeapon.Transform.right * 1000f);
+			Vector2 delta = m_CameraRef.WorldToScreenPoint(distantPoint);
 
 			float frameFeedBack = 1.0f + currentWeapon.Recoil; // 1.0f + Because is scale factor
-			UIManager.InGame.FrameFeedBack( frameFeedBack, delta );
+			UIManager.InGame.FrameFeedBack(frameFeedBack, delta);
 		}
-
 
 		float Axis_X_Delta = 0.0f, Axis_Y_Delta = 0.0f;
 		if (m_Target)
 		{
-			Vector3 targetPosition = m_Target.position;
+			Entity.GetRotationsToPoint(m_Entity.Body, m_Entity.Head, m_Target.position, out Axis_Y_Delta, out Axis_X_Delta);
 
+			/*
 			// Rotate the body
 			{
-				Vector3 projctedPoint = Utils.Math.ProjectPointOnPlane(m_EntityBody.up, m_EntityBody.position, targetPosition);
-				Vector3 directionToPoint = (projctedPoint - m_EntityBody.position);
-				Axis_Y_Delta = Vector3.SignedAngle(m_EntityBody.forward, directionToPoint, m_EntityBody.up);
+				Vector3 projctedPoint = Utils.Math.ProjectPointOnPlane(body.up, body.position, targetPosition);
+				Vector3 directionToPoint = (projctedPoint - body.position);
+				Axis_Y_Delta = Vector3.SignedAngle(body.forward, directionToPoint, body.up);
 			}
 
 			// Rotate the head
 			{
-				Vector3 directionToPoint = (targetPosition - transform.position);
-				float angle = Vector3.Angle(m_EntityBody.up, directionToPoint);
+				Vector3 directionToPoint = (targetPosition - head.position);
+				float angle = Vector3.Angle(body.up, directionToPoint);
 				Axis_X_Delta = Mathf.DeltaAngle(angle, m_CurrentAngle_X) + 90f; // +90 because of m_EntityBody.up
 			}
+			*/
 		}
 		else if (GlobalManager.InputMgr.HasCategoryEnabled(EInputCategory.CAMERA))
 		{
 			bool	isZoomed			= WeaponManager.Instance.IsZoomed;
 			float	wpnZoomSensitivity  = WeaponManager.Instance.ZoomSensitivity;
-			Axis_X_Delta = Input.GetAxisRaw("Mouse X") * m_MouseSensitivity * ( ( isZoomed ) ? wpnZoomSensitivity : 1.0f );
-			Axis_Y_Delta = Input.GetAxisRaw("Mouse Y") * m_MouseSensitivity * ( ( isZoomed ) ? wpnZoomSensitivity : 1.0f );
+			Axis_X_Delta = Input.GetAxisRaw("Mouse X") * m_MouseSensitivity * ((isZoomed) ? wpnZoomSensitivity : 1.0f);
+			Axis_Y_Delta = Input.GetAxisRaw("Mouse Y") * m_MouseSensitivity * ((isZoomed) ? wpnZoomSensitivity : 1.0f);
 		}
 
 		if (!Mathf.Approximately(Axis_X_Delta, Mathf.Epsilon) || !Mathf.Approximately(Axis_Y_Delta, Mathf.Epsilon))
 		{
 			// Interpolate if m_SmoothedRotation is enabled
-			float interpolant = m_SmoothedRotation ? ( Time.unscaledDeltaTime * ( 100f / m_SmoothFactor ) ) : 1f;
+			float interpolant = m_SmoothedRotation ? (Time.unscaledDeltaTime * (100f / m_SmoothFactor)) : 1f;
 			m_CurrentRotation_X_Delta = Mathf.LerpUnclamped(m_CurrentRotation_X_Delta, Axis_X_Delta, interpolant);
 			m_CurrentRotation_Y_Delta = Mathf.LerpUnclamped(m_CurrentRotation_Y_Delta, Axis_Y_Delta, interpolant);
 
 			Vector3 finalWpnRotationFeedback = new Vector3(0.0f, Axis_Y_Delta, 0.0f);
 
+			Transform head = m_Entity.Head;
+			Transform body = m_Entity.transform; // m_Entity.Body is a sub-gameObject, rotating it does not affect the entity rotation itself
+
 			// Apply rotation
 			{
-				// Horizonatal rotation (Body)
-				m_EntityBody.Rotate(Vector3.up, m_CurrentRotation_Y_Delta, Space.Self);
-
+				// Horizontal rotation (Body)
+				body.Rotate(Vector3.up, m_CurrentRotation_Y_Delta, Space.Self);
 
 				// Vertical rotation (Head)
 				if (Utils.Math.ClampResult(ref m_CurrentAngle_X, m_CurrentAngle_X - m_CurrentRotation_X_Delta, CLAMP_MIN_X_AXIS, CLAMP_MAX_X_AXIS))
 				{
 					finalWpnRotationFeedback.z = Axis_X_Delta;
 				}
-				m_EntityHead.localRotation = Quaternion.Euler(Vector3.right * m_CurrentAngle_X);
-				/*
-				float newAngle = m_CurrentAngle_X + m_CurrentRotation_X_Delta;
-				if (Utils.Math.IsBetweenOrEqualValues(newAngle, CLAMP_MIN_X_AXIS, CLAMP_MAX_X_AXIS))
-				{
-					m_CurrentAngle_X = newAngle;
-					m_EntityHead.Rotate(Vector3.left, m_CurrentRotation_X_Delta, Space.Self);
-					finalWpnRotationFeedback.z = Axis_X_Delta;
-				}
-				*/
+				head.localRotation = Quaternion.Euler(Vector3.right * m_CurrentAngle_X);
 			}
 
 			// Rotation with effect added
@@ -325,10 +311,6 @@ public class FPSEntityCamera : CameraBase
 	{
 		if ((Object)m_Instance != this)
 			return;
-
-//		var settings = m_PP_Profile.vignette.settings;
-//		settings.intensity = 0f;
-//		m_PP_Profile.vignette.settings = settings;
 
 		m_Instance = null;
 

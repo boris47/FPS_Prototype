@@ -6,9 +6,9 @@ public abstract	class AIBehaviour
 	protected		EntityBlackBoardData	EntityData	= null;
 
 	//////////////////////////////////////////////////////////////////////////
-	public virtual void Setup(uint EntityId)
+	public virtual void Setup(EntityBlackBoardData entityBlackBoardData)
 	{
-		EntityData = Blackboard.GetData(EntityId);
+		EntityData = entityBlackBoardData;
 	}
 
 	//////////////////////////////////////////////////////////////////////////

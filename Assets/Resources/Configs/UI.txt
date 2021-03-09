@@ -5,7 +5,7 @@ CellSizeY			= 150;
 CellCountHorizontal	= 5;
 CellCountVertical	= 5;
 
-HorizzontalPadding	= 100;
+HorizontalPadding	= 100;
 VerticalPadding		= 100;
 
 HSpaceBetweenSlots	= 20.0;

@@ -13,7 +13,7 @@ public class Foots : MonoBehaviour
 	private				Collider						m_CurrentCollider			= null;
 
 	private				ICustomAudioSource				m_AudioSource				= null;
-	private				bool							m_WasGrounded				= true;
+	private				bool							m_WasGrounded				= false;
 	private	event		OnGroundedChangeEvent			m_OnGroundedChange			= delegate { };
 
 	public				Collider						Collider					=> m_Collider;

@@ -39,10 +39,10 @@ public class Drone_AI_Behaviour_Attacker : AIBehaviour
 
 	public override void OnHit(Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false)
 	{
-	//	if (!EntityData.TargetInfo.CurrentTarget.IsAlive)
-	//	{
-	//		EntityData.EntityRef.SetPointToLookAt(startPosition);
-	//	}
+		if (!EntityData.TargetInfo.CurrentTarget.IsAlive)
+		{
+			EntityData.EntityRef.Behaviours.SetPointToLookAt(startPosition);
+		}
 	}
 
 	public override void OnDestinationReached(Vector3 Destination)
@@ -79,9 +79,9 @@ public class Drone_AI_Behaviour_Attacker : AIBehaviour
 	public override void OnFrame(float DeltaTime)
 	{
 		// Update targeting
-		//	if ( EntityData.TargetInfo.HasTarget == true )
+		if ( EntityData.TargetInfo.HasTarget)
 		{
-	//		EntityData.EntityRef.SetPointToLookAt(EntityData.TargetInfo.CurrentTarget.transform.position);
+			EntityData.EntityRef.Behaviours.SetPointToLookAt(EntityData.TargetInfo.CurrentTarget.transform.position);
 
 		// with a target, if gun alligned, fire
 		//	if (EntityData.EntityRef.CanFire() == true )
@@ -108,7 +108,7 @@ public class Drone_AI_Behaviour_Attacker : AIBehaviour
 	//		{
 	//			if (IsNotUnderEngageDistance)
 	//			{
-	//				agentFinalSpeed = EntityData.EntityRef.MaxAgentSpeed;
+	//				agentFinalSpeed = EntityData.EntityRef.Navigation.MaxAgentSpeed;
 	//			}
 	//			else
 	//			{
@@ -117,7 +117,7 @@ public class Drone_AI_Behaviour_Attacker : AIBehaviour
 	//		}
 	//	/*	else
 	//		{
-	//			agentFinalSpeed = EntityData.EntityRef.MaxAgentSpeed;
+	//			agentFinalSpeed = EntityData.EntityRef.Navigation.MaxAgentSpeed;
 	//		}
 	//		*/
 	//		EntityData.AgentSpeed = agentFinalSpeed;
@@ -169,7 +169,7 @@ public class Drone_AI_Behaviour_Attacker : AIBehaviour
 				point: newPointToLookAt
 			);
 
-		//	EntityData.EntityRef.SetPointToLookAt(projectedPoint);
+			EntityData.EntityRef.Behaviours.SetPointToLookAt(projectedPoint);
 		}
 
 		EntityData.EntityRef.Behaviours.ChangeState(EBrainState.SEEKER);

@@ -45,7 +45,7 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour
 
 	public override void OnHit(Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false)
 	{
-	//	EntityData.EntityRef.SetPointToLookAt(startPosition);
+		EntityData.EntityRef.Behaviours.SetPointToLookAt(startPosition);
 
 		EntityData.EntityRef.Behaviours.ChangeState(EBrainState.ALARMED);
 	}
@@ -79,12 +79,12 @@ public class Drone_AI_Behaviour_Seeker : AIBehaviour
 					}
 
 					m_CurrentInvestigationDirection++;
-		//			EntityData.EntityRef.SetPointToLookAt(EntityData.Head_Position + newDirection, ELookTargetMode.HEAD_ONLY);
+					EntityData.EntityRef.Behaviours.SetPointToLookAt(EntityData.Head_Position + newDirection);
 					yield return new WaitUntil(() => Vector3.Angle(EntityData.Head_Forward, newDirection) < 4.5f);
 				}
 
 				EntityData.EntityRef.Navigation.RequestMovement(EntityData.SpawnBodyLocation);
-		//		EntityData.EntityRef.SetPointToLookAt(EntityData.SpawnHeadLocation + EntityData.SpawnHeadRotation.GetVector(Vector3.forward));
+				EntityData.EntityRef.Behaviours.SetPointToLookAt(EntityData.SpawnHeadLocation + EntityData.SpawnHeadRotation.GetVector(Vector3.forward));
 				EntityData.EntityRef.Behaviours.ChangeState(EBrainState.NORMAL);
 				m_CurrentInvestigationDirection = EInvestigationDirection.RIGHT;
 				m_InvestigationCO = null;

@@ -35,7 +35,7 @@ public class Walker_AI_Behaviour_Attacker : AIBehaviour {
 	{
 		if (EntityData.EntityRef.IsAlive && whoRef.IsAlive && EntityData.TargetInfo.CurrentTarget.Id == whoRef.Id)
 		{
-	//		EntityData.EntityRef.SetPointToLookAt( startPosition );
+			EntityData.EntityRef.Behaviours.SetPointToLookAt( startPosition );
 		}
 	}
 
@@ -73,47 +73,47 @@ public class Walker_AI_Behaviour_Attacker : AIBehaviour {
 	public override void OnFrame( float DeltaTime )
 	{
 		// Update targeting
-		if (EntityData.TargetInfo.HasTarget == true )
+		if (EntityData.TargetInfo.HasTarget)
 		{
-		//	EntityData.EntityRef.SetPointToLookAt(EntityData.TargetInfo.CurrentTarget.transform.position );
+			EntityData.EntityRef.Behaviours.SetPointToLookAt(EntityData.TargetInfo.CurrentTarget.transform.position);
 
 			// with a target, if gun alligned, fire TODO
-		//	if (EntityData.EntityRef.CanFire() == true )
-		//	{
-		//		EntityData.EntityRef.FireWeapon();
-		//	}
+			//	if (EntityData.EntityRef.CanFire() == true )
+			//	{
+			//		EntityData.EntityRef.FireWeapon();
+			//	}
 		}
 
 		// Update PathFinding and movement along path
-	//	if (EntityData.EntityRef.Navigation.HasDestination && EntityData.EntityRef.IsAllignedHeadToPoint )
-	//	{
-	//		float agentFinalSpeed = 0.0f;
-	//		Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
-	//			planeNormal: EntityData.Body_Up,
-	//			planePoint: EntityData.Body_Position,
-	//			point: EntityData.LookData.PointToLookAt
-	//		);
-	//
-	//		bool IsNotUnderEngageDistance = (EntityData.Transform_Position - projectedPoint ).sqrMagnitude > EntityData.EntityRef.MinEngageDistance * EntityData.EntityRef.MinEngageDistance;
-	//
-	//		if (EntityData.TargetInfo.HasTarget == true )
-	//		{
-	//			if ( IsNotUnderEngageDistance )
-	//			{
-	//				agentFinalSpeed = EntityData.EntityRef.Navigation.MaxAgentSpeed;
-	//			}
-	//			else
-	//			{
-	//				agentFinalSpeed = 0.0f;
-	//			}
-	//		}
-	//		else
-	//		{
-	//			agentFinalSpeed = EntityData.EntityRef.Navigation.MaxAgentSpeed;
-	//		}
-	//
-	//		EntityData.AgentSpeed = agentFinalSpeed;
-	//	}
+		//	if (EntityData.EntityRef.Navigation.HasDestination && EntityData.EntityRef.IsAllignedHeadToPoint )
+		//	{
+		//		float agentFinalSpeed = 0.0f;
+		//		Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
+		//			planeNormal: EntityData.Body_Up,
+		//			planePoint: EntityData.Body_Position,
+		//			point: EntityData.LookData.PointToLookAt
+		//		);
+		//
+		//		bool IsNotUnderEngageDistance = (EntityData.Transform_Position - projectedPoint ).sqrMagnitude > EntityData.EntityRef.MinEngageDistance * EntityData.EntityRef.MinEngageDistance;
+		//
+		//		if (EntityData.TargetInfo.HasTarget == true )
+		//		{
+		//			if ( IsNotUnderEngageDistance )
+		//			{
+		//				agentFinalSpeed = EntityData.EntityRef.Navigation.MaxAgentSpeed;
+		//			}
+		//			else
+		//			{
+		//				agentFinalSpeed = 0.0f;
+		//			}
+		//		}
+		//		else
+		//		{
+		//			agentFinalSpeed = EntityData.EntityRef.Navigation.MaxAgentSpeed;
+		//		}
+		//
+		//		EntityData.AgentSpeed = agentFinalSpeed;
+		//	}
 	}
 
 	public override void OnLateFrame(float DeltaTime)
@@ -161,7 +161,7 @@ public class Walker_AI_Behaviour_Attacker : AIBehaviour {
 				point:			newPointToLookAt
 			);
 
-	//		EntityData.EntityRef.SetPointToLookAt( projectedPoint );
+			EntityData.EntityRef.Behaviours.SetPointToLookAt( projectedPoint );
 		}
 
 		// TODO Set brain to SEKKER mode

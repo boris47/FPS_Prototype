@@ -5,18 +5,26 @@ using System.Collections.Generic;
 [System.Serializable]
 public class EntityBlackBoardData
 {
-	private	Transform			m_Transform							= null;
+	[SerializeField, ReadOnly]
+	private	Transform			m_Targettable							= null;
+	[SerializeField, ReadOnly]
 	private	Transform			m_HeadTransform						= null;
+	[SerializeField, ReadOnly]
 	private	Transform			m_BodyTransform						= null;
 
 
 	//*/////////////////////////////////////////////////////////////////////
 	//*/////////////////////////////////////////////////////////////////////
 
+	[SerializeField, ReadOnly]
 	public	Entity				EntityRef							= null;
+	[SerializeField, ReadOnly]
 	public	Vector3				SpawnBodyLocation					= Vector3.zero;
+	[SerializeField, ReadOnly]
 	public	Vector3				SpawnHeadLocation					= Vector3.zero;
+	[SerializeField, ReadOnly]
 	public	Quaternion			SpawnBodyRotation					= Quaternion.identity;
+	[SerializeField, ReadOnly]
 	public	Quaternion			SpawnHeadRotation					= Quaternion.identity;
 
 	// Body
@@ -34,22 +42,25 @@ public class EntityBlackBoardData
 	public	Vector3				Body_Right							=> m_BodyTransform.right;
 
 	// Targettable
-	public	Vector3				Transform_Position					=> m_Transform.position;
-	public	Quaternion			Transform_Rotation					=> m_Transform.rotation;
-	public	Vector3				Transform_Forward					=> m_Transform.forward;
-	public	Vector3				Transform_Up						=> m_Transform.up;
-	public	Vector3				Transform_Right						=> m_Transform.right;
+	public	Vector3				Targettable_Position				=> m_Targettable.position;
+	public	Quaternion			Targettable_Rotation				=> m_Targettable.rotation;
+	public	Vector3				Targettable_Forward					=> m_Targettable.forward;
+	public	Vector3				Targettable_Up						=> m_Targettable.up;
+	public	Vector3				Targettable_Right					=> m_Targettable.right;
 
+	[SerializeField, ReadOnly]
 	public	LookData			LookData							= null;
 
+	[SerializeField, ReadOnly]
 	public	TargetInfo			TargetInfo							= null;
 
+	[SerializeField, ReadOnly]
 	public	float				AgentSpeed							= 0.0f;
 
 
 	public	EntityBlackBoardData(Entity entity)
 	{
-		m_Transform			= entity.Targettable;
+		m_Targettable		= entity.Targettable;
 		m_HeadTransform		= entity.Head;
 		m_BodyTransform		= entity.Body;
 	}
@@ -57,15 +68,15 @@ public class EntityBlackBoardData
 }
 
 
-public static class Blackboard
+public class Blackboard : InGameSingleton<Blackboard>
 {
-	private static readonly	Dictionary<uint, EntityBlackBoardData> m_Data = new Dictionary<uint, EntityBlackBoardData>();
+	private readonly	Dictionary<uint, EntityBlackBoardData> m_Data = new Dictionary<uint, EntityBlackBoardData>();
 
 
 	/// <summary> If not already registered, register an entity by its ID </summary>
 	/// <param name="EntityID"></param>
 	/// <returns></returns>
-	public	static	bool	Register( uint EntityID, EntityBlackBoardData entityData )
+	public	bool	Register( uint EntityID, EntityBlackBoardData entityData )
 	{
 		if (m_Data.ContainsKey(EntityID))
 		{
@@ -80,7 +91,7 @@ public static class Blackboard
 	/// <summary> If already registered, Un-register an entity by its ID </summary>
 	/// <param name="EntityID"></param>
 	/// <returns></returns>
-	public	static	bool	UnRegister( Entity entity )
+	public	bool	UnRegister( Entity entity )
 	{
 		if (IsEntityRegistered(entity.Id))
 		{
@@ -93,7 +104,7 @@ public static class Blackboard
 	/// <summary> Check and returns if an entity is registered by its ID </summary>
 	/// <param name="EntityID"></param>
 	/// <returns></returns>
-	public	static	bool	IsEntityRegistered( uint EntityID )
+	public	bool	IsEntityRegistered( uint EntityID )
 	{
 		return m_Data.ContainsKey(EntityID);
 	}
@@ -104,7 +115,7 @@ public static class Blackboard
 	/// <param name="Key"></param>
 	/// <param name="Default"></param>
 	/// <returns></returns>
-	public	static	EntityBlackBoardData	GetData( uint EntityID )
+	public	EntityBlackBoardData	GetData( uint EntityID )
 	{
 		EntityBlackBoardData data;
 		m_Data.TryGetValue(EntityID, out data);

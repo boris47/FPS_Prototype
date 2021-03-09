@@ -35,7 +35,7 @@ public abstract class Interactions_Base : EntityComponent, IEntityComponent_Inte
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected override void Enable()
+	public override void Enable()
 	{
 		base.Enable();
 
@@ -51,7 +51,7 @@ public abstract class Interactions_Base : EntityComponent, IEntityComponent_Inte
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	protected override void Disable()
+	public override void Disable()
 	{
 		base.Disable();
 
@@ -156,9 +156,10 @@ public abstract class Interactions_Base : EntityComponent, IEntityComponent_Inte
 		rb.velocity = Vector3.zero; rb.interpolation = RigidbodyInterpolation.Interpolate;
 		m_CanGrabObjects = false;
 
-		Physics.IgnoreCollision(m_Entity.PhysicCollider, m_CurrentGrabbed.Collider, ignore: true);
+		m_Entity.SetLocalCollisionStateWith(m_CurrentGrabbed.Collider, false);
 
-		m_CurrentGrabbed.gameObject.GetOrAddIfNotFound<OnHitEventGrabbedHandler>();
+		var comp = m_CurrentGrabbed.gameObject.GetOrAddIfNotFound<OnHitEventGrabbedHandler>();
+		comp.Setup(this);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -193,12 +194,12 @@ public abstract class Interactions_Base : EntityComponent, IEntityComponent_Inte
 
 			if (m_CurrentGrabbed.transform.TryGetComponent(out OnHitEventGrabbedHandler eventHandler))
 			{
-				Destroy( eventHandler );
+				Destroy(eventHandler);
 			}
 
 			m_CurrentGrabbed.OnRetroInteraction();
 
-			Physics.IgnoreCollision(m_Entity.PhysicCollider, m_CurrentGrabbed.Collider, ignore: false);
+			m_Entity.SetLocalCollisionStateWith(m_CurrentGrabbed.Collider, true);
 
 			m_CurrentGrabbed	= null;
 			m_CanGrabObjects	= true;

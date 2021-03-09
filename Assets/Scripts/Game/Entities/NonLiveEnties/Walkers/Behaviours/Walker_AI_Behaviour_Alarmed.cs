@@ -30,7 +30,7 @@ public class Walker_AI_Behaviour_Alarmed : AIBehaviour
 
 	public override void OnHit(Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false)
 	{
-	//	EntityData.EntityRef.SetPointToLookAt(startPosition);
+		EntityData.EntityRef.Behaviours.SetPointToLookAt(startPosition);
 	}
 
 	public override void OnDestinationReached(Vector3 Destination)

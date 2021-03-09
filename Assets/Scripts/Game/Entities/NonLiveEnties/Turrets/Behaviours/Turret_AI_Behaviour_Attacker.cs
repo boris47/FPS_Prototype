@@ -30,7 +30,7 @@ public class Turret_AI_Behaviour_Attacker : AIBehaviour
 
 	public override void OnHit(Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false)
 	{
-	//	EntityData.EntityRef.SetPointToLookAt(startPosition);
+		EntityData.EntityRef.Behaviours.SetPointToLookAt(startPosition);
 	}
 
 	public override void OnDestinationReached(Vector3 Destination)
@@ -58,9 +58,9 @@ public class Turret_AI_Behaviour_Attacker : AIBehaviour
 		// Update targeting
 		if (EntityData.TargetInfo.HasTarget)
 		{
-		//	EntityData.EntityRef.SetPointToLookAt(EntityData.TargetInfo.CurrentTarget.transform.position);
+			EntityData.EntityRef.Behaviours.SetPointToLookAt(EntityData.TargetInfo.CurrentTarget.transform.position);
 
-			// with a target, if gun alligned, fire TODO
+		// with a target, if gun alligned, fire TODO
 		//	if (EntityData.EntityRef.CanFire() == true )
 		//	{
 		//		EntityData.EntityRef.FireWeapon();
@@ -99,10 +99,10 @@ public class Turret_AI_Behaviour_Attacker : AIBehaviour
 				point:			newPointToLookAt
 			);
 
-		//	EntityData.EntityRef.SetPointToLookAt( projectedPoint );
+			EntityData.EntityRef.Behaviours.SetPointToLookAt( projectedPoint );
 		}
 
-		EntityData.EntityRef.Behaviours.ChangeState( EBrainState.SEEKER );
+		EntityData.EntityRef.Behaviours.ChangeState(EBrainState.SEEKER);
 	}
 
 	public override void OnKilled(Entity entityKilled)

@@ -109,7 +109,7 @@ namespace Utils
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary> assagn a value the clamp itself and return true if value was still in range on [min-max] </summary>
+		/// <summary> Assign a value the clamp itself and return true if value was still in range on [min-max] </summary>
 		public static bool ClampResult(ref float value, in float expressionValue, in float min, in float max)
 		{
 			bool bResult = expressionValue >= min && expressionValue <= max;
@@ -398,64 +398,62 @@ namespace Utils
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		/// First-order intercept using absolute target position
-		/// </summary>
+		/// <summary> First-order intercept using absolute target position </summary>
 		public static Vector3 CalculateBulletPrediction(in Vector3 shooterPosition, in Vector3 shooterVelocity, in float shotSpeed, in Vector3 targetPosition, in Vector3 targetVelocity)
 		{
-			Vector3 targetRelativePosition = targetPosition - shooterPosition;
-			Vector3 targetRelativeVelocity = targetVelocity - shooterVelocity;
+			Vector3 shooterToTarget = targetPosition - shooterPosition;
+			Vector3 velocityDelta = targetVelocity - shooterVelocity;
 			float t = FirstOrderInterceptTime
 			(
 				shotSpeed: shotSpeed,
-				targetRelativePosition: targetRelativePosition,
-				targetRelativeVelocity: targetRelativeVelocity
+				shooterToTarget: shooterToTarget,
+				velocityDelta: velocityDelta
 			);
-			return targetPosition + ( t * targetRelativeVelocity );
+			return targetPosition + ( t * velocityDelta );
 		}
 
 		//first-order intercept using relative target position
-		public static float FirstOrderInterceptTime(in float shotSpeed, in Vector3 targetRelativePosition, in Vector3 targetRelativeVelocity)
+		public static float FirstOrderInterceptTime(in float shotSpeed, in Vector3 shooterToTarget, in Vector3 velocityDelta)
 		{
-			float velocitySquared = targetRelativeVelocity.sqrMagnitude;
-			if ( velocitySquared < 0.001f )
+			float velocitySquared = velocityDelta.sqrMagnitude;
+			if (velocitySquared < 0.001f)
 				return 0f;
 
-			float a = velocitySquared - ( shotSpeed * shotSpeed );
+			float a = velocitySquared - (shotSpeed * shotSpeed);
 
 			//handle similar velocities
-			if ( Mathf.Abs( a ) < 0.001f )
+			if (Mathf.Abs(a) < 0.001f)
 			{
-				float t = -targetRelativePosition.sqrMagnitude / ( 2f * Vector3.Dot( targetRelativeVelocity, targetRelativePosition ) );
-				return Mathf.Max( t, 0f ); //don't shoot back in time
+				float t = -shooterToTarget.sqrMagnitude / (2f * Vector3.Dot(velocityDelta, shooterToTarget));
+				return Mathf.Max(t, 0f); //don't shoot back in time
 			}
 
-			float b = 2f * Vector3.Dot( targetRelativeVelocity, targetRelativePosition );
-			float c = targetRelativePosition.sqrMagnitude;
-			float determinant = ( b * b ) - ( 4f * a * c );
+			float b = 2f * Vector3.Dot(velocityDelta, shooterToTarget);
+			float c = shooterToTarget.sqrMagnitude;
+			float determinant = (b * b) - (4f * a * c);
 
 			// First assignment: Determinant == 0; one intercept path, pretty much never happens
-			float result = Mathf.Max( -b / ( 2f * a ), 0f ); //don't shoot back in time
+			float result = Mathf.Max(-b / (2f * a), 0f); //don't shoot back in time
 
-			if ( determinant > 0f )
+			if (determinant > 0f)
 			{   //	Determinant > 0; two intercept paths (most common)
-				float t1 = ( -b + Mathf.Sqrt( determinant ) ) / ( 2f * a );
-				float t2 = ( -b - Mathf.Sqrt( determinant ) ) / ( 2f * a );
-				if ( t1 > 0f )
+				float t1 = (-b + Mathf.Sqrt(determinant)) / (2f * a);
+				float t2 = (-b - Mathf.Sqrt(determinant)) / (2f * a);
+				if (t1 > 0f)
 				{
-					if ( t2 > 0f )
-						result = Mathf.Min( t1, t2 ); //both are positive
+					if (t2 > 0f)
+						result = Mathf.Min(t1, t2); //both are positive
 					else
 						result = t1; //only t1 is positive
 				}
 				else
 				{
-					result = Mathf.Max( t2, 0f ); //don't shoot back in time
+					result = Mathf.Max(t2, 0f); //don't shoot back in time
 				}
 			}
 
 			//determinant < 0; no intercept path
-			if ( determinant < 0f )
+			if (determinant < 0f)
 			{
 				result = 0f;
 			}

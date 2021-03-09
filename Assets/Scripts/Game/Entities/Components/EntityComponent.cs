@@ -56,13 +56,13 @@ public abstract class EntityComponent : MonoBehaviour//, IEntityComponent
 	protected abstract void Resolve_Internal(Entity entity, Database.Section entitySection);
 
 	//////////////////////////////////////////////////////////////////////////
-	protected virtual void Enable()
+	public virtual void Enable()
 	{
 		enabled = true;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	protected virtual void Disable()
+	public virtual void Disable()
 	{
 		enabled = false;
 	}

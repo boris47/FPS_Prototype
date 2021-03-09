@@ -6,11 +6,11 @@ public abstract class Drone : NonLiveEntity {
 	[Header("Drone Properties")]
 
 	[SerializeField]
-	protected	float			m_MoveMaxSpeed				= 3f;
+	protected			float						m_MoveMaxSpeed							= 3f;
 
-	protected 	override EEntityType				m_EntityType			=> EEntityType.ROBOT;
-
-	protected	override EntityComponentContainer[] m_RequiredComponents	=> new EntityComponentContainer[]
+	protected	override ERotationsMode				m_LookTargetMode						=> ERotationsMode.WITH_BODY;
+	protected 	override EEntityType				m_EntityType							=> EEntityType.ROBOT;
+	protected	override EntityComponentContainer[] m_RequiredComponents					=> new EntityComponentContainer[]
 	{
 		new EntityComponentContainer_Memory<Memory_Common>(),
 		new EntityComponentContainer_Motion<Motion_Common>(),
@@ -97,45 +97,53 @@ public abstract class Drone : NonLiveEntity {
 	//	m_Pool.SetActive( false );
 		gameObject.SetActive( false );
 	}
-	
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public override void LookAt(in Vector3 worldpoint, in float bodyRotationSpeed, in float headRotationSpeed, in Vector2? clampsHoriz, in Vector2? clampsVert, out bool isBodyAlligned, out bool isHeadAlligned)
+	{
+		isBodyAlligned = default;
+		isHeadAlligned = default;
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 
-//	protected	override	void	UpdateHeadRotation()
-//	{
-//		base.UpdateHeadRotation();
-		// ORIENTATION
-		// BODY
-//		{
-			// Nothing, rotation not allowed here
-//		}
+	//	protected	override	void	UpdateHeadRotation()
+	//	{
+	//		base.UpdateHeadRotation();
+	// ORIENTATION
+	// BODY
+	//		{
+	// Nothing, rotation not allowed here
+	//		}
 
-		// GUN
-/*		{
-			Vector3 pointToLookAt = m_LookData.PointToLookAt;
-			if (m_TargetInfo.HasTarget == true ) // PREDICTION
-			{
-				// Vector3 shooterPosition, Vector3 shooterVelocity, float shotSpeed, Vector3 targetPosition, Vector3 targetVelocity
-				pointToLookAt = Utils.Math.CalculateBulletPrediction
-				(
-					shooterPosition: m_GunTransform.position,
-					shooterVelocity: m_NavAgent.velocity,
-					shotSpeed: m_Pool.TryPeekComponentAs<IBullet>().Velocity,
-					targetPosition: m_TargetInfo.CurrentTarget.transform.position,
-					targetVelocity: m_TargetInfo.CurrentTarget.RigidBody.velocity
-				);
-			}
+	// GUN
+	/*		{
+				Vector3 pointToLookAt = m_LookData.PointToLookAt;
+				if (m_TargetInfo.HasTarget == true ) // PREDICTION
+				{
+					// Vector3 shooterPosition, Vector3 shooterVelocity, float shotSpeed, Vector3 targetPosition, Vector3 targetVelocity
+					pointToLookAt = Utils.Math.CalculateBulletPrediction
+					(
+						shooterPosition: m_GunTransform.position,
+						shooterVelocity: m_NavAgent.velocity,
+						shotSpeed: m_Pool.TryPeekComponentAs<IBullet>().Velocity,
+						targetPosition: m_TargetInfo.CurrentTarget.transform.position,
+						targetVelocity: m_TargetInfo.CurrentTarget.RigidBody.velocity
+					);
+				}
 
-			Vector3 dirToPosition = ( pointToLookAt - m_GunTransform.position );
-			if (m_IsAllignedHeadToPoint == true )
-			{
-				m_RotationToAllignTo.SetLookRotation( dirToPosition, m_BodyTransform.up );
-				m_GunTransform.rotation = Quaternion.RotateTowards(m_GunTransform.rotation, m_RotationToAllignTo, m_GunAllignmentSpeed * Time.deltaTime );
+				Vector3 dirToPosition = ( pointToLookAt - m_GunTransform.position );
+				if (m_IsAllignedHeadToPoint == true )
+				{
+					m_RotationToAllignTo.SetLookRotation( dirToPosition, m_BodyTransform.up );
+					m_GunTransform.rotation = Quaternion.RotateTowards(m_GunTransform.rotation, m_RotationToAllignTo, m_GunAllignmentSpeed * Time.deltaTime );
+				}
+				m_IsAllignedGunToPoint = Vector3.Angle(m_GunTransform.forward, dirToPosition ) < 16f;
 			}
-			m_IsAllignedGunToPoint = Vector3.Angle(m_GunTransform.forward, dirToPosition ) < 16f;
-		}
-*///	}
-	
+	*///	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	/*	

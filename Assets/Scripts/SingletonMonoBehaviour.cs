@@ -84,34 +84,34 @@ public abstract class SingletonMonoBehaviour<T> : MonoBehaviour, SingletonInitia
 	{
 		if ( m_IsInitialized == false )
 		{
-			string typeName = typeof( T ).Name;
-			if ( GlobalManager.Configs.TryGetSection( "DebugInfos", out Database.Section debugInfosSection ) )
+			string typeName = typeof(T).Name;
+			if (GlobalManager.Configs.TryGetSection("DebugInfos", out Database.Section debugInfosSection))
 			{
-				ShowDebugInfo = debugInfosSection.AsBool( typeName, false );
+				ShowDebugInfo = debugInfosSection.AsBool(typeName, false);
 			}
 
 			m_Instance = Object.FindObjectOfType<SingletonMonoBehaviour<T>>();
-			if ( !m_Instance )
+			if (!m_Instance)
 			{
 				m_Instance = Resources.Load<SingletonMonoBehaviour<T>>($"{SINGLETONS_FOLDER_PATH}{typeName}");
-				m_Instance = m_Instance ? Instantiate( m_Instance ) : null;
+				m_Instance = m_Instance ? Instantiate(m_Instance) : null;
 				if (!m_Instance)
 				{
-//					print($"Singleton resource '{name}' not found");
+				//	print($"Singleton resource '{name}' not found");
 					m_Instance = new GameObject(typeName).AddComponent<T>() as SingletonMonoBehaviour<T>;
-///					print( $"Singleton {typeName} created" );
+				///	print( $"Singleton {typeName} created" );
 				}
-///				else
-///				{
-///					print( $"Singleton {typeName} loaded from {SINGLETONS_FOLDER_PATH}" );
-///				}
+				///	else
+				///	{
+				///		print( $"Singleton {typeName} loaded from {SINGLETONS_FOLDER_PATH}" );
+				///	}
 			}
-///			else
-///			{
-///				print( $"Singleton {typeName} instance alredy found" );
-///			}
-//			m_Instance.hideFlags = HideFlags.DontSave;
-			DontDestroyOnLoad( m_Instance );
+			///	else
+			///	{
+			///		print( $"Singleton {typeName} instance alredy found" );
+			///	}
+			//	m_Instance.hideFlags = HideFlags.DontSave;
+			DontDestroyOnLoad(m_Instance);
 			m_IsInitialized = true;
 
 			m_Instance.OnInitialize();
@@ -228,28 +228,24 @@ public abstract class InGameSingleton<T>: MonoBehaviour where T : MonoBehaviour
 
 	private	static	void	Initialize()
 	{
-		if ( m_IsInitialized == false )
+		if (!m_IsInitialized)
 		{
-			string typeName = typeof( T ).Name;
-			if ( GlobalManager.Configs.TryGetSection( "DebugInfos", out Database.Section debugInfosSection ) )
+			string typeName = typeof(T).Name;
+			if (GlobalManager.Configs.TryGetSection("DebugInfos", out Database.Section debugInfosSection))
 			{
-				ShowDebugInfo = debugInfosSection.AsBool( typeName, false );
+				ShowDebugInfo = debugInfosSection.AsBool(typeName, false);
 			}
 
 			m_Instance = Object.FindObjectOfType<InGameSingleton<T>>();
-			if ( !m_Instance )
+			if (!m_Instance)
 			{
-				m_Instance = Resources.Load<InGameSingleton<T>>( $"{SINGLETONS_FOLDER_PATH}{typeName}" );
-				m_Instance = m_Instance ? Instantiate( m_Instance ) : null;
+				m_Instance = Resources.Load<InGameSingleton<T>>($"{SINGLETONS_FOLDER_PATH}{typeName}");
+				m_Instance = m_Instance ? Instantiate(m_Instance) : null;
 				UnityEngine.Assertions.Assert.IsNotNull
 				(
 					m_Instance,
 					$"InGameSingleton: cannot create and instance for type {typeName}"
 				);
-				//	if ( !m_Instance )
-				//	{
-				//		m_Instance = new GameObject( typeName ).AddComponent<T>() as InGameSingleton<T>;
-				//	}
 			}
 			m_IsInitialized = true;
 #if !UNITY_EDITOR
@@ -263,6 +259,13 @@ public abstract class InGameSingleton<T>: MonoBehaviour where T : MonoBehaviour
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Called on initialization </summary>
 	protected virtual	void	OnInitialize() { }
+
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> Will destroy this ingame singleton </summary>
+	public void Destroy()
+	{
+		Object.Destroy(this);
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////

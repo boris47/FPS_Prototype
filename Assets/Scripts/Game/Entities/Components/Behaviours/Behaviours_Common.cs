@@ -1,28 +1,5 @@
 ﻿using UnityEngine;
 
-[System.Serializable]
-public enum ELookTargetType : short
-{
-	POSITION,
-	TRANSFORM
-};
-
-[System.Serializable]
-public enum ELookTargetMode : short
-{
-	HEAD_ONLY,
-	WITH_BODY
-}
-
-public class LookData
-{
-	public bool				HasLookAtObject		= false;
-	public Vector3			PointToLookAt		= Vector3.zero;
-	public Transform		TransformToLookAt	= null;
-	public ELookTargetType	LookTargetType		= ELookTargetType.POSITION;
-	public ELookTargetMode	LookTargetMode		= ELookTargetMode.HEAD_ONLY;
-};
-
 public interface IBehaviours_Common : IEntityComponent_Behaviours
 {
 	LookData				LookData				{ get; }
@@ -32,17 +9,14 @@ public interface IBehaviours_Common : IEntityComponent_Behaviours
 public class Behaviours_Common : Behaviours_Base
 {
 	[SerializeField]
-	protected	LookData					m_LookData						= new LookData();
+	protected	float						m_BodyRotationSpeed				= 90.0f;
 	[SerializeField]
-	protected	float						m_BodyRotationSpeed				= 5.0f;
-	[SerializeField]
-	protected	float						m_HeadRotationSpeed				= 5.0f;
+	protected	float						m_HeadRotationSpeed				= 50.0f;
 	[SerializeField]
 	protected	Quaternion					m_RotationToAllignTo			= Quaternion.identity;
 
 	protected	FieldOfView					m_FieldOfView					= null;
 
-	public		LookData					LookData						=> m_LookData;
 	public		FieldOfView					FieldOfView						=> m_FieldOfView;
 
 	//////////////////////////////////////////////////////////////////////////
@@ -50,11 +24,15 @@ public class Behaviours_Common : Behaviours_Base
 	{
 		base.Resolve_Internal(entity, entitySection);
 
-		UnityEngine.Assertions.Assert.IsTrue(entity.EntityType != EEntityType.ACTOR);
+		UnityEngine.Assertions.Assert.IsNotNull(entity.Body);
+		UnityEngine.Assertions.Assert.IsNotNull(entity.Head);
 
 		// FIELD OF VIEW
 		// TODO maybe insteand of assert this, maybe would be better create a new one and configure be entity section
-		UnityEngine.Assertions.Assert.IsTrue(Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL_AND_CHILDREN, out m_FieldOfView));
+		if (!m_FieldOfView)
+		{
+			UnityEngine.Assertions.Assert.IsTrue(Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL_AND_CHILDREN, out m_FieldOfView));
+		}
 		m_FieldOfView.SetViewPoint(entity.Head);
 
 		// Target type by section
@@ -63,152 +41,66 @@ public class Behaviours_Common : Behaviours_Base
 		{
 			m_FieldOfView.TargetType = type;
 		}
+	}
 
-		// BRAINSTATE
-		m_CurrentBrainState = EBrainState.COUNT;
+
+	//////////////////////////////////////////////////////////////////////////
+	public override void Enable()
+	{
+		base.Enable();
+
+		foreach(AIBehaviour behaviour in m_Behaviours)
 		{
-			Brain_Enable();             // Setup for field of view and memory
-			Brain_SetActive( true );	// Brain updates activation
-
-			// AI BEHAVIOURS
-			{
-				UnityEngine.Assertions.Assert.IsTrue(entitySection.HasKey("BehaviourEvasive"));
-				UnityEngine.Assertions.Assert.IsTrue(entitySection.HasKey("BehaviourNormal"));
-				UnityEngine.Assertions.Assert.IsTrue(entitySection.HasKey("BehaviourAlarmed"));
-				UnityEngine.Assertions.Assert.IsTrue(entitySection.HasKey("BehaviourSeeker"));
-				UnityEngine.Assertions.Assert.IsTrue(entitySection.HasKey("BehaviourAttacker"));
-
-				SetBehaviour( EBrainState.EVASIVE,	entitySection.AsString( "BehaviourEvasive"	) );
-				SetBehaviour( EBrainState.NORMAL,	entitySection.AsString( "BehaviourNormal"	) );
-				SetBehaviour( EBrainState.ALARMED,	entitySection.AsString( "BehaviourAlarmed"	) );
-				SetBehaviour( EBrainState.SEEKER,	entitySection.AsString( "BehaviourSeeker"	) );
-				SetBehaviour( EBrainState.ATTACKER, entitySection.AsString( "BehaviourAttacker"	) );
-
-				ChangeState( EBrainState.NORMAL );
-			}
+			behaviour.Setup(m_BlackBoardData);
 		}
-	}
 
-
-	//////////////////////////////////////////////////////////////////////////
-	private void OnEnable()
-	{
-		// BLACKBOARD
-		m_BlackBoardData = new EntityBlackBoardData(m_Entity)
-		{
-			EntityRef			= m_Entity,
-			LookData			= m_LookData,
-			TargetInfo			= m_TargetInfo,
-			SpawnBodyLocation	= m_Entity.Body.position,
-			SpawnBodyRotation	= m_Entity.Body.rotation,
-			SpawnHeadLocation	= m_Entity.Body.position,
-			SpawnHeadRotation	= m_Entity.Body.rotation,
-		};
-		Blackboard.Register(m_Entity.Id, m_BlackBoardData);
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private void OnDisable()
-	{
-		Blackboard.UnRegister(m_Entity);
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	protected	void	Brain_Enable()
-	{
 		m_FieldOfView.Setup();
 
 		Brain_SetActive(true);
 
 		m_Entity.Memory.EnableMemory();
+
+		UnityEngine.Assertions.Assert.IsNotNull(GameManager.UpdateEvents);
+
+		GameManager.UpdateEvents.OnFrame += OnFrame;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	void	Destroy_Disable()
+	public override void Disable()
 	{
-		Brain_SetActive(false);
+		if (GameManager.UpdateEvents.IsNotNull())
+		{
+			GameManager.UpdateEvents.OnFrame += OnFrame;
+		}
 
 		m_Entity.Memory.DisableMemory();
+
+		Brain_SetActive(false);
+
+		base.Disable();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected override void SetBehaviour(EBrainState brainState, string behaviourId)
+	private void OnFrame(float deltaTime)
 	{
-		// Pre-set empty behaviour as default
-		m_Behaviours[(int)brainState] = new Behaviour_Empty();
+		UpdateLookAt(deltaTime);
+	}
 
-		if (behaviourId == null || behaviourId.Trim().Length == 0)
+	//////////////////////////////////////////////////////////////////////////
+	protected	virtual		void	UpdateLookAt(float deltaTime)
+	{
+		if (m_LookData.HasLookAtObject)
 		{
-			Debug.Log("Brain.SetBehaviour Setting invalid behaviour for state " + brainState + ", with id" + behaviourId + ", for entity (section) " + m_Entity.SectionName);
-			return;
+			Vector3 pointToLookAt = m_LookData.LookTargetType == ELookTargetType.TRANSFORM ? m_LookData.TransformToLookAt.position : m_LookData.PointToLookAt;
+
+			float halfCone = m_FieldOfView.m_ViewCone;
+
+			Vector2 clampsVert = new Vector2(-halfCone, halfCone) * 0.5f;
+			m_Entity.LookAt(pointToLookAt, m_BodyRotationSpeed, m_HeadRotationSpeed, clampsVert, clampsVert, out bool isBodyAlligned, out bool isHeadAlligned);
 		}
 
-		// Check behaviour id validity
-		System.Type type = System.Type.GetType(behaviourId.Trim());
-		if (type == null)
-		{
-			Debug.Log("Brain.SetBehaviour Setting invalid behaviour with id " + behaviourId);
-			return;
-		}
-
-		// Check behaviour type as child of AIBehaviour
-		if (!type.IsSubclassOf(typeof(AIBehaviour)))
-		{
-			Debug.Log("Brain.SetBehaviour Class Requested is not a supported behaviour " + behaviourId);
-			return;
-		}
-
-		// Setup of the instanced behaviour
-		AIBehaviour behaviour = System.Activator.CreateInstance(type) as AIBehaviour;
-		behaviour.Setup(m_Entity.Id);
-
-		// Behaviour assignment
-		m_Behaviours[(int)brainState] = behaviour;
-	}
-
-
-
-	//////////////////////////////////////////////////////////////////////////
-	/// <summary> Set the Transform to Look At </summary>
-	public		virtual		void	SetTransformToLookAt( Transform t, ELookTargetMode LookMode = ELookTargetMode.HEAD_ONLY )
-	{
-		m_LookData.HasLookAtObject		= true;
-		m_LookData.TransformToLookAt	= t;
-		m_LookData.PointToLookAt		= Vector3.zero;
-		m_LookData.LookTargetType		= ELookTargetType.TRANSFORM;
-		m_LookData.LookTargetMode		= LookMode;
-	}
-
-	//////////////////////////////////////////////////////////////////////////
-	/// <summary> Set the point to Look At </summary>
-	public		virtual		void	SetPointToLookAt( Vector3 point, ELookTargetMode LookMode = ELookTargetMode.HEAD_ONLY )
-	{
-		m_LookData.HasLookAtObject		= true;
-		m_LookData.TransformToLookAt	= null;
-		m_LookData.PointToLookAt		= point;
-		m_LookData.LookTargetType		= ELookTargetType.POSITION;
-		m_LookData.LookTargetMode		= LookMode;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	/// <summary> Stop looking to target point or target </summary>
-	public		virtual		void	StopLooking()
-	{
-		m_LookData.HasLookAtObject		= false;
-		m_LookData.TransformToLookAt	= null;
-		m_LookData.PointToLookAt		= Vector3.zero;
-		m_LookData.LookTargetType		= ELookTargetType.POSITION;
-		m_LookData.LookTargetMode		= ELookTargetMode.HEAD_ONLY;
-	}
-
-	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		void	UpdateHeadRotation()
-	{
 		if (m_LookData.HasLookAtObject == false )
 			return;
 		/*
@@ -265,7 +157,7 @@ public class Behaviours_Common : Behaviours_Base
 		}
 		*/
 	}
-
+	
 
 	//////////////////////////////////////////////////////////////////////////
 	public	virtual void	Brain_SetActive(bool State)
@@ -294,7 +186,7 @@ public class Behaviours_Common : Behaviours_Base
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public override void ChangeState(EBrainState newState)
+	public override void ChangeState(in EBrainState newState)
 	{
 		if (newState != m_CurrentBrainState)
 		{
@@ -341,7 +233,7 @@ public class Behaviours_Common : Behaviours_Base
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	public override void OnDestinationReached(Vector3 position)
+	public override void OnDestinationReached(in Vector3 position)
 	{
 		m_CurrentBehaviour.OnDestinationReached(position);
 	}

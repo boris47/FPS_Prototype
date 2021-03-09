@@ -38,49 +38,61 @@ public abstract partial class Entity
 		List<System.Type> requiredTypes = new HashSet<System.Type>(m_RequiredComponents.Select(c => c.type)).ToList();
 
 		// Add required and Empty component
-		foreach (EEntityComponent component in System.Enum.GetValues(typeof(EEntityComponent)))
+		foreach (EEntityComponent componentType in System.Enum.GetValues(typeof(EEntityComponent)))
 		{
-			// Get the system type of the base entity component
-			UnityEngine.Assertions.Assert.IsTrue(TryGetBaseTypeForEntityComponent(component, out System.Type baseType));
 			// Get the variable that will hold the created instance of the component
-			EntityComponent entityComponent = null;
-			UnityEngine.Assertions.Assert.IsTrue(TryGetEntityComponentFromEnum(this, component, ref entityComponent));
-			// Get the empty type for this component
-			UnityEngine.Assertions.Assert.IsTrue(TryGetEmptyTypeForEntityComponent(component, out System.Type emptyType));
+			UnityEngine.Assertions.Assert.IsTrue(TryGetCurrentComponentByComponentType(this, componentType, out EntityComponent entityComponent));
 
-			System.Type typeToInstatiate = requiredTypes.Find(t => t.IsSubclassOf(baseType));
+			// Get the system type of the base entity component
+			UnityEngine.Assertions.Assert.IsTrue(TryGetBaseTypeByComponentType(componentType, out System.Type componentBaseType));
+
+			// Get the empty type for this component
+			UnityEngine.Assertions.Assert.IsTrue(TryGetEmptyTypeByComponentType(componentType, out System.Type emptyType));
+
+			// Find the request type to instantiate for this base type component
+			System.Type typeToInstatiate = requiredTypes.Find(t => t.IsSubclassOf(componentBaseType));
 
 			EntityComponent newComponent = null;
 
-			// Requested concrete
+			// Requested concrete, type has been specified by the entity
 			if (typeToInstatiate.IsNotNull())
 			{
 				newComponent = gameObject.GetOrAddIfNotFound(typeToInstatiate) as EntityComponent;
 			}
-			// Empty
+			// Empty, type is not specified so we are going to add the empty component
 			else
 			{
 				newComponent = gameObject.GetOrAddIfNotFound(emptyType) as EntityComponent;
 			}
 
 			// If new component is not the same on this gameobject, destroy it (entityComponent could start with null value)
-			if (entityComponent?.GetInstanceID() != newComponent.GetInstanceID())
+			if (entityComponent.IsNotNull() && entityComponent.GetInstanceID() != newComponent.GetInstanceID())
 			{
 				Destroy(entityComponent);
 			}
 
-			AssignEntityComponent(this, component, newComponent);
+			AssignEntityComponent(this, componentType, newComponent);
 		}
 
-		// Let each component initialize itself
-		foreach(EntityComponent component in gameObject.GetComponentsInChildren<EntityComponent>(includeInactive: true))
 		{
-			component.Resolve(this, m_SectionRef);
+			EntityComponent[] components = gameObject.GetComponentsInChildren<EntityComponent>(includeInactive: true);
+
+			// Let each component initialize itself
+			foreach(EntityComponent component in components)
+			{
+				component.Resolve(this, m_SectionRef);
+			}
+
+			// Finally enable components
+			foreach (EntityComponent component in components)
+			{
+				component.Enable();
+			}
 		}
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	private static bool TryGetBaseTypeForEntityComponent(in EEntityComponent baseType, out System.Type result)
+	private static bool TryGetBaseTypeByComponentType(in EEntityComponent baseType, out System.Type result)
 	{
 		result = null;
 		switch (baseType)
@@ -96,7 +108,7 @@ public abstract partial class Entity
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	private static bool TryGetEmptyTypeForEntityComponent(in EEntityComponent baseType, out System.Type result)
+	private static bool TryGetEmptyTypeByComponentType(in EEntityComponent baseType, out System.Type result)
 	{
 		result = null;
 		switch (baseType)
@@ -112,18 +124,18 @@ public abstract partial class Entity
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	private static bool TryGetEntityComponentFromEnum(in Entity entity, in EEntityComponent type, ref EntityComponent entityComponent)
+	private static bool TryGetCurrentComponentByComponentType(in Entity entity, in EEntityComponent type, out EntityComponent entityComponent)
 	{
 		entityComponent = null;
 		bool bResult = false; // Using this because the entity var can have null value that is legal
 		switch (type)
 		{
-			case EEntityComponent.BEHAVIOURS:	entityComponent = entity.m_Behaviours;		bResult = true; break;
-			case EEntityComponent.INTERACTION:	entityComponent = entity.m_Interactions;	bResult = true; break;
-			case EEntityComponent.INVENTORY:	entityComponent = entity.m_Inventory;		bResult = true; break;
-			case EEntityComponent.MEMORY:		entityComponent = entity.m_Memory;			bResult = true; break;
-			case EEntityComponent.MOTION:		entityComponent = entity.m_Motion;			bResult = true; break;
-			case EEntityComponent.NAVIGATION:	entityComponent = entity.m_Navigation;		bResult = true; break;
+			case EEntityComponent.BEHAVIOURS:	entityComponent = entity.m_Behaviours		?? entity.GetComponent<Behaviours_Base>();		bResult = true; break;
+			case EEntityComponent.INTERACTION:	entityComponent = entity.m_Interactions		?? entity.GetComponent<Interactions_Base>();	bResult = true; break;
+			case EEntityComponent.INVENTORY:	entityComponent = entity.m_Inventory		?? entity.GetComponent<Inventory_Base>();		bResult = true; break;
+			case EEntityComponent.MEMORY:		entityComponent = entity.m_Memory			?? entity.GetComponent<Memory_Base>();			bResult = true; break;
+			case EEntityComponent.MOTION:		entityComponent = entity.m_Motion			?? entity.GetComponent<Motion_Base>();			bResult = true; break;
+			case EEntityComponent.NAVIGATION:	entityComponent = entity.m_Navigation		?? entity.GetComponent<Navigation_Base>();		bResult = true; break;
 		}
 		return bResult;
 	}

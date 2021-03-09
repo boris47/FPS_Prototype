@@ -38,7 +38,7 @@ public class Walker_AI_Behaviour_Seeker : AIBehaviour
 		EntityData.EntityRef.Navigation.NavReset();
 
 		// Set the point to look just in front ho him
-	//	EntityData.EntityRef.SetPointToLookAt(EntityData.Head_Position + EntityData.EntityRef.transform.forward);
+		EntityData.EntityRef.Behaviours.SetPointToLookAt(EntityData.Head_Position + EntityData.EntityRef.transform.forward);
 
 		EntityData.EntityRef.Behaviours.ChangeState(EBrainState.NORMAL);
 	}

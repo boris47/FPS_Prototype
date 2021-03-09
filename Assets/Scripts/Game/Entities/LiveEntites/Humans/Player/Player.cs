@@ -15,6 +15,7 @@ public partial class Player : Human
 //	private		Collider							m_PlayerFarAreaTrigger					= null;
 //	public		Collider							PlayerFarAreaTrigger					=> m_PlayerFarAreaTrigger;
 
+	protected	override ERotationsMode				m_LookTargetMode						=> ERotationsMode.NONE;
 	protected	override EEntityType				m_EntityType							=> EEntityType.ACTOR;
 	protected	override EntityComponentContainer[] m_RequiredComponents					=> new EntityComponentContainer[]
 	{
@@ -85,7 +86,7 @@ public partial class Player : Human
 	//////////////////////////////////////////////////////////////////////////
 	private	void	Start()
 	{
-		FPSEntityCamera.Instance.SetViewPoint(m_HeadTransform, transform); // the entity body rotates on Y axis so we use that transform
+		FPSEntityCamera.Instance.SetViewPoint(this);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
