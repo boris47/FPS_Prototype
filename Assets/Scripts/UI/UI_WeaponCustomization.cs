@@ -4,21 +4,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public sealed class UI_WeaponCustomization : UI_Base, IStateDefiner {
+public sealed class UI_WeaponCustomization : UI_Base, IStateDefiner
+{
+	private				Dropdown							m_PrimaryDropDown					= null;
+	private				Dropdown							m_SecondaryDropDown					= null;
+	private				Dropdown							m_TertiaryDropDown					= null;
 
-	private		Dropdown		m_PrimaryDropDown		= null;
-	private		Dropdown		m_SecondaryDropDown		= null;
-	private		Dropdown		m_TertiaryDropDown		= null;
+	private				Button								m_ReturnToGame						= null;
+	private				Button								m_SwitchToInventory					= null;
+	private				Button								m_ApplyButton						= null;
 
-	private		Button			m_ReturnToGame			= null;
-	private		Button			m_SwitchToInventory		= null;
-	private		Button			m_ApplyButton			= null;
-
-	private		bool			m_IsInitialized		= false;
-
-	bool IStateDefiner.IsInitialized => m_IsInitialized;
-
-	string IStateDefiner.StateName => name;
+	private				bool								m_IsInitialized						= false;
+						bool								IStateDefiner.IsInitialized			=> m_IsInitialized;
 
 	private readonly Dictionary<EWeaponSlots, Database.Section> m_CurrentAssignedModuleSections = new Dictionary<EWeaponSlots, Database.Section>()
 //	{
@@ -29,65 +26,62 @@ public sealed class UI_WeaponCustomization : UI_Base, IStateDefiner {
 	;
 
 	//////////////////////////////////////////////////////////////////////////
-	public void PreInit() { }
+	void IStateDefiner.PreInit()
+	{
+
+	}
 
 	//////////////////////////////////////////////////////////////////////////
-	// Initialize
-	IEnumerator	IStateDefiner.Initialize()
+	void	IStateDefiner.Initialize()
 	{
-		if (m_IsInitialized == true )
-			yield break;
-
-		Transform child = transform.Find("CustomizationPanel");
-		if (m_IsInitialized = ( child != null ) )
+		if (!m_IsInitialized)
 		{
-			m_IsInitialized &= child.TrySearchComponentByChildName( "ModulePrimaryDropdown", out m_PrimaryDropDown );
-			m_IsInitialized &= child.TrySearchComponentByChildName( "ModuleSecondaryDropdown", out m_SecondaryDropDown );
-			m_IsInitialized &= child.TrySearchComponentByChildName( "ModuleTertiaryDropdown", out m_TertiaryDropDown );
-
-			yield return null;
-
-			// APPLY BUTTON
-			if (m_IsInitialized &= transform.TrySearchComponentByChildName( "ApplyButton", out m_ApplyButton ) )
+			if (CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("CustomizationPanel", out Transform customizationPanel)))
 			{
+				CustomAssertions.IsTrue(customizationPanel.TrySearchComponentByChildName("ModulePrimaryDropdown", out m_PrimaryDropDown));
+				CustomAssertions.IsTrue(customizationPanel.TrySearchComponentByChildName("ModuleSecondaryDropdown", out m_SecondaryDropDown));
+				CustomAssertions.IsTrue(customizationPanel.TrySearchComponentByChildName("ModuleTertiaryDropdown", out m_TertiaryDropDown));
+			}
+
+			if (CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("ApplyButton", out m_ApplyButton)))
+			{
+				void OnConfirm()
+				{
+					foreach (KeyValuePair<EWeaponSlots, Database.Section> pair in m_CurrentAssignedModuleSections)
+					{
+						if (Weapon.TryGetModuleSlot(WeaponManager.Instance.CurrentWeapon, pair.Key, out WeaponModuleSlot slotModule))
+						{
+							slotModule.TrySetModule(WeaponManager.Instance.CurrentWeapon, pair.Value);
+						}
+					}
+				}
+				m_ApplyButton.onClick.AddListener(() => UIManager.Confirmation.Show("Apply Changes?", OnConfirm));
 				m_ApplyButton.interactable = false;
-				m_ApplyButton.onClick.AddListener
-				(	
-					() => UIManager.Confirmation.Show( "Apply Changes?", OnApply, delegate { OnEnable(); } )
-				);
 			}
 
-			yield return null;
-
-			// SWITCH TO INVENTORY
-			if (m_IsInitialized &= transform.TrySearchComponentByChildName( "SwitchToInventory", out m_SwitchToInventory ) )
+			if (CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("SwitchToInventory", out m_SwitchToInventory)))
 			{
-				m_SwitchToInventory.onClick.AddListener( OnSwitchToInventory );
+				m_SwitchToInventory.onClick.AddListener(OnSwitchToInventory);
 			}
 
-			yield return null;
-
-			// RETURN TO GAME
-			if (m_IsInitialized &= transform.TrySearchComponentByChildName( "ReturnToGame", out m_ReturnToGame ) )
+			if (CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("ReturnToGame", out m_ReturnToGame)))
 			{
-				m_ReturnToGame.onClick.AddListener( OnReturnToGame );
+				m_ReturnToGame.onClick.AddListener(OnReturnToGame);
 			}
 
-			yield return null;
+			m_IsInitialized = true;
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ReInit
-	IEnumerator	IStateDefiner.ReInit()
+	void	IStateDefiner.ReInit()
 	{
-		yield return null;
+		
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Finalize
 	bool	 IStateDefiner.Finalize()
 	{
 		return m_IsInitialized;
@@ -95,17 +89,13 @@ public sealed class UI_WeaponCustomization : UI_Base, IStateDefiner {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnEnable
 	private void OnEnable()
 	{
-		if (m_IsInitialized == false )
-		{
-			return;
-		}
+		CustomAssertions.IsTrue(m_IsInitialized);
 
 		Database.Section[] fireModules		= GlobalManager.Configs.GetSectionsByContext("WeaponFireModules");
 		Database.Section[] utilityModules	= GlobalManager.Configs.GetSectionsByContext("WeaponUtilityModules");
-		Database.Section[] allModules		= System.Linq.Enumerable.Concat(fireModules, utilityModules).ToArray();
+		Database.Section[] allModules		= Enumerable.Concat(fireModules, utilityModules).ToArray();
 
 		// PRIMARY
 		FillDropdown(m_PrimaryDropDown,		allModules, EWeaponSlots.PRIMARY);
@@ -116,40 +106,53 @@ public sealed class UI_WeaponCustomization : UI_Base, IStateDefiner {
 		// TERTIARY
 		FillDropdown(m_TertiaryDropDown,	allModules, EWeaponSlots.TERTIARY);
 
+		// TODo Handle actually disable categories
+		GlobalManager.InputMgr.DisableCategory(EInputCategory.ALL);
 
-		GlobalManager.InputMgr.SetCategory(EInputCategory.CAMERA, false);
-//		InputManager.IsEnabled					= false;
+		GlobalManager.InputMgr.SetCategory(EInputCategory.INTERFACE, true);
 
-		// All categories but not interface
-		GlobalManager.InputMgr.DisableCategory( EInputCategory.ALL | EInputCategory.INTERFACE );
-
-		GlobalManager.SetCursorVisibility( true );
+		GlobalManager.SetCursorVisibility(true);
 
 		WeaponManager.Instance.CurrentWeapon.Stash();
 	}
 
 
-	private	void	FillDropdown(in Dropdown thisDropdown, in Database.Section[] allModules, EWeaponSlots slot)
+	//////////////////////////////////////////////////////////////////////////
+	private void OnDisable()
+	{
+		// TODo Handle actually disable categories
+		GlobalManager.InputMgr.EnableCategory(EInputCategory.ALL);
+
+		GlobalManager.InputMgr.SetCategory(EInputCategory.INTERFACE, false);
+
+		WeaponManager.Instance.CurrentWeapon.Draw();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void FillDropdown(in Dropdown thisDropdown, in Database.Section[] allModules, EWeaponSlots slot)
 	{
 		thisDropdown.ClearOptions();
 
+		IWeapon currentWeapon = WeaponManager.Instance.CurrentWeapon;
+
 		// Get weapon module slot
-		if (Weapon.TryGetModuleSlot(WeaponManager.Instance.CurrentWeapon, slot, out WeaponModuleSlot slotModule))
+		if (Weapon.TryGetModuleSlot(currentWeapon, slot, out WeaponModuleSlot slotModule))
 		{
-			string[] alreadyAssignedModules = WeaponManager.Instance.CurrentWeapon.OtherInfo.Split( ',' );
+			string[] alreadyAssignedModules = currentWeapon.OtherInfo.Split(',');
 
 			// Ask slot if module can be assigned
 			List<Database.Section> filtered = allModules.Where(s => slotModule.CanAssignModule(s, alreadyAssignedModules)).ToList();
 
 			// Assign readable names to dropdown options
 			List<string> ui_Names = filtered.Select(section => section.AsString("Name")).ToList();
-			thisDropdown.AddOptions( ui_Names );
+			thisDropdown.AddOptions(ui_Names);
 
-			string currentAssigned = alreadyAssignedModules[(int) slot];
-			m_CurrentAssignedModuleSections[slot] = new Database.Section( currentAssigned, "" );
+			string currentAssigned = alreadyAssignedModules[(int)slot];
+			m_CurrentAssignedModuleSections[slot] = new Database.Section(currentAssigned, "");
 
 			// Search current Value
-			thisDropdown.value = filtered.FindIndex( s => s.GetSectionName() == currentAssigned );
+			thisDropdown.value = filtered.FindIndex(s => s.GetSectionName() == currentAssigned);
 
 			void callback(int moduleIndex)
 			{
@@ -161,58 +164,27 @@ public sealed class UI_WeaponCustomization : UI_Base, IStateDefiner {
 		}
 		else
 		{
-			Debug.LogError($"UI_WeaponCustomization::");
+			Debug.LogError($"Cannot get a valid module from weapon {currentWeapon.Transform.name} at slot {slot.ToString()}");
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private void	OnApply()
-	{
-		foreach (KeyValuePair<EWeaponSlots, Database.Section> pair in m_CurrentAssignedModuleSections)
-		{
-			if (Weapon.TryGetModuleSlot(WeaponManager.Instance.CurrentWeapon, pair.Key, out WeaponModuleSlot slotModule))
-			{
-				slotModule.TrySetModule(WeaponManager.Instance.CurrentWeapon, pair.Value);
-			}
-		}
-	} 
-
-
-	//////////////////////////////////////////////////////////////////////////
 	private void	OnSwitchToInventory()
 	{
-		UIManager.Instance.GoToMenu( UIManager.Inventory );
-		GameManager.Instance.RequireFrameSkip();
+		GlobalManager.Instance.RequireFrameSkip();
+
+		UIManager.Instance.GoToMenu(UIManager.Inventory);
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private	void	OnReturnToGame()
 	{
-		GameManager.Instance.RequireFrameSkip();
-		UIManager.Instance.GoToMenu( UIManager.InGame );
+		GlobalManager.Instance.RequireFrameSkip();
+
+		UIManager.Instance.GoToMenu(UIManager.InGame);
+
 		UIManager.InGame.UpdateUI();
 	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnDisable
-	private void OnDisable()
-	{
-		if (m_IsInitialized == false )
-		{
-			return;
-		}
-
-		GlobalManager.InputMgr.SetCategory(EInputCategory.CAMERA, true);
-
-//		InputManager.IsEnabled					= true;
-		GlobalManager.InputMgr.EnableCategory( EInputCategory.ALL );
-
-		GlobalManager.SetCursorVisibility( false );
-
-		WeaponManager.Instance.CurrentWeapon.Draw();
-	}
-
 }

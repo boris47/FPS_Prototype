@@ -32,26 +32,25 @@ public class CommandPanel : MonoBehaviour {
 			m_TriggerCollider.enabled = false;
 			return;
 		}
-	}
 
-	private void OnEnable()
-	{
+		CustomAssertions.IsNotNull(GameManager.StreamEvents);
+
 		GameManager.StreamEvents.OnSave += OnSave;
 		GameManager.StreamEvents.OnLoad += OnLoad;
 	}
 
-	private void OnDisable()
+	//////////////////////////////////////////////////////////////////////////
+	private void OnDestroy()
 	{
 		if (GameManager.StreamEvents.IsNotNull())
 		{
-			GameManager.StreamEvents.OnSave	-= OnSave;
-			GameManager.StreamEvents.OnLoad	-= OnLoad;	
+			GameManager.StreamEvents.OnSave -= OnSave;
+			GameManager.StreamEvents.OnLoad -= OnLoad;
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnSave
 	private	bool	OnSave( StreamData streamData, ref StreamUnit streamUnit )
 	{
 		streamUnit = streamData.NewUnit(gameObject );
@@ -63,7 +62,6 @@ public class CommandPanel : MonoBehaviour {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnLoad
 	private	bool	OnLoad( StreamData streamData, ref StreamUnit streamUnit )
 	{
 		bool bResult = streamData.TryGetUnit(gameObject, out streamUnit );

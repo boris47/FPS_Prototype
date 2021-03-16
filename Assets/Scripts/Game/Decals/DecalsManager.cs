@@ -2,36 +2,36 @@
 using UnityEngine;
 
 
-public class DecalsManager : InGameSingleton<DecalsManager>
+public class DecalsManager : OnDemandSingleton<DecalsManager>
 {
 	[SerializeField]
-	private float DecalLifeTime = 10f;
+	private			float							m_DecalLifeTime			= 10f;
+	private			GameObjectsPool<Decal>			m_DecalsPool			= null;
 
-	private GameObjectsPool<Decal> m_DecalsPool = null;
+	private			GameObject						m_DecalPrefab			= null;
 
-	private GameObject decalPrefab = null;
 
 	//////////////////////////////////////////////////////////////////////////
-	protected override void OnInitialize()
+	protected override void Awake()
 	{
-		base.OnInitialize();
-
+		base.Awake();
 		ResourceManager.AsyncLoadedData<GameObject> loadedResource = new ResourceManager.AsyncLoadedData<GameObject>();
 		ResourceManager.LoadResourceAsyncCoroutine
 		(
 			ResourcePath:			"Prefabs/UI/UI_CommandRow",
 			loadedResource:			loadedResource,
-			OnResourceLoaded:		(a) => decalPrefab = a,
+			OnResourceLoaded:		(a) => m_DecalPrefab = a,
 			OnFailure:				(resPath) => Debug.LogError($"DecalsManager::OnInitialize: Cannot load {resPath}")
 		);
 
-		GameObjectsPoolConstructorData<Decal> options = new GameObjectsPoolConstructorData<Decal>(model: decalPrefab, size: 200)
+		var options = new GameObjectsPoolConstructorData<Decal>(model: m_DecalPrefab, size: 200)
 		{
 			ContainerName = "DecalsContainer",
 			IsAsyncBuild = true,
 		};
 		m_DecalsPool = new GameObjectsPool<Decal>(options);
 	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	public void PlaceDecal(Collider collider, Vector3 WorldPosition, Vector3 normal)
@@ -41,19 +41,12 @@ public class DecalsManager : InGameSingleton<DecalsManager>
 			Decal decal = m_DecalsPool.GetNextComponent();
 			{
 				decal.SetDecalMaterial(decalMaterial);
-				decal.Show(WorldPosition, Quaternion.Euler(normal), DecalLifeTime);
+				decal.Show(WorldPosition, Quaternion.Euler(normal), m_DecalLifeTime);
 			}
 		}
 		else
 		{
 			Debug.LogWarning( $"DecalsManager::PlaceDecal: Cannot find decal for collider {collider.name}" );
 		}
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	protected override void OnDestroy()
-	{
-		base.OnDestroy();
 	}
 }

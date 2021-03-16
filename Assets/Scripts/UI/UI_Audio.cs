@@ -1,113 +1,109 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
-public sealed class UI_Audio : UI_Base, IUIOptions, IStateDefiner
+public sealed class UI_Audio : UI_Base, IStateDefiner
 {
-	// UI Components
-	private	Slider			m_MusicSlider				= null;
-	private	Slider			m_SoundSlider				= null;
-	private	Button			m_ApplyButton				= null;
-	private	Button			m_ResetButton				= null;
+	private				Slider				m_MusicSlider					= null;
+	private				Slider				m_SoundSlider					= null;
+	private				Button				m_ApplyButton					= null;
+	private				Button				m_ResetButton					= null;
+	private				Button				m_BackButton					= null;
 
-	private	bool			m_IsInitialized			= false;
-
-	#region IStateDefiner
-
-	//------------------------------------------------------------
-	bool IStateDefiner.IsInitialized => m_IsInitialized = false;
-
-
-	//------------------------------------------------------------
-	string IStateDefiner.StateName => name;
+	private				bool				m_IsInitialized					= false;
+						bool				IStateDefiner.IsInitialized		=> m_IsInitialized;
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public void PreInit() { }
-
-	//////////////////////////////////////////////////////////////////////////
-	IEnumerator IStateDefiner.Initialize()
+	void IStateDefiner.PreInit()
 	{
-		if (m_IsInitialized == true)
+
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	void IStateDefiner.Initialize()
+	{
+		if (!m_IsInitialized)
 		{
-			yield break;
-		}
-
-		OnEnable();
-		OnApplyChanges();
-
-		CoroutinesManager.AddCoroutineToPendingCount(1);
-
-		m_IsInitialized = true;
-		{
-			if (m_IsInitialized &= transform.TrySearchComponentByChildName("Slider_MusicVolume", out m_MusicSlider))
+			// Music Volume Slider
+			if(CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("Slider_MusicVolume", out m_MusicSlider)))
 			{
 				m_MusicSlider.onValueChanged.AddListener((float newValue) =>
 				{
 					UserSettings.AudioSettings.OnMusicVolumeSet(newValue);
+					m_ResetButton.interactable = true;
 					m_ApplyButton.interactable = true;
 				});
 			}
 
-			yield return null;
-
-			if (m_IsInitialized &= transform.TrySearchComponentByChildName("Slider_SoundVolume", out m_SoundSlider))
+			// Sound Volume Slider
+			if (CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("Slider_SoundVolume", out m_SoundSlider)))
 			{
 				m_SoundSlider.onValueChanged.AddListener((float newValue) =>
 				{
 					UserSettings.AudioSettings.OnSoundsVolumeSet(newValue);
+					m_ResetButton.interactable = true;
 					m_ApplyButton.interactable = true;
 				});
 			}
 
-			yield return null;
-
-			if (m_IsInitialized &= transform.TrySearchComponentByChildName("ApplyButton", out m_ApplyButton))
+			// Apply button
+			if (CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("ApplyButton", out m_ApplyButton)))
 			{
-				m_ApplyButton.onClick.AddListener(() =>
+				void OnConfirm()
 				{
-					UIManager.Confirmation.Show("Apply Changes?", OnApplyChanges, () => { UserSettings.AudioSettings.ReadFromRegistry(); UpdateUI(); });
-				});
-				m_ApplyButton.interactable = false;
+					UserSettings.AudioSettings.OnApplyChanges();
+
+					m_ApplyButton.interactable = false;
+				}
+				m_ApplyButton.onClick.AddListener(() => UIManager.Confirmation.Show("Apply Changes?", OnConfirm));
 			}
 
-			yield return null;
-
-			if (m_IsInitialized &= transform.TrySearchComponentByChildName("ResetButton", out m_ResetButton))
+			// Reset Button
+			if (CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("ResetButton", out m_ResetButton)))
 			{
-				m_ResetButton.onClick.AddListener(() =>
+				void OnConfirm()
 				{
-					UIManager.Confirmation.Show("Reset?", () => { UserSettings.AudioSettings.ApplyDefaults(); UpdateUI(); });
-				});
+					UserSettings.AudioSettings.Reset();
+
+					// Update UI elements
+					UpdateUI();
+
+					m_ApplyButton.interactable = false;
+					m_ResetButton.interactable = false;
+				}
+				m_ResetButton.onClick.AddListener(() => UIManager.Confirmation.Show("Reset?", OnConfirm));
 			}
 
-			yield return null;
-
-			if (m_IsInitialized)
+			// Back button
+			if (CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("Button_Back", out m_BackButton)))
 			{
-				OnEnable();
-
-				yield return null;
-
-				OnApplyChanges();
-
-				CoroutinesManager.RemoveCoroutineFromPendingCount(1);
-
-				yield return null;
+				m_BackButton.onClick.AddListener(() => UIManager.Instance.GoBack());
 			}
-			else
+
+			// disable navigation for everything
+			Navigation noNavigationMode = new Navigation() { mode = Navigation.Mode.None };
+			foreach (Selectable s in GetComponentsInChildren<Selectable>())
 			{
-				Debug.LogError("UI_Audio: Bad initialization!!!");
+				s.navigation = noNavigationMode;
 			}
+
+			m_IsInitialized = true;
 		}
+
+		// Set default data or load saved ones
+		UserSettings.AudioSettings.LoadOrSetDefaults();
+
+		// Update UI elements
+		UpdateUI();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	IEnumerator IStateDefiner.ReInit()
+	void IStateDefiner.ReInit()
 	{
-		yield return null;
+		
 	}
 
 
@@ -117,61 +113,21 @@ public sealed class UI_Audio : UI_Base, IUIOptions, IStateDefiner
 		return m_IsInitialized;
 	}
 
-	#endregion
 
 	//////////////////////////////////////////////////////////////////////////
-	public void OnEnable()
+	private void OnEnable()
 	{
-		if (m_IsInitialized == false)
-		{
-			return;
-		}
+		CustomAssertions.IsTrue(m_IsInitialized);
 
-		UserSettings.AudioSettings.OnEnable();
-		UpdateUI();
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	/// <summary> Apply changes </summary>
-	public void OnApplyChanges()
-	{
-		if (m_IsInitialized == false)
-		{
-			return;
-		}
-
-		UserSettings.AudioSettings.OnApplyChanges();
 		m_ApplyButton.interactable = false;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	/// <summary> Updates UI Components </summary>
-	public void UpdateUI()
+	private void UpdateUI()
 	{
-		if (m_IsInitialized == false)
-		{
-			return;
-		}
-
 		UserSettings.AudioSettings.AudioData data = UserSettings.AudioSettings.GetAudioData();
 		m_MusicSlider.value = data.MusicVolume;
 		m_SoundSlider.value = data.SoundVolume;
 	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	/// <summary> Remove key from registry </summary>
-	public void Reset()
-	{
-		if (m_IsInitialized == false)
-		{
-			return;
-		}
-
-		UserSettings.AudioSettings.Reset();
-		UpdateUI();
-	}
-
 }

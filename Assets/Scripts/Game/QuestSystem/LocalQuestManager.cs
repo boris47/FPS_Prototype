@@ -7,16 +7,13 @@ namespace QuestSystem {
 
 	
 
-	public sealed class LocalQuestManager : MonoBehaviour, IQuestManager {
-
-		private		static IQuestManager		m_Instance						= null;
-		public		static	IQuestManager		Instance
-		{
-			get { return m_Instance; }
-		}
+	public sealed class LocalQuestManager : MonoBehaviour, IQuestManager
+	{
+		private		static		IQuestManager		m_Instance					= null;
+		public		static		IQuestManager		Instance					=> m_Instance;
 
 		[SerializeField]
-		private	List<Quest>		m_LocalQuests			= new List<Quest>();
+		private					List<Quest>			m_LocalQuests				= new List<Quest>();
 		
 
 
@@ -50,24 +47,24 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// OnQuestCompleted
-		private	void	OnQuestCompleted( Quest completedQuest )
+		private	void	OnQuestCompleted(Quest completedQuest)
 		{
-			if ( completedQuest.Scope != EQuestScope.LOCAL )
-				return;
-
-			bool bAreQuestsCompleted = m_LocalQuests.TrueForAll( ( Quest q ) => { return q.IsCompleted == true; } );
-			if ( bAreQuestsCompleted )
+			if (completedQuest.Scope == EQuestScope.LOCAL)
 			{
-				if ( GlobalQuestManager.ShowDebugInfo )
-					print( "Completed All quests" );
-			}
-			else
-			{
-				int nextIndex = (m_LocalQuests.IndexOf( completedQuest as Quest ) + 1 );
-				if ( nextIndex < m_LocalQuests.Count )
+				bool bAreQuestsCompleted = m_LocalQuests.TrueForAll(q => q.IsCompleted);
+				if (bAreQuestsCompleted)
 				{
-					Quest nextQuest = m_LocalQuests[ nextIndex ];
-					nextQuest.Activate();
+					//if ( GlobalQuestManager.ShowDebugInfo )
+					//	print( "Completed All quests" );
+				}
+				else
+				{
+					int nextIndex = (m_LocalQuests.IndexOf(completedQuest as Quest) + 1);
+					if (nextIndex < m_LocalQuests.Count)
+					{
+						Quest nextQuest = m_LocalQuests[nextIndex];
+						nextQuest.Activate();
+					}
 				}
 			}
 		}

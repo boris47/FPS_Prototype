@@ -1,33 +1,51 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Loading : InGameSingleton<Loading>
+public class Loading : MonoBehaviour
 {
-	private Slider m_LoadingBar = null;
-	private Text m_LoadingLevelNameText = null;
-	private Text m_LoadingSubTaskText = null;
-	private float m_CurrentProgressValue = 0.0f;
+	public	static	Loading		Instance						{ get; private set;} = null;
+	private	static	Stopwatch	m_StopWatch						= new Stopwatch();
 
-	private bool m_IsInitializedInternal = false;
+	private			Slider		m_LoadingBar					= null;
+	private			Text		m_LoadingLevelNameText			= null;
+	private			Text		m_LoadingSubTaskText			= null;
+	private			float		m_CurrentProgressValue			= 0.0f;
+	private			bool		m_IsInitializedInternal			= false;
+
 
 	//////////////////////////////////////////////////////////////////////////
 	private void Awake()
 	{
+		Instance = this;
+
 		gameObject.SetActive(false);
 
-		m_IsInitializedInternal = transform.TrySearchComponent(ESearchContext.LOCAL_AND_CHILDREN, out m_LoadingBar);
+		m_IsInitializedInternal =  transform.TrySearchComponent(ESearchContext.LOCAL_AND_CHILDREN, out m_LoadingBar);
 		m_IsInitializedInternal &= transform.TrySearchComponent(ESearchContext.LOCAL_AND_CHILDREN, out m_LoadingLevelNameText, child => child.name == "LoadingSceneName");
 		m_IsInitializedInternal &= transform.TrySearchComponent(ESearchContext.LOCAL_AND_CHILDREN, out m_LoadingSubTaskText, child => child.name == "LoadingSubTask");
 
 		if (!m_IsInitializedInternal)
 		{
-			Debug.LogError("Loading Singleton has initialization issues");
+			UnityEngine.Debug.LogError("Loading Singleton has initialization issues");
 #if UNITY_EDITOR
 			UnityEditor.EditorApplication.isPlaying = UnityEditor.EditorApplication.isPaused = false;
 #endif
 		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void LateUpdate()
+	{
+		m_LoadingBar.value = Mathf.MoveTowards(m_LoadingBar.value, m_CurrentProgressValue, Time.unscaledDeltaTime);
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void OnDestroy()
+	{
+		Instance = null;
 	}
 
 
@@ -38,7 +56,6 @@ public class Loading : InGameSingleton<Loading>
 
 		Instance.gameObject.SetActive(true);
 	}
-
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -58,30 +75,27 @@ public class Loading : InGameSingleton<Loading>
 	}
 
 
-
 	//////////////////////////////////////////////////////////////////////////
 	public static void SetLoadingSceneName(ESceneEnumeration scene)
 	{
 		Instance.m_LoadingLevelNameText.text = $"Loading: {scene.ToString()}";
 	}
 
-	private static System.Diagnostics.Stopwatch stopWatch = new System.Diagnostics.Stopwatch();
+
 	//////////////////////////////////////////////////////////////////////////
 	public static void EndSubTask()
 	{
-		stopWatch.Stop();
-		Debug.Log($"Step '{Instance.m_LoadingSubTaskText.text}' required {stopWatch.ElapsedMilliseconds}ms.");
+		m_StopWatch.Stop();
+	//	UnityEngine.Debug.Log($"Step '{Instance.m_LoadingSubTaskText.text}' required {m_StopWatch.ElapsedMilliseconds}ms.");
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public static void SetSubTask(string subTaskName)
 	{
-		stopWatch.Reset(); stopWatch.Start();
+		m_StopWatch.Reset(); m_StopWatch.Start();
 		Instance.m_LoadingSubTaskText.text = subTaskName;
-	//	Debug.Log(subTaskName);
 	}
-
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -89,13 +103,4 @@ public class Loading : InGameSingleton<Loading>
 	{
 		Instance.m_CurrentProgressValue = Mathf.Clamp01(CurrentProgress);
 	}
-
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private void LateUpdate()
-	{
-		Instance.m_LoadingBar.value = Mathf.MoveTowards(Instance.m_LoadingBar.value, Instance.m_CurrentProgressValue, Time.unscaledDeltaTime);
-	}
-
 }

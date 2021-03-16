@@ -25,15 +25,15 @@ public class GameEventArg4	: UnityEngine.Events.UnityEvent< UnityEngine.GameObje
 public struct GameEvents
 {
 	// SAVE & LOAD
-	public	delegate	bool		StreamingEvent( StreamData streamData, ref StreamUnit streamUnit );	// StreamEvents.OnSave & StreamEvents.OnLoad
+	public	delegate	bool		StreamingEvent(StreamData streamData, ref StreamUnit streamUnit);	// StreamEvents.OnSave & StreamEvents.OnLoad
 
 	// PAUSE
-	public	delegate	void		OnPauseSetEvent( bool isPaused );			// PauseEvents.OnPauseSet
+	public	delegate	void		OnPauseSetEvent(bool isPaused);				// PauseEvents.OnPauseSet
 
 	// UPDATES
 	public	delegate	void		OnThinkEvent();								// UpdateEvents.OnThink
-	public	delegate	void		OnPhysicFrameEvent( float FixedDeltaTime );	// UpdateEvents.OnPhysicFrame
-	public	delegate	void		OnFrameEvent( float DeltaTime );			// UpdateEvents.OnFrame
+	public	delegate	void		OnPhysicFrameEvent(float FixedDeltaTime);	// UpdateEvents.OnPhysicFrame
+	public	delegate	void		OnFrameEvent(float DeltaTime);				// UpdateEvents.OnFrame
 
 	// OTHERS
 	public	delegate	void		VoidArgsEvent();
@@ -44,7 +44,7 @@ public struct GameEvents
 //						SAVE & LOAD								//
 //////////////////////////////////////////////////////////////////
 
-public enum EStreamingState
+public enum EStreamingState: short
 {
 	NONE, SAVING, SAVE_COMPLETE, LOADING, LOAD_COMPLETE
 }
@@ -84,7 +84,14 @@ public interface IStreamEvents
 // SAVE & LOAD IMPLEMENTATION
 public sealed partial class GameManager : IStreamEvents
 {
-	// Save slot infos
+	private const			string							ENCRIPTION_KEY			= "Boris474Ever";
+
+	/// <summary> Streaming events interface </summary>
+	public	static			IStreamEvents					StreamEvents			=> m_Instance;
+	
+	/// <summary> Return the current stream State </summary>
+	EStreamingState			IStreamEvents.State				=> m_SaveLoadState;
+
 	public class SaveFileinfo
 	{
 		public	string	fileName	= "";
@@ -93,55 +100,44 @@ public sealed partial class GameManager : IStreamEvents
 		public	bool	isAutomatic = false;
 	}
 
-	private const	string				ENCRIPTION_KEY	= "Boris474Ever";
-	private	static	IStreamEvents		m_StreamEvents	= null;
-
 	// Events
-	private	event	GameEvents.StreamingEvent		m_OnSave			= delegate ( StreamData streamData, ref StreamUnit streamUnit ) { return true; };
-	private	event	GameEvents.StreamingEvent		m_OnSaveComplete	= delegate ( StreamData streamData, ref StreamUnit streamUnit ) { return true; };
+	private	event			GameEvents.StreamingEvent		m_OnSave					= delegate { return true; };
+	private	event			GameEvents.StreamingEvent		m_OnSaveComplete			= delegate { return true; };
 
-//	private	event	GameEvents.StreamingEvent		m_OnLoad			= delegate ( StreamData streamData ) { return null; };
-	private readonly List<GameEvents.StreamingEvent>	m_OnLoad = new List<GameEvents.StreamingEvent>();
-//	private	event	GameEvents.StreamingEvent		m_OnLoadComplete	= delegate ( StreamData streamData ) { return null; };
-	private readonly List<GameEvents.StreamingEvent>	m_OnLoadComplete = new List<GameEvents.StreamingEvent>();
-	private			EStreamingState					m_SaveLoadState		= EStreamingState.NONE;
+	private					List<GameEvents.StreamingEvent>	m_OnLoad					= new List<GameEvents.StreamingEvent>();
+	private					List<GameEvents.StreamingEvent>	m_OnLoadComplete			= new List<GameEvents.StreamingEvent>();
+	private					EStreamingState					m_SaveLoadState				= EStreamingState.NONE;
 
 	#region INTERFACE
 	// INTERFACE START
-	/// <summary> Streaming events interface </summary>
-	public static IStreamEvents StreamEvents => m_StreamEvents;
 
-	/// <summary> Return the current stream State </summary>
-	EStreamingState IStreamEvents.State => m_SaveLoadState;
 
 	/// <summary> Events called when game is saving </summary>
 	event GameEvents.StreamingEvent IStreamEvents.OnSave
 	{
-		add		{ if ( value.IsNotNull() )	m_OnSave += value; }
-		remove	{ if ( value.IsNotNull() )	m_OnSave -= value; }
+		add		{ if (value.IsNotNull())	m_OnSave += value; }
+		remove	{ if (value.IsNotNull())	m_OnSave -= value; }
 	}
 
 	/// <summary> Events called when game is saving </summary>
 	event GameEvents.StreamingEvent IStreamEvents.OnSaveComplete
 	{
-		add		{ if ( value.IsNotNull() )	m_OnSaveComplete += value; }
-		remove	{ if ( value.IsNotNull() )	m_OnSaveComplete -= value; }
+		add		{ if (value.IsNotNull())	m_OnSaveComplete += value; }
+		remove	{ if (value.IsNotNull())	m_OnSaveComplete -= value; }
 	}
 
 	/// <summary> Events called when game is loading ( Events are called along more frames !! ) </summary>
 	event GameEvents.StreamingEvent IStreamEvents.OnLoad
 	{
-		add		{ if ( value.IsNotNull() ) m_OnLoad.Add(value); }// m_OnLoad += value; }
-		remove	{ if ( value.IsNotNull() ) m_OnLoad.Remove(value); }// m_OnLoad -= value; }
+		add		{ if (value.IsNotNull()) m_OnLoad.Add(value); }
+		remove	{ if (value.IsNotNull()) m_OnLoad.Remove(value); }
 	}
 
 	/// <summary> Events called when game has been loaded ( Events are called along more frames !! ) </summary>
 	event GameEvents.StreamingEvent IStreamEvents.OnLoadComplete
 	{
-//		add		{ if ( value.IsNotNull() )	m_OnLoadComplete += value; }
-//		remove	{ if ( value.IsNotNull() )	m_OnLoadComplete -= value; }
-		add		{ if ( value.IsNotNull() ) m_OnLoadComplete.Add(value); }// m_OnLoadComplete += value; }
-		remove	{ if ( value.IsNotNull() ) m_OnLoadComplete.Remove(value); }// m_OnLoadComplete -= value; }
+		add		{ if (value.IsNotNull()) m_OnLoadComplete.Add(value); }
+		remove	{ if (value.IsNotNull()) m_OnLoadComplete.Remove(value); }
 	}
 	// INTERFACE END
 #endregion INTERFACE
@@ -243,8 +239,12 @@ public sealed partial class GameManager : IStreamEvents
 	{
 		yield return null;
 
-		foreach(GameEvents.StreamingEvent _delegate in m_OnLoad)
+		var copy = m_OnLoad.ConvertAll(e => new GameEvents.StreamingEvent(e));
+
+		int counter = 0;
+		foreach(GameEvents.StreamingEvent _delegate in copy)
 		{
+			counter += 1;
 			_delegate( streamData, ref streamUnit );
 			yield return null;
 		}
@@ -471,7 +471,7 @@ public class StreamData
 	/// <summary> To be used ONLY during the SAVE event, otherwise nothing happens </summary>
 	public	StreamUnit	NewUnit( Object unityObj )
 	{
-		UnityEngine.Assertions.Assert.IsTrue(GameManager.StreamEvents.State == EStreamingState.SAVING);
+		CustomAssertions.IsTrue(GameManager.StreamEvents.State == EStreamingState.SAVING);
 
 		StreamUnit streamUnit = m_Data.Find((StreamUnit data) => data.Name == unityObj.name);
 		if (streamUnit == null)
@@ -490,7 +490,7 @@ public class StreamData
 	//	if ( GameManager.StreamEvents.State != StreamingState.LOAD_COMPLETE )
 	//		return false;
 
-		UnityEngine.Assertions.Assert.IsTrue(GameManager.StreamEvents.State == EStreamingState.LOADING);
+		CustomAssertions.IsTrue(GameManager.StreamEvents.State == EStreamingState.LOADING);
 
 		streamUnit = m_Data.Find((StreamUnit data) => data.Name == unityObj.name);
 		return streamUnit.IsNotNull(); ;
@@ -503,38 +503,31 @@ public class StreamData
 //							PAUSE								//
 //////////////////////////////////////////////////////////////////
 
-public interface IPauseEvents {
+public interface IPauseEvents
+{
 	/// <summary> Events called when game is setting on pause </summary>
-	event		GameEvents.OnPauseSetEvent		OnPauseSet;
+		event		GameEvents.OnPauseSetEvent		OnPauseSet;
 
-	void							SetPauseState( bool bPauseState );
+					void							SetPauseState( bool bPauseState );
 }
 
 // PAUSE IMPLEMENTATION
-public partial class GameManager : IPauseEvents {
+public partial class GameManager : IPauseEvents
+{
+	private event			GameEvents.OnPauseSetEvent		m_OnPauseSet			= delegate { };
 
-	private	static	IPauseEvents	m_PauseEvents = null;
-	public	static	IPauseEvents	PauseEvents
-	{
-		get { return m_PauseEvents; }
-	}
-
-	// Event
-	private static event	GameEvents.OnPauseSetEvent	m_OnPauseSet			= delegate { };
+	public	static			IPauseEvents					PauseEvents				=> m_Instance;
 
 	/// <summary> Events called when game is setting on pause </summary>
 	event GameEvents.OnPauseSetEvent IPauseEvents.OnPauseSet
 	{
-		add		{ if ( value.IsNotNull() )	m_OnPauseSet += value; }
-		remove	{ if ( value.IsNotNull() )	m_OnPauseSet -= value; }
+		add		{ if (value.IsNotNull())	m_OnPauseSet += value; }
+		remove	{ if (value.IsNotNull())	m_OnPauseSet -= value; }
 	}
 
 	// Vars
 	private	static			bool				m_IsPaused				= false;
-	public	static			bool				IsPaused
-	{
-		get { return m_IsPaused; }
-	}
+	public	static			bool				IsPaused				=> m_IsPaused;
 
 	private					float				m_PrevTimeScale			= 1f;
 	private					bool				m_PrevCanParseInput		= false;
@@ -542,40 +535,39 @@ public partial class GameManager : IPauseEvents {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	void	IPauseEvents.SetPauseState( bool bIsPauseRequested )
+	void	IPauseEvents.SetPauseState(bool bIsPauseRequested)
 	{
-		if ( bIsPauseRequested == m_IsPaused )
-			return;
+		if (bIsPauseRequested != m_IsPaused)
+		{
+			m_IsPaused = bIsPauseRequested;
+			m_OnPauseSet(m_IsPaused);
 
-		m_IsPaused = bIsPauseRequested;
-		m_OnPauseSet( m_IsPaused );
-
-		GlobalManager.SetCursorVisibility( bIsPauseRequested == true );
-		SoundManager.IsPaused = bIsPauseRequested;
+		//	GlobalManager.SetCursorVisibility(bIsPauseRequested);
+			SoundManager.IsPaused = bIsPauseRequested;
 		
-		if ( bIsPauseRequested == true )
-		{
-			UIManager.Instance.GoToMenu( UIManager.PauseMenu );
-			m_PrevTimeScale					= Time.timeScale;
-			m_PrevCanParseInput				= GlobalManager.InputMgr.HasCategoryEnabled(EInputCategory.CAMERA);
-			m_PrevInputEnabled					= InputManager.IsEnabled;
+			if (bIsPauseRequested)
+			{
+				m_PrevTimeScale					= Time.timeScale;
+				m_PrevCanParseInput				= GlobalManager.InputMgr.HasCategoryEnabled(EInputCategory.CAMERA);
+				m_PrevInputEnabled				= InputManager.IsEnabled;
 
-			Time.timeScale							= 0f;
+				InputManager.IsEnabled			= false;
+				Time.timeScale					= 0f;
+				GlobalManager.InputMgr.SetCategory(EInputCategory.CAMERA, false);
 
-//			CameraControl.Instance.CanParseInput	= false;
-			GlobalManager.InputMgr.SetCategory(EInputCategory.CAMERA, false);
-			InputManager.IsEnabled					= false;
+				UIManager.Instance.GoToMenu(UIManager.PauseMenu);
+			}
+			else
+			{
+				GlobalManager.InputMgr.SetCategory(EInputCategory.CAMERA, m_PrevCanParseInput);
+				Time.timeScale					= m_PrevTimeScale;
+				InputManager.IsEnabled			= m_PrevInputEnabled;
+
+				UIManager.Instance.GoToMenu(UIManager.InGame);
+			}
+			GlobalManager.Instance.RequireFrameSkip();
 		}
-		else
-		{
-			UIManager.Instance.GoToMenu( UIManager.InGame );
-			Time.timeScale							= m_PrevTimeScale;
-			GlobalManager.InputMgr.SetCategory(EInputCategory.CAMERA, m_PrevCanParseInput);
-			InputManager.IsEnabled					= m_PrevInputEnabled;
-		}
-		m_SkipOneFrame = true;
 	}
-
 }
 
 
@@ -584,7 +576,8 @@ public partial class GameManager : IPauseEvents {
 //							UPDATES								//
 //////////////////////////////////////////////////////////////////
 
-public interface IUpdateEvents {
+public interface IUpdateEvents
+{
 	/// <summary> TODO </summary>
 		event		GameEvents.OnThinkEvent			OnThink;
 
@@ -598,42 +591,37 @@ public interface IUpdateEvents {
 }
 
 // UPDATES IMPLEMENTATION
-public partial class GameManager : IUpdateEvents {
-
-	private	static	IUpdateEvents		m_UpdateEvents	= null;
-	public	static	IUpdateEvents		UpdateEvents
-	{
-		get { return m_UpdateEvents; }
-	}
-
+public partial class GameManager : IUpdateEvents
+{
 	private static event	GameEvents.OnThinkEvent			m_OnThink				= delegate { };
 	private static event	GameEvents.OnPhysicFrameEvent	m_OnPhysicFrame			= delegate { };
 	private static event	GameEvents.OnFrameEvent			m_OnFrame				= delegate { };
 	private static event	GameEvents.OnFrameEvent			m_OnLateFrame			= delegate { };
 
+	public	static			IUpdateEvents					UpdateEvents			=> m_Instance;
 
 	event		GameEvents.OnThinkEvent			IUpdateEvents.OnThink
 	{
-		add		{	if ( value.IsNotNull() )	m_OnThink += value;	}
-		remove	{	if ( value.IsNotNull() )	m_OnThink -= value;	}
+		add		{	if (value.IsNotNull())	m_OnThink += value;	}
+		remove	{	if (value.IsNotNull())	m_OnThink -= value;	}
 	}
 
 	event		GameEvents.OnPhysicFrameEvent	IUpdateEvents.OnPhysicFrame
 	{
-		add		{	if ( value.IsNotNull() )	m_OnPhysicFrame += value; }
-		remove	{	if ( value.IsNotNull() )	m_OnPhysicFrame -= value; }
+		add		{	if (value.IsNotNull())	m_OnPhysicFrame += value; }
+		remove	{	if (value.IsNotNull())	m_OnPhysicFrame -= value; }
 	}
 
 	event		GameEvents.OnFrameEvent			IUpdateEvents.OnFrame
 	{
-		add		{	if ( value.IsNotNull() )	m_OnFrame += value;	}
-		remove	{	if ( value.IsNotNull() )	m_OnFrame -= value; }
+		add		{	if (value.IsNotNull())	m_OnFrame += value;	}
+		remove	{	if (value.IsNotNull())	m_OnFrame -= value; }
 	}
 
 	event		GameEvents.OnFrameEvent			IUpdateEvents.OnLateFrame
 	{
-		add		{	if ( value.IsNotNull() )	m_OnLateFrame += value;	}
-		remove	{	if ( value.IsNotNull() )	m_OnLateFrame -= value; }
+		add		{	if (value.IsNotNull())	m_OnLateFrame += value;	}
+		remove	{	if (value.IsNotNull())	m_OnLateFrame -= value; }
 	}
 }
 

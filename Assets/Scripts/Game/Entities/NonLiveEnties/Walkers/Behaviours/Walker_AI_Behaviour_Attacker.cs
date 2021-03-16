@@ -33,19 +33,19 @@ public class Walker_AI_Behaviour_Attacker : AIBehaviour {
 
 	public override void OnHit( Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false )
 	{
-		if (EntityData.EntityRef.IsAlive && whoRef.IsAlive && EntityData.TargetInfo.CurrentTarget.Id == whoRef.Id)
+	//	if (EntityData.EntityRef.IsAlive && whoRef.IsAlive && targetInfo.CurrentTarget.Id == whoRef.Id)
 		{
-			EntityData.EntityRef.Behaviours.SetPointToLookAt( startPosition );
+			EntityData.EntityRef.Behaviours.SetPointToLookAt(startPosition);
 		}
 	}
 
 	public override void OnDestinationReached( Vector3 Destination )
 	{
-		Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
-			planeNormal: EntityData.Body_Up,
-			planePoint: EntityData.Body_Position,
-			point: EntityData.TargetInfo.CurrentTarget.transform.position
-		);
+	//	Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
+	//		planeNormal: EntityData.Body_Up,
+	//		planePoint: EntityData.Body_Position,
+	//		point: targetInfo.CurrentTarget.transform.position
+	//	);
 
 
 	//	bool IsNotUnderEngageDistance = (EntityData.Transform_Position - projectedPoint ).sqrMagnitude > EntityData.EntityRef.MinEngageDistance * EntityData.EntityRef.MinEngageDistance;
@@ -73,9 +73,9 @@ public class Walker_AI_Behaviour_Attacker : AIBehaviour {
 	public override void OnFrame( float DeltaTime )
 	{
 		// Update targeting
-		if (EntityData.TargetInfo.HasTarget)
+	//	if (targetInfo.HasTarget)
 		{
-			EntityData.EntityRef.Behaviours.SetPointToLookAt(EntityData.TargetInfo.CurrentTarget.transform.position);
+	//		EntityData.EntityRef.Behaviours.SetPointToLookAt(targetInfo.CurrentTarget.transform.position);
 
 			// with a target, if gun alligned, fire TODO
 			//	if (EntityData.EntityRef.CanFire() == true )
@@ -96,7 +96,7 @@ public class Walker_AI_Behaviour_Attacker : AIBehaviour {
 		//
 		//		bool IsNotUnderEngageDistance = (EntityData.Transform_Position - projectedPoint ).sqrMagnitude > EntityData.EntityRef.MinEngageDistance * EntityData.EntityRef.MinEngageDistance;
 		//
-		//		if (EntityData.TargetInfo.HasTarget == true )
+		//		if (targetInfo.HasTarget == true )
 		//		{
 		//			if ( IsNotUnderEngageDistance )
 		//			{
@@ -145,7 +145,7 @@ public class Walker_AI_Behaviour_Attacker : AIBehaviour {
 			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
 				planeNormal: EntityData.Body_Up,
 				planePoint: EntityData.Body_Position,
-				point: EntityData.TargetInfo.CurrentTarget.transform.position
+				point: targetInfo.CurrentTarget.transform.position
 			);
 
 
@@ -154,7 +154,7 @@ public class Walker_AI_Behaviour_Attacker : AIBehaviour {
 
 		// Orientation
 		{
-			Vector3 newPointToLookAt = EntityData.TargetInfo.CurrentTarget.transform.position + EntityData.TargetInfo.CurrentTarget.EntityRigidBody.velocity.normalized;
+			Vector3 newPointToLookAt = targetInfo.CurrentTarget.transform.position + targetInfo.CurrentTarget.EntityRigidBody.velocity.normalized;
 			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
 				planeNormal: EntityData.Body_Up,
 				planePoint: EntityData.Head_Position,

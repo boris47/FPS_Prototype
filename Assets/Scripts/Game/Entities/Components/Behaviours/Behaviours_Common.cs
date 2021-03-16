@@ -24,14 +24,14 @@ public class Behaviours_Common : Behaviours_Base
 	{
 		base.Resolve_Internal(entity, entitySection);
 
-		UnityEngine.Assertions.Assert.IsNotNull(entity.Body);
-		UnityEngine.Assertions.Assert.IsNotNull(entity.Head);
+		CustomAssertions.IsNotNull(entity.Body);
+		CustomAssertions.IsNotNull(entity.Head);
 
 		// FIELD OF VIEW
 		// TODO maybe insteand of assert this, maybe would be better create a new one and configure be entity section
 		if (!m_FieldOfView)
 		{
-			UnityEngine.Assertions.Assert.IsTrue(Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL_AND_CHILDREN, out m_FieldOfView));
+			CustomAssertions.IsTrue(Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL_AND_CHILDREN, out m_FieldOfView));
 		}
 		m_FieldOfView.SetViewPoint(entity.Head);
 
@@ -60,7 +60,7 @@ public class Behaviours_Common : Behaviours_Base
 
 		m_Entity.Memory.EnableMemory();
 
-		UnityEngine.Assertions.Assert.IsNotNull(GameManager.UpdateEvents);
+		CustomAssertions.IsNotNull(GameManager.UpdateEvents);
 
 		GameManager.UpdateEvents.OnFrame += OnFrame;
 	}
@@ -71,7 +71,7 @@ public class Behaviours_Common : Behaviours_Base
 	{
 		if (GameManager.UpdateEvents.IsNotNull())
 		{
-			GameManager.UpdateEvents.OnFrame += OnFrame;
+			GameManager.UpdateEvents.OnFrame -= OnFrame;
 		}
 
 		m_Entity.Memory.DisableMemory();
@@ -190,7 +190,7 @@ public class Behaviours_Common : Behaviours_Base
 	{
 		if (newState != m_CurrentBrainState)
 		{
-			UnityEngine.Assertions.Assert.IsNotNull(GameManager.UpdateEvents);
+			CustomAssertions.IsNotNull(GameManager.UpdateEvents);
 
 			if (m_CurrentBehaviour.IsNotNull())
 			{
@@ -211,7 +211,7 @@ public class Behaviours_Common : Behaviours_Base
 			{
 				m_CurrentBrainState = newState;
 				AIBehaviour nextBehaviour = m_Behaviours[(int)newState];
-				UnityEngine.Assertions.Assert.IsNotNull(nextBehaviour, $"next behaviour is not valid for {name}");
+				CustomAssertions.IsNotNull(nextBehaviour, $"next behaviour is not valid for {name}");
 				m_CurrentBehaviour = m_Behaviours[(int)newState];
 			}
 

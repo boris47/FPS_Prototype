@@ -13,7 +13,7 @@ public interface IResourceComposite
 	void		AddChild			(Object child);
 }
 
-public partial class ResourceManager : SingletonMonoBehaviour<ResourceManager>
+public partial class ResourceManager : MonoBehaviourSingleton<ResourceManager>
 {
 	/// <summary> Class that contains the loaded asset, if load succeded </summary>
 	public class AsyncLoadedData<T>

@@ -1,11 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 
-public class GroupSceneManager : SingletonMonoBehaviour<GroupSceneManager>
+public class GroupSceneManager : OnDemandSingleton<GroupSceneManager>
 {
-	[SerializeField]
+	[SerializeField, ReadOnly]
 	private List<EntityGroup> m_Collection = new List<EntityGroup>();
 
 	//////////////////////////////////////////////////////////////////////////

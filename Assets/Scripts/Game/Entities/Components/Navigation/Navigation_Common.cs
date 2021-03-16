@@ -30,8 +30,8 @@ public class Navigation_Common : Navigation_Base, INavigation_Common
 	//////////////////////////////////////////////////////////////////////////
 	protected override void Resolve_Internal(Entity entity, Database.Section entitySection)
 	{
-		UnityEngine.Assertions.Assert.IsTrue(Utils.Base.TrySearchComponent(entity.gameObject, ESearchContext.LOCAL, out m_NavAgent));
-		UnityEngine.Assertions.Assert.IsTrue(m_NavAgent.isOnNavMesh, $"m_NavAgent.isOnNavMesh is false for {name}");
+		CustomAssertions.IsTrue(Utils.Base.TrySearchComponent(entity.gameObject, ESearchContext.LOCAL, out m_NavAgent));
+		CustomAssertions.IsTrue(m_NavAgent.isOnNavMesh, $"m_NavAgent.isOnNavMesh is false for {name}");
 	}
 
 

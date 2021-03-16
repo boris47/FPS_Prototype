@@ -24,7 +24,7 @@ public class OutlineWithCommandBuffer : BaseHighlighter {
 		if (m_IsActive == false )
 		{
 			m_OutlineData.color = color ?? m_OutlineData.color;
-			OutlineEffectManager.Instance?.AddRenderers
+			OutlineEffectManager.Instance.AddRenderers
 			(
 				renderers: m_Renderers,
 				outlineData: m_OutlineData,
@@ -41,7 +41,7 @@ public class OutlineWithCommandBuffer : BaseHighlighter {
 	{
 		if (m_IsActive == true )
 		{
-			OutlineEffectManager.Instance?.RemoveRenderers(m_Id );
+			OutlineEffectManager.Instance.RemoveRenderers(m_Id );
 			m_IsActive = false;
 		}
 		return !m_IsActive;
@@ -61,7 +61,7 @@ public class OutlineWithCommandBuffer : BaseHighlighter {
 			m_OutlineData.color = m_ColorToUse;
 			m_OutlineData.sortingType = sortingType;
 
-			OutlineEffectManager.Instance?.UpdateRenderers(m_Id, m_OutlineData );
+			OutlineEffectManager.Instance.UpdateRenderers(m_Id, m_OutlineData );
 		}
 	}
 

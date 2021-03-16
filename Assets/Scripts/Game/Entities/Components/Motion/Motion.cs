@@ -1,15 +1,15 @@
-﻿using Database;
-using UnityEngine;
+﻿using UnityEngine;
 
 [System.Serializable]
-public enum EMotionType : byte
+public enum EEntityMotionType : byte
 {
 	NONE		= 0,
 	GROUNDED	= 1,
 	CLIMB		= 2,
-//	PLATFORM	= 3,
-	FLY			= 4,
-	SWIM		= 5
+	SWIM		= 3,
+//	PLATFORM	= 4,
+	FLY			= 5,
+	DRIVE		= 6
 };
 
 public interface IEntityComponent_Motion
@@ -20,18 +20,18 @@ public interface IEntityComponent_Motion
 	MotionStrategyBase				MotionStrategy				{ get; }
 
 	/// <summary> Set the motion type </summary>
-	void							SetMotionType				(EMotionType newMotionType);
+	void							SetMotionType				(EEntityMotionType newMotionType);
 }
 
 public abstract class Motion_Base : EntityComponent, IEntityComponent_Motion
 {
 	[SerializeField]
-	protected	EMotionType						m_CurrentMotionType			= EMotionType.NONE;
+	protected	EEntityMotionType						m_CurrentMotionType			= EEntityMotionType.NONE;
 	[SerializeField]
 	protected	MotionStrategyBase				m_MotionStrategy			= null;
 
 	public		bool							CanMove						=> m_MotionStrategy.CanMove;
-	public		EMotionType						CurrentMotionType			=> m_CurrentMotionType;
+	public		EEntityMotionType				CurrentMotionType			=> m_CurrentMotionType;
 	public		bool							IsMoving					=> m_MotionStrategy.States.IsMoving;
 	public		bool							IsIdle						=> !m_MotionStrategy.States.IsMoving;
 	public		MotionStrategyBase				MotionStrategy				=> m_MotionStrategy;
@@ -41,13 +41,13 @@ public abstract class Motion_Base : EntityComponent, IEntityComponent_Motion
 	{
 		base.OnLoad(streamUnit);
 
-		EMotionType motionType = streamUnit.GetAsEnum<EMotionType>("MotionType");
+		EEntityMotionType motionType = streamUnit.GetAsEnum<EEntityMotionType>("MotionType");
 		SetMotionType(motionType);
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public void SetMotionType(EMotionType newMotionType)
+	public void SetMotionType(EEntityMotionType newMotionType)
 	{
 		if (m_CurrentMotionType != newMotionType)
 		{
@@ -56,18 +56,18 @@ public abstract class Motion_Base : EntityComponent, IEntityComponent_Motion
 
 			switch (newMotionType)
 			{
-				case EMotionType.NONE:		m_MotionStrategy = gameObject.AddComponent<MotionStrategy_Empty>();		break;
-				case EMotionType.GROUNDED:	m_MotionStrategy = gameObject.AddComponent<MotionStrategy_Grounded>();	break;
-				case EMotionType.CLIMB:		m_MotionStrategy = gameObject.AddComponent<MotionStrategy_Climb>();		break;
+				case EEntityMotionType.NONE:		m_MotionStrategy = gameObject.AddComponent<MotionStrategy_Empty>();		break;
+				case EEntityMotionType.GROUNDED:	m_MotionStrategy = gameObject.AddComponent<MotionStrategy_Grounded>();	break;
+				case EEntityMotionType.CLIMB:		m_MotionStrategy = gameObject.AddComponent<MotionStrategy_Climb>();		break;
 			//	case EMotionType.PLATFORM:	m_MotionStrategy = gameObject.AddComponent<MotionStrategy_Platform>();	break;
-				case EMotionType.FLY:		m_MotionStrategy = gameObject.AddComponent<MotionStrategy_Fly>();		break;
-				case EMotionType.SWIM:		m_MotionStrategy = gameObject.AddComponent<MotionStrategy_Swim>();		break;
+				case EEntityMotionType.FLY:		m_MotionStrategy = gameObject.AddComponent<MotionStrategy_Fly>();		break;
+				case EEntityMotionType.SWIM:		m_MotionStrategy = gameObject.AddComponent<MotionStrategy_Swim>();		break;
 			}
 
 			m_CurrentMotionType = newMotionType;
 
 			// none motion type has no need to be setup and enabled
-			if (newMotionType!= EMotionType.NONE)
+			if (newMotionType!= EEntityMotionType.NONE)
 			{
 				m_MotionStrategy.Setup(m_Entity, m_EntitySection);
 

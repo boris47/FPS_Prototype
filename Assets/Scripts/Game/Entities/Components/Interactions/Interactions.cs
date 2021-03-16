@@ -39,7 +39,7 @@ public abstract class Interactions_Base : EntityComponent, IEntityComponent_Inte
 	{
 		base.Enable();
 
-		UnityEngine.Assertions.Assert.IsNotNull(GameManager.UpdateEvents);
+		CustomAssertions.IsNotNull(GameManager.UpdateEvents);
 
 		GameManager.UpdateEvents.OnFrame += OnFrame;
 
@@ -139,10 +139,10 @@ public abstract class Interactions_Base : EntityComponent, IEntityComponent_Inte
 			return;
 		}
 
-		UnityEngine.Assertions.Assert.IsNotNull(m_Interactable);
+		CustomAssertions.IsNotNull(m_Interactable);
 
 		Grabbable grabbable = m_Interactable.GetComponent<Grabbable>();
-		UnityEngine.Assertions.Assert.IsNotNull(grabbable);
+		CustomAssertions.IsNotNull(grabbable);
 
 		m_CurrentGrabbed = grabbable;
 

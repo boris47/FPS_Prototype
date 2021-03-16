@@ -80,7 +80,7 @@ public class RTSCamera : CameraBase
 	protected override void Awake()
 	{
 		// Singleton
-		if (Instance != null)
+		if (Instance.IsNotNull())
 		{
 			print("Instance already found");
 			gameObject.SetActive(false);

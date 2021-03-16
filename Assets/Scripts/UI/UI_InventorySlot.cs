@@ -1,85 +1,58 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public sealed class UI_InventorySlot : UI_Base, IPointerClickHandler, IStateDefiner {
+public sealed class UI_InventorySlot : UI_Base, IPointerClickHandler, IStateDefiner
+{
+	private				Texture2D			m_Texture							= null;
+	private				Image				m_Image								= null;
 
-	private		Texture2D			m_Texture			= null;
-	private		Image				m_Image				= null;
+
+	private				bool				m_IsSet								= false;
+	public				bool				IsSet								=> m_IsSet;
+
+	private				Database.Section	m_ItemSection						= null;
+	public				Database.Section	Section								=> m_ItemSection;
+
+	private				bool				m_IsInitialized						= false;
+						bool				IStateDefiner.IsInitialized			=> m_IsInitialized;
 
 
-	private		bool				m_IsSet				= false;
-	public		bool	IsSet
+	//////////////////////////////////////////////////////////////////////////
+	void IStateDefiner.PreInit()
 	{
-		get { return m_IsSet; }
-	}
 
-	private		Database.Section	m_ItemSection		= null;
-	public	Database.Section	Section
-	{
-		get { return m_ItemSection; }
-	}
-
-	private	bool			m_IsInitialized			= false;
-	bool IStateDefiner.IsInitialized
-	{
-		get { return m_IsInitialized; }
-	}
-
-	string IStateDefiner.StateName
-	{
-		get { return name; }
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public void PreInit() { }
-
-	//////////////////////////////////////////////////////////////////////////
-	// Initialize
-	IEnumerator IStateDefiner.Initialize()
+	void IStateDefiner.Initialize()
 	{
-		if (m_IsInitialized == true )
-			yield break;
-
-		CoroutinesManager.AddCoroutineToPendingCount( 1 );
-
-		m_IsInitialized = true;
+		if (!m_IsInitialized)
 		{
-			m_IsInitialized &= transform.TrySearchComponent<Image>(ESearchContext.LOCAL, out m_Image );
-		}
+			CustomAssertions.IsTrue(transform.TrySearchComponent<Image>(ESearchContext.LOCAL, out m_Image));
 
-		if (m_IsInitialized )
-		{
-			CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
-		}
-		else
-		{
-			Debug.LogError( "UI_MatrixItem: Bad initialization!!!" );
+			m_IsInitialized = true;
 		}
 	}
 
+
 	//////////////////////////////////////////////////////////////////////////
-	// ReInit
-	IEnumerator	IStateDefiner.ReInit()
+	void IStateDefiner.ReInit()
 	{
-		yield return null;
+
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Finalize
-	bool	 IStateDefiner.Finalize()
+	bool IStateDefiner.Finalize()
 	{
 		return m_IsInitialized;
 	}
 
-	
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnPointerClick
 	void IPointerClickHandler.OnPointerClick( PointerEventData eventData )
 	{
 		if ( eventData.button == PointerEventData.InputButton.Left )
@@ -107,22 +80,19 @@ public sealed class UI_InventorySlot : UI_Base, IPointerClickHandler, IStateDefi
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public	bool	TrySet( Texture2D texture, Database.Section section )
+	public bool TrySet(Texture2D texture, Database.Section section)
 	{
-		bool result = true;
-		{
-			result &= texture.IsNotNull();	// texture must be valid
-			result &= section.Lines() > 0;	// section must contain some info
-		}
+		CustomAssertions.IsTrue(m_IsInitialized);
 
-		if (m_IsInitialized && result )
+		if (m_IsInitialized && texture.IsNotNull())
 		{
 			m_Texture = texture;
 			m_ItemSection = section;
 			m_IsSet = true;
 
-			m_Image.sprite = Sprite.Create(m_Texture, Rect.MinMaxRect(0, 0, m_Texture.width, m_Texture.height ), new Vector2( 0.5f, 0.5f ) );
+			m_Image.sprite = Sprite.Create(m_Texture, Rect.MinMaxRect(0, 0, m_Texture.width, m_Texture.height), new Vector2(0.5f, 0.5f));
+			return true;
 		}
-		return result;
+		return false;
 	}
 }

@@ -22,7 +22,7 @@ public class SurfaceManager_MaterialDrawer : PropertyDrawer
 
 		// Draw the type field
 		position.x = position.xMax;
-		surfaceIndex.intValue = EditorGUI.Popup(position, surfaceIndex.intValue, SurfaceManager.Instance.GetAllSurfaceNames());
+		surfaceIndex.intValue = EditorGUI.Popup(position, surfaceIndex.intValue, SurfaceManager.Instance?.GetAllSurfaceNames() ?? new string[0]);
 	}
 
 	//

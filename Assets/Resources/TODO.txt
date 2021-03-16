@@ -129,3 +129,7 @@ AI Behiaviours
 **	TODO Bullets as triggers
 	TODO INSTANT Bullet tracers
 	TODO Enemies use custom weapons with custom logic and data
+
+	TODO Input System Action Maps (walk, climb,drive, fly, ...)
+	TODO Debug save system
+	TODO Climbing

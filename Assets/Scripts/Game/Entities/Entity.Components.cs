@@ -41,13 +41,13 @@ public abstract partial class Entity
 		foreach (EEntityComponent componentType in System.Enum.GetValues(typeof(EEntityComponent)))
 		{
 			// Get the variable that will hold the created instance of the component
-			UnityEngine.Assertions.Assert.IsTrue(TryGetCurrentComponentByComponentType(this, componentType, out EntityComponent entityComponent));
+			CustomAssertions.IsTrue(TryGetCurrentComponentByComponentType(this, componentType, out EntityComponent entityComponent));
 
 			// Get the system type of the base entity component
-			UnityEngine.Assertions.Assert.IsTrue(TryGetBaseTypeByComponentType(componentType, out System.Type componentBaseType));
+			CustomAssertions.IsTrue(TryGetBaseTypeByComponentType(componentType, out System.Type componentBaseType));
 
 			// Get the empty type for this component
-			UnityEngine.Assertions.Assert.IsTrue(TryGetEmptyTypeByComponentType(componentType, out System.Type emptyType));
+			CustomAssertions.IsTrue(TryGetEmptyTypeByComponentType(componentType, out System.Type emptyType));
 
 			// Find the request type to instantiate for this base type component
 			System.Type typeToInstatiate = requiredTypes.Find(t => t.IsSubclassOf(componentBaseType));

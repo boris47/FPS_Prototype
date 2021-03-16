@@ -60,7 +60,7 @@ namespace WeatherSystem {
 							);
 						}
 					}
-					descriptor.set = true;
+					descriptor.IsSet = true;
 #if UNITY_EDITOR
 					EditorUtility.SetDirty( descriptor );
 #endif

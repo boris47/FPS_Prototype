@@ -60,15 +60,15 @@ public abstract	class PathBase : MonoBehaviour {
 	}
 
 	// 
-	protected	abstract void	ElaboratePath( float Steps, float StepLength = 1.0f );
+	protected	abstract void	ElaboratePath(float Steps, float StepLength = 1.0f);
 
 
 	// 
-	public		abstract void	IteratePath( System.Action<PathWayPointOnline> OnPosition );
+	public		abstract void	IteratePath(System.Action<PathWayPointOnline> OnPosition);
 
 
 	// 
-	public		abstract bool	Move( Transform subject, float? speed, Vector3? upwards );
+	public		abstract bool	Move(Transform subject, float? speed, Vector3? upwards);
 
 
 	// 

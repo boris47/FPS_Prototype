@@ -2,7 +2,6 @@
 using System.Globalization;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Networking;
 
 #if UNITY_EDITOR
 [UnityEditor.InitializeOnLoad]
@@ -11,42 +10,41 @@ class EditorInitializer
 	static EditorInitializer ()
 	{
 		// Assets/Resources/Scriptables/WeatherCollection.asset
-		string assetPath = System.IO.Path.Combine( WeatherSystem.WindowWeatherEditor.ASSETS_SCRIPTABLES_PATH, $"{WeatherSystem.WeatherManager.RESOURCES_WEATHERSCOLLECTION}.asset");
+		string assetPath = System.IO.Path.Combine(WeatherSystem.WindowWeatherEditor.ASSETS_SCRIPTABLES_PATH, $"{WeatherSystem.WeatherManager.RESOURCES_WEATHERSCOLLECTION}.asset");
 		if (System.IO.File.Exists(assetPath))
 		{
-			WeatherSystem.Weathers weathers = UnityEditor.AssetDatabase.LoadAssetAtPath<WeatherSystem.Weathers>( assetPath );
-			UnityEngine.Assertions.Assert.IsNotNull
-			(
-				weathers,
-				"Cannot preload weather cycles"
-			);
-			Debug.Log( "Weathers cycles preloaded!" );
+			WeatherSystem.Weathers weathers = UnityEditor.AssetDatabase.LoadAssetAtPath<WeatherSystem.Weathers>(assetPath);
+			CustomAssertions.IsNotNull(weathers, "Cannot preload weather cycles");
+			Debug.Log("Weathers cycles preloaded!");
 		}
 
-		UnityEditor.EditorApplication.playModeStateChanged += (UnityEditor.PlayModeStateChange currentState) =>
+		void EnableCursorInEditMode(UnityEditor.PlayModeStateChange currentState)
 		{
 			if (currentState == UnityEditor.PlayModeStateChange.EnteredEditMode)
 			{
-				Cursor.lockState = CursorLockMode.None;
 				Cursor.visible = true;
+				Cursor.lockState = CursorLockMode.None;
 			}
-		};
-	}
-	
-/*	[RuntimeInitializeOnLoadMethod (RuntimeInitializeLoadType.BeforeSceneLoad)]
-	private static void LoadLoadingScene()
-	{
-		if (!SceneManager.GetSceneByBuildIndex( (int)ESceneEnumeration.LOADING).isLoaded)
-		{
-			UnityEditor.SceneManagement.EditorSceneManager.OpenScene("Assets/Scenes/Loading.unity", UnityEditor.SceneManagement.OpenSceneMode.Additive);
 		}
-	}*/
+		UnityEditor.EditorApplication.playModeStateChanged -= EnableCursorInEditMode;
+		UnityEditor.EditorApplication.playModeStateChanged += EnableCursorInEditMode;
+	}
 }
 #endif
 
-
-public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
+public class GlobalManager : MonoBehaviourSingleton<GlobalManager>
 {
+	public partial class CustomLogger { } // Definition located at the bottom of this class
+
+	public static bool IsQuittings {get; private set; } = false;
+
+	private static			CustomLogger	m_LoggerInstance	= null;
+	public	static			CustomLogger	LoggerInstance		=> m_LoggerInstance;
+	static GlobalManager()
+	{
+	//	m_LoggerInstance = new CustomLogger(!Application.isEditor);
+	}
+
 #if UNITY_EDITOR
 	private short updateCount = 0;
     private short fixedUpdateCount = 0;
@@ -60,7 +58,7 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 		{
 			while (true)
 			{
-				yield return new WaitForSecondsRealtime(1);
+				yield return new WaitForSecondsRealtime(1f);
 				updateUpdateCountPerSecond = updateCount;
 				updateFixedUpdateCountPerSecond = fixedUpdateCount;
 
@@ -69,6 +67,8 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 			}
 		}
 		StartCoroutine(Loop());
+
+		IsQuittings = false;
 	}
 
 	private void FixedUpdate()
@@ -79,7 +79,7 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 
 	private void OnGUI()
 	{
-		fontSize = fontSize ?? new GUIStyle( GUI.skin.GetStyle( "label" ) )
+		fontSize = fontSize ?? new GUIStyle(GUI.skin.label)
 		{
 			fontSize = 10
 		};
@@ -91,9 +91,6 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 	private const			string				m_SettingsFilePath	= "Settings";
 	private	const			string				m_ConfigsFilePath	= "Configs/All";
 
-
-	private static			CustomLogHandler	m_LoggerInstance	= null;
-	public	static			CustomLogHandler	LoggerInstance		{ get => m_LoggerInstance; }
 	public	static			bool				bIsChangingScene	= false;
 	public	static			bool				bIsLoadingScene		= false;
 	public	static			bool				bCanSave			= true;
@@ -102,8 +99,9 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 	private	static			SectionDB.LocalDB		m_Settings			= null;
 	public	static			SectionDB.LocalDB		Settings
 	{
-		get {
-			if ( m_Settings == null )
+		get
+		{
+			if (m_Settings == null)
 			{
 				m_Settings = new SectionDB.LocalDB(m_SettingsFilePath);
 			}
@@ -115,8 +113,9 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 	private	static			SectionDB.LocalDB		m_Configs			= null;
 	public	static			SectionDB.LocalDB		Configs
 	{
-		get {
-			if ( m_Configs == null )
+		get
+		{
+			if (m_Configs == null)
 			{
 				m_Configs = new SectionDB.LocalDB(m_ConfigsFilePath);
 			}
@@ -125,6 +124,8 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 	}
 
 	public static InputManager InputMgr = null;
+
+	private					bool			m_SkipOneFrame			= true;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -152,10 +153,6 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 			Application.logMessageReceived += HandleException;
 		}
 
-	//	if ( Application.isEditor == false )
-		{
-			m_LoggerInstance = new CustomLogHandler(!Application.isEditor);
-		}
 
 		// Whether physics queries should hit back-face triangles.
 		Physics.queriesHitBackfaces = false;
@@ -175,31 +172,48 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 		QualitySettings.asyncUploadBufferSize = 24; // MB
 
 		// If not already loaded from previous scenes, ensure scene loaded for next sequence
-		Scene loadingScene = SceneManager.GetSceneByBuildIndex( (int) ESceneEnumeration.LOADING );
+		Scene loadingScene = SceneManager.GetSceneByBuildIndex((int)ESceneEnumeration.LOADING);
 		if (!loadingScene.isLoaded)
 		{
-			CustomSceneManager.LoadSceneData loadSceneData = new CustomSceneManager.LoadSceneData()
-			{
-				eScene = ESceneEnumeration.LOADING,
-				eMode = LoadSceneMode.Additive
-			};
-			CustomSceneManager.LoadSceneSync( loadSceneData );
+			SceneManager.LoadScene((int)ESceneEnumeration.LOADING, LoadSceneMode.Additive);
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected override void OnDestroy()
+	protected /*override*/ void OnDestroy()
 	{
 		m_LoggerInstance?.Close();
+
+		Cursor.visible = true;
+		Cursor.lockState = CursorLockMode.None;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		static		void		SetCursorVisibility( bool newState )
+	public		static		void		SetCursorVisibility( bool bVisible )
 	{
-		Cursor.visible = newState;
-		Cursor.lockState = newState ? CursorLockMode.None : CursorLockMode.Locked;
+	//	if (Cursor.visible != bVisible)
+		{
+	//		Cursor.visible = bVisible;
+	//		Cursor.lockState = bVisible ? CursorLockMode.None : CursorLockMode.Locked;
+
+			
+			IEnumerator SetCursorVisibility()
+			{
+				Cursor.visible = bVisible;
+				Cursor.lockState = bVisible ? CursorLockMode.None : CursorLockMode.Locked;
+
+				yield return null;
+				Cursor.visible = bVisible;
+				Cursor.lockState = bVisible ? CursorLockMode.None : CursorLockMode.Locked;
+
+				yield return null;
+				Cursor.visible = bVisible;
+				Cursor.lockState = bVisible ? CursorLockMode.None : CursorLockMode.Locked;
+			}
+			m_Instance.StartCoroutine(SetCursorVisibility());
+		}
 	}
 
 
@@ -212,58 +226,36 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 	}
 
 
-	//	float maximum = 1;
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> This prevent the ui interaction can trigger actions in-game </summary>
+	public void RequireFrameSkip()
+	{
+		m_SkipOneFrame = true;
+	}
+
+
 	//////////////////////////////////////////////////////////////////////////
 	private void Update()
 	{
 #if UNITY_EDITOR
 		updateCount++;
 #endif
-		/*
-		if ( Input.GetKeyDown( KeyCode.V ) )
+		// This prevent the ui interaction can trigger actions in-game
+		if (m_SkipOneFrame)
 		{
-			System.Diagnostics.Stopwatch m_StopWatch = new System.Diagnostics.Stopwatch();
-			m_StopWatch.Start();
-			for ( int i = 0; i < maximum; i++ )
-			{
-				SectionMap sectionMap = new SectionMap();
-				sectionMap.LoadFile( configsPath ); 
-			}
-			m_StopWatch.Stop();
-
-			print( "Performance test: operations done in " + m_StopWatch.Elapsed.Milliseconds + "ms, maximum iterations " + maximum );
-			maximum *= 2f;
-		}
-		*/
-		if ( Input.GetKeyDown( KeyCode.U ) )
-		{
-			SectionDB.LocalDB qwe = new SectionDB.LocalDB("Configs/All");
-
-			SectionDB.GlobalDB.TryLoadFile("Configs/BuildSettings");
+			m_SkipOneFrame = false;
+			return;
 		}
 
-		if (Input.GetKeyDown( KeyCode.L ))
-		{
-		//	string result = SaveSystem.GameObjectToJSON(Player.Instance.gameObject);
-		//	GameObject clone = SaveSystem.JSONToGameObject(result);
-		//	UnityEditor.EditorApplication.isPaused = true;
-			foreach(var spawnPoint in Object.FindObjectsOfType<SpawnPoint>())
-			{
-				spawnPoint.Spawn();
-			}
-		}
-
-
-		if ( Input.GetKeyDown( KeyCode.K ) )
-		{
-			SoundManager.Pitch = Time.timeScale = 0.02f;
-		}
+		GlobalManager.InputMgr.Update();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public		static		void		QuitInstanly()
 	{
+		IsQuittings = true;
+
 #if UNITY_EDITOR
 		UnityEditor.EditorApplication.isPlaying = false;
 #else
@@ -271,35 +263,13 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 #endif
 	}
 
-
-	/*//////////////////////////////////////////////////////////////////////////
-	public	static void		Assert( bool condition, string message )
-	{
-		if ( condition == false )
-		{
-			throw new System.Exception( message );
-		}
-	}
-	*/
-
-	//////////////////////////////////////////////////////////////////////////
-	public	static	void	ForcedQuit()
-	{
-#if UNITY_EDITOR
-		UnityEditor.EditorApplication.isPlaying = false;
-#else
-		Application.Quit();
-#endif
-	}
-
-
-	public class CustomLogHandler : ILogHandler
+	public partial class CustomLogger : ILogHandler
 	{
 		public static ILogHandler m_DefaultLogHandler { get; private set; } = null;
 		private readonly System.IO.FileStream m_FileStream = null;
 		private readonly System.IO.StreamWriter m_StreamWriter = null;
 		private readonly CultureInfo m_CultureInfo = (CultureInfo)CultureInfo.InvariantCulture.Clone();
-		private readonly System.Text.RegularExpressions.Regex m_Filter = new System.Text.RegularExpressions.Regex("get_StackTrace|CustomLogHandler|UnityEngine|UnityEditor");
+		private readonly System.Text.RegularExpressions.Regex m_Filter = new System.Text.RegularExpressions.Regex("get_StackTrace|CustomLogger|UnityEngine|UnityEditor");
 
 		private bool bCanLog = true;
 		private bool bExceptionsAsWarnings = false;
@@ -310,7 +280,7 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 		public void SetExceptionsAsWarnings(bool value) => bExceptionsAsWarnings = value;
 
 		//////////////////////////////////////////////////////////////////////////
-		public CustomLogHandler(bool UseFileSystemWriter)
+		public CustomLogger(bool UseFileSystemWriter)
 		{
 			m_DefaultLogHandler = Debug.unityLogger.logHandler;
 			Debug.unityLogger.logHandler = this;
@@ -383,5 +353,4 @@ public class GlobalManager : SingletonMonoBehaviour<GlobalManager>
 			Debug.unityLogger.logHandler = m_DefaultLogHandler;
 		}
 	}
-
 }

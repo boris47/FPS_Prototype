@@ -21,20 +21,18 @@ namespace WeatherSystem {
 		private	static	IWeatherManager_Editor			m_WeatherManager		= null;
 
 
-		public	static	IWeatherManager_Editor	GetWMGR( bool bForceSearch = false )
+		public static IWeatherManager_Editor UpdateEditorInstance(bool bForceSearch = false)
 		{
-			if ( bForceSearch )
+			if (bForceSearch)
 			{
-				WeatherManager wmgr = Object.FindObjectOfType<WeatherManager>();
-				m_WeatherManager = wmgr as IWeatherManager_Editor;
+				m_WeatherManager = Object.FindObjectOfType<WeatherManager>();
 			}
 
-			if ( m_WeatherManager == null || m_WeatherManager.GetType() != typeof(WeatherManager) )
+			if (m_WeatherManager == null || m_WeatherManager.GetType() != typeof(WeatherManager))
 			{
-				if ( WeatherManager.Editor == null )
+				if (WeatherManager.Editor == null)
 				{
-					WeatherManager wmgr = Object.FindObjectOfType<WeatherManager>();
-					m_WeatherManager = wmgr as IWeatherManager_Editor;
+					m_WeatherManager = Object.FindObjectOfType<WeatherManager>();
 				}
 				else
 				{
@@ -46,15 +44,15 @@ namespace WeatherSystem {
 
 		/////////////////////////////////////////////////////////////////////////////
 		// Init
-		[ MenuItem ( "Window/Weather Manager" ) ]
+		[MenuItem("Window/Weather Manager")]
 		public static	void	Init()
 		{
-			if ( m_Window != null )
+			if ( m_Window.IsNotNull() )
 			{
 				return;
 			}
 
-			if ( GetWMGR( bForceSearch: true) == null )
+			if ( UpdateEditorInstance( bForceSearch: true) == null )
 			{
 				Debug.Log("Cannot find WeatherManager");
 				return;
@@ -72,44 +70,45 @@ namespace WeatherSystem {
 		private static	void	Setup()
 		{
 			// Create directories if not exists
-			if ( System.IO.Directory.Exists( ASSETS_SCRIPTABLES_PATH ) == false )
-				System.IO.Directory.CreateDirectory( ASSETS_SCRIPTABLES_PATH );
-
-			if ( System.IO.Directory.Exists( ASSETS_CYCLESKIES_PATH ) == false )
-				System.IO.Directory.CreateDirectory( ASSETS_CYCLESKIES_PATH );
-
-			if ( System.IO.Directory.Exists( ASSETS_DESCRIPTORS_PATH ) == false )
-				System.IO.Directory.CreateDirectory( ASSETS_DESCRIPTORS_PATH );
-
-
-			// Create or load asset
-			Weathers cycles = GetWMGR().EDITOR_Cycles = GetCycles();
-
-			if ( cycles.CyclesPaths.Count > 0 )
+			if (!System.IO.Directory.Exists(ASSETS_SCRIPTABLES_PATH))
 			{
-//				GetWMGR().INTERNAL_ForceEnable();
-				GetWMGR().EDITOR_EditorLinked = true;
+				System.IO.Directory.CreateDirectory(ASSETS_SCRIPTABLES_PATH);
 			}
 
+			if (!System.IO.Directory.Exists(ASSETS_CYCLESKIES_PATH))
+			{
+				System.IO.Directory.CreateDirectory(ASSETS_CYCLESKIES_PATH);
+			}
+
+			if (!System.IO.Directory.Exists(ASSETS_DESCRIPTORS_PATH))
+			{
+				System.IO.Directory.CreateDirectory(ASSETS_DESCRIPTORS_PATH);
+			}
+
+			// Create or load asset
+			Weathers cycles = m_WeatherManager.EDITOR_Cycles = GetCycles();
+			if (cycles.CyclesPaths.Count > 0)
+			{
+				m_WeatherManager.EDITOR_EditorLinked = true;
+			}
 		}
 
 
 		/////////////////////////////////////////////////////////////////////////////
-		// GetCycles
-		private	static Weathers GetCycles()
+		private static Weathers GetCycles()
 		{
 			Weathers cycles = null;
 			const string assetPath = WindowWeatherEditor.ASSETS_SCRIPTABLES_PATH + "/" + WeatherManager.RESOURCES_WEATHERSCOLLECTION + ".asset";
-			if ( System.IO.File.Exists( assetPath ) == false )
+			if (!System.IO.File.Exists(assetPath))
 			{
 				cycles = ScriptableObject.CreateInstance<Weathers>();
-				AssetDatabase.CreateAsset( cycles, assetPath );
+				AssetDatabase.CreateAsset(cycles, assetPath);
 				AssetDatabase.SaveAssets();
 				AssetDatabase.Refresh();
 			}
 			else
 			{
-				cycles = AssetDatabase.LoadAssetAtPath<Weathers>( assetPath );
+				cycles = AssetDatabase.LoadAssetAtPath<Weathers>(assetPath);
 			}
 
 			return cycles;
@@ -122,14 +121,16 @@ namespace WeatherSystem {
 		{
 			// SKIP IF ALREADY EXISTING
 			string cycleAssetPath = ASSETS_SCRIPTABLES_PATH + "/" + cycleName + ".asset";
-			if ( System.IO.File.Exists( cycleAssetPath ) )
+			if (System.IO.File.Exists(cycleAssetPath))
+			{
 				return null;
+			}
 
-			EditorUtility.DisplayProgressBar( "Cycle Creation", "", 0.1f );
+			EditorUtility.DisplayProgressBar("Cycle Creation", "", 0.1f);
 
 			// CREATE SUB-DESCRIPTORS FOLDER
 			string descriptorsCyclePath = ASSETS_DESCRIPTORS_PATH + "/" + cycleName + "/";
-			System.IO.Directory.CreateDirectory( descriptorsCyclePath );
+			System.IO.Directory.CreateDirectory(descriptorsCyclePath);
 
 			// CREATE WEATHER CYCLE
 			WeatherCycle weatherCycle = ScriptableObject.CreateInstance<WeatherCycle>();
@@ -137,29 +138,29 @@ namespace WeatherSystem {
 				weatherCycle.name = cycleName;
 				weatherCycle.AssetPath = cycleAssetPath;
 			}
-			AssetDatabase.CreateAsset( weatherCycle, cycleAssetPath );
-			EditorUtility.SetDirty( weatherCycle );
+			AssetDatabase.CreateAsset(weatherCycle, cycleAssetPath);
+			EditorUtility.SetDirty(weatherCycle);
 
-			EditorUtility.DisplayProgressBar( "Cycle Creation", "", 0.2f );
+			EditorUtility.DisplayProgressBar("Cycle Creation", "", 0.2f);
 
 			// ADD DESCRIPTORS
-			for ( int i = 0; i < 24; i++ )
+			for (int i = 0; i < 24; i++)
 			{
-				EditorUtility.DisplayProgressBar( "Cycle Creation", "", 0.2f + (i * 0.01f) );
-				string assetDescriptorLoadPath = CreateDescriptor( cycleName, (float)i );
+				EditorUtility.DisplayProgressBar("Cycle Creation", "", 0.2f + (i * 0.01f));
+				string assetDescriptorLoadPath = CreateDescriptor(cycleName, (float)i);
 				weatherCycle.DescriptorsPaths[i] = assetDescriptorLoadPath;
 
-				EditorUtility.DisplayProgressBar( "Cycle Creation", "", 0.2f + (i * 0.15f) );
+				EditorUtility.DisplayProgressBar("Cycle Creation", "", 0.2f + (i * 0.15f));
 
 				// Load created asset
-				EnvDescriptor desc = AssetDatabase.LoadAssetAtPath<EnvDescriptor>( assetDescriptorLoadPath + ".asset" );
+				EnvDescriptor desc = AssetDatabase.LoadAssetAtPath<EnvDescriptor>(assetDescriptorLoadPath + ".asset");
 				weatherCycle.LoadedDescriptors[i] = desc;
 			}
 
 			// Load preset if present
-			if ( string.IsNullOrEmpty( presetFilePath ) == false )
+			if (!string.IsNullOrEmpty(presetFilePath))
 			{
-				weatherCycle.LoadFromPresetFile( presetFilePath );
+				weatherCycle.LoadFromPresetFile(presetFilePath);
 			}
 
 			EditorUtility.ClearProgressBar();
@@ -168,51 +169,47 @@ namespace WeatherSystem {
 
 
 		// Create Weather Cycle Descriptor
-		private static	string	CreateDescriptor( string cycleName, float Hour )
+		private static string CreateDescriptor(string cycleName, float hour)
 		{
-			string cycleSkyiesPath		= ASSETS_CYCLESKIES_PATH + "/" + cycleName + "/";
-			string descriptorsCyclePath	= ASSETS_DESCRIPTORS_PATH + "/" + cycleName + "/";
-			float  execTime				= Hour * 3600f;
+			string cycleSkyiesPath = ASSETS_CYCLESKIES_PATH + "/" + cycleName + "/";
+			string descriptorsCyclePath = ASSETS_DESCRIPTORS_PATH + "/" + cycleName + "/";
+			float execTime = hour * 3600f;
 
 
 			// IDENTIFIER
 			string identifier = string.Empty;
-			WeatherManager.TransformTime( execTime, ref identifier, considerSeconds: false );
+			WeatherManager.TransformTime(execTime, ref identifier, includeSeconds: false);
 
-			Debug.Log( "Creating descrptor: " + cycleName + ", " + identifier );
-			string identifierReplced = identifier.Replace( ':', '-' );
+			Debug.Log($"Creating descrptor: {cycleName}, {identifier}");
+			string identifierReplced = identifier.Replace(':', '-');
 
 			// CREATE DESCRIPTOR
 			string descriptorAssetPath = descriptorsCyclePath + identifierReplced + ".asset";
 			EnvDescriptor envDescriptor = ScriptableObject.CreateInstance<EnvDescriptor>();
 			{
-				envDescriptor.Identifier	= identifier;
-				envDescriptor.name			= identifier;
-				envDescriptor.AssetPath		= descriptorAssetPath;
-				envDescriptor.ExecTime		= execTime;
+				envDescriptor.Identifier = identifier;
+				envDescriptor.name = identifier;
+				envDescriptor.AssetPath = descriptorAssetPath;
+				envDescriptor.ExecTime = execTime;
 			}
-			AssetDatabase.CreateAsset( envDescriptor, descriptorAssetPath );
-			EditorUtility.SetDirty( envDescriptor );
-
+			AssetDatabase.CreateAsset(envDescriptor, descriptorAssetPath);
+			EditorUtility.SetDirty(envDescriptor);
 
 			// LOAD SKY CUBE MAP IF PRESENT
+			// Ex: Assets/Resources/SkyCubeMaps/Clear/
+			if (System.IO.Directory.Exists(cycleSkyiesPath))
 			{
-				// Ex: Assets/Resources/SkyCubeMaps/Clear/
-				if ( System.IO.Directory.Exists( cycleSkyiesPath ) == true )
+				// Ex: Assets/Resources/SkyCubeMaps/Clear/00-00
+				string skyCubeMapPath = cycleSkyiesPath + identifierReplced + ".jpg";
+				if (System.IO.File.Exists(skyCubeMapPath))
 				{
-					// Ex: Assets/Resources/SkyCubeMaps/Clear/00-00
-					string skyCubeMapPath = cycleSkyiesPath + identifierReplced + ".jpg";
-					if ( System.IO.File.Exists( skyCubeMapPath ) == true )
-					{
-						envDescriptor.SkyCubemap = AssetDatabase.LoadAssetAtPath<Cubemap>( skyCubeMapPath );
-						Debug.Log( "Cubemap " + ( envDescriptor.SkyCubemap != null ?  "assigned: " : "not loaded: " ) + skyCubeMapPath );
-					}
+					envDescriptor.SkyCubemap = AssetDatabase.LoadAssetAtPath<Cubemap>(skyCubeMapPath);
+					Debug.Log("Cubemap " + (envDescriptor.SkyCubemap.IsNotNull() ? "assigned: " : "not loaded: ") + skyCubeMapPath);
 				}
 			}
 
-			Debug.Log( "Creation done: " + cycleName + ", " + identifier  );
+			Debug.Log("Creation done: {cycleName}, {identifier}");
 			string assetDescriptorLoadPath = ASSETS_DESCRIPTORS_PATH + "/" + cycleName + "/" + identifierReplced;
-
 			return assetDescriptorLoadPath;
 		}
 
@@ -221,36 +218,42 @@ namespace WeatherSystem {
 		// Delete Weather Cycle
 		private	static	void	DeleteCycle( int idx )
 		{
-			Weathers cycles = GetWMGR().EDITOR_Cycles;
-			EditorUtility.SetDirty( cycles );
+			Weathers cycles = UpdateEditorInstance().EDITOR_Cycles;
+			EditorUtility.SetDirty(cycles);
 
-			if ( cycles.CyclesPaths[ idx ] == null )
+			if (cycles.CyclesPaths[idx] == null)
 			{
-				cycles.CyclesPaths.RemoveAt( idx );
+				cycles.CyclesPaths.RemoveAt(idx);
 			}
 			else
 			{
-				string assetPath = cycles.CyclesPaths[ idx ]; 
-				
-				string cycleName = assetPath.Substring( assetPath.LastIndexOf('/') + 1 );
-				
+				string assetPath = cycles.CyclesPaths[idx];
+
+				string cycleName = assetPath.Substring(assetPath.LastIndexOf('/') + 1);
+
 				// REMOVE FROM CYCLES LIST
-				cycles.CyclesPaths.RemoveAt( idx );
-				if ( cycles.LoadedCycles.Count > idx )
-					cycles.LoadedCycles.RemoveAt( idx );
+				cycles.CyclesPaths.RemoveAt(idx);
+				if (cycles.LoadedCycles.Count > idx)
+				{
+					cycles.LoadedCycles.RemoveAt(idx);
+				}
 
 				// REMOVE ASSET( DELETE .uasset )
-				AssetDatabase.DeleteAsset( assetPath + ".asset" );
+				AssetDatabase.DeleteAsset(assetPath + ".asset");
 
 				// DELETE SUB-DESCRIPTORS FOLDER
 				string descriptorsCyclePath = ASSETS_DESCRIPTORS_PATH + "/" + cycleName + "/";
-				if ( System.IO.Directory.Exists( descriptorsCyclePath ) == true )
-					System.IO.Directory.Delete( descriptorsCyclePath, true );
+				if (System.IO.Directory.Exists(descriptorsCyclePath))
+				{
+					System.IO.Directory.Delete(descriptorsCyclePath, true);
+				}
 
 				// DELETE META FILE
 				string descriptorsCyclePathMetaRef = ASSETS_DESCRIPTORS_PATH + "/" + cycleName + ".meta";
-				if ( System.IO.File.Exists( descriptorsCyclePathMetaRef ) )
-					System.IO.File.Delete( descriptorsCyclePathMetaRef );
+				if (System.IO.File.Exists(descriptorsCyclePathMetaRef))
+				{
+					System.IO.File.Delete(descriptorsCyclePathMetaRef);
+				}
 			}
 
 			AssetDatabase.SaveAssets();
@@ -262,87 +265,96 @@ namespace WeatherSystem {
 		// UNITY
 		private	void	OnGUI()
 		{
-			Weathers cycles = GetWMGR().EDITOR_Cycles;
+			IWeatherManager_Editor editorInstance = UpdateEditorInstance();
 
-			if ( cycles == null || cycles.CyclesPaths == null )
+			Weathers cycles = editorInstance.EDITOR_Cycles;
+
+			if (cycles == null || cycles.CyclesPaths == null)
 			{
 				return;
 			}
 
-			if ( cycles.CyclesPaths.Count == 0 && GetWMGR().EDITOR_EditModeEnabled == true )
+			if (cycles.CyclesPaths.Count == 0 && editorInstance.EDITOR_EditModeEnabled)
 			{
-				GetWMGR().EDITOR_EditModeEnabled = false;
+				editorInstance.EDITOR_EditModeEnabled = false;
 				return;
 			}
 
-			if ( GUILayout.Button( "Attach" ) )
+			if (GUILayout.Button("Attach"))
 			{
-				if ( GetWMGR(true).EDITOR_EditModeEnabled == false )
-					GetWMGR().EDITOR_EditModeEnabled = true;
+				editorInstance = UpdateEditorInstance(true);
+				if (editorInstance.EDITOR_EditModeEnabled == false)
+				{
+					editorInstance.EDITOR_EditModeEnabled = true;
+				}
 			}
 
-			if ( GUILayout.Button( "Create cycle" ) )
+			if (GUILayout.Button("Create cycle"))
 			{
-				WindowValueStep.Init<string>(
-					callbackOK: delegate
+				WindowValueStep.Init<string>
+				(
+					callbackOK: () =>
 					{
 						string cycleName = WindowValueStep.Value.As<string>();
 						string presetFilePath = WindowValueStep.Arg.As<string>();
-						string assetPath = CreateCycle( cycleName, presetFilePath );
-						if ( assetPath != null )
+						string assetPath = CreateCycle(cycleName, presetFilePath);
+						if (assetPath.IsNotNull())
 						{
 							// SAVE WHEATHER CYCLE
-							EditorUtility.SetDirty( cycles );
+							EditorUtility.SetDirty(cycles);
 							AssetDatabase.SaveAssets();
 							AssetDatabase.Refresh();
 
 							Repaint();
 
-							cycles.CyclesPaths.Add( ASSETS_SCRIPTABLES_PATH + "/" + cycleName + ".asset" );
-							cycles.LoadedCycles.Add( AssetDatabase.LoadAssetAtPath<WeatherCycle>( assetPath ) );
+							cycles.CyclesPaths.Add(ASSETS_SCRIPTABLES_PATH + "/" + cycleName + ".asset");
+							cycles.LoadedCycles.Add(AssetDatabase.LoadAssetAtPath<WeatherCycle>(assetPath));
 
-							if ( GetWMGR().EDITOR_EditModeEnabled == false )
-								GetWMGR().EDITOR_EditModeEnabled = true;
+							if (!UpdateEditorInstance().EDITOR_EditModeEnabled)
+							{
+								UpdateEditorInstance().EDITOR_EditModeEnabled = true;
+							}
 						}
 					},
-					callbackCancel:null,
-					optionalArg: delegate
+					callbackCancel: null,
+					optionalArg: () =>
 					{
-						string path = EditorUtility.OpenFilePanel( "Choose a pre-set file", "", "txt" );
+						string path = EditorUtility.OpenFilePanel("Choose a pre-set file", "", "txt");
 						return path;
 					}
 				);
 			}
 
-			if ( cycles.CyclesPaths.Count == 0 )
+			if (cycles.CyclesPaths.Count == 0)
+			{
 				return;
+			}
 
-
-			m_ScrollPosition = GUILayout.BeginScrollView(m_ScrollPosition );
+			m_ScrollPosition = GUILayout.BeginScrollView(m_ScrollPosition);
 			{
 				GUILayout.BeginVertical();
 				{
-					for ( int i = 0; i < cycles.CyclesPaths.Count; i++ )
+					for (int i = 0; i < cycles.CyclesPaths.Count; i++)
 					{
-						string weatherCyclePath = cycles.CyclesPaths[ i ];
-						string weatherCycleName = System.IO.Path.GetFileNameWithoutExtension( weatherCyclePath );
+						string weatherCyclePath = cycles.CyclesPaths[i];
+						string weatherCycleName = System.IO.Path.GetFileNameWithoutExtension(weatherCyclePath);
 
 						GUILayout.BeginHorizontal();
 						{
-							GUILayout.Label( weatherCycleName );
-							if ( GUILayout.Button( "Edit" ) )
+							GUILayout.Label(weatherCycleName);
+							if (GUILayout.Button("Edit"))
 							{
-								WindowCycleEditor.Init( weatherCyclePath );;
+								WindowCycleEditor.Init(weatherCyclePath); ;
 							}
 
-							if ( GUILayout.Button( "Delete" ) )
+							if (GUILayout.Button("Delete"))
 							{
-								DeleteCycle( i-- );
-								
+								DeleteCycle(i--);
+
 								// Set runInEditMode false if no cycle can be used
-								if ( cycles.CyclesPaths.Count == 0 && GetWMGR().EDITOR_EditModeEnabled == true )
+								if (cycles.CyclesPaths.Count == 0 && UpdateEditorInstance().EDITOR_EditModeEnabled == true)
 								{
-									GetWMGR().EDITOR_EditModeEnabled = false;
+									UpdateEditorInstance().EDITOR_EditModeEnabled = false;
 								}
 								continue;
 							}
@@ -360,25 +372,32 @@ namespace WeatherSystem {
 		// UNITY
 		private	void	OnDestroy()
 		{
-			if ( WindowDescriptorEditor.m_Window != null )
+			if (WindowDescriptorEditor.m_Window.IsNotNull())
+			{
 				WindowDescriptorEditor.m_Window.Close();
+			}
 
-			if ( WindowCycleEditor.m_Window != null )
+			if (WindowCycleEditor.m_Window.IsNotNull())
+			{
 				WindowCycleEditor.m_Window.Close();
+			}
 
-			if ( WindowValueStep.m_Window != null )
+			if (WindowValueStep.m_Window.IsNotNull())
+			{
 				WindowValueStep.m_Window.Close();
+			}
 
-			Weathers cycles = GetWMGR().EDITOR_Cycles;
-			EditorUtility.SetDirty( cycles );
+			IWeatherManager_Editor editorInstance = UpdateEditorInstance();
+
+			Weathers cycles = editorInstance.EDITOR_Cycles;
+			EditorUtility.SetDirty(cycles);
 			AssetDatabase.SaveAssets();
 
-			GetWMGR().EDITOR_EditorLinked = false;
+			editorInstance.EDITOR_EditorLinked = false;
 
 			m_Window = null;
 		}
 	}
-
 }
 
 #endif

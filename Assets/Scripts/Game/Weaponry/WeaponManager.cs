@@ -3,35 +3,9 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
-public partial interface IWeaponManager
+public partial class WeaponManager : OnDemandSingleton<WeaponManager>, IWeaponManager
 {
-	GameObject			GameObject						{ get; }
-	bool				Enabled							{ get; set; }
-
-	bool				IsZoomed						{ get; }
-	IWeapon				CurrentWeapon					{ get; set; }
-	int					CurrentWeaponIndex				{ get; set; }
-	float				ZoomSensitivity					{ get; }
-	float				ZoomFactor						{ get; }
-	bool				IsChangingZoom					{ get; }
-	bool				IsChangingWeapon				{ get; }
-
-	void				RegisterWeapon					(Weapon wpn);
-	Coroutine			ToggleZoom						(Vector3? ZoomOffset = null, float ZoomFactor = -1f, float ZoomingTime = -1f, float ZoomSensitivity = -1f, Image ZoomFrame = null);
-	Coroutine			ZoomIn							(Vector3? ZoomOffset = null, float ZoomFactor = -1f, float ZoomingTime = -1f, float ZoomSensitivity = -1f, Image ZoomFrame = null);
-	Coroutine			ZoomOut							();
-	void				ChangeWeaponRequest				(int wpnIdx);
-	
-}
-
-[System.Serializable]
-public partial class WeaponManager : MonoBehaviour, IWeaponManager
-{
-	public static	IWeaponManager	Instance						{ get; private set; }	= null;
-
 	private			List<Weapon>	m_WeaponsList					= new List<Weapon>();
-	private			bool			m_IsReady						= false;
-	private			bool			IsEnabled()						=> m_IsReady;
 
 	// INTERFACE START
 	public			GameObject		GameObject						=> gameObject;
@@ -62,37 +36,46 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private				void		Awake()
+	protected override void Awake()
 	{
-		// Singleton
-		if ( Instance != null )
+		base.Awake();
+
+		if (CustomAssertions.IsNotNull(GameManager.StreamEvents))
 		{
-			Destroy(gameObject );
-			return;
+			GameManager.StreamEvents.OnSave += OnSave;
+			GameManager.StreamEvents.OnLoad += OnLoad;
 		}
-		DontDestroyOnLoad( this );
-		Instance = this;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected override void OnDestroy()
+	{
+		if (GameManager.StreamEvents.IsNotNull())
+		{
+			GameManager.StreamEvents.OnSave -= OnSave;
+			GameManager.StreamEvents.OnLoad -= OnLoad;
+		}
+
+		base.OnDestroy();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private				void		OnEnable()
 	{
-		GameManager.StreamEvents.OnSave += OnSave;
-		GameManager.StreamEvents.OnLoad += OnLoad;
+		GlobalManager.InputMgr.BindCall( EInputCommands.SELECTION1, 		"WeaponChange_0",		() => ChangeWeapon( 0, 0 ) );
+		GlobalManager.InputMgr.BindCall( EInputCommands.SELECTION2, 		"WeaponChange_1",		() => ChangeWeapon( 1, 0 ) );
+		GlobalManager.InputMgr.BindCall( EInputCommands.SELECTION3, 		"WeaponChange_2",		() => ChangeWeapon( 2, 0 ) );
+		GlobalManager.InputMgr.BindCall( EInputCommands.SELECTION4, 		"WeaponChange_3",		() => ChangeWeapon( 3, 0 ) );
+		GlobalManager.InputMgr.BindCall( EInputCommands.SELECTION5, 		"WeaponChange_4",		() => ChangeWeapon( 4, 0 ) );
+		GlobalManager.InputMgr.BindCall( EInputCommands.SELECTION6, 		"WeaponChange_5",		() => ChangeWeapon( 5, 0 ) );
+		GlobalManager.InputMgr.BindCall( EInputCommands.SELECTION7,			"WeaponChange_6",		() => ChangeWeapon( 6, 0 ) );
+		GlobalManager.InputMgr.BindCall( EInputCommands.SELECTION8,			"WeaponChange_7",		() => ChangeWeapon( 7, 0 ) );
+		GlobalManager.InputMgr.BindCall( EInputCommands.SELECTION9,			"WeaponChange_8",		() => ChangeWeapon( 8, 0 ) );
 
-		GlobalManager.InputMgr.BindCall( EInputCommands.SELECTION1, 		"WeaponChange_0",		() => ChangeWeapon( 0, 0 ), IsEnabled	);
-		GlobalManager.InputMgr.BindCall( EInputCommands.SELECTION2, 		"WeaponChange_1",		() => ChangeWeapon( 1, 0 ), IsEnabled	);
-		GlobalManager.InputMgr.BindCall( EInputCommands.SELECTION3, 		"WeaponChange_2",		() => ChangeWeapon( 2, 0 ), IsEnabled	);
-		GlobalManager.InputMgr.BindCall( EInputCommands.SELECTION4, 		"WeaponChange_3",		() => ChangeWeapon( 3, 0 ), IsEnabled	);
-		GlobalManager.InputMgr.BindCall( EInputCommands.SELECTION5, 		"WeaponChange_4",		() => ChangeWeapon( 4, 0 ), IsEnabled	);
-		GlobalManager.InputMgr.BindCall( EInputCommands.SELECTION6, 		"WeaponChange_5",		() => ChangeWeapon( 5, 0 ), IsEnabled	);
-		GlobalManager.InputMgr.BindCall( EInputCommands.SELECTION7,			"WeaponChange_6",		() => ChangeWeapon( 6, 0 ), IsEnabled	);
-		GlobalManager.InputMgr.BindCall( EInputCommands.SELECTION8,			"WeaponChange_7",		() => ChangeWeapon( 7, 0 ), IsEnabled	);
-		GlobalManager.InputMgr.BindCall( EInputCommands.SELECTION9,			"WeaponChange_8",		() => ChangeWeapon( 8, 0 ), IsEnabled	);
-
-		GlobalManager.InputMgr.BindCall( EInputCommands.SWITCH_NEXT,		"WeaponChange_Next",	() => ChangeWeapon( -1,  1 ), IsEnabled	);
-		GlobalManager.InputMgr.BindCall( EInputCommands.SWITCH_PREVIOUS,	"WeaponChange_Prev",	() => ChangeWeapon( -1, -1 ), IsEnabled	);
+		GlobalManager.InputMgr.BindCall( EInputCommands.SWITCH_NEXT,		"WeaponChange_Next",	() => ChangeWeapon( -1,  1 ));
+		GlobalManager.InputMgr.BindCall( EInputCommands.SWITCH_PREVIOUS,	"WeaponChange_Prev",	() => ChangeWeapon( -1, -1 ));
 
 		GlobalManager.InputMgr.BindCall( EInputCommands.GADGET3,			"Flashlight",
 			() => CurrentWeapon.Attachments.ToggleAttachment<WPN_WeaponAttachment_Flashlight>(),
@@ -173,8 +156,6 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager
 
 		// Make sure that ui show data of currnt active weapon
 		UIManager.InGame.UpdateUI();
-
-		m_IsReady = true;
 	}
 
 
@@ -251,7 +232,7 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager
 	
 
 	//////////////////////////////////////////////////////////////////////////
-	public				void		RegisterWeapon( Weapon weapon )
+	public void RegisterWeapon( Weapon weapon )
 	{
 		m_WeaponsList.Add( weapon );
 
@@ -274,11 +255,11 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public				Coroutine	ZoomIn( Vector3? ZoomOffset, float ZoomFactor = -1f, float ZoomingTime = -1f, float ZoomSensitivity = -1f, Image ZoomFrame = null )
+	public				Coroutine	ZoomIn(Vector3? ZoomOffset = null, float ZoomFactor = -1f, float ZoomingTime = -1f, float ZoomSensitivity = -1f, Image ZoomFrame = null)
 	{
 		if (m_ZoomedIn == false && m_IsChangingZoom == false )
 		{
-			Vector3 zoomOffset		= ZoomOffset ?? CurrentWeapon.ZoomOffset;
+			Vector3 zoomOffset		= ZoomOffset ??	CurrentWeapon.ZoomOffset;
 			float zoomFactor		= ZoomFactor > 0f		? ZoomFactor  : CurrentWeapon.ZoomFactor;
 			float zoomingTime		= ZoomingTime > 0f		? ZoomingTime : CurrentWeapon.ZoomingTime;
 			float zoomSensitivity	= ZoomSensitivity > 0f	? ZoomSensitivity : CurrentWeapon.ZoomSensitivity;
@@ -492,16 +473,4 @@ public partial class WeaponManager : MonoBehaviour, IWeaponManager
 		m_ZoomedIn = false;
 		m_IsChangingZoom = false;
 	}
-
-	
-	//////////////////////////////////////////////////////////////////////////
-	private void OnDestroy()
-	{
-		if ( (Object)Instance != this )
-			return;
-
-		Instance = null;
-		m_IsReady = false;
-	}
-	
 }

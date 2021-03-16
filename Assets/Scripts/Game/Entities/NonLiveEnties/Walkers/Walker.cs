@@ -23,12 +23,11 @@ public abstract class Walker : NonLiveEntity {
 	[SerializeField, ReadOnly]
 	protected	uint			m_PoolSize					= 5;
 */
-	protected	override ERotationsMode				m_LookTargetMode						=> ERotationsMode.WITH_BODY;
+//	protected	override ERotationsMode				m_LookTargetMode						=> ERotationsMode.WITH_BODY;
 	protected 	override EEntityType				m_EntityType							=> EEntityType.ROBOT;
 	protected	override EntityComponentContainer[] m_RequiredComponents					=> new EntityComponentContainer[]
 	{
 		new EntityComponentContainer_Memory<Memory_Common>(),
-		new EntityComponentContainer_Inventory<Inventory_Common>(),
 		new EntityComponentContainer_Motion<Motion_Common>(),
 		new EntityComponentContainer_Behaviours<Behaviours_Common>(),
 		new EntityComponentContainer_Navigation<Navigation_Common>()

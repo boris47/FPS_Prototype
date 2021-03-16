@@ -51,8 +51,8 @@ public class EntityBlackBoardData
 	[SerializeField, ReadOnly]
 	public	LookData			LookData							= null;
 
-	[SerializeField, ReadOnly]
-	public	TargetInfo			TargetInfo							= null;
+//	[SerializeField, ReadOnly]
+//	public	TargetInfo			TargetInfo							= null;
 
 	[SerializeField, ReadOnly]
 	public	float				AgentSpeed							= 0.0f;
@@ -68,7 +68,7 @@ public class EntityBlackBoardData
 }
 
 
-public class Blackboard : InGameSingleton<Blackboard>
+public class Blackboard : OnDemandSingleton<Blackboard>
 {
 	private readonly	Dictionary<uint, EntityBlackBoardData> m_Data = new Dictionary<uint, EntityBlackBoardData>();
 

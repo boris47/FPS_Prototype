@@ -38,6 +38,36 @@ public class ToJsonWrapper<T>
 	}
 }
 
+
+public static class CustomAssertions
+{
+	public static bool IsTrue(bool condition, string message = null)
+	{
+		if (!condition)
+		{
+#if UNITY_EDITOR
+			System.Diagnostics.Debugger.Break();
+#endif
+			UnityEngine.Debug.LogError(message ?? "CustomAssertions.IsTrue: Assertion Failed");
+		}
+		return condition;
+	}
+
+	public static bool IsNotNull(System.Object value, string message = null)
+	{
+		bool condition = value.IsNotNull();
+		if (!condition)
+#if UNITY_EDITOR
+		{
+			System.Diagnostics.Debugger.Break();
+#endif
+			UnityEngine.Debug.LogError(message ?? "CustomAssertions.IsNotNull: Assertion Failed");
+		}
+		return condition;
+	}
+}
+
+
 namespace Utils
 {
 	public static class FlagsHelper
@@ -260,7 +290,7 @@ namespace Utils
 		{
 			System.Type componentType = component.GetType();
 			
-			GlobalManager.LoggerInstance.SetExceptionsAsWarnings(true);
+			GlobalManager.LoggerInstance?.SetExceptionsAsWarnings(true);
 			{
 				// Properties
 				foreach (PropertyInfo property in componentType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
@@ -289,7 +319,7 @@ namespace Utils
 					}
 				}
 			}
-			GlobalManager.LoggerInstance.SetExceptionsAsWarnings(false);
+			GlobalManager.LoggerInstance?.SetExceptionsAsWarnings(false);
 		}
 
 
@@ -298,7 +328,7 @@ namespace Utils
 		{
 			System.Type componentType = component.GetType();
 
-			GlobalManager.LoggerInstance.SetExceptionsAsWarnings(true);
+			GlobalManager.LoggerInstance?.SetExceptionsAsWarnings(true);
 			{
 				// Properties
 				foreach (KeyValuePair<string, object> foundProperty in propertiesInfo)
@@ -316,7 +346,7 @@ namespace Utils
 					ReflectionHelper.SetFieldValue(component, field.Name, foundField.Value);
 				}
 			}
-			GlobalManager.LoggerInstance.SetExceptionsAsWarnings(false);
+			GlobalManager.LoggerInstance?.SetExceptionsAsWarnings(false);
 		}
 		
 

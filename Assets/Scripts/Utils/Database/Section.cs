@@ -505,7 +505,7 @@ namespace Database
 		{
 			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
-				UnityEngine.Assertions.Assert.IsTrue
+				CustomAssertions.IsTrue
 				(
 					pLineValue.Type == ELineValueType.SINGLE,
 					$"Database::Section::As: Line value for section {name} at key {Key} is not of single type"
@@ -523,7 +523,7 @@ namespace Database
 		{
 			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
-				UnityEngine.Assertions.Assert.IsTrue
+				CustomAssertions.IsTrue
 				(
 					pLineValue.Type == ELineValueType.SINGLE,
 					$"Database::Section::AsBool: Line value for section {name} at key {Key} is not of single type"
@@ -541,7 +541,7 @@ namespace Database
 		{
 			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
-				UnityEngine.Assertions.Assert.IsTrue
+				CustomAssertions.IsTrue
 				(
 					pLineValue.Type == ELineValueType.SINGLE,
 					$"Database::Section::AsInt: Line value for section {name} at key {Key} is not of single type"
@@ -558,7 +558,7 @@ namespace Database
 		{
 			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
-				UnityEngine.Assertions.Assert.IsTrue
+				CustomAssertions.IsTrue
 				(
 					pLineValue.Type == ELineValueType.SINGLE,
 					$"Database::Section::AsUInt: Line value for section {name} at key {Key} is not of single type"
@@ -576,7 +576,7 @@ namespace Database
 		{
 			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
-				UnityEngine.Assertions.Assert.IsTrue
+				CustomAssertions.IsTrue
 				(
 					pLineValue.Type == ELineValueType.SINGLE,
 					$"Database::Section::AsFloat: Line value for section {name} at key {Key} is not of single type"
@@ -594,7 +594,7 @@ namespace Database
 		{
 			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
-				UnityEngine.Assertions.Assert.IsTrue
+				CustomAssertions.IsTrue
 				(
 					pLineValue.Type == ELineValueType.SINGLE,
 					$"Database::Section::AsString: Line value for section {name} at key {Key} is not of single type"

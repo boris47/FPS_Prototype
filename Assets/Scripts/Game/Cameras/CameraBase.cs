@@ -24,7 +24,7 @@ public abstract class CameraBase : MonoBehaviour
 	{
 		if (!m_PP_Profile)
 		{
-			UnityEngine.Assertions.Assert.IsTrue
+			CustomAssertions.IsTrue
 			(
 				ResourceManager.LoadResourceSync(PostProcessResourcePath, out m_PP_Profile),
 				"Failed the load of camera post processes profile"
@@ -33,7 +33,7 @@ public abstract class CameraBase : MonoBehaviour
 			UserSettings.VideoSettings.SetPPProfile(m_PP_Profile);
 		}
 		
-		UnityEngine.Assertions.Assert.IsTrue
+		CustomAssertions.IsTrue
 		(
 			transform.TrySearchComponent(ESearchContext.LOCAL_AND_CHILDREN, out m_CameraRef),
 		//	TryGetComponent(out m_CameraRef),
@@ -42,11 +42,18 @@ public abstract class CameraBase : MonoBehaviour
 
 		m_PostProcessingBehaviour = m_CameraRef.gameObject.GetOrAddIfNotFound<PostProcessingBehaviour>();
 		m_PostProcessingBehaviour.profile = m_PP_Profile;
+
+		/*
+		CustomAssertions.IsNotNull(GameManager.StreamEvents);
+
+		GameManager.StreamEvents.OnSave += OnSave;
+		GameManager.StreamEvents.OnLoad += OnLoad;
+		*/
 	}
 
 	protected virtual void OnEnable()
 	{
-		UnityEngine.Assertions.Assert.IsNotNull(GameManager.UpdateEvents);
+		CustomAssertions.IsNotNull(GameManager.UpdateEvents);
 
 		GameManager.UpdateEvents.OnLateFrame += m_CameraEffectorsManager.Update;
 	}
@@ -61,6 +68,11 @@ public abstract class CameraBase : MonoBehaviour
 
 	protected virtual void OnDestroy()
 	{
-
+		/*	if (GameManager.StreamEvents.IsNotNull())
+		{
+			GameManager.StreamEvents.OnSave -= OnSave;
+			GameManager.StreamEvents.OnLoad -= OnLoad;
+		}
+		*/
 	}
 }

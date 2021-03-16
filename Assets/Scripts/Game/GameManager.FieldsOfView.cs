@@ -12,13 +12,9 @@ public interface IFieldsOfViewManager
 };
 
 
-public sealed partial class GameManager : IFieldsOfViewManager {
-
-	private		static	IFieldsOfViewManager	m_FieldsOfViewManager = null;
-	public		static	IFieldsOfViewManager	FieldsOfViewManager
-	{
-		get { return m_FieldsOfViewManager; }
-	}
+public sealed partial class GameManager : IFieldsOfViewManager
+{
+	public		static	IFieldsOfViewManager	FieldsOfViewManager => Instance;
 
 	private	List<KeyValuePair<FieldOfView, System.Action> > m_FieldsOfViewList = new List<KeyValuePair<FieldOfView, System.Action>>();
 
@@ -27,7 +23,7 @@ public sealed partial class GameManager : IFieldsOfViewManager {
 
 	bool IFieldsOfViewManager.RegisterAgent( FieldOfView agent, System.Action update )
 	{
-		if ( m_FieldsOfViewManager.IsRegistered( agent ) == true )
+		if (FieldsOfViewManager.IsRegistered( agent ) == true )
 			return false;
 
 		if ( update == null )
@@ -52,8 +48,9 @@ public sealed partial class GameManager : IFieldsOfViewManager {
 
 	bool IFieldsOfViewManager.UnregisterAgent( FieldOfView agent )
 	{
+		print("removing" + agent.transform.parent.name);
 		int index = 0;
-		if ( ( index = m_FieldsOfViewList.FindIndex((p) => p.Key== agent ) ) == -1 )
+		if ( ( index = m_FieldsOfViewList.FindIndex((p) => p.Key== agent ) ) > -1 )
 			return false;
 
 		if ( index == m_CurrentFieldOfViewIndex )
@@ -67,19 +64,16 @@ public sealed partial class GameManager : IFieldsOfViewManager {
 
 	private	void	UpdateCurrentFieldOfView()
 	{
-		if (m_FieldsOfViewList.Count == 0 )
-			return;
-
-		m_CurrentFieldOfViewIndex++;
-		if (m_CurrentFieldOfViewIndex > m_FieldsOfViewList.Count - 1 )
+		if (m_FieldsOfViewList.Count > 0)
 		{
-			m_CurrentFieldOfViewIndex = 0;
+			m_CurrentFieldOfViewIndex++;
+			if (m_CurrentFieldOfViewIndex > m_FieldsOfViewList.Count - 1 )
+			{
+				m_CurrentFieldOfViewIndex = 0;
+			}
+
+			m_FieldsOfViewList[m_CurrentFieldOfViewIndex].Value();
 		}
-
-		m_FieldsOfViewList[m_CurrentFieldOfViewIndex].Value();
-
-		
 	}
-
 }
 

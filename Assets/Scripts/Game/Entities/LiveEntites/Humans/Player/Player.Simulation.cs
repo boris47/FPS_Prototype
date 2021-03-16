@@ -83,7 +83,7 @@ public partial class Player
 		Motion.MotionStrategy.States.IsCrouched		= false;
 		Motion.MotionStrategy.States.IsMoving		= false;
 
-		SoundManager.Pitch = Time.timeScale = 1f;
+		GlobalManager.SetTimeScale(1f);
 
 		GlobalManager.InputMgr.EnableCategory(EInputCategory.ALL);
 

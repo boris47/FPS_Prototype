@@ -27,8 +27,8 @@ using System.Collections.Generic;
 using UnityEngine.Rendering;
 
 [DisallowMultipleComponent]
-public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager> {
-
+public class OutlineEffectManager : MonoBehaviourSingleton<OutlineEffectManager>
+{
 	public enum HighlightType
 	{
 		Glow = 0,
@@ -133,7 +133,7 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 		}
 	}
 
-
+	/*
 	// STATIC CONSTRUCTOR
 	static OutlineEffectManager()
 	{
@@ -142,7 +142,7 @@ public class OutlineEffectManager : SingletonMonoBehaviour<OutlineEffectManager>
 			SetEffectCamera( Camera.main );
 		};
 	}
-
+	*/
 	
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> if given camera is valid is then used for command buffer </summary>

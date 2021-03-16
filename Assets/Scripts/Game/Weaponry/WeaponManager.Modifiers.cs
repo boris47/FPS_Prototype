@@ -1,12 +1,8 @@
-
 using UnityEngine;
 using System.Linq;
-using System.Collections;
-using System.Collections.Generic;
 
-
-public partial interface IWeaponManager {
-
+public partial interface IWeaponManager
+{
 	bool					ApplyModifierToWeapon					(in IWeapon wpn, in string modifier);
 	bool					RemoveModifierFromWeapon				(in IWeapon wpn, in string modifier);
 	
@@ -17,7 +13,7 @@ public partial interface IWeaponManager {
 }
 
 
-public sealed partial class WeaponManager : IWeaponManager
+public sealed partial class WeaponManager
 {
 	bool IWeaponManager.ApplyModifierToWeapon(in IWeapon wpn, in string modifierSectionName)
 	{

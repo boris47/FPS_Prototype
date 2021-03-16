@@ -14,10 +14,7 @@ namespace WeatherSystem {
 
 		// STATIC
 		private	static	RainManager			m_Instance						= null;
-		public	static	RainManager			Instance
-		{
-			get { return m_Instance; }
-		}
+		public	static	RainManager			Instance						=> m_Instance;
 
 
 		// CONST

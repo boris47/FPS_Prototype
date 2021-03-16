@@ -19,9 +19,9 @@ public class ControlledDoor : ControlledObject
 
 	private void Awake()
 	{
-		UnityEngine.Assertions.Assert.IsNotNull(m_Animator);
-		UnityEngine.Assertions.Assert.IsNotNull(m_OpeningSource);
-		UnityEngine.Assertions.Assert.IsNotNull(m_ClosingSource);
+		CustomAssertions.IsNotNull(m_Animator);
+		CustomAssertions.IsNotNull(m_OpeningSource);
+		CustomAssertions.IsNotNull(m_ClosingSource);
 
 		enabled = m_Animator.IsNotNull() && m_OpeningSource.IsNotNull() && m_ClosingSource.IsNotNull();
 	}

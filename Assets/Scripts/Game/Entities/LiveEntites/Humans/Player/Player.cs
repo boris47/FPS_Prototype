@@ -2,8 +2,7 @@
 using UnityEngine;
 
 
-[System.Serializable]
-public partial class Player : Human
+public partial class Player : Human, IDeclaredSingleton
 {
 //	[Header("Player Properties")]
 
@@ -15,7 +14,7 @@ public partial class Player : Human
 //	private		Collider							m_PlayerFarAreaTrigger					= null;
 //	public		Collider							PlayerFarAreaTrigger					=> m_PlayerFarAreaTrigger;
 
-	protected	override ERotationsMode				m_LookTargetMode						=> ERotationsMode.NONE;
+//	protected	override ERotationsMode				m_LookTargetMode						=> ERotationsMode.NONE;
 	protected	override EEntityType				m_EntityType							=> EEntityType.ACTOR;
 	protected	override EntityComponentContainer[] m_RequiredComponents					=> new EntityComponentContainer[]
 	{
@@ -42,7 +41,7 @@ public partial class Player : Human
 
 		base.Awake();
 
-		UnityEngine.Assertions.Assert.IsNotNull(m_CutsceneManager);
+		CustomAssertions.IsNotNull(m_CutsceneManager);
 
 	//	transform.TrySearchComponentByChildName("PNAT", out m_PlayerNearAreaTrigger);
 	//	transform.TrySearchComponentByChildName("PFAT", out m_PlayerFarAreaTrigger);
@@ -89,20 +88,34 @@ public partial class Player : Human
 		FPSEntityCamera.Instance.SetViewPoint(this);
 	}
 
+
 	//////////////////////////////////////////////////////////////////////////
 	protected override void OnEnable()
 	{
 		base.OnEnable();
 
-		Motion.SetMotionType(EMotionType.GROUNDED); // Default
+		Motion.SetMotionType(EEntityMotionType.GROUNDED); // Default
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected override void OnDisable()
 	{
-		Motion.SetMotionType(EMotionType.NONE); // also Unbind bindings
+		// Optional because as singleton could be destroyied before component initialization on scene load
+		Motion?.SetMotionType(EEntityMotionType.NONE); // also Unbind bindings
 
 		base.OnDisable();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void OnDestroy()
+	{
+		if ((object)Instance != this)
+		{
+			return;
+		}
+
+		Instance = null;
 	}
 }

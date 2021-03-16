@@ -79,25 +79,55 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 */
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnEnable
 	protected virtual void OnEnable()
 	{
-		TryGetComponent(out m_AudioSource);
-		TryGetComponent(out m_AudioEmitter);
+		CustomAssertions.IsTrue(TryGetComponent(out m_AudioSource) || TryGetComponent(out m_AudioEmitter));
 
-		m_IsUnityAudioSource = m_AudioSource != null;
-		if (m_IsUnityAudioSource == true)
+		m_IsUnityAudioSource = m_AudioSource.IsNotNull();
+		if (m_IsUnityAudioSource)
 		{
 			SoundManager.OnSoundVolumeChange += OnSoundVolumeChange;
-			OnSoundVolumeChange(SoundManager.SoundVolume);
 		}
 		else
 		{
 			SoundManager.OnMusicVolumeChange += OnMusicVolumeChange;
-			OnMusicVolumeChange(SoundManager.MusicVolume);
 		}
 		SoundManager.OnPauseSet += OnPauseStateSet;
 		SoundManager.OnPitchChange += OnPitchChange;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void Start()
+	{
+		if (m_IsUnityAudioSource)
+		{
+			OnSoundVolumeChange(SoundManager.SoundVolume);
+		}
+		else
+		{
+			OnMusicVolumeChange(SoundManager.MusicVolume);
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected virtual void OnDisable()
+	{
+		if (m_IsUnityAudioSource == true)
+		{
+			SoundManager.OnSoundVolumeChange -= OnSoundVolumeChange;
+			if (m_AudioSource)
+				m_AudioSource.Stop();
+		}
+		else
+		{
+			SoundManager.OnMusicVolumeChange -= OnMusicVolumeChange;
+			if (m_AudioEmitter)
+				m_AudioEmitter.Stop();
+		}
+		SoundManager.OnPauseSet -= OnPauseStateSet;
+		SoundManager.OnPitchChange -= OnPitchChange;
 	}
 
 
@@ -106,11 +136,11 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 	{
 		if (m_IsUnityAudioSource)
 		{
-			if (value) m_AudioSource?.Pause(); else m_AudioSource?.UnPause();
+			if (value) m_AudioSource.Pause(); else m_AudioSource.UnPause();
 		}
 		else
 		{
-			m_AudioEmitter?.EventInstance.setPaused(value);
+			m_AudioEmitter.EventInstance.setPaused(value);
 		}
 	}
 
@@ -163,7 +193,7 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual	void	OnPauseSet( bool isPaused )
 	{
-		if ( isPaused == true )
+		if (isPaused)
 		{
 			Pause();
 		}
@@ -314,26 +344,6 @@ public class CustomAudioSource : MonoBehaviour, ICustomAudioSource {
 		}
 
 		m_IsFading = false;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	protected virtual	void OnDisable()
-	{
-		if (m_IsUnityAudioSource == true )
-		{
-			SoundManager.OnSoundVolumeChange -= OnSoundVolumeChange;
-			if (m_AudioSource )
-				m_AudioSource.Stop();
-		}
-		else
-		{
-			SoundManager.OnMusicVolumeChange -= OnMusicVolumeChange;
-			if (m_AudioEmitter )
-				m_AudioEmitter.Stop();
-		}
-		SoundManager.OnPauseSet -= OnPauseStateSet;
-		SoundManager.OnPitchChange -= OnPitchChange;
 	}
 }
 

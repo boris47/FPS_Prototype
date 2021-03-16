@@ -63,27 +63,21 @@ public abstract partial class Entity : MonoBehaviour
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void		OnEnable()
 	{
-		UnityEngine.Assertions.Assert.IsNotNull(GameManager.StreamEvents);
-		UnityEngine.Assertions.Assert.IsNotNull(GameManager.UpdateEvents);
-
-		GameManager.StreamEvents.OnSave				+= OnSave;
-		GameManager.StreamEvents.OnLoad				+= OnLoad;
-
-		GameManager.UpdateEvents.OnPhysicFrame		+= OnPhysicFrame;
-		GameManager.UpdateEvents.OnThink			+= OnThink;
-		GameManager.UpdateEvents.OnFrame			+= OnFrame;
-		GameManager.UpdateEvents.OnLateFrame		+= OnLateFrame;
+		if (CustomAssertions.IsNotNull(GameManager.UpdateEvents))
+		{
+			GameManager.UpdateEvents.OnPhysicFrame		+= OnPhysicFrame;
+			GameManager.UpdateEvents.OnThink			+= OnThink;
+			GameManager.UpdateEvents.OnFrame			+= OnFrame;
+			GameManager.UpdateEvents.OnLateFrame		+= OnLateFrame;
+		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	virtual		void		OnDisable()
 	{
-		if (GameManager.Instance.IsNotNull())
+		if (GameManager.UpdateEvents.IsNotNull())
 		{
-			GameManager.StreamEvents.OnSave				-= OnSave;
-			GameManager.StreamEvents.OnLoad				-= OnLoad;
-
 			GameManager.UpdateEvents.OnPhysicFrame		-= OnPhysicFrame;
 			GameManager.UpdateEvents.OnThink			-= OnThink;
 			GameManager.UpdateEvents.OnFrame			-= OnFrame;

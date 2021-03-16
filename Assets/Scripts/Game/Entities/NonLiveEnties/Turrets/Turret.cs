@@ -21,7 +21,7 @@ public abstract class Turret : NonLiveEntity
 	private				WPN_WeaponAttachment_LaserPointer m_Laser			= null;
 */
 
-	protected	override ERotationsMode				m_LookTargetMode		=> ERotationsMode.HEAD_ONLY;
+//	protected	override ERotationsMode				m_LookTargetMode		=> ERotationsMode.HEAD_ONLY;
 	protected 	override EEntityType				m_EntityType			=> EEntityType.ROBOT;
 	protected	override EntityComponentContainer[] m_RequiredComponents	=> new EntityComponentContainer[]
 	{

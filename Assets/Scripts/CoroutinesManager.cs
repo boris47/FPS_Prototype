@@ -3,9 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
-
-	public	class RoutinesSequence {
+public class CoroutinesManager : MonoBehaviourSingleton<CoroutinesManager>
+{
+	public	class RoutinesSequence
+	{
 		private readonly IEnumerator				m_CurrentEnumerator			= null;
 		private readonly MonoBehaviour				m_MonoBehaviour				= null;
 		private readonly List<IEnumerator>			m_Routines					= new List<IEnumerator>();
@@ -32,10 +33,10 @@ public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
 
 		private	IEnumerator StartCO()
 		{
-			while (m_CurrentIndex < m_Routines.Count )
+			while (m_CurrentIndex < m_Routines.Count)
 			{
-				IEnumerator CurrentEnumerator = m_Routines[m_CurrentIndex ];
-				yield return m_MonoBehaviour.StartCoroutine( CurrentEnumerator );
+				IEnumerator CurrentEnumerator = m_Routines[m_CurrentIndex];
+				yield return m_MonoBehaviour.StartCoroutine( CurrentEnumerator);
 				m_CurrentIndex ++;
 			}
 
@@ -43,17 +44,14 @@ public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
 
 		public	Coroutine	ExecuteSequence()
 		{
-			return m_MonoBehaviour.StartCoroutine(StartCO() );
+			return m_MonoBehaviour.StartCoroutine(StartCO());
 		}
 
 	}
 
 	[SerializeField]
 	private	uint				m_PendingRoutines	= 0;
-	public	static	uint				PendingRoutines
-	{
-		get { return Instance.m_PendingRoutines; }
-	}
+	public static uint			PendingRoutines		=> m_Instance.m_PendingRoutines;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -64,7 +62,7 @@ public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
 	/////////////////////////////////////////////////////////////////
 	public static  void	AddCoroutineToPendingCount( uint howMany )
 	{
-		Instance.m_PendingRoutines += howMany;
+		m_Instance.m_PendingRoutines += howMany;
 	//	print( "CoroutinesManager::AddCoroutineToPendingCount: Current Count " + m_PendingRoutines );
 	}
 
@@ -72,14 +70,13 @@ public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
 	/////////////////////////////////////////////////////////////////
 	public static  void	RemoveCoroutineFromPendingCount( uint howMany )
 	{
-		if ( howMany > Instance.m_PendingRoutines)
+		if ( howMany > m_Instance.m_PendingRoutines)
 		{
-			Debug.Log( "CoroutinesManager::RemoveCoroutineToPendingCount:Trying to remove more than available pending routines" );
-			Debug.Log( $"Current Pending Routines are : {Instance.m_PendingRoutines}, tried to remove: {howMany}" );
+			Debug.LogError( $"Trying to remove more than available pending routines, current Pending Routines are : {m_Instance.m_PendingRoutines}, tried to remove: {howMany}" );
 			return;
 		}
 
-		Instance.m_PendingRoutines -= howMany;
+		m_Instance.m_PendingRoutines -= howMany;
 
 	//	print( "CoroutinesManager::RemoveCoroutineFromPendingCount: Current Count " + m_PendingRoutines );
 	}
@@ -89,7 +86,7 @@ public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
 	public static IEnumerator	WaitPendingCoroutines()
 	{
 		yield return null;
-		yield return new WaitUntil(() => Instance.m_PendingRoutines == 0);
+		yield return new WaitUntil(() => m_Instance.m_PendingRoutines == 0);
 	}
 
 	
@@ -101,7 +98,7 @@ public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
 		{
 			Debug.Log( $"Starting coroutine for {debugKey}" );
 		}
-		return Instance?.StartCoroutine( routine );
+		return m_Instance?.StartCoroutine( routine );
 	}
 
 
@@ -109,7 +106,7 @@ public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
 	/// <summary> Start given coroutine </summary>
 	public	static	void	Stop( Coroutine routine )
 	{
-		Instance?.StopCoroutine( routine );
+		m_Instance?.StopCoroutine( routine );
 	}
 
 
@@ -117,13 +114,13 @@ public class CoroutinesManager : SingletonMonoBehaviour<CoroutinesManager> {
 	/// <summary> Stop all running coroutines </summary>
 	public	static	void	StopAll()
 	{
-		Instance?.StopAllCoroutines();
+		m_Instance?.StopAllCoroutines();
 	}
 
 	/////////////////////////////////////////////////////////////////
 	/// <summary> Create a sequence object, where to add routine and finally start </summary>
 	public static	RoutinesSequence	CreateSequence( IEnumerator MainRoutine )
 	{
-		return new RoutinesSequence( Instance, MainRoutine );
+		return new RoutinesSequence(m_Instance, MainRoutine);
 	}
 }

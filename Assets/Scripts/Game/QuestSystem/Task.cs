@@ -41,7 +41,7 @@ namespace QuestSystem {
 		// Initialize ( IStateDefiner )
 		public				bool		Initialize( Quest motherQuest, System.Action<Task> onCompletionCallback, System.Action<Task> onFailureCallback )
 		{
-			if (m_IsInitialized == true )
+			if (m_IsInitialized)
 				return true;
 
 			m_IsInitialized = true;
@@ -50,16 +50,16 @@ namespace QuestSystem {
 
 
 			// Already assigned
-			if (m_Objectives.Count > 0 )
+			if (m_Objectives.Count > 0)
 			{
-				foreach( Objective_Base o in m_Objectives )
+				foreach (Objective_Base o in m_Objectives)
 				{
-					result &= o.Initialize( this, OnObjectiveCompleted, OnObjectiveFailed ); // Init every Objective
+					result &= o.Initialize(this, OnObjectiveCompleted, OnObjectiveFailed); // Init every Objective
 				}
 
-				if (m_Objectives[m_Objectives.Count - 1 ].IsOptional )
+				if (m_Objectives[m_Objectives.Count - 1].IsOptional)
 				{
-					Debug.Log( "WARNIGN: Task " + name + " has last objective set as optional" );
+					Debug.Log($"WARNIGN: Task {name} has last objective set as optional");
 				}
 			}
 
@@ -90,7 +90,7 @@ namespace QuestSystem {
 		// OnSave
 		public	virtual		void		OnSave( StreamUnit streamUnit )
 		{
-			m_Objectives.ForEach( o => o.OnSave( streamUnit ) );
+			m_Objectives.ForEach(o => o.OnSave(streamUnit));
 		}
 
 
@@ -98,7 +98,7 @@ namespace QuestSystem {
 		// OnLoad
 		public	virtual		void		OnLoad( StreamUnit streamUnit )
 		{
-			m_Objectives.ForEach( o => o.OnLoad( streamUnit ) );
+			m_Objectives.ForEach(o => o.OnLoad(streamUnit));
 		}
 
 
@@ -111,15 +111,15 @@ namespace QuestSystem {
 
 			m_IsCurrentlyActive = false;
 
-			if ( GlobalQuestManager.ShowDebugInfo )
-				print( "Completed Task " + name );
+			//if ( GlobalQuestManager.ShowDebugInfo )
+			//print( "Completed Task " + name );
 
 			// Unity Events
-			if (m_OnCompletion != null && m_OnCompletion.GetPersistentEventCount() > 0 )
+			if (m_OnCompletion.IsNotNull() && m_OnCompletion.GetPersistentEventCount() > 0)
 				m_OnCompletion.Invoke();
 
 			// Internal Delegates
-			m_OnCompletionCallback( this );
+			m_OnCompletionCallback(this);
 
 			Finalize();
 		}
@@ -127,17 +127,17 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// OnObjectiveCompleted
-		private	void	OnObjectiveCompleted( Objective_Base objective )
+		private void OnObjectiveCompleted(Objective_Base objective)
 		{
 			objective.Deactivate();
 
-			bool bAreObjectivesCompleted = m_Objectives.TrueForAll( ( Objective_Base o ) => { return o.IsOptional == false && o.IsCompleted == true; } );
-			if ( bAreObjectivesCompleted == false )
+			bool bAreObjectivesCompleted = m_Objectives.TrueForAll(o => !o.IsOptional && o.IsCompleted);
+			if (!bAreObjectivesCompleted)
 			{
-				Objective_Base nextObjective = m_Objectives.Find( o => o.IsOptional == false && o.IsCompleted == false );
-				if (m_IsCurrentlyActive && nextObjective != null )
+				Objective_Base nextObjective = m_Objectives.Find(o => !o.IsOptional && !o.IsCompleted);
+				if (m_IsCurrentlyActive && nextObjective.IsNotNull())
 				{
-					if ( nextObjective.IsCurrentlyActive == false && nextObjective.IsCompleted == false )
+					if (!nextObjective.IsCurrentlyActive && !nextObjective.IsCompleted)
 					{
 						nextObjective.Activate();
 					}
@@ -152,17 +152,17 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// OnObjectiveCompleted
-		private	void	OnObjectiveFailed( Objective_Base objective )
+		private void OnObjectiveFailed(Objective_Base objective)
 		{
 			objective.Deactivate();
 
-			bool bAreObjectivesCompleted = m_Objectives.TrueForAll( ( Objective_Base o ) => { return o.IsOptional == false && o.IsCompleted == true; } );
-			if ( bAreObjectivesCompleted == false )
+			bool bAreObjectivesCompleted = m_Objectives.TrueForAll(o => !o.IsOptional && o.IsCompleted);
+			if (!bAreObjectivesCompleted)
 			{
-				Objective_Base nextObjective = m_Objectives.Find( o => o.IsOptional == false && o.IsCompleted == false );
-				if (m_IsCurrentlyActive && nextObjective != null )
+				Objective_Base nextObjective = m_Objectives.Find(o => !o.IsOptional && !o.IsCompleted);
+				if (m_IsCurrentlyActive && nextObjective.IsNotNull())
 				{
-					if ( nextObjective.IsCurrentlyActive == false && nextObjective.IsCompleted == false )
+					if (!nextObjective.IsCurrentlyActive && !nextObjective.IsCompleted)
 					{
 						nextObjective.Activate();
 					}
@@ -175,36 +175,33 @@ namespace QuestSystem {
 		}
 
 
-		
-
-
 		//////////////////////////////////////////////////////////////////////////
 		// AddObjective ( ITask )
-		public bool	 AddObjective( Objective_Base newObjective )
+		public bool AddObjective(Objective_Base newObjective)
 		{
-			if ( newObjective == null )
+			if (newObjective == null)
 				return false;
 
-			if (m_Objectives.Contains( newObjective ) == true )
-				return true;
-
-			newObjective.Initialize( this, OnObjectiveCompleted, OnObjectiveFailed );
-			m_Objectives.Add( newObjective );
+			if (!m_Objectives.Contains(newObjective))
+			{
+				newObjective.Initialize(this, OnObjectiveCompleted, OnObjectiveFailed);
+				m_Objectives.Add(newObjective);
+			}
 			return true;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// RemoveObjective ( ITask )
-		public bool	RemoveObjective( Objective_Base objective )
+		public bool RemoveObjective(Objective_Base objective)
 		{
-			if ( objective == null )
+			if (objective == null)
 				return false;
 
-			if (m_Objectives.Contains( objective ) == false )
+			if (!m_Objectives.Contains(objective))
 				return false;
 
-			m_Objectives.Remove( objective );
+			m_Objectives.Remove(objective);
 			return true;
 		}
 
@@ -220,14 +217,14 @@ namespace QuestSystem {
 
 			m_IsCurrentlyActive = true;
 
-			if ( GlobalQuestManager.ShowDebugInfo )
-				print(name + " task activation" );
+			//if ( GlobalQuestManager.ShowDebugInfo )
+			//	print(name + " task activation" );
 
 			{
-				int index = m_Objectives.FindIndex( o => o.IsCompleted == false );
+				int index = m_Objectives.FindIndex(o => !o.IsCompleted);
 
 				// If task is completed on it's activation call for completion
-				if ( index == -1 )
+				if (index == -1)
 				{
 					OnTaskCompleted();
 				}
@@ -237,10 +234,10 @@ namespace QuestSystem {
 				}
 			}
 			{
-				int index = m_Objectives.FindIndex( o => o.IsOptional == false && o.IsCompleted == false );
+				int index = m_Objectives.FindIndex(o => !o.IsOptional && !o.IsCompleted);
 
 				// If task is completed on it's activation call for completion
-				if ( index == -1 )
+				if (index == -1)
 				{
 					OnTaskCompleted();
 				}
@@ -260,8 +257,5 @@ namespace QuestSystem {
 		{
 			return true;
 		}
-
-		
 	}
-
 }

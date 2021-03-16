@@ -52,8 +52,8 @@ public class Shield : MonoBehaviour//, IStreamableByEvents
 		Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL, out m_Renderer);
 		Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL, out m_Collider);
 
-		UnityEngine.Assertions.Assert.IsNotNull(m_Renderer);
-		UnityEngine.Assertions.Assert.IsNotNull(m_Collider);
+		CustomAssertions.IsNotNull(m_Renderer);
+		CustomAssertions.IsNotNull(m_Collider);
 
 		// First assignment
 		ResetDelegate();
@@ -73,7 +73,7 @@ public class Shield : MonoBehaviour//, IStreamableByEvents
 		m_Renderer.enabled = true;
 		m_Collider.enabled = true;
 
-		UnityEngine.Assertions.Assert.IsNotNull(GameManager.UpdateEvents);
+		CustomAssertions.IsNotNull(GameManager.UpdateEvents);
 
 		GameManager.UpdateEvents.OnFrame += OnFrame;
 	}

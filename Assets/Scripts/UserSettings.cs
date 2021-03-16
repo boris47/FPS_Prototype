@@ -27,7 +27,7 @@ namespace UserSettings
 
 		static AudioSettings()
 		{
-			OnEnable();
+			LoadOrSetDefaults();
 
 			OnApplyChanges();
 		}
@@ -46,9 +46,9 @@ namespace UserSettings
 			SoundManager.SoundVolume = value;
 		}
 
-		public static void OnEnable()
+		public static void LoadOrSetDefaults()
 		{
-			if (PlayerPrefs.HasKey(FLAG_SAVED_AUDIO_SETTINGS) == true)
+			if (PlayerPrefs.HasKey(FLAG_SAVED_AUDIO_SETTINGS))
 			{
 				ReadFromRegistry();
 			}
@@ -120,8 +120,8 @@ namespace UserSettings
 		private static event OnResolutionChangedDelegate m_OnResolutionChanged = delegate { };
 		public static event OnResolutionChangedDelegate OnResolutionChanged
 		{
-			add    { if (value != null) m_OnResolutionChanged += value; }
-			remove { if (value != null) m_OnResolutionChanged -= value; }
+			add    { if (value.IsNotNull()) m_OnResolutionChanged += value; }
+			remove { if (value.IsNotNull()) m_OnResolutionChanged -= value; }
 		}
 
 		// Registry Keys
@@ -213,7 +213,7 @@ namespace UserSettings
 			sortedResolutions.Sort(comparer);
 			m_AvailableResolutions = sortedResolutions.ToArray();
 
-			OnEnable();
+			LoadOrSetDefaults();
 
 			OnApplyChanges();
 		}
@@ -334,7 +334,7 @@ namespace UserSettings
 		}
 
 
-		public static void OnEnable()
+		public static void LoadOrSetDefaults()
 		{
 			if (PlayerPrefs.HasKey(FLAG_SAVED_GRAPHIC_SETTINGS) == true)
 			{

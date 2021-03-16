@@ -92,9 +92,9 @@ public class FieldOfView : MonoBehaviour
 	//////////////////////////////////////////////////////////////////////////
 	public	void	Setup()
 	{
-		UnityEngine.Assertions.Assert.IsNotNull(m_ViewTriggerCollider, "Collider required in this context");
+		CustomAssertions.IsNotNull(m_ViewTriggerCollider, "Collider required in this context");
 	
-		UnityEngine.Assertions.Assert.IsTrue(Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL_AND_PARENTS, out m_Owner));
+		CustomAssertions.IsTrue(Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL_AND_PARENTS, out m_Owner));
 
 		if (transform.parent && transform.parent.TrySearchComponents(ESearchContext.LOCAL_AND_CHILDREN, out Collider[] colliders))
 		{
@@ -111,9 +111,12 @@ public class FieldOfView : MonoBehaviour
 	//////////////////////////////////////////////////////////////////////////
 	public void	UpdateFOV()
 	{
+		if (!m_ViewPoint)
+			return;
+
 		HandleEntityTargetTypeChange();
 
-		UnityEngine.Assertions.Assert.IsNotNull(m_ViewPoint);
+		CustomAssertions.IsNotNull(m_ViewPoint);
 
 		Vector3 viewPointPosition = m_ViewPoint.position;
 		Vector3 viewPointDirection = m_ViewPoint.forward;

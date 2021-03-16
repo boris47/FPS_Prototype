@@ -33,7 +33,7 @@ public class Memory_Common : Memory_Base, IMemory_Common
 	//////////////////////////////////////////////////////////////////////////
 	protected override void Resolve_Internal(Entity entity, Database.Section entitySection)
 	{
-		UnityEngine.Assertions.Assert.IsNotNull(entity.Behaviours);
+		CustomAssertions.IsNotNull(entity.Behaviours);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@ public class Memory_Common : Memory_Base, IMemory_Common
 		CleanInvalidMemories();
 
 		// This entity has no target at the moment
-		if (!m_Entity.Behaviours.TargetInfo.HasTarget)
+	//	if (!m_Entity.Behaviours.TargetInfo.HasTarget)  // TODO
 		{
 			for (int i = m_Memories.Count - 1; i >= 0; i--)
 			{

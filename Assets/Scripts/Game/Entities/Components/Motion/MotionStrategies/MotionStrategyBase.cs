@@ -82,9 +82,9 @@ public abstract class MotionStrategyBase : MonoBehaviour
 		m_Head = entity.Head;
 		m_Body = entity.Body;
 
-		UnityEngine.Assertions.Assert.IsNotNull(m_Entity);
-		UnityEngine.Assertions.Assert.IsNotNull(m_Body);
-		UnityEngine.Assertions.Assert.IsNotNull(m_Head);
+		CustomAssertions.IsNotNull(m_Entity);
+		CustomAssertions.IsNotNull(m_Body);
+		CustomAssertions.IsNotNull(m_Head);
 
 		Setup_Internal(entitySection);
 	}
@@ -108,7 +108,7 @@ public abstract class MotionStrategyBase : MonoBehaviour
 			}
 		}
 
-		UnityEngine.Assertions.Assert.IsNotNull(GameManager.UpdateEvents);
+		CustomAssertions.IsNotNull(GameManager.UpdateEvents);
 
 		GameManager.UpdateEvents.OnPhysicFrame	+= OnPhysicFrame;
 		GameManager.UpdateEvents.OnFrame		+= OnFrame;

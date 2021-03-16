@@ -1,169 +1,100 @@
 ﻿
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public sealed class UI_MainMenu : UI_Base, IStateDefiner
 {
-//	private	const string shaderPath = "VR/SpatialMapping/Wireframe";
-	
-	private		Button	m_ResumeButton			= null;
-	
-	private	static		bool	m_IsComingFromMenu				= false;
-	public	static		bool	IsComingFromMenu
-	{
-		get { return m_IsComingFromMenu; }
-	}
-
-
-	private	bool			m_IsInitialized			= false;
-	bool IStateDefiner.IsInitialized
-	{
-		get { return m_IsInitialized; }
-	}
-
-	string IStateDefiner.StateName
-	{
-		get { return name; }
-	}
-
+	private				Button				m_NewGameButton					= null;
+	private				Button				m_ResumeButton					= null;
+	private				Button				m_SettingsButton				= null;
+	private				Button				m_QuitButton					= null;
+	private				bool				m_IsInitialized					= false;
+						bool				IStateDefiner.IsInitialized		=> m_IsInitialized;
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public void PreInit() { }
+	void IStateDefiner.PreInit()
+	{
+
+	}
 
 	//////////////////////////////////////////////////////////////////////////
-	// Initialize
-	IEnumerator IStateDefiner.Initialize()
+	void IStateDefiner.Initialize()
 	{
-		if (m_IsInitialized == true )
-			yield break;
-
-		yield return null;
-
-		CoroutinesManager.AddCoroutineToPendingCount( 1 );
-
-		m_IsInitialized = true;
+		if (!m_IsInitialized)
 		{
-			/*
-			// NEW GAME BUTTON
-			if ( transform.TrySearchComponentInChild( "Button_NewGame", ref m_NewGameButton ) )
+			// New game button
+			if(CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("Button_NewGame", out m_NewGameButton)))
 			{
-				m_NewGameButton.onClick.AddListener( OnNewGame );
+				m_NewGameButton.onClick.AddListener(OnNewGame);
 			}
-			*/
-			// RESUME BUTTON
-			if (m_IsInitialized &= transform.TrySearchComponentByChildName( "Button_Resume", out m_ResumeButton ) )
-			{
-//				m_ResumeButton.onClick.AddListener( OnResume );
-			}
-			/*
-			// SETTINGS BUTTON
-			if ( transform.TrySearchComponentInChild( "Button_Settings", ref m_SettingsButton ) )
-			{
-				m_SettingsButton.onClick.AddListener( delegate()
-				{
-					UI.Instance.GoToSubMenu( UI.Instance.Settings.transform );
-				});
-			}
-			*/
-		}
 
-		if (m_IsInitialized )
-		{
-		//	RenderSettings.skybox = new Material( Shader.Find( shaderPath ) );
-			CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
-		}
-		else
-		{
-			Debug.LogError( "UI_MainMenu: Bad initialization!!!" );
+			// Resume button
+			if(CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("Button_Resume", out m_ResumeButton)))
+			{
+				bool bHasSavedSceneIndex	= PlayerPrefs.HasKey("SaveSceneIdx");
+				bool bHasSaveFilePath		= PlayerPrefs.HasKey("SaveFilePath");
+				bool bSaveFileExists		= bHasSaveFilePath && System.IO.File.Exists(PlayerPrefs.GetString("SaveFilePath"));
+
+				m_ResumeButton.interactable = bHasSavedSceneIndex && bHasSaveFilePath && bSaveFileExists;
+				m_ResumeButton.onClick.AddListener(OnResume);
+			}
+
+			// Settings button
+			if(CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("Button_Settings", out m_SettingsButton)))
+			{
+				m_SettingsButton.onClick.AddListener(OnSettings);
+			}
+
+			// Quit button
+			if(CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("Button_Quit", out m_QuitButton)))
+			{
+				m_QuitButton.onClick.AddListener(OnQuit);
+			}
+
+			// disable navigation for everything
+			Navigation noNavigationMode = new Navigation() { mode = Navigation.Mode.None };
+			foreach (Selectable s in GetComponentsInChildren<Selectable>())
+			{
+				s.navigation = noNavigationMode;
+			}
+
+			m_IsInitialized = true;
 		}
 	}
 
 
-
 	//////////////////////////////////////////////////////////////////////////
-	// ReInit
-	IEnumerator	IStateDefiner.ReInit()
+	void	IStateDefiner.ReInit()
 	{
-		yield return null;
+		
 	}
 
 
-
 	//////////////////////////////////////////////////////////////////////////
-	// Finalize
 	bool	 IStateDefiner.Finalize()
 	{
 		return m_IsInitialized;
 	}
 
 
-	private void Awake()
-	{
-		if ( UIManager.MainMenu != this )
-			return;
-
-		CoroutinesManager.Start(OnStart() );
-	}
-
-
 	//////////////////////////////////////////////////////////////////////////
-	// OnEnable
 	private void OnEnable()
 	{
-		print( "MainMenu::OnEnable" );
+		CustomAssertions.IsTrue(m_IsInitialized);
 
 		UIManager.EffectFrame.color = Color.clear;
 
-		m_IsComingFromMenu = true;
-
-		GlobalManager.SetCursorVisibility( true );
+		GlobalManager.SetCursorVisibility(true);
 	}
 
 
-
 	//////////////////////////////////////////////////////////////////////////
-	// Start
-	private IEnumerator OnStart()
-	{
-		print( "MainMenu::OnStart" );
-
-		// Cursor
-		GlobalManager.SetCursorVisibility( false );
-
-		yield return null;
-
-		// UI interaction
-		UIManager.Instance.DisableInteraction(this);
-		{
-			yield return CoroutinesManager.WaitPendingCoroutines();
-		}
-
-		print( "MainMenu::OnStart await completed" );
-
-		UIManager.Instance.EnableInteraction(this);
-
-		// Cursor
-		GlobalManager.SetCursorVisibility( true );
-
-		bool bHasSavedSceneIndex	= PlayerPrefs.HasKey( "SaveSceneIdx" );
-		bool bHasSaveFilePath		= PlayerPrefs.HasKey( "SaveFilePath" );
-		bool bSaveFileExists		= bHasSaveFilePath && System.IO.File.Exists( PlayerPrefs.GetString( "SaveFilePath" ) );
-
-		// Resume button
-		m_ResumeButton.interactable = bHasSavedSceneIndex && bHasSaveFilePath && bSaveFileExists;
-	}
-
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// OnNewGame
-	public	void	OnNewGame()
+	private	void	OnNewGame()
 	{
 		void onNewGame()
 		{
+			// New game confirmed, removing previous game reference
 			PlayerPrefs.DeleteKey("SaveSceneIdx");
 
 			CustomSceneManager.LoadSceneData LoadSceneData = new CustomSceneManager.LoadSceneData()
@@ -175,9 +106,9 @@ public sealed class UI_MainMenu : UI_Base, IStateDefiner
 			CustomSceneManager.LoadSceneAsync(LoadSceneData);
 		}
 
-		if ( PlayerPrefs.HasKey( "SaveSceneIdx" ) )
+		if (PlayerPrefs.HasKey("SaveSceneIdx"))
 		{
-			UIManager.Confirmation.Show( "Do you want to start another game?", onNewGame );
+			UIManager.Confirmation.Show("Do you want to start another game?", onNewGame);
 		}
 		else
 		{
@@ -186,10 +117,8 @@ public sealed class UI_MainMenu : UI_Base, IStateDefiner
 	}
 
 
-
 	//////////////////////////////////////////////////////////////////////////
-	// OnNewGame
-	public	void	OnResume()
+	private	void	OnResume()
 	{
 		bool bHasSavedSceneIndex	= PlayerPrefs.HasKey( "SaveSceneIdx" );
 		bool bHasSaveFilePath		= PlayerPrefs.HasKey( "SaveFilePath" );
@@ -202,7 +131,7 @@ public sealed class UI_MainMenu : UI_Base, IStateDefiner
 		{
 			CustomSceneManager.LoadSceneData LoadSceneData = new CustomSceneManager.LoadSceneData()
 			{
-				eScene			= (ESceneEnumeration)saveSceneIdx,
+				eScene				= (ESceneEnumeration)saveSceneIdx,
 				sSaveToLoad			= saveFilePath,
 				bMustLoadSave		= true
 			};
@@ -212,5 +141,19 @@ public sealed class UI_MainMenu : UI_Base, IStateDefiner
 		{
 			Debug.LogError( "Cannot load last save" );
 		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void	OnSettings()
+	{
+		UIManager.Instance.GoToSubMenu(UIManager.Settings);
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void OnQuit()
+	{
+		GlobalManager.QuitInstanly();
 	}
 }

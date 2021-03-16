@@ -56,9 +56,9 @@ public class Turret_AI_Behaviour_Attacker : AIBehaviour
 	public override void OnFrame(float DeltaTime)
 	{
 		// Update targeting
-		if (EntityData.TargetInfo.HasTarget)
+	//	if (targetInfo.HasTarget)
 		{
-			EntityData.EntityRef.Behaviours.SetPointToLookAt(EntityData.TargetInfo.CurrentTarget.transform.position);
+	//		EntityData.EntityRef.Behaviours.SetPointToLookAt(targetInfo.CurrentTarget.transform.position);
 
 		// with a target, if gun alligned, fire TODO
 		//	if (EntityData.EntityRef.CanFire() == true )
@@ -92,7 +92,7 @@ public class Turret_AI_Behaviour_Attacker : AIBehaviour
 	{
 		// Orientation
 		{
-			Vector3 newPointToLookAt = EntityData.TargetInfo.CurrentTarget.transform.position + EntityData.TargetInfo.CurrentTarget.EntityRigidBody.velocity.normalized;
+			Vector3 newPointToLookAt = targetInfo.CurrentTarget.transform.position + targetInfo.CurrentTarget.EntityRigidBody.velocity.normalized;
 			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane( 
 				planeNormal: EntityData.Body_Up,
 				planePoint: EntityData.Head_Position,

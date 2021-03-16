@@ -1,31 +1,44 @@
 ﻿
 using UnityEngine;
-using System.Collections;
 
 public class UI_SimpleCross : UI_BaseCrosshair
 {
-	[SerializeField]
+	[SerializeField, ReadOnly]
 	private		RectTransform		m_Horizontal_Left		= null;
 
-	[SerializeField]
+	[SerializeField, ReadOnly]
 	private		RectTransform		m_Horizontal_Right		= null;
 
-	[SerializeField]
+	[SerializeField, ReadOnly]
 	private		RectTransform		m_Vertical_Up			= null;
 
-	[SerializeField]
+	[SerializeField, ReadOnly]
 	private		RectTransform		m_Vertical_Down			= null;
 
 
-	public override IEnumerator Initialize()
+	//////////////////////////////////////////////////////////////////////////
+	public override void Initialize()
 	{
-		IsInitialized =  transform.TrySearchComponentByChildName( "HCrosshair1", out m_Horizontal_Left	);	yield return null;
-		IsInitialized &= transform.TrySearchComponentByChildName( "HCrosshair2", out m_Horizontal_Right	);	yield return null;
-		IsInitialized &= transform.TrySearchComponentByChildName( "VCrosshair1", out m_Vertical_Up		);	yield return null;
-		IsInitialized &= transform.TrySearchComponentByChildName( "VCrosshair2", out m_Vertical_Down	);	yield return null;
-		yield return base.Initialize();
+		base.Initialize();
+
+		if (CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("Center", out Transform center)))
+		{
+			if (CustomAssertions.IsTrue(center.TrySearchComponentByChildName("AxisX", out Transform axisX)))
+			{
+				CustomAssertions.IsTrue(axisX.TrySearchComponentByChildName("HCrosshair1", out m_Horizontal_Left));
+				CustomAssertions.IsTrue(axisX.TrySearchComponentByChildName("HCrosshair2", out m_Horizontal_Right));
+			}
+
+			if (CustomAssertions.IsTrue(center.TrySearchComponentByChildName("AxisY", out Transform axisY)))
+			{
+				CustomAssertions.IsTrue(axisY.TrySearchComponentByChildName("VCrosshair1", out m_Vertical_Up));
+				CustomAssertions.IsTrue(axisY.TrySearchComponentByChildName("VCrosshair2", out m_Vertical_Down));
+			}
+		}
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
 	protected override void InternalUpdate()
 	{
 		float currentValue = CurrentValue * m_EffectMult;

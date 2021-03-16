@@ -33,15 +33,6 @@ public sealed class CinematicCamera : CameraBase
 		m_Target = null;
 		m_TargetPoint = null;
 
-	/*	UnityEngine.Assertions.Assert.IsNotNull
-		(
-			GameManager.StreamEvents,
-			"GameManager.StreamEvents is null"
-		);
-
-		GameManager.StreamEvents.OnSave += OnSave;
-		GameManager.StreamEvents.OnLoad += OnLoad;
-	*/
 		OutlineEffectManager.SetEffectCamera(m_CameraRef);
 	}
 
@@ -52,12 +43,6 @@ public sealed class CinematicCamera : CameraBase
 		m_Target = null;
 		m_TargetPoint = null;
 
-	/*	if (GameManager.StreamEvents.IsNotNull())
-		{
-			GameManager.StreamEvents.OnSave -= OnSave;
-			GameManager.StreamEvents.OnLoad -= OnLoad;
-		}
-	*/
 		OutlineEffectManager.SetEffectCamera(null);
 
 		base.OnDisable();

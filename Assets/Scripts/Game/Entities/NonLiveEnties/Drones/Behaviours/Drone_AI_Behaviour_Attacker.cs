@@ -8,7 +8,7 @@ public class Drone_AI_Behaviour_Attacker : AIBehaviour
 {
 	public override void OnEnable()
 	{
-	//	if (EntityData.TargetInfo.HasTarget == false)
+	//	if (targetInfo.HasTarget == false)
 	//	{
 	//		print("Behaviour: Drone_AI_Behaviour_Attacker, Entity: " + EntityData.EntityRef.name + " Enabled without target\nGoing to ALARMED state");
 	//		EntityData.EntityRef.Behaviours.ChangeState(EBrainState.ALARMED);
@@ -39,7 +39,7 @@ public class Drone_AI_Behaviour_Attacker : AIBehaviour
 
 	public override void OnHit(Vector3 startPosition, Entity whoRef, float damage, bool canPenetrate = false)
 	{
-		if (!EntityData.TargetInfo.CurrentTarget.IsAlive)
+	//	if (!targetInfo.CurrentTarget.IsAlive)
 		{
 			EntityData.EntityRef.Behaviours.SetPointToLookAt(startPosition);
 		}
@@ -47,11 +47,11 @@ public class Drone_AI_Behaviour_Attacker : AIBehaviour
 
 	public override void OnDestinationReached(Vector3 Destination)
 	{
-		Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane(
-			planeNormal: EntityData.Body_Up,
-			planePoint: EntityData.Body_Position,
-			point: EntityData.TargetInfo.CurrentTarget.transform.position
-		);
+	//	Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane(
+	//		planeNormal: EntityData.Body_Up,
+	//		planePoint: EntityData.Body_Position,
+	//		point: targetInfo.CurrentTarget.transform.position
+	//	);
 
 
 	//	bool IsNotUnderEngageDistance = (EntityData.Transform_Position - projectedPoint).sqrMagnitude > Mathf.Pow(EntityData.EntityRef.MinEngageDistance, 2.0f);
@@ -79,9 +79,9 @@ public class Drone_AI_Behaviour_Attacker : AIBehaviour
 	public override void OnFrame(float DeltaTime)
 	{
 		// Update targeting
-		if ( EntityData.TargetInfo.HasTarget)
-		{
-			EntityData.EntityRef.Behaviours.SetPointToLookAt(EntityData.TargetInfo.CurrentTarget.transform.position);
+	//	if ( targetInfo.HasTarget)
+	//	{
+	//		EntityData.EntityRef.Behaviours.SetPointToLookAt(targetInfo.CurrentTarget.transform.position);
 
 		// with a target, if gun alligned, fire
 		//	if (EntityData.EntityRef.CanFire() == true )
@@ -90,7 +90,7 @@ public class Drone_AI_Behaviour_Attacker : AIBehaviour
 		//	}
 
 		// TODO Entity wants to shoot
-		}
+	//	}
 
 		// Update PathFinding and movement along path
 	//	if (EntityData.EntityRef.Navigation.HasDestination && EntityData.EntityRef.IsAllignedHeadToPoint)
@@ -104,7 +104,7 @@ public class Drone_AI_Behaviour_Attacker : AIBehaviour
 	//
 	//		bool IsNotUnderEngageDistance = (EntityData.Transform_Position - projectedPoint).sqrMagnitude > EntityData.EntityRef.MinEngageDistance * EntityData.EntityRef.MinEngageDistance;
 	//
-	//	//	if ( EntityData.TargetInfo.HasTarget == true )
+	//	//	if ( targetInfo.HasTarget == true )
 	//		{
 	//			if (IsNotUnderEngageDistance)
 	//			{
@@ -153,7 +153,7 @@ public class Drone_AI_Behaviour_Attacker : AIBehaviour
 			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane(
 				planeNormal: EntityData.Body_Up,
 				planePoint: EntityData.Body_Position,
-				point: EntityData.TargetInfo.CurrentTarget.transform.position
+				point: targetInfo.CurrentTarget.transform.position
 			);
 
 
@@ -162,7 +162,7 @@ public class Drone_AI_Behaviour_Attacker : AIBehaviour
 
 		// Orientation
 		{
-			Vector3 newPointToLookAt = EntityData.TargetInfo.CurrentTarget.transform.position + EntityData.TargetInfo.CurrentTarget.EntityRigidBody.velocity.normalized;
+			Vector3 newPointToLookAt = targetInfo.CurrentTarget.transform.position + targetInfo.CurrentTarget.EntityRigidBody.velocity.normalized;
 			Vector3 projectedPoint = Utils.Math.ProjectPointOnPlane(
 				planeNormal: EntityData.Body_Up,
 				planePoint: EntityData.Body_Position,

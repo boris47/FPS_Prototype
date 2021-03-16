@@ -1,58 +1,61 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public sealed class UI_Settings : UI_Base, IStateDefiner {
-
-	
-	private	bool			m_IsInitialized			= false;
-	bool IStateDefiner.IsInitialized
-	{
-		get { return m_IsInitialized; }
-	}
-
-	string IStateDefiner.StateName
-	{
-		get { return name; }
-	}
-
+public sealed class UI_Settings : UI_Base, IStateDefiner
+{
+	private				Button								m_BindingsButton					= null;
+	private				Button								m_GraphicsButton					= null;
+	private				Button								m_AudioButton						= null;
+	private				Button								m_BackButton						= null;
+	private				bool								m_IsInitialized						= false;
+						bool								IStateDefiner.IsInitialized			=> m_IsInitialized;
 
 	//////////////////////////////////////////////////////////////////////////
-	public void PreInit() { }
+	void IStateDefiner.PreInit()
+	{
+
+	}
 
 	//////////////////////////////////////////////////////////////////////////
-	// Initialize
-	IEnumerator IStateDefiner.Initialize()
+	void IStateDefiner.Initialize()
 	{
-		if (m_IsInitialized == true )
-			yield break;
-
-		m_IsInitialized = true;
+		if (!m_IsInitialized)
 		{
+			if (CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("Button_Bindings", out m_BindingsButton)))
+			{
+				m_BindingsButton.onClick.AddListener(() => UIManager.Instance.GoToSubMenu(UIManager.Bindings));
+			}
 
-		}
+			if (CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("Button_Graphics", out m_GraphicsButton)))
+			{
+				m_GraphicsButton.onClick.AddListener(() => UIManager.Instance.GoToSubMenu(UIManager.Graphics));
+			}
 
-		if (m_IsInitialized )
-		{
-				
-		}
-		else
-		{
-			Debug.LogError( "UI_Settings: Bad initialization!!!" );
+			if (CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("Button_Audio", out m_AudioButton)))
+			{
+				m_AudioButton.onClick.AddListener(() => UIManager.Instance.GoToSubMenu(UIManager.Audio));
+			}
+
+			if (CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("Button_Back", out m_BackButton)))
+			{
+				m_BackButton.onClick.AddListener(() => UIManager.Instance.GoBack());
+			}
+
+			m_IsInitialized = true;
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ReInit
-	IEnumerator	IStateDefiner.ReInit()
+	void	IStateDefiner.ReInit()
 	{
-		yield return null;
+		
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// Finalize
 	bool	 IStateDefiner.Finalize()
 	{
 		return m_IsInitialized;

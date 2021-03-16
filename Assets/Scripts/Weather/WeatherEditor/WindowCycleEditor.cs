@@ -35,7 +35,7 @@ namespace WeatherSystem {
 			m_Window.m_CurrentCycle = AssetDatabase.LoadAssetAtPath<WeatherCycle>( path );
 
 			
-			float dayTimeNow = WindowWeatherEditor.GetWMGR().EDITOR_DayTimeNow;
+			float dayTimeNow = WindowWeatherEditor.UpdateEditorInstance().EDITOR_DayTimeNow;
 
 			m_Window.m_CurrentTime = ( dayTimeNow / WeatherManager.DAY_LENGTH );
 			
@@ -59,8 +59,8 @@ namespace WeatherSystem {
 				m_Window.m_CurrentCycle.LoadedDescriptors[i] = loadedDescriptor;
 			}
 
-			WindowWeatherEditor.GetWMGR().EDITOR_EditorCycleLinked = true;
-			WindowWeatherEditor.GetWMGR().INTERNAL_Start( m_Window.m_CurrentCycle, 2f );
+			WindowWeatherEditor.UpdateEditorInstance().EDITOR_EditorCycleLinked = true;
+			WindowWeatherEditor.UpdateEditorInstance().INTERNAL_Start( m_Window.m_CurrentCycle, 2f );
 		}
 
 
@@ -76,11 +76,11 @@ namespace WeatherSystem {
 			m_CurrentTime = EditorGUILayout.Slider(m_CurrentTime, 0.0001f, 1.0f );
 			if (m_CurrentTime != m_PrevTime )
 			{
-				WindowWeatherEditor.GetWMGR().INTERNAL_StartSelectDescriptors( WeatherManager.DAY_LENGTH * m_CurrentTime, m_CurrentCycle );
+				WindowWeatherEditor.UpdateEditorInstance().INTERNAL_StartSelectDescriptors( WeatherManager.DAY_LENGTH * m_CurrentTime, m_CurrentCycle );
 			}
 			m_PrevTime = m_CurrentTime;
 
-			WindowWeatherEditor.GetWMGR().EDITOR_DayTimeNow = WeatherManager.DAY_LENGTH * m_CurrentTime;
+			WindowWeatherEditor.UpdateEditorInstance().EDITOR_DayTimeNow = WeatherManager.DAY_LENGTH * m_CurrentTime;
 
 
 			// CONFIG FILE
@@ -96,7 +96,7 @@ namespace WeatherSystem {
 				
 				EnvDescriptor thisDescriptor = m_CurrentCycle.LoadedDescriptors[ i ];
 
-				if ( i > 0 && m_CurrentCycle.LoadedDescriptors[ i - 1 ].set == false )
+				if ( i > 0 && m_CurrentCycle.LoadedDescriptors[ i - 1 ].IsSet == false )
 					return;
 
 				// BACKGROUND COLOR ADAPTED
@@ -108,7 +108,7 @@ namespace WeatherSystem {
 					Rect btnRect = new Rect( Screen.width/2 + Mathf.Sin( bo * Mathf.Deg2Rad ) * twentyFourVis, Screen.height/2 - Mathf.Cos( bo * Mathf.Deg2Rad ) * twentyFourVis, 50f, 25f );
 					if ( GUI.Button( btnRect, thisDescriptor.Identifier ) == true )
 					{
-						if ( i > 0 && m_CurrentCycle.LoadedDescriptors[ i - 1 ].set == true && thisDescriptor.set == false )
+						if ( i > 0 && m_CurrentCycle.LoadedDescriptors[ i - 1 ].IsSet == true && thisDescriptor.IsSet == false )
 						{
 							EnvDescriptor loaded = m_CurrentCycle.LoadedDescriptors[ i - 1 ];
 							EnvDescriptor.Copy( ref thisDescriptor, loaded );
@@ -126,10 +126,10 @@ namespace WeatherSystem {
 		// 
 		private static Color GetColor( EnvDescriptor thisDescriptor )
 		{
-			EnvDescriptor currDesc = WindowWeatherEditor.GetWMGR().EDITOR_CurrentDescriptor;
-			EnvDescriptor nextDesc = WindowWeatherEditor.GetWMGR().EDITOR_NextDescriptor;
+			EnvDescriptor currDesc = WindowWeatherEditor.UpdateEditorInstance().EDITOR_CurrentDescriptor;
+			EnvDescriptor nextDesc = WindowWeatherEditor.UpdateEditorInstance().EDITOR_NextDescriptor;
 
-			Color toSet = ( currDesc != null && thisDescriptor == currDesc ) ? Color.yellow : ( thisDescriptor.set ? Color.green : Color.red );
+			Color toSet = ( currDesc != null && thisDescriptor == currDesc ) ? Color.yellow : ( thisDescriptor.IsSet ? Color.green : Color.red );
 				  toSet = ( nextDesc != null && thisDescriptor == nextDesc ) ? Color.cyan : toSet;
 			return toSet;
 		}

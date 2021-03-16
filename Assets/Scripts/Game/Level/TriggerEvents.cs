@@ -1,62 +1,60 @@
 ﻿
 using UnityEngine;
-using System.Linq;
 
 
-public class TriggerEvents : MonoBehaviour {
-	
-	public	delegate	void		TargetTriggerDelegate( GameObject go );
-
-	[SerializeField]
-	private		GameEventArg1			m_OnEnter				= null;
+public class TriggerEvents : MonoBehaviour
+{	
+	public delegate void TargetTriggerDelegate(GameObject go);
 
 	[SerializeField]
-	private		GameEventArg1			m_OnExit				= null;
+	private			GameEventArg1			m_OnEnter				= null;
 
 	[SerializeField]
-	private		Entity					m_Target				= null;
+	private			GameEventArg1			m_OnExit				= null;
 
 	[SerializeField]
-	private		bool					m_TriggerOnce			= false;
+	private			Entity					m_Target				= null;
 
 	[SerializeField]
-	private		bool					m_BypassEntityCheck		= false;
+	private			bool					m_TriggerOnce			= false;
 
-	private		bool					m_HasTriggered			= false;
-	private		Collider				m_Collider				= null;
+	[SerializeField]
+	private			bool					m_BypassEntityCheck		= false;
 
-	private		event TargetTriggerDelegate	m_OnEnterEvent		= delegate( GameObject go ) { };
-	public event	TargetTriggerDelegate	OnEnterEvent
+
+	private			bool					m_HasTriggered			= false;
+	private			Collider				m_Collider				= null;
+	private	event TargetTriggerDelegate		m_OnEnterEvent		= delegate { };
+	private	event TargetTriggerDelegate		m_OnExitEvent		= delegate { };
+
+
+	public	event TargetTriggerDelegate		OnEnterEvent
 	{
-		add		{ if ( value.IsNotNull() ) m_OnEnterEvent += value; }
-		remove	{ if ( value.IsNotNull() ) m_OnEnterEvent += value; }
+		add		{ if (value.IsNotNull()) m_OnEnterEvent += value; }
+		remove	{ if (value.IsNotNull()) m_OnEnterEvent += value; }
 	}
 
-
-	private		event TargetTriggerDelegate	m_OnExitEvent		= delegate( GameObject go ) { };
-	public event	TargetTriggerDelegate	OnExitEvent
+	public	event TargetTriggerDelegate		OnExitEvent
 	{
-		add		{ if ( value.IsNotNull() ) m_OnExitEvent += value; }
-		remove	{ if ( value.IsNotNull() ) m_OnExitEvent += value; }
+		add		{ if (value.IsNotNull()) m_OnExitEvent += value; }
+		remove	{ if (value.IsNotNull()) m_OnExitEvent += value; }
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private void Awake()
 	{
-		if (!transform.TrySearchComponent(ESearchContext.LOCAL, out m_Collider))
-		{
-			Destroy(this);
-			return;
-		}
-		else
+		if (CustomAssertions.IsTrue(transform.TryGetComponent(out m_Collider)))
 		{
 			m_Collider.isTrigger = true; // ensure is used as trigger
 			m_Collider.enabled = false;
+		}
 
-			m_OnEnter.AddListener( ( GameObject go ) => m_OnEnterEvent( go ) );
-			m_OnExit.AddListener ( ( GameObject go ) => m_OnExitEvent( go ) ); 
+		m_OnEnter.AddListener(go => m_OnEnterEvent(go));
+		m_OnExit.AddListener(go => m_OnExitEvent(go));
 
+		if (CustomAssertions.IsNotNull(GameManager.StreamEvents))
+		{
 			GameManager.StreamEvents.OnSave += StreamEvents_OnSave;
 			GameManager.StreamEvents.OnLoad += StreamEvents_OnLoad;
 		}
@@ -64,7 +62,18 @@ public class TriggerEvents : MonoBehaviour {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private bool StreamEvents_OnSave( StreamData streamData, ref StreamUnit streamUnit )
+	private void OnDestroy()
+	{
+		if (GameManager.StreamEvents.IsNotNull())
+		{
+			GameManager.StreamEvents.OnSave -= StreamEvents_OnSave;
+			GameManager.StreamEvents.OnLoad -= StreamEvents_OnLoad;
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private bool StreamEvents_OnSave(StreamData streamData, ref StreamUnit streamUnit)
 	{
 		streamUnit = streamData.NewUnit(gameObject);
 		streamUnit.SetInternal("HasTriggered", m_HasTriggered);
@@ -74,14 +83,14 @@ public class TriggerEvents : MonoBehaviour {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private bool StreamEvents_OnLoad( StreamData streamData, ref StreamUnit streamUnit )
+	private bool StreamEvents_OnLoad(StreamData streamData, ref StreamUnit streamUnit)
 	{
 		// Get unit
 		bool bResult = streamData.TryGetUnit(gameObject, out streamUnit);
-		if ( bResult )
+		if (bResult)
 		{
 			// TRIGGERED
-			m_HasTriggered = streamUnit.GetAsBool( "HasTriggered" );
+			m_HasTriggered = streamUnit.GetAsBool("HasTriggered");
 		}
 		return bResult;
 	}
@@ -90,13 +99,7 @@ public class TriggerEvents : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnEnable()
 	{
-		UnityEngine.Assertions.Assert.IsNotNull(m_Collider, "Collider is a null reference");
-
-		if (GameManager.StreamEvents.IsNotNull())
-		{
-			GameManager.StreamEvents.OnSave += StreamEvents_OnSave;
-			GameManager.StreamEvents.OnLoad += StreamEvents_OnLoad;
-		}
+		CustomAssertions.IsNotNull(m_Collider, "Collider is a null reference");
 
 		m_Collider.enabled = true;
 	}
@@ -105,13 +108,7 @@ public class TriggerEvents : MonoBehaviour {
 	//////////////////////////////////////////////////////////////////////////
 	private void OnDisable()
 	{
-		UnityEngine.Assertions.Assert.IsNotNull( m_Collider, "Collider is a null reference" );
-
-		if (GameManager.StreamEvents.IsNotNull())
-		{
-			GameManager.StreamEvents.OnSave -= StreamEvents_OnSave;
-			GameManager.StreamEvents.OnLoad -= StreamEvents_OnLoad;
-		}
+		CustomAssertions.IsNotNull( m_Collider, "Collider is a null reference" );
 
 		m_Collider.enabled = false;
 	}
@@ -125,7 +122,6 @@ public class TriggerEvents : MonoBehaviour {
 			triggerEvents.m_HasTriggered = true;
 			triggerEvents.m_Collider.enabled = false;
 		}
-
 		triggerEvents.m_OnEnter.Invoke(gameObject);
 	}
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using UnityEngine;
 
-public sealed class TimersManager : SingletonMonoBehaviour<TimersManager>
+public sealed class TimersManager : MonoBehaviourSingleton<TimersManager>
 {
 	private	int id = 0;
 	private	int NextId() => id++;
@@ -45,7 +45,7 @@ public sealed class TimersManager : SingletonMonoBehaviour<TimersManager>
 		}
 	}
 
-	[SerializeField]
+	[SerializeField, ReadOnly]
 	private List<InternalTimer> m_Timers = new List<InternalTimer>();
 
 

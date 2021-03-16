@@ -687,7 +687,7 @@ namespace Utils
 		public static bool GetInterpolatedWaypoint(in PathWayPointOnline[] ws, float t, ref Vector3 position, ref Quaternion rotation)
 		{
 			int length = ws.Length;
-			if ( ws == null || ws.Length < 4 )
+			if (ws.Length < 4)
 			{
 				UnityEngine.Debug.Log( "GetPoint Called with points invalid array" );
 				UnityEngine.Debug.DebugBreak();
@@ -695,28 +695,27 @@ namespace Utils
 			}
 
 			bool bIsReversed = t < 0.0f;
-			t = Mathf.Abs( t );
+			t = Mathf.Abs(t);
 
 			int numSections = length - 3;
-			int currPt = Mathf.Min( Mathf.FloorToInt( t * (float) numSections ), numSections - 1 );
-			if ( bIsReversed )
+			int currPt = Mathf.Min(Mathf.FloorToInt(t * (float)numSections), numSections - 1);
+			if (bIsReversed)
 			{
 				currPt = length - 1 - currPt;
 			}
 
-			float u = ( t * (float) numSections ) - (
-				bIsReversed ?
-					( (float) length - 1f - (float) currPt )
-					:
-					(float) currPt
-				)
-			;
-			u = Mathf.Clamp01( u );
-			//			float rotationInterpolant = 0.0f;
+			float u = ( t * (float)numSections ) - (float)
+			(
+			bIsReversed ?
+				(length - 1 - currPt)
+				:
+				currPt
+			);
+			u = Mathf.Clamp01(u);
 
 			#region Position
 			{
-				Vector3 p_a = ws[currPt];
+				Vector3 p_a = ws.GetByIndexWrap<PathWayPointOnline>(currPt);
 				Vector3 p_b = bIsReversed ? ws[currPt - 1] : ws[currPt + 1];
 				Vector3 p_c = bIsReversed ? ws[currPt - 2] : ws[currPt + 2];
 				Vector3 p_d = bIsReversed ? ws[currPt - 3] : ws[currPt + 3];

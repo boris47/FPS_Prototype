@@ -47,6 +47,8 @@ public class InputEventCollection
 	//////////////////////////////////////////////////////////////////////////
 	public	InputEventCollection	Bind( string inputEventID, System.Action method, System.Func<bool> predicate )
 	{
+		CustomAssertions.IsTrue(!string.IsNullOrEmpty(inputEventID));
+
 		System.Func<bool> internalCondition = predicate ?? m_AlwaysTrueCondition;
 		int index = m_Events.FindIndex(s => s.InputEventID == inputEventID);
 		if (index == -1)
@@ -61,12 +63,21 @@ public class InputEventCollection
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	public	InputEventCollection	Unbind( string inputEventID )
+	/// <summary> Removed an event if id is Specified otherwise all the events </summary>
+	/// <param name="inputEventID">If null all events are removed</param>
+	public	InputEventCollection	Unbind( string inputEventID = null)
 	{
-		int index = m_Events.FindIndex( s => s.InputEventID == inputEventID );
-		if ( index > -1 ) // Only if found
+		if (inputEventID.IsNotNull())
 		{
-			m_Events.RemoveAt( index );
+			int index = m_Events.FindIndex(s => s.InputEventID == inputEventID);
+			if (index > -1) // Only if found
+			{
+				m_Events.RemoveAt(index);
+			}
+		}
+		else
+		{
+			m_Events.Clear();
 		}
 		return this;
 	}

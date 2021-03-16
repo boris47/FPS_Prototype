@@ -35,7 +35,7 @@ public abstract class Navigation_Base : EntityComponent, IEntityComponent_Naviga
 	[SerializeField]
 	protected	NavMeshAgent			m_NavAgent						= null;
 	[SerializeField]
-	protected	bool					m_NavCanMoveAlongPath			= true;
+	protected	bool					m_NavCanMoveAlongPath			= false;
 	[SerializeField]
 	protected	bool					m_HasPendingPathRequest			= false;
 	[SerializeField]

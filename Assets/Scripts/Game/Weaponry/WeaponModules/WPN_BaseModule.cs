@@ -61,15 +61,23 @@ public abstract class WPN_BaseModule : MonoBehaviour, IModifiable
 	public		virtual		void	RemoveModifier( Database.Section modifier )	{ }
 
 
-	protected	virtual	void OnEnable()
+	//////////////////////////////////////////////////////////////////////////
+	protected virtual	void OnEnable()
 	{
-		GameManager.UpdateEvents.OnFrame += InternalUpdate;
+		if (CustomAssertions.IsNotNull(GameManager.UpdateEvents))
+		{
+			GameManager.UpdateEvents.OnFrame += InternalUpdate;
+		}
 	}
 
-	protected	virtual void OnDisable()
+
+	//////////////////////////////////////////////////////////////////////////
+	protected virtual void OnDisable()
 	{
-		if ( GameManager.UpdateEvents.IsNotNull() )
+		if (GameManager.UpdateEvents.IsNotNull())
+		{
 			GameManager.UpdateEvents.OnFrame -= InternalUpdate;
+		}
 	}
 
 	public		abstract	bool	OnSave			( StreamUnit streamUnit );

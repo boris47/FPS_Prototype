@@ -140,7 +140,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule
 			string bulletSectionName = m_ModuleSection.AsString( "Bullet", "InvalidBulletResource" );
 
 			// Load bullet model
-			UnityEngine.Assertions.Assert.IsTrue
+			CustomAssertions.IsTrue
 			(
 				Bullet.TryGetBulletModel(bulletSectionName, out GameObject loadedResource),
 				$"WPN_FireModule::Setup: Cannot load bullet with name {bulletSectionName} for weapon {wpn.Section.GetSectionName()}"

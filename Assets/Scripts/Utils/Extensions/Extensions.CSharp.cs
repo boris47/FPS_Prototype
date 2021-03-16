@@ -93,69 +93,67 @@ public static class Extensions
 		return IsValidIndex(array, index) ? (T)array.GetValue(index) : Default;
 	}
 
-
-	/// <summary> Search along a bidimensional array for item using predicate </summary>
-	public	static	bool			FindByPredicate<T>( this T[,] array, ref T value, ref Vector2 location, System.Predicate<T> predicate )
+	/// <summary> Allow to easly get a value from an array checking given index, default value is supported </summary>
+	public	static	T				GetByIndexWrap<T>( this System.Array array, int index, T Default = default(T) )
 	{
-		// Gets the rank (number of dimensions) of the Array
-		int dimensions = array.Rank;
-		bool bIsFound = false;
-		location.Set( 0, 0 );
-		for ( int dimension = 0; dimension < dimensions && bIsFound == false; dimension++ )
+		if (index >= 0)
 		{
-			int upper = array.GetUpperBound(dimension);
-			int lower = array.GetLowerBound(dimension);
-
-			for ( int index = lower; index <= upper && bIsFound == false; index++ )
-			{
-				T currentValue = array[ dimension, index ];
-				if ( predicate( currentValue ) )
-				{
-					value = currentValue;
-					location.Set( dimension, index );
-					bIsFound = true;
-				}
-			}
+			return IsValidIndex(array, index) ? (T)array.GetValue(index) : Default;
 		}
-
-		return bIsFound;
+		else // index < 0
+		{
+			int length = array.Length;
+			while(index>=length) index -= length - 1;
+			int selectedIndex = length - index;
+			return IsValidIndex(array, selectedIndex) ? (T)array.GetValue(selectedIndex) : Default;
+		}
 	}
 
 
-	public	static	bool		FindByPredicate<T>( this System.Array array, System.Predicate<T> predicate, ref T value, ref int[] location, int locationLevel )
+
+
+	/// <summary> Search along a monodimensional or a bidimensional array for an element that satisfies the predicate </summary>
+	public static	bool			FindByPredicate<T>( this T[,] array, out T value, out Vector2 location, System.Predicate<T> predicate )
 	{
+		CustomAssertions.IsNotNull(array);
+		CustomAssertions.IsNotNull(predicate);
+
+		value = default;
+		location = default;
+
 		bool bIsFound = false;
-
 		int dimensions = array.Rank;
-
-		// Mono-dimensional array
-		if ( dimensions == 1 )
+		if (dimensions == 1)
 		{
-			int upper = array.GetUpperBound(1);
-			int lower = array.GetLowerBound(1);
-
-			for ( int index = lower; index <= upper && bIsFound == false; index++ )
+			int length = array.Length;
+			for (int i = 0; i < length; i++)
 			{
-				T currentValue = (T)array.GetValue( index );
-				if ( predicate( currentValue ) )
+				T currentValue = (T)array.GetValue(i);
+				if (predicate(currentValue))
 				{
 					value = currentValue;
-					location = new int[2] { dimensions, index };
+					location = new Vector2(i, 0);
 					bIsFound = true;
 				}
 			}
-			return bIsFound;
 		}
-
-		// Multi dimensional array
-		for ( int dimension = 1; dimension < dimensions && bIsFound == false; dimension++ )
+		else if (dimensions == 2)
 		{
-			int upper = array.GetUpperBound(dimension);
-			int lower = array.GetLowerBound(dimension);
-
-			for ( int index = lower; index <= upper && bIsFound == false; index++ )
+			for (int dimension = 0; dimension < dimensions && !bIsFound; dimension++)
 			{
+				int upper = array.GetUpperBound(dimension);
+				int lower = array.GetLowerBound(dimension);
 
+				for (int index = lower; index <= upper && !bIsFound; index++)
+				{
+					T currentValue = array[dimension, index];
+					if (predicate(currentValue))
+					{
+						value = currentValue;
+						location = new Vector2(dimension, index);
+						bIsFound = true;
+					}
+				}
 			}
 		}
 
@@ -247,11 +245,11 @@ public static class Extensions
 	#region C# LIST
 
 	/// <summary> Resize the list with the new size </summary>
-	public static	void			Resize<T>(this List<T> list, in int newSize)
+	public static	void			Resize<T>(this List<T> list, in uint newSize)
 	{
 		if (newSize > list.Capacity)
 		{
-			list.Capacity = newSize;
+			list.Capacity = (int)newSize;
 		}
 	}
 

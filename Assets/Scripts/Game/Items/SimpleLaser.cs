@@ -30,7 +30,7 @@ public class SimpleLaser : MonoBehaviour
 	private void OnValidate()
 	{
 		m_MeshTransform = transform.GetChild(0);
-		UnityEngine.Assertions.Assert.IsNotNull(m_MeshTransform);
+		CustomAssertions.IsNotNull(m_MeshTransform);
 
 		Update();
 	}

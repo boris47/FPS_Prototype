@@ -8,7 +8,7 @@ public abstract class Drone : NonLiveEntity {
 	[SerializeField]
 	protected			float						m_MoveMaxSpeed							= 3f;
 
-	protected	override ERotationsMode				m_LookTargetMode						=> ERotationsMode.WITH_BODY;
+//	protected	override ERotationsMode				m_LookTargetMode						=> ERotationsMode.WITH_BODY;
 	protected 	override EEntityType				m_EntityType							=> EEntityType.ROBOT;
 	protected	override EntityComponentContainer[] m_RequiredComponents					=> new EntityComponentContainer[]
 	{

@@ -32,7 +32,7 @@ public class LookData
 
 public interface IEntityComponent_Behaviours
 {
-	TargetInfo				TargetInfo				{ get; }
+//	TargetInfo				TargetInfo				{ get; }
 	EntityBlackBoardData	BlackBoardData			{ get; }
 	EBrainState				BrainState				{ get; }
 
@@ -49,8 +49,8 @@ public abstract class Behaviours_Base : EntityComponent, IEntityComponent_Behavi
 {
 	[SerializeField]
 	protected	LookData					m_LookData						= new LookData();
-	[SerializeField]
-	protected	TargetInfo					m_TargetInfo					= new TargetInfo();
+//	[SerializeField]
+//	protected	TargetInfo					m_TargetInfo					= new TargetInfo();
 	[SerializeField]
 	protected	EntityBlackBoardData		m_BlackBoardData				= null;
 	[SerializeField]
@@ -61,7 +61,7 @@ public abstract class Behaviours_Base : EntityComponent, IEntityComponent_Behavi
 	protected	bool						m_IsBrainActive					= true;
 
 	public		AIBehaviour					CurrentBehaviour				=> m_CurrentBehaviour;
-	public		TargetInfo					TargetInfo						=> m_TargetInfo;
+//	public		TargetInfo					TargetInfo						=> m_TargetInfo;
 	public		EntityBlackBoardData		BlackBoardData					=> m_BlackBoardData;
 	public		EBrainState					BrainState						=> m_CurrentBrainState;
 
@@ -72,15 +72,15 @@ public abstract class Behaviours_Base : EntityComponent, IEntityComponent_Behavi
 	//////////////////////////////////////////////////////////////////////////
 	protected override void Resolve_Internal(Entity entity, Section entitySection)
 	{
-		UnityEngine.Assertions.Assert.IsTrue(entity.EntityType != EEntityType.ACTOR);
+		CustomAssertions.IsTrue(entity.EntityType != EEntityType.ACTOR);
 		
 		// AI BEHAVIOURS
 		{
-			UnityEngine.Assertions.Assert.IsTrue(entitySection.HasKey("BehaviourEvasive"));
-			UnityEngine.Assertions.Assert.IsTrue(entitySection.HasKey("BehaviourNormal"));
-			UnityEngine.Assertions.Assert.IsTrue(entitySection.HasKey("BehaviourAlarmed"));
-			UnityEngine.Assertions.Assert.IsTrue(entitySection.HasKey("BehaviourSeeker"));
-			UnityEngine.Assertions.Assert.IsTrue(entitySection.HasKey("BehaviourAttacker"));
+			CustomAssertions.IsTrue(entitySection.HasKey("BehaviourEvasive"));
+			CustomAssertions.IsTrue(entitySection.HasKey("BehaviourNormal"));
+			CustomAssertions.IsTrue(entitySection.HasKey("BehaviourAlarmed"));
+			CustomAssertions.IsTrue(entitySection.HasKey("BehaviourSeeker"));
+			CustomAssertions.IsTrue(entitySection.HasKey("BehaviourAttacker"));
 
 			SetBehaviour( EBrainState.EVASIVE,	entitySection.AsString( "BehaviourEvasive"	) );
 			SetBehaviour( EBrainState.NORMAL,	entitySection.AsString( "BehaviourNormal"	) );
@@ -94,7 +94,7 @@ public abstract class Behaviours_Base : EntityComponent, IEntityComponent_Behavi
 		{
 			EntityRef = m_Entity,
 			LookData = m_LookData,
-			TargetInfo = m_TargetInfo,
+		//	TargetInfo = m_TargetInfo,
 			SpawnBodyLocation = m_Entity.Body.position,
 			SpawnBodyRotation = m_Entity.Body.rotation,
 			SpawnHeadLocation = m_Entity.Body.position,
@@ -133,7 +133,7 @@ public abstract class Behaviours_Base : EntityComponent, IEntityComponent_Behavi
 
 		foreach (AIBehaviour b in m_Behaviours)
 		{
-			b.OnSave(streamUnit);
+			b?.OnSave(streamUnit);
 		}
 	}
 
@@ -142,10 +142,10 @@ public abstract class Behaviours_Base : EntityComponent, IEntityComponent_Behavi
 	{
 		foreach (AIBehaviour b in m_Behaviours)
 		{
-			b.OnLoad(streamUnit);
+			b?.OnLoad(streamUnit);
 		}
 
-		m_TargetInfo = new TargetInfo();
+	//	m_TargetInfo.Reset();
 
 		base.OnLoad(streamUnit);
 	}
@@ -197,7 +197,7 @@ public abstract class Behaviours_Base : EntityComponent, IEntityComponent_Behavi
 	/// <summary> Set the Transform to Look At </summary>
 	public		virtual		void	SetTransformToLookAt(in Transform targetTransform)
 	{
-		UnityEngine.Assertions.Assert.IsNotNull(targetTransform);
+		CustomAssertions.IsNotNull(targetTransform);
 		m_LookData.HasLookAtObject		= true;
 		m_LookData.TransformToLookAt	= targetTransform;
 		m_LookData.PointToLookAt		= Vector3.zero;

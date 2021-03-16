@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 
 
-public sealed class SurfaceManager : InGameSingleton<SurfaceManager>
+public sealed class SurfaceManager : OnDemandSingleton<SurfaceManager>
 {
 	[System.Serializable]
 	public struct SurfaceDefinition

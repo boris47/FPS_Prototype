@@ -49,7 +49,7 @@ public abstract partial class Entity : MonoBehaviour//, IIdentificable<uint>
 	protected	EntityGroup								m_Group						= null;
 
 
-	protected	abstract ERotationsMode					m_LookTargetMode			{ get; }
+//	protected	abstract ERotationsMode					m_LookTargetMode			{ get; }
 	protected	abstract EEntityType					m_EntityType				{ get; }
 	protected	abstract EntityComponentContainer[]		m_RequiredComponents		{ get; }
 	protected 	uint									m_Id						= 0;
@@ -101,8 +101,8 @@ public abstract partial class Entity : MonoBehaviour//, IIdentificable<uint>
 			m_HeadTransform		= m_HeadTransform.IsNotNull() ? m_HeadTransform : transform.Find("Head");
 			m_BodyTransform		= m_BodyTransform.IsNotNull() ? m_BodyTransform : transform;
 
-			UnityEngine.Assertions.Assert.IsNotNull(m_HeadTransform, $"Entity {name} has not head");
-			UnityEngine.Assertions.Assert.IsNotNull(m_BodyTransform, $"Entity {name} has not body");
+			CustomAssertions.IsNotNull(m_HeadTransform, $"Entity {name} has not head");
+			CustomAssertions.IsNotNull(m_BodyTransform, $"Entity {name} has not body");
 
 			m_EffectsPivot		= m_EffectsPivot.IsNotNull() ? m_EffectsPivot : transform.Find("EffectsPivot");
 			m_Targettable		= transform.Find("Body");
@@ -110,9 +110,9 @@ public abstract partial class Entity : MonoBehaviour//, IIdentificable<uint>
 
 		// ESSENTIALS CHECK (Assigned in prefab)
 		{
-			UnityEngine.Assertions.Assert.IsTrue(m_PhysicCollider.IsNotNull() && !m_PhysicCollider.isTrigger, "Invalid Physic Collider");
-			UnityEngine.Assertions.Assert.IsTrue(m_TriggerCollider.IsNotNull() && m_TriggerCollider.isTrigger, "Invalid Trigger Collider");
-			UnityEngine.Assertions.Assert.IsNotNull(m_RigidBody, "Invalid RigidBody");
+			CustomAssertions.IsTrue(m_PhysicCollider.IsNotNull() && !m_PhysicCollider.isTrigger, "Invalid Physic Collider");
+			CustomAssertions.IsTrue(m_TriggerCollider.IsNotNull() && m_TriggerCollider.isTrigger, "Invalid Trigger Collider");
+			CustomAssertions.IsNotNull(m_RigidBody, "Invalid RigidBody");
 		}
 
 		m_Health = m_SectionRef.AsFloat("Health", 100.0f);
@@ -137,6 +137,23 @@ public abstract partial class Entity : MonoBehaviour//, IIdentificable<uint>
 			{
 				Physics.IgnoreCollision(colliderA, colliderB, ignore: true);
 			}
+		}
+
+		if (CustomAssertions.IsNotNull(GameManager.StreamEvents))
+		{
+			GameManager.StreamEvents.OnSave += OnSave;
+			GameManager.StreamEvents.OnLoad += OnLoad;
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void OnDestroy()
+	{
+		if (GameManager.StreamEvents.IsNotNull())
+		{
+			GameManager.StreamEvents.OnSave -= OnSave;
+			GameManager.StreamEvents.OnLoad -= OnLoad;
 		}
 	}
 
@@ -179,9 +196,9 @@ public abstract partial class Entity : MonoBehaviour//, IIdentificable<uint>
 	/// <summary> Calculate the rotation to apply to parent and child to face the point </summary>
 	public static void GetRotationsToPoint(in Transform parent, in Transform child, in Vector3 worldPoint, out float horizontalRotation, out float verticalRotation)
 	{
-		UnityEngine.Assertions.Assert.IsNotNull(parent);
-		UnityEngine.Assertions.Assert.IsNotNull(child);
-		UnityEngine.Assertions.Assert.IsTrue(child.IsChildOf(parent));
+		CustomAssertions.IsNotNull(parent);
+		CustomAssertions.IsNotNull(child);
+		CustomAssertions.IsTrue(child.IsChildOf(parent));
 
 		// parent rotation
 		{

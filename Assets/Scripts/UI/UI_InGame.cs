@@ -6,102 +6,81 @@ using UnityEngine.UI;
 
 public sealed class UI_InGame : UI_Base, IStateDefiner
 {
+	private				Transform			m_GenericInfosPanel					= null;
+	private				Text				m_TimeText							= null;
+	private				Text				m_CycleNameText						= null;
+	private				Text				m_HealthText						= null;
+	private				Text				m_Timetime							= null;
 
-	private			Transform		m_GenericInfosPanel				= null;
-	private			Text			m_TimeText						= null;
-	private			Text			m_CycleNameText					= null;
-	private			Text			m_HealthText					= null;
-	private			Text			m_Timetime						= null;
+	private				Transform			m_WeaponInfosPanel					= null;
+	private				Text				m_WpnNameText						= null;
+	private				Text				m_WpnOtherInfoText					= null;
+	
+	private				Image				m_StaminaBarImage					= null;
+	private				Transform			m_CrosshairsTransform				= null;
 
-	private			Transform		m_WeaponInfosPanel				= null;
-	private			Text			m_WpnNameText					= null;
-	private			Text			m_WpnOtherInfoText				= null;
+	private				Image				m_ZoomFrameImage					= null;
 
-	private			Image			m_StaminaBarImage				= null;
-	private			Transform		m_CrosshairsTransform			= null;
+	private				Canvas				m_Canvas							= null;
 
-	private			Image			m_ZoomFrameImage				= null;
-
-	private			Canvas			m_Canvas						= null;
-
-	private			bool			m_IsActive						= false;
-
-	private			bool			m_IsCompletedInitialization		= false;
-	private			bool			m_IsInitialized					= false;
-
-					bool			IStateDefiner.IsInitialized		=> m_IsInitialized;
-					string			IStateDefiner.StateName			=> name;
-
+	private				bool				m_IsInitialized						= false;
+						bool				IStateDefiner.IsInitialized			=> m_IsInitialized;
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public void PreInit()
+	void IStateDefiner.PreInit()
 	{
-		m_IsInitialized = true;
-		m_IsInitialized &= transform.childCount > 1;
 
-		m_IsInitialized &= transform.TrySearchComponent(ESearchContext.LOCAL, out m_Canvas);
-
-		m_IsInitialized &= transform.TrySearchComponentByChildName( "UI_Frame", out m_ZoomFrameImage );
-
-		if ( m_IsInitialized &= transform.TrySearchComponentByChildName( "GenericInfosPanel", out m_GenericInfosPanel ) )
-		{
-			m_IsInitialized &= m_GenericInfosPanel.TrySearchComponentByChildIndex( 0, out m_CycleNameText );
-			m_IsInitialized &= m_GenericInfosPanel.TrySearchComponentByChildIndex( 1, out m_TimeText );
-			m_IsInitialized &= m_GenericInfosPanel.TrySearchComponentByChildIndex( 2, out m_HealthText );
-			m_IsInitialized &= m_GenericInfosPanel.TrySearchComponentByChildIndex( 3, out m_Timetime );
-		}
-
-		if ( m_IsInitialized &= transform.TrySearchComponentByChildName( "WeaponInfosPanel", out m_WeaponInfosPanel ) )
-		{
-			m_IsInitialized &= m_WeaponInfosPanel.TrySearchComponentByChildIndex( 0, out m_WpnNameText );
-			m_IsInitialized &= m_WeaponInfosPanel.TrySearchComponentByChildIndex( 2, out m_WpnOtherInfoText );
-			m_IsInitialized &= m_WeaponInfosPanel.TrySearchComponentByChildIndex( 3, out m_StaminaBarImage );
-		}
-
-		m_IsInitialized &= transform.TrySearchComponentByChildName( "Crosshairs", out m_CrosshairsTransform );
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	IEnumerator IStateDefiner.Initialize()
+	void IStateDefiner.Initialize()
 	{
-		if (m_IsInitialized == true )
-			yield break;
-
-		CoroutinesManager.AddCoroutineToPendingCount( 1 );
-
-		if ( m_IsInitialized )
+		if (!m_IsInitialized)
 		{
-			m_ZoomFrameImage.raycastTarget = false;
+			CustomAssertions.IsTrue(transform.TryGetComponent(out m_Canvas));
+
+			if(CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("UI_Frame", out m_ZoomFrameImage)))
+			{
+				m_ZoomFrameImage.raycastTarget = false;
+			}
+
+			if(CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("GenericInfosPanel", out m_GenericInfosPanel)))
+			{
+				CustomAssertions.IsTrue(m_GenericInfosPanel.TrySearchComponentByChildIndex(0, out m_CycleNameText));
+				CustomAssertions.IsTrue(m_GenericInfosPanel.TrySearchComponentByChildIndex(1, out m_TimeText));
+				CustomAssertions.IsTrue(m_GenericInfosPanel.TrySearchComponentByChildIndex(2, out m_HealthText));
+				CustomAssertions.IsTrue(m_GenericInfosPanel.TrySearchComponentByChildIndex(3, out m_Timetime));
+			}
+
+			if (CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("WeaponInfosPanel", out m_WeaponInfosPanel)))
+			{
+				CustomAssertions.IsTrue(m_WeaponInfosPanel.TrySearchComponentByChildIndex(0, out m_WpnNameText));
+
+				CustomAssertions.IsTrue(m_WeaponInfosPanel.TrySearchComponentByChildIndex(2, out m_WpnOtherInfoText));
+				CustomAssertions.IsTrue(m_WeaponInfosPanel.TrySearchComponentByChildIndex(3, out m_StaminaBarImage));		// TODO Find a valid place for this
+			}
+
+			CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("Crosshairs", out m_CrosshairsTransform));
 
 			UserSettings.VideoSettings.OnResolutionChanged += UI_Graphics_OnResolutionChanged;
 
-			InvokeRepeating( "PrintTime", 1.0f, 1.0f );
-
-			CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
-
-			yield return null;
-
-			m_IsCompletedInitialization = true;
-		}
-		else
-		{
-			Debug.LogError( "UI_InGame: Bad initialization!!!" );
+			m_IsInitialized = true;
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private void UI_Graphics_OnResolutionChanged( float newWidth, float newHeight )
+	private void UI_Graphics_OnResolutionChanged(float newWidth, float newHeight)
 	{
 		
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	IEnumerator	IStateDefiner.ReInit()
+	void	IStateDefiner.ReInit()
 	{
-		yield return null;
+		
 	}
 
 
@@ -115,107 +94,94 @@ public sealed class UI_InGame : UI_Base, IStateDefiner
 	//////////////////////////////////////////////////////////////////////////
 	private void OnEnable()
 	{
-		m_IsActive = true;
+		CustomAssertions.IsTrue(m_IsInitialized);
 
-//		UI.Instance.EffectFrame.color = Color.clear;
+		GlobalManager.SetCursorVisibility(false);
 
-//		SoundManager.Instance.OnSceneLoaded();
+		InvokeRepeating("PrintTime", 1.0f, 1.0f);
 
-		// Reset Ingame UI
-//		InternalReset();
-
-		GlobalManager.SetCursorVisibility( false );
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private void InternalReset()
-	{
-		m_ZoomFrameImage.enabled	= false;
-		m_ZoomFrameImage.sprite		= null;
-		m_ZoomFrameImage.color		= Color.clear;
-		m_ZoomFrameImage.material	= null;
-		ShowCrosshairs();
-		Show();
+		// TODO Think better solution instead of this
+		UIManager.Minimap.SetTarget(FPSEntityCamera.Instance?.transform);
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private	void	OnDisable()
 	{
-		m_IsActive = false;
+		CancelInvoke("PrintTime");
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public	void	Show()
 	{
-		m_GenericInfosPanel.gameObject.SetActive( true );
-		m_WeaponInfosPanel.gameObject.SetActive( true );
+		m_GenericInfosPanel.gameObject.SetActive(true);
+		m_WeaponInfosPanel.gameObject.SetActive(true);
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public	void	Hide()
 	{
-		m_GenericInfosPanel.gameObject.SetActive( false );
-		m_WeaponInfosPanel.gameObject.SetActive( false );
+		m_GenericInfosPanel.gameObject.SetActive(false);
+		m_WeaponInfosPanel.gameObject.SetActive(false);
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public	void	UpdateUI()
 	{
-		if (m_IsActive == false || m_IsCompletedInitialization == false )
-			return;
+		CustomAssertions.IsTrue(m_IsInitialized);
+		CustomAssertions.IsNotNull(Player.Instance);
 
 		Entity player				= Player.Instance;
-		m_HealthText.text			= Mathf.CeilToInt( player.Health ).ToString();
+		m_HealthText.text			= Mathf.CeilToInt(player.Health).ToString();
 		m_WpnNameText.text			= WeaponManager.Instance.CurrentWeapon.Transform.name;
-//		m_WpnOtherInfoText.text		= WeaponManager.Instance.CurrentWeapon.OtherInfo;
+		m_WpnOtherInfoText.text		= WeaponManager.Instance.CurrentWeapon.OtherInfo;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public	void	ShowCrosshairs()
 	{
-		m_CrosshairsTransform.gameObject.SetActive( true );
+		m_CrosshairsTransform.gameObject.SetActive(true);
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public	UI_BaseCrosshair	EnableCrosshair(System.Type crosshairType)
+	public UI_BaseCrosshair EnableCrosshair(System.Type crosshairType)
 	{
 		UI_BaseCrosshair crosshair = m_CrosshairsTransform.GetComponentInChildren(crosshairType, includeInactive: true) as UI_BaseCrosshair;
-		crosshair?.AddRef();
+		CustomAssertions.IsNotNull(crosshair);
+		crosshair.AddRef();
 		return crosshair;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public	void	RemoveCrosshair(UI_BaseCrosshair crosshair)
+	public void RemoveCrosshair(UI_BaseCrosshair crosshair)
 	{
 		crosshair.RemoveRef();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public	void	HideCrosshairs()
+	public void HideCrosshairs()
 	{
-		m_CrosshairsTransform.gameObject.SetActive( false );
+		m_CrosshairsTransform.gameObject.SetActive(false);
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public void SetFrame( Image frame )
+	public void SetFrame(Image frame)
 	{
-		if ( frame != null )
+		if (frame.IsNotNull())
 		{
 			// Size
 			m_ZoomFrameImage.rectTransform.SetSizeWithCurrentAnchors( RectTransform.Axis.Horizontal, frame.rectTransform.rect.width  );
 			m_ZoomFrameImage.rectTransform.SetSizeWithCurrentAnchors( RectTransform.Axis.Vertical,   frame.rectTransform.rect.height );
 
-			m_ZoomFrameImage.sprite	= frame.sprite;
+			m_ZoomFrameImage.sprite		= frame.sprite;
 			m_ZoomFrameImage.color		= frame.color;
 			m_ZoomFrameImage.material	= frame.material;
 			m_ZoomFrameImage.enabled	= true;
@@ -225,7 +191,7 @@ public sealed class UI_InGame : UI_Base, IStateDefiner
 		else
 		{
 			m_ZoomFrameImage.enabled	= false;
-			m_ZoomFrameImage.sprite	= null;
+			m_ZoomFrameImage.sprite		= null;
 			m_ZoomFrameImage.color		= Color.clear;
 			m_ZoomFrameImage.material	= null;
 			ShowCrosshairs();
@@ -237,7 +203,7 @@ public sealed class UI_InGame : UI_Base, IStateDefiner
 	//////////////////////////////////////////////////////////////////////////
 	public void FrameFeedBack( float feedback, Vector2 delta )
 	{
-		if (m_ZoomFrameImage.enabled == true )
+		if (m_ZoomFrameImage.enabled)
 		{
 			m_ZoomFrameImage.rectTransform.localScale = Vector3.one * feedback;
 			m_ZoomFrameImage.rectTransform.position = delta;
@@ -248,30 +214,21 @@ public sealed class UI_InGame : UI_Base, IStateDefiner
 	//////////////////////////////////////////////////////////////////////////
 	private	void	PrintTime()
 	{
-		if (m_IsActive == false || m_IsCompletedInitialization == false )
-			return;
+		CustomAssertions.IsNotNull(WeatherSystem.WeatherManager.Instance);
 
-		if ( WeatherSystem.WeatherManager.Instance != null )
-		{
-			m_TimeText.text	= WeatherSystem.WeatherManager.Cycles.GetTimeAsString();
-			m_CycleNameText.text	= WeatherSystem.WeatherManager.Cycles.CurrentCycleName;
-		}
+		m_TimeText.text			= WeatherSystem.WeatherManager.Cycles.GetTimeAsString();
+		m_CycleNameText.text	= WeatherSystem.WeatherManager.Cycles.CurrentCycleName;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private void	Update()
 	{
-		if (m_IsActive == false || m_IsCompletedInitialization == false || Player.Instance.IsNotNull() == false )
-			return;
-
 		// Only every 10 frames
 		if ( Time.frameCount % 10 == 0 )
 			return;
 
 		m_Timetime.text = Time.timeScale.ToString();
-
-	//	m_StaminaBarImage.fillAmount = Player.Instance.OxygenCurrentLevel / 100f;
 	}
 	
 }

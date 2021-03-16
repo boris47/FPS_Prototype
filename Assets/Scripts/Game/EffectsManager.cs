@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public sealed class EffectsManager : SingletonMonoBehaviour<EffectsManager>
+public sealed class EffectsManager : MonoBehaviourSingleton<EffectsManager>
 {
 	public enum EEffecs
 	{

@@ -53,7 +53,7 @@ public class FPSEntityCamera : CameraBase
 	protected override	void	Awake()
 	{
 		// Singleton
-		if (Instance != null)
+		if (Instance.IsNotNull())
 		{
 			print("Instance already found");
 			gameObject.SetActive(false);
@@ -71,7 +71,7 @@ public class FPSEntityCamera : CameraBase
 
 		if (!GlobalManager.Configs.TryGetSection("Camera", out Database.Section cameraSection) || !GlobalManager.Configs.TrySectionToOuter(cameraSection, m_CameraSectionData))
 		{
-			UnityEngine.Assertions.Assert.IsTrue(false, "Cannot correctly enable the camera");
+			CustomAssertions.IsTrue(false, "Cannot correctly enable the camera");
 		}
 		else
 		{
@@ -82,23 +82,23 @@ public class FPSEntityCamera : CameraBase
 			m_CameraRef.farClipPlane = m_CameraSectionData.ViewDistance;
 		}
 
-		UnityEngine.Assertions.Assert.IsNotNull(GameManager.StreamEvents);
-
-		GameManager.StreamEvents.OnSave += OnSave;
-		GameManager.StreamEvents.OnLoad += OnLoad;
-
 		OutlineEffectManager.SetEffectCamera(m_CameraRef);
+
+		if (CustomAssertions.IsNotNull(GameManager.UpdateEvents))
+		{
+			GameManager.UpdateEvents.OnLateFrame += OnLateFrame;
+		}
 	}
 	
 
 	//////////////////////////////////////////////////////////////////////////
 	protected override void OnDisable()
 	{
-		if ( GameManager.StreamEvents.IsNotNull() )
+		if (GameManager.UpdateEvents.IsNotNull())
 		{
-			GameManager.StreamEvents.OnSave -= OnSave;
-			GameManager.StreamEvents.OnLoad -= OnLoad;
+			GameManager.UpdateEvents.OnLateFrame -= OnLateFrame;
 		}
+
 		OutlineEffectManager.SetEffectCamera( null );
 
 		base.OnDisable();
@@ -173,9 +173,9 @@ public class FPSEntityCamera : CameraBase
 	//////////////////////////////////////////////////////////////////////////
 	public void		SetViewPoint(Entity entity)
 	{
-		UnityEngine.Assertions.Assert.IsNotNull(entity);
-		UnityEngine.Assertions.Assert.IsNotNull(entity.Head);
-		UnityEngine.Assertions.Assert.IsNotNull(entity.Body);
+		CustomAssertions.IsNotNull(entity);
+		CustomAssertions.IsNotNull(entity.Head);
+		CustomAssertions.IsNotNull(entity.Body);
 
 		if (m_Entity)
 		{
@@ -205,7 +205,7 @@ public class FPSEntityCamera : CameraBase
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	private	void	LateUpdate()
+	private	void OnLateFrame(float deltaTime)
 	{
 		CameraEffectorData CameraEffectorsData = m_CameraEffectorsManager.CameraEffectorsData;
 		IWeapon currentWeapon = WeaponManager.Instance.CurrentWeapon;

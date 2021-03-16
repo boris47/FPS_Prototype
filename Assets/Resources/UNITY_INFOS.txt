@@ -63,3 +63,30 @@ private IEnumerator Start()
 		Debug.Log("Form upload complete!" + www.downloadHandler.text);
 	}
 }
+
+
+
+// Initialization sequence(Standard)
+1 - SubsystemRegistration -> Awake (For Singletons)
+2 - SubsystemRegistration -> OnEnable (For Singletons) (If Instantiated enabled!!)
+3 - SubsystemRegistration -> OnInitialize (For Singletons)
+4 - OnBeforeSceneLoad
+5 - SceneManager.sceneLoaded
+6 - OnAfterSceneLoad
+7 - SceneManager.sceneLoaded (Loading Scene)
+
+// Initialization sequence(Component enabled at AfterSceneLoad)
+1 - SubsystemRegistration -> Awake (For Singletons)
+2 - SubsystemRegistration -> OnInitialize (For Singletons)
+3 - OnBeforeSceneLoad
+4 - SceneManager.sceneLoaded
+5 - OnAfterSceneLoad
+6 - SubsystemRegistration -> OnEnable (For Singletons) (enabled at AfterSceneLoad!!)
+7 - SceneManager.sceneLoaded (Loading Scene)
+
+
+Scene Load callback Sequence
+1 - SceneManager.sceneLoaded
+
+To Menu Sequence
+1 - SceneManager.sceneLoaded

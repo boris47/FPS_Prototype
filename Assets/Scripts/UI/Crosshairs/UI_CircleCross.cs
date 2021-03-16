@@ -1,17 +1,16 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 
 public class UI_CircleCross : UI_BaseCrosshair
 {
 	[SerializeField]
 	private		Image		m_Circle		= null;
 
-	public override IEnumerator Initialize()
+	public override void Initialize()
 	{
-		IsInitialized = transform.TrySearchComponentByChildName( "Circle", out m_Circle	);
-		yield return base.Initialize();
-		
+		base.Initialize();
+
+		CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("Circle", out m_Circle));
 	}
 
 	protected override void InternalUpdate()

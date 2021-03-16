@@ -43,7 +43,7 @@ namespace WeatherSystem {
 		public	Vector3					SunRotation			= Vector3.zero;
 
 		[SerializeField]
-		public bool						set					= false;
+		public bool						IsSet					= false;
 
 
 		//////////////////////////////////////////////////////////////////////////

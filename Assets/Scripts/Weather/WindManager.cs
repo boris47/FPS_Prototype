@@ -2,12 +2,12 @@
 using UnityEngine;
 using System.Collections;
 
-namespace WeatherSystem {
-
+namespace WeatherSystem
+{
 	[ExecuteInEditMode]
-	public class WindManager : MonoBehaviour {
-
-		public	static	WindManager		Instance						= null;
+	public class WindManager : MonoBehaviour
+	{
+	//	public	static	WindManager		Instance						= null;
 
 		[SerializeField]
 		private	bool					EnableInEditor					= false;

@@ -4,91 +4,84 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
 
-public sealed class UI_Bindings : UI_Base, IStateDefiner {
+using OptionData = UnityEngine.UI.Dropdown.OptionData;
 
-	static		List<Dropdown.OptionData> keyStateDropDownList		= null;
-	private		InputManager		m_InputMgr						= null;
-	private		GameObject			m_UI_CommandRow					= null;
-	private		Transform			m_ScrollContentTransform		= null;
-	private		Transform			m_BlockPanel					= null;
-	private		Button				m_ApplyButton					= null;
+public sealed class UI_Bindings : UI_Base, IStateDefiner
+{
+	static				List<OptionData>	m_KeyStateDropDownList				= null;
+	private				GameObject			m_UI_CommandRow						= null;
+	private				GameObject			m_UI_CommandRow_Separator			= null;
+	private				Transform			m_ScrollContentTransform			= null;
+	private				Transform			m_BlockPanel						= null;
+	private				Button				m_ApplyButton						= null;
+	private				Button				m_BackButton						= null;
 
+	private				bool				m_IsInitialized						= false;
+						bool				IStateDefiner.IsInitialized			=> m_IsInitialized;
 
-	private	bool			m_IsInitialized					= false;
-	bool IStateDefiner.IsInitialized
+	//////////////////////////////////////////////////////////////////////////
+	void IStateDefiner.PreInit()
 	{
-		get { return m_IsInitialized; }
-	}
 
-	string IStateDefiner.StateName
-	{
-		get { return name; }
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	public void PreInit() { }
-
-	//////////////////////////////////////////////////////////////////////////
-	IEnumerator IStateDefiner.Initialize()
+	void IStateDefiner.Initialize()
 	{
-		if (m_IsInitialized == true )
-			yield break;
-
-		CoroutinesManager.AddCoroutineToPendingCount( 1 );
-
-		m_IsInitialized = true;
+		if (!m_IsInitialized)
 		{
-			keyStateDropDownList = new List<Dropdown.OptionData>
+			// Preload KeyState list
+			m_KeyStateDropDownList = new List<OptionData>
 			(
-				System.Enum.GetValues( typeof( EKeyState ) ).
-				Cast<EKeyState>().
-				Select( ( EKeyState k ) => new Dropdown.OptionData( k.ToString() ) )
+				System.Enum.GetValues(typeof(EKeyState)).Cast<EKeyState>().Select(keyState => new OptionData(keyState.ToString()))
 			);
 
-			yield return null;
+			// Load Command UI Row
+			CustomAssertions.IsTrue(ResourceManager.LoadResourceSync("Prefabs/UI/UI_CommandRow", out m_UI_CommandRow));
 
-			if (m_IsInitialized &= transform.TrySearchComponentByChildName( "Button_Apply", out m_ApplyButton ) )
+			// Load Command Separator
+			CustomAssertions.IsTrue(ResourceManager.LoadResourceSync("Prefabs/UI/UI_CommandRow_Separator", out m_UI_CommandRow_Separator));
+
+			// Find Vertical Layout Group component
+			CustomAssertions.IsTrue(transform.TrySearchComponent(ESearchContext.LOCAL_AND_CHILDREN, out m_ScrollContentTransform, c => c.HasComponent<VerticalLayoutGroup>()));
+
+			// Find Block Panel (Used in key assignment)
+			if (CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("BlockPanel", out m_BlockPanel)))
 			{
+				m_BlockPanel.gameObject.SetActive(false);
+			}
+
+			// Apply button
+			if (CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("Button_Apply", out m_ApplyButton)))
+			{
+				m_ApplyButton.onClick.AddListener(GlobalManager.InputMgr.SaveBindings);
 				m_ApplyButton.interactable = false;
 			}
 
-			yield return null;
-			
-			// UI Command Row Prefab
-			ResourceManager.AsyncLoadedData<GameObject> loadedResource = new ResourceManager.AsyncLoadedData<GameObject>();
-			yield return ResourceManager.LoadResourceAsyncCoroutine
-			(
-				ResourcePath:			"Prefabs/UI/UI_CommandRow",
-				loadedResource:			loadedResource,
-				OnResourceLoaded:		(a) => { m_IsInitialized &= true; m_UI_CommandRow = a; },
-				OnFailure:				(p) => m_IsInitialized &= false
-			);
-
-			// Scroll content conmponent
-			m_IsInitialized &= transform.TrySearchComponent(ESearchContext.LOCAL_AND_CHILDREN, out m_ScrollContentTransform, c => c.HasComponent<VerticalLayoutGroup>() );
-
-			m_BlockPanel = transform.Find("BlockPanel" );
-			m_IsInitialized &= m_BlockPanel != null;
-
-			yield return null;
-
-			if (m_IsInitialized )
+			// Back button
+			if (CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("Button_Back", out m_BackButton)))
 			{
-				m_BlockPanel.gameObject.SetActive( false );
-				CoroutinesManager.RemoveCoroutineFromPendingCount( 1 );
+				m_BackButton.onClick.AddListener(() => UIManager.Instance.GoBack());
 			}
-			else
+
+			FillGrid();
+
+			// disable navigation for everything
+			Navigation noNavigationMode = new Navigation() { mode = Navigation.Mode.None };
+			foreach (Selectable s in GetComponentsInChildren<Selectable>())
 			{
-				Debug.LogError( "UI_Bindings: Bad initialization!!!" );
+				s.navigation = noNavigationMode;
 			}
+
+			m_IsInitialized = true;
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	IEnumerator IStateDefiner.ReInit()
+	void IStateDefiner.ReInit()
 	{
-		yield return null;
+		
 	}
 
 
@@ -98,264 +91,264 @@ public sealed class UI_Bindings : UI_Base, IStateDefiner {
 		return m_IsInitialized;
 	}
 
-
 	//////////////////////////////////////////////////////////////////////////
 	private void OnEnable()
 	{
-		if ( GlobalManager.InputMgr != null )
-		{
-			m_InputMgr = GlobalManager.InputMgr;
-		}
-		else
-		{
-			m_InputMgr	= new InputManager();
-			Debug.Log( "UI_Bindings::OnEnable: Cannot fin input manager in global manager" );
-		}
+		CustomAssertions.IsTrue(m_IsInitialized);
 
-		FillGrid();
+		m_ApplyButton.interactable = false;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private	IEnumerator	WaitForKeyCO( System.Action<KeyCode> OnKeyPressed )
+	private void CreateGridElement(KeyCommandPair info)
 	{
-		KeyCode keyChosen	= KeyCode.None;
-
-		m_BlockPanel.gameObject.SetActive( true );
-
-		bool bIsWaiting	= true;
-		while( bIsWaiting == true )
+		GameObject commandRow = Instantiate(m_UI_CommandRow);
 		{
-			for ( KeyCode key = 0; key < KeyCode.JoystickButton0 && bIsWaiting == true; key++ )
-			{
-				bIsWaiting &= !Input.GetKeyDown( key );
-				if ( bIsWaiting == false && key != KeyCode.Backspace )
-				{
-					keyChosen = key;
-				}
-			}
-			yield return null;
-		}
-
-		m_BlockPanel.gameObject.SetActive( false );
-
-		if ( OnKeyPressed != null && keyChosen != KeyCode.None )
-		{
-			OnKeyPressed(keyChosen);
-		}
-	}
-
-	private Navigation noNavigationMode = new Navigation() { mode = Navigation.Mode.None };
-	private	void CreateGridElement( KeyCommandPair info )
-	{
-		GameObject commandRow = Instantiate<GameObject>(m_UI_CommandRow );
-		{
-			commandRow.transform.SetParent(m_ScrollContentTransform );
-			commandRow.transform.localScale  = Vector3.one;
+			commandRow.transform.SetParent(m_ScrollContentTransform);
+			commandRow.transform.localScale = Vector3.one;
 			commandRow.name = info.Command.ToString();
 		}
 
 		// Command Label
+		if (CustomAssertions.IsTrue(commandRow.transform.TrySearchComponentByChildIndex(0, out Text commandLabel)))
 		{
-			Text commandLabel = null;
-			if ( commandRow.transform.TrySearchComponentByChildIndex( 0, out commandLabel ) )
-				commandLabel.text = info.Command.ToString();
+			commandLabel.text = info.Command.ToString();
 		}
 
 		// Primary KeyState Dropdown
+		if (CustomAssertions.IsTrue(commandRow.transform.TrySearchComponentByChildIndex(1, out Dropdown primaryKeyStateDropdown)))
 		{
-			Dropdown primaryKeyStateDropdown = null;
-			if ( commandRow.transform.TrySearchComponentByChildIndex( 1, out primaryKeyStateDropdown ) )
-			{
-				primaryKeyStateDropdown.AddOptions( keyStateDropDownList );
-				primaryKeyStateDropdown.value = (int)info.PrimaryKeyState;
-				primaryKeyStateDropdown.onValueChanged.AddListener( 
-					delegate( int i )
-					{
-						OnKeyStateChanged( info, EKeys.PRIMARY, i );
-					}
-				);
-			}
+			primaryKeyStateDropdown.AddOptions(m_KeyStateDropDownList);
+			primaryKeyStateDropdown.value = (int)info.PrimaryKeyState;
 
-			Text label = null;
-			if ( primaryKeyStateDropdown.transform.TrySearchComponentByChildIndex( 0, out label ) )
+			if (CustomAssertions.IsTrue(primaryKeyStateDropdown.transform.TrySearchComponentByChildIndex(0, out Text label)))
+			{
 				label.text = info.PrimaryKeyState.ToString();
+				primaryKeyStateDropdown.onValueChanged.AddListener(newValue => OnKeyStateChanged(info, EKeySlot.PRIMARY, newValue, label));
+			}
 		}
 
 		// Primary Key Choice Button
+		if (CustomAssertions.IsTrue(commandRow.transform.TrySearchComponentByChildIndex(2, out Button primaryKeyChoiceButton)))
 		{
-			Button primaryKeyChoiceButton = null;
-			if (commandRow.transform.TrySearchComponentByChildIndex( 2, out primaryKeyChoiceButton ) )
+			if (CustomAssertions.IsTrue(primaryKeyChoiceButton.transform.TrySearchComponentByChildIndex(0, out Text label)))
 			{
-				primaryKeyChoiceButton.navigation = noNavigationMode;
-				primaryKeyChoiceButton.onClick.AddListener( 
-					delegate() 
-					{
-						OnKeyChoiceButtonClicked( info, EKeys.PRIMARY );
-					}
-				);
+				label.text = info.PrimaryKey.ToString();
+				primaryKeyChoiceButton.onClick.AddListener(() => OnKeyChoiceButtonClicked(info, EKeySlot.PRIMARY, label));
 			}
-
-			Text label = null;
-			if ( primaryKeyChoiceButton.transform.TrySearchComponentByChildIndex( 0, out label ) )
-				label.text = info.GetKeyCode( EKeys.PRIMARY ).ToString();
 		}
 
 		// Secondary KeyState Dropdown
+		if (CustomAssertions.IsTrue(commandRow.transform.TrySearchComponentByChildIndex(3, out Dropdown secondaryKeyStateDropdown)))
 		{
-			Dropdown secondaryKeyStateDropdown = null;
-			if ( commandRow.transform.TrySearchComponentByChildIndex( 3, out secondaryKeyStateDropdown ) )
-			{
-				secondaryKeyStateDropdown.AddOptions( keyStateDropDownList );
-				secondaryKeyStateDropdown.value = (int)info.SecondaryKeyState;
-				secondaryKeyStateDropdown.onValueChanged.AddListener( 
-					delegate( int i )
-					{
-						OnKeyStateChanged( info, EKeys.SECONDARY, i );
-					}
-				);
-			}
+			secondaryKeyStateDropdown.AddOptions(m_KeyStateDropDownList);
+			secondaryKeyStateDropdown.value = (int)info.SecondaryKeyState;
 
-			Text label = null;
-			if ( secondaryKeyStateDropdown.transform.TrySearchComponentByChildIndex( 0, out label ) )
+			if (CustomAssertions.IsTrue(secondaryKeyStateDropdown.transform.TrySearchComponentByChildIndex(0, out Text label)))
+			{
 				label.text = info.SecondaryKeyState.ToString();
+				secondaryKeyStateDropdown.onValueChanged.AddListener(newValue => OnKeyStateChanged(info, EKeySlot.SECONDARY, newValue, label));
+			}
 		}
 
 		// Secondary Key Choice Button
+		if (CustomAssertions.IsTrue(commandRow.transform.TrySearchComponentByChildIndex(4, out Button secondaryKeyChoiceButton)))
 		{
-			Button secondaryKeyChoiceButton = null;
-			if ( commandRow.transform.TrySearchComponentByChildIndex( 4, out secondaryKeyChoiceButton ) )
+			if (CustomAssertions.IsTrue(secondaryKeyChoiceButton.transform.TrySearchComponentByChildIndex(0, out Text label)))
 			{
-				secondaryKeyChoiceButton.navigation = noNavigationMode;
-				secondaryKeyChoiceButton.onClick.AddListener( 
-					delegate()
-					{
-						OnKeyChoiceButtonClicked( info, EKeys.SECONDARY );
-					}
-				);
+				label.text = info.SecondaryKey.ToString();
+				secondaryKeyChoiceButton.onClick.AddListener(() => OnKeyChoiceButtonClicked(info, EKeySlot.SECONDARY, label));
 			}
-
-			Text label = null;
-			if ( secondaryKeyChoiceButton.transform.TrySearchComponentByChildIndex( 0, out label ) )
-				label.text = info.GetKeyCode( EKeys.SECONDARY ).ToString();
 		}
 	}
 
-	
+
 	//////////////////////////////////////////////////////////////////////////
-	private	void	FillGrid()
+	private void FillGrid()
 	{
 		// Clear the content of scroll view
-		foreach( Transform t in m_ScrollContentTransform )
+		foreach (Transform t in m_ScrollContentTransform)
 		{
-			Destroy( t.gameObject );
+			Destroy(t.gameObject);
 		}
+
+		for (EInputCategory category = EInputCategory.NONE + 1; category < EInputCategory.ALL; category++)
+		{
+			GameObject separator = Instantiate(m_UI_CommandRow_Separator);
+			{
+				separator.transform.SetParent(m_ScrollContentTransform);
+				separator.transform.localScale = Vector3.one;
+				separator.name = category.ToString();
+
+				if (CustomAssertions.IsTrue(separator.transform.TrySearchComponentByChildIndex(0, out Text textComponent)))
+				{
+					textComponent.text = textComponent.text.Replace("TO_REPLACE", category.ToString());
+				}
+			}
+
+			GlobalManager.InputMgr.Bindings.Where(p => p.Category == category).ToList().ForEach(CreateGridElement);
+		}
+
 
 		// Fill the grid
-		System.Array.ForEach(m_InputMgr.Bindings, CreateGridElement );
+	//	System.Array.ForEach(GlobalManager.InputMgr.Bindings, CreateGridElement);
+	}
+
+
+	private static bool IsLegalKeyCode(in KeyCode keyCode)
+	{
+		return keyCode > KeyCode.None
+			&& keyCode < KeyCode.F1 && keyCode > KeyCode.F15
+			&& keyCode != KeyCode.Escape
+			&& keyCode != KeyCode.LeftWindows && keyCode != KeyCode.RightWindows
+			&& keyCode != KeyCode.LeftCommand && keyCode != KeyCode.RightCommand
+			;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private	void	OnKeyStateChanged( KeyCommandPair info, EKeys Key, int newValue )
+	private IEnumerator WaitForKeyCO(KeyCode currentKey, System.Action<KeyCode> OnKeyPressed)
 	{
-		EKeyState newKeyState = ( EKeyState ) newValue;
-
-		// skip for identical assignment
-		if ( newKeyState == info.GetKeyState( Key ) )
-			return;
-
+		m_BlockPanel.gameObject.SetActive(true);
 		{
-			m_InputMgr.AssignNewKeyState( Key, newKeyState, info.Command );
-
-			if ( newKeyState == EKeyState.SCROLL_DOWN || newKeyState == EKeyState.SCROLL_UP )
+			bool bIsWaiting = true;
+			while (bIsWaiting)
 			{
-				info.Assign( Key, null, KeyCode.None );
+				if (Input.anyKeyDown) // Input inserted, but not backspace (Backspace has been choosen as assignment cancellation)
+				{
+					if (Input.GetKeyDown(KeyCode.Backspace))
+					{
+						break;
+					}
+
+					for (KeyCode key = 0; key < KeyCode.JoystickButton0; key++) // Find the inserted input
+					{
+						if (Input.GetKeyDown(key) && IsLegalKeyCode(key) && key != currentKey) // Pressed key found, skipping the already assinged one
+						{
+							OnKeyPressed(key);
+							bIsWaiting = false;
+							break;
+						}
+					}
+				}
+				yield return null;
 			}
 		}
-
-		FillGrid();
-		m_ApplyButton.interactable = true;
+		m_BlockPanel.gameObject.SetActive(false);
 	}
-	
+
+
 	//////////////////////////////////////////////////////////////////////////
-	private	void	OnKeyChoiceButtonClicked( KeyCommandPair info, EKeys Key )
+	private void OnKeyStateChanged(KeyCommandPair info, EKeySlot Key, int newValue, Text buttonLabel)
 	{
-		// Create callback for key assigning
-		System.Action<KeyCode> onKeyPressed = delegate( KeyCode keyCode )
+		EKeyState newKeyState = (EKeyState)newValue;
+
+		// skip for identical key state
+		if (newKeyState != info.GetKeyState(Key))
 		{
-			// skip for identical assignment
-			if ( keyCode == info.GetKeyCode( Key ) )
-				return;
+			GlobalManager.InputMgr.AssignNewKeyState(Key, newKeyState, info.Command);
 
-			if (m_InputMgr.CanNewKeyCodeBeAssigned( Key, keyCode, info.Command ) )
+			if (newKeyState == EKeyState.SCROLL_DOWN || newKeyState == EKeyState.SCROLL_UP)
 			{
-				if (m_InputMgr.AssignNewKeyCode( Key, keyCode, info.Command, false ) )
-				{
-//					m_InputMgr.SaveBindings();
-				}
+				info.Assign(Key, null, KeyCode.None);
+			}
 
-				FillGrid();
-				m_ApplyButton.interactable = true;
+			buttonLabel.text = info.GetKeyState(Key).ToString();
+
+			RefreshLabels();
+
+			m_ApplyButton.interactable = true;
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void OnKeyChoiceButtonClicked(KeyCommandPair info, EKeySlot keySlot, Text buttonLabel)
+	{
+		KeyCode currentKey = info.GetKeyCode(keySlot);
+
+		void OnKeyAssigned()
+		{
+			buttonLabel.text = currentKey.ToString();
+
+			RefreshLabels();
+
+			m_ApplyButton.interactable = true;
+		}
+
+		// Create callback for key assigning
+		void OnKeyPressed(KeyCode keyCode)
+		{
+			if (!GlobalManager.InputMgr.HasKeyCodeAlreadyBeenAssigned(info.Command, keySlot, keyCode, out KeyCommandPair otherPair))
+			{
+				CustomAssertions.IsTrue(GlobalManager.InputMgr.TryAssignNewKeyCode(info.Command, keySlot, keyCode, bMustSwap: false));
+
+				OnKeyAssigned();
 			}
 			else
 			{
-				System.Action onConfirm = delegate()
+				void OnConfirm()
 				{
-					if (m_InputMgr.AssignNewKeyCode( Key, keyCode, info.Command, true ) )
-					{
-//						m_InputMgr.SaveBindings();
-					}
+					CustomAssertions.IsTrue(GlobalManager.InputMgr.TryAssignNewKeyCode(info.Command, keySlot, keyCode, bMustSwap: true));
 
-					FillGrid();
-					m_ApplyButton.interactable = true;
+					OnKeyAssigned();
 				};
-
-				UIManager.Confirmation.Show( "Confirm key substitution?", OnConfirm: onConfirm, OnCancel: null );
+				UIManager.Confirmation.Show("Confirm key substitution?", OnConfirm);
 			}
 		};
-
-		CoroutinesManager.Start(WaitForKeyCO( onKeyPressed ),
-			"UI_Bindings::OnKeyChoiceButtonClicked: Waiting for button press"
-			);
+		CoroutinesManager.Start(WaitForKeyCO(currentKey, OnKeyPressed), "UI_Bindings::OnKeyChoiceButtonClicked: Waiting for button press");
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public	void	Apply()
+	private void RefreshLabels()
 	{
-		System.Action onConfirm = delegate()
+		void UpdateCommandRow(Transform commandRow, KeyCommandPair info)
 		{
-			m_InputMgr.SaveBindings();
+			// Primary KeyState Dropdown
+			if (CustomAssertions.IsTrue(commandRow.transform.TrySearchComponentByChildIndex(1, out Dropdown primaryKeyStateDropdown)))
+			{
+				if (CustomAssertions.IsTrue(primaryKeyStateDropdown.transform.TrySearchComponentByChildIndex(0, out Text label)))
+				{
+					label.text = info.PrimaryKeyState.ToString();
+				}
+			}
 
-			FillGrid();
-			m_ApplyButton.interactable = false;
-		};
+			// Primary Key Choice Button
+			if (CustomAssertions.IsTrue(commandRow.transform.TrySearchComponentByChildIndex(2, out Button primaryKeyChoiceButton)))
+			{
+				if (CustomAssertions.IsTrue(primaryKeyChoiceButton.transform.TrySearchComponentByChildIndex(0, out Text label)))
+				{
+					label.text = info.PrimaryKey.ToString();
+				}
+			}
 
-		UIManager.Confirmation.Show( "Confirm bindings?", OnConfirm: onConfirm, OnCancel: null );
-	}
+			// Secondary KeyState Dropdown
+			if (CustomAssertions.IsTrue(commandRow.transform.TrySearchComponentByChildIndex(3, out Dropdown secondaryKeyStateDropdown)))
+			{
+				if (CustomAssertions.IsTrue(secondaryKeyStateDropdown.transform.TrySearchComponentByChildIndex(0, out Text label)))
+				{
+					label.text = info.SecondaryKeyState.ToString();
+				}
+			}
 
+			// Secondary Key Choice Button
+			if (CustomAssertions.IsTrue(commandRow.transform.TrySearchComponentByChildIndex(4, out Button secondaryKeyChoiceButton)))
+			{
+				if (CustomAssertions.IsTrue(secondaryKeyChoiceButton.transform.TrySearchComponentByChildIndex(0, out Text label)))
+				{
+					label.text = info.SecondaryKey.ToString();
+				}
+			}
+		}
 
-	//////////////////////////////////////////////////////////////////////////
-	public void ResetBindinggs()
-	{
-		System.Action onConfirm = delegate()
+		KeyCommandPair[] bindings = GlobalManager.InputMgr.Bindings;
+		for (int i = 0; i < bindings.Length; i++)
 		{
-			m_InputMgr.ResetBindings();
-
-			FillGrid();
-			m_ApplyButton.interactable = false;
-		};
-
-		UIManager.Confirmation.Show( "Do you really want to reset bindings?", OnConfirm: onConfirm, OnCancel: null );
+			KeyCommandPair binding = bindings[i];
+			Transform commandRow = m_ScrollContentTransform.GetChild(i);
+			UpdateCommandRow(commandRow, binding);
+		}
 	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private void OnDisable()
-	{
-		m_InputMgr	= null;
-	}
-
-
 }

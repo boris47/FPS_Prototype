@@ -14,23 +14,21 @@ namespace QuestSystem {
 		// Initialize ( IStateDefiner )
 		protected		override	bool		InitializeInternal( Task motherTask, System.Action<Objective_Base> onCompletionCallback, System.Action<Objective_Base> onFailureCallback )
 		{
-			if (m_IsInitialized == true )
-				return true;
-
-			m_IsInitialized = true;
-
-			bool bIsGoodResult = Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL , out m_Collider);
-			if ( bIsGoodResult )
+			if (!m_IsInitialized)
 			{
-				m_Collider.isTrigger = true;
-				m_Collider.enabled = false;
+				if (CustomAssertions.IsTrue(Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL, out m_Collider)))
+				{
+					m_Collider.isTrigger = true;
+					m_Collider.enabled = false;
+				}
 
 				m_OnCompletionCallback = onCompletionCallback;
 				m_OnFailureCallback = onFailureCallback;
 				motherTask.AddObjective( this );
+
+				m_IsInitialized = true;
 			}
-			
-			return bIsGoodResult;
+			return true;
 		}
 
 
@@ -72,7 +70,7 @@ namespace QuestSystem {
 		{
 			m_Collider.enabled = true;
 
-			UIManager.Indicators.EnableIndicator(gameObject, EIndicatorType.AREA_TO_REACH, bMustBeClamped: true );
+			UIManager.Indicators.AddIndicator(gameObject, EIndicatorType.AREA_TO_REACH, bMustBeClamped: true );
 		}
 
 
@@ -82,7 +80,7 @@ namespace QuestSystem {
 		{
 			m_Collider.enabled = false;
 
-			UIManager.Indicators.DisableIndicator(gameObject );
+			UIManager.Indicators.RemoveIndicator(gameObject );
 		}
 
 

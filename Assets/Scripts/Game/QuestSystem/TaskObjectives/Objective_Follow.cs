@@ -65,17 +65,17 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// Activate ( IObjective )
-		protected		override	void		ActivateInternal()
+		protected override void ActivateInternal()
 		{
-			UIManager.Indicators.EnableIndicator(m_ObjectToFollow, EIndicatorType.OBJECT_TO_FOLLOW, bMustBeClamped: true );
+			UIManager.Indicators.AddIndicator(m_ObjectToFollow, EIndicatorType.OBJECT_TO_FOLLOW, bMustBeClamped: true);
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// Deactivate ( IObjective )
-		protected		override	void		DeactivateInternal()
+		protected override void DeactivateInternal()
 		{
-			UIManager.Indicators.DisableIndicator(m_ObjectToFollow );
+			UIManager.Indicators.RemoveIndicator(m_ObjectToFollow);
 		}
 
 

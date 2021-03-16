@@ -44,21 +44,21 @@ public class GameObjectsPool<T> where T : UnityEngine.Component
 	// CONSTRUCTOR
 	public GameObjectsPool(GameObjectsPoolConstructorData<T> constructorData)
 	{
-		UnityEngine.Assertions.Assert.IsNotNull
+		CustomAssertions.IsNotNull
 		(
 			constructorData.Model,
 			$"GameObjectsPool trying to create a pool with null Model for component {typeof(T).Name}"
 		);
 
-		UnityEngine.Assertions.Assert.IsTrue
+		CustomAssertions.IsTrue
 		(
 			constructorData.Size > 0,
 			$"GameObjectsPool trying to create a pool with null Model for component {typeof(T).Name}"
 		);
 
-		UnityEngine.Assertions.Assert.IsTrue
+		CustomAssertions.IsTrue
 		(
-			constructorData.Model.transform.HasComponent<T>() == true,
+			constructorData.Model.transform.HasComponent<T>(),
 			$"GameObjectsPool trying to create a pool with Model with no component {typeof(T).Name}, Model is {constructorData.Model.name}"
 		);
 
@@ -77,7 +77,7 @@ public class GameObjectsPool<T> where T : UnityEngine.Component
 
 //		m_ObjectsPool = new List<T>((int)constructorData.Size);
 
-		m_ObjectsPool.Resize((int)constructorData.Size);
+		m_ObjectsPool.Resize(constructorData.Size);
 
 		// Create the internal pool
 		if (constructorData.IsAsyncBuild) // Asyncronously
@@ -317,7 +317,10 @@ public class ObjectsPool<T> where T : UnityEngine.Component
 	public ObjectsPool(uint size = 0)
 	{
 		if (size > 0)
-			m_Storage = new List<T>((int)size);
+		{
+			m_Storage = new List<T>();
+			m_Storage.Resize(size);
+		}
 	}
 
 
@@ -346,7 +349,7 @@ public class ObjectsPool<T> where T : UnityEngine.Component
 	{
 		if (m_Storage == null || (m_Storage.Count == 0 && newSize > 0))
 		{
-			m_Storage = new List<T>((int)newSize);
+			m_Storage = new List<T>();
 		}
 
 		if (newSize == m_Storage.Count)
@@ -354,7 +357,7 @@ public class ObjectsPool<T> where T : UnityEngine.Component
 
 		m_InternalIndex = 0;
 
-		m_Storage.Capacity = (int)newSize;
+		m_Storage.Resize(newSize);
 	}
 
 
@@ -364,7 +367,9 @@ public class ObjectsPool<T> where T : UnityEngine.Component
 	{
 		m_InternalIndex++;
 		if (m_InternalIndex >= m_Storage.Count)
+		{
 			m_InternalIndex = 0;
+		}
 
 		return m_Storage[m_InternalIndex];
 	}
@@ -374,10 +379,7 @@ public class ObjectsPool<T> where T : UnityEngine.Component
 	// At
 	public T At(int index)
 	{
-		if (index >= m_Storage.Count)
-			return null;
-
-		return m_Storage[index];
+		return index >= m_Storage.Count ? null : m_Storage[index];
 	}
 
 
@@ -392,7 +394,6 @@ public class ObjectsPool<T> where T : UnityEngine.Component
 			{
 				Object.Destroy(comp);
 			}
-			m_Storage.RemoveAt(i);
 		}
 		m_Storage.Clear();
 		m_Storage = null;
@@ -522,10 +523,7 @@ public class ClassPoolStack<T> where T : class, new()
 
 	private Stack<T> m_Storage = null;
 	private IEnumerator m_Enumerator = null;
-	public int Count
-	{
-		get { return m_Storage.Count; }
-	}
+	public int Count => m_Storage.Count;
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -543,7 +541,7 @@ public class ClassPoolStack<T> where T : class, new()
 	// Add
 	public void Add(T newItem)
 	{
-		if (newItem != null)
+		if (newItem.IsNotNull())
 		{
 			m_Storage.Push(newItem);
 		}
@@ -581,7 +579,6 @@ public class ClassPoolStack<T> where T : class, new()
 
 		// Calculate the delta
 		int delta = Mathf.Abs(m_Storage.Count - (int)newSize);
-
 
 		// Enlarge
 		if (m_Storage.Count < newSize)

@@ -118,7 +118,7 @@ namespace WeatherSystem {
 		// EditorUpdate
 		private	void	EditorUpdate()
 		{
-			if (m_EnvDescriptorCurrent.set == false || m_EnvDescriptorNext.set == false )
+			if (m_EnvDescriptorCurrent.IsSet == false || m_EnvDescriptorNext.IsSet == false )
 				return;
 
 			if ( Editor.EDITOR_EditorCycleLinked == false )

@@ -65,20 +65,20 @@ namespace QuestSystem {
 			
 		}
 
-		
+
 		//////////////////////////////////////////////////////////////////////////
 		// Activate ( IObjective )
-		protected		override	void		ActivateInternal()
-		{	
-			UIManager.Indicators.EnableIndicator(m_Interactable.Collider.gameObject, EIndicatorType.OBJECT_TO_INTERACT, bMustBeClamped: true );
+		protected override void ActivateInternal()
+		{
+			UIManager.Indicators.AddIndicator(m_Interactable.Collider.gameObject, EIndicatorType.OBJECT_TO_INTERACT, bMustBeClamped: true);
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// Deactivate ( IObjective )
-		protected		override	void		DeactivateInternal()
+		protected override void DeactivateInternal()
 		{
-			UIManager.Indicators.DisableIndicator(gameObject );
+			UIManager.Indicators.RemoveIndicator(gameObject);
 		}
 
 

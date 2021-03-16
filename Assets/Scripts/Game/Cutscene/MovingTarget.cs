@@ -14,9 +14,10 @@ namespace CutScene
 		[SerializeField]
 		private		bool		m_UseUpVector		= true;
 
-		private void FixedUpdate()
+		private void Update()
 		{
-			bool bIsCompleted = m_UseUpVector ? m_Path.Move(transform, m_Speed, Vector3.up) : m_Path.Move(transform, m_Speed, null);
+			float deltaTime = Time.deltaTime;
+			bool bIsCompleted = m_UseUpVector ? m_Path.Move(transform, m_Speed * deltaTime, Vector3.up) : m_Path.Move(transform, m_Speed * deltaTime, null);
 			if ( bIsCompleted )
 			{
 				enabled = false;

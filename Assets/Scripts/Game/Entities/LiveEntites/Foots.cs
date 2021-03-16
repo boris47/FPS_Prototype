@@ -26,7 +26,7 @@ public class Foots : MonoBehaviour
 	//////////////////////////////////////////////////////////////////////////
 	private void Awake()
 	{
-		UnityEngine.Assertions.Assert.IsNotNull(transform.parent);
+		CustomAssertions.IsNotNull(transform.parent);
 
 		transform.parent.TryGetComponent(out m_Entity);
 		transform.TryGetComponent(out m_AudioSource);
@@ -54,7 +54,7 @@ public class Foots : MonoBehaviour
 	//////////////////////////////////////////////////////////////////////////
 	private void OnEnable()
 	{
-		UnityEngine.Assertions.Assert.IsNotNull(GameManager.UpdateEvents);
+		CustomAssertions.IsNotNull(GameManager.UpdateEvents);
 
 		GameManager.UpdateEvents.OnFrame += OnFrame;
 	}

@@ -74,11 +74,11 @@ namespace QuestSystem {
 		// Activate ( IObjective )
 		protected		override	void		ActivateInternal()
 		{
-			if (m_ObjectThatTrigger.IsNotNull() )
+			if (m_ObjectThatTrigger.IsNotNull())
 			{
 				m_Collider.enabled = true;
 
-				UIManager.Indicators.EnableIndicator(m_Collider.gameObject, EIndicatorType.AREA_WHERE_PLACE_OBJECT, bMustBeClamped: true );
+				UIManager.Indicators.AddIndicator(m_Collider.gameObject, EIndicatorType.AREA_WHERE_PLACE_OBJECT, bMustBeClamped: true);
 			}
 		}
 
@@ -91,7 +91,7 @@ namespace QuestSystem {
 			{
 				m_Collider.enabled = false;
 
-				UIManager.Indicators.DisableIndicator(gameObject );
+				UIManager.Indicators.RemoveIndicator(gameObject );
 			}
 		}
 

@@ -38,8 +38,8 @@ public class WPN_WeaponModule_Shield : WPN_BaseModule, IWPN_UtilityModule
 				m_RigidBody	= m_ShieldGO.GetComponentInChildren<Rigidbody>();
 				m_Shield	= m_ShieldGO.GetComponentInChildren<Shield>();
 
-				UnityEngine.Assertions.Assert.IsNotNull(m_RigidBody);
-				UnityEngine.Assertions.Assert.IsNotNull(m_Shield);
+				CustomAssertions.IsNotNull(m_RigidBody);
+				CustomAssertions.IsNotNull(m_Shield);
 
 				m_Shield.Setup(m_ShieldLife, EShieldContext.WEAPON);
 				m_Shield.OnHit += OnShieldHit;
