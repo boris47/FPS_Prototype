@@ -53,11 +53,6 @@ public class CoroutinesManager : MonoBehaviourSingleton<CoroutinesManager>
 	private	uint				m_PendingRoutines	= 0;
 	public static uint			PendingRoutines		=> m_Instance.m_PendingRoutines;
 
-
-	//////////////////////////////////////////////////////////////////////////
-	protected override void OnBeforeSceneLoad()
-	{ }
-
 	
 	/////////////////////////////////////////////////////////////////
 	public static  void	AddCoroutineToPendingCount( uint howMany )
@@ -98,7 +93,7 @@ public class CoroutinesManager : MonoBehaviourSingleton<CoroutinesManager>
 		{
 			Debug.Log( $"Starting coroutine for {debugKey}" );
 		}
-		return m_Instance?.StartCoroutine( routine );
+		return m_Instance.StartCoroutine( routine );
 	}
 
 
@@ -106,7 +101,7 @@ public class CoroutinesManager : MonoBehaviourSingleton<CoroutinesManager>
 	/// <summary> Start given coroutine </summary>
 	public	static	void	Stop( Coroutine routine )
 	{
-		m_Instance?.StopCoroutine( routine );
+		m_Instance.StopCoroutine( routine );
 	}
 
 
@@ -114,7 +109,7 @@ public class CoroutinesManager : MonoBehaviourSingleton<CoroutinesManager>
 	/// <summary> Stop all running coroutines </summary>
 	public	static	void	StopAll()
 	{
-		m_Instance?.StopAllCoroutines();
+		m_Instance.StopAllCoroutines();
 	}
 
 	/////////////////////////////////////////////////////////////////
