@@ -62,7 +62,6 @@ public abstract class MonoBehaviourSingleton<T> : MonoBehaviour, ISingleton, Sin
 {
 	private		const			string							SINGLETONS_FOLDER_PATH	= "Prefabs/Essentials/Singletons_Global/";
 	private		static			bool							m_IsInitialized			= false;
-	private		static			bool							m_IsShuttingDown		= false;
 	private		static			T								m_InstanceInternal		= null;
 	private		static			MonoBehaviourSingleton<T>		m_SingletonInstance		= null;
 	protected	static			T								m_Instance              => m_InstanceInternal;
@@ -71,17 +70,7 @@ public abstract class MonoBehaviourSingleton<T> : MonoBehaviour, ISingleton, Sin
 	public		static			T								Instance
 	{
 		get {
-			// Singleton initialization forbidden on application quit
-			if (m_IsShuttingDown)
-			{
-				return null;
-			}
-
-			// Added this because other singletons can require other singletons
-		//	InitializeIfNeeded();
-
 			CustomAssertions.IsNotNull(m_Instance, $"{typeof(T).Name} has been not initialized correctly!!");
-
 			return m_Instance;
 		}
 	}
@@ -160,9 +149,11 @@ public abstract class MonoBehaviourSingleton<T> : MonoBehaviour, ISingleton, Sin
 			K source = Resources.Load<K>(resourcePath);
 			if (CustomAssertions.IsNotNull(source, $"Cannot load Singleton at {resourcePath}"))
 			{
+				bool prevState = source.enabled;
 				source.enabled = false; // This prevent OnEnabled called just after the awake
 				instance = Instantiate(source);
 				instance.name = instance.name.Replace("Clone", "Singleton");
+				source.enabled = prevState;
 			}
 			else
 			{
@@ -194,12 +185,6 @@ public abstract class MonoBehaviourSingleton<T> : MonoBehaviour, ISingleton, Sin
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
-
-	//////////////////////////////////////////////////////////////////////////
-	private void OnApplicationQuit()
-	{
-		m_IsShuttingDown = true;
-	}
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Called on initialization </summary>
