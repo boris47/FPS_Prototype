@@ -56,6 +56,14 @@ public static class Extensions_Unity
 	/////////////////////////////////////////////////////////////////////////////
 	#region TRANSFORM
 
+		/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Return true if component is found, otherwise return false </summary>
+	public static	void			SetLocalPositionAndRotation<T>( this Transform transform, in Vector3 localPosition, in Quaternion localRotation ) where T : Component
+	{
+		transform.localPosition = localPosition;
+		transform.localRotation = localRotation;
+	}
+
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Return true if component is found, otherwise return false </summary>
 	public static	bool			HasComponent<T>( this Transform transform ) where T : Component
@@ -197,6 +205,12 @@ public static class Extensions_Unity
 	/////////////////////////////////////////////////////////////////////////////
 	#region OBJECT
 
+	/// <summary> Return true if frameCount frames is repeating, otherwise false </summary>
+	/// <param name="frameCount"></param>
+	public static bool					Every(this Object t, int frameCount)
+	{
+		return Time.frameCount % frameCount != 0;
+	}
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Return the object with instance id requested or null </summary>
