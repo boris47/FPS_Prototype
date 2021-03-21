@@ -74,14 +74,14 @@ public abstract class MonoBehaviourSingleton<T> : MonoBehaviour, ISingleton, Sin
 			return m_Instance;
 		}
 	}
-
+	
 	//////////////////////////////////////////////////////////////////////////
 	private	static	void	SubsystemRegistration()
 	{
 		InitializeIfNeeded();
-		m_SingletonInstance.OnSubsystemRegistration();
+	//	m_SingletonInstance.OnSubsystemRegistration();
 	}
-
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	private	static	void	AfterAssembliesLoaded()
 	{
@@ -102,12 +102,12 @@ public abstract class MonoBehaviourSingleton<T> : MonoBehaviour, ISingleton, Sin
 		InitializeIfNeeded();
 		m_SingletonInstance.OnBeforeSceneLoad();
 	}
-
+	*/
 	//////////////////////////////////////////////////////////////////////////
 	private	static	void	AfterSceneLoad()
 	{
 		InitializeIfNeeded();
-		m_SingletonInstance.OnAfterSceneLoad();
+	//	m_SingletonInstance.OnAfterSceneLoad();
 		/* Here we re-enable the component so OnEnabled is called */
 		m_Instance.enabled = true;
 	}
@@ -121,7 +121,7 @@ public abstract class MonoBehaviourSingleton<T> : MonoBehaviour, ISingleton, Sin
 		string typeName = typeof(K).Name;
 		instance = null;
 
-		UnityEngine.Debug.Log($"Creation of Singleton {typeName}");
+	//	UnityEngine.Debug.Log($"Creation of Singleton {typeName}");
 
 		// Debug Info enable if requested by section
 		if (GlobalManager.Configs.TryGetSection("DebugInfos", out Database.Section debugInfosSection))
@@ -189,7 +189,7 @@ public abstract class MonoBehaviourSingleton<T> : MonoBehaviour, ISingleton, Sin
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Called on initialization </summary>
 	protected virtual void OnInitialize() { }
-
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Callback used for registration of subsystems </summary>
 	protected virtual void OnSubsystemRegistration() { }
@@ -213,10 +213,12 @@ public abstract class MonoBehaviourSingleton<T> : MonoBehaviour, ISingleton, Sin
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> After Scene is loaded. </summary>
 	protected virtual void OnAfterSceneLoad() { }
+	*/
 }
 
 public abstract class OnDemandSingleton<T> : MonoBehaviour, IDeclaredSingleton where T : MonoBehaviour, new()
 {
+	private		const			string							SINGLETONS_FOLDER_PATH	= "Prefabs/Essentials/Singletons_InGame/";
 	private		static			bool							m_IsInitialized			= false;
 	private		static			bool							m_IsShuttingDown		= false;
 	protected	static			T								m_Instance				{ get; private set; }
@@ -235,8 +237,8 @@ public abstract class OnDemandSingleton<T> : MonoBehaviour, IDeclaredSingleton w
 
 			if (!m_IsInitialized)
 			{
-				Initialize();
 				m_IsInitialized = true;
+				Initialize();
 			}
 
 			CustomAssertions.IsNotNull(m_Instance, $"{typeof(T).Name} has been not initialized correctly!!");
@@ -267,8 +269,25 @@ public abstract class OnDemandSingleton<T> : MonoBehaviour, IDeclaredSingleton w
 		// If need to be instantiated
 		if (!m_Instance)
 		{
-			m_Instance = new GameObject($"{typeName}_GeneratedSingleton").AddComponent<T>();
+			string resourcePath = $"{SINGLETONS_FOLDER_PATH}{typeName}";
+			T source = Resources.Load<T>(resourcePath);
+			if (source)
+			{
+				bool prevState = source.enabled;
+				source.enabled = false; // This prevent OnEnabled called just after the awake
+				m_Instance = Instantiate(source);
+				m_Instance.name = m_Instance.name.Replace("Clone", "OnDemandSingleton");
+				source.enabled = prevState;
+
+				m_Instance.enabled = prevState;
+			}
+			else
+			{
+				m_Instance = new GameObject($"{typeName}_GeneratedOnDemandSingleton").AddComponent<T>();
+				UnityEngine.Debug.Log($"Singleton {typeName} has been generated");
+			}
 		}
+		CustomAssertions.IsNotNull(m_Instance);
 		DontDestroyOnLoad(m_Instance);
 	}
 
