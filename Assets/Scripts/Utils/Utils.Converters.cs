@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using UnityEngine;
 
 
@@ -40,7 +41,9 @@ namespace Utils {
 				string[] sArray = s.TrimStart().TrimInside().TrimEnd().Split(',');
 				if (sArray.Length >= 3)
 				{
-					if (float.TryParse(sArray[0], out float r) && float.TryParse(sArray[1], out float g) && float.TryParse(sArray[2], out float b))
+					if (float.TryParse(sArray[0], NumberStyles.Any, CultureInfo.InvariantCulture, out float r) &&
+						float.TryParse(sArray[1], NumberStyles.Any, CultureInfo.InvariantCulture, out float g) &&
+						float.TryParse(sArray[2], NumberStyles.Any, CultureInfo.InvariantCulture, out float b))
 					{
 						c.r = r; c.g = g; c.b = b;
 						c.a = Alpha > 0.0f ? Alpha : (sArray.Length > 3 && float.TryParse(sArray[3], out float a)) ? a : 1.0f;
@@ -64,7 +67,9 @@ namespace Utils {
 				string[] sArray = s.TrimStart().TrimInside().TrimEnd().Split(',');
 				if (sArray.Length >= 3)
 				{
-					if (float.TryParse(sArray[0], out float x) && float.TryParse(sArray[1], out float y) && float.TryParse(sArray[2], out float z))
+					if (float.TryParse(sArray[0], NumberStyles.Any, CultureInfo.InvariantCulture, out float x) &&
+						float.TryParse(sArray[1], NumberStyles.Any, CultureInfo.InvariantCulture, out float y) &&
+						float.TryParse(sArray[2], NumberStyles.Any, CultureInfo.InvariantCulture, out float z))
 					{
 						v.Set(x, y, z);
 						return true;
@@ -87,8 +92,10 @@ namespace Utils {
 				string[] sArray = s.TrimStart().TrimInside().TrimEnd().Split(',');
 				if (sArray.Length >= 4)
 				{
-					if (float.TryParse(sArray[0], out float x) && float.TryParse(sArray[1], out float y)
-					 && float.TryParse(sArray[2], out float z) && float.TryParse(sArray[3], out float w))
+					if (float.TryParse(sArray[0], NumberStyles.Any, CultureInfo.InvariantCulture, out float x) &&
+						float.TryParse(sArray[1], NumberStyles.Any, CultureInfo.InvariantCulture, out float y) &&
+						float.TryParse(sArray[2], NumberStyles.Any, CultureInfo.InvariantCulture, out float z) &&
+						float.TryParse(sArray[3], NumberStyles.Any, CultureInfo.InvariantCulture, out float w))
 					{
 						q.Set(x, y, z, w);
 						return true;
@@ -120,16 +127,5 @@ namespace Utils {
 		{
 			return $"{quaternion.x}, {quaternion.y}, {quaternion.z}, {quaternion.w}";
 		}
-
-
-		public static void ObjectToJson( UnityEngine.GameObject unityObj )
-		{
-			if ( unityObj is UnityEngine.GameObject asGameobject)
-			{
-				Component[] components = asGameobject.GetComponents<UnityEngine.Component>();
-
-			}
-		}
 	}
-
 }
