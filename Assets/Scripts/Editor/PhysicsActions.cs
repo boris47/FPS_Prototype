@@ -13,24 +13,32 @@ public class PhysicsActions
 	/// - Remove RigidBody if was added
 	/// 
 
-	[MenuItem( MENU_LABEL + "/SimulateOnlySelectedWithRaycasts" )]
+	[MenuItem( MENU_LABEL + "/SimulateOnlySelectedWithRaycastsDown" )]
 	private	static	void	PhysicsActions_SimulateOnlySelectedWithRaycasts()
 	{
-		SimulateOnlySelectedWithRaycasts(Space.World);
+		SimulateOnlySelectedWithRaycasts(Space.World, Vector3.down);
 	}
 
-	[MenuItem(MENU_LABEL + "/SimulateOnlySelectedWithRaycastsLocalUp")]
+	[MenuItem(MENU_LABEL + "/SimulateOnlySelectedWithRaycastsDown_Locally")]
 	private static void PhysicsActions_SimulateOnlySelectedWithRaycastsLocalUp()
 	{
-		SimulateOnlySelectedWithRaycasts(Space.Self);
+		SimulateOnlySelectedWithRaycasts(Space.Self, Vector3.down);
 	}
 
-	private static void SimulateOnlySelectedWithRaycasts(Space space)
+	[MenuItem(MENU_LABEL + "/SimulateOnlySelectedWithRaycastsForward_Locally")]
+	private static void PhysicsActions_SimulateOnlySelectedWithRaycastsLocalForward()
+	{
+		SimulateOnlySelectedWithRaycasts(Space.Self, Vector3.forward);
+	}
+
+	private static void SimulateOnlySelectedWithRaycasts(Space space, Vector3 direction)
 	{
 		Transform[] transforms = UnityEditor.Selection.GetTransforms(SelectionMode.ExcludePrefab | SelectionMode.Editable | SelectionMode.OnlyUserModifiable);
 		foreach(Transform t in transforms)
 		{
-			Vector3 up = space == Space.World ? Vector3.up : t.up;
+			Quaternion rotation = t.rotation;
+			Vector3 up = space == Space.World ? -direction : -rotation.GetVector(direction);
+
 			if (t.TryGetComponent(out Collider collider))
 			{
 				if (t.TryGetComponent(out Rigidbody rigidBody))
@@ -41,7 +49,6 @@ public class PhysicsActions
 
 				float halfHeight = collider.bounds.extents.y;
 				Vector3 origin = t.position + (-up * halfHeight);
-				Vector3 direction = -up;
 				if (Physics.Raycast(origin: origin, direction: direction, hitInfo: out RaycastHit hitInfo))
 				{
 					t.position = hitInfo.point + (up * halfHeight) + (up * 0.001f)/*Always leave a small space in order to avoid undesired collisons*/;
@@ -50,7 +57,6 @@ public class PhysicsActions
 			else
 			{
 				Vector3 origin = t.position;
-				Vector3 direction = -up;
 				if (Physics.Raycast(origin: origin, direction: direction, hitInfo: out RaycastHit hitInfo))
 				{
 					t.position = hitInfo.point + (up * 0.001f)/*Always leave a small space in order to avoid undesired collisons*/;

@@ -8,28 +8,27 @@ public class DecalsManager : OnDemandSingleton<DecalsManager>
 	private			float							m_DecalLifeTime			= 10f;
 	private			GameObjectsPool<Decal>			m_DecalsPool			= null;
 
-	private			GameObject						m_DecalPrefab			= null;
-
 
 	//////////////////////////////////////////////////////////////////////////
 	protected override void Awake()
 	{
 		base.Awake();
-		ResourceManager.AsyncLoadedData<GameObject> loadedResource = new ResourceManager.AsyncLoadedData<GameObject>();
-		ResourceManager.LoadResourceAsyncCoroutine
-		(
-			ResourcePath:			"Prefabs/UI/UI_CommandRow",
-			loadedResource:			loadedResource,
-			OnResourceLoaded:		(a) => m_DecalPrefab = a,
-			OnFailure:				(resPath) => Debug.LogError($"DecalsManager::OnInitialize: Cannot load {resPath}")
-		);
 
-		var options = new GameObjectsPoolConstructorData<Decal>(model: m_DecalPrefab, size: 200)
+		void StartPoolCreation(GameObject prefab)
 		{
-			ContainerName = "DecalsContainer",
-			IsAsyncBuild = true,
-		};
-		m_DecalsPool = new GameObjectsPool<Decal>(options);
+			var options = new GameObjectsPoolConstructorData<Decal>(model: prefab, size: 200)
+			{
+				ContainerName = "DecalsContainer",
+				IsAsyncBuild = true,
+			};
+			m_DecalsPool = new GameObjectsPool<Decal>(options);
+		}
+		ResourceManager.LoadResourceAsync<GameObject>
+		(
+			resourcePath:			"Prefabs/UI/UI_CommandRow",
+			onResourceLoaded:		StartPoolCreation,
+			onFailure:				resPath => Debug.LogError($"DecalsManager::OnInitialize: Cannot load {resPath}")
+		);
 	}
 
 

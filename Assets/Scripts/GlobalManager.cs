@@ -10,14 +10,14 @@ class EditorInitializer
 	static EditorInitializer ()
 	{
 		// Assets/Resources/Scriptables/WeatherCollection.asset
-		string assetPath = System.IO.Path.Combine(WeatherSystem.WindowWeatherEditor.ASSETS_SCRIPTABLES_PATH, $"{WeatherSystem.WeatherManager.RESOURCES_WEATHERSCOLLECTION}.asset");
+	/*	string assetPath = System.IO.Path.Combine(WeatherSystem.WindowWeatherEditor.ASSETS_SCRIPTABLES_PATH, $"{WeatherSystem.WeatherManager.RESOURCES_WEATHERSCOLLECTION}.asset");
 		if (System.IO.File.Exists(assetPath))
 		{
 			WeatherSystem.Weathers weathers = UnityEditor.AssetDatabase.LoadAssetAtPath<WeatherSystem.Weathers>(assetPath);
 			CustomAssertions.IsNotNull(weathers, "Cannot preload weather cycles");
 			Debug.Log("Weathers cycles preloaded!");
 		}
-
+*/
 		void EnableCursorInEditMode(UnityEditor.PlayModeStateChange currentState)
 		{
 			if (currentState == UnityEditor.PlayModeStateChange.EnteredEditMode)
@@ -42,7 +42,7 @@ public class GlobalManager : MonoBehaviourSingleton<GlobalManager>
 	public	static			CustomLogger	LoggerInstance		=> m_LoggerInstance;
 	static GlobalManager()
 	{
-	//	m_LoggerInstance = new CustomLogger(!Application.isEditor);
+		m_LoggerInstance = new CustomLogger(!Application.isEditor);
 	}
 
 #if UNITY_EDITOR

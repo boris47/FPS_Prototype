@@ -241,11 +241,11 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule
 	//////////////////////////////////////////////////////////////////////////
 	public		override	void	ApplyModifier( Database.Section modifier )
 	{
-		m_Modifiers.Add( modifier );
+		m_Modifiers.Add(modifier);
 
-		Database.Section Configuration = GetCurrentConfiguration(m_ModuleSection, m_Modifiers );
+		Database.Section Configuration = GetCurrentConfiguration(m_ModuleSection, m_Modifiers);
 
-		ApplyConfiguration( Configuration );
+		ApplyConfiguration(Configuration);
 	}
 
 
@@ -255,7 +255,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule
 		// Reset everything of this module
 		m_Modifiers.Clear();
 		OnDetach();
-		OnAttach(m_WeaponRef, m_ModuleSlot );
+		OnAttach(m_WeaponRef, m_ModuleSlot);
 	}
 	
 
@@ -268,11 +268,11 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule
 			return;
 		}
 
-		m_Modifiers.RemoveAt( indexOfModifier );
-		
-		Database.Section Configuration = GetCurrentConfiguration(m_ModuleSection, m_Modifiers );
+		m_Modifiers.RemoveAt(indexOfModifier);
 
-		ApplyConfiguration( Configuration );
+		Database.Section Configuration = GetCurrentConfiguration(m_ModuleSection, m_Modifiers);
+
+		ApplyConfiguration(Configuration);
 	}
 
 
@@ -298,7 +298,7 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule
 		m_WpnFireMode.Setup(this, m_ShotDelay, Shoot);
 
 		// BULLET
-		string bulletSectionName				= Configuration.AsString("Bullet");
+		string bulletSectionName			= Configuration.AsString("Bullet");
 		if (bulletSectionName != m_PoolBullets.PeekComponent().GetType().Name)
 		{
 			if (Bullet.TryGetBulletModel(bulletSectionName, out GameObject model))
@@ -315,54 +315,54 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule
 	public					bool	ChangeFireMode( string weaponFireModeSectionName )
 	{
 		weaponFireModeSectionName = $"WPN_FireMode_{weaponFireModeSectionName}";
-		System.Type type = System.Type.GetType( weaponFireModeSectionName.Trim() );
-		if ( type == null )
+		System.Type type = System.Type.GetType(weaponFireModeSectionName.Trim());
+		if (type == null)
 		{
-			Debug.Log( $"WPN_FireModule:ChangeFireMode:Setting invalid weapon fire mode \"{weaponFireModeSectionName}\"" );
+			Debug.Log($"WPN_FireModule:ChangeFireMode:Setting invalid weapon fire mode \"{weaponFireModeSectionName}\"");
 			return false;
 		}
-		return TryLoadFireMode(m_FireModeContainer, type, ref m_WpnFireMode );
+		return TryLoadFireMode(m_FireModeContainer, type, ref m_WpnFireMode);
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public					bool	ChangeFireMode<T>() where T : WPN_BaseFireMode, new()
 	{
-		return TryLoadFireMode(m_FireModeContainer, typeof(T), ref m_WpnFireMode );
+		return TryLoadFireMode(m_FireModeContainer, typeof(T), ref m_WpnFireMode);
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private	static			bool	TryLoadFireMode( GameObject container, System.Type type, ref WPN_BaseFireMode fireMode )
 	{
-		if ( fireMode != null )
+		if (fireMode.IsNotNull())
 		{
-			if ( fireMode.GetType() == type )
+			if (fireMode.GetType() == type)
 			{
 				return true; // same firemode, change masked as success
 			}
 			else
 			{
-				Object.Destroy( fireMode );
+				Object.Destroy(fireMode);
 			}
 		}
 
 		string weaponFireModeSectionName = type.Name;
-			
+
 		// Check module type as child of WPN_BaseModule
-		if ( type.IsSubclassOf( typeof( WPN_BaseFireMode ) ) == false )
+		if (!type.IsSubclassOf(typeof(WPN_BaseFireMode)))
 		{
-			Debug.Log( $"WPN_FireModule:Class Requested is not a supported weapon fire mode, \"{weaponFireModeSectionName}\"" );
+			Debug.Log($"WPN_FireModule:Class Requested is not a supported weapon fire mode, \"{weaponFireModeSectionName}\"");
 			return false;
 		}
 
-		if ( GlobalManager.Configs.TryGetSection( weaponFireModeSectionName, out Database.Section section ) == false )
+		if (!GlobalManager.Configs.TryGetSection(weaponFireModeSectionName, out Database.Section section))
 		{
-			Debug.Log( $"WPN_FireModule: Cannot find section for fire mode \"{weaponFireModeSectionName}\"" );
+			Debug.Log($"WPN_FireModule: Cannot find section for fire mode \"{weaponFireModeSectionName}\"");
 			return false;
 		}
 
-		fireMode = container.AddComponent( type ) as WPN_BaseFireMode;
+		fireMode = container.AddComponent(type) as WPN_BaseFireMode;
 		return true;
 	}
 
@@ -388,15 +388,14 @@ public abstract class WPN_FireModule : WPN_BaseModule, IWPN_FireModule
 	//////////////////////////////////////////////////////////////////////////
 	protected void OnDestroy()
 	{
-		if (m_PoolBullets != null )
+		if (m_PoolBullets.IsNotNull())
 		{
 			m_PoolBullets.Destroy();
 		}
 
-		if (m_FireModeContainer )
+		if (m_FireModeContainer)
 		{
-			Destroy( m_FireModeContainer );
+			Destroy(m_FireModeContainer);
 		}
 	}
-
 }

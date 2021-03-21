@@ -41,52 +41,78 @@ public class TargetInfo
 [RequireComponent(typeof(SphereCollider))]
 public class FieldOfView : MonoBehaviour
 {
-	private		SphereCollider			m_ViewTriggerCollider	= null;
+	private		const	float						UPDATE_TIME						= 200f; // 200 ms
+	private				SphereCollider				m_ViewTriggerCollider			= null;
 
-	private		EEntityType				m_PrevEntityType		= EEntityType.NONE;
-	private		List<Entity>			m_AllTargets			= new List<Entity>();
-	private		Entity					m_Owner					= null;
-	private		OnTargetEvent			m_OnTargetAquired		= null;
-	private		OnTargetEvent			m_OnTargetChanged		= null;
-	private		OnTargetEvent			m_OnTargetLost			= null;
-	private		OnTargetsAcquired		m_OnTargetsAcquired		= null;
-	private		TargetInfo				m_CurrentTargetInfo		= new TargetInfo();
+	private				EEntityType					m_PrevEntityType				= EEntityType.NONE;
+	private				List<Entity>				m_AllTargets					= new List<Entity>();
+	private				IEnumerable<Entity>			m_CurrentValidTargets			= new List<Entity>();
+	private				Entity						m_Owner							= null;
+	private				OnTargetEvent				m_OnTargetAquired				= null;
+	private				OnTargetEvent				m_OnTargetChanged				= null;
+	private				OnTargetEvent				m_OnTargetLost					= null;
+	private				OnTargetsAcquired			m_OnTargetsAcquired				= null;
+	private				TargetInfo					m_CurrentTargetInfo				= new TargetInfo();
+	private				float						m_UpdateTimer					= 0f;
 
 	[SerializeField]
-	private		Transform				m_ViewPoint				= null;
-	[SerializeField, Range( 1f, 200f )]
-	public		float					m_ViewDistance			= 10f;
-	[SerializeField,Range( 1f, 150f)]
-	public		float					m_ViewCone				= 100f;
+	private				Transform					m_ViewPoint						= null;
+	[SerializeField, Range(1f, 200f)]
+	private				float						m_ViewDistance					= 10f;
+	[SerializeField, Range(1f, 150f)]
+	private				float						m_ViewCone						= 100f;
 	[SerializeField]
-	private		EEntityType				m_EntityType			= EEntityType.NONE;
+	private				EEntityType					m_EntityType					= EEntityType.NONE;
 	[SerializeField]
-	private		EAcquisitionStrategy	m_strategy				= EAcquisitionStrategy.CLOSEST;
+	private				EAcquisitionStrategy		m_strategy						= EAcquisitionStrategy.CLOSEST;
 
-	public		OnTargetEvent			OnTargetAquired			{ set => m_OnTargetAquired   = value;  }
-	public		OnTargetEvent			OnTargetChanged			{ set => m_OnTargetChanged   = value;  }
-	public		OnTargetEvent			OnTargetLost			{ set => m_OnTargetLost	     = value;  }
-	public		OnTargetsAcquired		OnTargetsAcquired		{ set => m_OnTargetsAcquired = value;  }
+	public				OnTargetEvent				OnTargetAquired					{ set => m_OnTargetAquired   = value;  }
+	public				OnTargetEvent				OnTargetChanged					{ set => m_OnTargetChanged   = value;  }
+	public				OnTargetEvent				OnTargetLost					{ set => m_OnTargetLost	     = value;  }
+	public				OnTargetsAcquired			OnTargetsAcquired				{ set => m_OnTargetsAcquired = value;  }
 
-	public		float					Distance				{ get => m_ViewDistance; set => m_ViewDistance = value; }
-	public		float					Angle					{ get => m_ViewCone;	 set => m_ViewCone     = value; }
-	public		EEntityType				TargetType				{ get => m_EntityType;   set => m_EntityType   = value; }
+	public				float						Distance						{ get => m_ViewDistance; set => m_ViewDistance = value; }
+	public				float						Angle							{ get => m_ViewCone;	 set => m_ViewCone     = value; }
+	public				EEntityType					TargetType						{ get => m_EntityType;   set => m_EntityType   = value; }
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private void	Awake()
 	{
-		m_ViewTriggerCollider = gameObject.GetOrAddIfNotFound<SphereCollider>();
-		m_ViewTriggerCollider.isTrigger = true;
-		m_ViewTriggerCollider.radius = m_ViewDistance;
+		if (CustomAssertions.IsTrue(gameObject.TryGetComponent(out m_ViewTriggerCollider)))
+		{
+			CustomAssertions.IsTrue(m_ViewTriggerCollider.isTrigger);
+			m_ViewTriggerCollider.radius = m_ViewDistance;
+		}
+
+		m_UpdateTimer = UnityEngine.Random.Range(1f, UPDATE_TIME);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	private void	OnValidate()
 	{
-		m_ViewTriggerCollider = gameObject.GetOrAddIfNotFound<SphereCollider>();
+		m_ViewTriggerCollider = m_ViewTriggerCollider ?? gameObject.GetOrAddIfNotFound<SphereCollider>();
 		m_ViewTriggerCollider.isTrigger = true;
 		m_ViewTriggerCollider.radius = m_ViewDistance;
+	}
+
+	private void OnEnable()
+	{
+		if (CustomAssertions.IsNotNull(GameManager.UpdateEvents))
+		{
+			GameManager.UpdateEvents.OnFrame += OnFrame;
+			GameManager.UpdateEvents.OnThink += UpdateTarget;
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	private void OnDisable()
+	{
+		if (GameManager.UpdateEvents.IsNotNull())
+		{
+			GameManager.UpdateEvents.OnThink -= UpdateTarget;
+			GameManager.UpdateEvents.OnFrame -= OnFrame;
+		}
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -106,49 +132,74 @@ public class FieldOfView : MonoBehaviour
 	public void		SetViewPoint(in Transform viewPoint)
 	{
 		m_ViewPoint = viewPoint ?? m_ViewPoint;
+
+		SelectTargetsByBaseConditions();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private static bool IsValidEntity(in Entity target)
+	{
+		return target.IsAlive;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	public void	UpdateFOV()
+	private static bool InsideViewCone(in Entity target, in Vector3 viewPointPosition, in Vector3 viewPointDirection, in float viewCone)
 	{
-		if (!m_ViewPoint)
-			return;
+		Vector3 targettablePosition = target.Targettable.position;
+		Vector3 direction = (targettablePosition - viewPointPosition);
+		float angle = Vector3.Angle(direction, viewPointDirection);
+		return (angle <= (viewCone * 0.5f));
+	}
 
-		HandleEntityTargetTypeChange();
-
-		CustomAssertions.IsNotNull(m_ViewPoint);
-
-		Vector3 viewPointPosition = m_ViewPoint.position;
-		Vector3 viewPointDirection = m_ViewPoint.forward;
-
-		bool IsValidEntity(in Entity target)
+	//////////////////////////////////////////////////////////////////////////
+	private static bool IsTargettable(in Entity target, in Vector3 viewPointPosition, in float viewDistance)
+	{
+		Vector3 direction = (target.Targettable.position - viewPointPosition);
+		if (Physics.Raycast(viewPointPosition, direction, out RaycastHit m_RaycastHit, viewDistance/*, 0, QueryTriggerInteraction.Ignore*/))
 		{
-			return target.IsAlive;
+			int colliderInstanceID = m_RaycastHit.collider.GetInstanceID();
+			int entityPhysicColliderInstanceID = target.PhysicCollider.GetInstanceID();
+			int shieldColliderInstanceID = target.EntityShield?.Collider.GetInstanceID() ?? -1;
+			return (colliderInstanceID == entityPhysicColliderInstanceID || colliderInstanceID == shieldColliderInstanceID);
 		}
+		return false;
+	}
 
-		bool InsideViewCone(in Entity target)
+
+	//////////////////////////////////////////////////////////////////////////
+	private void SelectTargetsByBaseConditions()
+	{
+		if (m_ViewPoint)
 		{
-			Vector3 targettablePosition = target.Targettable.position;
-			Vector3 direction = (targettablePosition - viewPointPosition);
-			float angle = Vector3.Angle(direction, viewPointDirection);
-			return (angle <= (m_ViewCone * 0.5f));
+			Vector3 p = m_ViewPoint.position;
+			Vector3 d = m_ViewPoint.forward;
+			m_CurrentValidTargets = m_AllTargets.Where(e => e && IsValidEntity(e) && InsideViewCone(e, p, d, m_ViewCone) && IsTargettable(e, p, m_ViewDistance));
 		}
-
-		bool IsTargettable(in Entity target)
+		else
 		{
-			Vector3 direction = (target.Targettable.position - viewPointPosition);
-			if (Physics.Raycast(viewPointPosition, direction, out RaycastHit m_RaycastHit, m_ViewDistance/*, 0, QueryTriggerInteraction.Ignore*/))
-			{
-				int colliderInstanceID = m_RaycastHit.collider.GetInstanceID();
-				int entityPhysicColliderInstanceID = target.PhysicCollider.GetInstanceID();
-				int shieldColliderInstanceID = target.EntityShield?.Collider.GetInstanceID() ?? -1;
-				return (colliderInstanceID == entityPhysicColliderInstanceID || colliderInstanceID == shieldColliderInstanceID);
-			}
-			return false;
+			m_CurrentValidTargets = System.Linq.Enumerable.Repeat<Entity>(null, 0);
 		}
+	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	private void OnFrame(float deltaTime)
+	{
+		m_UpdateTimer -= deltaTime;
+		if (m_UpdateTimer < 0f)
+		{
+			m_UpdateTimer = UPDATE_TIME;
+			SelectTargetsByBaseConditions();
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void UpdateTarget()
+	{
 		// If target is valid and visible select by strategy
-		if (TrySelectTargetByStrategy(m_AllTargets.Where( e => IsValidEntity(e) && InsideViewCone(e) && IsTargettable(e)), m_strategy, out Entity choosenTarget))
+		if (TrySelectTargetByStrategy(m_CurrentValidTargets, m_strategy, out Entity choosenTarget))
 		{
 			Entity previousTarget = m_CurrentTargetInfo.CurrentTarget;
 			m_CurrentTargetInfo.CurrentTarget = choosenTarget;

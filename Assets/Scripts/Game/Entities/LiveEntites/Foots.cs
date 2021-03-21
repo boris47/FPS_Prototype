@@ -11,9 +11,10 @@ public class Foots : MonoBehaviour
 	private				Collider						m_Collider					= null;
 	[SerializeField, ReadOnly]
 	private				Collider						m_CurrentCollider			= null;
+	//[SerializeField, ReadOnly]
+	//private				bool							m_WasGrounded				= false;
 
 	private				ICustomAudioSource				m_AudioSource				= null;
-	private				bool							m_WasGrounded				= false;
 	private	event		OnGroundedChangeEvent			m_OnGroundedChange			= delegate { };
 
 	public				Collider						Collider					=> m_Collider;
@@ -28,10 +29,9 @@ public class Foots : MonoBehaviour
 	{
 		CustomAssertions.IsNotNull(transform.parent);
 
-		transform.parent.TryGetComponent(out m_Entity);
-		transform.TryGetComponent(out m_AudioSource);
-
-		m_Collider = GetComponent<Collider>();
+		CustomAssertions.IsTrue(transform.parent.TryGetComponent(out m_Entity));
+		CustomAssertions.IsTrue(transform.TryGetComponent(out m_AudioSource));
+		CustomAssertions.IsTrue(transform.TryGetComponent(out m_Collider));
 	}
 
 
@@ -52,60 +52,45 @@ public class Foots : MonoBehaviour
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private void OnEnable()
-	{
-		CustomAssertions.IsNotNull(GameManager.UpdateEvents);
-
-		GameManager.UpdateEvents.OnFrame += OnFrame;
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private void OnDisable()
-	{
-		if (GameManager.UpdateEvents.IsNotNull())
-		{
-			GameManager.UpdateEvents.OnFrame -= OnFrame;
-		}
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private void OnFrame(float deltaTime)
+	private void UpdateState()
 	{
 		bool bIsGrounded = m_CurrentCollider.IsNotNull();
-		if (m_WasGrounded != bIsGrounded)
+	//	if (m_WasGrounded != bIsGrounded)
 		{
-			m_WasGrounded = bIsGrounded;
+	//		m_WasGrounded = bIsGrounded;
 			m_OnGroundedChange(bIsGrounded);
 		}
 	}
 
-
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	private void OnTriggerEnter( Collider other )
 	{
 		if (!other.isTrigger && !m_CurrentCollider)
 		{
 			m_CurrentCollider = other;
+			UpdateState();
 		}
 	}
-	
+	*/
 	//////////////////////////////////////////////////////////////////////////
 	private void OnTriggerStay(Collider other)
 	{
 		if (!other.isTrigger)
 		{
 			m_CurrentCollider = other;
+			UpdateState();
 		}
 	}
-	
+
 	//////////////////////////////////////////////////////////////////////////
-	private void OnTriggerExit( Collider other )
+	private void OnTriggerExit(Collider other)
 	{
 		if (!other.isTrigger)
 		{
 			m_CurrentCollider = null;
+			UpdateState();
 		}
 	}
+	
 }

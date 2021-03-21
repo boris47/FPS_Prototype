@@ -21,7 +21,7 @@ public enum ERotationsMode : short
 [RequireComponent(typeof(Rigidbody))]
 public abstract partial class Entity : MonoBehaviour//, IIdentificable<uint>
 {
-	private	static uint									CurrentID					= 0;
+	private	static uint									CurrentID					= 1;
 
 	// INTERNALS
 	[Header("Entity: Base")]
@@ -154,6 +154,14 @@ public abstract partial class Entity : MonoBehaviour//, IIdentificable<uint>
 		{
 			GameManager.StreamEvents.OnSave -= OnSave;
 			GameManager.StreamEvents.OnLoad -= OnLoad;
+		}
+
+		{
+			EntityComponent[] components = gameObject.GetComponentsInChildren<EntityComponent>(includeInactive: true);
+			foreach (EntityComponent component in components)
+			{
+				component.Disable();
+			}
 		}
 	}
 

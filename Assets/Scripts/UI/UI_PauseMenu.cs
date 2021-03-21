@@ -31,7 +31,7 @@ public sealed class UI_PauseMenu : UI_Base, IStateDefiner
 		{
 			if (CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("Button_Resume", out m_ResumeButton)))
 			{
-				m_ResumeButton.onClick.AddListener(OnResume);
+				m_ResumeButton.onClick.AddListener(() => GameManager.PauseEvents.SetPauseState(false));
 			}
 
 			if (CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("Button_Save", out m_SaveButton)))
@@ -81,13 +81,6 @@ public sealed class UI_PauseMenu : UI_Base, IStateDefiner
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private	void	OnResume()
-	{
-		GameManager.Instance.ResumeFromPause();
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
 	private void	ReturnToMenu()
 	{
 		// Destroy singletons
@@ -95,7 +88,6 @@ public sealed class UI_PauseMenu : UI_Base, IStateDefiner
 			Destroy(Player.Instance.gameObject);
 			Destroy(FPSEntityCamera.Instance.gameObject);
 			Destroy(WeaponManager.Instance.GameObject);
-	//		Destroy(GameManager.Instance.gameObject);
 		}
 		
 

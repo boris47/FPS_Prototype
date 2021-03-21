@@ -1,11 +1,10 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 [System.Serializable]
 public class SimpleLaser : MonoBehaviour
 {
 	[SerializeField]
-	protected		float				m_ScaleFactor		= 0.03f;
+	protected		float				m_SizeFactor		= 0.03f;
 
 	[SerializeField]
 	protected		Color				m_Color				= Color.red;
@@ -17,6 +16,8 @@ public class SimpleLaser : MonoBehaviour
 	protected		Renderer			m_Renderer			= null;
 	protected		Vector3				m_LocalScale		= new Vector3();
 
+
+	//////////////////////////////////////////////////////////////////////////
 	private void Awake()
 	{
 		m_MeshTransform = transform.GetChild(0);
@@ -27,21 +28,30 @@ public class SimpleLaser : MonoBehaviour
 		}
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	private void OnEnable()
+	{
+		if(transform.TrySearchComponent(ESearchContext.FROM_ROOT, out FieldOfView fieldOfView))
+		{
+			m_LaserLength = fieldOfView.Distance;
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	private void OnValidate()
 	{
 		m_MeshTransform = transform.GetChild(0);
 		CustomAssertions.IsNotNull(m_MeshTransform);
 
-		Update();
+		FixedUpdate();
 	}
 
 
-	private void Update()
+	//////////////////////////////////////////////////////////////////////////
+	private void FixedUpdate()
 	{
-		// Save cpu
-		if (Time.frameCount % 15 == 0)
-			return;
-
 		bool bHasHit = Physics.Raycast(transform.position, transform.forward, out RaycastHit rayCastHit, m_LaserLength, Utils.LayersHelper.Layers_AllButOne("Bullets"));
 
 		float currentLength = bHasHit ? rayCastHit.distance : m_LaserLength;
@@ -49,9 +59,16 @@ public class SimpleLaser : MonoBehaviour
 		//if the additional decimal isn't added then the beam position glitches
 		float beamPosition = currentLength * (0.5f + 0.0001f);
 
-		m_LocalScale.Set(m_ScaleFactor, m_ScaleFactor, currentLength);
+		m_LocalScale.Set(m_SizeFactor, m_SizeFactor, currentLength);
 
 		m_MeshTransform.localScale = m_LocalScale;
 		m_MeshTransform.localPosition = Vector3.forward * beamPosition;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public void SetLaserLength(float newLength)
+	{
+		m_LaserLength = Mathf.Max(0f, newLength);
 	}
 }

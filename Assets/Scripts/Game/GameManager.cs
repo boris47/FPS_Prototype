@@ -2,7 +2,7 @@
 using UnityEngine;
 
 
-public sealed partial class GameManager : MonoBehaviourSingleton<GameManager>// MonoBehaviour
+public sealed partial class GameManager : MonoBehaviourSingleton<GameManager>
 {
 	public	const			float			THINK_TIMER				= 0.2f; // 200 ms
 	private	static			bool			m_QuitRequest			= false;
@@ -17,21 +17,13 @@ public sealed partial class GameManager : MonoBehaviourSingleton<GameManager>// 
 		CustomSceneManager.RegisterOnLoad(ESceneLoadStep.SCENE_LOADED, OnInGameScene);
 	}
 
-
-
 	//////////////////////////////////////////////////////////////////////////
 	private void OnInGameScene(ESceneEnumeration prevScene, ESceneEnumeration currScene)
 	{
 		void TogglePauseMenu()
 		{
-			if (UIManager.Instance.IsCurrentActive(UIManager.InGame))
-			{
-				PauseEvents.SetPauseState(true);
-			}
-			else
-			{
-				ResumeFromPause();
-			}
+			bool newState = UIManager.Instance.IsCurrentActive(UIManager.InGame);
+			PauseEvents.SetPauseState(newState);
 		}
 
 		void ToggleMenu(UI_Base A, UI_Base B)
@@ -82,34 +74,12 @@ public sealed partial class GameManager : MonoBehaviourSingleton<GameManager>// 
 		}
 	}
 
-	protected override void OnBeforeSceneLoad()
-	{
-		base.OnBeforeSceneLoad();
-	}
-
-	protected override void OnAfterSceneLoad()
-	{
-		base.OnAfterSceneLoad();
-	}
-
-	private void Awake()
-	{
-		void asd() { }
-		asd();
-	}
-
-	private void OnEnable()
-	{
-		void asd() { }
-		asd();
-	}
-
-
 	//////////////////////////////////////////////////////////////////////////
 	private void FixedUpdate()
 	{
 		m_OnPhysicFrame(Time.fixedDeltaTime);
 	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	private void Save()
@@ -140,7 +110,6 @@ public sealed partial class GameManager : MonoBehaviourSingleton<GameManager>// 
 		if (m_ThinkTimer > THINK_TIMER)
 		{
 			m_OnThink();
-			UpdateCurrentFieldOfView();
 			m_ThinkTimer = 0f;
 		}
 
@@ -159,13 +128,6 @@ public sealed partial class GameManager : MonoBehaviourSingleton<GameManager>// 
 				GlobalManager.QuitInstanly();
 			}
 		}
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	public void ResumeFromPause()
-	{
-		PauseEvents.SetPauseState(false);
 	}
 
 
@@ -199,7 +161,7 @@ public sealed partial class GameManager : MonoBehaviourSingleton<GameManager>// 
 		m_OnFrame							= delegate { };
 		m_OnLateFrame						= delegate { };
 
-		m_FieldsOfViewList.Clear();
+	//	m_FieldsOfViewList.Clear();
 	}
 
 

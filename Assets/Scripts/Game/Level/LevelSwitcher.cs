@@ -14,13 +14,14 @@ public class LevelSwitcher : MonoBehaviour
 		if (GlobalManager.bIsChangingScene)
 			return;
 
-		if (other.transform.HasComponent<Player>())
+		if (enabled && other.transform.TrySearchComponent(ESearchContext.LOCAL_AND_PARENTS, out Player player))
 		{
 			CustomSceneManager.LoadSceneData loadSceneData = new CustomSceneManager.LoadSceneData()
 			{
 				eScene = m_NextSceneIdx
 			};
 			CustomSceneManager.LoadSceneAsync(loadSceneData);
+			enabled = false;
 		}
 	}
 
