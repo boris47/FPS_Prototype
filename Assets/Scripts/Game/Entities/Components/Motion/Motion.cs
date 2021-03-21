@@ -20,13 +20,13 @@ public interface IEntityComponent_Motion
 	MotionStrategyBase				MotionStrategy				{ get; }
 
 	/// <summary> Set the motion type </summary>
-	void							SetMotionType				(EEntityMotionType newMotionType);
+	void							SetMotionType				(in EEntityMotionType newMotionType, params object[] args);
 }
 
 public abstract class Motion_Base : EntityComponent, IEntityComponent_Motion
 {
 	[SerializeField]
-	protected	EEntityMotionType						m_CurrentMotionType			= EEntityMotionType.NONE;
+	protected	EEntityMotionType				m_CurrentMotionType			= EEntityMotionType.NONE;
 	[SerializeField]
 	protected	MotionStrategyBase				m_MotionStrategy			= null;
 
@@ -35,6 +35,7 @@ public abstract class Motion_Base : EntityComponent, IEntityComponent_Motion
 	public		bool							IsMoving					=> m_MotionStrategy.States.IsMoving;
 	public		bool							IsIdle						=> !m_MotionStrategy.States.IsMoving;
 	public		MotionStrategyBase				MotionStrategy				=> m_MotionStrategy;
+
 
 	//////////////////////////////////////////////////////////////////////////
 	public override void OnLoad(StreamUnit streamUnit)
@@ -47,10 +48,11 @@ public abstract class Motion_Base : EntityComponent, IEntityComponent_Motion
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public void SetMotionType(EEntityMotionType newMotionType)
+	public void SetMotionType(in EEntityMotionType newMotionType, params object[] args)
 	{
 		if (m_CurrentMotionType != newMotionType)
 		{
+			var states = m_MotionStrategy?.States ?? new MotionStrategyBase.EntityStates();
 			m_MotionStrategy?.Disable();
 			Destroy(m_MotionStrategy);
 
@@ -59,8 +61,8 @@ public abstract class Motion_Base : EntityComponent, IEntityComponent_Motion
 				case EEntityMotionType.NONE:		m_MotionStrategy = gameObject.AddComponent<MotionStrategy_Empty>();		break;
 				case EEntityMotionType.GROUNDED:	m_MotionStrategy = gameObject.AddComponent<MotionStrategy_Grounded>();	break;
 				case EEntityMotionType.CLIMB:		m_MotionStrategy = gameObject.AddComponent<MotionStrategy_Climb>();		break;
-			//	case EMotionType.PLATFORM:	m_MotionStrategy = gameObject.AddComponent<MotionStrategy_Platform>();	break;
-				case EEntityMotionType.FLY:		m_MotionStrategy = gameObject.AddComponent<MotionStrategy_Fly>();		break;
+			//	case EMotionType.PLATFORM:			m_MotionStrategy = gameObject.AddComponent<MotionStrategy_Platform>();	break;
+				case EEntityMotionType.FLY:			m_MotionStrategy = gameObject.AddComponent<MotionStrategy_Fly>();		break;
 				case EEntityMotionType.SWIM:		m_MotionStrategy = gameObject.AddComponent<MotionStrategy_Swim>();		break;
 			}
 
@@ -69,7 +71,7 @@ public abstract class Motion_Base : EntityComponent, IEntityComponent_Motion
 			// none motion type has no need to be setup and enabled
 			if (newMotionType!= EEntityMotionType.NONE)
 			{
-				m_MotionStrategy.Setup(m_Entity, m_EntitySection);
+				m_MotionStrategy.Setup(m_Entity, m_EntitySection, states, args);
 
 				m_MotionStrategy.Enable();
 			}

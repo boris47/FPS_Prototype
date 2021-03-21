@@ -7,7 +7,7 @@ public class MotionStrategy_Fly : MotionStrategyBase
 	public	override	bool				CanMove						=> true;
 
 	//////////////////////////////////////////////////////////////////////////
-	protected override void Setup_Internal(Database.Section entitySection)
+	protected override void Setup_Internal(Database.Section entitySection, params object[] args)
 	{
 
 	}

@@ -14,8 +14,6 @@ public class MotionStrategy_Grounded : MotionStrategyBase
 	private				float				m_JumpForce					= 0f;
 	[SerializeField]
 	private				Foots				m_Foots						= null;
-	[SerializeField]
-	private				bool				m_IsGrounded				= false;
 
 	protected override MotionBindingsData[] m_Bindings					=> new MotionBindingsData[]
 	{
@@ -29,10 +27,10 @@ public class MotionStrategy_Grounded : MotionStrategyBase
 		new MotionBindingsData( EInputCommands.STATE_CROUCH,		"CrouchEvent",		() => { },				null            ),
 	};
 
-	public override		bool				CanMove						=> m_IsGrounded;
+	public override		bool				CanMove						=> m_States.IsCloseToGround;
 
 	//////////////////////////////////////////////////////////////////////////
-	protected override void Setup_Internal(Database.Section entitySection)
+	protected override void Setup_Internal(Database.Section entitySection, params object[] args)
 	{
 		if (!m_Foots)
 		{
@@ -55,9 +53,15 @@ public class MotionStrategy_Grounded : MotionStrategyBase
 	{
 		base.Enable();
 		
-		if (m_Foots)
+		if (CustomAssertions.IsNotNull(m_Foots))
 		{
 			m_Foots.OnEvent_GroundedChanged += OnGroundedChange;
+		}
+
+		// Entity is enable as fly, so we ensure rigidbody drag is Zero
+		if (!m_States.IsCloseToGround)
+		{
+			m_Entity.EntityRigidBody.drag = 0;
 		}
 	}
 
@@ -65,7 +69,7 @@ public class MotionStrategy_Grounded : MotionStrategyBase
 	//////////////////////////////////////////////////////////////////////////
 	public override void Disable()
 	{
-		if (m_Foots)
+		if (CustomAssertions.IsNotNull(m_Foots))
 		{
 			m_Foots.OnEvent_GroundedChanged -= OnGroundedChange;
 		}
@@ -85,7 +89,7 @@ public class MotionStrategy_Grounded : MotionStrategyBase
 	//////////////////////////////////////////////////////////////////////////
 	private void OnGroundedChange(bool newState)
 	{
-		m_IsGrounded = newState;
+		m_States.IsCloseToGround = newState;
 	}
 
 
@@ -96,8 +100,8 @@ public class MotionStrategy_Grounded : MotionStrategyBase
 
 		Rigidbody rigidBody = m_Entity.EntityRigidBody;
 
-		rigidBody.angularVelocity = Vector3.zero;
-		rigidBody.drag = m_IsGrounded ? 7f : 0.0f;
+	//	rigidBody.angularVelocity = Vector3.zero;
+		rigidBody.drag = m_States.IsCloseToGround ? 7f : 0.0f;
 
 		// add RELATIVE gravity force
 		Vector3 gravity = m_Body.up * Physics.gravity.y;
@@ -120,28 +124,37 @@ public class MotionStrategy_Grounded : MotionStrategyBase
 		Rigidbody rigidBody = m_Entity.EntityRigidBody;
 		Vector3 localVelocity = rigidBody.transform.InverseTransformDirection(rigidBody.velocity);
 
-		if (m_IsGrounded)
+		if (!Utils.Math.SimilarZero(m_Move.magnitude))
 		{
-			// Forward and right
+			if (m_States.IsCloseToGround)
 			{
+				// Forward
 				localVelocity.z = m_Move.z;
+				// Right
 				localVelocity.x = m_Move.x;
-			}
-			rigidBody.velocity = rigidBody.transform.TransformDirection(localVelocity);
+				rigidBody.velocity = rigidBody.transform.TransformDirection(localVelocity);
 
-			// Jump
-			if (m_Move.y > 0.0f)
+				// Jump
+				if (m_Move.y > 0.0f)
+				{
+					Vector3 up = m_Body.up;
+					rigidBody.AddForce(up * m_Move.y, ForceMode.VelocityChange);
+					m_Move.y = 0f;
+				}
+			}
+			else
 			{
-				Vector3 up = m_Body.up;
-				rigidBody.AddForce(up * m_Move.y, ForceMode.VelocityChange);
+				// Forward
+				localVelocity.z += m_Move.z * deltaTime;
+				// Right
+				localVelocity.x += m_Move.x * deltaTime;
+				rigidBody.velocity = rigidBody.transform.TransformDirection(localVelocity);
+
+				m_States.IsAcending = localVelocity.y > 0.01f;
+				m_States.IsDescending = localVelocity.y < -0.01f;
 			}
 
-			m_Move.Set(0f, 0f, 0f);
-		}
-		else
-		{
-			m_States.IsAcending = localVelocity.y > 0f;
-			m_States.IsDescending = localVelocity.y < 0f;
+			m_Move.LerpTo(Vector3.zero, deltaTime * 10f);
 		}
 	}
 
@@ -149,7 +162,7 @@ public class MotionStrategy_Grounded : MotionStrategyBase
 	//////////////////////////////////////////////////////////////////////////
 	protected bool Predicate_Move()
 	{
-		return m_IsGrounded;
+		return true;// m_States.IsCloseToGround;
 	}
 
 
@@ -214,7 +227,7 @@ public class MotionStrategy_Grounded : MotionStrategyBase
 	//////////////////////////////////////////////////////////////////////////
 	protected bool Predicate_Run()
 	{
-		return true;//( ( m_States.IsCrouched && !m_IsUnderSomething ) || !m_States.IsCrouched ); // TODO re-implement
+		return m_States.IsCloseToGround;// true;//( ( m_States.IsCrouched && !m_IsUnderSomething ) || !m_States.IsCrouched ); // TODO re-implement
 	}
 
 
@@ -229,7 +242,7 @@ public class MotionStrategy_Grounded : MotionStrategyBase
 	//////////////////////////////////////////////////////////////////////////
 	protected bool Predicate_Jump()
 	{
-		return m_IsGrounded && !m_States.IsJumping && !m_States.IsAcending && !m_States.IsDescending && !m_Entity.Interactions.IsHoldingObject;
+		return m_States.IsCloseToGround && !m_States.IsJumping && !m_States.IsAcending && !m_States.IsDescending && !m_Entity.Interactions.IsHoldingObject;
 	}
 
 

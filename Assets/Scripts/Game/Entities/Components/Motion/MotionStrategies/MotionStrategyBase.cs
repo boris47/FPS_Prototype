@@ -6,11 +6,11 @@ public abstract class MotionStrategyBase : MonoBehaviour
 	public class EntityStates
 	{
 		public	bool	IsCrouched		= false;
+		public	bool	IsRunning		= false;
 
 		public	bool	IsMoving		= false;
 		public	bool	IsWalking		= false;
-		public	bool	IsRunning		= false;
-
+		public	bool	IsCloseToGround	= false;
 
 		public	bool	IsJumping		= false;
 		public	bool	IsAcending		= false;
@@ -24,11 +24,12 @@ public abstract class MotionStrategyBase : MonoBehaviour
 		public void Assign(EntityStates other)
 		{
 			IsCrouched		= other.IsCrouched;
+			IsRunning		= other.IsRunning;
 
 			IsMoving		= other.IsMoving;
 			IsWalking		= other.IsWalking;
-			IsRunning		= other.IsRunning;
-				
+			IsCloseToGround = other.IsCloseToGround;
+
 			IsJumping		= other.IsJumping;
 			IsAcending		= other.IsAcending;
 			IsDescending	= other.IsDescending;
@@ -76,25 +77,34 @@ public abstract class MotionStrategyBase : MonoBehaviour
 	public					EntityStates	States				=> m_States;
 
 	//////////////////////////////////////////////////////////////////////////
-	public virtual void Setup(Entity entity, Database.Section entitySection)
+	public void Setup(Entity entity, Database.Section entitySection, EntityStates prevStates, params object[] args)
 	{
 		m_Entity = entity;
 		m_Head = entity.Head;
 		m_Body = entity.Body;
 
+		m_States.Assign(prevStates);
+
 		CustomAssertions.IsNotNull(m_Entity);
 		CustomAssertions.IsNotNull(m_Body);
 		CustomAssertions.IsNotNull(m_Head);
 
-		Setup_Internal(entitySection);
+		Setup_Internal(entitySection, args);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	protected abstract void Setup_Internal(Database.Section entitySection);
+	protected abstract void Setup_Internal(Database.Section entitySection, params object[] args);
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public abstract void Move(EMovementType movementType, Vector3 direction);
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public void Stop()
+	{
+		m_Move.Set(0f, 0f, 0f);
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////

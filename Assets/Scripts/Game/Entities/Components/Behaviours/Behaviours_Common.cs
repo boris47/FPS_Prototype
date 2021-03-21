@@ -34,6 +34,7 @@ public class Behaviours_Common : Behaviours_Base
 			CustomAssertions.IsTrue(Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL_AND_CHILDREN, out m_FieldOfView));
 		}
 		m_FieldOfView.SetViewPoint(entity.Head);
+		m_FieldOfView.enabled = false;
 
 		// Target type by section
 		string targetType = string.Empty;
@@ -56,13 +57,16 @@ public class Behaviours_Common : Behaviours_Base
 
 		m_FieldOfView.Setup();
 
+		m_FieldOfView.enabled = true;
+
 		Brain_SetActive(true);
 
 		m_Entity.Memory.EnableMemory();
 
-		CustomAssertions.IsNotNull(GameManager.UpdateEvents);
-
-		GameManager.UpdateEvents.OnFrame += OnFrame;
+		if (CustomAssertions.IsNotNull(GameManager.UpdateEvents))
+		{
+			GameManager.UpdateEvents.OnFrame += OnFrame;
+		}
 	}
 
 
@@ -73,6 +77,8 @@ public class Behaviours_Common : Behaviours_Base
 		{
 			GameManager.UpdateEvents.OnFrame -= OnFrame;
 		}
+
+		m_FieldOfView.enabled = false;
 
 		m_Entity.Memory.DisableMemory();
 
@@ -95,67 +101,67 @@ public class Behaviours_Common : Behaviours_Base
 		{
 			Vector3 pointToLookAt = m_LookData.LookTargetType == ELookTargetType.TRANSFORM ? m_LookData.TransformToLookAt.position : m_LookData.PointToLookAt;
 
-			float halfCone = m_FieldOfView.m_ViewCone;
+			float halfCone = m_FieldOfView.Angle * 0.5f;
 
-			Vector2 clampsVert = new Vector2(-halfCone, halfCone) * 0.5f;
+			Vector2 clampsVert = new Vector2(-halfCone, halfCone);
 			m_Entity.LookAt(pointToLookAt, m_BodyRotationSpeed, m_HeadRotationSpeed, clampsVert, clampsVert, out bool isBodyAlligned, out bool isHeadAlligned);
 		}
 
-		if (m_LookData.HasLookAtObject == false )
-			return;
-		/*
-		// HEAD
-		{
-			Vector3 pointToLookAt = m_LookData.LookTargetType == ELookTargetType.TRANSFORM ? m_LookData.TransformToLookAt.position : m_LookData.PointToLookAt;
-
-			// point on the head 'Horizontal'  plane
-			Vector3 pointOnHeadPlane	= Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_HeadTransform.position, pointToLookAt );
-
-			// point on the entity 'Horizontal' plane
-			Vector3 pointOnEntityPlane	= Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, transform.position, pointToLookAt );
-
-			// Direction from head to point
-			Vector3 dirHeadToPosition	= ( pointOnHeadPlane - m_HeadTransform.position );
-
-			// Direction from entity to point
-			Vector3 dirEntityToPosition	= ( pointOnEntityPlane - transform.position );
-
-			// Angle between head and projected point
-			float lookDeltaAngle = Vector3.Angle( m_HeadTransform.forward, dirHeadToPosition );
-
-			// Current head allignment state
-			bool isCurrentlyAlligned = lookDeltaAngle < 4f;
+	//	if (m_LookData.HasLookAtObject == false )
+	//		return;
+	//	
+	//	// HEAD
+	//	{
+	//		Vector3 pointToLookAt = m_LookData.LookTargetType == ELookTargetType.TRANSFORM ? m_LookData.TransformToLookAt.position : m_LookData.PointToLookAt;
+	//
+	//		// point on the head 'Horizontal'  plane
+	//		Vector3 pointOnHeadPlane	= Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, m_HeadTransform.position, pointToLookAt );
+	//
+	//		// point on the entity 'Horizontal' plane
+	//		Vector3 pointOnEntityPlane	= Utils.Math.ProjectPointOnPlane( m_BodyTransform.up, transform.position, pointToLookAt );
+	//
+	//		// Direction from head to point
+	//		Vector3 dirHeadToPosition	= ( pointOnHeadPlane - m_HeadTransform.position );
+	//
+	//		// Direction from entity to point
+	//		Vector3 dirEntityToPosition	= ( pointOnEntityPlane - transform.position );
+	//
+	//		// Angle between head and projected point
+	//		float lookDeltaAngle = Vector3.Angle( m_HeadTransform.forward, dirHeadToPosition );
+	//
+	//		// Current head allignment state
+	//		bool isCurrentlyAlligned = lookDeltaAngle < 4f;
+	//	
+	//		// Head allignment comparison and event
+	//		{
+	//			bool wasPreviousAlligned = m_IsAllignedHeadToPoint;
+	//			if ( wasPreviousAlligned == false && isCurrentlyAlligned == true )
+	//			{
+	//				OnLookRotationReached(m_HeadTransform.forward );
+	//			}
+	//		}
+	//
+	//		// Flags assignment
+	//		m_IsAllignedHeadToPoint			= isCurrentlyAlligned;
+	//		m_IsDisallignedHeadWithPoint	= lookDeltaAngle > 90f;
+	//		
+	//		// Rotation Speed
+	//		float rotationSpeed = m_HeadRotationSpeed * ( (m_TargetInfo.HasTarget ) ? 3.0f : 1.0f ) * Time.deltaTime;
+	//
+	//		// Execute Rotation
+	//		if (m_LookData.LookTargetMode == ELookTargetMode.WITH_BODY )
+	//		{
+	//			m_RotationToAllignTo.SetLookRotation( dirEntityToPosition, m_BodyTransform.up );
+	//			transform.rotation = Quaternion.RotateTowards(transform.rotation, m_RotationToAllignTo, rotationSpeed );
+	//		}
+	//		// Head only
+	//		else
+	//		{
+	//			m_RotationToAllignTo.SetLookRotation( dirHeadToPosition, m_BodyTransform.up );
+	//			m_HeadTransform.rotation = Quaternion.RotateTowards(m_HeadTransform.rotation, m_RotationToAllignTo, rotationSpeed );
+	//		}
+	//	}
 		
-			// Head allignment comparison and event
-			{
-				bool wasPreviousAlligned = m_IsAllignedHeadToPoint;
-				if ( wasPreviousAlligned == false && isCurrentlyAlligned == true )
-				{
-					OnLookRotationReached(m_HeadTransform.forward );
-				}
-			}
-
-			// Flags assignment
-			m_IsAllignedHeadToPoint			= isCurrentlyAlligned;
-			m_IsDisallignedHeadWithPoint	= lookDeltaAngle > 90f;
-			
-			// Rotation Speed
-			float rotationSpeed = m_HeadRotationSpeed * ( (m_TargetInfo.HasTarget ) ? 3.0f : 1.0f ) * Time.deltaTime;
-
-			// Execute Rotation
-			if (m_LookData.LookTargetMode == ELookTargetMode.WITH_BODY )
-			{
-				m_RotationToAllignTo.SetLookRotation( dirEntityToPosition, m_BodyTransform.up );
-				transform.rotation = Quaternion.RotateTowards(transform.rotation, m_RotationToAllignTo, rotationSpeed );
-			}
-			// Head only
-			else
-			{
-				m_RotationToAllignTo.SetLookRotation( dirHeadToPosition, m_BodyTransform.up );
-				m_HeadTransform.rotation = Quaternion.RotateTowards(m_HeadTransform.rotation, m_RotationToAllignTo, rotationSpeed );
-			}
-		}
-		*/
 	}
 	
 
@@ -163,7 +169,7 @@ public class Behaviours_Common : Behaviours_Base
 	public	virtual void	Brain_SetActive(bool State)
 	{
 		m_IsBrainActive = State;
-
+		/*
 		if (m_IsBrainActive)
 		{
 			GameManager.FieldsOfViewManager.RegisterAgent(m_FieldOfView, m_FieldOfView.UpdateFOV);
@@ -172,6 +178,7 @@ public class Behaviours_Common : Behaviours_Base
 		{
 			GameManager.FieldsOfViewManager?.UnregisterAgent(m_FieldOfView);
 		}
+		*/
 	}
 
 

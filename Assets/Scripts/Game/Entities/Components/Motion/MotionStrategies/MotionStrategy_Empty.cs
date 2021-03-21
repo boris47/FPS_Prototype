@@ -8,7 +8,7 @@ public class MotionStrategy_Empty : MotionStrategyBase
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected override void Setup_Internal(Database.Section entitySection)
+	protected override void Setup_Internal(Database.Section entitySection, params object[] args)
 	{
 		
 	}

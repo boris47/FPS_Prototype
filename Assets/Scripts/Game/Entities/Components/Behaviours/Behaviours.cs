@@ -120,7 +120,7 @@ public abstract class Behaviours_Base : EntityComponent, IEntityComponent_Behavi
 	//////////////////////////////////////////////////////////////////////////
 	public override void Disable()
 	{
-		Blackboard.Instance.UnRegister(m_Entity);
+		Blackboard.Instance?.UnRegister(m_Entity);
 
 		base.Disable();
 	}
