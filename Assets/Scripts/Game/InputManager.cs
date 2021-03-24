@@ -288,7 +288,7 @@ public class InputManager
 		{   // DEFAULT BINDINGS			CATEGORY				INPUT COMMAND							PRIMARY KEY			SECONDARY KEY			KEY STATE					IS MODIFIER
 			// Movements
 			GenerateDefaultBinding(EInputCategory.MOVE,			EInputCommands.MOVE_FORWARD,			KeyCode.W,			KeyCode.UpArrow,		EKeyState.HOLD,				EInputPriority.NORMAL);
-			GenerateDefaultBinding(EInputCategory.MOVE,			EInputCommands.MOVE_BACKWARD,			KeyCode.S,			KeyCode.PageDown,		EKeyState.HOLD,				EInputPriority.NORMAL);
+			GenerateDefaultBinding(EInputCategory.MOVE,			EInputCommands.MOVE_BACKWARD,			KeyCode.S,			KeyCode.DownArrow,		EKeyState.HOLD,				EInputPriority.NORMAL);
 			GenerateDefaultBinding(EInputCategory.MOVE,			EInputCommands.MOVE_LEFT,				KeyCode.A,			KeyCode.LeftArrow,		EKeyState.HOLD,				EInputPriority.NORMAL);
 			GenerateDefaultBinding(EInputCategory.MOVE,			EInputCommands.MOVE_RIGHT,				KeyCode.D,			KeyCode.RightArrow,		EKeyState.HOLD,				EInputPriority.NORMAL);
 
