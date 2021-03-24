@@ -376,7 +376,7 @@ namespace UserSettings
 			{
 				ApplyDefaults();
 
-	//			PlayerPrefs.SetString(FLAG_SAVED_GRAPHIC_SETTINGS, "1");
+				PlayerPrefs.SetString(FLAG_SAVED_GRAPHIC_SETTINGS, "1");
 			}
 		}
 

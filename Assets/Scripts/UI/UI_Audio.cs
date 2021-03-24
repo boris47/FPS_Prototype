@@ -26,8 +26,11 @@ public sealed class UI_Audio : UI_Base, IStateDefiner
 	{
 		if (!m_IsInitialized)
 		{
+			// Set default data or load saved ones
+			UserSettings.AudioSettings.LoadOrSetDefaults();
+
 			// Music Volume Slider
-			if(CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("Slider_MusicVolume", out m_MusicSlider)))
+			if (CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("Slider_MusicVolume", out m_MusicSlider)))
 			{
 				m_MusicSlider.onValueChanged.AddListener((float newValue) =>
 				{
@@ -91,9 +94,6 @@ public sealed class UI_Audio : UI_Base, IStateDefiner
 
 			m_IsInitialized = true;
 		}
-
-		// Set default data or load saved ones
-		UserSettings.AudioSettings.LoadOrSetDefaults();
 
 		// Update UI elements
 		UpdateUI();
