@@ -41,7 +41,7 @@ public class ToJsonWrapper<T>
 
 public static class CustomAssertions
 {
-	public static bool IsTrue(bool condition, string message = null)
+	public static bool IsTrue(bool condition, string message = null, Object context = null)
 	{
 		if (!condition)
 		{
@@ -53,7 +53,7 @@ public static class CustomAssertions
 		return condition;
 	}
 
-	public static bool IsNotNull(System.Object value, string message = null)
+	public static bool IsNotNull(System.Object value, string message = null, Object context = null)
 	{
 		bool condition = value.IsNotNull();
 		if (!condition)
