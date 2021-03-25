@@ -33,7 +33,7 @@ namespace Utils {
 			p = c1 / (2 * c0);
 			q = c2 / c0;
 
-			D = p * p - q;
+			D = (p * p) - q;
 
 			if (IsZero(D)) {
 				s0 = -p;
@@ -72,12 +72,12 @@ namespace Utils {
 
 			/*  substitute x = y - A/3 to eliminate quadric term:  x^3 +px + q = 0 */
 			sq_A = A * A;
-			p = 1.0f/3.0f * (- 1.0f/3.0f * sq_A + B);
-			q = 1.0f/2.0f * (2.0f/27.0f * A * sq_A - 1.0f/3.0f * A * B + C);
+			p = 1.0f/3.0f * ((- 1.0f/3.0f * sq_A) + B);
+			q = 1.0f/2.0f * ((2.0f/27.0f * A * sq_A) - (1.0f/3.0f * A * B) + C);
 			
 			/* use Cardano's formula */
 			cb_p = p * p * p;
-			D = q * q + cb_p;
+			D = (q * q) + cb_p;
 
 			if (IsZero(D)) {
 				if (IsZero(q)) /* one triple solution */ {
@@ -96,8 +96,8 @@ namespace Utils {
 				float t = 2 * UnityEngine.Mathf.Sqrt(-p);
 
 				s0 =   t * UnityEngine.Mathf.Cos(phi);
-				s1 = - t * UnityEngine.Mathf.Cos(phi + UnityEngine.Mathf.PI / 3);
-				s2 = - t * UnityEngine.Mathf.Cos(phi - UnityEngine.Mathf.PI / 3);
+				s1 = - t * UnityEngine.Mathf.Cos(phi + (UnityEngine.Mathf.PI / 3));
+				s2 = - t * UnityEngine.Mathf.Cos(phi - (UnityEngine.Mathf.PI / 3));
 				num = 3;
 			}
 			else /* one real solution */ {
@@ -141,9 +141,9 @@ namespace Utils {
 
 			/*  substitute x = y - A/4 to eliminate cubic term: x^4 + px^2 + qx + r = 0 */
 			sq_A = A * A;
-			p = - 3.0f/8.0f * sq_A + B;
-			q = 1.0f/8.0f * sq_A * A - 1.0f/2.0f * A * B + C;
-			r = - 3.0f/256.0f * sq_A * sq_A + 1.0f/16.0f * sq_A * B - 1.0f/4.0f * A * C + D;
+			p = (- 3.0f/8.0f * sq_A) + B;
+			q = (1.0f/8.0f * sq_A * A) - (1.0f/2.0f * A * B) + C;
+			r = (- 3.0f/256.0f * sq_A * sq_A) + (1.0f/16.0f * sq_A * B) - (1.0f/4.0f * A * C) + D;
 
 			if (IsZero(r)) {
 				/* no absolute term: y(y^3 + py + q) = 0 */
@@ -157,7 +157,7 @@ namespace Utils {
 			}
 			else {
 				/* solve the resolvent cubic ... */
-				coeffs[ 3 ] = 1.0f/2.0f * r * p - 1.0f/8.0f * q * q;
+				coeffs[ 3 ] = (1.0f/2.0f * r * p) - (1.0f/8.0f * q * q);
 				coeffs[ 2 ] = - r;
 				coeffs[ 1 ] = - 1.0f/2.0f * p;
 				coeffs[ 0 ] = 1;
@@ -168,8 +168,8 @@ namespace Utils {
 				z = s0;
 
 				/* ... to build two quadric equations */
-				u = z * z - r;
-				v = 2 * z - p;
+				u = (z * z) - r;
+				v = (2 * z) - p;
 
 				if (IsZero(u))
 					u = 0;
@@ -219,10 +219,10 @@ namespace Utils {
 		// initial_height (float): distance above flat terrain
 		//
 		// return (float): maximum range
-		public static float ballistic_range(float speed, float gravity, float initial_height) {
+		public static float BallisticRange(float speed, float gravity, float initial_height) {
 
 			// Handling these cases is up to your project's coding standards
-			Debug.Assert(speed > 0 && gravity > 0 && initial_height >= 0, "BallisticTrajectories.ballistic_range called with invalid data");
+			CustomAssertions.IsTrue(speed > 0 && gravity > 0 && initial_height >= 0, "BallisticTrajectories.ballistic_range called with invalid data");
 
 			// Derivation
 			//   (1) x = speed * time * cos O
@@ -233,7 +233,7 @@ namespace Utils {
 			float cos = Mathf.Cos(angle);
 			float sin = Mathf.Sin(angle);
 
-			float range = (speed*cos/gravity) * (speed*sin + Mathf.Sqrt(speed*speed*sin*sin + 2*gravity*initial_height));
+			float range = speed * cos / gravity * ((speed * sin) + Mathf.Sqrt((speed * speed * sin * sin) + (2 * gravity * initial_height)));
 			return range;
 		}
 
@@ -249,10 +249,10 @@ namespace Utils {
 		// s1 (out Vector3): firing solution (high angle)
 		//
 		// return (int): number of unique solutions found: 0, 1, or 2.
-		public static int solve_ballistic_arc(Vector3 proj_pos, float proj_speed, Vector3 target, float gravity, out Vector3 s0, out Vector3 s1) {
+		public static int Solve_ballistic_arc(Vector3 proj_pos, float proj_speed, Vector3 target, float gravity, out Vector3 s0, out Vector3 s1) {
 
 			// Handling these cases is up to your project's coding standards
-			Debug.Assert(proj_pos != target && proj_speed > 0 && gravity > 0, "BallisticTrajectories.solve_ballistic_arc called with invalid data");
+			CustomAssertions.IsTrue(proj_pos != target && proj_speed > 0 && gravity > 0, "BallisticTrajectories.solve_ballistic_arc called with invalid data");
 
 			// C# requires out variables be set
 			s0 = Vector3.zero;
@@ -278,17 +278,19 @@ namespace Utils {
 			Vector3 diffXZ = new Vector3(diff.x, 0f, diff.z);
 			float groundDist = diffXZ.magnitude;
 
-			float speed2 = proj_speed*proj_speed;
-			float speed4 = proj_speed*proj_speed*proj_speed*proj_speed;
+			float speed2 = proj_speed * proj_speed;
+			float speed4 = proj_speed * proj_speed * proj_speed * proj_speed;
 			float y = diff.y;
 			float x = groundDist;
-			float gx = gravity*x;
+			float gx = gravity * x;
 
-			float root = speed4 - gravity*(gravity*x*x + 2*y*speed2);
+			float root = speed4 - (gravity * ((gravity * x * x) + (2 * y * speed2)));
 
 			// No solution
 			if (root < 0)
+			{
 				return 0;
+			}
 
 			root = Mathf.Sqrt(root);
 
@@ -297,9 +299,11 @@ namespace Utils {
 			int numSolutions = lowAng != highAng ? 2 : 1;
 
 			Vector3 groundDir = diffXZ.normalized;
-			s0 = groundDir*Mathf.Cos(lowAng)*proj_speed + Vector3.up*Mathf.Sin(lowAng)*proj_speed;
+			s0 = (groundDir * Mathf.Cos(lowAng) * proj_speed) + (Vector3.up * Mathf.Sin(lowAng) * proj_speed);
 			if (numSolutions > 1)
-				s1 = groundDir*Mathf.Cos(highAng)*proj_speed + Vector3.up*Mathf.Sin(highAng)*proj_speed;
+			{
+				s1 = (groundDir * Mathf.Cos(highAng) * proj_speed) + (Vector3.up * Mathf.Sin(highAng) * proj_speed);
+			}
 
 			return numSolutions;
 		}
@@ -318,7 +322,7 @@ namespace Utils {
 		// s3 (out Vector3): firing solution (next impact)
 		//
 		// return (int): number of unique solutions found: 0, 1, 2, 3, or 4.
-		public static int solve_ballistic_arc(Vector3 proj_pos, float proj_speed, Vector3 target_pos, Vector3 target_velocity, float gravity, out Vector3 s0, out Vector3 s1) {
+		public static int Solve_ballistic_arc(Vector3 proj_pos, float proj_speed, Vector3 target_pos, Vector3 target_velocity, float gravity, out Vector3 s0, out Vector3 s1) {
 
 			// Initialize output parameters
 			s0 = Vector3.zero;
@@ -370,37 +374,39 @@ namespace Utils {
 			// Quartic Coeffecients
 			float c0 = L * L;
 			float c1 = 2 * Q * L;
-			float c2 = Q * Q + 2.0f * K * L - S * S + P * P + R * R;
-			float c3 = 2 * K * Q + 2 * H * P + 2 * J * R;
-			float c4 = K * K + H * H + J * J;
+			float c2 = (Q * Q) + (2.0f * K * L) - (S * S) + (P * P) + (R * R);
+			float c3 = (2 * K * Q) + (2 * H * P) + (2 * J * R);
+			float c4 = (K * K) + (H * H) + (J * J);
 
 			// Solve quartic
 			float[] times = new float[4];
-			int numTimes = SolveQuartic( c0, c1, c2, c3, c4, out times[0], out times[1], out times[2], out times[3] );
+			int numTimes = SolveQuartic(c0, c1, c2, c3, c4, out times[0], out times[1], out times[2], out times[3]);
 
 			// Sort so faster collision is found first
-			global::System.Array.Sort( times );
+			global::System.Array.Sort(times);
 
 			// Plug quartic solutions into base equations
 			// There should never be more than 2 positive, real roots.
 			Vector3[] solutions = new Vector3[2];
 			int numSolutions = 0;
 
-			for ( int i = 0; i < numTimes && numSolutions < 2; ++i )
+			for (int i = 0; i < numTimes && numSolutions < 2; ++i)
 			{
 				float t = times[i];
-				if ( t <= 0)
+				if (t <= 0)
+				{
 					continue;
+				}
 
-				solutions[numSolutions].x = ( ( H + P * t ) / t );
-				solutions[numSolutions].y = ( ( K + Q * t -L * t * t ) / t);
-				solutions[numSolutions].z = ( ( J + R * t ) / t );
+				solutions[numSolutions].x = ((H + (P * t)) / t);
+				solutions[numSolutions].y = ((K + (Q * t) - (L * t * t)) / t);
+				solutions[numSolutions].z = ((J + (R * t)) / t);
 				++numSolutions;
 			}
 
 			// Write out solutions
-			if (numSolutions > 0)   s0 = solutions[0];
-			if (numSolutions > 1)   s1 = solutions[1];
+			if (numSolutions > 0) s0 = solutions[0];
+			if (numSolutions > 1) s1 = solutions[1];
 
 			return numSolutions;
 		}
@@ -419,10 +425,10 @@ namespace Utils {
 		// gravity (out float): gravity necessary to projectile to hit precisely max_height
 		//
 		// return (bool): true if a valid solution was found
-		public static bool solve_ballistic_arc_lateral(Vector3 proj_pos, float lateral_speed, Vector3 target_pos, float max_height, out Vector3 fire_velocity, out float gravity) {
-    
+		public static bool Solve_ballistic_arc_lateral(Vector3 proj_pos, float lateral_speed, Vector3 target_pos, float max_height, out Vector3 fire_velocity, out float gravity) {
+
 			// Handling these cases is up to your project's coding standards
-			Debug.Assert(proj_pos != target_pos && lateral_speed > 0 && max_height > proj_pos.y, "BallisticTrajectories.solve_ballistic_arc called with invalid data");
+			CustomAssertions.IsTrue(proj_pos != target_pos && lateral_speed > 0 && max_height > proj_pos.y, "BallisticTrajectories.solve_ballistic_arc called with invalid data");
 
 			fire_velocity = Vector3.zero;
 			gravity = float.NaN;
@@ -430,9 +436,10 @@ namespace Utils {
 			Vector3 diff = target_pos - proj_pos;
 			Vector3 diffXZ = new Vector3(diff.x, 0f, diff.z);
 			float lateralDist = diffXZ.magnitude;
-
 			if (lateralDist == 0)
+			{
 				return false;
+			}
 
 			float time = lateralDist / lateral_speed;
 
@@ -447,9 +454,8 @@ namespace Utils {
 			float b = max_height;       // peak
 			float c = target_pos.y;     // final
 
-			gravity = -4*(a - 2*b + c) / (time* time);
-			fire_velocity.y = -(3*a - 4*b + c) / time;
-
+			gravity = -4 * (a - (2 * b) + c) / (time * time);
+			fire_velocity.y = -((3 * a) - (4 * b) + c) / time;
 			return true;
 		}
 
@@ -466,10 +472,10 @@ namespace Utils {
 		// impact_point (out Vector3): point where moving target will be hit
 		//
 		// return (bool): true if a valid solution was found
-		public static bool solve_ballistic_arc_lateral(Vector3 proj_pos, float lateral_speed, Vector3 target, Vector3 target_velocity, float max_height_offset, out Vector3 fire_velocity, out float gravity, out Vector3 impact_point) {
+		public static bool Solve_ballistic_arc_lateral(Vector3 proj_pos, float lateral_speed, Vector3 target, Vector3 target_velocity, float max_height_offset, out Vector3 fire_velocity, out float gravity, out Vector3 impact_point) {
 
 			// Handling these cases is up to your project's coding standards
-			Debug.Assert(proj_pos != target && lateral_speed > 0, "BallisticTrajectories.solve_ballistic_arc_lateral called with invalid data");
+			CustomAssertions.IsTrue(proj_pos != target && lateral_speed > 0, "BallisticTrajectories.solve_ballistic_arc_lateral called with invalid data");
 
 			// Initialize output variables
 			fire_velocity = Vector3.zero;
@@ -486,7 +492,7 @@ namespace Utils {
 			//   (2) Substitute variables: |diffXZ + targetVelXZ*t| = S*t
 			//   (3) Square both sides: Dot(diffXZ,diffXZ) + 2*Dot(diffXZ, targetVelXZ)*t + Dot(targetVelXZ, targetVelXZ)*t^2 = S^2 * t^2
 			//   (4) Quadratic: (Dot(targetVelXZ,targetVelXZ) - S^2)t^2 + (2*Dot(diffXZ, targetVelXZ))*t + Dot(diffXZ, diffXZ) = 0
-			float c0 = Vector3.Dot(targetVelXZ, targetVelXZ) - lateral_speed*lateral_speed;
+			float c0 = Vector3.Dot(targetVelXZ, targetVelXZ) - (lateral_speed * lateral_speed);
 			float c1 = 2f * Vector3.Dot(diffXZ, targetVelXZ);
 			float c2 = Vector3.Dot(diffXZ, diffXZ);
 			int n = BallisticTrajectories.SolveQuadric(c0, c1, c2, out float t0, out float t1);
@@ -494,17 +500,23 @@ namespace Utils {
 			// pick smallest, positive time
 			bool valid0 = n > 0 && t0 > 0;
 			bool valid1 = n > 1 && t1 > 0;
-            
+
 			float t;
 			if (!valid0 && !valid1)
+			{
 				return false;
+			}
 			else if (valid0 && valid1)
+			{
 				t = Mathf.Min((float)t0, (float)t1);
+			}
 			else
+			{
 				t = valid0 ? (float)t0 : (float)t1;
+			}
 
 			// Calculate impact point
-			impact_point = target + (target_velocity*t);
+			impact_point = target + (target_velocity * t);
 
 			// Calculate fire velocity along XZ plane
 			Vector3 dir = impact_point - proj_pos;
@@ -519,12 +531,10 @@ namespace Utils {
 			float b = Mathf.Max(proj_pos.y, impact_point.y) + max_height_offset;  // peak
 			float c = impact_point.y;   // final
 
-			gravity = -4*(a - 2*b + c) / (t* t);
-			fire_velocity.y = -(3*a - 4*b + c) / t;
-
+			gravity = -4 * (a - (2 * b) + c) / (t * t);
+			fire_velocity.y = -((3 * a) - (4 * b) + c) / t;
 			return true;
 		}
+
 	}
-
-
 }
