@@ -79,7 +79,7 @@ public sealed class UI_Graphics : UI_Base, IStateDefiner
 			{
 				m_FullScreenToggle.isOn = UserSettings.VideoSettings.GetScreenData().bIsFullScreen;
 #if UNITY_EDITOR
-			{	// TODO Not Working -.-
+			{	// not Working if detached
 				System.Reflection.Assembly assembly = typeof(UnityEditor.EditorWindow).Assembly;
 				System.Type type = assembly.GetType("UnityEditor.PlayModeView");
 				UnityEditor.EditorWindow.GetWindow(type).maximized = m_FullScreenToggle.isOn;
