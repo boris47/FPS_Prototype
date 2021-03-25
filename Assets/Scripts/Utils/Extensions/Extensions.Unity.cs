@@ -207,7 +207,7 @@ public static class Extensions_Unity
 
 	/// <summary> Return true if frameCount frames is repeating, otherwise false </summary>
 	/// <param name="frameCount"></param>
-	public static bool					Every(this Object t, int frameCount)
+	public static bool					EveryFrames(this Object t, int frameCount)
 	{
 		return Time.frameCount % frameCount != 0;
 	}
