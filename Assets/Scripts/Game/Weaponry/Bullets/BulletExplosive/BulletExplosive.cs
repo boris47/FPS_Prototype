@@ -11,10 +11,6 @@ public interface IExplosive
 	void		ForceExplosion						();
 }
 
-public interface IFlyingExplosive
-{
-	float		GetMaxRange							();
-}
 
 public interface ITimedExplosive
 {
@@ -23,11 +19,9 @@ public interface ITimedExplosive
 	float		GetRemainingTimeNormalized			();
 }
 
-/// <summary>
-/// Base class for rockets and granades
-/// </summary>
-public abstract class BulletExplosive : BulletGeneric, IExplosive {
-
+/// <summary> Base class for rockets and granades </summary>
+public abstract class BulletExplosive : BulletGeneric, IExplosive
+{
 	[SerializeField, ReadOnly]
 	protected	bool			m_BlowOnHit					= true;
 
@@ -41,78 +35,71 @@ public abstract class BulletExplosive : BulletGeneric, IExplosive {
 	protected	float			m_BlastDamage				= 0.0f;
 
 	// INTERFACE START
-		bool	IExplosive.BlowOnHit			{	get { return m_BlowOnHit; } }
-		bool	IExplosive.AttachOnHit			{	get { return m_AttachOnHit; } }
-		float	IExplosive.BlastRadius			{	get { return m_BlastRadius; } }
-		float	IExplosive.BlastDamage			{	get { return m_BlastDamage;	} }
+				bool			IExplosive.BlowOnHit		=> m_BlowOnHit;
+				bool			IExplosive.AttachOnHit		=> m_AttachOnHit;
+				float			IExplosive.BlastRadius		=> m_BlastRadius;
+				float			IExplosive.BlastDamage		=> m_BlastDamage;
 	// INTERFACE END
-	
 
-	
+
+
 	protected	float			m_Emission					= 0f;
 
 
-	//////////////////////////////////////////////////////////////////////////
-	// Awake ( Override )
-	protected	override	void	Awake()
-	{
-		base.Awake();
-
-		SetActive( false );
-	}
-
-
 
 	//////////////////////////////////////////////////////////////////////////
-	// SetupBulletCO ( Override )
 	protected override void SetupBullet()
 	{
 		base.SetupBullet();
 
-		m_BlowOnHit	= m_BulletSection.AsBool( "bBlowOnHit", m_BlowOnHit );
-		m_AttachOnHit	= m_BulletSection.AsBool( "bAttachOnHit", m_AttachOnHit );
-		m_BlastRadius	= m_BulletSection.AsFloat( "fBlastRadius", m_BlastRadius );
-		m_BlastDamage	= m_BulletSection.AsFloat( "fBlastDamage", m_BlastDamage );
-
-		SetActive( false );
+		m_BlowOnHit = m_BulletSection.AsBool("bBlowOnHit", m_BlowOnHit);
+		m_AttachOnHit = m_BulletSection.AsBool("bAttachOnHit", m_AttachOnHit);
+		m_BlastRadius = m_BulletSection.AsFloat("fBlastRadius", m_BlastRadius);
+		m_BlastDamage = m_BulletSection.AsFloat("fBlastDamage", m_BlastDamage);
 	}
 
 
-	
 	//////////////////////////////////////////////////////////////////////////
-	// SetActive ( Override )
-	public		override	void	SetActive( bool state )
+	protected override void OnEnable()
 	{
-		// Reset
-		if ( state == false )
-		{
-			transform.position			= Vector3.zero;
-			m_RigidBody.velocity		= Vector3.zero;
-		}
-		else
-		{
-			m_Emission					= 0f;
-		}
+		base.OnEnable();
+
+		m_Emission						= 0f;
+
+		m_Renderer.material.SetColor("_EmissionColor", Color.red);
+
 		m_RigidBody.mass				= float.Epsilon;
-		m_RigidBody.useGravity			= state;
-		m_RigidBody.detectCollisions	= state;
-		m_Collider.enabled				= state;
-		m_Renderer.enabled				= state;
-		m_Renderer.material.SetColor( "_EmissionColor", Color.red );
-		enabled					= state;
+		m_RigidBody.useGravity			= true;
+		m_RigidBody.detectCollisions	= true;
+		m_Collider.enabled				= true;
+		m_Renderer.enabled				= true;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// ForceExplosion ( Virtual )
-	public		virtual		void	ForceExplosion()
+	protected override void OnDisable()
+	{
+		transform.position				= Vector3.zero;
+		m_RigidBody.velocity			= Vector3.zero;
+
+		m_RigidBody.mass				= float.Epsilon;
+		m_RigidBody.useGravity			= false;
+		m_RigidBody.detectCollisions	= false;
+		m_Collider.enabled				= false;
+		m_Renderer.enabled				= false;
+
+		base.OnDisable();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public virtual void ForceExplosion()
 	{
 		OnExplosion();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	// OnExplosion ( Abstract )
 	protected	abstract	void	OnExplosion();
 	
 }

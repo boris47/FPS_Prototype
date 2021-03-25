@@ -154,7 +154,7 @@ namespace WeatherSystem
 			int iH = 0, iM = 0, iS = 0;
 
 			string[] parts = sTime.Split(':');
-			iH = int.Parse(parts[0]);
+			iH = int.Parse(parts[0]) - 1;
 			iM = int.Parse(parts[1]);
 			iS = parts.Length == 3 ? int.Parse(parts[2]) : 0;
 

@@ -17,63 +17,54 @@ public abstract partial class Weapon
 	[SerializeField]	protected		WeaponModuleSlot		m_TertiaryWeaponModuleSlot		= new WeaponModuleSlot( EWeaponSlots.TERTIARY );
 
 	//////////////////////////////////////////////////////////////////////////
-	private	static	bool					LoadAndConfigureModule( IWeapon wpn, Database.Section section, ref WeaponModuleSlot weaponModuleSlot )
+	private static bool LoadAndConfigureModule(IWeapon wpn, Database.Section section, ref WeaponModuleSlot weaponModuleSlot)
 	{
 		string wpnModuleSect = null;
-		string wpnModuleSectName = GetModuleSlotName( weaponModuleSlot.ThisSlot );
+		string wpnModuleSectName = GetModuleSlotName(weaponModuleSlot.ThisSlot);
 
 		// Check if slot has module assigned
-		if ( section.AsBool( "Has" + wpnModuleSectName ) == false )
+		if (section.AsBool("Has" + wpnModuleSectName) == false)
 		{
 			return true;
 		}
 
 		// Get Module Section Name
-		if ( section.TryAsString( wpnModuleSectName, out wpnModuleSect ) == false )
+		if (section.TryAsString(wpnModuleSectName, out wpnModuleSect) == false)
 		{
-			Debug.Log( $"Error: Weapon {wpn.Transform.name}: Unable to retrieve module section name {wpnModuleSectName}" );
+			Debug.Log($"Error: Weapon {wpn.Transform.name}: Unable to retrieve module section name {wpnModuleSectName}");
 			return false;
 		}
 
 		// Get Module Section
-		if ( GlobalManager.Configs.TryGetSection( wpnModuleSect, out Database.Section moduleSection ) == false )
-		{
-			Debug.Log( $"Error: Weapon {wpn.Transform.name}: Unable to retrieve {wpnModuleSect} for module {wpnModuleSectName}" );
-			return false;
-		}
+		CustomAssertions.IsTrue(GlobalManager.Configs.TryGetSection(wpnModuleSect, out Database.Section moduleSection));
 
 		// Try Load up Module into module Slot
-		if ( LoadWeaponModule( wpn, wpnModuleSect, ref weaponModuleSlot ) == false )
-		{
-			Debug.Log( $"Error: Weapon {wpn.Transform.name}: Unable to load module {wpnModuleSectName}" );
-			return false;
-		}
+		CustomAssertions.IsTrue(LoadWeaponModule(wpn, wpnModuleSect, ref weaponModuleSlot));
 
 		// Apply mods, if assigned to module
-		ApplyModuleMods( section, wpnModuleSectName, weaponModuleSlot );
+		ApplyModuleMods(section, wpnModuleSectName, weaponModuleSlot);
 		return true;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private	static	bool					LoadWeaponModule( IWeapon wpn, string weaponModuleSection, ref WeaponModuleSlot weaponModuleSlot )
+	private static bool LoadWeaponModule(IWeapon wpn, string weaponModuleSection, ref WeaponModuleSlot weaponModuleSlot)
 	{
-		System.Type type = System.Type.GetType( weaponModuleSection.Trim() );
-		return weaponModuleSlot.TrySetModule( wpn, type );
+		System.Type type = System.Type.GetType(weaponModuleSection.Trim());
+		return weaponModuleSlot.TrySetModule(wpn, type);
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private static	void					ApplyModuleMods( Database.Section section, string weaponModuleSectionName, WeaponModuleSlot weaponModule )
+	private static void ApplyModuleMods(Database.Section section, string weaponModuleSectionName, WeaponModuleSlot weaponModule)
 	{
-		if ( section.TryGetMultiAsArray( $"{weaponModuleSectionName}Mods", out string[] mods ) )
+		if (section.TryGetMultiAsArray($"{weaponModuleSectionName}Mods", out string[] mods))
 		{
-			Database.Section modifierSection = null;
-			foreach( string modifierSectionName in mods )
+			foreach (string modifierSectionName in mods)
 			{
-				if ( GlobalManager.Configs.TryGetSection( modifierSectionName, out modifierSection ) )
+				if (GlobalManager.Configs.TryGetSection(modifierSectionName, out Database.Section modifierSection))
 				{
-					weaponModule.WeaponModule.ApplyModifier( modifierSection );
+					weaponModule.WeaponModule.ApplyModifier(modifierSection);
 				}
 			}
 

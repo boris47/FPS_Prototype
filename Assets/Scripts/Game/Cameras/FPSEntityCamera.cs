@@ -271,9 +271,17 @@ public class FPSEntityCamera : CameraBase
 		if (!Mathf.Approximately(Axis_X_Delta, Mathf.Epsilon) || !Mathf.Approximately(Axis_Y_Delta, Mathf.Epsilon))
 		{
 			// Interpolate if m_SmoothedRotation is enabled
-			float interpolant = m_SmoothedRotation ? (Time.unscaledDeltaTime * (100f / m_SmoothFactor)) : 1f;
-			m_CurrentRotation_X_Delta = Mathf.LerpUnclamped(m_CurrentRotation_X_Delta, Axis_X_Delta, interpolant);
-			m_CurrentRotation_Y_Delta = Mathf.LerpUnclamped(m_CurrentRotation_Y_Delta, Axis_Y_Delta, interpolant);
+			if (m_SmoothedRotation)
+			{
+				float interpolant = Time.unscaledDeltaTime * (100f / m_SmoothFactor);
+				m_CurrentRotation_X_Delta = Mathf.LerpUnclamped(m_CurrentRotation_X_Delta, Axis_X_Delta, interpolant);
+				m_CurrentRotation_Y_Delta = Mathf.LerpUnclamped(m_CurrentRotation_Y_Delta, Axis_Y_Delta, interpolant);
+			}
+			else
+			{
+				m_CurrentRotation_X_Delta = Axis_X_Delta;
+				m_CurrentRotation_Y_Delta = Axis_Y_Delta;
+			}
 
 			Vector3 finalWpnRotationFeedback = new Vector3(0.0f, Axis_Y_Delta, 0.0f);
 
@@ -289,8 +297,9 @@ public class FPSEntityCamera : CameraBase
 				if (Utils.Math.ClampResult(ref m_CurrentAngle_X, m_CurrentAngle_X - m_CurrentRotation_X_Delta, CLAMP_MIN_X_AXIS, CLAMP_MAX_X_AXIS))
 				{
 					finalWpnRotationFeedback.z = Axis_X_Delta;
+					head.Rotate(Vector3.right, -m_CurrentRotation_X_Delta);
 				}
-				head.localRotation = Quaternion.Euler(Vector3.right * m_CurrentAngle_X);
+			//	head.localRotation = Quaternion.Euler(Vector3.right * m_CurrentAngle_X);
 			}
 
 			// Rotation with effect added

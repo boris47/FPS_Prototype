@@ -1,135 +1,124 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class WPN_FireModule_Launcher : WPN_FireModule {
-
+public class WPN_FireModule_Launcher : WPN_FireModule
+{
 	[SerializeField]
-	protected	float	m_BaseLaunchForce = 20f;
+	protected			float			m_BaseLaunchForce	= 20f;
 
-	public override EFireMode FireMode
-	{
-		get {
-			return EFireMode.NONE;
-		}
-	}
+	public	override	EFireMode		FireMode			=> EFireMode.NONE;
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	bool	InternalSetup( Database.Section moduleSection )
+	protected override bool InternalSetup(Database.Section moduleSection)
 	{
-		m_BaseLaunchForce			= moduleSection.AsFloat( "BaseLaunchForce", m_BaseLaunchForce );
+		m_BaseLaunchForce = moduleSection.AsFloat("BaseLaunchForce", m_BaseLaunchForce);
 		return true;
 	}
 
-
 	//////////////////////////////////////////////////////////////////////////
-	public		override	void	ApplyModifier( Database.Section modifier )
+	public override void ApplyModifier(Database.Section modifier)
 	{
 		// Do actions here
 
-		float MultLaunchForce		= modifier.AsFloat( "MultLaunchForce",	1.0f );
-		m_BaseLaunchForce			= m_BaseLaunchForce * MultLaunchForce;
+		float MultLaunchForce = modifier.AsFloat("MultLaunchForce", 1.0f);
+		m_BaseLaunchForce = m_BaseLaunchForce * MultLaunchForce;
 
-		base.ApplyModifier( modifier );
+		base.ApplyModifier(modifier);
 	}
 
-
 	//////////////////////////////////////////////////////////////////////////
-	public		override	void	ResetBaseConfiguration()
+	public override void ResetBaseConfiguration()
 	{
-		// Do actions here
-
 		base.ResetBaseConfiguration();
+
+		// Do actions here
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		override	void	RemoveModifier( Database.Section modifier )
+	public override void RemoveModifier(Database.Section modifier)
 	{
+		base.RemoveModifier(modifier);
+
 		// Do Actions here
-
-		base.RemoveModifier( modifier );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		override	bool	OnSave			( StreamUnit streamUnit )
+	public override bool OnSave(StreamUnit streamUnit)
 	{
-		streamUnit.SetInternal(name, m_Magazine );
+		streamUnit.SetInternal(name, m_Magazine);
 		return true;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		override	bool	OnLoad			( StreamUnit streamUnit )
+	public override bool OnLoad(StreamUnit streamUnit)
 	{
-		m_Magazine = (uint)streamUnit.GetAsInt(name );
+		m_Magazine = (uint)streamUnit.GetAsInt(name);
 		return true;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		override	bool	NeedReload()
+	public override bool NeedReload()
 	{
 		return m_Magazine == 0 || m_Magazine < m_MagazineCapacity;
 	}
 
-	
+
 	//////////////////////////////////////////////////////////////////////////
-	public		override	void	OnAfterReload()
+	public override void OnAfterReload()
 	{
 		m_Magazine = m_MagazineCapacity;
 	}
 
-	
+
 	//////////////////////////////////////////////////////////////////////////
-	public		virtual		void	OnLoad( uint magazine )
+	public virtual void OnLoad(uint magazine)
 	{
 		m_Magazine = magazine;
 	}
 
-	
+
 	//////////////////////////////////////////////////////////////////////////
-	public		override	bool	CanBeUsed()
+	public override bool CanBeUsed()
 	{
 		return m_Magazine > 0;
 	}
 
-	
-	//////////////////////////////////////////////////////////////////////////
-	protected	override	void	Shoot( float moduleFireDispersion, float moduleCamDeviation )
-	{
-		//		m_FireDelay = m_BaseShotDelay;
 
-		m_Magazine --;
+	//////////////////////////////////////////////////////////////////////////
+	protected override void Shoot(float moduleFireDispersion, float moduleCamDeviation)
+	{
+		m_Magazine--;
 
 		// TODO muzzle flash
-//		EffectManager.Instance.PlayEffect( EffectType.MUZZLE, m_FirePoint.position, m_FirePoint.forward, 1 );
-//		EffectManager.Instance.PlayEffect( EffectType.SMOKE, m_FirePoint.position, m_FirePoint.forward, 1 );
+		//EffectManager.Instance.PlayEffect( EffectType.MUZZLE, m_FirePoint.position, m_FirePoint.forward, 1 );
+		//EffectManager.Instance.PlayEffect( EffectType.SMOKE, m_FirePoint.position, m_FirePoint.forward, 1 );
 
 		// BULLET
 		IBullet bullet = m_PoolBullets.GetNextComponent();
 
-		moduleFireDispersion	*= Player.Instance.Motion.MotionStrategy.States.IsCrouched		? 0.50f : 1.00f;
-		moduleFireDispersion	*= Player.Instance.Motion.MotionStrategy.States.IsMoving		? 1.50f : 1.00f;
-		moduleFireDispersion	*= Player.Instance.Motion.MotionStrategy.States.IsRunning		? 2.00f : 1.00f;
-		moduleFireDispersion	*= WeaponManager.Instance.IsZoomed		? 0.80f : 1.00f;
-		moduleFireDispersion	*= bullet.RecoilMult;
+		moduleFireDispersion *= m_WeaponRef.Owner.Motion.MotionStrategy.States.IsCrouched ? 0.50f : 1.00f;
+		moduleFireDispersion *= m_WeaponRef.Owner.Motion.MotionStrategy.States.IsMoving ? 1.50f : 1.00f;
+		moduleFireDispersion *= m_WeaponRef.Owner.Motion.MotionStrategy.States.IsRunning ? 2.00f : 1.00f;
+		moduleFireDispersion *= WeaponManager.Instance.IsZoomed ? 0.80f : 1.00f;
+		moduleFireDispersion *= bullet.RecoilMult;
 
 		// SHOOT
-		bullet.Shoot( position: m_FirePoint.position, direction: m_FirePoint.forward, velocity: m_BaseLaunchForce );
+		bullet.Shoot(position: m_FirePoint.position, direction: m_FirePoint.forward, velocity: m_BaseLaunchForce, impactForceMultiplier: null);
 
 		m_AudioSourceFire.Play();
 
 		// CAM DEVIATION
-		m_WeaponRef.ApplyDeviation( moduleCamDeviation );
+		m_WeaponRef.ApplyDeviation(moduleCamDeviation);
 
 		// CAM DISPERSION
-		m_WeaponRef.ApplyDispersion( moduleFireDispersion );
+		m_WeaponRef.ApplyDispersion(moduleFireDispersion);
 
 		// CAM RECOIL
-		m_WeaponRef.AddRecoil( m_Recoil );
+		m_WeaponRef.AddRecoil(m_Recoil);
 
 		// UI ELEMENTS
 		UIManager.InGame.UpdateUI();
@@ -137,53 +126,52 @@ public class WPN_FireModule_Launcher : WPN_FireModule {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		override	bool	CanChangeWeapon()
+	public override bool CanChangeWeapon()
 	{
 		return true;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		override	void OnWeaponChange()
+	public override void OnWeaponChange()
 	{
-		
+
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	void InternalUpdate( float DeltaTime )
+	protected override void InternalUpdate(float DeltaTime)
 	{
-		m_WpnFireMode.InternalUpdate( DeltaTime, m_Magazine );
+		m_WpnFireMode.InternalUpdate(DeltaTime, m_Magazine);
 	}
 
-	
+
 	//////////////////////////////////////////////////////////////////////////
-	public		 override	void	OnStart()
+	public override void OnStart()
 	{
-		if (CanBeUsed() )
+		if (CanBeUsed())
 		{
-			m_WpnFireMode.OnStart(GetFireDispersion(), GetCamDeviation() );
+			m_WpnFireMode.OnStart(GetFireDispersion(), GetCamDeviation());
 		}
 	}
 
-	
+
 	//////////////////////////////////////////////////////////////////////////
-	public		override	void	OnUpdate()
+	public override void OnUpdate()
 	{
-		if (CanBeUsed() )
+		if (CanBeUsed())
 		{
-			m_WpnFireMode.OnUpdate(GetFireDispersion(), GetCamDeviation() );
+			m_WpnFireMode.OnUpdate(GetFireDispersion(), GetCamDeviation());
 		}
 	}
 
-	
+
 	//////////////////////////////////////////////////////////////////////////
-	public		override	void	OnEnd()
+	public override void OnEnd()
 	{
-		if (CanBeUsed() )
+		if (CanBeUsed())
 		{
-			m_WpnFireMode.OnEnd(GetFireDispersion(), GetCamDeviation() );
+			m_WpnFireMode.OnEnd(GetFireDispersion(), GetCamDeviation());
 		}
 	}
-	
 }

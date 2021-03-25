@@ -42,7 +42,7 @@ public class GlobalManager : MonoBehaviourSingleton<GlobalManager>
 	public	static			CustomLogger	LoggerInstance		=> m_LoggerInstance;
 	static GlobalManager()
 	{
-		m_LoggerInstance = new CustomLogger(!Application.isEditor);
+	//	m_LoggerInstance = new CustomLogger(!Application.isEditor);
 	}
 
 #if UNITY_EDITOR

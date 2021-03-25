@@ -126,10 +126,10 @@ AI Behiaviours
 	TODO Using Hash128, HashUnsafeUtilities, HashUtilities
 **	TODO Manage Camera outside player
 	TODO Entity Groups
-**	TODO Bullets as triggers
+***	TODO Bullets as triggers
 	TODO INSTANT Bullet tracers
 	TODO Enemies use custom weapons with custom logic and data
 
 	TODO Input System Action Maps (walk, climb,drive, fly, ...)
 	TODO Debug save system
-	TODO Climbing
+**	TODO Climbing

@@ -1,40 +1,36 @@
 ﻿
-/*
-using System.Collections;
-using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.UI;
 
 
 //////////////////////////////////////////////////////////////////////////
-// WPN_WeaponModule_Zoom
 public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule
 {
-	protected	Vector3				m_ZoomOffset			= Vector3.zero;
-	protected	float				m_ZoomFactor			= 2.0f;
-	protected	float				m_ZoomingTime			= 1.0f;
-	protected	float				m_ZoomSensitivity		= 1.0f;
+	protected				Vector3									m_ZoomOffset				= Vector3.zero;
+	protected				float									m_ZoomFactor				= 2.0f;
+	protected				float									m_ZoomingTime				= 1.0f;
+	protected				float									m_ZoomSensitivity			= 1.0f;
 
-	protected	Image				m_ZoomFrame				= null;
-	protected	WPN_Scope			m_Scope					= null;
+	protected				Image									m_ZoomFrame					= null;
+	protected				WPN_WeaponAttachment_Zoom				m_Scope						= null;
 
 
-	public	virtual	float			ZoomSensitivity
-	{
-		get { return this.m_ZoomSensitivity; }
-	}
+	public		virtual		float									ZoomSensitivity				=> m_ZoomSensitivity;
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public	override	bool	OnAttach			( IWeapon w, EWeaponSlots slot )
 	{
-		string moduleSectionName = this.GetType().FullName;
-		this.m_WeaponRef = w;
-		if ( GlobalManager.Configs.GetSection( moduleSectionName, ref this.m_ModuleSection ) == false )			// Get Module Section
+		string moduleSectionName = GetType().FullName;
+		m_WeaponRef = w;
+		if (!GlobalManager.Configs.TryGetSection( moduleSectionName, out m_ModuleSection ))			// Get Module Section
 			return false;
 
-		if (this.InternalSetup(this.m_ModuleSection ) == false )
+		if (InternalSetup(m_ModuleSection ) == false )
 			return false;
+
+		m_WeaponRef.Attachments.AddAttachment(System.Type.GetType(moduleSectionName));
 
 		return true;
 	}
@@ -49,144 +45,117 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule
 	protected	override	bool	InternalSetup( Database.Section moduleSection )
 	{
 		Vector3 zoomOffset		= Vector3.zero;
-		moduleSection.bAsVec3( "ZoomOffset", ref zoomOffset, Vector3.zero );
-		float zoomFactor		= moduleSection.AsFloat( "ZoomFactor", this.m_ZoomFactor );
-		float zoomingTime		= moduleSection.AsFloat( "ZoomingTime", this.m_ZoomFactor );
-		float zoomSensitivity	= moduleSection.AsFloat( "ZoomSensitivity", this.m_ZoomFactor );
+		moduleSection.TryAsVec3( "ZoomOffset", out zoomOffset, Vector3.zero );
+		float zoomFactor		= moduleSection.AsFloat( "ZoomFactor", m_ZoomFactor );
+		float zoomingTime		= moduleSection.AsFloat( "ZoomingTime", m_ZoomFactor );
+		float zoomSensitivity	= moduleSection.AsFloat( "ZoomSensitivity", m_ZoomFactor );
 		string FramePath		= moduleSection.AsString( "FramePath", "" );
-		string ScopePath		= moduleSection.AsString( "ScopePath", "" );
 
-		this.m_ZoomOffset			= zoomOffset;
-		this.m_ZoomFactor			= zoomFactor;
-		this.m_ZoomingTime			= zoomingTime;
-		this.m_ZoomSensitivity		= zoomSensitivity;
+		m_ZoomOffset			= zoomOffset;
+		m_ZoomFactor			= zoomFactor;
+		m_ZoomingTime			= zoomingTime;
+		m_ZoomSensitivity		= zoomSensitivity;
 
 		// Image frame
-		if ( FramePath.Length > 0 )
+		if (!string.IsNullOrEmpty(FramePath))
 		{
-			ResourceManager.LoadedData<GameObject> imageData = new ResourceManager.LoadedData<GameObject>();
 			void onLoadSuccess(GameObject resource)
 			{
 				Transform parent = UIManager.InGame.transform;
-				if ( resource && resource.transform.HasComponent<Image>() )
+				if (resource && resource.transform.HasComponent<Image>())
 				{
-					this.m_ZoomFrame = Instantiate( resource, parent: parent ).GetComponent<Image>();
+					m_ZoomFrame = Instantiate(resource, parent: parent).GetComponent<Image>();
 
 				}
 			}
-			ResourceManager.LoadResourceAsync( FramePath, imageData, onLoadSuccess );
-
-		}
-
-		// Scope Prefab
-		if ( ScopePath.Length > 0 )
-		{
-			Transform opticSpot = null;
-			bool bHasSpot = this.transform.SearchChildWithName( "OpticSpot", ref opticSpot );
-			if ( bHasSpot )
-			{
-				ResourceManager.LoadedData<GameObject> ScopeObject = new ResourceManager.LoadedData<GameObject>();
-				void onLoadSuccess(GameObject resource)
-				{
-					if ( resource.transform.HasComponent<WPN_Scope>() )
-					{
-						this.m_Scope = Instantiate( resource, opticSpot ).GetComponent<WPN_Scope>();
-						this.m_Scope.transform.localPosition = Vector3.zero;
-						this.m_Scope.transform.localRotation = Quaternion.identity;
-					}
-				}
-				ResourceManager.LoadResourceAsync( ScopePath, ScopeObject, onLoadSuccess );
-			}
+			ResourceManager.LoadResourceAsync<GameObject>(FramePath, onLoadSuccess);
 		}
 
 		return true;
 	}
 
 
-	//		MODIFIERS
 	//////////////////////////////////////////////////////////////////////////
-	public override void ApplyModifier( Database.Section modifier )
+	public override void ApplyModifier(Database.Section modifier)
 	{
 		// Do actions here
 
-		base.ApplyModifier( modifier );
+		base.ApplyModifier(modifier);
 	}
 
 
-	public	override	void	ResetBaseConfiguration()
+	//////////////////////////////////////////////////////////////////////////
+	public override void ResetBaseConfiguration()
 	{
 		// Do actions here
 
 		base.ResetBaseConfiguration();
 	}
 
-	public	override	void	RemoveModifier( Database.Section modifier )
+
+	//////////////////////////////////////////////////////////////////////////
+	public override void RemoveModifier(Database.Section modifier)
 	{
 		// Do Actions here
 
-		base.RemoveModifier( modifier );
+		base.RemoveModifier(modifier);
 	}
 
 
-
-
-
 	//////////////////////////////////////////////////////////////////////////
-	public	override	bool	OnSave			( StreamUnit streamUnit )
+	public override bool OnSave(StreamUnit streamUnit)
 	{
-//		streamUnit.SetInternal( "zoomFactor",					m_ZoomFactor );
-//		streamUnit.SetInternal( "ZoomingTime",					m_ZoomingTime );
-//		streamUnit.SetInternal( "zoomSensitivity",				m_ZoomSensitivity );
+		streamUnit.SetInternal("zoomFactor", m_ZoomFactor);
+		streamUnit.SetInternal("ZoomingTime", m_ZoomingTime);
+		streamUnit.SetInternal("zoomSensitivity", m_ZoomSensitivity);
 		return true;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public	override	bool	OnLoad			( StreamUnit streamUnit )
+	public override bool OnLoad(StreamUnit streamUnit)
 	{
-//		m_ZoomFactor				= streamUnit.GetAsFloat( "ZoomFactor" );
-//		m_ZoomingTime				= streamUnit.GetAsFloat( "ZoomingTime" );
-//		m_ZoomSensitivity			= streamUnit.GetAsFloat( "ZoomSensitivity" );
+		m_ZoomFactor = streamUnit.GetAsFloat("ZoomFactor");
+		m_ZoomingTime = streamUnit.GetAsFloat("ZoomingTime");
+		m_ZoomSensitivity = streamUnit.GetAsFloat("ZoomSensitivity");
 		return true;
 	}
 
 	public	override	bool	CanChangeWeapon	() {  return true; }
-	public	override	bool	CanBeUsed		() {  return Player.Instance.IsRunning == false; }
+	public	override	bool	CanBeUsed		() {  return !Player.Instance.Motion.MotionStrategy.States.IsRunning; }
 	public	override	void	OnWeaponChange	() { }
 	public	override	bool	NeedReload		() { return false; }
 	public	override	void	OnAfterReload	() { }
 	protected	override	void	InternalUpdate	( float DeltaTime ) { }
 
-	
 
+	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Zoom toggle </summary>
-	public override		void	OnStart()
+	public override void OnStart()
 	{
-		if ( WeaponManager.Instance.IsZoomed )
+		if (WeaponManager.Instance.IsZoomed)
 		{
 			WeaponManager.Instance.ZoomOut();
 		}
 		else
 		{
-			WeaponManager.Instance.ZoomIn(this.m_WeaponRef.ZoomOffset, this.m_WeaponRef.ZoomFactor, this.m_WeaponRef.ZoomingTime, this.m_WeaponRef.ZoomSensitivity, null );
+			WeaponManager.Instance.ZoomIn(m_WeaponRef.ZoomOffset, m_WeaponRef.ZoomFactor, m_WeaponRef.ZoomingTime, m_WeaponRef.ZoomSensitivity, null);
 		}
 	}
 
-
-	protected override void OnDestroy()
+	//////////////////////////////////////////////////////////////////////////
+	private void OnDestroy()
 	{
-		base.OnDestroy();
-		if (this.m_ZoomFrame )
+		if (m_ZoomFrame)
 		{
-			Destroy(this.m_ZoomFrame.gameObject );
+			Destroy(m_ZoomFrame.gameObject);
 		}
 
-		if (this.m_Scope )
+		if (m_Scope)
 		{
-			Destroy(this.m_Scope.gameObject );
+			Destroy(m_Scope.gameObject);
 		}
 	}
-
 }
 
 
@@ -194,21 +163,19 @@ public class WPN_WeaponModule_Zoom : WPN_BaseModule, IWPN_UtilityModule
 
 
 //////////////////////////////////////////////////////////////////////////
-// WPN_WeaponModule_OpticZoom
 public class WPN_WeaponModule_OpticZoom : WPN_WeaponModule_Zoom
 {
 	public override void OnStart()
 	{
-		if ( WeaponManager.Instance.IsZoomed )
+		if (WeaponManager.Instance.IsZoomed)
 		{
 			WeaponManager.Instance.ZoomOut();
 		}
 		else
 		{
-			WeaponManager.Instance.ZoomIn(this.m_ZoomOffset, this.m_ZoomFactor, this.m_ZoomingTime, this.m_ZoomSensitivity, this.m_ZoomFrame );
+			WeaponManager.Instance.ZoomIn(m_ZoomOffset, m_ZoomFactor, m_ZoomingTime, m_ZoomSensitivity, m_ZoomFrame);
 		}
 	}
 
 }
 
-*/

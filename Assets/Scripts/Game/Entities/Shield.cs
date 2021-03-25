@@ -188,7 +188,7 @@ public class Shield : MonoBehaviour//, IStreamableByEvents
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public void CollisionHit(GameObject collidingObject)
+	public void OnHittedDetails(GameObject collidingObject)
 	{
 		if (Utils.Base.TrySearchComponent(collidingObject, ESearchContext.LOCAL_AND_CHILDREN, out IBullet bullet))
 		{

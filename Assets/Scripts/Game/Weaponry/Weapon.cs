@@ -45,9 +45,10 @@ public interface IWeapon : IWeaponZoom, IModifiable
 	IAttachments			Attachments						{ get; }
 	Transform				WeaponPivot						{ get; }
 
+	Entity					Owner							{ get; }
 	Database.Section		Section							{ get; }
 	string					OtherInfo						{ get; }
-
+	void					SetOwner						( Entity entity );
 	void					ApplyDeviation					( float deviation, float weightX = 1f, float weightY = 1f );
 	void					ApplyDispersion					( float dispersion, float weightX = 1f, float weightY = 1f );
 	void					ApplyFallFeedback				( float delta, float weightX = 1.0f, float weightY = 1.0f );
@@ -85,6 +86,7 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 	// SECTION
 	protected		Database.Section			m_WpnSection					= null;
 	protected		string						m_WpnBaseSectionName			=> GetType().FullName;
+	protected		Entity						m_Owner							= null;
 
 
 	// WEAPON STATE
@@ -116,6 +118,8 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 					Transform					IWeapon.Transform				=> transform;
 					EWeaponState				IWeapon.WeaponState				=> m_WeaponState;
 					EWeaponSubState				IWeapon.WeaponSubState			=> m_WeaponSubState;
+
+					Entity						IWeapon.Owner					=> m_Owner;
 					Database.Section			IWeapon.Section					=> m_WpnSection;
 					string						IWeapon.OtherInfo				=> OtherInfo;
 
@@ -203,6 +207,13 @@ public abstract partial class Weapon : MonoBehaviour, IWeapon
 		}
 
 		WeaponManager.Instance.RegisterWeapon(this);
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public void SetOwner(Entity entity)
+	{
+		m_Owner = entity;
 	}
 
 

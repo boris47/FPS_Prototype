@@ -671,5 +671,5 @@ Shader "Cameron/WaterEffect" {
         }
     }
     FallBack "Diffuse"
-    CustomEditor "ShaderForgeMaterialInspector"
+//    CustomEditor "ShaderForgeMaterialInspector"
 }

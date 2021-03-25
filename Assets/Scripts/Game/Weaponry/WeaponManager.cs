@@ -237,6 +237,9 @@ public partial class WeaponManager : OnDemandSingleton<WeaponManager>, IWeaponMa
 		m_WeaponsList.Add( weapon );
 
 		CurrentWeapon = weapon;
+
+		// TODO REMOVE THIS ASAP
+		CurrentWeapon.SetOwner(Player.Instance);
 	}
 
 

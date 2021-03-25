@@ -1,41 +1,23 @@
 ﻿
-using System.Collections;
 using UnityEngine;
 
 
 
-public sealed class GranadeFrammentation : BulletExplosive, ITimedExplosive {
-
+public sealed class GranadeFrammentation : BulletExplosive, ITimedExplosive
+{
 	[SerializeField, ReadOnly]
-	private		float			m_ExplosionDelay	= 3.0f;
+	private		float					m_ExplosionDelay									= 3.0f;
 
 	// INTERFACE START
-		float		ITimedExplosive.GetExplosionDelay					()
-		{
-			return m_ExplosionDelay;
-		}
-		float		ITimedExplosive.GetRemainingTime					()
-		{
-			return Mathf.Clamp(m_InternalCounter, 0f, 10f );
-		}
-		float		ITimedExplosive.GetRemainingTimeNormalized			()
-		{
-			return 1f - (m_InternalCounter / m_ExplosionDelay );
-		}
+				float					ITimedExplosive.GetExplosionDelay					() => m_ExplosionDelay;
+				float					ITimedExplosive.GetRemainingTime					() => Mathf.Clamp(m_InternalCounter, 0f, 10f);
+				float					ITimedExplosive.GetRemainingTimeNormalized			() => 1f - (m_InternalCounter / m_ExplosionDelay);
 	// INTERFACE END
 
-	private		float			m_InternalCounter	= 0f;
+	private		float					m_InternalCounter									= 0f;
 
-	private		Collider[]		m_SphereResults		= new Collider[ 100 ];
+	private		Collider[]				m_SphereResults										= new Collider[100];
 
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// Awake ( Override )
-	protected override void	Awake()
-	{
-		base.Awake();
-	}
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -48,79 +30,76 @@ public sealed class GranadeFrammentation : BulletExplosive, ITimedExplosive {
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public override void Shoot( Vector3 position, Vector3 direction, float? velocity )
+	protected override void OnEnable()
 	{
-		transform.position		= position;
-		m_RigidBody.velocity	= direction * (velocity ?? m_Velocity);
+		base.OnEnable();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected override void OnDisable()
+	{
+		m_InternalCounter = 0f;
+
+		base.OnDisable();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public override void Shoot(in Vector3 position, in Vector3 direction, in float? velocity, in float? impactForceMultiplier)
+	{
+		transform.position = position;
 		m_StartPosition = position;
-		SetActive(true);
-	}
-
-
-
-	//////////////////////////////////////////////////////////////////////////
-	public override void SetActive(bool state)
-	{
-		base.SetActive(state);
+		m_ImpactForceMultiplier = impactForceMultiplier ?? m_ImpactForceMultiplier;
+		m_RigidBody.velocity = direction * (velocity ?? m_Velocity);
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected override void Update()
+	protected override void OnFrame(float deltaTime)
 	{
-		m_InternalCounter -= Time.deltaTime;
+		m_InternalCounter -= deltaTime;
 		if (m_InternalCounter < 0)
 		{
 			OnExplosion();
-			return;
 		}
-
-		m_Emission += Time.deltaTime * 2f;
-		m_Renderer.material.SetColor("_EmissionColor", Color.red * m_Emission);
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	public override void ForceExplosion()
-	{
-		base.ForceExplosion();
+		else
+		{
+			m_Emission += deltaTime * 2f;
+			m_Renderer.material.SetColor("_EmissionColor", Color.red * m_Emission);
+		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected override	void	OnExplosion()
 	{
-		int nresults = Physics.OverlapSphereNonAlloc(transform.position, m_Range, m_SphereResults);
-		for (int i = 0; i < nresults; i++)
+		for (int i = 0; i < Physics.OverlapSphereNonAlloc(transform.position, m_Range, m_SphereResults); i++)
 		{
 			Collider hittedCollider = m_SphereResults[i];
 
 			bool bIsEntity = Utils.Base.TrySearchComponent(hittedCollider.gameObject, ESearchContext.LOCAL, out Entity entity);
 			bool bHasShield = Utils.Base.TrySearchComponent(hittedCollider.gameObject, ESearchContext.LOCAL, out Shield shield);
-
-			if (bIsEntity && ((bHasShield && shield.Status > 0f) || true))
+			if (bIsEntity)
 			{
-				float dmgMult = (Vector3.Distance(transform.position, entity.transform.position) / m_Range) + 0.001f;
-				float damage = m_Damage * dmgMult;
-//				if ( entity.Shield != null && entity.Shield.Status > 0.0f )
-//				{
-//					entity.Shield.OnHit( m_StartPosition, m_WhoRef, m_Weapon, damage, m_CanPenetrate );
-//				}
-//				else
+				if ((bHasShield && shield.Status > 0f) || true)
 				{
+					float dmgMult = (Vector3.Distance(transform.position, entity.transform.position) / m_Range) + 0.001f;
+					float damage = m_Damage * dmgMult;
 					entity.OnHittedDetails(m_StartPosition, m_WhoRef, m_DamageType, damage, m_CanPenetrate);
 				}
 			}
-
-			// Dynamic props
-			if (!bIsEntity && hittedCollider.transform.TrySearchComponent(ESearchContext.LOCAL, out Rigidbody rb))
+			else
 			{
-				rb.AddExplosionForce(1000, transform.position, m_Range, 3.0f);
+				// Dynamic props
+				if (hittedCollider.transform.TrySearchComponent(ESearchContext.LOCAL, out Rigidbody rb))
+				{
+					rb.AddExplosionForce(1000, transform.position, m_Range, 3.0f);
+				}
 			}
 		}
 		EffectsManager.Instance.PlayEffect(EffectsManager.EEffecs.EXPLOSION, transform.position, Vector3.up, 0);
-		SetActive(false);
-		m_InternalCounter	= 0f;
+		enabled = false;
 	}
 
 

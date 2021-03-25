@@ -28,6 +28,7 @@ bHasDamageOverTime				= true;				Has Over Time Damage
 fOverTimeDamageDuration			= 5.0;				Over Time Damage Duration
 eOverTimeDamageType				= ELECTRO;			Over Time Damage Type
 bCanPenetrate					= false;
+; A velocity in Unity is units per second. The units are often thought of as metres but could be millimetres or light years. Unity velocity also has the speed in X, Y, and Z defining the direction.
 fVelocity						= 45.0;
 fRange							= 60.0f;
 
@@ -41,8 +42,8 @@ bHasDamageOverTime				= false;			Has Over Time Damage
 fOverTimeDamageDuration			= 5.0;				Over Time Damage Duration
 eOverTimeDamageType				= FLAME;			Over Time Damage Type
 bCanPenetrate					= false;
-fVelocity						= 150.0f;
-fRange							= 90.0f;
+fVelocity						= 60.0f;
+fRange							= 180.0f;
 
 
 [BulletSyphon]

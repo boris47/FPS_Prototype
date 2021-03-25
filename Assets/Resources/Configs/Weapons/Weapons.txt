@@ -34,8 +34,8 @@ TertiaryWeaponModule		= WPN_FireModule_Blaster;
 ;TertiaryWeaponModuleMods	= WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_BiggerMag, WPN_Module_Prop_BiggerMag;
 
 ; Prefab must have "Attachments" child
-AllowedAttachments			= WPN_WeaponAttachment_Flashlight, WPN_WeaponAttachment_LaserPointer, WPN_WeaponAttachment_OpticZoom;
-DefaultAttachments			= WPN_WeaponAttachment_Flashlight, WPN_WeaponAttachment_LaserPointer, WPN_WeaponAttachment_OpticZoom;
+AllowedAttachments			= WPN_WeaponAttachment_Flashlight, WPN_WeaponAttachment_LaserPointer, WPN_WeaponAttachment_Zoom;
+DefaultAttachments			= WPN_WeaponAttachment_Flashlight, WPN_WeaponAttachment_LaserPointer, WPN_WeaponAttachment_Zoom;
 
 
 
