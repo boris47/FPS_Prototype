@@ -1,4 +1,4 @@
-﻿
+
 using System.Linq;
 using System.Reflection;
 using System.Collections;
@@ -48,7 +48,7 @@ public static class CustomAssertions
 #if UNITY_EDITOR
 			System.Diagnostics.Debugger.Break();
 #endif
-			UnityEngine.Debug.LogError(message ?? "CustomAssertions.IsTrue: Assertion Failed");
+			UnityEngine.Debug.LogError(message ?? "CustomAssertions.IsTrue: Assertion Failed " + context?.name ?? "");
 		}
 		return condition;
 	}
@@ -57,8 +57,8 @@ public static class CustomAssertions
 	{
 		bool condition = value.IsNotNull();
 		if (!condition)
-#if UNITY_EDITOR
 		{
+#if UNITY_EDITOR
 			System.Diagnostics.Debugger.Break();
 #endif
 			UnityEngine.Debug.LogError(message ?? "CustomAssertions.IsNotNull: Assertion Failed");
@@ -408,25 +408,25 @@ namespace Utils
 
 
 		////////////////////////////////////////////////
-		private	static	bool	TrySearchResults<T>( GameObject GameObject, ESearchContext Context, out T[] results)
+		private	static	bool	TrySearchResults<T>( GameObject gameObject, ESearchContext context, out T[] results) where T : Component
 		{
 			results = null;
-			switch (Context)
+			switch (context)
 			{
-				case ESearchContext.LOCAL				: { results = GameObject.GetComponents<T>(); break; }
-				case ESearchContext.LOCAL_AND_CHILDREN	: { results = GameObject.GetComponentsInChildren<T>(includeInactive: true); break; }
-				case ESearchContext.LOCAL_AND_PARENTS	: { results = GameObject.GetComponentsInParent<T>(includeInactive: true); break; }
-				case ESearchContext.FROM_ROOT			: { results = GameObject.transform.root.GetComponentsInChildren<T>(includeInactive: true); break; }
+				case ESearchContext.LOCAL				: { results = gameObject.GetComponents<T>(); break; }
+				case ESearchContext.LOCAL_AND_CHILDREN	: { results = gameObject.GetComponentsInChildren<T>(includeInactive: true); break; }
+				case ESearchContext.LOCAL_AND_PARENTS	: { results = gameObject.GetComponentsInParent<T>(includeInactive: true); break; }
+				case ESearchContext.FROM_ROOT			: { results = gameObject.transform.root.GetComponentsInChildren<T>(includeInactive: true); break; }
 			}
-			return results != null && results.Length > 0;
+			return results.IsNotNull() && results.Length > 0;
 		}
 
 
 		////////////////////////////////////////////////
-		public	static	bool	TrySearchComponent<T>( GameObject GameObject, ESearchContext Context, out T Component, global::System.Predicate<T> Filter = null )
+		public	static	bool	TrySearchComponent<T>( GameObject GameObject, ESearchContext Context, out T Component, global::System.Predicate<T> Filter = null ) where T : Component
 		{
-			Component = default(T);
-			if (TrySearchResults( GameObject, Context, out T[] results))
+			Component = default;
+			if (TrySearchResults(GameObject, Context, out T[] results))
 			{
 				// Filtered search
 				if (Filter != null)

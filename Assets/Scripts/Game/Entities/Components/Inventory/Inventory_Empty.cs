@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-public interface IInventory_Empty: IEntityComponent_Inventory
+﻿public interface IInventory_Empty: IEntityComponent_Inventory
 {
 
 }

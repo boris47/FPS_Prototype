@@ -1,7 +1,4 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
-using System;
-
+﻿
 //public class SlowMoJumpPlate : MonoBehaviour, IInteractable {
 //	/*
 //	[SerializeField]
@@ -20,7 +17,7 @@ using System;
 //		}
 
 //		set {
-			
+
 //		}
 //	}
 
@@ -60,7 +57,7 @@ using System;
 //		{
 //			m_CurvePoints[ i ] = transform.GetChild( i-1 ).position;
 //		}
-		
+
 //	}
 
 //	void IInteractable.OnInteraction()

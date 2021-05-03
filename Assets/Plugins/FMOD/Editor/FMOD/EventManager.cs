@@ -1,18 +1,15 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using System.Collections;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using UnityEditor.Callbacks;
 #if UNITY_2017_1_OR_NEWER
 using UnityEditor.Build;
 #endif
 
 namespace FMODUnity
 {
-    [InitializeOnLoad]
+	[InitializeOnLoad]
     public class EventManager : MonoBehaviour
     {
         const string CacheAssetName = "FMODStudioCache";

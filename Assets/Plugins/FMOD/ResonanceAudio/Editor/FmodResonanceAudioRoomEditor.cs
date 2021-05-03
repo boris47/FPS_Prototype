@@ -14,7 +14,6 @@
 
 using UnityEngine;
 using UnityEditor;
-using System.Collections;
 
 /// A custom editor for properties on the FmodResonanceAudioRoom script. This appears in the
 /// Inspector window of a FmodResonanceAudioRoom object.

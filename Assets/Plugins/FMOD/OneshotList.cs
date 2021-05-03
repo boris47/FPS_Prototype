@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace FMODUnity
 {
-    public class OneshotList
+	public class OneshotList
     {
         List<FMOD.Studio.EventInstance> instances = new List<FMOD.Studio.EventInstance>();
 

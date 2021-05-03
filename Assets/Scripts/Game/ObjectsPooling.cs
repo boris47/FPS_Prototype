@@ -44,22 +44,24 @@ public class GameObjectsPool<T> where T : UnityEngine.Component
 	// CONSTRUCTOR
 	public GameObjectsPool(GameObjectsPoolConstructorData<T> constructorData)
 	{
+		string componentName = typeof(T).Name;
+
 		CustomAssertions.IsNotNull
 		(
 			constructorData.Model,
-			$"GameObjectsPool trying to create a pool with null Model for component {typeof(T).Name}"
+			$"GameObjectsPool trying to create a pool with null Model for component {componentName}"
 		);
 
 		CustomAssertions.IsTrue
 		(
 			constructorData.Size > 0,
-			$"GameObjectsPool trying to create a pool with null Model for component {typeof(T).Name}"
+			$"GameObjectsPool trying to create a pool with null Model for component {componentName}"
 		);
 
 		CustomAssertions.IsTrue
 		(
 			constructorData.Model.transform.HasComponent<T>(),
-			$"GameObjectsPool trying to create a pool with Model with no component {typeof(T).Name}, Model is {constructorData.Model.name}"
+			$"GameObjectsPool trying to create a pool with Model with no component {componentName}, Model is {constructorData.Model.name}"
 		);
 
 		// Get data from GameObjectsPoolConstructorData
@@ -82,9 +84,8 @@ public class GameObjectsPool<T> where T : UnityEngine.Component
 		// Create the internal pool
 		if (constructorData.IsAsyncBuild) // Asyncronously
 		{
-			constructorData.CoroutineEnumerator = CreateItemsCO(constructorData);
 			m_IsBuilding = true;
-			m_Coroutine = CoroutinesManager.Start(constructorData.CoroutineEnumerator, $"GameObjectsPool::Constructor: Create items of {m_ModelGO.name}");
+			m_Coroutine = CoroutinesManager.Start(constructorData.CoroutineEnumerator = CreateItemsCO(constructorData), $"GameObjectsPool::Constructor: Create items of {m_ModelGO.name}");
 		}
 		else // Synchronously
 		{
@@ -94,6 +95,7 @@ public class GameObjectsPool<T> where T : UnityEngine.Component
 				m_ActionOnObject(comp);
 				m_ObjectsPool.Add(comp);
 			}
+			constructorData.ActionOnLoadEnd();
 		}
 	}
 
@@ -108,6 +110,7 @@ public class GameObjectsPool<T> where T : UnityEngine.Component
 		for (uint i = 0; i < constructorData.Size; i++)
 		{
 			T comp = CreateItem(m_ModelGO);
+			comp.name += i;
 			m_ActionOnObject(comp);
 			m_ObjectsPool.Add(comp);
 			yield return null;
@@ -148,6 +151,7 @@ public class GameObjectsPool<T> where T : UnityEngine.Component
 		for (uint i = 0; i < size; i++)
 		{
 			T comp = CreateItem(model);
+			comp.name += i;
 			m_ActionOnObject(comp);
 			m_ObjectsPool.Add(comp);
 		}
@@ -161,9 +165,15 @@ public class GameObjectsPool<T> where T : UnityEngine.Component
 	/// <summary> Internally create the model object </summary>
 	private T CreateItem(GameObject model)
 	{
-		GameObject objectCopy = Object.Instantiate(model, Vector3.zero, Quaternion.identity, m_ContainerGO.transform);
-		objectCopy.TryGetComponent(out T comp);
-		return comp;
+		T result = default;
+		if (CustomAssertions.IsNotNull(model))
+		{
+			GameObject objectCopy = Object.Instantiate(model, Vector3.zero, Quaternion.identity, m_ContainerGO.transform);
+			result = objectCopy.GetComponent<T>();
+		}
+
+		CustomAssertions.IsNotNull(result);
+		return result;
 	}
 
 
@@ -182,7 +192,7 @@ public class GameObjectsPool<T> where T : UnityEngine.Component
 	public bool Resize(uint newSize)
 	{
 		// Skip for invalid new size
-		if (IsValid == false || newSize == 0)
+		if (!IsValid || newSize == 0)
 		{
 			return false;
 		}
@@ -193,7 +203,7 @@ public class GameObjectsPool<T> where T : UnityEngine.Component
 			return true;
 		}
 
-		if (m_IsBuilding == true)
+		if (m_IsBuilding)
 		{
 			CoroutinesManager.Stop(m_Coroutine);
 		}
@@ -206,6 +216,7 @@ public class GameObjectsPool<T> where T : UnityEngine.Component
 			for (int i = 0; i < delta; i++)
 			{
 				T comp = CreateItem(m_ModelGO);
+				comp.name += i;
 				m_ActionOnObject(comp);
 				m_ObjectsPool.Add(comp);
 			}
@@ -263,11 +274,11 @@ public class GameObjectsPool<T> where T : UnityEngine.Component
 	/// <summary> Get the Component at next index </summary>
 	public T GetNextComponent()
 	{
-		if (++m_InternalIndex >= m_ObjectsPool.Count)
+		if (!m_ObjectsPool.IsValidIndex(m_InternalIndex))
 		{
 			m_InternalIndex = 0;
 		}
-		return m_ObjectsPool[m_InternalIndex];
+		return m_ObjectsPool[m_InternalIndex++];
 	}
 
 
@@ -287,7 +298,7 @@ public class GameObjectsPool<T> where T : UnityEngine.Component
 	{
 		Counter--;
 
-		if (m_IsBuilding == true)
+		if (m_IsBuilding)
 		{
 			CoroutinesManager.Stop(m_Coroutine);
 		}

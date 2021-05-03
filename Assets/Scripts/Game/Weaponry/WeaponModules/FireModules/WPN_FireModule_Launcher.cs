@@ -2,45 +2,13 @@
 
 public class WPN_FireModule_Launcher : WPN_FireModule
 {
-	[SerializeField]
-	protected			float			m_BaseLaunchForce	= 20f;
-
 	public	override	EFireMode		FireMode			=> EFireMode.NONE;
 
 
 	//////////////////////////////////////////////////////////////////////////
 	protected override bool InternalSetup(Database.Section moduleSection)
 	{
-		m_BaseLaunchForce = moduleSection.AsFloat("BaseLaunchForce", m_BaseLaunchForce);
 		return true;
-	}
-
-	//////////////////////////////////////////////////////////////////////////
-	public override void ApplyModifier(Database.Section modifier)
-	{
-		// Do actions here
-
-		float MultLaunchForce = modifier.AsFloat("MultLaunchForce", 1.0f);
-		m_BaseLaunchForce = m_BaseLaunchForce * MultLaunchForce;
-
-		base.ApplyModifier(modifier);
-	}
-
-	//////////////////////////////////////////////////////////////////////////
-	public override void ResetBaseConfiguration()
-	{
-		base.ResetBaseConfiguration();
-
-		// Do actions here
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	public override void RemoveModifier(Database.Section modifier)
-	{
-		base.RemoveModifier(modifier);
-
-		// Do Actions here
 	}
 
 
@@ -63,14 +31,14 @@ public class WPN_FireModule_Launcher : WPN_FireModule
 	//////////////////////////////////////////////////////////////////////////
 	public override bool NeedReload()
 	{
-		return m_Magazine == 0 || m_Magazine < m_MagazineCapacity;
+		return m_Magazine == 0 || m_Magazine < m_FireModuleData.MagazineCapacity;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public override void OnAfterReload()
 	{
-		m_Magazine = m_MagazineCapacity;
+		m_Magazine = m_FireModuleData.MagazineCapacity;
 	}
 
 
@@ -107,18 +75,18 @@ public class WPN_FireModule_Launcher : WPN_FireModule
 		moduleFireDispersion *= bullet.RecoilMult;
 
 		// SHOOT
-		bullet.Shoot(position: m_FirePoint.position, direction: m_FirePoint.forward, velocity: m_BaseLaunchForce, impactForceMultiplier: null);
+		bullet.Shoot(origin: m_FirePoint.position, direction: m_FirePoint.forward, velocity: m_FireModuleData.BulletVelocity, impactForceMultiplier: m_FireModuleData.ImpactForceMultiplier);
 
 		m_AudioSourceFire.Play();
 
-		// CAM DEVIATION
-		m_WeaponRef.ApplyDeviation(moduleCamDeviation);
+		// WEAPON DEVIATION
+		WeaponPivot.Instance.ApplyDeviation(moduleCamDeviation);
 
 		// CAM DISPERSION
-		m_WeaponRef.ApplyDispersion(moduleFireDispersion);
+		WeaponPivot.Instance.ApplyDispersion(moduleFireDispersion);
 
 		// CAM RECOIL
-		m_WeaponRef.AddRecoil(m_Recoil);
+		WeaponPivot.Instance.AddRecoil(m_FireModuleData.Recoil);
 
 		// UI ELEMENTS
 		UIManager.InGame.UpdateUI();
@@ -140,7 +108,7 @@ public class WPN_FireModule_Launcher : WPN_FireModule
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected override void InternalUpdate(float DeltaTime)
+	protected override void OnFrame(float DeltaTime)
 	{
 		m_WpnFireMode.InternalUpdate(DeltaTime, m_Magazine);
 	}

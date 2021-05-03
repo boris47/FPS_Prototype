@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
-using System.Collections;
 using UnityEditor;
 using System.IO;
 using System.Text;
@@ -10,7 +8,7 @@ using System.Net.Sockets;
 namespace FMODUnity
 {
 
-    public enum PreviewState
+	public enum PreviewState
     {
         Stopped,
         Playing,

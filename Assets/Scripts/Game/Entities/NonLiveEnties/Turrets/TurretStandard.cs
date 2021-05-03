@@ -1,7 +1,3 @@
-﻿
-using UnityEngine;
-
-
-public class TurretStandard : Turret {
+﻿public class TurretStandard : Turret {
 
 }

@@ -1,8 +1,4 @@
-﻿
-using UnityEngine;
-
-
-public class WalkerArmored : Walker {
+﻿public class WalkerArmored : Walker {
 
 
 }

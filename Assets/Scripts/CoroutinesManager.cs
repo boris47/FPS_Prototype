@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,10 +6,10 @@ public class CoroutinesManager : MonoBehaviourSingleton<CoroutinesManager>
 {
 	public class RoutinesSequence
 	{
-		private readonly IEnumerator m_CurrentEnumerator = null;
-		private readonly MonoBehaviour m_MonoBehaviour = null;
-		private readonly List<IEnumerator> m_Routines = new List<IEnumerator>();
-		private int m_CurrentIndex = 0;
+		private		readonly		IEnumerator			m_CurrentEnumerator				= null;
+		private		readonly		MonoBehaviour		m_MonoBehaviour					= null;
+		private		readonly		List<IEnumerator>	m_Routines						= new List<IEnumerator>();
+		private						int					m_CurrentIndex					= 0;
 
 		public RoutinesSequence(MonoBehaviour monoBehaviour, IEnumerator Routine)
 		{
@@ -50,8 +49,8 @@ public class CoroutinesManager : MonoBehaviourSingleton<CoroutinesManager>
 	}
 
 	[SerializeField]
-	private uint m_PendingRoutines = 0;
-	public static uint PendingRoutines => m_Instance.m_PendingRoutines;
+	private			uint		m_PendingRoutines			= 0;
+	public static	uint		PendingRoutines				=> m_Instance.m_PendingRoutines;
 
 
 	/////////////////////////////////////////////////////////////////
@@ -60,6 +59,10 @@ public class CoroutinesManager : MonoBehaviourSingleton<CoroutinesManager>
 		if (m_Instance)
 		{
 			m_Instance.m_PendingRoutines += howMany;
+		}
+		else
+		{
+			Debug.LogWarning($"AddCoroutineToPendingCount: no instance");
 		}
 	}
 
@@ -76,6 +79,10 @@ public class CoroutinesManager : MonoBehaviourSingleton<CoroutinesManager>
 			}
 
 			m_Instance.m_PendingRoutines -= howMany;
+		}
+		else
+		{
+			Debug.LogWarning($"RemoveCoroutineFromPendingCount: no instance");
 		}
 	}
 

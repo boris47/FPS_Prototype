@@ -69,5 +69,6 @@
 		"Assets/StreamingAssets/": true,
 		"Assets/*.shadervariants": true,
 		"*.*": true
-	}
+	},
+	"files.eol": "\n"
 }

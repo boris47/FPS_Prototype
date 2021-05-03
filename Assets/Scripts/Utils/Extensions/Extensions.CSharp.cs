@@ -1,9 +1,7 @@
 ﻿
 using UnityEngine;
 using System.Linq;
-using System.Reflection;
 using System.Collections.Generic;
-using System.IO;
 
 public static class Extensions
 {
@@ -12,9 +10,9 @@ public static class Extensions
 	#region C# OBJECT
 
 	/// <summary> Check if Object is null internally </summary>
-	public static	bool	IsNotNull( this System.Object obj )
+	public static	bool	IsNotNull(this System.Object obj)
 	{
-		bool bIsNotNull = ( obj ) != null;
+		bool bIsNotNull =  obj != null;
 		return bIsNotNull;
 	}
 
@@ -24,6 +22,12 @@ public static class Extensions
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
 	#region C# STRING
+
+	/// <summary> Return true for empty or 'none' strings </summary>
+	public static	bool			IsNone( this string str )
+	{
+		return string.IsNullOrEmpty(str) || str.ToLower().Trim() == "none";
+	}
 	
 	/// <summary> This method also trim inside the string </summary>
 	public static	string			TrimInside( this string str, params char[] trimChars )
@@ -231,7 +235,7 @@ public static class Extensions
 	}
 
 
-	/// <summary> Tests if index is valid, i.e. greater than or equal to zero, and less than the number of elements in the list </summary>
+	/// <summary> Tests if index is valid, i.e. greater than or equal to zero, and less than the number of elements in the collection </summary>
 	/// <param name="index">Index to test</param>
 	/// <returns>returns True if index is valid. False otherwise</returns>
 	public static bool IsValidIndex<T>(this IEnumerable<T> source, in int index)

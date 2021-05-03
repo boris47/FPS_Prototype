@@ -1,17 +1,16 @@
-﻿using System;
 using System.Globalization;
 using UnityEngine;
 
 
-namespace Utils {
-
-	public static  class Converters {
-
+namespace Utils
+{
+	public static  class Converters
+	{
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Accept a string and return the parsed result as enum value </summary>
 		public	static	bool	StringToEnum<T>( string s, out T enumValue, bool ignoreCase = true ) where T : struct
 		{
-			return global::System.Enum.TryParse( s, true, out enumValue);			
+			return global::System.Enum.TryParse( s, ignoreCase, out enumValue);			
 		}
 
 

@@ -2,7 +2,6 @@
 using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
-using System;
 
 public	delegate	void	OnTargetEvent( TargetInfo targetInfo );
 public	delegate	void	OnTargetsAcquired( Entity[] entities );

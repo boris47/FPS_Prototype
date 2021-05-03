@@ -1,7 +1,3 @@
-﻿
-using System;
-using UnityEngine;
-
-public class Blackjack : Weapon {
+﻿public class Blackjack : WeaponBase {
 
 }

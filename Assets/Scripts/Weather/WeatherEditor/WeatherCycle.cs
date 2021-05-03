@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
 
 #if UNITY_EDITOR
-	using UnityEditor;
+using UnityEditor;
 #endif
 
-namespace WeatherSystem {
+namespace WeatherSystem
+{
 
 	[System.Serializable]
 	public class WeatherCycle : ScriptableObject/*, IResourceComposite*/ {

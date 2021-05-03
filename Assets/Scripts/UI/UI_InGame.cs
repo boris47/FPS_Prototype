@@ -1,7 +1,4 @@
-﻿
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public sealed class UI_InGame : UI_Base, IStateDefiner
@@ -18,6 +15,7 @@ public sealed class UI_InGame : UI_Base, IStateDefiner
 	
 	private				Image				m_StaminaBarImage					= null;
 	private				Transform			m_CrosshairsTransform				= null;
+	private				Text				m_Distance							= null;
 
 	private				Image				m_ZoomFrameImage					= null;
 
@@ -45,7 +43,9 @@ public sealed class UI_InGame : UI_Base, IStateDefiner
 				m_ZoomFrameImage.raycastTarget = false;
 			}
 
-			if(CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("GenericInfosPanel", out m_GenericInfosPanel)))
+			CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("Distance", out m_Distance));
+
+			if (CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("GenericInfosPanel", out m_GenericInfosPanel)))
 			{
 				CustomAssertions.IsTrue(m_GenericInfosPanel.TrySearchComponentByChildIndex(0, out m_CycleNameText));
 				CustomAssertions.IsTrue(m_GenericInfosPanel.TrySearchComponentByChildIndex(1, out m_TimeText));
@@ -62,6 +62,9 @@ public sealed class UI_InGame : UI_Base, IStateDefiner
 			}
 
 			CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("Crosshairs", out m_CrosshairsTransform));
+			
+				
+			
 
 			UserSettings.VideoSettings.OnResolutionChanged += UI_Graphics_OnResolutionChanged;
 
@@ -98,7 +101,7 @@ public sealed class UI_InGame : UI_Base, IStateDefiner
 
 		GlobalManager.SetCursorVisibility(false);
 
-		InvokeRepeating("PrintTime", 1.0f, 1.0f);
+		InvokeRepeating(nameof(PrintTime), 1.0f, 1.0f);
 
 		// TODO Think better solution instead of this
 		UIManager.Minimap.SetTarget(FPSEntityCamera.Instance?.transform);
@@ -178,8 +181,8 @@ public sealed class UI_InGame : UI_Base, IStateDefiner
 		if (frame.IsNotNull())
 		{
 			// Size
-			m_ZoomFrameImage.rectTransform.SetSizeWithCurrentAnchors( RectTransform.Axis.Horizontal, frame.rectTransform.rect.width  );
-			m_ZoomFrameImage.rectTransform.SetSizeWithCurrentAnchors( RectTransform.Axis.Vertical,   frame.rectTransform.rect.height );
+			m_ZoomFrameImage.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, frame.rectTransform.rect.width);
+			m_ZoomFrameImage.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,   frame.rectTransform.rect.height);
 
 			m_ZoomFrameImage.sprite		= frame.sprite;
 			m_ZoomFrameImage.color		= frame.color;
@@ -201,12 +204,12 @@ public sealed class UI_InGame : UI_Base, IStateDefiner
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public void FrameFeedBack( float feedback, Vector2 delta )
+	public void FrameFeedBack(float feedback/*, Vector2 delta */)
 	{
 		if (m_ZoomFrameImage.enabled)
 		{
 			m_ZoomFrameImage.rectTransform.localScale = Vector3.one * feedback;
-			m_ZoomFrameImage.rectTransform.position = delta;
+			//m_ZoomFrameImage.rectTransform.position = delta;
 		}
 	}
 
@@ -214,10 +217,11 @@ public sealed class UI_InGame : UI_Base, IStateDefiner
 	//////////////////////////////////////////////////////////////////////////
 	private	void	PrintTime()
 	{
-		CustomAssertions.IsNotNull(WeatherSystem.WeatherManager.Instance);
-
-		m_TimeText.text			= WeatherSystem.WeatherManager.Cycles.GetTimeAsString();
-		m_CycleNameText.text	= WeatherSystem.WeatherManager.Cycles.CurrentCycleName;
+		if (CustomAssertions.IsNotNull(WeatherSystem.WeatherManager.Instance))
+		{
+			m_TimeText.text			= WeatherSystem.WeatherManager.Cycles.GetTimeAsString();
+			m_CycleNameText.text	= WeatherSystem.WeatherManager.Cycles.CurrentCycleName;
+		}
 	}
 
 
@@ -225,10 +229,18 @@ public sealed class UI_InGame : UI_Base, IStateDefiner
 	private void	Update()
 	{
 		// Only every 10 frames
-		if ( Time.frameCount % 10 == 0 )
-			return;
+		if (gameObject.EveryFrames(10))
+		{
+			m_Timetime.text = Time.timeScale.ToString();
+		}
 
-		m_Timetime.text = Time.timeScale.ToString();
+		if (gameObject.EveryFrames(25))
+		{
+			if (Physics.Raycast(FPSEntityCamera.Instance.transform.position, FPSEntityCamera.Instance.transform.forward, out RaycastHit hit, Mathf.Infinity, Physics.AllLayers, QueryTriggerInteraction.Ignore))
+			{
+				m_Distance.text = hit.distance.ToString("000.00");
+			}
+		}
 	}
 	
 }

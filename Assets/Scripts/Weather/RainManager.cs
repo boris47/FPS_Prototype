@@ -174,7 +174,7 @@ namespace WeatherSystem {
 			yield return null;
 			
 			// Get info from settings file
-			if ( !(GlobalManager.Configs.TryGetSection("Thunderbolts", out Database.Section thunderboltsSection) && GlobalManager.Configs.TrySectionToOuter(thunderboltsSection, m_ThunderboltsSectionData)) )
+			if (!(GlobalManager.Configs.TryGetSection("Thunderbolts", out Database.Section thunderboltsSection) && GlobalManager.Configs.TrySectionToOuter(thunderboltsSection, m_ThunderboltsSectionData)))
 			{
 				Debug.LogError("Cannot load Thunderbolts Section");
 				enabled = false;

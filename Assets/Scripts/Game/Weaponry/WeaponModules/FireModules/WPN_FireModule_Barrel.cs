@@ -1,8 +1,4 @@
 ﻿
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 public class WPN_FireModule_Barrel : WPN_FireModule
 {
 	public	override	EFireMode		FireMode => EFireMode.NONE;
@@ -12,30 +8,6 @@ public class WPN_FireModule_Barrel : WPN_FireModule
 	protected override bool InternalSetup(Database.Section moduleSection)
 	{
 		return true;
-	}
-
-	//////////////////////////////////////////////////////////////////////////
-	public override void ApplyModifier(Database.Section modifier)
-	{
-		base.ApplyModifier(modifier);
-
-		// Do actions here
-	}
-
-	//////////////////////////////////////////////////////////////////////////
-	public override void ResetBaseConfiguration()
-	{
-		base.ResetBaseConfiguration();
-
-		// Do actions here
-	}
-
-	//////////////////////////////////////////////////////////////////////////
-	public override void RemoveModifier(Database.Section modifier)
-	{
-		base.RemoveModifier(modifier);
-
-		// Do Actions here
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -55,13 +27,13 @@ public class WPN_FireModule_Barrel : WPN_FireModule
 	//////////////////////////////////////////////////////////////////////////
 	public override bool NeedReload()
 	{
-		return m_Magazine == 0 || m_Magazine < m_MagazineCapacity;
+		return m_Magazine < m_FireModuleData.MagazineCapacity;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	public override void OnAfterReload()
 	{
-		m_Magazine = m_MagazineCapacity;
+		m_Magazine = m_FireModuleData.MagazineCapacity;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -95,18 +67,18 @@ public class WPN_FireModule_Barrel : WPN_FireModule
 		moduleFireDispersion *= bullet.RecoilMult;
 
 		// SHOOT
-		bullet.Shoot(position: m_FirePoint.position, direction: m_FirePoint.forward, velocity: null, impactForceMultiplier: null);
+		bullet.Shoot(origin: m_FirePoint.position, direction: m_FirePoint.forward, velocity: m_FireModuleData.BulletVelocity, m_FireModuleData.ImpactForceMultiplier);
 
 		m_AudioSourceFire.Play();
 
-		// CAM DEVIATION
-		m_WeaponRef.ApplyDeviation(moduleCamDeviation);
+		// WEAPON DEVIATION
+		WeaponPivot.Instance.ApplyDeviation(moduleCamDeviation, 1f, 0.2f);
 
 		// CAM DISPERSION
-		m_WeaponRef.ApplyDispersion(moduleFireDispersion);
+		WeaponPivot.Instance.ApplyDispersion(moduleFireDispersion);
 
 		// CAM RECOIL
-		m_WeaponRef.AddRecoil(m_Recoil);
+		WeaponPivot.Instance.AddRecoil(m_FireModuleData.Recoil);
 
 		// UI ELEMENTS
 		UIManager.InGame.UpdateUI();
@@ -125,7 +97,7 @@ public class WPN_FireModule_Barrel : WPN_FireModule
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	protected override void InternalUpdate(float DeltaTime)
+	protected override void OnFrame(float DeltaTime)
 	{
 		m_WpnFireMode.InternalUpdate(DeltaTime, m_Magazine);
 	}

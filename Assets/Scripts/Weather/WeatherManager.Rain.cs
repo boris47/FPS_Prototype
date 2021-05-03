@@ -1,9 +1,5 @@
-
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-namespace WeatherSystem {
+namespace WeatherSystem
+{
 
 	// Public interface
 	public partial interface IWeatherManager_Rain {

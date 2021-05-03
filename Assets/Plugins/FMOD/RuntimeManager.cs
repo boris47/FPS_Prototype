@@ -1,12 +1,11 @@
 using System;
-using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
 namespace FMODUnity
 {
-    [AddComponentMenu("")]
+	[AddComponentMenu("")]
     public class RuntimeManager : MonoBehaviour
     {
         static SystemNotInitializedException initException = null;

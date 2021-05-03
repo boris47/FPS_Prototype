@@ -1,75 +1,109 @@
 
 ;********************************
 
-[WPN_BaseModuleEmpty]
+[WPN_ModuleEmpty]
 Name						= Empty Module;
-BaseMagazineCapacity		= 0;
-BaseBulletsPerShot			= 1;
-BaseDamage					= 0.0;
-BaseCamDeviation			= 0.0;
-BaseFireDispersion			= 0.0;
-BaseRecoil					= 0.0;
-BaseShotDelay				= 0.0;
+MagazineCapacity			= 0;
+BulletsPerShot				= 1;
+BulletDamage				= 0.0;
+BulletVelocity				= 30.0;
+CamDeviation				= 0.0;
+FireDispersion				= 0.0;
+Recoil						= 0.0;
+ShotDelay					= 0.0;
 FireMode					= Single;
-Bullet						= BulletBallistic;
+BulletSection				= BulletBallistic;
 FireSound					= Shot;
 MaxModuleCount				= 3;
-AllowedSlots				= 1, 2, 3;
+AllowedSlots				= 1, 2;
+
+[WPN_BaseModuleEmpty]
 
 
 ; COMMON BARREL
 [WPN_FireModule_Barrel]
 Name						= Barrel;
-BaseMagazineCapacity		= 50;
-BaseBulletsPerShot			= 1;
-BaseDamage					= 15.0;
-BaseCamDeviation			= 0.3;
-BaseFireDispersion			= 1.7;
-BaseRecoil					= 0.01;
-BaseShotDelay				= 0.1;
+MagazineCapacity			= 30;
+BulletsPerShot				= 1;
+BulletDamage				= 15.0;
+BulletVelocity				= 80.0;
+CamDeviation				= 0.2;
+FireDispersion				= 1.7;
+Recoil						= 0.002;
+ImpactForceMultiplier		= 60.0;
+ShotDelay					= 0.1;
 FireMode					= Auto;
-Bullet						= BulletBallistic;
+BulletSection				= BulletBallistic;
 SupportedBullets			= BulletElectro, BulletBallistic
 FireSound					= Shot;
 MaxModuleCount				= 3;
-AllowedSlots				= 1, 2, 3;
+AllowedSlots				= 1, 2;
 Crosshair					= UI_SimpleCross;
+Module_Prefab				= Prefabs/Weaponary/WeaponModules/FireModules/Module_Barrel;
+;AllowedAttachments			= WPN_ModuleAttachment_LaserPointer, WPN_ModuleAttachment_Silencer;
+;DefaultAttachments			= WPN_ModuleAttachment_LaserPointer, WPN_ModuleAttachment_Silencer;
+
+
+; COMMON BARREL
+[WPN_FireModule_SMG]
+Name						= Sub-Machine Gun;
+MagazineCapacity			= 32;
+BulletsPerShot				= 1;
+BulletDamage				= 10.0;
+BulletVelocity				= 72.0;
+CamDeviation				= 0.5;
+FireDispersion				= 1.0;
+Recoil						= 0.005;
+ImpactForceMultiplier		= 22.0;
+ShotDelay					= 0.06;
+FireMode					= Burst;
+BulletSection				= BulletBallistic;
+SupportedBullets			= BulletElectro, BulletBallistic
+FireSound					= Shot;
+MaxModuleCount				= 3;
+AllowedSlots				= 1, 2;
+Crosshair					= UI_SimpleCross;
+Module_Prefab				= Prefabs/Weaponary/WeaponModules/FireModules/Module_SMG;
 
 
 ; BLASTER
 [WPN_FireModule_Blaster]	
 Name						= Blaster;
-BaseMagazineCapacity		= 500;
-BaseBulletsPerShot			= 1;
-BaseDamage					= 5.0;
-BaseCamDeviation			= 1.2;
-BaseFireDispersion			= 1.3;
-BaseRecoil					= 0.1;
-BaseShotDelay				= 0.2;
+MagazineCapacity			= 500;
+BulletsPerShot				= 1;
+BulletDamage				= 5.0;
+BulletVelocity				= 60.0;
+CamDeviation				= 1.2;
+FireDispersion				= 1.3;
+Recoil						= 0.1;
+ShotDelay					= 0.2;
+ImpactForceMultiplier		= 2.0;
 FireMode					= Auto_Incremental;
-Bullet						= BulletBlaster
+BulletSection				= BulletBlaster
 SupportedBullets			= BulletBlaster, BulletElectro, BulletBallistic
 FireSound					= BlasterShot;
 MaxModuleCount				= 2;
-AllowedSlots				= 1, 2, 3;
+AllowedSlots				= 1, 2;
 Crosshair					= UI_SimpleCross;
 
 
 ; SYPHON
 [WPN_FireModule_Syphon]
 Name						= Syphon;
-BaseMagazineCapacity		= 500;
-BaseBulletsPerShot			= 1;
-BaseAmmoRestoreCounter		= 0.1;
-BaseDamage					= 1.0;
-BaseCamDeviation			= 0.05;
-BaseFireDispersion			= 0.6;
-BaseShotDelay				= 0.02;
-BaseRecoil					= 0.0;
+MagazineCapacity			= 500;
+BulletsPerShot				= 1;
+AmmoRestoreCounter			= 0.1;
+BulletDamage				= 1.0;
+BulletVelocity				= 30.0;
+CamDeviation				= 0.05;
+FireDispersion				= 0.6;
+ShotDelay					= 0.02;
+Recoil						= 0.0;
+ImpactForceMultiplier		= 2.0;
 FireMode					= Auto;
-Bullet						= BulletSyphon;
+BulletSection				= BulletSyphon;
 FireSound					= Syphon;
-Module_Prefab				= Prefabs/WeaponModules/FireModules/Module_Beam;
+Module_Prefab				= Prefabs/Weaponary/WeaponModules/FireModules/Module_Beam;
 MaxModuleCount				= 1;
 AllowedSlots				= 1;
 Crosshair					= UI_SimpleCross45
@@ -78,36 +112,41 @@ Crosshair					= UI_SimpleCross45
 ; SHOTGUN
 [WPN_FireModule_Shotgun]
 Name						= Shotgun;
-BaseMagazineCapacity		= 5;
-BaseBulletsPerShot			= 9;
-BaseCamDeviation			= 2.7;
-BaseFireDispersion			= 4.8;
-BaseRecoil					= 4.0;
-BasePerShotFireDispersion	= 0.05;
-BaseDamage					= 5.0;
-BaseShotDelay				= 0.8;
-FireMode					= Auto_Incremental;
-Bullet						= BulletBallistic;
+MagazineCapacity			= 12;
+BulletsPerShot				= 12;
+BulletDamage				= 5.0;
+BulletVelocity				= 65.0;
+CamDeviation				= 2.7;
+FireDispersion				= 1.8;
+Recoil						= 0.2;
+ImpactForceMultiplier		= 20.0;
+PerShotFireDispersion		= 0.05;
+ShotDelay					= 0.8;
+FireMode					= Single;
+BulletSection				= BulletBallistic;
 SupportedBullets			= BulletElectro, BulletBallistic
 FireSound					= Shotgun;
 MaxModuleCount				= 2;
 AllowedSlots				= 1, 2;
 Crosshair					= UI_CircleCross
+Module_Prefab				= Prefabs/Weaponary/WeaponModules/FireModules/Module_Shotgun;
 
 
 ; GRANADE LAUNCHER
 [WPN_FireModule_Launcher]
 Name						= G Launcher;
-BaseMagazineCapacity		= 50;
-BaseBulletsPerShot			= 1;
-BaseLaunchForce				= 150;
-BaseCamDeviation			= 1.5;
-BaseFireDispersion			= 1.6;
-BaseRecoil					= 0.5;
-BaseDamage					= 60.0;
-BaseShotDelay				= 1.0;
+MagazineCapacity			= 50;
+BulletsPerShot				= 1;
+LaunchForce					= 150;
+CamDeviation				= 1.5;
+FireDispersion				= 1.6;
+Recoil						= 0.5;
+ImpactForceMultiplier		= 2.0;
+BulletDamage				= 60.0;
+BulletVelocity				= 30.0;
+ShotDelay					= 1.0;
 FireMode					= Single;
-Bullet						= GranadeFrammentation 
+BulletSection				= GranadeFrammentation 
 SupportedBullets			= GranadeFrammentation, GranadeElectroGlobe
 FireSound					= Shotgun;
 MaxModuleCount				= 1;
@@ -118,34 +157,34 @@ Crosshair					= UI_CircleCross
 ; ROCKET LAUNCHER
 ;[WPN_FIreModule_RocketLaucher]
 ;Name						= G Launcher;
-;BaseMagazineCapacity		= 50;
-;BaseLaunchForce			= 150;
-;BaseCamDeviation			= 1.5;
-;BaseFireDispersion			= 0.5;
-;BaseRecoil					= 0.5;
-;BaseDamage					= 600.0;
-;BaseShotDelay				= 1.0;
+;MagazineCapacity			= 50;
+;LaunchForce				= 150;
+;CamDeviation				= 1.5;
+;FireDispersion				= 0.5;
+;Recoil						= 0.5;
+;BulletDamage				= 600.0;
+;ShotDelay					= 1.0;
 ;FireMode					= Single;
-;Bullet						= Rocket
+;BulletSection				= Rocket
 ;FireSound					= Shotgun;
 ;MaxModuleCount				= 1;
 ;AllowedSlots				= 1;
 
 
-
-
 ; SNIPER BARREL
 [WPN_FireModule_SniperBarrel]
 Name						= Sniper Barrel;
-BaseMagazineCapacity		= 9;
-BaseBulletsPerShot			= 1;
-BaseDamage					= 15.0;
-BaseCamDeviation			= 0.3;
-BaseFireDispersion			= 0.9;
-BaseRecoil					= 0.4;
-BaseShotDelay				= 0.08;
+MagazineCapacity			= 9;
+BulletsPerShot				= 1;
+BulletDamage				= 15.0;
+BulletVelocity				= 30.0;
+CamDeviation				= 0.3;
+FireDispersion				= 0.9;
+Recoil						= 0.4;
+ImpactForceMultiplier		= 2.0;
+ShotDelay					= 0.08;
 FireMode					= BurstAuto;
-Bullet						= BulletBallistic;
+BulletSection				= BulletBallistic;
 FireSound					= Shot;
 MaxModuleCount				= 2;
 AllowedSlots				= 1, 2;

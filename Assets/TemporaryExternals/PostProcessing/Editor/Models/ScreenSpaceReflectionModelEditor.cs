@@ -1,11 +1,10 @@
-using UnityEngine;
 using UnityEngine.PostProcessing;
 
 namespace UnityEditor.PostProcessing
 {
-    using Settings = ScreenSpaceReflectionModel.Settings;
+	using Settings = ScreenSpaceReflectionModel.Settings;
 
-    [PostProcessingModelEditor(typeof(ScreenSpaceReflectionModel))]
+	[PostProcessingModelEditor(typeof(ScreenSpaceReflectionModel))]
     public class ScreenSpaceReflectionModelEditor : PostProcessingModelEditor
     {
         struct IntensitySettings

@@ -41,6 +41,13 @@ public partial class Player : Human, IDeclaredSingleton
 
 		base.Awake();
 
+		m_PhysicCollider.material = new PhysicMaterial()
+		{
+			dynamicFriction = 0f,
+			staticFriction = 0f,
+			bounciness = 0f
+		};
+
 		CustomAssertions.IsNotNull(m_CutsceneManager);
 
 	//	transform.TrySearchComponentByChildName("PNAT", out m_PlayerNearAreaTrigger);

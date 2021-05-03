@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 
 namespace FMODUnity
 {
-    public class EditorEventRef : ScriptableObject
+	public class EditorEventRef : ScriptableObject
     {
         [SerializeField]
         public string Path;

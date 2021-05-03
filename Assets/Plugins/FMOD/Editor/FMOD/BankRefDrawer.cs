@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 namespace FMODUnity
 {
-    [CustomPropertyDrawer(typeof(BankRefAttribute))]
+	[CustomPropertyDrawer(typeof(BankRefAttribute))]
     class BankRefDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)

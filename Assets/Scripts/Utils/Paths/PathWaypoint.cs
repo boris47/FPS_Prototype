@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using CutScene;
+﻿using UnityEngine;
 
 [System.Serializable]
 public class PathWaypoint : MonoBehaviour {

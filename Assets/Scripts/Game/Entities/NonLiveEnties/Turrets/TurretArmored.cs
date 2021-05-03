@@ -1,8 +1,4 @@
-﻿
-using UnityEngine;
-
-
-public class TurretArmored : Turret {
+﻿public class TurretArmored : Turret {
 
 
 }

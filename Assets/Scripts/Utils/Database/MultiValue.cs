@@ -57,7 +57,7 @@ namespace Database
 
 		/////////////////////////////////////////////////////////
 		// TODO Refactor this method
-		public bool DeductType(out System.Type typeFound)
+		public bool TryDeductType(out System.Type typeFound)
 		{
 			typeFound = null;
 			bool result = true;

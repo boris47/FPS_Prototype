@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEditor;
 using UnityEngine;
 
 namespace FMODUnity
 {
-    [CustomEditor(typeof(StudioParameterTrigger))]
+	[CustomEditor(typeof(StudioParameterTrigger))]
     public class StudioParameterTriggerEditor : Editor
     {
         StudioEventEmitter targetEmitter;

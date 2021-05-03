@@ -1,10 +1,8 @@
-﻿using System;
-using UnityEngine;
-using System.Collections;
+﻿using UnityEngine;
 
 namespace FMODUnity
 {
-    [AddComponentMenu("FMOD Studio/FMOD Studio Listener")]
+	[AddComponentMenu("FMOD Studio/FMOD Studio Listener")]
     public class StudioListener : MonoBehaviour
     {
         Rigidbody rigidBody;

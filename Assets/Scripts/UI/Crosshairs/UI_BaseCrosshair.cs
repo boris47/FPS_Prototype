@@ -1,6 +1,5 @@
 ﻿
 using UnityEngine;
-using System.Collections;
 
 
 public abstract class UI_BaseCrosshair : UI_Base, IStateDefiner
@@ -61,13 +60,21 @@ public abstract class UI_BaseCrosshair : UI_Base, IStateDefiner
 	private void OnEnable()
 	{
 		CustomAssertions.IsTrue(m_IsInitialized);
+
+		if (CustomAssertions.IsNotNull(GameManager.UpdateEvents))
+		{
+			GameManager.UpdateEvents.OnFrame += OnFrame;
+		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private void OnDisable()
 	{
-		
+		if (GameManager.UpdateEvents.IsNotNull())
+		{
+			GameManager.UpdateEvents.OnFrame -= OnFrame;
+		}
 	}
 
 
@@ -101,10 +108,10 @@ public abstract class UI_BaseCrosshair : UI_Base, IStateDefiner
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private void Update()
+	private void OnFrame(float deltaTime)
 	{
-		IWeapon currentWeapon = WeaponManager.Instance.CurrentWeapon;
-		m_CurrentValue = m_MinValue + currentWeapon.Dispersion.sqrMagnitude + currentWeapon.Deviation.sqrMagnitude;
+		var wpnPivot = WeaponPivot.Instance;
+		m_CurrentValue = m_MinValue + wpnPivot.Dispersion.sqrMagnitude + wpnPivot.Deviation.sqrMagnitude;
 		InternalUpdate();
 	}
 

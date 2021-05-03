@@ -1,6 +1,4 @@
-﻿
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -25,14 +23,14 @@ public interface IBullet
 
 
 	Entity				WhoRef						{ get; }
-	Weapon				Weapon						{ get; }
+	WeaponBase			Weapon						{ get; }
 	float				RecoilMult					{ get; }
 	Vector3				StartPosition				{ get; }
 
-	void				Setup						(in Entity whoRef, in Weapon weaponRef);
+	void				Setup						(in Entity whoRef, in WeaponBase weaponRef);
 	void				OverrideDamage				(in float newDamage);
 
-	void				Shoot						(in Vector3 position, in Vector3 direction, in float? velocity, in float? impactForceMultiplier);
+	void				Shoot						(in Vector3 origin, in Vector3 direction, in float velocity, in float impactForceMultiplier);
 }
 
 
@@ -60,7 +58,7 @@ public abstract class Bullet : MonoBehaviour, IBullet
 	protected			EDamageType								m_OverTimeDamageType			= EDamageType.NONE;
 
 	[SerializeField, ReadOnly]
-	protected			float									m_Velocity						= 15f;
+	protected			float									m_Velocity						= 0f;
 
 	[Space(), Header("Prefab Data")]
 
@@ -84,7 +82,7 @@ public abstract class Bullet : MonoBehaviour, IBullet
 						float									IBullet.Velocity				=> m_Velocity;
 
 						Entity									IBullet.WhoRef					=> m_WhoRef;
-						Weapon									IBullet.Weapon					=> m_Weapon;
+						WeaponBase								IBullet.Weapon					=> m_Weapon;
 						float									IBullet.RecoilMult				=> m_RecoilMult;
 						Vector3									IBullet.StartPosition			=> m_StartPosition;
 	// INTERFACE END
@@ -92,15 +90,16 @@ public abstract class Bullet : MonoBehaviour, IBullet
 	protected			Rigidbody								m_RigidBody						= null;
 	protected			Collider								m_Collider						= null;
 	protected			Entity									m_WhoRef						= null;
-	protected			Weapon									m_Weapon						= null;
+	protected			WeaponBase								m_Weapon						= null;
 
 	protected			Renderer								m_Renderer						= null;
 	protected			Vector3									m_StartPosition					= Vector3.zero;
 	protected			Vector3									m_LastPosition					= Vector3.zero;
-	protected			float									m_SqrDistanceTravelled			= 0;
+	protected			float									m_DistanceTravelled				= 0f;
 	protected			Vector3									m_RigidBodyVelocity				= Vector3.zero;
 	protected			float									m_ImpactForceMultiplier			= 1f;
 	protected			Database.Section						m_BulletSection					= null;
+	protected			float									m_SweepTestDistance				= 1f;
 
 
 	private	static		Dictionary<string, Database.Section>	m_BulletsSections				= new Dictionary<string, Database.Section>();
@@ -112,7 +111,7 @@ public abstract class Bullet : MonoBehaviour, IBullet
 	{
 		if (!m_BulletsCache.TryGetValue(bulletSectionName, out model))
 		{
-			CustomAssertions.IsTrue(ResourceManager.LoadResourceSync($"Prefabs/Bullets/{bulletSectionName}", out model));
+			CustomAssertions.IsTrue(ResourceManager.LoadResourceSync($"Prefabs/Weaponary/Bullets/{bulletSectionName}", out model));
 			m_BulletsCache[bulletSectionName] = model;
 		}
 	}
@@ -179,31 +178,37 @@ public abstract class Bullet : MonoBehaviour, IBullet
 		m_RigidBody.angularDrag				= 0f;
 
 		// MotionType
-		Utils.Converters.StringToEnum(m_BulletSection.AsString("eBulletMotionType"), out m_BulletMotionType);
+		if (CustomAssertions.IsTrue(m_BulletSection.TryAsString("BulletMotionType", out string bulletMotionType), null, this))
+		{
+			Utils.Converters.StringToEnum(bulletMotionType, out m_BulletMotionType);
+		}
 
 		// DamageType
-		Utils.Converters.StringToEnum(m_BulletSection.AsString("eDamageType"), out m_DamageType);
+		if (CustomAssertions.IsTrue(m_BulletSection.TryAsString("DamageType", out string damageType), null, this))
+		{
+			Utils.Converters.StringToEnum(damageType, out m_DamageType);
+		}
 
 		// fDamage
-		m_Damage = m_BulletSection.AsFloat("fDamage", m_Damage);
+		CustomAssertions.IsTrue(m_BulletSection.TryAsFloat("Damage", out m_Damage), null, this);
 
 		// bHasDamageOverTime
-		m_HasDamageOverTime = m_BulletSection.AsBool("bHasDamageOverTime", m_HasDamageOverTime);
+		CustomAssertions.IsTrue(m_BulletSection.TryAsBool("HasDamageOverTime", out m_HasDamageOverTime), null, this);
 
 		// fOverTimeDamageDuration
-		m_OverTimeDamageDuration = m_BulletSection.AsFloat("fOverTimeDamageDuration", m_OverTimeDamageDuration);
+		CustomAssertions.IsTrue(m_BulletSection.TryAsFloat("OverTimeDamageDuration", out m_OverTimeDamageDuration), null, this);
 
 		// eOverTimeDamageType
-		Utils.Converters.StringToEnum(m_BulletSection.AsString("eOverTimeDamageType"), out m_OverTimeDamageType);
+		if (CustomAssertions.IsTrue(m_BulletSection.TryAsString("OverTimeDamageType", out string overTimeDamageType), null, this))
+		{
+			Utils.Converters.StringToEnum(overTimeDamageType, out m_OverTimeDamageType);
+		}
 
 		// bCanPenetrate
-		m_BulletSection.TryAsBool("bCanPenetrate", out m_CanPenetrate);
-
-		// fVelocity
-		m_Velocity = m_BulletSection.AsFloat("fVelocity", m_Velocity);
+		CustomAssertions.IsTrue(m_BulletSection.TryAsBool("CanPenetrate", out m_CanPenetrate), null, this);
 
 		// fRange
-		m_Range = m_BulletSection.AsFloat("fRange", MAX_BULLET_DISTANCE);
+		CustomAssertions.IsTrue(m_BulletSection.TryAsFloat("Range", out m_Range, MAX_BULLET_DISTANCE), null, this);
 	}
 
 
@@ -226,11 +231,11 @@ public abstract class Bullet : MonoBehaviour, IBullet
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Use physic to shoot immediately </summary>
-	protected void ShootInstant(in Vector3 position, in Vector3 direction, in float maxDistance, in float impactForceMultiplier)
+	protected void ShootInstant(in Vector3 position, in Vector3 direction)
 	{
 		EffectsManager.Instance.PlayEffect(EffectsManager.EEffecs.MUZZLE, position, direction, 0, 0.1f);
 
-		if (m_RigidBody.SweepTest(direction, out RaycastHit hit, maxDistance, QueryTriggerInteraction.Ignore))
+		if (m_RigidBody.SweepTest(direction, out RaycastHit hit, m_SweepTestDistance, QueryTriggerInteraction.Ignore))
 		{
 			OnCollisionDetailed(hit.point, hit.normal, hit.collider);
 		}
@@ -239,11 +244,11 @@ public abstract class Bullet : MonoBehaviour, IBullet
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Launch the bullet with fixed velocity </summary>
-	protected void ShootDirect(in Vector3 position, in Vector3 direction, in float maxDistance, in float impactForceMultiplier)
+	protected void ShootDirect(in Vector3 position, in Vector3 direction)
 	{
 		EffectsManager.Instance.PlayEffect(EffectsManager.EEffecs.MUZZLE, position, direction, 0, 0.1f);
 
-		if (m_RigidBody.SweepTest(direction, out RaycastHit hit, maxDistance, QueryTriggerInteraction.Ignore))
+		if (m_RigidBody.SweepTest(direction, out RaycastHit hit, m_SweepTestDistance, QueryTriggerInteraction.Ignore))
 		{
 			OnCollisionDetailed(hit.point, hit.normal, hit.collider);
 		}
@@ -259,11 +264,11 @@ public abstract class Bullet : MonoBehaviour, IBullet
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Launch the bullet with physic applied </summary>
-	protected void ShootParabolic(in Vector3 position, in Vector3 direction, in float maxDistance, in float impactForceMultiplier)
+	protected void ShootParabolic(in Vector3 position, in Vector3 direction)
 	{
 		EffectsManager.Instance.PlayEffect(EffectsManager.EEffecs.MUZZLE, position, direction, 0, 0.1f);
 
-		if (m_RigidBody.SweepTest(direction, out RaycastHit hit, maxDistance, QueryTriggerInteraction.Ignore))
+		if (m_RigidBody.SweepTest(direction, out RaycastHit hit, m_SweepTestDistance, QueryTriggerInteraction.Ignore))
 		{
 			OnCollisionDetailed(hit.point, hit.normal, hit.collider);
 		}
@@ -276,29 +281,30 @@ public abstract class Bullet : MonoBehaviour, IBullet
 		}
 	}
 
-
 	//////////////////////////////////////////////////////////////////////////
 	private void OnUpdate(float deltaTime)
 	{
-		m_SqrDistanceTravelled += (transform.position - m_LastPosition).sqrMagnitude;
+		m_DistanceTravelled += (transform.position - m_LastPosition).magnitude;
 		m_LastPosition = transform.position;
 
-		if (m_BulletMotionType == EBulletMotionType.PARABOLIC)
+		if (m_DistanceTravelled >= m_Range || m_DistanceTravelled > MAX_BULLET_DISTANCE)
 		{
-			transform.up = m_RigidBody.velocity.normalized;
+			OnEndTravel();
 		}
-
-		if (gameObject.EveryFrames(12))
+		else
 		{
-			if (m_RigidBody.SweepTest(transform.up, out RaycastHit hit, m_RigidBody.velocity.magnitude))
+			if (m_BulletMotionType == EBulletMotionType.PARABOLIC)
 			{
-				OnCollisionDetailed(hit.point, hit.normal, hit.collider);
+				transform.up = m_RigidBody.velocity.normalized;
 			}
-			else
+
+			// Mathf.Max because negative value is not allowed
+			// 0.2f because we need to move slightly back the current travelled distance
+			if ((Mathf.Max(0f, m_DistanceTravelled - 0.2f) % m_SweepTestDistance) != 0)
 			{
-				if (m_SqrDistanceTravelled > m_Range * m_Range)
+				if (m_RigidBody.SweepTest(transform.up, out RaycastHit hit, m_SweepTestDistance))
 				{
-					OnEndTravel();
+					OnCollisionDetailed(hit.point, hit.normal, hit.collider);
 				}
 			}
 		}
@@ -336,9 +342,6 @@ public abstract class Bullet : MonoBehaviour, IBullet
 	protected virtual void OnCollisionDetailed(in Vector3 point, in Vector3 normal, in Collider otherCollider)
 	{
 		EffectsManager.EEffecs effectToPlay = EffectsManager.EEffecs.ENTITY_ON_HIT;
-
-		Debug.DrawRay(m_StartPosition, point - m_StartPosition, Color.red, 50f);
-
 		if (Utils.Base.TrySearchComponent(otherCollider.gameObject, ESearchContext.LOCAL_AND_PARENTS, out Entity entity))
 		{
 			entity.OnHittedDetails(m_StartPosition, m_WhoRef, m_DamageType, 0, m_CanPenetrate);
@@ -349,8 +352,15 @@ public abstract class Bullet : MonoBehaviour, IBullet
 		}
 		else
 		{
-			effectToPlay = EffectsManager.EEffecs.AMBIENT_ON_HIT;
-			otherCollider.attachedRigidbody?.AddForceAtPosition(m_RigidBodyVelocity * m_ImpactForceMultiplier, point, ForceMode.Impulse);
+			if (otherCollider.attachedRigidbody)
+			{
+				effectToPlay = EffectsManager.EEffecs.AMBIENT_ON_HIT;
+				otherCollider.attachedRigidbody.AddForceAtPosition(m_RigidBodyVelocity.normalized * m_ImpactForceMultiplier, point, ForceMode.Impulse);
+			}
+			else
+			{
+				return; // hitting a trigger volume
+			}
 		}
 
 		EffectsManager.Instance.PlayEffect(effectToPlay, point, normal, 3);
@@ -360,13 +370,14 @@ public abstract class Bullet : MonoBehaviour, IBullet
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Setup this bullet </summary>
-	public virtual void Setup(in Entity whoRef, in Weapon weaponRef)
+	public virtual void Setup(in Entity whoRef, in WeaponBase weaponRef)
 	{
 		m_WhoRef = whoRef;
 		m_Weapon = weaponRef;
 
 		if (m_WhoRef)
 		{
+			whoRef.SetLocalCollisionStateWith(m_Collider, state: false, bAlsoTriggerCollider: true);
 			whoRef.SetCollisionStateWith(m_Collider, state: false);
 		}
 	}
@@ -381,21 +392,16 @@ public abstract class Bullet : MonoBehaviour, IBullet
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Shoot bullet using assigned motion type </summary>
-	public virtual void Shoot(in Vector3 position, in Vector3 direction, in float? velocity, in float? impactForceMultiplier)
+	public virtual void Shoot(in Vector3 origin, in Vector3 direction, in float velocity, in float impactForceMultiplier)
 	{
-		float finalVelocity = (velocity ?? m_Velocity);
-		float finalImpactForceMultiplier = impactForceMultiplier ?? m_ImpactForceMultiplier;
-		transform.position = position;
+		m_Velocity = velocity;
+		m_ImpactForceMultiplier = impactForceMultiplier;
+		transform.position = origin;
 
-		m_RigidBodyVelocity = direction * finalVelocity;
-		m_StartPosition = m_LastPosition = position;
-
-		switch (m_BulletMotionType)
-		{
-			case EBulletMotionType.INSTANT:		ShootInstant(position, direction, finalVelocity, finalImpactForceMultiplier);		break;
-			case EBulletMotionType.DIRECT:		ShootDirect(position, direction, finalVelocity, finalImpactForceMultiplier);		break;
-			case EBulletMotionType.PARABOLIC:	ShootParabolic(position, direction, finalVelocity, finalImpactForceMultiplier);		break;
-		}
+		m_RigidBodyVelocity = direction.normalized * velocity;
+		m_StartPosition = m_LastPosition = origin;
+		m_SweepTestDistance = velocity * 0.1f;
+		m_DistanceTravelled = 0f;
 	}
 }
 

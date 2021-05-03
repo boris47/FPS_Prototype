@@ -1,8 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-[System.Serializable]
+﻿[System.Serializable]
 public abstract partial class LiveEntity : Entity
 {
 //	[Header("Live Entity Properties")]

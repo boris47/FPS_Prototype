@@ -1,8 +1,4 @@
-﻿
-using UnityEngine;
-
-
-public abstract class BulletEnergy : BulletBallistic
+﻿public abstract class BulletEnergy : BulletBallistic
 {
 
 }

@@ -1,9 +1,4 @@
-﻿
-using UnityEngine;
-using UnityEngine.AI;
-
-
-public abstract partial class NonLiveEntity : Entity {
+﻿public abstract partial class NonLiveEntity : Entity {
 
 	
 

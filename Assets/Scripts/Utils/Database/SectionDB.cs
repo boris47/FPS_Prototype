@@ -1,4 +1,4 @@
-﻿
+
 using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
@@ -20,12 +20,12 @@ public abstract class SectionDB
 
 		public LocalDB()
 		{
-			System.Diagnostics.Debugger.Break();
+			
 		}
 
 		public LocalDB(in string filePath)
 		{
-			TryLoadFile(filePath);
+			CustomAssertions.IsTrue(TryLoadFile(filePath));
 		}
 
 		public bool TryLoadFile(in string filePath) => IsOK = new Parser(ref m_SectionMap, /*ref m_ArrayDataMap, */ref m_FilePaths).LoadFile(filePath);
@@ -40,7 +40,7 @@ public abstract class SectionDB
 
 		public bool TryGetSection(in string sectionName, out Section section) => Implementation.TryGetSection_Impl(m_SectionMap, sectionName, out section);
 
-		public bool TrySectionToOuter<T>(in Section section, T outer) where T : class => Implementation.TrySectionToOuter_Impl(section, outer);
+		public bool TrySectionToOuter<T>(in Section section, T outer, bool skipUndefinedFields = false) where T : class => Implementation.TrySectionToOuter_Impl(section, outer, skipUndefinedFields);
 
 	//	public bool TryGetArrayData(in string identifier, out ArrayData result) => Implementation.TryGetArrayData_Impl(m_ArrayDataMap, identifier, out result);
 
@@ -86,7 +86,7 @@ public abstract class SectionDB
 
 		public static bool TryGetSection(in string sectionName, out Section section) => Implementation.TryGetSection_Impl(m_SectionMap, sectionName, out section);
 
-		public static bool TrySectionToOuter<T>(in Section section, T outer) where T : class => Implementation.TrySectionToOuter_Impl(section, outer);
+		public static bool TrySectionToOuter<T>(in Section section, T outer, bool skipUndefinedFields = false) where T : class => Implementation.TrySectionToOuter_Impl(section, outer, skipUndefinedFields);
 
 	//	public static bool TryGetArrayData(in string identifier, out ArrayData result) => Implementation.TryGetArrayData_Impl(m_ArrayDataMap, identifier, out result);
 
@@ -116,92 +116,93 @@ public abstract class SectionDB
 
 		public static bool TryGetSection_Impl(in Dictionary<string, Section> sectionMap, in string SectionName, out Section section) => sectionMap.TryGetValue(SectionName, out section);
 
-	//	public static bool TryGetArrayData_Impl(in Dictionary<string, ArrayData> arrayDataMap, in string identifier, out ArrayData result) => arrayDataMap.TryGetValue(identifier, out result);
+		//	public static bool TryGetArrayData_Impl(in Dictionary<string, ArrayData> arrayDataMap, in string identifier, out ArrayData result) => arrayDataMap.TryGetValue(identifier, out result);
 
-		public static bool TrySectionToOuter_Impl<T>(in Section section, T outer) where T : class
+		public static bool TrySectionToOuter_Impl<T>(in Section section, T outer, bool skipUndefinedFields) where T : class
 		{
-			if ( outer == null )
-				return false;
-			
-			System.Type classType = typeof(T);
-			FieldInfo[] fieldInfos = classType.GetFields( BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance );
+			CustomAssertions.IsNotNull(section);
+			CustomAssertions.IsNotNull(outer);
 
-			string[] sectionKeys = section.GetKeys();
-			foreach ( FieldInfo fieldInfo in fieldInfos )
+			System.Type classType = typeof(T);
+			FieldInfo[] fieldInfos = classType.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+			foreach (FieldInfo fieldInfo in fieldInfos)
 			{
 				string fieldName = fieldInfo.Name;
 
 				// Remove module prefix if exists
-				if ( fieldName.StartsWith( "m_" ) ) fieldName = fieldName.Substring( 2 );
+				if (fieldName.StartsWith("m_")) fieldName = fieldName.Substring(2);
 
-				bool bIsEnum = fieldInfo.FieldType.IsEnum;
-				if ( bIsEnum )
+				if (section.TryGetLineValue(fieldName, out LineValue lineValue))
 				{
-					fieldName = fieldName.Insert( 0, "e" );
-				}
-
-				// Check if outer field is found in section
-				if (!section.HasKey(fieldName))
-				{
-					return false;
-				}
-
-				LineValue lineValue = section.GetLineValue(fieldName);
-				if ( lineValue.Type == ELineValueType.SINGLE )
-				{
-					object valueToAssign = null;
-					if ( bIsEnum )
+					if (lineValue.Type == ELineValueType.SINGLE)
 					{
-						Utils.Converters.StringToEnum( lineValue.Value.ToString(), fieldInfo.FieldType, out valueToAssign );
-					}
-					else
-					{
-						valueToAssign = lineValue.Value.ToSystemObject();
-					}
-
-					fieldInfo.SetValue( outer, System.Convert.ChangeType( valueToAssign, fieldInfo.FieldType ) );
-	//				Debug.Log( "Set of " + fieldInfo.Name + " of " + classType.Name + " To: " + lineValue.Value.ToString() );
-				}
-			
-				if ( lineValue.Type == ELineValueType.MULTI && lineValue.MultiValue.DeductType( out System.Type elementType) )
-				{
-					if ( elementType == typeof( Vector2 ) )
-					{
-						fieldInfo.SetValue( outer, section.AsVec2( fieldName, Vector2.zero ) );
-						continue;
-					}
-
-					if ( elementType == typeof( Vector3 ) )
-					{
-						fieldInfo.SetValue( outer, section.AsVec3( fieldName, Vector3.zero ) );
-						continue;
-					}
-
-					if ( elementType == typeof( Vector4 ) )
-					{
-						if ( fieldInfo.FieldType == typeof( Vector4 ) )
+						if (fieldInfo.FieldType.IsEnum)
 						{
-							fieldInfo.SetValue( outer, section.AsVec4( fieldName, Vector4.zero ) );
+							if (Utils.Converters.StringToEnum(lineValue.Value.ToString(), fieldInfo.FieldType, out object value))
+							{
+								fieldInfo.SetValue(outer, value);
+							}
+							else
+							{
+								Debug.LogError($"Assingation failed for {fieldInfo.Name} of {classType.Name} because impossible to convert to enum {fieldInfo.FieldType.Name}!!");
+								return false;
+							}
+						}
+						else
+						{
+							fieldInfo.SetValue(outer, System.Convert.ChangeType(lineValue.Value.ToSystemObject(), fieldInfo.FieldType));
+						}
+						//Debug.Log($"Set of {fieldInfo.Name} of {classType.Name} To: {lineValue.Value.ToString()}");
+					}
+
+					if (lineValue.Type == ELineValueType.MULTI && lineValue.MultiValue.TryDeductType(out System.Type elementType))
+					{
+						if (elementType == typeof(Vector2))
+						{
+							fieldInfo.SetValue(outer, section.AsVec2(fieldName, Vector2.zero));
+							continue;
 						}
 
-						if ( fieldInfo.FieldType == typeof( Color ) )
+						if (elementType == typeof(Vector3))
 						{
-							fieldInfo.SetValue( outer, section.AsColor( fieldName, Color.clear ) );
+							fieldInfo.SetValue(outer, section.AsVec3(fieldName, Vector3.zero));
+							continue;
 						}
-						continue;
-					}							
 
-					if ( fieldInfo.FieldType.IsArray == true )
-					{
-						object[] result = System.Array.ConvertAll(lineValue.MultiValue.ValueList, v => v.ToSystemObject());
-						fieldInfo.SetValue( outer, result );
-						continue;
+						if (elementType == typeof(Vector4))
+						{
+							if (fieldInfo.FieldType == typeof(Vector4))
+							{
+								fieldInfo.SetValue(outer, section.AsVec4(fieldName, Vector4.zero));
+							}
+
+							if (fieldInfo.FieldType == typeof(Color))
+							{
+								fieldInfo.SetValue(outer, section.AsColor(fieldName, Color.clear));
+							}
+							continue;
+						}
+
+						if (fieldInfo.FieldType.IsArray)
+						{
+							object[] result = System.Array.ConvertAll(lineValue.MultiValue.ValueList, v => v.ToSystemObject());
+							fieldInfo.SetValue(outer, result);
+							continue;
+						}
+
+						Debug.LogError($"Set of {fieldInfo.Name} of {classType.Name} is impossible!!");
 					}
-
-					Debug.Log( $"Set of {fieldInfo.Name} of {classType.Name} is impossible!! ");
+				}
+				else
+				{
+					if (!skipUndefinedFields)
+					{
+						Debug.LogError($"Assingation failed for {fieldInfo.Name} of {classType.Name} because field doesn't exist in section!!");
+						return false;
+					}
 				}
 			}
-	
 			return true;
 		}
 
@@ -235,26 +236,22 @@ public abstract class SectionDB
 			NONE					= 0,
 			READING_SECTION			= 1,
 			READING_SECTION_LIST	= 2,
-	//		READING_ARRAYDATA		= 3
 		}
 
 		// CONTAINERS
 		private static Dictionary<string, Section>			m_SectionMap		= new Dictionary<string, Section>();
-	//	private static Dictionary<string, ArrayData>		m_ArrayDataMap		= new Dictionary<string, ArrayData>();
 		private static List<string>							m_FilePaths			= new List<string>();
 
 		// INTERNAL VARS
 		private static	EReadingPhase						m_ReadingPhase		= EReadingPhase.NONE;
 		private static	Section								m_CurrentSection	= null;
-	//	private static	ArrayData							m_CurrentArrayData	= null;
 		private static	LineValue							m_CurrentLineValue	= null;
 		private static	MultiValue							m_CurrentMultiValue	= null;
 
 
-		public Parser(ref Dictionary<string, Section> sectionMap, /*ref Dictionary<string, ArrayData> arrayDataMap,*/ ref List<string> filePaths)
+		public Parser(ref Dictionary<string, Section> sectionMap, ref List<string> filePaths)
 		{
 			m_SectionMap	= sectionMap;
-	//		m_ArrayDataMap	= arrayDataMap;
 			m_FilePaths		= filePaths;
 		}
 
@@ -262,13 +259,14 @@ public abstract class SectionDB
 		//////////////////////////////////////////////////////////////////////////
 		// LoadFile
 		// LOAD A FILE AND ALL INCLUDED FILES
-		public bool LoadFile( in string InFilePath )
+		public bool LoadFile(in string InFilePath)
 		{
 			if (Implementation.IsFileLoaded_Impl(m_FilePaths, InFilePath))
+			{
 				return true;
+			}
 
 			string filePath = InFilePath;
-
 			if (Utils.String.IsAssetsPath(filePath))
 			{
 				Utils.String.ConvertFromAssetPathToResourcePath(ref filePath);
@@ -280,7 +278,7 @@ public abstract class SectionDB
 			}
 
 			TextAsset textAsset = Resources.Load(filePath) as TextAsset;
-			if (textAsset == null)
+			if (!textAsset)
 			{
 				Debug.LogError($"Reader::LoadFile:Error opening file: {filePath}");
 				Application.Quit();
@@ -289,10 +287,6 @@ public abstract class SectionDB
 
 			// Remove escape chars to avoid the presence inside strings
 			string[] lines = textAsset.text.Split('\n');
-		//	for (int i = 0; i < lines.Length; i++)
-		//	{
-		//		lines[i] = lines[i].TrimInside(EscapeCharToRemove);
-		//	}
 
 			// Parse each line
 			for (int iLine = 1; iLine < lines.Length + 1; iLine++)
@@ -300,8 +294,10 @@ public abstract class SectionDB
 				string line = lines[iLine - 1].TrimInside(EscapeCharToRemove);
 
 				Utils.String.CleanComments(ref line);
-				if (Utils.String.IsValid(line) == false)
+				if (!Utils.String.IsValid(line, new char[2] { '{', '}'}))
+				{
 					continue;
+				}
 
 				// INCLUSION
 				/// Able to include file in same dir of root file
@@ -317,9 +313,10 @@ public abstract class SectionDB
 					string sFileName = line.Trim().Substring("#include".Length + 1).TrimInside();
 					string sSubPath = System.IO.Path.GetDirectoryName(sFileName);
 					string combinedPath = System.IO.Path.Combine(sPath, System.IO.Path.Combine(sSubPath, System.IO.Path.GetFileNameWithoutExtension(sFileName)));
-					if (LoadFile(combinedPath) == false)
+					if (!LoadFile(combinedPath))
+					{
 						return false;
-
+					}
 					continue;
 				}
 
@@ -333,13 +330,13 @@ public abstract class SectionDB
 					}
 
 					// Create a new section
-					if (Section_Create(line.TrimInside(), filePath, iLine) == false)
+					if (!Section_Create(line.TrimInside(), filePath, iLine))
 					{
 						return false;
 					}
 					continue;
 				}
-
+				/*
 				// NEW ARRAY DATA LIST
 				if (line[0] == '\'')
 				{
@@ -348,15 +345,9 @@ public abstract class SectionDB
 						Debug.LogErrorFormat(" SectionMap::LoadFile:Invalid ArrayData definition at line |{0}| in file |{1}| ", iLine, filePath);
 						return false;
 					}
-
-					// Create a new arrayData
-				//	if (ArrayData_Create(line.TrimInside(), filePath, iLine) == false)
-				//	{
-				//		return false;
-				//	}
 					continue;
 				}
-
+				*/
 				// READING SECTION
 				if (m_ReadingPhase == EReadingPhase.READING_SECTION)
 				{
@@ -379,7 +370,7 @@ public abstract class SectionDB
 							continue;
 						}
 
-						if (Section_Add(pKeyValue, filePath, iLine) == false)
+						if (!Section_Add(pKeyValue, filePath, iLine))
 						{
 							return false;
 						}
@@ -403,23 +394,12 @@ public abstract class SectionDB
 					continue;
 				}
 
-				// READING ARRAY DATA LIST
-	//			if (m_ReadingPhase == EReadingPhase.READING_ARRAYDATA)
-	//			{
-	//				if (ArrayData_Add(line, filePath, iLine) == false)
-	//				{
-	//					return false;
-	//				}
-	//				continue;
-	//			}
-
 				// NO CORRECT LINE DETECTED
-	//			Debug.LogError($"SectionMap::LoadFile:Incorrect line {iLine} in file {filePath}");
+				Debug.LogError($"SectionMap::LoadFile:Incorrect line {iLine} in file {filePath}");
 				return false;
 			}
 
 			Section_Close();
-	//		ArrayData_Close();
 			m_FilePaths.Add(filePath);
 			return true;
 		}
@@ -427,9 +407,9 @@ public abstract class SectionDB
 
 		//////////////////////////////////////////////////////////////////////////
 		// CREATE A NEW SECTION WHILE READING FILE
-		private static bool Section_Create( in string sLine, in string sFilePath, in int iLine )
+		private static bool Section_Create(in string sLine, in string sFilePath, in int iLine)
 		{
-			if (m_CurrentSection != null)
+			if (m_CurrentSection.IsNotNull())
 			{
 				Section_Close();
 			}
@@ -437,7 +417,7 @@ public abstract class SectionDB
 			int sectionNameCloseChar = sLine.IndexOf("]");
 			string sSectionName = sLine.Substring(1, sectionNameCloseChar - 1);
 
-			if (Implementation.ContainsSection_Impl(m_SectionMap,sSectionName))
+			if (Implementation.ContainsSection_Impl(m_SectionMap, sSectionName))
 			{
 				Debug.LogErrorFormat("SectionMap::Section_Create:{0}:[{1}]: Section \"{2}\" already exists!", sFilePath, iLine, sSectionName);
 				return false;
@@ -471,22 +451,21 @@ public abstract class SectionDB
 					}
 				}
 			}
-
 			return true;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// INSERT A KEY VALUE PAIR INSIDE THE ACTUAL PARSING SECTION
-		private static bool Section_Add( in KeyValue Pair, in string sFilePath, in int iLine )
+		private static bool Section_Add(in KeyValue Pair, in string sFilePath, in int iLine)
 		{
-			LineValue pLineValue = new LineValue( Pair.Key , Pair.Value );
-			if ( pLineValue.IsOK == false )
+			LineValue pLineValue = new LineValue(Pair.Key, Pair.Value);
+			if (!pLineValue.IsOK)
 			{
-				Debug.LogErrorFormat( " SectionMap::Section_Add:LineValue invalid for key |{0}| in Section |{1}| in file |{2}|", Pair.Key, m_CurrentSection.GetSectionName(), sFilePath);
+				Debug.LogErrorFormat(" SectionMap::Section_Add:LineValue invalid for key |{0}| in Section |{1}| in file |{2}|", Pair.Key, m_CurrentSection.GetSectionName(), sFilePath);
 				return false;
 			}
-			m_CurrentSection.Add( pLineValue );
+			m_CurrentSection.Add(pLineValue);
 			return true;
 		}
 
@@ -495,92 +474,13 @@ public abstract class SectionDB
 		// DEFINITELY SAVE THE PARSING SECTION
 		private static void Section_Close()
 		{
-			if (m_CurrentSection != null )
-				m_SectionMap.Add(m_CurrentSection.GetSectionName(), m_CurrentSection );
-
+			if (m_CurrentSection.IsNotNull())
+			{
+				m_SectionMap.Add(m_CurrentSection.GetSectionName(), m_CurrentSection);
+			}
 			m_CurrentSection = null;
 			m_ReadingPhase = EReadingPhase.NONE;
 		}
-
-		/*
-		//////////////////////////////////////////////////////////////////////////
-		// CREATE A NEW ARRAY DATA LIST WHILE READING FILE
-		private static bool ArrayData_Create( in string sLine, in string sFilePath, in int iLine )
-		{
-			if (m_CurrentArrayData != null )
-			{
-				ArrayData_Close();
-			}
-
-			int ArrayDataNameCloseChar = sLine.IndexOf( "\'", 1 );
-			string sArrayDataName = sLine.Substring( 1, ArrayDataNameCloseChar - 1 );
-
-			if (Implementation.ContainsArrayData_Impl(m_ArrayDataMap, sArrayDataName))
-			{
-				Debug.LogErrorFormat( "SectionMap::ArrayData_Create:{0}:[{1}]: ArrayData \"{2}\" already exists!", sFilePath, iLine, sArrayDataName );
-				return false;
-			}
-		
-			m_ReadingPhase = EReadingPhase.READING_ARRAYDATA;
-
-			string context = System.IO.Path.GetFileNameWithoutExtension( sFilePath );
-			m_CurrentArrayData = new ArrayData( sArrayDataName, context: context );
-
-			// Get the name of mother , if present
-			int iIndex = sLine.IndexOf( ":", ArrayDataNameCloseChar );
-			if ( iIndex > 0 )
-			{
-				string[] mothers = sLine.Substring( iIndex + 1 ).Split( ',' );
-				if ( mothers.Length == 0 )
-				{
-					Debug.LogErrorFormat( "SectionMap::ArrayData_Create:{0}:[{1}]: ArrayData Mothers bad definition!", sFilePath, iLine );
-					return false;
-				}
-
-				foreach ( string motherName in mothers )
-				{
-					if (Implementation.TryGetArrayData_Impl(m_ArrayDataMap, motherName, out ArrayData mother))
-					{
-						m_CurrentArrayData += mother;
-					} else
-					{
-						Debug.LogErrorFormat( "SectionMap::ArrayData_Create:{0}:[{1}]: ArrayData requested for inheritance \"{2}\" doesn't exist!", sFilePath, iLine, motherName );
-					}
-				}
-			}
-			
-			return true;
-		}
-
-
-		//////////////////////////////////////////////////////////////////////////
-		// INSERT VALUE INSIDE THE ACTUAL PARSING ARRAY DATA LIST
-		private	static bool ArrayData_Add( in string sLine, in string sFilePath, in int iLine )
-		{
-			LineValue pLineValue = new LineValue( sFilePath + "_"+ iLine , sLine );
-			if ( pLineValue.IsOK == false )
-			{
-				Debug.LogErrorFormat( " SectionMap::ArrayData_Add: LineValue invalid at line |{0}| in Section |{1}| in file |{2}|",	iLine, m_CurrentArrayData.GetArrayDataName(), sFilePath );
-				return false;
-			}
-			m_CurrentArrayData.Add( pLineValue );
-			return true;
-		}
-
-
-		//////////////////////////////////////////////////////////////////////////
-		// DEFINITELY SAVE THE PARSING SECTION
-		private static void ArrayData_Close()
-		{
-			if (m_CurrentArrayData != null )
-				m_ArrayDataMap.Add(m_CurrentArrayData.GetArrayDataName(), m_CurrentArrayData );
-
-			m_CurrentArrayData = null;
-			m_ReadingPhase = EReadingPhase.NONE;
-		}
-		*/
-
-		
 	}
 }
 

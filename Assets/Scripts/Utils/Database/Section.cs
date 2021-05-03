@@ -1,10 +1,10 @@
-﻿
+
 namespace Database
 {
 	using System.Collections;
 	using System.Collections.Generic;
 	using UnityEngine;
-
+	/*
 	// PUBLIC INTERFACE
 	public interface ISection
 	{
@@ -61,9 +61,9 @@ namespace Database
 
 		void					PrintSection					();
 	}
-	
+	*/
 	[System.Serializable]
-	public partial class Section : ISection, IEnumerable
+	public partial class Section : /*ISection,*/ IEnumerable
 	{
 		// INTERNAL VARS
 		[SerializeField]
@@ -107,7 +107,7 @@ namespace Database
 
 
 		/////////////////////////////////////////////////////////
-		public Section( string sectionName, string context )
+		public Section( string sectionName, string context = "NoContext" )
 		{
 			name = sectionName;
 			m_Context = context;
@@ -278,11 +278,11 @@ namespace Database
 	public partial class Section
 	{
 		//////////////////////////////////////////////////////////////////////////
-		public	bool					TryAs<T>( in string Key, out T Out )
+		public	bool					TryAs<T>(in string Key, out T Out)
 		{
-			if (TryGetLineValue( Key, out LineValue pLineValue ) )
+			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
-				if ( pLineValue.Type == ELineValueType.SINGLE )
+				if (pLineValue.Type == ELineValueType.SINGLE)
 				{
 					Out = pLineValue.Value.As<T>();
 					return true;
@@ -293,11 +293,11 @@ namespace Database
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public	bool					TryAs<T>( in string Key, out T[] Out )
+		public	bool					TryAs<T>(in string Key, out T[] Out)
 		{
-			if (TryGetLineValue( Key, out LineValue pLineValue ) )
+			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
-				if ( pLineValue.Type == ELineValueType.MULTI )
+				if (pLineValue.Type == ELineValueType.MULTI)
 				{
 					Value[] values = pLineValue.MultiValue.ValueList;
 					System.Type requestedType = typeof(T);
@@ -314,12 +314,11 @@ namespace Database
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// bAsBool
-		public	bool					TryAsBool( in string Key, out bool Out, in bool Default = default )
+		public	bool					TryAsBool(in string Key, out bool Out, in bool Default = default)
 		{
-			if (TryGetLineValue( Key, out LineValue pLineValue ) )
+			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
-				if ( pLineValue.Type == ELineValueType.SINGLE )
+				if (pLineValue.Type == ELineValueType.SINGLE)
 				{
 					Out = pLineValue.Value.As<bool>();
 					return true;
@@ -331,12 +330,11 @@ namespace Database
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// bAsInt
-		public	bool					TryAsInt( in string Key, out int Out, in int Default = default )
+		public	bool					TryAsInt(in string Key, out int Out, in int Default = default)
 		{
-			if (TryGetLineValue( Key, out LineValue pLineValue ) )
+			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
-				if ( pLineValue.Type == ELineValueType.SINGLE )
+				if (pLineValue.Type == ELineValueType.SINGLE)
 				{
 					Out = pLineValue.Value.As<int>();
 					return true;
@@ -348,12 +346,11 @@ namespace Database
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// bAsInt
-		public	bool					TryAsUInt( in string Key, out uint Out, in uint Default = default )
+		public	bool					TryAsUInt(in string Key, out uint Out, in uint Default = default)
 		{
-			if (TryGetLineValue( Key, out LineValue pLineValue ) )
+			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
-				if ( pLineValue.Type == ELineValueType.SINGLE )
+				if (pLineValue.Type == ELineValueType.SINGLE)
 				{
 					Out = pLineValue.Value.As<uint>();
 					return true;
@@ -365,12 +362,11 @@ namespace Database
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// bAsFloat
-		public	bool					TryAsFloat( in string Key, out float Out, in float Default = default )
+		public	bool					TryAsFloat(in string Key, out float Out, in float Default = default)
 		{
-			if (TryGetLineValue( Key, out LineValue pLineValue ) )
+			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
-				if ( pLineValue.Type == ELineValueType.SINGLE )
+				if (pLineValue.Type == ELineValueType.SINGLE)
 				{
 					Out = pLineValue.Value.As<float>();
 					return true;
@@ -382,12 +378,11 @@ namespace Database
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// bAsString
-		public	bool					TryAsString( in string Key, out string Out, in string Default = "" )
+		public	bool					TryAsString(in string Key, out string Out, in string Default = "")
 		{
-			if (TryGetLineValue( Key, out LineValue pLineValue ) )
+			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
-				if ( pLineValue.Type == ELineValueType.SINGLE )
+				if (pLineValue.Type == ELineValueType.SINGLE)
 				{
 					Out = pLineValue.Value.ToString();
 					return true;
@@ -399,10 +394,9 @@ namespace Database
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// bAsMultiValue
-		public	bool					TryAsMultiValue( in string Key, in int Index, out Value Out )
+		public	bool					TryAsMultiValue(in string Key, in int Index, out Value Out)
 		{
-			if (TryGetLineValue( Key, out LineValue pLineValue ) )
+			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
 				if (pLineValue.GetAsMulti(out MultiValue pMultiValue) && pMultiValue.TryGet(Index - 1, out Out))
 				{
@@ -415,16 +409,15 @@ namespace Database
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// bAsVec2
-		public	bool					TryAsVec2( in string Key, out Vector2 Out, in Vector2 Default = default )
+		public	bool					TryAsVec2(in string Key, out Vector2 Out, in Vector2 Default = default)
 		{
-			if (TryGetLineValue( Key, out LineValue pLineValue ) )
+			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
-				if ( pLineValue.GetAsMulti(out MultiValue pMultiValue ) )
+				if (pLineValue.GetAsMulti(out MultiValue pMultiValue))
 				{
 					if (pMultiValue.TryGet(0, out float x) && pMultiValue.TryGet(1, out float y))
 					{
-						Out = new Vector2( x, y );
+						Out = new Vector2(x, y);
 						return true;
 					}
 				}
@@ -435,16 +428,15 @@ namespace Database
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// bAsVec3
-		public	bool					TryAsVec3( in string Key, out Vector3 Out, in Vector3 Default = default )
+		public	bool					TryAsVec3(in string Key, out Vector3 Out, in Vector3 Default = default)
 		{
-			if (TryGetLineValue( Key, out LineValue pLineValue ) )
+			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
-				if ( pLineValue.GetAsMulti(out MultiValue pMultiValue ) )
+				if (pLineValue.GetAsMulti(out MultiValue pMultiValue))
 				{
 					if (pMultiValue.TryGet(0, out float x) && pMultiValue.TryGet(1, out float y) && pMultiValue.TryGet(2, out float z))
 					{
-						Out = new Vector3( x, y, z );
+						Out = new Vector3(x, y, z);
 						return true;
 					}
 				}
@@ -455,16 +447,15 @@ namespace Database
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// bAsVec4
-		public	bool					TryAsVec4( in string Key, out Vector4 Out, in Vector4 Default = default )
+		public	bool					TryAsVec4(in string Key, out Vector4 Out, in Vector4 Default = default)
 		{
-			if (TryGetLineValue( Key, out LineValue pLineValue ) )
+			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
-				if ( pLineValue.GetAsMulti(out MultiValue pMultiValue ) )
+				if (pLineValue.GetAsMulti(out MultiValue pMultiValue))
 				{
 					if (pMultiValue.TryGet(0, out float x) && pMultiValue.TryGet(1, out float y) && pMultiValue.TryGet(2, out float z) && pMultiValue.TryGet(3, out float w))
 					{
-						Out = new Vector4( x, y, z, w );
+						Out = new Vector4(x, y, z, w);
 						return true;
 					}
 				}
@@ -475,33 +466,48 @@ namespace Database
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// bAsColor
-		public	bool					TryAsColor( in string Key, out Color Out, in Color Default = default )
+		public	bool					TryAsColor(in string Key, out Color Out, in Color Default = default)
 		{
 			if (TryAsVec4(Key, out Vector4 vec4, Vector4.zero))
 			{
 				float r = vec4[0], g = vec4[1], b = vec4[2], a = vec4[3];
-				Out = new Color( r:r, g:g, b:b, a:a );
+				Out = new Color(r: r, g: g, b: b, a: a);
 			}
 			Out = Default;
 			return false;
 		}
-	
+
+
+		//////////////////////////////////////////////////////////////////////////
+		public	bool					TryAsEnum<T>(in string Key, out T Out, T Default = default) where T : struct
+		{
+			if (TryGetLineValue(Key, out LineValue pLineValue))
+			{
+				if (pLineValue.Type == ELineValueType.SINGLE)
+				{
+					if (Utils.Converters.StringToEnum(pLineValue.Value.As<string>(), out T value))
+					{
+						Out = value;
+						return true;
+					}
+				}
+			}
+			Out = Default;
+			return false;
+		}
 	};
 
 	public partial class Section
 	{
 		//////////////////////////////////////////////////////////////////////////
-		// GetRawValue
-		public	string					GetRawValue( in string Key, in string Default = "" )
+		public	string					GetRawValue(in string Key, in string Default = "")
 		{
-			return (TryGetLineValue( Key, out LineValue pLineValue ) ) ? pLineValue.RawValue : Default;
+			return (TryGetLineValue(Key, out LineValue pLineValue)) ? pLineValue.RawValue : Default;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// As<T>
-		public	T						As<T>( in string Key )
+		public	T						As<T>(in string Key)
 		{
 			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
@@ -513,13 +519,12 @@ namespace Database
 
 				return pLineValue.Value.As<T>();
 			}
-			return default(T);
+			return default;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// AsBool
-		public	bool					AsBool( in string Key, in bool Default = default )
+		public	bool					AsBool(in string Key, in bool Default = default)
 		{
 			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
@@ -536,8 +541,7 @@ namespace Database
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// AsInt
-		public	int						AsInt( in string Key, in int Default = default )
+		public	int						AsInt(in string Key, in int Default = default)
 		{
 			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
@@ -553,8 +557,7 @@ namespace Database
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		// AsInt ( UInt )
-		public	uint					AsUInt( in string Key, in uint Default = default )
+		public	uint					AsUInt(in string Key, in uint Default = default)
 		{
 			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
@@ -571,8 +574,7 @@ namespace Database
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// AsFloat
-		public	float					AsFloat( in string Key, in float Default = default )
+		public	float					AsFloat(in string Key, in float Default = default)
 		{
 			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
@@ -589,8 +591,7 @@ namespace Database
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// AsString
-		public	string					AsString( in string Key, in string Default = "" )
+		public	string					AsString(in string Key, in string Default = "")
 		{
 			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
@@ -607,8 +608,7 @@ namespace Database
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// AsMultiValue
-		public	T						OfMultiValue<T>( in string Key, in int Index, in T Default = default )
+		public	T						OfMultiValue<T>(in string Key, in int Index, T Default = default)
 		{
 			if (Index > 0 && TryGetLineValue(Key, out LineValue pLineValue))
 			{
@@ -622,8 +622,7 @@ namespace Database
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// AsMultiValue<T1,T2>
-		public	void					AsMultiValue<T1,T2>( in string Key, in int Idx1, in int Idx2, out T1 t1, out T2 t2 )
+		public	void					AsMultiValue<T1,T2>(in string Key, in int Idx1, in int Idx2, out T1 t1, out T2 t2)
 		{
 			t1 = default(T1); t2 = default(T2);
 			if (TryGetLineValue(Key, out LineValue pLineValue))
@@ -638,8 +637,7 @@ namespace Database
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// AsMultiValue<T1,T2,T3>
-		public	void					AsMultiValue<T1,T2,T3>( in string Key, in int Idx1, in int Idx2, in int Idx3, out T1 t1, out T2 t2, out T3 t3 )
+		public	void					AsMultiValue<T1,T2,T3>(in string Key, in int Idx1, in int Idx2, in int Idx3, out T1 t1, out T2 t2, out T3 t3)
 		{
 			t1 = default(T1); t2 = default(T2); t3 = default(T3);
 			if (TryGetLineValue(Key, out LineValue pLineValue))
@@ -655,8 +653,7 @@ namespace Database
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// AsMultiValue<T1,T2,T3,T4>
-		public	void					AsMultiValue<T1,T2,T3,T4>( in string Key, in int Idx1, in int Idx2, in int Idx3, in int Idx4, out T1 t1, out T2 t2, out T3 t3, out T4 t4 )
+		public	void					AsMultiValue<T1,T2,T3,T4>(in string Key, in int Idx1, in int Idx2, in int Idx3, in int Idx4, out T1 t1, out T2 t2, out T3 t3, out T4 t4)
 		{
 			t1 = default(T1); t2 = default(T2); t3 = default(T3); t4 = default(T4);
 			if (TryGetLineValue(Key, out LineValue pLineValue))
@@ -673,8 +670,7 @@ namespace Database
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// GetMultiSize
-		public	int						GetMultiSize( in string Key )
+		public	int						GetMultiSize(in string Key)
 		{
 			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
@@ -683,13 +679,12 @@ namespace Database
 					return pMultiValue.Size;
 				}
 			}
-			return 0;
+			return default;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// bGetMultiAsArray
-		public	bool					TryGetMultiAsArray<T>( in string Key, out T[] array )
+		public	bool					TryGetMultiAsArray<T>(in string Key, out T[] array)
 		{
 			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
@@ -705,14 +700,13 @@ namespace Database
 					return true;
 				}
 			}
-			array = null;
+			array = default;
 			return false;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// bAsVec2
-		public	Vector2		AsVec2( in string Key, in Vector2 Default = default )
+		public	Vector2		AsVec2(in string Key, in Vector2 Default = default)
 		{
 			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
@@ -729,8 +723,7 @@ namespace Database
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// bAsVec3
-		public	Vector3		AsVec3( in string Key, in Vector3 Default = default )
+		public	Vector3		AsVec3(in string Key, in Vector3 Default = default)
 		{
 			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
@@ -747,8 +740,7 @@ namespace Database
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// bAsVec4
-		public	Vector4		AsVec4( in string Key, in Vector4 Default = default )
+		public	Vector4		AsVec4(in string Key, in Vector4 Default = default)
 		{
 			if (TryGetLineValue(Key, out LineValue pLineValue))
 			{
@@ -765,12 +757,31 @@ namespace Database
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// bAsColor
-		public	Color		AsColor( in string Key, in Color? Default )
+		public	Color		AsColor(in string Key, in Color? Default)
 		{
 			if (TryAsVec4(Key, out Vector4 vec4, Vector4.zero))
 			{
 				return vec4;
+			}
+			return Default.GetValueOrDefault();
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		public	T			AsEnum<T>(in string Key, in T? Default) where T : struct
+		{
+			if (TryGetLineValue(Key, out LineValue pLineValue))
+			{
+				CustomAssertions.IsTrue
+				(
+					pLineValue.Type == ELineValueType.SINGLE,
+					$"Database::Section::AsEnum: Line value for section {name} at key {Key} is not of single type"
+				);
+
+				if (Utils.Converters.StringToEnum(pLineValue.Value.As<string>(), out T value))
+				{
+					return value;
+				}
 			}
 			return Default.GetValueOrDefault();
 		}
@@ -782,10 +793,9 @@ namespace Database
 	{
 	
 		//////////////////////////////////////////////////////////////////////////
-		// SetValue
-		public	void SetValue( in string Key, in Value Value )
+		public	void SetValue(in string Key, in Value Value)
 		{
-			LineValue pLineValue = GetLineValue(Key) ?? new LineValue(Key, ELineValueType.MULTI);
+			LineValue pLineValue = GetLineValue(Key) ?? new LineValue(Key, ELineValueType.SINGLE);
 
 			pLineValue.Clear();
 			pLineValue.Set(Value);
@@ -794,8 +804,7 @@ namespace Database
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// SetMultiValue
-		public	void SetMultiValue( in string Key, in Value[] vValues )
+		public	void SetMultiValue(in string Key, in Value[] vValues)
 		{
 			LineValue pLineValue = GetLineValue(Key) ?? new LineValue(Key, ELineValueType.MULTI);
 
@@ -807,16 +816,14 @@ namespace Database
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// Set<T>
-		public	void Set<T>( in string Key, in T Value )
+		public	void Set<T>(in string Key, in T Value)
 		{
-			SetValue( Key, new Value( Value ) );
+			SetValue(Key, new Value(Value));
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// SetVec2
-		public	void SetVec2( in string Key, in Vector2 Vec )
+		public	void SetVec2(in string Key, in Vector2 Vec)
 		{
 			LineValue pLineValue = GetLineValue(Key) ?? new LineValue(Key, ELineValueType.MULTI);
 
@@ -829,8 +836,7 @@ namespace Database
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// SetVec3
-		public	void SetVec3( in string Key, in Vector3 Vec )
+		public	void SetVec3(in string Key, in Vector3 Vec)
 		{
 			LineValue pLineValue = GetLineValue(Key) ?? new LineValue(Key, ELineValueType.MULTI);
 
@@ -843,8 +849,7 @@ namespace Database
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// SetVec4
-		public	void SetVec4( in string Key, in Vector4 Vec )
+		public	void SetVec4(in string Key, in Vector4 Vec)
 		{
 			LineValue pLineValue = GetLineValue(Key) ?? new LineValue(Key, ELineValueType.MULTI);
 
@@ -857,8 +862,7 @@ namespace Database
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// SetVec4
-		public	void SetColor( in string Key, in Color color )
+		public	void SetColor(in string Key, in Color color)
 		{
 			LineValue pLineValue = GetLineValue(Key) ?? new LineValue(Key, ELineValueType.MULTI);
 
@@ -866,6 +870,17 @@ namespace Database
 			Value[] vValues = new Value[] { new Value(color.r), new Value(color.g), new Value(color.b), new Value(color.a) };
 			MultiValue multivalue = new MultiValue(vValues);
 			pLineValue.Set(multivalue);
+			m_Linevalues.Add(pLineValue);
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		public	void SetEnum<T>(in string Key, in T enumValue) where T: struct
+		{
+			LineValue pLineValue = GetLineValue(Key) ?? new LineValue(Key, ELineValueType.SINGLE);
+
+			pLineValue.Clear();
+			pLineValue.Set(enumValue.ToString());
 			m_Linevalues.Add(pLineValue);
 		}
 	};

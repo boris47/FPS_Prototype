@@ -1,11 +1,10 @@
-using UnityEngine;
 using UnityEngine.PostProcessing;
 
 namespace UnityEditor.PostProcessing
 {
-    using Settings = EyeAdaptationModel.Settings;
+	using Settings = EyeAdaptationModel.Settings;
 
-    [PostProcessingModelEditor(typeof(EyeAdaptationModel))]
+	[PostProcessingModelEditor(typeof(EyeAdaptationModel))]
     public class EyeAdaptationModelEditor : PostProcessingModelEditor
     {
         SerializedProperty m_LowPercent;

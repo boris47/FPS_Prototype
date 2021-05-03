@@ -30,6 +30,8 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive
 	{
 		base.Awake();
 
+		CustomAssertions.IsTrue(m_BulletMotionType == EBulletMotionType.PARABOLIC, $"{GetType().Name} can only have motion type {EBulletMotionType.PARABOLIC.ToString()}");
+
 		if (CustomAssertions.IsNotNull(m_ExplosionGlobe = transform.GetChild(0)))
 		{
 			m_ExplosionGlobe.gameObject.SetActive(false);
@@ -42,7 +44,7 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive
 	{
 		base.SetupBullet();
 
-		m_ExplosionDelay = m_BulletSection.AsFloat( "fExplosionDelay", m_ExplosionDelay );
+		CustomAssertions.IsTrue(m_BulletSection.TryAsFloat("ExplosionDelay", out m_ExplosionDelay));
 	}
 
 
@@ -74,13 +76,11 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public override void Shoot(in Vector3 position, in Vector3 direction, in float? velocity, in float? impactForceMultiplier)
+	public override void Shoot(in Vector3 origin, in Vector3 direction, in float velocity, in float impactForceMultiplier)
 	{
-		m_StartPosition			= position;
-		m_ImpactForceMultiplier = impactForceMultiplier ?? m_ImpactForceMultiplier;
-		transform.position		= position;
-		m_RigidBody.velocity	= direction * ( velocity ?? m_Velocity );
-		enabled = true;
+		base.Shoot(origin, direction, velocity, impactForceMultiplier);
+
+		ShootParabolic(origin, direction);
 	}
 
 
@@ -152,7 +152,7 @@ public sealed class GranadeElectroGlobe : BulletExplosive, ITimedExplosive
 		m_InExplosion = false;
 
 		m_InternalCounter = 0f;
-		enabled = false;
+		gameObject.SetActive(false);
 	}
 
 

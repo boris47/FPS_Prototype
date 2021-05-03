@@ -4,14 +4,17 @@ using UnityEngine.PostProcessing;
 
 public class FPSEntityCamera : CameraBase
 {
-	private		const		float				WPN_ROTATION_CLAMP_VALUE				= 0.28f;
-	private		const		float				WPN_FALL_FEEDBACK_CLAMP_VALUE			= 5f;
-
 	public		const		float				CLAMP_MAX_X_AXIS						=  70.0f;
 	public		const		float				CLAMP_MIN_X_AXIS						= -70.0f;
 
-	public		static		FPSEntityCamera		m_Instance								= null;
+	private		static		FPSEntityCamera		m_Instance								= null;
 	public		static		FPSEntityCamera		Instance								=> m_Instance;
+
+	[System.Serializable]
+	private class CameraSectionData
+	{
+		public	float	ViewDistance			= 500f;
+	}
 
 	protected override		string				PostProcessResourcePath					=> "Scriptables/CameraPostProcesses";
 
@@ -31,27 +34,22 @@ public class FPSEntityCamera : CameraBase
 
 	[SerializeField]
 	private		Transform						m_Target								= null;
-	public		Transform						Target									=> m_Target;
 
-	[SerializeField]
-	private		float							m_CurrentRotation_X_Delta				= 0.0f;
-	private		float							m_CurrentRotation_Y_Delta				= 0.0f;
-	[SerializeField]
-	private		float							m_CurrentAngle_X						= 0.0f;
-
-
-	[System.Serializable]
-	private class CameraSectionData
-	{
-		public	float	ViewDistance			= 500f;
-	}
 
 	[SerializeField]
 	private		CameraSectionData				m_CameraSectionData						= new CameraSectionData();
 
+	private		float							m_CurrentRotation_X_Delta				= 0.0f;
+	private		float							m_CurrentRotation_Y_Delta				= 0.0f;
+	private		float							m_CurrentAngle_X						= 0.0f;
+
+	public		Transform						Target									=> m_Target;
+
 	//////////////////////////////////////////////////////////////////////////
 	protected override	void	Awake()
 	{
+		transform.TryGetChildPath(out string pathToChild, t => t.name == "a_flap");
+
 		// Singleton
 		if (Instance.IsNotNull())
 		{
@@ -69,11 +67,7 @@ public class FPSEntityCamera : CameraBase
 	{
 		base.OnEnable();
 
-		if (!GlobalManager.Configs.TryGetSection("Camera", out Database.Section cameraSection) || !GlobalManager.Configs.TrySectionToOuter(cameraSection, m_CameraSectionData))
-		{
-			CustomAssertions.IsTrue(false, "Cannot correctly enable the camera");
-		}
-		else
+		if (CustomAssertions.IsTrue(GlobalManager.Configs.TryGetSection("Camera", out Database.Section cameraSection) && GlobalManager.Configs.TrySectionToOuter(cameraSection, m_CameraSectionData)))
 		{
 			EffectorActiveCondition mainCondition = () => Player.Instance.Motion.CanMove;
 			m_CameraEffectorsManager.AddCondition<HeadBob>(mainCondition + (() => Player.Instance.Motion.IsMoving));
@@ -207,67 +201,22 @@ public class FPSEntityCamera : CameraBase
 	//////////////////////////////////////////////////////////////////////////
 	private	void OnLateFrame(float deltaTime)
 	{
-		CameraEffectorData CameraEffectorsData = m_CameraEffectorsManager.CameraEffectorsData;
-		IWeapon currentWeapon = WeaponManager.Instance.CurrentWeapon;
-
-		// Weapon Local Position
-		currentWeapon.Transform.localPosition = CameraEffectorsData.WeaponPositionDelta + ( Vector3.left * currentWeapon.Recoil * 0.1f );
-
-		// Headbob effect on weapon
-		Vector3 headbobEffectOnWeapon = Vector3.zero;
-		if (m_CameraEffectorsManager.TryGetEffectorData<HeadBob>(out CameraEffectorData data))
-		{
-			headbobEffectOnWeapon = data.CameraEffectsDirection * -1f;
-		}
-
-		// Weapon Local Rotation
-		currentWeapon.Transform.localEulerAngles = Vector3.zero
-			+ CameraEffectorsData.WeaponDirectionDelta // like headbob
-			+ currentWeapon.Dispersion				// Delta for each shoot
-			+ currentWeapon.FallFeedback
-			+ currentWeapon.RotationFeedback
-			+ headbobEffectOnWeapon
-		;
-
-		// Optic sight alignment
-		if (WeaponManager.Instance.IsZoomed)
-		{
-			Vector3 distantPoint = currentWeapon.Transform.position + (currentWeapon.Transform.right * 1000f);
-			Vector2 delta = m_CameraRef.WorldToScreenPoint(distantPoint);
-
-			float frameFeedBack = 1.0f + currentWeapon.Recoil; // 1.0f + Because is scale factor
-			UIManager.InGame.FrameFeedBack(frameFeedBack, delta);
-		}
+		var weaponManagerInstance = WeaponManager.Instance;
 
 		float Axis_X_Delta = 0.0f, Axis_Y_Delta = 0.0f;
 		if (m_Target)
 		{
 			Entity.GetRotationsToPoint(m_Entity.Body, m_Entity.Head, m_Target.position, out Axis_Y_Delta, out Axis_X_Delta);
-
-			/*
-			// Rotate the body
-			{
-				Vector3 projctedPoint = Utils.Math.ProjectPointOnPlane(body.up, body.position, targetPosition);
-				Vector3 directionToPoint = (projctedPoint - body.position);
-				Axis_Y_Delta = Vector3.SignedAngle(body.forward, directionToPoint, body.up);
-			}
-
-			// Rotate the head
-			{
-				Vector3 directionToPoint = (targetPosition - head.position);
-				float angle = Vector3.Angle(body.up, directionToPoint);
-				Axis_X_Delta = Mathf.DeltaAngle(angle, m_CurrentAngle_X) + 90f; // +90 because of m_EntityBody.up
-			}
-			*/
 		}
 		else if (GlobalManager.InputMgr.HasCategoryEnabled(EInputCategory.CAMERA))
 		{
-			bool	isZoomed			= WeaponManager.Instance.IsZoomed;
-			float	wpnZoomSensitivity  = WeaponManager.Instance.ZoomSensitivity;
+			bool	isZoomed			= weaponManagerInstance.IsZoomed;
+			float	wpnZoomSensitivity  = weaponManagerInstance.ZoomSensitivity;
 			Axis_X_Delta = Input.GetAxisRaw("Mouse X") * m_MouseSensitivity * ((isZoomed) ? wpnZoomSensitivity : 1.0f);
 			Axis_Y_Delta = Input.GetAxisRaw("Mouse Y") * m_MouseSensitivity * ((isZoomed) ? wpnZoomSensitivity : 1.0f);
 		}
 
+		Vector3 finalWpnRotationFeedback = new Vector3(0.0f, Axis_Y_Delta, 0.0f);
 		if (!Mathf.Approximately(Axis_X_Delta, Mathf.Epsilon) || !Mathf.Approximately(Axis_Y_Delta, Mathf.Epsilon))
 		{
 			// Interpolate if m_SmoothedRotation is enabled
@@ -283,7 +232,6 @@ public class FPSEntityCamera : CameraBase
 				m_CurrentRotation_Y_Delta = Axis_Y_Delta;
 			}
 
-			Vector3 finalWpnRotationFeedback = new Vector3(0.0f, Axis_Y_Delta, 0.0f);
 
 			Transform head = m_Entity.Head;
 			Transform body = m_Entity.transform; // m_Entity.Body is a sub-gameObject, rotating it does not affect the entity rotation itself
@@ -299,19 +247,43 @@ public class FPSEntityCamera : CameraBase
 					finalWpnRotationFeedback.z = Axis_X_Delta;
 					head.Rotate(Vector3.right, -m_CurrentRotation_X_Delta);
 				}
-			//	head.localRotation = Quaternion.Euler(Vector3.right * m_CurrentAngle_X);
-			}
-
-			// Rotation with effect added
-			{
-				// Axis_X_Delta -> vertical axis, Axis_Y_Delta -> horizontal axis
-				Vector3 finalWpnRotationFeedbackClamped = Vector3.ClampMagnitude(finalWpnRotationFeedback, WPN_ROTATION_CLAMP_VALUE);
-				currentWeapon.AddRotationFeedBack(finalWpnRotationFeedbackClamped);
 			}
 		}
 
-		// Apply effectors (Just Camera)
-		m_CameraRef.transform.localRotation = Quaternion.Euler(CameraEffectorsData.CameraEffectsDirection + currentWeapon.Deviation);
+		// Effectors
+		{
+			var currentWeapon = WeaponManager.Instance.CurrentWeapon;
+			var weaponPivot = WeaponPivot.Instance;
+			CameraEffectorData CameraEffectorsData = m_CameraEffectorsManager.CameraEffectorsData;
+
+			// Apply effectors (Just Camera)
+			transform.localRotation = Quaternion.Euler(CameraEffectorsData.CameraEffectsDirection + weaponPivot.Dispersion);
+
+			// Weapon
+			{
+				if (!weaponManagerInstance.IsZoomed && !weaponManagerInstance.IsChangingZoom)
+				{
+					// Axis_X_Delta -> vertical axis, Axis_Y_Delta -> horizontal axis
+					weaponPivot.AddRotationFeedBack(finalWpnRotationFeedback * deltaTime);
+				}
+
+				// Weapon Local Position
+				currentWeapon.Transform.localPosition = CameraEffectorsData.WeaponPositionDelta + (Vector3.left * weaponPivot.Recoil);
+
+				// Weapon Local Rotation
+				currentWeapon.Transform.localEulerAngles = CameraEffectorsData.WeaponDirectionDelta + weaponPivot.RotationFeedback;
+
+				// Optic sight alignment
+				if (weaponManagerInstance.IsZoomed)
+				{
+			//		Vector3 distantPoint = transform.position + currentWeapon.Transform.right;
+			//		Vector2 delta = m_CameraRef.WorldToScreenPoint(distantPoint);
+
+					float frameFeedBack = 1.0f + weaponPivot.Recoil; // 1.0f + Because is scale factor
+					UIManager.InGame.FrameFeedBack(frameFeedBack/*, delta*/);
+				}
+			}
+		}
 	}
 
 

@@ -55,14 +55,14 @@ public abstract class CameraBase : MonoBehaviour
 	{
 		CustomAssertions.IsNotNull(GameManager.UpdateEvents);
 
-		GameManager.UpdateEvents.OnLateFrame += m_CameraEffectorsManager.Update;
+		GameManager.UpdateEvents.OnFrame += m_CameraEffectorsManager.OnFrame;
 	}
 
 	protected virtual void OnDisable()
 	{
 		if (GameManager.UpdateEvents.IsNotNull())
 		{
-			GameManager.UpdateEvents.OnLateFrame -= m_CameraEffectorsManager.Update;
+			GameManager.UpdateEvents.OnFrame -= m_CameraEffectorsManager.OnFrame;
 		}
 	}
 

@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-public interface IInteractions_Common : IEntityComponent_Interactions
+﻿public interface IInteractions_Common : IEntityComponent_Interactions
 {
 
 }

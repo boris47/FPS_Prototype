@@ -5,12 +5,11 @@
 /* ========================================================================================== */
 
 using System;
-using System.Text;
 using System.Runtime.InteropServices;
 
 namespace FMOD.Studio
 {
-    public class STUDIO_VERSION
+	public class STUDIO_VERSION
     {
 #if (UNITY_IPHONE || UNITY_TVOS || UNITY_SWITCH) && !UNITY_EDITOR
         public const string dll     = "__Internal";

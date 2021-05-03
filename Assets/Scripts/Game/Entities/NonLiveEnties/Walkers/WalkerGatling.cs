@@ -1,8 +1,4 @@
-﻿
-using UnityEngine;
-
-
-public class WalkerGatling : Walker {
+﻿public class WalkerGatling : Walker {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Awake ( Override )

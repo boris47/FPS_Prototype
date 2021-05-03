@@ -57,7 +57,7 @@ namespace WeatherSystem {
 		// UNITY
 		private void OnParticleCollision( GameObject obj )
 		{
-			if ( obj.tag == "Player" )
+			if ( obj.CompareTag("Player"))
 				return;
 
 			if (m_RainExplosion != null && m_RainParticleSystem != null )

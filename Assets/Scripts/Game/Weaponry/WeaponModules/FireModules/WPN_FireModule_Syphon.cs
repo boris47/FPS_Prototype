@@ -14,7 +14,7 @@ public class WPN_FireModule_Syphon : WPN_FireModule
 	protected			Color							m_StartEmissiveColor		= Color.clear;
 	protected			float							m_BaseAmmoRestoreCounter	= 0f;
 
-	protected			WPN_WeaponAttachment_LaserPointer m_Laser						= null;
+	protected			WPN_ModuleAttachment_LaserPointer m_Laser						= null;
 
 
 	public	override	EFireMode		FireMode => EFireMode.NONE;
@@ -23,9 +23,9 @@ public class WPN_FireModule_Syphon : WPN_FireModule
 	//////////////////////////////////////////////////////////////////////////
 	protected override bool InternalSetup(Database.Section moduleSection)
 	{
-		m_BaseAmmoRestoreCounter = moduleSection.AsFloat("BaseAmmoRestoreCounter", m_BaseAmmoRestoreCounter);
+		CustomAssertions.IsTrue(moduleSection.TryAsFloat("BaseAmmoRestoreCounter", out m_BaseAmmoRestoreCounter));
 
-		if (moduleSection.TryAsString("Module_Prefab", out string modulePrefabPath))
+		if (CustomAssertions.IsTrue(moduleSection.TryAsString("Module_Prefab", out string modulePrefabPath)))
 		{
 			GameObject modulePrefab = Resources.Load(modulePrefabPath) as GameObject;
 			if (modulePrefab)
@@ -40,37 +40,13 @@ public class WPN_FireModule_Syphon : WPN_FireModule
 					m_Laser.enabled = false;
 				}
 
-				if (m_WeaponRef.Transform.TrySearchComponent(ESearchContext.LOCAL_AND_CHILDREN, out m_Renderer, s => s.name == "Graphics"))
+				if (CustomAssertions.IsTrue(m_WeaponRef.Transform.TrySearchComponent(ESearchContext.LOCAL_AND_CHILDREN, out m_Renderer, s => s.name == "Graphics")))
 				{
 					m_StartEmissiveColor = m_Renderer.material.GetColor("_EmissionColor");
 				}
 			}
 		}
 		return true;
-	}
-
-	//////////////////////////////////////////////////////////////////////////
-	public override void ApplyModifier(Database.Section modifier)
-	{
-		base.ApplyModifier(modifier);
-
-		// Do actions here
-	}
-
-	//////////////////////////////////////////////////////////////////////////
-	public override void ResetBaseConfiguration()
-	{
-		base.ResetBaseConfiguration();
-
-		// Do actions here
-	}
-
-	//////////////////////////////////////////////////////////////////////////
-	public override void RemoveModifier(Database.Section modifier)
-	{
-		base.RemoveModifier(modifier);
-
-		// Do Actions here
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -96,13 +72,13 @@ public class WPN_FireModule_Syphon : WPN_FireModule
 	//////////////////////////////////////////////////////////////////////////
 	public override bool NeedReload()
 	{
-		return m_Magazine < m_MagazineCapacity;
+		return m_Magazine < m_FireModuleData.MagazineCapacity;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	public override void OnAfterReload()
 	{
-		m_Magazine = m_MagazineCapacity;
+		m_Magazine = m_FireModuleData.MagazineCapacity;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -140,11 +116,11 @@ public class WPN_FireModule_Syphon : WPN_FireModule
 
 		//m_AudioSourceFire.Play();
 
-		// CAM DEVIATION
-		m_WeaponRef.ApplyDeviation(moduleCamDeviation);
+		// WEAPON DEVIATION
+		WeaponPivot.Instance.ApplyDeviation(moduleCamDeviation);
 
 		// CAM DISPERSION
-		m_WeaponRef.ApplyDispersion(moduleFireDispersion);
+		WeaponPivot.Instance.ApplyDispersion(moduleFireDispersion);
 
 		// UI ELEMENTS
 		UIManager.InGame.UpdateUI();
@@ -181,11 +157,11 @@ public class WPN_FireModule_Syphon : WPN_FireModule
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	protected override void InternalUpdate(float DeltaTime)
+	protected override void OnFrame(float DeltaTime)
 	{
 		m_WpnFireMode.InternalUpdate(DeltaTime, m_Magazine);
 
-		if (!m_Laser.enabled && m_Magazine < m_MagazineCapacity)
+		if (!m_Laser.enabled && m_Magazine < m_FireModuleData.MagazineCapacity)
 		{
 			m_BaseAmmoRestoreCounter -= Time.deltaTime;
 			if (m_BaseAmmoRestoreCounter < 0f)
@@ -195,7 +171,7 @@ public class WPN_FireModule_Syphon : WPN_FireModule
 			}
 		}
 
-		float value = ((float)m_Magazine / (float)m_MagazineCapacity);
+		float value = ((float)m_Magazine / (float)m_FireModuleData.MagazineCapacity);
 		Color current = Color.Lerp(Color.black, m_StartEmissiveColor, value);
 		m_Renderer.material.SetColor("_EmissionColor", current);
 	}

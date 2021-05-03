@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEditor;
-using UnityEngine;
+﻿using UnityEditor;
 
 namespace FMODUnity
 {
-    [CustomEditor(typeof(StudioListener))]
+	[CustomEditor(typeof(StudioListener))]
     [CanEditMultipleObjects]
     public class StudioListenerEditor : Editor
     {

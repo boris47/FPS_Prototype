@@ -1,8 +1,4 @@
-﻿
-using UnityEngine;
-
-
-public class WalkerStandard : Walker {
+﻿public class WalkerStandard : Walker {
 
 	//////////////////////////////////////////////////////////////////////////
 	protected	override	void	Awake()

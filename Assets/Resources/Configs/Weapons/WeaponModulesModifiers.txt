@@ -2,97 +2,99 @@
 ;********************************
 
 ; BASE MULTIPLIERS used by every modifier
-[WPN_Module_Prop_BaseModier]
+[WPN_Module_Prop_BaseModifier]
+
+// Fire Modules
 MultMagazineCapacity			= 1.0;
-MultDamage						= 1.0;
+MultBulletsPerShot				= 1.0;
+MultBulletDamage				= 1.0;
+MultBulletVelocity				= 1.0;
+MultImpactForceMultiplier		= 1.0;
 MultShotDelay					= 1.0;
 MultCamDeviation				= 1.0;
 MultFireDispersion				= 1.0;
 MultRecoil						= 1.0;
-MultPerShotFireDispersion		= 1.0;
-MultBucketSize					= 1.0;
-MultLaunchForce					= 1.0;
-bCanPenetrate					= 0;  0 no change, 1 disable, 2 enable
+FireMode						= None;
+BulletSection					= None;
+
+// Zoom
+MultZoomFactor					= 1.0;
+MultZoomingTime					= 0.8;
+MultZoomSensitivity				= 0.6;
 
 
 ;		Module_Properties
 
 ;********************************
-[WPN_Module_Prop_QuickFire] : WPN_Module_Prop_BaseModier
-MultShotDelay					= 0.5;
+[WPN_Module_Prop_QuickFire] : WPN_Module_Prop_BaseModifier
+MultShotDelay					= 0.75;
 
 
 ;********************************
-[WPN_Module_Prop_HighDamage] : WPN_Module_Prop_BaseModier
-MultDamage						= 1.5;
+[WPN_Module_Prop_HighDamage] : WPN_Module_Prop_BaseModifier
+MultBulletDamage				= 1.1;
 
 
 ;********************************
-[WPN_Module_Prop_BiggerMag] : WPN_Module_Prop_BaseModier
+[WPN_Module_Prop_BiggerMag] : WPN_Module_Prop_BaseModifier
 MultMagazineCapacity			= 1.5;
 
 
 ;********************************
-[WPN_Module_Prop_MoreAccuracy] : WPN_Module_Prop_BaseModier
-MultCamDeviation				= 0.7;
-MultFireDispersion				= 0.6;
-MultPerShotFireDispersion		= 0.6;
-MultRecoil						= 0.6;
+[WPN_Module_Prop_MoreAccuracy] : WPN_Module_Prop_BaseModifier
+MultCamDeviation				= 0.96;
+MultFireDispersion				= 0.8;
+MultRecoil						= 0.8;
 
 
 ;********************************
-[WPN_Module_Prop_BiggerBucket] : WPN_Module_Prop_BaseModier
-MultBucketSize					= 1.7;
+[WPN_Module_Prop_BiggerBucket] : WPN_Module_Prop_BaseModifier
+MultBulletsPerShot				= 1.3;
 
 
 ;********************************
-[WPN_Module_Prop_MoreLaunchForce] : WPN_Module_Prop_BaseModier
-MultLaunchForce					= 1.6;
-
-
-;********************************
-[WPN_Module_Prop_QuickerIncrement]
-MultIncremetSpeed				 = 1.5;
-
-;********************************
-[WPN_Module_Prop_EagleEye]
-MultZoomFactor					= 1.5;
-
+[WPN_Module_Prop_MoreBulletSpeed] : WPN_Module_Prop_BaseModifier
+MultBulletVelocity				= 1.6;
 
 
 
 ;		FireModes
 
 ;********************************
-[WPN_Mod_FireMode_Single]
+[WPN_Mod_FireMode_Single] : WPN_Module_Prop_BaseModifier
 FireMode						= Single;
 
 
 ;********************************
-[WPM_Mod_FireMode_Burst]
+[WPM_Mod_FireMode_Burst] : WPN_Module_Prop_BaseModifier
 FireMode						= Burst;
 
 
 ;********************************
-[WPN_Mod_FireMode_BurstAuto]
+[WPN_Mod_FireMode_BurstAuto] : WPN_Module_Prop_BaseModifier
 FireMode						= BurstAuot;
 
 
 ;********************************
-[WPN_Mod_FireMode_Auto]
+[WPN_Mod_FireMode_Auto] : WPN_Module_Prop_BaseModifier
 FireMode						= Auto;
 
 
 ;********************************
-[WPN_Mod_FireMode_AutoIncremental]
+[WPN_Mod_FireMode_AutoIncremental] : WPN_Module_Prop_BaseModifier
 FireMode						= Auto_Incremental;
 
 
 
+;		Utility
+
+;********************************
+[WPN_Module_Prop_EagleEye] : WPN_Module_Prop_BaseModifier
+MultZoomFactor					= 1.5;
 
 
 ;*******************************
-[WPN_BASE_BetterZoom]
-MultZoomFactor				= 1.5;
-MultZoomingTime				= 0.8;
-MultZoomSensitivity			= 0.6;
+[WPN_BASE_BetterZoom] : WPN_Module_Prop_BaseModifier
+MultZoomFactor					= 1.2;
+MultZoomingTime					= 0.8;
+MultZoomSensitivity				= 0.6;

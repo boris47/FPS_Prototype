@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 using UnityEditor;
 
@@ -13,11 +11,14 @@ using UnityEditor;
 namespace FMODUnity
 {
 
-    [InitializeOnLoad]
+	[InitializeOnLoad]
     public class MigrationUtil : MonoBehaviour
     {
+		static MigrationUtil()
+		{
+		}
 
-        /*
+		/*
             If you have a custom script that uses the FMODAsset class, it will need to me migrated so it can reference events in the new integration
 
             For Example, if you have the existing script
@@ -81,7 +82,7 @@ namespace FMODUnity
             If you want to remove the FormerlySerializedAs you can do so after you've loaded and saved every scene in your project.
         */
 
-        static CustomMigrationEntry[] CustomMigrationEntries = new CustomMigrationEntry[]
+		static CustomMigrationEntry[] CustomMigrationEntries = new CustomMigrationEntry[]
         {
              //new CustomMigrationEntry { ScriptClass = typeof(MyBehaviour), OldProperty = "MyEvent", NewProperty = "MyEventMigrated" },
         };

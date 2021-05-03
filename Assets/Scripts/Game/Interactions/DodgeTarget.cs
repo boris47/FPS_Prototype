@@ -1,6 +1,4 @@
 ﻿
-using UnityEngine;
-
 //public class DodgeTarget : MonoBehaviour {
 //
 //	private static	LayerMask			m_Layer_Default				= 0;	// Default

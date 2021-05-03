@@ -8,23 +8,22 @@ public	delegate	bool	EffectorActiveCondition();
 [System.Serializable]
 public sealed class CameraEffectorsManager
 {
-	[field: SerializeField]
-	private CameraEffectorData m_CameraEffectorData = new CameraEffectorData();
-	public CameraEffectorData CameraEffectorsData  => m_CameraEffectorData;
+	[SerializeField, ReadOnly]
+	private		CameraEffectorData								m_CameraEffectorData		= new CameraEffectorData();
+	[SerializeField, ReadOnly]
+	private		List<CameraEffectBase>							m_Effects					= new List<CameraEffectBase>();
 
-	[SerializeField]
-	private List<CameraEffectBase> m_Effects = new List<CameraEffectBase>();
+	private		Dictionary<System.Type, CameraEffectBase>		m_EffectDictionaty			= new Dictionary<System.Type, CameraEffectBase>();
 
-	private Dictionary<System.Type, CameraEffectBase> m_EffectDictionaty = new Dictionary<System.Type, CameraEffectBase>();
-
+	public		CameraEffectorData								CameraEffectorsData			=> m_CameraEffectorData;
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public void AddCondition<T>( EffectorActiveCondition condition ) where T : CameraEffectBase, new()
+	public void AddCondition<T>(EffectorActiveCondition condition) where T : CameraEffectBase, new()
 	{
 		if (!m_EffectDictionaty.ContainsKey(typeof(T)))
 		{
-			var newEffector = new T();
+			var newEffector = FPSEntityCamera.Instance.gameObject.AddComponent<T>();
 			newEffector.Setup(condition);
 			m_EffectDictionaty.Add(typeof(T), newEffector);
 
@@ -35,7 +34,7 @@ public sealed class CameraEffectorsManager
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public bool TryGetEffectorData<T>(out CameraEffectorData effectorData) where T: CameraEffectBase, new()
+	public bool TryGetEffectorData<T>(out CameraEffectorData effectorData) where T : CameraEffectBase, new()
 	{
 		effectorData = default;
 		if (m_EffectDictionaty.TryGetValue(typeof(T), out CameraEffectBase effector))
@@ -48,7 +47,7 @@ public sealed class CameraEffectorsManager
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public bool TrySetEffectorState<T>( bool newState ) where T: CameraEffectBase, new()
+	public bool TrySetEffectorState<T>(bool newState) where T : CameraEffectBase, new()
 	{
 		if (m_EffectDictionaty.TryGetValue(typeof(T), out CameraEffectBase effector))
 		{
@@ -60,7 +59,7 @@ public sealed class CameraEffectorsManager
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public bool TrySetAmplitudeMultiplier<T>( float newAmplitudeMultiplier ) where T : CameraEffectBase, new()
+	public bool TrySetAmplitudeMultiplier<T>(float newAmplitudeMultiplier) where T : CameraEffectBase, new()
 	{
 		if (m_EffectDictionaty.TryGetValue(typeof(T), out CameraEffectBase effector))
 		{
@@ -72,7 +71,7 @@ public sealed class CameraEffectorsManager
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public bool TrySetSpeedMultiplier<T>( float newSpeedMultiplier ) where T : CameraEffectBase, new()
+	public bool TrySetSpeedMultiplier<T>(float newSpeedMultiplier) where T : CameraEffectBase, new()
 	{
 		if (m_EffectDictionaty.TryGetValue(typeof(T), out CameraEffectBase effector))
 		{
@@ -84,13 +83,13 @@ public sealed class CameraEffectorsManager
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public void	Update( float deltaTime )
+	public void OnFrame(float deltaTime)
 	{
 		m_CameraEffectorData.Reset();
 
-		foreach(CameraEffectBase effect in m_Effects)
+		foreach (CameraEffectBase effect in m_Effects)
 		{
-			effect.Update(deltaTime, m_CameraEffectorData);
+			effect.OnUpdate(deltaTime, m_CameraEffectorData);
 		}
 	}
 
@@ -98,14 +97,27 @@ public sealed class CameraEffectorsManager
 	//////////////////////////////////////////////////////////////////////////
 	public void Remove<T>() where T : CameraEffectBase, new()
 	{
-		m_Effects.RemoveAll( e => e is T );
+		for (int i = m_Effects.Count - 1; i >= 0; i--)
+		{
+			var effect = m_Effects[i];
+			if (effect is T)
+			{
+				Object.Destroy(effect);
+				m_Effects.RemoveAt(i);
+			}
+		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public void Reset()
 	{
-		m_Effects.Clear();
+		for (int i = m_Effects.Count - 1; i >= 0; i--)
+		{
+			var effect = m_Effects[i];
+			Object.Destroy(effect);
+			m_Effects.RemoveAt(i);
+		}
 
 		m_CameraEffectorData.Reset();
 	}

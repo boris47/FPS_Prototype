@@ -2,6 +2,14 @@
 
 #include Bullets.txt
 
+[WeaponPivot]
+RecoverySpeedMult			= 4.0;
+MaxRecoil					= 0.02;
+MaxDeviation				= 0.2;
+MaxDispersion				= 8.0;
+WeaponRotationFeedBackClamp	= 3.0;
+
+
 ;*************************************************************************************;
 ;********************************   PLAYER WEAPONS   ********************************;
 
@@ -11,31 +19,26 @@ ZoomOffset					= 0.0, 0.0, 0.0;
 BaseZoomSensitivity			= 1.0;
 HasPrimaryModule			= false;
 HasSecondaryModule			= false;
-HasTertiaryModule			= false;
 
 
 
 ;;;;;;;;;;;;;;;; BLACKJACK
 [Blackjack] : EmptyWeapon
-ZoomOffset					= -0.0655, 0.009, -0.052;
+ZoomOffset					= -0.0326, 0.0049, -0.052;
 BaseZoomFactor				= 2.0;
 BaseZoomingTime				= 0.1;
 BaseZoomSensitivity			= 0.3;
 
 HasPrimaryWeaponModule		= true;
-PrimaryWeaponModule			= WPN_FireModule_Shotgun;
-;PrimaryWeaponModuleMods		= WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy;
+PrimaryWeaponModule			= WPN_FireModule_SMG;
+PrimaryWeaponModuleMods		= WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_BiggerMag, WPN_Module_Prop_BiggerMag, WPN_Module_Prop_BiggerMag;
 
 HasSecondaryWeaponModule	= true;
-SecondaryWeaponModule		= WPN_FireModule_Barrel;
+SecondaryWeaponModule		= WPN_FireModule_Shotgun;
+SecondaryWeaponModuleMods	= WPN_Module_Prop_QuickFire;
 
-HasTertiaryWeaponModule		= true;
-TertiaryWeaponModule		= WPN_FireModule_Blaster;
-;TertiaryWeaponModuleMods	= WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_MoreAccuracy, WPN_Module_Prop_BiggerMag, WPN_Module_Prop_BiggerMag;
-
-; Prefab must have "Attachments" child
-AllowedAttachments			= WPN_WeaponAttachment_Flashlight, WPN_WeaponAttachment_LaserPointer, WPN_WeaponAttachment_Zoom;
-DefaultAttachments			= WPN_WeaponAttachment_Flashlight, WPN_WeaponAttachment_LaserPointer, WPN_WeaponAttachment_Zoom;
+AllowedAttachments			= WPN_WeaponAttachment_Flashlight, WPN_WeaponAttachment_Zoom_IronSight, WPN_WeaponAttachment_Zoom_Optic;
+DefaultAttachments			= WPN_WeaponAttachment_Flashlight, WPN_WeaponAttachment_Zoom_Optic;
 
 
 
@@ -52,9 +55,6 @@ PrimaryWeaponModule			= WPN_FireModule_Blaster;
 HasSecondaryWeaponModule	= true;
 SecondaryWeaponModule		= WPN_WeaponModule_OpticZoom;
 
-HasTertiaryWeaponModule		= false;
-TertiaryWeaponModule		= WPN_FireModule_Auto;
-
 
 
 ;;;;;;;;;;;;;;;; BREAKER
@@ -69,9 +69,6 @@ PrimaryWeaponModule			= WPN_FireModule_GranadeLauncher;
 
 HasSecondaryWeaponModule	= true;
 SecondaryWeaponModule		= WPN_WeaponModule_Shield;
-
-HasTertiaryWeaponModule		= false;
-TertiaryWeaponModule		= WPN_FireModule_Auto;
 
 
 
@@ -88,9 +85,6 @@ PrimaryWeaponModule			= WPN_FireModule_Syphon;
 HasSecondaryWeaponModule	= true;
 SecondaryWeaponModule		= WPN_WeaponModule_Zoom;
 
-HasTertiaryWeaponModule		= true;
-TertiaryWeaponModule		= WPN_FireModule_Blaster;
-
 
 
 ;;;;;;;;;;;;;;;; HAMMER
@@ -106,9 +100,6 @@ PrimaryWeaponModule			= WPN_FireModule_Shotgun;
 HasSecondaryWeaponModule	= true;
 SecondaryWeaponModule		= WPN_WeaponModule_Zoom;
 
-HasTertiaryWeaponModule		= false;
-TertiaryWeaponModule		= WPN_FireModule_Auto;
-
 
 
 ;;;;;;;;;;;;;;;; ARROW
@@ -123,9 +114,6 @@ PrimaryWeaponModule			= WPN_FireModule_SniperBarrel;
 
 HasSecondaryWeaponModule	= true;
 SecondaryWeaponModule		= WPN_WeaponModule_OpticZoom;
-
-HasTertiaryWeaponModule		= false;
-TertiaryWeaponModule		= WPN_FireModule_Auto;
 
 
 ;*************************************************************************************;

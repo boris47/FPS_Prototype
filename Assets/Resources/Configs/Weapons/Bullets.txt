@@ -1,11 +1,11 @@
 
-; public enum EBulletMotionType {
+; public enum BulletMotionType {
 ; 	INSTANT,
 ; 	DIRECT,
 ; 	PARABOLIC
 ; }
 
-; public enum EDamageType {
+; public enum DamageType {
 ; 	NONE,
 ; 	BALLISTIC,
 ; 	ENERGY,
@@ -20,67 +20,69 @@
 ; ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 ;								BULLETS
 
+[BulletEmpty]
+
 [BulletElectro]
-eBulletMotionType				= INSTANT;
-eDamageType						= ELECTRO;			Impact Damage Type
-fDamage							= 10.0;				Impact Damage Ammount
-bHasDamageOverTime				= true;				Has Over Time Damage
-fOverTimeDamageDuration			= 5.0;				Over Time Damage Duration
-eOverTimeDamageType				= ELECTRO;			Over Time Damage Type
-bCanPenetrate					= false;
+BulletMotionType				= INSTANT;
+DamageType						= ELECTRO;			Impact Damage Type
+Damage							= 10.0;				Impact Damage Ammount
+HasDamageOverTime				= true;				Has Over Time Damage
+OverTimeDamageDuration			= 5.0;				Over Time Damage Duration
+OverTimeDamageType				= ELECTRO;			Over Time Damage Type
+CanPenetrate					= false;
 ; A velocity in Unity is units per second. The units are often thought of as metres but could be millimetres or light years. Unity velocity also has the speed in X, Y, and Z defining the direction.
-fVelocity						= 45.0;
-fRange							= 60.0f;
+Velocity						= 45.0;
+Range							= 60.0f;
 
 
 
 [BulletBallistic]
-eBulletMotionType				= DIRECT;
-eDamageType						= BALLISTIC;		Impact Damage Type
-fDamage							= 10.0;				Impact Damage Ammount
-bHasDamageOverTime				= false;			Has Over Time Damage
-fOverTimeDamageDuration			= 5.0;				Over Time Damage Duration
-eOverTimeDamageType				= FLAME;			Over Time Damage Type
-bCanPenetrate					= false;
-fVelocity						= 60.0f;
-fRange							= 180.0f;
+BulletMotionType				= DIRECT;
+DamageType						= BALLISTIC;		Impact Damage Type
+Damage							= 10.0;				Impact Damage Ammount
+HasDamageOverTime				= false;			Has Over Time Damage
+OverTimeDamageDuration			= 5.0;				Over Time Damage Duration
+OverTimeDamageType				= FLAME;			Over Time Damage Type
+CanPenetrate					= false;
+Velocity						= 60.0f;
+Range							= 180.0f;
 
 
 [BulletSyphon]
-eBulletMotionType				= DIRECT;
-eDamageType						= ENERGY;			Impact Damage Type
-fDamage							= 10.0;				Impact Damage Ammount
-bHasDamageOverTime				= false;			Has Over Time Damage
-fOverTimeDamageDuration			= 5.0;				Over Time Damage Duration
-eOverTimeDamageType				= FLAME;			Over Time Damage Type
-bCanPenetrate					= false;
-fVelocity						= 30.0f;
-fRange							= 90.0f;
+BulletMotionType				= DIRECT;
+DamageType						= ENERGY;			Impact Damage Type
+Damage							= 10.0;				Impact Damage Ammount
+HasDamageOverTime				= false;			Has Over Time Damage
+OverTimeDamageDuration			= 5.0;				Over Time Damage Duration
+OverTimeDamageType				= FLAME;			Over Time Damage Type
+CanPenetrate					= false;
+Velocity						= 30.0f;
+Range							= 90.0f;
 
 
 [BulletBlaster] : BulletBallistic
-fDamage							= 4.50;				Impact Damage Ammount
-fVelocity						= 80.0;
-fRange							= 90.0f;
+Damage							= 4.50;				Impact Damage Ammount
+Velocity						= 80.0;
+Range							= 90.0f;
 
 ;
 
 [BulletRocket]
-eBulletMotionType				= DIRECT;
-eDamageType						= EXPLOSIVE;		Blast Damage Type
-fDamage							= 50.0;				Blast Damage Ammount
-bHasDamageOverTime				= true;				Has Over Time Damage
-fOverTimeDamageDuration			= 5.0;				Over Time Damage Duration
-eOverTimeDamageType				= FLAME;			Over Time Damage Type
-bCanPenetrate					= false;
-fVelocity						= 5.0;
+BulletMotionType				= DIRECT;
+DamageType						= EXPLOSIVE;		Blast Damage Type
+Damage							= 50.0;				Blast Damage Ammount
+HasDamageOverTime				= true;				Has Over Time Damage
+OverTimeDamageDuration			= 5.0;				Over Time Damage Duration
+OverTimeDamageType				= FLAME;			Over Time Damage Type
+CanPenetrate					= false;
+Velocity						= 5.0;
 
-fMaxRange						= 150.0;
+MaxRange						= 150.0;
 
-bBlowOnHit						= true;
-bAttachOnHit					= false;
-fBlastRadius					= 9.0;
-fBlastDamage					= 1000.0;
+BlowOnHit						= true;
+AttachOnHit						= false;
+BlastRadius						= 9.0;
+BlastDamage						= 1000.0;
 
 
 
@@ -90,37 +92,37 @@ fBlastDamage					= 1000.0;
 
 
 [GranadeElectroGlobe]
-eBulletMotionType				= PARABOLIC;
-eDamageType						= ELECTRO;
-fDamage							= 10.0;				Blast Damage Ammount
-bHasDamageOverTime				= true;				Has Damage Over Time
-fOverTimeDamageDuration			= 5.0;				Duration Is Definend By Granade Persisence in World
-fOverTimeDamageType				= ELECTRO;			Over Time Damage Type
-bCanPenetrate					= false;
-fVelocity						= 32.0;
+BulletMotionType				= PARABOLIC;
+DamageType						= ELECTRO;
+Damage							= 10.0;				Blast Damage Ammount
+HasDamageOverTime				= true;				Has Damage Over Time
+OverTimeDamageDuration			= 5.0;				Duration Is Definend By Granade Persisence in World
+OverTimeDamageType				= ELECTRO;			Over Time Damage Type
+CanPenetrate					= false;
+Velocity						= 32.0;
 
-bBlowOnHit						= false;
-bAttachOnHit					= false;
-fBlastRadius					= 9.0;
-fBlastDamage					= 5.0;
+BlowOnHit						= false;
+AttachOnHit						= false;
+BlastRadius						= 9.0;
+BlastDamage						= 5.0;
 
-fExplosionDelay					= 3.0;
+ExplosionDelay					= 3.0;
 
 ;
 
 [GranadeFrammentation]
-eBulletMotionType				= PARABOLIC;
-eDamageType						= EXPLOSIVE;
-fDamage							= 10.0;				Blast Damage Ammount
-bHasDamageOverTime				= true;				Has Damage Over Time
-fOverTimeDamageDuration			= 5.0;				Over Time Damage Duration
-fOverTimeDamageType				= FLAME;			Over Time Damage Type
-bCanPenetrate					= false;
-fVelocity						= 32.0;
+BulletMotionType				= PARABOLIC;
+DamageType						= EXPLOSIVE;
+Damage							= 10.0;				Blast Damage Ammount
+HasDamageOverTime				= true;				Has Damage Over Time
+OverTimeDamageDuration			= 5.0;				Over Time Damage Duration
+OverTimeDamageType				= FLAME;			Over Time Damage Type
+CanPenetrate					= false;
+Velocity						= 32.0;
 
-bBlowOnHit						= true;
-bAttachOnHit					= false;
-fBlastRadius					= 9.0;
-fBlastDamage					= 5.0;
+BlowOnHit						= true;
+AttachOnHit						= false;
+BlastRadius						= 9.0;
+BlastDamage						= 5.0;
 
-fExplosionDelay					= 3.0;
+ExplosionDelay					= 3.0;

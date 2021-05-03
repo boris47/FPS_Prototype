@@ -14,40 +14,38 @@ public class WPN_WeaponModule_Shield : WPN_BaseModule, IWPN_UtilityModule
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public	override	bool	OnAttach			( IWeapon w, EWeaponSlots slot )
+	public	override	void	OnAttach			( IWeapon w, EWeaponSlots slot )
 	{
-		m_WeaponRef = w;
-
 		string moduleSectionName = GetType().FullName;
-		if (!GlobalManager.Configs.TryGetSection( moduleSectionName, out m_ModuleSection ))
+		if (CustomAssertions.IsTrue(GlobalManager.Configs.TryGetSection(moduleSectionName, out m_ModuleSection)))
 		{
-			return false;
-		}
+			m_WeaponRef = w;
 
-		m_ShieldLife = m_ModuleSection.AsFloat("BaseShieldLife", 50f);
+			m_ShieldLife = m_ModuleSection.AsFloat("BaseShieldLife", 50f);
 
-		if (m_ModuleSection.TryAsString("Module_Prefab", out string modulePrefabPath))
-		{
-			GameObject modulePrefab = Resources.Load<GameObject>(modulePrefabPath);
-			if ( modulePrefab )
+			if (m_ModuleSection.TryAsString("Module_Prefab", out string modulePrefabPath))
 			{
-				m_ShieldGO = Instantiate<GameObject>(modulePrefab, transform);
-				m_ShieldGO.transform.localPosition = Vector3.zero;
-				m_ShieldGO.transform.localRotation = Quaternion.identity;
+				GameObject modulePrefab = Resources.Load<GameObject>(modulePrefabPath);
+				if (modulePrefab)
+				{
+					m_ShieldGO = Instantiate<GameObject>(modulePrefab, transform);
+					m_ShieldGO.transform.localPosition = Vector3.zero;
+					m_ShieldGO.transform.localRotation = Quaternion.identity;
 
-				m_RigidBody	= m_ShieldGO.GetComponentInChildren<Rigidbody>();
-				m_Shield	= m_ShieldGO.GetComponentInChildren<Shield>();
+					m_RigidBody = m_ShieldGO.GetComponentInChildren<Rigidbody>();
+					m_Shield = m_ShieldGO.GetComponentInChildren<Shield>();
 
-				CustomAssertions.IsNotNull(m_RigidBody);
-				CustomAssertions.IsNotNull(m_Shield);
+					CustomAssertions.IsNotNull(m_RigidBody);
+					CustomAssertions.IsNotNull(m_Shield);
 
-				m_Shield.Setup(m_ShieldLife, EShieldContext.WEAPON);
-				m_Shield.OnHit += OnShieldHit;
-				m_Shield.enabled = false;
+					m_Shield.Setup(m_ShieldLife, EShieldContext.WEAPON);
+					m_Shield.OnHit += OnShieldHit;
+					m_Shield.enabled = false;
+				}
 			}
-		}
 
-		return InternalSetup(m_ModuleSection);
+			CustomAssertions.IsTrue(InternalSetup(m_ModuleSection));
+		}
 	}
 
 	public override void OnDetach()
@@ -60,31 +58,6 @@ public class WPN_WeaponModule_Shield : WPN_BaseModule, IWPN_UtilityModule
 	protected	override	bool	InternalSetup( Database.Section moduleSection )
 	{
 		return true;
-	}
-
-
-	//		MODIFIERS
-	//////////////////////////////////////////////////////////////////////////
-	public override void ApplyModifier( Database.Section modifier )
-	{
-		// Do actions here
-
-		base.ApplyModifier( modifier );
-	}
-
-
-	public	override	void	ResetBaseConfiguration()
-	{
-		// Do actions here
-
-		base.ResetBaseConfiguration();
-	}
-
-	public	override	void	RemoveModifier( Database.Section modifier )
-	{
-		// Do Actions here
-
-		base.RemoveModifier( modifier );
 	}
 
 
@@ -113,7 +86,7 @@ public class WPN_WeaponModule_Shield : WPN_BaseModule, IWPN_UtilityModule
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	void	InternalUpdate	( float deltaTime )
+	protected	override	void	OnFrame	( float deltaTime )
 	{
 		if (m_TimeToWaitBeforeRestore > 0.0f )
 		{
@@ -135,7 +108,7 @@ public class WPN_WeaponModule_Shield : WPN_BaseModule, IWPN_UtilityModule
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private	void		OnShieldHit(Vector3 startPosition, Entity whoRef, Weapon weaponRef, EDamageType damageType, float damage, bool canPenetrate = false)
+	private	void		OnShieldHit(Vector3 startPosition, Entity whoRef, WeaponBase weaponRef, EDamageType damageType, float damage, bool canPenetrate = false)
 	{
 		if (m_Shield.Status <= 0.0f )
 		{

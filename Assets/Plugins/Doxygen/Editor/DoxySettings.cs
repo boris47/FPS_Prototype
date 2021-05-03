@@ -1,9 +1,9 @@
 using UnityEditor;
-using UnityEngine;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace ProjectNull.DocTools{
+namespace ProjectNull.DocTools
+{
 	/*!
 	 * \brief This is the settings of the 
 	 */

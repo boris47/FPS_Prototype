@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
-using System.Collections;
 
-namespace WeatherSystem {
+namespace WeatherSystem
+{
 
 	public class MistManager : MonoBehaviour {
 

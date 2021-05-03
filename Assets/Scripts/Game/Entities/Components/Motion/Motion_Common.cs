@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-public interface IMotion_Common : IEntityComponent_Motion
+﻿public interface IMotion_Common : IEntityComponent_Motion
 {
 
 }

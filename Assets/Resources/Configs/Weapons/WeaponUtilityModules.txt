@@ -18,4 +18,4 @@ AllowedSlots				= 1;
 ;ZoomSensitivity				= 0.3;
 ;SlotName					= Zoom;
 ;MaxModuleCount				= 1;
-;AllowedSlots				= 1, 2, 3;
+;AllowedSlots				= 1, 2;

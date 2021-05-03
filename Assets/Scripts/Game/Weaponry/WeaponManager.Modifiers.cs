@@ -1,4 +1,3 @@
-using UnityEngine;
 using System.Linq;
 
 public partial interface IWeaponManager
@@ -19,7 +18,10 @@ public sealed partial class WeaponManager
 	{
 		if (GlobalManager.Configs.TryGetSection(modifierSectionName, out Database.Section modifierSection))
 		{
-			(wpn as IModifiable).ApplyModifier(modifierSection);
+			using(var modifiable = new Modifiable(wpn as WeaponBase))
+			{
+				modifiable.AddModifier(modifierSection);
+			}
 			return true;
 		}
 		return false;
@@ -29,7 +31,10 @@ public sealed partial class WeaponManager
 	{
 		if (GlobalManager.Configs.TryGetSection(modifierSectionName, out Database.Section modifierSection))
 		{
-			(wpn as IModifiable).RemoveModifier(modifierSection);
+			using (var modifiable = new Modifiable(wpn as WeaponBase))
+			{
+				modifiable.RemoveModifier(modifierSection);
+			}
 			return true;
 		}
 		return false;
@@ -38,24 +43,28 @@ public sealed partial class WeaponManager
 
 	bool IWeaponManager.ApplyModifierToWeaponSlot(in IWeapon wpn, in EWeaponSlots slot, string modifier)
 	{
-		if (Weapon.TryGetModuleBySlot(wpn, slot, out WPN_BaseModule weaponModule) && GlobalManager.Configs.TryGetSection(modifier, out Database.Section modifierSection))
+		if (WeaponBase.TryGetModuleBySlot(wpn, slot, out WPN_BaseModule weaponModule) && GlobalManager.Configs.TryGetSection(modifier, out Database.Section modifierSection))
 		{
-			weaponModule.ApplyModifier(modifierSection);
+			using (var modifiable = new Modifiable(weaponModule))
+			{
+				modifiable.AddModifier(modifierSection);
+			}
 			return true;
 		}
-
 		return false;
 	}
 
 
 	bool IWeaponManager.RemoveModifierToWeaponSlot(in IWeapon wpn, in EWeaponSlots slot, string modifier)
 	{
-		if (Weapon.TryGetModuleBySlot(wpn, slot, out WPN_BaseModule weaponModule) && GlobalManager.Configs.TryGetSection(modifier, out Database.Section modifierSection))
+		if (WeaponBase.TryGetModuleBySlot(wpn, slot, out WPN_BaseModule weaponModule) && GlobalManager.Configs.TryGetSection(modifier, out Database.Section modifierSection))
 		{
-			weaponModule.RemoveModifier(modifierSection);
+			using (var modifiable = new Modifiable(weaponModule))
+			{
+				modifiable.RemoveModifier(modifierSection);
+			}
 			return true;
 		}
-
 		return false;
 	}
 
@@ -63,7 +72,7 @@ public sealed partial class WeaponManager
 	bool IWeaponManager.ListCompatibleModifiersWithModule(in IWeapon wpn, in EWeaponSlots slot, out string[] sectionNames)
 	{
 		sectionNames = default;
-		if (Weapon.TryGetModuleSlot(wpn, slot, out WeaponModuleSlot moduleSlot))
+		if (WeaponBase.TryGetModuleSlot(wpn, slot, out WeaponModuleSlot moduleSlot))
 		{
 			sectionNames = GlobalManager.Configs.GetSectionsByContext("WeaponModulesModifiers")
 				.Where(s => moduleSlot.CanAssignModule(s, null))

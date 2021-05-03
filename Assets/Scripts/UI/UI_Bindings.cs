@@ -8,13 +8,14 @@ using OptionData = UnityEngine.UI.Dropdown.OptionData;
 
 public sealed class UI_Bindings : UI_Base, IStateDefiner
 {
-	static				List<OptionData>	m_KeyStateDropDownList				= null;
+	private	static		List<OptionData>	m_KeyStateDropDownList				= null;
 	private				GameObject			m_UI_CommandRow						= null;
 	private				GameObject			m_UI_CommandRow_Separator			= null;
 	private				Transform			m_ScrollContentTransform			= null;
 	private				Transform			m_BlockPanel						= null;
 	private				Button				m_ApplyButton						= null;
 	private				Button				m_BackButton						= null;
+	private				Coroutine			m_KeyAssignmentCO					= null;
 
 	private				bool				m_IsInitialized						= false;
 						bool				IStateDefiner.IsInitialized			=> m_IsInitialized;
@@ -64,7 +65,41 @@ public sealed class UI_Bindings : UI_Base, IStateDefiner
 				m_BackButton.onClick.AddListener(() => UIManager.Instance.GoBack());
 			}
 
-			FillGrid();
+			// Fill Grid
+			{
+				// Clear the content of scroll view
+				foreach (Transform t in m_ScrollContentTransform)
+				{
+					Destroy(t.gameObject);
+				}
+				m_ScrollContentTransform.DetachChildren();
+
+				for (EInputCategory category = EInputCategory.NONE; category < EInputCategory.ALL; category++)
+				{
+					var bindingsPerCategory = GlobalManager.InputMgr.Bindings.Where(p => p.Category == category);
+					
+					// Skip categories with no bindings TODO this should should be fixed
+					if (bindingsPerCategory.Count() > 0) 
+					{
+						GameObject separator = Instantiate(m_UI_CommandRow_Separator);
+						{
+							separator.transform.SetParent(m_ScrollContentTransform);
+							separator.transform.localScale = Vector3.one;
+							separator.name = category.ToString();
+
+							if (CustomAssertions.IsTrue(separator.transform.TrySearchComponentByChildIndex(0, out Text textComponent)))
+							{
+								textComponent.text = textComponent.text.Replace("TO_REPLACE", category.ToString());
+							}
+						}
+
+						foreach (KeyCommandPair keyCommandPair in bindingsPerCategory)
+						{
+							CreateGridElement(keyCommandPair);
+						}
+					}
+				}
+			}
 
 			// disable navigation for everything
 			Navigation noNavigationMode = new Navigation() { mode = Navigation.Mode.None };
@@ -91,12 +126,25 @@ public sealed class UI_Bindings : UI_Base, IStateDefiner
 		return m_IsInitialized;
 	}
 
+
 	//////////////////////////////////////////////////////////////////////////
 	private void OnEnable()
 	{
 		CustomAssertions.IsTrue(m_IsInitialized);
 
 		m_ApplyButton.interactable = false;
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	private void OnDisable()
+	{
+		if (m_KeyAssignmentCO.IsNotNull())
+		{
+			CoroutinesManager.Stop(m_KeyAssignmentCO);
+		}
+
+		m_BlockPanel.gameObject.SetActive(false);
 	}
 
 
@@ -135,6 +183,7 @@ public sealed class UI_Bindings : UI_Base, IStateDefiner
 			if (CustomAssertions.IsTrue(primaryKeyChoiceButton.transform.TrySearchComponentByChildIndex(0, out Text label)))
 			{
 				label.text = info.PrimaryKey.ToString();
+				info.SetUIPrimaryLabel(label);
 				primaryKeyChoiceButton.onClick.AddListener(() => OnKeyChoiceButtonClicked(info, EKeySlot.PRIMARY, label));
 			}
 		}
@@ -158,6 +207,7 @@ public sealed class UI_Bindings : UI_Base, IStateDefiner
 			if (CustomAssertions.IsTrue(secondaryKeyChoiceButton.transform.TrySearchComponentByChildIndex(0, out Text label)))
 			{
 				label.text = info.SecondaryKey.ToString();
+				info.SetUISecondaryLabel(label);
 				secondaryKeyChoiceButton.onClick.AddListener(() => OnKeyChoiceButtonClicked(info, EKeySlot.SECONDARY, label));
 			}
 		}
@@ -165,45 +215,14 @@ public sealed class UI_Bindings : UI_Base, IStateDefiner
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private void FillGrid()
-	{
-		// Clear the content of scroll view
-		foreach (Transform t in m_ScrollContentTransform)
-		{
-			Destroy(t.gameObject);
-		}
-
-		for (EInputCategory category = EInputCategory.NONE + 1; category < EInputCategory.ALL; category++)
-		{
-			GameObject separator = Instantiate(m_UI_CommandRow_Separator);
-			{
-				separator.transform.SetParent(m_ScrollContentTransform);
-				separator.transform.localScale = Vector3.one;
-				separator.name = category.ToString();
-
-				if (CustomAssertions.IsTrue(separator.transform.TrySearchComponentByChildIndex(0, out Text textComponent)))
-				{
-					textComponent.text = textComponent.text.Replace("TO_REPLACE", category.ToString());
-				}
-			}
-
-			GlobalManager.InputMgr.Bindings.Where(p => p.Category == category).ToList().ForEach(CreateGridElement);
-		}
-
-
-		// Fill the grid
-	//	System.Array.ForEach(GlobalManager.InputMgr.Bindings, CreateGridElement);
-	}
-
-
 	private static bool IsLegalKeyCode(in KeyCode keyCode)
 	{
-		return keyCode > KeyCode.None
-			&& keyCode < KeyCode.F1 && keyCode > KeyCode.F15
-			&& keyCode != KeyCode.Escape
-			&& keyCode != KeyCode.LeftWindows && keyCode != KeyCode.RightWindows
-			&& keyCode != KeyCode.LeftCommand && keyCode != KeyCode.RightCommand
-			;
+		bool result = keyCode > KeyCode.None;
+		result &= keyCode < KeyCode.F1 || keyCode > KeyCode.F15;
+		result &= keyCode != KeyCode.Escape;
+		result &= keyCode != KeyCode.LeftWindows && keyCode != KeyCode.RightWindows;
+		result &= keyCode != KeyCode.LeftCommand && keyCode != KeyCode.RightCommand;
+		return result;
 	}
 
 
@@ -235,6 +254,7 @@ public sealed class UI_Bindings : UI_Base, IStateDefiner
 				yield return null;
 			}
 		}
+		m_KeyAssignmentCO = null;
 		m_BlockPanel.gameObject.SetActive(false);
 	}
 
@@ -256,7 +276,7 @@ public sealed class UI_Bindings : UI_Base, IStateDefiner
 
 			buttonLabel.text = info.GetKeyState(Key).ToString();
 
-			RefreshLabels();
+		//	FillGrid();
 
 			m_ApplyButton.interactable = true;
 		}
@@ -264,91 +284,48 @@ public sealed class UI_Bindings : UI_Base, IStateDefiner
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private void OnKeyChoiceButtonClicked(KeyCommandPair info, EKeySlot keySlot, Text buttonLabel)
+	private void OnKeyChoiceButtonClicked(KeyCommandPair info, EKeySlot keySlot, Text thisButtonLabel)
 	{
-		KeyCode currentKey = info.GetKeyCode(keySlot);
+		KeyCode currentAssignedKey = info.GetKeyCode(keySlot);
 
-		void OnKeyAssigned()
+		void OnKeyAssigned(KeyCode newKeyCode, KeyCode? otherKeyCode, Text otherButtonLabel)
 		{
-			buttonLabel.text = currentKey.ToString();
-
-			RefreshLabels();
+			// Key has been replace
+			if (otherButtonLabel)
+			{
+				CustomAssertions.IsTrue(otherKeyCode.HasValue);
+				otherButtonLabel.text = currentAssignedKey.ToString();
+				thisButtonLabel.text = otherKeyCode.ToString();
+			}
+			else
+			{
+				thisButtonLabel.text = newKeyCode.ToString();
+			}
 
 			m_ApplyButton.interactable = true;
 		}
 
 		// Create callback for key assigning
-		void OnKeyPressed(KeyCode keyCode)
+		void OnKeyPressed(KeyCode newKeyCode)
 		{
-			if (!GlobalManager.InputMgr.HasKeyCodeAlreadyBeenAssigned(info.Command, keySlot, keyCode, out KeyCommandPair otherPair))
+			if (GlobalManager.InputMgr.HasKeyCodeAlreadyBeenAssigned(info.Command, keySlot, newKeyCode, out KeyCommandPair otherPair, out EKeySlot alreadyInUseKeySlot))
 			{
-				CustomAssertions.IsTrue(GlobalManager.InputMgr.TryAssignNewKeyCode(info.Command, keySlot, keyCode, bMustSwap: false));
-
-				OnKeyAssigned();
-			}
-			else
-			{
+				Text otherLabel = alreadyInUseKeySlot == EKeySlot.PRIMARY ? otherPair.PrimaryLabel : otherPair.SecondaryLabel;
 				void OnConfirm()
 				{
-					CustomAssertions.IsTrue(GlobalManager.InputMgr.TryAssignNewKeyCode(info.Command, keySlot, keyCode, bMustSwap: true));
+					OnKeyAssigned(newKeyCode, otherPair.GetKeyCode(alreadyInUseKeySlot), otherLabel);
 
-					OnKeyAssigned();
+					CustomAssertions.IsTrue(GlobalManager.InputMgr.TryAssignNewKeyCode(info.Command, keySlot, newKeyCode, bMustSwap: true));
 				};
 				UIManager.Confirmation.Show("Confirm key substitution?", OnConfirm);
 			}
+			else
+			{
+				CustomAssertions.IsTrue(GlobalManager.InputMgr.TryAssignNewKeyCode(info.Command, keySlot, newKeyCode, bMustSwap: false));
+
+				OnKeyAssigned(newKeyCode, null, null);
+			}
 		};
-		CoroutinesManager.Start(WaitForKeyCO(currentKey, OnKeyPressed), "UI_Bindings::OnKeyChoiceButtonClicked: Waiting for button press");
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	private void RefreshLabels()
-	{
-		void UpdateCommandRow(Transform commandRow, KeyCommandPair info)
-		{
-			// Primary KeyState Dropdown
-			if (CustomAssertions.IsTrue(commandRow.transform.TrySearchComponentByChildIndex(1, out Dropdown primaryKeyStateDropdown)))
-			{
-				if (CustomAssertions.IsTrue(primaryKeyStateDropdown.transform.TrySearchComponentByChildIndex(0, out Text label)))
-				{
-					label.text = info.PrimaryKeyState.ToString();
-				}
-			}
-
-			// Primary Key Choice Button
-			if (CustomAssertions.IsTrue(commandRow.transform.TrySearchComponentByChildIndex(2, out Button primaryKeyChoiceButton)))
-			{
-				if (CustomAssertions.IsTrue(primaryKeyChoiceButton.transform.TrySearchComponentByChildIndex(0, out Text label)))
-				{
-					label.text = info.PrimaryKey.ToString();
-				}
-			}
-
-			// Secondary KeyState Dropdown
-			if (CustomAssertions.IsTrue(commandRow.transform.TrySearchComponentByChildIndex(3, out Dropdown secondaryKeyStateDropdown)))
-			{
-				if (CustomAssertions.IsTrue(secondaryKeyStateDropdown.transform.TrySearchComponentByChildIndex(0, out Text label)))
-				{
-					label.text = info.SecondaryKeyState.ToString();
-				}
-			}
-
-			// Secondary Key Choice Button
-			if (CustomAssertions.IsTrue(commandRow.transform.TrySearchComponentByChildIndex(4, out Button secondaryKeyChoiceButton)))
-			{
-				if (CustomAssertions.IsTrue(secondaryKeyChoiceButton.transform.TrySearchComponentByChildIndex(0, out Text label)))
-				{
-					label.text = info.SecondaryKey.ToString();
-				}
-			}
-		}
-
-		KeyCommandPair[] bindings = GlobalManager.InputMgr.Bindings;
-		for (int i = 0; i < bindings.Length; i++)
-		{
-			KeyCommandPair binding = bindings[i];
-			Transform commandRow = m_ScrollContentTransform.GetChild(i);
-			UpdateCommandRow(commandRow, binding);
-		}
+		m_KeyAssignmentCO = CoroutinesManager.Start(WaitForKeyCO(currentAssignedKey, OnKeyPressed), "UI_Bindings::OnKeyChoiceButtonClicked: Waiting for button press");
 	}
 }

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
-using System.Collections;
 
-namespace WeatherSystem {
+namespace WeatherSystem
+{
 
 	[System.Serializable]
 	public class EnvDescriptor : ScriptableObject {

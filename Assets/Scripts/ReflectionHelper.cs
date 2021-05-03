@@ -48,7 +48,7 @@ public static class ReflectionHelper
 	/// <param name="propertyName"></param>
 	/// <param name="value"></param>
 	/// <returns></returns>
-	public static bool GetPropertyValue(in object obj, in string propertyName, out object value)
+	public static bool GetPropertyValue<T>(in object obj, in string propertyName, out T value)
 	{
 		value = default;
 		bool logger_canTalk = GlobalManager.LoggerInstance?.CanTalk() ?? false;
@@ -61,11 +61,11 @@ public static class ReflectionHelper
 				MethodInfo getMethodInfo = propertyInfo.GetGetMethod();
 				if (getMethodInfo.IsNotNull())
 				{
-					value = getMethodInfo.Invoke(obj, null);
+					value = (T)getMethodInfo.Invoke(obj, null);
 				}
 				else
 				{
-					value = propertyInfo.GetValue(obj);
+					value = (T)propertyInfo.GetValue(obj);
 				}
 			}
 			catch (System.Exception) { bResult = false; }
@@ -113,7 +113,7 @@ public static class ReflectionHelper
 	/// <param name="fieldName"></param>
 	/// <param name="value"></param>
 	/// <returns></returns>
-	public static bool GetFieldValue(in object obj, in string fieldName, out object value)
+	public static bool GetFieldValue<T>(in object obj, in string fieldName, out T value)
 	{
 		value = default;
 		bool logger_canTalk = GlobalManager.LoggerInstance?.CanTalk() ?? false;
@@ -123,7 +123,7 @@ public static class ReflectionHelper
 			FieldInfo fieldInfo = obj.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 			try
 			{
-				value = fieldInfo.GetValue(obj);
+				value = (T)fieldInfo.GetValue(obj);
 			}
 			catch (System.Exception) { bResult = false; }
 		}

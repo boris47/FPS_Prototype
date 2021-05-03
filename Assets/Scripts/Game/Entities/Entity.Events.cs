@@ -180,7 +180,7 @@ public abstract partial class Entity : MonoBehaviour
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		void		OnShieldHit( Vector3 startPosition, Entity whoRef, Weapon weaponRef, EDamageType damageType, float damage, bool canPenetrate = false )
+	protected	virtual		void		OnShieldHit( Vector3 startPosition, Entity whoRef, WeaponBase weaponRef, EDamageType damageType, float damage, bool canPenetrate = false )
 	{
 		// Notify this entity of the received hit
 		NotifyHit(startPosition, whoRef, damageType, damage, canPenetrate);

@@ -1,7 +1,4 @@
-﻿
-using System.Collections;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine.UI;
 
 public sealed class UI_Audio : UI_Base, IStateDefiner
 {

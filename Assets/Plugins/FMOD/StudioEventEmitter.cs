@@ -1,10 +1,9 @@
 ﻿using UnityEngine;
 using System;
-using System.Collections.Generic;
 
 namespace FMODUnity
 {
-    [AddComponentMenu("FMOD Studio/FMOD Studio Event Emitter")]
+	[AddComponentMenu("FMOD Studio/FMOD Studio Event Emitter")]
     public class StudioEventEmitter : MonoBehaviour
     {
         [EventRef]

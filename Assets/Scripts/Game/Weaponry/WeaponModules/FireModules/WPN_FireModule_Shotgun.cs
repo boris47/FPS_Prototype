@@ -3,46 +3,18 @@
 
 public class WPN_FireModule_Shotgun : WPN_FireModule
 {
-	[SerializeField]
-	protected			float			m_BasePerShotFireDispersion = 0.2f;
+//	[SerializeField]
+//	protected			float			m_BasePerShotFireDispersion = 0.2f;
 
 	public	override	EFireMode		FireMode => EFireMode.NONE;
 
 	//////////////////////////////////////////////////////////////////////////
 	protected override bool InternalSetup(Database.Section moduleSection)
 	{
-		m_BasePerShotFireDispersion = moduleSection.AsFloat("BasePerShotFireDispersion", m_BasePerShotFireDispersion);
+//		m_BasePerShotFireDispersion = moduleSection.AsFloat("BasePerShotFireDispersion", m_BasePerShotFireDispersion);
 		return true;
 	}
-
-	//////////////////////////////////////////////////////////////////////////
-	public override void ApplyModifier(Database.Section modifier)
-	{
-		base.ApplyModifier(modifier);
-
-		float MultPerShotFireDispersion = modifier.AsFloat("MultPerShotFireDispersion", 1.0f);
-		float MultBucketSize = modifier.AsFloat("MultBucketSize", 1.0f);
-
-		m_BasePerShotFireDispersion = m_BasePerShotFireDispersion * MultPerShotFireDispersion;
-		m_BaseBulletsPerShot = (uint)((float)m_BaseBulletsPerShot * MultBucketSize);
-	}
-
-	//////////////////////////////////////////////////////////////////////////
-	public override void ResetBaseConfiguration()
-	{
-		base.ResetBaseConfiguration();
-
-		// Do actions here
-	}
-
-	//////////////////////////////////////////////////////////////////////////
-	public override void RemoveModifier(Database.Section modifier)
-	{
-		base.RemoveModifier(modifier);
-
-		// Do Actions here
-	}
-
+	
 	//////////////////////////////////////////////////////////////////////////
 	public override bool OnSave(StreamUnit streamUnit)
 	{
@@ -60,13 +32,13 @@ public class WPN_FireModule_Shotgun : WPN_FireModule
 	//////////////////////////////////////////////////////////////////////////
 	public override bool NeedReload()
 	{
-		return m_Magazine == 0 || m_Magazine < m_MagazineCapacity;
+		return m_Magazine == 0 || m_Magazine < m_FireModuleData.MagazineCapacity;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	public override void OnAfterReload()
 	{
-		m_Magazine = m_MagazineCapacity;
+		m_Magazine = m_FireModuleData.MagazineCapacity;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -85,9 +57,10 @@ public class WPN_FireModule_Shotgun : WPN_FireModule
 	protected override void Shoot(float moduleFireDispersion, float moduleCamDeviation)
 	{
 		m_Magazine--;
-		for (uint i = 0; i < m_BaseBulletsPerShot; i++)
+		float perShotDispersion = moduleFireDispersion / m_FireModuleData.BulletsPerShot;
+		for (uint i = 0; i < m_FireModuleData.BulletsPerShot; i++)
 		{
-			InternalShoot(moduleFireDispersion, moduleCamDeviation);
+			InternalShoot(perShotDispersion);
 		}
 
 		EffectsManager.Instance.PlayEffect(EffectsManager.EEffecs.MUZZLE, m_FirePoint.position, m_FirePoint.forward, 4);
@@ -95,21 +68,21 @@ public class WPN_FireModule_Shotgun : WPN_FireModule
 
 		m_AudioSourceFire.Play();
 
-		// CAM DEVIATION
-		m_WeaponRef.ApplyDeviation(moduleCamDeviation);
+		// WEAPON DEVIATION
+		WeaponPivot.Instance.ApplyDeviation(moduleCamDeviation);
 
 		// CAM DISPERSION
-		m_WeaponRef.ApplyDispersion(moduleFireDispersion);
+		WeaponPivot.Instance.ApplyDispersion(moduleFireDispersion);
 
 		// CAM RECOIL
-		m_WeaponRef.AddRecoil(m_Recoil);
+		WeaponPivot.Instance.AddRecoil(m_FireModuleData.Recoil);
 
 		// UI ELEMENTS
 		UIManager.InGame.UpdateUI();
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	protected void InternalShoot(float moduleFireDispersion, float moduleCamDeviation)
+	protected void InternalShoot(float moduleFireDispersion)
 	{
 		// BULLET
 		IBullet bullet = m_PoolBullets.GetNextComponent();
@@ -120,15 +93,15 @@ public class WPN_FireModule_Shotgun : WPN_FireModule
 		// DIRECTION
 		Vector3 dispersionVector = new Vector3
 		(
-			Random.Range(-m_BasePerShotFireDispersion, m_BasePerShotFireDispersion),
-			Random.Range(-m_BasePerShotFireDispersion, m_BasePerShotFireDispersion),
-			Random.Range(-m_BasePerShotFireDispersion, m_BasePerShotFireDispersion)
+			Random.Range(-moduleFireDispersion, moduleFireDispersion),
+			Random.Range(-moduleFireDispersion, moduleFireDispersion),
+			Random.Range(-moduleFireDispersion, moduleFireDispersion)
 		);
 
 		Vector3 direction = (m_FirePoint.forward + dispersionVector).normalized;
 
 		// SHOOT
-		bullet.Shoot(position: position, direction: direction, velocity: null, impactForceMultiplier: null);
+		bullet.Shoot(origin: position, direction: direction, velocity: m_FireModuleData.BulletVelocity, impactForceMultiplier: m_FireModuleData.ImpactForceMultiplier);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -144,7 +117,7 @@ public class WPN_FireModule_Shotgun : WPN_FireModule
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	protected override void InternalUpdate(float DeltaTime)
+	protected override void OnFrame(float DeltaTime)
 	{
 		m_WpnFireMode.InternalUpdate(DeltaTime, m_Magazine);
 	}

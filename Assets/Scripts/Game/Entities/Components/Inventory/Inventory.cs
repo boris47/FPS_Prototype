@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-
-public interface IEntityComponent_Inventory
+﻿public interface IEntityComponent_Inventory
 {
 	/// <summary>  </summary>
 	void			AddInventoryItem				(string ItemSectionName);

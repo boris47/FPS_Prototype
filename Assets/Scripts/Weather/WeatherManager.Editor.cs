@@ -1,11 +1,9 @@
-
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 
 #if UNITY_EDITOR
-namespace WeatherSystem {
+namespace WeatherSystem
+{
 
 	// Public interface
 	public partial interface IWeatherManager_Editor {

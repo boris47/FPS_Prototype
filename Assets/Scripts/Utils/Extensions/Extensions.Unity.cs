@@ -1,9 +1,7 @@
 ﻿
 using UnityEngine;
 using System.Linq;
-using System.Reflection;
 using System.Collections.Generic;
-using System.IO;
 
 public static class Extensions_Unity
 {
@@ -27,7 +25,7 @@ public static class Extensions_Unity
 	/////////////////////////////////////////////////////////////////////////////
 	public static	bool			GetClipFromAnimator( this Animator animator, string name, ref AnimationClip result )
 	{
-		if ( animator.runtimeAnimatorController == null || animator.runtimeAnimatorController.animationClips.Length == 0 )
+		if (animator.runtimeAnimatorController == null || animator.runtimeAnimatorController.animationClips.Length == 0)
 		{
 			return false;
 		}
@@ -35,11 +33,11 @@ public static class Extensions_Unity
 		AnimationClip[] animationClips = animator.runtimeAnimatorController.animationClips;
 		int arraySize = animationClips.Length;
 		bool bIsClipFound = false;
-		for ( int i = 0; i < arraySize && bIsClipFound == false; i++ )
+		for (int i = 0; i < arraySize && bIsClipFound == false; i++)
 		{
 			AnimationClip clip = animationClips[i];
 
-			if ( clip.name == name )
+			if (clip.name == name)
 			{
 				bIsClipFound = true;
 				result = clip;
@@ -56,9 +54,54 @@ public static class Extensions_Unity
 	/////////////////////////////////////////////////////////////////////////////
 	#region TRANSFORM
 
-		/////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Return true if a path to searched child is found, otherwise return false </summary>
+	public static bool				TryGetChildPath(this Transform transform, out string pathToChild, System.Predicate<Transform> predicate)
+	{
+		CustomAssertions.IsNotNull(predicate);
+		pathToChild = default;
+		bool bFound = false;
+
+		List<string> pathAsList = new List<string>();
+		bool SearchForrequestedChild(Transform currentTransform)
+		{
+			foreach (Transform child in currentTransform)
+			{
+				int index = pathAsList.Count;
+				pathAsList.Add(child.name);
+
+				// Is this the child we are searching for?
+				if (bFound = predicate(child))
+				{
+					break;  // has been found
+				}
+				else
+				{
+					if (SearchForrequestedChild(child))
+					{
+						break; // has been found
+					}
+					else
+					{
+						pathAsList.RemoveAt(index);
+					}
+				}
+			}
+
+			return bFound;
+		}
+
+		SearchForrequestedChild(transform);
+		if (pathAsList.Count > 0)
+		{
+			pathToChild = string.Join("/", pathAsList);
+		}
+		return pathAsList.Count > 0;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Return true if component is found, otherwise return false </summary>
-	public static	void			SetLocalPositionAndRotation<T>( this Transform transform, in Vector3 localPosition, in Quaternion localRotation ) where T : Component
+	public static	void			SetLocalPositionAndRotation( this Transform transform, in Vector3 localPosition, in Quaternion localRotation )
 	{
 		transform.localPosition = localPosition;
 		transform.localRotation = localRotation;

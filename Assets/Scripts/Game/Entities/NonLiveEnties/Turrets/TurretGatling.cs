@@ -1,7 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
-
-public class TurretGatling : Turret {
+﻿public class TurretGatling : Turret {
 
 //	private	const	float		FIRE_SPREAD					= 0.03f;
 //	private	const	float		MAX_ROTATION_SPEED			= 3000f;

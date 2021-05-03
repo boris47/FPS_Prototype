@@ -14,21 +14,36 @@ public class DecalsManager : OnDemandSingleton<DecalsManager>
 	{
 		base.Awake();
 
+		void ActionOnDecal(Decal decal)
+		{
+			decal.gameObject.SetActive(false);
+		}
+
 		void StartPoolCreation(GameObject prefab)
 		{
 			var options = new GameObjectsPoolConstructorData<Decal>(model: prefab, size: 200)
 			{
 				ContainerName = "DecalsContainer",
 				IsAsyncBuild = true,
+				ActionOnObject = ActionOnDecal
 			};
 			m_DecalsPool = new GameObjectsPool<Decal>(options);
 		}
 		ResourceManager.LoadResourceAsync<GameObject>
 		(
-			resourcePath:			"Prefabs/UI/UI_CommandRow",
+			resourcePath:			"Prefabs/Decal",
 			onResourceLoaded:		StartPoolCreation,
 			onFailure:				resPath => Debug.LogError($"DecalsManager::OnInitialize: Cannot load {resPath}")
 		);
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	protected override void OnDestroy()
+	{
+		base.OnDestroy();
+
+		m_DecalsPool.Destroy();
 	}
 
 

@@ -8,7 +8,7 @@ public class BulletSyphon : BulletEnergy
 	{
 		base.Awake();
 
-		CustomAssertions.IsTrue(m_BulletMotionType == EBulletMotionType.INSTANT, $"Syphon bullet can only have motion type { EBulletMotionType.INSTANT.ToString()}");
+		CustomAssertions.IsTrue(m_BulletMotionType == EBulletMotionType.INSTANT, $"{GetType().Name} can only have motion type {EBulletMotionType.INSTANT.ToString()}");
 	}
 
 
@@ -20,12 +20,11 @@ public class BulletSyphon : BulletEnergy
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public override void Shoot(in Vector3 position, in Vector3 direction, in float? velocity, in float? impactForceMultiplier)
+	public override void Shoot(in Vector3 origin, in Vector3 direction, in float velocity, in float impactForceMultiplier)
 	{
-		float finalVelocity = (velocity ?? m_Velocity);
-		float finalImpactForceMultiplier = impactForceMultiplier ?? m_ImpactForceMultiplier;
-		transform.position = position;
-		ShootInstant(position, direction, finalVelocity, finalImpactForceMultiplier);
+		base.Shoot(origin, direction, velocity, impactForceMultiplier);
+
+		ShootInstant(origin, direction);
 	}
 
 

@@ -1,4 +1,4 @@
-﻿// C# example.
+// C# example.
 using System.Text;
 using System.Linq;
 using UnityEditor;

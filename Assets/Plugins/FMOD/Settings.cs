@@ -81,7 +81,11 @@ namespace FMODUnity
     #endif
     public class Settings : ScriptableObject
     {
-        const string SettingsAssetName = "FMODStudioSettings";
+		static Settings()
+		{
+		}
+
+		const string SettingsAssetName = "FMODStudioSettings";
 
         private static Settings instance = null;
 

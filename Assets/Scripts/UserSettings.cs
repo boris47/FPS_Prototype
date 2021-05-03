@@ -4,6 +4,36 @@ using System.Collections.Generic;
 
 namespace UserSettings
 {
+	class PPSettings<T> : System.IDisposable where T : struct
+	{
+		private		PostProcessingModel		m_Model			= null;
+		private		T						m_Settings		= default;
+
+		public PPSettings(PostProcessingModel model, out T OutSettings)
+		{
+			if (ReflectionHelper.GetFieldValue(model, "m_Settings", out OutSettings))
+			{
+				m_Model = model;
+			//	m_Settings = OutSettings;
+				AssignByRef(ref OutSettings, ref m_Settings);
+			}
+		}
+		void System.IDisposable.Dispose()
+		{
+			if (m_Settings.IsNotNull())
+			{
+				ReflectionHelper.SetFieldValue(m_Model, "m_Settings", m_Settings);
+			}
+		}
+
+		private static void AssignByRef(ref T objA, ref T objB)
+		{
+			objB = objA;
+		}
+	}
+
+
+
 	public static class AudioSettings
 	{
 		// Registry Keys
@@ -206,15 +236,14 @@ namespace UserSettings
 
 		}
 		private static VideoData m_VideoData = new VideoData();
+		private static Resolution[] m_AvailableResolutions = null;
 
 		public static ScreenData GetScreenData() => m_VideoData.ScreenData;
 		public static QualityData GetQualityData() => m_VideoData.QualityData;
 		public static FiltersData GetFiltersData() => m_VideoData.FiltersData;
 		public static PostProcessingData GetPostProcessingData() => m_VideoData.PostProcessingData;
-		public static PostProcessingProfile m_PP_Profile { get;  set; } = null;
-
-		private static Resolution[] m_AvailableResolutions = null;
 		public static Resolution[] GetAvailableResolutions() => m_AvailableResolutions;
+		public static PostProcessingProfile m_PP_Profile { get;  private set; } = null;
 
 		/////////////////////////////////////////////////////////////////
 		static VideoSettings()
@@ -286,13 +315,12 @@ namespace UserSettings
 		//////////////////////////////////////////////////////////////////////////
 		public static void OnAntialiasingSet(int newIndex)
 		{
-			m_VideoData.FiltersData.iAntialiasing = newIndex;
+			m_VideoData.FiltersData.iAntialiasing = Mathf.Clamp(newIndex, 0, 3);// Disabled, 2x, 4x, 8x
 			m_VideoData.FiltersData.isDirty = true;
+			m_VideoData.PostProcessingData.isDirty = true;
 
-			if (m_VideoData.PostProcessingData.bIsAntialiasingEnabled = newIndex > 0)
-			{
-				m_VideoData.PostProcessingData.eAntialiasingPreset = (AntialiasingModel.FxaaPreset)(newIndex - 1);
-			}
+			m_VideoData.PostProcessingData.bIsAntialiasingEnabled = newIndex > 0;
+			m_VideoData.PostProcessingData.eAntialiasingPreset = (AntialiasingModel.FxaaPreset)Mathf.Max(0, (newIndex - 1));
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -368,7 +396,7 @@ namespace UserSettings
 		//////////////////////////////////////////////////////////////////////////
 		public static void LoadOrSetDefaults()
 		{
-			if (PlayerPrefs.HasKey(FLAG_SAVED_GRAPHIC_SETTINGS) == true)
+			if (PlayerPrefs.HasKey(FLAG_SAVED_GRAPHIC_SETTINGS))
 			{
 				ReadFromRegistry();
 			}
@@ -403,7 +431,7 @@ namespace UserSettings
 
 				// Post-Processing
 				m_VideoData.PostProcessingData.bIsAntialiasingEnabled = false;
-				m_VideoData.PostProcessingData.eAntialiasingPreset = AntialiasingModel.FxaaPreset.Default;
+				m_VideoData.PostProcessingData.eAntialiasingPreset = AntialiasingModel.FxaaPreset.ExtremePerformance;
 				m_VideoData.PostProcessingData.bIsAmbientOcclusionEnabled = false;
 				m_VideoData.PostProcessingData.iAmbientOcclusionLvlIdx = 0;
 				m_VideoData.PostProcessingData.bIsScreenSpaceReflectionEnabled = false;
@@ -474,6 +502,15 @@ namespace UserSettings
 					}
 					{   // Chromatic Aberration
 						m_PP_Profile.chromaticAberration.enabled = m_VideoData.PostProcessingData.bIsChromaticAberrationEnabled;
+
+					}
+					{   // Anti-Aliasing
+						m_PP_Profile.antialiasing.enabled = m_VideoData.PostProcessingData.bIsAntialiasingEnabled;
+
+				//		using (new PPSettings<AntialiasingModel.Settings>(m_PP_Profile.antialiasing, out AntialiasingModel.Settings settings))
+						{
+				//			settings.fxaaSettings.preset = m_VideoData.PostProcessingData.eAntialiasingPreset;
+						}
 					}
 				}
 			}
@@ -482,7 +519,12 @@ namespace UserSettings
 			if (m_VideoData.ScreenData.isDirty)
 			{
 				m_VideoData.ScreenData.isDirty = false;
-				Screen.SetResolution( width: m_VideoData.ScreenData.resolution.width, height: m_VideoData.ScreenData.resolution.height, fullscreen: m_VideoData.ScreenData.bIsFullScreen );
+				Screen.SetResolution(
+					width: m_VideoData.ScreenData.resolution.width,
+					height: m_VideoData.ScreenData.resolution.height,
+					fullscreen: m_VideoData.ScreenData.bIsFullScreen,
+					preferredRefreshRate: m_VideoData.ScreenData.resolution.refreshRate
+				);
 				m_OnResolutionChanged(m_VideoData.ScreenData.resolution.width, m_VideoData.ScreenData.resolution.height);
 			}
 
@@ -492,7 +534,7 @@ namespace UserSettings
 				m_VideoData.FiltersData.isDirty = false;
 
 				QualitySettings.anisotropicFiltering = m_VideoData.FiltersData.bHasAnisotropicFilter ? AnisotropicFiltering.Enable : AnisotropicFiltering.Disable;
-				QualitySettings.antiAliasing = m_VideoData.FiltersData.iAntialiasing * 2;
+				QualitySettings.antiAliasing = (int)Mathf.Pow(2.0f, m_VideoData.FiltersData.iAntialiasing);
 			}
 
 			// Quality

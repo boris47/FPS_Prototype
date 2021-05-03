@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
 
 #if UNITY_EDITOR
 
 using UnityEditor;
 
-namespace WeatherSystem {
+namespace WeatherSystem
+{
 
 	public class WindowWeatherEditor : EditorWindow {
 

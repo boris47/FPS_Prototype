@@ -1,16 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class CameraMouseRotate : MonoBehaviour {
     public Transform target;
     public float RotationSpeed = 1f;
     private bool mLeft = true;
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
+    
 	// Update is called once per frame
 	void Update () {
         transform.LookAt(target);

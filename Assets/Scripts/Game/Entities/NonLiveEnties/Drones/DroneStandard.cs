@@ -1,7 +1,3 @@
-﻿
-using UnityEngine;
-using System.Collections;
-
-public class DroneStandard : Drone {
+﻿public class DroneStandard : Drone {
 
 }

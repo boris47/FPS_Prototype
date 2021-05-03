@@ -1,12 +1,11 @@
 
 
 using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 
 // REF: https://github.com/forrestthewoods/lib_fts/tree/master/projects/unity/ballistic_trajectory
 
-namespace Utils {
+namespace Utils
+{
 
 	public class BallisticTrajectories {
 

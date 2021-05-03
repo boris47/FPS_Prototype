@@ -52,10 +52,11 @@ public abstract class BulletExplosive : BulletGeneric, IExplosive
 	{
 		base.SetupBullet();
 
-		m_BlowOnHit = m_BulletSection.AsBool("bBlowOnHit", m_BlowOnHit);
-		m_AttachOnHit = m_BulletSection.AsBool("bAttachOnHit", m_AttachOnHit);
-		m_BlastRadius = m_BulletSection.AsFloat("fBlastRadius", m_BlastRadius);
-		m_BlastDamage = m_BulletSection.AsFloat("fBlastDamage", m_BlastDamage);
+		CustomAssertions.IsTrue(m_BulletSection.TryAsBool("BlowOnHit", out m_BlowOnHit));
+		CustomAssertions.IsTrue(m_BulletSection.TryAsBool("AttachOnHit", out m_AttachOnHit));
+
+		CustomAssertions.IsTrue(m_BulletSection.TryAsFloat("BlastRadius", out m_BlastRadius));
+		CustomAssertions.IsTrue(m_BulletSection.TryAsFloat("BlastDamage", out m_BlastDamage));
 	}
 
 
@@ -89,6 +90,20 @@ public abstract class BulletExplosive : BulletGeneric, IExplosive
 		m_Renderer.enabled				= false;
 
 		base.OnDisable();
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public override void Shoot(in Vector3 origin, in Vector3 direction, in float velocity, in float impactForceMultiplier)
+	{
+		base.Shoot(origin, direction, velocity, impactForceMultiplier);
+
+		switch (m_BulletMotionType)
+		{
+			case EBulletMotionType.INSTANT:		ShootInstant(origin, direction);	break;
+			case EBulletMotionType.DIRECT:		ShootDirect(origin, direction);		break;
+			case EBulletMotionType.PARABOLIC:	ShootParabolic(origin, direction);	break;
+		}
 	}
 
 

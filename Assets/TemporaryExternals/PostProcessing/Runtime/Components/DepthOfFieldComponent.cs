@@ -1,10 +1,8 @@
-using UnityEngine.Rendering;
-
 namespace UnityEngine.PostProcessing
 {
-    using DebugMode = BuiltinDebugViewsModel.Mode;
+	using DebugMode = BuiltinDebugViewsModel.Mode;
 
-    public sealed class DepthOfFieldComponent : PostProcessingComponentRenderTexture<DepthOfFieldModel>
+	public sealed class DepthOfFieldComponent : PostProcessingComponentRenderTexture<DepthOfFieldModel>
     {
         static class Uniforms
         {

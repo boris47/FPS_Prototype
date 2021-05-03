@@ -19,13 +19,21 @@ public sealed class GranadeFrammentation : BulletExplosive, ITimedExplosive
 	private		Collider[]				m_SphereResults										= new Collider[100];
 
 
+	//////////////////////////////////////////////////////////////////////////
+	protected override void Awake()
+	{
+		base.Awake();
+
+		CustomAssertions.IsTrue(m_BulletMotionType == EBulletMotionType.PARABOLIC, $"{GetType().Name} can only have motion type {EBulletMotionType.PARABOLIC.ToString()}");
+	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	protected override void SetupBullet()
 	{
 		base.SetupBullet();
 
-		m_ExplosionDelay = m_BulletSection.AsFloat("fExplosionDelay", m_ExplosionDelay);
+		CustomAssertions.IsTrue(m_BulletSection.TryAsFloat("ExplosionDelay", out m_ExplosionDelay));
 	}
 
 
@@ -46,12 +54,11 @@ public sealed class GranadeFrammentation : BulletExplosive, ITimedExplosive
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public override void Shoot(in Vector3 position, in Vector3 direction, in float? velocity, in float? impactForceMultiplier)
+	public override void Shoot(in Vector3 origin, in Vector3 direction, in float velocity, in float impactForceMultiplier)
 	{
-		transform.position = position;
-		m_StartPosition = position;
-		m_ImpactForceMultiplier = impactForceMultiplier ?? m_ImpactForceMultiplier;
-		m_RigidBody.velocity = direction * (velocity ?? m_Velocity);
+		base.Shoot(origin, direction, velocity, impactForceMultiplier);
+
+		ShootParabolic(origin, direction);
 	}
 
 
@@ -99,7 +106,7 @@ public sealed class GranadeFrammentation : BulletExplosive, ITimedExplosive
 			}
 		}
 		EffectsManager.Instance.PlayEffect(EffectsManager.EEffecs.EXPLOSION, transform.position, Vector3.up, 0);
-		enabled = false;
+		gameObject.SetActive(false);
 	}
 
 

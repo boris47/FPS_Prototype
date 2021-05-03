@@ -1,7 +1,4 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
-
-public interface IInventory_Player : IEntityComponent_Inventory
+﻿public interface IInventory_Player : IEntityComponent_Inventory
 {
 
 }

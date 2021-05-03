@@ -1,6 +1,4 @@
-﻿
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 
 public sealed class CinematicCamera : CameraBase
@@ -125,7 +123,7 @@ public sealed class CinematicCamera : CameraBase
 		float deltaTime = GameManager.IsPaused ? 0f : Time.deltaTime;
 
 		// Update effectors
-		m_CameraEffectorsManager.Update(deltaTime);
+		m_CameraEffectorsManager.OnFrame(deltaTime);
 	}
 
 

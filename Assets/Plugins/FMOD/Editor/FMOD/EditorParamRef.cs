@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEditor;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace FMODUnity
 {
-    public class EditorParamRef : ScriptableObject
+	public class EditorParamRef : ScriptableObject
     {
         [SerializeField]
         public string Name;

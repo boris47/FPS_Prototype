@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 using UnityEditor;
 
 namespace FMODUnity
 {
-    class CreateEventPopup : EditorWindow
+	class CreateEventPopup : EditorWindow
     {        
         class FolderEntry
         {

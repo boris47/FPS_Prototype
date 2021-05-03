@@ -1,7 +1,6 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 
 public interface IStateDefiner
@@ -248,7 +247,7 @@ public sealed class UIManager : MonoBehaviourSingleton<UIManager>, IUI
 			case ESceneEnumeration.NONE:
 			case ESceneEnumeration.COUNT:
 			{
-				Debug.LogError("Shoud never happen");
+				Debug.LogError($"Shoud never happen: scene is {scene}");
 				break;
 			}
 			case ESceneEnumeration.MAIN_MENU:

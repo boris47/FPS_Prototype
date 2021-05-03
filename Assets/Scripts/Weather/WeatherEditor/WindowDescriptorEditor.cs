@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
-using Database;
 
 #if UNITY_EDITOR
 
 using UnityEditor;
 
-namespace WeatherSystem {
+namespace WeatherSystem
+{
 
 	public class WindowDescriptorEditor : EditorWindow {
 	

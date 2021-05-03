@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,7 +7,6 @@ public sealed class UI_WeaponCustomization : UI_Base, IStateDefiner
 {
 	private				Dropdown							m_PrimaryDropDown					= null;
 	private				Dropdown							m_SecondaryDropDown					= null;
-	private				Dropdown							m_TertiaryDropDown					= null;
 
 	private				Button								m_ReturnToGame						= null;
 	private				Button								m_SwitchToInventory					= null;
@@ -19,9 +17,8 @@ public sealed class UI_WeaponCustomization : UI_Base, IStateDefiner
 
 	private readonly Dictionary<EWeaponSlots, Database.Section> m_CurrentAssignedModuleSections = new Dictionary<EWeaponSlots, Database.Section>()
 //	{
-//		{ EWeaponSlots.PRIMARY,		new Database.Section( "WPN_BaseModuleEmpty", "Unassigned" ) },
-//		{ EWeaponSlots.SECONDARY,	new Database.Section( "WPN_BaseModuleEmpty", "Unassigned" ) },
-//		{ EWeaponSlots.TERTIARY,	new Database.Section( "WPN_BaseModuleEmpty", "Unassigned" ) }
+//		{ EWeaponSlots.PRIMARY,		new Database.Section( "WPN_BaseModuleEmpty" ) },
+//		{ EWeaponSlots.SECONDARY,	new Database.Section( "WPN_BaseModuleEmpty" ) },
 //	}
 	;
 
@@ -40,18 +37,18 @@ public sealed class UI_WeaponCustomization : UI_Base, IStateDefiner
 			{
 				CustomAssertions.IsTrue(customizationPanel.TrySearchComponentByChildName("ModulePrimaryDropdown", out m_PrimaryDropDown));
 				CustomAssertions.IsTrue(customizationPanel.TrySearchComponentByChildName("ModuleSecondaryDropdown", out m_SecondaryDropDown));
-				CustomAssertions.IsTrue(customizationPanel.TrySearchComponentByChildName("ModuleTertiaryDropdown", out m_TertiaryDropDown));
 			}
 
 			if (CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("ApplyButton", out m_ApplyButton)))
 			{
 				void OnConfirm()
 				{
+					var currenWeapon = WeaponManager.Instance.CurrentWeapon;
 					foreach (KeyValuePair<EWeaponSlots, Database.Section> pair in m_CurrentAssignedModuleSections)
 					{
-						if (Weapon.TryGetModuleSlot(WeaponManager.Instance.CurrentWeapon, pair.Key, out WeaponModuleSlot slotModule))
+						if (WeaponBase.TryGetModuleSlot(currenWeapon, pair.Key, out WeaponModuleSlot slotModule))
 						{
-							slotModule.TrySetModule(WeaponManager.Instance.CurrentWeapon, pair.Value);
+							slotModule.SetModule(currenWeapon, pair.Value);
 						}
 					}
 				}
@@ -103,9 +100,6 @@ public sealed class UI_WeaponCustomization : UI_Base, IStateDefiner
 		// SECONDARY
 		FillDropdown(m_SecondaryDropDown,	allModules, EWeaponSlots.SECONDARY);
 
-		// TERTIARY
-		FillDropdown(m_TertiaryDropDown,	allModules, EWeaponSlots.TERTIARY);
-
 		// TODo Handle actually disable categories
 		GlobalManager.InputMgr.DisableCategory(EInputCategory.ALL);
 
@@ -137,7 +131,7 @@ public sealed class UI_WeaponCustomization : UI_Base, IStateDefiner
 		IWeapon currentWeapon = WeaponManager.Instance.CurrentWeapon;
 
 		// Get weapon module slot
-		if (Weapon.TryGetModuleSlot(currentWeapon, slot, out WeaponModuleSlot slotModule))
+		if (CustomAssertions.IsTrue(WeaponBase.TryGetModuleSlot(currentWeapon, slot, out WeaponModuleSlot slotModule)))
 		{
 			string[] alreadyAssignedModules = currentWeapon.OtherInfo.Split(',');
 
@@ -149,7 +143,7 @@ public sealed class UI_WeaponCustomization : UI_Base, IStateDefiner
 			thisDropdown.AddOptions(ui_Names);
 
 			string currentAssigned = alreadyAssignedModules[(int)slot];
-			m_CurrentAssignedModuleSections[slot] = new Database.Section(currentAssigned, "");
+			m_CurrentAssignedModuleSections[slot] = new Database.Section(currentAssigned);
 
 			// Search current Value
 			thisDropdown.value = filtered.FindIndex(s => s.GetSectionName() == currentAssigned);
@@ -161,10 +155,6 @@ public sealed class UI_WeaponCustomization : UI_Base, IStateDefiner
 			}
 			thisDropdown.onValueChanged.RemoveAllListeners();
 			thisDropdown.onValueChanged.AddListener(callback);
-		}
-		else
-		{
-			Debug.LogError($"Cannot get a valid module from weapon {currentWeapon.Transform.name} at slot {slot.ToString()}");
 		}
 	}
 

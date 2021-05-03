@@ -11,7 +11,7 @@ public enum EShieldContext
 public class Shield : MonoBehaviour//, IStreamableByEvents
 {
 	// Delegate definition
-	public	delegate	void	ShieldHitEvent(Vector3 startPosition, Entity whoRef, Weapon weaponRef, EDamageType damageType, float damage, bool canPenetrate = false);
+	public	delegate	void	ShieldHitEvent(Vector3 startPosition, Entity whoRef, WeaponBase weaponRef, EDamageType damageType, float damage, bool canPenetrate = false);
 
 	// Internal Event
 	protected		ShieldHitEvent	m_ShieldHitEvent		= delegate { };
@@ -174,7 +174,7 @@ public class Shield : MonoBehaviour//, IStreamableByEvents
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected void TakeDamage(Vector3 startPosition, Entity whoRef, Weapon weaponRef, EDamageType damageType, float damage, bool canPenetrate)
+	protected void TakeDamage(Vector3 startPosition, Entity whoRef, WeaponBase weaponRef, EDamageType damageType, float damage, bool canPenetrate)
 	{
 		if (!m_IsUnbreakable)
 		{
@@ -190,9 +190,10 @@ public class Shield : MonoBehaviour//, IStreamableByEvents
 	//////////////////////////////////////////////////////////////////////////
 	public void OnHittedDetails(GameObject collidingObject)
 	{
-		if (Utils.Base.TrySearchComponent(collidingObject, ESearchContext.LOCAL_AND_CHILDREN, out IBullet bullet))
+		if (Utils.Base.TrySearchComponent(collidingObject, ESearchContext.LOCAL_AND_CHILDREN, out Bullet bullet))
 		{
-			m_ShieldHitEvent(bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageType, bullet.Damage, bullet.CanPenetrate);
+			var Interface = bullet as IBullet;
+			m_ShieldHitEvent(Interface.StartPosition, Interface.WhoRef, Interface.Weapon, Interface.DamageType, Interface.Damage, Interface.CanPenetrate);
 		}
 	}
 
@@ -200,9 +201,10 @@ public class Shield : MonoBehaviour//, IStreamableByEvents
 	//////////////////////////////////////////////////////////////////////////
 	private void OnCollisionEnter(Collision collision)
 	{
-		if (Utils.Base.TrySearchComponent(collision.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out IBullet bullet))
+		if (Utils.Base.TrySearchComponent(collision.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out Bullet bullet))
 		{
-			m_ShieldHitEvent(bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageType, bullet.Damage, bullet.CanPenetrate);
+			var Interface = bullet as IBullet;
+			m_ShieldHitEvent(Interface.StartPosition, Interface.WhoRef, Interface.Weapon, Interface.DamageType, Interface.Damage, Interface.CanPenetrate);
 		}
 	}
 
@@ -210,9 +212,10 @@ public class Shield : MonoBehaviour//, IStreamableByEvents
 	//////////////////////////////////////////////////////////////////////////
 	private void OnTriggerEnter(Collider other)
 	{
-		if (Utils.Base.TrySearchComponent(other.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out IBullet bullet))
+		if (Utils.Base.TrySearchComponent(other.gameObject, ESearchContext.LOCAL_AND_CHILDREN, out Bullet bullet))
 		{
-			m_ShieldHitEvent(bullet.StartPosition, bullet.WhoRef, bullet.Weapon, bullet.DamageType, bullet.Damage, bullet.CanPenetrate);
+			var Interface = bullet as IBullet;
+			m_ShieldHitEvent(Interface.StartPosition, Interface.WhoRef, Interface.Weapon, Interface.DamageType, Interface.Damage, Interface.CanPenetrate);
 		}
 	}
 }
