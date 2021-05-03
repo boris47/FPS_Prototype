@@ -2,8 +2,8 @@
 
 using UnityEngine;
 
-namespace QuestSystem {
-
+namespace QuestSystem
+{
 	using System.Collections.Generic;
 
 	public	enum EObjectiveState
@@ -16,172 +16,150 @@ namespace QuestSystem {
 
 	public abstract class Objective_Base : MonoBehaviour
 	{
-
 		[SerializeField]
 		private GameEvent							m_OnCompletion				= new GameEvent();
-
 		[SerializeField]
 		protected	List<Objective_Base>			m_Dependencies				= new List<Objective_Base>();
+		[SerializeField, ReadOnly]
+		protected	bool							m_IsCompleted				= false;
+		[SerializeField]
+		protected	bool							m_IsOptional				= false;
+		[SerializeField, ReadOnly]
+		protected	Task							m_MotherTask				= null;
+		[SerializeField, ReadOnly]
+		protected	EObjectiveState					m_ObjectiveState			= EObjectiveState.NONE;
+		[SerializeField, ReadOnly]
+		protected	bool							m_IsInitialized				= false;
 
 		protected	System.Action<Objective_Base>	m_OnCompletionCallback		= delegate { };
 		protected	System.Action<Objective_Base>	m_OnFailureCallback			= delegate { };
-		protected	bool							m_IsCompleted				= false;
 
-		[SerializeField]
-		protected	bool							m_IsOptional				= false;
+		public string								ID							=> name;
 
-		protected	Task							m_MotherTask				= null;
+		public bool									IsOptional					=> m_IsOptional;
 
-		protected	EObjectiveState					m_ObjectiveState			= EObjectiveState.NONE;
+		public bool									IsCompleted					=> m_IsCompleted;
 
-		protected	bool							m_IsInitialized				= false;
+		public bool									IsCurrentlyActive			=> m_ObjectiveState == EObjectiveState.ACTIVATED;
 
-		//--
-		public string ID => name;
+		public bool									IsInitialized				=> m_IsInitialized;
 
-		//--
-		public bool IsOptional => m_IsOptional;
-
-		//--
-		public bool IsCompleted => m_IsCompleted;
-
-		//--
-		public bool IsCurrentlyActive => m_ObjectiveState == EObjectiveState.ACTIVATED;
-
-		//--
-		public bool IsInitialized  => m_IsInitialized;
-
-		public string StateName => name;
+		public string								StateName					=> name;
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// ( IStateDefiner )
-		public		bool		Initialize( Task motherTask, System.Action<Objective_Base> onCompletionCallback, System.Action<Objective_Base> onFailureCallback )
+		public bool Initialize(Task motherTask, System.Action<Objective_Base> onCompletionCallback, System.Action<Objective_Base> onFailureCallback)
 		{
 			m_MotherTask = motherTask;
 
-			return InitializeInternal( motherTask, onCompletionCallback, onFailureCallback );
+			return InitializeInternal(motherTask, onCompletionCallback, onFailureCallback);
 		}
-
-		protected	abstract	bool	InitializeInternal( Task motherTask, System.Action<Objective_Base> onCompletionCallback, System.Action<Objective_Base> onFailureCallback );
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// ( IStateDefiner )
+		protected abstract bool InitializeInternal(Task motherTask, System.Action<Objective_Base> onCompletionCallback, System.Action<Objective_Base> onFailureCallback);
+
+
+		//////////////////////////////////////////////////////////////////////////
 		public	abstract	bool		ReInit();
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// ( IStateDefiner )
 		public	abstract	bool		Finalize();
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// OnSave ( Abstract )
 		public	abstract	void		OnSave( StreamUnit streamUnit );
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// OnLoad ( Abstract )
 		public	abstract	void		OnLoad( StreamUnit streamUnit );
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// Activate ( IObjective )
-		public		void		Activate()
+		public void Activate()
 		{
 			m_ObjectiveState = EObjectiveState.ACTIVATED;
 
 			ActivateInternal();
 		}
 
-		protected	abstract	void	ActivateInternal();
-
-		
 		//////////////////////////////////////////////////////////////////////////
-		// Deactivate ( IObjective )
-		public		void		Deactivate()
+		protected abstract	void	ActivateInternal();
+
+
+		//////////////////////////////////////////////////////////////////////////
+		public void Deactivate()
 		{
 			m_ObjectiveState = EObjectiveState.NONE;
 
 			DeactivateInternal();
 		}
-		
-		protected	abstract	void	DeactivateInternal();
 
 		//////////////////////////////////////////////////////////////////////////
-		// SetTaskOwner ( IObjective )
-		/// <summary> Add this objective to a Task </summary>
-		public void			AddToTask( Task task, bool isOptional )
+		protected abstract	void	DeactivateInternal();
+
+		//////////////////////////////////////////////////////////////////////////
+		public void AddToTask(Task task, bool isOptional)
 		{
-			// If Already assignet to a task, we must remove it before add to another task
-			if (m_MotherTask != null )
+			// If Already assigned to a task, we must remove it before add to another task
+			if (m_MotherTask.IsNotNull())
 			{
-				m_MotherTask.RemoveObjective( this );
+				m_MotherTask.RemoveObjective(this);
 			}
 
-			// If add succeeded
-			bool result = task.AddObjective( this );
-			if ( result )
-			{
-				m_MotherTask = task;
-			}
-
+			m_MotherTask = task;
 			m_IsOptional = isOptional;
+
+			task.AddObjective(this);
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// AddDependency ( IObjective )
 		/// <summary> Add another objective as dependency for the completion of this objective. 
-		/// The dependencies must result completed in order to se as completed this objective </summary>
-		public void			AddDependency(Objective_Base other)
+		/// The dependencies must result completed in order to set as completed this objective </summary>
+		public void AddDependency(Objective_Base other)
 		{
-			if ( other.IsCompleted == false && m_Dependencies.Contains( other ) == false )
+			if (!other.IsCompleted && !m_Dependencies.Contains(other))
 			{
-				m_Dependencies.Add( other );
+				m_Dependencies.Add(other);
 			}
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// OnObjectiveCompleted
-		protected	void			OnObjectiveCompleted()
+		protected void OnObjectiveCompleted()
 		{
 			// Internal Flag
 			m_IsCompleted = true;
 
 			// Unity Events
-			if (m_OnCompletion.GetPersistentEventCount() > 0 )
+			if (m_OnCompletion.GetPersistentEventCount() > 0)
 			{
 				m_OnCompletion.Invoke();
 			}
 
 			// Internal Delegates
-			m_OnCompletionCallback( this );
+			m_OnCompletionCallback(this);
 
-			print( "Completed Objective " + name );
+			print("Completed Objective " + name);
 
 			Finalize();
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// OnObjectiveCompleted
-		protected	void	OnObjectiveFailed()
+		protected void OnObjectiveFailed()
 		{
 			// Internal Flag
 			m_IsCompleted = true;
 
 			// Internal Delegates
-			m_OnFailureCallback( this );
+			m_OnFailureCallback(this);
 
-			print( "Failed Objective " + name );
+			print("Failed Objective " + name);
 
 			Finalize();
 		}
-		
 	}
-
-
 }

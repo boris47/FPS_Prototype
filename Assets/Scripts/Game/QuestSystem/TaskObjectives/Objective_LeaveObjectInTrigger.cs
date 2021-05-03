@@ -2,8 +2,8 @@
 using UnityEngine;
 
 
-namespace QuestSystem {
-
+namespace QuestSystem
+{
 	[RequireComponent(typeof(Collider))]
 	public class Objective_LeaveObjectInTrigger : Objective_Base
 	{
@@ -15,47 +15,40 @@ namespace QuestSystem {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// Initialize ( IStateDefiner )
-		protected		override	bool		InitializeInternal( Task motherTask, System.Action<Objective_Base> onCompletionCallback, System.Action<Objective_Base> onFailureCallback )
+		protected override bool InitializeInternal(Task motherTask, System.Action<Objective_Base> onCompletionCallback, System.Action<Objective_Base> onFailureCallback)
 		{
-			if (m_IsInitialized == true )
-				return true;
-
-			m_IsInitialized = true;
-
-			bool bIsGoodResult = Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL, out m_Collider );
-			if ( bIsGoodResult )
+			if (!m_IsInitialized)
 			{
-				m_Collider.isTrigger = true;
-				m_Collider.enabled = false;
+				if (CustomAssertions.IsTrue(Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL, out m_Collider)))
+				{
+					m_Collider.isTrigger = true;
+					m_Collider.enabled = false;
 
-				m_OnCompletionCallback = onCompletionCallback;
-				m_OnFailureCallback = onFailureCallback;
-				motherTask.AddObjective( this );
+					m_OnCompletionCallback = onCompletionCallback;
+					m_OnFailureCallback = onFailureCallback;
+					motherTask.AddObjective(this);
+				}
+				m_IsInitialized = true;
 			}
-
-			return bIsGoodResult;
+			return m_IsInitialized;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// ReInit ( IStateDefiner )
-		public		override	bool		ReInit()
+		public override bool ReInit()
 		{
 			return true;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// Finalize ( IStateDefiner )
-		public		override	bool		Finalize()
+		public override bool Finalize()
 		{
 			return true;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// OnSave
 		public override void OnSave( StreamUnit streamUnit )
 		{
 			
@@ -63,7 +56,6 @@ namespace QuestSystem {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// OnLoad
 		public override void OnLoad( StreamUnit streamUnit )
 		{
 			
@@ -71,8 +63,7 @@ namespace QuestSystem {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// Activate ( IObjective )
-		protected		override	void		ActivateInternal()
+		protected override void ActivateInternal()
 		{
 			if (m_ObjectThatTrigger.IsNotNull())
 			{
@@ -84,23 +75,22 @@ namespace QuestSystem {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// Deactivate ( IObjective )
-		protected		override	void		DeactivateInternal()
+		protected override void DeactivateInternal()
 		{
-			if (m_ObjectThatTrigger.IsNotNull() )
+			if (m_ObjectThatTrigger.IsNotNull())
 			{
 				m_Collider.enabled = false;
 
-				UIManager.Indicators.RemoveIndicator(gameObject );
+				UIManager.Indicators.RemoveIndicator(gameObject);
 			}
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		// SetObjectToTrigger
-		public	void	SetObjectToTriggerWith( Collider objCollider )
+		public void SetObjectToTriggerWith(Collider objCollider)
 		{
-			if ( objCollider && objCollider.isTrigger == false )
+			if (objCollider && !objCollider.isTrigger)
 			{
 				m_ObjectThatTrigger = objCollider;
 			}
@@ -109,27 +99,25 @@ namespace QuestSystem {
 
 		//////////////////////////////////////////////////////////////////////////
 		// OnTriggerEnter
-		private void OnTriggerEnter( Collider other )
+		private void OnTriggerEnter(Collider other)
 		{
-			if (m_ObjectiveState != EObjectiveState.ACTIVATED )
-				return;
-
-			if ( other.GetInstanceID() != m_ObjectThatTrigger.GetInstanceID() )
-				return;
-
-			Deactivate();
-
-			// Require dependencies to be completed
-			int dependencyIndex = m_Dependencies.Count > 0 ? m_Dependencies.FindLastIndex( o => o.IsCompleted == false ) : -1;
-			if ( dependencyIndex > -1 )
+			if (m_ObjectiveState == EObjectiveState.ACTIVATED)
 			{
-				m_Dependencies[dependencyIndex].Activate();
-				return;
+				if (other.GetInstanceID() == m_ObjectThatTrigger.GetInstanceID())
+				{
+					Deactivate();
+
+					// Require dependencies to be completed
+					int dependencyIndex = m_Dependencies.Count > 0 ? m_Dependencies.FindLastIndex(o => o.IsCompleted == false) : -1;
+					if (dependencyIndex > -1)
+					{
+						m_Dependencies[dependencyIndex].Activate();
+						return;
+					}
+
+					OnObjectiveCompleted();
+				}
 			}
-
-			OnObjectiveCompleted();
 		}
-
 	}
-
 }

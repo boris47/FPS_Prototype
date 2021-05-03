@@ -17,12 +17,6 @@ namespace QuestSystem
 
 	public sealed class GlobalQuestManager : OnDemandSingleton<GlobalQuestManager>, IQuestManager
 	{
-	//	private		static	bool				m_ShowDebugInfo					= false;
-	//	public		static	bool				ShowDebugInfo					=> m_ShowDebugInfo;
-
-	//	private		static	IQuestManager		m_Instance						= null;
-	//	public		static	IQuestManager		Instance						=> m_Instance;
-
 		private				List<Quest>			m_GlobalQuests					= new List<Quest>();
 
 
@@ -34,7 +28,7 @@ namespace QuestSystem
 			// Already assigned
 			foreach (Quest q in m_GlobalQuests)
 			{
-				q.Initialize(OnQuestCompleted, null);
+				q.Initialize(OnQuestCompleted, OnQuestFailed);
 			}
 
 			if (m_GlobalQuests.Count > 0)
@@ -58,6 +52,14 @@ namespace QuestSystem
 					Debug.Log("Completed All quests");
 				}
 			}
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		private void OnQuestFailed(Quest completedQuest)
+		{
+			if (completedQuest.Scope != EQuestScope.LOCAL)
+				return;
 		}
 
 

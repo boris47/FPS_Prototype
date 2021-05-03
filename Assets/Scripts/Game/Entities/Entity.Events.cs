@@ -46,7 +46,7 @@ public abstract partial class Entity : MonoBehaviour
 
 	//////////////////////////////////////////////////////////////////////////
 	///<summary> Call to enable events on this entity </summary>
-	public		virtual		void		EnableEvents()
+	public virtual void EnableEvents()
 	{
 		m_HasEventsEnabled = true;
 	}
@@ -54,14 +54,14 @@ public abstract partial class Entity : MonoBehaviour
 
 	//////////////////////////////////////////////////////////////////////////
 	///<summary> Call to disable events on this entity </summary>
-	public		virtual		void		DisableEvents()
+	public virtual void DisableEvents()
 	{
 		m_HasEventsEnabled = false;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		void		OnEnable()
+	protected virtual void OnEnable()
 	{
 		if (CustomAssertions.IsNotNull(GameManager.UpdateEvents))
 		{
@@ -74,7 +74,7 @@ public abstract partial class Entity : MonoBehaviour
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		void		OnDisable()
+	protected virtual void OnDisable()
 	{
 		if (GameManager.UpdateEvents.IsNotNull())
 		{
@@ -115,7 +115,7 @@ public abstract partial class Entity : MonoBehaviour
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		bool	OnSave( StreamData streamData, ref StreamUnit streamUnit )
+	protected virtual bool OnSave(StreamData streamData, ref StreamUnit streamUnit)
 	{
 		streamUnit = streamData.NewUnit(gameObject);
 
@@ -140,7 +140,7 @@ public abstract partial class Entity : MonoBehaviour
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		bool	OnLoad(StreamData streamData, ref StreamUnit streamUnit)
+	protected virtual bool OnLoad(StreamData streamData, ref StreamUnit streamUnit)
 	{
 		bool bResult = streamData.TryGetUnit(gameObject, out streamUnit);
 		if (bResult)
@@ -154,9 +154,9 @@ public abstract partial class Entity : MonoBehaviour
 			// Shield
 			if (m_Shield.IsNotNull())
 			{
-				// TODO
-			//	m_Shield.load
-			//	streamUnit.SetInternal("ShieldStatus", m_Shield.Status);
+				//TODO
+				//m_Shield.load
+				//streamUnit.SetInternal("ShieldStatus", m_Shield.Status);
 			}
 
 			foreach (EntityComponent component in GetComponents<EntityComponent>())
@@ -188,13 +188,13 @@ public abstract partial class Entity : MonoBehaviour
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public	void			OnHittedBullet( Bullet hittingBullet )
+	public void OnHittedBullet(Bullet hittingBullet)
 	{
-		if ( hittingBullet is IBullet bullet )
+		if (hittingBullet is IBullet bullet)
 		{
-			float dmgMultiplier = (m_HasShield && m_Shield.Status > 0.0f ) ? 
-				( bullet.CanPenetrate ) ? 0.5f : 0.0f
-				: 
+			float dmgMultiplier = (m_HasShield && m_Shield.Status > 0.0f) ?
+				(bullet.CanPenetrate) ? 0.5f : 0.0f
+				:
 				1.0f;
 
 			OnHittedDetails(bullet.StartPosition, bullet.WhoRef, bullet.DamageType, bullet.Damage * dmgMultiplier, bullet.CanPenetrate);
@@ -203,30 +203,30 @@ public abstract partial class Entity : MonoBehaviour
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		void		NotifyHit( Vector3 startPosition, Entity whoRef, EDamageType damageType, float damage, bool canPenetrate = false )
+	protected virtual void NotifyHit(Vector3 startPosition, Entity whoRef, EDamageType damageType, float damage, bool canPenetrate = false)
 	{
 		m_Behaviours.CurrentBehaviour.OnHit(startPosition, whoRef, damage, canPenetrate);
 
-	//	if (m_Group)
-	//	{
-	//		m_Group.GetOthers( this ).ForEach( e => e.NotifyHit( startPosition, null, EDamageType.NONE, 0.0f ) );
-	//	}
+		//if (m_Group)
+		//{
+		//	m_Group.GetOthers( this ).ForEach( e => e.NotifyHit( startPosition, null, EDamageType.NONE, 0.0f ) );
+		//}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		virtual		void		OnHittedDetails( Vector3 startPosition, Entity whoRef, EDamageType damageType, float damage, bool canPenetrate = false )
+	public virtual void OnHittedDetails(Vector3 startPosition, Entity whoRef, EDamageType damageType, float damage, bool canPenetrate = false)
 	{
-		// Notify behaviur
-		NotifyHit( startPosition, whoRef, damageType, damage, canPenetrate );
-		
-		OnTakeDamage( damage );
-//		print( name + ":Taking damage " + damage );
+		// Notify behavior
+		NotifyHit(startPosition, whoRef, damageType, damage, canPenetrate);
+
+		OnTakeDamage(damage);
+		//print( name + ":Taking damage " + damage );
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		void		OnTakeDamage( float Damage )
+	protected virtual void OnTakeDamage(float Damage)
 	{
 		// DAMAGE
 		{
@@ -240,10 +240,10 @@ public abstract partial class Entity : MonoBehaviour
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	virtual		void		OnKill()
+	protected virtual void OnKill()
 	{
-		m_RigidBody.velocity			= Vector3.zero;
-		m_RigidBody.angularVelocity		= Vector3.zero;
+		m_RigidBody.velocity = Vector3.zero;
+		m_RigidBody.angularVelocity = Vector3.zero;
 
 		m_OnKilled(this);
 	}

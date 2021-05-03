@@ -2,68 +2,61 @@
 
 namespace QuestSystem
 {
-
 	public class Objective_Follow : Objective_Base
-	{	
+	{
 		[SerializeField]
-		private		GameObject	m_ObjectToFollow = null;
+		private			GameObject			m_ObjectToFollow			= null;
 
 		//////////////////////////////////////////////////////////////////////////
-		// Initialize ( IStateDefiner )
-		protected		override	bool		InitializeInternal( Task motherTask, System.Action<Objective_Base> onCompletionCallback, System.Action<Objective_Base> onFailureCallback )
+		protected override bool InitializeInternal(Task motherTask, System.Action<Objective_Base> onCompletionCallback, System.Action<Objective_Base> onFailureCallback)
 		{
-			if (m_IsInitialized == true )
-				return true;
-
-			m_IsInitialized = true;
-
-			m_OnCompletionCallback = onCompletionCallback;
-			m_OnFailureCallback = onFailureCallback;
-			motherTask.AddObjective( this );
-
-			if ( Utils.Base.TrySearchComponent( gameObject, ESearchContext.LOCAL, out Entity entity ) )
+			if (!m_IsInitialized)
 			{
-				entity.OnEvent_Killed += OnKill;
+				CustomAssertions.IsNotNull(m_ObjectToFollow);
+
+				m_OnCompletionCallback = onCompletionCallback;
+				m_OnFailureCallback = onFailureCallback;
+				motherTask.AddObjective(this);
+
+				if (Utils.Base.TrySearchComponent(m_ObjectToFollow, ESearchContext.LOCAL, out Entity entity))
+				{
+					entity.OnEvent_Killed += OnKill;
+				}
+				m_IsInitialized = true;
 			}
-			
-			return m_ObjectToFollow.IsNotNull();
+			return m_IsInitialized;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// ReInit ( IStateDefiner )
-		public		override	bool		ReInit()
+		public override bool ReInit()
 		{
 			return true;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// Finalize ( IStateDefiner )
-		public		override	bool		Finalize()
+		public override bool Finalize()
 		{
 			return true;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// OnSave
-		public override void OnSave( StreamUnit streamUnit )
+		public override void OnSave(StreamUnit streamUnit)
 		{
-			
+
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// OnLoad
-		public override void OnLoad( StreamUnit streamUnit )
+		public override void OnLoad(StreamUnit streamUnit)
 		{
-			
+
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// Activate ( IObjective )
 		protected override void ActivateInternal()
 		{
 			UIManager.Indicators.AddIndicator(m_ObjectToFollow, EIndicatorType.OBJECT_TO_FOLLOW, bMustBeClamped: true);
@@ -71,7 +64,6 @@ namespace QuestSystem
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// Deactivate ( IObjective )
 		protected override void DeactivateInternal()
 		{
 			UIManager.Indicators.RemoveIndicator(m_ObjectToFollow);
@@ -79,8 +71,7 @@ namespace QuestSystem
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// OnFollowDoneCompleted
-		public	void	OnFollowDoneCompleted()
+		public void OnFollowDoneCompleted()
 		{
 			Deactivate();
 
@@ -91,15 +82,12 @@ namespace QuestSystem
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// OnKill
-		private void OnKill( Entity entityKilled )
+		private void OnKill(Entity entityKilled)
 		{
 			Deactivate();
 
 			OnObjectiveFailed();
 			//OnObjectiveCompleted();
 		}
-
 	}
-
 }

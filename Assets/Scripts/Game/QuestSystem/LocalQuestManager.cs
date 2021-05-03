@@ -1,11 +1,10 @@
 ﻿
 using UnityEngine;
 
-namespace QuestSystem {
-
+namespace QuestSystem
+{
 	using System.Collections.Generic;
 
-	
 
 	public sealed class LocalQuestManager : MonoBehaviour, IQuestManager
 	{
@@ -14,12 +13,10 @@ namespace QuestSystem {
 
 		[SerializeField]
 		private					List<Quest>			m_LocalQuests				= new List<Quest>();
-		
 
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// Awake
 		private void Awake()
 		{
 			m_Instance = this;
@@ -38,7 +35,6 @@ namespace QuestSystem {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// OnDestroy
 		private void OnDestroy()
 		{
 			m_Instance = null;
@@ -46,7 +42,6 @@ namespace QuestSystem {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// OnQuestCompleted
 		private	void	OnQuestCompleted(Quest completedQuest)
 		{
 			if (completedQuest.Scope == EQuestScope.LOCAL)
@@ -71,7 +66,6 @@ namespace QuestSystem {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// GetQuestStatus ( Interface )
 		EQuestStatus IQuestManager.GetQuestStatus( uint questIndex )
 		{
 			if (m_LocalQuests.Count > questIndex )
@@ -83,7 +77,6 @@ namespace QuestSystem {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// AddQuest ( Interface )
 		bool IQuestManager.AddQuest( Quest newQuest, bool activateNow )
 		{
 			if ( newQuest == null )
@@ -107,7 +100,6 @@ namespace QuestSystem {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// GetQuestCount ( Interface )
 		int IQuestManager.GetQuestCount()
 		{
 			return m_LocalQuests.Count;
@@ -115,7 +107,6 @@ namespace QuestSystem {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// GetQuestSope ( Interface )
 		EQuestScope IQuestManager.GetQuestScope( uint questIndex )
 		{
 			if (m_LocalQuests.Count > questIndex )
@@ -126,8 +117,8 @@ namespace QuestSystem {
 		}
 
 
-
-		public	bool	GetTaskByID( string ID, out Task task )
+		//////////////////////////////////////////////////////////////////////////
+		public bool	GetTaskByID( string ID, out Task task )
 		{
 			task = null;
 
@@ -143,7 +134,8 @@ namespace QuestSystem {
 		}
 
 
-		public	bool	GetObjectiveByID( string ID, out Objective_Base objective )
+		//////////////////////////////////////////////////////////////////////////
+		public bool	GetObjectiveByID( string ID, out Objective_Base objective )
 		{
 			objective = null;
 

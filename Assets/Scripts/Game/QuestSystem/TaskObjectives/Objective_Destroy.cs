@@ -2,72 +2,63 @@
 using UnityEngine;
 
 
-namespace QuestSystem {
-
+namespace QuestSystem
+{
 	[RequireComponent(typeof(Entity))]
 	public class Objective_Destroy : Objective_Base
 	{
 		[SerializeField]
-		private	Entity				m_Target						= null;
+		private			Entity				m_Target				= null;
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// Initialize ( IStateDefiner )
-		protected		override	bool		InitializeInternal( Task motherTask, System.Action<Objective_Base> onCompletionCallback, System.Action<Objective_Base> onFailureCallback )
+		protected override bool InitializeInternal(Task motherTask, System.Action<Objective_Base> onCompletionCallback, System.Action<Objective_Base> onFailureCallback)
 		{
-			if (m_IsInitialized == true )
-				return true;
-
-			m_IsInitialized = true;
-
-			bool bIsGoodResult = Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL, out m_Target );
-			if ( bIsGoodResult )
+			if (!m_IsInitialized)
 			{
-				m_Target.OnEvent_Killed += OnKill;
+				if (CustomAssertions.IsTrue(Utils.Base.TrySearchComponent(gameObject, ESearchContext.LOCAL, out m_Target)))
+				{
+					m_Target.OnEvent_Killed += OnKill;
 
-				m_OnCompletionCallback = onCompletionCallback;
-				m_OnFailureCallback = onFailureCallback;
-				motherTask.AddObjective( this );
+					m_OnCompletionCallback = onCompletionCallback;
+					m_OnFailureCallback = onFailureCallback;
+					motherTask.AddObjective(this);
+				}
+				m_IsInitialized = true;
 			}
-
 			return m_IsInitialized;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// ReInit ( IStateDefiner )
-		public		override	bool		ReInit()
+		public override bool ReInit()
 		{
 			return true;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// Finalize ( IStateDefiner )
-		public		override	bool		Finalize()
+		public override bool Finalize()
 		{
 			return true;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// OnSave
-		public override void OnSave( StreamUnit streamUnit )
+		public override void OnSave(StreamUnit streamUnit)
 		{
-			
+
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// OnLoad
-		public override void OnLoad( StreamUnit streamUnit )
+		public override void OnLoad(StreamUnit streamUnit)
 		{
-			
+
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// Activate ( IObjective )
 		/// <summary> Set as current active to true and add indicator </summary>
 		protected override void ActivateInternal()
 		{
@@ -76,7 +67,6 @@ namespace QuestSystem {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// Deactivate ( IObjective )
 		/// <summary> Set as current active to false and remove indicator </summary>
 		protected override void DeactivateInternal()
 		{
@@ -85,14 +75,11 @@ namespace QuestSystem {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// OnKill
-		private void OnKill( Entity entityKilled )
+		private void OnKill(Entity entityKilled)
 		{
 			Deactivate();
 
 			OnObjectiveCompleted();
 		}
-
 	}
-
 }

@@ -27,35 +27,23 @@ namespace QuestSystem {
 	
 		[SerializeField]
 		private	List<Task>					m_Tasks						= new List<Task>();
-
 		[SerializeField]
 		private	GameEvent					m_OnCompletion				= null;
+		[SerializeField, ReadOnly]
+		private	bool						m_IsCompleted				= false;
+		[SerializeField, ReadOnly]
+		private	bool						m_IsInitialized				= false;
+		[SerializeField, ReadOnly]
+		private	EQuestStatus				m_Status					= EQuestStatus.NONE;
+		[SerializeField, ReadOnly]
+		private	EQuestScope					m_Scope						= EQuestScope.LOCAL;
 
 		private	System.Action<Quest>		m_OnCompletionCallback		= delegate { };
 
-		[System.NonSerialized]
-		private	bool						m_IsCompleted				= false;
-		[System.NonSerialized]
-		private	bool						m_IsInitialized				= false;
-
-		[System.NonSerialized]
-		private	EQuestStatus				m_Status					= EQuestStatus.NONE;
-		[System.NonSerialized]
-		private	EQuestScope					m_Scope						= EQuestScope.LOCAL;
-
-		//--
 		public int							TaskCount					=> m_Tasks.Count;
-
-		// IQuest
 		public bool							IsCompleted					=> m_IsCompleted;
-
-		// IStateDefiner
 		public bool							IsInitialized				=> m_IsInitialized;
-
-		//--
 		public EQuestStatus					Status						=> m_Status;
-
-		//--
 		public EQuestScope					Scope						=> m_Scope;
 
 
@@ -82,49 +70,39 @@ namespace QuestSystem {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// Initialize ( IStateDefiner )
-		public			bool		Initialize( System.Action<Quest> onCompletionCallback, System.Action<Quest> onFailureCallback  )
+		public void Initialize(System.Action<Quest> onCompletionCallback, System.Action<Quest> onFailureCallback)
 		{
-			if (m_IsInitialized == true )
-				return true;
-
-			m_IsInitialized = true;
-
-			bool result = false;
-
-			// Already assigned
-			foreach (Task t in m_Tasks)
+			if (!m_IsInitialized)
 			{
-				result &= t.Initialize(this, OnTaskCompleted, null);
+				// Already assigned
+				foreach (Task t in m_Tasks)
+				{
+					t.Initialize(OnTaskCompleted, null);
+				}
+				m_IsInitialized = true;
 			}
-			m_OnCompletionCallback = onCompletionCallback;
-
-			return result;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// ReInit ( IStateDefiner )
-		public			bool		ReInit()
+		public bool ReInit()
 		{
 			return true;
 		}
 
-
+		/*
 		//////////////////////////////////////////////////////////////////////////
-		// Finalize ( IStateDefiner )
-		public			bool		Finalize()
+		public bool Finalize()
 		{
 			// UnRegistering game events
 			GameManager.StreamEvents.OnSave -= OnSave;
 			GameManager.StreamEvents.OnLoad -= OnLoad;
 			return true;
 		}
-
+		*/
 
 		//////////////////////////////////////////////////////////////////////////
-		// OnSave
-		protected	virtual		bool		OnSave( StreamData streamData, ref StreamUnit streamUnit )
+		protected virtual bool OnSave(StreamData streamData, ref StreamUnit streamUnit)
 		{
 			streamUnit = streamData.NewUnit(gameObject);
 			{
@@ -138,7 +116,6 @@ namespace QuestSystem {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// OnLoad
 		protected	virtual		bool		OnLoad( StreamData streamData, ref StreamUnit streamUnit )
 		{
 			bool bResult = streamData.TryGetUnit(gameObject, out streamUnit);
@@ -151,41 +128,30 @@ namespace QuestSystem {
 			}
 			return bResult;
 		}
-		
+
 
 		//////////////////////////////////////////////////////////////////////////
-		// AddTask ( IQuest )
-		public bool			AddTask( Task newTask )
+		public void AddTask(Task newTask)
 		{
-			if (newTask == null)
-				return false;
-
-			if (!m_Tasks.Contains(newTask))
+			if (newTask.IsNotNull() && !m_Tasks.Contains(newTask))
 			{
-				newTask.Initialize(this, OnTaskCompleted, null);
+				newTask.Initialize(OnTaskCompleted, null);
 				m_Tasks.Add(newTask);
 			}
-			return true;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// RemoveTask ( IQuest )
-		public bool			RemoveTask( Task task )
+		public void RemoveTask(Task task)
 		{
-			if (task == null)
-				return false;
-
-			if (!m_Tasks.Contains(task))
-				return true;
-
-			m_Tasks.Remove(task);
-			return true;
+			if (task.IsNotNull())
+			{
+				m_Tasks.Remove(task);
+			}
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// OnTaskCompleted
 		private void OnQuestCompleted()
 		{
 			// Internal Flag
@@ -202,22 +168,28 @@ namespace QuestSystem {
 			// Internal Delegates
 			m_OnCompletionCallback(this);
 
-			Finalize();
+			GameManager.StreamEvents.OnSave -= OnSave;
+
+			//Finalize();
 
 			m_Status = EQuestStatus.COMPLETED;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// OnTaskCompleted
 		private	void	OnTaskCompleted(Task task)
 		{
-			bool bAreTasksCompleted = m_Tasks.TrueForAll( t => t.IsCompleted );
-			if (!bAreTasksCompleted)
+			bool bAreTasksCompleted = m_Tasks.TrueForAll(t => t.IsCompleted);
+			if (bAreTasksCompleted)
+			{
+				// Only Called if truly completed
+				OnQuestCompleted();
+			}
+			else
 			{
 				Task nextTask = null;
 				int nextIndex = (m_Tasks.IndexOf(task) + 1);
-				if (nextIndex < m_Tasks.Count)
+				if (m_Tasks.IsValidIndex(nextIndex))
 				{
 					nextTask = m_Tasks[nextIndex];
 				}
@@ -228,31 +200,23 @@ namespace QuestSystem {
 				}
 
 				nextTask.Activate();
-				return;
 			}
-
-			// Only Called if trurly completed
-			OnQuestCompleted();
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		// Activate
-		public	bool	Activate()
+		public	void	Activate()
 		{
-			if (m_Tasks.Count == 0)
+			if (m_Tasks.Count > 0)
 			{
-				return false;
+				m_Status = EQuestStatus.ACTIVE;
+				m_Tasks[0].Activate();
 			}
-
-			//if ( GlobalQuestManager.ShowDebugInfo )
-			//	print(name + " quest activated" );
-
-			m_Status = EQuestStatus.ACTIVE;
-			m_Tasks[0].Activate();
-			return true;
+			else
+			{
+				// An empty quest resolve in immediately completed
+				OnQuestCompleted();
+			}
 		}
-		
 	}
-
 }
