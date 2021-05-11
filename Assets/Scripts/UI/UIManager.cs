@@ -215,26 +215,7 @@ public sealed class UIManager : MonoBehaviourSingleton<UIManager>, IUI
 			CustomAssertions.IsTrue(state.IsInitialized);
 		}
 		
-		EnableMenuByScene((ESceneEnumeration)CustomSceneManager.CurrentSceneIndex);
-		/*
-		int sceneIdx = CustomSceneManager.CurrentSceneIndex;
-		if (sceneIdx == (int)ESceneEnumeration.LOADING)
-		{
-			//		SwitchTo( m_Loading.transform );
-		}
-		else if (sceneIdx == (int)ESceneEnumeration.MAIN_MENU)
-		{
-			SwitchTo(m_MainMenu);
-		}
-		else if (sceneIdx == (int)ESceneEnumeration.INTRO)
-		{
-
-		}
-		else
-		{
-			SwitchTo(m_InGame);
-		}
-		*/
+		EnableMenuByScene(CustomSceneManager.CurrentSceneEnumeration);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -255,16 +236,14 @@ public sealed class UIManager : MonoBehaviourSingleton<UIManager>, IUI
 				GoToMenu(MainMenu);
 				break;
 			}
-			case ESceneEnumeration.OPENWORLD1:
+			case ESceneEnumeration.OPENWORLD:
 			case ESceneEnumeration.OPENWORLD2:
-			case ESceneEnumeration.OPENWORLD3:
 			{
 				GoToMenu(InGame);
 				break;
 			}
 			case ESceneEnumeration.INTRO:
 			case ESceneEnumeration.LOADING:
-			case ESceneEnumeration.ENDING:
 			{
 				GoToMenu(null);
 				break;
@@ -291,15 +270,15 @@ public sealed class UIManager : MonoBehaviourSingleton<UIManager>, IUI
 		// Save the current cursor position on the screen
 		GetCursorPos(out lastCursorPosition);
 
-		// Disable current active menu gameobject
+		// Disable current active menu gameObject
 		m_CurrentActiveUI?.gameObject.SetActive(false);
 
 		m_PreviousActiveUI = m_CurrentActiveUI;
 
-		// Swicth to new menu
+		// Switch to new menu
 		m_CurrentActiveUI = uiToShow;
 
-		// Enable current active menu gameobject
+		// Enable current active menu gameObject
 		m_CurrentActiveUI?.gameObject.SetActive(true);
 
 		//string currentName = m_CurrentActiveTransform.name;

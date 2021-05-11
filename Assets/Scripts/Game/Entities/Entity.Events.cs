@@ -115,9 +115,9 @@ public abstract partial class Entity : MonoBehaviour
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected virtual bool OnSave(StreamData streamData, ref StreamUnit streamUnit)
+	protected virtual StreamUnit OnSave(StreamData streamData)
 	{
-		streamUnit = streamData.NewUnit(gameObject);
+		StreamUnit streamUnit = streamData.NewUnit(gameObject);
 
 		streamUnit.Position = transform.position;
 		streamUnit.Rotation = transform.rotation;
@@ -135,14 +135,14 @@ public abstract partial class Entity : MonoBehaviour
 		{
 			component.OnSave(streamUnit);
 		}
-		return true;
+		return streamUnit;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected virtual bool OnLoad(StreamData streamData, ref StreamUnit streamUnit)
+	protected virtual StreamUnit OnLoad(StreamData streamData)
 	{
-		bool bResult = streamData.TryGetUnit(gameObject, out streamUnit);
+		bool bResult = streamData.TryGetUnit(gameObject, out StreamUnit streamUnit);
 		if (bResult)
 		{
 			transform.position = streamUnit.Position;
@@ -168,7 +168,7 @@ public abstract partial class Entity : MonoBehaviour
 		{
 			gameObject.SetActive(false);
 		}
-		return bResult;
+		return streamUnit;
 	}
 
 

@@ -78,7 +78,7 @@ public class Loading : MonoBehaviour
 	//////////////////////////////////////////////////////////////////////////
 	public static void SetLoadingSceneName(ESceneEnumeration scene)
 	{
-		Instance.m_LoadingLevelNameText.text = $"Loading: {scene.ToString()}";
+		Instance.m_LoadingLevelNameText.text = $"Loading: {scene}";
 	}
 
 

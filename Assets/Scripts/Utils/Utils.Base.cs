@@ -41,29 +41,29 @@ public class ToJsonWrapper<T>
 
 public static class CustomAssertions
 {
-	public static bool IsTrue(bool condition, string message = null, Object context = null)
+	public static bool IsTrue(bool bIsTrue, string message = null, Object context = null)
 	{
-		if (!condition)
+		if (!bIsTrue)
 		{
 #if UNITY_EDITOR
 			System.Diagnostics.Debugger.Break();
 #endif
 			UnityEngine.Debug.LogError(message ?? "CustomAssertions.IsTrue: Assertion Failed " + context?.name ?? "");
 		}
-		return condition;
+		return bIsTrue;
 	}
 
 	public static bool IsNotNull(System.Object value, string message = null, Object context = null)
 	{
-		bool condition = value.IsNotNull();
-		if (!condition)
+		bool bIsNull = (value is null);
+		if (bIsNull)
 		{
 #if UNITY_EDITOR
 			System.Diagnostics.Debugger.Break();
 #endif
 			UnityEngine.Debug.LogError(message ?? "CustomAssertions.IsNotNull: Assertion Failed");
 		}
-		return condition;
+		return !bIsNull;
 	}
 }
 
@@ -282,7 +282,7 @@ namespace Utils
 				typeof(UnityEngine.PhysicMaterial),
 			};
 		*/    ////////////////////////////////////////////////
-		private static string[] Excluded = new string[]
+		private static readonly string[] Excluded = new string[]
 		{
 			"sleepVelocity", "sleepAngularVelocity", "inertiaTensor", "inertiaTensorRotation"
 		};
@@ -467,37 +467,58 @@ namespace Utils
 
 
 		////////////////////////////////////////////////
-		public	static IEnumerator DestroyChildren( Transform t, int StartIndex = 0, int EndIndex = int.MaxValue )
+		public static IEnumerator AsyncDestroyChildren(Transform t, int StartIndex = 0, int EndIndex = int.MaxValue)
 		{
 			int childCount = t.childCount;
 
-			if ( StartIndex > childCount )
+			if (StartIndex > childCount)
+			{
 				yield break;
+			}
 
-			if ( EndIndex > childCount )
-				EndIndex = childCount;
+			EndIndex = EndIndex > childCount ? childCount : EndIndex;
 
-			GameObject bin = new GameObject();
-			bin.hideFlags = HideFlags.DontSave;
+			GameObject bin = new GameObject
+			{
+				name = $"TempBinObjectOf_{t.name}",
+				hideFlags = HideFlags.DontSave
+			};
+			Object.DontDestroyOnLoad(bin);
 			Transform binTransform = bin.transform;
 
 			// Move children into bin
-			for ( int i = EndIndex - 1; i >= StartIndex; i-- )
+			for (int i = EndIndex - 1; i >= StartIndex; i--)
 			{
-				Transform child = t.GetChild( i );
-				child.SetParent( binTransform );
+				Transform child = t.GetChild(i);
+				CustomAssertions.IsNotNull(child);
+				child.SetParent(binTransform);
 			}
 
-			// Destroy one gameobject every frame
-			for ( int i = 0; i < binTransform.childCount; i++ )
+			// Destroy one gameObject every frame
+			for (int i = 0; i < binTransform.childCount; i++)
 			{
-				Transform child = binTransform.GetChild( i );
-
-				Object.Destroy( child.gameObject );
+				Transform child = binTransform.GetChild(i);
+				if (child)
+				{
+					Object.Destroy(child.gameObject);
+				}
 				yield return null;
 			}
+			Object.Destroy(bin);
+		}
 
-			Object.Destroy( bin );
+		/// <summary> Return true only of given object is a key or a value in the enumeration </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="val"></param>
+		/// <returns></returns>
+		public	static bool IsValidEnumValue<T>(object val) where T : struct
+		{
+			System.Type enumType = typeof(T);
+			if (enumType.IsEnum)
+			{
+				return enumType.IsEnumDefined(val);
+			}
+			return false;
 		}
 	}
 

@@ -1,8 +1,8 @@
 ﻿
 using UnityEngine;
 
-namespace QuestSystem {
-
+namespace QuestSystem
+{
 	using System.Collections.Generic;
 
 	[System.Serializable]
@@ -26,34 +26,34 @@ namespace QuestSystem {
 	{
 	
 		[SerializeField]
-		private	List<Task>					m_Tasks						= new List<Task>();
+		private					List<Task>					m_Tasks						= new List<Task>();
 		[SerializeField]
-		private	GameEvent					m_OnCompletion				= null;
+		private					GameEvent					m_OnCompletion				= null;
 		[SerializeField, ReadOnly]
-		private	bool						m_IsCompleted				= false;
+		private					bool						m_IsCompleted				= false;
 		[SerializeField, ReadOnly]
-		private	bool						m_IsInitialized				= false;
+		private					bool						m_IsInitialized				= false;
 		[SerializeField, ReadOnly]
-		private	EQuestStatus				m_Status					= EQuestStatus.NONE;
+		private					EQuestStatus				m_Status					= EQuestStatus.NONE;
 		[SerializeField, ReadOnly]
-		private	EQuestScope					m_Scope						= EQuestScope.LOCAL;
+		private					EQuestScope					m_Scope						= EQuestScope.LOCAL;
 
-		private	System.Action<Quest>		m_OnCompletionCallback		= delegate { };
+		private readonly		System.Action<Quest>		m_OnCompletionCallback		= delegate { };
 
-		public int							TaskCount					=> m_Tasks.Count;
-		public bool							IsCompleted					=> m_IsCompleted;
-		public bool							IsInitialized				=> m_IsInitialized;
-		public EQuestStatus					Status						=> m_Status;
-		public EQuestScope					Scope						=> m_Scope;
+		public					int							TaskCount					=> m_Tasks.Count;
+		public					bool						IsCompleted					=> m_IsCompleted;
+		public					bool						IsInitialized				=> m_IsInitialized;
+		public					EQuestStatus				Status						=> m_Status;
+		public					EQuestScope					Scope						=> m_Scope;
 
 
 		//////////////////////////////////////////////////////////////////////////
 		private void Awake()
 		{
-			if (CustomAssertions.IsNotNull(GameManager.StreamEvents))
+			if (CustomAssertions.IsNotNull(GameManager.SaveAndLoad))
 			{
-				GameManager.StreamEvents.OnSave += OnSave;
-				GameManager.StreamEvents.OnLoad += OnLoad;
+				GameManager.SaveAndLoad.OnSave += OnSave;
+				GameManager.SaveAndLoad.OnLoad += OnLoad;
 			}
 		}
 
@@ -61,10 +61,10 @@ namespace QuestSystem {
 		//////////////////////////////////////////////////////////////////////////
 		private void OnDestroy()
 		{
-			if (GameManager.StreamEvents.IsNotNull())
+			if (GameManager.SaveAndLoad.IsNotNull())
 			{
-				GameManager.StreamEvents.OnSave -= OnSave;
-				GameManager.StreamEvents.OnLoad -= OnLoad;
+				GameManager.SaveAndLoad.OnSave -= OnSave;
+				GameManager.SaveAndLoad.OnLoad -= OnLoad;
 			}
 		}
 
@@ -102,23 +102,23 @@ namespace QuestSystem {
 		*/
 
 		//////////////////////////////////////////////////////////////////////////
-		protected virtual bool OnSave(StreamData streamData, ref StreamUnit streamUnit)
+		protected virtual StreamUnit OnSave(StreamData streamData)
 		{
-			streamUnit = streamData.NewUnit(gameObject);
+			StreamUnit streamUnit = streamData.NewUnit(gameObject);
 			{
 				foreach (Task task in m_Tasks)
 				{
 					task.OnSave(streamUnit);
 				}
 			}
-			return true;
+			return streamUnit;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		protected	virtual		bool		OnLoad( StreamData streamData, ref StreamUnit streamUnit )
+		protected virtual StreamUnit OnLoad(StreamData streamData)
 		{
-			bool bResult = streamData.TryGetUnit(gameObject, out streamUnit);
+			bool bResult = streamData.TryGetUnit(gameObject, out StreamUnit streamUnit);
 			if (bResult)
 			{
 				foreach (Task task in m_Tasks)
@@ -126,7 +126,7 @@ namespace QuestSystem {
 					task.OnLoad(streamUnit);
 				}
 			}
-			return bResult;
+			return streamUnit;
 		}
 
 
@@ -168,7 +168,7 @@ namespace QuestSystem {
 			// Internal Delegates
 			m_OnCompletionCallback(this);
 
-			GameManager.StreamEvents.OnSave -= OnSave;
+			GameManager.SaveAndLoad.OnSave -= OnSave;
 
 			//Finalize();
 
@@ -177,7 +177,7 @@ namespace QuestSystem {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		private	void	OnTaskCompleted(Task task)
+		private void OnTaskCompleted(Task task)
 		{
 			bool bAreTasksCompleted = m_Tasks.TrueForAll(t => t.IsCompleted);
 			if (bAreTasksCompleted)
@@ -205,7 +205,7 @@ namespace QuestSystem {
 
 
 		//////////////////////////////////////////////////////////////////////////
-		public	void	Activate()
+		public void Activate()
 		{
 			if (m_Tasks.Count > 0)
 			{

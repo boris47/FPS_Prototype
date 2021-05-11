@@ -142,7 +142,7 @@ public class GameObjectsPool<T> where T : UnityEngine.Component
 
 		m_ActionOnObject = actionOnObject ?? m_ActionOnObject;
 
-		CoroutinesManager.Start(Utils.Base.DestroyChildren(m_ContainerGO.transform));
+		CoroutinesManager.Start(Utils.Base.AsyncDestroyChildren(m_ContainerGO.transform));
 
 		int size = m_ObjectsPool.Count;
 		m_ObjectsPool.Clear();

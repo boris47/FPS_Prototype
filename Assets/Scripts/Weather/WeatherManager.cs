@@ -184,8 +184,8 @@ namespace WeatherSystem
 
 		#region INITIALIZATION
 
-		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-		private static void SubsystemRegistration()
+		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+		private static void OnBeforeSceneLoad()
 		{
 			CustomAssertions.IsTrue(MonoBehaviourSingleton<WeatherManager>.TryInitializeSingleton(out m_Instance));
 			m_Instance.enabled = true;
@@ -229,7 +229,7 @@ namespace WeatherSystem
 			}
 
 			// This callback for the WindowWeatherEditor to update the reference to the current available instance of WeatherManager in scene
-			void OnPlayModeStateChanged( UnityEditor.PlayModeStateChange newState )
+			static void OnPlayModeStateChanged( UnityEditor.PlayModeStateChange newState )
 			{
 				WindowWeatherEditor.UpdateEditorInstance(true);
 			}
@@ -393,6 +393,8 @@ namespace WeatherSystem
 			SetupSun();
 
 			// Setup for Environment
+			CustomAssertions.IsNotNull(m_Sun);
+			CustomAssertions.IsNotNull(m_SkyMaterial);
 			RenderSettings.sun		= m_Sun;
 			RenderSettings.skybox	= m_SkyMaterial;
 

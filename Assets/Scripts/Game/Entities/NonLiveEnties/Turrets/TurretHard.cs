@@ -34,7 +34,7 @@ public class TurretHard : Turret {
 		StopAllCoroutines();
 		base.OnKill();
 	}
-	
+
 
 	//////////////////////////////////////////////////////////////////////////
 	/*
@@ -61,26 +61,27 @@ public class TurretHard : Turret {
 
 	//////////////////////////////////////////////////////////////////////////
 
-	protected override bool OnSave( StreamData streamData, ref StreamUnit streamUnit )
+	protected override StreamUnit OnSave(StreamData streamData)
 	{
-		bool bResult = base.OnSave( streamData, ref streamUnit );
+		StreamUnit streamUnit = base.OnSave(streamData);
+		if (streamUnit)
 		{
-		//	streamUnit.SetInternal( "FiredBullets", m_FiredBullets );
+			//streamUnit.SetInternal( "FiredBullets", m_FiredBullets );
 		}
-		return bResult;
+		return streamUnit;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 
-	protected override bool OnLoad( StreamData streamData, ref StreamUnit streamUnit )
+	protected override StreamUnit OnLoad(StreamData streamData)
 	{
-		bool bResult = base.OnLoad( streamData, ref streamUnit );
-		if (bResult)
+		StreamUnit streamUnit = base.OnLoad(streamData);
+		if (streamUnit)
 		{
-	//		m_FiredBullets = ( uint ) streamUnit.GetAsInt( "FiredBullets" );
+			//m_FiredBullets = ( uint ) streamUnit.GetAsInt( "FiredBullets" );
 		}
-		return bResult;
+		return streamUnit;
 	}
 	
 

@@ -3,6 +3,17 @@ using System.Globalization;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+[System.Serializable]
+public class GameEvent : UnityEngine.Events.UnityEvent { }
+[System.Serializable]
+public class GameEventArg1 : UnityEngine.Events.UnityEvent<UnityEngine.GameObject> { }
+[System.Serializable]
+public class GameEventArg2 : UnityEngine.Events.UnityEvent<UnityEngine.GameObject, UnityEngine.GameObject> { }
+[System.Serializable]
+public class GameEventArg3 : UnityEngine.Events.UnityEvent<UnityEngine.GameObject, UnityEngine.GameObject, UnityEngine.GameObject> { }
+[System.Serializable]
+public class GameEventArg4 : UnityEngine.Events.UnityEvent<UnityEngine.GameObject, UnityEngine.GameObject, UnityEngine.GameObject, UnityEngine.GameObject> { }
+
 #if UNITY_EDITOR
 [UnityEditor.InitializeOnLoad]
 class EditorInitializer
@@ -10,15 +21,15 @@ class EditorInitializer
 	static EditorInitializer ()
 	{
 		// Assets/Resources/Scriptables/WeatherCollection.asset
-	/*	string assetPath = System.IO.Path.Combine(WeatherSystem.WindowWeatherEditor.ASSETS_SCRIPTABLES_PATH, $"{WeatherSystem.WeatherManager.RESOURCES_WEATHERSCOLLECTION}.asset");
-		if (System.IO.File.Exists(assetPath))
-		{
-			WeatherSystem.Weathers weathers = UnityEditor.AssetDatabase.LoadAssetAtPath<WeatherSystem.Weathers>(assetPath);
-			CustomAssertions.IsNotNull(weathers, "Cannot preload weather cycles");
-			Debug.Log("Weathers cycles preloaded!");
-		}
-*/
-		void EnableCursorInEditMode(UnityEditor.PlayModeStateChange currentState)
+		/*	string assetPath = System.IO.Path.Combine(WeatherSystem.WindowWeatherEditor.ASSETS_SCRIPTABLES_PATH, $"{WeatherSystem.WeatherManager.RESOURCES_WEATHERSCOLLECTION}.asset");
+			if (System.IO.File.Exists(assetPath))
+			{
+				WeatherSystem.Weathers weathers = UnityEditor.AssetDatabase.LoadAssetAtPath<WeatherSystem.Weathers>(assetPath);
+				CustomAssertions.IsNotNull(weathers, "Cannot preload weather cycles");
+				Debug.Log("Weathers cycles preloaded!");
+			}
+	*/
+		static void EnableCursorInEditMode(UnityEditor.PlayModeStateChange currentState)
 		{
 			if (currentState == UnityEditor.PlayModeStateChange.EnteredEditMode)
 			{
@@ -36,13 +47,13 @@ public class GlobalManager : MonoBehaviourSingleton<GlobalManager>
 {
 	public partial class CustomLogger { } // Definition located at the bottom of this class
 
-	public static bool IsQuittings {get; private set; } = false;
+	public static bool IsQuittings { get; private set; } = false;
 
 	private static			CustomLogger	m_LoggerInstance	= null;
 	public	static			CustomLogger	LoggerInstance		=> m_LoggerInstance;
 	static GlobalManager()
 	{
-	//	m_LoggerInstance = new CustomLogger(!Application.isEditor);
+		//m_LoggerInstance = new CustomLogger(!Application.isEditor);
 	}
 
 #if UNITY_EDITOR
@@ -129,19 +140,20 @@ public class GlobalManager : MonoBehaviourSingleton<GlobalManager>
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private static void HandleException( string condition, string stackTrace, LogType type )
-    {
-		switch ( type )
+	private static void HandleException(string condition, string stackTrace, LogType type)
+	{
+		switch (type)
 		{
 			case LogType.Error:
 			case LogType.Assert:
 			case LogType.Exception:
 			{
+				Debug.LogError($"Error({type}): {condition}\n{stackTrace}");
 				QuitInstanly();
 				break;
 			}
 		}
-    }
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -152,7 +164,6 @@ public class GlobalManager : MonoBehaviourSingleton<GlobalManager>
 		{
 			Application.logMessageReceived += HandleException;
 		}
-
 
 		// Whether physics queries should hit back-face triangles.
 		Physics.queriesHitBackfaces = false;
@@ -171,12 +182,6 @@ public class GlobalManager : MonoBehaviourSingleton<GlobalManager>
 		// of the buffer which can incur performance cost.
 		QualitySettings.asyncUploadBufferSize = 24; // MB
 
-		// If not already loaded from previous scenes, ensure scene loaded for next sequence
-		Scene loadingScene = SceneManager.GetSceneByBuildIndex((int)ESceneEnumeration.LOADING);
-		if (!loadingScene.isLoaded)
-		{
-			SceneManager.LoadScene((int)ESceneEnumeration.LOADING, LoadSceneMode.Additive);
-		}
 	}
 
 
@@ -191,14 +196,14 @@ public class GlobalManager : MonoBehaviourSingleton<GlobalManager>
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		static		void		SetCursorVisibility( bool bVisible )
+	public static void SetCursorVisibility(bool bVisible)
 	{
-	//	if (Cursor.visible != bVisible)
+		//if (Cursor.visible != bVisible)
 		{
-	//		Cursor.visible = bVisible;
-	//		Cursor.lockState = bVisible ? CursorLockMode.None : CursorLockMode.Locked;
+			//Cursor.visible = bVisible;
+			//Cursor.lockState = bVisible ? CursorLockMode.None : CursorLockMode.Locked;
 
-			
+
 			IEnumerator SetCursorVisibility()
 			{
 				Cursor.visible = bVisible;
@@ -218,7 +223,7 @@ public class GlobalManager : MonoBehaviourSingleton<GlobalManager>
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public		static		void		SetTimeScale( float value )
+	public static void SetTimeScale(float value)
 	{
 		SoundManager.Pitch = value;
 
@@ -282,6 +287,7 @@ public class GlobalManager : MonoBehaviourSingleton<GlobalManager>
 		//////////////////////////////////////////////////////////////////////////
 		public CustomLogger(bool UseFileSystemWriter)
 		{
+			Debug.Log($"Using custom logger with {nameof(UseFileSystemWriter)} set as {UseFileSystemWriter}");
 			m_DefaultLogHandler = Debug.unityLogger.logHandler;
 			Debug.unityLogger.logHandler = this;
 

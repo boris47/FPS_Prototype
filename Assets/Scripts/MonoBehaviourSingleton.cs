@@ -10,30 +10,30 @@ internal class SingletonInitializer
 	static SingletonInitializer() { }
 
 	/** We use reflection to get all types including interface 'IRuntimeInitializeLoad' and initialize them on phase 'SubsystemRegistration' */
-	[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-	private static void SubsystemRegistration()
-	{
-		var singletons = ReflectionHelper.FindInerithedFromInterface<IRuntimeInitializeLoad>(bInlcludeAbstracts: false);
-		ReflectionHelper.CallMethodOnTypes(singletons, "SubsystemRegistration", IsBaseMethod: true);
-	}
-
-	/** We use reflection to get all types including interface 'IRuntimeInitializeLoad' and initialize them on phase 'AfterAssembliesLoaded' */
-	[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
-	private static void AfterAssembliesLoaded()
-	{
-		var singletons = ReflectionHelper.FindInerithedFromInterface<IRuntimeInitializeLoad>(bInlcludeAbstracts: false);
-		ReflectionHelper.CallMethodOnTypes(singletons, "AfterAssembliesLoaded", IsBaseMethod: true);
-	}
-
-	/** We use reflection to get all types including interface 'IRuntimeInitializeLoad' and initialize them on phase 'BeforeSplashScreen'
-	 * If the splash screen is turned off, functions using this load type are invoked when the splash screen would have been displayed
-	 */
-	[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]
-	private static void BeforeSplashScreen()
-	{
-		var singletons = ReflectionHelper.FindInerithedFromInterface<IRuntimeInitializeLoad>(bInlcludeAbstracts: false);
-		ReflectionHelper.CallMethodOnTypes(singletons, "BeforeSplashScreen", IsBaseMethod: true);
-	}
+//	[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+//	private static void SubsystemRegistration()
+//	{
+//		var singletons = ReflectionHelper.FindInerithedFromInterface<IRuntimeInitializeLoad>(bInlcludeAbstracts: false);
+//		ReflectionHelper.CallMethodOnTypes(singletons, "SubsystemRegistration", IsBaseMethod: true);
+//	}
+//
+//	/** We use reflection to get all types including interface 'IRuntimeInitializeLoad' and initialize them on phase 'AfterAssembliesLoaded' */
+//	[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
+//	private static void AfterAssembliesLoaded()
+//	{
+//		var singletons = ReflectionHelper.FindInerithedFromInterface<IRuntimeInitializeLoad>(bInlcludeAbstracts: false);
+//		ReflectionHelper.CallMethodOnTypes(singletons, "AfterAssembliesLoaded", IsBaseMethod: true);
+//	}
+//
+//	/** We use reflection to get all types including interface 'IRuntimeInitializeLoad' and initialize them on phase 'BeforeSplashScreen'
+//	 * If the splash screen is turned off, functions using this load type are invoked when the splash screen would have been displayed
+//	 */
+//	[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSplashScreen)]
+//	private static void BeforeSplashScreen()
+//	{
+//		var singletons = ReflectionHelper.FindInerithedFromInterface<IRuntimeInitializeLoad>(bInlcludeAbstracts: false);
+//		ReflectionHelper.CallMethodOnTypes(singletons, "BeforeSplashScreen", IsBaseMethod: true);
+//	}
 
 	/** We use reflection to get all types including interface 'IRuntimeInitializeLoad' and initialize them on phase 'BeforeSceneLoad' */
 	[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -64,24 +64,25 @@ public abstract class MonoBehaviourSingleton<T> : MonoBehaviour, ISingleton, Sin
 	private		static			bool							m_IsInitialized			= false;
 	private		static			T								m_InstanceInternal		= null;
 	private		static			MonoBehaviourSingleton<T>		m_SingletonInstance		= null;
+
 	protected	static			T								m_Instance              => m_InstanceInternal;
 	protected	static			bool							ShowDebugInfo			{ get; private set; } = false;
 
 	public		static			T								Instance
 	{
 		get {
-			CustomAssertions.IsNotNull(m_Instance, $"{typeof(T).Name} has been not initialized correctly!!");
-			return m_Instance;
+			CustomAssertions.IsNotNull(m_InstanceInternal, $"{typeof(T).Name} has been not initialized correctly!!");
+			return m_InstanceInternal;
 		}
 	}
-	
+	/*
 	//////////////////////////////////////////////////////////////////////////
 	private	static	void	SubsystemRegistration()
 	{
 		InitializeIfNeeded();
 	//	m_SingletonInstance.OnSubsystemRegistration();
 	}
-	/*
+	
 	//////////////////////////////////////////////////////////////////////////
 	private	static	void	AfterAssembliesLoaded()
 	{
@@ -95,21 +96,21 @@ public abstract class MonoBehaviourSingleton<T> : MonoBehaviour, ISingleton, Sin
 		InitializeIfNeeded();
 		m_SingletonInstance.OnBeforeSplashScreen();
 	}
-
+	*/
 	//////////////////////////////////////////////////////////////////////////
 	private	static	void	BeforeSceneLoad()
 	{
 		InitializeIfNeeded();
 		m_SingletonInstance.OnBeforeSceneLoad();
 	}
-	*/
+	
 	//////////////////////////////////////////////////////////////////////////
 	private	static	void	AfterSceneLoad()
 	{
 		InitializeIfNeeded();
-	//	m_SingletonInstance.OnAfterSceneLoad();
-		/* Here we re-enable the component so OnEnabled is called */
-		m_Instance.enabled = true;
+		m_SingletonInstance.OnAfterSceneLoad();
+		// Here we re-enable the component so OnEnabled is called
+		m_SingletonInstance.enabled = true;
 	}
 
 
@@ -121,7 +122,7 @@ public abstract class MonoBehaviourSingleton<T> : MonoBehaviour, ISingleton, Sin
 		string typeName = typeof(K).Name;
 		instance = null;
 
-	//	UnityEngine.Debug.Log($"Creation of Singleton {typeName}");
+		//UnityEngine.Debug.Log($"Creation of Singleton {typeName}");
 
 		// Debug Info enable if requested by section
 		if (GlobalManager.Configs.TryGetSection("DebugInfos", out Database.Section debugInfosSection))
@@ -172,13 +173,14 @@ public abstract class MonoBehaviourSingleton<T> : MonoBehaviour, ISingleton, Sin
 	{
 		if (m_IsInitialized)
 		{
+			CustomAssertions.IsNotNull(m_InstanceInternal);
 			return;
 		}
 		m_IsInitialized = true;
 
 		CustomAssertions.IsTrue(TryInitializeSingleton(out m_InstanceInternal));
 
-		m_SingletonInstance = (m_Instance as MonoBehaviourSingleton<T>);
+		m_SingletonInstance = (m_InstanceInternal as MonoBehaviourSingleton<T>);
 		m_SingletonInstance.OnInitialize();
 	}
 
@@ -203,7 +205,7 @@ public abstract class MonoBehaviourSingleton<T> : MonoBehaviour, ISingleton, Sin
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Immediately before the splash screen is shown. </summary>
 	protected virtual void OnBeforeSplashScreen() { }
-
+	*/
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> Before Scene is loaded. </summary>
@@ -213,7 +215,7 @@ public abstract class MonoBehaviourSingleton<T> : MonoBehaviour, ISingleton, Sin
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary> After Scene is loaded. </summary>
 	protected virtual void OnAfterSceneLoad() { }
-	*/
+	
 }
 
 public abstract class OnDemandSingleton<T> : MonoBehaviour, IDeclaredSingleton where T : MonoBehaviour, new()

@@ -13,8 +13,6 @@ public sealed class CinematicCamera : CameraBase
 
 	private		bool							m_bIsTargetGenerated					= false;
 
-	protected override	string					PostProcessResourcePath					=> "Scriptables/CameraPostProcesses";
-
 
 	//////////////////////////////////////////////////////////////////////////
 	protected override void Awake()
@@ -120,7 +118,7 @@ public sealed class CinematicCamera : CameraBase
 	//////////////////////////////////////////////////////////////////////////
 	private void LateUpdate()
 	{
-		float deltaTime = GameManager.IsPaused ? 0f : Time.deltaTime;
+		float deltaTime = GameManager.PauseEvents.IsPaused ? 0f : Time.deltaTime;
 
 		// Update effectors
 		m_CameraEffectorsManager.OnFrame(deltaTime);

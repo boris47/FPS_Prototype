@@ -5,7 +5,7 @@ public partial class Player
 {
 	private	const	float			MAX_INTERACTION_DISTANCE		= 40.1f; // TODO set to 2.1
 
-	// The ammount of hit effect to show
+	// The amount of hit effect to show
 
 	[Header("Player Events")]
 	[SerializeField]
@@ -13,40 +13,38 @@ public partial class Player
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	bool	OnSave( StreamData streamData, ref StreamUnit streamUnit )
+	protected override StreamUnit OnSave(StreamData streamData)
 	{
-		bool bResult = base.OnSave( streamData, ref streamUnit );
-		if (bResult)
+		StreamUnit streamUnit = base.OnSave(streamData);
+		if (streamUnit)
 		{
 			// Health
-			streamUnit.SetInternal( "Health", m_Health );
+			streamUnit.SetInternal("Health", m_Health);
 
 			// Stamina
-		//	streamUnit.SetInternal( "Stamina", m_Stamina );
+			//streamUnit.SetInternal("Stamina", m_Stamina);
 
 			// Crouch state
-		//	streamUnit.SetInternal( "IsCrouched", IsCrouched );
+			//streamUnit.SetInternal("IsCrouched", IsCrouched);
 
 			// Motion Type
-		//	streamUnit.SetInternal( "MotionType", m_CurrentMotionType );
+			//streamUnit.SetInternal("MotionType", m_CurrentMotionType);
 		}
-		return bResult;
+		return streamUnit;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected	override	bool	OnLoad( StreamData streamData, ref StreamUnit streamUnit )
+	protected override StreamUnit OnLoad(StreamData streamData)
 	{
-		bool bResult = base.OnLoad(streamData, ref streamUnit);
-		if (bResult)
+		StreamUnit streamUnit = base.OnLoad(streamData);
+		if (streamUnit)
 		{
 			// Cutscene Manager
 			if (m_CutsceneManager.IsPlaying)
 			{
 				m_CutsceneManager.Terminate();
 			}
-
-
 
 			// UI effect reset
 			UIManager.EffectFrame.color = Color.clear;
@@ -66,9 +64,8 @@ public partial class Player
 			// TODO Load motion data ?
 
 			m_RigidBody.useGravity = false;
-
 		}
-		return bResult;
+		return streamUnit;
 	}
 
 	/*

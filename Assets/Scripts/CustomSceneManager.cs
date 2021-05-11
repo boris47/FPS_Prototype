@@ -13,10 +13,8 @@ public	enum ESceneEnumeration
 	INTRO		= 0,
 	LOADING		= INTRO + 1,
 	MAIN_MENU	= LOADING + 1,
-	OPENWORLD1	= MAIN_MENU + 1,
-	OPENWORLD2	= OPENWORLD1 + 1,
-	OPENWORLD3	= OPENWORLD2 + 1,
-	ENDING		= OPENWORLD3 + 1,
+	OPENWORLD	= MAIN_MENU + 1,
+	OPENWORLD2	= OPENWORLD + 1,
 	COUNT
 }
 
@@ -37,7 +35,7 @@ public class CustomSceneManager : MonoBehaviourSingleton<CustomSceneManager>
 		public	ESceneEnumeration	eScene					= ESceneEnumeration.NONE;
 		public	ESceneEnumeration	ePrevScene				= ESceneEnumeration.PREVIOUS;
 		public	LoadSceneMode		eMode					= LoadSceneMode.Single;
-		public	bool				bMustLoadSave			= false;
+		public	bool				bMustLoadSave			= false;	
 		public	string				sSaveToLoad				= string.Empty;
 		public	System.Action		pOnPreLoadCompleted		= null;
 		public	System.Action		pOnLoadCompleted		= null;
@@ -56,25 +54,57 @@ public class CustomSceneManager : MonoBehaviourSingleton<CustomSceneManager>
 
 	private static int m_CurrentSceneIndex = 0;
 	public static int CurrentSceneIndex => m_CurrentSceneIndex;
-	public static ESceneEnumeration CurrentSceneEnumeration => (ESceneEnumeration)m_CurrentSceneIndex;
+	public static ESceneEnumeration CurrentSceneEnumeration
+	{
+		get
+		{
+			if (Utils.Base.IsValidEnumValue<ESceneEnumeration>(m_CurrentSceneIndex))
+			{
+				return (ESceneEnumeration)m_CurrentSceneIndex;
+			}
+			else
+			{
+				CustomAssertions.IsTrue(false, $"{nameof(m_CurrentSceneIndex)}({m_CurrentSceneIndex}) is not a valid {nameof(ESceneEnumeration)}", m_Instance);
+				return ESceneEnumeration.NONE;
+			}
+		}
+	}
 
 
+	//////////////////////////////////////////////////////////////////////////
 	protected override void OnInitialize()
 	{
 		base.OnInitialize();
 
-		m_CurrentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+	//	m_CurrentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+	//	Debug.Log($"{nameof(m_CurrentSceneIndex)} = ({m_CurrentSceneIndex})");
 
 		SceneManager.sceneLoaded += OnSceneLoaded;
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
+	protected override void OnBeforeSceneLoad()
+	{
+		base.OnBeforeSceneLoad();
+
+		// If not already loaded from previous scenes, ensure scene loaded for next sequence
+		Scene loadingScene = SceneManager.GetSceneByBuildIndex((int)ESceneEnumeration.LOADING);
+		if (!loadingScene.isLoaded)
+		{
+			SceneManager.LoadScene((int)ESceneEnumeration.LOADING, LoadSceneMode.Additive);
+		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
 	private void OnDestroy()
 	{
 		SceneManager.sceneLoaded -= OnSceneLoaded;
 	}
 
 
+	//////////////////////////////////////////////////////////////////////////
 	private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
 	{
 		if (scene.buildIndex != (int)ESceneEnumeration.LOADING) // Loading scene is not to consider
@@ -109,23 +139,31 @@ public class CustomSceneManager : MonoBehaviourSingleton<CustomSceneManager>
 
 
 	/////////////////////////////////////////////////////////////////
-	private	static	bool	HasGotValidLoadScenData( LoadSceneData loadSceneData )
+	private static bool HasGotValidLoadScenData(LoadSceneData loadSceneData)
 	{
 		if (loadSceneData == null)
+		{
+			UnityEngine.Debug.LogError($"Trying to load null loadSceneData");
 			return false;
+		}
 
-		if (loadSceneData.eScene == ESceneEnumeration.NONE)
+		if (loadSceneData.eScene == ESceneEnumeration.NONE && (!loadSceneData.bMustLoadSave || loadSceneData.sSaveToLoad.IsNone()))
+		{
+			UnityEngine.Debug.LogError($"Trying to load a game but loadSceneData is invalid:\n\tbMustLoadSave: {loadSceneData.bMustLoadSave},\n\tsSaveToLoad: {loadSceneData.sSaveToLoad}");
 			return false;
+		}
 
 		// Requested the already loaded scene
 		if ((int)loadSceneData.eScene == m_CurrentSceneIndex)
 		{
+			UnityEngine.Debug.LogWarning($"Trying to load an already loaded scene {loadSceneData.eScene}");
 			return false;
 		}
 
 		// Check for save existence
-		if (loadSceneData.bMustLoadSave && System.IO.File.Exists(loadSceneData.sSaveToLoad) == false)
+		if (loadSceneData.bMustLoadSave && !System.IO.File.Exists(loadSceneData.sSaveToLoad))
 		{
+			UnityEngine.Debug.LogError($"Trying to load a game but save file does not exit:\n\tFile: {loadSceneData.sSaveToLoad}");
 			return false;
 		}
 
@@ -147,6 +185,7 @@ public class CustomSceneManager : MonoBehaviourSingleton<CustomSceneManager>
 			ESceneEnumeration previousScene = (ESceneEnumeration)(m_CurrentSceneIndex + 1);
 			if (previousScene < 0)
 			{
+				CustomAssertions.IsTrue(false, "previousScene < 0");
 				return false;
 			}
 
@@ -236,15 +275,12 @@ public class CustomSceneManager : MonoBehaviourSingleton<CustomSceneManager>
 
 
 	/// <summary> Launch load of a scene asynchronously </summary>
-	public static /*IEnumerator*/void LoadSceneAsync(LoadSceneData loadSceneData)
+	public static void LoadSceneAsync(LoadSceneData loadSceneData)
 	{
-		IEnumerator enumerator = null;
 		if (HasGotValidLoadScenData(loadSceneData) /*&& !m_HasPreloadedScene && !m_IsCurrentlyPreloading*/)
 		{
-			enumerator = m_Instance.LoadSceneAsyncCO(loadSceneData);
-			CoroutinesManager.Start(enumerator, $"CustomSceneManager::LoadSceneAsync: Loading {loadSceneData.eScene}");
+			CoroutinesManager.Start(m_Instance.LoadSceneAsyncCO(loadSceneData), $"CustomSceneManager::LoadSceneAsync: Loading {loadSceneData.eScene}");
 		}
-		//return enumerator;
 	}
 
 
@@ -408,7 +444,7 @@ public class CustomSceneManager : MonoBehaviourSingleton<CustomSceneManager>
 			Loading.SetSubTask($"Going to load save '{loadSceneData.sSaveToLoad}'");
 			{
 				Loading.SetProgress(0.95f);
-				GameManager.StreamEvents.Load(loadSceneData.sSaveToLoad);
+				GameManager.SaveAndLoad.Load(loadSceneData.sSaveToLoad);
 			}
 			Loading.EndSubTask();
 		}

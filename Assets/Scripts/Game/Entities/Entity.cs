@@ -139,10 +139,10 @@ public abstract partial class Entity : MonoBehaviour//, IIdentificable<uint>
 			}
 		}
 
-		if (CustomAssertions.IsNotNull(GameManager.StreamEvents))
+		if (CustomAssertions.IsNotNull(GameManager.SaveAndLoad))
 		{
-			GameManager.StreamEvents.OnSave += OnSave;
-			GameManager.StreamEvents.OnLoad += OnLoad;
+			GameManager.SaveAndLoad.OnSave += OnSave;
+			GameManager.SaveAndLoad.OnLoad += OnLoad;
 		}
 	}
 
@@ -150,10 +150,10 @@ public abstract partial class Entity : MonoBehaviour//, IIdentificable<uint>
 	//////////////////////////////////////////////////////////////////////////
 	private void OnDestroy()
 	{
-		if (GameManager.StreamEvents.IsNotNull())
+		if (GameManager.SaveAndLoad.IsNotNull())
 		{
-			GameManager.StreamEvents.OnSave -= OnSave;
-			GameManager.StreamEvents.OnLoad -= OnLoad;
+			GameManager.SaveAndLoad.OnSave -= OnSave;
+			GameManager.SaveAndLoad.OnLoad -= OnLoad;
 		}
 
 		{

@@ -16,8 +16,6 @@ public class FPSEntityCamera : CameraBase
 		public	float	ViewDistance			= 500f;
 	}
 
-	protected override		string				PostProcessResourcePath					=> "Scriptables/CameraPostProcesses";
-
 	[Header("FPS Camera")]
 
 	[SerializeField, ReadOnly]

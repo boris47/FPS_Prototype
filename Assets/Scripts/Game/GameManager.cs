@@ -14,11 +14,11 @@ public sealed partial class GameManager : MonoBehaviourSingleton<GameManager>
 	{
 		base.OnInitialize();
 
-		CustomSceneManager.RegisterOnLoad(ESceneLoadStep.SCENE_LOADED, OnInGameScene);
+		CustomSceneManager.RegisterOnLoad(ESceneLoadStep.SCENE_LOADED, OnSceneLoaded);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	private void OnInGameScene(ESceneEnumeration prevScene, ESceneEnumeration currScene)
+	private void OnSceneLoaded(ESceneEnumeration prevScene, ESceneEnumeration currScene)
 	{
 		void TogglePauseMenu()
 		{
@@ -84,20 +84,17 @@ public sealed partial class GameManager : MonoBehaviourSingleton<GameManager>
 	//////////////////////////////////////////////////////////////////////////
 	private void Save()
 	{
-		StreamEvents.Save();
+		SaveAndLoad.Save();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private void Load()
 	{
-		bool bHasSavedSceneIndex	= PlayerPrefs.HasKey("SaveSceneIdx");
-		bool bHasSaveFilePath		= PlayerPrefs.HasKey("SaveFilePath");
-		if (bHasSavedSceneIndex && bHasSaveFilePath)
+		if (PlayerPrefs.HasKey("SaveFilePath"))
 		{
-			int saveSceneIdx		= PlayerPrefs.GetInt("SaveSceneIdx");
-			string saveFilePath		= PlayerPrefs.GetString("SaveFilePath");
-			StreamEvents.Load(saveFilePath);
+			string saveFilePath = PlayerPrefs.GetString("SaveFilePath");
+			SaveAndLoad.Load(saveFilePath);
 		}
 	}
 
@@ -123,7 +120,7 @@ public sealed partial class GameManager : MonoBehaviourSingleton<GameManager>
 		if (m_QuitRequest)
 		{
 			Debug.Log("GameManager: Processing exit request");
-			if (m_SaveLoadState != EStreamingState.SAVING)
+			if (m_SaveAndLoadState != EStreamingState.SAVING)
 			{
 				GlobalManager.QuitInstanly();
 			}
@@ -141,27 +138,11 @@ public sealed partial class GameManager : MonoBehaviourSingleton<GameManager>
 	//////////////////////////////////////////////////////////////////////////
 	private	void	ResetEvents()
 	{
-		// StreamEvents
-		m_OnSave							= delegate { return true; };
-		m_OnSaveComplete					= delegate { return true; };
-		m_OnLoad.Clear();					//= new List<GameEvents.StreamingEvent>();
-		m_OnLoadComplete.Clear();			//= new List<GameEvents.StreamingEvent>();
-		m_SaveLoadState						= EStreamingState.NONE;
+		ResetUpdateEvents();
 
-		// PauseEvents
-		m_OnPauseSet						= delegate { };
-		m_IsPaused							= false;
-		m_PrevTimeScale						= 1f;
-		m_PrevCanParseInput					= false;
-		m_PrevInputEnabled					= false;
+		ResetSaveAndLoadEvens();
 
-		// UpdateEvents
-		m_OnThink							= delegate { };
-		m_OnPhysicFrame						= delegate { };
-		m_OnFrame							= delegate { };
-		m_OnLateFrame						= delegate { };
-
-	//	m_FieldsOfViewList.Clear();
+		ResetPauseEvents();
 	}
 
 
@@ -170,6 +151,7 @@ public sealed partial class GameManager : MonoBehaviourSingleton<GameManager>
 	{
 		ResetEvents();
 
+		// Reset Internals
 		m_QuitRequest			= false;
 		m_ThinkTimer			= 0f;
 		m_IsPaused				= false;

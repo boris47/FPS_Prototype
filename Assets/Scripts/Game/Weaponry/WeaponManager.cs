@@ -40,10 +40,10 @@ public partial class WeaponManager : OnDemandSingleton<WeaponManager>, IWeaponMa
 	{
 		base.Awake();
 
-		if (CustomAssertions.IsNotNull(GameManager.StreamEvents))
+		if (CustomAssertions.IsNotNull(GameManager.SaveAndLoad))
 		{
-			GameManager.StreamEvents.OnSave += OnSave;
-			GameManager.StreamEvents.OnLoad += OnLoad;
+			GameManager.SaveAndLoad.OnSave += OnSave;
+			GameManager.SaveAndLoad.OnLoad += OnLoad;
 		}
 	}
 
@@ -51,10 +51,10 @@ public partial class WeaponManager : OnDemandSingleton<WeaponManager>, IWeaponMa
 	//////////////////////////////////////////////////////////////////////////
 	protected override void OnDestroy()
 	{
-		if (GameManager.StreamEvents.IsNotNull())
+		if (GameManager.SaveAndLoad.IsNotNull())
 		{
-			GameManager.StreamEvents.OnSave -= OnSave;
-			GameManager.StreamEvents.OnLoad -= OnLoad;
+			GameManager.SaveAndLoad.OnSave -= OnSave;
+			GameManager.SaveAndLoad.OnLoad -= OnLoad;
 		}
 
 		base.OnDestroy();
@@ -146,15 +146,15 @@ public partial class WeaponManager : OnDemandSingleton<WeaponManager>, IWeaponMa
 
 		m_StartCameraFOV = FPSEntityCamera.Instance.MainCamera.fieldOfView;
 
-		// Make sure that ui show data of currnt active weapon
+		// Make sure that ui show data of current active weapon
 		UIManager.InGame.UpdateUI();
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private bool OnSave(StreamData streamData, ref StreamUnit streamUnit)
+	private StreamUnit OnSave(StreamData streamData)
 	{
-		streamUnit = streamData.NewUnit(this);
+		StreamUnit streamUnit = streamData.NewUnit(this);
 
 		streamUnit.SetInternal("CurrentWeaponIndex", CurrentWeaponIndex);
 		streamUnit.SetInternal("ZoomedIn", m_ZoomedIn);
@@ -164,18 +164,18 @@ public partial class WeaponManager : OnDemandSingleton<WeaponManager>, IWeaponMa
 		streamUnit.SetInternal("ZoomingTime", m_ZoomingTime);
 		streamUnit.SetInternal("ZoomSensitivity", m_ZoomSensitivity);
 		streamUnit.SetInternal("StartCameraFOV", m_StartCameraFOV);
-		return true;
+		return streamUnit;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private bool OnLoad(StreamData streamData, ref StreamUnit streamUnit)
+	private StreamUnit OnLoad(StreamData streamData)
 	{
 		StopAllCoroutines();
 		m_ZoomingTime = 0f;
 		m_IsChangingWpn = false;
 
-		bool bResult = streamData.TryGetUnit(gameObject, out streamUnit);
+		bool bResult = streamData.TryGetUnit(gameObject, out StreamUnit streamUnit);
 		if (bResult)
 		{
 			// Current Weapon
@@ -203,7 +203,7 @@ public partial class WeaponManager : OnDemandSingleton<WeaponManager>, IWeaponMa
 				FPSEntityCamera.Instance.MainCamera.fieldOfView = m_ZoomedIn ? cameraFinalFov : m_StartCameraFOV;
 			}
 		}
-		return bResult;
+		return streamUnit;
 	}
 
 

@@ -84,7 +84,7 @@ namespace CutScene {
 		//////////////////////////////////////////////////////////////////////////
 		private	void	OnFrameUpdate( float DeltaTime )
 		{
-			if ( GameManager.IsPaused == true )
+			if ( GameManager.PauseEvents.IsPaused == true )
 				return;
 
 			if (IsPlaying == false )

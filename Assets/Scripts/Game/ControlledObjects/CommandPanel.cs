@@ -33,41 +33,41 @@ public class CommandPanel : MonoBehaviour {
 			return;
 		}
 
-		CustomAssertions.IsNotNull(GameManager.StreamEvents);
+		CustomAssertions.IsNotNull(GameManager.SaveAndLoad);
 
-		GameManager.StreamEvents.OnSave += OnSave;
-		GameManager.StreamEvents.OnLoad += OnLoad;
+		GameManager.SaveAndLoad.OnSave += OnSave;
+		GameManager.SaveAndLoad.OnLoad += OnLoad;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	private void OnDestroy()
 	{
-		if (GameManager.StreamEvents.IsNotNull())
+		if (GameManager.SaveAndLoad.IsNotNull())
 		{
-			GameManager.StreamEvents.OnSave -= OnSave;
-			GameManager.StreamEvents.OnLoad -= OnLoad;
+			GameManager.SaveAndLoad.OnSave -= OnSave;
+			GameManager.SaveAndLoad.OnLoad -= OnLoad;
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private	bool	OnSave( StreamData streamData, ref StreamUnit streamUnit )
+	private StreamUnit OnSave(StreamData streamData)
 	{
-		streamUnit = streamData.NewUnit(gameObject );
+		StreamUnit streamUnit = streamData.NewUnit(gameObject);
 
-		streamUnit.SetInternal( "IsTriggered", m_IsTriggered );
+		streamUnit.SetInternal("IsTriggered", m_IsTriggered);
 
-		return true;
+		return streamUnit;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private	bool	OnLoad( StreamData streamData, ref StreamUnit streamUnit )
+	private StreamUnit OnLoad(StreamData streamData)
 	{
-		bool bResult = streamData.TryGetUnit(gameObject, out streamUnit );
+		bool bResult = streamData.TryGetUnit(gameObject, out StreamUnit streamUnit);
 		if (bResult)
 		{
-			if (m_IsTriggered = streamUnit.GetAsBool( "IsTriggered" ) == true )
+			if (m_IsTriggered = streamUnit.GetAsBool( "IsTriggered" ))
 			{
 				m_ObjectToControl.OnActivation();
 				m_Activator.transform.position			= m_TriggerCollider.transform.position;
@@ -78,7 +78,7 @@ public class CommandPanel : MonoBehaviour {
 				m_TriggerCollider.enabled				= false;
 			}
 		}
-		return bResult;
+		return streamUnit;
 	}
 
 

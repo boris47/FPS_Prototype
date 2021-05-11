@@ -123,7 +123,7 @@ public sealed class UI_Audio : UI_Base, IStateDefiner
 	//////////////////////////////////////////////////////////////////////////
 	private void UpdateUI()
 	{
-		UserSettings.AudioSettings.AudioData data = UserSettings.AudioSettings.GetAudioData();
+		UserSettings.AudioData data = UserSettings.AudioSettings.GetAudioData();
 		m_MusicSlider.value = data.MusicVolume;
 		m_SoundSlider.value = data.SoundVolume;
 	}

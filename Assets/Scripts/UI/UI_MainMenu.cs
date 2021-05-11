@@ -32,11 +32,10 @@ public sealed class UI_MainMenu : UI_Base, IStateDefiner
 			// Resume button
 			if(CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("Button_Resume", out m_ResumeButton)))
 			{
-				bool bHasSavedSceneIndex	= PlayerPrefs.HasKey("SaveSceneIdx");
 				bool bHasSaveFilePath		= PlayerPrefs.HasKey("SaveFilePath");
 				bool bSaveFileExists		= bHasSaveFilePath && System.IO.File.Exists(PlayerPrefs.GetString("SaveFilePath"));
 
-				m_ResumeButton.interactable = bHasSavedSceneIndex && bHasSaveFilePath && bSaveFileExists;
+				m_ResumeButton.interactable = bHasSaveFilePath && bSaveFileExists;
 				m_ResumeButton.onClick.AddListener(OnResume);
 			}
 
@@ -65,16 +64,25 @@ public sealed class UI_MainMenu : UI_Base, IStateDefiner
 
 
 	//////////////////////////////////////////////////////////////////////////
-	void	IStateDefiner.ReInit()
+	void IStateDefiner.ReInit()
 	{
 		
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	bool	 IStateDefiner.Finalize()
+	bool IStateDefiner.Finalize()
 	{
 		return m_IsInitialized;
+	}
+
+
+	private void Update()
+	{
+		if (Input.GetKeyDown(KeyCode.Escape))
+		{
+			GlobalManager.QuitInstanly();
+		}
 	}
 
 
@@ -90,18 +98,16 @@ public sealed class UI_MainMenu : UI_Base, IStateDefiner
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private	void	OnNewGame()
+	private void OnNewGame()
 	{
-		void onNewGame()
+		static void onNewGame()
 		{
 			// New game confirmed, removing previous game reference
 			PlayerPrefs.DeleteKey("SaveSceneIdx");
 
 			CustomSceneManager.LoadSceneData LoadSceneData = new CustomSceneManager.LoadSceneData()
 			{
-				eScene = ESceneEnumeration.OPENWORLD1,
-				sSaveToLoad = "",
-				bMustLoadSave = false
+				eScene = ESceneEnumeration.OPENWORLD,
 			};
 			CustomSceneManager.LoadSceneAsync(LoadSceneData);
 		}
@@ -118,34 +124,29 @@ public sealed class UI_MainMenu : UI_Base, IStateDefiner
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private	void	OnResume()
+	private void OnResume()
 	{
-		bool bHasSavedSceneIndex	= PlayerPrefs.HasKey( "SaveSceneIdx" );
-		bool bHasSaveFilePath		= PlayerPrefs.HasKey( "SaveFilePath" );
-		bool bSaveFileExists		= bHasSaveFilePath && System.IO.File.Exists( PlayerPrefs.GetString( "SaveFilePath" ) );
-
-		int saveSceneIdx			= PlayerPrefs.GetInt( "SaveSceneIdx" );
-		string saveFilePath			= PlayerPrefs.GetString( "SaveFilePath" );
-
-		if ( bHasSavedSceneIndex && bHasSaveFilePath && bSaveFileExists )
+		bool bHasSaveFilePath = PlayerPrefs.HasKey("SaveFilePath");
+		bool bSaveFileExists = bHasSaveFilePath && System.IO.File.Exists(PlayerPrefs.GetString("SaveFilePath"));
+		if (bSaveFileExists)
 		{
+			string saveFilePath = PlayerPrefs.GetString("SaveFilePath");
 			CustomSceneManager.LoadSceneData LoadSceneData = new CustomSceneManager.LoadSceneData()
 			{
-				eScene				= (ESceneEnumeration)saveSceneIdx,
-				sSaveToLoad			= saveFilePath,
-				bMustLoadSave		= true
+				sSaveToLoad = saveFilePath,
+				bMustLoadSave = true
 			};
-			CustomSceneManager.LoadSceneAsync( LoadSceneData );
+			CustomSceneManager.LoadSceneAsync(LoadSceneData);
 		}
 		else
 		{
-			Debug.LogError( "Cannot load last save" );
+			Debug.LogError("Cannot load last save");
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private void	OnSettings()
+	private void OnSettings()
 	{
 		UIManager.Instance.GoToSubMenu(UIManager.Settings);
 	}

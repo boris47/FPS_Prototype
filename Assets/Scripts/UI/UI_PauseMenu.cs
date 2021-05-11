@@ -111,7 +111,7 @@ public sealed class UI_PauseMenu : UI_Base, IStateDefiner
 	//////////////////////////////////////////////////////////////////////////
 	private	void	OnSave()
 	{
-		GameManager.StreamEvents.Save();
+		GameManager.SaveAndLoad.Save();
 	}
 
 	/*

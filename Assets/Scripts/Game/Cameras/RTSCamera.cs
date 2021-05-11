@@ -9,8 +9,6 @@ public class RTSCamera : CameraBase
 	public		static		RTSCamera			m_Instance								= null;
 	public		static		RTSCamera			Instance								=> m_Instance;
 
-	protected override	string					PostProcessResourcePath					=> "Scriptables/CameraPostProcesses";
-
 	[SerializeField][Header("Camera TPS Settings")]
 	private		Vector2							m_TPSOffset								= Vector2.zero;
 

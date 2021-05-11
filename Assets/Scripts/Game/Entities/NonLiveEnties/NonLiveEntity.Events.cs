@@ -1,14 +1,14 @@
 ﻿public abstract partial class NonLiveEntity : Entity {
 
-	
+
 
 
 	//////////////////////////////////////////////////////////////////////////
 
-	protected	override	bool	OnLoad( StreamData streamData, ref StreamUnit streamUnit )
+	protected override StreamUnit OnLoad(StreamData streamData)
 	{
-		bool bResult = base.OnLoad( streamData, ref streamUnit );
-		if (bResult)
+		StreamUnit streamUnit = base.OnLoad(streamData);
+		if (streamUnit)
 		{
 			// Health
 			m_Health = streamUnit.GetAsFloat( "Health" );
@@ -38,6 +38,6 @@
 			// Brain state
 	//		m_Brain.ChangeState ( streamUnit.GetAsEnum<BrainState>( "BrainState" ) );
 		}
-		return bResult;
+		return streamUnit;
 	}
 }

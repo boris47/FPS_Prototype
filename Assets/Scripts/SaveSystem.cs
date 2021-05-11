@@ -107,7 +107,7 @@ public static class SaveSystem
 		root.transform.localRotation = rootData.rotation;
 		root.transform.localScale = rootData.scale;
 		{
-			void SetupGameObject(GameObject parent, ComponentInfo[] components, GOToJSON[] children)
+			static void SetupGameObject(GameObject parent, ComponentInfo[] components, GOToJSON[] children)
 			{
 				foreach (ComponentInfo componentData in components)
 				{

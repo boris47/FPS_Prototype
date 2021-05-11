@@ -17,21 +17,10 @@ public abstract class CameraBase : MonoBehaviour
 	protected	PostProcessingBehaviour			m_PostProcessingBehaviour				= null;
 	protected	Camera							m_CameraRef								= null;
 
-	protected abstract string					PostProcessResourcePath					{ get; }
-
 
 	protected virtual void Awake()
 	{
-		if (!m_PP_Profile)
-		{
-			CustomAssertions.IsTrue
-			(
-				ResourceManager.LoadResourceSync(PostProcessResourcePath, out m_PP_Profile),
-				"Failed the load of camera post processes profile"
-			);
-
-			UserSettings.VideoSettings.SetPPProfile(m_PP_Profile);
-		}
+		m_PP_Profile = UserSettings.VideoSettings.GetPostProcessingProfile();
 		
 		CustomAssertions.IsTrue
 		(

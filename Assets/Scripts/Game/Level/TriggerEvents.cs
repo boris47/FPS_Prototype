@@ -53,10 +53,10 @@ public class TriggerEvents : MonoBehaviour
 		m_OnEnter.AddListener(go => m_OnEnterEvent(go));
 		m_OnExit.AddListener(go => m_OnExitEvent(go));
 
-		if (CustomAssertions.IsNotNull(GameManager.StreamEvents))
+		if (CustomAssertions.IsNotNull(GameManager.SaveAndLoad))
 		{
-			GameManager.StreamEvents.OnSave += StreamEvents_OnSave;
-			GameManager.StreamEvents.OnLoad += StreamEvents_OnLoad;
+			GameManager.SaveAndLoad.OnSave += StreamEvents_OnSave;
+			GameManager.SaveAndLoad.OnLoad += StreamEvents_OnLoad;
 		}
 	}
 
@@ -64,35 +64,35 @@ public class TriggerEvents : MonoBehaviour
 	//////////////////////////////////////////////////////////////////////////
 	private void OnDestroy()
 	{
-		if (GameManager.StreamEvents.IsNotNull())
+		if (GameManager.SaveAndLoad.IsNotNull())
 		{
-			GameManager.StreamEvents.OnSave -= StreamEvents_OnSave;
-			GameManager.StreamEvents.OnLoad -= StreamEvents_OnLoad;
+			GameManager.SaveAndLoad.OnSave -= StreamEvents_OnSave;
+			GameManager.SaveAndLoad.OnLoad -= StreamEvents_OnLoad;
 		}
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private bool StreamEvents_OnSave(StreamData streamData, ref StreamUnit streamUnit)
+	private StreamUnit StreamEvents_OnSave(StreamData streamData)
 	{
-		streamUnit = streamData.NewUnit(gameObject);
+		StreamUnit streamUnit = streamData.NewUnit(gameObject);
 		streamUnit.SetInternal("HasTriggered", m_HasTriggered);
 		streamUnit.SetInternal("TriggerOnce", m_TriggerOnce);
-		return true;
+		return streamUnit;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private bool StreamEvents_OnLoad(StreamData streamData, ref StreamUnit streamUnit)
+	private StreamUnit StreamEvents_OnLoad(StreamData streamData)
 	{
 		// Get unit
-		bool bResult = streamData.TryGetUnit(gameObject, out streamUnit);
+		bool bResult = streamData.TryGetUnit(gameObject, out StreamUnit streamUnit);
 		if (bResult)
 		{
 			// TRIGGERED
 			m_HasTriggered = streamUnit.GetAsBool("HasTriggered");
 		}
-		return bResult;
+		return streamUnit;
 	}
 
 

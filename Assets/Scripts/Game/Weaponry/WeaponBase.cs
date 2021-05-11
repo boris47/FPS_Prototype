@@ -180,10 +180,10 @@ public abstract partial class WeaponBase : MonoBehaviour, IWeapon
 		}
 
 		// The weapons and modules and attachments must be sabed in any case, event if the wepoan is not active at save moment
-		if (CustomAssertions.IsNotNull(GameManager.StreamEvents))
+		if (CustomAssertions.IsNotNull(GameManager.SaveAndLoad))
 		{
-			GameManager.StreamEvents.OnSave += OnSave;
-			GameManager.StreamEvents.OnLoad += OnLoad;
+			GameManager.SaveAndLoad.OnSave += OnSave;
+			GameManager.SaveAndLoad.OnLoad += OnLoad;
 		}
 
 		WeaponManager.Instance.RegisterWeapon(this);
@@ -201,10 +201,10 @@ public abstract partial class WeaponBase : MonoBehaviour, IWeapon
 	protected virtual void OnDestroy()
 	{
 		// Deregister only on destruction
-		if (GameManager.StreamEvents.IsNotNull())
+		if (GameManager.SaveAndLoad.IsNotNull())
 		{
-			GameManager.StreamEvents.OnSave -= OnSave;
-			GameManager.StreamEvents.OnLoad -= OnLoad;
+			GameManager.SaveAndLoad.OnSave -= OnSave;
+			GameManager.SaveAndLoad.OnLoad -= OnLoad;
 		}
 	}
 
@@ -307,24 +307,24 @@ public abstract partial class WeaponBase : MonoBehaviour, IWeapon
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected virtual bool OnSave(StreamData streamData, ref StreamUnit streamUnit)
+	protected virtual StreamUnit OnSave(StreamData streamData)
 	{
-		streamUnit = streamData.NewUnit(gameObject);
+		StreamUnit streamUnit = streamData.NewUnit(gameObject);
 
 		streamUnit.SetInternal("PrimaryModule", m_PrimaryWeaponModuleSlot.WeaponModule.ModuleSection.GetSectionName());
 
 		m_PrimaryWeaponModuleSlot.WeaponModule.OnSave(streamUnit);
 		m_SecondaryWeaponModuleSlot.WeaponModule.OnSave(streamUnit);
-		return true;
+		return streamUnit;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	protected virtual bool OnLoad(StreamData streamData, ref StreamUnit streamUnit)
+	protected virtual StreamUnit OnLoad(StreamData streamData)
 	{
 		m_Animator.Play("draw", -1, 0.99f);
 
-		bool bResult = streamData.TryGetUnit(this, out streamUnit);
+		bool bResult = streamData.TryGetUnit(this, out StreamUnit streamUnit);
 		if (bResult)
 		{
 			m_PrimaryWeaponModuleSlot.WeaponModule.OnLoad(streamUnit);
@@ -332,7 +332,7 @@ public abstract partial class WeaponBase : MonoBehaviour, IWeapon
 
 			UIManager.InGame.UpdateUI();
 		}
-		return bResult;
+		return streamUnit;
 	}
 
 

@@ -3,252 +3,123 @@ using UnityEngine.PostProcessing;
 using System.Collections.Generic;
 
 namespace UserSettings
-{
-	class PPSettings<T> : System.IDisposable where T : struct
+{	
+	public delegate void OnResolutionChangedDelegate(float newWidth, float newHeight);
+
+	// ---------------------------
+	[System.Serializable]
+	public class ScreenData
 	{
-		private		PostProcessingModel		m_Model			= null;
-		private		T						m_Settings		= default;
+		public static Resolution defaultResolution = new Resolution() { width = 640, height = 480, refreshRate = 50 };
+		public bool bIsFullScreen = false;
+		public int iResolutionIndex = 0;
+		public bool isDirty = false;
+	}
+	// ---------------------------
+	[System.Serializable]
+	public class QualityData
+	{
+		public int iQualityLevel = 0;
+		public bool isDirty = false;
+	}
+	// ---------------------------
+	[System.Serializable]
+	public class FiltersData
+	{
+		public bool bHasAnisotropicFilter = false;
+		public int iAntialiasing = 0;
+		public bool isDirty = false;
+	}
+	// ---------------------------
+	[System.Serializable]
+	public class PostProcessingData
+	{
+		// Antialiasing
+		public bool bIsAntialiasingEnabled = false;
+		public AntialiasingModel.FxaaPreset eAntialiasingPreset = AntialiasingModel.FxaaPreset.Default;
 
-		public PPSettings(PostProcessingModel model, out T OutSettings)
-		{
-			if (ReflectionHelper.GetFieldValue(model, "m_Settings", out OutSettings))
-			{
-				m_Model = model;
-			//	m_Settings = OutSettings;
-				AssignByRef(ref OutSettings, ref m_Settings);
-			}
-		}
-		void System.IDisposable.Dispose()
-		{
-			if (m_Settings.IsNotNull())
-			{
-				ReflectionHelper.SetFieldValue(m_Model, "m_Settings", m_Settings);
-			}
-		}
+		// Ambient Occlusion
+		public bool bIsAmbientOcclusionEnabled = false;
+		public int iAmbientOcclusionLvlIdx = 0;
 
-		private static void AssignByRef(ref T objA, ref T objB)
-		{
-			objB = objA;
-		}
+		// Screen Space Reflection
+		public bool bIsScreenSpaceReflectionEnabled = false;
+		public int iScreenSpaceReflectionLvlIdx = 0;
+
+		// Depth Of Field
+		public bool bIsDepthOfFieldEnabled = false;
+		public int iDepthOfFieldLvlIdx = 0;
+
+		// MotionBlur
+		public bool bIsMotionBlurEnabled = false;
+
+		// Bloom
+		public bool bIsBloomEnabled = false;
+
+		// Chromatic Aberration
+		public bool bIsChromaticAberrationEnabled = false;
+
+		public bool isDirty = false;
+	}
+
+	// ---------------------------
+	[System.Serializable]
+	public class VideoData
+	{
+		[SerializeField]
+		private ScreenData m_ScreenData = new ScreenData();
+		[SerializeField]
+		private QualityData m_QualityData = new QualityData();
+		[SerializeField]
+		private FiltersData m_FiltersData = new FiltersData();
+		[SerializeField]
+		private PostProcessingData m_PostProcessingData = new PostProcessingData();
+
+		public ScreenData ScreenData => m_ScreenData;
+		public QualityData QualityData => m_QualityData;
+		public FiltersData FiltersData => m_FiltersData;
+		public PostProcessingData PostProcessingData => m_PostProcessingData;
 	}
 
 
+	/////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////
 
-	public static class AudioSettings
-	{
-		// Registry Keys
-		private const string FLAG_SAVED_AUDIO_SETTINGS = "bSavedAudioSettings";
-		private const string VAR_AUDIO_SETTINGS = "sAudioSettings";
-		
-		// ---------------------------
-		public class AudioData
-		{
-			public float MusicVolume = 1f;
-			public float SoundVolume = 1f;
-			public bool isDirty = false;
-		}
-		private static AudioData m_AudioData = new AudioData();
-
-		public static AudioData GetAudioData() => m_AudioData;
-
-		//////////////////////////////////////////////////////////////////////////
-		static AudioSettings()
-		{
-			LoadOrSetDefaults();
-
-			OnApplyChanges();
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		public static void OnMusicVolumeSet(float value)
-		{
-			m_AudioData.MusicVolume = value;
-			m_AudioData.isDirty = true;
-			SoundManager.MusicVolume = value;
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		public static void OnSoundsVolumeSet(float value)
-		{
-			m_AudioData.SoundVolume = value;
-			m_AudioData.isDirty = true;
-			SoundManager.SoundVolume = value;
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		public static void LoadOrSetDefaults()
-		{
-			if (PlayerPrefs.HasKey(FLAG_SAVED_AUDIO_SETTINGS))
-			{
-				ReadFromRegistry();
-			}
-			else
-			{
-				ApplyDefaults();
-
-				PlayerPrefs.SetString(FLAG_SAVED_AUDIO_SETTINGS, "1");
-			}
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		public static void ApplyDefaults()
-		{
-			// Remove keys from registry
-			Reset();
-			{
-				m_AudioData.MusicVolume = 1f;
-				m_AudioData.SoundVolume = 1f;
-				m_AudioData.isDirty = false;
-			}
-			// Save new keys into registry
-			SaveToRegistry();
-
-			// Apply the default settings
-			OnApplyChanges();
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		public static void ReadFromRegistry()
-		{
-			string settings = PlayerPrefs.GetString(VAR_AUDIO_SETTINGS);
-			JsonUtility.FromJsonOverwrite(settings, m_AudioData);
-			m_AudioData.isDirty = true;
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		public static void SaveToRegistry()
-		{
-			string setting = JsonUtility.ToJson(m_AudioData);
-
-			// Save settings
-			PlayerPrefs.SetString(VAR_AUDIO_SETTINGS, setting);
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		public static void OnApplyChanges()
-		{
-			if (m_AudioData.isDirty)
-			{
-				m_AudioData.isDirty = false;
-				SoundManager.MusicVolume = m_AudioData.MusicVolume;
-				SoundManager.SoundVolume = m_AudioData.SoundVolume;
-			}
-			// Save settings
-			SaveToRegistry();
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		public static void Reset()
-		{
-			PlayerPrefs.DeleteKey(FLAG_SAVED_AUDIO_SETTINGS);
-			PlayerPrefs.DeleteKey(VAR_AUDIO_SETTINGS);
-		}
-	}
 
 	public static class VideoSettings
 	{
-		public delegate void OnResolutionChangedDelegate(float newWidth, float newHeight);
+		private const string PostProcessResourcePath = "Scriptables/CameraPostProcesses";
 
-		private static event OnResolutionChangedDelegate m_OnResolutionChanged = delegate { };
+		// Registry Keys
+		private const string FLAG_SAVED_GRAPHIC_SETTINGS = "bSavedVideoSettings";
+		private const string VAR_VIDEO_SETTINGS = "sVideoSettings";
+
+
+		private static event	OnResolutionChangedDelegate		m_OnResolutionChanged			= delegate { };
+		private static			VideoData						m_VideoData						= new VideoData();
+		private static			Resolution[]					m_AvailableResolutions			= null;
+		private static			PostProcessingProfile			m_PP_Profile					= null;
+
+
 		public static event OnResolutionChangedDelegate OnResolutionChanged
 		{
 			add    { if (value.IsNotNull()) m_OnResolutionChanged += value; }
 			remove { if (value.IsNotNull()) m_OnResolutionChanged -= value; }
 		}
 
-		// Registry Keys
-		private const string FLAG_SAVED_GRAPHIC_SETTINGS = "bSavedVideoSettings";
-		private const string VAR_VIDEO_SETTINGS = "sVideoSettings";
-
-		// ---------------------------
-		[System.Serializable]
-		public class ScreenData
-		{
-			public Resolution resolution = new Resolution();
-			public bool bIsFullScreen = false;
-			public int iResolutionIndex = 0;
-			public bool isDirty = false;
-		}
-		// ---------------------------
-		[System.Serializable]
-		public class QualityData
-		{
-			public int iQualityLevel = 0;
-			public bool isDirty = false;
-		}
-		// ---------------------------
-		[System.Serializable]
-		public class FiltersData
-		{
-			public bool bHasAnisotropicFilter = false;
-			public int iAntialiasing = 0;
-			public bool isDirty = false;
-		}
-		// ---------------------------
-		[System.Serializable]
-		public class PostProcessingData
-		{
-			// Antialiasing
-			public bool bIsAntialiasingEnabled = false;
-			public AntialiasingModel.FxaaPreset eAntialiasingPreset = AntialiasingModel.FxaaPreset.Default;
-
-			// Ambient Occlusion
-			public bool bIsAmbientOcclusionEnabled = false;
-			public int iAmbientOcclusionLvlIdx = 0;
-
-			// Screen Space Reflection
-			public bool bIsScreenSpaceReflectionEnabled = false;
-			public int iScreenSpaceReflectionLvlIdx = 0;
-
-			// Depth Of Field
-			public bool bIsDepthOfFieldEnabled = false;
-			public int iDepthOfFieldLvlIdx = 0;
-
-			// MotionBlur
-			public bool bIsMotionBlurEnabled = false;
-
-			// Bloom
-			public bool bIsBloomEnabled = false;
-
-			// Chromatic Aberration
-			public bool bIsChromaticAberrationEnabled = false;
-
-			public bool isDirty = false;
-		}
-
-		// ---------------------------
-		[System.Serializable]
-		public class VideoData
-		{
-			[SerializeField]
-			private ScreenData m_ScreenData = new ScreenData();
-			[SerializeField]
-			private QualityData m_QualityData = new QualityData();
-			[SerializeField]
-			private FiltersData m_FiltersData = new FiltersData();
-			[SerializeField]
-			private PostProcessingData m_PostProcessingData = new PostProcessingData();
-
-			public ScreenData ScreenData => m_ScreenData;
-			public QualityData QualityData => m_QualityData;
-			public FiltersData FiltersData => m_FiltersData;
-			public PostProcessingData PostProcessingData => m_PostProcessingData;
-
-		}
-		private static VideoData m_VideoData = new VideoData();
-		private static Resolution[] m_AvailableResolutions = null;
-
 		public static ScreenData GetScreenData() => m_VideoData.ScreenData;
 		public static QualityData GetQualityData() => m_VideoData.QualityData;
 		public static FiltersData GetFiltersData() => m_VideoData.FiltersData;
 		public static PostProcessingData GetPostProcessingData() => m_VideoData.PostProcessingData;
 		public static Resolution[] GetAvailableResolutions() => m_AvailableResolutions;
-		public static PostProcessingProfile m_PP_Profile { get;  private set; } = null;
+
+		public static PostProcessingProfile GetPostProcessingProfile() => m_PP_Profile;
 
 		/////////////////////////////////////////////////////////////////
 		static VideoSettings()
 		{
-			int comparer(Resolution a, Resolution b)
+			static int comparer(Resolution a, Resolution b)
 			{
 				int mulA = a.width * a.height;
 				int mulB = b.width * b.height;
@@ -258,13 +129,9 @@ namespace UserSettings
 			List<Resolution> sortedResolutions = new List<Resolution>(Screen.resolutions);
 			sortedResolutions.Sort(comparer);
 			m_AvailableResolutions = sortedResolutions.ToArray();
-
-			LoadOrSetDefaults();
-
-			OnApplyChanges();
 		}
 
-
+		/*
 		/////////////////////////////////////////////////////////////////
 		private static int GetResolutionIndex(Resolution res)
 		{
@@ -288,12 +155,11 @@ namespace UserSettings
 
 			return currentIndex;
 		}
-
+		*/
 
 		/////////////////////////////////////////////////////////////////
 		public static void OnResolutionChosen(Resolution resolution, int resolutionIndex)
 		{
-			m_VideoData.ScreenData.resolution = resolution;
 			m_VideoData.ScreenData.iResolutionIndex = resolutionIndex;
 			m_VideoData.ScreenData.isDirty = true;
 		}
@@ -396,9 +262,16 @@ namespace UserSettings
 		//////////////////////////////////////////////////////////////////////////
 		public static void LoadOrSetDefaults()
 		{
+			if (!m_PP_Profile)
+			{
+				CustomAssertions.IsTrue(ResourceManager.LoadResourceSync(PostProcessResourcePath, out m_PP_Profile));
+			}
+
 			if (PlayerPrefs.HasKey(FLAG_SAVED_GRAPHIC_SETTINGS))
 			{
 				ReadFromRegistry();
+
+				OnApplyChanges();
 			}
 			else
 			{
@@ -415,8 +288,7 @@ namespace UserSettings
 			Reset();
 			{
 				// Screen
-				m_VideoData.ScreenData.resolution = new Resolution() { width = 800, height = 600, refreshRate = 60 };
-				m_VideoData.ScreenData.iResolutionIndex = GetResolutionIndex(m_VideoData.ScreenData.resolution);
+				m_VideoData.ScreenData.iResolutionIndex = 0;
 				m_VideoData.ScreenData.bIsFullScreen = true;
 				m_VideoData.ScreenData.isDirty = true;
 
@@ -502,15 +374,9 @@ namespace UserSettings
 					}
 					{   // Chromatic Aberration
 						m_PP_Profile.chromaticAberration.enabled = m_VideoData.PostProcessingData.bIsChromaticAberrationEnabled;
-
 					}
 					{   // Anti-Aliasing
 						m_PP_Profile.antialiasing.enabled = m_VideoData.PostProcessingData.bIsAntialiasingEnabled;
-
-				//		using (new PPSettings<AntialiasingModel.Settings>(m_PP_Profile.antialiasing, out AntialiasingModel.Settings settings))
-						{
-				//			settings.fxaaSettings.preset = m_VideoData.PostProcessingData.eAntialiasingPreset;
-						}
 					}
 				}
 			}
@@ -519,13 +385,16 @@ namespace UserSettings
 			if (m_VideoData.ScreenData.isDirty)
 			{
 				m_VideoData.ScreenData.isDirty = false;
+
+				Resolution resolution = m_AvailableResolutions.GetByIndex(m_VideoData.ScreenData.iResolutionIndex, ScreenData.defaultResolution);
+				Debug.Log($"Setting resolution {resolution.width}x{resolution.height}({resolution.refreshRate})");
 				Screen.SetResolution(
-					width: m_VideoData.ScreenData.resolution.width,
-					height: m_VideoData.ScreenData.resolution.height,
+					width: resolution.width,
+					height: resolution.height,
 					fullscreen: m_VideoData.ScreenData.bIsFullScreen,
-					preferredRefreshRate: m_VideoData.ScreenData.resolution.refreshRate
+					preferredRefreshRate: resolution.refreshRate
 				);
-				m_OnResolutionChanged(m_VideoData.ScreenData.resolution.width, m_VideoData.ScreenData.resolution.height);
+				m_OnResolutionChanged(resolution.width, resolution.height);
 			}
 
 			// Filter
@@ -555,10 +424,5 @@ namespace UserSettings
 			PlayerPrefs.DeleteKey(FLAG_SAVED_GRAPHIC_SETTINGS);
 			PlayerPrefs.DeleteKey(VAR_VIDEO_SETTINGS);
 		}
-	}
-
-	public static class GameplaySettings
-	{
-
 	}
 }

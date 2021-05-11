@@ -12,54 +12,78 @@ public class Build_Batch
 	private	const	string	MENU_LABEL = "Build";
 
 
-	[MenuItem( MENU_LABEL + "/Clear Unused Assets", priority = 1 )]
-	public		static		void		ClearUnusedAssets()
+	///////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////
+	[MenuItem(MENU_LABEL + "/Clear Unused Assets", priority = 1)]
+	public static void ClearUnusedAssets()
 	{
 		UnityEngine.Resources.UnloadUnusedAssets();
 	}
 
-	[MenuItem( MENU_LABEL + "/Recompile All Scripts", priority = 2 )]
-	public		static		void		RecompileAllScripts()
+
+	///////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////
+	[MenuItem(MENU_LABEL + "/Recompile All Scripts", priority = 2)]
+	public static void RecompileAllScripts()
 	{
 		string[] scriptPaths = AssetDatabase.GetAllAssetPaths()
-			.Where( assetPath => assetPath.EndsWith(".cs") )
+			.Where(assetPath => assetPath.EndsWith(".cs"))
 			.ToArray();
 
 		int scriptsCount = scriptPaths.Length;
 		int scriptsCompiled = 0;
-		EditorUtility.DisplayProgressBar( "Compilation of scripts", "", 0.01f );
+		EditorUtility.DisplayProgressBar("Compilation of scripts", "", 0.01f);
 		AssetDatabase.StartAssetEditing();
 		foreach (string assetPath in scriptPaths)
 		{
-			float value = (float) (++scriptsCompiled) / (float) scriptsCount;
+			float value = (float)(++scriptsCompiled) / (float)scriptsCount;
 			AssetDatabase.ImportAsset(assetPath);
-			EditorUtility.DisplayProgressBar( $"Script {assetPath} compiled", "", value );
+			EditorUtility.DisplayProgressBar($"Script {assetPath} compiled", "", value);
 		}
 		AssetDatabase.StopAssetEditing();
 
 		UnityEditor.Compilation.Assembly[] assemblies = UnityEditor.Compilation.CompilationPipeline.GetAssemblies();
 		int assembliesCount = assemblies.Length;
 		int assemblyCompiled = 0;
-		
-		UnityEditor.Compilation.CompilationPipeline.compilationStarted += (object arg1) => EditorUtility.DisplayProgressBar( "Compilation of Assemblies", "", 0.01f );
+
+		UnityEditor.Compilation.CompilationPipeline.compilationStarted += (object arg1) => EditorUtility.DisplayProgressBar("Compilation of Assemblies", "", 0.01f);
 		UnityEditor.Compilation.CompilationPipeline.assemblyCompilationFinished += (string arg1, UnityEditor.Compilation.CompilerMessage[] arg2) =>
 		{
-			float value = (float) (++assemblyCompiled) / (float) assembliesCount;
-			EditorUtility.DisplayProgressBar( $"Assembly {arg1}", "", value );
-			
+			float value = (float)(++assemblyCompiled) / (float)assembliesCount;
+			EditorUtility.DisplayProgressBar($"Assembly {arg1}", "", value);
+
 		};
 		UnityEditor.Compilation.CompilationPipeline.compilationFinished += (object arg1) => EditorUtility.ClearProgressBar();
 		UnityEditor.Compilation.CompilationPipeline.RequestScriptCompilation();
-		
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////
+	[MenuItem(MENU_LABEL + "/Quick Compile Scripts", priority = 2)]
+	public static void QuickCompileScripts()
+	{
+		UnityEditor.Compilation.Assembly[] assemblies = UnityEditor.Compilation.CompilationPipeline.GetAssemblies();
+		int assembliesCount = assemblies.Length;
+		int assemblyCompiled = 0;
+
+		UnityEditor.Compilation.CompilationPipeline.compilationStarted += (object arg1) => EditorUtility.DisplayProgressBar("Compilation of Assemblies", "", 0.01f);
+		UnityEditor.Compilation.CompilationPipeline.assemblyCompilationFinished += (string arg1, UnityEditor.Compilation.CompilerMessage[] arg2) =>
+		{
+			float value = (float)(++assemblyCompiled) / (float)assembliesCount;
+			EditorUtility.DisplayProgressBar($"Assembly {arg1}", "", value);
+
+		};
+		UnityEditor.Compilation.CompilationPipeline.compilationFinished += (object arg1) => EditorUtility.ClearProgressBar();
+		UnityEditor.Compilation.CompilationPipeline.RequestScriptCompilation();
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////////
 	[MenuItem( MENU_LABEL + "/Development", priority = 3 )]
-	public		static		void		Build_Development()
+	public static void Build_Development()
 	{
 		// BUILD SETTINGS CONFIG SECTION NAME
-		const	string	buildSettingsSectionName = "Development";
+		const string buildSettingsSectionName = "Development";
 
 		// EXECUTABLE FILE NAME
 		string folderName = "Development";
@@ -70,38 +94,41 @@ public class Build_Batch
 		string[] scenesToBuild = null;
 
 		// Search for build settings in corresponding section
-		if ( GetBuildInfo( buildSettingsSectionName, ref folderName, ref executableFilename, ref scenesToBuild ) == false )
-			return;
+		if (GetBuildInfo(buildSettingsSectionName, ref folderName, ref executableFilename, ref scenesToBuild))
+		{
+			PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.Mono2x);
+		//	PlayerSettings.SetIl2CppCompilerConfiguration(BuildTargetGroup.Standalone, Il2CppCompilerConfiguration.Debug);
+			PlayerSettings.gcIncremental = true;
+			PlayerSettings.graphicsJobs = true;
+			PlayerSettings.MTRendering = true;
+			PlayerSettings.usePlayerLog = true;
+			EditorUserBuildSettings.development = true;
+			EditorUserBuildSettings.allowDebugging = true;
+			EditorUserBuildSettings.waitForManagedDebugger = true;
 
-		PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.IL2CPP);
-		PlayerSettings.SetIl2CppCompilerConfiguration(BuildTargetGroup.Standalone, Il2CppCompilerConfiguration.Debug);
-		PlayerSettings.gcIncremental = true;
-		PlayerSettings.graphicsJobs = true;
-		PlayerSettings.MTRendering = true;
-		PlayerSettings.usePlayerLog = true;
 
-		// Crash in case of unhandled .NET exception (Crash Report will be generated).
-		PlayerSettings.actionOnDotNetUnhandledException = ActionOnDotNetUnhandledException.Crash;
+			// Crash in case of unhandled .NET exception (Crash Report will be generated).
+			PlayerSettings.actionOnDotNetUnhandledException = ActionOnDotNetUnhandledException.Crash;
 
-		// Build Options
-		const BuildOptions buildOptions =	BuildOptions.Development |						// Build a development version of the player.
-											BuildOptions.ForceEnableAssertions |			// Include assertions in the build. By default, the assertions are only included in development builds.
-										//	BuildOptions.ForceOptimizeScriptCompilation |	// Force full optimizations for script complilation in Development builds.
-											BuildOptions.ShowBuiltPlayer |					// Show the built player.
-											BuildOptions.AllowDebugging |					// Allow script debuggers to attach to the player remotely.
-											BuildOptions.UncompressedAssetBundle ;			// Don't compress the data when creating the asset bundle.
-		
-		ExecuteBuild( folderName, buildSettingsSectionName, executableFilename, buildOptions, scenesToBuild );
+			// Build Options
+			const BuildOptions buildOptions =	BuildOptions.Development |						// Build a development version of the player.
+												BuildOptions.ForceEnableAssertions |			// Include assertions in the build. By default, the assertions are only included in development builds.
+												BuildOptions.ShowBuiltPlayer |					// Show the built player.
+												BuildOptions.AllowDebugging |					// Allow script debuggers to attach to the player remotely.
+												BuildOptions.UncompressedAssetBundle ;          // Don't compress the data when creating the asset bundle.
+
+			ExecuteBuild(folderName, buildSettingsSectionName, executableFilename, buildOptions, scenesToBuild);
+		}
 	}
 
 
 	///////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////////
-	[MenuItem( MENU_LABEL + "/Release", priority = 4 )]
-	public		static		void		Build_Release()
+	[MenuItem(MENU_LABEL + "/Release", priority = 4)]
+	public static void Build_Release()
 	{
 		// BUILD SETTINGS CONFIG SECTION NAME
-		const	string	buildSettingsSectionName = "Release";
+		const string buildSettingsSectionName = "Release";
 
 		// EXECUTABLE FILE NAME
 		string folderName = "Release";
@@ -112,26 +139,33 @@ public class Build_Batch
 		string[] scenesToBuild = null;
 
 		// Search for build settings in corresponding section
-		if ( GetBuildInfo( buildSettingsSectionName, ref folderName, ref executableFilename, ref scenesToBuild ) == false )
-			return;
+		if (GetBuildInfo(buildSettingsSectionName, ref folderName, ref executableFilename, ref scenesToBuild))
+		{
+			PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.IL2CPP);
+			PlayerSettings.SetIl2CppCompilerConfiguration(BuildTargetGroup.Standalone, Il2CppCompilerConfiguration.Release);
+			PlayerSettings.gcIncremental = true;
+			PlayerSettings.graphicsJobs = true;
+			PlayerSettings.MTRendering = true;
+			PlayerSettings.usePlayerLog = true;
+			EditorUserBuildSettings.development = false;
+			EditorUserBuildSettings.allowDebugging = false;
+			EditorUserBuildSettings.waitForManagedDebugger = false;
 
-		PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.IL2CPP);
-		PlayerSettings.SetIl2CppCompilerConfiguration(BuildTargetGroup.Standalone, Il2CppCompilerConfiguration.Release);
+			// Build Options
+			const BuildOptions buildOptions =	BuildOptions.StrictMode |						// Do not allow the build to succeed if any errors are reporting during it.
+												BuildOptions.AutoRunPlayer;						// Run the built player.
 
-		// Build Options
-		const BuildOptions buildOptions =	BuildOptions.StrictMode |						// Do not allow the build to succeed if any errors are reporting during it.
-											BuildOptions.AutoRunPlayer;						// Run the built player.
-
-		ExecuteBuild( buildSettingsSectionName, folderName, executableFilename, buildOptions, scenesToBuild );
+			ExecuteBuild(buildSettingsSectionName, folderName, executableFilename, buildOptions, scenesToBuild);
+		}
 	}
-	
+
 
 	///////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////////
-	public		static		bool		BuildLightmaps()
+	public static bool BuildLightmaps()
 	{
 		// BUILD SETTINGS CONFIG SECTION NAME
-		const	string	buildSettingsSectionName = "Development";
+		const string buildSettingsSectionName = "Development";
 
 		// EXECUTABLE FILE NAME
 		string folderName = "Development";
@@ -142,19 +176,12 @@ public class Build_Batch
 		string[] scenesToBuild = null;
 
 		// Search for build settings in corresponding section
-		if ( GetBuildInfo( buildSettingsSectionName, ref folderName, ref executableFilename, ref scenesToBuild ) == false )
-			return false;
-
-//		try
+		if (GetBuildInfo(buildSettingsSectionName, ref folderName, ref executableFilename, ref scenesToBuild))
 		{
-			Lightmapping.BakeMultipleScenes( scenesToBuild );
+			Lightmapping.BakeMultipleScenes(scenesToBuild);
+			return true;
 		}
-//		catch ( System.Exception e )
-		{
-//			EditorUtility.DisplayDialog( "Exception", e.Message, "ok" );
-		}
-
-		return true;
+		return false;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////
@@ -193,11 +220,11 @@ public class Build_Batch
 		EnsureCreatedAndEmptyFolder( bundleRelativePath );
 
 		//Save the prefabs as bundles to the "bundleFolder" path.
-		UnityEngine.AssetBundleManifest a = BuildPipeline.BuildAssetBundles( bundleRelativePath, buildMap, BuildAssetBundleOptions.None, BuildTarget.StandaloneWindows64 );
+		UnityEngine.AssetBundleManifest a = BuildPipeline.BuildAssetBundles(bundleRelativePath, buildMap, BuildAssetBundleOptions.None, BuildTarget.StandaloneWindows64);
 
-		foreach(string b in a.GetAllAssetBundles() )
+		foreach (string b in a.GetAllAssetBundles())
 		{
-			UnityEngine.Debug.Log( b );
+			UnityEngine.Debug.Log(b);
 		}
 	}
 
@@ -208,24 +235,21 @@ public class Build_Batch
 	{
 		// Get project folder
 		string projectFolder = GetProjectFolder();
-
-		string relativeBuildFolder = $"{projectFolder}/Builds/{folderName}/";// projectFolder + "/Builds/" + folderName + "/";
-
-		string executableRelativePath = $"{relativeBuildFolder}Build_{executableFilename}.exe";// relativeBuildFolder + "Build_" + executableFilename + ".exe";
-
-		const BuildTarget			buildTarget				= BuildTarget.StandaloneWindows64;
-		const BuildTargetGroup		targetGroup				= BuildTargetGroup.Standalone;
+		string relativeBuildFolder = $"{projectFolder}/Builds/{folderName}/";
+		string executableRelativePath = $"{relativeBuildFolder}Build_{executableFilename}.exe";
+		const BuildTarget buildTarget = BuildTarget.StandaloneWindows64;
+		const BuildTargetGroup targetGroup = BuildTargetGroup.Standalone;
 
 		// Project Folder absolute path
-		UnityEngine.Debug.Log( "Project Folder: " + projectFolder );
+		UnityEngine.Debug.Log($"Project Folder: {projectFolder}");
 
 		// build folder relative path
-		UnityEngine.Debug.Log( "Build Folder: " + relativeBuildFolder );
+		UnityEngine.Debug.Log($"Build Folder: {relativeBuildFolder}");
 
 		// built executable relative path
-		UnityEngine.Debug.Log( "Built Executable: " + executableRelativePath );
+		UnityEngine.Debug.Log($"Built Executable: {executableRelativePath}");
 
-		EnsureCreatedAndEmptyFolder( relativeBuildFolder );
+		EnsureCreatedAndEmptyFolder(relativeBuildFolder);
 
 		BuildPlayerOptions options = new BuildPlayerOptions()
 		{
@@ -244,21 +268,21 @@ public class Build_Batch
 
 		StringBuilder g_buffer = new StringBuilder();
 		StringBuilder msg_buffer = new StringBuilder();
-		foreach( BuildStep step in report.steps )
+		foreach (BuildStep step in report.steps)
 		{
 			g_buffer.AppendLine();
 			g_buffer.AppendLine(step.name);
 
 			msg_buffer.Clear();
-			foreach( BuildStepMessage stepMsg in step.messages )
+			foreach (BuildStepMessage stepMsg in step.messages)
 			{
 				msg_buffer.AppendLine(stepMsg.content);
 			}
 
-			g_buffer.AppendLine( msg_buffer.ToString() );
+			g_buffer.AppendLine(msg_buffer.ToString());
 		}
 
-		System.IO.File.WriteAllText( relativeBuildFolder + "BuildResult.log", g_buffer.ToString() );
+		System.IO.File.WriteAllText(relativeBuildFolder + "BuildResult.log", g_buffer.ToString());
 
 		/*
 		if ( errorMessage.Length > 0 )
@@ -271,13 +295,15 @@ public class Build_Batch
 
 	///////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////////
-	private		static		void		EnsureCreatedAndEmptyFolder( string relativePath )
+	private static void EnsureCreatedAndEmptyFolder(string relativePath)
 	{
-		if ( relativePath.EndsWith( "/" ) == false )
+		if (!relativePath.EndsWith("/"))
+		{
 			relativePath += '/';
+		}
 
 		// Ensure for empty folder
-		if ( System.IO.Directory.Exists( relativePath ) )
+		if (System.IO.Directory.Exists(relativePath))
 		{
 		/*	System.IO.DirectoryInfo di = new System.IO.DirectoryInfo( relativePath );
 			foreach ( System.IO.FileInfo file in di.GetFiles() )
@@ -292,45 +318,38 @@ public class Build_Batch
 		}
 		else
 		{
-			System.IO.Directory.CreateDirectory( relativePath );
+			System.IO.Directory.CreateDirectory(relativePath);
 		}
 	}
 
 
 	///////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////////
-	private		static		string		GetProjectFolder()
+	private static string GetProjectFolder()
 	{
 		string assetFolderRelativePath = UnityEngine.Application.dataPath;
-		int slashIdx = assetFolderRelativePath.LastIndexOf( '/' );
-		string projectFolder = assetFolderRelativePath.Remove( slashIdx );
+		int slashIdx = assetFolderRelativePath.LastIndexOf('/');
+		string projectFolder = assetFolderRelativePath.Remove(slashIdx);
 		return projectFolder;
 	}
 
 
 	///////////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////////
-	private		static		bool		GetBuildInfo( string buildSettingsSectionName, ref string folderName, ref string executableFilename, ref string[] scenesToBuild )
+	private static bool GetBuildInfo(string buildSettingsSectionName, ref string folderName, ref string executableFilename, ref string[] scenesToBuild)
 	{
 		// Search for build settings in corresponding section
 		SectionDB.LocalDB buildSettings = new SectionDB.LocalDB();
-		if (buildSettings.TryLoadFile( BuildSettingsConfigFile ))
+		if (buildSettings.TryLoadFile(BuildSettingsConfigFile))
 		{
-			if ( !buildSettings.TryGetSection( buildSettingsSectionName, out Database.Section buildSettingsSection ) )
+			if (buildSettings.TryGetSection(buildSettingsSectionName, out Database.Section buildSettingsSection))
 			{
-				UnityEngine.Debug.LogError( "Cannot load build settings section for " + buildSettingsSectionName );
-				buildSettings = null;
-				return false;
+				folderName = buildSettingsSection.AsString("FolderName", folderName);
+				executableFilename = buildSettingsSection.AsString("ExecutableFilename", executableFilename);
+				return buildSettingsSection.TryGetMultiAsArray("ScenesToBuild", out scenesToBuild);
 			}
-
-			folderName			= buildSettingsSection.AsString( "FolderName", folderName );
-			executableFilename	= buildSettingsSection.AsString( "ExecutableFilename", executableFilename );
-			return buildSettingsSection.TryGetMultiAsArray( "ScenesToBuild", out scenesToBuild );
+			UnityEngine.Debug.LogError("Cannot load build settings section for " + buildSettingsSectionName);
 		}
 		return false;
 	}
-
-
-
-
 }
