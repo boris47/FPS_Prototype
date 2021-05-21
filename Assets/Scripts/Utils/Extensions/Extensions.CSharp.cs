@@ -173,6 +173,22 @@ public static class Extensions
 		return new HashSet<T>(source, comparer);
 	}
 
+	public static Stack<T> ToStack<T>(this IEnumerable<T> source)
+	{
+		return new Stack<T>(source);
+	}
+
+	public static Queue<T> ToQueue<T>(this IEnumerable<T> source)
+	{
+		return new Queue<T>(source);
+	}
+
+	public static List<T> ToList<T>(this IEnumerable<T> source)
+	{
+		return new List<T>(source);
+	}
+
+
 
 	/// <summary> Select the element that better satisfy the selector with minimum value </summary>
 	public static TSource MinBy<TSource, TKey>(this IEnumerable<TSource> source, System.Func<TSource, TKey> selector)
