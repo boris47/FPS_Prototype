@@ -114,7 +114,7 @@ public class MotionStrategy_Climb : MotionStrategyBase
 		{
 			rigidBody.drag = 0f;
 
-			// The entity is declarad as flying
+			// The entity is declared as flying
 			m_States.IsCloseToGround = false;
 
 			rigidBody.velocity = (head.forward + (head.right * Mathf.Sign(m_Move.x))).normalized * m_JumpForce;

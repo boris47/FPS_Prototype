@@ -108,7 +108,7 @@ public partial class Player : Human, IDeclaredSingleton
 	//////////////////////////////////////////////////////////////////////////
 	protected override void OnDisable()
 	{
-		// Optional because as singleton could be destroyied before component initialization on scene load
+		// Optional because as singleton could be destroyed before component initialization on scene load
 		Motion?.SetMotionType(EEntityMotionType.NONE); // also Unbind bindings
 
 		base.OnDisable();
