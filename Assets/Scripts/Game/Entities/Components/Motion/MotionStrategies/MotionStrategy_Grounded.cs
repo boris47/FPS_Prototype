@@ -121,11 +121,11 @@ public class MotionStrategy_Grounded : MotionStrategyBase
 	{
 		base.OnLateFrame(deltaTime);
 
-		Rigidbody rigidBody = m_Entity.EntityRigidBody;
-		Vector3 localVelocity = rigidBody.transform.InverseTransformDirection(rigidBody.velocity);
-
 		if (!Utils.Math.SimilarZero(m_Move.magnitude))
 		{
+
+			Rigidbody rigidBody = m_Entity.EntityRigidBody;
+			Vector3 localVelocity = rigidBody.transform.InverseTransformDirection(rigidBody.velocity);
 			if (m_States.IsCloseToGround)
 			{
 				// Forward
