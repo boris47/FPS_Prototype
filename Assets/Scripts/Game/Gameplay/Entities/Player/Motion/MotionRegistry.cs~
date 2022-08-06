@@ -1,0 +1,41 @@
+
+using UnityEngine;
+
+namespace Entities.Player.Components
+{
+	using System.Collections.Generic;
+	using TypeReferences;
+
+	[ScriptableObjectResourcePath(ResourcePath)]
+	public sealed partial class MotionRegistry : GlobalScriptableObjectSingleton<MotionRegistry>
+	{
+		public const string ResourcePath = "Player/Motion/" + nameof(MotionRegistry);
+
+		[System.Serializable]
+		private class PairedMotionConfigs
+		{
+			[ReadOnly][Inherits(typeof(MotionStrategyBase), AllowAbstract = false, ShowNoneElement = false)]
+			public TypeReference MotionStrategyType = null;
+
+			[ReadOnly]
+			public ConfigurationBase Configuration = null;
+		}
+
+		[SerializeField]
+		private List<PairedMotionConfigs> Coupled = new List<PairedMotionConfigs>();
+
+
+		//////////////////////////////////////////////////////////////////////////
+		public bool TryRetrieveConfigForStrategy<T>(MotionStrategyBase strategy, out T OutConfig) where T : ConfigurationBase
+		{
+			OutConfig = null;
+
+			System.Type strategyType = strategy.GetType();
+			if (Coupled.TryFind(out PairedMotionConfigs paired, out int OutIndex, pair => pair.MotionStrategyType.Type == strategyType))
+			{
+				OutConfig = paired.Configuration as T;
+			}
+			return OutConfig.IsNotNull();
+		}
+	}
+}

@@ -1,8 +1,0 @@
-
-
-[DebugInfos]
-ResourceManager			= false;
-WeatherManager			= false;
-QuestSystem				= false;
-CoroutinesManager		= false;
-CustomSceneManager		= false;

@@ -2,49 +2,48 @@
 using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+
+public enum ESearchContext
+{
+	/// <summary> Only on This object </summary>
+	LOCAL,
+	/// <summary> On This object and children </summary>
+	LOCAL_AND_CHILDREN,
+	/// <summary> On This object and parents </summary>
+	LOCAL_AND_PARENTS,
+	/// <summary> On all the object hierarchy </summary>
+	FROM_ROOT = LOCAL_AND_CHILDREN | LOCAL | LOCAL_AND_PARENTS
+}
 
 public static class Extensions_Unity
 {
-	private static System.Type UnityEngineObjectType = typeof(UnityEngine.Object);
-	private static System.Func<int, UnityEngine.Object> m_FindObjectFromInstanceID = null;
+	private static System.Func<Object, bool> s_IsObjectAliveDelegate = delegate (Object _) { return true; };
 
 	static Extensions_Unity()
 	{
 		// Create FindObjectFromInstanceID delegate from internal UnityEngine.Object.FindObjectFromInstanceID
-		System.Reflection.MethodInfo methodInfo = UnityEngineObjectType.GetMethod("FindObjectFromInstanceID", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+		System.Reflection.MethodInfo methodInfo = typeof(Object).GetMethod("IsNativeObjectAlive", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
 		if (methodInfo.IsNotNull())
 		{
-			m_FindObjectFromInstanceID = (System.Func<int, UnityEngine.Object>)System.Delegate.CreateDelegate(typeof(System.Func<int, UnityEngine.Object>), methodInfo);
+			s_IsObjectAliveDelegate = (System.Func<Object, bool>)System.Delegate.CreateDelegate(typeof(System.Func<Object, bool>), methodInfo);
 		}
 	}
+
 
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
 	#region ANIMATOR
 
 	/////////////////////////////////////////////////////////////////////////////
-	public static	bool			GetClipFromAnimator( this Animator animator, string name, ref AnimationClip result )
+	public static bool GetClipFromAnimator(this Animator ThisAnimator, string InClipName, out AnimationClip OutResult)
 	{
-		if (animator.runtimeAnimatorController == null || animator.runtimeAnimatorController.animationClips.Length == 0)
+		OutResult = default;
+		if (ThisAnimator.runtimeAnimatorController.IsNotNull() && ThisAnimator.runtimeAnimatorController.animationClips.Length > 0)
 		{
-			return false;
+			OutResult = ThisAnimator.runtimeAnimatorController.animationClips.FirstOrDefault(clip => clip.name == InClipName);
 		}
-
-		AnimationClip[] animationClips = animator.runtimeAnimatorController.animationClips;
-		int arraySize = animationClips.Length;
-		bool bIsClipFound = false;
-		for (int i = 0; i < arraySize && bIsClipFound == false; i++)
-		{
-			AnimationClip clip = animationClips[i];
-
-			if (clip.name == name)
-			{
-				bIsClipFound = true;
-				result = clip;
-			}
-		}
-
-		return bIsClipFound;
+		return OutResult.IsNotNull();
 	}
 
 	#endregion // ANIMATOR
@@ -55,31 +54,38 @@ public static class Extensions_Unity
 	#region TRANSFORM
 
 	/////////////////////////////////////////////////////////////////////////////
-	/// <summary> Return true if a path to searched child is found, otherwise return false </summary>
-	public static bool				TryGetChildPath(this Transform transform, out string pathToChild, System.Predicate<Transform> predicate)
+	/// <summary> Return unity hierarchy path of This Transform </summary>
+	public static string GetFullPath(this Transform ThisTransform)
 	{
-		CustomAssertions.IsNotNull(predicate);
-		pathToChild = default;
-		bool bFound = false;
+		string OutResult = ThisTransform.name;
+		if (ThisTransform.parent.IsNotNull())
+		{
+			OutResult = $"{ThisTransform.parent.GetFullPath()}/{ThisTransform.name}";
+		}
+		return OutResult;
+	}
 
-		List<string> pathAsList = new List<string>();
-		bool SearchForrequestedChild(Transform currentTransform)
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Return true if a path to searched child is found, otherwise return false </summary>
+	public static bool TryGetChildPath(this Transform ThisTransform, out string OutPathToChild, System.Predicate<Transform> InPredicate)
+	{
+		static bool SearchForRequestedChild(Transform currentTransform, ref List<string> pathAsList, System.Predicate<Transform> predicate)
 		{
 			foreach (Transform child in currentTransform)
 			{
 				int index = pathAsList.Count;
 				pathAsList.Add(child.name);
 
-				// Is this the child we are searching for?
-				if (bFound = predicate(child))
+				// Is This the child we are searching for?
+				if (predicate(child))
 				{
-					break;  // has been found
+					return true;
 				}
 				else
 				{
-					if (SearchForrequestedChild(child))
+					if (SearchForRequestedChild(child, ref pathAsList, predicate))
 					{
-						break; // has been found
+						return true;
 					}
 					else
 					{
@@ -88,73 +94,98 @@ public static class Extensions_Unity
 				}
 			}
 
-			return bFound;
+			return false;
 		}
 
-		SearchForrequestedChild(transform);
-		if (pathAsList.Count > 0)
+
+		List<string> pathAsList = new List<string>();
+		if (Utils.CustomAssertions.IsNotNull(InPredicate) && SearchForRequestedChild(ThisTransform, ref pathAsList, InPredicate))
 		{
-			pathToChild = string.Join("/", pathAsList);
+			OutPathToChild = string.Join("/", pathAsList);
 		}
-		return pathAsList.Count > 0;
+		else
+		{
+			OutPathToChild = null;
+		}
+		return OutPathToChild.IsNotNull();
 	}
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Return true if component is found, otherwise return false </summary>
-	public static	void			SetLocalPositionAndRotation( this Transform transform, in Vector3 localPosition, in Quaternion localRotation )
+	public static void SetLocalPositionAndRotation(this Transform ThisTransform, in Vector3 InLocalPosition, in Quaternion InLocalRotation)
 	{
-		transform.localPosition = localPosition;
-		transform.localRotation = localRotation;
+		ThisTransform.localPosition = InLocalPosition;
+		ThisTransform.localRotation = InLocalRotation;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Return true if component is found, otherwise return false </summary>
-	public static	bool			HasComponent<T>( this Transform transform ) where T : Component
-	{
-		return transform.TryGetComponent( out T comp );
-	}
+	public static bool HasComponent<T>(this Transform ThisTransform) where T : Component => ThisTransform.TryGetComponent(out T _);
+	
 
 	/// <summary>
 	/// The SetGlobalScale method is used to set a transform scale based on a global scale instead of a local scale.
 	/// </summary>
-	/// <param name="worldScale">A Vector3 of a world scale to apply to the given transform.</param>
-	public static	void			SetWorldScale(this Transform transform, Vector3 worldScale)
+	/// <param name="InWorldScale">A Vector3 of a world scale to apply to the given transform.</param>
+	public static void SetWorldScale(this Transform ThisTransform, in Vector3 InWorldScale)
 	{
-		transform.localScale = new Vector3(worldScale.x / transform.lossyScale.x, worldScale.y / transform.lossyScale.y, worldScale.z / transform.lossyScale.z);
+		ThisTransform.localScale = new Vector3(InWorldScale.x / ThisTransform.lossyScale.x, InWorldScale.y / ThisTransform.lossyScale.y, InWorldScale.z / ThisTransform.lossyScale.z);
 	}
 
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Can be used to retrieve a component with more detailed research </summary>
-	public static	bool			TrySearchComponent<T>( this Transform transform, ESearchContext Context, out T Component, System.Predicate<T> Filter = null ) where T : Component
+	public static bool TrySearchComponent<T>(this Transform ThisTransform, ESearchContext InContext, out T OutComponent, System.Predicate<T> InFilter = null) where T : Component
 	{
-		return Utils.Base.TrySearchComponent( transform.gameObject, Context, out Component, Filter );
+		OutComponent = default;
+		if (TrySearchComponentsInternal(ThisTransform.gameObject, InContext, out T[] results))
+		{
+			// Filtered search
+			if (InFilter.IsNotNull())
+			{
+				OutComponent = System.Array.Find(results, InFilter);
+			}
+			// Normal search
+			else
+			{
+				OutComponent = results[0];
+			}
+		}
+		return OutComponent.IsNotNull();
 	}
 
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Can be used to retrieve a component's array with more detailed research details </summary>
-	public	static	bool			TrySearchComponents<T>( this Transform transform, ESearchContext Context, out T[] Components, System.Predicate<T> Filter = null ) where T : Component
+	public static bool TrySearchComponents<T>(this Transform ThisTransform, ESearchContext InContext, out T[] OutComponents, System.Predicate<T> InFilter = null) where T : Component
 	{
-		return Utils.Base.TrySearchComponents( transform.gameObject, Context, out Components, Filter );
+		if (TrySearchComponentsInternal(ThisTransform.gameObject, InContext, out OutComponents))
+		{
+			// Filtered search
+			if (InFilter.IsNotNull())
+			{
+				OutComponents = global::System.Array.FindAll(OutComponents, InFilter);
+			}
+		}
+		return OutComponents.IsNotNull() && OutComponents.Length > 0;
 	}
 
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Search for a specific component at specific child, if found, return operation result </summary>
-	public	static	bool			TrySearchComponentByChildName<T>( this Transform transform, string childName, out T component, System.Predicate<T> filter = null) where T : Component
+	public static bool TrySearchComponentByChildName<T>(this Transform ThisTransform, string InChildName, out T OutComponent, System.Predicate<T> InFilter = null) where T : Component
 	{
-		component = default(T);
+		OutComponent = default(T);
 
-		filter = filter.IsNotNull() ? filter : delegate (T c) { return true; };
+		InFilter = InFilter.IsNotNull() ? InFilter : delegate (T c) { return true; };
 
-		foreach (Transform child in transform)
+		foreach (Transform child in ThisTransform)
 		{
-			if (child.name == childName && child.TryGetComponent<T>(out T componentFound))
+			if (child.name == InChildName && child.TryGetComponent(out T componentFound))
 			{
-				if (filter(componentFound))
+				if (InFilter(componentFound))
 				{
-					component = componentFound;
+					OutComponent = componentFound;
 					return true;
 				}
 			}
@@ -165,62 +196,37 @@ public static class Extensions_Unity
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Search for a specific component at specific child, if found, return operation result </summary>
-	public	static	bool			TrySearchComponentByChildIndex<T>(this Transform t, int childIndex, out T component, System.Predicate<T> filter = null) where T : Component
+	public static bool TrySearchComponentByChildIndex<T>(this Transform ThisTransform, int InChildIndex, out T OutComponent, System.Predicate<T> InFilter = null) where T : Component
 	{
-		component = default(T);
-		if (childIndex >= 0 && childIndex < t.childCount)
+		OutComponent = default(T);
+		if (InChildIndex >= 0 && InChildIndex < ThisTransform.childCount)
 		{
-			return t.GetChild(childIndex).TrySearchComponent(ESearchContext.LOCAL, out component, filter);
-		}
-		return false;
-	} 
-
-
-	/////////////////////////////////////////////////////////////////////////////
-	/// <summary>
-	/// Create and fills up given array with components found paired in childrens to the given enum type
-	/// Requirements: children must have same name (case sensitive) of enum members
-	/// </summary>
-	public	static	bool			MapComponentsInChildrenToArray<T0, T1>( this Transform t, out T0[] array ) where T0 : Component where T1 : System.Enum
-	{
-		array = null;
-		if (typeof(T1).IsEnum)
-		{
-			string[] names = System.Enum.GetNames( typeof(T1) );
-			int namesCount = names.Length;
-			array = new T0[namesCount];
-			for (int i = 0; i < namesCount; i++)
-			{
-				string name = names[i];
-				array[i] = null;
-				t.TrySearchComponentByChildName( name, out array[i] );
-			}
-			return true;
+			return ThisTransform.GetChild(InChildIndex).TrySearchComponent(ESearchContext.LOCAL, out OutComponent, InFilter);
 		}
 		return false;
 	}
-		
+
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Search for the given component only in children of given transform </summary>
-	public	static	T[]				GetComponentsOnlyInChildren<T>(this Transform transform, bool deepSearch = false, bool includeInactive = false, System.Predicate<T> filter = null) where T : Component
+	public static T[] GetComponentsOnlyInChildren<T>(this Transform ThisTransform, bool bDeepSearch = false, bool bIncludeInactive = false, System.Predicate<T> InFilter = null) where T : Component
 	{
 		T[] results = default;
 
-		filter = filter.IsNotNull() ? filter : delegate (T c) { return true; };
+		InFilter = InFilter.IsNotNull() ? InFilter : delegate (T c) { return true; };
 
-		if (deepSearch)
+		if (bDeepSearch)
 		{
-			results = transform.GetComponentsInChildren<T>(includeInactive: includeInactive).Where(c => filter(c)).ToArray();
+			results = ThisTransform.GetComponentsInChildren<T>(includeInactive: bIncludeInactive).Where(c => InFilter(c)).ToArray();
 		}
 		else
 		{
 			List<T> compsList = new List<T>();
-			foreach(Transform child in transform)
+			foreach (Transform child in ThisTransform)
 			{
-				if (child.TrySearchComponents(ESearchContext.LOCAL, out T[] comps, filter))
+				if (child.TrySearchComponents(ESearchContext.LOCAL, out T[] OutComponents, InFilter))
 				{
-					compsList.AddRange(comps);
+					compsList.AddRange(OutComponents);
 				}
 			}
 			results = compsList.ToArray();
@@ -232,11 +238,11 @@ public static class Extensions_Unity
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Look for given component, if not found add it, return component reference  </summary>
-	public	static	T				GetOrAddIfNotFound<T>(this Transform t) where T : Component
+	public static T GetOrAddIfNotFound<T>(this Transform ThisTransform) where T : Component
 	{
-		if (!t.TryGetComponent<T>(out T result))
+		if (!ThisTransform.TryGetComponent(out T result))
 		{
-			result = t.gameObject.AddComponent<T>();
+			result = ThisTransform.gameObject.AddComponent<T>();
 		}
 		return result;
 	}
@@ -248,47 +254,189 @@ public static class Extensions_Unity
 	/////////////////////////////////////////////////////////////////////////////
 	#region OBJECT
 
-	/// <summary> Return true if frameCount frames is repeating, otherwise false </summary>
-	/// <param name="frameCount"></param>
-	public static bool					EveryFrames(this Object t, int frameCount)
-	{
-		return Time.frameCount % frameCount != 0;
-	}
 
 	/////////////////////////////////////////////////////////////////////////////
-	/// <summary> Return the object with instance id requested or null </summary>
-	public static UnityEngine.Object	FindByInstanceID(this UnityEngine.Object obj, int InstanceId)
+	/// <summary> Editor Only </summary>
+	public static bool TryGetSubObjectsOfType<T>(this Object ThisObject, out T[] OutResult) where T : Object
 	{
-		return m_FindObjectFromInstanceID?.Invoke(InstanceId);
+		return TryGetSubObjectsOfType(ThisObject, typeof(T), out OutResult);
 	}
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Editor Only </summary>
+	public static bool TryGetSubObjectsOfType<T>(this Object ThisObject, System.Type InBaseType, out T[] OutResult) where T : Object
+	{
+		OutResult = default;
+#if UNITY_EDITOR
+		string assetPath = UnityEditor.AssetDatabase.GetAssetPath(ThisObject);
+		if (!string.IsNullOrEmpty(assetPath))
+		{
+			// Ref: https://docs.unity3d.com/ScriptReference/AssetDatabase.LoadAllAssetRepresentationsAtPath.html
+			// This function only returns sub Assets that are visible in the Project view.
+			// All paths are relative to the project folder, for example: "Assets/MyTextures/hello.png"
+			Object[] subAssets = UnityEditor.AssetDatabase.LoadAllAssetRepresentationsAtPath(assetPath);
+			OutResult = subAssets.Where(o => ReflectionHelper.IsInerithedFrom(InBaseType, o.GetType())).Cast<T>().ToArray();
+		}
+#endif
+		return OutResult.IsNotNull() && OutResult.Length > 0;
+	}
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary>  </summary>
+	public static bool IsNotNull(this Object ThisObject) => (ThisObject as object).IsNotNull() && s_IsObjectAliveDelegate(ThisObject);
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Return true if frameCount frames is repeating, otherwise false </summary>
+	public static bool EveryFrames(this Object _, int InFrameCount) => Time.frameCount % InFrameCount != 0;
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Destroys a UnityObject safely. </summary>
+	/// <param name="thisObject">Object to be destroyed.</param>
+	public static void Destroy(this Object ThisObject)
+	{
+		if (ThisObject.IsNotNull())
+		{
+#if UNITY_EDITOR
+			if (Application.isPlaying)
+			{
+				Object.Destroy(ThisObject);
+			}
+			else
+			{
+				Object.DestroyImmediate(ThisObject);
+			}
+#else
+			Object.Destroy(obj);
+#endif
+		}
+	}
+
 
 	#endregion // OBJECT
 
 
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
-	#region GAMEOBJECT
+	#region RIGIDBODY
+	public static void RotateAround(this Rigidbody ThisRigidbody, Vector3 InPoint, Vector3 InAxis, float InAngle)
+	{
+		Quaternion q = Quaternion.AngleAxis(InAngle, InAxis);
+		ThisRigidbody.MovePosition((q * (ThisRigidbody.transform.position - InPoint)) + InPoint);
+		ThisRigidbody.MoveRotation(ThisRigidbody.transform.rotation * q);
+	}
+	#endregion
 
 
 	/////////////////////////////////////////////////////////////////////////////
-	/// <summary> Look for given component, if not found add it, return component reference </summary>
-	public static	T				GetOrAddIfNotFound<T>( this UnityEngine.GameObject go ) where T : UnityEngine.Component
+	/////////////////////////////////////////////////////////////////////////////
+	#region GAMEOBJECT
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Return unity hierarchy path of This GameObject </summary>
+	public static string GetFullPath(this GameObject ThisGameObject)
 	{
-		return GetOrAddIfNotFound(go, typeof(T)) as T;
+		string OutResult = null;
+		if (ThisGameObject.transform.parent.IsNotNull())
+		{
+			OutResult = $"{ThisGameObject.transform.parent.gameObject.GetFullPath()}/{ThisGameObject.name}";
+		}
+		else
+		{
+			OutResult = ThisGameObject.name;
+		}
+		return OutResult;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Search for component of type T on This gameObject if not a value is already assigned </summary>
+	public static bool GetIfNotAssigned<T>(this GameObject ThisGameObject, ref T OutValue) where T : Component
+	{
+		if (!OutValue.IsNotNull())
+		{
+			OutValue = ThisGameObject.GetComponent<T>();
+		}
+		return OutValue.IsNotNull();
 	}
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Look for given component, if not found add it, return component reference </summary>
-	public static Component			GetOrAddIfNotFound(this UnityEngine.GameObject go, System.Type type)
+	public static T GetOrAddIfNotFound<T>(this GameObject ThisGameObject) where T : Component => GetOrAddIfNotFound(ThisGameObject, typeof(T)) as T;
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Look for given component, if not found add it, return component reference </summary>
+	public static Component GetOrAddIfNotFound(this GameObject ThisGameObject, System.Type InType)
 	{
 		Component result = null;
-		if (type.IsSubclassOf(typeof(UnityEngine.Component)) && !go.TryGetComponent(type, out result))
+		if (InType.IsSubclassOf(typeof(Component)) && !ThisGameObject.TryGetComponent(InType, out result))
 		{
-			result = go.AddComponent(type);
+			result = ThisGameObject.AddComponent(InType);
 		}
 		return result;
 	}
-	
+
+	/// <summary> Create a child with desired state (enabled or disabled) with defined name and attached script in desired state (enabled or disabled) </summary>
+	public static T AddChildWithComponent<T>(this GameObject ThisGameObject, in string InChildName, in bool bChildEnableState = true, in bool bComponentEnableState = true) where T : Component, new()
+	{
+		return AddChildWithComponent(ThisGameObject, InChildName, typeof(T), bChildEnableState, bComponentEnableState) as T;
+	}
+
+	/// <summary> Create a child with desired state (enabled or disabled) with defined name and attached script in desired state (enabled or disabled) </summary>
+	public static Behaviour AddChildWithComponent(this GameObject ThisGameObject, in string InChildName, in System.Type InType, in bool bChildEnableState = true, in bool bComponentEnableState = true)
+	{
+		GameObject child = new GameObject(InChildName);
+		child.SetActive(false);
+		child.transform.SetParent(ThisGameObject.transform);
+
+		Behaviour behaviour = child.AddComponent(InType) as Behaviour;
+		behaviour.enabled = bComponentEnableState;
+
+		child.SetActive(bChildEnableState);
+
+		return behaviour;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Can be used to retrieve a component with more detailed research </summary>
+	public static bool TrySearchComponent<T>(this GameObject ThisGameObject, ESearchContext InContext, out T OutComponent, System.Predicate<T> InFilter = null) where T : Component
+	{
+		OutComponent = default;
+		if (TrySearchComponentsInternal(ThisGameObject, InContext, out T[] results))
+		{
+			// Filtered search
+			if (InFilter.IsNotNull())
+			{
+				OutComponent = System.Array.Find(results, InFilter);
+			}
+			// Normal search
+			else
+			{
+				OutComponent = results[0];
+			}
+		}
+		return OutComponent.IsNotNull();
+	}
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Can be used to retrieve a component's array with more detailed research details </summary>
+	public static bool TrySearchComponents<T>(this GameObject ThisGameObject, ESearchContext InContext, out T[] OutComponents, System.Predicate<T> InFilter = null) where T : Component
+	{
+		if (TrySearchComponentsInternal(ThisGameObject, InContext, out OutComponents))
+		{
+			// Filtered search
+			if (InFilter.IsNotNull())
+			{
+				OutComponents = global::System.Array.FindAll(OutComponents, InFilter);
+			}
+		}
+		return OutComponents.IsNotNull() && OutComponents.Length > 0;
+	}
+
 
 	#endregion // GAMEOBJECT
 
@@ -297,57 +445,73 @@ public static class Extensions_Unity
 	/////////////////////////////////////////////////////////////////////////////
 	#region VECTOR2
 
-		/////////////////////////////////////////////////////////////////////////////
-	public static	Vector2			ClampComponents( this ref Vector2 v, in float min, in float max )
+	/////////////////////////////////////////////////////////////////////////////
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static void Deconstruct(this Vector2 ThisVector, out float OutX, out float OutY)
 	{
-		v.x = Mathf.Clamp( v.x, min, max );
-		v.y = Mathf.Clamp( v.y, min, max );
-		return v;
+		OutX = ThisVector.x;
+		OutY = ThisVector.y;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static Vector2 ClampComponents(this ref Vector2 ThisVector, in float InMinimum, in float InMaximum)
+	{
+		ThisVector.x = Mathf.Clamp(ThisVector.x, InMinimum, InMaximum);
+		ThisVector.y = Mathf.Clamp(ThisVector.y, InMinimum, InMaximum);
+		return ThisVector;
 	}
 
 
 	/////////////////////////////////////////////////////////////////////////////
-	public	static	Vector2			ClampComponents( this ref Vector2 v, in Vector2 clamping )
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static Vector2 ClampComponents(this ref Vector2 ThisVector, in Vector2 InClamping)
 	{
-		v.x = Mathf.Clamp( v.x, -clamping.x, clamping.x );
-		v.y = Mathf.Clamp( v.y, -clamping.y, clamping.x );
-		return v;
+		ThisVector.x = Mathf.Clamp(ThisVector.x, -InClamping.x, InClamping.x);
+		ThisVector.y = Mathf.Clamp(ThisVector.y, -InClamping.y, InClamping.x);
+		return ThisVector;
 	}
 
 
 	/////////////////////////////////////////////////////////////////////////////
-	public	static	Vector3			Add( this ref Vector2 v, in Vector2 v2 )
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static Vector3 Add(this ref Vector2 ThisVector, in Vector2 InOtherVector)
 	{
-		v.x += v2.x; v.y += v2.y; return v;
+		ThisVector.x += InOtherVector.x;
+		ThisVector.y += InOtherVector.y;
+		return ThisVector;
 	}
 
 
 	/////////////////////////////////////////////////////////////////////////////
-	public	static	Vector3			Sub( this ref Vector2 v, in Vector2 v2 )
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static Vector3 Sub(this ref Vector2 ThisVector, in Vector2 InOtherVector)
 	{
-		v.x -= v2.x; v.y -= v2.y; return v;
+		ThisVector.x -= InOtherVector.x;
+		ThisVector.y -= InOtherVector.y;
+		return ThisVector;
 	}
 
 
 	/////////////////////////////////////////////////////////////////////////////
-	public	static	void			LerpTo( this ref Vector2 v, in Vector2 dest, in float interpolant )
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static void LerpTo(this ref Vector2 ThisVector, in Vector2 InDestinationVector, in float InInterpolant)
 	{
-		v.x = Mathf.Lerp( v.x, dest.x, interpolant );
-		v.y = Mathf.Lerp( v.x, dest.y, interpolant );
+		ThisVector.x = Mathf.Lerp(ThisVector.x, InDestinationVector.x, InInterpolant);
+		ThisVector.y = Mathf.Lerp(ThisVector.x, InDestinationVector.y, InInterpolant);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////
-	public static	Vector2			FromString(this ref Vector2 v, in string input)
+	/// <summary> Create a vector parsing a string with format [(,] X,Y[,)] </summary>
+	public static bool TryFromString(this ref Vector2 ThisVector, in string InString)
 	{
-		Vector2 result = Vector2.zero;
+		string[] values = InString.Replace("(", string.Empty).Replace(")", string.Empty).Trim().TrimInside().Split(',');
+		if (values.Length == 2 && float.TryParse(values[0], out float x) && float.TryParse(values[1], out float y))
 		{
-			string[] values = input.Replace("(", string.Empty).Replace(")", string.Empty).Trim().TrimInside().Split(',');
-			if (values.Length == 2 && float.TryParse(values[0], out float x) && float.TryParse(values[1], out float y))
-			{
-				result.Set(x, y);
-			}
+			ThisVector.Set(x, y);
+			return true;
 		}
-		return result;
+		return false;
 	}
 
 	#endregion // VECTOR2
@@ -357,94 +521,99 @@ public static class Extensions_Unity
 	/////////////////////////////////////////////////////////////////////////////
 	#region VECTOR3
 
+
 	/////////////////////////////////////////////////////////////////////////////
-	public static	Vector3			ClampComponents( this ref Vector3 v, in float min, in float max )
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static void Deconstruct(this Vector3 ThisVector, out float OutX, out float OutY, out float OutZ)
 	{
-		v.x = Mathf.Clamp( v.x, min, max );
-		v.y = Mathf.Clamp( v.y, min, max );
-		v.z = Mathf.Clamp( v.z, min, max );
-		return v;
+		OutX = ThisVector.x;
+		OutY = ThisVector.y;
+		OutZ = ThisVector.z;
 	}
 
-
 	/////////////////////////////////////////////////////////////////////////////
-	public	static	Vector3			ClampComponents( this ref Vector3 v, in Vector3 clamping )
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static Vector3 ClampComponents(this ref Vector3 ThisVector, in float InMinimum, in float InMaximum)
 	{
-		v.x = Mathf.Clamp( v.x, -clamping.x, clamping.x );
-		v.y = Mathf.Clamp( v.y, -clamping.y, clamping.x );
-		v.z = Mathf.Clamp( v.y, -clamping.z, clamping.z );
-		return v;
-	}
-
-
-	/////////////////////////////////////////////////////////////////////////////
-	public	static	Vector3			Add( this ref Vector3 v, in Vector3 v2 )
-	{
-		v.x += v2.x;
-		v.y += v2.y;
-		v.z += v2.z;
-		return v;
+		ThisVector.x = Mathf.Clamp(ThisVector.x, InMinimum, InMaximum);
+		ThisVector.y = Mathf.Clamp(ThisVector.y, InMinimum, InMaximum);
+		ThisVector.z = Mathf.Clamp(ThisVector.z, InMinimum, InMaximum);
+		return ThisVector;
 	}
 
 
 	/////////////////////////////////////////////////////////////////////////////
-	public	static	Vector3			Sub( this ref Vector3 v, in Vector3 v2 )
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static Vector3 ClampComponents(this ref Vector3 ThisVector, in Vector3 InClamping)
 	{
-		v.x -= v2.x;
-		v.y -= v2.y;
-		v.z -= v2.z;
-		return v;
+		ThisVector.x = Mathf.Clamp(ThisVector.x, -InClamping.x, InClamping.x);
+		ThisVector.y = Mathf.Clamp(ThisVector.y, -InClamping.y, InClamping.x);
+		ThisVector.z = Mathf.Clamp(ThisVector.y, -InClamping.z, InClamping.z);
+		return ThisVector;
 	}
 
 
 	/////////////////////////////////////////////////////////////////////////////
-	public	static	void			LerpTo( this ref Vector3 v, in Vector3 dest, in float interpolant )
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static Vector3 Add(this ref Vector3 ThisVector, in Vector3 InOtherVector)
 	{
-		v.x = Mathf.Lerp(v.x, dest.x, interpolant);
-		v.y = Mathf.Lerp(v.y, dest.y, interpolant);
-		v.z = Mathf.Lerp(v.z, dest.z, interpolant);
-	}
-	/*
-	public static float SignedAngleFromPosition(this Vector3 referencepoint, Vector3 frompoint, Vector3 topoint, Vector3 referenceup)
-	{
-		// calculates the the angle between two position vectors regarding to a reference point (plane), with a referenceup a sign in which direction it points can be calculated (clockwise is positive and counter clockwise is negative)
-		Vector3 fromdir = frompoint - referencepoint;                       // calculate the directionvector pointing from refpoint towards frompoint
-		Vector3 todir = topoint - referencepoint;                           // calculate the directionvector pointing from refpoint towards topoint
-		Vector3 planenormal = Vector3.Cross(fromdir, todir);               // calculate the planenormal (perpendicular vector)
-		float angle = Vector3.Angle(fromdir, todir);                       // calculate the angle between the 2 direction vectors (note: its always the smaller one smaller than 180°)
-		float orientationdot = Vector3.Dot(planenormal, referenceup);   // calculate wether the normal and the referenceup point in the same direction (>0) or not (<0), http://docs.unity3d.com/Documentation/Manual/ComputingNormalPerpendicularVector.html
-
-		return angle * Mathf.Sign(orientationdot);
-	//	if (orientationdot > 0.0f)                                           // the angle is positive (clockwise orientation seen from referenceup)
-	//		return angle;
-	//	return -angle;   // the angle is negative (counter-clockwise orientation seen from referenceup)
+		ThisVector.x += InOtherVector.x;
+		ThisVector.y += InOtherVector.y;
+		ThisVector.z += InOtherVector.z;
+		return ThisVector;
 	}
 
-	public static float SignedAngleFromDirection(this Vector3 fromdir, Vector3 todir, Vector3 referenceup)
-	{
-		// calculates the the angle between two direction vectors, with a referenceup a sign in which direction it points can be calculated (clockwise is positive and counter clockwise is negative)
-		Vector3 planenormal = Vector3.Cross(fromdir, todir);             // calculate the planenormal (perpendicular vector)
-		float angle = Vector3.Angle(fromdir, todir);                     // calculate the angle between the 2 direction vectors (note: its always the smaller one smaller than 180°)
-		float orientationdot = Vector3.Dot(planenormal, referenceup);    // calculate wether the normal and the referenceup point in the same direction (>0) or not (<0), http://docs.unity3d.com/Documentation/Manual/ComputingNormalPerpendicularVector.html
-
-		return angle * Mathf.Sign(orientationdot);
-//		if (orientationdot > 0.0f)                                         // the angle is positive (clockwise orientation seen from referenceup)
-//			return angle;
-//		return -angle;  // the angle is negative (counter-clockwise orientation seen from referenceup)
-	}
-	*/
 	/////////////////////////////////////////////////////////////////////////////
-	public static Vector3			FromString(this ref Vector3 v, in string input)
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static float Distance(this Vector3 ThisVector, in Vector3 InOtherVector) => Vector3.Distance(ThisVector, InOtherVector);
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static float DistanceXZ(this Vector3 ThisVector, in Vector3 InOtherVector) => Vector2.Distance(new Vector2(ThisVector.x, ThisVector.z), new Vector2(InOtherVector.x, InOtherVector.z));
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static float DistanceSqr(this Vector3 ThisVector, in Vector3 InOtherVector) => Vector3.SqrMagnitude(ThisVector - InOtherVector);
+	
+
+	/////////////////////////////////////////////////////////////////////////////
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static float DistanceXZSqr(this Vector3 ThisVector, in Vector3 InOtherVector) => Vector2.SqrMagnitude(new Vector2(ThisVector.x, ThisVector.z) - new Vector2(InOtherVector.x, InOtherVector.z));
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static Vector3 Sub(this ref Vector3 ThisVector, in Vector3 InOtherVector)
 	{
-		Vector3 result = Vector3.zero;
+		ThisVector.x -= InOtherVector.x;
+		ThisVector.y -= InOtherVector.y;
+		ThisVector.z -= InOtherVector.z;
+		return ThisVector;
+	}
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static void LerpTo(this ref Vector3 ThisVector, in Vector3 InDestinationVector, in float InInterpolant)
+	{
+		ThisVector.x = Mathf.Lerp(ThisVector.x, InDestinationVector.x, InInterpolant);
+		ThisVector.y = Mathf.Lerp(ThisVector.y, InDestinationVector.y, InInterpolant);
+		ThisVector.z = Mathf.Lerp(ThisVector.z, InDestinationVector.z, InInterpolant);
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Create a vector parsing a string with format [(,] X,Y,Z[,)] </summary>
+	public static bool TryFromString(this ref Vector3 vector, in string InString)
+	{
+		string[] values = InString.Replace("(", string.Empty).Replace(")", string.Empty).Trim().TrimInside().Split(',');
+		if (values.Length == 3 && float.TryParse(values[0], out float x) && float.TryParse(values[1], out float y) && float.TryParse(values[2], out float z))
 		{
-			string[] values = input.Replace("(", string.Empty).Replace(")", string.Empty).Trim().TrimInside().Split(',');
-			if (values.Length == 3 && float.TryParse(values[0], out float x) && float.TryParse(values[1], out float y) && float.TryParse(values[2], out float z))
-			{
-				result.Set(x, y, z);
-			}
+			vector.Set(x, y, z);
+			return true;
 		}
-		return result;
+		return false;
 	}
 
 	#endregion // VECTOR3
@@ -455,67 +624,140 @@ public static class Extensions_Unity
 	#region QUATERNION
 
 	/////////////////////////////////////////////////////////////////////////////
-	/// <summary> Returna vector which rotation is the given quaternion </summary>
-	public static	Vector3			GetVector( this ref Quaternion q, Vector3 d )
-		{
-			// A quaternion doesn't have a direction by itself. It is a rotation.
-			// It can be used to rotate any vector by the rotation it represents. Just multiply a Vector3 by the quaternion.
-			// Ref: http://answers.unity.com/answers/525956/view.html
-			return q * d;
+	public static void Deconstruct(this Quaternion ThisQuaternion, out float OutX, out float OutY, out float OutZ, out float OutW)
+	{
+		OutX = ThisQuaternion.x;
+		OutY = ThisQuaternion.y;
+		OutZ = ThisQuaternion.z;
+		OutW = ThisQuaternion.w;
+	}
 
-	/*		// Ref: Unreal math Library
-			Vector3 Q = new Vector3( q.x, q.y, q.z );
-			Vector3 T = 2.0f * Vector3.Cross( Q, d );
-			return d + ( T * q.w ) + Vector3.Cross( Q, T );
-	*/
-		}
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Return a vector which rotation is the given quaternion </summary>
+	public static Vector3 GetVector(this Quaternion ThisQuaternion, Vector3 InVector)
+	{
+		// A quaternion doesn't have a direction by itself. It is a rotation.
+		// It can be used to rotate any vector by the rotation it represents. Just multiply a Vector3 by the quaternion.
+		// Ref: http://answers.unity.com/answers/525956/view.html
+		return ThisQuaternion * InVector;
+
+		/*
+		// Ref: Unreal math Library
+		Vector3 Q = new Vector3( q.x, q.y, q.z );
+		Vector3 T = 2.0f * Vector3.Cross( Q, d );
+		return d + ( T * q.w ) + Vector3.Cross( Q, T );
+		*/
+	}
 
 
 	/////////////////////////////////////////////////////////////////////////////
-	/// <summary> We need this because Quaternion.Slerp always uses the shortest arc </summary>
-	public	static	Quaternion		Slerp( this ref Quaternion p, Quaternion q, float t)
+	/// <summary> We need This because Quaternion.Slerp always uses the shortest arc </summary>
+	public static Quaternion Slerp(this Quaternion ThisQuaternion, Quaternion InOtherQuaternion, float InInterpolant)
 	{
-		Quaternion ret;
+		float fCos = Quaternion.Dot(ThisQuaternion, InOtherQuaternion);
+		fCos = (fCos >= 0.0f) ? fCos : -fCos;
 
-		float fCos = Quaternion.Dot(p, q);
+		float fCoeff0 = 0f, fCoeff1 = 0f;
 
-		fCos = ( fCos >= 0.0f ) ? fCos : -fCos;
-
-		float fCoeff0, fCoeff1;
-
-		if ( fCos < 0.9999f )
+		if (fCos < 0.9999f)
 		{
 			float omega = Mathf.Acos(fCos);
 			float invSin = 1.0f / Mathf.Sin(omega);
-			fCoeff0 = Mathf.Sin((1.0f - t) * omega) * invSin;
-			fCoeff1 = Mathf.Sin(t * omega) * invSin;
+			fCoeff0 = Mathf.Sin((1.0f - InInterpolant) * omega) * invSin;
+			fCoeff1 = Mathf.Sin(InInterpolant * omega) * invSin;
 		}
 		else
 		{
 			// Use linear interpolation
-			fCoeff0 = 1.0f - t;
-			fCoeff1 = t;
+			fCoeff0 = 1.0f - InInterpolant;
+			fCoeff1 = InInterpolant;
 		}
 
-		fCoeff1 = ( fCos >= 0.0f ) ? fCoeff1 : -fCoeff1;
+		fCoeff1 = (fCos >= 0.0f) ? fCoeff1 : -fCoeff1;
 
-		ret.x = (fCoeff0 * p.x) + (fCoeff1 * q.x);
-		ret.y = (fCoeff0 * p.y) + (fCoeff1 * q.y);
-		ret.z = (fCoeff0 * p.z) + (fCoeff1 * q.z);
-		ret.w = (fCoeff0 * p.w) + (fCoeff1 * q.w);
-			
-		return ret;
+		return new Quaternion(
+			x: (fCoeff0 * ThisQuaternion.x) + (fCoeff1 * InOtherQuaternion.x),
+			y: (fCoeff0 * ThisQuaternion.y) + (fCoeff1 * InOtherQuaternion.y),
+			z: (fCoeff0 * ThisQuaternion.z) + (fCoeff1 * InOtherQuaternion.z),
+			w: (fCoeff0 * ThisQuaternion.w) + (fCoeff1 * InOtherQuaternion.w)
+		);
 	}
 
 
 	/////////////////////////////////////////////////////////////////////////////
-	/// <summary> Return th lenght of a quaternion </summary>
-	public	static	float			GetLength( this ref Quaternion q )
+	/// <summary> Return th length of a quaternion </summary>
+	public static float GetLength(this Quaternion ThisQuaternion) => Mathf.Sqrt((ThisQuaternion.x * ThisQuaternion.x) + (ThisQuaternion.y * ThisQuaternion.y) + (ThisQuaternion.z * ThisQuaternion.z) + (ThisQuaternion.w * ThisQuaternion.w));
+	
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Create a quaternion parsing a string with format [(,] X,Y,Z,W[,)] </summary>
+	public static bool TryFromString(this ref Quaternion ThisQuaternion, in string InString)
 	{
-		return Mathf.Sqrt((q.x * q.x) + (q.y * q.y) + (q.z * q.z) + (q.w * q.w));
+		string[] values = InString.Replace("(", string.Empty).Replace(")", string.Empty).Trim().TrimInside().Split(',');
+		if (values.Length == 4 && float.TryParse(values[0], out float x) && float.TryParse(values[1], out float y) && float.TryParse(values[2], out float z) && float.TryParse(values[3], out float w))
+		{
+			ThisQuaternion.Set(x, y, z, w);
+			return true;
+		}
+		return false;
 	}
 
 	#endregion // QUATERNION
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+	#region UnityEditor.SerializedObject
+
+#if UNITY_EDITOR
+	public static void DoLayoutWithoutScrptProperty(this UnityEditor.SerializedObject serializedObject)
+	{
+		using (new UnityEditor.LocalizationGroup(serializedObject))
+		{
+			UnityEditor.EditorGUI.BeginChangeCheck();
+			{
+				serializedObject.UpdateIfRequiredOrScript();
+
+				UnityEditor.SerializedProperty iterator = serializedObject.GetIterator();
+				bool enterChildren = true;
+				while (iterator.NextVisible(enterChildren))
+				{
+					if (iterator.propertyPath != "m_Script")
+					{
+						UnityEditor.EditorGUILayout.PropertyField(iterator, true);
+					}
+					enterChildren = false;
+				}
+			}
+			if (UnityEditor.EditorGUI.EndChangeCheck())
+			{
+				serializedObject.ApplyModifiedProperties();
+			}
+		}
+	}
+#endif
+
+	#endregion // UnityEditor.SerializedObject
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+	#region PRIVATE METHODS
+
+	private static bool TrySearchComponentsInternal<T>(GameObject InGameObject, ESearchContext InContext, out T[] OutResults) where T : Component
+	{
+		OutResults = null;
+		switch (InContext)
+		{
+			case ESearchContext.LOCAL: { OutResults = InGameObject.GetComponents<T>(); break; }
+			case ESearchContext.LOCAL_AND_CHILDREN: { OutResults = InGameObject.GetComponentsInChildren<T>(includeInactive: true); break; }
+			case ESearchContext.LOCAL_AND_PARENTS: { OutResults = InGameObject.GetComponentsInParent<T>(includeInactive: true); break; }
+			case ESearchContext.FROM_ROOT: { OutResults = InGameObject.transform.root.GetComponentsInChildren<T>(includeInactive: true); break; }
+		}
+		return OutResults.IsNotNull() && OutResults.Length > 0;
+	}
+
+	#endregion
 }
 
 

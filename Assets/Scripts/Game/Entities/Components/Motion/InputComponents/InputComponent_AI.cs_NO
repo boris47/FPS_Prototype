@@ -1,9 +1,0 @@
-﻿using UnityEngine;
-
-public class InputComponent_AI : InputComponent
-{
-	public override void SetStrategy(EMotionType newMotionType)
-	{
-		
-	}
-}

@@ -1,0 +1,19 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="BehaviourTreeNodeView.uss" />
+    <ui:VisualElement name="node-state" />
+    <ui:VisualElement name="node-border">
+        <ui:VisualElement name="contents">
+            <ui:VisualElement name="divider" picking-mode="Ignore" class="horizontal" />
+            <ui:VisualElement name="input" style="cursor: initial;" />
+            <ui:VisualElement name="breakpointState" />
+            <ui:VisualElement name="title" picking-mode="Ignore" style="align-items: center; font-size: 14px; justify-content: center;">
+                <ui:Label name="title-label" text="Title" picking-mode="Ignore" class="unity-text-element unity-label" style="min-height: 24px; justify-content: center;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="divider" picking-mode="Ignore" class="vertical">
+                <ui:VisualElement name="aux" />
+            </ui:VisualElement>
+            <ui:VisualElement name="output" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="selection-border" picking-mode="Ignore" />
+</ui:UXML>

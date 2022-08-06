@@ -1,8 +1,0 @@
-{856c434f-e5ef-4f80-8a68-91fd4c9a39df} event:/Level1
-{4cd26768-5fac-4975-b0b7-d2883423ba5c} event:/Level2
-{eb2f2a9c-09a4-4444-bd7b-ca5587d6945b} event:/Level3
-{303bafd2-890c-4eb3-a871-1d002aea077d} event:/RainTransition
-{88004b37-04af-4279-8c5b-273cea4c502d} bus:/
-{48f97f6f-1afe-4b80-a430-637993af6a38} bus:/Reverb
-{daaf8a99-016b-4347-aa91-ab09d1a37048} bank:/Musics
-{14b8b0e1-d4ca-4af7-b55b-6945ff5bec97} bank:/Master Bank

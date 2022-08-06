@@ -1,0 +1,245 @@
+
+#if UNITY_EDITOR
+
+using UnityEngine;
+using UnityEditor;
+using System.Linq;
+using UnityEditorInternal;
+
+namespace Entities.Player.Components
+{
+	public sealed partial class MotionRegistry
+	{
+		protected override void OnInitialize()
+		{
+			base.OnInitialize();
+
+			static bool TryCreateOrLoadConfigurationForStrategy(MotionRegistry owner, System.Type strategyType, out ConfigurationBase OutConfig)
+			{
+				OutConfig = null;
+				if (Utils.CustomAssertions.IsTrue(ReflectionHelper.GetAttributeValue(strategyType, (MotionStrategyConfigType a) => a.ConfigType, out var OutConfigType),
+					$"Cannot retrieve attribute {nameof(MotionStrategyConfigType)} for class {strategyType.Name}"))
+				{
+					if (m_Instance.TryGetSubObjectsOfType(OutConfigType, out ConfigurationBase[] configs))
+					{
+						OutConfig = configs[0];
+					}
+
+					// Create a fresh new
+					if (OutConfig == null)
+					{
+						OutConfig = ScriptableObject.CreateInstance(OutConfigType) as ConfigurationBase;
+						OutConfig.name = strategyType.Name;
+						AssetDatabase.AddObjectToAsset(OutConfig, owner);
+					}
+				}
+				return OutConfig.IsNotNull();
+			}
+
+			EditorUtility.SetDirty(this);
+			foreach (var motionStrategyType in TypeCache.GetTypesDerivedFrom<MotionStrategyBase>().Where(t => !t.IsAbstract))
+			{
+				if (!Coupled.Exists(c => c.MotionStrategyType.Type == motionStrategyType))
+				{
+					if (Utils.CustomAssertions.IsTrue(TryCreateOrLoadConfigurationForStrategy(this, motionStrategyType, out ConfigurationBase config)))
+					{
+						Coupled.Add(new PairedMotionConfigs()
+						{
+							MotionStrategyType = motionStrategyType,
+							Configuration = config
+						});
+					}
+				}
+			}
+			AssetDatabase.SaveAssets();
+		}
+
+		public class DataRegistryEditor : EditorWindow
+		{
+			private static	DataRegistryEditor				m_Window				= null;
+			private			MotionRegistry					m_Data					= null;
+
+			private			SerializedObject				m_SerializedObject		= null;
+			private			SerializedProperty				m_SerializedProperty	= null;
+			private			Vector2							m_ScrollListPosition	= Vector2.zero;
+			private			Vector2							m_ScrollEditorPosition	= Vector2.zero;
+			private			Editor							m_CurrentConfigEditor	= null;
+			private			ReorderableList					m_ItemsList				= null;
+
+			
+			//////////////////////////////////////////////////////////////////////////
+			[MenuItem("Window/Motions Editor")]
+			private static void OpenWindow()
+			{
+				if (!m_Window)
+				{
+					m_Window = GetWindow<DataRegistryEditor>(true);
+					m_Window.titleContent = new GUIContent("Motions Editor");
+					m_Window.minSize = new Vector2(600f, 700f);
+					m_Window.maxSize = new Vector2(600f, 900f);
+				}
+				
+				if (m_Window.m_Data == null)
+				{
+					m_Window.m_Data = Resources.Load<MotionRegistry>(MotionRegistry.ResourcePath);
+				}
+
+				if (m_Window.m_Data == null)
+				{
+					RecreateInstance();
+				}
+
+				m_Window.Load();
+			}
+
+			
+			//////////////////////////////////////////////////////////////////////////
+			[UnityEditor.Callbacks.DidReloadScripts]
+			private static void OnScriptsReloaded()
+			{
+				if (EditorWindow.HasOpenInstances<DataRegistryEditor>())
+				{
+					OpenWindow();
+				}
+			}
+
+			//////////////////////////////////////////////////////////////////////////
+			private void Load()
+			{
+				m_SerializedObject = new SerializedObject(m_Data);
+				m_SerializedProperty = m_SerializedObject.FindProperty(nameof(MotionRegistry.Coupled));
+
+				m_ItemsList = new ReorderableList( m_SerializedObject, m_SerializedProperty, draggable: false, displayHeader: true, displayAddButton: false, displayRemoveButton: false);
+				m_ItemsList.drawElementCallback = DrawItemEditor;
+				m_ItemsList.onSelectCallback = OnElementSelected;
+				m_ItemsList.elementHeight *= 2f;
+
+				m_ItemsList.Select(0);
+				OnElementSelected(m_ItemsList);
+			}
+
+
+			//////////////////////////////////////////////////////////////////////////
+			private void DrawItemEditor(Rect rect, int index, bool isActive, bool isFocused)
+			{
+				rect.y += 10f;
+
+				SerializedProperty element = m_ItemsList.serializedProperty.GetArrayElementAtIndex(index);
+				
+				// Strategy
+				{
+					string label = nameof(MotionRegistry.PairedMotionConfigs.MotionStrategyType);
+					SerializedProperty MotionStrategyTypeProp = element.FindPropertyRelative(label);
+
+					Vector2 labelDimension = GUI.skin.label.CalcSize(new GUIContent(label));
+					Rect labelRect = new Rect(rect.position, labelDimension);
+					{
+						EditorGUI.LabelField(labelRect, label);
+						rect.x += (labelDimension.x * 1.1f);
+					}
+					
+					Vector2 ValueDimension = new Vector2(400f, EditorGUIUtility.singleLineHeight);
+					Rect valueRect = new Rect(rect.position, ValueDimension);
+					{
+						EditorGUI.PropertyField(valueRect, MotionStrategyTypeProp, GUIContent.none, false);
+						rect.x += (ValueDimension.x * 1.1f);
+					}
+				}
+				/*
+				// Configuration
+				{
+					string label = nameof(MotionRegistry.PairedMotionConfigs.Configuration);
+					SerializedProperty ConfigurationProp = element.FindPropertyRelative(label);
+
+					Vector2 labelDimension = GUI.skin.label.CalcSize(new GUIContent(label));
+					Rect labelRect = new Rect(rect.position, labelDimension);
+					{
+						EditorGUI.LabelField(labelRect, label);
+						rect.x += (labelDimension.x * 1.1f);
+					}
+
+					Vector2 ValueDimension = new Vector2(400f, EditorGUIUtility.singleLineHeight);
+					Rect valueRect = new Rect(rect.position, ValueDimension);
+					{
+						// Valid config reference
+						if (Utils.CustomAssertions.IsTrue(ConfigurationProp.objectReferenceValue.IsNotNull()))
+						{
+							using (new EditorGUI.DisabledScope(disabled: true))
+							{
+								EditorGUI.PropertyField(valueRect, ConfigurationProp, GUIContent.none, false);
+							}
+						}
+					}
+				}
+				*/
+			}
+
+			//////////////////////////////////////////////////////////////////////////
+			private void OnElementSelected(ReorderableList list)
+			{
+				SerializedProperty selectedElement = m_ItemsList.serializedProperty.GetArrayElementAtIndex(list.index);
+				if (m_CurrentConfigEditor)
+				{
+					UnityEngine.Object.DestroyImmediate(m_CurrentConfigEditor);
+				}
+				SerializedProperty ConfigurationProp = selectedElement.FindPropertyRelative(nameof(MotionRegistry.PairedMotionConfigs.Configuration));
+				m_CurrentConfigEditor = UnityEditor.Editor.CreateEditor(ConfigurationProp.objectReferenceValue);
+			}
+
+
+			//////////////////////////////////////////////////////////////////////////
+			private void OnDestroy()
+			{
+				if (m_Window)
+				{
+					m_Window.m_Data = null;
+					m_Window = null;
+					m_SerializedObject.Dispose();
+					m_SerializedObject = null;
+					m_SerializedProperty.Dispose();
+					m_SerializedProperty = null;
+				}
+			}
+
+			//////////////////////////////////////////////////////////////////////////
+			private void OnGUI()
+			{
+				GUILayout.Space(10f);
+				m_ScrollListPosition = GUILayout.BeginScrollView(m_ScrollListPosition, GUILayout.MinHeight(m_Window.position.height * 0.6f));
+				{
+					m_ItemsList.DoLayoutList();
+				}
+				GUILayout.EndScrollView();
+
+				m_ScrollEditorPosition = GUILayout.BeginScrollView(m_ScrollEditorPosition);
+				{
+					if (m_CurrentConfigEditor)
+					{
+						m_CurrentConfigEditor.OnInspectorGUI();
+					}
+				}
+				GUILayout.EndScrollView();
+			}
+
+
+			//////////////////////////////////////////////////////////////////////////
+			//////////////////////////////////////////////////////////////////////////		
+
+			[CustomEditor(typeof(MotionRegistry))]
+			internal class MotionRegistryCustomEditor : UnityEditor.Editor
+			{
+				public override void OnInspectorGUI()
+				{
+					base.OnInspectorGUI();
+
+					if (GUILayout.Button("Edit Motions"))
+					{
+						MotionRegistry.DataRegistryEditor.OpenWindow();
+					}
+				}
+			}
+		}
+	}
+}
+
+#endif

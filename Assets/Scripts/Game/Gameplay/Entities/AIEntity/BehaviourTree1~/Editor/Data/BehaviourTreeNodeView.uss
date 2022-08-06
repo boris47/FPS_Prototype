@@ -1,0 +1,165 @@
+#node-border {
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    background-color: rgb(34, 34, 34);
+}
+
+#input {
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+#output {
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.port.input {
+    align-items: flex-end;
+    height: 100%;
+    padding-top: -20px;
+    background-color: rgb(88, 88, 88);
+}
+
+.port.input:hover {
+    background-color: rgb(188, 184, 111);
+}
+
+.port.input #connector {
+    margin-top: 0;
+    padding-top: 0;
+    top: 7px;
+}
+
+.port.output {
+    align-items: flex-start;
+    justify-content: flex-end;
+    margin-top: 20px;
+    background-color: rgba(142, 78, 118, 0.62);
+}
+
+.port.output:hover {
+    background-color: rgb(188, 184, 111);
+}
+
+.port.output #connector {
+    margin-top: 0;
+    padding-top: 0;
+    top: -7px;
+}
+
+#selection-border {
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    border-left-color: rgb(117, 190, 255);
+    border-right-color: rgb(117, 190, 255);
+    border-top-color: rgb(117, 190, 255);
+    border-bottom-color: rgb(117, 190, 255);
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    margin-bottom: 0;
+    margin-top: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+:hover > #selection-border {
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+}
+
+:selected > #selection-border {
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+}
+
+:hover:selected > #selection-border {
+    border-left-width: 3px;
+    border-right-width: 3px;
+    border-top-width: 3px;
+    border-bottom-width: 3px;
+    margin-left: -2px;
+    margin-right: -2px;
+    margin-top: -2px;
+    margin-bottom: -2px;
+}
+
+.node {
+    min-width: 150px;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+#divider {
+    min-height: 2px;
+    background-color: rgb(56, 56, 56);
+}
+
+#node-state {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.running #node-state {
+    border-left-color: rgb(255, 207, 76);
+    border-right-color: rgb(255, 207, 76);
+    border-top-color: rgb(255, 207, 76);
+    border-bottom-color: rgb(255, 207, 76);
+    background-color: rgb(219, 206, 88);
+}
+
+.succeeded #node-state {
+    border-left-color: rgb(27, 188, 44);
+    border-right-color: rgb(27, 188, 44);
+    border-top-color: rgb(27, 188, 44);
+    border-bottom-color: rgb(27, 188, 44);
+    background-color: rgb(78, 221, 80);
+}
+
+.failed #node-state {
+    border-left-color: rgb(253, 0, 0);
+    border-right-color: rgb(253, 0, 0);
+    border-top-color: rgb(253, 0, 0);
+    border-bottom-color: rgb(253, 0, 0);
+    background-color: rgb(231, 56, 56);
+}
+
+#breakpointState {
+}
+
+.breakpointActive #breakpointState {
+    position: absolute;
+    left: 90%;
+    top: 1%;
+    right: 1%;
+    bottom: 0;
+    background-color: rgba(185, 60, 60, 255);
+    width: 15%;
+    height: 15px;
+}

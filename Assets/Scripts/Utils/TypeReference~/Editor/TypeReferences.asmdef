@@ -1,0 +1,11 @@
+﻿{
+	"name": "TypeReferences.Editor",
+	"references": [
+		"TypeReferences"
+	],
+	"includePlatforms": [
+        "Editor"
+    ],
+	"overrideReferences": false,
+	"autoReferenced": true
+}

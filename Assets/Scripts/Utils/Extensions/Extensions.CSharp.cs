@@ -1,20 +1,16 @@
 ﻿
-using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
 
-public static class Extensions
+public static class Extensions_CSharp
 {
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
 	#region C# OBJECT
 
+	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Check if Object is null internally </summary>
-	public static	bool	IsNotNull(this System.Object obj)
-	{
-		bool bIsNotNull =  obj != null;
-		return bIsNotNull;
-	}
+	public static bool IsNotNull(this object ThisObject) => !object.ReferenceEquals(ThisObject, null);
 
 	#endregion C# OBJECT
 
@@ -23,48 +19,74 @@ public static class Extensions
 	/////////////////////////////////////////////////////////////////////////////
 	#region C# STRING
 
+	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Return true for empty or 'none' strings </summary>
-	public static	bool			IsNone( this string str )
+	public static bool IsNone(this string ThisString)
 	{
-		return string.IsNullOrEmpty(str) || str.ToLower().Trim() == "none";
+		return string.IsNullOrEmpty(ThisString) || ThisString.ToLower().Trim() == "none";
 	}
-	
+
+
+	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> This method also trim inside the string </summary>
-	public static	string			TrimInside( this string str, params char[] trimChars )
+	public static string TrimInside(this string ThisString, params char[] InTrimChars)
 	{
-		List<char> charsToSearch = new List<char>(1);
-		if ( trimChars != null && trimChars.Length > 0 )
+		System.Text.StringBuilder outString = new System.Text.StringBuilder();
+
+		InTrimChars = InTrimChars ?? new char[0];
+		if (InTrimChars.Length == 0)
 		{
-			charsToSearch.AddRange(trimChars);
-		}
-		else
-		{
-			charsToSearch.Add(' ');
+			InTrimChars.Append(' ');
 		}
 
-		for (int i = str.Length - 1; i >= 0; i--)
+		foreach (char charr in ThisString)
 		{
-			if (charsToSearch.IndexOf(str[i]) != -1)
+			if (!InTrimChars.Contains(charr))
 			{
-				str = str.Remove( i, 1 );
+				outString.Append(charr);
 			}
 		}
-		return str;
+		return outString.ToString();
 	}
 
 
-	/// <summary> Return true if parse succeeded, otherwise false </summary>
-	/// <see cref="https://stackoverflow.com/questions/1082532/how-to-tryparse-for-enum-value"/>
-	public	static	bool			TryConvertToEnum<TEnum>(this string str, ref TEnum result )
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary>  </summary>
+	public static bool TryGetSubstring(this string ThisString, out string OutString, in char InStartChar, in char InEndChar, bool bTrimResult = false)
+	{
+		OutString = null;
+		int startIndex = ThisString.IndexOf(InStartChar);
+		if (startIndex >= 0)
+		{
+			int endIndex = ThisString.IndexOf(InEndChar, startIndex + 1);
+			if (endIndex > 0)
+			{
+				OutString = ThisString.Substring(startIndex, endIndex);
+				if (bTrimResult)
+				{
+					OutString = OutString.Trim();
+				}
+			}
+		}
+		return OutString.IsNotNull();
+	}
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Return true if parse succeeded, otherwise false <br/>
+	/// <see href="https://stackoverflow.com/questions/1082532/how-to-tryparse-for-enum-value"/>
+	/// </summary>
+	public static bool TryConvertToEnum<TEnum>(this string ThisString, out TEnum OutResult)
 	{
 		System.Type requestedType = typeof(TEnum);
-		if ( System.Enum.IsDefined( requestedType, str) == false )
+		if (System.Enum.IsDefined(requestedType, ThisString))
 		{
-			return false;
+			OutResult = (TEnum)System.Enum.Parse(requestedType, ThisString);
+			return true;
 		}
 
-		result = (TEnum)System.Enum.Parse( requestedType, str );
-		return true;
+		OutResult = default;
+		return false;
 	}
 
 	#endregion // C# STRING
@@ -74,138 +96,100 @@ public static class Extensions
 	/////////////////////////////////////////////////////////////////////////////
 	#region C# ARRAY
 
+	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> For a valid array return a random contained element </summary>
-	public static	T				Random<T>( this System.Array a )
+	public static T Random<T>(this System.Array ThisArray)
 	{
-		if ( a == null || a.Length == 0 )
-			return default( T );
+		if (ThisArray == null || ThisArray.Length == 0)
+			return default(T);
 
-		return a.GetByIndex<T>( UnityEngine.Random.Range( 0, a.Length ) ); 
+		return ThisArray.GetByIndex<T>(UnityEngine.Random.Range(0, ThisArray.Length));
 	}
 
+
+	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Tests if index is valid, i.e. greater than or equal to zero, and less than the number of elements in the array </summary>
-	/// <param name="index">Index to test</param>
+	/// <param name="InIndices">Indexes to test</param>
 	/// <returns>returns True if index is valid. False otherwise</returns>
-	public	static bool				IsValidIndex( this System.Array array, int index )
+	public static bool IsValidIndex(this System.Array ThisArray, params int[] InIndices)
 	{
-		return index >= 0 && index < array.Length;
-	}
+		int indicesLen = InIndices.Length;
+		if (indicesLen == 0) return false;
 
-	/// <summary> Allow to easly get a value from an array checking given index, default value is supported </summary>
-	public	static	T				GetByIndex<T>( this System.Array array, int index, T Default = default(T) )
-	{
-		return IsValidIndex(array, index) ? (T)array.GetValue(index) : Default;
-	}
-
-	/// <summary> Allow to easly get a value from an array checking given index, default value is supported </summary>
-	public	static	T				GetByIndexWrap<T>( this System.Array array, int index, T Default = default(T) )
-	{
-		if (index >= 0)
+		for (int currentDimension = 0; currentDimension < indicesLen; currentDimension++)
 		{
-			return IsValidIndex(array, index) ? (T)array.GetValue(index) : Default;
+			//          out of bound                         out of bound         the current index is greater or equal then than the array length
+			if (InIndices[currentDimension] < 0 || currentDimension > ThisArray.Rank || InIndices[currentDimension] >= ThisArray.GetLength(currentDimension))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Allow to easy get a value from an array checking given index, default value is supported </summary>
+	public static T GetByIndex<T>(this System.Array ThisArray, int InIndex, T Default = default(T))
+	{
+		return IsValidIndex(ThisArray, InIndex) ? (T)ThisArray.GetValue(InIndex) : Default;
+	}
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Allow to easy get a value from an array checking given index, default value is supported </summary>
+	public static bool TryGetByIndex<T>(this System.Array ThisArray, int InIndex, out T OutValue)
+	{
+		OutValue = default;
+		if (IsValidIndex(ThisArray, InIndex))
+		{
+			OutValue = (T)ThisArray.GetValue(InIndex);
+		}
+		return !System.Collections.Generic.EqualityComparer<T>.Default.Equals(OutValue, default);
+	}
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Allow to easy get a value from an array checking given index, default value is supported </summary>
+	public static T GetByIndexWrap<T>(this System.Array ThisArray, int InIndex, T InDefault = default(T))
+	{
+		if (InIndex >= 0)
+		{
+			return IsValidIndex(ThisArray, InIndex) ? (T)ThisArray.GetValue(InIndex) : InDefault;
 		}
 		else // index < 0
 		{
-			int length = array.Length;
-			while(index>=length) index -= length - 1;
-			int selectedIndex = length - index;
-			return IsValidIndex(array, selectedIndex) ? (T)array.GetValue(selectedIndex) : Default;
+			int length = ThisArray.Length;
+			while (InIndex >= length) InIndex -= length - 1;
+			int selectedIndex = length - InIndex;
+			return IsValidIndex(ThisArray, selectedIndex) ? (T)ThisArray.GetValue(selectedIndex) : InDefault;
 		}
-	}
-
-
-
-
-	/// <summary> Search along a monodimensional or a bidimensional array for an element that satisfies the predicate </summary>
-	public static	bool			FindByPredicate<T>( this T[,] array, out T value, out Vector2 location, System.Predicate<T> predicate )
-	{
-		CustomAssertions.IsNotNull(array);
-		CustomAssertions.IsNotNull(predicate);
-
-		value = default;
-		location = default;
-
-		bool bIsFound = false;
-		int dimensions = array.Rank;
-		if (dimensions == 1)
-		{
-			int length = array.Length;
-			for (int i = 0; i < length; i++)
-			{
-				T currentValue = (T)array.GetValue(i);
-				if (predicate(currentValue))
-				{
-					value = currentValue;
-					location = new Vector2(i, 0);
-					bIsFound = true;
-				}
-			}
-		}
-		else if (dimensions == 2)
-		{
-			for (int dimension = 0; dimension < dimensions && !bIsFound; dimension++)
-			{
-				int upper = array.GetUpperBound(dimension);
-				int lower = array.GetLowerBound(dimension);
-
-				for (int index = lower; index <= upper && !bIsFound; index++)
-				{
-					T currentValue = array[dimension, index];
-					if (predicate(currentValue))
-					{
-						value = currentValue;
-						location = new Vector2(dimension, index);
-						bIsFound = true;
-					}
-				}
-			}
-		}
-
-		return bIsFound;
 	}
 
 	#endregion // C# ARRAY
 
 
-	/// <summary> Convert the source into an hashset </summary>
-	public static HashSet<T> ToHashSet<T>(this IEnumerable<T> source, IEqualityComparer<T> comparer = null)
-	{
-		return new HashSet<T>(source, comparer);
-	}
+	/////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+	#region C# IEnumerable
 
-	public static Stack<T> ToStack<T>(this IEnumerable<T> source)
-	{
-		return new Stack<T>(source);
-	}
-
-	public static Queue<T> ToQueue<T>(this IEnumerable<T> source)
-	{
-		return new Queue<T>(source);
-	}
-
-	public static List<T> ToList<T>(this IEnumerable<T> source)
-	{
-		return new List<T>(source);
-	}
-
-
-
+	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Select the element that better satisfy the selector with minimum value </summary>
-	public static TSource MinBy<TSource, TKey>(this IEnumerable<TSource> source, System.Func<TSource, TKey> selector)
+	public static TSource MinBy<TSource, TKey>(this IEnumerable<TSource> ThisEnumerable, System.Func<TSource, TKey> InSelector, IComparer<TKey> InComparer = null)
 	{
-		if (source == null || source.Count() == 0 || selector == null) return default;
+		if (ThisEnumerable == null || ThisEnumerable.Count() == 0 || InSelector == null) return default;
 
-		using (IEnumerator<TSource> sourceIterator = source.GetEnumerator())
+		using (IEnumerator<TSource> sourceIterator = ThisEnumerable.GetEnumerator())
 		{
 			sourceIterator.MoveNext();
-			Comparer<TKey> comparer = Comparer<TKey>.Default;
+			InComparer ??= Comparer<TKey>.Default;
 			TSource min = sourceIterator.Current;
-			TKey minKey = selector(min);
+			TKey minKey = InSelector(min);
 			while (sourceIterator.MoveNext())
 			{
 				TSource candidate = sourceIterator.Current;
-				TKey candidateProjected = selector(candidate);
-				if (comparer.Compare(candidateProjected, minKey) < 0)
+				TKey candidateProjected = InSelector(candidate);
+				if (InComparer.Compare(candidateProjected, minKey) < 0)
 				{
 					min = candidate;
 					minKey = candidateProjected;
@@ -216,21 +200,23 @@ public static class Extensions
 	}
 
 
+	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Select the element that better satisfy the selector with maximum value </summary>
-	public static TSource MaxBy<TSource, TKey>(this IEnumerable<TSource> source, System.Func<TSource, TKey> selector)
+	public static TSource MaxBy<TSource, TKey>(this IEnumerable<TSource> ThisEnumerable, System.Func<TSource, TKey> InSelector, IComparer<TKey> InComparer = null)
 	{
-		if (source == null || source.Count() == 0 || selector == null) return default;
+		if (ThisEnumerable == null /*|| ThisEnumerable.Count() == 0*/ || InSelector == null) return default;
 
-		using (IEnumerator<TSource> sourceIterator = source.GetEnumerator())
+		using (IEnumerator<TSource> sourceIterator = ThisEnumerable.GetEnumerator())
 		{
-			Comparer<TKey> comparer = Comparer<TKey>.Default;
+			Utils.CustomAssertions.IsTrue(sourceIterator.MoveNext());
+			InComparer ??= Comparer<TKey>.Default;
 			TSource max = sourceIterator.Current;
-			TKey maxKey = selector(max);
+			TKey maxKey = InSelector(max);
 			while (sourceIterator.MoveNext())
 			{
 				TSource candidate = sourceIterator.Current;
-				TKey candidateProjected = selector(candidate);
-				if (comparer.Compare(candidateProjected, maxKey) > 0)
+				TKey candidateProjected = InSelector(candidate);
+				if (InComparer.Compare(candidateProjected, maxKey) > 0)
 				{
 					max = candidate;
 					maxKey = candidateProjected;
@@ -241,49 +227,75 @@ public static class Extensions
 	}
 
 
+	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> For a valid list return a random contained element </summary>
-	public static T Random<T>(this IEnumerable<T> source)
+	public static T Random<T>(this IEnumerable<T> ThisEnumerable)
 	{
-		if (source == null || source.Count() == 0)
-			return default;
-
-		return source.ElementAt(UnityEngine.Random.Range(0, source.Count() - 1));
+		T OutResult = default;
+		if (ThisEnumerable.IsNotNull() && ThisEnumerable.Any())
+		{
+			OutResult = ThisEnumerable.ElementAt(UnityEngine.Random.Range(0, ThisEnumerable.Count() - 1));
+		}
+		return OutResult;
 	}
 
 
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Tests if index is valid, i.e. greater than or equal to zero, and less than the number of elements in the collection </summary>
+	/// <param name="InIndex">Index to test</param>
+	/// <returns>Returns True if index is valid. False otherwise</returns>
+	public static bool IsValidIndex<T>(this IEnumerable<T> ThisEnumerable, in uint InIndex) => IsValidIndex(ThisEnumerable, (int)InIndex);
+
+
+	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Tests if index is valid, i.e. greater than or equal to zero, and less than the number of elements in the collection </summary>
 	/// <param name="index">Index to test</param>
-	/// <returns>returns True if index is valid. False otherwise</returns>
-	public static bool IsValidIndex<T>(this IEnumerable<T> source, in int index)
-	{
-		return index >= 0 && index < source.Count();
-	}
+	/// <returns>Returns True if index is valid. False otherwise</returns>
+	public static bool IsValidIndex<T>(this IEnumerable<T> ThisEnumerable, in int InIndex) => InIndex >= 0 && InIndex < ThisEnumerable.Count();
+
+	#endregion
 
 
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
 	#region C# LIST
 
+	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Resize the list with the new size </summary>
-	public static	void			Resize<T>(this List<T> list, in uint newSize)
+	public static void Resize<T>(this List<T> ThisList, in uint InNewSize)
 	{
-		if (newSize > list.Capacity)
+		if (InNewSize > ThisList.Capacity)
 		{
-			list.Capacity = (int)newSize;
+			ThisList.Capacity = (int)InNewSize;
 		}
 	}
 
-
+	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Ensure the the inserting element is only present one tine in the list </summary>
-	public static	bool		AddUnique<T>( this List<T> list, T element, in System.Predicate<T> predicate = null )
+	public static bool AddUnique<T>(this List<T> ThisList, T InElement, in System.Predicate<T> InPredicate = null)
 	{
-		System.Predicate<T> finalPredicate = predicate ?? delegate(T e) { return e.Equals( element ); };
-		bool bAlreadyExists = list.FindIndex( finalPredicate ) > -1;
-		if ( bAlreadyExists == false )
+		System.Predicate<T> finalPredicate = InPredicate ?? delegate (T e) { return e.Equals(InElement); };
+		bool bAlreadyExists = ThisList.Exists(finalPredicate);
+		if (!bAlreadyExists)
 		{
-			list.Add( element );
+			ThisList.Add(InElement);
 		}
 		return bAlreadyExists;
+	}
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Syntactic sugar for FindIndex and index check </summary>
+	public static bool TryFind<T, K>(this List<T> ThisList, out K OutValue, out int OutIndex, in System.Predicate<T> InPredicate, in int InStartIndex = 0) where K : T
+	{
+		OutIndex = ThisList.FindIndex(InStartIndex, InPredicate);
+		if (OutIndex > -1)
+		{
+			OutValue = (K)ThisList[OutIndex];
+			return true;
+		}
+		OutValue = default;
+		return false;
 	}
 
 	#endregion // C# LIST
@@ -291,30 +303,89 @@ public static class Extensions
 
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
+	#region C# ILIST
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Add the value returning the same value </summary>
+	public static K AddRef<T, K>(this IList<T> ThisIList, in K InValue) where K : T
+	{
+		ThisIList.Add(InValue);
+		return InValue;
+	}
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Alias for collection[index] </summary>
+	public static T At<T>(this IList<T> ThisIList, int InIndex) => ThisIList[InIndex];
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Alias for collection[(int)index] </summary>
+	public static T At<T>(this IList<T> ThisIList, uint InIndex) => ThisIList[(int)InIndex];
+
+	#endregion // C# ILIST
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
 	#region C# DICTIONARY
 
-	public static	void		AddRange<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, in Dictionary<TKey, TValue> other, in bool bOverwrite = false)
+	/////////////////////////////////////////////////////////////////////////////
+	public static void AddRange<TKey, TValue>(this Dictionary<TKey, TValue> ThisDictionary, in Dictionary<TKey, TValue> InOtherDictionary, in bool bOverwrite = false)
 	{
-		if (other != null)
+		if (InOtherDictionary != null)
 		{
-			foreach(KeyValuePair<TKey, TValue> pair in other)
+			foreach (KeyValuePair<TKey, TValue> pair in InOtherDictionary)
 			{
-				if (dictionary.ContainsKey(pair.Key))
+				if (ThisDictionary.ContainsKey(pair.Key))
 				{
 					if (bOverwrite)
 					{
-						dictionary.Add(pair.Key, pair.Value);
+						ThisDictionary.Add(pair.Key, pair.Value);
 					}
 				}
 				else
 				{
-					dictionary.Add(pair.Key, pair.Value);
+					ThisDictionary.Add(pair.Key, pair.Value);
 				}
 			}
 		}
 	}
 
+
+	/////////////////////////////////////////////////////////////////////////////
+	public static TValue FindOrAdd<TKey, TValue>(this Dictionary<TKey, TValue> ThisDictionary, in TKey InKey, in System.Func<TValue> InDefaultCtor = null)
+	{
+		if (ThisDictionary.TryGetValue(InKey, out TValue value))
+		{
+			return value;
+		}
+		else
+		{
+			return ThisDictionary[InKey] = InDefaultCtor.IsNotNull() ? InDefaultCtor.Invoke() : default(TValue);
+		}
+	}
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	public static void Deconstruct<T1, T2>(this KeyValuePair<T1, T2> ThisTuple, out T1 OutKey, out T2 OutValue)
+	{
+		OutKey = ThisTuple.Key;
+		OutValue = ThisTuple.Value;
+	}
+
+	#endregion
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+	#region Single (Float)
+
+	public static void Swap(this ref float ThisFloat, ref float InOtherFloat)
+	{
+		float tmp = ThisFloat;
+		InOtherFloat = ThisFloat;
+		ThisFloat = tmp;
+	}
+
 	#endregion
 }
-
-
