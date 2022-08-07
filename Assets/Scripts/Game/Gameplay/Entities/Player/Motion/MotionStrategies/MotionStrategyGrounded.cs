@@ -45,7 +45,7 @@ namespace Entities.Player.Components
 			base.OnEnable();
 
 			// Register grounded listener
-			m_Foots.OnEvent_GroundedChanged += OnGroundedChanged;
+			m_Foots.OnGroundedChanged += OnGroundedChanged;
 
 			m_IsGrounded = m_Foots.RequestForCurrentState();
 
@@ -65,7 +65,7 @@ namespace Entities.Player.Components
 
 			if (Utils.CustomAssertions.IsNotNull(m_Foots))
 			{
-				m_Foots.OnEvent_GroundedChanged -= OnGroundedChanged;
+				m_Foots.OnGroundedChanged -= OnGroundedChanged;
 			}
 		}
 

@@ -1,33 +1,29 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
-
-public class EntityFoots : MonoBehaviour
+[RequireComponent(typeof(SphereCollider))]
+public class EntityAboveCollisionDetector : MonoBehaviour
 {
+	public	delegate	void		OnAboveObstacleEvent      (Collider obstacle);
 
-	public	delegate	void		OnGroundedChangeEvent      (bool newState);
-
-	[SerializeField, ReadOnly]
+	[SerializeField]
 	private				SphereCollider					m_Collider					= null;
 
 	[SerializeField, ReadOnly]
 	private				Collider						m_CurrentCollider			= null;
 
 
-	private	event		OnGroundedChangeEvent			m_OnGroundedChange			= delegate { };
+	private	event		OnAboveObstacleEvent			m_OnAboveObstacleEvent			= delegate { };
 
-	public		event	OnGroundedChangeEvent			OnGroundedChanged
+	public		event	OnAboveObstacleEvent			OnAboveObstacle
 	{
-		add		{ if (value.IsNotNull()) m_OnGroundedChange += value; }
-		remove	{ if (value.IsNotNull()) m_OnGroundedChange -= value; }
+		add		{ if (value.IsNotNull()) m_OnAboveObstacleEvent += value; }
+		remove	{ if (value.IsNotNull()) m_OnAboveObstacleEvent -= value; }
 	}
 	
 	//////////////////////////////////////////////////////////////////////////
 	private void Awake()
 	{
-		if (m_Collider.IsNotNull() || Utils.CustomAssertions.IsTrue(gameObject.TryGetComponent(out m_Collider)))
+		if (Utils.CustomAssertions.IsNotNull(m_Collider))
 		{
 			m_Collider.isTrigger = true;
 
@@ -40,7 +36,7 @@ public class EntityFoots : MonoBehaviour
 			}
 		}
 	}
-	
+
 	//////////////////////////////////////////////////////////////////////////
 	private void OnValidate()
 	{
@@ -50,17 +46,12 @@ public class EntityFoots : MonoBehaviour
 	//////////////////////////////////////////////////////////////////////////
 	private void UpdateState()
 	{
-		m_OnGroundedChange(m_CurrentCollider.IsNotNull());
+		m_OnAboveObstacleEvent(m_CurrentCollider);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	public bool RequestForCurrentState() => m_CurrentCollider.IsNotNull();
+	public bool RequestForCurrentState() => !m_CurrentCollider.IsNotNull();
 	
-	//////////////////////////////////////////////////////////////////////////
-	private void OnTriggerEnter(Collider other)
-	{
-
-	}
 
 	//////////////////////////////////////////////////////////////////////////
 	private void OnTriggerStay(Collider other)
@@ -85,6 +76,9 @@ public class EntityFoots : MonoBehaviour
 	//////////////////////////////////////////////////////////////////////////
 	private void OnDrawGizmos()
 	{
-		Gizmos.DrawSphere(m_Collider.transform.position, m_Collider.radius);
+		if (m_Collider.IsNotNull())
+		{
+	//		Gizmos.DrawSphere(m_Collider.transform.position + m_Collider.center, m_Collider.radius);
+		}
 	}
 }

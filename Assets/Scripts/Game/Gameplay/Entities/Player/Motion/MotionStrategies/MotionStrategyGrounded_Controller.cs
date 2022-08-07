@@ -26,6 +26,9 @@ namespace Entities.Player.Components
 		private				Transform						m_Head						= null;
 
 		[SerializeField, ReadOnly]
+		private				EntityAboveCollisionDetector	m_EntityAboveCollisionDetector = null;
+
+		[SerializeField, ReadOnly]
 		private				Vector3							m_CurrentVelocity			= Vector3.zero;
 
 
@@ -47,6 +50,7 @@ namespace Entities.Player.Components
 		};
 		private Vector2 m_CurrentMoveInputVector = Vector2.zero;
 		private	float m_CurrentCrouchTransition01Value = 0f;
+		private bool m_CanJump = true;
 		private bool m_JumpRequested = false;
 		private bool m_CrouchedRequested = false;
 
@@ -69,6 +73,8 @@ namespace Entities.Player.Components
 			}
 
 			enabled &= Utils.CustomAssertions.IsTrue(gameObject.TrySearchComponent(ESearchContext.LOCAL_AND_CHILDREN, out m_Foots));
+
+			enabled &= Utils.CustomAssertions.IsTrue(gameObject.TrySearchComponent(ESearchContext.LOCAL_AND_CHILDREN, out m_EntityAboveCollisionDetector));
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -86,9 +92,16 @@ namespace Entities.Player.Components
 			// Register grounded listener
 			if (Utils.CustomAssertions.IsNotNull(m_Foots))
 			{
-				m_Foots.OnEvent_GroundedChanged += OnGroundedChanged;
+				m_Foots.OnGroundedChanged += OnGroundedChanged;
 
 				m_IsGrounded = m_Foots.RequestForCurrentState();
+			}
+
+			if (Utils.CustomAssertions.IsNotNull(m_EntityAboveCollisionDetector))
+			{
+				m_EntityAboveCollisionDetector.OnAboveObstacle += OnAboveObstacle;
+
+				m_CanJump = m_EntityAboveCollisionDetector.RequestForCurrentState();
 			}
 		}
 
@@ -104,13 +117,18 @@ namespace Entities.Player.Components
 
 			if (Utils.CustomAssertions.IsNotNull(m_Foots))
 			{
-				m_Foots.OnEvent_GroundedChanged -= OnGroundedChanged;
+				m_Foots.OnGroundedChanged -= OnGroundedChanged;
+			}
+
+			if (Utils.CustomAssertions.IsNotNull(m_EntityAboveCollisionDetector))
+			{
+				m_EntityAboveCollisionDetector.OnAboveObstacle -= OnAboveObstacle;
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
 		private void OnMoveActionUpdate(Vector2 input) => m_CurrentMoveInputVector.Set(input.x, input.y);
-		private void OnJumpRequest() => m_JumpRequested = true;
+		private void OnJumpRequest() => m_JumpRequested = m_CanJump;
 		private void OnCrouchStart() => m_CrouchedRequested = true;
 		private void OnCrouchContinue() => m_CrouchedRequested = true;
 		private void OnCrouchEnd() => m_CrouchedRequested = false;
@@ -118,6 +136,10 @@ namespace Entities.Player.Components
 		private void OnSprintContinue() => m_SpeedModifiers[EModifiers.SPRINT] = m_Configs.SprintSpeedMult;
 		private void OnSprintEnd() => m_SpeedModifiers[EModifiers.SPRINT] = 1f;
 		private void OnGroundedChanged(bool newState) => m_IsGrounded = newState;
+		private void OnAboveObstacle(Collider obstacle)
+		{
+			m_CanJump = !obstacle;
+		}
 
 
 		//////////////////////////////////////////////////////////////////////////
