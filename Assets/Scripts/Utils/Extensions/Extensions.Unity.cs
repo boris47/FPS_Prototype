@@ -120,7 +120,7 @@ public static class Extensions_Unity
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Return true if component is found, otherwise return false </summary>
-	public static bool HasComponent<T>(this Transform ThisTransform) where T : Component => ThisTransform.TryGetComponent(out T _);
+	public static bool HasComponent<T>(this Transform ThisTransform) where T : Component => ThisTransform.gameObject.TryGetComponent(out T _);
 	
 
 	/// <summary>
@@ -328,6 +328,23 @@ public static class Extensions_Unity
 		ThisRigidbody.MovePosition((q * (ThisRigidbody.transform.position - InPoint)) + InPoint);
 		ThisRigidbody.MoveRotation(ThisRigidbody.transform.rotation * q);
 	}
+	public static void Rotate(this Rigidbody ThisRigidbody, Vector3 InAxis, float InAngle)
+	{
+		Quaternion q = Quaternion.AngleAxis(InAngle, InAxis);
+		ThisRigidbody.MoveRotation(ThisRigidbody.transform.rotation * q);
+	}
+	#endregion
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+	#region COLLIDER
+
+	public static bool Contains(this Collider ThisCollider, Vector3 InPoint)
+	{
+		return (ThisCollider.ClosestPoint(InPoint) - InPoint).sqrMagnitude < Mathf.Epsilon * Mathf.Epsilon;
+	}
+	
 	#endregion
 
 
@@ -353,11 +370,28 @@ public static class Extensions_Unity
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Search for component of type T on This gameObject if not a value is already assigned </summary>
-	public static bool GetIfNotAssigned<T>(this GameObject ThisGameObject, ref T OutValue) where T : Component
+	public static T GetIfNotAssigned<T>(this GameObject ThisGameObject, ref T OutValue) where T : Component
 	{
 		if (!OutValue.IsNotNull())
 		{
-			OutValue = ThisGameObject.GetComponent<T>();
+			if (ThisGameObject.TryGetComponent(out T OutValue2)) // Faster
+			{
+				OutValue = OutValue2;
+			}
+		}
+		return OutValue;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Search for component of type T on This gameObject if not a value is already assigned </summary>
+	public static bool TryGetIfNotAssigned<T>(this GameObject ThisGameObject, ref T OutValue) where T : Component
+	{
+		if (!OutValue.IsNotNull())
+		{
+			if (ThisGameObject.TryGetComponent(out T OutValue2)) // Faster
+			{
+				OutValue = OutValue2;
+			}
 		}
 		return OutValue.IsNotNull();
 	}
@@ -475,6 +509,16 @@ public static class Extensions_Unity
 
 	/////////////////////////////////////////////////////////////////////////////
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static Vector3 Set(this ref Vector2 ThisVector, in Vector2 InOtherVector)
+	{
+		ThisVector.x = InOtherVector.x;
+		ThisVector.y = InOtherVector.y;
+		return ThisVector;
+	}
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static Vector3 Add(this ref Vector2 ThisVector, in Vector2 InOtherVector)
 	{
 		ThisVector.x += InOtherVector.x;
@@ -516,7 +560,7 @@ public static class Extensions_Unity
 
 	#endregion // VECTOR2
 
-
+	
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
 	#region VECTOR3
@@ -555,6 +599,17 @@ public static class Extensions_Unity
 
 	/////////////////////////////////////////////////////////////////////////////
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static Vector3 Set(this ref Vector3 ThisVector, in Vector3 InOtherVector)
+	{
+		ThisVector.x = InOtherVector.x;
+		ThisVector.y = InOtherVector.y;
+		ThisVector.z = InOtherVector.z;
+		return ThisVector;
+	}
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static Vector3 Add(this ref Vector3 ThisVector, in Vector3 InOtherVector)
 	{
 		ThisVector.x += InOtherVector.x;
@@ -582,6 +637,35 @@ public static class Extensions_Unity
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static float DistanceXZSqr(this Vector3 ThisVector, in Vector3 InOtherVector) => Vector2.SqrMagnitude(new Vector2(ThisVector.x, ThisVector.z) - new Vector2(InOtherVector.x, InOtherVector.z));
 
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Gets the magnitude on an axis given a <see cref="Vector3"/>. </summary>
+	/// <param name="ThisVector">The vector.</param>
+	/// <param name="InAxis">The axis on which to calculate the magnitude.</param>
+	/// <returns>The magnitude.</returns>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static float GetMagnitudeOnAxis(this Vector3 ThisVector, in Vector3 InAxis)
+	{
+		var vectorMagnitude = ThisVector.magnitude;
+		if (vectorMagnitude <= 0)
+		{
+			return 0;
+		}
+		var dot = Vector3.Dot(InAxis, ThisVector / vectorMagnitude);
+		var val = dot * vectorMagnitude;
+		return val;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Get the square magnitude from vectorA to vectorB. </summary>
+	/// <returns>The sqr magnitude.</returns>
+	/// <param name="ThisVector">First vector.</param>
+	/// <param name="InOtherVector">Second vector.</param>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static float SqrMagnitudeFrom(this Vector3 ThisVector, Vector3 InOtherVector)
+	{
+		var diff = ThisVector - InOtherVector;
+		return diff.sqrMagnitude;
+	}
 
 	/////////////////////////////////////////////////////////////////////////////
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -618,7 +702,7 @@ public static class Extensions_Unity
 
 	#endregion // VECTOR3
 
-
+	
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
 	#region QUATERNION
@@ -704,13 +788,30 @@ public static class Extensions_Unity
 
 	#endregion // QUATERNION
 
+	
+	/////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+	#region CollisionFlags
 
+	public static bool IsOrContains(this CollisionFlags flags, CollisionFlags other)
+	{
+		return (flags == other) || (flags & other) != 0;
+	}
+
+	public static bool Is(this CollisionFlags flags, CollisionFlags other)
+	{
+		return (flags == other);
+	}
+
+	#endregion
+
+	
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
 	#region UnityEditor.SerializedObject
 
 #if UNITY_EDITOR
-	public static void DoLayoutWithoutScrptProperty(this UnityEditor.SerializedObject serializedObject)
+	public static void DoLayoutWithoutScriptProperty(this UnityEditor.SerializedObject serializedObject)
 	{
 		using (new UnityEditor.LocalizationGroup(serializedObject))
 		{

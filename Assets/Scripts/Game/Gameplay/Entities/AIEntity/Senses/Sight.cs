@@ -197,7 +197,7 @@ namespace Entities.AI.Components.Senses
 			// If target is valid and visible select by strategy
 			if (TrySelectTargetByStrategy(eligibleTargets, out Entity choosenTarget))
 			{
-				Vector3 seenPosition = choosenTarget.Targettable.position;
+				Vector3 seenPosition = choosenTarget.Targetable.position;
 				Vector3 viewerPosition = transform.position;
 				Vector3 lastDirection = choosenTarget.Body.forward;
 
@@ -227,7 +227,7 @@ namespace Entities.AI.Components.Senses
 				// TARGET LOST
 				if (m_CurrentTarget.IsNotNull())
 				{
-					Vector3 lastSeenPosition = m_CurrentTarget.Targettable.position;
+					Vector3 lastSeenPosition = m_CurrentTarget.Targetable.position;
 					Vector3 viewerPosition = transform.position;
 					Vector3 lastDirection = m_CurrentTarget.Body.forward;
 
@@ -315,7 +315,7 @@ namespace Entities.AI.Components.Senses
 		//////////////////////////////////////////////////////////////////////////
 		private static bool InsideViewCone(in Entity target, in Vector3 viewPointPosition, in Vector3 viewPointDirection, in float viewCone)
 		{
-			Vector3 direction = (target.Targettable.position - viewPointPosition);
+			Vector3 direction = (target.Targetable.position - viewPointPosition);
 			float angle = Vector3.Angle(direction, viewPointDirection);
 			return (angle <= (viewCone * 0.5f));
 		}
@@ -324,10 +324,10 @@ namespace Entities.AI.Components.Senses
 		private static bool IsTargettable(in Entity target, in Vector3 viewPointPosition, in float viewDistance)
 		{
 			bool bResult = false;
-			if (Physics.Raycast(viewPointPosition, (target.Targettable.position - viewPointPosition), out RaycastHit m_RaycastHit, viewDistance))
+			if (Physics.Raycast(viewPointPosition, (target.Targetable.position - viewPointPosition), out RaycastHit m_RaycastHit, viewDistance))
 			{
 				int colliderInstanceID = m_RaycastHit.collider.GetInstanceID();
-				int entityPhysicColliderInstanceID = target.PhysicCollider.GetInstanceID();
+				int entityPhysicColliderInstanceID = target.PrimaryCollider.GetInstanceID();
 				int shieldColliderInstanceID = target.EntityShield?.Collider.GetInstanceID() ?? -1;
 				bResult = (colliderInstanceID == entityPhysicColliderInstanceID || colliderInstanceID == shieldColliderInstanceID);
 			}

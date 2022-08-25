@@ -7,7 +7,7 @@ using UnityEngine;
 public class EntityFoots : MonoBehaviour
 {
 
-	public	delegate	void		OnGroundedChangeEvent      (bool newState);
+	public	delegate	void		OnGroundedChangeEvent      (Collider maybeCollider);
 
 	[SerializeField, ReadOnly]
 	private				SphereCollider					m_Collider					= null;
@@ -23,7 +23,9 @@ public class EntityFoots : MonoBehaviour
 		add		{ if (value.IsNotNull()) m_OnGroundedChange += value; }
 		remove	{ if (value.IsNotNull()) m_OnGroundedChange -= value; }
 	}
+	public Collider CurrentCollider => m_CurrentCollider;
 	
+
 	//////////////////////////////////////////////////////////////////////////
 	private void Awake()
 	{
@@ -47,41 +49,36 @@ public class EntityFoots : MonoBehaviour
 		gameObject.TryGetComponent(out m_Collider);
 	}
 
-	//////////////////////////////////////////////////////////////////////////
-	private void UpdateState()
-	{
-		m_OnGroundedChange(m_CurrentCollider.IsNotNull());
-	}
-
-	//////////////////////////////////////////////////////////////////////////
-	public bool RequestForCurrentState() => m_CurrentCollider.IsNotNull();
 	
 	//////////////////////////////////////////////////////////////////////////
 	private void OnTriggerEnter(Collider other)
 	{
-
-	}
-
-	//////////////////////////////////////////////////////////////////////////
-	private void OnTriggerStay(Collider other)
-	{
 		if (!other.isTrigger)
 		{
-			m_CurrentCollider = other;
-			UpdateState();
+			m_OnGroundedChange(m_CurrentCollider = other);
 		}
 	}
+
+//	//////////////////////////////////////////////////////////////////////////
+//	private void OnTriggerStay(Collider other)
+//	{
+//		if (!other.isTrigger)
+//		{
+//			m_CurrentCollider = other;
+//			UpdateState();
+//		}
+//	}
 
 	//////////////////////////////////////////////////////////////////////////
 	private void OnTriggerExit(Collider other)
 	{
-		if (!other.isTrigger)
+		// If is not a trigger and is the current then set null otherwise another collider is stored and we must keep it's reference
+		if (!other.isTrigger && m_CurrentCollider == other)
 		{
-			m_CurrentCollider = null;
-			UpdateState();
+			m_OnGroundedChange(m_CurrentCollider = null);
 		}
 	}
-
+	
 	//////////////////////////////////////////////////////////////////////////
 	private void OnDrawGizmos()
 	{

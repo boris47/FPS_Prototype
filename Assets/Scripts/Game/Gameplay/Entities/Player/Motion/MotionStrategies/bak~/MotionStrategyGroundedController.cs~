@@ -1,0 +1,249 @@
+
+using System.Linq;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace Entities.Player.Components
+{
+	[Configurable(nameof(m_Configs), "Player/MotionStrategies/" + nameof(MotionStrategyGrounded))]
+	public class MotionStrategyGroundedController : MotionStrategyBase
+	{
+		private enum EModifiers
+		{
+			SPRINT, CROUCH
+		}
+
+		[SerializeField, ReadOnly]
+		private				ConfigurationGrounded			m_Configs							= null;
+
+		[SerializeField, ReadOnly]
+		private				OpenCharacterController			m_CharacterController				= null;
+
+		[SerializeField, ReadOnly]
+		private				Transform						m_Head								= null;
+
+		[SerializeField, ReadOnly]
+		private				Vector3							m_CurrentWorldVelocity				= Vector3.zero;
+
+		[SerializeField, ReadOnly]
+		private				Vector3							m_CurrentLocalVelocity				= Vector3.zero;
+
+
+		[Header("Debug")]
+		[SerializeField, ReadOnly]
+		private				bool							m_IsCrouched						= false;
+
+		[SerializeField, ReadOnly]
+		private				bool							m_IsGrounded						= false;
+	
+		public override		bool							IsMotionConditionValid				=> m_IsGrounded;
+
+
+		//--------------------
+		private	readonly Dictionary<EModifiers, float> m_SpeedModifiers = new Dictionary<EModifiers, float>()
+		{
+			{EModifiers.SPRINT, 1f },
+			{EModifiers.CROUCH, 1f }
+		};
+		private Vector2 m_CurrentMoveInputVector = Vector2.zero;
+		private CollisionFlags m_CollisionFlags = CollisionFlags.None;
+		private bool m_CanJump = true;
+		private bool m_JumpRequested = false;
+		private	float m_CurrentCrouchTransition01Value = 0f;
+		private bool m_CrouchedRequested = false;
+		private bool m_CrouchExitRequested = false;
+
+
+		//////////////////////////////////////////////////////////////////////////
+		protected override void Awake()
+		{
+			base.Awake();
+
+			enabled &= Utils.CustomAssertions.IsTrue(this.TryGetConfiguration(out m_Configs));
+
+			if (enabled &= Utils.CustomAssertions.IsTrue(gameObject.TryGetComponent(out m_CharacterController)))
+			{
+				m_CharacterController.SetHeight(newHeight: m_Configs.CharacterHeight,  preserveFootPosition: true, checkForPenetration: false, updateGrounded: false);
+			}
+
+			if (enabled &= Utils.CustomAssertions.IsTrue(transform.TrySearchComponentByChildName("Head", out m_Head)))
+			{
+				m_Head.localPosition = Vector3.up * m_Configs.HeadHeight;
+
+			}
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		protected override void OnEnable()
+		{
+			base.OnEnable();
+
+			InputHandler.RegisterAxis2DCallback(this, m_Configs.MoveAction, OnMoveActionUpdate, InTryReadRaw: false);
+
+			// TODO: Handle Toggling and holding feature
+			InputHandler.RegisterButtonCallbacks(this, m_Configs.SprintAction, OnSprintStart, OnSprintContinue, OnSprintEnd);
+			InputHandler.RegisterButtonCallbacks(this, m_Configs.CrouchAction, OnCrouchStart, OnCrouchContinue, OnCrouchEnd);
+			InputHandler.RegisterButtonCallbacks(this, m_Configs.JumpAction, OnJumpRequest, null, null);
+
+			if (Utils.CustomAssertions.IsNotNull(m_CharacterController))
+			{
+				m_CharacterController.collision += OnCharacterControllerCollision;
+			}
+		}
+		
+
+		//////////////////////////////////////////////////////////////////////////
+		protected override void OnDisable()
+		{
+			base.OnDisable();
+
+			InputHandler.UnRegisterCallbacks(this, m_Configs.MoveAction);
+			InputHandler.UnRegisterCallbacks(this, m_Configs.SprintAction);
+			InputHandler.UnRegisterCallbacks(this, m_Configs.CrouchAction);
+			InputHandler.UnRegisterCallbacks(this, m_Configs.JumpAction);
+
+			if (m_CharacterController.IsNotNull())
+			{
+				m_CharacterController.collision -= OnCharacterControllerCollision;
+			}
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		private void OnMoveActionUpdate(Vector2 input) => m_CurrentMoveInputVector.Set(input.x, input.y);
+		private void OnJumpRequest() => m_JumpRequested = m_CanJump;
+		private void OnCrouchStart() => m_CrouchedRequested = true;
+		private void OnCrouchContinue() => m_CrouchedRequested = true;
+		private void OnCrouchEnd() => m_CrouchExitRequested = true;
+		private void OnSprintStart() => m_SpeedModifiers[EModifiers.SPRINT] = m_Configs.SprintSpeedMult;
+		private void OnSprintContinue() => m_SpeedModifiers[EModifiers.SPRINT] = m_Configs.SprintSpeedMult;
+		private void OnSprintEnd() => m_SpeedModifiers[EModifiers.SPRINT] = 1f;
+
+
+		//////////////////////////////////////////////////////////////////////////
+		private void OnCharacterControllerCollision(OpenCharacterController.CollisionInfo collisionInfo)
+		{
+			OpenCharacterController controller = collisionInfo.controller;
+
+			if (controller == null || controller.collisionFlags == CollisionFlags.Below || controller.collisionFlags == CollisionFlags.Above)
+			{
+				return;
+			}
+
+			Rigidbody body = collisionInfo.rigidbody;
+			if (body == null)
+			{
+				return;
+			}
+
+			// the scale that is used to convert character's current velocity to force applied to rigidbody
+			const float k_VelocityToForceScale = 0.1f;
+			body.AddForceAtPosition(m_CurrentWorldVelocity, collisionInfo.point, ForceMode.Impulse);
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		private void UpdateCrouchState(float deltaTime)
+		{
+			if (m_CrouchExitRequested && m_IsCrouched)
+			{
+			//	if (m_CharacterController. m_HasObstacleAboveHead)
+			//	{
+			//		m_CrouchedRequested = true;
+			//	}
+			//	else
+				{
+					m_CrouchedRequested = false;
+					m_CrouchExitRequested = false;
+				}
+			}
+
+			m_CurrentCrouchTransition01Value += Mathf.Pow(m_Configs.CrouchTransitionSeconds, -1f) * deltaTime * Utils.Math.BoolToMinusOneOsPlusOne(m_CrouchedRequested);
+
+			m_CurrentCrouchTransition01Value = Mathf.Clamp01(m_CurrentCrouchTransition01Value);
+
+			m_SpeedModifiers[EModifiers.CROUCH] = Utils.Math.ScaleBetween(m_CurrentCrouchTransition01Value, 0f, 1f, 1f, m_Configs.CrouchSpeedMult);
+
+			m_IsCrouched = Mathf.Approximately(m_CurrentCrouchTransition01Value, 1f);
+
+			// We want to avoid transform scaling because children and colliders and all is scaled also and it can really easy lead to problems
+
+			float ratio = m_Configs.CrouchedHeight / m_Configs.CharacterHeight;
+
+			float newHeight = Mathf.Lerp(m_Configs.CharacterHeight, m_Configs.CrouchedHeight, m_CurrentCrouchTransition01Value);
+			Vector3 newCenter = Mathf.Lerp(0f, ratio, m_CurrentCrouchTransition01Value) * Vector3.down;
+
+			m_CharacterController.SetHeightAndCenter(newHeight: newHeight, newCenter: newCenter, checkForPenetration: false, updateGrounded: false);
+
+			// Update head local position
+			{
+				Vector3 headLocalPosition = m_Head.localPosition;
+				headLocalPosition.y = m_CharacterController.GetHeight() - (m_Configs.CharacterHeight - m_Configs.HeadHeight);
+				m_Head.localPosition = headLocalPosition;
+			}
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		private void Update()
+		{
+			float deltaTime = Time.deltaTime;
+			float gravity = Physics.gravity.y;
+
+			UpdateCrouchState(deltaTime);
+
+			if (!m_CharacterController.startedSlide)
+			{
+				// Use user input
+				m_CurrentMoveInputVector.Normalize();
+				m_CurrentLocalVelocity = transform.InverseTransformDirection(m_CurrentWorldVelocity);
+				float moveSpeed = m_Configs.MoveSpeed * m_SpeedModifiers.Aggregate(1f, (float f1, KeyValuePair<EModifiers, float> f2) => f1 * f2.Value);
+				if (m_IsGrounded)
+				{
+					if (m_CurrentMoveInputVector.sqrMagnitude > 0f)
+					{
+						m_CurrentLocalVelocity.x = Mathf.MoveTowards(m_CurrentLocalVelocity.x, moveSpeed * m_CurrentMoveInputVector.x, m_Configs.MoveAcceleration * deltaTime);
+						m_CurrentLocalVelocity.z = Mathf.MoveTowards(m_CurrentLocalVelocity.z, moveSpeed * m_CurrentMoveInputVector.y, m_Configs.MoveAcceleration * deltaTime);
+					}
+					else
+					{
+						m_CurrentLocalVelocity.x = Mathf.MoveTowards(m_CurrentLocalVelocity.x, 0f, m_Configs.MoveDeceleration * deltaTime);
+						m_CurrentLocalVelocity.z = Mathf.MoveTowards(m_CurrentLocalVelocity.z, 0f, m_Configs.MoveDeceleration * deltaTime);
+					}
+				}
+				else
+				{
+					Utils.Math.ClampResult(ref m_CurrentLocalVelocity.x, m_CurrentLocalVelocity.x + (moveSpeed * m_Configs.AirControlMult * deltaTime * m_CurrentMoveInputVector.x), -moveSpeed, moveSpeed);
+					Utils.Math.ClampResult(ref m_CurrentLocalVelocity.z, m_CurrentLocalVelocity.z + (moveSpeed * m_Configs.AirControlMult * deltaTime * m_CurrentMoveInputVector.y), -moveSpeed, moveSpeed);
+				}
+				m_CurrentWorldVelocity = transform.TransformDirection(m_CurrentLocalVelocity);
+			}
+
+			// Controller gravity
+			if (m_IsGrounded)
+			{
+				const float k_GroundedGravity = -3f;
+				m_CurrentWorldVelocity.y = k_GroundedGravity;
+			}
+			else
+			{
+				m_CurrentWorldVelocity.y += gravity * deltaTime;
+			}
+
+			// Jump request
+			if (m_CanJump && m_IsGrounded && m_JumpRequested)
+			{
+				float force = Mathf.Sqrt(m_Configs.JumpHeight * -2f * gravity);
+				m_CurrentWorldVelocity.y = force;
+			}
+
+			m_CollisionFlags = m_CharacterController.Move(m_CurrentWorldVelocity * deltaTime);
+
+			m_IsGrounded = m_CharacterController.isGrounded;
+				//m_CollisionFlags.IsOrContains(CollisionFlags.Below);
+
+			// Consume input
+			m_JumpRequested = false;
+			m_CurrentMoveInputVector.Set(0f, 0f);
+		}
+	}
+}

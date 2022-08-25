@@ -49,8 +49,16 @@ namespace Entities.AI.Components.Behaviours
 			OnNodeSelected = delegate (NodeViewBase node) { InspectorView?.UpdateSelection(node); };
 			OnNodeUnSelected = delegate { InspectorView?.ClearSelection(); };
 
+			if (BehaviourTreeEditorUtils.TryGetStyleAssetPath(nameof(BehaviourTreeView), out string path))
+			{
+				StyleSheet asset = AssetDatabase.LoadAssetAtPath<StyleSheet>($"{path}/GridBackground.uss");
+				if (Utils.CustomAssertions.IsNotNull(asset))
+				{
+					styleSheets.Add(asset);
+				}
+			}
+
 			m_EdgeConnectorListener = new EdgeConnectorListener(this);
-			styleSheets.Add(Resources.Load<StyleSheet>("GridBackground"));
 
 			GridBackground grid = new GridBackground();
 			{

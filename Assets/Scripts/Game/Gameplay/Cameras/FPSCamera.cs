@@ -4,10 +4,10 @@ using UnityEngine;
 [Configurable(nameof(m_Configs), "Cameras/Configs/" + nameof(FPSCamera))]
 public class FPSCamera : GameCameraBase
 {
-	[SerializeField, ReadOnly]
+	[SerializeField]
 	private Transform m_Head = null;
 
-	[SerializeField, ReadOnly]
+	[SerializeField]
 	private Transform m_Body = null;
 
 	[SerializeField, ReadOnly]
@@ -26,12 +26,12 @@ public class FPSCamera : GameCameraBase
 
 		enabled = Utils.CustomAssertions.IsTrue(this.TryGetConfiguration(out m_Configs));
 
+		m_Head = transform;
+		
 		if (Utils.CustomAssertions.IsTrue(transform.parent.IsNotNull()))
 		{
 			m_Body = transform.parent;
 		}
-
-		m_Head = transform;
 	}
 
 
@@ -42,23 +42,22 @@ public class FPSCamera : GameCameraBase
 		{
 			InputHandler.RegisterAxis2DCallback(this, m_Configs.LookAction, OnLookActionUpdate, InTryReadRaw: false);
 		}
-		Cursor.lockState = CursorLockMode.Locked;
-		Cursor.visible = false;
+	//	Cursor.lockState = CursorLockMode.Locked;
+	//	Cursor.visible = false;
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	private void OnDisable()
 	{
-		Cursor.lockState = CursorLockMode.None;
-		Cursor.visible = true;
+	//	Cursor.lockState = CursorLockMode.None;
+	//	Cursor.visible = true;
 
 		if (m_Configs.IsNotNull())
 		{
 			InputHandler.UnRegisterCallbacks(this, m_Configs.LookAction);
 		}
 	}
-
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -81,7 +80,7 @@ public class FPSCamera : GameCameraBase
 			if (m_Head.IsNotNull())
 			{
 				float verticalRotation = m_CurrentLookInputVector.y * m_Configs.LookSensitivity;
-				if (Utils.Math.ClampResult(ref m_CurrentCameraAngle, m_CurrentCameraAngle - verticalRotation, -75, 75f))
+				if (Utils.Math.ClampResult(ref m_CurrentCameraAngle, m_CurrentCameraAngle - verticalRotation, m_Configs.DownCameraRotationBound, m_Configs.UpCameraRotationBound))
 				{
 					m_Head.Rotate(Vector3.right, -verticalRotation, Space.Self);
 				}

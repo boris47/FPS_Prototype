@@ -11,17 +11,21 @@ namespace Entities
 	/// This gives the Controller the opportunity to implement the behavior in response to this event, intercepting the event and superseding the Entity's default behavior.<br />
 	/// <b>NOTE</b>: There is a one-to-one relationship between Controllers and Entities; meaning, each Controller controls only one Entity at any given time
 	/// </summary>
+	[DefaultExecutionOrder(-5)]
 	public abstract class EntityController : MonoBehaviour
 	{
 		[SerializeField, ReadOnly]
-		internal Entity				m_ControllableEntity		= null;
+		private					Entity							m_ControllableEntity				= null;
 
 		[SerializeField]
-		private bool				m_PossessOnAwake		= true;
-
-		internal Entity				ControlledEntity		=> m_ControllableEntity;
+		private					bool							m_PossessOnAwake					= true;
 
 
+		//--------------------
+		public					Entity							ControlledEntity					=> m_ControllableEntity;
+
+
+		//////////////////////////////////////////////////////////////////////////
 		protected virtual void Awake()
 		{
 			if (m_PossessOnAwake && gameObject.TryGetComponent(out Entity controllableEntity))
@@ -30,7 +34,8 @@ namespace Entities
 			}
 		}
 
-		internal void Possess(in Entity entity)
+		//////////////////////////////////////////////////////////////////////////
+		public void Possess(in Entity entity)
 		{
 			// TODO Check for authority
 
@@ -53,9 +58,12 @@ namespace Entities
 				OnPossess(entity);
 			}
 		}
+
+		//////////////////////////////////////////////////////////////////////////
 		protected abstract void OnPossess(in Entity entity);
 
-		internal void UnPossess()
+		//////////////////////////////////////////////////////////////////////////
+		public void UnPossess()
 		{
 			m_ControllableEntity.SetController(null);
 			OnUnPossess(m_ControllableEntity);
@@ -63,6 +71,7 @@ namespace Entities
 			m_ControllableEntity = null;
 		}
 
+		//////////////////////////////////////////////////////////////////////////
 		protected abstract void OnUnPossess(in Entity entity);
 	}
 }

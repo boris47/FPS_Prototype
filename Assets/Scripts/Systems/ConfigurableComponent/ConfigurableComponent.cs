@@ -33,7 +33,6 @@ public class Configurable : System.Attribute
 
 public static class ConfigurableComponent_Extension
 {
-
 	//////////////////////////////////////////////////////////////////////////
 	public static bool TryGetConfiguration<T>(this Component component, out T OutConfiguration) where T : ConfigurationBase
 	{
@@ -111,10 +110,15 @@ public static class ConfigurableComponent_Extension
 								if (Utils.CustomAssertions.IsTrue(Utils.String.TryConvertFromResourcePathToAssetPath(ResourcePath, out string AssetPath), err5))
 								{
 									// Compare ConfigType and existing one
-									ConfigurationBase existingConfig = AssetDatabase.LoadAssetAtPath<ConfigurationBase>(AssetPath);
-									if (existingConfig.IsNotNull() && existingConfig.GetType() != ConfigType)
+									ConfigurationBase existingConfig = Resources.Load<ConfigurationBase>(ResourcePath);
+									if (existingConfig == null || existingConfig.GetType() != ConfigType)
 									{
+										Resources.UnloadAsset(existingConfig);
 										AssetDatabase.DeleteAsset(AssetPath);
+									}
+									else
+									{
+										Resources.UnloadAsset(existingConfig);
 									}
 
 									// Create asset if not exists
@@ -141,17 +145,20 @@ public static class ConfigurableComponent_Extension
 	[CustomEditor(typeof(Component), editorForChildClasses: true)]
 	private class ComponentEditor : UnityEditor.Editor
 	{
+		private static bool s_IsOpen = true;
+		private ConfigurationBase m_Configuration = null;
 		private SerializedObject m_SerializedConfigObject = null;
 		private Component m_Instance = null;
-
+		private string m_Label = string.Empty;
 
 		//////////////////////////////////////////////////////////////////////////
 		private void OnEnable()
 		{
 			m_Instance = serializedObject.targetObject as Component;
-			if (m_Instance.IsNotNull() && m_Instance.TryGetConfiguration(out ConfigurationBase config))
+			if (m_Instance.IsNotNull() && m_Instance.TryGetConfiguration(out m_Configuration))
 			{
-				m_SerializedConfigObject = new SerializedObject(config);
+				m_SerializedConfigObject = new SerializedObject(m_Configuration);
+				m_Label = $"{ObjectNames.NicifyVariableName(m_Instance.GetType().Name)} Configs";
 			}
 		}
 
@@ -162,6 +169,12 @@ public static class ConfigurableComponent_Extension
 			if (m_SerializedConfigObject.IsNotNull())
 			{
 				m_SerializedConfigObject.Dispose();
+
+			}
+			if (m_Configuration.IsNotNull())
+			{
+				AssetDatabase.SaveAssetIfDirty(m_Configuration);
+				Resources.UnloadAsset(m_Configuration);
 			}
 			m_SerializedConfigObject = null;
 		}
@@ -184,19 +197,23 @@ public static class ConfigurableComponent_Extension
 			{
 				GUILayout.BeginHorizontal();
 				{
-					GUILayout.Label("------------CONFIGS------------");
-					if (GUILayout.Button("Locate"))
+					s_IsOpen = EditorGUILayout.Foldout(s_IsOpen, m_Label, toggleOnLabelClick: true);
+					
+					if (s_IsOpen && GUILayout.Button("Locate"))
 					{
 						EditorGUIUtility.PingObject(m_SerializedConfigObject.targetObject);
 					}
 				}
 				GUILayout.EndHorizontal();
+				
+				if (s_IsOpen)
+				{
+					m_SerializedConfigObject.DoLayoutWithoutScriptProperty();
 
-				m_SerializedConfigObject.DoLayoutWithoutScrptProperty();
+					GUILayout.Label("-------------------------------");
 
-				GUILayout.Label("-------------------------------");
-
-				GUILayout.Space(10f);
+					GUILayout.Space(10f);
+				}
 			}
 
 			// Normal component draw

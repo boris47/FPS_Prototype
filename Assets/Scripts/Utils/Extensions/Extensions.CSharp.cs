@@ -91,6 +91,74 @@ public static class Extensions_CSharp
 
 	#endregion // C# STRING
 
+	/////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+
+	#region FLOAT
+	/// <summary>
+	/// Is floatA equal to zero? Takes floating point inaccuracy into account, by using Epsilon.
+	/// </summary>
+	/// <param name="ThisFloat"></param>
+	/// <returns></returns>
+	public static bool IsEqualToZero(this float ThisFloat)
+	{
+		return System.Math.Abs(ThisFloat) < float.Epsilon;
+	}
+
+	/// <summary>
+	/// Is floatA not equal to zero? Takes floating point inaccuracy into account, by using Epsilon.
+	/// </summary>
+	/// <param name="ThisFloat"></param>
+	/// <returns></returns>
+	public static bool NotEqualToZero(this float ThisFloat)
+	{
+		return System.Math.Abs(ThisFloat) > float.Epsilon;
+	}
+
+	/// <summary>
+	/// Wraps a float between -180 and 180.
+	/// </summary>
+	/// <param name="ThisFloat">The float to wrap.</param>
+	/// <returns>A value between -180 and 180.</returns>
+	public static float Wrap180(this float ThisFloat)
+	{
+		ThisFloat %= 360.0f;
+		if (ThisFloat < -180.0f)
+		{
+			ThisFloat += 360.0f;
+		}
+		else if (ThisFloat > 180.0f)
+		{
+			ThisFloat -= 360.0f;
+		}
+		return ThisFloat;
+	}
+
+	/// <summary>
+	/// Wraps a float between 0 and 1.
+	/// </summary>
+	/// <param name="ThisFloat">The float to wrap.</param>
+	/// <returns>A value between 0 and 1.</returns>
+	public static float Wrap1(this float ThisFloat)
+	{
+		ThisFloat %= 1.0f;
+		if (ThisFloat < 0.0f)
+		{
+			ThisFloat += 1.0f;
+		}
+		return ThisFloat;
+	}
+
+	/// <summary>
+	/// Gets the fraction portion of a float.
+	/// </summary>
+	/// <param name="ThisFloat">The float.</param>
+	/// <returns>The fraction portion of a float.</returns>
+	public static float GetFraction(this float ThisFloat)
+	{
+		return ThisFloat - (float)System.Math.Floor(ThisFloat);
+	}
+	#endregion
 
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
@@ -106,6 +174,12 @@ public static class Extensions_CSharp
 		return ThisArray.GetByIndex<T>(UnityEngine.Random.Range(0, ThisArray.Length));
 	}
 
+	/////////////////////////////////////////////////////////////////////////////
+	public static T ByEnum<E, T>(this System.Array ThisArray, E InEnumValue) where E : System.Enum
+	{
+		int index = System.Array.IndexOf(System.Enum.GetValues(typeof(E)), InEnumValue);
+		return ThisArray.GetByIndex<T>(index);
+	}
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Tests if index is valid, i.e. greater than or equal to zero, and less than the number of elements in the array </summary>

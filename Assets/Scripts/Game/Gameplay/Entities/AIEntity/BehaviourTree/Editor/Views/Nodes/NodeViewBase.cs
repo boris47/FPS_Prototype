@@ -24,11 +24,19 @@ namespace Entities.AI.Components.Behaviours
 		public					Port						InputPort						=> m_Input;
 		public					BTNode						BehaviourTreeNode				=> m_BehaviourTreeNode;
 		public					System.Type					InsideNodeEditorType			{ get; } = typeof(BTNode.BTNodeEditor);
+		
+		private static readonly string k_BehaviourTreeNodeViewPath = "Assets/Resources/Editor/BehaviourTree/BehaviourTreeNodeView.uxml";
 
+		static NodeViewBase()
+		{
+			if (BehaviourTreeEditorUtils.TryGetStyleAssetPath(nameof(NodeViewBase), out string path))
+			{
+				k_BehaviourTreeNodeViewPath = $"{path}/BehaviourTreeNodeView.uxml";
+			}
+		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public NodeViewBase(in BTNode InNode, in EdgeConnectorListener InEdgeConnectorListener, in bool bIsBehaviourTreeInstance)
-		: base("Assets/Scripts/Game/Entities/AIEntity/BehaviourTree/Editor/Data/BehaviourTreeNodeView.uxml")
+		public NodeViewBase(in BTNode InNode, in EdgeConnectorListener InEdgeConnectorListener, in bool bIsBehaviourTreeInstance) : base(k_BehaviourTreeNodeViewPath)
 		{
 			m_BehaviourTreeNode = InNode;
 			m_EdgeConnectorListener = InEdgeConnectorListener;

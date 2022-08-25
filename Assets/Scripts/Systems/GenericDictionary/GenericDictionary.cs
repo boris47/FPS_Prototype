@@ -199,15 +199,19 @@ public class UDictionary
 
 		float GetElementHeight(int index)
 		{
-			SerializedProperty key = keys.GetArrayElementAtIndex(index);
-			SerializedProperty value = values.GetArrayElementAtIndex(index);
+			float max = 0f;
+			if (index < keys.arraySize)
+			{
+				SerializedProperty key = keys.GetArrayElementAtIndex(index);
+				SerializedProperty value = values.GetArrayElementAtIndex(index);
 
-			float kHeight = GetChildrenSingleHeight(key);
-			float vHeight = GetChildrenSingleHeight(value);
+				float kHeight = GetChildrenSingleHeight(key);
+				float vHeight = GetChildrenSingleHeight(value);
 
-			float max = Math.Max(kHeight, vHeight);
+				max = Math.Max(kHeight, vHeight);
 
-			if (max < SingleLineHeight) max = SingleLineHeight;
+				if (max < SingleLineHeight) max = SingleLineHeight;
+			}
 
 			return max + ElementHeightPadding;
 		}

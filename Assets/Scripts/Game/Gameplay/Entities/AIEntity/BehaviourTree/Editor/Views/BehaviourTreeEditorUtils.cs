@@ -50,6 +50,25 @@ namespace Entities.AI.Components.Behaviours
 			return !string.IsNullOrEmpty(OutName) && !string.IsNullOrEmpty(OutDescription);
 		}
 
+		//////////////////////////////////////////////////////////////////////////
+		public static bool TryGetStyleAssetPath(string closeFileName, out string OutValue)
+		{
+			OutValue = null;
+			string[] res = System.IO.Directory.GetFiles(Application.dataPath, $"{closeFileName}.cs", System.IO.SearchOption.AllDirectories)
+				// We are excluding excluded files
+				.Where(s => !s.Contains('~')).ToArray();
+
+			if (Utils.CustomAssertions.IsTrue(res.TryGetByIndex(0, out string path)))
+			{
+				path = System.IO.Path.GetDirectoryName(path.Substring(path.IndexOf("Assets"))).Replace("\\", "/");
+				if (!string.IsNullOrEmpty(path))
+				{
+					OutValue = path;
+				}
+			}
+			return OutValue.IsNotNull();
+		}
+
 
 		//////////////////////////////////////////////////////////////////////////
 		public static void AssignChildrenIndexes(in BTRootNode InRootNode)

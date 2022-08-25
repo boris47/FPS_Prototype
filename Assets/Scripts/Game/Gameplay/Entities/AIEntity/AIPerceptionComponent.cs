@@ -182,7 +182,7 @@ namespace Entities.AI.Components
 		// ^ This is the script we are making a custom editor for.
 		private class AIPerceptionComponentEditor : Editor
 		{
-			static private System.Type[] m_CachedTypes = default;
+			private static System.Type[] m_CachedTypes = default;
 
 			private AIPerceptionComponent instance = null;
 

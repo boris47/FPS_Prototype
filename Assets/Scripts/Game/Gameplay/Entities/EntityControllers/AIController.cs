@@ -1,9 +1,9 @@
 using UnityEngine;
 
-namespace Entities
+namespace Entities.AI
 {
-	using AI.Components;
-	using AI.Components.Senses;
+	using Components;
+	using Components.Senses;
 	
 	/// <summary>
 	/// The AIController is more focused on responding to input from the environment and game world.<br />
@@ -16,21 +16,24 @@ namespace Entities
     public partial class AIController : EntityController
     {
         [SerializeField, ReadOnly]
-        protected		AIBrainComponent			m_BrainComponent					= null;
+        private				AIBrainComponent				m_BrainComponent					= null;
 		[SerializeField, ReadOnly]
-        protected		AIPerceptionComponent		m_PerceptionComponent				= null;
+		private				AIPerceptionComponent			m_PerceptionComponent				= null;
 		[SerializeField, ReadOnly]
-        protected		AIBehaviorTreeComponent		m_BehaviorTreeComponent				= null;
+		private				AIBehaviorTreeComponent			m_BehaviorTreeComponent				= null;
 		[SerializeField, ReadOnly]
-		protected		Blackboard					m_BlackBoard						= null;
-
-		public			AIBrainComponent			BrainComponent						=> m_BrainComponent;
-		public			AIPerceptionComponent		PerceptionComponent					=> m_PerceptionComponent;
-		public			AIBehaviorTreeComponent		BehaviorTreeComponent				=> m_BehaviorTreeComponent;
-		public			Blackboard					Blackboard							=> m_BlackBoard;
+		private				Blackboard						m_BlackBoard						= null;
 
 		[SerializeField]
-		protected		bool						m_StartBrainOnPossess				= false;
+		protected			bool							m_StartBrainOnPossess				= false;
+
+		public				AIBrainComponent				BrainComponent						=> m_BrainComponent;
+		public				AIPerceptionComponent			PerceptionComponent					=> m_PerceptionComponent;
+		public				AIBehaviorTreeComponent			BehaviorTreeComponent				=> m_BehaviorTreeComponent;
+		public				Blackboard						Blackboard							=> m_BlackBoard;
+
+		public				AIEntity						Entity								{ get; private set; } = null;
+
 
 
 		//////////////////////////////////////////////////////////////////////////
@@ -38,31 +41,41 @@ namespace Entities
 		{
 			base.Awake();
 
-			if (m_BrainComponent.IsNotNull() || Utils.CustomAssertions.IsTrue(gameObject.TryGetComponent(out m_BrainComponent)))
+			if (Utils.CustomAssertions.IsTrue(gameObject.TryGetIfNotAssigned(ref m_BrainComponent)))
 			{
 
 			}
 
-			if (m_PerceptionComponent.IsNotNull() || Utils.CustomAssertions.IsTrue(gameObject.TryGetComponent(out m_PerceptionComponent)))
+			if (Utils.CustomAssertions.IsTrue(gameObject.TryGetIfNotAssigned(ref m_PerceptionComponent)))
 			{
 				// TODO: Sense event handling should belong to entity brain instead!?
 				m_PerceptionComponent.Senses.OnNewSenseEvent += HandleSenseEvent;
 			}
 
-			if (m_BehaviorTreeComponent.IsNotNull() || Utils.CustomAssertions.IsTrue(gameObject.TryGetComponent(out m_BehaviorTreeComponent)))
+			if (Utils.CustomAssertions.IsTrue(gameObject.TryGetIfNotAssigned(ref m_BehaviorTreeComponent)))
 			{
 
 			}
 
-			if (m_BlackBoard.IsNotNull() || Utils.CustomAssertions.IsTrue(gameObject.TryGetComponent(out m_BlackBoard)))
+			if (Utils.CustomAssertions.IsTrue(gameObject.TryGetIfNotAssigned(ref m_BlackBoard)))
 			{
 
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
+		protected virtual void OnValidate()
+		{
+			gameObject.TryGetIfNotAssigned(ref m_BrainComponent);
+			gameObject.TryGetIfNotAssigned(ref m_PerceptionComponent);
+			gameObject.TryGetIfNotAssigned(ref m_BehaviorTreeComponent);
+			gameObject.TryGetIfNotAssigned(ref m_BlackBoard);
+		}
+
+		//////////////////////////////////////////////////////////////////////////
 		protected override void OnPossess(in Entity entity)
 		{
+			Entity = entity as AIEntity;
 			if (m_StartBrainOnPossess)
 			{
 
@@ -72,7 +85,7 @@ namespace Entities
 		//////////////////////////////////////////////////////////////////////////
 		protected override void OnUnPossess(in Entity entity)
 		{
-			throw new System.NotImplementedException();
+			Entity = null;
 		}
 
 		//////////////////////////////////////////////////////////////////////////

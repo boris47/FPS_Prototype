@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-2188996092112691308
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c004d8733a20ce419db1aefa282eb5d, type: 3}
+  m_Name: Root Node
+  m_EditorClassIdentifier: 
+  m_NodeState: 0
+  m_Parent: {fileID: 0}
+  m_NodeIndex: 0
+  m_BehaviourTree: {fileID: 11400000}
+  m_Guid: dd2d0fa6-83a9-48ee-8628-c0145a43aa03
+  m_Position: {x: 0, y: 0}
+  m_HasBreakpoint: 0
+  m_ParentPortIndex: 0
+  m_Child: {fileID: 0}
+  m_MustRepeat: 0
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 242cde3ebb14dbf43a3546394b1573b5, type: 3}
+  m_Name: New Behaviour Tree
+  m_EditorClassIdentifier: 
+  m_RootNode: {fileID: -2188996092112691308}
+  m_Nodes:
+  - {fileID: -2188996092112691308}
+  m_Controller: {fileID: 0}
+  m_TreeState: 3
+  m_IsInstance: 0
+  m_CurrentRunningNode: {fileID: 0}
+  m_RunningNodeLocked: 0
+  m_Source: {fileID: 0}
+  m_Position: {x: 432, y: 305}
+  m_Scale: {x: 1, y: 1, z: 1}

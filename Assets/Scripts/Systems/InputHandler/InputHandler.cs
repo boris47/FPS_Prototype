@@ -44,6 +44,22 @@ public class InputHandler : GlobalMonoBehaviourSingleton<InputHandler>
 		}
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary>  </summary>
+	public static void UnRegisterAllCallbacks(in MonoBehaviour InMonoBehaviour)
+	{
+		if (s_RegisteredActions.TryGetValue(InMonoBehaviour, out List<ActionLogicBase> InputActionList))
+		{
+			for (int index = InputActionList.Count - 1; index >= 0; index--)
+			{
+				InputActionList[index].Destroy();
+				InputActionList.RemoveAt(index);
+			}
+		}
+	}
+
+
 	//////////////////////////////////////////////////////////////////////////
 	private static List<ActionLogicBase> GetOrCreateInputActionList(in MonoBehaviour InMonoBehaviour)
 	{
@@ -67,6 +83,7 @@ public class InputHandler : GlobalMonoBehaviourSingleton<InputHandler>
 			}
 		}
 	}
+
 
 	//////////////////////////////////////////////////////////////////////////
 	private void OnDestroy()

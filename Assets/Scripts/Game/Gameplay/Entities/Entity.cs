@@ -9,53 +9,116 @@ namespace Entities
 		public		Collider		Collider				=> m_Collider;
 	}
 
-//	[RequireComponent(typeof(Rigidbody))]
+	[DefaultExecutionOrder(-6)]
 	public abstract partial class Entity : MonoBehaviour
 	{
-		private	static uint									m_CurrentID					= 1;
-		protected 	uint									m_Id						= 0;
-		public		uint									Id							=> m_Id;
-
-		[SerializeField]
-		protected float m_Health = 100f;
-
-		public float Health => m_Health;
-
-		public bool IsAlive => m_Health > 0f;
-
-		[SerializeField]
-		protected EFactions m_Faction = default;
-		public EFactions Faction => m_Faction;
-
-		protected EFactionRelationType? m_GlobalRelationOverride = null;
-		public EFactionRelationType? GlobalRelationOverride => m_GlobalRelationOverride;
-
-		public Transform Targettable => transform;
-		public Transform Head => transform;
-		public Transform Body => transform;
-
-		[SerializeField]
-		protected	Collider								m_PhysicCollider			= null;
-
-		[SerializeField]
-		protected Rigidbody									m_Rigidbody					= null;
+		private	static		uint							m_CurrentID							= 1;
+		protected 			uint							m_Id								= 0;
 
 		[SerializeField, ReadOnly]
-		protected	Shield									m_Shield					= null;
+		private				Transform						m_Head								= null;
+		[SerializeField, ReadOnly]
+		private				Transform						m_Body								= null;
+		[SerializeField, ReadOnly]
+		private				Transform						m_Targetable						= null;
+		[SerializeField, ReadOnly]
+		private				Collider						m_PrimaryCollider					= null;
 
-		public		Collider								PhysicCollider				=> m_PhysicCollider;
-		public		Rigidbody								Rigidbody					=> m_Rigidbody;
-		public		Shield									EntityShield				=> m_Shield;
+		[SerializeField, ReadOnly]
+		protected			float							m_Health							= 100f;
+		
+		[SerializeField]
+		protected			EFactions						m_Faction							= default;
 
+		[SerializeField, ReadOnly]
+		protected			Shield							m_Shield							= null;
+
+
+		//--------------------
+		protected			EFactionRelationType?			m_GlobalRelationOverride			= null;
+
+
+		public				uint							Id									=> m_Id;
+		
+		public				float							Health								=> m_Health;
+
+		public				bool							IsAlive								=> m_Health > 0f;
+
+		public				EFactions						Faction								=> m_Faction;
+
+		public				EFactionRelationType?			GlobalRelationOverride				=> m_GlobalRelationOverride;
+
+		public				Shield							EntityShield						=> m_Shield;
+
+
+		public Transform Head
+		{
+			get
+			{
+				if (m_Head == null)
+				{
+					m_Head = GetHead();
+				}
+				return m_Head;
+			}
+		}
+		public Transform Body
+		{
+			get
+			{
+				if (m_Body == null)
+				{
+					m_Body = GetBody();
+				}
+				return m_Body;
+			}
+		}
+		public Collider PrimaryCollider
+		{
+			get
+			{
+				if (m_PrimaryCollider == null)
+				{
+					m_PrimaryCollider = GetPrimaryCollider();
+				}
+				return m_PrimaryCollider;
+			}
+		}
+		public Transform Targetable
+		{
+			get
+			{
+				if (m_Targetable == null)
+				{
+					m_Targetable = GetTargetable();
+				}
+				return m_Targetable;
+			}
+		}
+
+
+
+		//////////////////////////////////////////////////////////////////////////
 		protected virtual void Awake()
 		{
 			m_Id			= m_CurrentID++;
-			m_PhysicCollider = GetComponent<Collider>();
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
 		public virtual bool IsInterestedAt(in Entity source)
 		{
 			return false;
 		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		protected abstract Transform GetHead();
+		//////////////////////////////////////////////////////////////////////////
+		protected abstract Transform GetBody();
+		//////////////////////////////////////////////////////////////////////////
+		protected abstract Transform GetTargetable();
+		//////////////////////////////////////////////////////////////////////////
+		protected abstract Collider GetPrimaryCollider();
 	}
 }

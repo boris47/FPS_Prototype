@@ -5,6 +5,8 @@ using UnityEngine;
 
 namespace Entities.AI.Components
 {
+	// TODO Move Navigation code to motion component and leave only pathfinding here
+
 	public class AIEntityDroneMovementComponent : AIEntityMovementComponent
 	{
 		[SerializeField]
@@ -15,6 +17,14 @@ namespace Entities.AI.Components
 		private Entity m_Target = null;
 
 		public float speed = 0.01f;
+
+		[SerializeField]
+		private Vector3[] m_Path = null;
+		private uint m_Index = 0u;
+		private bool bHasPath = false;
+		private Vector3 lastTargetPosition = Vector3.zero;
+
+
 
 		//////////////////////////////////////////////////////////////////
 		protected override void OnEnable()
@@ -38,22 +48,17 @@ namespace Entities.AI.Components
 				if (eventt.TargetInfoType == Senses.ETargetInfoType.ACQUIRED || eventt.TargetInfoType == Senses.ETargetInfoType.CHANGED)
 				{
 					m_Target = eventt.EntitySeen;
-					bHasPath = global::AI.Pathfinding.AStarSearch.FindPath(transform.position, lastTargetPosition = m_Target.Targettable.position, out m_Path);
+					bHasPath = global::AI.Pathfinding.AStarSearch.FindPath(transform.position, lastTargetPosition = m_Target.Targetable.position, out m_Path);
 				}
 				else
 				{
-					bHasPath = global::AI.Pathfinding.AStarSearch.FindPath(transform.position, lastTargetPosition = m_Target.Targettable.position, out m_Path);
+					bHasPath = global::AI.Pathfinding.AStarSearch.FindPath(transform.position, lastTargetPosition = m_Target.Targetable.position, out m_Path);
 					m_Target = null;
 				}
 			}
 		}
 
-		[SerializeField]
-		private Vector3[] m_Path = null;
-		private uint m_Index = 0u;
-		private bool bHasPath = false;
-		private Vector3 lastTargetPosition = Vector3.zero;
-
+		//////////////////////////////////////////////////////////////////
 		private void OnDrawGizmos()
 		{
 			if (m_Path.IsNotNull())
@@ -65,21 +70,6 @@ namespace Entities.AI.Components
 			}
 		}
 
-		/*
-		private void OnThink()
-		{
-			if (m_Target.IsNotNull())
-			{
-				bHasPath = global::AI.Pathfinding.AStarSearch.Instance.FindPath(transform.position, m_Target.Targettable.position, out m_Path);
-			}
-			else
-			{
-				bHasPath = false;
-				m_Path = null;
-				m_Owner.Rigidbody.velocity = Vector3.zero;
-			}
-		}
-		*/
 		//////////////////////////////////////////////////////////////////
 		private void OnPhysicFrame(float InFixedDeltaTime)
 		{
@@ -113,10 +103,12 @@ namespace Entities.AI.Components
 
 			*/
 
+			
+			
 
 			if (bHasPath)
 			{
-				if (m_Owner.Rigidbody.position.Distance(m_Path[m_Index])<0.2f)
+				if (Entity.AIMotionManager.Position.Distance(m_Path[m_Index])<0.2f)
 				{
 					if (m_Path.IsValidIndex(m_Index + 1u))
 					{
@@ -126,17 +118,17 @@ namespace Entities.AI.Components
 
 				if (m_Target)
 				{
-					if (lastTargetPosition.Distance(m_Target.Targettable.position) > 0.2f)
+					if (lastTargetPosition.Distance(m_Target.Targetable.position) > 0.2f)
 					{
-						bHasPath = global::AI.Pathfinding.AStarSearch.FindPath(transform.position, lastTargetPosition = m_Target.Targettable.position, out m_Path);
+						bHasPath = global::AI.Pathfinding.AStarSearch.FindPath(transform.position, lastTargetPosition = m_Target.Targetable.position, out m_Path);
 						m_Index = 0u;
 					}
-					m_Controller.PerceptionComponent.Senses.GetSense<Senses.Sight>().transform.LookAt(m_Target.Targettable);
+					m_Controller.PerceptionComponent.Senses.GetSense<Senses.Sight>().transform.LookAt(m_Target.Targetable);
 				}
 
-				Vector3 direction = (m_Path[m_Index] - m_Owner.Rigidbody.position).normalized;
+				Vector3 direction = (m_Path[m_Index] - Entity.AIMotionManager.Position).normalized;
 				Vector3 force = direction * speed;
-				m_Owner.Rigidbody.velocity = force;
+	///			m_Owner.Rigidbody.velocity = force;
 			}
 			
 		}

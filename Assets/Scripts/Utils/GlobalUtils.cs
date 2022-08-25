@@ -110,16 +110,7 @@ namespace Utils
 
 	public static class Math
 	{
-
 		public const float EPS = 0.00001f;
-
-
-		//////////////////////////////////////////////////////////////////////////
-		/// <summary> Equal to Mathf.Sign but this works </summary>
-		public static float Sign(in float value)
-		{
-			return ( value > 0f ) ? 1f : ( value < 0f ) ? -1f : 0f;
-		}
 
 
 		/// <summary> Return true if the value is between min and max values, otherwise return false </summary>
