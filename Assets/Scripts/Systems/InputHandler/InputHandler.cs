@@ -14,7 +14,10 @@ public class InputHandler : GlobalMonoBehaviourSingleton<InputHandler>
 	/// <summary>  </summary>
 	public static void RegisterButtonCallbacks(in MonoBehaviour InMonoBehaviour, in InputAction InInputAction, in System.Action InOnPress, in System.Action InOnHold, in System.Action InOnRelease)
 	{
-		GetOrCreateInputActionList(InMonoBehaviour).Add(new ActionLogicButton(InInputAction, InOnPress, InOnHold, InOnRelease));
+		if (Utils.CustomAssertions.IsNotNull(InInputAction))
+		{
+			GetOrCreateInputActionList(InMonoBehaviour).Add(new ActionLogicButton(InInputAction, InOnPress, InOnHold, InOnRelease));
+		}
 	}
 
 
@@ -22,7 +25,10 @@ public class InputHandler : GlobalMonoBehaviourSingleton<InputHandler>
 	/// <summary>  </summary>
 	public static void RegisterAxis2DCallback(in MonoBehaviour InMonoBehaviour, in InputAction InInputAction, in System.Action<Vector2> InOnChange, in bool InTryReadRaw)
 	{
-		GetOrCreateInputActionList(InMonoBehaviour).Add(new ActionLogicAxis(InInputAction, InOnChange, InTryReadRaw));
+		if (Utils.CustomAssertions.IsNotNull(InInputAction))
+		{
+			GetOrCreateInputActionList(InMonoBehaviour).Add(new ActionLogicAxis(InInputAction, InOnChange, InTryReadRaw));
+		}
 	}
 
 
@@ -30,7 +36,7 @@ public class InputHandler : GlobalMonoBehaviourSingleton<InputHandler>
 	/// <summary>  </summary>
 	public static void UnRegisterCallbacks(in MonoBehaviour InMonoBehaviour, in InputAction InInputAction)
 	{
-		if (s_RegisteredActions.TryGetValue(InMonoBehaviour, out List<ActionLogicBase> InputActionList))
+		if (Utils.CustomAssertions.IsNotNull(InInputAction) && s_RegisteredActions.TryGetValue(InMonoBehaviour, out List<ActionLogicBase> InputActionList))
 		{
 			for (int index = InputActionList.Count - 1; index >= 0; index--)
 			{

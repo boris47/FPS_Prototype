@@ -44,7 +44,6 @@ namespace Entities.Player.Components
 		*/
 		private bool m_SprintRequested = false;
 		private CollisionFlags m_CollisionFlags = CollisionFlags.None;
-		private ControllerColliderHit m_LastControllerColliderHit = null;
 
 
 		//////////////////////////////////////////////////////////////////////////
@@ -57,7 +56,7 @@ namespace Entities.Player.Components
 			m_CharacterController = m_Controller.Player.CharacterController;
 			m_Head = m_Owner.Head;
 
-			PlayerConfiguration playerConfigs = m_Controller.Player.PlayerConfiguration;
+		//	PlayerConfiguration playerConfigs = m_Controller.Player.PlayerConfiguration;
 		}
 
 		

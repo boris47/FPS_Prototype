@@ -3,6 +3,11 @@ using UnityEngine;
 
 namespace Entities
 {
+	interface IOwnedComponent<T> where T : Entity, new()
+	{
+		T Owner { get; }
+	}
+
 	[RequireComponent(typeof(Entity))]
 	public class EntityComponent : MonoBehaviour
 	{

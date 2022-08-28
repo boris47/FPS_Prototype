@@ -1,4 +1,5 @@
 
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
@@ -39,6 +40,25 @@ namespace Utils
 
 	public static class CustomAssertions
 	{
+		//////////////////////////////////////////////////////////////////////////
+		private static void HandleErrorMessage(string callerContextName, string message = null, Object context = null)
+		{
+#if UNITY_EDITOR
+			UnityEditor.EditorApplication.isPlaying = false;
+#endif
+			System.Text.StringBuilder builder = new($"{callerContextName}: Assertion Failed");
+			if (!string.IsNullOrEmpty(message))
+			{
+				builder.AppendLine($" -> {message}");
+			}
+			Debug.LogError(builder.ToString(), context); ;
+
+			if (System.Diagnostics.Debugger.IsAttached)
+			{
+				System.Diagnostics.Debugger.Break();
+				System.Diagnostics.Debug.WriteLine(builder.ToString());
+			}
+		}
 
 		//////////////////////////////////////////////////////////////////////////
 		[System.Diagnostics.DebuggerHidden()]
@@ -47,12 +67,8 @@ namespace Utils
 			bool bIsEqual = value.Equals(default(T));
 			if (bIsEqual)
 			{
-				UnityEngine.Debug.LogError(message ?? "Utils.CustomAssertions.IsNotDefault: Assertion Failed " + context?.name ?? "", context);
-#if UNITY_EDITOR
-				System.Diagnostics.Debugger.Break();
-#else
-				UnityEngine.Diagnostics.Utils.ForceCrash(UnityEngine.Diagnostics.ForcedCrashCategory.FatalError);
-#endif
+				string callerContextName = $"{nameof(Utils)}.{nameof(CustomAssertions)}.{nameof(IsNotDefault)}";
+				HandleErrorMessage(callerContextName, message, context);
 			}
 			return !bIsEqual;
 		}
@@ -64,14 +80,8 @@ namespace Utils
 		{
 			if (!bIsTrue)
 			{
-				message = message ?? "Utils.CustomAssertions.IsTrue: Assertion Failed " + context?.name ?? "";
-
-				if (System.Diagnostics.Debugger.IsAttached)
-				{
-					System.Diagnostics.Debugger.Break();
-					System.Diagnostics.Debug.WriteLine(message);
-				}
-				UnityEngine.Debug.LogError(message, context);
+				string callerContextName = $"{nameof(Utils)}.{nameof(CustomAssertions)}.{nameof(IsTrue)}";
+				HandleErrorMessage(callerContextName, message, context);
 			}
 			return bIsTrue;
 		}
@@ -84,25 +94,32 @@ namespace Utils
 			bool bIsNull = !value.IsNotNull();
 			if (bIsNull)
 			{
-#if UNITY_EDITOR
-				System.Diagnostics.Debugger.Break();
-
-				UnityEditor.EditorApplication.isPlaying = false;
-#endif
-				string msg = "Utils.CustomAssertions.IsNotNull: Assertion Failed";
-				if (!string.IsNullOrEmpty(message))
-				{
-					msg += $" -> {message}";
-				}
-				UnityEngine.Debug.LogError(msg, context);
-#if !UNITY_EDITOR
-				UnityEngine.Debug.LogError(System.Environment.StackTrace);
-#endif
+				string callerContextName = $"{nameof(Utils)}.{nameof(CustomAssertions)}.{nameof(IsNotNull)}";
+				HandleErrorMessage(callerContextName, message, context);
 			}
 			return !bIsNull;
 		}
-	}
 
+		//////////////////////////////////////////////////////////////////////////
+		[System.Diagnostics.DebuggerHidden()]
+		public static bool IsValidCast<T, V>(T value, out V OutValue, string message = null, UnityEngine.Object context = null) where V : T
+		{
+			OutValue = default(V);
+			bool bIsValid = false;
+			if (value is V converted)
+			{
+				OutValue = converted;
+				bIsValid = true;
+			}
+
+			if (!bIsValid)
+			{
+				string callerContextName = $"{nameof(Utils)}.{nameof(CustomAssertions)}.{nameof(IsValidCast)}";
+				HandleErrorMessage(callerContextName, message, context);
+			}
+			return bIsValid;
+		}
+	}
 
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
@@ -749,6 +766,319 @@ namespace Utils
 			c = bIsReversed ? collection[currPt - 2] : collection[currPt + 2];
 			d = bIsReversed ? collection[currPt - 2] : collection[currPt + 2];
 			return true;
+		}
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+
+	public static class String
+	{
+		public static bool IsAssetsPath(in string InPath) => InPath.StartsWith("Assets/");
+
+		public static bool IsResourcesPath(in string InPath) => !IsAssetsPath(InPath);
+
+		public static bool IsAbsolutePath(in string path)
+		{
+			try
+			{
+				return !string.IsNullOrWhiteSpace(path)
+				&& path.IndexOfAny(System.IO.Path.GetInvalidPathChars()) == -1
+				&& System.IO.Path.IsPathRooted(path) //  whether the specified path string contains a root.
+				&& !System.IO.Path.GetPathRoot(path).Equals(System.IO.Path.DirectorySeparatorChar.ToString(), System.StringComparison.Ordinal);
+			}
+			catch (System.Exception)
+			{
+				return false;
+			}
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary> </summary>
+		public static bool TryConvertFromAssetPathToResourcePath(in string InAssetPath, out string OutResourcePath)
+		{
+			const string AssetPathPrefix = "Assets/Resources/";
+			const int AssetPathPrefixLength = 17;
+
+			if (!string.IsNullOrEmpty(InAssetPath))
+			{
+				if (IsResourcesPath(InAssetPath))
+				{
+					OutResourcePath = InAssetPath;
+					return true;
+				}
+
+				if (InAssetPath.StartsWith(AssetPathPrefix))
+				{
+					OutResourcePath =
+					// Assets/Resources/PATH_TO_FILE.png
+					global::System.IO.Path.ChangeExtension(InAssetPath, null)
+					// Assets/Resources/PATH_TO_FILE
+					.Remove(0, AssetPathPrefixLength);
+					// resourcePath -> // PATH_TO_FILE
+					return true;
+				}
+			}
+			OutResourcePath = string.Empty;
+			return false;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		public static bool TryConvertFromResourcePathToAssetPath(in string InResourcePath, out string OutAssetPath)
+		{
+			const string AssetPathPrefix = "Assets";
+
+			if (IsAssetsPath(InResourcePath))
+			{
+				OutAssetPath = InResourcePath;
+				return true;
+			}
+
+			if (!string.IsNullOrEmpty(InResourcePath))
+			{
+				OutAssetPath = $"{AssetPathPrefix}/Resources/{InResourcePath}.asset";
+				return true;
+			}
+
+			OutAssetPath = string.Empty;
+			return false;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary> </summary>
+		public static bool TryConvertFromAbsolutePathToResourcePath(in string InAbsoluteAssetPath, out string OutResourcePath)
+		{
+			if (!string.IsNullOrEmpty(InAbsoluteAssetPath))
+			{
+				if (IsAbsolutePath(InAbsoluteAssetPath))
+				{
+					OutResourcePath = InAbsoluteAssetPath;
+					return true;
+				}
+
+				int index = InAbsoluteAssetPath.IndexOf("Resources");
+				if (index > -1)
+				{
+					// ABSOLUTE_PATH_TO_RESOURCE_FOLDER/Resources/PATH_TO_RESOURCE.png
+					string result = InAbsoluteAssetPath;
+
+					// Remove extension
+					if (System.IO.Path.HasExtension(InAbsoluteAssetPath))
+					{
+						result = System.IO.Path.ChangeExtension(InAbsoluteAssetPath, null);
+					}
+
+					// ABSOLUTE_PATH_TO_RESOURCE_FOLDER/Resources/PATH_TO_RESOURCE
+					OutResourcePath = result.Remove(0, index + 9 /*'Resource'*/ + 1 /*'/'*/ );
+					// PATH_TO_RESOURCE
+					return true;
+				}
+			}
+			OutResourcePath = string.Empty;
+			return false;
+		}
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+
+	public static class LayersHelper
+	{
+
+		////////////////////////////////////////////////
+		public static int AllButOne(string layerName)
+		{
+			int layer = LayerMask.NameToLayer(layerName);
+
+			int layerMask = 1 << layer;
+
+			return ~layerMask;
+		}
+
+		////////////////////////////////////////////////
+		public static int OneOnly(string layerName)
+		{
+			return LayerMask.NameToLayer(layerName);
+		}
+
+		////////////////////////////////////////////////
+		public static LayerMask InclusiveMask(int[] layers)
+		{
+			int m = 0;
+			for (int l = 0; l < layers.Length; l++)
+			{
+				m |= (1 << layers[l]);
+			}
+			return m;
+		}
+
+		////////////////////////////////////////////////
+		public static LayerMask ExclusiveMask(int[] layers)
+		{
+			int m = 0;
+			for (int l = 0; l < layers.Length; l++)
+			{
+				m |= (1 << layers[l]);
+			}
+			return ~m;
+		}
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+
+	public static class Converters
+	{
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary> Accept a string and return the parsed result as enum value </summary>
+		public static bool StringToEnum<T>(in string InString, out T OutEnumValue, bool bIgnoreCase = true) where T : struct
+		{
+			return global::System.Enum.TryParse(InString, bIgnoreCase, out OutEnumValue);
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary> Accept a string and return the parsed result as enum value </summary>
+		public static bool StringToEnum(in string InString, System.Type InType, out object OutEnumValue, bool bIgnoreCase = true)
+		{
+			OutEnumValue = null;
+			try
+			{
+				OutEnumValue = global::System.Enum.Parse(InType, InString, bIgnoreCase);
+			}
+			catch (System.Exception) { }
+			return OutEnumValue.IsNotNull();
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary> Accept a string a try parse it to a Color </summary>
+		public static bool StringToColor(in string InString, out Color OutColor, float InAlpha = 0.0f)
+		{
+			OutColor = Color.clear;
+			if (!string.IsNullOrEmpty(InString))
+			{
+				string[] sArray = InString.TrimStart().TrimInside().TrimEnd().Split(',');
+				if (sArray.Length >= 3)
+				{
+					if (float.TryParse(sArray[0], NumberStyles.Any, CultureInfo.InvariantCulture, out float r) &&
+						float.TryParse(sArray[1], NumberStyles.Any, CultureInfo.InvariantCulture, out float g) &&
+						float.TryParse(sArray[2], NumberStyles.Any, CultureInfo.InvariantCulture, out float b))
+					{
+						OutColor.r = r; OutColor.g = g; OutColor.b = b;
+						OutColor.a = InAlpha > 0.0f ? InAlpha : (sArray.Length > 3 && float.TryParse(sArray[3], out float a)) ? a : 1.0f;
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary> Accept a string a try parse it to a Quaternion </summary>
+		public static bool StringToQuaternion(in string InString, out Quaternion OutQuaternion)
+		{
+			OutQuaternion = Quaternion.identity;
+			if (!string.IsNullOrEmpty(InString))
+			{
+				string[] sArray = InString.TrimStart().TrimInside().TrimEnd().Split(',');
+				if (sArray.Length >= 4)
+				{
+					if (float.TryParse(sArray[0], NumberStyles.Any, CultureInfo.InvariantCulture, out float x) &&
+						float.TryParse(sArray[1], NumberStyles.Any, CultureInfo.InvariantCulture, out float y) &&
+						float.TryParse(sArray[2], NumberStyles.Any, CultureInfo.InvariantCulture, out float z) &&
+						float.TryParse(sArray[3], NumberStyles.Any, CultureInfo.InvariantCulture, out float w))
+					{
+						OutQuaternion.Set(x, y, z, w);
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary> Return a stringified version of a vector2: Output: "X, Y" </summary>
+		public static string Vector2ToString(Vector2 InVector2) => $"{InVector2.x}, {InVector2.y}";
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary> Return a stringified version of a vector3: Output: "X, Y, Z" </summary>
+		public static string Vector3ToString(Vector3 InVector3) => $"{InVector3.x}, {InVector3.y}, {InVector3.z}";
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary> Return a stringified version of a vector4: Output: "X, Y, Z, W" </summary>
+		public static string Vector4ToString(Vector4 InVector4) => $"{InVector4.x}, {InVector4.y}, {InVector4.z}, {InVector4.w}";
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>  Return a stringified version of a quaternion: Output: "X, Y, Z, W" </summary>
+		public static string QuaternionToString(Quaternion InQuaternion) => $"{InQuaternion.x}, {InQuaternion.y}, {InQuaternion.z}, {InQuaternion.w}";
+	}
+	/////////////////////////////////////////////////////////////////////////////
+
+	public static class GizmosHelper
+	{
+		private static readonly Mesh BuiltInCapsuleMesh = null;
+		private static readonly Vector3[] _baseVertices = null;
+		private static readonly Vector3[] newVertices = null;
+
+		static GizmosHelper()
+		{
+			var go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+			var origMesh = go.GetComponent<MeshFilter>().sharedMesh;
+			BuiltInCapsuleMesh = new Mesh
+			{
+				vertices = origMesh.vertices,
+				normals = origMesh.normals,
+				colors = origMesh.colors,
+				triangles = origMesh.triangles
+			};
+			go.Destroy();
+
+			_baseVertices = BuiltInCapsuleMesh.vertices;
+			newVertices = new Vector3[_baseVertices.Length];
+		}
+
+		public static void DrawWireCapsule(Vector3 pos, Quaternion rot, float radius, float height, Color color)
+		{
+#if UNITY_EDITOR
+			for (int i = 0, length = _baseVertices.Length; i < length; i++)
+			{
+				Vector3 vertex = _baseVertices[i];
+				vertex.x *= radius * 2f;
+				vertex.y *= height * 0.5f;
+				vertex.z *= radius * 2f;
+				newVertices[i].Set(vertex);
+			}
+			BuiltInCapsuleMesh.vertices = newVertices;
+			Gizmos.DrawMesh(BuiltInCapsuleMesh, -1, pos, rot);
+			/*
+			UnityEditor.Handles.color = color;
+
+			Matrix4x4 angleMatrix = Matrix4x4.TRS(pos, rot, UnityEditor.Handles.matrix.lossyScale);
+			using (new UnityEditor.Handles.DrawingScope(angleMatrix))
+			{
+				var pointOffset = (height - (radius * 2)) / 2;
+
+				//draw sideways
+				UnityEditor.Handles.DrawWireArc(Vector3.up * pointOffset, Vector3.left, Vector3.back, -180, radius);
+				UnityEditor.Handles.DrawLine(new Vector3(0, pointOffset, -radius), new Vector3(0, -pointOffset, -radius));
+				UnityEditor.Handles.DrawLine(new Vector3(0, pointOffset, radius), new Vector3(0, -pointOffset, radius));
+				UnityEditor.Handles.DrawWireArc(Vector3.down * pointOffset, Vector3.left, Vector3.back, 180, radius);
+				//draw frontways
+				UnityEditor.Handles.DrawWireArc(Vector3.up * pointOffset, Vector3.back, Vector3.left, 180, radius);
+				UnityEditor.Handles.DrawLine(new Vector3(-radius, pointOffset, 0), new Vector3(-radius, -pointOffset, 0));
+				UnityEditor.Handles.DrawLine(new Vector3(radius, pointOffset, 0), new Vector3(radius, -pointOffset, 0));
+				UnityEditor.Handles.DrawWireArc(Vector3.down * pointOffset, Vector3.back, Vector3.left, -180, radius);
+				//draw center
+				UnityEditor.Handles.DrawWireDisc(Vector3.up * pointOffset, Vector3.up, radius);
+				UnityEditor.Handles.DrawWireDisc(Vector3.down * pointOffset, Vector3.up, radius);
+			}
+			*/
+#endif
 		}
 	}
 
