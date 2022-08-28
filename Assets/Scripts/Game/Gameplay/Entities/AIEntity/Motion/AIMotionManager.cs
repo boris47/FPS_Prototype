@@ -3,6 +3,12 @@ using UnityEngine;
 
 namespace Entities.AI.Components
 {
+	public abstract class MotionTransitionSnapshot
+	{
+		public Vector3 CurrentVelocity = Vector3.zero;
+	}
+
+
 	public sealed class AIMotionManager : MotionManager
 	{
 		[SerializeField, ReadOnly]

@@ -4,45 +4,24 @@ using UnityEngine;
 
 namespace Entities.Player.Components
 {
+	[RequireComponent(typeof(PlayerGrabInteractor))]
 	[RequireComponent(typeof(PlayerUseInteractor))]
 	[RequireComponent(typeof(PlayerAreaInteractor))]
-	[RequireComponent(typeof(PlayerGrabInteractor))]
-	public class PlayerEntityInteractionManager : PlayerEntityComponent
+	public class PlayerInteractionManager : PlayerEntityComponent
 	{
-		[SerializeField, ReadOnly]
-		private					PlayerUseInteractor				m_RayInteractor						= null;
-
-		[SerializeField, ReadOnly]
-		private					PlayerAreaInteractor			m_AreaInteractor					= null;
-
-		[SerializeField, ReadOnly]
-		private					PlayerGrabInteractor			m_GrabInteractor					= null;
-
 		[SerializeField, ReadOnly]
 		private					PlayerInteractor				m_CurrentValidInteractor			= null;
 
-		private					PlayerInteractor[]				m_Interactors						= new PlayerInteractor[3];
+		[SerializeField, ReadOnly]
+		private					PlayerInteractor[]				m_Interactors						= null;
 
 
 		//////////////////////////////////////////////////////////////////////////
 		protected override void Awake()
 		{
 			base.Awake();
-		
-			if (Utils.CustomAssertions.IsTrue(gameObject.TryGetIfNotAssigned(ref m_RayInteractor)))
-			{
-				m_Interactors[0] = m_AreaInteractor;
-			}
 
-			if (Utils.CustomAssertions.IsTrue(gameObject.TryGetIfNotAssigned(ref m_AreaInteractor)))
-			{
-				m_Interactors[1] = m_RayInteractor;
-			}
-
-			if (Utils.CustomAssertions.IsTrue(gameObject.TryGetIfNotAssigned(ref m_GrabInteractor)))
-			{
-				m_Interactors[2] = m_GrabInteractor;
-			}
+			UpdateInteractors();
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -50,20 +29,11 @@ namespace Entities.Player.Components
 		{
 			base.OnValidate();
 
-			if (gameObject.TryGetComponent(out m_RayInteractor))
-			{
-				m_Interactors[0] = m_AreaInteractor;
-			}
+			gameObject.GetOrAddIfNotFound<PlayerGrabInteractor>();
+			gameObject.GetOrAddIfNotFound<PlayerUseInteractor>();
+			gameObject.GetOrAddIfNotFound<PlayerAreaInteractor>();
 
-			if (gameObject.TryGetComponent(out m_AreaInteractor))
-			{
-				m_Interactors[1] = m_RayInteractor;
-			}
-
-			if (gameObject.TryGetComponent(out m_GrabInteractor))
-			{
-				m_Interactors[2] = m_GrabInteractor;
-			}
+			UpdateInteractors();
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -75,8 +45,7 @@ namespace Entities.Player.Components
 			{
 				if (interactor.IsNotNull())
 				{
-					interactor.OnInteractorFound += EvaluateInteractables;
-					interactor.OnInteractorLost += EvaluateInteractables;
+					interactor.enabled = true;
 				}
 			}
 
@@ -92,8 +61,7 @@ namespace Entities.Player.Components
 			{
 				if (interactor.IsNotNull())
 				{
-					interactor.OnInteractorFound -= EvaluateInteractables;
-					interactor.OnInteractorLost -= EvaluateInteractables;
+					interactor.enabled = false;
 				}
 			}
 
@@ -101,9 +69,17 @@ namespace Entities.Player.Components
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		private void EvaluateInteractables(Interactable _)
+		public void UpdateInteractors()
 		{
-			m_CurrentValidInteractor = m_Interactors.LastOrDefault(interactor => interactor.IsNotNull() && interactor.HasInteractableAvailable() && interactor.CanInteractWithCurrent());
+			transform.TrySearchComponents(ESearchContext.LOCAL, out m_Interactors);
+
+			System.Array.Sort(m_Interactors, new PlayerInteractor.InteractorPriorityComparer());
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		private void FixedUpdate()
+		{
+			m_CurrentValidInteractor = m_Interactors.FirstOrDefault(interactor => interactor.IsNotNull() && interactor.HasInteractableAvailable() && interactor.CanInteractWithCurrent());
 		}
 
 		//////////////////////////////////////////////////////////////////////////

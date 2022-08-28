@@ -209,30 +209,17 @@ public static class Extensions_Unity
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Search for the given component only in children of given transform </summary>
-	public static T[] GetComponentsOnlyInChildren<T>(this Transform ThisTransform, bool bDeepSearch = false, bool bIncludeInactive = false, System.Predicate<T> InFilter = null) where T : Component
+	public static T[] GetComponentsOnlyInChildren<T>(this Transform ThisTransform, bool bDeepSearch = false, System.Predicate<T> InFilter = null) where T : Component
 	{
-		T[] results = default;
-
-		InFilter = InFilter.IsNotNull() ? InFilter : delegate (T c) { return true; };
-
-		if (bDeepSearch)
+		List<T> compsList = new List<T>();
+		foreach (Transform child in ThisTransform)
 		{
-			results = ThisTransform.GetComponentsInChildren<T>(includeInactive: bIncludeInactive).Where(c => InFilter(c)).ToArray();
-		}
-		else
-		{
-			List<T> compsList = new List<T>();
-			foreach (Transform child in ThisTransform)
+			if (child.TrySearchComponents(bDeepSearch ? ESearchContext.LOCAL_AND_CHILDREN : ESearchContext.LOCAL, out T[] OutComponents, InFilter))
 			{
-				if (child.TrySearchComponents(ESearchContext.LOCAL, out T[] OutComponents, InFilter))
-				{
-					compsList.AddRange(OutComponents);
-				}
+				compsList.AddRange(OutComponents);
 			}
-			results = compsList.ToArray();
 		}
-
-		return results;
+		return compsList.ToArray();
 	}
 
 

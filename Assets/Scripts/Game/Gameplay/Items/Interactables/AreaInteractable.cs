@@ -2,12 +2,6 @@
 using UnityEngine;
 using Entities;
 
-public interface IAreaInteractor
-{
-	void AddPotentialInteraction(AreaInteractable areaInteractable);
-	void RemovePotentialInteraction(AreaInteractable areaInteractable);
-}
-
 [RequireComponent(typeof(Collider))]
 public class AreaInteractable : Interactable
 {
@@ -16,6 +10,10 @@ public class AreaInteractable : Interactable
 
 	[SerializeField, ReadOnly]
 	private				Collider						m_Collider						= null;
+
+
+	public				Transform						ValidLocationRef				=> m_ValidLocationRef;
+	public				Bounds							Bounds							=> m_Collider.bounds;
 
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -43,29 +41,7 @@ public class AreaInteractable : Interactable
 	/////////////////////////////////////////////////////////////////////////////
 	public  override bool CanInteract(Entity entity)
 	{
-		bool bOutResult = false;
-		if (m_ValidLocationRef.IsNotNull())
-		{
-			// Close enough, geometry hitted
-			float distance = Vector3.Magnitude(m_ValidLocationRef.position - entity.Head.position);
-			bool bHitted = Physics.Raycast(entity.Head.position, m_ValidLocationRef.position - entity.Head.position, out RaycastHit hitInfo, distance, Physics.AllLayers, QueryTriggerInteraction.Ignore);
-			if (bHitted && hitInfo.transform == m_ValidLocationRef)
-			{
-				bOutResult = true;
-			}
-			else
-			// no geometry hitted but close enough
-			if (!bHitted && (Vector3.Magnitude(m_ValidLocationRef.position - entity.Head.position) < m_Collider.bounds.size.normalized.magnitude))
-			{
-				bOutResult = true;
-			}
-		}
-		else
-		{
-			bOutResult = true; // TODO m_Collider.Contains(entity.Head.position);
-		}
-
-		return bOutResult;
+		return true;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -74,24 +50,6 @@ public class AreaInteractable : Interactable
 		m_OnInteraction.Invoke();
 	}
 
-
-	/////////////////////////////////////////////////////////////////////////////
-	private void OnTriggerEnter(Collider other)
-	{
-		if (other.transform.TryGetComponent(out IAreaInteractor interactor))
-		{
-			interactor.AddPotentialInteraction(this);
-		}
-	}
-
-	/////////////////////////////////////////////////////////////////////////////
-	private void OnTriggerExit(Collider other)
-	{
-		if (other.transform.TryGetComponent(out IAreaInteractor interactor))
-		{
-			interactor.RemovePotentialInteraction(this);
-		}
-	}
 
 	private static Color semiTransparent = new Color(0.3f, 0.3f, 0.3f, 0.2f);
 	//////////////////////////////////////////////////////////////////////////

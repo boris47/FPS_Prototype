@@ -366,13 +366,11 @@ namespace Entities.Player.Components
 			if (m_CollisionFlags.IsOrContains(CollisionFlags.Sides))
 			{
 				Rigidbody rigidbody = controllerColliderHit.collider.attachedRigidbody;
-				if (rigidbody.IsNotNull())
+				if (rigidbody.IsNotNull() && !rigidbody.isKinematic)
 				{
-					if (!rigidbody.isKinematic)
-					{
-						Vector3 pushDir = new Vector3(m_CurrentWorldVelocity.x, 0f, m_CurrentWorldVelocity.z);
-						rigidbody.AddForceAtPosition(pushDir, controllerColliderHit.point, ForceMode.Impulse);
-					}
+					const float k_PushMult = 0.1f;
+					Vector3 pushDir = new Vector3(m_CurrentWorldVelocity.x, 0f, m_CurrentWorldVelocity.z);
+					rigidbody.AddForceAtPosition(pushDir * k_PushMult, controllerColliderHit.point, ForceMode.Impulse);
 				}
 			}
 

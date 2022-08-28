@@ -29,12 +29,14 @@ namespace Entities.Player.Components
 		}
 
 		[SerializeField, ReadOnly]
-		private				GameObject						m_GrabPoint							= null;
+		private					GameObject						m_GrabPoint							= null;
 
 		[SerializeField, ReadOnly]
-		private				GrabInteractable				m_CurrentGrabbed					= null;
+		private					GrabInteractable				m_CurrentGrabbed					= null;
 
-		private readonly	RigidBodyStoredData				m_RigidBodyStoredData				= new RigidBodyStoredData();
+		public override			uint							Priority							=> 0u;
+
+		private readonly		RigidBodyStoredData				m_RigidBodyStoredData				= new RigidBodyStoredData();
 
 
 		//////////////////////////////////////////////////////////////////////////

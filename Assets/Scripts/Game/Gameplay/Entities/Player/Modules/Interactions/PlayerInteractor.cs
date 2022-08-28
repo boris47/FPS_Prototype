@@ -6,6 +6,14 @@ namespace Entities.Player.Components
 	[RequireComponent(typeof(PlayerEntity))]
 	public abstract class PlayerInteractor : PlayerEntityComponent, IInteractor
 	{
+		public class InteractorPriorityComparer : System.Collections.Generic.IComparer<PlayerInteractor>
+		{
+			public int Compare(PlayerInteractor x, PlayerInteractor y)
+			{
+				return x.Priority < y.Priority ? -1 : 1;
+			}
+		}
+
 		public delegate void OnInteractorDel(Interactable interactable);
 
 		[SerializeField, ReadOnly]
@@ -26,7 +34,27 @@ namespace Entities.Player.Components
 			add		{ if (value.IsNotNull()) m_OnInteractorLost += value; }
 			remove	{ if (value.IsNotNull()) m_OnInteractorLost -= value; }
 		}
-		
+
+		public abstract		uint							Priority							{ get; }
+
+
+		//////////////////////////////////////////////////////////////////
+		protected override void OnEnable()
+		{
+			base.OnEnable();
+
+			m_CurrentInteractable = null;
+		}
+
+		//////////////////////////////////////////////////////////////////
+		protected override void OnDisable()
+		{
+			base.OnDisable();
+
+			m_CurrentInteractable = null;
+		}
+
+
 		//////////////////////////////////////////////////////////////////
 		// IInteractor START
 		public bool HasInteractableAvailable() => m_CurrentInteractable.IsNotNull();

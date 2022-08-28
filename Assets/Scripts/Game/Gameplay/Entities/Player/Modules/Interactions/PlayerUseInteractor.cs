@@ -6,9 +6,11 @@ namespace Entities.Player.Components
 	public class PlayerUseInteractor : PlayerInteractor
 	{
 		[SerializeField, ReadOnly]
-		private LayerMask m_AimCollisionFilter = 0;
+		private					LayerMask						m_AimCollisionFilter				= 0;
 
-		private Transform m_RaySource = null;
+		private					Transform						m_RaySource							= null;
+
+		public override			uint							Priority							=> 1u;
 
 
 

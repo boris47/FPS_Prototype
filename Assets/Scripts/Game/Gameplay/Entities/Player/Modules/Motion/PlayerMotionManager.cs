@@ -3,6 +3,12 @@ using UnityEngine;
 
 namespace Entities.Player.Components
 {
+	public class PlayerMotionTransitionSnapshot : MotionTransitionSnapshot
+	{
+
+	}
+
+
 	public sealed class PlayerMotionManager : MotionManager
 	{
 		[SerializeField, ReadOnly]

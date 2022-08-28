@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_SlopeLimit: 45
   m_UseAction: {fileID: -174636921829677506, guid: 4419d82f33d36e848b3ed5af4c8da37e, type: 3}
-  m_UseDistance: 2.5
+  m_UseDistance: 1.8
