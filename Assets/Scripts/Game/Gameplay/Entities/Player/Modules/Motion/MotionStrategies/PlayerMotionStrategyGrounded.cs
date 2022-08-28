@@ -76,7 +76,7 @@ namespace Entities.Player.Components
 			m_CharacterController = m_Controller.Player.CharacterController;
 			m_Head = m_Owner.Head;
 
-			PlayerConfiguration playerConfigs = m_Controller.Player.PlayerConfiguration;
+			PlayerConfiguration playerConfigs = m_Controller.Player.Configs;
 
 			// Create an entity aAbove collision detector
 			{
@@ -122,14 +122,14 @@ namespace Entities.Player.Components
 
 			if (Utils.CustomAssertions.IsNotNull(m_EntityAboveCollisionDetector))
 			{
-				m_EntityAboveCollisionDetector.OnAboveObstacle += OnAboveObstacle;
+				m_EntityAboveCollisionDetector.OnTriggerEvent += OnAboveObstacle;
 
 				m_HasObstacleAbove = m_EntityAboveCollisionDetector.RequestForCurrentState();
 			}
 
 			if (Utils.CustomAssertions.IsNotNull(m_HeadAboveCollisionDetector))
 			{
-				m_HeadAboveCollisionDetector.OnAboveObstacle += OnAboveHeadObstacle;
+				m_HeadAboveCollisionDetector.OnTriggerEvent += OnAboveHeadObstacle;
 
 				m_HasObstacleAboveHead = m_HeadAboveCollisionDetector.RequestForCurrentState();
 			}
@@ -144,12 +144,12 @@ namespace Entities.Player.Components
 
 			if (Utils.CustomAssertions.IsNotNull(m_EntityAboveCollisionDetector))
 			{
-				m_EntityAboveCollisionDetector.OnAboveObstacle -= OnAboveObstacle;
+				m_EntityAboveCollisionDetector.OnTriggerEvent -= OnAboveObstacle;
 			}
 
 			if (Utils.CustomAssertions.IsNotNull(m_HeadAboveCollisionDetector))
 			{
-				m_HeadAboveCollisionDetector.OnAboveObstacle -= OnAboveHeadObstacle;
+				m_HeadAboveCollisionDetector.OnTriggerEvent -= OnAboveHeadObstacle;
 			}
 		}
 
@@ -160,12 +160,12 @@ namespace Entities.Player.Components
 
 			if (m_EntityAboveCollisionDetector.IsNotNull())
 			{
-				m_EntityAboveCollisionDetector.Destroy();
+				m_EntityAboveCollisionDetector.gameObject.Destroy();
 			}
 
 			if (m_HeadAboveCollisionDetector.IsNotNull())
 			{
-				m_HeadAboveCollisionDetector.Destroy();
+				m_HeadAboveCollisionDetector.gameObject.Destroy();
 			}
 		}
 
@@ -212,7 +212,7 @@ namespace Entities.Player.Components
 				}
 			}
 
-			PlayerConfiguration playerConfigs = m_Controller.Player.PlayerConfiguration;
+			PlayerConfiguration playerConfigs = m_Controller.Player.Configs;
 
 			m_CurrentCrouchTransition01Value += Mathf.Pow(m_Configs.CrouchTransitionSeconds, -1f) * deltaTime * Utils.Math.BoolToMinusOneOsPlusOne(m_CrouchedRequested);
 
@@ -241,7 +241,7 @@ namespace Entities.Player.Components
 		{
 			if (m_IsGrounded && m_LastControllerColliderHit.IsNotNull())
 			{
-				PlayerConfiguration playerConfigs = m_Controller.Player.PlayerConfiguration;
+				PlayerConfiguration playerConfigs = m_Controller.Player.Configs;
 				float slopeAngle = Vector3.Angle(Vector3.up, m_LastControllerColliderHit.normal);
 				if (Utils.Math.IsBetweenOrEqualValues(slopeAngle, playerConfigs.SlopeLimit, playerConfigs.MaxSlopeLimitAngle))
 				{
@@ -287,7 +287,7 @@ namespace Entities.Player.Components
 		
 			if (m_IsSliding && m_LastControllerColliderHit.IsNotNull())
 			{
-				PlayerConfiguration playerConfigs = m_Controller.Player.PlayerConfiguration;
+				PlayerConfiguration playerConfigs = m_Controller.Player.Configs;
 				Vector3 normal = m_LastControllerColliderHit.normal;
 				float slopeAngle = Vector3.Angle(Vector3.up, normal);
 				

@@ -1,10 +1,13 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Collider))]
 [RequireComponent(typeof(Rigidbody))]
 public class EntityCollisionDetector : MonoBehaviour
 {
-	public	delegate	void		OnAboveObstacleEvent      (Collider obstacle);
+	public	delegate	void		OnTriggerEventDel      (Collider obstacle);
+	private static		List<EntityCollisionDetector>	s_Detectors						= new List<EntityCollisionDetector>();
+
 
 	[Tooltip("If true RequestForCurrentState() evaluate as true if collider has value, otherwise false")]
 	[SerializeField]
@@ -21,15 +24,21 @@ public class EntityCollisionDetector : MonoBehaviour
 
 
 	//--------------------
-	private event		OnAboveObstacleEvent			m_OnAboveObstacleEvent			= delegate { };
+	private event		OnTriggerEventDel				m_OnTriggerEvent				= delegate { };
 
-	public		event	OnAboveObstacleEvent			OnAboveObstacle
+	/// <summary> Called every frame! </summary>
+	public		event	OnTriggerEventDel				OnTriggerEvent
 	{
-		add		{ if (value.IsNotNull()) m_OnAboveObstacleEvent += value; }
-		remove	{ if (value.IsNotNull()) m_OnAboveObstacleEvent -= value; }
+		add		{ if (value.IsNotNull()) m_OnTriggerEvent += value; }
+		remove	{ if (value.IsNotNull()) m_OnTriggerEvent -= value; }
 	}
 
-	public bool PositiveResult { get => PositiveResult; set => m_PositiveResult = value; }
+	public				bool							PositiveResult
+	{
+		get => m_PositiveResult;
+		set => m_PositiveResult = value;
+	}
+	public				Collider						CurrentCollider					=> m_CurrentCollider;
 
 
 	public float Height
@@ -105,7 +114,29 @@ public class EntityCollisionDetector : MonoBehaviour
 			}
 
 			m_Collider.enabled = bCurrentlyEnabled;
+			s_Detectors.Add(this);
 		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	public static void UpdateDetectors()
+	{
+		foreach (EntityCollisionDetector detector in s_Detectors)
+		{
+			foreach (Collider parentCollider in detector.transform.root.GetComponentsInChildren<Collider>(includeInactive: true))
+			{
+				Physics.IgnoreCollision(detector.m_Collider, parentCollider, ignore: true);
+
+				// Invalidate Current collider, maybe should be keept, it's too early to know this atm
+				detector.m_CurrentCollider = null;
+			}
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	private void OnDestroy()
+	{
+		s_Detectors.Remove(this);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -126,7 +157,7 @@ public class EntityCollisionDetector : MonoBehaviour
 	//////////////////////////////////////////////////////////////////////////
 	private void UpdateState()
 	{
-		m_OnAboveObstacleEvent(m_CurrentCollider);
+		m_OnTriggerEvent(m_CurrentCollider);
 	}
 
 	//////////////////////////////////////////////////////////////////////////

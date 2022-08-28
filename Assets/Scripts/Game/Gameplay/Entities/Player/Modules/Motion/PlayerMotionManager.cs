@@ -68,7 +68,7 @@ namespace Entities.Player.Components
 		//////////////////////////////////////////////////////////////////////////
 		public override void OnSwimVolumeExit(SwimVolume swimVolume)
 		{
-			
+			SetMotionType<PlayerMotionStrategyGrounded>();
 		}
 	}
 }

@@ -8,14 +8,15 @@ namespace Entities.Player
 	[RequireComponent(typeof(CharacterController))]
 	[RequireComponent(typeof(PlayerController))]
 	[RequireComponent(typeof(PlayerMotionManager))]
-	[Configurable(nameof(m_Configs), "Player/" + nameof(PlayerConfiguration))]
-	public class PlayerEntity : Entity
+	[RequireComponent(typeof(PlayerEntityInteractionManager))]
+	[Configurable(nameof(m_Configs), "Player/" + nameof(Configs))]
+	public partial class PlayerEntity : Entity
 	{
 		public new				PlayerController				Controller							=> m_Controller as PlayerController;
 
 
 		[SerializeField, ReadOnly]
-		protected				PlayerConfiguration				m_Configs							= null;
+		private					PlayerConfiguration				m_Configs							= null;
 
 		[SerializeField, ReadOnly]
 		private					PlayerMotionManager				m_PlayerMotionManager				= null;
@@ -25,7 +26,7 @@ namespace Entities.Player
 
 
 		//--------------------
-		public					PlayerConfiguration				PlayerConfiguration					=> m_Configs;
+		public					PlayerConfiguration				Configs								=> m_Configs;
 		public					PlayerMotionManager				PlayerMotionManager					=> m_PlayerMotionManager;
 		public					CharacterController				CharacterController					=> m_CharacterController;
 
