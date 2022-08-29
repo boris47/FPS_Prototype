@@ -123,7 +123,6 @@ namespace Utils
 
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////
 
 	public static class Math
 	{
@@ -1042,6 +1041,43 @@ namespace Utils
 			newVertices = new Vector3[_baseVertices.Length];
 		}
 
+		//////////////////////////////////////////////////////////////////////////
+		public static void DrawCollider(Collider collider, Color color)
+		{
+			if (collider.IsNotNull())
+			{
+				Color prevColor = Gizmos.color;
+				Matrix4x4 prevMatrix = Gizmos.matrix;
+				{
+					Gizmos.matrix = Matrix4x4.TRS(collider.bounds.center, collider.transform.rotation, collider.transform.lossyScale);
+					Gizmos.color = color;
+
+					switch (collider)
+					{
+						case BoxCollider box:
+						{
+							Gizmos.DrawCube(Vector3.zero, box.size);
+							break;
+						}
+						case SphereCollider sphere:
+						{
+							Gizmos.DrawSphere(Vector3.zero, sphere.radius);
+							break;
+						}
+						case CapsuleCollider capsule:
+						{
+							DrawWireCapsule(Vector3.zero, collider.transform.rotation, capsule.radius, capsule.height, color);
+							break;
+						}
+					}
+
+				}
+				Gizmos.color = prevColor;
+				Gizmos.matrix = prevMatrix;
+			}
+		}
+
+		//////////////////////////////////////////////////////////////////////////
 		public static void DrawWireCapsule(Vector3 pos, Quaternion rot, float radius, float height, Color color)
 		{
 #if UNITY_EDITOR
