@@ -20,7 +20,7 @@ public static class Extensions_CSharp
 	#region C# STRING
 
 	/////////////////////////////////////////////////////////////////////////////
-	/// <summary> Return true for empty or 'none' strings </summary>
+	/// <summary> Return true for null/empty or |none| strings </summary>
 	public static bool IsNone(this string ThisString)
 	{
 		return string.IsNullOrEmpty(ThisString) || ThisString.ToLower().Trim() == "none";
