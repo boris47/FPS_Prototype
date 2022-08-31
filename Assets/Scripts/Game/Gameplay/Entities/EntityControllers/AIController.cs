@@ -119,7 +119,7 @@ namespace Entities.AI
 						return;
 					}
 				}
-				Utils.CustomAssertions.IsTrue(false, $"Invalid {nameof(sightEvent.TargetInfoType)} of {nameof(SightEvent)} with value '{sightEvent.TargetInfoType}'");
+				Utils.CustomAssertions.IsTrue(false, controller, $"Invalid {nameof(sightEvent.TargetInfoType)} of {nameof(SightEvent)} with value '{sightEvent.TargetInfoType}'");
 			}
 			static void HandleSenseEvent_Team(in AIController controller, in TeamEvent teamEvent)
 			{
@@ -147,7 +147,7 @@ namespace Entities.AI
 						return;
 					}
 				}
-				Utils.CustomAssertions.IsTrue(false, $"Invalid {nameof(teamEvent.MessageType)} of {nameof(TeamEvent)} with value '{teamEvent.MessageType}'");
+				Utils.CustomAssertions.IsTrue(false, controller, $"Invalid {nameof(teamEvent.MessageType)} of {nameof(TeamEvent)} with value '{teamEvent.MessageType}'");
 			}
 
 			Utils.CustomAssertions.IsNotNull(senseEvent);
@@ -158,7 +158,7 @@ namespace Entities.AI
 				case ESenses.SIGHT:		HandleSenseEvent_Sight(this, senseEvent as SightEvent);		return;
 				case ESenses.TEAM:		HandleSenseEvent_Team(this, senseEvent as TeamEvent);		return;
 			}
-			Utils.CustomAssertions.IsTrue(false, $"Cannot handle sense event of type {senseEvent.SenseType}");
+			Utils.CustomAssertions.IsTrue(false, this, $"Cannot handle sense event of type {senseEvent.SenseType}");
 		}
 	}
 }

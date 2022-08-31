@@ -76,7 +76,7 @@ public static class ConfigurableComponent_Extension
 				{
 					// Get and verify ResourcePath
 					string ResourcePath = configurable.ResourcePath;
-					if (Utils.CustomAssertions.IsTrue(Utils.String.IsResourcesPath(ResourcePath), $"ConfigurableComponent: Type {configurableType.Name}: Invalid ${nameof(ResourcePath)}"))
+					if (Utils.CustomAssertions.IsTrue(Utils.Paths.IsResourcesPath(ResourcePath), $"ConfigurableComponent: Type {configurableType.Name}: Invalid ${nameof(ResourcePath)}"))
 					{
 						System.Type ConfigType = null;
 
@@ -107,7 +107,7 @@ public static class ConfigurableComponent_Extension
 							 && Utils.CustomAssertions.IsTrue(!ConfigType.IsAbstract, err4))
 							{
 								string err5 = $"ConfigurableComponent: Type {configurableType.Name} [Config:{ConfigType.Name}]: Unable to convert resource path to asset path";
-								if (Utils.CustomAssertions.IsTrue(Utils.String.TryConvertFromResourcePathToAssetPath(ResourcePath, out string AssetPath), err5))
+								if (Utils.CustomAssertions.IsTrue(Utils.Paths.TryConvertFromResourcePathToAssetPath(ResourcePath, out string AssetPath), err5))
 								{
 									// Compare ConfigType and existing one
 									ConfigurationBase existingConfig = Resources.Load<ConfigurationBase>(ResourcePath);

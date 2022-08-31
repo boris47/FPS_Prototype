@@ -95,7 +95,10 @@ public class EntityCollisionDetector : MonoBehaviour
 	//////////////////////////////////////////////////////////////////////////
 	private void Awake()
 	{
-		if ((m_Rigidbody.IsNotNull() || Utils.CustomAssertions.IsTrue(gameObject.TryGetComponent(out m_Rigidbody))) && (m_Collider.IsNotNull() || Utils.CustomAssertions.IsTrue(gameObject.TryGetComponent(out m_Collider))))
+		if (
+			(m_Rigidbody.IsNotNull() || Utils.CustomAssertions.IsTrue(gameObject.TryGetComponent(out m_Rigidbody), this))
+			&&
+			(m_Collider.IsNotNull() || Utils.CustomAssertions.IsTrue(gameObject.TryGetComponent(out m_Collider), this)))
 		{
 			// Configure rigidbody
 			m_Rigidbody.useGravity = false;

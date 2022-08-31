@@ -37,6 +37,18 @@ public class EditorWindowGuardian : ScriptableSingleton<EditorWindowGuardian>
 	}
 
 	//////////////////////////////////////////////////////////////////////////
+	private static bool TryRetrieveWindow(in WindowData InWindowData, out EditorWindowWithResource OutEditorWindow)
+	{
+		OutEditorWindow = null;
+		System.Type windowType = System.Type.GetType($"{InWindowData.TypeName}, {InWindowData.AssemblyName}");
+		if (windowType.IsNotNull() && EditorWindow.GetWindow(windowType) is EditorWindowWithResource editorWindow)
+		{
+			OutEditorWindow = editorWindow;
+		}
+		return OutEditorWindow.IsNotNull();
+	}
+
+	//////////////////////////////////////////////////////////////////////////
 	private void OnBeforeAssemblyReload()
 	{
 		m_IsCompiling = true;
@@ -47,18 +59,15 @@ public class EditorWindowGuardian : ScriptableSingleton<EditorWindowGuardian>
 			// Save all the window data useful at re-create
 			windowData.SaveWindowData();
 
-			if (Utils.Types.IsNotNull(System.Type.GetType($"{windowData.TypeName}, {windowData.AssemblyName}"), out System.Type windowType))
+			if (TryRetrieveWindow(windowData, out EditorWindowWithResource editorWindow))
 			{
-				if (Utils.CustomAssertions.IsTrue(Utils.Types.IsNotNull(EditorWindow.GetWindow(windowType), out EditorWindowWithResource editorWindow)))
-				{
-					editorWindow.SaveChanges();
-
-					editorWindow.Close();
-				}
+				editorWindow.SaveChanges();
+				editorWindow.Close();
 			}
 			else
 			{
 				instance.m_WindowsData.RemoveAt(i);
+				Debug.LogWarning($"Unable to restore window of type {windowData.TypeName}");
 			}
 		}
 	}
@@ -73,46 +82,41 @@ public class EditorWindowGuardian : ScriptableSingleton<EditorWindowGuardian>
 		}
 
 		m_FrameCount = k_FrameToWait;
-		EditorApplication.update += OnAfterAssemblyReload_Internal;
-	}
 
 
-	//////////////////////////////////////////////////////////////////////////
-	private void OnAfterAssemblyReload_Internal()
-	{
-		if (m_FrameCount > 0)
+		void OnAfterAssemblyReloadDelayed()
 		{
-			m_FrameCount--;
-			return;
-		}
-
-		m_IsCompiling = false;
-
-		// No need to update this method, unsubscribe from the application update
-		EditorApplication.update -= OnAfterAssemblyReload_Internal;
-
-		//////////////////////////////////////////////////////////////////////////////////////
-		
-		for (int i = instance.m_WindowsData.Count - 1; i >= 0; i--)
-		{
-			WindowData windowData = instance.m_WindowsData[i];
-			if (Utils.Types.IsNotNull(System.Type.GetType($"{windowData.TypeName}, {windowData.AssemblyName}"), out System.Type windowType))
+			if (m_FrameCount > 0)
 			{
-				if (Utils.CustomAssertions.IsTrue(Utils.Types.IsNotNull(EditorWindow.GetWindow(windowType), out EditorWindowWithResource editorWindow)))
+				m_FrameCount--;
+				return;
+			}
+
+			m_IsCompiling = false;
+
+			// No need to update this method, unsubscribe from the application update
+			EditorApplication.update -= OnAfterAssemblyReloadDelayed;
+
+			//////////////////////////////////////////////////////////////////////////////////////
+		
+			for (int i = instance.m_WindowsData.Count - 1; i >= 0; i--)
+			{
+				WindowData windowData = instance.m_WindowsData[i];
+
+				if (TryRetrieveWindow(windowData, out EditorWindowWithResource editorWindow))
 				{
 					windowData.ToWindow(editorWindow);
 
 					editorWindow.Show();
 				}
-			}
-			else
-			{
-				instance.m_WindowsData.RemoveAt(i);
+				else
+				{
+					instance.m_WindowsData.RemoveAt(i);
+				}
 			}
 		}
+		EditorApplication.update += OnAfterAssemblyReloadDelayed;
 	}
-
-
 
 
 

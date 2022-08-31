@@ -29,11 +29,11 @@ public class EntityFoots : MonoBehaviour
 	//////////////////////////////////////////////////////////////////////////
 	private void Awake()
 	{
-		if (m_Collider.IsNotNull() || Utils.CustomAssertions.IsTrue(gameObject.TryGetComponent(out m_Collider)))
+		if (m_Collider.IsNotNull() || Utils.CustomAssertions.IsTrue(gameObject.TryGetComponent(out m_Collider), this))
 		{
 			m_Collider.isTrigger = true;
 
-			if (Utils.CustomAssertions.IsNotNull(transform.parent))
+			if (Utils.CustomAssertions.IsNotNull(transform.parent, this))
 			{
 				foreach (Collider parentCollider in transform.parent.GetComponents<Collider>())
 				{

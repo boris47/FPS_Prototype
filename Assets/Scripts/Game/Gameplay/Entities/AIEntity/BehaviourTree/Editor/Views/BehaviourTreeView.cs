@@ -130,11 +130,11 @@ namespace Entities.AI.Components.Behaviours
 			{
 				if (node is IParentNode parentNode)
 				{
-					if (Utils.CustomAssertions.IsTrue(TryFindNodeView(node, out NodeViewBase parentView), $"Cannot retrieve view for node {parent?.name ?? "Null"}"))
+					if (Utils.CustomAssertions.IsTrue(TryFindNodeView(node, out NodeViewBase parentView), null, $"Cannot retrieve view for node {parent?.name ?? "Null"}"))
 					{
 						foreach (BTNode childNode in parentNode.Children)
 						{
-							if (Utils.CustomAssertions.IsTrue(TryFindNodeView(childNode, out NodeViewBase childView), $"Cannot retrieve view for node {childNode?.name ?? "Null"}"))
+							if (Utils.CustomAssertions.IsTrue(TryFindNodeView(childNode, out NodeViewBase childView), null, $"Cannot retrieve view for node {childNode?.name ?? "Null"}"))
 							{
 								uint portIndex = childView.BehaviourTreeNode.AsEditorInterface.ParentPortIndex;
 								AddElement(parentView.ConnectTo(childView, portIndex));

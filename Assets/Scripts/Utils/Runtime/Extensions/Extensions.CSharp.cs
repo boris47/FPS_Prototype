@@ -10,7 +10,7 @@ public static class Extensions_CSharp
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Check if Object is null internally </summary>
-	public static bool IsNotNull(this object ThisObject) => !object.ReferenceEquals(ThisObject, null);
+	public static bool IsNotNull(this object ThisObject) => !System.Object.ReferenceEquals(ThisObject, null);
 
 	#endregion C# OBJECT
 
@@ -23,7 +23,7 @@ public static class Extensions_CSharp
 	/// <summary> Return true for null/empty or |none| strings </summary>
 	public static bool IsNone(this string ThisString)
 	{
-		return string.IsNullOrEmpty(ThisString) || ThisString.ToLower().Trim() == "none";
+		return string.IsNullOrEmpty(ThisString) || ThisString.ToLower().Trim().Equals("none");
 	}
 
 

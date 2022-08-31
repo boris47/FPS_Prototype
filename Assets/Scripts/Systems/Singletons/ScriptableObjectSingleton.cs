@@ -10,7 +10,7 @@ public class ScriptableObjectResourcePath : System.Attribute
 
 	public ScriptableObjectResourcePath(string InResourcePath)
 	{
-		if(Utils.CustomAssertions.IsTrue(Utils.String.IsResourcesPath(InResourcePath)))
+		if(Utils.CustomAssertions.IsTrue(Utils.Paths.IsResourcesPath(InResourcePath)))
 		{
 			ResourcePath = InResourcePath;
 		}
@@ -58,7 +58,7 @@ public abstract class GlobalScriptableObjectSingleton<T> : ScriptableObject
 #if UNITY_EDITOR
 				if (newInstance == null)
 				{
-					if (Utils.CustomAssertions.IsTrue(Utils.String.TryConvertFromResourcePathToAssetPath(OutResourcePath, out string AssetPath)))
+					if (Utils.CustomAssertions.IsTrue(Utils.Paths.TryConvertFromResourcePathToAssetPath(OutResourcePath, out string AssetPath)))
 					{
 						newInstance = CreateInstance<T>();
 						System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(AssetPath));

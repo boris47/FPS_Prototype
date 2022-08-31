@@ -50,27 +50,27 @@ public class CustomSceneManager : GlobalMonoBehaviourSingleton<CustomSceneManage
 	{
 		base.OnAfterSceneLoad();
 
-		if (Utils.CustomAssertions.IsNotNull(m_LoadingPrefab, $"{nameof(m_LoadingPrefab)} is null"))
+		if (Utils.CustomAssertions.IsNotNull(m_LoadingPrefab, this, $"{nameof(m_LoadingPrefab)} is null"))
 		{
 			Scene currentActiveScene = SceneManager.GetActiveScene();
 			{
 				m_LoadingScene = SceneManager.CreateScene("Loading", new CreateSceneParameters(LocalPhysicsMode.None));
 				SceneManager.SetActiveScene(m_LoadingScene);
 				m_LoadingView = Instantiate(m_LoadingPrefab);
-				Utils.CustomAssertions.IsNotNull(m_LoadingView);
+				Utils.CustomAssertions.IsNotNull(m_LoadingView, this);
 			}
 			SceneManager.SetActiveScene(currentActiveScene);
 
 			// If more than one scene definition has been found
-			if (Utils.CustomAssertions.IsNotNull(m_SceneDefinitionCollection, "DefinitionCollection is null") &&
-				Utils.CustomAssertions.IsTrue(m_SceneDefinitionCollection.SceneDefinitions.IsValidIndex(0), "There must be at least one scene definition"))
+			if (Utils.CustomAssertions.IsNotNull(m_SceneDefinitionCollection, this, "DefinitionCollection is null") &&
+				Utils.CustomAssertions.IsTrue(m_SceneDefinitionCollection.SceneDefinitions.IsValidIndex(0), this, "There must be at least one scene definition"))
 			{
 				// Get current active scene path
 				string currentScenePath = currentActiveScene.path;
 				
 				// Retrieve its definition
 				SceneDefinition currentSceneDefinition = m_SceneDefinitionCollection.SceneDefinitions.FirstOrDefault(def => def.ScenePath == currentScenePath);
-				if (Utils.CustomAssertions.IsNotNull(currentSceneDefinition, $"Cannot retrieve scene definition for loaded scene {currentScenePath}", this))
+				if (Utils.CustomAssertions.IsNotNull(currentSceneDefinition, this, $"Cannot retrieve scene definition for loaded scene {currentScenePath}"))
 				{
 					m_CurrentSceneDefinition = currentSceneDefinition;
 				}

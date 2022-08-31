@@ -15,8 +15,8 @@ public class Platform : MonoBehaviour
 	//////////////////////////////////////////////////////////////////////////
 	private void Awake()
 	{
-		bool bGoodInitialization = Utils.CustomAssertions.IsTrue(gameObject.TrySearchComponent(ESearchContext.LOCAL, out Collider _, c => !c.isTrigger), $"Platform {name} has no non trigger collider");
-		if (bGoodInitialization &= Utils.CustomAssertions.IsTrue(gameObject.TrySearchComponent(ESearchContext.LOCAL, out Collider triggerCollider, c => c.isTrigger), $"Platform {name} has no trigger collider"))
+		bool bGoodInitialization = Utils.CustomAssertions.IsTrue(gameObject.TrySearchComponent(ESearchContext.LOCAL, out Collider _, c => !c.isTrigger), this, $"Platform {name} has no non trigger collider");
+		if (bGoodInitialization &= Utils.CustomAssertions.IsTrue(gameObject.TrySearchComponent(ESearchContext.LOCAL, out Collider triggerCollider, c => c.isTrigger), this, $"Platform {name} has no trigger collider"))
 		{
 			foreach(RaycastHit hit in Physics.BoxCastAll(triggerCollider.bounds.center, triggerCollider.bounds.extents, transform.up, transform.rotation, -1, Physics.AllLayers, QueryTriggerInteraction.Ignore))
 			{
@@ -27,7 +27,7 @@ public class Platform : MonoBehaviour
 			}
 			Debug.DrawLine(triggerCollider.bounds.center, Vector3.up, Color.blue, 10f); 
 		}
-		enabled = bGoodInitialization & Utils.CustomAssertions.IsTrue(gameObject.TryGetComponent(out Rigidbody _), $"Platform {name} has no rigidbody");
+		enabled = bGoodInitialization & Utils.CustomAssertions.IsTrue(gameObject.TryGetComponent(out Rigidbody _), this, $"Platform {name} has no rigidbody");
 	}
 
 	/*

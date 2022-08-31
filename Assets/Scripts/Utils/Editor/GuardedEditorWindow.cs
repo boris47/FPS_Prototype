@@ -23,7 +23,7 @@ public abstract class GuardedEditorWindow<T, D> : EditorWindowWithResource where
 	public static void OpenWindow(in string InWindowTitle, in string InResourcePath, in Vector2? InMinSize = null, in Vector2? InMaxSize = null)
 	{
 		D OutData = null;
-		if (Utils.CustomAssertions.IsTrue(Utils.String.TryConvertFromResourcePathToAssetPath(InResourcePath, out string AssetPath)))
+		if (Utils.CustomAssertions.IsTrue(Utils.Paths.TryConvertFromResourcePathToAssetPath(InResourcePath, out string AssetPath)))
 		{
 			AssetDatabase.CreateAsset(OutData = ScriptableObject.CreateInstance<D>(), AssetPath);
 		}

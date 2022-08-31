@@ -164,7 +164,7 @@ namespace Entities.AI.Components.Behaviours
 			{
 				if (InNode.IsNotNull() && InNode.Parent is BTNode parent && parent.NodeState != EBTNodeState.RUNNING)
 				{
-					Utils.CustomAssertions.IsTrue(false, $"Trying to set a {InNode.name} node as active when parent {parent.name} is not running");
+					Utils.CustomAssertions.IsTrue(false, this, $"Trying to set a {InNode.name} node as active when parent {parent.name} is not running");
 					return;
 				}
 

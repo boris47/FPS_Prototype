@@ -76,7 +76,7 @@ namespace Entities
 		public void OverrideRelations(in EFactions InFaction1, in EFactions InFaction2, in short InNewalue)
 		{
 			if (Utils.CustomAssertions.IsTrue(m_InternalData.IsValidIndex((int)InFaction1, (int)InFaction2),
-				$"Invalid values for InFaction1 and/or InFaction2: valid range 0-${FactionCount}, values are '{InFaction1}' and '{InFaction2}'"))
+				this, $"Invalid values for InFaction1 and/or InFaction2: valid range 0-${FactionCount}, values are '{InFaction1}' and '{InFaction2}'"))
 			{
 				m_InternalData[(int)InFaction1, (int)InFaction2] = InNewalue;
 				m_InternalData[(int)InFaction2, (int)InFaction1] = InNewalue;
@@ -87,7 +87,7 @@ namespace Entities
 		public void OverrideRelations(in EFactions InFaction1, in EFactions InFaction2, in EFactionRelationType InNewRelation)
 		{
 			if (Utils.CustomAssertions.IsTrue(typeof(EFactionRelationType).IsEnumDefined(InNewRelation),
-				$"Invalid new value of {nameof(EFactionRelationType)}: value received is '{InNewRelation}'"))
+				this, $"Invalid new value of {nameof(EFactionRelationType)}: value received is '{InNewRelation}'"))
 			{
 				short value = GetValueFromRelation(InNewRelation);
 				OverrideRelations(InFaction1, InFaction2, value);
@@ -124,7 +124,7 @@ namespace Entities
 			short OutValue = default;
 			int faction1Idx = (int)InFaction1, faction2Idx = (int)InFaction2;
 			if (Utils.CustomAssertions.IsTrue(m_InternalData.IsValidIndex(faction1Idx, faction2Idx),
-				$"Invalid values for InFaction1 and/or InFaction2: valid range 0-${FactionCount}, values are '{InFaction1}' and '{InFaction2}'"))
+				this, $"Invalid values for InFaction1 and/or InFaction2: valid range 0-${FactionCount}, values are '{InFaction1}' and '{InFaction2}'"))
 			{
 				OutValue = m_InternalData[faction1Idx, faction2Idx];
 			}

@@ -286,7 +286,7 @@ public static class Database
 			}
 
 			string filePath;
-			if (!Utils.String.TryConvertFromAssetPathToResourcePath(InFilePath, out filePath) && !Utils.String.TryConvertFromAbsolutePathToResourcePath(InFilePath, out filePath))
+			if (!Utils.Paths.TryConvertFromAssetPathToResourcePath(InFilePath, out filePath) && !Utils.Paths.TryConvertFromAbsolutePathToResourcePath(InFilePath, out filePath))
 			{
 				return false;
 			}

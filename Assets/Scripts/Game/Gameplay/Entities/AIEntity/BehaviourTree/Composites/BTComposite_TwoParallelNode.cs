@@ -150,7 +150,7 @@ namespace Entities.AI.Components.Behaviours
 						m_Main.RequestAbortNode(bAbortImmediately: true);
 						m_Background.RequestAbortNode(bAbortImmediately: true);
 						OutState = EBTNodeState.FAILED;
-						Utils.CustomAssertions.IsTrue(false, $"Unsupported ParallelMode {m_ParallelMode}", this);
+						Utils.CustomAssertions.IsTrue(false, this, $"Unsupported ParallelMode {m_ParallelMode}");
 						break;
 					}
 				}

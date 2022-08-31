@@ -1,112 +1,145 @@
 
-using System.Globalization;
-using System.Runtime.CompilerServices;
-using UnityEngine;
+/////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 
-
-/// <summary> Can be used to access a Vector3 component </summary>
-public enum EVector3Component
-{
-	X, Y, Z
-}
-
-namespace Utils
+namespace Utils // Types
 {
 	public static class Types
 	{
 		//////////////////////////////////////////////////////////////////////////
-		public static bool IsNotNull<T, O>(T InValue, out O OutValue) where T : class where O : class
-		{
-			OutValue = default;
-			if (InValue.IsNotNull() && (InValue as O).IsNotNull())
-			{
-				OutValue = InValue as O;
-			}
-			return !System.Collections.Generic.EqualityComparer<O>.Default.Equals(OutValue, default);
-		}
+	//public static bool IsNotNull<T, O>(in T InValue, out O OutValue) where T : class where O : class
+	//{
+	//	OutValue = default;
+	//	if (InValue.IsNotNull() && (InValue as O).IsNotNull())
+	//	{
+	//		OutValue = InValue as O;
+	//	}
+	//	return !System.Collections.Generic.EqualityComparer<O>.Default.Equals(OutValue, default);
+	//}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		public static bool IsNotNull<O>(UnityEngine.Object InObject, out O OutObject) where O : UnityEngine.Object
+		public static bool IsNotNull<T, O>(in T InObject, out O OutObject) where T : UnityEngine.Object where O : T
 		{
 			OutObject = null;
-			if (InObject.IsNotNull() && (InObject as O).IsNotNull())
+			if (InObject is O converted)
 			{
-				OutObject = InObject as O;
+				OutObject = converted;
 			}
 			return OutObject.IsNotNull();
 		}
 	}
+}
 
+/////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+
+namespace Utils // CustomAssertions
+{
 	public static class CustomAssertions
 	{
-		//////////////////////////////////////////////////////////////////////////
-		private static void HandleErrorMessage(string callerContextName, string message = null, Object context = null)
+		public struct CustomAssertionMessage
 		{
-#if UNITY_EDITOR
-			UnityEditor.EditorApplication.isPlaying = false;
-#endif
-			System.Text.StringBuilder builder = new($"{callerContextName}: Assertion Failed");
-			if (!string.IsNullOrEmpty(message))
-			{
-				builder.AppendLine($" -> {message}");
-			}
-			Debug.LogError(builder.ToString(), context); ;
+			public readonly string Message;
 
+			private CustomAssertionMessage(in string InMessage)
+			{
+				Message = InMessage;
+			}
+
+			public static implicit operator CustomAssertionMessage(in string InMessage) => new CustomAssertionMessage(InMessage);
+			public static implicit operator string(in CustomAssertionMessage cm) => cm.IsNotNull() ? cm.Message : null;
+		}
+
+		private struct Messages
+		{
+			private const string k_ASSERTIONFAILED = "Assertion Failed";
+			public static readonly string DefaultValueAssertion = $"{k_ASSERTIONFAILED}(DefaultValue)";
+			public static readonly string InvalidCastAssertion = $"{k_ASSERTIONFAILED}(InvalidCast)";
+			public static readonly string BooleanAssertion = $"{k_ASSERTIONFAILED}(Boolean)";
+			public static readonly string ReferenceAssertion = $"{k_ASSERTIONFAILED}(Reference)";
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		private static void LogErrorMessage(string assertionTypeMessage, UnityEngine.Object InUnityObjectContext, in CustomAssertionMessage InCustomMessage)
+		{
+			string finalMessage = assertionTypeMessage;
+			if (!string.IsNullOrEmpty(InCustomMessage))
+			{
+				finalMessage += $"-> {InCustomMessage}";
+			}
+
+			UnityEngine.Debug.LogError(finalMessage, InUnityObjectContext); ;
+
+#if UNITY_EDITOR
+			UnityEditor.EditorApplication.isPaused = true;
+#endif
 			if (System.Diagnostics.Debugger.IsAttached)
 			{
 				System.Diagnostics.Debugger.Break();
-				System.Diagnostics.Debug.WriteLine(builder.ToString());
+				System.Diagnostics.Debug.WriteLine(finalMessage);
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		[System.Diagnostics.DebuggerHidden()]
-		public static bool IsNotDefault<T>(T value, string message = null, UnityEngine.Object context = null)
+		public static bool IsNotDefault<T>(in T InValue, in CustomAssertionMessage? InCustomMessage = null)
 		{
-			bool bIsEqual = value.Equals(default(T));
+			return IsNotDefault(InValue, null, InCustomMessage);
+		}
+		//////////////////////////////////////////////////////////////////////////
+		public static bool IsNotDefault<T>(in T InValue, UnityEngine.Object InUnityObjectContext, in string InCustomMessage = null)
+		{
+			bool bIsEqual = InValue.Equals(default(T));
 			if (bIsEqual)
 			{
-				string callerContextName = $"{nameof(Utils)}.{nameof(CustomAssertions)}.{nameof(IsNotDefault)}";
-				HandleErrorMessage(callerContextName, message, context);
+				LogErrorMessage(Messages.DefaultValueAssertion, InUnityObjectContext, InCustomMessage);
 			}
 			return !bIsEqual;
 		}
 
-
 		//////////////////////////////////////////////////////////////////////////
-		[System.Diagnostics.DebuggerHidden()]
-		public static bool IsTrue(bool bIsTrue, string message = null, UnityEngine.Object context = null)
+		public static bool IsTrue(in bool bIsTrue, in CustomAssertionMessage? InCustomMessage = null)
+		{
+			return IsTrue(bIsTrue, null, InCustomMessage);
+		}
+		//////////////////////////////////////////////////////////////////////////
+		public static bool IsTrue(in bool bIsTrue, UnityEngine.Object InUnityObjectContext, in string InCustomMessage = null)
 		{
 			if (!bIsTrue)
 			{
-				string callerContextName = $"{nameof(Utils)}.{nameof(CustomAssertions)}.{nameof(IsTrue)}";
-				HandleErrorMessage(callerContextName, message, context);
+				LogErrorMessage(Messages.BooleanAssertion, InUnityObjectContext, InCustomMessage);
 			}
 			return bIsTrue;
 		}
 
-
 		//////////////////////////////////////////////////////////////////////////
-		[System.Diagnostics.DebuggerHidden()]
-		public static bool IsNotNull(System.Object value, string message = null, UnityEngine.Object context = null)
+		public static bool IsNotNull(in System.Object InValue, in CustomAssertionMessage? InCustomMessage = null)
 		{
-			bool bIsNull = !value.IsNotNull();
-			if (bIsNull)
+			return IsNotNull(InValue, null, InCustomMessage);
+		}
+		//////////////////////////////////////////////////////////////////////////
+		public static bool IsNotNull(in System.Object InValue, UnityEngine.Object InUnityObjectContext, in string InCustomMessage = null)
+		{
+			bool bIsNotNull = InValue.IsNotNull();
+			if (!bIsNotNull)
 			{
-				string callerContextName = $"{nameof(Utils)}.{nameof(CustomAssertions)}.{nameof(IsNotNull)}";
-				HandleErrorMessage(callerContextName, message, context);
+				LogErrorMessage(Messages.ReferenceAssertion, InUnityObjectContext, InCustomMessage);
 			}
-			return !bIsNull;
+			return bIsNotNull;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		[System.Diagnostics.DebuggerHidden()]
-		public static bool IsValidCast<T, V>(T value, out V OutValue, string message = null, UnityEngine.Object context = null) where V : T
+		public static bool IsValidUnityObjectCast<T, V>(T InValue, out V OutValue, in CustomAssertionMessage? InCustomMessage = null) where T : UnityEngine.Object where V : T
+		{
+			return IsValidUnityObjectCast(InValue, out OutValue, null, InCustomMessage);
+		}
+		//////////////////////////////////////////////////////////////////////////
+		public static bool IsValidUnityObjectCast<T, V>(T InValue, out V OutValue, in UnityEngine.Object InUnityObjectContext, in string InCustomMessage = null) where T : UnityEngine.Object where V : T
 		{
 			OutValue = default(V);
 			bool bIsValid = false;
-			if (value is V converted)
+			if (InValue is V converted)
 			{
 				OutValue = converted;
 				bIsValid = true;
@@ -114,15 +147,27 @@ namespace Utils
 
 			if (!bIsValid)
 			{
-				string callerContextName = $"{nameof(Utils)}.{nameof(CustomAssertions)}.{nameof(IsValidCast)}";
-				HandleErrorMessage(callerContextName, message, context);
+				LogErrorMessage(Messages.InvalidCastAssertion, InUnityObjectContext, InCustomMessage);
 			}
 			return bIsValid;
 		}
 	}
 
-	/////////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////
+}
+
+/////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+
+namespace Utils // Math
+{
+	using System.Runtime.CompilerServices;
+	using UnityEngine;
+
+	/// <summary> Can be used to access a Vector3 component </summary>
+	public enum EVector3Component
+	{
+		X, Y, Z
+	}
 
 	public static class Math
 	{
@@ -767,10 +812,14 @@ namespace Utils
 			return true;
 		}
 	}
+}
 
-	/////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 
-	public static class String
+namespace Utils // Paths
+{
+	public static class Paths
 	{
 		public static bool IsAssetsPath(in string InPath) => InPath.StartsWith("Assets/");
 
@@ -880,51 +929,74 @@ namespace Utils
 		}
 	}
 
-	/////////////////////////////////////////////////////////////////////////////
+}
+
+/////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+
+namespace Utils // LayersHelper
+{
+	using UnityEngine;
 
 	public static class LayersHelper
 	{
-
 		////////////////////////////////////////////////
-		public static int AllButOne(string layerName)
+		public static int AllButOne(in string InLayerName)
 		{
-			int layer = LayerMask.NameToLayer(layerName);
-
-			int layerMask = 1 << layer;
-
-			return ~layerMask;
-		}
-
-		////////////////////////////////////////////////
-		public static int OneOnly(string layerName)
-		{
-			return LayerMask.NameToLayer(layerName);
-		}
-
-		////////////////////////////////////////////////
-		public static LayerMask InclusiveMask(int[] layers)
-		{
-			int m = 0;
-			for (int l = 0; l < layers.Length; l++)
+			int outValue = 0;
+			if (string.IsNullOrEmpty(InLayerName))
 			{
-				m |= (1 << layers[l]);
+				int layer = LayerMask.NameToLayer(InLayerName);
+				int layerMask = 1 << layer;
+				outValue = ~layerMask;
 			}
-			return m;
+			return outValue;
 		}
 
 		////////////////////////////////////////////////
-		public static LayerMask ExclusiveMask(int[] layers)
+		public static int OneOnly(in string InLayerName)
 		{
-			int m = 0;
-			for (int l = 0; l < layers.Length; l++)
+			return string.IsNullOrEmpty(InLayerName) ? 0 : LayerMask.NameToLayer(InLayerName);
+		}
+
+		////////////////////////////////////////////////
+		public static LayerMask InclusiveMask(in int[] InLayers)
+		{
+			int outValue = 0;
+			if (InLayers.IsNotNull())
 			{
-				m |= (1 << layers[l]);
+				for (int l = 0, length = InLayers.Length; l < length; l++)
+				{
+					outValue |= (1 << InLayers[l]);
+				}
 			}
-			return ~m;
+			return outValue;
+		}
+
+		////////////////////////////////////////////////
+		public static LayerMask ExclusiveMask(in int[] InLayers)
+		{
+			int outValue = 0;
+			if (InLayers.IsNotNull())
+			{
+				for (int l = 0, length = InLayers.Length; l < length; l++)
+				{
+					outValue |= (1 << InLayers[l]);
+				}
+				outValue = ~outValue;
+			}
+			return outValue;
 		}
 	}
+}
 
-	/////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+
+namespace Utils // Converters
+{
+	using System.Globalization;
+	using UnityEngine;
 
 	public static class Converters
 	{
@@ -1002,7 +1074,6 @@ namespace Utils
 		/// <summary> Return a stringified version of a vector2: Output: "X, Y" </summary>
 		public static string Vector2ToString(Vector2 InVector2) => $"{InVector2.x}, {InVector2.y}";
 
-
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Return a stringified version of a vector3: Output: "X, Y, Z" </summary>
 		public static string Vector3ToString(Vector3 InVector3) => $"{InVector3.x}, {InVector3.y}, {InVector3.z}";
@@ -1016,7 +1087,14 @@ namespace Utils
 		/// <summary>  Return a stringified version of a quaternion: Output: "X, Y, Z, W" </summary>
 		public static string QuaternionToString(Quaternion InQuaternion) => $"{InQuaternion.x}, {InQuaternion.y}, {InQuaternion.z}, {InQuaternion.w}";
 	}
-	/////////////////////////////////////////////////////////////////////////////
+}
+
+/////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+
+namespace Utils // GizmosHelper
+{
+	using UnityEngine;
 
 	public static class GizmosHelper
 	{
@@ -1042,17 +1120,17 @@ namespace Utils
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public static void DrawCollider(Collider collider, Color color)
+		public static void DrawCollider(in Collider InCollider, in Color InColor)
 		{
-			if (collider.IsNotNull())
+			if (InCollider.IsNotNull())
 			{
 				Color prevColor = Gizmos.color;
 				Matrix4x4 prevMatrix = Gizmos.matrix;
 				{
-					Gizmos.matrix = Matrix4x4.TRS(collider.bounds.center, collider.transform.rotation, collider.transform.lossyScale);
-					Gizmos.color = color;
+					Gizmos.matrix = Matrix4x4.TRS(InCollider.bounds.center, InCollider.transform.rotation, InCollider.transform.lossyScale);
+					Gizmos.color = InColor;
 
-					switch (collider)
+					switch (InCollider)
 					{
 						case BoxCollider box:
 						{
@@ -1066,7 +1144,7 @@ namespace Utils
 						}
 						case CapsuleCollider capsule:
 						{
-							DrawWireCapsule(Vector3.zero, collider.transform.rotation, capsule.radius, capsule.height, color);
+							DrawWireCapsule(Vector3.zero, InCollider.transform.rotation, capsule.radius, capsule.height, InColor);
 							break;
 						}
 					}
@@ -1078,19 +1156,19 @@ namespace Utils
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public static void DrawWireCapsule(Vector3 pos, Quaternion rot, float radius, float height, Color color)
+		public static void DrawWireCapsule(in Vector3 InPosition, in Quaternion InRotation, in float InRadius, in float InHeight, in Color InColor)
 		{
 #if UNITY_EDITOR
 			for (int i = 0, length = _baseVertices.Length; i < length; i++)
 			{
 				Vector3 vertex = _baseVertices[i];
-				vertex.x *= radius * 2f;
-				vertex.y *= height * 0.5f;
-				vertex.z *= radius * 2f;
+				vertex.x *= InRadius * 2f;
+				vertex.y *= InHeight * 0.5f;
+				vertex.z *= InRadius * 2f;
 				newVertices[i].Set(vertex);
 			}
 			BuiltInCapsuleMesh.vertices = newVertices;
-			Gizmos.DrawMesh(BuiltInCapsuleMesh, -1, pos, rot);
+			Gizmos.DrawMesh(BuiltInCapsuleMesh, -1, InPosition, InRotation);
 			/*
 			UnityEditor.Handles.color = color;
 

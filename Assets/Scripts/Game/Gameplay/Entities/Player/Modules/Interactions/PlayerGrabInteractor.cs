@@ -74,7 +74,7 @@ namespace Entities.Player.Components
 		//////////////////////////////////////////////////////////////////
 		public override void Interact(Interactable interactable)
 		{
-			if (Utils.CustomAssertions.IsValidCast(interactable, out GrabInteractable grabbable))
+			if (Utils.CustomAssertions.IsValidUnityObjectCast(interactable, out GrabInteractable grabbable))
 			{
 				interactable.OnInteraction(m_Owner);
 

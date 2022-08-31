@@ -24,11 +24,11 @@ public class FPSCamera : GameCameraBase
 	{
 		base.Awake();
 
-		enabled = Utils.CustomAssertions.IsTrue(this.TryGetConfiguration(out m_Configs));
+		enabled = Utils.CustomAssertions.IsTrue(this.TryGetConfiguration(out m_Configs), this);
 
 		m_Head = transform;
 		
-		if (Utils.CustomAssertions.IsTrue(transform.parent.IsNotNull()))
+		if (Utils.CustomAssertions.IsTrue(transform.parent.IsNotNull(), this))
 		{
 			m_Body = transform.parent;
 		}
@@ -38,7 +38,7 @@ public class FPSCamera : GameCameraBase
 	//////////////////////////////////////////////////////////////////////////
 	private void OnEnable()
 	{
-		if (Utils.CustomAssertions.IsNotNull(m_Configs))
+		if (Utils.CustomAssertions.IsNotNull(m_Configs, this))
 		{
 			InputHandler.RegisterAxis2DCallback(this, m_Configs.LookAction, OnLookActionUpdate, InTryReadRaw: false);
 		}
