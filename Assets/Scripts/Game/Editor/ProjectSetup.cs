@@ -88,4 +88,35 @@ namespace ProjectSetup
 			return OutPath.IsNotNull();
 		}
 	}
+
+	class INTERNAL
+	{
+		[MenuItem("APIExamples/GetDependencies")]
+		static void GetAllDependenciesForScenes()
+		{
+			var allScenes = AssetDatabase.FindAssets("t:Scene");
+			string[] allPaths = new string[allScenes.Length];
+			int curSceneIndex = 0;
+
+			foreach (var guid in allScenes)
+			{
+				var path = AssetDatabase.GUIDToAssetPath(guid);
+				allPaths[curSceneIndex] = path;
+				++curSceneIndex;
+			}
+
+			var dependencies = AssetDatabase.GetDependencies(allPaths);
+
+			System.Text.StringBuilder dependenciesString = new();
+			dependenciesString.AppendLine();
+
+			foreach (var curDependency in dependencies)
+			{
+				dependenciesString.Append(curDependency);
+				dependenciesString.AppendLine();
+			}
+
+			Debug.Log("All dependencies for Scenes in Project: " + dependenciesString);
+		}
+	}
 }

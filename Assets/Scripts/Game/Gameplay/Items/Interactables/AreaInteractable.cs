@@ -57,7 +57,7 @@ public class AreaInteractable : Interactable
 	{
 		if (m_Collider.IsNotNull())
 		{
-			Utils.GizmosHelper.DrawCollider(m_Collider, Color.white * 0.2f);
+			Utils.Editor.GizmosHelper.DrawCollider(m_Collider, Color.white * 0.2f);
 		}
 	}
 }

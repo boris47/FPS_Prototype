@@ -26,7 +26,7 @@ namespace Entities
 	public sealed class RelationsBoard : GlobalMonoBehaviourSingleton<RelationsBoard>
 	{
 		[SerializeField, ReadOnly]
-		private RelationsData m_RelationsData = null;
+		private				RelationsData								m_RelationsData							= null;
 
 
 		//////////////////////////////////////////////////////////////////////////

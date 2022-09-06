@@ -37,7 +37,25 @@ public class EditorWindowGuardian : ScriptableSingleton<EditorWindowGuardian>
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	private static bool TryRetrieveWindow(in WindowData InWindowData, out EditorWindowWithResource OutEditorWindow)
+	private static bool TryRetrieveWindowBeforeReload(in WindowData InWindowData, out EditorWindowWithResource OutEditorWindow)
+	{
+		static bool HasOpenInstances(System.Type windowType)
+		{
+			Object[] array = Resources.FindObjectsOfTypeAll(windowType);
+			return array != null && array.Length != 0;
+		}
+
+		OutEditorWindow = null;
+		System.Type windowType = System.Type.GetType($"{InWindowData.TypeName}, {InWindowData.AssemblyName}");
+		if (windowType.IsNotNull() && HasOpenInstances(windowType) && EditorWindow.GetWindow(windowType) is EditorWindowWithResource editorWindow)
+		{
+			OutEditorWindow = editorWindow;
+		}
+		return OutEditorWindow.IsNotNull();
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	private static bool TryRetrieveWindowAfterReload(in WindowData InWindowData, out EditorWindowWithResource OutEditorWindow)
 	{
 		OutEditorWindow = null;
 		System.Type windowType = System.Type.GetType($"{InWindowData.TypeName}, {InWindowData.AssemblyName}");
@@ -56,11 +74,11 @@ public class EditorWindowGuardian : ScriptableSingleton<EditorWindowGuardian>
 		{
 			WindowData windowData = instance.m_WindowsData[i];
 
-			// Save all the window data useful at re-create
-			windowData.SaveWindowData();
-
-			if (TryRetrieveWindow(windowData, out EditorWindowWithResource editorWindow))
+			if (TryRetrieveWindowBeforeReload(windowData, out EditorWindowWithResource editorWindow))
 			{
+				// Save all the window data useful at re-create
+				windowData.SaveWindowData();
+
 				editorWindow.SaveChanges();
 				editorWindow.Close();
 			}
@@ -103,7 +121,7 @@ public class EditorWindowGuardian : ScriptableSingleton<EditorWindowGuardian>
 			{
 				WindowData windowData = instance.m_WindowsData[i];
 
-				if (TryRetrieveWindow(windowData, out EditorWindowWithResource editorWindow))
+				if (windowData.IsValid() && TryRetrieveWindowAfterReload(windowData, out EditorWindowWithResource editorWindow))
 				{
 					windowData.ToWindow(editorWindow);
 
@@ -141,6 +159,18 @@ public class EditorWindowGuardian : ScriptableSingleton<EditorWindowGuardian>
 			System.Type editorType = WindowRef.GetType();
 			TypeName = editorType.FullName;
 			AssemblyName = editorType.Assembly.FullName;
+		}
+
+		public bool IsValid()
+		{
+			bool bResult = true;
+			{
+				bResult &= !string.IsNullOrEmpty(TypeName);
+				bResult &= !string.IsNullOrEmpty(AssemblyName);
+				bResult &= !string.IsNullOrEmpty(WindowTitle);
+				bResult &= !string.IsNullOrEmpty(ResourcePath);
+			}
+			return bResult;
 		}
 
 		public void SaveWindowData()

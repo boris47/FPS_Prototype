@@ -11,28 +11,35 @@ public abstract class EditorWindowWithResource : EditorWindow
 }
 
 
-public abstract class GuardedEditorWindow<T, D> : EditorWindowWithResource where T : EditorWindowWithResource where D : ScriptableObject
+public abstract class GuardedEditorWindow<T, ResourceType> : EditorWindowWithResource where T : EditorWindowWithResource where ResourceType : ScriptableObject
 {
-	private static		T								m_WindowInstance		= null;
-	private static		GuardedEditorWindow<T, D>		m_WindowInstanceGuarded	= null;
+	private static		T											m_WindowInstance		= null;
+	private static		GuardedEditorWindow<T, ResourceType>		m_WindowInstanceGuarded	= null;
 	
-	protected			D								m_Data					= null;
+	private				ResourceType								m_Data					= null;
+	protected			ResourceType								Data					=> m_Data;
 
 
 	//////////////////////////////////////////////////////////////////////////
 	public static void OpenWindow(in string InWindowTitle, in string InResourcePath, in Vector2? InMinSize = null, in Vector2? InMaxSize = null)
 	{
-		D OutData = null;
+		ResourceType OutData = null;
 		if (Utils.CustomAssertions.IsTrue(Utils.Paths.TryConvertFromResourcePathToAssetPath(InResourcePath, out string AssetPath)))
 		{
-			AssetDatabase.CreateAsset(OutData = ScriptableObject.CreateInstance<D>(), AssetPath);
+			OutData = AssetDatabase.LoadAssetAtPath<ResourceType>(AssetPath);
+			if (OutData == null)
+			{
+				System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(AssetPath));
+
+				AssetDatabase.CreateAsset(OutData = ScriptableObject.CreateInstance<ResourceType>(), AssetPath);
+			}
 		}
 		OpenWindow(InWindowTitle, InResourcePath, OutData, InMinSize, InMaxSize);
 	}
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public static void OpenWindow(string InWindowTitle, string InResourcePath, D InData, Vector2? InMinSize = null, Vector2? InMaxSize = null)
+	public static void OpenWindow(string InWindowTitle, string InResourcePath, ResourceType InData, Vector2? InMinSize = null, Vector2? InMaxSize = null)
 	{
 		if (Utils.CustomAssertions.IsNotNull(InData))
 		{
@@ -41,10 +48,10 @@ public abstract class GuardedEditorWindow<T, D> : EditorWindowWithResource where
 			m_WindowInstance.minSize = InMinSize ?? new Vector2(600f, 700f);
 			m_WindowInstance.maxSize = InMaxSize ?? new Vector2(600f, 900f);
 
-			m_WindowInstanceGuarded = m_WindowInstance as GuardedEditorWindow<T, D>;
+			m_WindowInstanceGuarded = m_WindowInstance as GuardedEditorWindow<T, ResourceType>;
 			m_WindowInstanceGuarded.m_ResourcePath = InResourcePath;
 			m_WindowInstanceGuarded.m_Data = InData;
-			
+			m_WindowInstanceGuarded.OnBeforeShow();
 			m_WindowInstance.Show();
 		}
 	}
@@ -53,6 +60,13 @@ public abstract class GuardedEditorWindow<T, D> : EditorWindowWithResource where
 	public sealed override void ReOpen(in string InWindowTitle, in string InResourcePath, in Vector2 InMinSize, in Vector2 InMaxSize)
 	{
 		OpenWindow(InWindowTitle, InResourcePath, InMinSize, InMaxSize);
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> Called after data load </summary>
+	protected virtual void OnBeforeShow()
+	{
+
 	}
 
 	//////////////////////////////////////////////////////////////////////////

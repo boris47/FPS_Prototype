@@ -5,14 +5,13 @@ namespace Entities
 {
 	public class RelationsData : ConfigurationBase, ISerializationCallbackReceiver
 	{
+		private static readonly int FactionCount = System.Enum.GetNames(typeof(EFactions)).Length;
 		public const string ResourcePath = "Entities/RelationsData";
 
-		private static readonly int				FactionCount			= System.Enum.GetNames(typeof(EFactions)).Length;
-
-		private		short[,]					m_InternalData			= new short[FactionCount, FactionCount];
+		private				short[,]			m_InternalData							= new short[FactionCount, FactionCount];
 
 #if UNITY_EDITOR
-		public		short[,]					EDITOR_ONLY_Data
+		public				short[,]			EDITOR_ONLY_Data
 		{
 			get => m_InternalData;
 			set => m_InternalData = value;

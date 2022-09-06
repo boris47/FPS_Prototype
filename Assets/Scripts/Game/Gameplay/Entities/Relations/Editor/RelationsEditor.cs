@@ -7,11 +7,11 @@ namespace Entities.AI
 {
 	internal sealed class RelationsEditor : GuardedEditorWindow<RelationsEditor, RelationsData>
 	{
-		private static	string[]						m_FactionNames			= System.Enum.GetNames(typeof(EFactions));
+		private static		string[]									m_FactionNames							= System.Enum.GetNames(typeof(EFactions));
 
-		private			List<Rect>						m_RowElements			= new List<Rect>();
-		private			List<Rect>						m_ListElements			= new List<Rect>();
-		private			List<List<Rect>>				m_SlidersElements		= new List<List<Rect>>();
+		private				List<Rect>									m_RowElements							= new List<Rect>();
+		private				List<Rect>									m_ListElements							= new List<Rect>();
+		private				List<List<Rect>>							m_SlidersElements						= new List<List<Rect>>();
 
 
 		//////////////////////////////////////////////////////////////////////////
@@ -20,7 +20,6 @@ namespace Entities.AI
 		{
 			OpenWindow("Relations Editor", RelationsData.ResourcePath, new Vector2(400f, 200f), new Vector2(1200, 900f));
 		}
-
 		
 		//////////////////////////////////////////////////////////////////////////
 		public static void OpenWindow(RelationsData InRelationsData)
@@ -135,12 +134,12 @@ namespace Entities.AI
 						if (k != i)
 						{
 							Rect rect = slidersForThisRow[k];
-							short currentValue = m_Data.EDITOR_ONLY_Data[i, k];
+							short currentValue = Data.EDITOR_ONLY_Data[i, k];
 							short newValue = (short)GUI.HorizontalSlider(rect, currentValue, short.MinValue, short.MaxValue);
 							if (currentValue != newValue)
 							{
-								EditorUtility.SetDirty(m_Data);
-								m_Data.EDITOR_ONLY_Data[i, k] = newValue;
+								EditorUtility.SetDirty(Data);
+								Data.EDITOR_ONLY_Data[i, k] = newValue;
 							}
 						}
 					}
@@ -153,7 +152,7 @@ namespace Entities.AI
 		//////////////////////////////////////////////////////////////////////////
 
 		[CustomEditor(typeof(RelationsData))]
-		internal class BehaviourTreeCustomEditor : Editor
+		internal class RelationsDataCustomEditor : Editor
 		{
 			public override void OnInspectorGUI()
 			{

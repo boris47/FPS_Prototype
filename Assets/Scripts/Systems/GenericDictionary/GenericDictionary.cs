@@ -422,7 +422,7 @@ public class UDictionary<TKey, TValue> : UDictionary, IDictionary<TKey, TValue>
 
 	public void Add(TKey key, TValue value)
 	{
-		if (!keys.AddUnique(key))
+		if (keys.AddUnique(key))
 		{
 			values.Add(value);
 		}

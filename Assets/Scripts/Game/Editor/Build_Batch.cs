@@ -1,6 +1,7 @@
 // C# example.
 using System.Text;
 using System.Linq;
+using UnityEngine;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 
@@ -18,6 +19,18 @@ public class Build_Batch
 	public static void ClearUnusedAssets()
 	{
 		UnityEngine.Resources.UnloadUnusedAssets();
+	}
+
+	///////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////
+	[MenuItem(MENU_LABEL + "/Clear Scriptable Singletons", priority = 1)]
+	public static void ClearScriptableSingletons()
+	{
+		Object[] array = Resources.FindObjectsOfTypeAll<ScriptableSingleton<EditorWindowGuardian>>();
+		foreach (var item in array)
+		{
+			Object.DestroyImmediate(item);
+		}
 	}
 
 

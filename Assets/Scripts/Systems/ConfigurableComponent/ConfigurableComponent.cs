@@ -113,6 +113,7 @@ public static class ConfigurableComponent_Extension
 									ConfigurationBase existingConfig = Resources.Load<ConfigurationBase>(ResourcePath);
 									if (existingConfig == null || existingConfig.GetType() != ConfigType)
 									{
+										Debug.LogWarning($"Recreating configuration {ConfigType} as {AssetPath} because not existing or of different type");
 										Resources.UnloadAsset(existingConfig);
 										AssetDatabase.DeleteAsset(AssetPath);
 									}

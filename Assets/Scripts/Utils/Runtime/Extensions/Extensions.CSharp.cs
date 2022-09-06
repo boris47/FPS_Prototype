@@ -282,18 +282,20 @@ public static class Extensions_CSharp
 
 		using (IEnumerator<TSource> sourceIterator = ThisEnumerable.GetEnumerator())
 		{
-			Utils.CustomAssertions.IsTrue(sourceIterator.MoveNext());
-			InComparer ??= Comparer<TKey>.Default;
 			TSource max = sourceIterator.Current;
-			TKey maxKey = InSelector(max);
-			while (sourceIterator.MoveNext())
+			if (sourceIterator.MoveNext())
 			{
-				TSource candidate = sourceIterator.Current;
-				TKey candidateProjected = InSelector(candidate);
-				if (InComparer.Compare(candidateProjected, maxKey) > 0)
+				InComparer ??= Comparer<TKey>.Default;
+				TKey maxKey = InSelector(max);
+				while (sourceIterator.MoveNext())
 				{
-					max = candidate;
-					maxKey = candidateProjected;
+					TSource candidate = sourceIterator.Current;
+					TKey candidateProjected = InSelector(candidate);
+					if (InComparer.Compare(candidateProjected, maxKey) > 0)
+					{
+						max = candidate;
+						maxKey = candidateProjected;
+					}
 				}
 			}
 			return max;
@@ -346,15 +348,34 @@ public static class Extensions_CSharp
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Ensure the the inserting element is only present one tine in the list </summary>
-	public static bool AddUnique<T>(this List<T> ThisList, T InElement, in System.Predicate<T> InPredicate = null)
+	/// <returns> Return true if item has been added otherwise false </returns>	
+	public static bool AddUnique<T>(this IList<T> ThisList, T InElement, in System.Func<T, bool> InPredicate = null)
 	{
-		System.Predicate<T> finalPredicate = InPredicate ?? delegate (T e) { return e.Equals(InElement); };
-		bool bAlreadyExists = ThisList.Exists(finalPredicate);
-		if (!bAlreadyExists)
+		System.Func<T, bool> finalPredicate = InPredicate ?? delegate (T e) { return e.Equals(InElement); };
+		bool bCanBeAdded = !ThisList.Any(finalPredicate);
+		if (!bCanBeAdded)
 		{
 			ThisList.Add(InElement);
 		}
-		return bAlreadyExists;
+		return bCanBeAdded;
+	}
+
+	public static bool TryGetByIndex<T, K>(this List<T> ThisList, in uint InIndex, out K OutValue) where K : T
+	{
+		return TryGetByIndex(ThisList, (int)InIndex, out OutValue);
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Syntactic sugar for FindIndex and index check </summary>
+	public static bool TryGetByIndex<T, K>(this List<T> ThisList, in int InIndex, out K OutValue) where K : T
+	{
+		if (ThisList.IsValidIndex(InIndex))
+		{
+			OutValue = (K)ThisList[InIndex];
+			return true;
+		}
+		OutValue = default;
+		return false;
 	}
 
 
@@ -384,6 +405,14 @@ public static class Extensions_CSharp
 	public static K AddRef<T, K>(this IList<T> ThisIList, in K InValue) where K : T
 	{
 		ThisIList.Add(InValue);
+		return InValue;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Add the value returning the same value </summary>
+	public static K AddUniqueRef<T, K>(this IList<T> ThisIList, in K InValue) where K : T
+	{
+		ThisIList.AddUnique(InValue);
 		return InValue;
 	}
 

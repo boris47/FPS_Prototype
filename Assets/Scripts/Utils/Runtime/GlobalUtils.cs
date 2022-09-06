@@ -73,7 +73,10 @@ namespace Utils // CustomAssertions
 			UnityEngine.Debug.LogError(finalMessage, InUnityObjectContext); ;
 
 #if UNITY_EDITOR
-			UnityEditor.EditorApplication.isPaused = true;
+			if (UnityEditor.EditorApplication.isPlaying)
+			{
+				UnityEditor.EditorApplication.isPaused = true;
+			}
 #endif
 			if (System.Diagnostics.Debugger.IsAttached)
 			{
@@ -1091,10 +1094,12 @@ namespace Utils // Converters
 
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
+#if UNITY_EDITOR
 
-namespace Utils // GizmosHelper
+namespace Utils.Editor // Editor Utils
 {
 	using UnityEngine;
+	using UnityEditor;
 
 	public static class GizmosHelper
 	{
@@ -1158,7 +1163,6 @@ namespace Utils // GizmosHelper
 		//////////////////////////////////////////////////////////////////////////
 		public static void DrawWireCapsule(in Vector3 InPosition, in Quaternion InRotation, in float InRadius, in float InHeight, in Color InColor)
 		{
-#if UNITY_EDITOR
 			for (int i = 0, length = _baseVertices.Length; i < length; i++)
 			{
 				Vector3 vertex = _baseVertices[i];
@@ -1192,8 +1196,37 @@ namespace Utils // GizmosHelper
 				UnityEditor.Handles.DrawWireDisc(Vector3.down * pointOffset, Vector3.up, radius);
 			}
 			*/
-#endif
 		}
 	}
 
+	public class MarkAsDirty : System.IDisposable
+	{
+		private bool m_Disposed = false;
+		private UnityEngine.Object m_UnityObject;
+
+		public MarkAsDirty(UnityEngine.Object InUnityObject)
+		{
+			m_Disposed = false;
+			if (InUnityObject.IsNotNull())
+			{
+				EditorUtility.SetDirty(InUnityObject);
+				m_UnityObject = InUnityObject;
+			}
+		}
+
+		public void Dispose()
+		{
+			if (m_Disposed)
+			{
+				return;
+			}
+			m_Disposed = true;
+
+			if (m_UnityObject.IsNotNull())
+			{
+				AssetDatabase.SaveAssetIfDirty(m_UnityObject);
+			}
+		}
+	}
 }
+#endif
