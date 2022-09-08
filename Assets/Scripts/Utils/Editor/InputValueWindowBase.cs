@@ -12,6 +12,11 @@ namespace EditorUtils
 	{
 		public static		InputValueWindowBase<T>						s_Window								= null;
 
+		protected			T											m_Value									= default;
+
+		protected			System.Func<T, bool>						m_TryAcceptValue						= null;
+		protected			System.Action								m_InOnCancel							= delegate { };
+
 		//////////////////////////////////////////////////////////////////////////
 		protected static WindowType OpenWindow<WindowType>(in string InTitle) where WindowType : InputValueWindowBase<T>, new()
 		{
@@ -41,10 +46,16 @@ namespace EditorUtils
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Validate value and accept if valid </summary>
-		protected abstract bool TryAcceptValue();
+		private bool TryAcceptValue()
+		{
+			return m_TryAcceptValue?.Invoke(m_Value) ?? true;
+		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected abstract void OnCancel();
+		private void OnCancel()
+		{
+			m_InOnCancel();
+		}
 
 
 		//////////////////////////////////////////////////////////////////////////
@@ -69,7 +80,6 @@ namespace EditorUtils
 					{
 						OnCancel();
 						s_Window.Close();
-						return;
 					}
 				}
 				GUILayout.EndHorizontal();

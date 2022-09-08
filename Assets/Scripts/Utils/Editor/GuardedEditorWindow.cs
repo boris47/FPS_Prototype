@@ -70,6 +70,16 @@ public abstract class GuardedEditorWindow<T, ResourceType> : EditorWindowWithRes
 	}
 
 	//////////////////////////////////////////////////////////////////////////
+	protected void RecreateData()
+	{
+		if (Utils.CustomAssertions.IsTrue(Utils.Paths.TryConvertFromResourcePathToAssetPath(m_ResourcePath, out string AssetPath)))
+		{
+			AssetDatabase.DeleteAsset(AssetPath);
+			AssetDatabase.CreateAsset(m_Data = ScriptableObject.CreateInstance<ResourceType>(), AssetPath);
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
 	protected virtual void OnEnable()
 	{
 		EditorWindowGuardian.instance.PushWindow(this);

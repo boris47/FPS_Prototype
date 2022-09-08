@@ -5,25 +5,20 @@ namespace EditorUtils
 {
 	public static partial class InputValueWindow
 	{
-		public static void OpenStringInput(System.Action<string> InOnAccepted, System.Action InOnCancel)
+		public static void OpenStringInput(System.Func<string, bool> InTryAcceptValue, System.Action InOnCancel)
 		{
-			InputValueWindowString.OpenWindow(InOnAccepted, InOnCancel);
+			InputValueWindowString.OpenWindow(InTryAcceptValue, InOnCancel);
 		}
 	}
 
 	internal class InputValueWindowString : InputValueWindowBase<string>
 	{
-		private				string										m_Value									= string.Empty;
-
-		private				System.Action<string>						m_InOnAccepted							= delegate { };
-		private				System.Action								m_InOnCancel							= delegate { };
-
-		public static void OpenWindow(System.Action<string> InOnAccepted, System.Action InOnCancel)
+		public static void OpenWindow(System.Func<string, bool> InTryAcceptValue, System.Action InOnCancel)
 		{
 			InputValueWindowString window = OpenWindow<InputValueWindowString>("String input window");
 			if (window)
 			{
-				window.m_InOnAccepted = InOnAccepted ?? window.m_InOnAccepted;
+				window.m_TryAcceptValue = InTryAcceptValue;
 				window.m_InOnCancel = InOnCancel ?? window.m_InOnCancel;
 			}
 		}
@@ -42,19 +37,6 @@ namespace EditorUtils
 			base.OnDisable();
 
 			EditorGUIUtility.editingTextField = false;
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		protected override void OnCancel()
-		{
-			
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		protected override bool TryAcceptValue()
-		{
-			m_InOnAccepted(m_Value);
-			return true;
 		}
 
 		//////////////////////////////////////////////////////////////////////////

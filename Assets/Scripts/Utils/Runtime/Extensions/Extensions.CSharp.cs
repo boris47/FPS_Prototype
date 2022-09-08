@@ -91,13 +91,13 @@ public static class Extensions_CSharp
 
 	#endregion // C# STRING
 
-	/////////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////
 
+	/////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
 	#region FLOAT
-	/// <summary>
-	/// Is floatA equal to zero? Takes floating point inaccuracy into account, by using Epsilon.
-	/// </summary>
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Is floatA equal to zero? Takes floating point inaccuracy into account, by using Epsilon. </summary>
 	/// <param name="ThisFloat"></param>
 	/// <returns></returns>
 	public static bool IsEqualToZero(this float ThisFloat)
@@ -105,9 +105,8 @@ public static class Extensions_CSharp
 		return System.Math.Abs(ThisFloat) < float.Epsilon;
 	}
 
-	/// <summary>
-	/// Is floatA not equal to zero? Takes floating point inaccuracy into account, by using Epsilon.
-	/// </summary>
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Is floatA not equal to zero? Takes floating point inaccuracy into account, by using Epsilon. </summary>
 	/// <param name="ThisFloat"></param>
 	/// <returns></returns>
 	public static bool NotEqualToZero(this float ThisFloat)
@@ -115,9 +114,8 @@ public static class Extensions_CSharp
 		return System.Math.Abs(ThisFloat) > float.Epsilon;
 	}
 
-	/// <summary>
-	/// Wraps a float between -180 and 180.
-	/// </summary>
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Wraps a float between -180 and 180. </summary>
 	/// <param name="ThisFloat">The float to wrap.</param>
 	/// <returns>A value between -180 and 180.</returns>
 	public static float Wrap180(this float ThisFloat)
@@ -134,9 +132,8 @@ public static class Extensions_CSharp
 		return ThisFloat;
 	}
 
-	/// <summary>
-	/// Wraps a float between 0 and 1.
-	/// </summary>
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Wraps a float between 0 and 1. </summary>
 	/// <param name="ThisFloat">The float to wrap.</param>
 	/// <returns>A value between 0 and 1.</returns>
 	public static float Wrap1(this float ThisFloat)
@@ -149,16 +146,25 @@ public static class Extensions_CSharp
 		return ThisFloat;
 	}
 
-	/// <summary>
-	/// Gets the fraction portion of a float.
-	/// </summary>
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Gets the fraction portion of a float. </summary>
 	/// <param name="ThisFloat">The float.</param>
 	/// <returns>The fraction portion of a float.</returns>
 	public static float GetFraction(this float ThisFloat)
 	{
 		return ThisFloat - (float)System.Math.Floor(ThisFloat);
 	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	public static void Swap(this ref float ThisFloat, ref float InOtherFloat)
+	{
+		float tmp = ThisFloat;
+		InOtherFloat = ThisFloat;
+		ThisFloat = tmp;
+	}
+
 	#endregion
+
 
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
@@ -255,18 +261,20 @@ public static class Extensions_CSharp
 
 		using (IEnumerator<TSource> sourceIterator = ThisEnumerable.GetEnumerator())
 		{
-			sourceIterator.MoveNext();
-			InComparer ??= Comparer<TKey>.Default;
 			TSource min = sourceIterator.Current;
-			TKey minKey = InSelector(min);
-			while (sourceIterator.MoveNext())
+			if (sourceIterator.MoveNext())
 			{
-				TSource candidate = sourceIterator.Current;
-				TKey candidateProjected = InSelector(candidate);
-				if (InComparer.Compare(candidateProjected, minKey) < 0)
+				InComparer ??= Comparer<TKey>.Default;
+				TKey minKey = InSelector(min);
+				while (sourceIterator.MoveNext())
 				{
-					min = candidate;
-					minKey = candidateProjected;
+					TSource candidate = sourceIterator.Current;
+					TKey candidateProjected = InSelector(candidate);
+					if (InComparer.Compare(candidateProjected, minKey) < 0)
+					{
+						min = candidate;
+						minKey = candidateProjected;
+					}
 				}
 			}
 			return min;
@@ -282,23 +290,23 @@ public static class Extensions_CSharp
 
 		using (IEnumerator<TSource> sourceIterator = ThisEnumerable.GetEnumerator())
 		{
-			TSource max = sourceIterator.Current;
+			TSource min = sourceIterator.Current;
 			if (sourceIterator.MoveNext())
 			{
 				InComparer ??= Comparer<TKey>.Default;
-				TKey maxKey = InSelector(max);
+				TKey minKey = InSelector(min);
 				while (sourceIterator.MoveNext())
 				{
 					TSource candidate = sourceIterator.Current;
 					TKey candidateProjected = InSelector(candidate);
-					if (InComparer.Compare(candidateProjected, maxKey) > 0)
+					if (InComparer.Compare(candidateProjected, minKey) > 0)
 					{
-						max = candidate;
-						maxKey = candidateProjected;
+						min = candidate;
+						minKey = candidateProjected;
 					}
 				}
 			}
-			return max;
+			return min;
 		}
 	}
 
@@ -340,26 +348,30 @@ public static class Extensions_CSharp
 	/// <summary> Resize the list with the new size </summary>
 	public static void Resize<T>(this List<T> ThisList, in uint InNewSize)
 	{
-		if (InNewSize > ThisList.Capacity)
+		Resize(ThisList, (int)InNewSize);
+	}
+	
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Resize the list with the new size </summary>
+	public static void Resize<T>(this List<T> ThisList, in int InNewSize)
+	{
+		int cur = ThisList.Count;
+		if (InNewSize < cur)
 		{
-			ThisList.Capacity = (int)InNewSize;
+			ThisList.RemoveRange(InNewSize, cur - InNewSize);
+		}
+		else if (InNewSize > cur)
+		{
+			if (InNewSize > ThisList.Capacity)//this bit is purely an optimisation, to avoid multiple automatic capacity changes.
+			{
+				ThisList.Capacity = InNewSize;
+			}
+
+			ThisList.AddRange(Enumerable.Repeat(default(T), InNewSize - cur));
 		}
 	}
 
 	/////////////////////////////////////////////////////////////////////////////
-	/// <summary> Ensure the the inserting element is only present one tine in the list </summary>
-	/// <returns> Return true if item has been added otherwise false </returns>	
-	public static bool AddUnique<T>(this IList<T> ThisList, T InElement, in System.Func<T, bool> InPredicate = null)
-	{
-		System.Func<T, bool> finalPredicate = InPredicate ?? delegate (T e) { return e.Equals(InElement); };
-		bool bCanBeAdded = !ThisList.Any(finalPredicate);
-		if (!bCanBeAdded)
-		{
-			ThisList.Add(InElement);
-		}
-		return bCanBeAdded;
-	}
-
 	public static bool TryGetByIndex<T, K>(this List<T> ThisList, in uint InIndex, out K OutValue) where K : T
 	{
 		return TryGetByIndex(ThisList, (int)InIndex, out OutValue);
@@ -377,7 +389,6 @@ public static class Extensions_CSharp
 		OutValue = default;
 		return false;
 	}
-
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Syntactic sugar for FindIndex and index check </summary>
@@ -401,6 +412,21 @@ public static class Extensions_CSharp
 	#region C# ILIST
 
 	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Ensure the the inserting element is only present one tine in the list </summary>
+	/// <returns> Return true if item has been added otherwise false </returns>	
+	public static bool AddUnique<T>(this IList<T> ThisList, T InElement, in System.Func<T, bool> InPredicate = null)
+	{
+		System.Func<T, bool> finalPredicate = InPredicate ?? delegate (T e) { return e.Equals(InElement); };
+		bool bCanBeAdded = !ThisList.Any(finalPredicate);
+		if (!bCanBeAdded)
+		{
+			ThisList.Add(InElement);
+		}
+		return bCanBeAdded;
+	}
+
+
+	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Add the value returning the same value </summary>
 	public static K AddRef<T, K>(this IList<T> ThisIList, in K InValue) where K : T
 	{
@@ -415,7 +441,6 @@ public static class Extensions_CSharp
 		ThisIList.AddUnique(InValue);
 		return InValue;
 	}
-
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Alias for collection[index] </summary>
@@ -474,20 +499,6 @@ public static class Extensions_CSharp
 	{
 		OutKey = ThisTuple.Key;
 		OutValue = ThisTuple.Value;
-	}
-
-	#endregion
-
-
-	/////////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////
-	#region Single (Float)
-
-	public static void Swap(this ref float ThisFloat, ref float InOtherFloat)
-	{
-		float tmp = ThisFloat;
-		InOtherFloat = ThisFloat;
-		ThisFloat = tmp;
 	}
 
 	#endregion
