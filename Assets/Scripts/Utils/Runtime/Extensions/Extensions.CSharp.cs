@@ -418,7 +418,7 @@ public static class Extensions_CSharp
 	{
 		System.Func<T, bool> finalPredicate = InPredicate ?? delegate (T e) { return e.Equals(InElement); };
 		bool bCanBeAdded = !ThisList.Any(finalPredicate);
-		if (!bCanBeAdded)
+		if (bCanBeAdded)
 		{
 			ThisList.Add(InElement);
 		}
