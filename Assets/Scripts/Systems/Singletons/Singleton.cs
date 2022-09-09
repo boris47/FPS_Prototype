@@ -71,9 +71,8 @@ public class SingletonInitializer
 
 #if UNITY_EDITOR
 	[UnityEditor.InitializeOnLoadMethod]
-	private static void Editor_InitializeOnLoadMethodd()
+	private static void Editor_InitializeOnLoadMethod()
 	{
-
 		SerializedMonoBehaviourSingletonTypes.Instance.AddRange(nameof(ISubsystemRegistration), UnityEditor.TypeCache.GetTypesDerivedFrom<ISubsystemRegistration>().Where(t => !t.IsAbstract).ToArray());
 		SerializedMonoBehaviourSingletonTypes.Instance.AddRange(nameof(IAfterAssembliesLoaded), UnityEditor.TypeCache.GetTypesDerivedFrom<IAfterAssembliesLoaded>().Where(t => !t.IsAbstract).ToArray());
 		SerializedMonoBehaviourSingletonTypes.Instance.AddRange(nameof(IBeforeSplashScreen), UnityEditor.TypeCache.GetTypesDerivedFrom<IBeforeSplashScreen>().Where(t => !t.IsAbstract).ToArray());
