@@ -12,4 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9985019380771404eb2994f55756aea0, type: 3}
   m_Name: SerializedMonoBehaviourSingletonTypes
   m_EditorClassIdentifier: 
-  m_Serializable: []
+  m_Serializable:
+  - Identifier: ISubsystemRegistration
+    Types: []
+  - Identifier: IAfterAssembliesLoaded
+    Types: []
+  - Identifier: IBeforeSplashScreen
+    Types: []
+  - Identifier: IBeforeSceneLoad
+    Types: []
+  - Identifier: IAfterSceneLoad
+    Types: []
+  - Identifier: IEditorInitializeOnLoadMethod
+    Types: []
