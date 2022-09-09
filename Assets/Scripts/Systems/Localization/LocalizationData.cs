@@ -7,17 +7,17 @@ namespace Localization
 {
 	public sealed class LocalizationData : ConfigurationBase, ISerializationCallbackReceiver
 	{
-		public const string ResourcePath = "Systems/Localization/LocalizationData";
+		public const		string										ResourcePath							= "Systems/Localization/LocalizationData";
+		public const		SystemLanguage								DefaultSystemLanguage					= SystemLanguage.English;
 
 		[SerializeField]
-		private				List<SystemLanguage>						m_SupportedLanguages					= new List<SystemLanguage>();
-
+		private				List<SystemLanguage>						m_SupportedLanguages					= new List<SystemLanguage>() { DefaultSystemLanguage };
 
 		[SerializeField]
-		private				List<LocalizationTable>						m_Tables								= new List<LocalizationTable>();
-
+		private				List<LocalizationTable>						m_Tables								= new List<LocalizationTable>() { new LocalizationTable(DefaultSystemLanguage) };
 
 		public				SystemLanguage[]							AvailableLanguages						=> m_SupportedLanguages.ToArray();
+
 
 		//////////////////////////////////////////////////////////////////////////
 		public bool TryGetValue(SystemLanguage InLanguage, out LocalizationTable OutValue)
@@ -31,7 +31,7 @@ namespace Localization
 		// Save
 		void ISerializationCallbackReceiver.OnBeforeSerialize()
 		{
-		
+			
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -46,8 +46,8 @@ namespace Localization
 		//////////////////////////////////////////////////////////////////////////
 #if UNITY_EDITOR
 
-		/*[System.NonSerialized]*/[SerializeField]
-		private List<string> m_EDITOR_Keys = new List<string>();
+		[SerializeField]
+		private List<string> m_EDITOR_KeyNames = new List<string>();
 
 		public static class Editor
 		{
@@ -56,37 +56,53 @@ namespace Localization
 			{
 				using (new Utils.Editor.MarkAsDirty(InLocalizationData))
 				{
-					foreach (SystemLanguage systemLanguage in InLocalizationData.m_SupportedLanguages)
+					if (InLocalizationData.m_SupportedLanguages.Count == 0 || InLocalizationData.m_Tables.Count == 0)
 					{
-						// Ensure every language has a paired table
-						if (!InLocalizationData.m_Tables.Exists(t => t.Language == systemLanguage))
-						{
-							InLocalizationData.m_Tables.Add(new LocalizationTable(systemLanguage));
-						}
+						InLocalizationData.m_SupportedLanguages.Clear();
+						InLocalizationData.m_SupportedLanguages.Add(DefaultSystemLanguage);
+						InLocalizationData.m_Tables.Clear();
+						InLocalizationData.m_Tables.Add(new LocalizationTable(DefaultSystemLanguage));
 					}
-		
-					// Removed orphan tables
-					for (int i = InLocalizationData.m_Tables.Count - 1; i >= 0; i--)
+					LocalizationKey.Editor.Reset();
+					foreach (string keyName in InLocalizationData.m_EDITOR_KeyNames)
 					{
-						LocalizationTable localizationTable = InLocalizationData.m_Tables[i];
-						if (!InLocalizationData.m_SupportedLanguages.Contains(localizationTable.Language))
-						{
-							InLocalizationData.m_Tables.RemoveAt(i);
-						}
-					}
-
-					// Sync keys list
-					InLocalizationData.m_EDITOR_Keys.Clear();
-					if (InLocalizationData.m_Tables.Any())
-					{
-						var table = InLocalizationData.m_Tables.First();
-						int count = LocalizationTable.Editor.GetItemsCount(table);
-						for (int i = 0; i < count; i++)
-						{
-							InLocalizationData.m_EDITOR_Keys.Add(LocalizationTable.Editor.GetKeyAt(table, i));
-						}
+						LocalizationKey.Editor.Create(keyName);
 					}
 				}
+
+			//	using (new Utils.Editor.MarkAsDirty(InLocalizationData))
+			//	{
+			//		foreach (SystemLanguage systemLanguage in InLocalizationData.m_SupportedLanguages)
+			//		{
+			//			// Ensure every language has a paired table
+			//			if (!InLocalizationData.m_Tables.Exists(t => t.Language == systemLanguage))
+			//			{
+			//				InLocalizationData.m_Tables.Add(new LocalizationTable(systemLanguage));
+			//			}
+			//		}
+			//
+			//		// Removed orphan tables
+			//		for (int i = InLocalizationData.m_Tables.Count - 1; i >= 0; i--)
+			//		{
+			//			LocalizationTable localizationTable = InLocalizationData.m_Tables[i];
+			//			if (!InLocalizationData.m_SupportedLanguages.Contains(localizationTable.Language))
+			//			{
+			//				InLocalizationData.m_Tables.RemoveAt(i);
+			//			}
+			//		}
+			//
+			//		// Sync keys list
+			//		InLocalizationData.m_EDITOR_Keys.Clear();
+			//		if (InLocalizationData.m_Tables.Any())
+			//		{
+			//			var table = InLocalizationData.m_Tables.First();
+			//			int count = LocalizationTable.Editor.GetItemsCount(table);
+			//			for (int i = 0; i < count; i++)
+			//			{
+			//				InLocalizationData.m_EDITOR_Keys.Add(LocalizationTable.Editor.GetKeyAt(table, i));
+			//			}
+			//		}
+			//	}
 			}
 
 			//////////////////////////////////////////////////////////////////////////
@@ -99,7 +115,11 @@ namespace Localization
 						InLocalizationData.m_SupportedLanguages.Add(InLanguage);
 						LocalizationTable table = new LocalizationTable(InLanguage);
 						{
-							InLocalizationData.m_EDITOR_Keys.ForEach(key => LocalizationTable.Editor.AddKeyOrGet(table, key));
+							foreach (string keyName in InLocalizationData.m_EDITOR_KeyNames)
+							{
+								// Emplace values foreach available key
+								LocalizationTable.Editor.AddOrGetValue(table, keyName);
+							}
 						}
 						InLocalizationData.m_Tables.Add(table);
 					}
@@ -123,57 +143,51 @@ namespace Localization
 						{
 							InLocalizationData.m_Tables.RemoveAt(index);
 						}
+						else
+						{
+							Debug.LogError($"Cannot find a table associated with language {InLanguage}");
+						}
+					}
+					else
+					{
+						Debug.LogError($"Trying to remove language {InLanguage}, but it cannnot be found in supported languages");
 					}
 				}
 			}
 
 			//////////////////////////////////////////////////////////////////////////
-			public static void AddKey(in LocalizationData InLocalizationData, in string InKey)
+			public static void AddKey(in LocalizationData InLocalizationData, in LocalizationKey InKey)
 			{
 				using (new Utils.Editor.MarkAsDirty(InLocalizationData))
 				{
 					foreach (LocalizationTable localizationTable in InLocalizationData.m_Tables)
 					{
-						LocalizationTable.Editor.AddKeyOrGet(localizationTable, InKey);
+						LocalizationTable.Editor.AddOrGetValue(localizationTable, InKey);
 					}
-					InLocalizationData.m_EDITOR_Keys.Add(InKey);
+					InLocalizationData.m_EDITOR_KeyNames.Add(InKey);
 				}
 			}
 
 			//////////////////////////////////////////////////////////////////////////
-			public static bool KeyExists(in LocalizationData InLocalizationData, in string InKey)
-			{
-				return InLocalizationData.m_EDITOR_Keys.Contains(InKey);
-			}
+			public static bool KeyExists(in LocalizationData InLocalizationData, in LocalizationKey InKey) => InLocalizationData.m_EDITOR_KeyNames.Contains(InKey);
+			
+			//////////////////////////////////////////////////////////////////////////
+			public static bool KeyExists(string InKeyName) => LocalizationKey.Editor.Contains(InKeyName);
 
 			//////////////////////////////////////////////////////////////////////////
-			public static int GetKeysCount(in LocalizationData InLocalizationData)
-			{
-				return InLocalizationData.m_EDITOR_Keys.Count;
-			}
+			public static bool KeyExists(uint InKeyId) => LocalizationKey.Editor.Contains(InKeyId);
+			
 
 			//////////////////////////////////////////////////////////////////////////
-			public static bool TryGetKeyAt(in LocalizationData InLocalizationData, in int InIndex, out string OutValue)
-			{
-				return InLocalizationData.m_EDITOR_Keys.TryGetByIndex(InIndex, out OutValue);
-			}
-
-			//////////////////////////////////////////////////////////////////////////
-			public static bool TryGetTableAt(in LocalizationData InLocalizationData, in int InIndex, out LocalizationTable OutLocalizationTable)
-			{
-				return InLocalizationData.m_Tables.TryGetByIndex(InIndex, out OutLocalizationTable);
-			}
-
-			//////////////////////////////////////////////////////////////////////////
-			public static void RemoveKey(in LocalizationData InLocalizationData, in string InKey)
+			public static void RemoveKey(in LocalizationData InLocalizationData, in LocalizationKey InKey)
 			{
 				using (new Utils.Editor.MarkAsDirty(InLocalizationData))
 				{
 					foreach (LocalizationTable localizationTable in InLocalizationData.m_Tables)
 					{
-						LocalizationTable.Editor.RemoveKey(localizationTable, InKey);
+						LocalizationTable.Editor.RemoveValue(localizationTable, InKey);
 					}
-					InLocalizationData.m_EDITOR_Keys.Remove(InKey);
+					InLocalizationData.m_EDITOR_KeyNames.Remove(InKey);
 				}
 			}
 		}

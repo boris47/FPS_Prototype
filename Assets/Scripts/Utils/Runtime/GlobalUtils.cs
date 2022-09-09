@@ -67,7 +67,7 @@ namespace Utils // CustomAssertions
 			string finalMessage = assertionTypeMessage;
 			if (!string.IsNullOrEmpty(InCustomMessage))
 			{
-				finalMessage += $"-> {InCustomMessage}";
+				finalMessage += $"-> {(string)InCustomMessage}";
 			}
 
 			UnityEngine.Debug.LogError(finalMessage, InUnityObjectContext); ;

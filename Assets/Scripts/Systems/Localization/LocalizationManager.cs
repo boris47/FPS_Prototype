@@ -3,10 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-/// <summary>
-/// TODO: Salvare le key come scriptable objects ed usare un componente per gestire la localizzazione
-/// nel custom editor di questo componente mostrare le key dome una dropdown
-/// </summary>
 namespace Localization
 {
 	[Configurable(nameof(m_LocalizationData), LocalizationData.ResourcePath)]
@@ -14,14 +10,14 @@ namespace Localization
 	{
 		private const string k_LANGUAGE_KEY = "UserLangauge";
 
-		[SerializeField]
-		private				SystemLanguage								m_CurrentSystemLanguage					= SystemLanguage.Unknown;
+		[SerializeField, ReadOnly]
+		private				SystemLanguage								m_CurrentSystemLanguage					= LocalizationData.DefaultSystemLanguage;
 
 		[SerializeField, ReadOnly]
 		private				LocalizationData							m_LocalizationData						= null;
 
 
-		public event		System.Action								OnLanguageChanged						= delegate { };
+		public event		System.Action<SystemLanguage>				OnLanguageChanged						= delegate { };
 
 		public				SystemLanguage								CurrentSystemLanguage					=> m_CurrentSystemLanguage;
 
@@ -32,8 +28,11 @@ namespace Localization
 		{
 			base.OnInitialize();
 
+			Utils.CustomAssertions.IsTrue(this.TryGetConfiguration(out m_LocalizationData));
+
 			if (!PlayerPrefs.HasKey(k_LANGUAGE_KEY))
 			{
+
 				SystemLanguage[] availableLanguages = m_LocalizationData.AvailableLanguages;
 				if (availableLanguages.Contains(Application.systemLanguage))
 				{
@@ -41,17 +40,14 @@ namespace Localization
 				}
 				else
 				{
-					if (availableLanguages.TryGetByIndex(0, out SystemLanguage firstAvailable))
-					{
-						PlayerPrefs.SetString(k_LANGUAGE_KEY, firstAvailable.ToString());
-					}
+					PlayerPrefs.SetString(k_LANGUAGE_KEY, LocalizationData.DefaultSystemLanguage.ToString());
 				}
 			}
 
 			if (PlayerPrefs.HasKey(k_LANGUAGE_KEY))
 			{
 				string currentLanguage = PlayerPrefs.GetString(k_LANGUAGE_KEY);
-				if (System.Enum.TryParse(currentLanguage, out SystemLanguage OutLanguage))
+				if (Utils.CustomAssertions.IsTrue(System.Enum.TryParse(currentLanguage, out SystemLanguage OutLanguage)))
 				{
 					m_CurrentSystemLanguage = OutLanguage;
 				}
@@ -60,49 +56,48 @@ namespace Localization
 
 
 		//////////////////////////////////////////////////////////////////////////
-		public bool SwitchTo(SystemLanguage newSystemLanguage)
+		public bool SwitchTo(in SystemLanguage InSystemLanguage)
 		{
 			bool bOutValue = false;
-			if (m_LocalizationData.AvailableLanguages.Contains(newSystemLanguage))
+			if (bOutValue = m_LocalizationData.AvailableLanguages.Contains(InSystemLanguage))
 			{
-				m_CurrentSystemLanguage = newSystemLanguage;
+				m_CurrentSystemLanguage = InSystemLanguage;
 				PlayerPrefs.SetString(k_LANGUAGE_KEY, m_CurrentSystemLanguage.ToString());
-				OnLanguageChanged();
-				bOutValue = true;
+				OnLanguageChanged(InSystemLanguage);
 			}
 			return bOutValue;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		public string GetLocalized(string key, string @default = null, SystemLanguage? languageOverride = null)
+		public LocalizationValue GetLocalized(in uint InKeyId, LocalizationValue InDefault = null, SystemLanguage? InLanguageOverride = null)
 		{
-			if (m_LocalizationData.TryGetValue(languageOverride ?? m_CurrentSystemLanguage, out LocalizationTable outLocalizationTable))
+			if (m_LocalizationData.TryGetValue(InLanguageOverride ?? m_CurrentSystemLanguage, out LocalizationTable outLocalizationTable))
 			{
-				if (outLocalizationTable.TryGetValue(key, out string @value))
+				if (outLocalizationTable.TryGetValue(InKeyId, out LocalizationValue @value))
 				{
 					return @value;
 				}
 			}
-			return @default ?? key;
+			return InDefault;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		public bool TryGetLocalized(string key, out string OutValue, string @default = null)
+		public bool TryGetLocalized(in uint InKeyId, out LocalizationValue OutValue, in LocalizationValue InDefault = null)
 		{
-			OutValue = null;
+			OutValue = default;
 			bool bResult = false;
 			if (m_LocalizationData.TryGetValue(m_CurrentSystemLanguage, out LocalizationTable outLocalizationTable))
 			{
-				if (outLocalizationTable.TryGetValue(key, out string @value))
+				if (outLocalizationTable.TryGetValue(InKeyId, out LocalizationValue @value))
 				{
 					OutValue = @value;
 					bResult = true;
 				}
 			}
 
-			OutValue ??= @default ?? key;
+			OutValue ??= InDefault;
 			return bResult;
 		}
 	}

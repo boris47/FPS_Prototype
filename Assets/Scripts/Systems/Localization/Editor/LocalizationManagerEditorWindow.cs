@@ -7,15 +7,13 @@ namespace Localization
 {
 	internal sealed class LocalizationManagerEditorWindow : GuardedEditorWindow<LocalizationManagerEditorWindow, LocalizationData>
 	{
-	//	private				List<Rect>									m_RowElements							= new List<Rect>();
-	//	private				List<Rect>									m_ListElements							= new List<Rect>();
-	//	private				List<List<Rect>>							m_TextFieldsElements					= new List<List<Rect>>();
-	//	private				bool										m_IsInterfaceCreated					= false;
+		private static readonly Vector2									s_MinSize								= new Vector2(1200f, 200f);
+		private static readonly Vector2									s_MaxSize								= new Vector2(1200f, 900f);
+
 		private				SystemLanguage[]							m_Languages								= null;
 		private				string[]									m_LanguagesNames						= null;
-		private				int											m_LanguagesCount						= 0;
-		private				int											m_KeysCount								= 0;
 		private				string										m_KeySearchFilter						= string.Empty;
+		private				AudioSource									m_AudioSource							= null;
 
 		private				int											m_CurrentTabIndex						= 0;
 
@@ -23,13 +21,13 @@ namespace Localization
 		[MenuItem("Window/Localizations")]
 		internal static void OnMenuItem()
 		{
-			OpenWindow("Localizations", LocalizationData.ResourcePath, new Vector2(400f, 200f), new Vector2(1200, 900f));
+			OpenWindow("Localizations", LocalizationData.ResourcePath, s_MinSize, s_MaxSize);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
 		public static void OpenWindow(LocalizationData InLocalizationData)
 		{
-			OpenWindow("Localizations", LocalizationData.ResourcePath, InLocalizationData, new Vector2(400f, 200f), new Vector2(1200, 900f));
+			OpenWindow("Localizations", LocalizationData.ResourcePath, InLocalizationData, s_MinSize, s_MaxSize);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -37,8 +35,22 @@ namespace Localization
 		{
 			base.OnBeforeShow();
 
-			RefreshViewData();
+			GameObject go = new GameObject();
+			go.hideFlags = HideFlags.HideAndDontSave;
+			m_AudioSource = go.AddComponent<AudioSource>();
+
 			LocalizationData.Editor.Sync(Data);
+			RefreshViewData();
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		protected override void OnDisable()
+		{
+			base.OnDisable();
+
+			AssetDatabase.SaveAssetIfDirty(Data);
+
+			m_AudioSource.Destroy();
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -46,30 +58,37 @@ namespace Localization
 		{
 			m_Languages = Data.AvailableLanguages;
 			m_LanguagesNames = m_Languages.Select(l => l.ToString()).ToArray();
-			m_LanguagesCount = m_Languages.Length;
-			m_KeysCount = LocalizationData.Editor.GetKeysCount(Data);
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		private void OnKeyAddRequest(string newKey)
+		private bool OnKeyAddRequest(string InKeyName)
 		{
-			if (LocalizationData.Editor.KeyExists(Data, newKey))
+			if (LocalizationKey.Editor.Contains(InKeyName))
 			{
-				EditorUtility.DisplayDialog("Key already exists", $"The key '{newKey}' already registered", "OK");
+				EditorUtility.DisplayDialog("Key already exists", $"The key '{InKeyName}' already registered", "OK");
+				return false;
 			}
-			else
-			{
-				LocalizationData.Editor.AddKey(Data, newKey);
-				RefreshViewData();
-			}
-		}
 
-		//////////////////////////////////////////////////////////////////////////
-		private void OnKeyRemoveRequest(string key)
-		{
-			LocalizationData.Editor.RemoveKey(Data, key);
+			LocalizationKey newKey = LocalizationKey.Editor.Create(InKeyName);
+			LocalizationData.Editor.AddKey(Data, newKey);
+			AssetDatabase.AddObjectToAsset(newKey, Data);
 			RefreshViewData();
+			return true;
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		private bool OnKeyRemoveRequest(in LocalizationKey key)
+		{
+			bool bResult = false;
+			if (EditorUtility.DisplayDialog("Key Deletion", $"Are you sure you want to delete key '{key.name}' ", "Yes", "No"))
+			{
+				LocalizationData.Editor.RemoveKey(Data, key);
+				AssetDatabase.RemoveObjectFromAsset(key);
+				RefreshViewData();
+				bResult = true;
+			}
+			return bResult;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -79,6 +98,7 @@ namespace Localization
 			{
 				GUILayout.BeginHorizontal();
 				{
+					GUILayout.Label("Filter:", GUILayout.Width(50f));
 					m_KeySearchFilter = GUILayout.TextField(m_KeySearchFilter, GUILayout.Width(190f));
 					if (GUILayout.Button("Add Key", GUILayout.MaxWidth(90f)))
 					{
@@ -93,29 +113,35 @@ namespace Localization
 				}
 				GUILayout.EndHorizontal();
 
-				for (int i = 0; i < m_KeysCount; i++)
+				EditorGUILayout.LabelField(string.Empty, GUI.skin.horizontalSlider); // ---------------------------------------------------------------------------
+
+				if (m_Languages.TryGetByIndex(m_CurrentTabIndex, out SystemLanguage language) && Data.TryGetValue(language, out LocalizationTable localizationTable))
 				{
-					if (LocalizationData.Editor.TryGetKeyAt(Data, i, out string key))
+					LocalizationKey[] allKeys = LocalizationTable.Editor.GetKeys(localizationTable);
+					for (int i = 0, length = allKeys.Length; i < length; i++)
 					{
-						if (key.Contains(m_KeySearchFilter))
+						LocalizationKey key = allKeys[i];
+						if (key.name.Contains(m_KeySearchFilter))
 						{
 							GUILayout.BeginHorizontal();
 							{
 								// Key
-								GUILayout.Label(key, GUILayout.Width(100f));
-								if (GUILayout.Button("X", GUILayout.Width(15f)))
+								GUILayout.Label(key.name, GUILayout.Width(150f));
+								if (GUILayout.Button("x", GUILayout.Width(18f)))
 								{
-									OnKeyRemoveRequest(key);
+									if (OnKeyRemoveRequest(key))
+									{
+										length -= 1;
+										i -= 1;
+									}
 								}
 
 								// Value
-								if (m_Languages.TryGetByIndex(m_CurrentTabIndex, out SystemLanguage language) && Data.TryGetValue(language, out LocalizationTable localizationTable))
+								if (LocalizationTable.Editor.TryGetValue(localizationTable, key, out LocalizationValue value))
 								{
-									string value = LocalizationTable.Editor.GetValueAt(localizationTable, i);
-									string newValue = GUILayout.TextField(value, GUILayout.Width(300f));
-									if (newValue != value)
+									if (LocalizationValue.Editor.DrawGUI(value, m_AudioSource))
 									{
-										LocalizationTable.Editor.SetKeyValue(localizationTable, key, newValue);
+										EditorUtility.SetDirty(Data);
 									}
 								}
 							}
@@ -135,7 +161,20 @@ namespace Localization
 				SystemLanguage language = (SystemLanguage)lang;
 				if (LocalizationData.Editor.HasLanguage(Data, language))
 				{
-					LocalizationData.Editor.RemoveLanguage(Data, language);
+					if (Data.AvailableLanguages.Length == 1)
+					{
+						const string msg = "Must be selected at least one language";
+						EditorUtility.DisplayDialog("Language deletion", msg, "Yes");
+						return;
+					}
+					else
+					{
+						string msg = $"Language {language} is going to be removed from tables losing all data about it, operation cannot be reverted. Do you want to proceed?";
+						if (EditorUtility.DisplayDialog("Language deletion", msg, "Yes", "No"))
+						{
+							LocalizationData.Editor.RemoveLanguage(Data, language);
+						}
+					}
 				}
 				else
 				{
@@ -158,138 +197,5 @@ namespace Localization
 			// display the menu
 			menu.ShowAsContext();
 		}
-
-
-		/*
-
-		//////////////////////////////////////////////////////////////////////////
-		protected override void OnEnable()
-		{
-			base.OnEnable();
-			
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		protected override void OnDisable()
-		{
-			base.OnDisable();
-
-			m_RowElements.Clear();
-			m_ListElements.Clear();
-			m_TextFieldsElements.Clear();
-		}
-
-
-		//////////////////////////////////////////////////////////////////////////
-		private void CreateInterface()
-		{
-			m_LanguagesNames = Data.AvailableLanguages.Select(l => l.ToString()).ToArray();
-			Vector2 biggestLabelSize = m_LanguagesNames.Select(s => EditorStyles.label.CalcSize(new GUIContent(s))).MaxBy(v => v.sqrMagnitude);
-
-			const float textFieldWidth = 100f;
-			const float leftPanelStart = 10f;
-			const float upRowPanelStart = 10f;
-			const float columnSeparator = 15f;
-			float rowLineHeight = EditorGUIUtility.singleLineHeight * 1.3f;
-			float labelVsSliderWidth = Mathf.Max(biggestLabelSize.x, textFieldWidth);
-			float rightPanelStart = leftPanelStart + labelVsSliderWidth + 10f;
-			float upTableStart = upRowPanelStart + rowLineHeight;
-
-			Vector2 position = Vector2.zero;
-
-			// Add top row labels (languages)
-			position.Set(rightPanelStart, upRowPanelStart);
-			{
-				for (int i = 0, length = m_LanguagesNames.Length; i < length; i++)
-				{
-					string name = m_LanguagesNames[i];
-					Vector2 nameSize = EditorStyles.label.CalcSize(new GUIContent(name));
-					m_RowElements.Add(new Rect(position.x, position.y, nameSize.x, nameSize.y));
-					position.x += labelVsSliderWidth + columnSeparator;
-				}
-			}
-
-			// Left names list item (keys)
-			position.Set(leftPanelStart, upTableStart);
-			{
-				for (int i = 0, length = LocalizationData.Editor.GetKeysCount(Data); i < length; i++)
-				{
-					if (LocalizationData.Editor.TryGetKeyAt(Data, i, out string key))
-					{
-						Vector2 nameSize = EditorStyles.label.CalcSize(new GUIContent(key));
-						m_ListElements.Add(new Rect(position.x, position.y, nameSize.x, nameSize.y));
-						position.y += rowLineHeight;
-					}
-				}
-			}
-
-			// Text fields (Values)
-			position.Set(rightPanelStart, upTableStart);
-			{
-				for (int i = 0, length = m_LanguagesNames.Length; i < length; i++)
-				{
-					List<Rect> textFieldsForThisRow = m_TextFieldsElements.AddRef(new List<Rect>());
-					for (int k = 0, kLength = LocalizationData.Editor.GetKeysCount(Data); k < kLength; k++)
-					{
-						textFieldsForThisRow.Add(new Rect(position.x - (labelVsSliderWidth * 0.25f) + (biggestLabelSize.x * 0.5f), position.y, labelVsSliderWidth * 0.5f, rowLineHeight));
-						position.x += labelVsSliderWidth + columnSeparator;
-					}
-					position.x = rightPanelStart;
-					position.y += rowLineHeight;
-				}
-			}
-		}
-
-
-		//////////////////////////////////////////////////////////////////////////
-		private void OnGUI()
-		{
-			if (!m_IsInterfaceCreated)
-			{
-				m_IsInterfaceCreated = true;
-				CreateInterface();
-			}
-
-			// Languages
-			for (int i = 0, length = m_LanguagesNames.Length; i < length; i++)
-			{
-				string name = m_LanguagesNames[i];
-				Rect rect = m_RowElements[i];
-				GUI.Label(rect, name, EditorStyles.label);
-			}
-
-			// Key list
-			for (int i = 0, length = LocalizationData.Editor.GetKeysCount(Data); i < length; i++)
-			{
-				if (LocalizationData.Editor.TryGetKeyAt(Data, i, out string key))
-				{
-					Rect rect = m_ListElements[i];
-					GUI.Label(rect, name, EditorStyles.label);
-				}
-			}
-
-			// Text fields
-			for (int i = 0, length = m_LanguagesNames.Length; i < length; i++)
-			{
-				List<Rect> textFieldsForThisRow = m_TextFieldsElements[i];
-				for (int k = 0, kLength = LocalizationData.Editor.GetKeysCount(Data); k < kLength; k++)
-				{
-					// EditorGUILayout.TextField
-					Rect rect = textFieldsForThisRow[k];
-					if (LocalizationData.Editor.TryGetTableAt(Data, i, out LocalizationTable table))
-					{
-						if (LocalizationTable.Editor.TryGetKeyAndValueAt(table, k, out string key, out string currentValue))
-						{
-							string newValue = GUI.TextField(rect, currentValue);
-							if (currentValue != newValue)
-							{
-								LocalizationTable.Editor.SetKeyValue(table, key, newValue);
-							}
-						}
-					}
-				}
-			}
-		}
-		*/
 	}
 }
