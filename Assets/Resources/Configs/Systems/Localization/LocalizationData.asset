@@ -9,8 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa6e4c5f18f54f745ba30be2f190b206, type: 3}
-  m_Name: FPSCamera
+  m_Script: {fileID: 11500000, guid: 4909021c334315d4485e70225822fe98, type: 3}
+  m_Name: LocalizationData
   m_EditorClassIdentifier: 
-  LookAction: {fileID: -3787169064211337688, guid: 4419d82f33d36e848b3ed5af4c8da37e, type: 3}
-  LookSensitivity: 1
+  m_SupportedLanguages: 0a000000
+  m_Tables:
+  - m_Language: 10
+    m_Values: []
+  m_EDITOR_KeyNames: []

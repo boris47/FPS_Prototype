@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: PlayerMotionStrategyGrounded
   m_EditorClassIdentifier: 
   MoveSpeed: 2
-  MoveAcceleration: 15
-  MoveDeceleration: 18
+  MoveAcceleration: 18
+  MoveDeceleration: 15
   SprintSpeedMult: 2
   CrouchSpeedMult: 0.4
   CrouchedHeight: 1
-  CrouchTransitionSeconds: 0.2
+  CrouchTransitionSeconds: 0.3
   JumpHeight: 1.2
   AirborneDrag: 0
   AirControlMult: 0

@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GravityMult: 1
   BaseSwimSpeed: 1
-  MoveAcceleration: 3.5
-  MoveDeceleration: 2.24
+  MoveAcceleration: 5
+  MoveDeceleration: 5
   SprintMult: 1
   ForwardSwimMult: 1
   BackwardSwimMult: 1
