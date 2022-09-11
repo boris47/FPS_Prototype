@@ -1,7 +1,7 @@
 ﻿
 using UnityEngine;
 
-[Configurable(nameof(m_Configs), "Cameras/Configs/" + nameof(FPSCamera))]
+[Configurable(nameof(m_Configs), "Cameras/" + nameof(FPSCamera))]
 public class FPSCamera : GameCameraBase
 {
 	[SerializeField]
