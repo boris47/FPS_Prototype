@@ -3,5 +3,11 @@
 # IDE0063: Use simple 'using' statement
 csharp_prefer_simple_using_statement = true
 
+# CS0659: Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
+dotnet_diagnostic.CS0659.severity = none
+
+# CS0661: Type defines operator == or operator != but does not override Object.GetHashCode()
+dotnet_diagnostic.CS0661.severity = none
+
 [*.{cs,vb}]
 dotnet_style_prefer_is_null_check_over_reference_equality_method=false:warning
