@@ -6,15 +6,20 @@ public static class ReflectionHelper
 {
 
 	//////////////////////////////////////////////////////////////////////////
-	public static bool GetAttributeValue<V, T>(System.Type type, System.Func<V, T> OnAttribute, out T OutValue) where V : System.Attribute
+	public static bool TryGetAttributeValue<V, T>(System.Type type, System.Func<V, T> OnAttribute, out T OutValue) where V : System.Attribute
 	{
 		OutValue = default;
-		V attribute = (V)System.Attribute.GetCustomAttribute(type, typeof(V));
-		if (OnAttribute.IsNotNull() && attribute.IsNotNull())
+		bool bResult = false;
+		if (OnAttribute.IsNotNull())
 		{
-			OutValue = OnAttribute(attribute);
+			V attribute = (V)System.Attribute.GetCustomAttribute(type, typeof(V));
+			if (attribute.IsNotNull())
+			{
+				OutValue = OnAttribute(attribute);
+				bResult = true;
+			}
 		}
-		return !System.Collections.Generic.EqualityComparer<T>.Default.Equals(OutValue, default);
+		return bResult;
 	}
 
 

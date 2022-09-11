@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Utils;
 
 [ScriptableObjectResourcePath(nameof(SerializedMonoBehaviourSingletonTypes))]
 public class SerializedMonoBehaviourSingletonTypes : GlobalScriptableObjectSingleton<SerializedMonoBehaviourSingletonTypes>, ISerializationCallbackReceiver
@@ -52,20 +53,6 @@ public class SerializedMonoBehaviourSingletonTypes : GlobalScriptableObjectSingl
 
 
 	#region SERIALIZATION
-	[System.Serializable]
-	private class TypeIdentifier
-	{
-		[ReadOnly]
-		public string TypeFullName = string.Empty;
-		[ReadOnly]
-		public string AssemblyName = string.Empty;
-
-		public TypeIdentifier(System.Type InType)
-		{
-			TypeFullName = InType.FullName;
-			AssemblyName = InType.Assembly.FullName;
-		}
-	}
 
 	[System.Serializable]
 	private class DataHolder
@@ -87,12 +74,17 @@ public class SerializedMonoBehaviourSingletonTypes : GlobalScriptableObjectSingl
 		m_Serializable.Clear();
 		foreach (KeyValuePair<string, List<System.Type>> pair in m_MappedTypes)
 		{
+			// Save inof into micro containers
+			TypeIdentifier[] types = pair.Value.Select(t => new TypeIdentifier(t)).ToArray();
+
+			// Put them in macro container and serializable structure
 			m_Serializable.Add(new DataHolder()
 			{
 				Identifier = pair.Key,
-				Types = pair.Value.Select(t => new TypeIdentifier(t)).ToArray()
+				Types = types
 			});
 		}
+		m_MappedTypes.Clear();
 	}
 
 	// Load
@@ -101,12 +93,19 @@ public class SerializedMonoBehaviourSingletonTypes : GlobalScriptableObjectSingl
 		m_MappedTypes.Clear();
 		foreach (DataHolder dataHolder in m_Serializable)
 		{
-			m_MappedTypes.FindOrAdd(dataHolder.Identifier, () => new List<System.Type>()).AddRange
-			(
-				dataHolder.Types.Select(typeIdentifier => System.Type.GetType(($"{typeIdentifier.TypeFullName}, {typeIdentifier.AssemblyName}"))).Where(t => t.IsNotNull())
-			);
-		}
-	}
+			// Emplace keyValue and create list
+			List<System.Type> list = m_MappedTypes.FindOrAdd(dataHolder.Identifier, () => new List<System.Type>());
 
+			// Restore valid types
+			foreach (TypeIdentifier typeIdentifier in dataHolder.Types)
+			{
+				if (typeIdentifier.TryGetType(out System.Type outType))
+				{
+					list.Add(outType);
+				}
+			}
+		}
+		m_Serializable.Clear();
+	}
 	#endregion
 }

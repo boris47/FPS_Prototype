@@ -50,7 +50,7 @@ public abstract class GlobalScriptableObjectSingleton<T> : ScriptableObject
 	{
 		if (m_InstanceInternal == null)
 		{
-			if (Utils.CustomAssertions.IsTrue(ReflectionHelper.GetAttributeValue(typeof(T), (ScriptableObjectResourcePath a) => a.ResourcePath, out string OutResourcePath),
+			if (Utils.CustomAssertions.IsTrue(ReflectionHelper.TryGetAttributeValue(typeof(T), (ScriptableObjectResourcePath a) => a.ResourcePath, out string OutResourcePath),
 				$"Cannot retrieve attribute {nameof(ScriptableObjectResourcePath)} for class {typeof(T).Name}"))
 			{
 				T newInstance = Resources.Load<T>(OutResourcePath);
