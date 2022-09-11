@@ -30,6 +30,39 @@ namespace Utils // Types
 			return OutObject.IsNotNull();
 		}
 	}
+
+	[System.Serializable]
+	public class TypeIdentifier : System.IEquatable<TypeIdentifier>
+	{
+		[ReadOnly]
+		public string TypeFullName = string.Empty;
+		[ReadOnly]
+		public string AssemblyName = string.Empty;
+
+		public TypeIdentifier(System.Type InType)
+		{
+			TypeFullName = InType.FullName;
+			AssemblyName = InType.Assembly.FullName;
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public bool IsValid() => TryGetType(out System.Type _);
+
+		//////////////////////////////////////////////////////////////////////////
+		public bool TryGetType(out System.Type OutType) => (OutType = System.Type.GetType($"{TypeFullName}, {AssemblyName}")).IsNotNull();
+
+		//////////////////////////////////////////////////////////////////////////
+		public override bool Equals(object obj) => Equals(obj as TypeIdentifier);
+
+		//////////////////////////////////////////////////////////////////////////
+		public bool Equals(TypeIdentifier other) => other.IsNotNull() && TypeFullName == other.TypeFullName && AssemblyName == other.AssemblyName;
+
+		//////////////////////////////////////////////////////////////////////////
+		public static bool operator ==(TypeIdentifier left, TypeIdentifier right) => System.Collections.Generic.EqualityComparer<TypeIdentifier>.Default.Equals(left, right);
+
+		//////////////////////////////////////////////////////////////////////////
+		public static bool operator !=(TypeIdentifier left, TypeIdentifier right) => !(left == right);
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -917,16 +950,18 @@ namespace Utils // Paths
 	{
 		public static bool IsAssetsPath(in string InPath) => InPath.StartsWith("Assets/");
 
-		public static bool IsResourcesPath(in string InPath) => !IsAssetsPath(InPath);
+		public static bool IsAsset(in string InPath) => IsAssetsPath(InPath) && InPath.EndsWith(".asset");
 
-		public static bool IsAbsolutePath(in string path)
+		public static bool IsResourcesPath(in string InPath) => !IsAsset(InPath) && !InPath.Contains("Resources");
+
+		public static bool IsAbsolutePath(in string InPath)
 		{
 			try
 			{
-				return !string.IsNullOrWhiteSpace(path)
-				&& path.IndexOfAny(System.IO.Path.GetInvalidPathChars()) == -1
-				&& System.IO.Path.IsPathRooted(path) //  whether the specified path string contains a root.
-				&& !System.IO.Path.GetPathRoot(path).Equals(System.IO.Path.DirectorySeparatorChar.ToString(), System.StringComparison.Ordinal);
+				return !string.IsNullOrWhiteSpace(InPath)
+				&& InPath.IndexOfAny(System.IO.Path.GetInvalidPathChars()) == -1
+				&& System.IO.Path.IsPathRooted(InPath) //  whether the specified path string contains a root.
+				&& !System.IO.Path.GetPathRoot(InPath).Equals(System.IO.Path.DirectorySeparatorChar.ToString(), System.StringComparison.Ordinal);
 			}
 			catch (System.Exception)
 			{
