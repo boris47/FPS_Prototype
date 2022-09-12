@@ -28,10 +28,10 @@ public abstract class Interactable : MonoBehaviour
 			gameObject.layer = LayerMask.NameToLayer(LayerName);
 		}
 	}
-
 	/////////////////////////////////////////////////////////////////////////////
 	protected virtual void OnValidate()
 	{
+#if UNITY_EDITOR
 		// using this approach because on layer assignatiion use SendMessage to broadcast the event and it appears that
 		// "SendMessage cannot be called during Awake, CheckConsistency, or OnValidate" 
 		// Ref: https://forum.unity.com/threads/sendmessage-cannot-be-called-during-awake-checkconsistency-or-onvalidate-can-we-suppress.537265/
@@ -44,8 +44,8 @@ public abstract class Interactable : MonoBehaviour
 			}
 		}
 		UnityEditor.EditorApplication.update += _OnValidate;
+#endif
 	}
-
 	public abstract bool CanInteract(Entity entity);
 	public abstract void OnInteraction(Entity entity);
 }

@@ -297,7 +297,7 @@ public static class Extensions_Unity
 				Object.DestroyImmediate(ThisObject);
 			}
 #else
-			Object.Destroy(obj);
+			Object.Destroy(ThisObject);
 #endif
 		}
 	}

@@ -50,7 +50,7 @@ public class AreaInteractable : Interactable
 		m_OnInteraction.Invoke();
 	}
 
-
+#if UNITY_EDITOR
 	//////////////////////////////////////////////////////////////////////////
 	// Implement this OnDrawGizmos if you want to draw gizmos that are also pickable and always drawn
 	private void OnDrawGizmos()
@@ -60,4 +60,5 @@ public class AreaInteractable : Interactable
 			Utils.Editor.GizmosHelper.DrawCollider(m_Collider, Color.white * 0.2f);
 		}
 	}
+#endif
 }
