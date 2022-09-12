@@ -7,23 +7,26 @@ public class Configurable : System.Attribute
 {
 	public const string MainFolderName = "Configs";
 
-	public readonly string FieldName = null;
-	public readonly System.Type ConfigurationType = null;
-	public readonly string ResourcePath = null;
-
-	private Configurable(string InResourcePath)
+	public readonly string			FieldName				= string.Empty;
+	public readonly System.Type		ConfigurationType		= null;
+	public readonly string			ResourcePath			= string.Empty;
+	
+	// !Static compile error using in on params !!
+	public Configurable(string InFieldName, System.Type InConfigurableComponentType)
 	{
+		FieldName = InFieldName;
+		ResourcePath = $"{MainFolderName}/{InConfigurableComponentType.Name}Configuration";
+	}
+	public Configurable(string InFieldName, string InResourcePath)
+	{
+		FieldName = InFieldName;
 		ResourcePath = $"{MainFolderName}/{InResourcePath}";
 	}
 
-	public Configurable(System.Type InConfigurationType, string InResourcePath) : this(InResourcePath)
+	public Configurable(System.Type InConfigurationType, string InResourcePath)
 	{
 		ConfigurationType = InConfigurationType;
-	}
-
-	public Configurable(string InFieldName, string InResourcePath) : this(InResourcePath)
-	{
-		FieldName = InFieldName;
+		ResourcePath = $"{MainFolderName}/{InResourcePath}";
 	}
 }
 

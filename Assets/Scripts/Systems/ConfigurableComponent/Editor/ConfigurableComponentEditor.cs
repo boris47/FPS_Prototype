@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -7,76 +6,6 @@ using System.Reflection;
 
 public sealed class ConfigurableComponentEditor
 {
-	/*
-	[System.Serializable]
-	private class ConfigurableData : System.IEquatable<ConfigurableData>
-	{
-		[SerializeField]
-		private				TypeIdentifier				m_ConfigurableComponentIdentifier				= null;
-		[SerializeField]
-		private				string						m_AssetLocation									= string.Empty;
-		[SerializeField]
-		private				TypeIdentifier				m_ConfigurableTypeIdentifier					= null;
-
-		private				System.Type					m_CachedComponentType							= null;
-		private				System.Type					m_CachedConfigurableType						= null;
-
-
-		public				TypeIdentifier				ConfigurableComponentIdentifier					=> m_ConfigurableComponentIdentifier;
-		public				string						AssetLocation									=> m_AssetLocation;
-		public				TypeIdentifier				ConfigurableTypeIdentifier						=> m_ConfigurableTypeIdentifier;
-
-		public System.Type ConfigurableComponentType
-		{
-			get
-			{
-				if (m_CachedComponentType == null)
-				{
-					ConfigurableComponentIdentifier.TryGetType(out m_CachedComponentType);
-				}
-				return m_CachedComponentType;
-			}
-		}
-		public System.Type ConfigurableType
-		{
-			get
-			{
-				if (m_CachedConfigurableType == null)
-				{
-					ConfigurableTypeIdentifier.TryGetType(out m_CachedConfigurableType);
-				}
-				return m_CachedConfigurableType;
-			}
-		}
-
-		public ConfigurableData(in System.Type InConfigurableComponentType, in string InAssetLocation, in System.Type InConfigurableType)
-		{
-			m_ConfigurableComponentIdentifier		= new TypeIdentifier(InConfigurableComponentType);
-			m_AssetLocation							= InAssetLocation;
-			m_ConfigurableTypeIdentifier			= new TypeIdentifier(InConfigurableType);
-		}
-
-		public override bool Equals(object obj) => Equals(obj as ConfigurableData);
-		
-
-		public bool Equals(ConfigurableData other)
-		{
-			return other.IsNotNull() &&
-				   EqualityComparer<TypeIdentifier>.Default.Equals(m_ConfigurableComponentIdentifier, other.m_ConfigurableComponentIdentifier) &&
-				   m_AssetLocation == other.m_AssetLocation &&
-				   EqualityComparer<TypeIdentifier>.Default.Equals(m_ConfigurableTypeIdentifier, other.m_ConfigurableTypeIdentifier);
-		}
-
-		public static bool operator ==(ConfigurableData left, ConfigurableData right) => EqualityComparer<ConfigurableData>.Default.Equals(left, right);
-
-		public static bool operator !=(ConfigurableData left, ConfigurableData right) => !(left == right);
-	}
-
-	[SerializeField]
-	private List<ConfigurableData> m_ConfigurablesData = new List<ConfigurableData>();
-
-	*/
-
 	//////////////////////////////////////////////////////////////////////////
 	/// Ref: https://forum.unity.com/threads/how-can-i-callback-after-the-scripts-compilation.819492/#post-5429361
 	[UnityEditor.Callbacks.DidReloadScripts]
@@ -130,23 +59,23 @@ public sealed class ConfigurableComponentEditor
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	private static bool TryGetConfigurationType(in System.Type configurableComponentType, out System.Type OutConfigurationType)
+	private static bool TryGetConfigurationType(in System.Type InConfigurableComponentType, out System.Type OutConfigurationType)
 	{
 		OutConfigurationType = null;
-		if (ReflectionHelper.TryGetAttributeValue(configurableComponentType, (Configurable configurable) => configurable, out Configurable configurable))
+		if (ReflectionHelper.TryGetAttributeValue(InConfigurableComponentType, (Configurable configurable) => configurable, out Configurable configurable))
 		{
 			// Get and use, if valid, field name to retrieve the config type
 			string fieldName = configurable.FieldName;
 			if (!string.IsNullOrEmpty(fieldName))
 			{
-				FieldInfo field = configurableComponentType.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+				FieldInfo field = InConfigurableComponentType.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
 				if (field.IsNotNull())
 				{
 					OutConfigurationType = field.FieldType;
 				}
 				else
 				{
-					Debug.LogError($"ConfigurableComponent: Used field name \"${fieldName}\" cannot be retrieved from type {configurableComponentType.Name}");
+					Debug.LogError($"ConfigurableComponent: Used field name \"${fieldName}\" cannot be retrieved from type {InConfigurableComponentType.Name}");
 				}
 			}
 			// Or get it from Configurable
@@ -175,10 +104,10 @@ public sealed class ConfigurableComponentEditor
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	private static bool TryGetResourcePath(in System.Type configurableComponentType, out string OutResourcePath)
+	private static bool TryGetResourcePath(in System.Type InConfigurableComponentType, out string OutResourcePath)
 	{
 		OutResourcePath = string.Empty;
-		if (ReflectionHelper.TryGetAttributeValue(configurableComponentType, (Configurable configurable) => configurable, out Configurable configurable))
+		if (ReflectionHelper.TryGetAttributeValue(InConfigurableComponentType, (Configurable configurable) => configurable, out Configurable configurable) && configurable.IsNotNull())
 		{
 			if (Utils.Paths.IsResourcesPath(configurable.ResourcePath))
 			{

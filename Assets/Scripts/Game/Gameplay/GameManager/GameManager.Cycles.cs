@@ -31,6 +31,7 @@ public interface IUpdateEvents
 }
 
 // UPDATES IMPLEMENTATION
+
 public sealed partial class GameManager : IUpdateEvents
 {
 	private static event	GameEvents.OnThinkEvent			m_OnThink				= delegate { };
@@ -78,7 +79,7 @@ public sealed partial class GameManager : IUpdateEvents
 		{
 			// Thinking Update
 			m_ThinkTimer += Time.deltaTime;
-			if (m_ThinkTimer > THINK_TIMER)
+			if (m_ThinkTimer > m_Configs.ThinkIntervalMS)
 			{
 				m_OnThink();
 				m_ThinkTimer = 0f;
@@ -87,8 +88,14 @@ public sealed partial class GameManager : IUpdateEvents
 			// Frame Update
 			m_OnFrame(Time.deltaTime);
 		}
-
-
+		if (UnityEngine.InputSystem.Keyboard.current.escapeKey.isPressed)
+		{
+#if UNITY_EDITOR
+			UnityEditor.EditorApplication.isPlaying = false;
+#else
+			Application.Quit();
+#endif
+		}
 		// Exit request
 		if (m_QuitRequest)
 		{
