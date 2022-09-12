@@ -40,4 +40,13 @@ public static class ConfigurableComponent_Extension
 		}
 		return OutConfiguration.IsNotNull();
 	}
+
+	//////////////////////////////////////////////////////////////////////////
+	public static void TryGetConfigurationAsync<T>(this Component component, in System.Action<T> InOnResourceLoaded, in System.Action<string> InOnLoadFailed) where T : ConfigurationBase
+	{
+		if (ReflectionHelper.TryGetAttributeValue(component.GetType(), (Configurable configurable) => configurable.ResourcePath, out string ResourcePath))
+		{
+			ResourceManager.LoadResourceAsync(ResourcePath, InOnResourceLoaded, InOnLoadFailed);
+		}
+	}
 }

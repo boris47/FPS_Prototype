@@ -5,9 +5,7 @@ using UnityEngine;
 using UnityEditor;
 using System.Reflection;
 
-
-//[FilePath("asd/"+nameof(ConfigurableRegistry), FilePathAttribute.Location.ProjectFolder)]
-public sealed class ConfigurableRegistry// : ScriptableSingleton<ConfigurableRegistry>
+public sealed class ConfigurableComponentEditor
 {
 	/*
 	[System.Serializable]
