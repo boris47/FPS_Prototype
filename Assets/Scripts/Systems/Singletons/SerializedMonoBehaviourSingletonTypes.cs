@@ -84,7 +84,7 @@ public class SerializedMonoBehaviourSingletonTypes : GlobalScriptableObjectSingl
 				Types = types
 			});
 		}
-		m_MappedTypes.Clear();
+	//	m_MappedTypes.Clear();
 	}
 
 	// Load
