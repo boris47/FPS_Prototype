@@ -7,7 +7,7 @@ namespace Entities.Player.Components
 {
 	[RequireComponent(typeof(CharacterController))]
 	[Configurable(nameof(m_Configs), "Player/MotionStrategies/" + nameof(PlayerMotionStrategyGrounded))]
-	public class PlayerMotionStrategyGrounded : PlayerMotionStrategyBase
+	public class PlayerMotionStrategyGrounded : PlayerMotionStrategyBase, IPalatformAttachable
 	{
 		private enum EModifiers
 		{
@@ -65,6 +65,25 @@ namespace Entities.Player.Components
 		private bool m_HasObstacleAboveHead = false;
 		private float m_SlidingDownSlopeTime = 0f;
 
+		private Transform m_CurrentPlatform = null;
+		private Vector3 m_ActivePlatformGlobalPoint = Vector3.zero;
+		private Vector3 m_ActivePlatformLocalPoint = Vector3.zero;
+		
+		//////////////////////////////////////////////////////////////////////////
+		void IPalatformAttachable.AttachTo(in Transform InSoftParent)
+		{
+			m_CurrentPlatform = InSoftParent;
+			m_ActivePlatformGlobalPoint = transform.position;
+			m_ActivePlatformLocalPoint = m_CurrentPlatform.InverseTransformPoint(transform.position);
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		void IPalatformAttachable.Detach()
+		{
+			m_CurrentPlatform = null;
+			m_ActivePlatformGlobalPoint = Vector3.zero;
+			m_ActivePlatformLocalPoint = Vector3.zero;
+		}
 
 		//////////////////////////////////////////////////////////////////////////
 		protected override void Awake()
@@ -350,6 +369,19 @@ namespace Entities.Player.Components
 				m_CurrentWorldVelocity.y = Mathf.Sqrt(m_Configs.JumpHeight * -2f * gravity);
 			}
 
+			if (m_CurrentPlatform.IsNotNull())
+			{
+				Vector3 newOffset = m_CurrentPlatform.InverseTransformPoint(transform.position);
+
+				Vector3 newGlobalPlatformPoint = m_CurrentPlatform.TransformPoint(m_ActivePlatformLocalPoint);
+				Vector3 moveDistance = newGlobalPlatformPoint - m_ActivePlatformGlobalPoint;
+
+				m_CharacterController.Move(moveDistance);
+
+				m_ActivePlatformGlobalPoint = transform.position;
+				m_ActivePlatformLocalPoint = m_CurrentPlatform.InverseTransformPoint(transform.position);
+			}
+
 			m_CollisionFlags = m_CharacterController.Move(m_CurrentWorldVelocity * deltaTime);
 
 			m_IsGrounded = m_CollisionFlags.IsOrContains(CollisionFlags.Below);
@@ -358,8 +390,7 @@ namespace Entities.Player.Components
 			m_JumpRequested = false;
 			m_CurrentMoveInputVector.Set(0f, 0f);
 		}
-
-
+		
 		//////////////////////////////////////////////////////////////////////////
 		private void OnControllerColliderHit(ControllerColliderHit controllerColliderHit)
 		{

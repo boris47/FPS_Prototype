@@ -24,4 +24,11 @@ namespace Entities
 	{
 		public void Configure(T1 param1, T2 param2, T3 param3, T4 param4, T5 param5);
 	}
+
+
+	public interface IPalatformAttachable
+	{
+		void AttachTo(in Transform InSoftParent);
+		void Detach();
+	}
 }
