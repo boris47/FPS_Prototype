@@ -23,17 +23,6 @@ public class InputHandler : GlobalMonoBehaviourSingleton<InputHandler>
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary>  </summary>
-	public static void RegisterLongPressButtonCallbacks(in MonoBehaviour InMonoBehaviour, in float InTimeTriggerMS, in InputAction InInputAction, in System.Action InOnPress, in System.Action InOnHold, in System.Action InOnRelease, in System.Action<float> InOnProgress = null)
-	{
-		if (Utils.CustomAssertions.IsNotNull(InInputAction))
-		{
-			GetOrCreateInputActionList(InMonoBehaviour).Add(new ActionLogicLongPressButton(InTimeTriggerMS, InInputAction, InOnPress, InOnHold, InOnRelease, InOnProgress));
-		}
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	/// <summary>  </summary>
 	public static void RegisterAxis2DCallback(in MonoBehaviour InMonoBehaviour, in InputAction InInputAction, in System.Action<Vector2> InOnChange, in bool InTryReadRaw)
 	{
 		if (Utils.CustomAssertions.IsNotNull(InInputAction))
@@ -52,7 +41,7 @@ public class InputHandler : GlobalMonoBehaviourSingleton<InputHandler>
 			for (int index = InputActionList.Count - 1; index >= 0; index--)
 			{
 				ActionLogicBase logic = InputActionList[index];
-				if (logic.InputAction.id == InInputAction.id)
+				if (logic.m_InputAction.id == InInputAction.id)
 				{
 					logic.Destroy();
 					InputActionList.RemoveAt(index);
@@ -88,7 +77,6 @@ public class InputHandler : GlobalMonoBehaviourSingleton<InputHandler>
 		return OutResult;
 	}
 
-
 	//////////////////////////////////////////////////////////////////////////
 	private void Update()
 	{
@@ -123,9 +111,7 @@ public class InputHandler : GlobalMonoBehaviourSingleton<InputHandler>
 
 	private abstract class ActionLogicBase
 	{
-		private readonly InputAction m_InputAction = null;
-
-		public InputAction InputAction => m_InputAction;
+		public readonly InputAction m_InputAction;
 
 		protected ActionLogicBase(in InputAction InInputAction)
 		{
@@ -135,43 +121,9 @@ public class InputHandler : GlobalMonoBehaviourSingleton<InputHandler>
 			}
 		}
 
-		//////////////////////////////////////////////////////////////////////////
-		public void Update()
-		{
-			OnUpdate();
-		}
+		public abstract void Update();
 
-		//////////////////////////////////////////////////////////////////////////
-		public void Destroy()
-		{
-			m_InputAction.started -= OnActionStarted;
-			m_InputAction.canceled -= OnActioCanceled;
-			OnDestroy();
-		}
-
-		protected abstract void OnUpdate();
-
-		//////////////////////////////////////////////////////////////////////////
-		protected virtual void OnDestroy()
-		{
-
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		protected void RegisterEvents()
-		{
-			// Old UnityEngine.input.GetButtonDown
-			m_InputAction.started -= OnActionStarted;
-			m_InputAction.started += OnActionStarted;
-
-			// Old UnityEngine.input.GetButtonUp
-			m_InputAction.canceled -= OnActioCanceled;
-			m_InputAction.canceled += OnActioCanceled;
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		protected abstract void OnActionStarted(InputAction.CallbackContext ctx);
-		protected abstract void OnActioCanceled(InputAction.CallbackContext ctx);
+		public virtual void Destroy() { }
 	}
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -180,6 +132,7 @@ public class InputHandler : GlobalMonoBehaviourSingleton<InputHandler>
 		private readonly System.Action m_OnPress = delegate { };
 		private readonly System.Action m_OnHold = delegate { };
 		private readonly System.Action m_OnRelease = delegate { };
+
 
 		//////////////////////////////////////////////////////////////////////////
 		public ActionLogicButton(in InputAction InInputAction, in System.Action InOnPress, in System.Action InOnHold, in System.Action InOnRelease) : base(InInputAction)
@@ -190,90 +143,38 @@ public class InputHandler : GlobalMonoBehaviourSingleton<InputHandler>
 				m_OnHold = InOnHold ?? m_OnHold;
 				m_OnRelease = InOnRelease ?? m_OnRelease;
 
-				RegisterEvents();
+				// Old UnityEngine.input.GetButtonDown
+				m_InputAction.started -= OnButtonPressed;
+				m_InputAction.started += OnButtonPressed;
+
+				// Old UnityEngine.input.GetButtonUp
+				m_InputAction.canceled -= OnButtonReleased;
+				m_InputAction.canceled += OnButtonReleased;
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override void OnUpdate()
+		public override void Update()
 		{
 			// Old UnityEngine.Input.GetButton		
-			if (InputAction.IsPressed())
+			if (m_InputAction.IsPressed())
 			{
 				m_OnHold();
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override void OnActionStarted(InputAction.CallbackContext ctx) => m_OnPress();
-
-		//////////////////////////////////////////////////////////////////////////
-		protected override void OnActioCanceled(InputAction.CallbackContext ctx) => m_OnRelease();
-	}
-
-	/////////////////////////////////////////////////////////////////////////////
-	private class ActionLogicLongPressButton : ActionLogicBase
-	{
-		private readonly System.Action m_OnPress = delegate { };
-		private readonly System.Action m_OnHold = delegate { };
-		private readonly System.Action m_OnRelease = delegate { };
-		private readonly System.Action<float> m_OnProgress = delegate { };
-		private readonly float m_TimeTriggerMS = 0.01f;
-
-		private float m_CurrentElapsedTime = 0f;
-		private bool m_OnPressFired = false;
-		private bool m_CurrentlyPressed = false;
-
-		//////////////////////////////////////////////////////////////////////////
-		public ActionLogicLongPressButton(in float InTimeTriggerMS, in InputAction InInputAction, in System.Action InOnPress, in System.Action InOnHold, in System.Action InOnRelease, in System.Action<float> InOnProgress) : base(InInputAction)
+		public override void Destroy()
 		{
-			if (Utils.CustomAssertions.IsTrue(InOnPress.IsNotNull() || InOnHold.IsNotNull() || InOnRelease.IsNotNull()))
-			{
-				m_TimeTriggerMS = Mathf.Max(InTimeTriggerMS, m_TimeTriggerMS);
-				m_OnPress = InOnPress ?? m_OnPress;
-				m_OnHold = InOnHold ?? m_OnHold;
-				m_OnRelease = InOnRelease ?? m_OnRelease;
-				m_OnProgress = InOnProgress ?? m_OnProgress;
-
-				RegisterEvents();
-			}
+			m_InputAction.started -= OnButtonPressed;
+			m_InputAction.canceled -= OnButtonReleased;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override void OnUpdate()
-		{
-			if (m_CurrentlyPressed)
-			{
-				if ((m_CurrentElapsedTime += Time.unscaledDeltaTime) > m_TimeTriggerMS)
-				{
-					if (m_OnPressFired)
-					{
-						m_OnHold();
-					}
-					else
-					{
-						m_OnPressFired = true;
-						m_OnPress();
-					}
-				}
-				else
-				{
-					m_OnProgress(m_CurrentElapsedTime / m_TimeTriggerMS);
-				}
-			}
-		}
+		private void OnButtonPressed(InputAction.CallbackContext ctx) => m_OnPress();
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override void OnActionStarted(InputAction.CallbackContext ctx) => m_CurrentlyPressed = true;
-
-		//////////////////////////////////////////////////////////////////////////
-		protected override void OnActioCanceled(InputAction.CallbackContext ctx)
-		{
-			m_CurrentElapsedTime = 0f;
-			m_CurrentlyPressed = false;
-			m_OnPressFired = false;
-			m_OnRelease();
-		}
+		private void OnButtonReleased(InputAction.CallbackContext ctx) => m_OnRelease();
 	}
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -294,21 +195,25 @@ public class InputHandler : GlobalMonoBehaviourSingleton<InputHandler>
 				m_OnChange = InOnChange;
 				m_TryReadRaw = InTryReadRaw;
 
-				RegisterEvents();
+				m_InputAction.started -= EnableRead;
+				m_InputAction.started += EnableRead;
+
+				m_InputAction.canceled -= DisableRead;
+				m_InputAction.canceled += DisableRead;
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override void OnUpdate()
+		public override void Update()
 		{
 			if (m_CanReadValue)
 			{
-				m_OnChange(m_TryReadRaw && m_CanReadRaw ? m_InputControl.ReadUnprocessedValue() : InputAction.ReadValue<Vector2>());
+				m_OnChange(m_TryReadRaw && m_CanReadRaw ? m_InputControl.ReadUnprocessedValue() : m_InputAction.ReadValue<Vector2>());
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override void OnActionStarted(InputAction.CallbackContext ctx)
+		private void EnableRead(InputAction.CallbackContext ctx)
 		{
 			m_CanReadRaw = false;
 			if (ctx.control is InputControl<Vector2> inputControl)
@@ -320,9 +225,10 @@ public class InputHandler : GlobalMonoBehaviourSingleton<InputHandler>
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override void OnActioCanceled(InputAction.CallbackContext ctx)
+		private void DisableRead(InputAction.CallbackContext ctx)
 		{
 			m_CanReadValue = false;
+		//	m_OnChange(Vector2.zero);
 		}
 	}
 }
