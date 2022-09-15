@@ -64,7 +64,7 @@ public class SerializedMonoBehaviourSingletonTypes : GlobalScriptableObjectSingl
 	}
 
 	// A list that can be serialized
-	[SerializeField]
+	[SerializeField, HideInInspector]
 	private List<DataHolder> m_Serializable = new List<DataHolder>();
 
 
@@ -84,7 +84,6 @@ public class SerializedMonoBehaviourSingletonTypes : GlobalScriptableObjectSingl
 				Types = types
 			});
 		}
-	//	m_MappedTypes.Clear();
 	}
 
 	// Load
@@ -105,7 +104,6 @@ public class SerializedMonoBehaviourSingletonTypes : GlobalScriptableObjectSingl
 				}
 			}
 		}
-		m_Serializable.Clear();
 	}
 	#endregion
 }
