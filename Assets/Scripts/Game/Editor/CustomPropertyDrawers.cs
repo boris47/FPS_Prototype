@@ -32,34 +32,121 @@ public struct IndentLevelScope : System.IDisposable
 [CustomPropertyDrawer(typeof(ConditionalPropertyAttribute))]
 public class ConditionalPropertyDrawer : PropertyDrawer
 {
-
-	// Determine whether this field should be visible.
-	// (We could probably do some caching here...)
-	private bool ShouldShow(SerializedProperty property)
+	private static SerializedProperty GetPropertyByPath(in SerializedObject InSerializedObject, in SerializedProperty InSerializedProperty, string InFieldName)
 	{
-		var conditionAttribute = (ConditionalPropertyAttribute)attribute;
-		string conditionPath = conditionAttribute.ConditionalFieldName;
-
 		// If this property is defined inside a nested type 
 		// (like a struct inside a MonoBehaviour), look for
 		// our condition field inside the same nested instance.
-		string thisPropertyPath = property.propertyPath;
+		string thisPropertyPath = InSerializedProperty.propertyPath;
 		int last = thisPropertyPath.LastIndexOf('.');
 		if (last > 0)
 		{
 			string containerPath = thisPropertyPath.Substring(0, last + 1);
-			conditionPath = containerPath + conditionPath;
+			InFieldName = containerPath + InFieldName;
 		}
+		return InSerializedObject.FindProperty(InFieldName);
+	}
 
-		// Get the SerializedProperty representing the field that is our criterion.
-		var conditionProperty = property.serializedObject.FindProperty(conditionPath);
+	private static bool Compare(in bool a, in bool b, in EOperators op)
+	{
+		switch (op)
+		{
+			case EOperators.EQUAL: return a == b;
+			case EOperators.NOT_EQUAL: return a != b;
+			default: return a == b;
+		}
+	}
 
-		// For now, we'll only support bool criteria, and default to visible if there's a problem.
-		if (conditionProperty == null || conditionProperty.type != "bool")
-			return true;
+	private static bool Compare(in int a, in int b, in EOperators op)
+	{
+		switch (op)
+		{
+			case EOperators.GREATER: return a > b;
+			case EOperators.GREATER_OR_EQUAL: return a >= b;
+			case EOperators.EQUAL: return a == b;
+			case EOperators.NOT_EQUAL: return a != b;
+			case EOperators.LESS_OR_EQUAL: return a <= b;
+			case EOperators.LESS: return a < b;
+			default: return false;
+		}
+	}
 
-		// Use the condition property's boolean value to drive visibility.
-		return conditionProperty.boolValue;
+	private static bool Compare(in float a, in float b, in EOperators op)
+	{
+		switch (op)
+		{
+			case EOperators.GREATER: return a > b;
+			case EOperators.GREATER_OR_EQUAL: return a >= b;
+			case EOperators.EQUAL: return a == b;
+			case EOperators.NOT_EQUAL: return a != b;
+			case EOperators.LESS_OR_EQUAL: return a <= b;
+			case EOperators.LESS: return a < b;
+			default: return false;
+		}
+	}
+
+	public static bool Compare(in string a, in string b, in EOperators op)
+	{
+		switch (op)
+		{
+			case EOperators.EQUAL: return a == b;
+			case EOperators.NOT_EQUAL: return a != b;
+			default: return a == b;
+		}
+	}
+
+	private static bool CompareProperties(in SerializedProperty propA, in EOperators op, in SerializedProperty propB)
+	{
+		switch (propA.propertyType)
+		{
+			case SerializedPropertyType.Boolean:	return Compare(propA.boolValue, propB.boolValue, op);
+			case SerializedPropertyType.Integer:	return Compare(propA.intValue, propB.intValue, op);
+			case SerializedPropertyType.Float:		return Compare(propA.floatValue, propB.floatValue, op);
+			case SerializedPropertyType.String:		return Compare(propA.stringValue, propB.stringValue, op);
+			default: return true;
+		}
+	}
+
+	private bool ShouldShow(in SerializedProperty property)
+	{
+		bool outValue = true;
+
+		ConditionalPropertyAttribute conditionAttribute = (ConditionalPropertyAttribute)attribute;
+		SerializedProperty conditionProperty = GetPropertyByPath(property.serializedObject, property, conditionAttribute.FieldName);
+		if (conditionProperty.IsNotNull())
+		{
+			bool IsOtherFieldName = conditionAttribute.IsOtherFieldName;
+			if (IsOtherFieldName)
+			{
+				SerializedProperty otherConditionProperty = GetPropertyByPath(property.serializedObject, property, conditionAttribute.StringValue);
+				if (otherConditionProperty.IsNotNull())
+				{
+					if (otherConditionProperty.propertyType == conditionProperty.propertyType)
+					{
+						outValue = CompareProperties(conditionProperty, conditionAttribute.Operator, otherConditionProperty);
+					}
+				}
+				else
+				{
+					// Unable to handle comparison
+					// A warning would spam in console
+					outValue = true;
+				}
+			}
+			else
+			{
+				EOperators op = conditionAttribute.Operator;
+				switch (conditionProperty.propertyType)
+				{
+					case SerializedPropertyType.Boolean: outValue = Compare(conditionProperty.boolValue, conditionAttribute.BoolValue, op); break;
+					case SerializedPropertyType.Integer: outValue = Compare(conditionProperty.intValue, conditionAttribute.IntValue, op); break;
+					case SerializedPropertyType.Float: outValue = Compare(conditionProperty.floatValue, conditionAttribute.FloatValue, op); break;
+					case SerializedPropertyType.String: outValue = Compare(conditionProperty.stringValue, conditionAttribute.StringValue, op); break;
+					default: outValue = true; break;
+				}
+			}
+		}
+		return outValue;
 	}
 
 	public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -118,7 +205,7 @@ public sealed class SurfaceManager_MaterialDrawer : PropertyDrawer
 }
 
 
-[CustomPropertyDrawer(typeof(ReadOnlyAttribute))]
+[CustomPropertyDrawer(typeof(ReadOnlyAttribute), true)]
 public sealed class ReadOnlyDrawer : PropertyDrawer
 {
 	public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
