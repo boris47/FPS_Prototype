@@ -34,12 +34,15 @@ public abstract class Interactable : MonoBehaviour
 	private float m_LoadingTimeSeconds = 0f;
 
 	[SerializeField, Tooltip("If true at interaction stop keep loaded time value")]
+	[ConditionalProperty(nameof(m_LoadingTimeSeconds), EOperators.GREATER, 0)]
 	private bool m_KeepLoadedTimeIfNotEnded = false;
 
 	[SerializeField, Tooltip("If true repeat the reset internal interacted time after an interaction is completed enabling multiple interactions")]
+	[ConditionalProperty(nameof(m_LoadingTimeSeconds), EOperators.GREATER, 0)]
 	private bool m_RepeatInteraction = false;
 
 	[SerializeField, ReadOnly]
+	[ConditionalProperty(nameof(m_LoadingTimeSeconds), EOperators.GREATER, 0)]
 	private float m_LoadedTimeSeconds = 0f;
 
 	[SerializeField, ReadOnly]
