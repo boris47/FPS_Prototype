@@ -135,8 +135,7 @@ public sealed class ConfigurableComponentEditor
 		{
 			if (TryGetConfigurationType(configurableComponentType, out System.Type ConfigurationType))
 			{
-				string OutErrorMsg = null;
-				if (!IsValidConfigurationType(ConfigurationType, out OutErrorMsg))
+				if (!IsValidConfigurationType(ConfigurationType, out string OutErrorMsg))
 				{
 					Debug.LogError($"ConfigurableComponent: Type {configurableComponentType.Name} {OutErrorMsg}");
 				}
