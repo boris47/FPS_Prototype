@@ -70,10 +70,14 @@ public abstract class Interactable : MonoBehaviour
 		}
 	}
 
+	[SerializeField, ReadOnly]
+	private FillableImage m_FillableImage = null;
 
 	/////////////////////////////////////////////////////////////////////////////
 	protected virtual void Awake()
 	{
+		m_FillableImage = GetComponentInChildren<FillableImage>();
+
 		if (LayerMask.LayerToName(gameObject.layer) != LayerName)
 		{
 			Debug.Log($"{nameof(Interactable)}: Object {name} has {GetType().Name} component but layer is not {LayerName}, setting {LayerName} as layer!");
@@ -121,6 +125,8 @@ public abstract class Interactable : MonoBehaviour
 			{
 				m_LoadedTimeSeconds = Mathf.Clamp(m_LoadedTimeSeconds + Mathf.Max(deltaTime, 0f), 0f, m_LoadingTimeSeconds);
 			}
+			m_FillableImage?.gameObject.SetActive(true);
+			m_FillableImage?.Set01FilledValue(LoadedTimeNormalized);
 		}
 	}
 
@@ -135,10 +141,13 @@ public abstract class Interactable : MonoBehaviour
 				if (IsLoaded)
 				{
 					m_InteractionStage = EInteractionStages.READY;
+					m_FillableImage?.gameObject.SetActive(false);
 				}
 				else
 				{
 					m_InteractionStage = EInteractionStages.LOADING;
+					m_FillableImage?.gameObject.SetActive(true);
+					m_FillableImage?.Set01FilledValue(LoadedTimeNormalized);
 				}
 			}
 		}
@@ -155,6 +164,8 @@ public abstract class Interactable : MonoBehaviour
 		{
 			m_LoadedTimeSeconds = 0f;
 			m_InteractionStage = EInteractionStages.NONE;
+			m_FillableImage?.Set01FilledValue(0f);
+			m_FillableImage?.gameObject.SetActive(false);
 		}
 	}
 
@@ -180,13 +191,23 @@ public abstract class Interactable : MonoBehaviour
 	/////////////////////////////////////////////////////////////////////////////
 	public void OnInteractionEnd(Entity interactor)
 	{
-		AbortLoad();
-
-		// If value should be kept and interaction is completed, on interaction end reset loaded value
-		if (m_KeepLoadedTimeIfNotEnded && HasLoadingTime && m_InteractionStage >= EInteractionStages.READY)
+		if (HasLoadingTime)
 		{
-			m_InteractionStage = EInteractionStages.NONE;
-			m_LoadedTimeSeconds = 0f;
+			if (m_KeepLoadedTimeIfNotEnded)
+			{
+				if (IsLoaded)
+				{
+					m_LoadedTimeSeconds = 0f;
+					m_FillableImage?.Set01FilledValue(0f);
+				}
+				m_InteractionStage = EInteractionStages.LOADING;
+			}
+			else
+			{
+				m_InteractionStage = EInteractionStages.NONE;
+				m_LoadedTimeSeconds = 0f;
+				m_FillableImage?.Set01FilledValue(0f);
+			}
 		}
 
 		OnInteractionEndInternal(interactor);
