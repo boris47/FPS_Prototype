@@ -198,7 +198,7 @@ namespace Entities.Player.Components
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public override void PorcessSnappshot(PlayerMotionTransitionSnapshot InSnapShot)
+		public override void PorcessSnapshot(PlayerMotionTransitionSnapshot InSnapShot)
 		{
 
 		}

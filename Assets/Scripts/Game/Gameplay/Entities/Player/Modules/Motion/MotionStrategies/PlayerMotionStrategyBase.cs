@@ -8,6 +8,6 @@ namespace Entities.Player.Components
 	{
 		public abstract PlayerMotionTransitionSnapshot CreateSnapshot();
 
-		public abstract void PorcessSnappshot(PlayerMotionTransitionSnapshot InSnapShot);
+		public abstract void PorcessSnapshot(PlayerMotionTransitionSnapshot InSnapShot);
 	}
 }

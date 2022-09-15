@@ -52,7 +52,7 @@ namespace Entities.Player.Components
 
 				if (snapshot.IsNotNull())
 				{
-					m_CurrentMotionStrategy.PorcessSnappshot(snapshot);
+					m_CurrentMotionStrategy.PorcessSnapshot(snapshot);
 				}
 			}
 			return m_CurrentMotionStrategy as T;

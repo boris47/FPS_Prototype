@@ -12,7 +12,7 @@ namespace Entities
 	{
 		T CreateSnapshot();
 
-		void PorcessSnappshot(T InSnapShot);
+		void PorcessSnapshot(T InSnapShot);
 	}
 
 	[RequireComponent(typeof(Entity))]
