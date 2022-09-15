@@ -10,12 +10,6 @@ namespace Entities.Player.Components
 
 		// IInteractor START
 		//////////////////////////////////////////////////////////////////
-		public override bool IsCurrentlyInteracting()
-		{
-			return false; // TODO
-		}
-
-		//////////////////////////////////////////////////////////////////
 		public override bool CanInteractWith(Interactable interactable)
 		{
 			bool bOutResult = false;
@@ -49,14 +43,14 @@ namespace Entities.Player.Components
 		}
 
 		//////////////////////////////////////////////////////////////////
-		public override void Interact(Interactable interactable)
+		protected override void InteractionStartInternal()
 		{
-			interactable.OnInteraction(m_Owner);
+			CurrentInteractable.OnInteractionStart(m_Owner);
 		}
 		//////////////////////////////////////////////////////////////////
-		public override void StopInteraction()
+		protected override void InteractionStopInternal()
 		{
-
+			CurrentInteractable.OnInteractionEnd(m_Owner);
 		}
 		// IInteractor END
 
@@ -66,7 +60,7 @@ namespace Entities.Player.Components
 		{
 			if (other.transform.TryGetComponent(out AreaInteractable areaInteractable))
 			{
-				OnInteractorFoundInternal(areaInteractable);
+				OnInteractableFoundInternal(areaInteractable);
 			}
 		}
 
@@ -77,7 +71,7 @@ namespace Entities.Player.Components
 			{
 				if (CurrentInteractable == areaInteractable)
 				{
-					OnInteractorLostInternal(areaInteractable);
+					OnInteractableLostInternal(areaInteractable);
 				}
 			}
 		}

@@ -204,13 +204,13 @@ namespace Entities.Player.Components
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		private void OnMoveActionUpdate(Vector2 input) => m_CurrentMoveInputVector.Set(input.x, input.y);
+		private void OnMoveActionUpdate(float deltaTime, Vector2 input) => m_CurrentMoveInputVector.Set(input.x, input.y);
 		private void OnJumpRequest() => m_JumpRequested = true;
 		private void OnCrouchStart() => m_CrouchedRequested = true;
-		private void OnCrouchContinue() => m_CrouchedRequested = true;
+		private void OnCrouchContinue(float deltaTime) => m_CrouchedRequested = true;
 		private void OnCrouchEnd() => m_CrouchExitRequested = true;
 		private void OnSprintStart() => m_SpeedModifiers[EModifiers.SPRINT] = m_Configs.SprintSpeedMult;
-		private void OnSprintContinue() => m_SpeedModifiers[EModifiers.SPRINT] = m_Configs.SprintSpeedMult;
+		private void OnSprintContinue(float deltaTime) => m_SpeedModifiers[EModifiers.SPRINT] = m_Configs.SprintSpeedMult;
 		private void OnSprintEnd() => m_SpeedModifiers[EModifiers.SPRINT] = 1f;
 		private void OnAboveObstacle(Collider obstacle) => m_HasObstacleAbove = obstacle.IsNotNull();
 		private void OnAboveHeadObstacle(Collider obstacle) => m_HasObstacleAboveHead = obstacle.IsNotNull();

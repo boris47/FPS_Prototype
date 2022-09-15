@@ -93,7 +93,7 @@ namespace Entities.Player.Components
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		private void OnMoveActionUpdate(Vector2 input)
+		private void OnMoveActionUpdate(float deltaTime, Vector2 input)
 		{
 			input.Normalize();
 
@@ -120,10 +120,10 @@ namespace Entities.Player.Components
 		private void OnSprintStart() => m_SprintRequested = true;
 		private void OnSprintEnd() => m_SprintRequested = false;
 		private void OnSwimLocalUpStart() => m_CurrentLocalMoveInputVector.y += 1f;
-		private void OnSwimLocalUpContinue() => m_CurrentLocalMoveInputVector.y = Mathf.Max(m_CurrentLocalMoveInputVector.y + 1f, 1f);
+		private void OnSwimLocalUpContinue(float deltaTime) => m_CurrentLocalMoveInputVector.y = Mathf.Max(m_CurrentLocalMoveInputVector.y + 1f, 1f);
 		private void OnSwimLocalUpEnd() => m_CurrentLocalMoveInputVector.y -= 1f;
 		private void SwimLocalDownStart() => m_CurrentLocalMoveInputVector.y -= 1f;
-		private void SwimLocalDownContinue() => m_CurrentLocalMoveInputVector.y = Mathf.Min(m_CurrentLocalMoveInputVector.y - 1f, -1f);
+		private void SwimLocalDownContinue(float deltaTime) => m_CurrentLocalMoveInputVector.y = Mathf.Min(m_CurrentLocalMoveInputVector.y - 1f, -1f);
 		private void SwimLocalDownEnd() => m_CurrentLocalMoveInputVector.y += 1f;
 
 

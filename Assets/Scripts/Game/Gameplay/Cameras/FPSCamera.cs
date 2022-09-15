@@ -61,7 +61,7 @@ public class FPSCamera : GameCameraBase
 
 
 	//////////////////////////////////////////////////////////////////////////
-	private void OnLookActionUpdate(Vector2 input) => m_CurrentLookInputVector.Set(input.x, input.y);
+	private void OnLookActionUpdate(float deltaTime, Vector2 input) => m_CurrentLookInputVector.Set(input.x, input.y);
 
 
 	//////////////////////////////////////////////////////////////////////////

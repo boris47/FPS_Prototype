@@ -12,7 +12,7 @@ public class InputHandler : GlobalMonoBehaviourSingleton<InputHandler>
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary>  </summary>
-	public static void RegisterButtonCallbacks(in MonoBehaviour InMonoBehaviour, in InputAction InInputAction, in System.Action InOnPress, in System.Action InOnHold, in System.Action InOnRelease)
+	public static void RegisterButtonCallbacks(in MonoBehaviour InMonoBehaviour, in InputAction InInputAction, in System.Action InOnPress, in System.Action<float> InOnHold, in System.Action InOnRelease)
 	{
 		if (Utils.CustomAssertions.IsNotNull(InInputAction))
 		{
@@ -23,7 +23,7 @@ public class InputHandler : GlobalMonoBehaviourSingleton<InputHandler>
 
 	//////////////////////////////////////////////////////////////////////////
 	/// <summary>  </summary>
-	public static void RegisterAxis2DCallback(in MonoBehaviour InMonoBehaviour, in InputAction InInputAction, in System.Action<Vector2> InOnChange, in bool InTryReadRaw)
+	public static void RegisterAxis2DCallback(in MonoBehaviour InMonoBehaviour, in InputAction InInputAction, in System.Action<float, Vector2> InOnChange, in bool InTryReadRaw)
 	{
 		if (Utils.CustomAssertions.IsNotNull(InInputAction))
 		{
@@ -41,7 +41,7 @@ public class InputHandler : GlobalMonoBehaviourSingleton<InputHandler>
 			for (int index = InputActionList.Count - 1; index >= 0; index--)
 			{
 				ActionLogicBase logic = InputActionList[index];
-				if (logic.m_InputAction.id == InInputAction.id)
+				if (logic.InputAction.id == InInputAction.id)
 				{
 					logic.Destroy();
 					InputActionList.RemoveAt(index);
@@ -85,7 +85,7 @@ public class InputHandler : GlobalMonoBehaviourSingleton<InputHandler>
 		{
 			foreach (ActionLogicBase actionLogic in behaviourActionTuple.Value)
 			{
-				actionLogic.Update();
+				actionLogic.Update(Time.deltaTime);
 			}
 		}
 	}
@@ -111,7 +111,9 @@ public class InputHandler : GlobalMonoBehaviourSingleton<InputHandler>
 
 	private abstract class ActionLogicBase
 	{
-		public readonly InputAction m_InputAction;
+		private readonly InputAction m_InputAction = null;
+
+		public InputAction InputAction => m_InputAction;
 
 		protected ActionLogicBase(in InputAction InInputAction)
 		{
@@ -121,21 +123,54 @@ public class InputHandler : GlobalMonoBehaviourSingleton<InputHandler>
 			}
 		}
 
-		public abstract void Update();
+		//////////////////////////////////////////////////////////////////////////
+		public void Update(float deltaTime)
+		{
+			OnUpdate(deltaTime);
+		}
 
-		public virtual void Destroy() { }
+		//////////////////////////////////////////////////////////////////////////
+		public void Destroy()
+		{
+			m_InputAction.started -= OnActionStarted;
+			m_InputAction.canceled -= OnActioCanceled;
+			OnDestroy();
+		}
+
+		protected abstract void OnUpdate(float deltaTime);
+
+		//////////////////////////////////////////////////////////////////////////
+		protected virtual void OnDestroy()
+		{
+
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		protected void RegisterEvents()
+		{
+			// Old UnityEngine.input.GetButtonDown
+			m_InputAction.started -= OnActionStarted;
+			m_InputAction.started += OnActionStarted;
+
+			// Old UnityEngine.input.GetButtonUp
+			m_InputAction.canceled -= OnActioCanceled;
+			m_InputAction.canceled += OnActioCanceled;
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		protected abstract void OnActionStarted(InputAction.CallbackContext ctx);
+		protected abstract void OnActioCanceled(InputAction.CallbackContext ctx);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////
 	private class ActionLogicButton : ActionLogicBase
 	{
 		private readonly System.Action m_OnPress = delegate { };
-		private readonly System.Action m_OnHold = delegate { };
+		private readonly System.Action<float> m_OnHold = delegate { };
 		private readonly System.Action m_OnRelease = delegate { };
 
-
 		//////////////////////////////////////////////////////////////////////////
-		public ActionLogicButton(in InputAction InInputAction, in System.Action InOnPress, in System.Action InOnHold, in System.Action InOnRelease) : base(InInputAction)
+		public ActionLogicButton(in InputAction InInputAction, in System.Action InOnPress, in System.Action<float> InOnHold, in System.Action InOnRelease) : base(InInputAction)
 		{
 			if (Utils.CustomAssertions.IsTrue(InOnPress.IsNotNull() || InOnHold.IsNotNull() || InOnRelease.IsNotNull()))
 			{
@@ -143,44 +178,32 @@ public class InputHandler : GlobalMonoBehaviourSingleton<InputHandler>
 				m_OnHold = InOnHold ?? m_OnHold;
 				m_OnRelease = InOnRelease ?? m_OnRelease;
 
-				// Old UnityEngine.input.GetButtonDown
-				m_InputAction.started -= OnButtonPressed;
-				m_InputAction.started += OnButtonPressed;
-
-				// Old UnityEngine.input.GetButtonUp
-				m_InputAction.canceled -= OnButtonReleased;
-				m_InputAction.canceled += OnButtonReleased;
+				RegisterEvents();
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public override void Update()
+		protected override void OnUpdate(float deltaTime)
 		{
 			// Old UnityEngine.Input.GetButton		
-			if (m_InputAction.IsPressed())
+			if (InputAction.IsPressed())
 			{
-				m_OnHold();
+				m_OnHold(deltaTime);
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public override void Destroy()
-		{
-			m_InputAction.started -= OnButtonPressed;
-			m_InputAction.canceled -= OnButtonReleased;
-		}
+		protected override void OnActionStarted(InputAction.CallbackContext ctx) => m_OnPress();
 
 		//////////////////////////////////////////////////////////////////////////
-		private void OnButtonPressed(InputAction.CallbackContext ctx) => m_OnPress();
-
-		//////////////////////////////////////////////////////////////////////////
-		private void OnButtonReleased(InputAction.CallbackContext ctx) => m_OnRelease();
+		protected override void OnActioCanceled(InputAction.CallbackContext ctx) => m_OnRelease();
 	}
+
 
 	/////////////////////////////////////////////////////////////////////////////
 	private class ActionLogicAxis : ActionLogicBase
 	{
-		private readonly System.Action<Vector2> m_OnChange = delegate { };
+		private readonly System.Action<float, Vector2> m_OnChange = delegate { };
 		private readonly bool m_TryReadRaw = false;
 		private bool m_CanReadValue = false;
 		private InputControl<Vector2> m_InputControl = null;
@@ -188,32 +211,28 @@ public class InputHandler : GlobalMonoBehaviourSingleton<InputHandler>
 
 
 		//////////////////////////////////////////////////////////////////////////
-		public ActionLogicAxis(in InputAction InInputAction, in System.Action<Vector2> InOnChange, in bool InTryReadRaw) : base(InInputAction)
+		public ActionLogicAxis(in InputAction InInputAction, in System.Action<float, Vector2> InOnChange, in bool InTryReadRaw) : base(InInputAction)
 		{
 			if (Utils.CustomAssertions.IsNotNull(InOnChange))
 			{
 				m_OnChange = InOnChange;
 				m_TryReadRaw = InTryReadRaw;
 
-				m_InputAction.started -= EnableRead;
-				m_InputAction.started += EnableRead;
-
-				m_InputAction.canceled -= DisableRead;
-				m_InputAction.canceled += DisableRead;
+				RegisterEvents();
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public override void Update()
+		protected override void OnUpdate(float deltaTime)
 		{
 			if (m_CanReadValue)
 			{
-				m_OnChange(m_TryReadRaw && m_CanReadRaw ? m_InputControl.ReadUnprocessedValue() : m_InputAction.ReadValue<Vector2>());
+				m_OnChange(deltaTime, m_TryReadRaw && m_CanReadRaw ? m_InputControl.ReadUnprocessedValue() : InputAction.ReadValue<Vector2>());
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		private void EnableRead(InputAction.CallbackContext ctx)
+		protected override void OnActionStarted(InputAction.CallbackContext ctx)
 		{
 			m_CanReadRaw = false;
 			if (ctx.control is InputControl<Vector2> inputControl)
@@ -225,10 +244,9 @@ public class InputHandler : GlobalMonoBehaviourSingleton<InputHandler>
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		private void DisableRead(InputAction.CallbackContext ctx)
+		protected override void OnActioCanceled(InputAction.CallbackContext ctx)
 		{
 			m_CanReadValue = false;
-		//	m_OnChange(Vector2.zero);
 		}
 	}
 }

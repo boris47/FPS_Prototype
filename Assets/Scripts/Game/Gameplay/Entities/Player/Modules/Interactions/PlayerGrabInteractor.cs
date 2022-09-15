@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Entities.Player.Components
 {
-	public class PlayerGrabInteractor : PlayerUseInteractor
+	public class PlayerGrabInteractor : PlayerInteractor
 	{
 		private class RigidBodyStoredData
 		{
@@ -29,6 +29,9 @@ namespace Entities.Player.Components
 		}
 
 		[SerializeField, ReadOnly]
+		private					LayerMask						m_AimCollisionFilter				= 0;
+
+		[SerializeField, ReadOnly]
 		private					GameObject						m_GrabPoint							= null;
 
 		[SerializeField, ReadOnly]
@@ -49,6 +52,16 @@ namespace Entities.Player.Components
 			m_GrabPoint.transform.localPosition = Vector3.zero;
 			m_GrabPoint.transform.localRotation = Quaternion.identity;
 			m_GrabPoint.transform.Translate(0f, 0f, Owner.Configs.UseDistance);
+
+			m_AimCollisionFilter = 1 << LayerMask.NameToLayer(Interactable.LayerName);
+		}
+
+		//////////////////////////////////////////////////////////////////
+		protected override void OnValidate()
+		{
+			base.OnValidate();
+
+			m_AimCollisionFilter = 1 << LayerMask.NameToLayer(Interactable.LayerName);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -62,41 +75,33 @@ namespace Entities.Player.Components
 
 		// IInteractor START
 		//////////////////////////////////////////////////////////////////
-		public override bool IsCurrentlyInteracting()
-		{
-			return m_CurrentGrabbed.IsNotNull();
-		}
-		//////////////////////////////////////////////////////////////////
 		public override bool CanInteractWith(Interactable interactable)
 		{
 			return (interactable is GrabInteractable grabbable) && grabbable.CanInteract(m_Owner) && (grabbable.transform.position - Owner.Head.position).sqrMagnitude < Owner.Configs.UseDistanceSqr;
 		}
 		//////////////////////////////////////////////////////////////////
-		public override void Interact(Interactable interactable)
+		protected override void InteractionStartInternal()
 		{
-			if (Utils.CustomAssertions.IsValidUnityObjectCast(interactable, out GrabInteractable grabbable))
-			{
-				interactable.OnInteraction(m_Owner);
+			m_CurrentGrabbed = CurrentInteractable as GrabInteractable;
+			m_GrabPoint.transform.localPosition = Vector3.forward * Vector3.Distance(Owner.Head.position, m_CurrentGrabbed.transform.position);
 
-				m_GrabPoint.transform.localPosition = Vector3.forward * Vector3.Distance(Owner.Head.position, grabbable.transform.position);
+			m_CurrentGrabbed.OnInteractionStart(m_Owner);
 
-				Rigidbody rb = grabbable.Rigidbody;
-				rb.velocity = Vector3.zero;
-				m_RigidBodyStoredData.Set(rb);
-
-				m_CurrentGrabbed = grabbable;
-
-				OnInteractorFoundInternal(grabbable);
-			}
+			Rigidbody rb = m_CurrentGrabbed.Rigidbody;
+			rb.velocity = Vector3.zero;
+			m_RigidBodyStoredData.Set(rb);
 		}
+
 		//////////////////////////////////////////////////////////////////
-		public override void StopInteraction()
+		protected override void InteractionStopInternal()
 		{
-			if (m_CurrentGrabbed.IsNotNull())
+			if (Utils.CustomAssertions.IsNotNull(m_CurrentGrabbed))
 			{
 				m_GrabPoint.transform.localPosition = Vector3.forward * Owner.Configs.UseDistance;
 
 				m_RigidBodyStoredData.Reset();
+
+				m_CurrentGrabbed.OnInteractionEnd(m_Owner);
 
 			//	if (m_CurrentGrabbed.transform.TryGetComponent(out OnHitEventGrabbedHandler eventHandler))
 			//	{
@@ -105,11 +110,43 @@ namespace Entities.Player.Components
 
 				m_GrabPoint.transform.Translate(0f, 0f, Owner.Configs.UseDistance);
 
-				OnInteractorLostInternal(m_CurrentGrabbed);
 				m_CurrentGrabbed = null;
 			}
+			CurrentInteractable.OnInteractionEnd(m_Owner);
 		}
 		// IInteractor END
+
+		//////////////////////////////////////////////////////////////////
+		private void FixedUpdate()
+		{
+			if (Physics.Raycast(m_Owner.Head.position, m_Owner.Head.forward, out RaycastHit hitInfo, Owner.Configs.UseDistance, m_AimCollisionFilter, QueryTriggerInteraction.Ignore))
+			{
+				if (CurrentInteractable == null || hitInfo.transform != CurrentInteractable.transform)
+				{
+					if (hitInfo.transform.gameObject.TryGetComponent(out Interactable newIteractable))
+					{
+						if (CanInteractWith(newIteractable))
+						{
+							OnInteractableFoundInternal(newIteractable);
+						}
+					}
+					else
+					{
+						if (CurrentInteractable.IsNotNull())
+						{
+							OnInteractableLostInternal(CurrentInteractable);
+						}
+					}
+				}
+			}
+			else
+			{
+				if (CurrentInteractable.IsNotNull())
+				{
+					OnInteractableLostInternal(CurrentInteractable);
+				}
+			}
+		}
 
 		//////////////////////////////////////////////////////////////////////////
 		private void Update()
@@ -119,7 +156,7 @@ namespace Entities.Player.Components
 				float distance = (m_CurrentGrabbed.transform.position - m_GrabPoint.transform.position).sqrMagnitude;
 				if (distance > Owner.Configs.UseDistanceSqr + 0.1f)
 				{
-					StopInteraction();
+					InteractionEnd();
 				}
 				else
 				{
