@@ -2,24 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Entities
+namespace Entities.Relations
 {
 	public enum EFactionRelationType
 	{
+		NONE,
 		Enemy,
 		Neutral,
 		Friendly
-	}
-
-	public enum EFactions
-	{
-		// IMPORTANT: After a first release, new faction can only be appended and renaming is not allowed for existing ones
-		Player,		// Base
-		Civilians,  // Base
-		Guards,	    // Base
-		Soldiers,   // Base
-		SpecOps,    // Base
-		Animal,     // Base
 	}
 
 	[Configurable(nameof(m_RelationsData), RelationsData.ResourcePath)]
@@ -36,45 +26,31 @@ namespace Entities
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public void SetRelationBetweenFactions(in EFactions InFaction1, in EFactions InFaction2, in short InNewalue)
+		public void SetRelationBetweenFactions(in EntityFaction InFaction1, in EntityFaction InFaction2, in float InNewalue)
 		{
 			m_RelationsData.OverrideRelations(InFaction1, InFaction2, InNewalue);
+			m_RelationsData.OverrideRelations(InFaction2, InFaction1, InNewalue);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public void SetRelationBetweenFactions(in EFactions InFaction1, in EFactions InFaction2, in EFactionRelationType InNewalue)
+		public void SetRelationBetweenFactions(in EntityFaction InFaction1, in EntityFaction InFaction2, in EFactionRelationType InNewalue)
 		{
 			m_RelationsData.OverrideRelations(InFaction1, InFaction2, InNewalue);
+			m_RelationsData.OverrideRelations(InFaction2, InFaction1, InNewalue);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public EFactionRelationType RelationBetween(in Entity InEntity1, in Entity InEntity2)
-		{
-			return m_RelationsData.GetRelationType(InEntity1.Faction, InEntity2.Faction);
-		}
+		public EFactionRelationType RelationTo(in Entity InEntity1, in Entity InEntity2) => m_RelationsData.GetRelationType(InEntity1.Faction, InEntity2.Faction);
+
+		public EntityFaction[] GetAllFactionsWithRelation(in Entity InEntity, in EFactionRelationType InRelationType) => m_RelationsData.GetAllFactionsWithRelation(InEntity.Faction, InRelationType);
 
 		//////////////////////////////////////////////////////////////////////////
-		public EFactions[] GetHostiles(in EFactions InFaction)
-		{
-			return m_RelationsData.GetHostilesFactions(InFaction);
-		}
+		public float GetRelationValue(in Entity InEntity1, in Entity InEntity2) => m_RelationsData.GetRelationValue(InEntity1.Faction, InEntity2.Faction);
 
 		//////////////////////////////////////////////////////////////////////////
-		public short GetRelationValue(in Entity InEntity1, in Entity InEntity2)
-		{
-			return m_RelationsData.GetRelationValue(InEntity1.Faction, InEntity2.Faction);
-		}
+		public Entity GetMostHostile(Entity InEntity, in ICollection<Entity> InEntities) => InEntities.MinBy(e => GetRelationValue(InEntity, e));
 
 		//////////////////////////////////////////////////////////////////////////
-		public Entity GetMostHostile(Entity InEntity, in ICollection<Entity> InEntities)
-		{
-			return InEntities.MinBy(e => GetRelationValue(InEntity, e));
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		public Entity GetMostFriendly(Entity InEntity, in ICollection<Entity> InEntities)
-		{
-			return InEntities.MaxBy(e => GetRelationValue(InEntity, e));
-		}
+		public Entity GetMostFriendly(Entity InEntity, in ICollection<Entity> InEntities) => InEntities.MaxBy(e => GetRelationValue(InEntity, e));
 	}
 }

@@ -3,6 +3,8 @@ using UnityEngine;
 
 namespace Entities
 {
+	using Relations;
+
 	public class Shield : MonoBehaviour
 	{
 		private		Collider		m_Collider				= null;
@@ -28,7 +30,7 @@ namespace Entities
 		protected			float							m_Health							= 100f;
 		
 		[SerializeField]
-		protected			EFactions						m_Faction							= default;
+		protected			EntityFaction					m_Faction							= null;
 
 		[SerializeField, ReadOnly]
 		protected			Shield							m_Shield							= null;
@@ -44,7 +46,7 @@ namespace Entities
 
 		public				bool							IsAlive								=> m_Health > 0f;
 
-		public				EFactions						Faction								=> m_Faction;
+		public				EntityFaction					Faction								=> m_Faction;
 
 		public				EFactionRelationType?			GlobalRelationOverride				=> m_GlobalRelationOverride;
 
@@ -109,6 +111,12 @@ namespace Entities
 		public virtual bool IsInterestedAt(in Entity source)
 		{
 			return false;
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public void SetEntityFaction(in EntityFaction InEntityFaction)
+		{
+			m_Faction = InEntityFaction;
 		}
 
 

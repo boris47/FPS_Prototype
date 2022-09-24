@@ -3,37 +3,40 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace Entities.AI
+namespace Entities.Relations
 {
 	internal sealed class RelationsEditor : GuardedEditorWindow<RelationsEditor, RelationsData>
 	{
-		private static		string[]									m_FactionNames							= System.Enum.GetNames(typeof(EFactions));
+		private static readonly Vector2									s_MinSize								= new Vector2(500f, 200f);
+		private static readonly Vector2									s_MaxSize								= new Vector2(1200f, 900f);
 
-		private				List<Rect>									m_RowElements							= new List<Rect>();
-		private				List<Rect>									m_ListElements							= new List<Rect>();
-		private				List<List<Rect>>							m_SlidersElements						= new List<List<Rect>>();
+		private				EntityFaction[]								m_EntityFactions						= null;
+		private				string[]									m_EntityFactionsNames					= null;
+
+		private				int											m_CurrentTabIndex						= 0;
 
 
 		//////////////////////////////////////////////////////////////////////////
 		[MenuItem("Window/Relations Editor")]
 		internal static void OnMenuItem()
 		{
-			OpenWindow("Relations Editor", RelationsData.ResourcePath, new Vector2(400f, 200f), new Vector2(1200, 900f));
+			OpenWindow("Relations Editor", RelationsData.ResourcePath, s_MinSize, s_MaxSize);
 		}
 		
 		//////////////////////////////////////////////////////////////////////////
 		public static void OpenWindow(RelationsData InRelationsData)
 		{
-			OpenWindow("Relations Editor", RelationsData.ResourcePath, InRelationsData, new Vector2(400f, 200f), new Vector2(1200, 900f));
+			OpenWindow("Relations Editor", RelationsData.ResourcePath, InRelationsData, s_MinSize, s_MaxSize);
 		}
 
-
 		//////////////////////////////////////////////////////////////////////////
-		protected override void OnEnable()
+		protected override void OnBeforeShow()
 		{
-			base.OnEnable();
+			base.OnBeforeShow();
 
-			CreateInterface();
+			RelationsData.Editor.Sync(Data);
+
+			RefreshViewData();
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -41,105 +44,137 @@ namespace Entities.AI
 		{
 			base.OnDisable();
 
-			m_RowElements.Clear();
-			m_ListElements.Clear();
-			m_SlidersElements.Clear();
+			AssetDatabase.SaveAssetIfDirty(Data);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		private void CreateInterface()
+		private void RefreshViewData()
 		{
-			m_FactionNames = System.Enum.GetNames(typeof(EFactions));
-			Vector2 biggestLabelSize = m_FactionNames.Select(s => EditorStyles.label.CalcSize(new GUIContent(s))).MaxBy(v => v.sqrMagnitude);
-
-			const float sliderWidth = 100f;
-			const float leftPanelStart = 10f;
-			const float upRowPanelStart = 10f;
-			const float columnSeparator = 15f;
-			float rowLineHeight = EditorGUIUtility.singleLineHeight * 1.3f;
-			float labelVsSliderWidth = Mathf.Max(biggestLabelSize.x, sliderWidth);
-			float rightPanelStart = leftPanelStart + labelVsSliderWidth + 10f;
-			float upTableStart = upRowPanelStart + rowLineHeight;
-
-			Vector2 position = Vector2.zero;
-
-			// Add top row labels
-			position.Set(rightPanelStart, upRowPanelStart);
-			{
-				for (int i = 0, length = m_FactionNames.Length; i < length; i++)
-				{
-					string factionName = m_FactionNames[i];
-					Vector2 factionNameSize = EditorStyles.label.CalcSize(new GUIContent(factionName));
-					m_RowElements.Add(new Rect(position.x, position.y, factionNameSize.x, factionNameSize.y));
-					position.x += labelVsSliderWidth + columnSeparator;
-				}
-			}
-
-			// Left names list item
-			position.Set(leftPanelStart, upTableStart);
-			{
-				for (int i = 0, length = m_FactionNames.Length; i < length; i++)
-				{
-					string factionName = m_FactionNames[i];
-					Vector2 factionNameSize = EditorStyles.label.CalcSize(new GUIContent(factionName));
-					m_ListElements.Add(new Rect(position.x, position.y, factionNameSize.x, factionNameSize.y));
-					position.y += rowLineHeight;
-				}
-			}
-
-			// Sliders
-			position.Set(rightPanelStart, upTableStart);
-			{
-				for (int i = 0, length = m_FactionNames.Length; i < length; i++)
-				{
-					List<Rect> slidersForThisRow = m_SlidersElements.AddRef(new List<Rect>());
-					for (int k = 0; k < length; k++)
-					{
-						slidersForThisRow.Add(new Rect(position.x - (labelVsSliderWidth * 0.25f) + (biggestLabelSize.x * 0.5f), position.y, labelVsSliderWidth * 0.5f, rowLineHeight));
-						position.x += labelVsSliderWidth + columnSeparator;
-					}
-					position.x = rightPanelStart;
-					position.y += rowLineHeight;
-				}
-			}
+			m_EntityFactions = Data.Factions;
+			m_EntityFactionsNames = RelationsData.Editor.GetFactionsNames(Data);
 		}
+
+		//////////////////////////////////////////////////////////////////////////
+		private bool OnCreateEntityFactionRequest(string InFactionName)
+		{
+			if (RelationsData.Editor.Contains(Data, InFactionName))
+			{
+				EditorUtility.DisplayDialog("Key already exists", $"The Faaction '{InFactionName}' already registered", "OK");
+				return false;
+			}
+
+			using (new Utils.Editor.MarkAsDirty(Data))
+			{
+				EntityFaction newFaction = RelationsData.Editor.CreateFaction(Data, InFactionName);
+				AssetDatabase.AddObjectToAsset(newFaction, Data);
+			}
+			RefreshViewData();
+			return true;
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		private void OnEntityFactionRenameRequest(EntityFaction entityFaction)
+		{
+			bool onRename(string newName)
+			{
+				if (RelationsData.Editor.Contains(Data, newName))
+				{
+					EditorUtility.DisplayDialog("Entity faction already exists", $"The entity faction '{newName}' already registered", "OK");
+					return false;
+				}
+				using (new Utils.Editor.MarkAsDirty(Data))
+				{
+					using (new Utils.Editor.MarkAsDirty(entityFaction))
+					{
+						RelationsData.Editor.Rename(Data, entityFaction, newName);
+					}
+				}
+				Utils.Editor.ProjectBrowserResetter.Execute();
+				AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(Data));
+				RefreshViewData();
+				return true;
+			}
+
+			EditorUtils.InputValueWindow.OpenStringInput(onRename, null, entityFaction.FactionName);
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		private bool OnEntityFactionRemoveRequest(in EntityFaction entityFaction)
+		{
+			bool bResult = false;
+			if (EditorUtility.DisplayDialog("Entity factiondeletion", $"Are you sure you want to delete entity faction '{entityFaction.FactionName}' ", "Yes", "No"))
+			{
+				RelationsData.Editor.DeleteFaction(Data, entityFaction.FactionName);
+				AssetDatabase.RemoveObjectFromAsset(entityFaction);
+				RefreshViewData();
+				bResult = true;
+			}
+			return bResult;
+		}
+
 
 		//////////////////////////////////////////////////////////////////////////
 		private void OnGUI()
 		{
-			for (int i = 0, length = m_FactionNames.Length; i < length; i++)
+			using (new EditorGUILayout.VerticalScope())
 			{
-				string name = m_FactionNames[i];
-
-				// Top Row Element
-				if (m_RowElements.IsValidIndex(i))
+				using (new EditorGUILayout.HorizontalScope())
 				{
-					Rect rect = m_RowElements[i];
-					GUI.Label(rect, name, EditorStyles.label);
-				}
-
-				// Left List Element
-				if (m_ListElements.IsValidIndex(i))
-				{
-					Rect rect = m_ListElements[i];
-					GUI.Label(rect, name, EditorStyles.label);
-				}
-
-				// Sliders
-				if (m_SlidersElements.IsValidIndex(i))
-				{
-					List<Rect> slidersForThisRow = m_SlidersElements[i];
-					for (int k = 0; k < length; k++)
+					if (GUILayout.Button("Create Faction", GUILayout.MaxWidth(110f)))
 					{
-						if (k != i)
+						EditorUtils.InputValueWindow.OpenStringInput(OnCreateEntityFactionRequest, null);
+					}
+
+					m_CurrentTabIndex = GUILayout.Toolbar(m_CurrentTabIndex, m_EntityFactionsNames);
+					
+					GUILayout.FlexibleSpace();
+				}
+
+				EditorGUILayout.LabelField(string.Empty, GUI.skin.horizontalSlider); // ---------------------------------------------------------------------------
+
+				if (m_EntityFactions.TryGetByIndex(m_CurrentTabIndex + 1, out EntityFaction entityFaction)) // +1 To avoid Default faction
+				{
+					using (new EditorGUILayout.HorizontalScope())
+					{
+						if (GUILayout.Button("Rename", GUILayout.Width(100f)))
 						{
-							Rect rect = slidersForThisRow[k];
-							short currentValue = Data.EDITOR_ONLY_Data[i, k];
-							short newValue = (short)GUI.HorizontalSlider(rect, currentValue, short.MinValue, short.MaxValue);
-							if (currentValue != newValue)
+							OnEntityFactionRenameRequest(entityFaction);
+						}
+						if (GUILayout.Button("Delete", GUILayout.Width(100f)))
+						{
+							OnEntityFactionRemoveRequest(entityFaction);
+						}
+
+						using (new EditorGUILayout.VerticalScope())
+						{
+							foreach (EntityFaction otherEntityFaction in Data.Factions)
 							{
-								EditorUtility.SetDirty(Data);
-								Data.EDITOR_ONLY_Data[i, k] = newValue;
+								if (!entityFaction.IsEqual(otherEntityFaction) && !EntityFaction.Editor.IsDefault(entityFaction))
+								{
+									using (new EditorGUILayout.VerticalScope(GUILayout.Width(200f)))
+									{
+										using (new EditorGUILayout.HorizontalScope())
+										{
+											GUILayout.Label($"{entityFaction.FactionName} -> {otherEntityFaction.FactionName}");
+
+											if (GUILayout.Button("Reset", GUILayout.Width(70f)))
+											{
+												Data.OverrideRelations(entityFaction, otherEntityFaction, RelationsData.NeutralRelationValue);
+											}
+										}
+
+										using (new Utils.Editor.CustomGUIBackgroundColor())
+										{
+											float value = Data.GetRelationValue(entityFaction, otherEntityFaction);
+											GUI.backgroundColor = Color.Lerp(Color.red, Color.green, value);
+											float newValue = GUILayout.HorizontalSlider(value, 0f, 1f, GUILayout.Height(40f));
+											if (value != newValue)
+											{
+												Data.OverrideRelations(entityFaction, otherEntityFaction, newValue);
+											}
+										}
+									}	
+								}
 							}
 						}
 					}
