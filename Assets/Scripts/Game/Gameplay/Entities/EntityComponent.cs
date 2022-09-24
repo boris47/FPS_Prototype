@@ -28,7 +28,7 @@ namespace Entities
 		// This function is called when the script is loaded or a value is changed in the inspector (Called in the editor only)
 		protected virtual void OnValidate()
 		{
-			gameObject.TryGetIfNotAssigned(ref m_Owner);
+			gameObject.TryGetComponent(out m_Owner);
 		}
 
 
