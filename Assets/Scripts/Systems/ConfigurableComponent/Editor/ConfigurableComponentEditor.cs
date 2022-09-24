@@ -42,14 +42,14 @@ public sealed class ConfigurableComponentEditor
 			}
 		}
 
-		string[] subFolders = AssetDatabase.GetSubFolders($"Assets/Resources/{Configurable.MainFolderName}");
+		string[] subFolders = AssetDatabase.GetSubFolders("Assets/Resources");
 		List<string> allFolders = new List<string>(subFolders);
 		foreach (string subFolder in subFolders)
 		{
 			RecursiveFindFolders(subFolder, allFolders);
 		}
 
-		string[] configurablesGUIDS = AssetDatabase.FindAssets(string.Empty, allFolders.ToArray());
+		string[] configurablesGUIDS = AssetDatabase.FindAssets($"t: {typeof(ConfigurationBase).FullName}", allFolders.ToArray());
 		string[] configurablesAssetPath = configurablesGUIDS
 			.Select(guid => AssetDatabase.GUIDToAssetPath(guid))
 			.Where(p => Utils.Paths.IsAsset(p))

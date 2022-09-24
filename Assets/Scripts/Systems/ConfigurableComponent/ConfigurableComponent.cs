@@ -5,8 +5,6 @@ using UnityEngine;
 [System.AttributeUsage(System.AttributeTargets.Class, Inherited = false)]
 public class Configurable : System.Attribute
 {
-	public const string MainFolderName = "Configs";
-
 	public readonly string			FieldName				= string.Empty;
 	public readonly System.Type		ConfigurationType		= null;
 	public readonly string			ResourcePath			= string.Empty;
@@ -15,18 +13,18 @@ public class Configurable : System.Attribute
 	public Configurable(string InFieldName, System.Type InConfigurableComponentType)
 	{
 		FieldName = InFieldName;
-		ResourcePath = $"{MainFolderName}/{InConfigurableComponentType.Name}Configuration";
+		ResourcePath = $"{InConfigurableComponentType.Name}Configuration";
 	}
 	public Configurable(string InFieldName, string InResourcePath)
 	{
 		FieldName = InFieldName;
-		ResourcePath = $"{MainFolderName}/{InResourcePath}";
+		ResourcePath = InResourcePath;
 	}
 
 	public Configurable(System.Type InConfigurationType, string InResourcePath)
 	{
 		ConfigurationType = InConfigurationType;
-		ResourcePath = $"{MainFolderName}/{InResourcePath}";
+		ResourcePath = InResourcePath;
 	}
 }
 
