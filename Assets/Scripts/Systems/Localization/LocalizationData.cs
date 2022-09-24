@@ -10,10 +10,10 @@ namespace Localization
 		public const		string										ResourcePath							= "Systems/Localization/LocalizationData";
 		public const		SystemLanguage								DefaultSystemLanguage					= SystemLanguage.English;
 
-		[SerializeField]
+		[SerializeField, ReadOnly]
 		private				List<SystemLanguage>						m_SupportedLanguages					= new List<SystemLanguage>() { DefaultSystemLanguage };
 
-		[SerializeField]
+		[SerializeField, ReadOnly]
 		private				List<LocalizationTable>						m_Tables								= new List<LocalizationTable>() { new LocalizationTable(DefaultSystemLanguage) };
 
 		public				SystemLanguage[]							AvailableLanguages						=> m_SupportedLanguages.ToArray();
@@ -66,43 +66,9 @@ namespace Localization
 					LocalizationKey.Editor.Reset();
 					foreach (string keyName in InLocalizationData.m_EDITOR_KeyNames)
 					{
-						LocalizationKey.Editor.Create(keyName);
+						LocalizationKey.Editor.CreateAsset(keyName);
 					}
 				}
-
-			//	using (new Utils.Editor.MarkAsDirty(InLocalizationData))
-			//	{
-			//		foreach (SystemLanguage systemLanguage in InLocalizationData.m_SupportedLanguages)
-			//		{
-			//			// Ensure every language has a paired table
-			//			if (!InLocalizationData.m_Tables.Exists(t => t.Language == systemLanguage))
-			//			{
-			//				InLocalizationData.m_Tables.Add(new LocalizationTable(systemLanguage));
-			//			}
-			//		}
-			//
-			//		// Removed orphan tables
-			//		for (int i = InLocalizationData.m_Tables.Count - 1; i >= 0; i--)
-			//		{
-			//			LocalizationTable localizationTable = InLocalizationData.m_Tables[i];
-			//			if (!InLocalizationData.m_SupportedLanguages.Contains(localizationTable.Language))
-			//			{
-			//				InLocalizationData.m_Tables.RemoveAt(i);
-			//			}
-			//		}
-			//
-			//		// Sync keys list
-			//		InLocalizationData.m_EDITOR_Keys.Clear();
-			//		if (InLocalizationData.m_Tables.Any())
-			//		{
-			//			var table = InLocalizationData.m_Tables.First();
-			//			int count = LocalizationTable.Editor.GetItemsCount(table);
-			//			for (int i = 0; i < count; i++)
-			//			{
-			//				InLocalizationData.m_EDITOR_Keys.Add(LocalizationTable.Editor.GetKeyAt(table, i));
-			//			}
-			//		}
-			//	}
 			}
 
 			//////////////////////////////////////////////////////////////////////////
@@ -145,12 +111,12 @@ namespace Localization
 						}
 						else
 						{
-							Debug.LogError($"Cannot find a table associated with language {InLanguage}");
+							Debug.LogError($"Cannot find a table associated with language {InLanguage}.");
 						}
 					}
 					else
 					{
-						Debug.LogError($"Trying to remove language {InLanguage}, but it cannnot be found in supported languages");
+						Debug.LogError($"Trying to remove language {InLanguage}, but it cannnot be found.");
 					}
 				}
 			}

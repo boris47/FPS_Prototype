@@ -70,11 +70,33 @@ namespace Localization
 				return false;
 			}
 
-			LocalizationKey newKey = LocalizationKey.Editor.Create(InKeyName);
-			LocalizationData.Editor.AddKey(Data, newKey);
-			AssetDatabase.AddObjectToAsset(newKey, Data);
+			using (new Utils.Editor.MarkAsDirty(Data))
+			{
+				LocalizationKey newKey = LocalizationKey.Editor.CreateAsset(InKeyName);
+				LocalizationData.Editor.AddKey(Data, newKey);
+				AssetDatabase.AddObjectToAsset(newKey, Data);
+			}
 			RefreshViewData();
 			return true;
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		private void OnKeyRenameRequest(LocalizationKey key)
+		{
+			bool onRename(string newName)
+			{
+				if (LocalizationKey.Editor.Contains(key.name))
+				{
+					EditorUtility.DisplayDialog("Key already exists", $"The key '{key.name}' already registered", "OK");
+					return false;
+				}
+
+				var path = AssetDatabase.GetAssetPath(key);
+				AssetDatabase.RenameAsset(path, path.Replace(key.name, newName));
+				return true;
+			}
+
+			EditorUtils.InputValueWindow.OpenStringInput(onRename, null);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -127,6 +149,10 @@ namespace Localization
 							{
 								// Key
 								GUILayout.Label(key.name, GUILayout.Width(150f));
+								if (GUILayout.Button("R", GUILayout.Width(18f)))
+								{
+									OnKeyRenameRequest(key);
+								}
 								if (GUILayout.Button("x", GUILayout.Width(18f)))
 								{
 									if (OnKeyRemoveRequest(key))

@@ -34,13 +34,7 @@ namespace Localization
 			//////////////////////////////////////////////////////////////////////////
 			public static bool TryGetById(uint InId, out LocalizationKey OutValue)
 			{
-				bool bResult = false;
-				OutValue = null;
-				if (s_AllKeys.TryFind(out LocalizationKey keyFound, out var _, k => k.m_UniqueId == InId))
-				{
-					OutValue = keyFound;
-				}
-				return bResult;
+				return s_AllKeys.TryFind(out OutValue, out var _, k => k.m_UniqueId == InId);
 			}
 
 			//////////////////////////////////////////////////////////////////////////
@@ -80,7 +74,7 @@ namespace Localization
 			}
 
 			//////////////////////////////////////////////////////////////////////////
-			public static LocalizationKey Create(in string InKeyName)
+			public static LocalizationKey CreateAsset(in string InKeyName)
 			{
 				LocalizationKey outValue = null;
 				if (!string.IsNullOrEmpty(InKeyName))
