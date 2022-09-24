@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using TypeReferences;
 
 namespace Entities.Player
 {
@@ -9,6 +10,9 @@ namespace Entities.Player
 		public	const		float					k_CharacterRadius				= 0.5f;
 		public	const		float					k_HeadHeight					= 0.565f;
 		public	const		float					k_MaxSlopeLimitAngle			= 90f;
+
+		[SerializeField, Inherits(typeof(Components.PlayerMotionStrategyBase), AllowAbstract = false, ShowNoneElement = false)]
+		private				TypeReference			m_DefaultMotionStrategyType		= typeof(Components.PlayerMotionStrategyGrounded);
 
 		[Header("Character controller params")]
 		[SerializeField][Range(1f, k_MaxSlopeLimitAngle)]
@@ -23,6 +27,7 @@ namespace Entities.Player
 		private				float					m_UseDistance					= 1f;
 
 
+		public				System.Type				DefaultMotionStrategyType		=> m_DefaultMotionStrategyType;
 
 		public				float					SlopeLimit						=> m_SlopeLimit;
 		public				InputActionReference	UseAction						=> m_UseAction;

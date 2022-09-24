@@ -3,16 +3,12 @@ using UnityEngine;
 
 namespace Entities.Player.Components
 {
-	public class PlayerMotionTransitionSnapshot : MotionTransitionSnapshot
-	{
-
-	}
-
-
 	public sealed class PlayerMotionManager : MotionManager
 	{
 		[SerializeField, ReadOnly]
 		private		PlayerMotionStrategyBase				m_CurrentMotionStrategy			= null;
+
+		private		PlayerEntity							m_Entity						=> m_Owner as PlayerEntity;
 
 
 		//////////////////////////////////////////////////////////////////
@@ -31,14 +27,17 @@ namespace Entities.Player.Components
 
 			if (!m_CurrentMotionStrategy.IsNotNull())
 			{
-				SetMotionType<PlayerMotionStrategyGrounded>();
+				SetMotionType(m_Entity.Configs.DefaultMotionStrategyType);
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public T SetMotionType<T>() where T : PlayerMotionStrategyBase, new()
+		public T SetMotionType<T>() where T : PlayerMotionStrategyBase, new() => SetMotionType(typeof(T)) as T;
+
+		//////////////////////////////////////////////////////////////////////////
+		private PlayerMotionStrategyBase SetMotionType(in System.Type InMotionType)
 		{
-			if (m_CurrentMotionStrategy == null || (m_CurrentMotionStrategy.IsNotNull() && m_CurrentMotionStrategy.GetType() != typeof(T)))
+			if (m_CurrentMotionStrategy == null || (m_CurrentMotionStrategy.IsNotNull() && m_CurrentMotionStrategy.GetType() != InMotionType))
 			{
 				PlayerMotionTransitionSnapshot snapshot = null;
 				if (m_CurrentMotionStrategy.IsNotNull())
@@ -48,14 +47,14 @@ namespace Entities.Player.Components
 					Destroy(m_CurrentMotionStrategy);
 				}
 
-				m_CurrentMotionStrategy = gameObject.AddComponent<T>();
+				m_CurrentMotionStrategy = gameObject.AddComponent(InMotionType) as PlayerMotionStrategyBase;
 
 				if (snapshot.IsNotNull())
 				{
 					m_CurrentMotionStrategy.PorcessSnapshot(snapshot);
 				}
 			}
-			return m_CurrentMotionStrategy as T;
+			return m_CurrentMotionStrategy;
 		}
 
 
