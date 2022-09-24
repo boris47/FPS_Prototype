@@ -261,8 +261,9 @@ public static class Extensions_CSharp
 
 		using (IEnumerator<TSource> sourceIterator = ThisEnumerable.GetEnumerator())
 		{
+			sourceIterator.MoveNext();
 			TSource min = sourceIterator.Current;
-			if (sourceIterator.MoveNext())
+		//	if (sourceIterator.MoveNext())
 			{
 				InComparer ??= Comparer<TKey>.Default;
 				TKey minKey = InSelector(min);
@@ -286,12 +287,13 @@ public static class Extensions_CSharp
 	/// <summary> Select the element that better satisfy the selector with maximum value </summary>
 	public static TSource MaxBy<TSource, TKey>(this IEnumerable<TSource> ThisEnumerable, System.Func<TSource, TKey> InSelector, IComparer<TKey> InComparer = null)
 	{
-		if (ThisEnumerable == null /*|| ThisEnumerable.Count() == 0*/ || InSelector == null) return default;
+		if (ThisEnumerable == null || ThisEnumerable.Count() == 0 || InSelector == null) return default;
 
 		using (IEnumerator<TSource> sourceIterator = ThisEnumerable.GetEnumerator())
 		{
+			sourceIterator.MoveNext();
 			TSource min = sourceIterator.Current;
-			if (sourceIterator.MoveNext())
+		//	if (sourceIterator.MoveNext())
 			{
 				InComparer ??= Comparer<TKey>.Default;
 				TKey minKey = InSelector(min);
