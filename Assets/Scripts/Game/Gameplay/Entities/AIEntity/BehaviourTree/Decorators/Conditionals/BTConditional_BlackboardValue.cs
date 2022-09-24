@@ -12,6 +12,7 @@ namespace Entities.AI.Components.Behaviours
 		private				BlackboardEntryKey					m_BlackboardKey			= null;
 
 		[SerializeField, ToNodeInspector(bShowLabel: true)]
+		[Tooltip("If true on key value change request a child reset by aborting it and re-running it")]
 		private				bool								m_ResetOnChange			= true;
 
 

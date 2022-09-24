@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Entities.AI
 {
@@ -12,7 +11,7 @@ namespace Entities.AI
 		private			T						m_DefaultValue	= default;
 		public			T						Value			=> m_Value;
 
-		public sealed override	System.Type		StoredType		=> m_Value?.GetType();
+		public sealed override	System.Type		StoredType		=> typeof(T);
 
 		/// <summary> Called when value is changed (previous, new value) </summary>
 		public event	System.Action<T, T>		OnValueChanged	= delegate { };

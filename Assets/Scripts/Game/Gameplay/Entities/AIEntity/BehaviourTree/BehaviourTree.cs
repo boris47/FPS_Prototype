@@ -268,7 +268,7 @@ namespace Entities.AI.Components.Behaviours
 			bool bValidAbortType = Utils.CustomAssertions.IsTrue(InConditionalRequestingLowPriorityAbort.AbortType == EAbortType.LowerPriority || InConditionalRequestingLowPriorityAbort.AbortType == EAbortType.Both);
 			uint conditionalToActivateIndex = InConditionalRequestingLowPriorityAbort.NodeIndex;
 			uint currentRunningNodeIndex = m_CurrentRunningNode.NodeIndex;
-			bool bValidIndex = Utils.CustomAssertions.IsTrue(conditionalToActivateIndex < currentRunningNodeIndex);
+			bool bValidIndex = /*Utils.CustomAssertions.IsTrue*/(conditionalToActivateIndex < currentRunningNodeIndex);
 
 			if (bValidIndex && bValidAbortType)
 			{
@@ -279,7 +279,7 @@ namespace Entities.AI.Components.Behaviours
 						m_Nodes.At(i).ResetNode();
 					}
 
-					m_CurrentRunningNode = InConditionalRequestingLowPriorityAbort;
+				//	m_CurrentRunningNode = InConditionalRequestingLowPriorityAbort;
 				} + InPostAbort);
 			}
 		}

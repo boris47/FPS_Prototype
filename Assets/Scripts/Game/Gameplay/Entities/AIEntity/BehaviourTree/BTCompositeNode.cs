@@ -61,14 +61,14 @@ namespace Entities.AI.Components.Behaviours
 			EBTNodeState OutResult = EBTNodeState.RUNNING;
 			m_CurrentIndex = 0u;
 
-			if (m_Children.Count < MinimumChildrenCount)
-			{
-				OutResult = EBTNodeState.SUCCEEDED; // By Design
-			}
-			else
-			{
-				m_Children.ForEach(c => c.ResetNode());
-			}
+		//	if (m_Children.Count < MinimumChildrenCount)
+		//	{
+		//		OutResult = EBTNodeState.SUCCEEDED; // By Design
+		//	}
+		//	else
+		//	{
+		//		m_Children.ForEach(c => c.ResetNode());
+		//	}
 			return OutResult;
 		}
 

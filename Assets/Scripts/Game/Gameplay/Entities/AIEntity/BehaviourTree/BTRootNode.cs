@@ -47,7 +47,7 @@ namespace Entities.AI.Components.Behaviours
 			if (Child.IsNotNull())
 			{
 				OutState = Child.Update();
-				if (m_MustRepeat)
+				if (BTNode.IsFinished(Child) && m_MustRepeat)
 				{
 					Child.ResetNode();
 					OutState = EBTNodeState.RUNNING;

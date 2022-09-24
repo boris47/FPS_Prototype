@@ -22,7 +22,7 @@ namespace Entities.AI.Components
 			private void OnEnable()
 			{
 				m_Blackboard = (Blackboard)serializedObject.targetObject;
-				m_EntryTable = serializedObject.FindProperty("m_Entries");
+				m_EntryTable = serializedObject.FindProperty(nameof(m_Entries));
 
 				m_ReorderableList = new ReorderableList(serializedObject, elements: m_EntryTable, draggable: false, displayHeader: false, displayAddButton: true, displayRemoveButton: true)
 				{
@@ -44,9 +44,9 @@ namespace Entities.AI.Components
 			private void DrawKey(Rect rect, int index)
 			{
 				SerializedProperty property = m_EntryTable.GetArrayElementAtIndex(index);
-				SerializedProperty keyProperty = property.FindPropertyRelative("m_BlackboardEntryKey");
-				BlackboardEntryKey entryKey = (BlackboardEntryKey)keyProperty.objectReferenceValue;
-				string label = string.IsNullOrEmpty(entryKey.DebugName) ? entryKey.name : entryKey.DebugName;
+				SerializedProperty identifier = property.FindPropertyRelative("m_BlackboardEntryKey");
+				BlackboardEntryKey reference = (BlackboardEntryKey)identifier.objectReferenceValue;
+				string label = string.IsNullOrEmpty(reference.DebugName) ? reference.name : reference.DebugName;
 				EditorGUI.LabelField(rect, label);
 			}
 

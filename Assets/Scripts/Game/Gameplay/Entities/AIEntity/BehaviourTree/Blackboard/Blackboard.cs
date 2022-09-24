@@ -69,7 +69,7 @@ namespace Entities.AI.Components
 					}
 					else
 					{
-						if (OutValue.StoredType == storedGenericType || ReflectionHelper.IsInerithedFrom(storedGenericType, OutValue.StoredType))
+						if (OutValue.StoredType.IsNotNull() && (OutValue.StoredType == storedGenericType || ReflectionHelper.IsInerithedFrom(storedGenericType, OutValue.StoredType)))
 						{
 							OutEntry = OutValue;
 						}

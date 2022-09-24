@@ -13,19 +13,7 @@ namespace Entities.AI
 		private string m_DebugName = string.Empty;
 		public string DebugName => m_DebugName;
 #endif
-		[SerializeField, ReadOnly]
-		private uint m_UniqueId = 0u;
-		private uint UniqueId
-		{
-			get
-			{
-				if (m_UniqueId == 0u)
-				{
-					m_UniqueId = Utils.Generic.GetUniqueId(name);
-				}
-				return m_UniqueId;
-			}
-		}
+		private uint UniqueId => Utils.Generic.GetUniqueId(name);
 
 		//////////////////////////////////////////////////////////////////////////
 		public bool IsEqualTo(in BlackboardEntryKey InOtherKey) => UniqueId == InOtherKey.UniqueId;
