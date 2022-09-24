@@ -12,6 +12,7 @@ namespace Entities.AI.Components
 		public override Vector3 Position => transform.position;
 
 
+		//////////////////////////////////////////////////////////////////////////
 		protected override void Awake()
 		{
 			base.Awake();
@@ -19,12 +20,29 @@ namespace Entities.AI.Components
 			Utils.CustomAssertions.IsTrue(this.TryGetConfiguration(out m_Config));
 		}
 
-		public override void SetNewDestination(in Vector3 InDestination)
+		//////////////////////////////////////////////////////////////////////////
+		public override AIEntityMotionTransitionSnapshot CreateSnapshot()
 		{
-			
+			return new AIEntityMotionTransitionSnapshot()
+			{
+				CurrentVelocity = Vector3.zero
+			};
 		}
 
-		private void Update()
+		//////////////////////////////////////////////////////////////////////////
+		public override void PorcessSnapshot(AIEntityMotionTransitionSnapshot InSnapShot)
+		{
+
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public override bool RequireMovementTo(in Vector3 InDestination)
+		{
+			return false;
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public override void Stop(in bool bImmediately)
 		{
 			
 		}

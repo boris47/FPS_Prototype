@@ -6,6 +6,7 @@ using UnityEngine.AI;
 namespace Entities.AI
 {
 	using Components;
+	using Relations;
 
 	[RequireComponent(typeof(NavMeshAgent))]
 	[RequireComponent(typeof(AIController))]
@@ -42,18 +43,16 @@ namespace Entities.AI
 		//////////////////////////////////////////////////////////////////
 		public override bool IsInterestedAt(in Entity source)
 		{
-			return Controller.BrainComponent.Targets.GetEnemyFactions().Contains(source.Faction);
-		//	throw new System.NotImplementedException();
-		//	return false;
+			EntityFaction[] enemyFactions = Controller.BrainComponent.Targets.GetEnemyFactions();
+			return enemyFactions.Contains(source.Faction);
 		}
 
 
 		//////////////////////////////////////////////////////////////////
 		public bool IsInterestedAt(in Entity source, in ESoundType soundType)
 		{
-			return Controller.BrainComponent.Targets.GetEnemyFactions().Contains(source.Faction);
-		//	throw new System.NotImplementedException();
-		//	return false;
+			EntityFaction[] enemyFactions = Controller.BrainComponent.Targets.GetEnemyFactions();
+			return enemyFactions.Contains(source.Faction);
 		}
 
 

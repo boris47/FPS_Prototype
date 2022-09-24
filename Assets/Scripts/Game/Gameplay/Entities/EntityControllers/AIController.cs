@@ -87,7 +87,9 @@ namespace Entities.AI
 		{
 			Entity = null;
 		}
-
+		public BlackboardEntryKey m_onEntitySeen = null;
+		public BlackboardEntryKey m_EntityLost = null;
+		public MemoryIdentifier m_EntityMemoryIdentifier = null;
 		//////////////////////////////////////////////////////////////////////////
 		private void HandleSenseEvent(in SenseEvent senseEvent)
 		{
@@ -103,19 +105,25 @@ namespace Entities.AI
 			{
 				switch (sightEvent.TargetInfoType)
 				{
-					case ETargetInfoType.ACQUIRED:
+					case ESightTargetEventType.ACQUIRED:
 					{
 						(Entity EntitySeen, Vector3 SeenPosition, Vector3 ViewerPosition) = sightEvent.AsTargetAcquiredEvent();
+						controller.BrainComponent.MemoryComponent.RemoveMemory(controller.m_EntityMemoryIdentifier);
+						controller.Blackboard.SetEntryValue<BBEntry_EntityToEvaluate, Entity>(controller.m_onEntitySeen, EntitySeen);
+						controller.Blackboard.RemoveEntry(controller.m_EntityLost);
 						return;
 					}
-					case ETargetInfoType.CHANGED:
+					case ESightTargetEventType.CHANGED:
 					{
 						(Entity EntitySeen, Vector3 SeenPosition, Vector3 ViewerPosition) = sightEvent.AsTargetChangedEvent();
 						return;
 					}
-					case ETargetInfoType.LOST:
+					case ESightTargetEventType.LOST:
 					{
 						(Entity LostTarget, Vector3 SeenPosition, Vector3 LastDirection, Vector3 ViewerPosition) = sightEvent.AsTargetLostEvent();
+						controller.BrainComponent.MemoryComponent.AddTrajectoryToMemory(controller.m_EntityMemoryIdentifier, SeenPosition, LastDirection);
+						controller.Blackboard.SetEntryValue<BBEntry_EntityToEvaluate, Entity>(controller.m_EntityLost, LostTarget);
+						controller.Blackboard.RemoveEntry(controller.m_onEntitySeen);
 						return;
 					}
 				}

@@ -45,7 +45,7 @@ namespace Entities.AI.Components
 			if (newSenseEvent.SenseType == ESenses.SIGHT)
 			{
 				var eventt = newSenseEvent as Senses.SightEvent;
-				if (eventt.TargetInfoType == Senses.ETargetInfoType.ACQUIRED || eventt.TargetInfoType == Senses.ETargetInfoType.CHANGED)
+				if (eventt.TargetInfoType == Senses.ESightTargetEventType.ACQUIRED || eventt.TargetInfoType == Senses.ESightTargetEventType.CHANGED)
 				{
 					m_Target = eventt.EntitySeen;
 					bHasPath = global::AI.Pathfinding.AStarSearch.FindPath(transform.position, lastTargetPosition = m_Target.Targetable.position, out m_Path);

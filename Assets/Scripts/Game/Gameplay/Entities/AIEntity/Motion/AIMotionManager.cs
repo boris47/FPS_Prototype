@@ -3,20 +3,23 @@ using UnityEngine;
 
 namespace Entities.AI.Components
 {
-	public abstract class MotionTransitionSnapshot
-	{
-		public Vector3 CurrentVelocity = Vector3.zero;
-	}
-
-
+	using TypeReferences;
+	
 	public sealed class AIMotionManager : MotionManager
 	{
+		[SerializeField, Inherits(typeof(AIMotionStrategyBase), AllowAbstract = false, ShowNoneElement = false)]
+		private		TypeReference							m_DefaultMotionStrategyType		= typeof(AIMotionStrategyGrounded);
+
 		[SerializeField, ReadOnly]
-		private		AIMotionStrategyBase				m_CurrentMotionStrategy			= null;
+		private		AIMotionStrategyBase					m_CurrentMotionStrategy			= null;
+
+		private		AIEntity								m_Entity						=> m_Owner as AIEntity;
 
 
 		//--------------------
-		public		Vector3								Position						=> m_CurrentMotionStrategy?.Position ?? Vector3.zero;
+		public		Vector3									Position						=> m_CurrentMotionStrategy?.Position ?? Vector3.zero;
+
+
 
 
 		//////////////////////////////////////////////////////////////////
@@ -35,29 +38,46 @@ namespace Entities.AI.Components
 
 			if (!m_CurrentMotionStrategy.IsNotNull())
 			{
-			//	SetMotionType<AIMotionStrategyGrounded>();
+				SetMotionType(m_DefaultMotionStrategyType);
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public void SetMotionType<T>() where T : AIMotionStrategyBase, new()
+		public T SetMotionType<T>() where T : AIMotionStrategyBase, new() => SetMotionType(typeof(T)) as T;
+
+		//////////////////////////////////////////////////////////////////////////
+		private AIMotionStrategyBase SetMotionType(in System.Type InMotionType)
 		{
-			if (m_CurrentMotionStrategy.IsNotNull() && m_CurrentMotionStrategy.GetType() != typeof(T))
+			if (m_CurrentMotionStrategy == null || (m_CurrentMotionStrategy.IsNotNull() && m_CurrentMotionStrategy.GetType() != InMotionType))
 			{
-				m_CurrentMotionStrategy.enabled = false;
+				AIEntityMotionTransitionSnapshot snapshot = null;
+				if (m_CurrentMotionStrategy.IsNotNull())
+				{
+					snapshot = m_CurrentMotionStrategy.CreateSnapshot();
 
-				m_CurrentMotionStrategy.StopAllCoroutines();
+					Destroy(m_CurrentMotionStrategy);
+				}
 
-				Destroy(m_CurrentMotionStrategy);
+				m_CurrentMotionStrategy = gameObject.AddComponent(InMotionType) as AIMotionStrategyBase;
+
+				if (snapshot.IsNotNull())
+				{
+					m_CurrentMotionStrategy.PorcessSnapshot(snapshot);
+				}
 			}
-
-			m_CurrentMotionStrategy = gameObject.AddComponent<T>();
+			return m_CurrentMotionStrategy;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public void	SetDestination(in Vector3 InDestination)
+		public bool	RequireMovementTo(in Vector3 InDestination)
 		{
-			m_CurrentMotionStrategy.SetNewDestination(InDestination);
+			return m_CurrentMotionStrategy.RequireMovementTo(InDestination);
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public void Stop(in bool bImmediately)
+		{
+			m_CurrentMotionStrategy.Stop(bImmediately);
 		}
 
 
