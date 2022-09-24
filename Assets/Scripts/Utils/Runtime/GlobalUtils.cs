@@ -1223,8 +1223,32 @@ namespace Utils // Converters
 #if UNITY_EDITOR
 namespace Utils.Editor // Editor Utils
 {
+	using System.Reflection;
 	using UnityEngine;
 	using UnityEditor;
+
+	// Ref: https://forum.unity.com/threads/no-rename.813678/#post-7985412
+	public static class ProjectBrowserResetter
+	{
+		private static System.Type m_ProjectBrowserType = null;
+		private static MethodInfo m_ResetViewsMethod = null;
+
+		/////////////////////////////////////////////////////////////////////////////
+		static ProjectBrowserResetter()
+		{
+			m_ProjectBrowserType = typeof(Editor).Assembly.GetType("UnityEditor.ProjectBrowser");
+			m_ResetViewsMethod = m_ProjectBrowserType.GetMethod("ResetViews", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+		}
+
+		/////////////////////////////////////////////////////////////////////////////
+		public static void Execute()
+		{
+			foreach (var window in Resources.FindObjectsOfTypeAll(m_ProjectBrowserType))
+			{
+				m_ResetViewsMethod.Invoke(window, new object[0]);
+			}
+		}
+	}
 
 	public static class GizmosHelper
 	{
@@ -1248,6 +1272,8 @@ namespace Utils.Editor // Editor Utils
 			_baseVertices = BuiltInCapsuleMesh.vertices;
 			newVertices = new Vector3[_baseVertices.Length];
 		}
+
+
 
 		//////////////////////////////////////////////////////////////////////////
 		public static void DrawCollider(in Collider InCollider, in Color InColor)
@@ -1351,6 +1377,29 @@ namespace Utils.Editor // Editor Utils
 			{
 				AssetDatabase.SaveAssetIfDirty(m_UnityObject);
 			}
+		}
+	}
+
+	public class CustomGUIBackgroundColor : System.IDisposable
+	{
+		private bool m_Disposed = false;
+		private readonly Color m_Color = Color.clear;
+
+		public CustomGUIBackgroundColor()
+		{
+			m_Disposed = false;
+			m_Color = GUI.backgroundColor;
+		}
+
+		public void Dispose()
+		{
+			if (m_Disposed)
+			{
+				return;
+			}
+			m_Disposed = true;
+
+			GUI.backgroundColor = m_Color;
 		}
 	}
 }
