@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f1470ffae115a04292f501de13aafa6, type: 3}
+  m_Name: PlayerMotionStrategyGrounded
+  m_EditorClassIdentifier: 
+  MoveSpeed: 5
+  MoveAcceleration: 18
+  MoveDeceleration: 15
+  SprintSpeedMult: 2
+  CrouchSpeedMult: 0.4
+  CrouchedHeight: 1
+  CrouchTransitionSeconds: 0.7
+  JumpHeight: 1.2
+  AirborneDrag: 0
+  AirControlMult: 0
+  MoveAction: {fileID: -3552364970006637457, guid: 4419d82f33d36e848b3ed5af4c8da37e, type: 3}
+  SprintAction: {fileID: -8750674506638915993, guid: 4419d82f33d36e848b3ed5af4c8da37e, type: 3}
+  CrouchAction: {fileID: -5834481320287588798, guid: 4419d82f33d36e848b3ed5af4c8da37e, type: 3}
+  JumpAction: {fileID: -1916377846673030204, guid: 4419d82f33d36e848b3ed5af4c8da37e, type: 3}

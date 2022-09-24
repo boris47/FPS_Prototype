@@ -1,0 +1,160 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-7334179390582472608
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87969a1f586909b4ab0469e87dab8613, type: 3}
+  m_Name: Player
+  m_EditorClassIdentifier: 
+  m_UniqueId: 3515359503
+--- !u!114 &-2902085169733866062
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87969a1f586909b4ab0469e87dab8613, type: 3}
+  m_Name: Soldiers
+  m_EditorClassIdentifier: 
+  m_UniqueId: 2518393802
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9eef9aae70fb21d4f99aba1cbd28b89f, type: 3}
+  m_Name: RelationsData
+  m_EditorClassIdentifier: 
+  m_Factions:
+  - {fileID: 2855240487535139611}
+  - {fileID: -7334179390582472608}
+  - {fileID: -2902085169733866062}
+  - {fileID: 1875322785684368070}
+  - {fileID: 6332891468028552854}
+  - {fileID: 761077734811829520}
+  m_Cells:
+  - m_Faction1Id: 3515359503
+    m_Faction2Id: 1315969474
+    m_Relation1To2Value: 0.5
+    m_Relation2To1Value: 0.5
+  - m_Faction1Id: 2518393802
+    m_Faction2Id: 1315969474
+    m_Relation1To2Value: 0.5
+    m_Relation2To1Value: 0.5
+  - m_Faction1Id: 2518393802
+    m_Faction2Id: 3515359503
+    m_Relation1To2Value: 0
+    m_Relation2To1Value: 0.5
+  - m_Faction1Id: 55849545
+    m_Faction2Id: 1315969474
+    m_Relation1To2Value: 0.5
+    m_Relation2To1Value: 0.5
+  - m_Faction1Id: 55849545
+    m_Faction2Id: 3515359503
+    m_Relation1To2Value: 0.5
+    m_Relation2To1Value: 0.5
+  - m_Faction1Id: 55849545
+    m_Faction2Id: 2518393802
+    m_Relation1To2Value: 0.5
+    m_Relation2To1Value: 0.5
+  - m_Faction1Id: 591034485
+    m_Faction2Id: 1315969474
+    m_Relation1To2Value: 0.5
+    m_Relation2To1Value: 0.5
+  - m_Faction1Id: 591034485
+    m_Faction2Id: 3515359503
+    m_Relation1To2Value: 0.5
+    m_Relation2To1Value: 0.5
+  - m_Faction1Id: 591034485
+    m_Faction2Id: 2518393802
+    m_Relation1To2Value: 0.5
+    m_Relation2To1Value: 0.5
+  - m_Faction1Id: 591034485
+    m_Faction2Id: 55849545
+    m_Relation1To2Value: 0.5
+    m_Relation2To1Value: 0.5
+  - m_Faction1Id: 378283347
+    m_Faction2Id: 1315969474
+    m_Relation1To2Value: 0.5
+    m_Relation2To1Value: 0.5
+  - m_Faction1Id: 378283347
+    m_Faction2Id: 3515359503
+    m_Relation1To2Value: 0.5
+    m_Relation2To1Value: 0.5
+  - m_Faction1Id: 378283347
+    m_Faction2Id: 2518393802
+    m_Relation1To2Value: 0.5
+    m_Relation2To1Value: 0.5
+  - m_Faction1Id: 378283347
+    m_Faction2Id: 55849545
+    m_Relation1To2Value: 0.5
+    m_Relation2To1Value: 0.5
+  - m_Faction1Id: 378283347
+    m_Faction2Id: 591034485
+    m_Relation1To2Value: 0.5
+    m_Relation2To1Value: 0.5
+--- !u!114 &761077734811829520
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87969a1f586909b4ab0469e87dab8613, type: 3}
+  m_Name: Civilians
+  m_EditorClassIdentifier: 
+  m_UniqueId: 378283347
+--- !u!114 &1875322785684368070
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87969a1f586909b4ab0469e87dab8613, type: 3}
+  m_Name: SpecOps
+  m_EditorClassIdentifier: 
+  m_UniqueId: 55849545
+--- !u!114 &2855240487535139611
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87969a1f586909b4ab0469e87dab8613, type: 3}
+  m_Name: Default
+  m_EditorClassIdentifier: 
+  m_UniqueId: 1315969474
+--- !u!114 &6332891468028552854
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87969a1f586909b4ab0469e87dab8613, type: 3}
+  m_Name: Animal
+  m_EditorClassIdentifier: 
+  m_UniqueId: 591034485
