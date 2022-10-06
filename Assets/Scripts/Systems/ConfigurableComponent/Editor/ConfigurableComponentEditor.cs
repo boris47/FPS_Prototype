@@ -129,6 +129,10 @@ public sealed class ConfigurableComponentEditor
 				// Invalid configuration
 				AssetDatabase.DeleteAsset(assetPath);
 			}
+			else
+			{
+				Resources.UnloadAsset(config);
+			}
 		}
 
 		foreach (System.Type configurableComponentType in TypeCache.GetTypesWithAttribute<Configurable>())
