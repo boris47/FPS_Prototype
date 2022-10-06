@@ -95,7 +95,7 @@ public abstract class GlobalScriptableObjectSingleton<T> : ScriptableObject
 		if (m_InstanceInternal.IsNotNull() && m_InstanceInternal != this)
 		{
 			Debug.LogWarning("There are two instances of the GameplaySettings loaded. This should never happen.");
-			Debug.LogWarning("Main instance ID: " + m_InstanceInternal.GetInstanceID() + ", other instance ID: " + GetInstanceID() + ".");
+			Debug.LogWarning($"Main instance ID: {m_InstanceInternal.GetInstanceID()}, other instance ID: {GetInstanceID()}.");
 		}
 	}
 
