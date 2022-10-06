@@ -13,10 +13,10 @@ namespace Entities.AI.Components.Behaviours
 	{
 		protected sealed override EBTNodeState OnActivation() => base.OnActivation();
 
-		protected override EBTNodeState OnUpdate()
+		protected override EBTNodeState OnUpdate(in float InDeltaTime)
 		{
 			EBTNodeState OutState = EBTNodeState.RUNNING;
-			switch (Children.At(m_CurrentIndex).Update())
+			switch (Children.At(m_CurrentIndex).UpdateNode(InDeltaTime))
 			{
 				case EBTNodeState.INACTIVE:
 				{

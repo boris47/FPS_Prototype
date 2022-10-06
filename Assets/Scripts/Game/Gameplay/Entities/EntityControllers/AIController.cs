@@ -4,25 +4,22 @@ namespace Entities.AI
 {
 	using Components;
 	using Components.Senses;
-	
+
 	/// <summary>
-	/// The AIController is more focused on responding to input from the environment and game world.<br />
-	/// The job of the AIController is to observe the world around it and make decisions and react accordingly without explicit input from a human player.<br />
+	/// AIController can be attached to a AIEntity to control its actions.
+	/// AIControllers manage the artificial intelligence for the AIEntity they control.
 	/// </summary>
 	[RequireComponent(typeof(AIBrainComponent))]
 	[RequireComponent(typeof(AIPerceptionComponent))]
 	[RequireComponent(typeof(AIBehaviorTreeComponent))]
-	[RequireComponent(typeof(Blackboard))]
-    public partial class AIController : EntityController
-    {
-        [SerializeField, ReadOnly]
-        private				AIBrainComponent				m_BrainComponent					= null;
+	public partial class AIController : EntityController
+	{
+		[SerializeField, ReadOnly]
+		private				AIBrainComponent				m_BrainComponent					= null;
 		[SerializeField, ReadOnly]
 		private				AIPerceptionComponent			m_PerceptionComponent				= null;
 		[SerializeField, ReadOnly]
 		private				AIBehaviorTreeComponent			m_BehaviorTreeComponent				= null;
-		[SerializeField, ReadOnly]
-		private				Blackboard						m_BlackBoard						= null;
 
 		[SerializeField]
 		protected			bool							m_StartBrainOnPossess				= false;
@@ -30,7 +27,6 @@ namespace Entities.AI
 		public				AIBrainComponent				BrainComponent						=> m_BrainComponent;
 		public				AIPerceptionComponent			PerceptionComponent					=> m_PerceptionComponent;
 		public				AIBehaviorTreeComponent			BehaviorTreeComponent				=> m_BehaviorTreeComponent;
-		public				Blackboard						Blackboard							=> m_BlackBoard;
 
 		public				AIEntity						Entity								{ get; private set; } = null;
 
@@ -41,23 +37,18 @@ namespace Entities.AI
 		{
 			base.Awake();
 
-			if (Utils.CustomAssertions.IsTrue(gameObject.TryGetIfNotAssigned(ref m_BrainComponent)))
+			if (m_BrainComponent.IsNotNull() || Utils.CustomAssertions.IsTrue(gameObject.TryGetComponent(out m_BrainComponent)))
 			{
 
 			}
 
-			if (Utils.CustomAssertions.IsTrue(gameObject.TryGetIfNotAssigned(ref m_PerceptionComponent)))
+			if (m_PerceptionComponent.IsNotNull() || Utils.CustomAssertions.IsTrue(gameObject.TryGetComponent(out m_PerceptionComponent)))
 			{
 				// TODO: Sense event handling should belong to entity brain instead!?
 				m_PerceptionComponent.Senses.OnNewSenseEvent += HandleSenseEvent;
 			}
 
-			if (Utils.CustomAssertions.IsTrue(gameObject.TryGetIfNotAssigned(ref m_BehaviorTreeComponent)))
-			{
-
-			}
-
-			if (Utils.CustomAssertions.IsTrue(gameObject.TryGetIfNotAssigned(ref m_BlackBoard)))
+			if (m_BehaviorTreeComponent.IsNotNull() || Utils.CustomAssertions.IsTrue(gameObject.TryGetComponent(out m_BehaviorTreeComponent)))
 			{
 
 			}
@@ -66,10 +57,9 @@ namespace Entities.AI
 		//////////////////////////////////////////////////////////////////////////
 		protected virtual void OnValidate()
 		{
-			gameObject.TryGetIfNotAssigned(ref m_BrainComponent);
-			gameObject.TryGetIfNotAssigned(ref m_PerceptionComponent);
-			gameObject.TryGetIfNotAssigned(ref m_BehaviorTreeComponent);
-			gameObject.TryGetIfNotAssigned(ref m_BlackBoard);
+			gameObject.TryGetComponent(out m_BrainComponent);
+			gameObject.TryGetComponent(out m_PerceptionComponent);
+			gameObject.TryGetComponent(out m_BehaviorTreeComponent);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -87,9 +77,19 @@ namespace Entities.AI
 		{
 			Entity = null;
 		}
-		public BlackboardEntryKey m_onEntitySeen = null;
-		public BlackboardEntryKey m_EntityLost = null;
-		public MemoryIdentifier m_EntityMemoryIdentifier = null;
+
+		//////////////////////////////////////////////////////////////////////////
+		public bool RequestMoveTo(in Entity InTargetEntity)
+		{
+			return false;
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public bool RequestMoveTo(in Vector3 InTargetPosition)
+		{
+			return false;
+		}
+
 		//////////////////////////////////////////////////////////////////////////
 		private void HandleSenseEvent(in SenseEvent senseEvent)
 		{
@@ -108,22 +108,31 @@ namespace Entities.AI
 					case ESightTargetEventType.ACQUIRED:
 					{
 						(Entity EntitySeen, Vector3 SeenPosition, Vector3 ViewerPosition) = sightEvent.AsTargetAcquiredEvent();
-						controller.BrainComponent.MemoryComponent.RemoveMemory(controller.m_EntityMemoryIdentifier);
-						controller.Blackboard.SetEntryValue<BBEntry_EntityToEvaluate, Entity>(controller.m_onEntitySeen, EntitySeen);
-						controller.Blackboard.RemoveEntry(controller.m_EntityLost);
+						
+						// Remove memory of previous enemy entity
+					//	controller.BrainComponent.MemoryComponent.RemoveMemory(controller.m_EnemyEntityMemoryIdentifier);
+
+						// Set current enemy entity
+					//	controller.Blackboard.SetEntryValue<BBEntry_TargetEntity, Entity>(controller.m_CurrentEnemyOnSight, EntitySeen);
 						return;
 					}
 					case ESightTargetEventType.CHANGED:
 					{
 						(Entity EntitySeen, Vector3 SeenPosition, Vector3 ViewerPosition) = sightEvent.AsTargetChangedEvent();
+
+						// Set current enemy entity
+				//		controller.Blackboard.SetEntryValue<BBEntry_TargetEntity, Entity>(controller.m_CurrentEnemyOnSight, EntitySeen);
 						return;
 					}
 					case ESightTargetEventType.LOST:
 					{
 						(Entity LostTarget, Vector3 SeenPosition, Vector3 LastDirection, Vector3 ViewerPosition) = sightEvent.AsTargetLostEvent();
-						controller.BrainComponent.MemoryComponent.AddTrajectoryToMemory(controller.m_EntityMemoryIdentifier, SeenPosition, LastDirection);
-						controller.Blackboard.SetEntryValue<BBEntry_EntityToEvaluate, Entity>(controller.m_EntityLost, LostTarget);
-						controller.Blackboard.RemoveEntry(controller.m_onEntitySeen);
+
+						// Remove key for current enemy entity
+					//	controller.Blackboard.RemoveEntry(controller.m_CurrentEnemyOnSight);
+
+						// Set memory of this entity last position and movement
+					//	controller.BrainComponent.MemoryComponent.AddTrajectoryToMemory(controller.m_EnemyEntityMemoryIdentifier, SeenPosition, LastDirection);
 						return;
 					}
 				}

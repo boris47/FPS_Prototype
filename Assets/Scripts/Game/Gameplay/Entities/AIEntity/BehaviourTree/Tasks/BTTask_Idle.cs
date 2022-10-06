@@ -26,7 +26,7 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdate() => EBTNodeState.RUNNING;
+		protected override EBTNodeState OnUpdate(in float InDeltaTime) => EBTNodeState.RUNNING;
 
 		//////////////////////////////////////////////////////////////////////////
 		protected override void OnTerminate()

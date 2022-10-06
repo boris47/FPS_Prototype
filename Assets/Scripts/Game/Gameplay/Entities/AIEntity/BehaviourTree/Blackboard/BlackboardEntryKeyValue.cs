@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace Entities.AI
 {
@@ -20,32 +21,35 @@ namespace Entities.AI
 		//////////////////////////////////////////////////////////////////////////
 		public void SetValue(in T InNewValue)
 		{
-			bool bIsEqual = System.Collections.Generic.EqualityComparer<T>.Default.Equals(m_Value, InNewValue);
+			bool bIsEqual = EqualityComparer<T>.Default.Equals(m_Value, InNewValue);
 			if (!bIsEqual)
 			{
+				// Change by default
 				EBlackboardValueOp OutOperation = EBlackboardValueOp.CHANGE;
-				bool bIsUnassigned = System.Collections.Generic.EqualityComparer<T>.Default.Equals(m_Value, m_DefaultValue);
-				if (bIsUnassigned)
+
+				bool bNewValueIsDefault = EqualityComparer<T>.Default.Equals(InNewValue, m_DefaultValue);
+				bool bCurrentValueIsDefault = EqualityComparer<T>.Default.Equals(m_Value, m_DefaultValue);
+
+				// Add value
+				if (!bNewValueIsDefault && bCurrentValueIsDefault)
 				{
 					OutOperation = EBlackboardValueOp.ADD;
 				}
-				else
+				// Remove
+				else if (!bCurrentValueIsDefault && bNewValueIsDefault)
 				{
-					bool bIsReset = System.Collections.Generic.EqualityComparer<T>.Default.Equals(InNewValue, m_DefaultValue);
-					if (bIsReset)
-					{
-						OutOperation = EBlackboardValueOp.REMOVE;
-					}
+					OutOperation = EBlackboardValueOp.REMOVE;
 				}
 
-				OnValueChanged(Value, InNewValue);
+				OnValueChanged(m_Value, InNewValue);
 				OnChangeNotificationInternal(OutOperation);
+
+				m_Value = InNewValue;
 			}
-			m_Value = InNewValue;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public override bool HasValue() => !System.Collections.Generic.EqualityComparer<T>.Default.Equals(m_Value, m_DefaultValue);
+		public override bool HasValue() => !EqualityComparer<T>.Default.Equals(m_Value, m_DefaultValue);
 	}
 }
 

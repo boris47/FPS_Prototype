@@ -27,7 +27,7 @@ namespace Entities.AI.Components.Behaviours
 		//////////////////////////////////////////////////////////////////////////
 		protected override bool GetEvaluation()
 		{
-			if (m_BlackboardKey.IsNotNull() && BehaviourTree.Owner.Blackboard.TryGetEntryBase(m_BlackboardKey, out BlackboardEntryBase baseKey))
+			if (m_BlackboardKey.IsNotNull() && BehaviourTree.Blackboard.TryGetEntryBase(m_BlackboardKey, out BlackboardEntryBase baseKey))
 			{
 				return baseKey.HasValue();
 			}
@@ -39,7 +39,7 @@ namespace Entities.AI.Components.Behaviours
 		{
 			if (m_BlackboardKey.IsNotNull() && m_AbortType != EAbortType.None)
 			{
-				BehaviourTree.Owner.Blackboard.AddObserver(m_BlackboardKey, ConditionalAbort);
+				BehaviourTree.Blackboard.AddObserver(m_BlackboardKey, ConditionalAbort);
 			}
 		}
 
@@ -48,7 +48,7 @@ namespace Entities.AI.Components.Behaviours
 		{
 			if (m_BlackboardKey.IsNotNull())
 			{
-				BehaviourTree.Owner.Blackboard.RemoveObserver(m_BlackboardKey, ConditionalAbort);
+				BehaviourTree.Blackboard.RemoveObserver(m_BlackboardKey, ConditionalAbort);
 			}
 		}
 
@@ -70,12 +70,15 @@ namespace Entities.AI.Components.Behaviours
 				{
 					if (m_ResetOnChange)
 					{
-						BehaviourTree.RequestAbort(this, Child, delegate
+						if (Utils.CustomAssertions.IsTrue(NodeState == EBTNodeState.RUNNING))
 						{
-							Child.ResetNode();
+							BehaviourTree.SetAborter(this, Child, delegate
+							{
+								Child.ResetNode();
 
-							BehaviourTree.SetRunningNode(Child);
-						});
+								BehaviourTree.SetRunningNode(Child);
+							});
+						}
 					}
 				}
 

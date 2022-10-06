@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -11,7 +10,6 @@ namespace Entities.AI.Components.Behaviours
 	internal abstract class NodeViewBase : Node
 	{
 		protected readonly		BTNode						m_BehaviourTreeNode				= null;
-		protected readonly		bool						m_IsBehaviourTreeInstance		= false;
 		protected readonly		VisualElement				m_Aux							= null;
 		protected readonly		Label						m_NodeIndexLabel				= null;
 		protected readonly		Port						m_Input							= null;
@@ -36,11 +34,10 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public NodeViewBase(in BTNode InNode, in EdgeConnectorListener InEdgeConnectorListener, in bool bIsBehaviourTreeInstance) : base(k_BehaviourTreeNodeViewPath)
+		public NodeViewBase(in BTNode InNode, in EdgeConnectorListener InEdgeConnectorListener) : base(k_BehaviourTreeNodeViewPath)
 		{
 			m_BehaviourTreeNode = InNode;
 			m_EdgeConnectorListener = InEdgeConnectorListener;
-			m_IsBehaviourTreeInstance = bIsBehaviourTreeInstance;
 
 			if (BehaviourTreeEditorUtils.TryGetNameAndDescription(InNode.GetType(), out string OutName, out string OutDescription))
 			{
@@ -291,7 +288,7 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public static NodeViewBase CreateNodeView(in BTNode InNode, in EdgeConnectorListener InEdgeConnectorListener, in bool bIsBehaviourTreeInstance)
+		public static NodeViewBase CreateNodeView(in BTNode InNode, in EdgeConnectorListener InEdgeConnectorListener)
 		{
 			System.Type ctorType = null;
 			switch (InNode)
@@ -307,7 +304,7 @@ namespace Entities.AI.Components.Behaviours
 			}
 			if (Utils.CustomAssertions.IsNotNull(ctorType, $"Cannot create view for node of type {InNode?.GetType().Name??"null"}"))
 			{
-				object[] args = new object[] { InNode, InEdgeConnectorListener, bIsBehaviourTreeInstance };
+				object[] args = new object[] { InNode, InEdgeConnectorListener };
 				return (NodeViewBase)System.Activator.CreateInstance(ctorType, args);
 			}
 			return null;

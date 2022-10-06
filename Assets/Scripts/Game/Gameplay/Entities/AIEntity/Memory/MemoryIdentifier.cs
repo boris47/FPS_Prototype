@@ -20,6 +20,6 @@ namespace Entities.AI.Components
 		public bool IsEqualTo(in MemoryIdentifier InOtherKey) => UniqueId == InOtherKey.UniqueId;
 
 		//////////////////////////////////////////////////////////////////////////
-		public static bool IsValid(in MemoryIdentifier InMemoryIdentifier) => !string.IsNullOrEmpty(InMemoryIdentifier.name);
+		public static bool IsValid(in MemoryIdentifier InMemoryIdentifier) => InMemoryIdentifier.IsNotNull() && !string.IsNullOrEmpty(InMemoryIdentifier.name);
 	}
 }

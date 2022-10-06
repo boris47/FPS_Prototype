@@ -39,7 +39,8 @@ namespace Entities.AI.Components.Behaviours
 
 		private readonly EdgeConnectorListener m_EdgeConnectorListener = null;
 
-		public BehaviourTreeInspectorView InspectorView { get; private set; } = null;
+		public BehaviourTreeNodeInspectorView InspectorView { get; private set; } = null;
+		private BehaviourTreeBBInspectorView m_BlackboardInspectorView = null;
 		public BehaviourTree BehaviourTree { get; private set; } = null;
 
 
@@ -93,16 +94,13 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		private void SaveSource()
+		public void PopulateView(in BehaviourTree InBehaviourTree, in BehaviourTreeNodeInspectorView InInspectorView, BehaviourTreeBBInspectorView InBlackboardInspectorView)
 		{
-			BehaviourTree?.AsEditorInterface.UpdateSource();
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		public void PopulateView(in BehaviourTree InBehaviourTree, in BehaviourTreeInspectorView InInspectorView)
-		{
-			InspectorView = InInspectorView;
 			BehaviourTree = InBehaviourTree;
+			InspectorView = InInspectorView;
+			m_BlackboardInspectorView = InBlackboardInspectorView;
+
+			m_BlackboardInspectorView.UpdateSelection(InBehaviourTree.Blackboard);
 
 			viewTransformChanged -= OnGraphViewTransformChanged;
 			graphViewChanged -= OnGraphViewChanged;
@@ -115,6 +113,9 @@ namespace Entities.AI.Components.Behaviours
 			}
 			graphViewChanged += OnGraphViewChanged;
 			viewTransformChanged += OnGraphViewTransformChanged;
+
+			// Ensure blackboard is initialzied
+			BehaviourTree.AsEditorInterface.EnsureBlackboard();
 
 			// Ensure we have a root node
 			BehaviourTree.AsEditorInterface.EnsureRootNode();
@@ -152,6 +153,8 @@ namespace Entities.AI.Components.Behaviours
 			viewTransformChanged -= OnGraphViewTransformChanged;
 
 			BehaviourTree = null;
+			m_BlackboardInspectorView?.ClearSelection();
+			InspectorView?.ClearSelection();
 			DeleteElements(graphElements.ToList());
 		}
 
@@ -165,11 +168,10 @@ namespace Entities.AI.Components.Behaviours
 		//////////////////////////////////////////////////////////////////////////
 		private GraphViewChange OnGraphViewChanged(GraphViewChange graphViewChange)
 		{
-			bool IsBTInstance = BehaviourTree.IsInstance;
 			bool bHasElementsToRemove = graphViewChange.elementsToRemove.IsNotNull() && graphViewChange.elementsToRemove.Count > 0;
 			bool bHasEdgeToCreate = graphViewChange.edgesToCreate.IsNotNull() && graphViewChange.edgesToCreate.Count > 0;
 		//	bool bHasElementsMoved = graphViewChange.movedElements.IsNotNull() && graphViewChange.movedElements.Count > 0;
-			if (!IsBTInstance && (bHasElementsToRemove || bHasEdgeToCreate))
+			if (!BehaviourTree.IsInstance && (bHasElementsToRemove || bHasEdgeToCreate))
 			{
 				EditorUtility.SetDirty(BehaviourTree);
 			}
@@ -208,7 +210,7 @@ namespace Entities.AI.Components.Behaviours
 			//		BehaviourTreeEditorUtils.AssignChildrenIndexes(BehaviourTree.AsEditorInterface.RootNode);
 			//	}
 
-			if (!IsBTInstance && (bHasElementsToRemove || bHasEdgeToCreate /*|| bHasElementsMoved*/))
+			if (!BehaviourTree.IsInstance && (bHasElementsToRemove || bHasEdgeToCreate /*|| bHasElementsMoved*/))
 			{
 				BehaviourTreeEditorUtils.AssignChildrenIndexes(BehaviourTree.AsEditorInterface.RootNode);
 				AssetDatabase.SaveAssetIfDirty(BehaviourTree);
@@ -312,9 +314,6 @@ namespace Entities.AI.Components.Behaviours
 				if (Utils.CustomAssertions.IsTrue(TryFindNodeView(node, out NodeViewBase nodeView), $"Cannot retrieve view for node {node?.name ?? "Null"}"))
 				{
 					EditorApplication.isPaused = true;
-				//	ClearSelection();
-				//	AddToSelection(nodeView);
-				//	FrameSelection();
 				}
 			}
 		}
@@ -336,7 +335,7 @@ namespace Entities.AI.Components.Behaviours
 				InNode.OnNodeTermination += BreakpointCheck;
 			}
 
-			NodeViewBase nodeView = NodeViewBase.CreateNodeView(InNode, m_EdgeConnectorListener, BehaviourTree.IsInstance);
+			NodeViewBase nodeView = NodeViewBase.CreateNodeView(InNode, m_EdgeConnectorListener);
 			if (nodeView.IsNotNull())
 			{
 				AddElement(nodeView);

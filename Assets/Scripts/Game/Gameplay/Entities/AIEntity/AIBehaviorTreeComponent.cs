@@ -23,7 +23,7 @@ namespace Entities.AI.Components
 
 			if (m_BehaviourTree.IsNotNull())
 			{
-				m_BehaviourTree = BehaviourTree.CreateBehaviourTreeInstance(m_BehaviourTree);
+				m_BehaviourTree = BehaviourTree.CreateInstanceFrom(m_BehaviourTree);
 				m_BehaviourTree.OnAwake(m_Controller);
 			}
 		}
@@ -38,7 +38,6 @@ namespace Entities.AI.Components
 				if (Utils.CustomAssertions.IsNotNull(GameManager.CyclesEvents))
 				{
 					GameManager.CyclesEvents.OnFrame += OnFrame;
-					GameManager.CyclesEvents.OnPhysicFrame += OnFixedUpdate;
 				}
 			}
 		}
@@ -46,15 +45,7 @@ namespace Entities.AI.Components
 		//////////////////////////////////////////////////////////////////////////
 		private void OnFrame(float InDeltaTime)
 		{
-			m_BehaviourTree.UpdateFrame(InDeltaTime);
-
-			m_BehaviourTree.Update();
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		private void OnFixedUpdate(float InFixedDeltaTime)
-		{
-			m_BehaviourTree.UpdateFixed();
+			m_BehaviourTree.UpdateTree(InDeltaTime);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -67,7 +58,6 @@ namespace Entities.AI.Components
 
 			if (GameManager.CyclesEvents.IsNotNull())
 			{
-				GameManager.CyclesEvents.OnPhysicFrame -= OnFixedUpdate;
 				GameManager.CyclesEvents.OnFrame -= OnFrame;
 			}
 			base.OnDisable();

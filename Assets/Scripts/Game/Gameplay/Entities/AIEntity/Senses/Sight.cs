@@ -37,6 +37,12 @@ namespace Entities.AI.Components.Senses
 		}
 
 		//////////////////////////////////////////////////////////////////////////
+		private void OnValidate()
+		{
+			SetupInternal();
+		}
+
+		//////////////////////////////////////////////////////////////////////////
 		protected override void OnEnableInternal()
 		{
 			m_BrainComponent.Targets.OnRelationChanged += OnRelationChanged;

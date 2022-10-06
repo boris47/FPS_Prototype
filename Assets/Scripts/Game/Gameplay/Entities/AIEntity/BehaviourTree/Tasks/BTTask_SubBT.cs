@@ -30,7 +30,7 @@ namespace Entities.AI.Components.Behaviours
 		{
 			if (m_SubBehaviourTree.IsNotNull())
 			{
-				m_SubBehaviourTree = BehaviourTree.CreateBehaviourTreeInstance(m_SubBehaviourTree);
+				m_SubBehaviourTree = BehaviourTree.CreateInstanceFrom(m_SubBehaviourTree);
 				m_SubBehaviourTree.OnAwake(m_SubBehaviourTree.Owner);
 			}
 		}
@@ -51,7 +51,7 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdate() => m_SubBehaviourTree.Update();
+		protected override EBTNodeState OnUpdate(in float InDeltaTime) => m_SubBehaviourTree.UpdateTree(InDeltaTime);
 
 		//////////////////////////////////////////////////////////////////////////
 		protected override void OnAbortNodeRequested(in bool bAbortImmediately)
@@ -60,7 +60,7 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdateAborting()
+		protected override EBTNodeState OnUpdateAborting(in float InDeltaTime)
 		{
 			return m_SubBehaviourTree.TreeState == EBehaviourTreeState.STOPPED ? EBTNodeState.ABORTED : EBTNodeState.ABORTING;
 		}

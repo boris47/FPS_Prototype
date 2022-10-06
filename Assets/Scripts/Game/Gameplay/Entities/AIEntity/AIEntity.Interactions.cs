@@ -7,9 +7,6 @@ namespace Entities.AI
 {
 	using Components;
 
-	[RequireComponent(typeof(NavMeshAgent))]
-	[RequireComponent(typeof(AIController))]
-	[RequireComponent(typeof(AIMotionManager))]
 	public partial class AIEntity : Entity
 	{
 	//	//////////////////////////////////////////////////////////////////////////

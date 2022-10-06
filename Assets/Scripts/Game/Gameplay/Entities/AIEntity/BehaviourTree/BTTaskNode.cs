@@ -8,6 +8,6 @@ namespace Entities.AI.Components.Behaviours
 	public abstract class BTTaskNode : BTNode
 	{
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdateAborting() => EBTNodeState.ABORTED;
+		protected override EBTNodeState OnUpdateAborting(in float InDeltaTime) => EBTNodeState.ABORTED;
 	}
 }

@@ -1,27 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Entities.AI.Components.Behaviours
 {
 	[System.Serializable]
-	[BTNodeDetails("Conditional by Target", "Evaluate if owner has a 'Target'")]
+	[BTNodeDetails("Has Target", "Evaluate if owner has a 'Target'")]
 	public sealed class BTConditional_HasTarget : BTConditional
 	{
-		private const		float								s_MinRange				= 0.001f;
-
-		[System.Serializable]
-		private enum ESpace
-		{
-			BiDimensional,
-			ThreeDimensional,
-		};
-
 		[SerializeField, ToNodeInspector("Target To Evaluate")]
 		private				BlackboardEntryKey					m_BlackboardKey			= null;
-
-		[SerializeField, Min(s_MinRange), ToNodeInspector()]
-		private				float								m_ValidRange			= 1f;
 
 
 		//---------------------
@@ -34,7 +20,6 @@ namespace Entities.AI.Components.Behaviours
 			base.OnAwakeInternal(InBehaviourTree);
 
 			Utils.CustomAssertions.IsNotNull(m_BlackboardKey);
-			Utils.CustomAssertions.IsTrue(m_ValidRange >= s_MinRange);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -42,9 +27,9 @@ namespace Entities.AI.Components.Behaviours
 		{
 			bool OutResult = false;
 
-			if (BehaviourTree.Owner.Blackboard.TryGetEntry(m_BlackboardKey, out BBEntry_EntityToEvaluate BB_TargetSeen))
+			if (BehaviourTree.Blackboard.TryGetEntry(m_BlackboardKey, out BBEntry_TargetEntity BB_Target))
 			{
-				OutResult = BB_TargetSeen.Value.IsNotNull();
+				OutResult = BB_Target.Value.IsNotNull();
 			}
 			return OutResult;
 		}
@@ -65,9 +50,9 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public override void UpdateFixed()
+		public override void UpdateTickable(in float InDeltaTime)
 		{
-			base.UpdateFixed();
+			base.UpdateTickable(InDeltaTime);
 
 			if (Utils.CustomAssertions.IsTrue(m_AbortType != EAbortType.None))
 			{

@@ -1,36 +1,60 @@
 ﻿
-using System.Collections.Generic;
-using UnityEngine;
-
 namespace Entities.AI.Components
 {
-	/* Opzione 1)
-	 * Usare la classe di un target (monobehaviour) per trovare tutto quello che ha attributo BlackboardKeyValue ed usarlo come chiave della blackboard
-	 * Ogni bt node che usa una blackboard key deve avere l'editor che mostra la dispponibilità delle chiavi sulla base di ciò che trova nell'entity
-	 * Però cos' nel codice non ho visibilità di quelle chiavi!!
-	 * 
-	 * Opzione 2)
-	 * Uso degli scriptable object per ogni tipo di chiave che possa esistere, li inserisco in una classe statica e per ogni chiave deve esserci un 
-	 * getter statico publico in questa classe statica.
-	 * Però così ho il vincolo di dover aggiornare questa classe per ogni nuova classe o cambio di nome e non posso consentire chiavi con lo stesso nome
-	 * ma differente percorso nella cartella degli assets
-	 * 
-	 * Opzione 3)
-	 * Uso ovunque stringhe e ciaone
-	 * 
-	 * Opzione 4)
-	 * 
-	 */
+	using System.Collections.Generic;
+	using UnityEngine;
 
 	[System.Serializable]
-	public sealed partial class Blackboard : MonoBehaviour
+	public sealed partial class Blackboard : ScriptableObject
 	{
-		/// <summary> Stores the maximum abstracted blackboard entries </summary>
+		[SerializeField, ReadOnly]
+		private Blackboard m_Parent = null;
+
+		[SerializeField, ReadOnly]
+		private List<BlackboardKeySpecifier> m_Keys = new List<BlackboardKeySpecifier>();
+
 		[SerializeReference, ReadOnly]
 		private List<BlackboardEntryBase> m_Entries = new List<BlackboardEntryBase>();
 
 		private Dictionary<BlackboardEntryKey, List<BlackboardEntryBase.OnChangeDel>> m_Observers =
 			new Dictionary<BlackboardEntryKey, List<BlackboardEntryBase.OnChangeDel>>();
+
+
+
+		//////////////////////////////////////////////////////////////////////////
+		public bool HasKeyRegistered(BlackboardEntryKey InBlackboardKey)
+		{
+			return m_Keys.Exists(BBKey => BBKey.Key.IsEqualTo(InBlackboardKey));
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public bool AddKey(BlackboardEntryKey InBlackboardKey, in System.Type InSupportedType)
+		{
+			bool outValue = false;
+			if (!m_Keys.TryFind(out BlackboardKeySpecifier _, out int _, BBKey => BBKey.Key.IsEqualTo(InBlackboardKey)))
+			{
+				m_Keys.Add(BlackboardKeySpecifier.Create(InBlackboardKey, InSupportedType));
+				outValue = true;
+			}
+			return outValue;
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public bool RemoveKey(BlackboardEntryKey InBlackboardKey)
+		{
+			bool outValue = false;
+			if (m_Keys.TryFind(out BlackboardKeySpecifier _, out int index, BBKey => BBKey.Key.IsEqualTo(InBlackboardKey)))
+			{
+				m_Keys.RemoveAt(index);
+				outValue = true;
+			}
+			return outValue;
+		}
+
+
+
+
+
 
 
 		//////////////////////////////////////////////////////////////////////////
@@ -40,11 +64,11 @@ namespace Entities.AI.Components
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public bool TryGetEntry<T>(BlackboardEntryKey InBlackboardKey, out T OutEntry, in bool bExactType = false) where T : BlackboardEntryBase, new()
+		public bool TryGetEntry<T>(BlackboardEntryKey InBlackboardKey, out T OutEntry) where T : BlackboardEntryBase, new()
 		{
 			OutEntry = default;
 
-			bool OutResult = TryGetEntry(typeof(T), InBlackboardKey, out BlackboardEntryBase OutBaseEntry, bExactType);
+			bool OutResult = TryGetEntry(typeof(T), InBlackboardKey, out BlackboardEntryBase OutBaseEntry);
 			if (OutResult)
 			{
 				OutEntry = OutBaseEntry as T;
@@ -53,30 +77,41 @@ namespace Entities.AI.Components
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		private bool TryGetEntry(in System.Type InEntryType, BlackboardEntryKey InBlackboardKey, out BlackboardEntryBase OutEntry, in bool bExactType = false)
+		private bool TryGetEntry(in System.Type InEntryType, in BlackboardEntryKey InBlackboardKey, out BlackboardEntryBase OutEntry)
 		{
-			OutEntry = default;
-			if (TryGetEntryBase(InBlackboardKey, out BlackboardEntryBase OutValue))
+			OutEntry = null;
+			if (TryGetEntryBase(InBlackboardKey, out BlackboardEntryBase foundEntry))
 			{
-				if (ReflectionHelper.TryGetGenericArg(InEntryType, out System.Type storedGenericType))
+				if (Utils.CustomAssertions.IsNotNull(foundEntry.StoredType))
 				{
-					if (bExactType)
+					// If same key type
+					if (InEntryType == foundEntry.GetType())
 					{
-						if (OutValue.StoredType == storedGenericType)
+						if (ReflectionHelper.TryGetGenericArg(InEntryType, out System.Type storedGenericType))
 						{
-							OutEntry = OutValue;
-						}
-					}
-					else
-					{
-						if (OutValue.StoredType.IsNotNull() && (OutValue.StoredType == storedGenericType || ReflectionHelper.IsInerithedFrom(storedGenericType, OutValue.StoredType)))
-						{
-							OutEntry = OutValue;
+							// If stored type is equal or derived of requested type
+							if (foundEntry.StoredType == storedGenericType || ReflectionHelper.IsInerithedFrom(storedGenericType, foundEntry.StoredType))
+							{
+								OutEntry = foundEntry;
+							}
 						}
 					}
 				}
 			}
-			return OutEntry != default;
+			return OutEntry.IsNotNull();
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>  </summary>
+		/// <returns>true for equal type, false for not equal type, null if not assigned</returns>
+		public bool? HasEntryOfType(in BlackboardEntryKey InBlackboardKey, in System.Type InEntryType)
+		{
+			bool? OutResult = null;
+			if (TryGetEntryBase(InBlackboardKey, out BlackboardEntryBase foundEntry))
+			{
+				OutResult = InEntryType == foundEntry.GetType();
+			}
+			return OutResult;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -86,11 +121,10 @@ namespace Entities.AI.Components
 		private BlackboardEntryBase GetOrCreateEntry(in System.Type InBlackboardEntryKeyValueType, in BlackboardEntryKey InBlackboardKey)
 		{
 			Utils.CustomAssertions.IsTrue(ReflectionHelper.IsInerithedFrom(typeof(BlackboardEntryBase), InBlackboardEntryKeyValueType));
-			ReflectionHelper.TryGetGenericArg(InBlackboardEntryKeyValueType, out System.Type _);
 			BlackboardEntryBase OutValue = default;
 			if (!TryGetEntry(InBlackboardEntryKeyValueType, InBlackboardKey, out OutValue))
 			{
-				EnsureDelegateListForBlackboardKey(InBlackboardKey, out var delegates);
+				EnsureDelegateListForBlackboardKey(InBlackboardKey);
 
 				BlackboardEntryBase newInstance = (BlackboardEntryBase)System.Activator.CreateInstance(InBlackboardEntryKeyValueType);
 				{
@@ -109,7 +143,7 @@ namespace Entities.AI.Components
 			{
 				List<int> toRemove = new List<int>();
 
-				var observersList = m_Observers[InBlackboardKey];
+				List<BlackboardEntryBase.OnChangeDel> observersList = m_Observers[InBlackboardKey];
 				for (int i = observersList.Count - 1; i >= 0; i--)
 				{
 					if (observersList[i](InBlackboardKey, InOperation) == EOnChangeDelExecutionResult.REMOVE)
@@ -117,7 +151,7 @@ namespace Entities.AI.Components
 						toRemove.Add(i);
 					}
 				}
-				foreach(int index in toRemove)
+				foreach (int index in toRemove)
 				{
 					observersList.RemoveAt(index);
 				}
@@ -143,7 +177,7 @@ namespace Entities.AI.Components
 			{
 				List<int> toRemove = new List<int>();
 
-				var observersList = m_Observers[InBlackboardKey];
+				List<BlackboardEntryBase.OnChangeDel> observersList = m_Observers[InBlackboardKey];
 				for (int i = observersList.Count - 1; i >= 0; i--)
 				{
 					if (observersList[i](InBlackboardKey, EBlackboardValueOp.REMOVE) == EOnChangeDelExecutionResult.REMOVE)
@@ -156,16 +190,14 @@ namespace Entities.AI.Components
 					observersList.RemoveAt(indexx);
 				}
 
-		//		m_Observers.Remove(InBlackboardKey);
-				m_Entries.RemoveAt(index);
+				m_Keys.RemoveAt(index);
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
 		public void AddObserver(in BlackboardEntryKey InBlackboardKey, in BlackboardEntryBase.OnChangeDel InObserverDelegate)
 		{
-			EnsureDelegateListForBlackboardKey(InBlackboardKey, out var delegates);
-			delegates.Add(InObserverDelegate);
+			EnsureDelegateListForBlackboardKey(InBlackboardKey).Add(InObserverDelegate);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -178,8 +210,9 @@ namespace Entities.AI.Components
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		private void EnsureDelegateListForBlackboardKey(in BlackboardEntryKey InBlackboardKey, out List<BlackboardEntryBase.OnChangeDel> OutDelegates)
+		private List<BlackboardEntryBase.OnChangeDel> EnsureDelegateListForBlackboardKey(in BlackboardEntryKey InBlackboardKey)
 		{
+			List<BlackboardEntryBase.OnChangeDel> OutDelegates = null;
 			if (m_Observers.ContainsKey(InBlackboardKey))
 			{
 				OutDelegates = m_Observers[InBlackboardKey];
@@ -189,6 +222,9 @@ namespace Entities.AI.Components
 				OutDelegates = new List<BlackboardEntryBase.OnChangeDel>();
 				m_Observers.Add(InBlackboardKey, OutDelegates);
 			}
+			return OutDelegates;
 		}
+
+
 	}
 }

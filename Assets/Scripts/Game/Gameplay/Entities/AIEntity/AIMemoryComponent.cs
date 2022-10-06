@@ -1,10 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace Entities.AI.Components
 {
+	[RequireComponent(typeof(AIController))]
 	public partial class AIMemoryComponent : AIEntityComponent
 	{
 		[SerializeReference, ReadOnly]
@@ -81,6 +80,12 @@ namespace Entities.AI.Components
 				OutMemory = OutMemoryBase as MemoryValue<T>;
 			}
 			return OutMemory.IsNotNull();
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public bool HasMemoryOf(MemoryIdentifier InIdentifier)
+		{
+			return MemoryIdentifier.IsValid(InIdentifier) && m_Memories.TryFind(out MemoryBase _, out int _, m => m.Identifier == InIdentifier);
 		}
 
 		//////////////////////////////////////////////////////////////////////////

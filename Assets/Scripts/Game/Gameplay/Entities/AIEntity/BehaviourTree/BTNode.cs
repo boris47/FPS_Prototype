@@ -35,12 +35,12 @@ namespace Entities.AI.Components.Behaviours
 		protected void SetNodeState(in EBTNodeState InNewState) => m_NodeState = InNewState;
 
 		//////////////////////////////////////////////////////////////////////////
-		public BTNode CloneInstance(in BTNode InParentCloned = null)
+		public BTNode CreateInstance(in BTNode InParentInstance = null)
 		{
-			Utils.CustomAssertions.IsTrue((this is BTRootNode && InParentCloned == null) || true);
-			var newInstance = Instantiate(this);
+			Utils.CustomAssertions.IsTrue((this is BTRootNode && InParentInstance == null) || true);
+			var newInstance = ScriptableObject.CreateInstance(GetType()) as BTNode;
 			newInstance.m_NodeState = EBTNodeState.INACTIVE;
-			newInstance.m_Parent = InParentCloned;
+			newInstance.m_Parent = InParentInstance;
 #if UNITY_EDITOR
 			newInstance.m_Guid = m_Guid;
 			newInstance.m_Position = m_Position;
@@ -61,7 +61,7 @@ namespace Entities.AI.Components.Behaviours
 
 		private bool bCanTerminate = true;
 		//////////////////////////////////////////////////////////////////////////
-		public EBTNodeState Update()
+		public EBTNodeState UpdateNode(in float InDeltaTime)
 		{
 			if (m_NodeState == EBTNodeState.INACTIVE)
 			{
@@ -74,12 +74,12 @@ namespace Entities.AI.Components.Behaviours
 
 			if (m_NodeState == EBTNodeState.RUNNING)
 			{
-				m_NodeState = OnUpdate();
+				m_NodeState = OnUpdate(InDeltaTime);
 			}
 
 			if (m_NodeState == EBTNodeState.ABORTING)
 			{
-				m_NodeState = OnUpdateAborting();
+				m_NodeState = OnUpdateAborting(InDeltaTime);
 				Utils.CustomAssertions.IsTrue(m_NodeState == EBTNodeState.ABORTING || m_NodeState == EBTNodeState.ABORTED);
 			}
 
@@ -98,15 +98,8 @@ namespace Entities.AI.Components.Behaviours
 			}
 			return m_NodeState;
 		}
-
 		//////////////////////////////////////////////////////////////////////////
-		public virtual void UpdateFrame(in float InDeltaTime)
-		{
-
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		public virtual void UpdateFixed()
+		public virtual void UpdateTickable(in float InDeltaTime)
 		{
 
 		}
@@ -136,8 +129,8 @@ namespace Entities.AI.Components.Behaviours
 		protected virtual void CopyDataToInstance(in BTNode InNewInstance) { }
 		protected virtual void OnAwakeInternal(in BehaviourTree InBehaviourTree) { }
 		protected virtual EBTNodeState OnActivation() => EBTNodeState.RUNNING;
-		protected virtual EBTNodeState OnUpdate() => EBTNodeState.SUCCEEDED;
-		protected virtual EBTNodeState OnUpdateAborting() => EBTNodeState.ABORTED;
+		protected virtual EBTNodeState OnUpdate(in float InDeltaTime) => EBTNodeState.SUCCEEDED;
+		protected virtual EBTNodeState OnUpdateAborting(in float InDeltaTime) => EBTNodeState.ABORTED;
 		protected virtual void OnTerminate() { }
 		protected virtual void OnAbortNodeRequested(in bool bAbortImmediately) { }
 		protected virtual void OnNodeReset() { }

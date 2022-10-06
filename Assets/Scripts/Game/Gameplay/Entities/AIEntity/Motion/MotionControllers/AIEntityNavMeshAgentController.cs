@@ -56,7 +56,6 @@ namespace Entities.AI.Components
 				{
 					bResult = m_Agent.SetDestination(InDestination);
 				}
-				print($"Setting destination {InDestination}");
 			}
 			return bResult;
 		}

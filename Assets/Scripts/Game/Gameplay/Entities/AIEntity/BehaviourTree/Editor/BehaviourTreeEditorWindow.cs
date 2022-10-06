@@ -1,31 +1,54 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEditor;
-using System.Threading.Tasks;
 
 namespace Entities.AI.Components.Behaviours
 {
-	internal sealed class BehaviourTreeEditorWindow : EditorWindow
+	internal sealed class BehaviourTreeEditorWindow : GuardedEditorWindow<BehaviourTreeEditorWindow, BehaviourTree>
 	{
+		private static Vector2 s_MinSize = new Vector2(800f, 400f);
+		private static Vector2 s_MaxSize = new Vector2(1680f, 1280f);
+
 		private static BehaviourTreeEditorWindow m_Window = null;
 		private static BehaviourTreeView m_BehaviourTreeView = null;
-		private static BehaviourTreeInspectorView m_InspectorView = null;
+		private static BehaviourTreeNodeInspectorView m_InspectorView = null;
+		private static BehaviourTreeBBInspectorView m_BlackboardInspectorView = null;
 		private static BehaviourTree m_BehaviourTree = null;
 
 		//////////////////////////////////////////////////////////////////////////
 		public static void OpenWindow(BehaviourTree InBehaviourTree)
 		{
-			if (!m_Window)
-			{ 
-				m_Window = GetWindow<BehaviourTreeEditorWindow>();
-				m_Window.titleContent = new GUIContent("Behaviour Tree Editor");
-			}
-
-			if (InBehaviourTree.IsNotNull() && m_BehaviourTreeView.IsNotNull() && m_InspectorView.IsNotNull())
+			if (Utils.Paths.TryConvertFromAssetPathToResourcePath(AssetDatabase.GetAssetPath(InBehaviourTree), out string ResourcePath))
 			{
-				m_BehaviourTree = InBehaviourTree;
-				m_Window.OnSelectionChange();
+				OpenWindow("Behaviour Tree Editor", ResourcePath, InBehaviourTree, s_MinSize, s_MaxSize);
 			}
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		protected override void OnBeforeShow()
+		{
+			base.OnBeforeShow();
+
+			m_BehaviourTree = Data;
+
+			OnSelectionChange();
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		protected override void OnEnable()
+		{
+			base.OnEnable();
+
+			EditorApplication.playModeStateChanged -= OnPaymodeStateChanged;
+			EditorApplication.playModeStateChanged += OnPaymodeStateChanged;
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		protected override void OnDisable()
+		{
+			base.OnDisable();
+
+			EditorApplication.playModeStateChanged -= OnPaymodeStateChanged;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -34,6 +57,7 @@ namespace Entities.AI.Components.Behaviours
 			m_Window = null;
 			m_BehaviourTreeView = null;
 			m_InspectorView = null;
+			m_BlackboardInspectorView = null;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -50,28 +74,19 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		private void OnEnable()
-		{
-			EditorApplication.playModeStateChanged -= OnPaymodeStateChanged;
-			EditorApplication.playModeStateChanged += OnPaymodeStateChanged;
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		private void OnDisable()
-		{
-			EditorApplication.playModeStateChanged -= OnPaymodeStateChanged;
-		}
-
-		//////////////////////////////////////////////////////////////////////////
 		public void CreateGUI()
 		{
 			// Each editor window contains a root VisualElement object
 			VisualElement root = rootVisualElement;
 
-			m_InspectorView = new BehaviourTreeInspectorView();
+			m_InspectorView = new BehaviourTreeNodeInspectorView()
 			{
-
-			}
+				name = "NodeInstpectorPanel"
+			};
+			m_BlackboardInspectorView = new BehaviourTreeBBInspectorView()
+			{
+				name = "BBInstpectorPanel"
+			};
 			m_BehaviourTreeView = new BehaviourTreeView();
 			{
 				m_BehaviourTreeView.focusable = true;
@@ -82,7 +97,15 @@ namespace Entities.AI.Components.Behaviours
 			{
 				VisualElement leftElement = new VisualElement() { name = "left-panel" };
 				{
-					leftElement.Add(m_InspectorView);
+					TwoPaneSplitView splitView2 = new TwoPaneSplitView();
+					{
+						splitView2.Add(m_InspectorView);
+						splitView2.Add(m_BlackboardInspectorView);
+					}
+					leftElement.Add(splitView2);
+
+					splitView2.orientation = TwoPaneSplitViewOrientation.Vertical;
+					splitView2.fixedPaneInitialDimension = 200f;
 				}
 				splitView.Add(leftElement);
 
@@ -93,7 +116,8 @@ namespace Entities.AI.Components.Behaviours
 				}
 				splitView.Add(rightElement);
 
-				splitView.fixedPaneInitialDimension = 300;
+				splitView.orientation = TwoPaneSplitViewOrientation.Horizontal;
+				splitView.fixedPaneInitialDimension = 300f;
 			}
 			root.Add(splitView);
 			OnSelectionChange();
@@ -121,12 +145,15 @@ namespace Entities.AI.Components.Behaviours
 			// If an object in hierarchy with AIBehaviorTreeComponent is selected
 			else if (Selection.activeGameObject && Selection.activeGameObject.TryGetComponent(out AIBehaviorTreeComponent comp))
 			{
-				behaviourTree = comp.BehaviourTree;
+				if (comp.BehaviourTree.IsNotNull())
+				{
+					behaviourTree = comp.BehaviourTree;
+				}
 			}
 
 			if (behaviourTree.IsNotNull())
 			{
-				m_BehaviourTreeView.PopulateView(behaviourTree, m_InspectorView);
+				m_BehaviourTreeView.PopulateView(behaviourTree, m_InspectorView, m_BlackboardInspectorView);
 			}
 		}
 

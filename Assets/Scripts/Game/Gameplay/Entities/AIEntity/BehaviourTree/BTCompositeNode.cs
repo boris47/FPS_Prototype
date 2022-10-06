@@ -51,7 +51,7 @@ namespace Entities.AI.Components.Behaviours
 		protected override void CopyDataToInstance(in BTNode InNewInstance)
 		{
 			var node = InNewInstance as BTCompositeNode;
-			node.m_Children = m_Children.ConvertAll(c => c.CloneInstance(node));
+			node.m_Children = m_Children.ConvertAll(c => c.CreateInstance(node));
 			node.m_CurrentIndex = 0u;
 		}
 
@@ -60,22 +60,13 @@ namespace Entities.AI.Components.Behaviours
 		{
 			EBTNodeState OutResult = EBTNodeState.RUNNING;
 			m_CurrentIndex = 0u;
-
-		//	if (m_Children.Count < MinimumChildrenCount)
-		//	{
-		//		OutResult = EBTNodeState.SUCCEEDED; // By Design
-		//	}
-		//	else
-		//	{
-		//		m_Children.ForEach(c => c.ResetNode());
-		//	}
 			return OutResult;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdateAborting()
+		protected override EBTNodeState OnUpdateAborting(in float InDeltaTime)
 		{
-			return m_Children.At(m_CurrentIndex).Update();
+			return m_Children.At(m_CurrentIndex).UpdateNode(InDeltaTime);
 		}
 
 		//////////////////////////////////////////////////////////////////////////

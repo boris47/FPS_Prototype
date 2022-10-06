@@ -1,16 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 using UnityEngine.UIElements;
-using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 
 namespace Entities.AI.Components.Behaviours
 {
 	internal class RootNodeView : NodeViewBase
 	{
-		public RootNodeView(in BTRootNode InNode, in EdgeConnectorListener InEdgeConnectorListener, in bool bIsBehaviourTreeInstance)
-		: base(InNode, InEdgeConnectorListener, bIsBehaviourTreeInstance)
+		public RootNodeView(in BTRootNode InNode, in EdgeConnectorListener InEdgeConnectorListener)
+		: base(InNode, InEdgeConnectorListener)
 		{
 			this.capabilities = Capabilities.Selectable | Capabilities.Movable | Capabilities.Snappable;
 		}

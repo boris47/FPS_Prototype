@@ -37,19 +37,19 @@ namespace Entities.AI.Components.Behaviours
 		protected sealed override void CopyDataToInstance(in BTNode InNewInstance)
 		{
 			var node = InNewInstance as BTRootNode;
-			node.m_Child = m_Child?.CloneInstance(node) ?? null;
+			node.m_Child = m_Child.IsNotNull() ? m_Child.CreateInstance(node) : null;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected sealed override EBTNodeState OnUpdate()
+		protected sealed override EBTNodeState OnUpdate(in float InDeltaTime)
 		{
-			EBTNodeState OutState = Child.IsNotNull() ? EBTNodeState.RUNNING : EBTNodeState.SUCCEEDED;
-			if (Child.IsNotNull())
+			EBTNodeState OutState = m_Child.IsNotNull() ? EBTNodeState.RUNNING : EBTNodeState.SUCCEEDED;
+			if (m_Child.IsNotNull())
 			{
-				OutState = Child.Update();
-				if (BTNode.IsFinished(Child) && m_MustRepeat)
+				OutState = m_Child.UpdateNode(InDeltaTime);
+				if (BTNode.IsFinished(m_Child) && m_MustRepeat)
 				{
-					Child.ResetNode();
+					m_Child.ResetNode();
 					OutState = EBTNodeState.RUNNING;
 				}
 			}
@@ -57,14 +57,17 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected sealed override EBTNodeState OnUpdateAborting() => Child.NodeState;
+		protected sealed override EBTNodeState OnUpdateAborting(in float InDeltaTime) => m_Child.IsNotNull() ? m_Child.NodeState : EBTNodeState.ABORTED;
 
 		//////////////////////////////////////////////////////////////////////////
 		protected sealed override void OnNodeReset()
 		{
 			base.OnNodeReset();
 
-			Child?.ResetNode();
+			if (m_Child.IsNotNull())
+			{
+				m_Child.ResetNode();
+			}
 		}
 	}
 }

@@ -1,11 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Entities.AI.Components.Behaviours
 {
 	[System.Serializable]
-	[BTNodeDetails("Conditional by Position", "Evaluate if owner is close enough to 'Position'")]
+	[BTNodeDetails("Is close to", "Evaluate if owner is close enough to 'Position'")]
 	public sealed class BTConditional_IsCloseTo : BTConditional
 	{
 		private const	float								s_MinRange				= 0.001f;
@@ -38,11 +36,11 @@ namespace Entities.AI.Components.Behaviours
 			bool OutState = false;
 
 			Vector3? position = null;
-			if (BehaviourTree.Owner.Blackboard.TryGetEntry(m_BlackboardKey, out BBEntry_PositionToEvaluate BB_Position))
+			if (BehaviourTree.Blackboard.TryGetEntry(m_BlackboardKey, out BBEntry_PositionToEvaluate BB_Position))
 			{
 				position = BB_Position.Value;
 			}
-			else if (BehaviourTree.Owner.Blackboard.TryGetEntry(m_BlackboardKey, out BBEntry_EntityToEvaluate BB_TargetSeen))
+			else if (BehaviourTree.Blackboard.TryGetEntry(m_BlackboardKey, out BBEntry_EntityToEvaluate BB_TargetSeen))
 			{
 				position = BB_TargetSeen.Value.Body.position;
 			}
@@ -84,9 +82,9 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public override void UpdateFixed()
+		public override void UpdateTickable(in float InDeltaTime)
 		{
-			base.UpdateFixed();
+			base.UpdateTickable(InDeltaTime);
 
 			if (Utils.CustomAssertions.IsTrue(m_AbortType != EAbortType.None))
 			{

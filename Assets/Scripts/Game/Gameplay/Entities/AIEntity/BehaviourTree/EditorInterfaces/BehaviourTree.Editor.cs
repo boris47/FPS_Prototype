@@ -10,11 +10,11 @@ namespace Entities.AI.Components.Behaviours
 	{
 		List<BTNode> Nodes { get; }
 		BTRootNode RootNode { get; }
+		
 		Vector3 Position { get; set; }
 		Vector3 Scale { get; set; }
-		bool IsInstance { get; }
-
-		void UpdateSource();
+		
+		void EnsureBlackboard();
 		BTRootNode EnsureRootNode();
 		BTNode CreateNode(in System.Type InNodeType, in string InNodeName = null);
 		void DeleteNode(in BTNode InNodeToDelete);
@@ -27,67 +27,33 @@ namespace Entities.AI.Components.Behaviours
 	public partial class BehaviourTree : IBTEditorInterface
 	{
 		public			IBTEditorInterface	AsEditorInterface						=> this;
-
-		[SerializeField, ReadOnly]	
-		private			BehaviourTree		m_Source								= null;
 		
 		[SerializeField, ReadOnly]
 		private			Vector2				m_Position								= Vector2.zero;
 
 		[SerializeField, ReadOnly]
 		private			Vector3				m_Scale									= Vector3.one;
-
+		
 		Vector3								IBTEditorInterface.Position				{ get => m_Position;			set => m_Position = value; }
 		Vector3								IBTEditorInterface.Scale				{ get => m_Scale;				set => m_Scale = value; }
-
+		
 		//---------------------
 		List<BTNode>						IBTEditorInterface.Nodes				=> m_Nodes;
 		BTRootNode							IBTEditorInterface.RootNode				=> m_RootNode;
 
 
 		//////////////////////////////////////////////////////////////////////////
-		void IBTEditorInterface.UpdateSource()
+		void IBTEditorInterface.EnsureBlackboard()
 		{
-			/*
-			if (Utils.CustomAssertions.IsTrue(m_IsInstance, "Trying to save a non instance tree"))
+			if (m_Blackboard == null)
 			{
-				EditorUtility.SetDirty(m_Source);
+				using (new Utils.Editor.MarkAsDirty(this))
 				{
-					m_Source.m_RootNode = m_RootNode.CloneObject() as BTRootNode;
-				}
-				AssetDatabase.SaveAssets();
-
-
-
-				BehaviourTree newInstance = CreateInstance(this);
-
-				EditorUtility.SetDirty(m_Source);
-				{
-					// Ensure initial tree state
-					newInstance.m_TreeState = EBTNodeResult.RUNNING;
-					newInstance.m_IsInstance = false;
-
-					// Set the new root node
-					{
-						newInstance.m_RootNode.name = newInstance.m_RootNode.name.Replace("(Clone)", "");
-						AssetDatabase.AddObjectToAsset(newInstance.m_RootNode, m_Source);
-						m_Source.m_RootNode = newInstance.m_RootNode;
-					}
-
-					// Remove all previous nodes
-					m_Source.m_Nodes.ForEach(node => AssetDatabase.RemoveObjectFromAsset(node));
-					m_Source.m_Nodes.Clear();
-
-					// Add all the new children to he source
-					Traverse(newInstance.m_RootNode, n =>
-					{
-						n.name = n.name.Replace("(Clone)", "");
-						AssetDatabase.AddObjectToAsset(n, m_Source);
-						m_Source.m_Nodes.Add(n);
-					});
+					m_Blackboard = CreateInstance<Blackboard>();
+					m_Blackboard.name = nameof(Blackboard);
+					AssetDatabase.AddObjectToAsset(m_Blackboard, this);
 				}
 			}
-			*/
 		}
 
 
@@ -108,15 +74,9 @@ namespace Entities.AI.Components.Behaviours
 			node.name = InNodeName ?? InNodeType.Name;
 			node.AsEditorInterface.BehaviourTree = this;
 			m_Nodes.Add(node);
-			
-			if (!m_IsInstance)
+			using (new Utils.Editor.MarkAsDirty(this))
 			{
-				EditorUtility.SetDirty(node);
-				EditorUtility.SetDirty(this);
-
 				AssetDatabase.AddObjectToAsset(node, this);
-				AssetDatabase.SaveAssetIfDirty(node);
-				AssetDatabase.SaveAssetIfDirty(this);
 			}
 			return node;
 		}
@@ -126,12 +86,11 @@ namespace Entities.AI.Components.Behaviours
 		void IBTEditorInterface.DeleteNode(in BTNode InNodeToDelete)
 		{
 			m_Nodes.Remove(InNodeToDelete);
-			if (!m_IsInstance)
+			using (new Utils.Editor.MarkAsDirty(this))
 			{
-				EditorUtility.SetDirty(this);
 				AssetDatabase.RemoveObjectFromAsset(InNodeToDelete);
-				AssetDatabase.SaveAssetIfDirty(this);
 			}
+			InNodeToDelete.Destroy();
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -139,22 +98,18 @@ namespace Entities.AI.Components.Behaviours
 		{
 			if (Utils.CustomAssertions.IsTrue(InParent is IParentNode))
 			{
-				if (!m_IsInstance) // skipping for runtime instances
+				using (new Utils.Editor.MarkAsDirty(InParent))
 				{
-					EditorUtility.SetDirty(InParent);
-					EditorUtility.SetDirty(InChild);
-				}
-				switch (InParent)
-				{
-					case BTRootNode node: node.SetChild(InChild); break;
-					case BTDecoratorNode node: node.SetChild(InChild); break;
-					case BTCompositeNode node: node.AddChild(InChild, InPortIndex); break;
-				}
-				InChild.AsEditorInterface.Parent = InParent;
-				if (!m_IsInstance) // skipping for runtime instances
-				{
-					AssetDatabase.SaveAssetIfDirty(InParent);
-					AssetDatabase.SaveAssetIfDirty(InChild);
+					using (new Utils.Editor.MarkAsDirty(InChild))
+					{
+						switch (InParent)
+						{
+							case BTRootNode node: node.SetChild(InChild); break;
+							case BTDecoratorNode node: node.SetChild(InChild); break;
+							case BTCompositeNode node: node.AddChild(InChild, InPortIndex); break;
+						}
+						InChild.AsEditorInterface.Parent = InParent;
+					}
 				}
 			}
 		}
@@ -165,19 +120,19 @@ namespace Entities.AI.Components.Behaviours
 		{
 			if (Utils.CustomAssertions.IsTrue(InParent is IParentNode))
 			{
-				if (!m_IsInstance) // skipping for runtime instances
+				using (new Utils.Editor.MarkAsDirty(InParent))
 				{
-					EditorUtility.SetDirty(InParent);
-					EditorUtility.SetDirty(InChild);
+					using (new Utils.Editor.MarkAsDirty(InChild))
+					{
+						switch (InParent)
+						{
+							case BTRootNode node: node.SetChild(null); break;
+							case BTDecoratorNode node: node.SetChild(null); break;
+							case BTCompositeNode node: node.RemoveChild(InChild); break;
+						}
+						InChild.AsEditorInterface.Parent = null;
+					}
 				}
-
-				switch (InParent)
-				{
-					case BTRootNode node: node.SetChild(null); break;
-					case BTDecoratorNode node: node.SetChild(null); break;
-					case BTCompositeNode node: node.RemoveChild(InChild); break;
-				}
-				InChild.AsEditorInterface.Parent = null;
 			}
 		}
 	}

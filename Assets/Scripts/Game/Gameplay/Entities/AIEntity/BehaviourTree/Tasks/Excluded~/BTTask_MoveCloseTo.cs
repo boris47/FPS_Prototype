@@ -1,47 +1,45 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Entities.AI.Components.Behaviours
 {
-	[BTNodeDetails("Search For Action", "Request owner to search for lost target")]
-	public class BTTask_SearchForLostTarget : BTTaskNode
+	[BTNodeDetails("MoveTo Action", "Request owner to move close to specified position or entity")]
+	public class BTTask_MoveCloseTo : BTBlackboardTaskNode
 	{
 		private const	float								s_MinRadius				= 0.001f;
 
 		[SerializeField, Min(s_MinRadius), ToNodeInspector(bShowLabel: true)]
 		public			float								m_AcceptableRadius		= 1f;
 
-		[SerializeField, ToNodeInspector("Entity To Evaluate")]
-		private			MemoryIdentifier					m_MemoryIdentifier		= null;
-
 		[SerializeField, ToNodeInspector("Dimension")]
 		private			ESpace								m_Space					= ESpace.ThreeDimensional;
+
+		protected override System.Type[] SupportedEntryTypes => new System.Type[2] { typeof(BBEntry_PositionToReach), typeof(BBEntry_TargetEntity) };
 
 
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override void OnAwakeInternal(in BehaviourTree InBehaviourTree)
+		protected override void OnAwakeInternal(in BehaviourTreeAsset InBehaviourTree)
 		{
 			base.OnAwakeInternal(InBehaviourTree);
 
-			Utils.CustomAssertions.IsNotNull(m_MemoryIdentifier);
+			Utils.CustomAssertions.IsNotNull(BlackboardKey);
 			Utils.CustomAssertions.IsTrue(m_AcceptableRadius >= s_MinRadius);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		private bool TryGetPositionAndDirection(out Vector3 OutPosition, out Vector3 OutDirection)
+		private bool TryGetPositionToReach(out Vector3 OutPosition)
 		{
 			Vector3? position = null;
-			Vector3? direction = null;
-			if (BehaviourTree.Owner.BrainComponent.MemoryComponent.TryGetMemory(m_MemoryIdentifier, out MemoryValue<Ray> OutMemory) && OutMemory.Value.IsNotNull())
+			if (BehaviourTree.Blackboard.TryGetEntry(BlackboardKey, out BBEntry_PositionToReach BB_Position))
 			{
-				position = OutMemory.Value.origin;
-				direction = OutMemory.Value.direction;
+				position = BB_Position.Value;
+			}
+			else if (BehaviourTree.Blackboard.TryGetEntry(BlackboardKey, out BBEntry_TargetEntity BB_TargetSeen))
+			{
+				position = BB_TargetSeen.Value.Body.position;
 			}
 			OutPosition = position.GetValueOrDefault();
-			OutDirection = direction.GetValueOrDefault();
-			return position.HasValue && direction.HasValue;
+			return position.HasValue;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -72,7 +70,7 @@ namespace Entities.AI.Components.Behaviours
 			EBTNodeState OutState = base.OnActivation();
 			if (OutState == EBTNodeState.RUNNING)
 			{
-				if (TryGetPositionAndDirection(out Vector3 positionToReach, out Vector3 direction))
+				if (TryGetPositionToReach(out Vector3 positionToReach))
 				{
 					if (StillDistantFrom(positionToReach))
 					{
@@ -101,11 +99,10 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdate()
+		protected override EBTNodeState OnUpdate(in float InDeltaTime)
 		{
 			EBTNodeState OutState = EBTNodeState.RUNNING;
-
-			if (TryGetPositionAndDirection(out Vector3 positionToReach, out Vector3 direction))
+			if (TryGetPositionToReach(out Vector3 positionToReach))
 			{
 				if (StillDistantFrom(positionToReach))
 				{
@@ -113,7 +110,7 @@ namespace Entities.AI.Components.Behaviours
 					{
 						OutState = EBTNodeState.FAILED;
 
-						BehaviourTree.Owner.Entity.AIMotionManager.Stop(bImmediately: false);
+						BehaviourTree.Owner.Entity.AIMotionManager.Stop(bImmediately: true);
 					}
 				}
 				else
@@ -121,17 +118,13 @@ namespace Entities.AI.Components.Behaviours
 					OutState = EBTNodeState.SUCCEEDED;
 
 					BehaviourTree.Owner.Entity.AIMotionManager.Stop(bImmediately: false);
-
-					BehaviourTree.Owner.BrainComponent.MemoryComponent.RemoveMemory(m_MemoryIdentifier);
 				}
 			}
 			else
 			{
-				// key has been removed
 				OutState = EBTNodeState.FAILED;
 
-				// handle on owner side
-				BehaviourTree.Owner.Entity.AIMotionManager.Stop(bImmediately: false);
+				BehaviourTree.Owner.Entity.AIMotionManager.Stop(bImmediately: true);
 			}
 			return OutState;
 		}
@@ -150,7 +143,7 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdateAborting()
+		protected override EBTNodeState OnUpdateAborting(in float InDeltaTime)
 		{
 			return EBTNodeState.ABORTED;
 		}

@@ -10,8 +10,8 @@ namespace Entities.AI.Components.Behaviours
 {
 	internal class DecoratorNodeView : NodeViewBase
 	{
-		public DecoratorNodeView(in BTDecoratorNode InNode, in EdgeConnectorListener InEdgeConnectorListener, in bool bIsBehaviourTreeInstance)
-		: base(InNode, InEdgeConnectorListener, bIsBehaviourTreeInstance)
+		public DecoratorNodeView(in BTDecoratorNode InNode, in EdgeConnectorListener InEdgeConnectorListener)
+		: base(InNode, InEdgeConnectorListener)
 		{
 
 		}

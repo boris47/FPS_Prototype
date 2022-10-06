@@ -6,20 +6,21 @@ using UnityEditor;
 
 namespace Entities.AI.Components.Behaviours
 {
-	internal class BehaviourTreeInspectorView : VisualElement
+	internal class BehaviourTreeBBInspectorView : VisualElement
 	{
-		public new class UxmlFactory : UxmlFactory<BehaviourTreeInspectorView, VisualElement.UxmlTraits> { }
+		public new class UxmlFactory : UxmlFactory<BehaviourTreeBBInspectorView, VisualElement.UxmlTraits> { }
 
 		private Editor editor = null;
 
-		public BehaviourTreeInspectorView()
+		public BehaviourTreeBBInspectorView()
 		{
-			
+			Add(new Label("Blackboard"));
+			Add(new IMGUIContainer(RegisterOnInspectorGUI));
 		}
 		
 		private void RegisterOnInspectorGUI()
 		{
-			if (editor.serializedObject?.targetObject.IsNotNull() ?? false)
+			if (editor.IsNotNull() && editor.serializedObject.IsNotNull() && editor.serializedObject.targetObject.IsNotNull())
 			{
 				editor.OnInspectorGUI();
 			}
@@ -30,21 +31,17 @@ namespace Entities.AI.Components.Behaviours
 			}
 		}
 
-		internal void UpdateSelection(NodeViewBase node)
+		internal void UpdateSelection(Blackboard blackboard)
 		{
-			Clear();
+		//	Clear();
 			UnityEngine.Object.DestroyImmediate(editor);
-			editor = Editor.CreateEditor(node.BehaviourTreeNode);
-			IMGUIContainer container = new IMGUIContainer(RegisterOnInspectorGUI);
-			Add(container);
+			editor = Editor.CreateEditor(blackboard);
 		}
 
 		internal void ClearSelection()
 		{
 			if (editor.IsNotNull())
 			{
-				Clear();
-
 				UnityEngine.Object.DestroyImmediate(editor);
 			}
 		}

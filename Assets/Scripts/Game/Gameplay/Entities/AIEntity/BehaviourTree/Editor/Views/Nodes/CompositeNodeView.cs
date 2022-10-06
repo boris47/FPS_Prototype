@@ -1,16 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 using UnityEngine.UIElements;
-using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 
 namespace Entities.AI.Components.Behaviours
 {
 	internal class CompositeNodeView : NodeViewBase
 	{
-		public CompositeNodeView(in BTCompositeNode InNode, in EdgeConnectorListener InEdgeConnectorListener, in bool bIsBehaviourTreeInstance)
-		: base(InNode, InEdgeConnectorListener, bIsBehaviourTreeInstance)
+		public CompositeNodeView(in BTCompositeNode InNode, in EdgeConnectorListener InEdgeConnectorListener)
+		: base(InNode, InEdgeConnectorListener)
 		{
 			
 		}

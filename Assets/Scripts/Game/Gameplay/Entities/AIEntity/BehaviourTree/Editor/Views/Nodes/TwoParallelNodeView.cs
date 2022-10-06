@@ -1,8 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UIElements;
-using UnityEditor;
+﻿using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 
 namespace Entities.AI.Components.Behaviours
@@ -13,8 +9,8 @@ namespace Entities.AI.Components.Behaviours
 		private const uint BackgroundNodeIndex = 1u;
 		private BTComposite_TwoParallelNode m_TwoParallelNode = null;
 
-		public TwoParallelNodeView(in BTComposite_TwoParallelNode InNode, in EdgeConnectorListener InEdgeConnectorListener, in bool bIsBehaviourTreeInstance)
-		: base(InNode, InEdgeConnectorListener, bIsBehaviourTreeInstance)
+		public TwoParallelNodeView(in BTComposite_TwoParallelNode InNode, in EdgeConnectorListener InEdgeConnectorListener)
+		: base(InNode, InEdgeConnectorListener)
 		{
 			m_TwoParallelNode = InNode;
 		}

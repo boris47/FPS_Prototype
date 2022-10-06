@@ -1,105 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-8493166336239209896
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9617f6b4a4d1e16439313af68e80fde8, type: 3}
-  m_Name: 004. BTConditional_BlackboardValue
-  m_EditorClassIdentifier: 
-  m_NodeState: 0
-  m_Parent: {fileID: 1492653537768618074}
-  m_NodeIndex: 4
-  m_BehaviourTree: {fileID: 11400000}
-  m_Guid: f89e7d22-f5fa-46c9-84bc-a01ce5251add
-  m_Position: {x: 583, y: 274}
-  m_HasBreakpoint: 0
-  m_ParentPortIndex: 0
-  m_Child: {fileID: -7318436360864869751}
-  m_AbortType: 3
-  m_BlackboardKey: {fileID: 11400000, guid: 121105c8e378c8a4ba3ead19d288d426, type: 2}
-  m_ResetOnChange: 1
---- !u!114 &-7318436360864869751
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d2f104a865d99145b92a08b8538eb24, type: 3}
-  m_Name: 005. BTComposite_SequenceNode
-  m_EditorClassIdentifier: 
-  m_NodeState: 0
-  m_Parent: {fileID: -8493166336239209896}
-  m_NodeIndex: 5
-  m_BehaviourTree: {fileID: 11400000}
-  m_Guid: b167635a-ecd4-4e25-9bf9-9b9163722c98
-  m_Position: {x: 596.5, y: 464}
-  m_HasBreakpoint: 0
-  m_ParentPortIndex: 0
-  m_Children:
-  - {fileID: -51185025773626646}
-  - {fileID: -6288303403214652386}
-  m_CurrentIndex: 0
-  m_MustRepeat: 0
---- !u!114 &-7025441782885005571
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d2f104a865d99145b92a08b8538eb24, type: 3}
-  m_Name: 010. BTComposite_SequenceNode
-  m_EditorClassIdentifier: 
-  m_NodeState: 0
-  m_Parent: {fileID: 1492653537768618074}
-  m_NodeIndex: 10
-  m_BehaviourTree: {fileID: 11400000}
-  m_Guid: 29fc1a8f-ab79-4eab-bda3-4eda47b09304
-  m_Position: {x: 1289.5, y: 274}
-  m_HasBreakpoint: 0
-  m_ParentPortIndex: 0
-  m_Children:
-  - {fileID: 8851411859970805023}
-  - {fileID: 5841005818135229737}
-  m_CurrentIndex: 0
-  m_MustRepeat: 1
---- !u!114 &-6288303403214652386
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d2f104a865d99145b92a08b8538eb24, type: 3}
-  m_Name: 007. BTComposite_SequenceNode
-  m_EditorClassIdentifier: 
-  m_NodeState: 0
-  m_Parent: {fileID: -7318436360864869751}
-  m_NodeIndex: 7
-  m_BehaviourTree: {fileID: 11400000}
-  m_Guid: 4c6e08da-de18-47bd-a4f7-c2d7408b3a23
-  m_Position: {x: 771.5, y: 614}
-  m_HasBreakpoint: 0
-  m_ParentPortIndex: 0
-  m_Children:
-  - {fileID: 1875623293089602143}
-  - {fileID: 405042888350252763}
-  m_CurrentIndex: 0
-  m_MustRepeat: 0
---- !u!114 &-2188996092112691308
+--- !u!114 &-4468765183928539979
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -109,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0c004d8733a20ce419db1aefa282eb5d, type: 3}
-  m_Name: 000. BTRootNode
+  m_Name: Root Node
   m_EditorClassIdentifier: 
   m_NodeState: 0
   m_Parent: {fileID: 0}
   m_NodeIndex: 0
   m_BehaviourTree: {fileID: 11400000}
-  m_Guid: dd2d0fa6-83a9-48ee-8628-c0145a43aa03
-  m_Position: {x: 710, y: 0}
+  m_Guid: ed906a65-cf1b-4b7b-8fb6-a4b4b279288c
+  m_Position: {x: 0, y: 0}
   m_HasBreakpoint: 0
   m_ParentPortIndex: 0
-  m_Child: {fileID: 1492653537768618074}
-  m_MustRepeat: 1
---- !u!114 &-51185025773626646
+  m_Child: {fileID: 0}
+  m_MustRepeat: 0
+--- !u!114 &-1652185287111804482
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -130,20 +31,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eafd4c843a9a60445909e682325c5949, type: 3}
-  m_Name: 006. BTTask_MoveCloseTo
+  m_Script: {fileID: 11500000, guid: 01f9717c96d53b54faa872caf409cfc3, type: 3}
+  m_Name: Blackboard
   m_EditorClassIdentifier: 
-  m_NodeState: 0
-  m_Parent: {fileID: -7318436360864869751}
-  m_NodeIndex: 6
-  m_BehaviourTree: {fileID: 11400000}
-  m_Guid: 4b3e9292-efe3-4c65-bb8a-b29871f51b4a
-  m_Position: {x: 291, y: 614}
-  m_HasBreakpoint: 0
-  m_ParentPortIndex: 0
-  m_AcceptableRadius: 2
-  m_BlackboardKey: {fileID: 11400000, guid: 121105c8e378c8a4ba3ead19d288d426, type: 2}
-  m_Space: 1
+  m_Parent: {fileID: 0}
+  m_Keys: []
+  m_Entries: []
+  references:
+    version: 2
+    RefIds: []
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -156,183 +52,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 242cde3ebb14dbf43a3546394b1573b5, type: 3}
   m_Name: New Behaviour Tree
   m_EditorClassIdentifier: 
-  m_RootNode: {fileID: -2188996092112691308}
+  m_RootNode: {fileID: -4468765183928539979}
   m_Nodes:
-  - {fileID: -2188996092112691308}
-  - {fileID: 1492653537768618074}
-  - {fileID: 7460513400572179995}
-  - {fileID: 8588595459026398027}
-  - {fileID: -8493166336239209896}
-  - {fileID: -7318436360864869751}
-  - {fileID: -51185025773626646}
-  - {fileID: -6288303403214652386}
-  - {fileID: 1875623293089602143}
-  - {fileID: 405042888350252763}
-  - {fileID: -7025441782885005571}
-  - {fileID: 8851411859970805023}
-  - {fileID: 5841005818135229737}
+  - {fileID: -4468765183928539979}
+  m_Asset: {fileID: 0}
   m_Controller: {fileID: 0}
+  m_Blackboard: {fileID: -1652185287111804482}
   m_TreeState: 3
-  m_IsInstance: 0
   m_CurrentRunningNode: {fileID: 0}
   m_RunningNodeLocked: 0
-  m_Source: {fileID: 0}
-  m_Position: {x: 17, y: 104}
-  m_Scale: {x: 0.2842624, y: 0.2842624, z: 1}
---- !u!114 &405042888350252763
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 44c6ea46cfb6d154199d57444d2ac703, type: 3}
-  m_Name: 009. BTTask_Log
-  m_EditorClassIdentifier: 
-  m_NodeState: 0
-  m_Parent: {fileID: -6288303403214652386}
-  m_NodeIndex: 9
-  m_BehaviourTree: {fileID: 11400000}
-  m_Guid: e41d0eaf-80ef-4b69-b9e5-47506c357efb
-  m_Position: {x: 922, y: 764}
-  m_HasBreakpoint: 0
-  m_ParentPortIndex: 0
-  m_Message: Target
---- !u!114 &1492653537768618074
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 99ab28f8f9887444e84fdbe1908760f7, type: 3}
-  m_Name: 001. BTComposite_SelectorNode
-  m_EditorClassIdentifier: 
-  m_NodeState: 0
-  m_Parent: {fileID: -2188996092112691308}
-  m_NodeIndex: 1
-  m_BehaviourTree: {fileID: 11400000}
-  m_Guid: 98b77944-e601-46c7-a08b-58cf44f78e1e
-  m_Position: {x: 710, y: 124}
-  m_HasBreakpoint: 0
-  m_ParentPortIndex: 0
-  m_Children:
-  - {fileID: 7460513400572179995}
-  - {fileID: -8493166336239209896}
-  - {fileID: -7025441782885005571}
-  m_CurrentIndex: 0
-  m_MustRepeat: 1
---- !u!114 &1875623293089602143
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a98b0c7e32c37d42b986bc8585309fc, type: 3}
-  m_Name: 008. BTTask_Wait
-  m_EditorClassIdentifier: 
-  m_NodeState: 0
-  m_Parent: {fileID: -6288303403214652386}
-  m_NodeIndex: 8
-  m_BehaviourTree: {fileID: 11400000}
-  m_Guid: d389f96c-4a5f-42e6-8ab8-5d292aeb3db0
-  m_Position: {x: 641, y: 764}
-  m_HasBreakpoint: 0
-  m_ParentPortIndex: 0
-  m_SecondsToWait: 2
---- !u!114 &5841005818135229737
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 44c6ea46cfb6d154199d57444d2ac703, type: 3}
-  m_Name: 012. BTTask_Log
-  m_EditorClassIdentifier: 
-  m_NodeState: 0
-  m_Parent: {fileID: -7025441782885005571}
-  m_NodeIndex: 12
-  m_BehaviourTree: {fileID: 11400000}
-  m_Guid: efafe2e7-656f-4618-9a72-5857745e4192
-  m_Position: {x: 1440, y: 424}
-  m_HasBreakpoint: 0
-  m_ParentPortIndex: 0
-  m_Message: Idle
---- !u!114 &7460513400572179995
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9617f6b4a4d1e16439313af68e80fde8, type: 3}
-  m_Name: 002. BTConditional_BlackboardValue
-  m_EditorClassIdentifier: 
-  m_NodeState: 0
-  m_Parent: {fileID: 1492653537768618074}
-  m_NodeIndex: 2
-  m_BehaviourTree: {fileID: 11400000}
-  m_Guid: 44082b52-6e40-4417-9dcb-bd42a40887e3
-  m_Position: {x: 3.5, y: 274}
-  m_HasBreakpoint: 0
-  m_ParentPortIndex: 0
-  m_Child: {fileID: 8588595459026398027}
-  m_AbortType: 3
-  m_BlackboardKey: {fileID: 11400000, guid: 1190af3f90dd517449d8fe18567e61f3, type: 2}
-  m_ResetOnChange: 1
---- !u!114 &8588595459026398027
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 61e2323d006de78439ee60e96d701ea7, type: 3}
-  m_Name: 003. BTTask_SearchForLostTarget
-  m_EditorClassIdentifier: 
-  m_NodeState: 0
-  m_Parent: {fileID: 7460513400572179995}
-  m_NodeIndex: 3
-  m_BehaviourTree: {fileID: 11400000}
-  m_Guid: ffaa2545-33b2-4d44-be95-928daf54df1a
-  m_Position: {x: 0, y: 464}
-  m_HasBreakpoint: 0
-  m_ParentPortIndex: 0
-  m_AcceptableRadius: 1
-  m_MemoryIdentifier: {fileID: 11400000, guid: 25ee2b8bb222e1b42b6bae2b0f110fa2, type: 2}
-  m_Space: 1
---- !u!114 &8851411859970805023
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a98b0c7e32c37d42b986bc8585309fc, type: 3}
-  m_Name: 011. BTTask_Wait
-  m_EditorClassIdentifier: 
-  m_NodeState: 0
-  m_Parent: {fileID: -7025441782885005571}
-  m_NodeIndex: 11
-  m_BehaviourTree: {fileID: 11400000}
-  m_Guid: 4e8ca8ee-9d77-496e-8b24-cab846654121
-  m_Position: {x: 1159, y: 424}
-  m_HasBreakpoint: 0
-  m_ParentPortIndex: 0
-  m_SecondsToWait: 5
+  m_Position: {x: 453, y: 273}
+  m_Scale: {x: 1, y: 1, z: 1}

@@ -1,5 +1,4 @@
 ﻿
-using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,13 +13,16 @@ namespace Entities.AI.Components.Behaviours
 		private			List<BTNode>			m_Nodes					= new List<BTNode>();
 
 		[SerializeField, ReadOnly]
+		private			BehaviourTree			m_Asset					= null;
+
+		[SerializeField, ReadOnly]
 		private			AIController			m_Controller			= null;
 
 		[SerializeField, ReadOnly]
-		private			EBehaviourTreeState		m_TreeState				= EBehaviourTreeState.INVALID;
+		protected		Blackboard				m_Blackboard			= null;
 
 		[SerializeField, ReadOnly]
-		private			bool					m_IsInstance			= false;
+		private			EBehaviourTreeState		m_TreeState				= EBehaviourTreeState.INVALID;
 
 		[SerializeField, ReadOnly]
 		private			BTNode					m_CurrentRunningNode	= null;
@@ -28,10 +30,15 @@ namespace Entities.AI.Components.Behaviours
 		[SerializeField, ReadOnly]
 		private			bool					m_RunningNodeLocked		= false;
 
+		private			bool					m_IsInstance			= false;
+
+
 		//---------------------
-		public			BTRootNode				RootNode				=> m_RootNode;
+		public			BehaviourTree			Asset					=> m_Asset;
 		public			AIController			Owner					=> m_Controller;
 		public			EBehaviourTreeState		TreeState				=> m_TreeState;
+		public			BTRootNode				RootNode				=> m_RootNode;
+		public			Blackboard				Blackboard				=> m_Blackboard;
 		public			bool					IsInstance				=> m_IsInstance;
 
 
@@ -40,86 +47,61 @@ namespace Entities.AI.Components.Behaviours
 		private			List<IBTNodeTickable>	m_Tickables				= new List<IBTNodeTickable>();
 
 
+
+
 		//////////////////////////////////////////////////////////////////////////
-		public static BehaviourTree CreateBehaviourTreeInstance(in BehaviourTree InBehaviourTreeAsset)
+		public static BehaviourTree CreateInstanceFrom(BehaviourTree InBehaviourTreeAsset)
 		{
 			static void Traverse(in BTNode node, System.Action<BTNode> actionOnNode)
 			{
 				actionOnNode(node);
+
 				if (node is IParentNode parent)
 				{
-					parent.Children.ForEach(delegate (BTNode n) { Traverse(n, actionOnNode); });
+					parent.Children.ForEach(child => Traverse(child, actionOnNode));
 				}
 			}
 
-			BehaviourTree newTreeInstance = Instantiate(InBehaviourTreeAsset);
-#if UNITY_EDITOR
-			newTreeInstance.m_Source = InBehaviourTreeAsset;
-#endif
+			BehaviourTree newTreeInstance = CreateInstance<BehaviourTree>();
 			newTreeInstance.m_IsInstance = true;
-
-			// Root node
-			newTreeInstance.m_RootNode = InBehaviourTreeAsset.m_RootNode?.CloneInstance() as BTRootNode;
-
-			// Other Nodes
-			newTreeInstance.m_Nodes.Clear();
-
-			if (newTreeInstance.m_RootNode)
+			if (InBehaviourTreeAsset.Blackboard == null)
 			{
-				Traverse(newTreeInstance.m_RootNode, delegate(BTNode n)
-				{
-					newTreeInstance.m_Nodes.Add(n);
-				});
+				newTreeInstance.m_Blackboard = CreateInstance<Blackboard>();
+			}
+			else
+			{
+				newTreeInstance.m_Blackboard = InBehaviourTreeAsset.Blackboard;
+			}
+
+			// Nodes
+			if (InBehaviourTreeAsset.RootNode.IsNotNull())
+			{
+				// Root node
+				newTreeInstance.m_RootNode = InBehaviourTreeAsset.RootNode.CreateInstance() as BTRootNode;
+
+				Traverse(newTreeInstance.m_RootNode, node => newTreeInstance.m_Nodes.Add(node));
 			}
 
 			// Return the instance
 			return newTreeInstance;
 		}
 
-		private static Dictionary<BehaviourTree, BehaviourTree> m_Instances = new Dictionary<BehaviourTree, BehaviourTree>();
-
-		//////////////////////////////////////////////////////////////////////////
-		public static BehaviourTree GetInstanceOf(in BehaviourTree InBehaviourTreeSource)
-		{
-			if (InBehaviourTreeSource.IsInstance)
-			{
-				return InBehaviourTreeSource;
-			}
-
-			BehaviourTree OutTree = null;
-			if (!m_Instances.TryGetValue(InBehaviourTreeSource, out OutTree))
-			{
-				OutTree = CreateBehaviourTreeInstance(InBehaviourTreeSource);
-				m_Instances.Add(InBehaviourTreeSource, OutTree);
-			}
-			return OutTree;
-		}
-
 		//////////////////////////////////////////////////////////////////////////
 		public void OnAwake(in AIController InController)
 		{
-			if (!m_IsInstance)
-			{
-				Debug.LogError($"Cannot awake a not tree instance", this);
-				return;
-			}
-
 			m_Controller = InController;
 
 			m_Nodes.ForEach(n => n.OnAwake(this));
-			m_RootNode?.OnAwake(this);
+			if (Utils.CustomAssertions.IsNotNull(m_RootNode))
+			{
+				m_RootNode.OnAwake(this);
+			}
 			m_TreeState = EBehaviourTreeState.STOPPED;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
 		public bool StartTree()
 		{
-			if (!m_IsInstance)
-			{
-				Debug.LogError($"Cannot start a not tree instance", this);
-				return false;
-			}
-
 			if (m_TreeState == EBehaviourTreeState.STOPPED)
 			{
 				if (Utils.CustomAssertions.IsTrue(m_Nodes.At(0) == m_RootNode))
@@ -138,7 +120,6 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary> Only callable if called from current running node </summary>
 		public void LockRunningNode(in BTNode InRequester)
 		{
 			if (Utils.CustomAssertions.IsTrue(InRequester == m_CurrentRunningNode))
@@ -170,10 +151,6 @@ namespace Entities.AI.Components.Behaviours
 
 				m_CurrentRunningNode = InNode;
 			}
-			else
-			{
-			//	Debug.Log($"Bypassed {nameof(SetRunningNode)} execution");
-			}
 		}
 
 
@@ -186,35 +163,40 @@ namespace Entities.AI.Components.Behaviours
 		//////////////////////////////////////////////////////////////////////////
 		public void RemoveTickableNode(in BTNode InTickable)
 		{
-			m_Tickables.Remove(InTickable);
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		public void UpdateFrame(in float InDeltaTime)
-		{
-			foreach(IBTNodeTickable node in m_Tickables)
+			int index = m_Tickables.IndexOf(InTickable);
+			if (index >= 0)
 			{
-				node.UpdateFrame(InDeltaTime);
+				m_Tickables[index] = null;
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public void UpdateFixed()
+		public EBTNodeState UpdateTree(in float InDeltaTime)
 		{
+			// Clean tickable list
+			for (int i = m_Tickables.Count - 1; i >= 0; i--)
+			{
+				if (m_Tickables[i] == null)
+				{
+					m_Tickables.RemoveAt(i);
+				}
+			}
+
+			// Tick tickables
 			foreach (IBTNodeTickable node in m_Tickables)
 			{
-				node.UpdateFixed();
+				if (node.IsNotNull())
+				{
+					node.UpdateTickable(InDeltaTime);
+				}
 			}
-		}
 
-		//////////////////////////////////////////////////////////////////////////
-		public EBTNodeState Update()
-		{
+			// Update nodes state
 			if (m_TreeState == EBehaviourTreeState.RUNNING)
 			{
 				if (m_AbortOperation.IsNotNull())
 				{
-					if (m_AbortOperation.Update())
+					if (m_AbortOperation.AbortCompleted(InDeltaTime))
 					{
 						m_AbortOperation = null;
 
@@ -224,32 +206,32 @@ namespace Entities.AI.Components.Behaviours
 				}
 				else
 				{
-					m_CurrentRunningNode.Update();
+					m_CurrentRunningNode.UpdateNode(InDeltaTime);
 				}
 			}
 
 			switch (m_RootNode.NodeState)
 			{
 				case EBTNodeState.INACTIVE:
-					Utils.CustomAssertions.IsTrue(false);
-					break;
+				Utils.CustomAssertions.IsTrue(false);
+				break;
 				case EBTNodeState.SUCCEEDED:
 				case EBTNodeState.FAILED:
 				case EBTNodeState.ABORTED:
-					m_TreeState = EBehaviourTreeState.STOPPED;
-					break;
+				m_TreeState = EBehaviourTreeState.STOPPED;
+				break;
 				case EBTNodeState.ABORTING:
 				case EBTNodeState.RUNNING:
-					m_TreeState = EBehaviourTreeState.RUNNING;
-					break;
+				m_TreeState = EBehaviourTreeState.RUNNING;
+				break;
 				default:
-					break;
+				break;
 			}
 			return m_RootNode.NodeState;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public void RequestAbort(in BTNode InNodeAborter, in BTNode InNodeToAbort, in System.Action InPostAbortOp)
+		public void SetAborter(in BTNode InNodeAborter, in BTNode InNodeToAbort, in System.Action InPostAbortOp)
 		{
 			if (m_AbortOperation == null)
 			{
@@ -263,26 +245,75 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public void AbortLowPriorityNodesAndRunConditional(BTConditional InConditionalRequestingLowPriorityAbort, in System.Action InPostAbort)
+		public void RequestAbortCurrentAndRunThis(BTConditional InConditionalRequestingRun, in System.Action InPostAbort)
 		{
-			bool bValidAbortType = Utils.CustomAssertions.IsTrue(InConditionalRequestingLowPriorityAbort.AbortType == EAbortType.LowerPriority || InConditionalRequestingLowPriorityAbort.AbortType == EAbortType.Both);
-			uint conditionalToActivateIndex = InConditionalRequestingLowPriorityAbort.NodeIndex;
-			uint currentRunningNodeIndex = m_CurrentRunningNode.NodeIndex;
-			bool bValidIndex = /*Utils.CustomAssertions.IsTrue*/(conditionalToActivateIndex < currentRunningNodeIndex);
-
-			if (bValidIndex && bValidAbortType)
+			bool bValidAbortType = Utils.CustomAssertions.IsTrue(InConditionalRequestingRun.AbortType >= EAbortType.LowerPriority);
+			//	bool bHasSameParent = InConditionalRequestingRun.Parent == m_CurrentRunningNode.Parent;
+			if (Utils.CustomAssertions.IsNotNull(InPostAbort) && bValidAbortType)
 			{
-				RequestAbort(InConditionalRequestingLowPriorityAbort, m_CurrentRunningNode, delegate
-				{
-					for (uint i = currentRunningNodeIndex; i > conditionalToActivateIndex; i--)
-					{
-						m_Nodes.At(i).ResetNode();
-					}
+				uint conditionalToRunIndex = InConditionalRequestingRun.NodeIndex;
+				uint currentRunningNodeIndex = m_CurrentRunningNode.NodeIndex;
 
-				//	m_CurrentRunningNode = InConditionalRequestingLowPriorityAbort;
-				} + InPostAbort);
+				// Requested lower priority abort
+				if (conditionalToRunIndex < currentRunningNodeIndex)
+				{
+					SetAborter(InConditionalRequestingRun, m_CurrentRunningNode, delegate
+					{
+						// Reset lower priority nodes
+						for (uint i = currentRunningNodeIndex; i >= conditionalToRunIndex; i--)
+						{
+							m_Nodes.At(i).ResetNode();
+						}
+					}
+					+ InPostAbort);
+				}
+				// Requested higher priority abort
+				else
+				{
+					//	RequestAbort(InConditionalRequestingRun, m_CurrentRunningNode, delegate
+					//	{
+					//		// Reset higher priority nodes
+					//		for (uint i = currentRunningNodeIndex; i < conditionalToRunIndex; i++)
+					//		{
+					//			m_Nodes.At(i).ResetNode();
+					//		}
+					//	}
+					//	+ InPostAbort);
+				}
 			}
 		}
+		//////////////////////////////////////////////////////////////////////////
+		public void StopTree()
+		{
+			if (m_TreeState == EBehaviourTreeState.RUNNING || m_TreeState == EBehaviourTreeState.PAUSED)
+			{
+				m_TreeState = EBehaviourTreeState.STOPPED;
+
+				m_RootNode.RequestAbortNode(bAbortImmediately: true);
+
+				m_RootNode.ResetNode();
+			}
+		}
+
+// 
+// 		//////////////////////////////////////////////////////////////////////////
+// 		public void ResetTree()
+// 		{
+// 			if (m_TreeState == EBehaviourTreeState.RUNNING || m_TreeState == EBehaviourTreeState.PAUSED)
+// 			{
+// 				StopTree();
+// 			}
+// 			m_RootNode?.ResetNode();
+// 			m_VisitedNodes.Clear();
+// 		}
+// 
+// 		//////////////////////////////////////////////////////////////////////////
+// 		public void RestartTree()
+// 		{
+// 			ResetTree();
+// 			StartTree();
+// 		}
+
 
 		//---------------------
 		private class AbortOperation
@@ -310,9 +341,9 @@ namespace Entities.AI.Components.Behaviours
 			}
 
 			//////////////////////////////////////////////////////////////////////////
-			public bool Update()
+			public bool AbortCompleted(in float InDeltaTime)
 			{
-				bool OutResult = m_NodeToAbort.NodeState == EBTNodeState.ABORTED || m_NodeToAbort.Update() == EBTNodeState.ABORTED;
+				bool OutResult = m_NodeToAbort.NodeState == EBTNodeState.ABORTED || m_NodeToAbort.UpdateNode(InDeltaTime) == EBTNodeState.ABORTED;
 				if (OutResult)
 				{
 					// Current running node is fully aborted, so we can unlock the running node assignment
@@ -323,67 +354,6 @@ namespace Entities.AI.Components.Behaviours
 				return OutResult;
 			}
 		}
-	
-
-
-	
-	// 
-	// 		//////////////////////////////////////////////////////////////////////////
-	// 		public void PauseTree()
-	// 		{
-	// 			if (m_TreeState == EBehaviourTreeState.RUNNING)
-	// 			{
-	// 				m_TreeState = EBehaviourTreeState.PAUSED;
-	// 
-	// 				GameManager.CyclesEvents.OnThink -= OnThink;
-	// 
-	// 				m_VisitedNodes.Peek().OnTreePause();
-	// 			}
-	// 		}
-	// 
-	// 		//////////////////////////////////////////////////////////////////////////
-	// 		public void ResumeTree()
-	// 		{
-	// 			if (m_TreeState == EBehaviourTreeState.PAUSED)
-	// 			{
-	// 				m_TreeState = EBehaviourTreeState.RUNNING;
-	// 
-	// 				GameManager.CyclesEvents.OnThink += OnThink;
-	// 
-	// 				m_VisitedNodes.Peek().OnTreeResume();
-	// 			}
-	// 		}
-	// 
-		//////////////////////////////////////////////////////////////////////////
-	 	public void StopTree()
-	 	{
-	 		if (m_TreeState == EBehaviourTreeState.RUNNING || m_TreeState == EBehaviourTreeState.PAUSED)
-	 		{
-	 			m_TreeState = EBehaviourTreeState.STOPPED;
-
-	 			m_RootNode.RequestAbortNode(bAbortImmediately: true);
-
-				m_RootNode.ResetNode();
-	 		}
-	 	}
-	// 
-	// 		//////////////////////////////////////////////////////////////////////////
-	// 		public void ResetTree()
-	// 		{
-	// 			if (m_TreeState == EBehaviourTreeState.RUNNING || m_TreeState == EBehaviourTreeState.PAUSED)
-	// 			{
-	// 				StopTree();
-	// 			}
-	// 			m_RootNode?.ResetNode();
-	// 			m_VisitedNodes.Clear();
-	// 		}
-	// 
-	// 		//////////////////////////////////////////////////////////////////////////
-	// 		public void RestartTree()
-	// 		{
-	// 			ResetTree();
-	// 			StartTree();
-	// 		}
 	}
 }
 

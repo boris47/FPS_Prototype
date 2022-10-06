@@ -83,17 +83,17 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected sealed override EBTNodeState OnUpdate()
+		protected sealed override EBTNodeState OnUpdate(in float InDeltaTime)
 		{
 			EBTNodeState OutState = EBTNodeState.RUNNING;
 
 			if (!BTNode.IsFinished(m_Main))
 			{
-				m_Main.Update();
+				m_Main.UpdateNode(InDeltaTime);
 
 				if (!BTNode.IsFinished(m_Background))
 				{
-					m_Background.Update();
+					m_Background.UpdateNode(InDeltaTime);
 				}
 			}
 			else
@@ -110,7 +110,7 @@ namespace Entities.AI.Components.Behaviours
 						{
 							if (!BTNode.IsFinished(m_Background))
 							{
-								m_Background.Update();
+								m_Background.UpdateNode(InDeltaTime);
 							}
 							else
 							{
@@ -130,7 +130,7 @@ namespace Entities.AI.Components.Behaviours
 					{
 						if (!BTNode.IsFinished(m_Background))
 						{
-							m_Background.Update();
+							m_Background.UpdateNode(InDeltaTime);
 						}
 						else
 						{
@@ -181,16 +181,16 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdateAborting()
+		protected override EBTNodeState OnUpdateAborting(in float InDeltaTime)
 		{
 			if (!BTNode.IsFinished(m_Main))
 			{
-				m_Main.Update();
+				m_Main.UpdateNode(InDeltaTime);
 			}
 
 			if (!BTNode.IsFinished(m_Background))
 			{
-				m_Background.Update();
+				m_Background.UpdateNode(InDeltaTime);
 			}
 
 			return BTNode.IsFinished(m_Main) && BTNode.IsFinished(m_Background) ? EBTNodeState.ABORTED : EBTNodeState.ABORTING;

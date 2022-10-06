@@ -21,13 +21,10 @@ namespace Entities.AI.Components.Behaviours
 		INVALID
 	}
 
-
 	public interface IBTNodeTickable
 	{
-		void UpdateFrame(in float InDeltaTime);
-		void UpdateFixed();
+		void UpdateTickable(in float InDeltaTime);
 	}
-
 
 	public interface IParentNode
 	{
@@ -44,7 +41,6 @@ namespace Entities.AI.Components.Behaviours
 		ABORTED,        // finished aborting
 		RUNNING,        // not finished yet
 	}
-
 
 	public class BTNodeDetailsAttribute : System.Attribute
 	{

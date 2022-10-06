@@ -28,7 +28,7 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdate()
+		protected override EBTNodeState OnUpdate(in float InDeltaTime)
 		{
 			return (m_StartTime + m_SecondsToWait < Time.time) ? EBTNodeState.SUCCEEDED : EBTNodeState.RUNNING;
 		}

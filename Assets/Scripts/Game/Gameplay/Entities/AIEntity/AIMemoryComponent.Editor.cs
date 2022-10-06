@@ -8,12 +8,11 @@ using UnityEditorInternal;
 
 namespace Entities.AI.Components
 {
-	public partial class AIMemoryComponent : AIEntityComponent
+	public partial class AIMemoryComponent // Editor
 	{
 		[CustomEditor(typeof(AIMemoryComponent))]
 		public class AIMemoryComponentEditor : Editor
 		{
-			private AIMemoryComponent m_Instance = null;
 			private SerializedProperty m_EntryTable = null;
 			private ReorderableList m_ReorderableList = null;
 
@@ -21,7 +20,6 @@ namespace Entities.AI.Components
 			//////////////////////////////////////////////////////////////////////////
 			private void OnEnable()
 			{
-				m_Instance = (AIMemoryComponent)serializedObject.targetObject;
 				m_EntryTable = serializedObject.FindProperty(nameof(m_Memories));
 
 				m_ReorderableList = new ReorderableList(serializedObject, elements: m_EntryTable, draggable: false, displayHeader: false, displayAddButton: false, displayRemoveButton: false)

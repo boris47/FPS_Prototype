@@ -79,25 +79,20 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdate()
+		protected override EBTNodeState OnUpdate(in float InDeltaTime)
 		{
 			EBTNodeState OutState = EBTNodeState.RUNNING;
 
-			EBTNodeState childState = Child.Update();
-			switch (childState)
+			EBTNodeState childState = Child.UpdateNode(InDeltaTime);
+			if (childState == EBTNodeState.SUCCEEDED || childState == EBTNodeState.FAILED)
 			{
-				case EBTNodeState.SUCCEEDED:
-				case EBTNodeState.FAILED:
-				{
-					// Reflect the child result to the parent of this node as it is
-					OutState = childState;
+				// Reflect the child result to the parent of this node as it is
+				OutState = childState;
 
-				//	// And stop being relevant
-					if (m_AbortType == EAbortType.Self)
-					{
-						OnCeaseRelevant();
-					}
-					break;
+				// And stop being relevant
+				if (m_AbortType == EAbortType.Self)
+				{
+					OnCeaseRelevant();
 				}
 			}
 			return OutState;
@@ -108,17 +103,20 @@ namespace Entities.AI.Components.Behaviours
 		{
 			if (m_AbortType == EAbortType.Self || m_AbortType == EAbortType.Both)
 			{
-				BehaviourTree.RequestAbort(this, Child, delegate
+				if (Utils.CustomAssertions.IsTrue(NodeState == EBTNodeState.RUNNING))
 				{
-					// Reset this node
-					ResetNode();
+					BehaviourTree.SetAborter(this, Child, delegate
+					{
+						// Reset this node
+						ResetNode();
 
-					// Declare this node as failed
-					SetNodeState(EBTNodeState.FAILED);
+						// Declare this node as failed
+						SetNodeState(EBTNodeState.FAILED);
 
-					// Notify the tree to run parent of this node
-					BehaviourTree.SetRunningNode(Parent as BTNode);
-				});
+						// Notify the tree to run parent of this node
+						BehaviourTree.SetRunningNode(Parent as BTNode);
+					});
+				}
 			}
 			return m_AbortType == EAbortType.Self ? EOnChangeDelExecutionResult.REMOVE : EOnChangeDelExecutionResult.LEAVE;
 		}
@@ -129,7 +127,7 @@ namespace Entities.AI.Components.Behaviours
 			if (m_AbortType == EAbortType.LowerPriority || m_AbortType == EAbortType.Both)
 			{
 				// Request the tree to abort current running node and move to this node, setting this node as running
-				BehaviourTree.AbortLowPriorityNodesAndRunConditional(this, delegate
+				BehaviourTree.RequestAbortCurrentAndRunThis(this, delegate
 				{
 					// Reset this node in order to start from a clean state
 					ResetNode();

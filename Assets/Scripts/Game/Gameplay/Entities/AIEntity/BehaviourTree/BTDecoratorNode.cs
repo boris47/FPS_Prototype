@@ -33,18 +33,21 @@ namespace Entities.AI.Components.Behaviours
 		protected override void CopyDataToInstance(in BTNode InNewInstance)
 		{
 			var node = InNewInstance as BTDecoratorNode;
-			node.m_Child = m_Child?.CloneInstance(node) ?? null;
+			node.m_Child = m_Child.IsNotNull() ? m_Child.CreateInstance(node) : null;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdateAborting() => m_Child?.NodeState ?? EBTNodeState.ABORTED;
+		protected override EBTNodeState OnUpdateAborting(in float InDeltaTime) => m_Child.IsNotNull() ? m_Child.NodeState : EBTNodeState.ABORTED;
 
 		//////////////////////////////////////////////////////////////////////////
 		protected override void OnAbortNodeRequested(in bool bAbortImmediately)
 		{
 			base.OnAbortNodeRequested(bAbortImmediately);
 
-			m_Child?.RequestAbortNode(bAbortImmediately);
+			if (m_Child.IsNotNull())
+			{
+				m_Child.RequestAbortNode(bAbortImmediately);
+			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -52,7 +55,10 @@ namespace Entities.AI.Components.Behaviours
 		{
 			base.OnNodeReset();
 
-			m_Child?.ResetNode();
+			if (m_Child.IsNotNull())
+			{
+				m_Child.ResetNode();
+			}
 		}
 	}
 }

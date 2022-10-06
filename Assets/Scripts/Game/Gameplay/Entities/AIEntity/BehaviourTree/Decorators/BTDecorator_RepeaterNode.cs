@@ -40,10 +40,10 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdate()
+		protected override EBTNodeState OnUpdate(in float InDeltaTime)
 		{
 			EBTNodeState OutState = EBTNodeState.RUNNING;
-			switch (Child.Update())
+			switch (Child.UpdateNode(InDeltaTime))
 			{
 				case EBTNodeState.FAILED:
 				case EBTNodeState.SUCCEEDED:
