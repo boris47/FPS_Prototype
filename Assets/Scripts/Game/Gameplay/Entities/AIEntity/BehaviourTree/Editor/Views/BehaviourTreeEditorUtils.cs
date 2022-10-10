@@ -97,11 +97,11 @@ namespace Entities.AI.Components.Behaviours
 
 			// Check for orphan nodes
 			{
-				if (InRootNode.BehaviourTree.AsEditorInterface.Nodes.Any())
+				if (InRootNode.BehaviourTreeAsset.AsEditorInterface.Nodes.Any())
 				{
-					BehaviourTree tree = InRootNode.BehaviourTree;
+					BehaviourTree tree = InRootNode.BehaviourTreeAsset;
 					List<BTNode> nodes = tree.AsEditorInterface.Nodes;
-					if (TryGetSubAssets(tree, out List<BTNode> subAssets))
+					if (tree.TryGetSubObjectsOfType(out BTNode[] subAssets))
 					{
 						// Removing sub-assets not referenced in tree node list
 						foreach (BTNode node in subAssets)
@@ -137,10 +137,10 @@ namespace Entities.AI.Components.Behaviours
 				AssignIndexToNode(InRootNode, ref currentIndex);
 
 				static int SortByNodeIndex(BTNode left, BTNode right) => left.NodeIndex < right.NodeIndex ? -1 : 1;
-				InRootNode.BehaviourTree.AsEditorInterface.Nodes.Sort(SortByNodeIndex);
-				if (InRootNode.BehaviourTree.AsEditorInterface.Nodes.IsValidIndex(0))
+				InRootNode.BehaviourTreeAsset.AsEditorInterface.Nodes.Sort(SortByNodeIndex);
+				if (InRootNode.BehaviourTreeAsset.AsEditorInterface.Nodes.IsValidIndex(0))
 				{
-					BehaviourTree tree = InRootNode.BehaviourTree;
+					BehaviourTree tree = InRootNode.BehaviourTreeAsset;
 					List<BTNode> nodes = tree.AsEditorInterface.Nodes;
 					EditorUtility.SetDirty(tree);
 					{
@@ -159,6 +159,10 @@ namespace Entities.AI.Components.Behaviours
 		//////////////////////////////////////////////////////////////////////////
 		private static bool TryGetSubAssets<T>(Object mainAsset, out List<T> OutResult) where T : Object
 		{
+			if (mainAsset.TryGetSubObjectsOfType(out BTNode[] childrenAssets))
+			{
+
+			}
 			string assetPath = AssetDatabase.GetAssetPath(mainAsset);
 			OutResult = new List<T>();
 

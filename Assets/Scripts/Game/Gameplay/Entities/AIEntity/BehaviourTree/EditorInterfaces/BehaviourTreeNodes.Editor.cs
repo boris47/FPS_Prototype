@@ -30,14 +30,12 @@ namespace Entities.AI.Components.Behaviours
 	public interface IBTNodeEditorInterface
 	{
 		string Guid { get; }
-		EBTNodeState NodeState { get; }
 		System.Action UpdateView { get; set; }
 		Vector2 Position { get; set; }
 		uint NodeIndex { get; set; }
 		uint ParentPortIndex { get; set; }
 		BTNode Parent { get; set; }
 		BehaviourTree BehaviourTree { get; set; }
-		bool HasBreakpoint { get; set; }
 	}
 
 
@@ -55,9 +53,6 @@ namespace Entities.AI.Components.Behaviours
 		private			Vector2				m_Position								= Vector2.zero;
 
 		[SerializeField, /*ReadOnly*/HideInInspector]
-		private			bool				m_HasBreakpoint							= false;
-
-		[SerializeField, /*ReadOnly*/HideInInspector]
 		private			uint				m_ParentPortIndex						= 0u;
 
 		//---------------------
@@ -65,14 +60,13 @@ namespace Entities.AI.Components.Behaviours
 
 		/*IBehaviourTreeNodeEditor*/
 		string								IBTNodeEditorInterface.Guid				=> m_Guid;
-		EBTNodeState						IBTNodeEditorInterface.NodeState		=> m_NodeState;
 		System.Action						IBTNodeEditorInterface.UpdateView		{ get => m_UpdateView;			set => m_UpdateView = value; }
 		Vector2								IBTNodeEditorInterface.Position			{ get => m_Position;			set => m_Position = value; }
 		uint								IBTNodeEditorInterface.NodeIndex		{ get => m_NodeIndex;			set => m_NodeIndex = value; }
 		uint								IBTNodeEditorInterface.ParentPortIndex	{ get => m_ParentPortIndex;		set => m_ParentPortIndex = value; }
-		bool								IBTNodeEditorInterface.HasBreakpoint	{ get => m_HasBreakpoint;		set => m_HasBreakpoint = value; }
-		BTNode								IBTNodeEditorInterface.Parent			{ get => m_Parent;				set => m_Parent = value; }
-		BehaviourTree						IBTNodeEditorInterface.BehaviourTree	{ get => m_BehaviourTree;		set => m_BehaviourTree = value; }
+	//	bool								IBTNodeEditorInterface.HasBreakpoint	{ get => m_HasBreakpoint;		set => m_HasBreakpoint = value; }
+		BTNode								IBTNodeEditorInterface.Parent			{ get => m_ParentAsset;				set => m_ParentAsset = value; }
+		BehaviourTree						IBTNodeEditorInterface.BehaviourTree	{ get => m_BehaviourTreeAsset;		set => m_BehaviourTreeAsset = value; }
 		/*IBehaviourTreeNodeEditor*/
 
 		[CustomEditor(typeof(BTNode))]
@@ -101,8 +95,6 @@ namespace Entities.AI.Components.Behaviours
 									}
 								}
 								EditorGUILayout.EndHorizontal();
-
-							//	EditorGUILayout.PropertyField(iterator, new GUIContent(attribute.Label ?? iterator.displayName), true);
 							}
 							else
 							{
@@ -137,20 +129,16 @@ namespace Entities.AI.Components.Behaviours
 
 			if (m_Children.Count > 1)
 			{
-				if (!BehaviourTree.IsInstance)
-				{
-					EditorUtility.SetDirty(this);
-					m_Children.ForEach(c => EditorUtility.SetDirty(c));
-				}
+				EditorUtility.SetDirty(this);
+				m_Children.ForEach(c => EditorUtility.SetDirty(c));
+
 				if (ShouldSortChildren())
 				{
 					m_Children.Sort(SortByHorizontalPosition);
 				}
-				if (!BehaviourTree.IsInstance)
-				{
-					AssetDatabase.SaveAssetIfDirty(this);
-					m_Children.ForEach(c => AssetDatabase.SaveAssetIfDirty(c));
-				}
+
+				AssetDatabase.SaveAssetIfDirty(this);
+				m_Children.ForEach(c => AssetDatabase.SaveAssetIfDirty(c));
 			}
 		}
 
@@ -160,17 +148,11 @@ namespace Entities.AI.Components.Behaviours
 
 	public interface IBTCompositeNode_TwoParallelNodeEditorInterface
 	{
-		BTTaskNode MainNode { get; set; }
-		BTCompositeNode BackgroundNode { get; set; }
+
 	}
 
 	public partial class BTComposite_TwoParallelNode : IBTCompositeNode_TwoParallelNodeEditorInterface
 	{
-		public IBTCompositeNode_TwoParallelNodeEditorInterface AsTwoParallelNodeEditorInterface => this;
-
-		BTTaskNode						IBTCompositeNode_TwoParallelNodeEditorInterface.MainNode		{ get => m_Main;			set => m_Main = value; }
-		BTCompositeNode					IBTCompositeNode_TwoParallelNodeEditorInterface.BackgroundNode	{ get => m_Background;		set => m_Background = value; }
-
 		//////////////////////////////////////////////////////////////////////////
 		protected override bool ShouldSortChildren() => false;
 	}

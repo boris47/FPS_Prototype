@@ -10,60 +10,68 @@ namespace Entities.AI.Components.Behaviours
 	[BTNodeDetails("Repeater", "Repeats its child execution n-times ignoring the result")]
 	public partial class BTDecorator_RepeaterNode : BTDecoratorNode
 	{
+		public class RuntimeData : RuntimeDataBase
+		{
+			[ReadOnly]
+			public uint CurrentRepeatCount = 0u;
+		}
+
 		[SerializeField, Min(0u), Tooltip("[0-4294967295u], 0 (Zero) Means infinite"), ToNodeInspector]
 		protected uint m_RepeatCount = 1u;
 
-		[SerializeField, ReadOnly]
-		protected uint m_CurrentRepeatCount = 0u;
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override void CopyDataToInstance(in BTNode InNewInstance)
+		protected override RuntimeDataBase CreateRuntimeDataInstance(in BTNodeInstanceData InThisNodeInstanceData) => new RuntimeData();
+
+		//////////////////////////////////////////////////////////////////////////
+		protected override void OnAwakeInternal(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			base.CopyDataToInstance(InNewInstance);
-			var node = InNewInstance as BTDecorator_RepeaterNode;
-			node.m_RepeatCount = m_RepeatCount;
+			base.OnAwakeInternal(InThisNodeInstanceData);
+
+			RuntimeData nodeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
+
+			nodeData.CurrentRepeatCount = 0u;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override void OnAwakeInternal(in BehaviourTree InBehaviourTree)
+		protected override EBTNodeState OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			base.OnAwakeInternal(InBehaviourTree);
-			m_CurrentRepeatCount = 0u;
-		}
+			RuntimeData nodeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
 
-		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnActivation()
-		{
-			m_CurrentRepeatCount = 0u;
+			nodeData.CurrentRepeatCount = 0u;
 
 			return EBTNodeState.RUNNING;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdate(in float InDeltaTime)
+		protected override EBTNodeState OnUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
 		{
 			EBTNodeState OutState = EBTNodeState.RUNNING;
-			switch (Child.UpdateNode(InDeltaTime))
+
+			RuntimeData nodeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
+			BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, Child);
+			
+			switch (Child.UpdateNode(childInstanceData, InDeltaTime))
 			{
 				case EBTNodeState.FAILED:
 				case EBTNodeState.SUCCEEDED:
 				{
 					if (m_RepeatCount > 0)
 					{
-						m_CurrentRepeatCount++;
-						if (m_CurrentRepeatCount >= m_RepeatCount)
+						nodeData.CurrentRepeatCount++;
+						if (nodeData.CurrentRepeatCount >= m_RepeatCount)
 						{
 
 							OutState = EBTNodeState.SUCCEEDED;
 						}
 						else
 						{
-							Child.ResetNode();
+							Child.ResetNode(childInstanceData);
 						}
 					}
 					else
 					{
-						Child.ResetNode();
+						Child.ResetNode(childInstanceData);
 					}
 					break;
 				}
@@ -72,11 +80,14 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override void OnNodeReset()
+		protected override void OnNodeReset(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			m_CurrentRepeatCount = 0u;
+			RuntimeData nodeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
+			BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, Child);
 
-			Child.ResetNode();
+			nodeData.CurrentRepeatCount = 0u;
+
+			Child.ResetNode(childInstanceData);
 		}
 	}
 }

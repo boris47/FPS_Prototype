@@ -1,10 +1,24 @@
 ﻿
 using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Entities.AI.Components.Behaviours
 {
+	public enum ESuccessMode
+	{
+		Any,
+		All,
+	};
+
+	public enum EFailureMode
+	{
+		Any,
+		All,
+	};
+
+	/*
 	public enum EBTParallelMode
 	{
 		/// <summary> When main task finishes, immediately abort background tree. </summary>
@@ -12,6 +26,7 @@ namespace Entities.AI.Components.Behaviours
 		/// <summary> When main task finishes, wait for background tree to finish. </summary>
 		WaitForBackground,
 	}
+	*/
 
 	/// <summary>
 	/// Two Parallel composite node. <br/>
@@ -19,7 +34,9 @@ namespace Entities.AI.Components.Behaviours
 	/// </summary>
 	[BTNodeDetails("Two Parallel", "Allows for running two children: one which must be a single task node, and the other of which can be a composite")]
 	public sealed partial class BTComposite_TwoParallelNode : BTCompositeNode
-	{		
+	{
+		public const uint kMaxParallelChildrenCount = 7;
+		/*
 		[SerializeField, ToNodeInspector(Label: "Mode")]
 		private				EBTParallelMode			m_ParallelMode			= EBTParallelMode.AbortBackground;
 
@@ -32,168 +49,131 @@ namespace Entities.AI.Components.Behaviours
 
 		//---------------------
 		protected override	int						MinimumChildrenCount	=> 2;
+		*/
 
+		[SerializeField, ToNodeInspector]
+		private ESuccessMode m_SuccessMode = ESuccessMode.All;
 
-		//////////////////////////////////////////////////////////////////////////
-		protected sealed override void CopyDataToInstance(in BTNode InNewInstance)
+		[SerializeField, ToNodeInspector]
+		private EFailureMode m_FailureMode = EFailureMode.Any;
+
+		class ParallelNodeData : RuntimeData
 		{
-			base.CopyDataToInstance(InNewInstance);
+			public BitArray RunningChildren = new BitArray((int)kMaxParallelChildrenCount);  // Each bit is a child
+			
+			[ReadOnly]
+			public int SuccessCount = 0;
+			
+			[ReadOnly]
+			public int FailureCount = 0;
 		}
 
-		//////////////////////////////////////////////////////////////////////////
-		protected sealed override void OnAwakeInternal(in BehaviourTree InBehaviourTree)
-		{
-			base.OnAwakeInternal(InBehaviourTree);
-		}
+
 
 		//////////////////////////////////////////////////////////////////////////
-		protected sealed override EBTNodeState OnActivation()
+		protected override EBTNodeState OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			EBTNodeState OutState = base.OnActivation();
+			EBTNodeState OutState = base.OnActivation(InThisNodeInstanceData);
 			if (OutState == EBTNodeState.RUNNING)
 			{
-				m_Main = null;
-				m_Background = null;
+				ParallelNodeData nodeData = GetRuntimeData<ParallelNodeData>(InThisNodeInstanceData);
 
-				if (Children.IsValidIndex(1))
+				nodeData.RunningChildren.SetAll(false);
+				nodeData.SuccessCount = 0;
+				nodeData.FailureCount = 0;
+
+				for (int i = 0, count = Children.Count; i < count; ++i)
 				{
-					if (!(Children.At(0) is BTTaskNode) || !(Children.At(1) is BTCompositeNode))
-					{
-						OutState = EBTNodeState.FAILED;
-						Debug.LogError("TwoParallelNode: "
-						+ $"Expected first child of type {nameof(BTTaskNode)}, got {Children.At(0).GetType().Name};"
-						+ ' '
-						+ $"Expected second child of type {nameof(BTCompositeNode)}, got {Children.At(1).GetType().Name};"
-						);
-					}
-					else
-					{
-						m_Main = Children[0] as BTTaskNode;
-						m_Background = Children[1] as BTCompositeNode;
-						BehaviourTree.LockRunningNode(this);
-					}
+					nodeData.RunningChildren.Set(i, true); // On actiovation set as started
 				}
-			}
-			else
-			{
-				Debug.LogError($"Cannot activare node {nameof(BTComposite_TwoParallelNode)} because not enough children assigned");
-				OutState = EBTNodeState.FAILED;
+
 			}
 			return OutState;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected sealed override EBTNodeState OnUpdate(in float InDeltaTime)
+		protected override void OnTerminate(in BTNodeInstanceData InThisNodeInstanceData)
+		{
+			ParallelNodeData nodeData = GetRuntimeData<ParallelNodeData>(InThisNodeInstanceData);
+			for (int i = 0, count = Children.Count; i < count; ++i)
+			{
+				if (nodeData.RunningChildren.Get(i))
+				{
+					BTNode child = Children.At(i);
+
+					BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, child);
+					child.ResetNode(childInstanceData);
+				}
+			}
+			base.OnTerminate(InThisNodeInstanceData);
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		protected override void OnAbortNodeRequested(in BTNodeInstanceData InThisNodeInstanceData)
+		{
+			ParallelNodeData nodeData = GetRuntimeData<ParallelNodeData>(InThisNodeInstanceData);
+			for (int i = 0, count = Children.Count; i < count; ++i)
+			{
+				if (nodeData.RunningChildren.Get(i))
+				{
+					BTNode child = Children.At(i);
+
+					BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, child);
+
+					child.RequestAbortNode(childInstanceData);
+					child.ResetNode(childInstanceData);
+				}
+			}
+			base.OnAbortNodeRequested(InThisNodeInstanceData);
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		protected override EBTNodeState OnUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
 		{
 			EBTNodeState OutState = EBTNodeState.RUNNING;
-
-			if (!BTNode.IsFinished(m_Main))
 			{
-				m_Main.UpdateNode(InDeltaTime);
-
-				if (!BTNode.IsFinished(m_Background))
+				ParallelNodeData nodeData = GetRuntimeData<ParallelNodeData>(InThisNodeInstanceData);
+				for (int index = 0, count = Children.Count; index < count; ++index)
 				{
-					m_Background.UpdateNode(InDeltaTime);
+					bool childIsRunning = nodeData.RunningChildren.Get(index);
+					if (childIsRunning)
+					{
+						BTNode child = Children.At(index);
+
+						BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, child);
+						EBTNodeState childState = child.UpdateNode(childInstanceData, InDeltaTime);
+						if (BTNode.IsFinished(childState))
+						{
+							if (childState == EBTNodeState.SUCCEEDED)
+							{
+								++nodeData.SuccessCount;
+							}
+							else
+							{
+								++nodeData.FailureCount;
+							}
+							nodeData.RunningChildren.Set(index, false);
+						}
+					}
 				}
-			}
-			else
-			{
-				switch (m_ParallelMode)
+
+				if ((m_SuccessMode == ESuccessMode.All && nodeData.SuccessCount == Children.Count)
+					||
+					(m_SuccessMode == ESuccessMode.Any && nodeData.SuccessCount > 0)
+				)
 				{
-					case EBTParallelMode.AbortBackground:
-					{
-						if (m_Background.NodeState != EBTNodeState.ABORTING && m_Background.NodeState != EBTNodeState.ABORTED)
-						{
-							m_Background.RequestAbortNode(bAbortImmediately: false);
-						}
-						else
-						{
-							if (!BTNode.IsFinished(m_Background))
-							{
-								m_Background.UpdateNode(InDeltaTime);
-							}
-							else
-							{
-								if (m_MustRepeat)
-								{
-									ResetNode();
-								}
-								else
-								{
-									OutState = m_Main.NodeState == EBTNodeState.SUCCEEDED && m_Background.NodeState == EBTNodeState.ABORTED ? EBTNodeState.SUCCEEDED : EBTNodeState.FAILED;
-								}
-							}
-						}
-						break;
-					}
-					case EBTParallelMode.WaitForBackground:
-					{
-						if (!BTNode.IsFinished(m_Background))
-						{
-							m_Background.UpdateNode(InDeltaTime);
-						}
-						else
-						{
-							if (m_MustRepeat)
-							{
-								ResetNode();
-							}
-							else
-							{
-								OutState = m_Main.NodeState == EBTNodeState.SUCCEEDED && m_Background.NodeState == EBTNodeState.SUCCEEDED ? EBTNodeState.SUCCEEDED : EBTNodeState.FAILED;
-							}
-						}
-						break;
-					}
-					default:
-					{
-						m_Main.RequestAbortNode(bAbortImmediately: true);
-						m_Background.RequestAbortNode(bAbortImmediately: true);
-						OutState = EBTNodeState.FAILED;
-						Utils.CustomAssertions.IsTrue(false, this, $"Unsupported ParallelMode {m_ParallelMode}");
-						break;
-					}
+					OutState = EBTNodeState.SUCCEEDED;
+				}
+
+				if ((m_FailureMode == EFailureMode.All && nodeData.FailureCount == Children.Count)
+					||
+					(m_FailureMode == EFailureMode.Any && nodeData.FailureCount > 0)
+				)
+				{
+					OutState = EBTNodeState.FAILED;
 				}
 			}
 			return OutState;
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		protected sealed override void OnTerminate()
-		{
-			base.OnTerminate();
-
-			BehaviourTree.UnLockRunningNode(this);
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		protected override void OnAbortNodeRequested(in bool bAbortImmediately)
-		{
-			if (!BTNode.IsFinished(m_Main))
-			{
-				m_Main.RequestAbortNode(bAbortImmediately: false);
-			}
-
-			if (!BTNode.IsFinished(m_Background))
-			{
-				m_Background.RequestAbortNode(bAbortImmediately: false);
-			}
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdateAborting(in float InDeltaTime)
-		{
-			if (!BTNode.IsFinished(m_Main))
-			{
-				m_Main.UpdateNode(InDeltaTime);
-			}
-
-			if (!BTNode.IsFinished(m_Background))
-			{
-				m_Background.UpdateNode(InDeltaTime);
-			}
-
-			return BTNode.IsFinished(m_Main) && BTNode.IsFinished(m_Background) ? EBTNodeState.ABORTED : EBTNodeState.ABORTING;
 		}
 	}
 }

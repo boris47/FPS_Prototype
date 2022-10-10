@@ -145,9 +145,9 @@ namespace Entities.AI.Components.Behaviours
 			// If an object in hierarchy with AIBehaviorTreeComponent is selected
 			else if (Selection.activeGameObject && Selection.activeGameObject.TryGetComponent(out AIBehaviorTreeComponent comp))
 			{
-				if (comp.BehaviourTree.IsNotNull())
+				if (comp.BehaviourTreeAsset.IsNotNull())
 				{
-					behaviourTree = comp.BehaviourTree;
+					behaviourTree = comp.BehaviourTreeAsset;
 				}
 			}
 

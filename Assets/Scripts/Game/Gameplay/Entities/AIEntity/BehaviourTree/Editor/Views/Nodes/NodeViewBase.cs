@@ -104,10 +104,10 @@ namespace Entities.AI.Components.Behaviours
 			RefreshPorts();
 
 			// If input node has breakpoint set, add class
-			if (m_BehaviourTreeNode.AsEditorInterface.HasBreakpoint)
-			{
-				AddToClassList("breakpointActive");
-			}
+		//	if (m_BehaviourTreeNode.AsEditorInterface.HasBreakpoint)
+		//	{
+		//		AddToClassList("breakpointActive");
+		//	}
 			EditorUtility.SetDirty(m_BehaviourTreeNode);
 
 			// Register callback for update the node view (BehaviourTreeEditorUtils.AssignChildrenIndexes, ...)
@@ -124,21 +124,21 @@ namespace Entities.AI.Components.Behaviours
 		//////////////////////////////////////////////////////////////////////////
 		public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
 		{
-			bool bHasBreakPoint = m_BehaviourTreeNode.AsEditorInterface.HasBreakpoint;
-			void ToggleBreakpoint(IBTNodeEditorInterface node)
-			{
-				node.HasBreakpoint = !bHasBreakPoint;
-				if (m_BehaviourTreeNode.AsEditorInterface.HasBreakpoint)
-				{
-					AddToClassList("breakpointActive");
-				}
-				else
-				{
-					RemoveFromClassList("breakpointActive");
-				}
-			}
-
-			evt.menu.AppendAction( $"{(bHasBreakPoint ? "Remove" : "Set")} Breakpoint", _ => ToggleBreakpoint(m_BehaviourTreeNode.AsEditorInterface));
+		//	bool bHasBreakPoint = m_BehaviourTreeNode.AsEditorInterface.HasBreakpoint;
+		//	void ToggleBreakpoint(IBTNodeEditorInterface node)
+		//	{
+		//		node.HasBreakpoint = !bHasBreakPoint;
+		//		if (m_BehaviourTreeNode.AsEditorInterface.HasBreakpoint)
+		//		{
+		//			AddToClassList("breakpointActive");
+		//		}
+		//		else
+		//		{
+		//			RemoveFromClassList("breakpointActive");
+		//		}
+		//	}
+		//
+		//	evt.menu.AppendAction( $"{(bHasBreakPoint ? "Remove" : "Set")} Breakpoint", _ => ToggleBreakpoint(m_BehaviourTreeNode.AsEditorInterface));
 			evt.menu.AppendSeparator();
 			evt.menu.AppendAction("Edit Script", _ => AssetDatabase.OpenAsset(MonoScript.FromScriptableObject(m_BehaviourTreeNode)));
 			evt.menu.AppendSeparator();
@@ -160,7 +160,7 @@ namespace Entities.AI.Components.Behaviours
 			Utils.CustomAssertions.IsTrue(InChild.GetBTNode() == childView.BehaviourTreeNode);
 
 			// Add node to parent
-			m_BehaviourTreeNode.BehaviourTree.AsEditorInterface.AddChildTo(parentView.BehaviourTreeNode, childView.BehaviourTreeNode, InPortIndex);
+			m_BehaviourTreeNode.BehaviourTreeAsset.AsEditorInterface.AddChildTo(parentView.BehaviourTreeNode, childView.BehaviourTreeNode, InPortIndex);
 
 			// Set parent output port to child parent port index
 			InChild.BehaviourTreeNode.AsEditorInterface.ParentPortIndex = InPortIndex ?? InEdge.output.GetBTNodePort().PortIndex;
@@ -189,7 +189,7 @@ namespace Entities.AI.Components.Behaviours
 			BTNode childNode = InChild.BehaviourTreeNode;
 
 			// Remove this node from parent children
-			m_BehaviourTreeNode.BehaviourTree.AsEditorInterface.RemoveChildFrom(parentNode, childNode);
+			m_BehaviourTreeNode.BehaviourTreeAsset.AsEditorInterface.RemoveChildFrom(parentNode, childNode);
 
 			// Disconnect edge from port
 			m_Outputs.At(InChild.BehaviourTreeNode.AsEditorInterface.ParentPortIndex).Disconnect(InChild.InputPort.connections.First());
@@ -240,51 +240,51 @@ namespace Entities.AI.Components.Behaviours
 		//////////////////////////////////////////////////////////////////////////
 		public void UpdateState()
 		{
-			const string inactiveState = "inactive";
-			const string succeededState = "succeeded";
-			const string failedState = "failed";
-			const string runningState = "running";
-
-			RemoveFromClassList(inactiveState);
-			RemoveFromClassList(succeededState);
-			RemoveFromClassList(failedState);
-			RemoveFromClassList(runningState);
-
-			if (EditorApplication.isPlaying || EditorApplication.isPaused)
-			{
-				switch (m_BehaviourTreeNode.NodeState)
-				{
-					case EBTNodeState.INACTIVE:
-					{
-						AddToClassList(inactiveState);
-						break;
-					}
-					case EBTNodeState.SUCCEEDED:
-					{
-						AddToClassList(succeededState);
-						break;
-					}
-					case EBTNodeState.FAILED:
-					{
-						AddToClassList(failedState);
-						break;
-					}
-					case EBTNodeState.RUNNING:
-					{
-						AddToClassList(runningState);
-						break;
-					}
-				}
-
-				if (m_BehaviourTreeNode.AsEditorInterface.HasBreakpoint)
-				{
-					AddToClassList("breakpointActive");
-				}
-				else
-				{
-					RemoveFromClassList("breakpointActive");
-				}
-			}
+		//	const string inactiveState = "inactive";
+		//	const string succeededState = "succeeded";
+		//	const string failedState = "failed";
+		//	const string runningState = "running";
+		//
+		//	RemoveFromClassList(inactiveState);
+		//	RemoveFromClassList(succeededState);
+		//	RemoveFromClassList(failedState);
+		//	RemoveFromClassList(runningState);
+		//
+		//	if (EditorApplication.isPlaying || EditorApplication.isPaused)
+		//	{
+		//		switch (m_BehaviourTreeNode.NodeState)
+		//		{
+		//			case EBTNodeState.INACTIVE:
+		//			{
+		//				AddToClassList(inactiveState);
+		//				break;
+		//			}
+		//			case EBTNodeState.SUCCEEDED:
+		//			{
+		//				AddToClassList(succeededState);
+		//				break;
+		//			}
+		//			case EBTNodeState.FAILED:
+		//			{
+		//				AddToClassList(failedState);
+		//				break;
+		//			}
+		//			case EBTNodeState.RUNNING:
+		//			{
+		//				AddToClassList(runningState);
+		//				break;
+		//			}
+		//		}
+		//
+		//		if (m_BehaviourTreeNode.AsEditorInterface.HasBreakpoint)
+		//		{
+		//			AddToClassList("breakpointActive");
+		//		}
+		//		else
+		//		{
+		//			RemoveFromClassList("breakpointActive");
+		//		}
+		//	}
 		}
 
 		//////////////////////////////////////////////////////////////////////////

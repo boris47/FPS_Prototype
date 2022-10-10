@@ -7,41 +7,44 @@ namespace Entities.AI.Components.Behaviours
 	[BTNodeDetails("Sub Behaviour Tree", "Execute a sub behaviour tree")]
 	public sealed class BTTask_SubBT : BTTaskNode
 	{
+		private class RuntimeData : RuntimeDataBase
+		{
+			[ReadOnly]
+			public BehaviourTreeInstanceData SubTreeInstanceData = null;
+		}
+
 		[SerializeField, ToNodeInspector(bShowLabel: true)]
-		public BehaviourTree			m_SubBehaviourTree				= null;
+		public BehaviourTree			m_SubBehaviourTreeAsset				= null;
 
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override void CopyDataToInstance(in BTNode InNewInstance)
-		{
-			base.CopyDataToInstance(InNewInstance);
+		protected override RuntimeDataBase CreateRuntimeDataInstance(in BTNodeInstanceData InThisNodeInstanceData) => new RuntimeData();
 
-			if (m_SubBehaviourTree.IsNotNull())
+		//////////////////////////////////////////////////////////////////////////
+		protected override void OnAwakeInternal(in BTNodeInstanceData InThisNodeInstanceData)
+		{
+			base.OnAwakeInternal(InThisNodeInstanceData);
+
+			if (m_SubBehaviourTreeAsset.IsNotNull())
 			{
-				if (m_SubBehaviourTree.IsInstance)
-				{
-					Utils.CustomAssertions.IsTrue(false);
-				}
+				var nodeRuntimeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
+
+				AIController controller = InThisNodeInstanceData.BehaviourTreeInstanceData.Controller;
+				nodeRuntimeData.SubTreeInstanceData = BehaviourTree.CreateInstanceFrom(m_SubBehaviourTreeAsset, controller);
+
+				m_SubBehaviourTreeAsset.OnAwake(nodeRuntimeData.SubTreeInstanceData);
 			}
 		}
 
-		//////////////////////////////////////////////////////////////////////////
-		protected override void OnAwakeInternal(in BehaviourTree InBehaviourTree)
-		{
-			if (m_SubBehaviourTree.IsNotNull())
-			{
-				m_SubBehaviourTree = BehaviourTree.CreateInstanceFrom(m_SubBehaviourTree);
-				m_SubBehaviourTree.OnAwake(m_SubBehaviourTree.Owner);
-			}
-		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnActivation()
+		protected override EBTNodeState OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
 		{
 			EBTNodeState OutState = EBTNodeState.RUNNING;
-			if (m_SubBehaviourTree.IsNotNull())
+			if (m_SubBehaviourTreeAsset.IsNotNull())
 			{
-				m_SubBehaviourTree.StartTree();
+				var nodeRuntimeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
+				m_SubBehaviourTreeAsset.StartTree(nodeRuntimeData.SubTreeInstanceData);
 			}
 			else
 			{
@@ -51,26 +54,29 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdate(in float InDeltaTime) => m_SubBehaviourTree.UpdateTree(InDeltaTime);
-
-		//////////////////////////////////////////////////////////////////////////
-		protected override void OnAbortNodeRequested(in bool bAbortImmediately)
+		protected override EBTNodeState OnUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
 		{
-			m_SubBehaviourTree.RootNode.RequestAbortNode(bAbortImmediately);
+			var nodeRuntimeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
+			return m_SubBehaviourTreeAsset.UpdateTree(nodeRuntimeData.SubTreeInstanceData, InDeltaTime);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdateAborting(in float InDeltaTime)
+		protected override void OnAbortNodeRequested(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			return m_SubBehaviourTree.TreeState == EBehaviourTreeState.STOPPED ? EBTNodeState.ABORTED : EBTNodeState.ABORTING;
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		protected override void OnNodeReset()
-		{
-			if (m_SubBehaviourTree.IsNotNull())
+			if (m_SubBehaviourTreeAsset.IsNotNull())
 			{
-				m_SubBehaviourTree.RootNode.ResetNode();
+				var nodeRuntimeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData); 
+				m_SubBehaviourTreeAsset.StopTree(nodeRuntimeData.SubTreeInstanceData);
+			}
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		protected override void OnNodeReset(in BTNodeInstanceData InThisNodeInstanceData)
+		{
+			if (m_SubBehaviourTreeAsset.IsNotNull())
+			{
+				var nodeRuntimeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData); 
+				m_SubBehaviourTreeAsset.ResetTree(nodeRuntimeData.SubTreeInstanceData);
 			}
 		}
 	}

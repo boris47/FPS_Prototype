@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Entities.AI.Components.Behaviours
 {
@@ -16,68 +14,72 @@ namespace Entities.AI.Components.Behaviours
 		private				bool								m_ResetOnChange			= true;
 
 
-		//////////////////////////////////////////////////////////////////////////
-		protected override void CopyDataToInstance(in BTNode InNewInstance)
+		private static bool TryGetEntryBase(in BTNodeInstanceData InNodeInstanceData, in BlackboardEntryKey InEntryKey, out BlackboardEntryBase OutEntryBase)
 		{
-			base.CopyDataToInstance(InNewInstance);
-			var node = InNewInstance as BTConditional_BlackboardValue;
-			node.m_BlackboardKey = m_BlackboardKey;
+			Blackboard asset = InNodeInstanceData.BehaviourTreeInstanceData.Blackboard.BlackboardAsset;
+			BlackboardInstanceData bbInstanceData = InNodeInstanceData.BehaviourTreeInstanceData.Blackboard;
+			return asset.TryGetEntryBase(bbInstanceData, InEntryKey, out OutEntryBase);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override bool GetEvaluation()
+		protected override bool GetEvaluation(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			if (m_BlackboardKey.IsNotNull() && BehaviourTree.Blackboard.TryGetEntryBase(m_BlackboardKey, out BlackboardEntryBase baseKey))
+			bool outValue = false;
+			if (m_BlackboardKey.IsNotNull() && TryGetEntryBase(InThisNodeInstanceData, m_BlackboardKey, out BlackboardEntryBase OutEntryBase))
 			{
-				return baseKey.HasValue();
+				outValue = OutEntryBase.HasValue();
 			}
-			return false;
+			return outValue;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override void OnBecomeRelevant()
+		protected override void OnBecomeRelevant(in BTNodeInstanceData InThisNodeInstanceData)
 		{
 			if (m_BlackboardKey.IsNotNull() && m_AbortType != EAbortType.None)
 			{
-				BehaviourTree.Blackboard.AddObserver(m_BlackboardKey, ConditionalAbort);
+				Blackboard asset = InThisNodeInstanceData.BehaviourTreeInstanceData.Blackboard.BlackboardAsset;
+				BlackboardInstanceData bbInstanceData = InThisNodeInstanceData.BehaviourTreeInstanceData.Blackboard;
+				asset.AddObserver(bbInstanceData, m_BlackboardKey, ConditionalAbort);
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override void OnCeaseRelevant()
+		protected override void OnCeaseRelevant(in BTNodeInstanceData InThisNodeInstanceData)
 		{
 			if (m_BlackboardKey.IsNotNull())
 			{
-				BehaviourTree.Blackboard.RemoveObserver(m_BlackboardKey, ConditionalAbort);
+				Blackboard asset = InThisNodeInstanceData.BehaviourTreeInstanceData.Blackboard.BlackboardAsset;
+				BlackboardInstanceData bbInstanceData = InThisNodeInstanceData.BehaviourTreeInstanceData.Blackboard;
+				asset.RemoveObserver(bbInstanceData, m_BlackboardKey, ConditionalAbort);
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		private EOnChangeDelExecutionResult ConditionalAbort(in BlackboardEntryKey InKey, in EBlackboardValueOp InOperation)
+		private EOnChangeDelExecutionResult ConditionalAbort(in BlackboardInstanceData InBlackboardInstance, in BlackboardEntryKey InKey, in EBlackboardValueOp InOperation)
 		{
 			EOnChangeDelExecutionResult OutResult = EOnChangeDelExecutionResult.LEAVE;
+
+			BTNodeInstanceData thisNodeInstanceData = InBlackboardInstance.BehaviourTreeInstanceData.NodesInstanceData[NodeIndex];
 
 			if (Utils.CustomAssertions.IsTrue(m_AbortType != EAbortType.None))
 			{
 				// On value removed(set default) conditional will fail and this node will abort returning flow control to parent
 				if (InOperation == EBlackboardValueOp.REMOVE)
 				{
-					OutResult = AbortSelf();
+					OutResult = AbortSelf(thisNodeInstanceData);
 				}
 
-				// On value changed (from value to value (not default one)), if guard is set, abort running child, reset and restart this node
+				// On value changed (from value to value (not default one)), if guard is set, abort running child, reset and restart child node
 				else if (InOperation == EBlackboardValueOp.CHANGE)
 				{
 					if (m_ResetOnChange)
 					{
-						if (Utils.CustomAssertions.IsTrue(NodeState == EBTNodeState.RUNNING))
+						if (Utils.CustomAssertions.IsTrue(thisNodeInstanceData.NodeState == EBTNodeState.RUNNING))
 						{
-							BehaviourTree.SetAborter(this, Child, delegate
-							{
-								Child.ResetNode();
-
-								BehaviourTree.SetRunningNode(Child);
-							});
+							BTNodeInstanceData childInstanceData = GetChildInstanceData(thisNodeInstanceData, Child);
+							Child.RequestAbortNode(childInstanceData);
+							Child.ResetNode(childInstanceData);
+							BehaviourTreeAsset.SetRunningNode(childInstanceData);
 						}
 					}
 				}
@@ -86,9 +88,9 @@ namespace Entities.AI.Components.Behaviours
 				else
 				{
 					// We expect this node not to be in running state
-					if (Utils.CustomAssertions.IsTrue(NodeState != EBTNodeState.RUNNING))
+					if (Utils.CustomAssertions.IsTrue(thisNodeInstanceData.NodeState != EBTNodeState.RUNNING))
 					{
-						AbortLowPriority();
+						AbortLowPriority(thisNodeInstanceData);
 					}
 				}
 			}

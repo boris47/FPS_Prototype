@@ -28,36 +28,35 @@ namespace Entities.AI.Components.Behaviours
 
 		//////////////////////////////////////////////////////////////////////////
 		public void SetChild(BTNode child) => m_Child = child;
+		
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override void CopyDataToInstance(in BTNode InNewInstance)
+		protected override void OnAbortNodeRequested(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			var node = InNewInstance as BTDecoratorNode;
-			node.m_Child = m_Child.IsNotNull() ? m_Child.CreateInstance(node) : null;
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdateAborting(in float InDeltaTime) => m_Child.IsNotNull() ? m_Child.NodeState : EBTNodeState.ABORTED;
-
-		//////////////////////////////////////////////////////////////////////////
-		protected override void OnAbortNodeRequested(in bool bAbortImmediately)
-		{
-			base.OnAbortNodeRequested(bAbortImmediately);
+			base.OnAbortNodeRequested(InThisNodeInstanceData);
 
 			if (m_Child.IsNotNull())
 			{
-				m_Child.RequestAbortNode(bAbortImmediately);
+				BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, m_Child);
+				if (Utils.CustomAssertions.IsNotNull(childInstanceData))
+				{
+					m_Child.RequestAbortNode(childInstanceData);
+				}
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override void OnNodeReset()
+		protected override void OnNodeReset(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			base.OnNodeReset();
+			base.OnNodeReset(InThisNodeInstanceData);
 
 			if (m_Child.IsNotNull())
 			{
-				m_Child.ResetNode();
+				BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, m_Child);
+				if (Utils.CustomAssertions.IsNotNull(childInstanceData))
+				{
+					m_Child.ResetNode(childInstanceData);
+				}
 			}
 		}
 	}

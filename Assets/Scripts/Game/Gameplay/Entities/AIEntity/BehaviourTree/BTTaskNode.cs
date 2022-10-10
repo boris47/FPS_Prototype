@@ -7,7 +7,5 @@ namespace Entities.AI.Components.Behaviours
 	[BTNodeDetails("Task")]
 	public abstract class BTTaskNode : BTNode
 	{
-		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdateAborting(in float InDeltaTime) => EBTNodeState.ABORTED;
 	}
 }

@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Entities.AI.Components.Behaviours
 {
@@ -45,21 +43,21 @@ namespace Entities.AI.Components.Behaviours
 
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnActivation()
+		protected override EBTNodeState OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
 		{
 			EBTNodeState OutState = EBTNodeState.RUNNING;
-			bool bCanBeActivated = GetEvaluation();
+			bool bCanBeActivated = GetEvaluation(InThisNodeInstanceData);
 			if (bCanBeActivated)
 			{
 				if (Child.IsNotNull())
 				{
 					if (m_AbortType == EAbortType.Self || m_AbortType == EAbortType.Both)
 					{
-						OnBecomeRelevant();
+						OnBecomeRelevant(InThisNodeInstanceData);
 					}
 					// Setting this node as running because SetRunningNode require running parent
-					SetNodeState(EBTNodeState.RUNNING);
-					BehaviourTree.SetRunningNode(Child);
+					ThisNodeAsset.SetNodeState(InThisNodeInstanceData, EBTNodeState.RUNNING);
+					BehaviourTreeAsset.SetRunningNode(InThisNodeInstanceData); // child
 				}
 				else
 				{
@@ -71,7 +69,7 @@ namespace Entities.AI.Components.Behaviours
 			{
 				if (m_AbortType == EAbortType.LowerPriority || m_AbortType == EAbortType.Both)
 				{
-					OnBecomeRelevant();
+					OnBecomeRelevant(InThisNodeInstanceData);
 				}
 				OutState = EBTNodeState.FAILED;
 			}
@@ -79,12 +77,13 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdate(in float InDeltaTime)
+		protected override EBTNodeState OnUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
 		{
 			EBTNodeState OutState = EBTNodeState.RUNNING;
 
-			EBTNodeState childState = Child.UpdateNode(InDeltaTime);
-			if (childState == EBTNodeState.SUCCEEDED || childState == EBTNodeState.FAILED)
+			BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, Child);
+			EBTNodeState childState = Child.UpdateNode(childInstanceData, InDeltaTime);
+			if (BTNode.IsFinished(childState))
 			{
 				// Reflect the child result to the parent of this node as it is
 				OutState = childState;
@@ -92,48 +91,49 @@ namespace Entities.AI.Components.Behaviours
 				// And stop being relevant
 				if (m_AbortType == EAbortType.Self)
 				{
-					OnCeaseRelevant();
+					OnCeaseRelevant(InThisNodeInstanceData);
 				}
 			}
 			return OutState;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected EOnChangeDelExecutionResult AbortSelf()
+		protected EOnChangeDelExecutionResult AbortSelf(in BTNodeInstanceData InThisNodeInstanceData)
 		{
 			if (m_AbortType == EAbortType.Self || m_AbortType == EAbortType.Both)
 			{
-				if (Utils.CustomAssertions.IsTrue(NodeState == EBTNodeState.RUNNING))
+				if (Utils.CustomAssertions.IsTrue(InThisNodeInstanceData.NodeState == EBTNodeState.RUNNING))
 				{
-					BehaviourTree.SetAborter(this, Child, delegate
-					{
-						// Reset this node
-						ResetNode();
+					BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, Child);
 
-						// Declare this node as failed
-						SetNodeState(EBTNodeState.FAILED);
+					Child.RequestAbortNode(childInstanceData);
 
-						// Notify the tree to run parent of this node
-						BehaviourTree.SetRunningNode(Parent as BTNode);
-					});
+					// Reset this node
+					ResetNode(InThisNodeInstanceData);
+
+					// Declare this node as failed
+					SetNodeState(InThisNodeInstanceData, EBTNodeState.FAILED);
+
+					// Notify the tree to run parent of this node
+					BehaviourTreeAsset.SetRunningNode(InThisNodeInstanceData.ParentInstanceData);
 				}
 			}
 			return m_AbortType == EAbortType.Self ? EOnChangeDelExecutionResult.REMOVE : EOnChangeDelExecutionResult.LEAVE;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected void AbortLowPriority()
+		protected void AbortLowPriority(BTNodeInstanceData InThisNodeInstanceData)
 		{
 			if (m_AbortType == EAbortType.LowerPriority || m_AbortType == EAbortType.Both)
 			{
 				// Request the tree to abort current running node and move to this node, setting this node as running
-				BehaviourTree.RequestAbortCurrentAndRunThis(this, delegate
+				BehaviourTreeAsset.RequestExecution(InThisNodeInstanceData, delegate
 				{
 					// Reset this node in order to start from a clean state
-					ResetNode();
+					ResetNode(InThisNodeInstanceData);
 
 					// Overrides the parent current active node index with this node index
-					if (Parent is BTCompositeNode parentAsComposite)
+					if (InThisNodeInstanceData.ParentInstanceData.NodeAsset is BTCompositeNode parentAsComposite)
 					{
 						// Get index at parent level of this node
 						int compositeIndex = parentAsComposite.Children.IndexOf(this);
@@ -141,38 +141,40 @@ namespace Entities.AI.Components.Behaviours
 						if (Utils.CustomAssertions.IsTrue(compositeIndex >= 0))
 						{
 							// And set this index as the current active node
-							parentAsComposite.OverrideActiveChildIndex((uint)compositeIndex);
+							parentAsComposite.OverrideActiveChildIndex(InThisNodeInstanceData.ParentInstanceData, (uint)compositeIndex);
 						}
 					}
 
 					// Wherever there is a child
 					if (Child.IsNotNull())
 					{
+						BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, Child);
+
 						// Skipping the OnInitialize re-check by setting this node as running directly
-						SetNodeState(EBTNodeState.RUNNING);
+						SetNodeState(InThisNodeInstanceData, EBTNodeState.RUNNING);
 
 						// Instead of adding this from base class we do it here
-						BehaviourTree.SetRunningNode(this);
+						BehaviourTreeAsset.SetRunningNode(InThisNodeInstanceData);
 					}
 					else
 					{
 						// By design this node is set as succeeded
-						SetNodeState(EBTNodeState.SUCCEEDED);
+						SetNodeState(InThisNodeInstanceData, EBTNodeState.SUCCEEDED);
 
 						// Notify the tree to run parent of this node
-						BehaviourTree.SetRunningNode(Parent as BTNode);
+						BehaviourTreeAsset.SetRunningNode(InThisNodeInstanceData.ParentInstanceData);
 					}
 				});
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected abstract bool GetEvaluation();
+		protected abstract bool GetEvaluation(in BTNodeInstanceData InInstanceData);
 
 		//////////////////////////////////////////////////////////////////////////
-		protected virtual void OnBecomeRelevant() { }
+		protected virtual void OnBecomeRelevant(in BTNodeInstanceData InInstanceData) { }
 
 		//////////////////////////////////////////////////////////////////////////
-		protected virtual void OnCeaseRelevant() { }
+		protected virtual void OnCeaseRelevant(in BTNodeInstanceData InInstanceData) { }
 	}
 }

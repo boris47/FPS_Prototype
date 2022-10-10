@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-4468765183928539979
+--- !u!114 &-7590926732708913517
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -10,19 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0c004d8733a20ce419db1aefa282eb5d, type: 3}
-  m_Name: Root Node
+  m_Name: 000. BTRootNode
   m_EditorClassIdentifier: 
-  m_NodeState: 0
-  m_Parent: {fileID: 0}
+  m_BehaviourTreeAsset: {fileID: 11400000}
   m_NodeIndex: 0
-  m_BehaviourTree: {fileID: 11400000}
-  m_Guid: ed906a65-cf1b-4b7b-8fb6-a4b4b279288c
-  m_Position: {x: 0, y: 0}
-  m_HasBreakpoint: 0
+  m_ParentAsset: {fileID: 0}
+  m_Guid: 8577f05e-9c92-4cc5-aa2a-0204a65feda4
+  m_Position: {x: 130.5, y: 0}
   m_ParentPortIndex: 0
-  m_Child: {fileID: 0}
+  m_Child: {fileID: 7883122590955373263}
   m_MustRepeat: 0
---- !u!114 &-1652185287111804482
+--- !u!114 &-3287384073581286949
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -31,15 +29,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 01f9717c96d53b54faa872caf409cfc3, type: 3}
-  m_Name: Blackboard
+  m_Script: {fileID: 11500000, guid: 44c6ea46cfb6d154199d57444d2ac703, type: 3}
+  m_Name: 003. BTTask_Log
   m_EditorClassIdentifier: 
-  m_Parent: {fileID: 0}
-  m_Keys: []
-  m_Entries: []
-  references:
-    version: 2
-    RefIds: []
+  m_BehaviourTreeAsset: {fileID: 11400000}
+  m_NodeIndex: 3
+  m_ParentAsset: {fileID: 7883122590955373263}
+  m_Guid: dbfa05f7-54f2-416f-bca4-5d1eb74e37cb
+  m_Position: {x: 281, y: 274}
+  m_ParentPortIndex: 0
+  m_Message: MyLog
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -52,14 +51,66 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 242cde3ebb14dbf43a3546394b1573b5, type: 3}
   m_Name: New Behaviour Tree
   m_EditorClassIdentifier: 
-  m_RootNode: {fileID: -4468765183928539979}
+  m_RootNode: {fileID: -7590926732708913517}
   m_Nodes:
-  - {fileID: -4468765183928539979}
-  m_Asset: {fileID: 0}
-  m_Controller: {fileID: 0}
-  m_Blackboard: {fileID: -1652185287111804482}
-  m_TreeState: 3
-  m_CurrentRunningNode: {fileID: 0}
-  m_RunningNodeLocked: 0
-  m_Position: {x: 453, y: 273}
+  - {fileID: -7590926732708913517}
+  - {fileID: 7883122590955373263}
+  - {fileID: 8118000310912224950}
+  - {fileID: -3287384073581286949}
+  m_Blackboard: {fileID: 5419892369753799572}
+  m_Position: {x: 213, y: 51}
   m_Scale: {x: 1, y: 1, z: 1}
+--- !u!114 &5419892369753799572
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01f9717c96d53b54faa872caf409cfc3, type: 3}
+  m_Name: Blackboard
+  m_EditorClassIdentifier: 
+  m_Keys: []
+--- !u!114 &7883122590955373263
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d2f104a865d99145b92a08b8538eb24, type: 3}
+  m_Name: 001. BTComposite_SequenceNode
+  m_EditorClassIdentifier: 
+  m_BehaviourTreeAsset: {fileID: 11400000}
+  m_NodeIndex: 1
+  m_ParentAsset: {fileID: -7590926732708913517}
+  m_Guid: 444656e7-7cbe-4822-95fc-c59fcae6f7e5
+  m_Position: {x: 130.5, y: 124}
+  m_ParentPortIndex: 0
+  m_Children:
+  - {fileID: 8118000310912224950}
+  - {fileID: -3287384073581286949}
+  m_MustRepeat: 1
+--- !u!114 &8118000310912224950
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a98b0c7e32c37d42b986bc8585309fc, type: 3}
+  m_Name: 002. BTTask_Wait
+  m_EditorClassIdentifier: 
+  m_BehaviourTreeAsset: {fileID: 11400000}
+  m_NodeIndex: 2
+  m_ParentAsset: {fileID: 7883122590955373263}
+  m_Guid: 322a8800-e543-4cc3-9492-f8e37a0c95a0
+  m_Position: {x: 0, y: 274}
+  m_ParentPortIndex: 0
+  m_SecondsToWait: 2

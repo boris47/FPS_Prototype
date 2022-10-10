@@ -6,31 +6,35 @@ namespace Entities.AI.Components.Behaviours
 	[BTNodeDetails("Wait Action", "Wait for a certain amount of time")]
 	public class BTTask_Wait : BTTaskNode
 	{
+		protected class RuntimeData : RuntimeDataBase
+		{
+			public	float	StartTime = 0f;
+		}
+
 		[Min(0f), ToNodeInspector(bShowLabel: true)]
 		public		float		m_SecondsToWait			= 1f;
 
 		//---------------------
-		private		float		m_StartTime				= 0f;
-
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override void CopyDataToInstance(in BTNode InNewInstance)
-		{
-			var node = InNewInstance as BTTask_Wait;
-			node.m_SecondsToWait = m_SecondsToWait;
-		}
+		protected override RuntimeDataBase CreateRuntimeDataInstance(in BTNodeInstanceData InThisNodeInstanceData) => new RuntimeData();
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnActivation()
+		protected override EBTNodeState OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			m_StartTime = Time.time;
+			RuntimeData nodeRuntimeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
+
+			nodeRuntimeData.StartTime = Time.time;
+
 			return EBTNodeState.RUNNING;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdate(in float InDeltaTime)
+		protected override EBTNodeState OnUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
 		{
-			return (m_StartTime + m_SecondsToWait < Time.time) ? EBTNodeState.SUCCEEDED : EBTNodeState.RUNNING;
+			RuntimeData nodeRuntimeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
+
+			return (nodeRuntimeData.StartTime + m_SecondsToWait < Time.time) ? EBTNodeState.SUCCEEDED : EBTNodeState.RUNNING;
 		}
 	}
 }

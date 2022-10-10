@@ -1,138 +1,177 @@
 ﻿
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Entities.AI.Components.Behaviours
 {
-	public abstract partial class BTNode : ScriptableObject, IBTNodeTickable
+	//////////////////////////////////////////////////////////////////////////
+	public class BTNodeInstanceData
 	{
+		[SerializeField, /*ReadOnly*/ HideInInspector]
+		private			BehaviourTreeInstanceData		m_InBehaviourTreeInstanceData	= null;
+
 		[SerializeField, ReadOnly]
-		private			EBTNodeState			m_NodeState				= EBTNodeState.INACTIVE;
+		private			BTNode							m_NodeAsset						= null;
 
 		[SerializeField, /*ReadOnly*/ HideInInspector]
-		private			BTNode					m_Parent				= null;
-
-		[SerializeField, ReadOnly/*HideInInspector*/]
-		private			uint					m_NodeIndex				= 0u;
-
+		private			BTNode							m_NodeInstance					= null;
+			
 		[SerializeField, /*ReadOnly*/ HideInInspector]
-		private			BehaviourTree			m_BehaviourTree			= null;
+		private			BTNodeInstanceData				m_ParentInstanceData			= null;
+
 
 		//---------------------
-		public EBTNodeState						NodeState				=> m_NodeState;
-		public IParentNode						Parent					=> m_Parent as IParentNode;
-		public uint								NodeIndex				=> m_NodeIndex;
-		public BehaviourTree					BehaviourTree			=> m_BehaviourTree;
-		public event System.Action<BTNode>		OnNodeActivation		= delegate { };
-		public event System.Action<BTNode>		OnNodeTermination		= delegate { };
+		[ReadOnly]
+		public			EBTNodeState					NodeState						= EBTNodeState.INACTIVE;
+
+		[HideInInspector]
+		public			bool							bCanTerminate					= true;
+
+		public			System.UIntPtr					RuntimeData						= System.UIntPtr.Zero;
+
+		//---------------------
+		public BehaviourTreeInstanceData				BehaviourTreeInstanceData		=> m_InBehaviourTreeInstanceData;
+		public BTNode									NodeAsset						=> m_NodeAsset;
+		public BTNode									NodeInstance					=> m_NodeInstance;
+		public BTNodeInstanceData						ParentInstanceData				=> m_ParentInstanceData;
 
 
 		//////////////////////////////////////////////////////////////////////////
-		public static bool IsFinished(in BTNode InNode) => InNode.NodeState == EBTNodeState.SUCCEEDED || InNode.NodeState == EBTNodeState.FAILED || InNode.NodeState == EBTNodeState.ABORTED;
-
-
-		//////////////////////////////////////////////////////////////////////////
-		protected void SetNodeState(in EBTNodeState InNewState) => m_NodeState = InNewState;
-
-		//////////////////////////////////////////////////////////////////////////
-		public BTNode CreateInstance(in BTNode InParentInstance = null)
+		public BTNodeInstanceData(in BehaviourTreeInstanceData InTreeInstanceData, in BTNode InNodeAsset, in BTNode InNodeInstance, in BTNodeInstanceData InParentInstanceData = null)
 		{
-			Utils.CustomAssertions.IsTrue((this is BTRootNode && InParentInstance == null) || true);
-			var newInstance = ScriptableObject.CreateInstance(GetType()) as BTNode;
-			newInstance.m_NodeState = EBTNodeState.INACTIVE;
-			newInstance.m_Parent = InParentInstance;
-#if UNITY_EDITOR
-			newInstance.m_Guid = m_Guid;
-			newInstance.m_Position = m_Position;
-			newInstance.m_HasBreakpoint = m_HasBreakpoint;
-#endif
-			CopyDataToInstance(newInstance);
-			return newInstance;
+			m_InBehaviourTreeInstanceData = InTreeInstanceData;
+			m_NodeAsset = InNodeAsset;
+			m_NodeInstance = InNodeInstance;
+			m_ParentInstanceData = InParentInstanceData;
 		}
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public abstract class RuntimeDataBase { }
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public class BTNodeDummySpecificInstanceData : RuntimeDataBase { }
+
+
+	//////////////////////////////////////////////////////////////////////////
+	public abstract partial class BTNode : ScriptableObject
+	{
+
+		[SerializeField, ReadOnly]
+		private			BehaviourTree					m_BehaviourTreeAsset			= null;
+
+		[SerializeField, ReadOnly/*HideInInspector*/]
+		private			uint							m_NodeIndex						= 0u;
+
+		[SerializeField, ReadOnly]
+		private			BTNode							m_ParentAsset					= null;
+
+		//---------------------
+		public BehaviourTree							BehaviourTreeAsset				=> m_BehaviourTreeAsset;
+		public uint										NodeIndex						=> m_NodeIndex;
+		public BTNode									ParentAsset						=> m_ParentAsset;
+		protected BTNode								ThisNodeAsset					=> this;
+
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary> For runtime setup purpose </summary>
-		public void OnAwake(in BehaviourTree InBehaviourTree)
-		{
-			m_BehaviourTree = InBehaviourTree;
+		public static bool IsFinished(in BTNodeInstanceData InInstanceData) => InInstanceData.NodeState >= EBTNodeState.FAILED;
+		public static bool IsFinished(in EBTNodeState InState) => InState >= EBTNodeState.FAILED;
 
-			OnAwakeInternal(InBehaviourTree);
-		}
 
-		private bool bCanTerminate = true;
 		//////////////////////////////////////////////////////////////////////////
-		public EBTNodeState UpdateNode(in float InDeltaTime)
+		public static void CreateInstanceData(in BTNode InNodeAsset, in BehaviourTreeInstanceData InTreeInstanceData, in BTNodeInstanceData[] InNodesInstancesData, in RuntimeDataBase[] InNodesRuntimeData, in BTNodeInstanceData InParentInstance = null)
 		{
-			if (m_NodeState == EBTNodeState.INACTIVE)
-			{
-				BehaviourTree.SetRunningNode(this);
-				m_NodeState = OnActivation();
-				bCanTerminate = m_NodeState != EBTNodeState.FAILED;
-				OnNodeActivation(this);
-				Utils.CustomAssertions.IsTrue(m_NodeState != EBTNodeState.INACTIVE);
-			}
+			BTNode nodeInstance = ScriptableObject.CreateInstance(InNodeAsset.GetType()) as BTNode;
+			BTNodeInstanceData nodeInstanceData = new BTNodeInstanceData(InTreeInstanceData, InNodeAsset, nodeInstance, InParentInstance);
+			InNodesInstancesData[InNodeAsset.NodeIndex] = nodeInstanceData;
+			InNodesRuntimeData[InNodeAsset.NodeIndex] = InNodeAsset.CreateRuntimeDataInstance(nodeInstanceData);
 
-			if (m_NodeState == EBTNodeState.RUNNING)
+			if (InNodeAsset is IParentNode asParentNode)
 			{
-				m_NodeState = OnUpdate(InDeltaTime);
-			}
-
-			if (m_NodeState == EBTNodeState.ABORTING)
-			{
-				m_NodeState = OnUpdateAborting(InDeltaTime);
-				Utils.CustomAssertions.IsTrue(m_NodeState == EBTNodeState.ABORTING || m_NodeState == EBTNodeState.ABORTED);
-			}
-
-			if (BTNode.IsFinished(this))
-			{
-				if (bCanTerminate)
+				foreach (BTNode child in asParentNode.Children)
 				{
-					OnNodeTermination(this);
-					OnTerminate();
-				}
-
-				if (m_NodeState != EBTNodeState.ABORTED)
-				{
-					BehaviourTree.SetRunningNode(Parent as BTNode);
+					BTNode.CreateInstanceData(child, InTreeInstanceData, InNodesInstancesData, InNodesRuntimeData, nodeInstanceData);
 				}
 			}
-			return m_NodeState;
-		}
-		//////////////////////////////////////////////////////////////////////////
-		public virtual void UpdateTickable(in float InDeltaTime)
-		{
-
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public void RequestAbortNode(in bool bAbortImmediately)
+		public static BTNodeInstanceData GetChildInstanceData(in BTNodeInstanceData InNodeInstanceData, in BTNode InChild)
 		{
-			m_NodeState = EBTNodeState.ABORTING;
+			return InNodeInstanceData.BehaviourTreeInstanceData.NodesInstanceData.At(InChild.NodeIndex);
+		}
 
-			OnAbortNodeRequested(bAbortImmediately);
+		//////////////////////////////////////////////////////////////////////////
+		protected static T GetRuntimeData<T>(in BTNodeInstanceData InNodeInstanceData) where T : RuntimeDataBase
+		{
+			uint nodeIndex = InNodeInstanceData.NodeAsset.NodeIndex;
+			return InNodeInstanceData.BehaviourTreeInstanceData.GetRuntimeData<T>(nodeIndex);
+		}
 
-			if (bAbortImmediately)
+		//////////////////////////////////////////////////////////////////////////
+		protected virtual RuntimeDataBase CreateRuntimeDataInstance(in BTNodeInstanceData InThisNodeInstanceData) => new BTNodeDummySpecificInstanceData();
+
+		//////////////////////////////////////////////////////////////////////////
+		public void OnAwake(in BTNodeInstanceData InThisNodeInstanceData)
+		{
+			OnAwakeInternal(InThisNodeInstanceData);
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public void SetNodeState(in BTNodeInstanceData InThisNodeInstanceData, in EBTNodeState InNewState)
+		{
+			InThisNodeInstanceData.NodeState = InNewState;
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public EBTNodeState UpdateNode(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
+		{
+			if (InThisNodeInstanceData.NodeState == EBTNodeState.INACTIVE)
 			{
-				m_NodeState = EBTNodeState.ABORTED;
+				InThisNodeInstanceData.BehaviourTreeInstanceData.SetRunningNode(InThisNodeInstanceData);
+				InThisNodeInstanceData.NodeState = OnActivation(InThisNodeInstanceData);
+				InThisNodeInstanceData.bCanTerminate = InThisNodeInstanceData.NodeState != EBTNodeState.FAILED;
+				Utils.CustomAssertions.IsTrue(InThisNodeInstanceData.NodeState != EBTNodeState.INACTIVE);
 			}
+
+			if (InThisNodeInstanceData.NodeState == EBTNodeState.RUNNING)
+			{
+				InThisNodeInstanceData.NodeState = OnUpdate(InThisNodeInstanceData, InDeltaTime);
+			}
+
+			if (BTNode.IsFinished(InThisNodeInstanceData))
+			{
+				if (InThisNodeInstanceData.bCanTerminate)
+				{
+					OnTerminate(InThisNodeInstanceData);
+				}
+
+				InThisNodeInstanceData.BehaviourTreeInstanceData.SetRunningNode(InThisNodeInstanceData.ParentInstanceData);
+			}
+			return InThisNodeInstanceData.NodeState;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public void ResetNode()
+		public void RequestAbortNode(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			m_NodeState = EBTNodeState.INACTIVE;
-
-			OnNodeReset();
+			OnAbortNodeRequested(InThisNodeInstanceData);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected virtual void CopyDataToInstance(in BTNode InNewInstance) { }
-		protected virtual void OnAwakeInternal(in BehaviourTree InBehaviourTree) { }
-		protected virtual EBTNodeState OnActivation() => EBTNodeState.RUNNING;
-		protected virtual EBTNodeState OnUpdate(in float InDeltaTime) => EBTNodeState.SUCCEEDED;
-		protected virtual EBTNodeState OnUpdateAborting(in float InDeltaTime) => EBTNodeState.ABORTED;
-		protected virtual void OnTerminate() { }
-		protected virtual void OnAbortNodeRequested(in bool bAbortImmediately) { }
-		protected virtual void OnNodeReset() { }
+		public void ResetNode(in BTNodeInstanceData InThisNodeInstanceData)
+		{
+			InThisNodeInstanceData.NodeState = EBTNodeState.INACTIVE;
+
+			OnNodeReset(InThisNodeInstanceData);
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		protected virtual void OnAwakeInternal(in BTNodeInstanceData InThisNodeInstanceData) { }
+		protected virtual EBTNodeState OnActivation(in BTNodeInstanceData InThisNodeInstanceData) => EBTNodeState.RUNNING;
+		protected virtual EBTNodeState OnUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime) => EBTNodeState.SUCCEEDED;
+		protected virtual void OnTerminate(in BTNodeInstanceData InThisNodeInstanceData) { }
+		protected virtual void OnAbortNodeRequested(in BTNodeInstanceData InThisNodeInstanceData) { }
+		protected virtual void OnNodeReset(in BTNodeInstanceData InThisNodeInstanceData) { }
 	}
 }

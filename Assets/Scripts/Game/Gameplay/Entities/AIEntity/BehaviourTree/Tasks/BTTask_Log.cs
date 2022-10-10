@@ -10,9 +10,8 @@ namespace Entities.AI.Components.Behaviours
 		[SerializeField, ToNodeInspector(bShowLabel: true)]
 		public string			m_Message				= string.Empty;
 
-
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnActivation()
+		protected override EBTNodeState OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
 		{
 			Debug.Log(m_Message);
 

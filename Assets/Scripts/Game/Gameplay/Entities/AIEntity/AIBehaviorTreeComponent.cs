@@ -8,11 +8,12 @@ namespace Entities.AI.Components
 	public class AIBehaviorTreeComponent : AIEntityComponent
 	{
 		[SerializeField]
-		private				BehaviourTree									m_BehaviourTree							= null;
+		private				BehaviourTree									m_BehaviourTreeAsset							= null;
 
-	//	private				BehaviourTreeContext							m_Context								= null;
+		[SerializeField, ReadOnly]
+		private				BehaviourTreeInstanceData						m_TreeInstanceData								= null;
 
-		public				BehaviourTree									BehaviourTree							=> m_BehaviourTree;
+		public				BehaviourTree									BehaviourTreeAsset								=> m_BehaviourTreeAsset;
 
 
 
@@ -21,10 +22,10 @@ namespace Entities.AI.Components
 		{
 			base.Awake();
 
-			if (m_BehaviourTree.IsNotNull())
+			if (m_BehaviourTreeAsset.IsNotNull())
 			{
-				m_BehaviourTree = BehaviourTree.CreateInstanceFrom(m_BehaviourTree);
-				m_BehaviourTree.OnAwake(m_Controller);
+				m_TreeInstanceData = BehaviourTree.CreateInstanceFrom(m_BehaviourTreeAsset, m_Controller);
+				m_BehaviourTreeAsset.OnAwake(m_TreeInstanceData);
 			}
 		}
 
@@ -33,7 +34,7 @@ namespace Entities.AI.Components
 		{
 			base.OnEnable();
 
-			if (m_BehaviourTree.IsNotNull() && m_BehaviourTree.StartTree())
+			if (m_BehaviourTreeAsset.IsNotNull() && m_TreeInstanceData.IsNotNull() && m_BehaviourTreeAsset.StartTree(m_TreeInstanceData))
 			{
 				if (Utils.CustomAssertions.IsNotNull(GameManager.CyclesEvents))
 				{
@@ -45,21 +46,25 @@ namespace Entities.AI.Components
 		//////////////////////////////////////////////////////////////////////////
 		private void OnFrame(float InDeltaTime)
 		{
-			m_BehaviourTree.UpdateTree(InDeltaTime);
+			if (m_TreeInstanceData.IsNotNull())
+			{
+				m_BehaviourTreeAsset.UpdateTree(m_TreeInstanceData, InDeltaTime);
+			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
 		protected override void OnDisable()
 		{
-			if (m_BehaviourTree.IsNotNull())
+			if (m_BehaviourTreeAsset.IsNotNull() && m_TreeInstanceData.IsNotNull())
 			{
-				m_BehaviourTree.StopTree();
+				m_BehaviourTreeAsset.StopTree(m_TreeInstanceData);
 			}
 
 			if (GameManager.CyclesEvents.IsNotNull())
 			{
 				GameManager.CyclesEvents.OnFrame -= OnFrame;
 			}
+
 			base.OnDisable();
 		}
 	}

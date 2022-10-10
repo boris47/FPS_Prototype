@@ -42,7 +42,7 @@ namespace Entities.AI
 				}
 
 				OnValueChanged(m_Value, InNewValue);
-				OnChangeNotificationInternal(OutOperation);
+				OnChangeNotificationInternal(BlackboardInstance, OutOperation);
 
 				m_Value = InNewValue;
 			}

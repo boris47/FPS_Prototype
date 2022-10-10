@@ -35,11 +35,11 @@ namespace Entities.AI.Components.Behaviours
 	public enum EBTNodeState
 	{
 		INACTIVE,       // not has not state defined
-		SUCCEEDED,      // finished as success
-		FAILED,         // finished as failure
-		ABORTING,       // start aborting
-		ABORTED,        // finished aborting
 		RUNNING,        // not finished yet
+	//	ABORTING,       // start aborting
+		FAILED,         // finished as failure
+		SUCCEEDED,      // finished as success
+	//	ABORTED,        // finished aborting
 	}
 
 	public class BTNodeDetailsAttribute : System.Attribute

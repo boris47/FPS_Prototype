@@ -7,32 +7,33 @@ namespace Entities.AI.Components.Behaviours
 	[BTNodeDetails("Composite")]
 	public abstract partial class BTCompositeNode : BTNode, IParentNode
 	{
+		protected class RuntimeData : RuntimeDataBase
+		{
+			[ReadOnly]
+			public				uint						CurrentIndex						= 0u;
+		}
+
 		[SerializeField, /*HideInInspector*/]
 		private					List<BTNode>				m_Children							= new List<BTNode>();
-
-		[SerializeField, ReadOnly]
-		protected				uint						m_CurrentIndex						= 0;
 
 		[SerializeField, ToNodeInspector]
 		protected				bool						m_MustRepeat						= false;
 
 		//---------------------
 		public					List<BTNode>				Children							=> m_Children;
-		public					uint						CurrentIndex						=> m_CurrentIndex;
 		protected virtual		int							MinimumChildrenCount				=> 0;
 
-
-		//////////////////////////////////////////////////////////////////////////
-		public void OverrideActiveChildIndex(in uint InChildIndex)
-		{
-			m_CurrentIndex = (uint)Mathf.Clamp(InChildIndex, 0, m_Children.Count);
-		}
+		#region MOVE TO EDITOR INTERFACE
 
 		//////////////////////////////////////////////////////////////////////////
 		public void AddChild(in BTNode InNewChild, in uint? InPortIndex = null)
 		{
-			if (InPortIndex.HasValue && m_Children.IsValidIndex(InPortIndex.Value))
+			if (InPortIndex.HasValue)
 			{
+				if (!m_Children.IsValidIndex(InPortIndex.Value))
+				{
+					m_Children.Capacity = (int)InPortIndex.Value+1;
+				}
 				m_Children.Insert((int)InPortIndex.Value, InNewChild);
 			}
 			else
@@ -47,45 +48,63 @@ namespace Entities.AI.Components.Behaviours
 			m_Children.Remove(InChild);
 		}
 
+		#endregion
+
 		//////////////////////////////////////////////////////////////////////////
-		protected override void CopyDataToInstance(in BTNode InNewInstance)
+		public void OverrideActiveChildIndex(in BTNodeInstanceData InThisNodeInstanceData, in uint InChildIndex)
 		{
-			var node = InNewInstance as BTCompositeNode;
-			node.m_Children = m_Children.ConvertAll(c => c.CreateInstance(node));
-			node.m_CurrentIndex = 0u;
+			RuntimeData nodeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
+
+			nodeData.CurrentIndex = (uint)Mathf.Clamp(InChildIndex, 0, m_Children.Count);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnActivation()
+		protected override RuntimeDataBase CreateRuntimeDataInstance(in BTNodeInstanceData InThisNodeInstanceData) => new RuntimeData();
+
+		//////////////////////////////////////////////////////////////////////////
+		protected override EBTNodeState OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
 		{
 			EBTNodeState OutResult = EBTNodeState.RUNNING;
-			m_CurrentIndex = 0u;
+
+			RuntimeData nodeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
+			
+			nodeData.CurrentIndex = 0u;
+
 			return OutResult;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdateAborting(in float InDeltaTime)
+		protected override void OnTerminate(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			return m_Children.At(m_CurrentIndex).UpdateNode(InDeltaTime);
+			base.OnTerminate(InThisNodeInstanceData);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override void OnTerminate()
+		protected override void OnAbortNodeRequested(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			base.OnTerminate();
+			base.OnAbortNodeRequested(InThisNodeInstanceData);
+
+			RuntimeData nodeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
+
+			BTNode child = m_Children.At(nodeData.CurrentIndex);
+			BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, child);
+			m_Children.At(nodeData.CurrentIndex).RequestAbortNode(childInstanceData);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override void OnAbortNodeRequested(in bool bAbortImmediately)
+		protected sealed override void OnNodeReset(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			m_Children.At(m_CurrentIndex).RequestAbortNode(bAbortImmediately);
-		}
+			base.OnNodeReset(InThisNodeInstanceData);
 
-		//////////////////////////////////////////////////////////////////////////
-		protected sealed override void OnNodeReset()
-		{
-			m_CurrentIndex = 0u;
-			m_Children.ForEach(c => c.ResetNode());
+			RuntimeData nodeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
+			nodeData.CurrentIndex = 0u;
+
+			for (uint i = 0, count = (uint)m_Children.Count; i < count; i++)
+			{
+				BTNode child = m_Children.At(i);
+				BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, child);
+				child.ResetNode(childInstanceData);
+			}
 		}
 	}
 }

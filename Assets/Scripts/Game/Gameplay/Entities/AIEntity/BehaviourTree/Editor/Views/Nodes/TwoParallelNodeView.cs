@@ -5,8 +5,6 @@ namespace Entities.AI.Components.Behaviours
 {
 	internal sealed class TwoParallelNodeView : CompositeNodeView
 	{
-		private const uint MainNodeIndex = 0u;
-		private const uint BackgroundNodeIndex = 1u;
 		private BTComposite_TwoParallelNode m_TwoParallelNode = null;
 
 		public TwoParallelNodeView(in BTComposite_TwoParallelNode InNode, in EdgeConnectorListener InEdgeConnectorListener)
@@ -20,18 +18,11 @@ namespace Entities.AI.Components.Behaviours
 		{
 			List<Port> OutPorts = new List<Port>();
 			{
+				for (uint index = 0; index < BTComposite_TwoParallelNode.kMaxParallelChildrenCount; index++)
 				{
-					System.Type[] portTypeSelectors = new System.Type[] { typeof(BTTaskNode) };
-					NodeViewPort main = base.CreatePort(Orientation.Vertical, Direction.Output, Port.Capacity.Single, m_BehaviourTreeNode, MainNodeIndex, portTypeSelectors);
-					outputContainer.Add(main);
-					OutPorts.Add(main);
-				}
-
-				{
-					System.Type[] portTypeSelectors = new System.Type[] { typeof(BTCompositeNode) };
-					NodeViewPort background = base.CreatePort(Orientation.Vertical, Direction.Output, Port.Capacity.Single, m_BehaviourTreeNode, BackgroundNodeIndex, portTypeSelectors);
-					outputContainer.Add(background);
-					OutPorts.Add(background);
+					NodeViewPort viewPort = base.CreatePort(Orientation.Vertical, Direction.Output, Port.Capacity.Single, m_BehaviourTreeNode, index);
+					outputContainer.Add(viewPort);
+					OutPorts.Add(viewPort);
 				}
 			}
 			return OutPorts;
@@ -40,28 +31,24 @@ namespace Entities.AI.Components.Behaviours
 		//////////////////////////////////////////////////////////////////////////
 		protected override void OnChildConnected(in BTNode InChild, in Edge InEdgeCreated)
 		{
-			if (InChild.AsEditorInterface.ParentPortIndex == MainNodeIndex)
+			uint nodeIndex = InChild.AsEditorInterface.ParentPortIndex;
+			if (m_TwoParallelNode.Children.TryGetByIndex(nodeIndex, out BTNode _))
 			{
-				m_TwoParallelNode.AsTwoParallelNodeEditorInterface.MainNode = InChild as BTTaskNode;
+				m_TwoParallelNode.Children[(int)nodeIndex] = InChild;
 			}
-
-			if (InChild.AsEditorInterface.ParentPortIndex == BackgroundNodeIndex)
+			else
 			{
-				m_TwoParallelNode.AsTwoParallelNodeEditorInterface.BackgroundNode = InChild as BTCompositeNode;
+				m_TwoParallelNode.AddChild(InChild, nodeIndex);
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
 		protected override void OnChildDisconnected(in BTNode InChild)
 		{
-			if (InChild.AsEditorInterface.ParentPortIndex == MainNodeIndex)
+			uint nodeIndex = InChild.AsEditorInterface.ParentPortIndex;
+			if (m_TwoParallelNode.Children.TryGetByIndex(nodeIndex, out BTNode _))
 			{
-				m_TwoParallelNode.AsTwoParallelNodeEditorInterface.MainNode = null;
-			}
-
-			if (InChild.AsEditorInterface.ParentPortIndex == BackgroundNodeIndex)
-			{
-				m_TwoParallelNode.AsTwoParallelNodeEditorInterface.BackgroundNode = null;
+				m_TwoParallelNode.Children[(int)nodeIndex] = null;
 			}
 		}
 	}

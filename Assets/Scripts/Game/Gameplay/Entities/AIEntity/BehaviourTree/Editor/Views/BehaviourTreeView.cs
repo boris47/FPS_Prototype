@@ -100,7 +100,7 @@ namespace Entities.AI.Components.Behaviours
 			InspectorView = InInspectorView;
 			m_BlackboardInspectorView = InBlackboardInspectorView;
 
-			m_BlackboardInspectorView.UpdateSelection(InBehaviourTree.Blackboard);
+		//	m_BlackboardInspectorView.UpdateSelection(InBehaviourTree.Blackboard);
 
 			viewTransformChanged -= OnGraphViewTransformChanged;
 			graphViewChanged -= OnGraphViewChanged;
@@ -171,7 +171,7 @@ namespace Entities.AI.Components.Behaviours
 			bool bHasElementsToRemove = graphViewChange.elementsToRemove.IsNotNull() && graphViewChange.elementsToRemove.Count > 0;
 			bool bHasEdgeToCreate = graphViewChange.edgesToCreate.IsNotNull() && graphViewChange.edgesToCreate.Count > 0;
 		//	bool bHasElementsMoved = graphViewChange.movedElements.IsNotNull() && graphViewChange.movedElements.Count > 0;
-			if (!BehaviourTree.IsInstance && (bHasElementsToRemove || bHasEdgeToCreate))
+			if ((bHasElementsToRemove || bHasEdgeToCreate))
 			{
 				EditorUtility.SetDirty(BehaviourTree);
 			}
@@ -210,7 +210,7 @@ namespace Entities.AI.Components.Behaviours
 			//		BehaviourTreeEditorUtils.AssignChildrenIndexes(BehaviourTree.AsEditorInterface.RootNode);
 			//	}
 
-			if (!BehaviourTree.IsInstance && (bHasElementsToRemove || bHasEdgeToCreate /*|| bHasElementsMoved*/))
+			if ((bHasElementsToRemove || bHasEdgeToCreate /*|| bHasElementsMoved*/))
 			{
 				BehaviourTreeEditorUtils.AssignChildrenIndexes(BehaviourTree.AsEditorInterface.RootNode);
 				AssetDatabase.SaveAssetIfDirty(BehaviourTree);
@@ -309,13 +309,13 @@ namespace Entities.AI.Components.Behaviours
 		//////////////////////////////////////////////////////////////////////////
 		private void BreakpointCheck(BTNode node)
 		{
-			if (node.AsEditorInterface.HasBreakpoint)
-			{
-				if (Utils.CustomAssertions.IsTrue(TryFindNodeView(node, out NodeViewBase nodeView), $"Cannot retrieve view for node {node?.name ?? "Null"}"))
-				{
-					EditorApplication.isPaused = true;
-				}
-			}
+		//	if (node.AsEditorInterface.HasBreakpoint)
+		//	{
+		//		if (Utils.CustomAssertions.IsTrue(TryFindNodeView(node, out NodeViewBase nodeView), $"Cannot retrieve view for node {node?.name ?? "Null"}"))
+		//		{
+		//			EditorApplication.isPaused = true;
+		//		}
+		//	}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -328,11 +328,11 @@ namespace Entities.AI.Components.Behaviours
 
 			if (EditorApplication.isPlaying)
 			{
-				InNode.OnNodeActivation -= BreakpointCheck;
-				InNode.OnNodeActivation += BreakpointCheck;
-
-				InNode.OnNodeTermination -= BreakpointCheck;
-				InNode.OnNodeTermination += BreakpointCheck;
+		//		InNode.OnNodeActivation -= BreakpointCheck;
+		//		InNode.OnNodeActivation += BreakpointCheck;
+		//
+		//		InNode.OnNodeTermination -= BreakpointCheck;
+		//		InNode.OnNodeTermination += BreakpointCheck;
 			}
 
 			NodeViewBase nodeView = NodeViewBase.CreateNodeView(InNode, m_EdgeConnectorListener);
