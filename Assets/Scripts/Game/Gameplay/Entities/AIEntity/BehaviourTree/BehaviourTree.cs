@@ -91,7 +91,7 @@ namespace Entities.AI.Components.Behaviours
 			bool outValue = false;
 			if (InTreeInstanceData.TreeState == EBehaviourTreeState.STOPPED)
 			{
-				if (m_RootNode.IsNotNull() && Utils.CustomAssertions.IsTrue(InTreeInstanceData.NodesInstanceData.At(0) == InTreeInstanceData.RootNode))
+				if (Utils.CustomAssertions.IsTrue(InTreeInstanceData.NodesInstanceData.At(0) == InTreeInstanceData.RootNode))
 				{
 					InTreeInstanceData.SetTreeState(EBehaviourTreeState.RUNNING);
 					m_RootNode.ResetNode(InTreeInstanceData.RootNode);

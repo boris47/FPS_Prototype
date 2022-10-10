@@ -103,7 +103,7 @@ namespace Entities.AI.Components.Behaviours
 			{
 				BTNode child = m_Children.At(i);
 				BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, child);
-				child.ResetNode(childInstanceData);
+				m_Children.At(i).ResetNode(childInstanceData);
 			}
 		}
 	}
