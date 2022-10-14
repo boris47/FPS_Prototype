@@ -69,23 +69,25 @@ public class EditorWindowGuardian : ScriptableSingleton<EditorWindowGuardian>
 	//////////////////////////////////////////////////////////////////////////
 	private void OnBeforeAssemblyReload()
 	{
-		m_IsCompiling = true;
-		for (int i = instance.m_WindowsData.Count - 1; i >= 0; i--)
+		if (!EditorApplication.isPlayingOrWillChangePlaymode)
 		{
-			WindowData windowData = instance.m_WindowsData[i];
-
-			if (TryRetrieveWindowBeforeReload(windowData, out EditorWindowWithResource editorWindow))
+			m_IsCompiling = true;
+			for (int i = instance.m_WindowsData.Count - 1; i >= 0; i--)
 			{
-				// Save all the window data useful at re-create
-				windowData.SaveWindowData();
+				WindowData windowData = instance.m_WindowsData[i];
+				if (TryRetrieveWindowBeforeReload(windowData, out EditorWindowWithResource editorWindow))
+				{
+					// Save all the window data useful at re-create
+					windowData.SaveWindowData();
 
-				editorWindow.SaveChanges();
-				editorWindow.Close();
-			}
-			else
-			{
-				instance.m_WindowsData.RemoveAt(i);
-				Debug.LogWarning($"Unable to restore window of type {windowData.TypeName}");
+					editorWindow.SaveChanges();
+					editorWindow.Close();
+				}
+				else
+				{
+					instance.m_WindowsData.RemoveAt(i);
+					Debug.LogWarning($"Unable to restore window of type {windowData.TypeName}");
+				}
 			}
 		}
 	}
@@ -96,6 +98,11 @@ public class EditorWindowGuardian : ScriptableSingleton<EditorWindowGuardian>
 		if (EditorApplication.isCompiling || EditorApplication.isUpdating)
 		{
 			EditorApplication.delayCall += OnAfterAssemblyReload;
+			return;
+		}
+
+		if (EditorApplication.isPlayingOrWillChangePlaymode)
+		{
 			return;
 		}
 

@@ -10,8 +10,6 @@ namespace EditorUtils
 
 	internal abstract class InputValueWindowBase<T> : EditorWindow
 	{
-		public static		InputValueWindowBase<T>						s_Window								= null;
-
 		protected			T											m_Value									= default;
 
 		protected			System.Func<T, bool>						m_TryAcceptValue						= null;
@@ -20,13 +18,10 @@ namespace EditorUtils
 		//////////////////////////////////////////////////////////////////////////
 		protected static WindowType OpenWindow<WindowType>(in string InTitle) where WindowType : InputValueWindowBase<T>, new()
 		{
-			if (s_Window == null)
-			{
-				s_Window = EditorWindow.CreateWindow<WindowType>(InTitle);
-				s_Window.minSize = new Vector2(600f, 700f);
-				s_Window.maxSize = new Vector2(600f, 900f);
-			}
-			return s_Window as WindowType;
+			WindowType window = EditorWindow.CreateWindow<WindowType>(InTitle);
+			window.minSize = new Vector2(600f, 700f);
+			window.maxSize = new Vector2(600f, 900f);
+			return window;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -73,13 +68,13 @@ namespace EditorUtils
 					{
 						if (TryAcceptValue())
 						{
-							s_Window.Close();
+							Close();
 						}
 					}
 					if (GUILayout.Button("Cancel"))
 					{
 						OnCancel();
-						s_Window.Close();
+						Close();
 					}
 				}
 				GUILayout.EndHorizontal();
