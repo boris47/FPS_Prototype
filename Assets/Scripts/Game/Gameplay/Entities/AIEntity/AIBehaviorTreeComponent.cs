@@ -10,7 +10,7 @@ namespace Entities.AI.Components
 		[SerializeField]
 		private				BehaviourTree									m_BehaviourTreeAsset							= null;
 
-		[SerializeField, ReadOnly]
+		
 		private				BehaviourTreeInstanceData						m_TreeInstanceData								= null;
 
 		public				BehaviourTree									BehaviourTreeAsset								=> m_BehaviourTreeAsset;
@@ -26,6 +26,17 @@ namespace Entities.AI.Components
 			{
 				m_TreeInstanceData = BehaviourTree.CreateInstanceFrom(m_BehaviourTreeAsset, m_Controller);
 				m_BehaviourTreeAsset.OnAwake(m_TreeInstanceData);
+			}
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		protected override void OnValidate()
+		{
+			base.OnValidate();
+
+			if (m_BehaviourTreeAsset == null)
+			{
+				m_TreeInstanceData = null;
 			}
 		}
 
@@ -67,5 +78,15 @@ namespace Entities.AI.Components
 
 			base.OnDisable();
 		}
+
+#if UNITY_EDITOR
+		public static class Editor
+		{
+			public static BehaviourTreeInstanceData GetBehaviourTreeInstanceData(in AIBehaviorTreeComponent InComponent)
+			{
+				return InComponent.m_TreeInstanceData.IsNotNull() ? InComponent.m_TreeInstanceData : null;
+			}
+		}
+#endif
 	}
 }
