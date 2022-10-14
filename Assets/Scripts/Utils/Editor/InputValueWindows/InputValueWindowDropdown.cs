@@ -7,19 +7,18 @@ namespace EditorUtils
 
 	public static partial class InputValueWindow
 	{
-		public static void OpenSystemTypeType(System.Func<System.Type, bool> InTryAcceptValue, System.Action InOnCancel, in System.Type[] InOptions, in System.Type InStartValue = null)
+		public static void OpenDropdown(System.Func<string, bool> InTryAcceptValue, System.Action InOnCancel, in string[] InOptions, in string InStartValue = null)
 		{
-			InputValueWindowType.OpenWindow(InTryAcceptValue, InOnCancel, InOptions, InStartValue);
+			InputValueWindowDropdown.OpenWindow(InTryAcceptValue, InOnCancel, InOptions, InStartValue);
 		}
 	}
 
-	internal class InputValueWindowType : InputValueWindowBase<System.Type>
+	internal class InputValueWindowDropdown : InputValueWindowBase<string>
 	{
-		private System.Type[] m_Options = null;
-		private string[] m_Names = null;
+		private string[] m_Options = null;
 		private int m_SelectedIndex = 0;
 
-		public static void OpenWindow(System.Func<System.Type, bool> InTryAcceptValue, System.Action InOnCancel, in System.Type[] InOptions, in System.Type InStartValue = null)
+		public static void OpenWindow(System.Func<string, bool> InTryAcceptValue, System.Action InOnCancel, in string[] InOptions, in string InStartValue = null)
 		{
 			if (InOptions == null || InOptions.Length == 0)
 			{
@@ -27,17 +26,21 @@ namespace EditorUtils
 				return;
 			}
 
-			InputValueWindowType window = OpenWindow<InputValueWindowType>("Type input window");
+			InputValueWindowDropdown window = OpenWindow<InputValueWindowDropdown>("Dropdown window");
 			if (window)
 			{
 				window.m_TryAcceptValue = InTryAcceptValue;
 				window.m_InOnCancel = InOnCancel ?? window.m_InOnCancel;
 				window.m_Options = InOptions;
-				window.m_Names = InOptions.Select(t => t.Name).ToArray();
-				if (InStartValue.IsNotNull() && InOptions.Contains(InStartValue))
+				if (InStartValue != null && InOptions.Contains(InStartValue))
 				{
 					window.m_Value = InStartValue;
 					window.m_SelectedIndex = System.Array.IndexOf(InOptions, InStartValue);
+				}
+				else
+				{
+					window.m_Value = InOptions[0];
+					window.m_SelectedIndex = 0;
 				}
 			}
 		}
@@ -57,7 +60,7 @@ namespace EditorUtils
 		//////////////////////////////////////////////////////////////////////////
 		protected override void OnGUIInternal()
 		{
-			int tempIndex = EditorGUILayout.Popup(m_SelectedIndex, m_Names);
+			int tempIndex = EditorGUILayout.Popup(m_SelectedIndex, m_Options);
 			if (tempIndex != m_SelectedIndex)
 			{
 				m_Value = m_Options[tempIndex];
