@@ -400,7 +400,7 @@ namespace Entities.AI.Components.Behaviours
 		bool ISearchWindowProvider.OnSelectEntry(SearchTreeEntry searchTreeEntry, SearchWindowContext context)
 		{
 			bool bResult = false;
-			if (bResult = BehaviourTreeEditorWindow.TryTransformInBTViewSpace(context.screenMousePosition, out Vector2 graphMousePosition))
+			if (bResult = BehaviourTreeEditorWindow.TryTransformInGraphView(context.screenMousePosition, out Vector2 graphMousePosition))
 			{
 				// Create node view
 				NodeViewBase childNodeView = m_TreeView.CreateNode(searchTreeEntry.userData as System.Type, graphMousePosition);
@@ -422,7 +422,7 @@ namespace Entities.AI.Components.Behaviours
 				}
 
 				// Update Nodes Indexes
-				BehaviourTreeEditorUtils.AssignChildrenIndexes(m_TreeView.BehaviourTree.AsEditorInterface.RootNode);
+				BehaviourTreeEditorUtils.AssignChildrenIndexes(m_TreeView.BehaviourTreeAsset.AsEditorInterface.RootNode);
 			}
 			return bResult;
 		}
@@ -547,7 +547,7 @@ namespace Entities.AI.Components.Behaviours
 				edge.output.Connect(item);
 			}
 
-			BehaviourTreeEditorUtils.AssignChildrenIndexes(m_TreeView.BehaviourTree.AsEditorInterface.RootNode);
+			BehaviourTreeEditorUtils.AssignChildrenIndexes(m_TreeView.BehaviourTreeAsset.AsEditorInterface.RootNode);
 		}
 	}
 }

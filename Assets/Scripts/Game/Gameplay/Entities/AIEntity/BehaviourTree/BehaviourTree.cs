@@ -6,7 +6,7 @@ namespace Entities.AI.Components.Behaviours
 {
 	public partial class BehaviourTree : ScriptableObject
 	{
-		private static	List<BehaviourTreeInstanceData>		s_TreeInstances					= new List<BehaviourTreeInstanceData>();
+		private static	List<BehaviourTreeInstanceData>		s_TreeInstances				= new List<BehaviourTreeInstanceData>();
 
 		[Header("Asset Data")]
 		[SerializeField, ReadOnly]
@@ -16,10 +16,11 @@ namespace Entities.AI.Components.Behaviours
 		private			List<BTNode>						m_Nodes						= new List<BTNode>();
 
 		[SerializeField, ReadOnly]
-		private			Blackboard							m_Blackboard				= null;
+		private			Blackboard							m_BlackboardAsset			= null;
 
 
 		public			BTRootNode							RootNode					=> m_RootNode;
+		public			Blackboard							BlackboardAsset				=> m_BlackboardAsset;
 
 		//////////////////////////////////////////////////////////////////////////
 		public static BehaviourTreeInstanceData CreateInstanceFrom(in BehaviourTree InBehaviourTreeAsset, in AIController InController)
@@ -38,11 +39,11 @@ namespace Entities.AI.Components.Behaviours
 			BTNode.CreateInstanceData(InBehaviourTreeAsset.RootNode, treeInstanceData, nodesInstancesData, nodesRuntimeData);
 
 			// Create instance off blackboard
-			if (InBehaviourTreeAsset.m_Blackboard == null)
+			if (InBehaviourTreeAsset.m_BlackboardAsset == null)
 			{
-				InBehaviourTreeAsset.m_Blackboard = CreateInstance<Blackboard>();
+				InBehaviourTreeAsset.m_BlackboardAsset = CreateInstance<Blackboard>();
 			}
-			BlackboardInstanceData blackboardInstance = Blackboard.CreateInstanceData(InBehaviourTreeAsset.m_Blackboard, treeInstanceData);
+			BlackboardInstanceData blackboardInstance = Blackboard.CreateInstanceData(InBehaviourTreeAsset.m_BlackboardAsset, treeInstanceData);
 
 			// Finally create tree instance data and store in global tree instances list
 			treeInstanceData.SetBlackboardInstance(blackboardInstance);

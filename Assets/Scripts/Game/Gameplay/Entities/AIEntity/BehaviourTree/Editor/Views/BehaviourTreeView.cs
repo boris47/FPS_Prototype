@@ -40,8 +40,8 @@ namespace Entities.AI.Components.Behaviours
 		private readonly EdgeConnectorListener m_EdgeConnectorListener = null;
 
 		public BehaviourTreeNodeInspectorView InspectorView { get; private set; } = null;
-		private BehaviourTreeBBInspectorView m_BlackboardInspectorView = null;
-		public BehaviourTree BehaviourTree { get; private set; } = null;
+		private BehaviourTreeBBKeysInspectorView m_BlackboardKeysInspectorView = null;
+		public BehaviourTree BehaviourTreeAsset { get; private set; } = null;
 
 
 		//////////////////////////////////////////////////////////////////////////
@@ -94,13 +94,13 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public void PopulateView(in BehaviourTree InBehaviourTree, in BehaviourTreeNodeInspectorView InInspectorView, BehaviourTreeBBInspectorView InBlackboardInspectorView)
+		public void PopulateView(in BehaviourTree InBehaviourTreeAsset, in BehaviourTreeNodeInspectorView InInspectorView, in BehaviourTreeBBKeysInspectorView InBlackboardInspectorView, in BehaviourTreeInstanceData InBehaviourTreeInstanceData)
 		{
-			BehaviourTree = InBehaviourTree;
+			BehaviourTreeAsset = InBehaviourTreeAsset;
 			InspectorView = InInspectorView;
-			m_BlackboardInspectorView = InBlackboardInspectorView;
+			m_BlackboardKeysInspectorView = InBlackboardInspectorView;
 
-		//	m_BlackboardInspectorView.UpdateSelection(InBehaviourTree.Blackboard);
+			m_BlackboardKeysInspectorView.UpdateSelection(InBehaviourTreeAsset.BlackboardAsset, InBehaviourTreeInstanceData);
 
 			viewTransformChanged -= OnGraphViewTransformChanged;
 			graphViewChanged -= OnGraphViewChanged;
@@ -108,26 +108,26 @@ namespace Entities.AI.Components.Behaviours
 				DeleteElements(graphElements.ToList());
 
 				// Restore previous view position
-				viewTransform.position = InBehaviourTree.AsEditorInterface.Position;
-				viewTransform.scale = InBehaviourTree.AsEditorInterface.Scale;
+				viewTransform.position = InBehaviourTreeAsset.AsEditorInterface.Position;
+				viewTransform.scale = InBehaviourTreeAsset.AsEditorInterface.Scale;
 			}
 			graphViewChanged += OnGraphViewChanged;
 			viewTransformChanged += OnGraphViewTransformChanged;
 
 			// Ensure blackboard is initialzied
-			BehaviourTree.AsEditorInterface.EnsureBlackboard();
+			BehaviourTreeAsset.AsEditorInterface.EnsureBlackboard();
 
 			// Ensure we have a root node
-			BehaviourTree.AsEditorInterface.EnsureRootNode();
+			BehaviourTreeAsset.AsEditorInterface.EnsureRootNode();
 			
 			// Creates nodes views
-			foreach (BTNode node in BehaviourTree.AsEditorInterface.Nodes)
+			foreach (BTNode node in BehaviourTreeAsset.AsEditorInterface.Nodes)
 			{
 				CreateNodeView(node);
 			}
 
 			// Create edges
-			foreach (BTNode node in BehaviourTree.AsEditorInterface.Nodes)
+			foreach (BTNode node in BehaviourTreeAsset.AsEditorInterface.Nodes)
 			{
 				if (node is IParentNode parentNode)
 				{
@@ -152,8 +152,8 @@ namespace Entities.AI.Components.Behaviours
 			graphViewChanged -= OnGraphViewChanged;
 			viewTransformChanged -= OnGraphViewTransformChanged;
 
-			BehaviourTree = null;
-			m_BlackboardInspectorView?.ClearSelection();
+			BehaviourTreeAsset = null;
+			m_BlackboardKeysInspectorView?.ClearSelection();
 			InspectorView?.ClearSelection();
 			DeleteElements(graphElements.ToList());
 		}
@@ -161,8 +161,8 @@ namespace Entities.AI.Components.Behaviours
 		//////////////////////////////////////////////////////////////////////////
 		private void OnGraphViewTransformChanged(GraphView graphView)
 		{
-			BehaviourTree.AsEditorInterface.Position = viewTransform.position;
-			BehaviourTree.AsEditorInterface.Scale = viewTransform.scale;
+			BehaviourTreeAsset.AsEditorInterface.Position = viewTransform.position;
+			BehaviourTreeAsset.AsEditorInterface.Scale = viewTransform.scale;
 		}
 		
 		//////////////////////////////////////////////////////////////////////////
@@ -173,7 +173,7 @@ namespace Entities.AI.Components.Behaviours
 		//	bool bHasElementsMoved = graphViewChange.movedElements.IsNotNull() && graphViewChange.movedElements.Count > 0;
 			if ((bHasElementsToRemove || bHasEdgeToCreate))
 			{
-				EditorUtility.SetDirty(BehaviourTree);
+				EditorUtility.SetDirty(BehaviourTreeAsset);
 			}
 
 			if (bHasElementsToRemove)
@@ -182,7 +182,7 @@ namespace Entities.AI.Components.Behaviours
 				{
 					if (element is NodeViewBase nodeView)
 					{
-						BehaviourTree.AsEditorInterface.DeleteNode(nodeView.BehaviourTreeNode);
+						BehaviourTreeAsset.AsEditorInterface.DeleteNode(nodeView.BehaviourTreeNode);
 					}
 
 					if (element is Edge edge)
@@ -212,8 +212,8 @@ namespace Entities.AI.Components.Behaviours
 
 			if ((bHasElementsToRemove || bHasEdgeToCreate /*|| bHasElementsMoved*/))
 			{
-				BehaviourTreeEditorUtils.AssignChildrenIndexes(BehaviourTree.AsEditorInterface.RootNode);
-				AssetDatabase.SaveAssetIfDirty(BehaviourTree);
+				BehaviourTreeEditorUtils.AssignChildrenIndexes(BehaviourTreeAsset.AsEditorInterface.RootNode);
+				AssetDatabase.SaveAssetIfDirty(BehaviourTreeAsset);
 			}
 			return graphViewChange;
 		}
@@ -270,7 +270,7 @@ namespace Entities.AI.Components.Behaviours
 		//////////////////////////////////////////////////////////////////////////
 		internal NodeViewBase CreateNode(System.Type nodeType, Vector2 position)
 		{
-			BTNode node = BehaviourTree.AsEditorInterface.CreateNode(nodeType);
+			BTNode node = BehaviourTreeAsset.AsEditorInterface.CreateNode(nodeType);
 			
 			// Create and add NodeView
 			return CreateNodeView(node, position);
@@ -289,14 +289,14 @@ namespace Entities.AI.Components.Behaviours
 
 			void AutoArrangeNodes(DropdownMenuAction actionInfo)
 			{
-				Node rootNodeView = GetNodeByGuid(BehaviourTree.AsEditorInterface.RootNode.AsEditorInterface.Guid);
+				Node rootNodeView = GetNodeByGuid(BehaviourTreeAsset.AsEditorInterface.RootNode.AsEditorInterface.Guid);
 				if (Utils.CustomAssertions.IsNotNull(rootNodeView))
 				{
 					BTAutoArrangeHelpers.AutoArrange(rootNodeView);
 				}
 			}
 
-			if (evt.target is BehaviourTreeView && BehaviourTree.IsNotNull())
+			if (evt.target is BehaviourTreeView && BehaviourTreeAsset.IsNotNull())
 			{
 			//	Vector2 worldMousePosition = (((Vector3)evt.localMousePosition) - contentViewContainer.transform.position) * 1f / contentViewContainer.transform.scale.x;
 				

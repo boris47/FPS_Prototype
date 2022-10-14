@@ -25,13 +25,13 @@ namespace Entities.AI.Components.Behaviours
 	public static class BehaviourTreeEditorUtils
 	{
 		//////////////////////////////////////////////////////////////////////////
-		public static bool TryGetNameAndDescription(in System.Type InType, out string OutName, out string OutDescription)
+		public static bool TryGetNameAndDescription(in System.Type InBTNodeType, out string OutName, out string OutDescription)
 		{
-			OutName = InType.Name;
+			OutName = InBTNodeType.Name;
 			OutDescription = "No Description";
-			if (Utils.CustomAssertions.IsTrue(ReflectionHelper.IsInerithedFrom(typeof(BTNode), InType)))
+			if (Utils.CustomAssertions.IsTrue(ReflectionHelper.IsInerithedFrom(typeof(BTNode), InBTNodeType)))
 			{
-				System.Type currentType = InType;
+				System.Type currentType = InBTNodeType;
 				BTNodeDetailsAttribute attribute = null;
 				while (currentType.IsNotNull() && attribute == null)
 				{
@@ -154,31 +154,6 @@ namespace Entities.AI.Components.Behaviours
 				}
 			}
 		}
-
-
-		//////////////////////////////////////////////////////////////////////////
-		private static bool TryGetSubAssets<T>(Object mainAsset, out List<T> OutResult) where T : Object
-		{
-			if (mainAsset.TryGetSubObjectsOfType(out BTNode[] childrenAssets))
-			{
-
-			}
-			string assetPath = AssetDatabase.GetAssetPath(mainAsset);
-			OutResult = new List<T>();
-
-			Object[] assetsLoaded = AssetDatabase.LoadAllAssetsAtPath(assetPath);
-			if (assetsLoaded.IsNotNull() && assetsLoaded.Length > 0)
-			{
-				foreach (Object subAsset in assetsLoaded)
-				{
-					if (subAsset != mainAsset && 0 == (subAsset.hideFlags & HideFlags.HideInHierarchy))
-					{
-						OutResult.Add(subAsset as T);
-					}
-				}
-			}
-			return OutResult.Count > 0;
-		}
 	}
 
 
@@ -282,47 +257,4 @@ namespace Entities.AI.Components.Behaviours
 			}
 		}
 	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	[CustomPropertyDrawer(typeof(BehaviourTree))]
-	internal class BehaviourTree_PropertyDrawer : PropertyDrawer
-	{
-		//
-		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-		{
-			EditorGUI.PropertyField(position, property, label, true);
-
-			position.y += EditorGUIUtility.singleLineHeight + 5f;
-			position.height = EditorGUIUtility.singleLineHeight;
-
-			if (property.objectReferenceValue is BehaviourTree behaviourTree && GUI.Button(position, "Edit Behavior Tree"))
-			{
-				BehaviourTreeEditorWindow.OpenWindow(behaviourTree);
-			}
-		}
-
-		//
-		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-		{
-			var BT = property.objectReferenceValue as BehaviourTree;
-			return BT ? 48f : base.GetPropertyHeight(property, label);
-		}
-	}
-
-
-	//////////////////////////////////////////////////////////////////////////
-	[CustomEditor(typeof(BehaviourTree))]
-	internal class BehaviourTreeCustomEditor : Editor
-	{
-		public override void OnInspectorGUI()
-		{
-			base.OnInspectorGUI();
-
-			if (GUILayout.Button("Edit Behavior Tree"))
-			{
-				BehaviourTreeEditorWindow.OpenWindow(serializedObject.targetObject as BehaviourTree);
-			}
-		}
-	}	
 }

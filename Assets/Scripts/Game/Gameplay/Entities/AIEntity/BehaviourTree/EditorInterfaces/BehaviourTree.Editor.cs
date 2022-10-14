@@ -45,13 +45,13 @@ namespace Entities.AI.Components.Behaviours
 		//////////////////////////////////////////////////////////////////////////
 		void IBTEditorInterface.EnsureBlackboard()
 		{
-			if (m_Blackboard == null)
+			if (m_BlackboardAsset == null)
 			{
 				using (new Utils.Editor.MarkAsDirty(this))
 				{
-					m_Blackboard = CreateInstance<Blackboard>();
-					m_Blackboard.name = nameof(Blackboard);
-					AssetDatabase.AddObjectToAsset(m_Blackboard, this);
+					m_BlackboardAsset = CreateInstance<Blackboard>();
+					m_BlackboardAsset.name = nameof(BlackboardAsset);
+					AssetDatabase.AddObjectToAsset(m_BlackboardAsset, this);
 				}
 			}
 		}

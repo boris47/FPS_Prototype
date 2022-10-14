@@ -129,16 +129,15 @@ namespace Entities.AI.Components.Behaviours
 
 			if (m_Children.Count > 1)
 			{
-				EditorUtility.SetDirty(this);
-				m_Children.ForEach(c => EditorUtility.SetDirty(c));
-
 				if (ShouldSortChildren())
 				{
-					m_Children.Sort(SortByHorizontalPosition);
+					using (new Utils.Editor.MarkAsDirty(this))
+					{
+						m_Children.ForEach(c => EditorUtility.SetDirty(c));
+						m_Children.Sort(SortByHorizontalPosition);
+						m_Children.ForEach(c => AssetDatabase.SaveAssetIfDirty(c));
+					}
 				}
-
-				AssetDatabase.SaveAssetIfDirty(this);
-				m_Children.ForEach(c => AssetDatabase.SaveAssetIfDirty(c));
 			}
 		}
 

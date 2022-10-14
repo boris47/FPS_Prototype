@@ -1,6 +1,7 @@
 ﻿
 namespace Entities.AI.Components
 {
+	using System.Linq;
 	using UnityEngine;
 	using UnityEditor;
 	using UnityEditorInternal;
@@ -87,46 +88,55 @@ namespace Entities.AI.Components
 	[CustomEditor(typeof(Blackboard))]
 	public class BlackboardEditor : Editor
 	{
+		private static string[] kSupportedValuesTypeNames = null;
+
 		private Blackboard m_Blackboard = null;
 		private SerializedProperty m_KeyList = null;
-		private SerializedProperty m_EntryTable = null;
 		private ReorderableList m_ReorderableKeysList = null;
-		private ReorderableList m_ReorderableEntriesList = null;
 
 
 		//////////////////////////////////////////////////////////////////////////
 		private void OnEnable()
 		{
-			m_Blackboard = (Blackboard)serializedObject.targetObject;
-			m_KeyList = serializedObject.FindProperty("m_Keys");
-			m_EntryTable = serializedObject.FindProperty("m_Entries");
+			if (kSupportedValuesTypeNames == null)
+			{
+				int length = BlackboardKeySpecifier.kSupportedValuesType.Length;
+				kSupportedValuesTypeNames = new string[length];
+				for (int i = 0; i < length; i++)
+				{
+					kSupportedValuesTypeNames[i] = BlackboardKeySpecifier.kSupportedValuesType[i].Name;
+				}
+			}
 
-			m_ReorderableEntriesList = new ReorderableList(serializedObject, elements: m_KeyList, draggable: false, displayHeader: false, displayAddButton: /*true*/false, displayRemoveButton: /*true*/false)
+			m_Blackboard = (Blackboard)serializedObject.targetObject;
+			Blackboard.Editor.EnsureKeysLoaded(m_Blackboard);
+			m_KeyList = serializedObject.FindProperty("m_Keys");
+
+			m_ReorderableKeysList = new ReorderableList(serializedObject, elements: m_KeyList, draggable: false, displayHeader: false, displayAddButton: false, displayRemoveButton: false)
 			{
 				elementHeightCallback = _ => EditorGUIUtility.singleLineHeight,
-			//	drawElementCallback = DrawElement,
-			//	onAddDropdownCallback = OnAddDropdownCallback,
-			//	onRemoveCallback = OnRemoveCallback
+				drawElementCallback = KeyList_DrawElement,
+				multiSelect = true
 			};
 		}
 
-		System.Type[] m_SupportedValuesType = new System.Type[]
-		{
-			typeof(bool), typeof(int), typeof(float), typeof(string),
-			typeof(Vector3), typeof(Quaternion), typeof(Entity)
-		};
+		#region KeyList
 
 		//////////////////////////////////////////////////////////////////////////
-		private void OnAddDropdownCallback(Rect InRect, ReorderableList InList)
+		private void KeyList_OnAddDropdownCallback()
 		{
-			string name = string.Empty;
-			System.Type supportedType = null;
+			string keyName = string.Empty;
 
-			bool TryAcceptType(System.Type InType)
+			bool TryAcceptOption(string InValue)
 			{
-				supportedType = InType;
-
-				m_Blackboard.AddKey(name, supportedType);
+				System.Type type = BlackboardKeySpecifier.kSupportedValuesType.FirstOrDefault(t => t.Name == InValue);
+				if (Utils.CustomAssertions.IsNotNull(type))
+				{
+					using (new Utils.Editor.MarkAsDirty(m_Blackboard))
+					{
+						Blackboard.Editor.AddKey(m_Blackboard, keyName, type);
+					}
+				}
 				return true;
 			}
 
@@ -138,61 +148,85 @@ namespace Entities.AI.Components
 					return false;
 				}
 
-				if (m_Blackboard.HasKeyRegistered(InValue))
+				if (Blackboard.Editor.HasKey(m_Blackboard, InValue))
 				{
 					EditorUtility.DisplayDialog("Already exists", $"Key {InValue} already defined in blackboard", "OK");
 					return false;
 				}
 
-				name = InValue;
-				EditorUtils.InputValueWindow.OpenSystemTypeType(TryAcceptType, null, m_SupportedValuesType);
+				keyName = InValue;
+				EditorUtils.InputValueWindow.OpenDropdown(TryAcceptOption, null, BlackboardKeySpecifier.kSupportedValuesType.Select(t => t.Name).ToArray());
 				return true;
 			}
 			EditorUtils.InputValueWindow.OpenStringInput(TryAcceptValue, null);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		private void OnRemoveCallback(ReorderableList InList)
+		private void KeyList_OnRemoveCallback()
 		{
-			/*
-			SerializedProperty p = InList.serializedProperty.GetArrayElementAtIndex(InList.index);
-
-			ReorderableList.defaultBehaviours.DoRemoveButton(InList);
-			InList.index
-			m_Blackboard.RemoveEntry()
-			*/
+			using (new Utils.Editor.MarkAsDirty(m_Blackboard))
+			{
+				for (int i = m_ReorderableKeysList.selectedIndices.Count - 1; i >= 0; i--)
+				{
+					int selectedIndex = m_ReorderableKeysList.selectedIndices[i];
+					if (Blackboard.Editor.TryGetKeyAt(m_Blackboard, selectedIndex, out BlackboardKeySpecifier specifier))
+					{
+						BlackboardEntryKey entryKey = specifier.Key;
+						Blackboard.Editor.RemoveKey(m_Blackboard, entryKey);
+					}
+				}
+				m_ReorderableKeysList.ClearSelection();
+			}
 		}
 
-		private void DrawElement(Rect rect, int index, bool isActive, bool isFocused)
+		//////////////////////////////////////////////////////////////////////////
+		private void KeyList_DrawElement(Rect rect, int index, bool isActive, bool isFocused)
 		{
 			Rect[] areas = SplitHorizontally(rect, 50f, 50f);
-			DrawKey(areas[0], index);
-			DrawValue(areas[1], index);
+			KeyList_DrawKey(areas[0], index);
+			KeyList_DrawValue(areas[1], index);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		private void DrawKey(Rect rect, int index)
+		private void KeyList_DrawKey(Rect rect, int index)
 		{
-			SerializedProperty property = m_EntryTable.GetArrayElementAtIndex(index);
-			SerializedProperty identifier = property.FindPropertyRelative("m_BlackboardEntryKey");
-			BlackboardEntryKey reference = identifier.stringValue;
-			EditorGUI.LabelField(rect, reference ?? string.Empty);
+			if (Blackboard.Editor.TryGetKeyAt(m_Blackboard, index, out BlackboardKeySpecifier specifier))
+			{
+				BlackboardEntryKey entryKey = specifier.Key;
+				EditorGUI.LabelField(rect, string.IsNullOrEmpty(entryKey) ? "N/A" : entryKey);
+			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		private void DrawValue(Rect rect, int index)
+		private void KeyList_DrawValue(Rect rect, int index)
 		{
-			SerializedProperty property = m_EntryTable.GetArrayElementAtIndex(index);
-			SerializedProperty bbEEntryValue = property.FindPropertyRelative("m_Value");
-			EditorGUI.PropertyField(rect, bbEEntryValue, GUIContent.none);
+			if (Blackboard.Editor.TryGetKeyAt(m_Blackboard, index, out BlackboardKeySpecifier specifier))
+			{
+				System.Type specifierType = specifier.Type;
+				EditorGUI.LabelField(rect, specifierType.Name);
+			}
 		}
+
+		#endregion
 
 		//////////////////////////////////////////////////////////////////////////
 		public override void OnInspectorGUI()
 		{
+			using (new EditorGUILayout.HorizontalScope())
+			{
+				if (GUILayout.Button("Add key"))
+				{
+					KeyList_OnAddDropdownCallback();
+				}
+				if (m_ReorderableKeysList.selectedIndices.Count > 0 && GUILayout.Button("Remove Selected"))
+				{
+					KeyList_OnRemoveCallback();
+				}
+			}
+
 			serializedObject.Update(); // Update the array property's representation in the inspector
 
-			m_ReorderableEntriesList.DoLayoutList(); // Have the ReorderableList do its work
+			m_ReorderableKeysList.DoLayoutList();
 
 			// We need to call this so that changes on the Inspector are saved by Unity.
 			serializedObject.ApplyModifiedProperties();
