@@ -12,6 +12,8 @@ public static class Extensions_CSharp
 	/// <summary> Check if Object is null internally </summary>
 	public static bool IsNotNull(this object ThisObject) => !System.Object.ReferenceEquals(ThisObject, null);
 
+	public static bool IsNull(this object ThisObject) => System.Object.ReferenceEquals(ThisObject, null);
+
 	#endregion C# OBJECT
 
 

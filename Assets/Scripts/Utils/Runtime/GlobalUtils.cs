@@ -41,8 +41,11 @@ namespace Utils // Types
 
 		public TypeIdentifier(System.Type InType)
 		{
-			TypeFullName = InType.FullName;
-			AssemblyName = InType.Assembly.FullName;
+			if (InType.IsNotNull())
+			{
+				TypeFullName = InType.FullName;
+				AssemblyName = InType.Assembly.FullName;
+			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////

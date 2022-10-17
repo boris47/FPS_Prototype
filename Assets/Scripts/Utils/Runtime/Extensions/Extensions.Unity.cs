@@ -272,8 +272,9 @@ public static class Extensions_Unity
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary>  </summary>
-	public static bool IsNotNull(this Object ThisObject) => ((Object)ThisObject) != null && (ThisObject as object).IsNotNull() && s_IsObjectAliveDelegate(ThisObject);
+	public static bool IsNotNull(this Object ThisObject) => (ThisObject as object).IsNotNull() && s_IsObjectAliveDelegate(ThisObject);
 
+	public static bool IsNull(this Object ThisObject) => (ThisObject as object).IsNull() && !s_IsObjectAliveDelegate(ThisObject);
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Return true if frameCount frames is repeating, otherwise false </summary>
