@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Reflection;
 
 public enum ESearchContext
 {
@@ -793,12 +794,36 @@ public static class Extensions_Unity
 
 	#endregion
 
-	
+
 	/////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
 	#region UnityEditor.SerializedObject
 
 #if UNITY_EDITOR
+
+	public static bool TryGetAttribute<T>(this UnityEditor.SerializedProperty InProperty, out T OutPropAttribute, bool bInherit) where T : System.Attribute
+	{
+		OutPropAttribute = null;
+		if (InProperty.IsNotNull())
+		{
+			System.Type t = InProperty.serializedObject.targetObject.GetType();
+			foreach (string name in InProperty.propertyPath.Split('.'))
+			{
+				FieldInfo fieldInfo = t.GetField(name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+				if (fieldInfo.IsNotNull())
+				{
+					object[] result = fieldInfo.GetCustomAttributes(typeof(T), bInherit);
+					if (result.IsNotNull() && result.IsValidIndex(0))
+					{
+						OutPropAttribute = result[0] as T;
+					}
+				}
+			}
+
+		}
+		return OutPropAttribute.IsNotNull();
+	}
+
 	public static void DoLayoutWithoutScriptProperty(this UnityEditor.SerializedObject serializedObject)
 	{
 		using (new UnityEditor.LocalizationGroup(serializedObject))
