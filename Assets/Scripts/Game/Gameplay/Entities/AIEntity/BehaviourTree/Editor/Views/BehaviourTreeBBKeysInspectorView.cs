@@ -3,7 +3,7 @@ using UnityEditor;
 
 namespace Entities.AI.Components.Behaviours
 {
-	internal class BehaviourTreeBBKeysInspectorView : VisualElement
+	internal class BehaviourTreeBBKeysInspectorView : VisualElement, IBlackboardView
 	{
 		public new class UxmlFactory : UxmlFactory<BehaviourTreeBBKeysInspectorView, VisualElement.UxmlTraits> { }
 
@@ -29,17 +29,17 @@ namespace Entities.AI.Components.Behaviours
 			//}
 		}
 
-		internal void UpdateSelection(in Blackboard blackboard, in BehaviourTreeInstanceData InBehaviourTreeInstanceData)
+		void IBlackboardView.UpdateSelection(in Blackboard InBlackboardAsset, in BehaviourTreeInstanceData InBehaviourTreeInstanceData)
 		{
 			if (InBehaviourTreeInstanceData.IsNotNull())
 			{
 				
 			}
 			UnityEngine.Object.DestroyImmediate(m_BBKeysEditor);
-			m_BBKeysEditor = Editor.CreateEditor(blackboard);
+			m_BBKeysEditor = Editor.CreateEditor(InBlackboardAsset);
 		}
 
-		internal void ClearSelection()
+		void IBlackboardView.ClearSelection()
 		{
 			if (m_BBKeysEditor.IsNotNull())
 			{

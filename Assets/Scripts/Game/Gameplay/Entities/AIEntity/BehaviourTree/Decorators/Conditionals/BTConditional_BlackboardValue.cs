@@ -1,19 +1,36 @@
 ﻿using UnityEngine;
 
+namespace Entities.AI.Components
+{
+	public interface IBlackboardProjector
+	{
+		Blackboard GetBlackboardAsset();
+		void SetBlackboardKey(in BlackboardEntryKey InBlackboardEntryKey);
+	}
+}
+
 namespace Entities.AI.Components.Behaviours
 {
+
 	[System.Serializable]
 	[BTNodeDetails("Conditional by Blackboard key", "If a child is assigned verify if condition is satisfied before activate it")]
-	public sealed class BTConditional_BlackboardValue : BTConditional
+	public sealed class BTConditional_BlackboardValue : BTConditional, IBlackboardProjector
 	{
-		[SerializeField, ToNodeInspector("BB Key")]
+		[SerializeReference, ToNodeInspector("Blackboard Key")]
 		private				BlackboardEntryKey					m_BlackboardKey			= null;
 
 		[SerializeField, ToNodeInspector(bShowLabel: true)]
 		[Tooltip("If true on key value change request a child reset by aborting it and re-running it")]
 		private				bool								m_ResetOnChange			= true;
 
+		//////////////////////////////////////////////////////////////////////////
+		Blackboard IBlackboardProjector.GetBlackboardAsset() => BehaviourTreeAsset.BlackboardAsset;
+		//////////////////////////////////////////////////////////////////////////
+		void IBlackboardProjector.SetBlackboardKey(in BlackboardEntryKey InBlackboardEntryKey) => m_BlackboardKey = InBlackboardEntryKey;
 
+
+
+		//////////////////////////////////////////////////////////////////////////
 		private static bool TryGetEntryBase(in BTNodeInstanceData InNodeInstanceData, in BlackboardEntryKey InEntryKey, out BlackboardEntryBase OutEntryBase)
 		{
 			Blackboard asset = InNodeInstanceData.BehaviourTreeInstanceData.Blackboard.BlackboardAsset;

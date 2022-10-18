@@ -89,9 +89,10 @@ namespace Entities.AI.Components.Behaviours
 								{
 									GUILayout.Label(attribute.Label ?? iterator.displayName);
 
-									using (new EditorGUI.DisabledScope(disabled: iterator.GetAttribute<ReadOnlyAttribute>(false).IsNotNull()))
+									bool bIsReadOnly = iterator.GetAttribute<ReadOnlyAttribute>(false).IsNotNull();
+									using (new EditorGUI.DisabledScope(bIsReadOnly))
 									{
-										EditorGUILayout.PropertyField(iterator, GUIContent.none, true, GUILayout.MaxWidth(150f));
+										EditorGUILayout.PropertyField(iterator, GUIContent.none, false, GUILayout.MaxWidth(150f));
 									}
 								}
 								EditorGUILayout.EndHorizontal();

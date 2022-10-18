@@ -302,7 +302,7 @@ namespace Entities.AI.Components.Behaviours
 				case BTCompositeNode _: ctorType = typeof(CompositeNodeView); break;
 				case BTDecoratorNode _: ctorType = typeof(DecoratorNodeView); break;
 			}
-			if (Utils.CustomAssertions.IsNotNull(ctorType, $"Cannot create view for node of type {InNode?.GetType().Name??"null"}"))
+			if (Utils.CustomAssertions.IsNotNull(ctorType, $"Cannot create view for node of type {InNode.GetType().Name??"null"}"))
 			{
 				object[] args = new object[] { InNode, InEdgeConnectorListener };
 				return (NodeViewBase)System.Activator.CreateInstance(ctorType, args);

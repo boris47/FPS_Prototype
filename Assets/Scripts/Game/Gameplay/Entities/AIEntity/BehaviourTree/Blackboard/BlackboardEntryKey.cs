@@ -7,8 +7,8 @@ namespace Entities.AI
 	[System.Serializable]
 	public sealed class BlackboardEntryKey
 	{
-		[SerializeField, ReadOnly]
-		private string m_Name = string.Empty;
+		[SerializeField, HideInInspector]
+		private string m_Name = "None";
 
 		public uint UniqueId => Utils.Generic.GetUniqueId(m_Name);
 		public string Name => m_Name;

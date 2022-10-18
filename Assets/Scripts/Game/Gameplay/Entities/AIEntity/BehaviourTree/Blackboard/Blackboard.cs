@@ -224,6 +224,9 @@ namespace Entities.AI.Components
 			}
 
 			//////////////////////////////////////////////////////////////////////////
+			public static int GetKeysCount(in Blackboard InBlackboard) => InBlackboard.m_Keys.Count;
+
+			//////////////////////////////////////////////////////////////////////////
 			public static bool RemoveKey(in Blackboard InBlackboard, BlackboardEntryKey InBlackboardKey)
 			{
 				bool outValue = false;
@@ -239,6 +242,14 @@ namespace Entities.AI.Components
 			public static void EnsureKeysLoaded(in Blackboard InBlackboard)
 			{
 				InBlackboard.m_Keys.ForEach(k => k.Load());
+			}
+
+			//////////////////////////////////////////////////////////////////////////
+			public static void SortKeys(in Blackboard InBlackboard)
+			{
+				static int Comparer(BlackboardKeySpecifier x, BlackboardKeySpecifier y) => string.Compare(x.Key.Name, y.Key.Name);
+
+				InBlackboard.m_Keys.Sort(Comparer);
 			}
 		}
 #endif

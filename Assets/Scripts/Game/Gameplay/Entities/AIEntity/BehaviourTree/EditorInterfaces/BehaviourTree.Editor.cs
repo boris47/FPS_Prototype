@@ -47,11 +47,18 @@ namespace Entities.AI.Components.Behaviours
 		{
 			if (m_BlackboardAsset == null)
 			{
-				using (new Utils.Editor.MarkAsDirty(this))
+				if (this.TryGetSubObjectsOfType(out Blackboard[] bbs))
 				{
-					m_BlackboardAsset = CreateInstance<Blackboard>();
-					m_BlackboardAsset.name = nameof(BlackboardAsset);
-					AssetDatabase.AddObjectToAsset(m_BlackboardAsset, this);
+					m_BlackboardAsset = bbs[0];
+				}
+				else
+				{
+					using (new Utils.Editor.MarkAsDirty(this))
+					{
+						m_BlackboardAsset = CreateInstance<Blackboard>();
+						m_BlackboardAsset.name = nameof(BlackboardAsset);
+						AssetDatabase.AddObjectToAsset(m_BlackboardAsset, this);
+					}
 				}
 			}
 		}

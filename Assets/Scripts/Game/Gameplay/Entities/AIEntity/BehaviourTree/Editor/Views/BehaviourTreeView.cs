@@ -7,6 +7,12 @@ using System.Collections.Generic;
 
 namespace Entities.AI.Components.Behaviours
 {
+	internal interface IBlackboardView
+	{
+		void UpdateSelection(in Blackboard InBlackboardAsset, in BehaviourTreeInstanceData InBehaviourTreeInstanceData);
+		void ClearSelection();
+	}
+
 	internal class BehaviourTreeView : GraphView
 	{
 		private		static readonly		Dictionary<string, System.Type>			m_MappedTypes			= new Dictionary<string, System.Type>();
@@ -40,7 +46,7 @@ namespace Entities.AI.Components.Behaviours
 		private readonly EdgeConnectorListener m_EdgeConnectorListener = null;
 
 		public BehaviourTreeNodeInspectorView InspectorView { get; private set; } = null;
-		private BehaviourTreeBBKeysInspectorView m_BlackboardKeysInspectorView = null;
+		private IBlackboardView m_BlackboardInterfaceInspectorView = null;
 		public BehaviourTree BehaviourTreeAsset { get; private set; } = null;
 
 
@@ -94,13 +100,13 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public void PopulateView(in BehaviourTree InBehaviourTreeAsset, in BehaviourTreeNodeInspectorView InInspectorView, in BehaviourTreeBBKeysInspectorView InBlackboardInspectorView, in BehaviourTreeInstanceData InBehaviourTreeInstanceData)
+		public void PopulateView(in BehaviourTree InBehaviourTreeAsset, in BehaviourTreeNodeInspectorView InInspectorView, in IBlackboardView InBlackboardInspectorView, in BehaviourTreeInstanceData InBehaviourTreeInstanceData)
 		{
 			BehaviourTreeAsset = InBehaviourTreeAsset;
 			InspectorView = InInspectorView;
-			m_BlackboardKeysInspectorView = InBlackboardInspectorView;
+			m_BlackboardInterfaceInspectorView = InBlackboardInspectorView;
 
-			m_BlackboardKeysInspectorView.UpdateSelection(InBehaviourTreeAsset.BlackboardAsset, InBehaviourTreeInstanceData);
+			m_BlackboardInterfaceInspectorView.UpdateSelection(InBehaviourTreeAsset.BlackboardAsset, InBehaviourTreeInstanceData);
 
 			viewTransformChanged -= OnGraphViewTransformChanged;
 			graphViewChanged -= OnGraphViewChanged;
@@ -153,7 +159,7 @@ namespace Entities.AI.Components.Behaviours
 			viewTransformChanged -= OnGraphViewTransformChanged;
 
 			BehaviourTreeAsset = null;
-			m_BlackboardKeysInspectorView?.ClearSelection();
+			m_BlackboardInterfaceInspectorView?.ClearSelection();
 			InspectorView?.ClearSelection();
 			DeleteElements(graphElements.ToList());
 		}

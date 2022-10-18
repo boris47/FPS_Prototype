@@ -13,6 +13,7 @@ namespace Entities.AI.Components.Behaviours
 		private static BehaviourTreeView m_BehaviourTreeView = null;
 		private static BehaviourTreeNodeInspectorView m_BehaviourTreeInspectorView = null;
 		private static BehaviourTreeBBKeysInspectorView m_BlackboardKeysInspectorView = null;
+		private static BehaviourTreeBBEntriesInspectorView m_BlackboardEntriesInspectorView = null;
 		private static BehaviourTree m_BehaviourTree = null;
 
 		//////////////////////////////////////////////////////////////////////////
@@ -58,6 +59,7 @@ namespace Entities.AI.Components.Behaviours
 			m_BehaviourTreeView = null;
 			m_BehaviourTreeInspectorView = null;
 			m_BlackboardKeysInspectorView = null;
+			m_BlackboardEntriesInspectorView = null;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -87,10 +89,19 @@ namespace Entities.AI.Components.Behaviours
 					TwoPaneSplitView splitVerticalView = new TwoPaneSplitView();
 					{
 						m_BehaviourTreeInspectorView = new BehaviourTreeNodeInspectorView() { name = "NodeInspectorPanel" };
-						m_BlackboardKeysInspectorView = new BehaviourTreeBBKeysInspectorView() { name = "BBKeysInspectorPanel" };
 
 						splitVerticalView.Add(m_BehaviourTreeInspectorView);
-						splitVerticalView.Add(m_BlackboardKeysInspectorView);
+
+						if (EditorApplication.isPlayingOrWillChangePlaymode)
+						{
+							m_BlackboardEntriesInspectorView = new BehaviourTreeBBEntriesInspectorView() { name = "BBEntriesInspectorPanel" };
+							splitVerticalView.Add(m_BlackboardEntriesInspectorView);
+						}
+						else
+						{
+							m_BlackboardKeysInspectorView = new BehaviourTreeBBKeysInspectorView() { name = "BBKeysInspectorPanel" };
+							splitVerticalView.Add(m_BlackboardKeysInspectorView);
+						}
 						
 						splitVerticalView.orientation = TwoPaneSplitViewOrientation.Vertical;
 						splitVerticalView.fixedPaneInitialDimension = 200f;
@@ -115,13 +126,14 @@ namespace Entities.AI.Components.Behaviours
 				splitHorizontalView.fixedPaneInitialDimension = 300f;
 			}
 			root.Add(splitHorizontalView);
+		
 			OnSelectionChange();
 		}
 
 		//////////////////////////////////////////////////////////////////////////
 		private void OnSelectionChange()
 		{
-			if (!(m_BehaviourTreeView.IsNotNull()))
+			if (m_BehaviourTreeView.IsNull())
 			{
 				CreateGUI();
 				return;
@@ -129,12 +141,12 @@ namespace Entities.AI.Components.Behaviours
 			m_BehaviourTreeView.InvalidateView();
 
 			BehaviourTree behaviourTreeAsset = null;
-			BehaviourTreeInstanceData instanceData = null;
+			BehaviourTreeInstanceData treeInstanceData = null;
 
 			{
 				if (Selection.activeGameObject && Selection.activeGameObject.TryGetComponent(out AIBehaviorTreeComponent comp))
 				{
-					instanceData = AIBehaviorTreeComponent.Editor.GetBehaviourTreeInstanceData(comp);
+					treeInstanceData = AIBehaviorTreeComponent.Editor.GetBehaviourTreeInstanceData(comp);
 				}
 			}
 
@@ -163,7 +175,8 @@ namespace Entities.AI.Components.Behaviours
 
 			if (behaviourTreeAsset.IsNotNull())
 			{
-				m_BehaviourTreeView?.PopulateView(behaviourTreeAsset, m_BehaviourTreeInspectorView, m_BlackboardKeysInspectorView, instanceData);
+				IBlackboardView blackboardView = EditorApplication.isPlayingOrWillChangePlaymode ? m_BlackboardEntriesInspectorView : m_BlackboardKeysInspectorView;
+				m_BehaviourTreeView?.PopulateView(behaviourTreeAsset, m_BehaviourTreeInspectorView, blackboardView, treeInstanceData);
 			}
 		}
 
@@ -177,32 +190,16 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		private async void DelayedOnSelectionChange()
+		private async void DelayedOnEditorModeChanged()
 		{
 			await System.Threading.Tasks.Task.Delay(200);
-			OnSelectionChange();
+			CreateGUI();
 		}
 
 		//////////////////////////////////////////////////////////////////////////
 		private void OnPaymodeStateChanged(PlayModeStateChange obj)
 		{
-			switch (obj)
-			{
-				case PlayModeStateChange.EnteredPlayMode:
-				case PlayModeStateChange.EnteredEditMode:
-				{
-					DelayedOnSelectionChange();
-					break;
-				}
-				case PlayModeStateChange.ExitingEditMode:
-				{
-					break;
-				}
-				case PlayModeStateChange.ExitingPlayMode:
-				{
-					break;
-				}
-			}
+			DelayedOnEditorModeChanged();
 		}
 	}
 }

@@ -1,4 +1,6 @@
 ﻿
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Entities.AI
@@ -6,12 +8,6 @@ namespace Entities.AI
 	[System.Serializable]
 	public sealed class BlackboardKeySpecifier
 	{
-		public static readonly System.Type[] kSupportedValuesType = new System.Type[]
-		{
-			typeof(bool), typeof(int), typeof(float), typeof(string),
-			typeof(Vector3), typeof(Quaternion), typeof(Entity)
-		};
-
 		[SerializeField, ReadOnly]
 		private BlackboardEntryKey m_Key = null;
 

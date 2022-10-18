@@ -85,10 +85,17 @@ namespace Entities.AI.Components
 		}
 	}
 
+
+	//////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////
+	
+
 	[CustomEditor(typeof(Blackboard))]
 	public class BlackboardEditor : Editor
 	{
 		private static string[] kSupportedValuesTypeNames = null;
+		private static System.Type[] kEntryValueTypes = null;
 
 		private Blackboard m_Blackboard = null;
 		private SerializedProperty m_KeyList = null;
@@ -100,11 +107,12 @@ namespace Entities.AI.Components
 		{
 			if (kSupportedValuesTypeNames == null)
 			{
-				int length = BlackboardKeySpecifier.kSupportedValuesType.Length;
+				kEntryValueTypes = BlackboardEntryBase.Editor.GetEntryValueTypes();
+				int length = kEntryValueTypes.Length;
 				kSupportedValuesTypeNames = new string[length];
 				for (int i = 0; i < length; i++)
 				{
-					kSupportedValuesTypeNames[i] = BlackboardKeySpecifier.kSupportedValuesType[i].Name;
+					kSupportedValuesTypeNames[i] = kEntryValueTypes[i].Name;
 				}
 			}
 
@@ -129,12 +137,13 @@ namespace Entities.AI.Components
 
 			bool TryAcceptOption(string InValue)
 			{
-				System.Type type = BlackboardKeySpecifier.kSupportedValuesType.FirstOrDefault(t => t.Name == InValue);
+				System.Type type = kEntryValueTypes.FirstOrDefault(t => t.Name == InValue);
 				if (Utils.CustomAssertions.IsNotNull(type))
 				{
 					using (new Utils.Editor.MarkAsDirty(m_Blackboard))
 					{
 						Blackboard.Editor.AddKey(m_Blackboard, keyName, type);
+						Blackboard.Editor.SortKeys(m_Blackboard);
 					}
 				}
 				return true;
@@ -155,7 +164,7 @@ namespace Entities.AI.Components
 				}
 
 				keyName = InValue;
-				EditorUtils.InputValueWindow.OpenDropdown(TryAcceptOption, null, BlackboardKeySpecifier.kSupportedValuesType.Select(t => t.Name).ToArray());
+				EditorUtils.InputValueWindow.OpenDropdown(TryAcceptOption, null, kSupportedValuesTypeNames);
 				return true;
 			}
 			EditorUtils.InputValueWindow.OpenStringInput(TryAcceptValue, null);

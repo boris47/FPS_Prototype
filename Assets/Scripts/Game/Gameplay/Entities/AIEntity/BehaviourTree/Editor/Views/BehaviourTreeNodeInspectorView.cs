@@ -14,7 +14,7 @@ namespace Entities.AI.Components.Behaviours
 			Add(new Label("Node inspector"));
 			Add(new IMGUIContainer(RegisterOnInspectorGUI));
 		}
-		
+
 		private void RegisterOnInspectorGUI()
 		{
 			if (editor.IsNotNull() && editor.serializedObject.IsNotNull() && editor.serializedObject.targetObject.IsNotNull())
@@ -28,14 +28,14 @@ namespace Entities.AI.Components.Behaviours
 			}
 		}
 
-		internal void UpdateSelection(NodeViewBase node)
+		public void UpdateSelection(NodeViewBase node)
 		{
 		//	Clear();
 			UnityEngine.Object.DestroyImmediate(editor);
-			editor = Editor.CreateEditor(node.BehaviourTreeNode);
+			editor = Editor.CreateEditor(node.BehaviourTreeNode, node.InsideNodeEditorType);
 		}
 
-		internal void ClearSelection()
+		public void ClearSelection()
 		{
 			if (editor.IsNotNull())
 			{
