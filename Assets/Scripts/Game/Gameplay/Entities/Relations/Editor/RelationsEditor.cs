@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Entities.Relations
 {
-	internal sealed class RelationsEditor : GuardedEditorWindow<RelationsEditor, RelationsData>
+	internal sealed class RelationsEditor : GuardedEditorWindowWithResource<RelationsEditor, RelationsData>
 	{
 		private static readonly Vector2									s_MinSize								= new Vector2(500f, 200f);
 		private static readonly Vector2									s_MaxSize								= new Vector2(1200f, 900f);
@@ -20,13 +20,13 @@ namespace Entities.Relations
 		[MenuItem("Window/Relations Editor")]
 		internal static void OnMenuItem()
 		{
-			OpenWindow("Relations Editor", RelationsData.ResourcePath, s_MinSize, s_MaxSize);
+			LoadAndOpenGuardedWindow("Relations Editor", RelationsData.ResourcePath, s_MinSize, s_MaxSize);
 		}
 		
 		//////////////////////////////////////////////////////////////////////////
 		public static void OpenWindow(RelationsData InRelationsData)
 		{
-			OpenWindow("Relations Editor", RelationsData.ResourcePath, InRelationsData, s_MinSize, s_MaxSize);
+			OpenGuardedWindowWithResources("Relations Editor", RelationsData.ResourcePath, InRelationsData, s_MinSize, s_MaxSize);
 		}
 
 		//////////////////////////////////////////////////////////////////////////

@@ -5,7 +5,7 @@ using UnityEditor;
 
 namespace Localization
 {
-	internal sealed class LocalizationManagerEditorWindow : GuardedEditorWindow<LocalizationManagerEditorWindow, LocalizationData>
+	internal sealed class LocalizationManagerEditorWindow : GuardedEditorWindowWithResource<LocalizationManagerEditorWindow, LocalizationData>
 	{
 		private static readonly Vector2									s_MinSize								= new Vector2(1200f, 200f);
 		private static readonly Vector2									s_MaxSize								= new Vector2(1200f, 900f);
@@ -21,13 +21,13 @@ namespace Localization
 		[MenuItem("Window/Localizations")]
 		internal static void OnMenuItem()
 		{
-			OpenWindow("Localizations", LocalizationData.ResourcePath, s_MinSize, s_MaxSize);
+			LoadAndOpenGuardedWindow("Localizations", LocalizationData.ResourcePath, s_MinSize, s_MaxSize);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
 		public static void OpenWindow(LocalizationData InLocalizationData)
 		{
-			OpenWindow("Localizations", LocalizationData.ResourcePath, InLocalizationData, s_MinSize, s_MaxSize);
+			OpenGuardedWindowWithResources("Localizations", LocalizationData.ResourcePath, InLocalizationData, s_MinSize, s_MaxSize);
 		}
 
 		//////////////////////////////////////////////////////////////////////////

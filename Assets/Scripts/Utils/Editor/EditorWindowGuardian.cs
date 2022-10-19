@@ -2,6 +2,109 @@
 using UnityEditor;
 using System.Collections.Generic;
 
+[System.Serializable]
+public sealed class WindowData
+{
+	[System.Serializable]
+	private class SerializableKeyValue
+	{
+		public string Key = string.Empty;
+		public string Value = string.Empty;
+
+		public SerializableKeyValue(in string InKey, in string InValue)
+		{
+			Key = InKey;
+			Value = InValue;
+		}
+	}
+
+	public readonly GuardedEditorWindowBase WindowRef = null;
+
+	[SerializeField] private string m_TypeName = null;
+	[SerializeField] private string m_AssemblyName = null;
+	[SerializeField] private string m_WindowTitle = null;
+	[SerializeField] private Vector3 m_MinSize = Vector3.zero;
+	[SerializeField] private Vector3 m_MaxSize = Vector3.zero;
+
+	[SerializeField] private List<SerializableKeyValue> m_OthersData = new List<SerializableKeyValue>();
+
+	public string TypeName => m_TypeName;
+	public string AssemblyName => m_AssemblyName;
+	public string WindowTitle => m_WindowTitle;
+	public Vector3 MinSize => m_MinSize;
+	public Vector3 MaxSize => m_MaxSize;
+
+	//////////////////////////////////////////////////////////////////////////
+	public WindowData(GuardedEditorWindowBase InWindowRef)
+	{
+		WindowRef = InWindowRef;
+		System.Type editorType = WindowRef.GetType();
+		m_TypeName = editorType.FullName;
+		m_AssemblyName = editorType.Assembly.FullName;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	public bool IsValid()
+	{
+		bool bResult = true;
+		{
+			bResult &= !string.IsNullOrEmpty(m_TypeName);
+			bResult &= !string.IsNullOrEmpty(m_AssemblyName);
+			bResult &= !string.IsNullOrEmpty(m_WindowTitle);
+		}
+		return bResult;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	public void SetData(string InKey, string InValue)
+	{
+		if (m_OthersData.TryFind(out SerializableKeyValue keyValuePair, out int index, pair => pair.Key == InKey))
+		{
+			keyValuePair.Value = InValue;
+		}
+		else
+		{
+			m_OthersData.Add(new SerializableKeyValue(InKey, InValue));
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	public bool TryGetValue(string InKey, out string OutValue)
+	{
+		OutValue = null;
+		return m_OthersData.TryFind(out SerializableKeyValue keyValuePair, out int index, pair => pair.Key == InKey) && (OutValue = keyValuePair.Value).IsNotNull();
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	public string GetValue(string InKey)
+	{
+		string OutValue = null;
+		if (m_OthersData.TryFind(out SerializableKeyValue keyValuePair, out int index, pair => pair.Key == InKey))
+		{
+			OutValue = keyValuePair.Value;
+		}
+		return OutValue;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	public void SaveWindowData()
+	{
+		m_WindowTitle = WindowRef.titleContent.text;
+		m_MinSize = WindowRef.minSize;
+		m_MaxSize = WindowRef.maxSize;
+		WindowRef.SaveBeforeClosingForReload(this);
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	public void ToWindow(GuardedEditorWindowBase window)
+	{
+		window.titleContent = new GUIContent(m_WindowTitle);
+		window.minSize = m_MinSize;
+		window.maxSize = m_MaxSize;
+		window.ReOpen(this);
+	}
+}
+
 
 public class EditorWindowGuardian : ScriptableSingleton<EditorWindowGuardian>
 {
@@ -15,13 +118,13 @@ public class EditorWindowGuardian : ScriptableSingleton<EditorWindowGuardian>
 
 
 	//////////////////////////////////////////////////////////////////////////
-	public void PushWindow(EditorWindowWithResource window)
+	public void PushWindow(GuardedEditorWindowBase window)
 	{
 		m_WindowsData.Add(new WindowData(window));
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	public void RemoveWindow(EditorWindowWithResource window)
+	public void RemoveWindow(GuardedEditorWindowBase window)
 	{
 		if (!m_IsCompiling && m_WindowsData.TryFind(out WindowData _, out int outIndex, data => data.WindowRef == window))
 		{
@@ -32,34 +135,19 @@ public class EditorWindowGuardian : ScriptableSingleton<EditorWindowGuardian>
 	//////////////////////////////////////////////////////////////////////////
 	private void OnEnable()
 	{
+		AssemblyReloadEvents.beforeAssemblyReload -= OnBeforeAssemblyReload;
+		AssemblyReloadEvents.afterAssemblyReload -= OnAfterAssemblyReload;
+
 		AssemblyReloadEvents.beforeAssemblyReload += OnBeforeAssemblyReload;
 		AssemblyReloadEvents.afterAssemblyReload += OnAfterAssemblyReload;
 	}
-
+	
 	//////////////////////////////////////////////////////////////////////////
-	private static bool TryRetrieveWindowBeforeReload(in WindowData InWindowData, out EditorWindowWithResource OutEditorWindow)
-	{
-		static bool HasOpenInstances(System.Type windowType)
-		{
-			Object[] array = Resources.FindObjectsOfTypeAll(windowType);
-			return array != null && array.Length != 0;
-		}
-
-		OutEditorWindow = null;
-		System.Type windowType = System.Type.GetType($"{InWindowData.TypeName}, {InWindowData.AssemblyName}");
-		if (windowType.IsNotNull() && HasOpenInstances(windowType) && EditorWindow.GetWindow(windowType) is EditorWindowWithResource editorWindow)
-		{
-			OutEditorWindow = editorWindow;
-		}
-		return OutEditorWindow.IsNotNull();
-	}
-
-	//////////////////////////////////////////////////////////////////////////
-	private static bool TryRetrieveWindowAfterReload(in WindowData InWindowData, out EditorWindowWithResource OutEditorWindow)
+	private static bool TryRetrieveWindowAfterReload(in WindowData InWindowData, out GuardedEditorWindowBase OutEditorWindow)
 	{
 		OutEditorWindow = null;
 		System.Type windowType = System.Type.GetType($"{InWindowData.TypeName}, {InWindowData.AssemblyName}");
-		if (windowType.IsNotNull() && EditorWindow.GetWindow(windowType) is EditorWindowWithResource editorWindow)
+		if (windowType.IsNotNull() && EditorWindow.GetWindow(windowType) is GuardedEditorWindowBase editorWindow)
 		{
 			OutEditorWindow = editorWindow;
 		}
@@ -72,10 +160,11 @@ public class EditorWindowGuardian : ScriptableSingleton<EditorWindowGuardian>
 		if (!EditorApplication.isPlayingOrWillChangePlaymode)
 		{
 			m_IsCompiling = true;
-			for (int i = instance.m_WindowsData.Count - 1; i >= 0; i--)
+			for (int i = m_WindowsData.Count - 1; i >= 0; i--)
 			{
-				WindowData windowData = instance.m_WindowsData[i];
-				if (TryRetrieveWindowBeforeReload(windowData, out EditorWindowWithResource editorWindow))
+				WindowData windowData = m_WindowsData[i];
+				GuardedEditorWindowBase editorWindow = windowData.WindowRef;
+				if (editorWindow.IsNotNull())
 				{
 					// Save all the window data useful at re-create
 					windowData.SaveWindowData();
@@ -85,7 +174,7 @@ public class EditorWindowGuardian : ScriptableSingleton<EditorWindowGuardian>
 				}
 				else
 				{
-					instance.m_WindowsData.RemoveAt(i);
+					m_WindowsData.RemoveAt(i);
 					Debug.LogWarning($"Unable to restore window of type {windowData.TypeName}");
 				}
 			}
@@ -95,19 +184,18 @@ public class EditorWindowGuardian : ScriptableSingleton<EditorWindowGuardian>
 	//////////////////////////////////////////////////////////////////////////
 	private void OnAfterAssemblyReload()
 	{
+		if (EditorApplication.isPlayingOrWillChangePlaymode)
+		{
+			return;
+		}
+
 		if (EditorApplication.isCompiling || EditorApplication.isUpdating)
 		{
 			EditorApplication.delayCall += OnAfterAssemblyReload;
 			return;
 		}
 
-		if (EditorApplication.isPlayingOrWillChangePlaymode)
-		{
-			return;
-		}
-
 		m_FrameCount = k_FrameToWait;
-
 
 		void OnAfterAssemblyReloadDelayed()
 		{
@@ -123,77 +211,22 @@ public class EditorWindowGuardian : ScriptableSingleton<EditorWindowGuardian>
 			EditorApplication.update -= OnAfterAssemblyReloadDelayed;
 
 			//////////////////////////////////////////////////////////////////////////////////////
-		
-			for (int i = instance.m_WindowsData.Count - 1; i >= 0; i--)
-			{
-				WindowData windowData = instance.m_WindowsData[i];
 
-				if (windowData.IsValid() && TryRetrieveWindowAfterReload(windowData, out EditorWindowWithResource editorWindow))
+			for (int i = m_WindowsData.Count - 1; i >= 0; i--)
+			{
+				WindowData windowData = m_WindowsData[i];
+
+				if (windowData.IsValid() && TryRetrieveWindowAfterReload(windowData, out GuardedEditorWindowBase editorWindow))
 				{
 					windowData.ToWindow(editorWindow);
-
-					editorWindow.Show();
 				}
 				else
 				{
-					instance.m_WindowsData.RemoveAt(i);
+					m_WindowsData.RemoveAt(i);
 				}
 			}
 		}
 		EditorApplication.update += OnAfterAssemblyReloadDelayed;
 	}
-
-
-
-	[System.Serializable]
-	private class WindowData
-	{
-		public readonly EditorWindowWithResource WindowRef = null;
-
-		[SerializeField] public string TypeName = null;
-		[SerializeField] public string AssemblyName = null;
-
-		[SerializeField] private string WindowTitle = null;
-		[SerializeField] private Vector3 MinSize = Vector3.zero;
-		[SerializeField] private Vector3 MaxSize = Vector3.zero;
-		[SerializeField] private string ResourcePath = null;
-
-
-		public WindowData(EditorWindowWithResource InWindowRef)
-		{
-			WindowRef = InWindowRef;
-
-			System.Type editorType = WindowRef.GetType();
-			TypeName = editorType.FullName;
-			AssemblyName = editorType.Assembly.FullName;
-		}
-
-		public bool IsValid()
-		{
-			bool bResult = true;
-			{
-				bResult &= !string.IsNullOrEmpty(TypeName);
-				bResult &= !string.IsNullOrEmpty(AssemblyName);
-				bResult &= !string.IsNullOrEmpty(WindowTitle);
-				bResult &= !string.IsNullOrEmpty(ResourcePath);
-			}
-			return bResult;
-		}
-
-		public void SaveWindowData()
-		{
-			WindowTitle = WindowRef.titleContent.text;
-			MinSize = WindowRef.minSize;
-			MaxSize = WindowRef.maxSize;
-			ResourcePath = WindowRef.ResourcePath;
-		}
-
-		public void ToWindow(EditorWindowWithResource window)
-		{
-			window.titleContent = new GUIContent(WindowTitle);
-			window.minSize = MinSize;
-			window.maxSize = MaxSize;
-			window.ReOpen(WindowTitle, ResourcePath, MinSize, MaxSize);
-		}
-	}
 }
+
