@@ -11,10 +11,11 @@ namespace Entities.AI
 	[RequireComponent(typeof(NavMeshAgent))]
 	[RequireComponent(typeof(AIController))]
 	[RequireComponent(typeof(AIMotionManager))]
-	public partial class AIEntity : Entity
+	public class AIEntity : Entity
 	{
 		public new				AIController					Controller							=> m_Controller as AIController;
 
+		private const float V = 0.5f;
 		[SerializeField, ReadOnly]
 		private					AIMotionManager					m_AIMotionManager					= null;
 
@@ -43,36 +44,49 @@ namespace Entities.AI
 		//////////////////////////////////////////////////////////////////
 		public override bool IsInterestedAt(in Entity source)
 		{
-			EntityFaction[] enemyFactions = Controller.BrainComponent.Targets.GetEnemyFactions();
+			EntityFaction[] enemyFactions = Controller.BrainComponent.GetEnemyFactions();
 			return enemyFactions.Contains(source.Faction);
 		}
-
 
 		//////////////////////////////////////////////////////////////////
 		public bool IsInterestedAt(in Entity source, in ESoundType soundType)
 		{
-			EntityFaction[] enemyFactions = Controller.BrainComponent.Targets.GetEnemyFactions();
+			// TODO
+			EntityFaction[] enemyFactions = Controller.BrainComponent.GetEnemyFactions();
 			return enemyFactions.Contains(source.Faction);
 		}
 
 
 		//////////////////////////////////////////////////////////////////
-		protected override Transform GetHead()
+		public bool RequestMoveTo(in Entity InTarget)
 		{
-			return transform;
+			return AIMotionManager.RequireMovementTo(InTarget.Body.position);
 		}
 
 		//////////////////////////////////////////////////////////////////
-		protected override Transform GetBody()
+		public bool RequestMoveTo(in Vector3 InVector3)
 		{
-			return transform;
+			return AIMotionManager.RequireMovementTo(InVector3);
 		}
 
+		//////////////////////////////////////////////////////////////////////////
+		public bool IsCloseEnoughTo(in Entity InTargetEntity) => (InTargetEntity.Body.position - GetBody().position).magnitude < 0.5f;
+
+		//////////////////////////////////////////////////////////////////////////
+		public bool IsCloseEnoughTo(in Vector3 InTargetPosition) => (InTargetPosition - GetBody().position).magnitude < V;
+
 		//////////////////////////////////////////////////////////////////
-		protected override Transform GetTargetable()
-		{
-			return transform;
-		}
+		public void Stop(in bool bImmediately) => AIMotionManager.Stop(bImmediately);
+
+
+		//////////////////////////////////////////////////////////////////
+		protected override Transform GetHead() => transform;
+
+		//////////////////////////////////////////////////////////////////
+		protected override Transform GetBody() => transform;
+
+		//////////////////////////////////////////////////////////////////
+		protected override Transform GetTargetable() => transform;
 
 		//////////////////////////////////////////////////////////////////
 		protected override Collider GetPrimaryCollider()

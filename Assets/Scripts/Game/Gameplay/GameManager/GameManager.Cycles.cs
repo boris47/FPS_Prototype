@@ -6,7 +6,7 @@ using UnityEngine;
 public partial struct GameEvents
 {
 	// UPDATES
-	public	delegate	void		OnThinkEvent();								// UpdateEvents.OnThink
+	public	delegate	void		OnThinkEvent(float DeltaTime);				// UpdateEvents.OnThink
 	public	delegate	void		OnPhysicFrameEvent(float FixedDeltaTime);	// UpdateEvents.OnPhysicFrame
 	public	delegate	void		OnFrameEvent(float DeltaTime);				// UpdateEvents.OnFrame
 }
@@ -81,7 +81,7 @@ public sealed partial class GameManager : IUpdateEvents
 			m_ThinkTimer += Time.deltaTime;
 			if (m_ThinkTimer > m_Configs.ThinkIntervalMS)
 			{
-				m_OnThink();
+				m_OnThink(m_ThinkTimer);
 				m_ThinkTimer = 0f;
 			}
 

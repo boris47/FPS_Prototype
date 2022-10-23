@@ -165,16 +165,27 @@ public static class ReflectionHelper
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	public static List<System.Type> GetBaseTypesOf<BaseType, CurrentType>(in CurrentType currentType, in bool bOrderByTopType) where CurrentType : BaseType
+	public static System.Type[] GetBaseTypesOf<BaseType, CurrentType>(in CurrentType currentType, in bool bOrderByTopType) where CurrentType : BaseType
 	{
 		return GetBaseTypesOf(typeof(BaseType), currentType.GetType(), bOrderByTopType);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	public static List<System.Type> GetBaseTypesOf(in System.Type InBaseType, in System.Type InCurrentType, in bool bOrderByTopType)
+	/// <summary>  </summary>
+	/// <param name="InBaseType"></param>
+	/// <param name="InCurrentType"></param>
+	/// <param name="bOrderFromTopType"> If true the order goes from highest type to lowest one </param>
+	/// <param name="bIncludeCurrentType"></param>
+	/// <returns></returns>
+	public static System.Type[] GetBaseTypesOf(in System.Type InBaseType, in System.Type InCurrentType, in bool bOrderFromTopType, in bool bIncludeCurrentType = true)
 	{
 		Utils.CustomAssertions.IsTrue(IsInerithedFrom(InBaseType, InCurrentType));
 		List<System.Type> OutResult = new List<System.Type>();
+
+		if (bIncludeCurrentType)
+		{
+			OutResult.Add(InCurrentType);
+		}
 
 		System.Type currentType = InCurrentType;
 		while(currentType.IsNotNull() && currentType.BaseType.IsNotNull() && currentType.BaseType != InBaseType)
@@ -183,11 +194,11 @@ public static class ReflectionHelper
 			currentType = currentType.BaseType;
 		}
 
-		if (bOrderByTopType)
+		if (bOrderFromTopType)
 		{
 			OutResult.Reverse();
 		}
-		return OutResult;
+		return OutResult.ToArray();
 	}
 
 

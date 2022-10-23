@@ -52,6 +52,9 @@ namespace Utils // Types
 		public bool IsValid() => TryGetType(out System.Type _);
 
 		//////////////////////////////////////////////////////////////////////////
+		public System.Type Get() => System.Type.GetType($"{TypeFullName}, {AssemblyName}");
+
+		//////////////////////////////////////////////////////////////////////////
 		public bool TryGetType(out System.Type OutType) => (OutType = System.Type.GetType($"{TypeFullName}, {AssemblyName}")).IsNotNull();
 
 		//////////////////////////////////////////////////////////////////////////
@@ -59,6 +62,12 @@ namespace Utils // Types
 
 		//////////////////////////////////////////////////////////////////////////
 		public bool Equals(TypeIdentifier other) => other.IsNotNull() && TypeFullName == other.TypeFullName && AssemblyName == other.AssemblyName;
+
+		//////////////////////////////////////////////////////////////////////////
+		public static implicit operator TypeIdentifier(in System.Type InType) => new TypeIdentifier(InType);
+
+		//////////////////////////////////////////////////////////////////////////
+		public static implicit operator System.Type(in TypeIdentifier InTypeIdentifier) => InTypeIdentifier.Get();
 
 		//////////////////////////////////////////////////////////////////////////
 		public static bool operator ==(TypeIdentifier left, TypeIdentifier right) => System.Collections.Generic.EqualityComparer<TypeIdentifier>.Default.Equals(left, right);

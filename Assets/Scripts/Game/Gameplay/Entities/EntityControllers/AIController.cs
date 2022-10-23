@@ -45,7 +45,7 @@ namespace Entities.AI
 			if (m_PerceptionComponent.IsNotNull() || Utils.CustomAssertions.IsTrue(gameObject.TryGetComponent(out m_PerceptionComponent)))
 			{
 				// TODO: Sense event handling should belong to entity brain instead!?
-				m_PerceptionComponent.Senses.OnNewSenseEvent += HandleSenseEvent;
+				m_PerceptionComponent.OnNewSenseEvent += HandleSenseEvent;
 			}
 
 			if (m_BehaviorTreeComponent.IsNotNull() || Utils.CustomAssertions.IsTrue(gameObject.TryGetComponent(out m_BehaviorTreeComponent)))
@@ -81,14 +81,24 @@ namespace Entities.AI
 		//////////////////////////////////////////////////////////////////////////
 		public bool RequestMoveTo(in Entity InTargetEntity)
 		{
-			return false;
+			return Entity.RequestMoveTo(InTargetEntity);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
 		public bool RequestMoveTo(in Vector3 InTargetPosition)
 		{
-			return false;
+			return Entity.RequestMoveTo(InTargetPosition);
 		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public bool IsCloseEnoughTo(in Entity InTargetEntity) => Entity.IsCloseEnoughTo(InTargetEntity);
+
+		//////////////////////////////////////////////////////////////////////////
+		public bool IsCloseEnoughTo(in Vector3 InTargetPosition) => Entity.IsCloseEnoughTo(InTargetPosition);
+
+		//////////////////////////////////////////////////////////////////////////
+		public void Stop(in bool bImmediately) => Entity.Stop(bImmediately);
+
 
 		//////////////////////////////////////////////////////////////////////////
 		private void HandleSenseEvent(in SenseEvent senseEvent)
@@ -108,9 +118,11 @@ namespace Entities.AI
 					case ESightTargetEventType.ACQUIRED:
 					{
 						(Entity EntitySeen, Vector3 SeenPosition, Vector3 ViewerPosition) = sightEvent.AsTargetAcquiredEvent();
-						
+
 						// Remove memory of previous enemy entity
-					//	controller.BrainComponent.MemoryComponent.RemoveMemory(controller.m_EnemyEntityMemoryIdentifier);
+						//	controller.BrainComponent.MemoryComponent.RemoveMemory(controller.m_EnemyEntityMemoryIdentifier);
+
+					//	controller.BehaviorTreeComponent.BlackboardInstanceData.SetEntryValue<BBEntry_Entity, Entity>("EntitySeen", EntitySeen);
 
 						// Set current enemy entity
 					//	controller.Blackboard.SetEntryValue<BBEntry_TargetEntity, Entity>(controller.m_CurrentEnemyOnSight, EntitySeen);
@@ -130,6 +142,7 @@ namespace Entities.AI
 
 						// Remove key for current enemy entity
 					//	controller.Blackboard.RemoveEntry(controller.m_CurrentEnemyOnSight);
+					//	controller.BehaviorTreeComponent.BlackboardInstanceData.RemoveEntry("EntitySeen");
 
 						// Set memory of this entity last position and movement
 					//	controller.BrainComponent.MemoryComponent.AddTrajectoryToMemory(controller.m_EnemyEntityMemoryIdentifier, SeenPosition, LastDirection);

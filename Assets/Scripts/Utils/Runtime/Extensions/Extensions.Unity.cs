@@ -809,13 +809,22 @@ public static class Extensions_Unity
 			System.Type t = InProperty.serializedObject.targetObject.GetType();
 			foreach (string name in InProperty.propertyPath.Split('.'))
 			{
-				FieldInfo fieldInfo = t.GetField(name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-				if (fieldInfo.IsNotNull())
+				for (System.Type currentType = t; currentType != null; currentType = currentType.BaseType)
 				{
-					object[] result = fieldInfo.GetCustomAttributes(typeof(T), bInherit);
-					if (result.IsNotNull() && result.IsValidIndex(0))
+					FieldInfo fieldInfo = currentType.GetField(name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+					if (fieldInfo.IsNotNull())
 					{
-						OutPropAttribute = result[0] as T;
+						object[] result = fieldInfo.GetCustomAttributes(typeof(T), bInherit);
+						if (result.IsNotNull() && result.IsValidIndex(0))
+						{
+							OutPropAttribute = result[0] as T;
+							break;
+						}
+					}
+
+					if (OutPropAttribute.IsNotNull())
+					{
+						break;
 					}
 				}
 			}

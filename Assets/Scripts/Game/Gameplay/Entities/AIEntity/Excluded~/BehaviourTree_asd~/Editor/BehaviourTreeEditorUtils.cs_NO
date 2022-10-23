@@ -1,0 +1,38 @@
+﻿
+namespace Entities.AI.Components.Behaviours
+{
+	using GraphNodeView = UnityEditor.Experimental.GraphView.Node;
+	using GraphPort = UnityEditor.Experimental.GraphView.Port;
+
+	internal static class Extension
+	{
+		public static BehaviourTreeNodeView AsBTNodeView(this GraphNodeView node) => node as BehaviourTreeNodeView;
+		public static IBehaviourTreeNodeEditor AsBTNodeEditor(this GraphNodeView node) => node.AsBTNodeView().node;
+		public static BTNode AsBTNode(this GraphNodeView node) => node.AsBTNodeView().node as BTNode;
+		public static BTNode AsBTNode(this IBehaviourTreeNodeEditor node) => node as BTNode;
+		public static BTNode AsBTNode(this GraphPort port) => (port as BehaviourTreeNodePort).Node;
+		public static System.Type GetTheVeryBaseBTNode<T>(this System.Type InCurrentType, bool bIncludeBase = false)
+			=> GetTheVeryBaseBTNode(InCurrentType, typeof(T), bIncludeBase);
+		public static System.Type GetTheVeryBaseBTNode(this System.Type InCurrentType, System.Type InBaseType, bool bIncludeBase = false)
+		{
+			for (System.Type currentType = InCurrentType; currentType.IsNotNull(); currentType = currentType.BaseType)
+			{
+				if (bIncludeBase)
+				{
+					if (currentType == InBaseType)
+					{
+						return currentType;
+					}
+				}
+				else
+				{
+					if (currentType.BaseType == InBaseType)
+					{
+						return currentType;
+					}
+				}
+			}
+			return null;
+		}
+	}
+}

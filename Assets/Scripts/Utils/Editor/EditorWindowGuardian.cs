@@ -197,36 +197,38 @@ public class EditorWindowGuardian : ScriptableSingleton<EditorWindowGuardian>
 
 		m_FrameCount = k_FrameToWait;
 
-		void OnAfterAssemblyReloadDelayed()
+		EditorApplication.update += OnAfterAssemblyReloadDelayed;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	private void OnAfterAssemblyReloadDelayed()
+	{
+		if (m_FrameCount > 0)
 		{
-			if (m_FrameCount > 0)
+			m_FrameCount--;
+			return;
+		}
+
+		m_IsCompiling = false;
+
+		// No need to update this method, unsubscribe from the application update
+		EditorApplication.update -= OnAfterAssemblyReloadDelayed;
+
+		//////////////////////////////////////////////////////////////////////////////////////
+
+		for (int i = m_WindowsData.Count - 1; i >= 0; i--)
+		{
+			WindowData windowData = m_WindowsData[i];
+
+			if (windowData.IsValid() && TryRetrieveWindowAfterReload(windowData, out GuardedEditorWindowBase editorWindow))
 			{
-				m_FrameCount--;
-				return;
+				windowData.ToWindow(editorWindow);
 			}
-
-			m_IsCompiling = false;
-
-			// No need to update this method, unsubscribe from the application update
-			EditorApplication.update -= OnAfterAssemblyReloadDelayed;
-
-			//////////////////////////////////////////////////////////////////////////////////////
-
-			for (int i = m_WindowsData.Count - 1; i >= 0; i--)
+			else
 			{
-				WindowData windowData = m_WindowsData[i];
-
-				if (windowData.IsValid() && TryRetrieveWindowAfterReload(windowData, out GuardedEditorWindowBase editorWindow))
-				{
-					windowData.ToWindow(editorWindow);
-				}
-				else
-				{
-					m_WindowsData.RemoveAt(i);
-				}
+				m_WindowsData.RemoveAt(i);
 			}
 		}
-		EditorApplication.update += OnAfterAssemblyReloadDelayed;
 	}
 }
 
