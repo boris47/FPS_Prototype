@@ -3,39 +3,37 @@
 
 namespace Entities.AI.Components.Behaviours
 {
-	[BTNodeDetails("MoveTo Action", "Expecting a position to reach order movement to controller")]
-	public class BTTask_MoveTo : BTTaskNode
+	[BTNodeDetails("Indagate Action", "Expecting a position to reach order movement to controller")]
+	public class BTTask_IndagateTargetLost : BTTaskNode
 	{
-		[SerializeReference, ToNodeInspector, BlackboardKeyType(typeof(BBEntry_Position), typeof(BBEntry_Entity))]
+		[SerializeReference, ToNodeInspector, BlackboardKeyType(typeof(BBEntry_SightEvent))]
 		private				BlackboardEntryKey								m_BlackboardKey									= null;
 
 		//////////////////////////////////////////////////////////////////////////
-		protected bool TryGetKeyData(in BTNodeInstanceData InThisNodeInstanceData, out Vector3? targetPosition)
+		protected bool TryGetKeyData(in BTNodeInstanceData InThisNodeInstanceData, out Vector3? targetPosition, out Vector3? targetDirection)
 		{
 			targetPosition = null;
-			if (InThisNodeInstanceData.TryGetEntry(m_BlackboardKey, out BBEntry_Position position))
+			targetDirection = null;
+			if (InThisNodeInstanceData.TryGetEntry(m_BlackboardKey, out BBEntry_SightEvent sightEventEntry))
 			{
-				targetPosition = position.Value;
+				targetPosition = sightEventEntry.Value.SeenPosition;
+				targetDirection = sightEventEntry.Value.LastDirection;
 			}
-			else if (InThisNodeInstanceData.TryGetEntry(m_BlackboardKey, out BBEntry_Entity target))
-			{
-				targetPosition = target.Value.Body.position;
-			}
-			return targetPosition.HasValue;
+			return targetPosition.HasValue && targetDirection.HasValue;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
 		protected override EBTNodeState OnUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
 		{
 			EBTNodeState OutState = EBTNodeState.FAILED;
-			if (TryGetKeyData(InThisNodeInstanceData, out Vector3? targetPosition))
+			if (TryGetKeyData(InThisNodeInstanceData, out Vector3? targetPosition, out Vector3? targetDirection))
 			{
 				InThisNodeInstanceData.BehaviourTreeInstanceData.Controller.RequestMoveTo(targetPosition.Value);
 				OutState = EBTNodeState.RUNNING;
 
 				if (InThisNodeInstanceData.BehaviourTreeInstanceData.Controller.IsCloseEnoughTo(targetPosition.Value))
 				{
-					//OutState = EBTNodeState.SUCCEEDED;
+				//	OutState = EBTNodeState.FAILED; // ??? i have to solve this
 					InThisNodeInstanceData.BehaviourTreeInstanceData.Controller.Stop(bImmediately: false);
 				}
 			}

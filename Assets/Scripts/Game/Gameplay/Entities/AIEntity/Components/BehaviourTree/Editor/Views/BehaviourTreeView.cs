@@ -1,9 +1,9 @@
-using UnityEngine;
-using UnityEngine.UIElements;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
-using System.Linq;
-using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Entities.AI.Components.Behaviours
 {
@@ -49,6 +49,7 @@ namespace Entities.AI.Components.Behaviours
 		public BehaviourTreeNodeInspectorView InspectorView { get; private set; } = null;
 		private IBlackboardView m_BlackboardInterfaceInspectorView = null;
 		public BehaviourTree BehaviourTreeAsset { get; private set; } = null;
+		private BehaviourTreeInstanceData m_BehaviourTreeInstanceData = null;
 
 
 		//////////////////////////////////////////////////////////////////////////
@@ -76,15 +77,9 @@ namespace Entities.AI.Components.Behaviours
 
 			MiniMap miniMap = new MiniMap { anchored = true };
 			{
-				miniMap.SetPosition(new Rect(10f, 30f, 200f, 100f));
+				miniMap.SetPosition(new Rect(10f, 30f, 200f, 200f));
 			}
 			Add(miniMap);
-
-		//	Button button = new Button(SaveSource) { text = "Save source" };
-		//	{
-		//		button.transform.position = new Vector3(0f, 0f);
-		//	}
-		//	Add(button);
 
 			this.AddManipulator(new ContentZoomer());
 			this.AddManipulator(new ContentDragger());
@@ -106,6 +101,7 @@ namespace Entities.AI.Components.Behaviours
 		{
 			EditorWindow = InEditorWindow;
 			BehaviourTreeAsset = InBehaviourTreeAsset;
+			m_BehaviourTreeInstanceData = InBehaviourTreeInstanceData;
 			InspectorView = InInspectorView;
 			
 			viewTransformChanged -= OnGraphViewTransformChanged;
@@ -119,35 +115,60 @@ namespace Entities.AI.Components.Behaviours
 				// Ensure we have a root node
 				BehaviourTree.Editor.EnsureRootNode(InBehaviourTreeAsset);
 
+				bool bIsDirty = BehaviourTree.Editor.RemoveInvalidNodes(InBehaviourTreeAsset);
+
 				m_BlackboardInterfaceInspectorView = InBlackboardInspectorView;
 				m_BlackboardInterfaceInspectorView.UpdateSelection(InBehaviourTreeAsset.BlackboardAsset, InBehaviourTreeInstanceData);
 
 				BTNode[] nodes = BehaviourTree.Editor.GetAllNodes(InBehaviourTreeAsset);
 
 				for (int i = nodes.Length - 1; i >= 0; i--)
-			{
-				BTNode node = nodes[i];
-
-				// Creates node view
-				CreateNodeView(node);
-
-				// Create edges
-				if (node is IParentNode parentNode)
 				{
-					if (Utils.CustomAssertions.IsTrue(TryFindNodeView(node, out NodeViewBase parentView), null, $"Cannot retrieve view for node {parent?.name ?? "Null"}"))
+					BTNode node = nodes[i];
+					if (node.IsNotNull())
 					{
-						foreach (BTNode childNode in parentNode.Children)
+						// Creates node view
+						CreateNodeView(node);
+
+						// Create edges
+						if (node is IParentNode parentNode)
 						{
-							if (Utils.CustomAssertions.IsTrue(TryFindNodeView(childNode, out NodeViewBase childView), null, $"Cannot retrieve view for node {childNode?.name ?? "Null"}"))
+							if (Utils.CustomAssertions.IsTrue(TryFindNodeView(node, out NodeViewBase parentView), null, $"Cannot retrieve view for node {parent?.name ?? "Null"}"))
 							{
-								uint portIndex = BTNode.Editor.GetNodeParentPortIndex(childView.BehaviourTreeNode);
-								AddElement(parentView.ConnectTo(childView, portIndex));
+								IReadOnlyList<BTNode> children = parentNode.Children;
+								for (int ii = children.Count - 1; ii >= 0; --ii)
+								{
+									BTNode childNode = children[ii];
+									if (childNode.IsNotNull())
+									{
+										if (Utils.CustomAssertions.IsTrue(TryFindNodeView(childNode, out NodeViewBase childView), null, $"Cannot retrieve view for node {childNode.name}"))
+										{
+											uint portIndex = BTNode.Editor.GetNodeParentPortIndex(childView.BehaviourTreeNode);
+											AddElement(parentView.ConnectTo(childView, portIndex));
+										}
+									}
+									else
+									{
+										if (parentNode is BTCompositeNode asComposite)
+										{
+											BTCompositeNode.Editor.RemoveInvalidChildAt(asComposite, ii);
+											Debug.LogError($"Removing child node at {ii} of {node.name} because is null");
+											bIsDirty |= true;
+										}
+										else
+										{
+											throw new System.InvalidOperationException($"Impossible to remove child node at {ii} of {node.name} because is null");
+										}
+									}
+								}
 							}
 						}
 					}
 				}
-			}
-
+				if (bIsDirty)
+				{
+					BehaviourTreeEditorUtils.UpdateNodeIndexes(this);
+				}
 
 				// Restore previous view position and scale
 				viewTransform.position = BehaviourTree.Editor.GetEditorGraphPosition(InBehaviourTreeAsset);
@@ -312,13 +333,13 @@ namespace Entities.AI.Components.Behaviours
 		//////////////////////////////////////////////////////////////////////////
 		private void BreakpointCheck(BTNode node)
 		{
-		//	if (node.AsEditorInterface.HasBreakpoint)
-		//	{
-		//		if (Utils.CustomAssertions.IsTrue(TryFindNodeView(node, out NodeViewBase nodeView), $"Cannot retrieve view for node {node?.name ?? "Null"}"))
-		//		{
-		//			EditorApplication.isPaused = true;
-		//		}
-		//	}
+			if (BTNode.Editor.HasBreakpoint(node))
+			{
+				if (Utils.CustomAssertions.IsTrue(TryFindNodeView(node, out NodeViewBase nodeView), $"Cannot retrieve view for node {node.name}"))
+				{
+					EditorApplication.isPaused = true;
+				}
+			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -352,7 +373,18 @@ namespace Entities.AI.Components.Behaviours
 		{
 			if (EditorApplication.isPlaying || EditorApplication.isPaused)
 			{
-				nodes.ForEach(n => n.GetAsBTNodeView().UpdateState());
+				if (m_BehaviourTreeInstanceData.IsNotNull())
+				{
+					foreach (Node graphNode in nodes)
+					{
+						NodeViewBase view = graphNode.GetAsBTNodeView();
+						BTNodeInstanceData nodeInstanceData = System.Array.Find(m_BehaviourTreeInstanceData.NodesInstanceData, n => n.NodeAsset == view.BehaviourTreeNode);
+						if (nodeInstanceData.IsNotNull())
+						{
+							view.UpdateState(nodeInstanceData);
+						}
+					}
+				}
 			}
 		}
 	}

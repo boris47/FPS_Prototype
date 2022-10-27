@@ -107,11 +107,11 @@ namespace Entities.AI.Components.Behaviours
 			RefreshPorts();
 
 			// If input node has breakpoint set, add class
-		//	if (m_BehaviourTreeNode.AsEditorInterface.HasBreakpoint)
-		//	{
-		//		AddToClassList("breakpointActive");
-		//	}
-		//	EditorUtility.SetDirty(m_BehaviourTreeNode);
+			if (BTNode.Editor.HasBreakpoint(m_BehaviourTreeNode))
+			{
+				AddToClassList("breakpointActive");
+			}
+			//EditorUtility.SetDirty(m_BehaviourTreeNode);
 
 			// Immediately get data and update node view
 			UpdateView();
@@ -124,21 +124,19 @@ namespace Entities.AI.Components.Behaviours
 		//////////////////////////////////////////////////////////////////////////
 		public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
 		{
-		//	bool bHasBreakPoint = m_BehaviourTreeNode.AsEditorInterface.HasBreakpoint;
-		//	void ToggleBreakpoint(IBTNodeEditorInterface node)
-		//	{
-		//		node.HasBreakpoint = !bHasBreakPoint;
-		//		if (m_BehaviourTreeNode.AsEditorInterface.HasBreakpoint)
-		//		{
-		//			AddToClassList("breakpointActive");
-		//		}
-		//		else
-		//		{
-		//			RemoveFromClassList("breakpointActive");
-		//		}
-		//	}
-		//
-		//	evt.menu.AppendAction( $"{(bHasBreakPoint ? "Remove" : "Set")} Breakpoint", _ => ToggleBreakpoint(m_BehaviourTreeNode.AsEditorInterface));
+			void ToggleBreakpoint(BTNode node)
+			{
+				if (BTNode.Editor.SetBreakpoint(node, !BTNode.Editor.HasBreakpoint(node)))
+				{
+					AddToClassList("breakpointActive");
+				}
+				else
+				{
+					RemoveFromClassList("breakpointActive");
+				}
+			}
+		
+			evt.menu.AppendAction( $"{(BTNode.Editor.HasBreakpoint(m_BehaviourTreeNode) ? "Remove" : "Set")} Breakpoint", _ => ToggleBreakpoint(m_BehaviourTreeNode));
 			evt.menu.AppendSeparator();
 			evt.menu.AppendAction("Edit Script", _ => AssetDatabase.OpenAsset(MonoScript.FromScriptableObject(m_BehaviourTreeNode)));
 			evt.menu.AppendSeparator();
@@ -240,53 +238,53 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public void UpdateState()
+		public void UpdateState(in BTNodeInstanceData InNodeInstanceData)
 		{
-		//	const string inactiveState = "inactive";
-		//	const string succeededState = "succeeded";
-		//	const string failedState = "failed";
-		//	const string runningState = "running";
-		//
-		//	RemoveFromClassList(inactiveState);
-		//	RemoveFromClassList(succeededState);
-		//	RemoveFromClassList(failedState);
-		//	RemoveFromClassList(runningState);
-		//
-		//	if (EditorApplication.isPlaying || EditorApplication.isPaused)
-		//	{
-		//		switch (m_BehaviourTreeNode.NodeState)
-		//		{
-		//			case EBTNodeState.INACTIVE:
-		//			{
-		//				AddToClassList(inactiveState);
-		//				break;
-		//			}
-		//			case EBTNodeState.SUCCEEDED:
-		//			{
-		//				AddToClassList(succeededState);
-		//				break;
-		//			}
-		//			case EBTNodeState.FAILED:
-		//			{
-		//				AddToClassList(failedState);
-		//				break;
-		//			}
-		//			case EBTNodeState.RUNNING:
-		//			{
-		//				AddToClassList(runningState);
-		//				break;
-		//			}
-		//		}
-		//
-		//		if (m_BehaviourTreeNode.AsEditorInterface.HasBreakpoint)
-		//		{
-		//			AddToClassList("breakpointActive");
-		//		}
-		//		else
-		//		{
-		//			RemoveFromClassList("breakpointActive");
-		//		}
-		//	}
+			const string inactiveState = "inactive";
+			const string succeededState = "succeeded";
+			const string failedState = "failed";
+			const string runningState = "running";
+		
+			RemoveFromClassList(inactiveState);
+			RemoveFromClassList(succeededState);
+			RemoveFromClassList(failedState);
+			RemoveFromClassList(runningState);
+		
+			if (EditorApplication.isPlaying || EditorApplication.isPaused)
+			{
+				switch (InNodeInstanceData.NodeState)
+				{
+					case EBTNodeState.INACTIVE:
+					{
+						AddToClassList(inactiveState);
+						break;
+					}
+					case EBTNodeState.SUCCEEDED:
+					{
+						AddToClassList(succeededState);
+						break;
+					}
+					case EBTNodeState.FAILED:
+					{
+						AddToClassList(failedState);
+						break;
+					}
+					case EBTNodeState.RUNNING:
+					{
+						AddToClassList(runningState);
+						break;
+					}
+				}
+		
+				if (BTNode.Editor.HasBreakpoint(InNodeInstanceData.NodeAsset))
+				{
+					AddToClassList("breakpointActive");
+				}
+				else
+				{
+					RemoveFromClassList("breakpointActive");
+				}
+			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -304,7 +302,8 @@ namespace Entities.AI.Components.Behaviours
 				case BTCompositeNode _: ctorType = typeof(CompositeNodeView); break;
 				case BTDecoratorNode _: ctorType = typeof(DecoratorNodeView); break;
 			}
-			if (Utils.CustomAssertions.IsNotNull(ctorType, $"Cannot create view for node of type {InNode.GetType().Name??"null"}"))
+			string name = InNode.IsNotNull() ? InNode.GetType().Name : "NULL";
+			if (Utils.CustomAssertions.IsNotNull(ctorType, $"Cannot create view for node of type {name}"))
 			{
 				object[] args = new object[] { InNode, InBehaviourTreeView, InEdgeConnectorListener };
 				return (NodeViewBase)System.Activator.CreateInstance(ctorType, args);
@@ -379,17 +378,17 @@ namespace Entities.AI.Components.Behaviours
 				{
 					if (!entries.Exists(i => i.name == name && i.level == level))
 					{
-						entries.Add(new SearchTreeGroupEntry(new GUIContent(name), level));
+						entries.Add(new SearchTreeGroupEntry(new GUIContent(name, EditorGUIUtility.Load("Animation.Play") as Texture), level));
 					}
 				}
 				else
 				{
-					entries.Add(new SearchTreeEntry(new GUIContent(name)) { level = level, userData = mapItem.ThisType });
+					entries.Add(new SearchTreeEntry(new GUIContent(name, EditorGUIUtility.Load("sv_icon_dot0_pix16_gizmo") as Texture)) { level = level, userData = mapItem.ThisType });
 					
 					// Derived of concrete types
 					if (mapItem.Children.Count > 0)
 					{
-						entries.Add(new SearchTreeGroupEntry(new GUIContent(name), level));
+						entries.Add(new SearchTreeGroupEntry(new GUIContent(name, EditorGUIUtility.Load("Animation.Play") as Texture), level));
 					}
 				}
 

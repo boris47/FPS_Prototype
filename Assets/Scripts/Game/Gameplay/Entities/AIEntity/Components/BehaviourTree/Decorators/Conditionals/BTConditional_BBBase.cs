@@ -6,31 +6,28 @@ namespace Entities.AI.Components.Behaviours
 	[BTNodeDetails("Conditional by Blackboard key", "If a child is assigned verify if condition is satisfied before activate it")]
 	public abstract class BTConditional_BBBase : BTConditional
 	{
-		[SerializeReference, ToNodeInspector]
-		private				BlackboardEntryKey								m_BlackboardKey									= null;
-
 		[SerializeField, ToNodeInspector]
 		[Tooltip("On value changed (from value to value (not default one)), if guard is set, abort running child, reset and restart it")]
 		private				bool											m_ResetOnChange									= true;
 
-		protected			BlackboardEntryKey								BlackboardKey									=> m_BlackboardKey;
+		protected abstract	BlackboardEntryKey								BlackboardKey									{ get; }
 
 
 		//////////////////////////////////////////////////////////////////////////
 		protected override void StartObserve(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			if (m_BlackboardKey.IsValid() && m_AbortType != EAbortType.None)
+			if (BlackboardKey.IsValid() && m_AbortType != EAbortType.None)
 			{
-				InThisNodeInstanceData.AddObserver(m_BlackboardKey, ConditionalAbort);
+				InThisNodeInstanceData.AddObserver(BlackboardKey, ConditionalAbort);
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
 		protected override void StopObserve(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			if (m_BlackboardKey.IsValid())
+			if (BlackboardKey.IsValid())
 			{
-				InThisNodeInstanceData.RemoveObserver(m_BlackboardKey, ConditionalAbort);
+				InThisNodeInstanceData.RemoveObserver(BlackboardKey, ConditionalAbort);
 			}
 		}
 
@@ -58,7 +55,8 @@ namespace Entities.AI.Components.Behaviours
 						{
 							BTNodeInstanceData childInstanceData = GetChildInstanceData(thisNodeInstanceData, Child);
 							Child.AbortAndResetNode(childInstanceData);
-							BehaviourTreeAsset.SetRunningNode(childInstanceData);
+
+							childInstanceData.BehaviourTreeInstanceData.SetRunningNode(childInstanceData);
 						}
 					}
 				}

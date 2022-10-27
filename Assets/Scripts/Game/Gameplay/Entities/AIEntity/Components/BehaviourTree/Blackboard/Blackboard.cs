@@ -135,19 +135,21 @@ namespace Entities.AI.Components
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary> If entry doesn't exist a new one is created and the new value set </summary>
-		public BlackboardEntryBase SetEntryValue<T, V>(in BlackboardInstanceData InBlackboardInstanceData, in BlackboardEntryKey InBlackboardKey, in V InNewValue) where T : BlackboardEntryKeyValue<V>, new()
+		public void SetEntryValue<T, V>(in BlackboardInstanceData InBlackboardInstanceData, in BlackboardEntryKey InBlackboardKey, in V InNewValue) where T : BlackboardEntryKeyValue<V>, new()
 		{
-			T entry = GetOrCreateEntry<T>(InBlackboardInstanceData, InBlackboardKey);
+			if (InBlackboardKey.IsValid())
 			{
-				entry.SetValue(InNewValue);
+				T entry = GetOrCreateEntry<T>(InBlackboardInstanceData, InBlackboardKey);
+				{
+					entry.SetValue(InNewValue);
+				}
 			}
-			return entry;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
 		public void RemoveEntry(in BlackboardInstanceData InBlackboardInstanceData, BlackboardEntryKey InBlackboardKey)
 		{
-			if (InBlackboardInstanceData.TryGetIndexOfEntry(InBlackboardKey, out int index))
+			if (InBlackboardKey.IsValid() && InBlackboardInstanceData.TryGetIndexOfEntry(InBlackboardKey, out int index))
 			{
 				List<int> toRemove = new List<int>();
 
@@ -176,7 +178,7 @@ namespace Entities.AI.Components
 		//////////////////////////////////////////////////////////////////////////
 		public void AddObserver(in BlackboardInstanceData InBlackboardInstanceData, in BlackboardEntryKey InBlackboardKey, in BlackboardEntryBase.OnChangeDel InObserverDelegate)
 		{
-			EnsureDelegateListForBlackboardKey(InBlackboardInstanceData, InBlackboardKey)?.Add(InObserverDelegate);
+			EnsureDelegateListForBlackboardKey(InBlackboardInstanceData, InBlackboardKey).AddUnique(InObserverDelegate);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -229,6 +231,26 @@ namespace Entities.AI.Components
 			public static bool HasKey(in Blackboard InBlackboard, BlackboardEntryKey InBlackboardKey)
 			{
 				return InBlackboard.m_Keys.Exists(BBKey => BBKey.Key == InBlackboardKey);
+			}
+
+			//////////////////////////////////////////////////////////////////////////
+			public static void RenameKey(in BlackboardKeySpecifier InKeySpecifier, in string InNewName)
+			{
+				BlackboardKeySpecifier.Editor.Rename(InKeySpecifier, InNewName);
+				OnKeysModified();
+			}
+
+			//////////////////////////////////////////////////////////////////////////
+			public static void ChangeTypeForKey(in BlackboardKeySpecifier InKeySpecifier, in System.Type InNewType)
+			{
+				BlackboardKeySpecifier.Editor.SetType(InKeySpecifier, InNewType);
+				OnKeysModified();
+			}
+
+			//////////////////////////////////////////////////////////////////////////
+			public static bool TryGetKey(in Blackboard InBlackboard, BlackboardEntryKey InBlackboardKey, out BlackboardKeySpecifier OutSpecifier)
+			{
+				return InBlackboard.m_Keys.TryFind(out OutSpecifier, out int _, keySpecifier => keySpecifier.Key == InBlackboardKey);
 			}
 
 			//////////////////////////////////////////////////////////////////////////

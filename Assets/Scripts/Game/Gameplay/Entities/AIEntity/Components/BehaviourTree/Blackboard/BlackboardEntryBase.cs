@@ -77,7 +77,11 @@ namespace Entities.AI
 
 			//////////////////////////////////////////////////////////////////////////
 			public static System.Type[] GetEntryValueTypes() => s_EntryValueTypes.ToArray();
+
+			public static void OnGUILayoutValue(in BlackboardEntryBase InEntry) => InEntry.OnGUIlayout();
 		}
+
+		protected abstract void OnGUIlayout();
 #endif
 	}
 }

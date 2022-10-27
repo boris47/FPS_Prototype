@@ -102,6 +102,7 @@ namespace Entities.AI.Components.Behaviours
 						
 						splitVerticalView.orientation = TwoPaneSplitViewOrientation.Vertical;
 						splitVerticalView.fixedPaneInitialDimension = 200f;
+						splitVerticalView.fixedPaneIndex = 0;
 					}
 					leftElement.Add(splitVerticalView);
 				}
@@ -184,6 +185,8 @@ namespace Entities.AI.Components.Behaviours
 		{
 			await System.Threading.Tasks.Task.Delay(200);
 			CreateGUI();
+			await System.Threading.Tasks.Task.Delay(1);
+			OnSelectionChange();
 		}
 
 		//////////////////////////////////////////////////////////////////////////

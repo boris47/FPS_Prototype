@@ -15,7 +15,7 @@ namespace Entities.AI.Components.Behaviours
 		//---------------------
 		public			BTNode			Child					=> m_Child;
 
-		public			List<BTNode> Children
+		IReadOnlyList<BTNode>					IParentNode.Children
 		{
 			get
 			{

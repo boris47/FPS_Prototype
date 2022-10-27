@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Entities.AI.Components.Behaviours
@@ -20,7 +19,8 @@ namespace Entities.AI.Components.Behaviours
 		protected				bool						m_MustRepeat						= false;
 
 		//---------------------
-		public					List<BTNode>				Children							=> m_Children;
+		public IReadOnlyList<BTNode>						Children							=> m_Children;
+
 		protected virtual		int							MinimumChildrenCount				=> 0;
 
 		//////////////////////////////////////////////////////////////////////////
@@ -32,18 +32,26 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
+		public int IndexOf(in BTNode InNode) => m_Children.IndexOf(InNode);
+
+		//////////////////////////////////////////////////////////////////////////
 		protected override RuntimeDataBase CreateRuntimeDataInstance(in BTNodeInstanceData InThisNodeInstanceData) => new RuntimeData();
 
 		//////////////////////////////////////////////////////////////////////////
 		protected override EBTNodeState OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			EBTNodeState OutResult = EBTNodeState.RUNNING;
+			EBTNodeState OutState = EBTNodeState.RUNNING;
 
 			RuntimeData nodeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
 			
 			nodeData.CurrentIndex = 0u;
 
-			return OutResult;
+			if (m_Children.Count == 0)
+			{
+				OutState = EBTNodeState.SUCCEEDED;
+			}
+
+			return OutState;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -53,9 +61,13 @@ namespace Entities.AI.Components.Behaviours
 
 			RuntimeData nodeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
 
-			BTNode child = m_Children.At(nodeData.CurrentIndex);
-			BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, child);
-			m_Children.At(nodeData.CurrentIndex).AbortAndResetNode(childInstanceData);
+			if (m_Children.IsValidIndex(nodeData.CurrentIndex))
+			{
+				BTNode child = m_Children.At(nodeData.CurrentIndex);
+				BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, child);
+				child.AbortAndResetNode(childInstanceData);
+			}
+
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -70,7 +82,7 @@ namespace Entities.AI.Components.Behaviours
 			{
 				BTNode child = m_Children.At(i);
 				BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, child);
-				m_Children.At(i).ResetNode(childInstanceData);
+				child.ResetNode(childInstanceData);
 			}
 		}
 	}
@@ -101,9 +113,24 @@ namespace Entities.AI.Components.Behaviours
 			}
 
 			//////////////////////////////////////////////////////////////////////////
+			public static void SetChild(in BTCompositeNode InCompositeNode, in BTNode InChildNode, in uint InIndex)
+			{
+				if (InCompositeNode.m_Children.IsValidIndex(InIndex))
+				{
+					InCompositeNode.m_Children[(int)InIndex] = InChildNode;
+				}
+			}
+
+			//////////////////////////////////////////////////////////////////////////
 			public static void RemoveChild(in BTCompositeNode InCompositeNode, in BTNode InChildNode)
 			{
 				InCompositeNode.m_Children.Remove(InChildNode);
+			}
+
+			//////////////////////////////////////////////////////////////////////////
+			public static void RemoveInvalidChildAt(in BTCompositeNode InCompositeNode, in int InIndex)
+			{
+				InCompositeNode.m_Children.RemoveAt(InIndex);
 			}
 
 			//////////////////////////////////////////////////////////////////////////

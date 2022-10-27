@@ -51,6 +51,12 @@ namespace Entities.AI
 			}
 
 			//////////////////////////////////////////////////////////////////////////
+			public static void Rename(in BlackboardKeySpecifier InBlackboardKeySpecifier, in string InNewName)
+			{
+				InBlackboardKeySpecifier.m_Key = InNewName;
+			}
+
+			//////////////////////////////////////////////////////////////////////////
 			public static void SetType(in BlackboardKeySpecifier InBlackboardKeySpecifier, in System.Type InNewType)
 			{
 				InBlackboardKeySpecifier.m_TypeIdentifier = new Utils.TypeIdentifier(InNewType);

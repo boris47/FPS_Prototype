@@ -33,7 +33,6 @@ namespace Entities.AI.Components.Behaviours
 		public BehaviourTree							BehaviourTreeAsset				=> m_BehaviourTreeAsset;
 		public uint										NodeIndex						=> m_NodeIndex;
 		public BTNode									ParentAsset						=> m_ParentAsset;
-		protected BTNode								ThisNodeAsset					=> this;
 
 
 		//////////////////////////////////////////////////////////////////////////
@@ -42,12 +41,12 @@ namespace Entities.AI.Components.Behaviours
 
 
 		//////////////////////////////////////////////////////////////////////////
-		public static BTNodeInstanceData CreateInstanceData(in BTNode InNodeAsset, in uint InCurrentIndex, in BehaviourTreeInstanceData InTreeInstanceData, in BTNodeInstanceData[] InNodesInstancesData, in RuntimeDataBase[] InNodesRuntimeData, in BTNodeInstanceData InParentInstance = null)
+		public static BTNodeInstanceData CreateInstanceData(in BTNode InNodeAsset, in uint InCurrentIndex, in BehaviourTreeInstanceData InTreeInstanceData, in BlackboardInstanceData InBlackboardInstanceData, in BTNodeInstanceData[] InNodesInstancesData, in RuntimeDataBase[] InNodesRuntimeData, in BTNodeInstanceData InParentInstance = null)
 		{
 			BTNode nodeInstance = ScriptableObject.CreateInstance(InNodeAsset.GetType()) as BTNode;
 			nodeInstance.m_NodeIndex = InCurrentIndex;
 
-			BTNodeInstanceData nodeInstanceData = new BTNodeInstanceData(InTreeInstanceData, InNodeAsset, nodeInstance, InParentInstance);
+			BTNodeInstanceData nodeInstanceData = new BTNodeInstanceData(InTreeInstanceData, InBlackboardInstanceData, InNodeAsset, nodeInstance, InParentInstance);
 			InNodesInstancesData[InCurrentIndex] = nodeInstanceData;
 			InNodesRuntimeData[InCurrentIndex] = InNodeAsset.CreateRuntimeDataInstance(nodeInstanceData);
 
@@ -192,11 +191,16 @@ namespace Entities.AI.Components.Behaviours
 		[SerializeField, HideInInspector]
 		private uint m_ParentPortIndex = 0u;
 
+		[SerializeField, HideInInspector]
+		private bool m_HasBreakpoint = false;
+
 		public static class Editor
 		{
 			public static string GetGuid(in BTNode InNode) => InNode.m_Guid;
 			public static Vector2 GetEditorGraphPosition(in BTNode InNode) => InNode.m_EditorGraphPositionPosition;
 			public static void SetEditorGraphPosition(in BTNode InNode, in Vector2 InNewPosition) => InNode.m_EditorGraphPositionPosition = InNewPosition;
+			public static bool HasBreakpoint(in BTNode InNode) => InNode.m_HasBreakpoint;
+			public static bool SetBreakpoint(in BTNode InNode, in bool InEnabled) => InNode.m_HasBreakpoint = InEnabled;
 			public static uint GetNodeIndex(in BTNode InNode) => InNode.m_NodeIndex;
 			public static void SetNodeIndex(in BTNode InNode, in uint InNewNodeIndex) => InNode.m_NodeIndex = InNewNodeIndex;
 			public static uint GetNodeParentPortIndex(in BTNode InNode) => InNode.m_ParentPortIndex;

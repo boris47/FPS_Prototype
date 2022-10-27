@@ -45,21 +45,16 @@ namespace Entities.AI.Components.Behaviours
 		//////////////////////////////////////////////////////////////////////////
 		public static BehaviourTreeInstanceData CreateInstanceFrom(in BehaviourTree InBehaviourTreeAsset, in AIController InController)
 		{
-			static void IterateTree(in BTNode nodeAsset,
-				ref uint InCurrentNodeIndex,
-				BehaviourTreeInstanceData treeInstanceData,
-				in BTNodeInstanceData[] nodesInstancesData,
-				in RuntimeDataBase[] nodesRuntimeData,
-				in BTNodeInstanceData parentNodeInstanceData)
+			static void IterateTree(in BTNode nodeAsset, ref uint InCurrentNodeIndex, in BehaviourTreeInstanceData treeInstanceData, in BlackboardInstanceData InBlackboardInstanceData, in BTNodeInstanceData[] nodesInstancesData, in RuntimeDataBase[] nodesRuntimeData, in BTNodeInstanceData parentNodeInstanceData)
 			{
-				var nodeInstanceData = BTNode.CreateInstanceData(nodeAsset, InCurrentNodeIndex, treeInstanceData, nodesInstancesData, nodesRuntimeData, parentNodeInstanceData);
+				var nodeInstanceData = BTNode.CreateInstanceData(nodeAsset, InCurrentNodeIndex, treeInstanceData, InBlackboardInstanceData, nodesInstancesData, nodesRuntimeData, parentNodeInstanceData);
 				++InCurrentNodeIndex;
 
 				if (nodeAsset is IParentNode asParentNode)
 				{
 					foreach (BTNode child in asParentNode.Children)
 					{
-						IterateTree(child, ref InCurrentNodeIndex, treeInstanceData, nodesInstancesData, nodesRuntimeData, nodeInstanceData);
+						IterateTree(child, ref InCurrentNodeIndex, treeInstanceData, InBlackboardInstanceData, nodesInstancesData, nodesRuntimeData, nodeInstanceData);
 					}
 				}
 			}
@@ -79,11 +74,11 @@ namespace Entities.AI.Components.Behaviours
 			}
 
 			//Create tree instance data
-			BehaviourTreeInstanceData treeInstanceData = new BehaviourTreeInstanceData(InBehaviourTreeAsset, newTreeInstance, InController, nodesInstancesData, nodesRuntimeData);
+			BehaviourTreeInstanceData treeInstanceData = new BehaviourTreeInstanceData(InBehaviourTreeAsset, newTreeInstance, InController, nodesInstancesData, nodesRuntimeData, out BlackboardInstanceData OutBlackboardInstanceData);
 
 			// Create and collect instances data and runtime data
-			uint currentIndex = 0u;
-			IterateTree(InBehaviourTreeAsset.RootNode, ref currentIndex, treeInstanceData, nodesInstancesData, nodesRuntimeData, null);
+			uint reachedNodeIndex = 0u;
+			IterateTree(InBehaviourTreeAsset.RootNode, ref reachedNodeIndex, treeInstanceData, OutBlackboardInstanceData, nodesInstancesData, nodesRuntimeData, null);
 
 			// Finally create tree instance data and store in global tree instances list
 			return s_TreeInstances.AddRef(treeInstanceData);
@@ -167,12 +162,13 @@ namespace Entities.AI.Components.Behaviours
 					{
 						uint requiringNodeIndex = InTreeInstanceData.CandidateForAbort.Candidate.NodeInstance.NodeIndex;
 						uint currentRunningNodeIndex = InTreeInstanceData.CurrentRunningNode.NodeInstance.NodeIndex;
-						for (uint i = currentRunningNodeIndex; i < requiringNodeIndex; ++i)
+						for (uint i = currentRunningNodeIndex; i > requiringNodeIndex; --i)
 						{
 							BTNodeInstanceData nodeInstanceData = InTreeInstanceData.NodesInstanceData[i];
 							nodeInstanceData.NodeAsset.AbortAndResetNode(nodeInstanceData);
 						}
 						InTreeInstanceData.CandidateForAbort.AcceptRequest();
+						InTreeInstanceData.RemoveCandidateForAbort();
 					}
 
 					BTNode nodeAsset = InTreeInstanceData.CurrentRunningNode.NodeAsset;
@@ -225,11 +221,11 @@ namespace Entities.AI.Components.Behaviours
 			InTreeInstanceData.SetRunningNode(null);
 			InTreeInstanceData.SetRunningNodeLocked(false);
 		}
-
+		/*
 		//////////////////////////////////////////////////////////////////////////
-		public void LockRunningNode(in BehaviourTreeInstanceData InTreeInstanceData, in BTNode InRequester)
+		public void LockRunningNode(in BehaviourTreeInstanceData InTreeInstanceData, in BTNodeInstanceData InRequester)
 		{
-			if (Utils.CustomAssertions.IsTrue(InRequester == InTreeInstanceData.CurrentRunningNode.NodeAsset))
+			if (Utils.CustomAssertions.IsTrue(InRequester == InTreeInstanceData.CurrentRunningNode))
 			{
 				InTreeInstanceData.SetRunningNodeLocked(true);
 			}
@@ -237,20 +233,21 @@ namespace Entities.AI.Components.Behaviours
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Only callable if called from current running node </summary>
-		public void UnLockRunningNode(in BehaviourTreeInstanceData InTreeInstanceData, in BTNodeInstanceData InRequester)
+		public void UnLockRunningNode(in BTNodeInstanceData InRequester)
 		{
-			if (Utils.CustomAssertions.IsTrue(InRequester == InTreeInstanceData.CurrentRunningNode))
+			BehaviourTreeInstanceData treeInstanceData = InRequester.BehaviourTreeInstanceData;
+			if (Utils.CustomAssertions.IsTrue(InRequester == treeInstanceData.CurrentRunningNode))
 			{
-				InTreeInstanceData.SetRunningNodeLocked(false);
+				treeInstanceData.SetRunningNodeLocked(false);
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
 		public void SetRunningNode(in BTNodeInstanceData InNode)
 		{
-			if (!InNode.BehaviourTreeInstanceData.IsRunningNodeLocked)
+			if (Utils.CustomAssertions.IsNotNull(InNode) && !InNode.BehaviourTreeInstanceData.IsRunningNodeLocked)
 			{
-				if (InNode.IsNotNull() && InNode.ParentInstanceData.IsNotNull() && InNode.ParentInstanceData.NodeState != EBTNodeState.RUNNING)
+				if (InNode.ParentInstanceData.IsNotNull() && InNode.ParentInstanceData.NodeState != EBTNodeState.RUNNING)
 				{
 					Utils.CustomAssertions.IsTrue(false, this, $"Trying to set {InNode.NodeInstance.NodeIndex} node as active when parent {InNode.ParentInstanceData.NodeInstance.NodeIndex} is not running");
 					return;
@@ -258,7 +255,7 @@ namespace Entities.AI.Components.Behaviours
 				InNode.BehaviourTreeInstanceData.SetRunningNode(InNode);
 			}
 		}
-
+		*/
 		//////////////////////////////////////////////////////////////////////////
 		public void RequestExecution(in BTNodeInstanceData InRequestedBy, in System.Action<BTNodeInstanceData> InOnRequestAccepted)
 		{
@@ -317,8 +314,8 @@ namespace Entities.AI.Components.Behaviours
 #if UNITY_EDITOR
 namespace Entities.AI.Components.Behaviours
 {
-	using UnityEngine;
 	using UnityEditor;
+	using UnityEngine;
 	// Editor
 	[CreateAssetMenu()]
 	public partial class BehaviourTree
@@ -400,6 +397,22 @@ namespace Entities.AI.Components.Behaviours
 					InBehaviourTreeAsset.m_RootNode = (BTRootNode)CreateNodeAsset(InBehaviourTreeAsset, typeof(BTRootNode), "Root Node");
 				}
 				return InBehaviourTreeAsset.m_RootNode;
+			}
+
+			//////////////////////////////////////////////////////////////////////////
+			public static bool RemoveInvalidNodes(in BehaviourTree InBehaviourTreeAsset)
+			{
+				bool bOutResult = false;
+				var nodes = InBehaviourTreeAsset.m_Nodes;
+				for (int i = nodes.Count  - 1; i >= 0; i--)
+				{
+					if (!nodes[i].IsNotNull())
+					{
+						InBehaviourTreeAsset.m_Nodes.RemoveAt(i);
+						bOutResult = true;
+					}
+				}
+				return bOutResult;
 			}
 
 			//////////////////////////////////////////////////////////////////////////

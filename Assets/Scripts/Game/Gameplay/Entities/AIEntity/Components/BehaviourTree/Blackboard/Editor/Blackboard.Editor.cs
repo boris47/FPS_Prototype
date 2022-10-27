@@ -6,15 +6,17 @@ namespace Entities.AI.Components
 	using UnityEditor;
 	using UnityEditorInternal;
 
-	[CustomEditor(typeof(Blackboard))]
 	public class BlackboardEditor : Editor
 	{
+		private static GUIStyle LeftAllighmentStyle = null;
 		private static string[] kSupportedValuesTypeNames = null;
 		private static System.Type[] kEntryValueTypes = null;
 
 		private Blackboard m_Blackboard = null;
 		private SerializedProperty m_KeyList = null;
 		private ReorderableList m_ReorderableKeysList = null;
+
+		protected virtual bool bIsReadonly { get; } = false;
 
 
 		//////////////////////////////////////////////////////////////////////////
@@ -37,10 +39,11 @@ namespace Entities.AI.Components
 
 			if (Utils.CustomAssertions.IsNotNull(m_KeyList))
 			{
-				m_ReorderableKeysList = new ReorderableList(serializedObject, elements: m_KeyList, draggable: false, displayHeader: false, displayAddButton: false, displayRemoveButton: false)
+				m_ReorderableKeysList = new ReorderableList(serializedObject, elements: m_KeyList, draggable: false, displayHeader: true, displayAddButton: false, displayRemoveButton: false)
 				{
 					elementHeightCallback = _ => EditorGUIUtility.singleLineHeight,
 					drawElementCallback = KeyList_DrawElement,
+					drawHeaderCallback = KeyList_DrawHeader,
 					multiSelect = true
 				};
 			}
@@ -106,34 +109,107 @@ namespace Entities.AI.Components
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		private void KeyList_DrawElement(Rect rect, int index, bool isActive, bool isFocused)
+		private void KeyList_OnRenameCallback()
 		{
-			Rect[] areas = SplitHorizontally(rect, 50f, 50f);
-			KeyList_DrawKey(areas[0], index);
-			KeyList_DrawValue(areas[1], index);
-		}
-
-		private static int legth = uint.MaxValue.ToString().Length;
-
-		//////////////////////////////////////////////////////////////////////////
-		private void KeyList_DrawKey(Rect rect, int index)
-		{
-			if (Blackboard.Editor.TryGetKeyAt(m_Blackboard, index, out BlackboardKeySpecifier specifier))
+			int selectedIndex = m_ReorderableKeysList.selectedIndices[0];
+			if (Blackboard.Editor.TryGetKeyAt(m_Blackboard, selectedIndex, out BlackboardKeySpecifier specifier))
 			{
-				BlackboardEntryKey entryKey = specifier.Key;
-				string paddedUniqueId = entryKey.UniqueId.ToString().PadLeft(legth, ' ');
-				EditorGUI.LabelField(rect, string.IsNullOrEmpty(entryKey) ? "N/A" : $"({paddedUniqueId}) {entryKey.Name}");
+				bool TryAcceptValue(string InValue)
+				{
+					if (string.IsNullOrEmpty(InValue))
+					{
+						EditorUtility.DisplayDialog("Invalid value", $"Key name accepts only a non zero length string", "OK");
+						return false;
+					}
+
+					if (Blackboard.Editor.HasKey(m_Blackboard, InValue))
+					{
+						EditorUtility.DisplayDialog("Already exists", $"Key {InValue} already defined in blackboard", "OK");
+						return false;
+					}
+
+					Blackboard.Editor.RenameKey(specifier, InValue);
+					return true;
+				}
+
+				EditorUtils.InputValueWindow.OpenStringInput(TryAcceptValue, null);
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		private void KeyList_DrawValue(Rect rect, int index)
+		private void KeyList_OnChangeTypeCallback()
 		{
-			if (Blackboard.Editor.TryGetKeyAt(m_Blackboard, index, out BlackboardKeySpecifier specifier))
+			int selectedIndex = m_ReorderableKeysList.selectedIndices[0];
+			if (Blackboard.Editor.TryGetKeyAt(m_Blackboard, selectedIndex, out BlackboardKeySpecifier specifier))
 			{
-				System.Type specifierType = specifier.Type;
-				EditorGUI.LabelField(rect, specifierType.Name);
+				bool TryAcceptOption(string InValue)
+				{
+					System.Type type = kEntryValueTypes.FirstOrDefault(t => t.Name == InValue);
+					if (Utils.CustomAssertions.IsNotNull(type))
+					{
+						using (new Utils.Editor.MarkAsDirty(m_Blackboard))
+						{
+							Blackboard.Editor.ChangeTypeForKey(specifier, type);
+						}
+					}
+					return true;
+				}
+
+				EditorUtils.InputValueWindow.OpenDropdown(TryAcceptOption, null, kSupportedValuesTypeNames);
 			}
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		private void KeyList_DrawHeader(Rect InRect)
+		{
+			if (LeftAllighmentStyle == null)
+			{
+				LeftAllighmentStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleRight };
+			}
+
+			Rect[] areas = SplitHorizontally(InRect, 30f, 43f, 27f);
+			EditorGUI.LabelField(areas[0], "Unique ID");
+			EditorGUI.LabelField(areas[1], "Name");
+			EditorGUI.LabelField(areas[2], "Value Type", LeftAllighmentStyle);
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		private void KeyList_DrawElement(Rect InRect, int InIndex, bool isActive, bool isFocused)
+		{
+			if (LeftAllighmentStyle == null)
+			{
+				LeftAllighmentStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleRight };
+			}
+
+			if (Blackboard.Editor.TryGetKeyAt(m_Blackboard, InIndex, out BlackboardKeySpecifier specifier))
+			{
+				Rect[] areas = SplitHorizontally(InRect, 30f, 33f, 37f);
+				KeyList_DrawKeyId(areas[0], specifier);
+				KeyList_DrawKeyName(areas[1], specifier);
+				KeyList_DrawValue(areas[2], specifier);
+			}
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		private void KeyList_DrawKeyId(in Rect InRect, in BlackboardKeySpecifier InSpecifier)
+		{
+			BlackboardEntryKey entryKey = InSpecifier.Key;
+			EditorGUI.LabelField(InRect, $"({entryKey.UniqueId})");
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		private void KeyList_DrawKeyName(in Rect InRect, in BlackboardKeySpecifier InSpecifier)
+		{
+			BlackboardEntryKey entryKey = InSpecifier.Key;
+			EditorGUI.LabelField(InRect, entryKey.Name);
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		
+		private void KeyList_DrawValue(in Rect InRect, in BlackboardKeySpecifier InSpecifier)
+		{
+			System.Type specifierType = InSpecifier.Type;
+			EditorGUI.LabelField(InRect, specifierType.Name, LeftAllighmentStyle);
 		}
 
 		#endregion
@@ -143,15 +219,26 @@ namespace Entities.AI.Components
 		{
 			if (m_ReorderableKeysList.IsNotNull())
 			{
-				using (new EditorGUILayout.HorizontalScope())
+				if (!bIsReadonly)
 				{
-					if (GUILayout.Button("Add key"))
+					using (new EditorGUILayout.HorizontalScope())
 					{
-						KeyList_OnAddDropdownCallback();
-					}
-					if (m_ReorderableKeysList.selectedIndices.Count > 0 && GUILayout.Button("Remove Selected"))
-					{
-						KeyList_OnRemoveCallback();
+						if (GUILayout.Button("Add key"))
+						{
+							KeyList_OnAddDropdownCallback();
+						}
+						if (m_ReorderableKeysList.selectedIndices.Count > 0 && GUILayout.Button("Remove Selected"))
+						{
+							KeyList_OnRemoveCallback();
+						}
+						if (m_ReorderableKeysList.selectedIndices.Count > 0 && GUILayout.Button("Rename"))
+						{
+							KeyList_OnRenameCallback();
+						}
+						if (m_ReorderableKeysList.selectedIndices.Count > 0 && GUILayout.Button("Change Type"))
+						{
+							KeyList_OnChangeTypeCallback();
+						}
 					}
 				}
 
@@ -183,5 +270,11 @@ namespace Entities.AI.Components
 			}
 			return OutRects;
 		}
+	}
+
+	[CustomEditor(typeof(Blackboard))]
+	public class BlackboardEditorReadOnly : BlackboardEditor
+	{
+		protected override bool bIsReadonly => true;
 	}
 }

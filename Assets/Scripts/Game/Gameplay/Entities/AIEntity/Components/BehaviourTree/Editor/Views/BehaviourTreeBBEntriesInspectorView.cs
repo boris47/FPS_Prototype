@@ -34,7 +34,7 @@ namespace Entities.AI.Components.Behaviours
 
 								if (entry.HasValue())
 								{
-									//BlackboardEntryBase.Editor.OnGUILayoutValue(entry);
+									BlackboardEntryBase.Editor.OnGUILayoutValue(entry);
 								}
 								else
 								{
@@ -52,7 +52,7 @@ namespace Entities.AI.Components.Behaviours
 			m_InstanceData = null;
 			if (InBehaviourTreeInstanceData.IsNotNull())
 			{
-				m_InstanceData = InBehaviourTreeInstanceData.Blackboard;
+				m_InstanceData = InBehaviourTreeInstanceData.BlackboardInstanceData;
 				m_InstanceData.OnEntriesUpdate += () => this.MarkDirtyRepaint();
 			}
 		}

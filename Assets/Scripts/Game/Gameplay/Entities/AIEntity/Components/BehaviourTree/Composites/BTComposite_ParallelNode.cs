@@ -75,8 +75,7 @@ namespace Entities.AI.Components.Behaviours
 					bool childIsRunning = nodeData.RunningChildren.Get(index);
 					if (childIsRunning)
 					{
-						BTNode child = Children.At(index);
-
+						BTNode child = Children[index];
 						BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, child);
 						EBTNodeState childState = child.UpdateNode(childInstanceData, InDeltaTime);
 						if (BTNode.IsFinished(childState))
@@ -121,7 +120,7 @@ namespace Entities.AI.Components.Behaviours
 			{
 				if (nodeData.RunningChildren.Get(i))
 				{
-					BTNode child = Children.At(i);
+					BTNode child = Children[i];
 					BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, child);
 					child.AbortAndResetNode(childInstanceData);
 				}

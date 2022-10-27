@@ -25,12 +25,8 @@ namespace Entities.AI.Components.Behaviours
 
 		void IBlackboardView.UpdateSelection(in Blackboard InBlackboardAsset, in BehaviourTreeInstanceData InBehaviourTreeInstanceData)
 		{
-			if (InBehaviourTreeInstanceData.IsNotNull())
-			{
-				
-			}
 			UnityEngine.Object.DestroyImmediate(m_BBKeysEditor);
-			m_BBKeysEditor = Editor.CreateEditor(InBlackboardAsset);
+			m_BBKeysEditor = Editor.CreateEditor(InBlackboardAsset, typeof(BlackboardEditor));
 		}
 
 		void IBlackboardView.ClearSelection()

@@ -64,7 +64,7 @@ namespace Entities.AI.Components.Behaviours
 		public				AIController					Controller									=> m_Controller;
 		public				BTNodeInstanceData[]			NodesInstanceData							=> m_NodesInstanceData;
 		public				BTNodeInstanceData				RootNode									=> m_NodesInstanceData.At(0);
-		public				BlackboardInstanceData			Blackboard									=> m_BlackboardInstanceData;
+		public				BlackboardInstanceData			BlackboardInstanceData						=> m_BlackboardInstanceData;
 		public				NodeAbortCandidateRequest		CandidateForAbort							=> m_CandidateForAbort;
 
 		//---------------------
@@ -75,7 +75,7 @@ namespace Entities.AI.Components.Behaviours
 
 		//////////////////////////////////////////////////////////////////////////
 		public BehaviourTreeInstanceData(in BehaviourTree InBehaviourTreeAsset, in BehaviourTree InTreeInstance, in AIController InController,
-			in BTNodeInstanceData[] InNodesInstanceData, in RuntimeDataBase[] InNodesRuntimeData)
+			in BTNodeInstanceData[] InNodesInstanceData, in RuntimeDataBase[] InNodesRuntimeData, out BlackboardInstanceData OutBlackboardInstanceData)
 		{
 		//	m_TreeAsset = InBehaviourTreeAsset;
 			m_TreeInstance = InTreeInstance;
@@ -85,7 +85,7 @@ namespace Entities.AI.Components.Behaviours
 
 			m_NodesRuntimeData = InNodesRuntimeData;
 
-			m_BlackboardInstanceData = Components.Blackboard.CreateInstanceData(InBehaviourTreeAsset.BlackboardAsset, this);
+			OutBlackboardInstanceData = m_BlackboardInstanceData = Blackboard.CreateInstanceData(InBehaviourTreeAsset.BlackboardAsset, this);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -125,6 +125,12 @@ namespace Entities.AI.Components.Behaviours
 		public void SetCandidateForAbort(in BTNodeInstanceData InCandidate, in System.Action<BTNodeInstanceData> InOnRequestAccepted)
 		{
 			m_CandidateForAbort = new NodeAbortCandidateRequest(InCandidate, InOnRequestAccepted);
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public void RemoveCandidateForAbort()
+		{
+			m_CandidateForAbort = null;
 		}
 
 		//////////////////////////////////////////////////////////////////////////

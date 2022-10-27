@@ -36,14 +36,13 @@ namespace Entities.AI.Components.Behaviours
 			}
 		}
 
-
 		//////////////////////////////////////////////////////////////////////////
 		protected override EBTNodeState OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
 		{
 			EBTNodeState OutState = EBTNodeState.RUNNING;
 			if (m_SubBehaviourTreeAsset.IsNotNull())
 			{
-				var nodeRuntimeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
+				RuntimeData nodeRuntimeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
 				m_SubBehaviourTreeAsset.StartTree(nodeRuntimeData.SubTreeInstanceData);
 			}
 			else

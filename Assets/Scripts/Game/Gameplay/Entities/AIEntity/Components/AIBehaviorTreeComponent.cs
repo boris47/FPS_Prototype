@@ -14,7 +14,7 @@ namespace Entities.AI.Components
 		private				BehaviourTreeInstanceData						m_TreeInstanceData								= null;
 
 		public				BehaviourTree									BehaviourTreeAsset								=> m_BehaviourTreeAsset;
-		public				BlackboardInstanceData							BlackboardInstanceData							=> m_TreeInstanceData.Blackboard;
+		public				BlackboardInstanceData							BlackboardInstanceData							=> m_TreeInstanceData.BlackboardInstanceData;
 
 
 

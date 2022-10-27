@@ -13,7 +13,7 @@ namespace Entities.AI.Components.Behaviours
 		//---------------------
 		public				BTNode			Child					=> m_Child;
 
-		public				List<BTNode>	Children
+		IReadOnlyList<BTNode>						IParentNode.Children
 		{
 			get
 			{
@@ -25,7 +25,31 @@ namespace Entities.AI.Components.Behaviours
 				return children;
 			}
 		}
-		
+
+		//////////////////////////////////////////////////////////////////////////
+		protected override EBTNodeState OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
+		{
+			EBTNodeState OutState = EBTNodeState.RUNNING;
+
+			if (m_Child.IsNull())
+			{
+				OutState = EBTNodeState.SUCCEEDED;
+			}
+
+			return OutState;
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		protected override EBTNodeState OnUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
+		{
+			EBTNodeState OutState = EBTNodeState.FAILED;
+			if (Child.IsNotNull())
+			{
+				BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, Child);
+				OutState = Child.UpdateNode(childInstanceData, InDeltaTime);
+			}
+			return OutState;
+		}
 
 		//////////////////////////////////////////////////////////////////////////
 		protected override void OnNodeAbort(in BTNodeInstanceData InThisNodeInstanceData)

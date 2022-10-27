@@ -39,10 +39,22 @@ namespace Entities.AI.Components
 		}
 
 		//////////////////////////////////////////////////////////////////////////
+		public bool TryGetEntryBase(BlackboardEntryKey InBlackboardKey, out BlackboardEntryBase OutEntry)
+		{
+			return m_BlackboardAsset.TryGetEntryBase(this, InBlackboardKey, out OutEntry);
+		}
+
+		//////////////////////////////////////////////////////////////////////////
 		public void SetEntryValue<T, V>(in BlackboardEntryKey InBlackboardKey, in V InNewValue) where T : BlackboardEntryKeyValue<V>, new()
 		{
 			m_BlackboardAsset.SetEntryValue<T, V>(this, InBlackboardKey, InNewValue);
 			OnEntriesUpdate();
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public bool TryGetEntry<T>(BlackboardEntryKey InBlackboardKey, out T OutEntry) where T : BlackboardEntryBase, new()
+		{
+			return m_BlackboardAsset.TryGetEntry(this, InBlackboardKey, out OutEntry);
 		}
 
 		//////////////////////////////////////////////////////////////////////////

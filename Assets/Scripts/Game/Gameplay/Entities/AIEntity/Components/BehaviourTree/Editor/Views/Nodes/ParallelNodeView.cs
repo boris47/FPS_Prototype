@@ -32,9 +32,9 @@ namespace Entities.AI.Components.Behaviours
 		protected override void OnChildConnected(in BTNode InChild, in Edge InEdgeCreated)
 		{
 			uint nodeIndex = BTNode.Editor.GetNodeParentPortIndex(InChild);
-			if (m_ParallelNode.Children.TryGetByIndex(nodeIndex, out BTNode _))
+			if (m_ParallelNode.Children.IsValidIndex(nodeIndex))
 			{
-				m_ParallelNode.Children[(int)nodeIndex] = InChild;
+				BTComposite_ParallelNode.Editor.SetChild(m_ParallelNode, InChild, nodeIndex);
 			}
 			else
 			{
@@ -46,9 +46,9 @@ namespace Entities.AI.Components.Behaviours
 		protected override void OnChildDisconnected(in BTNode InChild)
 		{
 			uint nodeIndex = BTNode.Editor.GetNodeParentPortIndex(InChild);
-			if (m_ParallelNode.Children.TryGetByIndex(nodeIndex, out BTNode _))
+			if (m_ParallelNode.Children.IsValidIndex(nodeIndex))
 			{
-				m_ParallelNode.Children[(int)nodeIndex] = null;
+				BTComposite_ParallelNode.Editor.SetChild(m_ParallelNode, null, nodeIndex);
 			}
 		}
 	}

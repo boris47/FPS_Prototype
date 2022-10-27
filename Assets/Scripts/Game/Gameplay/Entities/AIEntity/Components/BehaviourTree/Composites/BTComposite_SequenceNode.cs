@@ -12,61 +12,49 @@ namespace Entities.AI.Components.Behaviours
 	public sealed partial class BTComposite_SequenceNode : BTCompositeNode
 	{
 		//////////////////////////////////////////////////////////////////////////
-		protected sealed override EBTNodeState OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
-		{
-			return base.OnActivation(InThisNodeInstanceData);
-		}
-
-		//////////////////////////////////////////////////////////////////////////
 		protected override EBTNodeState OnUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
 		{
 			EBTNodeState OutState = EBTNodeState.RUNNING;
 
 			RuntimeData nodeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
-
-			BTNode child = Children.At(nodeData.CurrentIndex);
-			BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, child);
-
-			switch (child.UpdateNode(childInstanceData, InDeltaTime))
+			if (nodeData.CurrentIndex >= Children.Count)
 			{
-				case EBTNodeState.INACTIVE:
+				if (m_MustRepeat)
 				{
-					Utils.CustomAssertions.IsTrue(false);
-					break;
+					ResetNode(InThisNodeInstanceData);
 				}
-				case EBTNodeState.SUCCEEDED:
+				else
 				{
-					if (Children.IsValidIndex(nodeData.CurrentIndex + 1))
+					OutState = EBTNodeState.SUCCEEDED;
+				}
+			}
+			else
+			{
+				BTNode child = Children[(int)nodeData.CurrentIndex];
+				BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, child);
+				switch (child.UpdateNode(childInstanceData, InDeltaTime))
+				{
+					case EBTNodeState.INACTIVE:
+					{
+						Utils.CustomAssertions.IsTrue(false);
+						break;
+					}
+					case EBTNodeState.SUCCEEDED:
 					{
 						++nodeData.CurrentIndex;
-
-						child = Children.At(nodeData.CurrentIndex);
-						BTNodeInstanceData nextChildInstanceData = GetChildInstanceData(InThisNodeInstanceData, child);
-						BehaviourTreeAsset.SetRunningNode(nextChildInstanceData);
+						break;
 					}
-					else
+					case EBTNodeState.FAILED:
 					{
-						if (m_MustRepeat)
-						{
-							ResetNode(InThisNodeInstanceData);
-						}
-						else
-						{
-							OutState = EBTNodeState.SUCCEEDED;
-						}
+						OutState = EBTNodeState.FAILED;
+						break;
 					}
-					break;
-				}
-				case EBTNodeState.FAILED:
-				{
-					OutState = EBTNodeState.FAILED;
-					break;
-				}
-				case EBTNodeState.RUNNING: break;
-				default:
-				{
-					Utils.CustomAssertions.IsTrue(false);
-					break;
+					case EBTNodeState.RUNNING: break;
+					default:
+					{
+						Utils.CustomAssertions.IsTrue(false);
+						break;
+					}
 				}
 			}
 			return OutState;

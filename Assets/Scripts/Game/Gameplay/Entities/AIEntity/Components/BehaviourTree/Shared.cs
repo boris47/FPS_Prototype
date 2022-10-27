@@ -28,7 +28,7 @@ namespace Entities.AI.Components.Behaviours
 
 	public interface IParentNode
 	{
-		List<BTNode> Children { get; }
+		IReadOnlyList<BTNode> Children { get; }
 	}
 
 	[System.Serializable]

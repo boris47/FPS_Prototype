@@ -9,7 +9,7 @@ namespace Entities.AI.Components.Senses
 
 	public enum ESightTargetEventType
 	{
-		ACQUIRED, CHANGED, LOST
+		NONE, ACQUIRED, CHANGED, LOST, COUNT
 	}
 
 	/// <summary> Handle the field of view of the entity </summary>

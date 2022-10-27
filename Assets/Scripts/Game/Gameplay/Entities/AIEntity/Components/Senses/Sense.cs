@@ -4,9 +4,8 @@ using UnityEngine;
 
 namespace Entities.AI.Components.Senses
 {
-
 	[System.Serializable]
-	public abstract class SenseEvent
+	public abstract class SenseEvent : ScriptableObject
 	{
 		public abstract ESenses SenseType { get; }
 	}

@@ -152,11 +152,12 @@ namespace Entities.AI
 						{
 							fieldInfo.SetValue(property.serializedObject.targetObject, null);
 							m_CurrentUniqueId = 0u;
+							m_SelectedIndex = 0;
 						}
 						//						Assignment								Change
 						else if ((m_SelectedIndex == 0 && tempIndex > 0) || (tempIndex != m_SelectedIndex))
 						{
-							if (Blackboard.Editor.TryGetKeyAt(m_BlackboardAsset, tempIndex - 1/*Because of None value*/, out BlackboardKeySpecifier newKeySpecifier))
+							if (Blackboard.Editor.TryGetKey(m_BlackboardAsset, m_CurrentOptions[tempIndex], out BlackboardKeySpecifier newKeySpecifier))
 							{
 								fieldInfo.SetValue(property.serializedObject.targetObject, newKeySpecifier.Key);
 								m_CurrentUniqueId = newKeySpecifier.Key.UniqueId;

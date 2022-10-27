@@ -11,11 +11,11 @@ namespace Entities.AI.Components.Behaviours
 		public string			m_Message				= string.Empty;
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
+		protected override EBTNodeState OnUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
 		{
 			Debug.Log(m_Message);
 
-			return EBTNodeState.SUCCEEDED;
+			return base.OnUpdate(InThisNodeInstanceData, InDeltaTime);
 		}
 	}
 }
