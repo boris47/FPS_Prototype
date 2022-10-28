@@ -82,19 +82,26 @@ namespace Entities.AI.Components.Behaviours
 		{
 			EBTNodeState OutState = EBTNodeState.RUNNING;
 			{
-				BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, Child);
-
-				EBTNodeState childState = Child.UpdateNode(childInstanceData, InDeltaTime);
-				if (BTNode.IsFinished(childState))
+				if (Child.IsNotNull())
 				{
-					// Reflect the child result to the parent of this node as it is
-					OutState = childState;
-
-					// And stop being relevant
-					if (m_AbortType == EAbortType.Self)
+					BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, Child);
+					EBTNodeState childState = Child.UpdateNode(childInstanceData, InDeltaTime);
+					if (BTNode.IsFinished(childState))
 					{
-						StopObserve(InThisNodeInstanceData);
+						// Reflect the child result to the parent of this node as it is
+						OutState = childState;
+
+						// And stop being relevant
+						if (m_AbortType == EAbortType.Self)
+						{
+							StopObserve(InThisNodeInstanceData);
+						}
 					}
+				}
+				// No child, success as result by design
+				else
+				{
+					OutState = EBTNodeState.SUCCEEDED;
 				}
 			}
 			return OutState;
@@ -105,7 +112,12 @@ namespace Entities.AI.Components.Behaviours
 		{
 			base.OnTerminateSuccess(InThisNodeInstanceData);
 
-			StopObserve(InThisNodeInstanceData);
+			// Event if this node is terminated with success, only if abort type is Self we stop observing
+			// So that, if abort type is low prioritythe abort request request can be sent anyway
+			if (m_AbortType == EAbortType.Self)
+			{
+				StopObserve(InThisNodeInstanceData);
+			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -113,6 +125,7 @@ namespace Entities.AI.Components.Behaviours
 		{
 			base.OnNodeReset(InThisNodeInstanceData);
 
+			// On this node reset we want to stop observing whatever is the abort condition
 			StopObserve(InThisNodeInstanceData);
 		}
 
@@ -121,11 +134,15 @@ namespace Entities.AI.Components.Behaviours
 		{
 			if (m_AbortType == EAbortType.Self || m_AbortType == EAbortType.Both)
 			{
-				if (/*Utils.CustomAssertions.IsTrue*/(InThisNodeInstanceData.NodeState == EBTNodeState.RUNNING))
+				// We  expect this node to be running to abort itself
+				if (Utils.CustomAssertions.IsTrue(InThisNodeInstanceData.NodeState == EBTNodeState.RUNNING))
 				{
-					BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, Child);
-
-					Child.AbortAndResetNode(childInstanceData);
+					// Abort child node if there is one
+					if (Child.IsNotNull())
+					{
+						BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, Child);
+						Child.AbortAndResetNode(childInstanceData);
+					}
 
 					// Reset this node
 				//	ResetNode(InThisNodeInstanceData);
@@ -195,7 +212,7 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected abstract bool GetEvaluation(in BTNodeInstanceData InInstanceData);
+		protected virtual bool GetEvaluation(in BTNodeInstanceData InInstanceData) => false;
 
 		//////////////////////////////////////////////////////////////////////////
 		protected virtual void StartObserve(in BTNodeInstanceData InInstanceData) { }
@@ -213,7 +230,7 @@ namespace Entities.AI.Components.Behaviours
 {
 	using UnityEditor;
 
-	public abstract partial class BTConditional
+	public abstract partial class BTConditional // Editor
 	{
 
 	}
