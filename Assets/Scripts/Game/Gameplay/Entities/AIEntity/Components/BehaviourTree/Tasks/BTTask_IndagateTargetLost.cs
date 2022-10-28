@@ -33,8 +33,8 @@ namespace Entities.AI.Components.Behaviours
 
 				if (InThisNodeInstanceData.BehaviourTreeInstanceData.Controller.IsCloseEnoughTo(targetPosition.Value))
 				{
-				//	OutState = EBTNodeState.FAILED; // ??? i have to solve this
 					InThisNodeInstanceData.BehaviourTreeInstanceData.Controller.Stop(bImmediately: false);
+					OutState = EBTNodeState.FAILED; // ??? i have to solve this
 				}
 			}
 			return OutState;

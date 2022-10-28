@@ -18,7 +18,7 @@ namespace Entities.AI.Components
 		private List<BlackboardEntryBase>			m_Entries						= new List<BlackboardEntryBase>();
 
 		/// <summary> Key ID - Observers </summary>
-		private Dictionary<uint, List<BlackboardEntryBase.OnChangeDel>> m_Observers = 
+		private readonly Dictionary<uint, List<BlackboardEntryBase.OnChangeDel>> m_Observers = 
 			new Dictionary<uint, List<BlackboardEntryBase.OnChangeDel>>();
 
 

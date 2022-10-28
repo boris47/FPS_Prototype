@@ -11,7 +11,7 @@ namespace Entities.AI.Components.Behaviours
 	public class BTDecorator_SightEventToTargetEntity : BTDecoratorNode
 	{
 		[SerializeReference, ToNodeInspector, BlackboardKeyType(typeof(BBEntry_SightEvent))]
-		private				BlackboardEntryKey								m_BlackboardKeyEvent									= null;
+		private				BlackboardEntryKey								m_BlackboardEventKey									= null;
 
 		[SerializeReference, ToNodeInspector, BlackboardKeyType(typeof(BBEntry_Entity))]
 		private				BlackboardEntryKey								m_TargetBlackboardKey									= null;
@@ -24,7 +24,7 @@ namespace Entities.AI.Components.Behaviours
 			if (Child.IsNotNull())
 			{
 				BlackboardInstanceData bbInstanceData = InThisNodeInstanceData.BehaviourTreeInstanceData.BlackboardInstanceData;
-				if (bbInstanceData.TryGetEntry(m_BlackboardKeyEvent, out BBEntry_SightEvent sightEventEntry))
+				if (bbInstanceData.TryGetEntry(m_BlackboardEventKey, out BBEntry_SightEvent sightEventEntry))
 				{
 					if (sightEventEntry.Value.TargetInfoType != Senses.ESightTargetEventType.LOST)
 					{

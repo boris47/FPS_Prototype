@@ -10,10 +10,5 @@ namespace Entities.AI.Components.Behaviours
 		private				BlackboardEntryKey								m_BlackboardKey									= null;
 
 		protected override	BlackboardEntryKey								BlackboardKey									=> m_BlackboardKey;
-
-		protected override bool GetEvaluation(in BTNodeInstanceData InInstanceData)
-		{
-			return false;
-		}
 	}
 }
