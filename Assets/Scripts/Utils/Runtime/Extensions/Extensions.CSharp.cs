@@ -217,7 +217,12 @@ public static class Extensions_CSharp
 		return IsValidIndex(ThisArray, InIndex) ? (T)ThisArray.GetValue(InIndex) : Default;
 	}
 
-
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Allow to easy get a value from an array checking given index, default value is supported </summary>
+	public static bool TryGetByIndex<T>(this System.Array ThisArray, uint InIndex, out T OutValue)
+	{
+		return TryGetByIndex(ThisArray, (int)InIndex, out OutValue);
+	}
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Allow to easy get a value from an array checking given index, default value is supported </summary>
 	public static bool TryGetByIndex<T>(this System.Array ThisArray, int InIndex, out T OutValue)
