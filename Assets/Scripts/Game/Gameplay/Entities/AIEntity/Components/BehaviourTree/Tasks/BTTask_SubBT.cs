@@ -37,9 +37,9 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
+		protected override EBTNodeInitializationResult OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			EBTNodeState OutState = EBTNodeState.RUNNING;
+			EBTNodeInitializationResult OutState = EBTNodeInitializationResult.RUNNING;
 			if (m_SubBehaviourTreeAsset.IsNotNull())
 			{
 				RuntimeData nodeRuntimeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
@@ -47,13 +47,13 @@ namespace Entities.AI.Components.Behaviours
 			}
 			else
 			{
-				OutState = EBTNodeState.FAILED;
+				OutState = EBTNodeInitializationResult.FAILED;
 			}
 			return OutState;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
+		protected override EBTNodeState OnNodeUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
 		{
 			var nodeRuntimeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
 			return m_SubBehaviourTreeAsset.UpdateTree(nodeRuntimeData.SubTreeInstanceData, InDeltaTime);

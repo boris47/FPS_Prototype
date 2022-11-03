@@ -1,6 +1,155 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-7590926732708913517
+--- !u!114 &-8877535892790942002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9050781c6dabf774b82dd7d009e03dfc, type: 3}
+  m_Name: 013.BTTask_IndagateTargetLost
+  m_EditorClassIdentifier: 
+  m_BehaviourTreeAsset: {fileID: 11400000}
+  m_NodeIndex: 13
+  m_ParentAsset: {fileID: 1402722353521928734}
+  m_Guid: 349c11e8-7778-4736-a251-ee10e296fab7
+  m_EditorGraphPositionPosition: {x: 1367, y: 934}
+  m_ParentPortIndex: 0
+  m_HasBreakpoint: 0
+  m_BlackboardKey:
+    rid: 1911526853125865510
+  references:
+    version: 2
+    RefIds:
+    - rid: 1911526853125865510
+      type: {class: BlackboardEntryKey, ns: Entities.AI, asm: Assembly-CSharp}
+      data:
+        m_Name: TargetEvent
+--- !u!114 &-8707429914844771565
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5e9a31a350d96244b6b69eeb0630757, type: 3}
+  m_Name: 003.BTTask_SenseListener_Damage
+  m_EditorClassIdentifier: 
+  m_BehaviourTreeAsset: {fileID: 11400000}
+  m_NodeIndex: 3
+  m_ParentAsset: {fileID: 1396084486855931733}
+  m_Guid: f3aff8ab-35b2-4bde-a070-bf45f11f805e
+  m_EditorGraphPositionPosition: {x: 0, y: 424}
+  m_ParentPortIndex: 0
+  m_HasBreakpoint: 0
+  m_BlackboardKey:
+    rid: 1911526853125865483
+  references:
+    version: 2
+    RefIds:
+    - rid: 1911526853125865483
+      type: {class: BlackboardEntryKey, ns: Entities.AI, asm: Assembly-CSharp}
+      data:
+        m_Name: DamageReceived
+--- !u!114 &-6609718363464143172
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0ed538c651470342af7ae8cb4395dbc, type: 3}
+  m_Name: 016.BTTask_Idle
+  m_EditorClassIdentifier: 
+  m_BehaviourTreeAsset: {fileID: 11400000}
+  m_NodeIndex: 16
+  m_ParentAsset: {fileID: 4850768044414328111}
+  m_Guid: 90a31ab7-4116-4c41-bb99-89e01b6961fa
+  m_EditorGraphPositionPosition: {x: 1865, y: 574}
+  m_ParentPortIndex: 0
+  m_HasBreakpoint: 0
+--- !u!114 &-6391269487259019694
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01f9717c96d53b54faa872caf409cfc3, type: 3}
+  m_Name: BlackboardAsset
+  m_EditorClassIdentifier: 
+  m_Keys:
+  - m_Key:
+      m_Name: TargetEntity
+    m_TypeIdentifier:
+      TypeFullName: Entities.Entity
+      AssemblyName: Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - m_Key:
+      m_Name: DamageReceived
+    m_TypeIdentifier:
+      TypeFullName: Entities.AI.Components.Senses.DamageEvent
+      AssemblyName: Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - m_Key:
+      m_Name: SoundHeard
+    m_TypeIdentifier:
+      TypeFullName: Entities.AI.Components.Senses.HearingEvent
+      AssemblyName: Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - m_Key:
+      m_Name: TargetEvent
+    m_TypeIdentifier:
+      TypeFullName: Entities.AI.Components.Senses.SightEvent
+      AssemblyName: Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - m_Key:
+      m_Name: Team_DamageReceived
+    m_TypeIdentifier:
+      TypeFullName: Entities.AI.Components.Senses.TeamEvent
+      AssemblyName: Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - m_Key:
+      m_Name: Team_SoundHeard
+    m_TypeIdentifier:
+      TypeFullName: Entities.AI.Components.Senses.TeamEvent
+      AssemblyName: Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - m_Key:
+      m_Name: Team_TargetLost
+    m_TypeIdentifier:
+      TypeFullName: Entities.AI.Components.Senses.TeamEvent
+      AssemblyName: Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  - m_Key:
+      m_Name: Team_TargetSeen
+    m_TypeIdentifier:
+      TypeFullName: Entities.AI.Components.Senses.TeamEvent
+      AssemblyName: Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+--- !u!114 &-4627043639559410453
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af9b868a227d2a24cbbcf6fb9b66a6cf, type: 3}
+  m_Name: 008.BTDecorator_ForceResult
+  m_EditorClassIdentifier: 
+  m_BehaviourTreeAsset: {fileID: 11400000}
+  m_NodeIndex: 8
+  m_ParentAsset: {fileID: 1107612425636586816}
+  m_Guid: 049e819c-b2ca-4c2d-9b60-a8d03ae649cf
+  m_EditorGraphPositionPosition: {x: 1243.5, y: 424}
+  m_ParentPortIndex: 0
+  m_HasBreakpoint: 0
+  m_ChildAsset: {fileID: 2849205856491277015}
+  m_OutResult: 2
+--- !u!114 &-2079992707516994214
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -10,17 +159,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0c004d8733a20ce419db1aefa282eb5d, type: 3}
-  m_Name: 000. BTRootNode
+  m_Name: 000.BTRootNode
   m_EditorClassIdentifier: 
   m_BehaviourTreeAsset: {fileID: 11400000}
   m_NodeIndex: 0
   m_ParentAsset: {fileID: 0}
-  m_Guid: 8577f05e-9c92-4cc5-aa2a-0204a65feda4
-  m_Position: {x: 130.5, y: 0}
+  m_Guid: ba429d9e-6011-4308-90eb-84f7c5faddc5
+  m_EditorGraphPositionPosition: {x: 892, y: 0}
   m_ParentPortIndex: 0
-  m_Child: {fileID: 7883122590955373263}
+  m_HasBreakpoint: 0
+  m_ChildAsset: {fileID: 6245017725255387486}
   m_MustRepeat: 0
---- !u!114 &-3287384073581286949
+--- !u!114 &-1458297727569095033
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -29,16 +179,43 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 44c6ea46cfb6d154199d57444d2ac703, type: 3}
-  m_Name: 003. BTTask_Log
+  m_Script: {fileID: 11500000, guid: b774493ff1953c44da27a65294064faa, type: 3}
+  m_Name: 005.BTTask_SenseListener_TeamEvent
   m_EditorClassIdentifier: 
   m_BehaviourTreeAsset: {fileID: 11400000}
-  m_NodeIndex: 3
-  m_ParentAsset: {fileID: 7883122590955373263}
-  m_Guid: dbfa05f7-54f2-416f-bca4-5d1eb74e37cb
-  m_Position: {x: 281, y: 274}
+  m_NodeIndex: 5
+  m_ParentAsset: {fileID: 1396084486855931733}
+  m_Guid: ef3b827c-18e7-49d5-a257-540e6651c75d
+  m_EditorGraphPositionPosition: {x: 530, y: 424}
   m_ParentPortIndex: 0
-  m_Message: MyLog
+  m_HasBreakpoint: 0
+  m_TargetSeenKey:
+    rid: 1911526853125865484
+  m_TargetLostKey:
+    rid: 1911526853125865485
+  m_SoundHeardKey:
+    rid: 1911526853125865486
+  m_DamageReceivedKey:
+    rid: 1911526853125865487
+  references:
+    version: 2
+    RefIds:
+    - rid: 1911526853125865484
+      type: {class: BlackboardEntryKey, ns: Entities.AI, asm: Assembly-CSharp}
+      data:
+        m_Name: Team_TargetSeen
+    - rid: 1911526853125865485
+      type: {class: BlackboardEntryKey, ns: Entities.AI, asm: Assembly-CSharp}
+      data:
+        m_Name: Team_TargetLost
+    - rid: 1911526853125865486
+      type: {class: BlackboardEntryKey, ns: Entities.AI, asm: Assembly-CSharp}
+      data:
+        m_Name: Team_SoundHeard
+    - rid: 1911526853125865487
+      type: {class: BlackboardEntryKey, ns: Entities.AI, asm: Assembly-CSharp}
+      data:
+        m_Name: Team_DamageReceived
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -51,16 +228,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 242cde3ebb14dbf43a3546394b1573b5, type: 3}
   m_Name: New Behaviour Tree
   m_EditorClassIdentifier: 
-  m_RootNode: {fileID: -7590926732708913517}
+  m_RootNode: {fileID: -2079992707516994214}
   m_Nodes:
-  - {fileID: -7590926732708913517}
-  - {fileID: 7883122590955373263}
-  - {fileID: 8118000310912224950}
-  - {fileID: -3287384073581286949}
-  m_Blackboard: {fileID: 5419892369753799572}
-  m_Position: {x: 213, y: 51}
-  m_Scale: {x: 1, y: 1, z: 1}
---- !u!114 &5419892369753799572
+  - {fileID: -2079992707516994214}
+  - {fileID: 6245017725255387486}
+  - {fileID: 1396084486855931733}
+  - {fileID: -8707429914844771565}
+  - {fileID: 5400274887027978877}
+  - {fileID: -1458297727569095033}
+  - {fileID: 3528064947087782516}
+  - {fileID: 1107612425636586816}
+  - {fileID: -4627043639559410453}
+  - {fileID: 2849205856491277015}
+  - {fileID: 1402722353521928734}
+  - {fileID: 624721286863593912}
+  - {fileID: 6864726918030768610}
+  - {fileID: -8877535892790942002}
+  - {fileID: 4850768044414328111}
+  - {fileID: 5044362236060164149}
+  - {fileID: -6609718363464143172}
+  m_BlackboardAsset: {fileID: -6391269487259019694}
+  m_EditorGraphPosition: {x: -158, y: 21}
+  m_EditorGraphScale: {x: 0.49717674, y: 0.49717674, z: 1}
+--- !u!114 &624721286863593912
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -69,11 +259,56 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 01f9717c96d53b54faa872caf409cfc3, type: 3}
-  m_Name: Blackboard
+  m_Script: {fileID: 11500000, guid: 4832c7ffff020c64fb6a22d333ca5b4d, type: 3}
+  m_Name: 011.BTDecorator_SightEventToTargetEntity
   m_EditorClassIdentifier: 
-  m_Keys: []
---- !u!114 &7883122590955373263
+  m_BehaviourTreeAsset: {fileID: 11400000}
+  m_NodeIndex: 11
+  m_ParentAsset: {fileID: 1402722353521928734}
+  m_Guid: 6eaee88d-8de3-4c44-83cb-358732aae7a0
+  m_EditorGraphPositionPosition: {x: 1094, y: 934}
+  m_ParentPortIndex: 0
+  m_HasBreakpoint: 0
+  m_ChildAsset: {fileID: 6864726918030768610}
+  m_InputEventKey:
+    rid: 9016802470118817792
+  m_OutputEventKey:
+    rid: 9016802470118817793
+  references:
+    version: 2
+    RefIds:
+    - rid: 9016802470118817792
+      type: {class: BlackboardEntryKey, ns: Entities.AI, asm: Assembly-CSharp}
+      data:
+        m_Name: TargetEvent
+    - rid: 9016802470118817793
+      type: {class: BlackboardEntryKey, ns: Entities.AI, asm: Assembly-CSharp}
+      data:
+        m_Name: TargetEntity
+--- !u!114 &1107612425636586816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99ab28f8f9887444e84fdbe1908760f7, type: 3}
+  m_Name: 007.BTComposite_SelectorNode
+  m_EditorClassIdentifier: 
+  m_BehaviourTreeAsset: {fileID: 11400000}
+  m_NodeIndex: 7
+  m_ParentAsset: {fileID: 6245017725255387486}
+  m_Guid: 49b3eeb2-4688-44cf-b045-e4acf4a08935
+  m_EditorGraphPositionPosition: {x: 1439, y: 274}
+  m_ParentPortIndex: 0
+  m_HasBreakpoint: 0
+  m_Children:
+  - {fileID: -4627043639559410453}
+  - {fileID: 4850768044414328111}
+  m_MustRepeat: 1
+--- !u!114 &1396084486855931733
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -83,19 +318,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7d2f104a865d99145b92a08b8538eb24, type: 3}
-  m_Name: 001. BTComposite_SequenceNode
+  m_Name: 002.BTComposite_SequenceNode
   m_EditorClassIdentifier: 
   m_BehaviourTreeAsset: {fileID: 11400000}
-  m_NodeIndex: 1
-  m_ParentAsset: {fileID: -7590926732708913517}
-  m_Guid: 444656e7-7cbe-4822-95fc-c59fcae6f7e5
-  m_Position: {x: 130.5, y: 124}
+  m_NodeIndex: 2
+  m_ParentAsset: {fileID: 6245017725255387486}
+  m_Guid: ed4a79d3-38c8-4b68-985e-80e31a549ea9
+  m_EditorGraphPositionPosition: {x: 421.5, y: 274}
   m_ParentPortIndex: 0
+  m_HasBreakpoint: 0
   m_Children:
-  - {fileID: 8118000310912224950}
-  - {fileID: -3287384073581286949}
-  m_MustRepeat: 1
---- !u!114 &8118000310912224950
+  - {fileID: -8707429914844771565}
+  - {fileID: 5400274887027978877}
+  - {fileID: -1458297727569095033}
+  - {fileID: 3528064947087782516}
+  m_MustRepeat: 0
+--- !u!114 &1402722353521928734
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -104,13 +342,199 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a98b0c7e32c37d42b986bc8585309fc, type: 3}
-  m_Name: 002. BTTask_Wait
+  m_Script: {fileID: 11500000, guid: 99ab28f8f9887444e84fdbe1908760f7, type: 3}
+  m_Name: 010.BTComposite_SelectorNode
   m_EditorClassIdentifier: 
   m_BehaviourTreeAsset: {fileID: 11400000}
-  m_NodeIndex: 2
-  m_ParentAsset: {fileID: 7883122590955373263}
-  m_Guid: 322a8800-e543-4cc3-9492-f8e37a0c95a0
-  m_Position: {x: 0, y: 274}
+  m_NodeIndex: 10
+  m_ParentAsset: {fileID: 2849205856491277015}
+  m_Guid: 3ee3499e-743b-4723-85cc-bf03dddde934
+  m_EditorGraphPositionPosition: {x: 1237.5, y: 784}
   m_ParentPortIndex: 0
-  m_SecondsToWait: 2
+  m_HasBreakpoint: 0
+  m_Children:
+  - {fileID: 624721286863593912}
+  - {fileID: -8877535892790942002}
+  m_MustRepeat: 0
+--- !u!114 &2849205856491277015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d22935738e07fb542a049fb3a867bfc0, type: 3}
+  m_Name: 009.BTConditional_BB_HasSightEvent
+  m_EditorClassIdentifier: 
+  m_BehaviourTreeAsset: {fileID: 11400000}
+  m_NodeIndex: 9
+  m_ParentAsset: {fileID: -4627043639559410453}
+  m_Guid: 0de9941d-e5cd-48b0-b827-57840f3699d8
+  m_EditorGraphPositionPosition: {x: 1213.5, y: 574}
+  m_ParentPortIndex: 0
+  m_HasBreakpoint: 0
+  m_ChildAsset: {fileID: 1402722353521928734}
+  m_AbortType: 3
+  m_FailOnChildTerminate: 0
+  m_ResetOnChange: 1
+  m_BlackboardKey:
+    rid: 1911526853125865507
+  references:
+    version: 2
+    RefIds:
+    - rid: 1911526853125865507
+      type: {class: BlackboardEntryKey, ns: Entities.AI, asm: Assembly-CSharp}
+      data:
+        m_Name: TargetEvent
+--- !u!114 &3528064947087782516
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 288a8eec1966bb644bf81402f851f727, type: 3}
+  m_Name: 006.BTTask_SenseListener_Hear
+  m_EditorClassIdentifier: 
+  m_BehaviourTreeAsset: {fileID: 11400000}
+  m_NodeIndex: 6
+  m_ParentAsset: {fileID: 1396084486855931733}
+  m_Guid: 644a7eb9-5d25-448d-9d8f-5da43537f73c
+  m_EditorGraphPositionPosition: {x: 829, y: 424}
+  m_ParentPortIndex: 0
+  m_HasBreakpoint: 0
+  m_BlackboardKey:
+    rid: 1911526853125865482
+  references:
+    version: 2
+    RefIds:
+    - rid: 1911526853125865482
+      type: {class: BlackboardEntryKey, ns: Entities.AI, asm: Assembly-CSharp}
+      data:
+        m_Name: SoundHeard
+--- !u!114 &4850768044414328111
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d2f104a865d99145b92a08b8538eb24, type: 3}
+  m_Name: 014.BTComposite_SequenceNode
+  m_EditorClassIdentifier: 
+  m_BehaviourTreeAsset: {fileID: 11400000}
+  m_NodeIndex: 14
+  m_ParentAsset: {fileID: 1107612425636586816}
+  m_Guid: 49c7a5a5-f8b8-4648-bc84-abb85e5d02c4
+  m_EditorGraphPositionPosition: {x: 1708, y: 424}
+  m_ParentPortIndex: 0
+  m_HasBreakpoint: 0
+  m_Children:
+  - {fileID: 5044362236060164149}
+  - {fileID: -6609718363464143172}
+  m_MustRepeat: 0
+--- !u!114 &5044362236060164149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44c6ea46cfb6d154199d57444d2ac703, type: 3}
+  m_Name: 015.BTTask_Log
+  m_EditorClassIdentifier: 
+  m_BehaviourTreeAsset: {fileID: 11400000}
+  m_NodeIndex: 15
+  m_ParentAsset: {fileID: 4850768044414328111}
+  m_Guid: 882c6616-af89-4f58-b2b2-02d6788c95fd
+  m_EditorGraphPositionPosition: {x: 1632, y: 574}
+  m_ParentPortIndex: 0
+  m_HasBreakpoint: 0
+  m_Message: Idle
+--- !u!114 &5400274887027978877
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 407c0cb038f3a324c893e2e8184f75bd, type: 3}
+  m_Name: 004.BTTask_SenseListener_Sight
+  m_EditorClassIdentifier: 
+  m_BehaviourTreeAsset: {fileID: 11400000}
+  m_NodeIndex: 4
+  m_ParentAsset: {fileID: 1396084486855931733}
+  m_Guid: 47a6e17b-fb4e-4cf4-aba3-4bece045926f
+  m_EditorGraphPositionPosition: {x: 265, y: 424}
+  m_ParentPortIndex: 0
+  m_HasBreakpoint: 0
+  m_SightEventKey:
+    rid: 1911526853125865511
+  references:
+    version: 2
+    RefIds:
+    - rid: 1911526853125865511
+      type: {class: BlackboardEntryKey, ns: Entities.AI, asm: Assembly-CSharp}
+      data:
+        m_Name: TargetEvent
+--- !u!114 &6245017725255387486
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d2f104a865d99145b92a08b8538eb24, type: 3}
+  m_Name: 001.BTComposite_SequenceNode
+  m_EditorClassIdentifier: 
+  m_BehaviourTreeAsset: {fileID: 11400000}
+  m_NodeIndex: 1
+  m_ParentAsset: {fileID: -2079992707516994214}
+  m_Guid: 03ffdaad-ca97-4553-8420-daa4fdcade45
+  m_EditorGraphPositionPosition: {x: 892, y: 124}
+  m_ParentPortIndex: 0
+  m_HasBreakpoint: 0
+  m_Children:
+  - {fileID: 1396084486855931733}
+  - {fileID: 1107612425636586816}
+  m_MustRepeat: 0
+--- !u!114 &6864726918030768610
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 603a983492b5b064bb786cb65aff627c, type: 3}
+  m_Name: 012.BTTask_MoveTo
+  m_EditorClassIdentifier: 
+  m_BehaviourTreeAsset: {fileID: 11400000}
+  m_NodeIndex: 12
+  m_ParentAsset: {fileID: 624721286863593912}
+  m_Guid: 84ad792c-9abc-4b30-907a-3096cd78ee0e
+  m_EditorGraphPositionPosition: {x: 1102, y: 1108.8456}
+  m_ParentPortIndex: 0
+  m_HasBreakpoint: 0
+  m_BlackboardKey:
+    rid: 1911526835293782023
+  references:
+    version: 2
+    RefIds:
+    - rid: 1911526835293782023
+      type: {class: BlackboardEntryKey, ns: Entities.AI, asm: Assembly-CSharp}
+      data:
+        m_Name: TargetEntity

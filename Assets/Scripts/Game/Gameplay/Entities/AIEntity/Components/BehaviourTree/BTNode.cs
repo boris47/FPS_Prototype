@@ -1,4 +1,5 @@
 ﻿
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Entities.AI.Components.Behaviours
@@ -54,9 +55,45 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected static BTNodeInstanceData GetChildInstanceData(in BTNodeInstanceData InNodeInstanceData, in BTNode InChild)
+		protected static void ConditionalLog(in string InMessage, in BTNodeInstanceData InContext)
+		{
+			if (BehaviourTree.bLogEnabled)
+			{
+				BTNode asset = InContext.NodeAsset;
+				AIController controller = InContext.Controller;
+				Debug.Log($"{controller.name}: {asset.GetType().Name}({asset.name}): {InMessage}", controller);
+			}
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		protected static BTNodeInstanceData GetNodeInstanceData(in BTNodeInstanceData InNodeInstanceData, in BTNode InChild)
 		{
 			return InNodeInstanceData.BehaviourTreeInstanceData.NodesInstanceData.At(InChild.NodeIndex);
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		protected static bool GetFirstAnchestorOfType<T>(in BTNodeInstanceData InNodeInstanceData, out BTNode[] OutPath, out T OutAnchestor) where T : BTNode
+		{
+			OutAnchestor = null;
+			var outPathList = new List<BTNode>();
+			{
+				BTNode current = InNodeInstanceData.ParentInstanceData.NodeAsset;
+				while (current is not T)
+				{
+					if (current == null)
+					{
+						break;
+					}
+					else
+					{
+						outPathList.Add(current);
+						current = current.ParentAsset;
+					}
+				}
+				OutAnchestor = current as T;
+			}
+			OutPath = outPathList.ToArray();
+			return OutAnchestor.IsNotNull();
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -81,34 +118,31 @@ namespace Entities.AI.Components.Behaviours
 			// Activation
 			if (InThisNodeInstanceData.NodeState == EBTNodeState.INACTIVE)
 			{
-				var activationResult = OnActivation(InThisNodeInstanceData);
-				if (!BTNode.IsFinished(activationResult)) // Check termination on activation
-				{
-					InThisNodeInstanceData.BehaviourTreeInstanceData.SetRunningNode(InThisNodeInstanceData);
-				}
-				InThisNodeInstanceData.SetNodeState(activationResult);
-				Utils.CustomAssertions.IsTrue(activationResult != EBTNodeState.INACTIVE);
+				ConditionalLog($"Activation", InThisNodeInstanceData);
+
+				// Check termination on activation
+				EBTNodeInitializationResult activationResult = OnActivation(InThisNodeInstanceData);
+				
+				InThisNodeInstanceData.SetNodeState((EBTNodeState)activationResult);
 			}
 
 			// Update
 			if (InThisNodeInstanceData.NodeState == EBTNodeState.RUNNING)
 			{
-				InThisNodeInstanceData.SetNodeState(OnUpdate(InThisNodeInstanceData, InDeltaTime));
+				ConditionalLog($"Update", InThisNodeInstanceData);
+				InThisNodeInstanceData.SetNodeState(OnNodeUpdate(InThisNodeInstanceData, InDeltaTime));
 			}
 
 			// Finished
 			if (BTNode.IsFinished(InThisNodeInstanceData))
 			{
-				if (InThisNodeInstanceData.NodeState == EBTNodeState.SUCCEEDED)
-				{
-					OnTerminateSuccess(InThisNodeInstanceData);
-				}
+				ConditionalLog($"Finished with {InThisNodeInstanceData.NodeState}", InThisNodeInstanceData);
+				OnTermination(InThisNodeInstanceData);
 
-				if (InThisNodeInstanceData.NodeState == EBTNodeState.FAILED)
+				if (this is not BTRootNode)
 				{
-					OnTerminateFailure(InThisNodeInstanceData);
+					InThisNodeInstanceData.BehaviourTreeInstanceData.SetRunningNode(InThisNodeInstanceData.ParentInstanceData);
 				}
-				InThisNodeInstanceData.BehaviourTreeInstanceData.SetRunningNode(InThisNodeInstanceData.ParentInstanceData);
 			}
 			return InThisNodeInstanceData.NodeState;
 		}
@@ -117,6 +151,8 @@ namespace Entities.AI.Components.Behaviours
 		/// <summary> Abort this node </summary>
 		public void AbortAndResetNode(in BTNodeInstanceData InThisNodeInstanceData)
 		{
+			ConditionalLog($"Aborting", InThisNodeInstanceData);
+
 			OnNodeAbort(InThisNodeInstanceData);
 
 			ResetNode(InThisNodeInstanceData);
@@ -126,6 +162,8 @@ namespace Entities.AI.Components.Behaviours
 		/// <summary> Reset this node </summary>
 		public void ResetNode(in BTNodeInstanceData InThisNodeInstanceData)
 		{
+			ConditionalLog($"Resetting", InThisNodeInstanceData);
+
 			InThisNodeInstanceData.SetNodeState(EBTNodeState.INACTIVE);
 
 			OnNodeReset(InThisNodeInstanceData);
@@ -135,13 +173,11 @@ namespace Entities.AI.Components.Behaviours
 		/// <summary> Called tree awake, before start </summary>
 		protected virtual void OnAwakeInternal(in BTNodeInstanceData InThisNodeInstanceData) { }
 		/// <summary> Called on node activation, can decide if node can be run or not </summary>
-		protected virtual EBTNodeState OnActivation(in BTNodeInstanceData InThisNodeInstanceData) => EBTNodeState.RUNNING;
+		protected virtual EBTNodeInitializationResult OnActivation(in BTNodeInstanceData InThisNodeInstanceData) => EBTNodeInitializationResult.RUNNING;
 		/// <summary> Called immediately after succeeded activation and every tree loop till node is finished </summary>
-		protected virtual EBTNodeState OnUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime) => EBTNodeState.SUCCEEDED;
-		/// <summary> Called when node terminate execution with success </summary>
-		protected virtual void OnTerminateSuccess(in BTNodeInstanceData InThisNodeInstanceData) { }
-		/// <summary> Called when node terminate execution with failure </summary>
-		protected virtual void OnTerminateFailure(in BTNodeInstanceData InThisNodeInstanceData) { }
+		protected virtual EBTNodeState OnNodeUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime) => EBTNodeState.SUCCEEDED;
+		/// <summary> Called when node terminate execution </summary>
+		protected virtual void OnTermination(in BTNodeInstanceData InThisNodeInstanceData) { }
 		/// <summary> Called when node is aborted followed by a reset, no other calls should come to this node </summary>
 		protected virtual void OnNodeAbort(in BTNodeInstanceData InThisNodeInstanceData) { }
 		/// <summary> The node is resetting its internal state </summary>

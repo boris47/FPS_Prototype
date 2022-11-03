@@ -7,7 +7,7 @@ namespace Entities.AI.Components.Behaviours
 	public class BTTask_Idle : BTTaskNode
 	{
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime) => EBTNodeState.RUNNING;
+		protected override EBTNodeState OnNodeUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime) => EBTNodeState.RUNNING;
 
 	}
 }

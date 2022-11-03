@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Entities.AI.Components.Behaviours
 {
@@ -11,36 +10,37 @@ namespace Entities.AI.Components.Behaviours
 	public class BTDecorator_SightEventToTargetEntity : BTDecoratorNode
 	{
 		[SerializeReference, ToNodeInspector, BlackboardKeyType(typeof(BBEntry_SightEvent))]
-		private				BlackboardEntryKey								m_BlackboardKeyEvent									= null;
+		private				BlackboardEntryKey								m_InputEventKey										= null;
 
 		[SerializeReference, ToNodeInspector, BlackboardKeyType(typeof(BBEntry_Entity))]
-		private				BlackboardEntryKey								m_TargetBlackboardKey									= null;
+		private				BlackboardEntryKey								m_OutputEventKey									= null;
 
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
+		protected override EBTNodeInitializationResult OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			EBTNodeState OutState = EBTNodeState.FAILED;
-			if (Child.IsNotNull())
+			EBTNodeInitializationResult OutState = EBTNodeInitializationResult.FAILED;
+			if (ChildAsset.IsNotNull())
 			{
 				BlackboardInstanceData bbInstanceData = InThisNodeInstanceData.BehaviourTreeInstanceData.BlackboardInstanceData;
-				if (bbInstanceData.TryGetEntry(m_BlackboardKeyEvent, out BBEntry_SightEvent sightEventEntry))
+				if (bbInstanceData.TryGetEntry(m_InputEventKey, out BBEntry_SightEvent sightEventEntry))
 				{
 					if (sightEventEntry.Value.TargetInfoType != Senses.ESightTargetEventType.LOST)
 					{
-						bbInstanceData.SetEntryValue<BBEntry_Entity, Entity>(m_TargetBlackboardKey, sightEventEntry.Value.EntitySeen);
-						OutState = EBTNodeState.RUNNING;
+						bbInstanceData.SetEntryValue<BBEntry_Entity, Entity>(m_OutputEventKey, sightEventEntry.Value.EntitySeen);
+						OutState = EBTNodeInitializationResult.RUNNING;
 					}
 				}
 			}
 			return OutState;
 		}
 
+
 		//////////////////////////////////////////////////////////////////////////
 		protected override void OnNodeAbort(in BTNodeInstanceData InThisNodeInstanceData)
 		{
 			BlackboardInstanceData bbInstanceData = InThisNodeInstanceData.BehaviourTreeInstanceData.BlackboardInstanceData;
-			bbInstanceData.RemoveEntry(m_TargetBlackboardKey);
+			bbInstanceData.RemoveEntry(m_OutputEventKey, false);
 
 			base.OnNodeAbort(InThisNodeInstanceData);
 		}

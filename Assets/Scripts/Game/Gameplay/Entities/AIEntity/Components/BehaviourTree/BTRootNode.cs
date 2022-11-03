@@ -7,40 +7,69 @@ namespace Entities.AI.Components.Behaviours
 	public sealed partial class BTRootNode : BTNode, IParentNode
 	{
 		[SerializeField, HideInInspector]
-		private			BTNode			m_Child					= null;
+		private			BTNode			m_ChildAsset					= null;
 
 		[SerializeField, ToNodeInspector(bInShowDefaultLabel: true)]
 		private			bool			m_MustRepeat			= false;
 
 		//---------------------
-		public			BTNode			Child					=> m_Child;
+	//	public			BTNode			Child					=> m_Child;
 
-		IReadOnlyList<BTNode>					IParentNode.Children
+		BTNode[]						IParentNode.Children
 		{
 			get
 			{
 				List<BTNode> children = new List<BTNode>();
-				if (m_Child.IsNotNull())
+				if (m_ChildAsset.IsNotNull())
 				{
-					children.Add(m_Child);
+					children.Add(m_ChildAsset);
 				}
-				return children;
+				return children.ToArray();
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected sealed override EBTNodeState OnUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
+		protected override EBTNodeInitializationResult OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
+		{
+			EBTNodeInitializationResult OutState = EBTNodeInitializationResult.SUCCEEDED;
+			{
+				if (m_ChildAsset.IsNotNull())
+				{
+					OutState = EBTNodeInitializationResult.RUNNING;
+				}
+			}
+			return OutState;
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		protected sealed override EBTNodeState OnNodeUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
 		{
 			EBTNodeState OutState = EBTNodeState.SUCCEEDED;
-			if (m_Child.IsNotNull())
+			if (m_ChildAsset.IsNotNull())
 			{
-				BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, m_Child);
+				OutState = EBTNodeState.RUNNING;
 
-				OutState = m_Child.UpdateNode(childInstanceData, InDeltaTime);
-				if (BTNode.IsFinished(OutState) && m_MustRepeat)
+				BTNodeInstanceData childInstanceData = GetNodeInstanceData(InThisNodeInstanceData, m_ChildAsset);
+
+				if (Utils.CustomAssertions.IsTrue(childInstanceData.NodeState != EBTNodeState.RUNNING))
 				{
-					m_Child.ResetNode(childInstanceData);
-					OutState = EBTNodeState.RUNNING;
+					if (childInstanceData.NodeState == EBTNodeState.INACTIVE)
+					{
+						ConditionalLog($"Child node {m_ChildAsset.name} set as running node", InThisNodeInstanceData);
+						childInstanceData.SetAsRunningNode();
+					}
+					else
+					{
+						ConditionalLog($"Child node {m_ChildAsset.name} has finished with {childInstanceData.NodeState}", InThisNodeInstanceData);
+						if (m_MustRepeat)
+						{
+							m_ChildAsset.ResetNode(childInstanceData);
+						}
+						else
+						{
+							OutState = EBTNodeState.SUCCEEDED;
+						}
+					}
 				}
 			}
 			return OutState;
@@ -51,11 +80,9 @@ namespace Entities.AI.Components.Behaviours
 		{
 			base.OnNodeAbort(InThisNodeInstanceData);
 
-			if (m_Child.IsNotNull())
+			if (m_ChildAsset.IsNotNull())
 			{
-				BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, m_Child);
-
-				m_Child.AbortAndResetNode(childInstanceData);
+				m_ChildAsset.AbortAndResetNode(GetNodeInstanceData(InThisNodeInstanceData, m_ChildAsset));
 			}
 		}
 
@@ -64,11 +91,9 @@ namespace Entities.AI.Components.Behaviours
 		{
 			base.OnNodeReset(InThisNodeInstanceData);
 
-			if (m_Child.IsNotNull())
+			if (m_ChildAsset.IsNotNull())
 			{
-				BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, m_Child);
-
-				m_Child.ResetNode(childInstanceData);
+				m_ChildAsset.ResetNode(GetNodeInstanceData(InThisNodeInstanceData, m_ChildAsset));
 			}
 		}
 	}
@@ -84,7 +109,7 @@ namespace Entities.AI.Components.Behaviours
 		//////////////////////////////////////////////////////////////////////////
 		public static void SetChild(in BTRootNode InRootNode, in BTNode InChildNode)
 		{
-			InRootNode.m_Child = InChildNode;
+			InRootNode.m_ChildAsset = InChildNode;
 		}
 	}
 }

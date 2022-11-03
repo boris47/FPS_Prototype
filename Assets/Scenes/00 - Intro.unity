@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657874, g: 0.49641258, b: 0.5748172, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -848,6 +848,103 @@ Transform:
   m_Father: {fileID: 2115287645}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
+--- !u!1 &183036181
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 183036182}
+  - component: {fileID: 183036185}
+  - component: {fileID: 183036184}
+  - component: {fileID: 183036183}
+  m_Layer: 0
+  m_Name: Cube
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &183036182
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 183036181}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.595, z: 0.223}
+  m_LocalScale: {x: 0.5, y: 0.18, z: 0.7}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 956655880}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &183036183
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 183036181}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!23 &183036184
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 183036181}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &183036185
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 183036181}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &193883420
 GameObject:
   m_ObjectHideFlags: 0
@@ -2407,14 +2504,12 @@ GameObject:
   - component: {fileID: 956655877}
   - component: {fileID: 956655876}
   - component: {fileID: 956655875}
-  - component: {fileID: 956655874}
   - component: {fileID: 956655873}
   - component: {fileID: 956655871}
   - component: {fileID: 956655869}
   - component: {fileID: 956655870}
   - component: {fileID: 956655882}
   - component: {fileID: 956655881}
-  - component: {fileID: 956655883}
   - component: {fileID: 956655884}
   m_Layer: 0
   m_Name: GroundedEntityEnemy
@@ -2458,7 +2553,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Owner: {fileID: 956655869}
   m_DefaultMotionStrategyType:
-    GuidAssignmentFailed: 0
+    GuidAssignmentFailed: 1
     GUID: 9583faf8bd6fa0f429cc62a141229256
     _typeNameAndAssembly: Entities.AI.Components.AIMotionStrategyGrounded, Assembly-CSharp
     _suppressLogs: 0
@@ -2497,27 +2592,6 @@ MonoBehaviour:
   m_Entity: {fileID: 956655869}
   m_Controller: {fileID: 956655871}
   m_BehaviourTreeAsset: {fileID: 11400000, guid: 1d5f0e69ce5e90244a5c04c93d938f5f, type: 2}
-  m_TreeInstanceData:
-    m_TreeAsset: {fileID: 0}
-    m_TreeInstance: {fileID: 0}
-    m_Controller: {fileID: 0}
-    m_RunningNodeLocked: 0
-    m_TreeState: 0
---- !u!114 &956655874
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 956655868}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 78b71764750c9244e90d0257973450bc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Owner: {fileID: 0}
-  m_Entity: {fileID: 956655869}
-  m_Controller: {fileID: 956655871}
 --- !u!114 &956655875
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2533,8 +2607,6 @@ MonoBehaviour:
   m_Owner: {fileID: 0}
   m_Entity: {fileID: 956655869}
   m_Controller: {fileID: 956655871}
-  m_AIEntityActionsComponent: {fileID: 956655874}
-  m_MemoryComponent: {fileID: 956655883}
   m_TargetAcquisitionStrategy: 1
 --- !u!195 &956655876
 NavMeshAgent:
@@ -2635,6 +2707,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 159354381}
+  - {fileID: 183036182}
   m_Father: {fileID: 0}
   m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
@@ -2669,30 +2742,7 @@ MonoBehaviour:
   m_Owner: {fileID: 0}
   m_Entity: {fileID: 956655869}
   m_Controller: {fileID: 956655871}
-  m_MovementCollider: {fileID: 0}
-  m_TargetPosition: {x: 0, y: 0, z: 0}
-  m_TargetPositionOffset: {x: 0, y: 0, z: 0}
-  m_TargetPositionOffsetDefault: {x: 0, y: 0, z: 0}
   m_Agent: {fileID: 956655876}
---- !u!114 &956655883
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 956655868}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d3255946e68643e4d954befff74fbcd9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Owner: {fileID: 0}
-  m_Entity: {fileID: 956655869}
-  m_Controller: {fileID: 956655871}
-  m_Memories: []
-  references:
-    version: 2
-    RefIds: []
 --- !u!114 &956655884
 MonoBehaviour:
   m_ObjectHideFlags: 0

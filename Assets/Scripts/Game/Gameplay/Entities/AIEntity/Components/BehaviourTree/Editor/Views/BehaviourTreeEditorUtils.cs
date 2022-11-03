@@ -129,12 +129,12 @@ namespace Entities.AI.Components.Behaviours
 						{
 							if (node.ParentAsset.IsNotNull() || node is BTRootNode)
 							{
-								node.name = $"{node.NodeIndex.ToString().PadLeft(3, '0')}. {node.GetType().Name}";
+								node.name = $"{node.NodeIndex.ToString().PadLeft(3, '0')}.{node.GetType().Name}";
 							}
 							else
 							{
 								BTNode.Editor.SetNodeIndex(node, 1000u);  // Expose a const somewhere to limit node numbers
-								node.name = $"---. {node.GetType().Name}";
+								node.name = $"---.{node.GetType().Name}";
 							}
 
 							// update in graph view

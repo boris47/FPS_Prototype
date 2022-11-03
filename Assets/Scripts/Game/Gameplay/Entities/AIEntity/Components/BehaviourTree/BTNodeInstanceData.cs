@@ -6,7 +6,7 @@ namespace Entities.AI.Components.Behaviours
 	//////////////////////////////////////////////////////////////////////////
 	public class BTNodeInstanceData
 	{
-		private readonly	BehaviourTreeInstanceData		m_InBehaviourTreeInstanceData	= null;
+		private readonly	BehaviourTreeInstanceData		m_BehaviourTreeInstanceData	= null;
 		private readonly	BlackboardInstanceData			m_BlackboardInstanceData		= null;
 		private readonly	BTNode							m_NodeAsset						= null;
 		private readonly	BTNode							m_NodeInstance					= null;
@@ -16,18 +16,18 @@ namespace Entities.AI.Components.Behaviours
 		private				EBTNodeState					m_NodeState						= EBTNodeState.INACTIVE;
 
 		//---------------------
-		public				BehaviourTreeInstanceData		BehaviourTreeInstanceData		=> m_InBehaviourTreeInstanceData;
+		public				BehaviourTreeInstanceData		BehaviourTreeInstanceData		=> m_BehaviourTreeInstanceData;
 		public				BTNode							NodeAsset						=> m_NodeAsset;
 		public				BTNode							NodeInstance					=> m_NodeInstance;
 		public				BTNodeInstanceData				ParentInstanceData				=> m_ParentInstanceData;
 		public				EBTNodeState					NodeState						=> m_NodeState;
-		public				AIController					Controller						=> m_InBehaviourTreeInstanceData.Controller;
+		public				AIController					Controller						=> m_BehaviourTreeInstanceData.Controller;
 
 
 		//////////////////////////////////////////////////////////////////////////
 		public BTNodeInstanceData(in BehaviourTreeInstanceData InTreeInstanceData, in BlackboardInstanceData InBlackboardInstanceData, in BTNode InNodeAsset, in BTNode InNodeInstance, in BTNodeInstanceData InParentInstanceData = null)
 		{
-			m_InBehaviourTreeInstanceData = InTreeInstanceData;
+			m_BehaviourTreeInstanceData = InTreeInstanceData;
 			m_BlackboardInstanceData = InBlackboardInstanceData;
 			m_NodeAsset = InNodeAsset;
 			m_NodeInstance = InNodeInstance;
@@ -38,6 +38,12 @@ namespace Entities.AI.Components.Behaviours
 		public void SetNodeState(in EBTNodeState InNewState)
 		{
 			m_NodeState = InNewState;
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public void SetAsRunningNode()
+		{
+			m_BehaviourTreeInstanceData.SetRunningNode(this);
 		}
 
 		//////////////////////////////////////////////////////////////////////////

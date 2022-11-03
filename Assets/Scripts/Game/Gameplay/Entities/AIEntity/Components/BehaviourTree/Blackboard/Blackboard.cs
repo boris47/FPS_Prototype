@@ -147,28 +147,30 @@ namespace Entities.AI.Components
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public void RemoveEntry(in BlackboardInstanceData InBlackboardInstanceData, BlackboardEntryKey InBlackboardKey)
+		public void RemoveEntry(in BlackboardInstanceData InBlackboardInstanceData, BlackboardEntryKey InBlackboardKey, in bool bNotify = true)
 		{
 			if (InBlackboardKey.IsValid() && InBlackboardInstanceData.TryGetIndexOfEntry(InBlackboardKey, out int index))
 			{
-				List<int> toRemove = new List<int>();
-
-				List<BlackboardEntryBase.OnChangeDel> observersList = InBlackboardInstanceData.GetObserversFor(InBlackboardKey);
-				for (int i = observersList.Count - 1; i >= 0; i--)
+				if (bNotify)
 				{
-					if (observersList[i](InBlackboardInstanceData, InBlackboardKey, EBlackboardValueOp.REMOVE) == EOnChangeDelExecutionResult.REMOVE)
+					List<int> toRemove = new List<int>();
+					List<BlackboardEntryBase.OnChangeDel> observersList = InBlackboardInstanceData.GetObserversFor(InBlackboardKey);
+					for (int i = observersList.Count - 1; i >= 0; i--)
 					{
-						toRemove.Add(i);
+						if (observersList[i](InBlackboardInstanceData, InBlackboardKey, EBlackboardValueOp.REMOVE) == EOnChangeDelExecutionResult.REMOVE)
+						{
+							toRemove.Add(i);
+						}
 					}
-				}
-				foreach (int indexx in toRemove)
-				{
-					observersList.RemoveAt(indexx);
-				}
+					foreach (int indexx in toRemove)
+					{
+						observersList.RemoveAt(indexx);
+					}
 
-				if (observersList.Count == 0)
-				{
-					InBlackboardInstanceData.RemoveObserversFor(InBlackboardKey);
+					if (observersList.Count == 0)
+					{
+						InBlackboardInstanceData.RemoveObserversFor(InBlackboardKey);
+					}
 				}
 
 				InBlackboardInstanceData.Entries.RemoveAt(index);

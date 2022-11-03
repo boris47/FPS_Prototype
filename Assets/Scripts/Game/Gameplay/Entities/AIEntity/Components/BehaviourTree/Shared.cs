@@ -28,18 +28,31 @@ namespace Entities.AI.Components.Behaviours
 
 	public interface IParentNode
 	{
-		IReadOnlyList<BTNode> Children { get; }
+		BTNode[] Children { get; }
+	}
+
+	[System.Serializable]
+	public enum EBTNodeInitializationResult
+	{
+		/// <summary> Produce the call on OnNodeUpdate </summary>
+		RUNNING = EBTNodeState.RUNNING,
+		/// <summary> Terminate the node with failure </summary>
+		FAILED = EBTNodeState.FAILED,
+		/// <summary> Terminate the node with success </summary>
+		SUCCEEDED = EBTNodeState.SUCCEEDED
 	}
 
 	[System.Serializable]
 	public enum EBTNodeState
 	{
-		INACTIVE,       // not has not state defined
-		RUNNING,        // not finished yet
-	//	ABORTING,       // start aborting
-		FAILED,         // finished as failure
-		SUCCEEDED,      // finished as success
-	//	ABORTED,        // finished aborting
+		/// <summary> No State </summary>
+		INACTIVE,
+		/// <summary> Not finished yet </summary>
+		RUNNING,
+		/// <summary> finished as failure </summary>
+		FAILED,
+		/// <summary> finished as success </summary>
+		SUCCEEDED,
 	}
 
 	public class BTNodeDetailsAttribute : System.Attribute

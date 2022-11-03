@@ -89,11 +89,23 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
+		protected static void ConditionalLog(in string InMessage, in Object InContext)
+		{
+			if (BehaviourTree.bLogEnabled) Debug.Log($"{InContext.name}: {InMessage}", InContext);
+		}
+
+		//////////////////////////////////////////////////////////////////////////
 		public void SetRunningNodeLocked(in bool bLocked) => m_RunningNodeLocked = bLocked;
 
 		//////////////////////////////////////////////////////////////////////////
-		public void SetRunningNode(in BTNodeInstanceData InNode) => m_CurrentRunningNode = InNode;
-
+		public void SetRunningNode(in BTNodeInstanceData InNode)
+		{
+			if (Utils.CustomAssertions.IsNotNull(InNode) && (InNode.ParentInstanceData == null || Utils.CustomAssertions.IsTrue(InNode.ParentInstanceData.NodeState == EBTNodeState.RUNNING)))
+			{
+				ConditionalLog($"Setting as runnning node {InNode.NodeAsset.name}", m_Controller);
+				m_CurrentRunningNode = InNode;
+			}
+		}
 
 		//////////////////////////////////////////////////////////////////////////
 		public void AddTickable(in BTNodeInstanceData InTickableData, in System.Action<BTNodeInstanceData, float> InOnTick)

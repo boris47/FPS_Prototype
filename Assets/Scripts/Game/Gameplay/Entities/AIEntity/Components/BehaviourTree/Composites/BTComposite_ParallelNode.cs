@@ -44,10 +44,10 @@ namespace Entities.AI.Components.Behaviours
 
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
+		protected override EBTNodeInitializationResult OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			EBTNodeState OutState = base.OnActivation(InThisNodeInstanceData);
-			if (OutState == EBTNodeState.RUNNING)
+			EBTNodeInitializationResult OutState = base.OnActivation(InThisNodeInstanceData);
+			if (OutState == EBTNodeInitializationResult.RUNNING)
 			{
 				ParallelNodeData nodeData = GetRuntimeData<ParallelNodeData>(InThisNodeInstanceData);
 
@@ -55,7 +55,7 @@ namespace Entities.AI.Components.Behaviours
 				nodeData.SuccessCount = 0;
 				nodeData.FailureCount = 0;
 
-				for (int i = 0, count = Children.Count; i < count; ++i)
+				for (int i = 0, count = Children.Length; i < count; ++i)
 				{
 					nodeData.RunningChildren.Set(i, true); // On actiovation set as started
 				}
@@ -65,18 +65,18 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
+		protected override EBTNodeState OnNodeUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
 		{
 			EBTNodeState OutState = EBTNodeState.RUNNING;
 			{
 				ParallelNodeData nodeData = GetRuntimeData<ParallelNodeData>(InThisNodeInstanceData);
-				for (int index = 0, count = Children.Count; index < count; ++index)
+				for (int index = 0, count = Children.Length; index < count; ++index)
 				{
 					bool childIsRunning = nodeData.RunningChildren.Get(index);
 					if (childIsRunning)
 					{
 						BTNode child = Children[index];
-						BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, child);
+						BTNodeInstanceData childInstanceData = GetNodeInstanceData(InThisNodeInstanceData, child);
 						EBTNodeState childState = child.UpdateNode(childInstanceData, InDeltaTime);
 						if (BTNode.IsFinished(childState))
 						{
@@ -93,20 +93,36 @@ namespace Entities.AI.Components.Behaviours
 					}
 				}
 
-				if ((m_SuccessMode == ESuccessMode.All && nodeData.SuccessCount == Children.Count)
+				// Success or Restart
+				if ((m_SuccessMode == ESuccessMode.All && nodeData.SuccessCount == Children.Length)
 					||
 					(m_SuccessMode == ESuccessMode.Any && nodeData.SuccessCount > 0)
 				)
 				{
-					OutState = EBTNodeState.SUCCEEDED;
+					if (MustRepeat)
+					{
+						ResetNode(InThisNodeInstanceData);
+					}
+					else
+					{
+						OutState = EBTNodeState.SUCCEEDED;
+					}
 				}
 
-				if ((m_FailureMode == EFailureMode.All && nodeData.FailureCount == Children.Count)
+				// Failure or Restart
+				if ((m_FailureMode == EFailureMode.All && nodeData.FailureCount == Children.Length)
 					||
 					(m_FailureMode == EFailureMode.Any && nodeData.FailureCount > 0)
 				)
 				{
-					OutState = EBTNodeState.FAILED;
+					if (MustRepeat)
+					{
+						ResetNode(InThisNodeInstanceData);
+					}
+					else
+					{
+						OutState = EBTNodeState.FAILED;
+					}
 				}
 			}
 			return OutState;
@@ -116,12 +132,12 @@ namespace Entities.AI.Components.Behaviours
 		protected override void OnNodeAbort(in BTNodeInstanceData InThisNodeInstanceData)
 		{
 			ParallelNodeData nodeData = GetRuntimeData<ParallelNodeData>(InThisNodeInstanceData);
-			for (int i = 0, count = Children.Count; i < count; ++i)
+			for (int i = 0, count = Children.Length; i < count; ++i)
 			{
 				if (nodeData.RunningChildren.Get(i))
 				{
 					BTNode child = Children[i];
-					BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, child);
+					BTNodeInstanceData childInstanceData = GetNodeInstanceData(InThisNodeInstanceData, child);
 					child.AbortAndResetNode(childInstanceData);
 				}
 			}

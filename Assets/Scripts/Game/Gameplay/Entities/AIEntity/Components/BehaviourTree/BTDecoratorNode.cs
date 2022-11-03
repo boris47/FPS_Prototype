@@ -7,46 +7,60 @@ namespace Entities.AI.Components.Behaviours
 	[BTNodeDetails("Decorator")]
 	public abstract partial class BTDecoratorNode : BTNode, IParentNode
 	{
-		[SerializeField, /*ReadOnly*/HideInInspector]
-		private				BTNode			m_Child					= null;
+		[SerializeField, HideInInspector]
+		private				BTNode			m_ChildAsset			= null;
 
 		//---------------------
-		public				BTNode			Child					=> m_Child;
+		public				BTNode			ChildAsset				=> m_ChildAsset;
 
-		IReadOnlyList<BTNode>						IParentNode.Children
+		BTNode[]							IParentNode.Children
 		{
 			get
 			{
 				List<BTNode> children = new List<BTNode>();
-				if (m_Child.IsNotNull())
+				if (m_ChildAsset.IsNotNull())
 				{
-					children.Add(m_Child);
+					children.Add(m_ChildAsset);
 				}
-				return children;
+				return children.ToArray();
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
+		protected override EBTNodeInitializationResult OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			EBTNodeState OutState = EBTNodeState.RUNNING;
-
-			if (m_Child.IsNull())
+			EBTNodeInitializationResult OutState = EBTNodeInitializationResult.SUCCEEDED;
 			{
-				OutState = EBTNodeState.SUCCEEDED;
+				if (m_ChildAsset.IsNotNull())
+				{
+					OutState = EBTNodeInitializationResult.RUNNING;
+				}
 			}
-
 			return OutState;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
+		/// <summary> OnNodeUpdate gets called once a child terminates its execution </summary>
+		protected override EBTNodeState OnNodeUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
 		{
-			EBTNodeState OutState = EBTNodeState.FAILED;
-			if (Child.IsNotNull())
+			EBTNodeState OutState = base.OnNodeUpdate(InThisNodeInstanceData, InDeltaTime);
+			BTNodeInstanceData childInstanceData = GetNodeInstanceData(InThisNodeInstanceData, m_ChildAsset);
+			if (Utils.CustomAssertions.IsTrue(childInstanceData.NodeState != EBTNodeState.RUNNING))
 			{
-				BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, Child);
-				OutState = Child.UpdateNode(childInstanceData, InDeltaTime);
+				if (childInstanceData.NodeState == EBTNodeState.INACTIVE)
+				{
+					ConditionalLog($"Child node {m_ChildAsset.name} set as running node", InThisNodeInstanceData);
+
+					childInstanceData.SetAsRunningNode();
+
+					OutState = EBTNodeState.RUNNING;
+				}
+				else
+				{
+					ConditionalLog($"Child node {m_ChildAsset.name} has finished with {childInstanceData.NodeState}", InThisNodeInstanceData);
+			
+					OutState = childInstanceData.NodeState;
+				}
 			}
 			return OutState;
 		}
@@ -56,13 +70,9 @@ namespace Entities.AI.Components.Behaviours
 		{
 			base.OnNodeAbort(InThisNodeInstanceData);
 
-			if (m_Child.IsNotNull())
+			if (m_ChildAsset.IsNotNull())
 			{
-				BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, m_Child);
-				if (Utils.CustomAssertions.IsNotNull(childInstanceData))
-				{
-					m_Child.AbortAndResetNode(childInstanceData);
-				}
+				m_ChildAsset.AbortAndResetNode(GetNodeInstanceData(InThisNodeInstanceData, m_ChildAsset));
 			}
 		}
 
@@ -71,13 +81,9 @@ namespace Entities.AI.Components.Behaviours
 		{
 			base.OnNodeReset(InThisNodeInstanceData);
 
-			if (m_Child.IsNotNull())
+			if (m_ChildAsset.IsNotNull())
 			{
-				BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, m_Child);
-				if (Utils.CustomAssertions.IsNotNull(childInstanceData))
-				{
-					m_Child.ResetNode(childInstanceData);
-				}
+				m_ChildAsset.ResetNode(GetNodeInstanceData(InThisNodeInstanceData, m_ChildAsset));
 			}
 		}
 	}
@@ -95,7 +101,7 @@ namespace Entities.AI.Components.Behaviours
 			//////////////////////////////////////////////////////////////////////////
 			public static void SetChild(in BTDecoratorNode InDecoratorNode, in BTNode InChildNode)
 			{
-				InDecoratorNode.m_Child = InChildNode;
+				InDecoratorNode.m_ChildAsset = InChildNode;
 			}
 		}
 	}

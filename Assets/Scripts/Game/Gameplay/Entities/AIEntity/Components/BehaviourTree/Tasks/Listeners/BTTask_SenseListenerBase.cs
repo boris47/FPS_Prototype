@@ -8,16 +8,13 @@ namespace Entities.AI.Components.Behaviours
 	public abstract class BTTask_SenseListenerBase : BTTaskNode
 	{
 		//////////////////////////////////////////////////////////////////////////
-		protected sealed override EBTNodeState OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
+		protected sealed override EBTNodeInitializationResult OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			EBTNodeState outState = EBTNodeState.SUCCEEDED;
-
 			RuntimeData nodeRuntimeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
 			{
 				nodeRuntimeData.Enable();
 			}
-			
-			return outState;
+			return EBTNodeInitializationResult.SUCCEEDED;
 		}
 
 		//////////////////////////////////////////////////////////////////////////

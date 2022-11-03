@@ -23,7 +23,7 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
+		protected override EBTNodeState OnNodeUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
 		{
 			EBTNodeState OutState = EBTNodeState.FAILED;
 			if (TryGetKeyData(InThisNodeInstanceData, out Vector3? targetPosition, out Vector3? targetDirection))
@@ -35,25 +35,22 @@ namespace Entities.AI.Components.Behaviours
 				{
 				//	OutState = EBTNodeState.FAILED; // ??? i have to solve this
 					InThisNodeInstanceData.BehaviourTreeInstanceData.Controller.Stop(bImmediately: false);
+
+					InThisNodeInstanceData.BehaviourTreeInstanceData.BlackboardInstanceData.RemoveEntry(m_BlackboardKey, false);
+
+					OutState = EBTNodeState.FAILED;
 				}
 			}
 			return OutState;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override void OnTerminateSuccess(in BTNodeInstanceData InThisNodeInstanceData)
+		protected override void OnTermination(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			base.OnTerminateSuccess(InThisNodeInstanceData);
+			base.OnTermination(InThisNodeInstanceData);
 
-			InThisNodeInstanceData.BehaviourTreeInstanceData.Controller.Stop(bImmediately: false);
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		protected override void OnTerminateFailure(in BTNodeInstanceData InThisNodeInstanceData)
-		{
-			base.OnTerminateFailure(InThisNodeInstanceData);
-
-			InThisNodeInstanceData.BehaviourTreeInstanceData.Controller.Stop(bImmediately: true);
+			bool bImmediately = InThisNodeInstanceData.NodeState == EBTNodeState.FAILED;
+			InThisNodeInstanceData.BehaviourTreeInstanceData.Controller.Stop(bImmediately);
 		}
 
 		//////////////////////////////////////////////////////////////////////////

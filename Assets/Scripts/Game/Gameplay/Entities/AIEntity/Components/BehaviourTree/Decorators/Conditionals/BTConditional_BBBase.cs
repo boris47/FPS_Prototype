@@ -16,30 +16,29 @@ namespace Entities.AI.Components.Behaviours
 		//////////////////////////////////////////////////////////////////////////
 		protected override void StartObserve(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			if (BlackboardKey.IsValid() && m_AbortType != EAbortType.None)
+			if (ChildAsset.IsNotNull() && BlackboardKey.IsValid() && m_AbortType != EAbortType.None)
 			{
-				InThisNodeInstanceData.AddObserver(BlackboardKey, ConditionalAbort);
+				InThisNodeInstanceData.AddObserver(BlackboardKey, OnKeyValueChange);
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
 		protected override void StopObserve(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			if (BlackboardKey.IsValid())
+			if (ChildAsset.IsNotNull() && BlackboardKey.IsValid())
 			{
-				InThisNodeInstanceData.RemoveObserver(BlackboardKey, ConditionalAbort);
+				InThisNodeInstanceData.RemoveObserver(BlackboardKey, OnKeyValueChange);
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		private EOnChangeDelExecutionResult ConditionalAbort(in BlackboardInstanceData InBlackboardInstance, in BlackboardEntryKey InKey, in EBlackboardValueOp InOperation)
+		private EOnChangeDelExecutionResult OnKeyValueChange(in BlackboardInstanceData InBlackboardInstance, in BlackboardEntryKey InKey, in EBlackboardValueOp InOperation)
 		{
 			EOnChangeDelExecutionResult OutResult = EOnChangeDelExecutionResult.LEAVE;
-
-			BTNodeInstanceData thisNodeInstanceData = InBlackboardInstance.BehaviourTreeInstanceData.NodesInstanceData[NodeIndex];
-
-			if (Utils.CustomAssertions.IsTrue(m_AbortType != EAbortType.None))
+			if (ChildAsset.IsNotNull() && Utils.CustomAssertions.IsTrue(m_AbortType != EAbortType.None))
 			{
+				BTNodeInstanceData thisNodeInstanceData = InBlackboardInstance.BehaviourTreeInstanceData.NodesInstanceData[NodeIndex];
+				
 				// On value removed(set default) conditional will fail and this node will abort returning flow control to parent
 				if (InOperation == EBlackboardValueOp.REMOVE)
 				{
@@ -53,10 +52,10 @@ namespace Entities.AI.Components.Behaviours
 					{
 						if (Utils.CustomAssertions.IsTrue(thisNodeInstanceData.NodeState == EBTNodeState.RUNNING))
 						{
-							BTNodeInstanceData childInstanceData = GetChildInstanceData(thisNodeInstanceData, Child);
-							Child.AbortAndResetNode(childInstanceData);
+							BTNodeInstanceData childInstanceData = GetNodeInstanceData(thisNodeInstanceData, ChildAsset);
+							ChildAsset.AbortAndResetNode(GetNodeInstanceData(thisNodeInstanceData, ChildAsset));
 
-							childInstanceData.BehaviourTreeInstanceData.SetRunningNode(childInstanceData);
+							childInstanceData.SetAsRunningNode();
 						}
 					}
 				}

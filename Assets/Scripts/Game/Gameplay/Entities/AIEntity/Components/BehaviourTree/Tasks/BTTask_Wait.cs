@@ -20,17 +20,17 @@ namespace Entities.AI.Components.Behaviours
 		protected override RuntimeDataBase CreateRuntimeDataInstance(in BTNodeInstanceData InThisNodeInstanceData) => new RuntimeData();
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
+		protected override EBTNodeInitializationResult OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
 		{
 			RuntimeData nodeRuntimeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
 
 			nodeRuntimeData.StartTime = Time.time;
 
-			return EBTNodeState.RUNNING;
+			return EBTNodeInitializationResult.RUNNING;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
+		protected override EBTNodeState OnNodeUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
 		{
 			RuntimeData nodeRuntimeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
 

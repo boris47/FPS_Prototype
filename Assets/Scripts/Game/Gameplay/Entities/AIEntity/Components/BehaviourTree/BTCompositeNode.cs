@@ -8,47 +8,50 @@ namespace Entities.AI.Components.Behaviours
 	{
 		protected class RuntimeData : RuntimeDataBase
 		{
-			[ReadOnly]
 			public				uint						CurrentIndex						= 0u;
 		}
 
-		[SerializeField, /*HideInInspector*/]
-		private					List<BTNode>				m_Children							= new List<BTNode>();
+		[SerializeField]
+		private					BTNode[]					m_Children							= new BTNode[0];
 
 		[SerializeField, ToNodeInspector]
-		protected				bool						m_MustRepeat						= false;
+		private					bool						m_MustRepeat						= false;
+
+		protected				bool						MustRepeat							=> m_MustRepeat;
 
 		//---------------------
-		public IReadOnlyList<BTNode>						Children							=> m_Children;
+		public					BTNode[]					Children							=> m_Children;
 
-		protected virtual		int							MinimumChildrenCount				=> 0;
 
 		//////////////////////////////////////////////////////////////////////////
 		public void OverrideActiveChildIndex(in BTNodeInstanceData InThisNodeInstanceData, in uint InChildIndex)
 		{
 			RuntimeData nodeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
-
-			nodeData.CurrentIndex = (uint)Mathf.Clamp(InChildIndex, 0, m_Children.Count);
+			{
+				nodeData.CurrentIndex = (uint)Mathf.Clamp(InChildIndex, 0, m_Children.Length);
+			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public int IndexOf(in BTNode InNode) => m_Children.IndexOf(InNode);
+		public int IndexOf(in BTNode InNodeAsset) => System.Array.IndexOf(m_Children, InNodeAsset);
+
 
 		//////////////////////////////////////////////////////////////////////////
 		protected override RuntimeDataBase CreateRuntimeDataInstance(in BTNodeInstanceData InThisNodeInstanceData) => new RuntimeData();
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
+		protected override EBTNodeInitializationResult OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			EBTNodeState OutState = EBTNodeState.RUNNING;
+			EBTNodeInitializationResult OutState = EBTNodeInitializationResult.RUNNING;
 
 			RuntimeData nodeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
-			
-			nodeData.CurrentIndex = 0u;
-
-			if (m_Children.Count == 0)
 			{
-				OutState = EBTNodeState.SUCCEEDED;
+				nodeData.CurrentIndex = 0u;
+			}
+
+			if (m_Children.Length == 0)
+			{
+				OutState = EBTNodeInitializationResult.SUCCEEDED;
 			}
 
 			return OutState;
@@ -60,14 +63,14 @@ namespace Entities.AI.Components.Behaviours
 			base.OnNodeAbort(InThisNodeInstanceData);
 
 			RuntimeData nodeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
-
-			if (m_Children.IsValidIndex(nodeData.CurrentIndex))
 			{
-				BTNode child = m_Children.At(nodeData.CurrentIndex);
-				BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, child);
-				child.AbortAndResetNode(childInstanceData);
+				nodeData.CurrentIndex = 0u;
 			}
 
+			foreach (BTNode childAsset in m_Children)
+			{
+				childAsset.AbortAndResetNode(GetNodeInstanceData(InThisNodeInstanceData, childAsset));
+			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -76,13 +79,13 @@ namespace Entities.AI.Components.Behaviours
 			base.OnNodeReset(InThisNodeInstanceData);
 
 			RuntimeData nodeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
-			nodeData.CurrentIndex = 0u;
-
-			for (uint i = 0, count = (uint)m_Children.Count; i < count; i++)
 			{
-				BTNode child = m_Children.At(i);
-				BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, child);
-				child.ResetNode(childInstanceData);
+				nodeData.CurrentIndex = 0u;
+			}
+
+			foreach (BTNode childAsset in m_Children)
+			{
+				childAsset.ResetNode(GetNodeInstanceData(InThisNodeInstanceData, childAsset));
 			}
 		}
 	}
@@ -98,39 +101,51 @@ namespace Entities.AI.Components.Behaviours
 			//////////////////////////////////////////////////////////////////////////
 			public static void AddChild(in BTCompositeNode InCompositeNode, in BTNode InChildNode, in uint? InPortIndex)
 			{
+				List<BTNode> dynamicList = new List<BTNode>(InCompositeNode.m_Children);
 				if (InPortIndex.HasValue)
 				{
-					if (!InCompositeNode.m_Children.IsValidIndex(InPortIndex.Value))
+					if (!dynamicList.IsValidIndex(InPortIndex.Value))
 					{
-						InCompositeNode.m_Children.Capacity = (int)InPortIndex.Value + 1;
+						dynamicList.Capacity = (int)InPortIndex.Value + 1;
 					}
-					InCompositeNode.m_Children.Insert((int)InPortIndex.Value, InChildNode);
+					dynamicList.Insert((int)InPortIndex.Value, InChildNode);
 				}
 				else
 				{
-					InCompositeNode.m_Children.Add(InChildNode);
+					dynamicList.Add(InChildNode);
 				}
+				InCompositeNode.m_Children = dynamicList.ToArray();
 			}
 
 			//////////////////////////////////////////////////////////////////////////
 			public static void SetChild(in BTCompositeNode InCompositeNode, in BTNode InChildNode, in uint InIndex)
 			{
-				if (InCompositeNode.m_Children.IsValidIndex(InIndex))
+				List<BTNode> dynamicList = new List<BTNode>(InCompositeNode.m_Children);
+				if (dynamicList.IsValidIndex(InIndex))
 				{
-					InCompositeNode.m_Children[(int)InIndex] = InChildNode;
+					dynamicList[(int)InIndex] = InChildNode;
 				}
+				InCompositeNode.m_Children = dynamicList.ToArray();
 			}
 
 			//////////////////////////////////////////////////////////////////////////
 			public static void RemoveChild(in BTCompositeNode InCompositeNode, in BTNode InChildNode)
 			{
-				InCompositeNode.m_Children.Remove(InChildNode);
+				List<BTNode> dynamicList = new List<BTNode>(InCompositeNode.m_Children);
+				{
+					dynamicList.Remove(InChildNode);
+				}
+				InCompositeNode.m_Children = dynamicList.ToArray();
 			}
 
 			//////////////////////////////////////////////////////////////////////////
 			public static void RemoveInvalidChildAt(in BTCompositeNode InCompositeNode, in int InIndex)
 			{
-				InCompositeNode.m_Children.RemoveAt(InIndex);
+				List<BTNode> dynamicList = new List<BTNode>(InCompositeNode.m_Children);
+				{
+					dynamicList.RemoveAt(InIndex);
+				}
+				InCompositeNode.m_Children = dynamicList.ToArray();
 			}
 
 			//////////////////////////////////////////////////////////////////////////
@@ -141,14 +156,15 @@ namespace Entities.AI.Components.Behaviours
 					return BTNode.Editor.GetEditorGraphPosition(left).x < BTNode.Editor.GetEditorGraphPosition(right).x ? -1 : 1;
 				}
 
-				if (InCompositeNode.m_Children.Count > 1)
-				{
 					if (InCompositeNode.ShouldSortChildren())
 					{
 						using (new Utils.Editor.MarkAsDirty(InCompositeNode))
 						{
-							InCompositeNode.m_Children.Sort(SortByHorizontalPosition);
+						List<BTNode> dynamicList = new List<BTNode>(InCompositeNode.m_Children);
+						{
+							dynamicList.Sort(SortByHorizontalPosition);
 						}
+						InCompositeNode.m_Children = dynamicList.ToArray();
 					}
 				}
 			}

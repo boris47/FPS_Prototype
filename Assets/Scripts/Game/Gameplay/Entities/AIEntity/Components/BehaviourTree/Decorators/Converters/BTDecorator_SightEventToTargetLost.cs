@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Entities.AI.Components.Behaviours
 {
@@ -18,16 +17,16 @@ namespace Entities.AI.Components.Behaviours
 
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
+		protected override EBTNodeInitializationResult OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			EBTNodeState OutState = EBTNodeState.FAILED;
-			if (Child.IsNotNull())
+			EBTNodeInitializationResult OutState = EBTNodeInitializationResult.FAILED;
+			if (ChildAsset.IsNotNull())
 			{
 				BlackboardInstanceData bbInstanceData = InThisNodeInstanceData.BehaviourTreeInstanceData.BlackboardInstanceData;
 				if (bbInstanceData.TryGetEntry(m_InputEventKey, out BBEntry_SightEvent sightEventEntry))
 				{
 					bbInstanceData.SetEntryValue<BBEntry_Entity, Entity>(m_OutputEventKey, sightEventEntry.Value.EntitySeen);
-					OutState = EBTNodeState.RUNNING;
+					OutState = EBTNodeInitializationResult.RUNNING;
 				}
 			}
 			return OutState;
@@ -37,7 +36,7 @@ namespace Entities.AI.Components.Behaviours
 		protected override void OnNodeAbort(in BTNodeInstanceData InThisNodeInstanceData)
 		{
 			BlackboardInstanceData bbInstanceData = InThisNodeInstanceData.BehaviourTreeInstanceData.BlackboardInstanceData;
-			bbInstanceData.RemoveEntry(m_OutputEventKey);
+			bbInstanceData.RemoveEntry(m_OutputEventKey, false);
 
 			base.OnNodeAbort(InThisNodeInstanceData);
 		}

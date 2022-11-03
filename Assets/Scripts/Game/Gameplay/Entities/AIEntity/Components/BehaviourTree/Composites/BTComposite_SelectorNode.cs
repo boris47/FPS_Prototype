@@ -11,14 +11,15 @@ namespace Entities.AI.Components.Behaviours
 	public partial class BTComposite_SelectorNode : BTCompositeNode
 	{
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
+		/// <summary> OnNodeUpdate gets called once a child terminates its execution </summary>
+		protected override EBTNodeState OnNodeUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
 		{
 			EBTNodeState OutState = EBTNodeState.RUNNING;
 
 			RuntimeData nodeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
-			if (nodeData.CurrentIndex >= Children.Count)
+			if (nodeData.CurrentIndex >= Children.Length)
 			{
-				if (m_MustRepeat)
+				if (MustRepeat)
 				{
 					ResetNode(InThisNodeInstanceData);
 				}
@@ -29,30 +30,27 @@ namespace Entities.AI.Components.Behaviours
 			}
 			else
 			{
-				BTNode child = Children[(int)nodeData.CurrentIndex];
-				BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, child);
-				switch (child.UpdateNode(childInstanceData, InDeltaTime))
+				BTNode childAsset = Children.At(nodeData.CurrentIndex);
+				BTNodeInstanceData childInstanceData = GetNodeInstanceData(InThisNodeInstanceData, childAsset);
+				
+				if (Utils.CustomAssertions.IsTrue(childInstanceData.NodeState != EBTNodeState.RUNNING))
 				{
-					case EBTNodeState.INACTIVE:
+					if (childInstanceData.NodeState == EBTNodeState.INACTIVE)
 					{
-						Utils.CustomAssertions.IsTrue(false);
-						break;
+						ConditionalLog($"Starting setting as running node child {childAsset.name}(Index:{nodeData.CurrentIndex})", InThisNodeInstanceData);
+						childInstanceData.SetAsRunningNode();
 					}
-					case EBTNodeState.FAILED:
+					else
 					{
-						++nodeData.CurrentIndex;
-						break;
-					}
-					case EBTNodeState.SUCCEEDED:
-					{
-						OutState = EBTNodeState.SUCCEEDED;
-						break;
-					}
-					case EBTNodeState.RUNNING: break;
-					default:
-					{
-						Utils.CustomAssertions.IsTrue(false);
-						break;
+						ConditionalLog($"Child {childAsset.name}(Index:{nodeData.CurrentIndex}) finished with {childInstanceData.NodeState}", InThisNodeInstanceData);
+						if (childInstanceData.NodeState == EBTNodeState.SUCCEEDED)
+						{
+							OutState = EBTNodeState.SUCCEEDED;
+						}
+						else
+						{
+							++nodeData.CurrentIndex;
+						}
 					}
 				}
 			}

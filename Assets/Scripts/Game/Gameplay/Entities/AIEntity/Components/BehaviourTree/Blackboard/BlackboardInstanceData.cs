@@ -58,9 +58,9 @@ namespace Entities.AI.Components
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public void RemoveEntry(BlackboardEntryKey InBlackboardKey)
+		public void RemoveEntry(BlackboardEntryKey InBlackboardKey, in bool bNotify)
 		{
-			m_BlackboardAsset.RemoveEntry(this, InBlackboardKey);
+			m_BlackboardAsset.RemoveEntry(this, InBlackboardKey, bNotify);
 			OnEntriesUpdate();
 		}
 

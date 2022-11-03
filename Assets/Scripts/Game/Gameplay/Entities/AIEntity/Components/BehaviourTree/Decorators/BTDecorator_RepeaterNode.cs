@@ -31,10 +31,10 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
+		protected override EBTNodeInitializationResult OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
 		{
-			EBTNodeState OutState = base.OnActivation(InThisNodeInstanceData);
-			if (OutState == EBTNodeState.RUNNING)
+			EBTNodeInitializationResult OutState = base.OnActivation(InThisNodeInstanceData);
+			if (OutState == EBTNodeInitializationResult.RUNNING)
 			{
 				if (m_RepeatCount > 0)
 				{
@@ -49,11 +49,11 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
+		protected override EBTNodeState OnNodeUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
 		{
 			EBTNodeState OutState = EBTNodeState.RUNNING;
 
-			BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, Child);
+			BTNodeInstanceData childInstanceData = GetNodeInstanceData(InThisNodeInstanceData, ChildAsset);
 
 			if (m_RepeatCount > 0)
 			{
@@ -64,7 +64,7 @@ namespace Entities.AI.Components.Behaviours
 				}
 				else
 				{
-					if (BTNode.IsFinished(Child.UpdateNode(childInstanceData, InDeltaTime)))
+					if (BTNode.IsFinished(ChildAsset.UpdateNode(childInstanceData, InDeltaTime)))
 					{
 						nodeData.CurrentRepeatCount++;
 					}
@@ -73,7 +73,7 @@ namespace Entities.AI.Components.Behaviours
 			// No repeat limit
 			else
 			{
-				Child.UpdateNode(childInstanceData, InDeltaTime);
+				ChildAsset.UpdateNode(childInstanceData, InDeltaTime);
 			}
 			return OutState;
 		}
@@ -84,8 +84,8 @@ namespace Entities.AI.Components.Behaviours
 			RuntimeData nodeData = GetRuntimeData<RuntimeData>(InThisNodeInstanceData);
 			nodeData.CurrentRepeatCount = 0u;
 
-			BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, Child);
-			Child.ResetNode(childInstanceData);
+			BTNodeInstanceData childInstanceData = GetNodeInstanceData(InThisNodeInstanceData, ChildAsset);
+			ChildAsset.ResetNode(childInstanceData);
 		}
 	}
 }

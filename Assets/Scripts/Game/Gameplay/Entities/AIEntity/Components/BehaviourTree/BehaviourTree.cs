@@ -7,6 +7,7 @@ namespace Entities.AI.Components.Behaviours
 	public partial class BehaviourTree : ScriptableObject
 	{
 		private static	List<BehaviourTreeInstanceData>		s_TreeInstances				= new List<BehaviourTreeInstanceData>();
+		public static bool bLogEnabled { get; private set; } = true;
 
 		[Header("Asset Data")]
 		[SerializeField, ReadOnly]
@@ -80,12 +81,14 @@ namespace Entities.AI.Components.Behaviours
 			uint reachedNodeIndex = 0u;
 			IterateTree(InBehaviourTreeAsset.RootNode, ref reachedNodeIndex, treeInstanceData, OutBlackboardInstanceData, nodesInstancesData, nodesRuntimeData, null);
 
+			ConditionalLog($"Create instance of {InBehaviourTreeAsset.name} with {reachedNodeIndex}", InController);
+			
 			// Finally create tree instance data and store in global tree instances list
 			return s_TreeInstances.AddRef(treeInstanceData);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public bool TryGetInstance(uint InTreeId, out BehaviourTree OutBehaviourTree)
+		public static bool TryGetInstance(uint InTreeId, out BehaviourTree OutBehaviourTree)
 		{
 			bool OutValue = false;
 			OutBehaviourTree = null;
@@ -94,6 +97,12 @@ namespace Entities.AI.Components.Behaviours
 				OutBehaviourTree = outInstanceData.TreeInstance;
 			}
 			return OutValue;
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		protected static void ConditionalLog(in string InMessage, in Object InContext)
+		{
+			if (BehaviourTree.bLogEnabled) Debug.Log($"{InContext.name}: {InMessage}", InContext);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -127,9 +136,11 @@ namespace Entities.AI.Components.Behaviours
 				if (Utils.CustomAssertions.IsTrue(InTreeInstanceData.NodesInstanceData.At(0) == InTreeInstanceData.RootNode))
 				{
 					InTreeInstanceData.SetTreeState(EBehaviourTreeState.RUNNING);
-					m_RootNode.ResetNode(InTreeInstanceData.RootNode);
+				//	m_RootNode.ResetNode(InTreeInstanceData.RootNode);
 					InTreeInstanceData.SetRunningNode(InTreeInstanceData.RootNode);
 					outValue = true;
+
+					ConditionalLog($"Started tree {name}", InTreeInstanceData.Controller);
 				}
 			}
 			else
@@ -142,6 +153,7 @@ namespace Entities.AI.Components.Behaviours
 		//////////////////////////////////////////////////////////////////////////
 		public bool RestartTree(in BehaviourTreeInstanceData InTreeInstanceData)
 		{
+			ConditionalLog($"Restart of tree {name}", InTreeInstanceData.Controller);
 			ResetTree(InTreeInstanceData);
 			return StartTree(InTreeInstanceData);
 		}
@@ -204,6 +216,8 @@ namespace Entities.AI.Components.Behaviours
 			{
 				InTreeInstanceData.SetTreeState(EBehaviourTreeState.STOPPED);
 				m_RootNode.AbortAndResetNode(InTreeInstanceData.RootNode);
+
+				ConditionalLog($"Stop of tree {name}", InTreeInstanceData.Controller);
 			}
 		}
 
@@ -221,41 +235,7 @@ namespace Entities.AI.Components.Behaviours
 			InTreeInstanceData.SetRunningNode(null);
 			InTreeInstanceData.SetRunningNodeLocked(false);
 		}
-		/*
-		//////////////////////////////////////////////////////////////////////////
-		public void LockRunningNode(in BehaviourTreeInstanceData InTreeInstanceData, in BTNodeInstanceData InRequester)
-		{
-			if (Utils.CustomAssertions.IsTrue(InRequester == InTreeInstanceData.CurrentRunningNode))
-			{
-				InTreeInstanceData.SetRunningNodeLocked(true);
-			}
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		/// <summary> Only callable if called from current running node </summary>
-		public void UnLockRunningNode(in BTNodeInstanceData InRequester)
-		{
-			BehaviourTreeInstanceData treeInstanceData = InRequester.BehaviourTreeInstanceData;
-			if (Utils.CustomAssertions.IsTrue(InRequester == treeInstanceData.CurrentRunningNode))
-			{
-				treeInstanceData.SetRunningNodeLocked(false);
-			}
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		public void SetRunningNode(in BTNodeInstanceData InNode)
-		{
-			if (Utils.CustomAssertions.IsNotNull(InNode) && !InNode.BehaviourTreeInstanceData.IsRunningNodeLocked)
-			{
-				if (InNode.ParentInstanceData.IsNotNull() && InNode.ParentInstanceData.NodeState != EBTNodeState.RUNNING)
-				{
-					Utils.CustomAssertions.IsTrue(false, this, $"Trying to set {InNode.NodeInstance.NodeIndex} node as active when parent {InNode.ParentInstanceData.NodeInstance.NodeIndex} is not running");
-					return;
-				}
-				InNode.BehaviourTreeInstanceData.SetRunningNode(InNode);
-			}
-		}
-		*/
+		
 		//////////////////////////////////////////////////////////////////////////
 		public void RequestExecution(in BTNodeInstanceData InRequestedBy, in System.Action<BTNodeInstanceData> InOnRequestAccepted)
 		{

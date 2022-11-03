@@ -21,9 +21,9 @@ namespace Entities.AI.Components.Behaviours
 
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override EBTNodeState OnUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
+		protected override EBTNodeState OnNodeUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
 		{
-			EBTNodeState OutState = base.OnUpdate(InThisNodeInstanceData, InDeltaTime);
+			EBTNodeState OutState = base.OnNodeUpdate(InThisNodeInstanceData, InDeltaTime);
 			if (BTNode.IsFinished(OutState))
 			{
 				// Override result
