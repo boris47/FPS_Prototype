@@ -89,6 +89,7 @@ namespace Entities.AI.Components.Behaviours
 		{
 			base.OnNodeReset(InThisNodeInstanceData);
 
+			// On this node reset we want to stop observing whatever is the abort condition
 			StopObserve(InThisNodeInstanceData);
 		}
 
@@ -97,6 +98,7 @@ namespace Entities.AI.Components.Behaviours
 		{
 			if (ChildAsset.IsNotNull() && (m_AbortType == EAbortType.Self || m_AbortType == EAbortType.Both))
 			{
+				// We  expect this node to be running to abort itself
 				if (Utils.CustomAssertions.IsTrue(InThisNodeInstanceData.NodeState == EBTNodeState.RUNNING))
 				{
 					ChildAsset.AbortAndResetNode(GetNodeInstanceData(InThisNodeInstanceData, ChildAsset));
@@ -159,7 +161,7 @@ namespace Entities.AI.Components.Behaviours
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected abstract bool GetEvaluation(in BTNodeInstanceData InInstanceData);
+		protected virtual bool GetEvaluation(in BTNodeInstanceData InInstanceData) => false;
 
 		//////////////////////////////////////////////////////////////////////////
 		protected virtual void StartObserve(in BTNodeInstanceData InInstanceData) { }
@@ -177,7 +179,7 @@ namespace Entities.AI.Components.Behaviours
 {
 	using UnityEditor;
 
-	public abstract partial class BTConditional
+	public abstract partial class BTConditional // Editor
 	{
 
 	}

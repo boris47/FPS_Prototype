@@ -1,5 +1,4 @@
 ﻿
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Entities.AI
@@ -13,14 +12,14 @@ namespace Entities.AI
 		[SerializeField, HideInInspector]
 		private						string					m_Name = "None";
 
-		private						uint?					m_OverridenID = null;
+		private	readonly			uint?					m_OverridenID = null;
 
 
 		public						uint					UniqueId => m_OverridenID ?? Utils.Generic.GetUniqueId(m_Name);
 		public						string					Name => m_Name;
 
 		//////////////////////////////////////////////////////////////////////////
-		bool System.IEquatable<BlackboardEntryKey>.Equals(BlackboardEntryKey other) => other.IsNotNull() && other.UniqueId == UniqueId;
+		bool System.IEquatable<BlackboardEntryKey>.Equals(BlackboardEntryKey other) => other?.UniqueId == UniqueId;
 
 		//////////////////////////////////////////////////////////////////////////
 		public override bool Equals(object obj) => obj is BlackboardEntryKey key && UniqueId == key.UniqueId;
@@ -30,10 +29,10 @@ namespace Entities.AI
 
 		//////////////////////////////////////////////////////////////////////////
 		public static implicit operator BlackboardEntryKey(in string InString) => new BlackboardEntryKey(InString);
-		public static implicit operator string(in BlackboardEntryKey InKey) => InKey.IsNotNull() ? InKey.m_Name : null;
+		public static implicit operator string(in BlackboardEntryKey InKey) => InKey?.m_Name;
 
 		//////////////////////////////////////////////////////////////////////////
-		public static bool operator ==(BlackboardEntryKey left, BlackboardEntryKey right) => left.UniqueId == right.UniqueId;
+		public static bool operator ==(BlackboardEntryKey left, BlackboardEntryKey right) => left?.UniqueId == right?.UniqueId;
 
 		//////////////////////////////////////////////////////////////////////////
 		public static bool operator !=(BlackboardEntryKey left, BlackboardEntryKey right) => !(left == right);
