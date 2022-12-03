@@ -86,9 +86,21 @@ namespace Entities.AI.Components.Senses
 		protected abstract void OnEnableInternal();
 		protected abstract void OnDisableInternal();
 
-		protected abstract void OnThink(float deltaTime);
-		protected abstract void OnFrame(float deltaTime);
-		protected abstract void OnLateFrame(float deltaTime);
-		protected abstract void OnPhysicFrame(float fixedDeltaTime);
+		protected virtual void OnThink(float deltaTime)
+		{
+
+		}
+		protected virtual void OnFrame(float deltaTime)
+		{
+
+		}
+		protected virtual void OnLateFrame(float deltaTime)
+		{
+
+		}
+		protected virtual void OnPhysicFrame(float fixedDeltaTime)
+		{
+
+		}
 	}
 }

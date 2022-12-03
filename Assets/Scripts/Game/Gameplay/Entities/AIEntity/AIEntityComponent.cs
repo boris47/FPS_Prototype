@@ -15,7 +15,7 @@ namespace Entities.AI.Components
 		//--------------------
 		public				AIEntity										Entity									=> m_Entity;
 
-		public AIEntity Owner => m_Owner as AIEntity;
+		public				AIEntity										Owner									=> m_Owner as AIEntity;
 
 
 		//////////////////////////////////////////////////////////////////////////
@@ -24,10 +24,9 @@ namespace Entities.AI.Components
 		{
 			base.Awake();
 
-			Utils.CustomAssertions.IsTrue(gameObject.TryGetComponent(out m_Controller));
+			Utils.CustomAssertions.IsTrue(gameObject.TrySearchComponent(ESearchContext.LOCAL_AND_PARENTS, out m_Controller));
 
 			m_Entity = m_Owner as AIEntity;
-
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -36,7 +35,7 @@ namespace Entities.AI.Components
 		{
 			gameObject.TryGetIfNotAssigned(ref m_Controller);
 
-			gameObject.TryGetIfNotAssigned(ref m_Entity);
+			m_Entity = m_Owner as AIEntity;
 		}
 	}
 }

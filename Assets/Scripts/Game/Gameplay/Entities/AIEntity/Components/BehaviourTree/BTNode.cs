@@ -74,21 +74,13 @@ namespace Entities.AI.Components.Behaviours
 		//////////////////////////////////////////////////////////////////////////
 		protected static bool GetFirstAnchestorOfType<T>(in BTNodeInstanceData InNodeInstanceData, out BTNode[] OutPath, out T OutAnchestor) where T : BTNode
 		{
-			OutAnchestor = null;
-			var outPathList = new List<BTNode>();
+			List<BTNode> outPathList = new List<BTNode>();
 			{
 				BTNode current = InNodeInstanceData.ParentInstanceData.NodeAsset;
-				while (current is not T)
+				while (current.IsNotNull() && current is not T)
 				{
-					if (current == null)
-					{
-						break;
-					}
-					else
-					{
-						outPathList.Add(current);
-						current = current.ParentAsset;
-					}
+					outPathList.Add(current);
+					current = current.ParentAsset;
 				}
 				OutAnchestor = current as T;
 			}

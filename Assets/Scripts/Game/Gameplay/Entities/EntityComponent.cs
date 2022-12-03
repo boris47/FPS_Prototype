@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Entities
 {
-	interface IOwnedComponent<T> where T : Entity, new()
+	interface IOwnedComponent<T> where T : Entity
 	{
 		T Owner { get; }
 	}

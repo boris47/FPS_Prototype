@@ -2511,6 +2511,7 @@ GameObject:
   - component: {fileID: 956655882}
   - component: {fileID: 956655881}
   - component: {fileID: 956655884}
+  - component: {fileID: 956655885}
   m_Layer: 0
   m_Name: GroundedEntityEnemy
   m_TagString: Untagged
@@ -2553,7 +2554,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Owner: {fileID: 956655869}
   m_DefaultMotionStrategyType:
-    GuidAssignmentFailed: 1
+    GuidAssignmentFailed: 0
     GUID: 9583faf8bd6fa0f429cc62a141229256
     _typeNameAndAssembly: Entities.AI.Components.AIMotionStrategyGrounded, Assembly-CSharp
     _suppressLogs: 0
@@ -2583,7 +2584,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 956655868}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f52cb003e4ffc234a83b3e18bf1895ea, type: 3}
   m_Name: 
@@ -2761,6 +2762,27 @@ MonoBehaviour:
   m_MappedSenses:
     keys: 
     values: []
+--- !u!114 &956655885
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 956655868}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ba4ee918f475af4c96a4fe01dcfc949, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Owner: {fileID: 0}
+  m_Entity: {fileID: 956655869}
+  m_Controller: {fileID: 956655871}
+  m_CurrentBehaviour: {fileID: 0}
+  m_DefaultBehaviour:
+    GuidAssignmentFailed: 0
+    GUID: 298fb9d4e6d4beb4689188241632aded
+    _typeNameAndAssembly: Entities.AI.Components.Behaviours.AIBehaviourIdle, Assembly-CSharp
+    _suppressLogs: 0
 --- !u!1 &963632066
 GameObject:
   m_ObjectHideFlags: 3

@@ -4,6 +4,7 @@ namespace Entities.AI
 {
 	using Components;
 	using Components.Senses;
+	using Components.Behaviours;
 
 	/// <summary>
 	/// AIController can be attached to a AIEntity to control its actions.
@@ -12,6 +13,7 @@ namespace Entities.AI
 	[RequireComponent(typeof(AIBrainComponent))]
 	[RequireComponent(typeof(AIPerceptionComponent))]
 	[RequireComponent(typeof(AIBehaviorTreeComponent))]
+	[RequireComponent(typeof(AIBehavioursManager))]
 	public partial class AIController : EntityController
 	{
 		[SerializeField, ReadOnly]
@@ -20,6 +22,9 @@ namespace Entities.AI
 		private				AIPerceptionComponent			m_PerceptionComponent				= null;
 		[SerializeField, ReadOnly]
 		private				AIBehaviorTreeComponent			m_BehaviorTreeComponent				= null;
+		[SerializeField, ReadOnly]
+		private				AIBehavioursManager				m_BehavioursManager					= null;
+
 
 		[SerializeField]
 		protected			bool							m_StartBrainOnPossess				= false;
@@ -27,6 +32,7 @@ namespace Entities.AI
 		public				AIBrainComponent				BrainComponent						=> m_BrainComponent;
 		public				AIPerceptionComponent			PerceptionComponent					=> m_PerceptionComponent;
 		public				AIBehaviorTreeComponent			BehaviorTreeComponent				=> m_BehaviorTreeComponent;
+		public				AIBehavioursManager				BehavioursManager					=> m_BehavioursManager;
 
 		public				AIEntity						Entity								{ get; private set; } = null;
 
@@ -52,6 +58,11 @@ namespace Entities.AI
 			{
 
 			}
+
+			if (m_BehavioursManager.IsNotNull() || Utils.CustomAssertions.IsTrue(gameObject.TryGetComponent(out m_BehavioursManager)))
+			{
+
+			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -60,6 +71,7 @@ namespace Entities.AI
 			gameObject.TryGetComponent(out m_BrainComponent);
 			gameObject.TryGetComponent(out m_PerceptionComponent);
 			gameObject.TryGetComponent(out m_BehaviorTreeComponent);
+			gameObject.TryGetComponent(out m_BehavioursManager);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -81,13 +93,19 @@ namespace Entities.AI
 		//////////////////////////////////////////////////////////////////////////
 		public bool RequestMoveTo(in Entity InTargetEntity)
 		{
-			return Entity.RequestMoveTo(InTargetEntity);
+			return Entity.RequestMoveTowardsEntity(InTargetEntity);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public bool RequestMoveTo(in Vector3 InTargetPosition)
+		public bool StopMovingTowardsEntity(in Entity InTargetEntity)
 		{
-			return Entity.RequestMoveTo(InTargetPosition);
+			return Entity.StopMovingTowardsEntity(InTargetEntity);
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public bool RequestMoveToPosition(in Vector3 InTargetPosition)
+		{
+			return Entity.RequestMoveToPosition(InTargetPosition);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -117,7 +135,9 @@ namespace Entities.AI
 				{
 					case ESightTargetEventType.ACQUIRED:
 					{
-						(Entity EntitySeen, Vector3 SeenPosition, Vector3 ViewerPosition) = sightEvent.AsTargetAcquiredEvent();
+						(Entity EntitySeen, Vector3 SeenPosition, Vector3 SeenVelocity, Vector3 ViewerPosition) = sightEvent.AsTargetAcquiredEvent();
+
+						controller.RequestMoveTo(EntitySeen);
 
 						// Remove memory of previous enemy entity
 						//	controller.BrainComponent.MemoryComponent.RemoveMemory(controller.m_EnemyEntityMemoryIdentifier);
@@ -130,7 +150,7 @@ namespace Entities.AI
 					}
 					case ESightTargetEventType.CHANGED:
 					{
-						(Entity EntitySeen, Vector3 SeenPosition, Vector3 ViewerPosition) = sightEvent.AsTargetChangedEvent();
+						(Entity EntitySeen, Vector3 SeenPosition, Vector3 SeenVelocity, Vector3 ViewerPosition) = sightEvent.AsTargetChangedEvent();
 
 						// Set current enemy entity
 				//		controller.Blackboard.SetEntryValue<BBEntry_TargetEntity, Entity>(controller.m_CurrentEnemyOnSight, EntitySeen);
@@ -138,7 +158,9 @@ namespace Entities.AI
 					}
 					case ESightTargetEventType.LOST:
 					{
-						(Entity LostTarget, Vector3 SeenPosition, Vector3 LastDirection, Vector3 ViewerPosition) = sightEvent.AsTargetLostEvent();
+						(Entity LostTarget, Vector3 SeenPosition, Vector3 LastVelocity, Vector3 ViewerPosition) = sightEvent.AsTargetLostEvent();
+
+						controller.RequestMoveToPosition(SeenPosition);
 
 						// Remove key for current enemy entity
 					//	controller.Blackboard.RemoveEntry(controller.m_CurrentEnemyOnSight);

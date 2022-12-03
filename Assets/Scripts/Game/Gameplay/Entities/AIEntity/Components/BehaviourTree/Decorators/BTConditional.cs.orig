@@ -63,11 +63,53 @@ namespace Entities.AI.Components.Behaviours
 				}
 				else
 				{
+<<<<<<< HEAD
 					if (m_AbortType == EAbortType.LowerPriority || m_AbortType == EAbortType.Both)
 					{
 						StartObserve(InThisNodeInstanceData);
+=======
+					// In this way the node can be used as a checkpoint where to restart when condition is met
+					OutState = EBTNodeState.SUCCEEDED;
+				}
+			}
+			else
+			{
+				if (m_AbortType == EAbortType.LowerPriority || m_AbortType == EAbortType.Both)
+				{
+					StartObserve(InThisNodeInstanceData);
+				}
+				OutState = EBTNodeState.FAILED;
+			}
+			return OutState;
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		protected override EBTNodeState OnUpdate(in BTNodeInstanceData InThisNodeInstanceData, in float InDeltaTime)
+		{
+			EBTNodeState OutState = EBTNodeState.RUNNING;
+			{
+				if (Child.IsNotNull())
+				{
+					BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, Child);
+					EBTNodeState childState = Child.UpdateNode(childInstanceData, InDeltaTime);
+					if (BTNode.IsFinished(childState))
+					{
+						// Reflect the child result to the parent of this node as it is
+						OutState = childState;
+
+						// And stop being relevant
+						if (m_AbortType == EAbortType.Self)
+						{
+							StopObserve(InThisNodeInstanceData);
+						}
+>>>>>>> 386905a7893a6cf35a43cce2b53ad4703db48b85
 					}
 					OutState = EBTNodeInitializationResult.FAILED;
+				}
+				// No child, success as result by design
+				else
+				{
+					OutState = EBTNodeState.SUCCEEDED;
 				}
 			}
 			return OutState;
@@ -78,7 +120,13 @@ namespace Entities.AI.Components.Behaviours
 		{
 			base.OnTermination(InThisNodeInstanceData);
 
+<<<<<<< HEAD
 			if (InThisNodeInstanceData.NodeState == EBTNodeState.SUCCEEDED)
+=======
+			// Event if this node is terminated with success, only if abort type is Self we stop observing
+			// So that, if abort type is low prioritythe abort request request can be sent anyway
+			if (m_AbortType == EAbortType.Self)
+>>>>>>> 386905a7893a6cf35a43cce2b53ad4703db48b85
 			{
 				StopObserve(InThisNodeInstanceData);
 			}
@@ -98,10 +146,24 @@ namespace Entities.AI.Components.Behaviours
 		{
 			if (ChildAsset.IsNotNull() && (m_AbortType == EAbortType.Self || m_AbortType == EAbortType.Both))
 			{
-				// We  expect this node to be running to abort itself
+<<<<<<< HEAD
 				if (Utils.CustomAssertions.IsTrue(InThisNodeInstanceData.NodeState == EBTNodeState.RUNNING))
 				{
 					ChildAsset.AbortAndResetNode(GetNodeInstanceData(InThisNodeInstanceData, ChildAsset));
+=======
+				// We  expect this node to be running to abort itself
+				if (Utils.CustomAssertions.IsTrue(InThisNodeInstanceData.NodeState == EBTNodeState.RUNNING))
+				{
+					// Abort child node if there is one
+					if (Child.IsNotNull())
+					{
+						BTNodeInstanceData childInstanceData = GetChildInstanceData(InThisNodeInstanceData, Child);
+						Child.AbortAndResetNode(childInstanceData);
+					}
+
+					// Reset this node
+				//	ResetNode(InThisNodeInstanceData);
+>>>>>>> 386905a7893a6cf35a43cce2b53ad4703db48b85
 
 					// Declare this node as failed
 					InThisNodeInstanceData.SetNodeState(EBTNodeState.FAILED);
@@ -132,24 +194,21 @@ namespace Entities.AI.Components.Behaviours
 				// Overrides the parent current active node index with this node index
 				if (Utils.CustomAssertions.IsTrue(GetFirstAnchestorOfType(InThisNodeInstanceData, out BTNode[] OutPath, out BTCompositeNode parentAsComposite)))
 				{
-					if (OutPath.Any())
+					// Get index at parent level of this node
+					int compositeIndex = parentAsComposite.IndexOf(OutPath.Last());
+
+					if (Utils.CustomAssertions.IsTrue(compositeIndex > -1))
 					{
-						// Get index at parent level of this node
-						int compositeIndex = parentAsComposite.IndexOf(OutPath.Last());
+						BTNodeInstanceData parentInstanceData = GetNodeInstanceData(InThisNodeInstanceData, parentAsComposite);
 
-						if (Utils.CustomAssertions.IsTrue(compositeIndex > -1))
-						{
-							BTNodeInstanceData parentInstanceData = GetNodeInstanceData(InThisNodeInstanceData, parentAsComposite);
+						// And set this index as the current active node
+						parentAsComposite.OverrideActiveChildIndex(parentInstanceData, (uint)compositeIndex);
+					}
 
-							// And set this index as the current active node
-							parentAsComposite.OverrideActiveChildIndex(parentInstanceData, (uint)compositeIndex);
-						}
-
-						// Force each node till the composite to runnning state
-						foreach (BTNode pathNode in OutPath)
-						{
-							GetNodeInstanceData(InThisNodeInstanceData, pathNode).SetNodeState(EBTNodeState.RUNNING);
-						}
+					// Force each node till the composite to runnning state
+					foreach (BTNode pathNode in OutPath)
+					{
+						GetNodeInstanceData(InThisNodeInstanceData, pathNode).SetNodeState(EBTNodeState.RUNNING);
 					}
 
 					BTNodeInstanceData childInstanceData = GetNodeInstanceData(InThisNodeInstanceData, ChildAsset);

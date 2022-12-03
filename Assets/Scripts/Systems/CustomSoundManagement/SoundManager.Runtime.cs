@@ -6,9 +6,11 @@ using Entities;
 [System.Serializable]
 public enum ESoundType
 {
+	NONE,
 	WEAPON,
 	STEP,
-	OBJECT
+	OBJECT,
+	COUNT
 }
 
 public partial class SoundManager

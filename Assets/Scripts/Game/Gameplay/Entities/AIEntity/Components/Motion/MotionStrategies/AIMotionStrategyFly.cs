@@ -10,6 +10,7 @@ namespace Entities.AI.Components
 		private AIConfigurationFly m_Config = null;
 
 		public override Vector3 Position => transform.position;
+		public override Vector3 Velocity => Vector3.zero;
 
 
 		//////////////////////////////////////////////////////////////////////////
@@ -36,7 +37,18 @@ namespace Entities.AI.Components
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public override bool RequireMovementTo(in Vector3 InDestination)
+		public override bool RequestMoveTowardsEntity(in Entity InTargetEntity)
+		{
+			return false;
+		}
+
+		public override bool StopMovingTowardsEntity(in Entity InTargetEntity)
+		{
+			return false;
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public override bool RequestMoveToPosition(in Vector3 InDestination)
 		{
 			return false;
 		}

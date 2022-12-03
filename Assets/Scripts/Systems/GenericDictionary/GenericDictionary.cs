@@ -36,7 +36,6 @@ public class UDictionary
 	}
 
 #if UNITY_EDITOR
-	[CustomPropertyDrawer(typeof(ReadOnly))]
 	[CustomPropertyDrawer(typeof(UDictionary), true)]
 	public class Drawer : PropertyDrawer
 	{

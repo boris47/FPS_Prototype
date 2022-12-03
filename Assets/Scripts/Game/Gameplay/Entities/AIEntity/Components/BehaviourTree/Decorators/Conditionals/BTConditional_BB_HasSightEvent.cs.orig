@@ -1,0 +1,23 @@
+﻿using UnityEngine;
+
+
+namespace Entities.AI.Components.Behaviours
+{
+	[BTNodeDetails("Conditional for sight event", "If a child is assigned verify if condition is satisfied before activate it")]
+	public class BTConditional_BB_HasSightEvent : BTConditional_BBBase
+	{
+		[SerializeReference, ToNodeInspector, BlackboardKeyType(typeof(BBEntry_SightEvent))]
+		private				BlackboardEntryKey								m_BlackboardKey									= null;
+
+		protected override	BlackboardEntryKey								BlackboardKey									=> m_BlackboardKey;
+<<<<<<< HEAD
+
+		protected override bool GetEvaluation(in BTNodeInstanceData InInstanceData)
+		{
+			// TODO
+			return false;
+		}
+=======
+>>>>>>> 386905a7893a6cf35a43cce2b53ad4703db48b85
+	}
+}

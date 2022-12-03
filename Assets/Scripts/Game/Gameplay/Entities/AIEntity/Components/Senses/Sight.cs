@@ -13,8 +13,10 @@ namespace Entities.AI.Components.Senses
 	}
 
 	/// <summary> Handle the field of view of the entity </summary>
-	internal class Sight : Sense
+	public class Sight : Sense
 	{
+		private const uint kMaxEntities = 20u;
+
 		[SerializeField, Range(1f, 200f)]
 		protected				float						m_ViewDistance					= 10f;
 		[SerializeField, Range(1f, 150f)]
@@ -22,7 +24,7 @@ namespace Entities.AI.Components.Senses
 
 
 		private					SphereCollider				m_ViewTriggerCollider			= null;
-		private					List<Entity>				m_AllTargets					= new List<Entity>();
+		private readonly		List<Entity>				m_AllTargets					= new List<Entity>();
 		private					Entity						m_CurrentTarget					= null;
 
 		//////////////////////////////////////////////////////////////////////////
@@ -58,20 +60,16 @@ namespace Entities.AI.Components.Senses
 		//////////////////////////////////////////////////////////////////////////
 		private void OnRelationChanged()
 		{
-			Entity IsInterestedAt(Collider c)
-			{
-				Entity outResult = null;
-				if (c.transform.TrySearchComponent(ESearchContext.LOCAL_AND_PARENTS, out Entity entity, e => e.IsNotNull() && e != m_Owner && m_BrainComponent.IsInterestedAt(e)))
-				{
-					outResult = entity;	
-				}
-				return outResult;
-			}
+			m_AllTargets.Clear();
 
-			// Make a sphere cast, select entities (different from owner), remove null entries
-			m_AllTargets = Physics.OverlapSphere(transform.position, m_ViewTriggerCollider.radius, /*layerMask*/1, QueryTriggerInteraction.Ignore)
-				.Select(IsInterestedAt)
-				.ToList();
+			Collider[] colliders = new Collider[kMaxEntities];
+			for (int i = 0; i < Physics.OverlapSphereNonAlloc(transform.position, m_ViewTriggerCollider.radius, colliders, 1, QueryTriggerInteraction.Ignore); i++)
+			{
+				if (colliders[i].transform.TrySearchComponent(ESearchContext.LOCAL_AND_PARENTS, out Entity entity, e => e.IsNotNull() && e != m_Owner && m_BrainComponent.IsInterestedAt(e)))
+				{
+					m_AllTargets.Add(entity);
+				}
+			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -93,7 +91,7 @@ namespace Entities.AI.Components.Senses
 			//////////////////////////////////////////////////////////////////////////
 			static Entity GetSameTrargetOrRandom(in IReadOnlyCollection<Entity> availableTargets, in Entity currentTarget)
 			{
-				return currentTarget ?? availableTargets.Random();
+				return currentTarget.IsNotNull() ? currentTarget : availableTargets.Random();
 			}
 
 			OutEntity = null;
@@ -155,39 +153,33 @@ namespace Entities.AI.Components.Senses
 				return false;
 			};
 
-			return m_AllTargets.Where(Selector).ToList();
+			return m_AllTargets.Where(Selector).ToArray();
 		}
 
 		//////////////////////////////////////////////////////////////////////////
 		protected override void OnThink(float deltaTime)
 		{
 			// UpdateEligibleTargets
-			var eligibleTargets = FindEligibleTargets();
+			IReadOnlyList<Entity> eligibleTargets = FindEligibleTargets();
 
 			// If target is valid and visible select by strategy
 			if (TrySelectTargetByStrategy(eligibleTargets, out Entity choosenTarget))
 			{
 				Vector3 seenPosition = choosenTarget.Targetable.position;
 				Vector3 viewerPosition = transform.position;
-				Vector3 lastDirection = choosenTarget.Body.forward;
+				Vector3 targetVelocity = choosenTarget.GetVelocity();
 
 				// SET NEW TARGET
 				if (m_CurrentTarget == null)
 				{
-					m_PerceptionComponent.SendSenseEvent(SightEvent.TargetAcquiredEvent(choosenTarget, seenPosition, viewerPosition));
-
-					// Notify team if available
-					m_PerceptionComponent.GetSense<Team>()?.Notify(choosenTarget, seenPosition, lastDirection);
+					m_PerceptionComponent.SendSenseEvent(SightEvent.NewTargetAcquiredEvent(choosenTarget, seenPosition, targetVelocity, viewerPosition));
 				}
 				else
 				// CHANGING A TARGET
 				{
 					if (m_CurrentTarget.IsNotNull() && m_CurrentTarget.Id != choosenTarget.Id)
 					{
-						m_PerceptionComponent.SendSenseEvent(SightEvent.TargetChangedEvent(choosenTarget, seenPosition, viewerPosition));
-
-						// Notify team if available
-						m_PerceptionComponent.GetSense<Team>()?.Notify(choosenTarget, seenPosition, lastDirection);
+						m_PerceptionComponent.SendSenseEvent(SightEvent.NewTargetChangedEvent(choosenTarget, seenPosition, targetVelocity, viewerPosition));
 					}
 				}
 				m_CurrentTarget = choosenTarget;
@@ -199,33 +191,12 @@ namespace Entities.AI.Components.Senses
 				{
 					Vector3 lastSeenPosition = m_CurrentTarget.Targetable.position;
 					Vector3 viewerPosition = transform.position;
-					Vector3 lastDirection = m_CurrentTarget.Body.forward;
+					Vector3 lastVelocity = m_CurrentTarget.GetVelocity();
 
-					m_PerceptionComponent.SendSenseEvent(SightEvent.TargetLostEvent(m_CurrentTarget, lastSeenPosition, lastDirection, viewerPosition));
-
-					// Notify team if available
-					m_PerceptionComponent.GetSense<Team>()?.Notify(null, lastSeenPosition, lastDirection);
+					m_PerceptionComponent.SendSenseEvent(SightEvent.NewTargetLostEvent(m_CurrentTarget, lastSeenPosition, lastVelocity, viewerPosition));
 					m_CurrentTarget = null;
 				}
 			}
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		protected override void OnPhysicFrame(float fixedDeltaTime)
-		{
-
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		protected override void OnFrame(float deltaTime)
-		{
-
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		protected override void OnLateFrame(float deltaTime)
-		{
-
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -298,7 +269,7 @@ namespace Entities.AI.Components.Senses
 			{
 				int colliderInstanceID = m_RaycastHit.collider.GetInstanceID();
 				int entityPhysicColliderInstanceID = target.PrimaryCollider.GetInstanceID();
-				int shieldColliderInstanceID = target.EntityShield?.Collider.GetInstanceID() ?? -1;
+				int shieldColliderInstanceID = target.EntityShield.IsNotNull() ? target.EntityShield.Collider.GetInstanceID() : -1;
 				bResult = (colliderInstanceID == entityPhysicColliderInstanceID || colliderInstanceID == shieldColliderInstanceID);
 			}
 			return bResult;

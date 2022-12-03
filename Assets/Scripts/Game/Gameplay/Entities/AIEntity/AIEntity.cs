@@ -1,17 +1,16 @@
 
 using System.Linq;
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace Entities.AI
 {
 	using Components;
+	using Entities.Player.Components;
 	using Relations;
 
-	[RequireComponent(typeof(NavMeshAgent))]
 	[RequireComponent(typeof(AIController))]
 	[RequireComponent(typeof(AIMotionManager))]
-	public class AIEntity : Entity
+	public abstract class AIEntity : Entity
 	{
 		public new				AIController					Controller							=> m_Controller as AIController;
 
@@ -58,13 +57,19 @@ namespace Entities.AI
 
 
 		//////////////////////////////////////////////////////////////////
-		public bool RequestMoveTo(in Entity InTarget)
+		public bool RequestMoveTowardsEntity(in Entity InTargetEntity)
 		{
-			return AIMotionManager.RequireMovementTo(InTarget.Body.position);
+			return AIMotionManager.RequestMoveTowardsEntity(InTargetEntity);
 		}
 
 		//////////////////////////////////////////////////////////////////
-		public bool RequestMoveTo(in Vector3 InVector3)
+		public bool StopMovingTowardsEntity(in Entity InTargetEntity)
+		{
+			return AIMotionManager.StopMovingTowardsEntity(InTargetEntity);
+		}
+
+		//////////////////////////////////////////////////////////////////
+		public bool RequestMoveToPosition(in Vector3 InVector3)
 		{
 			return AIMotionManager.RequireMovementTo(InVector3);
 		}
@@ -93,6 +98,9 @@ namespace Entities.AI
 		{
 			return null;
 		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public override Vector3 GetVelocity() => m_AIMotionManager.Velocity;
 	}
 }
 

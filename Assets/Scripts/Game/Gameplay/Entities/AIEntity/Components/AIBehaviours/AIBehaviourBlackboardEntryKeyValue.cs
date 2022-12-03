@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace Entities.AI
+namespace Entities.AI.Components.Behaviours
 {
 	[System.Serializable]
-	public abstract class BlackboardEntryKeyValue<T> : BlackboardEntryBase
+	public sealed class AIBehaviourBlackboardEntryKeyValue<T> : AIBehaviourBlackboardEntry
 	{
+		public delegate void OnValueChangedDel(EAIBehaviourBlackboardValueOp InOperation, in T InPreviousValue, in T InNewValue);
+
 		[SerializeField]
 		private						T 						m_Value							= default;
 
@@ -14,8 +16,8 @@ namespace Entities.AI
 
 		public sealed override		System.Type				StoredType						=> typeof(T);
 
-		/// <summary> Called when value is changed (previous, new value) </summary>
-		public event				System.Action<T, T>		OnValueChanged					= delegate { };
+		/// <summary> Called when value is changed (operation, previous value, new value) </summary>
+		public event				OnValueChangedDel		OnValueChanged					= delegate { };
 
 
 		//////////////////////////////////////////////////////////////////////////
@@ -28,23 +30,22 @@ namespace Entities.AI
 				bool bCurrentValueIsDefault = !HasValue();
 
 				// Change by default
-				EBlackboardValueOp operation = EBlackboardValueOp.CHANGE;
-
+				EAIBehaviourBlackboardValueOp operation = EAIBehaviourBlackboardValueOp.CHANGE;
+				
 				// Add value
 				if (!bNewValueIsDefault && bCurrentValueIsDefault)
 				{
-					operation = EBlackboardValueOp.ADD;
+					operation = EAIBehaviourBlackboardValueOp.ADD;
 				}
 				// Remove
 				else if (!bCurrentValueIsDefault && bNewValueIsDefault)
 				{
-					operation = EBlackboardValueOp.REMOVE;
+					operation = EAIBehaviourBlackboardValueOp.REMOVE;
 				}
 
 				T previousValue = m_Value;
 				m_Value = InNewValue;
-				OnValueChanged(previousValue, InNewValue);
-				OnChangeNotificationInternal(BlackboardInstance, operation);
+				OnValueChanged(operation, previousValue, InNewValue);
 			}
 		}
 

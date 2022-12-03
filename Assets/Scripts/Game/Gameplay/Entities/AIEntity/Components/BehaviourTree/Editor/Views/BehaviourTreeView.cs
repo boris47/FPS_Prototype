@@ -125,40 +125,38 @@ namespace Entities.AI.Components.Behaviours
 				for (int i = nodes.Length - 1; i >= 0; i--)
 				{
 					BTNode node = nodes[i];
-					if (node.IsNotNull())
-					{
-						// Creates node view
-						CreateNodeView(node);
 
-						// Create edges
-						if (node is IParentNode parentNode)
+					// Creates node view
+					CreateNodeView(node);
+
+					// Create edges
+					if (node is IParentNode parentNode)
+					{
+						if (Utils.CustomAssertions.IsTrue(TryFindNodeView(node, out NodeViewBase parentView), null, $"Cannot retrieve view for node {parent?.name ?? "Null"}"))
 						{
-							if (Utils.CustomAssertions.IsTrue(TryFindNodeView(node, out NodeViewBase parentView), null, $"Cannot retrieve view for node {parent?.name ?? "Null"}"))
+							IReadOnlyList<BTNode> children = parentNode.Children;
+							for (int ii = children.Count - 1; ii >= 0; --ii)
 							{
-								IReadOnlyList<BTNode> children = parentNode.Children;
-								for (int ii = children.Count - 1; ii >= 0; --ii)
+								BTNode childNode = children[ii];
+								if (childNode.IsNotNull())
 								{
-									BTNode childNode = children[ii];
-									if (childNode.IsNotNull())
+									if (Utils.CustomAssertions.IsTrue(TryFindNodeView(childNode, out NodeViewBase childView), null, $"Cannot retrieve view for node {childNode.name}"))
 									{
-										if (Utils.CustomAssertions.IsTrue(TryFindNodeView(childNode, out NodeViewBase childView), null, $"Cannot retrieve view for node {childNode.name}"))
-										{
-											uint portIndex = BTNode.Editor.GetNodeParentPortIndex(childView.BehaviourTreeNode);
-											AddElement(parentView.ConnectTo(childView, portIndex));
-										}
+										uint portIndex = BTNode.Editor.GetNodeParentPortIndex(childView.BehaviourTreeNode);
+										AddElement(parentView.ConnectTo(childView, portIndex));
+									}
+								}
+								else
+								{
+									if (parentNode is BTCompositeNode asComposite)
+									{
+										BTCompositeNode.Editor.RemoveInvalidChildAt(asComposite, ii);
+										Debug.LogError($"Removing child node at {ii} of {node.name} because is null");
+										bIsDirty |= true;
 									}
 									else
 									{
-										if (parentNode is BTCompositeNode asComposite)
-										{
-											BTCompositeNode.Editor.RemoveInvalidChildAt(asComposite, ii);
-											Debug.LogError($"Removing child node at {ii} of {node.name} because is null");
-											bIsDirty |= true;
-										}
-										else
-										{
-											throw new System.InvalidOperationException($"Impossible to remove child node at {ii} of {node.name} because is null");
-										}
+										throw new System.InvalidOperationException($"Impossible to remove child node at {ii} of {node.name} because is null");
 									}
 								}
 							}

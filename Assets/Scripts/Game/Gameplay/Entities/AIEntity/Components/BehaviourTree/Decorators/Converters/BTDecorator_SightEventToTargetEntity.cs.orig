@@ -1,0 +1,56 @@
+﻿using UnityEngine;
+
+namespace Entities.AI.Components.Behaviours
+{
+	/// <summary>
+	/// Repeater composite node. <br/>
+	/// Repeater Nodes repeats their own child execution n-times ignoring the result. <br/>
+	/// </summary>
+	[BTNodeDetails("Sight to Target Entity", "Repeats its child execution n-times ignoring the result")]
+	public class BTDecorator_SightEventToTargetEntity : BTDecoratorNode
+	{
+		[SerializeReference, ToNodeInspector, BlackboardKeyType(typeof(BBEntry_SightEvent))]
+<<<<<<< HEAD
+		private				BlackboardEntryKey								m_InputEventKey										= null;
+=======
+		private				BlackboardEntryKey								m_BlackboardEventKey									= null;
+>>>>>>> 386905a7893a6cf35a43cce2b53ad4703db48b85
+
+		[SerializeReference, ToNodeInspector, BlackboardKeyType(typeof(BBEntry_Entity))]
+		private				BlackboardEntryKey								m_OutputEventKey									= null;
+
+
+		//////////////////////////////////////////////////////////////////////////
+		protected override EBTNodeInitializationResult OnActivation(in BTNodeInstanceData InThisNodeInstanceData)
+		{
+			EBTNodeInitializationResult OutState = EBTNodeInitializationResult.FAILED;
+			if (ChildAsset.IsNotNull())
+			{
+				BlackboardInstanceData bbInstanceData = InThisNodeInstanceData.BehaviourTreeInstanceData.BlackboardInstanceData;
+<<<<<<< HEAD
+				if (bbInstanceData.TryGetEntry(m_InputEventKey, out BBEntry_SightEvent sightEventEntry))
+=======
+				if (bbInstanceData.TryGetEntry(m_BlackboardEventKey, out BBEntry_SightEvent sightEventEntry))
+>>>>>>> 386905a7893a6cf35a43cce2b53ad4703db48b85
+				{
+					if (sightEventEntry.Value.TargetInfoType != Senses.ESightTargetEventType.LOST)
+					{
+						bbInstanceData.SetEntryValue<BBEntry_Entity, Entity>(m_OutputEventKey, sightEventEntry.Value.EntitySeen);
+						OutState = EBTNodeInitializationResult.RUNNING;
+					}
+				}
+			}
+			return OutState;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		protected override void OnNodeAbort(in BTNodeInstanceData InThisNodeInstanceData)
+		{
+			BlackboardInstanceData bbInstanceData = InThisNodeInstanceData.BehaviourTreeInstanceData.BlackboardInstanceData;
+			bbInstanceData.RemoveEntry(m_OutputEventKey, false);
+
+			base.OnNodeAbort(InThisNodeInstanceData);
+		}
+	}
+}

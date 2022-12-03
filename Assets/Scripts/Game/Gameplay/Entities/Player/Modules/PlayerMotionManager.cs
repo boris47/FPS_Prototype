@@ -6,9 +6,12 @@ namespace Entities.Player.Components
 	public sealed class PlayerMotionManager : MotionManager
 	{
 		[SerializeField, ReadOnly]
-		private		PlayerMotionStrategyBase				m_CurrentMotionStrategy			= null;
+		private				PlayerMotionStrategyBase				m_CurrentMotionStrategy			= null;
 
-		private		PlayerEntity							m_Entity						=> m_Owner as PlayerEntity;
+		private				PlayerEntity							m_Entity						=> m_Owner as PlayerEntity;
+
+		public override		Vector3									Position						=> m_Entity.Body.position;
+		public override		Vector3									Velocity						=> m_Entity.CharacterController.velocity;
 
 
 		//////////////////////////////////////////////////////////////////
@@ -37,21 +40,24 @@ namespace Entities.Player.Components
 		//////////////////////////////////////////////////////////////////////////
 		private PlayerMotionStrategyBase SetMotionType(in System.Type InMotionType)
 		{
-			if (m_CurrentMotionStrategy == null || (m_CurrentMotionStrategy.IsNotNull() && m_CurrentMotionStrategy.GetType() != InMotionType))
+			if (Utils.CustomAssertions.IsTrue(ReflectionHelper.IsInerithedFrom(typeof(PlayerMotionStrategyBase), InMotionType)))
 			{
-				PlayerMotionTransitionSnapshot snapshot = null;
-				if (m_CurrentMotionStrategy.IsNotNull())
+				if (m_CurrentMotionStrategy == null || (m_CurrentMotionStrategy.IsNotNull() && m_CurrentMotionStrategy.GetType() != InMotionType))
 				{
-					snapshot = m_CurrentMotionStrategy.CreateSnapshot();
+					PlayerMotionTransitionSnapshot snapshot = null;
+					if (m_CurrentMotionStrategy.IsNotNull())
+					{
+						snapshot = m_CurrentMotionStrategy.CreateSnapshot();
 
-					Destroy(m_CurrentMotionStrategy);
-				}
+						Destroy(m_CurrentMotionStrategy);
+					}
 
-				m_CurrentMotionStrategy = gameObject.AddComponent(InMotionType) as PlayerMotionStrategyBase;
+					m_CurrentMotionStrategy = gameObject.AddComponent(InMotionType) as PlayerMotionStrategyBase;
 
-				if (snapshot.IsNotNull())
-				{
-					m_CurrentMotionStrategy.PorcessSnapshot(snapshot);
+					if (snapshot.IsNotNull())
+					{
+						m_CurrentMotionStrategy.PorcessSnapshot(snapshot);
+					}
 				}
 			}
 			return m_CurrentMotionStrategy;

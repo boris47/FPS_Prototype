@@ -5,11 +5,12 @@ namespace Entities.AI.Components
 {
 	public class AIMotionStrategyGrounded : AIMotionStrategyBase
 	{
-
-		[SerializeField, ReadOnly]
+		[SerializeReference, ReadOnly]
 		private AIEntityMotionControllerBase m_MotionController = null;
 
-		public override Vector3 Position => throw new System.NotImplementedException();
+		public override Vector3 Position => m_Owner.Body.position;
+
+		public override Vector3 Velocity => m_MotionController.Velocity;
 
 
 		//////////////////////////////////////////////////////////////////////////
@@ -59,7 +60,18 @@ namespace Entities.AI.Components
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public override bool RequireMovementTo(in Vector3 InDestination)
+		public override bool RequestMoveTowardsEntity(in Entity InTargetEntity)
+		{
+			return m_MotionController.RequestMoveTowardsEntity(InTargetEntity);
+		}
+
+		public override bool StopMovingTowardsEntity(in Entity InTargetEntity)
+		{
+			return m_MotionController.StopMovingTowardsEntity(InTargetEntity);
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public override bool RequestMoveToPosition(in Vector3 InDestination)
 		{
 			return m_MotionController.RequireMovementTo(InDestination);
 		}

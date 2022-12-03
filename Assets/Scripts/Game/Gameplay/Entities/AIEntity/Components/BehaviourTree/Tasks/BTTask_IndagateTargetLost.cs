@@ -17,7 +17,7 @@ namespace Entities.AI.Components.Behaviours
 			if (InThisNodeInstanceData.TryGetEntry(m_BlackboardKey, out BBEntry_SightEvent sightEventEntry))
 			{
 				targetPosition = sightEventEntry.Value.SeenPosition;
-				targetDirection = sightEventEntry.Value.LastDirection;
+				targetDirection = sightEventEntry.Value.SeenVelocity;
 			}
 			return targetPosition.HasValue && targetDirection.HasValue;
 		}
@@ -28,7 +28,7 @@ namespace Entities.AI.Components.Behaviours
 			EBTNodeState OutState = EBTNodeState.FAILED;
 			if (TryGetKeyData(InThisNodeInstanceData, out Vector3? targetPosition, out Vector3? targetDirection))
 			{
-				InThisNodeInstanceData.BehaviourTreeInstanceData.Controller.RequestMoveTo(targetPosition.Value);
+				InThisNodeInstanceData.BehaviourTreeInstanceData.Controller.RequestMoveToPosition(targetPosition.Value);
 				OutState = EBTNodeState.RUNNING;
 
 				if (InThisNodeInstanceData.BehaviourTreeInstanceData.Controller.IsCloseEnoughTo(targetPosition.Value))

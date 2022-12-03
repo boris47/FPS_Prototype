@@ -359,30 +359,9 @@ public static class Extensions_Unity
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Search for component of type T on This gameObject if not a value is already assigned </summary>
-	public static T GetIfNotAssigned<T>(this GameObject ThisGameObject, ref T OutValue) where T : Component
-	{
-		if (!OutValue.IsNotNull())
-		{
-			if (ThisGameObject.TryGetComponent(out T OutValue2)) // Faster
-			{
-				OutValue = OutValue2;
-			}
-		}
-		return OutValue;
-	}
-
-	/////////////////////////////////////////////////////////////////////////////
-	/// <summary> Search for component of type T on This gameObject if not a value is already assigned </summary>
 	public static bool TryGetIfNotAssigned<T>(this GameObject ThisGameObject, ref T OutValue) where T : Component
 	{
-		if (!OutValue.IsNotNull())
-		{
-			if (ThisGameObject.TryGetComponent(out T OutValue2)) // Faster
-			{
-				OutValue = OutValue2;
-			}
-		}
-		return OutValue.IsNotNull();
+		return OutValue.IsNotNull() || ThisGameObject.TryGetComponent(out OutValue);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////

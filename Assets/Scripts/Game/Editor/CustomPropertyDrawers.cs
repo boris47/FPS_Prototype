@@ -239,11 +239,31 @@ public sealed class ObsoleteInspectorDrawer : PropertyDrawer
 [CustomPropertyDrawer(typeof(EnumBitFieldAttribute))]
 public class EnumBitFieldAttributeDrawer : PropertyDrawer
 {
+	private string[] m_Names = new string[0];
+	private bool m_Initialized = false;
+
+	private void Initialize()
+	{
+		if (!m_Initialized)
+		{
+			EnumBitFieldAttribute enumFlagsAttribute = attribute as EnumBitFieldAttribute;
+			m_Names = System.Enum.GetNames(enumFlagsAttribute.EnumType);
+
+			m_Initialized = true;
+		}
+	}
+
 	public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 	{
-		EnumBitFieldAttribute enumFlagsAttribute = attribute as EnumBitFieldAttribute;
-		string[] names = System.Enum.GetNames(enumFlagsAttribute.EnumType);
-		property.intValue = EditorGUI.MaskField(position, label, property.intValue, names);
+		Initialize();
+
+		EditorGUI.BeginChangeCheck();
+
+		int newValue = EditorGUI.MaskField(position, label, property.intValue, m_Names);
+		if (EditorGUI.EndChangeCheck())
+		{
+			property.intValue = newValue;
+		}
 	}
 }
 

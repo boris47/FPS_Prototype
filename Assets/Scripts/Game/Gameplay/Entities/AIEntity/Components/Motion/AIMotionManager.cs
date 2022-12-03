@@ -15,7 +15,8 @@ namespace Entities.AI.Components
 
 
 		//--------------------
-		public		Vector3									Position						=> m_CurrentMotionStrategy.IsNotNull() ? m_CurrentMotionStrategy.Position : Vector3.zero;
+		public override		Vector3							Position						=> m_CurrentMotionStrategy.IsNotNull() ? m_CurrentMotionStrategy.Position : Vector3.zero;
+		public override		Vector3							Velocity						=> m_CurrentMotionStrategy.IsNotNull() ? m_CurrentMotionStrategy.Velocity : Vector3.zero;
 
 
 
@@ -66,9 +67,21 @@ namespace Entities.AI.Components
 		}
 
 		//////////////////////////////////////////////////////////////////////////
+		public bool	RequestMoveTowardsEntity(in Entity InTargetEntity)
+		{
+			return m_CurrentMotionStrategy.RequestMoveTowardsEntity(InTargetEntity);
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public bool StopMovingTowardsEntity(in Entity InTargetEntity)
+		{
+			return m_CurrentMotionStrategy.StopMovingTowardsEntity(InTargetEntity);
+		}
+
+		//////////////////////////////////////////////////////////////////////////
 		public bool	RequireMovementTo(in Vector3 InDestination)
 		{
-			return m_CurrentMotionStrategy.RequireMovementTo(InDestination);
+			return m_CurrentMotionStrategy.RequestMoveToPosition(InDestination);
 		}
 
 		//////////////////////////////////////////////////////////////////////////

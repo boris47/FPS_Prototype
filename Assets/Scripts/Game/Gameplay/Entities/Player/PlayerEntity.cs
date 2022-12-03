@@ -119,5 +119,8 @@ namespace Entities.Player
 		{
 			return m_CharacterController;
 		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public override Vector3 GetVelocity() => m_PlayerMotionManager.Velocity;
 	}
 }

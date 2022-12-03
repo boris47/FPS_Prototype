@@ -20,12 +20,12 @@ namespace Entities.AI.Components
 
 	public partial class AIPerceptionComponent : AIEntityComponent
 	{
-		private const string kSenseGameObjectName = "Senses";
+		private const string kContainerGameObjectName = "Senses";
 	
 		[SerializeField, UDictionary.ReadOnly]
 		private				UDictionary<ESenses, Sense>						m_MappedSenses									= new UDictionary<ESenses, Sense>();
 
-		private				GameObject										m_SensesContainerGO								= null;
+		private				GameObject										m_ContainerGO									= null;
 
 		public event		OnNewSenseEventDel								OnNewSenseEvent									= delegate { };
 
@@ -54,19 +54,19 @@ namespace Entities.AI.Components
 		//////////////////////////////////////////////////////////////////////////
 		private GameObject EnsureSenseRoot()
 		{
-			if (transform.TrySearchComponentByChildName(kSenseGameObjectName, out Transform child))
+			if (transform.TrySearchComponentByChildName(kContainerGameObjectName, out Transform child))
 			{
-				m_SensesContainerGO = child.gameObject;
+				m_ContainerGO = child.gameObject;
 			}
 			else
 			{
-				m_SensesContainerGO = new GameObject(kSenseGameObjectName);
-				m_SensesContainerGO.transform.SetParent(transform);
+				m_ContainerGO = new GameObject(kContainerGameObjectName);
+				m_ContainerGO.transform.SetParent(transform);
 			}
 
-			m_SensesContainerGO.transform.localPosition = Vector3.zero;
-			m_SensesContainerGO.transform.localRotation = Quaternion.identity;
-			return m_SensesContainerGO;
+			m_ContainerGO.transform.localPosition = Vector3.zero;
+			m_ContainerGO.transform.localRotation = Quaternion.identity;
+			return m_ContainerGO;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -111,7 +111,7 @@ namespace Entities.AI.Components
 				EnsureSenseRoot();
 				if (!m_MappedSenses.TryGetValue(senseEnum, out outValue))
 				{
-					Sense sense = m_SensesContainerGO.AddChildWithComponent(senseEnum.ToString(), senseType) as Sense;
+					Sense sense = m_ContainerGO.AddChildWithComponent(senseEnum.ToString(), senseType) as Sense;
 					m_MappedSenses[senseEnum] = outValue = sense;
 				}
 			}

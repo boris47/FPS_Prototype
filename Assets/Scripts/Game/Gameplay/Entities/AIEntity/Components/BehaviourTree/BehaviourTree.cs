@@ -48,7 +48,7 @@ namespace Entities.AI.Components.Behaviours
 		{
 			static void IterateTree(in BTNode nodeAsset, ref uint InCurrentNodeIndex, in BehaviourTreeInstanceData treeInstanceData, in BlackboardInstanceData InBlackboardInstanceData, in BTNodeInstanceData[] nodesInstancesData, in RuntimeDataBase[] nodesRuntimeData, in BTNodeInstanceData parentNodeInstanceData)
 			{
-				var nodeInstanceData = BTNode.CreateInstanceData(nodeAsset, InCurrentNodeIndex, treeInstanceData, InBlackboardInstanceData, nodesInstancesData, nodesRuntimeData, parentNodeInstanceData);
+				BTNodeInstanceData nodeInstanceData = BTNode.CreateInstanceData(nodeAsset, InCurrentNodeIndex, treeInstanceData, InBlackboardInstanceData, nodesInstancesData, nodesRuntimeData, parentNodeInstanceData);
 				++InCurrentNodeIndex;
 
 				if (nodeAsset is IParentNode asParentNode)
@@ -383,7 +383,7 @@ namespace Entities.AI.Components.Behaviours
 			public static bool RemoveInvalidNodes(in BehaviourTree InBehaviourTreeAsset)
 			{
 				bool bOutResult = false;
-				var nodes = InBehaviourTreeAsset.m_Nodes;
+				List<BTNode> nodes = InBehaviourTreeAsset.m_Nodes;
 				for (int i = nodes.Count  - 1; i >= 0; i--)
 				{
 					if (!nodes[i].IsNotNull())
