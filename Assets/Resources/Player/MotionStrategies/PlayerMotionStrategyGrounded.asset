@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f1470ffae115a04292f501de13aafa6, type: 3}
   m_Name: PlayerMotionStrategyGrounded
   m_EditorClassIdentifier: 
-  MoveSpeed: 5
+  MoveSpeed: 3
   MoveAcceleration: 18
   MoveDeceleration: 15
   SprintSpeedMult: 2
