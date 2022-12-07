@@ -961,8 +961,9 @@ namespace Utils // Math
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary>  </summary>
-		public static bool GetSegment<T>(in System.Collections.Generic.IList<T> collection, float t, ref T a, ref T b, ref T c, ref T d)
+		public static bool GetSegment<T>(in System.Collections.Generic.IList<T> collection, float t, out T a, out T b, out T c, out T d)
 		{
+			a = b = c = d = default;
 			if (collection == null || collection.Count < 4)
 			{
 				UnityEngine.Debug.Log("GetPoint Called with invalid points collection, required at least 4 points");
