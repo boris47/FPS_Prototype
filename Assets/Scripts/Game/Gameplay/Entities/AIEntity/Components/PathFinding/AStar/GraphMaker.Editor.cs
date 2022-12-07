@@ -1,54 +1,27 @@
 ﻿#if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
+using System.Collections.Generic;
 
 namespace AI.Pathfinding
 {
-	internal partial class GraphMaker : IVolumeIterator
+	public partial class GraphMaker
 	{
 		[Header("Editor Only")]
 		[SerializeField]
 		[Range(0.1f, 10f)]
 		private float m_ScanRadius = 1.1f;
 
-		//////////////////////////////////////////////////////////////////////////
-		void IVolumeIterator.OnIterationStart()
+		[SerializeField]
+		private bool m_ShowNodesOnParentSelection = false;
+
+		public static bool ShowNodesOnParentSelection = false;
+
+		private void OnValidate()
 		{
-			foreach (AINode item in FindObjectsOfType<AINode>())
-			{
-				item.gameObject.Destroy();
-			}
+			ShowNodesOnParentSelection = m_ShowNodesOnParentSelection;
 		}
 
-		//////////////////////////////////////////////////////////////////////////
-		void IVolumeIterator.OnIteration(Vector3 InPosition)
-		{
-			// Create Node
-			var t = new GameObject("AINode", typeof(AINode)).transform;
-			t.SetParent(transform);
-			t.position = InPosition;
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		void IVolumeIterator.OnIterationCompleted()
-		{
-			foreach(AINode n in (m_Nodes = FindObjectsOfType<AINode>()))
-			{
-				n.FindNeighbours(m_ScanRadius, m_Nodes);
-			}
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		private void OnDrawGizmosSelected()
-		{
-			if (Selection.activeTransform == transform)
-			{
-				foreach (AINode node in m_Nodes)
-				{
-					Gizmos.DrawSphere(node.transform.position, 0.15f);
-				}
-			}
-		}
 
 		//////////////////////////////////////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////////////
@@ -56,52 +29,73 @@ namespace AI.Pathfinding
 		[CustomEditor(typeof(GraphMaker))]
 		private class GraphMakerEditor : Editor
 		{
+			private GraphMaker m_GraphMaker = null;
+
+			//////////////////////////////////////////////////////////////////////////
 			private void OnEnable()
 			{
-				GraphMaker graphMaker = (GraphMaker)target;
-
-				graphMaker.m_Nodes = FindObjectsOfType<AINode>();
+				m_GraphMaker = (GraphMaker)target;
 			}
 
+			//////////////////////////////////////////////////////////////////////////
 			public override void OnInspectorGUI()
 			{
 				DrawDefaultInspector();
 
-				GraphMaker graphMaker = (GraphMaker)target;
-
 				if (GUILayout.Button("Node Count"))
 				{
-					Debug.Log("Node Count: " + (graphMaker.m_Nodes ?? FindObjectsOfType<AINode>()).Length);
+					Debug.Log($"Node Count: {m_GraphMaker.m_Nodes.Length}");
 				}
 
 				if (GUILayout.Button("Build"))
 				{
-					BuildNodes(graphMaker);
+					BuildNodes(m_GraphMaker);
+				}
 
-			//		foreach (AINode node in ())
+				if (GUILayout.Button("Clear"))
+				{
+					foreach (AINode node in m_GraphMaker.GetComponentsInChildren<AINode>())
 					{
-			//			node.FindNeighbours(graphMaker.m_ScanRadius, graphMaker.m_Nodes);
-				//		EditorUtility.SetDirty(node);
+						node.gameObject.Destroy();
 					}
-			//		Debug.Log("Built! Node count: " + graphMaker.m_Nodes.Length);
-					//	EditorUtility.SetDirty(graphMaker);
-
 				}
 			}
 
+			//////////////////////////////////////////////////////////////////////////
 			private static void BuildNodes(GraphMaker graphMaker)
 			{
-				EditorUtility.DisplayProgressBar("Building", "", 0f);
+				foreach (AINode node in graphMaker.GetComponentsInChildren<AINode>())
 				{
-					graphMaker.m_Nodes = FindObjectsOfType<AINode>();
-					for (int i = 0, length = graphMaker.m_Nodes.Length; i < length; i++)
-					{
-						graphMaker.m_Nodes[i].FindNeighbours(graphMaker.m_ScanRadius, graphMaker.m_Nodes);
-						EditorUtility.DisplayProgressBar("Building", "", i/length);
-					}
+					node.gameObject.Destroy();
 				}
-				EditorUtility.ClearProgressBar();
 
+				if (graphMaker.m_NodesProvider.IsNotNull())
+				{
+					Vector3[] nodesPosition = graphMaker.m_NodesProvider.GetNodesPosition();
+					List<AINode> nodes = new List<AINode>();
+
+					EditorUtility.DisplayProgressBar("Building", "", 0f);
+					{
+						for (int i = 0, length = nodesPosition.Length; i < length; ++i)
+						{
+							Vector3 worldPosition = nodesPosition[i];
+							GameObject go = new GameObject("AINode");
+							Transform t = go.transform;
+							t.SetParent(graphMaker.transform);
+							t.position = worldPosition;
+							t.localRotation = Quaternion.identity;
+							nodes.AddRef(go.AddComponent<AINode>());
+						}
+						graphMaker.m_Nodes = nodes.ToArray();
+
+						for (int i = 0, length = nodesPosition.Length; i < length; ++i)
+						{
+							graphMaker.m_Nodes[i].FindNeighbours(graphMaker.m_ScanRadius, graphMaker.m_Nodes);
+							EditorUtility.DisplayProgressBar("Building", "", i/length);
+						}
+					}
+					EditorUtility.ClearProgressBar();
+				}
 				Debug.Log("Built! Node count: " + graphMaker.m_Nodes.Length);
 			}
 		}

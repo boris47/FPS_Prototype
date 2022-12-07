@@ -62,7 +62,7 @@ public class SwimVolume : MonoBehaviour
 	// This function is called every fixed framerate frame, if the MonoBehaviour is enabled
 	private void FixedUpdate()
 	{
-		for (int i = m_CurrentBodies.Count - 1; i >= 0; i--)
+		for (int i = m_CurrentBodies.Count - 1; i >= 0; --i)
 		{
 			Rigidbody rigidbody = m_CurrentBodies[i];
 			if (rigidbody.IsNotNull())

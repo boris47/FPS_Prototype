@@ -1,25 +1,24 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
-using System.Threading.Tasks;
+using UnityEngine;
 
 namespace AI.Pathfinding
 {
 	public static class AStarSearch
 	{
 		//////////////////////////////////////////////////////////////////////////
-		public static bool FindPath(in Vector3 InStartPosition, in Vector3 InEndPosition, out Vector3[] OutPath)
+		public static bool FindPath(in GraphMaker InGraph, in Vector3 InStartPosition, in Vector3 InEndPosition, out Vector3[] OutPath)
 		{
-			AINode startNode = GraphMaker.Instance.GetNearestNode(InStartPosition);
-			AINode endNode = GraphMaker.Instance.GetNearestNode(InEndPosition);
-			return FindPath(startNode, endNode, out OutPath);
+			AINode startNode = InGraph.GetNearestNode(InStartPosition);
+			AINode endNode = InGraph.GetNearestNode(InEndPosition);
+			return FindPath(InGraph, startNode, endNode, out OutPath);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		private static bool FindPath(in AINode InStartNode, in AINode InEndNode, out Vector3[] OutPath)
+		private static bool FindPath(in GraphMaker InGraph, in AINode InStartNode, in AINode InEndNode, out Vector3[] OutPath)
 		{
 			OutPath = new Vector3[0];
-			if (GraphMaker.Instance.NodeCount == 0)
+			if (InGraph.NodeCount == 0)
 			{
 				Debug.Log("AStarSearch::FindPath:Node graph has to be build !!");
 				return false;
@@ -30,7 +29,7 @@ namespace AI.Pathfinding
 				InEndNode.gCost = 0;
 				InEndNode.Heuristic = (InEndNode.Position - InStartNode.Position).sqrMagnitude;
 
-				Heap<AINode> openSet = new Heap<AINode>(GraphMaker.Instance.NodeCount);
+				Heap<AINode> openSet = new Heap<AINode>(InGraph.NodeCount);
 
 				// First node is always discovered
 				openSet.Add(InEndNode);
@@ -42,7 +41,7 @@ namespace AI.Pathfinding
 					if (currentNode.ID == InStartNode.ID)
 					{
 						//	Debug.Log("We found the end node!");
-						RetracePath(InEndNode, InStartNode, out OutPath);
+						RetracePath(InGraph, InEndNode, InStartNode, out OutPath);
 						return true;
 					}
 
@@ -77,7 +76,7 @@ namespace AI.Pathfinding
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		private static void RetracePath(AINode startNode, AINode endNode, out Vector3[] path)
+		private static void RetracePath(in GraphMaker InGraph, AINode startNode, AINode endNode, out Vector3[] path)
 		{
 			List<Vector3> nodes = new List<Vector3>();
 			AINode currentNode = endNode;
@@ -89,7 +88,7 @@ namespace AI.Pathfinding
 			}
 			nodes.Add(currentNode.Position);
 
-			GraphMaker.Instance.ResetNodes();
+			InGraph.ResetNodes();
 			path = nodes.ToArray();
 		}
 

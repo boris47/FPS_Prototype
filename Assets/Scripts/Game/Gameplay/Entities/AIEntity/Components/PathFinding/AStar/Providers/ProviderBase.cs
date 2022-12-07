@@ -5,6 +5,6 @@ namespace AI.Pathfinding
 {
 	internal abstract class ProviderBase : MonoBehaviour
 	{
-		public abstract AINode[] PickNodes();
+		public abstract Vector3[] GetNodesPosition();
 	}
 }

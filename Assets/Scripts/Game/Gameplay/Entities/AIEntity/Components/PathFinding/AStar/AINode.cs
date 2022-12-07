@@ -20,7 +20,7 @@ namespace AI.Pathfinding
 
 		[SerializeField, ReadOnly]
 		private		AINode[]					m_Neighbors			= null;
-		public		AINode[]					Neighbours			{ get => m_Neighbors; set => m_Neighbors = value; }
+		public		AINode[]					Neighbours			{ get => m_Neighbors; }
 
 		private		int							m_HeapIndex;
 		int							IHeapItem<AINode>.HeapIndex

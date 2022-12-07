@@ -1,6 +1,6 @@
 ﻿
+using System.Linq;
 using UnityEngine;
-using System.Collections.Generic;
 
 namespace AI.Pathfinding
 {
@@ -9,9 +9,6 @@ namespace AI.Pathfinding
 		[SerializeField]
 		private IterableVolume m_Volume = null;
 
-		public override AINode[] PickNodes()
-		{
-			return new AINode[0];
-		}
+		public override Vector3[] GetNodesPosition() => m_Volume.GetPoints();
 	}
 }

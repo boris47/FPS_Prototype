@@ -97,12 +97,6 @@ namespace Entities.AI
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public bool StopMovingTowardsEntity(in Entity InTargetEntity)
-		{
-			return Entity.StopMovingTowardsEntity(InTargetEntity);
-		}
-
-		//////////////////////////////////////////////////////////////////////////
 		public bool RequestMoveToPosition(in Vector3 InTargetPosition)
 		{
 			return Entity.RequestMoveToPosition(InTargetPosition);

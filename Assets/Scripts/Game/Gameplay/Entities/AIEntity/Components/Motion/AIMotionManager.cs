@@ -73,12 +73,6 @@ namespace Entities.AI.Components
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public bool StopMovingTowardsEntity(in Entity InTargetEntity)
-		{
-			return m_CurrentMotionStrategy.StopMovingTowardsEntity(InTargetEntity);
-		}
-
-		//////////////////////////////////////////////////////////////////////////
 		public bool	RequireMovementTo(in Vector3 InDestination)
 		{
 			return m_CurrentMotionStrategy.RequestMoveToPosition(InDestination);

@@ -1,6 +1,4 @@
 
-using System.Linq;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Entities.AI.Components
@@ -13,19 +11,43 @@ namespace Entities.AI.Components
 		[SerializeField, ReadOnly]
 		private		NavMeshAgent						m_Agent							= null;
 
-		public override Vector3 Position => m_Agent.IsNotNull() ? m_Agent.transform.position : transform.position;
-		public override Vector3 Velocity => m_Agent.IsNotNull() ? m_Agent.velocity : Vector3.zero;
-		public override Vector3 Destination => m_Agent.IsNotNull() ? m_Agent.pathEndPosition : Vector3.zero;
+
+		public override Vector3 Position => m_Agent.transform.position;
+		public override Vector3 Velocity => m_Agent.velocity;
+		public override Vector3 Destination => m_Agent.pathEndPosition;
+
+
+		private		LinkTransformPosition				m_PositionLinker				= null;
+		private		GameObject							m_TargetLocation				= null;
+
 
 		//////////////////////////////////////////////////////////////////////////
 		protected override void Awake()
 		{
 			base.Awake();
 
-			if (enabled = Utils.CustomAssertions.IsTrue(gameObject.TryGetComponent(out m_Agent)))
+			m_Agent = gameObject.AddChildWithComponent<NavMeshAgent>(nameof(NavMeshAgent), false, true);
+			m_Agent.transform.position = m_Owner.transform.position;
+			m_Agent.transform.SetParent(transform, worldPositionStays: true);
+			// TODO Configure NavMeshAgent
 			{
-				Utils.CustomAssertions.IsTrue(m_Agent.isOnNavMesh);
+
 			}
+			m_Agent.gameObject.SetActive(true);
+
+			m_PositionLinker = gameObject.AddComponent<LinkTransformPosition>();
+			m_PositionLinker.SetSource(m_Agent.transform);
+			m_PositionLinker.SetTarget(transform);
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		protected override void OnDestroy()
+		{
+			base.OnDestroy();
+
+			m_TargetLocation.Destroy();
+
+			m_Agent.gameObject.Destroy();
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -36,29 +58,23 @@ namespace Entities.AI.Components
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override void OnEnable()
-		{
-			base.OnEnable();
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		protected override void OnDisable()
-		{
-			base.OnDisable();
-		}
-
-		private Entity m_EntityTarget = null;
-
-		//////////////////////////////////////////////////////////////////////////
 		public override bool RequestMoveTowardsEntity(in Entity InTargetEntity)
 		{
 			if (InTargetEntity.IsNotNull())
 			{
+				if (m_TargetLocation == null)
+				{
+					m_TargetLocation = new GameObject($"{name}: Position target");
+				}
+				m_TargetLocation.transform.SetParent(InTargetEntity.Body);
+				m_TargetLocation.transform.localPosition = Vector3.zero;
+				m_TargetLocation.transform.rotation = Quaternion.identity;
+
 				if (Utils.CustomAssertions.IsNotNull(GameManager.CyclesEvents))
 				{
+					GameManager.CyclesEvents.OnLateFrame -= UpdateTargetLocation;
 					GameManager.CyclesEvents.OnLateFrame += UpdateTargetLocation;
 					m_Agent.isStopped = false;
-					m_EntityTarget = InTargetEntity;
 				}
 			}
 
@@ -66,55 +82,36 @@ namespace Entities.AI.Components
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public override bool StopMovingTowardsEntity(in Entity InTargetEntity)
-		{
-			bool outValue = false;
-			if (m_EntityTarget.IsNotNull() && InTargetEntity.IsNotNull() && m_EntityTarget.Id == InTargetEntity.Id)
-			{
-				if (Utils.CustomAssertions.IsNotNull(GameManager.CyclesEvents))
-				{
-					GameManager.CyclesEvents.OnLateFrame -= UpdateTargetLocation;
-					m_EntityTarget = null;
-					outValue = true;
-				}
-			}
-			return outValue;
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		private void UpdateTargetLocation(float InDeltaTime)
-		{
-			m_Agent.SetDestination(m_EntityTarget.Body.position);
-		}
-
-		//////////////////////////////////////////////////////////////////////////
 		public override bool RequireMovementTo(in Vector3 InDestination)
 		{
-			if (m_EntityTarget.IsNotNull())
-			{
-				if (Utils.CustomAssertions.IsNotNull(GameManager.CyclesEvents))
-				{
-					GameManager.CyclesEvents.OnLateFrame -= UpdateTargetLocation;
-					m_EntityTarget = null;
-				}
-			}
+			m_TargetLocation.Destroy();
+			m_Agent.isStopped = false;
 
-			bool bResult = false;
-			if (Utils.CustomAssertions.IsTrue(m_Agent.isOnNavMesh))
+			if (Utils.CustomAssertions.IsNotNull(GameManager.CyclesEvents))
 			{
-				m_Agent.isStopped = false;
-			//	if (!m_Agent.hasPath)
-				{
-					bResult = m_Agent.SetDestination(InDestination);
-				}
+				GameManager.CyclesEvents.OnLateFrame -= UpdateTargetLocation;
+				GameManager.CyclesEvents.OnLateFrame += UpdateTargetLocation;
 			}
-			return bResult;
+			return true;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
 		public override void StopMovement(in bool bImmediately)
 		{
+			if (Utils.CustomAssertions.IsNotNull(GameManager.CyclesEvents))
+			{
+				GameManager.CyclesEvents.OnLateFrame -= UpdateTargetLocation;
+			}
 			m_Agent.isStopped = true;
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		private void UpdateTargetLocation(float InDeltaTime)
+		{
+			if (m_TargetLocation.IsNotNull())
+			{
+				m_Agent.SetDestination(m_TargetLocation.transform.position);
+			}
 		}
 	}
 }

@@ -3,35 +3,18 @@
 public class IterableSphereVolume : IterableVolume
 {
 	[SerializeField, Range(0.25f, 5f)]
-	private		float			m_StepSizeX		= 1.0f;
+	private		float			m_Radius		= 1.0f;
 
 	[SerializeField, Range(0.25f, 5f)]
-	private		float			m_StepSizeY		= 1.0f;
-
-	[SerializeField, Range(0.25f, 5f)]
-	private		float			m_StepSizeZ		= 1.0f;
-
-	[SerializeField]
-	private		bool			m_VerticalAlso	= false;
+	private		float			m_StepSize		= 1.0f;
 
 
-	public		float			StepSizeX
+	public		float			StepSize
 	{
-		get => m_StepSizeX;
-		set => m_StepSizeX = Mathf.Max( 0.01f, value );
+		get => m_StepSize;
+		set => m_StepSize = Mathf.Max( 0.01f, value );
 	}
 
-	public		float			StepSizeY
-	{
-		get => m_StepSizeY;
-		set => m_StepSizeY = Mathf.Max( 0.01f, value );
-	}
-
-	public		float			StepSizeZ
-	{
-		get => m_StepSizeZ;
-		set => m_StepSizeZ = Mathf.Max( 0.01f, value );
-	}
 
 	//////////////////////////////////////////////////////////////////////////
 	public override bool IterateOver(System.Action<Vector3> OnPosition)
@@ -49,24 +32,16 @@ public class IterableSphereVolume : IterableVolume
 		position = new Vector3(-halfExtentX, -halfExtentY, -halfExtentZ);
 		while (true)
 		{
-			OnPosition(transform.position + (transform.rotation * position));
+			Vector3 lineEnd = transform.position + (transform.rotation * position);
+			Utils.Math.LineSphereIntersection(transform.position, m_Radius, transform.position, lineEnd, out Vector3 newPosition);
 
-			if ((position.x += m_StepSizeX) > halfExtentX)
+			OnPosition(newPosition);
+
+			if ((position.x += m_StepSize) > halfExtentX)
 			{
-				if ((position.z += m_StepSizeZ) > halfExtentZ)
+				if ((position.z += m_StepSize) > halfExtentZ)
 				{
-					if (m_VerticalAlso)
-					{
-						if ((position.y += m_StepSizeY) > halfExtentY)
-						{
-							break;
-						}
-						position.z = -halfExtentZ;
-					}
-					else
-					{
-						break;
-					}
+					break;
 				}
 
 				position.x = -halfExtentX;

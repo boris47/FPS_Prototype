@@ -97,7 +97,7 @@ namespace Entities.Player.Components
 
 			PlayerConfiguration playerConfigs = m_Controller.Player.Configs;
 
-			// Create an entity aAbove collision detector
+			// Create an entity above collision detector
 			{
 				GameObject go = new GameObject("JumpAboveChecker", typeof(Rigidbody), typeof(CapsuleCollider));
 				go.transform.SetParent(transform);

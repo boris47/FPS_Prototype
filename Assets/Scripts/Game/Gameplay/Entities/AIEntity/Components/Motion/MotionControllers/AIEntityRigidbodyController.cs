@@ -32,11 +32,6 @@ namespace Entities.AI.Components
 			return false;
 		}
 
-		public override bool StopMovingTowardsEntity(in Entity InTargetEntity)
-		{
-			return false;
-		}
-
 		//////////////////////////////////////////////////////////////////////////
 		public override bool RequireMovementTo(in Vector3 InDestination)
 		{

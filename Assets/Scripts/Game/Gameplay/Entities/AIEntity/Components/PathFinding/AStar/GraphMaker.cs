@@ -2,24 +2,17 @@
 
 namespace AI.Pathfinding
 {
-	internal partial class GraphMaker : MonoBehaviour
+	public partial class GraphMaker : MonoBehaviour
 	{
-		public static GraphMaker Instance { get; private set; } = null;
-
 		[SerializeField, ReadOnly]
 		private AINode[] m_Nodes = null;
 
-		internal int NodeCount => m_Nodes?.Length ?? 0;
+		[SerializeField]
+		private ProviderBase m_NodesProvider = null;
 
+		internal int NodeCount => m_Nodes.Length;
+		internal AINode[] Nodes => m_Nodes;
 
-		//////////////////////////////////////////////////////////////////////////
-		private void Awake()
-		{
-			Instance = this;
-
-			// Find all nodes
-			m_Nodes = FindObjectsOfType<AINode>();
-		}
 
 		//////////////////////////////////////////////////////////////////////////
 		internal AINode GetNearestNode(Vector3 position) => m_Nodes.MinBy(node => Vector3.SqrMagnitude(node.Position - position));

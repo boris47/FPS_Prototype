@@ -4,6 +4,8 @@ using UnityEngine;
 namespace Entities.AI.Components
 {
 	using Senses;
+	using System.Collections.Generic;
+	using System.Linq;
 
 	public delegate void OnNewSenseEventDel(in SenseEvent newSenseEvent);
 
@@ -20,14 +22,32 @@ namespace Entities.AI.Components
 
 	public partial class AIPerceptionComponent : AIEntityComponent
 	{
-		private const string kContainerGameObjectName = "Senses";
-	
-		[SerializeField, UDictionary.ReadOnly]
-		private				UDictionary<ESenses, Sense>						m_MappedSenses									= new UDictionary<ESenses, Sense>();
-
-		private				GameObject										m_ContainerGO									= null;
-
 		public event		OnNewSenseEventDel								OnNewSenseEvent									= delegate { };
+
+		[System.Serializable]
+		private class SenseData
+		{
+			[SerializeField, ReadOnly]
+			private Sense m_Sense = null;
+			[SerializeField, ReadOnly]
+			private ESenses m_SenseType = ESenses.NONE;
+			[SerializeField, ReadOnly]
+			private Transform m_TargetTransform = null;
+
+			public Sense Sense => m_Sense;
+			public ESenses SenseType => m_SenseType;
+			public Transform TargetTransform => m_TargetTransform;
+
+			public SenseData(Sense InSense, ESenses InSenseType, Transform InTargetTransform)
+			{
+				m_Sense = InSense;
+				m_SenseType = InSenseType;
+				m_TargetTransform = InTargetTransform;
+			}
+		}
+
+		[SerializeField]
+		private List<SenseData> m_Senses = new List<SenseData>();
 
 
 		//////////////////////////////////////////////////////////////////////////
@@ -35,38 +55,32 @@ namespace Entities.AI.Components
 		{
 			base.Awake();
 
-			EnsureSenseRoot();
-
-			foreach (Sense sense in gameObject.GetComponentsInChildren<Sense>(includeInactive: true))
-			{
-				// Senses must be children of the brain
-				Utils.CustomAssertions.IsTrue(sense.transform.IsChildOf(transform));
-				Utils.CustomAssertions.IsTrue(Sense.TryGetSenseEnumType(sense.GetType(), out ESenses senseEnum));
-
-				// Slot available
-				if (!m_MappedSenses.ContainsKey(senseEnum))
-				{
-					m_MappedSenses[senseEnum] = sense;
-				}
-			}
+			CollectCurrentSenses();
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		private GameObject EnsureSenseRoot()
+		protected override void OnValidate()
 		{
-			if (transform.TrySearchComponentByChildName(kContainerGameObjectName, out Transform child))
-			{
-				m_ContainerGO = child.gameObject;
-			}
-			else
-			{
-				m_ContainerGO = new GameObject(kContainerGameObjectName);
-				m_ContainerGO.transform.SetParent(transform);
-			}
+			base.OnValidate();
 
-			m_ContainerGO.transform.localPosition = Vector3.zero;
-			m_ContainerGO.transform.localRotation = Quaternion.identity;
-			return m_ContainerGO;
+			CollectCurrentSenses();
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		private void CollectCurrentSenses()
+		{
+			m_Senses.Clear();
+
+			Sense[] allSense = gameObject.GetComponentsInChildren<Sense>(includeInactive: true);
+			m_Senses.Capacity = allSense.Length;
+
+			foreach (Sense sense in allSense)
+			{
+				if (Utils.CustomAssertions.IsTrue(Sense.TryGetSenseEnumType(sense.GetType(), out ESenses senseEnum)))
+				{
+					m_Senses.Add(new SenseData(sense, senseEnum, sense.transform));
+				}
+			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -74,13 +88,13 @@ namespace Entities.AI.Components
 		public void SendSenseEvent(in SenseEvent senseEvent) => OnNewSenseEvent(senseEvent);
 
 		//////////////////////////////////////////////////////////////////////////
-		public void AddSense<T>() => AddSense(typeof(T));
+		public void AddSense<T>(in Transform InTargetTransform = null) => AddSense(typeof(T), InTargetTransform);
 
 		//////////////////////////////////////////////////////////////////////////
-		public bool TryGetSenseByType<T>(in ESenses senseType, out T sense) where T : Sense, new()
+		public bool TryGetSenseByType<T>(out T sense, in ESenses senseType, in Transform InTargetTransform = null) where T : Sense, new()
 		{
 			sense = null;
-			bool bResult = TryGetSenseByType(senseType, out Sense result);
+			bool bResult = TryGetSenseByType(out Sense result, senseType, InTargetTransform);
 			if (bResult)
 			{
 				sense = result as T;
@@ -89,9 +103,9 @@ namespace Entities.AI.Components
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public bool TryGetSense<T>(out T sense) where T : Sense, new()
+		public bool TryGetSense<T>(out T sense, in Transform InTargetTransform = null) where T : Sense, new()
 		{
-			bool bResult = TryGetSense(typeof(T), out Sense result);
+			bool bResult = TryGetSense(out Sense result, typeof(T), InTargetTransform);
 			{
 				sense = result as T;
 			}
@@ -103,61 +117,89 @@ namespace Entities.AI.Components
 
 
 		//////////////////////////////////////////////////////////////////////////
-		public Sense AddSense(in System.Type senseType)
+		public Sense AddSense(in System.Type senseType, in Transform InTargetTransform = null)
 		{
 			Sense outValue = null;
 			if (Utils.CustomAssertions.IsTrue(Sense.TryGetSenseEnumType(senseType, out ESenses senseEnum)))
 			{
-				EnsureSenseRoot();
-				if (!m_MappedSenses.TryGetValue(senseEnum, out outValue))
-				{
-					Sense sense = m_ContainerGO.AddChildWithComponent(senseEnum.ToString(), senseType) as Sense;
-					m_MappedSenses[senseEnum] = outValue = sense;
-				}
+				Transform targetTransform = InTargetTransform.IsNotNull() ? InTargetTransform : transform;
+
+				outValue = targetTransform.gameObject.AddComponent(senseType) as Sense;
+				m_Senses.Add(new SenseData(outValue, senseEnum, targetTransform));
 			}
 			return outValue;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public bool TryGetSenseByType(in ESenses senseType, out Sense sense)
+		public bool TryGetSenseByType(out Sense sense, in ESenses InSenseType, in Transform InTargetTransform = null)
 		{
 			sense = null;
-			switch (senseType)
+			switch (InSenseType)
 			{
-				case ESenses.DAMAGE: return TryGetSense(typeof(Damage), out sense);
-				case ESenses.HEARING: return TryGetSense(typeof(Hearing), out sense);
-				case ESenses.SIGHT: return TryGetSense(typeof(Sight), out sense);
-				case ESenses.TEAM: return TryGetSense(typeof(Team), out sense);
+				case ESenses.DAMAGE:
+				{
+					return TryGetSense(out sense, typeof(Damage), InTargetTransform);
+				}
+				case ESenses.HEARING:
+				{
+					return TryGetSense(out sense, typeof(Hearing), InTargetTransform);
+				}
+				case ESenses.SIGHT:
+				{
+					return TryGetSense(out sense, typeof(Sight), InTargetTransform);
+				}
+				case ESenses.TEAM:
+				{
+					return TryGetSense(out sense, typeof(Team), InTargetTransform);
+				}
 			}
 			return false;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public bool TryGetSense(in System.Type senseType, out Sense sense)
+		public bool TryGetSense(out Sense OutSense, in System.Type InSenseType, in Transform InTargetTransform = null)
 		{
-			Utils.CustomAssertions.IsTrue(Sense.TryGetSenseEnumType(senseType, out ESenses senseEnum));
-			return m_MappedSenses.TryGetValue(senseEnum, out sense);
+			OutSense = null;
+			bool bResult = false;
+			if (Utils.CustomAssertions.IsTrue(Sense.TryGetSenseEnumType(InSenseType, out ESenses senseEnum)))
+			{
+				if (InTargetTransform.IsNotNull())
+				{
+					bResult = InTargetTransform.TryGetComponent(out OutSense);
+				}
+				else
+				{
+					if (bResult = m_Senses.TryFind(out SenseData OutSenseData, out int _, s => s.SenseType == senseEnum))
+					{
+						OutSense = OutSenseData.Sense;
+					}
+				}
+			}
+			return bResult;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public Sense GetSense(in System.Type senseType) => TryGetSense(senseType, out Sense result) ? result : null;
+		public Sense GetSense(in System.Type senseType, in Transform InTargetTransform = null) => TryGetSense(out Sense result, senseType, InTargetTransform) ? result : null;
 
 		//////////////////////////////////////////////////////////////////////////
-		public void SetSenseEnabled(in ESenses senseType, in bool bSenseEnabled)
+		public void SetSenseEnabled(in ESenses senseType, in bool bSenseEnabled, in Transform InTargetTransform = null)
 		{
-			if (TryGetSenseByType(senseType, out Sense sense))
+			if (TryGetSenseByType(out Sense sense, senseType, InTargetTransform))
 			{
 				sense.enabled = bSenseEnabled;
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public void RemoveSense(in ESenses senseType)
+		public void RemoveSense(ESenses senseType, in Transform InTargetTransform = null)
 		{
-			if (TryGetSenseByType(senseType, out Sense sense))
+			if (TryGetSenseByType(out Sense sense, senseType, InTargetTransform))
 			{
-				m_MappedSenses.Remove(senseType);
-				sense.gameObject.Destroy();
+				if (m_Senses.TryFind(out SenseData _, out int index, s => s.Sense == sense))
+				{
+					m_Senses.RemoveAt(index);
+				}
+				sense.Destroy();
 			}
 		}
 	}
@@ -174,91 +216,93 @@ namespace Entities.AI.Components
 	{
 		[CustomEditor(typeof(AIPerceptionComponent))]
 		public class AIPerceptionComponentEditor : Editor
-	{
-		private static readonly System.Type[] m_CachedTypes = default;
-
-		private AIPerceptionComponent perceptionComponent = null;
-
-		//////////////////////////////////////////////////////////////////////////
-		static AIPerceptionComponentEditor()
 		{
-			m_CachedTypes = TypeCache.GetTypesDerivedFrom<Sense>().ToArray();
-		}
+			private static readonly System.Type[] m_CachedTypes = default;
 
-		//////////////////////////////////////////////////////////////////////////
-		private void OnEnable()
-		{
-			perceptionComponent = target as AIPerceptionComponent;
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		private void OnItemSelected_Add(object arg)
-		{
-			System.Type senseType = arg as System.Type;
-			if (Sense.TryGetSenseEnumType(senseType, out ESenses senseEnum))
+			private AIPerceptionComponent perceptionComponent = null;
+			
+			/*
+			//////////////////////////////////////////////////////////////////////////
+			static AIPerceptionComponentEditor()
 			{
-				GameObject container = perceptionComponent.EnsureSenseRoot();
-
-				GameObject go = new GameObject(senseEnum.ToString());
-				go.transform.SetParent(container.transform);
-				go.transform.localPosition = Vector3.zero;
-				go.transform.localRotation = Quaternion.identity;
-
-				Sense sense = go.AddComponent(senseType) as Sense;
-				perceptionComponent.m_MappedSenses[senseEnum] = sense;
+				m_CachedTypes = TypeCache.GetTypesDerivedFrom<Sense>().Where(t => !t.IsAbstract).ToArray();
 			}
-		}
 
-		//////////////////////////////////////////////////////////////////////////
-		private void OnItemSelected_Rem(object arg)
-		{
-			System.Type senseType = arg as System.Type;
-			if (Sense.TryGetSenseEnumType(senseType, out ESenses senseEnum))
+			//////////////////////////////////////////////////////////////////////////
+			private void OnEnable()
 			{
-				perceptionComponent.RemoveSense(senseEnum);
+				perceptionComponent = target as AIPerceptionComponent;
 			}
-		}
 
-		//////////////////////////////////////////////////////////////////////////
-		public override void OnInspectorGUI()
-		{
-			DrawDefaultInspector();
-
-			if (GUILayout.Button("Add Sense"))
+			//////////////////////////////////////////////////////////////////////////
+			private void OnItemSelected_Add(object arg)
 			{
-				GenericMenu menu = new GenericMenu();
-
-				bool bShow = false;
-				foreach (System.Type item in m_CachedTypes.Except(perceptionComponent.GetComponentsInChildren<Sense>(includeInactive: true).Select(s => s.GetType())).AsEnumerable())
+				System.Type senseType = arg as System.Type;
+				if (Sense.TryGetSenseEnumType(senseType, out ESenses senseEnum))
 				{
-					bShow = true;
-					menu.AddItem(new GUIContent(item.Name), false, OnItemSelected_Add, item);
-				}
+					GameObject container = perceptionComponent.EnsureSenseRoot();
 
-				if (bShow)
-				{
-					menu.ShowAsContext();
+					GameObject go = new GameObject(senseEnum.ToString());
+					go.transform.SetParent(container.transform);
+					go.transform.localPosition = Vector3.zero;
+					go.transform.localRotation = Quaternion.identity;
+
+					Sense sense = go.AddComponent(senseType) as Sense;
+					perceptionComponent.m_MappedSenses[senseEnum] = sense;
 				}
 			}
 
-			if (perceptionComponent.m_MappedSenses.Any() && GUILayout.Button("Remove Sense"))
+			//////////////////////////////////////////////////////////////////////////
+			private void OnItemSelected_Rem(object arg)
 			{
-				GenericMenu menu = new GenericMenu();
-
-				bool bShow = false;
-				foreach (System.Type item in perceptionComponent.m_MappedSenses.Values.Select(s => s.GetType()))
+				System.Type senseType = arg as System.Type;
+				if (Sense.TryGetSenseEnumType(senseType, out ESenses senseEnum))
 				{
-					bShow = true;
-					menu.AddItem(new GUIContent(item.Name), true, OnItemSelected_Rem, item);
-				}
-
-				if (bShow)
-				{
-					menu.ShowAsContext();
+					perceptionComponent.RemoveSense(senseEnum);
 				}
 			}
+
+			//////////////////////////////////////////////////////////////////////////
+			public override void OnInspectorGUI()
+			{
+				DrawDefaultInspector();
+
+				if (GUILayout.Button("Add Sense"))
+				{
+					GenericMenu menu = new GenericMenu();
+
+					bool bShow = false;
+					foreach (System.Type item in m_CachedTypes.Except(perceptionComponent.GetComponentsInChildren<Sense>(includeInactive: true).Select(s => s.GetType())).AsEnumerable())
+					{
+						bShow = true;
+						menu.AddItem(new GUIContent(item.Name), false, OnItemSelected_Add, item);
+					}
+
+					if (bShow)
+					{
+						menu.ShowAsContext();
+					}
+				}
+
+				if (perceptionComponent.m_MappedSenses.Any() && GUILayout.Button("Remove Sense"))
+				{
+					GenericMenu menu = new GenericMenu();
+
+					bool bShow = false;
+					foreach (System.Type item in perceptionComponent.m_MappedSenses.Values.Select(s => s.GetType()))
+					{
+						bShow = true;
+						menu.AddItem(new GUIContent(item.Name), true, OnItemSelected_Rem, item);
+					}
+
+					if (bShow)
+					{
+						menu.ShowAsContext();
+					}
+				}
+			}
+			*/
 		}
-	}
 	}
 }
 #endif

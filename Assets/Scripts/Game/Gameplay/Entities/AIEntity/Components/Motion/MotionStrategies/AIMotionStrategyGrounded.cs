@@ -65,11 +65,6 @@ namespace Entities.AI.Components
 			return m_MotionController.RequestMoveTowardsEntity(InTargetEntity);
 		}
 
-		public override bool StopMovingTowardsEntity(in Entity InTargetEntity)
-		{
-			return m_MotionController.StopMovingTowardsEntity(InTargetEntity);
-		}
-
 		//////////////////////////////////////////////////////////////////////////
 		public override bool RequestMoveToPosition(in Vector3 InDestination)
 		{
