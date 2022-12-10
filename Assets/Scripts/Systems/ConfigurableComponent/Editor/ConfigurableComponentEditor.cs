@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
-using UnityEditor;
 using System.Reflection;
+using UnityEditor;
+using UnityEngine;
 
 public sealed class ConfigurableComponentEditor
 {
@@ -196,36 +196,50 @@ public sealed class ConfigurableComponentEditor
 	[CustomEditor(typeof(Component), editorForChildClasses: true)]
 	private class ComponentEditor : Editor
 	{
-		private static bool s_IsOpen = true;
-		private ConfigurationBase m_Configuration = null;
-		private SerializedObject m_SerializedConfigObject = null;
-		private string m_Label = string.Empty;
+		private class ConfigurableData
+		{
+			public bool bIsOpened = false;
+			public string HoldingTypeName = string.Empty;
+			public ConfigurationBase TheConfiguration = null;
+			public SerializedObject SerializedObject = null;
+		}
+
+		private List<ConfigurableData> m_Data = new List<ConfigurableData>();
+
 
 		//////////////////////////////////////////////////////////////////////////
 		private void OnEnable()
 		{
 			Component componentInstance = serializedObject.targetObject as Component;
-			if (componentInstance.IsNotNull() && componentInstance.TryGetConfiguration(out m_Configuration))
+
+			System.Type currentType = componentInstance.GetType();
+			while (currentType.BaseType.IsNotNull())
 			{
-				m_SerializedConfigObject = new SerializedObject(m_Configuration);
-				m_Label = $"{ObjectNames.NicifyVariableName(componentInstance.GetType().Name)} Configs";
+				if (ReflectionHelper.TryGetAttributeValue(currentType, (Configurable configurable) => configurable.ResourcePath, out string ResourcePath))
+				{
+					ConfigurationBase loadedConfiguration = Resources.Load<ConfigurationBase>(ResourcePath);
+					m_Data.Add( new ConfigurableData()
+					{
+						HoldingTypeName = currentType.Name,
+						TheConfiguration = loadedConfiguration,
+						SerializedObject = new SerializedObject(loadedConfiguration)
+					});
+				}
+				currentType = currentType.BaseType;
 			}
+
+			m_Data.Reverse();
 		}
 
 		//////////////////////////////////////////////////////////////////////////
 		private void OnDisable()
 		{
-			if (m_SerializedConfigObject.IsNotNull())
+			foreach (ConfigurableData data in m_Data)
 			{
-				m_SerializedConfigObject.Dispose();
-
+				data.SerializedObject.Dispose();
+				AssetDatabase.SaveAssetIfDirty(data.TheConfiguration);
+				Resources.UnloadAsset(data.TheConfiguration);
 			}
-			if (m_Configuration.IsNotNull())
-			{
-				AssetDatabase.SaveAssetIfDirty(m_Configuration);
-				Resources.UnloadAsset(m_Configuration);
-			}
-			m_SerializedConfigObject = null;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -241,28 +255,37 @@ public sealed class ConfigurableComponentEditor
 				}
 			}
 
-			// Draw configuration
-			if (m_SerializedConfigObject.IsNotNull())
+			if (m_Data.Count > 0)
 			{
-				GUILayout.BeginHorizontal();
-				{
-					s_IsOpen = EditorGUILayout.Foldout(s_IsOpen, m_Label, toggleOnLabelClick: true);
+				GUILayout.Space(10f);
 
-					if (s_IsOpen && GUILayout.Button("Locate"))
+				GUILayout.Label("-------------------------------");
+				
+				// Draw configurations
+				foreach (ConfigurableData data in m_Data)
+				{
+					
+					GUILayout.BeginHorizontal();
 					{
-						EditorGUIUtility.PingObject(m_SerializedConfigObject.targetObject);
+						string label = $"{ObjectNames.NicifyVariableName(data.HoldingTypeName)} Configs";
+						data.bIsOpened = EditorGUILayout.Foldout(data.bIsOpened, label, toggleOnLabelClick: true);
+
+						if (GUILayout.Button("Locate"))
+						{
+							EditorGUIUtility.PingObject(data.SerializedObject.targetObject);
+						}
+					}
+					GUILayout.EndHorizontal();
+
+					if (data.bIsOpened)
+					{
+						data.SerializedObject.DoLayoutWithoutScriptProperty();
 					}
 				}
-				GUILayout.EndHorizontal();
 
-				if (s_IsOpen)
-				{
-					m_SerializedConfigObject.DoLayoutWithoutScriptProperty();
+				GUILayout.Label("-------------------------------");
 
-					GUILayout.Label("-------------------------------");
-
-					GUILayout.Space(10f);
-				}
+				GUILayout.Space(10f);
 			}
 
 			// Normal component draw

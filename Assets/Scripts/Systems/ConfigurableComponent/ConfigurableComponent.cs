@@ -2,7 +2,7 @@
 using UnityEngine;
 
 
-[System.AttributeUsage(System.AttributeTargets.Class, Inherited = false)]
+[System.AttributeUsage(System.AttributeTargets.Class, Inherited = true)]
 public class Configurable : System.Attribute
 {
 	public readonly string			FieldName				= string.Empty;
