@@ -5,20 +5,54 @@ namespace Entities.AI.Components
 {
 	using TypeReferences;
 
-	public sealed class AIMotionManager : MotionManager
+	public sealed class AIMotionManager : AIEntityComponent, IMotionManager
 	{
 		[SerializeField, Inherits(typeof(AIMotionStrategyBase), AllowAbstract = false, ShowNoneElement = false)]
-		private		TypeReference							m_DefaultMotionStrategyType		= typeof(AIMotionStrategyGrounded);
+		private		TypeReference					m_DefaultMotionStrategyType		= typeof(AIMotionStrategyGrounded);
+
+		[SerializeField, Min(0f)]
+		private		float							m_MaxMoveSpeed					= 1f;
 
 		[SerializeField, ReadOnly]
-		private		AIMotionStrategyBase					m_CurrentMotionStrategy			= null;
+		private		AIMotionStrategyBase			m_CurrentMotionStrategy			= null;
 
+		[SerializeField, ReadOnly]
+		private		Transform						m_TargetLocation				= null;
 
 		//--------------------
-		public override		Vector3							Position						=> m_CurrentMotionStrategy.IsNotNull() ? m_CurrentMotionStrategy.Position : Vector3.zero;
-		public override		Vector3							Velocity						=> m_CurrentMotionStrategy.IsNotNull() ? m_CurrentMotionStrategy.Velocity : Vector3.zero;
+		public		Transform						TargetLocation					=> m_TargetLocation;
+		public		float							MaxMoveSpeed					=> m_MaxMoveSpeed;
+		public		Vector3							Position						=> m_CurrentMotionStrategy.Position;
+		public		Vector3							Destination						=> m_CurrentMotionStrategy.Destination;
+		public		Vector3							Velocity						=> m_CurrentMotionStrategy.Velocity;
 
 
+		//////////////////////////////////////////////////////////////////
+		protected override void Awake()
+		{
+			base.Awake();
+
+			m_TargetLocation = new GameObject($"{name}: Position target").transform;
+			m_TargetLocation.SetParent(transform);
+			m_TargetLocation.localPosition = Vector3.zero;
+			m_TargetLocation.localRotation = Quaternion.identity;
+		}
+
+		//////////////////////////////////////////////////////////////////
+		protected override void OnEnable()
+		{
+			base.OnEnable();
+			
+			if (m_CurrentMotionStrategy.IsNull())
+			{
+				SetMotionType(m_DefaultMotionStrategyType);
+			}
+			else
+			{
+				// We just ensure valid configuration for this strategy
+				m_CurrentMotionStrategy.Configure(this);
+			}
+		}
 
 		//////////////////////////////////////////////////////////////////
 		// This function is called when the script is loaded or a value is changed in the inspector (Called in the editor only)
@@ -30,14 +64,11 @@ namespace Entities.AI.Components
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		protected override void OnEnable()
+		protected override void OnDestroy()
 		{
-			base.OnEnable();
+			base.OnDestroy();
 
-			if (!m_CurrentMotionStrategy.IsNotNull())
-			{
-				SetMotionType(m_DefaultMotionStrategyType);
-			}
+			m_TargetLocation.gameObject.Destroy();
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -57,11 +88,17 @@ namespace Entities.AI.Components
 				}
 
 				m_CurrentMotionStrategy = gameObject.AddComponent(InMotionType) as AIMotionStrategyBase;
+				m_CurrentMotionStrategy.Configure(this);
 
 				if (snapshot.IsNotNull())
 				{
 					m_CurrentMotionStrategy.PorcessSnapshot(snapshot);
 				}
+			}
+			else
+			{
+				// We just ensure valid configuration for this strategy
+				m_CurrentMotionStrategy.Configure(this);
 			}
 			return m_CurrentMotionStrategy;
 		}
@@ -82,24 +119,6 @@ namespace Entities.AI.Components
 		public void Stop(in bool bImmediately)
 		{
 			m_CurrentMotionStrategy.Stop(bImmediately);
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		public override bool CanSwim(SwimVolume swimVolume)
-		{
-			throw new System.NotImplementedException();
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		public override void OnSwimVolumeEnter(SwimVolume swimVolume)
-		{
-			
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		public override void OnSwimVolumeExit(SwimVolume swimVolume)
-		{
-
 		}
 	}
 }

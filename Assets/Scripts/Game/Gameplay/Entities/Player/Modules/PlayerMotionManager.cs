@@ -3,15 +3,16 @@ using UnityEngine;
 
 namespace Entities.Player.Components
 {
-	public sealed class PlayerMotionManager : MotionManager
+	public sealed class PlayerMotionManager : PlayerEntityComponent, IMotionManager
 	{
 		[SerializeField, ReadOnly]
 		private				PlayerMotionStrategyBase				m_CurrentMotionStrategy			= null;
 
 		private				PlayerEntity							m_Entity						=> m_Owner as PlayerEntity;
 
-		public override		Vector3									Position						=> m_Entity.Body.position;
-		public override		Vector3									Velocity						=> m_Entity.CharacterController.velocity;
+		public				Vector3									Position						=> m_Entity.Body.position;
+		public				Vector3									Destination						=> m_Entity.CharacterController.velocity;
+		public				Vector3									Velocity						=> m_Entity.CharacterController.velocity;
 
 
 		//////////////////////////////////////////////////////////////////
@@ -65,19 +66,19 @@ namespace Entities.Player.Components
 
 
 		//////////////////////////////////////////////////////////////////////////
-		public override bool CanSwim(SwimVolume swimVolume)
+		public bool CanSwim(SwimVolume swimVolume)
 		{
 			return true;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public override void OnSwimVolumeEnter(SwimVolume swimVolume)
+		public void OnSwimVolumeEnter(SwimVolume swimVolume)
 		{
 			SetMotionType<PlayerMotionStrategySwim>().Configure(swimVolume);
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public override void OnSwimVolumeExit(SwimVolume swimVolume)
+		public void OnSwimVolumeExit(SwimVolume swimVolume)
 		{
 			SetMotionType<PlayerMotionStrategyGrounded>();
 		}

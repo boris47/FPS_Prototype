@@ -17,9 +17,6 @@ public class LinkTransformPosition : MonoBehaviour
 	[SerializeField]
 	private Transform m_Target = null;
 
-	[SerializeField]
-	private Vector3 m_Offset = Vector3.zero;
-
 
 	/////////////////////////////////////////////////////////
 	private void Awake()
@@ -40,9 +37,6 @@ public class LinkTransformPosition : MonoBehaviour
 		m_Target = InTarget;
 		enabled = HaveValidEntities();
 	}
-
-	/////////////////////////////////////////////////////////
-	public void SetOffset(Vector3 InOffset) => m_Offset = InOffset;
 
 	/////////////////////////////////////////////////////////
 	private void FixedUpdate()
@@ -72,7 +66,7 @@ public class LinkTransformPosition : MonoBehaviour
 	}
 
 	/////////////////////////////////////////////////////////
-	private void UpdatePosition() => m_Target.position = m_Source.position + (m_Source.rotation * m_Offset);
+	private void UpdatePosition() => m_Target.position = m_Source.position;
 
 	/////////////////////////////////////////////////////////
 	private bool HaveValidEntities() => m_Source.IsNotNull() && m_Target.IsNotNull();

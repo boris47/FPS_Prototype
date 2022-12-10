@@ -4,6 +4,7 @@ using UnityEngine;
 namespace Entities.AI.Components
 {
 	[RequireComponent(typeof(AIController))]
+	[RequireComponent(typeof(AIEntity))]
 	public class AIEntityComponent : EntityComponent, IOwnedComponent<AIEntity>
 	{
 		[SerializeField, ReadOnly]

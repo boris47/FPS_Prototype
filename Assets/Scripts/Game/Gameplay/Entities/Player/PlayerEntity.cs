@@ -9,7 +9,7 @@ namespace Entities.Player
 	[RequireComponent(typeof(PlayerController))]
 	[RequireComponent(typeof(PlayerMotionManager))]
 	[RequireComponent(typeof(PlayerInteractionManager))]
-	[Configurable(nameof(m_Configs), "Player/" + nameof(Configs))]
+	[Configurable(nameof(m_Configs), "Player/" + nameof(PlayerEntity) + "Config")]
 	public partial class PlayerEntity : Entity
 	{
 		public new				PlayerController				Controller							=> m_Controller as PlayerController;

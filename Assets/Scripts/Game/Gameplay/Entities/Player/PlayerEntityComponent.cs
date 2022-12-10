@@ -4,12 +4,13 @@ using UnityEngine;
 namespace Entities.Player.Components
 {
 	[RequireComponent(typeof(PlayerController))]
+	[RequireComponent(typeof(PlayerEntity))]
 	public class PlayerEntityComponent : EntityComponent, IOwnedComponent<PlayerEntity>
 	{
 		[SerializeField, ReadOnly]
 		protected			PlayerController									m_Controller							= null;
 
-		public PlayerEntity Owner => m_Owner as PlayerEntity;
+		public				PlayerEntity										Owner =>								m_Owner as PlayerEntity;
 
 		//////////////////////////////////////////////////////////////////
 		protected override void Awake()

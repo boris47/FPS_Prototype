@@ -18,10 +18,7 @@ namespace Entities
 		// Awake is called when the script instance is being loaded
 		protected virtual void Awake()
 		{
-			if (m_Owner == null)
-			{
-				Utils.CustomAssertions.IsTrue(gameObject.TrySearchComponent(ESearchContext.LOCAL_AND_PARENTS, out m_Owner));
-			}
+			Utils.CustomAssertions.IsTrue(gameObject.TrySearchComponent(ESearchContext.LOCAL_AND_PARENTS, out m_Owner));
 		}
 
 		//////////////////////////////////////////////////////////////////////////

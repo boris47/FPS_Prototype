@@ -1,9 +1,13 @@
 
+using UnityEngine;
 
 namespace Entities.AI
 {
-	public partial class GroundedSynth : SyntheticEntities
-	{
+	using Components;
 
+	[RequireComponent(typeof(AIMotionManager))]
+	public class GroundedSynth : SyntheticEntities
+	{
+		
 	}
 }

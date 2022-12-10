@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Entities.AI.Components
 {
-	public class AIMotionStrategyFly : AIMotionStrategyBase
+	public class AIMotionStrategySwim : AIMotionStrategyBase
 	{
 		[SerializeField, ReadOnly]
 		private					Rigidbody								m_Rigidbody						= null;

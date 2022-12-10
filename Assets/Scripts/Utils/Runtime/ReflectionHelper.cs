@@ -6,13 +6,13 @@ public static class ReflectionHelper
 {
 
 	//////////////////////////////////////////////////////////////////////////
-	public static bool TryGetAttributeValue<V, T>(System.Type type, System.Func<V, T> OnAttribute, out T OutValue) where V : System.Attribute
+	public static bool TryGetAttributeValue<V, T>(System.Type type, System.Func<V, T> OnAttribute, out T OutValue, bool InInherited= false) where V : System.Attribute
 	{
 		OutValue = default;
 		bool bResult = false;
 		if (OnAttribute.IsNotNull())
 		{
-			V attribute = (V)System.Attribute.GetCustomAttribute(type, typeof(V));
+			V attribute = (V)System.Attribute.GetCustomAttribute(type, typeof(V), inherit: InInherited);
 			if (attribute.IsNotNull())
 			{
 				OutValue = OnAttribute(attribute);

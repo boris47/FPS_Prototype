@@ -5,7 +5,6 @@ namespace Entities.AI.Components
 {
 	using Senses;
 	using System.Collections.Generic;
-	using System.Linq;
 
 	public delegate void OnNewSenseEventDel(in SenseEvent newSenseEvent);
 
@@ -22,21 +21,21 @@ namespace Entities.AI.Components
 
 	public partial class AIPerceptionComponent : AIEntityComponent
 	{
-		public event		OnNewSenseEventDel								OnNewSenseEvent									= delegate { };
+		public event OnNewSenseEventDel OnNewSenseEvent = delegate { };
 
 		[System.Serializable]
 		private class SenseData
 		{
 			[SerializeField, ReadOnly]
-			private Sense m_Sense = null;
+			private		Sense			m_Sense					= null;
 			[SerializeField, ReadOnly]
-			private ESenses m_SenseType = ESenses.NONE;
+			private		ESenses			m_SenseType				= ESenses.NONE;
 			[SerializeField, ReadOnly]
-			private Transform m_TargetTransform = null;
+			private		Transform		m_TargetTransform		= null;
 
-			public Sense Sense => m_Sense;
-			public ESenses SenseType => m_SenseType;
-			public Transform TargetTransform => m_TargetTransform;
+			public		Sense			Sense					=> m_Sense;
+			public		ESenses			SenseType				=> m_SenseType;
+			public		Transform		TargetTransform			=> m_TargetTransform;
 
 			public SenseData(Sense InSense, ESenses InSenseType, Transform InTargetTransform)
 			{
@@ -94,10 +93,11 @@ namespace Entities.AI.Components
 		public bool TryGetSenseByType<T>(out T sense, in ESenses senseType, in Transform InTargetTransform = null) where T : Sense, new()
 		{
 			sense = null;
-			bool bResult = TryGetSenseByType(out Sense result, senseType, InTargetTransform);
-			if (bResult)
+			bool bResult = false;
+			if (TryGetSenseByType(out Sense result, senseType, InTargetTransform) && result is T)
 			{
 				sense = result as T;
+				bResult = true;
 			}
 			return bResult;
 		}
@@ -120,10 +120,9 @@ namespace Entities.AI.Components
 		public Sense AddSense(in System.Type senseType, in Transform InTargetTransform = null)
 		{
 			Sense outValue = null;
-			if (Utils.CustomAssertions.IsTrue(Sense.TryGetSenseEnumType(senseType, out ESenses senseEnum)))
+			if (Sense.TryGetSenseEnumType(senseType, out ESenses senseEnum))
 			{
 				Transform targetTransform = InTargetTransform.IsNotNull() ? InTargetTransform : transform;
-
 				outValue = targetTransform.gameObject.AddComponent(senseType) as Sense;
 				m_Senses.Add(new SenseData(outValue, senseEnum, targetTransform));
 			}
@@ -134,26 +133,31 @@ namespace Entities.AI.Components
 		public bool TryGetSenseByType(out Sense sense, in ESenses InSenseType, in Transform InTargetTransform = null)
 		{
 			sense = null;
+			bool bResult = false;
 			switch (InSenseType)
 			{
 				case ESenses.DAMAGE:
 				{
-					return TryGetSense(out sense, typeof(Damage), InTargetTransform);
+					bResult = TryGetSense(out sense, typeof(Damage), InTargetTransform);
+					break;
 				}
 				case ESenses.HEARING:
 				{
-					return TryGetSense(out sense, typeof(Hearing), InTargetTransform);
+					bResult = TryGetSense(out sense, typeof(Hearing), InTargetTransform);
+					break;
 				}
 				case ESenses.SIGHT:
 				{
-					return TryGetSense(out sense, typeof(Sight), InTargetTransform);
+					bResult = TryGetSense(out sense, typeof(Sight), InTargetTransform);
+					break;
 				}
 				case ESenses.TEAM:
 				{
-					return TryGetSense(out sense, typeof(Team), InTargetTransform);
+					bResult = TryGetSense(out sense, typeof(Team), InTargetTransform);
+					break;
 				}
 			}
-			return false;
+			return bResult;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -161,7 +165,7 @@ namespace Entities.AI.Components
 		{
 			OutSense = null;
 			bool bResult = false;
-			if (Utils.CustomAssertions.IsTrue(Sense.TryGetSenseEnumType(InSenseType, out ESenses senseEnum)))
+			if (Sense.TryGetSenseEnumType(InSenseType, out ESenses senseEnum))
 			{
 				if (InTargetTransform.IsNotNull())
 				{
@@ -208,9 +212,7 @@ namespace Entities.AI.Components
 #if UNITY_EDITOR
 namespace Entities.AI.Components
 {
-	using System.Linq;
 	using UnityEditor;
-	using Senses;
 
 	public partial class AIPerceptionComponent
 	{
@@ -220,7 +222,7 @@ namespace Entities.AI.Components
 			private static readonly System.Type[] m_CachedTypes = default;
 
 			private AIPerceptionComponent perceptionComponent = null;
-			
+
 			/*
 			//////////////////////////////////////////////////////////////////////////
 			static AIPerceptionComponentEditor()

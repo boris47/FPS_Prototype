@@ -84,7 +84,7 @@ public class SwimVolume : MonoBehaviour
 	// OnTriggerEnter is called when the Collider other enters the trigger
 	private void OnTriggerEnter(Collider other)
 	{
-		if (other.gameObject.TryGetComponent(out MotionManager motionManager))
+		if (other.gameObject.TryGetComponent(out IMotionManager motionManager))
 		{
 			motionManager.OnSwimVolumeEnter(this);
 		}
@@ -104,7 +104,7 @@ public class SwimVolume : MonoBehaviour
 			m_CurrentBodies.Remove(other.attachedRigidbody);
 		}
 
-		if (other.gameObject.TryGetComponent(out MotionManager motionManager))
+		if (other.gameObject.TryGetComponent(out IMotionManager motionManager))
 		{
 			motionManager.OnSwimVolumeExit(this);
 		}

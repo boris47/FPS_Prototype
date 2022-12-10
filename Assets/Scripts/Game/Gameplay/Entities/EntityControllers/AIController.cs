@@ -14,7 +14,7 @@ namespace Entities.AI
 	[RequireComponent(typeof(AIPerceptionComponent))]
 	[RequireComponent(typeof(AIBehaviorTreeComponent))]
 	[RequireComponent(typeof(AIBehavioursManager))]
-	public partial class AIController : EntityController
+	public class AIController : EntityController
 	{
 		[SerializeField, ReadOnly]
 		private				AIBrainComponent				m_BrainComponent					= null;

@@ -6,6 +6,7 @@ namespace Entities
 	public abstract class MotionTransitionSnapshot
 	{
 		public Vector3 CurrentVelocity = Vector3.zero;
+		public Transform Destination = null;
 	}
 
 	public interface IMotionTransition<T> where T : MotionTransitionSnapshot, new()
@@ -15,20 +16,25 @@ namespace Entities
 		void PorcessSnapshot(T InSnapShot);
 	}
 
-	[RequireComponent(typeof(Entity))]
-	public abstract class MotionManager : EntityComponent
+	public interface IMotionManager
 	{
-		public abstract		Vector3									Position	{ get; }
-		public abstract		Vector3									Velocity	{ get; }
+		Vector3						Position					{ get; }
+		Vector3						Destination					{ get; }
+		Vector3						Velocity					{ get; }
 
 		//////////////////////////////////////////////////////////////////////////
-		// Swim motion related
-		public abstract bool CanSwim(SwimVolume swimVolume);
+		bool CanSwim(SwimVolume swimVolume) => false;
 
 		//////////////////////////////////////////////////////////////////////////
-		public abstract void OnSwimVolumeEnter(SwimVolume swimVolume);
+		void OnSwimVolumeEnter(SwimVolume swimVolume)
+		{
+
+		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public abstract void OnSwimVolumeExit(SwimVolume swimVolume);
+		void OnSwimVolumeExit(SwimVolume swimVolume)
+		{
+
+		}
 	}
 }

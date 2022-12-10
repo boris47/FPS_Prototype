@@ -9,7 +9,7 @@ namespace Entities.Player
 	/// The PlayerController decides what to do and then issues commands to the Player.
 	/// </summary>
 	[RequireComponent(typeof(PlayerEntity))]
-	public class PlayerController : EntityController
+	public sealed class PlayerController : EntityController
 	{
 		public PlayerEntity Player { get; private set; } = null;
 

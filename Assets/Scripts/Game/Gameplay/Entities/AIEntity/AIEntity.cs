@@ -5,22 +5,20 @@ using UnityEngine;
 namespace Entities.AI
 {
 	using Components;
-	using Entities.Player.Components;
 	using Relations;
 
 	[RequireComponent(typeof(AIController))]
-	[RequireComponent(typeof(AIMotionManager))]
 	public abstract class AIEntity : Entity
 	{
 		public new				AIController					Controller							=> m_Controller as AIController;
 
-		private const float V = 0.5f;
 		[SerializeField, ReadOnly]
 		private					AIMotionManager					m_AIMotionManager					= null;
 
 
 		//--------------------
 		public					AIMotionManager					AIMotionManager						=> m_AIMotionManager;
+
 
 		//////////////////////////////////////////////////////////////////
 		protected override void Awake()
@@ -59,23 +57,29 @@ namespace Entities.AI
 		//////////////////////////////////////////////////////////////////
 		public bool RequestMoveTowardsEntity(in Entity InTargetEntity)
 		{
-			return AIMotionManager.RequestMoveTowardsEntity(InTargetEntity);
+			return m_AIMotionManager.IsNotNull() ? m_AIMotionManager.RequestMoveTowardsEntity(InTargetEntity) : false;
 		}
 
 		//////////////////////////////////////////////////////////////////
 		public bool RequestMoveToPosition(in Vector3 InVector3)
 		{
-			return AIMotionManager.RequireMovementTo(InVector3);
+			return m_AIMotionManager.IsNotNull() ? m_AIMotionManager.RequireMovementTo(InVector3) : false;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
 		public bool IsCloseEnoughTo(in Entity InTargetEntity) => (InTargetEntity.Body.position - GetBody().position).magnitude < 0.5f;
 
 		//////////////////////////////////////////////////////////////////////////
-		public bool IsCloseEnoughTo(in Vector3 InTargetPosition) => (InTargetPosition - GetBody().position).magnitude < V;
+		public bool IsCloseEnoughTo(in Vector3 InTargetPosition) => (InTargetPosition - GetBody().position).magnitude < 0.5f;
 
 		//////////////////////////////////////////////////////////////////
-		public void Stop(in bool bImmediately) => AIMotionManager.Stop(bImmediately);
+		public void Stop(in bool bImmediately)
+		{
+			if (m_AIMotionManager.IsNotNull())
+			{
+				m_AIMotionManager.Stop(bImmediately);
+			}
+		}
 
 
 		//////////////////////////////////////////////////////////////////
@@ -94,7 +98,7 @@ namespace Entities.AI
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public override Vector3 GetVelocity() => m_AIMotionManager.Velocity;
+		public override Vector3 GetVelocity() => m_AIMotionManager.IsNotNull() ? m_AIMotionManager.Velocity : Vector3.zero;
 	}
 }
 
