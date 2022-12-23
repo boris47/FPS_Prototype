@@ -299,8 +299,13 @@ namespace Utils // Generic
 
 namespace Utils // Math
 {
+	using System;
+	using System.Collections.Generic;
+	using System.Drawing;
 	using System.Runtime.CompilerServices;
+	using System.Security.Cryptography;
 	using UnityEngine;
+	using UnityEngine.UIElements;
 
 	/// <summary> Can be used to access a Vector3 component </summary>
 	public enum EVector3Component
@@ -312,6 +317,7 @@ namespace Utils // Math
 	{
 		public const float EPS = 0.00001f;
 
+		#region TESTS
 
 		/// <summary> Return true if the value is between min and max values, otherwise return false </summary>
 		/// <param name="Value"></param>
@@ -337,6 +343,188 @@ namespace Utils // Math
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary> Return if a position is inside a mesh </summary>
+		public static bool IsPointInsideMesh(in Mesh InMesh, in Component InMeshOwner, in Vector3 WorldPosition)
+		{
+			Vector3 aLocalPoint = InMeshOwner.transform.InverseTransformPoint(WorldPosition);
+			Plane plane = new Plane();
+
+			Vector3[] verts = InMesh.vertices;
+			int[] tris = InMesh.triangles;
+			for (int i = 0, count = tris.Length / 3; i < count; i++)
+			{
+				Vector3 V1 = verts[tris[i * 3]];
+				Vector3 V2 = verts[tris[(i * 3) + 1]];
+				Vector3 V3 = verts[tris[(i * 3) + 2]];
+				plane.Set3Points(V1, V2, V3);
+				if (plane.GetSide(aLocalPoint))
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+
+		/// <summary> Tests if point is inside sphere </summary>
+		/// <param name="InPoint"></param>
+		/// <param name="InSphereCenter"></param>
+		/// <param name="InSphereRadius"></param>
+		/// <returns></returns>
+		public static bool IsPointInsideSphere(in Vector3 InPoint, in Vector3 InSphereCenter, in float InSphereRadius)
+		{
+			return Vector3.Distance(InSphereCenter, InPoint) < InSphereRadius;
+		}
+
+		/// <summary> Check if point is inside world space bounds </summary>
+		/// <param name="InPoint"></param>
+		/// <param name="InBoxCenter"></param>
+		/// <param name="InBoxSize"></param>
+		/// <returns></returns>
+		public static bool IsPointInsideBox(in Vector3 InPoint, in Vector3 InBoxCenter, in Vector3 InBoxSize)
+		{
+			return new Bounds(InBoxCenter, InBoxSize).Contains(InPoint);
+		}
+
+		private static BoxCollider m_PointInsideBoxCollider = null;
+		/// <summary> Check if point is inside local space bounds </summary>
+		/// <param name="InPoint"></param>
+		/// <param name="InBoxCenter"></param>
+		/// <param name="InBoxRotation"></param>
+		/// <param name="InBoxSize"></param>
+		/// <returns></returns>
+		public static bool IsPointInsideBox(in Vector3 InPoint, in Vector3 InBoxCenter, in Quaternion InBoxRotation, in Vector3 InBoxSize)
+		{
+			if (m_PointInsideBoxCollider == null)
+			{
+				GameObject go = new GameObject();
+				go.SetActive(false);
+				GameObject.DontDestroyOnLoad(go);
+				m_PointInsideBoxCollider = go.AddComponent<BoxCollider>();
+				go.hideFlags = HideFlags.HideAndDontSave;
+			}
+			m_PointInsideBoxCollider.transform.SetPositionAndRotation(InBoxCenter, InBoxRotation);
+			m_PointInsideBoxCollider.size = InBoxSize;
+
+			Vector3 localPoint = m_PointInsideBoxCollider.transform.InverseTransformPoint(InPoint) - InBoxCenter;
+			float l_HalfX = (InBoxSize.x * 0.5f);
+			float l_HalfY = (InBoxSize.y * 0.5f);
+			float l_HalfZ = (InBoxSize.z * 0.5f);
+			return IsBetweenValues(localPoint.x, -l_HalfX, l_HalfX) && IsBetweenValues(localPoint.y, -l_HalfY, l_HalfY) && IsBetweenValues(localPoint.z, -l_HalfZ, l_HalfZ);
+		}
+
+		/// <summary> Try to get the projection of a point on a segment </summary>
+		/// <param name="OutProjection"></param>
+		/// <param name="InPointToProject"></param>
+		/// <param name="InLineStart"></param>
+		/// <param name="InLineEnd"></param>
+		/// <returns></returns>
+		public static bool HasPointOnLineProjection(out Vector3 OutProjection, out float t, in Vector3 InPointToProject, in Vector3 InLineStart, in Vector3 InLineEnd)
+		{
+			OutProjection = Vector3.zero;
+			Vector3 segment = InLineEnd - InLineStart;
+			Vector3 vectToPoint = InPointToProject - InLineStart;
+
+			// See if closest point is before StartPoint
+			float dot1 = Vector3.Dot(vectToPoint, segment);
+			if (dot1 <= 0)
+			{
+				t = 0f;
+				return false;
+			}
+
+			// See if closest point is beyond EndPoint
+			float dot2 = Vector3.Dot(segment, segment);
+			if (dot2 <= dot1)
+			{
+				t = 1f;
+				return false;
+			}
+
+			// Closest Point is within segment
+			OutProjection = InLineStart + (segment * (t = (dot1 / dot2)));
+			return true;
+		}
+
+
+		/// <summary> Get the intersection between a line and a plane. </summary>
+		/// <param name="OutIntersection"></param>
+		/// <param name="InLinePoint"></param>
+		/// <param name="InLineDirection"></param>
+		/// <param name="InPlaneNormal"></param>
+		/// <param name="InPlanePoint"></param>
+		/// <returns>If the line and plane are not parallel, the function outputs true, otherwise false.</returns>
+		public static bool HasLinePlaneIntersection(out Vector3 OutIntersection, in Vector3 InLinePoint, in Vector3 InLineDirection, in Vector3 InPlanePoint, in Vector3 InPlaneNormal)
+		{
+			OutIntersection = Vector3.zero;
+
+			//calculate the distance between the linePoint and the line-plane intersection point
+			float dotNumerator = Vector3.Dot(InPlanePoint - InLinePoint, InPlaneNormal);
+			float dotDenominator = Vector3.Dot(InLineDirection, InPlaneNormal);
+
+			//line and plane are not parallel
+			if (dotDenominator != 0f)
+			{
+				float length = dotNumerator / dotDenominator;
+
+				//create a vector from the linePoint to the intersection point
+				Vector3 vector = SetVectorLength(InLineDirection, length);
+
+				//get the coordinates of the line-plane intersection point
+				OutIntersection = InLinePoint + vector;
+
+				return true;
+			}
+			//output not valid
+			return false;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>  </summary>
+		/// <param name="SphereCenter"></param>
+		/// <param name="SphereRadius"></param>
+		/// <param name="LineStart"></param>
+		/// <param name="LineEnd"></param>
+		/// <param name="ClosestPoint"></param>
+		/// <returns></returns>
+		public static bool HasLineSphereIntersection(in Vector3 SphereCenter, in float SphereRadius, in Vector3 LineStart, in Vector3 LineEnd, /*in float LineLength,*/ out Vector3 ClosestPoint)
+		{
+			ClosestPoint = Vector3.zero;
+
+			Vector3 LineDirectionNormalized = (LineEnd - LineStart).normalized;
+			Vector3 m = LineStart - SphereCenter;
+			float b = Vector3.Dot(m, LineDirectionNormalized);
+			float c = Vector3.Dot(m, m) - (SphereRadius * SphereRadius);
+
+			// Exit if r’s origin outside s (c > 0) and r pointing away from s (b > 0) 
+			if (c > 0.0f && b > 0.0f)
+			{
+				return false;
+			}
+
+			float discriminant = (b * b) - c;
+
+			// A negative discriminant corresponds to ray missing sphere 
+			if (discriminant < 0.0f)
+			{
+				return false;
+			}
+
+			// Ray now found to intersect sphere, compute smallest t value of intersection
+			float t = -b - Sqr(discriminant);
+
+			// If t is negative, ray started inside sphere so clamp t to zero 
+			if (t < 0.0f)
+			{
+				t = 0.0f;
+			}
+			ClosestPoint = LineStart + (t * LineDirectionNormalized);
+			return true;
+		}
+
+		#endregion
+
 		/// Ref: https://stackoverflow.com/a/28957910
 		/// <summary>
 		/// Return the scaled value between given limits clamped to range [0, 1]
@@ -358,6 +546,7 @@ namespace Utils // Math
 			return Mathf.Clamp(result, 0f, 1f);
 		}
 
+
 		/// Ref: https://en.wikipedia.org/wiki/Feature_scaling
 		/// <summary>
 		/// Return the value that lies between MinValue and MaxValue scaled in the given limits
@@ -372,7 +561,7 @@ namespace Utils // Math
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static float ScaleBetween(in float CurrentValue, in float MinValue, in float MaxValue, in float MinScale, in float MaxScale)
 		{
-			return MinScale + ((CurrentValue - MinValue) / (MaxValue - MinValue) * (MaxScale - MinScale));
+			return Mathf.Clamp(MinScale + ((CurrentValue - MinValue) / (MaxValue - MinValue) * (MaxScale - MinScale)), MinScale, MaxScale);
 		}
 
 
@@ -447,12 +636,12 @@ namespace Utils // Math
 		/// Get planar squared distance between two positions, position1 is projected on position2 plane
 		/// </summary>
 		/// <returns>Planar Squared Distance</returns>
-		public static float PlanarSqrDistance(in Vector3 position1, in Vector3 position2, in Vector3 position2PlaneNormal)
+		public static float PlanarSqrDistance(in Vector3 InPosition1, in Vector3 InPosition2, in Vector3 InPlaneNormal)
 		{
 			// with given plane normal, project position1 on position2 plane
-			Vector3 projectedPoint = ProjectPointOnPlane(position2PlaneNormal, position1, position2);
+			Vector3 projectedPoint = ProjectPointOnPlane(InPlaneNormal, InPosition1, InPosition2);
 
-			return (position2 - projectedPoint).sqrMagnitude;
+			return (InPosition2 - projectedPoint).sqrMagnitude;
 		}
 
 
@@ -461,154 +650,67 @@ namespace Utils // Math
 		/// Get planar distance between two positions, position1 is projected on position2 plane
 		/// </summary>
 		/// <returns>Planar Distance</returns>
-		public static float PlanarDistance(in Vector3 position1, in Vector3 position2, in Vector3 planeNormal)
+		public static float PlanarDistance(in Vector3 InPosition1, in Vector3 InPosition2, in Vector3 InPlaneNormal)
 		{
-			float sqrDistance = PlanarSqrDistance(position1, position2, planeNormal);
+			float sqrDistance = PlanarSqrDistance(InPosition1, InPosition2, InPlaneNormal);
 
-			return Mathf.Sqrt(sqrDistance);
+			return Sqr(sqrDistance);
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		/// Get a direction vector from polar coordinates
-		/// </summary>>
-		public static Vector3 VectorByHP(in float h, in float p)
+		/// <summary> Get a direction vector from polar coordinates </summary>>
+		/// <param name="InRadius">The radius, distance from the center</param>
+		/// <param name="InDegreePolarAngle">The altitude in degrees (Rotation around the up axis)</param>
+		/// <param name="InDegreeAzimuthalAngle">The longitude in degrees (Rotation around the right axis)</param>
+		/// <returns>Directional vector</returns>
+		/// Ref: https://gamedev.stackexchange.com/questions/81713/how-do-i-translate-a-spherical-coordinate-to-a-cartesian-one
+		public static Vector3 SphericalToCartesian(in float InRadius, in float InDegreePolarAngle, in float InDegreeAzimuthalAngle)
 		{
-			float _ch = Mathf.Cos(h * Mathf.Deg2Rad);
-			float _cp = Mathf.Cos(p * Mathf.Deg2Rad);
-			float _sh = Mathf.Sin(h);
-			float _sp = Mathf.Sin(p);
-			return new Vector3(_cp * _sh, _sp, _cp * _ch);
+			float a = InRadius * Mathf.Cos(InDegreeAzimuthalAngle * Mathf.Deg2Rad);
+			return new Vector3
+			(
+				x: a * Mathf.Cos(InDegreePolarAngle * Mathf.Deg2Rad),
+				y: InRadius * Mathf.Sin(InDegreeAzimuthalAngle * Mathf.Deg2Rad),
+				z: a * Mathf.Sin(InDegreePolarAngle * Mathf.Deg2Rad)
+			);
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary> Return if a position is inside a mesh </summary>
-		public static bool IsPointInsideMesh(in Mesh InMesh, in Component InMeshOwner, in Vector3 WorldPosition)
-		{
-			Vector3 aLocalPoint = InMeshOwner.transform.InverseTransformPoint(WorldPosition);
-			Plane plane = new Plane();
-
-			Vector3[] verts = InMesh.vertices;
-			int[] tris = InMesh.triangles;
-			for (int i = 0, count = tris.Length / 3; i < count; i++)
-			{
-				Vector3 V1 = verts[tris[i * 3]];
-				Vector3 V2 = verts[tris[(i * 3) + 1]];
-				Vector3 V3 = verts[tris[(i * 3) + 2]];
-				plane.Set3Points(V1, V2, V3);
-				if (plane.GetSide(aLocalPoint))
-				{
-					return false;
-				}
-			}
-			return true;
-		}
-
-
-		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		/// Create a vector of direction "vector" with length "size"
-		/// </summary>
-		public static Vector3 SetVectorLength(in Vector3 vector, in float size)
+		/// <summary> Create a vector of direction "vector" with length "size" </summary>
+		public static Vector3 SetVectorLength(in Vector3 InVector, in float InSize)
 		{
 			//normalize the vector
-			Vector3 vectorNormalized = Vector3.Normalize( vector );
+			Vector3 vectorNormalized = Vector3.Normalize(InVector);
 
 			//scale the vector
-			return vectorNormalized *= size;
+			return vectorNormalized *= InSize;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		/// This function returns a point which is a projection from a point to a plane.
-		/// </summary>
-		public static Vector3 ProjectPointOnPlane(in Vector3 planeNormal, in Vector3 planePoint, in Vector3 point)
+		/// <summary> This function returns a point which is a projection from a point to a plane. </summary>
+		public static Vector3 ProjectPointOnPlane(in Vector3 InPlaneNormal, in Vector3 InPlanePoint, in Vector3 InPoint)
 		{
 			//First calculate the distance from the point to the plane:
-			//			float distance = Vector3.Dot( planeNormal, ( point - planePoint ) );
+			//float distance = Vector3.Dot( planeNormal, ( point - planePoint ) );
 
 			//Reverse the sign of the distance
-			//			distance *= -1;
+			//distance *= -1;
 
 			//Get a translation vector
-			//			Vector3 translationVector = SetVectorLength( planeNormal, distance );
+			//Vector3 translationVector = SetVectorLength( planeNormal, distance );
 
 			//Translate the point to form a projection
-			//			return point - translationVector;
+			//return point - translationVector;
 
 			// Dot product of two normalize vector means the cos of the angle between this two vectors
 			// If it's positive means a < 180 angle and negative and angle >= 180
 			// Dot product can also be: ( ax × bx ) + ( ay × by ), that's the point
-			float pointPlaneDistance = Vector3.Dot( planeNormal, point - planePoint );
+			float pointPlaneDistance = Vector3.Dot(InPlaneNormal, InPoint - InPlanePoint);
 
-			return point - ( planeNormal * pointPlaneDistance );
-		}
-
-		/// <summary> Try to get the projection of a point on a segment </summary>
-		/// <param name="projection"></param>
-		/// <param name="pointToProject"></param>
-		/// <param name="lineStart"></param>
-		/// <param name="lineEnd"></param>
-		/// <returns></returns>
-		public static bool HasPointOnLineProjection(out Vector3 projection, Vector3 pointToProject, Vector3 lineStart, Vector3 lineEnd)
-		{
-			projection = Vector3.zero;
-			Vector3 segment = lineEnd - lineStart;
-			Vector3 vectToPoint = pointToProject - lineStart;
-
-			// See if closest point is before StartPoint
-			float dot1 = Vector3.Dot(vectToPoint, segment);
-			if (dot1 <= 0)
-			{
-				return false;
-			}
-
-			// See if closest point is beyond EndPoint
-			float dot2 = Vector3.Dot(segment, segment);
-			if (dot2 <= dot1)
-			{
-				return false;
-			}
-
-			// Closest Point is within segment
-			projection = lineStart + (segment * (dot1 / dot2));
-			return true;
-		}
-
-
-		/// <summary> Get the intersection between a line and a plane. </summary>
-		/// <param name="intersection"></param>
-		/// <param name="linePoint"></param>
-		/// <param name="lineVec"></param>
-		/// <param name="planeNormal"></param>
-		/// <param name="planePoint"></param>
-		/// <returns>If the line and plane are not parallel, the function outputs true, otherwise false.</returns>
-		public static bool HasLinePlaneIntersection(out Vector3 intersection, Vector3 linePoint, Vector3 lineVec, Vector3 planePoint, Vector3 planeNormal)
-		{
-			intersection = Vector3.zero;
-
-			//calculate the distance between the linePoint and the line-plane intersection point
-			float dotNumerator = Vector3.Dot(planePoint - linePoint, planeNormal);
-			float dotDenominator = Vector3.Dot(lineVec, planeNormal);
-
-			//line and plane are not parallel
-			if (dotDenominator != 0f)
-			{
-				float length = dotNumerator / dotDenominator;
-
-				//create a vector from the linePoint to the intersection point
-				Vector3 vector = SetVectorLength(lineVec, length);
-
-				//get the coordinates of the line-plane intersection point
-				intersection = linePoint + vector;
-
-				return true;
-			}
-			//output not valid
-			return false;
+			return InPoint - (InPlaneNormal * pointPlaneDistance);
 		}
 
 		/// <summary> For valid arguments return the angle between two vectors that lins on the plane defined by given components </summary>
@@ -635,6 +737,7 @@ namespace Utils // Math
 			return Mathf.DeltaAngle(angleA, angleB);
 		}
 
+
 		/// <summary> Calculate the angle between a vector and a plane. The plane is made by a normal vector. Output is in degree. </summary>
 		public static float AngleVectorPlane(Vector3 vector, Vector3 normal)
 		{
@@ -645,42 +748,6 @@ namespace Utils // Math
 			float angle = (float)System.Math.Acos(dot);
 
 			return (1.570796326794897f - angle) * Mathf.Rad2Deg; //90 degrees - angle
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		public static bool LineSphereIntersection(in Vector3 SphereCenter, in float SphereRadius, in Vector3 LineStart, in Vector3 LineEnd, /*in float LineLength,*/ out Vector3 ClosestPoint)
-		{
-			ClosestPoint = Vector3.zero;
-
-			Vector3 LineDirectionNormalized = (LineEnd - LineStart).normalized;
-			Vector3 m = LineStart - SphereCenter;
-			float b = Vector3.Dot(m, LineDirectionNormalized);
-			float c = Vector3.Dot(m, m) - (SphereRadius * SphereRadius);
-
-			// Exit if r’s origin outside s (c > 0) and r pointing away from s (b > 0) 
-			if (c > 0.0f && b > 0.0f)
-			{
-				return false;
-			}
-
-			float discriminant = (b * b) - c;
-
-			// A negative discriminant corresponds to ray missing sphere 
-			if (discriminant < 0.0f)
-			{
-				return false;
-			}
-
-			// Ray now found to intersect sphere, compute smallest t value of intersection
-			float t = -b - Sqr(discriminant);
-
-			// If t is negative, ray started inside sphere so clamp t to zero 
-			if (t < 0.0f)
-			{
-				t = 0.0f;
-			}
-			ClosestPoint = LineStart + (t * LineDirectionNormalized);
-			return true;
 		}
 
 
@@ -698,6 +765,7 @@ namespace Utils // Math
 			);
 			return targetPosition + (t * velocityDelta);
 		}
+
 
 		//first-order intercept using relative target position
 		public static float FirstOrderInterceptTime(in float shotSpeed, in Vector3 shooterToTarget, in Vector3 velocityDelta)
@@ -987,6 +1055,126 @@ namespace Utils // Math
 			c = bIsReversed ? collection[currPt - 2] : collection[currPt + 2];
 			d = bIsReversed ? collection[currPt - 2] : collection[currPt + 2];
 			return true;
+		}
+
+		/// <summary> Calculate the bounds of a gameobject encapsulating all activbe cooliders bounds </summary>
+		/// <param name="InTransform"></param>
+		/// <returns></returns>
+		public static Bounds GetBoundsOf(in GameObject InSource, in bool InIncludeColliders = false) => GetBoundsOf(InSource.transform, InIncludeColliders);
+
+		/// <summary> Calculate the bounds of a gameobject encapsulating all activbe cooliders bounds </summary>
+		/// <param name="InTransform"></param>
+		/// <returns></returns>
+		public static Bounds GetBoundsOf(in Component InSource, in bool InIncludeColliders = false) => GetBoundsOf(InSource.transform, InIncludeColliders);
+
+
+		/// <summary> Calculate the bounds of a gameobject encapsulating all activbe cooliders bounds </summary>
+		/// <param name="InGameObject"></param>
+		/// <returns></returns>
+		public static Bounds GetBoundsOf(in Transform InSource, in bool InIncludeColliders = false)
+		{
+			Bounds outResult = new Bounds(InSource.position, Vector3.zero);
+			if (InIncludeColliders)
+			{
+				foreach (Collider item in InSource.GetComponentsInChildren<Collider>(includeInactive: false))
+				{
+					if (!item.isTrigger)
+					{
+						outResult.Encapsulate(item.bounds);
+					}
+				}
+			}
+
+			foreach (Renderer item in InSource.GetComponentsInChildren<Renderer>(includeInactive: false))
+			{
+				if (item.enabled)
+				{
+					outResult.Encapsulate(item.bounds);
+				}
+			}
+
+			return outResult;
+		}
+
+
+		/// <summary>  </summary>
+		/// <param name="InVolumePosition"></param>
+		/// <param name="InVolumeRotation"></param>
+		/// <param name="InVolumeSize"></param>
+		/// <param name="InCountForAxis"></param>
+		/// <returns></returns>
+		public static (Vector3, Vector3)[] IterateBoxVolume(in Vector3 InVolumePosition, in Quaternion InVolumeRotation, in Vector3 InVolumeSize, in Vector3 InCountForAxis)
+		{
+			List<(Vector3, Vector3)> points = new List<(Vector3, Vector3)>();
+			{
+				Vector3 voxelSize = new Vector3
+				(
+					x: InVolumeSize.x / InCountForAxis.x,
+					y: InVolumeSize.y / InCountForAxis.y,
+					z: InVolumeSize.z / InCountForAxis.z
+				);
+
+				Vector3 halfVoxelSize = voxelSize * 0.5f;
+				Vector3 halfVolumeSize = InVolumeSize * 0.5f;
+				Vector3 currentPosition = -halfVolumeSize + (voxelSize * 0.5f);
+
+				while (true)
+				{
+					points.Add((InVolumePosition + (InVolumeRotation * currentPosition), voxelSize));
+
+					if ((currentPosition.x += voxelSize.x) > halfVolumeSize.x)
+					{
+						if ((currentPosition.z += voxelSize.z) > halfVolumeSize.z)
+						{
+							if ((currentPosition.y += voxelSize.y) > halfVolumeSize.y)
+							{
+								break;
+							}
+							currentPosition.z = -halfVolumeSize.z + halfVoxelSize.z;
+						}
+						currentPosition.x = -halfVolumeSize.x + halfVoxelSize.x;
+					}
+				}
+			}
+			return points.ToArray();
+		}
+
+
+		/// <summary>  </summary>
+		/// <param name="InSpherePosition"></param>
+		/// <param name="InSphereRadius"></param>
+		/// <param name="InCountForAxis"></param>
+		/// <returns></returns>
+		/// // Ref: https://stackoverflow.com/a/47416720
+		public static (Vector3, Vector3)[] IterateSphereVolume(in Vector3 InSpherePosition, in float InSphereRadius,
+		float InMaxLats, float InMaxLongs)
+		{
+			List<(Vector3, Vector3)> points = new List<(Vector3, Vector3)>();
+			{
+				InMaxLats = Mathf.Max(InMaxLats, 1f);
+				InMaxLongs = Mathf.Max(InMaxLongs, 1f);
+				
+				Vector3 voxelSize = new Vector3
+				(
+					x: InSphereRadius / InMaxLongs,
+					y: InSphereRadius / InMaxLats,
+					z: InSphereRadius / InMaxLongs
+				);
+				
+				float azimuthStep = Mathf.RoundToInt(180f / (InMaxLats + 1f));
+				for (float currentAzimuthalAngle = 0f; currentAzimuthalAngle <= 180f; currentAzimuthalAngle += azimuthStep)
+				{
+					float voxelsCount = Mathf.RoundToInt(Mathf.Max((InMaxLongs * Mathf.Sin(currentAzimuthalAngle * Mathf.Deg2Rad)), 1f));
+					float polarStep = 360f / voxelsCount;
+					for (float currentPolarAngle = 0f; currentPolarAngle < 360f; currentPolarAngle += polarStep)
+					{
+						Vector3 voxelWorldCenter = SphericalToCartesian(InSphereRadius/*?*/*0.5f, currentPolarAngle, currentAzimuthalAngle - 90f);
+						points.Add((InSpherePosition + voxelWorldCenter, voxelSize));
+					}
+				}
+				
+			}
+			return points.ToArray();
 		}
 	}
 }
@@ -1293,7 +1481,7 @@ namespace Utils.Editor // Editor Utils
 		/////////////////////////////////////////////////////////////////////////////
 		public static void Execute()
 		{
-			foreach (var window in Resources.FindObjectsOfTypeAll(m_ProjectBrowserType))
+			foreach (Object window in Resources.FindObjectsOfTypeAll(m_ProjectBrowserType))
 			{
 				m_ResetViewsMethod.Invoke(window, new object[0]);
 			}
@@ -1303,13 +1491,13 @@ namespace Utils.Editor // Editor Utils
 	public static class GizmosHelper
 	{
 		private static readonly Mesh BuiltInCapsuleMesh = null;
-		private static readonly Vector3[] _baseVertices = null;
-		private static readonly Vector3[] newVertices = null;
+		private static readonly Vector3[] m_CapsuleVertices = null;
+		private static readonly Vector3[] m_CapsuleNewVertices = null;
 
 		static GizmosHelper()
 		{
-			var go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-			var origMesh = go.GetComponent<MeshFilter>().sharedMesh;
+			GameObject go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+			Mesh origMesh = go.GetComponent<MeshFilter>().sharedMesh;
 			BuiltInCapsuleMesh = new Mesh
 			{
 				vertices = origMesh.vertices,
@@ -1319,10 +1507,9 @@ namespace Utils.Editor // Editor Utils
 			};
 			go.Destroy();
 
-			_baseVertices = BuiltInCapsuleMesh.vertices;
-			newVertices = new Vector3[_baseVertices.Length];
+			m_CapsuleVertices = BuiltInCapsuleMesh.vertices;
+			m_CapsuleNewVertices = new Vector3[m_CapsuleVertices.Length];
 		}
-
 
 
 		//////////////////////////////////////////////////////////////////////////
@@ -1364,16 +1551,17 @@ namespace Utils.Editor // Editor Utils
 		//////////////////////////////////////////////////////////////////////////
 		public static void DrawWireCapsule(in Vector3 InPosition, in Quaternion InRotation, in float InRadius, in float InHeight, in Color InColor)
 		{
-			for (int i = 0, length = _baseVertices.Length; i < length; i++)
+			for (int i = 0, length = m_CapsuleVertices.Length; i < length; i++)
 			{
-				Vector3 vertex = _baseVertices[i];
+				Vector3 vertex = m_CapsuleVertices[i];
 				vertex.x *= InRadius * 2f;
 				vertex.y *= InHeight * 0.5f;
 				vertex.z *= InRadius * 2f;
-				newVertices[i].Set(vertex);
+				m_CapsuleNewVertices[i].Set(vertex);
 			}
-			BuiltInCapsuleMesh.vertices = newVertices;
+			BuiltInCapsuleMesh.vertices = m_CapsuleNewVertices;
 			Gizmos.DrawMesh(BuiltInCapsuleMesh, -1, InPosition, InRotation);
+
 			/*
 			UnityEditor.Handles.color = color;
 
@@ -1397,6 +1585,58 @@ namespace Utils.Editor // Editor Utils
 				UnityEditor.Handles.DrawWireDisc(Vector3.down * pointOffset, Vector3.up, radius);
 			}
 			*/
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		//////////////////////////////////////////////////////////////////////////
+		public class UseGizmoColor : System.IDisposable
+		{
+			private bool m_Disposed = false;
+			private Color m_PreviousData = Color.clear;
+
+			public UseGizmoColor(in Color InNewData)
+			{
+				m_Disposed = false;
+				m_PreviousData = Gizmos.color;
+				Gizmos.color = InNewData;
+			}
+
+			public void Dispose()
+			{
+				if (m_Disposed)
+				{
+					return;
+				}
+				m_Disposed = true;
+
+				Gizmos.color = m_PreviousData;
+			}
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		//////////////////////////////////////////////////////////////////////////
+		public class UseGizmoMatrix : System.IDisposable
+		{
+			private bool m_Disposed = false;
+			private Matrix4x4 m_PreviousData = Matrix4x4.identity;
+
+			public UseGizmoMatrix(in Matrix4x4 InNewData)
+			{
+				m_Disposed = false;
+				m_PreviousData = Gizmos.matrix;
+				Gizmos.matrix = InNewData;
+			}
+
+			public void Dispose()
+			{
+				if (m_Disposed)
+				{
+					return;
+				}
+				m_Disposed = true;
+
+				Gizmos.matrix = m_PreviousData;
+			}
 		}
 	}
 

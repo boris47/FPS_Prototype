@@ -72,15 +72,21 @@ namespace Entities.Player.Components
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public void OnSwimVolumeEnter(SwimVolume swimVolume)
+		public void OnMotionVolumeEnter(MotionVolume InVolume)
 		{
-			SetMotionType<PlayerMotionStrategySwim>().Configure(swimVolume);
+			if (InVolume is SwimVolume swimVolume)
+			{
+				SetMotionType<PlayerMotionStrategySwim>().Configure(swimVolume);
+			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public void OnSwimVolumeExit(SwimVolume swimVolume)
+		public void OnMotionVolumeExit(MotionVolume InVolume)
 		{
-			SetMotionType<PlayerMotionStrategyGrounded>();
+			if (InVolume is SwimVolume)
+			{
+				SetMotionType<PlayerMotionStrategyGrounded>();
+			}
 		}
 	}
 }

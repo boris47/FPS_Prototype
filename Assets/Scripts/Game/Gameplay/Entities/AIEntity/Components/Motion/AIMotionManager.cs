@@ -120,5 +120,17 @@ namespace Entities.AI.Components
 		{
 			m_CurrentMotionStrategy.Stop(bImmediately);
 		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public void OnMotionVolumeEnter(MotionVolume InVolume)
+		{
+			throw new System.NotImplementedException();
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public void OnMotionVolumeExit(MotionVolume InVolume)
+		{
+			throw new System.NotImplementedException();
+		}
 	}
 }

@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Entities.AI.Components
 {
+	[RequireComponent(typeof(Rigidbody))]
 	public class AIMotionStrategyFly : AIMotionStrategyBase
 	{
 		[SerializeField, ReadOnly]
@@ -21,7 +22,7 @@ namespace Entities.AI.Components
 		{
 			base.Awake();
 
-			if (Utils.CustomAssertions.IsTrue(gameObject.TryGetComponent(out m_Rigidbody)))
+			if (enabled = Utils.CustomAssertions.IsTrue(gameObject.TryGetComponent(out m_Rigidbody)))
 			{
 				m_Rigidbody.useGravity = false;
 			}
@@ -61,7 +62,7 @@ namespace Entities.AI.Components
 		//////////////////////////////////////////////////////////////////////////
 		public override void Stop(in bool bImmediately)
 		{
-			
+			m_Rigidbody.velocity = Vector3.zero;
 		}
 	}
 }

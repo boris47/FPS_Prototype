@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Entities.AI.Components
 {
+	[RequireComponent(typeof(AIMotionManager))]
 	[DefaultExecutionOrder(-1)]
 	public abstract class AIMotionStrategyBase : AIEntityComponent, IMotionTransition<AIEntityMotionTransitionSnapshot>
 	{

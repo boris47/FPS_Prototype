@@ -1,10 +1,10 @@
 
-using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 using UnityEngine.AI;
 
 namespace Entities.AI.Components
 {
+	[RequireComponent(typeof(NavMeshAgent))]
 	public class AIMotionStrategyGrounded : AIMotionStrategyBase
 	{
 		[SerializeField, ReadOnly]

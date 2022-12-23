@@ -23,18 +23,23 @@ namespace Entities
 		Vector3						Velocity					{ get; }
 
 		//////////////////////////////////////////////////////////////////////////
-		bool CanSwim(SwimVolume swimVolume) => false;
+		bool CanSwim(SwimVolume InVolume) => false;
 
+
+		void OnMotionVolumeEnter(MotionVolume InVolume);
+		void OnMotionVolumeExit(MotionVolume InVolume);
+		/*
 		//////////////////////////////////////////////////////////////////////////
-		void OnSwimVolumeEnter(SwimVolume swimVolume)
+		void OnMotionVolumeEnter(MotionVolume InVolume)
 		{
 
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		void OnSwimVolumeExit(SwimVolume swimVolume)
+		void OnMotionVolumeExit(MotionVolume InVolume)
 		{
 
 		}
+		*/
 	}
 }
