@@ -84,7 +84,7 @@ namespace Utils // CustomAssertions
 {
 	public static class CustomAssertions
 	{
-		public struct CustomAssertionMessage
+		public readonly struct CustomAssertionMessage
 		{
 			public readonly string Message;
 
@@ -512,7 +512,7 @@ namespace Utils // Math
 			}
 
 			// Ray now found to intersect sphere, compute smallest t value of intersection
-			float t = -b - Sqr(discriminant);
+			float t = -b - Mathf.Sqrt(discriminant);
 
 			// If t is negative, ray started inside sphere so clamp t to zero 
 			if (t < 0.0f)
@@ -525,59 +525,39 @@ namespace Utils // Math
 
 		#endregion
 
-		/// Ref: https://stackoverflow.com/a/28957910
-		/// <summary>
-		/// Return the scaled value between given limits clamped to range [0, 1]
-		/// Ex: CurrentDistance, MAX_DISTANCE, MIN_DISTANCE ( 0 -> 1 [ MinLimit -> CurrentDistance -> MaxLimit ] )
-		/// </summary>
-		/// <param name="CurrentValue">The actual value to normalize.</param>
-		/// <param name="MinValue">The minimum value the actual value can be.</param>
-		/// <param name="MaxValue">The maximum value the actual value can be.</param>
-		/// <param name="Threshold">The threshold to force to the minimum or maximum value if the normalized value is within the threhold limits.</param>
-		/// <returns></returns>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static float ScaleBetweenClamped01(in float CurrentValue, in float MinValue, in float MaxValue, in float Threshold = 0f)
-		{
-			float normalizedMax = MaxValue - MinValue;
-			float normalizedValue = normalizedMax - (MaxValue - CurrentValue);
-			float result = normalizedValue * (normalizedMax != 0f ? 1f / normalizedMax : 1f);
-			result = (result < Threshold ? 0f : result);
-			result = (result > 1f - Threshold ? 1f : result);
-			return Mathf.Clamp(result, 0f, 1f);
-		}
-
 
 		/// Ref: https://en.wikipedia.org/wiki/Feature_scaling
 		/// <summary>
-		/// Return the value that lies between MinValue and MaxValue scaled in the given limits
-		/// Ex: CurrentValue, 0, 5000, 0, 1 ( 0 -> 1 [ MinScale -> CurrentValue -> MaxScale ] )
+		/// Return the value that lies between MinValue and MaxValue scaled in the given limits <br/>
+		/// Ex: 0.2f, 0f, 1f, 1f, 100f = 20f <br/>
+		/// Given a current value between minValue and maxValue, reinterpret the normalized value in scale [minOutput - maxOutput]
 		/// </summary>
-		/// <param name="CurrentValue"></param>
-		/// <param name="MinValue"></param>
-		/// <param name="MaxValue"></param>
-		/// <param name="MinScale"></param>
-		/// <param name="MaxScale"></param>
+		/// <param name="InCurrentValue"></param>
+		/// <param name="InMinValue"></param>
+		/// <param name="InMaxValue"></param>
+		/// <param name="InMinOutput"></param>
+		/// <param name="InMaxOutput"></param>
 		/// <returns></returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static float ScaleBetween(in float CurrentValue, in float MinValue, in float MaxValue, in float MinScale, in float MaxScale)
+		public static float ScaleBetween(in float InCurrentValue, in float InMinValue, in float InMaxValue, in float InMinOutput, in float InMaxOutput)
 		{
-			return Mathf.Clamp(MinScale + ((CurrentValue - MinValue) / (MaxValue - MinValue) * (MaxScale - MinScale)), MinScale, MaxScale);
+			float localCurrentValue = Mathf.Clamp(InCurrentValue, InMinValue, InMaxValue);
+			if (localCurrentValue - InMinValue == 0f)
+			{
+				localCurrentValue = InMinValue + Mathf.Epsilon;
+			}
+
+			float normalizedValue = (localCurrentValue - InMinValue) / (InMaxValue - InMinValue);
+			float value = InMinOutput + ((InMaxOutput - InMinOutput) * normalizedValue);
+			return value;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static float BoolToMinusOneOsPlusOne(in bool InValue)
+		public static float BoolToMinusOneOrPlusOne(in bool InValue)
 		{
 			return InValue ? 1 : -1;
-		}
-
-		//////////////////////////////////////////////////////////////////////////
-		/// <summary> Return a better performance method to get squared value </summary>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static float Sqr(in float value)
-		{
-			return Mathf.Pow(value, 0.5f);
 		}
 
 
@@ -632,29 +612,25 @@ namespace Utils // Math
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		/// Get planar squared distance between two positions, position1 is projected on position2 plane
-		/// </summary>
-		/// <returns>Planar Squared Distance</returns>
-		public static float PlanarSqrDistance(in Vector3 InPosition1, in Vector3 InPosition2, in Vector3 InPlaneNormal)
+		/// <summary> Get planar squared distance between a plane and a point projected on it </summary>
+		/// <returns> Planar Squared Distance </returns>
+		public static float PlanarSqrDistance(in Vector3 InPoint, in Vector3 InPlanePoint, in Vector3 InPlaneNormal)
 		{
 			// with given plane normal, project position1 on position2 plane
-			Vector3 projectedPoint = ProjectPointOnPlane(InPlaneNormal, InPosition1, InPosition2);
+			Vector3 projectedPoint = ProjectPointOnPlane(InPoint, InPlaneNormal, InPlanePoint);
 
-			return (InPosition2 - projectedPoint).sqrMagnitude;
+			return (InPoint - projectedPoint).sqrMagnitude;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>
-		/// Get planar distance between two positions, position1 is projected on position2 plane
-		/// </summary>
+		/// <summary> Get planar distance between two positions, position1 is projected on position2 plane </summary>
 		/// <returns>Planar Distance</returns>
-		public static float PlanarDistance(in Vector3 InPosition1, in Vector3 InPosition2, in Vector3 InPlaneNormal)
+		public static float PlanarDistance(in Vector3 InPoint, in Vector3 InPlanePoint, in Vector3 InPlaneNormal)
 		{
-			float sqrDistance = PlanarSqrDistance(InPosition1, InPosition2, InPlaneNormal);
+			float sqrDistance = PlanarSqrDistance(InPoint, InPlanePoint, InPlaneNormal);
 
-			return Sqr(sqrDistance);
+			return Mathf.Sqrt(sqrDistance);
 		}
 
 
@@ -664,7 +640,7 @@ namespace Utils // Math
 		/// <param name="InDegreePolarAngle">The altitude in degrees (Rotation around the up axis)</param>
 		/// <param name="InDegreeAzimuthalAngle">The longitude in degrees (Rotation around the right axis)</param>
 		/// <returns>Directional vector</returns>
-		/// Ref: https://gamedev.stackexchange.com/questions/81713/how-do-i-translate-a-spherical-coordinate-to-a-cartesian-one
+		/// Ref: https://gamedev.stackexchange.com/a/81715
 		public static Vector3 SphericalToCartesian(in float InRadius, in float InDegreePolarAngle, in float InDegreeAzimuthalAngle)
 		{
 			float a = InRadius * Mathf.Cos(InDegreeAzimuthalAngle * Mathf.Deg2Rad);
@@ -674,6 +650,32 @@ namespace Utils // Math
 				y: InRadius * Mathf.Sin(InDegreeAzimuthalAngle * Mathf.Deg2Rad),
 				z: a * Mathf.Sin(InDegreePolarAngle * Mathf.Deg2Rad)
 			);
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary> Get polar coordinates from a direction vector </summary>
+		/// <param name="InCartesianCoords"></param>
+		/// <param name="OutRadius">The radius, distance from the center</param>
+		/// <param name="OutDegreePolarAngle">The altitude in degrees (Rotation around the up axis)</param>
+		/// <param name="OutDegreeAzimuthalAngle">The longitude in degrees (Rotation around the right axis)</param>
+		/// Ref: https://gamedev.stackexchange.com/a/81715
+		public static void CartesianToSpherical(in Vector3 InCartesianCoords, out float OutRadius, out float OutDegreePolarAngle, out float OutDegreeAzimuthalAngle)
+		{
+			Vector3 localCartesianCoords = InCartesianCoords;
+			if (localCartesianCoords.x == 0f)
+			{
+				localCartesianCoords.x = Mathf.Epsilon;
+			}
+
+			OutRadius = localCartesianCoords.magnitude;
+			OutDegreePolarAngle = Mathf.Atan(localCartesianCoords.z / localCartesianCoords.x) * Mathf.Rad2Deg;
+			if (localCartesianCoords.x < 0f)
+			{
+				OutDegreePolarAngle += Mathf.PI;
+			}
+
+			OutDegreeAzimuthalAngle = Mathf.Asin(localCartesianCoords.y / OutRadius) * Mathf.Rad2Deg;
 		}
 
 
@@ -691,7 +693,7 @@ namespace Utils // Math
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary> This function returns a point which is a projection from a point to a plane. </summary>
-		public static Vector3 ProjectPointOnPlane(in Vector3 InPlaneNormal, in Vector3 InPlanePoint, in Vector3 InPoint)
+		public static Vector3 ProjectPointOnPlane(in Vector3 InPoint, in Vector3 InPlaneNormal, in Vector3 InPlanePoint)
 		{
 			//First calculate the distance from the point to the plane:
 			//float distance = Vector3.Dot( planeNormal, ( point - planePoint ) );
@@ -711,30 +713,6 @@ namespace Utils // Math
 			float pointPlaneDistance = Vector3.Dot(InPlaneNormal, InPoint - InPlanePoint);
 
 			return InPoint - (InPlaneNormal * pointPlaneDistance);
-		}
-
-		/// <summary> For valid arguments return the angle between two vectors that lins on the plane defined by given components </summary>
-		/// <param name="v1">The first vector</param>
-		/// <param name="v2">The second vecor</param>
-		/// <param name="Comp1">Primary compoent of the plane</param>
-		/// <param name="Comp2">Secondary component of the plane</param>
-		/// <returns>The the angle between two vector that defined by the plane defined by given components </returns>
-		public static float Angle(Vector3 v1, Vector3 v2, EVector3Component Comp1, EVector3Component Comp2)
-		{
-			float tanAngleA = 0f, tanAngleB = 0f;
-			try
-			{
-				tanAngleA = Mathf.Atan2(v1[(int)Comp1], v1[(int)Comp2]);
-				tanAngleB = Mathf.Atan2(v2[(int)Comp1], v2[(int)Comp2]);
-			}
-			catch (System.Exception)
-			{
-				Debug.LogWarning($"Comp1 or Comp2 bad value: AtanY: {(int)Comp1}, AtanX: {(int)Comp2}");
-			}
-
-			float angleA = tanAngleA * Mathf.Rad2Deg;
-			float angleB = tanAngleB * Mathf.Rad2Deg;
-			return Mathf.DeltaAngle(angleA, angleB);
 		}
 
 
@@ -1468,8 +1446,8 @@ namespace Utils.Editor // Editor Utils
 	// Ref: https://forum.unity.com/threads/no-rename.813678/#post-7985412
 	public static class ProjectBrowserResetter
 	{
-		private static System.Type m_ProjectBrowserType = null;
-		private static MethodInfo m_ResetViewsMethod = null;
+		private readonly static System.Type m_ProjectBrowserType = null;
+		private readonly static MethodInfo m_ResetViewsMethod = null;
 
 		/////////////////////////////////////////////////////////////////////////////
 		static ProjectBrowserResetter()

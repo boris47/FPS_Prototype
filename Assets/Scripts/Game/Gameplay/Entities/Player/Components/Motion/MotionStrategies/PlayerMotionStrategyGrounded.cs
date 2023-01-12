@@ -46,13 +46,35 @@ namespace Entities.Player.Components
 		[SerializeField, ReadOnly]
 		private				bool							m_IsSliding							= false;
 
+		[System.Serializable]
+		private class SpeedModifier
+		{
+			public EModifiers Modifier;
+			public float Mult;
+		}
+
+		[SerializeField, ReadOnly]
+		private List<SpeedModifier> m_SpeedMotifiers = new List<SpeedModifier>
+		(
+			new SpeedModifier[2]
+			{
+				new SpeedModifier()
+				{
+					Modifier = EModifiers.SPRINT, Mult = 1f
+				},
+				new SpeedModifier()
+				{
+					Modifier = EModifiers.CROUCH, Mult = 1f
+				}
+			}
+		);
 
 		//--------------------
-		private	readonly Dictionary<EModifiers, float> m_SpeedModifiers = new Dictionary<EModifiers, float>()
-		{
-			{EModifiers.SPRINT, 1f },
-			{EModifiers.CROUCH, 1f }
-		};
+	//	private	readonly Dictionary<EModifiers, float> m_SpeedModifiers = new Dictionary<EModifiers, float>()
+	//	{
+	//		{EModifiers.SPRINT, 1f },
+	//		{EModifiers.CROUCH, 1f }
+	//	};
 		private Vector2 m_CurrentMoveInputVector = Vector2.zero;
 		private CollisionFlags m_CollisionFlags = CollisionFlags.None;
 		private ControllerColliderHit m_LastControllerColliderHit = null;
@@ -209,16 +231,16 @@ namespace Entities.Player.Components
 		private void OnCrouchStart() => m_CrouchedRequested = true;
 		private void OnCrouchContinue(float deltaTime) => m_CrouchedRequested = true;
 		private void OnCrouchEnd() => m_CrouchExitRequested = true;
-		private void OnSprintStart() => m_SpeedModifiers[EModifiers.SPRINT] = m_Configs.SprintSpeedMult;
-		private void OnSprintContinue(float deltaTime) => m_SpeedModifiers[EModifiers.SPRINT] = m_Configs.SprintSpeedMult;
-		private void OnSprintEnd() => m_SpeedModifiers[EModifiers.SPRINT] = 1f;
+		private void OnSprintStart() => m_SpeedMotifiers[(int)EModifiers.SPRINT].Mult = m_CurrentCrouchTransition01Value > 0f ? 1f : m_Configs.SprintSpeedMult;
+		private void OnSprintContinue(float deltaTime) => m_SpeedMotifiers[(int)EModifiers.SPRINT].Mult = m_CurrentCrouchTransition01Value > 0f ? 1f : m_Configs.SprintSpeedMult;
+		private void OnSprintEnd() => m_SpeedMotifiers[(int)EModifiers.SPRINT].Mult = 1f;
 		private void OnAboveObstacle(Collider obstacle) => m_HasObstacleAbove = obstacle.IsNotNull();
 		private void OnAboveHeadObstacle(Collider obstacle) => m_HasObstacleAboveHead = obstacle.IsNotNull();
 
 		//////////////////////////////////////////////////////////////////////////
 		private void UpdateCrouchState(float deltaTime)
 		{
-			if (m_CrouchExitRequested && m_IsCrouched)
+			if (m_CrouchExitRequested/* && m_IsCrouched*/)
 			{
 				if (m_HasObstacleAboveHead)
 				{
@@ -233,11 +255,11 @@ namespace Entities.Player.Components
 
 			PlayerConfiguration playerConfigs = m_Controller.Player.Configs;
 
-			m_CurrentCrouchTransition01Value += Mathf.Pow(m_Configs.CrouchTransitionSeconds, -1f) * deltaTime * Utils.Math.BoolToMinusOneOsPlusOne(m_CrouchedRequested);
+			m_CurrentCrouchTransition01Value += Mathf.Pow(m_Configs.CrouchTransitionSeconds, -1f) * deltaTime * Utils.Math.BoolToMinusOneOrPlusOne(m_CrouchedRequested);
 
 			m_CurrentCrouchTransition01Value = Mathf.Clamp01(m_CurrentCrouchTransition01Value);
 
-			m_SpeedModifiers[EModifiers.CROUCH] = Utils.Math.ScaleBetween(m_CurrentCrouchTransition01Value, 0f, 1f, 1f, m_Configs.CrouchSpeedMult);
+			m_SpeedMotifiers[(int)EModifiers.CROUCH].Mult = Utils.Math.ScaleBetween(m_CurrentCrouchTransition01Value, 0f, 1f, 1f, m_Configs.CrouchSpeedMult);
 
 			m_IsCrouched = Mathf.Approximately(m_CurrentCrouchTransition01Value, 1f);
 
@@ -327,7 +349,7 @@ namespace Entities.Player.Components
 				{
 					if (m_CurrentMoveInputVector.sqrMagnitude > 0f)
 					{
-						float moveSpeed = m_Configs.MoveSpeed * m_SpeedModifiers.Values.Aggregate(1f, (float f1, float f2) => f1 * f2);
+						float moveSpeed = m_Configs.MoveSpeed * m_SpeedMotifiers.Aggregate(1f, (float current, SpeedModifier f2) => current * f2.Mult);
 
 						float tX = (Mathf.Sign(m_CurrentLocalVelocity.x) == Mathf.Sign(m_CurrentMoveInputVector.x)) ? m_Configs.MoveAcceleration : m_Configs.MoveDeceleration;
 						float tY = (Mathf.Sign(m_CurrentLocalVelocity.z) == Mathf.Sign(m_CurrentMoveInputVector.y)) ? m_Configs.MoveAcceleration : m_Configs.MoveDeceleration;
@@ -343,7 +365,8 @@ namespace Entities.Player.Components
 				}
 				else
 				{
-					float moveSpeed = m_Configs.MoveSpeed * m_SpeedModifiers.Values.Aggregate(1f, (float f1, float f2) => f1 * f2);
+					float moveSpeed = m_Configs.MoveSpeed * m_SpeedMotifiers.Aggregate(1f, (float current, SpeedModifier f2) => current * f2.Mult);
+				//	float moveSpeed = m_Configs.MoveSpeed * m_SpeedModifiers.Values.Aggregate(1f, (float f1, float f2) => f1 * f2);
 					Utils.Math.ClampResult(ref m_CurrentLocalVelocity.x, m_CurrentLocalVelocity.x + (moveSpeed * m_Configs.AirControlMult * deltaTime * m_CurrentMoveInputVector.x), -moveSpeed, moveSpeed);
 					Utils.Math.ClampResult(ref m_CurrentLocalVelocity.z, m_CurrentLocalVelocity.z + (moveSpeed * m_Configs.AirControlMult * deltaTime * m_CurrentMoveInputVector.y), -moveSpeed, moveSpeed);
 				}
