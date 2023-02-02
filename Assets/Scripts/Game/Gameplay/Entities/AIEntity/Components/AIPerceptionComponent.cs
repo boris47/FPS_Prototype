@@ -84,7 +84,13 @@ namespace Entities.AI.Components
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Stimulus received from a sense </summary>
-		public void SendSenseEvent(in SenseEvent senseEvent) => OnNewSenseEvent(senseEvent);
+		public void SendSenseEvent(in SenseEvent senseEvent)
+		{
+			if (enabled)
+			{
+				OnNewSenseEvent(senseEvent);
+			}
+		}
 
 		//////////////////////////////////////////////////////////////////////////
 		public void AddSense<T>(in Transform InTargetTransform = null) => AddSense(typeof(T), InTargetTransform);
@@ -208,103 +214,3 @@ namespace Entities.AI.Components
 		}
 	}
 }
-
-#if UNITY_EDITOR
-namespace Entities.AI.Components
-{
-	using UnityEditor;
-
-	public partial class AIPerceptionComponent
-	{
-		[CustomEditor(typeof(AIPerceptionComponent))]
-		public class AIPerceptionComponentEditor : Editor
-		{
-			private static readonly System.Type[] m_CachedTypes = default;
-
-			private AIPerceptionComponent perceptionComponent = null;
-
-			/*
-			//////////////////////////////////////////////////////////////////////////
-			static AIPerceptionComponentEditor()
-			{
-				m_CachedTypes = TypeCache.GetTypesDerivedFrom<Sense>().Where(t => !t.IsAbstract).ToArray();
-			}
-
-			//////////////////////////////////////////////////////////////////////////
-			private void OnEnable()
-			{
-				perceptionComponent = target as AIPerceptionComponent;
-			}
-
-			//////////////////////////////////////////////////////////////////////////
-			private void OnItemSelected_Add(object arg)
-			{
-				System.Type senseType = arg as System.Type;
-				if (Sense.TryGetSenseEnumType(senseType, out ESenses senseEnum))
-				{
-					GameObject container = perceptionComponent.EnsureSenseRoot();
-
-					GameObject go = new GameObject(senseEnum.ToString());
-					go.transform.SetParent(container.transform);
-					go.transform.localPosition = Vector3.zero;
-					go.transform.localRotation = Quaternion.identity;
-
-					Sense sense = go.AddComponent(senseType) as Sense;
-					perceptionComponent.m_MappedSenses[senseEnum] = sense;
-				}
-			}
-
-			//////////////////////////////////////////////////////////////////////////
-			private void OnItemSelected_Rem(object arg)
-			{
-				System.Type senseType = arg as System.Type;
-				if (Sense.TryGetSenseEnumType(senseType, out ESenses senseEnum))
-				{
-					perceptionComponent.RemoveSense(senseEnum);
-				}
-			}
-
-			//////////////////////////////////////////////////////////////////////////
-			public override void OnInspectorGUI()
-			{
-				DrawDefaultInspector();
-
-				if (GUILayout.Button("Add Sense"))
-				{
-					GenericMenu menu = new GenericMenu();
-
-					bool bShow = false;
-					foreach (System.Type item in m_CachedTypes.Except(perceptionComponent.GetComponentsInChildren<Sense>(includeInactive: true).Select(s => s.GetType())).AsEnumerable())
-					{
-						bShow = true;
-						menu.AddItem(new GUIContent(item.Name), false, OnItemSelected_Add, item);
-					}
-
-					if (bShow)
-					{
-						menu.ShowAsContext();
-					}
-				}
-
-				if (perceptionComponent.m_MappedSenses.Any() && GUILayout.Button("Remove Sense"))
-				{
-					GenericMenu menu = new GenericMenu();
-
-					bool bShow = false;
-					foreach (System.Type item in perceptionComponent.m_MappedSenses.Values.Select(s => s.GetType()))
-					{
-						bShow = true;
-						menu.AddItem(new GUIContent(item.Name), true, OnItemSelected_Rem, item);
-					}
-
-					if (bShow)
-					{
-						menu.ShowAsContext();
-					}
-				}
-			}
-			*/
-		}
-	}
-}
-#endif

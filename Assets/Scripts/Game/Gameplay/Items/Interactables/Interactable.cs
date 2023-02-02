@@ -24,6 +24,9 @@ public abstract class Interactable : MonoBehaviour
 	public const string LayerName = "Interactables";
 
 	[SerializeField]
+	private bool m_CanBeInteractedWith = true;
+
+	[SerializeField]
 	protected UnityEngine.Events.UnityEvent m_OnInteractionStart = null;
 	[SerializeField]
 	protected UnityEngine.Events.UnityEvent m_OnInteractionRepeat = null;
@@ -49,6 +52,7 @@ public abstract class Interactable : MonoBehaviour
 	private EInteractionStages m_InteractionStage = EInteractionStages.NONE;
 
 	// --------------------------
+	public bool CanBeInteractedWith => m_CanBeInteractedWith;
 	public EInteractionStages InteractionStage => m_InteractionStage;
 	public bool IsLoaded => m_LoadedTimeSeconds >= m_LoadingTimeSeconds;
 	public bool NeedToBeLoaded => m_LoadedTimeSeconds < m_LoadingTimeSeconds;
@@ -109,7 +113,7 @@ public abstract class Interactable : MonoBehaviour
 	}
 
 	/////////////////////////////////////////////////////////////////////////////
-	public abstract bool CanInteract(Entity entity);
+	public virtual bool CanInteract(Entity entity) => m_CanBeInteractedWith;
 
 	/////////////////////////////////////////////////////////////////////////////
 	public void EvaluateRepeat(Entity interactor, float deltaTime)

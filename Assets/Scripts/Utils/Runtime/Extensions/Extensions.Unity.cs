@@ -275,7 +275,30 @@ public static class Extensions_Unity
 	/// <summary>  </summary>
 	public static bool IsNotNull(this Object ThisObject) => (ThisObject as object).IsNotNull() && s_IsObjectAliveDelegate(ThisObject);
 
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary>  </summary>
 	public static bool IsNull(this Object ThisObject) => (ThisObject as object).IsNull() || !s_IsObjectAliveDelegate(ThisObject);
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Execute action only on not null object </summary>
+	public static void Conditional<T>(this T ThisObject, in System.Action<T> InAction) where T : Object
+	{
+		if (ThisObject.IsNotNull())
+		{
+			InAction(ThisObject);
+		}
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Execute function only on not null object </summary>
+	public static V Conditional<T, V>(this T ThisObject, in System.Func<T, V> InAction, in V Default = default) where T : Object
+	{
+		if (ThisObject.IsNotNull())
+		{
+			return InAction(ThisObject);
+		}
+		return Default;
+	}
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Return true if frameCount frames is repeating, otherwise false </summary>
@@ -333,7 +356,51 @@ public static class Extensions_Unity
 	{
 		return (ThisCollider.ClosestPoint(InPoint) - InPoint).sqrMagnitude < Mathf.Epsilon * Mathf.Epsilon;
 	}
-	
+
+	/////////////////////////////////////////////////////////////////////////////
+	public static Vector3 WorldCenter(this Collider ThisCollider) => ThisCollider.bounds.center;
+
+
+	/////////////////////////////////////////////////////////////////////////////
+	public static void GetPoints(this CapsuleCollider ThisCapsuleCollider, out Vector3 OutPoint1, out Vector3 OutPoint2)
+	{
+		OutPoint1 = OutPoint2 = Vector3.zero;
+		float radius = ThisCapsuleCollider.radius;
+		float halfHeigth = (ThisCapsuleCollider.height - (radius * 2f)) / 2f;
+		switch (ThisCapsuleCollider.direction)
+		{
+			case 0: // X
+			{
+				OutPoint1 = ThisCapsuleCollider.transform.TransformPoint(ThisCapsuleCollider.center + (Vector3.right * halfHeigth));
+				OutPoint2 = ThisCapsuleCollider.transform.TransformPoint(ThisCapsuleCollider.center + (Vector3.left * halfHeigth));
+				break;
+			}
+			case 1: // Y
+			{
+				OutPoint1 = ThisCapsuleCollider.transform.TransformPoint(ThisCapsuleCollider.center + (Vector3.up * halfHeigth));
+				OutPoint2 = ThisCapsuleCollider.transform.TransformPoint(ThisCapsuleCollider.center + (Vector3.down * halfHeigth));
+				break;
+			}
+			case 2: // Z
+			{
+				OutPoint1 = ThisCapsuleCollider.transform.TransformPoint(ThisCapsuleCollider.center + (Vector3.forward * halfHeigth));
+				OutPoint2 = ThisCapsuleCollider.transform.TransformPoint(ThisCapsuleCollider.center + (Vector3.back * halfHeigth));
+				break;
+			}
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	/// <summary> </summary>
+	/// <param name="InWorldPoint"></param>
+	/// <param name="InCapsuleCollider"></param>
+	/// <returns></returns>
+	public static bool IsPointInsideCapsule(this CapsuleCollider ThisCapsuleCollider, in Vector3 InWorldPoint)
+	{
+		ThisCapsuleCollider.GetPoints(out Vector3 OutPoint1, out Vector3 OutPoint2);
+		return Utils.Math.IsPointInsideCapsule(InWorldPoint, OutPoint1, OutPoint2, ThisCapsuleCollider.radius);
+	}
+
 	#endregion
 
 

@@ -32,12 +32,6 @@ public class GrabInteractable : Interactable
 		gameObject.TryGetComponent(out m_Rigidbody);
 	}
 
-	//////////////////////////////////////////////////////////////////
-	public override bool CanInteract(Entity entity)
-	{
-		return true;
-	}
-
 	/////////////////////////////////////////////////////////////////////////////
 	protected override void OnInteractionStartInternal(Entity entity)
 	{

@@ -4,6 +4,7 @@ using UnityEngine;
 namespace Entities
 {
 	using Relations;
+	using UnityEngine.Rendering;
 
 	public class Shield : MonoBehaviour
 	{
@@ -106,6 +107,17 @@ namespace Entities
 			m_Id			= m_CurrentID++;
 		}
 
+		//////////////////////////////////////////////////////////////////////////
+		public virtual void BeforeSceneChange()
+		{
+			
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public virtual void OnSceneLoaded()
+		{
+			
+		}
 
 		//////////////////////////////////////////////////////////////////////////
 		public virtual bool IsInterestedAt(in Entity source)

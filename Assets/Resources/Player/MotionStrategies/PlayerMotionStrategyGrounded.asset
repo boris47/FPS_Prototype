@@ -18,7 +18,7 @@ MonoBehaviour:
   SprintSpeedMult: 2
   CrouchSpeedMult: 0.4
   CrouchedHeight: 1
-  CrouchTransitionSeconds: 0.7
+  CrouchTransitionSeconds: 0.2
   JumpHeight: 1.2
   AirborneDrag: 0
   AirControlMult: 0

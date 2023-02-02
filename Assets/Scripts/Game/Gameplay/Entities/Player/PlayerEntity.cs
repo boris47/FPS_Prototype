@@ -93,6 +93,23 @@ namespace Entities.Player
 		}
 
 		//////////////////////////////////////////////////////////////////////////
+		public override void BeforeSceneChange()
+		{
+			base.BeforeSceneChange();
+			/* To Store
+			 *		m_CharacterController.height
+			 *		m_CharacterController.center
+			 *		m_PlayerMotionManager.Velocity
+			*/
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		public override void OnSceneLoaded()
+		{
+			base.OnSceneLoaded();
+		}
+
+		//////////////////////////////////////////////////////////////////////////
 		protected sealed override Transform GetHead()
 		{
 			Transform outValue = null;

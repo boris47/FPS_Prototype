@@ -39,12 +39,6 @@ public class AreaInteractable : Interactable
 	}
 
 	/////////////////////////////////////////////////////////////////////////////
-	public  override bool CanInteract(Entity entity)
-	{
-		return true;
-	}
-
-	/////////////////////////////////////////////////////////////////////////////
 	protected override void OnInteractionStartInternal(Entity entity)
 	{
 		m_OnInteractionStart.Invoke();

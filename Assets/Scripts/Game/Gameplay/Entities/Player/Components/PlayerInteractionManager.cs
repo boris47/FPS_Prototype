@@ -49,6 +49,8 @@ namespace Entities.Player.Components
 			gameObject.GetOrAddIfNotFound<PlayerUseInteractor>();
 			gameObject.GetOrAddIfNotFound<PlayerAreaInteractor>();
 
+			transform.TrySearchComponents(ESearchContext.LOCAL, out m_Interactors);
+
 			System.Array.Sort(m_Interactors, PlayerInteractor.Comparer);
 		}
 
@@ -59,7 +61,7 @@ namespace Entities.Player.Components
 		
 			foreach (PlayerInteractor interactor in m_Interactors)
 			{
-				if (interactor.IsNotNull())
+				if (Utils.CustomAssertions.IsNotNull(interactor))
 				{
 					interactor.enabled = true;
 					interactor.OnInteractableFound += OnInteractableFound;
@@ -77,7 +79,7 @@ namespace Entities.Player.Components
 		
 			foreach (PlayerInteractor interactor in m_Interactors)
 			{
-				if (interactor.IsNotNull())
+				if (Utils.CustomAssertions.IsNotNull(interactor))
 				{
 					interactor.enabled = false;
 					

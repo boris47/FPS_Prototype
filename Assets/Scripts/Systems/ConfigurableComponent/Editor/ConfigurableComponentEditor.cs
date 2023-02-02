@@ -198,37 +198,41 @@ public sealed class ConfigurableComponentEditor
 	{
 		private class ConfigurableData
 		{
+			public readonly string HoldingTypeName = string.Empty;
+			public readonly ConfigurationBase TheConfiguration = null;
+			public readonly SerializedObject SerializedObject = null;
+			
 			public bool bIsOpened = false;
-			public string HoldingTypeName = string.Empty;
-			public ConfigurationBase TheConfiguration = null;
-			public SerializedObject SerializedObject = null;
+
+			public ConfigurableData(string InHoldingTypeName, ConfigurationBase InTheConfiguration, SerializedObject InSerializedObject)
+			{
+				HoldingTypeName = InHoldingTypeName;
+				TheConfiguration = InTheConfiguration;
+				SerializedObject = InSerializedObject;
+			}
 		}
 
-		private List<ConfigurableData> m_Data = new List<ConfigurableData>();
+		private readonly List<ConfigurableData> m_Data = new List<ConfigurableData>();
 
 
 		//////////////////////////////////////////////////////////////////////////
 		private void OnEnable()
 		{
 			Component componentInstance = serializedObject.targetObject as Component;
-
-			System.Type currentType = componentInstance.GetType();
-			while (currentType.BaseType.IsNotNull())
+			if (componentInstance.IsNotNull())
 			{
-				if (ReflectionHelper.TryGetAttributeValue(currentType, (Configurable configurable) => configurable.ResourcePath, out string ResourcePath))
+				System.Type currentType = componentInstance.GetType();
+				while (currentType.BaseType.IsNotNull())
 				{
-					ConfigurationBase loadedConfiguration = Resources.Load<ConfigurationBase>(ResourcePath);
-					m_Data.Add( new ConfigurableData()
+					if (ReflectionHelper.TryGetAttributeValue(currentType, (Configurable configurable) => configurable.ResourcePath, out string ResourcePath))
 					{
-						HoldingTypeName = currentType.Name,
-						TheConfiguration = loadedConfiguration,
-						SerializedObject = new SerializedObject(loadedConfiguration)
-					});
+						ConfigurationBase loadedConfiguration = Resources.Load<ConfigurationBase>(ResourcePath);
+						m_Data.Add(new ConfigurableData(currentType.Name, loadedConfiguration, new SerializedObject(loadedConfiguration)));
+					}
+					currentType = currentType.BaseType;
 				}
-				currentType = currentType.BaseType;
+				m_Data.Reverse();
 			}
-
-			m_Data.Reverse();
 		}
 
 		//////////////////////////////////////////////////////////////////////////

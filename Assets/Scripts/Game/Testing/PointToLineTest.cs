@@ -11,10 +11,10 @@ public class PointToLineTest : MonoBehaviour
 	[SerializeField, ReadOnly]
 	private Transform m_Point = null;
 
-	private Vector3? m_Projection = null;
+	protected Vector3? m_Projection = null;
 
 
-	private void OnDrawGizmos()
+	protected virtual void OnDrawGizmos()
 	{
 		if (m_LineStart.IsNull())
 		{

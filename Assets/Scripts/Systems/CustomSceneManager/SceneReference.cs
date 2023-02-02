@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using UnityEngine;
 using Object = UnityEngine.Object;
+using UnityEngine.SceneManagement;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -79,8 +80,22 @@ public class SceneReference : ISerializationCallbackReceiver
 		return sceneReference.ScenePath;
 	}
 
+	public bool TryGetLoadedScene(out Scene OutScene)
+	{
+		bool bResult;
+		OutScene = default;
+		{
+			Scene scene = SceneManager.GetSceneByPath(ScenePath);
+			if (bResult = scene.isLoaded)
+			{
+				OutScene = scene;
+			}
+		}
+		return bResult;
+	}
+
 	// Called to prepare this data for serialization. Stubbed out when not in editor.
-	public void OnBeforeSerialize()
+	void ISerializationCallbackReceiver.OnBeforeSerialize()
 	{
 #if UNITY_EDITOR
 		HandleBeforeSerialize();
@@ -88,7 +103,7 @@ public class SceneReference : ISerializationCallbackReceiver
 	}
 
 	// Called to set up data for deserialization. Stubbed out when not in editor.
-	public void OnAfterDeserialize()
+	void ISerializationCallbackReceiver.OnAfterDeserialize()
 	{
 #if UNITY_EDITOR
 		// We sadly cannot touch assetdatabase during serialization, so defer by a bit.

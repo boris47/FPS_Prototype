@@ -13,8 +13,10 @@ MonoBehaviour:
   m_Name: 00 - Intro
   m_EditorClassIdentifier: 
   m_SceneName: 
-  m_IsGameScene: 1
+  m_IsGameScene: 0
   m_MainScene:
     sceneAsset: {fileID: 102900000, guid: 9ba3458659b5ce2409b1707a94280a87, type: 3}
     scenePath: Assets/Scenes/00 - Intro.unity
-  m_SubScenes: []
+  m_SubScenes:
+  - sceneAsset: {fileID: 102900000, guid: fb221f44e02106540a8197972228d22d, type: 3}
+    scenePath: Assets/Scenes/02 - 00 - TestScene.unity

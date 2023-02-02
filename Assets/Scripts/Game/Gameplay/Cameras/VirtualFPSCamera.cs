@@ -42,6 +42,15 @@ public class VirtualFPSCamera : GameCameraBase
 
 			m_CinemachineVirtualCamera.m_Lens.FieldOfView = m_FieldOfViewRef;
 		}
+
+		if (m_BasicMultiChannelPerlin.IsNotNull() && m_CinemachineVirtualCamera.Follow.IsNull())
+		{
+			GameObject player = GameObject.FindGameObjectWithTag("Player");
+			if (player && player.TryGetComponent(out Entities.Player.PlayerEntity outPlayerEntity))
+			{
+				m_CinemachineVirtualCamera.Follow = outPlayerEntity.Head;
+			}
+		}
 	}
 
 

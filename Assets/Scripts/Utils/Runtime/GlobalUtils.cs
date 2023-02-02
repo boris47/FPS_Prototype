@@ -299,13 +299,9 @@ namespace Utils // Generic
 
 namespace Utils // Math
 {
-	using System;
 	using System.Collections.Generic;
-	using System.Drawing;
 	using System.Runtime.CompilerServices;
-	using System.Security.Cryptography;
 	using UnityEngine;
-	using UnityEngine.UIElements;
 
 	/// <summary> Can be used to access a Vector3 component </summary>
 	public enum EVector3Component
@@ -319,6 +315,7 @@ namespace Utils // Math
 
 		#region TESTS
 
+		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Return true if the value is between min and max values, otherwise return false </summary>
 		/// <param name="Value"></param>
 		/// <param name="Min"></param>
@@ -331,6 +328,7 @@ namespace Utils // Math
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Return true if the value is between or equal min and max values, otherwise return false </summary>
 		/// <param name="Value"></param>
 		/// <param name="Min"></param>
@@ -366,6 +364,8 @@ namespace Utils // Math
 			return true;
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Tests if point is inside sphere </summary>
 		/// <param name="InPoint"></param>
 		/// <param name="InSphereCenter"></param>
@@ -373,9 +373,13 @@ namespace Utils // Math
 		/// <returns></returns>
 		public static bool IsPointInsideSphere(in Vector3 InPoint, in Vector3 InSphereCenter, in float InSphereRadius)
 		{
-			return Vector3.Distance(InSphereCenter, InPoint) < InSphereRadius;
+			return (InSphereCenter - InPoint).sqrMagnitude <= InSphereRadius * InSphereRadius;
+			//return Vector3.Distance(InSphereCenter, InPoint) < InSphereRadius;
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
+		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Check if point is inside world space bounds </summary>
 		/// <param name="InPoint"></param>
 		/// <param name="InBoxCenter"></param>
@@ -386,7 +390,22 @@ namespace Utils // Math
 			return new Bounds(InBoxCenter, InBoxSize).Contains(InPoint);
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary> </summary>
+		/// <param name="InWorldPoint"></param>
+		/// <param name="InWorldCapsuleP1"></param>
+		/// <param name="InWorldCapsuleP2"></param>
+		/// <param name="InCapsuleRadius"></param>
+		/// <returns></returns>
+		public static bool IsPointInsideCapsule(in Vector3 InWorldPoint, in Vector3 InWorldCapsuleP1, in Vector3 InWorldCapsuleP2, in float InCapsuleRadius)
+		{
+			return (InWorldPoint - ClosestPointOnLine(InWorldPoint, InWorldCapsuleP2, InWorldCapsuleP1)).sqrMagnitude < InCapsuleRadius * InCapsuleRadius;
+		}
+
+
 		private static BoxCollider m_PointInsideBoxCollider = null;
+		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Check if point is inside local space bounds </summary>
 		/// <param name="InPoint"></param>
 		/// <param name="InBoxCenter"></param>
@@ -413,13 +432,16 @@ namespace Utils // Math
 			return IsBetweenValues(localPoint.x, -l_HalfX, l_HalfX) && IsBetweenValues(localPoint.y, -l_HalfY, l_HalfY) && IsBetweenValues(localPoint.z, -l_HalfZ, l_HalfZ);
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Try to get the projection of a point on a segment </summary>
 		/// <param name="OutProjection"></param>
+		/// <param name="OutNormalizedTime"></param>
 		/// <param name="InPointToProject"></param>
 		/// <param name="InLineStart"></param>
 		/// <param name="InLineEnd"></param>
 		/// <returns></returns>
-		public static bool HasPointOnLineProjection(out Vector3 OutProjection, out float t, in Vector3 InPointToProject, in Vector3 InLineStart, in Vector3 InLineEnd)
+		public static bool HasPointOnLineProjection(out Vector3 OutProjection, out float OutNormalizedTime, in Vector3 InPointToProject, in Vector3 InLineStart, in Vector3 InLineEnd)
 		{
 			OutProjection = Vector3.zero;
 			Vector3 segment = InLineEnd - InLineStart;
@@ -429,7 +451,7 @@ namespace Utils // Math
 			float dot1 = Vector3.Dot(vectToPoint, segment);
 			if (dot1 <= 0)
 			{
-				t = 0f;
+				OutNormalizedTime = 0f;
 				return false;
 			}
 
@@ -437,16 +459,17 @@ namespace Utils // Math
 			float dot2 = Vector3.Dot(segment, segment);
 			if (dot2 <= dot1)
 			{
-				t = 1f;
+				OutNormalizedTime = 1f;
 				return false;
 			}
 
 			// Closest Point is within segment
-			OutProjection = InLineStart + (segment * (t = (dot1 / dot2)));
+			OutProjection = InLineStart + (segment * (OutNormalizedTime = (dot1 / dot2)));
 			return true;
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Get the intersection between a line and a plane. </summary>
 		/// <param name="OutIntersection"></param>
 		/// <param name="InLinePoint"></param>
@@ -482,50 +505,72 @@ namespace Utils // Math
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary>  </summary>
-		/// <param name="SphereCenter"></param>
-		/// <param name="SphereRadius"></param>
-		/// <param name="LineStart"></param>
-		/// <param name="LineEnd"></param>
+		/// <param name="InSphereCenter"></param>
+		/// <param name="InSphereRadius"></param>
+		/// <param name="InLineStart"></param>
+		/// <param name="InLineEnd"></param>
 		/// <param name="ClosestPoint"></param>
 		/// <returns></returns>
-		public static bool HasLineSphereIntersection(in Vector3 SphereCenter, in float SphereRadius, in Vector3 LineStart, in Vector3 LineEnd, /*in float LineLength,*/ out Vector3 ClosestPoint)
+		public static bool HasSegmentSphereIntersection(in Vector3 InSphereCenter, in float InSphereRadius, in Vector3 InLineStart, in Vector3 InLineEnd, out Vector3 ClosestPoint)
 		{
 			ClosestPoint = Vector3.zero;
+			Vector3 lineDirection = InLineEnd - InLineStart;
+			Vector3 sphereToLineStart = InLineStart - InSphereCenter;
 
-			Vector3 LineDirectionNormalized = (LineEnd - LineStart).normalized;
-			Vector3 m = LineStart - SphereCenter;
-			float b = Vector3.Dot(m, LineDirectionNormalized);
-			float c = Vector3.Dot(m, m) - (SphereRadius * SphereRadius);
+			float a = Vector3.Dot(lineDirection, lineDirection);
+			float b = 2.0f * Vector3.Dot(sphereToLineStart, lineDirection);
+			float c = Vector3.Dot(sphereToLineStart, sphereToLineStart) - InSphereRadius * InSphereRadius;
 
-			// Exit if r’s origin outside s (c > 0) and r pointing away from s (b > 0) 
-			if (c > 0.0f && b > 0.0f)
+			float discriminant = (b * b) - (4.0f * a * c);
+			if (discriminant > 0.0f)
 			{
-				return false;
+				float discSqrt = Mathf.Sqrt(discriminant);
+				float t1 = (-b + discSqrt) / (2.0f * a);
+				float t2 = (-b - discSqrt) / (2.0f * a);
+				float t = Mathf.Min(t1, t2);
+
+				if (t >= 0.0f && t <= 1.0f)
+				{
+					ClosestPoint = InLineStart + (t * lineDirection);
+					return true;
+				}
 			}
-
-			float discriminant = (b * b) - c;
-
-			// A negative discriminant corresponds to ray missing sphere 
-			if (discriminant < 0.0f)
-			{
-				return false;
-			}
-
-			// Ray now found to intersect sphere, compute smallest t value of intersection
-			float t = -b - Mathf.Sqrt(discriminant);
-
-			// If t is negative, ray started inside sphere so clamp t to zero 
-			if (t < 0.0f)
-			{
-				t = 0.0f;
-			}
-			ClosestPoint = LineStart + (t * LineDirectionNormalized);
-			return true;
+			return false;
 		}
 
 		#endregion
 
 
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>  </summary>
+		/// <param name="InPoint"></param>
+		/// <param name="InLineStart"></param>
+		/// <param name="InLineEnd"></param>
+		/// <returns></returns>
+		public static Vector3 ClosestPointOnLine(in Vector3 InPoint, in Vector3 InLineStart, in Vector3 InLineEnd)
+		{
+			Vector3 lineDirection = InLineEnd - InLineStart;
+			float closestPoint = Vector3.Dot(lineDirection, InPoint - InLineStart) / Vector3.Dot(lineDirection, lineDirection);
+			closestPoint = Mathf.Clamp01(closestPoint);
+			return InLineStart + (closestPoint * lineDirection);
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>  </summary>
+		/// <param name="InPointToProject"></param>
+		/// <param name="InLinePoint"></param>
+		/// <param name="InLineDirection"></param>
+		/// <returns></returns>
+		public static Vector3 ProjectPointOnLine(in Vector3 InPointToProject, in Vector3 InLinePoint, in Vector3 InLineDirection)
+		{
+			Vector3 lineToPoint = InPointToProject - InLinePoint;
+			float t = Vector3.Dot(lineToPoint, InLineDirection) / Vector3.Dot(InLineDirection, InLineDirection);
+			return InLinePoint + (t * InLineDirection);
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
 		/// Ref: https://en.wikipedia.org/wiki/Feature_scaling
 		/// <summary>
 		/// Return the value that lies between MinValue and MaxValue scaled in the given limits <br/>
@@ -557,7 +602,7 @@ namespace Utils // Math
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static float BoolToMinusOneOrPlusOne(in bool InValue)
 		{
-			return InValue ? 1 : -1;
+			return InValue ? 1f : -1f;
 		}
 
 
@@ -631,6 +676,21 @@ namespace Utils // Math
 			float sqrDistance = PlanarSqrDistance(InPoint, InPlanePoint, InPlaneNormal);
 
 			return Mathf.Sqrt(sqrDistance);
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary> Get then angle between the given vectors projections on the plane </summary>
+		/// <returns></returns>
+		public static float PlanarAngle(in Vector3 InDirectionA, in Vector3 InDirectionB, in Vector3 InPlaneNormal)
+		{
+			Vector3 lhs = InDirectionA.normalized;
+			Vector3 rhs = InDirectionB.normalized;
+			Vector3 normal = InPlaneNormal.normalized;
+			Vector3 projected1 = Vector3.ProjectOnPlane(lhs, normal);
+			Vector3 projected2 = Vector3.ProjectOnPlane(rhs, normal);
+			float sign = Mathf.Sign(Vector3.Dot(normal, Vector3.Cross(lhs, rhs)));
+			return Vector3.Angle(projected1, projected2) * sign;
 		}
 
 
@@ -716,6 +776,7 @@ namespace Utils // Math
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Calculate the angle between a vector and a plane. The plane is made by a normal vector. Output is in degree. </summary>
 		public static float AngleVectorPlane(Vector3 vector, Vector3 normal)
 		{
@@ -745,6 +806,7 @@ namespace Utils // Math
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
 		//first-order intercept using relative target position
 		public static float FirstOrderInterceptTime(in float shotSpeed, in Vector3 shooterToTarget, in Vector3 velocityDelta)
 		{
@@ -975,17 +1037,17 @@ namespace Utils // Math
 			t = Mathf.Abs(t);
 
 			int numSections = length - 3;
-			int currPt = Mathf.Min(Mathf.FloorToInt(t * (float)numSections), numSections - 1);
+			int currPt = Mathf.Min(Mathf.FloorToInt(t * numSections), numSections - 1);
 			if (bIsReversed)
 			{
 				currPt = length - 1 - currPt;
 			}
 
-			float u = (t * (float)numSections) - (
+			float u = (t * numSections) - (
 				bIsReversed ?
-					((float)length - 1f - (float)currPt)
+					(length - 1f - currPt)
 					:
-					(float)currPt
+					currPt
 				)
 			;
 			u = Mathf.Clamp01(u);
@@ -1005,6 +1067,27 @@ namespace Utils // Math
 			);
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>  </summary>
+		/// <param name="InInterpolant"></param>
+		/// <param name="OutSectionsSubInterpolants"></param>
+		public static void FindInterpolatedValues(in float InInterpolant, ref float[] OutSectionsSubInterpolants)
+		{
+			int iSectionCount = OutSectionsSubInterpolants.Length;
+			if (OutSectionsSubInterpolants.IsNotNull() && iSectionCount > 0)
+			{
+				float interpolant = Mathf.Clamp01(InInterpolant);
+				float subInterpolantStep = 1f / iSectionCount;
+				for (int index = 0; index < iSectionCount; ++index)
+				{
+					float currentInterpolant = Mathf.Clamp01(interpolant - (subInterpolantStep * index));
+					OutSectionsSubInterpolants[index] = Mathf.Clamp01(currentInterpolant / subInterpolantStep);
+				}
+			}
+		}
+
+
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary>  </summary>
 		public static bool GetSegment<T>(in System.Collections.Generic.IList<T> collection, float t, out T a, out T b, out T c, out T d)
@@ -1022,7 +1105,7 @@ namespace Utils // Math
 			t = Mathf.Abs(t);
 
 			int numSections = length - 3;
-			int currPt = Mathf.Min(Mathf.FloorToInt(t * (float)numSections), numSections - 1);
+			int currPt = Mathf.Min(Mathf.FloorToInt(t * numSections), numSections - 1);
 			if (bIsReversed)
 			{
 				currPt = length - 1 - currPt;
@@ -1035,17 +1118,22 @@ namespace Utils // Math
 			return true;
 		}
 
+
+		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Calculate the bounds of a gameobject encapsulating all activbe cooliders bounds </summary>
 		/// <param name="InTransform"></param>
 		/// <returns></returns>
 		public static Bounds GetBoundsOf(in GameObject InSource, in bool InIncludeColliders = false) => GetBoundsOf(InSource.transform, InIncludeColliders);
 
+
+		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Calculate the bounds of a gameobject encapsulating all activbe cooliders bounds </summary>
 		/// <param name="InTransform"></param>
 		/// <returns></returns>
 		public static Bounds GetBoundsOf(in Component InSource, in bool InIncludeColliders = false) => GetBoundsOf(InSource.transform, InIncludeColliders);
 
 
+		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Calculate the bounds of a gameobject encapsulating all activbe cooliders bounds </summary>
 		/// <param name="InGameObject"></param>
 		/// <returns></returns>
@@ -1075,6 +1163,7 @@ namespace Utils // Math
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
 		/// <summary>  </summary>
 		/// <param name="InVolumePosition"></param>
 		/// <param name="InVolumeRotation"></param>
@@ -1118,6 +1207,7 @@ namespace Utils // Math
 		}
 
 
+		//////////////////////////////////////////////////////////////////////////
 		/// <summary>  </summary>
 		/// <param name="InSpherePosition"></param>
 		/// <param name="InSphereRadius"></param>
@@ -1154,7 +1244,158 @@ namespace Utils // Math
 			}
 			return points.ToArray();
 		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		//////////////////////////////////////////////////////////////////////////
+		public static class BezierCurve
+		{
+			//////////////////////////////////////////////////////////////////////////
+			/// <summary>  </summary>
+			/// <param name="OutPosition"></param>
+			/// <param name="InTime"></param>
+			/// <param name="InWayPoints"></param>
+			/// <returns></returns>
+			public static bool Evaluate(out Vector3 OutPosition, in float InTime, in Vector3[] InWayPoints)
+			{
+				OutPosition = Vector3.zero;
+				bool bResult = false;
+				if (IsValisCurve(InWayPoints))
+				{
+					OutPosition = EvaluateNoCheck(InTime, InWayPoints);
+					bResult = true;
+				}
+				return bResult;
+			}
+
+
+			//////////////////////////////////////////////////////////////////////////
+			/// <summary>  </summary>
+			/// <param name="InWayPoints"></param>
+			/// <returns></returns>
+			public static bool IsValisCurve(in Vector3[] InWayPoints) => InWayPoints?.Length > 3;
+
+
+			//////////////////////////////////////////////////////////////////////////
+			/// <summary>  </summary>
+			/// <param name="aP"></param>
+			/// <param name="InWayPoints"></param>
+			/// <returns></returns>
+			public static float ClosestTimeOnBezier(Vector3 aP, in Vector3[] InWayPoints)
+			{
+				float t = 0f;
+				if (IsValisCurve(InWayPoints))
+				{
+					t = BestFittingTime(InWayPoints, aP, 0f, 1f, 10f);
+					float delta = 1.0f / 10.0f;
+					for (int i = 0; i < 4; i++)
+					{
+						t = BestFittingTime(InWayPoints, aP, t - delta, t + delta, 10f);
+						delta /= 9f;
+					}
+				}
+				return t;
+			}
+
+
+			//////////////////////////////////////////////////////////////////////////
+			/// <summary>  </summary>
+			/// <param name="aP"></param>
+			/// <param name="InWayPoints"></param>
+			/// <returns></returns>
+			public static Vector3 ClosestPointOnBezier(Vector3 aP, in Vector3[] InWayPoints)
+			{
+				Vector3 outValue = Vector3.zero;
+				if (IsValisCurve(InWayPoints))
+				{
+					outValue = EvaluateNoCheck(ClosestTimeOnBezier(aP, InWayPoints), InWayPoints);
+				}
+				return outValue;
+			}
+
+
+			//////////////////////////////////////////////////////////////////////////
+			public static Vector3[] GetDensePositions(Vector3[] InWayPoints, uint InSteps)
+			{
+				Vector3[] outValue = new Vector3[InSteps];
+				uint currentStep = 0u;
+				float step = 1f / (InSteps - 1);
+				float t = 0f;
+				while (t < 1f)
+				{
+					outValue[currentStep] = EvaluateNoCheck(t, InWayPoints);
+					currentStep++;
+					t += step;
+				}
+
+				outValue[InSteps - 1] = EvaluateNoCheck(1f, InWayPoints);
+				return outValue;
+			}
+
+
+			//////////////////////////////////////////////////////////////////////////
+			private static Vector3 EvaluateNoCheck(in float InTime, in Vector3[] InWayPoints)
+			{
+				int length = InWayPoints.Length;
+				bool bIsReversed = InTime < 0.0f;
+				float t = Mathf.Abs(InTime);
+
+				int numSections = length - 3;
+				int currPt = Mathf.Min(Mathf.FloorToInt(t * numSections), numSections - 1);
+				if (bIsReversed)
+				{
+					currPt = length - 1 - currPt;
+				}
+
+				float u = (t * numSections) - (
+					bIsReversed ?
+						(length - 1f - currPt)
+						:
+						currPt
+					)
+				;
+				u = Mathf.Clamp01(u);
+
+				Vector3 a = InWayPoints[currPt + 0];
+				Vector3 b = InWayPoints[currPt + 1];
+				Vector3 c = InWayPoints[currPt + 2];
+				Vector3 d = InWayPoints[currPt + 3];
+				return 0.5f *
+				(
+					((-a + (3f * b) - (3f * c) + d) * (u * u * u)) +
+					(((2f * a) - (5f * b) + (4f * c) - d) * (u * u)) +
+					((-a + c) * u) +
+					(2f * b)
+				);
+			}
+
+
+			//////////////////////////////////////////////////////////////////////////
+			private static float BestFittingTime(in Vector3[] points, Vector3 aP, float aStart, float aEnd, float aSteps)
+			{
+				float Res = 0f;
+				if (points?.Length > 3)
+				{
+					aStart = Mathf.Clamp01(aStart);
+					aEnd = Mathf.Clamp01(aEnd);
+					float step = (aEnd - aStart) / aSteps;
+					float Ref = float.MaxValue;
+					for (float i = 0f; i < aSteps; i++)
+					{
+						float t = aStart + (step * i);
+						float L = (EvaluateNoCheck(t, points) - aP).sqrMagnitude;
+						if (L < Ref)
+						{
+							Ref = L;
+							Res = t;
+						}
+					}
+				}
+				return Res;
+			}
+		}
 	}
+
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1434,14 +1675,33 @@ namespace Utils // Converters
 	}
 }
 
+
+/////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+
+namespace Utils // UI
+{
+	using UnityEngine;
+
+	public static class UI
+	{
+		public static Quaternion RotationToFaceTarget2D(in Transform InSource, in Transform InTarget)
+		{
+			Vector3 vectorToTarget = InTarget.position - InSource.position;
+			float angle = Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg;
+			return Quaternion.AngleAxis(angle, Vector3.forward);
+		}
+	}
+}
+
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
 #if UNITY_EDITOR
 namespace Utils.Editor // Editor Utils
 {
 	using System.Reflection;
-	using UnityEngine;
 	using UnityEditor;
+	using UnityEngine;
 
 	// Ref: https://forum.unity.com/threads/no-rename.813678/#post-7985412
 	public static class ProjectBrowserResetter
@@ -1463,6 +1723,19 @@ namespace Utils.Editor // Editor Utils
 			{
 				m_ResetViewsMethod.Invoke(window, new object[0]);
 			}
+		}
+	}
+
+	public static class Helpers
+	{
+		public static void ScheduleEditorAction(System.Action InAction)
+		{
+			void DoAction()
+			{
+				InAction();
+				EditorApplication.update -= DoAction;
+			}
+			EditorApplication.update += DoAction;
 		}
 	}
 

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82d3fd3b9a8943b4ead4457ce724fcda, type: 3}
   m_Name: 01 - MainMenu
   m_EditorClassIdentifier: 
-  m_SceneName: 
-  m_IsGameScene: 1
+  m_SceneName: MainMenu
+  m_IsGameScene: 0
   m_MainScene:
     sceneAsset: {fileID: 102900000, guid: 706647c1cda57d145993dac94b96eb92, type: 3}
     scenePath: Assets/Scenes/01 - MainMenu.unity

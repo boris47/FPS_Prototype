@@ -128,4 +128,30 @@ public class CoroutinesManager : GlobalMonoBehaviourSingleton<CoroutinesManager>
 	/////////////////////////////////////////////////////////////////
 	/// <summary> Create a sequence object, where to add routine and finally start </summary>
 	public static RoutinesSequence CreateSequence(IEnumerator MainRoutine) => new RoutinesSequence(m_Instance, MainRoutine);
+
+	/////////////////////////////////////////////////////////////////
+	/// <summary>  </summary>
+	/// <param name="InDurationTime"></param>
+	/// <param name="InAction"></param>
+	/// <param name="InOnEndAction"></param>
+	/// <param name="InInverted"></param>
+	/// <returns></returns>
+	public static Coroutine NewTimeBasedCoroutine(in float InDurationTime, in System.Action<float> InAction, in System.Action InOnEndAction, in bool InInverted = false)
+	{
+		IEnumerator InnerCoroutine(float InDurationTime, System.Action<float> InAction, System.Action InOnEndAction, bool InInverted)
+		{
+			float currentTime = InInverted ? InDurationTime : float.Epsilon;
+			System.Func<bool> predicate = InInverted ? (() => currentTime > InDurationTime) : (() => currentTime < InDurationTime);
+			void UpdateCurrentTime() => currentTime += ((InInverted ? -1f : 1f) * Time.deltaTime);
+			while (predicate())
+			{
+				InAction(currentTime / InDurationTime);
+				UpdateCurrentTime();
+				yield return null;
+			}
+		}
+		return m_Instance.StartCoroutine(InnerCoroutine(InDurationTime, InAction, InOnEndAction, InInverted));
+	}
+
+
 }

@@ -73,6 +73,11 @@ public class CustomSceneManager : GlobalMonoBehaviourSingleton<CustomSceneManage
 				if (Utils.CustomAssertions.IsNotNull(currentSceneDefinition, this, $"Cannot retrieve scene definition for loaded scene {currentScenePath}"))
 				{
 					m_CurrentSceneDefinition = currentSceneDefinition;
+
+					foreach(SceneReference subScene in m_CurrentSceneDefinition.SubScenes)
+					{
+						SceneManager.LoadScene(subScene, LoadSceneMode.Additive);
+					}
 				}
 			}
 		}
@@ -148,7 +153,7 @@ public class CustomSceneManager : GlobalMonoBehaviourSingleton<CustomSceneManage
 			m_LoadingView.SetSubTask($"Unloading '{m_CurrentSceneDefinition.SceneName}'");
 			{
 				// First unload non-shared sub-scenes
-				var scenesToUnload = m_CurrentSceneDefinition.SubScenes.Except(InSceneDefinition.SubScenes).ToList();
+				IEnumerable<SceneReference> scenesToUnload = m_CurrentSceneDefinition.SubScenes.Except(InSceneDefinition.SubScenes);
 				foreach (SceneReference subScene in scenesToUnload)
 				{
 					yield return UnLoadSceneAsync(subScene);

@@ -1,5 +1,6 @@
 
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Entities.Player.Components
@@ -54,21 +55,56 @@ namespace Entities.Player.Components
 		}
 		// IInteractor END
 
+		private List<AreaInteractable> m_AvailableInteractors = new List<AreaInteractable>();
+
 
 		//////////////////////////////////////////////////////////////////
 		private void OnTriggerEnter(Collider other)
 		{
-			if (other.transform.TryGetComponent(out AreaInteractable areaInteractable))
+			if (other.gameObject.TryGetComponent(out AreaInteractable areaInteractable))
 			{
-				OnInteractableFoundInternal(areaInteractable);
+				m_AvailableInteractors.Add(areaInteractable);
+
+				GameManager.CyclesEvents.OnPhysicFrame -= OnPhysicFrame;
+				GameManager.CyclesEvents.OnPhysicFrame += OnPhysicFrame;
+			//	OnInteractableFoundInternal(areaInteractable);
+			}
+		}
+
+		//////////////////////////////////////////////////////////////////
+		private void OnPhysicFrame(float FixedDeltaTime)
+		{
+			if (CurrentInteractable.IsNull())
+			{
+				AreaInteractable candidate = null;
+				foreach (AreaInteractable areaInteractable in m_AvailableInteractors)
+				{
+					if (CanInteractWith(areaInteractable))
+					{
+						candidate = areaInteractable;
+						break;
+					}
+				}
+
+				if (candidate.IsNotNull())
+				{
+					OnInteractableFoundInternal(candidate);
+				}
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////
 		private void OnTriggerExit(Collider other)
 		{
-			if (other.transform.TryGetComponent(out AreaInteractable areaInteractable))
+			if (other.gameObject.TryGetComponent(out AreaInteractable areaInteractable))
 			{
+				m_AvailableInteractors.Remove(areaInteractable);
+
+				if (m_AvailableInteractors.Count == 0)
+				{
+					GameManager.CyclesEvents.OnPhysicFrame -= OnPhysicFrame;
+				}
+
 				if (CurrentInteractable == areaInteractable)
 				{
 					OnInteractableLostInternal(areaInteractable);
