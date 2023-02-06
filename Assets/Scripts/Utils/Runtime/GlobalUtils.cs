@@ -345,7 +345,7 @@ namespace Utils // Math
 		/// <summary> Return if a position is inside a mesh </summary>
 		public static bool IsPointInsideMesh(in Mesh InMesh, in Component InMeshOwner, in Vector3 WorldPosition)
 		{
-			Vector3 aLocalPoint = InMeshOwner.transform.InverseTransformPoint(WorldPosition);
+			Vector3 pointInLocalSpace = InMeshOwner.transform.InverseTransformPoint(WorldPosition);
 			Plane plane = new Plane();
 
 			Vector3[] verts = InMesh.vertices;
@@ -356,7 +356,7 @@ namespace Utils // Math
 				Vector3 V2 = verts[tris[(i * 3) + 1]];
 				Vector3 V3 = verts[tris[(i * 3) + 2]];
 				plane.Set3Points(V1, V2, V3);
-				if (plane.GetSide(aLocalPoint))
+				if (plane.GetSide(pointInLocalSpace))
 				{
 					return false;
 				}
@@ -468,6 +468,33 @@ namespace Utils // Math
 			return true;
 		}
 
+		/// <summary>  </summary>
+		/// <param name="OutIntersection"></param>
+		/// <param name="InLineAStart"></param>
+		/// <param name="InLineAEnd"></param>
+		/// <param name="InLineBStart"></param>
+		/// <param name="InLineBEnd"></param>
+		/// <returns></returns>
+		public static bool HasLineLineIntersection(out Vector3 OutIntersection, Vector3 InLineAStart, Vector3 InLineAEnd, Vector3 InLineBStart, Vector3 InLineBEnd)
+		{
+			Vector3 line1Direction = InLineAEnd - InLineAStart;
+			Vector3 line2Direction = InLineBEnd - InLineBStart;
+
+			Vector3 crossProduct = Vector3.Cross(line1Direction, line2Direction);
+
+			if (crossProduct.sqrMagnitude < 0.00001f)
+			{
+				OutIntersection = Vector3.zero;
+				return false;
+			}
+
+			Vector3 line2ToLine1 = InLineAStart - InLineBStart;
+
+			float a = Vector3.Dot(line2ToLine1, crossProduct) / crossProduct.sqrMagnitude;
+			OutIntersection = InLineAStart + (a * line1Direction);
+			return true;
+		}
+
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Get the intersection between a line and a plane. </summary>
@@ -519,7 +546,7 @@ namespace Utils // Math
 
 			float a = Vector3.Dot(lineDirection, lineDirection);
 			float b = 2.0f * Vector3.Dot(sphereToLineStart, lineDirection);
-			float c = Vector3.Dot(sphereToLineStart, sphereToLineStart) - InSphereRadius * InSphereRadius;
+			float c = Vector3.Dot(sphereToLineStart, sphereToLineStart) - (InSphereRadius * InSphereRadius);
 
 			float discriminant = (b * b) - (4.0f * a * c);
 			if (discriminant > 0.0f)
@@ -538,7 +565,7 @@ namespace Utils // Math
 			return false;
 		}
 
-		#endregion
+		#endregion // TESTS
 
 
 		//////////////////////////////////////////////////////////////////////////
@@ -553,20 +580,6 @@ namespace Utils // Math
 			float closestPoint = Vector3.Dot(lineDirection, InPoint - InLineStart) / Vector3.Dot(lineDirection, lineDirection);
 			closestPoint = Mathf.Clamp01(closestPoint);
 			return InLineStart + (closestPoint * lineDirection);
-		}
-
-
-		//////////////////////////////////////////////////////////////////////////
-		/// <summary>  </summary>
-		/// <param name="InPointToProject"></param>
-		/// <param name="InLinePoint"></param>
-		/// <param name="InLineDirection"></param>
-		/// <returns></returns>
-		public static Vector3 ProjectPointOnLine(in Vector3 InPointToProject, in Vector3 InLinePoint, in Vector3 InLineDirection)
-		{
-			Vector3 lineToPoint = InPointToProject - InLinePoint;
-			float t = Vector3.Dot(lineToPoint, InLineDirection) / Vector3.Dot(InLineDirection, InLineDirection);
-			return InLinePoint + (t * InLineDirection);
 		}
 
 
@@ -636,27 +649,6 @@ namespace Utils // Math
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary> Return a clamped angle </summary>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static float ClampAngle(in float Angle, in float Min = 0f, in float Max = 360f)
-		{
-			float angle = Angle;
-			while (angle > 360f)
-			{
-				angle -= 360f;
-			}
-
-			angle = Mathf.Max(Mathf.Min(Angle, Max), Min);
-			if (angle < 0f)
-			{
-				angle += 360f;
-			}
-
-			return Angle;
-		}
-
-
-		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Get planar squared distance between a plane and a point projected on it </summary>
 		/// <returns> Planar Squared Distance </returns>
 		public static float PlanarSqrDistance(in Vector3 InPoint, in Vector3 InPlanePoint, in Vector3 InPlaneNormal)
@@ -691,51 +683,6 @@ namespace Utils // Math
 			Vector3 projected2 = Vector3.ProjectOnPlane(rhs, normal);
 			float sign = Mathf.Sign(Vector3.Dot(normal, Vector3.Cross(lhs, rhs)));
 			return Vector3.Angle(projected1, projected2) * sign;
-		}
-
-
-		//////////////////////////////////////////////////////////////////////////
-		/// <summary> Get a direction vector from polar coordinates </summary>>
-		/// <param name="InRadius">The radius, distance from the center</param>
-		/// <param name="InDegreePolarAngle">The altitude in degrees (Rotation around the up axis)</param>
-		/// <param name="InDegreeAzimuthalAngle">The longitude in degrees (Rotation around the right axis)</param>
-		/// <returns>Directional vector</returns>
-		/// Ref: https://gamedev.stackexchange.com/a/81715
-		public static Vector3 SphericalToCartesian(in float InRadius, in float InDegreePolarAngle, in float InDegreeAzimuthalAngle)
-		{
-			float a = InRadius * Mathf.Cos(InDegreeAzimuthalAngle * Mathf.Deg2Rad);
-			return new Vector3
-			(
-				x: a * Mathf.Cos(InDegreePolarAngle * Mathf.Deg2Rad),
-				y: InRadius * Mathf.Sin(InDegreeAzimuthalAngle * Mathf.Deg2Rad),
-				z: a * Mathf.Sin(InDegreePolarAngle * Mathf.Deg2Rad)
-			);
-		}
-
-
-		//////////////////////////////////////////////////////////////////////////
-		/// <summary> Get polar coordinates from a direction vector </summary>
-		/// <param name="InCartesianCoords"></param>
-		/// <param name="OutRadius">The radius, distance from the center</param>
-		/// <param name="OutDegreePolarAngle">The altitude in degrees (Rotation around the up axis)</param>
-		/// <param name="OutDegreeAzimuthalAngle">The longitude in degrees (Rotation around the right axis)</param>
-		/// Ref: https://gamedev.stackexchange.com/a/81715
-		public static void CartesianToSpherical(in Vector3 InCartesianCoords, out float OutRadius, out float OutDegreePolarAngle, out float OutDegreeAzimuthalAngle)
-		{
-			Vector3 localCartesianCoords = InCartesianCoords;
-			if (localCartesianCoords.x == 0f)
-			{
-				localCartesianCoords.x = Mathf.Epsilon;
-			}
-
-			OutRadius = localCartesianCoords.magnitude;
-			OutDegreePolarAngle = Mathf.Atan(localCartesianCoords.z / localCartesianCoords.x) * Mathf.Rad2Deg;
-			if (localCartesianCoords.x < 0f)
-			{
-				OutDegreePolarAngle += Mathf.PI;
-			}
-
-			OutDegreeAzimuthalAngle = Mathf.Asin(localCartesianCoords.y / OutRadius) * Mathf.Rad2Deg;
 		}
 
 
@@ -787,6 +734,51 @@ namespace Utils // Math
 			float angle = (float)System.Math.Acos(dot);
 
 			return (1.570796326794897f - angle) * Mathf.Rad2Deg; //90 degrees - angle
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary> Get a direction vector from polar coordinates </summary>>
+		/// <param name="InRadius">The radius, distance from the center</param>
+		/// <param name="InDegreePolarAngle">The altitude in degrees (Rotation around the up axis)</param>
+		/// <param name="InDegreeAzimuthalAngle">The longitude in degrees (Rotation around the right axis)</param>
+		/// <returns>Directional vector</returns>
+		/// Ref: https://gamedev.stackexchange.com/a/81715
+		public static Vector3 SphericalToCartesian(in float InRadius, in float InDegreePolarAngle, in float InDegreeAzimuthalAngle)
+		{
+			float a = InRadius * Mathf.Cos(InDegreeAzimuthalAngle * Mathf.Deg2Rad);
+			return new Vector3
+			(
+				x: a * Mathf.Cos(InDegreePolarAngle * Mathf.Deg2Rad),
+				y: InRadius * Mathf.Sin(InDegreeAzimuthalAngle * Mathf.Deg2Rad),
+				z: a * Mathf.Sin(InDegreePolarAngle * Mathf.Deg2Rad)
+			);
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary> Get polar coordinates from a direction vector </summary>
+		/// <param name="InCartesianCoords"></param>
+		/// <param name="OutRadius">The radius, distance from the center</param>
+		/// <param name="OutDegreePolarAngle">The altitude in degrees (Rotation around the up axis)</param>
+		/// <param name="OutDegreeAzimuthalAngle">The longitude in degrees (Rotation around the right axis)</param>
+		/// Ref: https://gamedev.stackexchange.com/a/81715
+		public static void CartesianToSpherical(in Vector3 InCartesianCoords, out float OutRadius, out float OutDegreePolarAngle, out float OutDegreeAzimuthalAngle)
+		{
+			Vector3 localCartesianCoords = InCartesianCoords;
+			if (localCartesianCoords.x == 0f)
+			{
+				localCartesianCoords.x = Mathf.Epsilon;
+			}
+
+			OutRadius = localCartesianCoords.magnitude;
+			OutDegreePolarAngle = Mathf.Atan(localCartesianCoords.z / localCartesianCoords.x) * Mathf.Rad2Deg;
+			if (localCartesianCoords.x < 0f)
+			{
+				OutDegreePolarAngle += Mathf.PI;
+			}
+
+			OutDegreeAzimuthalAngle = Mathf.Asin(localCartesianCoords.y / OutRadius) * Mathf.Rad2Deg;
 		}
 
 
@@ -1788,7 +1780,7 @@ namespace Utils.Editor // Editor Utils
 						}
 						case CapsuleCollider capsule:
 						{
-							DrawWireCapsule(Vector3.zero, InCollider.transform.rotation, capsule.radius, capsule.height, InColor);
+							DrawWireCapsule(Vector3.zero, InCollider.transform.rotation, capsule.radius, capsule.height/*, InColor*/);
 							break;
 						}
 					}
@@ -1800,7 +1792,7 @@ namespace Utils.Editor // Editor Utils
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public static void DrawWireCapsule(in Vector3 InPosition, in Quaternion InRotation, in float InRadius, in float InHeight, in Color InColor)
+		public static void DrawWireCapsule(in Vector3 InPosition, in Quaternion InRotation, in float InRadius, in float InHeight/*, in Color InColor*/)
 		{
 			for (int i = 0, length = m_CapsuleVertices.Length; i < length; i++)
 			{
@@ -1893,10 +1885,10 @@ namespace Utils.Editor // Editor Utils
 
 	public class MarkAsDirty : System.IDisposable
 	{
+		private readonly Object m_UnityObject = null;
 		private bool m_Disposed = false;
-		private UnityEngine.Object m_UnityObject;
 
-		public MarkAsDirty(UnityEngine.Object InUnityObject)
+		public MarkAsDirty(Object InUnityObject)
 		{
 			m_Disposed = false;
 			if (InUnityObject.IsNotNull())
