@@ -41,13 +41,13 @@ public class PointInsideCapsuleTest : MonoBehaviour
 			m_Capsule = go.GetComponent<CapsuleCollider>();
 		}
 
-		m_Capsule.GetPoints(out Vector3 outP1, out Vector3 outP2);
-		m_CapsulePoint1.position = outP1;
-		m_CapsulePoint2.position = outP2;
-
 		m_Point.SetSiblingIndex(0);
 		m_Capsule.transform.SetSiblingIndex(1);
 		m_Capsule.enabled = false;
+		
+		m_Capsule.GetPoints(out Vector3 outP1, out Vector3 outP2);
+		m_CapsulePoint1.position = outP1;
+		m_CapsulePoint2.position = outP2;
 
 		// Capsule and capsule points
 		{
@@ -60,7 +60,7 @@ public class PointInsideCapsuleTest : MonoBehaviour
 		}
 
 		// Point
-		Color colorToUse = Utils.Math.IsPointInsideCapsule(m_Point.position, outP1, outP2, m_Capsule.radius) ? Color.red : Color.green;
+		Color colorToUse = Utils.Math.IsPointInsideCapsule(m_Point.position, outP1, outP2, m_Capsule.radius) ? Color.green : Color.red;
 		using (new Utils.Editor.GizmosHelper.UseGizmoColor(colorToUse))
 		{
 			Gizmos.DrawSphere(m_Point.position, 0.2f);

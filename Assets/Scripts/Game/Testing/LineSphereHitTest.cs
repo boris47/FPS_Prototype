@@ -44,7 +44,7 @@ public class LineSphereHitTest : MonoBehaviour
 		m_Sphere.SetSiblingIndex(2);
 		m_Sphere.localScale = m_SphereRadius * 2f * Vector3.one;
 
-		if (Utils.Math.HasSegmentSphereIntersection(m_Sphere.position, m_SphereRadius, m_LineStart.position, m_LineEnd.position, out Vector3 OutClosestPoint))
+		if (Utils.Math.HasSegmentSphereIntersection(m_LineStart.position, m_LineEnd.position, m_Sphere.position, m_SphereRadius, out Vector3 OutClosestPoint))
 		{
 			m_Intersection = OutClosestPoint;
 		}

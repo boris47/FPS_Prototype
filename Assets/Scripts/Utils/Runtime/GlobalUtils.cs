@@ -311,6 +311,8 @@ namespace Utils // Math
 
 	public static class Math
 	{
+		private static BoxCollider m_PointInsideBoxCollider = null;
+
 		public const float EPS = 0.00001f;
 
 		#region TESTS
@@ -374,7 +376,6 @@ namespace Utils // Math
 		public static bool IsPointInsideSphere(in Vector3 InPoint, in Vector3 InSphereCenter, in float InSphereRadius)
 		{
 			return (InSphereCenter - InPoint).sqrMagnitude <= InSphereRadius * InSphereRadius;
-			//return Vector3.Distance(InSphereCenter, InPoint) < InSphereRadius;
 		}
 
 
@@ -400,11 +401,10 @@ namespace Utils // Math
 		/// <returns></returns>
 		public static bool IsPointInsideCapsule(in Vector3 InWorldPoint, in Vector3 InWorldCapsuleP1, in Vector3 InWorldCapsuleP2, in float InCapsuleRadius)
 		{
-			return (InWorldPoint - ClosestPointOnLine(InWorldPoint, InWorldCapsuleP2, InWorldCapsuleP1)).sqrMagnitude < InCapsuleRadius * InCapsuleRadius;
+			return (InWorldPoint - ClosestPointOnSegment(InWorldCapsuleP1, InWorldCapsuleP2, InWorldPoint)).sqrMagnitude < InCapsuleRadius * InCapsuleRadius;
 		}
 
 
-		private static BoxCollider m_PointInsideBoxCollider = null;
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Check if point is inside local space bounds </summary>
 		/// <param name="InPoint"></param>
@@ -438,14 +438,14 @@ namespace Utils // Math
 		/// <param name="OutProjection"></param>
 		/// <param name="OutNormalizedTime"></param>
 		/// <param name="InPointToProject"></param>
-		/// <param name="InLineStart"></param>
-		/// <param name="InLineEnd"></param>
+		/// <param name="InSegmentStart"></param>
+		/// <param name="InSegmentEnd"></param>
 		/// <returns></returns>
-		public static bool HasPointOnLineProjection(out Vector3 OutProjection, out float OutNormalizedTime, in Vector3 InPointToProject, in Vector3 InLineStart, in Vector3 InLineEnd)
+		public static bool HasPointOnSegmentProjection(in Vector3 InPointToProject, in Vector3 InSegmentStart, in Vector3 InSegmentEnd, out Vector3 OutProjection, out float OutNormalizedTime)
 		{
 			OutProjection = Vector3.zero;
-			Vector3 segment = InLineEnd - InLineStart;
-			Vector3 vectToPoint = InPointToProject - InLineStart;
+			Vector3 segment = InSegmentEnd - InSegmentStart;
+			Vector3 vectToPoint = InPointToProject - InSegmentStart;
 
 			// See if closest point is before StartPoint
 			float dot1 = Vector3.Dot(vectToPoint, segment);
@@ -464,34 +464,7 @@ namespace Utils // Math
 			}
 
 			// Closest Point is within segment
-			OutProjection = InLineStart + (segment * (OutNormalizedTime = (dot1 / dot2)));
-			return true;
-		}
-
-		/// <summary>  </summary>
-		/// <param name="OutIntersection"></param>
-		/// <param name="InLineAStart"></param>
-		/// <param name="InLineAEnd"></param>
-		/// <param name="InLineBStart"></param>
-		/// <param name="InLineBEnd"></param>
-		/// <returns></returns>
-		public static bool HasLineLineIntersection(out Vector3 OutIntersection, Vector3 InLineAStart, Vector3 InLineAEnd, Vector3 InLineBStart, Vector3 InLineBEnd)
-		{
-			Vector3 line1Direction = InLineAEnd - InLineAStart;
-			Vector3 line2Direction = InLineBEnd - InLineBStart;
-
-			Vector3 crossProduct = Vector3.Cross(line1Direction, line2Direction);
-
-			if (crossProduct.sqrMagnitude < 0.00001f)
-			{
-				OutIntersection = Vector3.zero;
-				return false;
-			}
-
-			Vector3 line2ToLine1 = InLineAStart - InLineBStart;
-
-			float a = Vector3.Dot(line2ToLine1, crossProduct) / crossProduct.sqrMagnitude;
-			OutIntersection = InLineAStart + (a * line1Direction);
+			OutProjection = InSegmentStart + (segment * (OutNormalizedTime = (dot1 / dot2)));
 			return true;
 		}
 
@@ -504,7 +477,7 @@ namespace Utils // Math
 		/// <param name="InPlaneNormal"></param>
 		/// <param name="InPlanePoint"></param>
 		/// <returns>If the line and plane are not parallel, the function outputs true, otherwise false.</returns>
-		public static bool HasLinePlaneIntersection(out Vector3 OutIntersection, in Vector3 InLinePoint, in Vector3 InLineDirection, in Vector3 InPlanePoint, in Vector3 InPlaneNormal)
+		public static bool HasLinePlaneIntersection(in Vector3 InLinePoint, in Vector3 InLineDirection, in Vector3 InPlanePoint, in Vector3 InPlaneNormal, out Vector3 OutIntersection)
 		{
 			OutIntersection = Vector3.zero;
 
@@ -512,21 +485,82 @@ namespace Utils // Math
 			float dotNumerator = Vector3.Dot(InPlanePoint - InLinePoint, InPlaneNormal);
 			float dotDenominator = Vector3.Dot(InLineDirection, InPlaneNormal);
 
-			//line and plane are not parallel
-			if (dotDenominator != 0f)
+			// Check if the line and plane are not parallel
+			if (dotDenominator == 0.0f)
 			{
-				float length = dotNumerator / dotDenominator;
-
-				//create a vector from the linePoint to the intersection point
-				Vector3 vector = SetVectorLength(InLineDirection, length);
-
-				//get the coordinates of the line-plane intersection point
-				OutIntersection = InLinePoint + vector;
-
-				return true;
+				return false;
 			}
-			//output not valid
-			return false;
+
+			float length = dotNumerator / dotDenominator;
+
+			// Create a vector from the linePoint to the intersection point
+			Vector3 vector = InLineDirection.normalized * length;
+
+			// The intersection point is linePoint + vector
+			OutIntersection = InLinePoint + vector;
+
+			return true;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>  </summary>
+		/// <param name="InSegmentStart"></param>
+		/// <param name="InSegmentEnd"></param>
+		/// <param name="InPlanePoint"></param>
+		/// <param name="InPlaneNormal"></param>
+		/// <param name="OutIntersection"></param>
+		/// <returns></returns>
+		public static bool HasSegmentPlaneIntersection(in Vector3 InSegmentStart, in Vector3 InSegmentEnd, in Vector3 InPlanePoint, in Vector3 InPlaneNormal, out Vector3 OutIntersection)
+		{
+			OutIntersection = Vector3.zero;
+			Plane plane = new Plane(InPlaneNormal, InPlanePoint);
+
+			// Compute the direction of the line
+			Vector3 segmentDirection = InSegmentEnd - InSegmentStart;
+
+			// Check if the line and plane are parallel (no intersection)
+			float dot = Vector3.Dot(plane.normal, segmentDirection);
+			if (Mathf.Abs(dot) < float.Epsilon)
+			{
+				return false;
+			}
+
+			// Compute the distance between the line and the plane
+			float distance = Vector3.Dot(plane.normal, plane.ClosestPointOnPlane(InSegmentStart) - InSegmentStart) / dot;
+
+			// Compute the intersection point
+			OutIntersection = InSegmentStart + (distance * segmentDirection);
+			return true;
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>  </summary>
+		/// <param name="OutIntersectionPoint"></param>
+		/// <param name="InSegmentAStart"></param>
+		/// <param name="InSegmentAEnd"></param>
+		/// <param name="InSegmentBStart"></param>
+		/// <param name="InSegmentBEnd"></param>
+		/// <returns></returns>
+		public static bool HasSegmentSegmentIntersection(in Vector3 InSegmentAStart, in Vector3 InSegmentAEnd, in Vector3 InSegmentBStart, in Vector3 InSegmentBEnd, out Vector3 OutIntersectionPoint)
+		{
+			Vector3 segment1Direction = InSegmentAEnd - InSegmentAStart;
+			Vector3 segment2Direction = InSegmentBEnd - InSegmentBStart;
+
+			Vector3 crossProduct = Vector3.Cross(segment1Direction, segment2Direction);
+
+			if (crossProduct.sqrMagnitude < 0.00001f)
+			{
+				OutIntersectionPoint = Vector3.zero;
+				return false;
+			}
+
+			Vector3 seg2ToSeg1 = InSegmentAStart - InSegmentBStart;
+
+			float a = Vector3.Dot(seg2ToSeg1, crossProduct) / crossProduct.sqrMagnitude;
+			OutIntersectionPoint = InSegmentAStart + (a * segment1Direction);
+			return true;
 		}
 
 
@@ -534,19 +568,19 @@ namespace Utils // Math
 		/// <summary>  </summary>
 		/// <param name="InSphereCenter"></param>
 		/// <param name="InSphereRadius"></param>
-		/// <param name="InLineStart"></param>
-		/// <param name="InLineEnd"></param>
-		/// <param name="ClosestPoint"></param>
+		/// <param name="InSegmentStart"></param>
+		/// <param name="InSegmentEnd"></param>
+		/// <param name="OutClosestPoint"></param>
 		/// <returns></returns>
-		public static bool HasSegmentSphereIntersection(in Vector3 InSphereCenter, in float InSphereRadius, in Vector3 InLineStart, in Vector3 InLineEnd, out Vector3 ClosestPoint)
+		public static bool HasSegmentSphereIntersection(in Vector3 InSegmentStart, in Vector3 InSegmentEnd, in Vector3 InSphereCenter, in float InSphereRadius, out Vector3 OutClosestPoint)
 		{
-			ClosestPoint = Vector3.zero;
-			Vector3 lineDirection = InLineEnd - InLineStart;
-			Vector3 sphereToLineStart = InLineStart - InSphereCenter;
+			OutClosestPoint = Vector3.zero;
+			Vector3 segmentDirection = InSegmentEnd - InSegmentStart;
+			Vector3 sphereToSegmentStart = InSegmentStart - InSphereCenter;
 
-			float a = Vector3.Dot(lineDirection, lineDirection);
-			float b = 2.0f * Vector3.Dot(sphereToLineStart, lineDirection);
-			float c = Vector3.Dot(sphereToLineStart, sphereToLineStart) - (InSphereRadius * InSphereRadius);
+			float a = Vector3.Dot(segmentDirection, segmentDirection);
+			float b = 2.0f * Vector3.Dot(sphereToSegmentStart, segmentDirection);
+			float c = Vector3.Dot(sphereToSegmentStart, sphereToSegmentStart) - (InSphereRadius * InSphereRadius);
 
 			float discriminant = (b * b) - (4.0f * a * c);
 			if (discriminant > 0.0f)
@@ -558,28 +592,138 @@ namespace Utils // Math
 
 				if (t >= 0.0f && t <= 1.0f)
 				{
-					ClosestPoint = InLineStart + (t * lineDirection);
+					OutClosestPoint = InSegmentStart + (t * segmentDirection);
 					return true;
 				}
 			}
 			return false;
 		}
 
-		#endregion // TESTS
 
+		// TODO Segment-Cylinder Intersection
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>  </summary>
+		/// <param name="InSegmentStart"></param>
+		/// <param name="InSegmentEnd"></param>
+		/// <param name="InCapsulePoint1"></param>
+		/// <param name="InCapsulePoint2"></param>
+		/// <param name="InCapsuleRadius"></param>
+		/// <param name="OutIntersectionPoint"></param>
+		/// <returns></returns>
+		public static bool HasSegmentCapsuleIntersection(in Vector3 InSegmentStart, in Vector3 InSegmentEnd, in Vector3 InCapsulePoint1, in Vector3 InCapsulePoint2, in float InCapsuleRadius, out Vector3 OutIntersectionPoint)
+		{
+			// Check capsule cylinder
+			{
+				Vector3 capsuleCenter = Vector3.Lerp(InCapsulePoint1, InCapsulePoint2, 0.5f);
+				Vector3 capsuleDirection = (InCapsulePoint2 - InCapsulePoint1).normalized;
+				float capsuleLength = Vector3.Distance(InCapsulePoint1, InCapsulePoint2);
+
+				// Find the closest point on the line segment to the center of the capsule
+				Vector3 closestPoint = ClosestPointOnSegment(InSegmentStart, InSegmentEnd, capsuleCenter);
+
+				// Check if the closest point is within the cylinder part of the capsule
+				float distance = Vector3.Dot(closestPoint - InCapsulePoint1, capsuleDirection);
+				if (distance >= 0f && distance <= capsuleLength)
+				{
+					// Check if the distance between the closest point and the capsule axis is within the capsule radius
+					float distanceToAxis = (closestPoint - (InCapsulePoint1 + (capsuleDirection * distance))).magnitude;
+					if (distanceToAxis <= InCapsuleRadius)
+					{
+						closestPoint = ClosestPointOnSegment(InCapsulePoint1, InCapsulePoint2, closestPoint);
+						return HasSegmentSphereIntersection(InSegmentStart, InSegmentEnd, closestPoint, InCapsuleRadius, out OutIntersectionPoint);
+					}
+				}
+			}
+
+			// Check spheres
+			if (
+				HasSegmentSphereIntersection(InSegmentStart, InSegmentEnd, InCapsulePoint1, InCapsuleRadius, out OutIntersectionPoint)
+				||
+				HasSegmentSphereIntersection(InSegmentStart, InSegmentEnd, InCapsulePoint2, InCapsuleRadius, out OutIntersectionPoint))
+			{
+				return true;
+			}
+			OutIntersectionPoint = Vector3.zero;
+			return false;
+		}
+
+		#endregion // TESTS
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary>  </summary>
 		/// <param name="InPoint"></param>
+		/// <param name="InfiniteLinePointA"></param>
+		/// <param name="InfiniteLinePointB"></param>
+		/// <returns></returns>
+		public static Vector3 PointProjectionOnInfiniteLine2D(in Vector2 InPoint, in Vector2 InfiniteLinePointA, in Vector2 InfiniteLinePointB)
+		{
+			Vector2 lineDirection = (InfiniteLinePointB - InfiniteLinePointA).normalized;
+			float projection = Vector2.Dot(InPoint - InfiniteLinePointA, lineDirection);
+			return InfiniteLinePointA + (lineDirection * projection);
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary> </summary>
+		/// <param name="InPoint"></param>
+		/// <param name="InfiniteLinePointA"></param>
+		/// <param name="InfiniteLinePointB"></param>
+		/// <returns></returns>
+		public static Vector3 PointProjectionOnInfiniteLine3D(in Vector3 InPoint, in Vector3 InfiniteLinePointA, in Vector3 InfiniteLinePointB)
+		{
+			return InfiniteLinePointA + Vector3.Project(InPoint - InfiniteLinePointA, InfiniteLinePointB - InfiniteLinePointA);
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>  </summary>
+		/// <param name="InLineStart"></param>
+		/// <param name="InLineDirection"></param>
+		/// <param name="InPoint"></param>
+		/// <returns></returns>
+		public static Vector3 ClosestPointOnLine(in Vector3 InLineStart, in Vector3 InLineDirection, in Vector3 InPoint)
+		{
+			Vector3 v = InPoint - InLineStart;
+			float t = Vector3.Dot(v, InLineDirection);
+			return InLineStart + (InLineDirection * t);
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary>  </summary>
 		/// <param name="InLineStart"></param>
 		/// <param name="InLineEnd"></param>
+		/// <param name="InPoint"></param>
 		/// <returns></returns>
-		public static Vector3 ClosestPointOnLine(in Vector3 InPoint, in Vector3 InLineStart, in Vector3 InLineEnd)
+		public static Vector3 ClosestPointOnSegment(in Vector3 InLineStart, in Vector3 InLineEnd, in Vector3 InPoint)
 		{
+			/*
+			Vector3 segment = InLineEnd - InLineStart;
+			float segmentLength = segment.magnitude;
+			segment.Normalize();
+
+			Vector3 pointToStart = InPoint - InLineStart;
+			float projection = Vector3.Dot(pointToStart, segment);
+
+			if (projection <= 0f)
+			{
+				return InLineStart;
+			}
+			else if (projection >= segmentLength)
+			{
+				return InLineEnd;
+			}
+			else
+			{
+				return InLineStart + (projection * segment);
+			}
+			*/
 			Vector3 lineDirection = InLineEnd - InLineStart;
 			float closestPoint = Vector3.Dot(lineDirection, InPoint - InLineStart) / Vector3.Dot(lineDirection, lineDirection);
 			closestPoint = Mathf.Clamp01(closestPoint);
 			return InLineStart + (closestPoint * lineDirection);
+			
 		}
 
 
@@ -1082,7 +1226,7 @@ namespace Utils // Math
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary>  </summary>
-		public static bool GetSegment<T>(in System.Collections.Generic.IList<T> collection, float t, out T a, out T b, out T c, out T d)
+		public static bool GetSegment<T>(in IList<T> collection, float t, out T a, out T b, out T c, out T d)
 		{
 			a = b = c = d = default;
 			if (collection == null || collection.Count < 4)
@@ -1206,8 +1350,7 @@ namespace Utils // Math
 		/// <param name="InCountForAxis"></param>
 		/// <returns></returns>
 		/// // Ref: https://stackoverflow.com/a/47416720
-		public static (Vector3, Vector3)[] IterateSphereVolume(in Vector3 InSpherePosition, in float InSphereRadius,
-		float InMaxLats, float InMaxLongs)
+		public static (Vector3, Vector3)[] IterateSphereVolume(in Vector3 InSpherePosition, in float InSphereRadius, float InMaxLats, float InMaxLongs)
 		{
 			List<(Vector3, Vector3)> points = new List<(Vector3, Vector3)>();
 			{
