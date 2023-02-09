@@ -67,7 +67,7 @@ public class SegmentCapsuleIntersectionTest : MonoBehaviour
 
 		// Capsule and capsule points
 		{
-			//Utils.Editor.GizmosHelper.DrawCollider(m_Capsule, Color.gray);
+			Utils.Editor.GizmosHelper.DrawCollider(m_Capsule, Color.gray);
 			using (new Utils.Editor.GizmosHelper.UseGizmoColor(Color.yellow))
 			{
 				Gizmos.DrawSphere(m_CapsulePoint1.position, 0.2f);

@@ -692,37 +692,16 @@ namespace Utils // Math
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary>  </summary>
-		/// <param name="InLineStart"></param>
-		/// <param name="InLineEnd"></param>
+		/// <param name="InSegmentStart"></param>
+		/// <param name="InSegmentEnd"></param>
 		/// <param name="InPoint"></param>
 		/// <returns></returns>
-		public static Vector3 ClosestPointOnSegment(in Vector3 InLineStart, in Vector3 InLineEnd, in Vector3 InPoint)
+		public static Vector3 ClosestPointOnSegment(in Vector3 InSegmentStart, in Vector3 InSegmentEnd, in Vector3 InPoint)
 		{
-			/*
-			Vector3 segment = InLineEnd - InLineStart;
-			float segmentLength = segment.magnitude;
-			segment.Normalize();
-
-			Vector3 pointToStart = InPoint - InLineStart;
-			float projection = Vector3.Dot(pointToStart, segment);
-
-			if (projection <= 0f)
-			{
-				return InLineStart;
-			}
-			else if (projection >= segmentLength)
-			{
-				return InLineEnd;
-			}
-			else
-			{
-				return InLineStart + (projection * segment);
-			}
-			*/
-			Vector3 lineDirection = InLineEnd - InLineStart;
-			float closestPoint = Vector3.Dot(lineDirection, InPoint - InLineStart) / Vector3.Dot(lineDirection, lineDirection);
+			Vector3 SegmentDirection = InSegmentEnd - InSegmentStart;
+			float closestPoint = Vector3.Dot(SegmentDirection, InPoint - InSegmentStart) / Vector3.Dot(SegmentDirection, SegmentDirection);
 			closestPoint = Mathf.Clamp01(closestPoint);
-			return InLineStart + (closestPoint * lineDirection);
+			return InSegmentStart + (closestPoint * SegmentDirection);
 			
 		}
 
@@ -820,12 +799,12 @@ namespace Utils // Math
 		/// <returns></returns>
 		public static float PlanarAngle(in Vector3 InDirectionA, in Vector3 InDirectionB, in Vector3 InPlaneNormal)
 		{
-			Vector3 lhs = InDirectionA.normalized;
-			Vector3 rhs = InDirectionB.normalized;
-			Vector3 normal = InPlaneNormal.normalized;
-			Vector3 projected1 = Vector3.ProjectOnPlane(lhs, normal);
-			Vector3 projected2 = Vector3.ProjectOnPlane(rhs, normal);
-			float sign = Mathf.Sign(Vector3.Dot(normal, Vector3.Cross(lhs, rhs)));
+			Vector3 directionA = InDirectionA.normalized;
+			Vector3 directionB = InDirectionB.normalized;
+			Vector3 planeNormal = InPlaneNormal.normalized;
+			Vector3 projected1 = Vector3.ProjectOnPlane(directionA, planeNormal);
+			Vector3 projected2 = Vector3.ProjectOnPlane(directionB, planeNormal);
+			float sign = Mathf.Sign(Vector3.Dot(planeNormal, Vector3.Cross(directionA, directionB)));
 			return Vector3.Angle(projected1, projected2) * sign;
 		}
 
@@ -1903,39 +1882,43 @@ namespace Utils.Editor // Editor Utils
 		{
 			if (InCollider.IsNotNull())
 			{
-				Color prevColor = Gizmos.color;
-				Matrix4x4 prevMatrix = Gizmos.matrix;
+				//Matrix4x4 prevMatrix = Gizmos.matrix;
+				using (new UseGizmoColor(InColor))
 				{
-					Gizmos.matrix = Matrix4x4.TRS(InCollider.bounds.center, InCollider.transform.rotation, InCollider.transform.lossyScale);
-					Gizmos.color = InColor;
+					//Gizmos.matrix = Matrix4x4.TRS(InCollider.bounds.center, InCollider.transform.rotation, InCollider.transform.lossyScale);
 
 					switch (InCollider)
 					{
 						case BoxCollider box:
 						{
-							Gizmos.DrawCube(Vector3.zero, box.size);
+							using (new UseGizmoMatrix(Matrix4x4.TRS(InCollider.bounds.center, InCollider.transform.rotation, InCollider.transform.lossyScale)))
+							{
+								Gizmos.DrawCube(Vector3.zero, box.size);
+							}
 							break;
 						}
 						case SphereCollider sphere:
 						{
-							Gizmos.DrawSphere(Vector3.zero, sphere.radius);
+							using (new UseGizmoMatrix(Matrix4x4.TRS(InCollider.bounds.center, InCollider.transform.rotation, InCollider.transform.lossyScale)))
+							{
+								Gizmos.DrawSphere(Vector3.zero, sphere.radius);
+							}
 							break;
 						}
 						case CapsuleCollider capsule:
 						{
-							DrawWireCapsule(Vector3.zero, InCollider.transform.rotation, capsule.radius, capsule.height/*, InColor*/);
+							DrawWireCapsule(InCollider.bounds.center, InCollider.transform.rotation, capsule.radius, capsule.height, InCollider.transform.lossyScale);
 							break;
 						}
 					}
 
 				}
-				Gizmos.color = prevColor;
-				Gizmos.matrix = prevMatrix;
+				//Gizmos.matrix = prevMatrix;
 			}
 		}
 
 		//////////////////////////////////////////////////////////////////////////
-		public static void DrawWireCapsule(in Vector3 InPosition, in Quaternion InRotation, in float InRadius, in float InHeight/*, in Color InColor*/)
+		public static void DrawWireCapsule(in Vector3 InPosition, in Quaternion InRotation, in float InRadius, in float InHeight, in Vector3 InScale)
 		{
 			for (int i = 0, length = m_CapsuleVertices.Length; i < length; i++)
 			{
@@ -1946,7 +1929,7 @@ namespace Utils.Editor // Editor Utils
 				m_CapsuleNewVertices[i].Set(vertex);
 			}
 			BuiltInCapsuleMesh.vertices = m_CapsuleNewVertices;
-			Gizmos.DrawMesh(BuiltInCapsuleMesh, -1, InPosition, InRotation);
+			Gizmos.DrawMesh(BuiltInCapsuleMesh, -1, InPosition, InRotation, InScale);
 
 			/*
 			UnityEditor.Handles.color = color;
