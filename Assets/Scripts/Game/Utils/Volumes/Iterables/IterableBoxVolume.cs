@@ -33,7 +33,7 @@ public class IterableBoxVolume : IterableVolume
 	//////////////////////////////////////////////////////////////////////////
 	public override bool IsPointInside(in Vector3 InPoint)
 	{
-		return Utils.Math.IsPointInsideBox(InPoint, transform.position, transform.rotation, transform.lossyScale);
+		return Utils.Math.IsPointInsideCube(transform.position, transform.rotation, transform.lossyScale, InPoint);
 	}
 
 	//////////////////////////////////////////////////////////////////////////

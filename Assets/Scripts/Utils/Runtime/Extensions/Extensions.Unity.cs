@@ -391,6 +391,35 @@ public static class Extensions_Unity
 	}
 
 	//////////////////////////////////////////////////////////////////////////
+	public static void GetExtremePoints(this CapsuleCollider ThisCapsuleCollider, out Vector3 OutPoint1, out Vector3 OutPoint2)
+	{
+		OutPoint1 = OutPoint2 = Vector3.zero;
+		float radius = ThisCapsuleCollider.radius;
+		float halfHeigth = ThisCapsuleCollider.height - radius;
+		switch (ThisCapsuleCollider.direction)
+		{
+			case 0: // X
+			{
+				OutPoint1 = ThisCapsuleCollider.transform.TransformPoint(ThisCapsuleCollider.center + (Vector3.right * halfHeigth));
+				OutPoint2 = ThisCapsuleCollider.transform.TransformPoint(ThisCapsuleCollider.center + (Vector3.left * halfHeigth));
+				break;
+			}
+			case 1: // Y
+			{
+				OutPoint1 = ThisCapsuleCollider.transform.TransformPoint(ThisCapsuleCollider.center + (Vector3.up * halfHeigth));
+				OutPoint2 = ThisCapsuleCollider.transform.TransformPoint(ThisCapsuleCollider.center + (Vector3.down * halfHeigth));
+				break;
+			}
+			case 2: // Z
+			{
+				OutPoint1 = ThisCapsuleCollider.transform.TransformPoint(ThisCapsuleCollider.center + (Vector3.forward * halfHeigth));
+				OutPoint2 = ThisCapsuleCollider.transform.TransformPoint(ThisCapsuleCollider.center + (Vector3.back * halfHeigth));
+				break;
+			}
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
 	/// <summary> </summary>
 	/// <param name="InWorldPoint"></param>
 	/// <param name="InCapsuleCollider"></param>
@@ -398,7 +427,7 @@ public static class Extensions_Unity
 	public static bool IsPointInsideCapsule(this CapsuleCollider ThisCapsuleCollider, in Vector3 InWorldPoint)
 	{
 		ThisCapsuleCollider.GetPoints(out Vector3 OutPoint1, out Vector3 OutPoint2);
-		return Utils.Math.IsPointInsideCapsule(InWorldPoint, OutPoint1, OutPoint2, ThisCapsuleCollider.radius);
+		return Utils.Math.IsPointInsideCapsule(OutPoint1, OutPoint2, ThisCapsuleCollider.radius, InWorldPoint);
 	}
 
 	#endregion

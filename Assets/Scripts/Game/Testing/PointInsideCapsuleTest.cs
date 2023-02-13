@@ -60,7 +60,7 @@ public class PointInsideCapsuleTest : MonoBehaviour
 		}
 
 		// Point
-		Color colorToUse = Utils.Math.IsPointInsideCapsule(m_Point.position, outP1, outP2, m_Capsule.radius) ? Color.green : Color.red;
+		Color colorToUse = Utils.Math.IsPointInsideCapsule(outP1, outP2, m_Capsule.radius, m_Point.position) ? Color.green : Color.red;
 		using (new Utils.Editor.GizmosHelper.UseGizmoColor(colorToUse))
 		{
 			Gizmos.DrawSphere(m_Point.position, 0.2f);

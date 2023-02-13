@@ -1,8 +1,4 @@
-using Entities.AI.Components.Senses;
-using System.Net;
-using System.Text.RegularExpressions;
 using UnityEngine;
-using static Unity.Burst.Intrinsics.X86.Avx;
 
 public class SegmentCapsuleIntersectionTest : MonoBehaviour
 {

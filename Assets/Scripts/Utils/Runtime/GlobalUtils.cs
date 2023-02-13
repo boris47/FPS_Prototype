@@ -301,6 +301,7 @@ namespace Utils // Math
 {
 	using System.Collections.Generic;
 	using System.Runtime.CompilerServices;
+	using UnityEditor.XR;
 	using UnityEngine;
 
 	/// <summary> Can be used to access a Vector3 component </summary>
@@ -311,8 +312,6 @@ namespace Utils // Math
 
 	public static class Math
 	{
-		private static BoxCollider m_PointInsideBoxCollider = null;
-
 		public const float EPS = 0.00001f;
 
 		#region TESTS
@@ -373,7 +372,7 @@ namespace Utils // Math
 		/// <param name="InSphereCenter"></param>
 		/// <param name="InSphereRadius"></param>
 		/// <returns></returns>
-		public static bool IsPointInsideSphere(in Vector3 InPoint, in Vector3 InSphereCenter, in float InSphereRadius)
+		public static bool IsPointInsideSphere(in Vector3 InSphereCenter, in float InSphereRadius, in Vector3 InPoint)
 		{
 			return (InSphereCenter - InPoint).sqrMagnitude <= InSphereRadius * InSphereRadius;
 		}
@@ -381,39 +380,47 @@ namespace Utils // Math
 
 		//////////////////////////////////////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary> Check if point is inside world space bounds </summary>
+		/// <summary> Check if point is inside a not rotated nor scaled cube </summary>
 		/// <param name="InPoint"></param>
 		/// <param name="InBoxCenter"></param>
 		/// <param name="InBoxSize"></param>
 		/// <returns></returns>
-		public static bool IsPointInsideBox(in Vector3 InPoint, in Vector3 InBoxCenter, in Vector3 InBoxSize)
+		public static bool IsPointInsideBox(in Vector3 InBoxCenter, in Vector3 InBoxSize, in Vector3 InPoint)
 		{
 			return new Bounds(InBoxCenter, InBoxSize).Contains(InPoint);
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary> </summary>
+		/// <summary> Check if point is inside a capsule defined by two points and radius </summary>
 		/// <param name="InWorldPoint"></param>
 		/// <param name="InWorldCapsuleP1"></param>
 		/// <param name="InWorldCapsuleP2"></param>
 		/// <param name="InCapsuleRadius"></param>
 		/// <returns></returns>
-		public static bool IsPointInsideCapsule(in Vector3 InWorldPoint, in Vector3 InWorldCapsuleP1, in Vector3 InWorldCapsuleP2, in float InCapsuleRadius)
+		public static bool IsPointInsideCapsule(in Vector3 InWorldCapsuleP1, in Vector3 InWorldCapsuleP2, in float InCapsuleRadius, in Vector3 InWorldPoint)
 		{
-			return (InWorldPoint - ClosestPointOnSegment(InWorldCapsuleP1, InWorldCapsuleP2, InWorldPoint)).sqrMagnitude < InCapsuleRadius * InCapsuleRadius;
+			return (InWorldPoint - ClosestPointOnSegment3D(InWorldCapsuleP1, InWorldCapsuleP2, InWorldPoint)).sqrMagnitude < InCapsuleRadius * InCapsuleRadius;
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary> Check if point is inside local space bounds </summary>
+		/// <summary> Check if point is inside cube </summary>
 		/// <param name="InPoint"></param>
-		/// <param name="InBoxCenter"></param>
-		/// <param name="InBoxRotation"></param>
-		/// <param name="InBoxSize"></param>
+		/// <param name="InCubeWorldCenter"></param>
+		/// <param name="InCubeRotation"></param>
+		/// <param name="InCubeWorldScale"></param>
 		/// <returns></returns>
-		public static bool IsPointInsideBox(in Vector3 InPoint, in Vector3 InBoxCenter, in Quaternion InBoxRotation, in Vector3 InBoxSize)
+		public static bool IsPointInsideCube(in Vector3 InCubeWorldCenter, in Quaternion InCubeRotation, in Vector3 InCubeWorldScale, in Vector3 InPoint)
 		{
+			// Invert the rotation and scale of the cube so that we can easily compare the point with a non-transformed cube
+			Matrix4x4 inverseTransform = Matrix4x4.Inverse(Matrix4x4.TRS(InCubeWorldCenter, InCubeRotation, InCubeWorldScale));
+			Vector3 localPoint = inverseTransform.MultiplyPoint3x4(InPoint);
+
+			// Check if the point is inside the cube bounds
+			bool isInside = Mathf.Abs(localPoint.x) <= 0.5f && Mathf.Abs(localPoint.y) <= 0.5f && Mathf.Abs(localPoint.z) <= 0.5f;
+			return isInside;
+			/*
 			if (m_PointInsideBoxCollider == null)
 			{
 				GameObject go = new GameObject();
@@ -422,14 +429,15 @@ namespace Utils // Math
 				m_PointInsideBoxCollider = go.AddComponent<BoxCollider>();
 				go.hideFlags = HideFlags.HideAndDontSave;
 			}
-			m_PointInsideBoxCollider.transform.SetPositionAndRotation(InBoxCenter, InBoxRotation);
+			m_PointInsideBoxCollider.transform.SetPositionAndRotation(InBoxWorldCenter, InBoxRotation);
 			m_PointInsideBoxCollider.size = InBoxSize;
 
-			Vector3 localPoint = m_PointInsideBoxCollider.transform.InverseTransformPoint(InPoint) - InBoxCenter;
+			Vector3 localPoint = m_PointInsideBoxCollider.transform.InverseTransformPoint(InPoint) - InBoxWorldCenter;
 			float l_HalfX = (InBoxSize.x * 0.5f);
 			float l_HalfY = (InBoxSize.y * 0.5f);
 			float l_HalfZ = (InBoxSize.z * 0.5f);
 			return IsBetweenValues(localPoint.x, -l_HalfX, l_HalfX) && IsBetweenValues(localPoint.y, -l_HalfY, l_HalfY) && IsBetweenValues(localPoint.z, -l_HalfZ, l_HalfZ);
+			*/
 		}
 
 
@@ -441,7 +449,7 @@ namespace Utils // Math
 		/// <param name="InSegmentStart"></param>
 		/// <param name="InSegmentEnd"></param>
 		/// <returns></returns>
-		public static bool HasPointOnSegmentProjection(in Vector3 InPointToProject, in Vector3 InSegmentStart, in Vector3 InSegmentEnd, out Vector3 OutProjection, out float OutNormalizedTime)
+		public static bool HasPointOnSegmentProjection(in Vector3 InSegmentStart, in Vector3 InSegmentEnd, in Vector3 InPointToProject, out Vector3 OutProjection, out float OutNormalizedTime)
 		{
 			OutProjection = Vector3.zero;
 			Vector3 segment = InSegmentEnd - InSegmentStart;
@@ -565,7 +573,7 @@ namespace Utils // Math
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>  </summary>
+		/// <summary> Return the closest point of hit on the sphere with the given segment if any </summary>
 		/// <param name="InSphereCenter"></param>
 		/// <param name="InSphereRadius"></param>
 		/// <param name="InSegmentStart"></param>
@@ -603,7 +611,7 @@ namespace Utils // Math
 		// TODO Segment-Cylinder Intersection
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary>  </summary>
+		/// <summary> Return the closest point of hit on the capsule with the given segment if any </summary>
 		/// <param name="InSegmentStart"></param>
 		/// <param name="InSegmentEnd"></param>
 		/// <param name="InCapsulePoint1"></param>
@@ -613,14 +621,14 @@ namespace Utils // Math
 		/// <returns></returns>
 		public static bool HasSegmentCapsuleIntersection(in Vector3 InSegmentStart, in Vector3 InSegmentEnd, in Vector3 InCapsulePoint1, in Vector3 InCapsulePoint2, in float InCapsuleRadius, out Vector3 OutIntersectionPoint)
 		{
-			// Check capsule cylinder
+			// Check capsule cylinder (Not a real cylinfer-line intersection check)
 			{
 				Vector3 capsuleCenter = Vector3.Lerp(InCapsulePoint1, InCapsulePoint2, 0.5f);
 				Vector3 capsuleDirection = (InCapsulePoint2 - InCapsulePoint1).normalized;
 				float capsuleLength = Vector3.Distance(InCapsulePoint1, InCapsulePoint2);
 
 				// Find the closest point on the line segment to the center of the capsule
-				Vector3 closestPoint = ClosestPointOnSegment(InSegmentStart, InSegmentEnd, capsuleCenter);
+				Vector3 closestPoint = ClosestPointOnSegment3D(InSegmentStart, InSegmentEnd, capsuleCenter);
 
 				// Check if the closest point is within the cylinder part of the capsule
 				float distance = Vector3.Dot(closestPoint - InCapsulePoint1, capsuleDirection);
@@ -630,7 +638,7 @@ namespace Utils // Math
 					float distanceToAxis = (closestPoint - (InCapsulePoint1 + (capsuleDirection * distance))).magnitude;
 					if (distanceToAxis <= InCapsuleRadius)
 					{
-						closestPoint = ClosestPointOnSegment(InCapsulePoint1, InCapsulePoint2, closestPoint);
+						closestPoint = ClosestPointOnSegment3D(InCapsulePoint1, InCapsulePoint2, closestPoint);
 						return HasSegmentSphereIntersection(InSegmentStart, InSegmentEnd, closestPoint, InCapsuleRadius, out OutIntersectionPoint);
 					}
 				}
@@ -648,45 +656,119 @@ namespace Utils // Math
 			return false;
 		}
 
-		#endregion // TESTS
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary>  </summary>
-		/// <param name="InPoint"></param>
-		/// <param name="InfiniteLinePointA"></param>
-		/// <param name="InfiniteLinePointB"></param>
+		/// <param name="InCapsule1Point1"></param>
+		/// <param name="InCapsule1Point2"></param>
+		/// <param name="InCapsule1Radius"></param>
+		/// <param name="InCapsule2Point1"></param>
+		/// <param name="InCapsule2Point2"></param>
+		/// <param name="InCapsule2Radius"></param>
+		/// <param name="OutPoint1"></param>
+		/// <param name="OutPoint2"></param>
 		/// <returns></returns>
-		public static Vector3 PointProjectionOnInfiniteLine2D(in Vector2 InPoint, in Vector2 InfiniteLinePointA, in Vector2 InfiniteLinePointB)
+		/// Ref: https://arrowinmyknee.com/2021/03/15/some-math-about-capsule-collision/
+		/// Also: https://wickedengine.net/2020/04/26/capsule-collision-detection/
+		public static bool IsCapsuleCapsuleColliding(in Vector3 InCapsule1Point1, in Vector3 InCapsule1Point2, in float InCapsule1Radius,
+			in Vector3 InCapsule2Point1, in Vector3 InCapsule2Point2, in float InCapsule2Radius, out Vector3 OutPoint1, out Vector3 OutPoint2)
 		{
-			Vector2 lineDirection = (InfiniteLinePointB - InfiniteLinePointA).normalized;
-			float projection = Vector2.Dot(InPoint - InfiniteLinePointA, lineDirection);
-			return InfiniteLinePointA + (lineDirection * projection);
+			// Compute (squared) distance between the inner structures of the capsules
+			float s = 0f, t = 0f;
+
+			//TODO Add AABB check
+
+			float dist2 = ClosestPointsOfTwoSegments(InCapsule1Point1, InCapsule1Point2, InCapsule2Point1, InCapsule2Point2, out s, out t, out OutPoint1, out OutPoint2);
+			// If (squared) distance smaller than (squared) sum of radii, they collide
+			float radius = InCapsule1Radius + InCapsule2Radius;
+			return dist2 <= (radius * radius);
 		}
 
 
 		//////////////////////////////////////////////////////////////////////////
-		/// <summary> </summary>
-		/// <param name="InPoint"></param>
-		/// <param name="InfiniteLinePointA"></param>
-		/// <param name="InfiniteLinePointB"></param>
-		/// <returns></returns>
-		public static Vector3 PointProjectionOnInfiniteLine3D(in Vector3 InPoint, in Vector3 InfiniteLinePointA, in Vector3 InfiniteLinePointB)
+		/// <summary> 
+		/// Computes closest points OutP1 and OutP2 of S1(s)=S1P1+s*(S1P2-S1P1) and S2(t)=S2P1+t*(S2P2-S2P1), returning s and t.
+		/// Function result is squared distance between between S1(s) and S2(t)
+		/// </summary>
+		/// <param name="S1P1"> Segment 1 point 1 </param>
+		/// <param name="S1P2"> Segment 1 point 2 </param>
+		/// <param name="S2P1"> Segment 2 point 1 </param>
+		/// <param name="S2P2"> Segment 2 point 2 </param>
+		/// <param name="s"></param>
+		/// <param name="t"></param>
+		/// <param name="OutP1"></param>
+		/// <param name="OutP2"></param>
+		/// <returns> Squared distance between between S1(s) and S2(t) </returns>
+		private static float ClosestPointsOfTwoSegments(in Vector3 S1P1, in Vector3 S1P2, in Vector3 S2P1, in Vector3 S2P2, out float s, out float t, out Vector3 OutP1, out Vector3 OutP2)
 		{
-			return InfiniteLinePointA + Vector3.Project(InPoint - InfiniteLinePointA, InfiniteLinePointB - InfiniteLinePointA);
-		}
+			Vector3 d1 = S1P2 - S1P1; // Direction vector of segment S1
+			Vector3 d2 = S2P2 - S2P1; // Direction vector of segment S2
+			Vector3 r = S1P1 - S2P1;
+			float a = Vector3.Dot(d1, d1); // Squared length of segment S1, always nonnegative
+			float e = Vector3.Dot(d2, d2); // Squared length of segment S2, always nonnegative
+			float f = Vector3.Dot(d2, r);
 
-
-		//////////////////////////////////////////////////////////////////////////
-		/// <summary>  </summary>
-		/// <param name="InLineStart"></param>
-		/// <param name="InLineDirection"></param>
-		/// <param name="InPoint"></param>
-		/// <returns></returns>
-		public static Vector3 ClosestPointOnLine(in Vector3 InLineStart, in Vector3 InLineDirection, in Vector3 InPoint)
-		{
-			Vector3 v = InPoint - InLineStart;
-			float t = Vector3.Dot(v, InLineDirection);
-			return InLineStart + (InLineDirection * t);
+			// Check if either or both segments degenerate into points
+			if (a <= Vector3.kEpsilon)
+			{
+				if (e <= Vector3.kEpsilon)
+				{
+					// Both segments degenerate into points
+					s = t = 0.0f;
+					OutP1 = S1P1;
+					OutP2 = S2P1;
+					return Vector3.Dot(OutP1 - OutP2, OutP1 - OutP2);
+				}
+				else
+				{
+					// First segment degenerates into a point
+					s = 0.0f;
+					t = f / e; // s = 0 => t = (b*s + f) / e = f / e
+					t = Mathf.Clamp01(t);
+				}
+			}
+			else
+			{
+				float c = Vector3.Dot(d1, r);
+				if (e <= Vector3.kEpsilon)
+				{
+					// Second segment degenerates into a point
+					t = 0.0f;
+					s = Mathf.Clamp01(-c / a); // t = 0 => s = (b*t - c) / a = -c / a
+				}
+				else
+				{
+					// The general nondegenerate case starts here
+					float b = Vector3.Dot(d1, d2);
+					float denom = (a * e) - (b * b); // Always nonnegative
+												 // If segments not parallel, compute closest point on L1 to L2 and
+												 // clamp to segment S1. Else pick arbitrary s (here 0)
+					if (denom != 0.0f)
+					{
+						s = Mathf.Clamp01(((b * f) - (c * e)) / denom);
+					}
+					else s = 0.0f;
+					// Compute point on L2 closest to S1(s) using
+					// t = Dot((P1 + D1*s) - P2,D2) / Dot(D2,D2) = (b*s + f) / e
+					t = ((b * s) + f) / e;
+					// If t in [0,1] done. Else clamp t, recompute s for the new value
+					// of t using s = Dot((P2 + D2*t) - P1,D1) / Dot(D1,D1)= (t*b - c) / a
+					// and clamp s to [0, 1]
+					if (t < 0.0f)
+					{
+						t = 0.0f;
+						s = Mathf.Clamp01(-c / a);
+					}
+					else if (t > 1.0f)
+					{
+						t = 1.0f;
+						s = Mathf.Clamp01((b - c) / a);
+					}
+				}
+			}
+			OutP1 = S1P1 + (d1 * s);
+			OutP2 = S2P1 + (d2 * t);
+			return Vector3.Dot(OutP1 - OutP2, OutP1 - OutP2);
 		}
 
 
@@ -694,16 +776,104 @@ namespace Utils // Math
 		/// <summary>  </summary>
 		/// <param name="InSegmentStart"></param>
 		/// <param name="InSegmentEnd"></param>
+		/// <param name="InCircleCenter"></param>
+		/// <param name="InCircleNormal"></param>
+		/// <param name="InCircleRadius"></param>
+		/// <returns></returns>
+		public static bool SegmentTo3DOrientedCircleIntersection(in Vector3 InSegmentStart, in Vector3 InSegmentEnd, in Vector3 InCircleCenter, in Vector3 InCircleNormal, in float InCircleRadius)
+		{
+			Vector3 segmentDir = (InSegmentEnd - InSegmentStart).normalized;
+			if (new Plane(InCircleNormal, InCircleCenter).Raycast(new Ray(InSegmentStart, segmentDir), out float distance) && distance < InCircleRadius)
+			{
+				Vector3 intersectionPoint = InSegmentStart + (distance * segmentDir);
+				if ((intersectionPoint - InCircleCenter).sqrMagnitude < (InCircleRadius * InCircleRadius))
+				{
+					Vector3 closestPoint = ClosestPointOnSegment3D(InSegmentStart, InSegmentEnd, InCircleCenter);
+					return Vector3.Distance(closestPoint, intersectionPoint) <= 0.005f; // Need some tollerance
+				}
+			}
+			return false;
+		}
+
+		#endregion // TESTS
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary> Return the closest point (unclamped) on the line of the given point </summary>
+		/// <param name="InPoint"></param>
+		/// <param name="InfiniteLinePointA"></param>
+		/// <param name="InLineDirection"></param>
+		/// <returns></returns>
+		public static Vector3 PointProjectionOnInfiniteLine2D(in Vector2 InfiniteLinePointA, in Vector2 InLineDirection, in Vector2 InPoint)
+		{
+			float closestPoint = Vector2.Dot(InPoint - InfiniteLinePointA, InLineDirection) / Vector2.Dot(InLineDirection, InLineDirection);
+			return InfiniteLinePointA + (closestPoint * InLineDirection);
+		}
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary> Return the closest point (unclamped) on the line of the given point </summary>
+		/// <param name="InLineStart"></param>
+		/// <param name="InLineDirection"></param>
 		/// <param name="InPoint"></param>
 		/// <returns></returns>
-		public static Vector3 ClosestPointOnSegment(in Vector3 InSegmentStart, in Vector3 InSegmentEnd, in Vector3 InPoint)
+		public static Vector3 PointProjectionOnInfiniteLine3D(in Vector3 InLineStart, in Vector3 InLineDirection, in Vector3 InPoint)
 		{
+			float closestPoint = Vector3.Dot(InPoint - InLineStart, InLineDirection) / Vector3.Dot(InLineDirection, InLineDirection);
+			return InLineStart + (closestPoint * InLineDirection);
+		}
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary> Return a clamped point on this segment that is the closest one by the given point </summary>
+		/// <param name="InSegmentStart"></param>
+		/// <param name="InSegmentEnd"></param>
+		/// <param name="InPoint"></param>
+		/// <returns></returns>
+		public static Vector3 ClosestPointOnSegment2D(in Vector2 InSegmentStart, in Vector2 InSegmentEnd, in Vector2 InPoint)
+		{
+			Vector2 segmentDirection = InSegmentEnd - InSegmentStart;
+			float closestPoint = Vector2.Dot(InPoint - InSegmentStart, segmentDirection) / Vector2.Dot(segmentDirection, segmentDirection);
+			closestPoint = Mathf.Clamp01(closestPoint);
+			return InSegmentStart + (closestPoint * segmentDirection);
+		}
+
+
+
+		//////////////////////////////////////////////////////////////////////////
+		/// <summary> Return a clamped point on this segment that is the closest one by the given point </summary>
+		/// <param name="InSegmentStart"></param>
+		/// <param name="InSegmentEnd"></param>
+		/// <param name="InPoint"></param>
+		/// <returns></returns>
+		public static Vector3 ClosestPointOnSegment3D(in Vector3 InSegmentStart, in Vector3 InSegmentEnd, in Vector3 InPoint)
+		{
+			Vector3 ap = InPoint - InSegmentStart;
+			Vector3 ab = InSegmentEnd - InSegmentStart;
+			float magnitudeAB = ab.sqrMagnitude;
+			float dotProduct = Vector3.Dot(ap, ab);
+			float distance = Mathf.Clamp01(dotProduct / magnitudeAB);
+			return InSegmentStart + (distance * ab);
+			/*
 			Vector3 SegmentDirection = InSegmentEnd - InSegmentStart;
 			float closestPoint = Vector3.Dot(SegmentDirection, InPoint - InSegmentStart) / Vector3.Dot(SegmentDirection, SegmentDirection);
 			closestPoint = Mathf.Clamp01(closestPoint);
 			return InSegmentStart + (closestPoint * SegmentDirection);
-			
+			*/
 		}
+		/*
+		public static bool AreThereMirroredProjectionsOf(Vector3 A, Vector3 B, Vector3 C, Vector3 D, out Vector3 OutClosest1, out Vector3 OutClosest2)
+		{
+			OutClosest1 = OutClosest2 = Vector3.zero;
+
+			if (HasPointOnSegmentProjection(A, B, C, out Vector3 projC, out float _) && HasPointOnSegmentProjection(A, B, D, out Vector3 projD, out float _))
+			{
+				OutClosest1 = ClosestPointOnSegment3D(C, D, projC);
+				OutClosest2 = ClosestPointOnSegment3D(C, D, projD);
+				return true;
+			}
+			
+			return false;
+		}
+		*/
 
 
 		//////////////////////////////////////////////////////////////////////////
@@ -1138,16 +1308,16 @@ namespace Utils // Math
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Return a Spline interpolation (catmull Rom) between given points </summary>
-		public static Vector3 GetPoint(in Vector3[] points, float t)
+		public static Vector3 GetPoint(in Vector3[] InPointsCollection, float t)
 		{
-			if (points == null || points.Length < 4)
+			if (InPointsCollection == null || InPointsCollection.Length < 4)
 			{
 				UnityEngine.Debug.Log("GetPoint Called with invalid points array, required at least 4 points");
 				UnityEngine.Debug.DebugBreak();
 				return Vector3.zero;
 			}
 
-			int length = points.Length;
+			int length = InPointsCollection.Length;
 			bool bIsReversed = t < 0.0f;
 			t = Mathf.Abs(t);
 
@@ -1167,10 +1337,10 @@ namespace Utils // Math
 			;
 			u = Mathf.Clamp01(u);
 
-			Vector3 a = points[currPt + 0];
-			Vector3 b = points[currPt + 1];
-			Vector3 c = points[currPt + 2];
-			Vector3 d = points[currPt + 3];
+			Vector3 a = InPointsCollection[currPt + 0];
+			Vector3 b = InPointsCollection[currPt + 1];
+			Vector3 c = InPointsCollection[currPt + 2];
+			Vector3 d = InPointsCollection[currPt + 3];
 
 			// catmull Rom interpolation
 			return .5f *
@@ -1187,7 +1357,7 @@ namespace Utils // Math
 		/// <summary>  </summary>
 		/// <param name="InInterpolant"></param>
 		/// <param name="OutSectionsSubInterpolants"></param>
-		public static void FindInterpolatedValues(in float InInterpolant, ref float[] OutSectionsSubInterpolants)
+		public static void FindInterpolatedValues(in float InInterpolant, in float[] OutSectionsSubInterpolants)
 		{
 			int iSectionCount = OutSectionsSubInterpolants.Length;
 			if (OutSectionsSubInterpolants.IsNotNull() && iSectionCount > 0)
@@ -1205,16 +1375,16 @@ namespace Utils // Math
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary>  </summary>
-		public static bool GetSegment<T>(in IList<T> collection, float t, out T a, out T b, out T c, out T d)
+		public static bool Get4Elements<T>(in IList<T> InCollection, float t, out T a, out T b, out T c, out T d)
 		{
 			a = b = c = d = default;
-			if (collection == null || collection.Count < 4)
+			if (InCollection == null || InCollection.Count < 4)
 			{
 				UnityEngine.Debug.Log("GetPoint Called with invalid points collection, required at least 4 points");
 				UnityEngine.Debug.DebugBreak();
 				return false;
 			}
-			int length = collection.Count;
+			int length = InCollection.Count;
 
 			bool bIsReversed = t < 0.0f;
 			t = Mathf.Abs(t);
@@ -1226,10 +1396,10 @@ namespace Utils // Math
 				currPt = length - 1 - currPt;
 			}
 
-			a = bIsReversed ? collection[currPt + 0] : collection[currPt + 0];
-			b = bIsReversed ? collection[currPt - 1] : collection[currPt + 1];
-			c = bIsReversed ? collection[currPt - 2] : collection[currPt + 2];
-			d = bIsReversed ? collection[currPt - 2] : collection[currPt + 2];
+			a = bIsReversed ? InCollection[currPt - 0] : InCollection[currPt + 0];
+			b = bIsReversed ? InCollection[currPt - 1] : InCollection[currPt + 1];
+			c = bIsReversed ? InCollection[currPt - 2] : InCollection[currPt + 2];
+			d = bIsReversed ? InCollection[currPt - 2] : InCollection[currPt + 2];
 			return true;
 		}
 
@@ -1855,26 +2025,31 @@ namespace Utils.Editor // Editor Utils
 
 	public static class GizmosHelper
 	{
-		private static readonly Mesh BuiltInCapsuleMesh = null;
-		private static readonly Vector3[] m_CapsuleVertices = null;
-		private static readonly Vector3[] m_CapsuleNewVertices = null;
-
-		static GizmosHelper()
+		private static Mesh s_BuiltInCapsuleMesh = null;
+		private static Vector3[] m_CapsuleVertices => BuiltInCapsuleMesh.vertices;
+		private static Vector3[] m_CapsuleNewVertices = null;
+		private static Mesh BuiltInCapsuleMesh
 		{
-			GameObject go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-			Mesh origMesh = go.GetComponent<MeshFilter>().sharedMesh;
-			BuiltInCapsuleMesh = new Mesh
+			get
 			{
-				vertices = origMesh.vertices,
-				normals = origMesh.normals,
-				colors = origMesh.colors,
-				triangles = origMesh.triangles
-			};
-			go.Destroy();
-
-			m_CapsuleVertices = BuiltInCapsuleMesh.vertices;
-			m_CapsuleNewVertices = new Vector3[m_CapsuleVertices.Length];
+				if (s_BuiltInCapsuleMesh.IsNull())
+				{
+					GameObject go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+					Mesh origMesh = go.GetComponent<MeshFilter>().sharedMesh;
+					s_BuiltInCapsuleMesh = new Mesh
+					{
+						vertices = origMesh.vertices,
+						normals = origMesh.normals,
+						colors = origMesh.colors,
+						triangles = origMesh.triangles
+					};
+					go.Destroy();
+					m_CapsuleNewVertices = new Vector3[m_CapsuleVertices.Length];
+				}
+				return s_BuiltInCapsuleMesh;
+			}
 		}
+
 
 
 		//////////////////////////////////////////////////////////////////////////

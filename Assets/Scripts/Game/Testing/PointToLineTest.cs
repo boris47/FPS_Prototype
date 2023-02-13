@@ -36,7 +36,7 @@ public class PointToLineTest : MonoBehaviour
 		m_LineEnd.SetSiblingIndex(1);
 		m_Point.SetSiblingIndex(2);
 
-		if (Utils.Math.HasPointOnSegmentProjection(m_Point.position, m_LineStart.position, m_LineEnd.position, out Vector3 OutProjection, out float _))
+		if (Utils.Math.HasPointOnSegmentProjection(m_LineStart.position, m_LineEnd.position, m_Point.position, out Vector3 OutProjection, out float _))
 		{
 			m_Projection = OutProjection;
 		}
