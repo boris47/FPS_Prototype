@@ -11,12 +11,6 @@ public class SegmentCapsuleIntersectionTest : MonoBehaviour
 	[SerializeField, ReadOnly]
 	private CapsuleCollider m_Capsule = null;
 
-	[SerializeField, ReadOnly]
-	private Transform m_CapsulePoint1 = null;
-
-	[SerializeField, ReadOnly]
-	private Transform m_CapsulePoint2 = null;
-
 
 	protected virtual void OnDrawGizmos()
 	{
@@ -40,34 +34,20 @@ public class SegmentCapsuleIntersectionTest : MonoBehaviour
 			m_Capsule = go.GetComponent<CapsuleCollider>();
 		}
 
-		if (m_CapsulePoint1.IsNull())
-		{
-			CreatePoint(transform, ref m_CapsulePoint1, "CapsulePoint1");
-		}
-
-		if (m_CapsulePoint2.IsNull())
-		{
-			CreatePoint(transform, ref m_CapsulePoint2, "CapsulePoint2");
-		}
-
 		m_LinePointA.SetSiblingIndex(0);
 		m_LinePointB.SetSiblingIndex(1);
 		m_Capsule.transform.SetSiblingIndex(2);
 		m_Capsule.enabled = false;
-		m_CapsulePoint1.SetSiblingIndex(3);
-		m_CapsulePoint2.SetSiblingIndex(4);
 
 		m_Capsule.GetPoints(out Vector3 outWorldP1, out Vector3 outWorldP2);
-		m_CapsulePoint1.position = outWorldP1;
-		m_CapsulePoint2.position = outWorldP2;
 
 		// Capsule and capsule points
 		{
 			Utils.Editor.GizmosHelper.DrawCollider(m_Capsule, Color.gray);
 			using (new Utils.Editor.GizmosHelper.UseGizmoColor(Color.yellow))
 			{
-				Gizmos.DrawSphere(m_CapsulePoint1.position, 0.2f);
-				Gizmos.DrawSphere(m_CapsulePoint2.position, 0.2f);
+				Gizmos.DrawSphere(outWorldP1, 0.2f);
+				Gizmos.DrawSphere(outWorldP2, 0.2f);
 			}
 		}
 
@@ -89,7 +69,7 @@ public class SegmentCapsuleIntersectionTest : MonoBehaviour
 		{
 			using (new Utils.Editor.GizmosHelper.UseGizmoColor(Color.green))
 			{
-				Gizmos.DrawSphere(intersection, 0.15f);
+				Gizmos.DrawSphere(intersection, 0.05f);
 			}
 		}
 	}

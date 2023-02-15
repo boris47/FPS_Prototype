@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class CapsuleCapsuleCollidingTest : MonoBehaviour
+public class CapsuleCapsuleCollidingTest : TestBase
 {
 	[SerializeField, ReadOnly]
 	private CapsuleCollider m_Capsule1 = null;
@@ -13,14 +13,14 @@ public class CapsuleCapsuleCollidingTest : MonoBehaviour
 	{
 		if (m_Capsule1.IsNull())
 		{
-			CreateCapsuleCollider(transform, ref m_Capsule1, "Capsule1");
+			CreateCapsuleCollider(transform, out m_Capsule1, "Capsule1");
 			m_Capsule1.transform.localPosition = Vector3.right;
 			m_Capsule1.transform.SetSiblingIndex(0);
 		}
 
 		if (m_Capsule2.IsNull())
 		{
-			CreateCapsuleCollider(transform, ref m_Capsule2, "Capsule2");
+			CreateCapsuleCollider(transform, out m_Capsule2, "Capsule2");
 			m_Capsule2.transform.localPosition = Vector3.left;
 			m_Capsule2.transform.SetSiblingIndex(1);
 		}
@@ -51,15 +51,5 @@ public class CapsuleCapsuleCollidingTest : MonoBehaviour
 				Gizmos.DrawSphere(p2, 0.2f);
 			}
 		}
-	}
-
-	private static void CreateCapsuleCollider(in Transform parent, ref CapsuleCollider InOutData, in string InGOName)
-	{
-		GameObject go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-		go.name = InGOName;
-		go.transform.SetParent(parent);
-		go.transform.localPosition = Vector3.zero;
-		InOutData = go.GetComponent<CapsuleCollider>();
-		go.GetComponent<Renderer>().Destroy();
 	}
 }

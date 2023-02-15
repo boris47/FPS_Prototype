@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class BezierCurveTest : MonoBehaviour
+public class ClosestPointOnBezierTest : TestBase
 {
 	[SerializeField, Min(1f)]
 	private uint m_Steps = 5u;

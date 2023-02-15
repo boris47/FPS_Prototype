@@ -238,19 +238,12 @@ public static class Extensions_CSharp
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Allow to easy get a value from an array checking given index, default value is supported </summary>
+	/// Ref: https://stackoverflow.com/a/45397704
 	public static T GetByIndexWrap<T>(this System.Array ThisArray, int InIndex, T InDefault = default(T))
 	{
-		if (InIndex >= 0)
-		{
-			return IsValidIndex(ThisArray, InIndex) ? (T)ThisArray.GetValue(InIndex) : InDefault;
-		}
-		else // index < 0
-		{
-			int length = ThisArray.Length;
-			while (InIndex >= length) InIndex -= length - 1;
-			int selectedIndex = length - InIndex;
-			return IsValidIndex(ThisArray, selectedIndex) ? (T)ThisArray.GetValue(selectedIndex) : InDefault;
-		}
+		int length = ThisArray.Length;
+		int index = ((InIndex % length) + length) % length;
+		return IsValidIndex(ThisArray, index) ? (T)ThisArray.GetValue(index) : InDefault;
 	}
 
 	#endregion // C# ARRAY
