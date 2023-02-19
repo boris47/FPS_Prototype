@@ -874,7 +874,7 @@ namespace Utils // Math
 		/// <param name="InMaxOutput"></param>
 		/// <returns></returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static float ScaleBetween(in float InCurrentValue, in float InMinValue, in float InMaxValue, in float InMinOutput, in float InMaxOutput)
+		public static float ScaleBetween(in float InCurrentValue, in float InMinValue, in float InMaxValue, in float InMinOutput = 0f, in float InMaxOutput = 1f)
 		{
 			float localCurrentValue = Mathf.Clamp(InCurrentValue, InMinValue, InMaxValue);
 			if (localCurrentValue - InMinValue == 0f)
@@ -1554,8 +1554,8 @@ namespace Utils // Math
 				float t = 0f;
 				if (IsValisCurve(InWayPoints))
 				{
+					float delta = 0.1f;
 					t = BestFittingTimeFor(InWorldPoint, InWayPoints, 0f, 1f, 10f);
-					float delta = 1.0f / 10.0f;
 					for (int i = 0; i < 4; i++)
 					{
 						t = BestFittingTimeFor(InWorldPoint, InWayPoints, t - delta, t + delta, 10f);

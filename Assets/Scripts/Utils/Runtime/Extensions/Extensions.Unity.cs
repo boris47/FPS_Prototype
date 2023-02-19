@@ -301,8 +301,16 @@ public static class Extensions_Unity
 	}
 
 	/////////////////////////////////////////////////////////////////////////////
-	/// <summary> Return true if frameCount frames is repeating, otherwise false </summary>
-	public static bool EveryFrames(this Object _, int InFrameCount) => Time.frameCount % InFrameCount != 0;
+	/// <summary> Return true if InFrameCount frames is repeating, otherwise false </summary>
+	public static bool EveryFrames(this Object _, in int InFrameCount) => Time.frameCount % InFrameCount != 0;
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Return true if InTimeSeconds is repeating, otherwise false </summary>
+	public static bool EveryTime(this Object _, in float InTimeSeconds) => Time.time % InTimeSeconds != 0f;
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Return true if InTimeSeconds (Unscaled time) is repeating, otherwise false </summary>
+	public static bool EveryTimeUnScaled(this Object _, in float InTimeSeconds) => Time.unscaledTime% InTimeSeconds != 0f;
 
 
 	/////////////////////////////////////////////////////////////////////////////
