@@ -9,10 +9,30 @@ public static class Extensions_CSharp
 	#region C# OBJECT
 
 	/////////////////////////////////////////////////////////////////////////////
-	/// <summary> Check if Object is null internally </summary>
-	public static bool IsNotNull(this object ThisObject) => !System.Object.ReferenceEquals(ThisObject, null);
+	public static void Conditional<T>(this T ThisObject, System.Action<T> InAction) where T : class
+	{
+		if (ThisObject.IsNotNull() && ThisObject is T)
+		{
+			InAction(ThisObject);
+		}
+	}
 
-	public static bool IsNull(this object ThisObject) => System.Object.ReferenceEquals(ThisObject, null);
+	/////////////////////////////////////////////////////////////////////////////
+	public static V Conditional<T, V>(this T ThisObject, System.Func<T, V> InFunction) where T : class
+	{
+		V outValue = default(V);
+		if (ThisObject.IsNotNull() && ThisObject is T)
+		{
+			outValue = InFunction(ThisObject);
+		}
+		return outValue;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	/// <summary> Check if Object is null internally </summary>
+	public static bool IsNotNull(this object ThisObject) => !ReferenceEquals(ThisObject, null);
+
+	public static bool IsNull(this object ThisObject) => ReferenceEquals(ThisObject, null);
 
 	#endregion C# OBJECT
 
@@ -114,6 +134,34 @@ public static class Extensions_CSharp
 	public static bool NotEqualToZero(this float ThisFloat)
 	{
 		return System.Math.Abs(ThisFloat) > float.Epsilon;
+	}
+
+	/// <summary>  </summary>
+	/// <param name="ThisFloat"></param>
+	/// <param name="InOtherFloat"></param>
+	/// <param name="InEpsilon"></param>
+	/// <returns></returns>
+	/// Ref: https://floating-point-gui.de/errors/comparison/
+	public static bool IsNearlyEqual(this float ThisFloat, in float InOtherFloat, in float InEpsilon = 0.00001f)
+	{
+		float absA = System.Math.Abs(ThisFloat);
+		float absB = System.Math.Abs(InOtherFloat);
+		float diff = System.Math.Abs(ThisFloat - InOtherFloat);
+
+		if (ThisFloat == InOtherFloat)
+		{ // shortcut, handles infinities
+			return true;
+		}
+		else if (ThisFloat == 0f || InOtherFloat == 0f || (absA + absB < float.Epsilon))
+		{
+			// a or b is zero or both are extremely close to it
+			// relative error is less meaningful here
+			return diff < (InEpsilon * float.Epsilon);
+		}
+		else
+		{ // use relative error
+			return diff / System.Math.Min((absA + absB), float.MaxValue) < InEpsilon;
+		}
 	}
 
 	/////////////////////////////////////////////////////////////////////////////

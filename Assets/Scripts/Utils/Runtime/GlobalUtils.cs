@@ -301,8 +301,6 @@ namespace Utils // Math
 {
 	using System.Collections.Generic;
 	using System.Runtime.CompilerServices;
-	using Unity.Burst.CompilerServices;
-	using UnityEditor.XR;
 	using UnityEngine;
 
 	/// <summary> Can be used to access a Vector3 component </summary>
@@ -426,11 +424,10 @@ namespace Utils // Math
 
 		//////////////////////////////////////////////////////////////////////////
 		/// <summary> Try to get the projection of a point on a segment </summary>
-		/// <param name="OutProjection"></param>
-		/// <param name="OutNormalizedTime"></param>
-		/// <param name="InPointToProject"></param>
 		/// <param name="InSegmentStart"></param>
 		/// <param name="InSegmentEnd"></param>
+		/// <param name="InPointToProject"></param>
+		/// <param name="OutProjection"></param>
 		/// <returns></returns>
 		public static bool HasPointOnSegmentProjection(in Vector3 InSegmentStart, in Vector3 InSegmentEnd, in Vector3 InPointToProject, out Vector3 OutProjection)
 		{
@@ -592,7 +589,7 @@ namespace Utils // Math
 		/// <returns></returns>
 		public static bool HasSegmentCapsuleIntersection(in Vector3 InSegmentStart, in Vector3 InSegmentEnd, in Vector3 InCapsulePoint1, in Vector3 InCapsulePoint2, in float InCapsuleRadius, out Vector3 OutIntersectionPoint)
 		{
-			// Check capsule cylinder (Not a real cylinfer-line intersection check)
+			// Check capsule cylinder (Not a real cylinder-line intersection check)
 			{
 				Vector3 capsuleCenter = Vector3.Lerp(InCapsulePoint1, InCapsulePoint2, 0.5f);
 				Vector3 capsuleDirection = (InCapsulePoint2 - InCapsulePoint1).normalized;
@@ -795,7 +792,7 @@ namespace Utils // Math
 			if (new Plane(InCircleNormal, InCircleCenter).Raycast(new Ray(InSegmentStart, segmentDir), out float distance))
 			{
 				OutIntersectionPoint = InSegmentStart + (distance * segmentDir);
-				return (OutIntersectionPoint - InCircleCenter).sqrMagnitude < (InCircleRadius * InCircleRadius);
+				return HasPointOnSegmentProjection(InSegmentStart, InSegmentEnd, OutIntersectionPoint, out OutIntersectionPoint) && (OutIntersectionPoint - InCircleCenter).sqrMagnitude < (InCircleRadius * InCircleRadius);
 			}
 
 			OutIntersectionPoint = Vector3.zero;

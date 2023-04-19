@@ -302,15 +302,7 @@ public static class Extensions_Unity
 
 	/////////////////////////////////////////////////////////////////////////////
 	/// <summary> Return true if InFrameCount frames is repeating, otherwise false </summary>
-	public static bool EveryFrames(this Object _, in int InFrameCount) => Time.frameCount % InFrameCount != 0;
-
-	/////////////////////////////////////////////////////////////////////////////
-	/// <summary> Return true if InTimeSeconds is repeating, otherwise false </summary>
-	public static bool EveryTime(this Object _, in float InTimeSeconds) => Time.time % InTimeSeconds != 0f;
-
-	/////////////////////////////////////////////////////////////////////////////
-	/// <summary> Return true if InTimeSeconds (Unscaled time) is repeating, otherwise false </summary>
-	public static bool EveryTimeUnScaled(this Object _, in float InTimeSeconds) => Time.unscaledTime% InTimeSeconds != 0f;
+	public static bool EveryFrames(this Object _, in int InFrameCount) => Time.frameCount % InFrameCount == 0;
 
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -402,8 +394,7 @@ public static class Extensions_Unity
 	public static void GetExtremePoints(this CapsuleCollider ThisCapsuleCollider, out Vector3 OutPoint1, out Vector3 OutPoint2)
 	{
 		OutPoint1 = OutPoint2 = Vector3.zero;
-		float radius = ThisCapsuleCollider.radius;
-		float halfHeigth = ThisCapsuleCollider.height - radius;
+		float halfHeigth = ThisCapsuleCollider.height * 0.5f;
 		switch (ThisCapsuleCollider.direction)
 		{
 			case 0: // X
@@ -537,7 +528,7 @@ public static class Extensions_Unity
 			// Filtered search
 			if (InFilter.IsNotNull())
 			{
-				OutComponents = global::System.Array.FindAll(OutComponents, InFilter);
+				OutComponents = System.Array.FindAll(OutComponents, InFilter);
 			}
 		}
 		return OutComponents.IsNotNull() && OutComponents.Length > 0;
@@ -557,6 +548,15 @@ public static class Extensions_Unity
 	{
 		OutX = ThisVector.x;
 		OutY = ThisVector.y;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static bool HasInifinityComponents(this Vector2 InThisVector)
+	{
+		bool bResult = InThisVector.x == float.NegativeInfinity || InThisVector.x == float.PositiveInfinity;
+		bResult |= InThisVector.y == float.NegativeInfinity || InThisVector.y == float.PositiveInfinity;
+		return bResult;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -645,6 +645,16 @@ public static class Extensions_Unity
 		OutX = ThisVector.x;
 		OutY = ThisVector.y;
 		OutZ = ThisVector.z;
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static bool HasInifinityComponents(this Vector3 InThisVector)
+	{
+		bool bResult = InThisVector.x == float.NegativeInfinity || InThisVector.x == float.PositiveInfinity;
+		bResult |= InThisVector.y == float.NegativeInfinity || InThisVector.y == float.PositiveInfinity;
+		bResult |= InThisVector.z == float.NegativeInfinity || InThisVector.z == float.PositiveInfinity;
+		return bResult;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////
